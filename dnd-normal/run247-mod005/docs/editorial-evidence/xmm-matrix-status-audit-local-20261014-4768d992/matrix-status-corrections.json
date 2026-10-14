@@ -1,0 +1,219 @@
+{
+  "source": "G05_EVIDENCE/G05_SOURCE_TO_EXECUTOR_MATRIX.csv",
+  "count": 30,
+  "selection_rule": "XMM rows previously marked EXECUTOR_APPROVED_AND_HOMOLOGATED while mismatch_notes explicitly said manual_rider_resolution_required=true",
+  "corrected_status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+  "excluded": "149 RHW rows and XMM rows without that explicit mismatch indicator",
+  "rows": [
+    {
+      "creature": "Ghast Gravecaller",
+      "action": "Claw",
+      "issue_id": "hit_rider_without_save_dc_or_typed_handler",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Ghast Gravecaller",
+      "action": "Horrific Necrosis",
+      "issue_id": "hit_rider_without_save_dc_or_typed_handler",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Giant Boar",
+      "action": "Gore",
+      "issue_id": "hit_rider_without_save_dc_or_typed_handler",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Giant Crab",
+      "action": "Claw",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Giant Crocodile",
+      "action": "Bite",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Giant Elk",
+      "action": "Ram",
+      "issue_id": "hit_rider_without_save_dc_or_typed_handler",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Giant Frog",
+      "action": "Bite",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Giant Goat",
+      "action": "Ram",
+      "issue_id": "hit_rider_without_save_dc_or_typed_handler",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Giant Octopus",
+      "action": "Tentacles",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Giant Scorpion",
+      "action": "Claw",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Giant Squid",
+      "action": "Tentacle",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Giant Toad",
+      "action": "Bite",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Gibbering Mouther",
+      "action": "Bite",
+      "issue_id": "hit_rider_without_save_dc_or_typed_handler",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Githzerai Psion",
+      "action": "Psychic Warp",
+      "issue_id": "hit_rider_without_save_dc_or_typed_handler",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Glabrezu",
+      "action": "Pincer",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Gorgon",
+      "action": "Gore",
+      "issue_id": "hit_rider_without_save_dc_or_typed_handler",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Goristro",
+      "action": "Brutal Gore",
+      "issue_id": "hit_rider_without_save_dc_or_typed_handler",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Graveyard Revenant",
+      "action": "Suffocate",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Gray Slaad",
+      "action": "Chaos Claw",
+      "issue_id": "hit_rider_without_save_dc_or_typed_handler",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Green Slaad",
+      "action": "Chaos Staff",
+      "issue_id": "hit_rider_without_save_dc_or_typed_handler",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Grick",
+      "action": "Tentacles",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Grick Ancient",
+      "action": "Tentacles",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Griffon",
+      "action": "Rend",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Kraken",
+      "action": "Tentacle",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Kuo-toa Whip",
+      "action": "Pincer Staff",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Mammoth",
+      "action": "Gore",
+      "issue_id": "hit_rider_without_save_dc_or_typed_handler",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Mezzoloth",
+      "action": "Claws",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Mimic",
+      "action": "Bite",
+      "issue_id": "hit_rider_without_save_dc_or_typed_handler",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Mimic",
+      "action": "Pseudopod",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    },
+    {
+      "creature": "Mind Flayer",
+      "action": "Tentacles",
+      "issue_id": "attack_save_dc_invalid_ability",
+      "status": "LOCAL_SOURCE_REVIEWED; RIDER_EXECUTOR_OPEN; FULL_ACTION_AND_XMM_OPEN",
+      "source_review": "INDIVIDUAL_MECHANICS_REVIEWED_AUXILIARY_ONLY; LICENSED_PDF_NOT_VALIDATED"
+    }
+  ]
+}

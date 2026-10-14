@@ -1,0 +1,12 @@
+{
+  "format": "BRASEIRO_XMM_MATRIX_STATUS_AUDIT_V1",
+  "code_commit": "4768d992da4f4aa812eab01b613ec8545b64c11b",
+  "created_utc": "2026-10-14",
+  "scope": "Correct contradictory XMM executor statuses; no RHW rows changed.",
+  "artifacts": {
+    "matrix-status-corrections.json": {
+      "sha256": "5c60fb7060ba0ff6a008df153835ea8ea661b446a81727d648bc82a26aeb0d79",
+      "bytes": 9906
+    }
+  }
+}

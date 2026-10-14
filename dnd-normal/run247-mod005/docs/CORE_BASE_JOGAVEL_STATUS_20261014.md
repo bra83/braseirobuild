@@ -13,6 +13,7 @@ O primeiro objetivo é preparar o jogo base antes dos suplementos. O proprietár
 - A mordida do Merrow aplica poisoned no acerto até o fim do próximo turno do Merrow, com a mesma expiração persistente no limite correto.
 - Quatro efeitos simples do XMM agora aplicam condição com expiração no fim do próximo turno do alvo: Giant Vulture / Gouge (poisoned), Gas Spore Fungus / Tendril (poisoned), Cloud Giant / Thundercloud (incapacitated) e Hill Giant / Trash Lob (poisoned). A lista de ataques da interface exibe esses nomes em português e mantém os identificadores originais internamente.
 - Os 16 ataques com riders tipados cobertos pelos testes desta rodada agora têm rótulos em português na lista de ações. Os nomes fonte continuam sendo usados internamente. Isso não representa tradução completa do aplicativo.
+- Corrigi 30 estados contraditórios na matriz XMM: as notas já diziam que o rider estava manual, mas o campo de status afirmava homologação. Os registros agora deixam o executor e a ação integral como abertos; linhas RHW não foram alteradas.
 - O comparador independente continuou conferindo os 503 monstros e as 36 seções XMM.
 
 ## Evidência local
@@ -20,7 +21,7 @@ O primeiro objetivo é preparar o jogo base antes dos suplementos. O proprietár
 Commit do perfil 2024: `5b4bdf056be0a5689f1506f666cd15deacd95b3d`.
 Commits das correções XMM: `4ebcecd14373bfea47935230d994fa0f5c8f5fe5`, `fc7696f50f75efeb60d93e1e6dba1fc81971f158` e `b0dddc3dc081f8e34022b8b199ab5f6d5d310326` e `4768d992da4f4aa812eab01b613ec8545b64c11b`.
 
-As provas do perfil e navegação estão em [`core-base-local-20261014-5b4bdf05`](editorial-evidence/core-base-local-20261014-5b4bdf05/manifest.json). As provas dos efeitos com limite no fim do turno estão em [`xmm-turn-end-local-20261014-fc7696f5`](editorial-evidence/xmm-turn-end-local-20261014-fc7696f5/manifest.json) e [`xmm-target-turn-end-local-20261014-b0dddc3d`](editorial-evidence/xmm-target-turn-end-local-20261014-b0dddc3d/manifest.json). As traduções testadas dos nomes de ação estão em [`xmm-ptbr-target-riders-local-20261014-4768d992`](editorial-evidence/xmm-ptbr-target-riders-local-20261014-4768d992/manifest.json).
+As provas do perfil e navegação estão em [`core-base-local-20261014-5b4bdf05`](editorial-evidence/core-base-local-20261014-5b4bdf05/manifest.json). As provas dos efeitos com limite no fim do turno estão em [`xmm-turn-end-local-20261014-fc7696f5`](editorial-evidence/xmm-turn-end-local-20261014-fc7696f5/manifest.json) e [`xmm-target-turn-end-local-20261014-b0dddc3d`](editorial-evidence/xmm-target-turn-end-local-20261014-b0dddc3d/manifest.json). As traduções testadas dos nomes de ação estão em [`xmm-ptbr-target-riders-local-20261014-4768d992`](editorial-evidence/xmm-ptbr-target-riders-local-20261014-4768d992/manifest.json). A correção dos estados contraditórios está em [`xmm-matrix-status-audit-local-20261014-4768d992`](editorial-evidence/xmm-matrix-status-audit-local-20261014-4768d992/manifest.json).
 
 - Suíte Android/Robolectric no commit XMM: **2.513 testes, 0 falhas, 0 erros, 0 ignorados**, em 105 arquivos XML.
 - Testes Python no commit XMM: **59 passaram**.
