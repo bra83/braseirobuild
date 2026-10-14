@@ -1,0 +1,41 @@
+{
+  "schema": "XMM_CHARGE_PATH_EXPIRY_EVIDENCE_V1",
+  "date": "2026-10-14",
+  "source_commit": "9c87b952bc19aa2d6b4dab5c69d3dfadfa419e81",
+  "movement_proof_commit": "3336dad9509e1d5a1d7f2a76e430959f8aed085b",
+  "source_scope": "XMM 2025; immediately preceding grid route marker and its invalidation lifecycle",
+  "gradle_command": "bash gradlew :app:testDebugUnitTest --rerun-tasks --tests com.braseiro.dnd5e.TacticalGridMovementProofRulesTest --tests com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest.testG04TacticalGridMovementAndBudget --tests com.braseiro.dnd5e.Run243TacticalMovementRobolectricTest",
+  "test_count": 4,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "full_suite": false,
+  "apk_built": false,
+  "charge_attack_integration_complete": false,
+  "xml": [
+    {
+      "file": "TEST-com.braseiro.dnd5e.TacticalGridMovementProofRulesTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "76a0f59afcbaf9991684546ab2f9adf0bae123a040169e7285468657446aa9c3"
+    },
+    {
+      "file": "TEST-com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "c64f6b3aa267c9b95cc35d547de6d2875d2a561202082114f84c84c0a70117a3"
+    },
+    {
+      "file": "TEST-com.braseiro.dnd5e.Run243TacticalMovementRobolectricTest.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "a45415aa0058d21af9d4fd03a8828f78f72cf541c052176138518deeea0ef2e3"
+    }
+  ]
+}
