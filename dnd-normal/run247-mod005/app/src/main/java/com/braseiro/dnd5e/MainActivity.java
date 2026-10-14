@@ -3267,9 +3267,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final EditText save=labeledField(form,"Total da salvaguarda do efeito (obrigatório se acertar e houver CD)","0",false);
         // Only used for a statblock-authorized push/pull after a failed
         // on-hit saving throw. Empty (-1) never teleports a combatant.
-        form.addView(text("Se o ataque tiver efeito push/pull após falhar na salvaguarda, informe a célula de destino do alvo. Deixe -1 nos demais ataques.",11,MUTED,false));
-        final EditText forcedX=labeledField(form,"Destino X no grid (0–11; -1 se não aplicável)","-1",false);
-        final EditText forcedY=labeledField(form,"Destino Y no grid (0–7; -1 se não aplicável)","-1",false);
+        form.addView(text("Se o bloco declarar deslocamento push/pull no acerto ou após falha na salvaguarda, informe a célula de destino do alvo. O app valida direção, distância, obstáculos e ocupação. Deixe -1 quando não se aplicar.",11,MUTED,false));
+        final EditText forcedX=labeledField(form,"Célula de destino X (-1 se não aplicável)","-1",false);
+        final EditText forcedY=labeledField(form,"Célula de destino Y (-1 se não aplicável)","-1",false);
         final Button previewRoll=button("CONFERIR MODO DE ROLAGEM E CA",GREEN);
         form.addView(previewRoll);
         previewRoll.setOnClickListener(new View.OnClickListener(){public void onClick(View v){

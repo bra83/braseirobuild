@@ -602,6 +602,17 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
         return ""
     text=flatten(action.get("entries",[]))
     name=RCH.sub("",action.get("name","")).strip()
+    if monster_name=="Colossus" and name=="Slam":
+        source_text=text.casefold()
+        return ("pushes the target up to 20 feet straight away from itself" in source_text and
+            "{@atkr m}" in text and "{@hit 18}" in text and
+            "{@damage 4d10 + 10}" in text and
+            compiled_action.get("effect_on_hit")=="push:20ft" and
+            compiled_action.get("damage")=="4d10 + 10" and
+            compiled_action.get("damage_type")=="bludgeoning" and
+            compiled_action.get("reach_ft")==20 and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if monster_name=="Aarakocra Skirmisher" and name=="Wind Javelin":
         return ("magically returns to the aarakocra's hand immediately after a ranged attack" in text.casefold() and
             "{@atkr m,r}" in text and

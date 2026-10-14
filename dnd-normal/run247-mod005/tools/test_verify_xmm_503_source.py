@@ -4,6 +4,19 @@ from io import BytesIO
 import verify_xmm_503_source as xmm
 
 class XmmIndependentSourceTests(unittest.TestCase):
+    def test_colossus_slam_push_is_typed_only_for_exact_source_rider(self):
+        action={"name":"Slam","entries":[
+            "{@atkr m} {@hit 18}, reach 20 ft. {@h}32 ({@damage 4d10 + 10}) Bludgeoning damage, and the colossus pushes the target up to 20 feet straight away from itself."]}
+        compiled={"to_hit":18,"reach_ft":20,"damage":"4d10 + 10",
+            "damage_type":"bludgeoning","effect_on_hit":"push:20ft",
+            "manual_rider_resolution_required":False,
+            "manual_unmodeled_source_effect_required":False}
+        self.assertTrue(xmm.source_action_has_typed_condition_contract(
+            "Colossus",action,compiled))
+        compiled["effect_on_hit"]="pull:20ft"
+        self.assertFalse(xmm.source_action_has_typed_condition_contract(
+            "Colossus",action,compiled))
+
     def test_wind_javelin_return_is_typed_only_for_the_ranged_mode(self):
         action={"name":"Wind Javelin","entries":[
             "{@atkr m,r} {@hit 4}, reach 5 ft. or range 30/120 ft. {@h}5 ({@damage 1d6 + 2}) Piercing damage plus 2 ({@damage 1d4}) Thunder damage. The javelin magically returns to the aarakocra's hand immediately after a ranged attack."]}

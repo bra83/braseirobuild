@@ -66,8 +66,12 @@ public final class MonsterActionEconomyGuard {
             action.optString("effect_on_fail",""));
         if(!block.isEmpty())return block;
         String condition=action.optString("condition_on_hit","").trim();
-        if(!action.optString("effect_on_hit","").trim().isEmpty())
-            return "unresolved_attack_hit_rider_requires_typed_handler";
+        String effectOnHit=action.optString("effect_on_hit","").trim();
+        if(!effectOnHit.isEmpty()){
+            if(!allowTypedOnHit)return "unsupported_multiattack_on_hit_rider";
+            if(!action.has("to_hit")||MonsterForcedMovementRules.compiled(effectOnHit,"")==null)
+                return "unresolved_attack_hit_rider_requires_typed_handler";
+        }
         boolean timing=action.has("condition_duration_rounds")||action.has("condition_duration_tick");
         boolean untilStand=action.has("condition_ends_when");
         if(condition.isEmpty()&&!timing&&!untilStand)return "";

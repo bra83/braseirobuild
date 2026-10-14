@@ -2988,6 +2988,8 @@ public class AppDb extends SQLiteOpenHelper {
             JSONObject rider=new JSONObject();
             MonsterForcedMovementRules.Spec forced=null;
             JSONObject forcedPlan=new JSONObject();
+            MonsterForcedMovementRules.Spec forcedOnHit=null;
+            JSONObject forcedOnHitPlan=new JSONObject();
             if(resolved.optBoolean("rider_save_required",false)){
                 rider=StatblockCombatRuntimeEngine.attackRiderSavingThrow(id,action,riderSaveRoll);
                 if(!rider.optBoolean("resolved",false))return out.put("statblock_attack_blocked","rider_save_unresolved");
@@ -3008,14 +3010,28 @@ public class AppDb extends SQLiteOpenHelper {
                         return out.put("statblock_attack_blocked","unsupported_secondary_effect");
                 }
             }
+            String onHitEffect=resolved.optString("rider_on_hit_effect","").trim();
+            if(resolved.optBoolean("hit",false)&&!onHitEffect.isEmpty()){
+                if(!onHitEffect.equals(sourceAction.optString("effect_on_hit","").trim()))
+                    return out.put("statblock_attack_blocked","compiled_on_hit_effect_source_changed");
+                forcedOnHit=MonsterForcedMovementRules.compiled(onHitEffect,"");
+                if(forcedOnHit==null)return out.put("statblock_attack_blocked","unsupported_on_hit_effect");
+            }
+            if(forced!=null&&forcedOnHit!=null)
+                return out.put("statblock_attack_blocked","multiple_forced_movement_riders_unsupported");
             if(destinationX< -1||destinationY< -1)
                 return out.put("statblock_attack_blocked","invalid_forced_movement_coordinates");
-            if(forced==null&&(destinationX>=0||destinationY>=0))
+            if(forced==null&&forcedOnHit==null&&(destinationX>=0||destinationY>=0))
                 return out.put("statblock_attack_blocked","forced_movement_not_applicable");
             if(forced!=null){
                 forcedPlan=compiledMonsterForcedMovementPlan(actorId,targetId,forced,destinationX,destinationY);
                 if(forcedPlan.has("forced_movement_blocked"))return out.put("statblock_attack_blocked",
                     forcedPlan.optString("forced_movement_blocked","forced_movement_invalid"));
+            }
+            if(forcedOnHit!=null){
+                forcedOnHitPlan=compiledMonsterForcedMovementPlan(actorId,targetId,forcedOnHit,destinationX,destinationY);
+                if(forcedOnHitPlan.has("forced_movement_blocked"))return out.put("statblock_attack_blocked",
+                    forcedOnHitPlan.optString("forced_movement_blocked","forced_movement_invalid"));
             }
             String recharge=resolved.optString("recharge","").trim();
             String activationBlock=CompiledMonsterActionGuard.actionRechargeBlock(recharge);
@@ -3062,6 +3078,10 @@ public class AppDb extends SQLiteOpenHelper {
                     rider.put("forced_movement_transition",moved);
                     resolved.put("forced_movement_transition",moved);
                 }
+            }
+            if(forcedOnHit!=null){
+                JSONObject moved=commitCompiledMonsterForcedMovement(actorId,targetId,forcedOnHit,forcedOnHitPlan);
+                resolved.put("on_hit_forced_movement_transition",moved);
             }
             if(resolved.optBoolean("hit",false)&&!onHitCondition.isEmpty()){
                 boolean chargeProne=chargeQualified&&XmmChargeMovementRules.hasConditionalProne(sourceAction)&&
