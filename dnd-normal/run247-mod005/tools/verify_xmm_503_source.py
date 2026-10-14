@@ -241,6 +241,21 @@ def check_monsters(source,index,compiled,attack_contracts=None):
                      "spellcasting_monsters":spellcasters,
                      "grapple_escape_records":grapple_count}
 
+def peryton_gore_extra_damage_matches(source_action,compiled_action):
+    """Keep the Peryton's movement rider additive and manually gated."""
+    entry=" ".join(x for x in source_action.get("entries",[]) if isinstance(x,str))
+    source_contract=re.search(
+        r"1d8\s*\+\s*3\}\)\s+Piercing damage\. If the peryton moved 30\+ feet straight toward the target immediately before the hit, the target takes an extra 9\s*\(\{@damage\s+2d8\}\) Piercing damage",
+        entry,re.I)
+    return bool(source_contract and
+        compiled_action.get("damage")=="1d8 + 3" and
+        compiled_action.get("damage_type","").lower()=="piercing" and
+        compiled_action.get("extra_damage")=="2d8" and
+        compiled_action.get("extra_damage_condition")=="moved_30ft_straight_toward_target_immediately_before_hit" and
+        not compiled_action.get("damage_alternative_expression") and
+        not compiled_action.get("damage_alternative_condition") and
+        compiled_action.get("manual_rider_resolution_required") is True)
+
 def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expected_manual=5):
     """Ensure alternate attack damage is selected or the action stays manual.
 
@@ -307,6 +322,9 @@ def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expecte
             if re.search(r"\bif\b.{0,220}\b(?:takes|deals) an extra\s+\d+\s*\(\{@damage",entry,re.I) and \
                not compiled_action.get("manual_rider_resolution_required",False):
                 errors.append(f"{monster['name']}:{action['name']}:CONDITIONAL_EXTRA_DAMAGE_NOT_MANUAL")
+            if monster["name"]=="Peryton" and action.get("name")=="Gore" and \
+               not peryton_gore_extra_damage_matches(action,compiled_action):
+                errors.append("Peryton:Gore:EXTRA_DAMAGE_BRANCH_MISMATCH")
     if bloodied_count!=expected_bloodied: errors.append(f"BLOODIED_BRANCH_TOTAL:{bloodied_count}:{expected_bloodied}")
     if manual_count!=expected_manual: errors.append(f"UNMODELED_ALTERNATE_DAMAGE_TOTAL:{manual_count}:{expected_manual}")
     return errors,{"source_bloodied_attack_branches":bloodied_count,

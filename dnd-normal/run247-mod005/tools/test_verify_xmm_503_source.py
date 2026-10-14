@@ -152,6 +152,15 @@ class XmmIndependentSourceTests(unittest.TestCase):
         compiled[0]["actions"][0]["condition_on_fail"]="grappled"
         errors,_=xmm.check_conditional_attack_damage(source,compiled,0,1)
         self.assertIn("Mimic:Bite:GRAPPLED_PREREQUISITE_MISMODELED_AS_RIDER",errors)
+    def test_peryton_gore_extra_damage_is_additive_and_movement_gated(self):
+        source={"name":"Gore","entries":[
+          "{@h}7 ({@damage 1d8 + 3}) Piercing damage. If the peryton moved 30+ feet straight toward the target immediately before the hit, the target takes an extra 9 ({@damage 2d8}) Piercing damage."]}
+        compiled={"damage":"1d8 + 3","damage_type":"piercing","extra_damage":"2d8",
+          "extra_damage_condition":"moved_30ft_straight_toward_target_immediately_before_hit",
+          "manual_rider_resolution_required":True}
+        self.assertTrue(xmm.peryton_gore_extra_damage_matches(source,compiled))
+        compiled["damage_alternative_expression"]="2d8"
+        self.assertFalse(xmm.peryton_gore_extra_damage_matches(source,compiled))
     def test_unmodeled_action_riders_fail_closed(self):
         source=[{"name":"Giant Axe Beak","action":[{"name":"Sharpened Beak",
           "entries":["Hit the target, and a creature within 5 feet of the target takes damage."]}]}]

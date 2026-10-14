@@ -60,6 +60,16 @@ public final class XmmConditionalAttackDamageSourceTest {
     }
 
     @Test public void unmodeledMoveAdvantageAndGrappleAlternativesFailClosed(){
+        JSONObject perytonGore=findAction(CompiledStatblockEngine.runtimeProfile("Peryton"),"Gore");
+        assertNotNull(perytonGore);
+        assertEquals("1d8 + 3",perytonGore.optString("damage"));
+        assertEquals("2d8",perytonGore.optString("extra_damage"));
+        assertEquals("moved_30ft_straight_toward_target_immediately_before_hit",
+            perytonGore.optString("extra_damage_condition"));
+        assertFalse("source branch is additive, not an alternate base expression",
+            perytonGore.has("damage_alternative_expression"));
+        assertTrue("movement history is not an executable combat input yet",
+            perytonGore.optBoolean("manual_rider_resolution_required"));
         JSONObject mimicBite=findAction(CompiledStatblockEngine.runtimeProfile("Mimic"),"Bite");
         assertNotNull(mimicBite);
         assertEquals("1d8 + 3 + 1d8",mimicBite.optString("damage"));
