@@ -1,0 +1,21 @@
+{
+  "format": "BRASEIRO_XMM_SAVE_DC_GATE_EVIDENCE_V1",
+  "code_commit": "0abce0c14eec979bf676cb38df5f184d7606c614",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "created_utc": "2026-10-14",
+  "scope": "Validate save DCs and condition_on_fail metadata against pinned source text. Python and source comparison passed. Android unchanged from tested code commit e29cf401.",
+  "artifacts": {
+    "python-test-summary.json": {
+      "sha256": "02898a33d290740e899243abce7fc2c92878b4419d9119117dddbc5e555abfeb",
+      "bytes": 226
+    },
+    "source-action-delta.json": {
+      "sha256": "1687237bd7f3755559c685c992a1446d2ff68b062cc594cd089dba0e4eabc02c",
+      "bytes": 691
+    },
+    "xmm-source-comparison.json": {
+      "sha256": "86ac022f314c8e543aa1bb3aa362d1b74b9b8e8956a89250a0cc55098917fa0c",
+      "bytes": 993
+    }
+  }
+}

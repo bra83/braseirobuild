@@ -137,3 +137,9 @@
 
 - No commit `e29cf40152d4f6f229d92d267172a3c96ce91fec`, a checagem passou a rejeitar qualquer `condition_on_fail` sem salvaguarda correspondente na ação fonte. Foram corrigidas 30 ações: efeitos de acerto, pré-requisitos, condições dependentes de movimento/tamanho, escolhas aleatórias, agarrões, desengates e efeitos condicionados a HP 0.
 - As ações sem executor continuam marcadas para resolução manual. A distinção estruturada não as certifica como automatizadas. Verificação do comparador pinado e 65 testes Python passaram; Android/Robolectric: 2.516 testes, zero falhas/erros/ignorados em 105 XMLs. Evidência em `docs/editorial-evidence/xmm-condition-semantics-local-20261014-e29cf401/`. BRELGA e PDF licenciado ainda pendentes; nenhum APK gerado.
+
+
+### Validação de CDs de salvaguarda (14/10/2026)
+
+- O comparador agora exige suporte explícito na ação fonte para todo `save_dc` e `condition_on_fail`; reconhece salvaguardas de magia (“spell save”) além da sintaxe normal. O CD mágico do Succubus / Charm é preservado como válido.
+- No commit de ferramenta `0abce0c14eec979bf676cb38df5f184d7606c614`, 65 testes Python e a comparação XMM (503 criaturas, 36 seções) passaram. Os arquivos Android não mudaram desde a suíte de 2.516 testes em `e29cf401`; não houve nova execução Android neste commit. Evidência: `docs/editorial-evidence/xmm-save-dc-gate-local-20261014-0abce0c1/`.

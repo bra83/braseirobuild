@@ -1,0 +1,10 @@
+{
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "creature": "Succubus",
+  "action": "Charm",
+  "source_pointer": "/monster/421/action/2",
+  "change": "O comparador reconhece o termo spell save da fonte e valida que save_dc somente apareça quando a ação pede salvaguarda. O Charm da Succubus permanece como CD mágico legítimo; DCs de escape/desengate ficam nos campos próprios.",
+  "scope": "Ferramenta Python e comparador. A suíte Android não foi reexecutada neste commit de ferramenta; os mesmos arquivos app/src foram testados em e29cf40152d4f6f229d92d267172a3c96ce91fec.",
+  "page": 303
+}
