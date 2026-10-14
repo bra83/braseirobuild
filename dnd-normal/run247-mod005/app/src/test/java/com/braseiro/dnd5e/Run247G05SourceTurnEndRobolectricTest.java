@@ -27,8 +27,24 @@ public final class Run247G05SourceTurnEndRobolectricTest {
         assertEquals(1,db.getWritableDatabase().update("tactical_tokens",values,
             "world_profile=? AND combatant_id=?",new String[]{"dnd",String.valueOf(id)}));
     }
+    private static JSONArray sampleDamage(JSONObject action)throws Exception {
+        JSONArray specs=StatblockCombatFlowEngine.damageSpecs(
+            action.optString("damage_expression",action.optString("damage","")),
+            action.optString("damage_type",""),action.optString("extra_damage_expression",""));
+        JSONArray rolls=new JSONArray();
+        for(int i=0;i<specs.length();i++){
+            JSONObject spec=specs.getJSONObject(i);
+            CompiledMonsterDamageGuard.Range range=CompiledMonsterDamageGuard.range(
+                spec.optString("expression"),"",false);
+            assertNotNull("source damage expression invalid: "+spec,range);
+            rolls.put(new JSONObject().put("expression",spec.optString("expression"))
+                .put("damage_type",spec.optString("type"))
+                .put("damage_total",range.min+(range.max-range.min)/2));
+        }
+        return rolls;
+    }
 
-    private void assertTurnEndAttack(String monster,String actionName,String condition,
+    private void assertTimedConditionAttack(String monster,String actionName,String condition,
         String tick,int minimumDamage,String suffix)throws Exception {
         Xmm2025CompiledBestiaryEngine.install();
         JSONObject profile=CompiledStatblockEngine.runtimeProfile(monster);
@@ -43,12 +59,12 @@ public final class Run247G05SourceTurnEndRobolectricTest {
         assertEquals("",MonsterActionEconomyGuard.attackRiderBlock(action));
 
         Context context=RuntimeEnvironment.getApplication();
-        String dbName="xmm_turn_end_"+Long.toHexString(System.nanoTime())+".db";
+        String dbName="xmm_timed_condition_"+Long.toHexString(System.nanoTime())+".db";
         AppDb db=new AppDb(context,dbName);long actor=0,target=0;
         try {
             db.setActiveMapProfile("dnd");
             actor=db.addCombatant("XMM "+monster+" "+suffix,20,100,100,11,"",false);
-            target=db.addCombatant("Turn End Target",10,30,30,15,"",true);
+            target=db.addCombatant("Turn End Target",10,1000,1000,15,"",true);
             bind(db,actor,monster);
             db.setCombatRunning(true);assertEquals(actor,db.nextTurn().optLong("id"));
             new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
@@ -57,8 +73,10 @@ public final class Run247G05SourceTurnEndRobolectricTest {
             assertTrue(rollMode.toString(),rollMode.optBoolean("monster_roll_preview_valid"));
             int secondD20=rollMode.optBoolean("second_d20_required")?18:0;
             JSONObject attack=db.applyCompiledStatblockAttack(actor,target,monster,actionName,
-                19,secondD20,minimumDamage,0,"ui-monster-source-turn-end-"+suffix);
-            assertTrue(attack.toString(),attack.optBoolean("statblock_attack_committed"));
+                19,secondD20,sampleDamage(action),0,0L,-1,-1,
+                "ui-monster-source-turn-end-"+suffix);
+            assertTrue(monster+" / "+actionName+": "+attack,
+                attack.optBoolean("statblock_attack_committed"));
             assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
             JSONArray timers=new JSONArray(db.getCombatant(target).optString("condition_timers_json","[]"));
             assertEquals(1,timers.length());
@@ -73,9 +91,15 @@ public final class Run247G05SourceTurnEndRobolectricTest {
                 assertEquals(target,db.nextTurn().optLong("id"));
             }else{
                 assertFalse(timers.getJSONObject(0).optBoolean("skip_first_target_turn_end"));
-                assertEquals(target,db.nextTurn().optLong("id"));
-                assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
-                assertEquals(actor,db.nextTurn().optLong("id"));
+                long nextActor=0;int turnLimit=db.listCombatants().size()+1;
+                for(int turn=0;turn<turnLimit;turn++){
+                    nextActor=db.nextTurn().optLong("id");
+                    if(nextActor==actor)break;
+                    assertTrue(monster+" condition expired before source turn",
+                        ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
+                }
+                assertEquals(monster+" target turn should precede source turn; state="+
+                    db.getCombatState()+"; combatants="+db.listCombatants(),actor,nextActor);
             }
             assertFalse(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
             assertEquals(0,new JSONArray(db.getCombatant(target).optString("condition_timers_json","[]")).length());
@@ -83,31 +107,53 @@ public final class Run247G05SourceTurnEndRobolectricTest {
     }
 
     @Test public void scarecrowFearsomeClawExpiresAtEndOfItsNextTurn()throws Exception {
-        assertTurnEndAttack("Scarecrow","Fearsome Claw","frightened","source_turn_end",3,"scarecrow");
+        assertTimedConditionAttack("Scarecrow","Fearsome Claw","frightened","source_turn_end",3,"scarecrow");
     }
 
     @Test public void merrowBiteExpiresPoisonAtEndOfItsNextTurn()throws Exception {
-        assertTurnEndAttack("Merrow","Bite","poisoned","source_turn_end",5,"merrow");
+        assertTimedConditionAttack("Merrow","Bite","poisoned","source_turn_end",5,"merrow");
     }
 
     @Test public void giantVultureGougeExpiresPoisonAtEndOfTargetsNextTurn()throws Exception {
         assertEquals("Golpe Dilacerante",DndPtBrLocalizer.localizeText("Gouge"));
-        assertTurnEndAttack("Giant Vulture","Gouge","poisoned","target_turn_end",6,"giant-vulture");
+        assertTimedConditionAttack("Giant Vulture","Gouge","poisoned","target_turn_end",6,"giant-vulture");
     }
 
     @Test public void gasSporeTendrilExpiresPoisonAtEndOfTargetsNextTurn()throws Exception {
         assertEquals("Tentáculo",DndPtBrLocalizer.localizeText("Tendril"));
-        assertTurnEndAttack("Gas Spore Fungus","Tendril","poisoned","target_turn_end",4,"gas-spore");
+        assertTimedConditionAttack("Gas Spore Fungus","Tendril","poisoned","target_turn_end",4,"gas-spore");
     }
 
     @Test public void cloudGiantThundercloudExpiresIncapacitatedAtEndOfTargetsNextTurn()throws Exception {
         assertEquals("Nuvem Trovejante",DndPtBrLocalizer.localizeText("Thundercloud"));
-        assertTurnEndAttack("Cloud Giant","Thundercloud","incapacitated","target_turn_end",14,"cloud-giant");
+        assertTimedConditionAttack("Cloud Giant","Thundercloud","incapacitated","target_turn_end",14,"cloud-giant");
     }
 
     @Test public void hillGiantTrashLobExpiresPoisonAtEndOfTargetsNextTurn()throws Exception {
         assertEquals("Arremesso de Detritos",DndPtBrLocalizer.localizeText("Trash Lob"));
-        assertTurnEndAttack("Hill Giant","Trash Lob","poisoned","target_turn_end",15,"hill-giant");
+        assertTimedConditionAttack("Hill Giant","Trash Lob","poisoned","target_turn_end",15,"hill-giant");
+    }
+
+    @Test public void fourteenXmmOnHitConditionsApplyAndExpireAtStartOfSourceTurn()throws Exception {
+        String[][] cases={
+            {"Assassin","Shortsword","poisoned","7"},
+            {"Giant Centipede","Bite","poisoned","4"},
+            {"Centaur Warden","Sun Ray","blinded","14"},
+            {"Ettercap","Bite","poisoned","5"},
+            {"Githyanki Dracomancer","Draconic Strike","frightened","12"},
+            {"Gnoll Fang of Yeenoghu","Bite","poisoned","6"},
+            {"Lich","Paralyzing Touch","paralyzed","15"},
+            {"Noble Prodigy","Beguiling Strike","charmed","18"},
+            {"Oni","Nightmare Ray","frightened","9"},
+            {"Quasit","Rend","poisoned","5"},
+            {"Satyr Revelmaster","Prance","charmed","13"},
+            {"Sprite","Enchanting Bow","charmed","1"},
+            {"Vampire Umbral Lord","Sickening Ray","poisoned","16"},
+            {"Wyvern","Sting","poisoned","11"}
+        };
+        for(int i=0;i<cases.length;i++)
+            assertTimedConditionAttack(cases[i][0],cases[i][1],cases[i][2],
+                "source_turn_start",Integer.parseInt(cases[i][3]),"xmm-source-start-"+i);
     }
 
     @Test public void ledgerDoesNotExpireAtSourceStartAndHonorsCurrentTurnSkip()throws Exception {
