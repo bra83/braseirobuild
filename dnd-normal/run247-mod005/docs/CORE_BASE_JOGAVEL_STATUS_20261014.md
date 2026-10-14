@@ -42,7 +42,7 @@ O contrato do Diabo Barbado / Barba, o bloqueio persistente de cura, a expiraç�
 - Suíte Android/Robolectric no commit XMM: **2.516 testes, 0 falhas, 0 erros, 0 ignorados**, em 105 arquivos XML.
 - Testes Python no commit XMM: **65 passaram**.
 - Comparação XMM: 503 monstros, 36 seções, 120 ações de recarga, 132 registros de conjuração, 178 contratos de traços e 59 ações simples de salvaguarda conferidos.
-- Efeitos com condições tipados no comparador: dois pacotes compostos e vinte e duas condições simples com expiração tipada; quatro das simples expiram no fim do turno do alvo. O comparador cobre, além disso, 14 riders de origem com prazo de um turno.
+- Efeitos com condições tipados no comparador: dois pacotes compostos e vinte e cinco condições simples com expiração tipada; quatro das simples expiram no fim do turno do alvo. O comparador cobre, além disso, 14 riders de origem com prazo de um turno.
 
 ## Ainda não está fechado como núcleo pronto
 
