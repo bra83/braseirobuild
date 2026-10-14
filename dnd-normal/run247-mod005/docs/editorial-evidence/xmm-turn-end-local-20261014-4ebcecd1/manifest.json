@@ -20,6 +20,10 @@
     "xmm-source-comparison.json": {
       "sha256": "f434cdf50b7011a05910872dd5b659a42051832ce4606cd948ef344e427dabe0",
       "bytes": 992
+    },
+    "source-executor-status.csv": {
+      "sha256": "7e9c8c5a67138a20c3d2551477df6bb247355ecf49c46dbd84721cde0f2961bc",
+      "bytes": 2216
     }
   }
 }
