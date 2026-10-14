@@ -5,10 +5,11 @@ on:
     paths:
       - '.github/workflows/pf2-r36-brelga-independent.yml'
       - 'ci/pf2-kingmaker-r36/**'
+      - '.devcontainer/**'
   workflow_dispatch:
     inputs:
       compile_apk:
-        description: 'Compile and publish TEST APK only when this implementation batch is ready'
+        description: 'Manual FINAL ONLY: assemble, Android E2E, then publish prerelease test APK'
         type: boolean
         default: false
         required: false
@@ -255,6 +256,7 @@ jobs:
           Write-Host 'R36_ANDROID_JAVA_TYPECHECK_PASS=true'
           Write-Host 'Java classes checked; APK assembly and publication remain disabled.'
       - name: Provision Android Emulator and API 30 AVD on BRELGA
+        if: github.event_name == 'workflow_dispatch' && inputs.compile_apk
         shell: powershell
         timeout-minutes: 48
         run: |
@@ -303,6 +305,7 @@ jobs:
           if('PF2_R36_CI' -notin $avds){throw 'ANDROID_CI_AVD_NOT_VISIBLE'}
           Write-Host 'R36_AVD_READY=PF2_R36_CI'
       - name: Assemble exact current R36 HEAD into local TEST APK without publishing
+        if: github.event_name == 'workflow_dispatch' && inputs.compile_apk
         shell: powershell
         timeout-minutes: 35
         run: |
@@ -331,9 +334,11 @@ jobs:
           $hash=(Get-FileHash $dst -Algorithm SHA256).Hash.ToLowerInvariant()
           if((Get-Item $dst).Length -le 100000){throw 'R36_APK_SUSPICIOUSLY_SMALL'}
           Write-Host "R36_LOCAL_APK_HEAD=$env:GITHUB_SHA"
+          Set-Content -Path (Join-Path $out "SHA256.txt") -Value ("$hash  Braseiro-Kingmaker-R36-test.apk") -Encoding ascii
           Write-Host "R36_LOCAL_APK_SHA256=$hash"
           Write-Host 'R36_LOCAL_DEBUG_ASSEMBLE=PASS; NO RELEASE/ARTIFACT PUBLISHED'
       - name: Android E2E and three AppDb restarts on exact HEAD APK
+        if: github.event_name == 'workflow_dispatch' && inputs.compile_apk
         shell: powershell
         timeout-minutes: 35
         run: |
@@ -447,31 +452,6 @@ jobs:
               }
             }catch{Write-Host 'R36_EMULATOR_CLEANUP_NONFATAL'}finally{$ErrorActionPreference=$oldAction}
           }
-      - name: Compile real Android app with R36 modifications
-        if: github.event_name == 'workflow_dispatch' && inputs.compile_apk
-        shell: powershell
-        run: |
-          $ErrorActionPreference='Stop'
-          $candidate=@('C:\actions-runner\android-sdk',$env:ANDROID_SDK_ROOT,$env:ANDROID_HOME,(Join-Path $env:LOCALAPPDATA 'Android\Sdk'))|Where-Object{$_ -and (Test-Path $_)}
-          $sdk=$candidate|Where-Object {Test-Path (Join-Path $_ 'platforms')}|Select-Object -First 1
-          if(!$sdk){throw 'Android SDK absent'}
-          $env:ANDROID_SDK_ROOT=$sdk
-          $env:ANDROID_HOME=$sdk
-          Push-Location $env:PF2_R36_PROJECT
-          $ErrorActionPreference='Continue'
-          & .\gradlew.bat :app:assembleDebug --no-daemon --stacktrace
-          $code=$LASTEXITCODE
-          Pop-Location
-          if($code -ne 0){throw "R36 Gradle compilation failed code=$code"}
-          $apk=@(Get-ChildItem "$env:PF2_R36_PROJECT\android\app\build\outputs\apk\debug" -Filter '*.apk' -File)
-          if($apk.Count -ne 1){throw "Expected exactly one debug APK, found $($apk.Count)"}
-          $hash=(Get-FileHash $apk[0].FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-          $out=Join-Path $env:GITHUB_WORKSPACE 'r36-test-apk'
-          New-Item -ItemType Directory -Path $out -Force|Out-Null
-          Copy-Item $apk[0].FullName (Join-Path $out 'Braseiro-Kingmaker-R36-test.apk') -Force
-          Set-Content -Path (Join-Path $out 'SHA256.txt') -Value ("$hash  Braseiro-Kingmaker-R36-test.apk") -Encoding ascii
-          Write-Host "R36_TEST_APK_SHA256=$hash"
-          Write-Host "R36_COMPILED_ANDROID_PASS=true"
       - name: Publish R36 TEST prerelease APK (does not use full Actions artifact storage)
         if: github.event_name == 'workflow_dispatch' && inputs.compile_apk
         shell: powershell
@@ -540,6 +520,7 @@ jobs:
         if: always()
         shell: powershell
         run: |
+          Write-Host 'Push: automatic book/JVM/Android type checks, NO APK or emulator. Manual compile_apk=true: final full Android gate.'
           Write-Host 'Only selected official book rules tested in this candidate. NOT whole-campaign certification.'
           Write-Host 'TEST-only GitHub prerelease, not a final or certified release. Stable R35 remains unchanged.'
 
