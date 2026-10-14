@@ -8,7 +8,7 @@ public final class Xmm2025AttackConditionEngine {
  private static final String[] RAW={
   "{\"id\":\"Aberrant Cultist\",\"name\":\"Tentacle Lash\",\"slot\":1,\"ptr\":\"/monster/2/action/1/entries/0\",\"size\":\"Large\",\"condition\":\"grappled\",\"dc\":14,\"other\":true}",
   "{\"id\":\"Aboleth\",\"name\":\"Tentacle\",\"slot\":1,\"ptr\":\"/monster/3/action/1/entries/0\",\"size\":\"Large\",\"condition\":\"grappled\",\"dc\":14,\"other\":false}",
-  "{\"id\":\"Animated Rug of Smothering\",\"name\":\"Smother\",\"slot\":0,\"ptr\":\"/monster/31/action/0/entries/0\",\"size\":\"Medium\",\"condition\":\"grappled\",\"dc\":13,\"other\":true}",
+  "{\"id\":\"Animated Rug of Smothering\",\"name\":\"Smother\",\"slot\":0,\"ptr\":\"/monster/31/action/0/entries/0\",\"size\":\"Medium\",\"condition\":\"grappled\",\"dc\":13,\"choice_required\":true,\"other\":true}",
   "{\"id\":\"Ankheg\",\"name\":\"Bite\",\"slot\":0,\"ptr\":\"/monster/32/action/0/entries/0\",\"size\":\"Large\",\"condition\":\"grappled\",\"dc\":13,\"other\":true}",
   "{\"id\":\"Ankylosaurus\",\"name\":\"Tail\",\"slot\":1,\"ptr\":\"/monster/33/action/1/entries/0\",\"size\":\"Huge\",\"condition\":\"prone\",\"dc\":0,\"other\":false}",
   "{\"id\":\"Arch-hag\",\"name\":\"Spectral Claw\",\"slot\":1,\"ptr\":\"/monster/36/action/1/entries/0\",\"size\":\"Large\",\"condition\":\"prone\",\"dc\":0,\"other\":false}",
@@ -95,6 +95,10 @@ public final class Xmm2025AttackConditionEngine {
   boolean eligible=hit&&creature&&size((String)rawSize)<=size(r.getString("size"));
   JSONArray proposals=new JSONArray();if(eligible){JSONObject c=new JSONObject().put("condition",r.getString("condition")).put("condition_applied",false);
    if("grappled".equals(r.getString("condition")))c.put("escape_dc",r.getInt("dc"));proposals.put(c);}
-  return new JSONObject().put("resolved",true).put("status","pending_manual_application").put("monster",monster).put("action",action).put("source_pointer",r.getString("ptr")).put("source_blob_sha1",SOURCE_BLOB).put("trigger_satisfied",eligible).put("proposed_conditions",proposals).put("additional_source_effects_manual",r.getBoolean("other")).put("full_action_effects_certified",false).put("auto_rolls",false).put("auto_mutation_allowed",false).put("condition_applied",false).put("damage_applied",false).put("hp_applied",false).put("turn_advanced",false);
+  boolean choiceRequired=r.optBoolean("choice_required",false);
+  String requestedChoice=in.optString("chosen_effect_option","");
+  boolean choiceSatisfied=!choiceRequired||"grapple".equals(requestedChoice);
+  if(choiceRequired&&!choiceSatisfied)proposals=new JSONArray();
+  return new JSONObject().put("resolved",true).put("status",choiceRequired&&!choiceSatisfied?"pending_effect_choice":"pending_manual_application").put("monster",monster).put("action",action).put("source_pointer",r.getString("ptr")).put("source_blob_sha1",SOURCE_BLOB).put("trigger_satisfied",eligible).put("choice_required",choiceRequired).put("chosen_effect_option",choiceRequired&&choiceSatisfied?requestedChoice:"").put("proposed_conditions",proposals).put("additional_source_effects_manual",r.getBoolean("other")).put("full_action_effects_certified",false).put("auto_rolls",false).put("auto_mutation_allowed",false).put("condition_applied",false).put("damage_applied",false).put("hp_applied",false).put("turn_advanced",false);
  }catch(Exception e){return blocked(e.getMessage()==null?"runtime_error":e.getMessage());}}
 }

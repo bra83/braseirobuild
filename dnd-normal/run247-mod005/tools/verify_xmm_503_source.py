@@ -39,6 +39,9 @@ SOURCE_TURN_START_HIT_CONDITIONS={
 SOURCE_TURN_END_HIT_CONDITIONS={
     ("Couatl","Bite"): ("poisoned","until the end of the couatl's next turn"),
 }
+SOURCE_SECONDARY_ATTACK_DAMAGE={
+    ("Half-Dragon","Claw"),("Vine Blight","Constricting Vine"),
+}
 SOURCE_TURN_START_HEALING_SUPPRESSION={("Bearded Devil","Beard"),
     ("Bone Devil","Infernal Sting"),("Dire Worg","Bite")}
 TARGET_TURN_END_HIT_CONDITIONS={
@@ -143,10 +146,15 @@ def check_grapple_escape_riders(source, compiled, contracts, expected_count=36):
         if dst.get("reach_ft")!=int(source_reach.group(1)):
             problems.append(monster+":"+rider["name"]+":GRAPPLE_REACH_MISMATCH")
             continue
+        if rider.get("choice_required",False):
+            condition_ok=(dst.get("condition_alternative")=="grappled" and
+                dst.get("manual_effect_choice_required") is True and
+                not dst.get("condition_on_hit"))
+        else:
+            condition_ok=("grappled" in dst.get("condition_on_hit","").lower())
         semantic_ok=(dst.get("escape_dc")==dc and
             dst.get("condition_max_target_size")==rider.get("size","").lower() and
-            "grappled" in dst.get("condition_on_hit","").lower() and
-            not save_mismatch and not save_unproven)
+            condition_ok and not save_mismatch and not save_unproven)
         manual_ok=(bool(dst.get("manual_rider_resolution_required",False))==
             bool(rider.get("other",False)))
         if not semantic_ok:
@@ -259,6 +267,103 @@ def check_monsters(source,index,compiled,attack_contracts=None):
     return problems,{"monsters":len(source),"recharge_actions":recharges,
                      "spellcasting_monsters":spellcasters,
                      "grapple_escape_records":grapple_count}
+
+ATTACK_DAMAGE_TYPES=("bludgeoning|piercing|slashing|acid|cold|fire|force|lightning|"
+                     "necrotic|poison|psychic|radiant|thunder")
+ATTACK_DAMAGE_COMPONENT=re.compile(
+    r"\{@damage\s+([^}]+)\}\)\s*("+ATTACK_DAMAGE_TYPES+r")\s+damage",re.I)
+def check_attack_primary_damage(source,compiled,expected_count=581):
+    """Compare the immediate hit damage sentence for simple typed attacks.
+
+    Recurring damage and later save effects are intentionally checked as
+    separate source-bound riders; they must never be folded into hit damage.
+    Conditional alternatives remain under their dedicated contracts.
+    """
+    by_id={row["id"]:row for row in compiled};errors=[];checked=0
+    for monster in source:
+        target=by_id.get(monster.get("name"),{})
+        for slot,action in enumerate(monster.get("action",[])):
+            entries=action.get("entries",[])
+            text=" ".join(value for value in entries if isinstance(value,str))
+            marker=text.find("{@h}")
+            if marker<0:continue
+            sentence_end=text.find(".",marker)
+            segment=text[marker:sentence_end if sentence_end>=0 else len(text)]
+            components=ATTACK_DAMAGE_COMPONENT.findall(segment)
+            if not components:continue
+            compiled_actions=target.get("actions",[])
+            record=compiled_actions[slot] if slot<len(compiled_actions) else {}
+            if (re.search(r"\bor\b|\bif\b|\bunless\b|type chosen",segment,re.I) or
+                record.get("damage_alternative_expression") or record.get("extra_damage_condition")):
+                continue
+            checked+=1
+            expected_damage=" + ".join(expr.strip() for expr,_ in components)
+            expected_type=" + ".join(kind.lower() for _,kind in components)
+            if (record.get("damage","").replace(" ","")!=expected_damage.replace(" ","") or
+                record.get("damage_type","").lower()!=expected_type):
+                errors.append(f"{monster['name']}:{action.get('name','?')}:PRIMARY_HIT_DAMAGE_MISMATCH")
+    if checked!=expected_count:errors.append("ATTACK_PRIMARY_DAMAGE_RECORD_COUNT:"+str(checked))
+    return errors,checked
+
+def check_attack_secondary_damage_contracts(source,compiled):
+    """Pin six source riders whose ongoing/area damage was once folded into hit damage."""
+    expected={
+      ("Animated Rug of Smothering","Smother"):("2d6 + 3","bludgeoning"),
+      ("Dao","Earth Burst"):("2d8 + 6","bludgeoning"),
+      ("Half-Dragon","Claw"):("1d4 + 4","slashing"),
+      ("Pit Fiend","Bite"):("3d6 + 8","piercing"),
+      ("Stirge","Proboscis"):("1d6 + 3","piercing"),
+      ("Vine Blight","Constricting Vine"):("1d8 + 2","bludgeoning"),
+    }
+    source_by_id={m.get("name"):m for m in source};compiled_by_id={m.get("id"):m for m in compiled}
+    errors=[];checked=0
+    for (monster,name),(damage,damage_type) in expected.items():
+        src=source_by_id.get(monster);dst=compiled_by_id.get(monster)
+        action=next((a for a in (src or {}).get("action",[]) if a.get("name")==name),None)
+        record=next((a for a in (dst or {}).get("actions",[]) if a.get("name")==name),None)
+        if action is None or record is None:
+            errors.append(f"{monster}:{name}:SECONDARY_DAMAGE_RECORD_MISSING");continue
+        text=json.dumps(action.get("entries",[]),ensure_ascii=False).casefold()
+        if record.get("damage")!=damage or record.get("damage_type","").lower()!=damage_type:
+            errors.append(f"{monster}:{name}:SECONDARY_DAMAGE_FOLDED_INTO_HIT")
+        if not record.get("manual_rider_resolution_required",False):
+            errors.append(f"{monster}:{name}:SECONDARY_DAMAGE_NOT_MANUAL")
+        signatures={
+          ("Animated Rug of Smothering","Smother"):"instead of dealing damage",
+          ("Dao","Earth Burst"):"earth explodes from the target's space",
+          ("Half-Dragon","Claw"):"type chosen for the draconic origin trait",
+          ("Pit Fiend","Bite"):"at the start of each of its turns",
+          ("Stirge","Proboscis"):"at the start of each of the stirge's turns",
+          ("Vine Blight","Constricting Vine"):"at the start of each of its turns",
+        }
+        if signatures[(monster,name)] not in text:
+            errors.append(f"{monster}:{name}:PINNED_SECONDARY_SOURCE_CLAUSE_MISSING")
+        if monster=="Animated Rug of Smothering" and (
+            record.get("condition_on_hit") or record.get("condition_alternative")!="grappled" or
+            not record.get("manual_effect_choice_required")):
+            errors.append(f"{monster}:{name}:OPTIONAL_GRAPPLE_MISREPRESENTED_AS_AUTOMATIC")
+        if monster=="Dao" and (record.get("secondary_save_damage")!="3d6" or
+            record.get("secondary_save_damage_type")!="thunder" or
+            record.get("secondary_save_area_ft")!=10):
+            errors.append(f"{monster}:{name}:AREA_SAVE_DAMAGE_NOT_SEPARATE")
+        if monster=="Half-Dragon" and (record.get("extra_damage")!="2d6" or
+            record.get("extra_damage_type")!="draconic_origin"):
+            errors.append(f"{monster}:{name}:DRACONIC_ORIGIN_DAMAGE_NOT_TYPED")
+        if monster=="Pit Fiend" and (record.get("condition_recurring_damage")!="6d6" or
+            record.get("condition_recurring_damage_type")!="poison" or
+            record.get("condition_recurring_damage_tick")!="target_turn_start"):
+            errors.append(f"{monster}:{name}:POISON_TURN_DAMAGE_NOT_SEPARATE")
+        if monster=="Stirge" and (record.get("condition_recurring_damage")!="2d4" or
+            record.get("condition_recurring_damage_type")!="necrotic" or
+            record.get("condition_recurring_damage_tick")!="source_turn_start"):
+            errors.append(f"{monster}:{name}:ATTACH_DAMAGE_NOT_SEPARATE")
+        if monster=="Vine Blight" and (record.get("condition_recurring_damage")!="1d8" or
+            record.get("condition_recurring_damage_type")!="bludgeoning" or
+            record.get("condition_recurring_damage_tick")!="target_turn_start"):
+            errors.append(f"{monster}:{name}:GRAPPLE_DAMAGE_NOT_SEPARATE")
+        checked+=1
+    if checked!=len(expected):errors.append("ATTACK_SECONDARY_DAMAGE_RECORD_COUNT:"+str(checked))
+    return errors,checked
 
 def peryton_gore_extra_damage_matches(source_action,compiled_action):
     """Keep the Peryton's movement rider additive and manually gated."""
@@ -430,7 +535,8 @@ def source_action_requires_manual_resolution(action,monster_name=""):
         "until the end of its next turn" in text.casefold() and len(conditions)==1)
     simple_source_turn_start=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_TURN_START_HIT_CONDITIONS
     simple_source_turn_end=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_TURN_END_HIT_CONDITIONS
-    return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or next_target_turn_end or simple_source_turn_start or simple_source_turn_end
+    secondary_attack_damage=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_SECONDARY_ATTACK_DAMAGE
+    return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or next_target_turn_end or simple_source_turn_start or simple_source_turn_end or secondary_attack_damage
 
 def source_turn_start_hit_condition_matches(monster_name,action,compiled_action):
     name=RCH.sub("",action.get("name","")).strip()
@@ -768,15 +874,20 @@ def check(project, bestiary_bytes, book_bytes):
     monster_errors,totals=check_monsters(src,index,compiled,attack_contracts)
     branch_errors,branch_totals=check_conditional_attack_damage(src,compiled)
     effect_errors,effect_count=check_unmodeled_action_effects(src,compiled)
+    attack_damage_errors,attack_damage_count=check_attack_primary_damage(src,compiled)
+    attack_secondary_errors,attack_secondary_count=check_attack_secondary_damage_contracts(src,compiled)
     turn_start_errors,turn_start_count=check_source_turn_start_hit_conditions(src,compiled)
     save_errors,save_count=check_save_damage_actions(src,save_damage_rows)
     section_errors=check_book(book,bookrows)
-    if monster_errors or branch_errors or effect_errors or section_errors or save_errors or turn_start_errors:
+    if (monster_errors or branch_errors or effect_errors or section_errors or save_errors or
+        turn_start_errors or attack_damage_errors or attack_secondary_errors):
         raise ValueError("XMM_SOURCE_MISMATCH:"+json.dumps(
             {"monsters":monster_errors[:20],"monster_count":len(monster_errors),
              "conditional_attack_damage":branch_errors[:20],"conditional_attack_damage_count":len(branch_errors),
              "unmodeled_action_effects":effect_errors[:20],"unmodeled_action_effects_count":len(effect_errors),
              "source_turn_start_conditions":turn_start_errors[:20],"source_turn_start_conditions_count":len(turn_start_errors),
+             "attack_primary_damage":attack_damage_errors[:20],"attack_primary_damage_count":len(attack_damage_errors),
+             "attack_secondary_damage":attack_secondary_errors[:20],"attack_secondary_damage_count":len(attack_secondary_errors),
              "sections":section_errors[:20],"section_count":len(section_errors),
              "save_damage":save_errors[:20],"save_damage_count":len(save_errors)}))
     return {"format":"XMM_INDEPENDENT_SOURCE_MATCH_V1","source_commit":PIN,
@@ -790,6 +901,8 @@ def check(project, bestiary_bytes, book_bytes):
         "source_trait_contracts_compared":len(traitrows),
         "source_trait_families_compared":len({r["kind"] for r in traitrows}),
         "source_save_damage_actions_compared":save_count,
+        "source_attack_primary_damage_compared":attack_damage_count,
+        "source_attack_secondary_damage_contracts_compared":attack_secondary_count,
         "source_abilities_with_unmodeled_effects_manual":effect_count,
         "source_compound_condition_actions_typed":2,
         "source_single_condition_actions_typed":9+turn_start_count,

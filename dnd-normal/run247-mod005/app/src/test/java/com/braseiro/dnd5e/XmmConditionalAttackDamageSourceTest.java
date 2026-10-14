@@ -254,6 +254,48 @@ public final class XmmConditionalAttackDamageSourceTest {
         }
     }
 
+    @Test public void ongoingAndAreaDamageAreNeverFoldedIntoTheImmediateHit(){
+        String[][] cases={
+            {"Animated Rug of Smothering","Smother","2d6 + 3","bludgeoning"},
+            {"Dao","Earth Burst","2d8 + 6","bludgeoning"},
+            {"Half-Dragon","Claw","1d4 + 4","slashing"},
+            {"Pit Fiend","Bite","3d6 + 8","piercing"},
+            {"Stirge","Proboscis","1d6 + 3","piercing"},
+            {"Vine Blight","Constricting Vine","1d8 + 2","bludgeoning"}
+        };
+        for(String[] row:cases){
+            JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile(row[0]),row[1]);
+            assertNotNull(row[0]+" source action",action);
+            assertEquals(row[0]+" immediate hit damage",row[2],action.optString("damage"));
+            assertEquals(row[0]+" immediate hit type",row[3],action.optString("damage_type"));
+            assertTrue(row[0]+" secondary effect stays explicitly manual",
+                action.optBoolean("manual_rider_resolution_required"));
+            JSONObject blocked=StatblockCombatRuntimeEngine.attack(row[0],row[1],20,1,1,1);
+            assertTrue(row[0]+" must not apply an incomplete effect: "+blocked,
+                blocked.optBoolean("blocked"));
+            assertEquals("manual_source_action_resolution_required",blocked.optString("reason"));
+            assertFalse(blocked.has("damage_expression"));
+        }
+        JSONObject rug=findAction(CompiledStatblockEngine.runtimeProfile("Animated Rug of Smothering"),"Smother");
+        assertFalse("the grapple is a choice instead of damage, not an automatic hit condition",
+            rug.has("condition_on_hit"));
+        assertTrue(rug.optBoolean("manual_effect_choice_required"));
+        JSONObject dao=findAction(CompiledStatblockEngine.runtimeProfile("Dao"),"Earth Burst");
+        assertEquals("3d6",dao.optString("secondary_save_damage"));
+        assertEquals("thunder",dao.optString("secondary_save_damage_type"));
+        assertEquals(10,dao.optInt("secondary_save_area_ft"));
+        JSONObject halfDragon=findAction(CompiledStatblockEngine.runtimeProfile("Half-Dragon"),"Claw");
+        assertEquals("2d6",halfDragon.optString("extra_damage"));
+        assertEquals("draconic_origin",halfDragon.optString("extra_damage_type"));
+        JSONObject pitFiend=findAction(CompiledStatblockEngine.runtimeProfile("Pit Fiend"),"Bite");
+        assertEquals("6d6",pitFiend.optString("condition_recurring_damage"));
+        assertEquals("target_turn_start",pitFiend.optString("condition_recurring_damage_tick"));
+        JSONObject stirge=findAction(CompiledStatblockEngine.runtimeProfile("Stirge"),"Proboscis");
+        assertEquals("source_turn_start",stirge.optString("condition_recurring_damage_tick"));
+        JSONObject vine=findAction(CompiledStatblockEngine.runtimeProfile("Vine Blight"),"Constricting Vine");
+        assertEquals("target_turn_start",vine.optString("condition_recurring_damage_tick"));
+    }
+
     private static JSONObject findAction(JSONObject profile,String name){
         org.json.JSONArray actions=profile.optJSONArray("actions");
         if(actions!=null)for(int i=0;i<actions.length();i++){

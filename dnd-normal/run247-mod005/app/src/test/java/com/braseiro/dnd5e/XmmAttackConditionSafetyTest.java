@@ -76,14 +76,28 @@ public final class XmmAttackConditionSafetyTest {
    JSONObject compiled=profile.getJSONArray("actions").getJSONObject(indexed.getInt("slot"));
    assertEquals(monster+" / "+action,action,compiled.optString("name"));
    assertTrue(monster+" / "+action,compiled.optBoolean("source_bound"));
-   assertTrue(monster+" / "+action,
+   if(indexed.optBoolean("choice_required")){
+    assertFalse(monster+" / "+action+" must not auto-declare the optional condition",
+     compiled.has("condition_on_hit"));
+    assertEquals(monster+" / "+action,indexed.getString("condition"),
+     compiled.optString("condition_alternative"));
+    assertTrue(monster+" / "+action,compiled.optBoolean("manual_effect_choice_required"));
+   }else assertTrue(monster+" / "+action,
     ConditionTokenGuard.has(compiled.optString("condition_on_hit"),indexed.getString("condition")));
    assertEquals(monster+" / "+action,maximum.toLowerCase(java.util.Locale.ROOT),
     compiled.optString("condition_max_target_size"));
 
-   JSONObject hit=Xmm2025AttackConditionEngine.resolve(new JSONObject().put("monster",monster)
+   JSONObject request=new JSONObject().put("monster",monster)
     .put("action",action).put("attack_hit",true).put("target_is_creature",true)
-    .put("target_size",maximum));
+    .put("target_size",maximum);
+   if(indexed.optBoolean("choice_required")){
+    JSONObject pending=Xmm2025AttackConditionEngine.resolve(request);
+    assertTrue(monster+" / "+action+": "+pending,pending.optBoolean("resolved"));
+    assertEquals("pending_effect_choice",pending.optString("status"));
+    assertEquals(0,pending.getJSONArray("proposed_conditions").length());
+    request.put("chosen_effect_option","grapple");
+   }
+   JSONObject hit=Xmm2025AttackConditionEngine.resolve(request);
    assertTrue(monster+" / "+action+": "+hit,hit.optBoolean("resolved"));
    JSONArray proposed=hit.getJSONArray("proposed_conditions");assertEquals(monster+" / "+action,1,proposed.length());
    JSONObject condition=proposed.getJSONObject(0);

@@ -4,6 +4,37 @@ from io import BytesIO
 import verify_xmm_503_source as xmm
 
 class XmmIndependentSourceTests(unittest.TestCase):
+    def test_ongoing_attack_damage_is_an_independent_manual_effect(self):
+        source=[
+            {"name":"Half-Dragon","action":[{"name":"Claw","entries":[
+                "Hit: slashing damage plus damage of the type chosen for the Draconic Origin trait."]}]},
+            {"name":"Vine Blight","action":[{"name":"Constricting Vine","entries":[
+                "Hit: Bludgeoning damage. While grappled, target takes Bludgeoning damage at the start of each of its turns."]}]},
+        ]
+        compiled=[
+            {"id":"Half-Dragon","actions":[{"name":"Claw","manual_unmodeled_source_effect_required":True}]},
+            {"id":"Vine Blight","actions":[{"name":"Constricting Vine","manual_unmodeled_source_effect_required":True}]},
+        ]
+        self.assertEqual(([],2),xmm.check_unmodeled_action_effects(source,compiled))
+        compiled[1]["actions"][0]["manual_unmodeled_source_effect_required"]=False
+        errors,count=xmm.check_unmodeled_action_effects(source,compiled)
+        self.assertEqual(2,count)
+        self.assertIn("UNTYPED_SOURCE_EFFECT_NOT_MANUAL",errors[0])
+    def test_primary_hit_damage_is_compared_against_source_not_compiled_value(self):
+        source=[{"name":"Test Monster","action":[{"name":"Claw","entries":[
+            "{@atkr m} {@hit 5}, reach 5 ft. {@h}6 ({@damage 1d6 + 3}) Slashing damage."]}]}]
+        compiled=[{"id":"Test Monster","actions":[{"name":"Claw","damage":"1d6 + 3",
+            "damage_type":"slashing"}]}]
+        self.assertEqual(([],1),xmm.check_attack_primary_damage(source,compiled,1))
+        compiled[0]["actions"][0]["damage"]="2d6 + 3"
+        errors,count=xmm.check_attack_primary_damage(source,compiled,1)
+        self.assertEqual(1,count)
+        self.assertIn("PRIMARY_HIT_DAMAGE_MISMATCH",errors[0])
+        compiled[0]["actions"][0]["damage"]="1d6 + 3"
+        compiled[0]["actions"][0]["damage_type"]="piercing"
+        errors,count=xmm.check_attack_primary_damage(source,compiled,1)
+        self.assertEqual(1,count)
+        self.assertIn("PRIMARY_HIT_DAMAGE_MISMATCH",errors[0])
     def test_source_fetch_retries_transient_timeout_and_keeps_pin_url(self):
         calls=[]
         class Response(BytesIO):
