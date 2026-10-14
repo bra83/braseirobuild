@@ -49,6 +49,29 @@ class XmmIndependentSourceTests(unittest.TestCase):
         self.assertEqual(1,count)
         self.assertEqual(["Brown Bear:Multiattack:SOURCE_SEQUENCE_MISMATCH"],errors)
 
+    def test_fixed_three_attack_multiattack_preserves_full_source_order(self):
+        monster={"name":"Grick Ancient","action":[
+            {"name":"Multiattack","entries":["The grick makes one Beak attack, one Slam attack, and one Tentacles attack."]},
+            {"name":"Beak"},{"name":"Slam"},{"name":"Tentacles"}]}
+        self.assertEqual(["Beak","Slam","Tentacles"],
+            xmm.simple_ordered_multiattack_plan(monster,monster["action"][0]))
+        compiled=[{"id":"Grick Ancient","actions":[{"name":"Multiattack","manual_rider_resolution_required":False},
+            {"name":"Beak","to_hit":5,"manual_rider_resolution_required":False},
+            {"name":"Slam","to_hit":5,"manual_rider_resolution_required":False},
+            {"name":"Tentacles","to_hit":5,"manual_rider_resolution_required":False}],
+            "multiattack":{"source_bound":True,"count":3,"sequence":["Beak","Slam","Tentacles"]}}]
+        self.assertEqual(([],1),xmm.check_simple_multiattacks([monster],compiled))
+        compiled[0]["multiattack"]["sequence"]=["Beak","Tentacles","Slam"]
+        errors,count=xmm.check_simple_multiattacks([monster],compiled)
+        self.assertEqual(1,count)
+        self.assertEqual(["Grick Ancient:Multiattack:SOURCE_SEQUENCE_MISMATCH"],errors)
+
+    def test_multiattack_with_leading_extra_action_is_not_reduced_to_attack_only(self):
+        monster={"name":"Carrion Crawler","action":[
+            {"name":"Multiattack","entries":["The carrion crawler uses Paralyzing Tentacles and makes one Bite attack."]},
+            {"name":"Multiattack"},{"name":"Paralyzing Tentacles"},{"name":"Bite"}]}
+        self.assertIsNone(xmm.simple_ordered_multiattack_plan(monster,monster["action"][0]))
+
     def test_advantage_bonus_damage_is_typed_for_all_six_source_attacks(self):
         rows=[
             ("Goblin Boss","Scimitar","1d6 + 2",5,2,"1d4","slashing",4,"m",5,0,0),

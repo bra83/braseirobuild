@@ -603,19 +603,34 @@ def simple_repeat_multiattack_plan(monster,action):
     return (count,found[0]) if len(found)==1 else None
 
 def simple_ordered_multiattack_plan(monster,action):
-    """Parse a whole sentence with a fixed quantity of two named attacks."""
+    """Parse a whole sentence with fixed quantities of named attacks."""
     text=" ".join(x for x in action.get("entries",[]) if isinstance(x,str))
-    match=re.fullmatch(r"The [A-Za-z' -]+ makes (one|two|three|four) (.+?) attacks? and (one|two|three|four) (.+?) attacks?\.",text,re.I)
-    if not match:return None
     number={"one":1,"two":2,"three":3,"four":4}
+    match=re.fullmatch(r"The (?P<subject>[A-Za-z' -]+) makes (?P<body>.+)\.",text,re.I)
+    if not match:return None
+    if re.search(r"\b(?:uses|and|can|could|or|if|then|also|replace|replaces)\b",match.group("subject"),re.I):return None
+    body=match.group("body");pos=0
+    names=sorted({a.get("name","") for a in monster.get("action",[])
+                  if a.get("name")!="Multiattack" and a.get("name")},key=len,reverse=True)
     sequence=[]
-    for quantity,phrase in ((match.group(1),match.group(2)),(match.group(3),match.group(4))):
-        name=phrase.strip().casefold()
-        choices={name,name[:-1] if name.endswith("s") else name+"s"}
-        found=[a.get("name","") for a in monster.get("action",[])
-               if a.get("name")!="Multiattack" and a.get("name","").casefold() in choices]
-        if len(found)!=1:return None
-        sequence.extend([found[0]]*number[quantity.casefold()])
+    while pos<len(body):
+        quantity=re.match(r"(one|two|three|four)\s+",body[pos:],re.I)
+        if not quantity:return None
+        pos+=quantity.end()
+        found=[]
+        for name in names:
+            variants={name,name[:-1] if name.casefold().endswith("s") else name+"s"}
+            for variant in variants:
+                action_name=re.match(re.escape(variant)+r"\s+attacks?\b",body[pos:],re.I)
+                if action_name:found.append((name,action_name.end()))
+        if len({name for name,_ in found})!=1:return None
+        source_name,consumed=found[0];pos+=consumed
+        sequence.extend([source_name]*number[quantity.group(1).casefold()])
+        if pos==len(body):break
+        separator=re.match(r",\s+and\s+|,\s+|\s+and\s+",body[pos:],re.I)
+        if not separator:return None
+        pos+=separator.end()
+        if pos==len(body):return None
     return sequence
 
 def check_simple_multiattacks(source,compiled):
