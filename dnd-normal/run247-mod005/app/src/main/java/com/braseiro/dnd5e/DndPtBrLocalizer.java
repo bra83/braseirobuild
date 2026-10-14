@@ -34,6 +34,7 @@ public final class DndPtBrLocalizer {
         add("ATTACKS", "ATAQUES");
         add("Paralyzing Touch", "Toque Paralisante");
         add("Flame Whip", "Chicote de Chamas");
+        add("Serpentine Gaze", "Olhar Serpentino");
         add("Beard", "Barba");
         add("Infernal Sting", "Ferrão Infernal");
         add("Dread Scythe", "Foice do Pavor");

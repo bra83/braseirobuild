@@ -8,6 +8,7 @@ public final class XmmPtBrActionLabelTest {
     @Test public void chargeAndManualRiderActionNamesAreShownInBrazilianPortuguese(){
         String[][] names={
             {"Claws","Garras"},{"Flame Whip","Chicote de Chamas"},
+            {"Serpentine Gaze","Olhar Serpentino"},
             {"Beard","Barba"},{"Infernal Sting","Ferrão Infernal"},
             {"Dread Scythe","Foice do Pavor"},
             {"Morningstar","Maça-estrela"},{"Light Hammer","Martelo Leve"},
