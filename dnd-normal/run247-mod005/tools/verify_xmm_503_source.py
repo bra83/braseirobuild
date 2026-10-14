@@ -44,6 +44,21 @@ TARGET_TURN_END_HIT_CONDITIONS={
     ("Hill Giant","Trash Lob"):"poisoned",
     ("Ghast Gravecaller","Horrific Necrosis"):"frightened",
 }
+CHARGE_EXTRA_DAMAGE_ACTIONS={
+    ("Boar","Gore"): (20,"piercing","medium"),
+    ("Elk","Ram"): (20,"bludgeoning","large"),
+    ("Galeb Duhr","Avalanche Slam"): (20,"bludgeoning","large"),
+    ("Giant Boar","Gore"): (20,"piercing","large"),
+    ("Giant Elk","Ram"): (20,"bludgeoning","huge"),
+    ("Giant Goat","Ram"): (20,"bludgeoning","large"),
+    ("Minotaur of Baphomet","Gore"): (10,"piercing","large"),
+    ("Minotaur Skeleton","Gore"): (20,"piercing","large"),
+    ("Primeval Owlbear","Ravage"): (20,"slashing","huge"),
+    ("Rhinoceros","Gore"): (20,"piercing","large"),
+    ("Triceratops","Gore"): (20,"piercing","huge"),
+    ("Warhorse","Hooves"): (20,"bludgeoning","large"),
+    ("Wereboar","Tusk (Boar or Hybrid Form Only)"): (20,"piercing","medium"),
+}
 LITERAL=re.compile(r'^\s*("(?:\\.|[^"\\])*")\s*,?\s*$',re.M)
 RCH=re.compile(r'\s*\{@recharge(?: (\d))?\}')
 SP=re.compile(r'\{@spell ([^|}]+)')
@@ -251,9 +266,37 @@ def peryton_gore_extra_damage_matches(source_action,compiled_action):
         compiled_action.get("damage")=="1d8 + 3" and
         compiled_action.get("damage_type","").lower()=="piercing" and
         compiled_action.get("extra_damage")=="2d8" and
+        compiled_action.get("extra_damage_type","").lower()=="piercing" and
         compiled_action.get("extra_damage_condition")=="moved_30ft_straight_toward_target_immediately_before_hit" and
         not compiled_action.get("damage_alternative_expression") and
         not compiled_action.get("damage_alternative_condition") and
+        compiled_action.get("manual_rider_resolution_required") is True)
+
+def charge_extra_damage_matches(monster_name,source_action,compiled_action):
+    action_name=RCH.sub("",source_action.get("name","")).strip()
+    contract=CHARGE_EXTRA_DAMAGE_ACTIONS.get((monster_name,action_name))
+    if contract is None:
+        return True
+    distance,damage_type,size=contract
+    entry=" ".join(x for x in source_action.get("entries",[]) if isinstance(x,str))
+    before,separator,after=entry.partition(" If ")
+    base_components=re.findall(r"\{@damage\s+([^}]+)\}\)\s*([A-Za-z]+)\s+damage",before,re.I)
+    extra=re.search(r"takes an extra \d+\s*\(\{@damage\s+([^}]+)\}\)\s*([A-Za-z]+)\s+damage",after,re.I)
+    source_distance=re.search(r"moved (\d+)\+ feet straight toward",after,re.I)
+    source_size=re.search(r"target is (?:a )?(tiny|small|medium|large|huge|gargantuan) or smaller",after,re.I)
+    expected_condition=f"moved_{distance}ft_straight_toward_target_immediately_before_hit"
+    return bool(separator and len(base_components)>=1 and extra and source_distance and source_size and
+        int(source_distance.group(1))==distance and source_size.group(1).lower()==size and
+        any("{@condition Prone" in x for x in source_action.get("entries",[]) if isinstance(x,str)) and
+        compiled_action.get("damage")==" + ".join(x[0].strip() for x in base_components) and
+        compiled_action.get("damage_type","").lower()==" + ".join(x[1].lower() for x in base_components) and
+        compiled_action.get("extra_damage")==extra.group(1).strip() and
+        extra.group(2).lower()==damage_type and
+        compiled_action.get("extra_damage_type","").lower()==damage_type and
+        compiled_action.get("extra_damage_condition")==expected_condition and
+        compiled_action.get("extra_damage_condition_on_hit")=="prone" and
+        compiled_action.get("extra_damage_max_target_size")==size and
+        "condition_on_fail" not in compiled_action and
         compiled_action.get("manual_rider_resolution_required") is True)
 
 def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expected_manual=5):
@@ -325,6 +368,9 @@ def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expecte
             if monster["name"]=="Peryton" and action.get("name")=="Gore" and \
                not peryton_gore_extra_damage_matches(action,compiled_action):
                 errors.append("Peryton:Gore:EXTRA_DAMAGE_BRANCH_MISMATCH")
+            if (monster["name"],RCH.sub("",action.get("name","")).strip()) in CHARGE_EXTRA_DAMAGE_ACTIONS and \
+               not charge_extra_damage_matches(monster["name"],action,compiled_action):
+                errors.append(f"{monster['name']}:{action['name']}:CHARGE_EXTRA_DAMAGE_BRANCH_MISMATCH")
     if bloodied_count!=expected_bloodied: errors.append(f"BLOODIED_BRANCH_TOTAL:{bloodied_count}:{expected_bloodied}")
     if manual_count!=expected_manual: errors.append(f"UNMODELED_ALTERNATE_DAMAGE_TOTAL:{manual_count}:{expected_manual}")
     return errors,{"source_bloodied_attack_branches":bloodied_count,

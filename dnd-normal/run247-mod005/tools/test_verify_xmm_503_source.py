@@ -156,11 +156,23 @@ class XmmIndependentSourceTests(unittest.TestCase):
         source={"name":"Gore","entries":[
           "{@h}7 ({@damage 1d8 + 3}) Piercing damage. If the peryton moved 30+ feet straight toward the target immediately before the hit, the target takes an extra 9 ({@damage 2d8}) Piercing damage."]}
         compiled={"damage":"1d8 + 3","damage_type":"piercing","extra_damage":"2d8",
+          "extra_damage_type":"piercing",
           "extra_damage_condition":"moved_30ft_straight_toward_target_immediately_before_hit",
           "manual_rider_resolution_required":True}
         self.assertTrue(xmm.peryton_gore_extra_damage_matches(source,compiled))
         compiled["damage_alternative_expression"]="2d8"
         self.assertFalse(xmm.peryton_gore_extra_damage_matches(source,compiled))
+    def test_charge_damage_is_separate_from_base_and_has_hit_gates(self):
+        source={"name":"Gore","entries":[
+          "{@h}4 ({@damage 1d6 + 1}) Piercing damage. If the target is a Medium or smaller creature and the boar moved 20+ feet straight toward it immediately before the hit, the target takes an extra 3 ({@damage 1d6}) Piercing damage and has the {@condition Prone|XPHB} condition."]}
+        compiled={"damage":"1d6 + 1","damage_type":"piercing","extra_damage":"1d6",
+          "extra_damage_type":"piercing",
+          "extra_damage_condition":"moved_20ft_straight_toward_target_immediately_before_hit",
+          "extra_damage_condition_on_hit":"prone","extra_damage_max_target_size":"medium",
+          "manual_rider_resolution_required":True}
+        self.assertTrue(xmm.charge_extra_damage_matches("Boar",source,compiled))
+        compiled["condition_on_fail"]="prone"
+        self.assertFalse(xmm.charge_extra_damage_matches("Boar",source,compiled))
     def test_unmodeled_action_riders_fail_closed(self):
         source=[{"name":"Giant Axe Beak","action":[{"name":"Sharpened Beak",
           "entries":["Hit the target, and a creature within 5 feet of the target takes damage."]}]}]

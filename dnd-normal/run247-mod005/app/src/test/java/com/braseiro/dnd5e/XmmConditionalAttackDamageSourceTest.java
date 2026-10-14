@@ -7,6 +7,21 @@ import static org.junit.Assert.*;
 
 /** Source-verified alternatives must select one branch or block before damage. */
 public final class XmmConditionalAttackDamageSourceTest {
+    private static final Object[][] CHARGE_EXTRA={
+        {"Boar","Gore","1d6 + 1","piercing","1d6","piercing","medium",20},
+        {"Elk","Ram","1d6 + 3","bludgeoning","1d6","bludgeoning","large",20},
+        {"Galeb Duhr","Avalanche Slam","2d6 + 5","bludgeoning","2d6","bludgeoning","large",20},
+        {"Giant Boar","Gore","2d6 + 3","piercing","2d6","piercing","large",20},
+        {"Giant Elk","Ram","2d6 + 4 + 2d4","bludgeoning + radiant","2d4","bludgeoning","huge",20},
+        {"Giant Goat","Ram","1d6 + 3","bludgeoning","2d4","bludgeoning","large",20},
+        {"Minotaur of Baphomet","Gore","4d6 + 4","piercing","3d6","piercing","large",10},
+        {"Minotaur Skeleton","Gore","2d6 + 4","piercing","2d8","piercing","large",20},
+        {"Primeval Owlbear","Ravage","2d8 + 6","slashing","2d8","slashing","huge",20},
+        {"Rhinoceros","Gore","2d8 + 5","piercing","2d8","piercing","large",20},
+        {"Triceratops","Gore","2d12 + 6","piercing","2d8","piercing","huge",20},
+        {"Warhorse","Hooves","2d4 + 4","bludgeoning","2d4","bludgeoning","large",20},
+        {"Wereboar","Tusk (Boar or Hybrid Form Only)","2d6 + 3","piercing","2d6","piercing","medium",20}
+    };
     private static final Object[][] BLOODIED={
         {"Blood Hawk","Beak","1d4 + 2","1d8 + 2","piercing",false},
         {"Quaggoth","Claw","1d6 + 3","3d6 + 3","slashing",false},
@@ -60,6 +75,23 @@ public final class XmmConditionalAttackDamageSourceTest {
     }
 
     @Test public void unmodeledMoveAdvantageAndGrappleAlternativesFailClosed(){
+        for(Object[] row:CHARGE_EXTRA){
+            String id=(String)row[0],actionName=(String)row[1];
+            JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile(id),actionName);
+            assertNotNull(id+" action",action);
+            assertEquals(id+" normal damage",row[2],action.optString("damage"));
+            assertEquals(id+" normal damage types",row[3],action.optString("damage_type"));
+            assertEquals(id+" conditional extra",row[4],action.optString("extra_damage"));
+            assertEquals(id+" extra damage type",row[5],action.optString("extra_damage_type",(String)row[5]));
+            assertEquals(id+" target size gate",row[6],action.optString("extra_damage_max_target_size"));
+            assertEquals(id+" movement gate","moved_"+row[7]+"ft_straight_toward_target_immediately_before_hit",
+                action.optString("extra_damage_condition"));
+            assertEquals(id+" conditional prone","prone",action.optString("extra_damage_condition_on_hit"));
+            assertFalse(id+" prone cannot mean failed save/attack",action.has("condition_on_fail"));
+            assertTrue(id+" must remain manual",action.optBoolean("manual_rider_resolution_required"));
+            JSONObject blocked=StatblockCombatRuntimeEngine.attack(id,actionName,20,1,20,40);
+            assertTrue(id+" movement gate fails closed: "+blocked,blocked.optBoolean("blocked"));
+        }
         JSONObject perytonGore=findAction(CompiledStatblockEngine.runtimeProfile("Peryton"),"Gore");
         assertNotNull(perytonGore);
         assertEquals("1d8 + 3",perytonGore.optString("damage"));
