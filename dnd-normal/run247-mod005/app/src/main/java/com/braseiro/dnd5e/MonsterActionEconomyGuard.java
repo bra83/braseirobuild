@@ -55,6 +55,8 @@ public final class MonsterActionEconomyGuard {
     }
     public static String attackRiderBlock(JSONObject action,boolean allowTypedOnHit) {
         if(action==null)return "unresolved_attack_hit_rider_requires_typed_handler";
+        if(!allowTypedOnHit&&!action.optString("attack_advantage_condition","").trim().isEmpty())
+            return "unsupported_multiattack_conditional_advantage";
         if(action.optBoolean("manual_unmodeled_source_effect_required",false))
             return "manual_source_action_resolution_required";
         if(XmmChargeMovementRules.supported(action))

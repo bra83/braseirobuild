@@ -6,7 +6,9 @@ import verify_xmm_503_source as xmm
 class XmmIndependentSourceTests(unittest.TestCase):
     def test_simple_multiattack_requires_exact_source_count_and_choices(self):
         source=[{"name":"Goblin Boss","action":[{"name":"Multiattack","entries":[
-            "The goblin makes two attacks, using Scimitar or Shortbow in any combination."]}]}]
+            "The goblin makes two attacks, using Scimitar or Shortbow in any combination."]},
+            {"name":"Scimitar","entries":["{@atkr m} {@hit 4}, reach 5 ft."]},
+            {"name":"Shortbow","entries":["{@atkr r} {@hit 4}, range 80/320 ft."]}]}]
         compiled=[{"id":"Goblin Boss","actions":[{"name":"Multiattack",
             "manual_rider_resolution_required":False},{"name":"Scimitar","to_hit":4},{"name":"Shortbow","to_hit":4}],
             "multiattack":{"source_bound":True,"count":2,"options":"Scimitar|Shortbow"}}]
@@ -23,7 +25,7 @@ class XmmIndependentSourceTests(unittest.TestCase):
 
     def test_simple_repeated_multiattack_is_bound_to_exact_component_and_count(self):
         source=[{"name":"Ape","action":[{"name":"Multiattack","entries":[
-            "The ape makes two Fist attacks."]},{"name":"Fist"}]}]
+            "The ape makes two Fist attacks."]},{"name":"Fist","entries":["{@atkr m} {@hit 5}, reach 5 ft."]}]}]
         compiled=[{"id":"Ape","actions":[{"name":"Multiattack",
             "manual_rider_resolution_required":False},{"name":"Fist","to_hit":5,
             "manual_rider_resolution_required":False}],
@@ -37,7 +39,8 @@ class XmmIndependentSourceTests(unittest.TestCase):
     def test_fixed_mixed_multiattack_preserves_source_order_and_repetition(self):
         monster={"name":"Brown Bear","action":[
             {"name":"Multiattack","entries":["The bear makes one Bite attack and one Claw attack."]},
-            {"name":"Bite"},{"name":"Claw"}]}
+            {"name":"Bite","entries":["{@atkr m} {@hit 5}"]},
+            {"name":"Claw","entries":["{@atkr m} {@hit 5}"]}]}
         self.assertEqual(["Bite","Claw"],xmm.simple_ordered_multiattack_plan(monster,monster["action"][0]))
         compiled=[{"id":"Brown Bear","actions":[{"name":"Multiattack","manual_rider_resolution_required":False},
             {"name":"Bite","to_hit":5,"manual_rider_resolution_required":False},
@@ -52,7 +55,9 @@ class XmmIndependentSourceTests(unittest.TestCase):
     def test_fixed_three_attack_multiattack_preserves_full_source_order(self):
         monster={"name":"Grick Ancient","action":[
             {"name":"Multiattack","entries":["The grick makes one Beak attack, one Slam attack, and one Tentacles attack."]},
-            {"name":"Beak"},{"name":"Slam"},{"name":"Tentacles"}]}
+            {"name":"Beak","entries":["{@atkr m} {@hit 5}"]},
+            {"name":"Slam","entries":["{@atkr m} {@hit 5}"]},
+            {"name":"Tentacles","entries":["{@atkr m} {@hit 5}"]}]}
         self.assertEqual(["Beak","Slam","Tentacles"],
             xmm.simple_ordered_multiattack_plan(monster,monster["action"][0]))
         compiled=[{"id":"Grick Ancient","actions":[{"name":"Multiattack","manual_rider_resolution_required":False},
@@ -71,6 +76,18 @@ class XmmIndependentSourceTests(unittest.TestCase):
             {"name":"Multiattack","entries":["The carrion crawler uses Paralyzing Tentacles and makes one Bite attack."]},
             {"name":"Multiattack"},{"name":"Paralyzing Tentacles"},{"name":"Bite"}]}
         self.assertIsNone(xmm.simple_ordered_multiattack_plan(monster,monster["action"][0]))
+
+    def test_simple_syntax_with_manual_component_is_not_claimed_as_executable(self):
+        source=[{"name":"Fixture","action":[
+            {"name":"Multiattack","entries":["The creature makes one Bite attack and one Gaze attack."]},
+            {"name":"Bite","entries":["{@atkr m} {@hit 4}, reach 5 ft. {@h}1 damage."]},
+            {"name":"Gaze","entries":["{@actSave wis} {@dc 12}. {@actSaveFail} Blinded."]}]}]
+        compiled=[{"id":"Fixture","actions":[
+            {"name":"Multiattack","manual_rider_resolution_required":False},
+            {"name":"Bite","to_hit":4,"manual_rider_resolution_required":False},
+            {"name":"Gaze","manual_rider_resolution_required":True}],
+            "multiattack":{"source_bound":True,"count":2,"sequence":["Bite","Gaze"]}}]
+        self.assertEqual(([],0),xmm.check_simple_multiattacks(source,compiled))
 
     def test_advantage_bonus_damage_is_typed_for_all_six_source_attacks(self):
         rows=[
@@ -138,6 +155,21 @@ class XmmIndependentSourceTests(unittest.TestCase):
         errors,count=xmm.check_wounded_target_advantage_attacks(source,compiled)
         self.assertEqual(3,count)
         self.assertIn("WOUNDED_TARGET_ADVANTAGE_MISMATCH",errors[0])
+
+    def test_grappled_target_advantage_is_bound_to_bugbear_warrior_light_hammer(self):
+        source=[{"name":"Bugbear Warrior","action":[{"name":"Light Hammer","entries":[
+            "{@atkr m,r} {@hit 4} (with {@variantrule Advantage|XPHB} if the target is {@condition Grappled|XPHB} by the bugbear), reach 10 ft. or range 20/60 ft. {@h}9 ({@damage 3d4 + 2}) Bludgeoning damage."]}]}]
+        compiled=[{"id":"Bugbear Warrior","actions":[{"name":"Light Hammer","to_hit":4,
+            "attack_modes":["m","r"],"reach_ft":10,"range_normal_ft":20,"range_long_ft":60,
+            "damage":"3d4 + 2","damage_type":"bludgeoning",
+            "attack_advantage_condition":"target_grappled_by_attacker",
+            "manual_rider_resolution_required":False,"manual_unmodeled_source_effect_required":False}]}]
+        self.assertEqual(([],1),xmm.check_grappled_target_advantage_attacks(source,compiled))
+        compiled[0]["actions"][0]["attack_advantage_condition"]="target_bloodied"
+        errors,count=xmm.check_grappled_target_advantage_attacks(source,compiled)
+        self.assertEqual(0,count)
+        self.assertEqual(["Bugbear Warrior:Light Hammer:GRAPPLED_TARGET_ADVANTAGE_MISMATCH",
+            "GRAPPLED_TARGET_ADVANTAGE_COUNT:0"],errors)
 
     def test_chain_devil_infernal_chain_requires_every_source_bound_rider(self):
         source={"name":"Conjure Infernal Chain","entries":[

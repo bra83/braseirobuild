@@ -12,10 +12,20 @@ public final class XmmConditionalAttackRollRules {
         public boolean legal(){return blocked.isEmpty();}
     }
     public static Result advantage(JSONObject action,int targetHp,int targetMaxHp){
-        if(action==null||!action.optBoolean("attack_advantage_if_target_missing_hit_points",false))
-            return new Result("",false);
-        if(targetMaxHp<=0||targetHp<0||targetHp>targetMaxHp)
+        return advantage(action,targetHp,targetMaxHp,null);
+    }
+    public static Result advantage(JSONObject action,int targetHp,int targetMaxHp,
+        Boolean targetGrappledByAttacker){
+        if(action==null)return new Result("",false);
+        boolean wounded=action.optBoolean("attack_advantage_if_target_missing_hit_points",false);
+        boolean grappled=action.optBoolean("attack_advantage_if_target_grappled_by_attacker",false)||
+            "target_grappled_by_attacker".equals(action.optString("attack_advantage_condition",""));
+        if(!wounded&&!grappled)return new Result("",false);
+        if(wounded&&(targetMaxHp<=0||targetHp<0||targetHp>targetMaxHp))
             return new Result("source_advantage_target_hit_points_unverified",false);
-        return new Result("",targetHp<targetMaxHp);
+        if(grappled&&targetGrappledByAttacker==null)
+            return new Result("source_advantage_grapple_link_unverified",false);
+        return new Result("",(wounded&&targetHp<targetMaxHp)||
+            (grappled&&Boolean.TRUE.equals(targetGrappledByAttacker)));
     }
 }

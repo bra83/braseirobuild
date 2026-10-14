@@ -78,7 +78,7 @@ public final class XmmConditionalAttackDamageSourceTest {
         String[][] noSave={
             {"Allosaurus","Claws"},
             {"Bugbear Stalker","Morningstar"},
-            {"Bugbear Warrior","Light Hammer"},{"Cloaker","Attach"},{"Darkmantle","Crush"},
+            {"Cloaker","Attach"},{"Darkmantle","Crush"},
             {"Death Slaad","Chaos Blade"},{"Elephant","Gore"},
             {"Empyrean","Sacred Weapon"},{"Ghast Gravecaller","Claw"},{"Giant Frog","Swallow"},
             {"Giant Toad","Swallow"},{"Githzerai Psion","Psychic Warp"},{"Gorgon","Gore"},
@@ -178,6 +178,19 @@ public final class XmmConditionalAttackDamageSourceTest {
                 .optString("damage_alternative_expression");
             assertEquals(sourceAlternative,charged.optString("damage_expression"));
         }
+    }
+
+    @Test public void bugbearWarriorConditionalAdvantageUsesOnlyItsTypedGrappleLink(){
+        JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile("Bugbear Warrior"),"Light Hammer");
+        assertNotNull(action);
+        assertEquals("target_grappled_by_attacker",action.optString("attack_advantage_condition"));
+        assertFalse(action.optBoolean("manual_rider_resolution_required",true));
+        assertFalse(action.optBoolean("manual_unmodeled_source_effect_required",false));
+        assertEquals("",MonsterActionEconomyGuard.attackRiderBlock(action,"Bugbear Warrior"));
+        assertEquals("unsupported_multiattack_conditional_advantage",
+            MonsterActionEconomyGuard.attackRiderBlock(action,false));
+        JSONObject stalker=findAction(CompiledStatblockEngine.runtimeProfile("Bugbear Stalker"),"Morningstar");
+        assertTrue(stalker.optBoolean("manual_unmodeled_source_effect_required",false));
     }
 
     @Test public void everyPinnedChargeActionHasTheTypedMovementGate(){

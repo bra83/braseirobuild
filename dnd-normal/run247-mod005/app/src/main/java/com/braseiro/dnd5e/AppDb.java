@@ -2740,11 +2740,15 @@ public class AppDb extends SQLiteOpenHelper {
             JSONObject geometry=compiledStatblockAttackGeometry(actorId,targetId,id,action,additionalThreatId);
             if(!geometry.optBoolean("attack_geometry_valid",false))
                 return out.put("monster_roll_preview_blocked",geometry.optString("attack_geometry_blocked","invalid_geometry"));
+            XmmConditionalAttackRollRules.Result sourceMode=XmmConditionalAttackRollRules.advantage(
+                sourceAction,target.optInt("hp",-1),target.optInt("max_hp",-1),
+                xmmTargetGrappledByAttacker(actorId,targetId));
+            if(!sourceMode.legal())return out.put("monster_roll_preview_blocked",sourceMode.blocked);
             MonsterAttackRollModeRules.Result rule=MonsterAttackRollModeRules.evaluate(
                 geometry.optString("attack_mode",""),geometry.optInt("distance_ft",0),
                 geometry.optBoolean("long_range_disadvantage",false),
                 actor.optString("conditions",""),target.optString("conditions",""),
-                geometry.optBoolean("additional_adjacent_hostile",false));
+                geometry.optBoolean("additional_adjacent_hostile",false),sourceMode.advantage);
             if(!rule.legal())return out.put("monster_roll_preview_blocked",rule.blocked);
             return out.put("monster_roll_preview_valid",true)
                 .put("roll_mode",rule.modeName()).put("second_d20_required",rule.mode!=MonsterAttackRollModeRules.NORMAL)
@@ -2757,6 +2761,19 @@ public class AppDb extends SQLiteOpenHelper {
         }catch(Exception failure){AppLog.e("AppDb","Falha ao visualizar modo de ataque compilado",failure);
             try{return out.put("monster_roll_preview_blocked","preview_runtime_error");}
             catch(Exception ignored){return out;}}
+    }
+
+    /** Resolve only a valid, persisted source-to-target XMM grapple link. */
+    private Boolean xmmTargetGrappledByAttacker(long actorId,long targetId){
+        JSONObject target=getCombatant(targetId);
+        if(target.length()==0)return null;
+        boolean grappled=ConditionTokenGuard.has(target.optString("conditions",""),"grappled");
+        JSONObject state=combatResources(target).optJSONObject("xmm_grapple_state");
+        if(!grappled)return state==null?Boolean.FALSE:null;
+        if(state==null)return null;
+        JSONObject info=getXmmGrappleEscapeInfo(targetId);
+        if(!info.optBoolean("grapple_escape_available",false))return null;
+        return info.optLong("source_actor_id",0)==actorId;
     }
 
     /** Resolve a compiled monster/statblock attack through the same combat
@@ -2920,7 +2937,7 @@ public class AppDb extends SQLiteOpenHelper {
                 return out.put("statblock_attack_blocked","invalid_roll_input");
             XmmConditionalAttackRollRules.Result sourceRollMode=
                 XmmConditionalAttackRollRules.advantage(sourceAction,target.optInt("hp",-1),
-                    target.optInt("max_hp",-1));
+                    target.optInt("max_hp",-1),xmmTargetGrappledByAttacker(actorId,targetId));
             if(!sourceRollMode.legal())return out.put("statblock_attack_blocked",sourceRollMode.blocked);
             MonsterAttackRollModeRules.Result context=MonsterAttackRollModeRules.evaluate(
                 geometry.optString("attack_mode",""),geometry.optInt("distance_ft",0),
@@ -3229,7 +3246,7 @@ public class AppDb extends SQLiteOpenHelper {
                 int secondNatural=step.optInt("long_range_second_d20",0);
                 XmmConditionalAttackRollRules.Result sourceRollMode=
                     XmmConditionalAttackRollRules.advantage(componentSource,target.optInt("hp",-1),
-                        target.optInt("max_hp",-1));
+                        target.optInt("max_hp",-1),xmmTargetGrappledByAttacker(actorId,targetId));
                 if(!sourceRollMode.legal())return out.put("statblock_multiattack_blocked",
                     sourceRollMode.blocked+"_"+i);
                 MonsterAttackRollModeRules.Result context=MonsterAttackRollModeRules.evaluate(
@@ -3393,7 +3410,8 @@ public class AppDb extends SQLiteOpenHelper {
                 JSONObject liveAction=compiledMonsterRiderAction(id,actions[i]);
                 XmmConditionalAttackRollRules.Result liveSourceMode=
                     XmmConditionalAttackRollRules.advantage(liveAction,
-                        liveTarget.optInt("hp",-1),liveTarget.optInt("max_hp",-1));
+                        liveTarget.optInt("hp",-1),liveTarget.optInt("max_hp",-1),
+                        xmmTargetGrappledByAttacker(actorId,targetId));
                 if(!liveSourceMode.legal())
                     throw new IllegalStateException("multiattack_dynamic_source_roll_mode_rollback_"+i);
                 MonsterAttackRollModeRules.Result liveMode=MonsterAttackRollModeRules.evaluate(

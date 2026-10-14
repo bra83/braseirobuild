@@ -56,6 +56,9 @@ WOUNDED_TARGET_ADVANTAGE_ATTACKS={
     ("Piranha","Bite"): (5,"1","piercing"),
     ("Swarm of Piranhas","Bites"): (5,"2d4 + 3","piercing"),
 }
+GRAPPLED_TARGET_ADVANTAGE_ATTACKS={
+    ("Bugbear Warrior","Light Hammer"): (4,"3d4 + 2","bludgeoning"),
+}
 SOURCE_TURN_START_HEALING_SUPPRESSION={("Bearded Devil","Beard"),
     ("Bone Devil","Infernal Sting"),("Dire Worg","Bite")}
 TARGET_TURN_END_HIT_CONDITIONS={
@@ -642,7 +645,34 @@ def check_simple_multiattacks(source,compiled):
         repeat_plan=simple_repeat_multiattack_plan(monster,action)
         ordered_plan=simple_ordered_multiattack_plan(monster,action)
         if choice_plan is None and repeat_plan is None and ordered_plan is None:continue
-        checked+=1;dst=by_id.get(monster.get("name"),{})
+        dst=by_id.get(monster.get("name"),{})
+        if choice_plan is not None:
+            candidate_components=choice_plan[1].split("|")
+        elif repeat_plan is not None:
+            candidate_components=[repeat_plan[1]]
+        else:
+            candidate_components=list(dict.fromkeys(ordered_plan))
+        source_actions={a.get("name"):a for a in monster.get("action",[])
+                        if a.get("name")!="Multiattack"}
+        runtime_actions={a.get("name"):a for a in dst.get("actions",[])}
+        executable=True
+        for component in candidate_components:
+            source_attack=source_actions.get(component,{})
+            runtime_attack=runtime_actions.get(component,{})
+            source_text=" ".join(x for x in source_attack.get("entries",[]) if isinstance(x,str))
+            if (not re.search(r"\{@atkr\b",source_text,re.I) or
+                source_action_requires_manual_resolution(source_attack,monster.get("name","")) or
+                runtime_attack.get("to_hit") is None or
+                runtime_attack.get("manual_rider_resolution_required",False) or
+                runtime_attack.get("manual_unmodeled_source_effect_required",False) or
+                runtime_attack.get("condition_on_hit") or runtime_attack.get("condition_on_fail") or
+                runtime_attack.get("condition_duration_rounds") or runtime_attack.get("condition_duration_tick") or
+                runtime_attack.get("condition_ends_when") or runtime_attack.get("escape_dc") or
+                runtime_attack.get("effect_on_hit") or runtime_attack.get("effect_on_fail") or
+                runtime_attack.get("save_dc") or runtime_attack.get("save_ability")):
+                executable=False;break
+        if not executable:continue
+        checked+=1
         runtime=dst.get("multiattack",{})
         runtime_action=next((a for a in dst.get("actions",[]) if a.get("name")=="Multiattack"),{})
         if choice_plan is not None:
@@ -721,6 +751,38 @@ def check_wounded_target_advantage_attacks(source,compiled):
         errors.append("WOUNDED_TARGET_ADVANTAGE_COUNT:"+str(checked))
     return errors,checked
 
+def grappled_target_advantage_matches(monster_name,action,compiled_action):
+    name=RCH.sub("",action.get("name","" )).strip()
+    expected=GRAPPLED_TARGET_ADVANTAGE_ATTACKS.get((monster_name,name))
+    if expected is None:return False
+    to_hit,damage,damage_type=expected
+    text=" ".join(x for x in action.get("entries",[]) if isinstance(x,str))
+    attack=bool(re.search(r"\{@atkr\s+m,r\}\s*\{@hit\s+"+str(to_hit)+r"\}",text,re.I))
+    conditional=bool(re.search(r"\{@variantrule Advantage\|XPHB\}\s+if the target is\s+"+
+        r"\{@condition Grappled\|XPHB\}\s+by the bugbear",text,re.I))
+    return (attack and conditional and "reach 10 ft." in text and "range 20/60 ft." in text and
+        "{@damage 3d4 + 2}" in text and damage_type+" damage" in text.casefold() and
+        compiled_action.get("to_hit")==to_hit and compiled_action.get("attack_modes")==["m","r"] and
+        compiled_action.get("reach_ft")==10 and compiled_action.get("range_normal_ft")==20 and
+        compiled_action.get("range_long_ft")==60 and compiled_action.get("damage")==damage and
+        compiled_action.get("damage_type")==damage_type and
+        compiled_action.get("attack_advantage_condition")=="target_grappled_by_attacker" and
+        not compiled_action.get("manual_rider_resolution_required",False) and
+        not compiled_action.get("manual_unmodeled_source_effect_required",False))
+
+def check_grappled_target_advantage_attacks(source,compiled):
+    by_id={row["id"]:row for row in compiled};errors=[];checked=0
+    for (monster,name),_ in GRAPPLED_TARGET_ADVANTAGE_ATTACKS.items():
+        src=next((x for x in source if x.get("name")==monster),None);row=by_id.get(monster,{})
+        action=next((x for x in (src or {}).get("action",[]) if RCH.sub("",x.get("name","" )).strip()==name),None)
+        runtime=next((x for x in row.get("actions",[]) if x.get("name")==name),None)
+        if action is None or runtime is None or not grappled_target_advantage_matches(monster,action,runtime):
+            errors.append(f"{monster}:{name}:GRAPPLED_TARGET_ADVANTAGE_MISMATCH")
+        else:checked+=1
+    if checked!=len(GRAPPLED_TARGET_ADVANTAGE_ATTACKS):
+        errors.append("GRAPPLED_TARGET_ADVANTAGE_COUNT:"+str(checked))
+    return errors,checked
+
 def source_action_requires_manual_resolution(action,monster_name=""):
     """Catch source attack effects that are not part of the typed runtime contract."""
     def flatten(value):
@@ -754,7 +816,8 @@ def source_action_requires_manual_resolution(action,monster_name=""):
     chain_devil_typed=(monster_name,RCH.sub("",action.get("name","")).strip())==("Chain Devil","Conjure Infernal Chain")
     advantage_bonus_typed=(monster_name,RCH.sub("",action.get("name","")).strip()) in ADVANTAGE_BONUS_ATTACK_DAMAGE
     wounded_target_advantage_typed=(monster_name,RCH.sub("",action.get("name","")).strip()) in WOUNDED_TARGET_ADVANTAGE_ATTACKS
-    return (bool(UNMODELED_ACTION_EFFECTS.search(text)) and not chain_devil_typed and not advantage_bonus_typed and not wounded_target_advantage_typed) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or bone_naga_source_turn_start or next_target_turn_end or simple_source_turn_start or simple_source_turn_end or secondary_attack_damage
+    grappled_target_advantage_typed=(monster_name,RCH.sub("",action.get("name","" )).strip()) in GRAPPLED_TARGET_ADVANTAGE_ATTACKS
+    return (bool(UNMODELED_ACTION_EFFECTS.search(text)) and not chain_devil_typed and not advantage_bonus_typed and not wounded_target_advantage_typed and not grappled_target_advantage_typed) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or bone_naga_source_turn_start or next_target_turn_end or simple_source_turn_start or simple_source_turn_end or secondary_attack_damage
 
 def chain_devil_infernal_chain_matches(action,compiled_action):
     text=json.dumps(action.get("entries",[]),ensure_ascii=False).casefold()
@@ -851,6 +914,8 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
     text=flatten(action.get("entries",[]))
     name=RCH.sub("",action.get("name","")).strip()
     source_text=text.casefold()
+    if (monster_name,name) in GRAPPLED_TARGET_ADVANTAGE_ATTACKS:
+        return grappled_target_advantage_matches(monster_name,action,compiled_action)
     if (monster_name,name) in ADVANTAGE_BONUS_ATTACK_DAMAGE:
         return advantage_bonus_attack_matches(monster_name,action,compiled_action)
     if (monster_name,name) in WOUNDED_TARGET_ADVANTAGE_ATTACKS:
@@ -1319,15 +1384,19 @@ def check(project, bestiary_bytes, book_bytes):
     chain_errors=check_chain_devil_infernal_chain(src,compiled)
     attack_damage_errors,attack_damage_count=check_attack_primary_damage(src,compiled)
     multiattack_errors,multiattack_count=check_simple_multiattacks(src,compiled)
+    if multiattack_count!=110:
+        multiattack_errors.append("EXECUTABLE_SIMPLE_MULTIATTACK_COUNT:"+str(multiattack_count))
     advantage_damage_errors,advantage_damage_count=check_advantage_bonus_attack_damage(src,compiled)
     wounded_advantage_errors,wounded_advantage_count=check_wounded_target_advantage_attacks(src,compiled)
+    grappled_advantage_errors,grappled_advantage_count=check_grappled_target_advantage_attacks(src,compiled)
     attack_secondary_errors,attack_secondary_count=check_attack_secondary_damage_contracts(src,compiled)
     turn_start_errors,turn_start_count=check_source_turn_start_hit_conditions(src,compiled)
     save_errors,save_count=check_save_damage_actions(src,save_damage_rows)
     section_errors=check_book(book,bookrows)
     if (monster_errors or branch_errors or effect_errors or chain_errors or section_errors or save_errors or
+        multiattack_errors or
         turn_start_errors or attack_damage_errors or advantage_damage_errors or
-        wounded_advantage_errors or attack_secondary_errors):
+        wounded_advantage_errors or grappled_advantage_errors or attack_secondary_errors):
         raise ValueError("XMM_SOURCE_MISMATCH:"+json.dumps(
             {"monsters":monster_errors[:20],"monster_count":len(monster_errors),
              "conditional_attack_damage":branch_errors[:20],"conditional_attack_damage_count":len(branch_errors),
@@ -1338,6 +1407,7 @@ def check(project, bestiary_bytes, book_bytes):
              "attack_primary_damage":attack_damage_errors[:20],"attack_primary_damage_count":len(attack_damage_errors),
              "advantage_bonus_damage":advantage_damage_errors[:20],"advantage_bonus_damage_count":len(advantage_damage_errors),
              "wounded_target_advantage":wounded_advantage_errors[:20],"wounded_target_advantage_count":len(wounded_advantage_errors),
+             "grappled_target_advantage":grappled_advantage_errors[:20],"grappled_target_advantage_count":len(grappled_advantage_errors),
              "attack_secondary_damage":attack_secondary_errors[:20],"attack_secondary_damage_count":len(attack_secondary_errors),
              "sections":section_errors[:20],"section_count":len(section_errors),
              "save_damage":save_errors[:20],"save_damage_count":len(save_errors)}))
@@ -1356,6 +1426,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_typed_simple_multiattack_contracts_compared":multiattack_count,
         "source_attack_advantage_bonus_damage_contracts_compared":advantage_damage_count,
         "source_attack_wounded_target_advantage_contracts_compared":wounded_advantage_count,
+        "source_attack_grappled_target_advantage_contracts_compared":grappled_advantage_count,
         "source_attack_secondary_damage_contracts_compared":attack_secondary_count,
         "source_abilities_with_unmodeled_effects_manual":effect_count,
         "source_chain_devil_infernal_chain_semantics_compared":1,

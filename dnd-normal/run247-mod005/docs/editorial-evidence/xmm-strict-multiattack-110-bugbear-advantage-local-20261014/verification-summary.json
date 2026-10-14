@@ -1,0 +1,51 @@
+{
+  "schema": "XMM_STRICT_MULTIATTACK_110_BUGBEAR_ADVANTAGE_EVIDENCE_V1",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "book_git_blob_sha1": "a21801793df3515d07ef9a56d9febefea1c6f8f7",
+  "source_monsters_compared": 503,
+  "editorial_sections_compared": 36,
+  "recharge_actions_compared": 120,
+  "spellcasting_usage_records_compared": 132,
+  "source_typed_simple_multiattack_contracts_compared": 110,
+  "simple_multiattack_gate_expected_count": 110,
+  "source_attack_grappled_target_advantage_contracts_compared": 1,
+  "source_abilities_with_unmodeled_effects_manual": 210,
+  "multiattack_previous_reported_counts_superseded": [
+    168,
+    195,
+    197
+  ],
+  "multiattack_gate_correction": "The previous checker collected multiattack errors but did not include them in the fatal mismatch predicate. The strict checker now fails on any mismatch and counts only source sequences whose compiled attack components can execute through the multiattack rider gate.",
+  "bugbear_warrior_e2e": "Grab applies a source-bound grapple in SQLite; next turn preview and Light Hammer attack get Advantage only when the persisted source_actor_id matches this Bugbear Warrior.",
+  "python_source_verifier_tests": 50,
+  "gradle_command": "JAVA_HOME=/workspace/jdk21 ANDROID_HOME=/workspace/android-sdk bash gradlew :app:testDebugUnitTest --offline",
+  "gradle_result": {
+    "test_suites": 123,
+    "tests": 2547,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "focused_tests": [
+    "com.braseiro.dnd5e.XmmConditionalAttackRollRobolectricTest",
+    "com.braseiro.dnd5e.XmmConditionalAttackDamageSourceTest",
+    "com.braseiro.dnd5e.XmmUnmodeledSourceEffectRuntimeTest"
+  ],
+  "apk_generated": false,
+  "previous_brelga": "a5807730 passed run 38539933007 before this strict-gate correction; it does not validate this SHA.",
+  "current_brelga": "pending after commit",
+  "hosted_independent_xmm_audit": "Not executed: GitHub annotation says recent account payments failed or spending limit must be increased; local and BRELGA editorial verifier are separate checks.",
+  "full_monster_combat_automation_certified": false,
+  "tested_source_files_sha256": {
+    "app/src/main/java/com/braseiro/dnd5e/AppDb.java": "e8197cfbb99a2f32a60a8d8a3f37ac15af0558df29ed7f8eae39d37b1afadc79",
+    "app/src/main/java/com/braseiro/dnd5e/MonsterActionEconomyGuard.java": "1e6d98fd9ba13d399735d80f3c45799cc46c6d2ca1c1bfeebdc8affb1d44213e",
+    "app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java": "269b941e2971dfe280ef1b90b0cae3ae8d3c3f7e9b370f82fda243fd8d189c60",
+    "app/src/main/java/com/braseiro/dnd5e/XmmConditionalAttackRollRules.java": "2a95eac110b052fa1670f7e676bda19f2685583703427b065e3c8b7c95bb00e6",
+    "app/src/test/java/com/braseiro/dnd5e/XmmConditionalAttackDamageSourceTest.java": "22845a99727d31bcd1f49f141ccb1742d8f072142d850d87eaa496c3b6b9e2f0",
+    "app/src/test/java/com/braseiro/dnd5e/XmmConditionalAttackRollRobolectricTest.java": "952a5937eb95f207db952393a5358e1574fe6be96841ca0af2e54a393495e61e",
+    "app/src/test/java/com/braseiro/dnd5e/XmmUnmodeledSourceEffectRuntimeTest.java": "84d52569d5b24f7d62016cd0ebbde7fee4cc8fe3e1a0dba17b964a127d616a9c",
+    "tools/test_verify_xmm_503_source.py": "13d17b5028889a46e9136571179af87238f2e17319c3dea9d5afebc79409dacf",
+    "tools/verify_xmm_503_source.py": "3faed7f66317e5cdc9658a1621b6a77359728742dfa66cff781242f4b252c82b"
+  }
+}
