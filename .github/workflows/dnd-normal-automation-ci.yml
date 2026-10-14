@@ -3,11 +3,6 @@ on:
   push:
     branches:
       - antigravity/dnd-normal-fechamento-gates
-    paths:
-      - 'dnd-normal/run247-mod005/**'
-      - 'scripts/codespace-dnd-sync.sh'
-      - '.github/workflows/dnd-normal-automation-ci.yml'
-      - '.github/workflows/dnd-adventure-atomicity-brelga.yml'
   workflow_dispatch:
 permissions:
   contents: write
