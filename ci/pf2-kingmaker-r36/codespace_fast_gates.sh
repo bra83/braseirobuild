@@ -51,9 +51,10 @@ python -m pytest -q \
   ci/pf2-kingmaker-r36/test_catalog_expansion.py \
   ci/pf2-kingmaker-r36/test_official_build_ui.py \
   ci/pf2-kingmaker-r36/test_structure_effects_metadata.py \
+  ci/pf2-kingmaker-r36/test_runtime_json_integer.py \
   ci/pf2-kingmaker-certification/test_chapters_1_11_audit.py
 for patch in \
-  patch.py patch_claim_hex_prepaid.py patch_kingdom_accounting.py \
+  patch.py patch_runtime_json_integer.py patch_claim_hex_prepaid.py patch_kingdom_accounting.py \
   patch_claim_hex_ui.py patch_build_structure.py patch_build_structure_repairs.py \
   patch_structure_catalog_values.py patch_multi_structure.py patch_catalog_expansion.py \
   patch_official_build_ui.py patch_chapter11_gate.py patch_chapter9_canonical_anchors.py \

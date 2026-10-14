@@ -273,12 +273,16 @@ public final class KingmakerCompanionSemantics {
   if("ekundayo".equals(companionKey)&&"ekundayo_feast_contribution".equals(checkId)&&officialScenes!=null){
    if(feastActorId<=0)throw new IllegalArgumentException("Selecione o PJ que contribuiu para o banquete.");
    JSONArray participants=currentProgress.optJSONArray("feast_contributor_ids");
-   // The bundled JSONArray cannot convert numeric items via optString(index).
-   // Compare exact JSON array tokens (not substrings: ID 10 != ID 101).
-   if(participants!=null){
-    String value=participants.toString();
-    String token=java.util.regex.Pattern.quote(Long.toString(feastActorId));
-    if(java.util.regex.Pattern.compile("(?:\\[|,)\\s*\"?"+token+"\"?\\s*(?=,|\\])").matcher(value).find())
+   // Compare exact persisted long IDs, not text fragments. The JVM
+   // JSON helper is corrected by patch_runtime_json_integer.py to preserve
+   // integers as Long, matching Android org.json. Malformed IDs fail closed.
+   if(participants!=null)for(int i=0;i<participants.length();i++){
+    final long previousActorId;
+    try{previousActorId=Long.parseLong(participants.optString(i));}
+    catch(NumberFormatException invalid){
+     throw new IllegalStateException("Registro de participante do banquete inválido.",invalid);
+    }
+    if(previousActorId==feastActorId)
      throw new IllegalStateException("Cada PJ só pode contribuir uma vez para os Pontos de Vitória do banquete.");
    }
   }

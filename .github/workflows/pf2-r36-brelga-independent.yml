@@ -52,6 +52,8 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'pytest installation failed'}
           python -m pytest -q ci/pf2-kingmaker-r36/test_catalog_expansion.py ci/pf2-kingmaker-r36/test_official_build_ui.py ci/pf2-kingmaker-r36/test_structure_effects_metadata.py
           if($LASTEXITCODE -ne 0){throw 'Catalog/UI synthetic contracts failed'}
+          python -m pytest -q ci/pf2-kingmaker-r36/test_runtime_json_integer.py
+          if($LASTEXITCODE -ne 0){throw 'Android-equivalent long JSON number parsing regression failed'}
           python -m pytest -q ci/pf2-kingmaker-certification/test_chapters_1_11_audit.py
           if($LASTEXITCODE -ne 0){throw 'Canonical 11-chapter auditor self-test failed'}
       - name: Verify canonical R35 source by SHA256 and apply official PDF corrections
@@ -78,6 +80,8 @@ jobs:
           if(!(Test-Path (Join-Path $project 'tests_pf2'))){throw 'Missing tests'}
           python ci\pf2-kingmaker-r36\patch.py "$project"
           if($LASTEXITCODE -ne 0){throw 'Official rules patch failed'}
+          python ci\pf2-kingmaker-r36\patch_runtime_json_integer.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'R36 JVM JSON integer compatibility patch failed'}
           python ci\pf2-kingmaker-r36\patch_claim_hex_prepaid.py "$project"
           if($LASTEXITCODE -ne 0){throw 'Claim Hex prepaid patch failed'}
           python ci\pf2-kingmaker-r36\patch_kingdom_accounting.py "$project"

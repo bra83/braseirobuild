@@ -37,3 +37,20 @@ A R35 e outros VTTs permanecem intocados.
 
 Testes estruturais e de nomes não homologam integralmente os 40 segmentos
 narrativos, os resultados de companheiros nem a persistência Android.
+
+### Atualizar corretamente a branch do Codespace
+
+Se `git pull --ff-only` disser `Cannot fast-forward to multiple branches`,
+use a referência explícita, sem reconfigurar outras branches:
+
+```bash
+git fetch origin pf2-kingmaker-r36-official-rule-fixes-20261011
+git pull --ff-only origin pf2-kingmaker-r36-official-rule-fixes-20261011
+bash ci/pf2-kingmaker-r36/codespace_fast_gates.sh fast
+```
+
+A biblioteca JSON auxiliar de testes é corrigida apenas na cópia temporária R36:
+a expressão ternária antiga promovia inteiros `Long` a `Double`, transformando
+IDs `100` em `100.0`. A comparação de participantes agora exige `long`
+exato e rejeita identificadores ilegíveis. A fonte R35 e o arquivo de
+inspeção original são preservados.
