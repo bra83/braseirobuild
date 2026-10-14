@@ -52,7 +52,7 @@ public final class XmmSizedForcedMovementRobolectricTest {
             new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();
             db.ensureTacticalTokensForCombat();position(db,actor,actorX,2);position(db,target,targetX,2);
             org.json.JSONArray typedDamage=null;
-            if("Balor".equals(actorBlock)){
+            {
                 JSONObject compiledAction=null;org.json.JSONArray actions=CompiledStatblockEngine
                     .runtimeProfile(actorBlock).optJSONArray("actions");
                 for(int i=0;actions!=null&&i<actions.length();i++){
@@ -62,14 +62,16 @@ public final class XmmSizedForcedMovementRobolectricTest {
                 assertNotNull(compiledAction);
                 org.json.JSONArray specs=StatblockCombatFlowEngine.damageSpecs(
                     compiledAction.optString("damage"),compiledAction.optString("damage_type"),"");
-                typedDamage=new org.json.JSONArray();damage=0;
-                for(int i=0;i<specs.length();i++){
-                    JSONObject spec=specs.getJSONObject(i);
-                    CompiledMonsterDamageGuard.Range range=CompiledMonsterDamageGuard.range(
-                        spec.optString("expression"),"",false);
-                    assertNotNull(range);damage+=range.min;
-                    typedDamage.put(new JSONObject().put("expression",spec.optString("expression"))
-                        .put("damage_type",spec.optString("type")).put("damage_total",range.min));
+                if(specs.length()>1){
+                    typedDamage=new org.json.JSONArray();damage=0;
+                    for(int i=0;i<specs.length();i++){
+                        JSONObject spec=specs.getJSONObject(i);
+                        CompiledMonsterDamageGuard.Range range=CompiledMonsterDamageGuard.range(
+                            spec.optString("expression"),"",false);
+                        assertNotNull(range);damage+=range.min;
+                        typedDamage.put(new JSONObject().put("expression",spec.optString("expression"))
+                            .put("damage_type",spec.optString("type")).put("damage_total",range.min));
+                    }
                 }
             }
             JSONObject applied=typedDamage==null?db.applyCompiledStatblockAttack(actor,target,actorBlock,action,
@@ -112,5 +114,6 @@ public final class XmmSizedForcedMovementRobolectricTest {
         runCase("Satyr","Hooves","",3,4,6,4,false,true,"satyr-unknown-size");
         runCase("Balor","Flame Whip","Merrow",2,6,4,20,true,false,"balor-pull-prone");
         runCase("Balor","Flame Whip","Colossus",2,4,-1,20,false,false,"balor-size-cap");
+        runCase("Shambling Mound","Charged Tendril","Satyr",3,5,4,7,true,false,"shambling-mound-pull");
     }
 }

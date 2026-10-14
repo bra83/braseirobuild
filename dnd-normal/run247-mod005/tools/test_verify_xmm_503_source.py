@@ -23,6 +23,8 @@ class XmmIndependentSourceTests(unittest.TestCase):
              {"effect_on_hit":"pull:15ft","effect_on_hit_max_target_size":"Large","damage":"2d6 + 4","damage_type":"piercing"}),
             ("Satyr","Hooves",["{@atkr m} {@hit 5}, reach 5 ft. {@h}5 ({@damage 1d4 + 3}) Bludgeoning damage. If the target is a Medium or smaller creature, the satyr pushes the target up to 10 feet straight away from itself."],
              {"effect_on_hit":"push:10ft","effect_on_hit_max_target_size":"Medium","damage":"1d4 + 3","damage_type":"bludgeoning"}),
+            ("Shambling Mound","Charged Tendril",["{@atkr m} {@hit 7}, reach 10 ft. {@h}7 ({@damage 1d6 + 4}) Bludgeoning damage plus 5 ({@damage 2d4}) Lightning damage. If the target is a Medium or smaller creature, the shambling mound pulls the target 5 feet straight toward itself."],
+             {"effect_on_hit":"pull:5ft","effect_on_hit_max_target_size":"Medium","damage":"1d6 + 4 + 2d4","damage_type":"bludgeoning + lightning","reach_ft":10}),
         ]
         for monster,name,entries,compiled in cases:
             with self.subTest(monster=monster):

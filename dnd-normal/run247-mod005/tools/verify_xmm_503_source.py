@@ -234,7 +234,8 @@ def check_monsters(source,index,compiled,attack_contracts=None):
             problems.append(monster+":HP_FORMULA")
         if monster_type(s["type"])!=e["type"] or e["type"]!=c["creature_type"]:
             problems.append(monster+":TYPE")
-        fixed_sizes={"Balor":"Huge","Colossus":"Gargantuan","Merrow":"Large","Satyr":"Medium"}
+        fixed_sizes={"Balor":"Huge","Colossus":"Gargantuan","Merrow":"Large",
+                     "Satyr":"Medium","Shambling Mound":"Large"}
         if monster in fixed_sizes:
             code={"T":"Tiny","S":"Small","M":"Medium","L":"Large","H":"Huge","G":"Gargantuan"}
             source_sizes=[code.get(x,x) for x in s.get("size",[])]
@@ -646,6 +647,19 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
             compiled_action.get("condition_max_target_size")=="Huge" and
             compiled_action.get("damage")=="3d6 + 8 + 5d6" and
             compiled_action.get("damage_type")=="force + fire" and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if (monster_name,name)==("Shambling Mound","Charged Tendril"):
+        return ("{@atkr m}" in text and "{@hit 7}" in text and
+            "reach 10 ft." in source_text and "{@damage 1d6 + 4}" in text and
+            "{@damage 2d4}" in text and "bludgeoning damage" in source_text and
+            "lightning damage" in source_text and "medium or smaller creature" in source_text and
+            "pulls the target 5 feet straight toward itself" in source_text and
+            compiled_action.get("effect_on_hit")=="pull:5ft" and
+            compiled_action.get("effect_on_hit_max_target_size")=="Medium" and
+            compiled_action.get("damage")=="1d6 + 4 + 2d4" and
+            compiled_action.get("damage_type")=="bludgeoning + lightning" and
+            compiled_action.get("reach_ft")==10 and
             not compiled_action.get("manual_rider_resolution_required",False) and
             not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if monster_name=="Colossus" and name=="Slam":
