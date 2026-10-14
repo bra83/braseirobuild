@@ -1,0 +1,71 @@
+{
+  "ui_language": "pt-BR",
+  "labels": [
+    {
+      "source": "Paralyzing Touch",
+      "display": "Toque Paralisante"
+    },
+    {
+      "source": "Shortsword",
+      "display": "Espada Curta"
+    },
+    {
+      "source": "Bite",
+      "display": "Mordida"
+    },
+    {
+      "source": "Sun Ray",
+      "display": "Raio Solar"
+    },
+    {
+      "source": "Draconic Strike",
+      "display": "Golpe Dracônico"
+    },
+    {
+      "source": "Beguiling Strike",
+      "display": "Golpe Sedutor"
+    },
+    {
+      "source": "Nightmare Ray",
+      "display": "Raio do Pesadelo"
+    },
+    {
+      "source": "Rend",
+      "display": "Rasgar"
+    },
+    {
+      "source": "Prance",
+      "display": "Dança Saltitante"
+    },
+    {
+      "source": "Enchanting Bow",
+      "display": "Arco Encantador"
+    },
+    {
+      "source": "Sickening Ray",
+      "display": "Raio Nauseante"
+    },
+    {
+      "source": "Sting",
+      "display": "Ferrão"
+    },
+    {
+      "source": "Gouge",
+      "display": "Golpe Dilacerante"
+    },
+    {
+      "source": "Thundercloud",
+      "display": "Nuvem Trovejante"
+    },
+    {
+      "source": "Tendril",
+      "display": "Tentáculo"
+    },
+    {
+      "source": "Trash Lob",
+      "display": "Arremesso de Detritos"
+    }
+  ],
+  "internal_action_names_preserved": true,
+  "coverage": "16 nomes de ataque cujos riders tipados foram exercitados neste lote; isso não representa tradução integral do aplicativo."
+}

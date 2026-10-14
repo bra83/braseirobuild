@@ -1,0 +1,33 @@
+{
+  "format": "BRASEIRO_LOCAL_XMM_TARGET_TURN_END_EVIDENCE_V1",
+  "code_commit": "b0dddc3dc081f8e34022b8b199ab5f6d5d310326",
+  "base_commit": "211ee671",
+  "created_utc": "2026-10-14",
+  "scope": "Four XMM hit-condition riders with target-turn-end expiry; full XMM, licensed PDF, BRELGA, APK and device validation remain open.",
+  "artifacts": {
+    "android-test-results.zip": {
+      "sha256": "0f10227458f552aae6fb4f0c69ef940c79ed067f2c10be07eac16f1a7d5a2cdc",
+      "bytes": 89477
+    },
+    "android-test-summary.json": {
+      "sha256": "ef9ac7d7053e4de7affc8af5ed2568be72d639f859a6bea78f190a90128cb83f",
+      "bytes": 451
+    },
+    "python-test-summary.json": {
+      "sha256": "9a9bf0b96892f0c81224e081ee56c094237bc87d3558cb9db53efbde7fc89b54",
+      "bytes": 200
+    },
+    "source-action-delta.json": {
+      "sha256": "b43b94df3b8a4002553efa0cc99b30e4542604255259d257a74b374ca9c18f3d",
+      "bytes": 1949
+    },
+    "source-executor-status.csv": {
+      "sha256": "e6a269dea8bcb469a13535fe2bb84873c88e6b36a2c0470ad7a3297472c9550c",
+      "bytes": 1669
+    },
+    "xmm-source-comparison.json": {
+      "sha256": "57d593c871aa1249fdf5a14ce37aab6adc61e22c552703251350b7b80357b7d4",
+      "bytes": 992
+    }
+  }
+}

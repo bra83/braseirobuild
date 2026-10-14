@@ -1,0 +1,29 @@
+{
+  "format": "BRASEIRO_LOCAL_XMM_PTBR_ACTION_LABEL_EVIDENCE_V1",
+  "code_commit": "4768d992da4f4aa812eab01b613ec8545b64c11b",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "created_utc": "2026-10-14",
+  "scope": "PT-BR labels for 16 typed XMM actions; 2,513 Robolectric tests, 59 Python tests; no APK/device validation; entire XMM remains open.",
+  "artifacts": {
+    "android-test-results.zip": {
+      "sha256": "321b4769fb690e002895994ae84b2f049f08dea86ffacd98c1c56e84dc1abfbd",
+      "bytes": 89547
+    },
+    "android-test-summary.json": {
+      "sha256": "abde7435fb1397223fccc6addb151dce9ee695b09dd96d17ac1913804117e34c",
+      "bytes": 295
+    },
+    "pt-br-action-labels.json": {
+      "sha256": "134633f45189be16fce1173a700872a5a358203270408a61c55b6a6ada1a2fb1",
+      "bytes": 1451
+    },
+    "python-test-summary.json": {
+      "sha256": "d9aa20e71c0bb6fe2a2473609d49b61d31d120550afa5e253bb3ecd3ac40adf7",
+      "bytes": 200
+    },
+    "xmm-source-comparison.json": {
+      "sha256": "57d593c871aa1249fdf5a14ce37aab6adc61e22c552703251350b7b80357b7d4",
+      "bytes": 992
+    }
+  }
+}

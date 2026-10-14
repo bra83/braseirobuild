@@ -1,0 +1,46 @@
+{
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "actions": [
+    {
+      "creature": "Cloud Giant",
+      "action": "Thundercloud",
+      "page": 74,
+      "source_pointer": "/monster/97/action/2",
+      "condition": "incapacitated on hit until end of target next turn",
+      "runtime_expiry": "target_turn_end",
+      "pt_br_label": "Nuvem Trovejante"
+    },
+    {
+      "creature": "Gas Spore Fungus",
+      "action": "Tendril",
+      "page": 125,
+      "source_pointer": "/monster/164/action/0",
+      "condition": "poisoned on hit until end of target next turn",
+      "runtime_expiry": "target_turn_end",
+      "pt_br_label": "Tentáculo"
+    },
+    {
+      "creature": "Giant Vulture",
+      "action": "Gouge",
+      "page": 361,
+      "source_pointer": "/monster/196/action/0",
+      "condition": "poisoned on hit until end of target next turn",
+      "runtime_expiry": "target_turn_end",
+      "pt_br_label": "Golpe Dilacerante"
+    },
+    {
+      "creature": "Hill Giant",
+      "action": "Trash Lob",
+      "page": 168,
+      "source_pointer": "/monster/243/action/2",
+      "condition": "poisoned on hit until end of target next turn",
+      "runtime_expiry": "target_turn_end",
+      "pt_br_label": "Arremesso de Detritos"
+    }
+  ],
+  "implementation": "A condição e o temporizador tipado ficam persistidos no combatente afetado e expiram no fim do turno do alvo. A interface mostra o nome localizado em português e envia o identificador fonte original ao runtime.",
+  "scope_limit": "O teste cobre a aplicação/expiração do rider. Não certifica o restante da ação nem o combate integral de todos os monstros.",
+  "pdf_validation": "pendente; JSON estruturado auxiliar 5e.tools fixado pelo contrato",
+  "status": "XMM permanece aberto; 246 ações/efeitos fora dos contratos tipados; full_monster_combat_automation_certified=false."
+}

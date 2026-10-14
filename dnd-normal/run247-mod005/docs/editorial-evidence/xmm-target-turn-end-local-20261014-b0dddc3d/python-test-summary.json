@@ -1,0 +1,8 @@
+{
+  "command": "python3 -m unittest discover -s tools -p 'test_*.py'",
+  "tests": 59,
+  "failures": 0,
+  "errors": 0,
+  "result": "PASS",
+  "code_commit": "b0dddc3dc081f8e34022b8b199ab5f6d5d310326"
+}

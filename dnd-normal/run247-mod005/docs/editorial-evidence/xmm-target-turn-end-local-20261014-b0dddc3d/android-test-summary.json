@@ -1,0 +1,16 @@
+{
+  "command": "bash gradlew --rerun-tasks :app:testDebugUnitTest",
+  "tests": 2513,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "xml_count": 105,
+  "new_test_cases": {
+    "com.braseiro.dnd5e.Run247G05SourceTurnEndRobolectricTest": 7
+  },
+  "apk_built": false,
+  "device_install_validation": false,
+  "code_commit": "b0dddc3dc081f8e34022b8b199ab5f6d5d310326",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "result": "PASS"
+}
