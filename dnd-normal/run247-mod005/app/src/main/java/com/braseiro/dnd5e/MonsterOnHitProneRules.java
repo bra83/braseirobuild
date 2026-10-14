@@ -32,8 +32,10 @@ public final class MonsterOnHitProneRules {
         MonsterForcedMovementRules.Spec forced=action==null?null:
             MonsterForcedMovementRules.compiled(action.optString("effect_on_hit",""),"prone");
         String movementLimit=action==null?"":action.optString("effect_on_hit_max_target_size","");
-        boolean compoundKnockdown=forced!=null&&"pull".equals(forced.direction)&&
-            forced.maximumFeet==25&&"huge".equals(norm(movementLimit))&&
+        boolean compoundKnockdown=forced!=null&&
+            (("pull".equals(forced.direction)&&forced.maximumFeet==25)||
+             ("push".equals(forced.direction)&&forced.maximumFeet==20))&&
+            "huge".equals(norm(movementLimit))&&
             movementLimit.equalsIgnoreCase(action.optString("condition_max_target_size",""));
         return action!=null&&action.has("to_hit")&&
             "prone".equals(action.optString("condition_on_hit",""))&&

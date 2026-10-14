@@ -146,7 +146,12 @@ android {
     }
 
     testOptions {
-        unitTests.isIncludeAndroidResources = true
+        unitTests {
+            isIncludeAndroidResources = true
+            // XMM pins the full Faerun archive in assets; Robolectric materializes
+            // large archives while traversing the full regression suite.
+            all { testTask -> testTask.maxHeapSize = "1024m" }
+        }
     }
 
     compileOptions {

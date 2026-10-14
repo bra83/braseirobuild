@@ -672,6 +672,34 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
             compiled_action.get("reach_ft")==20 and
             not compiled_action.get("manual_rider_resolution_required",False) and
             not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if monster_name=="Tough Boss" and name=="Warhammer":
+        return ("{@atkr m}" in text and "{@hit 5}" in text and
+            "reach 5 ft." in source_text and "{@damage 2d8 + 3}" in text and
+            "large or smaller creature" in source_text and
+            "pushes the target up to 10 feet straight away from itself" in source_text and
+            compiled_action.get("effect_on_hit")=="push:10ft" and
+            compiled_action.get("effect_on_hit_max_target_size")=="Large" and
+            compiled_action.get("damage")=="2d8 + 3" and
+            compiled_action.get("damage_type")=="bludgeoning" and
+            compiled_action.get("reach_ft")==5 and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if monster_name=="Goristro" and name=="Brutal Gore":
+        return ("{@atkr m}" in text and "{@hit 13}" in text and
+            "reach 10 ft." in source_text and "{@damage 6d10 + 7}" in text and
+            "huge or smaller creature" in source_text and
+            "pushed up to 20 feet straight away from the goristro" in source_text and
+            "{@condition prone|xphb}" in text.casefold() and
+            compiled_action.get("effect_on_hit")=="push:20ft;prone" and
+            compiled_action.get("effect_on_hit_max_target_size")=="Huge" and
+            compiled_action.get("condition_on_hit")=="prone" and
+            compiled_action.get("condition_ends_when")=="stands_up" and
+            compiled_action.get("condition_max_target_size")=="Huge" and
+            compiled_action.get("damage")=="6d10 + 7" and
+            compiled_action.get("damage_type")=="piercing" and
+            compiled_action.get("reach_ft")==10 and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if monster_name=="Aarakocra Skirmisher" and name=="Wind Javelin":
         return ("magically returns to the aarakocra's hand immediately after a ranged attack" in text.casefold() and
             "{@atkr m,r}" in text and

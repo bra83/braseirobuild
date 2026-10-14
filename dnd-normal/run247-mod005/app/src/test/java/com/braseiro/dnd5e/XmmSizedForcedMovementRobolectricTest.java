@@ -98,7 +98,7 @@ public final class XmmSizedForcedMovementRobolectricTest {
                     resolved.optString("target_size_category"));
                 assertFalse(resolved.has("on_hit_forced_movement_transition"));
             }
-            if("Balor".equals(actorBlock))
+            if("Balor".equals(actorBlock)||"Goristro".equals(actorBlock))
                 assertEquals(expectedMove,
                     ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"prone"));
         }finally{db.close();context.deleteDatabase(dbName);}
@@ -112,6 +112,9 @@ public final class XmmSizedForcedMovementRobolectricTest {
         runCase("Satyr","Hooves","Satyr",3,4,6,4,true,false,"satyr-push");
         runCase("Satyr","Hooves","Merrow",3,4,-1,4,false,false,"satyr-large-target");
         runCase("Satyr","Hooves","",3,4,6,4,false,true,"satyr-unknown-size");
+        runCase("Tough Boss","Warhammer","Satyr",3,4,6,5,true,false,"tough-boss-push");
+        runCase("Goristro","Brutal Gore","Satyr",3,4,6,13,true,false,"goristro-push-prone");
+        runCase("Goristro","Brutal Gore","Colossus",3,4,-1,13,false,false,"goristro-size-cap");
         runCase("Balor","Flame Whip","Merrow",2,6,4,20,true,false,"balor-pull-prone");
         runCase("Balor","Flame Whip","Colossus",2,4,-1,20,false,false,"balor-size-cap");
         runCase("Shambling Mound","Charged Tendril","Satyr",3,5,4,7,true,false,"shambling-mound-pull");
