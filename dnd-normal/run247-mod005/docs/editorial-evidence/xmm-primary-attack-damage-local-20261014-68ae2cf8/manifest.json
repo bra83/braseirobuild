@@ -32,7 +32,11 @@
     "brelga_failures": 0,
     "brelga_errors": 0,
     "brelga_skipped": 0,
-    "brelga_xml_suites": 111
+    "brelga_xml_suites": 111,
+    "owner_reported_rights_basis_rows": 35,
+    "xmm_editorial_metadata_rights_review_required": 1,
+    "source_provenance_local_pass": true,
+    "source_provenance_remote_rerun_pending": true
   },
   "artifacts": {
     "android-full-suite-xml.zip": "ab87a6661aa24a2dac97b32e3ff627a9f3b64a641ba4c6db992122cd8708071f",
@@ -40,13 +44,14 @@
     "source-comparison.json": "05b98e2cd947a4ee64235274f524bb23168b3ce2c3a87ee6121f5bfd1ed1fafc",
     "manual-effect-backlog-244.json": "ca767252d7e113b96ae754c1043e952ce3445f9069fb7e0cccec6283f97b563d",
     "source-action-delta.json": "3a06f7028d711c2e07638e921afd45dc17f090b50940bf00a23b1aea33684dbc",
-    "rights-basis-owner-confirmation.json": "eaff2760753fa01bee4b7258fb2322104ab5e9a890de292948d8f16f7b441a20",
+    "rights-basis-owner-confirmation.json": "ebc8b5f8462cedfb5a9bb3ba742e1b617b5a3826522dc590c52ad424eb17ab5e",
     "focused-fixture-xml.xml": "8aef6ea39a03e43430bce660fe39fc7fd0047b71bcafbb968e7f39ae8055735e",
     "brelga-prior-failure.xml": "d0641c64b83c81c6287fd5866ec5e9ded541a9544f946f979a9f5e49f1561bcf",
     "brelga-prior-failure.json": "0d0c24d6c4005db64a88b4b4ce443d639707b055ce1211822986ca045bed023c",
     "brelga-full-suite-xml.zip": "c529128a17ef177106fae29857975f7088484cba26704a8b180e088109c0bb97",
     "brelga-full-suite-summary.json": "6dadd977362ed268aaa7fdc4871be16f59e7260807c2f2b08168922490606aa1",
-    "brelga-focused-test.xml": "c0820370cc425407c6e1ec54b7a870398427edeacc8a249b7af78253cb6d70ce"
+    "brelga-focused-test.xml": "c0820370cc425407c6e1ec54b7a870398427edeacc8a249b7af78253cb6d70ce",
+    "ten-book-source-verification.json": "d54d06cee58d9ec5ee3b1012ff2ddc86a990efc0688cc9168afe083cf32ab0ba"
   },
   "ci": {
     "brelga_url": "https://github.com/bra83/braseirobuild/actions/runs/38509502166",
@@ -56,6 +61,8 @@
     "source_provenance_run_sha": "886e40e0f3720b380beca0de17b37bb8da40a617",
     "source_provenance_result": "success",
     "hosted_independent_audit_run_url": "https://github.com/bra83/braseirobuild/actions/runs/38507845159",
-    "hosted_independent_audit_result": "failed_before_any_job_step_after_rerun"
+    "hosted_independent_audit_result": "failed_before_any_job_step_after_rerun",
+    "source_provenance_previous_failed_run_url": "https://github.com/bra83/braseirobuild/actions/runs/38509502223",
+    "source_provenance_failure_fixed": "Restored original source review note and REVIEW_REQUIRED rights_basis for XMM/ch_4/sec_4_0; all 483 pinned source pointers now pass local verifier."
   }
 }

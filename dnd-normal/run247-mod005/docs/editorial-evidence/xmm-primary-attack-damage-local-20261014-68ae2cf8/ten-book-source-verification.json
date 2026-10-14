@@ -1,0 +1,46 @@
+{
+  "format": "DND_PINNED_SOURCE_VERIFICATION_V1",
+  "source_repository": "5etools-mirror-3/5etools-src",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "books_verified": 10,
+  "book_json_sha256": {
+    "ABH": "a7acf774b297f669cd931d909ab0cffefe8d3c81f62deb94c9b2dce1e3379985",
+    "AU": "0c0e88ec1c1ad5cbac34b2094586bace2fb19f2b58695697a3f0d2e0ca60ef7f",
+    "EFA": "c69bab950d658a9ab387f2c80bf77442a206360cb21945f93f1e4e93a62b9be0",
+    "FRAIF": "97d90114e02cee71ddef1e46050e256357155cbfce200b377e815cb4ee4826d2",
+    "FRHOF": "035985c1824af4e3ca08a54dac07d1336060225bf20421d2edffd96af0fadde7",
+    "LFL": "7ae45fbf7b6730e7da268087aa9a6221c6f7eb968e04a49e3424f59df81e9298",
+    "NF": "8b9cb22078fdfd47c52bea12e17ac588143480659fa47e586ae7d4cda7f9de12",
+    "RHW": "0baf4746117e06f6db3d2c463ddf41d3c71e9a9b15ce025cf1675eca88ff61af",
+    "XMM": "49d82afde2ce1a803b0167ffd82db2964269e7f448872b54441912fd77a16561",
+    "XSAC": "ae0041d9570e68897328e86b884d9758d0f8ac0aaa37e878374f3d7966211584"
+  },
+  "exact_chapter_title_pointers_verified": 483,
+  "counts_by_book": {
+    "XMM": 36,
+    "XSAC": 14,
+    "FRHOF": 53,
+    "FRAIF": 151,
+    "EFA": 48,
+    "AU": 45,
+    "RHW": 54,
+    "ABH": 16,
+    "LFL": 20,
+    "NF": 46
+  },
+  "counts_by_type": {
+    "inset": 3,
+    "section": 363,
+    "image": 46,
+    "item": 3,
+    "statblock": 67,
+    "entries": 1
+  },
+  "non_rule_illustrations": 46,
+  "non_rule_editorial": 10,
+  "non_rule_total": 56,
+  "source_title_provenance_passed": true,
+  "semantics_against_original_publisher_verified": false,
+  "game_runtime_semantics_certified": false,
+  "note": "Unofficial community mirror, not WotC ownership, license review, or mechanical-equivalence certification."
+}

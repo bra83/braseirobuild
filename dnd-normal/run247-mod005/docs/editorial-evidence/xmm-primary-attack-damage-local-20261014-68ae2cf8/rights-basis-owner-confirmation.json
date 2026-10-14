@@ -1,8 +1,12 @@
 {
   "basis": "OWNER_REPORTED_PURCHASE_PERSONAL_USE_AUTHORIZED_2026-10-14",
-  "owner_statement": "O proprietário informou ter comprado todo o material e que o VTT é estritamente para uso pessoal.",
-  "scope": "Consultation and mechanics validation for the personal VTT; no assertion of permission to republish complete source prose.",
-  "ledger_rows_updated": 36,
-  "ledger_statuses_preserved": true,
+  "owner_statement": "O proprietário informou ter comprado todo o material e autorizou consulta para o VTT de uso pessoal.",
+  "scope": "Registro do relato para seções de regras XMM; não declara autorização para republicar prosa integral.",
+  "ledger_rows_updated": 35,
+  "editorial_metadata_exception_preserved": {
+    "section": "XMM/ch_4/sec_4_0",
+    "rights_basis": "REVIEW_REQUIRED",
+    "original_source_review_note_preserved": true
+  },
   "semantic_homologation_changed": false
 }
