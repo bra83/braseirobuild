@@ -53,6 +53,7 @@ python -m pytest -q \
   ci/pf2-kingmaker-r36/test_structure_effects_metadata.py \
   ci/pf2-kingmaker-r36/test_runtime_json_integer.py \
   ci/pf2-kingmaker-r36/test_legacy_javac_dependencies.py \
+  ci/pf2-kingmaker-r36/test_windows_harness_utf8.py \
   ci/pf2-kingmaker-certification/test_chapters_1_11_audit.py
 for patch in \
   patch.py patch_runtime_json_integer.py patch_claim_hex_prepaid.py patch_kingdom_accounting.py \
@@ -60,7 +61,8 @@ for patch in \
   patch_structure_catalog_values.py patch_multi_structure.py patch_catalog_expansion.py \
   patch_official_build_ui.py patch_chapter11_gate.py patch_chapter9_canonical_anchors.py \
   patch_consumption_atomic.py patch_turn_phase_atomic.py patch_war_atomic.py \
-  patch_semantic_domains.py patch_legacy_javac_dependencies.py; do
+  patch_semantic_domains.py patch_legacy_javac_dependencies.py \
+  patch_windows_harness_utf8.py; do
   python "ci/pf2-kingmaker-r36/$patch" "$PROJECT"
 done
 grep -Fx 'VERSION_NAME=9.0.37' "$PROJECT/version.properties"

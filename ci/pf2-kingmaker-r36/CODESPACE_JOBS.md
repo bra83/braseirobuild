@@ -66,3 +66,13 @@ quatro fontes **reais** a cada comando `javac`, na cópia descartável R36,
 sem alterar qualquer asserção, ignorar teste ou modificar R35. Os quatro
 harnesses de regras, mecânicas, guerras e sobreposição de ações permanecem
 obrigatórios. A suíte só passa se todos efetivamente executarem.
+
+### FULL no BRELGA — compatibilidade de codificação
+
+Dois harnesses antigos executam `subprocess.run(..., text=True)`, cujo
+`stdout` era decodificado como Windows cp1252, apesar de o Java imprimir
+UTF-8. O patch `patch_windows_harness_utf8.py` configura **encoding UTF-8
+explicitamente**, com substituição apenas de bytes ilegíveis nas mensagens,
+sem mudar código Java, critérios de aprovação, ou suprimir testes. O teste
+`test_windows_harness_utf8.py` usa cópias originais do corpus e comprova a
+preservação integral das asserções e a imutabilidade da R35.
