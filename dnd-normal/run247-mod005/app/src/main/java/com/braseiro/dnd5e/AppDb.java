@@ -2763,6 +2763,16 @@ public class AppDb extends SQLiteOpenHelper {
             JSONArray expected=StatblockCombatFlowEngine.damageSpecs(
                 attack.optString("damage_expression",""),attack.optString("damage_type",""),
                 attack.optString("extra_damage_expression",""),attack.optString("extra_damage_type",""));
+            if(supplied!=null){
+                HashSet<String> suppliedTypes=new HashSet<String>();
+                for(int i=0;i<supplied.length();i++){
+                    JSONObject component=supplied.optJSONObject(i);
+                    if(component==null)continue;
+                    String type=DamageTypeNormalizer.canonical(component.optString("damage_type",""));
+                    if(!type.isEmpty()&&!suppliedTypes.add(type))
+                        return out.put("damage_blocked","typed_damage_type_repeated_requires_source_aggregation");
+                }
+            }
             if(supplied==null||supplied.length()!=expected.length())
                 return out.put("damage_blocked","typed_damage_component_count_mismatch");
             String resistances=target.optString("resistances",""),

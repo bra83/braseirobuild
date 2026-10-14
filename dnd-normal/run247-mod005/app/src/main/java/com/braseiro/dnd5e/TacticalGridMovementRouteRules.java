@@ -90,25 +90,22 @@ public final class TacticalGridMovementRouteRules {
         // selected route straight. Equal-cost Dijkstra ties otherwise favored
         // a bent route, making source rules such as XMM charges impossible to
         // execute even when the player selected an unobstructed straight path.
+        List<Cell> straightCells=null;
+        int straightCost=0,straightDifficult=0;
         if(sx==targetX||sy==targetY){
             int dx=Integer.compare(targetX,sx),dy=Integer.compare(targetY,sy);
             int count=Math.max(Math.abs(targetX-sx),Math.abs(targetY-sy));
             List<Cell> direct=new ArrayList<Cell>();direct.add(new Cell(sx,sy));
-            int directCost=0,directDifficult=0;boolean clear=true;
+            boolean clear=true;
             for(int step=1;step<=count;step++){
                 int x=sx+dx*step,y=sy+dy*step;
                 if(blocked[y][x]){clear=false;break;}
                 boolean difficult=gmDifficult||difficultCells[y][x];
-                if(difficult)directDifficult++;
-                directCost+=5*(1+(difficult?1:0)+(crawling?1:0));
+                if(difficult)straightDifficult++;
+                straightCost+=5*(1+(difficult?1:0)+(crawling?1:0));
                 direct.add(new Cell(x,y));
             }
-            if(clear){
-                if(count>120||directCost>600)return fail("budget_exceeds_safe_limit");
-                return new Route("",signature(width,height,sx,sy,targetX,targetY,blocked,
-                    difficultCells,gmDifficult,crawling,direct),sx,sy,targetX,targetY,count,
-                    directCost,directDifficult,direct);
-            }
+            if(clear)straightCells=direct;
         }
         int n=width*height,start=sy*width+sx,goal=targetY*width+targetX;
         int[] cost=new int[n],steps=new int[n],prev=new int[n];
@@ -143,6 +140,12 @@ public final class TacticalGridMovementRouteRules {
             if(gmDifficult||difficultCells[y][x])difficultSteps++;
         }
         Collections.reverse(reverse);
+        // Keep an unobstructed straight corridor on equal-cost routes. Never
+        // let this preference override a cheaper weighted path through terrain.
+        if(straightCells!=null&&straightCost==cost[goal])return new Route("",
+            signature(width,height,sx,sy,targetX,targetY,blocked,difficultCells,
+                gmDifficult,crawling,straightCells),sx,sy,targetX,targetY,
+            straightCells.size()-1,straightCost,straightDifficult,straightCells);
         return new Route("",signature(width,height,sx,sy,targetX,targetY,blocked,difficultCells,
             gmDifficult,crawling,reverse),sx,sy,targetX,targetY,steps[goal],cost[goal],
             difficultSteps,reverse);
