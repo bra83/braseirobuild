@@ -259,6 +259,12 @@
 - Código no commit `9227abd263510fd0a3d1f5e30dfe21722779f9d6`; BRELGA run [38525430348](https://github.com/bra83/braseirobuild/actions/runs/38525430348) estava executando a regressão completa quando este registro foi preparado. Evidência local e hashes em `docs/editorial-evidence/xmm-forced-movement-save-caps-local-20261014/`.
 - A etapa 03 continua aberta: 222 efeitos aguardam tratamento e 35 seções ainda não têm prova semântica individual. Nenhum APK foi gerado.
 
+### Rótulo PT-BR para Serpentine Gaze (14/10/2026)
+
+- O nome exibido no seletor do jogador agora é **Olhar Serpentino**; o identificador-fonte continua `Serpentine Gaze`. `XmmPtBrActionLabelTest` cobre o mapeamento. O teste focado local passou.
+- Commit `3591a879aef595f70b4b1bd4c30a67b8eca39b5f`; BRELGA [38527257892](https://github.com/bra83/braseirobuild/actions/runs/38527257892) passou no SHA exato: 119 suítes / 2.536 testes / zero falhas, erros ou ignorados. XML completo publicado; SHA-256 do XML do teste de rótulos: `622861f687ac3809563feceb57a364b2ead95cda382ffccfd56b670d0b7ebead`.
+- Esta tradução cobre o rótulo desta ação; não é uma certificação de localização de todos os 503 statblocks.
+
 ### Bone Naga: duração persistente de Serpentine Gaze (14/10/2026)
 
 - Fonte XMM pinada: Bone Naga / Serpentine Gaze (`/monster/74/action/2/entries/0`). Uma falha na salvaguarda de Sabedoria aplica o dano psíquico e Enfeitiçado até o início do próximo turno do naga. O efeito agora é tipado com esse gatilho; o teste Robolectric confirma o dano persistido, a condição durante o turno do alvo e a expiração no turno correto do naga.

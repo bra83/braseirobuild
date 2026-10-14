@@ -94,5 +94,20 @@
     "skipped": 0,
     "evidence_complete": true,
     "xml_directory_present": true
+  },
+  "later_code_verification": {
+    "commit": "3591a879aef595f70b4b1bd4c30a67b8eca39b5f",
+    "change": "PT-BR action label Serpentine Gaze -> Olhar Serpentino",
+    "local_focused_test": "XmmPtBrActionLabelTest passed",
+    "brelga_run_id": 38527257892,
+    "brelga_run_url": "https://github.com/bra83/braseirobuild/actions/runs/38527257892",
+    "brelga_status": "success",
+    "suite_count": 119,
+    "tests": 2536,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "xml_evidence_complete": true,
+    "label_test_xml_sha256": "622861f687ac3809563feceb57a364b2ead95cda382ffccfd56b670d0b7ebead"
   }
 }
