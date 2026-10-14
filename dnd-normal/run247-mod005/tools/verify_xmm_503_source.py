@@ -234,7 +234,7 @@ def check_monsters(source,index,compiled,attack_contracts=None):
             problems.append(monster+":HP_FORMULA")
         if monster_type(s["type"])!=e["type"] or e["type"]!=c["creature_type"]:
             problems.append(monster+":TYPE")
-        fixed_sizes={"Colossus":"Gargantuan","Merrow":"Large","Satyr":"Medium"}
+        fixed_sizes={"Balor":"Huge","Colossus":"Gargantuan","Merrow":"Large","Satyr":"Medium"}
         if monster in fixed_sizes:
             code={"T":"Tiny","S":"Small","M":"Medium","L":"Large","H":"Huge","G":"Gargantuan"}
             source_sizes=[code.get(x,x) for x in s.get("size",[])]
@@ -630,6 +630,22 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
             compiled_action.get("effect_on_hit_max_target_size")=="Medium" and
             compiled_action.get("damage")=="1d4 + 3" and
             compiled_action.get("damage_type")=="bludgeoning" and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if monster_name=="Balor" and name=="Flame Whip":
+        return ("{@atkr m}" in text and "{@hit 14}" in text and
+            "reach 30 ft." in source_text and "{@damage 3d6 + 8}" in text and
+            "{@damage 5d6}" in text and "force damage" in source_text and
+            "fire damage" in source_text and "huge or smaller creature" in source_text and
+            "pulls the target up to 25 feet straight toward itself" in source_text and
+            "{@condition prone|xphb}" in text.casefold() and
+            compiled_action.get("effect_on_hit")=="pull:25ft;prone" and
+            compiled_action.get("effect_on_hit_max_target_size")=="Huge" and
+            compiled_action.get("condition_on_hit")=="prone" and
+            compiled_action.get("condition_ends_when")=="stands_up" and
+            compiled_action.get("condition_max_target_size")=="Huge" and
+            compiled_action.get("damage")=="3d6 + 8 + 5d6" and
+            compiled_action.get("damage_type")=="force + fire" and
             not compiled_action.get("manual_rider_resolution_required",False) and
             not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if monster_name=="Colossus" and name=="Slam":

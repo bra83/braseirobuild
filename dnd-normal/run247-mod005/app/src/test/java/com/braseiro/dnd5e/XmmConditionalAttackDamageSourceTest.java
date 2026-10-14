@@ -76,7 +76,7 @@ public final class XmmConditionalAttackDamageSourceTest {
 
     @Test public void unmodeledMoveAdvantageAndGrappleAlternativesFailClosed(){
         String[][] noSave={
-            {"Allosaurus","Claws"},{"Balor","Flame Whip"},
+            {"Allosaurus","Claws"},
             {"Bugbear Stalker","Morningstar"},
             {"Bugbear Warrior","Light Hammer"},{"Cloaker","Attach"},{"Darkmantle","Crush"},
             {"Death Slaad","Chaos Blade"},{"Elephant","Gore"},

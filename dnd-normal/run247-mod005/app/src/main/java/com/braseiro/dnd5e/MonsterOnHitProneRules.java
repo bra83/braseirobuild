@@ -29,6 +29,12 @@ public final class MonsterOnHitProneRules {
     }
     public static boolean validSize(String value){return sizeRank(value)>0;}
     public static boolean validSource(JSONObject action) {
+        MonsterForcedMovementRules.Spec forced=action==null?null:
+            MonsterForcedMovementRules.compiled(action.optString("effect_on_hit",""),"prone");
+        String movementLimit=action==null?"":action.optString("effect_on_hit_max_target_size","");
+        boolean compoundKnockdown=forced!=null&&"pull".equals(forced.direction)&&
+            forced.maximumFeet==25&&"huge".equals(norm(movementLimit))&&
+            movementLimit.equalsIgnoreCase(action.optString("condition_max_target_size",""));
         return action!=null&&action.has("to_hit")&&
             "prone".equals(action.optString("condition_on_hit",""))&&
             "stands_up".equals(action.optString("condition_ends_when",""))&&
@@ -36,7 +42,7 @@ public final class MonsterOnHitProneRules {
             !action.has("condition_duration_rounds")&&!action.has("condition_duration_tick")&&
             !action.has("save_dc")&&!action.has("save_ability")&&
             !action.has("condition_on_fail")&&!action.has("effect_on_fail")&&
-            !action.has("effect_on_hit");
+            (!action.has("effect_on_hit")||compoundKnockdown);
     }
     /** A creature that is too large still takes a legal attack's damage;
      * it merely avoids the knockdown. Unknown size is a genuine preflight block. */

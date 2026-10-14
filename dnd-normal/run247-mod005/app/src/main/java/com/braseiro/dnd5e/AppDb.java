@@ -3025,7 +3025,8 @@ public class AppDb extends SQLiteOpenHelper {
                         MonsterOnHitProneRules.sizeRank(maximumSize))forcedOnHitSkippedForSize=true;
                 }
                 if(!forcedOnHitSkippedForSize){
-                    forcedOnHit=MonsterForcedMovementRules.compiled(onHitEffect,"");
+                    forcedOnHit=MonsterForcedMovementRules.compiled(onHitEffect,
+                        sourceAction.optString("condition_on_hit",""));
                     if(forcedOnHit==null)return out.put("statblock_attack_blocked","unsupported_on_hit_effect");
                 }
             }
@@ -3056,6 +3057,12 @@ public class AppDb extends SQLiteOpenHelper {
             if(!recharge.isEmpty()&&MonsterRechargeLedgerCodec.spent(spentByAction,action))
                 return out.put("statblock_attack_blocked","recharge_required").put("recharge",recharge);
             String onHitCondition=resolved.optString("rider_on_hit_condition","").trim();
+            // A source-coupled knockdown on a size-limited forced movement rider
+            // shares the same eligibility check. Oversized targets take damage,
+            // but neither move nor fall prone.
+            if(forcedOnHitSkippedForSize&&!onHitCondition.isEmpty()&&
+                MonsterForcedMovementRules.compiled(onHitEffect,onHitCondition)!=null)
+                onHitCondition="";
             if(resolved.optBoolean("hit",false)&&!onHitCondition.isEmpty()){
                 String ownershipBlock=compiledMonsterOnHitConditionBlock(actorId,targetId,id,
                     action,token,onHitCondition);

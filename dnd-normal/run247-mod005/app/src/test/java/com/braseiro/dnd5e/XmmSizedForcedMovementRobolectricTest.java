@@ -51,8 +51,31 @@ public final class XmmSizedForcedMovementRobolectricTest {
             assertEquals(actor,db.nextTurn().optLong("id"));
             new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();
             db.ensureTacticalTokensForCombat();position(db,actor,actorX,2);position(db,target,targetX,2);
-            JSONObject applied=db.applyCompiledStatblockAttack(actor,target,actorBlock,action,
-                18,0,damage,0,0L,expectedMove?destinationX:-1,expectedMove?2:-1,"ui-monster-size-"+token);
+            org.json.JSONArray typedDamage=null;
+            if("Balor".equals(actorBlock)){
+                JSONObject compiledAction=null;org.json.JSONArray actions=CompiledStatblockEngine
+                    .runtimeProfile(actorBlock).optJSONArray("actions");
+                for(int i=0;actions!=null&&i<actions.length();i++){
+                    JSONObject candidate=actions.optJSONObject(i);
+                    if(candidate!=null&&action.equals(candidate.optString("name")))compiledAction=candidate;
+                }
+                assertNotNull(compiledAction);
+                org.json.JSONArray specs=StatblockCombatFlowEngine.damageSpecs(
+                    compiledAction.optString("damage"),compiledAction.optString("damage_type"),"");
+                typedDamage=new org.json.JSONArray();damage=0;
+                for(int i=0;i<specs.length();i++){
+                    JSONObject spec=specs.getJSONObject(i);
+                    CompiledMonsterDamageGuard.Range range=CompiledMonsterDamageGuard.range(
+                        spec.optString("expression"),"",false);
+                    assertNotNull(range);damage+=range.min;
+                    typedDamage.put(new JSONObject().put("expression",spec.optString("expression"))
+                        .put("damage_type",spec.optString("type")).put("damage_total",range.min));
+                }
+            }
+            JSONObject applied=typedDamage==null?db.applyCompiledStatblockAttack(actor,target,actorBlock,action,
+                18,0,damage,0,0L,expectedMove?destinationX:-1,expectedMove?2:-1,"ui-monster-size-"+token):
+                db.applyCompiledStatblockAttack(actor,target,actorBlock,action,18,0,typedDamage,0,0L,
+                    expectedMove?destinationX:-1,expectedMove?2:-1,"ui-monster-size-"+token);
             if(unknownSize){
                 assertEquals("target_size_not_verified",applied.optString("statblock_attack_blocked"));
                 assertEquals(100,db.getCombatant(target).optInt("hp"));
@@ -69,9 +92,13 @@ public final class XmmSizedForcedMovementRobolectricTest {
                 assertEquals(targetX,db.tacticalGridPosition(target).optInt("cell_x"));
                 assertEquals("target_size_exceeds_movement_limit",
                     resolved.optString("on_hit_forced_movement_skipped"));
-                assertEquals("Large",resolved.optString("target_size_category"));
+                assertEquals(CompiledStatblockEngine.get(targetBlock).optString("size_category"),
+                    resolved.optString("target_size_category"));
                 assertFalse(resolved.has("on_hit_forced_movement_transition"));
             }
+            if("Balor".equals(actorBlock))
+                assertEquals(expectedMove,
+                    ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"prone"));
         }finally{db.close();context.deleteDatabase(dbName);}
     }
 
@@ -83,5 +110,7 @@ public final class XmmSizedForcedMovementRobolectricTest {
         runCase("Satyr","Hooves","Satyr",3,4,6,4,true,false,"satyr-push");
         runCase("Satyr","Hooves","Merrow",3,4,-1,4,false,false,"satyr-large-target");
         runCase("Satyr","Hooves","",3,4,6,4,false,true,"satyr-unknown-size");
+        runCase("Balor","Flame Whip","Merrow",2,6,4,20,true,false,"balor-pull-prone");
+        runCase("Balor","Flame Whip","Colossus",2,4,-1,20,false,false,"balor-size-cap");
     }
 }

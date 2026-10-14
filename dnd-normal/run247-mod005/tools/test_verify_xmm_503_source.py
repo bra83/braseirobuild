@@ -35,6 +35,18 @@ class XmmIndependentSourceTests(unittest.TestCase):
                 self.assertFalse(xmm.source_action_has_typed_condition_contract(
                     monster,action,compiled))
 
+    def test_balor_flame_whip_compounds_size_limited_pull_and_prone(self):
+        action={"name":"Flame Whip","entries":[
+            "{@atkr m} {@hit 14}, reach 30 ft. {@h}18 ({@damage 3d6 + 8}) Force damage plus 17 ({@damage 5d6}) Fire damage. If the target is a Huge or smaller creature, the balor pulls the target up to 25 feet straight toward itself, and the target has the {@condition Prone|XPHB} condition."]}
+        compiled={"effect_on_hit":"pull:25ft;prone","effect_on_hit_max_target_size":"Huge",
+            "condition_on_hit":"prone","condition_ends_when":"stands_up",
+            "condition_max_target_size":"Huge","damage":"3d6 + 8 + 5d6",
+            "damage_type":"force + fire","manual_rider_resolution_required":False,
+            "manual_unmodeled_source_effect_required":False}
+        self.assertTrue(xmm.source_action_has_typed_condition_contract("Balor",action,compiled))
+        compiled["effect_on_hit_max_target_size"]="Gargantuan"
+        self.assertFalse(xmm.source_action_has_typed_condition_contract("Balor",action,compiled))
+
     def test_wind_javelin_return_is_typed_only_for_the_ranged_mode(self):
         action={"name":"Wind Javelin","entries":[
             "{@atkr m,r} {@hit 4}, reach 5 ft. or range 30/120 ft. {@h}5 ({@damage 1d6 + 2}) Piercing damage plus 2 ({@damage 1d4}) Thunder damage. The javelin magically returns to the aarakocra's hand immediately after a ranged attack."]}
