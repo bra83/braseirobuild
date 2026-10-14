@@ -576,6 +576,41 @@ def advantage_bonus_attack_matches(monster_name,action,compiled_action):
         not compiled_action.get("manual_rider_resolution_required",False) and
         not compiled_action.get("manual_unmodeled_source_effect_required",False))
 
+def simple_multiattack_plan(action):
+    """Parse only an exact attack-only source sentence with unrestricted choices."""
+    entries=action.get("entries",[])
+    text=" ".join(x for x in entries if isinstance(x,str))
+    match=re.fullmatch(r"The [A-Za-z' -]+ makes (two|three|four) attacks, using (.+?) in any combination\.",text,re.I)
+    if not match:return None
+    if "can use" in text.casefold().split(" makes",1)[0]:return None
+    if not re.search(r"\bor\b",match.group(2),re.I):return None
+    count={"two":2,"three":3,"four":4}[match.group(1).casefold()]
+    options=[x.strip() for x in re.split(r",\s*|\s+or\s+",match.group(2)) if x.strip()]
+    options=[x[3:] if x.casefold().startswith("or ") else x for x in options]
+    if len(options)<2 or any(not x for x in options):return None
+    return count,"|".join(options)
+
+def check_simple_multiattacks(source,compiled):
+    by_id={m.get("id"):m for m in compiled};errors=[];checked=0
+    for monster in source:
+        action=next((a for a in monster.get("action",[]) if a.get("name")=="Multiattack"),None)
+        plan=simple_multiattack_plan(action or {})
+        if plan is None:continue
+        checked+=1;dst=by_id.get(monster.get("name"),{});runtime=dst.get("multiattack",{})
+        runtime_action=next((a for a in dst.get("actions",[]) if a.get("name")=="Multiattack"),{})
+        count,options=plan
+        declared=runtime.get("options","")
+        if (runtime.get("count")!=count or declared!=options or
+            runtime.get("manual_sequence_required",False) or
+            runtime_action.get("manual_rider_resolution_required",False)):
+            errors.append(f"{monster['name']}:Multiattack:SOURCE_SEQUENCE_MISMATCH")
+        allowed=options.split("|")
+        action_names={a.get("name") for a in dst.get("actions",[])}
+        if any(option not in action_names for option in allowed):
+            errors.append(f"{monster['name']}:Multiattack:COMPONENT_ACTION_MISSING")
+    return errors,checked
+
+
 def check_advantage_bonus_attack_damage(source,compiled):
     by_id={row["id"]:row for row in compiled};errors=[];checked=0
     for (monster,name),_ in ADVANTAGE_BONUS_ATTACK_DAMAGE.items():
@@ -1224,6 +1259,7 @@ def check(project, bestiary_bytes, book_bytes):
     effect_errors,effect_count=check_unmodeled_action_effects(src,compiled)
     chain_errors=check_chain_devil_infernal_chain(src,compiled)
     attack_damage_errors,attack_damage_count=check_attack_primary_damage(src,compiled)
+    multiattack_errors,multiattack_count=check_simple_multiattacks(src,compiled)
     advantage_damage_errors,advantage_damage_count=check_advantage_bonus_attack_damage(src,compiled)
     wounded_advantage_errors,wounded_advantage_count=check_wounded_target_advantage_attacks(src,compiled)
     attack_secondary_errors,attack_secondary_count=check_attack_secondary_damage_contracts(src,compiled)
@@ -1238,6 +1274,7 @@ def check(project, bestiary_bytes, book_bytes):
              "conditional_attack_damage":branch_errors[:20],"conditional_attack_damage_count":len(branch_errors),
              "unmodeled_action_effects":effect_errors[:20],"unmodeled_action_effects_count":len(effect_errors),
              "chain_devil_infernal_chain":chain_errors,
+             "typed_multiattack":multiattack_errors,
              "source_turn_start_conditions":turn_start_errors[:20],"source_turn_start_conditions_count":len(turn_start_errors),
              "attack_primary_damage":attack_damage_errors[:20],"attack_primary_damage_count":len(attack_damage_errors),
              "advantage_bonus_damage":advantage_damage_errors[:20],"advantage_bonus_damage_count":len(advantage_damage_errors),
@@ -1257,6 +1294,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_trait_families_compared":len({r["kind"] for r in traitrows}),
         "source_save_damage_actions_compared":save_count,
         "source_attack_primary_damage_compared":attack_damage_count,
+        "source_typed_simple_multiattack_contracts_compared":multiattack_count,
         "source_attack_advantage_bonus_damage_contracts_compared":advantage_damage_count,
         "source_attack_wounded_target_advantage_contracts_compared":wounded_advantage_count,
         "source_attack_secondary_damage_contracts_compared":attack_secondary_count,

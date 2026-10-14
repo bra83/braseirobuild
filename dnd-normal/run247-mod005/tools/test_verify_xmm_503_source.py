@@ -4,6 +4,21 @@ from io import BytesIO
 import verify_xmm_503_source as xmm
 
 class XmmIndependentSourceTests(unittest.TestCase):
+    def test_simple_multiattack_requires_exact_source_count_and_choices(self):
+        source=[{"name":"Goblin Boss","action":[{"name":"Multiattack","entries":[
+            "The goblin makes two attacks, using Scimitar or Shortbow in any combination."]}]}]
+        compiled=[{"id":"Goblin Boss","actions":[{"name":"Multiattack",
+            "manual_rider_resolution_required":False},{"name":"Scimitar"},{"name":"Shortbow"}],
+            "multiattack":{"source_bound":True,"count":2,"options":"Scimitar|Shortbow"}}]
+        self.assertEqual(([],1),xmm.check_simple_multiattacks(source,compiled))
+        compiled[0]["multiattack"]["count"]=3
+        errors,count=xmm.check_simple_multiattacks(source,compiled)
+        self.assertEqual(1,count)
+        self.assertEqual(["Goblin Boss:Multiattack:SOURCE_SEQUENCE_MISMATCH"],errors)
+        extra={"name":"Abominable Yeti","action":[{"name":"Multiattack","entries":[
+            "The yeti can use its Chilling Gaze and makes two attacks, using Claw or Ice Throw in any combination."]}]}
+        self.assertIsNone(xmm.simple_multiattack_plan(extra["action"][0]))
+
     def test_advantage_bonus_damage_is_typed_for_all_six_source_attacks(self):
         rows=[
             ("Goblin Boss","Scimitar","1d6 + 2",5,2,"1d4","slashing",4,"m",5,0,0),

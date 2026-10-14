@@ -3389,12 +3389,20 @@ public class AppDb extends SQLiteOpenHelper {
                     !liveGeometry.optString("attack_geometry_fingerprint","").equals(
                         geometries[i].optString("attack_geometry_fingerprint","")))
                     throw new IllegalStateException("multiattack_dynamic_geometry_rollback_"+i);
+                JSONObject liveTarget=getCombatant(targetId);
+                JSONObject liveAction=compiledMonsterRiderAction(id,actions[i]);
+                XmmConditionalAttackRollRules.Result liveSourceMode=
+                    XmmConditionalAttackRollRules.advantage(liveAction,
+                        liveTarget.optInt("hp",-1),liveTarget.optInt("max_hp",-1));
+                if(!liveSourceMode.legal())
+                    throw new IllegalStateException("multiattack_dynamic_source_roll_mode_rollback_"+i);
                 MonsterAttackRollModeRules.Result liveMode=MonsterAttackRollModeRules.evaluate(
                     liveGeometry.optString("attack_mode",""),liveGeometry.optInt("distance_ft",0),
                     liveGeometry.optBoolean("long_range_disadvantage",false),
                     getCombatant(actorId).optString("conditions",""),
-                    getCombatant(targetId).optString("conditions",""),
-                    liveGeometry.optBoolean("additional_adjacent_hostile",false));
+                    liveTarget.optString("conditions",""),
+                    liveGeometry.optBoolean("additional_adjacent_hostile",false),
+                    liveSourceMode.advantage);
                 if(!liveMode.legal()||!liveMode.modeName().equals(attack.optString("roll_mode",""))||
                     liveMode.advantage!=attack.optBoolean("roll_advantage",false)||
                     liveMode.disadvantage!=attack.optBoolean("roll_disadvantage",false)||
