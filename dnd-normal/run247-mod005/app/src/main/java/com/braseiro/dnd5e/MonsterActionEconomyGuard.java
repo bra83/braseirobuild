@@ -70,12 +70,21 @@ public final class MonsterActionEconomyGuard {
         if(!allowTypedOnHit)return "unsupported_multiattack_on_hit_rider";
         if(!action.has("to_hit")||condition.isEmpty())
             return "unresolved_attack_hit_rider_requires_typed_handler";
-        String canonical=CompiledMonsterActionGuard.canonicalCondition(condition);
         if(action.has("escape_dc")&&condition.toLowerCase(Locale.ROOT).contains("grappled"))
             return action.optInt("escape_dc",0)>0?"unsupported_grapple_escape_rider":
                 "invalid_compiled_escape_dc";
-        if(canonical.isEmpty()||!canonical.equals(ConditionTokenGuard.canonical(condition)))
-            return "unsupported_on_hit_condition";
+        // Source actions may apply a fixed bundle of conditions together. Each
+        // item is still validated independently so unknown or duplicate tokens
+        // never become executable just because another token is recognized.
+        java.util.HashSet<String> canonicalConditions=new java.util.HashSet<>();
+        String[] conditions=condition.split("[,;]",-1);
+        for(String item:conditions){
+            String token=item.trim();
+            String canonical=CompiledMonsterActionGuard.canonicalCondition(token);
+            if(token.isEmpty()||canonical.isEmpty()||
+                !canonical.equals(ConditionTokenGuard.canonical(token))||
+                !canonicalConditions.add(canonical))return "unsupported_on_hit_condition";
+        }
         // An untimed Prone rider has an explicit stand-up recovery mechanism.
         // Never grant other conditions an indefinite duration by inference.
         if(untilStand)return !timing&&MonsterOnHitProneRules.validSource(action)?"":

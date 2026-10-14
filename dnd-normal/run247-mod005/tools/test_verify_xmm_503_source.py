@@ -176,6 +176,29 @@ class XmmIndependentSourceTests(unittest.TestCase):
             "The target has the {@condition Poisoned|XPHB} condition and repeats the save at the end of each of its turns."]}))
         self.assertFalse(xmm.source_action_requires_manual_resolution({"entries":[
             "The target has the {@condition Frightened|XPHB} condition until the end of its next turn."]}))
+    def test_rakshasa_source_turn_condition_package_has_a_typed_contract(self):
+        source=[{"name":"Rakshasa","action":[{"name":"Baleful Command {@recharge 5}","entries":[
+            "The target has the {@condition Frightened|XPHB} and {@condition Incapacitated|XPHB} conditions until the start of the rakshasa's next turn."]}]}]
+        compiled=[{"id":"Rakshasa","actions":[{"name":"Baleful Command",
+            "condition_on_fail":"frightened, incapacitated","condition_duration_rounds":1,
+            "condition_duration_tick":"source_turn_start",
+            "manual_unmodeled_source_effect_required":False}]}]
+        self.assertEqual(([],0),xmm.check_unmodeled_action_effects(source,compiled))
+        compiled[0]["actions"][0]["condition_duration_tick"]="target_turn_start"
+        errors,count=xmm.check_unmodeled_action_effects(source,compiled)
+        self.assertEqual(1,count)
+        self.assertEqual(["Rakshasa:Baleful Command {@recharge 5}:UNTYPED_SOURCE_EFFECT_NOT_MANUAL"],errors)
+    def test_storm_giant_compound_hit_conditions_need_typed_duration(self):
+        source=[{"name":"Storm Giant","action":[{"name":"Thunderbolt","entries":[
+            "Hit: damage, and the target has the {@condition Blinded|XPHB} and {@condition Deafened|XPHB} conditions until the start of the giant's next turn."]}]}]
+        compiled=[{"id":"Storm Giant","actions":[{"name":"Thunderbolt","condition_on_hit":"blinded, deafened",
+            "condition_duration_rounds":1,"condition_duration_tick":"source_turn_start",
+            "manual_unmodeled_source_effect_required":False}]}]
+        self.assertEqual(([],0),xmm.check_unmodeled_action_effects(source,compiled))
+        compiled[0]["actions"][0]["condition_on_hit"]="blinded"
+        errors,count=xmm.check_unmodeled_action_effects(source,compiled)
+        self.assertEqual(1,count)
+        self.assertIn("UNTYPED_SOURCE_EFFECT_NOT_MANUAL",errors[0])
     def test_not_503_is_not_success(self):
         with self.assertRaises(ValueError):xmm.check_monsters([],[],[])
 if __name__=="__main__":unittest.main()

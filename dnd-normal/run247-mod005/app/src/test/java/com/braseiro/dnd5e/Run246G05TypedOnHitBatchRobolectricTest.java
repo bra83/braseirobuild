@@ -111,4 +111,18 @@ public final class Run246G05TypedOnHitBatchRobolectricTest {
         assertEquals("missing_or_invalid_compiled_save_ability",
             MonsterActionEconomyGuard.attackRiderBlock(inventedSave));
     }
+    @Test public void fixedMultiConditionBundleNeedsAValidTimerForEveryToken()throws Exception {
+        JSONObject bundle=new JSONObject().put("to_hit",14)
+            .put("condition_on_hit","blinded, deafened")
+            .put("condition_duration_rounds",1).put("condition_duration_tick","source_turn_start");
+        assertEquals("",MonsterActionEconomyGuard.attackRiderBlock(bundle));
+        assertEquals("unsupported_multiattack_on_hit_rider",
+            MonsterActionEconomyGuard.attackRiderBlock(bundle,false));
+        bundle.remove("condition_duration_tick");
+        assertEquals("unresolved_attack_hit_rider_requires_typed_handler",
+            MonsterActionEconomyGuard.attackRiderBlock(bundle));
+        bundle.put("condition_duration_tick","source_turn_start")
+            .put("condition_on_hit","blinded, unknown");
+        assertEquals("unsupported_on_hit_condition",MonsterActionEconomyGuard.attackRiderBlock(bundle));
+    }
 }

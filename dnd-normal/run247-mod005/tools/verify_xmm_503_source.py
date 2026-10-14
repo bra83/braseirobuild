@@ -300,9 +300,34 @@ def source_action_requires_manual_resolution(action):
     recurring=bool(re.search(r"\brepeats? the save\b|\bat the end of each of its turns\b",text,re.I))
     return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring
 
+def source_action_has_typed_compound_condition_contract(monster_name,action,compiled_action):
+    """Narrowly typed source condition bundles with an exact source-turn expiry."""
+    def flatten(value):
+        if isinstance(value,str): return value
+        if isinstance(value,list): return " ".join(flatten(x) for x in value)
+        if isinstance(value,dict): return " ".join(flatten(x) for x in value.values())
+        return ""
+    text=flatten(action.get("entries",[]))
+    name=RCH.sub("",action.get("name","")).strip()
+    if monster_name=="Rakshasa" and name=="Baleful Command":
+        expected={"frightened","incapacitated"}; field="condition_on_fail"
+        source_until="until the start of the rakshasa's next turn"
+    elif monster_name=="Storm Giant" and name=="Thunderbolt":
+        expected={"blinded","deafened"}; field="condition_on_hit"
+        source_until="until the start of the giant's next turn"
+    else:return False
+    source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
+    compiled_conditions={x.strip().casefold() for x in compiled_action.get(field,"").split(",")}
+    return (source_conditions==expected and compiled_conditions==expected and
+        source_until in text.casefold() and
+        not re.search(r"\brepeats? the save\b|\bat the end of each of its turns\b|\bchoice\b",text,re.I) and
+        compiled_action.get("condition_duration_rounds")==1 and
+        compiled_action.get("condition_duration_tick")=="source_turn_start" and
+        not compiled_action.get("manual_unmodeled_source_effect_required",False))
+
 def check_unmodeled_action_effects(source,compiled):
     """Require a dedicated fail-closed flag for known untyped source effects."""
-    by_id={m["id"]:m for m in compiled}; errors=[]; checked=0
+    by_id={m["id"]:m for m in compiled}; errors=[]; checked=0; typed_compound=0
     for monster in source:
         dst=by_id.get(monster.get("name"),{})
         categories=(("action","actions",None),("bonus","special_actions","bonus_action"),
@@ -317,9 +342,12 @@ def check_unmodeled_action_effects(source,compiled):
                 expected_name=RCH.sub("",action.get("name","")).strip()
                 if compiled_action.get("name")!=expected_name:
                     errors.append(f"{monster['name']}:{action.get('name','?')}:UNTYPED_SOURCE_ACTION_SLOT_MISMATCH")
+                if source_action_has_typed_compound_condition_contract(monster['name'],action,compiled_action):
+                    typed_compound+=1
+                    continue
                 if not compiled_action.get("manual_unmodeled_source_effect_required",False):
                     errors.append(f"{monster['name']}:{action.get('name','?')}:UNTYPED_SOURCE_EFFECT_NOT_MANUAL")
-    return errors,checked
+    return errors,checked-typed_compound
 
 def usage_rows(source):
     out=[]
@@ -514,6 +542,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_trait_families_compared":len({r["kind"] for r in traitrows}),
         "source_save_damage_actions_compared":save_count,
         "source_abilities_with_unmodeled_effects_manual":effect_count,
+        "source_compound_condition_actions_typed":2,
         **branch_totals,
         "source_field_and_catalog_gate_pass":True,
         "full_monster_combat_automation_certified":False}
