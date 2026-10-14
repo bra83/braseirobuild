@@ -126,6 +126,55 @@ public final class XmmConditionalAttackRollRobolectricTest {
         }finally{db.close();context.deleteDatabase(dbName);}
     }
 
+    @Test public void ankhegBiteAppliesItsTypedGrappleAndNextBiteGetsAdvantage()throws Exception{
+        assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
+        JSONObject bite=findAction("Ankheg","Bite");assertNotNull(bite);
+        assertEquals("target_grappled_by_attacker",bite.optString("attack_advantage_condition"));
+        assertFalse(bite.optBoolean("manual_rider_resolution_required",true));
+        Context context=RuntimeEnvironment.getApplication();
+        String dbName="xmm_ankheg_grapple_adv_"+Long.toHexString(System.nanoTime())+".db";
+        java.io.File directory=context.getDatabasePath(dbName).getParentFile();
+        assertNotNull(directory);assertTrue(directory.isDirectory()||directory.mkdirs());
+        AppDb db=new AppDb(context,dbName);
+        try{
+            db.setActiveMapProfile("dnd");
+            long ankheg=db.addCombatant("Ankheg",10,50,50,14,"",false);
+            long target=db.addCombatant("Grapple Target",10,60,60,10,"",true);
+            bind(db,ankheg,"Ankheg",null);bind(db,target,null,"medium");
+            db.setCombatRunning(true);JSONObject opening=db.nextTurn();
+            if(opening.optLong("id")!=ankheg)opening=db.nextTurn();
+            assertEquals(ankheg,opening.optLong("id"));
+            new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
+            position(db,ankheg,2,2);position(db,target,3,2);
+            JSONArray damage=new JSONArray()
+                .put(new JSONObject().put("expression","2d6 + 3").put("damage_type","slashing").put("damage_total",8))
+                .put(new JSONObject().put("expression","1d6").put("damage_type","acid").put("damage_total",3));
+            JSONObject first=db.applyCompiledStatblockAttack(ankheg,target,"Ankheg","Bite",
+                15,0,damage,0,0L,-1,-1,"ui-monster-ankheg-bite-source-grapple");
+            assertTrue(first.toString(),first.optBoolean("statblock_attack_committed",false));
+            JSONObject grappled=db.getCombatant(target);
+            assertTrue(ConditionTokenGuard.has(grappled.optString("conditions",""),"grappled"));
+            assertEquals(ankheg,new JSONObject(grappled.optString("resources_json","{}"))
+                .getJSONObject("xmm_grapple_state").optLong("source_actor_id"));
+            JSONObject escape=db.getXmmGrappleEscapeInfo(target);
+            assertTrue(escape.toString(),escape.optBoolean("grapple_escape_available",false));
+            assertEquals(13,escape.optInt("escape_dc"));
+
+            assertEquals(target,db.nextTurn().optLong("id"));
+            assertEquals(ankheg,db.nextTurn().optLong("id"));
+            JSONObject preview=db.previewCompiledMonsterAttackRollMode(ankheg,target,"Ankheg","Bite");
+            assertTrue(preview.toString(),preview.optBoolean("monster_roll_preview_valid",false));
+            assertEquals("Vantagem",preview.optString("roll_mode"));
+            JSONObject second=db.applyCompiledStatblockAttack(ankheg,target,"Ankheg","Bite",
+                2,15,damage,0,0L,-1,-1,"ui-monster-ankheg-bite-grapple-advantage");
+            assertTrue(second.toString(),second.optBoolean("statblock_attack_committed",false));
+            JSONObject resolved=second.getJSONObject("resolved");
+            assertEquals("Vantagem",resolved.optString("roll_mode"));
+            assertTrue(resolved.optBoolean("attack_had_advantage",false));
+            assertEquals(38,db.getCombatant(target).optInt("hp"));
+        }finally{db.close();context.deleteDatabase(dbName);}
+    }
+
     private static void bind(AppDb db,long id,String block,String size)throws Exception{
         JSONObject resources=new JSONObject(db.getCombatant(id).optString("resources_json","{}"));
         if(block!=null)resources.put("block_id",block);

@@ -2164,6 +2164,7 @@ public class AppDb extends SQLiteOpenHelper {
         boolean chargeProne=XmmChargeMovementRules.hasConditionalProne(declaredAction)&&
             "prone".equals(declared);
         boolean grapple=Xmm2025GrappleEscapeRules.validSource(blockId,declaredAction);
+        boolean sameOwnedGrapple=grapple&&compiledGrappleOwnedBy(sourceActorId,targetId,blockId,actionName);
         if(grapple){
             String size=verifiedCombatantSizeCategory(target);
             if(!MonsterOnHitProneRules.validSize(size))throw new IllegalStateException("grapple_target_size_unknown_rollback");
@@ -2187,7 +2188,7 @@ public class AppDb extends SQLiteOpenHelper {
                     .put("applied",new JSONArray()).put("duration_rounds",0);
             }
         }
-        if(!plan.alreadyPresent.isEmpty()&&!standsUp)
+        if(!plan.alreadyPresent.isEmpty()&&!standsUp&&!sameOwnedGrapple)
             throw new IllegalStateException("on_hit_condition_ownership_ambiguous_rollback");
         if(chargeProne){
             if(!plan.applied.isEmpty())updateConditionsChecked(targetId,plan.after);
@@ -2272,14 +2273,15 @@ public class AppDb extends SQLiteOpenHelper {
         boolean chargeProne=XmmChargeMovementRules.hasConditionalProne(sourceAction)&&
             "prone".equals(declared);
         boolean grapple=Xmm2025GrappleEscapeRules.validSource(blockId,sourceAction);
+        boolean sameOwnedGrapple=grapple&&compiledGrappleOwnedBy(sourceActorId,targetId,blockId,actionName);
         if(ConditionTokenGuard.has(sourceAction.optString("condition_on_hit",""),"grappled")){
             if(!grapple)return "unsupported_grapple_escape_rider";
             String targetSize=verifiedCombatantSizeCategory(target);
             if(!MonsterOnHitProneRules.validSize(targetSize))return "target_size_not_verified";
             if(Xmm2025GrappleEscapeRules.targetEligible(blockId,sourceAction,targetSize)){
-                if(!plan.alreadyPresent.isEmpty())return "on_hit_condition_ownership_ambiguous";
+                if(!plan.alreadyPresent.isEmpty()&&!sameOwnedGrapple)return "on_hit_condition_ownership_ambiguous";
                 JSONObject targetResources=combatResources(target);
-                if(targetResources.has("xmm_grapple_state"))return "on_hit_condition_ownership_ambiguous";
+                if(targetResources.has("xmm_grapple_state")&&!sameOwnedGrapple)return "on_hit_condition_ownership_ambiguous";
             }
         }
         if(sourceAction.has("condition_ends_when")){
@@ -2288,7 +2290,7 @@ public class AppDb extends SQLiteOpenHelper {
             if(!proneBlock.isEmpty())return proneBlock;
         }
         boolean standsUp=MonsterOnHitProneRules.validSource(sourceAction)||chargeProne;
-        if(!plan.alreadyPresent.isEmpty()&&!standsUp)return "on_hit_condition_ownership_ambiguous";
+        if(!plan.alreadyPresent.isEmpty()&&!standsUp&&!sameOwnedGrapple)return "on_hit_condition_ownership_ambiguous";
         String targetSize=verifiedCombatantSizeCategory(target);
         if(chargeProne&&!MonsterOnHitProneRules.validSize(targetSize))return "target_size_not_verified";
         if(standsUp&&!(chargeProne?XmmChargeMovementRules.proneEligible(sourceAction,targetSize):
@@ -2312,6 +2314,18 @@ public class AppDb extends SQLiteOpenHelper {
                 return "on_hit_condition_ownership_ambiguous";
             return "on_hit_condition_timer_authority_unavailable";
         }
+    }
+    /** A creature may hit the same target again while maintaining its own
+     * source-bound Grappled effect. Refresh is safe only for the identical
+     * persisted actor, statblock, and action; foreign or unverifiable ownership
+     * remains blocked. */
+    private boolean compiledGrappleOwnedBy(long sourceActorId,long targetId,String blockId,
+        String actionName){
+        JSONObject info=getXmmGrappleEscapeInfo(targetId);
+        return info.optBoolean("grapple_escape_available",false)&&
+            info.optLong("source_actor_id",0)==sourceActorId&&
+            blockId.equals(info.optString("source_statblock",""))&&
+            actionName.equals(info.optString("source_action",""));
     }
     // RUN230 G05: typed, directed, world-scoped hostility ledger persisted in
     // combatants.resources_json. No new table or migration is required; existing

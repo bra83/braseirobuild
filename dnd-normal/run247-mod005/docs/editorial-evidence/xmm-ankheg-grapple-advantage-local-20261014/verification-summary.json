@@ -1,0 +1,42 @@
+{
+  "schema": "XMM_ANKHEG_SOURCE_GRAPPLE_ADVANTAGE_EVIDENCE_V1",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "book_git_blob_sha1": "a21801793df3515d07ef9a56d9febefea1c6f8f7",
+  "source_monsters_compared": 503,
+  "editorial_sections_compared": 36,
+  "source_typed_simple_multiattack_contracts_compared": 110,
+  "source_attack_grappled_target_advantage_contracts_compared": 2,
+  "grapple_escape_records_compared": 36,
+  "source_abilities_with_unmodeled_effects_manual": 209,
+  "grapple_riders_total": 36,
+  "grapple_riders_executable": 16,
+  "grapple_riders_still_manual": 20,
+  "ankheg_bite": "Typed slashing and acid damage; applies Grappled through a source-bound target-size and escape-DC contract; Advantage on later Bite only while the same Ankheg owns the persisted grapple state.",
+  "same_owner_grapple_refresh": "The hit rider allows an existing Grappled condition only when the persisted escape record matches actor id, statblock, and action; other or unverifiable ownership stays blocked.",
+  "python_source_verifier_tests": 51,
+  "gradle_command": "ANDROID_HOME=/workspace/android-sdk ANDROID_SDK_ROOT=/workspace/android-sdk JAVA_HOME=/workspace/jdk21 bash gradlew :app:testDebugUnitTest --offline",
+  "gradle_result": {
+    "test_suites": 123,
+    "tests": 2548,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "apk_generated": false,
+  "current_brelga": "pending for this code revision; previous run validates only its recorded head SHA.",
+  "hosted_independent_xmm_audit": "Blocked before job steps: GitHub rejected job startup with account payment/spending-limit annotation; local pinned-source verification passed independently.",
+  "sections_without_individual_semantic_proof": 35,
+  "full_monster_combat_automation_certified": false,
+  "tested_source_files_sha256": {
+    "app/src/main/java/com/braseiro/dnd5e/AppDb.java": "6172607898220042c72f4a3cb646f9206c80e24e574cd0a279c7299b08c342ba",
+    "app/src/main/java/com/braseiro/dnd5e/Xmm2025AttackConditionEngine.java": "a7e8c46159a82b191e233cb829c858e58e7d23d76b7f4d64b043b2db9a21a693",
+    "app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java": "2624c16486e9be349318444f4d1ea21dd0f660941ede0f86c67d549a2484f7f9",
+    "app/src/main/java/com/braseiro/dnd5e/XmmConditionalAttackRollRules.java": "2a95eac110b052fa1670f7e676bda19f2685583703427b065e3c8b7c95bb00e6",
+    "app/src/test/java/com/braseiro/dnd5e/XmmConditionalAttackRollRobolectricTest.java": "a1e6101785bb0406f947964ad7fedaa0725ccf21af15d41e413e6444186c3eb5",
+    "app/src/test/java/com/braseiro/dnd5e/XmmGrappleEscapeRulesTest.java": "b1a68db7f951caec25c3a5e098bb48c3030ba38e6f1660b96d329c244f3b9cc1",
+    "app/src/test/java/com/braseiro/dnd5e/XmmUnmodeledSourceEffectRuntimeTest.java": "30e106c3d27edc51d24476750069d9116ffaaa87eb2e2574e434e23c05e2d190",
+    "tools/test_verify_xmm_503_source.py": "699c05552003634ac6f9994fd1206963f87504fa865d5613f2a4b308444b614e",
+    "tools/verify_xmm_503_source.py": "51c4c74d0b4b6af817a3d0329ddd232e6af358fbc07b58396948baa007bf5435"
+  }
+}

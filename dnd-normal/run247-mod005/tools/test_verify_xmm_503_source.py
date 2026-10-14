@@ -164,12 +164,45 @@ class XmmIndependentSourceTests(unittest.TestCase):
             "damage":"3d4 + 2","damage_type":"bludgeoning",
             "attack_advantage_condition":"target_grappled_by_attacker",
             "manual_rider_resolution_required":False,"manual_unmodeled_source_effect_required":False}]}]
-        self.assertEqual(([],1),xmm.check_grappled_target_advantage_attacks(source,compiled))
+        source.append({"name":"Ankheg","action":[{"name":"Bite","entries":[
+            "{@atkr m} {@hit 5} (with {@variantrule Advantage|XPHB} if the target is {@condition Grappled|XPHB} by the ankheg), reach 5 ft. {@h}10 ({@damage 2d6 + 3}) Slashing damage plus 3 ({@damage 1d6}) Acid damage. If the target is a Large or smaller creature, it has the {@condition Grappled|XPHB} condition (escape {@dc 13})."]}]})
+        compiled.append({"id":"Ankheg","actions":[{"name":"Bite","to_hit":5,
+            "attack_modes":["m"],"reach_ft":5,"damage":"2d6 + 3 + 1d6",
+            "damage_type":"slashing + acid","escape_dc":13,
+            "condition_on_hit":"grappled","condition_max_target_size":"large",
+            "attack_advantage_condition":"target_grappled_by_attacker",
+            "manual_rider_resolution_required":False,
+            "manual_unmodeled_source_effect_required":False}]})
+        self.assertEqual(([],2),xmm.check_grappled_target_advantage_attacks(source,compiled))
         compiled[0]["actions"][0]["attack_advantage_condition"]="target_bloodied"
         errors,count=xmm.check_grappled_target_advantage_attacks(source,compiled)
-        self.assertEqual(0,count)
+        self.assertEqual(1,count)
         self.assertEqual(["Bugbear Warrior:Light Hammer:GRAPPLED_TARGET_ADVANTAGE_MISMATCH",
-            "GRAPPLED_TARGET_ADVANTAGE_COUNT:0"],errors)
+            "GRAPPLED_TARGET_ADVANTAGE_COUNT:1"],errors)
+
+    def test_ankheg_bite_advantage_contract_includes_its_grapple_and_typed_damage(self):
+        source=[{"name":"Ankheg","action":[{"name":"Bite","entries":[
+            "{@atkr m} {@hit 5} (with {@variantrule Advantage|XPHB} if the target is {@condition Grappled|XPHB} by the ankheg), reach 5 ft. {@h}10 ({@damage 2d6 + 3}) Slashing damage plus 3 ({@damage 1d6}) Acid damage. If the target is a Large or smaller creature, it has the {@condition Grappled|XPHB} condition (escape {@dc 13})."]}]}]
+        compiled=[{"id":"Ankheg","actions":[{"name":"Bite","to_hit":5,
+            "attack_modes":["m"],"reach_ft":5,"damage":"2d6 + 3 + 1d6",
+            "damage_type":"slashing + acid","escape_dc":13,
+            "condition_on_hit":"grappled","condition_max_target_size":"large",
+            "attack_advantage_condition":"target_grappled_by_attacker",
+            "manual_rider_resolution_required":False,
+            "manual_unmodeled_source_effect_required":False}]}]
+        source.append({"name":"Bugbear Warrior","action":[{"name":"Light Hammer","entries":[
+            "{@atkr m,r} {@hit 4} (with {@variantrule Advantage|XPHB} if the target is {@condition Grappled|XPHB} by the bugbear), reach 10 ft. or range 20/60 ft. {@h}9 ({@damage 3d4 + 2}) Bludgeoning damage."]}]})
+        compiled.append({"id":"Bugbear Warrior","actions":[{"name":"Light Hammer","to_hit":4,
+            "attack_modes":["m","r"],"reach_ft":10,"range_normal_ft":20,"range_long_ft":60,
+            "damage":"3d4 + 2","damage_type":"bludgeoning",
+            "attack_advantage_condition":"target_grappled_by_attacker",
+            "manual_rider_resolution_required":False,"manual_unmodeled_source_effect_required":False}]})
+        self.assertEqual(([],2),xmm.check_grappled_target_advantage_attacks(source,compiled))
+        compiled[0]["actions"][0]["escape_dc"]=12
+        errors,count=xmm.check_grappled_target_advantage_attacks(source,compiled)
+        self.assertEqual(1,count)
+        self.assertIn("Ankheg:Bite:GRAPPLED_TARGET_ADVANTAGE_MISMATCH",errors)
+        self.assertNotIn("GRAPPLED_TARGET_ADVANTAGE_COUNT:0",errors)
 
     def test_chain_devil_infernal_chain_requires_every_source_bound_rider(self):
         source={"name":"Conjure Infernal Chain","entries":[

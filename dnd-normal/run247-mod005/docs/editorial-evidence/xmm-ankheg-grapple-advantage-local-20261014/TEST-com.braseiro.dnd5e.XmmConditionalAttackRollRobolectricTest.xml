@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.XmmConditionalAttackRollRobolectricTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-14T09:36:13" hostname="0f1875aecc7d" time="0.827">
+  <properties/>
+  <testcase name="databaseAttackUsesWoundedTargetAdvantageBeforeDamage" classname="com.braseiro.dnd5e.XmmConditionalAttackRollRobolectricTest" time="0.199"/>
+  <testcase name="grappledTargetAdvantageNeedsTheAttackerOwnedPersistedLink" classname="com.braseiro.dnd5e.XmmConditionalAttackRollRobolectricTest" time="0.014"/>
+  <testcase name="fourSourceAttacksCheckTargetCurrentAndMaximumHp" classname="com.braseiro.dnd5e.XmmConditionalAttackRollRobolectricTest" time="0.073"/>
+  <testcase name="bugbearWarriorLightHammerUsesItsPersistedGrappleLink" classname="com.braseiro.dnd5e.XmmConditionalAttackRollRobolectricTest" time="0.307"/>
+  <testcase name="ankhegBiteAppliesItsTypedGrappleAndNextBiteGetsAdvantage" classname="com.braseiro.dnd5e.XmmConditionalAttackRollRobolectricTest" time="0.233"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

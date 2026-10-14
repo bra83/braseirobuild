@@ -9,7 +9,7 @@ public final class Xmm2025AttackConditionEngine {
   "{\"id\":\"Aberrant Cultist\",\"name\":\"Tentacle Lash\",\"slot\":1,\"ptr\":\"/monster/2/action/1/entries/0\",\"size\":\"Large\",\"condition\":\"grappled\",\"dc\":14,\"other\":true}",
   "{\"id\":\"Aboleth\",\"name\":\"Tentacle\",\"slot\":1,\"ptr\":\"/monster/3/action/1/entries/0\",\"size\":\"Large\",\"condition\":\"grappled\",\"dc\":14,\"other\":false}",
   "{\"id\":\"Animated Rug of Smothering\",\"name\":\"Smother\",\"slot\":0,\"ptr\":\"/monster/31/action/0/entries/0\",\"size\":\"Medium\",\"condition\":\"grappled\",\"dc\":13,\"choice_required\":true,\"other\":true}",
-  "{\"id\":\"Ankheg\",\"name\":\"Bite\",\"slot\":0,\"ptr\":\"/monster/32/action/0/entries/0\",\"size\":\"Large\",\"condition\":\"grappled\",\"dc\":13,\"other\":true}",
+  "{\"id\":\"Ankheg\",\"name\":\"Bite\",\"slot\":0,\"ptr\":\"/monster/32/action/0/entries/0\",\"size\":\"Large\",\"condition\":\"grappled\",\"dc\":13,\"other\":false}",
   "{\"id\":\"Ankylosaurus\",\"name\":\"Tail\",\"slot\":1,\"ptr\":\"/monster/33/action/1/entries/0\",\"size\":\"Huge\",\"condition\":\"prone\",\"dc\":0,\"other\":false}",
   "{\"id\":\"Arch-hag\",\"name\":\"Spectral Claw\",\"slot\":1,\"ptr\":\"/monster/36/action/1/entries/0\",\"size\":\"Large\",\"condition\":\"prone\",\"dc\":0,\"other\":false}",
   "{\"id\":\"Barbed Devil\",\"name\":\"Claws\",\"slot\":1,\"ptr\":\"/monster/54/action/1/entries/0\",\"size\":\"Large\",\"condition\":\"grappled\",\"dc\":13,\"other\":false}",

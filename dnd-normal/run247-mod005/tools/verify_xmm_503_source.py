@@ -57,6 +57,7 @@ WOUNDED_TARGET_ADVANTAGE_ATTACKS={
     ("Swarm of Piranhas","Bites"): (5,"2d4 + 3","piercing"),
 }
 GRAPPLED_TARGET_ADVANTAGE_ATTACKS={
+    ("Ankheg","Bite"): (5,"2d6 + 3 + 1d6","slashing + acid"),
     ("Bugbear Warrior","Light Hammer"): (4,"3d4 + 2","bludgeoning"),
 }
 SOURCE_TURN_START_HEALING_SUPPRESSION={("Bearded Devil","Beard"),
@@ -757,14 +758,31 @@ def grappled_target_advantage_matches(monster_name,action,compiled_action):
     if expected is None:return False
     to_hit,damage,damage_type=expected
     text=" ".join(x for x in action.get("entries",[]) if isinstance(x,str))
-    attack=bool(re.search(r"\{@atkr\s+m,r\}\s*\{@hit\s+"+str(to_hit)+r"\}",text,re.I))
+    modes="m" if monster_name=="Ankheg" else "m,r"
+    attack=bool(re.search(r"\{@atkr\s+"+modes+r"\}\s*\{@hit\s+"+str(to_hit)+r"\}",text,re.I))
+    source_actor="ankheg" if monster_name=="Ankheg" else "bugbear"
     conditional=bool(re.search(r"\{@variantrule Advantage\|XPHB\}\s+if the target is\s+"+
-        r"\{@condition Grappled\|XPHB\}\s+by the bugbear",text,re.I))
-    return (attack and conditional and "reach 10 ft." in text and "range 20/60 ft." in text and
-        "{@damage 3d4 + 2}" in text and damage_type+" damage" in text.casefold() and
-        compiled_action.get("to_hit")==to_hit and compiled_action.get("attack_modes")==["m","r"] and
-        compiled_action.get("reach_ft")==10 and compiled_action.get("range_normal_ft")==20 and
-        compiled_action.get("range_long_ft")==60 and compiled_action.get("damage")==damage and
+        r"\{@condition Grappled\|XPHB\}\s+by the "+re.escape(source_actor),text,re.I))
+    if monster_name=="Ankheg":
+        source_rider=("reach 5 ft." in text and "{@damage 2d6 + 3}" in text and
+            "{@damage 1d6}" in text and "slashing damage" in text.casefold() and
+            "acid damage" in text.casefold() and "large or smaller" in text.casefold() and
+            "{@dc 13}" in text and "{@condition Grappled|XPHB}" in text)
+        runtime_rider=(compiled_action.get("attack_modes")==["m"] and
+            compiled_action.get("reach_ft")==5 and compiled_action.get("damage")==damage and
+            compiled_action.get("damage_type")==damage_type and
+            compiled_action.get("condition_on_hit")=="grappled" and
+            compiled_action.get("condition_max_target_size")=="large" and
+            compiled_action.get("escape_dc")==13)
+    else:
+        source_rider=("reach 10 ft." in text and "range 20/60 ft." in text and
+            "{@damage 3d4 + 2}" in text and "bludgeoning damage" in text.casefold())
+        runtime_rider=(compiled_action.get("attack_modes")==["m","r"] and
+            compiled_action.get("reach_ft")==10 and compiled_action.get("range_normal_ft")==20 and
+            compiled_action.get("range_long_ft")==60 and compiled_action.get("damage")==damage and
+            compiled_action.get("damage_type")==damage_type)
+    return (attack and conditional and source_rider and runtime_rider and
+        compiled_action.get("to_hit")==to_hit and compiled_action.get("damage")==damage and
         compiled_action.get("damage_type")==damage_type and
         compiled_action.get("attack_advantage_condition")=="target_grappled_by_attacker" and
         not compiled_action.get("manual_rider_resolution_required",False) and
