@@ -602,6 +602,22 @@ def simple_repeat_multiattack_plan(monster,action):
     found=[name for name in names if name.casefold() in normalized]
     return (count,found[0]) if len(found)==1 else None
 
+def simple_ordered_multiattack_plan(monster,action):
+    """Parse a whole sentence with a fixed quantity of two named attacks."""
+    text=" ".join(x for x in action.get("entries",[]) if isinstance(x,str))
+    match=re.fullmatch(r"The [A-Za-z' -]+ makes (one|two|three|four) (.+?) attacks? and (one|two|three|four) (.+?) attacks?\.",text,re.I)
+    if not match:return None
+    number={"one":1,"two":2,"three":3,"four":4}
+    sequence=[]
+    for quantity,phrase in ((match.group(1),match.group(2)),(match.group(3),match.group(4))):
+        name=phrase.strip().casefold()
+        choices={name,name[:-1] if name.endswith("s") else name+"s"}
+        found=[a.get("name","") for a in monster.get("action",[])
+               if a.get("name")!="Multiattack" and a.get("name","").casefold() in choices]
+        if len(found)!=1:return None
+        sequence.extend([found[0]]*number[quantity.casefold()])
+    return sequence
+
 def check_simple_multiattacks(source,compiled):
     by_id={m.get("id"):m for m in compiled};errors=[];checked=0
     for monster in source:
@@ -609,7 +625,8 @@ def check_simple_multiattacks(source,compiled):
         if action is None:continue
         choice_plan=simple_multiattack_plan(action)
         repeat_plan=simple_repeat_multiattack_plan(monster,action)
-        if choice_plan is None and repeat_plan is None:continue
+        ordered_plan=simple_ordered_multiattack_plan(monster,action)
+        if choice_plan is None and repeat_plan is None and ordered_plan is None:continue
         checked+=1;dst=by_id.get(monster.get("name"),{})
         runtime=dst.get("multiattack",{})
         runtime_action=next((a for a in dst.get("actions",[]) if a.get("name")=="Multiattack"),{})
@@ -617,10 +634,14 @@ def check_simple_multiattacks(source,compiled):
             count,options=choice_plan
             sequence_ok=(runtime.get("options")==options and not runtime.get("sequence"))
             components=options.split("|")
-        else:
+        elif repeat_plan is not None:
             count,component=repeat_plan
             sequence_ok=(runtime.get("sequence")==[component]*count and not runtime.get("options"))
             components=[component]
+        else:
+            sequence=ordered_plan;count=len(sequence)
+            sequence_ok=(runtime.get("sequence")==sequence and not runtime.get("options"))
+            components=list(set(sequence))
         if (runtime.get("count")!=count or not sequence_ok or
             runtime.get("manual_sequence_required",False) or
             runtime_action.get("manual_rider_resolution_required",False)):

@@ -1,0 +1,34 @@
+{
+  "schema": "XMM_LOCAL_MULTIATTACK_195_EVIDENCE_V1",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "source_monsters_compared": 503,
+  "editorial_sections_compared": 36,
+  "source_typed_simple_multiattack_contracts_compared": 195,
+  "ordered_fixed_multiattacks_added_in_this_increment": 12,
+  "source_attack_advantage_bonus_damage_contracts_compared": 6,
+  "source_attack_wounded_target_advantage_contracts_compared": 4,
+  "source_abilities_with_unmodeled_effects_manual": 211,
+  "full_monster_combat_automation_certified": false,
+  "python_source_verifier_tests": 46,
+  "gradle_command": "JAVA_HOME=/workspace/jdk21 ANDROID_HOME=/workspace/android-sdk bash gradlew :app:testDebugUnitTest --offline",
+  "gradle_result": {
+    "test_suites": 123,
+    "tests": 2544,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "focused_tests": [
+    "XmmAdvantageBonusMultiattackRobolectricTest"
+  ],
+  "apk_generated": false,
+  "brelga_preceding_commit": "f67b1eac passed run 38537879627; 3305828c pending",
+  "tested_source_files_sha256": {
+    "app/src/main/java/com/braseiro/dnd5e/AppDb.java": "5bce9d0ebfacd3ac52b256503d81d4fe43cbc4ae182b4cd87ab7d57cfba3ea98",
+    "app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java": "6b22bee711d1db836e55a128653d326fe394d554300faddce390fce071bdd3f5",
+    "app/src/test/java/com/braseiro/dnd5e/XmmAdvantageBonusMultiattackRobolectricTest.java": "0fc529cb111d3ae6d33c33de3076f898641cd16528e89d251837dac49b159a99",
+    "tools/test_verify_xmm_503_source.py": "ac1947d74b6c91f8a0d03c199ad6d525c9e7472577847a79b232cd1477b2e799",
+    "tools/verify_xmm_503_source.py": "46c6ad0573fa844edfed6e12383d1eb4cf4fef54b6f32262fbf77c238c1cd579"
+  }
+}

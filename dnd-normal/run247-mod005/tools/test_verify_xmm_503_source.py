@@ -34,6 +34,21 @@ class XmmIndependentSourceTests(unittest.TestCase):
         self.assertEqual(1,count)
         self.assertEqual(["Ape:Multiattack:SOURCE_SEQUENCE_MISMATCH"],errors)
 
+    def test_fixed_mixed_multiattack_preserves_source_order_and_repetition(self):
+        monster={"name":"Brown Bear","action":[
+            {"name":"Multiattack","entries":["The bear makes one Bite attack and one Claw attack."]},
+            {"name":"Bite"},{"name":"Claw"}]}
+        self.assertEqual(["Bite","Claw"],xmm.simple_ordered_multiattack_plan(monster,monster["action"][0]))
+        compiled=[{"id":"Brown Bear","actions":[{"name":"Multiattack","manual_rider_resolution_required":False},
+            {"name":"Bite","to_hit":5,"manual_rider_resolution_required":False},
+            {"name":"Claw","to_hit":5,"manual_rider_resolution_required":False}],
+            "multiattack":{"source_bound":True,"count":2,"sequence":["Bite","Claw"]}}]
+        self.assertEqual(([],1),xmm.check_simple_multiattacks([monster],compiled))
+        compiled[0]["multiattack"]["sequence"]=["Claw","Bite"]
+        errors,count=xmm.check_simple_multiattacks([monster],compiled)
+        self.assertEqual(1,count)
+        self.assertEqual(["Brown Bear:Multiattack:SOURCE_SEQUENCE_MISMATCH"],errors)
+
     def test_advantage_bonus_damage_is_typed_for_all_six_source_attacks(self):
         rows=[
             ("Goblin Boss","Scimitar","1d6 + 2",5,2,"1d4","slashing",4,"m",5,0,0),
