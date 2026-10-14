@@ -58,6 +58,18 @@ As etapas 02–11 correspondem aos dez livros adicionais planejados; não adicio
 
 Continuar exclusivamente ETAPA 03: integrar ações XMM com efeitos manuais em clusters source-bound reutilizando motores; priorizar riders, traits, 82 Multiattacks complexos e magias dos 132 conjuradores; testar mutação real em SQLite/backup e impedir efeitos automáticos não aprovados. Não registrar cobertura por apenas existir índice, texto, catálogo ou relatório.
 
+## Codespace — autopiloto mecânico com Codex (opcional)
+
+- Controlador: `scripts/codespace-dnd-autopilot.sh`; política: `scripts/dnd-autopilot-policy.md`.
+- Instalação: `bash scripts/codespace-dnd-autopilot.sh install` **no terminal do Codespace** com a branch canônica limpa.
+- Pré-requisitos: `gh auth status`, `codex login status` com login ChatGPT, Python 3, Java e Android SDK. Se faltar autenticação, a instalação interrompe e fornece instrução concreta; não usa chave de API paga.
+- O controlador não tem acesso remoto ao Codespace a partir deste chat. Só roda com o Codespace ligado.
+- Uma rodada por hora, no máximo; única instância via lock `flock`; `status`, `stop`, `start`, `once`.
+- Trabalho em worktree e branch isolados. O Codex edita somente fontes Android D&D, testes, verificador e evidências locais XMM. Caminhos diferentes, Mystara, fonte sem validação, mudanças do HEAD e testes/CI não verdes bloqueiam **antes** do push.
+- Regressão local Gradle completa + comparação pinada antes do commit. CI GitHub canônico verde no SHA-base antes de fazer o trabalho. Push sem force só quando HEAD remoto ainda igual à base e sem substituição de trabalho. Integração gera novo CI; nova rodada espera seu resultado.
+- Em infra parada/runner BRELGA na fila, o agente não presume PASS nem integra código sem testes. Pode consultar GitHub e tentar novamente quando houver CI verde.
+- O agente de IA não é garantido pela automação GitHub: depende do Codex CLI instalado, login válido, limites da conta e terminal Codespace iniciado.
+
 ## Histórico
 
 Este documento foi criado com a infraestrutura de automação. Não foi usado como prova de conclusão de qualquer etapa. As edições automáticas ficam estritamente na seção abaixo; preservar todo o restante.
