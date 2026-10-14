@@ -28,13 +28,39 @@ jobs:
             const branch='antigravity/dnd-normal-fechamento-gates';
             const ref=await github.rest.git.getRef({owner,repo,ref:'heads/'+branch});
             if(ref.data.object.sha!==sha) throw Error('SHA_NOT_CURRENT_BRANCH_HEAD');
-            const all=await github.rest.actions.listWorkflowRuns({
-              owner,repo,workflow_id:'dnd-normal-automation-ci.yml',
-              branch,status:'completed',per_page:60
-            });
-            const ok=all.data.workflow_runs.some(r=>r.head_sha===sha && r.conclusion==='success');
-            if(!ok) throw Error('DND_CANONICAL_CI_NOT_GREEN_FOR_EXACT_SHA');
-            core.info('APK_CANDIDATE_GATE_PASS='+sha);
+            // The canonical CI writes a *single-file* automated handoff
+            // commit after a successful code run. Its parent is the tested
+            // source; this is the only allowed CI-ancestry exception.
+            const hasGreenCI=async (testedSha) => {
+              const response=await github.rest.actions.listWorkflowRuns({
+                owner,repo,workflow_id:'dnd-normal-automation-ci.yml',
+                branch,status:'completed',per_page:100
+              });
+              return response.data.workflow_runs.some(r=>
+                r.head_sha===testedSha && r.conclusion==='success'
+              );
+            };
+            let testedSha=sha;
+            let ok=await hasGreenCI(testedSha);
+            if(!ok){
+              const commit=(await github.rest.repos.getCommit({owner,repo,ref:sha})).data;
+              const parent=commit.parents?.length===1 ? commit.parents[0].sha : null;
+              const files=commit.files||[];
+              const message=commit.commit?.message||'';
+              const docOnly=Boolean(
+                parent && files.length===1 &&
+                files[0].filename==='docs/HANDOFF_DND_ATUAL.md' &&
+                files[0].status==='modified' &&
+                message.startsWith('docs(dnd): update automatic handoff for '+parent.slice(0,10))
+              );
+              if(docOnly && await hasGreenCI(parent)){
+                testedSha=parent;
+                ok=true;
+                core.info('VERIFIED_HANDOFF_ONLY_CI_PARENT='+parent);
+              }
+            }
+            if(!ok) throw Error('DND_CANONICAL_CI_NOT_GREEN_FOR_EXACT_OR_VERIFIED_PARENT_SHA');
+            core.info('APK_CANDIDATE_GATE_PASS='+sha+' TESTED_CI_SHA='+testedSha);
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.approved_sha }}
