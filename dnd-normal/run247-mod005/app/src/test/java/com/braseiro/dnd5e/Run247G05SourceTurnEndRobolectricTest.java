@@ -28,44 +28,56 @@ public final class Run247G05SourceTurnEndRobolectricTest {
             "world_profile=? AND combatant_id=?",new String[]{"dnd",String.valueOf(id)}));
     }
 
-    @Test public void scarecrowFearsomeClawExpiresAtEndOfItsNextTurn()throws Exception {
+    private void assertSourceTurnEndAttack(String monster,String actionName,String condition,
+        int minimumDamage,String suffix)throws Exception {
         Xmm2025CompiledBestiaryEngine.install();
-        JSONObject action=CompiledStatblockEngine.runtimeProfile("Scarecrow").getJSONArray("actions").getJSONObject(0);
-        assertEquals("Fearsome Claw",action.optString("name"));
-        assertEquals("frightened",action.optString("condition_on_hit"));
+        JSONObject profile=CompiledStatblockEngine.runtimeProfile(monster);
+        JSONObject action=null;JSONArray actions=profile.optJSONArray("actions");
+        for(int i=0;actions!=null&&i<actions.length();i++)
+            if(actionName.equals(actions.getJSONObject(i).optString("name")))action=actions.getJSONObject(i);
+        assertNotNull(monster+" action missing",action);
+        assertEquals(condition,action.optString("condition_on_hit"));
         assertFalse(action.has("condition_on_fail"));
         assertEquals(1,MonsterConditionTimerLedger.compiledDuration(action));
         assertEquals("source_turn_end",action.optString("condition_duration_tick"));
         assertEquals("",MonsterActionEconomyGuard.attackRiderBlock(action));
 
         Context context=RuntimeEnvironment.getApplication();
-        String name="xmm_turn_end_"+Long.toHexString(System.nanoTime())+".db";
-        AppDb db=new AppDb(context,name);long actor=0,target=0;
+        String dbName="xmm_turn_end_"+Long.toHexString(System.nanoTime())+".db";
+        AppDb db=new AppDb(context,dbName);long actor=0,target=0;
         try {
             db.setActiveMapProfile("dnd");
-            actor=db.addCombatant("XMM Scarecrow",20,27,27,11,"",false);
+            actor=db.addCombatant("XMM "+monster+" "+suffix,20,100,100,11,"",false);
             target=db.addCombatant("Turn End Target",10,30,30,15,"",true);
-            bind(db,actor,"Scarecrow");
+            bind(db,actor,monster);
             db.setCombatRunning(true);assertEquals(actor,db.nextTurn().optLong("id"));
             new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
             position(db,actor,2,2);position(db,target,3,2);
-            JSONObject attack=db.applyCompiledStatblockAttack(actor,target,"Scarecrow","Fearsome Claw",
-                19,0,3,0,"ui-monster-scarecrow-turn-end");
+            JSONObject attack=db.applyCompiledStatblockAttack(actor,target,monster,actionName,
+                19,0,minimumDamage,0,"ui-monster-source-turn-end-"+suffix);
             assertTrue(attack.toString(),attack.optBoolean("statblock_attack_committed"));
-            assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"frightened"));
+            assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
             JSONArray timers=new JSONArray(db.getCombatant(target).optString("condition_timers_json","[]"));
             assertEquals(1,timers.length());assertTrue(timers.getJSONObject(0).optBoolean("skip_first_source_turn_end"));
 
             assertEquals(target,db.nextTurn().optLong("id"));
-            assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"frightened"));
+            assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
             timers=new JSONArray(db.getCombatant(target).optString("condition_timers_json","[]"));
             assertFalse(timers.getJSONObject(0).optBoolean("skip_first_source_turn_end"));
             assertEquals(actor,db.nextTurn().optLong("id"));
-            assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"frightened"));
+            assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
             assertEquals(target,db.nextTurn().optLong("id"));
-            assertFalse(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"frightened"));
+            assertFalse(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
             assertEquals(0,new JSONArray(db.getCombatant(target).optString("condition_timers_json","[]")).length());
-        } finally {db.close();context.deleteDatabase(name);}
+        } finally {db.close();context.deleteDatabase(dbName);}
+    }
+
+    @Test public void scarecrowFearsomeClawExpiresAtEndOfItsNextTurn()throws Exception {
+        assertSourceTurnEndAttack("Scarecrow","Fearsome Claw","frightened",3,"scarecrow");
+    }
+
+    @Test public void merrowBiteExpiresPoisonAtEndOfItsNextTurn()throws Exception {
+        assertSourceTurnEndAttack("Merrow","Bite","poisoned",5,"merrow");
     }
 
     @Test public void ledgerDoesNotExpireAtSourceStartAndHonorsCurrentTurnSkip()throws Exception {

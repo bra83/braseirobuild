@@ -209,6 +209,16 @@ class XmmIndependentSourceTests(unittest.TestCase):
         errors,count=xmm.check_unmodeled_action_effects(source,compiled)
         self.assertEqual(1,count)
         self.assertIn("UNTYPED_SOURCE_EFFECT_NOT_MANUAL",errors[0])
+    def test_merrow_bite_uses_its_own_next_turn_end(self):
+        source=[{"name":"Merrow","action":[{"name":"Bite","entries":[
+            "Hit: damage, and the target has the {@condition Poisoned|XPHB} condition until the end of the merrow's next turn."]}]}]
+        compiled=[{"id":"Merrow","actions":[{"name":"Bite","condition_on_hit":"poisoned",
+            "condition_duration_rounds":1,"condition_duration_tick":"source_turn_end"}]}]
+        self.assertEqual(([],0),xmm.check_unmodeled_action_effects(source,compiled))
+        compiled[0]["actions"][0]["condition_duration_tick"]="target_turn_end"
+        errors,count=xmm.check_unmodeled_action_effects(source,compiled)
+        self.assertEqual(1,count)
+        self.assertIn("UNTYPED_SOURCE_EFFECT_NOT_MANUAL",errors[0])
     def test_not_503_is_not_success(self):
         with self.assertRaises(ValueError):xmm.check_monsters([],[],[])
 if __name__=="__main__":unittest.main()
