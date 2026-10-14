@@ -3,6 +3,10 @@ package com.braseiro.dnd5e;
 import org.json.JSONObject;
 
 import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -222,6 +226,8 @@ public final class DndPtBrLocalizer {
         add("target", "alvo");
         add("range", "alcance");
         add("action", "ação");
+        for(Map.Entry<String,String> e:XmmPtBrActionLabelCatalog.all().entrySet())
+            add(e.getKey(),e.getValue());
     }
 
     private DndPtBrLocalizer() {}
@@ -233,7 +239,13 @@ public final class DndPtBrLocalizer {
     public static String localizeText(String input) {
         if (input == null || input.length() == 0) return input == null ? "" : input;
         String out = input;
-        for (Map.Entry<String,String> entry : TERMS.entrySet()) {
+        List<Map.Entry<String,String>> entries=new ArrayList<Map.Entry<String,String>>(TERMS.entrySet());
+        Collections.sort(entries,new Comparator<Map.Entry<String,String>>() {
+            @Override public int compare(Map.Entry<String,String> a,Map.Entry<String,String> b) {
+                return Integer.compare(b.getKey().length(),a.getKey().length());
+            }
+        });
+        for (Map.Entry<String,String> entry : entries) {
             String source = entry.getKey();
             Pattern p = Pattern.compile("(?i)(?<![\\p{L}\\p{N}])" + Pattern.quote(source) + "(?![\\p{L}\\p{N}])");
             out = p.matcher(out).replaceAll(Matcher.quoteReplacement(entry.getValue()));
