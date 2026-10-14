@@ -1,0 +1,14 @@
+creature,action,source_commit,source_pointer,page,base_damage,base_damage_type,extra_damage,extra_damage_type,distance_ft,max_target_size,condition_on_hit,status
+Boar,Gore,8c026b807fac21862a309379a0c3228a0683198b,/monster/72/action/0,350,1d6 + 1,piercing,1d6,piercing,20,medium,prone,SOURCE_BRANCH_CORRECTED; MOVEMENT_RIDER_MANUAL; FULL_ACTION_AND_XMM_OPEN
+Elk,Ram,8c026b807fac21862a309379a0c3228a0683198b,/monster/143/action/0,353,1d6 + 3,bludgeoning,1d6,bludgeoning,20,large,prone,SOURCE_BRANCH_CORRECTED; MOVEMENT_RIDER_MANUAL; FULL_ACTION_AND_XMM_OPEN
+Galeb Duhr,Avalanche Slam,8c026b807fac21862a309379a0c3228a0683198b,/monster/162/action/0,127,2d6 + 5,bludgeoning,2d6,bludgeoning,20,large,prone,SOURCE_BRANCH_CORRECTED; MOVEMENT_RIDER_MANUAL; FULL_ACTION_AND_XMM_OPEN
+Giant Boar,Gore,8c026b807fac21862a309379a0c3228a0683198b,/monster/174/action/0,355,2d6 + 3,piercing,2d6,piercing,20,large,prone,SOURCE_BRANCH_CORRECTED; MOVEMENT_RIDER_MANUAL; FULL_ACTION_AND_XMM_OPEN
+Giant Elk,Ram,8c026b807fac21862a309379a0c3228a0683198b,/monster/180/action/0,356,2d6 + 4 + 2d4,bludgeoning + radiant,2d4,bludgeoning,20,huge,prone,SOURCE_BRANCH_CORRECTED; MOVEMENT_RIDER_MANUAL; FULL_ACTION_AND_XMM_OPEN
+Giant Goat,Ram,8c026b807fac21862a309379a0c3228a0683198b,/monster/183/action/0,357,1d6 + 3,bludgeoning,2d4,bludgeoning,20,large,prone,SOURCE_BRANCH_CORRECTED; MOVEMENT_RIDER_MANUAL; FULL_ACTION_AND_XMM_OPEN
+Minotaur of Baphomet,Gore,8c026b807fac21862a309379a0c3228a0683198b,/monster/302/action/1,215,4d6 + 4,piercing,3d6,piercing,10,large,prone,SOURCE_BRANCH_CORRECTED; MOVEMENT_RIDER_MANUAL; FULL_ACTION_AND_XMM_OPEN
+Minotaur Skeleton,Gore,8c026b807fac21862a309379a0c3228a0683198b,/monster/303/action/0,283,2d6 + 4,piercing,2d8,piercing,20,large,prone,SOURCE_BRANCH_CORRECTED; MOVEMENT_RIDER_MANUAL; FULL_ACTION_AND_XMM_OPEN
+Primeval Owlbear,Ravage,8c026b807fac21862a309379a0c3228a0683198b,/monster/356/action/1,234,2d8 + 6,slashing,2d8,slashing,20,huge,prone,SOURCE_BRANCH_CORRECTED; MOVEMENT_RIDER_MANUAL; FULL_ACTION_AND_XMM_OPEN
+Rhinoceros,Gore,8c026b807fac21862a309379a0c3228a0683198b,/monster/373/action/0,368,2d8 + 5,piercing,2d8,piercing,20,large,prone,SOURCE_BRANCH_CORRECTED; MOVEMENT_RIDER_MANUAL; FULL_ACTION_AND_XMM_OPEN
+Triceratops,Gore,8c026b807fac21862a309379a0c3228a0683198b,/monster/441/action/1,372,2d12 + 6,piercing,2d8,piercing,20,huge,prone,SOURCE_BRANCH_CORRECTED; MOVEMENT_RIDER_MANUAL; FULL_ACTION_AND_XMM_OPEN
+Warhorse,Hooves,8c026b807fac21862a309379a0c3228a0683198b,/monster/461/action/0,373,2d4 + 4,bludgeoning,2d4,bludgeoning,20,large,prone,SOURCE_BRANCH_CORRECTED; MOVEMENT_RIDER_MANUAL; FULL_ACTION_AND_XMM_OPEN
+Wereboar,Tusk (Boar or Hybrid Form Only),8c026b807fac21862a309379a0c3228a0683198b,/monster/470/action/3,325,2d6 + 3,piercing,2d6,piercing,20,medium,prone,SOURCE_BRANCH_CORRECTED; MOVEMENT_RIDER_MANUAL; FULL_ACTION_AND_XMM_OPEN

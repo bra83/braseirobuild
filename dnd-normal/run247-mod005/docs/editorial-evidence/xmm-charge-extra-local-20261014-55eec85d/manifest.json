@@ -1,0 +1,33 @@
+{
+  "format": "BRASEIRO_XMM_CHARGE_EXTRA_EVIDENCE_V1",
+  "code_commit": "55eec85d1765c52ad8a60dcd78e293b0df853c18",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "created_utc": "2026-10-14",
+  "scope": "Correct 13 conditional charge action records; riders remain manual and XMM remains open.",
+  "artifacts": {
+    "android-test-results.zip": {
+      "sha256": "66fbf284c92b6a674a1046ad9ef56a782b82190caffcafc464b17fee73814cad",
+      "bytes": 89579
+    },
+    "android-test-summary.json": {
+      "sha256": "506a586d0faa21452a555cc61d2ab7b16571c3fe7ee93537fcf52c5e986ce787",
+      "bytes": 295
+    },
+    "python-test-summary.json": {
+      "sha256": "a4f94274b8c60415f69b18c6093ea45bb2f98ab7c711346057cf1ee0bbe336e7",
+      "bytes": 226
+    },
+    "source-action-delta.json": {
+      "sha256": "612d6913dfc3c014344b2185ad205a88f7e4bebb6c909dcda08ccf993488c489",
+      "bytes": 7853
+    },
+    "source-executor-status.csv": {
+      "sha256": "c3a2c840e6536bccd27d6884b1ef8ba5871be8c9725e9d71394549226af4b774",
+      "bytes": 2864
+    },
+    "xmm-source-comparison.json": {
+      "sha256": "86ac022f314c8e543aa1bb3aa362d1b74b9b8e8956a89250a0cc55098917fa0c",
+      "bytes": 993
+    }
+  }
+}

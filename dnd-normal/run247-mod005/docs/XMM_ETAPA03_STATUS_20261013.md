@@ -124,3 +124,10 @@
 - Mimic / Bite: o perfil registra dano base perfurante e ácido; estar agarrado pelo próprio Mimic é pré-requisito de vantagem/dano alternativo, não uma condição aplicada. A resolução contextual continua manual. Evidência: `docs/editorial-evidence/xmm-mimic-prerequisite-local-20261014-2cf336e8/`.
 - Peryton / Gore: o ramo de movimento foi corrigido para dano adicional, sem duplicá-lo como alternativa. A aplicação segue manual porque o combate ainda não registra o trajeto anterior ao ataque. Evidência: `docs/editorial-evidence/xmm-peryton-additive-local-20261014-857ab221/`.
 - No SHA `857ab221acd24024e683b2f0299d923bcab03ab8`, `:app:testDebugUnitTest` passou com 2.516 testes em 105 XMLs; os validadores Python passaram com 63 casos. O comparador da fonte fixada `8c026b807fac21862a309379a0c3228a0683198b` conferiu 503 monstros e 36 seções e manteve a automação integral como não certificada. XMM permanece aberto; BRELGA e validação contra PDF licenciado continuam pendentes. Nenhum APK foi gerado.
+
+
+### Auditoria de dano condicional de investida (14/10/2026)
+
+- No commit `55eec85d1765c52ad8a60dcd78e293b0df853c18`, 13 perfis separam dano base do adicional, guardam o tipo de dano extra e ligam “caído” ao acerto após movimento retilíneo suficiente contra o tamanho permitido. Removido `condition_on_fail=prone`, que descrevia o gatilho incorretamente.
+- Os 13 riders seguem manuais e falham fechados: o combate ainda não guarda o trajeto do monstro imediatamente antes do ataque. Mimic / Bite e Peryton / Gore têm correções fonte→perfil arquivadas separadamente.
+- Android/Robolectric: 2.516 testes, 0 falhas/erros/ignorados em 105 XMLs. Python: 64 testes passaram. O comparador da fonte pinada conferiu 503 monstros e 36 seções; automação total segue falsa. BRELGA, revisão do PDF licenciado e fechamento da etapa permanecem pendentes; nenhum APK foi gerado. Evidência em `docs/editorial-evidence/xmm-charge-extra-local-20261014-55eec85d/`.
