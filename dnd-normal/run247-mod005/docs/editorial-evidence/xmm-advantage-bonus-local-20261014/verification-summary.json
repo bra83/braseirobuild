@@ -1,0 +1,37 @@
+{
+  "schema": "XMM_LOCAL_VERIFICATION_V1",
+  "base_code_sha": "c808d9d086f3eb6b0916d39e119111ffcc9b626e",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "source_monsters_compared": 503,
+  "editorial_sections_compared": 36,
+  "source_attack_advantage_bonus_damage_contracts_compared": 6,
+  "source_abilities_with_unmodeled_effects_manual": 215,
+  "full_monster_combat_automation_certified": false,
+  "gradle_command": "JAVA_HOME=/workspace/jdk21 ANDROID_HOME=/workspace/android-sdk bash gradlew :app:testDebugUnitTest --offline",
+  "gradle_result": {
+    "test_suites": 121,
+    "tests": 2541,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "focused_tests": [
+    "XmmAdvantageBonusDamageRobolectricTest",
+    "XmmConditionalAttackDamageSourceTest",
+    "XmmUnmodeledSourceEffectRuntimeTest"
+  ],
+  "apk_generated": false,
+  "brelga": "pending for the new commit SHA",
+  "tested_source_files_sha256": {
+    "app/src/main/java/com/braseiro/dnd5e/AppDb.java": "db49fd9fd71d87a6e711464fbb063dc7825f304620e5b958c60788a5a5f8b3e8",
+    "app/src/main/java/com/braseiro/dnd5e/StatblockCombatFlowEngine.java": "72c6c4cd73cd7bddb898a85ac2ca6e451f17a7ad69a68e10f0fb87eeceeae605",
+    "app/src/main/java/com/braseiro/dnd5e/StatblockCombatRuntimeEngine.java": "14744909d7bd4856c0818aa269a71ebfd5eba8f110e497725e0d4d8bedbf7705",
+    "app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java": "5cf903957bab3270fc4d0fad125431ee437e69b9d13f7217a78e3b23ce616ef9",
+    "app/src/test/java/com/braseiro/dnd5e/XmmAdvantageBonusDamageRobolectricTest.java": "651c679f0b0aa12dceb12f9aed5d734c62e830804796d4ab60bc7ebe7927b696",
+    "app/src/test/java/com/braseiro/dnd5e/XmmConditionalAttackDamageSourceTest.java": "11a74646f17f2ec2a026052b494332cd2fd820d03415166da6d788f4437c7b48",
+    "app/src/test/java/com/braseiro/dnd5e/XmmUnmodeledSourceEffectRuntimeTest.java": "123a0353bb82f31122e7d55fa16b60b422e69aa33b2e260ef60952af823ee6d5",
+    "tools/test_verify_xmm_503_source.py": "76c2e63775a514bd45e1b3fdb54ad0593a7ea8e6148beff351e3b9ca774d438c",
+    "tools/verify_xmm_503_source.py": "8ecb0aac5e0f0f41058cfe3e000ec4651851a17f108f80898be8aa9d5e406e9f"
+  }
+}

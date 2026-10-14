@@ -42,6 +42,14 @@ SOURCE_TURN_END_HIT_CONDITIONS={
 SOURCE_SECONDARY_ATTACK_DAMAGE={
     ("Half-Dragon","Claw"),("Vine Blight","Constricting Vine"),
 }
+ADVANTAGE_BONUS_ATTACK_DAMAGE={
+    ("Goblin Boss","Scimitar"): ("1d6 + 2",5,2,"1d4","slashing",4,"m",5,0,0),
+    ("Goblin Boss","Shortbow"): ("1d6 + 2",5,2,"1d4","piercing",4,"r",0,80,320),
+    ("Goblin Warrior","Scimitar"): ("1d6 + 2",5,2,"1d4","slashing",4,"m",5,0,0),
+    ("Goblin Warrior","Shortbow"): ("1d6 + 2",5,2,"1d4","piercing",4,"r",0,80,320),
+    ("Scout Captain","Shortsword"): ("1d6 + 3",6,10,"3d6","piercing",5,"m",5,0,0),
+    ("Scout Captain","Longbow"): ("1d8 + 3",7,10,"3d6","piercing",5,"r",0,150,600),
+}
 SOURCE_TURN_START_HEALING_SUPPRESSION={("Bearded Devil","Beard"),
     ("Bone Devil","Infernal Sting"),("Dire Worg","Bite")}
 TARGET_TURN_END_HIT_CONDITIONS={
@@ -516,6 +524,62 @@ UNMODELED_ACTION_EFFECTS=re.compile(
     r"attaches to the target|while attached|removing its heart|"
     r"kills the target by)\b|\{@hom\}|\{@hazard burning\b)",re.I)
 
+def advantage_bonus_attack_matches(monster_name,action,compiled_action):
+    """Bind the six source attacks whose bonus damage requires attack advantage."""
+    name=RCH.sub("",action.get("name","" )).strip()
+    expected=ADVANTAGE_BONUS_ATTACK_DAMAGE.get((monster_name,name))
+    if expected is None:return False
+    base,base_average,bonus_average,bonus,damage_type,to_hit,mode,reach,normal,long_range=expected
+    entries=action.get("entries",[])
+    text=" ".join(x for x in entries if isinstance(x,str))
+    marker=text.find("{@h}")
+    end=text.find(".",marker) if marker>=0 else -1
+    segment=text[marker:end if end>=0 else len(text)] if marker>=0 else ""
+    components=ATTACK_DAMAGE_COMPONENT.findall(segment)
+    dice=[x.strip() for x,_ in components]
+    types=[x.lower() for _,x in components]
+    base_match=re.search(r"\{@h\}\s*"+str(base_average)+r"\s*\(\{@damage\s+"+
+        re.escape(base)+r"\}\)\s*"+re.escape(damage_type)+r"\s+damage",text,re.I)
+    source_advantage=bool(re.search(
+        r"plus\s+"+str(bonus_average)+r"\s*\(\{@damage\s+"+re.escape(bonus)+
+        r"\}\)\s+"+re.escape(damage_type)+
+        r"\s+damage\s+if the attack (?:roll had|was made with) "+
+        r"\{@variantrule Advantage\|XPHB\}",text,re.I))
+    source_hit=re.search(r"\{@hit\s+(\d+)\}",text,re.I)
+    source_modes=re.search(r"\{@atkr\s+([mr,]+)\}",text,re.I)
+    source_reach=re.search(r"reach\s+(\d+)\s*ft\.",text,re.I)
+    source_range=re.search(r"range\s+(\d+)/(\d+)\s*ft\.",text,re.I)
+    compiled_modes=compiled_action.get("attack_modes",[])
+    range_ok=(source_reach is not None and int(source_reach.group(1))==reach and
+        compiled_action.get("reach_ft")==reach and source_range is None) if reach else (
+        source_range is not None and
+        (int(source_range.group(1)),int(source_range.group(2)))==(normal,long_range) and
+        compiled_action.get("range_normal_ft")==normal and compiled_action.get("range_long_ft")==long_range and
+        source_reach is None)
+    return (dice==[base,bonus] and types==[damage_type,damage_type] and base_match is not None and
+        source_hit is not None and int(source_hit.group(1))==to_hit and
+        source_modes is not None and source_modes.group(1)==mode and compiled_modes==[mode] and
+        range_ok and source_advantage and
+        compiled_action.get("damage")==base and
+        compiled_action.get("damage_type")==damage_type and
+        compiled_action.get("extra_damage_if_attack_advantage")==bonus and
+        compiled_action.get("extra_damage_if_attack_advantage_type")==damage_type and
+        not compiled_action.get("manual_rider_resolution_required",False) and
+        not compiled_action.get("manual_unmodeled_source_effect_required",False))
+
+def check_advantage_bonus_attack_damage(source,compiled):
+    by_id={row["id"]:row for row in compiled};errors=[];checked=0
+    for (monster,name),_ in ADVANTAGE_BONUS_ATTACK_DAMAGE.items():
+        src=next((x for x in source if x.get("name")==monster),None)
+        row=by_id.get(monster,{})
+        action=next((x for x in (src or {}).get("action",[]) if RCH.sub("",x.get("name","" )).strip()==name),None)
+        compiled_action=next((x for x in row.get("actions",[]) if x.get("name")==name),None)
+        if action is None or compiled_action is None or not advantage_bonus_attack_matches(monster,action,compiled_action):
+            errors.append(f"{monster}:{name}:ADVANTAGE_BONUS_DAMAGE_MISMATCH")
+        else:checked+=1
+    if checked!=len(ADVANTAGE_BONUS_ATTACK_DAMAGE):errors.append("ADVANTAGE_BONUS_ATTACK_COUNT:"+str(checked))
+    return errors,checked
+
 def source_action_requires_manual_resolution(action,monster_name=""):
     """Catch source attack effects that are not part of the typed runtime contract."""
     def flatten(value):
@@ -547,7 +611,8 @@ def source_action_requires_manual_resolution(action,monster_name=""):
     simple_source_turn_end=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_TURN_END_HIT_CONDITIONS
     secondary_attack_damage=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_SECONDARY_ATTACK_DAMAGE
     chain_devil_typed=(monster_name,RCH.sub("",action.get("name","")).strip())==("Chain Devil","Conjure Infernal Chain")
-    return (bool(UNMODELED_ACTION_EFFECTS.search(text)) and not chain_devil_typed) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or bone_naga_source_turn_start or next_target_turn_end or simple_source_turn_start or simple_source_turn_end or secondary_attack_damage
+    advantage_bonus_typed=(monster_name,RCH.sub("",action.get("name","")).strip()) in ADVANTAGE_BONUS_ATTACK_DAMAGE
+    return (bool(UNMODELED_ACTION_EFFECTS.search(text)) and not chain_devil_typed and not advantage_bonus_typed) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or bone_naga_source_turn_start or next_target_turn_end or simple_source_turn_start or simple_source_turn_end or secondary_attack_damage
 
 def chain_devil_infernal_chain_matches(action,compiled_action):
     text=json.dumps(action.get("entries",[]),ensure_ascii=False).casefold()
@@ -644,6 +709,8 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
     text=flatten(action.get("entries",[]))
     name=RCH.sub("",action.get("name","")).strip()
     source_text=text.casefold()
+    if (monster_name,name) in ADVANTAGE_BONUS_ATTACK_DAMAGE:
+        return advantage_bonus_attack_matches(monster_name,action,compiled_action)
     if (monster_name,name)==("Merrow","Harpoon"):
         return ("{@atkr m,r}" in text and "{@hit 6}" in text and
             "range 20/60 ft." in source_text and
@@ -1107,12 +1174,13 @@ def check(project, bestiary_bytes, book_bytes):
     effect_errors,effect_count=check_unmodeled_action_effects(src,compiled)
     chain_errors=check_chain_devil_infernal_chain(src,compiled)
     attack_damage_errors,attack_damage_count=check_attack_primary_damage(src,compiled)
+    advantage_damage_errors,advantage_damage_count=check_advantage_bonus_attack_damage(src,compiled)
     attack_secondary_errors,attack_secondary_count=check_attack_secondary_damage_contracts(src,compiled)
     turn_start_errors,turn_start_count=check_source_turn_start_hit_conditions(src,compiled)
     save_errors,save_count=check_save_damage_actions(src,save_damage_rows)
     section_errors=check_book(book,bookrows)
     if (monster_errors or branch_errors or effect_errors or chain_errors or section_errors or save_errors or
-        turn_start_errors or attack_damage_errors or attack_secondary_errors):
+        turn_start_errors or attack_damage_errors or advantage_damage_errors or attack_secondary_errors):
         raise ValueError("XMM_SOURCE_MISMATCH:"+json.dumps(
             {"monsters":monster_errors[:20],"monster_count":len(monster_errors),
              "conditional_attack_damage":branch_errors[:20],"conditional_attack_damage_count":len(branch_errors),
@@ -1120,6 +1188,7 @@ def check(project, bestiary_bytes, book_bytes):
              "chain_devil_infernal_chain":chain_errors,
              "source_turn_start_conditions":turn_start_errors[:20],"source_turn_start_conditions_count":len(turn_start_errors),
              "attack_primary_damage":attack_damage_errors[:20],"attack_primary_damage_count":len(attack_damage_errors),
+             "advantage_bonus_damage":advantage_damage_errors[:20],"advantage_bonus_damage_count":len(advantage_damage_errors),
              "attack_secondary_damage":attack_secondary_errors[:20],"attack_secondary_damage_count":len(attack_secondary_errors),
              "sections":section_errors[:20],"section_count":len(section_errors),
              "save_damage":save_errors[:20],"save_damage_count":len(save_errors)}))
@@ -1135,6 +1204,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_trait_families_compared":len({r["kind"] for r in traitrows}),
         "source_save_damage_actions_compared":save_count,
         "source_attack_primary_damage_compared":attack_damage_count,
+        "source_attack_advantage_bonus_damage_contracts_compared":advantage_damage_count,
         "source_attack_secondary_damage_contracts_compared":attack_secondary_count,
         "source_abilities_with_unmodeled_effects_manual":effect_count,
         "source_chain_devil_infernal_chain_semantics_compared":1,

@@ -206,7 +206,7 @@ public final class XmmConditionalAttackDamageSourceTest {
         String[][] manual={
             {"Giant Axe Beak","Sharpened Beak"}, {"Balor","Lightning Blade"},
             {"Fire Giant","Hammer Throw"}, {"Bearded Devil","Infernal Glaive"},
-            {"Shadow","Draining Swipe"}, {"Goblin Boss","Scimitar"},
+            {"Shadow","Draining Swipe"}, {"Doppelganger","Slam"},
             {"Mummy","Rotting Fist"}, {"Adult Copper Dragon","Slowing Breath"}
         };
         for(String[] row:manual){

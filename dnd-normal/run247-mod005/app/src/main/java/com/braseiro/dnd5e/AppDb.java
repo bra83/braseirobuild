@@ -2930,7 +2930,8 @@ public class AppDb extends SQLiteOpenHelper {
             boolean chargeQualified=chargeQualification.optBoolean("charge_qualified",false);
             JSONObject resolved=StatblockCombatRuntimeEngine.attack(id,action,effectiveNatural,
                  geometry.optInt("effective_ac",effectiveCombatantAc(targetId)),
-                 actor.optInt("hp",-1),actor.optInt("max_hp",-1),chargeQualified);
+                 actor.optInt("hp",-1),actor.optInt("max_hp",-1),chargeQualified,
+                 context.advantage);
             if(!resolved.optBoolean("resolved",false))return out.put("statblock_attack_blocked",resolved.optString("reason","statblock_attack_unresolved"));
             if(chargeQualification.optBoolean("charge_supported",false)){
                 if(resolved.optBoolean("hit",false)&&resolved.optBoolean("charge_qualified",false)&&
@@ -3231,7 +3232,9 @@ public class AppDb extends SQLiteOpenHelper {
                 String rollBlock=context.blockDice(natural,secondNatural);
                 if(!rollBlock.isEmpty())return out.put("statblock_multiattack_blocked",rollBlock+"_"+i);
                 int effectiveNatural=context.effective(natural,secondNatural);
-                JSONObject attack=StatblockCombatRuntimeEngine.attack(id,action,effectiveNatural,geometry.optInt("effective_ac",0));
+                JSONObject attack=StatblockCombatRuntimeEngine.attack(id,action,effectiveNatural,
+                    geometry.optInt("effective_ac",0),actor.optInt("hp",-1),
+                    actor.optInt("max_hp",-1),false,context.advantage);
                 attack.put("first_natural_d20",natural).put("second_natural_d20",secondNatural)
                     .put("effective_natural_d20",effectiveNatural);
                 if(!attack.optBoolean("resolved",false))

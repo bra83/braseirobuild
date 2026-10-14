@@ -4,6 +4,39 @@ from io import BytesIO
 import verify_xmm_503_source as xmm
 
 class XmmIndependentSourceTests(unittest.TestCase):
+    def test_advantage_bonus_damage_is_typed_for_all_six_source_attacks(self):
+        rows=[
+            ("Goblin Boss","Scimitar","1d6 + 2",5,2,"1d4","slashing",4,"m",5,0,0),
+            ("Goblin Boss","Shortbow","1d6 + 2",5,2,"1d4","piercing",4,"r",0,80,320),
+            ("Goblin Warrior","Scimitar","1d6 + 2",5,2,"1d4","slashing",4,"m",5,0,0),
+            ("Goblin Warrior","Shortbow","1d6 + 2",5,2,"1d4","piercing",4,"r",0,80,320),
+            ("Scout Captain","Shortsword","1d6 + 3",6,10,"3d6","piercing",5,"m",5,0,0),
+            ("Scout Captain","Longbow","1d8 + 3",7,10,"3d6","piercing",5,"r",0,150,600),
+        ]
+        source_by_id={};compiled_by_id={}
+        for monster,name,base,base_average,bonus_average,bonus,kind,to_hit,mode,reach,normal,long_range in rows:
+            profile=("reach "+str(reach)+" ft." if reach else
+                "range "+str(normal)+"/"+str(long_range)+" ft.")
+            source_by_id.setdefault(monster,{"name":monster,"action":[]})["action"].append({"name":name,"entries":[
+                "{@atkr "+mode+"} {@hit "+str(to_hit)+"}, "+profile+" {@h}"+
+                str(base_average)+" ({@damage "+base+"}) "+kind+
+                " damage, plus "+str(bonus_average)+" ({@damage "+bonus+"}) "+kind+
+                " damage if the attack roll had {@variantrule Advantage|XPHB}."]})
+            compiled_action={"name":name,"damage":base,"to_hit":to_hit,"attack_modes":[mode],
+                "damage_type":kind,"extra_damage_if_attack_advantage":bonus,
+                "extra_damage_if_attack_advantage_type":kind,
+                "manual_rider_resolution_required":False,
+                "manual_unmodeled_source_effect_required":False}
+            if reach:compiled_action["reach_ft"]=reach
+            else:compiled_action.update({"range_normal_ft":normal,"range_long_ft":long_range})
+            compiled_by_id.setdefault(monster,{"id":monster,"actions":[]})["actions"].append(compiled_action)
+        source=list(source_by_id.values());compiled=list(compiled_by_id.values())
+        self.assertEqual(([],6),xmm.check_advantage_bonus_attack_damage(source,compiled))
+        compiled[0]["actions"][0]["extra_damage_if_attack_advantage"]="2d4"
+        errors,count=xmm.check_advantage_bonus_attack_damage(source,compiled)
+        self.assertEqual(5,count)
+        self.assertIn("ADVANTAGE_BONUS_DAMAGE_MISMATCH",errors[0])
+
     def test_chain_devil_infernal_chain_requires_every_source_bound_rider(self):
         source={"name":"Conjure Infernal Chain","entries":[
             "The devil conjures a fiery chain to bind a creature. {@actSave dex} {@dc 15}, one creature the devil can see within 60 feet. {@actSaveFail} 9 ({@damage 2d4 + 4}) Fire damage, and the target has the {@condition Restrained|XPHB} condition until the end of the devil's next turn, at which point the chain disappears. If the target is Large or smaller, the devil moves the target up to 30 feet straight toward itself. {@actSaveSuccess} The chain disappears."]}
