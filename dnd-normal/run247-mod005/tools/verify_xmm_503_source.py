@@ -534,6 +534,9 @@ def source_action_requires_manual_resolution(action,monster_name=""):
     merrow_next_turn_end=(RCH.sub("",action.get("name","")).strip()=="Bite" and
         "until the end of the merrow's next turn" in text.casefold() and
         "poisoned" in conditions)
+    bone_naga_source_turn_start=((monster_name,RCH.sub("",action.get("name","")).strip())==
+        ("Bone Naga","Serpentine Gaze") and
+        "until the start of the naga's next turn" in text.casefold() and conditions=={"charmed"})
     simple_target_turn_end={
         ("Giant Vulture","Gouge"),("Gas Spore Fungus","Tendril"),
         ("Cloud Giant","Thundercloud"),("Hill Giant","Trash Lob"),
@@ -543,7 +546,7 @@ def source_action_requires_manual_resolution(action,monster_name=""):
     simple_source_turn_start=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_TURN_START_HIT_CONDITIONS
     simple_source_turn_end=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_TURN_END_HIT_CONDITIONS
     secondary_attack_damage=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_SECONDARY_ATTACK_DAMAGE
-    return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or next_target_turn_end or simple_source_turn_start or simple_source_turn_end or secondary_attack_damage
+    return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or bone_naga_source_turn_start or next_target_turn_end or simple_source_turn_start or simple_source_turn_end or secondary_attack_damage
 
 def source_turn_start_hit_condition_matches(monster_name,action,compiled_action):
     name=RCH.sub("",action.get("name","")).strip()
@@ -757,6 +760,19 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
             compiled_action.get("effect_on_fail_max_target_size")=="Huge" and
             compiled_action.get("condition_on_fail")=="prone" and
             compiled_action.get("condition_on_fail_max_target_size")=="Huge" and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if (monster_name,name)==("Bone Naga","Serpentine Gaze"):
+        return ("{@actSave wis}" in text and "{@dc 13}" in text and
+            "one creature the naga can see within 60 feet" in source_text and
+            "{@actsavefail}" in text.casefold() and "{@damage 3d6 + 3}" in text and
+            "psychic damage" in source_text and "charmed" in source_text and
+            "until the start of the naga's next turn" in source_text and
+            compiled_action.get("save_ability")=="wis" and compiled_action.get("save_dc")==13 and
+            compiled_action.get("damage")=="3d6 + 3" and compiled_action.get("damage_type")=="psychic" and
+            compiled_action.get("condition_on_fail")=="charmed" and
+            compiled_action.get("condition_duration_rounds")==1 and
+            compiled_action.get("condition_duration_tick")=="source_turn_start" and
             not compiled_action.get("manual_rider_resolution_required",False) and
             not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if monster_name=="Aarakocra Skirmisher" and name=="Wind Javelin":
