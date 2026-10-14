@@ -18,11 +18,13 @@
     "source_abilities_with_unmodeled_effects_manual": 242,
     "full_monster_combat_automation_certified": false,
     "apk_built": false,
-    "brelga_ci_run": false
+    "brelga_ci_run": false,
+    "manual_effect_backlog_entries": 242
   },
   "artifacts": {
     "android-full-suite-xml.zip": "fae1a8093e5439ba346f4353d5118230f39827200e20cbaed1a4fb3dad5d9169",
     "source-comparison.json": "8279a1e07ce1fa8058a92b26e4a1593ec06ce02bb61bb69d36afbffd75fb4f67",
-    "dread-scythe-robolectric.xml": "aa1f2049e2a0f1e25257980b344686fbff9ee850b5c797689e3da6894a946300"
+    "dread-scythe-robolectric.xml": "aa1f2049e2a0f1e25257980b344686fbff9ee850b5c797689e3da6894a946300",
+    "manual-effect-backlog-242.json": "bac0159da39c48353eef0d22bd7a0c020b1a581b6b62aba6a4a76b8f2b75ae18"
   }
 }
