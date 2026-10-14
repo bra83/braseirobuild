@@ -18,6 +18,8 @@ class XmmIndependentSourceTests(unittest.TestCase):
         extra={"name":"Abominable Yeti","action":[{"name":"Multiattack","entries":[
             "The yeti can use its Chilling Gaze and makes two attacks, using Claw or Ice Throw in any combination."]}]}
         self.assertIsNone(xmm.simple_multiattack_plan(extra["action"][0]))
+        and_list={"name":"Bandit Captain","entries":["The bandit makes two attacks, using Scimitar and Pistol in any combination."]}
+        self.assertEqual((2,"Scimitar|Pistol"),xmm.simple_multiattack_plan(and_list))
 
     def test_advantage_bonus_damage_is_typed_for_all_six_source_attacks(self):
         rows=[

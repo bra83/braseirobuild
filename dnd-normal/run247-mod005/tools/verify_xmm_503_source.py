@@ -583,9 +583,9 @@ def simple_multiattack_plan(action):
     match=re.fullmatch(r"The [A-Za-z' -]+ makes (two|three|four) attacks, using (.+?) in any combination\.",text,re.I)
     if not match:return None
     if "can use" in text.casefold().split(" makes",1)[0]:return None
-    if not re.search(r"\bor\b",match.group(2),re.I):return None
+    if not re.search(r"\b(?:or|and)\b",match.group(2),re.I):return None
     count={"two":2,"three":3,"four":4}[match.group(1).casefold()]
-    options=[x.strip() for x in re.split(r",\s*|\s+or\s+",match.group(2)) if x.strip()]
+    options=[x.strip() for x in re.split(r",\s*|\s+(?:or|and)\s+",match.group(2)) if x.strip()]
     options=[x[3:] if x.casefold().startswith("or ") else x for x in options]
     if len(options)<2 or any(not x for x in options):return None
     return count,"|".join(options)

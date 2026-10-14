@@ -4,7 +4,7 @@
   "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
   "source_monsters_compared": 503,
   "editorial_sections_compared": 36,
-  "source_typed_simple_multiattack_contracts_compared": 46,
+  "source_typed_simple_multiattack_contracts_compared": 49,
   "source_attack_advantage_bonus_damage_contracts_compared": 6,
   "source_attack_wounded_target_advantage_contracts_compared": 4,
   "source_abilities_with_unmodeled_effects_manual": 211,
@@ -22,12 +22,14 @@
     "XmmAdvantageBonusMultiattackRobolectricTest"
   ],
   "apk_generated": false,
-  "brelga_previous_increment": "38534581836 passed for b46b19eb; current increment pending",
+  "brelga_previous_increment": "38535970818 passed for af970a87; current 49-contract increment pending",
   "tested_source_files_sha256": {
     "app/src/main/java/com/braseiro/dnd5e/AppDb.java": "5bce9d0ebfacd3ac52b256503d81d4fe43cbc4ae182b4cd87ab7d57cfba3ea98",
-    "app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java": "9709cc24e6facaf277937539a4f3f8ba5b0e222e6dfe4c38c0fe7ae4345d635a",
+    "app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java": "aefab4e7f23346ce6c94f6bb2c984cbd664bc03e0b8bc1a503975be2de180dbc",
     "app/src/test/java/com/braseiro/dnd5e/XmmAdvantageBonusMultiattackRobolectricTest.java": "0fc529cb111d3ae6d33c33de3076f898641cd16528e89d251837dac49b159a99",
-    "tools/test_verify_xmm_503_source.py": "8d8266546b89c981c006f3c3ae91644a7b594a153d4fee4edf80a3418e884e78",
-    "tools/verify_xmm_503_source.py": "1a42894f8f21b39180254314f352496310275b50aad584c0ec9c553f819b800d"
-  }
+    "tools/test_verify_xmm_503_source.py": "5cf2c9818c4145be2ffe7c7c292769434f1b1f94600a482787ee51845dff0f52",
+    "tools/verify_xmm_503_source.py": "e81a157ec15583b90ba4482fde8c4dc692b7844a33d3104f76f018b3dc7d72c5"
+  },
+  "brelga_current_commit": "pending for the next exact SHA",
+  "brelga_preceding_commit": "38535970818 passed for af970a87"
 }
