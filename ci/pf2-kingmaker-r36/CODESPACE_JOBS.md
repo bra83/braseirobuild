@@ -54,3 +54,15 @@ a expressão ternária antiga promovia inteiros `Long` a `Double`, transformando
 IDs `100` em `100.0`. A comparação de participantes agora exige `long`
 exato e rejeita identificadores ilegíveis. A fonte R35 e o arquivo de
 inspeção original são preservados.
+
+## R36 FULL: harnesses históricos de javac
+
+A suíte FULL inclui quatro harnesses JVM antigos que compilam listas fixas de
+arquivos. As regras atuais dependem também de `KingmakerStructureSemantics`,
+`KingmakerCampaignGate`, `KingmakerCompanionSemantics` e
+`KingmakerLeadershipSemantics`. O patch
+`ci/pf2-kingmaker-r36/patch_legacy_javac_dependencies.py` acrescenta as
+quatro fontes **reais** a cada comando `javac`, na cópia descartável R36,
+sem alterar qualquer asserção, ignorar teste ou modificar R35. Os quatro
+harnesses de regras, mecânicas, guerras e sobreposição de ações permanecem
+obrigatórios. A suíte só passa se todos efetivamente executarem.
