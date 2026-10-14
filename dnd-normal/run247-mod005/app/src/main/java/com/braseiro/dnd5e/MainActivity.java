@@ -3520,7 +3520,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void compiledMonsterSaveActionDialog(final JSONObject monster){
         final long actorId=monster.optLong("id");final JSONObject resources=parseObjectSafe(monster.optString("resources_json","{}"));final String statblock=resources.optString("block_id","");
         if(statblock.trim().isEmpty()){toast("Este monstro não possui bloco compilado autorizado.");return;}
-        final JSONArray declared=CompiledStatblockEngine.runtimeProfile(statblock).optJSONArray("actions");final ArrayList<String> names=new ArrayList<String>();
+        final JSONArray declared=CompiledStatblockEngine.runtimeProfile(statblock).optJSONArray("actions");
+        final ArrayList<String> names=new ArrayList<String>();final ArrayList<String> sourceNames=new ArrayList<String>();
         final ArrayList<JSONObject> targets=new ArrayList<JSONObject>();for(JSONObject row:db.listCombatants())if(row.optLong("id")!=actorId&&row.optInt("hp",0)>0)targets.add(row);
         if(declared!=null)for(int i=0;i<declared.length();i++){JSONObject a=declared.optJSONObject(i);if(a!=null&&a.optInt("save_dc",0)>0&&!a.has("to_hit")&&
             MonsterActionEconomyGuard.saveAbilityBlock(a.optInt("save_dc",0),
@@ -3529,7 +3530,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
              a.optString("category","action").equals("bonus_action")||
              a.optString("category","action").equals("bonus"))&&
             CompiledMonsterActionGuard.actionRechargeBlock(a.optString("recharge","")).isEmpty())
-            names.add(a.optString("name","Ação"));}
+            {String sourceName=a.optString("name","Ação");sourceNames.add(sourceName);
+             names.add(DndPtBrLocalizer.localizeText(sourceName));}}
         if(names.isEmpty()||targets.isEmpty()){toast(names.isEmpty()?"Este bloco não declara ações de salvaguarda.":"Não há alvo vivo para a ação.");return;}
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),0);String[] targetNames=new String[targets.size()];for(int i=0;i<targets.size();i++)targetNames[i]=targets.get(i).optString("name","Alvo");
         final Spinner target=spinner(targetNames,targetNames[0]);form.addView(cardWithLabel("ALVO",target));final Spinner action=spinner(names.toArray(new String[0]),names.get(0));form.addView(cardWithLabel("AÇÃO DE SALVAGUARDA",action));
@@ -3562,7 +3564,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             }
             JSONObject result=db.applyCompiledStatblockSaveAction(actorId,
                 targets.get(target.getSelectedItemPosition()).optLong("id"),statblock,
-                String.valueOf(action.getSelectedItem()),saveRoll,rawDamage,destX,destY,
+                sourceNames.get(action.getSelectedItemPosition()),saveRoll,rawDamage,destX,destY,
                 "ui-monster-save-"+java.util.UUID.randomUUID());
             if(!result.optBoolean("statblock_save_committed",false)){toast("Ação não aplicada: "+result.optString("statblock_save_blocked","revise o bloco"));return;}
             toast("Ação especial aplicada com recibo.");dialog.dismiss();showCombat();
@@ -3576,8 +3578,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final String statblock=resources.optString("block_id","");
         if(statblock.trim().isEmpty()){toast("Este monstro não possui bloco compilado autorizado.");return;}
         final JSONArray declared=CompiledStatblockEngine.runtimeProfile(statblock).optJSONArray("actions");
-        final ArrayList<String> names=new ArrayList<String>();
-        if(declared!=null)for(int i=0;i<declared.length();i++){JSONObject a=declared.optJSONObject(i);if(a!=null&&CompiledMonsterActionGuard.diceRecharge(a.optString("recharge","")))names.add(a.optString("name","Ação"));}
+        final ArrayList<String> names=new ArrayList<String>();final ArrayList<String> sourceNames=new ArrayList<String>();
+        if(declared!=null)for(int i=0;i<declared.length();i++){JSONObject a=declared.optJSONObject(i);if(a!=null&&CompiledMonsterActionGuard.diceRecharge(a.optString("recharge",""))){String sourceName=a.optString("name","Ação");sourceNames.add(sourceName);names.add(DndPtBrLocalizer.localizeText(sourceName));}}
         if(names.isEmpty()){toast("Este bloco não declara ações com recarga.");return;}
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),0);
         final Spinner action=spinner(names.toArray(new String[0]),names.get(0));form.addView(cardWithLabel("AÇÃO COM RECARGA",action));
@@ -3587,7 +3589,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             .setView(form).setNegativeButton("CANCELAR",null).setPositiveButton("APLICAR",null).create();
         dialog.setOnShowListener(new DialogInterface.OnShowListener(){public void onShow(DialogInterface ignored){dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View v){
             int roll;try{roll=Integer.parseInt(value(d6));}catch(Exception bad){toast("Informe um d6 válido.");return;}
-            JSONObject result=db.rechargeCompiledStatblockAction(actorId,statblock,String.valueOf(action.getSelectedItem()),roll,"ui-monster-recharge-"+java.util.UUID.randomUUID());
+            JSONObject result=db.rechargeCompiledStatblockAction(actorId,statblock,sourceNames.get(action.getSelectedItemPosition()),roll,"ui-monster-recharge-"+java.util.UUID.randomUUID());
             if(!result.optBoolean("statblock_recharge_committed",false)){toast("Recarga não aplicada: "+result.optString("statblock_recharge_blocked","revise o bloco"));return;}
             JSONObject resolved=result.optJSONObject("resolved");toast(resolved!=null&&resolved.optBoolean("recharged",false)?"Ação recarregada.":"Ação continua indisponível.");dialog.dismiss();showCombat();
         }});}});dialog.show();
