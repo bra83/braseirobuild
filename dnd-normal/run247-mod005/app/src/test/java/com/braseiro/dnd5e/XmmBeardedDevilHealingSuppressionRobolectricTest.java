@@ -41,8 +41,12 @@ public final class XmmBeardedDevilHealingSuppressionRobolectricTest {
             assertFalse(monster+" / "+actionName,
                 action.optBoolean("manual_unmodeled_source_effect_required",true));
 
-            String safe=monster.toLowerCase(java.util.Locale.ROOT).replaceAll("[^a-z0-9]+","-");
-            String dbName="xmm_poison_heal_"+safe+"_"+Long.toHexString(System.nanoTime())+".db";
+            // Keep the sandbox filename short: Windows runner temp paths can
+            // otherwise exceed SQLite's native path limit under Robolectric.
+            String dbName="xmm_bdh_"+java.util.UUID.randomUUID().toString().replace("-","").substring(0,12)+".db";
+            java.io.File databaseDirectory=context.getDatabasePath(dbName).getParentFile();
+            assertNotNull(databaseDirectory);
+            assertTrue("sandbox database directory is available",databaseDirectory.isDirectory()||databaseDirectory.mkdirs());
             AppDb db=new AppDb(context,dbName);
             try {
                 db.setActiveMapProfile("dnd");
