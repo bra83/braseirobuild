@@ -41,7 +41,8 @@ publish_status(){
     -f description="$description" >/dev/null 2>&1 || echo 'GITHUB_STATUS_PERMISSION_DENIED_OR_API_FAILED'
 }
 run_tests(){
-  local sha="$1" log="$STATE/logs/$sha.log" result=PASS failure_kind='' rc=0
+  local sha="$1"
+  local log="$STATE/logs/$sha.log" result=PASS failure_kind='' rc=0
   putstatus "RUNNING_SHA=$sha"
   {
     echo "UTC=$(now) BRANCH=$BRANCH SHA=$sha PROJECT=$PROJECT"
@@ -114,6 +115,10 @@ sync_once(){
   fi
 }
 monitor(){
+  if command -v flock >/dev/null; then
+    exec 9>"$STATE/monitor.lock"
+    flock -n 9 || exit 0
+  fi
   trap 'rm -f "$PIDFILE"' EXIT
   echo "$BASHPID" > "$PIDFILE"
   while [[ ! -f "$DISABLED" ]]; do
