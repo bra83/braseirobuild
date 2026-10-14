@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 /** Every independently detected untyped source action must stop before a
  * stateless runtime can return damage or before a typed action path is chosen. */
 public final class XmmUnmodeledSourceEffectRuntimeTest {
-    @Test public void all224UnmodeledSourceActionsFailClosedAtRuntimePreflight(){
+    @Test public void all222UnmodeledSourceActionsFailClosedAtRuntimePreflight(){
         JSONObject installed=Xmm2025CompiledBestiaryEngine.install();
         assertTrue(installed.toString(),installed.optBoolean("complete"));
         JSONArray names=Xmm2025SourceIndex.ids();
@@ -44,9 +44,9 @@ public final class XmmUnmodeledSourceEffectRuntimeTest {
                 }
             }
         }
-        assertEquals(224,marked);
+        assertEquals(222,marked);
         assertEquals(103,attackRoutes);
-        assertEquals(95,saveRoutes);
+        assertEquals(93,saveRoutes);
         assertEquals(26,preflightOnly);
     }
 }

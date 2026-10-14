@@ -731,6 +731,34 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
             compiled_action.get("condition_on_fail")=="prone" and
             not compiled_action.get("manual_rider_resolution_required",False) and
             not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if (monster_name,name)==("Air Elemental","Whirlwind"):
+        return ("{@actSave str}" in text and "{@dc 13}" in text and
+            "{@recharge 4}" in action.get("name","") and "medium or smaller creature" in source_text and
+            "{@actsavefail}" in text.casefold() and "{@damage 4d10 + 2}" in text and
+            "thunder damage" in source_text and "pushed up to 20 feet straight away from the elemental" in source_text and
+            "{@condition prone|xphb}" in text.casefold() and "half damage only" in source_text and
+            compiled_action.get("save_dc")==13 and compiled_action.get("save_ability")=="str" and
+            compiled_action.get("damage")=="4d10 + 2" and compiled_action.get("damage_on_save_multiplier")==0.5 and
+            compiled_action.get("effect_on_fail")=="push:20ft;prone" and
+            compiled_action.get("effect_on_fail_max_target_size")=="Medium" and
+            compiled_action.get("condition_on_fail")=="prone" and
+            compiled_action.get("condition_on_fail_max_target_size")=="Medium" and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if (monster_name,name)==("Marid","Water Jet"):
+        return ("{@actSave dex}" in text and "{@dc 18}" in text and
+            "{@actsavefail}" in text.casefold() and "{@damage 9d6}" in text and
+            "cold damage" in source_text and "huge or smaller creature" in source_text and
+            "pushed up to 20 feet straight away from the marid" in source_text and
+            "{@condition prone|xphb}" in text.casefold() and "half damage only" in source_text and
+            compiled_action.get("save_dc")==18 and compiled_action.get("save_ability")=="dex" and
+            compiled_action.get("damage")=="9d6" and compiled_action.get("damage_on_save_multiplier")==0.5 and
+            compiled_action.get("effect_on_fail")=="push:20ft;prone" and
+            compiled_action.get("effect_on_fail_max_target_size")=="Huge" and
+            compiled_action.get("condition_on_fail")=="prone" and
+            compiled_action.get("condition_on_fail_max_target_size")=="Huge" and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if monster_name=="Aarakocra Skirmisher" and name=="Wind Javelin":
         return ("magically returns to the aarakocra's hand immediately after a ranged attack" in text.casefold() and
             "{@atkr m,r}" in text and

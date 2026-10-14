@@ -3595,6 +3595,8 @@ public class AppDb extends SQLiteOpenHelper {
             if(resourceCost.isEmpty())
                 return out.put("statblock_save_blocked","unsupported_action_economy:"+category);
             MonsterForcedMovementRules.Spec forced=null;
+            String conditionOnFailToApply=sourceAction.optString("condition_on_fail","");
+            boolean forcedMovementSkippedForSize=false;
             if(!resolved.optBoolean("save_success",true)){
                 // Recheck the compiled source, never a caller-supplied effect.
                 if(!sourceAction.optString("effect_on_fail","").equals(resolved.optString("effect_on_fail",""))||
@@ -3605,6 +3607,23 @@ public class AppDb extends SQLiteOpenHelper {
                 if(!MonsterEffectOnFailGuard.supported(resolved.optString("condition_on_fail",""),
                     resolved.optString("effect_on_fail",""))&&forced==null)
                     return out.put("statblock_save_blocked","unsupported_secondary_effect");
+                String maximumTargetSize=sourceAction.optString("effect_on_fail_max_target_size","").trim();
+                if(!maximumTargetSize.isEmpty()){
+                    if(forced==null||!MonsterOnHitProneRules.validSize(maximumTargetSize)||
+                        !"prone".equals(sourceAction.optString("condition_on_fail",""))||
+                        !maximumTargetSize.equalsIgnoreCase(
+                            sourceAction.optString("condition_on_fail_max_target_size","")))
+                        return out.put("statblock_save_blocked","unsupported_save_rider_size_cap");
+                    String targetSize=verifiedCombatantSizeCategory(target);
+                    if(!MonsterOnHitProneRules.validSize(targetSize))
+                        return out.put("statblock_save_blocked","target_size_not_verified");
+                    if(MonsterOnHitProneRules.sizeRank(targetSize)>
+                        MonsterOnHitProneRules.sizeRank(maximumTargetSize)){
+                        if(destinationX>=0||destinationY>=0)
+                            return out.put("statblock_save_blocked","forced_movement_not_applicable");
+                        forced=null;conditionOnFailToApply="";forcedMovementSkippedForSize=true;
+                    }
+                }
             }
             JSONObject forcedPlan=new JSONObject();
             if(forced==null&&(destinationX>=0||destinationY>=0))
@@ -3615,7 +3634,7 @@ public class AppDb extends SQLiteOpenHelper {
                     forcedPlan.optString("forced_movement_blocked","forced_movement_invalid"));
             }
             if(!resolved.optBoolean("save_success",true)&&!MonsterConditionRiderPlan.plan(
-                resolved.optString("condition_on_fail",""),target.optString("conditions",""),
+                conditionOnFailToApply,target.optString("conditions",""),
                 new MonsterConditionRiderPlan.Immunity(){public boolean immune(String c){return combatantConditionImmune(target,c);}}).valid())
                 return out.put("statblock_save_blocked","unsupported_secondary_effect");
             String recharge=resolved.optString("recharge","").trim();JSONObject spent=resources.optJSONObject("statblock_recharge_spent");if(spent==null)spent=new JSONObject();
@@ -3629,12 +3648,16 @@ public class AppDb extends SQLiteOpenHelper {
             if(damageTotal>0){damage=applyCombatantDamage(targetId,damageTotal,resolved.optString("damage_type",""),false,false,token+"-damage");if(damage.length()==0||damage.has("operation_error")||damage.has("operation_blocked"))throw new IllegalStateException("compiled_statblock_save_damage_rollback");}
             JSONObject riderTransition=new JSONObject();
             if(!resolved.optBoolean("save_success",true)){
-                riderTransition=commitCompiledMonsterConditionRider(actorId,targetId,id,action,token,resolved.optString("condition_on_fail",""));
+                if(!conditionOnFailToApply.isEmpty())riderTransition=commitCompiledMonsterConditionRider(
+                    actorId,targetId,id,action,token,conditionOnFailToApply);
                 resolved.put("rider_condition_transition",riderTransition);
                 if(forced!=null){
                     JSONObject moved=commitCompiledMonsterForcedMovement(actorId,targetId,forced,forcedPlan);
                     resolved.put("forced_movement_transition",moved);
                 }
+                if(forcedMovementSkippedForSize)resolved.put("forced_movement_skipped",
+                    "target_size_exceeds_movement_limit").put("target_size_category",
+                    verifiedCombatantSizeCategory(target));
             }
             if(!recharge.isEmpty()){resources=combatResources(getCombatant(actorId));spent=resources.optJSONObject("statblock_recharge_spent");if(spent==null)spent=new JSONObject();MonsterRechargeLedgerCodec.write(spent,action,true);resources.put("statblock_recharge_spent",spent);JSONObject spentRound=resources.optJSONObject("statblock_recharge_spent_round");if(spentRound==null)spentRound=new JSONObject();MonsterRechargeLedgerCodec.write(spentRound,action,Math.max(1,getCombatState().optInt("round_no",1)));resources.put("statblock_recharge_spent_round",spentRound);ContentValues v=new ContentValues();v.put("resources_json",resources.toString());requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(actorId),getActiveMapProfile()}));}
             recordEffectReceipt(key,resolved.toString());
