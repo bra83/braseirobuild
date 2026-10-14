@@ -1,0 +1,26 @@
+{
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "actions": [
+    {
+      "creature": "Couatl",
+      "action": "Bite",
+      "condition": "poisoned",
+      "expiry": "source_turn_end",
+      "pt_br_label": "Mordida",
+      "source_page": 82,
+      "source_pointer": "/monster/104/action/0"
+    },
+    {
+      "creature": "Ghast Gravecaller",
+      "action": "Horrific Necrosis",
+      "condition": "frightened",
+      "expiry": "target_turn_end",
+      "pt_br_label": "Necrose Horrífica",
+      "source_page": 130,
+      "source_pointer": "/monster/167/action/2"
+    }
+  ],
+  "implementation": "Both source actions now use a source-bound condition_on_hit rider and a persistent one-round typed timer. The target receives an active-turn end when target_turn_end applies.",
+  "review_boundary": "The Ghast Gravecaller Claw remains manual because the source applies paralysis only when the target is not undead. PDF licensing validation and full statblock approval remain open."
+}

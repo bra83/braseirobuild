@@ -1,0 +1,33 @@
+{
+  "format": "BRASEIRO_XMM_COATL_GHAST_RIDER_EVIDENCE_V1",
+  "code_commit": "522a5f80a707b71c83b522cbaf21b69aeb642a76",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "created_utc": "2026-10-14",
+  "scope": "Two source-pinned XMM condition riders applied and expired through persistent combat state; XMM remains open.",
+  "artifacts": {
+    "android-test-results.zip": {
+      "sha256": "d6cf3d1a3840a006ed7ab598dadaf8fe33ff0fed518b13b0c5a8362e56270793",
+      "bytes": 89590
+    },
+    "android-test-summary.json": {
+      "sha256": "bd2c95127b505b70ef88b3746acac3f6e2a7e4240e2f8fc4728c245d8d06bc73",
+      "bytes": 320
+    },
+    "python-test-summary.json": {
+      "sha256": "1bbbf5bc2ffeba6fb8c04dfa07bd93e3ab42929e3948fa628dca3c8fa481ce2e",
+      "bytes": 226
+    },
+    "source-action-delta.json": {
+      "sha256": "64f201b53c18414d21ad8e8b66df7b2aacf35737ffc46ea3e157fcb49913086b",
+      "bytes": 1070
+    },
+    "source-executor-status.csv": {
+      "sha256": "7e0ae58d2a7a432e72a24ff18c5e5d175b6aca35a272777e8272152eb48a4b61",
+      "bytes": 398
+    },
+    "xmm-source-comparison.json": {
+      "sha256": "86ac022f314c8e543aa1bb3aa362d1b74b9b8e8956a89250a0cc55098917fa0c",
+      "bytes": 993
+    }
+  }
+}
