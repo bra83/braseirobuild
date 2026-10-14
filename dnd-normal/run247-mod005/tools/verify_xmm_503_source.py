@@ -602,6 +602,14 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
         return ""
     text=flatten(action.get("entries",[]))
     name=RCH.sub("",action.get("name","")).strip()
+    if monster_name=="Aarakocra Skirmisher" and name=="Wind Javelin":
+        return ("magically returns to the aarakocra's hand immediately after a ranged attack" in text.casefold() and
+            "{@atkr m,r}" in text and
+            compiled_action.get("returns_to_attacker_after_ranged_attack") is True and
+            compiled_action.get("damage")=="1d6 + 2 + 1d4" and
+            compiled_action.get("damage_type")=="piercing + thunder" and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if monster_name=="Bearded Devil" and name=="Beard":
         source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
         compiled_conditions={x.strip().casefold() for x in compiled_action.get("condition_on_hit","").split(",")}

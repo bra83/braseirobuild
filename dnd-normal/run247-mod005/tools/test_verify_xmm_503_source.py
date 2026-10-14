@@ -4,6 +4,19 @@ from io import BytesIO
 import verify_xmm_503_source as xmm
 
 class XmmIndependentSourceTests(unittest.TestCase):
+    def test_wind_javelin_return_is_typed_only_for_the_ranged_mode(self):
+        action={"name":"Wind Javelin","entries":[
+            "{@atkr m,r} {@hit 4}, reach 5 ft. or range 30/120 ft. {@h}5 ({@damage 1d6 + 2}) Piercing damage plus 2 ({@damage 1d4}) Thunder damage. The javelin magically returns to the aarakocra's hand immediately after a ranged attack."]}
+        compiled={"damage":"1d6 + 2 + 1d4","damage_type":"piercing + thunder",
+            "returns_to_attacker_after_ranged_attack":True,
+            "manual_rider_resolution_required":False,
+            "manual_unmodeled_source_effect_required":False}
+        self.assertTrue(xmm.source_action_has_typed_condition_contract(
+            "Aarakocra Skirmisher",action,compiled))
+        compiled["returns_to_attacker_after_ranged_attack"]=False
+        self.assertFalse(xmm.source_action_has_typed_condition_contract(
+            "Aarakocra Skirmisher",action,compiled))
+
     def test_ongoing_attack_damage_is_an_independent_manual_effect(self):
         source=[
             {"name":"Half-Dragon","action":[{"name":"Claw","entries":[
