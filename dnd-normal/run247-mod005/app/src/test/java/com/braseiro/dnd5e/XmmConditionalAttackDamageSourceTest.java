@@ -77,9 +77,9 @@ public final class XmmConditionalAttackDamageSourceTest {
     @Test public void unmodeledMoveAdvantageAndGrappleAlternativesFailClosed(){
         String[][] noSave={
             {"Allosaurus","Claws"},{"Balor","Flame Whip"},
-            {"Bone Devil","Infernal Sting"},{"Bugbear Stalker","Morningstar"},
+            {"Bugbear Stalker","Morningstar"},
             {"Bugbear Warrior","Light Hammer"},{"Cloaker","Attach"},{"Darkmantle","Crush"},
-            {"Death Slaad","Chaos Blade"},{"Dire Worg","Bite"},{"Elephant","Gore"},
+            {"Death Slaad","Chaos Blade"},{"Elephant","Gore"},
             {"Empyrean","Sacred Weapon"},{"Ghast Gravecaller","Claw"},{"Giant Frog","Swallow"},
             {"Giant Toad","Swallow"},{"Githzerai Psion","Psychic Warp"},{"Gorgon","Gore"},
             {"Goristro","Brutal Gore"},{"Gray Slaad","Chaos Claw"},{"Green Slaad","Chaos Staff"},

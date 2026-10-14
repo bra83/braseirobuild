@@ -287,6 +287,28 @@ class XmmIndependentSourceTests(unittest.TestCase):
         errors,count=xmm.check_unmodeled_action_effects(source,compiled)
         self.assertEqual(1,count)
         self.assertIn("UNTYPED_SOURCE_EFFECT_NOT_MANUAL",errors[0])
+    def test_two_other_source_poison_riders_also_suppress_healing(self):
+        source=[
+            {"name":"Bone Devil","action":[{"name":"Infernal Sting","entries":[
+                "The target has the {@condition Poisoned|XPHB} condition until the start of the devil's next turn. While Poisoned, the target can't regain Hit Points."]}]},
+            {"name":"Dire Worg","action":[{"name":"Bite","entries":[
+                "The target has the {@condition Poisoned|XPHB} condition until the start of the worg's next turn. While Poisoned, the target can't regain Hit Points."]}]},
+        ]
+        compiled=[
+            {"id":"Bone Devil","actions":[{"name":"Infernal Sting","condition_on_hit":"poisoned",
+                "condition_duration_rounds":1,"condition_duration_tick":"source_turn_start",
+                "prevents_hit_point_regain_while_condition":"poisoned",
+                "manual_rider_resolution_required":False,"manual_unmodeled_source_effect_required":False}]},
+            {"id":"Dire Worg","actions":[{"name":"Bite","condition_on_hit":"poisoned",
+                "condition_duration_rounds":1,"condition_duration_tick":"source_turn_start",
+                "prevents_hit_point_regain_while_condition":"poisoned",
+                "manual_rider_resolution_required":False,"manual_unmodeled_source_effect_required":False}]},
+        ]
+        self.assertEqual(([],0),xmm.check_unmodeled_action_effects(source,compiled))
+        compiled[1]["actions"][0]["prevents_hit_point_regain_while_condition"]=""
+        errors,count=xmm.check_unmodeled_action_effects(source,compiled)
+        self.assertEqual(1,count)
+        self.assertIn("UNTYPED_SOURCE_EFFECT_NOT_MANUAL",errors[0])
     def test_couatl_source_turn_end_and_ghast_target_turn_end_are_distinct(self):
         couatl={"name":"Bite","entries":[
             "The target has the {@condition Poisoned|XPHB} condition until the end of the couatl's next turn."]}

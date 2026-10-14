@@ -20,6 +20,8 @@ JAVA_ATTACK_CONDITIONS="app/src/main/java/com/braseiro/dnd5e/Xmm2025AttackCondit
 JAVA_SAVE_DAMAGE="app/src/main/java/com/braseiro/dnd5e/Xmm2025SaveDamageEngine.java"
 SOURCE_TURN_START_HIT_CONDITIONS={
     ("Assassin","Shortsword"): ("poisoned","until the start of the assassin's next turn"),
+    ("Bone Devil","Infernal Sting"): ("poisoned","until the start of the devil's next turn"),
+    ("Dire Worg","Bite"): ("poisoned","until the start of the worg's next turn"),
     ("Giant Centipede","Bite"): ("poisoned","until the start of the centipede's next turn"),
     ("Centaur Warden","Sun Ray"): ("blinded","until the start of the centaur's next turn"),
     ("Ettercap","Bite"): ("poisoned","until the start of the ettercap's next turn"),
@@ -37,6 +39,8 @@ SOURCE_TURN_START_HIT_CONDITIONS={
 SOURCE_TURN_END_HIT_CONDITIONS={
     ("Couatl","Bite"): ("poisoned","until the end of the couatl's next turn"),
 }
+SOURCE_TURN_START_HEALING_SUPPRESSION={("Bearded Devil","Beard"),
+    ("Bone Devil","Infernal Sting"),("Dire Worg","Bite")}
 TARGET_TURN_END_HIT_CONDITIONS={
     ("Giant Vulture","Gouge"):"poisoned",
     ("Gas Spore Fungus","Tendril"):"poisoned",
@@ -436,12 +440,16 @@ def source_turn_start_hit_condition_matches(monster_name,action,compiled_action)
     text=json.dumps(action.get("entries",[]),ensure_ascii=False).casefold()
     source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
     compiled_conditions={x.strip().casefold() for x in compiled_action.get("condition_on_hit","").split(",")}
+    suppresses_healing=(monster_name,name) in SOURCE_TURN_START_HEALING_SUPPRESSION
+    healing_clause="can't regain" in text.casefold() and "hit points" in text.casefold()
     return (source_conditions=={condition} and compiled_conditions=={condition} and
         until in text and not compiled_action.get("save_dc") and
         not compiled_action.get("save_ability") and not compiled_action.get("condition_on_fail") and
         not compiled_action.get("effect_on_fail") and
         compiled_action.get("condition_duration_rounds")==1 and
         compiled_action.get("condition_duration_tick")=="source_turn_start" and
+        (compiled_action.get("prevents_hit_point_regain_while_condition")=="poisoned" and healing_clause
+            if suppresses_healing else not compiled_action.get("prevents_hit_point_regain_while_condition")) and
         not compiled_action.get("manual_rider_resolution_required",False) and
         not compiled_action.get("manual_unmodeled_source_effect_required",False))
 
