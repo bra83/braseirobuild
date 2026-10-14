@@ -21,6 +21,7 @@ public final class Xmm40AttackConditionContractTest {
   assertEquals(action,CompiledStatblockEngine.get(monster).getJSONArray("actions").getJSONObject(r.getInt("slot")).getString("name"));
   JSONObject in=new JSONObject().put("monster",monster).put("action",action)
    .put("attack_hit",true).put("target_is_creature",true).put("target_size",r.getString("size"));
+  if(r.optBoolean("choice_required"))in.put("chosen_effect_option","grapple");
   String before=in.toString();JSONObject out=Xmm2025AttackConditionEngine.resolve(in);
   assertTrue(monster+"/"+action+":"+out,out.getBoolean("resolved"));
   assertEquals(before,in.toString());assertEquals(r.getString("ptr"),out.getString("source_pointer"));
