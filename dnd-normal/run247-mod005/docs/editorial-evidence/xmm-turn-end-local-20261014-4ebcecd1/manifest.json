@@ -1,0 +1,25 @@
+{
+  "format": "BRASEIRO_LOCAL_XMM_TURN_END_EVIDENCE_V1",
+  "code_commit": "4ebcecd14373bfea47935230d994fa0f5c8f5fe5",
+  "base_commit": "fc41228a",
+  "created_utc": "2026-10-14",
+  "scope": "XMM single action lifecycle fix; no APK or device certification",
+  "artifacts": {
+    "android-test-results.zip": {
+      "sha256": "76b8c6292e145fc62090cde2164948a086e380859a898e0030a9cedb7179ea99",
+      "bytes": 89486
+    },
+    "android-test-summary.json": {
+      "sha256": "fd633cfe3525a124ac2ce9ce271837f2b335587e5aeed75fe4bdb9c50b5d6844",
+      "bytes": 322
+    },
+    "source-action-delta.json": {
+      "sha256": "a59d27fcfd1a16924baf5817084ea96fb8b5e52b7dbd7a60ff8a26cf517d3d6f",
+      "bytes": 1099
+    },
+    "xmm-source-comparison.json": {
+      "sha256": "f434cdf50b7011a05910872dd5b659a42051832ce4606cd948ef344e427dabe0",
+      "bytes": 992
+    }
+  }
+}

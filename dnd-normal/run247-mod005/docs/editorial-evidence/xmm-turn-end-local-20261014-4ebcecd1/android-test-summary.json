@@ -1,0 +1,12 @@
+{
+  "command": "bash gradlew :app:testDebugUnitTest --no-daemon",
+  "tests": 2508,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "xml_count": 105,
+  "new_source_turn_end_test": "Run247G05SourceTurnEndRobolectricTest",
+  "new_source_turn_end_test_cases": 2,
+  "device_install_validation": false,
+  "apk_built": false
+}

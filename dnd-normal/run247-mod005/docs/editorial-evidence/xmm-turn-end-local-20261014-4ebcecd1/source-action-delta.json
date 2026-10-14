@@ -1,0 +1,11 @@
+{
+  "creature": "Scarecrow",
+  "action": "Fearsome Claw",
+  "source": "XMM 2025; 5e.tools auxiliary structured record; page 269; source commit 8c026b807fac21862a309379a0c3228a0683198b; source pointer /monster/387/action/0",
+  "source_facts": "melee +3, 5 ft., 2d4+1 slashing; hit applies frightened until end of scarecrow's next turn; no save",
+  "runtime": "condition_on_hit=frightened; condition_duration_rounds=1; condition_duration_tick=source_turn_end; skip current source turn end if applied on the scarecrow's own turn",
+  "state": "condition and timer persist on combatant; nextTurn advances source-turn-end timers atomically; effect receipt records source, encounter, turn boundary, before/after conditions and timer",
+  "regression": "scarecrowFearsomeClawExpiresAtEndOfItsNextTurn; ledgerDoesNotExpireAtSourceStartAndHonorsCurrentTurnSkip",
+  "source_limit": "The corresponding licensed PDF action was not directly revalidated; source evidence here remains auxiliary.",
+  "stage_status": "XMM stage remains open; broad unmodeled action count remains 246; not full combat certification"
+}
