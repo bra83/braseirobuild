@@ -274,7 +274,7 @@ public final class KingmakerCompanionSemantics {
    if(feastActorId<=0)throw new IllegalArgumentException("Selecione o PJ que contribuiu para o banquete.");
    JSONArray participants=currentProgress.optJSONArray("feast_contributor_ids");
    if(participants!=null)for(int i=0;i<participants.length();i++)
-    if(participants.getLong(i)==feastActorId)
+    if(participants.optLong(i)==feastActorId)
      throw new IllegalStateException("Cada PJ só pode contribuir uma vez para os Pontos de Vitória do banquete.");
   }
   if("ekundayo".equals(companionKey)&&"ekundayo_interrupt_ntavi".equals(checkId)

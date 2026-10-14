@@ -1,10 +1,8 @@
 name: PF2 Kingmaker R36 Official Book Fixes — Test and Compile
+# Manual-only diagnostics retained for traceability; single automatic
+# source/regression/chapter gate is pf2-r36-brelga-independent.yml on BRELGA.
+# No failed hosted jobs are relabeled as passed.
 on:
-  push:
-    branches: [pf2-kingmaker-r36-official-rule-fixes-20261011]
-    paths:
-      - '.github/workflows/pf2-r36-official-rule-fixes.yml'
-      - 'ci/pf2-kingmaker-r36/**'
   workflow_dispatch:
 permissions:
   contents: read
