@@ -32,7 +32,13 @@ jobs:
           if (Test-Path $work) { Remove-Item $work -Recurse -Force }
           New-Item -ItemType Directory -Path $work -Force | Out-Null
           $archive = Join-Path $work 'BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip'
-          & gh.exe release download OUA-v4.9.211 --repo $env:GITHUB_REPOSITORY --pattern 'BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip' --dir $work --clobber
+          $headers=@{Authorization="Bearer $env:GH_TOKEN";Accept="application/vnd.github+json";"X-GitHub-Api-Version"="2022-11-28"}
+          $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/tags/OUA-v4.9.211"
+          $asset=@($release.assets | Where-Object { $_.name -eq 'BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip' }) | Select-Object -First 1
+          if (-not $asset) { throw 'Published checkpoint asset not found' }
+          & curl.exe -sS -L --fail --retry 3 -H "Authorization: Bearer $env:GH_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $archive "$($asset.url)"
+          if ($LASTEXITCODE -ne 0) { throw 'Canonical OUA release asset fetch failed' }
+          if ((Get-Item $archive).Length -lt 100000000) { throw 'Expected the full 268MB source, got truncated download' }
           if ($LASTEXITCODE -ne 0 -or -not (Test-Path $archive)) { throw 'Canonical OUA 4.9.211 ZIP not downloadable' }
           $unzip = Join-Path $work 'source'
           New-Item -ItemType Directory -Path $unzip -Force | Out-Null
