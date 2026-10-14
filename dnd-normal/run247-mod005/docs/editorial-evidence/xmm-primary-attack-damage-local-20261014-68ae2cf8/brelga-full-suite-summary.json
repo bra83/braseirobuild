@@ -1,0 +1,10 @@
+{
+  "run_id": 38509502166,
+  "url": "https://github.com/bra83/braseirobuild/actions/runs/38509502166",
+  "source_sha": "68ae2cf8dc74ac8ad7f71ca7866c9a6603986d5f",
+  "suite_count": 111,
+  "tests": 2527,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0
+}

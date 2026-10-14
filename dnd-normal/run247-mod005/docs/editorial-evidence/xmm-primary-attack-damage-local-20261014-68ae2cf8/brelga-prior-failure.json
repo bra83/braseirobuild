@@ -1,0 +1,10 @@
+{
+  "run_id": 38507845074,
+  "sha": "886e40e0f3720b380beca0de17b37bb8da40a617",
+  "url": "https://github.com/bra83/braseirobuild/actions/runs/38507845074",
+  "tests": 2527,
+  "failures": 1,
+  "failed_test": "XmmBeardedDevilHealingSuppressionRobolectricTest#beardPoisonBlocksHealingUntilDevilsNextTurnAndThenExpires",
+  "cause": "SQLiteCantOpenDatabase at PRAGMA journal_mode=WAL; unable to open database file on BRELGA/Windows.",
+  "fix": "Shortened unique database filename and explicitly creates the Robolectric database directory before opening AppDb."
+}
