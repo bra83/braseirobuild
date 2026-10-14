@@ -2086,7 +2086,9 @@ public class AppDb extends SQLiteOpenHelper {
             skipFirstSourceEnd=getCombatant(targetId).optInt("active_turn",0)==1;
         JSONArray timers=MonsterConditionTimerLedger.stage(beforeTimers,plan,duration,
             sourceActorId,blockId,actionName,receiptToken,
-            tick,skipFirstSourceEnd);
+            tick,skipFirstSourceEnd,
+            "poisoned".equals(sourceAction.optString(
+                "prevents_hit_point_regain_while_condition","")));
         timers=MonsterConditionRecoveryLedger.stage(timers,plan,recovery,
             sourceActorId,blockId,actionName,receiptToken);
         if(!plan.after.equals(plan.before))updateConditionsChecked(targetId,plan.after);
@@ -2268,7 +2270,9 @@ public class AppDb extends SQLiteOpenHelper {
                 ("source_turn_end".equals(sourceAction.optString("condition_duration_tick",""))&&
                     getCombatant(sourceActorId).optInt("active_turn",0)==1)||
                 ("target_turn_end".equals(sourceAction.optString("condition_duration_tick",""))&&
-                    getCombatant(targetId).optInt("active_turn",0)==1));
+                    getCombatant(targetId).optInt("active_turn",0)==1),
+                "poisoned".equals(sourceAction.optString(
+                    "prevents_hit_point_regain_while_condition","")));
             return "";
         }catch(IllegalArgumentException invalid){
             if("condition_timer_ownership_conflict".equals(invalid.getMessage()))
@@ -3584,6 +3588,24 @@ public class AppDb extends SQLiteOpenHelper {
             return out.put("statblock_recharge_committed",true).put("statblock_recharge_receipt",key).put("resolved",check);
         }});
     }
+    private String combatantHealingBlockFromTimedCondition(JSONObject combatant)throws Exception {
+        if(combatant==null||combatant.length()==0)return "";
+        JSONArray timers=MonsterConditionTimerLedger.parse(
+            combatant.optString("condition_timers_json","[]"));
+        for(int i=0;i<timers.length();i++){
+            JSONObject timer=timers.optJSONObject(i);if(timer==null||
+                !timer.optBoolean("prevents_hit_point_regain",false))continue;
+            String condition=timer.optString("name","");
+            if(!ConditionTokenGuard.has(combatant.optString("conditions",""),condition))continue;
+            JSONObject source=compiledMonsterRiderAction(
+                timer.optString("source_statblock",""),timer.optString("source_action",""));
+            if(!ConditionTokenGuard.has(condition,source.optString(
+                "prevents_hit_point_regain_while_condition","")))
+                return "condition_effect_source_mismatch";
+            return "source_condition_prevents_hit_point_regain";
+        }
+        return "";
+    }
     public JSONObject healCombatant(long id,int amount){return healCombatant(id,amount,"");}
     public JSONObject healCombatant(final long id,final int amount,final String operationToken){
         return combatAtomic("healing",new CombatAtomicWork(){public JSONObject run()throws Exception{
@@ -3591,6 +3613,8 @@ public class AppDb extends SQLiteOpenHelper {
             JSONObject resources=combatResources(c);String signature="heal:"+amount;
             String decision=combatReceiptDecision(resources,operationToken,signature,id);
             if(!decision.isEmpty())return combatReceiptResponse(c,"healing",decision);
+            if(amount>0){String timedBlock=combatantHealingBlockFromTimedCondition(c);
+                if(!timedBlock.isEmpty())return c.put("healing_blocked",timedBlock);}
             if(resources.optBoolean("dead",false))return c.put("healing_blocked","dead");int before=c.optInt("hp"),max=Math.max(1,c.optInt("max_hp",1)),after=CombatTurnGuard.safeHealing(before,max,amount);int succ=c.optInt("death_success"),fail=c.optInt("death_fail");String conditions=c.optString("conditions");if(after>before){clearRecoverySchedule(resources);}if(before==0&&after>0){succ=0;fail=0;resources.put("stable",false).put("death_save_due",false);conditions=ConditionRulesEngine.remove(conditions,"Inconsciente");conditions=ConditionRulesEngine.add(conditions,"Caído");}recordCombatReceipt(resources,operationToken,signature,id);ContentValues v=new ContentValues();v.put("hp",after);v.put("death_success",succ);v.put("death_fail",fail);v.put("conditions",conditions);v.put("resources_json",resources.toString());requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));syncCombatantHeroState(c,after,c.optInt("temp_hp"),conditions,resources);out=getCombatant(id).put("applied_healing",after-before);return out;
         }});
     }
@@ -3614,6 +3638,11 @@ public class AppDb extends SQLiteOpenHelper {
                 if(!distinctTargets.add(id))return out.put("effects_batch_blocked","duplicate_target_"+i);
                 JSONObject target=getCombatant(id);
                 if(target.length()==0)return out.put("effects_batch_blocked","target_not_found_"+i);
+                if("healing".equals(kind)&&amount>0){
+                    String timedBlock=combatantHealingBlockFromTimedCondition(target);
+                    if(!timedBlock.isEmpty())return out.put("effects_batch_blocked",
+                        "healing_blocked_"+timedBlock+"_"+i);
+                }
                 String token=operationToken+"-"+i;
                 String signature="healing".equals(kind)?"heal:"+amount:
                     "damage:"+amount+":"+effect.optString("damage_type","")+":"+effect.optBoolean("critical",false)+":"+effect.optBoolean("nonlethal_melee",false);

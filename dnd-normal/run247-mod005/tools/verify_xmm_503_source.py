@@ -488,6 +488,20 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
         return ""
     text=flatten(action.get("entries",[]))
     name=RCH.sub("",action.get("name","")).strip()
+    if monster_name=="Bearded Devil" and name=="Beard":
+        source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
+        compiled_conditions={x.strip().casefold() for x in compiled_action.get("condition_on_hit","").split(",")}
+        source_text=text.casefold()
+        return (source_conditions=={"poisoned"} and compiled_conditions=={"poisoned"} and
+            "until the start of the devil's next turn" in source_text and
+            "can't regain" in source_text and "hit points" in source_text and
+            compiled_action.get("prevents_hit_point_regain_while_condition")=="poisoned" and
+            compiled_action.get("condition_duration_rounds")==1 and
+            compiled_action.get("condition_duration_tick")=="source_turn_start" and
+            not compiled_action.get("save_dc") and not compiled_action.get("save_ability") and
+            not compiled_action.get("condition_on_fail") and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if (monster_name,name) in SOURCE_TURN_START_HIT_CONDITIONS:
         return source_turn_start_hit_condition_matches(monster_name,action,compiled_action)
     if (monster_name,name) in SOURCE_TURN_END_HIT_CONDITIONS:
@@ -761,7 +775,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_save_damage_actions_compared":save_count,
         "source_abilities_with_unmodeled_effects_manual":effect_count,
         "source_compound_condition_actions_typed":2,
-        "source_single_condition_actions_typed":8+turn_start_count,
+        "source_single_condition_actions_typed":9+turn_start_count,
         **branch_totals,
         "source_field_and_catalog_gate_pass":True,
         "full_monster_combat_automation_certified":False}

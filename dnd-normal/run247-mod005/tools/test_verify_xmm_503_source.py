@@ -273,6 +273,20 @@ class XmmIndependentSourceTests(unittest.TestCase):
         compiled["condition_duration_tick"]="source_turn_start"
         compiled["condition_on_hit"]="frightened"
         self.assertFalse(xmm.source_turn_start_hit_condition_matches("Assassin",source["action"],compiled))
+    def test_beard_poison_source_binds_healing_suppression_until_source_turn(self):
+        source=[{"name":"Bearded Devil","action":[{"name":"Beard","entries":[
+            "The target has the {@condition Poisoned|XPHB} condition until the start of the devil's next turn. Until this poison ends, the target can't regain {@variantrule Hit Points|XPHB}."]}]}]
+        compiled=[{"id":"Bearded Devil","actions":[{"name":"Beard",
+            "condition_on_hit":"poisoned","condition_duration_rounds":1,
+            "condition_duration_tick":"source_turn_start",
+            "prevents_hit_point_regain_while_condition":"poisoned",
+            "manual_rider_resolution_required":False,
+            "manual_unmodeled_source_effect_required":False}]}]
+        self.assertEqual(([],0),xmm.check_unmodeled_action_effects(source,compiled))
+        compiled[0]["actions"][0]["condition_duration_tick"]="target_turn_start"
+        errors,count=xmm.check_unmodeled_action_effects(source,compiled)
+        self.assertEqual(1,count)
+        self.assertIn("UNTYPED_SOURCE_EFFECT_NOT_MANUAL",errors[0])
     def test_couatl_source_turn_end_and_ghast_target_turn_end_are_distinct(self):
         couatl={"name":"Bite","entries":[
             "The target has the {@condition Poisoned|XPHB} condition until the end of the couatl's next turn."]}

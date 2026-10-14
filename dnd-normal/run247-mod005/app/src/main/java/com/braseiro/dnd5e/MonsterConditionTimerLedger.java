@@ -78,6 +78,10 @@ public final class MonsterConditionTimerLedger {
                     !"source_turn_end".equals(o.optString("trigger","")))||
                    (o.has("skip_first_target_turn_end")&&
                     !(o.opt("skip_first_target_turn_end") instanceof Boolean))||
+                   (o.has("prevents_hit_point_regain")&&
+                    (!(o.opt("prevents_hit_point_regain") instanceof Boolean)||
+                     !o.optBoolean("prevents_hit_point_regain")||
+                     !ConditionTokenGuard.has(o.optString("name",""),"poisoned")))||
                    (o.has("skip_first_target_turn_end")&&
                     !"target_turn_end".equals(o.optString("trigger",""))))
                     throw new IllegalArgumentException("invalid_typed_condition_timer");
@@ -97,16 +101,26 @@ public final class MonsterConditionTimerLedger {
     public static JSONArray stage(String rawTimers,MonsterConditionRiderPlan.Result plan,
         int duration,long sourceActor,String statblock,String action,String receipt,String tick,
         boolean skipFirstSourceTurnEnd) throws Exception {
+        return stage(rawTimers,plan,duration,sourceActor,statblock,action,receipt,tick,
+            skipFirstSourceTurnEnd,false);
+    }
+    public static JSONArray stage(String rawTimers,MonsterConditionRiderPlan.Result plan,
+        int duration,long sourceActor,String statblock,String action,String receipt,String tick,
+        boolean skipFirstSourceTurnEnd,boolean preventsHitPointRegain) throws Exception {
         JSONArray existing=parse(rawTimers);
-        if(duration==0)return existing;
+        if(plan==null||!plan.valid()||!plan.alreadyPresent.isEmpty())
+            throw new IllegalArgumentException("ambiguous_timed_condition_ownership");
+        if(duration==0){
+            if(preventsHitPointRegain)throw new IllegalArgumentException("invalid_timed_rider_authority");
+            return existing;
+        }
         if(duration<1||duration>100||sourceActor<=0||
             statblock==null||statblock.trim().isEmpty()||action==null||action.trim().isEmpty()||
             receipt==null||receipt.trim().isEmpty()||!supportedTick(tick)||
             skipFirstSourceTurnEnd&&(!"source_turn_end".equals(tick)&&
-                !"target_turn_end".equals(tick)))
+                !"target_turn_end".equals(tick))||
+            preventsHitPointRegain&&(duration<1||!containsPoisoned(plan.applied)))
             throw new IllegalArgumentException("invalid_timed_rider_authority");
-        if(plan==null||!plan.valid()||!plan.alreadyPresent.isEmpty())
-            throw new IllegalArgumentException("ambiguous_timed_condition_ownership");
         JSONArray result=new JSONArray(existing.toString());
         for(String applied:plan.applied){
             for(int j=0;j<result.length();j++){
@@ -123,9 +137,16 @@ public final class MonsterConditionTimerLedger {
                 staged.put("skip_first_source_turn_end",skipFirstSourceTurnEnd);
             if("target_turn_end".equals(tick))
                 staged.put("skip_first_target_turn_end",skipFirstSourceTurnEnd);
+            if(preventsHitPointRegain&&ConditionTokenGuard.has(applied,"poisoned"))
+                staged.put("prevents_hit_point_regain",true);
             result.put(staged);
         }
         return result;
+    }
+    private static boolean containsPoisoned(List<String> conditions) {
+        if(conditions==null)return false;
+        for(String condition:conditions)if(ConditionTokenGuard.has(condition,"poisoned"))return true;
+        return false;
     }
     /** Manual condition removal must also remove typed recovery/timer claims.
      * Legacy timer rows are left untouched to preserve their original rules.
