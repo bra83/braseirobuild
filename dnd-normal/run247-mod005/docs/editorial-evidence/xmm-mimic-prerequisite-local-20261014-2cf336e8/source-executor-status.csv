@@ -1,0 +1,2 @@
+creature,action,source_commit,source_pointer,runtime_change,status
+Mimic,Bite,8c026b807fac21862a309379a0c3228a0683198b,/monster/299/action/0,"Correct normal piercing and acid components; remove false condition_on_fail grappled; keep target-context alternate damage manual.",SOURCE_PREREQUISITE_CORRECTED; ALTERNATE_DAMAGE_MANUAL; FULL_ACTION_AND_XMM_OPEN

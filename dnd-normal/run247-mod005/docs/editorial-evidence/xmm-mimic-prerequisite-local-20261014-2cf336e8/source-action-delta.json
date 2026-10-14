@@ -1,0 +1,27 @@
+{
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "source_pointer": "/monster/299/action/0",
+  "source_page": 212,
+  "creature": "Mimic",
+  "action": "Bite",
+  "source_facts_structured_paraphrase": {
+    "normal_damage": [
+      {
+        "amount": "1d8 + 3",
+        "type": "piercing"
+      },
+      {
+        "amount": "1d8",
+        "type": "acid"
+      }
+    ],
+    "target_grappled_by_this_mimic": "prerequisite for Advantage and alternate piercing damage, not an imposed condition"
+  },
+  "runtime_delta": {
+    "normal_damage": "1d8 + 3 piercing plus 1d8 acid",
+    "condition_on_fail": "removed",
+    "alternate_damage_and_advantage": "manual"
+  },
+  "review_boundary": "Full action remains manual pending target-context support; licensed PDF validation and full XMM approval remain open."
+}

@@ -1,0 +1,33 @@
+{
+  "format": "BRASEIRO_XMM_MIMIC_PREREQUISITE_EVIDENCE_V1",
+  "code_commit": "2cf336e81f5515994c5a511d33fa44f3037a6137",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "created_utc": "2026-10-14",
+  "scope": "Correct Mimic Bite source/runtime mismatch; target-context attack alternatives remain manual and XMM remains open.",
+  "artifacts": {
+    "android-test-results.zip": {
+      "sha256": "fc5be0131adfc2230a8deba1a4bb40a998ba2c1ce3792ba1a89f21fac9562b42",
+      "bytes": 89609
+    },
+    "android-test-summary.json": {
+      "sha256": "9222f50083026ca029989b67d948d46a45cc805a1f798c6ff50458a702618b46",
+      "bytes": 295
+    },
+    "python-test-summary.json": {
+      "sha256": "23896b339d22a81c0a5c072315befbe1f2093f449d762edaa712a825ed425762",
+      "bytes": 226
+    },
+    "source-action-delta.json": {
+      "sha256": "9658cef7143d862ab94d7d68dfbc1b23ad84d548ef5f72b5634b4e3a3e5918d2",
+      "bytes": 890
+    },
+    "source-executor-status.csv": {
+      "sha256": "ae60a1608cddd102ec85527db742e680046ce66f46c468fe612fb28f8e931bbc",
+      "bytes": 355
+    },
+    "xmm-source-comparison.json": {
+      "sha256": "86ac022f314c8e543aa1bb3aa362d1b74b9b8e8956a89250a0cc55098917fa0c",
+      "bytes": 993
+    }
+  }
+}
