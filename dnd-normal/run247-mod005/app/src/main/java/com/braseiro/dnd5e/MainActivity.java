@@ -3229,6 +3229,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(attackNames.isEmpty()){toast("O bloco compilado não declara ataques diretos executáveis.");return;}
         final String[] actionNames=attackNames.toArray(new String[0]);
         final Spinner action=spinner(actionNames,actionNames[0]);form.addView(cardWithLabel("AÇÃO DO BLOCO",action));
+        final TextView chargeStatus=text("",11,GOLD,false);chargeStatus.setVisibility(View.GONE);form.addView(chargeStatus);
         final EditText d20=labeledField(form,"Primeiro d20 natural (1–20)","",false);
         final EditText longD20=labeledField(form,"Segundo d20 (vantagem ou desvantagem; 0 para normal)","0",false);
         final LinearLayout singleDamageBox=new LinearLayout(this);singleDamageBox.setOrientation(LinearLayout.VERTICAL);
@@ -3239,12 +3240,27 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         typedDamageBox.setVisibility(View.GONE);form.addView(typedDamageBox);
         final ArrayList<JSONObject> typedDamageSpecs=new ArrayList<JSONObject>();
         final ArrayList<EditText> typedDamageValues=new ArrayList<EditText>();
+        boolean initialCharge=refreshMonsterChargeStatus(actorId,targets.get(target.getSelectedItemPosition()).optLong("id"),
+            statblock,attackSourceNames.get(0),chargeStatus);
         configureMonsterAttackDamageFields(profile,attackSourceNames.get(0),singleDamageBox,typedDamageBox,
-            damage,typedDamageSpecs,typedDamageValues);
+            damage,typedDamageSpecs,typedDamageValues,initialCharge);
         action.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
             public void onItemSelected(AdapterView<?> parent,View view,int position,long rowId){
+                boolean qualified=refreshMonsterChargeStatus(actorId,
+                    targets.get(target.getSelectedItemPosition()).optLong("id"),statblock,
+                    attackSourceNames.get(position),chargeStatus);
                 configureMonsterAttackDamageFields(profile,attackSourceNames.get(position),
-                    singleDamageBox,typedDamageBox,damage,typedDamageSpecs,typedDamageValues);
+                    singleDamageBox,typedDamageBox,damage,typedDamageSpecs,typedDamageValues,qualified);
+            }
+            public void onNothingSelected(AdapterView<?> parent){}
+        });
+        target.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            public void onItemSelected(AdapterView<?> parent,View view,int position,long rowId){
+                int selectedAction=action.getSelectedItemPosition();
+                boolean qualified=refreshMonsterChargeStatus(actorId,targets.get(position).optLong("id"),
+                    statblock,attackSourceNames.get(selectedAction),chargeStatus);
+                configureMonsterAttackDamageFields(profile,attackSourceNames.get(selectedAction),
+                    singleDamageBox,typedDamageBox,damage,typedDamageSpecs,typedDamageValues,qualified);
             }
             public void onNothingSelected(AdapterView<?> parent){}
         });
@@ -3322,21 +3338,31 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void configureMonsterAttackDamageFields(JSONObject profile,String action,
         LinearLayout singleBox,LinearLayout typedBox,EditText aggregate,
         ArrayList<JSONObject> specs,ArrayList<EditText> values){
+        configureMonsterAttackDamageFields(profile,action,singleBox,typedBox,aggregate,specs,values,false);
+    }
+    private void configureMonsterAttackDamageFields(JSONObject profile,String action,
+        LinearLayout singleBox,LinearLayout typedBox,EditText aggregate,
+        ArrayList<JSONObject> specs,ArrayList<EditText> values,boolean chargeQualified){
         specs.clear();values.clear();typedBox.removeAllViews();
         JSONArray actions=profile==null?null:profile.optJSONArray("actions");JSONObject selected=null;
         for(int i=0;actions!=null&&i<actions.length();i++){
             JSONObject candidate=actions.optJSONObject(i);
             if(candidate!=null&&action.equalsIgnoreCase(candidate.optString("name",""))){selected=candidate;break;}
         }
+        String expression=selected==null?"":selected.optString("damage","");
+        String extra=selected==null?"":selected.optString("extra_damage","");
+        if(selected!=null&&chargeQualified&&!selected.optString("damage_alternative_expression","").isEmpty()){
+            expression=selected.optString("damage_alternative_expression");extra="";
+        }else if(selected!=null&&!chargeQualified){extra="";}
         JSONArray declared=selected==null?new JSONArray():StatblockCombatFlowEngine.damageSpecs(
-            selected.optString("damage",""),selected.optString("damage_type",""),
-            selected.optString("extra_damage",""));
+            expression,selected.optString("damage_type",""),extra,
+            selected.optString("extra_damage_type",selected.optString("damage_type","")));
         if(declared.length()>1){
             for(int i=0;i<declared.length();i++){
                 JSONObject spec=declared.optJSONObject(i);if(spec==null)continue;
                 try{specs.add(new JSONObject(spec.toString()));}catch(Exception ignored){specs.add(new JSONObject());}
-                String expression=spec.optString("expression","dano"),type=spec.optString("type","");
-                String label="Total rolado • "+expression+(type.isEmpty()?" • tipo não resolvido":" • "+type);
+                String componentExpression=spec.optString("expression","dano"),type=spec.optString("type","");
+                String label="Total rolado • "+componentExpression+(type.isEmpty()?" • tipo não resolvido":" • "+type);
                 typedBox.addView(text(label,12,GOLD,true));
                 EditText field=input(label,"0",false);field.setInputType(InputType.TYPE_CLASS_NUMBER);
                 typedBox.addView(field);values.add(field);
@@ -3346,6 +3372,28 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             singleBox.setVisibility(View.VISIBLE);typedBox.setVisibility(View.GONE);
             aggregate.setText("0");
         }
+    }
+
+    private boolean refreshMonsterChargeStatus(long actorId,long targetId,String statblock,String action,
+        TextView label){
+        JSONObject preview=db.previewXmmChargeAttack(actorId,targetId,statblock,action);
+        if(!preview.optBoolean("charge_preview_valid",false)){
+            label.setVisibility(View.GONE);return false;
+        }
+        JSONObject charge=preview.optJSONObject("charge");if(charge==null){label.setVisibility(View.GONE);return false;}
+        boolean qualified=charge.optBoolean("charge_qualified",false);
+        JSONObject sourceAction=null;JSONArray actions=CompiledStatblockEngine.runtimeProfile(statblock).optJSONArray("actions");
+        for(int i=0;actions!=null&&i<actions.length();i++){
+            JSONObject item=actions.optJSONObject(i);if(item!=null&&action.equalsIgnoreCase(item.optString("name",""))){sourceAction=item;break;}
+        }
+        String required=String.valueOf(charge.optInt("required_feet",0));
+        if(qualified){
+            String result="Investida validada: "+required+" pés em linha reta; efeito condicional habilitado.";
+            if(sourceAction!=null&&XmmChargeMovementRules.hasConditionalProne(sourceAction))
+                result+=charge.optBoolean("charge_prone_eligible",false)?" O alvo também pode ficar Caído.":" O alvo excede o limite de tamanho para Caído.";
+            label.setText(result);
+        }else label.setText("Investida não validada: o ataque normal continua disponível; dano condicional desativado.");
+        label.setVisibility(View.VISIBLE);return qualified;
     }
 
     /** RUN223: multiattack is offered only for an explicit machine-readable plan.

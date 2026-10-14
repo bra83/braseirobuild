@@ -47,6 +47,7 @@ public final class DndPtBrLocalizer {
         add("Faerie Dust", "Pó Feérico");
         add("Umbral Dagger", "Adaga Umbral");
         add("Avalanche Slam", "Golpe da Avalanche");
+        add("Talons", "Garras");
         add("Claws", "Garras");
         add("Claw", "Garra");
         add("Gore", "Chifrada");

@@ -17,7 +17,7 @@ public final class XmmPtBrActionLabelTest {
             {"Chaos Staff","Cajado do Caos"},{"Ravage","Devastar"},{"Hooves","Cascos"},
             {"Faerie Dust","Pó Feérico"},{"Reel","Puxar"},{"Tentacle","Tentáculo"},
             {"Umbral Dagger","Adaga Umbral"},{"Ram","Investida"},
-            {"Avalanche Slam","Golpe da Avalanche"},
+            {"Avalanche Slam","Golpe da Avalanche"},{"Talons","Garras"},
             {"Tusk (Boar or Hybrid Form Only)","Presa (Apenas Forma de Javali ou Híbrida)"}
         };
         for(String[] row:names)

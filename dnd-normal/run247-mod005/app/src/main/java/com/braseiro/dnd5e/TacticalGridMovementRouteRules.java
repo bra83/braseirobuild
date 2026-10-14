@@ -86,6 +86,30 @@ public final class TacticalGridMovementRouteRules {
         int sx=(int)Math.floor(normalizedX*width),sy=(int)Math.floor(normalizedY*height);
         if(sx==targetX&&sy==targetY)return fail("destination_is_origin");
         if(blocked[targetY][targetX])return fail("destination_occupied_or_blocked");
+        // When a requested horizontal or vertical corridor is clear, keep the
+        // selected route straight. Equal-cost Dijkstra ties otherwise favored
+        // a bent route, making source rules such as XMM charges impossible to
+        // execute even when the player selected an unobstructed straight path.
+        if(sx==targetX||sy==targetY){
+            int dx=Integer.compare(targetX,sx),dy=Integer.compare(targetY,sy);
+            int count=Math.max(Math.abs(targetX-sx),Math.abs(targetY-sy));
+            List<Cell> direct=new ArrayList<Cell>();direct.add(new Cell(sx,sy));
+            int directCost=0,directDifficult=0;boolean clear=true;
+            for(int step=1;step<=count;step++){
+                int x=sx+dx*step,y=sy+dy*step;
+                if(blocked[y][x]){clear=false;break;}
+                boolean difficult=gmDifficult||difficultCells[y][x];
+                if(difficult)directDifficult++;
+                directCost+=5*(1+(difficult?1:0)+(crawling?1:0));
+                direct.add(new Cell(x,y));
+            }
+            if(clear){
+                if(count>120||directCost>600)return fail("budget_exceeds_safe_limit");
+                return new Route("",signature(width,height,sx,sy,targetX,targetY,blocked,
+                    difficultCells,gmDifficult,crawling,direct),sx,sy,targetX,targetY,count,
+                    directCost,directDifficult,direct);
+            }
+        }
         int n=width*height,start=sy*width+sx,goal=targetY*width+targetX;
         int[] cost=new int[n],steps=new int[n],prev=new int[n];
         Arrays.fill(cost,Integer.MAX_VALUE);Arrays.fill(steps,Integer.MAX_VALUE);

@@ -155,3 +155,13 @@
 - O deslocamento por células agora persiste a rota comprometida com origem, destino, fingerprint, distância percorrida e custo; o recibo antigo da posição permanece inalterado. Caminhos com desvio continuam válidos para o movimento normal, mas o novo predicado de investida só aceita um percurso reto que aproxime do alvo e alcance a distância exigida.
 - O formato novo é restaurado com remapeamento de ID no backup. Três testes focados passaram (4 testes): regra pura de percurso, movimento E2E no SQLite e backup/restore com IDs remapeados.
 - Isto ainda não conecta o recibo ao executor do ataque; os 13 riders de investida e o Peryton / Gore permanecem manuais até essa integração e sua validação fonte→runtime→estado. Evidência: `docs/editorial-evidence/xmm-charge-path-local-20261014/`.
+
+
+### Executor de investidas por rota persistida (14/10/2026)
+
+- A integração de ataque direto agora consulta dentro da transação o último recibo válido do grid, exige rota reta na direção do alvo, no mesmo cenário e com o mínimo de pés do registro XMM. Um gasto de recurso ou limite de turno entre movimento e ataque remove o marcador; o ataque também o invalida ao gastar a ação.
+- 22 ataques de ação única com condição de movimento reconhecida passam pela integração, incluindo 13 ataques de dano adicional, alternativas de dano e ações condicionais de “caído”. Tipos repetidos são agregados para validar o total físico; tipos diferentes seguem em componentes separados. O limite de tamanho só suprime “caído”; o dano de uma investida qualificada permanece correto.
+- O “caído” condicional fica persistente até o alvo se levantar. Investidas dentro de multiataque continuam bloqueadas até a transação validar a rota por componente. A interface atualiza o estado de investida em PT-BR e só pede/aceita o dano condicional quando a prévia encontra uma rota qualificada; a transação repete a checagem.
+- O planejador agora prefere a faixa horizontal/vertical reta solicitada quando ela está livre; se a rota precisa desviar por obstáculo, o recibo é válido para movimento, mas não qualifica investida.
+- Oito classes de teste selecionadas (19 testes) passaram no Gradle local: regras puras da investida, 22 contratos de ação-fonte, ataque Robolectric de javali com dano/“caído”, ataque normal sem rider, regressões de “caído”, rota, movimento E2E e backup/restore. Isso não é a suíte completa, CI BRELGA, build APK nem fechamento da etapa. Evidência local: `docs/editorial-evidence/xmm-charge-path-attack-local-20261014/`.
+- Os campos-fonte continuam marcados `manual_rider_resolution_required` porque outras rotas de execução ainda não têm o mesmo contexto; o comparador de fonte e o fechamento XMM completo permanecem separados desta capacidade limitada.

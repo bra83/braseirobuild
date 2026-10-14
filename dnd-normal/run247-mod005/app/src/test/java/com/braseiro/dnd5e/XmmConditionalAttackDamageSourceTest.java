@@ -114,8 +114,21 @@ public final class XmmConditionalAttackDamageSourceTest {
             assertEquals(id+" conditional prone","prone",action.optString("extra_damage_condition_on_hit"));
             assertFalse(id+" prone cannot mean failed save/attack",action.has("condition_on_fail"));
             assertTrue(id+" must remain manual",action.optBoolean("manual_rider_resolution_required"));
-            JSONObject blocked=StatblockCombatRuntimeEngine.attack(id,actionName,20,1,20,40);
-            assertTrue(id+" movement gate fails closed: "+blocked,blocked.optBoolean("blocked"));
+            assertTrue(id+" may execute as an ordinary attack",
+                MonsterActionEconomyGuard.attackRiderBlock(action,id).isEmpty());
+            assertEquals(id+" remains unavailable as an unverified multiattack component",
+                "unsupported_multiattack_charge_rider",MonsterActionEconomyGuard.attackRiderBlock(action,false));
+            JSONObject ordinary=StatblockCombatRuntimeEngine.attack(id,actionName,20,1,20,40);
+            assertTrue(id+" ordinary attack: "+ordinary,ordinary.optBoolean("resolved"));
+            assertFalse(id+" cannot get conditional damage without proof",ordinary.optBoolean("charge_qualified"));
+            assertEquals(id+" conditional damage absent without proof","",
+                ordinary.optString("extra_damage_expression"));
+            JSONObject charged=StatblockCombatRuntimeEngine.attack(id,actionName,20,1,20,40,true);
+            assertTrue(id+" qualified charge branch: "+charged,charged.optBoolean("resolved"));
+            assertTrue(id+" charge marker",charged.optBoolean("charge_qualified"));
+            assertEquals(id+" extra damage only on qualified charge",row[4],charged.optString("extra_damage_expression"));
+            assertEquals(id+" prone only on qualified charge","prone",
+                charged.optString("rider_on_hit_condition"));
         }
         JSONObject perytonGore=findAction(CompiledStatblockEngine.runtimeProfile("Peryton"),"Gore");
         assertNotNull(perytonGore);
@@ -125,8 +138,14 @@ public final class XmmConditionalAttackDamageSourceTest {
             perytonGore.optString("extra_damage_condition"));
         assertFalse("source branch is additive, not an alternate base expression",
             perytonGore.has("damage_alternative_expression"));
-        assertTrue("movement history is not an executable combat input yet",
+        assertTrue("movement rider still uses source route validation",
             perytonGore.optBoolean("manual_rider_resolution_required"));
+        JSONObject ordinaryPeryton=StatblockCombatRuntimeEngine.attack("Peryton","Gore",20,1,20,40);
+        assertTrue(ordinaryPeryton.optBoolean("resolved"));
+        assertEquals("Peryton extra damage is suppressed without proof","",
+            ordinaryPeryton.optString("extra_damage_expression"));
+        JSONObject chargedPeryton=StatblockCombatRuntimeEngine.attack("Peryton","Gore",20,1,20,40,true);
+        assertEquals("2d8",chargedPeryton.optString("extra_damage_expression"));
         JSONObject mimicBite=findAction(CompiledStatblockEngine.runtimeProfile("Mimic"),"Bite");
         assertNotNull(mimicBite);
         assertEquals("1d8 + 3 + 1d8",mimicBite.optString("damage"));
@@ -135,9 +154,7 @@ public final class XmmConditionalAttackDamageSourceTest {
         assertTrue("alternate damage and advantage still require target/source grappling context",
             mimicBite.optBoolean("manual_rider_resolution_required"));
         String[][] manual={
-            {"Aarakocra Skirmisher","Talons"},{"Chimera","Bite"},
-            {"Giant Seahorse","Ram"},{"Goat","Ram"},{"Peryton","Gore"},
-            {"Mimic","Bite"}
+            {"Chimera","Bite"},{"Mimic","Bite"}
         };
         for(String[] row:manual){
             JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile(row[0]),row[1]);
@@ -150,6 +167,39 @@ public final class XmmConditionalAttackDamageSourceTest {
             assertEquals("manual_source_action_resolution_required",result.optString("reason"));
             assertFalse(result.has("damage_expression"));
         }
+        for(String[] row:new String[][]{{"Aarakocra Skirmisher","Talons"},
+            {"Giant Seahorse","Ram"},{"Goat","Ram"}}){
+            JSONObject ordinary=StatblockCombatRuntimeEngine.attack(row[0],row[1],20,1,20,40);
+            assertTrue(row[0]+" base branch: "+ordinary,ordinary.optBoolean("resolved"));
+            JSONObject charged=StatblockCombatRuntimeEngine.attack(row[0],row[1],20,1,20,40,true);
+            assertTrue(row[0]+" movement branch: "+charged,charged.optBoolean("resolved"));
+            assertTrue(charged.optBoolean("charge_qualified"));
+            String sourceAlternative=findAction(CompiledStatblockEngine.runtimeProfile(row[0]),row[1])
+                .optString("damage_alternative_expression");
+            assertEquals(sourceAlternative,charged.optString("damage_expression"));
+        }
+    }
+
+    @Test public void everyPinnedChargeActionHasTheTypedMovementGate(){
+        org.json.JSONArray names=Xmm2025CompiledBestiaryEngine.catalog().optJSONArray("names");
+        int supported=0;
+        for(int i=0;names!=null&&i<names.length();i++){
+            String id=names.optString(i);
+            org.json.JSONArray actions=CompiledStatblockEngine.runtimeProfile(id).optJSONArray("actions");
+            for(int j=0;actions!=null&&j<actions.length();j++){
+                JSONObject action=actions.optJSONObject(j);if(action==null)continue;
+                String movement=action.optString("extra_damage_condition",
+                    action.optString("conditional_condition",action.optString("damage_alternative_condition","")));
+                if(!movement.startsWith("moved_")||!movement.endsWith("_straight_toward_target_immediately_before_hit"))continue;
+                assertTrue(id+" / "+action.optString("name"),XmmChargeMovementRules.supported(action));
+                int feet=XmmChargeMovementRules.requiredFeet(action);
+                assertTrue(id+" / "+action.optString("name")+" threshold",feet==10||feet==20||feet==30);
+                assertEquals(id+" / "+action.optString("name")+" unavailable to multiattack",
+                    "unsupported_multiattack_charge_rider",MonsterActionEconomyGuard.attackRiderBlock(action,false));
+                supported++;
+            }
+        }
+        assertEquals("all source-pinned XMM charge actions",22,supported);
     }
 
     @Test public void unmodeledSourceRidersFailBeforeDamage(){

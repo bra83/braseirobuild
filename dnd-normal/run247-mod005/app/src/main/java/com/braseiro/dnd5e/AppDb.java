@@ -2126,6 +2126,8 @@ public class AppDb extends SQLiteOpenHelper {
             }});
         if(!plan.valid())throw new IllegalStateException("unsupported_on_hit_rider_rollback:"+plan.blocked);
         JSONObject declaredAction=compiledMonsterRiderAction(blockId,actionName);
+        boolean chargeProne=XmmChargeMovementRules.hasConditionalProne(declaredAction)&&
+            "prone".equals(declared);
         boolean grapple=Xmm2025GrappleEscapeRules.validSource(blockId,declaredAction);
         if(grapple){
             String size=verifiedCombatantSizeCategory(target);
@@ -2136,12 +2138,14 @@ public class AppDb extends SQLiteOpenHelper {
                     .put("conditions_before",plan.before).put("conditions_after",plan.before)
                     .put("applied",new JSONArray()).put("duration_rounds",0);
         }
-        boolean standsUp=MonsterOnHitProneRules.validSource(declaredAction);
+        boolean standsUp=MonsterOnHitProneRules.validSource(declaredAction)||chargeProne;
         if(standsUp){
             String size=verifiedCombatantSizeCategory(target);
-            if(!MonsterOnHitProneRules.targetBlock(declaredAction,size).isEmpty())
+            if(!MonsterOnHitProneRules.validSize(size))
                 throw new IllegalStateException("on_hit_target_size_unknown_rollback");
-            if(!MonsterOnHitProneRules.eligible(declaredAction,size)){
+            boolean eligible=chargeProne?XmmChargeMovementRules.proneEligible(declaredAction,size):
+                MonsterOnHitProneRules.eligible(declaredAction,size);
+            if(!eligible){
                 return new JSONObject().put("schema","monster_condition_rider_v2")
                     .put("target_id",targetId).put("size_ineligible",true)
                     .put("conditions_before",plan.before).put("conditions_after",plan.before)
@@ -2150,6 +2154,20 @@ public class AppDb extends SQLiteOpenHelper {
         }
         if(!plan.alreadyPresent.isEmpty()&&!standsUp)
             throw new IllegalStateException("on_hit_condition_ownership_ambiguous_rollback");
+        if(chargeProne){
+            if(!plan.applied.isEmpty())updateConditionsChecked(targetId,plan.after);
+            JSONArray applied=new JSONArray(),immune=new JSONArray(),already=new JSONArray();
+            for(String c:plan.applied)applied.put(c);
+            for(String c:plan.immune)immune.put(c);
+            for(String c:plan.alreadyPresent)already.put(c);
+            return new JSONObject().put("schema","monster_condition_rider_v2")
+                .put("target_id",targetId).put("conditions_before",plan.before)
+                .put("conditions_after",plan.after).put("applied",applied)
+                .put("immune",immune).put("already_present",already)
+                .put("until","stands_up").put("duration_rounds",0)
+                .put("condition_timers_before",new JSONArray(target.optString("condition_timers_json","[]")))
+                .put("condition_timers_after",new JSONArray(target.optString("condition_timers_json","[]")));
+        }
         if(!plan.applied.isEmpty()){
             JSONObject transition=commitCompiledMonsterConditionRider(sourceActorId,targetId,blockId,
                 actionName,receiptToken,declared);
@@ -2216,6 +2234,8 @@ public class AppDb extends SQLiteOpenHelper {
             }});
         if(!plan.valid())return "unsupported_on_hit_rider:"+plan.blocked;
         JSONObject sourceAction=compiledMonsterRiderAction(blockId,actionName);
+        boolean chargeProne=XmmChargeMovementRules.hasConditionalProne(sourceAction)&&
+            "prone".equals(declared);
         boolean grapple=Xmm2025GrappleEscapeRules.validSource(blockId,sourceAction);
         if(ConditionTokenGuard.has(sourceAction.optString("condition_on_hit",""),"grappled")){
             if(!grapple)return "unsupported_grapple_escape_rider";
@@ -2232,11 +2252,14 @@ public class AppDb extends SQLiteOpenHelper {
             String proneBlock=MonsterOnHitProneRules.targetBlock(sourceAction,targetSize);
             if(!proneBlock.isEmpty())return proneBlock;
         }
-        boolean standsUp=MonsterOnHitProneRules.validSource(sourceAction);
+        boolean standsUp=MonsterOnHitProneRules.validSource(sourceAction)||chargeProne;
         if(!plan.alreadyPresent.isEmpty()&&!standsUp)return "on_hit_condition_ownership_ambiguous";
-        if(standsUp&&!MonsterOnHitProneRules.eligible(sourceAction,
-            verifiedCombatantSizeCategory(target)))return ""; // attack hits; no prone for larger targets
+        String targetSize=verifiedCombatantSizeCategory(target);
+        if(chargeProne&&!MonsterOnHitProneRules.validSize(targetSize))return "target_size_not_verified";
+        if(standsUp&&!(chargeProne?XmmChargeMovementRules.proneEligible(sourceAction,targetSize):
+            MonsterOnHitProneRules.eligible(sourceAction,targetSize)))return ""; // hit resolves; size cap blocks only prone
         if(plan.applied.isEmpty()||!plan.alreadyPresent.isEmpty())return "";
+        if(chargeProne)return ""; // persistent Prone ends only when the target stands
         try{
             MonsterConditionTimerLedger.stage(target.optString("condition_timers_json","[]"),
                 plan,MonsterConditionTimerLedger.compiledDuration(sourceAction),sourceActorId,
@@ -2739,7 +2762,7 @@ public class AppDb extends SQLiteOpenHelper {
         try{
             JSONArray expected=StatblockCombatFlowEngine.damageSpecs(
                 attack.optString("damage_expression",""),attack.optString("damage_type",""),
-                attack.optString("extra_damage_expression",""));
+                attack.optString("extra_damage_expression",""),attack.optString("extra_damage_type",""));
             if(supplied==null||supplied.length()!=expected.length())
                 return out.put("damage_blocked","typed_damage_component_count_mismatch");
             String resistances=target.optString("resistances",""),
@@ -2856,10 +2879,19 @@ public class AppDb extends SQLiteOpenHelper {
             String rollBlock=context.blockDice(natural,secondNatural);
             if(!rollBlock.isEmpty())return out.put("statblock_attack_blocked",rollBlock);
             final int effectiveNatural=context.effective(natural,secondNatural);
+            JSONObject chargeQualification=xmmChargeMovementQualification(actorId,targetId,sourceAction);
+            boolean chargeQualified=chargeQualification.optBoolean("charge_qualified",false);
             JSONObject resolved=StatblockCombatRuntimeEngine.attack(id,action,effectiveNatural,
                  geometry.optInt("effective_ac",effectiveCombatantAc(targetId)),
-                 actor.optInt("hp",-1),actor.optInt("max_hp",-1));
+                 actor.optInt("hp",-1),actor.optInt("max_hp",-1),chargeQualified);
             if(!resolved.optBoolean("resolved",false))return out.put("statblock_attack_blocked",resolved.optString("reason","statblock_attack_unresolved"));
+            if(chargeQualification.optBoolean("charge_supported",false)){
+                if(resolved.optBoolean("hit",false)&&resolved.optBoolean("charge_qualified",false)&&
+                    XmmChargeMovementRules.hasConditionalProne(sourceAction)&&
+                    !chargeQualification.optBoolean("charge_prone_eligible",false))
+                    resolved.put("rider_on_hit_condition","");
+                resolved.put("charge_movement",chargeQualification);
+            }
             if(context.criticalOnHit&&resolved.optBoolean("hit",false))
                 resolved.put("critical",true).put("critical_by_condition",true);
             resolved.put("roll_mode",context.modeName()).put("roll_advantage",context.advantage)
@@ -2876,7 +2908,8 @@ public class AppDb extends SQLiteOpenHelper {
                 if(damageComponents==null){
                     JSONArray specs=StatblockCombatFlowEngine.damageSpecs(
                         resolved.optString("damage_expression",""),resolved.optString("damage_type",""),
-                        resolved.optString("extra_damage_expression",""));
+                        resolved.optString("extra_damage_expression",""),
+                        resolved.optString("extra_damage_type",""));
                     if(specs.length()>1)return out.put("statblock_attack_blocked",
                         "typed_damage_components_required");
                     if(specs.length()==1&&!DamageTypeNormalizer.known(specs.optJSONObject(0)
@@ -2944,7 +2977,7 @@ public class AppDb extends SQLiteOpenHelper {
             if(spentByAction==null)spentByAction=new JSONObject();
             if(!recharge.isEmpty()&&MonsterRechargeLedgerCodec.spent(spentByAction,action))
                 return out.put("statblock_attack_blocked","recharge_required").put("recharge",recharge);
-            String onHitCondition=sourceAction.optString("condition_on_hit","").trim();
+            String onHitCondition=resolved.optString("rider_on_hit_condition","").trim();
             if(resolved.optBoolean("hit",false)&&!onHitCondition.isEmpty()){
                 String ownershipBlock=compiledMonsterOnHitConditionBlock(actorId,targetId,id,
                     action,token,onHitCondition);
@@ -2980,10 +3013,12 @@ public class AppDb extends SQLiteOpenHelper {
                 }
             }
             if(resolved.optBoolean("hit",false)&&!onHitCondition.isEmpty()){
-                if(!onHitCondition.equals(resolved.optString("rider_on_hit_condition",""))||
-                    sourceAction.optInt("condition_duration_rounds",0)!=resolved.optInt("rider_on_hit_duration_rounds",0)||
+                boolean chargeProne=chargeQualified&&XmmChargeMovementRules.hasConditionalProne(sourceAction)&&
+                    "prone".equals(onHitCondition);
+                if((!onHitCondition.equals(sourceAction.optString("condition_on_hit","").trim())&&!chargeProne)||
+                    (!chargeProne&&(sourceAction.optInt("condition_duration_rounds",0)!=resolved.optInt("rider_on_hit_duration_rounds",0)||
                     !sourceAction.optString("condition_duration_tick","").equals(
-                        resolved.optString("rider_on_hit_duration_tick","")))
+                        resolved.optString("rider_on_hit_duration_tick","")))))
                     throw new IllegalStateException("compiled_on_hit_effect_source_changed_rollback");
                 JSONObject transition=commitCompiledMonsterOnHitCondition(actorId,targetId,id,
                     action,token,onHitCondition);
@@ -4333,6 +4368,55 @@ public class AppDb extends SQLiteOpenHelper {
                 .put("path_marker_applied_at",marker.optLong("applied_at"));
         }catch(Exception invalid){
             try{return out.put("grid_path_blocked","movement_path_proof_unavailable");}
+            catch(Exception ignored){return out;}
+        }
+    }
+    private JSONObject xmmChargeMovementQualification(long actorId,long targetId,JSONObject action){
+        JSONObject out=new JSONObject();
+        try{
+            if(!XmmChargeMovementRules.supported(action))return out.put("charge_supported",false);
+            JSONObject marker=latestTacticalGridMovementProof(actorId);
+            JSONObject targetPosition=tacticalGridPosition(targetId);
+            if(marker.optBoolean("grid_path_valid",false)&&!targetPosition.has("grid_blocked")){
+                JSONObject proof=marker.optJSONObject("proof");
+                boolean route=XmmChargeMovementRules.qualifies(action,proof,actorId,
+                    targetPosition.optString("scene_key",""),targetPosition.optInt("cell_x",-1),
+                    targetPosition.optInt("cell_y",-1));
+                String targetSize=verifiedCombatantSizeCategory(getCombatant(targetId));
+                boolean prone=route&&XmmChargeMovementRules.proneEligible(action,targetSize);
+                return out.put("charge_supported",true).put("charge_qualified",route)
+                    .put("charge_prone_eligible",prone).put("required_feet",
+                        XmmChargeMovementRules.requiredFeet(action)).put("target_size",targetSize)
+                    .put("movement_proof",proof).put("charge_reason",route?"qualified":
+                        "route_did_not_qualify");
+            }
+            return out.put("charge_supported",true).put("charge_qualified",false)
+                .put("charge_prone_eligible",false).put("required_feet",
+                    XmmChargeMovementRules.requiredFeet(action)).put("charge_reason",
+                    marker.optString("grid_path_blocked",targetPosition.optString("grid_blocked",
+                        "movement_proof_unavailable")));
+        }catch(Exception invalid){
+            try{return out.put("charge_supported",XmmChargeMovementRules.supported(action))
+                .put("charge_qualified",false).put("charge_prone_eligible",false)
+                .put("charge_reason","movement_proof_unavailable");}
+            catch(Exception ignored){return out;}
+        }
+    }
+    public JSONObject previewXmmChargeAttack(long actorId,long targetId,String statblockId,String action){
+        JSONObject out=new JSONObject();
+        try{
+            JSONObject actor=getCombatant(actorId),target=getCombatant(targetId);
+            if(actor.length()==0||target.length()==0||actor.optInt("is_player",0)==1)
+                return out.put("charge_preview_valid",false).put("charge_reason","invalid_combatants");
+            String id=combatResources(actor).optString("block_id","");
+            if(!CompiledMonsterActionGuard.statblockBlock(id,statblockId).isEmpty())
+                return out.put("charge_preview_valid",false).put("charge_reason","statblock_mismatch");
+            JSONObject source=compiledMonsterRiderAction(id,action);
+            JSONObject result=xmmChargeMovementQualification(actorId,targetId,source);
+            return out.put("charge_preview_valid",result.optBoolean("charge_supported",false))
+                .put("charge",result).put("statblock_id",id).put("action",action);
+        }catch(Exception invalid){
+            try{return out.put("charge_preview_valid",false).put("charge_reason","charge_preview_unavailable");}
             catch(Exception ignored){return out;}
         }
     }
