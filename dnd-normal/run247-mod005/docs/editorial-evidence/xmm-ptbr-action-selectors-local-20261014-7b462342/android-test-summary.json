@@ -1,0 +1,12 @@
+{
+  "command": "bash gradlew --rerun-tasks :app:testDebugUnitTest",
+  "code_commit": "7b462342e7058e5b7b763739bbde135303a08c43",
+  "xml_count": 106,
+  "tests": 2517,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "result": "PASS",
+  "apk_built": false,
+  "device_install_validation": false
+}

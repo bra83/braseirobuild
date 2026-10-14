@@ -1,0 +1,8 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools -p 'test_*.py'",
+  "code_commit": "7b462342e7058e5b7b763739bbde135303a08c43",
+  "tests": 65,
+  "failures": 0,
+  "errors": 0,
+  "result": "PASS"
+}

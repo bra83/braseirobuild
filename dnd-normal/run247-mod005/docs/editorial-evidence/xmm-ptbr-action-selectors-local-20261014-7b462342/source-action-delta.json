@@ -1,0 +1,7 @@
+{
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "scope": "Monster saving-throw and recharge selectors display DndPtBrLocalizer labels but submit the parallel original source action name to AppDb. Existing attack selectors already preserve their source-name list.",
+  "new_pt_br_action_terms": 27,
+  "translations_csv": "ptbr-action-labels.csv",
+  "review_boundary": "This test covers the listed action-name mappings and selection ID wiring. It does not certify that every XMM action name or all application content has been translated."
+}

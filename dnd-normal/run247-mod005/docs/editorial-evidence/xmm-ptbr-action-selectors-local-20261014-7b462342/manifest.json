@@ -1,0 +1,33 @@
+{
+  "format": "BRASEIRO_XMM_PTBR_ACTION_SELECTORS_EVIDENCE_V1",
+  "code_commit": "7b462342e7058e5b7b763739bbde135303a08c43",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "created_utc": "2026-10-14",
+  "scope": "Show localized PT-BR action names in monster save and recharge selectors while keeping original source action IDs in commands.",
+  "artifacts": {
+    "android-test-results.zip": {
+      "sha256": "98de48ea236a5da50d645daac9e177c711d716e5c00d4fa4abd4198fbb6a09b7",
+      "bytes": 90041
+    },
+    "android-test-summary.json": {
+      "sha256": "9aeeca16a3dbd69d0e2d2e59004af4853a9a6ca2c8cd84d7f13da50ca3549894",
+      "bytes": 295
+    },
+    "ptbr-action-labels.csv": {
+      "sha256": "df52729b91186175974bb86f5d628c08e832e08be19ae5b8cd4cff9a75a68415",
+      "bytes": 653
+    },
+    "python-test-summary.json": {
+      "sha256": "743e53f121a01bd5ee31af5103b0054fc4f2b25344707a78c4c767384debc98c",
+      "bytes": 226
+    },
+    "source-action-delta.json": {
+      "sha256": "a7ea82a3139626716e1ce5180389d59a631e25ccb77ffc3d441fde76d7e60139",
+      "bytes": 558
+    },
+    "xmm-source-comparison.json": {
+      "sha256": "86ac022f314c8e543aa1bb3aa362d1b74b9b8e8956a89250a0cc55098917fa0c",
+      "bytes": 993
+    }
+  }
+}

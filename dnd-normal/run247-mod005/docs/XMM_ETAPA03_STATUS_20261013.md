@@ -143,3 +143,9 @@
 
 - O comparador agora exige suporte explícito na ação fonte para todo `save_dc` e `condition_on_fail`; reconhece salvaguardas de magia (“spell save”) além da sintaxe normal. O CD mágico do Succubus / Charm é preservado como válido.
 - No commit de ferramenta `0abce0c14eec979bf676cb38df5f184d7606c614`, 65 testes Python e a comparação XMM (503 criaturas, 36 seções) passaram. Os arquivos Android não mudaram desde a suíte de 2.516 testes em `e29cf401`; não houve nova execução Android neste commit. Evidência: `docs/editorial-evidence/xmm-save-dc-gate-local-20261014-0abce0c1/`.
+
+
+### Interface dos seletores de ações de monstro em PT-BR (14/10/2026)
+
+- No commit `7b462342e7058e5b7b763739bbde135303a08c43`, os seletores de ações com salvaguarda e recarga mostram nomes localizados, mas persistem/encaminham os identificadores fonte em inglês ao motor. Foram adicionados 27 termos e um teste de rótulos.
+- Suíte local: 2.517 testes em 106 XMLs, sem falhas/erros/ignorados; Python 65/65 e comparador XMM 503/503, 36 seções. Isto melhora telas cobertas e não conclui a revisão da tradução inteira. Evidência em `docs/editorial-evidence/xmm-ptbr-action-selectors-local-20261014-7b462342/`.
