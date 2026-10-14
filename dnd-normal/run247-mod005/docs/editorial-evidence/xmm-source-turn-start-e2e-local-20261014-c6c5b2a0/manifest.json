@@ -1,0 +1,33 @@
+{
+  "format": "BRASEIRO_LOCAL_XMM_SOURCE_TURN_START_E2E_V1",
+  "code_commit": "c6c5b2a0109aa3673cabc3e609069d515e86ad20",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "created_utc": "2026-10-14",
+  "scope": "14 XMM source-turn-start hit-condition combat-state E2E cases; no APK or device certification; XMM remains open.",
+  "artifacts": {
+    "android-test-results.zip": {
+      "sha256": "d9c52e0b245825066e8335902452247323c72800b82ebdf1f5a70903dd07de83",
+      "bytes": 89561
+    },
+    "android-test-summary.json": {
+      "sha256": "065cf05817794ff32ef9da4be7fd72da7398038b0d25dec946a4ae4378629fb8",
+      "bytes": 343
+    },
+    "python-test-summary.json": {
+      "sha256": "0d38b14b6e908ae677e6291b5719d583dd968b1e20363c7c3f3a4b011cee185b",
+      "bytes": 200
+    },
+    "source-action-e2e.json": {
+      "sha256": "c8b96ca8045ca3a1b96de97175723f1358baa3ab33e789b8dc2023e2617d5681",
+      "bytes": 3808
+    },
+    "source-executor-status.csv": {
+      "sha256": "eeb74001c40e20a54f742db0bef094de1dd180581feeab17ed3cb46f735f07c1",
+      "bytes": 2538
+    },
+    "xmm-source-comparison.json": {
+      "sha256": "57d593c871aa1249fdf5a14ce37aab6adc61e22c552703251350b7b80357b7d4",
+      "bytes": 992
+    }
+  }
+}

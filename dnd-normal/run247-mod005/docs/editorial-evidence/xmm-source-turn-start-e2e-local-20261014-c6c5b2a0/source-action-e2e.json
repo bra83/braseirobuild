@@ -1,0 +1,121 @@
+{
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "actions": [
+    {
+      "creature": "Assassin",
+      "action": "Shortsword",
+      "condition": "poisoned",
+      "runtime_expiry": "source_turn_start",
+      "source_page": 22,
+      "source_pointer": "/monster/40/action/1"
+    },
+    {
+      "creature": "Giant Centipede",
+      "action": "Bite",
+      "condition": "poisoned",
+      "runtime_expiry": "source_turn_start",
+      "source_page": 355,
+      "source_pointer": "/monster/175/action/0"
+    },
+    {
+      "creature": "Centaur Warden",
+      "action": "Sun Ray",
+      "condition": "blinded",
+      "runtime_expiry": "source_turn_start",
+      "source_page": 67,
+      "source_pointer": "/monster/90/action/2"
+    },
+    {
+      "creature": "Ettercap",
+      "action": "Bite",
+      "condition": "poisoned",
+      "runtime_expiry": "source_turn_start",
+      "source_page": 115,
+      "source_pointer": "/monster/147/action/1"
+    },
+    {
+      "creature": "Githyanki Dracomancer",
+      "action": "Draconic Strike",
+      "condition": "frightened",
+      "runtime_expiry": "source_turn_start",
+      "source_page": 135,
+      "source_pointer": "/monster/201/action/1"
+    },
+    {
+      "creature": "Gnoll Fang of Yeenoghu",
+      "action": "Bite",
+      "condition": "poisoned",
+      "runtime_expiry": "source_turn_start",
+      "source_page": 141,
+      "source_pointer": "/monster/210/action/1"
+    },
+    {
+      "creature": "Lich",
+      "action": "Paralyzing Touch",
+      "condition": "paralyzed",
+      "runtime_expiry": "source_turn_start",
+      "source_page": 196,
+      "source_pointer": "/monster/278/action/2"
+    },
+    {
+      "creature": "Noble Prodigy",
+      "action": "Beguiling Strike",
+      "condition": "charmed",
+      "runtime_expiry": "source_turn_start",
+      "source_page": 227,
+      "source_pointer": "/monster/322/action/1"
+    },
+    {
+      "creature": "Oni",
+      "action": "Nightmare Ray",
+      "condition": "frightened",
+      "runtime_expiry": "source_turn_start",
+      "source_page": 232,
+      "source_pointer": "/monster/330/action/2"
+    },
+    {
+      "creature": "Quasit",
+      "action": "Rend",
+      "condition": "poisoned",
+      "runtime_expiry": "source_turn_start",
+      "source_page": 252,
+      "source_pointer": "/monster/363/action/0"
+    },
+    {
+      "creature": "Satyr Revelmaster",
+      "action": "Prance",
+      "condition": "charmed",
+      "runtime_expiry": "source_turn_start",
+      "source_page": 268,
+      "source_pointer": "/monster/386/action/1"
+    },
+    {
+      "creature": "Sprite",
+      "action": "Enchanting Bow",
+      "condition": "charmed",
+      "runtime_expiry": "source_turn_start",
+      "source_page": 298,
+      "source_pointer": "/monster/413/action/1"
+    },
+    {
+      "creature": "Vampire Umbral Lord",
+      "action": "Sickening Ray",
+      "condition": "poisoned",
+      "runtime_expiry": "source_turn_start",
+      "source_page": 318,
+      "source_pointer": "/monster/454/action/2"
+    },
+    {
+      "creature": "Wyvern",
+      "action": "Sting",
+      "condition": "poisoned",
+      "runtime_expiry": "source_turn_start",
+      "source_page": 337,
+      "source_pointer": "/monster/482/action/2"
+    }
+  ],
+  "runtime_proof": "Apply each compiled attack in AppDb combat, persist the condition and typed timer, advance turns until the source actor begins its next turn, verify condition and timer removal. Typed damage inputs are within each source expression range.",
+  "boundaries": "This proves these single on-hit conditions and expirations only. It does not certify full statblocks, additional action effects, licensed-PDF fidelity, or all XMM combat.",
+  "licensed_pdf_validation": "pending"
+}
