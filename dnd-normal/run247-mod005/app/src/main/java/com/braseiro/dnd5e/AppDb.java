@@ -1096,6 +1096,22 @@ public class AppDb extends SQLiteOpenHelper {
             final String notes, final String controlMode) {
         return characterAtomic("character_sheet_save", new CharacterAtomicWork() { public JSONObject run() throws Exception {
             JSONObject candidate = sheet == null ? new JSONObject() : new JSONObject(sheet.toString());
+            // Persist the edition before creating resources. An empty SQL value
+            // overrides optString's fallback and otherwise silently selects 2014.
+            // Editing a legacy hero without an edition must retain its own rules.
+            String source = candidate.optString("rules_source", "").trim();
+            if (source.isEmpty() && edit) {
+                JSONObject existing = getCharacter(existingId);
+                source = existing.optString("rules_source", "").trim();
+                if (source.isEmpty()) {
+                    JSONObject stored = readCharacterSheet(existing);
+                    source = stored.optString("rules_source", "").trim();
+                    if (source.isEmpty()) source = stored.optString("rules_profile", "").trim();
+                }
+                if (source.isEmpty()) source = DndRulesEngine.PROFILE_2014;
+            }
+            if (source.isEmpty()) source = dbRulesProfileFallback();
+            candidate.put("rules_source", source);
             boolean multiclass = getCampaign().optInt("multiclass", 1) == 1;
             JSONObject gate = CharacterMulticlassRules.validate(candidate, multiclass);
             if (!gate.optBoolean("valid", false))
