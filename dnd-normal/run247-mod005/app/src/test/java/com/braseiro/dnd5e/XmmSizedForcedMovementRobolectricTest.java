@@ -49,7 +49,10 @@ public final class XmmSizedForcedMovementRobolectricTest {
             }
             db.setCombatRunning(true);
             assertEquals(actor,db.nextTurn().optLong("id"));
-            new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();
+            JSONObject scene=new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();
+            ContentValues open=new ContentValues();open.put("obstacles_json","[]");
+            assertEquals(1,db.getWritableDatabase().update("tactical_scenes",open,
+                "world_profile=? AND scene_key=?",new String[]{"dnd",scene.optString("scene_key")}));
             db.ensureTacticalTokensForCombat();position(db,actor,actorX,2);position(db,target,targetX,2);
             org.json.JSONArray typedDamage=null;
             {
@@ -118,5 +121,12 @@ public final class XmmSizedForcedMovementRobolectricTest {
         runCase("Balor","Flame Whip","Merrow",2,6,4,20,true,false,"balor-pull-prone");
         runCase("Balor","Flame Whip","Colossus",2,4,-1,20,false,false,"balor-size-cap");
         runCase("Shambling Mound","Charged Tendril","Satyr",3,5,4,7,true,false,"shambling-mound-pull");
+    }
+
+    @Test public void hookHorrorChoosesTowardOrAwayAndHonorsItsLargeTargetLimit()throws Exception{
+        assertEquals(503,Xmm2025CompiledBestiaryEngine.install().optInt("statblocks_installed"));
+        runCase("Hook Horror","Hook","Satyr",2,4,3,6,true,false,"hook-horror-toward");
+        runCase("Hook Horror","Hook","Satyr",2,4,5,6,true,false,"hook-horror-away");
+        runCase("Hook Horror","Hook","Colossus",2,4,-1,6,false,false,"hook-horror-size-cap");
     }
 }

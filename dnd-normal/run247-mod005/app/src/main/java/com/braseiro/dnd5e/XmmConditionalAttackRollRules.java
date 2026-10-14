@@ -16,16 +16,25 @@ public final class XmmConditionalAttackRollRules {
     }
     public static Result advantage(JSONObject action,int targetHp,int targetMaxHp,
         Boolean targetGrappledByAttacker){
+        return advantage(action,targetHp,targetMaxHp,targetGrappledByAttacker,null);
+    }
+    /** Use only with the encounter's live round; no default round is inferred. */
+    public static Result advantage(JSONObject action,int targetHp,int targetMaxHp,
+        Boolean targetGrappledByAttacker,Boolean firstCombatRound){
         if(action==null)return new Result("",false);
         boolean wounded=action.optBoolean("attack_advantage_if_target_missing_hit_points",false);
         boolean grappled=action.optBoolean("attack_advantage_if_target_grappled_by_attacker",false)||
             "target_grappled_by_attacker".equals(action.optString("attack_advantage_condition",""));
-        if(!wounded&&!grappled)return new Result("",false);
+        boolean firstRound=action.optBoolean("attack_advantage_during_first_combat_round",false);
+        if(firstRound&&firstCombatRound==null)
+            return new Result("source_advantage_combat_round_unverified",false);
+        if(!wounded&&!grappled&&!firstRound)return new Result("",false);
         if(wounded&&(targetMaxHp<=0||targetHp<0||targetHp>targetMaxHp))
             return new Result("source_advantage_target_hit_points_unverified",false);
         if(grappled&&targetGrappledByAttacker==null)
             return new Result("source_advantage_grapple_link_unverified",false);
         return new Result("",(wounded&&targetHp<targetMaxHp)||
-            (grappled&&Boolean.TRUE.equals(targetGrappledByAttacker)));
+            (grappled&&Boolean.TRUE.equals(targetGrappledByAttacker))||
+            (firstRound&&Boolean.TRUE.equals(firstCombatRound)));
     }
 }

@@ -169,14 +169,14 @@ public final class XmmProneEffectRobolectricTest {
         AppDb db=new AppDb(context,dbName);
         try {
             db.setActiveMapProfile("dnd");
-            long actor=db.addCombatant("XMM Mimic",20,58,58,12,"",false);
+            long actor=db.addCombatant("XMM Berserker Commander",20,90,90,12,"",false);
             long target=db.addCombatant("XMM Manual Target",10,40,40,12,"",true);
-            bind(db,actor,"Mimic",null);
+            bind(db,actor,"Berserker Commander",null);
             db.setCombatRunning(true);assertEquals(actor,db.nextTurn().optLong("id"));
             new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
             position(db,actor,2,2);position(db,target,3,2);
             JSONObject beforeActor=db.getCombatant(actor),beforeTarget=db.getCombatant(target);
-            JSONObject result=db.applyCompiledStatblockAttack(actor,target,"Mimic","Bite",
+            JSONObject result=db.applyCompiledStatblockAttack(actor,target,"Berserker Commander","Greataxe",
                 20,0,5,0,"ui-monster-xmm-manual-conditional-block");
             assertEquals("manual_source_action_resolution_required",
                 result.optString("statblock_attack_blocked"));

@@ -39,10 +39,28 @@ SOURCE_TURN_START_HIT_CONDITIONS={
 SOURCE_TURN_END_HIT_CONDITIONS={
     ("Couatl","Bite"): ("poisoned","until the end of the couatl's next turn"),
 }
+SOURCE_TURN_START_SAVE_CONDITIONS={
+    ("Aberrant Cultist","Mind Rot"): ("poisoned","wis",15,"6d8","psychic",90,
+        "until the start of the cultist's next turn"),
+    ("Guardian Naga","Poisonous Spittle"): ("blinded","con",16,"7d8","poison",60,
+        "until the start of the naga's next turn"),
+    ("Pirate","Enthralling Panache"): ("charmed","wis",12,"", "",30,
+        "until the start of the pirate's next turn"),
+}
+SOURCE_CONDITION_RECOVERY_ACTIONS={
+    ("Myconid Sovereign","Pacifying Spores"): ("stunned","con",12,10,10,()),
+    ("Myconid Adult","Pacifying Spores (1/Day)"): ("stunned","con",11,10,10,()),
+    ("Quasit","Scare (1/Day)"): ("frightened","wis",10,20,10,()),
+    ("Carrion Crawler","Paralyzing Tentacles"): ("poisoned","con",12,10,10,("paralyzed",)),
+    ("Doppelganger","Unsettling Visage"): ("frightened","wis",12,15,10,()),
+    ("Modron Pentadrone","Paralysis Gas"): ("paralyzed","con",11,30,10,()),
+    ("Graveyard Revenant","Haunting Glare"): ("paralyzed","wis",15,30,10,()),
+}
 SOURCE_SECONDARY_ATTACK_DAMAGE={
     ("Half-Dragon","Claw"),("Vine Blight","Constricting Vine"),
 }
 ADVANTAGE_BONUS_ATTACK_DAMAGE={
+    ("Chimera","Bite"): ("2d6 + 4",11,7,"2d6","piercing",7,"m",5,0,0),
     ("Goblin Boss","Scimitar"): ("1d6 + 2",5,2,"1d4","slashing",4,"m",5,0,0),
     ("Goblin Boss","Shortbow"): ("1d6 + 2",5,2,"1d4","piercing",4,"r",0,80,320),
     ("Goblin Warrior","Scimitar"): ("1d6 + 2",5,2,"1d4","slashing",4,"m",5,0,0),
@@ -59,6 +77,53 @@ WOUNDED_TARGET_ADVANTAGE_ATTACKS={
 GRAPPLED_TARGET_ADVANTAGE_ATTACKS={
     ("Ankheg","Bite"): (5,"2d6 + 3 + 1d6","slashing + acid"),
     ("Bugbear Warrior","Light Hammer"): (4,"3d4 + 2","bludgeoning"),
+    ("Bugbear Stalker","Morningstar"): (5,"2d8 + 3","piercing"),
+    ("Mimic","Bite"): (5,"1d8 + 3 + 1d8","piercing + acid"),
+}
+GRAPPLE_ESCAPE_DISADVANTAGE_ACTIONS={("Mimic","Pseudopod")}
+GRAPPLE_LINKED_RESTRAINT_ACTIONS={("Aberrant Cultist","Tentacle Lash"),("Chain Devil","Chain"),
+    ("Crocodile","Bite"),("Giant Octopus","Tentacles"),("Mezzoloth","Claws"),
+    ("Purple Worm","Bite"),("Remorhaz","Bite"),("Roc","Talons"),("Water Weird","Surge"),
+    ("Giant Crocodile","Bite"),("Kraken","Tentacle"),("Tyrannosaurus Rex","Bite"),
+    ("Behir","Constrict"),("Couatl","Constrict"),("Marilith","Constrict"),
+    ("Salamander","Constrict"),("Yuan-ti Abomination","Constrict"),
+    ("Yuan-ti Malison (Type 3)","Constrict")}
+XMM_SAVE_LINKED_RESTRAINT_ACTIONS={("Behir","Constrict"),("Couatl","Constrict"),
+    ("Marilith","Constrict"),("Salamander","Constrict"),
+    ("Yuan-ti Abomination","Constrict"),("Yuan-ti Malison (Type 3)","Constrict")}
+XMM_GRAPPLE_LINKED_CONTRACT_SIZES={
+    ("Aberrant Cultist","Tentacle Lash"):"large",("Chain Devil","Chain"):"large",
+    ("Crocodile","Bite"):"medium",
+    ("Giant Octopus","Tentacles"):"medium",("Mezzoloth","Claws"):"large",
+    ("Purple Worm","Bite"):"large",("Remorhaz","Bite"):"large",
+    ("Roc","Talons"):"huge",("Water Weird","Surge"):"medium",
+    ("Behir","Constrict"):"large",("Couatl","Constrict"):"medium",
+    ("Marilith","Constrict"):"medium",("Salamander","Constrict"):"large",
+    ("Yuan-ti Abomination","Constrict"):"large",
+    ("Yuan-ti Malison (Type 3)","Constrict"):"medium",
+    ("Giant Crocodile","Bite"):"large",("Kraken","Tentacle"):"gargantuan",
+    ("Tyrannosaurus Rex","Bite"):"large"}
+XMM_GRAPPLE_LINKED_CONTRACT_DCS={
+    ("Aberrant Cultist","Tentacle Lash"):14,("Chain Devil","Chain"):14,
+    ("Crocodile","Bite"):12,
+    ("Giant Octopus","Tentacles"):13,("Mezzoloth","Claws"):14,
+    ("Purple Worm","Bite"):19,("Remorhaz","Bite"):17,
+    ("Roc","Talons"):19,("Water Weird","Surge"):13,
+    ("Behir","Constrict"):16,("Couatl","Constrict"):13,
+    ("Marilith","Constrict"):14,("Salamander","Constrict"):14,
+    ("Yuan-ti Abomination","Constrict"):14,
+    ("Yuan-ti Malison (Type 3)","Constrict"):13,
+    ("Giant Crocodile","Bite"):15,("Kraken","Tentacle"):20,
+    ("Tyrannosaurus Rex","Bite"):17}
+XMM_GRAPPLE_LINKED_CAPACITY={
+    ("Aberrant Cultist","Tentacle Lash"):2,("Chain Devil","Chain"):2,
+    ("Crocodile","Bite"):1,("Giant Octopus","Tentacles"):8,("Mezzoloth","Claws"):2,
+    ("Purple Worm","Bite"):1,("Remorhaz","Bite"):1,("Roc","Talons"):1,
+    ("Water Weird","Surge"):1,("Giant Crocodile","Bite"):1,
+    ("Kraken","Tentacle"):10,("Tyrannosaurus Rex","Bite"):1}
+XMM_GRAPPLE_TAIL_EXCLUSIONS={
+    ("Giant Crocodile","Bite"):"the crocodile's tail",
+    ("Tyrannosaurus Rex","Bite"):"the tyrannosaurus's tail",
 }
 SOURCE_TURN_START_HEALING_SUPPRESSION={("Bearded Devil","Beard"),
     ("Bone Devil","Infernal Sting"),("Dire Worg","Bite")}
@@ -83,6 +148,11 @@ CHARGE_EXTRA_DAMAGE_ACTIONS={
     ("Triceratops","Gore"): (20,"piercing","huge"),
     ("Warhorse","Hooves"): (20,"bludgeoning","large"),
     ("Wereboar","Tusk (Boar or Hybrid Form Only)"): (20,"piercing","medium"),
+}
+MOVEMENT_ALTERNATE_ATTACK_DAMAGE={
+    ("Aarakocra Skirmisher","Talons"): (30,"1d4 + 2","3d4 + 2","slashing"),
+    ("Giant Seahorse","Ram"): (20,"2d6 + 2","2d8 + 2","bludgeoning"),
+    ("Goat","Ram"): (20,"1","1d4","bludgeoning"),
 }
 LITERAL=re.compile(r'^\s*("(?:\\.|[^"\\])*")\s*,?\s*$',re.M)
 RCH=re.compile(r'\s*\{@recharge(?: (\d))?\}')
@@ -126,7 +196,7 @@ def recharge_rows(source):
                             "min":int(matched.group(1) or "6")})
     return out
 
-def check_grapple_escape_riders(source, compiled, contracts, expected_count=36):
+def check_grapple_escape_riders(source, compiled, contracts, expected_count=43):
     """Check source-pinned grapple escape DCs are never compiled as saves."""
     problems=[]
     checked=0
@@ -152,8 +222,11 @@ def check_grapple_escape_riders(source, compiled, contracts, expected_count=36):
         text=json.dumps(src.get("entries",[]),ensure_ascii=False)
         dc=int(rider["dc"])
         source_reach=re.search(r"\breach\s+(\d+)\s*ft\.?",text,re.I)
+        save_linked=(monster,rider["name"]) in XMM_SAVE_LINKED_RESTRAINT_ACTIONS
+        source_range=re.search(r"within\s+(\d+)\s+feet",text,re.I) if save_linked else None
         if "{@condition Grappled" not in text or ("escape {@dc %d}"%dc) not in text or \
-           "saving throw" in text.lower() or "escape" not in text.lower() or not source_reach:
+           (not save_linked and ("saving throw" in text.lower() or "escape" not in text.lower() or not source_reach)) or \
+           (save_linked and (not source_range or "{@condition Restrained" not in text)):
             problems.append(monster+":"+rider["name"]+":PINNED_ESCAPE_SOURCE_CHANGED")
             continue
         source_saves=re.findall(r"\{@actSave\s+(str|dex|con|int|wis|cha)\}\s*\{@dc\s*(\d+)",text,re.I)
@@ -161,26 +234,68 @@ def check_grapple_escape_riders(source, compiled, contracts, expected_count=36):
             dst.get("save_ability","").lower()!=source_saves[0][0].lower() or
             dst.get("save_dc")!=int(source_saves[0][1]) or not dst.get("condition_on_fail")))
         save_unproven=(not source_saves and any(k in dst for k in ("save_dc","save_ability","condition_on_fail")))
-        if dst.get("reach_ft")!=int(source_reach.group(1)):
+        if save_linked and dst.get("target_range_ft")!=int(source_range.group(1)):
+            problems.append(monster+":"+rider["name"]+":GRAPPLE_RANGE_MISMATCH")
+            continue
+        if not save_linked and dst.get("reach_ft")!=int(source_reach.group(1)):
             problems.append(monster+":"+rider["name"]+":GRAPPLE_REACH_MISMATCH")
             continue
         if rider.get("choice_required",False):
             condition_ok=(dst.get("condition_alternative")=="grappled" and
                 dst.get("manual_effect_choice_required") is True and
                 not dst.get("condition_on_hit"))
+        elif (monster,rider["name"]) in XMM_SAVE_LINKED_RESTRAINT_ACTIONS:
+            condition_ok=(dst.get("condition_on_fail")=="grappled, restrained" and
+                dst.get("linked_condition_bundle_until_grapple_ends") is True)
         else:
             condition_ok=("grappled" in dst.get("condition_on_hit","").lower())
+        typed_escape_disadvantage=(monster,rider["name"]) in GRAPPLE_ESCAPE_DISADVANTAGE_ACTIONS and \
+            "ability checks made to escape this grapple have {@variantrule disadvantage|xphb}" in text.casefold() and \
+            dst.get("escape_check_disadvantage") is True
+        typed_linked_conditions=(monster,rider["name"]) in GRAPPLE_LINKED_RESTRAINT_ACTIONS and \
+            source_action_has_typed_condition_contract(monster,src,dst)
         semantic_ok=(dst.get("escape_dc")==dc and
             dst.get("condition_max_target_size")==rider.get("size","").lower() and
-            condition_ok and not save_mismatch and not save_unproven)
+            condition_ok and not save_mismatch and not save_unproven and
+            ((monster,rider["name"]) not in GRAPPLE_ESCAPE_DISADVANTAGE_ACTIONS or typed_escape_disadvantage) and
+            ((monster,rider["name"]) not in GRAPPLE_LINKED_RESTRAINT_ACTIONS or typed_linked_conditions))
         manual_ok=(bool(dst.get("manual_rider_resolution_required",False))==
-            bool(rider.get("other",False)))
+            bool(rider.get("other",False) and not (typed_escape_disadvantage or typed_linked_conditions)))
         if not semantic_ok:
             problems.append(monster+":"+rider["name"]+":ESCAPE_DC_MISCLASSIFIED")
         if not manual_ok:
             problems.append(monster+":"+rider["name"]+":MANUAL_RIDER_FLAG_MISMATCH")
         if semantic_ok and manual_ok:
             checked+=1
+    # Save-based constrictions are grapple escape records, but they are not
+    # attack-hit riders and therefore live outside the attack condition index.
+    # Keep their source binding in this verifier without routing them through
+    # the attack-only resolver.
+    for monster,name in sorted(XMM_SAVE_LINKED_RESTRAINT_ACTIONS):
+        source_row=next((x for x in source if x.get("name")==monster),None)
+        if source_row is None:
+            continue
+        compiled_row=next((x for x in compiled if x.get("id")==monster),None)
+        src=next((x for x in (source_row or {}).get("action",[]) if x.get("name")==name),None)
+        dst=next((x for x in (compiled_row or {}).get("actions",[]) if x.get("name")==name),None)
+        text=json.dumps((src or {}).get("entries",[]),ensure_ascii=False)
+        escape=re.search(r"escape\s+\{@dc\s+(\d+)\}",text,re.I)
+        size=re.search(r"one\s+(Tiny|Small|Medium|Large|Huge|Gargantuan)\s+or\s+smaller creature",text,re.I)
+        reach=re.search(r"within\s+(\d+)\s+feet",text,re.I)
+        saves=re.findall(r"\{@actSave\s+(str|dex|con|int|wis|cha)\}\s*\{@dc\s*(\d+)",text,re.I)
+        valid=(src is not None and dst is not None and escape is not None and size is not None and
+            reach is not None and len(saves)==1 and
+            "{@condition Grappled" in text and "{@condition Restrained" in text and
+            dst.get("escape_dc")==int(escape.group(1)) and
+            dst.get("condition_max_target_size")==size.group(1).lower() and
+            dst.get("target_range_ft")==int(reach.group(1)) and
+            dst.get("save_ability","").lower()==saves[0][0].lower() and
+            dst.get("save_dc")==int(saves[0][1]) and
+            dst.get("condition_on_fail")=="grappled, restrained" and
+            dst.get("linked_condition_bundle_until_grapple_ends") is True and
+            dst.get("manual_rider_resolution_required") is False)
+        if valid:checked+=1
+        else:problems.append(monster+":"+name+":SAVE_LINKED_GRAPPLE_SOURCE_MISMATCH")
     if checked!=expected_count:
         problems.append("GRAPPLE_ESCAPE_RECORD_COUNT:"+str(checked))
     return problems,checked
@@ -253,7 +368,13 @@ def check_monsters(source,index,compiled,attack_contracts=None):
         if monster_type(s["type"])!=e["type"] or e["type"]!=c["creature_type"]:
             problems.append(monster+":TYPE")
         fixed_sizes={"Balor":"Huge","Colossus":"Gargantuan","Merrow":"Large",
-                     "Satyr":"Medium","Shambling Mound":"Large"}
+                     "Satyr":"Medium","Shambling Mound":"Large",
+                     "Giant Crocodile":"Huge","Kraken":"Gargantuan",
+                     "Tyrannosaurus Rex":"Huge","Tarrasque":"Gargantuan","Myconid Sovereign":"Large",
+                     "Myconid Adult":"Medium","Quasit":"Tiny",
+                     "Behir":"Huge","Couatl":"Medium","Marilith":"Large",
+                     "Salamander":"Large","Yuan-ti Abomination":"Large",
+                     "Yuan-ti Malison (Type 3)":"Medium"}
         if monster in fixed_sizes:
             code={"T":"Tiny","S":"Small","M":"Medium","L":"Large","H":"Huge","G":"Gargantuan"}
             source_sizes=[code.get(x,x) for x in s.get("size",[])]
@@ -433,6 +554,27 @@ def charge_extra_damage_matches(monster_name,source_action,compiled_action):
         "condition_on_fail" not in compiled_action and
         compiled_action.get("manual_rider_resolution_required") is True)
 
+def movement_alternate_attack_matches(monster_name,source_action,compiled_action):
+    action_name=RCH.sub("",source_action.get("name","")).strip()
+    contract=MOVEMENT_ALTERNATE_ATTACK_DAMAGE.get((monster_name,action_name))
+    if contract is None:return True
+    distance,base,alternate,damage_type=contract
+    entry=" ".join(x for x in source_action.get("entries",[]) if isinstance(x,str))
+    movement=re.search(r"moved (\d+)\+ feet straight toward the target immediately before the hit",entry,re.I)
+    base_source=("{@damage "+base+"}" in entry if base!="1" else
+        bool(re.search(r"\{@h\}\s*1\s+bludgeoning damage",entry,re.I)))
+    alternate_source="{@damage "+alternate+"}" in entry
+    expected_condition=f"moved_{distance}ft_straight_toward_target_immediately_before_hit"
+    return (movement is not None and int(movement.group(1))==distance and
+        base_source and alternate_source and
+        compiled_action.get("damage")==base and
+        compiled_action.get("damage_alternative_expression")==alternate and
+        compiled_action.get("damage_alternative_condition")==expected_condition and
+        compiled_action.get("damage_type","").lower()==damage_type and
+        not compiled_action.get("extra_damage") and
+        not compiled_action.get("manual_rider_resolution_required",False) and
+        not compiled_action.get("manual_unmodeled_source_effect_required",False))
+
 def source_action_has_saving_throw(action):
     text=json.dumps(action,ensure_ascii=False)
     return bool(re.search(r"\{@actSave\s+(?:str|dex|con|int|wis|cha)\}|saving throws?|spell saves?",text,re.I))
@@ -440,7 +582,7 @@ def source_action_has_saving_throw(action):
 def condition_on_fail_matches_source(action,compiled_action):
     return (not compiled_action.get("condition_on_fail") or source_action_has_saving_throw(action))
 
-def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expected_manual=5):
+def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expected_manual=0):
     """Ensure alternate attack damage is selected or the action stays manual.
 
     A second damage expression is not automatically additive. This pins the
@@ -494,9 +636,23 @@ def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expecte
                 if bool(compiled_action.get("manual_rider_resolution_required",False))!=source_requires_manual:
                     errors.append(f"{monster['name']}:{action['name']}:BLOODIED_OTHER_RIDER_MANUAL_FLAG")
             elif alt:
-                manual_count+=1
-                if not compiled_action.get("manual_rider_resolution_required",False):
-                    errors.append(f"{monster['name']}:{action['name']}:UNMODELED_ALTERNATE_DAMAGE_NOT_MANUAL")
+                if monster["name"]=="Chimera" and action.get("name")=="Bite":
+                    if (compiled_action.get("damage")!="2d6 + 4" or
+                        compiled_action.get("damage_type")!="piercing" or
+                        compiled_action.get("extra_damage_if_attack_advantage")!="2d6" or
+                        compiled_action.get("extra_damage_if_attack_advantage_type")!="piercing" or
+                        compiled_action.get("manual_rider_resolution_required",False)):
+                        errors.append("Chimera:Bite:ADVANTAGE_DAMAGE_NOT_EXECUTABLE")
+                elif monster["name"]=="Mimic" and action.get("name")=="Bite":
+                    if not grappled_target_advantage_matches("Mimic",action,compiled_action):
+                        errors.append("Mimic:Bite:GRAPPLED_ADVANTAGE_DAMAGE_NOT_EXECUTABLE")
+                elif (monster["name"],RCH.sub("",action.get("name","" )).strip()) in MOVEMENT_ALTERNATE_ATTACK_DAMAGE:
+                    if not movement_alternate_attack_matches(monster["name"],action,compiled_action):
+                        errors.append(f"{monster['name']}:{action['name']}:MOVEMENT_ALTERNATE_DAMAGE_NOT_EXECUTABLE")
+                else:
+                    manual_count+=1
+                    if not compiled_action.get("manual_rider_resolution_required",False):
+                        errors.append(f"{monster['name']}:{action['name']}:UNMODELED_ALTERNATE_DAMAGE_NOT_MANUAL")
                 if monster["name"]=="Mimic" and action.get("name")=="Bite":
                     typed_damage=re.findall(r"\{@damage\s+([^}]+)\}\)\s*([A-Za-z]+)\s+damage",entry,re.I)
                     if len(typed_damage)!=3:
@@ -519,6 +675,9 @@ def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expecte
             if (monster["name"],RCH.sub("",action.get("name","")).strip()) in CHARGE_EXTRA_DAMAGE_ACTIONS and \
                not charge_extra_damage_matches(monster["name"],action,compiled_action):
                 errors.append(f"{monster['name']}:{action['name']}:CHARGE_EXTRA_DAMAGE_BRANCH_MISMATCH")
+            if (monster["name"],RCH.sub("",action.get("name","")).strip()) in MOVEMENT_ALTERNATE_ATTACK_DAMAGE and \
+               not movement_alternate_attack_matches(monster["name"],action,compiled_action):
+                errors.append(f"{monster['name']}:{action['name']}:MOVEMENT_ALTERNATE_DAMAGE_BRANCH_MISMATCH")
     if bloodied_count!=expected_bloodied: errors.append(f"BLOODIED_BRANCH_TOTAL:{bloodied_count}:{expected_bloodied}")
     if manual_count!=expected_manual: errors.append(f"UNMODELED_ALTERNATE_DAMAGE_TOTAL:{manual_count}:{expected_manual}")
     return errors,{"source_bloodied_attack_branches":bloodied_count,
@@ -542,6 +701,18 @@ def advantage_bonus_attack_matches(monster_name,action,compiled_action):
     name=RCH.sub("",action.get("name","" )).strip()
     expected=ADVANTAGE_BONUS_ATTACK_DAMAGE.get((monster_name,name))
     if expected is None:return False
+    if (monster_name,name)==("Chimera","Bite"):
+        text=" ".join(x for x in action.get("entries",[]) if isinstance(x,str))
+        source=("{@atkr m} {@hit 7}" in text and "reach 5 ft." in text and
+            "{@h}11 ({@damage 2d6 + 4}) Piercing damage" in text and
+            "or 18 ({@damage 4d6 + 4}) Piercing damage if the chimera had {@variantrule Advantage|XPHB}" in text)
+        return (source and compiled_action.get("attack_modes")==["m"] and
+            compiled_action.get("to_hit")==7 and compiled_action.get("reach_ft")==5 and
+            compiled_action.get("damage")=="2d6 + 4" and compiled_action.get("damage_type")=="piercing" and
+            compiled_action.get("extra_damage_if_attack_advantage")=="2d6" and
+            compiled_action.get("extra_damage_if_attack_advantage_type")=="piercing" and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
     base,base_average,bonus_average,bonus,damage_type,to_hit,mode,reach,normal,long_range=expected
     entries=action.get("entries",[])
     text=" ".join(x for x in entries if isinstance(x,str))
@@ -758,9 +929,9 @@ def grappled_target_advantage_matches(monster_name,action,compiled_action):
     if expected is None:return False
     to_hit,damage,damage_type=expected
     text=" ".join(x for x in action.get("entries",[]) if isinstance(x,str))
-    modes="m" if monster_name=="Ankheg" else "m,r"
+    modes="m" if monster_name in {"Ankheg","Bugbear Stalker","Mimic"} else "m,r"
     attack=bool(re.search(r"\{@atkr\s+"+modes+r"\}\s*\{@hit\s+"+str(to_hit)+r"\}",text,re.I))
-    source_actor="ankheg" if monster_name=="Ankheg" else "bugbear"
+    source_actor="ankheg" if monster_name=="Ankheg" else ("mimic" if monster_name=="Mimic" else "bugbear")
     conditional=bool(re.search(r"\{@variantrule Advantage\|XPHB\}\s+if the target is\s+"+
         r"\{@condition Grappled\|XPHB\}\s+by the "+re.escape(source_actor),text,re.I))
     if monster_name=="Ankheg":
@@ -772,8 +943,22 @@ def grappled_target_advantage_matches(monster_name,action,compiled_action):
             compiled_action.get("reach_ft")==5 and compiled_action.get("damage")==damage and
             compiled_action.get("damage_type")==damage_type and
             compiled_action.get("condition_on_hit")=="grappled" and
-            compiled_action.get("condition_max_target_size")=="large" and
-            compiled_action.get("escape_dc")==13)
+            compiled_action.get("condition_max_target_size")=="large" and compiled_action.get("escape_dc")==13)
+    elif monster_name=="Bugbear Stalker":
+        source_rider=("reach 10 ft." in text and "{@damage 2d8 + 3}" in text and
+            "piercing damage" in text.casefold())
+        runtime_rider=(compiled_action.get("attack_modes")==["m"] and
+            compiled_action.get("reach_ft")==10 and compiled_action.get("damage")==damage and
+            compiled_action.get("damage_type")==damage_type)
+    elif monster_name=="Mimic":
+        source_rider=("reach 5 ft." in text and "{@damage 1d8 + 3}" in text and
+            "{@damage 2d8 + 3}" in text and "{@damage 1d8}" in text and
+            "acid damage" in text.casefold())
+        runtime_rider=(compiled_action.get("attack_modes")==["m"] and
+            compiled_action.get("reach_ft")==5 and compiled_action.get("damage")==damage and
+            compiled_action.get("damage_type")==damage_type and
+            compiled_action.get("extra_damage_if_target_grappled_by_attacker")=="1d8" and
+            compiled_action.get("extra_damage_if_target_grappled_by_attacker_type")=="piercing")
     else:
         source_rider=("reach 10 ft." in text and "range 20/60 ft." in text and
             "{@damage 3d4 + 2}" in text and "bludgeoning damage" in text.casefold())
@@ -922,6 +1107,9 @@ def check_source_turn_start_hit_conditions(source,compiled):
         errors.append("TURN_START_CONDITION_RECORD_COUNT:"+str(checked))
     return errors,checked
 
+def source_conditions_in_text(text):
+    return {x.strip().casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
+
 def source_action_has_typed_condition_contract(monster_name,action,compiled_action):
     """Narrowly typed source conditions with an exact, executable expiry boundary."""
     def flatten(value):
@@ -932,8 +1120,232 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
     text=flatten(action.get("entries",[]))
     name=RCH.sub("",action.get("name","")).strip()
     source_text=text.casefold()
+    if (monster_name,name)==("Scout Captain","Aim"):
+        return ("{@variantrule advantage|xphb} on the next attack roll it makes during the current turn" in source_text and
+            compiled_action.get("category")=="bonus_action" and
+            compiled_action.get("grants_advantage_next_attack_this_turn") is True and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    speed_effects={
+        ("Warrior Commander","Longbow"):(9,["r"],0,150,600,["3d8 + 5"],"3d8 + 5","piercing",10,"target_turn_end","the target's {@variantrule speed|xphb} decreases by 10 feet until the end of the target's next turn",False),
+        ("Berserker Commander","Javelin"):(7,["m","r"],5,30,120,["4d6 + 4"],"4d6 + 4","piercing",5,"source_turn_start","the target's {@variantrule speed|xphb} decreases by 5 feet until the start of the berserker's next turn",False),
+        ("Merfolk Skirmisher","Ocean Spear"):(2,["m","r"],5,20,60,["1d6","1d4"],"1d6 + 1d4","piercing + cold",10,"target_turn_end","its {@variantrule speed|xphb} decreases by 10 feet until the end of its next turn",True),
+        ("Hobgoblin Warlord","Javelin"):(6,["m","r"],5,30,120,["2d6 + 4"],"2d6 + 4","piercing",10,"source_turn_start","the target's {@variantrule speed|xphb} decreases by 10 feet until the start of the hobgoblin's next turn",False),
+        ("Frost Giant","Great Bow"):(9,["r"],0,150,600,["2d10 + 6","2d6"],"2d10 + 6 + 2d6","piercing + cold",10,"target_turn_end","the target's {@variantrule speed|xphb} decreases by 10 feet until the end of its next turn",False),
+    }
+    if (monster_name,name) in speed_effects:
+        hit,modes,reach,normal,long_range,source_dice,damage,damage_type,penalty,tick,phrase,returns=speed_effects[(monster_name,name)]
+        hit_text="{@hit "+str(hit)+"}"
+        movement=("range "+str(normal)+"/"+str(long_range)+" ft." in source_text)
+        if reach: movement=movement and ("reach "+str(reach)+" ft." in source_text)
+        return ("{@atkr "+",".join(modes)+"}" in text and hit_text in text and movement and
+            [x.strip() for x in re.findall(r"\{@damage\s+([^}]+)\}",text,re.I)]==source_dice and
+            phrase in source_text and compiled_action.get("attack_modes")==modes and
+            compiled_action.get("to_hit")==hit and compiled_action.get("reach_ft",0)==reach and
+            compiled_action.get("range_normal_ft")==normal and compiled_action.get("range_long_ft")==long_range and
+            compiled_action.get("damage")==damage and compiled_action.get("damage_type")==damage_type and
+            compiled_action.get("speed_reduction_ft")==penalty and
+            compiled_action.get("speed_reduction_duration_tick")==tick and
+            compiled_action.get("returns_to_attacker_after_ranged_attack",False)==returns and
+            (not returns or "the spear magically returns to the merfolk's hand immediately after a ranged attack" in source_text) and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if (monster_name,name)==("Lacedon Ghoul","Icy Bite"):
+        return ("{@atkr m}" in text and "{@hit 4}" in text and
+            "reach 5 ft." in source_text and "{@damage 2d6 + 2}" in text and
+            "cold damage" in source_text and
+            "the target's {@variantrule speed|xphb} decreases by 5 feet until the start of the ghoul's next turn" in source_text and
+            compiled_action.get("to_hit")==4 and compiled_action.get("reach_ft")==5 and
+            compiled_action.get("damage")=="2d6 + 2" and compiled_action.get("damage_type")=="cold" and
+            compiled_action.get("speed_reduction_ft")==5 and
+            compiled_action.get("speed_reduction_duration_tick")=="source_turn_start" and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if (monster_name,name)==("Scarecrow","Terrifying Glare"):
+        return (source_conditions_in_text(text)=={"frightened","paralyzed"} and
+            "{@actsave wis}" in source_text and "{@dc 11}" in source_text and
+            "one creature the scarecrow can see within 30 feet" in source_text and
+            "until the end of the scarecrow's next turn" in source_text and
+            "while {@condition frightened|xphb}, the target has the {@condition paralyzed|xphb} condition" in source_text and
+            compiled_action.get("save_ability")=="wis" and compiled_action.get("save_dc")==11 and
+            compiled_action.get("target_range_ft")==30 and
+            compiled_action.get("condition_on_fail")=="frightened, paralyzed" and
+            compiled_action.get("condition_duration_rounds")==1 and
+            compiled_action.get("condition_duration_tick")=="source_turn_end" and
+            not compiled_action.get("damage") and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if (monster_name,name)==("Doppelganger","Slam"):
+        return ("{@variantrule advantage|xphb} during the first round of each combat" in source_text and
+            "{@atkr m}" in source_text and "{@hit 6}" in source_text and
+            "reach 5 ft." in source_text and "{@damage 2d6 + 4}" in source_text and
+            "bludgeoning damage" in source_text and
+            compiled_action.get("attack_modes")==["m"] and compiled_action.get("to_hit")==6 and
+            compiled_action.get("reach_ft")==5 and compiled_action.get("damage")=="2d6 + 4" and
+            compiled_action.get("damage_type")=="bludgeoning" and
+            compiled_action.get("attack_advantage_during_first_combat_round") is True and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if (monster_name,name)==("Yuan-ti Abomination","Poison Spray"):
+        return ("{@actsave con}" in source_text and "{@dc 14}" in source_text and
+            "each creature in a 30-foot" in source_text and "{@damage 6d6}" in source_text and
+            "poison damage" in source_text and "{@actsavesuccess} half damage only." in source_text and
+            source_conditions_in_text(text)=={"poisoned","blinded"} and
+            "until the end of the yuan-ti's next turn" in source_text and
+            compiled_action.get("save_ability")=="con" and compiled_action.get("save_dc")==14 and
+            compiled_action.get("target_range_ft")==30 and compiled_action.get("target_area_shape")=="cone" and
+            compiled_action.get("damage")=="6d6" and compiled_action.get("damage_type")=="poison" and
+            compiled_action.get("damage_on_save")=="6d6" and
+            compiled_action.get("damage_on_save_multiplier")==0.5 and
+            compiled_action.get("condition_on_fail")=="poisoned, blinded" and
+            compiled_action.get("condition_duration_rounds")==1 and
+            compiled_action.get("condition_duration_tick")=="source_turn_end" and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if (monster_name,name)==("Tarrasque","Thunderous Bellow"):
+        return ("{@actsave con}" in source_text and "{@dc 27}" in source_text and
+            "each creature and each object that isn't being worn or carried in a 150-foot" in source_text and
+            "{@damage 12d12}" in source_text and "thunder damage" in source_text and
+            "{@actsavesuccess} half damage only." in source_text and
+            source_conditions_in_text(text)=={"deafened","frightened"} and
+            compiled_action.get("save_ability")=="con" and compiled_action.get("save_dc")==27 and
+            compiled_action.get("target_range_ft")==150 and compiled_action.get("target_area_shape")=="cone" and
+            compiled_action.get("damage")=="12d12" and compiled_action.get("damage_type")=="thunder" and
+            compiled_action.get("damage_on_save")=="12d12" and
+            compiled_action.get("damage_on_save_multiplier")==0.5 and
+            compiled_action.get("condition_on_fail")=="deafened, frightened" and
+            compiled_action.get("condition_duration_rounds")==1 and
+            compiled_action.get("condition_duration_tick")=="target_turn_end" and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if (monster_name,name) in SOURCE_CONDITION_RECOVERY_ACTIONS:
+        expected,ability,dc,target_range,auto_after,linked_conditions=(
+            SOURCE_CONDITION_RECOVERY_ACTIONS[(monster_name,name)])
+        target_phrase={
+            ("Myconid Sovereign","Pacifying Spores"):
+                "one creature the myconid can see within 10 feet",
+            ("Myconid Adult","Pacifying Spores (1/Day)"):
+                "one creature the myconid can see within 10 feet",
+            ("Quasit","Scare (1/Day)"):"one creature within 20 feet",
+            ("Carrion Crawler","Paralyzing Tentacles"):
+                "one creature the carrion crawler can see within 10 feet",
+            ("Doppelganger","Unsettling Visage"):
+                "each creature in a 15-foot",
+            ("Modron Pentadrone","Paralysis Gas"):
+                "each creature in a 30-foot",
+            ("Graveyard Revenant","Haunting Glare"):
+                "each creature in a 30-foot",
+        }[(monster_name,name)]
+        source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
+        compiled_conditions={x.strip().casefold() for x in
+            compiled_action.get("condition_on_fail","").split(",")}
+        compiled_linked={str(x).strip().casefold() for x in
+            compiled_action.get("condition_recovery_linked_conditions",[])}
+        return (source_conditions=={expected,*linked_conditions} and
+            compiled_conditions=={expected,*linked_conditions} and
+            compiled_action.get("condition_recovery_condition",expected)==expected and
+            compiled_linked==set(linked_conditions) and
+            target_phrase in source_text and
+            ("repeats the save at the end of each of its turns" in source_text or
+             "at the end of each of its turns, the target repeats the save" in source_text) and
+            "after 1 minute, it succeeds automatically" in source_text and
+            ((monster_name,name)==("Modron Pentadrone","Paralysis Gas") and
+             "constitution saving throws:" in source_text or
+             "{@actsave "+ability+"}" in source_text) and
+            re.search(r"\{@dc\s+"+str(dc)+r"\}",source_text) is not None and
+            compiled_action.get("save_ability")==ability and compiled_action.get("save_dc")==dc and
+            compiled_action.get("target_range_ft")==target_range and
+            ((monster_name,name) not in {("Doppelganger","Unsettling Visage"),
+                ("Modron Pentadrone","Paralysis Gas"),
+                ("Graveyard Revenant","Haunting Glare")} or
+             compiled_action.get("target_area_shape")==
+                ("cone" if monster_name=="Modron Pentadrone" else "emanation")) and
+            compiled_action.get("condition_recovery_save_ability")==ability and
+            compiled_action.get("condition_recovery_save_dc")==dc and
+            compiled_action.get("condition_recovery_trigger")=="target_turn_end" and
+            compiled_action.get("condition_recovery_auto_success_after_failed_saves")==auto_after and
+            not compiled_action.get("damage") and
+            not compiled_action.get("condition_duration_rounds") and
+            not compiled_action.get("condition_duration_tick") and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if (monster_name,name) in SOURCE_TURN_START_SAVE_CONDITIONS:
+        expected,ability,dc,damage,damage_type,target_range,source_until=(
+            SOURCE_TURN_START_SAVE_CONDITIONS[(monster_name,name)])
+        source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
+        compiled_conditions={x.strip().casefold() for x in
+            compiled_action.get("condition_on_fail","").split(",")}
+        return (source_conditions=={expected} and compiled_conditions=={expected} and
+            source_until in source_text and "{@actsave "+ability+"}" in source_text and
+            re.search(r"\{@dc\s+"+str(dc)+r"\}",source_text) is not None and
+            compiled_action.get("save_ability")==ability and compiled_action.get("save_dc")==dc and
+            compiled_action.get("damage","")==damage and
+            compiled_action.get("damage_type","")==damage_type and
+            compiled_action.get("target_range_ft")==target_range and
+            ((monster_name,name) not in {("Doppelganger","Unsettling Visage"),
+                ("Modron Pentadrone","Paralysis Gas"),
+                ("Graveyard Revenant","Haunting Glare")} or
+             compiled_action.get("target_area_shape")==
+                ("cone" if monster_name=="Modron Pentadrone" else "emanation")) and
+            compiled_action.get("condition_duration_rounds")==1 and
+            compiled_action.get("condition_duration_tick")=="source_turn_start" and
+            not compiled_action.get("condition_on_hit") and
+            not compiled_action.get("effect_on_fail") and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if (monster_name,name) in GRAPPLED_TARGET_ADVANTAGE_ATTACKS:
         return grappled_target_advantage_matches(monster_name,action,compiled_action)
+    if (monster_name,name) in GRAPPLE_ESCAPE_DISADVANTAGE_ACTIONS:
+        source_text=text.casefold()
+        return ("{@atkr m}" in text and "{@hit 5}" in text and
+            "reach 5 ft." in source_text and "{@damage 1d8 + 3}" in text and
+            "{@damage 1d8}" in text and "large or smaller creature" in source_text and
+            "{@dc 13}" in text and "{@condition grappled|xphb}" in text.casefold() and
+            "ability checks made to escape this grapple have {@variantrule disadvantage|xphb}" in text.casefold() and
+            compiled_action.get("to_hit")==5 and compiled_action.get("attack_modes")==["m"] and
+            compiled_action.get("reach_ft")==5 and compiled_action.get("damage")=="1d8 + 3 + 1d8" and
+            compiled_action.get("damage_type")=="bludgeoning + acid" and
+            compiled_action.get("escape_dc")==13 and compiled_action.get("condition_on_hit")=="grappled" and
+            compiled_action.get("condition_max_target_size")=="large" and
+            compiled_action.get("escape_check_disadvantage") is True and
+            not compiled_action.get("condition_duration_rounds") and
+            not compiled_action.get("condition_duration_tick") and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if (monster_name,name) in GRAPPLE_LINKED_RESTRAINT_ACTIONS:
+        source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
+        source_text=text.casefold()
+        save_linked=(monster_name,name) in XMM_SAVE_LINKED_RESTRAINT_ACTIONS
+        condition_field="condition_on_fail" if save_linked else "condition_on_hit"
+        capacity=XMM_GRAPPLE_LINKED_CAPACITY.get((monster_name,name))
+        capacity_phrase={
+            ("Aberrant Cultist","Tentacle Lash"):"from one of two tentacles",
+            ("Chain Devil","Chain"):"from one of two chains",
+            ("Giant Octopus","Tentacles"):"from all eight tentacles",
+            ("Mezzoloth","Claws"):"from two of four claws",
+            ("Kraken","Tentacle"):"from one of ten tentacles"}.get((monster_name,name),"")
+        source_save=re.search(r"\{@actSave str\}\s*\{@dc\s*(\d+)\}",text,re.I)
+        exact_save=(not save_linked or
+            (source_save is not None and compiled_action.get("save_ability")=="str" and
+             compiled_action.get("save_dc")==int(source_save.group(1))))
+        tail_exclusion=XMM_GRAPPLE_TAIL_EXCLUSIONS.get((monster_name,name),"")
+        tail_compiled=compiled_action.get("grappled_target_prevents_action","")
+        tail_valid=(not tail_exclusion and not tail_compiled) or (
+            tail_exclusion in source_text and tail_compiled=="Tail")
+        return (source_conditions=={"grappled","restrained"} and exact_save and
+            "escape {@dc "+str(compiled_action.get("escape_dc",0))+"}" in text and
+            ("until the grapple ends" in source_text or
+             "while {@condition grappled|xphb}, the target has the {@condition restrained|xphb} condition" in source_text) and
+            compiled_action.get(condition_field)=="grappled, restrained" and
+            compiled_action.get("linked_condition_bundle_until_grapple_ends") is True and
+            compiled_action.get("condition_max_target_size")==
+                XMM_GRAPPLE_LINKED_CONTRACT_SIZES.get((monster_name,name),"") and
+            compiled_action.get("escape_dc")==XMM_GRAPPLE_LINKED_CONTRACT_DCS.get((monster_name,name)) and
+            (compiled_action.get("grapple_target_capacity")==capacity if capacity is not None
+                else not compiled_action.get("grapple_target_capacity",0)) and
+            (not capacity_phrase or capacity_phrase in source_text) and tail_valid and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if (monster_name,name) in ADVANTAGE_BONUS_ATTACK_DAMAGE:
         return advantage_bonus_attack_matches(monster_name,action,compiled_action)
     if (monster_name,name) in WOUNDED_TARGET_ADVANTAGE_ATTACKS:
@@ -945,6 +1357,17 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
             "large or smaller creature" in source_text and
             "pulls the target up to 15 feet straight toward itself" in source_text and
             compiled_action.get("effect_on_hit")=="pull:15ft" and
+            compiled_action.get("effect_on_hit_max_target_size")=="Large" and
+            compiled_action.get("damage")=="2d6 + 4" and
+            compiled_action.get("damage_type")=="piercing" and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if (monster_name,name)==("Hook Horror","Hook"):
+        return ("{@atkr m}" in text and "{@hit 6}" in text and
+            "reach 10 ft." in source_text and "{@damage 2d6 + 4}" in text and
+            "large or smaller creature" in source_text and
+            "moves the target 5 feet straight toward or away from itself" in source_text and
+            compiled_action.get("effect_on_hit")=="either:5ft" and
             compiled_action.get("effect_on_hit_max_target_size")=="Large" and
             compiled_action.get("damage")=="2d6 + 4" and
             compiled_action.get("damage_type")=="piercing" and

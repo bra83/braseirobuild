@@ -62,13 +62,13 @@ public final class XmmAttackConditionSafetyTest {
  }
  @Test public void coverageDoesNotCertifyFullAction()throws Exception{
   JSONObject c=Xmm2025AttackConditionEngine.coverage();
-  assertEquals(65,c.getInt("verified"));assertEquals(29,c.getInt("prone"));
-  assertEquals(36,c.getInt("grappled"));assertEquals(21,c.getInt("other_riders_manual"));
+  assertEquals(66,c.getInt("verified"));assertEquals(29,c.getInt("prone"));
+  assertEquals(37,c.getInt("grappled"));assertEquals(22,c.getInt("other_riders_manual"));
   assertFalse(c.getBoolean("full_automation_certified"));
  }
  @Test public void everyIndexedRiderMatchesItsCompiledActionAndSizeGate()throws Exception{
   assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
-  JSONArray catalog=Xmm2025AttackConditionEngine.catalog();assertEquals(65,catalog.length());
+  JSONArray catalog=Xmm2025AttackConditionEngine.catalog();assertEquals(66,catalog.length());
   for(int i=0;i<catalog.length();i++){
    JSONObject indexed=catalog.getJSONObject(i);String monster=indexed.getString("id");
    String action=indexed.getString("name"),maximum=indexed.getString("size");

@@ -46,6 +46,7 @@ public final class Xmm2025AttackConditionEngine {
   "{\"id\":\"Grick Ancient\",\"name\":\"Tentacles\",\"slot\":3,\"ptr\":\"/monster/229/action/3/entries/0\",\"size\":\"Large\",\"condition\":\"grappled\",\"dc\":14,\"other\":false}",
   "{\"id\":\"Griffon\",\"name\":\"Rend\",\"slot\":1,\"ptr\":\"/monster/230/action/1/entries/0\",\"size\":\"Medium\",\"condition\":\"grappled\",\"dc\":14,\"other\":false}",
   "{\"id\":\"Hill Giant\",\"name\":\"Tree Club\",\"slot\":1,\"ptr\":\"/monster/243/action/1/entries/0\",\"size\":\"Large\",\"condition\":\"prone\",\"dc\":0,\"other\":false}",
+  "{\"id\":\"Kraken\",\"name\":\"Tentacle\",\"slot\":1,\"ptr\":\"/monster/269/action/1/entries/0\",\"size\":\"Gargantuan\",\"condition\":\"grappled\",\"dc\":20,\"other\":true}",
   "{\"id\":\"Kuo-toa Whip\",\"name\":\"Pincer Staff\",\"slot\":0,\"ptr\":\"/monster/273/action/0/entries/0\",\"size\":\"Medium\",\"condition\":\"grappled\",\"dc\":12,\"other\":true}",
   "{\"id\":\"Lizardfolk Sovereign\",\"name\":\"Earthen Maul\",\"slot\":2,\"ptr\":\"/monster/282/action/2/entries/0\",\"size\":\"Medium\",\"condition\":\"prone\",\"dc\":0,\"other\":false}",
   "{\"id\":\"Mastiff\",\"name\":\"Bite\",\"slot\":0,\"ptr\":\"/monster/293/action/0/entries/0\",\"size\":\"Medium\",\"condition\":\"prone\",\"dc\":0,\"other\":false}",
@@ -70,17 +71,17 @@ public final class Xmm2025AttackConditionEngine {
   "{\"id\":\"Water Elemental\",\"name\":\"Slam\",\"slot\":1,\"ptr\":\"/monster/466/action/1/entries/0\",\"size\":\"Medium\",\"condition\":\"prone\",\"dc\":0,\"other\":false}",
   "{\"id\":\"Water Weird\",\"name\":\"Surge\",\"slot\":0,\"ptr\":\"/monster/467/action/0/entries/0\",\"size\":\"Medium\",\"condition\":\"grappled\",\"dc\":13,\"other\":true}",
   "{\"id\":\"Winter Wolf\",\"name\":\"Bite\",\"slot\":0,\"ptr\":\"/monster/478/action/0/entries/0\",\"size\":\"Large\",\"condition\":\"prone\",\"dc\":0,\"other\":false}",
-  "{\"id\":\"Wolf\",\"name\":\"Bite\",\"slot\":0,\"ptr\":\"/monster/479/action/0/entries/0\",\"size\":\"Medium\",\"condition\":\"prone\",\"dc\":0,\"other\":false}"
+  "{\"id\":\"Wolf\",\"name\":\"Bite\",\"slot\":0,\"ptr\":\"/monster/479/action/0/entries/0\",\"size\":\"Medium\",\"condition\":\"prone\",\"dc\":0,\"other\":false}",
  };
  private static final Map<String,JSONObject> INDEX=new LinkedHashMap<>();
  static {try{for(String s:RAW){JSONObject r=new JSONObject(s);
   if(INDEX.put(r.getString("id")+"::"+r.getString("name"),r)!=null)throw new IllegalStateException("duplicate_rider");
- }if(INDEX.size()!=65)throw new IllegalStateException("rider_count");}catch(Exception e){throw new ExceptionInInitializerError(e);}}
+ }if(INDEX.size()!=66)throw new IllegalStateException("rider_count");}catch(Exception e){throw new ExceptionInInitializerError(e);}}
  private Xmm2025AttackConditionEngine(){}
  private static JSONObject blocked(String why){try{return new JSONObject().put("resolved",false).put("reason",why).put("auto_rolls",false).put("auto_mutation_allowed",false).put("condition_applied",false);}catch(Exception e){return new JSONObject();}}
  public static JSONArray catalog()throws Exception{JSONArray a=new JSONArray();for(JSONObject r:INDEX.values())a.put(new JSONObject(r.toString()));return a;}
  public static JSONObject profile(String monster,String action)throws Exception{JSONObject r=INDEX.get(monster+"::"+action);return r==null?new JSONObject():new JSONObject(r.toString());}
- public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("verified",65).put("prone",29).put("grappled",36).put("other_riders_manual",21).put("source_blob_sha1",SOURCE_BLOB).put("full_automation_certified",false).put("auto_rolls",false);}
+ public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("verified",66).put("prone",29).put("grappled",37).put("other_riders_manual",22).put("source_blob_sha1",SOURCE_BLOB).put("full_automation_certified",false).put("auto_rolls",false);}
  private static int size(String s){for(int i=0;i<SIZES.length;i++)if(SIZES[i].equals(s))return i;return -1;}
  private static boolean flag(JSONObject in,String key)throws Exception{if(!(in.opt(key) instanceof Boolean))throw new IllegalArgumentException("explicit_boolean_"+key+"_required");return in.getBoolean(key);}
  public static JSONObject resolve(JSONObject in){try{

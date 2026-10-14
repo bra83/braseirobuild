@@ -4,6 +4,21 @@ from io import BytesIO
 import verify_xmm_503_source as xmm
 
 class XmmIndependentSourceTests(unittest.TestCase):
+    def test_scarecrow_glare_requires_both_source_conditions_and_turn_expiry(self):
+        source={"name":"Scarecrow","action":[{"name":"Terrifying Glare","entries":[
+            "{@actSave wis} {@dc 11}, one creature the scarecrow can see within 30 feet. "
+            "{@actSaveFail} The target has the {@condition Frightened|XPHB} condition until "
+            "the end of the scarecrow's next turn. While {@condition Frightened|XPHB}, the "
+            "target has the {@condition Paralyzed|XPHB} condition."]}]}
+        action=source["action"][0]
+        compiled={"save_ability":"wis","save_dc":11,"target_range_ft":30,
+            "condition_on_fail":"frightened, paralyzed","condition_duration_rounds":1,
+            "condition_duration_tick":"source_turn_end","manual_rider_resolution_required":False,
+            "manual_unmodeled_source_effect_required":False}
+        self.assertTrue(xmm.source_action_has_typed_condition_contract("Scarecrow",action,compiled))
+        compiled["condition_duration_tick"]="target_turn_end"
+        self.assertFalse(xmm.source_action_has_typed_condition_contract("Scarecrow",action,compiled))
+
     def test_simple_multiattack_requires_exact_source_count_and_choices(self):
         source=[{"name":"Goblin Boss","action":[{"name":"Multiattack","entries":[
             "The goblin makes two attacks, using Scimitar or Shortbow in any combination."]},
@@ -115,11 +130,17 @@ class XmmIndependentSourceTests(unittest.TestCase):
             if reach:compiled_action["reach_ft"]=reach
             else:compiled_action.update({"range_normal_ft":normal,"range_long_ft":long_range})
             compiled_by_id.setdefault(monster,{"id":monster,"actions":[]})["actions"].append(compiled_action)
+        source_by_id["Chimera"]={"name":"Chimera","action":[{"name":"Bite","entries":[
+            "{@atkr m} {@hit 7}, reach 5 ft. {@h}11 ({@damage 2d6 + 4}) Piercing damage, or 18 ({@damage 4d6 + 4}) Piercing damage if the chimera had {@variantrule Advantage|XPHB} on the attack roll."]}]}
+        compiled_by_id["Chimera"]={"id":"Chimera","actions":[{"name":"Bite","to_hit":7,
+            "attack_modes":["m"],"reach_ft":5,"damage":"2d6 + 4","damage_type":"piercing",
+            "extra_damage_if_attack_advantage":"2d6","extra_damage_if_attack_advantage_type":"piercing",
+            "manual_rider_resolution_required":False,"manual_unmodeled_source_effect_required":False}]}
         source=list(source_by_id.values());compiled=list(compiled_by_id.values())
-        self.assertEqual(([],6),xmm.check_advantage_bonus_attack_damage(source,compiled))
+        self.assertEqual(([],7),xmm.check_advantage_bonus_attack_damage(source,compiled))
         compiled[0]["actions"][0]["extra_damage_if_attack_advantage"]="2d4"
         errors,count=xmm.check_advantage_bonus_attack_damage(source,compiled)
-        self.assertEqual(5,count)
+        self.assertEqual(6,count)
         self.assertIn("ADVANTAGE_BONUS_DAMAGE_MISMATCH",errors[0])
 
     def test_wounded_target_advantage_is_bound_to_four_shark_and_piranha_attacks(self):
@@ -173,12 +194,25 @@ class XmmIndependentSourceTests(unittest.TestCase):
             "attack_advantage_condition":"target_grappled_by_attacker",
             "manual_rider_resolution_required":False,
             "manual_unmodeled_source_effect_required":False}]})
-        self.assertEqual(([],2),xmm.check_grappled_target_advantage_attacks(source,compiled))
+        source.append({"name":"Bugbear Stalker","action":[{"name":"Morningstar","entries":[
+            "{@atkr m} {@hit 5} (with {@variantrule Advantage|XPHB} if the target is {@condition Grappled|XPHB} by the bugbear), reach 10 ft. {@h}12 ({@damage 2d8 + 3}) Piercing damage."]}]})
+        compiled.append({"id":"Bugbear Stalker","actions":[{"name":"Morningstar","to_hit":5,
+            "attack_modes":["m"],"reach_ft":10,"damage":"2d8 + 3","damage_type":"piercing",
+            "attack_advantage_condition":"target_grappled_by_attacker",
+            "manual_rider_resolution_required":False,"manual_unmodeled_source_effect_required":False}]})
+        source.append({"name":"Mimic","action":[{"name":"Bite","entries":[
+            "{@atkr m} {@hit 5} (with {@variantrule Advantage|XPHB} if the target is {@condition Grappled|XPHB} by the mimic), reach 5 ft. {@h}7 ({@damage 1d8 + 3}) Piercing damage—or 12 ({@damage 2d8 + 3}) Piercing damage if the target is {@condition Grappled|XPHB} by the mimic—plus 4 ({@damage 1d8}) Acid damage."]}]})
+        compiled.append({"id":"Mimic","actions":[{"name":"Bite","to_hit":5,
+            "attack_modes":["m"],"reach_ft":5,"damage":"1d8 + 3 + 1d8",
+            "damage_type":"piercing + acid","attack_advantage_condition":"target_grappled_by_attacker",
+            "extra_damage_if_target_grappled_by_attacker":"1d8","extra_damage_if_target_grappled_by_attacker_type":"piercing",
+            "manual_rider_resolution_required":False,"manual_unmodeled_source_effect_required":False}]})
+        self.assertEqual(([],4),xmm.check_grappled_target_advantage_attacks(source,compiled))
         compiled[0]["actions"][0]["attack_advantage_condition"]="target_bloodied"
         errors,count=xmm.check_grappled_target_advantage_attacks(source,compiled)
-        self.assertEqual(1,count)
+        self.assertEqual(3,count)
         self.assertEqual(["Bugbear Warrior:Light Hammer:GRAPPLED_TARGET_ADVANTAGE_MISMATCH",
-            "GRAPPLED_TARGET_ADVANTAGE_COUNT:1"],errors)
+            "GRAPPLED_TARGET_ADVANTAGE_COUNT:3"],errors)
 
     def test_ankheg_bite_advantage_contract_includes_its_grapple_and_typed_damage(self):
         source=[{"name":"Ankheg","action":[{"name":"Bite","entries":[
@@ -197,12 +231,25 @@ class XmmIndependentSourceTests(unittest.TestCase):
             "damage":"3d4 + 2","damage_type":"bludgeoning",
             "attack_advantage_condition":"target_grappled_by_attacker",
             "manual_rider_resolution_required":False,"manual_unmodeled_source_effect_required":False}]})
-        self.assertEqual(([],2),xmm.check_grappled_target_advantage_attacks(source,compiled))
+        source.append({"name":"Bugbear Stalker","action":[{"name":"Morningstar","entries":[
+            "{@atkr m} {@hit 5} (with {@variantrule Advantage|XPHB} if the target is {@condition Grappled|XPHB} by the bugbear), reach 10 ft. {@h}12 ({@damage 2d8 + 3}) Piercing damage."]}]})
+        compiled.append({"id":"Bugbear Stalker","actions":[{"name":"Morningstar","to_hit":5,
+            "attack_modes":["m"],"reach_ft":10,"damage":"2d8 + 3","damage_type":"piercing",
+            "attack_advantage_condition":"target_grappled_by_attacker",
+            "manual_rider_resolution_required":False,"manual_unmodeled_source_effect_required":False}]})
+        source.append({"name":"Mimic","action":[{"name":"Bite","entries":[
+            "{@atkr m} {@hit 5} (with {@variantrule Advantage|XPHB} if the target is {@condition Grappled|XPHB} by the mimic), reach 5 ft. {@h}7 ({@damage 1d8 + 3}) Piercing damage—or 12 ({@damage 2d8 + 3}) Piercing damage if the target is {@condition Grappled|XPHB} by the mimic—plus 4 ({@damage 1d8}) Acid damage."]}]})
+        compiled.append({"id":"Mimic","actions":[{"name":"Bite","to_hit":5,
+            "attack_modes":["m"],"reach_ft":5,"damage":"1d8 + 3 + 1d8",
+            "damage_type":"piercing + acid","attack_advantage_condition":"target_grappled_by_attacker",
+            "extra_damage_if_target_grappled_by_attacker":"1d8","extra_damage_if_target_grappled_by_attacker_type":"piercing",
+            "manual_rider_resolution_required":False,"manual_unmodeled_source_effect_required":False}]})
+        self.assertEqual(([],4),xmm.check_grappled_target_advantage_attacks(source,compiled))
         compiled[0]["actions"][0]["escape_dc"]=12
         errors,count=xmm.check_grappled_target_advantage_attacks(source,compiled)
-        self.assertEqual(1,count)
+        self.assertEqual(3,count)
         self.assertIn("Ankheg:Bite:GRAPPLED_TARGET_ADVANTAGE_MISMATCH",errors)
-        self.assertNotIn("GRAPPLED_TARGET_ADVANTAGE_COUNT:0",errors)
+        self.assertIn("GRAPPLED_TARGET_ADVANTAGE_COUNT:3",errors)
 
     def test_chain_devil_infernal_chain_requires_every_source_bound_rider(self):
         source={"name":"Conjure Infernal Chain","entries":[
@@ -254,6 +301,33 @@ class XmmIndependentSourceTests(unittest.TestCase):
                 compiled["effect_on_hit_max_target_size"]="Tiny"
                 self.assertFalse(xmm.source_action_has_typed_condition_contract(
                     monster,action,compiled))
+
+    def test_hook_horror_hook_allows_source_choice_of_direction(self):
+        action={"name":"Hook","entries":[
+            "{@atkr m} {@hit 6}, reach 10 ft. {@h}11 ({@damage 2d6 + 4}) Piercing damage. If the target is a Large or smaller creature, the hook horror moves the target 5 feet straight toward or away from itself."]}
+        compiled={"damage":"2d6 + 4","damage_type":"piercing",
+            "effect_on_hit":"either:5ft","effect_on_hit_max_target_size":"Large",
+            "manual_rider_resolution_required":False,
+            "manual_unmodeled_source_effect_required":False}
+        self.assertTrue(xmm.source_action_has_typed_condition_contract(
+            "Hook Horror",action,compiled))
+        compiled["effect_on_hit"]="push:5ft"
+        self.assertFalse(xmm.source_action_has_typed_condition_contract(
+            "Hook Horror",action,compiled))
+
+    def test_lacedon_icy_bite_speed_reduction_is_source_and_tick_bound(self):
+        action={"name":"Icy Bite","entries":[
+            "{@atkr m} {@hit 4}, reach 5 ft. {@h}9 ({@damage 2d6 + 2}) Cold damage, and the target's {@variantrule Speed|XPHB} decreases by 5 feet until the start of the ghoul's next turn."]}
+        compiled={"to_hit":4,"reach_ft":5,"damage":"2d6 + 2",
+            "damage_type":"cold","speed_reduction_ft":5,
+            "speed_reduction_duration_tick":"source_turn_start",
+            "manual_rider_resolution_required":False,
+            "manual_unmodeled_source_effect_required":False}
+        self.assertTrue(xmm.source_action_has_typed_condition_contract(
+            "Lacedon Ghoul",action,compiled))
+        compiled["speed_reduction_duration_tick"]="target_turn_end"
+        self.assertFalse(xmm.source_action_has_typed_condition_contract(
+            "Lacedon Ghoul",action,compiled))
 
     def test_balor_flame_whip_compounds_size_limited_pull_and_prone(self):
         action={"name":"Flame Whip","entries":[
@@ -457,29 +531,33 @@ class XmmIndependentSourceTests(unittest.TestCase):
         compiled[0]["actions"][0]["damage_bloodied"]="1d4 + 2 + 1d8 + 2"
         errors,_=xmm.check_conditional_attack_damage(source,compiled,1,0)
         self.assertTrue(any("BLOODIED_DAMAGE:" in e for e in errors))
-    def test_unmodeled_conditional_damage_must_remain_manual(self):
+    def test_goat_ram_movement_alternative_has_a_typed_executor(self):
         source=[{"name":"Goat","action":[{"name":"Ram","entries":[
           "{@atkr m} {@hit 2}, reach 5 ft. {@h}1 Bludgeoning damage, or 2 "
           "({@damage 1d4}) Bludgeoning damage if the goat moved 20+ feet straight "
           "toward the target immediately before the hit."]}]}]
         compiled=[{"id":"Goat","actions":[{"name":"Ram","damage":"1",
-          "damage_type":"bludgeoning","manual_rider_resolution_required":True,
-          "damage_alternative_expression":"1d4"}]}]
-        errors,counts=xmm.check_conditional_attack_damage(source,compiled,0,1)
-        self.assertEqual([],errors);self.assertEqual(1,counts["source_alternate_attack_branches_manual"])
-        compiled[0]["actions"][0]["manual_rider_resolution_required"]=False
-        errors,_=xmm.check_conditional_attack_damage(source,compiled,0,1)
-        self.assertIn("Goat:Ram:UNMODELED_ALTERNATE_DAMAGE_NOT_MANUAL",errors)
+          "damage_type":"bludgeoning","manual_rider_resolution_required":False,
+          "damage_alternative_expression":"1d4",
+          "damage_alternative_condition":"moved_20ft_straight_toward_target_immediately_before_hit"}]}]
+        errors,counts=xmm.check_conditional_attack_damage(source,compiled,0,0)
+        self.assertEqual([],errors);self.assertEqual(0,counts["source_alternate_attack_branches_manual"])
+        compiled[0]["actions"][0]["damage_alternative_condition"]="moved_10ft_straight_toward_target_immediately_before_hit"
+        errors,_=xmm.check_conditional_attack_damage(source,compiled,0,0)
+        self.assertIn("Goat:Ram:MOVEMENT_ALTERNATE_DAMAGE_NOT_EXECUTABLE",errors)
     def test_mimic_grappled_bite_prerequisite_is_not_a_condition_rider(self):
         source=[{"name":"Mimic","action":[{"name":"Bite","entries":[
-          "{@atkr m} {@h}7 ({@damage 1d8 + 3}) Piercing damage—or 12 "
-          "({@damage 2d8 + 3}) Piercing damage if grappled by the mimic—plus 4 "
+          "{@atkr m} {@hit 5} (with {@variantrule Advantage|XPHB} if the target is {@condition Grappled|XPHB} by the mimic), reach 5 ft. {@h}7 ({@damage 1d8 + 3}) Piercing damage—or 12 "
+          "({@damage 2d8 + 3}) Piercing damage if the target is {@condition Grappled|XPHB} by the mimic—plus 4 "
           "({@damage 1d8}) Acid damage."]}]}]
         compiled=[{"id":"Mimic","actions":[{"name":"Bite","damage":"1d8 + 3 + 1d8",
-          "damage_type":"piercing + acid","manual_rider_resolution_required":True}]}]
+          "damage_type":"piercing + acid","to_hit":5,"attack_modes":["m"],"reach_ft":5,
+          "attack_advantage_condition":"target_grappled_by_attacker",
+          "extra_damage_if_target_grappled_by_attacker":"1d8","extra_damage_if_target_grappled_by_attacker_type":"piercing",
+          "manual_rider_resolution_required":False,"manual_unmodeled_source_effect_required":False}]}]
         self.assertEqual(([],{"source_bloodied_attack_branches":0,
-            "source_alternate_attack_branches_manual":1}),
-            xmm.check_conditional_attack_damage(source,compiled,0,1))
+            "source_alternate_attack_branches_manual":0}),
+            xmm.check_conditional_attack_damage(source,compiled,0,0))
         compiled[0]["actions"][0]["condition_on_fail"]="grappled"
         errors,_=xmm.check_conditional_attack_damage(source,compiled,0,1)
         self.assertIn("Mimic:Bite:GRAPPLED_PREREQUISITE_MISMODELED_AS_RIDER",errors)
@@ -669,6 +747,14 @@ class XmmIndependentSourceTests(unittest.TestCase):
         ghast_runtime["condition_duration_tick"]="source_turn_end"
         self.assertFalse(xmm.source_action_has_typed_condition_contract(
             "Ghast Gravecaller",ghast,ghast_runtime))
+    def test_scout_captain_aim_requires_turn_limited_next_attack_advantage(self):
+        source={"name":"Aim","entries":["The scout has {@variantrule Advantage|XPHB} on the next attack roll it makes during the current turn."]}
+        compiled={"category":"bonus_action","grants_advantage_next_attack_this_turn":True,
+            "manual_rider_resolution_required":False,"manual_unmodeled_source_effect_required":False}
+        self.assertTrue(xmm.source_action_has_typed_condition_contract("Scout Captain",source,compiled))
+        compiled["grants_advantage_next_attack_this_turn"]=False
+        self.assertFalse(xmm.source_action_has_typed_condition_contract("Scout Captain",source,compiled))
+
     def test_not_503_is_not_success(self):
         with self.assertRaises(ValueError):xmm.check_monsters([],[],[])
 if __name__=="__main__":unittest.main()

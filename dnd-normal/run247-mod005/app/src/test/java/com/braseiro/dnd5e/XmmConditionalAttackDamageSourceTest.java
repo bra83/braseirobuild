@@ -91,7 +91,10 @@ public final class XmmConditionalAttackDamageSourceTest {
             JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile(row[0]),row[1]);
             assertNotNull(row[0]+" action",action);
             assertFalse(row[0]+" has no source save to fail",action.has("condition_on_fail"));
-            assertTrue(row[0]+" remains blocked until its effect is executable",
+            if("Bugbear Stalker".equals(row[0])||"Kraken".equals(row[0]))
+                assertFalse(row[0]+" source-linked condition action is executable",
+                    action.optBoolean("manual_rider_resolution_required",true));
+            else assertTrue(row[0]+" remains blocked until its effect is executable",
                 action.optBoolean("manual_rider_resolution_required"));
         }
         JSONObject cloaker=findAction(CompiledStatblockEngine.runtimeProfile("Cloaker"),"Attach");
@@ -151,22 +154,8 @@ public final class XmmConditionalAttackDamageSourceTest {
         assertEquals("1d8 + 3 + 1d8",mimicBite.optString("damage"));
         assertEquals("piercing + acid",mimicBite.optString("damage_type"));
         assertFalse("grapple is a prerequisite, not a failed-save rider",mimicBite.has("condition_on_fail"));
-        assertTrue("alternate damage and advantage still require target/source grappling context",
+        assertFalse("the grapple gate is source-bound and executable",
             mimicBite.optBoolean("manual_rider_resolution_required"));
-        String[][] manual={
-            {"Chimera","Bite"},{"Mimic","Bite"}
-        };
-        for(String[] row:manual){
-            JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile(row[0]),row[1]);
-            assertNotNull(row[0]+" action",action);
-            assertTrue(row[0]+" must be explicitly manual",action.optBoolean("manual_rider_resolution_required"));
-            JSONObject result=action.has("to_hit")
-                ?StatblockCombatRuntimeEngine.attack(row[0],row[1],20,1,20,40)
-                :StatblockCombatRuntimeEngine.savingThrowAction(row[0],row[1],40);
-            assertTrue(row[0]+" must block: "+result,result.optBoolean("blocked"));
-            assertEquals("manual_source_action_resolution_required",result.optString("reason"));
-            assertFalse(result.has("damage_expression"));
-        }
         for(String[] row:new String[][]{{"Aarakocra Skirmisher","Talons"},
             {"Giant Seahorse","Ram"},{"Goat","Ram"}}){
             JSONObject ordinary=StatblockCombatRuntimeEngine.attack(row[0],row[1],20,1,20,40);
@@ -190,7 +179,68 @@ public final class XmmConditionalAttackDamageSourceTest {
         assertEquals("unsupported_multiattack_conditional_advantage",
             MonsterActionEconomyGuard.attackRiderBlock(action,false));
         JSONObject stalker=findAction(CompiledStatblockEngine.runtimeProfile("Bugbear Stalker"),"Morningstar");
-        assertTrue(stalker.optBoolean("manual_unmodeled_source_effect_required",false));
+        assertFalse(stalker.optBoolean("manual_unmodeled_source_effect_required",true));
+    }
+
+    @Test public void chimeraBiteUsesTheSourceAdvantageDamageBranch(){
+        assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
+        JSONObject ordinary=StatblockCombatRuntimeEngine.attack("Chimera","Bite",10,15,100,100,false,false);
+        assertTrue(ordinary.toString(),ordinary.optBoolean("resolved"));
+        assertEquals("2d6 + 4",ordinary.optString("damage_expression"));
+        assertEquals("",ordinary.optString("extra_damage_expression"));
+        JSONObject advantage=StatblockCombatRuntimeEngine.attack("Chimera","Bite",10,15,100,100,false,true);
+        assertTrue(advantage.toString(),advantage.optBoolean("resolved"));
+        assertTrue(advantage.optBoolean("hit"));
+        assertTrue(advantage.optBoolean("attack_had_advantage"));
+        assertEquals("2d6 + 4",advantage.optString("damage_expression"));
+        assertEquals("2d6",advantage.optString("extra_damage_expression"));
+        assertEquals("piercing",advantage.optString("extra_damage_type"));
+    }
+
+    @Test public void threeMovementDamageAlternativesExecuteOnlyAfterChargeQualification(){
+        for(String[] row:new String[][]{
+            {"Aarakocra Skirmisher","Talons","1d4 + 2","3d4 + 2"},
+            {"Giant Seahorse","Ram","2d6 + 2","2d8 + 2"},
+            {"Goat","Ram","1","1d4"}}){
+            JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile(row[0]),row[1]);
+            assertNotNull(row[0]+" action",action);
+            assertFalse(row[0]+" must have an executor",action.optBoolean("manual_rider_resolution_required"));
+            assertTrue(row[0]+" movement gate",XmmChargeMovementRules.supported(action));
+            JSONObject without=StatblockCombatRuntimeEngine.attack(row[0],row[1],20,1,20,20,false);
+            assertTrue(without.toString(),without.optBoolean("resolved"));
+            assertEquals(row[2],without.optString("damage_expression"));
+            JSONObject charged=StatblockCombatRuntimeEngine.attack(row[0],row[1],20,1,20,20,true);
+            assertTrue(charged.toString(),charged.optBoolean("resolved"));
+            assertTrue(charged.optBoolean("charge_qualified"));
+            assertEquals(row[3],charged.optString("damage_expression"));
+        }
+    }
+
+    @Test public void mimicBiteUsesItsOwnGrappleForAdvantageAndExtraPiercingDamage(){
+        JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile("Mimic"),"Bite");
+        assertNotNull(action);assertFalse(action.optBoolean("manual_rider_resolution_required"));
+        assertEquals("target_grappled_by_attacker",action.optString("attack_advantage_condition"));
+        XmmConditionalAttackRollRules.Result owned=
+            XmmConditionalAttackRollRules.advantage(action,20,20,true);
+        assertTrue(owned.legal());assertTrue(owned.advantage);
+        XmmConditionalAttackRollRules.Result foreign=
+            XmmConditionalAttackRollRules.advantage(action,20,20,false);
+        assertTrue(foreign.legal());assertFalse(foreign.advantage);
+        JSONObject unverified=StatblockCombatRuntimeEngine.attack("Mimic","Bite",20,1,58,58,false,false);
+        assertTrue(unverified.optBoolean("blocked"));
+        assertEquals("source_attack_damage_grapple_link_unverified",unverified.optString("reason"));
+        JSONObject ordinary=StatblockCombatRuntimeEngine.attack("Mimic","Bite",20,1,58,58,false,false,false);
+        assertTrue(ordinary.toString(),ordinary.optBoolean("resolved"));
+        assertEquals("1d8 + 3 + 1d8",ordinary.optString("damage_expression"));
+        assertEquals("",ordinary.optString("extra_damage_expression"));
+        JSONObject advantageOnly=StatblockCombatRuntimeEngine.attack("Mimic","Bite",20,1,58,58,false,true,false);
+        assertEquals("other advantage alone is not the source condition","",
+            advantageOnly.optString("extra_damage_expression"));
+        JSONObject grappled=StatblockCombatRuntimeEngine.attack("Mimic","Bite",20,1,58,58,false,false,true);
+        assertTrue(grappled.toString(),grappled.optBoolean("resolved"));
+        assertEquals("1d8 + 3 + 1d8",grappled.optString("damage_expression"));
+        assertEquals("1d8",grappled.optString("extra_damage_expression"));
+        assertEquals("piercing",grappled.optString("extra_damage_type"));
     }
 
     @Test public void everyPinnedChargeActionHasTheTypedMovementGate(){
@@ -219,7 +269,7 @@ public final class XmmConditionalAttackDamageSourceTest {
         String[][] manual={
             {"Giant Axe Beak","Sharpened Beak"}, {"Balor","Lightning Blade"},
             {"Fire Giant","Hammer Throw"}, {"Bearded Devil","Infernal Glaive"},
-            {"Shadow","Draining Swipe"}, {"Doppelganger","Slam"},
+            {"Shadow","Draining Swipe"},
             {"Mummy","Rotting Fist"}, {"Adult Copper Dragon","Slowing Breath"}
         };
         for(String[] row:manual){
@@ -251,9 +301,7 @@ public final class XmmConditionalAttackDamageSourceTest {
         String[][] cases={
             {"Adult Brass Dragon","Sleep Breath"},
             {"Adult Silver Dragon","Paralyzing Breath"},
-            {"Pseudodragon","Sting"},
-            {"Tarrasque","Thunderous Bellow"},
-            {"Carrion Crawler","Paralyzing Tentacles"}
+            {"Pseudodragon","Sting"}
         };
         for(String[] row:cases){
             JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile(row[0]),row[1]);

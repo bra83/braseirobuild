@@ -2637,24 +2637,29 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);
         form.setPadding(dp(12),dp(8),dp(12),dp(8));
         form.addView(text("Agarrado por "+info.optString("source_name")+" — CD "+
-            info.optInt("escape_dc")+". Ação: Atletismo (Força) ou Acrobacia (Destreza).",
+            info.optInt("escape_dc")+". Ação: Atletismo (Força) ou Acrobacia (Destreza)."+
+            (info.optBoolean("check_disadvantage",false)?" Role 2d20 e use o menor resultado.":""),
             14,TEXT,false));
         final Spinner skill=spinner(new String[]{"Atletismo","Acrobacia"},"Atletismo");
         form.addView(cardWithLabel("TESTE DE ESCAPE",skill));
         final EditText total=labeledField(form,"Total real do teste (d20 + bônus)","",false);
         total.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_SIGNED);
+        final EditText secondTotal=info.optBoolean("check_disadvantage",false)?
+            labeledField(form,"Segundo total real (d20 + bônus)","",false):null;
+        if(secondTotal!=null)secondTotal.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_SIGNED);
         final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Escapar de um agarre")
             .setView(scrollableDialogView(form)).setNegativeButton("CANCELAR",null)
             .setPositiveButton("REGISTRAR TESTE",null).create();
         dialog.setOnShowListener(new DialogInterface.OnShowListener(){public void onShow(DialogInterface ignored){
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){
                 public void onClick(View view){
-                    final int check;try{check=Integer.parseInt(value(total));}
+                    final int check,second;try{check=Integer.parseInt(value(total));
+                        second=secondTotal==null?0:Integer.parseInt(value(secondTotal));}
                     catch(Exception invalid){toast("Informe o total real do teste.");return;}
                     JSONObject before=db.getCombatant(target.optLong("id"));
                     JSONObject result=db.resolveXmmGrappleEscape(target.optLong("id"),
                         String.valueOf(skill.getSelectedItem()).equals("Atletismo")?"athletics":"acrobatics",
-                        check,"ui-grapple-escape-"+java.util.UUID.randomUUID());
+                        check,second,"ui-grapple-escape-"+java.util.UUID.randomUUID());
                     if(!result.optBoolean("grapple_escape_committed",false)){
                         toast("Fuga não aplicada: "+result.optString("grapple_escape_blocked",
                             result.optString("operation_error","revise o turno e o total.")));return;
@@ -2700,8 +2705,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         card.addView(text("SALVAGUARDA DE RECUPERAÇÃO PENDENTE",14,GOLD,true));
         card.addView(text(""+active.optString("name","Combatente")+" precisa resolver " +
             records.size()+" condição(ões) antes do próximo turno. Informe o total real " +
-            "(d20 + bônus); nenhuma rolagem é presumida.",12,TEXT,false));
-        Button resolve=button("RESOLVER SALVAGUARDA DE CONDIÇÃO",GOLD);
+            "(d20 + bônus), exceto quando a duração da fonte encerra o efeito automaticamente.",12,TEXT,false));
+        Button resolve=button("RESOLVER SALVAGUARDA / TÉRMINO AUTOMÁTICO",GOLD);
         resolve.setTextColor(Color.BLACK);
         resolve.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
             final String[] labels=new String[records.size()];
@@ -2716,14 +2721,21 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             form.addView(cardWithLabel("CONDIÇÃO E SALVAGUARDA DO BLOCO",condition));
             final EditText total=labeledField(form,"Total real da salvaguarda (d20 + bônus)","",false);
             total.setInputType(InputType.TYPE_CLASS_NUMBER);
+            form.addView(text("O sistema encerra sem rolagem ao atingir o limite automático declarado pela fonte.",
+                11,MUTED,false));
             final AlertDialog dialog=new AlertDialog.Builder(MainActivity.this)
                 .setTitle("Recuperação de condição").setView(form)
                 .setNegativeButton("CANCELAR",null).setPositiveButton("CONFIRMAR",null).create();
             dialog.setOnShowListener(new DialogInterface.OnShowListener(){public void onShow(DialogInterface ignored){
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View view){
-                    int roll;try{roll=Integer.parseInt(value(total).trim());}
-                    catch(Exception invalid){toast("Informe o total numérico da salvaguarda.");return;}
                     JSONObject selected=records.get(condition.getSelectedItemPosition());
+                    int autoAfter=selected.optInt("auto_success_after_failed_saves",0);
+                    boolean automaticDue=autoAfter>0&&
+                        selected.optInt("failed_attempts",0)+1>=autoAfter;
+                    int roll;
+                    if(automaticDue)roll=-1;
+                    else try{roll=Integer.parseInt(value(total).trim());}
+                    catch(Exception invalid){toast("Informe o total numérico da salvaguarda.");return;}
                     JSONObject result=db.resolveCompiledMonsterConditionRecovery(active.optLong("id"),
                         selected.optString("name",""),roll,"ui-monster-recovery-"+java.util.UUID.randomUUID());
                     if(!result.optBoolean("recovery_committed",false)){
@@ -2731,7 +2743,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                             result.optString("operation_error","revise a rolagem")));return;
                     }
                     JSONObject proof=result.optJSONObject("recovery_result");
-                    toast(proof!=null&&proof.optBoolean("success",false)?
+                    toast(proof!=null&&proof.optBoolean("automatic_success",false)?
+                        "Duração da fonte atingida; condição encerrada automaticamente.":
+                        proof!=null&&proof.optBoolean("success",false)?
                         "Salvaguarda bem-sucedida; condição atualizada.":
                         "Salvaguarda falhou; condição permanece até nova oportunidade.");
                     dialog.dismiss();showCombat();
@@ -3267,7 +3281,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final EditText save=labeledField(form,"Total da salvaguarda do efeito (obrigatório se acertar e houver CD)","0",false);
         // Only used for a statblock-authorized push/pull after a failed
         // on-hit saving throw. Empty (-1) never teleports a combatant.
-        form.addView(text("Se o bloco declarar deslocamento push/pull no acerto ou após falha na salvaguarda, informe a célula de destino do alvo. O app valida direção, distância, obstáculos e ocupação. Deixe -1 quando não se aplicar.",11,MUTED,false));
+        form.addView(text("Se o bloco declarar empurrão, puxão ou outro deslocamento obrigatório ao acertar ou após falha na salvaguarda, informe a célula de destino do alvo. O app valida direção permitida, distância, obstáculos e ocupação. Deixe -1 quando não se aplicar.",11,MUTED,false));
         final EditText forcedX=labeledField(form,"Célula de destino X (-1 se não aplicável)","-1",false);
         final EditText forcedY=labeledField(form,"Célula de destino Y (-1 se não aplicável)","-1",false);
         final Button previewRoll=button("CONFERIR MODO DE ROLAGEM E CA",GREEN);
@@ -3624,6 +3638,42 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }});}});dialog.show();
     }
 
+    private void compiledMonsterNextAttackBonusDialog(final JSONObject monster){
+        final long actorId=monster.optLong("id");
+        final String block=parseObjectSafe(monster.optString("resources_json","{}"))
+            .optString("block_id","");
+        JSONArray actions=CompiledStatblockEngine.runtimeProfile(block).optJSONArray("special_actions");
+        final ArrayList<String> names=new ArrayList<String>(),sourceNames=new ArrayList<String>();
+        if(actions!=null)for(int i=0;i<actions.length();i++){
+            JSONObject a=actions.optJSONObject(i);
+            if(a!=null&&a.optBoolean("grants_advantage_next_attack_this_turn",false)){
+                String name=a.optString("name","");sourceNames.add(name);
+                names.add(DndPtBrLocalizer.localizeText(name));
+            }
+        }
+        if(names.isEmpty()){toast("Este bloco não declara essa ação bônus executável.");return;}
+        final Spinner action=spinner(names.toArray(new String[0]),names.get(0));
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);
+        form.setPadding(dp(12),0,dp(12),0);form.addView(cardWithLabel("AÇÃO BÔNUS",action));
+        form.addView(text("A vantagem fica vinculada ao próximo ataque deste turno e é consumida mesmo se errar.",12,MUTED,false));
+        final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Ação bônus de monstro")
+            .setView(form).setNegativeButton("CANCELAR",null).setPositiveButton("APLICAR",null).create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener(){public void onShow(DialogInterface ignored){
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v){
+                    JSONObject result=db.applyCompiledStatblockNextAttackAdvantage(actorId,block,
+                        sourceNames.get(action.getSelectedItemPosition()),"ui-monster-bonus-"+
+                            java.util.UUID.randomUUID());
+                    if(!result.optBoolean("statblock_bonus_committed",false)){
+                        toast("Ação bônus não aplicada: "+result.optString("statblock_bonus_blocked","revise o bloco"));
+                        return;
+                    }
+                    toast("A próxima rolagem de ataque terá vantagem.");dialog.dismiss();showCombat();
+                }
+            });
+        }});dialog.show();
+    }
+
     /** Guided d6 recharge for a compiled monster action; the roll is explicit and durable. */
     private void compiledMonsterRechargeDialog(final JSONObject monster){
         final long actorId=monster.optLong("id");
@@ -3753,6 +3803,18 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             Button monsterSave=button("AÇÃO ESPECIAL • SALVAGUARDA",GREEN);
             monsterSave.setOnClickListener(new View.OnClickListener(){public void onClick(View v){compiledMonsterSaveActionDialog(active);}});
             panel.addView(monsterSave);
+            JSONArray bonusActions=monsterProfile.optJSONArray("special_actions");boolean hasNextAttackBonus=false;
+            for(int i=0;bonusActions!=null&&i<bonusActions.length();i++){
+                JSONObject action=bonusActions.optJSONObject(i);
+                if(action!=null&&action.optBoolean("grants_advantage_next_attack_this_turn",false))
+                    hasNextAttackBonus=true;
+            }
+            if(hasNextAttackBonus){Button monsterBonus=button("AÇÃO BÔNUS • EFEITO COMPILADO",GREEN);
+                monsterBonus.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                    compiledMonsterNextAttackBonusDialog(active);
+                }});
+                panel.addView(monsterBonus);
+            }
             Button monsterRecharge=button("RECARREGAR AÇÃO • D6 DO BLOCO",PANEL2);
             monsterRecharge.setOnClickListener(new View.OnClickListener(){public void onClick(View v){compiledMonsterRechargeDialog(active);}});
             panel.addView(monsterRecharge);
