@@ -75,6 +75,31 @@ public final class XmmConditionalAttackDamageSourceTest {
     }
 
     @Test public void unmodeledMoveAdvantageAndGrappleAlternativesFailClosed(){
+        String[][] noSave={
+            {"Allosaurus","Claws"},{"Balor","Flame Whip"},{"Bearded Devil","Beard"},
+            {"Bone Devil","Infernal Sting"},{"Bugbear Stalker","Morningstar"},
+            {"Bugbear Warrior","Light Hammer"},{"Cloaker","Attach"},{"Darkmantle","Crush"},
+            {"Death Slaad","Chaos Blade"},{"Dire Worg","Bite"},{"Elephant","Gore"},
+            {"Empyrean","Sacred Weapon"},{"Ghast Gravecaller","Claw"},{"Giant Frog","Swallow"},
+            {"Giant Toad","Swallow"},{"Githzerai Psion","Psychic Warp"},{"Gorgon","Gore"},
+            {"Goristro","Brutal Gore"},{"Gray Slaad","Chaos Claw"},{"Green Slaad","Chaos Staff"},
+            {"Kraken","Tentacle"},{"Mammoth","Gore"},{"Phase Spider","Bite"},{"Pixie","Faerie Dust"},
+            {"Pixie Wonderbringer","Faerie Dust"},{"Roper","Reel"},{"Roper","Tentacle"},
+            {"Tarrasque","Bite"},{"Vampire Familiar","Umbral Dagger"},{"Warhorse Skeleton","Hooves"}
+        };
+        for(String[] row:noSave){
+            JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile(row[0]),row[1]);
+            assertNotNull(row[0]+" action",action);
+            assertFalse(row[0]+" has no source save to fail",action.has("condition_on_fail"));
+            assertTrue(row[0]+" remains blocked until its effect is executable",
+                action.optBoolean("manual_rider_resolution_required"));
+        }
+        JSONObject cloaker=findAction(CompiledStatblockEngine.runtimeProfile("Cloaker"),"Attach");
+        assertEquals(14,cloaker.optInt("detach_dc"));
+        assertFalse(cloaker.has("save_dc"));
+        JSONObject kraken=findAction(CompiledStatblockEngine.runtimeProfile("Kraken"),"Tentacle");
+        assertEquals(20,kraken.optInt("escape_dc"));
+        assertFalse(kraken.has("save_dc"));
         for(Object[] row:CHARGE_EXTRA){
             String id=(String)row[0],actionName=(String)row[1];
             JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile(id),actionName);

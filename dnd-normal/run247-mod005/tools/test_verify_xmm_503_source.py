@@ -173,6 +173,11 @@ class XmmIndependentSourceTests(unittest.TestCase):
         self.assertTrue(xmm.charge_extra_damage_matches("Boar",source,compiled))
         compiled["condition_on_fail"]="prone"
         self.assertFalse(xmm.charge_extra_damage_matches("Boar",source,compiled))
+    def test_condition_on_fail_requires_a_source_saving_throw(self):
+        source={"name":"Gore","entries":["{@atkr m} hit; the target has {@condition Prone|XPHB}."]}
+        self.assertFalse(xmm.condition_on_fail_matches_source(source,{"condition_on_fail":"prone"}))
+        saved={"name":"Breath","entries":["{@actSave dex} {@dc 15}, target. {@actSaveFail} {@condition Prone|XPHB}."]}
+        self.assertTrue(xmm.condition_on_fail_matches_source(saved,{"condition_on_fail":"prone","save_dc":15}))
     def test_unmodeled_action_riders_fail_closed(self):
         source=[{"name":"Giant Axe Beak","action":[{"name":"Sharpened Beak",
           "entries":["Hit the target, and a creature within 5 feet of the target takes damage."]}]}]

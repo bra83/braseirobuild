@@ -299,6 +299,13 @@ def charge_extra_damage_matches(monster_name,source_action,compiled_action):
         "condition_on_fail" not in compiled_action and
         compiled_action.get("manual_rider_resolution_required") is True)
 
+def source_action_has_saving_throw(action):
+    text=json.dumps(action,ensure_ascii=False)
+    return bool(re.search(r"\{@actSave\s+(?:str|dex|con|int|wis|cha)\}|saving throws?",text,re.I))
+
+def condition_on_fail_matches_source(action,compiled_action):
+    return (not compiled_action.get("condition_on_fail") or source_action_has_saving_throw(action))
+
 def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expected_manual=5):
     """Ensure alternate attack damage is selected or the action stays manual.
 
@@ -319,6 +326,8 @@ def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expecte
             entry=" ".join(x for x in entries if isinstance(x,str))
             compiled_actions=dst.get("actions",[])
             compiled_action=compiled_actions[slot] if slot<len(compiled_actions) else {}
+            if not condition_on_fail_matches_source(action,compiled_action):
+                errors.append(f"{monster['name']}:{action['name']}:CONDITION_ON_FAIL_WITHOUT_SOURCE_SAVE")
             status=bloodied_status.search(entry)
             alt=alternate.search(entry)
             if status and alt:
