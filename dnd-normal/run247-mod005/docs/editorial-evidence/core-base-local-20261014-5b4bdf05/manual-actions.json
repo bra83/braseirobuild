@@ -1,0 +1,1728 @@
+{
+  "format": "XMM_MANUAL_UNMODELED_ACTIONS_V1",
+  "count": 246,
+  "actions": [
+    {
+      "monster": "Aarakocra Skirmisher",
+      "action": "Wind Javelin",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Aberrant Cultist",
+      "action": "Tentacle Lash",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Aboleth",
+      "action": "Consume Memories",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Aboleth",
+      "action": "Dominate Mind (2/Day)",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Aboleth",
+      "action": "Psychic Drain",
+      "category": "legendary_action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Adult Black Dragon",
+      "action": "Cloud of Insects",
+      "category": "legendary_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Adult Brass Dragon",
+      "action": "Sleep Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Adult Brass Dragon",
+      "action": "Scorching Sands",
+      "category": "legendary_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Adult Bronze Dragon",
+      "action": "Repulsion Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Adult Copper Dragon",
+      "action": "Slowing Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Adult Gold Dragon",
+      "action": "Weakening Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Adult Silver Dragon",
+      "action": "Paralyzing Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Adult Silver Dragon",
+      "action": "Cold Gale",
+      "category": "legendary_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Air Elemental",
+      "action": "Whirlwind",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Ancient Black Dragon",
+      "action": "Cloud of Insects",
+      "category": "legendary_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Ancient Brass Dragon",
+      "action": "Sleep Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Ancient Brass Dragon",
+      "action": "Scorching Sands",
+      "category": "legendary_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Ancient Bronze Dragon",
+      "action": "Repulsion Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Ancient Copper Dragon",
+      "action": "Slowing Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Ancient Gold Dragon",
+      "action": "Weakening Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Ancient Silver Dragon",
+      "action": "Paralyzing Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Ancient Silver Dragon",
+      "action": "Cold Gale",
+      "category": "legendary_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Animal Lord",
+      "action": "Animal Spirit",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Animated Rug of Smothering",
+      "action": "Smother",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Ankheg",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Arcanaloth",
+      "action": "Banishing Claw (Requires Soul Tome)",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Arch-hag",
+      "action": "Crackling Wave",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Arch-hag",
+      "action": "Witch Strike",
+      "category": "bonus_action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Balor",
+      "action": "Flame Whip",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Balor",
+      "action": "Lightning Blade",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Bandit Crime Lord",
+      "action": "Deadly Aim",
+      "category": "bonus_action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Barbed Devil",
+      "action": "Hurl Flame",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Basilisk",
+      "action": "Petrifying Gaze",
+      "category": "bonus_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Bearded Devil",
+      "action": "Beard",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Bearded Devil",
+      "action": "Infernal Glaive",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Behir",
+      "action": "Constrict",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Behir",
+      "action": "Swallow",
+      "category": "bonus_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Beholder",
+      "action": "Eye Rays",
+      "category": "action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Beholder Zombie",
+      "action": "Eye Rays",
+      "category": "action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Berserker Commander",
+      "action": "Greataxe",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Berserker Commander",
+      "action": "Javelin",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Berserker Commander",
+      "action": "Frenzied Rush",
+      "category": "bonus_action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Blob of Annihilation",
+      "action": "Engulf",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Blue Slaad",
+      "action": "Mutating Claw",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Bone Devil",
+      "action": "Infernal Sting",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Brass Dragon Wyrmling",
+      "action": "Sleep Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Brazen Gorgon",
+      "action": "Smelting Charge",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Bronze Dragon Wyrmling",
+      "action": "Repulsion Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Bugbear Stalker",
+      "action": "Morningstar",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Bugbear Warrior",
+      "action": "Light Hammer",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Bulette",
+      "action": "Deadly Leap",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Carrion Crawler",
+      "action": "Paralyzing Tentacles",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Chain Devil",
+      "action": "Chain",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Chain Devil",
+      "action": "Conjure Infernal Chain",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Chasme",
+      "action": "Proboscis",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Chasme",
+      "action": "Drone",
+      "category": "bonus_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Chimera",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Chuul",
+      "action": "Paralyzing Tentacles",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Clay Golem",
+      "action": "Slam",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Cockatrice",
+      "action": "Petrifying Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Cockatrice Regent",
+      "action": "Petrifying Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Colossus",
+      "action": "Slam",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Copper Dragon Wyrmling",
+      "action": "Slowing Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Couatl",
+      "action": "Constrict",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Crocodile",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Cyclops Oracle",
+      "action": "Flash of Light",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Cyclops Sentry",
+      "action": "Limited Foresight",
+      "category": "reaction",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Dao",
+      "action": "Earth Burst",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Darkmantle",
+      "action": "Crush",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Death Cultist",
+      "action": "Dread Scythe",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Death Dog",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Death Knight",
+      "action": "Fell Word",
+      "category": "legendary_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Death Slaad",
+      "action": "Chaos Blade",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Death Tyrant",
+      "action": "Eye Rays",
+      "category": "action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Death Tyrant",
+      "action": "Negative Energy Cone",
+      "category": "bonus_action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Demilich",
+      "action": "Energy Drain",
+      "category": "legendary_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Dire Worg",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Djinni",
+      "action": "Create Whirlwind",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Doppelganger",
+      "action": "Slam",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Doppelganger",
+      "action": "Unsettling Visage",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Dretch",
+      "action": "Fetid Cloud (1/Day)",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Elemental Cataclysm",
+      "action": "Cataclysmic Event",
+      "category": "action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Elemental Cultist",
+      "action": "Elemental Claw",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Elemental Cultist",
+      "action": "Elemental Absorption (1/Day)",
+      "category": "reaction",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Empyrean",
+      "action": "Bolster",
+      "category": "legendary_action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Ettin",
+      "action": "Morningstar",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Faerie Dragon Adult",
+      "action": "Euphoria Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Fire Elemental",
+      "action": "Burn",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Fire Giant",
+      "action": "Hammer Throw",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Frost Giant",
+      "action": "Great Bow",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Frost Giant",
+      "action": "War Cry",
+      "category": "bonus_action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Giant Axe Beak",
+      "action": "Sharpened Beak",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Giant Crocodile",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Giant Frog",
+      "action": "Swallow",
+      "category": "action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Giant Octopus",
+      "action": "Tentacles",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Giant Shark",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Giant Toad",
+      "action": "Swallow",
+      "category": "action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Githzerai Psion",
+      "action": "Psychic Warp",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Gnoll Demoniac",
+      "action": "Hunger of Yeenoghu",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Gnoll Pack Lord",
+      "action": "Incite Rampage",
+      "category": "action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Goblin Boss",
+      "action": "Scimitar",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Goblin Boss",
+      "action": "Shortbow",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Goblin Warrior",
+      "action": "Scimitar",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Goblin Warrior",
+      "action": "Shortbow",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Gold Dragon Wyrmling",
+      "action": "Weakening Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Gorgon",
+      "action": "Petrifying Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Goristro",
+      "action": "Brutal Gore",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Graveyard Revenant",
+      "action": "Haunting Glare",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Gray Slaad",
+      "action": "Chaos Claw",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Green Slaad",
+      "action": "Chaos Staff",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Grell",
+      "action": "Paralyzing Tentacles",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Gulthias Blight",
+      "action": "Life-Draining Root",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Harpy",
+      "action": "Luring Song",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Haunting Revenant",
+      "action": "Object Slam",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Hobgoblin Warlord",
+      "action": "Javelin",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Homunculus",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Hook Horror",
+      "action": "Hook",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Horned Devil",
+      "action": "Hurl Flame",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Horned Devil",
+      "action": "Infernal Tail",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Hunter Shark",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Ice Devil",
+      "action": "Ice Spear",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Incubus",
+      "action": "Restless Touch",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Kenku",
+      "action": "Shadow Blade",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Kraken",
+      "action": "Fling",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Kraken",
+      "action": "Swallow",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Kraken",
+      "action": "Tentacle",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Kraken",
+      "action": "Toxic Ink",
+      "category": "legendary_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Kuo-toa",
+      "action": "Sticky Net (1/Day)",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Lacedon Ghoul",
+      "action": "Icy Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Lamia",
+      "action": "Corrupting Touch",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Lizardfolk Sovereign",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Magmin",
+      "action": "Touch",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Marid",
+      "action": "Water Jet",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Marilith",
+      "action": "Constrict",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Medusa",
+      "action": "Petrifying Gaze",
+      "category": "bonus_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Merfolk Skirmisher",
+      "action": "Ocean Spear",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Merfolk Wavebender",
+      "action": "Watery Rebuke",
+      "category": "reaction",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Merrow",
+      "action": "Harpoon",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Mezzoloth",
+      "action": "Claws",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Mezzoloth",
+      "action": "Mercurial Trident",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Mimic",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Mimic",
+      "action": "Pseudopod",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Mind Flayer",
+      "action": "Tentacles",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Mind Flayer Arcanist",
+      "action": "Arcane Tentacles",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Modron Duodrone",
+      "action": "Clockwork Blade",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Modron Pentadrone",
+      "action": "Paralysis Gas",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Modron Tridrone",
+      "action": "Clockwork Spear",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Mummy",
+      "action": "Rotting Fist",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Mummy Lord",
+      "action": "Rotting Fist",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Myconid Adult",
+      "action": "Pacifying Spores (1/Day)",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Myconid Sovereign",
+      "action": "Pacifying Spores",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Nalfeshnee",
+      "action": "Pursuit",
+      "category": "reaction",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Nycaloth",
+      "action": "Mercurial Axe",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Otyugh",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Otyugh",
+      "action": "Tentacle Slam",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Performer Legend",
+      "action": "Majestic Song",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Peryton",
+      "action": "Talons",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Phase Spider",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Piranha",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Pirate Admiral",
+      "action": "Scimitar",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Pirate Admiral",
+      "action": "Rally (1/Day)",
+      "category": "bonus_action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Pirate Captain",
+      "action": "Rapier",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Pit Fiend",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Pixie",
+      "action": "Faerie Dust",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Pixie Wonderbringer",
+      "action": "Faerie Dust",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Poltergeist",
+      "action": "Telekinetic Thrust",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Pseudodragon",
+      "action": "Sting",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Psychic Gray Ooze",
+      "action": "Pseudopod",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Purple Worm",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Purple Worm",
+      "action": "Swallow",
+      "category": "bonus_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Quasit",
+      "action": "Scare (1/Day)",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Rakshasa",
+      "action": "Cursed Touch",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Rakshasa",
+      "action": "Multiattack",
+      "category": "action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Red Slaad",
+      "action": "Injecting Claw",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Remorhaz",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Remorhaz",
+      "action": "Swallow",
+      "category": "bonus_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Revenant",
+      "action": "Vengeful Glare",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Revenant",
+      "action": "Vow of Revenge (1/Day)",
+      "category": "bonus_action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Roc",
+      "action": "Talons",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Roper",
+      "action": "Tentacle",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Sahuagin Baron",
+      "action": "Fiendish Blood",
+      "category": "reaction",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Salamander",
+      "action": "Constrict",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Salamander",
+      "action": "Flame Spear",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Salamander Inferno Master",
+      "action": "Flame Trident",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Salamander Inferno Master",
+      "action": "Inferno Blast",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Satyr",
+      "action": "Hooves",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Satyr Revelmaster",
+      "action": "Fey Melody",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Scarecrow",
+      "action": "Terrifying Glare",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Scout Captain",
+      "action": "Longbow",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Scout Captain",
+      "action": "Shortsword",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Scout Captain",
+      "action": "Aim",
+      "category": "bonus_action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Shadow",
+      "action": "Draining Swipe",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Shambling Mound",
+      "action": "Charged Tendril",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Shambling Mound",
+      "action": "Engulf",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Silver Dragon Wyrmling",
+      "action": "Paralyzing Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Solar",
+      "action": "Flying Sword",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Spectator",
+      "action": "Eye Rays",
+      "category": "action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Specter",
+      "action": "Life Drain",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Sphinx of Secrets",
+      "action": "Curse of the Riddle",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Sphinx of Secrets",
+      "action": "Multiattack",
+      "category": "action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Sphinx of Valor",
+      "action": "Roar (3/Day)",
+      "category": "action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Sphinx of Wonder",
+      "action": "Burst of Ingenuity (2/Day)",
+      "category": "reaction",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Steam Mephit",
+      "action": "Steam Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Stirge",
+      "action": "Proboscis",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Succubus",
+      "action": "Draining Kiss",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Swarm of Piranhas",
+      "action": "Bites",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Swarm of Ravens",
+      "action": "Cacophony",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Swarm of Stirges",
+      "action": "Swarm of Proboscises",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Tarrasque",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Tarrasque",
+      "action": "Thunderous Bellow",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Tarrasque",
+      "action": "Swallow",
+      "category": "bonus_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Tough Boss",
+      "action": "Warhammer",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Tree Blight",
+      "action": "Grasping Root",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Tyrannosaurus Rex",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Ultroloth",
+      "action": "Mercurial Whip",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Umber Hulk",
+      "action": "Confusing Gaze",
+      "category": "bonus_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Unicorn",
+      "action": "Shimmering Shield",
+      "category": "legendary_action",
+      "runtime_route": "preflight_only",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Vampire",
+      "action": "Bite (Bat or Vampire Form Only)",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Vampire Familiar",
+      "action": "Umbral Dagger",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Vampire Nightbringer",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Vampire Spawn",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Vampire Umbral Lord",
+      "action": "Sanguine Drain",
+      "category": "bonus_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Violet Fungus Necrohulk",
+      "action": "Spore Bomb",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Violet Fungus Necrohulk",
+      "action": "Absorb Body",
+      "category": "bonus_action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Vrock",
+      "action": "Spores",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Warrior Commander",
+      "action": "Greatsword",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Warrior Commander",
+      "action": "Longbow",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Water Elemental",
+      "action": "Whelm",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Water Weird",
+      "action": "Surge",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Werebear",
+      "action": "Bite (Bear or Hybrid Form Only)",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Wereboar",
+      "action": "Gore (Boar or Hybrid Form Only)",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Wererat",
+      "action": "Bite (Rat or Hybrid Form Only)",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Weretiger",
+      "action": "Bite (Tiger or Hybrid Form Only)",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Werewolf",
+      "action": "Bite (Wolf or Hybrid Form Only)",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Wight",
+      "action": "Life Drain",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Worg",
+      "action": "Bite",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Wraith",
+      "action": "Life Drain",
+      "category": "action",
+      "runtime_route": "attack",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Yochlol",
+      "action": "Toxic Escape",
+      "category": "reaction",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Young Brass Dragon",
+      "action": "Sleep Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Young Bronze Dragon",
+      "action": "Repulsion Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Young Copper Dragon",
+      "action": "Slowing Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Young Gold Dragon",
+      "action": "Weakening Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Young Silver Dragon",
+      "action": "Paralyzing Breath",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Yuan-ti Abomination",
+      "action": "Constrict",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Yuan-ti Abomination",
+      "action": "Poison Spray",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    },
+    {
+      "monster": "Yuan-ti Malison (Type 3)",
+      "action": "Constrict",
+      "category": "action",
+      "runtime_route": "saving_throw",
+      "blocker": "manual_source_action_resolution_required"
+    }
+  ]
+}
