@@ -32,6 +32,18 @@ public final class DndPtBrLocalizer {
         add("FEATURES AND TRAITS", "RECURSOS E TRAÇOS");
         add("FEATURES", "RECURSOS E TRAÇOS");
         add("ATTACKS", "ATAQUES");
+        add("Paralyzing Touch", "Toque Paralisante");
+        add("Shortsword", "Espada Curta");
+        add("Bite", "Mordida");
+        add("Sun Ray", "Raio Solar");
+        add("Draconic Strike", "Golpe Dracônico");
+        add("Beguiling Strike", "Golpe Sedutor");
+        add("Nightmare Ray", "Raio do Pesadelo");
+        add("Rend", "Rasgar");
+        add("Prance", "Dança Saltitante");
+        add("Enchanting Bow", "Arco Encantador");
+        add("Sickening Ray", "Raio Nauseante");
+        add("Sting", "Ferrão");
         add("Gouge", "Golpe Dilacerante");
         add("Thundercloud", "Nuvem Trovejante");
         add("Tendril", "Tentáculo");

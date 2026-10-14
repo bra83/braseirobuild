@@ -48,6 +48,8 @@ public final class Run246G05TypedOnHitBatchRobolectricTest {
         assertEquals(0,RavenloftBestiaryRuntimeEngine.install().optInt("blocked"));
         assertTrue(Xmm2025CompiledBestiaryEngine.install().optInt("statblocks_installed")>0);
         for(Case c:CASES){
+            assertNotEquals("action label must be Portuguese: "+c.action,
+                c.action,DndPtBrLocalizer.localizeText(c.action));
             JSONObject profile=CompiledStatblockEngine.runtimeProfile(c.creature);
             assertTrue("missing "+c.creature,profile.optBoolean("found",false));
             JSONObject action=findAction(profile,c.action);
