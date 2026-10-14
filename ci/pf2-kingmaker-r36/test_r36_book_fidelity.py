@@ -481,10 +481,23 @@ def test_ekundayo_book_outcomes_persist_in_actual_journal_and_sheets():
                     'nextInfluence=Math.max(nextInfluence,8)',
                     '"ekundayo_romance_with_pc"']:
         assert literal in semantic
-    assert 'db.runInTransactionChecked' in method_body('public JSONObject resolveCompanionAdventureCheck(')
-    assert 'db.runInTransactionChecked' in method_body('public JSONObject resolveCompanionAdventureBranch(')
-    journal=method_body('public JSONObject resolveCompanionAdventureCheck(')
+    # The five-argument API only delegates. Persisted choices are handled
+    # by the six-argument (feastActorId) overload, inside one DB transaction.
+    public_check=method_body(
+        'public JSONObject resolveCompanionAdventureCheck(final String companionKey,'
+        'final String checkId,final int naturalRoll,final int totalModifier,'
+        'final int dc)throws Exception{')
+    assert 'return resolveCompanionAdventureCheck(companionKey,checkId,naturalRoll,totalModifier,dc,0L);' in public_check
+    journal=method_body(
+        'public JSONObject resolveCompanionAdventureCheck(final String companionKey,'
+        'final String checkId,final int naturalRoll,final int totalModifier,'
+        'final int dc,final long feastActorId)throws Exception{')
+    assert 'db.runInTransactionChecked(new AppDb.CheckedTransaction()' in journal
+    assert 'KingmakerCompanionSemantics.resolveCompanionAdventureCheck(canonical,checkId,naturalRoll,totalModifier,dc,progress,feastActorId)' in journal
+    assert 'db.getWritableDatabase().update("quests",v,' in journal
+    assert 'db.getWritableDatabase().update("kingmaker_companions",c,' in journal
     assert 'progress.put("ekundayo_helpful"' in journal
+    assert 'db.runInTransactionChecked' in method_body('public JSONObject resolveCompanionAdventureBranch(')
     main=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
     assert 'showKingmakerCompanionSkillChecks' in main
     assert 'showKingmakerCompanionSkillRoll' in main
