@@ -69,16 +69,33 @@ public final class Run243TacticalMovementRobolectricTest {
             JSONObject moved=db.moveCombatantToGridCell(actor,4,2,false,false,
                 preview.optString("grid_fingerprint"),"ui-grid-run243-move");
             assertTrue(moved.toString(),moved.optBoolean("grid_movement_committed"));
+            JSONObject committedPath=moved.optJSONObject("committed_path");
+            assertTrue(moved.toString(),TacticalGridMovementProofRules.valid(committedPath,actor));
+            assertEquals(preview.getJSONArray("route_cells").toString(),
+                committedPath.getJSONArray("route_cells").toString());
             assertEquals(4,db.tacticalGridPosition(actor).optInt("cell_x"));
             JSONObject resources=new JSONObject(db.getCombatant(actor).optString("resources_json","{}"));
             assertEquals(15,resources.optInt("movement_remaining_ft"));
             JSONObject backup=db.exportAll();
+            String oldPathKey=CombatPersistentReceiptKey.forCombatant(actor,
+                "ui-grid-run243-move-movement-path");
+            db.addCombatant("G08 Intervening Actor",5,20,20,10,"",false);
             db.importAll(backup);
             JSONObject restored=db.findCombatantByName("G08 Terrain Actor");
             assertTrue(restored.toString(),restored.optLong("id")>0);
+            assertNotEquals(actor,restored.optLong("id"));
             assertEquals(4,db.tacticalGridPosition(restored.optLong("id")).optInt("cell_x"));
             assertEquals(15,new JSONObject(restored.optString("resources_json","{}"))
                 .optInt("movement_remaining_ft"));
+            JSONObject pathRow=db.queryOne("SELECT source FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{"dnd",CombatPersistentReceiptKey.forCombatant(restored.optLong("id"),
+                    "ui-grid-run243-move-movement-path")});
+            assertFalse(pathRow.toString(),pathRow.optString("source","").isEmpty());
+            JSONObject restoredPath=new JSONObject(pathRow.optString("source"));
+            assertEquals(restored.optLong("id"),restoredPath.optLong("actor_id"));
+            assertTrue(TacticalGridMovementProofRules.valid(restoredPath,restored.optLong("id")));
+            assertEquals(0,db.queryOne("SELECT effect_key FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{"dnd",oldPathKey}).length());
         }finally{db.close();context.deleteDatabase(dbName);}
     }
 }

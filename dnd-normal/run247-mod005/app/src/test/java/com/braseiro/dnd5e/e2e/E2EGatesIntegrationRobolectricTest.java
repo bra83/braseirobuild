@@ -269,10 +269,19 @@ public final class E2EGatesIntegrationRobolectricTest {
             JSONObject preview = f.db.previewTacticalGridMovement(actor, 4, 2, false, false);
             assertTrue("Grid preview must be valid: " + preview, preview.optBoolean("grid_valid"));
             assertEquals(10, preview.optInt("movement_cost_ft"));
+            JSONObject prospectivePath=TacticalGridMovementProofRules.receipt(actor,preview);
+            assertTrue("Preview path proof must validate: " + prospectivePath,
+                    TacticalGridMovementProofRules.valid(prospectivePath,actor));
 
             JSONObject moved = f.db.moveCombatantToGridCell(actor, 4, 2, false, false,
                     preview.optString("grid_fingerprint"), "ui-grid-g04-move-001");
             assertTrue("Grid movement must be committed: " + moved, moved.optBoolean("grid_movement_committed"));
+            JSONObject pathProof = moved.optJSONObject("committed_path");
+            assertTrue("Committed route must be retained: " + moved,
+                    TacticalGridMovementProofRules.valid(pathProof, actor));
+            assertEquals(10, pathProof.optInt("distance_ft"));
+            assertEquals(preview.getJSONArray("route_cells").toString(),
+                    pathProof.getJSONArray("route_cells").toString());
             assertEquals(4, f.db.tacticalGridPosition(actor).optInt("cell_x"));
             assertEquals(2, f.db.tacticalGridPosition(actor).optInt("cell_y"));
 

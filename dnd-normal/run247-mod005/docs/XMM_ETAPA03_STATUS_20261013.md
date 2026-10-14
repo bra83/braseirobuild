@@ -149,3 +149,9 @@
 
 - No commit `7b462342e7058e5b7b763739bbde135303a08c43`, os seletores de ações com salvaguarda e recarga mostram nomes localizados, mas persistem/encaminham os identificadores fonte em inglês ao motor. Foram adicionados 27 termos e um teste de rótulos.
 - Suíte local: 2.517 testes em 106 XMLs, sem falhas/erros/ignorados; Python 65/65 e comparador XMM 503/503, 36 seções. Isto melhora telas cobertas e não conclui a revisão da tradução inteira. Evidência em `docs/editorial-evidence/xmm-ptbr-action-selectors-local-20261014-7b462342/`.
+
+### Registro de rota para ataques condicionados a investida (14/10/2026)
+
+- O deslocamento por células agora persiste a rota comprometida com origem, destino, fingerprint, distância percorrida e custo; o recibo antigo da posição permanece inalterado. Caminhos com desvio continuam válidos para o movimento normal, mas o novo predicado de investida só aceita um percurso reto que aproxime do alvo e alcance a distância exigida.
+- O formato novo é restaurado com remapeamento de ID no backup. Três testes focados passaram (4 testes): regra pura de percurso, movimento E2E no SQLite e backup/restore com IDs remapeados.
+- Isto ainda não conecta o recibo ao executor do ataque; os 13 riders de investida e o Peryton / Gore permanecem manuais até essa integração e sua validação fonte→runtime→estado. Evidência: `docs/editorial-evidence/xmm-charge-path-local-20261014/`.

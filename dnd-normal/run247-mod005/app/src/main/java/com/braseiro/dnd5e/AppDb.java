@@ -6246,9 +6246,15 @@ public class AppDb extends SQLiteOpenHelper {
         receipt.put("effect_key",combatReceiptKey(actorId,token+"-position"));
         receipt.put("source",posSource);receipt.put("applied_at",System.currentTimeMillis());
         getWritableDatabase().insertOrThrow("effect_receipts",null,receipt);
+        JSONObject pathProof;
+        try{pathProof=TacticalGridMovementProofRules.receipt(actorId,plan);}
+        catch(Exception invalidPath){return new JSONObject().put("grid_blocked","invalid_movement_path_proof");}
+        try{recordEffectReceipt(combatReceiptKey(actorId,token+"-movement-path"),pathProof.toString());}
+        catch(Exception invalidReceipt){return new JSONObject().put("grid_blocked","movement_path_receipt_unavailable");}
         return moved.put("grid_movement_committed",true).put("opportunity_attacks_resolved",opportunities.length())
             .put("movement_feet",cost)
-            .put("grid_destination_x",destX).put("grid_destination_y",destY);
+            .put("grid_destination_x",destX).put("grid_destination_y",destY)
+            .put("committed_path",pathProof);
     }
     public JSONObject moveCombatantToGridCell(final long actorId,final int destX,final int destY,
         final boolean difficult,final boolean crawling,final String fingerprint,final String token){
