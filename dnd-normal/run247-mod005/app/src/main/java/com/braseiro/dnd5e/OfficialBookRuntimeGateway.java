@@ -543,6 +543,12 @@ public final class OfficialBookRuntimeGateway {
 
     private JSONObject executeXmm(String action, JSONObject in) {
         try {
+            if ("hybrid_batch_preview".equals(action)) {
+                JSONObject report = HybridXmmBatchResolutionEngine.preview(this, in);
+                return new JSONObject().put("executed", report.optBoolean("evaluated", false))
+                        .put("auto_mutation_allowed", false).put("persisted", false)
+                        .put("result", report);
+            }
             if ("install".equals(action) || "bestiary_install".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", Xmm2025CompiledBestiaryEngine.install());
             if ("coverage".equals(action) || "bestiary_coverage".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", Xmm2025CompiledBestiaryEngine.coverage());
             if ("dependency_coverage".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", Xmm2025CompiledBestiaryEngine.dependencyCoverage());
