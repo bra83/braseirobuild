@@ -11,6 +11,36 @@ spec=importlib.util.spec_from_file_location("r36_effects_catalog",HERE/"patch_ca
 mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
 DATA=json.loads((ROOT/"pf2-kingmaker-certification/kingmaker_official_structure_effects_p544_552.json").read_text(encoding="utf-8"))
 
+
+def test_official_pdf_structure_effects_do_not_contain_page_bleed():
+    """PDF p.545–552: preserve full clauses, without sidebars/headers/next section."""
+    assert DATA["count"]==73
+    by_name={r["official_name"]:r["effects_rule"] for r in DATA["structures"]}
+    anchors={
+        "CEMETERY":("Unrest gained from dangerous events.",
+                    "maximum of 4 for four cemeteries"),
+        "LUMBERYARD":("increases maximum Lumber Commodity capacity by 1.",
+                      "facilitate the shipment of trees to the yard."),
+        "ORPHANAGE":("The first time you build an orphanage each Kingdom turn",
+                     "reduce Unrest by 1."),
+        "TAVERN, LUXURY":("Kingdom turn, reduce Unrest by 1d4+1.",
+                         "Gather Information in a settlement with at least one luxury tavern"),
+        "WATERFRONT":("next to a Water Border.",
+                      "this bonus stacks with similar bonuses in the settlement."),
+    }
+    for name,phrases in anchors.items():
+        effects=by_name[name]
+        assert all(phrase in effects for phrase in phrases),name
+        assert effects.endswith("."),name
+    for name,effects in by_name.items():
+        for leakage in ("APPENDICES", "ADDITIONAL RESOURCES", "LORIS SHADWEST",
+                        "A FLYING OWLBEAR", "KINGDOM EVENTS"):
+            assert leakage not in effects,(name,leakage)
+    # This is text provenance cleanup; implementation of the special effects
+    # still requires separate semantic/Android verification.
+    assert DATA["certification"]=="NOT_CERTIFIED"
+
+
 def test_pdf_structure_effects_crosswalk_all_73():
     assert DATA["certification"]=="NOT_CERTIFIED"
     rows=mod.official_semantics()

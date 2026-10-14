@@ -152,7 +152,7 @@
       ],
       "item_bonus_rule": "",
       "ruin_rule": "",
-      "effects_rule": "Giving the citizens a place to bury and remember their departed loved ones helps to temper Unrest gained A FLYING OWLBEAR 30 XP Loris Shadwest, eager taxidermist and avid collector of strangeness, wants to stuff a winged owlbear. While lesser taxidermists might stick a giant bird’s wings onto a normal owlbear, Loris wants his masterpiece to be “real.” He’s promised a powerful magic item to the first person to deliver to him a real winged owlbear carcass... in good condition! Source: Once the kingdom reaches 17th level, Loris gets this idea in his head and approaches the PCs with his request. Completion: Winged owlbears do exist... just not in this world. The PCs will encounter these creatures once Chapter 10 begins. Reward: The magic item Loris promises is legitimately powerful: a moonstone crystal ball that has been in his family for years. 545 APPENDICES APPENDIX 1: BEYOND THE CAMPAIGN APPENDIX 2: KINGDOMS APPENDIX 3: WARFARE APPENDIX 4: KINGMAKER TREASURES APPENDIX 5: NPCS AND MONSTERS ADDITIONAL RESOURCES LORIS SHADWEST546 from dangerous events. If you have at least one cemetery in a settlement, reduce Unrest gained from any dangerous settlement events in that particular settlement by 1 (to a maximum of 4 for four cemeteries).",
+      "effects_rule": "Giving the citizens a place to bury and remember their departed loved ones helps to temper Unrest gained from dangerous events. If you have at least one cemetery in a settlement, reduce Unrest gained from any dangerous settlement events in that particular settlement by 1 (to a maximum of 4 for four cemeteries). The presence of a cemetery provides additional effects during certain kingdom events.",
       "upgrade_from": "",
       "upgrade_to": "",
       "semantic_certification": "PENDING"
@@ -391,7 +391,7 @@
       ],
       "item_bonus_rule": "+1 item bonus to Establish Work Site (lumber camp)",
       "ruin_rule": "",
-      "effects_rule": "Each lumberyard in your kingdom increases maximum Lumber Commodity capacity by 1. A lumberyard must be built in a lot next to a Water border, both to give the yard a source of power to run saws to process timber, but more importantly to facilitate the shipment of trees to the yard. 547 APPENDICES APPENDIX 1: BEYOND THE CAMPAIGN APPENDIX 2: KINGDOMS APPENDIX 3: WARFARE APPENDIX 4: KINGMAKER TREASURES APPENDIX 5: NPCS AND MONSTERS ADDITIONAL RESOURCES548",
+      "effects_rule": "Each lumberyard in your kingdom increases maximum Lumber Commodity capacity by 1. A lumberyard must be built in a lot next to a Water border, both to give the yard a source of power to run saws to process timber, but more importantly to facilitate the shipment of trees to the yard.",
       "upgrade_from": "",
       "upgrade_to": "",
       "semantic_certification": "PENDING"
@@ -599,7 +599,7 @@
       ],
       "item_bonus_rule": "",
       "ruin_rule": "",
-      "effects_rule": "The first time you build an orphanage each Kingdom turn, reduce Unrest by 1. 549 APPENDICES APPENDIX 1: BEYOND THE CAMPAIGN APPENDIX 2: KINGDOMS APPENDIX 3: WARFARE APPENDIX 4: KINGMAKER TREASURES APPENDIX 5: NPCS AND MONSTERS ADDITIONAL RESOURCES550",
+      "effects_rule": "The first time you build an orphanage each Kingdom turn, reduce Unrest by 1.",
       "upgrade_from": "houses",
       "upgrade_to": "",
       "semantic_certification": "PENDING"
@@ -824,7 +824,7 @@
       ],
       "item_bonus_rule": "+2 item bonus to Hire Adventurers and to Rest and Relax using Trade",
       "ruin_rule": "",
-      "effects_rule": "The first time you build a luxury tavern in a Kingdom 551 APPENDICES APPENDIX 1: BEYOND THE CAMPAIGN APPENDIX 2: KINGDOMS APPENDIX 3: WARFARE APPENDIX 4: KINGMAKER TREASURES APPENDIX 5: NPCS AND MONSTERS ADDITIONAL RESOURCES552 turn, reduce Unrest by 1d4+1. If attempt a Performance check to Earn Income in a settlement with a luxury tavern, you gain a +2 item bonus to the check. All checks made to Gather Information in a settlement with at least one luxury tavern gain a +2 item bonus.",
+      "effects_rule": "The first time you build a luxury tavern in a Kingdom turn, reduce Unrest by 1d4+1. If attempt a Performance check to Earn Income in a settlement with a luxury tavern, you gain a +2 item bonus to the check. All checks made to Gather Information in a settlement with at least one luxury tavern gain a +2 item bonus.",
       "upgrade_from": "tavern, popular",
       "upgrade_to": "tavern, world-class",
       "semantic_certification": "PENDING"
@@ -989,7 +989,7 @@
       ],
       "item_bonus_rule": "+1 item bonus to Go Fishing, and to Establish Trade Agreement and Rest and Relax using Boating",
       "ruin_rule": "",
-      "effects_rule": "A waterfront must be constructed next to a Water Border. A settlement with at least 1 waterfront increases its effective level by 1 for the purposes of determining what level of items can be purchased in that settlement; this bonus stacks with similar bonuses in the settlement. KINGDOM EVENTS As the PCs’ kingdom grows, all manner of unusual or irregular events will affect its fortunes and guide its growth. There are two categories of kingdom events: story events that occur as a result of the campaign plotline and random events. Story events are resolved when they occur, as detailed in the earlier chapters of this Adventure Path and often include greater details for how the PCs can take part in resolving the event. These events take place during regular play even though they draw upon kingdom statistics. They’re usually resolved during downtime. Random events are resolved entirely by the kingdom itself and take place within the Event phase of a Kingdom turn. A flat check at the start of this phase determines whether a random event occurs (page 539), although you could roll this check in advance for any number of Kingdom turns or even just choose which events are going to take place for a span of time. Determining the events that wi",
+      "effects_rule": "A waterfront must be constructed next to a Water Border. A settlement with at least 1 waterfront increases its effective level by 1 for the purposes of determining what level of items can be purchased in that settlement; this bonus stacks with similar bonuses in the settlement.",
       "upgrade_from": "pier",
       "upgrade_to": "",
       "semantic_certification": "PENDING"
