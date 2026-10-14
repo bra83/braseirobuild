@@ -88,9 +88,12 @@ Este documento foi criado com a infraestrutura de automação. Não foi usado co
 <!-- DND_AUTO_BEGIN -->
 ## Último pacote verificado automaticamente
 
-- Estado inicial: **aguardando primeiro CI do workflow canônico**.
-- Última atualização de handoff: configuração da infraestrutura, sem nova certificação.
-- Estado Android físico: **não homologado**.
-- Próxima ação: conferir CI na branch e continuar implementação mecânica ETAPA 03.
+- Fonte: antigravity/dnd-normal-fechamento-gates @ `dff6d953b01c8e78f0d6ec1a21924a6df9f6da73`.
+- GitHub CI: https://github.com/bra83/braseirobuild/actions/runs/38611619591
+- Regressão BRELGA: **success** (XMLs na branch de evidências QA quando publicados).
+- TypeScript: **success**; NOT_APPLICABLE se não existe package.json no D&D.
+- APK deste workflow: **não compilado**.
+- Etapa 03 XMM: **aberta**. Não converter testes PASS em certificação integral.
+- Próxima ação: se FAIL, corrigir o teste/causa exata no SHA; se PASS, implementar próximo efeito XMM source-bound.
 
 <!-- DND_AUTO_END -->
