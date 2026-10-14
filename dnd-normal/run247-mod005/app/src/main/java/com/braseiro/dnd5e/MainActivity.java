@@ -3328,7 +3328,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 attackSourceNames.get(action.getSelectedItemPosition()),roll,longRoll,rawDamage,saveRoll,
                 hostileId,destX,destY,token);
             if(!result.optBoolean("statblock_attack_committed",false)){toast("Ataque não aplicado: "+result.optString("statblock_attack_blocked","revise o bloco"));return;}
-            toast("Ataque de monstro aplicado com recibo.");dialog.dismiss();showCombat();
+            JSONObject resolved=result.optJSONObject("resolved"),suppression=resolved==null?null:
+                resolved.optJSONObject("healing_suppression_transition");
+            if(suppression!=null&&suppression.optBoolean("applied",false))
+                toast("Ataque aplicado. O alvo não pode recuperar PV até o fim do próximo turno.");
+            else toast("Ataque de monstro aplicado com recibo.");
+            dialog.dismiss();showCombat();
         }});}});dialog.show();
     }
 

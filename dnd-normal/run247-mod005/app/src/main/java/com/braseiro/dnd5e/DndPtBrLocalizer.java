@@ -36,6 +36,7 @@ public final class DndPtBrLocalizer {
         add("Flame Whip", "Chicote de Chamas");
         add("Beard", "Barba");
         add("Infernal Sting", "Ferrão Infernal");
+        add("Dread Scythe", "Foice do Pavor");
         add("Morningstar", "Maça-estrela");
         add("Light Hammer", "Martelo Leve");
         add("Chaos Blade", "Lâmina do Caos");

@@ -59,6 +59,8 @@ public final class MonsterActionEconomyGuard {
             return "manual_source_action_resolution_required";
         if(XmmChargeMovementRules.supported(action))
             return allowTypedOnHit?"":"unsupported_multiattack_charge_rider";
+        if(action.optInt("healing_suppression_duration_rounds",0)>0&&!allowTypedOnHit)
+            return "unsupported_multiattack_timed_healing_suppression";
         String block=attackRiderBlock(action.optInt("save_dc",0),
             action.optString("save_ability",""),action.optString("condition_on_fail",""),
             action.optString("effect_on_fail",""));

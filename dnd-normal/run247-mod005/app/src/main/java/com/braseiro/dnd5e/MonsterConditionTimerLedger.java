@@ -60,6 +60,26 @@ public final class MonsterConditionTimerLedger {
                 if(MonsterConditionRecoveryLedger.SCHEMA.equals(o.optString("schema",""))){
                     MonsterConditionRecoveryLedger.validate(o);continue;
                 }
+                if(SCHEMA.equals(o.optString("schema",""))&&
+                    "prevent_hit_point_regain".equals(o.optString("effect",""))){
+                    if(!"healing_suppression".equals(o.optString("name",""))||
+                       !(o.opt("prevents_hit_point_regain") instanceof Boolean)||
+                       !o.optBoolean("prevents_hit_point_regain",false)||
+                       !(o.opt("rounds") instanceof Number)||
+                       !Double.isFinite(((Number)o.opt("rounds")).doubleValue())||
+                       ((Number)o.opt("rounds")).doubleValue()!=Math.floor(((Number)o.opt("rounds")).doubleValue())||
+                       o.optInt("rounds",0)<1||
+                       o.optInt("rounds",0)>100||o.optLong("source_actor_id",0)<=0||
+                       o.optString("source_statblock","").isEmpty()||
+                       o.optString("source_action","").isEmpty()||
+                       o.optString("source_receipt","").isEmpty()||
+                       !supportedTick(o.optString("trigger",""))||
+                       (o.has("skip_first_target_turn_end")&&
+                        (!(o.opt("skip_first_target_turn_end") instanceof Boolean)||
+                         !"target_turn_end".equals(o.optString("trigger","")))))
+                        throw new IllegalArgumentException("invalid_typed_healing_suppression_timer");
+                    continue;
+                }
                 if(!SCHEMA.equals(o.optString("schema", ""))||
                    !o.optString("name","").equals(CompiledMonsterActionGuard.canonicalCondition(o.optString("name","")))||
                    o.optString("name","").isEmpty()||
@@ -143,6 +163,30 @@ public final class MonsterConditionTimerLedger {
         }
         return result;
     }
+    /** Source-declared healing suppression without a condition, with its own turn owner. */
+    public static JSONArray stageHealingSuppression(String rawTimers,int duration,long sourceActor,
+        String statblock,String action,String receipt,String tick,boolean skipFirstTargetTurnEnd)
+        throws Exception {
+        JSONArray existing=parse(rawTimers);
+        if(duration<1||duration>100||sourceActor<=0||statblock==null||statblock.trim().isEmpty()||
+            action==null||action.trim().isEmpty()||receipt==null||receipt.trim().isEmpty()||
+            !supportedTick(tick)||skipFirstTargetTurnEnd&&!("target_turn_end".equals(tick)))
+            throw new IllegalArgumentException("invalid_timed_healing_suppression_authority");
+        for(int i=0;i<existing.length();i++){
+            JSONObject timer=existing.getJSONObject(i);
+            if("prevent_hit_point_regain".equals(timer.optString("effect","")))
+                throw new IllegalArgumentException("healing_suppression_timer_ownership_conflict");
+        }
+        JSONObject staged=new JSONObject().put("schema",SCHEMA)
+            .put("name","healing_suppression").put("effect","prevent_hit_point_regain")
+            .put("prevents_hit_point_regain",true).put("rounds",duration)
+            .put("source_actor_id",sourceActor).put("trigger",tick)
+            .put("source_statblock",statblock).put("source_action",action)
+            .put("source_receipt",receipt);
+        if("target_turn_end".equals(tick))
+            staged.put("skip_first_target_turn_end",skipFirstTargetTurnEnd);
+        existing.put(staged);return existing;
+    }
     private static boolean containsPoisoned(List<String> conditions) {
         if(conditions==null)return false;
         for(String condition:conditions)if(ConditionTokenGuard.has(condition,"poisoned"))return true;
@@ -155,7 +199,8 @@ public final class MonsterConditionTimerLedger {
         JSONArray timers=parse(rawTimers),kept=new JSONArray();
         for(int i=0;i<timers.length();i++){
             JSONObject timer=timers.getJSONObject(i);
-            if(!timer.has("schema")||ConditionTokenGuard.has(currentConditions,timer.optString("name","")))
+            if(!timer.has("schema")||"prevent_hit_point_regain".equals(timer.optString("effect",""))||
+                ConditionTokenGuard.has(currentConditions,timer.optString("name","")))
                 kept.put(new JSONObject(timer.toString()));
         }
         return kept;
@@ -218,7 +263,11 @@ public final class MonsterConditionTimerLedger {
             int rounds=timer.optInt("rounds",0);
             if(rounds>0){timer.put("rounds",rounds-1);changed=true;}
             if(timer.optInt("rounds",0)>0)remaining.put(timer);
-            else {candidates.add(timer.optString("name",""));changed=true;}
+            else {
+                if(!"prevent_hit_point_regain".equals(timer.optString("effect","")))
+                    candidates.add(timer.optString("name",""));
+                changed=true;
+            }
         }
         List<String> expired=new ArrayList<String>();
         for(String candidate:candidates){

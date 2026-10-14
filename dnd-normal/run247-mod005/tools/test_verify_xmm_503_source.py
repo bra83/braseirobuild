@@ -309,6 +309,17 @@ class XmmIndependentSourceTests(unittest.TestCase):
         errors,count=xmm.check_unmodeled_action_effects(source,compiled)
         self.assertEqual(1,count)
         self.assertIn("UNTYPED_SOURCE_EFFECT_NOT_MANUAL",errors[0])
+    def test_dread_scythe_healing_suppression_uses_target_turn_end(self):
+        source=[{"name":"Death Cultist","action":[{"name":"Dread Scythe","entries":[
+            "Hit: damage, and the target can't regain Hit Points until the end of its next turn."]}]}]
+        compiled=[{"id":"Death Cultist","actions":[{"name":"Dread Scythe",
+            "healing_suppression_duration_rounds":1,"healing_suppression_tick":"target_turn_end",
+            "manual_rider_resolution_required":False,"manual_unmodeled_source_effect_required":False}]}]
+        self.assertEqual(([],0),xmm.check_unmodeled_action_effects(source,compiled))
+        compiled[0]["actions"][0]["healing_suppression_tick"]="source_turn_start"
+        errors,count=xmm.check_unmodeled_action_effects(source,compiled)
+        self.assertEqual(1,count)
+        self.assertIn("UNTYPED_SOURCE_EFFECT_NOT_MANUAL",errors[0])
     def test_couatl_source_turn_end_and_ghast_target_turn_end_are_distinct(self):
         couatl={"name":"Bite","entries":[
             "The target has the {@condition Poisoned|XPHB} condition until the end of the couatl's next turn."]}

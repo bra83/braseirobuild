@@ -2064,6 +2064,39 @@ public class AppDb extends SQLiteOpenHelper {
     private int compiledMonsterRiderDuration(String blockId,String actionName) {
         return MonsterConditionTimerLedger.compiledDuration(compiledMonsterRiderAction(blockId,actionName));
     }
+    private String compiledHealingSuppressionBlock(JSONObject sourceAction){
+        int duration=sourceAction==null?0:sourceAction.optInt("healing_suppression_duration_rounds",0);
+        if(duration==0)return "";
+        try{
+            MonsterConditionTimerLedger.stageHealingSuppression("[]",duration,1,"XMM",
+                "source","receipt",sourceAction.optString("healing_suppression_tick",""),false);
+            return "";
+        }catch(IllegalArgumentException invalid){return "unsupported_healing_suppression_timer";}
+        catch(Exception invalid){return "unsupported_healing_suppression_timer";}
+    }
+    private JSONObject commitCompiledHealingSuppression(long sourceActorId,long targetId,
+        String blockId,String actionName,String receiptToken)throws Exception {
+        JSONObject target=getCombatant(targetId),sourceAction=compiledMonsterRiderAction(blockId,actionName);
+        int duration=sourceAction.optInt("healing_suppression_duration_rounds",0);
+        if(duration<=0)return new JSONObject().put("applied",false);
+        String tick=sourceAction.optString("healing_suppression_tick","");
+        String before=target.optString("condition_timers_json","[]");
+        JSONArray after=MonsterConditionTimerLedger.stageHealingSuppression(before,duration,
+            sourceActorId,blockId,actionName,receiptToken,tick,
+            "target_turn_end".equals(tick)&&getCombatant(targetId).optInt("active_turn",0)==1);
+        ContentValues values=new ContentValues();values.put("condition_timers_json",after.toString());
+        requireCombatantWrite(getWritableDatabase().update("combatants",values,
+            "id=? AND world_profile=?",new String[]{String.valueOf(targetId),getActiveMapProfile()}));
+        JSONObject saved=getCombatant(targetId);
+        if(!after.toString().equals(new JSONArray(saved.optString("condition_timers_json","[]")).toString()))
+            throw new IllegalStateException("compiled_healing_suppression_persist_rollback");
+        return new JSONObject().put("schema","compiled_monster_timed_effect_v1")
+            .put("applied",true).put("target_id",targetId).put("effect","prevent_hit_point_regain")
+            .put("source_turn_actor_id",sourceActorId).put("source_statblock",blockId)
+            .put("source_action",actionName).put("duration_rounds",duration)
+            .put("duration_tick",tick).put("condition_timers_before",new JSONArray(before))
+            .put("condition_timers_after",after);
+    }
     /** Called only INSIDE combatAtomic, after the action's physical/save proof. */
     private JSONObject commitCompiledMonsterConditionRider(long sourceActorId,long targetId,
         String blockId,String actionName,String receiptToken,String declared) throws Exception {
@@ -2997,6 +3030,10 @@ public class AppDb extends SQLiteOpenHelper {
                     action,token,onHitCondition);
                 if(!ownershipBlock.isEmpty())return out.put("statblock_attack_blocked",ownershipBlock);
             }
+            if(resolved.optBoolean("hit",false)){
+                String healingBlock=compiledHealingSuppressionBlock(sourceAction);
+                if(!healingBlock.isEmpty())return out.put("statblock_attack_blocked",healingBlock);
+            }
             JSONObject actionSpent=spendCombatantTurnResource(actorId,resourceCost,token+"-"+resourceCost);
             if(actionSpent.has("resource_blocked")||actionSpent.has("operation_blocked")||actionSpent.has("operation_replayed"))
                 return out.put("statblock_attack_blocked",actionSpent.optString("resource_blocked",actionSpent.optString("operation_blocked","already_resolved_or_replayed")));
@@ -3037,6 +3074,11 @@ public class AppDb extends SQLiteOpenHelper {
                 JSONObject transition=commitCompiledMonsterOnHitCondition(actorId,targetId,id,
                     action,token,onHitCondition);
                 resolved.put("on_hit_condition_transition",transition);
+            }
+            if(resolved.optBoolean("hit",false)&&
+                sourceAction.optInt("healing_suppression_duration_rounds",0)>0){
+                JSONObject transition=commitCompiledHealingSuppression(actorId,targetId,id,action,token);
+                resolved.put("healing_suppression_transition",transition);
             }
             if(!recharge.isEmpty()){
                 resources=combatResources(getCombatant(actorId));
@@ -3595,6 +3637,14 @@ public class AppDb extends SQLiteOpenHelper {
         for(int i=0;i<timers.length();i++){
             JSONObject timer=timers.optJSONObject(i);if(timer==null||
                 !timer.optBoolean("prevents_hit_point_regain",false))continue;
+            if("prevent_hit_point_regain".equals(timer.optString("effect",""))){
+                JSONObject source=compiledMonsterRiderAction(
+                    timer.optString("source_statblock",""),timer.optString("source_action",""));
+                if(timer.optInt("rounds",0)!=source.optInt("healing_suppression_duration_rounds",0)||
+                    !timer.optString("trigger","").equals(source.optString("healing_suppression_tick","")))
+                    return "condition_effect_source_mismatch";
+                return "source_condition_prevents_hit_point_regain";
+            }
             String condition=timer.optString("name","");
             if(!ConditionTokenGuard.has(combatant.optString("conditions",""),condition))continue;
             JSONObject source=compiledMonsterRiderAction(

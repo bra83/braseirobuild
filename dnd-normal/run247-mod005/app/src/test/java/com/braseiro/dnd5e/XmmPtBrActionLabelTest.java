@@ -9,6 +9,7 @@ public final class XmmPtBrActionLabelTest {
         String[][] names={
             {"Claws","Garras"},{"Flame Whip","Chicote de Chamas"},
             {"Beard","Barba"},{"Infernal Sting","Ferrão Infernal"},
+            {"Dread Scythe","Foice do Pavor"},
             {"Morningstar","Maça-estrela"},{"Light Hammer","Martelo Leve"},
             {"Attach","Aderir"},{"Crush","Esmagar"},{"Chaos Blade","Lâmina do Caos"},
             {"Gore","Chifrada"},{"Sacred Weapon","Arma Sagrada"},{"Claw","Garra"},

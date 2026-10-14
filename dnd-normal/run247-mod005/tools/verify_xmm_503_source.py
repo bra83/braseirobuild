@@ -510,6 +510,15 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
             not compiled_action.get("condition_on_fail") and
             not compiled_action.get("manual_rider_resolution_required",False) and
             not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if monster_name=="Death Cultist" and name=="Dread Scythe":
+        source_text=text.casefold()
+        return ("can't regain" in source_text and "until the end of its next turn" in source_text and
+            not re.search(r"\{@condition |\{@actSave",text,re.I) and
+            compiled_action.get("healing_suppression_duration_rounds")==1 and
+            compiled_action.get("healing_suppression_tick")=="target_turn_end" and
+            not compiled_action.get("condition_on_hit") and not compiled_action.get("condition_on_fail") and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if (monster_name,name) in SOURCE_TURN_START_HIT_CONDITIONS:
         return source_turn_start_hit_condition_matches(monster_name,action,compiled_action)
     if (monster_name,name) in SOURCE_TURN_END_HIT_CONDITIONS:
@@ -784,6 +793,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_abilities_with_unmodeled_effects_manual":effect_count,
         "source_compound_condition_actions_typed":2,
         "source_single_condition_actions_typed":9+turn_start_count,
+        "source_timed_noncondition_effects_typed":1,
         **branch_totals,
         "source_field_and_catalog_gate_pass":True,
         "full_monster_combat_automation_certified":False}
