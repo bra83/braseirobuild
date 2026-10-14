@@ -1,0 +1,21 @@
+{
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "source_pointer": "/monster/339/action/1",
+  "source_page": 238,
+  "creature": "Peryton",
+  "action": "Gore",
+  "source_facts_structured_paraphrase": {
+    "base_damage": "1d8 + 3 piercing",
+    "conditional_branch": "add 2d8 piercing if the Peryton moved 30 feet straight toward the target immediately before the hit"
+  },
+  "runtime_delta": {
+    "damage": "1d8 + 3",
+    "damage_type": "piercing",
+    "extra_damage": "2d8",
+    "extra_damage_condition": "moved_30ft_straight_toward_target_immediately_before_hit",
+    "damage_alternative_expression": "removed",
+    "manual_rider_resolution_required": true
+  },
+  "review_boundary": "The additive source branch is represented faithfully, but movement history is not an executable combat input and the rider still fails closed for manual resolution. Full XMM and licensed PDF approval remain open."
+}

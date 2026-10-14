@@ -1,0 +1,2 @@
+creature,action,source_commit,source_pointer,runtime_change,status
+Peryton,Gore,8c026b807fac21862a309379a0c3228a0683198b,/monster/339/action/1,"Represent conditional 2d8 piercing as additive extra damage; remove duplicate alternate-damage fields; retain manual combat gate until movement history is tracked.",SOURCE_BRANCH_CORRECTED; MOVEMENT_RIDER_MANUAL; FULL_ACTION_AND_XMM_OPEN

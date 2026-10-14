@@ -1,0 +1,33 @@
+{
+  "format": "BRASEIRO_XMM_PERYTON_ADDITIVE_EVIDENCE_V1",
+  "code_commit": "857ab221acd24024e683b2f0299d923bcab03ab8",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "created_utc": "2026-10-14",
+  "scope": "Correct Peryton Gore conditional damage as an additive movement rider; combat movement tracking and XMM remain open.",
+  "artifacts": {
+    "android-test-results.zip": {
+      "sha256": "b70bfdc05ce488ab1eca36ca511324e22e44966ae217b6e70b2831a080bb949d",
+      "bytes": 89573
+    },
+    "android-test-summary.json": {
+      "sha256": "ba401c0fcb70d60fe0286654d51333b7a06893d99a1fc5223b6823d7a96efb26",
+      "bytes": 295
+    },
+    "python-test-summary.json": {
+      "sha256": "455845310d2bfd53d8de9b6f052bdb44705aacb803d768f6b7af36768ddfec96",
+      "bytes": 226
+    },
+    "source-action-delta.json": {
+      "sha256": "8e230c3e07c72989f12186a1a3c4f0012fe531074556164e58122bdb65a2fc60",
+      "bytes": 993
+    },
+    "source-executor-status.csv": {
+      "sha256": "180d3c81f2ed4963d5eda57cf89f9835155f0ffcc5875ba9a5f2062c72c984d1",
+      "bytes": 382
+    },
+    "xmm-source-comparison.json": {
+      "sha256": "86ac022f314c8e543aa1bb3aa362d1b74b9b8e8956a89250a0cc55098917fa0c",
+      "bytes": 993
+    }
+  }
+}
