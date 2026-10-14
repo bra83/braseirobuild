@@ -18,6 +18,22 @@ JAVA_TRAITS="app/src/main/java/com/braseiro/dnd5e/Xmm2025TraitMechanicsEngine.ja
 JAVA_RUNTIME="app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java"
 JAVA_ATTACK_CONDITIONS="app/src/main/java/com/braseiro/dnd5e/Xmm2025AttackConditionEngine.java"
 JAVA_SAVE_DAMAGE="app/src/main/java/com/braseiro/dnd5e/Xmm2025SaveDamageEngine.java"
+SOURCE_TURN_START_HIT_CONDITIONS={
+    ("Assassin","Shortsword"): ("poisoned","until the start of the assassin's next turn"),
+    ("Giant Centipede","Bite"): ("poisoned","until the start of the centipede's next turn"),
+    ("Centaur Warden","Sun Ray"): ("blinded","until the start of the centaur's next turn"),
+    ("Ettercap","Bite"): ("poisoned","until the start of the ettercap's next turn"),
+    ("Githyanki Dracomancer","Draconic Strike"): ("frightened","until the start of the githyanki's next turn"),
+    ("Gnoll Fang of Yeenoghu","Bite"): ("poisoned","until the start of the gnoll's next turn"),
+    ("Lich","Paralyzing Touch"): ("paralyzed","until the start of the lich's next turn"),
+    ("Noble Prodigy","Beguiling Strike"): ("charmed","until the start of the noble's next turn"),
+    ("Oni","Nightmare Ray"): ("frightened","until the start of the oni's next turn"),
+    ("Quasit","Rend"): ("poisoned","until the start of the quasit's next turn"),
+    ("Satyr Revelmaster","Prance"): ("charmed","until the start of the satyr's next turn"),
+    ("Sprite","Enchanting Bow"): ("charmed","until the start of the sprite's next turn"),
+    ("Vampire Umbral Lord","Sickening Ray"): ("poisoned","until the start of the vampire's next turn"),
+    ("Wyvern","Sting"): ("poisoned","until the start of the wyvern's next turn"),
+}
 LITERAL=re.compile(r'^\s*("(?:\\.|[^"\\])*")\s*,?\s*$',re.M)
 RCH=re.compile(r'\s*\{@recharge(?: (\d))?\}')
 SP=re.compile(r'\{@spell ([^|}]+)')
@@ -309,7 +325,43 @@ def source_action_requires_manual_resolution(action,monster_name=""):
         ("Cloud Giant","Thundercloud"),("Hill Giant","Trash Lob")}
     next_target_turn_end=((monster_name,RCH.sub("",action.get("name","" )).strip()) in simple_target_turn_end and
         "until the end of its next turn" in text.casefold() and len(conditions)==1)
-    return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or next_target_turn_end
+    simple_source_turn_start=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_TURN_START_HIT_CONDITIONS
+    return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or next_target_turn_end or simple_source_turn_start
+
+def source_turn_start_hit_condition_matches(monster_name,action,compiled_action):
+    name=RCH.sub("",action.get("name","")).strip()
+    contract=SOURCE_TURN_START_HIT_CONDITIONS.get((monster_name,name))
+    if contract is None:return False
+    condition,until=contract
+    text=json.dumps(action.get("entries",[]),ensure_ascii=False).casefold()
+    source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
+    compiled_conditions={x.strip().casefold() for x in compiled_action.get("condition_on_hit","").split(",")}
+    return (source_conditions=={condition} and compiled_conditions=={condition} and
+        until in text and not compiled_action.get("save_dc") and
+        not compiled_action.get("save_ability") and not compiled_action.get("condition_on_fail") and
+        not compiled_action.get("effect_on_fail") and
+        compiled_action.get("condition_duration_rounds")==1 and
+        compiled_action.get("condition_duration_tick")=="source_turn_start" and
+        not compiled_action.get("manual_rider_resolution_required",False) and
+        not compiled_action.get("manual_unmodeled_source_effect_required",False))
+
+def check_source_turn_start_hit_conditions(source,compiled):
+    by_source={m.get("name"):m for m in source};by_compiled={m.get("id"):m for m in compiled}
+    errors=[];checked=0
+    for (monster,name),_ in SOURCE_TURN_START_HIT_CONDITIONS.items():
+        source_monster=by_source.get(monster);compiled_monster=by_compiled.get(monster)
+        if source_monster is None or compiled_monster is None:
+            errors.append(monster+":"+name+":TURN_START_MONSTER_MISSING");continue
+        source_action=next((a for a in source_monster.get("action",[]) if RCH.sub("",a.get("name","")).strip()==name),None)
+        compiled_action=next((a for a in compiled_monster.get("actions",[]) if a.get("name")==name),None)
+        if source_action is None or compiled_action is None:
+            errors.append(monster+":"+name+":TURN_START_ACTION_MISSING");continue
+        if not source_turn_start_hit_condition_matches(monster,source_action,compiled_action):
+            errors.append(monster+":"+name+":TURN_START_CONDITION_CONTRACT_MISMATCH");continue
+        checked+=1
+    if checked!=len(SOURCE_TURN_START_HIT_CONDITIONS):
+        errors.append("TURN_START_CONDITION_RECORD_COUNT:"+str(checked))
+    return errors,checked
 
 def source_action_has_typed_condition_contract(monster_name,action,compiled_action):
     """Narrowly typed source conditions with an exact, executable expiry boundary."""
@@ -320,6 +372,8 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
         return ""
     text=flatten(action.get("entries",[]))
     name=RCH.sub("",action.get("name","")).strip()
+    if (monster_name,name) in SOURCE_TURN_START_HIT_CONDITIONS:
+        return source_turn_start_hit_condition_matches(monster_name,action,compiled_action)
     if monster_name=="Rakshasa" and name=="Baleful Command":
         expected={"frightened","incapacitated"}; field="condition_on_fail"
         source_until="until the start of the rakshasa's next turn"
@@ -562,13 +616,15 @@ def check(project, bestiary_bytes, book_bytes):
     monster_errors,totals=check_monsters(src,index,compiled,attack_contracts)
     branch_errors,branch_totals=check_conditional_attack_damage(src,compiled)
     effect_errors,effect_count=check_unmodeled_action_effects(src,compiled)
+    turn_start_errors,turn_start_count=check_source_turn_start_hit_conditions(src,compiled)
     save_errors,save_count=check_save_damage_actions(src,save_damage_rows)
     section_errors=check_book(book,bookrows)
-    if monster_errors or branch_errors or effect_errors or section_errors or save_errors:
+    if monster_errors or branch_errors or effect_errors or section_errors or save_errors or turn_start_errors:
         raise ValueError("XMM_SOURCE_MISMATCH:"+json.dumps(
             {"monsters":monster_errors[:20],"monster_count":len(monster_errors),
              "conditional_attack_damage":branch_errors[:20],"conditional_attack_damage_count":len(branch_errors),
              "unmodeled_action_effects":effect_errors[:20],"unmodeled_action_effects_count":len(effect_errors),
+             "source_turn_start_conditions":turn_start_errors[:20],"source_turn_start_conditions_count":len(turn_start_errors),
              "sections":section_errors[:20],"section_count":len(section_errors),
              "save_damage":save_errors[:20],"save_damage_count":len(save_errors)}))
     return {"format":"XMM_INDEPENDENT_SOURCE_MATCH_V1","source_commit":PIN,
@@ -584,7 +640,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_save_damage_actions_compared":save_count,
         "source_abilities_with_unmodeled_effects_manual":effect_count,
         "source_compound_condition_actions_typed":2,
-        "source_single_condition_actions_typed":6,
+        "source_single_condition_actions_typed":6+turn_start_count,
         **branch_totals,
         "source_field_and_catalog_gate_pass":True,
         "full_monster_combat_automation_certified":False}

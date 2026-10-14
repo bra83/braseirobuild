@@ -219,6 +219,19 @@ class XmmIndependentSourceTests(unittest.TestCase):
         errors,count=xmm.check_unmodeled_action_effects(source,compiled)
         self.assertEqual(1,count)
         self.assertIn("UNTYPED_SOURCE_EFFECT_NOT_MANUAL",errors[0])
+    def test_source_turn_start_on_hit_condition_is_bound_to_pinned_owner_turn(self):
+        source={"name":"Assassin","action":{"name":"Shortsword","entries":[
+            "Hit: the target has the {@condition Poisoned|XPHB} condition until the start of the assassin's next turn."]}}
+        compiled={"condition_on_hit":"poisoned","condition_duration_rounds":1,
+            "condition_duration_tick":"source_turn_start","manual_rider_resolution_required":False,
+            "manual_unmodeled_source_effect_required":False}
+        self.assertTrue(xmm.source_action_requires_manual_resolution(source["action"],"Assassin"))
+        self.assertTrue(xmm.source_turn_start_hit_condition_matches("Assassin",source["action"],compiled))
+        compiled["condition_duration_tick"]="target_turn_start"
+        self.assertFalse(xmm.source_turn_start_hit_condition_matches("Assassin",source["action"],compiled))
+        compiled["condition_duration_tick"]="source_turn_start"
+        compiled["condition_on_hit"]="frightened"
+        self.assertFalse(xmm.source_turn_start_hit_condition_matches("Assassin",source["action"],compiled))
     def test_not_503_is_not_success(self):
         with self.assertRaises(ValueError):xmm.check_monsters([],[],[])
 if __name__=="__main__":unittest.main()
