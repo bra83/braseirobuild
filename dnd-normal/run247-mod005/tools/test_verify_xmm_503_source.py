@@ -232,6 +232,24 @@ class XmmIndependentSourceTests(unittest.TestCase):
         compiled["condition_duration_tick"]="source_turn_start"
         compiled["condition_on_hit"]="frightened"
         self.assertFalse(xmm.source_turn_start_hit_condition_matches("Assassin",source["action"],compiled))
+    def test_couatl_source_turn_end_and_ghast_target_turn_end_are_distinct(self):
+        couatl={"name":"Bite","entries":[
+            "The target has the {@condition Poisoned|XPHB} condition until the end of the couatl's next turn."]}
+        couatl_runtime={"condition_on_hit":"poisoned","condition_duration_rounds":1,
+            "condition_duration_tick":"source_turn_end","manual_rider_resolution_required":False}
+        self.assertTrue(xmm.source_turn_end_hit_condition_matches("Couatl",couatl,couatl_runtime))
+        couatl_runtime["condition_duration_tick"]="target_turn_end"
+        self.assertFalse(xmm.source_turn_end_hit_condition_matches("Couatl",couatl,couatl_runtime))
+
+        ghast={"name":"Horrific Necrosis","entries":[
+            "The target has the {@condition Frightened|XPHB} condition until the end of its next turn."]}
+        ghast_runtime={"condition_on_hit":"frightened","condition_duration_rounds":1,
+            "condition_duration_tick":"target_turn_end","manual_rider_resolution_required":False}
+        self.assertTrue(xmm.source_action_has_typed_condition_contract(
+            "Ghast Gravecaller",ghast,ghast_runtime))
+        ghast_runtime["condition_duration_tick"]="source_turn_end"
+        self.assertFalse(xmm.source_action_has_typed_condition_contract(
+            "Ghast Gravecaller",ghast,ghast_runtime))
     def test_not_503_is_not_success(self):
         with self.assertRaises(ValueError):xmm.check_monsters([],[],[])
 if __name__=="__main__":unittest.main()

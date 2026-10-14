@@ -34,6 +34,16 @@ SOURCE_TURN_START_HIT_CONDITIONS={
     ("Vampire Umbral Lord","Sickening Ray"): ("poisoned","until the start of the vampire's next turn"),
     ("Wyvern","Sting"): ("poisoned","until the start of the wyvern's next turn"),
 }
+SOURCE_TURN_END_HIT_CONDITIONS={
+    ("Couatl","Bite"): ("poisoned","until the end of the couatl's next turn"),
+}
+TARGET_TURN_END_HIT_CONDITIONS={
+    ("Giant Vulture","Gouge"):"poisoned",
+    ("Gas Spore Fungus","Tendril"):"poisoned",
+    ("Cloud Giant","Thundercloud"):"incapacitated",
+    ("Hill Giant","Trash Lob"):"poisoned",
+    ("Ghast Gravecaller","Horrific Necrosis"):"frightened",
+}
 LITERAL=re.compile(r'^\s*("(?:\\.|[^"\\])*")\s*,?\s*$',re.M)
 RCH=re.compile(r'\s*\{@recharge(?: (\d))?\}')
 SP=re.compile(r'\{@spell ([^|}]+)')
@@ -322,11 +332,13 @@ def source_action_requires_manual_resolution(action,monster_name=""):
         "poisoned" in conditions)
     simple_target_turn_end={
         ("Giant Vulture","Gouge"),("Gas Spore Fungus","Tendril"),
-        ("Cloud Giant","Thundercloud"),("Hill Giant","Trash Lob")}
+        ("Cloud Giant","Thundercloud"),("Hill Giant","Trash Lob"),
+        ("Ghast Gravecaller","Horrific Necrosis")}
     next_target_turn_end=((monster_name,RCH.sub("",action.get("name","" )).strip()) in simple_target_turn_end and
         "until the end of its next turn" in text.casefold() and len(conditions)==1)
     simple_source_turn_start=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_TURN_START_HIT_CONDITIONS
-    return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or next_target_turn_end or simple_source_turn_start
+    simple_source_turn_end=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_TURN_END_HIT_CONDITIONS
+    return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or next_target_turn_end or simple_source_turn_start or simple_source_turn_end
 
 def source_turn_start_hit_condition_matches(monster_name,action,compiled_action):
     name=RCH.sub("",action.get("name","")).strip()
@@ -342,6 +354,22 @@ def source_turn_start_hit_condition_matches(monster_name,action,compiled_action)
         not compiled_action.get("effect_on_fail") and
         compiled_action.get("condition_duration_rounds")==1 and
         compiled_action.get("condition_duration_tick")=="source_turn_start" and
+        not compiled_action.get("manual_rider_resolution_required",False) and
+        not compiled_action.get("manual_unmodeled_source_effect_required",False))
+
+def source_turn_end_hit_condition_matches(monster_name,action,compiled_action):
+    name=RCH.sub("",action.get("name","")).strip()
+    contract=SOURCE_TURN_END_HIT_CONDITIONS.get((monster_name,name))
+    if contract is None:return False
+    condition,until=contract
+    text=json.dumps(action.get("entries",[]),ensure_ascii=False).casefold()
+    source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
+    compiled_conditions={x.strip().casefold() for x in compiled_action.get("condition_on_hit","").split(",")}
+    return (source_conditions=={condition} and compiled_conditions=={condition} and
+        until in text and not compiled_action.get("save_dc") and
+        not compiled_action.get("save_ability") and not compiled_action.get("condition_on_fail") and
+        compiled_action.get("condition_duration_rounds")==1 and
+        compiled_action.get("condition_duration_tick")=="source_turn_end" and
         not compiled_action.get("manual_rider_resolution_required",False) and
         not compiled_action.get("manual_unmodeled_source_effect_required",False))
 
@@ -374,6 +402,8 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
     name=RCH.sub("",action.get("name","")).strip()
     if (monster_name,name) in SOURCE_TURN_START_HIT_CONDITIONS:
         return source_turn_start_hit_condition_matches(monster_name,action,compiled_action)
+    if (monster_name,name) in SOURCE_TURN_END_HIT_CONDITIONS:
+        return source_turn_end_hit_condition_matches(monster_name,action,compiled_action)
     if monster_name=="Rakshasa" and name=="Baleful Command":
         expected={"frightened","incapacitated"}; field="condition_on_fail"
         source_until="until the start of the rakshasa's next turn"
@@ -398,6 +428,9 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
     elif monster_name=="Hill Giant" and name=="Trash Lob":
         expected={"poisoned"}; field="condition_on_hit"
         source_until="until the end of its next turn"
+    elif monster_name=="Ghast Gravecaller" and name=="Horrific Necrosis":
+        expected={"frightened"}; field="condition_on_hit"
+        source_until="until the end of its next turn"
     else:return False
     if field=="condition_on_hit" and source_until.startswith("until the end"):
         source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
@@ -407,7 +440,7 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
             not compiled_action.get("save_ability") and not compiled_action.get("condition_on_fail") and
             compiled_action.get("condition_duration_rounds")==1 and
             compiled_action.get("condition_duration_tick")==(
-                "target_turn_end" if monster_name in {"Giant Vulture","Gas Spore Fungus","Cloud Giant","Hill Giant"}
+                "target_turn_end" if (monster_name,name) in TARGET_TURN_END_HIT_CONDITIONS
                 else "source_turn_end") and
             not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if monster_name not in ("Rakshasa","Storm Giant"):return False
@@ -640,7 +673,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_save_damage_actions_compared":save_count,
         "source_abilities_with_unmodeled_effects_manual":effect_count,
         "source_compound_condition_actions_typed":2,
-        "source_single_condition_actions_typed":6+turn_start_count,
+        "source_single_condition_actions_typed":8+turn_start_count,
         **branch_totals,
         "source_field_and_catalog_gate_pass":True,
         "full_monster_combat_automation_certified":False}

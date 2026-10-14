@@ -45,6 +45,7 @@ public final class DndPtBrLocalizer {
         add("Sickening Ray", "Raio Nauseante");
         add("Sting", "Ferrão");
         add("Gouge", "Golpe Dilacerante");
+        add("Horrific Necrosis", "Necrose Horrífica");
         add("Thundercloud", "Nuvem Trovejante");
         add("Tendril", "Tentáculo");
         add("Trash Lob", "Arremesso de Detritos");

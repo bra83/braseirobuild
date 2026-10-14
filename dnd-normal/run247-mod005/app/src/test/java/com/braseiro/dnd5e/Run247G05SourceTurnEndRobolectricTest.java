@@ -134,6 +134,16 @@ public final class Run247G05SourceTurnEndRobolectricTest {
         assertTimedConditionAttack("Hill Giant","Trash Lob","poisoned","target_turn_end",15,"hill-giant");
     }
 
+    @Test public void couatlBiteExpiresPoisonAtEndOfCouatlsNextTurn()throws Exception {
+        assertTimedConditionAttack("Couatl","Bite","poisoned","source_turn_end",11,"couatl");
+    }
+
+    @Test public void ghastGravecallerHorrificNecrosisExpiresAtTargetsNextTurnEnd()throws Exception {
+        assertEquals("Necrose Horrífica",DndPtBrLocalizer.localizeText("Horrific Necrosis"));
+        assertTimedConditionAttack("Ghast Gravecaller","Horrific Necrosis","frightened",
+            "target_turn_end",15,"ghast-gravecaller-necrosis");
+    }
+
     @Test public void fourteenXmmOnHitConditionsApplyAndExpireAtStartOfSourceTurn()throws Exception {
         String[][] cases={
             {"Assassin","Shortsword","poisoned","7"},
