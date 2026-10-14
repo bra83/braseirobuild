@@ -18,7 +18,7 @@ jobs:
         with:
           sparse-checkout: |
             ci/oua-base-20261014
-            ci/oua-4.9.202/audit-turn-flow.ts
+            ci/oua-4.9.202
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
