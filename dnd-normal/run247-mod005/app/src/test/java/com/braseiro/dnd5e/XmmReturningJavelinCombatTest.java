@@ -6,6 +6,42 @@ import static org.junit.Assert.*;
 
 /** The source's returning ranged weapon remains usable after both a miss and a turn change. */
 public final class XmmReturningJavelinCombatTest {
+    @Test public void sourceBoundSimpleReturnWeaponsReturnOnlyAfterRangedAttacks()throws Exception{
+        String[][] weapons={
+            {"Kenku","Shadow Blade"},{"Mezzoloth","Mercurial Trident"},
+            {"Modron Duodrone","Clockwork Blade"},{"Modron Tridrone","Clockwork Spear"},
+            {"Nycaloth","Mercurial Axe"},{"Salamander","Flame Spear"},
+            {"Salamander Inferno Master","Flame Trident"}
+        };
+        assertEquals(503,Xmm2025CompiledBestiaryEngine.install().optInt("statblocks_installed"));
+        int ordinal=0;
+        for(String[] weapon:weapons){
+            clearEncounter();StatblockTurnEngine.reset();
+            String actor="returning-weapon-"+ordinal,target="target-"+ordinal;
+            try{
+                assertTrue(weapon[0],StatblockEncounterStateEngine.spawn(actor,weapon[0])
+                    .optBoolean("spawned"));
+                assertTrue("Stone Golem",StatblockEncounterStateEngine.spawn(target,"Stone Golem")
+                    .optBoolean("spawned"));
+                StatblockTurnEngine.setInitiative(actor,20);StatblockTurnEngine.setInitiative(target,10);
+                assertTrue(StatblockTurnEngine.start().optBoolean("started"));
+                JSONObject rangedMiss=StatblockCombatFlowEngine.attack(actor,target,weapon[1],1,1,30d);
+                assertTrue(weapon[0]+" / "+weapon[1]+": "+rangedMiss,
+                    rangedMiss.optBoolean("resolved"));
+                assertFalse(rangedMiss.optBoolean("hit"));
+                assertTrue(weapon[0]+" / "+weapon[1],rangedMiss.optBoolean("weapon_returned"));
+                StatblockTurnEngine.next();StatblockTurnEngine.next();
+                JSONObject meleeMiss=StatblockCombatFlowEngine.attack(actor,target,weapon[1],1,1,0d);
+                assertTrue(weapon[0]+" / "+weapon[1]+": "+meleeMiss,
+                    meleeMiss.optBoolean("resolved"));
+                assertFalse(weapon[0]+" / "+weapon[1],meleeMiss.optBoolean("weapon_returned"));
+            }finally{
+                StatblockTurnEngine.reset();clearEncounter();
+            }
+            ordinal++;
+        }
+    }
+
     @Test public void windJavelinReturnsAfterMissAndCanAttackNextTurn()throws Exception{
         assertEquals(503,Xmm2025CompiledBestiaryEngine.install().optInt("statblocks_installed"));
         clearEncounter();

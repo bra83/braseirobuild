@@ -680,6 +680,25 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
             compiled_action.get("damage_type")=="piercing + thunder" and
             not compiled_action.get("manual_rider_resolution_required",False) and
             not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    returning_weapons={
+        ("Kenku","Shadow Blade"):"the kenku's hand",
+        ("Mezzoloth","Mercurial Trident"):"the mezzoloth's claw",
+        ("Modron Duodrone","Clockwork Blade"):"the modron's hand",
+        ("Modron Tridrone","Clockwork Spear"):"the modron's hand",
+        ("Nycaloth","Mercurial Axe"):"the nycaloth's hand",
+        ("Salamander","Flame Spear"):"the salamander's hand",
+        ("Salamander Inferno Master","Flame Trident"):"the salamander's hand",
+    }
+    return_to=returning_weapons.get((monster_name,name))
+    if return_to:
+        return ("{@atkr m,r}" in text and
+            "magically returns to "+return_to in source_text and
+            "immediately after a ranged attack" in source_text and
+            compiled_action.get("returns_to_attacker_after_ranged_attack") is True and
+            not compiled_action.get("condition_on_hit") and
+            not compiled_action.get("effect_on_hit") and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if monster_name=="Bearded Devil" and name=="Beard":
         source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
         compiled_conditions={x.strip().casefold() for x in compiled_action.get("condition_on_hit","").split(",")}

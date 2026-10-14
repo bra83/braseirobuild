@@ -62,6 +62,30 @@ class XmmIndependentSourceTests(unittest.TestCase):
         self.assertFalse(xmm.source_action_has_typed_condition_contract(
             "Aarakocra Skirmisher",action,compiled))
 
+    def test_source_bound_returning_weapons_return_only_after_ranged_attacks(self):
+        cases=[
+            ("Kenku","Shadow Blade","the kenku's hand"),
+            ("Mezzoloth","Mercurial Trident","the mezzoloth's claw"),
+            ("Modron Duodrone","Clockwork Blade","the modron's hand"),
+            ("Modron Tridrone","Clockwork Spear","the modron's hand"),
+            ("Nycaloth","Mercurial Axe","the nycaloth's hand"),
+            ("Salamander","Flame Spear","the salamander's hand"),
+            ("Salamander Inferno Master","Flame Trident","the salamander's hand"),
+        ]
+        for monster,name,owner in cases:
+            with self.subTest(monster=monster):
+                action={"name":name,"entries":[
+                    "{@atkr m,r} {@hit 5}. The weapon magically returns to "+owner+
+                    " immediately after a ranged attack."]}
+                compiled={"returns_to_attacker_after_ranged_attack":True,
+                    "manual_rider_resolution_required":False,
+                    "manual_unmodeled_source_effect_required":False}
+                self.assertTrue(xmm.source_action_has_typed_condition_contract(
+                    monster,action,compiled))
+                compiled["returns_to_attacker_after_ranged_attack"]=False
+                self.assertFalse(xmm.source_action_has_typed_condition_contract(
+                    monster,action,compiled))
+
     def test_ongoing_attack_damage_is_an_independent_manual_effect(self):
         source=[
             {"name":"Half-Dragon","action":[{"name":"Claw","entries":[
