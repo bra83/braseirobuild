@@ -1,0 +1,90 @@
+name: Braseiro D&D Normal - manual APK candidate
+on:
+  workflow_dispatch:
+    inputs:
+      approved_sha:
+        description: '40-character HEAD SHA with successful D&D canonical CI'
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: dnd-normal-apk-candidate
+  cancel-in-progress: false
+jobs:
+  candidate:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - name: Gate exact SHA and existing green CI
+        uses: actions/github-script@v7
+        env:
+          APPROVED_SHA: ${{ inputs.approved_sha }}
+        with:
+          script: |
+            const sha=process.env.APPROVED_SHA;
+            if(!/^[0-9a-f]{40}$/.test(sha)) throw Error('INVALID_SHA');
+            const {owner,repo}=context.repo;
+            const branch='antigravity/dnd-normal-fechamento-gates';
+            const ref=await github.rest.git.getRef({owner,repo,ref:'heads/'+branch});
+            if(ref.data.object.sha!==sha) throw Error('SHA_NOT_CURRENT_BRANCH_HEAD');
+            const all=await github.rest.actions.listWorkflowRuns({
+              owner,repo,workflow_id:'dnd-normal-automation-ci.yml',
+              branch,status:'completed',per_page:60
+            });
+            const ok=all.data.workflow_runs.some(r=>r.head_sha===sha && r.conclusion==='success');
+            if(!ok) throw Error('DND_CANONICAL_CI_NOT_GREEN_FOR_EXACT_SHA');
+            core.info('APK_CANDIDATE_GATE_PASS='+sha);
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.approved_sha }}
+          sparse-checkout: dnd-normal/run247-mod005
+      - name: Compile candidate with complete canonical assets
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw 'EXPECTED_BRELGA' }
+          Set-Location 'dnd-normal/run247-mod005'
+          if (!(Test-Path 'app/src/main/assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip')) {
+            throw 'CANONICAL_MAP_ASSET_MISSING'
+          }
+          if (!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)) {
+            $sdk=Join-Path $env:LOCALAPPDATA 'Android\Sdk'
+            if (Test-Path $sdk) { $env:ANDROID_HOME=$sdk }
+          }
+          if (!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)) { throw 'INFRA_ANDROID_SDK_MISSING' }
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          & .\gradlew.bat :app:compileDebugJavaWithJavac :app:assembleDebug --no-daemon --console=plain
+          if ($LASTEXITCODE -ne 0) { throw 'ANDROID_ASSEMBLE_FAILED' }
+          $apk=Get-ChildItem 'app/build/outputs/apk/debug' -Filter '*.apk' -File | Select-Object -First 1
+          if (!$apk) { throw 'APK_MISSING' }
+          $hash=(Get-FileHash $apk.FullName -Algorithm SHA256).Hash
+          Write-Host ('APK_SHA256='+$hash)
+          Write-Host ('APK_SOURCE_SHA='+$env:GITHUB_SHA)
+          $bt=Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          if (!$bt) { throw 'INFRA_ANDROID_BUILD_TOOLS_MISSING' }
+          $aapt=Join-Path $bt.FullName 'aapt.exe'
+          $signer=Join-Path $bt.FullName 'apksigner.bat'
+          if (!(Test-Path $aapt) -or !(Test-Path $signer)) { throw 'INFRA_AAPT_OR_APKSIGNER_MISSING' }
+          $badging= & $aapt dump badging $apk.FullName
+          if ($LASTEXITCODE -ne 0 -or !($badging -match "package: name='com.braseiro.dnd5e'")) {
+            throw 'APK_APPLICATION_ID_MISMATCH'
+          }
+          & $signer verify --verbose $apk.FullName
+          if ($LASTEXITCODE -ne 0) { throw 'APK_SIGNATURE_INVALID' }
+          @("SHA=$env:GITHUB_SHA","APK_SHA256=$hash","SOURCE_BRANCH=antigravity/dnd-normal-fechamento-gates","ANDROID_PHYSICAL_HOMOLOGATION=NOT_DONE","APK_RELEASE_FINAL=NO") | Set-Content 'app/build/outputs/apk/debug/BRASEIRO_DND_CANDIDATE_PROVENANCE.txt'
+      - name: Retain candidate and provenance 30 days
+        uses: actions/upload-artifact@v4
+        with:
+          name: dnd-normal-candidate-${{ inputs.approved_sha }}
+          path: |
+            dnd-normal/run247-mod005/app/build/outputs/apk/debug/*.apk
+            dnd-normal/run247-mod005/app/build/outputs/apk/debug/BRASEIRO_DND_CANDIDATE_PROVENANCE.txt
+          if-no-files-found: error
+          retention-days: 30
+      - name: Clear D&D-only temporary compilation outputs after archiving
+        if: always()
+        shell: powershell
+        run: |
+          $p=Join-Path $env:GITHUB_WORKSPACE 'dnd-normal/run247-mod005/app/build/intermediates'
+          if (Test-Path $p) { Remove-Item $p -Recurse -Force -ErrorAction SilentlyContinue }

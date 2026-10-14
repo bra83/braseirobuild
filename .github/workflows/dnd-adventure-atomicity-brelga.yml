@@ -1,16 +1,6 @@
 name: Braseiro D&D - Adventure transactional regression (BRELGA)
 on:
-  push:
-    branches:
-      - antigravity/dnd-normal-fechamento-gates
-    paths:
-      - 'dnd-normal/run247-mod005/app/src/**'
-      - 'dnd-normal/run247-mod005/app/build.gradle*'
-      - 'dnd-normal/run247-mod005/build.gradle*'
-      - 'dnd-normal/run247-mod005/gradle/**'
-      - 'dnd-normal/run247-mod005/tools/**'
-      - 'dnd-normal/run247-mod005/docs/**'
-      - '.github/workflows/dnd-adventure-atomicity-brelga.yml'
+  workflow_call:
   pull_request:
     branches:
       - antigravity/dnd-normal-fechamento-gates
@@ -26,10 +16,10 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: dnd-adventure-tx-brelga
+  group: dnd-adventure-tx-brelga-${{ github.ref }}
 # Only the newest D&D source is eligible for an expensive Android regression.
   # Old queued and in-progress runs are safely superseded; source/QA evidence is SHA-scoped.
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   # Sem actions/checkout: o runner pode estar tão cheio que falha ANTES dos steps.
   disk-recovery:
