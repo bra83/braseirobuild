@@ -234,6 +234,12 @@ def check_monsters(source,index,compiled,attack_contracts=None):
             problems.append(monster+":HP_FORMULA")
         if monster_type(s["type"])!=e["type"] or e["type"]!=c["creature_type"]:
             problems.append(monster+":TYPE")
+        fixed_sizes={"Colossus":"Gargantuan","Merrow":"Large","Satyr":"Medium"}
+        if monster in fixed_sizes:
+            code={"T":"Tiny","S":"Small","M":"Medium","L":"Large","H":"Huge","G":"Gargantuan"}
+            source_sizes=[code.get(x,x) for x in s.get("size",[])]
+            if source_sizes!=[fixed_sizes[monster]] or c.get("size_category")!=fixed_sizes[monster]:
+                problems.append(monster+":SIZE_CATEGORY")
         if cr_float(s["cr"])!=cr_float(e["cr"]) or cr_float(e["cr"])!=c["challenge_rating"]:
             problems.append(monster+":CR")
         for key in ("str","dex","con","int","wis","cha"):
@@ -602,8 +608,31 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
         return ""
     text=flatten(action.get("entries",[]))
     name=RCH.sub("",action.get("name","")).strip()
+    source_text=text.casefold()
+    if (monster_name,name)==("Merrow","Harpoon"):
+        return ("{@atkr m,r}" in text and "{@hit 6}" in text and
+            "range 20/60 ft." in source_text and
+            "{@damage 2d6 + 4}" in text and
+            "large or smaller creature" in source_text and
+            "pulls the target up to 15 feet straight toward itself" in source_text and
+            compiled_action.get("effect_on_hit")=="pull:15ft" and
+            compiled_action.get("effect_on_hit_max_target_size")=="Large" and
+            compiled_action.get("damage")=="2d6 + 4" and
+            compiled_action.get("damage_type")=="piercing" and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if (monster_name,name)==("Satyr","Hooves"):
+        return ("{@atkr m}" in text and "{@hit 5}" in text and
+            "reach 5 ft." in source_text and "{@damage 1d4 + 3}" in text and
+            "medium or smaller creature" in source_text and
+            "pushes the target up to 10 feet straight away from itself" in source_text and
+            compiled_action.get("effect_on_hit")=="push:10ft" and
+            compiled_action.get("effect_on_hit_max_target_size")=="Medium" and
+            compiled_action.get("damage")=="1d4 + 3" and
+            compiled_action.get("damage_type")=="bludgeoning" and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if monster_name=="Colossus" and name=="Slam":
-        source_text=text.casefold()
         return ("pushes the target up to 20 feet straight away from itself" in source_text and
             "{@atkr m}" in text and "{@hit 18}" in text and
             "{@damage 4d10 + 10}" in text and

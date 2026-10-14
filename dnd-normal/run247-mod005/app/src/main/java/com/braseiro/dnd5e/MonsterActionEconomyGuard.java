@@ -67,6 +67,11 @@ public final class MonsterActionEconomyGuard {
         if(!block.isEmpty())return block;
         String condition=action.optString("condition_on_hit","").trim();
         String effectOnHit=action.optString("effect_on_hit","").trim();
+        String effectOnHitMaxSize=action.optString("effect_on_hit_max_target_size","").trim();
+        if(!effectOnHitMaxSize.isEmpty()&&!MonsterOnHitProneRules.validSize(effectOnHitMaxSize))
+            return "unresolved_attack_hit_rider_requires_typed_handler";
+        if(effectOnHit.isEmpty()&&!effectOnHitMaxSize.isEmpty())
+            return "unresolved_attack_hit_rider_requires_typed_handler";
         if(!effectOnHit.isEmpty()){
             if(!allowTypedOnHit)return "unsupported_multiattack_on_hit_rider";
             if(!action.has("to_hit")||MonsterForcedMovementRules.compiled(effectOnHit,"")==null)

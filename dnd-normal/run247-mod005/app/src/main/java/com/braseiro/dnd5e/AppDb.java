@@ -2990,6 +2990,8 @@ public class AppDb extends SQLiteOpenHelper {
             JSONObject forcedPlan=new JSONObject();
             MonsterForcedMovementRules.Spec forcedOnHit=null;
             JSONObject forcedOnHitPlan=new JSONObject();
+            boolean forcedOnHitSkippedForSize=false;
+            String forcedOnHitTargetSize="";
             if(resolved.optBoolean("rider_save_required",false)){
                 rider=StatblockCombatRuntimeEngine.attackRiderSavingThrow(id,action,riderSaveRoll);
                 if(!rider.optBoolean("resolved",false))return out.put("statblock_attack_blocked","rider_save_unresolved");
@@ -3014,14 +3016,27 @@ public class AppDb extends SQLiteOpenHelper {
             if(resolved.optBoolean("hit",false)&&!onHitEffect.isEmpty()){
                 if(!onHitEffect.equals(sourceAction.optString("effect_on_hit","").trim()))
                     return out.put("statblock_attack_blocked","compiled_on_hit_effect_source_changed");
-                forcedOnHit=MonsterForcedMovementRules.compiled(onHitEffect,"");
-                if(forcedOnHit==null)return out.put("statblock_attack_blocked","unsupported_on_hit_effect");
+                String maximumSize=sourceAction.optString("effect_on_hit_max_target_size","").trim();
+                if(!maximumSize.isEmpty()){
+                    forcedOnHitTargetSize=verifiedCombatantSizeCategory(target);
+                    if(!MonsterOnHitProneRules.validSize(forcedOnHitTargetSize))
+                        return out.put("statblock_attack_blocked","target_size_not_verified");
+                    if(MonsterOnHitProneRules.sizeRank(forcedOnHitTargetSize)>
+                        MonsterOnHitProneRules.sizeRank(maximumSize))forcedOnHitSkippedForSize=true;
+                }
+                if(!forcedOnHitSkippedForSize){
+                    forcedOnHit=MonsterForcedMovementRules.compiled(onHitEffect,"");
+                    if(forcedOnHit==null)return out.put("statblock_attack_blocked","unsupported_on_hit_effect");
+                }
             }
             if(forced!=null&&forcedOnHit!=null)
                 return out.put("statblock_attack_blocked","multiple_forced_movement_riders_unsupported");
             if(destinationX< -1||destinationY< -1)
                 return out.put("statblock_attack_blocked","invalid_forced_movement_coordinates");
-            if(forced==null&&forcedOnHit==null&&(destinationX>=0||destinationY>=0))
+            if(forcedOnHitSkippedForSize&&(destinationX>=0||destinationY>=0))
+                return out.put("statblock_attack_blocked","target_size_exceeds_movement_limit");
+            if(forced==null&&forcedOnHit==null&&!forcedOnHitSkippedForSize&&
+                (destinationX>=0||destinationY>=0))
                 return out.put("statblock_attack_blocked","forced_movement_not_applicable");
             if(forced!=null){
                 forcedPlan=compiledMonsterForcedMovementPlan(actorId,targetId,forced,destinationX,destinationY);
@@ -3082,7 +3097,9 @@ public class AppDb extends SQLiteOpenHelper {
             if(forcedOnHit!=null){
                 JSONObject moved=commitCompiledMonsterForcedMovement(actorId,targetId,forcedOnHit,forcedOnHitPlan);
                 resolved.put("on_hit_forced_movement_transition",moved);
-            }
+            }else if(forcedOnHitSkippedForSize)resolved.put("on_hit_forced_movement_skipped",
+                "target_size_exceeds_movement_limit").put("target_size_category",forcedOnHitTargetSize)
+                .put("maximum_target_size",sourceAction.optString("effect_on_hit_max_target_size",""));
             if(resolved.optBoolean("hit",false)&&!onHitCondition.isEmpty()){
                 boolean chargeProne=chargeQualified&&XmmChargeMovementRules.hasConditionalProne(sourceAction)&&
                     "prone".equals(onHitCondition);

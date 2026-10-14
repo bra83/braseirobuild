@@ -216,3 +216,19 @@
 - No commit de código `82d2f179c964e8977d0ab586487070c62461abd8`, suíte local completa: **2.528 testes / 112 XMLs / 0 falhas / 0 erros / 0 ignorados**; comparador Python **36/36**; comparação XMM: **503 criaturas / 36 seções**, com 243 habilidades ainda manuais. Evidências em `docs/editorial-evidence/xmm-returning-wind-javelin-local-20261014/`.
 - BRELGA confirmou esse código no commit arquivador `c3c78b598283d58f7b48ecc5eca61203a1bc4227`, run [38512028236](https://github.com/bra83/braseirobuild/actions/runs/38512028236): **112 suítes / 2.528 testes / 0 falhas / 0 erros / 0 ignorados**. Os XMLs focais têm hashes registrados em `brelga-result.json`; o JSON bruto está na branch `dnd-normal-qa-evidence`, em `runs/38512028236/attempt-1.json`.
 - CI verde comprova execução automatizada no código desse commit, não certificação semântica integral: 243 ações permanecem manuais e 35 das 36 seções seguem sem prova semântica individual. Etapa 03 aberta; nenhum APK foi gerado.
+
+
+### Empurrão da pancada do Colossus (14/10/2026)
+
+- Fonte XMM pinada: Colossus / Slam, `/monster/100/action/1/entries/0` (blob `9a4137b508ef37562ed948894a70b1594b57e85c`). O runtime agora aplica `push:20ft` somente após acerto; o jogador informa a célula e o banco valida direção, distância, obstáculos, ocupação e limites da grade antes de confirmar dano e deslocamento na mesma transação. Erros não deslocam o alvo. A tela orienta o destino em PT-BR.
+- A comparação independente exige o texto-fonte, ataque, alcance, dano, tipo e marcador tipado exatos. `XmmColossusForcedMovementRobolectricTest` comprova dano+deslocamento no acerto e nenhum efeito no erro. A proteção de multiataque continua bloqueando esse rider fora do fluxo dedicado.
+- Commit `9a0cc2d2160af6ccb8077d0811d0b39f64c0a955`: Gradle completo **2.529 testes / 113 XMLs / zero falhas, erros ou ignorados**; Python **37/37** do comparador de fonte e **4/4** dos riders; fonte XMM comparada com **503 criaturas / 36 seções**. As ações com efeitos sem runtime tipado caíram de 243 para **242**. Evidências completas em `docs/editorial-evidence/xmm-colossus-slam-local-20261014/`.
+- BRELGA para este SHA ainda pendente; automação integral continua falsa. A etapa 03 permanece aberta, 35 seções ainda sem prova semântica individual e nenhum APK foi compilado.
+
+
+### Empurrões e puxões de tamanho limitado (14/10/2026)
+
+- Fonte XMM pinada (`8c026b807fac21862a309379a0c3228a0683198b`): Merrow / Harpoon (`/monster/297/action/3/entries/0`) puxa até 15 pés alvos Grandes ou menores; Satyr / Hooves (`/monster/385/action/0/entries/0`) empurra até 10 pés alvos Médios ou menores. Os tamanhos Grandes/Médios dos próprios statblocks também são comparados contra a fonte.
+- O mesmo fluxo de combate valida o tamanho persistido do alvo, limite de movimento, direção, percurso, ocupação e obstáculos. Tamanho acima do limite mantém o dano e suprime apenas o movimento; tamanho desconhecido bloqueia antes de dano/mutação. Colossus / Slam continua coberto no mesmo executor (`/monster/100/action/1/entries/0`). Interface e escolha de células em PT-BR.
+- Teste Robolectric de combate cobre puxão, empurrão, alvo acima do limite e tamanho desconhecido. A comparação independente do código fonte aceita somente os riders, limites, danos, alcances e tamanhos que correspondem à fonte. A lista de efeitos sem contrato tipado cai para **240**; automação total continua falsa.
+- Suíte local completa após esse lote: **2.530 testes / 114 XMLs / zero falhas, erros ou ignorados**; Python: comparador XMM **38/38**, riders de ataque **4/4**; fonte: **503 criaturas / 36 seções**. Evidências previstas em `docs/editorial-evidence/xmm-forced-movement-on-hit-local-20261014/`. BRELGA para o novo SHA ainda pendente; XMM permanece aberto, com 35 seções sem prova semântica individual. APK não gerado.

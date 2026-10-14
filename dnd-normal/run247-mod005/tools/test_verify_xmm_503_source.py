@@ -17,6 +17,24 @@ class XmmIndependentSourceTests(unittest.TestCase):
         self.assertFalse(xmm.source_action_has_typed_condition_contract(
             "Colossus",action,compiled))
 
+    def test_size_limited_forced_movement_is_source_bound(self):
+        cases=[
+            ("Merrow","Harpoon",["{@atkr m,r} {@hit 6}, reach 5 ft. or range 20/60 ft. {@h}11 ({@damage 2d6 + 4}) Piercing damage. If the target is a Large or smaller creature, the merrow pulls the target up to 15 feet straight toward itself."],
+             {"effect_on_hit":"pull:15ft","effect_on_hit_max_target_size":"Large","damage":"2d6 + 4","damage_type":"piercing"}),
+            ("Satyr","Hooves",["{@atkr m} {@hit 5}, reach 5 ft. {@h}5 ({@damage 1d4 + 3}) Bludgeoning damage. If the target is a Medium or smaller creature, the satyr pushes the target up to 10 feet straight away from itself."],
+             {"effect_on_hit":"push:10ft","effect_on_hit_max_target_size":"Medium","damage":"1d4 + 3","damage_type":"bludgeoning"}),
+        ]
+        for monster,name,entries,compiled in cases:
+            with self.subTest(monster=monster):
+                action={"name":name,"entries":entries}
+                compiled.update({"manual_rider_resolution_required":False,
+                    "manual_unmodeled_source_effect_required":False})
+                self.assertTrue(xmm.source_action_has_typed_condition_contract(
+                    monster,action,compiled))
+                compiled["effect_on_hit_max_target_size"]="Tiny"
+                self.assertFalse(xmm.source_action_has_typed_condition_contract(
+                    monster,action,compiled))
+
     def test_wind_javelin_return_is_typed_only_for_the_ranged_mode(self):
         action={"name":"Wind Javelin","entries":[
             "{@atkr m,r} {@hit 4}, reach 5 ft. or range 30/120 ft. {@h}5 ({@damage 1d6 + 2}) Piercing damage plus 2 ({@damage 1d4}) Thunder damage. The javelin magically returns to the aarakocra's hand immediately after a ranged attack."]}
