@@ -46,7 +46,8 @@ def prepare(root):
         indent = anchor[:len(anchor) - len(anchor.lstrip())]
         quoted = "str(SRC /" in anchor
         insertion = "".join(
-            indent + ('str(SRC / "' if quoted else 'SRC / "') + name + '"),\n'
+            indent + ('str(SRC / "' + name + '"),\n' if quoted
+                      else 'SRC / "' + name + '",\n')
             for name in DEPENDENCIES
         )
         revised = original.replace(anchor, anchor + "\n" + insertion.rstrip("\n"), 1)
