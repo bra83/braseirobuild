@@ -1,0 +1,29 @@
+{
+  "format": "BRASEIRO_LOCAL_XMM_TURN_END_EVIDENCE_V1",
+  "code_commit": "fc7696f50f75efeb60d93e1e6dba1fc81971f158",
+  "base_commit": "211ee671",
+  "created_utc": "2026-10-14",
+  "scope": "Two XMM on-hit conditions with source-turn-end expiry; no APK or device certification",
+  "artifacts": {
+    "android-test-results.zip": {
+      "sha256": "e40ffb1fb50538bf0c289227cef4c2e3ac02cbcc6e62cb03ef57a883127c3af2",
+      "bytes": 89505
+    },
+    "android-test-summary.json": {
+      "sha256": "fa57645ebd63e5bcda84e04ede8c89dd6b516ced6fb55664fdde5498fbd33ce8",
+      "bytes": 286
+    },
+    "source-action-delta.json": {
+      "sha256": "69ff0823d859b1703c23015263a1cddbd898060c96a875359c53771189366b9c",
+      "bytes": 1093
+    },
+    "source-executor-status.csv": {
+      "sha256": "ca5c51bfcd450a835dc2b8176f793498d8af4883275b3ea33575291ba2e429ed",
+      "bytes": 3716
+    },
+    "xmm-source-comparison.json": {
+      "sha256": "b4f347d5e50b3ede03a1d67f63d14a8fe7db220684e0e7780ad983011adbaa4b",
+      "bytes": 992
+    }
+  }
+}

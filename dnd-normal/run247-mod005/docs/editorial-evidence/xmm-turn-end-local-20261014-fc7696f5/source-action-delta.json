@@ -1,0 +1,25 @@
+{
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "actions": [
+    {
+      "creature": "Scarecrow",
+      "action": "Fearsome Claw",
+      "page": 269,
+      "source_pointer": "/monster/387/action/0",
+      "condition": "frightened on hit until end of scarecrow's next turn",
+      "runtime_expiry": "source_turn_end",
+      "pdf_validation": "pending; auxiliary structured record only"
+    },
+    {
+      "creature": "Merrow",
+      "action": "Bite",
+      "page": 210,
+      "condition": "poisoned on hit until end of merrow's next turn",
+      "runtime_expiry": "source_turn_end",
+      "pdf_validation": "pending; auxiliary structured record only",
+      "source_pointer": "/monster/297/action/1"
+    }
+  ],
+  "implementation": "Both conditions and typed timers persist on the affected combatant. The current source turn end is skipped when the hit is applied during the source's active turn; the next source-turn end expires the effect atomically.",
+  "status": "XMM remains open; broad unmodeled-effect metric is 246; full monster combat automation is not certified."
+}
