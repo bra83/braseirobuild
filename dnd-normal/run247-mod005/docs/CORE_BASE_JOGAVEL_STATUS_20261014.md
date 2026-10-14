@@ -21,14 +21,14 @@ O primeiro objetivo é preparar o jogo base antes dos suplementos. O proprietár
 ## Evidência local
 
 Commit do perfil 2024: `5b4bdf056be0a5689f1506f666cd15deacd95b3d`.
-Commits das correções XMM: `4ebcecd14373bfea47935230d994fa0f5c8f5fe5`, `fc7696f50f75efeb60d93e1e6dba1fc81971f158` e `b0dddc3dc081f8e34022b8b199ab5f6d5d310326`, `4768d992da4f4aa812eab01b613ec8545b64c11b` e `c6c5b2a0109aa3673cabc3e609069d515e86ad20`.
+Commits das correções XMM: `4ebcecd14373bfea47935230d994fa0f5c8f5fe5`, `fc7696f50f75efeb60d93e1e6dba1fc81971f158`, `b0dddc3dc081f8e34022b8b199ab5f6d5d310326`, `4768d992da4f4aa812eab01b613ec8545b64c11b`, `c6c5b2a0109aa3673cabc3e609069d515e86ad20` e `dbec8417a0fd836401caea514ff97e708b990515`.
 
-As provas do perfil e navegação estão em [`core-base-local-20261014-5b4bdf05`](editorial-evidence/core-base-local-20261014-5b4bdf05/manifest.json). As provas dos efeitos com limite no fim do turno estão em [`xmm-turn-end-local-20261014-fc7696f5`](editorial-evidence/xmm-turn-end-local-20261014-fc7696f5/manifest.json) e [`xmm-target-turn-end-local-20261014-b0dddc3d`](editorial-evidence/xmm-target-turn-end-local-20261014-b0dddc3d/manifest.json). Os XMLs atualizados estão em [`xmm-source-turn-start-e2e-local-20261014-c6c5b2a0`](editorial-evidence/xmm-source-turn-start-e2e-local-20261014-c6c5b2a0/manifest.json). As traduções testadas dos nomes de ação estão em [`xmm-ptbr-target-riders-local-20261014-4768d992`](editorial-evidence/xmm-ptbr-target-riders-local-20261014-4768d992/manifest.json). A correção dos estados contraditórios está em [`xmm-matrix-status-audit-local-20261014-4768d992`](editorial-evidence/xmm-matrix-status-audit-local-20261014-4768d992/manifest.json).
+As provas do perfil e navegação estão em [`core-base-local-20261014-5b4bdf05`](editorial-evidence/core-base-local-20261014-5b4bdf05/manifest.json). As provas dos efeitos com limite no fim do turno estão em [`xmm-turn-end-local-20261014-fc7696f5`](editorial-evidence/xmm-turn-end-local-20261014-fc7696f5/manifest.json) e [`xmm-target-turn-end-local-20261014-b0dddc3d`](editorial-evidence/xmm-target-turn-end-local-20261014-b0dddc3d/manifest.json). Os testes de combate e a comparação por fonte estão em [`xmm-source-turn-start-e2e-local-20261014-c6c5b2a0`](editorial-evidence/xmm-source-turn-start-e2e-local-20261014-c6c5b2a0/manifest.json) e [`xmm-source-turn-audit-local-20261014-dbec8417`](editorial-evidence/xmm-source-turn-audit-local-20261014-dbec8417/manifest.json). As traduções testadas dos nomes de ação estão em [`xmm-ptbr-target-riders-local-20261014-4768d992`](editorial-evidence/xmm-ptbr-target-riders-local-20261014-4768d992/manifest.json). A correção dos estados contraditórios está em [`xmm-matrix-status-audit-local-20261014-4768d992`](editorial-evidence/xmm-matrix-status-audit-local-20261014-4768d992/manifest.json).
 
 - Suíte Android/Robolectric no commit XMM: **2.514 testes, 0 falhas, 0 erros, 0 ignorados**, em 105 arquivos XML.
-- Testes Python no commit XMM: **59 passaram**.
+- Testes Python no commit XMM: **60 passaram**.
 - Comparação XMM: 503 monstros, 36 seções, 120 ações de recarga, 132 registros de conjuração, 178 contratos de traços e 59 ações simples de salvaguarda conferidos.
-- Efeitos com condições tipados no comparador: dois pacotes compostos, duas condições simples com expiração no fim do turno de origem e quatro condições simples com expiração no fim do próximo turno do alvo.
+- Efeitos com condições tipados no comparador: dois pacotes compostos e vinte condições simples com expiração tipada; quatro das simples expiram no fim do turno do alvo. O comparador cobre, além disso, 14 riders de origem com prazo de um turno.
 
 ## Ainda não está fechado como núcleo pronto
 

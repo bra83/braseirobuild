@@ -1,0 +1,30 @@
+{
+  "format": "BRASEIRO_XMM_SOURCE_TURN_START_AUDIT_EVIDENCE_V1",
+  "audit_commit": "dbec8417a0fd836401caea514ff97e708b990515",
+  "android_test_source_commit": "c6c5b2a0109aa3673cabc3e609069d515e86ad20",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "created_utc": "2026-10-14",
+  "scope": "Source/runtime cross-check for 14 source-turn-start condition riders, 20 total single conditions typed in the comparator, 503 monsters and 36 sections; full monster automation false.",
+  "artifacts": {
+    "android-test-results.zip": {
+      "sha256": "d9c52e0b245825066e8335902452247323c72800b82ebdf1f5a70903dd07de83",
+      "bytes": 89561
+    },
+    "android-test-summary.json": {
+      "sha256": "9bea84dac7646cab776df34885ae7d6f1964ffcb7c65fca019e1e941b04ba078",
+      "bytes": 267
+    },
+    "python-test-summary.json": {
+      "sha256": "1d536fe5e78b2eff542b5538ea92fbcde9253c34d5a7007e52b0b8cddacc424a",
+      "bytes": 227
+    },
+    "source-executor-status.csv": {
+      "sha256": "9a2680e7b1fe8b7667c2fd2e2d4fe503d06300fa80c57afaab9cba15fd3b08d2",
+      "bytes": 2398
+    },
+    "xmm-source-comparison.json": {
+      "sha256": "b8468dee492c29034894b3b553fb27e5fb4786a255e8265910048b735448d41e",
+      "bytes": 993
+    }
+  }
+}
