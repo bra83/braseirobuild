@@ -1,0 +1,25 @@
+{
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "source_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "shared_runtime_effect": "poisoned condition prevents hit point regain until the source creature starts its next turn; source-owned timer expires the condition and suppression together",
+  "cases": [
+    {
+      "creature": "Bearded Devil",
+      "action": "Beard",
+      "pointer": "/monster/58/action/1/entries/0"
+    },
+    {
+      "creature": "Bone Devil",
+      "action": "Infernal Sting",
+      "pointer": "/monster/73/action/2/entries/0"
+    },
+    {
+      "creature": "Dire Worg",
+      "action": "Bite",
+      "pointer": "/monster/125/action/1/entries/0"
+    }
+  ],
+  "verified_state": "For each action: source-bound hit writes poisoned and typed timer; direct and batch healing block without HP mutation; the source turn advances and clears both; healing succeeds afterward.",
+  "manual_effects_before": 245,
+  "manual_effects_after": 243
+}

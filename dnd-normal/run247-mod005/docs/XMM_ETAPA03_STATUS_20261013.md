@@ -180,3 +180,10 @@
 - O contrato independente verifica o ponteiro `/monster/58/action/1/entries/0` contra o bloco, o gatilho e o campo de supressão. O efeito deixou de compor o total manual: comparador XMM reporta 245 fora dos contratos tipados, de 246 no snapshot anterior.
 - No SHA `cce2c2b0b6d5ca7cfe55a6fadb838b7ebe31b1dc`, suíte completa local: **2.525 testes / 110 XMLs / 0 falhas / 0 erros / 0 ignorados**; comparadores Python 35/35; fonte XMM pinada 503/503 monstros e 36/36 seções. Certificação de automação integral permanece falsa; etapa 03 continua aberta. Evidência: `docs/editorial-evidence/xmm-bearded-devil-healing-local-20261014-cce2c2b0/`.
 - O proprietário confirmou aquisição dos materiais e uso estritamente pessoal do VTT, autorizando consulta para a implementação. O runtime registra somente o efeito mecânico necessário; o livro não é republicado dentro do app.
+
+
+### Supressão de cura por veneno em três ataques (14/10/2026)
+
+- A mesma consequência fonte foi aplicada a mais dois casos XMM: Diabo Ósseo / Ferrão Infernal e Worg Atroz / Mordida. Com o Diabo Barbado / Barba, os três persistem envenenado e bloqueiam cura até o início do turno da criatura; em todos, cura direta e em lote não alteram PV durante o efeito e passam a funcionar após a expiração.
+- Os ponteiros verificados são `/monster/58/action/1/entries/0`, `/monster/73/action/2/entries/0` e `/monster/125/action/1/entries/0`, no blob XMM pinado. Comparador agora marca 243 efeitos manuais, redução de 2 neste incremento; automação completa continua falsa.
+- No SHA `a9c9200e66a43f0cfc1faae3e6f5b25760439c23`, suíte local completa: **2.525 testes / 110 XMLs / nenhum failure, error ou skipped**; comparadores Python 36/36; fonte XMM conferiu 503 criaturas e 36 seções. A etapa 03 segue aberta. Evidência: `docs/editorial-evidence/xmm-poison-healing-three-monsters-local-20261014-a9c9200e/`.

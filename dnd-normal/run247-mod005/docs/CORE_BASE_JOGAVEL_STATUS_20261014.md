@@ -46,6 +46,9 @@ O contrato do Diabo Barbado / Barba, o bloqueio persistente de cura, a expiraç�
 
 ## Ainda não está fechado como núcleo pronto
 
-A lista manual arquivada no SHA anterior tinha **246 entradas**. A comparação pinada atualizada após implementar o Beard do Diabo Barbado agora conta **245 efeitos fora dos contratos tipados**; o denominador é ação/efeito do comparador, não uma certificação de cada monstro. O VTT segue sem cobertura integral de combate. Também estão pendentes CI BRELGA e instalação/abertura em Android físico; não havia aparelho ADB conectado e nenhum APK foi gerado nesta etapa.
+A lista manual arquivada no SHA anterior tinha **246 entradas**. A comparação pinada atualizada após implementar o Beard do Diabo Barbado agora conta **243 efeitos fora dos contratos tipados**; o denominador é ação/efeito do comparador, não uma certificação de cada monstro. O VTT segue sem cobertura integral de combate. Também estão pendentes CI BRELGA e instalação/abertura em Android físico; não havia aparelho ADB conectado e nenhum APK foi gerado nesta etapa.
 
 O proprietário informou em 14/10/2026 que adquiriu os materiais e autorizou sua consulta no VTT de uso estritamente pessoal. Essa autorização orienta a conferência interna do conteúdo mecânico; o projeto continua sem reproduzir integralmente os livros. O núcleo permanece em andamento: XMM ainda tem efeitos manuais, e não avanço para suplementos.
+
+
+A expansão do mesmo efeito para três monstros, com as 2.525 regressões e comparação fonte atualizadas, está em [`xmm-poison-healing-three-monsters-local-20261014-a9c9200e`](editorial-evidence/xmm-poison-healing-three-monsters-local-20261014-a9c9200e/manifest.json).

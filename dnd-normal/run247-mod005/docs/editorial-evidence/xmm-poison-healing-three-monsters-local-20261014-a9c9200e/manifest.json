@@ -1,0 +1,49 @@
+{
+  "schema": "XMM_POISON_HEALING_SUPPRESSION_EVIDENCE_V1",
+  "date": "2026-10-14",
+  "source_commit": "a9c9200e66a43f0cfc1faae3e6f5b25760439c23",
+  "scope": "Connect the source-declared healing suppression for Bearded Devil/Beard, Bone Devil/Infernal Sting, and Dire Worg/Bite to the persisted poison timer.",
+  "gradle_command": "bash gradlew :app:testDebugUnitTest",
+  "gradle_result": "BUILD SUCCESSFUL",
+  "android_tests": 2525,
+  "android_xml": 110,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "python_source_comparator_tests": 36,
+  "python_source_comparator_result": "passed",
+  "source_comparison": {
+    "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+    "monsters": 503,
+    "sections": 36,
+    "manual_effects_after_change": 243,
+    "full_monster_combat_automation_certified": false
+  },
+  "full_suite": true,
+  "apk_built": false,
+  "brelga_ci_run": false,
+  "focused_test_xml": {
+    "file": "TEST-com.braseiro.dnd5e.XmmBeardedDevilHealingSuppressionRobolectricTest.xml",
+    "tests": 1,
+    "failures": 0,
+    "sha256": "a486e9e8c1e53b012339dd1feb0e1ef2a64e999b7a3244e4d99200775eb15364"
+  },
+  "files": [
+    {
+      "file": "android-test-results.zip",
+      "sha256": "57e01e98db0d6af5144dd65b25b86b173b7d6d5a0400c11f7f40b7525337c4c9"
+    },
+    {
+      "file": "android-test-summary.json",
+      "sha256": "ca82c7ffa20c7a0e65a0885f35e18915d80a91bdf68a8bf60b2c1b21c753eaa1"
+    },
+    {
+      "file": "xmm-source-comparison.json",
+      "sha256": "e4bc13d2784d68304d7409d515c2f90166afd13fe119f842d543c9b1a8a652f2"
+    },
+    {
+      "file": "source-action-delta.json",
+      "sha256": "51ce22cbf675814e4440b0950d64a801d6bd3c4e51e0d5f0bdd8c7f7768b0211"
+    }
+  ]
+}
