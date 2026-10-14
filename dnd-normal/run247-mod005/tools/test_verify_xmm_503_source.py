@@ -8,7 +8,7 @@ class XmmIndependentSourceTests(unittest.TestCase):
         source=[{"name":"Goblin Boss","action":[{"name":"Multiattack","entries":[
             "The goblin makes two attacks, using Scimitar or Shortbow in any combination."]}]}]
         compiled=[{"id":"Goblin Boss","actions":[{"name":"Multiattack",
-            "manual_rider_resolution_required":False},{"name":"Scimitar"},{"name":"Shortbow"}],
+            "manual_rider_resolution_required":False},{"name":"Scimitar","to_hit":4},{"name":"Shortbow","to_hit":4}],
             "multiattack":{"source_bound":True,"count":2,"options":"Scimitar|Shortbow"}}]
         self.assertEqual(([],1),xmm.check_simple_multiattacks(source,compiled))
         compiled[0]["multiattack"]["count"]=3
@@ -20,6 +20,19 @@ class XmmIndependentSourceTests(unittest.TestCase):
         self.assertIsNone(xmm.simple_multiattack_plan(extra["action"][0]))
         and_list={"name":"Bandit Captain","entries":["The bandit makes two attacks, using Scimitar and Pistol in any combination."]}
         self.assertEqual((2,"Scimitar|Pistol"),xmm.simple_multiattack_plan(and_list))
+
+    def test_simple_repeated_multiattack_is_bound_to_exact_component_and_count(self):
+        source=[{"name":"Ape","action":[{"name":"Multiattack","entries":[
+            "The ape makes two Fist attacks."]},{"name":"Fist"}]}]
+        compiled=[{"id":"Ape","actions":[{"name":"Multiattack",
+            "manual_rider_resolution_required":False},{"name":"Fist","to_hit":5,
+            "manual_rider_resolution_required":False}],
+            "multiattack":{"source_bound":True,"count":2,"sequence":["Fist","Fist"]}}]
+        self.assertEqual(([],1),xmm.check_simple_multiattacks(source,compiled))
+        compiled[0]["multiattack"]["sequence"]=["Fist","Claw"]
+        errors,count=xmm.check_simple_multiattacks(source,compiled)
+        self.assertEqual(1,count)
+        self.assertEqual(["Ape:Multiattack:SOURCE_SEQUENCE_MISMATCH"],errors)
 
     def test_advantage_bonus_damage_is_typed_for_all_six_source_attacks(self):
         rows=[

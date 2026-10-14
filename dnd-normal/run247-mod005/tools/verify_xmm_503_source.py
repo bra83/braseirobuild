@@ -590,24 +590,47 @@ def simple_multiattack_plan(action):
     if len(options)<2 or any(not x for x in options):return None
     return count,"|".join(options)
 
+def simple_repeat_multiattack_plan(monster,action):
+    """Parse only a whole source sentence repeating one named attack."""
+    text=" ".join(x for x in action.get("entries",[]) if isinstance(x,str))
+    match=re.fullmatch(r"The [A-Za-z' -]+ makes (two|three|four) (.+?) attacks?\.",text,re.I)
+    if not match:return None
+    count={"two":2,"three":3,"four":4}[match.group(1).casefold()]
+    phrase=match.group(2).strip().casefold()
+    names=[a.get("name","") for a in monster.get("action",[]) if a.get("name")!="Multiattack"]
+    normalized={phrase,phrase[:-1] if phrase.endswith("s") else phrase+"s"}
+    found=[name for name in names if name.casefold() in normalized]
+    return (count,found[0]) if len(found)==1 else None
+
 def check_simple_multiattacks(source,compiled):
     by_id={m.get("id"):m for m in compiled};errors=[];checked=0
     for monster in source:
         action=next((a for a in monster.get("action",[]) if a.get("name")=="Multiattack"),None)
-        plan=simple_multiattack_plan(action or {})
-        if plan is None:continue
-        checked+=1;dst=by_id.get(monster.get("name"),{});runtime=dst.get("multiattack",{})
+        if action is None:continue
+        choice_plan=simple_multiattack_plan(action)
+        repeat_plan=simple_repeat_multiattack_plan(monster,action)
+        if choice_plan is None and repeat_plan is None:continue
+        checked+=1;dst=by_id.get(monster.get("name"),{})
+        runtime=dst.get("multiattack",{})
         runtime_action=next((a for a in dst.get("actions",[]) if a.get("name")=="Multiattack"),{})
-        count,options=plan
-        declared=runtime.get("options","")
-        if (runtime.get("count")!=count or declared!=options or
+        if choice_plan is not None:
+            count,options=choice_plan
+            sequence_ok=(runtime.get("options")==options and not runtime.get("sequence"))
+            components=options.split("|")
+        else:
+            count,component=repeat_plan
+            sequence_ok=(runtime.get("sequence")==[component]*count and not runtime.get("options"))
+            components=[component]
+        if (runtime.get("count")!=count or not sequence_ok or
             runtime.get("manual_sequence_required",False) or
             runtime_action.get("manual_rider_resolution_required",False)):
             errors.append(f"{monster['name']}:Multiattack:SOURCE_SEQUENCE_MISMATCH")
-        allowed=options.split("|")
-        action_names={a.get("name") for a in dst.get("actions",[])}
-        if any(option not in action_names for option in allowed):
-            errors.append(f"{monster['name']}:Multiattack:COMPONENT_ACTION_MISSING")
+        actions={a.get("name"):a for a in dst.get("actions",[])}
+        for component in components:
+            attack=actions.get(component,{})
+            if (attack.get("to_hit") is None or attack.get("manual_rider_resolution_required",False) or
+                attack.get("manual_unmodeled_source_effect_required",False)):
+                errors.append(f"{monster['name']}:Multiattack:COMPONENT_ATTACK_UNAVAILABLE:{component}")
     return errors,checked
 
 
