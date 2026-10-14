@@ -60,6 +60,13 @@ public final class XmmConditionalAttackDamageSourceTest {
     }
 
     @Test public void unmodeledMoveAdvantageAndGrappleAlternativesFailClosed(){
+        JSONObject mimicBite=findAction(CompiledStatblockEngine.runtimeProfile("Mimic"),"Bite");
+        assertNotNull(mimicBite);
+        assertEquals("1d8 + 3 + 1d8",mimicBite.optString("damage"));
+        assertEquals("piercing + acid",mimicBite.optString("damage_type"));
+        assertFalse("grapple is a prerequisite, not a failed-save rider",mimicBite.has("condition_on_fail"));
+        assertTrue("alternate damage and advantage still require target/source grappling context",
+            mimicBite.optBoolean("manual_rider_resolution_required"));
         String[][] manual={
             {"Aarakocra Skirmisher","Talons"},{"Chimera","Bite"},
             {"Giant Seahorse","Ram"},{"Goat","Ram"},{"Peryton","Gore"},

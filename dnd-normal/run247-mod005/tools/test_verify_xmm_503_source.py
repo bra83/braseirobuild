@@ -139,6 +139,19 @@ class XmmIndependentSourceTests(unittest.TestCase):
         compiled[0]["actions"][0]["manual_rider_resolution_required"]=False
         errors,_=xmm.check_conditional_attack_damage(source,compiled,0,1)
         self.assertIn("Goat:Ram:UNMODELED_ALTERNATE_DAMAGE_NOT_MANUAL",errors)
+    def test_mimic_grappled_bite_prerequisite_is_not_a_condition_rider(self):
+        source=[{"name":"Mimic","action":[{"name":"Bite","entries":[
+          "{@atkr m} {@h}7 ({@damage 1d8 + 3}) Piercing damage—or 12 "
+          "({@damage 2d8 + 3}) Piercing damage if grappled by the mimic—plus 4 "
+          "({@damage 1d8}) Acid damage."]}]}]
+        compiled=[{"id":"Mimic","actions":[{"name":"Bite","damage":"1d8 + 3 + 1d8",
+          "damage_type":"piercing + acid","manual_rider_resolution_required":True}]}]
+        self.assertEqual(([],{"source_bloodied_attack_branches":0,
+            "source_alternate_attack_branches_manual":1}),
+            xmm.check_conditional_attack_damage(source,compiled,0,1))
+        compiled[0]["actions"][0]["condition_on_fail"]="grappled"
+        errors,_=xmm.check_conditional_attack_damage(source,compiled,0,1)
+        self.assertIn("Mimic:Bite:GRAPPLED_PREREQUISITE_MISMODELED_AS_RIDER",errors)
     def test_unmodeled_action_riders_fail_closed(self):
         source=[{"name":"Giant Axe Beak","action":[{"name":"Sharpened Beak",
           "entries":["Hit the target, and a creature within 5 feet of the target takes damage."]}]}]

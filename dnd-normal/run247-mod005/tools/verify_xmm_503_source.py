@@ -291,6 +291,19 @@ def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expecte
                 manual_count+=1
                 if not compiled_action.get("manual_rider_resolution_required",False):
                     errors.append(f"{monster['name']}:{action['name']}:UNMODELED_ALTERNATE_DAMAGE_NOT_MANUAL")
+                if monster["name"]=="Mimic" and action.get("name")=="Bite":
+                    typed_damage=re.findall(r"\{@damage\s+([^}]+)\}\)\s*([A-Za-z]+)\s+damage",entry,re.I)
+                    if len(typed_damage)!=3:
+                        errors.append("Mimic:Bite:GRAPPLE_BRANCH_SOURCE_SHAPE")
+                    else:
+                        base="{} + {}".format(typed_damage[0][0].strip(),typed_damage[2][0].strip())
+                        damage_type="{} + {}".format(typed_damage[0][1].lower(),typed_damage[2][1].lower())
+                        if compiled_action.get("damage")!=base:
+                            errors.append(f"Mimic:Bite:BASE_DAMAGE:{compiled_action.get('damage')}!={base}")
+                        if compiled_action.get("damage_type","").lower()!=damage_type:
+                            errors.append(f"Mimic:Bite:BASE_DAMAGE_TYPE:{compiled_action.get('damage_type')}!={damage_type}")
+                        if compiled_action.get("condition_on_fail") or compiled_action.get("condition_on_hit"):
+                            errors.append("Mimic:Bite:GRAPPLED_PREREQUISITE_MISMODELED_AS_RIDER")
             if re.search(r"\bif\b.{0,220}\b(?:takes|deals) an extra\s+\d+\s*\(\{@damage",entry,re.I) and \
                not compiled_action.get("manual_rider_resolution_required",False):
                 errors.append(f"{monster['name']}:{action['name']}:CONDITIONAL_EXTRA_DAMAGE_NOT_MANUAL")
