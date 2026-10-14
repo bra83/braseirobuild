@@ -3579,6 +3579,12 @@ public class AppDb extends SQLiteOpenHelper {
                 }
             }
             if(sourceAction.length()==0)return out.put("statblock_save_blocked","missing_compiled_save_action");
+            int targetRangeFeet=sourceAction.optInt("target_range_ft",0);
+            if(targetRangeFeet>0){
+                String rangeBlock=compiledSaveTargetRangeBlock(actorId,targetId,actor,target,
+                    targetRangeFeet);
+                if(!rangeBlock.isEmpty())return out.put("statblock_save_blocked",rangeBlock);
+            }
             String saveAbilityBlock=MonsterActionEconomyGuard.saveAbilityBlock(
                 sourceAction.optInt("save_dc",0),sourceAction.optString("save_ability",""));
             if(!saveAbilityBlock.isEmpty())return out.put("statblock_save_blocked",saveAbilityBlock);
@@ -3624,6 +3630,23 @@ public class AppDb extends SQLiteOpenHelper {
                         forced=null;conditionOnFailToApply="";forcedMovementSkippedForSize=true;
                     }
                 }
+                String movementMaximumSize=sourceAction.optString(
+                    "effect_on_fail_movement_max_target_size","").trim();
+                if(!movementMaximumSize.isEmpty()){
+                    if(forced==null||!MonsterOnHitProneRules.validSize(movementMaximumSize)||
+                        !movementMaximumSize.equalsIgnoreCase(
+                            sourceAction.optString("effect_on_fail_movement_max_target_size","")))
+                        return out.put("statblock_save_blocked","unsupported_save_movement_size_cap");
+                    String targetSize=verifiedCombatantSizeCategory(target);
+                    if(!MonsterOnHitProneRules.validSize(targetSize))
+                        return out.put("statblock_save_blocked","target_size_not_verified");
+                    if(MonsterOnHitProneRules.sizeRank(targetSize)>
+                        MonsterOnHitProneRules.sizeRank(movementMaximumSize)){
+                        if(destinationX>=0||destinationY>=0)
+                            return out.put("statblock_save_blocked","forced_movement_not_applicable");
+                        forced=null;forcedMovementSkippedForSize=true;
+                    }
+                }
             }
             JSONObject forcedPlan=new JSONObject();
             if(forced==null&&(destinationX>=0||destinationY>=0))
@@ -3663,6 +3686,69 @@ public class AppDb extends SQLiteOpenHelper {
             recordEffectReceipt(key,resolved.toString());
             return out.put("statblock_save_committed",true).put("statblock_save_receipt",key).put("resolved",resolved).put("damage",damage).put("damage_total",damageTotal).put("condition_transition",riderTransition).put("recharge_spent",!recharge.isEmpty());
         }});
+    }
+    /** Validates a source-declared saving-throw range and visible path against
+     * the live tactical map before any action resource, damage or rider changes. */
+    private String compiledSaveTargetRangeBlock(long actorId,long targetId,JSONObject actor,
+        JSONObject target,int rangeFeet){
+        if(rangeFeet<5||rangeFeet>600||rangeFeet%5!=0)return "invalid_compiled_save_range";
+        if(ConditionRulesEngine.sightCheckAutoFail(actor.optString("conditions","")))
+            return "save_actor_cannot_see_target";
+        if(ConditionTokenGuard.has(target.optString("conditions",""),"invisible"))
+            return "save_target_not_visible";
+        try{
+            JSONObject scene=new ProceduralTacticalSceneGenerator(this).ensureForCurrentScene();
+            int w=scene.optInt("width_cells",0),h=scene.optInt("height_cells",0);
+            if(w<1||h<1||w>100||h>100)return "scene_grid_unavailable";
+            int sourceSize=compiledSaveFootprint(verifiedCombatantSizeCategory(actor));
+            int targetSize=compiledSaveFootprint(verifiedCombatantSizeCategory(target));
+            if(sourceSize<1||targetSize<1)return "target_size_not_verified";
+            ensureTacticalTokensForCombat();
+            boolean[][][] opaque=new boolean[1][h][w],occupied=new boolean[1][h][w];
+            int[][][] cover=new int[1][h][w];
+            JSONArray obstacles=new JSONArray(scene.optString("obstacles_json","[]"));
+            for(int i=0;i<obstacles.length();i++){
+                JSONObject ob=obstacles.optJSONObject(i);if(ob==null)return "invalid_obstacle";
+                int x=ob.optInt("x",-1),y=ob.optInt("y",-1);
+                if(x<0||y<0||x>=w||y>=h)return "obstacle_outside_grid";
+                String kind=ob.optString("type",""),coverKind=ob.optString("cover","none");
+                opaque[0][y][x]=ob.optBoolean("blocks_sight",false)||"total".equals(coverKind)||
+                    "wall".equals(kind)||"pillar".equals(kind);
+                if("three_quarters".equals(coverKind))cover[0][y][x]=5;
+                else if("half".equals(coverKind))cover[0][y][x]=2;
+            }
+            int ax=-1,ay=-1,tx=-1,ty=-1;
+            List<JSONObject> tokens=queryList("SELECT t.combatant_id,t.x,t.y,c.hp FROM tactical_tokens t "+
+                "JOIN combatants c ON c.id=t.combatant_id AND c.world_profile=t.world_profile WHERE t.world_profile=?",
+                new String[]{getActiveMapProfile()});
+            for(JSONObject row:tokens){
+                double px=row.optDouble("x",Double.NaN),py=row.optDouble("y",Double.NaN);
+                if(!Double.isFinite(px)||!Double.isFinite(py)||px<0||py<0||px>=1||py>=1)
+                    return "invalid_tactical_token";
+                int x=(int)Math.floor(px*w),y=(int)Math.floor(py*h);long id=row.optLong("combatant_id",0);
+                if(id==actorId){ax=x;ay=y;}
+                else if(id==targetId){tx=x;ty=y;}
+                else if(row.optInt("hp",0)>0)occupied[0][y][x]=true;
+            }
+            if(ax<0||tx<0)return "source_or_target_token_missing";
+            if(ax+sourceSize>w||ay+sourceSize>h||tx+targetSize>w||ty+targetSize>h)
+                return "creature_footprint_outside_grid";
+            TacticalCreatureGeometryRules.Creature sourceVolume=
+                new TacticalCreatureGeometryRules.Creature(ax,ay,0,sourceSize,1);
+            TacticalCreatureGeometryRules.Creature targetVolume=
+                new TacticalCreatureGeometryRules.Creature(tx,ty,0,targetSize,1);
+            TacticalCreatureGeometryRules.Result geometry=TacticalCreatureGeometryRules.evaluate(
+                w,h,1,sourceVolume,targetVolume,opaque,cover,occupied,
+                "ranged",0,rangeFeet,rangeFeet,true,true,0);
+            if(!geometry.legal())return geometry.blocked;
+            return "";
+        }catch(Exception invalid){return "save_target_geometry_unavailable";}
+    }
+    private int compiledSaveFootprint(String size){
+        int rank=MonsterOnHitProneRules.sizeRank(size);
+        if(rank<1)return 0;
+        if(rank<=3)return 1;
+        return Math.min(4,rank-2);
     }
     /** Recharges a compiled monster action with the caller-supplied d6; never infers a roll. */
     public JSONObject rechargeCompiledStatblockAction(final long actorId,final String statblockId,

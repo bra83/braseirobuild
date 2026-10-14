@@ -4,6 +4,24 @@ from io import BytesIO
 import verify_xmm_503_source as xmm
 
 class XmmIndependentSourceTests(unittest.TestCase):
+    def test_chain_devil_infernal_chain_requires_every_source_bound_rider(self):
+        source={"name":"Conjure Infernal Chain","entries":[
+            "The devil conjures a fiery chain to bind a creature. {@actSave dex} {@dc 15}, one creature the devil can see within 60 feet. {@actSaveFail} 9 ({@damage 2d4 + 4}) Fire damage, and the target has the {@condition Restrained|XPHB} condition until the end of the devil's next turn, at which point the chain disappears. If the target is Large or smaller, the devil moves the target up to 30 feet straight toward itself. {@actSaveSuccess} The chain disappears."]}
+        compiled={"save_ability":"dex","save_dc":15,"damage":"2d4 + 4",
+            "damage_type":"fire","target_range_ft":60,"condition_on_fail":"restrained",
+            "condition_duration_rounds":1,"condition_duration_tick":"source_turn_end",
+            "effect_on_fail":"pull:30ft;restrained",
+            "effect_on_fail_movement_max_target_size":"Large",
+            "manual_rider_resolution_required":False,
+            "manual_unmodeled_source_effect_required":False}
+        self.assertTrue(xmm.chain_devil_infernal_chain_matches(source,compiled))
+        for field,value in (("target_range_ft",30),("effect_on_fail","pull:30ft"),
+                            ("effect_on_fail_movement_max_target_size","Huge"),
+                            ("condition_duration_tick","source_turn_start")):
+            with self.subTest(field=field):
+                wrong=dict(compiled);wrong[field]=value
+                self.assertFalse(xmm.chain_devil_infernal_chain_matches(source,wrong))
+
     def test_colossus_slam_push_is_typed_only_for_exact_source_rider(self):
         action={"name":"Slam","entries":[
             "{@atkr m} {@hit 18}, reach 20 ft. {@h}32 ({@damage 4d10 + 10}) Bludgeoning damage, and the colossus pushes the target up to 20 feet straight away from itself."]}

@@ -29,15 +29,15 @@ public final class MonsterForcedMovementRules {
     public static Spec compiled(String effectOnFail,String conditionOnFail) {
         String effect=effectOnFail==null?"":effectOnFail.trim().toLowerCase(Locale.ROOT);
         String condition=conditionOnFail==null?"":conditionOnFail.trim().toLowerCase(Locale.ROOT);
-        if(effect.isEmpty()||!effect.matches("(?:push|pull):(?:5|10|15|20|25|30|35|40|45|50|55|60)ft(?:;prone)?"))
+        if(effect.isEmpty()||!effect.matches("(?:push|pull):(?:5|10|15|20|25|30|35|40|45|50|55|60)ft(?:;(?:prone|restrained))?"))
             return null;
         int separator=effect.indexOf(':');int suffix=effect.indexOf("ft",separator);
         String direction=effect.substring(0,separator);
         int maximum=Integer.parseInt(effect.substring(separator+1,suffix));
-        boolean prone=effect.endsWith(";prone");
-        if(prone&&!"prone".equals(condition))return null;
-        if(!prone&&!condition.isEmpty())return null;
-        return new Spec(direction,maximum,prone?"prone":"");
+        String rider=effect.indexOf(';')<0?"":effect.substring(effect.indexOf(';')+1);
+        if(!rider.isEmpty()&&!rider.equals(condition))return null;
+        if(rider.isEmpty()&&!condition.isEmpty())return null;
+        return new Spec(direction,maximum,rider);
     }
 
     public static final class Plan {

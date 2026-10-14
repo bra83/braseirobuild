@@ -546,7 +546,38 @@ def source_action_requires_manual_resolution(action,monster_name=""):
     simple_source_turn_start=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_TURN_START_HIT_CONDITIONS
     simple_source_turn_end=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_TURN_END_HIT_CONDITIONS
     secondary_attack_damage=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_SECONDARY_ATTACK_DAMAGE
-    return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or bone_naga_source_turn_start or next_target_turn_end or simple_source_turn_start or simple_source_turn_end or secondary_attack_damage
+    chain_devil_typed=(monster_name,RCH.sub("",action.get("name","")).strip())==("Chain Devil","Conjure Infernal Chain")
+    return (bool(UNMODELED_ACTION_EFFECTS.search(text)) and not chain_devil_typed) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or bone_naga_source_turn_start or next_target_turn_end or simple_source_turn_start or simple_source_turn_end or secondary_attack_damage
+
+def chain_devil_infernal_chain_matches(action,compiled_action):
+    text=json.dumps(action.get("entries",[]),ensure_ascii=False).casefold()
+    conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
+    return ("{@actsave dex}" in text and "{@dc 15}" in text and
+        "one creature the devil can see within 60 feet" in text and
+        "{@actsavefail}" in text and "{@damage 2d4 + 4}" in text and
+        "fire damage" in text and conditions=={"restrained"} and
+        "until the end of the devil's next turn" in text and
+        "the chain disappears" in text and "large or smaller" in text and
+        "moves the target up to 30 feet straight toward itself" in text and
+        compiled_action.get("save_ability")=="dex" and compiled_action.get("save_dc")==15 and
+        compiled_action.get("damage")=="2d4 + 4" and compiled_action.get("damage_type")=="fire" and
+        compiled_action.get("target_range_ft")==60 and
+        compiled_action.get("condition_on_fail")=="restrained" and
+        compiled_action.get("condition_duration_rounds")==1 and
+        compiled_action.get("condition_duration_tick")=="source_turn_end" and
+        compiled_action.get("effect_on_fail")=="pull:30ft;restrained" and
+        compiled_action.get("effect_on_fail_movement_max_target_size")=="Large" and
+        not compiled_action.get("manual_rider_resolution_required",False) and
+        not compiled_action.get("manual_unmodeled_source_effect_required",False))
+
+def check_chain_devil_infernal_chain(source,compiled):
+    monsters={m.get("name"):m for m in source};blocks={m.get("id"):m for m in compiled}
+    src=monsters.get("Chain Devil",{});dst=blocks.get("Chain Devil",{})
+    action=next((a for a in src.get("action",[]) if RCH.sub("",a.get("name","" )).strip()=="Conjure Infernal Chain"),{})
+    compiled_action=next((a for a in dst.get("actions",[]) if a.get("name")=="Conjure Infernal Chain"),{})
+    if not action or not compiled_action or not chain_devil_infernal_chain_matches(action,compiled_action):
+        return ["Chain Devil:Conjure Infernal Chain:SOURCE_RUNTIME_CONTRACT_MISMATCH"]
+    return []
 
 def source_turn_start_hit_condition_matches(monster_name,action,compiled_action):
     name=RCH.sub("",action.get("name","")).strip()
@@ -1074,17 +1105,19 @@ def check(project, bestiary_bytes, book_bytes):
     monster_errors,totals=check_monsters(src,index,compiled,attack_contracts)
     branch_errors,branch_totals=check_conditional_attack_damage(src,compiled)
     effect_errors,effect_count=check_unmodeled_action_effects(src,compiled)
+    chain_errors=check_chain_devil_infernal_chain(src,compiled)
     attack_damage_errors,attack_damage_count=check_attack_primary_damage(src,compiled)
     attack_secondary_errors,attack_secondary_count=check_attack_secondary_damage_contracts(src,compiled)
     turn_start_errors,turn_start_count=check_source_turn_start_hit_conditions(src,compiled)
     save_errors,save_count=check_save_damage_actions(src,save_damage_rows)
     section_errors=check_book(book,bookrows)
-    if (monster_errors or branch_errors or effect_errors or section_errors or save_errors or
+    if (monster_errors or branch_errors or effect_errors or chain_errors or section_errors or save_errors or
         turn_start_errors or attack_damage_errors or attack_secondary_errors):
         raise ValueError("XMM_SOURCE_MISMATCH:"+json.dumps(
             {"monsters":monster_errors[:20],"monster_count":len(monster_errors),
              "conditional_attack_damage":branch_errors[:20],"conditional_attack_damage_count":len(branch_errors),
              "unmodeled_action_effects":effect_errors[:20],"unmodeled_action_effects_count":len(effect_errors),
+             "chain_devil_infernal_chain":chain_errors,
              "source_turn_start_conditions":turn_start_errors[:20],"source_turn_start_conditions_count":len(turn_start_errors),
              "attack_primary_damage":attack_damage_errors[:20],"attack_primary_damage_count":len(attack_damage_errors),
              "attack_secondary_damage":attack_secondary_errors[:20],"attack_secondary_damage_count":len(attack_secondary_errors),
@@ -1104,6 +1137,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_attack_primary_damage_compared":attack_damage_count,
         "source_attack_secondary_damage_contracts_compared":attack_secondary_count,
         "source_abilities_with_unmodeled_effects_manual":effect_count,
+        "source_chain_devil_infernal_chain_semantics_compared":1,
         "source_compound_condition_actions_typed":2,
         "source_single_condition_actions_typed":9+turn_start_count,
         "source_timed_noncondition_effects_typed":1,

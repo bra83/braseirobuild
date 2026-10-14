@@ -15,6 +15,13 @@ public final class XmmBalorCompoundRiderRulesTest {
         assertTrue(MonsterOnHitProneRules.eligible(action,"Large"));
         assertFalse(MonsterOnHitProneRules.eligible(action,"Gargantuan"));
         assertNull(MonsterForcedMovementRules.compiled("pull:25ft;prone","restrained"));
+        MonsterForcedMovementRules.Spec infernalChain=
+            MonsterForcedMovementRules.compiled("pull:30ft;restrained","restrained");
+        assertNotNull(infernalChain);
+        assertEquals("pull",infernalChain.direction);
+        assertEquals(30,infernalChain.maximumFeet);
+        assertEquals("restrained",infernalChain.accompanyingCondition);
+        assertNull(MonsterForcedMovementRules.compiled("pull:30ft;restrained","prone"));
         action.put("effect_on_hit_max_target_size","Gargantuan");
         assertEquals("unsupported_untimed_on_hit_rider",
             MonsterActionEconomyGuard.attackRiderBlock(action));
