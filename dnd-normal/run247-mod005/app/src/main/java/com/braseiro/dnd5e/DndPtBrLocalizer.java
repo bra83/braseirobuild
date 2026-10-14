@@ -32,6 +32,10 @@ public final class DndPtBrLocalizer {
         add("FEATURES AND TRAITS", "RECURSOS E TRAÇOS");
         add("FEATURES", "RECURSOS E TRAÇOS");
         add("ATTACKS", "ATAQUES");
+        add("Gouge", "Golpe Dilacerante");
+        add("Thundercloud", "Nuvem Trovejante");
+        add("Tendril", "Tentáculo");
+        add("Trash Lob", "Arremesso de Detritos");
         add("SKILLS", "PERÍCIAS");
         add("LANGUAGES", "IDIOMAS");
         add("TOOLS", "FERRAMENTAS");

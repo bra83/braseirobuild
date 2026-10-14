@@ -28,8 +28,8 @@ public final class Run247G05SourceTurnEndRobolectricTest {
             "world_profile=? AND combatant_id=?",new String[]{"dnd",String.valueOf(id)}));
     }
 
-    private void assertSourceTurnEndAttack(String monster,String actionName,String condition,
-        int minimumDamage,String suffix)throws Exception {
+    private void assertTurnEndAttack(String monster,String actionName,String condition,
+        String tick,int minimumDamage,String suffix)throws Exception {
         Xmm2025CompiledBestiaryEngine.install();
         JSONObject profile=CompiledStatblockEngine.runtimeProfile(monster);
         JSONObject action=null;JSONArray actions=profile.optJSONArray("actions");
@@ -39,7 +39,7 @@ public final class Run247G05SourceTurnEndRobolectricTest {
         assertEquals(condition,action.optString("condition_on_hit"));
         assertFalse(action.has("condition_on_fail"));
         assertEquals(1,MonsterConditionTimerLedger.compiledDuration(action));
-        assertEquals("source_turn_end",action.optString("condition_duration_tick"));
+        assertEquals(tick,action.optString("condition_duration_tick"));
         assertEquals("",MonsterActionEconomyGuard.attackRiderBlock(action));
 
         Context context=RuntimeEnvironment.getApplication();
@@ -53,31 +53,61 @@ public final class Run247G05SourceTurnEndRobolectricTest {
             db.setCombatRunning(true);assertEquals(actor,db.nextTurn().optLong("id"));
             new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
             position(db,actor,2,2);position(db,target,3,2);
+            JSONObject rollMode=db.previewCompiledMonsterAttackRollMode(actor,target,monster,actionName);
+            assertTrue(rollMode.toString(),rollMode.optBoolean("monster_roll_preview_valid"));
+            int secondD20=rollMode.optBoolean("second_d20_required")?18:0;
             JSONObject attack=db.applyCompiledStatblockAttack(actor,target,monster,actionName,
-                19,0,minimumDamage,0,"ui-monster-source-turn-end-"+suffix);
+                19,secondD20,minimumDamage,0,"ui-monster-source-turn-end-"+suffix);
             assertTrue(attack.toString(),attack.optBoolean("statblock_attack_committed"));
             assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
             JSONArray timers=new JSONArray(db.getCombatant(target).optString("condition_timers_json","[]"));
-            assertEquals(1,timers.length());assertTrue(timers.getJSONObject(0).optBoolean("skip_first_source_turn_end"));
-
-            assertEquals(target,db.nextTurn().optLong("id"));
-            assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
-            timers=new JSONArray(db.getCombatant(target).optString("condition_timers_json","[]"));
-            assertFalse(timers.getJSONObject(0).optBoolean("skip_first_source_turn_end"));
-            assertEquals(actor,db.nextTurn().optLong("id"));
-            assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
-            assertEquals(target,db.nextTurn().optLong("id"));
+            assertEquals(1,timers.length());
+            if("source_turn_end".equals(tick)){
+                assertTrue(timers.getJSONObject(0).optBoolean("skip_first_source_turn_end"));
+                assertEquals(target,db.nextTurn().optLong("id"));
+                assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
+                timers=new JSONArray(db.getCombatant(target).optString("condition_timers_json","[]"));
+                assertFalse(timers.getJSONObject(0).optBoolean("skip_first_source_turn_end"));
+                assertEquals(actor,db.nextTurn().optLong("id"));
+                assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
+                assertEquals(target,db.nextTurn().optLong("id"));
+            }else{
+                assertFalse(timers.getJSONObject(0).optBoolean("skip_first_target_turn_end"));
+                assertEquals(target,db.nextTurn().optLong("id"));
+                assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
+                assertEquals(actor,db.nextTurn().optLong("id"));
+            }
             assertFalse(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),condition));
             assertEquals(0,new JSONArray(db.getCombatant(target).optString("condition_timers_json","[]")).length());
         } finally {db.close();context.deleteDatabase(dbName);}
     }
 
     @Test public void scarecrowFearsomeClawExpiresAtEndOfItsNextTurn()throws Exception {
-        assertSourceTurnEndAttack("Scarecrow","Fearsome Claw","frightened",3,"scarecrow");
+        assertTurnEndAttack("Scarecrow","Fearsome Claw","frightened","source_turn_end",3,"scarecrow");
     }
 
     @Test public void merrowBiteExpiresPoisonAtEndOfItsNextTurn()throws Exception {
-        assertSourceTurnEndAttack("Merrow","Bite","poisoned",5,"merrow");
+        assertTurnEndAttack("Merrow","Bite","poisoned","source_turn_end",5,"merrow");
+    }
+
+    @Test public void giantVultureGougeExpiresPoisonAtEndOfTargetsNextTurn()throws Exception {
+        assertEquals("Golpe Dilacerante",DndPtBrLocalizer.localizeText("Gouge"));
+        assertTurnEndAttack("Giant Vulture","Gouge","poisoned","target_turn_end",6,"giant-vulture");
+    }
+
+    @Test public void gasSporeTendrilExpiresPoisonAtEndOfTargetsNextTurn()throws Exception {
+        assertEquals("Tentáculo",DndPtBrLocalizer.localizeText("Tendril"));
+        assertTurnEndAttack("Gas Spore Fungus","Tendril","poisoned","target_turn_end",4,"gas-spore");
+    }
+
+    @Test public void cloudGiantThundercloudExpiresIncapacitatedAtEndOfTargetsNextTurn()throws Exception {
+        assertEquals("Nuvem Trovejante",DndPtBrLocalizer.localizeText("Thundercloud"));
+        assertTurnEndAttack("Cloud Giant","Thundercloud","incapacitated","target_turn_end",14,"cloud-giant");
+    }
+
+    @Test public void hillGiantTrashLobExpiresPoisonAtEndOfTargetsNextTurn()throws Exception {
+        assertEquals("Arremesso de Detritos",DndPtBrLocalizer.localizeText("Trash Lob"));
+        assertTurnEndAttack("Hill Giant","Trash Lob","poisoned","target_turn_end",15,"hill-giant");
     }
 
     @Test public void ledgerDoesNotExpireAtSourceStartAndHonorsCurrentTurnSkip()throws Exception {
@@ -92,5 +122,15 @@ public final class Run247G05SourceTurnEndRobolectricTest {
             skipped.timers.toString(),91);
         assertEquals(0,expired.timers.length());assertEquals(1,expired.expired.size());
         assertEquals("amedrontado",expired.expired.get(0));
+
+        JSONArray targetEnd=MonsterConditionTimerLedger.stage("[]",plan,1,91,"Giant Vulture","Gouge",
+            "target-turn-end-ledger-test","target_turn_end",true);
+        MonsterConditionTimerLedger.Transition targetSkipped=
+            MonsterConditionTimerLedger.advanceSourceTurnEnd(targetEnd.toString(),92,92);
+        assertTrue(targetSkipped.changed);assertTrue(targetSkipped.expired.isEmpty());
+        MonsterConditionTimerLedger.Transition targetExpired=
+            MonsterConditionTimerLedger.advanceSourceTurnEnd(targetSkipped.timers.toString(),92,92);
+        assertEquals(0,targetExpired.timers.length());assertEquals(1,targetExpired.expired.size());
+        assertEquals("amedrontado",targetExpired.expired.get(0));
     }
 }

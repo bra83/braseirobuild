@@ -2082,6 +2082,8 @@ public class AppDb extends SQLiteOpenHelper {
         String tick=sourceAction.optString("condition_duration_tick","target_turn_start");
         boolean skipFirstSourceEnd="source_turn_end".equals(tick)&&
             getCombatant(sourceActorId).optInt("active_turn",0)==1;
+        if("target_turn_end".equals(tick))
+            skipFirstSourceEnd=getCombatant(targetId).optInt("active_turn",0)==1;
         JSONArray timers=MonsterConditionTimerLedger.stage(beforeTimers,plan,duration,
             sourceActorId,blockId,actionName,receiptToken,
             tick,skipFirstSourceEnd);
@@ -2240,8 +2242,10 @@ public class AppDb extends SQLiteOpenHelper {
                 plan,MonsterConditionTimerLedger.compiledDuration(sourceAction),sourceActorId,
                 blockId,actionName,receiptToken,
                 sourceAction.optString("condition_duration_tick","target_turn_start"),
-                "source_turn_end".equals(sourceAction.optString("condition_duration_tick",""))&&
-                    getCombatant(sourceActorId).optInt("active_turn",0)==1);
+                ("source_turn_end".equals(sourceAction.optString("condition_duration_tick",""))&&
+                    getCombatant(sourceActorId).optInt("active_turn",0)==1)||
+                ("target_turn_end".equals(sourceAction.optString("condition_duration_tick",""))&&
+                    getCombatant(targetId).optInt("active_turn",0)==1));
             return "";
         }catch(IllegalArgumentException invalid){
             if("condition_timer_ownership_conflict".equals(invalid.getMessage()))
@@ -5909,7 +5913,7 @@ public class AppDb extends SQLiteOpenHelper {
             String oldConditions=c.optString("conditions","");
             String oldTimers=c.optString("condition_timers_json","[]");
             MonsterConditionTimerLedger.Transition transition=
-                MonsterConditionTimerLedger.advanceSourceTurnEnd(oldTimers,activeActorId);
+                MonsterConditionTimerLedger.advanceSourceTurnEnd(oldTimers,targetId,activeActorId);
             if(!transition.changed)continue;
             String conditions=oldConditions;
             for(String removed:transition.expired)conditions=ConditionRulesEngine.remove(conditions,removed);

@@ -286,7 +286,7 @@ UNMODELED_ACTION_EFFECTS=re.compile(
     r"attaches to the target|while attached|removing its heart|"
     r"kills the target by)\b|\{@hom\}|\{@hazard burning\b)",re.I)
 
-def source_action_requires_manual_resolution(action):
+def source_action_requires_manual_resolution(action,monster_name=""):
     """Catch source attack effects that are not part of the typed runtime contract."""
     def flatten(value):
         if isinstance(value,str): return value
@@ -304,7 +304,12 @@ def source_action_requires_manual_resolution(action):
     merrow_next_turn_end=(RCH.sub("",action.get("name","")).strip()=="Bite" and
         "until the end of the merrow's next turn" in text.casefold() and
         "poisoned" in conditions)
-    return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end
+    simple_target_turn_end={
+        ("Giant Vulture","Gouge"),("Gas Spore Fungus","Tendril"),
+        ("Cloud Giant","Thundercloud"),("Hill Giant","Trash Lob")}
+    next_target_turn_end=((monster_name,RCH.sub("",action.get("name","" )).strip()) in simple_target_turn_end and
+        "until the end of its next turn" in text.casefold() and len(conditions)==1)
+    return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or next_target_turn_end
 
 def source_action_has_typed_condition_contract(monster_name,action,compiled_action):
     """Narrowly typed source conditions with an exact, executable expiry boundary."""
@@ -327,6 +332,18 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
     elif monster_name=="Merrow" and name=="Bite":
         expected={"poisoned"}; field="condition_on_hit"
         source_until="until the end of the merrow's next turn"
+    elif monster_name=="Giant Vulture" and name=="Gouge":
+        expected={"poisoned"}; field="condition_on_hit"
+        source_until="until the end of its next turn"
+    elif monster_name=="Gas Spore Fungus" and name=="Tendril":
+        expected={"poisoned"}; field="condition_on_hit"
+        source_until="until the end of its next turn"
+    elif monster_name=="Cloud Giant" and name=="Thundercloud":
+        expected={"incapacitated"}; field="condition_on_hit"
+        source_until="until the end of its next turn"
+    elif monster_name=="Hill Giant" and name=="Trash Lob":
+        expected={"poisoned"}; field="condition_on_hit"
+        source_until="until the end of its next turn"
     else:return False
     if field=="condition_on_hit" and source_until.startswith("until the end"):
         source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
@@ -335,7 +352,9 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
             source_until in text.casefold() and not compiled_action.get("save_dc") and
             not compiled_action.get("save_ability") and not compiled_action.get("condition_on_fail") and
             compiled_action.get("condition_duration_rounds")==1 and
-            compiled_action.get("condition_duration_tick")=="source_turn_end" and
+            compiled_action.get("condition_duration_tick")==(
+                "target_turn_end" if monster_name in {"Giant Vulture","Gas Spore Fungus","Cloud Giant","Hill Giant"}
+                else "source_turn_end") and
             not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if monster_name not in ("Rakshasa","Storm Giant"):return False
     source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
@@ -358,7 +377,7 @@ def check_unmodeled_action_effects(source,compiled):
             destination=dst.get(dest_field,[])
             if category: destination=[a for a in destination if a.get("category")==category]
             for slot,action in enumerate(monster.get(source_field,[])):
-                if not source_action_requires_manual_resolution(action): continue
+                if not source_action_requires_manual_resolution(action,monster.get("name","")): continue
                 checked+=1
                 compiled_action=destination[slot] if slot<len(destination) else {}
                 expected_name=RCH.sub("",action.get("name","")).strip()
@@ -565,7 +584,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_save_damage_actions_compared":save_count,
         "source_abilities_with_unmodeled_effects_manual":effect_count,
         "source_compound_condition_actions_typed":2,
-        "source_single_condition_actions_typed":2,
+        "source_single_condition_actions_typed":6,
         **branch_totals,
         "source_field_and_catalog_gate_pass":True,
         "full_monster_combat_automation_certified":False}

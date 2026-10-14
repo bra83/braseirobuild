@@ -3219,11 +3219,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final JSONObject profile=CompiledStatblockEngine.runtimeProfile(statblock);
         final JSONArray declaredActions=profile.optJSONArray("actions");
         final ArrayList<String> attackNames=new ArrayList<String>();
+        final ArrayList<String> attackSourceNames=new ArrayList<String>();
         if(declaredActions!=null)for(int i=0;i<declaredActions.length();i++){JSONObject candidate=declaredActions.optJSONObject(i);if(candidate!=null&&candidate.has("to_hit")&&
             !MonsterActionEconomyGuard.standaloneCost(candidate.optString("category","action")).isEmpty()&&
             MonsterActionEconomyGuard.attackRiderBlock(candidate,statblock).isEmpty()&&
             CompiledMonsterActionGuard.actionRechargeBlock(candidate.optString("recharge","")).isEmpty())
-            attackNames.add(candidate.optString("name","Ação"));}
+            {String sourceName=candidate.optString("name","Ação");attackSourceNames.add(sourceName);
+             attackNames.add(DndPtBrLocalizer.localizeText(sourceName));}}
         if(attackNames.isEmpty()){toast("O bloco compilado não declara ataques diretos executáveis.");return;}
         final String[] actionNames=attackNames.toArray(new String[0]);
         final Spinner action=spinner(actionNames,actionNames[0]);form.addView(cardWithLabel("AÇÃO DO BLOCO",action));
@@ -3237,11 +3239,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         typedDamageBox.setVisibility(View.GONE);form.addView(typedDamageBox);
         final ArrayList<JSONObject> typedDamageSpecs=new ArrayList<JSONObject>();
         final ArrayList<EditText> typedDamageValues=new ArrayList<EditText>();
-        configureMonsterAttackDamageFields(profile,actionNames[0],singleDamageBox,typedDamageBox,
+        configureMonsterAttackDamageFields(profile,attackSourceNames.get(0),singleDamageBox,typedDamageBox,
             damage,typedDamageSpecs,typedDamageValues);
         action.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
             public void onItemSelected(AdapterView<?> parent,View view,int position,long rowId){
-                configureMonsterAttackDamageFields(profile,String.valueOf(parent.getItemAtPosition(position)),
+                configureMonsterAttackDamageFields(profile,attackSourceNames.get(position),
                     singleDamageBox,typedDamageBox,damage,typedDamageSpecs,typedDamageValues);
             }
             public void onNothingSelected(AdapterView<?> parent){}
@@ -3257,7 +3259,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         previewRoll.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
             JSONObject info=db.previewCompiledMonsterAttackRollMode(actorId,
                 targets.get(target.getSelectedItemPosition()).optLong("id"),statblock,
-                String.valueOf(action.getSelectedItem()),additionalHostile.getSelectedItemPosition()==0?0L:
+                attackSourceNames.get(action.getSelectedItemPosition()),additionalHostile.getSelectedItemPosition()==0?0L:
                     targets.get(additionalHostile.getSelectedItemPosition()-1).optLong("id"));
             if(!info.optBoolean("monster_roll_preview_valid",false)){
                 toast("Prévia bloqueada: "+info.optString("monster_roll_preview_blocked","revisar alvo"));return;
@@ -3290,7 +3292,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 if(typedSum>0)rawDamage=typedSum;else damageComponents=new JSONArray();
             }
             JSONObject preview=db.previewCompiledMonsterAttackRollMode(actorId,
-                targets.get(target.getSelectedItemPosition()).optLong("id"),statblock,String.valueOf(action.getSelectedItem()),
+                targets.get(target.getSelectedItemPosition()).optLong("id"),statblock,attackSourceNames.get(action.getSelectedItemPosition()),
                 additionalHostile.getSelectedItemPosition()==0?0L:
                     targets.get(additionalHostile.getSelectedItemPosition()-1).optLong("id"));
             if(!preview.optBoolean("monster_roll_preview_valid",false)){
@@ -3304,10 +3306,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             long hostileId=additionalHostile.getSelectedItemPosition()==0?0L:
                 targets.get(additionalHostile.getSelectedItemPosition()-1).optLong("id");
             if(damageComponents.length()>0)result=db.applyCompiledStatblockAttack(actorId,targetId,statblock,
-                String.valueOf(action.getSelectedItem()),roll,longRoll,damageComponents,saveRoll,
+                attackSourceNames.get(action.getSelectedItemPosition()),roll,longRoll,damageComponents,saveRoll,
                 hostileId,destX,destY,token);
             else result=db.applyCompiledStatblockAttack(actorId,targetId,statblock,
-                String.valueOf(action.getSelectedItem()),roll,longRoll,rawDamage,saveRoll,
+                attackSourceNames.get(action.getSelectedItemPosition()),roll,longRoll,rawDamage,saveRoll,
                 hostileId,destX,destY,token);
             if(!result.optBoolean("statblock_attack_committed",false)){toast("Ataque não aplicado: "+result.optString("statblock_attack_blocked","revise o bloco"));return;}
             toast("Ataque de monstro aplicado com recibo.");dialog.dismiss();showCombat();
