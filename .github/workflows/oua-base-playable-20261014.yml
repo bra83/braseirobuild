@@ -49,7 +49,12 @@ jobs:
           if (-not $pkg) { throw 'OUA Android Studio source root not found' }
           "OUA_ROOT=$($pkg.Directory.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "OUA_TEMP=$work" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-      - name: Apply real manual Journey roll/event protection\n        shell: powershell\n        run: |\n          & node.exe ci/oua-base-20261014/apply-manual-roll-once.mjs "$env:OUA_ROOT"\n          if ($LASTEXITCODE -ne 0) { throw 'OUA base gameplay patch failed' }\n      - name: Inventory production source
+      - name: Apply real manual Journey roll/event protection
+        shell: powershell
+        run: |
+          & node.exe ci/oua-base-20261014/apply-manual-roll-once.mjs "$env:OUA_ROOT"
+          if ($LASTEXITCODE -ne 0) { throw 'OUA base gameplay patch failed' }
+      - name: Inventory production source
         shell: powershell
         run: |
           & node.exe ci/oua-base-20261014/inventory.mjs "$env:OUA_ROOT"
@@ -64,7 +69,10 @@ jobs:
             & npm.cmd ci --ignore-scripts --no-audit --no-fund
             if ($LASTEXITCODE -ne 0) { & npm.cmd install --ignore-scripts --no-audit --no-fund }
             if ($LASTEXITCODE -ne 0) { throw 'npm install failed' }
-            Copy-Item "$env:GITHUB_WORKSPACE\\ci\\oua-base-20261014\\manual-roll-once.test.ts" 'manual-roll-once.test.ts' -Force\n            & npx.cmd --yes tsx manual-roll-once.test.ts\n            if ($LASTEXITCODE -ne 0) { throw 'Manual player roll one-shot behavior failed' }\n            & npx.cmd --yes tsx audit-turn-flow.ts
+            Copy-Item "$env:GITHUB_WORKSPACE\\ci\\oua-base-20261014\\manual-roll-once.test.ts" 'manual-roll-once.test.ts' -Force
+            & npx.cmd --yes tsx manual-roll-once.test.ts
+            if ($LASTEXITCODE -ne 0) { throw 'Manual player roll one-shot behavior failed' }
+            & npx.cmd --yes tsx audit-turn-flow.ts
             if ($LASTEXITCODE -ne 0) { throw 'Base rules turn-flow regression failed' }
             & node.exe -e 'const r=require("./OUA_49202_TURN_FLOW_AUDIT.json");if(r.failed||r.passed!==r.assertions)process.exit(2);console.log("BASE_GAMEPLAY_PASS sessions="+r.sessionsSimulated+" assertions="+r.assertions)'
             if ($LASTEXITCODE -ne 0) { throw 'Invalid regression summary' }
