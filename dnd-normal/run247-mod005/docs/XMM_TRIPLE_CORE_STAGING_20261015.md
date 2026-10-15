@@ -53,3 +53,18 @@ explicitamente diz `pinned_source_verified=false`, e 03 precisa concluir
 
 **Status: material preservado e consolidado para revisão, implementação
 inteiramente jogável AINDA NÃO homologada.**
+
+## Atualização de evidências — 15/10/2026
+
+- Usuário confirmou `XMM_INDEPENDENT_THREE_LOTS=PASS` para o gate combinado em
+  Codespace, após aprovação individual dos três lotes. A contagem de asserções
+  é prova de núcleo independente, **não** certificação de combate.
+- O blob XMM pinado `9a4137b508ef37562ed948894a70b1594b57e85c` foi
+  obtido do repositório-fonte via integração GitHub. Seus 503 registros foram
+  examinados; os **24 ponteiros (12 de 02 e 12 de 03)** foram resolvidos por
+  caminho exato e conferidos contra nome do monstro e nome da ação.
+- Resultado e ponteiros, sem reproduzir texto protegido da fonte:
+  `docs/editorial-evidence/xmm-3-lots-source-identity-20261015.json`.
+- Esta verificação elimina o bloqueio de **localização/identidade da fonte**
+  para as ações 02 e 03. A adequação dos riders e a implementação
+  mecânica integral **continuam abertas**, bem como SQLite/Android.
