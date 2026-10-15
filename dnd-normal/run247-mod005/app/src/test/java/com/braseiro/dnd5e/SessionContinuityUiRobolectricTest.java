@@ -92,7 +92,13 @@ public class SessionContinuityUiRobolectricTest {
     @Test public void backup21RoundTripRestoresHeroAndResourceState()throws Exception{
         long id=hero();db.addCharacterXp(id,300);JSONObject backup=db.exportAll();BackupContractValidator.requireValid(backup);
         String saved=db.getCharacter(id).optString("sheet_json");db.adjustCharacterHp(id,-3);db.addCharacterXp(id,50);
-        db.importAll(backup);reopen();assertEquals(4,db.getCharacter(id).optInt("hp"));assertEquals(saved,db.getCharacter(id).optString("sheet_json"));
+        db.importAll(backup);reopen();
+        // Backup21 remaps SQLite row IDs; compare the restored character by logical identity.
+        assertEquals("Backup must restore exactly one hero",1,db.listCharacters().size());
+        JSONObject restored=db.findCharacterByName("Continuidade");
+        assertTrue("Restored hero missing after Backup21 import",restored.length()>0);
+        assertEquals("Backup must restore pre-export hit points",4,restored.optInt("hp"));
+        assertEquals("Backup must preserve the full character resource sheet",saved,restored.optString("sheet_json"));
     }
     @Test public void levelUpOldButtonCannotApplyTwoEarnedLevels()throws Exception{
         long id=hero();db.addCharacterXp(id,900);render();
