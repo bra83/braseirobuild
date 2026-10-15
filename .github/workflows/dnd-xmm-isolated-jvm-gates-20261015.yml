@@ -39,8 +39,18 @@ jobs:
           distribution: temurin
           java-version: '21'
       - name: Ten no-Gradle independent Java gates
+        shell: bash
         run: |
-          python3 -B dnd-normal/run247-mod005/tools/verify_xmm_10_standalone_lots.py
+          set -o pipefail
+          python3 -B dnd-normal/run247-mod005/tools/verify_xmm_10_standalone_lots.py 2>&1 | tee xmm-standalone-jvm.log
+      - name: Publish focused XMM diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xmm-standalone-jvm-diagnostics
+          path: xmm-standalone-jvm.log
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Never mistake JVM green for playable combat
         if: always()
         run: |
