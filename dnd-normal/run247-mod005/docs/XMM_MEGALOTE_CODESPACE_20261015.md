@@ -109,3 +109,29 @@ ao diretório D&D, sem tocar nas branches de PR #39/#40.
 
 O checkout restrito reduz cópias de outros jogos; caches, binários de
 Gradle e imagens dentro do diretório D&D podem continuar consumindo espaço.
+
+## Retomada segura após os lotes 01–03 — 15/10/2026
+
+No Codespace, os lotes `damage-or-save-branch-01`, `02` e `03` já têm
+worktrees e commits publicados; **não** devem ser executados novamente.
+O PR #41 reúne e validou os núcleos independentemente. O número de ações
+jogáveis completas continua zero até integração no combate.
+
+O gerador atualizado (`4c7a595c`) aceita:
+
+- `--list` — imprime situação dos lotes e o próximo lote novo, sem Codex;
+- `--execute --next --workers 1` — lança **somente o primeiro lote novo**,
+  se existir Codex CLI autenticado; não toca nas worktrees anteriores;
+- `--execute --job damage-or-save-branch-04 --workers 1` — seleciona esse
+  job nominalmente; recusa se a worktree já existir;
+- `--execute` sozinho é propositalmente bloqueado para evitar
+  criação simultânea de muitos clones e consumir o limite de uso.
+
+Para preparar/ver os jobs, no checkout coordenador atualizado:
+`python3 dnd-normal/run247-mod005/scripts/xmm_megalote_codespace.py --list`.
+
+A execução do job 04 depende de crédito de Codex suficiente. Quando
+Codex bater no limite de uso ou terminar com falha, **não** usar
+`--next` imediatamente: auditar a worktree interrompida e salvar os
+arquivos parciais antes de iniciar outra. O gerador não reinicia tarefas
+antigas automaticamente e não faz merge nem publica suas alterações.
