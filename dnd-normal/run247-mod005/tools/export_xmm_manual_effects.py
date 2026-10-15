@@ -1,84 +1,149 @@
 #!/usr/bin/env python3
-"""Export the pinned XMM actions that still require manual effect resolution.
-
-The report contains identifiers and JSON pointers only. It deliberately omits
-source prose so it can be used as a durable implementation backlog.
-"""
+"""Export a source-pointer inventory of effects not yet executable end-to-end."""
 import argparse
+import hashlib
 import json
+import sys
 from pathlib import Path
 
-import verify_xmm_503_source as verify
+
+def _category(source_field):
+    return {"action":"action", "bonus":"bonus_action", "reaction":"reaction",
+            "legendary":"legendary_action"}[source_field]
 
 
-def export(source_bytes, project_root):
-    source_doc = json.loads(source_bytes)
-    source = source_doc["monster"]
-    compiled_path = project_root / verify.JAVA_RUNTIME
-    compiled_rows = verify.java_rows(compiled_path.read_text(encoding="utf-8"))
-    compiled_by_id = {row["id"]: row for row in compiled_rows}
-    mappings = (("action", "actions", None), ("bonus", "special_actions", "bonus_action"),
-                ("reaction", "special_actions", "reaction"),
-                ("legendary", "special_actions", "legendary_action"))
-    entries = []
-    for monster_index, monster in enumerate(source):
-        monster_name = monster.get("name", "")
-        compiled_monster = compiled_by_id.get(monster_name, {})
-        for source_field, compiled_field, category in mappings:
-            destination = compiled_monster.get(compiled_field, [])
-            if category:
-                destination = [action for action in destination
-                               if action.get("category") == category]
-            for slot, action in enumerate(monster.get(source_field, [])):
-                if not verify.source_action_requires_manual_resolution(action, monster_name):
-                    continue
-                compiled_action = destination[slot] if slot < len(destination) else {}
-                if verify.source_action_has_typed_condition_contract(
-                        monster_name, action, compiled_action):
-                    continue
-                if not compiled_action.get("manual_unmodeled_source_effect_required", False):
-                    raise ValueError(f"missing_manual_guard:{monster_name}:{action.get('name', '')}")
-                entries.append({
-                    "source_pointer": f"/monster/{monster_index}/{source_field}/{slot}",
-                    "monster": monster_name,
-                    "action": verify.RCH.sub("", action.get("name", "")).strip(),
-                    "category": category or "action",
-                    "compiled_manual_guard": True,
-                })
-    entries.sort(key=lambda item: (item["monster"].casefold(), item["category"],
-                                   item["source_pointer"]))
-    errors, expected_count = verify.check_unmodeled_action_effects(
-        source, compiled_rows)
-    if errors:
-        raise ValueError("source_comparison_failed:" + ";".join(errors[:10]))
-    if expected_count != len(entries):
-        raise ValueError(f"manual_backlog_count_mismatch:{expected_count}:{len(entries)}")
+def _family(action):
+    if action.get("condition_choice_on_hit"):
+        return "condition_choice_on_hit"
+    if action.get("condition_recurring_damage"):
+        return "condition_recurring_damage"
+    if action.get("condition_on_target_reduced_to_zero_hp"):
+        return "condition_at_zero_hp"
+    if action.get("swallow_conditions_manual") or action.get("swallow_exit_condition"):
+        return "swallow_and_escape"
+    if action.get("effect_on_fail") or action.get("effect_on_hit"):
+        return "forced_movement_or_compound_rider"
+    if action.get("condition_on_fail"):
+        return "save_failure_condition"
+    if action.get("condition_on_hit"):
+        return "attack_hit_condition"
+    if action.get("spells"):
+        return "monster_spell_action"
+    if action.get("name") == "Multiattack":
+        return "multiattack_sequence"
+    if action.get("manual_effect_choice_required"):
+        return "explicit_effect_choice"
+    if action.get("damage_on_save") or action.get("damage"):
+        return "damage_or_save_branch"
+    return "other_source_effect"
+
+
+def _owner(family):
     return {
-        "schema": "XMM_MANUAL_EFFECT_BACKLOG_V1",
-        "source_commit": verify.PIN,
-        "bestiary_git_blob_sha1": verify.blob_sha(source_bytes),
-        "source_monsters": len(source),
-        "manual_effect_count": len(entries),
-        "entries": entries,
-        "source_prose_included": False,
+        "condition_choice_on_hit":"Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
+        "save_failure_condition":"StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+        "attack_hit_condition":"Xmm2025AttackConditionGateway / StatblockCombatFlowEngine",
+        "multiattack_sequence":"Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+        "monster_spell_action":"Xmm2025SpellUsageIndex / CompiledSupplementExecutionEngine",
+        "condition_recurring_damage":"XMM recurring-condition executor (not implemented)",
+        "condition_at_zero_hp":"XMM zero-HP transition executor (not implemented)",
+        "swallow_and_escape":"Xmm2025GrappleEscapeRules / StatblockCombatFlowEngine",
+        "forced_movement_or_compound_rider":"MonsterForcedMovementRules / StatblockCombatFlowEngine",
+    }.get(family,"XMM action-specific executor (not implemented)")
+
+
+def build_inventory(source, compiled, proof_sha=""):
+    import verify_xmm_503_source as verifier
+    compiled_by_id={row.get("id"):row for row in compiled}
+    entries=[]
+    categories=(("action","actions",None),("bonus","special_actions","bonus_action"),
+                ("reaction","special_actions","reaction"),
+                ("legendary","special_actions","legendary_action"))
+    for monster_index,monster in enumerate(source):
+        profile=compiled_by_id.get(monster.get("name"),{})
+        for source_field,dest_field,category in categories:
+            destination=profile.get(dest_field,[])
+            if category:
+                destination=[item for item in destination if item.get("category")==category]
+            for slot,action in enumerate(monster.get(source_field,[])):
+                if not verifier.source_action_requires_manual_resolution(action,monster.get("name","")):
+                    continue
+                compiled_action=destination[slot] if slot<len(destination) else {}
+                if verifier.source_action_has_typed_condition_contract(monster["name"],action,compiled_action):
+                    continue
+                family=_family(compiled_action)
+                is_choice_preview=(family=="condition_choice_on_hit" and
+                    verifier.condition_choice_contract_matches(monster["name"],action,compiled_action))
+                entry_pointer=f"/monster/{monster_index}/{source_field}/{slot}/entries/0"
+                contract_fields=("attack_modes","to_hit","reach_ft","range_normal_ft","range_long_ft",
+                    "damage","damage_type","damage_on_save","save_ability","save_dc",
+                    "condition_on_hit","condition_on_fail","condition_choice_on_hit",
+                    "condition_choice_max_target_size","condition_duration_rounds",
+                    "condition_duration_tick","condition_recovery_save_ability",
+                    "condition_recovery_save_dc","condition_recovery_trigger",
+                    "condition_recovery_condition","condition_recovery_linked_conditions",
+                    "effect_on_hit","effect_on_fail","condition_recurring_damage",
+                    "condition_recurring_damage_type","condition_recurring_damage_tick",
+                    "escape_dc","condition_max_target_size","recharge","spells",
+                    "manual_effect_choice_required","swallow_conditions_manual",
+                    "condition_on_target_reduced_to_zero_hp","speed_reduction_ft",
+                    "speed_reduction_duration_tick")
+                contract={key:compiled_action[key] for key in contract_fields if key in compiled_action}
+                blocker=("Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
+                    if is_choice_preview else
+                    "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente.")
+                test_id=("Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound"
+                    if is_choice_preview else "")
+                status="BLOCKED_MISSING_CONTEXT" if is_choice_preview else "MANUAL_UNSUPPORTED"
+                if not entry_pointer or not action.get("name"):
+                    status="SOURCE_REVIEW_REQUIRED"
+                entries.append({
+                    "source_pointer":entry_pointer,
+                    "monster_id":monster["name"],
+                    "action_id":action.get("name",""),
+                    "family":family,
+                    "mechanical_contract":contract,
+                    "engine_owner":_owner(family),
+                    "coverage_status":status,
+                    "test_id":test_id,
+                    "proof_sha":proof_sha if is_choice_preview else "",
+                    "blocker_reason":blocker,
+                })
+    pointers=[row["source_pointer"] for row in entries]
+    if len(set(pointers))!=len(pointers):
+        raise ValueError("duplicate_source_pointer_in_manual_inventory")
+    return {
+        "schema":"XMM_SOURCE_EFFECT_INVENTORY_V1",
+        "source_commit":verifier.PIN,
+        "source_bestiary_blob_sha1":verifier.BESTIARY_SHA,
+        "source_monsters":len(source),
+        "manual_unmodeled_effect_count":len(entries),
+        "tipado_preview_pendente_integracao_count":sum(
+            row["coverage_status"]=="BLOCKED_MISSING_CONTEXT" for row in entries),
+        "full_monster_combat_automation_certified":False,
+        "entries":entries,
     }
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--source-dir", type=Path, required=True)
-    parser.add_argument("--project-root", type=Path, default=verify.ROOT)
-    parser.add_argument("--out", type=Path, required=True)
-    args = parser.parse_args()
-    source_bytes = (args.source_dir / "bestiary-xmm.json").read_bytes()
-    result = export(source_bytes, args.project_root.resolve())
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n",
-                        encoding="utf-8")
-    print(json.dumps({key: result[key] for key in (
-        "schema", "source_commit", "bestiary_git_blob_sha1", "source_monsters",
-        "manual_effect_count", "source_prose_included")}, indent=2))
+    parser=argparse.ArgumentParser()
+    parser.add_argument("--source-dir",type=Path,required=True)
+    parser.add_argument("--project-root",type=Path,required=True)
+    parser.add_argument("--out",type=Path,required=True)
+    parser.add_argument("--proof-json",type=Path,
+        help="Verifier JSON whose bytes will be SHA-256 pinned in preview entries")
+    args=parser.parse_args()
+    sys.path.insert(0,str(args.project_root.resolve()/"tools"))
+    import verify_xmm_503_source as verifier
+    source=json.loads((args.source_dir/"bestiary-xmm.json").read_text(encoding="utf-8"))["monster"]
+    runtime=verifier.java_rows((args.project_root/verifier.JAVA_RUNTIME).read_text(encoding="utf-8"))
+    proof_sha=(hashlib.sha256(args.proof_json.read_bytes()).hexdigest()
+        if args.proof_json else "")
+    inventory=build_inventory(source,runtime,proof_sha)
+    args.out.parent.mkdir(parents=True,exist_ok=True)
+    args.out.write_text(json.dumps(inventory,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    print(json.dumps({k:v for k,v in inventory.items() if k!="entries"},ensure_ascii=False,indent=2))
 
 
-if __name__ == "__main__":
+if __name__=="__main__":
     main()
