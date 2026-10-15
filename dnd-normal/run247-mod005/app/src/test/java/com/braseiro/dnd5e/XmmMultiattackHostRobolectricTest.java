@@ -176,7 +176,12 @@ public class XmmMultiattackHostRobolectricTest {
             assertEquals("Clay Golem",restored.getString("block_id"));
             assertTrue("Backup21 must restore persisted Hasten after reopen "+reopen,
                 restored.getBoolean("hasten_used_this_turn"));
-            assertEquals("Clay Golem",restored.getString("block_id"));
+            JSONObject triple=new JSONObject().put("variant_index",1)
+                .put("hasten_used_this_turn",true)
+                .put("selected_actions",new JSONArray().put("Slam").put("Slam").put("Slam"));
+            JSONObject restoredPlan=XmmMultiattackHostPlan.declaration("Clay Golem",triple,restored);
+            assertFalse(restoredPlan.toString(),restoredPlan.has("statblock_multiattack_blocked"));
+            assertEquals(3,restoredPlan.getInt("count"));
         }
     }
 }
