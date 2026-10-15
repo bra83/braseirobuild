@@ -141,7 +141,7 @@ public class XmmMultiattackHostRobolectricTest {
             "ui-monster-multi-spell-block",selection);
         assertEquals("multiattack_component_executor_not_installed_spell_0",result.optString("statblock_multiattack_blocked"));unchanged();
     }
-    @Test public void hastenStateSurvivesBackup21RestoreAndTwoSqliteReopens() throws Exception {
+    @Test public void hastenStateSurvivesBackup21RestoreAndThreeSqliteReopens() throws Exception {
         bind("Clay Golem");
         JSONObject resources=new JSONObject(db.getCombatant(actor).getString("resources_json"));
         resources.put("hasten_used_this_turn",true);
@@ -167,7 +167,7 @@ public class XmmMultiattackHostRobolectricTest {
         assertEquals(1,db.getWritableDatabase().update("combatants",changed,
             "id=?",new String[]{String.valueOf(actor)}));
         db.importAll(backup);
-        for(int reopen=0;reopen<2;reopen++){
+        for(int reopen=0;reopen<3;reopen++){
             db.close();db=new AppDb(context,name);db.setActiveMapProfile("dnd");
             String restoredJson=DatabaseUtils.stringForQuery(db.getReadableDatabase(),
                 "SELECT resources_json FROM combatants WHERE world_profile=? AND name=? ORDER BY id DESC LIMIT 1",
