@@ -20,7 +20,7 @@ class XmmIndependentSourceTests(unittest.TestCase):
         self.assertEqual(0,count)
         self.assertIn("Werebear:WEREBEAST_MULTIATTACK_SOURCE_PLAN_MISMATCH",errors)
 
-    def test_six_compound_multiattacks_match_source_variants_and_context(self):
+    def test_ten_compound_multiattacks_match_source_variants_and_context(self):
         source=[];plans=[]
         for index,(monster,(text,(variants,context))) in enumerate(xmm.COMPOUND_MULTIATTACKS.items()):
             names=sorted({name for group in variants for step in group for name in step["o"]})
@@ -29,8 +29,9 @@ class XmmIndependentSourceTests(unittest.TestCase):
             row={"id":monster,"ptr":f"/monster/{index}/action/0/entries","v":variants}
             if context is not None: row["context"]=json.loads(json.dumps(context))
             plans.append(row)
-        self.assertEqual(([],6),xmm.check_compound_multiattack_variants(source,plans))
-        plans[1]["context"]["variant_index"]=0
+        self.assertEqual(([],10),xmm.check_compound_multiattack_variants(source,plans))
+        clay_index=list(xmm.COMPOUND_MULTIATTACKS).index("Clay Golem")
+        plans[clay_index]["context"]["variant_index"]=0
         errors,count=xmm.check_compound_multiattack_variants(source,plans)
         self.assertEqual(0,count)
         self.assertIn("Clay Golem:COMPOUND_MULTIATTACK_SOURCE_PLAN_MISMATCH",errors)

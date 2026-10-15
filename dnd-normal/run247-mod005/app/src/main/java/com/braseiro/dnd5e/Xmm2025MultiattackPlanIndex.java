@@ -299,12 +299,12 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Young Black Dragon\",\"ptr\":\"/monster/486/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}]]}",
   "{\"id\":\"Young Blue Dragon\",\"ptr\":\"/monster/487/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}]]}",
   "{\"id\":\"Young Brass Dragon\",\"ptr\":\"/monster/488/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Young Bronze Dragon\",\"ptr\":\"/monster/489/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Young Copper Dragon\",\"ptr\":\"/monster/490/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Young Gold Dragon\",\"ptr\":\"/monster/491/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Young Bronze Dragon\",\"ptr\":\"/monster/489/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Repulsion Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Repulsion Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Repulsion Breath\"],\"c\":1}]]}",
+  "{\"id\":\"Young Copper Dragon\",\"ptr\":\"/monster/490/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Slowing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Slowing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Slowing Breath\"],\"c\":1}]]}",
+  "{\"id\":\"Young Gold Dragon\",\"ptr\":\"/monster/491/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Weakening Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Weakening Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Weakening Breath\"],\"c\":1}]]}",
   "{\"id\":\"Young Green Dragon\",\"ptr\":\"/monster/492/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}]]}",
   "{\"id\":\"Young Red Dragon\",\"ptr\":\"/monster/493/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}]]}",
-  "{\"id\":\"Young Silver Dragon\",\"ptr\":\"/monster/495/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Young Silver Dragon\",\"ptr\":\"/monster/495/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Paralyzing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Paralyzing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Paralyzing Breath\"],\"c\":1}]]}",
   "{\"id\":\"Young White Dragon\",\"ptr\":\"/monster/496/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}]]}",
   "{\"id\":\"Yuan-ti Abomination\",\"ptr\":\"/monster/497/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Yuan-ti Infiltrator\",\"ptr\":\"/monster/498/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Scimitar\"],\"c\":2}]]}",
@@ -313,7 +313,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Yuan-ti Malison (Type 3)\",\"ptr\":\"/monster/501/action/0/entries\",\"v\":[]}"
  };
  private static final Map<String,JSONObject> MAP=new LinkedHashMap<>();
- static{try{int ready=0;for(String s:RAW){JSONObject x=new JSONObject(s);if(MAP.put(x.getString("id"),x)!=null)throw new IllegalStateException("duplicate multiattack");if(x.getJSONArray("v").length()>0)ready++;}if(MAP.size()!=306||ready!=238)throw new IllegalStateException("incomplete multiattack index");}catch(Exception e){throw new ExceptionInInitializerError(e);}}
+ static{try{int ready=0;for(String s:RAW){JSONObject x=new JSONObject(s);if(MAP.put(x.getString("id"),x)!=null)throw new IllegalStateException("duplicate multiattack");if(x.getJSONArray("v").length()>0)ready++;}if(MAP.size()!=306||ready!=242)throw new IllegalStateException("incomplete multiattack index");}catch(Exception e){throw new ExceptionInInitializerError(e);}}
  private Xmm2025MultiattackPlanIndex(){}
  private static JSONObject blocked(String reason)throws Exception{return new JSONObject().put("resolved",false).put("status",reason).put("auto_rolls",false).put("auto_mutation_allowed",false).put("actions_applied",false);}
  public static JSONArray ids(){JSONArray a=new JSONArray();for(String id:MAP.keySet())a.put(id);return a;}
@@ -387,5 +387,5 @@ public final class Xmm2025MultiattackPlanIndex {
   if(context!=null)result.put("variant_context_field",context.getString("field")).put("variant_context_value",in.getBoolean(context.getString("field")));
   return result;
  }
- public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("multiattacks",306).put("structured_plans",238).put("manual_source_bound",68).put("source_blob_sha1",SOURCE_BLOB).put("full_combat_automation_certified",false).put("auto_rolls",false);}
+ public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("multiattacks",306).put("structured_plans",242).put("manual_source_bound",64).put("source_blob_sha1",SOURCE_BLOB).put("full_combat_automation_certified",false).put("auto_rolls",false);}
 }

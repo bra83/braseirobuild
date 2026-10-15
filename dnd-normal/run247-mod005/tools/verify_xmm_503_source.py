@@ -1758,6 +1758,23 @@ COMPOUND_MULTIATTACKS={
     "Tarrasque":("The tarrasque makes one Bite attack and three other attacks, using Claw or Tail in any combination.",
         ([[{"k":"attack","o":["Bite"],"c":1},{"k":"attack","o":["Claw","Tail"],"c":3}]],None)),
 }
+def expected_single_attack_replacement(attack,substitute):
+    variants=[[{"k":"attack","o":[attack],"c":3}]]
+    for slot in range(3):
+        steps=[]
+        if slot:steps.append({"k":"attack","o":[attack],"c":slot})
+        steps.append({"k":"use","o":[substitute],"c":1})
+        if slot<2:steps.append({"k":"attack","o":[attack],"c":2-slot})
+        variants.append(steps)
+    return variants
+
+for _monster,_substitute,_text in (
+    ("Young Bronze Dragon","Repulsion Breath","The dragon makes three Rend attacks. It can replace one attack with a use of Repulsion Breath."),
+    ("Young Copper Dragon","Slowing Breath","The dragon makes three Rend attacks. It can replace one attack with a use of Slowing Breath."),
+    ("Young Gold Dragon","Weakening Breath","The dragon makes three Rend attacks. It can replace one attack with a use of Weakening Breath."),
+    ("Young Silver Dragon","Paralyzing Breath","The dragon makes three Rend attacks. It can replace one attack with a use of Paralyzing Breath."),
+):
+    COMPOUND_MULTIATTACKS[_monster]=(_text,(expected_single_attack_replacement("Rend",_substitute),None))
 
 def check_compound_multiattack_variants(source,plans):
     source_by_name={m.get("name"):m for m in source};plan_by_name={p.get("id"):p for p in plans}
@@ -1791,7 +1808,7 @@ def _expected_simple_multiattack_plan(monster,action):
         else:groups.append({"k":"attack","o":[name],"c":1})
     return [groups]
 
-def check_multiattack_plan_catalog(source,plans,expected_structured=238,expected_simple=197,
+def check_multiattack_plan_catalog(source,plans,expected_structured=242,expected_simple=197,
                                    expected_total=306):
     source_rows=[]
     for monster_index,monster in enumerate(source):
