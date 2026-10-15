@@ -257,6 +257,7 @@ public final class XmmOtherSourceEffect03 {
                 if(a!=Action.REVENANT&&a!=Action.UNICORN&&a!=Action.SPHINX_WONDER)
                     need(t.kind==Kind.CREATURE,"creature_required");
                 if(a==Action.REVENANT){
+                    need(t.kind==Kind.CREATURE,"revenant_curses_one_creature");
                     need(req.targets.size()==1&&s.visible,"revenant_requires_visible_single_target");
                     need(s.saveSucceeded==null,"revenant_no_save");
                     diceNone(s);
@@ -326,6 +327,7 @@ public final class XmmOtherSourceEffect03 {
                     }
                     need(s.umberD8==0,"unexpected_umber_roll");
                 }else if(a==Action.SPHINX_WONDER){
+                    need(t.kind==Kind.CREATURE,"sphinx_reaction_targets_creature");
                     need(req.targets.size()==1&&s.triggeringAbilityOrSaveCheck,
                         "reaction_trigger_is_ability_check_or_save");
                     need(s.saveSucceeded==null,"reaction_has_no_saving_throw");
@@ -349,6 +351,7 @@ public final class XmmOtherSourceEffect03 {
                             "next_target_turn_only"));
                     }else need(s.umberD8==0,"umber_success_has_no_1d8");
                 }else if(a==Action.UNICORN){
+                    need(t.kind==Kind.CREATURE,"unicorn_shields_creature");
                     need(req.targets.size()==1,"unicorn_targets_one_creature");
                     need(s.id.equals(req.actor)||s.visible,"unicorn_target_not_visible");
                     need(s.saveSucceeded==null,"unicorn_no_save");
