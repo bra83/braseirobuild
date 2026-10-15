@@ -260,10 +260,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, help="Diretório externo para prompts e logs")
     parser.add_argument("--execute", action="store_true", help="Iniciar Codex CLI nas worktrees isoladas")
-    parser.add_argument("--workers", type=int, default=2, help="Máximo de execuções paralelas (1 ou 2)")
+    parser.add_argument("--workers", type=int, default=1, help="Execução conservadora; no máximo 1 job por invocação")
+    parser.add_argument("--next", action="store_true", help="Executar apenas o PRIMEIRO lote sem worktree existente")
+    parser.add_argument("--job", type=str, help="Executar apenas este job_id exato")
+    parser.add_argument("--list", action="store_true", help="Mostrar lotes e status de worktree sem executar")
     args = parser.parse_args()
-    if args.workers not in (1, 2):
-        parser.error("workers deve ser 1 ou 2, para evitar colisões/sobrecarga.")
+    if args.workers != 1:
+        parser.error("Este Codespace de 8 GiB só permite --workers 1, um lote por execução.")
+    if args.execute and (args.next == bool(args.job)):
+        parser.error("Para --execute, informe exatamente um: --next ou --job JOB_ID.")
     if args.execute and not shutil.which("codex"):
         print("CODEX_CLI_UNAVAILABLE: geração de jobs é possível; execução automática requer Codex CLI autenticado.", file=sys.stderr)
         return 2
@@ -282,23 +287,39 @@ def main() -> int:
     output = args.output or Path("/tmp") / ("braseiro-xmm-megalote-" + sha[:8])
     output = output.resolve()
     write_jobs(output, inventory_file, data, jobs, sha)
+    state = []
+    for j in jobs:
+        path = ROOT.parents[1].parent / ("dnd-xmm-lote-" + safe_job_name(j["job_id"]))
+        state.append((j, path, path.exists()))
+    if args.list:
+        for j, path, exists in state:
+            print("JOB_STATUS", j["job_id"], "PRESERVED_EXISTING_WORKTREE" if exists else "NOT_STARTED",
+                  "ACTIONS", j["count"], "PATH", path)
+        print("NEXT_NEW_JOB=", next((j["job_id"] for j, _, exists in state if not exists), "NONE"))
     if not args.execute:
-        print("PREPARED_ONLY: execute com --execute somente se codex CLI estiver autenticado no Codespace.")
+        print("PREPARED_ONLY: executar somente com --execute --next OU --execute --job JOB_ID.")
         return 0
-    print("EXECUTION_START: cada lote usa branch/worktree independente; nenhum merge é automático.")
-    with ThreadPoolExecutor(max_workers=args.workers) as pool:
-        tasks = {
-            pool.submit(execute_one, j, output, ROOT.parents[1], sha): j["job_id"]
-            for j in jobs
-        }
-        failures = 0
-        for completed in as_completed(tasks):
-            name, status = completed.result()
-            print("RESULT", name, status, flush=True)
-            if not status.startswith("DONE"):
-                failures += 1
-    print("EXECUTION_SUMMARY: jobs=", len(jobs), "failures_or_blocked=", failures)
-    return 0 if failures == 0 else 1
+    if args.job:
+        matches = [(j, p, exists) for j, p, exists in state if j["job_id"] == args.job]
+        if len(matches) != 1:
+            parser.error("JOB_ID inexistente no inventário fonte-pinando.")
+        target, path, exists = matches[0]
+        if exists:
+            print("PRESERVED_EXISTING_WORKTREE=", path)
+            print("BLOCKED_EXISTING_JOB: não sobrescrever; revisar logs, commits e teste antes de retomar.")
+            return 2
+    else:
+        target = next((j for j, _, exists in state if not exists), None)
+        if target is None:
+            print("NO_NEW_JOBS: todos os lotes já possuem worktree; não sobrescrever.")
+            return 0
+    # One job per invocation; Codex CLI quotas and 8 GiB RAM require explicit
+    # review before starting another. Previously created worktrees remain untouched.
+    print("EXECUTION_SELECTED_JOB=", target["job_id"], "ACTIONS=", target["count"], flush=True)
+    name, status = execute_one(target, output, ROOT.parents[1], sha)
+    print("RESULT", name, status, flush=True)
+    print("EXECUTION_SUMMARY: selected_jobs=1, untouched_jobs=", len(jobs) - 1)
+    return 0 if status.startswith("DONE") else 1
 
 
 if __name__ == "__main__":
