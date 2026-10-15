@@ -55,8 +55,8 @@ def test_official_structure_fields_are_free_of_pdf_page_bleed():
         for field,value in entry.items():
             if not isinstance(value,str):
                 continue
-            assert not re.search(r"[\\x00-\\x1f\\x7f]",value),(entry["official_name"],field)
-            assert not re.search(r"\\b\\d{3}\\d{3}\\b",value),(entry["official_name"],field)
+            assert not any(ord(character)<32 or ord(character)==127 for character in value),(entry["official_name"],field)
+            assert not re.search(r"(?<![0-9])[0-9]{6}(?![0-9])",value),(entry["official_name"],field)
     # PDF extraction cleanliness is not certification of all mechanical effects.
     assert DATA["certification"]=="NOT_CERTIFIED"
 
