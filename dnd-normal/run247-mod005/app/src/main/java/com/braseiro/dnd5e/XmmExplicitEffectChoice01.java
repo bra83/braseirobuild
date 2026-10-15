@@ -101,7 +101,10 @@ public final class XmmExplicitEffectChoice01 {
         public synchronized long revision(){return revision;}
         public synchronized Target target(String id){return targets.get(id);}
         public synchronized Grapple grapple(String rug){return grapplesByRug.get(rug);}
-        public synchronized boolean canSmother(String rug){return !grapplesByRug.containsKey(rug);}
+        public synchronized boolean canSmother(String rug){
+            Target actor=targets.get(rug);
+            return actor!=null&&actor.hp>0&&!grapplesByRug.containsKey(rug);
+        }
         private void event(String event){
             require(event!=null&&!event.trim().isEmpty()&&!consumedEvents.contains(event),
                 "missing_or_replayed_event");
