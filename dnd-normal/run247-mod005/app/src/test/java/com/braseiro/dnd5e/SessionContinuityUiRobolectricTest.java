@@ -30,6 +30,8 @@ public class SessionContinuityUiRobolectricTest {
         db=new AppDb(activity,database);db.setActiveMapProfile("dnd");
         content=new FrameLayout(activity);activity.setContentView(content);
         set("content",content);set("db",db);set("prefs",activity.getSharedPreferences(database,0));
+        set("ui",new android.os.Handler(Looper.getMainLooper()));
+        set("characterGenerator",new CharacterSheetGenerator(new DndRulesEngine()));
         set("rulesEngine",new DndRulesEngine());set("partyDirector",new PartyDirector(db));
         set("worldStateEngine",new WorldStateEngine(db));set("safety",new CampaignSafetyManager(activity,db));
         registry=CompiledStatblockEngine.snapshot();Xmm2025CompiledBestiaryEngine.install();render();

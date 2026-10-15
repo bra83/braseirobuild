@@ -28,6 +28,8 @@ public class ExplorationCombatUiRobolectricTest {
         db=new AppDb(activity,database);db.setActiveMapProfile("dnd");
         content=new FrameLayout(activity);activity.setContentView(content);
         set("content",content);set("db",db);set("prefs",activity.getSharedPreferences(database,0));
+        set("ui",new android.os.Handler(Looper.getMainLooper()));
+        set("characterGenerator",new CharacterSheetGenerator(new DndRulesEngine()));
         set("rulesEngine",new DndRulesEngine());set("partyDirector",new PartyDirector(db));
         set("worldStateEngine",new WorldStateEngine(db));set("safety",new CampaignSafetyManager(activity,db));
         registry=CompiledStatblockEngine.snapshot();Xmm2025CompiledBestiaryEngine.install();render();
@@ -35,7 +37,7 @@ public class ExplorationCombatUiRobolectricTest {
     @After public void cleanup(){if(dialog!=null)dialog.dismiss();db.close();activity.deleteDatabase(database);CompiledStatblockEngine.restoreReplacing(registry);}
     void set(String field,Object value)throws Exception{Field f=MainActivity.class.getDeclaredField(field);f.setAccessible(true);f.set(activity,value);}
     void render()throws Exception{Method m=MainActivity.class.getDeclaredMethod("showCombat");m.setAccessible(true);m.invoke(activity);shadowOf(Looper.getMainLooper()).idle();}
-    void reopen()throws Exception{db.close();db=new AppDb(activity,database);db.setActiveMapProfile("dnd");set("db",db);set("partyDirector",new PartyDirector(db));set("safety",new CampaignSafetyManager(activity,db));}
+    void reopen()throws Exception{db.close();db=new AppDb(activity,database);db.setActiveMapProfile("dnd");set("db",db);set("partyDirector",new PartyDirector(db));set("safety",new CampaignSafetyManager(activity,db));set("worldStateEngine",new WorldStateEngine(db));}
     <T extends View>T find(View root,Class<T> type,String label){
         if(type.isInstance(root)&&(label==null||(root instanceof EditText?label.contentEquals(((EditText)root).getHint()):root instanceof TextView&&label.contentEquals(((TextView)root).getText()))))return type.cast(root);
         if(root instanceof ViewGroup)for(int i=0;i<((ViewGroup)root).getChildCount();i++){T v=find(((ViewGroup)root).getChildAt(i),type,label);if(v!=null)return v;}return null;

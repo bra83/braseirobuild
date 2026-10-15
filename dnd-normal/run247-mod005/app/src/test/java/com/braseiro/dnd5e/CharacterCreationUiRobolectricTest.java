@@ -66,7 +66,7 @@ public class CharacterCreationUiRobolectricTest {
     void save(){form.getButton(AlertDialog.BUTTON_POSITIVE).performClick();shadowOf(Looper.getMainLooper()).idle();}
     JSONObject only(){assertEquals(1,db.listCharacters().size());return db.listCharacters().get(0);}
     JSONObject sheet()throws Exception{return new JSONObject(only().optString("sheet_json"));}
-    void reopenDb()throws Exception {db.close();db=new AppDb(activity,database);db.setActiveMapProfile("dnd");set("db",db);set("safety",new CampaignSafetyManager(activity,db));}
+    void reopenDb()throws Exception {db.close();db=new AppDb(activity,database);db.setActiveMapProfile("dnd");set("db",db);set("safety",new CampaignSafetyManager(activity,db));set("worldStateEngine",new WorldStateEngine(db));}
     AlertDialog picker(String label){control("Selecionar "+label).performClick();AlertDialog picker=ShadowAlertDialog.getLatestAlertDialog();assertNotSame(form,picker);return picker;}
     void toggle(AlertDialog picker,int index){ListView list=picker.getListView();list.performItemClick(list.getChildAt(index),index,index);}
 
@@ -129,7 +129,9 @@ public class CharacterCreationUiRobolectricTest {
     }
     @Test public void originBonusIsExplicitAndDoesNotStackWhenReopened()throws Exception {
         open();named("Origem confirmada");AlertDialog picker=originPicker();
-        picker.getButton(AlertDialog.BUTTON_POSITIVE).performClick();assertFalse(picker.isShowing());
+        Button applyOrigin=picker.getButton(AlertDialog.BUTTON_POSITIVE);
+        applyOrigin.performClick();assertFalse(picker.isShowing());
+        applyOrigin.performClick(); // A retained button must not stack the accepted bonus.
         picker=originPicker();picker.getButton(AlertDialog.BUTTON_POSITIVE).performClick();save();
         JSONObject choices=new JSONObject(sheet().optString("feat_selection_json")).getJSONObject("run136").getJSONObject("origin_ability");
         assertTrue(choices.optBoolean("applied_to_editor"));assertEquals(17,only().optInt("str"));
