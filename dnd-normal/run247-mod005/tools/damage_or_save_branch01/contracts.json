@@ -1,0 +1,172 @@
+{
+  "job_id": "damage_or_save_branch-01",
+  "family": "damage_or_save_branch",
+  "count": 12,
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "entries": [
+    {
+      "source_pointer": "/monster/5/legendary/0/entries/0",
+      "monster_id": "Adult Black Dragon",
+      "action_id": "Cloud of Insects",
+      "mechanical_contract": {
+        "damage": "4d10",
+        "damage_type": "poison",
+        "save_ability": "dex",
+        "save_dc": 17
+      },
+      "source_action_sha256": "c7b8104d9ed6edcca48a29cae19173a66c9ff00455f56284ace5932d2d7006f1",
+      "runtime_contract": "/monster/5/legendary/0/entries/0|Adult Black Dragon|Cloud of Insects|LEGENDARY|17|120|0|0|false|POISON:4d10"
+    },
+    {
+      "source_pointer": "/monster/7/legendary/2/entries/0",
+      "monster_id": "Adult Brass Dragon",
+      "action_id": "Scorching Sands",
+      "mechanical_contract": {
+        "damage": "6d8",
+        "damage_type": "fire",
+        "save_ability": "dex",
+        "save_dc": 16
+      },
+      "source_action_sha256": "695d06200202df5f206a86dc4d1e982c176426d5d9b303cebaaa99b34b549d04",
+      "runtime_contract": "/monster/7/legendary/2/entries/0|Adult Brass Dragon|Scorching Sands|LEGENDARY|16|120|0|0|false|FIRE:6d8"
+    },
+    {
+      "source_pointer": "/monster/13/legendary/1/entries/0",
+      "monster_id": "Adult Silver Dragon",
+      "action_id": "Cold Gale",
+      "mechanical_contract": {
+        "damage": "4d6",
+        "damage_type": "cold",
+        "damage_on_save": "4d6",
+        "save_ability": "dex",
+        "save_dc": 19
+      },
+      "source_action_sha256": "555dce0c7c006051f496df91b8e3382c168df411a10e213944945e676d8c668e",
+      "runtime_contract": "/monster/13/legendary/1/entries/0|Adult Silver Dragon|Cold Gale|LEGENDARY|19|60|10|0|true|COLD:4d6"
+    },
+    {
+      "source_pointer": "/monster/17/legendary/0/entries/0",
+      "monster_id": "Ancient Black Dragon",
+      "action_id": "Cloud of Insects",
+      "mechanical_contract": {
+        "damage": "6d10",
+        "damage_type": "poison",
+        "save_ability": "dex",
+        "save_dc": 21
+      },
+      "source_action_sha256": "4991a6f0539e5c7d5f948a199ee9aae9a26b42ce8627de0959930cb3b6f8b03e",
+      "runtime_contract": "/monster/17/legendary/0/entries/0|Ancient Black Dragon|Cloud of Insects|LEGENDARY|21|120|0|0|false|POISON:6d10"
+    },
+    {
+      "source_pointer": "/monster/19/legendary/2/entries/0",
+      "monster_id": "Ancient Brass Dragon",
+      "action_id": "Scorching Sands",
+      "mechanical_contract": {
+        "damage": "8d8",
+        "damage_type": "fire",
+        "save_ability": "dex",
+        "save_dc": 20
+      },
+      "source_action_sha256": "f0beefd217127094f84a911142f0e4dcb2191e6ea22630383f26249b58816e3f",
+      "runtime_contract": "/monster/19/legendary/2/entries/0|Ancient Brass Dragon|Scorching Sands|LEGENDARY|20|120|0|0|false|FIRE:8d8"
+    },
+    {
+      "source_pointer": "/monster/25/legendary/1/entries/0",
+      "monster_id": "Ancient Silver Dragon",
+      "action_id": "Cold Gale",
+      "mechanical_contract": {
+        "damage": "4d6",
+        "damage_type": "cold",
+        "damage_on_save": "4d6",
+        "save_ability": "dex",
+        "save_dc": 23
+      },
+      "source_action_sha256": "f95d2f1e5a45d20e94c342d7890d2560e3864715026fa1eec1645783b7f54073",
+      "runtime_contract": "/monster/25/legendary/1/entries/0|Ancient Silver Dragon|Cold Gale|LEGENDARY|23|60|10|0|true|COLD:4d6"
+    },
+    {
+      "source_pointer": "/monster/27/action/3/entries/0",
+      "monster_id": "Animal Lord",
+      "action_id": "Animal Spirit",
+      "mechanical_contract": {
+        "damage": "4d10 + 6",
+        "damage_type": "radiant",
+        "damage_on_save": "4d10 + 6",
+        "save_ability": "dex",
+        "save_dc": 20
+      },
+      "source_action_sha256": "24fe8a3ec959aecefe074431ab118b9ce580b5d65081e20a8ba52f3a6c3d4796",
+      "runtime_contract": "/monster/27/action/3/entries/0|Animal Lord|Animal Spirit|ACTION|20|120|0|0|true|RADIANT:4d10 + 6"
+    },
+    {
+      "source_pointer": "/monster/36/action/2/entries/0",
+      "monster_id": "Arch-hag",
+      "action_id": "Crackling Wave",
+      "mechanical_contract": {
+        "damage": "5d12",
+        "damage_type": "lightning",
+        "damage_on_save": "5d12",
+        "save_ability": "dex",
+        "save_dc": 22
+      },
+      "source_action_sha256": "4854f5327d455f5167686ff20390208df5152dac08498722218e283716bf167b",
+      "runtime_contract": "/monster/36/action/2/entries/0|Arch-hag|Crackling Wave|ACTION|22|60|0|0|true|LIGHTNING:5d12"
+    },
+    {
+      "source_pointer": "/monster/36/bonus/0/entries/0",
+      "monster_id": "Arch-hag",
+      "action_id": "Witch Strike",
+      "mechanical_contract": {
+        "damage": "4d6",
+        "damage_type": "lightning"
+      },
+      "source_action_sha256": "969502f07f01e7eada10136de799cb8ba213a0d864d2436890eb8c03cc2543ab",
+      "runtime_contract": "/monster/36/bonus/0/entries/0|Arch-hag|Witch Strike|BONUS|0|60|0|0|false|LIGHTNING:4d6"
+    },
+    {
+      "source_pointer": "/monster/48/action/2/entries/0",
+      "monster_id": "Balor",
+      "action_id": "Lightning Blade",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 14,
+        "reach_ft": 10,
+        "damage": "3d8 + 8 + 4d10",
+        "damage_type": "force + lightning"
+      },
+      "source_action_sha256": "04527d1983d95715facde945c6f22a6886893a1dddcf6967271cc803285f7d27",
+      "runtime_contract": "/monster/48/action/2/entries/0|Balor|Lightning Blade|ACTION|0|10|0|14|false|FORCE:3d8 + 8;LIGHTNING:4d10"
+    },
+    {
+      "source_pointer": "/monster/51/bonus/0/entries/0",
+      "monster_id": "Bandit Crime Lord",
+      "action_id": "Deadly Aim",
+      "mechanical_contract": {
+        "damage": "8d6",
+        "damage_type": "poison"
+      },
+      "source_action_sha256": "254014f308863aca7c1ecc6fea2735c026d38836c9f1f7cbb7d4677285cefef4",
+      "runtime_contract": "/monster/51/bonus/0/entries/0|Bandit Crime Lord|Deadly Aim|BONUS|0|0|0|0|false|POISON:8d6"
+    },
+    {
+      "source_pointer": "/monster/54/action/3/entries/0",
+      "monster_id": "Barbed Devil",
+      "action_id": "Hurl Flame",
+      "mechanical_contract": {
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 5,
+        "range_normal_ft": 150,
+        "range_long_ft": 150,
+        "damage": "5d6",
+        "damage_type": "fire"
+      },
+      "source_action_sha256": "e0c6fe3f36500bf96aaf59f38c5abb29ea8bb5c0d07eeca1722f88aba18504ad",
+      "runtime_contract": "/monster/54/action/3/entries/0|Barbed Devil|Hurl Flame|ACTION|0|150|0|5|false|FIRE:5d6"
+    }
+  ],
+  "status": "CORE_IMPLEMENTED_INTEGRATION_BLOCKED"
+}
