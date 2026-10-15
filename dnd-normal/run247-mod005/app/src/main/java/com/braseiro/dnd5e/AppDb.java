@@ -2036,7 +2036,7 @@ public class AppDb extends SQLiteOpenHelper {
             long combatantId=addCombatantWithVisual(name,initiative,hp,hp,ac,"",false,"statblock",0,"");
             if(combatantId<=0)throw new IllegalStateException("compiled_statblock_spawn_rollback");
             JSONObject resources=new JSONObject().put("block_id",id).put("statblock_revision",raw.optInt("revision",1))
-                .put("statblock_source",raw.optString("source_book","")).put("speed_ft",movement==null?30:movement.optInt("walk_ft",30))
+                .put("statblock_source",raw.optString("source_book","")).put("speed_ft",movement==null?30:movement.optInt("walk",movement.optInt("walk_ft",30)))
                 .put("condition_immunities",profile.optString("condition_immunities",""));
             updateCombatantAdvancedChecked(combatantId,0,"",false,0,0,"","[]",
                 profile.optString("resistances",""),profile.optString("vulnerabilities",""),profile.optString("immunities",""),resources.toString());
