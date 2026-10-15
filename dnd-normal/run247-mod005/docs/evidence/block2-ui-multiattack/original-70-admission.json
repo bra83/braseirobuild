@@ -1,0 +1,1389 @@
+{
+  "scope": "original_pr40_70_multiattack_pointers",
+  "pointers": 70,
+  "structured_candidates": 39,
+  "blocked_missing_source_plan": 31,
+  "runtime_tested": false,
+  "full_combat_automation_certified": false,
+  "rows": [
+    {
+      "monster": "Aarakocra Aeromancer",
+      "source_pointer": "/monster/0/action/0/entries",
+      "plan_pointer": "/monster/0/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Aberrant Cultist",
+      "source_pointer": "/monster/2/action/0/entries",
+      "plan_pointer": "/monster/2/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Aboleth",
+      "source_pointer": "/monster/3/action/0/entries",
+      "plan_pointer": "/monster/3/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Adult Black Dragon",
+      "source_pointer": "/monster/5/action/0/entries",
+      "plan_pointer": "/monster/5/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Adult Blue Dragon",
+      "source_pointer": "/monster/6/action/0/entries",
+      "plan_pointer": "/monster/6/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Adult Brass Dragon",
+      "source_pointer": "/monster/7/action/0/entries",
+      "plan_pointer": "/monster/7/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 4,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 5,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        },
+        {
+          "variant_index": 6,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Adult Bronze Dragon",
+      "source_pointer": "/monster/8/action/0/entries",
+      "plan_pointer": "/monster/8/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 4,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 5,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        },
+        {
+          "variant_index": 6,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Adult Copper Dragon",
+      "source_pointer": "/monster/9/action/0/entries",
+      "plan_pointer": "/monster/9/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 4,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 5,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        },
+        {
+          "variant_index": 6,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Adult Gold Dragon",
+      "source_pointer": "/monster/10/action/0/entries",
+      "plan_pointer": "/monster/10/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 4,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 5,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        },
+        {
+          "variant_index": 6,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Adult Green Dragon",
+      "source_pointer": "/monster/11/action/0/entries",
+      "plan_pointer": "/monster/11/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Adult Red Dragon",
+      "source_pointer": "/monster/12/action/0/entries",
+      "plan_pointer": "/monster/12/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Adult Silver Dragon",
+      "source_pointer": "/monster/13/action/0/entries",
+      "plan_pointer": "/monster/13/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 4,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 5,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        },
+        {
+          "variant_index": 6,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Ancient Black Dragon",
+      "source_pointer": "/monster/17/action/0/entries",
+      "plan_pointer": "/monster/17/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Ancient Blue Dragon",
+      "source_pointer": "/monster/18/action/0/entries",
+      "plan_pointer": "/monster/18/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Ancient Brass Dragon",
+      "source_pointer": "/monster/19/action/0/entries",
+      "plan_pointer": "/monster/19/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 4,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 5,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        },
+        {
+          "variant_index": 6,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Ancient Bronze Dragon",
+      "source_pointer": "/monster/20/action/0/entries",
+      "plan_pointer": "/monster/20/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 4,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 5,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        },
+        {
+          "variant_index": 6,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Ancient Copper Dragon",
+      "source_pointer": "/monster/21/action/0/entries",
+      "plan_pointer": "/monster/21/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 4,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 5,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        },
+        {
+          "variant_index": 6,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Ancient Gold Dragon",
+      "source_pointer": "/monster/22/action/0/entries",
+      "plan_pointer": "/monster/22/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 4,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 5,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        },
+        {
+          "variant_index": 6,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Ancient Green Dragon",
+      "source_pointer": "/monster/23/action/0/entries",
+      "plan_pointer": "/monster/23/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Ancient Red Dragon",
+      "source_pointer": "/monster/24/action/0/entries",
+      "plan_pointer": "/monster/24/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Ancient Silver Dragon",
+      "source_pointer": "/monster/25/action/0/entries",
+      "plan_pointer": "/monster/25/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 4,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 5,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        },
+        {
+          "variant_index": 6,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Arcanaloth",
+      "source_pointer": "/monster/35/action/0/entries",
+      "plan_pointer": "/monster/35/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Blob of Annihilation",
+      "source_pointer": "/monster/68/action/0/entries",
+      "plan_pointer": "/monster/68/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Bone Naga",
+      "source_pointer": "/monster/74/action/0/entries",
+      "plan_pointer": "/monster/74/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Bullywug Bog Sage",
+      "source_pointer": "/monster/83/action/0/entries",
+      "plan_pointer": "/monster/83/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Chimera",
+      "source_pointer": "/monster/93/action/0/entries",
+      "plan_pointer": "/monster/93/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        }
+      ]
+    },
+    {
+      "monster": "Cloud Giant",
+      "source_pointer": "/monster/97/action/0/entries",
+      "plan_pointer": "/monster/97/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Doppelganger",
+      "source_pointer": "/monster/128/action/0/entries",
+      "plan_pointer": "/monster/128/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Dracolich",
+      "source_pointer": "/monster/129/action/0/entries",
+      "plan_pointer": "/monster/129/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_spell_2"
+        }
+      ]
+    },
+    {
+      "monster": "Dryad",
+      "source_pointer": "/monster/135/action/0/entries",
+      "plan_pointer": "/monster/135/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Erinyes",
+      "source_pointer": "/monster/146/action/0/entries",
+      "plan_pointer": "/monster/146/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Fomorian",
+      "source_pointer": "/monster/159/action/0/entries",
+      "plan_pointer": "/monster/159/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 2,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 2,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 2,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        }
+      ]
+    },
+    {
+      "monster": "Ghast Gravecaller",
+      "source_pointer": "/monster/167/action/0/entries",
+      "plan_pointer": "/monster/167/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 2,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 2,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 2,
+          "slots": 2,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        }
+      ]
+    },
+    {
+      "monster": "Githyanki Knight",
+      "source_pointer": "/monster/202/action/0/entries",
+      "plan_pointer": "/monster/202/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Glabrezu",
+      "source_pointer": "/monster/207/action/0/entries",
+      "plan_pointer": "/monster/207/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Gladiator",
+      "source_pointer": "/monster/208/action/0/entries",
+      "plan_pointer": "/monster/208/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        }
+      ]
+    },
+    {
+      "monster": "Gnoll Pack Lord",
+      "source_pointer": "/monster/211/action/0/entries",
+      "plan_pointer": "/monster/211/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Goblin Hexer",
+      "source_pointer": "/monster/215/action/0/entries",
+      "plan_pointer": "/monster/215/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Guardian Naga",
+      "source_pointer": "/monster/234/action/0/entries",
+      "plan_pointer": "/monster/234/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 2,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 2,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 2,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        }
+      ]
+    },
+    {
+      "monster": "Gulthias Blight",
+      "source_pointer": "/monster/235/action/0/entries",
+      "plan_pointer": "/monster/235/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Horned Devil",
+      "source_pointer": "/monster/251/action/0/entries",
+      "plan_pointer": "/monster/251/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Hydra",
+      "source_pointer": "/monster/253/action/0/entries",
+      "plan_pointer": "/monster/253/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Ice Devil",
+      "source_pointer": "/monster/255/action/0/entries",
+      "plan_pointer": "/monster/255/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        }
+      ]
+    },
+    {
+      "monster": "Invisible Stalker",
+      "source_pointer": "/monster/260/action/0/entries",
+      "plan_pointer": "/monster/260/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        }
+      ]
+    },
+    {
+      "monster": "Jackalwere",
+      "source_pointer": "/monster/263/action/0/entries",
+      "plan_pointer": "/monster/263/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 2,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        }
+      ]
+    },
+    {
+      "monster": "Kraken",
+      "source_pointer": "/monster/269/action/0/entries",
+      "plan_pointer": "/monster/269/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Lamia",
+      "source_pointer": "/monster/275/action/0/entries",
+      "plan_pointer": "/monster/275/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 2,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 2,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 2,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        }
+      ]
+    },
+    {
+      "monster": "Lion",
+      "source_pointer": "/monster/279/action/0/entries",
+      "plan_pointer": "/monster/279/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 2,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 2,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 2,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        }
+      ]
+    },
+    {
+      "monster": "Mummy Lord",
+      "source_pointer": "/monster/312/action/0/entries",
+      "plan_pointer": "/monster/312/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Oni",
+      "source_pointer": "/monster/330/action/0/entries",
+      "plan_pointer": "/monster/330/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Pirate",
+      "source_pointer": "/monster/343/action/0/entries",
+      "plan_pointer": "/monster/343/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 2,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 2,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 2,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        }
+      ]
+    },
+    {
+      "monster": "Rakshasa",
+      "source_pointer": "/monster/365/action/0/entries/0",
+      "plan_pointer": "/monster/365/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        }
+      ]
+    },
+    {
+      "monster": "Roper",
+      "source_pointer": "/monster/376/action/0/entries",
+      "plan_pointer": "/monster/376/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Salamander",
+      "source_pointer": "/monster/382/action/0/entries",
+      "plan_pointer": "/monster/382/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 2,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 2,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 2,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        }
+      ]
+    },
+    {
+      "monster": "Shambling Mound",
+      "source_pointer": "/monster/396/action/0/entries",
+      "plan_pointer": "/monster/396/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        }
+      ]
+    },
+    {
+      "monster": "Solar",
+      "source_pointer": "/monster/403/action/0/entries",
+      "plan_pointer": "/monster/403/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 2,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 2,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 2,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        }
+      ]
+    },
+    {
+      "monster": "Sphinx of Secrets",
+      "source_pointer": "/monster/407/action/0/entries/0",
+      "plan_pointer": "/monster/407/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_action_2"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_action_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_action_0"
+        }
+      ]
+    },
+    {
+      "monster": "Sphinx of Valor",
+      "source_pointer": "/monster/408/action/0/entries",
+      "plan_pointer": "/monster/408/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Succubus",
+      "source_pointer": "/monster/421/action/0/entries",
+      "plan_pointer": "/monster/421/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Wight",
+      "source_pointer": "/monster/475/action/0/entries",
+      "plan_pointer": "/monster/475/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Yochlol",
+      "source_pointer": "/monster/485/action/0/entries",
+      "plan_pointer": "/monster/485/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Young Brass Dragon",
+      "source_pointer": "/monster/488/action/0/entries",
+      "plan_pointer": "/monster/488/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Young Bronze Dragon",
+      "source_pointer": "/monster/489/action/0/entries",
+      "plan_pointer": "/monster/489/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        }
+      ]
+    },
+    {
+      "monster": "Young Copper Dragon",
+      "source_pointer": "/monster/490/action/0/entries",
+      "plan_pointer": "/monster/490/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        }
+      ]
+    },
+    {
+      "monster": "Young Gold Dragon",
+      "source_pointer": "/monster/491/action/0/entries",
+      "plan_pointer": "/monster/491/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        }
+      ]
+    },
+    {
+      "monster": "Young Silver Dragon",
+      "source_pointer": "/monster/495/action/0/entries",
+      "plan_pointer": "/monster/495/action/0/entries",
+      "status": "REQUIRES_EXPLICIT_SELECTION_AND_LIVE_HOST_VALIDATION",
+      "variants": [
+        {
+          "variant_index": 0,
+          "slots": 3,
+          "admission": "REQUIRES_LIVE_HOST_VALIDATION"
+        },
+        {
+          "variant_index": 1,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_0"
+        },
+        {
+          "variant_index": 2,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_1"
+        },
+        {
+          "variant_index": 3,
+          "slots": 3,
+          "admission": "multiattack_component_executor_not_installed_use_2"
+        }
+      ]
+    },
+    {
+      "monster": "Yuan-ti Abomination",
+      "source_pointer": "/monster/497/action/0/entries",
+      "plan_pointer": "/monster/497/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Yuan-ti Malison (Type 1)",
+      "source_pointer": "/monster/499/action/0/entries",
+      "plan_pointer": "/monster/499/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Yuan-ti Malison (Type 2)",
+      "source_pointer": "/monster/500/action/0/entries",
+      "plan_pointer": "/monster/500/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    },
+    {
+      "monster": "Yuan-ti Malison (Type 3)",
+      "source_pointer": "/monster/501/action/0/entries",
+      "plan_pointer": "/monster/501/action/0/entries",
+      "status": "complex_multiattack_requires_manual_source_resolution",
+      "variants": []
+    }
+  ]
+}

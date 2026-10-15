@@ -872,7 +872,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(n.equals(currentScreen)&&content.getChildCount()>0)return;
         if(navigationInProgress&&now-lastNavigationClickAt<700L)return;
         lastNavigationClickAt=now;currentScreen=n;if(shellNavScroll!=null)shellNavScroll.setVisibility(isStrixhavenAdventure()&&"Mestre IA".equals(n)?View.GONE:View.VISIBLE);
-        View cached=screenCache.get(n);Long cachedAt=screenCacheTime.get(n);boolean cacheValid=cached!=null&&("Mapa".equals(n)||(cachedAt!=null&&now-cachedAt.longValue()<120000L));
+        // Core play screens must reflect SQLite after returning from another screen.
+        boolean liveCoreScreen=!isMystaraWorld()&&!isStrixhavenAdventure()&&
+            ("Combate".equals(n)||"Heróis".equals(n)||"Mestre IA".equals(n)||"Aventura".equals(n)||"Dados".equals(n));
+        View cached=screenCache.get(n);Long cachedAt=screenCacheTime.get(n);boolean cacheValid=!liveCoreScreen&&cached!=null&&("Mapa".equals(n)||(cachedAt!=null&&now-cachedAt.longValue()<120000L));
         if(cacheValid){ViewGroup parent=(ViewGroup)cached.getParent();if(parent!=null)parent.removeView(cached);content.removeAllViews();content.addView(cached,new FrameLayout.LayoutParams(-1,-1));navigationInProgress=false;lastSuccessfulScreen=n;if("Mapa".equals(n))focusMapOnCurrentPosition();return;}
         navigationInProgress=true;showNavigationPlaceholder(n);
         ui.post(new Runnable(){public void run(){boolean rendered=false;try{renderScreen(n);rendered=true;lastSuccessfulScreen=n;}catch(final Throwable e){AppLog.e("Navigation","Falha ao abrir a tela "+n+".",e);screenCache.remove(n);screenCacheTime.remove(n);content.removeAllViews();LinearLayout box=new LinearLayout(MainActivity.this);box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(18),dp(24),dp(18),dp(24));box.addView(text("Não foi possível abrir "+n,20,RED,true));box.addView(text("A tela foi isolada para o aplicativo continuar aberto. "+safeUiError(e),13,MUTED,false));Button retry=button("TENTAR NOVAMENTE",GOLD);retry.setTextColor(Color.BLACK);retry.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigationInProgress=false;currentScreen="";navigate(n);}});box.addView(retry);Button safe=button("VOLTAR PARA "+lastSuccessfulScreen.toUpperCase(Locale.US),PANEL2);safe.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigationInProgress=false;currentScreen="";navigate(lastSuccessfulScreen);}});box.addView(safe);content.addView(box,new FrameLayout.LayoutParams(-1,-1));}finally{navigationInProgress=false;if(rendered)cacheCurrentScreen();}}});
@@ -894,6 +897,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final EditText name=input(isMystaraWorld()?"Nome da crônica":"Nome da campanha",c.optString("name","Nova Campanha"),false);b.addView(cardWithLabel(isMystaraWorld()?"NOME DA CRÔNICA":"NOME",name));
         final String selectedRulesProfile=DndRulesEngine.canonicalProfile(c.optString("rules_profile",DndRulesEngine.PROFILE_2024));
         final Spinner profile=spinner(new String[]{DndRulesEngine.PROFILE_2014,DndRulesEngine.PROFILE_2024,DndRulesEngine.PROFILE_HYBRID},selectedRulesProfile);
+        profile.setContentDescription("Perfil de regras da campanha");
         LinearLayout profileCard=card();profileCard.addView(text("REGRAS",13,GOLD,true));profileCard.addView(text("Escolha 5e 2014, 5.5e revisada ou Híbrido compatível. O perfil híbrido continua disponível e nunca será convertido silenciosamente durante migração, restauração ou salvamento.",12,MUTED,false));profileCard.addView(profile);b.addView(profileCard);
         final StrixhavenAdventureProfile strixProfile=strixhavenProfile();
         final Spinner adventureProfile=spinner(new String[]{"Faerûn — campanha aberta","Strixhaven — A Curriculum of Chaos"},isStrixhavenAdventure()?"Strixhaven — A Curriculum of Chaos":"Faerûn — campanha aberta");
@@ -907,7 +911,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final Spinner tone=spinner(new String[]{"Fantasia heroica","Espada e feitiçaria","Grimdark","Aventura clássica","Horror gótico","Investigação","Dungeon crawler","Alta fantasia cinematográfica"},c.optString("tone"));b.addView(cardWithLabel(isMystaraWorld()?"TOM DA CRÔNICA":"TOM",tone));
         LinearLayout rules=card();final CheckBox feats=check("Talentos habilitados",c.optInt("feats",1)==1);final CheckBox multi=check("Multiclasse habilitada",c.optInt("multiclass",1)==1);final CheckBox flank=check("Flanqueamento habilitado",c.optInt("flanking",0)==1);rules.addView(feats);rules.addView(multi);rules.addView(flank);b.addView(rules);
         final EditText notes=input("Regras da casa, letalidade, cenário, limites e preferências",c.optString("notes"),true);notes.setMinLines(4);b.addView(cardWithLabel("DIRETRIZES",notes));
-        Button save=button("SALVAR CONFIGURAÇÃO",GREEN);save.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String before=c.toString();db.saveCampaign(name.getText().toString().trim(),profile.getSelectedItem().toString(),tone.getSelectedItem().toString(),feats.isChecked(),multi.isChecked(),flank.isChecked(),notes.getText().toString());try{JSONObject travelState=db.getTravelRulesState();travelState.put("hybrid_dnd_profile",hybridTravel.getSelectedItem().toString());db.saveTravelRulesState(travelState);}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}db.addAuditEvent("campanha","Configuração modificada",name.getText().toString().trim(),before,db.getCampaign().toString(),true);toast("Campanha salva.");showCampaign();}});b.addView(save);
+        Button save=button("SALVAR CONFIGURAÇÃO",GREEN);save.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!isMystaraWorld()&&!isStrixhavenAdventure()){if(!v.isEnabled())return;v.setEnabled(false);}String before=c.toString();db.saveCampaign(name.getText().toString().trim(),profile.getSelectedItem().toString(),tone.getSelectedItem().toString(),feats.isChecked(),multi.isChecked(),flank.isChecked(),notes.getText().toString());try{JSONObject travelState=db.getTravelRulesState();travelState.put("hybrid_dnd_profile",hybridTravel.getSelectedItem().toString());db.saveTravelRulesState(travelState);}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}db.addAuditEvent("campanha","Configuração modificada",name.getText().toString().trim(),before,db.getCampaign().toString(),true);toast("Campanha salva.");showCampaign();}});b.addView(save);
         LinearLayout stats=card();stats.addView(text("ESTADO DA MESA",16,GOLD,true));stats.addView(text(db.listCharacters().size()+" personagens • "+db.listActiveCharacters().size()+" em jogo",15,TEXT,false));stats.addView(text(db.countManuals()+" manuais catalogados",15,TEXT,false));stats.addView(text(drive.isConnected()?"Google Drive conectado":"Google Drive ainda não conectado",14,drive.isConnected()?Color.LTGRAY:MUTED,false));stats.addView(text(story.optInt("started")==1?"Aventura em andamento":"Nenhuma aventura iniciada",14,story.optInt("started")==1?Color.rgb(130,210,145):MUTED,true));stats.addView(text(isStrixhavenAdventure()?"Perfil ativo: Strixhaven • Faerûn preservado e desabilitado":"Perfil ativo: Faerûn",13,isStrixhavenAdventure()?GOLD:MUTED,true));b.addView(stats);
         LinearLayout actions=card();actions.addView(text(isMystaraWorld()?"CRÔNICA EM MYSTARA":"AVENTURA",16,GOLD,true));
         Button primary=button(story.optInt("started")==1?(isMystaraWorld()?"CONTINUAR CRÔNICA":"CONTINUAR CAMPANHA"):(isMystaraWorld()?"INICIAR CRÔNICA EM MYSTARA":"INICIAR AVENTURA"),GOLD);primary.setTextColor(Color.BLACK);primary.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(story.optInt("started")==1)navigate("Mestre IA");else beginAdventure(false);}});actions.addView(primary);
@@ -1974,7 +1978,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             catch(Exception ignored){}return blocked;
         }
     }
-    private void spendStructuredClassResourceDialog(final long characterId,final JSONObject sheet){final JSONObject all=sheet.optJSONObject("class_resources");if(all==null||all.length()==0){toast("Sem recurso de classe estruturado.");return;}final java.util.ArrayList<String> keys=new java.util.ArrayList<String>();java.util.Iterator<String>it=all.keys();while(it.hasNext()){String k=it.next();JSONObject r=all.optJSONObject(k);if(r!=null&&r.has("max"))keys.add(k);}if(keys.isEmpty()){toast("Sem recurso limitado disponível.");return;}final String[] labels=new String[keys.size()];for(int i=0;i<keys.size();i++){JSONObject r=all.optJSONObject(keys.get(i));labels[i]=keys.get(i).replace('_',' ')+"  "+r.optInt("current",0)+"/"+r.optInt("max",0);}new AlertDialog.Builder(this).setTitle("Gastar recurso").setItems(labels,new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){final String key=keys.get(which);final String token="ui-"+java.util.UUID.randomUUID();numberDialog("Gastar "+key.replace('_',' '),"Quantidade",new NumberAction(){public void run(int n){JSONObject r=applyGuidedCharacterResource(characterId,"class_resource",key,n);if(!r.optBoolean("accepted",false))toast("Gasto bloqueado: "+r.optString("authority"));else toast("Recurso gasto e persistido.");showHeroes();}});}}).show();}
+    private void spendStructuredClassResourceDialog(final long characterId,final JSONObject sheet){final JSONObject all=sheet.optJSONObject("class_resources");if(all==null||all.length()==0){toast("Sem recurso de classe estruturado.");return;}final java.util.ArrayList<String> keys=new java.util.ArrayList<String>();java.util.Iterator<String>it=all.keys();while(it.hasNext()){String k=it.next();JSONObject r=all.optJSONObject(k);if(r!=null&&r.has("max"))keys.add(k);}if(keys.isEmpty()){toast("Sem recurso limitado disponível.");return;}final String[] labels=new String[keys.size()];for(int i=0;i<keys.size();i++){JSONObject r=all.optJSONObject(keys.get(i));labels[i]=keys.get(i).replace('_',' ')+"  "+r.optInt("current",0)+"/"+r.optInt("max",0);}new AlertDialog.Builder(this).setTitle("Gastar recurso").setItems(labels,new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){final String key=keys.get(which);positiveNumberDialog("Gastar "+key.replace('_',' '),"Quantidade",new NumberAction(){public void run(int n){JSONObject r=applyGuidedCharacterResource(characterId,"class_resource",key,n);if(!r.optBoolean("accepted",false))toast("Gasto bloqueado: "+r.optString("authority"));else toast("Recurso gasto e persistido.");showHeroes();}});}}).show();}
 
     private void showHeroes(){
         if(isMystaraWorld()){showMystaraHeroes();return;}
@@ -1982,6 +1986,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         Button add=button(isMystaraWorld()?"+ CRIAR AVENTUREIRO":"+ CRIAR PERSONAGEM",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(null);}});b.addView(add);
         Button randomHero=button(isMystaraWorld()?"GERAR AVENTUREIRO DE MYSTARA":"CRIAR HERÓI ALEATÓRIO COMPLETO",GOLD);randomHero.setTextColor(Color.BLACK);randomHero.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String profile=db.getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2024);JSONObject seed=characterGenerator.randomComplete(profile,speciesForProfile(profile),db.listCharacters());characterDialog(null,seed);}});b.addView(randomHero);
         Button importJson=button("IMPORTAR FICHA JSON",PANEL2);importJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){startCharacterImport(null,db.getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2024));}});b.addView(importJson);
+        LinearLayout rests=card();
+        Button shortRest=button("DESCANSO CURTO",PANEL2),longRest=button("DESCANSO LONGO",PANEL2);
+        shortRest.setOnClickListener(v -> characterRestDialog(false));
+        longRest.setOnClickListener(v -> characterRestDialog(true));
+        rests.addView(shortRest);rests.addView(longRest);b.addView(rests);
         List<JSONObject> list=db.listCharacters();if(list.size()==0)b.addView(empty(isMystaraWorld()?"Nenhum aventureiro registrado nesta crônica.":"Nenhum personagem criado."));
         for(int i=0;i<list.size();i++){
             final JSONObject ch=list.get(i);final JSONObject sheet=DndPtBrLocalizer.localizeCharacterSheet(characterGenerator.fromLegacy(ch));final long id=ch.optLong("id");LinearLayout card=card();
@@ -1993,12 +2002,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             String sub=ch.optString("background")+" • "+sheet.optString("alignment");if(sheet.optString("role").length()>0)sub+=" • "+sheet.optString("role");info.addView(text(sub,12,MUTED,false));
             identity.addView(info,new LinearLayout.LayoutParams(0,-2,1));card.addView(identity);
             String concept=sheet.optString("concept").trim();if(concept.length()>0)card.addView(text(concept,13,TEXT,false));
-            LinearLayout vitals=new LinearLayout(this);vitals.setGravity(Gravity.CENTER_VERTICAL);vitals.addView(text("PV "+ch.optInt("hp")+"/"+ch.optInt("max_hp")+"   CA "+ch.optInt("ac")+"   Inic. "+sheet.optString("initiative")+"   PB "+sheet.optString("proficiency_bonus"),16,TEXT,true),new LinearLayout.LayoutParams(0,-2,1));Button dmg=smallButton("− PV",RED);Button heal=smallButton("+ PV",GREEN);dmg.setOnClickListener(new View.OnClickListener(){public void onClick(View v){numberDialog("Dano","Quantidade de dano",new NumberAction(){public void run(int n){db.adjustCharacterHp(id,-n);showHeroes();}});}});heal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){numberDialog("Cura","Quantidade de cura",new NumberAction(){public void run(int n){db.adjustCharacterHp(id,n);showHeroes();}});}});vitals.addView(dmg);vitals.addView(heal);card.addView(vitals);
+            LinearLayout vitals=new LinearLayout(this);vitals.setGravity(Gravity.CENTER_VERTICAL);vitals.addView(text("PV "+ch.optInt("hp")+"/"+ch.optInt("max_hp")+"   CA "+ch.optInt("ac")+"   Inic. "+sheet.optString("initiative")+"   PB "+sheet.optString("proficiency_bonus"),16,TEXT,true),new LinearLayout.LayoutParams(0,-2,1));Button dmg=smallButton("− PV",RED);Button heal=smallButton("+ PV",GREEN);dmg.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Dano","Quantidade de dano",new NumberAction(){public void run(int n){db.adjustCharacterHp(id,-n);showHeroes();}});}});heal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Cura","Quantidade de cura",new NumberAction(){public void run(int n){db.adjustCharacterHp(id,n);showHeroes();}});}});vitals.addView(dmg);vitals.addView(heal);card.addView(vitals);
             final JSONObject resourceSheet=parseJsonObject(ch.optString("sheet_json","{}"));
             int hdMax=resourceSheet.optInt("hit_dice_max",ch.optInt("level",1)),hdSpent=resourceSheet.optInt("hit_dice_spent",0);JSONArray slotsCur=resourceSheet.optJSONArray("spell_slots_current"),slotsMax=resourceSheet.optJSONArray("spell_slots_max");String resourceLine="Dados de Vida disponíveis "+Math.max(0,hdMax-hdSpent)+"/"+hdMax;if(slotsCur!=null&&slotsMax!=null)resourceLine+=" • Slots "+compactSlots(slotsCur)+"/"+compactSlots(slotsMax);JSONObject pact=resourceSheet.optJSONObject("pact_magic");if(pact!=null)resourceLine+=" • Pacto "+pact.optInt("current")+"/"+pact.optInt("max")+" (nível "+pact.optInt("slot_level")+")";card.addView(text(resourceLine,12,MUTED,false));
             String structured=structuredResourceSummary(resourceSheet);if(structured.length()>0)card.addView(text("Recursos de classe: "+structured,12,MUTED,false));
             JSONObject load=db.characterInventoryLoad(id,false);if(load.optInt("stack_count",0)>0)card.addView(text("Carga conhecida: "+String.format(java.util.Locale.US,"%.1f",load.optDouble("known_weight_lb",0d))+" lb"+(load.optInt("unknown_weight_count",0)>0?" • "+load.optInt("unknown_weight_count")+" item(ns) sem peso verificado":""),12,MUTED,false));
-            LinearLayout resourceActions=new LinearLayout(this);resourceActions.setOrientation(LinearLayout.HORIZONTAL);if(slotsCur!=null&&hasAvailableSlot(slotsCur)){Button spendSlot=smallButton("GASTAR SLOT",PANEL2);spendSlot.setOnClickListener(new View.OnClickListener(){public void onClick(View v){final String token="ui-"+java.util.UUID.randomUUID();numberDialog("Gastar espaço de magia","Nível do slot (1–9)",new NumberAction(){public void run(int n){JSONObject result=applyGuidedCharacterResource(id,"spell_slot","",n);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de magia gasto e persistido.");showHeroes();}});}});resourceActions.addView(spendSlot);}if(pact!=null&&pact.optInt("current",0)>0){Button spendPact=smallButton("GASTAR PACTO",PANEL2);spendPact.setOnClickListener(new View.OnClickListener(){public void onClick(View v){v.setEnabled(false);JSONObject result=applyGuidedCharacterResource(id,"pact_slot","",1);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de pacto gasto e persistido.");showHeroes();}});resourceActions.addView(spendPact);}if(resourceSheet.optJSONObject("class_resources")!=null&&resourceSheet.optJSONObject("class_resources").length()>0){Button spendClass=smallButton("RECURSO",PANEL2);spendClass.setOnClickListener(new View.OnClickListener(){public void onClick(View v){spendStructuredClassResourceDialog(id,resourceSheet);}});resourceActions.addView(spendClass);}if(characterRuntimeActions(ch,resourceSheet).length()>0){Button classAction=smallButton("AÇÃO CLASSE",GOLD);classAction.setTextColor(Color.BLACK);classAction.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterRuntimeActionDialog(id,ch,resourceSheet);}});resourceActions.addView(classAction);}if(new DndRulesEngine().is2024(ch.optString("rules_source",resourceSheet.optString("rules_profile","")))==false&&
+            LinearLayout resourceActions=new LinearLayout(this);resourceActions.setOrientation(LinearLayout.HORIZONTAL);if(slotsCur!=null&&hasAvailableSlot(slotsCur)){Button spendSlot=smallButton("GASTAR SLOT",PANEL2);spendSlot.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Gastar espaço de magia","Nível do slot (1–9)",new NumberAction(){public void run(int n){JSONObject result=applyGuidedCharacterResource(id,"spell_slot","",n);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de magia gasto e persistido.");showHeroes();}});}});resourceActions.addView(spendSlot);}if(pact!=null&&pact.optInt("current",0)>0){Button spendPact=smallButton("GASTAR PACTO",PANEL2);spendPact.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!v.isEnabled())return;v.setEnabled(false);JSONObject result=applyGuidedCharacterResource(id,"pact_slot","",1);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de pacto gasto e persistido.");showHeroes();}});resourceActions.addView(spendPact);}if(resourceSheet.optJSONObject("class_resources")!=null&&resourceSheet.optJSONObject("class_resources").length()>0){Button spendClass=smallButton("RECURSO",PANEL2);spendClass.setOnClickListener(new View.OnClickListener(){public void onClick(View v){spendStructuredClassResourceDialog(id,resourceSheet);}});resourceActions.addView(spendClass);}if(characterRuntimeActions(ch,resourceSheet).length()>0){Button classAction=smallButton("AÇÃO CLASSE",GOLD);classAction.setTextColor(Color.BLACK);classAction.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterRuntimeActionDialog(id,ch,resourceSheet);}});resourceActions.addView(classAction);}if(new DndRulesEngine().is2024(ch.optString("rules_source",resourceSheet.optString("rules_profile","")))==false&&
                     TashaQuickenedHealingCommitGuard.isMonk(ch.optString("class_name",""))&&
                     ch.optInt("level",1)>=4){
                 Button tashaHealing=smallButton("CURA RÁPIDA (TASHA)",PANEL2);
@@ -2022,12 +2031,81 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 }});card.addView(tashaHealing);
             }
             Button addItem=smallButton("+ ITEM",PANEL2);addItem.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterInventoryEntryDialog(id);}});resourceActions.addView(addItem);card.addView(resourceActions);addInventoryLedgerRows(card,id,resourceSheet.optJSONArray("inventory_ledger"));
-            if(resourceSheet.optBoolean("short_rest_hit_dice_choice_pending",false)){Button spendHd=button("GASTAR 1 DADO DE VIDA DO DESCANSO CURTO",PANEL2);spendHd.setOnClickListener(new View.OnClickListener(){public void onClick(View v){final int available=Math.max(0,resourceSheet.optInt("hit_dice_max",ch.optInt("level",1))-resourceSheet.optInt("hit_dice_spent",0));if(available<=0){toast("Sem Dados de Vida disponíveis.");return;}int die=new DndRulesEngine().classHitDie(ch.optString("class_name")),conMod=new DndRulesEngine().modifier(ch.optInt("con",10));String formula="1d"+die+(conMod>=0?"+":"")+conMod;rollDiceInteractive(formula,"Normal",ch.optString("name"),id,new DiceUiCallback(){public void done(DiceResult r){db.applyCharacterShortRestHitDice(id,1,r.total);showHeroes();}});}});card.addView(spendHd);}
-            JSONObject progression=DndProgressionEngine.state(resourceSheet,ch.optInt("level",1));LinearLayout prog=new LinearLayout(this);Button xp=smallButton("+ XP",PANEL2);xp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){numberDialog("Adicionar XP","Quantidade",new NumberAction(){public void run(int n){JSONObject result=db.addCharacterXp(id,n);if(result.has("xp_award_blocked")||result.has("operation_error"))toast("XP não alterado: "+result.optString("xp_award_blocked",result.optString("operation_error","falha na gravação")));showHeroes();}});}});prog.addView(xp);if(progression.optBoolean("level_up_pending",false)){Button levelUp=smallButton("SUBIR NÍVEL",GOLD);levelUp.setTextColor(Color.BLACK);levelUp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){applyCharacterLevelUpFromUi(id);}});prog.addView(levelUp);card.addView(text("XP "+progression.optInt("xp",0)+" • nível devido "+progression.optInt("level_due",ch.optInt("level",1)),12,GOLD,true));}card.addView(prog);
+            if(resourceSheet.optBoolean("short_rest_hit_dice_choice_pending",false)){Button spendHd=button("GASTAR 1 DADO DE VIDA DO DESCANSO CURTO",PANEL2);spendHd.setOnClickListener(new View.OnClickListener(){public void onClick(View v){final int available=Math.max(0,resourceSheet.optInt("hit_dice_max",ch.optInt("level",1))-resourceSheet.optInt("hit_dice_spent",0));if(available<=0){toast("Sem Dados de Vida disponíveis.");return;}int die=new DndRulesEngine().classHitDie(ch.optString("class_name")),conMod=new DndRulesEngine().modifier(ch.optInt("con",10));String formula="1d"+die+(conMod>=0?"+":"")+conMod;rollDiceInteractive(formula,"Normal",ch.optString("name"),id,new DiceUiCallback(){private boolean applied;
+                    public void done(DiceResult r){
+                        if(applied)return;applied=true;
+                        JSONObject live=db.getCharacter(id);
+                        if(!ch.toString().equals(live.toString())){toast("A ficha mudou durante a rolagem; abra os Dados de Vida novamente.");showHeroes();return;}
+                        JSONObject result=db.applyCharacterShortRestHitDice(id,1,r.total);
+                        if(result.has("short_rest_hit_dice_blocked")||result.has("operation_error"))toast("Dado de Vida não aplicado: "+result.optString("short_rest_hit_dice_blocked",result.optString("operation_error")));
+                        showHeroes();
+                    }});}});card.addView(spendHd);}
+            JSONObject progression=DndProgressionEngine.state(resourceSheet,ch.optInt("level",1));LinearLayout prog=new LinearLayout(this);Button xp=smallButton("+ XP",PANEL2);xp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Adicionar XP","Quantidade",new NumberAction(){public void run(int n){JSONObject result=db.addCharacterXp(id,n);if(result.has("xp_award_blocked")||result.has("operation_error"))toast("XP não alterado: "+result.optString("xp_award_blocked",result.optString("operation_error","falha na gravação")));showHeroes();}});}});prog.addView(xp);if(progression.optBoolean("level_up_pending",false)){Button levelUp=smallButton("SUBIR NÍVEL",GOLD);levelUp.setTextColor(Color.BLACK);levelUp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!v.isEnabled())return;v.setEnabled(false);applyCharacterLevelUpFromUi(id);}});prog.addView(levelUp);card.addView(text("XP "+progression.optInt("xp",0)+" • nível devido "+progression.optInt("level_due",ch.optInt("level",1)),12,GOLD,true));}card.addView(prog);
             card.addView(text("FOR "+ch.optInt("str")+"  DES "+ch.optInt("dex")+"  CON "+ch.optInt("con")+"  INT "+ch.optInt("int_score")+"  SAB "+ch.optInt("wis")+"  CAR "+ch.optInt("cha"),13,MUTED,false));
             String equipmentSummary=ch.optString("equipment").trim();if(equipmentSummary.length()>0){if(equipmentSummary.length()>240)equipmentSummary=equipmentSummary.substring(0,237)+"...";card.addView(text("INVENTÁRIO\n"+equipmentSummary,12,TEXT,false));}
             LinearLayout actions=new LinearLayout(this);actions.setOrientation(LinearLayout.HORIZONTAL);Button sheetBtn=smallButton("VER FICHA",GOLD);sheetBtn.setTextColor(Color.BLACK);Button edit=smallButton("EDITAR",PANEL2);Button token=smallButton("TOKEN",PANEL2);Button del=smallButton("EXCLUIR",RED);sheetBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showCharacterSheetDialog(ch);}});edit.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(ch);}});token.setOnClickListener(new View.OnClickListener(){public void onClick(View v){selectPendingTokenCharacter(id);navigate("Tokens");}});del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Excluir "+ch.optString("name")+"?",new Runnable(){public void run(){try{safety.beforeDestructiveChange("excluir personagem "+ch.optString("name"));}catch(Exception e){toast("Exclusão bloqueada: "+e.getMessage());return;}db.deleteCharacter(id);db.addAuditEvent("ficha","Personagem excluído",ch.optString("name"),ch.toString(),"{}",true);showHeroes();}});}});actions.addView(sheetBtn);actions.addView(edit);actions.addView(token);actions.addView(del);card.addView(actions);Button exportJson=button("EXPORTAR ESTA FICHA JSON",PANEL2);exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginCharacterExport(sheet,ch.optInt("active",1)==1);}});card.addView(exportJson);Button run163=button("AÇÕES E RECURSOS — EBERRON / HERÓIS DE FAERÛN",PANEL2);run163.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showRun163RuntimeDialog(ch);}});card.addView(run163);b.addView(card);
         }
+    }
+
+    /** Install validated button handlers before returning control to the UI loop. */
+    private void showBoundDialog(AlertDialog dialog,DialogInterface.OnShowListener bind){
+        dialog.show();
+        bind.onShow(dialog);
+    }
+
+    private void showApplyDialog(AlertDialog.Builder builder,final DialogInterface.OnClickListener apply){
+        final AlertDialog dialog=builder.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){
+            private boolean applied;
+            public void onClick(View view){
+                if(applied||!dialog.isShowing())return;
+                applied=true;view.setEnabled(false);
+                apply.onClick(dialog,AlertDialog.BUTTON_POSITIVE);
+                dialog.dismiss();
+            }
+        });
+    }
+
+    private void positiveNumberDialog(String title,String hint,final NumberAction action){
+        final EditText value=input(hint,"1",false);value.setInputType(InputType.TYPE_CLASS_NUMBER);
+        final boolean[] applied={false};
+        final AlertDialog dialog=new AlertDialog.Builder(this).setTitle(title).setView(value)
+            .setNegativeButton("Cancelar",null).setPositiveButton("Aplicar",null).create();
+        showBoundDialog(dialog,d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            if(applied[0])return;
+            final int amount;
+            try{amount=Integer.parseInt(value.getText().toString().trim());}
+            catch(NumberFormatException error){value.setError("Informe uma quantidade inteira válida.");return;}
+            if(amount<=0){value.setError("A quantidade deve ser maior que zero.");return;}
+            applied[0]=true;v.setEnabled(false);action.run(amount);dialog.dismiss();
+        }));
+    }
+
+    private void characterRestDialog(boolean longRest){
+        if(db.getCombatState().optInt("running",0)==1){toast("Encerre o encontro antes de descansar.");return;}
+        if(db.listActiveCharacters().isEmpty()){toast("Marque pelo menos um herói Em jogo para descansar.");return;}
+        final boolean[] applied={false};
+        final String partyBefore=db.listActiveCharacters().toString();
+        final JSONObject report=worldStateEngine.preview(longRest?"descanso longo":"descanso curto");
+        if(report.has("error")){toast("Não foi possível preparar o descanso: "+report.optString("error"));return;}
+        String message="O grupo em jogo descansará por "+report.optInt("hours_advanced")+" hora(s). O tempo e os recursos serão persistidos.";
+        if(!longRest)message+=" Depois, escolha os Dados de Vida que deseja gastar na tela Heróis.";
+        else message+=" Os benefícios dependem dos requisitos validados pelas regras; descansos sem benefícios também avançam o tempo.";
+        final AlertDialog dialog=new AlertDialog.Builder(this).setTitle(longRest?"Descanso longo":"Descanso curto")
+            .setMessage(message).setNegativeButton("Cancelar",null).setPositiveButton("DESCANSAR",null).create();
+        showBoundDialog(dialog,d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            if(applied[0])return;
+            applied[0]=true;
+            v.setEnabled(false);
+            if(db.getCombatState().optInt("running",0)==1){toast("Encerre o encontro antes de descansar.");dialog.dismiss();return;}
+            if(!partyBefore.equals(db.listActiveCharacters().toString())){toast("O grupo mudou; abra o descanso novamente.");dialog.dismiss();return;}
+            if(!worldStateEngine.commit(report)){
+                toast("Descanso não aplicado: "+report.optString("commit_error","estado alterado; abra o descanso novamente"));
+                dialog.dismiss();return;
+            }
+            dialog.dismiss();screenCache.clear();screenCacheTime.clear();showHeroes();toast("Descanso registrado.");
+        }));
     }
 
     private void applyCharacterLevelUpFromUi(final long id){
@@ -2035,16 +2113,20 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if("level_up_class_choice_required".equals(result.optString("level_up_blocked"))){
             final String[] classes={"— Escolha a classe —","Artificer","Barbarian","Bard","Cleric","Druid","Fighter","Monk","Paladin","Ranger","Rogue","Sorcerer","Warlock","Wizard"};
             final Spinner choice=spinner(classes,classes[0]);
-            new AlertDialog.Builder(this).setTitle("Classe que recebe o nível")
+            final boolean[] appliedOnce={false};
+            final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Classe que recebe o nível")
                 .setMessage("A ficha tem mais de uma classe. Escolha onde aplicar este nível.")
                 .setView(choice).setNegativeButton("Cancelar",null)
-                .setPositiveButton("APLICAR NÍVEL",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){
-                    if(choice.getSelectedItemPosition()==0){toast("Escolha a classe que recebe o nível.");return;}
-                    JSONObject applied=db.applyCharacterLevelUpFixedHp(id,String.valueOf(choice.getSelectedItem()));
-                    if(applied.optBoolean("level_up_applied",false))toast("Nível aplicado em "+applied.optString("level_up_class")+" com PV fixos. Escolhas da classe ficaram pendentes.");
-                    else toast("Nível não aplicado: "+applied.optString("level_up_blocked",applied.optString("operation_error","falha na gravação")));
-                    showHeroes();
-                }}).show();
+                .setPositiveButton("APLICAR NÍVEL",null).create();
+            dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                if(appliedOnce[0])return;
+                if(choice.getSelectedItemPosition()==0){toast("Escolha a classe que recebe o nível.");return;}
+                appliedOnce[0]=true;v.setEnabled(false);
+                JSONObject applied=db.applyCharacterLevelUpFixedHp(id,String.valueOf(choice.getSelectedItem()));
+                if(applied.optBoolean("level_up_applied",false))toast("Nível aplicado em "+applied.optString("level_up_class")+" com PV fixos. Escolhas da classe ficaram pendentes.");
+                else toast("Nível não aplicado: "+applied.optString("level_up_blocked",applied.optString("operation_error","falha na gravação")));
+                dialog.dismiss();showHeroes();
+            }));dialog.show();
             return;
         }
         if(result.optBoolean("level_up_applied",false))toast("Nível aplicado em "+result.optString("level_up_class")+" com PV fixos. Escolhas da classe ficaram pendentes.");
@@ -2225,10 +2307,51 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(payload==null)payload=new JSONObject();if("eb_artificer".equals(kind))return db.resolveEberronArtificerAction(id,action,payload);if("eb_subclass".equals(kind))return db.resolveEberronSubclassAction(id,action,payload);if("eb_species".equals(kind))return db.resolveEberronSpeciesAction(id,action,payload);if("eb_feat".equals(kind))return db.resolveEberronFeatAction(id,option,action,payload);if("eb_homunculus".equals(kind))return db.resolveEberronHomunculusSpell(id,number,payload);if("eb_item".equals(kind))return db.resolveEberronMagicItemAction(id,option,action,payload);if("eb_bastion".equals(kind))return db.resolveEberronBastionAction(id,option,action,payload);if("eb_airship".equals(kind))return db.resolveEberronAirshipAction(id,option,action,payload);if("eb_framework".equals(kind))return db.resolveEberronFrameworkAction(id,option,action,payload);if("eb_creature".equals(kind))return db.resolveEberronCreatureAction(option,action,payload);if("fr_subclass".equals(kind))return db.resolveHeroesSubclassAction(id,action,payload);if("fr_feat".equals(kind))return db.resolveHeroesFeatAction(id,option,action,payload);if("fr_spell".equals(kind))return db.resolveHeroesSpell(id,option,number,payload);if("fr_circle".equals(kind))return db.resolveHeroesCircleMagic(id,option,payload);if("fr_faction".equals(kind))return db.resolveHeroesFactionAction(id,option,action,payload);if("fr_renown".equals(kind))return db.resolveHeroesDeityRenown(id,payload.optString("deity",""),number,payload);if("fr_aurora".equals(kind))return db.resolveHeroesAuroraAction(id,option,action,payload);try{return new JSONObject().put("resolved",false).put("status","gateway_desconhecido");}catch(Exception e){return new JSONObject();}
     }
 
+    /** Saved characters retain their edition even when the campaign changes profile. */
+    private String characterEditingProfile(JSONObject existing){
+        String profile=existing.isNull("rules_source")?"":existing.optString("rules_source").trim();
+        if(profile.isEmpty()){
+            try{
+                JSONObject saved=new JSONObject(existing.optString("sheet_json","{}"));
+                profile=saved.isNull("rules_source")?"":saved.optString("rules_source").trim();
+            }catch(org.json.JSONException ignored){/* Legacy rows may have no complete sheet. */}
+        }
+        return profile.isEmpty()?DndRulesEngine.PROFILE_2014:profile;
+    }
+
+    /** Complete legacy fields without interpreting a fallen character as missing HP. */
+    private JSONObject characterSheetForEditing(JSONObject existing,String profile){
+        JSONObject sheet=characterGenerator.fromLegacy(existing);
+        try{
+            sheet.put("rules_source",profile);
+            if(existing.has("hp")&&!existing.isNull("hp"))sheet.put("hp",existing.getInt("hp"));
+            if(existing.has("max_hp")&&!existing.isNull("max_hp"))sheet.put("max_hp",existing.getInt("max_hp"));
+            if(existing.has("species")&&!existing.isNull("species"))sheet.put("species",existing.getString("species"));
+        }catch(org.json.JSONException e){throw new IllegalStateException("Ficha persistida inválida",e);}
+        return sheet;
+    }
+
+    private boolean validateCharacterFormNumbers(CharacterFormRefs f){
+        EditText[] fields={f.level,f.str,f.dex,f.con,f.intel,f.wis,f.cha,f.hp,f.maxHp,f.ac};
+        int[] minimum={1,1,1,1,1,1,1,0,1,1};
+        int[] maximum={20,30,30,30,30,30,30,Integer.MAX_VALUE,Integer.MAX_VALUE,30};
+        boolean valid=true;
+        for(int i=0;i<fields.length;i++){
+            try{int n=Integer.parseInt(value(fields[i]));if(n<minimum[i]||n>maximum[i])throw new NumberFormatException();fields[i].setError(null);}
+            catch(NumberFormatException e){fields[i].setError("Informe um inteiro entre "+minimum[i]+" e "+maximum[i]+".");valid=false;}
+        }
+        if(!valid)toast("Revise os valores numéricos da ficha antes de salvar.");
+        return valid;
+    }
+
+    private void refreshGeneratedCharacterField(EditText field,JSONObject previous,JSONObject fresh,String key){
+        if(value(field).equals(previous.optString(key).trim()))field.setText(fresh.optString(key));
+    }
+
     private void characterDialog(final JSONObject existing){characterDialog(existing,null);}
     private void characterDialog(final JSONObject existing,final JSONObject seed){
         if(isMystaraWorld()){mystaraCharacterDialog(existing,seed);return;}
-        final boolean edit=existing!=null;final String rulesProfile=isStrixhavenAdventure()?DndRulesEngine.PROFILE_2014:db.getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2024);final CharacterFormRefs f=new CharacterFormRefs();JSONObject initial=edit?characterGenerator.fromLegacy(existing):(seed!=null?characterGenerator.ensureComplete(seed):characterGenerator.baseComplete(rulesProfile,speciesForProfile(rulesProfile)[0],"Guerreiro","Soldado",1));initial=DndPtBrLocalizer.localizeCharacterSheet(initial);
+        final boolean edit=existing!=null;final String rulesProfile=edit?characterEditingProfile(existing):(isStrixhavenAdventure()?DndRulesEngine.PROFILE_2014:db.getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2024));final CharacterFormRefs f=new CharacterFormRefs();JSONObject initial=edit?characterSheetForEditing(existing,rulesProfile):(seed!=null?characterGenerator.ensureComplete(seed):characterGenerator.baseComplete(rulesProfile,speciesForProfile(rulesProfile)[0],"Guerreiro","Soldado",1));initial=DndPtBrLocalizer.localizeCharacterSheet(initial);f.sourceSheet=initial;
         ScrollView scroll=new ScrollView(this);LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),dp(4),dp(12),dp(28));
         if(isMystaraWorld()){LinearLayout editorCrest=new LinearLayout(this);editorCrest.setOrientation(LinearLayout.VERTICAL);editorCrest.setGravity(Gravity.CENTER);editorCrest.setPadding(dp(12),dp(12),dp(12),dp(12));editorCrest.setBackground(makeBg(PANEL2,GOLD,2));TextView mt=text("◆  M Y S T A R A  ◆",16,GOLD,true);mt.setGravity(Gravity.CENTER);editorCrest.addView(mt);TextView mr=text(edit?"EDITAR FICHA DO AVENTUREIRO":"CRIAR FICHA DO AVENTUREIRO",12,TEXT,true);mr.setGravity(Gravity.CENTER);mr.setLetterSpacing(.07f);editorCrest.addView(mr);form.addView(editorCrest);}else form.addView(text("FICHA COMPLETA — "+rulesProfile,16,GOLD,true));form.addView(text(isMystaraWorld()?"Regras de Rules Cyclopedia/BECMI ativas: CA descendente, cinco Jogadas de Proteção, classes clássicas e progressão própria. Escolha as opções em campos separados.":"MODO SELEÇÃO: escolha opções, marque proficiências e monte listas em cartões separados. Não é preciso escrever blocos de texto. Nos campos narrativos, use 🎲 para gerar localmente ou consultar o Oráculo Mythic 2e.",12,MUTED,false));
         Button randomFill=button(isMystaraWorld()?"GERAR AVENTUREIRO COMPLETO":"PREENCHER HERÓI ALEATÓRIO COMPLETO",GOLD);randomFill.setTextColor(Color.BLACK);form.addView(randomFill);Button aiFill=button(isMystaraWorld()?"MESTRE DE MYSTARA — COMPLETAR FICHA":"AJUDA DA IA — COMPLETAR FICHA",GREEN);form.addView(aiFill);Button exportJson=button("EXPORTAR FICHA ATUAL EM JSON",PANEL2);form.addView(exportJson);Button importJson=button("IMPORTAR FICHA JSON NESTE FORMULÁRIO",PANEL2);form.addView(importJson);
@@ -2246,7 +2369,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
         addCharacterFormSection(form,isMystaraWorld()?"ATRIBUTOS & DEFESAS":"ATRIBUTOS E DEFESAS");if(isMystaraWorld()){LinearLayout row2=new LinearLayout(this);f.str=compactRuleNumber(row2,"FOR",initial.optInt("str",15),"str",f,rulesProfile);f.dex=compactRuleNumber(row2,"DES",initial.optInt("dex",13),"dex",f,rulesProfile);f.con=compactRuleNumber(row2,"CON",initial.optInt("con",14),"con",f,rulesProfile);form.addView(row2);LinearLayout row3=new LinearLayout(this);f.intel=compactRuleNumber(row3,"INT",initial.optInt("int_score",8),"int_score",f,rulesProfile);f.wis=compactRuleNumber(row3,"SAB",initial.optInt("wis",12),"wis",f,rulesProfile);f.cha=compactRuleNumber(row3,"CAR",initial.optInt("cha",10),"cha",f,rulesProfile);form.addView(row3);}else{LinearLayout row2=new LinearLayout(this);f.str=compactRuleNumber(row2,"FOR",initial.optInt("str",15),"str",f,rulesProfile);f.dex=compactRuleNumber(row2,"DES",initial.optInt("dex",13),"dex",f,rulesProfile);form.addView(row2);LinearLayout row3=new LinearLayout(this);f.con=compactRuleNumber(row3,"CON",initial.optInt("con",14),"con",f,rulesProfile);f.intel=compactRuleNumber(row3,"INT",initial.optInt("int_score",8),"int_score",f,rulesProfile);form.addView(row3);LinearLayout row4=new LinearLayout(this);f.wis=compactRuleNumber(row4,"SAB",initial.optInt("wis",12),"wis",f,rulesProfile);f.cha=compactRuleNumber(row4,"CAR",initial.optInt("cha",10),"cha",f,rulesProfile);form.addView(row4);}
         Button suggest=button("APLICAR MATRIZ SUGERIDA À CLASSE",PANEL2);suggest.setOnClickListener(new View.OnClickListener(){public void onClick(View v){int[] a=suggestedStats(f.cls.getSelectedItem().toString());f.str.setText(String.valueOf(a[0]));f.dex.setText(String.valueOf(a[1]));f.con.setText(String.valueOf(a[2]));f.intel.setText(String.valueOf(a[3]));f.wis.setText(String.valueOf(a[4]));f.cha.setText(String.valueOf(a[5]));}});form.addView(suggest);
-        f.auto=check("Recalcular PV, CA, iniciativa, proficiência e dados de vida",true);form.addView(f.auto);if(isMystaraWorld()){LinearLayout row1=new LinearLayout(this);f.hp=compactRuleNumber(row1,"PV ATUAL",initial.optInt("hp",10),"hp",f,rulesProfile);f.maxHp=compactRuleNumber(row1,"PV MÁX.",initial.optInt("max_hp",10),"max_hp",f,rulesProfile);f.ac=compactRuleNumber(row1,"CA",initial.optInt("ac",10),"ac",f,rulesProfile);form.addView(row1);}else{LinearLayout row1=new LinearLayout(this);f.hp=compactRuleNumber(row1,"PV atual",initial.optInt("hp",10),"hp",f,rulesProfile);f.maxHp=compactRuleNumber(row1,"PV máximo",initial.optInt("max_hp",10),"max_hp",f,rulesProfile);form.addView(row1);LinearLayout rowCa=new LinearLayout(this);f.ac=compactRuleNumber(rowCa,"CLASSE DE ARMADURA",initial.optInt("ac",10),"ac",f,rulesProfile);Space caSpace=new Space(this);rowCa.addView(caSpace,new LinearLayout.LayoutParams(0,1,1));form.addView(rowCa);}f.speed=labeledRuleField(form,"Deslocamento",initial.optString("speed","9 m"),false,"speed",f,rulesProfile);f.initiative=labeledRuleField(form,"Iniciativa",initial.optString("initiative","+0"),false,"initiative",f,rulesProfile);f.profBonus=labeledRuleField(form,"Bônus de proficiência",initial.optString("proficiency_bonus","+2"),false,"proficiency_bonus",f,rulesProfile);f.hitDice=labeledRuleField(form,"Dados de Vida",initial.optString("hit_dice","1d10"),false,"hit_dice",f,rulesProfile);
+        f.auto=check("Recalcular PV, CA, iniciativa, proficiência e dados de vida",!edit);form.addView(f.auto);if(isMystaraWorld()){LinearLayout row1=new LinearLayout(this);f.hp=compactRuleNumber(row1,"PV ATUAL",initial.optInt("hp",10),"hp",f,rulesProfile);f.maxHp=compactRuleNumber(row1,"PV MÁX.",initial.optInt("max_hp",10),"max_hp",f,rulesProfile);f.ac=compactRuleNumber(row1,"CA",initial.optInt("ac",10),"ac",f,rulesProfile);form.addView(row1);}else{LinearLayout row1=new LinearLayout(this);f.hp=compactRuleNumber(row1,"PV atual",initial.optInt("hp",10),"hp",f,rulesProfile);f.maxHp=compactRuleNumber(row1,"PV máximo",initial.optInt("max_hp",10),"max_hp",f,rulesProfile);form.addView(row1);LinearLayout rowCa=new LinearLayout(this);f.ac=compactRuleNumber(rowCa,"CLASSE DE ARMADURA",initial.optInt("ac",10),"ac",f,rulesProfile);Space caSpace=new Space(this);rowCa.addView(caSpace,new LinearLayout.LayoutParams(0,1,1));form.addView(rowCa);}f.speed=labeledRuleField(form,"Deslocamento",initial.optString("speed","9 m"),false,"speed",f,rulesProfile);f.initiative=labeledRuleField(form,"Iniciativa",initial.optString("initiative","+0"),false,"initiative",f,rulesProfile);f.profBonus=labeledRuleField(form,"Bônus de proficiência",initial.optString("proficiency_bonus","+2"),false,"proficiency_bonus",f,rulesProfile);f.hitDice=labeledRuleField(form,"Dados de Vida",initial.optString("hit_dice","1d10"),false,"hit_dice",f,rulesProfile);
 
         addCharacterFormSection(form,isMystaraWorld()?"PERÍCIAS, COMBATE & RECURSOS":"PERÍCIAS, ATAQUES E RECURSOS");buildSelectableMechanics(form,f,initial,rulesProfile);
         if(isStrixhavenAdventure()){
@@ -2263,8 +2386,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         aiFill.setOnClickListener(new View.OnClickListener(){public void onClick(View v){requestCharacterAi(f,rulesProfile);}});
         exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginCharacterExport(collectCharacterSheet(f,rulesProfile),f.active.isChecked());}});importJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){startCharacterImport(f,rulesProfile);}});
 
-        final AlertDialog d=new AlertDialog.Builder(this).setTitle(edit?"Editar ficha completa":"Criar personagem").setView(scroll).setNegativeButton("Cancelar",null).setPositiveButton("Salvar",null).create();d.setOnShowListener(new DialogInterface.OnShowListener(){public void onShow(final DialogInterface dialog){d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+        final AlertDialog d=new AlertDialog.Builder(this).setTitle(edit?"Editar ficha completa":"Criar personagem").setView(scroll).setNegativeButton("Cancelar",null).setPositiveButton("Salvar",null).create();showBoundDialog(d,new DialogInterface.OnShowListener(){public void onShow(final DialogInterface dialog){d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            if(f.saved||!validateCharacterFormNumbers(f))return;
+            reconcileCharacterDependencies(f,rulesProfile);
             JSONObject sheet=collectCharacterSheet(f,rulesProfile);String nm=sheet.optString("name").trim();if(nm.length()==0){f.name.setError("Informe o nome ou use a ajuda da IA.");return;}int lvl=sheet.optInt("level",1);int[] scores={sheet.optInt("str",10),sheet.optInt("dex",10),sheet.optInt("con",10),sheet.optInt("int_score",10),sheet.optInt("wis",10),sheet.optInt("cha",10)};int max=sheet.optInt("max_hp",1),hp=sheet.optInt("hp",max),ac=sheet.optInt("ac",10);String validation=rulesEngine.validateCharacter(rulesProfile,sheet.optString("species"),baseClass(sheet.optString("class_name")),sheet.optString("background"),lvl,scores,hp,max,ac);if(validation!=null){toast(validation);return;}
+            if(!sheet.optString("run136_validation_error").isEmpty()){toast(sheet.optString("run136_validation_error"));return;}
             JSONObject strict=characterRulesValidator.validate(sheet,rulesProfile);if(!strict.optBoolean("valid")){new AlertDialog.Builder(MainActivity.this).setTitle("Ficha não passou na validação").setMessage(jsonListText(strict.optJSONArray("errors"))).setPositiveButton("Corrigir",null).show();return;}sheet=strict.optJSONObject("normalized");if(sheet==null)sheet=collectCharacterSheet(f,rulesProfile);nm=sheet.optString("name").trim();lvl=sheet.optInt("level",1);scores=new int[]{sheet.optInt("str",10),sheet.optInt("dex",10),sheet.optInt("con",10),sheet.optInt("int_score",10),sheet.optInt("wis",10),sheet.optInt("cha",10)};max=sheet.optInt("max_hp",1);hp=sheet.optInt("hp",max);ac=sheet.optInt("ac",10);
             String notes=sheet.optString("history");if(sheet.optString("life_path").length()>0&&!notes.contains("HISTÓRIA DE VIDA"))notes+=(notes.length()>0?"\n\n":"")+sheet.optString("life_path");if(sheet.optString("extra_notes").length()>0)notes+=(notes.length()>0?"\n\n":"")+sheet.optString("extra_notes");
             try{if(edit)safety.beforeDestructiveChange("editar ficha de "+nm);}catch(Exception e){toast("Não foi possível criar o snapshot preventivo: "+e.getMessage());return;}
@@ -2272,18 +2398,19 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             String controlMode=f.controller==null?"manual":controlMode(String.valueOf(f.controller.getSelectedItem()));
             JSONObject saved=db.saveCharacterSheetAtomic(edit?existing.optLong("id",0):0,edit,sheet,notes,controlMode);
             if(!saved.optBoolean("character_saved",false)){toast("Ficha não salva: "+saved.optString("reason",saved.optString("save_blocked","falha transacional")));return;}
+            f.saved=true;d.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
             long id=saved.optLong("character_id",edit?existing.optLong("id",0):0);db.addAuditEvent("ficha",edit?"Ficha modificada":"Ficha criada",nm,before,saved.toString(),edit);dialog.dismiss();showHeroes();
-        }});Window w=d.getWindow();if(w!=null){w.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);}}});d.show();Window dw=d.getWindow();if(dw!=null){dw.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);}fitModernSamsungDialog(d);
+        }});Window w=d.getWindow();if(w!=null){w.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);}}});Window dw=d.getWindow();if(dw!=null){dw.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);}fitModernSamsungDialog(d);
     }
 
     private JSONObject collectCharacterSheet(CharacterFormRefs f,String profile){
-        JSONObject o=new JSONObject();try{o.put("name",value(f.name));o.put("nickname",value(f.nickname));o.put("title",value(f.title));o.put("species",f.species.getSelectedItem().toString());String className=f.cls.getSelectedItem().toString();if("Artífice".equals(className))className="Artificer";if(value(f.subclass).length()>0)className+=" — "+value(f.subclass);o.put("class_name",className);o.put("background",f.background.getSelectedItem().toString());o.put("alignment",f.alignment.getSelectedItem().toString());o.put("level",Math.max(1,Math.min(20,num(f.level,1))));o.put("concept",value(f.concept));o.put("role",value(f.role));o.put("str",num(f.str,10));o.put("dex",num(f.dex,10));o.put("con",num(f.con,10));o.put("int_score",num(f.intel,10));o.put("wis",num(f.wis,10));o.put("cha",num(f.cha,10));o.put("hp",num(f.hp,1));o.put("max_hp",num(f.maxHp,1));o.put("ac",num(f.ac,10));o.put("speed",value(f.speed));o.put("initiative",value(f.initiative));o.put("proficiency_bonus",value(f.profBonus));o.put("hit_dice",value(f.hitDice));o.put("saving_throws",value(f.savingThrows));o.put("skills",value(f.skills));o.put("passive_senses",value(f.passiveSenses));o.put("languages",value(f.languages));o.put("proficiencies",value(f.proficiencies));o.put("tools",value(f.tools));o.put("carrying_capacity",value(f.carrying));o.put("attacks",value(f.attacks));o.put("features",value(f.features));o.put("selected_feats",value(f.feats));o.put("feat_selection_json",value(f.featChoicesJson));o.put("spellcasting",value(f.spellcasting));o.put("spells",value(f.spells));o.put("inventory",value(f.inventory));o.put("equipment",value(f.inventory));o.put("appearance",value(f.appearance));o.put("visual_description",value(f.appearance));o.put("personality",value(f.personality));o.put("ideal",value(f.ideal));o.put("bond",value(f.bond));o.put("fear",value(f.fear));o.put("flaw",value(f.flaw));o.put("contact",value(f.contact));o.put("rival",value(f.rival));o.put("debt",value(f.debt));o.put("motivation",value(f.motivation));o.put("class_entry",value(f.classEntry));o.put("history",value(f.history));o.put("mannerisms",value(f.mannerisms));o.put("quotes",value(f.quotes));o.put("level_up",value(f.levelUp));o.put("extra_notes",value(f.extraNotes));o.put("oracle_references",value(f.oracleReferences));o.put("life_origin",f.origin.getSelectedItem().toString());o.put("life_career",f.career.getSelectedItem().toString());o.put("life_terms",f.terms.getSelectedItemPosition()+1);o.put("life_path",value(f.lifePath));o.put("rules_source",profile);o.put("control_mode",f.controller==null?"manual":controlMode(String.valueOf(f.controller.getSelectedItem())));
-            if(f.auto.isChecked()){int lvl=o.optInt("level",1),conScore=o.optInt("con",10),dexScore=o.optInt("dex",10),wisScore=o.optInt("wis",10);String baseClass=baseClass(o.optString("class_name"));int calculatedMax=rulesEngine.suggestedMaxHp(baseClass,lvl,conScore);o.put("max_hp",calculatedMax);if(o.optInt("hp",0)<=0||o.optInt("hp")>calculatedMax)o.put("hp",calculatedMax);String equipped=o.optString("equipment",o.optString("inventory",""));o.put("ac",equipped.trim().length()>0?rulesEngine.armorClassFromEquipment(equipped,baseClass,dexScore,conScore,wisScore):rulesEngine.suggestedArmorClass(baseClass,dexScore,conScore,wisScore));o.put("initiative",signedModifier(rulesEngine.modifier(dexScore)));o.put("proficiency_bonus",signedModifier(rulesEngine.proficiencyBonus(lvl)));o.put("hit_dice",lvl+"d"+rulesEngine.classHitDie(baseClass));}
+        JSONObject o=new JSONObject();try{if(f.sourceSheet!=null)o=new JSONObject(f.sourceSheet.toString());o.remove("run136_validation_error");o.put("name",value(f.name));o.put("nickname",value(f.nickname));o.put("title",value(f.title));o.put("species",f.species.getSelectedItem().toString());String className=f.cls.getSelectedItem().toString();if("Artífice".equals(className))className="Artificer";if(value(f.subclass).length()>0)className+=" — "+value(f.subclass);o.put("class_name",className);o.put("background",f.background.getSelectedItem().toString());o.put("alignment",f.alignment.getSelectedItem().toString());o.put("level",Math.max(1,Math.min(20,num(f.level,1))));o.put("concept",value(f.concept));o.put("role",value(f.role));o.put("str",num(f.str,10));o.put("dex",num(f.dex,10));o.put("con",num(f.con,10));o.put("int_score",num(f.intel,10));o.put("wis",num(f.wis,10));o.put("cha",num(f.cha,10));o.put("hp",num(f.hp,1));o.put("max_hp",num(f.maxHp,1));o.put("ac",num(f.ac,10));o.put("speed",value(f.speed));o.put("initiative",value(f.initiative));o.put("proficiency_bonus",value(f.profBonus));o.put("hit_dice",value(f.hitDice));o.put("saving_throws",value(f.savingThrows));o.put("skills",value(f.skills));o.put("passive_senses",value(f.passiveSenses));o.put("languages",value(f.languages));o.put("proficiencies",value(f.proficiencies));o.put("tools",value(f.tools));o.put("carrying_capacity",value(f.carrying));o.put("attacks",value(f.attacks));o.put("features",value(f.features));o.put("selected_feats",value(f.feats));o.put("feat_selection_json",value(f.featChoicesJson));o.put("spellcasting",value(f.spellcasting));o.put("spells",value(f.spells));o.put("inventory",value(f.inventory));o.put("equipment",value(f.inventory));o.put("appearance",value(f.appearance));o.put("visual_description",value(f.appearance));o.put("personality",value(f.personality));o.put("ideal",value(f.ideal));o.put("bond",value(f.bond));o.put("fear",value(f.fear));o.put("flaw",value(f.flaw));o.put("contact",value(f.contact));o.put("rival",value(f.rival));o.put("debt",value(f.debt));o.put("motivation",value(f.motivation));o.put("class_entry",value(f.classEntry));o.put("history",value(f.history));o.put("mannerisms",value(f.mannerisms));o.put("quotes",value(f.quotes));o.put("level_up",value(f.levelUp));o.put("extra_notes",value(f.extraNotes));o.put("oracle_references",value(f.oracleReferences));o.put("life_origin",f.origin.getSelectedItem().toString());o.put("life_career",f.career.getSelectedItem().toString());o.put("life_terms",f.terms.getSelectedItemPosition()+1);o.put("life_path",value(f.lifePath));o.put("rules_source",profile);o.put("control_mode",f.controller==null?"manual":controlMode(String.valueOf(f.controller.getSelectedItem())));
+            if(f.auto.isChecked()){int lvl=o.optInt("level",1),conScore=o.optInt("con",10),dexScore=o.optInt("dex",10),wisScore=o.optInt("wis",10);String baseClass=baseClass(o.optString("class_name"));int calculatedMax=rulesEngine.suggestedMaxHp(baseClass,lvl,conScore);o.put("max_hp",calculatedMax);if(o.optInt("hp",0)<0||o.optInt("hp")>calculatedMax)o.put("hp",calculatedMax);String equipped=o.optString("equipment",o.optString("inventory",""));o.put("ac",equipped.trim().length()>0?rulesEngine.armorClassFromEquipment(equipped,baseClass,dexScore,conScore,wisScore):rulesEngine.suggestedArmorClass(baseClass,dexScore,conScore,wisScore));o.put("initiative",signedModifier(rulesEngine.modifier(dexScore)));o.put("proficiency_bonus",signedModifier(rulesEngine.proficiencyBonus(lvl)));o.put("hit_dice",lvl+"d"+rulesEngine.classHitDie(baseClass));}
             o.put("history",characterGenerator.sanitizeSpeciesCoherence(o.optString("history"),o.optString("species")));o.put("life_path",characterGenerator.sanitizeSpeciesCoherence(o.optString("life_path"),o.optString("species")));o.put("appearance",characterGenerator.sanitizeSpeciesCoherence(o.optString("appearance"),o.optString("species")));o.put("visual_description",o.optString("appearance"));o.put("active",f.active!=null&&f.active.isChecked());normalizeSelectableMechanics(f,o);o.put("xanathar_scores_include_feat_bonus",true);CrossBookCharacterOptionEngine.applySpeciesMechanics(o);MultiverseCharacterOptionEngine.apply2014AbilityBonuses(o);MultiverseCharacterOptionEngine.applySpeciesMechanics(o);Core2024EberronCharacterEngine.apply2024SpeciesMechanics(o);Core2024EberronCharacterEngine.applyDragonmarkMechanics(o);CrossBookCharacterBackgroundEngine.applyBackgroundMechanics(o);Core2024EberronCharacterEngine.applyHouseAgentBackground(o);CrossBookSubclassRuntimeEngine.applyToSheet(o);applyCrossBookFeatChoices(o,value(f.featChoicesJson));applyRun136CharacterChoices(o,value(f.featChoicesJson));o.put("passive_senses",renderPassiveSenses(o,o.optString("skills")));
         }catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}return DndPtBrLocalizer.localizeCharacterSheet(o);
     }
 
-    private void applyCharacterSeed(CharacterFormRefs f,JSONObject seed){boolean wasBusy=f!=null&&f.dependencyRefreshBusy;if(f!=null)f.dependencyRefreshBusy=true;JSONObject s=characterGenerator.ensureComplete(DndPtBrLocalizer.localizeCharacterSheet(seed));f.name.setText(s.optString("name"));f.nickname.setText(s.optString("nickname"));f.title.setText(s.optString("title"));selectSpinner(f.species,s.optString("species"));String seedClass=baseClass(s.optString("class_name"));selectSpinner(f.cls,"Artificer".equalsIgnoreCase(seedClass)?"Artífice":seedClass);f.subclass.setText(subclassOf(s.optString("class_name")));selectSpinner(f.background,s.optString("background"));selectSpinner(f.alignment,s.optString("alignment"));f.level.setText(String.valueOf(s.optInt("level",1)));f.concept.setText(s.optString("concept"));f.role.setText(s.optString("role"));f.str.setText(String.valueOf(s.optInt("str",10)));f.dex.setText(String.valueOf(s.optInt("dex",10)));f.con.setText(String.valueOf(s.optInt("con",10)));f.intel.setText(String.valueOf(s.optInt("int_score",10)));f.wis.setText(String.valueOf(s.optInt("wis",10)));f.cha.setText(String.valueOf(s.optInt("cha",10)));f.hp.setText(String.valueOf(s.optInt("hp",1)));f.maxHp.setText(String.valueOf(s.optInt("max_hp",1)));f.ac.setText(String.valueOf(s.optInt("ac",10)));f.speed.setText(s.optString("speed"));f.initiative.setText(s.optString("initiative"));f.profBonus.setText(s.optString("proficiency_bonus"));f.hitDice.setText(s.optString("hit_dice"));f.savingThrows.setText(s.optString("saving_throws"));f.skills.setText(s.optString("skills"));f.passiveSenses.setText(s.optString("passive_senses"));f.languages.setText(s.optString("languages"));f.proficiencies.setText(s.optString("proficiencies"));f.tools.setText(s.optString("tools"));f.carrying.setText(s.optString("carrying_capacity"));f.attacks.setText(s.optString("attacks"));f.features.setText(s.optString("features"));f.spellcasting.setText(s.optString("spellcasting"));f.spells.setText(s.optString("spells"));f.inventory.setText(s.optString("inventory"));f.appearance.setText(s.optString("appearance"));f.personality.setText(s.optString("personality"));f.ideal.setText(s.optString("ideal"));f.bond.setText(s.optString("bond"));f.fear.setText(s.optString("fear"));f.flaw.setText(s.optString("flaw"));f.contact.setText(s.optString("contact"));f.rival.setText(s.optString("rival"));f.debt.setText(s.optString("debt"));f.motivation.setText(s.optString("motivation"));f.classEntry.setText(s.optString("class_entry"));f.history.setText(s.optString("history"));f.mannerisms.setText(s.optString("mannerisms"));f.quotes.setText(s.optString("quotes"));f.levelUp.setText(s.optString("level_up"));f.extraNotes.setText(s.optString("extra_notes"));if(f.oracleReferences!=null)f.oracleReferences.setText(s.optString("oracle_references"));selectSpinner(f.origin,s.optString("life_origin"));selectSpinner(f.career,s.optString("life_career"));f.terms.setSelection(Math.max(0,Math.min(3,s.optInt("life_terms",2)-1)));f.lifePath.setText(s.optString("life_path"));if(f.feats!=null)f.feats.setText(s.optString("selected_feats",s.optString("granted_feats")));if(f.featChoicesJson!=null)f.featChoicesJson.setText(s.optString("feat_selection_json"));if(f.controller!=null&&s.has("control_mode"))selectSpinner(f.controller,controlLabel(s.optString("control_mode","manual")));if(f.active!=null)f.active.setChecked(s.optBoolean("active",true));if(f!=null){f.lastSpecies=String.valueOf(f.species.getSelectedItem());f.lastClass=String.valueOf(f.cls.getSelectedItem());f.lastBackground=String.valueOf(f.background.getSelectedItem());f.lastLevel=Math.max(1,Math.min(20,num(f.level,1)));f.dependencyRefreshBusy=wasBusy;}}
+    private void applyCharacterSeed(CharacterFormRefs f,JSONObject seed){boolean wasBusy=f!=null&&f.dependencyRefreshBusy;if(f!=null)f.dependencyRefreshBusy=true;JSONObject s=characterGenerator.ensureComplete(DndPtBrLocalizer.localizeCharacterSheet(seed));f.sourceSheet=s;f.name.setText(s.optString("name"));f.nickname.setText(s.optString("nickname"));f.title.setText(s.optString("title"));selectSpinner(f.species,s.optString("species"));String seedClass=baseClass(s.optString("class_name"));selectSpinner(f.cls,"Artificer".equalsIgnoreCase(seedClass)?"Artífice":seedClass);f.subclass.setText(subclassOf(s.optString("class_name")));selectSpinner(f.background,s.optString("background"));selectSpinner(f.alignment,s.optString("alignment"));f.level.setText(String.valueOf(s.optInt("level",1)));f.concept.setText(s.optString("concept"));f.role.setText(s.optString("role"));f.str.setText(String.valueOf(s.optInt("str",10)));f.dex.setText(String.valueOf(s.optInt("dex",10)));f.con.setText(String.valueOf(s.optInt("con",10)));f.intel.setText(String.valueOf(s.optInt("int_score",10)));f.wis.setText(String.valueOf(s.optInt("wis",10)));f.cha.setText(String.valueOf(s.optInt("cha",10)));f.hp.setText(String.valueOf(s.optInt("hp",1)));f.maxHp.setText(String.valueOf(s.optInt("max_hp",1)));f.ac.setText(String.valueOf(s.optInt("ac",10)));f.speed.setText(s.optString("speed"));f.initiative.setText(s.optString("initiative"));f.profBonus.setText(s.optString("proficiency_bonus"));f.hitDice.setText(s.optString("hit_dice"));f.savingThrows.setText(s.optString("saving_throws"));f.skills.setText(s.optString("skills"));f.passiveSenses.setText(s.optString("passive_senses"));f.languages.setText(s.optString("languages"));f.proficiencies.setText(s.optString("proficiencies"));f.tools.setText(s.optString("tools"));f.carrying.setText(s.optString("carrying_capacity"));f.attacks.setText(s.optString("attacks"));f.features.setText(s.optString("features"));f.spellcasting.setText(s.optString("spellcasting"));f.spells.setText(s.optString("spells"));f.inventory.setText(s.optString("inventory"));f.appearance.setText(s.optString("appearance"));f.personality.setText(s.optString("personality"));f.ideal.setText(s.optString("ideal"));f.bond.setText(s.optString("bond"));f.fear.setText(s.optString("fear"));f.flaw.setText(s.optString("flaw"));f.contact.setText(s.optString("contact"));f.rival.setText(s.optString("rival"));f.debt.setText(s.optString("debt"));f.motivation.setText(s.optString("motivation"));f.classEntry.setText(s.optString("class_entry"));f.history.setText(s.optString("history"));f.mannerisms.setText(s.optString("mannerisms"));f.quotes.setText(s.optString("quotes"));f.levelUp.setText(s.optString("level_up"));f.extraNotes.setText(s.optString("extra_notes"));if(f.oracleReferences!=null)f.oracleReferences.setText(s.optString("oracle_references"));selectSpinner(f.origin,s.optString("life_origin"));selectSpinner(f.career,s.optString("life_career"));f.terms.setSelection(Math.max(0,Math.min(3,s.optInt("life_terms",2)-1)));f.lifePath.setText(s.optString("life_path"));if(f.feats!=null)f.feats.setText(s.optString("selected_feats",s.optString("granted_feats")));if(f.featChoicesJson!=null)f.featChoicesJson.setText(s.optString("feat_selection_json"));if(f.controller!=null&&s.has("control_mode"))selectSpinner(f.controller,controlLabel(s.optString("control_mode","manual")));if(f.active!=null)f.active.setChecked(s.optBoolean("active",true));if(f!=null){f.lastSpecies=String.valueOf(f.species.getSelectedItem());f.lastClass=String.valueOf(f.cls.getSelectedItem());f.lastBackground=String.valueOf(f.background.getSelectedItem());f.lastLevel=Math.max(1,Math.min(20,num(f.level,1)));f.dependencyRefreshBusy=wasBusy;}}
 
     private void configureSelectableMechanicFields(final CharacterFormRefs f,final String profile){makeSelectorField(f.hitDice,"Calculado pela classe e pelo nível",new View.OnClickListener(){public void onClick(View v){JSONObject o=collectCharacterSheet(f,profile);f.hitDice.setText(o.optString("hit_dice"));toast("Dados de Vida recalculados pela classe e pelo nível.");}});}
     private void makeSelectorField(EditText field,String description,View.OnClickListener action){field.setFocusable(false);field.setCursorVisible(false);field.setLongClickable(false);field.setTextIsSelectable(false);field.setShowSoftInputOnFocus(false);field.setCompoundDrawablesWithIntrinsicBounds(0,0,android.R.drawable.arrow_down_float,0);field.setCompoundDrawablePadding(dp(8));field.setContentDescription(description);field.setOnClickListener(action);}
@@ -2349,7 +2476,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER_VERTICAL);
         TextView badge=text(icon,19,GOLD,true);badge.setGravity(Gravity.CENTER);badge.setBackground(makeBg(PANEL2,CARD_STROKE,10));header.addView(badge,new LinearLayout.LayoutParams(dp(46),dp(46)));
         LinearLayout labels=new LinearLayout(this);labels.setOrientation(LinearLayout.VERTICAL);labels.setPadding(dp(10),0,dp(6),0);labels.addView(text(title,14,GOLD,true));labels.addView(text(subtitle,11,MUTED,false));header.addView(labels,new LinearLayout.LayoutParams(0,-2,1));
-        Button choose=smallButton("SELECIONAR",PANEL2);choose.setTextSize(10);header.addView(choose,new LinearLayout.LayoutParams(dp(112),dp(44)));c.addView(header);
+        Button choose=smallButton("SELECIONAR",PANEL2);choose.setContentDescription("Selecionar "+title);choose.setTextSize(10);header.addView(choose,new LinearLayout.LayoutParams(dp(112),dp(44)));c.addView(header);
         final LinearLayout rows=new LinearLayout(this);rows.setOrientation(LinearLayout.VERTICAL);rows.setPadding(0,dp(8),0,0);c.addView(rows);c.addView(valueField);
         final String empty=emptyLabel;renderSelectionRows(rows,value(valueField),empty);
         valueField.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence s,int st,int count,int after){}public void onTextChanged(CharSequence s,int st,int before,int count){renderSelectionRows(rows,s==null?"":s.toString(),empty);}public void afterTextChanged(Editable e){}});
@@ -2467,9 +2594,36 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private void show2024BackgroundAbilitySelector(final CharacterFormRefs f){
-        final JSONObject root=featSelectionRoot(value(f.featChoicesJson));final JSONObject r=run136Config(root);final JSONObject old=r.optJSONObject("origin_ability");final JSONArray allowed=Core2024EberronCharacterEngine.allowedBackgroundAbilities(String.valueOf(f.background.getSelectedItem()));final String[] a=new String[allowed.length()];for(int i=0;i<a.length;i++)a[i]=allowed.optString(i);
-        LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(14),dp(8),dp(14),dp(16));box.addView(text("Escolha +2 e +1 em dois atributos diferentes entre os três permitidos pelo antecedente. O app não escolhe o melhor atributo por você.",12,MUTED,false));final Spinner plus2=spinner(a,old==null?a[0]:old.optString("plus2",a[0]));final Spinner plus1=spinner(a,old==null?(a.length>1?a[1]:a[0]):old.optString("plus1",a.length>1?a[1]:a[0]));box.addView(cardWithLabel("+2",plus2));box.addView(cardWithLabel("+1",plus1));
-        new AlertDialog.Builder(this).setTitle("Atributos do antecedente 2024").setView(box).setNegativeButton("Cancelar",null).setPositiveButton("APLICAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){String p2=String.valueOf(plus2.getSelectedItem()),p1=String.valueOf(plus1.getSelectedItem());if(mechanicNorm(p2).equals(mechanicNorm(p1))){toast("+2 e +1 precisam ir para atributos diferentes.");return;}try{JSONObject base=old==null?captureAbilityScores(f):old.optJSONObject("base_scores");if(base==null)base=captureAbilityScores(f);restoreAbilityScores(f,base);addEditorAbility(f,p2,2);addEditorAbility(f,p1,1);JSONObject cfg=new JSONObject().put("plus2",p2).put("plus1",p1).put("base_scores",base).put("applied_to_editor",true);r.put("origin_ability",cfg);root.put("run136",r);f.featChoicesJson.setText(root.toString());toast("Bônus do antecedente aplicados explicitamente.");}catch(Exception e){toast("Não foi possível registrar +2/+1: "+e.getMessage());}}}).show();
+        final JSONObject root=featSelectionRoot(value(f.featChoicesJson)),r=run136Config(root);
+        final JSONObject old=r.optJSONObject("origin_ability");
+        final JSONArray allowed=Core2024EberronCharacterEngine.allowedBackgroundAbilities(String.valueOf(f.background.getSelectedItem()));
+        final String[] abilities=new String[allowed.length()];for(int i=0;i<abilities.length;i++)abilities[i]=allowed.optString(i);
+        if(abilities.length<2){toast("Antecedente sem opções de atributos disponíveis.");return;}
+        LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);
+        box.addView(text("Escolha +2 e +1 em dois atributos diferentes permitidos pelo antecedente.",12,MUTED,false));
+        final Spinner plus2=spinner(abilities,old==null?abilities[0]:old.optString("plus2",abilities[0]));
+        final Spinner plus1=spinner(abilities,old==null?abilities[1]:old.optString("plus1",abilities[1]));
+        plus2.setContentDescription("Atributo +2 do antecedente");plus1.setContentDescription("Atributo +1 do antecedente");
+        box.addView(cardWithLabel("+2",plus2));box.addView(cardWithLabel("+1",plus1));
+        final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Atributos do antecedente 2024").setView(box).setNegativeButton("Cancelar",null).setPositiveButton("APLICAR",null).create();
+        showBoundDialog(dialog,new DialogInterface.OnShowListener(){public void onShow(DialogInterface d){dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            if(!dialog.isShowing())return;
+            try{
+                String p2=String.valueOf(plus2.getSelectedItem()),p1=String.valueOf(plus1.getSelectedItem());
+                JSONObject candidate=new JSONObject().put("rules_source",DndRulesEngine.PROFILE_2024).put("background",String.valueOf(f.background.getSelectedItem()));
+                JSONObject gate=Core2024EberronCharacterEngine.applyOriginAbilityChoice(candidate,p2,p1,true);
+                if(!gate.optBoolean("ok",false)){toast(gate.optString("reason"));return;}
+                JSONObject base=captureAbilityScores(f);
+                if(old!=null&&old.optBoolean("applied_to_editor",false)){
+                    String old2=old.optString("plus2"),old1=old.optString("plus1");
+                    base.put(old2,base.optInt(old2,10)-2);base.put(old1,base.optInt(old1,10)-1);
+                }
+                if(base.optInt(p2,10)+2>20||base.optInt(p1,10)+1>20){toast("O bônus do antecedente não pode elevar um atributo acima de 20.");return;}
+                restoreAbilityScores(f,base);addEditorAbility(f,p2,2);addEditorAbility(f,p1,1);
+                r.put("origin_ability",new JSONObject().put("plus2",p2).put("plus1",p1).put("base_scores",base).put("applied_to_editor",true));
+                root.put("run136",r);f.featChoicesJson.setText(root.toString());dialog.dismiss();
+            }catch(Exception e){toast("Não foi possível registrar +2/+1: "+e.getMessage());}
+        }});}});
     }
 
     private void showBackgroundOriginFeatConfigurator(final CharacterFormRefs f){String feat=Core2024EberronCharacterEngine.originFeatForBackground(String.valueOf(f.background.getSelectedItem()));showOriginFeatConfigurator(f,"origin_feat_background",feat,false);}
@@ -2513,11 +2667,22 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private String renderSpellcasting(CharacterFormRefs f,String ability){int score="Inteligência".equals(ability)?num(f.intel,10):"Sabedoria".equals(ability)?num(f.wis,10):num(f.cha,10);int pb=rulesEngine.proficiencyBonus(Math.max(1,num(f.level,1))),mod=rulesEngine.modifier(score);String slots=spellSlotSummary(f.cls.getSelectedItem().toString(),Math.max(1,num(f.level,1)));return ability+"\nCD "+(8+pb+mod)+" para resistir\n"+signedModifier(pb+mod)+" em ataques mágicos"+(slots.length()>0?"\n"+slots:"");}
     private String spellSlotSummary(String cls,int level){if("Bruxo".equals(cls)){int pactLevel=level<3?1:level<5?2:level<7?3:level<9?4:5;int slots=level<2?1:level<11?2:level<17?3:4;return slots+" espaço"+(slots>1?"s":"")+" de pacto de "+pactLevel+"º círculo";}int caster=level;if("Paladino".equals(cls)||"Patrulheiro".equals(cls)||"Cavaleiro da Morte".equals(cls))caster=Math.max(0,level/2);else if("Artífice".equals(cls))caster=Math.max(1,(level+1)/2);else if("Bárbaro".equals(cls)||"Guerreiro".equals(cls)||"Ladino".equals(cls)||"Monge".equals(cls)||"Caçador de Sangue".equals(cls)||"Cozinheiro".equals(cls))caster=0;if(caster==0)return "";int[][] t={{2,0,0,0,0,0,0,0,0},{3,0,0,0,0,0,0,0,0},{4,2,0,0,0,0,0,0,0},{4,3,0,0,0,0,0,0,0},{4,3,2,0,0,0,0,0,0},{4,3,3,0,0,0,0,0,0},{4,3,3,1,0,0,0,0,0},{4,3,3,2,0,0,0,0,0},{4,3,3,3,1,0,0,0,0},{4,3,3,3,2,0,0,0,0},{4,3,3,3,2,1,0,0,0},{4,3,3,3,2,1,0,0,0},{4,3,3,3,2,1,1,0,0},{4,3,3,3,2,1,1,0,0},{4,3,3,3,2,1,1,1,0},{4,3,3,3,2,1,1,1,0},{4,3,3,3,2,1,1,1,1},{4,3,3,3,3,1,1,1,1},{4,3,3,3,3,2,1,1,1},{4,3,3,3,3,2,2,1,1}};caster=Math.max(1,Math.min(20,caster));StringBuilder out=new StringBuilder("Espaços: ");for(int i=0;i<9;i++)if(t[caster-1][i]>0){if(out.length()>9)out.append(" • ");out.append(i+1).append("º: ").append(t[caster-1][i]);}return out.toString();}
 
-    private void showSpellSelector(final CharacterFormRefs f){String cls=f.cls.getSelectedItem().toString();final String[] options=spellCatalog(cls);if(options.length==0){toast("A classe selecionada não possui conjuração básica neste nível.");f.spells.setText("");return;}final boolean[] selected=new boolean[options.length];String current=value(f.spells);for(int i=0;i<options.length;i++)selected[i]=selectionContains(current,spellName(options[i]));new AlertDialog.Builder(this).setTitle("Selecionar truques e magias — "+cls).setMultiChoiceItems(options,selected,new DialogInterface.OnMultiChoiceClickListener(){public void onClick(DialogInterface d,int which,boolean checked){selected[which]=checked;}}).setNegativeButton("Cancelar",null).setPositiveButton("APLICAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){StringBuilder out=new StringBuilder();for(int i=0;i<options.length;i++)if(selected[i]){if(out.length()>0)out.append("\n");out.append(options[i]);}f.spells.setText(out.toString());if(value(f.spellcasting).length()==0){String ab=defaultSpellAbility(f.cls.getSelectedItem().toString());if(!"Sem conjuração".equals(ab))f.spellcasting.setText(renderSpellcasting(f,ab));}}}).show();}
+    private void showSpellSelector(final CharacterFormRefs f){String cls=f.cls.getSelectedItem().toString();final String[] options=spellCatalog(cls);if(options.length==0){toast("A classe selecionada não possui conjuração básica neste nível.");f.spells.setText("");return;}final boolean[] selected=new boolean[options.length];String current=value(f.spells);for(int i=0;i<options.length;i++)selected[i]=selectionContains(current,spellName(options[i]));showApplyDialog(new AlertDialog.Builder(this).setTitle("Selecionar truques e magias — "+cls).setMultiChoiceItems(options,selected,new DialogInterface.OnMultiChoiceClickListener(){public void onClick(DialogInterface d,int which,boolean checked){selected[which]=checked;}}).setNegativeButton("Cancelar",null).setPositiveButton("APLICAR",null),new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){StringBuilder out=new StringBuilder();for(int i=0;i<options.length;i++)if(selected[i]){if(out.length()>0)out.append("\n");out.append(options[i]);}f.spells.setText(out.toString());if(value(f.spellcasting).length()==0){String ab=defaultSpellAbility(f.cls.getSelectedItem().toString());if(!"Sem conjuração".equals(ab))f.spellcasting.setText(renderSpellcasting(f,ab));}}});}
     private String spellName(String full){int x=full.indexOf(" — ");return x<0?full:full.substring(0,x);}
     private String[] spellCatalog(String cls){if("Bardo".equals(cls))return new String[]{"Canção Alegre — truque; até 3 aliados recebem 1 PV temporário e +1 em ataques, salvamentos e testes até seu próximo turno.","Tinta Fresca — truque; cria tinta mágica de cor escolhida.","Zombaria Viciosa — truque; Sabedoria; dano psíquico e desvantagem no próximo ataque.","Ilusão Menor — truque; cria som ou imagem estática pequena.","Palavra Curativa — ação bônus; cura um aliado a até 18 m.","Sussurros Dissonantes — dano psíquico e afastamento por reação.","Enfeitiçar Pessoa — enfeitiça um humanoide.","Fogo das Fadas — revela criaturas e concede vantagem contra elas.","Sono — adormece criaturas por pontos de vida.","Onda Trovejante — dano trovejante e empurra criaturas.","Invisibilidade — torna uma criatura invisível.","Sugestão — influencia magicamente uma criatura."};if("Mago".equals(cls)||"Feiticeiro".equals(cls))return new String[]{"Raio de Fogo — truque; ataque mágico à distância; dano de fogo.","Mãos Mágicas — truque; manipula objetos à distância.","Prestidigitação — truque; pequenos efeitos mágicos.","Mísseis Mágicos — projéteis que acertam automaticamente.","Escudo Arcano — reação; aumenta a CA até o próximo turno.","Armadura Arcana — define CA base sem armadura.","Sono — adormece criaturas por pontos de vida.","Onda Trovejante — dano e empurrão em área.","Detectar Magia — percebe a presença de magia.","Queda Suave — reação; reduz dano de queda.","Invisibilidade — torna uma criatura invisível.","Teia — cria terreno restritivo e prende criaturas."};if("Clérigo".equals(cls))return new String[]{"Chama Sagrada — truque; Destreza; dano radiante.","Orientação — truque; concede d4 a um teste de habilidade.","Taumaturgia — truque; pequenos efeitos divinos.","Curar Ferimentos — cura por toque.","Palavra Curativa — ação bônus; cura a distância.","Bênção — adiciona d4 a ataques e salvaguardas.","Comando — força uma ordem curta.","Escudo da Fé — ação bônus; aumenta a CA.","Detectar Magia — percebe a presença de magia.","Arma Espiritual — cria arma flutuante que ataca."};if("Druida".equals(cls))return new String[]{"Produzir Chamas — truque; luz e ataque de fogo.","Chicote de Espinhos — truque; puxa o alvo.","Orientação — truque; concede d4 a um teste.","Curar Ferimentos — cura por toque.","Palavra Curativa — ação bônus; cura a distância.","Fogo das Fadas — revela e concede vantagem.","Constrição — plantas prendem criaturas.","Nuvem de Névoa — obscurece uma área.","Falar com Animais — permite conversar com animais.","Raio Lunar — coluna de luz que causa dano radiante."};if("Bruxo".equals(cls))return new String[]{"Canção Alegre — truque; até 3 aliados recebem 1 PV temporário e +1 em ataques, salvamentos e testes até seu próximo turno.","Tinta Fresca — truque; cria tinta mágica de cor escolhida.","Rajada Mística — truque; ataque mágico; dano de energia.","Ilusão Menor — truque; som ou imagem pequena.","Mãos Mágicas — truque; manipula objetos.","Armadura de Agathys — PV temporários e dano a atacantes.","Repreensão Infernal — reação; dano de fogo.","Enfeitiçar Pessoa — enfeitiça um humanoide.","Bruxaria — maldição que causa dano adicional.","Escuridão — cria escuridão mágica.","Passo Nebuloso — teleporte curto como ação bônus."};if("Paladino".equals(cls))return new String[]{"Bênção — adiciona d4 a ataques e salvaguardas.","Comando — força uma ordem curta.","Curar Ferimentos — cura por toque.","Escudo da Fé — aumenta a CA.","Proteção contra o Bem e o Mal — defesa contra tipos sobrenaturais.","Marca do Caçador — dano adicional ao alvo marcado.","Auxílio — aumenta PV máximos temporariamente."};if("Patrulheiro".equals(cls))return new String[]{"Marca do Caçador — dano adicional ao alvo marcado.","Curar Ferimentos — cura por toque.","Falar com Animais — permite conversar com animais.","Nuvem de Névoa — obscurece uma área.","Bom Fruto — cria alimento que cura.","Passos Longos — aumenta deslocamento.","Passar sem Deixar Rastros — bônus de furtividade para o grupo."};if("Artífice".equals(cls))return new String[]{"Consertar — truque; repara objetos.","Raio de Fogo — truque; dano de fogo.","Orientação — truque; concede d4 a um teste.","Curar Ferimentos — cura por toque.","Fogo das Fadas — revela e concede vantagem.","Identificação — revela propriedades mágicas.","Santuário — protege uma criatura contra ataques.","Absorver Elementos — reação; resistência elemental."};return new String[0];}
 
-    private void showInventorySelector(final CharacterFormRefs f){final String[] options={"Mochila | 1 | 2,5 kg | Geral","Saco de dormir | 1 | 3,5 kg | Viagem","Rações de viagem | 10 | 1 kg | Consumível","Cantil | 1 | 2 kg | Viagem","Corda de cânhamo (15 m) | 1 | 5 kg | Utilidade","Tochas | 10 | 0,5 kg | Consumível","Pederneira e isqueiro | 1 | 0,5 kg | Utilidade","Pé de cabra | 1 | 2,5 kg | Ferramenta","Kit de escalada | 1 | 6 kg | Ferramenta","Kit de curandeiro | 1 | 1,5 kg | Consumível","Kit de disfarce | 1 | 1,5 kg | Ferramenta","Kit de falsificação | 1 | 2,5 kg | Ferramenta","Ferramentas de ladrão | 1 | 0,5 kg | Ferramenta","Alaúde | 1 | 1 kg | Instrumento","Flauta | 1 | 0,5 kg | Instrumento","Símbolo sagrado | 1 | 0,5 kg | Foco","Foco arcano | 1 | 0,5 kg | Foco","Bolsa de componentes | 1 | 1 kg | Foco","Poção de cura | 1 | 0,25 kg | Consumível","Armadura de couro | 1 | 5 kg | Armadura • EQUIPADO","Cota de malha | 1 | 27,5 kg | Armadura • EQUIPADO","Escudo | 1 | 3 kg | Armadura • EQUIPADO","Adaga | 1 | 0,5 kg | Arma • EQUIPADO","Espada longa | 1 | 1,5 kg | Arma • EQUIPADO","Arco curto | 1 | 1 kg | Arma • EQUIPADO","Aljava com 20 flechas | 1 | 0,5 kg | Munição"};final boolean[] selected=new boolean[options.length];String current=value(f.inventory);for(int i=0;i<options.length;i++)selected[i]=selectionContains(current,options[i].split(" \\|")[0]);new AlertDialog.Builder(this).setTitle("Selecionar inventário e equipamento").setMultiChoiceItems(options,selected,new DialogInterface.OnMultiChoiceClickListener(){public void onClick(DialogInterface d,int which,boolean checked){selected[which]=checked;}}).setNegativeButton("Cancelar",null).setPositiveButton("APLICAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){StringBuilder out=new StringBuilder();for(int i=0;i<options.length;i++)if(selected[i]){if(out.length()>0)out.append("\n");String[] p=options[i].split(" \\| ");out.append(p[0]).append(" | QTD ").append(p.length>1?p[1]:"1").append(" | PESO ").append(p.length>2?p[2]:"0 kg").append(" | ").append(p.length>3?p[3]:"Geral");}f.inventory.setText(out.toString());}}).show();}
+    private int inventoryOptionIndex(String line,String[] options){
+        String name=mechanicNorm(line.split("\\|",2)[0]);
+        for(int i=0;i<options.length;i++)if(name.equals(mechanicNorm(options[i].split("\\|",2)[0])))return i;
+        return -1;
+    }
+    private boolean inventoryContainsOption(String current,String option,String[] options){
+        int expected=inventoryOptionIndex(option,options);
+        for(String line:current.split("\n"))if(inventoryOptionIndex(line,options)==expected)return true;
+        return false;
+    }
+
+    private void showInventorySelector(final CharacterFormRefs f){final String[] options={"Mochila | 1 | 2,5 kg | Geral","Saco de dormir | 1 | 3,5 kg | Viagem","Rações de viagem | 10 | 1 kg | Consumível","Cantil | 1 | 2 kg | Viagem","Corda de cânhamo (15 m) | 1 | 5 kg | Utilidade","Tochas | 10 | 0,5 kg | Consumível","Pederneira e isqueiro | 1 | 0,5 kg | Utilidade","Pé de cabra | 1 | 2,5 kg | Ferramenta","Kit de escalada | 1 | 6 kg | Ferramenta","Kit de curandeiro | 1 | 1,5 kg | Consumível","Kit de disfarce | 1 | 1,5 kg | Ferramenta","Kit de falsificação | 1 | 2,5 kg | Ferramenta","Ferramentas de ladrão | 1 | 0,5 kg | Ferramenta","Alaúde | 1 | 1 kg | Instrumento","Flauta | 1 | 0,5 kg | Instrumento","Símbolo sagrado | 1 | 0,5 kg | Foco","Foco arcano | 1 | 0,5 kg | Foco","Bolsa de componentes | 1 | 1 kg | Foco","Poção de cura | 1 | 0,25 kg | Consumível","Armadura de couro | 1 | 5 kg | Armadura • EQUIPADO","Cota de malha | 1 | 27,5 kg | Armadura • EQUIPADO","Escudo | 1 | 3 kg | Armadura • EQUIPADO","Adaga | 1 | 0,5 kg | Arma • EQUIPADO","Espada longa | 1 | 1,5 kg | Arma • EQUIPADO","Arco curto | 1 | 1 kg | Arma • EQUIPADO","Aljava com 20 flechas | 1 | 0,5 kg | Munição"};final boolean[] selected=new boolean[options.length];final String current=value(f.inventory);for(int i=0;i<options.length;i++)selected[i]=selectionContains(current,options[i].split(" \\|")[0]);showApplyDialog(new AlertDialog.Builder(this).setTitle("Selecionar inventário e equipamento").setMultiChoiceItems(options,selected,new DialogInterface.OnMultiChoiceClickListener(){public void onClick(DialogInterface d,int which,boolean checked){selected[which]=checked;}}).setNegativeButton("Cancelar",null).setPositiveButton("APLICAR",null),new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){StringBuilder out=new StringBuilder();for(String line:current.split("\n")){int index=inventoryOptionIndex(line,options);if(index<0||selected[index]){if(out.length()>0)out.append("\n");out.append(line);}}for(int i=0;i<options.length;i++)if(selected[i]&&!inventoryContainsOption(current,options[i],options)){if(out.length()>0)out.append("\n");String[] p=options[i].split(" \\| ");out.append(p[0]).append(" | QTD ").append(p.length>1?p[1]:"1").append(" | PESO ").append(p.length>2?p[2]:"0 kg").append(" | ").append(p.length>3?p[3]:"Geral");}f.inventory.setText(out.toString());}});}
 
     /**
      * Normaliza os campos mecânicos sem modificar Views.
@@ -2562,6 +2727,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private static final class CharacterFormRefs{
         EditText name,nickname,title,subclass,level,concept,role,str,dex,con,intel,wis,cha,hp,maxHp,ac,speed,initiative,profBonus,hitDice,savingThrows,skills,passiveSenses,languages,proficiencies,tools,carrying,attacks,features,feats,featChoicesJson,spellcasting,spells,inventory,appearance,personality,ideal,bond,fear,flaw,contact,rival,debt,motivation,classEntry,history,mannerisms,quotes,levelUp,extraNotes,lifePath,oracleReferences;
         Spinner species,cls,background,alignment,origin,career,terms,controller;CheckBox auto,active;
+        JSONObject sourceSheet;boolean saved=false;
         boolean dependenciesBound=false,dependencyRefreshBusy=false;String lastSpecies="",lastClass="",lastBackground="";int lastLevel=1;
     }
 
@@ -2584,7 +2750,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private String diceHistoryDetails(JSONObject h){
         StringBuilder out=new StringBuilder();String actor=h.optString("actor_name","").trim();if(actor.length()>0)out.append("Personagem: ").append(actor).append('\n');
         out.append("Resultados individuais: ").append(h.optString("rolls_json","[]"));String faces=h.optString("physical_faces_json","[]");if(!"[]".equals(faces))out.append("\nFaces físicas: ").append(faces);
-        String render=h.optString("render_mode","math");out.append("\nOrigem: ").append("physical3d".equals(render)?"física 3D":"matemática autorizada");if("physical3d".equals(render)){out.append(" • ").append(h.optInt("physics_ms",0)).append(" ms");long seed=h.optLong("physics_seed",0);if(seed!=0)out.append(" • seed ").append(seed);String theme=h.optString("dice_theme_identity","");if(theme.length()>0)out.append("\nConjunto: ").append(theme);String sig=h.optString("roll_integrity_signature","");if(sig.length()>0)out.append("\nAssinatura física: ").append(sig.substring(0,Math.min(16,sig.length()))).append("…");}return out.toString();
+        String render=h.optString("render_mode","math");out.append("\nOrigem: ").append("physical3d".equals(render)?"física 3D":"manual_user".equals(render)?"faces informadas pelo jogador":"matemática autorizada");if("physical3d".equals(render)){out.append(" • ").append(h.optInt("physics_ms",0)).append(" ms");long seed=h.optLong("physics_seed",0);if(seed!=0)out.append(" • seed ").append(seed);String theme=h.optString("dice_theme_identity","");if(theme.length()>0)out.append("\nConjunto: ").append(theme);String sig=h.optString("roll_integrity_signature","");if(sig.length()>0)out.append("\nAssinatura física: ").append(sig.substring(0,Math.min(16,sig.length()))).append("…");}return out.toString();
     }
 
     private long recordDiceHistory(String formula,String requestedMode,String actor,long actorId,DiceResult r,JSONObject extra){
@@ -2611,7 +2777,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(grappleReconciliation.has("operation_error"))
             toast("Não foi possível reconciliar automaticamente os agarrões XMM.");
         ScrollView s=page("Combate","Iniciativa, PV temporários, concentração, reações, condições com duração e salvaguardas contra morte.");LinearLayout b=body(s);LinearLayout help=card();help.addView(text("COMBATE CONTROLADO E AUDITÁVEL",15,GOLD,true));help.addView(text("O Mestre pode montar o encontro, mas toda mudança permanece ajustável. Dano consome PV temporários primeiro; reações voltam no início do turno e durações registradas diminuem automaticamente.",13,TEXT,false));b.addView(help);addCombatContextPanel(b);JSONObject state=db.getCombatState();LinearLayout toolbar=card();toolbar.addView(text("RODADA "+state.optInt("round_no",1),22,GOLD,true));LinearLayout actions=new LinearLayout(this);Button heroes=smallButton("GRUPO (MANUAL)",GREEN);Button enemy=smallButton("+ CRIATURA MANUAL",GREEN);Button next=smallButton("PRÓXIMO TURNO",GOLD);next.setTextColor(Color.BLACK);Button reset=smallButton("ENCERRAR",RED);heroes.setOnClickListener(new View.OnClickListener(){public void onClick(View v){addActiveHeroesToCombat();}});enemy.setOnClickListener(new View.OnClickListener(){public void onClick(View v){combatantDialog();}});next.setOnClickListener(new View.OnClickListener(){public void onClick(View v){v.setEnabled(false);JSONObject active=db.nextTurn();String blocked=active.optString("turn_advance_blocked","");if(blocked.length()>0){toast("encounter_not_running".equals(blocked)?"Inicie um encontro antes de avançar o turno.":"Resolva "+("death_save_due".equals(blocked)?"a salvaguarda contra morte":
-                    "condition_recovery_save_pending".equals(blocked)?"a salvaguarda de recuperação da condição":"o teste de concentração")+" antes de avançar o turno.");setStatus("Combate aguardando resolução obrigatória");showCombat();return;}if(active.length()>0){db.addAuditEvent("combate","Turno iniciado",active.optString("name"),"{}",active.toString(),false);setStatus("Turno de "+active.optString("name"));}showCombat();}});reset.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Encerrar e limpar o combate?",new Runnable(){public void run(){try{safety.beforeDestructiveChange("encerrar combate");}catch(Exception e){toast("Combate preservado porque o snapshot falhou.");return;}String closing=prefs.getString("last_combat_narration","Combate encerrado.");db.transitionCombatState(CombatStateMachine.ENCOUNTER_END,new JSONObject());db.addJournalFact("Combate encerrado",closing,"Combate","combat-end-"+db.getCombatState().optString("encounter_id",""),"combat");db.resetCombat();prefs.edit().remove("last_combat_narration").apply();db.addAuditEvent("combate","Combate encerrado","Estado anterior preservado em snapshot","{}","{}",true);showCombat();}});}});actions.addView(heroes);actions.addView(enemy);actions.addView(next);actions.addView(reset);toolbar.addView(actions);Button compiledEnemy=button("+ MONSTRO DE BLOCO COMPILADO",GREEN);compiledEnemy.setOnClickListener(new View.OnClickListener(){public void onClick(View v){compiledCombatantDialog();}});toolbar.addView(compiledEnemy);b.addView(toolbar);addCompiledRecoveryControls(b,state);
+                    "condition_recovery_save_pending".equals(blocked)?"a salvaguarda de recuperação da condição":"o teste de concentração")+" antes de avançar o turno.");setStatus("Combate aguardando resolução obrigatória");showCombat();return;}if(active.length()>0){db.addAuditEvent("combate","Turno iniciado",active.optString("name"),"{}",active.toString(),false);setStatus("Turno de "+active.optString("name"));}showCombat();}});reset.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirmCoreAction("Encerrar e limpar o combate?",new Runnable(){public void run(){try{safety.beforeDestructiveChange("encerrar combate");}catch(Exception e){toast("Combate preservado porque o snapshot falhou.");return;}String closing=prefs.getString("last_combat_narration","Combate encerrado.");db.transitionCombatState(CombatStateMachine.ENCOUNTER_END,new JSONObject());db.addJournalFact("Combate encerrado",closing,"Combate","combat-end-"+db.getCombatState().optString("encounter_id",""),"combat");db.resetCombat();prefs.edit().remove("last_combat_narration").apply();db.addAuditEvent("combate","Combate encerrado","Estado anterior preservado em snapshot","{}","{}",true);showCombat();}});}});actions.addView(heroes);actions.addView(enemy);actions.addView(next);actions.addView(reset);toolbar.addView(actions);Button compiledEnemy=button("+ MONSTRO DE BLOCO COMPILADO",GREEN);compiledEnemy.setOnClickListener(new View.OnClickListener(){public void onClick(View v){compiledCombatantDialog();}});toolbar.addView(compiledEnemy);b.addView(toolbar);addCompiledRecoveryControls(b,state);
         LinearLayout tactical=card();tactical.addView(text("MESA TÁTICA LOCAL",16,GOLD,true));tactical.addView(text("Selecione um token e toque na célula de destino para revisar o percurso, custo e reações; somente a confirmação executa o movimento.",12,MUTED,false));tacticalBoardView=new TacticalBoardView(this,db);tacticalBoardView.setInfoListener(new TacticalBoardView.InfoListener(){public void onInfoRequested(long combatantId,String name){JSONObject combatant=db.getCombatant(combatantId);if(combatant.length()==0)combatant=db.findCombatantByName(name);if(combatant.length()==0){toast("Combatente não encontrado.");return;}combatantInfoDialog(combatant);}});tacticalBoardView.setMovementListener(new TacticalBoardView.MovementListener(){
             public void onGridDestinationRequested(long combatantId,int cellX,int cellY){
                 JSONObject current=db.getCombatant(combatantId);
@@ -2757,7 +2923,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void addCombatContextPanel(LinearLayout parent){
         JSONObject scene=db.getSceneState();JSONObject map=db.getMapState();String location=scene.optString("location","").trim();String hex=scene.optString("hex_id",map.optString("current_hex_id","")).trim();String weather=scene.optString("weather","").trim();String danger=scene.optString("danger","").trim();
         LinearLayout context=card();context.addView(text("CONTEXTO DO ENCONTRO",13,GOLD,true));String summary=(location.length()>0?location:"Local atual")+(hex.length()>0?" • Hex "+hex:"")+(weather.length()>0?" • "+weather:"")+(danger.length()>0?"\nPerigo: "+danger:"");context.addView(text(summary,13,TEXT,false));
-        LinearLayout links=new LinearLayout(this);links.setOrientation(LinearLayout.HORIZONTAL);Button master=smallButton("MESTRE IA",PANEL2),mapButton=smallButton("MAPA",PANEL2),journal=smallButton("DIÁRIO",PANEL2);master.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Mestre IA");}});mapButton.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Mapa");}});journal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Diário");}});links.addView(master,new LinearLayout.LayoutParams(0,dp(44),1));links.addView(mapButton,new LinearLayout.LayoutParams(0,dp(44),1));links.addView(journal,new LinearLayout.LayoutParams(0,dp(44),1));context.addView(links);parent.addView(context);
+        LinearLayout links=new LinearLayout(this);links.setOrientation(LinearLayout.HORIZONTAL);Button master=smallButton("MESTRE IA",PANEL2),mapButton=smallButton("MAPA",PANEL2),journal=smallButton("DIÁRIO",PANEL2);master.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Mestre IA");}});mapButton.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Mapa");}});journal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Diário");}});links.addView(master,new LinearLayout.LayoutParams(0,dp(44),1));links.addView(mapButton,new LinearLayout.LayoutParams(0,dp(44),1));links.addView(journal,new LinearLayout.LayoutParams(0,dp(44),1));context.addView(links);
+        Button sheets=button("FICHAS DOS HERÓIS",PANEL2);sheets.setOnClickListener(new View.OnClickListener(){public void onClick(View view){navigate("Heróis");}});context.addView(sheets);
+        context.addView(text("Efeitos sem executor: confirme a regra no livro e registre somente os resultados resolvidos em DANO e AVANÇADO. Use AÇÃO, BÔNUS ou REAÇÃO para registrar o gasto confirmado. Nenhuma consequência é deduzida pelo narrador.",11,MUTED,false));
+        parent.addView(context);
     }
 
     private void addCombatDicePanel(LinearLayout parent,final JSONObject state){
@@ -2765,7 +2934,40 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         LinearLayout controls=new LinearLayout(this);controls.setOrientation(LinearLayout.HORIZONTAL);final EditText formula=input("d20+5","d20",false);final Spinner mode=spinner(new String[]{"Normal","Vantagem","Desvantagem"},"Normal");controls.addView(formula,new LinearLayout.LayoutParams(0,dp(52),2));controls.addView(mode,new LinearLayout.LayoutParams(0,dp(52),2));dice.addView(controls);
         final TextView result=text("Resultado aparecerá aqui",18,TEXT,true);result.setGravity(Gravity.CENTER);result.setPadding(0,dp(8),0,dp(8));dice.addView(result);
         Button roll=button("ROLAR AGORA",GOLD);roll.setTextColor(Color.BLACK);roll.setOnClickListener(new View.OnClickListener(){public void onClick(View v){final JSONObject active=activeCombatant();final String actor=active.optString("name","");final long actorId="character".equals(active.optString("source_kind"))?active.optLong("source_id",0):0;rollDiceInteractive(formula.getText().toString(),String.valueOf(mode.getSelectedItem()),actor,actorId,new DiceUiCallback(){public void done(DiceResult r){result.setText(r.total+"  •  "+r.detail);recordDiceHistory(formula.getText().toString(),"Combate R"+state.optInt("round_no",1),actor,actorId,r,new JSONObject());setStatus((actor.length()>0?actor+": ":"")+r.critical);}});}});dice.addView(roll);
+        Button manual=button("INFORMAR DADOS MANUAIS",PANEL2);
+        manual.setOnClickListener(new View.OnClickListener(){public void onClick(View view){
+            final String expression=value(formula);final String selectedMode=String.valueOf(mode.getSelectedItem());
+            final JSONObject actor=activeCombatant();
+            promptManualCombatRoll(expression,selectedMode,new DiceUiCallback(){public void done(DiceResult rolled){
+                result.setText(rolled.total+"  •  "+rolled.detail);
+                recordDiceHistory(expression,"Combate R"+state.optInt("round_no",1),actor.optString("name",""),
+                    "character".equals(actor.optString("source_kind"))?actor.optLong("source_id",0):0,rolled,new JSONObject());
+            }});
+        }});dice.addView(manual);
         LinearLayout quick=new LinearLayout(this);quick.setOrientation(LinearLayout.HORIZONTAL);int[] values={4,6,8,10,12,20};for(final int die:values){Button d=smallButton("d"+die,PANEL2);d.setOnClickListener(new View.OnClickListener(){public void onClick(View v){formula.setText("d"+die);roll.performClick();}});quick.addView(d,new LinearLayout.LayoutParams(0,dp(44),1));}dice.addView(quick);parent.addView(dice);
+    }
+
+    private void promptManualCombatRoll(final String formula,final String mode,final DiceUiCallback callback){
+        final DiceRollSpec spec;try{spec=DiceRollSpec.parse(formula,mode);}catch(Exception invalid){toast(safeMessage(invalid));return;}
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),dp(12));
+        form.addView(text(spec.formula+" • "+spec.mode+". Informe as faces naturais na ordem da fórmula, separadas por vírgula. O motor aplica os modificadores. Esta rolagem não aplica dano nem gasta ação.",13,TEXT,false));
+        final EditText faces=labeledField(form,"Faces naturais","",false);
+        final boolean[] accepted={false};
+        final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Dados manuais do combate").setView(form)
+            .setNegativeButton("Cancelar",null).setPositiveButton("REGISTRAR",null).create();
+        showBoundDialog(dialog,new DialogInterface.OnShowListener(){public void onShow(DialogInterface ignored){
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View view){
+                if(accepted[0])return;
+                try{
+                    ArrayList<Integer> supplied=new ArrayList<Integer>();
+                    String raw=value(faces);if(raw.isEmpty())throw new IllegalArgumentException("Informe as faces naturais.");
+                    for(String part:raw.split("[,;/\\s]+"))supplied.add(Integer.parseInt(part));
+                    DiceRollSpec.Result resolved=spec.resolve(supplied);
+                    DiceResult rolled=new DiceResult(resolved.total,resolved.detail,resolved.critical,resolved.natural,new JSONArray(supplied).toString(),"[]","manual_user",0,0,"user_supplied",spec.mode,"manual:"+java.util.UUID.randomUUID());
+                    accepted[0]=true;view.setEnabled(false);callback.done(rolled);dialog.dismiss();
+                }catch(Exception invalid){faces.setError("Confira as faces: "+safeMessage(invalid));}
+            }});
+        }});
     }
 
     /** RUN207: configure the existing EQUIPPED ledger item; no inferred attack bonus. */
@@ -3300,8 +3502,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }});
         form.addView(text("Bloco compilado: "+statblock+". O aplicativo valida a ação, CA, crítico, dano e condição dentro da transação.",12,MUTED,false));
         final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Ataque de monstro compilado")
-            .setView(form).setNegativeButton("CANCELAR",null).setPositiveButton("APLICAR",null).create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener(){public void onShow(DialogInterface ignored){dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            .setView(scrollableDialogView(form)).setNegativeButton("CANCELAR",null).setPositiveButton("APLICAR",null).create();
+        final String attackToken="ui-monster-"+java.util.UUID.randomUUID();final boolean[] applied={false};
+        showBoundDialog(dialog,new DialogInterface.OnShowListener(){public void onShow(DialogInterface ignored){dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            if(applied[0])return;
             int roll,longRoll,rawDamage,saveRoll,destX,destY;JSONArray damageComponents=new JSONArray();
             try{roll=Integer.parseInt(value(d20));longRoll=Integer.parseInt(value(longD20));rawDamage=Integer.parseInt(value(damage));saveRoll=Integer.parseInt(value(save));
                 destX=Integer.parseInt(value(forcedX));destY=Integer.parseInt(value(forcedY));}
@@ -3331,24 +3535,30 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             if(preview.optBoolean("second_d20_required",false)?longRoll<1||longRoll>20:longRoll!=0){
                 toast("Modo "+preview.optString("roll_mode")+": revise a quantidade de d20.");return;
             }
-            String token="ui-monster-"+java.util.UUID.randomUUID();JSONObject result;
-            long targetId=targets.get(target.getSelectedItemPosition()).optLong("id");
-            long hostileId=additionalHostile.getSelectedItemPosition()==0?0L:
+            final int confirmedRoll=roll,confirmedSecond=longRoll,confirmedDamage=rawDamage,
+                confirmedSave=saveRoll,confirmedX=destX,confirmedY=destY;
+            final JSONArray confirmedComponents=damageComponents;
+            final String confirmedAction=attackSourceNames.get(action.getSelectedItemPosition());
+            final long targetId=targets.get(target.getSelectedItemPosition()).optLong("id"),
+                hostileId=additionalHostile.getSelectedItemPosition()==0?0L:
                 targets.get(additionalHostile.getSelectedItemPosition()-1).optLong("id");
-            if(damageComponents.length()>0)result=db.applyCompiledStatblockAttack(actorId,targetId,statblock,
-                attackSourceNames.get(action.getSelectedItemPosition()),roll,longRoll,damageComponents,saveRoll,
-                hostileId,destX,destY,token);
-            else result=db.applyCompiledStatblockAttack(actorId,targetId,statblock,
-                attackSourceNames.get(action.getSelectedItemPosition()),roll,longRoll,rawDamage,saveRoll,
-                hostileId,destX,destY,token);
-            if(!result.optBoolean("statblock_attack_committed",false)){toast("Ataque não aplicado: "+result.optString("statblock_attack_blocked","revise o bloco"));return;}
-            JSONObject resolved=result.optJSONObject("resolved"),suppression=resolved==null?null:
-                resolved.optJSONObject("healing_suppression_transition");
-            if(suppression!=null&&suppression.optBoolean("applied",false))
-                toast("Ataque aplicado. O alvo não pode recuperar PV até o fim do próximo turno.");
-            else toast("Ataque de monstro aplicado com recibo.");
-            dialog.dismiss();showCombat();
-        }});}});dialog.show();
+            confirmCoreAction("Confirmar "+DndPtBrLocalizer.localizeText(confirmedAction)+"?\n"+
+                "Alvo: "+targets.get(target.getSelectedItemPosition()).optString("name")+
+                "\nd20: "+confirmedRoll+" / "+confirmedSecond+" • dano: "+confirmedDamage+
+                "\n"+preview.toString(),new Runnable(){public void run(){
+                if(applied[0])return;
+                JSONObject result;
+                if(confirmedComponents.length()>0)result=db.applyCompiledStatblockAttack(actorId,targetId,statblock,
+                    confirmedAction,confirmedRoll,confirmedSecond,confirmedComponents,confirmedSave,
+                    hostileId,confirmedX,confirmedY,attackToken);
+                else result=db.applyCompiledStatblockAttack(actorId,targetId,statblock,
+                    confirmedAction,confirmedRoll,confirmedSecond,confirmedDamage,confirmedSave,
+                    hostileId,confirmedX,confirmedY,attackToken);
+                if(!result.optBoolean("statblock_attack_committed",false)){showXmmResult("Ataque bloqueado",result);return;}
+                applied[0]=true;dialog.dismiss();showCombat();showXmmResult("Recibo do ataque",result);
+            }});
+
+        }});}});
     }
 
     /** Show individual physical roll inputs whenever the compiled source
@@ -3418,9 +3628,110 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     /** RUN223: multiattack is offered only for an explicit machine-readable plan.
      * Each roll and target is chosen by the user; one durable transaction commits. */
     private void compiledMonsterMultiattackDialog(final JSONObject monster){
+        final String id=parseObjectSafe(monster.optString("resources_json","{}")).optString("block_id","");
+        try{
+            final JSONObject source=Xmm2025MultiattackPlanIndex.plan(id);
+            if(!source.optBoolean("resolved")){compiledMonsterMultiattackDialog(monster,null,null);return;}
+            final JSONArray variants=source.optJSONArray("v");
+            if(variants==null||variants.length()==0){showXmmResult("Multiataque bloqueado",new JSONObject().put("statblock_multiattack_blocked","complex_multiattack_requires_manual_source_resolution"));return;}
+            String[] labels=new String[variants.length()];
+            for(int i=0;i<labels.length;i++){
+                StringBuilder label=new StringBuilder("Composição "+(i+1)+": ");JSONArray groups=variants.getJSONArray(i);
+                for(int g=0;g<groups.length();g++){
+                    if(g>0)label.append(" + ");JSONObject group=groups.getJSONObject(g);
+                    label.append(group.getInt("c")).append(" × ");JSONArray options=group.getJSONArray("o");
+                    for(int o=0;o<options.length();o++){if(o>0)label.append(" / ");label.append(DndPtBrLocalizer.localizeText(options.getString(o)));}
+                }labels[i]=label.toString();
+            }
+            new AlertDialog.Builder(this).setTitle("Composição do multiataque")
+                .setItems(labels,new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,final int variant){
+                    try{
+                        final JSONObject selection=new JSONObject().put("variant_index",variant);
+                        final Runnable choose=new Runnable(){public void run(){chooseXmmMultiattackSlot(monster,variants.optJSONArray(variant),0,new JSONArray(),selection);}};
+                        final JSONObject context=source.optJSONObject("context");
+                        if(context==null){choose.run();return;}
+                        new AlertDialog.Builder(MainActivity.this).setTitle("Contexto obrigatório")
+                            .setMessage(context.optString("field")+" neste turno?")
+                            .setPositiveButton("Sim",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){setXmmContext(selection,context,true,choose);}})
+                            .setNegativeButton("Não",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){setXmmContext(selection,context,false,choose);}}).show();
+                    }catch(Exception e){toast("invalid_source_plan");}
+                }}).setNegativeButton("Cancelar",null).show();
+        }catch(Exception e){toast("source_plan_unavailable");}
+    }
+    private void setXmmContext(JSONObject selection,JSONObject context,boolean value,Runnable next){
+        try{selection.put(context.getString("field"),value);next.run();}catch(Exception e){toast("invalid_source_context");}
+    }
+    private void chooseXmmMultiattackSlot(final JSONObject monster,final JSONArray groups,final int slot,
+            final JSONArray choices,final JSONObject selection){
+        try{
+            JSONArray options=null;int offset=0;
+            for(int i=0;i<groups.length();i++){JSONObject group=groups.getJSONObject(i);int n=group.getInt("c");
+                if(slot<offset+n){options=group.getJSONArray("o");break;}offset+=n;}
+            if(options==null){
+                selection.put("selected_actions",choices);
+                String id=parseObjectSafe(monster.optString("resources_json","{}")).optString("block_id","");
+                JSONObject declared=XmmMultiattackHostPlan.declaration(id,selection);
+                if(declared.has("statblock_multiattack_blocked")){showXmmResult("Multiataque bloqueado",declared);return;}
+                compiledMonsterMultiattackDialog(monster,declared,selection);return;
+            }
+            final String[] labels=new String[options.length()];for(int i=0;i<labels.length;i++)labels[i]=options.getString(i);
+            if(labels.length==1){choices.put(labels[0]);chooseXmmMultiattackSlot(monster,groups,slot+1,choices,selection);return;}
+            new AlertDialog.Builder(this).setTitle("Componente "+(slot+1)).setItems(labels,new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){choices.put(labels[which]);chooseXmmMultiattackSlot(monster,groups,slot+1,choices,selection);}}).setNegativeButton("Cancelar",null).show();
+        }catch(Exception e){toast("invalid_source_components");}
+    }
+    /** Explicit, local previews. No preview result is submitted as a sheet mutation. */
+    private void compiledMonsterEffectPreviewDialog(final JSONObject monster){
+        final String id=parseObjectSafe(monster.optString("resources_json","{}")).optString("block_id","");
+        try{
+            final ArrayList<JSONObject> profiles=new ArrayList<JSONObject>();final ArrayList<Integer> kinds=new ArrayList<Integer>();
+            JSONArray[] catalogs={Xmm2025RecurringDamagePreviewEngine.catalog(),Xmm2025SaveConditionPreviewEngine.catalog(),Xmm2025ZeroHpConditionPreviewEngine.catalog()};
+            ArrayList<String> labels=new ArrayList<String>();
+            for(int k=0;k<catalogs.length;k++)for(int i=0;i<catalogs[k].length();i++){
+                JSONObject row=catalogs[k].getJSONObject(i);if(!id.equals(row.optString("id")))continue;
+                profiles.add(row);kinds.add(k);labels.add(DndPtBrLocalizer.localizeText(row.optString("action"))+" • "+new String[]{"periódico","condição / duração","ao chegar a 0 PV"}[k]);
+            }
+            if(profiles.isEmpty()){showXmmResult("Efeitos",new JSONObject().put("effect_blocked","source_effect_preview_not_registered"));return;}
+            new AlertDialog.Builder(this).setTitle("Efeito do bloco compilado").setItems(labels.toArray(new String[labels.size()]),new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){compiledMonsterEffectInputs(monster,profiles.get(which),kinds.get(which));}}).setNegativeButton("Cancelar",null).show();
+        }catch(Exception e){toast("source_effect_catalog_unavailable");}
+    }
+    private void compiledMonsterEffectInputs(final JSONObject monster,final JSONObject spec,final int kind){
+        final ArrayList<JSONObject> targets=new ArrayList<JSONObject>();
+        for(JSONObject row:db.listCombatants())if(row.optLong("id")!=monster.optLong("id"))targets.add(row);
+        if(targets.isEmpty()){toast("persisted_target_required");return;}
+        String[] names=new String[targets.size()];for(int i=0;i<names.length;i++)names[i]=targets.get(i).optString("name");
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),dp(8),dp(12),dp(8));
+        form.addView(text("Prévia local. Duração e ciclo de vida ainda exigem integração ao host; confirmar esta prévia não altera PV, condições ou ficha.",12,MUTED,false));
+        final Spinner target=spinner(names,names[0]);form.addView(cardWithLabel("ALVO PERSISTIDO",target));
+        final String[] fields=kind==0?new String[]{"lifecycle_active"}:kind==1?new String[]{"save_succeeded","target_eligibility_confirmed","prerequisite_confirmed"}:new String[]{"attack_hit","target_reduced_to_zero_hp"};
+        String[] captions=kind==0?new String[]{"Vínculo / condição continua ativo?"}:kind==1?new String[]{"Salvaguarda teve sucesso?","Alvo elegível segundo a fonte?","Pré-requisito confirmado?"}:new String[]{"Ataque acertou?","Este ataque reduziu o alvo a 0 PV?"};
+        final Spinner[] answers=new Spinner[fields.length];for(int i=0;i<fields.length;i++){answers[i]=spinner(new String[]{"Escolha","Sim","Não"},"Escolha");form.addView(cardWithLabel(captions[i],answers[i]));}
+        final EditText damage=kind==0?labeledField(form,"Dano periódico rolado ("+spec.optString("damage")+")","",false):null;
+        final Spinner boundary=kind==0?spinner(new String[]{"Escolha","target_turn_start","source_turn_start"},"Escolha"):null;
+        if(boundary!=null)form.addView(cardWithLabel("LIMITE DO TURNO",boundary));
+        form.addView(text("Fonte: "+spec.optString("source_pointer",spec.optString("ptr"))+"\n"+spec.toString(),11,MUTED,false));
+        final AlertDialog effectDialog=new AlertDialog.Builder(this).setTitle("Escolhas do efeito")
+            .setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null).setPositiveButton("MOSTRAR PRÉVIA",null).create();
+        effectDialog.show();effectDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(
+            new View.OnClickListener(){public void onClick(View view){try{
+                JSONObject input=new JSONObject().put("monster",spec.getString("id")).put("action",spec.getString("action"))
+                    .put("source_pointer",spec.optString("source_pointer",spec.optString("ptr")))
+                    .put("source_blob_sha1",Xmm2025RecurringDamagePreviewEngine.SOURCE_BLOB);
+                for(int i=0;i<fields.length;i++){if(answers[i].getSelectedItemPosition()==0){toast("explicit_effect_context_required");return;}input.put(fields[i],answers[i].getSelectedItemPosition()==1);}
+                if(kind==0){if(boundary.getSelectedItemPosition()==0){toast("explicit_turn_boundary_required");return;}
+                    input.put("turn_boundary",String.valueOf(boundary.getSelectedItem())).put("damage_total",Integer.parseInt(value(damage)));}
+                JSONObject result=kind==0?Xmm2025RecurringDamagePreviewEngine.resolve(input):kind==1?Xmm2025SaveConditionPreviewEngine.resolve(input):Xmm2025ZeroHpConditionPreviewEngine.resolve(input);
+                result.put("target_id",targets.get(target.getSelectedItemPosition()).optLong("id"))
+                    .put("effect_commit_blocked","effect_lifecycle_host_executor_not_installed");
+                showXmmResult("Prévia do efeito • sem aplicação",result);
+            }catch(Exception e){toast("invalid_manual_effect_inputs");}}});
+    }
+    private void showXmmResult(String title,JSONObject result){
+        new AlertDialog.Builder(this).setTitle(title).setMessage(result.toString()).setPositiveButton("Fechar",null).show();
+    }
+    private void compiledMonsterMultiattackDialog(final JSONObject monster,JSONObject sourcePlan,final JSONObject sourceSelection){
         final long actorId=monster.optLong("id",0);
         final String id=parseObjectSafe(monster.optString("resources_json","{}")).optString("block_id","");
-        final JSONObject profile=CompiledStatblockEngine.runtimeProfile(id),plan=profile.optJSONObject("multiattack");
+        final JSONObject profile=CompiledStatblockEngine.runtimeProfile(id),plan=sourcePlan==null?profile.optJSONObject("multiattack"):sourcePlan;
         if(plan==null){toast("Este bloco não possui multiataque compilado.");return;}
         JSONArray rawSequence=plan.optJSONArray("sequence");String[] sequence=null;
         if(rawSequence!=null){sequence=new String[rawSequence.length()];for(int i=0;i<sequence.length;i++)sequence[i]=rawSequence.optString(i);}
@@ -3572,12 +3883,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     .setMessage(summary.toString()).setNegativeButton("VOLTAR",null)
                     .setPositiveButton("APLICAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){
                         JSONObject result=db.applyCompiledStatblockMultiattack(actorId,id,rolls,
-                            "ui-monster-multi-"+java.util.UUID.randomUUID());
+                            "ui-monster-multi-"+java.util.UUID.randomUUID(),sourceSelection);
                         if(!result.optBoolean("statblock_multiattack_committed",false)){
                             toast("Multiataque não aplicado: "+result.optString("statblock_multiattack_blocked",
                                 result.optString("operation_error","revalidar rolagens e mapa")));return;
                         }
-                        toast("Multiataque persistido com uma única ação e recibo.");dialog.dismiss();showCombat();
+                        dialog.dismiss();showCombat();showXmmResult("Recibo do multiataque",result);
                     }}).show();
             }});
         }});dialog.show();
@@ -3629,12 +3940,22 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 try{destX=Integer.parseInt(value(forcedX).trim());destY=Integer.parseInt(value(forcedY).trim());}
                 catch(Exception invalid){toast("Informe ambas as coordenadas X/Y do destino.");return;}
             }
-            JSONObject result=db.applyCompiledStatblockSaveAction(actorId,
-                targets.get(target.getSelectedItemPosition()).optLong("id"),statblock,
-                sourceNames.get(action.getSelectedItemPosition()),saveRoll,rawDamage,destX,destY,
-                "ui-monster-save-"+java.util.UUID.randomUUID());
-            if(!result.optBoolean("statblock_save_committed",false)){toast("Ação não aplicada: "+result.optString("statblock_save_blocked","revise o bloco"));return;}
-            toast("Ação especial aplicada com recibo.");dialog.dismiss();showCombat();
+            final int confirmedSave=saveRoll,confirmedDamage=rawDamage,confirmedX=destX,confirmedY=destY;
+            final String confirmedAction=sourceNames.get(action.getSelectedItemPosition());
+            final long targetId=targets.get(target.getSelectedItemPosition()).optLong("id");
+            final JSONObject preview=db.previewCompiledStatblockSaveAction(actorId,targetId,statblock,confirmedAction,confirmedSave);
+            if(!preview.optBoolean("statblock_save_preview_valid",false)){showXmmResult("Salvaguarda bloqueada",preview);return;}
+            final String token="ui-monster-save-"+java.util.UUID.randomUUID();
+            confirmCoreAction("Confirmar "+DndPtBrLocalizer.localizeText(confirmedAction)+"?\nAlvo: "+
+                targets.get(target.getSelectedItemPosition()).optString("name")+
+                "\nSalvaguarda: "+confirmedSave+" • dano rolado: "+confirmedDamage+
+                "\n"+preview.toString()+"\nO mapa e a fonte serão revalidados na transação.",new Runnable(){public void run(){
+                JSONObject result=db.applyCompiledStatblockSaveAction(actorId,targetId,statblock,
+                    confirmedAction,confirmedSave,confirmedDamage,confirmedX,confirmedY,token);
+                if(!result.optBoolean("statblock_save_committed",false)){showXmmResult("Salvaguarda bloqueada",result);return;}
+                dialog.dismiss();showCombat();showXmmResult("Recibo da salvaguarda",result);
+            }});
+
         }});}});dialog.show();
     }
 
@@ -3786,20 +4107,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             panel.addView(monsterAttack);
             JSONObject monsterProfile=CompiledStatblockEngine.runtimeProfile(
                 parseObjectSafe(active.optString("resources_json","{}")).optString("block_id",""));
-            JSONObject multiPlan=monsterProfile.optJSONObject("multiattack");
-            if(multiPlan!=null){
-                JSONArray raw=multiPlan.optJSONArray("sequence");String[] seq=null;
-                if(raw!=null){seq=new String[raw.length()];for(int i=0;i<seq.length;i++)seq[i]=raw.optString(i);}
-                int count=multiPlan.optInt("count",seq==null?0:seq.length);
-                if(MultiattackActionRules.declarationBlock(seq,count,multiPlan.optString("action",""),
-                    multiPlan.optString("options","")).isEmpty()){
-                    Button monsterMulti=button("MULTIATAQUE DO MONSTRO • UMA AÇÃO",GREEN);
-                    monsterMulti.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
-                        compiledMonsterMultiattackDialog(active);
-                    }});
-                    panel.addView(monsterMulti);
-                }
-            }
+            Button monsterMulti=button("MULTIATAQUE DO MONSTRO • UMA AÇÃO",GREEN);
+            monsterMulti.setOnClickListener(new View.OnClickListener(){public void onClick(View v){compiledMonsterMultiattackDialog(active);}});
+            panel.addView(monsterMulti);
+            Button longEffects=button("EFEITOS LONGOS E PERIÓDICOS • PRÉVIA",PANEL2);
+            longEffects.setOnClickListener(new View.OnClickListener(){public void onClick(View v){compiledMonsterEffectPreviewDialog(active);}});
+            panel.addView(longEffects);
             Button monsterSave=button("AÇÃO ESPECIAL • SALVAGUARDA",GREEN);
             monsterSave.setOnClickListener(new View.OnClickListener(){public void onClick(View v){compiledMonsterSaveActionDialog(active);}});
             panel.addView(monsterSave);
@@ -4733,7 +5046,34 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         return caster.optLong("id")+":"+spell.key+":"+slot+":"+ability;
     }
 
-    private void combatDamageDialog(final JSONObject combatant){LinearLayout f=new LinearLayout(this);f.setOrientation(LinearLayout.VERTICAL);f.setPadding(dp(12),0,dp(12),dp(12));final EditText amount=labeledField(f,"Dano","0",false),type=labeledField(f,"Tipo de dano","cortante, fogo, frio...",false);amount.setInputType(2);final CheckBox critical=check("Acerto crítico",false),nonlethal=check("Nocaute não letal — somente ataque corpo a corpo que reduziria a 0 PV",false);f.addView(critical);f.addView(nonlethal);new AlertDialog.Builder(this).setTitle("Aplicar dano — "+combatant.optString("name")).setView(f).setNegativeButton("Cancelar",null).setPositiveButton("APLICAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){int n=num(amount,0);JSONObject before=db.getCombatant(combatant.optLong("id"));JSONObject after=db.applyCombatantDamage(combatant.optLong("id"),n,value(type),critical.isChecked(),nonlethal.isChecked(),"ui-"+java.util.UUID.randomUUID());if(after.has("operation_error")||after.has("operation_blocked")||after.optBoolean("operation_replayed",false)){showCombat();return;}db.addAuditEvent("combate",after.optBoolean("nonlethal_knockout",false)?"Nocaute não letal":"Dano estruturado",combatant.optString("name")+" sofreu "+n+(value(type).length()>0?" "+value(type):""),before.toString(),after.toString(),true);showCombat();}}).show();}
+    private void combatDamageDialog(final JSONObject combatant){
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),dp(12));
+        final EditText amount=labeledField(form,"Dano","0",false),type=labeledField(form,"Tipo de dano","",false);
+        amount.setInputType(InputType.TYPE_CLASS_NUMBER);
+        final CheckBox critical=check("Acerto crítico",false),nonlethal=check("Nocaute não letal — somente ataque corpo a corpo que reduziria a 0 PV",false);
+        form.addView(critical);form.addView(nonlethal);
+        final String token="ui-"+java.util.UUID.randomUUID();final boolean[] committed={false};
+        final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Aplicar dano — "+combatant.optString("name"))
+            .setView(form).setNegativeButton("Cancelar",null).setPositiveButton("APLICAR",null).create();
+        showBoundDialog(dialog,new DialogInterface.OnShowListener(){public void onShow(DialogInterface ignored){
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View view){
+                if(committed[0])return;
+                final int damage;try{damage=Integer.parseInt(value(amount));if(damage<=0)throw new IllegalArgumentException();}
+                catch(Exception invalid){amount.setError("Informe um dano inteiro maior que zero.");return;}
+                JSONObject before=db.getCombatant(combatant.optLong("id"));
+                if(before.length()==0){toast("Combatente removido; reabra o encontro.");return;}
+                JSONObject after=db.applyCombatantDamage(combatant.optLong("id"),damage,value(type),critical.isChecked(),nonlethal.isChecked(),token);
+                if(after.has("operation_error")||after.has("operation_blocked")){
+                    toast("Dano não aplicado: "+after.optString("operation_blocked",after.optString("operation_error")));return;
+                }
+                committed[0]=true;view.setEnabled(false);
+                if(!after.optBoolean("operation_replayed",false))db.addAuditEvent("combate",after.optBoolean("nonlethal_knockout",false)?"Nocaute não letal":"Dano estruturado",
+                    before.optString("name")+" sofreu "+damage+(value(type).isEmpty()?"":" "+value(type)),before.toString(),after.toString(),true);
+                dialog.dismiss();showCombat();
+            }});
+        }});
+    }
+
     private int combatantConcentrationBonus(JSONObject combatant){if(combatant.optInt("is_player",0)==1){JSONObject ch=db.findCharacterByName(combatant.optString("name"));if(ch.length()>0)return new DndRulesEngine().savingThrowBonus(ch,"Constitution");}try{return new JSONObject(combatant.optString("resources_json","{}")).optInt("con_save_bonus",0);}catch(Exception ignored){return 0;}}
 
     private void refreshXanatharInitiativeFeatResources(){
@@ -4769,14 +5109,27 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             toast("D20: "+die+" + "+modifier+". Confira e confirme para adicionar.");
         }});
         f.addView(roll);
-        final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Adicionar combatente").setView(f).setNegativeButton("Cancelar",null).setPositiveButton("Adicionar",null).create();dialog.setOnShowListener(new DialogInterface.OnShowListener(){public void onShow(DialogInterface d){dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View v){String combatantName=name.getText().toString().trim();if(combatantName.length()==0){name.setError("Informe o nome.");return;}int initiative;try{initiative=Integer.parseInt(init.getText().toString().trim());}catch(Exception invalid){init.setError("Role no aplicativo ou digite o total.");return;}if(initiative< -20||initiative>100){init.setError("Use um valor entre -20 e 100.");return;}boolean wasRunning=db.getCombatState().optInt("running",0)==1;db.addCombatant(combatantName,initiative,num(hp,1),num(hp,1),num(ac,10),conditions.getText().toString(),false);db.setCombatRunning(true);if(!wasRunning&&db.listCombatants().size()>0)db.nextTurn();if(!wasRunning){String opening="O encontro tático começou com "+combatantName+" em cena e iniciativa confirmada pelo jogador.";prefs.edit().putString("last_combat_narration",opening).apply();db.addJournalFact("Combate iniciado",opening,"Combate","combat-start-"+db.getCombatState().optString("encounter_id",""),"combat");}dialog.dismiss();showCombat();}});}});dialog.show();
+        final boolean[] added={false};
+        final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Adicionar combatente").setView(scrollableDialogView(f)).setNegativeButton("Cancelar",null).setPositiveButton("Adicionar",null).create();showBoundDialog(dialog,new DialogInterface.OnShowListener(){public void onShow(DialogInterface d){dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(added[0])return;final String combatantName=name.getText().toString().trim();if(combatantName.length()==0){name.setError("Informe o nome.");return;}final int initiative;try{initiative=Integer.parseInt(init.getText().toString().trim());}catch(Exception invalid){init.setError("Role no aplicativo ou digite o total.");return;}if(initiative< -20||initiative>100){init.setError("Use um valor entre -20 e 100.");return;}final int hitPoints,armor;try{hitPoints=Integer.parseInt(value(hp));if(hitPoints<1||hitPoints>9999)throw new IllegalArgumentException();}catch(Exception invalid){hp.setError("Informe PV entre 1 e 9999.");return;}try{armor=Integer.parseInt(value(ac));if(armor<1||armor>99)throw new IllegalArgumentException();}catch(Exception invalid){ac.setError("Informe CA entre 1 e 99.");return;}
+            final boolean wasRunning=db.getCombatState().optInt("running",0)==1;
+            try{db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+                db.addCombatantWithVisualChecked(combatantName,initiative,hitPoints,hitPoints,armor,value(conditions),false,"",0,"");
+                db.setCombatRunningChecked(true);if(!wasRunning){JSONObject turn=db.nextTurn();if(turn.length()==0||turn.has("operation_error")||turn.has("turn_advance_blocked"))throw new IllegalStateException("Turno inicial bloqueado");}
+            }});}catch(Exception error){toast("Combatente não adicionado: "+safeMessage(error));return;}
+            added[0]=true;v.setEnabled(false);if(!wasRunning){String opening="O encontro tático começou com "+combatantName+" em cena e iniciativa confirmada pelo jogador.";prefs.edit().putString("last_combat_narration",opening).apply();db.addJournalFact("Combate iniciado",opening,"Combate","combat-start-"+db.getCombatState().optString("encounter_id",""),"combat");}dialog.dismiss();showCombat();}});}});
     }
     private void compiledCombatantDialog(){
-        JSONArray available=CompiledStatblockEngine.ids();
-        if(available.length()==0){toast("Nenhum bloco de monstro compilado está instalado.");return;}
+        JSONArray available=new JSONArray();
+        JSONArray installed=CompiledStatblockEngine.ids();
+        for(int i=0;i<installed.length();i++){
+            String id=installed.optString(i);JSONObject raw=CompiledStatblockEngine.get(id);
+            JSONObject source=raw.optJSONObject("source_fidelity");
+            if("Monster Manual (2025)".equals(raw.optString("source_book"))&&source!=null&&"XMM".equals(source.optString("source_code")))available.put(id);
+        }
+        if(available.length()==0){toast("Nenhum bloco XMM 2025 compilado está instalado.");return;}
         String[] ids=new String[available.length()];for(int i=0;i<available.length();i++)ids[i]=available.optString(i);
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),0);
-        final Spinner block=spinner(ids,ids[0]);form.addView(cardWithLabel("BLOCO MECÂNICO AUTORIZADO",block));
+        final Spinner block=spinner(ids,ids[0]);form.addView(cardWithLabel("MONSTRO • XMM 2025",block));
         final EditText name=labeledField(form,"Nome em cena (opcional)","",false);
         final EditText initiative=labeledField(form,"Iniciativa final (d20 + bônus)","",false);
         initiative.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_SIGNED);
@@ -4786,16 +5139,26 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             details.setText("PV "+profile.optInt("hit_points")+" • CA "+profile.optInt("armor_class")+" • ações "+(profile.optJSONArray("actions")==null?0:profile.optJSONArray("actions").length()));
         }public void onNothingSelected(AdapterView<?> parent){}});
         final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Adicionar monstro compilado")
-            .setView(form).setNegativeButton("CANCELAR",null).setPositiveButton("ADICIONAR",null).create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener(){public void onShow(DialogInterface ignored){dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View v){
-            int roll;try{roll=Integer.parseInt(value(initiative));}catch(Exception invalid){initiative.setError("Informe o total da iniciativa.");return;}
-            JSONObject result=db.addCompiledStatblockCombatant(String.valueOf(block.getSelectedItem()),value(name),roll,"ui-monster-spawn-"+java.util.UUID.randomUUID());
+            .setView(scrollableDialogView(form)).setNegativeButton("CANCELAR",null).setPositiveButton("ADICIONAR",null).create();
+        final String spawnToken="ui-monster-spawn-"+java.util.UUID.randomUUID();final boolean[] spawned={false};
+        showBoundDialog(dialog,new DialogInterface.OnShowListener(){public void onShow(DialogInterface ignored){dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            if(spawned[0])return;
+            int roll;try{roll=Integer.parseInt(value(initiative));if(roll< -20||roll>100)throw new IllegalArgumentException();}catch(Exception invalid){initiative.setError("Informe o total da iniciativa.");return;}
+            JSONObject result=db.addCompiledStatblockCombatant(String.valueOf(block.getSelectedItem()),value(name),roll,spawnToken);
             if(!result.optBoolean("statblock_spawn_committed",false)){toast("Monstro não adicionado: "+result.optString("statblock_spawn_blocked",result.optString("operation_error","revise o bloco")));return;}
+            spawned[0]=true;v.setEnabled(false);
+            if(result.optBoolean("encounter_started",false)){
+                String opening="Encontro iniciado com "+result.optString("statblock_id")+" • XMM 2025 • iniciativa confirmada.";
+                prefs.edit().putString("last_combat_narration",opening).apply();
+                db.addJournalFact("Combate iniciado",opening,"Combate","combat-start-"+db.getCombatState().optString("encounter_id",""),"combat");
+            }
             toast("Monstro compilado adicionado ao combate.");dialog.dismiss();showCombat();
-        }});}});dialog.show();
+        }});}});
     }
     // RUN191_GUIDED_COMBAT_EDITOR: never ask for JSON, preserve unknown resource/timer keys.
     private void advancedCombatantDialog(final JSONObject combatant){
+        // listCombatants adds display-only defenses; compare persisted snapshots on save.
+        final JSONObject persistedAtOpen=db.getCombatant(combatant.optLong("id"));
         LinearLayout f=new LinearLayout(this);f.setOrientation(LinearLayout.VERTICAL);f.setPadding(dp(12),0,dp(12),dp(16));
         final EditText temp=labeledField(f,"PV temporários",String.valueOf(combatant.optInt("temp_hp",0)),false);
         temp.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -4856,7 +5219,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         f.addView(text("Valores alterados serão aplicados somente ao tocar SALVAR. Campos de recursos avançados já existentes serão mantidos.",11,MUTED,false));
         final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Combate — "+combatant.optString("name"))
             .setView(scrollableDialogView(f)).setNegativeButton("Cancelar",null).setPositiveButton("SALVAR",null).create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener(){public void onShow(DialogInterface d){
+        showBoundDialog(dialog,new DialogInterface.OnShowListener(){public void onShow(DialogInterface d){
             final Button save=dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             save.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
                 save.setEnabled(false);
@@ -4889,13 +5252,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     }
                     String[] values={"","meia","tres quartos","total"};resources.put("cover",values[coverChoice.getSelectedItemPosition()]);
                     JSONObject before=db.getCombatant(combatant.optLong("id"));
-                    db.updateCombatantAdvanced(combatant.optLong("id"),tempHp,value(concentration),reaction.isChecked(),success,fails,value(conditions),timers.toString(),value(resistances),value(vulnerabilities),value(immunities),resources.toString());
+                    if(!CanonicalJson.stringify(before).equals(CanonicalJson.stringify(persistedAtOpen)))throw new IllegalStateException("O combatente mudou. Cancele e reabra o formulário para preservar o estado atual.");
+                    String editedConditions=value(conditions);
+                    if(fresh.length()>0&&!ConditionRulesEngine.has(editedConditions,fresh))editedConditions+=(editedConditions.trim().isEmpty()?"":", ")+fresh;
+                    db.updateCombatantAdvancedChecked(combatant.optLong("id"),tempHp,value(concentration),reaction.isChecked(),success,fails,editedConditions,timers.toString(),value(resistances),value(vulnerabilities),value(immunities),resources.toString());
                     db.addAuditEvent("combate","Estado avançado atualizado pelo formulário guiado",combatant.optString("name"),before.toString(),db.getCombatant(combatant.optLong("id")).toString(),true);
                     dialog.dismiss();showCombat();
                 }catch(Exception error){toast("Não foi possível salvar: "+safeMessage(error));save.setEnabled(true);}
             }});
         }});
-        dialog.show();
     }
 
     private void showNarrator(){
@@ -7460,6 +7825,17 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void clearSceneImageReference(){sharedImageUri=null;if(prefs!=null)prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).apply();}
     private void invalidateSceneImageIfContextChanged(){String stored=prefs.getString(PREF_SCENE_IMAGE_FINGERPRINT,"");if(sharedImageUri!=null&&stored.length()>0&&!stored.equals(currentSceneVisualFingerprint())){clearSceneImageReference();screenCache.remove("Mestre IA");}}
 
+    private void reloadRestoredSession(){
+        if(!isMystaraWorld()&&!isStrixhavenAdventure()){
+            screenCache.clear();screenCacheTime.clear();
+            pendingCharacterExport=new JSONObject();pendingCharacterImportForm=null;
+            pendingCharacterImportProfile="";pendingRestoredNarratorDraft="";
+            if(narratorInput!=null)narratorInput.setText("");
+            clearPendingTokenTarget();clearSceneImageReference();
+        }
+        loadStoryState();
+    }
+
     private void loadStoryState(){JSONObject st=db.getStoryState();String stored=st.optString("last_narration","");JSONArray storedOptions;try{storedOptions=new JSONArray(st.optString("options_json","[]"));}catch(Exception e){storedOptions=new JSONArray();}try{currentSceneCastPreview=new JSONArray(prefs.getString("last_scene_cast_preview","[]"));}catch(Exception e){currentSceneCastPreview=new JSONArray();}ChoiceSplit repaired=splitNarrationChoices(PortugueseNarrationSanitizer.sanitize(sanitizeNarrationPayload(stored)),storedOptions);lastNarration=AtlasScenePositionReconciler.repairPersistedNarration(NarrativeLocationNaturalizer.naturalize(repaired.narration,db),db);try{AtlasScenePositionReconciler.reconcilePersistedScene(db,"carregamento da história");}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada ao reconciliar posição no carregamento da história.",ignored);}currentOptions=repaired.options;lastVisualPrompt=st.optString("visual_prompt","");lastPrompt=st.optString("last_action","");lastAiMode=prefs.getString("last_ai_response_mode","Narrador");try{String p=st.optString("pending_test_json","");pendingTest=p.length()>0?new JSONObject(p):new JSONObject();}catch(Exception e){pendingTest=new JSONObject();}try{lastAudioPlan=new JSONObject(prefs.getString("last_audio_plan","{}"));}catch(Exception e){lastAudioPlan=new JSONObject();}try{lastMasterSupport=new JSONObject(prefs.getString("last_master_support_json","{}"));}catch(Exception e){lastMasterSupport=new JSONObject();}if(lastNarration.length()>0){mergeNarratedKnownNpcs(currentSceneCastPreview,lastNarration);mergeExplicitlyNamedNpcHints(currentSceneCastPreview,lastNarration);synchronizeVisualSceneCast();prefs.edit().putString("last_scene_cast_preview",currentSceneCastPreview.toString()).apply();}if(lastNarration.length()>0&&pendingTest.length()==0&&"Narrador".equals(lastAiMode)){JSONArray history=SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory());JSONObject projected=projectSceneForSuggestions(new JSONObject(),currentSceneCastPreview);currentOptions=SceneOptionDiversifier.ensureAlways(currentOptions,history,lastNarration,lastPrompt,projected,db.getMasterRuntimeState().optInt("beat_no",0)+1);}if((!lastNarration.equals(stored)||!currentOptions.toString().equals(st.optString("options_json","[]")))&&stored.trim().length()>0)db.saveStoryState(st.optInt("started",0)>0,lastNarration,lastVisualPrompt,currentOptions.toString(),st.optString("pending_test_json",""),lastPrompt);}
     private void persistStory(String action){db.saveStoryState(lastNarration.length()>0,lastNarration,lastVisualPrompt,currentOptions==null?"[]":currentOptions.toString(),pendingTest==null||pendingTest.length()==0?"":pendingTest.toString(),action==null?"":action);}
 
@@ -7891,14 +8267,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             "O movimento tático não avança o relógio de viagens.",12,MUTED,false));
         final AlertDialog dialog=new AlertDialog.Builder(this)
             .setTitle(standing?"Levantar-se • metade do deslocamento":"Movimento tático • orçamento real")
-            .setView(form).setNegativeButton("Cancelar",null)
+            .setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null)
             .setPositiveButton("EXECUTAR",null).create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener(){public void onShow(DialogInterface ignored){
+        showBoundDialog(dialog,new DialogInterface.OnShowListener(){public void onShow(DialogInterface ignored){
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View ignored){
                 int traveled=0,feet=0,tx=0,ty=0;
                 JSONObject preview=new JSONObject();
                 if(!standing){
-                    tx=num(destX,-1);ty=num(destY,-1);
+                    try{tx=Integer.parseInt(value(destX));ty=Integer.parseInt(value(destY));}
+                    catch(Exception invalid){destX.setError("Informe coluna e linha inteiras.");return;}
                     preview=db.previewTacticalGridMovement(actorId,tx,ty,
                         difficult.isChecked(),crawling.isChecked());
                     if(!preview.optBoolean("grid_valid",false)){
@@ -7963,7 +8340,6 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 dialog.dismiss();showCombat();
             }});
         }});
-        dialog.show();
     }
     /** Ask for each reaction before a one-cell move. Nothing mutates until the
      * final confirmation; AppDb rechecks the scene, profile, AC and rolls. */
@@ -9357,7 +9733,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         Button disconnectDrive=button("DESCONECTAR API GOOGLE",PANEL2);disconnectDrive.setEnabled(drive.isConnected());disconnectDrive.setOnClickListener(new View.OnClickListener(){public void onClick(View v){drive.disconnect();toast("Token da API Google removido. As pastas vinculadas pelo Android continuam funcionando.");showSettings();}});cloud.addView(disconnectDrive);b.addView(cloud);
         LinearLayout cacheCard=card();cacheCard.addView(text("CACHE DE MINIATURAS",17,GOLD,true));final Spinner cacheSpinner=spinner(new String[]{"250 MB","500 MB","1 GB"},prefs.getInt("token_cache_mb",500)>=1000?"1 GB":(prefs.getInt("token_cache_mb",500)<=250?"250 MB":"500 MB"));cacheCard.addView(cacheSpinner);cacheCard.addView(text("Miniaturas antigas são removidas automaticamente. Avatares vinculados permanecem protegidos.",12,MUTED,false));b.addView(cacheCard);
         Button save=button("SALVAR E APLICAR",GREEN);save.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String cv=String.valueOf(cacheSpinner.getSelectedItem());int cacheMb="1 GB".equals(cv)?1024:("250 MB".equals(cv)?250:500);if(!saveGeminiSecretsAtomically(key.getText().toString().trim(),paidKey.getText().toString().trim())){toast("O Android Keystore não conseguiu proteger uma das chaves; nenhuma configuração foi aplicada.");return;}prefs.edit().putString("text_model",textModel.getText().toString().trim()).remove("narrator_text_model").putString("image_model",imageModel.getText().toString().trim()).putString("tts_model",ttsModel.getText().toString().trim()).putString("tts_voice",voice.getText().toString().trim()).putString("drive_folder",folder.getText().toString().trim()).putString("token_pdf_drive_folder",tokenPdfDriveFolder.getText().toString().trim()).putString("token_folder",tokenFolder.getText().toString().trim()).putInt("token_cache_mb",cacheMb).putInt("ai_daily_call_limit",Math.max(10,num(dailyCalls,80))).putInt("ai_daily_char_limit",Math.max(100000,num(dailyChars,900)*1000)).putInt("ai_daily_tts_limit",Math.max(2,num(dailyTts,24))).putString(themePrefKey(),themeMode(String.valueOf(themeSpinner.getSelectedItem()))).putString("theme_mode",isMystaraWorld()?prefs.getString("theme_mode","classic"):themeMode(String.valueOf(themeSpinner.getSelectedItem()))).putString("master_pace",paceMode(String.valueOf(paceSpinner.getSelectedItem()))).apply();applyTheme();String screen=currentScreen;buildShell();navigate(screen);toast("Configurações e chave protegida aplicadas.");}});b.addView(save);
-        LinearLayout safetyCard=card();safetyCard.addView(text("PROTEÇÃO AUTOMÁTICA DA CAMPANHA",17,GOLD,true));JSONObject health=db.healthCheck();safetyCard.addView(text((health.optBoolean("healthy")?"Banco íntegro":"ATENÇÃO: banco precisa de verificação")+" • "+safety.snapshotFileCount()+" snapshots rotativos\n"+safety.getStartupMessage(),13,health.optBoolean("healthy")?TEXT:RED,false));Button snap=button("CRIAR SNAPSHOT AGORA",GREEN),restore=button("DESFAZER / RESTAURAR ÚLTIMO SNAPSHOT",PANEL2),history=button("HISTÓRICO E AUDITORIA",PANEL2),memories=button("CENAS E MEMÓRIA DE NPCS",PANEL2);snap.setOnClickListener(new View.OnClickListener(){public void onClick(View v){try{File file=safety.createSnapshot("Snapshot manual");toast("Snapshot íntegro criado: "+file.getName());showSettings();}catch(Exception e){toast("Snapshot: "+e.getMessage());}}});restore.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Restaurar o último snapshot válido? O estado atual será substituído.",new Runnable(){public void run(){try{String file=safety.restoreLatest();loadStoryState();toast("Restaurado: "+file);navigate("Aventura");}catch(Exception e){toast("Restauração: "+e.getMessage());}}});}});history.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showAuditDialog();}});memories.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showMemoryDialog();}});safetyCard.addView(snap);safetyCard.addView(restore);safetyCard.addView(history);safetyCard.addView(memories);b.addView(safetyCard);
+        LinearLayout safetyCard=card();safetyCard.addView(text("PROTEÇÃO AUTOMÁTICA DA CAMPANHA",17,GOLD,true));JSONObject health=db.healthCheck();safetyCard.addView(text((health.optBoolean("healthy")?"Banco íntegro":"ATENÇÃO: banco precisa de verificação")+" • "+safety.snapshotFileCount()+" snapshots rotativos\n"+safety.getStartupMessage(),13,health.optBoolean("healthy")?TEXT:RED,false));Button snap=button("CRIAR SNAPSHOT AGORA",GREEN),restore=button("DESFAZER / RESTAURAR ÚLTIMO SNAPSHOT",PANEL2),history=button("HISTÓRICO E AUDITORIA",PANEL2),memories=button("CENAS E MEMÓRIA DE NPCS",PANEL2);snap.setOnClickListener(new View.OnClickListener(){public void onClick(View v){try{File file=safety.createSnapshot("Snapshot manual");toast("Snapshot íntegro criado: "+file.getName());showSettings();}catch(Exception e){toast("Snapshot: "+e.getMessage());}}});restore.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Restaurar o último snapshot válido? O estado atual será substituído.",new Runnable(){public void run(){try{String file=safety.restoreLatest();reloadRestoredSession();toast("Restaurado: "+file);navigate("Aventura");}catch(Exception e){toast("Restauração: "+e.getMessage());}}});}});history.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showAuditDialog();}});memories.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showMemoryDialog();}});safetyCard.addView(snap);safetyCard.addView(restore);safetyCard.addView(history);safetyCard.addView(memories);b.addView(safetyCard);
         LinearLayout backup=card();backup.addView(text("BACKUP DE CAMPANHA PORTÁTIL",17,GOLD,true));backup.addView(text("Inclui integralmente a campanha do mundo ativo: fichas, combate, hex atual, rota, névoa, notas, cenas, NPCs e memória do Mestre. Manuais, índices RAG, tokens, áudios e arquivos físicos de mapa são bibliotecas externas e nunca são apagados ao importar. Chaves Gemini e tokens OAuth nunca entram no arquivo.",12,MUTED,false));boolean backupLinked=libraryConnections!=null&&libraryConnections.hasPersistedReadPermission(LibraryConnectionManager.BACKUPS)&&libraryConnections.hasPersistedWritePermission(LibraryConnectionManager.BACKUPS);backup.addView(text(backupLinked?"Pasta automática conectada com leitura e gravação.":"Backup automático ainda sem pasta válida.",12,backupLinked?GREEN:GOLD,true));Button export=button("EXPORTAR CAMPANHA",PANEL2),importB=button("IMPORTAR CAMPANHA VALIDADA",PANEL2),chooseBackup=button(backupLinked?"TROCAR PASTA DE BACKUP AUTOMÁTICO":"ESCOLHER PASTA DE BACKUP AUTOMÁTICO",PANEL2),backupNow=button("CRIAR BACKUP AUTOMÁTICO AGORA",GREEN),backupConfig=button("CONFIGURAR RETENÇÃO E AUTOMATIZAÇÃO",PANEL2);export.setOnClickListener(new View.OnClickListener(){public void onClick(View v){Intent x=new Intent(Intent.ACTION_CREATE_DOCUMENT);x.addCategory(Intent.CATEGORY_OPENABLE);x.setType("application/json");x.putExtra(Intent.EXTRA_TITLE,"Braseiro_campanha_"+activeWorldProfile()+"_"+new SimpleDateFormat("yyyyMMdd_HHmm",Locale.US).format(new Date())+".json");startActivityForResult(x,REQ_EXPORT_BACKUP);}});importB.setOnClickListener(new View.OnClickListener(){public void onClick(View v){openFile("application/json",REQ_IMPORT_BACKUP,false);}});chooseBackup.setOnClickListener(new View.OnClickListener(){public void onClick(View v){selectBackupFolder();}});backupNow.setOnClickListener(new View.OnClickListener(){public void onClick(View v){createPortableBackupNow();}});backupConfig.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showAutomaticBackupDialog();}});backup.addView(export);backup.addView(importB);backup.addView(chooseBackup);backup.addView(backupNow);backup.addView(backupConfig);b.addView(backup);
         JSONObject masterAudit=masterGameContext.auditConnections();if(masterAudit==null)masterAudit=new JSONObject();
         JSONObject audioDiagnostic=audioDiagnosticSnapshot();
@@ -9636,7 +10012,7 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
         else if(request==REQ_IMPORT_MAP_CORRECTIONS&&data.getData()!=null){InputStream in=getContentResolver().openInputStream(data.getData());String json=readAll(in);in.close();JSONObject parsed=new JSONObject(json);safety.beforeDestructiveChange("importar revisões do mapa");JSONObject st=db.getMapState();int count=db.importMapCorrections(st.optString("map_package_id"),parsed);db.addAuditEvent("mapa","Revisões importadas",count+" alterações","{}",parsed.toString(),true);toast(count+" revisões importadas.");setStatus("Revisões aplicadas ao mapa ativo.");showMap();}
         else if(request==REQ_IMPORT_MANUALS){ArrayList<Uri> uris=new ArrayList<Uri>();if(data.getClipData()!=null){for(int i=0;i<data.getClipData().getItemCount();i++)uris.add(data.getClipData().getItemAt(i).getUri());}else if(data.getData()!=null)uris.add(data.getData());for(int i=0;i<uris.size();i++){Uri u=uris.get(i);persist(u,data);String title=displayName(u);String[] cl=classifyManual(title);long localSize=sizeOf(u);db.upsertManual("local:"+u.toString().hashCode(),title,cl[0],cl[1],true,"application/pdf",localSize,String.valueOf(localSize),u.toString(),"Arquivo local / Drive provider");}showManuals("");setStatus(uris.size()+" PDF(s) importado(s). Toque em RETOMAR / INDEXAR TUDO para preparar o índice local.");}
         else if(request==REQ_EXPORT_BACKUP&&data.getData()!=null){OutputStream out=getContentResolver().openOutputStream(data.getData());out.write(db.exportAll().toString(2).getBytes("UTF-8"));out.close();toast("Backup exportado.");}
-        else if(request==REQ_IMPORT_BACKUP&&data.getData()!=null){InputStream in=getContentResolver().openInputStream(data.getData());String json=readAll(in);in.close();JSONObject backupJson=new JSONObject(json);BackupContractValidator.requireValid(backupJson);safety.beforeDestructiveChange("importar backup externo");db.importAll(backupJson);db.addAuditEvent("segurança","Backup externo restaurado",displayName(data.getData()),"{}",backupJson.optJSONObject("campaign").toString(),true);loadStoryState();ensureBundledMapForProfileAsync(activeWorldProfile());toast("Campanha restaurada e validada. Bibliotecas externas foram preservadas.");navigate("Aventura");}
+        else if(request==REQ_IMPORT_BACKUP&&data.getData()!=null){InputStream in=getContentResolver().openInputStream(data.getData());String json=readAll(in);in.close();JSONObject backupJson=new JSONObject(json);BackupContractValidator.requireValid(backupJson);safety.beforeDestructiveChange("importar backup externo");db.importAll(backupJson);db.addAuditEvent("segurança","Backup externo restaurado",displayName(data.getData()),"{}",backupJson.optJSONObject("campaign").toString(),true);reloadRestoredSession();ensureBundledMapForProfileAsync(activeWorldProfile());toast("Campanha restaurada e validada. Bibliotecas externas foram preservadas.");navigate("Aventura");}
         else if(request==REQ_EXPORT_DIAGNOSTIC&&data.getData()!=null){OutputStream out=getContentResolver().openOutputStream(data.getData());if(out==null)throw new Exception("Não foi possível criar o diagnóstico.");out.write(pendingDiagnosticJson.getBytes("UTF-8"));out.close();pendingDiagnosticJson="";toast("Diagnóstico exportado.");}
         else if(request==REQ_EXPORT_JOURNAL_PDF&&data.getData()!=null){exportPreparedPdfToUri(data.getData());return;}
         else if(request==REQ_EXPORT_CHARACTER&&data.getData()!=null){if(pendingCharacterExport.length()==0)throw new Exception("Nenhuma ficha foi preparada para exportação.");OutputStream out=getContentResolver().openOutputStream(data.getData());if(out==null)throw new Exception("Não foi possível criar o arquivo JSON.");out.write(pendingCharacterExport.toString(2).getBytes("UTF-8"));out.close();pendingCharacterExport=new JSONObject();toast("Ficha JSON exportada com todos os campos.");setStatus("Ficha de herói salva em JSON.");}
@@ -10156,21 +10532,21 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
     }
 
     private EditText labeledOracleField(LinearLayout form,final String label,String value,boolean multiline,final String tableA,final String tableB,final CharacterFormRefs refs,final String profile){
-        final EditText e=hiddenValue(value);final String fieldKey=fieldKeyForLabel(label);LinearLayout c=card();LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER_VERTICAL);TextView badge=text("🎲",17,GOLD,true);badge.setGravity(Gravity.CENTER);badge.setBackground(makeBg(PANEL2,CARD_STROKE,10));header.addView(badge,new LinearLayout.LayoutParams(dp(46),dp(46)));header.addView(text(label.toUpperCase(new Locale("pt","BR")),12,GOLD,true),new LinearLayout.LayoutParams(0,-2,1));Button generate=smallButton("GERAR / TROCAR",PANEL2);generate.setTextSize(9);header.addView(generate,new LinearLayout.LayoutParams(dp(126),dp(44)));c.addView(header);final TextView display=text(value==null||value.trim().length()==0?"Toque em GERAR / TROCAR":value,14,value==null||value.trim().length()==0?MUTED:TEXT,false);display.setPadding(dp(10),dp(10),dp(10),dp(10));display.setBackground(makeBg(INPUT_BG,INPUT_STROKE,9));c.addView(display);c.addView(e);e.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence s,int st,int count,int after){}public void onTextChanged(CharSequence s,int st,int before,int count){String v=s==null?"":s.toString().trim();display.setText(v.length()==0?"Toque em GERAR / TROCAR":v);display.setTextColor(v.length()==0?MUTED:TEXT);}public void afterTextChanged(Editable x){}});View.OnClickListener action=new View.OnClickListener(){public void onClick(View v){showFieldGenerationMenu(label,e,fieldKey,tableA,tableB,refs,profile,false);}};generate.setOnClickListener(action);c.setOnClickListener(action);form.addView(c);return e;
+        final EditText e=hiddenValue(value);final String fieldKey=fieldKeyForLabel(label);LinearLayout c=card();LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER_VERTICAL);TextView badge=text("🎲",17,GOLD,true);badge.setGravity(Gravity.CENTER);badge.setBackground(makeBg(PANEL2,CARD_STROKE,10));header.addView(badge,new LinearLayout.LayoutParams(dp(46),dp(46)));header.addView(text(label.toUpperCase(new Locale("pt","BR")),12,GOLD,true),new LinearLayout.LayoutParams(0,-2,1));Button generate=smallButton("GERAR / TROCAR",PANEL2);generate.setTextSize(9);generate.setContentDescription("Editar "+label);header.addView(generate,new LinearLayout.LayoutParams(dp(126),dp(44)));c.addView(header);final TextView display=text(value==null||value.trim().length()==0?"Toque em GERAR / TROCAR":value,14,value==null||value.trim().length()==0?MUTED:TEXT,false);display.setPadding(dp(10),dp(10),dp(10),dp(10));display.setBackground(makeBg(INPUT_BG,INPUT_STROKE,9));c.addView(display);c.addView(e);e.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence s,int st,int count,int after){}public void onTextChanged(CharSequence s,int st,int before,int count){String v=s==null?"":s.toString().trim();display.setText(v.length()==0?"Toque em GERAR / TROCAR":v);display.setTextColor(v.length()==0?MUTED:TEXT);}public void afterTextChanged(Editable x){}});View.OnClickListener action=new View.OnClickListener(){public void onClick(View v){showFieldGenerationMenu(label,e,fieldKey,tableA,tableB,refs,profile,false);}};generate.setOnClickListener(action);c.setOnClickListener(action);form.addView(c);return e;
     }
 
     private EditText labeledRuleField(LinearLayout form,final String label,String value,boolean multiline,final String fieldKey,final CharacterFormRefs refs,final String profile){
-        final EditText e=hiddenValue(value);final String[] tables=oracleTablesForRuleField(fieldKey);LinearLayout c=card();LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER_VERTICAL);TextView badge=text("◆",18,GOLD,true);badge.setGravity(Gravity.CENTER);badge.setBackground(makeBg(PANEL2,CARD_STROKE,10));header.addView(badge,new LinearLayout.LayoutParams(dp(46),dp(46)));header.addView(text(label.toUpperCase(new Locale("pt","BR")),12,GOLD,true),new LinearLayout.LayoutParams(0,-2,1));Button select=smallButton("SELECIONAR",PANEL2);select.setTextSize(9);header.addView(select,new LinearLayout.LayoutParams(dp(112),dp(44)));c.addView(header);final TextView display=text(value==null||value.trim().length()==0?"Toque em SELECIONAR":value,15,value==null||value.trim().length()==0?MUTED:TEXT,false);display.setPadding(dp(12),dp(12),dp(12),dp(12));display.setBackground(makeBg(INPUT_BG,INPUT_STROKE,9));c.addView(display);c.addView(e);e.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence x,int st,int count,int after){}public void onTextChanged(CharSequence x,int st,int before,int count){String v=x==null?"":x.toString().trim();display.setText(v.length()==0?"Toque em SELECIONAR":v);display.setTextColor(v.length()==0?MUTED:TEXT);}public void afterTextChanged(Editable x){}});View.OnClickListener action=new View.OnClickListener(){public void onClick(View v){showRuleFieldSelector(label,e,fieldKey,tables,refs,profile);}};select.setOnClickListener(action);c.setOnClickListener(action);form.addView(c);return e;
+        final EditText e=hiddenValue(value);final String[] tables=oracleTablesForRuleField(fieldKey);LinearLayout c=card();LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER_VERTICAL);TextView badge=text("◆",18,GOLD,true);badge.setGravity(Gravity.CENTER);badge.setBackground(makeBg(PANEL2,CARD_STROKE,10));header.addView(badge,new LinearLayout.LayoutParams(dp(46),dp(46)));header.addView(text(label.toUpperCase(new Locale("pt","BR")),12,GOLD,true),new LinearLayout.LayoutParams(0,-2,1));Button select=smallButton("SELECIONAR",PANEL2);select.setTextSize(9);select.setContentDescription("Selecionar "+label);header.addView(select,new LinearLayout.LayoutParams(dp(112),dp(44)));c.addView(header);final TextView display=text(value==null||value.trim().length()==0?"Toque em SELECIONAR":value,15,value==null||value.trim().length()==0?MUTED:TEXT,false);display.setPadding(dp(12),dp(12),dp(12),dp(12));display.setBackground(makeBg(INPUT_BG,INPUT_STROKE,9));c.addView(display);c.addView(e);e.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence x,int st,int count,int after){}public void onTextChanged(CharSequence x,int st,int before,int count){String v=x==null?"":x.toString().trim();display.setText(v.length()==0?"Toque em SELECIONAR":v);display.setTextColor(v.length()==0?MUTED:TEXT);}public void afterTextChanged(Editable x){}});View.OnClickListener action=new View.OnClickListener(){public void onClick(View v){showRuleFieldSelector(label,e,fieldKey,tables,refs,profile);}};select.setOnClickListener(action);c.setOnClickListener(action);form.addView(c);return e;
     }
 
     private EditText compactRuleNumber(LinearLayout row,final String label,int value,final String fieldKey,final CharacterFormRefs refs,final String profile){
-        LinearLayout wrap=new LinearLayout(this);wrap.setOrientation(LinearLayout.VERTICAL);wrap.setPadding(dp(6),dp(7),dp(6),dp(7));wrap.setBackground(makeBg(INPUT_BG,INPUT_STROKE,9));LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER);header.addView(text(label,10,GOLD,true),new LinearLayout.LayoutParams(0,-2,1));final EditText e=hiddenValue(String.valueOf(value));Button die=smallButton("🎲",PANEL2);die.setTextSize(9);die.setContentDescription("Gerar "+label+" aleatoriamente ou com Mythic 2e");header.addView(die,new LinearLayout.LayoutParams(dp(38),dp(34)));wrap.addView(header);LinearLayout controls=new LinearLayout(this);controls.setGravity(Gravity.CENTER);Button minus=smallButton("−",PANEL2),plus=smallButton("+",PANEL2);minus.setTextSize(20);plus.setTextSize(20);final TextView display=text(String.valueOf(value),20,TEXT,true);display.setGravity(Gravity.CENTER);controls.addView(minus,new LinearLayout.LayoutParams(dp(42),dp(42)));controls.addView(display,new LinearLayout.LayoutParams(0,dp(42),1));controls.addView(plus,new LinearLayout.LayoutParams(dp(42),dp(42)));wrap.addView(controls);wrap.addView(e);e.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence x,int st,int count,int after){}public void onTextChanged(CharSequence x,int st,int before,int count){display.setText(x==null||x.length()==0?"0":x);}public void afterTextChanged(Editable x){}});minus.setOnClickListener(new View.OnClickListener(){public void onClick(View v){adjustRuleNumber(e,fieldKey,-1);}});plus.setOnClickListener(new View.OnClickListener(){public void onClick(View v){adjustRuleNumber(e,fieldKey,1);}});final String[] tables=oracleTablesForRuleField(fieldKey);die.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showFieldGenerationMenu(label,e,fieldKey,tables[0],tables[1],refs,profile,true);}});LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.setMargins(dp(3),0,dp(3),0);row.addView(wrap,lp);return e;
+        LinearLayout wrap=new LinearLayout(this);wrap.setOrientation(LinearLayout.VERTICAL);wrap.setPadding(dp(6),dp(7),dp(6),dp(7));wrap.setBackground(makeBg(INPUT_BG,INPUT_STROKE,9));LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER);header.addView(text(label,10,GOLD,true),new LinearLayout.LayoutParams(0,-2,1));final EditText e=hiddenValue(String.valueOf(value));Button die=smallButton("🎲",PANEL2);die.setTextSize(9);die.setContentDescription("Gerar "+label+" aleatoriamente ou com Mythic 2e");header.addView(die,new LinearLayout.LayoutParams(dp(38),dp(34)));wrap.addView(header);LinearLayout controls=new LinearLayout(this);controls.setGravity(Gravity.CENTER);Button minus=smallButton("−",PANEL2),plus=smallButton("+",PANEL2);minus.setTextSize(20);plus.setTextSize(20);minus.setContentDescription("Diminuir "+label);plus.setContentDescription("Aumentar "+label);final TextView display=text(String.valueOf(value),20,TEXT,true);display.setGravity(Gravity.CENTER);controls.addView(minus,new LinearLayout.LayoutParams(dp(42),dp(42)));controls.addView(display,new LinearLayout.LayoutParams(0,dp(42),1));controls.addView(plus,new LinearLayout.LayoutParams(dp(42),dp(42)));wrap.addView(controls);wrap.addView(e);e.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence x,int st,int count,int after){}public void onTextChanged(CharSequence x,int st,int before,int count){display.setText(x==null||x.length()==0?"0":x);}public void afterTextChanged(Editable x){}});minus.setOnClickListener(new View.OnClickListener(){public void onClick(View v){adjustRuleNumber(e,fieldKey,-1);}});plus.setOnClickListener(new View.OnClickListener(){public void onClick(View v){adjustRuleNumber(e,fieldKey,1);}});final String[] tables=oracleTablesForRuleField(fieldKey);die.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showFieldGenerationMenu(label,e,fieldKey,tables[0],tables[1],refs,profile,true);}});LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.setMargins(dp(3),0,dp(3),0);row.addView(wrap,lp);return e;
     }
 
     private void adjustRuleNumber(EditText target,String fieldKey,int delta){int current=num(target,0),min=0,max=999;if("str".equals(fieldKey)||"dex".equals(fieldKey)||"con".equals(fieldKey)||"int_score".equals(fieldKey)||"wis".equals(fieldKey)||"cha".equals(fieldKey)){min=1;max=30;}else if("ac".equals(fieldKey)){min=1;max=40;}else if("hp".equals(fieldKey)||"max_hp".equals(fieldKey)){min=0;max=999;}int next=Math.max(min,Math.min(max,current+delta));target.setText(String.valueOf(next));}
 
     private void showRuleFieldSelector(final String label,final EditText target,final String fieldKey,final String[] tables,final CharacterFormRefs refs,final String profile){
-        final ArrayList<String> options=ruleFieldChoices(fieldKey,refs,profile,value(target));ArrayList<String> menu=new ArrayList<String>();menu.add("🎲 Gerar opção legal automaticamente");menu.add("🔮 Consultar Oráculo Mythic 2e");menu.addAll(options);final String[] items=menu.toArray(new String[menu.size()]);new AlertDialog.Builder(this).setTitle(label).setItems(items,new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){if(which==0){String generated=characterGenerator.randomField(fieldKey,collectCharacterSheet(refs,profile));if(generated.length()>0)target.setText(generated);return;}if(which==1){showMythicRuleDialog(label,target,fieldKey,tables[0],tables[1],refs,profile);return;}target.setText(options.get(which-2));}}).setNegativeButton("Cancelar",null).show();
+        final ArrayList<String> options=ruleFieldChoices(fieldKey,refs,profile,value(target));ArrayList<String> menu=new ArrayList<String>();menu.add("🎲 Gerar opção legal automaticamente");menu.add("🔮 Consultar Oráculo Mythic 2e");menu.addAll(options);final String[] items=menu.toArray(new String[menu.size()]);new AlertDialog.Builder(this).setTitle(label).setItems(items,new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){if(which==0){String generated=characterGenerator.randomField(fieldKey,collectCharacterSheet(refs,profile));if(generated.length()>0)target.setText(generated);return;}if(which==1){showMythicRuleDialog(label,target,fieldKey,tables[0],tables[1],refs,profile);return;}String selected=options.get(which-2);if("subclass".equals(fieldKey)&&(selected.startsWith("Disponível a partir")||selected.equals("Ainda sem subclasse")))selected="";target.setText(selected);}}).setNegativeButton("Cancelar",null).show();
     }
 
     private ArrayList<String> ruleFieldChoices(String fieldKey,CharacterFormRefs refs,String profile,String current){ArrayList<String> out=new ArrayList<String>();if(current!=null&&current.trim().length()>0)out.add(current.trim());if("level".equals(fieldKey)){for(int i=1;i<=20;i++)addUnique(out,String.valueOf(i));}else if("speed".equals(fieldKey)){String[] a={"6 m","7,5 m","9 m","10,5 m","12 m"};for(String x:a)addUnique(out,x);}else if("initiative".equals(fieldKey)){for(int i=-5;i<=10;i++)addUnique(out,(i>=0?"+":"")+i);}else if("proficiency_bonus".equals(fieldKey)){for(int i=2;i<=6;i++)addUnique(out,"+"+i);}else if("hit_dice".equals(fieldKey)){String[] a={"1d6","1d8","1d10","1d12"};for(String x:a)addUnique(out,x);}else if("subclass".equals(fieldKey)){String cls=refs!=null&&refs.cls!=null&&refs.cls.getSelectedItem()!=null?String.valueOf(refs.cls.getSelectedItem()):"";int lvl=refs==null?1:Math.max(1,Math.min(20,num(refs.level,1)));int min=subclassMinimumLevelForForm(cls,profile);if(lvl>=min){JSONArray known=CharacterOptionCatalogEngine.subclassesFor(cls);for(int i=0;i<known.length();i++){String x=known.optString(i);JSONObject gate=CharacterOptionCatalogEngine.validateSubclass(cls,x);if(gate.optBoolean("selection_allowed",false)&&gate.optBoolean("mechanics_compiled",false))addUnique(out,x);}JSONArray run163=run163SubclassesForClass(cls);for(int i=0;i<run163.length();i++)addUnique(out,run163.optString(i));JSONObject context=collectCharacterSheet(refs,profile);for(int i=0;i<24&&out.size()<24;i++){String x=characterGenerator.randomField("subclass",context);if(x!=null&&x.trim().length()>0&&!x.toLowerCase(new Locale("pt","BR")).contains("disponível nos manuais"))addUnique(out,x.trim());}}addUnique(out,lvl<min?"Disponível a partir do nível "+min:"Ainda sem subclasse");}if(out.size()==0)addUnique(out,"Automático conforme classe e nível");return out;}
@@ -10193,20 +10569,58 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
         f.dependenciesBound=true;
     }
 
+    private void invalidateChangedOriginChoices(CharacterFormRefs f,boolean speciesChanged,boolean backgroundChanged)throws Exception{
+        JSONObject root=featSelectionRoot(value(f.featChoicesJson)),choices=root.optJSONObject("run136");
+        if(choices==null)return;
+        if(backgroundChanged){
+            JSONObject old=choices.optJSONObject("origin_ability");
+            if(old!=null&&old.optBoolean("applied_to_editor",false)){
+                EditText plus2=abilityField(f,old.optString("plus2")),plus1=abilityField(f,old.optString("plus1"));
+                if(plus2!=null)plus2.setText(String.valueOf(num(plus2,10)-2));
+                if(plus1!=null)plus1.setText(String.valueOf(num(plus1,10)-1));
+            }
+            choices.remove("origin_ability");choices.remove("origin_feat_background");
+        }
+        if(speciesChanged){choices.remove("species2024");choices.remove("origin_feat_human");}
+        if(speciesChanged||backgroundChanged){f.featChoicesJson.setText(root.toString());rebuildSupplementFeatSummary(f,root);}
+    }
+
     private void reconcileCharacterDependencies(CharacterFormRefs f,String profile){
         if(f==null||f.dependencyRefreshBusy)return;f.dependencyRefreshBusy=true;
         try{
             String species=String.valueOf(f.species.getSelectedItem()),cls=String.valueOf(f.cls.getSelectedItem()),background=String.valueOf(f.background.getSelectedItem());int level=Math.max(1,Math.min(20,num(f.level,1)));
             boolean speciesChanged=!species.equalsIgnoreCase(f.lastSpecies),classChanged=!cls.equalsIgnoreCase(f.lastClass),backgroundChanged=!background.equalsIgnoreCase(f.lastBackground),levelChanged=level!=f.lastLevel;
             if(!(speciesChanged||classChanged||backgroundChanged||levelChanged))return;
+            invalidateChangedOriginChoices(f,speciesChanged,backgroundChanged);
             String subclass=value(f.subclass);if(!subclassAllowedForForm(cls,subclass,level,profile)){f.subclass.setText("");subclass="";}
+            JSONObject previous=characterGenerator.baseComplete(profile,f.lastSpecies,f.lastClass,f.lastBackground,f.lastLevel);
             JSONObject fresh=characterGenerator.baseComplete(profile,species,cls,background,level);
-            if(!(speciesChanged||classChanged||backgroundChanged)){fresh.put("str",num(f.str,10));fresh.put("dex",num(f.dex,10));fresh.put("con",num(f.con,10));fresh.put("int_score",num(f.intel,10));fresh.put("wis",num(f.wis,10));fresh.put("cha",num(f.cha,10));}
+            {fresh.put("str",num(f.str,10));fresh.put("dex",num(f.dex,10));fresh.put("con",num(f.con,10));fresh.put("int_score",num(f.intel,10));fresh.put("wis",num(f.wis,10));fresh.put("cha",num(f.cha,10));}
             if(subclass.length()>0)fresh.put("class_name",cls+" — "+subclass);
             fresh=characterGenerator.recomputeMechanics(fresh);
 
-            if(speciesChanged||classChanged||backgroundChanged){f.str.setText(String.valueOf(fresh.optInt("str",10)));f.dex.setText(String.valueOf(fresh.optInt("dex",10)));f.con.setText(String.valueOf(fresh.optInt("con",10)));f.intel.setText(String.valueOf(fresh.optInt("int_score",10)));f.wis.setText(String.valueOf(fresh.optInt("wis",10)));f.cha.setText(String.valueOf(fresh.optInt("cha",10)));}
-            f.hp.setText(String.valueOf(fresh.optInt("hp",1)));f.maxHp.setText(String.valueOf(fresh.optInt("max_hp",1)));f.ac.setText(String.valueOf(fresh.optInt("ac",10)));f.speed.setText(fresh.optString("speed"));f.initiative.setText(fresh.optString("initiative"));f.profBonus.setText(fresh.optString("proficiency_bonus"));f.hitDice.setText(fresh.optString("hit_dice"));f.savingThrows.setText(fresh.optString("saving_throws"));f.skills.setText(fresh.optString("skills"));f.passiveSenses.setText(fresh.optString("passive_senses"));f.languages.setText(fresh.optString("languages"));f.proficiencies.setText(fresh.optString("proficiencies"));f.tools.setText(fresh.optString("tools"));f.carrying.setText(fresh.optString("carrying_capacity"));f.attacks.setText(fresh.optString("attacks"));f.features.setText(fresh.optString("features"));f.spellcasting.setText(fresh.optString("spellcasting"));f.spells.setText(fresh.optString("spells"));f.inventory.setText(fresh.optString("inventory"));
+            // Identity changes must not silently replace player-owned choices or heal damage.
+            if(f.auto.isChecked()){
+                int oldMax=num(f.maxHp,1),oldHp=num(f.hp,oldMax),newMax=fresh.optInt("max_hp",1);
+                f.maxHp.setText(String.valueOf(newMax));
+                f.hp.setText(String.valueOf(oldHp==0?0:Math.max(0,newMax-Math.max(0,oldMax-oldHp))));
+                f.initiative.setText(fresh.optString("initiative"));f.profBonus.setText(fresh.optString("proficiency_bonus"));f.hitDice.setText(fresh.optString("hit_dice"));
+            }
+            refreshGeneratedCharacterField(f.speed,previous,fresh,"speed");
+            if(classChanged)refreshGeneratedCharacterField(f.savingThrows,previous,fresh,"saving_throws");
+            if(classChanged||backgroundChanged)refreshGeneratedCharacterField(f.skills,previous,fresh,"skills");
+            refreshGeneratedCharacterField(f.languages,previous,fresh,"languages");
+            refreshGeneratedCharacterField(f.proficiencies,previous,fresh,"proficiencies");
+            refreshGeneratedCharacterField(f.tools,previous,fresh,"tools");
+            f.carrying.setText(fresh.optString("carrying_capacity"));
+            refreshGeneratedCharacterField(f.attacks,previous,fresh,"attacks");
+            refreshGeneratedCharacterField(f.features,previous,fresh,"features");
+            if(classChanged)f.spells.setText(fresh.optString("spells"));else refreshGeneratedCharacterField(f.spells,previous,fresh,"spells");
+            refreshGeneratedCharacterField(f.inventory,previous,fresh,"inventory");
+            JSONObject current=collectCharacterSheet(f,profile);
+            if(f.auto.isChecked())f.ac.setText(String.valueOf(current.optInt("ac",10)));
+            f.passiveSenses.setText(current.optString("passive_senses"));
+            f.spellcasting.setText(fresh.optString("spellcasting"));
             if(generatedConcept(value(f.concept))||value(f.concept).isEmpty())f.concept.setText(fresh.optString("concept"));if(classChanged||value(f.role).isEmpty())f.role.setText(fresh.optString("role"));if(generatedAppearance(value(f.appearance))||value(f.appearance).isEmpty())f.appearance.setText(fresh.optString("appearance"));if(generatedClassEntry(value(f.classEntry))||value(f.classEntry).isEmpty())f.classEntry.setText(fresh.optString("class_entry"));
             if(speciesChanged||classChanged||backgroundChanged){f.lifePath.setText(fresh.optString("life_path"));if(value(f.history).isEmpty()||value(f.history).contains("Um acontecimento")||value(f.history).contains("HISTÓRIA DE VIDA"))f.history.setText(fresh.optString("history"));}
             f.lastSpecies=species;f.lastClass=cls;f.lastBackground=background;f.lastLevel=level;
@@ -10217,11 +10631,12 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
     private void addUnique(ArrayList<String> list,String value){if(value==null)return;String v=value.trim();if(v.length()==0)return;for(String x:list)if(x.equalsIgnoreCase(v))return;list.add(v);}
 
     private LinearLayout spinnerDiceCard(final String label,final Spinner spinner,final Runnable randomAction,final String tableA,final String tableB,final CharacterFormRefs refs,final String profile){
-        LinearLayout c=card();LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER_VERTICAL);Button die=smallButton("🎲",PANEL2);die.setContentDescription("Gerar "+label+" aleatoriamente ou com Mythic 2e");die.setOnClickListener(new View.OnClickListener(){public void onClick(View v){new AlertDialog.Builder(MainActivity.this).setTitle("Gerar "+label).setItems(new String[]{"🎲 Aleatório local","🔮 Oráculo Mythic 2e"},new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){if(which==0){if(randomAction!=null)randomAction.run();toast(label+" sorteado localmente.");}else showMythicSpinnerDialog(label,spinner,tableA,tableB,refs);}}).setNegativeButton("Cancelar",null).show();}});header.addView(die,new LinearLayout.LayoutParams(dp(52),dp(44)));header.addView(text(label,12,GOLD,true),new LinearLayout.LayoutParams(0,-2,1));c.addView(header);c.addView(spinner);return c;
+        LinearLayout c=card();LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER_VERTICAL);Button die=smallButton("🎲",PANEL2);die.setContentDescription("Gerar "+label+" aleatoriamente ou com Mythic 2e");die.setOnClickListener(new View.OnClickListener(){public void onClick(View v){new AlertDialog.Builder(MainActivity.this).setTitle("Gerar "+label).setItems(new String[]{"🎲 Aleatório local","🔮 Oráculo Mythic 2e"},new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){if(which==0){if(randomAction!=null)randomAction.run();toast(label+" sorteado localmente.");}else showMythicSpinnerDialog(label,spinner,tableA,tableB,refs);}}).setNegativeButton("Cancelar",null).show();}});header.addView(die,new LinearLayout.LayoutParams(dp(52),dp(44)));header.addView(text(label,12,GOLD,true),new LinearLayout.LayoutParams(0,-2,1));c.addView(header);spinner.setContentDescription(label);c.addView(spinner);return c;
     }
 
     private void showFieldGenerationMenu(final String label,final EditText target,final String fieldKey,final String tableA,final String tableB,final CharacterFormRefs refs,final String profile,final boolean ruleField){
-        new AlertDialog.Builder(this).setTitle("Gerar "+label).setItems(new String[]{"🎲 Aleatório local","🔮 Oráculo Mythic 2e"},new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){
+        new AlertDialog.Builder(this).setTitle("Gerar "+label).setItems(ruleField?new String[]{"🎲 Aleatório local","🔮 Oráculo Mythic 2e"}:new String[]{"🎲 Aleatório local","🔮 Oráculo Mythic 2e","Editar manualmente"},new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){
+            if(which==2){final EditText entry=input(label,value(target),true);showApplyDialog(new AlertDialog.Builder(MainActivity.this).setTitle(label).setView(entry).setNegativeButton("Cancelar",null).setPositiveButton("APLICAR",null),new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){target.setText(value(entry));}});return;}
             if(which==0){JSONObject context=collectCharacterSheet(refs,profile);String generated=characterGenerator.randomField(fieldKey,context);target.setText(generated);target.setSelection(target.getText().length());toast(label+" gerado localmente.");}
             else if(ruleField)showMythicRuleDialog(label,target,fieldKey,tableA,tableB,refs,profile);
             else showMythicOracleDialog(label,target,tableA,tableB,refs,profile);
@@ -10305,6 +10720,12 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
     private boolean narrationOwnsStatus(){return activeAudioSession!=null||!nativeNarrationQueue.isEmpty();}
     private void setBackgroundStatus(String s){if(!narrationOwnsStatus())setStatus(s);}
     private void setStatus(String s){if(statusText!=null)statusText.setText(s==null?"":s);}
+    private void confirmCoreAction(String message,final Runnable yes){
+        showApplyDialog(new AlertDialog.Builder(this).setMessage(message)
+            .setNegativeButton("Cancelar",null).setPositiveButton("Confirmar",null),
+            new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){yes.run();}});
+    }
+
     private void confirm(String message,final Runnable yes){new AlertDialog.Builder(this).setMessage(message).setNegativeButton("Cancelar",null).setPositiveButton("Confirmar",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){yes.run();}}).show();}
     private interface NumberAction{void run(int n);}private interface TextAction{void run(String s);}private void numberDialog(String title,String hint,final NumberAction action){final EditText e=input(hint,"1",false);e.setInputType(2);new AlertDialog.Builder(this).setTitle(title).setView(e).setNegativeButton("Cancelar",null).setPositiveButton("Aplicar",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){action.run(num(e,0));}}).show();}
     private void textDialog(String title,String hint,String value,final TextAction action){final EditText e=input(hint,value,true);new AlertDialog.Builder(this).setTitle(title).setView(e).setNegativeButton("Cancelar",null).setPositiveButton("Salvar",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){action.run(e.getText().toString());}}).show();}

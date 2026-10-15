@@ -3426,6 +3426,11 @@ public class AppDb extends SQLiteOpenHelper {
      * A count-only statblock is NEVER treated as permission to improvise attacks. */
     public JSONObject applyCompiledStatblockMultiattack(final long actorId,
         final String statblockId,final JSONArray rolls,final String token){
+        return applyCompiledStatblockMultiattack(actorId,statblockId,rolls,token,null);
+    }
+    /** Source selection is revalidated inside the same action/damage/receipt transaction. */
+    public JSONObject applyCompiledStatblockMultiattack(final long actorId,
+        final String statblockId,final JSONArray rolls,final String token,final JSONObject sourceSelection){
         return combatAtomic("compiled_statblock_multiattack",new CombatAtomicWork(){public JSONObject run()throws Exception{
             JSONObject out=new JSONObject(),actor=getCombatant(actorId);
             if(token==null||!token.startsWith("ui-monster-multi-")||!CombatActionReceiptGuard.validToken(token))
@@ -3440,6 +3445,10 @@ public class AppDb extends SQLiteOpenHelper {
             if(getCombatState().optInt("running",0)!=1)
                 return out.put("statblock_multiattack_blocked","encounter_not_running");
             JSONObject profile=CompiledStatblockEngine.runtimeProfile(id),declared=profile.optJSONObject("multiattack");
+            if(sourceSelection!=null){
+                declared=XmmMultiattackHostPlan.declaration(id,sourceSelection);
+                if(declared.has("statblock_multiattack_blocked"))return declared;
+            }
             if(declared==null)return out.put("statblock_multiattack_blocked","multiattack_not_compiled");
             JSONArray seq=declared.optJSONArray("sequence");String[] sequence=null;
             if(seq!=null){sequence=new String[seq.length()];for(int i=0;i<sequence.length;i++)sequence[i]=seq.optString(i);}
@@ -3730,6 +3739,9 @@ public class AppDb extends SQLiteOpenHelper {
             }
             JSONObject proof=new JSONObject().put("schema","statblock_multiattack_v1").put("actor_id",actorId)
                 .put("statblock_id",id).put("count",count).put("components",outcomes);
+            if(sourceSelection!=null)proof.put("source_selection",new JSONObject(sourceSelection.toString()))
+                .put("source_pointer",declared.optString("source_pointer"))
+                .put("source_blob_sha1",declared.optString("source_blob_sha1"));
             recordEffectReceipt(key,proof.toString());
             return out.put("statblock_multiattack_committed",true).put("statblock_multiattack_receipt",key)
                 .put("components",outcomes).put("action_spent_once",true);
@@ -3847,6 +3859,31 @@ public class AppDb extends SQLiteOpenHelper {
             !live.optString("scene_key","").equals(saved.optString("scene_key","")))
             throw new IllegalStateException("forced_movement_readback_rollback");
         return live.put("source_actor_id",actorId).put("target_id",targetId);
+    }
+
+    /** UI preflight only: execution rechecks source and map in its transaction. */
+    public JSONObject previewCompiledStatblockSaveAction(long actorId,long targetId,String statblockId,
+        String action,int saveRoll){
+        JSONObject out=new JSONObject();
+        try{
+            JSONObject actor=getCombatant(actorId),target=getCombatant(targetId);
+            if(actor.length()==0||target.length()==0||actorId==targetId||actor.optInt("is_player",0)==1)
+                return out.put("statblock_save_preview_blocked","invalid_monster_or_target");
+            String id=combatResources(actor).optString("block_id","");
+            String authority=CompiledMonsterActionGuard.statblockBlock(id,statblockId);
+            if(!authority.isEmpty())return out.put("statblock_save_preview_blocked",authority);
+            JSONObject source=compiledMonsterRiderAction(id,action);
+            int range=source.optInt("target_range_ft",0);
+            // This host has no source-bound area origin/direction selector yet.
+            if(range<=0)return out.put("statblock_save_preview_blocked","source_save_geometry_not_compiled");
+            String geometry=compiledSaveTargetRangeBlock(actorId,targetId,actor,target,range);
+            if(!geometry.isEmpty())return out.put("statblock_save_preview_blocked",geometry);
+            JSONObject resolved=StatblockCombatRuntimeEngine.savingThrowAction(id,action,saveRoll);
+            if(!resolved.optBoolean("resolved",false))return out.put("statblock_save_preview_blocked",resolved.optString("reason","statblock_save_unresolved"));
+            return out.put("statblock_save_preview_valid",true).put("range_ft",range)
+                .put("source_position",tacticalGridPosition(actorId)).put("target_position",tacticalGridPosition(targetId))
+                .put("resolved",resolved).put("persisted",false);
+        }catch(Exception e){try{return out.put("statblock_save_preview_blocked","save_preview_unavailable");}catch(Exception ignored){return out;}}
     }
 
     /** Legacy caller cannot silently skip a compiled displacement effect. */
