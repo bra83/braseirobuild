@@ -6,9 +6,20 @@ import org.json.JSONObject;
 /** Read-only source-plan adapter. Execution stays in AppDb's existing transaction. */
 public final class XmmMultiattackHostPlan {
     private XmmMultiattackHostPlan() {}
-    /** Compatibility preview: never authorizes transient monster resources. */
+    /** Read-only UI preview; selected context is never an execution authorization.
+     * The three-argument host overload below validates real persisted resources. */
     public static JSONObject declaration(String id, JSONObject selection) throws Exception {
-        return declaration(id, selection, null);
+        JSONObject previewResources = new JSONObject();
+        JSONObject plan = Xmm2025MultiattackPlanIndex.plan(id);
+        JSONObject context = plan.optJSONObject("context");
+        if (context != null && selection != null) {
+            String field = context.optString("field", "");
+            Object selected = selection.opt(field);
+            if (selected instanceof Boolean) previewResources.put(field, selected);
+        }
+        JSONObject preview = declaration(id, selection, previewResources);
+        if (!preview.has("statblock_multiattack_blocked")) preview.put("preview_only", true);
+        return preview;
     }
     public static JSONObject declaration(String id, JSONObject selection,
             JSONObject persistedActorResources) throws Exception {
