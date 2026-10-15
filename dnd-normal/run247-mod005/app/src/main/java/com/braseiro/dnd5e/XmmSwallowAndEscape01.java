@@ -15,12 +15,12 @@ public final class XmmSwallowAndEscape01 {
     private XmmSwallowAndEscape01(){}
     public static final String SOURCE_COMMIT="8c026b807fac21862a309379a0c3228a0683198b";
     public enum Species {
-        GIANT_FROG("/monster/182/action/1/entries/0",1,4,2,4,11,3),
-        GIANT_TOAD("/monster/194/action/1/entries/0",2,6,3,6,12,4);
+        GIANT_FROG("/monster/182/action/1/entries/0",1,2,4,11,3),
+        GIANT_TOAD("/monster/194/action/1/entries/0",2,3,6,12,4);
         public final String pointer;
         /** 1=Small, 2=Medium; supported bite-grapple max is Medium for both. */
         public final int swallowMaxSize,acidDieCount,acidDieSides,biteEscapeDc,biteToHit;
-        Species(String ptr,int maxSize,int ignored,int dieCount,int dieSides,int dc,int attack) {
+        Species(String ptr,int maxSize,int dieCount,int dieSides,int dc,int attack) {
             pointer=ptr;swallowMaxSize=maxSize;
             acidDieCount=dieCount;acidDieSides=dieSides;biteEscapeDc=dc;
             biteToHit=attack;
@@ -252,8 +252,9 @@ public final class XmmSwallowAndEscape01 {
                 if(s.phase==Phase.SWALLOWED)
                     e.setValue(s.next(Phase.CORPSE_EXIT_READY,s.lastAcidTurn));
                 else if(s.phase==Phase.GRAPPLED)
-                    e.setValue(s.next(Phase.EXITED_PRONE,s.lastAcidTurn));
+                    e.setValue(null);
             }
+            statuses.values().removeIf(Objects::isNull);
             consumedEvents.add(event);revision++;
         }
         /** Host must spend five feet of movement; result exits corpse Prone. */
