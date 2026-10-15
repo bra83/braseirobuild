@@ -3453,7 +3453,7 @@ public class AppDb extends SQLiteOpenHelper {
                 return out.put("statblock_multiattack_blocked","encounter_not_running");
             JSONObject profile=CompiledStatblockEngine.runtimeProfile(id),declared=profile.optJSONObject("multiattack");
             if(sourceSelection!=null){
-                declared=XmmMultiattackHostPlan.declaration(id,sourceSelection);
+                declared=XmmMultiattackHostPlan.declaration(id,sourceSelection,combatResources(actor));
                 if(declared.has("statblock_multiattack_blocked"))return declared;
             }
             if(declared==null)return out.put("statblock_multiattack_blocked","multiattack_not_compiled");

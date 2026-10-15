@@ -67,6 +67,29 @@ public class XmmMultiattackHostRobolectricTest {
         assertEquals("invalid_or_covered_target_1",db.applyCompiledStatblockMultiattack(actor,"Ape",late,
             "ui-monster-multi-invalid-late",new JSONObject()).optString("statblock_multiattack_blocked"));unchanged();
     }
+    @Test public void spoofedHastenCannotEnableExtraSlamFromUi() throws Exception {
+        bind("Clay Golem");
+        JSONObject forged = new JSONObject().put("variant_index", 1)
+            .put("hasten_used_this_turn", true)
+            .put("selected_actions", new JSONArray().put("Slam").put("Slam").put("Slam"));
+        JSONObject denied = db.applyCompiledStatblockMultiattack(actor, "Clay Golem",
+            new JSONArray(), "ui-monster-multi-hasten-spoof", forged);
+        assertEquals("multiattack_context_not_authorized_by_host",
+            denied.optString("statblock_multiattack_blocked"));
+        unchanged();
+        // The baseline two attacks remain selectable without trusting a UI flag.
+        JSONObject base = new JSONObject().put("variant_index", 0)
+            .put("selected_actions", new JSONArray().put("Slam").put("Slam"));
+        JSONObject resources = new JSONObject(db.getCombatant(actor).getString("resources_json"));
+        JSONObject plan = XmmMultiattackHostPlan.declaration("Clay Golem", base, resources);
+        assertFalse(plan.toString(), plan.has("statblock_multiattack_blocked"));
+        assertEquals(2, plan.getInt("count"));
+        // A non-boolean persisted value must fail closed rather than be coerced.
+        resources.put("hasten_used_this_turn", "true");
+        assertEquals("multiattack_context_persisted_invalid",
+            XmmMultiattackHostPlan.declaration("Clay Golem", base, resources)
+                .optString("statblock_multiattack_blocked"));
+    }
     @Test public void spellCompositionBlocksBeforeMutation() throws Exception {
         bind("Adult Red Dragon");JSONObject selection=new JSONObject().put("variant_index",1)
             .put("selected_actions",new JSONArray().put("Scorching Ray").put("Rend").put("Rend"));
