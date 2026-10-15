@@ -188,7 +188,11 @@ public final class XmmAttackHitCondition01 {
             if(a==Action.SWARM_STIRGES)eligible=eligible&&r.swarmTargetInSpace;
             if(eligible){
                 next=new Grapple(a,r.actor,r.target,r.roperSlot);
-                need(!grapples.containsKey(next.id),"already_grappled_by_same_tentacle");
+                if(a!=Action.ROPER && grapples.containsKey(next.id)){
+                    // A subsequent successful attack still deals its damage.
+                    // It does not stack a second copy of the same grapple.
+                    next=null;
+                }
                 if(a==Action.ROPER){
                     for(Grapple g:grapples.values())
                         need(!(g.source==Action.ROPER&&g.actor.equals(r.actor)
