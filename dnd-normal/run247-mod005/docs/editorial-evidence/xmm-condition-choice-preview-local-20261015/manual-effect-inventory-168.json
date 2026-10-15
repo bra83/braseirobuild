@@ -4,7 +4,8 @@
   "source_bestiary_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
   "source_monsters": 503,
   "manual_unmodeled_effect_count": 168,
-  "tipado_preview_pendente_integracao_count": 6,
+  "tipado_preview_pendente_integracao_count": 65,
+  "source_review_required_count": 1,
   "full_monster_combat_automation_certified": false,
   "entries": [
     {
@@ -21,10 +22,10 @@
         "condition_on_fail": "charmed, grappled"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/3/action/3/entries/0",
@@ -37,10 +38,10 @@
         "condition_on_fail": "charmed"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/3/legendary/1/entries/0",
@@ -51,10 +52,10 @@
         "condition_on_fail": "charmed, grappled"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "SOURCE_REVIEW_REQUIRED",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/5/legendary/0/entries/0",
@@ -84,10 +85,10 @@
         "condition_on_fail": "incapacitated, unconscious"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/7/legendary/2/entries/0",
@@ -147,10 +148,10 @@
         "condition_on_fail": "incapacitated, paralyzed"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/13/legendary/1/entries/0",
@@ -198,10 +199,10 @@
         "condition_on_fail": "incapacitated, unconscious"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/19/legendary/2/entries/0",
@@ -261,10 +262,10 @@
         "condition_on_fail": "incapacitated, paralyzed"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/25/legendary/1/entries/0",
@@ -343,10 +344,10 @@
         "condition_on_fail": "incapacitated"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/36/action/2/entries/0",
@@ -449,10 +450,10 @@
         "recharge": "4-6"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/58/action/2/entries/0",
@@ -489,10 +490,10 @@
         "condition_on_fail": "grappled, blinded, restrained, prone"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/60/action/2/entries/0",
@@ -563,10 +564,10 @@
         "condition_on_fail": "restrained"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/71/action/1/entries/0",
@@ -604,10 +605,10 @@
         "condition_on_fail": "incapacitated, unconscious"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/76/action/2/entries/0",
@@ -623,10 +624,10 @@
         "recharge": "5-6"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/81/action/2/entries/0",
@@ -642,10 +643,10 @@
         "condition_on_fail": "prone"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/92/action/0/entries/0",
@@ -678,10 +679,10 @@
         "condition_on_fail": "unconscious"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/94/action/2/entries/0",
@@ -694,10 +695,10 @@
         "condition_on_fail": "grappled, poisoned, paralyzed"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/95/action/1/entries/0",
@@ -737,10 +738,10 @@
         "condition_on_fail": "restrained, petrified"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/99/action/1/entries/0",
@@ -760,10 +761,10 @@
         "condition_on_fail": "restrained, petrified"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/103/action/2/entries/0",
@@ -876,10 +877,10 @@
         "condition_on_fail": "poisoned"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/117/legendary/1/entries/0",
@@ -918,7 +919,7 @@
       "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
-      "proof_sha": "1216818abd9a653c6da098f2e2a0ad871c40ea8d2a02328fce6438b1d018fbcd",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
       "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
     },
     {
@@ -973,10 +974,10 @@
         "condition_on_fail": "restrained"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/132/action/1/entries/0",
@@ -989,10 +990,10 @@
         "condition_on_fail": "poisoned"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/140/action/2/entries/0",
@@ -1084,10 +1085,10 @@
         "recharge": "5-6"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/152/action/1/entries/0",
@@ -1218,7 +1219,7 @@
       "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
-      "proof_sha": "1216818abd9a653c6da098f2e2a0ad871c40ea8d2a02328fce6438b1d018fbcd",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
       "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
     },
     {
@@ -1281,10 +1282,10 @@
         "recharge": "5-6"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/223/action/1/entries/0",
@@ -1306,7 +1307,7 @@
       "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
-      "proof_sha": "1216818abd9a653c6da098f2e2a0ad871c40ea8d2a02328fce6438b1d018fbcd",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
       "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
     },
     {
@@ -1332,7 +1333,7 @@
       "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
-      "proof_sha": "1216818abd9a653c6da098f2e2a0ad871c40ea8d2a02328fce6438b1d018fbcd",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
       "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
     },
     {
@@ -1356,10 +1357,10 @@
         "condition_max_target_size": "medium"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/235/action/3/entries/0",
@@ -1374,10 +1375,10 @@
         "condition_on_fail": "grappled, restrained"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/236/action/1/entries/0",
@@ -1410,10 +1411,10 @@
         "condition_on_fail": "charmed, incapacitated"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/238/action/1/entries/0",
@@ -1456,10 +1457,10 @@
         "condition_on_fail": "poisoned, unconscious"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/251/action/2/entries/0",
@@ -1556,10 +1557,10 @@
         "condition_on_fail": "grappled, prone"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/269/action/4/entries/0",
@@ -1574,10 +1575,10 @@
         "condition_on_fail": "grappled, restrained, prone"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/269/legendary/1/entries/0",
@@ -1590,10 +1591,10 @@
         "condition_on_fail": "blinded, poisoned"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/270/action/1/entries/0",
@@ -1606,10 +1607,10 @@
         "condition_on_fail": "restrained"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/275/action/2/entries/0",
@@ -1624,10 +1625,10 @@
         "condition_on_fail": "charmed, poisoned"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/282/action/1/entries/0",
@@ -1681,10 +1682,10 @@
         "recharge": "5-6"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/296/reaction/0/entries/0",
@@ -1819,10 +1820,10 @@
         "condition_on_fail": "poisoned"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/331/action/3/entries/0",
@@ -1838,10 +1839,10 @@
         "condition_on_fail": "grappled, stunned"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/337/action/2/entries/0",
@@ -1857,10 +1858,10 @@
         "condition_on_fail": "charmed, frightened"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/339/action/2/entries/0",
@@ -1976,10 +1977,10 @@
         "condition_recurring_damage_tick": "target_turn_start"
       },
       "engine_owner": "XMM recurring-condition executor (not implemented)",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/347/action/0/entries/0",
@@ -2004,7 +2005,7 @@
       "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
-      "proof_sha": "1216818abd9a653c6da098f2e2a0ad871c40ea8d2a02328fce6438b1d018fbcd",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
       "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
     },
     {
@@ -2030,7 +2031,7 @@
       "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
-      "proof_sha": "1216818abd9a653c6da098f2e2a0ad871c40ea8d2a02328fce6438b1d018fbcd",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
       "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
     },
     {
@@ -2046,10 +2047,10 @@
         "condition_on_fail": "poisoned, unconscious"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/358/action/0/entries/0",
@@ -2084,10 +2085,10 @@
         "condition_on_fail": "grappled, blinded, restrained, prone"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/365/action/0/entries/0",
@@ -2156,10 +2157,10 @@
         "condition_on_fail": "grappled, blinded, restrained, prone"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/372/action/2/entries/0",
@@ -2172,10 +2173,10 @@
         "condition_on_fail": "frightened, paralyzed"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/372/bonus/0/entries/0",
@@ -2222,10 +2223,10 @@
         "condition_on_fail": "invisible"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/384/action/2/entries/0",
@@ -2242,10 +2243,10 @@
         "recharge": "5-6"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/386/action/2/entries/0",
@@ -2296,10 +2297,10 @@
         "condition_on_fail": "grappled, blinded, restrained"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/399/action/3/entries/0",
@@ -2312,10 +2313,10 @@
         "condition_on_fail": "incapacitated, paralyzed"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/403/action/1/entries/0",
@@ -2462,10 +2463,10 @@
         "condition_recurring_damage_tick": "source_turn_start"
       },
       "engine_owner": "XMM recurring-condition executor (not implemented)",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025RecurringDamagePreviewEngineTest#allThreeSourceProfilesRetainTheirDistinctTicks",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Preview do tick fonte-vinculado; ciclo de vida, defesas e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/421/action/3/entries/0",
@@ -2481,10 +2482,10 @@
         "condition_on_fail": "charmed"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/430/action/1/entries/0",
@@ -2498,10 +2499,10 @@
         "recharge": "6"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/431/action/0/entries/0",
@@ -2561,10 +2562,10 @@
         "condition_on_fail": "grappled, blinded, restrained, prone"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/440/action/2/entries/0",
@@ -2579,10 +2580,10 @@
         "condition_on_fail": "grappled"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/447/action/1/entries/0",
@@ -2645,10 +2646,10 @@
         "condition_on_fail": "grappled, incapacitated, restrained"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/451/action/1/entries/0",
@@ -2707,10 +2708,10 @@
         "condition_on_fail": "grappled, incapacitated, restrained"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/454/bonus/0/entries/0",
@@ -2750,10 +2751,10 @@
         "condition_max_target_size": "large"
       },
       "engine_owner": "XMM recurring-condition executor (not implemented)",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025RecurringDamagePreviewEngineTest#allThreeSourceProfilesRetainTheirDistinctTicks",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Preview do tick fonte-vinculado; ciclo de vida, defesas e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/458/action/2/entries/0",
@@ -2770,10 +2771,10 @@
         "recharge": "5-6"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/458/bonus/0/entries/0",
@@ -2786,10 +2787,10 @@
         "condition_on_fail": "restrained"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/459/action/2/entries/0",
@@ -2805,10 +2806,10 @@
         "recharge": "6"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/463/action/1/entries/0",
@@ -2845,10 +2846,10 @@
         "recharge": "4-6"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/469/action/1/entries/0",
@@ -3028,10 +3029,10 @@
         "condition_on_fail": "poisoned, incapacitated"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/488/action/3/entries/0",
@@ -3044,10 +3045,10 @@
         "condition_on_fail": "incapacitated, unconscious"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/490/action/3/entries/0",
@@ -3090,10 +3091,10 @@
         "condition_on_fail": "incapacitated, paralyzed"
       },
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     }
   ]
 }

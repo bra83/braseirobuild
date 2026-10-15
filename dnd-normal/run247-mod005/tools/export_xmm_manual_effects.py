@@ -52,9 +52,14 @@ def _owner(family):
     }.get(family,"XMM action-specific executor (not implemented)")
 
 
-def build_inventory(source, compiled, proof_sha=""):
+def build_inventory(source, compiled, proof_sha="", save_condition_profiles=None,
+                    recurring_damage_profiles=None):
     import verify_xmm_503_source as verifier
     compiled_by_id={row.get("id"):row for row in compiled}
+    save_profiles={(row.get("id"),row.get("action"),row.get("source_pointer")):row
+        for row in (save_condition_profiles or [])}
+    recurring_profiles={(row.get("id"),row.get("action"),row.get("ptr")):row
+        for row in (recurring_damage_profiles or [])}
     entries=[]
     categories=(("action","actions",None),("bonus","special_actions","bonus_action"),
                 ("reaction","special_actions","reaction"),
@@ -75,6 +80,12 @@ def build_inventory(source, compiled, proof_sha=""):
                 is_choice_preview=(family=="condition_choice_on_hit" and
                     verifier.condition_choice_contract_matches(monster["name"],action,compiled_action))
                 entry_pointer=f"/monster/{monster_index}/{source_field}/{slot}/entries/0"
+                normalized_action=verifier.RCH.sub("",action.get("name","")).strip()
+                save_profile=save_profiles.get((monster["name"],normalized_action,entry_pointer))
+                is_save_condition_preview=(save_profile is not None)
+                recurring_profile=recurring_profiles.get((monster["name"],normalized_action,entry_pointer))
+                is_recurring_preview=(recurring_profile is not None)
+                entry_pointer=f"/monster/{monster_index}/{source_field}/{slot}/entries/0"
                 contract_fields=("attack_modes","to_hit","reach_ft","range_normal_ft","range_long_ft",
                     "damage","damage_type","damage_on_save","save_ability","save_dc",
                     "condition_on_hit","condition_on_fail","condition_choice_on_hit",
@@ -91,10 +102,22 @@ def build_inventory(source, compiled, proof_sha=""):
                 contract={key:compiled_action[key] for key in contract_fields if key in compiled_action}
                 blocker=("Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
                     if is_choice_preview else
+                    "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+                    if is_save_condition_preview else
+                    "Preview do tick fonte-vinculado; ciclo de vida, defesas e aplicação dependem de integração de combate."
+                    if is_recurring_preview else
                     "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente.")
                 test_id=("Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound"
-                    if is_choice_preview else "")
-                status="BLOCKED_MISSING_CONTEXT" if is_choice_preview else "MANUAL_UNSUPPORTED"
+                    if is_choice_preview else
+                    "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual"
+                    if is_save_condition_preview else
+                    "Xmm2025RecurringDamagePreviewEngineTest#allThreeSourceProfilesRetainTheirDistinctTicks"
+                    if is_recurring_preview else "")
+                status=("BLOCKED_MISSING_CONTEXT" if is_choice_preview or is_save_condition_preview or is_recurring_preview else
+                    "MANUAL_UNSUPPORTED")
+                if is_save_condition_preview and (not save_profile.get("save_ability") or
+                        save_profile.get("save_dc",0)<1):
+                    status="SOURCE_REVIEW_REQUIRED"
                 if not entry_pointer or not action.get("name"):
                     status="SOURCE_REVIEW_REQUIRED"
                 entries.append({
@@ -106,7 +129,7 @@ def build_inventory(source, compiled, proof_sha=""):
                     "engine_owner":_owner(family),
                     "coverage_status":status,
                     "test_id":test_id,
-                    "proof_sha":proof_sha if is_choice_preview else "",
+                    "proof_sha":proof_sha if is_choice_preview or is_save_condition_preview or is_recurring_preview else "",
                     "blocker_reason":blocker,
                 })
     pointers=[row["source_pointer"] for row in entries]
@@ -120,6 +143,8 @@ def build_inventory(source, compiled, proof_sha=""):
         "manual_unmodeled_effect_count":len(entries),
         "tipado_preview_pendente_integracao_count":sum(
             row["coverage_status"]=="BLOCKED_MISSING_CONTEXT" for row in entries),
+        "source_review_required_count":sum(
+            row["coverage_status"]=="SOURCE_REVIEW_REQUIRED" for row in entries),
         "full_monster_combat_automation_certified":False,
         "entries":entries,
     }
@@ -137,9 +162,13 @@ def main():
     import verify_xmm_503_source as verifier
     source=json.loads((args.source_dir/"bestiary-xmm.json").read_text(encoding="utf-8"))["monster"]
     runtime=verifier.java_rows((args.project_root/verifier.JAVA_RUNTIME).read_text(encoding="utf-8"))
+    save_profiles=verifier.java_rows(
+        (args.project_root/verifier.JAVA_SAVE_CONDITIONS).read_text(encoding="utf-8"))
+    recurring_profiles=verifier.java_rows(
+        (args.project_root/verifier.JAVA_RECURRING_DAMAGE).read_text(encoding="utf-8"))
     proof_sha=(hashlib.sha256(args.proof_json.read_bytes()).hexdigest()
         if args.proof_json else "")
-    inventory=build_inventory(source,runtime,proof_sha)
+    inventory=build_inventory(source,runtime,proof_sha,save_profiles,recurring_profiles)
     args.out.parent.mkdir(parents=True,exist_ok=True)
     args.out.write_text(json.dumps(inventory,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps({k:v for k,v in inventory.items() if k!="entries"},ensure_ascii=False,indent=2))

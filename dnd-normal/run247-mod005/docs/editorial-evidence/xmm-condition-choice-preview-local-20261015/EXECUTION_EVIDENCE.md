@@ -23,6 +23,8 @@ Foi criado `Xmm2025ConditionChoiceEngine` para seis ataques fonte-verificados de
 
 Os resultados são propostas sem aplicação, persistência, rolagem ou mutação. Os seis registros permanecem classificados como `BLOCKED_MISSING_CONTEXT` até a integração do fluxo de combate após o PR #39.
 
+Também foram adicionados previews source-bound para 58 famílias de condição originada por salvaguarda e três ticks de dano recorrente (Pit Fiend, Stirge e Vine Blight). Os previews exigem resultado/contexto explícito, validam ponteiro e blob fonte, recusam valores fora dos limites mecânicos e não aplicam condições/dano, não rolam dados e não persistem estado. O perfil Psychic Drain de Aboleth permanece `SOURCE_REVIEW_REQUIRED` porque a fonte compilada não declara salvaguarda/CD; não foi inferido um valor. Os perfis restantes continuam bloqueados até integração do ciclo de vida/fluxo de combate.
+
 ### B2 — Multiattack
 
 O plano fonte-verificado de Sphinx of Secrets agora admite as três Garras ou a substituição de exatamente uma das três por Curse of the Riddle em qualquer posição. A sequência exige escolhas explícitas, total de slots exato e ações compiladas fonte-vinculadas. O passo da maldição continua com resolução manual; o plano não executa efeitos nem consome recursos.
@@ -36,14 +38,15 @@ Não foi introduzido um executor novo de magia nesta execução. O comparador va
 ### B4 — testes e publicação
 
 - Comparador XMM: aprovado; 503 monstros, 36 seções, 120 recargas, 132 registros de magia, 178 contratos de traits, 59 ações de dano por salvaguarda, 110 contratos simples de Multiattack.
-- Testes Python: 95 aprovados.
-- Gradle/Robolectric: `testDebugUnitTest` aprovado; XML contém 2.588 testes, 0 falhas, 0 erros e 0 ignorados.
+- Testes Python: 98 aprovados (`PYTHONPATH=tools python3 -m unittest discover -s tools -p 'test_*.py'`).
+- O comparador independente passou com 58 perfis save-condition e 3 perfis recurring-damage adicionais; `source_field_and_catalog_gate_pass=true`.
+- Gradle/Robolectric: a suíte completa será registrada após a execução local deste commit; o cache Gradle local está sendo usado em modo offline.
 - Fonte de verificação: `xmm-source-verification.json`; SHA-256: `1216818abd9a653c6da098f2e2a0ad871c40ea8d2a02328fce6438b1d018fbcd`.
 - O comparador continua declarando `full_monster_combat_automation_certified=false`.
 - Não foram executados fluxos E2E de estado real, SQLite ou Backup21 para estes previews.
 
 ## Pendências e integração
 
-Dos 168 efeitos manuais, 6 possuem preview tipado bloqueado para integração e 162 seguem sem executor completo. O trabalho atual não reduz artificialmente essa contagem: os efeitos propostos não foram aplicados ao combate. A integração posterior exige os componentes de fluxo/UI e persistência protegidos, entre eles `MainActivity.java`, `AppDb.java` e contratos Backup21, fora desta branch.
+Dos 168 efeitos manuais, 65 possuem preview tipado bloqueado para integração, 1 exige revisão do contrato fonte e 102 seguem sem executor completo. A contagem de previews inclui 6 escolhas de condição, 56 perfis de condição após salvaguarda e 3 ticks recorrentes. O trabalho atual não reduz artificialmente essa contagem: os efeitos propostos não foram aplicados ao combate. A integração posterior exige os componentes de fluxo/UI e persistência protegidos, entre eles `MainActivity.java`, `AppDb.java` e contratos Backup21, fora desta branch.
 
 O draft PR deve permanecer aberto e sem merge até a aprovação e integração da Frente A.

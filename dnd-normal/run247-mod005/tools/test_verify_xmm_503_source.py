@@ -23,6 +23,23 @@ class XmmIndependentSourceTests(unittest.TestCase):
         self.assertEqual(0,count)
         self.assertEqual(["SPHINX_MULTIATTACK_SOURCE_PLAN_MISMATCH"],errors)
 
+    def test_manual_save_condition_catalog_is_source_exact(self):
+        source=[{"name":"Test Monster","action":[{"name":"Save Gaze","entries":[
+            "{@actSave wis} {@dc 12} {@actSaveFail} The target has the "
+            "{@condition Frightened|XPHB} and {@condition Paralyzed|XPHB} conditions."]}]}]
+        compiled=[{"id":"Test Monster","actions":[{"name":"Save Gaze","category":"action",
+            "source_bound":True,"manual_unmodeled_source_effect_required":True,
+            "save_ability":"wis","save_dc":12,
+            "condition_on_fail":"frightened, paralyzed"}]}]
+        expected=xmm.expected_save_condition_profiles(source,compiled)
+        self.assertEqual(1,len(expected))
+        self.assertEqual(([],1),xmm.check_save_condition_profiles(source,compiled,expected,1))
+        altered=json.loads(json.dumps(expected))
+        altered[0]["conditions"]="paralyzed, frightened"
+        errors,count=xmm.check_save_condition_profiles(source,compiled,altered,1)
+        self.assertEqual(0,count)
+        self.assertEqual(["MANUAL_SAVE_CONDITION_PROFILE_SOURCE_MISMATCH"],errors)
+
     def test_condition_choice_profiles_remain_manual_until_host_integration(self):
         source={"name":"Pixie","action":[{"name":"Faerie Dust","entries":[
             "The target has the {@condition Charmed|XPHB} or {@condition Poisoned|XPHB} condition (pixie's choice) until the start of the pixie's next turn."]}]}

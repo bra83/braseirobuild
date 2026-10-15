@@ -17,6 +17,8 @@ JAVA_SPELLS="app/src/main/java/com/braseiro/dnd5e/Xmm2025SpellUsageIndex.java"
 JAVA_TRAITS="app/src/main/java/com/braseiro/dnd5e/Xmm2025TraitMechanicsEngine.java"
 JAVA_RUNTIME="app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java"
 JAVA_MULTIATTACK="app/src/main/java/com/braseiro/dnd5e/Xmm2025MultiattackPlanIndex.java"
+JAVA_SAVE_CONDITIONS="app/src/main/java/com/braseiro/dnd5e/Xmm2025SaveConditionPreviewEngine.java"
+JAVA_RECURRING_DAMAGE="app/src/main/java/com/braseiro/dnd5e/Xmm2025RecurringDamagePreviewEngine.java"
 JAVA_ATTACK_CONDITIONS="app/src/main/java/com/braseiro/dnd5e/Xmm2025AttackConditionEngine.java"
 JAVA_SAVE_DAMAGE="app/src/main/java/com/braseiro/dnd5e/Xmm2025SaveDamageEngine.java"
 SOURCE_TURN_START_HIT_CONDITIONS={
@@ -1698,6 +1700,87 @@ def check_sphinx_of_secrets_multiattack(source,plans):
     valid=source_ok and pointer_ok and plan.get("v")==expected
     return ([] if valid else ["SPHINX_MULTIATTACK_SOURCE_PLAN_MISMATCH"]),int(valid)
 
+def expected_save_condition_profiles(source,compiled):
+    by_id={row.get("id"):row for row in compiled};out=[]
+    categories=(("action","actions","action"),("bonus","special_actions","bonus_action"),
+        ("reaction","special_actions","reaction"),("legendary","special_actions","legendary_action"))
+    for monster_index,monster in enumerate(source):
+        block=by_id.get(monster.get("name"),{})
+        for source_field,dest_field,category in categories:
+            destination=block.get(dest_field,[])
+            if category!="action":
+                destination=[row for row in destination if row.get("category")==category]
+            for slot,action in enumerate(monster.get(source_field,[])):
+                compiled_action=destination[slot] if slot<len(destination) else {}
+                if (not compiled_action.get("condition_on_fail") or
+                    not source_action_requires_manual_resolution(action,monster.get("name","")) or
+                    source_action_has_typed_condition_contract(monster.get("name",""),action,compiled_action)):
+                    continue
+                out.append({
+                    "id":monster["name"],
+                    "action":RCH.sub("",action.get("name","")).strip(),
+                    "category":category,
+                    "slot":slot,
+                    "source_pointer":f"/monster/{monster_index}/{source_field}/{slot}/entries/0",
+                    "conditions":compiled_action["condition_on_fail"],
+                    "save_ability":compiled_action.get("save_ability",""),
+                    "save_dc":compiled_action.get("save_dc",0),
+                    "target_max_size":compiled_action.get("condition_max_target_size",""),
+                    "target_range_ft":compiled_action.get("target_range_ft",0),
+                    "target_area_shape":compiled_action.get("target_area_shape",""),
+                    "additional_source_effects_manual":bool(
+                        compiled_action.get("damage") or compiled_action.get("damage_on_save") or
+                        compiled_action.get("effect_on_fail") or compiled_action.get("spells")),
+                })
+    return out
+
+def check_save_condition_profiles(source,compiled,profiles,expected_count=58):
+    expected=expected_save_condition_profiles(source,compiled)
+    errors=[]
+    if len(expected)!=expected_count:errors.append("MANUAL_SAVE_CONDITION_SOURCE_COUNT:"+str(len(expected)))
+    if profiles!=expected:errors.append("MANUAL_SAVE_CONDITION_PROFILE_SOURCE_MISMATCH")
+    return errors,len(expected) if profiles==expected else 0
+
+RECURRING_DAMAGE_CONTRACTS={
+    ("Pit Fiend","Bite"):("/monster/346/action/1/entries/0","6d6","poison",
+        "target_turn_start","poisoned",("6d6","start of each of its turns","end of each of its turns","after 1 minute"),"con",21,10),
+    ("Stirge","Proboscis"):("/monster/417/action/0/entries/0","2d4","necrotic",
+        "source_turn_start","attached",("2d4","start of each of the stirge's turns","detach itself","detach the stirge"),"",0,0),
+    ("Vine Blight","Constricting Vine"):("/monster/456/action/0/entries/0","1d8","bludgeoning",
+        "target_turn_start","grappled",("1d8","until the grapple ends","escape {@dc 12}","Large or smaller"),"",0,0),
+}
+
+def check_recurring_damage_profiles(source,compiled,profiles):
+    source_by_name={m.get("name"):m for m in source};compiled_by_name={m.get("id"):m for m in compiled}
+    profile_by_name={(p.get("id"),p.get("action")):p for p in profiles};errors=[]
+    for (monster,action_name),expected in RECURRING_DAMAGE_CONTRACTS.items():
+        pointer,dice,damage_type,tick,active_condition,phrases,recovery_ability,recovery_dc,auto_rounds=expected
+        src=source_by_name.get(monster);dst=compiled_by_name.get(monster,{})
+        action=next((a for a in (src or {}).get("action",[]) if RCH.sub("",a.get("name","")).strip()==action_name),None)
+        compiled_action=next((a for a in dst.get("actions",[]) if a.get("name")==action_name),None)
+        profile=profile_by_name.get((monster,action_name))
+        if src is None or action is None or compiled_action is None or profile is None:
+            errors.append(monster+":"+action_name+":RECURRING_SOURCE_OR_PROFILE_MISSING");continue
+        text=json.dumps(action.get("entries",[]),ensure_ascii=False).casefold()
+        conditions={c.casefold() for c in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
+        if (profile.get("ptr")!=pointer or profile.get("damage")!=dice or
+            profile.get("damage_type")!=damage_type or profile.get("tick")!=tick or
+            profile.get("active_condition")!=active_condition or
+            not compiled_action.get("source_bound") or
+            not compiled_action.get("manual_unmodeled_source_effect_required") or
+            compiled_action.get("condition_recurring_damage")!=dice or
+            compiled_action.get("condition_recurring_damage_type")!=damage_type or
+            compiled_action.get("condition_recurring_damage_tick")!=tick or
+            not all(phrase.casefold() in text for phrase in phrases) or
+            (active_condition in {"poisoned","grappled"} and active_condition not in conditions)):
+            errors.append(monster+":"+action_name+":RECURRING_CONTRACT_MISMATCH")
+        if recovery_dc and (not re.search(r"\{@actSave\s+con\}\s*\{@dc\s*21",text,re.I) or
+                recovery_ability!="con" or auto_rounds!=10):
+            errors.append(monster+":"+action_name+":RECURRING_RECOVERY_MISMATCH")
+    if set(profile_by_name)!=set(RECURRING_DAMAGE_CONTRACTS):
+        errors.append("RECURRING_DAMAGE_CATALOG_MISMATCH")
+    return errors,0 if errors else len(RECURRING_DAMAGE_CONTRACTS)
+
 def check_unmodeled_action_effects(source,compiled):
     """Require a dedicated fail-closed flag for known untyped source effects."""
     by_id={m["id"]:m for m in compiled}; errors=[]; checked=0; typed_conditions=0
@@ -1886,6 +1969,8 @@ def check(project, bestiary_bytes, book_bytes):
     traitrows=java_rows((project/JAVA_TRAITS).read_text(encoding="utf-8"))
     save_damage_rows=java_rows((project/JAVA_SAVE_DAMAGE).read_text(encoding="utf-8"))
     multiattack_plans=java_rows((project/JAVA_MULTIATTACK).read_text(encoding="utf-8"))
+    save_condition_profiles=java_rows((project/JAVA_SAVE_CONDITIONS).read_text(encoding="utf-8"))
+    recurring_damage_profiles=java_rows((project/JAVA_RECURRING_DAMAGE).read_text(encoding="utf-8"))
     if traitrows!=trait_rows(src):
         raise ValueError("XMM_178_TRAIT_SOURCE_INDEX_MISMATCH")
     expected_usage=usage_rows(src)
@@ -1897,6 +1982,9 @@ def check(project, bestiary_bytes, book_bytes):
     effect_errors,effect_count=check_unmodeled_action_effects(src,compiled)
     condition_choice_errors,condition_choice_count=check_condition_choice_contracts(src,compiled)
     sphinx_multiattack_errors,sphinx_multiattack_count=check_sphinx_of_secrets_multiattack(src,multiattack_plans)
+    save_condition_errors,save_condition_count=check_save_condition_profiles(src,compiled,save_condition_profiles)
+    recurring_damage_errors,recurring_damage_count=check_recurring_damage_profiles(
+        src,compiled,recurring_damage_profiles)
     chain_errors=check_chain_devil_infernal_chain(src,compiled)
     attack_damage_errors,attack_damage_count=check_attack_primary_damage(src,compiled)
     multiattack_errors,multiattack_count=check_simple_multiattacks(src,compiled)
@@ -1909,7 +1997,7 @@ def check(project, bestiary_bytes, book_bytes):
     turn_start_errors,turn_start_count=check_source_turn_start_hit_conditions(src,compiled)
     save_errors,save_count=check_save_damage_actions(src,save_damage_rows)
     section_errors=check_book(book,bookrows)
-    if (monster_errors or branch_errors or effect_errors or condition_choice_errors or sphinx_multiattack_errors or chain_errors or section_errors or save_errors or
+    if (monster_errors or branch_errors or effect_errors or condition_choice_errors or sphinx_multiattack_errors or save_condition_errors or recurring_damage_errors or chain_errors or section_errors or save_errors or
         multiattack_errors or
         turn_start_errors or attack_damage_errors or advantage_damage_errors or
         wounded_advantage_errors or grappled_advantage_errors or attack_secondary_errors):
@@ -1919,6 +2007,8 @@ def check(project, bestiary_bytes, book_bytes):
              "unmodeled_action_effects":effect_errors[:20],"unmodeled_action_effects_count":len(effect_errors),
              "condition_choice_contracts":condition_choice_errors,
              "sphinx_multiattack":sphinx_multiattack_errors,
+             "save_condition_profiles":save_condition_errors,
+             "recurring_damage_profiles":recurring_damage_errors,
              "chain_devil_infernal_chain":chain_errors,
              "typed_multiattack":multiattack_errors,
              "source_turn_start_conditions":turn_start_errors[:20],"source_turn_start_conditions_count":len(turn_start_errors),
@@ -1950,6 +2040,10 @@ def check(project, bestiary_bytes, book_bytes):
         "source_condition_choice_pure_profiles_compared":condition_choice_count,
         "source_condition_choice_profiles_pending_integration":condition_choice_count,
         "source_complex_multiattack_variants_compared":sphinx_multiattack_count,
+        "source_manual_save_condition_profiles_compared":save_condition_count,
+        "source_manual_save_condition_profiles_pending_integration":save_condition_count,
+        "source_manual_recurring_damage_profiles_compared":recurring_damage_count,
+        "source_manual_recurring_damage_profiles_pending_integration":recurring_damage_count,
         "source_chain_devil_infernal_chain_semantics_compared":1,
         "source_compound_condition_actions_typed":2,
         "source_single_condition_actions_typed":9+turn_start_count,
