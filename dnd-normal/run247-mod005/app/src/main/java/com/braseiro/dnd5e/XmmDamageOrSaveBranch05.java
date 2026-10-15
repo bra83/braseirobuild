@@ -204,9 +204,10 @@ public final class XmmDamageOrSaveBranch05 {
             boolean applyDamage=active;
             boolean lycanEligible=applyDamage&&a.isLycanthrope()&&t.kind==Kind.HUMANOID;
             boolean immune=lycanEligible&&hasImmunity(r.target,r.actor,a);
-            need(!lycanEligible||immune? r.saveSucceeded==null : r.saveSucceeded!=null,
-                "lycanthrope_con_save_required_unless_immune");
-            if(!lycanEligible && !a.savesInsteadOfAttack())need(r.saveSucceeded==null,"unexpected_save");
+            if(a.isLycanthrope()){
+                if(lycanEligible&&!immune)need(r.saveSucceeded!=null,"lycanthrope_con_save_required");
+                else need(r.saveSucceeded==null,"lycanthrope_save_not_applicable");
+            }else if(!a.savesInsteadOfAttack())need(r.saveSucceeded==null,"unexpected_save");
             if(a==Action.STEAM_MEPHIT && r.underwaterResistanceOnly){
                 // Caller proves the resistance arises solely from being underwater.
                 // Source explicitly forbids that resistance for this attack.
@@ -215,10 +216,15 @@ public final class XmmDamageOrSaveBranch05 {
             List<Effect> effects=new ArrayList<>();
             int total=0,necro=0,max=t.maxHp,hp=t.hp;
             if(applyDamage){
-                int first=mitigate(t,a.first,r.firstDice,r.underwaterResistanceOnly);
+                int first;
+                if(a==Action.STEAM_MEPHIT && r.saveSucceeded){
+                    // A successful save halves raw damage BEFORE resistance or
+                    // vulnerability (PHB 2024 order for damage modifiers).
+                    first=mitigateRaw(t,a.first.type,a.first.roll(r.firstDice)/2,
+                        r.underwaterResistanceOnly);
+                }else first=mitigate(t,a.first,r.firstDice,r.underwaterResistanceOnly);
                 int second=a.second==null?0:mitigate(t,a.second,r.secondDice,false);
                 if(a.second==null)need(r.secondDice.length==0,"unexpected_secondary_dice");
-                if(a==Action.STEAM_MEPHIT && r.saveSucceeded)first/=2;
                 total=first+second;
                 necro=(a.first.type==Type.NECROTIC?first:0)
                     +(a.second!=null&&a.second.type==Type.NECROTIC?second:0);
@@ -307,9 +313,11 @@ public final class XmmDamageOrSaveBranch05 {
         return new Effect(k,r.actor,r.target,amount,expiry);
     }
     private static int mitigate(Target t,Dice component,int[] rolled,boolean ignoreWaterOnly){
-        int raw=component.roll(rolled);
-        Defense def=t.defense(component.type);
-        need(def!=null,"typed_damage_defense_required_"+component.type);
+        return mitigateRaw(t,component.type,component.roll(rolled),ignoreWaterOnly);
+    }
+    private static int mitigateRaw(Target t,Type type,int raw,boolean ignoreWaterOnly){
+        Defense def=t.defense(type);
+        need(def!=null,"typed_damage_defense_required_"+type);
         if(ignoreWaterOnly)def=Defense.NORMAL;
         return DamageMitigationRules.apply(raw,def==Defense.IMMUNE,
             def==Defense.RESISTANT||def==Defense.BOTH,
