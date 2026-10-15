@@ -215,10 +215,45 @@ def execute_one(job: dict, output: Path, repo_root: Path, base_sha: str) -> tupl
     free = shutil.disk_usage(repo_root.parent).free
     if free < 1_500_000_000:
         return job["job_id"], "BLOCKED_LOW_DISK_FREE_BYTES=" + str(free)
-    created = git("worktree", "add", "--no-checkout", "-b", branch, str(workspace),
-                  base_sha, cwd=repo_root, check=False)
-    if created.returncode != 0:
-        return job["job_id"], "WORKTREE_ERROR: " + (created.stderr or created.stdout)[-650:]
+    # An interrupted earlier attempt can leave the local branch ref behind
+    # after the worktree directory disappears. NEVER delete or force-move it.
+    # Reuse it only if it still points to an ancestor of the pinned coordinator
+    # base: an advanced job branch must be inspected and preserved, not rerun.
+    branch_ref = "refs/heads/" + branch
+    existing = git("show-ref", "--verify", "--hash", branch_ref,
+                   cwd=repo_root, check=False)
+    if existing.returncode == 0:
+        old_head = existing.stdout.strip()
+        ancestor = git("merge-base", "--is-ancestor", old_head, base_sha,
+                       cwd=repo_root, check=False)
+        if ancestor.returncode != 0:
+            return job["job_id"], (
+                "BLOCKED_EXISTING_BRANCH_HAS_WORK_OR_DIVERGED: "
+                + branch + " head=" + old_head
+            )
+        created = git("worktree", "add", "--no-checkout", str(workspace), branch,
+                      cwd=repo_root, check=False)
+        if created.returncode != 0:
+            return job["job_id"], (
+                "BLOCKED_EXISTING_BRANCH_CHECKOUT_OR_WORKTREE: "
+                + (created.stderr or created.stdout)[-650:]
+            )
+        actual = git("rev-parse", "HEAD", cwd=workspace, check=False)
+        if actual.returncode != 0 or actual.stdout.strip() != old_head:
+            return job["job_id"], "BLOCKED_BRANCH_CHANGED_DURING_ATTACH: " + branch
+        print("RECOVERED_UNUSED_EXISTING_BRANCH=", branch, "SHA=", old_head, flush=True)
+    elif existing.returncode == 1:
+        created = git("worktree", "add", "--no-checkout", "-b", branch,
+                      str(workspace), base_sha, cwd=repo_root, check=False)
+        if created.returncode != 0:
+            return job["job_id"], (
+                "WORKTREE_ERROR: " + (created.stderr or created.stdout)[-650:]
+            )
+    else:
+        return job["job_id"], (
+            "BLOCKED_BRANCH_INSPECTION_FAILED: " + (existing.stderr or existing.stdout)[-650:]
+        )
+    # The directory has JUST been attached; no previous file is overwritten.
     sparse = git("sparse-checkout", "set", "--cone", "dnd-normal/run247-mod005",
                  cwd=workspace, check=False)
     if sparse.returncode != 0:
