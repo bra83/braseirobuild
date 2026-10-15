@@ -1,0 +1,119 @@
+{
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "source_blob": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "core_implemented": 12,
+  "combat_integrated": 0,
+  "integration_blocked": 12,
+  "core_remaining": 0,
+  "tests": "damage_or_save_branch-01: 784 assertions passed; 12 exact contracts",
+  "entries": [
+    {
+      "source_pointer": "/monster/5/legendary/0/entries/0",
+      "monster": "Adult Black Dragon",
+      "action": "Cloud of Insects",
+      "source_action_sha256": "c7b8104d9ed6edcca48a29cae19173a66c9ff00455f56284ace5932d2d7006f1",
+      "baseline": "MANUAL_UNSUPPORTED: unmodeled source effect guard present",
+      "result": "CORE_IMPLEMENTED_INTEGRATION_BLOCKED",
+      "combat_applied": false
+    },
+    {
+      "source_pointer": "/monster/7/legendary/2/entries/0",
+      "monster": "Adult Brass Dragon",
+      "action": "Scorching Sands",
+      "source_action_sha256": "695d06200202df5f206a86dc4d1e982c176426d5d9b303cebaaa99b34b549d04",
+      "baseline": "MANUAL_UNSUPPORTED: unmodeled source effect guard present",
+      "result": "CORE_IMPLEMENTED_INTEGRATION_BLOCKED",
+      "combat_applied": false
+    },
+    {
+      "source_pointer": "/monster/13/legendary/1/entries/0",
+      "monster": "Adult Silver Dragon",
+      "action": "Cold Gale",
+      "source_action_sha256": "555dce0c7c006051f496df91b8e3382c168df411a10e213944945e676d8c668e",
+      "baseline": "MANUAL_UNSUPPORTED: unmodeled source effect guard present",
+      "result": "CORE_IMPLEMENTED_INTEGRATION_BLOCKED",
+      "combat_applied": false
+    },
+    {
+      "source_pointer": "/monster/17/legendary/0/entries/0",
+      "monster": "Ancient Black Dragon",
+      "action": "Cloud of Insects",
+      "source_action_sha256": "4991a6f0539e5c7d5f948a199ee9aae9a26b42ce8627de0959930cb3b6f8b03e",
+      "baseline": "MANUAL_UNSUPPORTED: unmodeled source effect guard present",
+      "result": "CORE_IMPLEMENTED_INTEGRATION_BLOCKED",
+      "combat_applied": false
+    },
+    {
+      "source_pointer": "/monster/19/legendary/2/entries/0",
+      "monster": "Ancient Brass Dragon",
+      "action": "Scorching Sands",
+      "source_action_sha256": "f0beefd217127094f84a911142f0e4dcb2191e6ea22630383f26249b58816e3f",
+      "baseline": "MANUAL_UNSUPPORTED: unmodeled source effect guard present",
+      "result": "CORE_IMPLEMENTED_INTEGRATION_BLOCKED",
+      "combat_applied": false
+    },
+    {
+      "source_pointer": "/monster/25/legendary/1/entries/0",
+      "monster": "Ancient Silver Dragon",
+      "action": "Cold Gale",
+      "source_action_sha256": "f95d2f1e5a45d20e94c342d7890d2560e3864715026fa1eec1645783b7f54073",
+      "baseline": "MANUAL_UNSUPPORTED: unmodeled source effect guard present",
+      "result": "CORE_IMPLEMENTED_INTEGRATION_BLOCKED",
+      "combat_applied": false
+    },
+    {
+      "source_pointer": "/monster/27/action/3/entries/0",
+      "monster": "Animal Lord",
+      "action": "Animal Spirit",
+      "source_action_sha256": "24fe8a3ec959aecefe074431ab118b9ce580b5d65081e20a8ba52f3a6c3d4796",
+      "baseline": "MANUAL_UNSUPPORTED: unmodeled source effect guard present",
+      "result": "CORE_IMPLEMENTED_INTEGRATION_BLOCKED",
+      "combat_applied": false
+    },
+    {
+      "source_pointer": "/monster/36/action/2/entries/0",
+      "monster": "Arch-hag",
+      "action": "Crackling Wave",
+      "source_action_sha256": "4854f5327d455f5167686ff20390208df5152dac08498722218e283716bf167b",
+      "baseline": "MANUAL_UNSUPPORTED: unmodeled source effect guard present",
+      "result": "CORE_IMPLEMENTED_INTEGRATION_BLOCKED",
+      "combat_applied": false
+    },
+    {
+      "source_pointer": "/monster/36/bonus/0/entries/0",
+      "monster": "Arch-hag",
+      "action": "Witch Strike",
+      "source_action_sha256": "969502f07f01e7eada10136de799cb8ba213a0d864d2436890eb8c03cc2543ab",
+      "baseline": "MANUAL_UNSUPPORTED: unmodeled source effect guard present",
+      "result": "CORE_IMPLEMENTED_INTEGRATION_BLOCKED",
+      "combat_applied": false
+    },
+    {
+      "source_pointer": "/monster/48/action/2/entries/0",
+      "monster": "Balor",
+      "action": "Lightning Blade",
+      "source_action_sha256": "04527d1983d95715facde945c6f22a6886893a1dddcf6967271cc803285f7d27",
+      "baseline": "MANUAL_UNSUPPORTED: unmodeled source effect guard present",
+      "result": "CORE_IMPLEMENTED_INTEGRATION_BLOCKED",
+      "combat_applied": false
+    },
+    {
+      "source_pointer": "/monster/51/bonus/0/entries/0",
+      "monster": "Bandit Crime Lord",
+      "action": "Deadly Aim",
+      "source_action_sha256": "254014f308863aca7c1ecc6fea2735c026d38836c9f1f7cbb7d4677285cefef4",
+      "baseline": "MANUAL_UNSUPPORTED: unmodeled source effect guard present",
+      "result": "CORE_IMPLEMENTED_INTEGRATION_BLOCKED",
+      "combat_applied": false
+    },
+    {
+      "source_pointer": "/monster/54/action/3/entries/0",
+      "monster": "Barbed Devil",
+      "action": "Hurl Flame",
+      "source_action_sha256": "e0c6fe3f36500bf96aaf59f38c5abb29ea8bb5c0d07eeca1722f88aba18504ad",
+      "baseline": "MANUAL_UNSUPPORTED: unmodeled source effect guard present",
+      "result": "CORE_IMPLEMENTED_INTEGRATION_BLOCKED",
+      "combat_applied": false
+    }
+  ]
+}
