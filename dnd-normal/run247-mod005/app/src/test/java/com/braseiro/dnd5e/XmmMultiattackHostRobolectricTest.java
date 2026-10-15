@@ -101,6 +101,39 @@ public class XmmMultiattackHostRobolectricTest {
             XmmMultiattackHostPlan.declaration("Clay Golem", base, resources)
                 .optString("statblock_multiattack_blocked"));
     }
+    @Test public void persistedHastenSurvivesReopenAndCannotBeOverriddenByUi() throws Exception {
+        bind("Clay Golem");
+        JSONObject resources=new JSONObject(db.getCombatant(actor).getString("resources_json"));
+        resources.put("hasten_used_this_turn",true);
+        ContentValues v=new ContentValues();v.put("resources_json",resources.toString());
+        assertEquals(1,db.getWritableDatabase().update("combatants",v,
+            "id=?",new String[]{String.valueOf(actor)}));
+        db.close();db=new AppDb(context,name);db.setActiveMapProfile("dnd");
+        JSONObject restored=new JSONObject(db.getCombatant(actor).getString("resources_json"));
+        assertTrue("host context must survive SQLite reopen",
+            restored.optBoolean("hasten_used_this_turn"));
+        JSONObject triple=new JSONObject().put("variant_index",1)
+            .put("hasten_used_this_turn",true)
+            .put("selected_actions",new JSONArray().put("Slam").put("Slam").put("Slam"));
+        JSONObject declared=XmmMultiattackHostPlan.declaration("Clay Golem",triple,restored);
+        assertFalse(declared.toString(),declared.has("statblock_multiattack_blocked"));
+        assertEquals(3,declared.optInt("count"));
+        assertFalse(declared.optBoolean("preview_only"));
+        JSONObject forged=new JSONObject(triple.toString()).put("hasten_used_this_turn",false);
+        JSONObject denied=db.applyCompiledStatblockMultiattack(actor,"Clay Golem",
+            new JSONArray(),"ui-monster-multi-hasten-reopen-denied",forged);
+        assertEquals("multiattack_context_not_authorized_by_host",
+            denied.optString("statblock_multiattack_blocked"));
+        assertEquals(0,DatabaseUtils.longForQuery(db.getReadableDatabase(),
+            "SELECT COUNT(*) FROM effect_receipts",null));
+        JSONObject noRolls=db.applyCompiledStatblockMultiattack(actor,"Clay Golem",
+            new JSONArray(),"ui-monster-multi-hasten-reopen-count",triple);
+        assertEquals("multiattack_count_mismatch",
+            noRolls.optString("statblock_multiattack_blocked"));
+        assertEquals(50,db.getCombatant(target).optInt("hp"));
+        assertEquals(0,DatabaseUtils.longForQuery(db.getReadableDatabase(),
+            "SELECT COUNT(*) FROM effect_receipts",null));
+    }
     @Test public void spellCompositionBlocksBeforeMutation() throws Exception {
         bind("Adult Red Dragon");JSONObject selection=new JSONObject().put("variant_index",1)
             .put("selected_actions",new JSONArray().put("Scorching Ray").put("Rend").put("Rend"));
