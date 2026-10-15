@@ -77,13 +77,13 @@ public final class XmmDamageOrSaveBranch04 {
         private final EnumMap<Type,Defense> defenses;
         public Target(String id,Kind kind,int hp,int maxHp,int strength,Map<Type,Defense> defenses) {
             require(id!=null&&!id.trim().isEmpty()&&kind!=null,"invalid_target");
-            require(maxHp>=1&&hp>=0&&hp<=maxHp&&strength>=0&&strength<=30,"invalid_target_stats");
+            require(maxHp>=0&&hp>=0&&hp<=maxHp&&strength>=0&&strength<=30,"invalid_target_stats");
             this.id=id;this.kind=kind;this.hp=hp;this.maxHp=maxHp;this.strength=strength;
             this.defenses=new EnumMap<>(Type.class);
             if(defenses!=null)this.defenses.putAll(defenses);
         }
         private Target updated(int hp,int maxHp,int strength) {
-            return new Target(id,kind,hp,Math.max(1,maxHp),strength,defenses);
+            return new Target(id,kind,hp,maxHp,strength,defenses);
         }
         public Defense defense(Type t) { return defenses.get(t); }
     }
@@ -205,7 +205,7 @@ public final class XmmDamageOrSaveBranch04 {
                         require(r.extraDice.length==0,"unexpected_admiral_dice");
                         break;
                     case PIRATE_CAPTAIN:
-                        fx.add(effect(Rider.NEXT_ATTACK_ADVANTAGE,r,0,"next_attack_before_end_of_current_turn"));
+                        fx.add(new Effect(Rider.NEXT_ATTACK_ADVANTAGE,r.actor,r.actor,0,"next_attack_before_end_of_current_turn"));
                         require(r.choice==Choice.NONE&&r.extraDice.length==0,"unexpected_captain_context");
                         break;
                     case PSYCHIC_GRAY_OOZE:
@@ -255,7 +255,7 @@ public final class XmmDamageOrSaveBranch04 {
                         break;
                     case SPECTER:
                         if(creature) {
-                            max=Math.max(1,max-damage);
+                            max=Math.max(0,max-damage);
                             hp=Math.min(hp,max);
                             fx.add(effect(Rider.MAX_HP_REDUCTION,r,damage,"until_max_hp_restored"));
                         }
@@ -273,7 +273,12 @@ public final class XmmDamageOrSaveBranch04 {
                 }
             } else {
                 require(r.firstDice.length==0&&r.secondDice.length==0
-                        &&r.extraDice.length==0&&r.choice==Choice.NONE,"unused_rolls_or_choice");
+                        &&r.extraDice.length==0,"unused_rolls");
+                if(a==Action.SOLAR&&r.ranged){
+                    require(r.choice==Choice.SWORD_RETURNED||r.choice==Choice.SWORD_HOVERS,"solar_sword_location_required");
+                    fx.add(new Effect(r.choice==Choice.SWORD_RETURNED?Rider.SWORD_RETURNED:Rider.SWORD_HOVERS,
+                            r.actor,r.target,0,"immediately_after_ranged_attack"));
+                } else require(r.choice==Choice.NONE,"unused_choice");
                 if(a==Action.RED_SLAAD)require(r.saveSucceeded==null,"miss_cannot_trigger_save");
             }
             boolean dead=hp==0 || str==0 || (t.kind!=Kind.OBJECT&&max<=0);
