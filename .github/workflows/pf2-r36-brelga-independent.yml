@@ -579,6 +579,37 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Provision Android 16 API 36 A57-sized acceptance AVD (only after approved TEST APK)
+        shell: powershell
+        timeout-minutes: 35
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'WRONG_RUNNER_A57'}
+          $candidates=@('C:\actions-runner\android-sdk',$env:ANDROID_SDK_ROOT,$env:ANDROID_HOME,(Join-Path $env:LOCALAPPDATA 'Android\Sdk'))|Where-Object{$_ -and (Test-Path $_)}
+          $sdk=$candidates|Where-Object{Test-Path (Join-Path $_ 'platform-tools\adb.exe')}|Select-Object -First 1
+          if(!$sdk){throw 'A57_ANDROID_SDK_MISSING'}
+          $env:ANDROID_SDK_ROOT=$sdk
+          $env:ANDROID_HOME=$sdk
+          $toolsPath=Join-Path $sdk 'cmdline-tools'
+          $manager=Get-ChildItem $toolsPath -Filter 'sdkmanager.bat' -Recurse -File -ErrorAction SilentlyContinue|Select-Object -First 1 -ExpandProperty FullName
+          $avdmanager=Get-ChildItem $toolsPath -Filter 'avdmanager.bat' -Recurse -File -ErrorAction SilentlyContinue|Select-Object -First 1 -ExpandProperty FullName
+          if(!$manager -or !$avdmanager){throw 'A57_ANDROID16_CMDLINE_TOOLS_MISSING'}
+          $image=Join-Path $sdk 'system-images\android-36\google_apis\x86_64'
+          if(!(Test-Path $image)){
+            & $manager "--sdk_root=$sdk" --install 'system-images;android-36;google_apis;x86_64'
+            if($LASTEXITCODE -ne 0){throw 'A57_ANDROID16_SYSTEM_IMAGE_INSTALL_FAILED'}
+          }
+          if(!(Test-Path $image)){throw 'A57_ANDROID16_SYSTEM_IMAGE_NOT_FOUND'}
+          $emulator=Join-Path $sdk 'emulator\emulator.exe'
+          if(!(Test-Path $emulator)){throw 'A57_ANDROID_EMULATOR_BINARY_MISSING'}
+          $avds=@(& $emulator -list-avds 2>$null|Where-Object{$_ -and $_.Trim() -and $_ -notmatch '^INFO|^WARNING|^ERROR'})
+          if($LASTEXITCODE -ne 0){throw 'A57_AVD_LIST_FAILED'}
+          if('PF2_R36_A57_ANDROID16' -notin $avds){
+            & $avdmanager create avd -n 'PF2_R36_A57_ANDROID16' -k 'system-images;android-36;google_apis;x86_64' -d 'pixel_6' --force
+            if($LASTEXITCODE -ne 0){throw 'A57_ANDROID16_AVD_CREATE_FAILED'}
+          }
+          Write-Host 'R36_A57_ANDROID16_AVD_READY=true; 1080x2340 viewport / 420 dpi applied after boot'
+          Write-Host 'R36_A57_PHYSICAL_DEVICE_CERTIFIED=false'
       - name: Boot a real Android emulator and validate production AppDb
         shell: powershell
         timeout-minutes: 65
@@ -601,8 +632,8 @@ jobs:
           $env:ANDROID_HOME=$sdk
           $avds=@(& $emulator -list-avds | Where-Object {$_ -and $_.Trim() -ne '' -and $_ -notmatch '^INFO|^WARNING|^ERROR'})
           if($LASTEXITCODE -ne 0){throw 'ANDROID_AVD_LIST_FAILED'}
-          if($avds.Count -eq 0){throw 'ANDROID_AVD_MISSING_ON_BRELGA: create a Pixel Android 11 (API 30) x86_64 AVD to permit real AppDb tests'}
-          $avd=$avds[0].Trim()
+          if('PF2_R36_A57_ANDROID16' -notin $avds){throw 'A57_ANDROID16_DEDICATED_AVD_MISSING'}
+          $avd='PF2_R36_A57_ANDROID16'
           Write-Host "REAL_ANDROID_AVD=$avd"
           $proc=$null
           try{
@@ -615,6 +646,17 @@ jobs:
               if($proc.HasExited){throw "ANDROID_EMULATOR_EXITED_EARLY code=$($proc.ExitCode)"}
             }
             if(!$booted){throw 'ANDROID_EMULATOR_BOOT_TIMEOUT'}
+            $version=(& $adb -e shell getprop ro.build.version.sdk|Out-String).Trim()
+            if($version -ne '36'){throw "A57_ANDROID_API_36_REQUIRED_actual=$version"}
+            & $adb -e shell wm size 1080x2340
+            if($LASTEXITCODE -ne 0){throw 'A57_VIEWPORT_SIZE_SET_FAILED'}
+            & $adb -e shell wm density 420
+            if($LASTEXITCODE -ne 0){throw 'A57_VIEWPORT_DENSITY_SET_FAILED'}
+            $actualSize=(& $adb -e shell wm size|Out-String).Trim()
+            $actualDensity=(& $adb -e shell wm density|Out-String).Trim()
+            if($actualSize -notmatch 'Override size: 1080x2340' -or $actualDensity -notmatch 'Override density: 420'){throw 'A57_VIEWPORT_GEOMETRY_MISMATCH'}
+            Write-Host 'R36_A57_ANDROID16_EMULATED=PASS api=36 size=1080x2340 density=420'
+            Write-Host 'R36_A57_PHYSICAL_DEVICE_CERTIFIED=false'
             & $adb -e shell input keyevent 82
             & $adb -e install -r "$apk"
             if($LASTEXITCODE -ne 0){throw 'ANDROID_APK_INSTALL_FAILED'}
