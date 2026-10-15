@@ -88,8 +88,8 @@ Este documento foi criado com a infraestrutura de automação. Não foi usado co
 <!-- DND_AUTO_BEGIN -->
 ## Último pacote verificado automaticamente
 
-- Fonte: antigravity/dnd-normal-fechamento-gates @ `46e57b65736d601ef472822a58e5c4860312b47f`.
-- GitHub CI: https://github.com/bra83/braseirobuild/actions/runs/38660000255
+- Fonte: antigravity/dnd-normal-fechamento-gates @ `893b6aee23a6b74afebf10b3de14585d6d33ea2f`.
+- GitHub CI: https://github.com/bra83/braseirobuild/actions/runs/38667951606
 - Regressão BRELGA: **success** (XMLs na branch de evidências QA quando publicados).
 - TypeScript: **success**; NOT_APPLICABLE se não existe package.json no D&D.
 - APK deste workflow: **não compilado**.
