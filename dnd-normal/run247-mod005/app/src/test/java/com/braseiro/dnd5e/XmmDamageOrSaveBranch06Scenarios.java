@@ -90,8 +90,7 @@ public final class XmmDamageOrSaveBranch06Scenarios {
         rejects(()->s.propose(new Request(SOURCE_POINTER,"wraith","hero","miss-rolled",0,5,false,new int[]{1,1,1,1})));
         rejects(()->s.propose(new Request(SOURCE_POINTER,"wraith","hero","few-dice",0,5,true,new int[]{1,1,1})));
         rejects(()->s.propose(new Request(SOURCE_POINTER,"wraith","hero","bad-die",0,5,true,new int[]{1,1,1,9})));
-        rejects(()->s.propose(new Request(SOURCE_POINTER,"wraith","hero","bad-target",0,5,true,new int[]{1,1,1,1}){
-        }));
+        rejects(()->s.propose(new Request(SOURCE_POINTER,"wraith","ghost","bad-target",0,5,true,new int[]{1,1,1,1})));
         Session t=session(Kind.CREATURE,100,100,Defense.NORMAL);
         Proposal p=s.propose(request(s,"good",Boolean.TRUE,1,1,1,1));
         rejects(()->t.commit(p));
