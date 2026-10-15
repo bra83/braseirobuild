@@ -1,0 +1,62 @@
+name: DND XMM 2025 - independent Java gates
+
+on:
+  push:
+    branches:
+      - implementation/dnd-xmm-monster-spell-01-direct-20261015
+    paths:
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Xmm*.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Xmm*Scenarios.java'
+      - 'dnd-normal/run247-mod005/tools/verify_*.py'
+      - 'dnd-normal/run247-mod005/tools/audit_xmm_62_source_registry.py'
+      - '.github/workflows/dnd-xmm-isolated-jvm-gates-20261015.yml'
+  pull_request:
+    paths:
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Xmm*.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Xmm*Scenarios.java'
+      - 'dnd-normal/run247-mod005/tools/verify_*.py'
+      - 'dnd-normal/run247-mod005/tools/audit_xmm_62_source_registry.py'
+      - '.github/workflows/dnd-xmm-isolated-jvm-gates-20261015.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  independent-jvm-lots-04-to-13:
+    name: JVM independent 04-13 (no Android or SQLite)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout only DND module
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - name: Use Java 21 with --release 8 in source gates
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Ten no-Gradle independent Java gates
+        shell: bash
+        run: |
+          set -o pipefail
+          python3 -B dnd-normal/run247-mod005/tools/audit_xmm_62_source_registry.py 2>&1 | tee xmm-standalone-jvm.log
+          python3 -B dnd-normal/run247-mod005/tools/verify_xmm_10_standalone_lots.py 2>&1 | tee -a xmm-standalone-jvm.log
+      - name: Publish focused XMM diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xmm-standalone-jvm-diagnostics
+          path: xmm-standalone-jvm.log
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Never mistake JVM green for playable combat
+        if: always()
+        run: |
+          echo "XMM Android battle adapter: NOT_INTEGRATED"
+          echo "XMM SQLite persistence: NOT_IMPLEMENTED"
+          echo "XMM official binary source parity: NOT_TESTED_BY_THIS_WORKFLOW"
