@@ -155,10 +155,11 @@ public final class XmmOtherSourceEffect02 {
     public static final class Proposal {
         private final Session owner;
         private final long revision;
-        private final String event;
+        private final String event,actor,turn;
         public final Result result;
-        Proposal(Session owner,long revision,String event,Result result){
-            this.owner=owner;this.revision=revision;this.event=event;this.result=result;
+        Proposal(Session owner,long revision,String event,String actor,String turn,Result result){
+            this.owner=owner;this.revision=revision;this.event=event;
+            this.actor=actor;this.turn=turn;this.result=result;
         }
     }
     public static final class Session {
@@ -253,10 +254,9 @@ public final class XmmOtherSourceEffect02 {
             need(!req.selected.isEmpty()||action==Action.EMPYREAN_BOLSTER,
                 "at_least_one_explicit_target_required");
             if(action==Action.DEMILICH_ENERGY_DRAIN||action==Action.GNOLL_INCITE_RAMPAGE
-                    ||action==Action.GOLD_WYRMLING_WEAKENING&&req.selected.size()>99
-                    ||action==Action.FROST_GIANT_WAR_CRY||action==Action.NALFESHNEE_PURSUIT)
-                if(action!=Action.GOLD_WYRMLING_WEAKENING)
-                    need(req.selected.size()==1,"single_target_required");
+                ||action==Action.FROST_GIANT_WAR_CRY||action==Action.NALFESHNEE_PURSUIT
+                ||action==Action.CULTIST_ELEMENTAL_ABSORPTION)
+                need(req.selected.size()==1,"single_target_required");
             if(action==Action.PIRATE_ADMIRAL_RALLY)
                 need(req.selected.size()>=1&&req.selected.size()<=3,"rally_one_to_three_targets");
             for(Selection choice:req.selected) {
@@ -361,7 +361,8 @@ public final class XmmOtherSourceEffect02 {
                         &&t.kind!=Kind.OBJECT&&t.kind!=Kind.HUMANOID_CORPSE,
                         "gold_wyrmling_str13_cone_15ft");
                     need(choice.saveSucceeded!=null,"gold_wyrmling_str13_save_required");
-                    noRolls(choice);
+                    need(choice.primaryDice.length==0&&choice.secondaryDice.length==0,
+                        "weakening_breath_does_not_roll_damage");
                     if(!choice.saveSucceeded) {
                         need(!hasWeakening(t.id,req.actor),"already_affected_by_same_breath");
                         effects.add(effect(Rider.WEAKENING_STR_TEST_DISADVANTAGE_DAMAGE_MINUS_1D4,
@@ -387,7 +388,8 @@ public final class XmmOtherSourceEffect02 {
                         req.actor,t.id,0,"start_of_pirate_next_turn"));
                 }
             }
-            return new Proposal(this,revision,req.event,new Result(action,effects,damage,stats));
+            return new Proposal(this,revision,req.event,req.actor,req.turn,
+                new Result(action,effects,damage,stats));
         }
         public synchronized Result commit(Proposal p){
             need(p!=null&&p.owner==this&&p.revision==revision
@@ -404,16 +406,16 @@ public final class XmmOtherSourceEffect02 {
                 list.add(e);
             }
             Action a=p.result.action;
-            // Reservation must be keyed by actor and turn, not the target.
-            for(Effect e:p.result.effects) {
-                if(a==Action.DEMILICH_ENERGY_DRAIN
-                    &&e.rider==Rider.DEMILICH_UNAVAILABLE_UNTIL_ITS_NEXT_TURN)
-                    usedTurnActions.add(e.source+"|"+a.name()+"|"+currentTurnFromEvent(p.event));
-            }
+            // Commit consumes deterministic once-per-turn/day resources.
+            // These are in-memory reservations; app state must persist them later.
+            if(a==Action.DEMILICH_ENERGY_DRAIN||a==Action.EMPYREAN_BOLSTER)
+                usedTurnActions.add(p.actor+"|"+a.name()+"|"+p.turn);
+            if(a==Action.CULTIST_ELEMENTAL_ABSORPTION
+                ||a==Action.PIRATE_ADMIRAL_RALLY)
+                usedDayActions.add(p.actor+"|"+a.name());
             consumedEvents.add(p.event);revision++;
             return p.result;
         }
-        private String currentTurnFromEvent(String event){return event.split("#",2)[0];}
     }
     private static boolean reactiveType(Type t){
         return t==Type.ACID||t==Type.COLD||t==Type.FIRE
