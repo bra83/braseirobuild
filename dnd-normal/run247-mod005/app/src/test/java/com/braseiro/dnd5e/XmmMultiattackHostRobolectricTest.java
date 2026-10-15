@@ -186,6 +186,16 @@ public class XmmMultiattackHostRobolectricTest {
             JSONObject denied=XmmMultiattackHostPlan.declaration("Clay Golem",uiOverride,restored);
             assertEquals("multiattack_context_not_authorized_by_host",
                 denied.optString("statblock_multiattack_blocked"));
+            long restoredActor=DatabaseUtils.longForQuery(db.getReadableDatabase(),
+                "SELECT id FROM combatants WHERE world_profile=? AND name=? ORDER BY id DESC LIMIT 1",
+                new String[]{"dnd","Ape"});
+            assertTrue(restoredActor>0);
+            JSONObject rejected=db.applyCompiledStatblockMultiattack(restoredActor,"Clay Golem",
+                new JSONArray(),"ui-monster-multi-backup21-denied-"+reopen,uiOverride);
+            assertEquals("multiattack_context_not_authorized_by_host",
+                rejected.optString("statblock_multiattack_blocked"));
+            assertEquals(0,DatabaseUtils.longForQuery(db.getReadableDatabase(),
+                "SELECT COUNT(*) FROM effect_receipts",null));
         }
     }
 }
