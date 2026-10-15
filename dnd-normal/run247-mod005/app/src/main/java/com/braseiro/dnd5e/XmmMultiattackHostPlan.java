@@ -6,6 +6,10 @@ import org.json.JSONObject;
 /** Read-only source-plan adapter. Execution stays in AppDb's existing transaction. */
 public final class XmmMultiattackHostPlan {
     private XmmMultiattackHostPlan() {}
+    /** Compatibility preview: never authorizes transient monster resources. */
+    public static JSONObject declaration(String id, JSONObject selection) throws Exception {
+        return declaration(id, selection, null);
+    }
     public static JSONObject declaration(String id, JSONObject selection,
             JSONObject persistedActorResources) throws Exception {
         if (selection == null) return blocked("explicit_source_plan_required");
