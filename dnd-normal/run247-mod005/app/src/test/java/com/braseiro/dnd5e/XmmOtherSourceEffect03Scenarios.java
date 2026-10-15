@@ -125,8 +125,9 @@ public final class XmmOtherSourceEffect03Scenarios {
             if(ray==3)yes(has(proposal.result,Rider.SPECTATOR_FRIGHTENED_END_NEXT_TURN));
             if(ray==4)equal(proposal.result.damage.get("hero"),3);
             s.commit(proposal);
-            blocked(()->s.propose(req(s,Action.SPECTATOR,"rayagain"+ray,"turn1",
-                Choice.NONE,ray,pick("hero",true))));
+            final int usedRay=ray; // Java 8 lambda requires effectively-final capture.
+            blocked(()->s.propose(req(s,Action.SPECTATOR,"rayagain"+usedRay,"turn1",
+                Choice.NONE,usedRay,pick("hero",true))));
         }
         Session saved=session();
         Result half=saved.propose(req(saved,Action.SPECTATOR,"wounding","turn1",Choice.NONE,4,
