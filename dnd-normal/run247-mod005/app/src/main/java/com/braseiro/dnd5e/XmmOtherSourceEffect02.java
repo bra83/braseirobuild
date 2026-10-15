@@ -360,11 +360,11 @@ public final class XmmOtherSourceEffect02 {
                     need(choice.withinArea&&choice.distanceFeet<=15
                         &&t.kind!=Kind.OBJECT&&t.kind!=Kind.HUMANOID_CORPSE,
                         "gold_wyrmling_str13_cone_15ft");
+                    need(!hasWeakening(t.id,req.actor),"already_affected_by_same_breath");
                     need(choice.saveSucceeded!=null,"gold_wyrmling_str13_save_required");
                     need(choice.primaryDice.length==0&&choice.secondaryDice.length==0,
                         "weakening_breath_does_not_roll_damage");
                     if(!choice.saveSucceeded) {
-                        need(!hasWeakening(t.id,req.actor),"already_affected_by_same_breath");
                         effects.add(effect(Rider.WEAKENING_STR_TEST_DISADVANTAGE_DAMAGE_MINUS_1D4,
                             req.actor,t.id,4,"repeated_str13_save_or_one_minute"));
                         effects.add(effect(Rider.WEAKENING_REPEAT_STR13_SAVE_END_TURN_AUTO_END_ONE_MINUTE,
