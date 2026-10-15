@@ -35,7 +35,7 @@ jobs:
                 lo=max(0,i-15);hi=min(len(lines),i+42)
                 for j in range(lo,hi):
                   if j not in emitted:
-                    print(f'{filename}:{j+1}: {lines[j]}',flush=True)
+                    print(f'{filename}:{j+1}: {lines[j].encode("unicode_escape").decode("ascii")}',flush=True)
                     emitted.add(j)
           '@ | python.exe -B -
           if ($LASTEXITCODE -ne 0) { throw 'PR52_SOURCE_INSPECTION_FAILED' }
