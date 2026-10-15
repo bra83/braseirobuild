@@ -58,6 +58,9 @@ public class CharacterCreationUiRobolectricTest {
         EditText input=firstEdit(editor.getWindow().getDecorView());assertNotNull(input);input.setText(name);
         editor.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
         assertFalse("Manual edit must apply synchronously",editor.isShowing());
+        View shown=find(form.getWindow().getDecorView(),name,false);
+        System.out.println("CHARACTER_NAME_EDITOR_APPLIED="+name+" DISPLAY_PRESENT="+(shown!=null));
+        assertNotNull("Manual name must appear in visible editor before saving: "+name,shown);
     }
     EditText firstEdit(View root){if(root instanceof EditText&&root.getVisibility()==View.VISIBLE)return (EditText)root;if(root instanceof ViewGroup)for(int i=0;i<((ViewGroup)root).getChildCount();i++){EditText e=firstEdit(((ViewGroup)root).getChildAt(i));if(e!=null)return e;}return null;}
     void select(String label,String choice){Spinner spinner=(Spinner)control(label);for(int i=0;i<spinner.getCount();i++)if(choice.equals(spinner.getItemAtPosition(i).toString())){spinner.setSelection(i);shadowOf(Looper.getMainLooper()).idle();return;}fail(choice);}
