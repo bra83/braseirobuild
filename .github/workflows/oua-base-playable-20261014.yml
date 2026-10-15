@@ -21,7 +21,7 @@ jobs:
             ci/oua-4.9.202
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Restore canonical 4.9.211 project
         shell: powershell
         env:
@@ -74,22 +74,15 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw 'Manual player roll one-shot behavior failed' }
             & npx.cmd --yes tsx audit-turn-flow.ts
             if ($LASTEXITCODE -ne 0) { throw 'Base rules turn-flow regression failed' }
-            & node.exe -e 'const r=require("./OUA_49202_TURN_FLOW_AUDIT.json");if(r.failed||r.passed!==r.assertions)process.exit(2);console.log("BASE_GAMEPLAY_PASS sessions="+r.sessionsSimulated+" assertions="+r.assertions)'
+            & node.exe "$env:GITHUB_WORKSPACE\ci\oua-base-20261014\verify-audit-result.mjs" "OUA_49202_TURN_FLOW_AUDIT.json"
             if ($LASTEXITCODE -ne 0) { throw 'Invalid regression summary' }
             & npm.cmd run lint
             if ($LASTEXITCODE -ne 0) { throw 'Typecheck failed' }
             & npm.cmd run build
             if ($LASTEXITCODE -ne 0) { throw 'Vite build failed' }
           } finally { Pop-Location }
-      - name: Upload test evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: OUA-base-20261014-core-gates
-          path: |
-            ${{ env.OUA_ROOT }}/OUA_49202_TURN_FLOW_AUDIT.json
-            ${{ env.OUA_ROOT }}/OUA_49202_TURN_FLOW_AUDIT.md
-          if-no-files-found: warn
+      # Logs and GitHub step summary preserve audit evidence without using
+      # the repository's exhausted artifact-storage quota.
       - name: Clean self-hosted runner
         if: always()
         shell: powershell
