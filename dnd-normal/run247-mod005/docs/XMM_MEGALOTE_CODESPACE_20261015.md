@@ -90,3 +90,22 @@ o núcleo independente e deixar um bloqueio rastreável. Não modificar
 O snapshot do pacote pode ficar atrás do Codex em execução. Comparar
 todos os resultados ao PR #40 MAIS RECENTE antes de integrar. O PR #39
 precisa ficar verde antes de integrar o combate ao fluxo de sessão real.
+
+## Correção do consumo de disco — 15/10/2026
+
+A primeira versão criava worktrees completas (~2,4 GB por lote) e causava
+lotação do Codespace. O commit `cca1955130d63db6ed07ee5a70f8af89676416e3`
+altera o gerador: novos lotes usam `git worktree add --no-checkout`,
+`git sparse-checkout set --cone dnd-normal/run247-mod005` e
+`git reset --hard HEAD` apenas na worktree **recém-criada**.
+Também recusa novo lote se o disco tiver menos de 1,5 GB livres.
+
+**Processos Python do gerador iniciados antes do commit continuam com o
+código antigo em memória.** Pausar o gerador anterior antes de novos jobs,
+deixando filhos Codex já iniciados terminarem. Não executar
+`git clean`, `git worktree prune` ou `rm -rf` em worktrees ativas.
+A worktree coordenadora, se limpa, pode ser reduzida via sparse-checkout
+ao diretório D&D, sem tocar nas branches de PR #39/#40.
+
+O checkout restrito reduz cópias de outros jogos; caches, binários de
+Gradle e imagens dentro do diretório D&D podem continuar consumindo espaço.
