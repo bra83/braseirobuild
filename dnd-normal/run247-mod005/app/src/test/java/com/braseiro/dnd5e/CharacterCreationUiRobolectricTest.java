@@ -75,7 +75,8 @@ public class CharacterCreationUiRobolectricTest {
         save();assertFalse(form.isShowing());assertEquals("Brasa",only().optString("name"));
         assertEquals(DndRulesEngine.PROFILE_2024,only().optString("rules_source"));
         long id=only().optLong("id");reopenDb();render();click("EDITAR");form=ShadowAlertDialog.getLatestAlertDialog();named("Brasa revisada");save();
-        assertEquals(id,only().optLong("id"));assertEquals("Brasa revisada",only().optString("name"));
+        assertEquals("Edit must preserve character identity",id,only().optLong("id"));
+        assertEquals("Editing name after DB reopen must persist; saved="+only().optString("name"),"Brasa revisada",only().optString("name"));
     }
     @Test public void cancelCreationDoesNotPersist(){open();named("Descartada");form.getButton(AlertDialog.BUTTON_NEGATIVE).performClick();assertTrue(db.listCharacters().isEmpty());}
     @Test public void blankNameBlocksSave(){open();named("");save();assertTrue(form.isShowing());assertTrue(db.listCharacters().isEmpty());}
@@ -111,7 +112,9 @@ public class CharacterCreationUiRobolectricTest {
         db.updateCharacterRuleDetails(id,"Soldado","","","","",DndRulesEngine.PROFILE_2014);
         render();click("EDITAR");form=ShadowAlertDialog.getLatestAlertDialog();assertEquals("Meio-elfo",((Spinner)control("ESPÉCIE")).getSelectedItem());
         named("Legado editado");save();assertFalse(form.isShowing());reopenDb();
-        assertEquals(DndRulesEngine.PROFILE_2014,only().optString("rules_source"));assertEquals(0,only().optInt("hp"));assertEquals("Meio-elfo",only().optString("species"));
+        assertEquals("2014 legacy edition must survive 2024 campaign edit",DndRulesEngine.PROFILE_2014,only().optString("rules_source"));
+        assertEquals("Editing a fallen 2014 character must not silently heal it",0,only().optInt("hp"));
+        assertEquals("2014-only legacy species must not be rewritten","Meio-elfo",only().optString("species"));
         assertEquals(DndRulesEngine.PROFILE_2024,db.getCampaign().optString("rules_profile"));
     }
     AlertDialog originPicker(){
