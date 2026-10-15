@@ -40,8 +40,8 @@ Não foi introduzido um executor novo de magia nesta execução. O comparador va
 - Comparador XMM: aprovado; 503 monstros, 36 seções, 120 recargas, 132 registros de magia, 178 contratos de traits, 59 ações de dano por salvaguarda, 110 contratos simples de Multiattack.
 - Testes Python: 98 aprovados (`PYTHONPATH=tools python3 -m unittest discover -s tools -p 'test_*.py'`).
 - O comparador independente passou com 58 perfis save-condition e 3 perfis recurring-damage adicionais; `source_field_and_catalog_gate_pass=true`.
-- Gradle/Robolectric: a suíte completa será registrada após a execução local deste commit; o cache Gradle local está sendo usado em modo offline.
-- Fonte de verificação: `xmm-source-verification.json`; SHA-256: `1216818abd9a653c6da098f2e2a0ad871c40ea8d2a02328fce6438b1d018fbcd`.
+- Gradle/Robolectric: `JAVA_HOME=/workspace/jdk21 ANDROID_HOME=/workspace/android-sdk bash gradlew --offline --console=plain testDebugUnitTest` aprovado; XMLs locais agregam 2.597 testes, 0 falhas, 0 erros e 0 ignorados (133 classes). Inclui 5 testes de save-condition e 4 testes de dano recorrente.
+- Fonte de verificação: `xmm-source-verification.json`; SHA-256: `fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d`.
 - O comparador continua declarando `full_monster_combat_automation_certified=false`.
 - Não foram executados fluxos E2E de estado real, SQLite ou Backup21 para estes previews.
 
