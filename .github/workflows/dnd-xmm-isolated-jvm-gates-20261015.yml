@@ -8,12 +8,14 @@ on:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Xmm*.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Xmm*Scenarios.java'
       - 'dnd-normal/run247-mod005/tools/verify_*.py'
+      - 'dnd-normal/run247-mod005/tools/audit_xmm_62_source_registry.py'
       - '.github/workflows/dnd-xmm-isolated-jvm-gates-20261015.yml'
   pull_request:
     paths:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Xmm*.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Xmm*Scenarios.java'
       - 'dnd-normal/run247-mod005/tools/verify_*.py'
+      - 'dnd-normal/run247-mod005/tools/audit_xmm_62_source_registry.py'
       - '.github/workflows/dnd-xmm-isolated-jvm-gates-20261015.yml'
   workflow_dispatch:
 
@@ -42,7 +44,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          python3 -B dnd-normal/run247-mod005/tools/verify_xmm_10_standalone_lots.py 2>&1 | tee xmm-standalone-jvm.log
+          python3 -B dnd-normal/run247-mod005/tools/audit_xmm_62_source_registry.py 2>&1 | tee xmm-standalone-jvm.log
+          python3 -B dnd-normal/run247-mod005/tools/verify_xmm_10_standalone_lots.py 2>&1 | tee -a xmm-standalone-jvm.log
       - name: Publish focused XMM diagnostics
         if: always()
         uses: actions/upload-artifact@v4
