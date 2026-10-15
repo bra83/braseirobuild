@@ -55,6 +55,8 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'Catalog/UI synthetic contracts failed'}
           python -m pytest -q ci/pf2-kingmaker-r36/test_windows_harness_utf8.py
           if($LASTEXITCODE -ne 0){throw 'Windows JVM UTF-8 harness compatibility regression failed'}
+          python -m pytest -q ci/pf2-kingmaker-r36/test_galaxy_a57_compat.py
+          if($LASTEXITCODE -ne 0){throw 'Galaxy A57 safe-area and 48dp production UI contract failed'}
           python -m pytest -q ci/pf2-kingmaker-r36/test_legacy_javac_dependencies.py
           if($LASTEXITCODE -ne 0){throw 'Original JVM harness dependency patch regression failed'}
           python -m pytest -q ci/pf2-kingmaker-r36/test_runtime_json_integer.py
@@ -121,6 +123,8 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'R36 legacy JVM harness dependency reconciliation failed'}
           python ci\pf2-kingmaker-r36\patch_windows_harness_utf8.py "$project"
           if($LASTEXITCODE -ne 0){throw 'R36 Windows subprocess UTF8 integration failed'}
+          python ci\pf2-kingmaker-r36\patch_galaxy_a57_compat.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'Galaxy A57 Android16 production shell compatibility patch failed'}
           python ci\pf2-kingmaker-r36\audit_catalog_expansion.py --project "$project" --out r36-catalog-73-brelga.json --require-73
           if($LASTEXITCODE -ne 0){throw 'Canonical 73-structure numerical audit failed'}
           python ci\pf2-kingmaker-certification\audit_structure_catalog.py --project "$project" --out r36-official-structure-delta-brelga.json --require-zero-mismatches
