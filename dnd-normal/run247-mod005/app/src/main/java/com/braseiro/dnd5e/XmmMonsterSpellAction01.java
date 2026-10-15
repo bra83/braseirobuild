@@ -137,6 +137,9 @@ public final class XmmMonsterSpellAction01 {
         public synchronized Curse curse(String id){return curses.get(id);}
         public synchronized boolean canRegainHp(String id){
             require(targets.containsKey(id),"target_missing");
+            State current=state.get(id);
+            require(current==State.NORMAL||current==State.CURSED,
+                "transformed_statblock_requires_authoritative_adapter");
             return !curses.containsKey(id);
         }
         private void event(String id){
