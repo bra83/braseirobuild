@@ -79,7 +79,7 @@
         "BUILDING",
         "RESIDENTIAL"
       ],
-      "item_bonus_rule": "+1 item bonus to Garrison Army, Recover Army, or Recruit Army (see Appendix 3) 544545",
+      "item_bonus_rule": "+1 item bonus to Garrison Army, Recover Army, or Recruit Army (see Appendix 3)",
       "ruin_rule": "",
       "effects_rule": "Barracks aid in the recruitment of armies and in helping soldiers recover from battle. The first time you build a barracks in any settlement, reduce Unrest by 1.",
       "upgrade_from": "",
@@ -270,7 +270,7 @@
       ],
       "item_bonus_rule": "+1 item bonus to Economy skill checks associated with the guildhall’s specific trade focus",
       "ruin_rule": "",
-      "effects_rule": "When you build a guildhall, indicate what sort of organization (such as bakers, grocers, smiths, etc.) it serves as a headquarters for. While in a settlement with a guildhall, you gain a +1 item bonus to all related skill checks to Earn Income or to Repair. 546547",
+      "effects_rule": "When you build a guildhall, indicate what sort of organization (such as bakers, grocers, smiths, etc.) it serves as a headquarters for. While in a settlement with a guildhall, you gain a +1 item bonus to all related skill checks to Earn Income or to Repair.",
       "upgrade_from": "trade shop",
       "upgrade_to": "",
       "semantic_certification": "PENDING"
@@ -404,7 +404,7 @@
       ],
       "item_bonus_rule": "+1 item bonus to Establish Trade Agreement",
       "ruin_rule": "",
-      "effects_rule": "A luxury store must be built on a block that has either a mansion or a noble villa. Treat the settlement’s level as one level higher than its actual level for determining what luxury\u0002themed magic items (subject to GM approval) are readily available for sale in that settlement. This effect stacks up to three times and overlaps with other stores that function in this way for more specific categories of magic items.",
+      "effects_rule": "A luxury store must be built on a block that has either a mansion or a noble villa. Treat the settlement’s level as one level higher than its actual level for determining what luxury-themed magic items (subject to GM approval) are readily available for sale in that settlement. This effect stacks up to three times and overlaps with other stores that function in this way for more specific categories of magic items.",
       "upgrade_from": "general store",
       "upgrade_to": "magic shop",
       "semantic_certification": "PENDING"
@@ -935,7 +935,7 @@
         "EDIFICE",
         "FAMOUS"
       ],
-      "item_bonus_rule": "+3 item bonus to Creative Solution 552553",
+      "item_bonus_rule": "+3 item bonus to Creative Solution",
       "ruin_rule": "",
       "effects_rule": "While in a settlement with a university, you gain a +3 item bonus to Lore checks made to Recall Knowledge while Investigating, to Research checks (Gamemastery Guide 154), and to Decipher Writing.",
       "upgrade_from": "academy",

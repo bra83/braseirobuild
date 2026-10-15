@@ -41,6 +41,26 @@ def test_official_pdf_structure_effects_do_not_contain_page_bleed():
     assert DATA["certification"]=="NOT_CERTIFIED"
 
 
+
+def test_official_structure_fields_are_free_of_pdf_page_bleed():
+    """Every one of 73 rule records is clear of merged page numbers/control glyphs."""
+    import re
+    assert len(DATA["structures"])==73
+    by_name={row["official_name"]:row for row in DATA["structures"]}
+    assert by_name["BARRACKS"]["item_bonus_rule"].endswith("(see Appendix 3)")
+    assert by_name["GUILDHALL"]["effects_rule"].endswith("Earn Income or to Repair.")
+    assert "luxury-themed magic items" in by_name["LUXURY STORE"]["effects_rule"]
+    assert by_name["UNIVERSITY"]["item_bonus_rule"]=="+3 item bonus to Creative Solution"
+    for entry in DATA["structures"]:
+        for field,value in entry.items():
+            if not isinstance(value,str):
+                continue
+            assert not re.search(r"[\\x00-\\x1f\\x7f]",value),(entry["official_name"],field)
+            assert not re.search(r"\\b\\d{3}\\d{3}\\b",value),(entry["official_name"],field)
+    # PDF extraction cleanliness is not certification of all mechanical effects.
+    assert DATA["certification"]=="NOT_CERTIFIED"
+
+
 def test_pdf_structure_effects_crosswalk_all_73():
     assert DATA["certification"]=="NOT_CERTIFIED"
     rows=mod.official_semantics()
