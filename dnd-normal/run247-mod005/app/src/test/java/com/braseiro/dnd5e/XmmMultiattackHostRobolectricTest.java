@@ -141,4 +141,41 @@ public class XmmMultiattackHostRobolectricTest {
             "ui-monster-multi-spell-block",selection);
         assertEquals("multiattack_component_executor_not_installed_spell_0",result.optString("statblock_multiattack_blocked"));unchanged();
     }
+    @Test public void hastenStateSurvivesBackup21RestoreAndTwoSqliteReopens() throws Exception {
+        bind("Clay Golem");
+        JSONObject resources=new JSONObject(db.getCombatant(actor).getString("resources_json"));
+        resources.put("hasten_used_this_turn",true);
+        ContentValues changed=new ContentValues();changed.put("resources_json",resources.toString());
+        assertEquals(1,db.getWritableDatabase().update("combatants",changed,
+            "id=?",new String[]{String.valueOf(actor)}));
+        JSONObject backup=db.exportAll();
+        assertEquals(21,backup.getInt("version"));
+        assertEquals("dnd",backup.getString("worldProfile"));
+        JSONArray saved=backup.getJSONArray("combatants");
+        boolean found=false;
+        for(int i=0;i<saved.length();i++){
+            JSONObject row=saved.getJSONObject(i);
+            if(row.optLong("id")!=actor)continue;
+            JSONObject stored=new JSONObject(row.getString("resources_json"));
+            assertEquals("Clay Golem",stored.getString("block_id"));
+            assertTrue(stored.getBoolean("hasten_used_this_turn"));
+            found=true;break;
+        }
+        assertTrue("combatant resource must be in the sealed Backup21",found);
+        resources.put("hasten_used_this_turn",false);
+        changed.put("resources_json",resources.toString());
+        assertEquals(1,db.getWritableDatabase().update("combatants",changed,
+            "id=?",new String[]{String.valueOf(actor)}));
+        db.importAll(backup);
+        for(int reopen=0;reopen<2;reopen++){
+            db.close();db=new AppDb(context,name);db.setActiveMapProfile("dnd");
+            String restoredJson=DatabaseUtils.stringForQuery(db.getReadableDatabase(),
+                "SELECT resources_json FROM combatants WHERE world_profile=? AND name=? ORDER BY id DESC LIMIT 1",
+                new String[]{"dnd","Ape"});
+            JSONObject restored=new JSONObject(restoredJson);
+            assertEquals("Clay Golem",restored.getString("block_id"));
+            assertTrue("Backup21 must restore persisted Hasten after reopen "+reopen,
+                restored.getBoolean("hasten_used_this_turn"));
+        }
+    }
 }
