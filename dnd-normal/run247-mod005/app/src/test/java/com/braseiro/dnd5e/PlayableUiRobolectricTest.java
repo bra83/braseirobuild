@@ -55,7 +55,7 @@ public class PlayableUiRobolectricTest {
         assertFalse(db.ensureCharacterResourceState(hero).optBoolean("short_rest_hit_dice_choice_pending"));
         click("DESCANSO CURTO");dialog=ShadowAlertDialog.getLatestAlertDialog();
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
-        assertEquals(before+1,db.getSceneState().optDouble("clock_hour"),.001);
+        assertEquals("short rest must advance the persisted clock; scene="+db.getSceneState(),before+1,db.getSceneState().optDouble("clock_hour"),.001);
         assertNotNull(find(content,Button.class,"GASTAR 1 DADO DE VIDA DO DESCANSO CURTO"));
         db.close();db=new AppDb(activity,database);db.setActiveMapProfile("dnd");
         assertTrue(db.ensureCharacterResourceState(hero).optBoolean("short_rest_hit_dice_choice_pending"));
@@ -63,7 +63,7 @@ public class PlayableUiRobolectricTest {
     }
     @Test public void longRestRestoresHpAndPersistsTime()throws Exception {
         click("DESCANSO LONGO");ShadowAlertDialog.getLatestAlertDialog().getButton(AlertDialog.BUTTON_POSITIVE).performClick();
-        assertEquals(12,db.getCharacter(hero).optInt("hp"));
+        assertEquals("long rest should restore hit points; campaign="+db.getCampaign()+", scene="+db.getSceneState()+", hero="+db.getCharacter(hero),12,db.getCharacter(hero).optInt("hp"));
         assertFalse(db.ensureCharacterResourceState(hero).optBoolean("short_rest_hit_dice_choice_pending"));
         String scene=db.getSceneState().toString();
         db.close();db=new AppDb(activity,database);db.setActiveMapProfile("dnd");
@@ -74,7 +74,7 @@ public class PlayableUiRobolectricTest {
         EditText input=find(dialog.getWindow().getDecorView(),EditText.class,null);
         for(String invalid:new String[]{"","0","-1","999999999999"}){
             input.setText(invalid);dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
-            assertTrue(dialog.isShowing());assertNotNull(input.getError());
+            assertTrue("invalid XP must keep dialog open, input="+invalid+", xp="+db.ensureCharacterResourceState(hero).optInt("xp")+", validation="+input.getError(),dialog.isShowing());assertNotNull("invalid XP must expose validation: "+invalid,input.getError());
             assertEquals(0,db.ensureCharacterResourceState(hero).optInt("xp"));
         }
         input.setText("300");Button apply=dialog.getButton(AlertDialog.BUTTON_POSITIVE);apply.performClick();apply.performClick();
@@ -87,7 +87,7 @@ public class PlayableUiRobolectricTest {
         click("− PV");AlertDialog dialog=ShadowAlertDialog.getLatestAlertDialog();
         EditText input=find(dialog.getWindow().getDecorView(),EditText.class,null);input.setText("2");
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
-        assertEquals(2,db.getCharacter(hero).optInt("hp"));
+        assertEquals("damage must be applied once; hero="+db.getCharacter(hero)+", resources="+db.ensureCharacterResourceState(hero),2,db.getCharacter(hero).optInt("hp"));
         db.close();db=new AppDb(activity,database);db.setActiveMapProfile("dnd");
         assertEquals(2,db.getCharacter(hero).optInt("hp"));
         assertEquals(2,db.ensureCharacterResourceState(hero).optInt("hp"));
