@@ -84,6 +84,17 @@ public class XmmMultiattackHostRobolectricTest {
         JSONObject plan = XmmMultiattackHostPlan.declaration("Clay Golem", base, resources);
         assertFalse(plan.toString(), plan.has("statblock_multiattack_blocked"));
         assertEquals(2, plan.getInt("count"));
+        // Preview may describe a selected variant, but is explicitly non-authoritative.
+        JSONObject preview = XmmMultiattackHostPlan.declaration("Clay Golem", forged);
+        assertFalse(preview.toString(), preview.has("statblock_multiattack_blocked"));
+        assertTrue(preview.optBoolean("preview_only"));
+        assertEquals(3, preview.optInt("count"));
+        // A real host may authorize the same variant only from a persisted boolean.
+        resources.put("hasten_used_this_turn", true);
+        JSONObject authorized = XmmMultiattackHostPlan.declaration("Clay Golem", forged, resources);
+        assertFalse(authorized.toString(), authorized.has("statblock_multiattack_blocked"));
+        assertFalse(authorized.optBoolean("preview_only"));
+        assertEquals(3, authorized.optInt("count"));
         // A non-boolean persisted value must fail closed rather than be coerced.
         resources.put("hasten_used_this_turn", "true");
         assertEquals("multiattack_context_persisted_invalid",
