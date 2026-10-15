@@ -1736,6 +1736,46 @@ def check_werebeast_multiattack_variants(source,plans):
             errors.append(monster+":WEREBEAST_MULTIATTACK_ACTION_MISSING")
     return errors,0 if errors else len(WEREBEAST_MULTIATTACKS)
 
+COMPOUND_MULTIATTACKS={
+    "Barbed Devil":("The devil makes one Claws attack and one Tail attack, or it makes two Hurl Flame attacks.",
+        ([[{"k":"attack","o":["Claws"],"c":1},{"k":"attack","o":["Tail"],"c":1}],
+          [{"k":"attack","o":["Hurl Flame"],"c":2}]],None)),
+    "Clay Golem":("The golem makes two Slam attacks, or it makes three Slam attacks if it used Hasten this turn.",
+        ([[{"k":"attack","o":["Slam"],"c":2}],[{"k":"attack","o":["Slam"],"c":3}]],
+         {"field":"hasten_used_this_turn","variant_index":1})),
+    "Dragon Turtle":("The dragon makes three Bite attacks. It can replace one attack with a Tail attack.",
+        ([[{"k":"attack","o":["Bite"],"c":3}],
+          [{"k":"attack","o":["Tail"],"c":1},{"k":"attack","o":["Bite"],"c":2}],
+          [{"k":"attack","o":["Bite"],"c":1},{"k":"attack","o":["Tail"],"c":1},{"k":"attack","o":["Bite"],"c":1}],
+          [{"k":"attack","o":["Bite"],"c":2},{"k":"attack","o":["Tail"],"c":1}]],None)),
+    "Medusa":("The medusa makes two Claw attacks and one Snake Hair attack, or it makes three Poison Ray attacks.",
+        ([[{"k":"attack","o":["Claw"],"c":2},{"k":"attack","o":["Snake Hair"],"c":1}],
+          [{"k":"attack","o":["Poison Ray"],"c":3}]],None)),
+    "Roc":("The roc makes two Beak attacks. It can replace one attack with a Talons attack.",
+        ([[{"k":"attack","o":["Beak"],"c":2}],
+          [{"k":"attack","o":["Talons"],"c":1},{"k":"attack","o":["Beak"],"c":1}],
+          [{"k":"attack","o":["Beak"],"c":1},{"k":"attack","o":["Talons"],"c":1}]],None)),
+    "Tarrasque":("The tarrasque makes one Bite attack and three other attacks, using Claw or Tail in any combination.",
+        ([[{"k":"attack","o":["Bite"],"c":1},{"k":"attack","o":["Claw","Tail"],"c":3}]],None)),
+}
+
+def check_compound_multiattack_variants(source,plans):
+    source_by_name={m.get("name"):m for m in source};plan_by_name={p.get("id"):p for p in plans}
+    errors=[]
+    for monster,(expected_text,(expected_variants,context)) in COMPOUND_MULTIATTACKS.items():
+        block=source_by_name.get(monster)
+        action=next((a for a in (block or {}).get("action",[]) if a.get("name")=="Multiattack"),None)
+        plan=plan_by_name.get(monster)
+        if (action is None or " ".join(action.get("entries",[]))!=expected_text or plan is None or
+                plan.get("ptr")!=f"/monster/{source.index(block)}/action/0/entries" or
+                plan.get("v")!=expected_variants or plan.get("context")!=context):
+            errors.append(monster+":COMPOUND_MULTIATTACK_SOURCE_PLAN_MISMATCH")
+            continue
+        names={a.get("name") for a in block.get("action",[]) if a.get("name")!="Multiattack"}
+        if not {name for group in expected_variants for step in group for name in step["o"]}.issubset(names):
+            errors.append(monster+":COMPOUND_MULTIATTACK_ACTION_MISSING")
+    return errors,0 if errors else len(COMPOUND_MULTIATTACKS)
+
 def _expected_simple_multiattack_plan(monster,action):
     choice=simple_multiattack_plan(action)
     if choice is not None:
@@ -1751,7 +1791,7 @@ def _expected_simple_multiattack_plan(monster,action):
         else:groups.append({"k":"attack","o":[name],"c":1})
     return [groups]
 
-def check_multiattack_plan_catalog(source,plans,expected_structured=232,expected_simple=197,
+def check_multiattack_plan_catalog(source,plans,expected_structured=238,expected_simple=197,
                                    expected_total=306):
     source_rows=[]
     for monster_index,monster in enumerate(source):
@@ -2098,6 +2138,7 @@ def check(project, bestiary_bytes, book_bytes):
     sphinx_multiattack_errors,sphinx_multiattack_count=check_sphinx_of_secrets_multiattack(src,multiattack_plans)
     werebeast_multiattack_errors,werebeast_multiattack_count=check_werebeast_multiattack_variants(
         src,multiattack_plans)
+    compound_multiattack_errors,compound_multiattack_count=check_compound_multiattack_variants(src,multiattack_plans)
     multiattack_catalog_errors,multiattack_structured_count,multiattack_simple_plan_count,multiattack_manual_count=(
         check_multiattack_plan_catalog(src,multiattack_plans))
     save_condition_errors,save_condition_count=check_save_condition_profiles(src,compiled,save_condition_profiles)
@@ -2117,7 +2158,7 @@ def check(project, bestiary_bytes, book_bytes):
     turn_start_errors,turn_start_count=check_source_turn_start_hit_conditions(src,compiled)
     save_errors,save_count=check_save_damage_actions(src,save_damage_rows)
     section_errors=check_book(book,bookrows)
-    if (monster_errors or branch_errors or effect_errors or condition_choice_errors or sphinx_multiattack_errors or werebeast_multiattack_errors or multiattack_catalog_errors or save_condition_errors or recurring_damage_errors or zero_hp_condition_errors or chain_errors or section_errors or save_errors or
+    if (monster_errors or branch_errors or effect_errors or condition_choice_errors or sphinx_multiattack_errors or werebeast_multiattack_errors or compound_multiattack_errors or multiattack_catalog_errors or save_condition_errors or recurring_damage_errors or zero_hp_condition_errors or chain_errors or section_errors or save_errors or
         multiattack_errors or
         turn_start_errors or attack_damage_errors or advantage_damage_errors or
         wounded_advantage_errors or grappled_advantage_errors or attack_secondary_errors):
@@ -2128,6 +2169,7 @@ def check(project, bestiary_bytes, book_bytes):
              "condition_choice_contracts":condition_choice_errors,
              "sphinx_multiattack":sphinx_multiattack_errors,
              "werebeast_multiattack":werebeast_multiattack_errors,
+             "compound_multiattack":compound_multiattack_errors,
              "multiattack_catalog":multiattack_catalog_errors,
              "save_condition_profiles":save_condition_errors,
              "recurring_damage_profiles":recurring_damage_errors,
@@ -2166,6 +2208,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_condition_choice_pure_profiles_compared":condition_choice_count,
         "source_condition_choice_profiles_pending_integration":condition_choice_count,
         "source_complex_multiattack_variants_compared":sphinx_multiattack_count,
+        "source_compound_multiattack_variants_compared":compound_multiattack_count,
         "source_werebeast_multiattack_variants_compared":werebeast_multiattack_count,
         "source_manual_save_condition_profiles_compared":save_condition_count,
         "source_manual_save_condition_profiles_pending_integration":save_condition_count,

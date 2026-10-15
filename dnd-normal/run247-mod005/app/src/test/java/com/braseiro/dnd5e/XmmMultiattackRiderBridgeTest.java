@@ -64,7 +64,9 @@ public final class XmmMultiattackRiderBridgeTest {
    JSONArray groups=p.getJSONArray("v").getJSONArray(0),choices=new JSONArray();
    for(int g=0;g<groups.length();g++){JSONObject part=groups.getJSONObject(g);
     for(int j=0;j<part.getInt("c");j++)choices.put(part.getJSONArray("o").getString(0));}
-   JSONObject r=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster",id).put("variant_index",0).put("selected_actions",choices));
+   JSONObject request=new JSONObject().put("monster",id).put("variant_index",0).put("selected_actions",choices);
+   if("Clay Golem".equals(id))request.put("hasten_used_this_turn",false);
+   JSONObject r=Xmm2025MultiattackPlanIndex.resolve(request);
    assertTrue(id+": "+r.toString(),r.getBoolean("resolved"));
    JSONArray steps=r.getJSONArray("steps");for(int j=0;j<steps.length();j++){
     JSONObject step=steps.getJSONObject(j);JSONObject sourceRider=Xmm2025AttackConditionEngine.profile(id,step.getString("action"));
@@ -76,6 +78,6 @@ public final class XmmMultiattackRiderBridgeTest {
     }else assertFalse(step.has("on_hit_condition_contract"));
    }
   }
-  assertEquals(232,structured);assertEquals(47,linkedRiderSteps);
+  assertEquals(238,structured);assertEquals(48,linkedRiderSteps);
  }
 }

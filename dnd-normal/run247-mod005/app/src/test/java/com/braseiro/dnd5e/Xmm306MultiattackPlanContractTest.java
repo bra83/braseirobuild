@@ -1,6 +1,6 @@
 package com.braseiro.dnd5e;
 import java.util.*;import org.json.*;import org.junit.*;import org.junit.runner.RunWith;import org.junit.runners.Parameterized;import static org.junit.Assert.*;
-/** 306 source-bound multiattack contracts, with 74 explicit manual plans. */
+/** 306 source-bound multiattack contracts, with 68 explicit manual plans. */
 @RunWith(Parameterized.class)
 public final class Xmm306MultiattackPlanContractTest {
  @Parameterized.Parameters(name="{index}: {0}") public static Collection<Object[]> cases(){
@@ -31,7 +31,10 @@ public final class Xmm306MultiattackPlanContractTest {
      assertTrue(id+" missing "+name,found);
     }
    }
-   JSONObject r=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster",id).put("variant_index",v).put("selected_actions",choices));
+   JSONObject request=new JSONObject().put("monster",id).put("variant_index",v).put("selected_actions",choices);
+   if(plan.has("context"))request.put(plan.getJSONObject("context").getString("field"),
+       v==plan.getJSONObject("context").getInt("variant_index"));
+   JSONObject r=Xmm2025MultiattackPlanIndex.resolve(request);
    assertTrue(id+" variant "+v,r.getBoolean("resolved"));
    assertEquals(choices.length(),r.getJSONArray("steps").length());
    assertFalse(r.getBoolean("actions_applied"));assertFalse(r.getBoolean("damage_applied"));

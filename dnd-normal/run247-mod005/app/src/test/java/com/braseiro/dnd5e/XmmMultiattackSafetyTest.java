@@ -29,7 +29,7 @@ public final class XmmMultiattackSafetyTest {
  }
  @Test public void coverageIsNotMisreportedAsFullCombat()throws Exception{
   JSONObject c=Xmm2025MultiattackPlanIndex.coverage();
-  assertEquals(306,c.getInt("multiattacks"));assertEquals(232,c.getInt("structured_plans"));assertEquals(74,c.getInt("manual_source_bound"));
+  assertEquals(306,c.getInt("multiattacks"));assertEquals(238,c.getInt("structured_plans"));assertEquals(68,c.getInt("manual_source_bound"));
   assertFalse(c.getBoolean("full_combat_automation_certified"));
  }
  @Test public void sphinxOfSecretsCanReplaceAtMostOneClawWithItsRiddleCurse()throws Exception{
@@ -68,6 +68,37 @@ public final class XmmMultiattackSafetyTest {
    assertFalse(invalid.optBoolean("resolved"));assertEquals("attack_choice_not_allowed",invalid.optString("status"));
   }
  }
+ @Test public void compoundAlternativesPreserveSlotsAndRequireHastenContext()throws Exception{
+  JSONObject barbed=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Barbed Devil")
+      .put("variant_index",0).put("selected_actions",new JSONArray().put("Claws").put("Tail")));
+  assertTrue(barbed.toString(),barbed.optBoolean("resolved"));assertEquals(2,barbed.optInt("attack_slots"));
+  JSONObject medusa=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Medusa")
+      .put("variant_index",1).put("selected_actions",new JSONArray().put("Poison Ray").put("Poison Ray").put("Poison Ray")));
+  assertTrue(medusa.toString(),medusa.optBoolean("resolved"));
+  JSONObject dragonTurtle=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Dragon Turtle")
+      .put("variant_index",2).put("selected_actions",new JSONArray().put("Bite").put("Tail").put("Bite")));
+  assertTrue(dragonTurtle.toString(),dragonTurtle.optBoolean("resolved"));assertEquals(3,dragonTurtle.optInt("attack_slots"));
+  JSONObject roc=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Roc")
+      .put("variant_index",1).put("selected_actions",new JSONArray().put("Talons").put("Beak")));
+  assertTrue(roc.toString(),roc.optBoolean("resolved"));
+  JSONObject tarrasque=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Tarrasque")
+      .put("selected_actions",new JSONArray().put("Bite").put("Claw").put("Tail").put("Claw")));
+  assertTrue(tarrasque.toString(),tarrasque.optBoolean("resolved"));assertEquals(4,tarrasque.optInt("attack_slots"));
+  assertFalse(barbed.optBoolean("actions_applied"));assertFalse(medusa.optBoolean("auto_rolls"));
+ }
+ @Test public void clayGolemVariantMustMatchExplicitHastenState()throws Exception{
+  JSONObject missing=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Clay Golem")
+      .put("variant_index",1).put("selected_actions",new JSONArray().put("Slam").put("Slam").put("Slam")));
+  assertEquals("explicit_multiattack_context_required",missing.optString("status"));
+  JSONObject mismatch=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Clay Golem")
+      .put("variant_index",1).put("hasten_used_this_turn",false)
+      .put("selected_actions",new JSONArray().put("Slam").put("Slam").put("Slam")));
+  assertEquals("multiattack_context_variant_mismatch",mismatch.optString("status"));
+  JSONObject valid=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Clay Golem")
+      .put("variant_index",1).put("hasten_used_this_turn",true)
+      .put("selected_actions",new JSONArray().put("Slam").put("Slam").put("Slam")));
+  assertTrue(valid.toString(),valid.optBoolean("resolved"));assertEquals("hasten_used_this_turn",valid.optString("variant_context_field"));
+ }
  @Test public void hybridBatchAcceptsOnlyThePinnedMultiattackPlan()throws Exception{
   JSONObject request=new JSONObject().put("request_id","sphinx-sequence").put("book_id","xmm").put("edition","2025")
       .put("monster","Sphinx of Secrets").put("source_pointer","/monster/407/action/0/entries")
@@ -81,6 +112,15 @@ public final class XmmMultiattackSafetyTest {
   assertEquals(1,result.optInt("resolved_count"));
   JSONObject preview=result.getJSONArray("results").getJSONObject(0).getJSONObject("runtime_result");
   assertEquals(1,preview.optInt("use_slots"));assertFalse(preview.optBoolean("actions_applied",true));
+  request.put("monster","Clay Golem").put("source_pointer","/monster/95/action/0/entries")
+      .put("inputs",new JSONObject().put("variant_index",1).put("hasten_used_this_turn",true)
+          .put("selected_actions",new JSONArray().put("Slam").put("Slam").put("Slam")));
+  result=new OfficialBookRuntimeGateway(null).execute("xmm","hybrid_batch_preview",packet).getJSONObject("result");
+  assertEquals(1,result.optInt("resolved_count"));
+  preview=result.getJSONArray("results").getJSONObject(0).getJSONObject("runtime_result");
+  assertEquals("hasten_used_this_turn",preview.optString("variant_context_field"));
+  request.put("monster","Sphinx of Secrets").put("source_pointer","/monster/407/action/0/entries")
+      ;
   request.put("inputs",new JSONObject().put("variant_index",2).put("selected_actions",new JSONArray()
       .put("Claw").put("Curse of the Riddle").put("Claw").put("Curse of the Riddle"))
       .put("untrusted_override",true));

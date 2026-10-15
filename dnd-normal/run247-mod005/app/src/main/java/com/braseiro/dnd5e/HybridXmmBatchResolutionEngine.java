@@ -134,6 +134,7 @@ public final class HybridXmmBatchResolutionEngine {
                 return block(out, "multiattack_pointer_mismatch");
             Set<String> accepted = new HashSet<String>(Arrays.asList(
                     "monster", "name", "variant_index", "selected_actions", "step_outcomes"));
+            if ("Clay Golem".equals(monster)) accepted.add("hasten_used_this_turn");
             if (!onlyKeys(inputs, accepted))
                 return block(out, "unrecognized_multiattack_inputs");
             JSONObject result;
