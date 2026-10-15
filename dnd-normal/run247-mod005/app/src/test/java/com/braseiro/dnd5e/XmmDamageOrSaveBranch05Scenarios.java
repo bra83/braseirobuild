@@ -135,8 +135,10 @@ public final class XmmDamageOrSaveBranch05Scenarios {
                 Choice.NONE,Form.BEAST,null,0,0,true,false,false,false,false);
             Result resisted=s.execute(s.propose(success));
             ok(has(resisted,Rider.IMMUNE_TO_THIS_LYCANTHROPE_CURSE_24H));
-            Session immuneSame=s;
-            Request later=req(immuneSame,a,true,null,ones(a.first),new int[0],
+            // A second attack is a NEW event. Replay protection correctly
+            // rejects reuse of the previous event ID, even after revision++.
+            Request later=new Request(a,"actor","victim","id-second-"+a.name(),
+                s.revision(),5,Boolean.TRUE,null,ones(a.first),new int[0],
                 Choice.NONE,Form.BEAST,null,0,0,true,false,false,false,false);
             ok(!has(s.propose(later).result,Rider.LYCANTHROPY_CURSE));
             Session dying=session(Kind.HUMANOID,1,50,Defense.NORMAL);
