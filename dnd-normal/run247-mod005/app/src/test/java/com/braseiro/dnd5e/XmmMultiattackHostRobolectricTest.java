@@ -176,6 +176,7 @@ public class XmmMultiattackHostRobolectricTest {
             assertEquals("Clay Golem",restored.getString("block_id"));
             assertTrue("Backup21 must restore persisted Hasten after reopen "+reopen,
                 restored.getBoolean("hasten_used_this_turn"));
+            assertEquals("Clay Golem",restored.getString("block_id"));
         }
     }
 }
