@@ -57,6 +57,7 @@ public class CharacterCreationUiRobolectricTest {
         AlertDialog editor=ShadowAlertDialog.getLatestAlertDialog();
         EditText input=firstEdit(editor.getWindow().getDecorView());assertNotNull(input);input.setText(name);
         editor.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        assertFalse("Manual edit must apply synchronously",editor.isShowing());
     }
     EditText firstEdit(View root){if(root instanceof EditText&&root.getVisibility()==View.VISIBLE)return (EditText)root;if(root instanceof ViewGroup)for(int i=0;i<((ViewGroup)root).getChildCount();i++){EditText e=firstEdit(((ViewGroup)root).getChildAt(i));if(e!=null)return e;}return null;}
     void select(String label,String choice){Spinner spinner=(Spinner)control(label);for(int i=0;i<spinner.getCount();i++)if(choice.equals(spinner.getItemAtPosition(i).toString())){spinner.setSelection(i);shadowOf(Looper.getMainLooper()).idle();return;}fail(choice);}
@@ -75,6 +76,8 @@ public class CharacterCreationUiRobolectricTest {
         save();assertFalse(form.isShowing());assertEquals("Brasa",only().optString("name"));
         assertEquals(DndRulesEngine.PROFILE_2024,only().optString("rules_source"));
         long id=only().optLong("id");reopenDb();render();click("EDITAR");form=ShadowAlertDialog.getLatestAlertDialog();named("Brasa revisada");save();
+        assertFalse("Edit must finish saving",form.isShowing());
+        reopenDb();
         assertEquals("Edit must preserve character identity",id,only().optLong("id"));
         assertEquals("Editing name after DB reopen must persist; saved="+only().optString("name"),"Brasa revisada",only().optString("name"));
     }
@@ -115,7 +118,21 @@ public class CharacterCreationUiRobolectricTest {
         assertEquals("2014 legacy edition must survive 2024 campaign edit",DndRulesEngine.PROFILE_2014,only().optString("rules_source"));
         assertEquals("Editing a fallen 2014 character must not silently heal it",0,only().optInt("hp"));
         assertEquals("2014-only legacy species must not be rewritten","Meio-elfo",only().optString("species"));
+        assertEquals("Legado editado",only().optString("name"));
+        assertEquals(12,only().optInt("max_hp"));
+        assertEquals(0,sheet().optInt("hp"));
+        assertEquals(DndRulesEngine.PROFILE_2014,sheet().optString("rules_source"));
         assertEquals(DndRulesEngine.PROFILE_2024,db.getCampaign().optString("rules_profile"));
+    }
+    @Test public void damagedCharacterNameEditPreservesHpAndMaximum()throws Exception {
+        open();named("Ferida");save();
+        long id=only().optLong("id");
+        db.getWritableDatabase().execSQL("UPDATE characters SET hp=3,max_hp=18 WHERE id=?",new Object[]{id});
+        reopenDb();render();click("EDITAR");form=ShadowAlertDialog.getLatestAlertDialog();
+        named("Ferida revisada");save();assertFalse(form.isShowing());reopenDb();
+        assertEquals(id,only().optLong("id"));assertEquals("Ferida revisada",only().optString("name"));
+        assertEquals(3,only().optInt("hp"));assertEquals(18,only().optInt("max_hp"));
+        assertEquals(3,sheet().optInt("hp"));assertEquals(18,sheet().optInt("max_hp"));
     }
     AlertDialog originPicker(){
         AlertDialog menu=picker("OPÇÕES 2024 / EBERRON");
