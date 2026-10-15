@@ -9,6 +9,12 @@ on:
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Xmm*Scenarios.java'
       - 'dnd-normal/run247-mod005/tools/verify_*.py'
       - '.github/workflows/dnd-xmm-isolated-jvm-gates-20261015.yml'
+  pull_request:
+    paths:
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Xmm*.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Xmm*Scenarios.java'
+      - 'dnd-normal/run247-mod005/tools/verify_*.py'
+      - '.github/workflows/dnd-xmm-isolated-jvm-gates-20261015.yml'
   workflow_dispatch:
 
 permissions:
