@@ -182,6 +182,10 @@ public class XmmMultiattackHostRobolectricTest {
             JSONObject restoredPlan=XmmMultiattackHostPlan.declaration("Clay Golem",triple,restored);
             assertFalse(restoredPlan.toString(),restoredPlan.has("statblock_multiattack_blocked"));
             assertEquals(3,restoredPlan.getInt("count"));
+            JSONObject uiOverride=new JSONObject(triple.toString()).put("hasten_used_this_turn",false);
+            JSONObject denied=XmmMultiattackHostPlan.declaration("Clay Golem",uiOverride,restored);
+            assertEquals("multiattack_context_not_authorized_by_host",
+                denied.optString("statblock_multiattack_blocked"));
         }
     }
 }
