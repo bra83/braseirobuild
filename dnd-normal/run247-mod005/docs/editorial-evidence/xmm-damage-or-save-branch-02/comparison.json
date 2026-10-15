@@ -1,0 +1,301 @@
+{
+  "job_id": "damage_or_save_branch-02",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "expected_source_blob": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "pinned_source_verified": false,
+  "compiled_file_sha256": "cac0d42f2dc5fd64a4bc4408271f67a58b1df3acb3e187fc6a87d5e2199a14ca",
+  "implemented_complete_actions": 0,
+  "remaining_actions": 12,
+  "integration_dependent_actions": 12,
+  "independent_core": "XmmDamageOrSaveBranch02 (unregistered)",
+  "results": [
+    {
+      "source_pointer": "/monster/58/action/2/entries/0",
+      "monster": "Bearded Devil",
+      "action": "Infernal Glaive",
+      "compiled_contract_mismatches": [],
+      "existing_compiled_action": {
+        "name": "Infernal Glaive",
+        "category": "action",
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 10,
+        "save_ability": "con",
+        "save_dc": 12,
+        "damage": "1d10 + 3",
+        "damage_type": "slashing",
+        "source_bound": true,
+        "manual_rider_resolution_required": true,
+        "manual_unmodeled_source_effect_required": true
+      },
+      "status": "BLOCKED_SOURCE_AND_INTEGRATION",
+      "completed": false,
+      "reason": "Pinned source unavailable: full branches, riders, durations, target eligibility and action cost cannot be certified. Protected UI/SQLite adapter not changed; independent generic core is not combat execution."
+    },
+    {
+      "source_pointer": "/monster/63/action/1/entries/0",
+      "monster": "Berserker Commander",
+      "action": "Greataxe",
+      "compiled_contract_mismatches": [],
+      "existing_compiled_action": {
+        "name": "Greataxe",
+        "category": "action",
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 7,
+        "reach_ft": 5,
+        "damage": "1d12 + 4 + 3d6",
+        "damage_type": "slashing + thunder",
+        "source_bound": true,
+        "manual_rider_resolution_required": true,
+        "manual_unmodeled_source_effect_required": true
+      },
+      "status": "BLOCKED_SOURCE_AND_INTEGRATION",
+      "completed": false,
+      "reason": "Pinned source unavailable: full branches, riders, durations, target eligibility and action cost cannot be certified. Protected UI/SQLite adapter not changed; independent generic core is not combat execution."
+    },
+    {
+      "source_pointer": "/monster/92/action/0/entries/0",
+      "monster": "Chasme",
+      "action": "Proboscis",
+      "compiled_contract_mismatches": [],
+      "existing_compiled_action": {
+        "name": "Proboscis",
+        "category": "action",
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "4d6 + 2 + 6d6",
+        "damage_type": "piercing + necrotic",
+        "source_bound": true,
+        "manual_rider_resolution_required": false,
+        "manual_unmodeled_source_effect_required": true
+      },
+      "status": "BLOCKED_SOURCE_AND_INTEGRATION",
+      "completed": false,
+      "reason": "Pinned source unavailable: full branches, riders, durations, target eligibility and action cost cannot be certified. Protected UI/SQLite adapter not changed; independent generic core is not combat execution."
+    },
+    {
+      "source_pointer": "/monster/95/action/1/entries/0",
+      "monster": "Clay Golem",
+      "action": "Slam",
+      "compiled_contract_mismatches": [],
+      "existing_compiled_action": {
+        "name": "Slam",
+        "category": "action",
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 9,
+        "reach_ft": 5,
+        "damage": "1d10 + 5 + 1d12",
+        "damage_type": "bludgeoning + acid",
+        "source_bound": true,
+        "manual_rider_resolution_required": false,
+        "manual_unmodeled_source_effect_required": true
+      },
+      "status": "BLOCKED_SOURCE_AND_INTEGRATION",
+      "completed": false,
+      "reason": "Pinned source unavailable: full branches, riders, durations, target eligibility and action cost cannot be certified. Protected UI/SQLite adapter not changed; independent generic core is not combat execution."
+    },
+    {
+      "source_pointer": "/monster/111/action/2/entries/0",
+      "monster": "Cyclops Oracle",
+      "action": "Flash of Light",
+      "compiled_contract_mismatches": [],
+      "existing_compiled_action": {
+        "name": "Flash of Light",
+        "category": "action",
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 10,
+        "range_normal_ft": 120,
+        "range_long_ft": 120,
+        "damage": "2d10 + 6",
+        "damage_type": "radiant",
+        "source_bound": true,
+        "manual_rider_resolution_required": true,
+        "manual_unmodeled_source_effect_required": true
+      },
+      "status": "BLOCKED_SOURCE_AND_INTEGRATION",
+      "completed": false,
+      "reason": "Pinned source unavailable: full branches, riders, durations, target eligibility and action cost cannot be certified. Protected UI/SQLite adapter not changed; independent generic core is not combat execution."
+    },
+    {
+      "source_pointer": "/monster/113/action/2/entries/0",
+      "monster": "Dao",
+      "action": "Earth Burst",
+      "compiled_contract_mismatches": [],
+      "existing_compiled_action": {
+        "name": "Earth Burst",
+        "category": "action",
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 10,
+        "range_normal_ft": 120,
+        "range_long_ft": 120,
+        "save_ability": "dex",
+        "save_dc": 16,
+        "damage": "2d8 + 6",
+        "damage_type": "bludgeoning",
+        "source_bound": true,
+        "manual_rider_resolution_required": true,
+        "manual_unmodeled_source_effect_required": true,
+        "secondary_save_damage": "3d6",
+        "secondary_save_damage_type": "thunder",
+        "secondary_save_area_ft": 10
+      },
+      "status": "BLOCKED_SOURCE_AND_INTEGRATION",
+      "completed": false,
+      "reason": "Pinned source unavailable: full branches, riders, durations, target eligibility and action cost cannot be certified. Protected UI/SQLite adapter not changed; independent generic core is not combat execution."
+    },
+    {
+      "source_pointer": "/monster/114/action/0/entries/0",
+      "monster": "Darkmantle",
+      "action": "Crush",
+      "compiled_contract_mismatches": [],
+      "existing_compiled_action": {
+        "name": "Crush",
+        "category": "action",
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "1d6 + 3",
+        "damage_type": "bludgeoning",
+        "source_bound": true,
+        "manual_rider_resolution_required": true,
+        "manual_unmodeled_source_effect_required": true,
+        "conditional_condition_on_hit": "blinded",
+        "conditional_max_target_size": "medium",
+        "conditional_requires_advantage": true,
+        "condition_ends_when": "detached",
+        "detach_dc": 13
+      },
+      "status": "BLOCKED_SOURCE_AND_INTEGRATION",
+      "completed": false,
+      "reason": "Pinned source unavailable: full branches, riders, durations, target eligibility and action cost cannot be certified. Protected UI/SQLite adapter not changed; independent generic core is not combat execution."
+    },
+    {
+      "source_pointer": "/monster/117/legendary/1/entries/0",
+      "monster": "Death Knight",
+      "action": "Fell Word",
+      "compiled_contract_mismatches": [],
+      "existing_compiled_action": {
+        "name": "Fell Word",
+        "category": "legendary_action",
+        "save_ability": "con",
+        "save_dc": 18,
+        "damage": "5d6",
+        "damage_type": "necrotic",
+        "source_bound": true,
+        "manual_rider_resolution_required": false,
+        "manual_unmodeled_source_effect_required": true
+      },
+      "status": "BLOCKED_SOURCE_AND_INTEGRATION",
+      "completed": false,
+      "reason": "Pinned source unavailable: full branches, riders, durations, target eligibility and action cost cannot be certified. Protected UI/SQLite adapter not changed; independent generic core is not combat execution."
+    },
+    {
+      "source_pointer": "/monster/141/action/2/entries/0",
+      "monster": "Elemental Cultist",
+      "action": "Elemental Claw",
+      "compiled_contract_mismatches": [],
+      "existing_compiled_action": {
+        "name": "Elemental Claw",
+        "category": "action",
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 7,
+        "range_normal_ft": 120,
+        "range_long_ft": 120,
+        "damage": "4d10",
+        "source_bound": true,
+        "manual_rider_resolution_required": false,
+        "manual_unmodeled_source_effect_required": true
+      },
+      "status": "BLOCKED_SOURCE_AND_INTEGRATION",
+      "completed": false,
+      "reason": "Pinned source unavailable: full branches, riders, durations, target eligibility and action cost cannot be certified. Protected UI/SQLite adapter not changed; independent generic core is not combat execution."
+    },
+    {
+      "source_pointer": "/monster/148/action/2/entries/0",
+      "monster": "Ettin",
+      "action": "Morningstar",
+      "compiled_contract_mismatches": [],
+      "existing_compiled_action": {
+        "name": "Morningstar",
+        "category": "action",
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 7,
+        "reach_ft": 5,
+        "damage": "2d8 + 5",
+        "damage_type": "piercing",
+        "source_bound": true,
+        "manual_rider_resolution_required": true,
+        "manual_unmodeled_source_effect_required": true
+      },
+      "status": "BLOCKED_SOURCE_AND_INTEGRATION",
+      "completed": false,
+      "reason": "Pinned source unavailable: full branches, riders, durations, target eligibility and action cost cannot be certified. Protected UI/SQLite adapter not changed; independent generic core is not combat execution."
+    },
+    {
+      "source_pointer": "/monster/152/action/1/entries/0",
+      "monster": "Fire Elemental",
+      "action": "Burn",
+      "compiled_contract_mismatches": [],
+      "existing_compiled_action": {
+        "name": "Burn",
+        "category": "action",
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 6,
+        "reach_ft": 5,
+        "damage": "2d6 + 3",
+        "damage_type": "fire",
+        "source_bound": true,
+        "manual_rider_resolution_required": false,
+        "manual_unmodeled_source_effect_required": true
+      },
+      "status": "BLOCKED_SOURCE_AND_INTEGRATION",
+      "completed": false,
+      "reason": "Pinned source unavailable: full branches, riders, durations, target eligibility and action cost cannot be certified. Protected UI/SQLite adapter not changed; independent generic core is not combat execution."
+    },
+    {
+      "source_pointer": "/monster/153/action/2/entries/0",
+      "monster": "Fire Giant",
+      "action": "Hammer Throw",
+      "compiled_contract_mismatches": [],
+      "existing_compiled_action": {
+        "name": "Hammer Throw",
+        "category": "action",
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 11,
+        "range_normal_ft": 60,
+        "range_long_ft": 240,
+        "damage": "3d10 + 7 + 1d8",
+        "damage_type": "bludgeoning + fire",
+        "source_bound": true,
+        "manual_rider_resolution_required": true,
+        "manual_unmodeled_source_effect_required": true
+      },
+      "status": "BLOCKED_SOURCE_AND_INTEGRATION",
+      "completed": false,
+      "reason": "Pinned source unavailable: full branches, riders, durations, target eligibility and action cost cannot be certified. Protected UI/SQLite adapter not changed; independent generic core is not combat execution."
+    }
+  ]
+}
