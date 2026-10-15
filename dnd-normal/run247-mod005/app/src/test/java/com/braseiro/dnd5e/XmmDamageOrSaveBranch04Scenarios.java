@@ -76,8 +76,9 @@ public final class XmmDamageOrSaveBranch04Scenarios {
     private static void failuresAndDefenses(){
         for(Action a:Action.values()){
             Session immune=session(target(100,100,Kind.HUMANOID,Defense.IMMUNE));
+            int[] extra=a==Action.SHADOW?new int[]{1}:new int[0];
             Result zero=immune.propose(hit(immune,a,a==Action.PIRATE_ADMIRAL?Choice.CHARMED:Choice.NONE,
-                    a==Action.SHADOW?1: new int[0])).result;
+                    extra)).result;
             equal(zero.appliedDamage,0);
             if(a==Action.MUMMY)yes(has(zero,Rider.MUMMY_ROT_CURSE));
             if(a==Action.RED_SLAAD)yes(!has(zero,Rider.SLAAD_EGG_CURSE));
