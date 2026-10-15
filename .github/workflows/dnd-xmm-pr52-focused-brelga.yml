@@ -100,7 +100,28 @@ jobs:
           $arguments = @(':app:testDebugUnitTest','--no-daemon','--console=plain','--stacktrace')
           foreach ($test in $classes) { $arguments += @('--tests',$test) }
           & .\gradlew.bat @arguments
-          if ($LASTEXITCODE -ne 0) { throw 'XMM_PR52_ANDROID_UNIT_OR_COMPILATION_FAILED' }
+          $gradleExit = $LASTEXITCODE
+          # Emit failed JUnit case, expected and actual from XML even when Gradle returns nonzero.
+          if (Test-Path $xmlDir) {
+            $allReports = @(Get-ChildItem $xmlDir -Filter 'TEST-*.xml' -File)
+            foreach ($report in $allReports) {
+              [xml]$diagnostics = Get-Content -LiteralPath $report.FullName -Raw
+              $failNodes = @($diagnostics.SelectNodes('//testcase/failure | //testcase/error'))
+              foreach ($node in $failNodes) {
+                $testName = $node.ParentNode.GetAttribute('name')
+                $className = $node.ParentNode.GetAttribute('classname')
+                Write-Host ('XMM_PR52_FAILED_TEST=' + $className + '::' + $testName)
+                Write-Host ('XMM_PR52_FAILURE_MESSAGE=' + $node.GetAttribute('message'))
+                $stack = [string]$node.InnerText
+                if ($stack.Length -gt 1400) { $stack = $stack.Substring(0, 1400) }
+                Write-Host ('XMM_PR52_FAILURE_TRACE=' + $stack)
+              }
+            }
+            Write-Host ('XMM_PR52_XML_FILES=' + $allReports.Count)
+          } else {
+            Write-Host 'XMM_PR52_XML_FILES=NONE'
+          }
+          if ($gradleExit -ne 0) { throw 'XMM_PR52_ANDROID_UNIT_OR_COMPILATION_FAILED' }
           if (!(Test-Path $xmlDir)) { throw 'XMM_PR52_TEST_XML_MISSING' }
           $xml = @(Get-ChildItem $xmlDir -Filter 'TEST-*.xml' -File)
           if ($xml.Count -lt $classes.Count) { throw ('XMM_PR52_TEST_CLASSES_NOT_ALL_REPORTED=' + $xml.Count) }
