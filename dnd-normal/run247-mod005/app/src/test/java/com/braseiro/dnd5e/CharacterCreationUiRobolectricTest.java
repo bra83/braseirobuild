@@ -78,7 +78,7 @@ public class CharacterCreationUiRobolectricTest {
         open();named("Brasa");select("CLASSE","Mago");select("ESPÉCIE","Humano");
         save();assertFalse(form.isShowing());assertEquals("Brasa",only().optString("name"));
         assertEquals(DndRulesEngine.PROFILE_2024,only().optString("rules_source"));
-        long id=only().optLong("id");reopenDb();render();click("EDITAR");form=ShadowAlertDialog.getLatestAlertDialog();named("Brasa revisada");save();
+        long id=only().optLong("id");reopenDb();render();click("EDITAR");form=ShadowAlertDialog.getLatestAlertDialog();named("Brasa revisada");save();assertEquals("Name must be written before DB close", "Brasa revisada", only().optString("name"));
         assertFalse("Edit must finish saving",form.isShowing());
         reopenDb();
         assertEquals("Edit must preserve character identity",id,only().optLong("id"));
@@ -132,7 +132,7 @@ public class CharacterCreationUiRobolectricTest {
         long id=only().optLong("id");
         db.getWritableDatabase().execSQL("UPDATE characters SET hp=3,max_hp=18 WHERE id=?",new Object[]{id});
         reopenDb();render();click("EDITAR");form=ShadowAlertDialog.getLatestAlertDialog();
-        named("Ferida revisada");save();assertFalse(form.isShowing());reopenDb();
+        named("Ferida revisada");save();assertFalse(form.isShowing());assertEquals("Name must be written before DB close", "Ferida revisada", only().optString("name"));reopenDb();
         assertEquals(id,only().optLong("id"));assertEquals("Ferida revisada",only().optString("name"));
         assertEquals(3,only().optInt("hp"));assertEquals(18,only().optInt("max_hp"));
         assertEquals(3,sheet().optInt("hp"));assertEquals(18,sheet().optInt("max_hp"));
@@ -195,6 +195,19 @@ public class CharacterCreationUiRobolectricTest {
         for(int i=0;i<list.getCount();i++)if(list.getItemAtPosition(i).toString().startsWith("Disponível a partir")){index=i;break;}
         assertTrue(index>=0);list.performItemClick(list.getChildAt(index),index,index);save();
         assertFalse(form.isShowing());assertEquals("Guerreiro",only().optString("class_name"));
+    }
+
+    @Test public void atomicSqliteRenameMustPersistIndependentOfUi()throws Exception {
+        open();named("Original");save();
+        long id=only().optLong("id");
+        JSONObject candidate=sheet();
+        candidate.put("name","Renomeada no SQL");
+        JSONObject result=db.saveCharacterSheetAtomic(id,true,candidate,"","manual");
+        assertTrue("SQLite atomic rename refused: "+result,result.optBoolean("character_saved"));
+        assertEquals("Renomeada no SQL",db.getCharacter(id).optString("name"));
+        reopenDb();
+        assertEquals("Renomeada no SQL",db.getCharacter(id).optString("name"));
+        assertEquals(id,db.getCharacter(id).optLong("id"));
     }
 
 }
