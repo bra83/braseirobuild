@@ -9,26 +9,26 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Aberrant Cultist\",\"ptr\":\"/monster/2/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Aboleth\",\"ptr\":\"/monster/3/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Abominable Yeti\",\"ptr\":\"/monster/4/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\",\"Ice Throw\"],\"c\":2}]]}",
-  "{\"id\":\"Adult Black Dragon\",\"ptr\":\"/monster/5/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Adult Blue Dragon\",\"ptr\":\"/monster/6/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Adult Brass Dragon\",\"ptr\":\"/monster/7/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Adult Bronze Dragon\",\"ptr\":\"/monster/8/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Adult Copper Dragon\",\"ptr\":\"/monster/9/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Adult Gold Dragon\",\"ptr\":\"/monster/10/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Adult Green Dragon\",\"ptr\":\"/monster/11/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Adult Red Dragon\",\"ptr\":\"/monster/12/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Adult Silver Dragon\",\"ptr\":\"/monster/13/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Adult Black Dragon\",\"ptr\":\"/monster/5/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"spell\",\"o\":[\"Melf's Acid Arrow\"],\"c\":1,\"spell_level\":3},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Melf's Acid Arrow\"],\"c\":1,\"spell_level\":3},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Melf's Acid Arrow\"],\"c\":1,\"spell_level\":3}]]}",
+  "{\"id\":\"Adult Blue Dragon\",\"ptr\":\"/monster/6/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"spell\",\"o\":[\"Shatter\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Shatter\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Shatter\"],\"c\":1}]]}",
+  "{\"id\":\"Adult Brass Dragon\",\"ptr\":\"/monster/7/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Sleep Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"spell\",\"o\":[\"Scorching Ray\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Sleep Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Scorching Ray\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Sleep Breath\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Scorching Ray\"],\"c\":1}]]}",
+  "{\"id\":\"Adult Bronze Dragon\",\"ptr\":\"/monster/8/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Repulsion Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"spell\",\"o\":[\"Guiding Bolt\"],\"c\":1,\"spell_level\":2},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Repulsion Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Guiding Bolt\"],\"c\":1,\"spell_level\":2},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Repulsion Breath\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Guiding Bolt\"],\"c\":1,\"spell_level\":2}]]}",
+  "{\"id\":\"Adult Copper Dragon\",\"ptr\":\"/monster/9/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Slowing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"spell\",\"o\":[\"Mind Spike\"],\"c\":1,\"spell_level\":4},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Slowing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Mind Spike\"],\"c\":1,\"spell_level\":4},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Slowing Breath\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Mind Spike\"],\"c\":1,\"spell_level\":4}]]}",
+  "{\"id\":\"Adult Gold Dragon\",\"ptr\":\"/monster/10/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Weakening Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"spell\",\"o\":[\"Guiding Bolt\"],\"c\":1,\"spell_level\":2},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Weakening Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Guiding Bolt\"],\"c\":1,\"spell_level\":2},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Weakening Breath\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Guiding Bolt\"],\"c\":1,\"spell_level\":2}]]}",
+  "{\"id\":\"Adult Green Dragon\",\"ptr\":\"/monster/11/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"spell\",\"o\":[\"Mind Spike\"],\"c\":1,\"spell_level\":3},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Mind Spike\"],\"c\":1,\"spell_level\":3},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Mind Spike\"],\"c\":1,\"spell_level\":3}]]}",
+  "{\"id\":\"Adult Red Dragon\",\"ptr\":\"/monster/12/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"spell\",\"o\":[\"Scorching Ray\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Scorching Ray\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Scorching Ray\"],\"c\":1}]]}",
+  "{\"id\":\"Adult Silver Dragon\",\"ptr\":\"/monster/13/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Paralyzing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"spell\",\"o\":[\"Ice Knife\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Paralyzing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Ice Knife\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Paralyzing Breath\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Ice Knife\"],\"c\":1}]]}",
   "{\"id\":\"Adult White Dragon\",\"ptr\":\"/monster/14/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}]]}",
   "{\"id\":\"Air Elemental\",\"ptr\":\"/monster/15/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Thunderous Slam\"],\"c\":2}]]}",
-  "{\"id\":\"Ancient Black Dragon\",\"ptr\":\"/monster/17/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Ancient Blue Dragon\",\"ptr\":\"/monster/18/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Ancient Brass Dragon\",\"ptr\":\"/monster/19/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Ancient Bronze Dragon\",\"ptr\":\"/monster/20/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Ancient Copper Dragon\",\"ptr\":\"/monster/21/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Ancient Gold Dragon\",\"ptr\":\"/monster/22/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Ancient Green Dragon\",\"ptr\":\"/monster/23/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Ancient Red Dragon\",\"ptr\":\"/monster/24/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Ancient Silver Dragon\",\"ptr\":\"/monster/25/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Ancient Black Dragon\",\"ptr\":\"/monster/17/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"spell\",\"o\":[\"Melf's Acid Arrow\"],\"c\":1,\"spell_level\":4},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Melf's Acid Arrow\"],\"c\":1,\"spell_level\":4},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Melf's Acid Arrow\"],\"c\":1,\"spell_level\":4}]]}",
+  "{\"id\":\"Ancient Blue Dragon\",\"ptr\":\"/monster/18/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"spell\",\"o\":[\"Shatter\"],\"c\":1,\"spell_level\":3},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Shatter\"],\"c\":1,\"spell_level\":3},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Shatter\"],\"c\":1,\"spell_level\":3}]]}",
+  "{\"id\":\"Ancient Brass Dragon\",\"ptr\":\"/monster/19/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Sleep Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"spell\",\"o\":[\"Scorching Ray\"],\"c\":1,\"spell_level\":3},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Sleep Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Scorching Ray\"],\"c\":1,\"spell_level\":3},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Sleep Breath\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Scorching Ray\"],\"c\":1,\"spell_level\":3}]]}",
+  "{\"id\":\"Ancient Bronze Dragon\",\"ptr\":\"/monster/20/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Repulsion Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"spell\",\"o\":[\"Guiding Bolt\"],\"c\":1,\"spell_level\":2},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Repulsion Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Guiding Bolt\"],\"c\":1,\"spell_level\":2},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Repulsion Breath\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Guiding Bolt\"],\"c\":1,\"spell_level\":2}]]}",
+  "{\"id\":\"Ancient Copper Dragon\",\"ptr\":\"/monster/21/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Slowing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"spell\",\"o\":[\"Mind Spike\"],\"c\":1,\"spell_level\":5},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Slowing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Mind Spike\"],\"c\":1,\"spell_level\":5},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Slowing Breath\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Mind Spike\"],\"c\":1,\"spell_level\":5}]]}",
+  "{\"id\":\"Ancient Gold Dragon\",\"ptr\":\"/monster/22/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Weakening Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"spell\",\"o\":[\"Guiding Bolt\"],\"c\":1,\"spell_level\":4},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Weakening Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Guiding Bolt\"],\"c\":1,\"spell_level\":4},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Weakening Breath\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Guiding Bolt\"],\"c\":1,\"spell_level\":4}]]}",
+  "{\"id\":\"Ancient Green Dragon\",\"ptr\":\"/monster/23/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"spell\",\"o\":[\"Mind Spike\"],\"c\":1,\"spell_level\":5},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Mind Spike\"],\"c\":1,\"spell_level\":5},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Mind Spike\"],\"c\":1,\"spell_level\":5}]]}",
+  "{\"id\":\"Ancient Red Dragon\",\"ptr\":\"/monster/24/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"spell\",\"o\":[\"Scorching Ray\"],\"c\":1,\"spell_level\":3},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Scorching Ray\"],\"c\":1,\"spell_level\":3},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Scorching Ray\"],\"c\":1,\"spell_level\":3}]]}",
+  "{\"id\":\"Ancient Silver Dragon\",\"ptr\":\"/monster/25/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Paralyzing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"spell\",\"o\":[\"Ice Knife\"],\"c\":1,\"spell_level\":2},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Paralyzing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Ice Knife\"],\"c\":1,\"spell_level\":2},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Paralyzing Breath\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Ice Knife\"],\"c\":1,\"spell_level\":2}]]}",
   "{\"id\":\"Ancient White Dragon\",\"ptr\":\"/monster/26/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}]]}",
   "{\"id\":\"Animal Lord\",\"ptr\":\"/monster/27/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\",\"Radiant Ray\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Animal Spirit\"],\"c\":1}]]}",
   "{\"id\":\"Animated Armor\",\"ptr\":\"/monster/28/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Slam\"],\"c\":2}]]}",
@@ -46,7 +46,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Bandit Crime Lord\",\"ptr\":\"/monster/51/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Scimitar\",\"Pistol\"],\"c\":3}]]}",
   "{\"id\":\"Bandit Deceiver\",\"ptr\":\"/monster/52/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Dagger\"],\"c\":3}]]}",
   "{\"id\":\"Banshee\",\"ptr\":\"/monster/53/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Corrupting Touch\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Horrify\"],\"c\":1}]]}",
-  "{\"id\":\"Barbed Devil\",\"ptr\":\"/monster/54/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Barbed Devil\",\"ptr\":\"/monster/54/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claws\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Tail\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Hurl Flame\"],\"c\":2}]]}",
   "{\"id\":\"Barlgura\",\"ptr\":\"/monster/55/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Tormenting Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Thrash\"],\"c\":2}]]}",
   "{\"id\":\"Bearded Devil\",\"ptr\":\"/monster/58/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Beard\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Infernal Glaive\"],\"c\":1}]]}",
   "{\"id\":\"Behir\",\"ptr\":\"/monster/59/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Constrict\"],\"c\":1}]]}",
@@ -71,9 +71,9 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Centaur Trooper\",\"ptr\":\"/monster/89/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Pike\",\"Longbow\"],\"c\":2}]]}",
   "{\"id\":\"Centaur Warden\",\"ptr\":\"/monster/90/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Forest Staff\",\"Sun Ray\"],\"c\":2}]]}",
   "{\"id\":\"Chain Devil\",\"ptr\":\"/monster/91/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Chain\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Conjure Infernal Chain\"],\"c\":1}]]}",
-  "{\"id\":\"Chimera\",\"ptr\":\"/monster/93/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Chimera\",\"ptr\":\"/monster/93/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Ram\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Ram\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Fire Breath\"],\"c\":1}]]}",
   "{\"id\":\"Chuul\",\"ptr\":\"/monster/94/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Pincer\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Paralyzing Tentacles\"],\"c\":1}]]}",
-  "{\"id\":\"Clay Golem\",\"ptr\":\"/monster/95/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Clay Golem\",\"ptr\":\"/monster/95/action/0/entries\",\"context\":{\"field\":\"hasten_used_this_turn\",\"variant_index\":1},\"v\":[[{\"k\":\"attack\",\"o\":[\"Slam\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Slam\"],\"c\":3}]]}",
   "{\"id\":\"Cloaker\",\"ptr\":\"/monster/96/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Attach\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Tail\"],\"c\":2}]]}",
   "{\"id\":\"Cloud Giant\",\"ptr\":\"/monster/97/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Cockatrice Regent\",\"ptr\":\"/monster/99/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Petrifying Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Talons\"],\"c\":2}]]}",
@@ -94,8 +94,8 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Displacer Beast\",\"ptr\":\"/monster/126/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Tentacle\"],\"c\":1}]]}",
   "{\"id\":\"Djinni\",\"ptr\":\"/monster/127/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Storm Blade\",\"Storm Bolt\"],\"c\":3}]]}",
   "{\"id\":\"Doppelganger\",\"ptr\":\"/monster/128/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Dracolich\",\"ptr\":\"/monster/129/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Dragon Turtle\",\"ptr\":\"/monster/131/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Dracolich\",\"ptr\":\"/monster/129/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"spell\",\"o\":[\"Ray of Sickness\"],\"c\":1,\"spell_level\":2},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"spell\",\"o\":[\"Ray of Sickness\"],\"c\":1,\"spell_level\":2},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"spell\",\"o\":[\"Ray of Sickness\"],\"c\":1,\"spell_level\":2}]]}",
+  "{\"id\":\"Dragon Turtle\",\"ptr\":\"/monster/131/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":3}],[{\"k\":\"attack\",\"o\":[\"Tail\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Tail\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":2},{\"k\":\"attack\",\"o\":[\"Tail\"],\"c\":1}]]}",
   "{\"id\":\"Drider\",\"ptr\":\"/monster/133/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Foreleg\",\"Poison Burst\"],\"c\":3}]]}",
   "{\"id\":\"Druid\",\"ptr\":\"/monster/134/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Vine Staff\",\"Verdant Wisp\"],\"c\":2}]]}",
   "{\"id\":\"Dryad\",\"ptr\":\"/monster/135/action/0/entries\",\"v\":[]}",
@@ -114,10 +114,10 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Flameskull\",\"ptr\":\"/monster/154/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Fire Ray\"],\"c\":2}]]}",
   "{\"id\":\"Flaming Skeleton\",\"ptr\":\"/monster/155/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Flame Scepter\",\"Hurl Flame\"],\"c\":2}]]}",
   "{\"id\":\"Flesh Golem\",\"ptr\":\"/monster/156/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Slam\"],\"c\":2}]]}",
-  "{\"id\":\"Fomorian\",\"ptr\":\"/monster/159/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Fomorian\",\"ptr\":\"/monster/159/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Stone Club\"],\"c\":2}],[{\"k\":\"use\",\"o\":[\"Warping Hex\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Stone Club\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Stone Club\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Warping Hex\"],\"c\":1}]]}",
   "{\"id\":\"Frost Giant\",\"ptr\":\"/monster/161/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Frost Axe\",\"Great Bow\"],\"c\":2}]]}",
   "{\"id\":\"Gargoyle\",\"ptr\":\"/monster/163/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2}]]}",
-  "{\"id\":\"Ghast Gravecaller\",\"ptr\":\"/monster/167/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Ghast Gravecaller\",\"ptr\":\"/monster/167/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Horrific Necrosis\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Horrific Necrosis\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Horrific Necrosis\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1}]]}",
   "{\"id\":\"Ghost\",\"ptr\":\"/monster/168/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Withering Touch\"],\"c\":2}]]}",
   "{\"id\":\"Ghoul\",\"ptr\":\"/monster/169/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":2}]]}",
   "{\"id\":\"Giant Ape\",\"ptr\":\"/monster/170/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Fist\"],\"c\":2}]]}",
@@ -135,7 +135,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Githzerai Psion\",\"ptr\":\"/monster/205/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Psychic Warp\"],\"c\":3}]]}",
   "{\"id\":\"Githzerai Zerth\",\"ptr\":\"/monster/206/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Psi Strike\"],\"c\":2}]]}",
   "{\"id\":\"Glabrezu\",\"ptr\":\"/monster/207/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Gladiator\",\"ptr\":\"/monster/208/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Gladiator\",\"ptr\":\"/monster/208/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Spear\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Shield Bash\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Spear\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Spear\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Shield Bash\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Spear\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Spear\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Shield Bash\"],\"c\":1}]]}",
   "{\"id\":\"Gnoll Demoniac\",\"ptr\":\"/monster/209/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Abyssal Strike\"],\"c\":2}]]}",
   "{\"id\":\"Gnoll Fang of Yeenoghu\",\"ptr\":\"/monster/210/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bone Flail\"],\"c\":2}]]}",
   "{\"id\":\"Gnoll Pack Lord\",\"ptr\":\"/monster/211/action/0/entries\",\"v\":[]}",
@@ -153,7 +153,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Grick Ancient\",\"ptr\":\"/monster/229/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Beak\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Slam\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Tentacles\"],\"c\":1}]]}",
   "{\"id\":\"Griffon\",\"ptr\":\"/monster/230/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}]]}",
   "{\"id\":\"Guard Captain\",\"ptr\":\"/monster/233/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Javelin\",\"Longsword\"],\"c\":2}]]}",
-  "{\"id\":\"Guardian Naga\",\"ptr\":\"/monster/234/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Guardian Naga\",\"ptr\":\"/monster/234/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":2}],[{\"k\":\"use\",\"o\":[\"Poisonous Spittle\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Poisonous Spittle\"],\"c\":1}]]}",
   "{\"id\":\"Gulthias Blight\",\"ptr\":\"/monster/235/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Half-Dragon\",\"ptr\":\"/monster/236/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2}]]}",
   "{\"id\":\"Haunting Revenant\",\"ptr\":\"/monster/238/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Object Slam\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Invitation\"],\"c\":1}]]}",
@@ -168,21 +168,21 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Hook Horror\",\"ptr\":\"/monster/250/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Hook\"],\"c\":2}]]}",
   "{\"id\":\"Horned Devil\",\"ptr\":\"/monster/251/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Hydra\",\"ptr\":\"/monster/253/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Ice Devil\",\"ptr\":\"/monster/255/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Ice Devil\",\"ptr\":\"/monster/255/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Ice Spear\"],\"c\":3}],[{\"k\":\"attack\",\"o\":[\"Tail\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Ice Spear\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Ice Spear\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Tail\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Ice Spear\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Ice Spear\"],\"c\":2},{\"k\":\"attack\",\"o\":[\"Tail\"],\"c\":1}]]}",
   "{\"id\":\"Incubus\",\"ptr\":\"/monster/258/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Restless Touch\"],\"c\":2}]]}",
   "{\"id\":\"Intellect Devourer\",\"ptr\":\"/monster/259/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Devour Intellect\"],\"c\":1}]]}",
-  "{\"id\":\"Invisible Stalker\",\"ptr\":\"/monster/260/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Invisible Stalker\",\"ptr\":\"/monster/260/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Vortex\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Vortex\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Vortex\"],\"c\":1}]]}",
   "{\"id\":\"Iron Golem\",\"ptr\":\"/monster/261/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bladed Arm\",\"Fiery Bolt\"],\"c\":2}]]}",
-  "{\"id\":\"Jackalwere\",\"ptr\":\"/monster/263/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Jackalwere\",\"ptr\":\"/monster/263/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend (Jackal or Hybrid Form Only)\",\"Slam (Human or Hybrid Form Only)\"],\"c\":2}]]}",
   "{\"id\":\"Juvenile Shadow Dragon\",\"ptr\":\"/monster/264/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}]]}",
   "{\"id\":\"Knight\",\"ptr\":\"/monster/267/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Greatsword\",\"Heavy Crossbow\"],\"c\":2}]]}",
   "{\"id\":\"Kraken\",\"ptr\":\"/monster/269/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Kuo-toa Archpriest\",\"ptr\":\"/monster/271/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Strange Scepter\"],\"c\":3}]]}",
   "{\"id\":\"Kuo-toa Monitor\",\"ptr\":\"/monster/272/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bone Whip\"],\"c\":2}]]}",
   "{\"id\":\"Lacedon Ghoul\",\"ptr\":\"/monster/274/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Icy Bite\"],\"c\":2}]]}",
-  "{\"id\":\"Lamia\",\"ptr\":\"/monster/275/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Lamia\",\"ptr\":\"/monster/275/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2}],[{\"k\":\"use\",\"o\":[\"Corrupting Touch\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Corrupting Touch\"],\"c\":1}]]}",
   "{\"id\":\"Lich\",\"ptr\":\"/monster/278/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Eldritch Burst\",\"Paralyzing Touch\"],\"c\":3}]]}",
-  "{\"id\":\"Lion\",\"ptr\":\"/monster/279/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Lion\",\"ptr\":\"/monster/279/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"use\",\"o\":[\"Roar\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Roar\"],\"c\":1}]]}",
   "{\"id\":\"Lizardfolk Geomancer\",\"ptr\":\"/monster/281/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Earth Burst\"],\"c\":2}]]}",
   "{\"id\":\"Lizardfolk Sovereign\",\"ptr\":\"/monster/282/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Earthen Maul\"],\"c\":1}]]}",
   "{\"id\":\"Mage\",\"ptr\":\"/monster/283/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Arcane Burst\"],\"c\":3}]]}",
@@ -190,9 +190,9 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Manticore\",\"ptr\":\"/monster/290/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\",\"Tail Spike\"],\"c\":3}]]}",
   "{\"id\":\"Marid\",\"ptr\":\"/monster/291/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Aquatic Lash\"],\"c\":3}]]}",
   "{\"id\":\"Marilith\",\"ptr\":\"/monster/292/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Pact Blade\"],\"c\":6},{\"k\":\"use\",\"o\":[\"Constrict\"],\"c\":1}]]}",
-  "{\"id\":\"Medusa\",\"ptr\":\"/monster/294/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Medusa\",\"ptr\":\"/monster/294/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2},{\"k\":\"attack\",\"o\":[\"Snake Hair\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Poison Ray\"],\"c\":3}]]}",
   "{\"id\":\"Merfolk Wavebender\",\"ptr\":\"/monster/296/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Aquatic Burst\"],\"c\":2}]]}",
-  "{\"id\":\"Merrow\",\"ptr\":\"/monster/297/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Merrow\",\"ptr\":\"/monster/297/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\",\"Claw\",\"Harpoon\"],\"c\":2}]]}",
   "{\"id\":\"Mezzoloth\",\"ptr\":\"/monster/298/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claws\",\"Mercurial Trident\"],\"c\":2}]]}",
   "{\"id\":\"Mind Flayer Arcanist\",\"ptr\":\"/monster/301/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Arcane Tentacles\"],\"c\":3}]]}",
   "{\"id\":\"Modron Duodrone\",\"ptr\":\"/monster/304/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Clockwork Blade\"],\"c\":2}]]}",
@@ -214,10 +214,10 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Performer Maestro\",\"ptr\":\"/monster/338/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rapier\"],\"c\":3}]]}",
   "{\"id\":\"Peryton\",\"ptr\":\"/monster/339/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Gore\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Talons\"],\"c\":1}]]}",
   "{\"id\":\"Phase Spider\",\"ptr\":\"/monster/340/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":2}]]}",
-  "{\"id\":\"Pirate\",\"ptr\":\"/monster/343/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Pirate\",\"ptr\":\"/monster/343/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Dagger\"],\"c\":2}],[{\"k\":\"use\",\"o\":[\"Enthralling Panache\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Dagger\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Dagger\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Enthralling Panache\"],\"c\":1}]]}",
   "{\"id\":\"Pirate Admiral\",\"ptr\":\"/monster/344/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Scimitar\",\"Pistol\"],\"c\":3}]]}",
   "{\"id\":\"Pirate Captain\",\"ptr\":\"/monster/345/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rapier\",\"Pistol\"],\"c\":3}]]}",
-  "{\"id\":\"Pit Fiend\",\"ptr\":\"/monster/346/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Pit Fiend\",\"ptr\":\"/monster/346/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Devilish Claw\"],\"c\":2},{\"k\":\"attack\",\"o\":[\"Fiery Mace\"],\"c\":1}]]}",
   "{\"id\":\"Pixie Wonderbringer\",\"ptr\":\"/monster/348/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Faerie Dust\"],\"c\":2}]]}",
   "{\"id\":\"Planetar\",\"ptr\":\"/monster/349/action/0/entries\",\"v\":[[{\"k\":\"use\",\"o\":[\"Holy Burst\"],\"c\":2}]]}",
   "{\"id\":\"Polar Bear\",\"ptr\":\"/monster/351/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}]]}",
@@ -233,26 +233,26 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Red Dragon Wyrmling\",\"ptr\":\"/monster/368/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}]]}",
   "{\"id\":\"Red Slaad\",\"ptr\":\"/monster/369/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Injecting Claw\"],\"c\":3}]]}",
   "{\"id\":\"Revenant\",\"ptr\":\"/monster/372/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Slam\"],\"c\":2}]]}",
-  "{\"id\":\"Roc\",\"ptr\":\"/monster/375/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Roc\",\"ptr\":\"/monster/375/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Beak\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Talons\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Beak\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Beak\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Talons\"],\"c\":1}]]}",
   "{\"id\":\"Roper\",\"ptr\":\"/monster/376/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Rust Monster\",\"ptr\":\"/monster/377/action/0/entries\",\"v\":[[{\"k\":\"use\",\"o\":[\"Antennae\"],\"c\":2}]]}",
   "{\"id\":\"Saber-Toothed Tiger\",\"ptr\":\"/monster/378/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}]]}",
   "{\"id\":\"Sahuagin Baron\",\"ptr\":\"/monster/379/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Trident\"],\"c\":3}]]}",
   "{\"id\":\"Sahuagin Priest\",\"ptr\":\"/monster/380/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Spectral Jaws\"],\"c\":2}]]}",
   "{\"id\":\"Sahuagin Warrior\",\"ptr\":\"/monster/381/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2}]]}",
-  "{\"id\":\"Salamander\",\"ptr\":\"/monster/382/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Salamander\",\"ptr\":\"/monster/382/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Flame Spear\"],\"c\":2}],[{\"k\":\"use\",\"o\":[\"Constrict\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Flame Spear\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Flame Spear\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Constrict\"],\"c\":1}]]}",
   "{\"id\":\"Salamander Inferno Master\",\"ptr\":\"/monster/384/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Flame Trident\"],\"c\":2}]]}",
   "{\"id\":\"Satyr Revelmaster\",\"ptr\":\"/monster/386/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Prance\"],\"c\":3}]]}",
   "{\"id\":\"Scout\",\"ptr\":\"/monster/389/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Shortsword\",\"Longbow\"],\"c\":2}]]}",
   "{\"id\":\"Scout Captain\",\"ptr\":\"/monster/390/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Shortsword\",\"Longbow\"],\"c\":2}]]}",
   "{\"id\":\"Shadow Dragon\",\"ptr\":\"/monster/395/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}]]}",
-  "{\"id\":\"Shambling Mound\",\"ptr\":\"/monster/396/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Shambling Mound\",\"ptr\":\"/monster/396/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Charged Tendril\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Engulf\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Charged Tendril\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Charged Tendril\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Engulf\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Charged Tendril\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Charged Tendril\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Engulf\"],\"c\":1}]]}",
   "{\"id\":\"Shield Guardian\",\"ptr\":\"/monster/397/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Fist\"],\"c\":2}]]}",
   "{\"id\":\"Silver Dragon Wyrmling\",\"ptr\":\"/monster/399/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}]]}",
-  "{\"id\":\"Solar\",\"ptr\":\"/monster/403/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Solar\",\"ptr\":\"/monster/403/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Flying Sword\"],\"c\":2}],[{\"k\":\"use\",\"o\":[\"Slaying Bow\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Flying Sword\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Flying Sword\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Slaying Bow\"],\"c\":1}]]}",
   "{\"id\":\"Spectator\",\"ptr\":\"/monster/404/action/0/entries\",\"v\":[[{\"k\":\"use\",\"o\":[\"Eye Rays\"],\"c\":2}]]}",
   "{\"id\":\"Sphinx of Lore\",\"ptr\":\"/monster/406/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":3}]]}",
-  "{\"id\":\"Sphinx of Secrets\",\"ptr\":\"/monster/407/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Sphinx of Secrets\",\"ptr\":\"/monster/407/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":3}],[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2},{\"k\":\"action\",\"o\":[\"Curse of the Riddle\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1},{\"k\":\"action\",\"o\":[\"Curse of the Riddle\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1}],[{\"k\":\"action\",\"o\":[\"Curse of the Riddle\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2}]]}",
   "{\"id\":\"Sphinx of Valor\",\"ptr\":\"/monster/408/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Spined Devil\",\"ptr\":\"/monster/411/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Infernal Fork\",\"Tail Spine\"],\"c\":2}]]}",
   "{\"id\":\"Spirit Naga\",\"ptr\":\"/monster/412/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\",\"Necrotic Ray\"],\"c\":3}]]}",
@@ -263,7 +263,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Succubus\",\"ptr\":\"/monster/421/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Swarm of Dretches\",\"ptr\":\"/monster/424/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}]]}",
   "{\"id\":\"Swarm of Lemures\",\"ptr\":\"/monster/427/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Vile Slime\"],\"c\":2}]]}",
-  "{\"id\":\"Tarrasque\",\"ptr\":\"/monster/433/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Tarrasque\",\"ptr\":\"/monster/433/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Claw\",\"Tail\"],\"c\":3}]]}",
   "{\"id\":\"Thri-kreen Marauder\",\"ptr\":\"/monster/434/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Gythka\",\"Chatkcha\"],\"c\":2}]]}",
   "{\"id\":\"Thri-kreen Psion\",\"ptr\":\"/monster/435/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Psionic Lance\"],\"c\":3}]]}",
   "{\"id\":\"Tough Boss\",\"ptr\":\"/monster/438/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Warhammer\",\"Heavy Crossbow\"],\"c\":2}]]}",
@@ -285,11 +285,11 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Warrior Commander\",\"ptr\":\"/monster/463/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Greatsword\",\"Longbow\"],\"c\":3}]]}",
   "{\"id\":\"Warrior Veteran\",\"ptr\":\"/monster/465/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Greatsword\",\"Heavy Crossbow\"],\"c\":2}]]}",
   "{\"id\":\"Water Elemental\",\"ptr\":\"/monster/466/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Slam\"],\"c\":2}]]}",
-  "{\"id\":\"Werebear\",\"ptr\":\"/monster/469/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Wereboar\",\"ptr\":\"/monster/470/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Wererat\",\"ptr\":\"/monster/471/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Weretiger\",\"ptr\":\"/monster/472/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Werewolf\",\"ptr\":\"/monster/473/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Werebear\",\"ptr\":\"/monster/469/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Handaxe (Humanoid or Hybrid Form Only)\",\"Rend (Bear or Hybrid Form Only)\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Bite (Bear or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Handaxe (Humanoid or Hybrid Form Only)\",\"Rend (Bear or Hybrid Form Only)\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Handaxe (Humanoid or Hybrid Form Only)\",\"Rend (Bear or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite (Bear or Hybrid Form Only)\"],\"c\":1}]]}",
+  "{\"id\":\"Wereboar\",\"ptr\":\"/monster/470/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Javelin (Humanoid or Hybrid Form Only)\",\"Tusk (Boar or Hybrid Form Only)\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Gore (Boar or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Javelin (Humanoid or Hybrid Form Only)\",\"Tusk (Boar or Hybrid Form Only)\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Javelin (Humanoid or Hybrid Form Only)\",\"Tusk (Boar or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Gore (Boar or Hybrid Form Only)\"],\"c\":1}]]}",
+  "{\"id\":\"Wererat\",\"ptr\":\"/monster/471/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Scratch\",\"Hand Crossbow (Humanoid or Hybrid Form Only)\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Bite (Rat or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Scratch\",\"Hand Crossbow (Humanoid or Hybrid Form Only)\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Scratch\",\"Hand Crossbow (Humanoid or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite (Rat or Hybrid Form Only)\"],\"c\":1}]]}",
+  "{\"id\":\"Weretiger\",\"ptr\":\"/monster/472/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Scratch\",\"Longbow (Humanoid or Hybrid Form Only)\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Bite (Tiger or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Scratch\",\"Longbow (Humanoid or Hybrid Form Only)\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Scratch\",\"Longbow (Humanoid or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite (Tiger or Hybrid Form Only)\"],\"c\":1}]]}",
+  "{\"id\":\"Werewolf\",\"ptr\":\"/monster/473/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Scratch\",\"Longbow (Humanoid or Hybrid Form Only)\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Bite (Wolf or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Scratch\",\"Longbow (Humanoid or Hybrid Form Only)\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Scratch\",\"Longbow (Humanoid or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite (Wolf or Hybrid Form Only)\"],\"c\":1}]]}",
   "{\"id\":\"White Dragon Wyrmling\",\"ptr\":\"/monster/474/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}]]}",
   "{\"id\":\"Wight\",\"ptr\":\"/monster/475/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Wyvern\",\"ptr\":\"/monster/482/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Sting\"],\"c\":1}]]}",
@@ -299,12 +299,12 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Young Black Dragon\",\"ptr\":\"/monster/486/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}]]}",
   "{\"id\":\"Young Blue Dragon\",\"ptr\":\"/monster/487/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}]]}",
   "{\"id\":\"Young Brass Dragon\",\"ptr\":\"/monster/488/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Young Bronze Dragon\",\"ptr\":\"/monster/489/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Young Copper Dragon\",\"ptr\":\"/monster/490/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Young Gold Dragon\",\"ptr\":\"/monster/491/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Young Bronze Dragon\",\"ptr\":\"/monster/489/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Repulsion Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Repulsion Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Repulsion Breath\"],\"c\":1}]]}",
+  "{\"id\":\"Young Copper Dragon\",\"ptr\":\"/monster/490/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Slowing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Slowing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Slowing Breath\"],\"c\":1}]]}",
+  "{\"id\":\"Young Gold Dragon\",\"ptr\":\"/monster/491/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Weakening Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Weakening Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Weakening Breath\"],\"c\":1}]]}",
   "{\"id\":\"Young Green Dragon\",\"ptr\":\"/monster/492/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}]]}",
   "{\"id\":\"Young Red Dragon\",\"ptr\":\"/monster/493/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}]]}",
-  "{\"id\":\"Young Silver Dragon\",\"ptr\":\"/monster/495/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Young Silver Dragon\",\"ptr\":\"/monster/495/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Paralyzing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Paralyzing Breath\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Paralyzing Breath\"],\"c\":1}]]}",
   "{\"id\":\"Young White Dragon\",\"ptr\":\"/monster/496/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}]]}",
   "{\"id\":\"Yuan-ti Abomination\",\"ptr\":\"/monster/497/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Yuan-ti Infiltrator\",\"ptr\":\"/monster/498/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Scimitar\"],\"c\":2}]]}",
@@ -313,7 +313,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Yuan-ti Malison (Type 3)\",\"ptr\":\"/monster/501/action/0/entries\",\"v\":[]}"
  };
  private static final Map<String,JSONObject> MAP=new LinkedHashMap<>();
- static{try{int ready=0;for(String s:RAW){JSONObject x=new JSONObject(s);if(MAP.put(x.getString("id"),x)!=null)throw new IllegalStateException("duplicate multiattack");if(x.getJSONArray("v").length()>0)ready++;}if(MAP.size()!=306||ready!=224)throw new IllegalStateException("incomplete multiattack index");}catch(Exception e){throw new ExceptionInInitializerError(e);}}
+ static{try{int ready=0;for(String s:RAW){JSONObject x=new JSONObject(s);if(MAP.put(x.getString("id"),x)!=null)throw new IllegalStateException("duplicate multiattack");if(x.getJSONArray("v").length()>0)ready++;}if(MAP.size()!=306||ready!=275)throw new IllegalStateException("incomplete multiattack index");}catch(Exception e){throw new ExceptionInInitializerError(e);}}
  private Xmm2025MultiattackPlanIndex(){}
  private static JSONObject blocked(String reason)throws Exception{return new JSONObject().put("resolved",false).put("status",reason).put("auto_rolls",false).put("auto_mutation_allowed",false).put("actions_applied",false);}
  public static JSONArray ids(){JSONArray a=new JSONArray();for(String id:MAP.keySet())a.put(id);return a;}
@@ -328,6 +328,13 @@ public final class Xmm2025MultiattackPlanIndex {
   if(v.length()>1&&!in.has("variant_index"))return blocked("explicit_variant_selection_required");
   if(in.has("variant_index")&&!(in.opt("variant_index") instanceof Integer))return blocked("explicit_integer_variant_index_required");
   int variant=in.optInt("variant_index",0);if(variant<0||variant>=v.length())return blocked("invalid_variant_index");
+  JSONObject context=r.optJSONObject("context");
+  if(context!=null){String field=context.optString("field");int requiredVariant=context.optInt("variant_index",-1);
+   if(field.isEmpty()||requiredVariant<0||requiredVariant>=v.length()||!in.has(field)||!(in.opt(field) instanceof Boolean))
+    return blocked("explicit_multiattack_context_required").put("context_field",field);
+   boolean required=((Boolean)in.opt(field)).booleanValue();
+   if(required!=(variant==requiredVariant))return blocked("multiattack_context_variant_mismatch").put("context_field",field).put("variant_index",variant);
+  }
   JSONArray groups=v.getJSONArray(variant),chosen=in.optJSONArray("selected_actions");int total=0;boolean ambiguous=false;
   for(int i=0;i<groups.length();i++){JSONObject g=groups.getJSONObject(i);total+=g.getInt("c");if(g.getJSONArray("o").length()>1)ambiguous=true;}
   if(chosen==null&&ambiguous)return blocked("explicit_attack_choices_required").put("required_slots",total);
@@ -345,13 +352,26 @@ public final class Xmm2025MultiattackPlanIndex {
     String name=chosen==null?opts.getString(0):chosen.getString(slot);boolean allowed=false,registered=false;
     for(int k=0;k<opts.length();k++)if(name.equals(opts.getString(k)))allowed=true;
     if(!allowed)return blocked("attack_choice_not_allowed").put("slot",slot);
-    for(int k=0;k<actions.length();k++){
+    JSONObject spellUsage=null;
+    if("spell".equals(kind)){
+     spellUsage=Xmm2025SpellUsageIndex.check(new JSONObject().put("monster",id).put("spell",name));
+     registered=spellUsage.optBoolean("resolved",false);
+    }else for(int k=0;k<actions.length();k++){
      JSONObject compiledAction=actions.getJSONObject(k);
      if(name.equals(compiledAction.optString("name"))&&compiledAction.optBoolean("source_bound",false)
        &&(!"attack".equals(kind)||compiledAction.optJSONArray("attack_modes")!=null))registered=true;
     }
     if(!registered)return blocked("attack_choice_not_in_compiled_statblock").put("slot",slot);
     JSONObject step=new JSONObject().put("slot",slot).put("kind",kind).put("action",name).put("manual_effect_resolution_required",true);
+    if(spellUsage!=null){
+     step.put("spell_usage_gate",spellUsage);
+     if(g.has("spell_level")){
+      Object level=g.opt("spell_level");
+      if(!(level instanceof Integer)||((Integer)level).intValue()<1||((Integer)level).intValue()>9)
+       return blocked("invalid_source_spell_level").put("slot",slot);
+      step.put("source_spell_level",((Integer)level).intValue());
+     }
+    }
     if("attack".equals(kind)){
      JSONObject rider=Xmm2025AttackConditionEngine.profile(id,name);
      if(rider.length()>0){
@@ -376,7 +396,9 @@ public final class Xmm2025MultiattackPlanIndex {
     if("attack".equals(kind))attacks++;else uses++;
    }
   }
-  return new JSONObject().put("resolved",true).put("status","source_sequence_validated_pending_manual_effect_resolution").put("monster",id).put("source","XMM").put("source_pointer",r.getString("ptr")).put("source_blob_sha1",SOURCE_BLOB).put("variant_index",variant).put("steps",steps).put("attack_slots",attacks).put("use_slots",uses).put("auto_rolls",false).put("auto_mutation_allowed",false).put("actions_applied",false).put("damage_applied",false).put("turn_advanced",false).put("manual_effect_resolution_required",true);
+  JSONObject result=new JSONObject().put("resolved",true).put("status","source_sequence_validated_pending_manual_effect_resolution").put("monster",id).put("source","XMM").put("source_pointer",r.getString("ptr")).put("source_blob_sha1",SOURCE_BLOB).put("variant_index",variant).put("steps",steps).put("attack_slots",attacks).put("use_slots",uses).put("auto_rolls",false).put("auto_mutation_allowed",false).put("actions_applied",false).put("damage_applied",false).put("turn_advanced",false).put("manual_effect_resolution_required",true);
+  if(context!=null)result.put("variant_context_field",context.getString("field")).put("variant_context_value",in.getBoolean(context.getString("field")));
+  return result;
  }
- public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("multiattacks",306).put("structured_plans",224).put("manual_source_bound",82).put("source_blob_sha1",SOURCE_BLOB).put("full_combat_automation_certified",false).put("auto_rolls",false);}
+ public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("multiattacks",306).put("structured_plans",275).put("manual_source_bound",31).put("source_blob_sha1",SOURCE_BLOB).put("full_combat_automation_certified",false).put("auto_rolls",false);}
 }

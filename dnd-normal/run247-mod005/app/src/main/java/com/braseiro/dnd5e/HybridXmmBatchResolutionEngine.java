@@ -17,7 +17,11 @@ public final class HybridXmmBatchResolutionEngine {
     private static final Set<String> OPS = new HashSet<String>(Arrays.asList(
             "source_reference", "save_damage_rule", "save_damage_resolve",
             "trait_profile", "trait_resolve", "recharge",
-            "spell_options", "spell_usage_check"));
+            "spell_options", "spell_usage_check", "condition_choice_profile",
+            "condition_choice_resolve", "multiattack_profile", "multiattack_resolve",
+            "save_condition_profile", "save_condition_resolve",
+            "recurring_damage_profile", "recurring_damage_resolve",
+            "zero_hp_condition_profile", "zero_hp_condition_resolve"));
     private static final Set<String> ENVELOPE_KEYS = new HashSet<String>(Arrays.asList(
             "origin", "source_blob_sha1", "requests"));
     private static final Set<String> REQUEST_KEYS = new HashSet<String>(Arrays.asList(
@@ -105,7 +109,101 @@ public final class HybridXmmBatchResolutionEngine {
                 || (inputs.has("name") && !monster.equals(inputs.optString("name"))))
             return block(out, "cross_monster_input_rejected");
         inputs.put("monster", monster).put("name", monster);
-        if (operation.startsWith("save_damage_")) {
+        if (operation.startsWith("condition_choice_")) {
+            JSONObject choice = Xmm2025ConditionChoiceEngine.profile(monster,
+                    inputs.optString("action"));
+            if (choice.length() == 0 || !pointer.equals(choice.optString("source_pointer")))
+                return block(out, "condition_choice_pointer_mismatch");
+            if ("condition_choice_profile".equals(operation)) {
+                return out.put("resolved", true).put("reason", "deterministic_preview_only")
+                    .put("operation", operation).put("monster", monster)
+                    .put("source_pointer", pointer).put("runtime_result", choice);
+            }
+            inputs.put("source_blob_sha1", Xmm2025ConditionChoiceEngine.SOURCE_BLOB)
+                .put("source_pointer", pointer);
+            JSONObject resolution = Xmm2025ConditionChoiceEngine.resolve(inputs);
+            if (!resolution.optBoolean("resolved", false))
+                return block(out, resolution.optString("reason", "condition_choice_unresolved"));
+            return out.put("resolved", true).put("reason", "deterministic_preview_only")
+                .put("operation", operation).put("monster", monster)
+                .put("source_pointer", pointer).put("runtime_result", resolution);
+        } else if (operation.startsWith("multiattack_")) {
+            JSONObject plan = Xmm2025MultiattackPlanIndex.plan(monster);
+            if (!plan.optBoolean("resolved", false)
+                    || !pointer.equals(plan.optString("ptr")))
+                return block(out, "multiattack_pointer_mismatch");
+            Set<String> accepted = new HashSet<String>(Arrays.asList(
+                    "monster", "name", "variant_index", "selected_actions", "step_outcomes"));
+            if ("Clay Golem".equals(monster)) accepted.add("hasten_used_this_turn");
+            if (!onlyKeys(inputs, accepted))
+                return block(out, "unrecognized_multiattack_inputs");
+            JSONObject result;
+            if ("multiattack_profile".equals(operation)) {
+                result = plan;
+            } else {
+                result = Xmm2025MultiattackPlanIndex.resolve(inputs);
+                if (!result.optBoolean("resolved", false))
+                    return block(out, result.optString("status", "multiattack_unresolved"));
+            }
+            return out.put("resolved", true).put("reason", "deterministic_preview_only")
+                .put("operation", operation).put("monster", monster)
+                .put("source_pointer", pointer).put("runtime_result", result);
+        } else if (operation.startsWith("save_condition_")) {
+            JSONObject profile = Xmm2025SaveConditionPreviewEngine.profile(monster,
+                    inputs.optString("action"));
+            if (!profile.optBoolean("resolved", false)
+                    || !pointer.equals(profile.optString("source_pointer")))
+                return block(out, "save_condition_pointer_mismatch");
+            JSONObject result;
+            if ("save_condition_profile".equals(operation)) {
+                result = profile;
+            } else {
+                inputs.put("source_blob_sha1", Xmm2025SaveConditionPreviewEngine.SOURCE_BLOB)
+                    .put("source_pointer", pointer);
+                result = Xmm2025SaveConditionPreviewEngine.resolve(inputs);
+                if (!result.optBoolean("resolved", false))
+                    return block(out, result.optString("reason", "save_condition_unresolved"));
+            }
+            return out.put("resolved", true).put("reason", "deterministic_preview_only")
+                .put("operation", operation).put("monster", monster)
+                .put("source_pointer", pointer).put("runtime_result", result);
+        } else if (operation.startsWith("recurring_damage_")) {
+            JSONObject profile=Xmm2025RecurringDamagePreviewEngine.profile(monster,
+                    inputs.optString("action"));
+            if(!profile.optBoolean("resolved",false)||!pointer.equals(profile.optString("ptr")))
+                return block(out,"recurring_damage_pointer_mismatch");
+            JSONObject result;
+            if("recurring_damage_profile".equals(operation)){
+                result=profile;
+            }else{
+                inputs.put("source_blob_sha1",Xmm2025RecurringDamagePreviewEngine.SOURCE_BLOB)
+                    .put("source_pointer",pointer);
+                result=Xmm2025RecurringDamagePreviewEngine.resolve(inputs);
+                if(!result.optBoolean("resolved",false))
+                    return block(out,result.optString("reason","recurring_damage_unresolved"));
+            }
+            return out.put("resolved",true).put("reason","deterministic_preview_only")
+                .put("operation",operation).put("monster",monster)
+                .put("source_pointer",pointer).put("runtime_result",result);
+        } else if (operation.startsWith("zero_hp_condition_")) {
+            JSONObject profile=Xmm2025ZeroHpConditionPreviewEngine.profile(monster,
+                    inputs.optString("action"));
+            if(!profile.optBoolean("resolved",false)||!pointer.equals(profile.optString("ptr")))
+                return block(out,"zero_hp_condition_pointer_mismatch");
+            JSONObject result;
+            if("zero_hp_condition_profile".equals(operation)){
+                result=profile;
+            }else{
+                inputs.put("source_blob_sha1",Xmm2025ZeroHpConditionPreviewEngine.SOURCE_BLOB)
+                    .put("source_pointer",pointer);
+                result=Xmm2025ZeroHpConditionPreviewEngine.resolve(inputs);
+                if(!result.optBoolean("resolved",false))
+                    return block(out,result.optString("reason","zero_hp_condition_unresolved"));
+            }
+            return out.put("resolved",true).put("reason","deterministic_preview_only")
+                .put("operation",operation).put("monster",monster)
+                .put("source_pointer",pointer).put("runtime_result",result);
+        } else if (operation.startsWith("save_damage_")) {
             String category = inputs.optString("category");
             String action = inputs.optString("action");
             JSONObject rule = Xmm2025SaveDamageEngine.rule(monster, category, action);

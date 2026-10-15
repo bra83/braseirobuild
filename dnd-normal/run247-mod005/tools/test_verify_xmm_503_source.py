@@ -1,9 +1,148 @@
 """Negative-path, no-network tests for the XMM 503 independent comparator."""
 import unittest
+import json
 from io import BytesIO
 import verify_xmm_503_source as xmm
 
 class XmmIndependentSourceTests(unittest.TestCase):
+    def test_five_werebeast_multiattacks_keep_attack_choices_and_substitution_positions(self):
+        source=[{"name":"prefix-"+str(i),"action":[]} for i in range(469)];plans=[]
+        for index,(monster,(first,second,substitute,text)) in enumerate(
+                xmm.WEREBEAST_MULTIATTACKS.items(),469):
+            source.append({"name":monster,"action":[{"name":"Multiattack","entries":[text]},
+                {"name":first,"entries":[]},{"name":second,"entries":[]},
+                {"name":substitute,"entries":[]}]})
+            plans.append({"id":monster,"ptr":f"/monster/{index}/action/0/entries",
+                "v":xmm.expected_werebeast_multiattack_variants(first,second,substitute)})
+        self.assertEqual(([],5),xmm.check_werebeast_multiattack_variants(source,plans))
+        plans[0]["v"][1][0]["o"]=["Rend"]
+        errors,count=xmm.check_werebeast_multiattack_variants(source,plans)
+        self.assertEqual(0,count)
+        self.assertIn("Werebear:WEREBEAST_MULTIATTACK_SOURCE_PLAN_MISMATCH",errors)
+
+    def test_twentyfour_compound_multiattacks_match_source_variants_and_context(self):
+        source=[];plans=[]
+        for index,(monster,(text,(variants,context))) in enumerate(xmm.COMPOUND_MULTIATTACKS.items()):
+            names=sorted({name for group in variants for step in group for name in step["o"]})
+            source.append({"name":monster,"action":[{"name":"Multiattack","entries":[text]}]+
+                [{"name":name,"entries":[]} for name in names]})
+            row={"id":monster,"ptr":f"/monster/{index}/action/0/entries","v":variants}
+            if context is not None: row["context"]=json.loads(json.dumps(context))
+            plans.append(row)
+        self.assertEqual(([],24),xmm.check_compound_multiattack_variants(source,plans))
+        clay_index=list(xmm.COMPOUND_MULTIATTACKS).index("Clay Golem")
+        plans[clay_index]["context"]["variant_index"]=0
+        errors,count=xmm.check_compound_multiattack_variants(source,plans)
+        self.assertEqual(0,count)
+        self.assertIn("Clay Golem:COMPOUND_MULTIATTACK_SOURCE_PLAN_MISMATCH",errors)
+
+    def test_nineteen_dragon_spell_multiattacks_keep_exact_spell_level_and_substitution_slots(self):
+        source=[];plans=[]
+        for index,(monster,(spell,level,breath)) in enumerate(xmm.DRAGON_MULTIATTACK_SPELLS.items()):
+            suffix=f" (level {level} version)" if level is not None else ""
+            text=f"The dragon makes three Rend attacks. It can replace one attack with a use of {breath or 'Spellcasting'} to cast {{@spell {spell}|XPHB}}{suffix}."
+            actions=[{"name":"Multiattack","entries":[text]},{"name":"Rend","entries":[]}]
+            if breath:actions.append({"name":breath,"entries":[]})
+            source.append({"name":monster,"action":actions})
+            plans.append({"id":monster,"ptr":f"/monster/{index}/action/0/entries",
+                "v":xmm.expected_dragon_spell_variants(spell,level,breath)})
+        self.assertEqual(([],19),xmm.check_dragon_multiattack_spell_variants(source,plans))
+        plans[0]["v"][1][0]["o"]=["Fireball"]
+        errors,count=xmm.check_dragon_multiattack_spell_variants(source,plans)
+        self.assertEqual(0,count)
+        self.assertIn("Adult Black Dragon:DRAGON_MULTIATTACK_SPELL_PLAN_MISMATCH",errors)
+
+    def test_zero_hp_condition_profiles_require_source_duration_link_and_stability(self):
+        source=[];compiled=[];profiles=[]
+        for index,((monster,action_name),(ptr,conditions,stable,_phrases)) in enumerate(
+                xmm.ZERO_HP_CONDITION_CONTRACTS.items()):
+            text=("If this damage reduces the target to 0 HP, the target becomes {@variantrule Stable|XPHB} and has "
+                "{@condition Poisoned|XPHB} for 1 hour. While {@condition Poisoned|XPHB}, "
+                "the target has {@condition Paralyzed|XPHB}." if monster=="Phase Spider" else
+                "If the target is reduced to 0 HP by this attack, it becomes {@variantrule Stable|XPHB} but has "
+                "{@condition Poisoned|XPHB} for 1 hour. While it has the {@condition Poisoned|XPHB} "
+                "condition, the target has the {@condition Paralyzed|XPHB} condition.")
+            source.append({"name":monster,"action":[{"name":action_name,"entries":[text]}]})
+            compiled.append({"id":monster,"actions":[{"name":action_name,"source_bound":True,
+                "manual_unmodeled_source_effect_required":True,
+                "condition_on_target_reduced_to_zero_hp":conditions,
+                "target_stable_when_reduced_to_zero_hp":stable}]})
+            profiles.append({"id":monster,"action":action_name,"ptr":ptr,"conditions":conditions,
+                "duration_minutes":60,"stable":stable,"linked":"paralyzed while poisoned"})
+        self.assertEqual(([],2),xmm.check_zero_hp_condition_profiles(source,compiled,profiles))
+        profiles[0]["duration_minutes"]=1
+        errors,count=xmm.check_zero_hp_condition_profiles(source,compiled,profiles)
+        self.assertEqual(0,count);self.assertIn("Phase Spider:Bite:ZERO_HP_CONTRACT_MISMATCH",errors)
+
+    def test_multiattack_catalog_checks_source_pointer_and_simple_sequence(self):
+        source=[{"name":"Ape","action":[{"name":"Multiattack","entries":[
+            "The ape makes two Fist attacks."]},{"name":"Fist","entries":[]}]}]
+        plans=[{"id":"Ape","ptr":"/monster/0/action/0/entries",
+            "v":[[{"k":"attack","o":["Fist"],"c":2}]]}]
+        self.assertEqual(([],1,1,0),xmm.check_multiattack_plan_catalog(source,plans,1,1,1))
+        plans[0]["ptr"]="/monster/4/action/0/entries"
+        errors,structured,simple,manual=xmm.check_multiattack_plan_catalog(source,plans,1,1,1)
+        self.assertEqual((1,1,0),(structured,simple,manual))
+        self.assertIn("Ape:MULTIATTACK_SOURCE_POINTER_MISMATCH",errors)
+
+    def test_sphinx_multiattack_exactly_allows_one_riddle_replacement(self):
+        source=[{"name":"Sphinx of Secrets","action":[{"name":"Multiattack","entries":[
+            "The sphinx makes three Claw attacks. It can replace one attack with a use of Curses of the Riddle."]}]}]
+        expected={"id":"Sphinx of Secrets","ptr":"/monster/407/action/0/entries","v":[
+            [{"k":"attack","o":["Claw"],"c":3}],
+            [{"k":"attack","o":["Claw"],"c":2},{"k":"action","o":["Curse of the Riddle"],"c":1}]]}
+        expected["v"].extend([
+            [{"k":"attack","o":["Claw"],"c":1},{"k":"action","o":["Curse of the Riddle"],"c":1},
+             {"k":"attack","o":["Claw"],"c":1}],
+            [{"k":"action","o":["Curse of the Riddle"],"c":1},{"k":"attack","o":["Claw"],"c":2}],
+        ])
+        self.assertEqual(([],1),xmm.check_sphinx_of_secrets_multiattack(source,[expected]))
+        invalid=json.loads(json.dumps(expected))
+        invalid["v"][1][1]["c"]=2
+        errors,count=xmm.check_sphinx_of_secrets_multiattack(source,[invalid])
+        self.assertEqual(0,count)
+        self.assertEqual(["SPHINX_MULTIATTACK_SOURCE_PLAN_MISMATCH"],errors)
+
+    def test_manual_save_condition_catalog_is_source_exact(self):
+        source=[{"name":"Test Monster","action":[{"name":"Save Gaze","entries":[
+            "{@actSave wis} {@dc 12} {@actSaveFail} The target has the "
+            "{@condition Frightened|XPHB} and {@condition Paralyzed|XPHB} conditions."]}]}]
+        compiled=[{"id":"Test Monster","actions":[{"name":"Save Gaze","category":"action",
+            "source_bound":True,"manual_unmodeled_source_effect_required":True,
+            "save_ability":"wis","save_dc":12,
+            "condition_on_fail":"frightened, paralyzed"}]}]
+        expected=xmm.expected_save_condition_profiles(source,compiled)
+        self.assertEqual(1,len(expected))
+        self.assertEqual(([],1),xmm.check_save_condition_profiles(source,compiled,expected,1))
+        altered=json.loads(json.dumps(expected))
+        altered[0]["conditions"]="paralyzed, frightened"
+        errors,count=xmm.check_save_condition_profiles(source,compiled,altered,1)
+        self.assertEqual(0,count)
+        self.assertEqual(["MANUAL_SAVE_CONDITION_PROFILE_SOURCE_MISMATCH"],errors)
+
+    def test_condition_choice_profiles_remain_manual_until_host_integration(self):
+        source={"name":"Pixie","action":[{"name":"Faerie Dust","entries":[
+            "The target has the {@condition Charmed|XPHB} or {@condition Poisoned|XPHB} condition (pixie's choice) until the start of the pixie's next turn."]}]}
+        compiled={"name":"Faerie Dust","condition_choice_on_hit":"charmed, poisoned",
+            "condition_duration_rounds":1,"condition_duration_tick":"source_turn_start",
+            "manual_rider_resolution_required":True,"manual_unmodeled_source_effect_required":True}
+        self.assertTrue(xmm.condition_choice_contract_matches("Pixie",source["action"][0],compiled))
+        compiled["manual_unmodeled_source_effect_required"]=False
+        self.assertFalse(xmm.condition_choice_contract_matches("Pixie",source["action"][0],compiled))
+
+    def test_slaad_condition_choice_requires_source_ordered_d4_contract(self):
+        source={"name":"Death Slaad","action":[{"name":"Chaos Blade","entries":[
+            "The target has a condition determined by rolling {@dice 1d4}: on a 1, {@condition Charmed|XPHB}; on a 2, {@condition Frightened|XPHB}; on a 3, {@condition Poisoned|XPHB}; or on a 4, {@condition Incapacitated|XPHB}."]}]}
+        compiled={"name":"Chaos Blade","condition_choice_on_hit":"charmed, frightened, poisoned, incapacitated",
+            "condition_duration_rounds":1,"condition_duration_tick":"source_turn_start",
+            "manual_rider_resolution_required":True,"manual_unmodeled_source_effect_required":True}
+        self.assertTrue(xmm.condition_choice_contract_matches("Death Slaad",source["action"][0],compiled))
+        compiled["condition_choice_on_hit"]="frightened, charmed, poisoned, incapacitated"
+        self.assertFalse(xmm.condition_choice_contract_matches("Death Slaad",source["action"][0],compiled))
+
+    def test_condition_choice_rejects_unpinned_action_family(self):
+        self.assertFalse(xmm.condition_choice_contract_matches("Pixie",{"name":"Faerie Dust","entries":[]},{}))
+
     def test_scarecrow_glare_requires_both_source_conditions_and_turn_expiry(self):
         source={"name":"Scarecrow","action":[{"name":"Terrifying Glare","entries":[
             "{@actSave wis} {@dc 11}, one creature the scarecrow can see within 30 feet. "

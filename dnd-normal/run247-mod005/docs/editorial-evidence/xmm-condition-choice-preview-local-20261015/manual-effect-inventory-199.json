@@ -1,0 +1,3515 @@
+{
+  "schema": "XMM_SOURCE_EFFECT_INVENTORY_V1",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "source_bestiary_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "source_monsters": 503,
+  "manual_unmodeled_effect_count": 199,
+  "tipado_preview_pendente_integracao_count": 67,
+  "source_review_required_count": 1,
+  "full_monster_combat_automation_certified": false,
+  "entries": [
+    {
+      "source_pointer": "/monster/0/action/0/entries",
+      "monster_id": "Aarakocra Aeromancer",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Gust of Wind"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/2/action/0/entries",
+      "monster_id": "Aberrant Cultist",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/3/action/0/entries",
+      "monster_id": "Aboleth",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/3/action/2/entries/0",
+      "monster_id": "Aboleth",
+      "action_id": "Consume Memories",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "3d6",
+        "damage_type": "psychic",
+        "damage_on_save": "3d6",
+        "save_ability": "int",
+        "save_dc": 16,
+        "condition_on_fail": "charmed, grappled"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/3/action/3/entries/0",
+      "monster_id": "Aboleth",
+      "action_id": "Dominate Mind (2/Day)",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "wis",
+        "save_dc": 16,
+        "condition_on_fail": "charmed"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/3/legendary/1/entries/0",
+      "monster_id": "Aboleth",
+      "action_id": "Psychic Drain",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "condition_on_fail": "charmed, grappled"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "SOURCE_REVIEW_REQUIRED",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/5/legendary/0/entries/0",
+      "monster_id": "Adult Black Dragon",
+      "action_id": "Cloud of Insects",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "4d10",
+        "damage_type": "poison",
+        "save_ability": "dex",
+        "save_dc": 17
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/7/action/3/entries/0",
+      "monster_id": "Adult Brass Dragon",
+      "action_id": "Sleep Breath",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 18,
+        "condition_on_fail": "incapacitated, unconscious"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/7/legendary/2/entries/0",
+      "monster_id": "Adult Brass Dragon",
+      "action_id": "Scorching Sands",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "6d8",
+        "damage_type": "fire",
+        "save_ability": "dex",
+        "save_dc": 16
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/9/action/3/entries/0",
+      "monster_id": "Adult Copper Dragon",
+      "action_id": "Slowing Breath",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 18
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/10/action/3/entries/0",
+      "monster_id": "Adult Gold Dragon",
+      "action_id": "Weakening Breath",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "save_ability": "str",
+        "save_dc": 21
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/13/action/3/entries/0",
+      "monster_id": "Adult Silver Dragon",
+      "action_id": "Paralyzing Breath",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 20,
+        "condition_on_fail": "incapacitated, paralyzed"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/13/legendary/1/entries/0",
+      "monster_id": "Adult Silver Dragon",
+      "action_id": "Cold Gale",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "4d6",
+        "damage_type": "cold",
+        "damage_on_save": "4d6",
+        "save_ability": "dex",
+        "save_dc": 19
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/17/legendary/0/entries/0",
+      "monster_id": "Ancient Black Dragon",
+      "action_id": "Cloud of Insects",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "6d10",
+        "damage_type": "poison",
+        "save_ability": "dex",
+        "save_dc": 21
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/19/action/3/entries/0",
+      "monster_id": "Ancient Brass Dragon",
+      "action_id": "Sleep Breath",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 21,
+        "condition_on_fail": "incapacitated, unconscious"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/19/legendary/2/entries/0",
+      "monster_id": "Ancient Brass Dragon",
+      "action_id": "Scorching Sands",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "8d8",
+        "damage_type": "fire",
+        "save_ability": "dex",
+        "save_dc": 20
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/21/action/3/entries/0",
+      "monster_id": "Ancient Copper Dragon",
+      "action_id": "Slowing Breath",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 22
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/22/action/3/entries/0",
+      "monster_id": "Ancient Gold Dragon",
+      "action_id": "Weakening Breath",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "save_ability": "str",
+        "save_dc": 24
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/25/action/3/entries/0",
+      "monster_id": "Ancient Silver Dragon",
+      "action_id": "Paralyzing Breath",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 24,
+        "condition_on_fail": "incapacitated, paralyzed"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/25/legendary/1/entries/0",
+      "monster_id": "Ancient Silver Dragon",
+      "action_id": "Cold Gale",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "4d6",
+        "damage_type": "cold",
+        "damage_on_save": "4d6",
+        "save_ability": "dex",
+        "save_dc": 23
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/27/action/3/entries/0",
+      "monster_id": "Animal Lord",
+      "action_id": "Animal Spirit",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "4d10 + 6",
+        "damage_type": "radiant",
+        "damage_on_save": "4d10 + 6",
+        "save_ability": "dex",
+        "save_dc": 20
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/31/action/0/entries/0",
+      "monster_id": "Animated Rug of Smothering",
+      "action_id": "Smother",
+      "family": "explicit_effect_choice",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "2d6 + 3",
+        "damage_type": "bludgeoning",
+        "escape_dc": 13,
+        "condition_max_target_size": "medium",
+        "manual_effect_choice_required": true
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/35/action/0/entries",
+      "monster_id": "Arcanaloth",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/35/action/2/entries/0",
+      "monster_id": "Arcanaloth",
+      "action_id": "Banishing Claw (Requires Soul Tome)",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 9,
+        "reach_ft": 5,
+        "damage": "2d4 + 5 + 3d12",
+        "damage_type": "slashing + psychic",
+        "save_ability": "cha",
+        "save_dc": 17,
+        "condition_on_fail": "incapacitated"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/36/action/2/entries/0",
+      "monster_id": "Arch-hag",
+      "action_id": "Crackling Wave",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "5d12",
+        "damage_type": "lightning",
+        "damage_on_save": "5d12",
+        "save_ability": "dex",
+        "save_dc": 22
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/36/bonus/0/entries/0",
+      "monster_id": "Arch-hag",
+      "action_id": "Witch Strike",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "4d6",
+        "damage_type": "lightning"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/48/action/2/entries/0",
+      "monster_id": "Balor",
+      "action_id": "Lightning Blade",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 14,
+        "reach_ft": 10,
+        "damage": "3d8 + 8 + 4d10",
+        "damage_type": "force + lightning"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/51/bonus/0/entries/0",
+      "monster_id": "Bandit Crime Lord",
+      "action_id": "Deadly Aim",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "8d6",
+        "damage_type": "poison"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/54/action/3/entries/0",
+      "monster_id": "Barbed Devil",
+      "action_id": "Hurl Flame",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 5,
+        "range_normal_ft": 150,
+        "range_long_ft": 150,
+        "damage": "5d6",
+        "damage_type": "fire"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/56/bonus/0/entries/0",
+      "monster_id": "Basilisk",
+      "action_id": "Petrifying Gaze {@recharge 4}",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 12,
+        "condition_on_fail": "restrained, petrified",
+        "recharge": "4-6"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/58/action/2/entries/0",
+      "monster_id": "Bearded Devil",
+      "action_id": "Infernal Glaive",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 10,
+        "damage": "1d10 + 3",
+        "damage_type": "slashing",
+        "save_ability": "con",
+        "save_dc": 12
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/59/bonus/0/entries/0",
+      "monster_id": "Behir",
+      "action_id": "Swallow",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "6d6",
+        "damage_type": "acid",
+        "save_ability": "dex",
+        "save_dc": 18,
+        "condition_on_fail": "grappled, blinded, restrained, prone"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/60/action/2/entries/0",
+      "monster_id": "Beholder",
+      "action_id": "Eye Rays",
+      "family": "other_source_effect",
+      "mechanical_contract": {},
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/61/action/2/entries/0",
+      "monster_id": "Beholder Zombie",
+      "action_id": "Eye Rays",
+      "family": "other_source_effect",
+      "mechanical_contract": {},
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/63/action/1/entries/0",
+      "monster_id": "Berserker Commander",
+      "action_id": "Greataxe",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 7,
+        "reach_ft": 5,
+        "damage": "1d12 + 4 + 3d6",
+        "damage_type": "slashing + thunder"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/63/bonus/0/entries/0",
+      "monster_id": "Berserker Commander",
+      "action_id": "Frenzied Rush",
+      "family": "other_source_effect",
+      "mechanical_contract": {},
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/68/action/0/entries",
+      "monster_id": "Blob of Annihilation",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/68/action/2/entries/0",
+      "monster_id": "Blob of Annihilation",
+      "action_id": "Engulf",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "6d6",
+        "damage_type": "force",
+        "save_ability": "str",
+        "save_dc": 23,
+        "condition_on_fail": "restrained"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/71/action/1/entries/0",
+      "monster_id": "Blue Slaad",
+      "action_id": "Mutating Claw",
+      "family": "monster_spell_action",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 8,
+        "reach_ft": 10,
+        "damage": "2d6 + 5 + 1d6",
+        "damage_type": "slashing + poison",
+        "save_ability": "con",
+        "save_dc": 15,
+        "spells": [
+          "Wish"
+        ]
+      },
+      "engine_owner": "Xmm2025SpellUsageIndex / CompiledSupplementExecutionEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/74/action/0/entries",
+      "monster_id": "Bone Naga",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/75/action/2/entries/0",
+      "monster_id": "Brass Dragon Wyrmling",
+      "action_id": "Sleep Breath",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 11,
+        "condition_on_fail": "incapacitated, unconscious"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/76/action/2/entries/0",
+      "monster_id": "Brazen Gorgon",
+      "action_id": "Smelting Charge {@recharge 5}",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "2d8 + 4 + 3d8",
+        "damage_type": "piercing + fire",
+        "save_ability": "dex",
+        "save_dc": 16,
+        "condition_on_fail": "grappled, prone, restrained",
+        "recharge": "5-6"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/81/action/2/entries/0",
+      "monster_id": "Bulette",
+      "action_id": "Deadly Leap",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "3d12",
+        "damage_type": "bludgeoning",
+        "damage_on_save": "3d12",
+        "save_ability": "dex",
+        "save_dc": 15,
+        "condition_on_fail": "prone"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/83/action/0/entries",
+      "monster_id": "Bullywug Bog Sage",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Ray of Sickness"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/92/action/0/entries/0",
+      "monster_id": "Chasme",
+      "action_id": "Proboscis",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "4d6 + 2 + 6d6",
+        "damage_type": "piercing + necrotic"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/92/bonus/0/entries/0",
+      "monster_id": "Chasme",
+      "action_id": "Drone",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 12,
+        "condition_on_fail": "unconscious"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/94/action/2/entries/0",
+      "monster_id": "Chuul",
+      "action_id": "Paralyzing Tentacles",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 13,
+        "condition_on_fail": "grappled, poisoned, paralyzed"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/95/action/1/entries/0",
+      "monster_id": "Clay Golem",
+      "action_id": "Slam",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 9,
+        "reach_ft": 5,
+        "damage": "1d10 + 5 + 1d12",
+        "damage_type": "bludgeoning + acid"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/97/action/0/entries",
+      "monster_id": "Cloud Giant",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Fog Cloud"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/98/action/0/entries/0",
+      "monster_id": "Cockatrice",
+      "action_id": "Petrifying Bite",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 3,
+        "reach_ft": 5,
+        "damage": "1d4 + 1",
+        "damage_type": "piercing",
+        "save_ability": "con",
+        "save_dc": 11,
+        "condition_on_fail": "restrained, petrified"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/99/action/1/entries/0",
+      "monster_id": "Cockatrice Regent",
+      "action_id": "Petrifying Bite",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 7,
+        "reach_ft": 5,
+        "damage": "2d8 + 4",
+        "damage_type": "piercing",
+        "save_ability": "con",
+        "save_dc": 14,
+        "condition_on_fail": "restrained, petrified"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/103/action/2/entries/0",
+      "monster_id": "Copper Dragon Wyrmling",
+      "action_id": "Slowing Breath",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 11
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/111/action/2/entries/0",
+      "monster_id": "Cyclops Oracle",
+      "action_id": "Flash of Light",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 10,
+        "range_normal_ft": 120,
+        "range_long_ft": 120,
+        "damage": "2d10 + 6",
+        "damage_type": "radiant"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/112/reaction/0/entries/0",
+      "monster_id": "Cyclops Sentry",
+      "action_id": "Limited Foresight {@recharge}",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "recharge": "6"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/113/action/2/entries/0",
+      "monster_id": "Dao",
+      "action_id": "Earth Burst",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 10,
+        "range_normal_ft": 120,
+        "range_long_ft": 120,
+        "damage": "2d8 + 6",
+        "damage_type": "bludgeoning",
+        "save_ability": "dex",
+        "save_dc": 16
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/114/action/0/entries/0",
+      "monster_id": "Darkmantle",
+      "action_id": "Crush",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "1d6 + 3",
+        "damage_type": "bludgeoning"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/116/action/1/entries/0",
+      "monster_id": "Death Dog",
+      "action_id": "Bite",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 4,
+        "reach_ft": 5,
+        "damage": "1d4 + 2",
+        "damage_type": "piercing",
+        "save_ability": "con",
+        "save_dc": 12,
+        "condition_on_fail": "poisoned"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/117/legendary/1/entries/0",
+      "monster_id": "Death Knight",
+      "action_id": "Fell Word",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "5d6",
+        "damage_type": "necrotic",
+        "save_ability": "con",
+        "save_dc": 18
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/119/action/1/entries/0",
+      "monster_id": "Death Slaad",
+      "action_id": "Chaos Blade",
+      "family": "condition_choice_on_hit",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 9,
+        "reach_ft": 10,
+        "damage": "1d12 + 5 + 3d6",
+        "damage_type": "slashing + necrotic",
+        "condition_choice_on_hit": "charmed, frightened, poisoned, incapacitated",
+        "condition_duration_rounds": 1,
+        "condition_duration_tick": "source_turn_start"
+      },
+      "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
+    },
+    {
+      "source_pointer": "/monster/120/action/2/entries/0",
+      "monster_id": "Death Tyrant",
+      "action_id": "Eye Rays",
+      "family": "other_source_effect",
+      "mechanical_contract": {},
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/120/bonus/0/entries/0",
+      "monster_id": "Death Tyrant",
+      "action_id": "Negative Energy Cone",
+      "family": "other_source_effect",
+      "mechanical_contract": {},
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/122/legendary/0/entries/0",
+      "monster_id": "Demilich",
+      "action_id": "Energy Drain",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 19
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/127/action/3/entries/0",
+      "monster_id": "Djinni",
+      "action_id": "Create Whirlwind",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "6d6",
+        "damage_type": "thunder",
+        "save_ability": "str",
+        "save_dc": 17,
+        "condition_on_fail": "restrained"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/128/action/0/entries",
+      "monster_id": "Doppelganger",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/132/action/1/entries/0",
+      "monster_id": "Dretch",
+      "action_id": "Fetid Cloud (1/Day)",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 11,
+        "condition_on_fail": "poisoned"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/135/action/0/entries",
+      "monster_id": "Dryad",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Charm Monster"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/140/action/2/entries/0",
+      "monster_id": "Elemental Cataclysm",
+      "action_id": "Cataclysmic Event {@recharge 4}",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "recharge": "4-6"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/141/action/2/entries/0",
+      "monster_id": "Elemental Cultist",
+      "action_id": "Elemental Claw",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 7,
+        "range_normal_ft": 120,
+        "range_long_ft": 120,
+        "damage": "4d10"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/141/reaction/0/entries/0",
+      "monster_id": "Elemental Cultist",
+      "action_id": "Elemental Absorption (1/Day)",
+      "family": "other_source_effect",
+      "mechanical_contract": {},
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/144/legendary/0/entries/0",
+      "monster_id": "Empyrean",
+      "action_id": "Bolster",
+      "family": "other_source_effect",
+      "mechanical_contract": {},
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/146/action/0/entries",
+      "monster_id": "Erinyes",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/148/action/2/entries/0",
+      "monster_id": "Ettin",
+      "action_id": "Morningstar",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 7,
+        "reach_ft": 5,
+        "damage": "2d8 + 5",
+        "damage_type": "piercing"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/149/action/1/entries/0",
+      "monster_id": "Faerie Dragon Adult",
+      "action_id": "Euphoria Breath {@recharge 5}",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "wis",
+        "save_dc": 13,
+        "condition_on_fail": "incapacitated",
+        "recharge": "5-6"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/152/action/1/entries/0",
+      "monster_id": "Fire Elemental",
+      "action_id": "Burn",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 6,
+        "reach_ft": 5,
+        "damage": "2d6 + 3",
+        "damage_type": "fire"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/153/action/2/entries/0",
+      "monster_id": "Fire Giant",
+      "action_id": "Hammer Throw",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 11,
+        "range_normal_ft": 60,
+        "range_long_ft": 240,
+        "damage": "3d10 + 7 + 1d8",
+        "damage_type": "bludgeoning + fire"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/161/bonus/0/entries/0",
+      "monster_id": "Frost Giant",
+      "action_id": "War Cry {@recharge 5}",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "recharge": "5-6"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/171/action/1/entries/0",
+      "monster_id": "Giant Axe Beak",
+      "action_id": "Sharpened Beak",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 8,
+        "reach_ft": 10,
+        "damage": "2d12 + 5 + 1d12",
+        "damage_type": "slashing + slashing"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/182/action/1/entries/0",
+      "monster_id": "Giant Frog",
+      "action_id": "Swallow",
+      "family": "swallow_and_escape",
+      "mechanical_contract": {
+        "damage": "2d4",
+        "damage_type": "acid",
+        "swallow_conditions_manual": "blinded, restrained"
+      },
+      "engine_owner": "Xmm2025GrappleEscapeRules / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/194/action/1/entries/0",
+      "monster_id": "Giant Toad",
+      "action_id": "Swallow",
+      "family": "swallow_and_escape",
+      "mechanical_contract": {
+        "damage": "3d6",
+        "damage_type": "acid",
+        "swallow_conditions_manual": "blinded, restrained"
+      },
+      "engine_owner": "Xmm2025GrappleEscapeRules / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/202/action/0/entries",
+      "monster_id": "Githyanki Knight",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Telekinesis"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/205/action/1/entries/0",
+      "monster_id": "Githzerai Psion",
+      "action_id": "Psychic Warp",
+      "family": "condition_choice_on_hit",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m",
+          "r"
+        ],
+        "to_hit": 8,
+        "reach_ft": 5,
+        "range_normal_ft": 120,
+        "range_long_ft": 120,
+        "damage": "4d10 + 4",
+        "damage_type": "psychic",
+        "condition_choice_on_hit": "charmed, prone",
+        "condition_choice_max_target_size": "large"
+      },
+      "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
+    },
+    {
+      "source_pointer": "/monster/207/action/0/entries",
+      "monster_id": "Glabrezu",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/209/action/2/entries/0",
+      "monster_id": "Gnoll Demoniac",
+      "action_id": "Hunger of Yeenoghu {@recharge 5}",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "8d6",
+        "damage_type": "necrotic",
+        "damage_on_save": "8d6",
+        "save_ability": "dex",
+        "save_dc": 14,
+        "recharge": "5-6"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/211/action/0/entries",
+      "monster_id": "Gnoll Pack Lord",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/211/action/3/entries/0",
+      "monster_id": "Gnoll Pack Lord",
+      "action_id": "Incite Rampage {@recharge 5}",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "recharge": "5-6"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/215/action/0/entries",
+      "monster_id": "Goblin Hexer",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/218/action/3/entries/0",
+      "monster_id": "Gold Dragon Wyrmling",
+      "action_id": "Weakening Breath",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "save_ability": "str",
+        "save_dc": 13
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/219/action/1/entries/0",
+      "monster_id": "Gorgon",
+      "action_id": "Petrifying Breath {@recharge 5}",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 15,
+        "condition_on_fail": "restrained, petrified",
+        "recharge": "5-6"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/223/action/1/entries/0",
+      "monster_id": "Gray Slaad",
+      "action_id": "Chaos Claw",
+      "family": "condition_choice_on_hit",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 8,
+        "reach_ft": 10,
+        "damage": "1d10 + 4 + 2d10",
+        "damage_type": "slashing + necrotic",
+        "condition_choice_on_hit": "charmed, frightened, poisoned, incapacitated",
+        "condition_duration_rounds": 1,
+        "condition_duration_tick": "source_turn_start"
+      },
+      "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
+    },
+    {
+      "source_pointer": "/monster/226/action/1/entries/0",
+      "monster_id": "Green Slaad",
+      "action_id": "Chaos Staff",
+      "family": "condition_choice_on_hit",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m",
+          "r"
+        ],
+        "to_hit": 7,
+        "reach_ft": 10,
+        "range_normal_ft": 60,
+        "range_long_ft": 60,
+        "damage": "1d8 + 4",
+        "damage_type": "force",
+        "condition_choice_on_hit": "charmed, frightened, poisoned, incapacitated",
+        "condition_duration_rounds": 1,
+        "condition_duration_tick": "source_turn_start"
+      },
+      "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
+    },
+    {
+      "source_pointer": "/monster/227/action/2/entries/0",
+      "monster_id": "Grell",
+      "action_id": "Paralyzing Tentacles",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 4,
+        "reach_ft": 10,
+        "damage": "1d10 + 2",
+        "damage_type": "piercing",
+        "save_ability": "con",
+        "save_dc": 11,
+        "condition_on_hit": "grappled",
+        "condition_on_fail": "poisoned",
+        "escape_dc": 12,
+        "condition_max_target_size": "medium"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/235/action/0/entries",
+      "monster_id": "Gulthias Blight",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/235/action/3/entries/0",
+      "monster_id": "Gulthias Blight",
+      "action_id": "Life-Draining Root",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "2d6 + 7 + 4d6",
+        "damage_type": "necrotic + necrotic",
+        "save_ability": "con",
+        "save_dc": 20,
+        "condition_on_fail": "grappled, restrained"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/236/action/1/entries/0",
+      "monster_id": "Half-Dragon",
+      "action_id": "Claw",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 7,
+        "reach_ft": 10,
+        "damage": "1d4 + 4",
+        "damage_type": "slashing"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/237/action/1/entries/0",
+      "monster_id": "Harpy",
+      "action_id": "Luring Song",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "wis",
+        "save_dc": 11,
+        "condition_on_fail": "charmed, incapacitated"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/238/action/1/entries/0",
+      "monster_id": "Haunting Revenant",
+      "action_id": "Object Slam",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m",
+          "r"
+        ],
+        "to_hit": 9,
+        "reach_ft": 10,
+        "range_normal_ft": 30,
+        "range_long_ft": 90,
+        "damage": "5d8 + 5",
+        "damage_type": "bludgeoning"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/249/action/0/entries/0",
+      "monster_id": "Homunculus",
+      "action_id": "Bite",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 4,
+        "reach_ft": 5,
+        "damage": "1",
+        "damage_type": "piercing",
+        "save_ability": "con",
+        "save_dc": 12,
+        "condition_on_fail": "poisoned, unconscious"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/251/action/0/entries",
+      "monster_id": "Horned Devil",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/251/action/2/entries/0",
+      "monster_id": "Horned Devil",
+      "action_id": "Hurl Flame",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 8,
+        "range_normal_ft": 150,
+        "range_long_ft": 150,
+        "damage": "5d8 + 4",
+        "damage_type": "fire"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/251/action/3/entries/0",
+      "monster_id": "Horned Devil",
+      "action_id": "Infernal Tail",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "1d8 + 6",
+        "damage_type": "necrotic",
+        "save_ability": "dex",
+        "save_dc": 17
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/253/action/0/entries",
+      "monster_id": "Hydra",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/255/action/1/entries/0",
+      "monster_id": "Ice Devil",
+      "action_id": "Ice Spear",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m",
+          "r"
+        ],
+        "to_hit": 10,
+        "reach_ft": 5,
+        "range_normal_ft": 30,
+        "range_long_ft": 120,
+        "damage": "2d8 + 5 + 3d6",
+        "damage_type": "piercing + cold"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/258/action/1/entries/0",
+      "monster_id": "Incubus",
+      "action_id": "Restless Touch",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 7,
+        "reach_ft": 5,
+        "damage": "3d6 + 5",
+        "damage_type": "psychic"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/269/action/0/entries",
+      "monster_id": "Kraken",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/269/action/2/entries/0",
+      "monster_id": "Kraken",
+      "action_id": "Fling",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "4d8",
+        "damage_type": "bludgeoning",
+        "damage_on_save": "4d8",
+        "save_ability": "dex",
+        "save_dc": 25,
+        "condition_on_fail": "grappled, prone"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/269/action/4/entries/0",
+      "monster_id": "Kraken",
+      "action_id": "Swallow",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "3d8 + 10 + 7d6",
+        "damage_type": "piercing + acid",
+        "save_ability": "dex",
+        "save_dc": 25,
+        "condition_on_fail": "grappled, restrained, prone"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/269/legendary/1/entries/0",
+      "monster_id": "Kraken",
+      "action_id": "Toxic Ink",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 23,
+        "condition_on_fail": "blinded, poisoned"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/270/action/1/entries/0",
+      "monster_id": "Kuo-toa",
+      "action_id": "Sticky Net (1/Day)",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "dex",
+        "save_dc": 10,
+        "condition_on_fail": "restrained"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/275/action/2/entries/0",
+      "monster_id": "Lamia",
+      "action_id": "Corrupting Touch",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "3d8",
+        "damage_type": "psychic",
+        "save_ability": "wis",
+        "save_dc": 13,
+        "condition_on_fail": "charmed, poisoned"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/282/action/1/entries/0",
+      "monster_id": "Lizardfolk Sovereign",
+      "action_id": "Bite",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "1d10 + 3",
+        "damage_type": "piercing"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/286/action/0/entries/0",
+      "monster_id": "Magmin",
+      "action_id": "Touch",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 4,
+        "reach_ft": 5,
+        "damage": "2d4 + 2",
+        "damage_type": "fire"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/294/bonus/0/entries/0",
+      "monster_id": "Medusa",
+      "action_id": "Petrifying Gaze {@recharge 5}",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 13,
+        "condition_on_fail": "restrained, petrified",
+        "recharge": "5-6"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/296/reaction/0/entries/0",
+      "monster_id": "Merfolk Wavebender",
+      "action_id": "Watery Rebuke",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "4d6",
+        "damage_type": "cold",
+        "save_ability": "str",
+        "save_dc": 15
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/300/action/0/entries/0",
+      "monster_id": "Mind Flayer",
+      "action_id": "Tentacles",
+      "family": "attack_hit_condition",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 7,
+        "reach_ft": 5,
+        "damage": "4d8 + 4",
+        "damage_type": "psychic",
+        "condition_on_hit": "grappled, stunned",
+        "escape_dc": 14,
+        "condition_max_target_size": "medium"
+      },
+      "engine_owner": "Xmm2025AttackConditionGateway / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/301/action/1/entries/0",
+      "monster_id": "Mind Flayer Arcanist",
+      "action_id": "Arcane Tentacles",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m",
+          "r"
+        ],
+        "to_hit": 9,
+        "reach_ft": 5,
+        "range_normal_ft": 120,
+        "range_long_ft": 120,
+        "damage": "4d10 + 5",
+        "damage_type": "psychic"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/311/action/1/entries/0",
+      "monster_id": "Mummy",
+      "action_id": "Rotting Fist",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "1d10 + 3 + 3d6",
+        "damage_type": "bludgeoning + necrotic"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/312/action/0/entries",
+      "monster_id": "Mummy Lord",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/312/action/1/entries/0",
+      "monster_id": "Mummy Lord",
+      "action_id": "Rotting Fist",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 9,
+        "reach_ft": 5,
+        "damage": "2d10 + 4 + 3d6",
+        "damage_type": "bludgeoning + necrotic"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/317/reaction/0/entries/0",
+      "monster_id": "Nalfeshnee",
+      "action_id": "Pursuit",
+      "family": "other_source_effect",
+      "mechanical_contract": {},
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/330/action/0/entries",
+      "monster_id": "Oni",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/331/action/1/entries/0",
+      "monster_id": "Otyugh",
+      "action_id": "Bite",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 6,
+        "reach_ft": 5,
+        "damage": "2d8 + 3",
+        "damage_type": "piercing",
+        "save_ability": "con",
+        "save_dc": 15,
+        "condition_on_fail": "poisoned"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/331/action/3/entries/0",
+      "monster_id": "Otyugh",
+      "action_id": "Tentacle Slam",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "3d8 + 3",
+        "damage_type": "bludgeoning",
+        "damage_on_save": "3d8 + 3",
+        "save_ability": "con",
+        "save_dc": 14,
+        "condition_on_fail": "grappled, stunned"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/337/action/2/entries/0",
+      "monster_id": "Performer Legend",
+      "action_id": "Majestic Song",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "4d8 + 4",
+        "damage_type": "psychic",
+        "damage_on_save": "4d8 + 4",
+        "save_ability": "wis",
+        "save_dc": 17,
+        "condition_on_fail": "charmed, frightened"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/339/action/2/entries/0",
+      "monster_id": "Peryton",
+      "action_id": "Talons",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "2d4 + 3",
+        "damage_type": "piercing"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/340/action/1/entries/0",
+      "monster_id": "Phase Spider",
+      "action_id": "Bite",
+      "family": "condition_at_zero_hp",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "1d10 + 3 + 2d8",
+        "damage_type": "piercing + poison",
+        "condition_on_target_reduced_to_zero_hp": "poisoned, paralyzed",
+        "target_stable_when_reduced_to_zero_hp": true
+      },
+      "engine_owner": "Xmm2025ZeroHpConditionPreviewEngine / HybridXmmBatchResolutionEngine",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025ZeroHpConditionPreviewEngineTest#bothProfilesMatchTheirTypedSourceContract",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Preview de condições após redução a 0 PV; estabilidade, duração e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/344/action/1/entries/0",
+      "monster_id": "Pirate Admiral",
+      "action_id": "Scimitar",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 10,
+        "reach_ft": 5,
+        "damage": "3d6 + 6 + 2d6",
+        "damage_type": "slashing + poison"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/344/bonus/0/entries/0",
+      "monster_id": "Pirate Admiral",
+      "action_id": "Rally (1/Day)",
+      "family": "other_source_effect",
+      "mechanical_contract": {},
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/345/action/1/entries/0",
+      "monster_id": "Pirate Captain",
+      "action_id": "Rapier",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 7,
+        "reach_ft": 5,
+        "damage": "2d8 + 4",
+        "damage_type": "piercing"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/346/action/1/entries/0",
+      "monster_id": "Pit Fiend",
+      "action_id": "Bite",
+      "family": "condition_recurring_damage",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 14,
+        "reach_ft": 10,
+        "damage": "3d6 + 8",
+        "damage_type": "piercing",
+        "save_ability": "con",
+        "save_dc": 21,
+        "condition_on_fail": "poisoned",
+        "condition_recurring_damage": "6d6",
+        "condition_recurring_damage_type": "poison",
+        "condition_recurring_damage_tick": "target_turn_start"
+      },
+      "engine_owner": "XMM recurring-condition executor (not implemented)",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/347/action/0/entries/0",
+      "monster_id": "Pixie",
+      "action_id": "Faerie Dust",
+      "family": "condition_choice_on_hit",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m",
+          "r"
+        ],
+        "to_hit": 4,
+        "reach_ft": 5,
+        "range_normal_ft": 60,
+        "range_long_ft": 60,
+        "damage": "1",
+        "damage_type": "radiant",
+        "condition_choice_on_hit": "charmed, poisoned",
+        "condition_duration_rounds": 1,
+        "condition_duration_tick": "source_turn_start"
+      },
+      "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
+    },
+    {
+      "source_pointer": "/monster/348/action/1/entries/0",
+      "monster_id": "Pixie Wonderbringer",
+      "action_id": "Faerie Dust",
+      "family": "condition_choice_on_hit",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m",
+          "r"
+        ],
+        "to_hit": 7,
+        "reach_ft": 5,
+        "range_normal_ft": 60,
+        "range_long_ft": 60,
+        "damage": "2d10 + 4",
+        "damage_type": "radiant",
+        "condition_choice_on_hit": "charmed, poisoned",
+        "condition_duration_rounds": 1,
+        "condition_duration_tick": "source_turn_start"
+      },
+      "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
+    },
+    {
+      "source_pointer": "/monster/357/action/2/entries/0",
+      "monster_id": "Pseudodragon",
+      "action_id": "Sting",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "2d4",
+        "damage_type": "poison",
+        "save_ability": "con",
+        "save_dc": 12,
+        "condition_on_fail": "poisoned, unconscious"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/358/action/0/entries/0",
+      "monster_id": "Psychic Gray Ooze",
+      "action_id": "Pseudopod",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 3,
+        "reach_ft": 5,
+        "damage": "3d6 + 1",
+        "damage_type": "acid"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/360/bonus/0/entries/0",
+      "monster_id": "Purple Worm",
+      "action_id": "Swallow",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "5d6",
+        "damage_type": "acid",
+        "save_ability": "str",
+        "save_dc": 19,
+        "condition_on_fail": "grappled, blinded, restrained, prone"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/365/action/0/entries/0",
+      "monster_id": "Rakshasa",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/365/action/1/entries/0",
+      "monster_id": "Rakshasa",
+      "action_id": "Cursed Touch",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 10,
+        "reach_ft": 5,
+        "damage": "2d6 + 5 + 3d12",
+        "damage_type": "slashing + necrotic"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/369/action/1/entries/0",
+      "monster_id": "Red Slaad",
+      "action_id": "Injecting Claw",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 6,
+        "reach_ft": 10,
+        "damage": "2d6 + 3",
+        "damage_type": "piercing",
+        "save_ability": "con",
+        "save_dc": 14
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/371/bonus/0/entries/0",
+      "monster_id": "Remorhaz",
+      "action_id": "Swallow",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "3d6 + 3d6",
+        "damage_type": "acid + fire",
+        "save_ability": "str",
+        "save_dc": 19,
+        "condition_on_fail": "grappled, blinded, restrained, prone"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/372/action/2/entries/0",
+      "monster_id": "Revenant",
+      "action_id": "Vengeful Glare",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "wis",
+        "save_dc": 15,
+        "condition_on_fail": "frightened, paralyzed"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/372/bonus/0/entries/0",
+      "monster_id": "Revenant",
+      "action_id": "Vow of Revenge (1/Day)",
+      "family": "other_source_effect",
+      "mechanical_contract": {},
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/376/action/0/entries",
+      "monster_id": "Roper",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/376/action/2/entries/0",
+      "monster_id": "Roper",
+      "action_id": "Tentacle",
+      "family": "attack_hit_condition",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 7,
+        "reach_ft": 60,
+        "condition_on_hit": "grappled, poisoned",
+        "escape_dc": 14
+      },
+      "engine_owner": "Xmm2025AttackConditionGateway / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/379/reaction/0/entries/0",
+      "monster_id": "Sahuagin Baron",
+      "action_id": "Fiendish Blood",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "3d6",
+        "damage_type": "acid",
+        "save_ability": "con",
+        "save_dc": 14,
+        "condition_on_fail": "invisible"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/384/action/2/entries/0",
+      "monster_id": "Salamander Inferno Master",
+      "action_id": "Inferno Blast {@recharge 5}",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "10d6 + 1d10",
+        "damage_type": "fire + fire",
+        "damage_on_save": "10d6 + 1d10",
+        "save_ability": "dex",
+        "save_dc": 18,
+        "condition_on_fail": "exhaustion",
+        "recharge": "5-6"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/386/action/2/entries/0",
+      "monster_id": "Satyr Revelmaster",
+      "action_id": "Fey Melody {@recharge 4}",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "save_ability": "wis",
+        "save_dc": 14,
+        "recharge": "4-6"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/393/action/0/entries/0",
+      "monster_id": "Shadow",
+      "action_id": "Draining Swipe",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 4,
+        "reach_ft": 5,
+        "damage": "1d6 + 2",
+        "damage_type": "necrotic"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/396/action/2/entries/0",
+      "monster_id": "Shambling Mound",
+      "action_id": "Engulf",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "3d6",
+        "damage_type": "lightning",
+        "save_ability": "str",
+        "save_dc": 15,
+        "condition_on_fail": "grappled, blinded, restrained"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/399/action/3/entries/0",
+      "monster_id": "Silver Dragon Wyrmling",
+      "action_id": "Paralyzing Breath",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 13,
+        "condition_on_fail": "incapacitated, paralyzed"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/403/action/1/entries/0",
+      "monster_id": "Solar",
+      "action_id": "Flying Sword",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m",
+          "r"
+        ],
+        "to_hit": 15,
+        "reach_ft": 10,
+        "range_normal_ft": 120,
+        "range_long_ft": 120,
+        "damage": "4d6 + 8 + 8d8",
+        "damage_type": "slashing + radiant"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/404/action/2/entries/0",
+      "monster_id": "Spectator",
+      "action_id": "Eye Rays",
+      "family": "other_source_effect",
+      "mechanical_contract": {},
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/405/action/0/entries/0",
+      "monster_id": "Specter",
+      "action_id": "Life Drain",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 4,
+        "reach_ft": 5,
+        "damage": "2d6",
+        "damage_type": "necrotic"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/407/action/0/entries/0",
+      "monster_id": "Sphinx of Secrets",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/407/action/2/entries/0",
+      "monster_id": "Sphinx of Secrets",
+      "action_id": "Curse of the Riddle",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "6d6",
+        "damage_type": "psychic",
+        "save_ability": "int",
+        "save_dc": 15
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/408/action/0/entries",
+      "monster_id": "Sphinx of Valor",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/408/action/2/entries/0",
+      "monster_id": "Sphinx of Valor",
+      "action_id": "Roar (3/Day)",
+      "family": "other_source_effect",
+      "mechanical_contract": {},
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/409/reaction/0/entries/0",
+      "monster_id": "Sphinx of Wonder",
+      "action_id": "Burst of Ingenuity (2/Day)",
+      "family": "other_source_effect",
+      "mechanical_contract": {},
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/416/action/1/entries/0",
+      "monster_id": "Steam Mephit",
+      "action_id": "Steam Breath {@recharge}",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "2d4",
+        "damage_type": "fire",
+        "damage_on_save": "2d4",
+        "save_ability": "con",
+        "save_dc": 10,
+        "recharge": "6"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/417/action/0/entries/0",
+      "monster_id": "Stirge",
+      "action_id": "Proboscis",
+      "family": "condition_recurring_damage",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "1d6 + 3",
+        "damage_type": "piercing",
+        "condition_recurring_damage": "2d4",
+        "condition_recurring_damage_type": "necrotic",
+        "condition_recurring_damage_tick": "source_turn_start"
+      },
+      "engine_owner": "XMM recurring-condition executor (not implemented)",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025RecurringDamagePreviewEngineTest#allThreeSourceProfilesRetainTheirDistinctTicks",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Preview do tick fonte-vinculado; ciclo de vida, defesas e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/421/action/0/entries",
+      "monster_id": "Succubus",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/421/action/3/entries/0",
+      "monster_id": "Succubus",
+      "action_id": "Draining Kiss",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "3d8",
+        "damage_type": "psychic",
+        "damage_on_save": "3d8",
+        "save_ability": "con",
+        "save_dc": 15,
+        "condition_on_fail": "charmed"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/430/action/1/entries/0",
+      "monster_id": "Swarm of Ravens",
+      "action_id": "Cacophony {@recharge}",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "wis",
+        "save_dc": 10,
+        "condition_on_fail": "deafened",
+        "recharge": "6"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/431/action/0/entries/0",
+      "monster_id": "Swarm of Stirges",
+      "action_id": "Swarm of Proboscises",
+      "family": "attack_hit_condition",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "2d10 + 3",
+        "damage_type": "piercing",
+        "condition_on_hit": "grappled",
+        "escape_dc": 13,
+        "condition_max_target_size": "medium"
+      },
+      "engine_owner": "Xmm2025AttackConditionGateway / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/433/action/1/entries/0",
+      "monster_id": "Tarrasque",
+      "action_id": "Bite",
+      "family": "attack_hit_condition",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 19,
+        "reach_ft": 15,
+        "damage": "4d12 + 10",
+        "damage_type": "piercing",
+        "condition_on_hit": "grappled, restrained",
+        "escape_dc": 20
+      },
+      "engine_owner": "Xmm2025AttackConditionGateway / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/433/bonus/0/entries/0",
+      "monster_id": "Tarrasque",
+      "action_id": "Swallow",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "16d6",
+        "damage_type": "acid",
+        "save_ability": "str",
+        "save_dc": 27,
+        "condition_on_fail": "grappled, blinded, restrained, prone"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/440/action/2/entries/0",
+      "monster_id": "Tree Blight",
+      "action_id": "Grasping Root",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "2d6 + 6",
+        "damage_type": "bludgeoning",
+        "save_ability": "str",
+        "save_dc": 17,
+        "condition_on_fail": "grappled"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/447/action/1/entries/0",
+      "monster_id": "Ultroloth",
+      "action_id": "Mercurial Whip",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 9,
+        "reach_ft": 15,
+        "damage": "6d6 + 4",
+        "damage_type": "force"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/448/bonus/0/entries/0",
+      "monster_id": "Umber Hulk",
+      "action_id": "Confusing Gaze {@recharge 5}",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "save_ability": "wis",
+        "save_dc": 14,
+        "recharge": "5-6"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/449/legendary/1/entries/0",
+      "monster_id": "Unicorn",
+      "action_id": "Shimmering Shield",
+      "family": "other_source_effect",
+      "mechanical_contract": {},
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/450/action/2/entries/0",
+      "monster_id": "Vampire",
+      "action_id": "Bite (Bat or Vampire Form Only)",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "1d4 + 4 + 3d8",
+        "damage_type": "piercing + necrotic",
+        "save_ability": "con",
+        "save_dc": 17,
+        "condition_on_fail": "grappled, incapacitated, restrained"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/451/action/1/entries/0",
+      "monster_id": "Vampire Familiar",
+      "action_id": "Umbral Dagger",
+      "family": "condition_at_zero_hp",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m",
+          "r"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "range_normal_ft": 20,
+        "range_long_ft": 60,
+        "damage": "1d4 + 3 + 3d4",
+        "damage_type": "piercing + necrotic",
+        "condition_on_target_reduced_to_zero_hp": "poisoned, paralyzed",
+        "target_stable_when_reduced_to_zero_hp": true
+      },
+      "engine_owner": "Xmm2025ZeroHpConditionPreviewEngine / HybridXmmBatchResolutionEngine",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025ZeroHpConditionPreviewEngineTest#bothProfilesMatchTheirTypedSourceContract",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Preview de condições após redução a 0 PV; estabilidade, duração e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/452/action/1/entries/0",
+      "monster_id": "Vampire Nightbringer",
+      "action_id": "Bite",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 7,
+        "reach_ft": 5,
+        "damage": "1d6 + 4 + 3d6",
+        "damage_type": "piercing + necrotic"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/453/action/2/entries/0",
+      "monster_id": "Vampire Spawn",
+      "action_id": "Bite",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "1d4 + 3 + 3d6",
+        "damage_type": "piercing + necrotic",
+        "save_ability": "con",
+        "save_dc": 14,
+        "condition_on_fail": "grappled, incapacitated, restrained"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/454/bonus/0/entries/0",
+      "monster_id": "Vampire Umbral Lord",
+      "action_id": "Sanguine Drain",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "4d6",
+        "damage_type": "necrotic",
+        "save_ability": "con",
+        "save_dc": 18
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/456/action/0/entries/0",
+      "monster_id": "Vine Blight",
+      "action_id": "Constricting Vine",
+      "family": "condition_recurring_damage",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 4,
+        "reach_ft": 10,
+        "damage": "1d8 + 2",
+        "damage_type": "bludgeoning",
+        "condition_on_hit": "grappled",
+        "condition_recurring_damage": "1d8",
+        "condition_recurring_damage_type": "bludgeoning",
+        "condition_recurring_damage_tick": "target_turn_start",
+        "escape_dc": 12,
+        "condition_max_target_size": "large"
+      },
+      "engine_owner": "XMM recurring-condition executor (not implemented)",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025RecurringDamagePreviewEngineTest#allThreeSourceProfilesRetainTheirDistinctTicks",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Preview do tick fonte-vinculado; ciclo de vida, defesas e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/458/action/2/entries/0",
+      "monster_id": "Violet Fungus Necrohulk",
+      "action_id": "Spore Bomb {@recharge 5}",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "8d6",
+        "damage_type": "necrotic",
+        "damage_on_save": "8d6",
+        "save_ability": "con",
+        "save_dc": 15,
+        "condition_on_fail": "poisoned",
+        "recharge": "5-6"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/458/bonus/0/entries/0",
+      "monster_id": "Violet Fungus Necrohulk",
+      "action_id": "Absorb Body",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "str",
+        "save_dc": 15,
+        "condition_on_fail": "restrained"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/459/action/2/entries/0",
+      "monster_id": "Vrock",
+      "action_id": "Spores {@recharge}",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "1d10",
+        "damage_type": "poison",
+        "save_ability": "con",
+        "save_dc": 15,
+        "condition_on_fail": "poisoned",
+        "recharge": "6"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/463/action/1/entries/0",
+      "monster_id": "Warrior Commander",
+      "action_id": "Greatsword",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 9,
+        "reach_ft": 5,
+        "damage": "4d6 + 5",
+        "damage_type": "slashing"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/466/action/2/entries/0",
+      "monster_id": "Water Elemental",
+      "action_id": "Whelm {@recharge 4}",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "damage": "4d8 + 4 + 2d8",
+        "damage_type": "bludgeoning + bludgeoning",
+        "damage_on_save": "4d8 + 4 + 2d8",
+        "save_ability": "str",
+        "save_dc": 15,
+        "condition_on_fail": "grappled, restrained",
+        "recharge": "4-6"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/469/action/1/entries/0",
+      "monster_id": "Werebear",
+      "action_id": "Bite (Bear or Hybrid Form Only)",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 7,
+        "reach_ft": 5,
+        "damage": "2d12 + 4",
+        "damage_type": "piercing",
+        "save_ability": "con",
+        "save_dc": 14
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/470/action/1/entries/0",
+      "monster_id": "Wereboar",
+      "action_id": "Gore (Boar or Hybrid Form Only)",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "2d8 + 3",
+        "damage_type": "piercing",
+        "save_ability": "con",
+        "save_dc": 12
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/471/action/1/entries/0",
+      "monster_id": "Wererat",
+      "action_id": "Bite (Rat or Hybrid Form Only)",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "2d4 + 3",
+        "damage_type": "piercing",
+        "save_ability": "con",
+        "save_dc": 11
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/472/action/1/entries/0",
+      "monster_id": "Weretiger",
+      "action_id": "Bite (Tiger or Hybrid Form Only)",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "2d8 + 3",
+        "damage_type": "piercing",
+        "save_ability": "con",
+        "save_dc": 13
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/473/action/1/entries/0",
+      "monster_id": "Werewolf",
+      "action_id": "Bite (Wolf or Hybrid Form Only)",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "2d8 + 3",
+        "damage_type": "piercing",
+        "save_ability": "con",
+        "save_dc": 12
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/475/action/0/entries",
+      "monster_id": "Wight",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/475/action/3/entries/0",
+      "monster_id": "Wight",
+      "action_id": "Life Drain",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "1d8 + 2",
+        "damage_type": "necrotic",
+        "save_ability": "con",
+        "save_dc": 13
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/480/action/0/entries/0",
+      "monster_id": "Worg",
+      "action_id": "Bite",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "1d8 + 3",
+        "damage_type": "piercing"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/481/action/0/entries/0",
+      "monster_id": "Wraith",
+      "action_id": "Life Drain",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 6,
+        "reach_ft": 5,
+        "damage": "4d8 + 3",
+        "damage_type": "necrotic"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/485/action/0/entries",
+      "monster_id": "Yochlol",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Web",
+          "Dominate Person"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/485/reaction/0/entries/0",
+      "monster_id": "Yochlol",
+      "action_id": "Toxic Escape",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 15,
+        "condition_on_fail": "poisoned, incapacitated"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/488/action/0/entries",
+      "monster_id": "Young Brass Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/488/action/3/entries/0",
+      "monster_id": "Young Brass Dragon",
+      "action_id": "Sleep Breath",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 14,
+        "condition_on_fail": "incapacitated, unconscious"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/490/action/3/entries/0",
+      "monster_id": "Young Copper Dragon",
+      "action_id": "Slowing Breath",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 14
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/491/action/3/entries/0",
+      "monster_id": "Young Gold Dragon",
+      "action_id": "Weakening Breath",
+      "family": "other_source_effect",
+      "mechanical_contract": {
+        "save_ability": "str",
+        "save_dc": 17
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/495/action/3/entries/0",
+      "monster_id": "Young Silver Dragon",
+      "action_id": "Paralyzing Breath",
+      "family": "save_failure_condition",
+      "mechanical_contract": {
+        "save_ability": "con",
+        "save_dc": 17,
+        "condition_on_fail": "incapacitated, paralyzed"
+      },
+      "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
+      "proof_sha": "6eb90f25a525bcc4dd660d377c1b5913cb54d601d24514f3078a3a5a67292c0d",
+      "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/497/action/0/entries",
+      "monster_id": "Yuan-ti Abomination",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Suggestion"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/499/action/0/entries",
+      "monster_id": "Yuan-ti Malison (Type 1)",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Suggestion"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/500/action/0/entries",
+      "monster_id": "Yuan-ti Malison (Type 2)",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Suggestion"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/501/action/0/entries",
+      "monster_id": "Yuan-ti Malison (Type 3)",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Suggestion"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    }
+  ]
+}

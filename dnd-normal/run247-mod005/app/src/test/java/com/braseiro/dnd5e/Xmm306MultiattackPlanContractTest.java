@@ -1,6 +1,6 @@
 package com.braseiro.dnd5e;
 import java.util.*;import org.json.*;import org.junit.*;import org.junit.runner.RunWith;import org.junit.runners.Parameterized;import static org.junit.Assert.*;
-/** 306 source-bound multiattack contracts, with 82 explicitly manual. */
+/** 306 source-bound multiattack contracts, with 31 explicit manual plans. */
 @RunWith(Parameterized.class)
 public final class Xmm306MultiattackPlanContractTest {
  @Parameterized.Parameters(name="{index}: {0}") public static Collection<Object[]> cases(){
@@ -26,12 +26,22 @@ public final class Xmm306MultiattackPlanContractTest {
     assertTrue(g.getInt("c")>0);assertTrue(opts.length()>0);
     for(int j=0;j<g.getInt("c");j++)choices.put(opts.getString(0));
     for(int j=0;j<opts.length();j++){
-     String name=opts.getString(j);boolean found=false;
-     for(int k=0;k<actions.length();k++)if(name.equals(actions.getJSONObject(k).optString("name")))found=true;
-     assertTrue(id+" missing "+name,found);
+     String name=opts.getString(j);
+     if("spell".equals(g.optString("k"))){
+      JSONObject usage=Xmm2025SpellUsageIndex.check(new JSONObject().put("monster",id).put("spell",name));
+      assertTrue(id+" missing spell "+name+": "+usage,usage.optBoolean("resolved"));
+      if(g.has("spell_level"))assertTrue(g.optInt("spell_level")>=1&&g.optInt("spell_level")<=9);
+     }else{
+      boolean found=false;
+      for(int k=0;k<actions.length();k++)if(name.equals(actions.getJSONObject(k).optString("name")))found=true;
+      assertTrue(id+" missing "+name,found);
+     }
     }
    }
-   JSONObject r=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster",id).put("variant_index",v).put("selected_actions",choices));
+   JSONObject request=new JSONObject().put("monster",id).put("variant_index",v).put("selected_actions",choices);
+   if(plan.has("context"))request.put(plan.getJSONObject("context").getString("field"),
+       v==plan.getJSONObject("context").getInt("variant_index"));
+   JSONObject r=Xmm2025MultiattackPlanIndex.resolve(request);
    assertTrue(id+" variant "+v,r.getBoolean("resolved"));
    assertEquals(choices.length(),r.getJSONArray("steps").length());
    assertFalse(r.getBoolean("actions_applied"));assertFalse(r.getBoolean("damage_applied"));
