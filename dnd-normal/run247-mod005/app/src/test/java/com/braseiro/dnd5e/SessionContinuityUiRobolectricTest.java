@@ -98,7 +98,20 @@ public class SessionContinuityUiRobolectricTest {
         JSONObject restored=db.findCharacterByName("Continuidade");
         assertTrue("Restored hero missing after Backup21 import",restored.length()>0);
         assertEquals("Backup must restore pre-export hit points",4,restored.optInt("hp"));
-        assertEquals("Backup must preserve the full character resource sheet",saved,restored.optString("sheet_json"));
+        // Backup21 rehydrates the canonical identity keys for old resource sheets.
+        // Every originally exported value must survive; added identity metadata is allowed.
+        JSONObject expectedSheet=new JSONObject(saved);
+        JSONObject restoredSheet=new JSONObject(restored.optString("sheet_json"));
+        java.util.Iterator<String> keys=expectedSheet.keys();
+        while(keys.hasNext()){
+            String key=keys.next();
+            assertTrue("Backup lost resource field: "+key,restoredSheet.has(key));
+            assertEquals("Backup modified resource field: "+key,
+                expectedSheet.get(key).toString(),restoredSheet.get(key).toString());
+        }
+        assertEquals("Humano",restoredSheet.optString("species"));
+        assertEquals("Guerreiro",restoredSheet.optString("class_name"));
+        assertEquals("Soldado",restoredSheet.optString("background"));
     }
     @Test public void levelUpOldButtonCannotApplyTwoEarnedLevels()throws Exception{
         long id=hero();db.addCharacterXp(id,900);render();
