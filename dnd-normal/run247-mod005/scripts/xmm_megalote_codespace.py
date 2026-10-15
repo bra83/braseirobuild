@@ -210,9 +210,24 @@ def execute_one(job: dict, output: Path, repo_root: Path, base_sha: str) -> tupl
     branch = "automation/dnd-xmm-lote-" + tag + "-20261015"
     if workspace.exists():
         return job["job_id"], f"SKIPPED_WORKTREE_ALREADY_EXISTS: {workspace}"
-    created = git("worktree", "add", "-b", branch, str(workspace), base_sha, cwd=repo_root, check=False)
+    # This repository includes Star Wars, OSE and build artifacts: a full
+    # checkout takes ~2.4 GB PER JOB. Sparse checkout keeps only D&D files.
+    free = shutil.disk_usage(repo_root.parent).free
+    if free < 1_500_000_000:
+        return job["job_id"], "BLOCKED_LOW_DISK_FREE_BYTES=" + str(free)
+    created = git("worktree", "add", "--no-checkout", "-b", branch, str(workspace),
+                  base_sha, cwd=repo_root, check=False)
     if created.returncode != 0:
         return job["job_id"], "WORKTREE_ERROR: " + (created.stderr or created.stdout)[-650:]
+    sparse = git("sparse-checkout", "set", "--cone", "dnd-normal/run247-mod005",
+                 cwd=workspace, check=False)
+    if sparse.returncode != 0:
+        return job["job_id"], "SPARSE_CHECKOUT_ERROR: " + (sparse.stderr or sparse.stdout)[-650:]
+    checkout = git("reset", "--hard", "HEAD", cwd=workspace, check=False)
+    if checkout.returncode != 0:
+        return job["job_id"], "SPARSE_POPULATE_ERROR: " + (checkout.stderr or checkout.stdout)[-650:]
+    if (workspace / "star-wars").exists() or (workspace / "ose").exists():
+        return job["job_id"], "SPARSE_CHECKOUT_LEAKED_UNRELATED_PROJECTS"
     cli = shutil.which("codex")
     log_path = output / ("run-" + tag + ".log")
     with (output / "jobs" / (job["job_id"] + ".md")).open("r", encoding="utf-8") as prompt_file, \
