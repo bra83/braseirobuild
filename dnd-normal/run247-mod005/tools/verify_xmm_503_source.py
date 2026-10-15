@@ -1758,13 +1758,13 @@ COMPOUND_MULTIATTACKS={
     "Tarrasque":("The tarrasque makes one Bite attack and three other attacks, using Claw or Tail in any combination.",
         ([[{"k":"attack","o":["Bite"],"c":1},{"k":"attack","o":["Claw","Tail"],"c":3}]],None)),
 }
-def expected_single_attack_replacement(attack,substitute):
-    variants=[[{"k":"attack","o":[attack],"c":3}]]
-    for slot in range(3):
+def expected_single_attack_replacement(attack,substitute,count=3,kind="use"):
+    variants=[[{"k":"attack","o":[attack],"c":count}]]
+    for slot in range(count):
         steps=[]
         if slot:steps.append({"k":"attack","o":[attack],"c":slot})
-        steps.append({"k":"use","o":[substitute],"c":1})
-        if slot<2:steps.append({"k":"attack","o":[attack],"c":2-slot})
+        steps.append({"k":kind,"o":[substitute],"c":1})
+        if slot<count-1:steps.append({"k":"attack","o":[attack],"c":count-slot-1})
         variants.append(steps)
     return variants
 
@@ -1775,6 +1775,21 @@ for _monster,_substitute,_text in (
     ("Young Silver Dragon","Paralyzing Breath","The dragon makes three Rend attacks. It can replace one attack with a use of Paralyzing Breath."),
 ):
     COMPOUND_MULTIATTACKS[_monster]=(_text,(expected_single_attack_replacement("Rend",_substitute),None))
+
+for _monster,_attack,_count,_substitute,_kind,_text in (
+    ("Fomorian","Stone Club",2,"Warping Hex","use","The fomorian makes two Stone Club attacks. It can replace one attack with a use of Warping Hex if available."),
+    ("Ghast Gravecaller","Horrific Necrosis",2,"Claw","attack","The ghast makes two Horrific Necrosis attacks. It can replace one attack with a Claw attack."),
+    ("Guardian Naga","Bite",2,"Poisonous Spittle","use","The naga makes two Bite attacks. It can replace any attack with a use of Poisonous Spittle."),
+    ("Ice Devil","Ice Spear",3,"Tail","attack","The devil makes three Ice Spear attacks. It can replace one attack with a Tail attack."),
+    ("Invisible Stalker","Wind Swipe",3,"Vortex","use","The stalker makes three Wind Swipe attacks. It can replace one attack with a use of Vortex."),
+    ("Lamia","Claw",2,"Corrupting Touch","use","The lamia makes two Claw attacks. It can replace one attack with a use of Corrupting Touch."),
+    ("Lion","Rend",2,"Roar","use","The lion makes two Rend attacks. It can replace one attack with a use of Roar."),
+    ("Pirate","Dagger",2,"Enthralling Panache","use","The pirate makes two Dagger attacks. It can replace one attack with a use of Enthralling Panache."),
+    ("Salamander","Flame Spear",2,"Constrict","use","The salamander makes two Flame Spear attacks. It can replace one attack with a use of Constrict."),
+    ("Shambling Mound","Charged Tendril",3,"Engulf","use","The shambling mound makes three Charged Tendril attacks. It can replace one attack with a use of Engulf."),
+    ("Solar","Flying Sword",2,"Slaying Bow","use","The solar makes two Flying Sword attacks. It can replace one attack with a use of Slaying Bow."),
+):
+    COMPOUND_MULTIATTACKS[_monster]=(_text,(expected_single_attack_replacement(_attack,_substitute,_count,_kind),None))
 
 DRAGON_MULTIATTACK_SPELLS={
     "Adult Black Dragon":("Melf's Acid Arrow",3,None),
@@ -1846,7 +1861,8 @@ def check_compound_multiattack_variants(source,plans):
             errors.append(monster+":COMPOUND_MULTIATTACK_SOURCE_PLAN_MISMATCH")
             continue
         names={a.get("name") for a in block.get("action",[]) if a.get("name")!="Multiattack"}
-        if not {name for group in expected_variants for step in group for name in step["o"]}.issubset(names):
+        if any(not any(action_name==name or action_name.startswith(name+" {@recharge") for action_name in names)
+               for group in expected_variants for step in group for name in step["o"]):
             errors.append(monster+":COMPOUND_MULTIATTACK_ACTION_MISSING")
     return errors,0 if errors else len(COMPOUND_MULTIATTACKS)
 
@@ -1865,7 +1881,7 @@ def _expected_simple_multiattack_plan(monster,action):
         else:groups.append({"k":"attack","o":[name],"c":1})
     return [groups]
 
-def check_multiattack_plan_catalog(source,plans,expected_structured=261,expected_simple=197,
+def check_multiattack_plan_catalog(source,plans,expected_structured=272,expected_simple=197,
                                    expected_total=306):
     source_rows=[]
     for monster_index,monster in enumerate(source):

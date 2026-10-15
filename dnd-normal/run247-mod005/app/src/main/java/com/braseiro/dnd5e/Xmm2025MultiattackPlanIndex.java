@@ -114,10 +114,10 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Flameskull\",\"ptr\":\"/monster/154/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Fire Ray\"],\"c\":2}]]}",
   "{\"id\":\"Flaming Skeleton\",\"ptr\":\"/monster/155/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Flame Scepter\",\"Hurl Flame\"],\"c\":2}]]}",
   "{\"id\":\"Flesh Golem\",\"ptr\":\"/monster/156/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Slam\"],\"c\":2}]]}",
-  "{\"id\":\"Fomorian\",\"ptr\":\"/monster/159/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Fomorian\",\"ptr\":\"/monster/159/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Stone Club\"],\"c\":2}],[{\"k\":\"use\",\"o\":[\"Warping Hex\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Stone Club\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Stone Club\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Warping Hex\"],\"c\":1}]]}",
   "{\"id\":\"Frost Giant\",\"ptr\":\"/monster/161/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Frost Axe\",\"Great Bow\"],\"c\":2}]]}",
   "{\"id\":\"Gargoyle\",\"ptr\":\"/monster/163/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2}]]}",
-  "{\"id\":\"Ghast Gravecaller\",\"ptr\":\"/monster/167/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Ghast Gravecaller\",\"ptr\":\"/monster/167/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Horrific Necrosis\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Horrific Necrosis\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Horrific Necrosis\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1}]]}",
   "{\"id\":\"Ghost\",\"ptr\":\"/monster/168/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Withering Touch\"],\"c\":2}]]}",
   "{\"id\":\"Ghoul\",\"ptr\":\"/monster/169/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":2}]]}",
   "{\"id\":\"Giant Ape\",\"ptr\":\"/monster/170/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Fist\"],\"c\":2}]]}",
@@ -153,7 +153,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Grick Ancient\",\"ptr\":\"/monster/229/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Beak\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Slam\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Tentacles\"],\"c\":1}]]}",
   "{\"id\":\"Griffon\",\"ptr\":\"/monster/230/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}]]}",
   "{\"id\":\"Guard Captain\",\"ptr\":\"/monster/233/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Javelin\",\"Longsword\"],\"c\":2}]]}",
-  "{\"id\":\"Guardian Naga\",\"ptr\":\"/monster/234/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Guardian Naga\",\"ptr\":\"/monster/234/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":2}],[{\"k\":\"use\",\"o\":[\"Poisonous Spittle\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Poisonous Spittle\"],\"c\":1}]]}",
   "{\"id\":\"Gulthias Blight\",\"ptr\":\"/monster/235/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Half-Dragon\",\"ptr\":\"/monster/236/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2}]]}",
   "{\"id\":\"Haunting Revenant\",\"ptr\":\"/monster/238/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Object Slam\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Invitation\"],\"c\":1}]]}",
@@ -168,10 +168,10 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Hook Horror\",\"ptr\":\"/monster/250/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Hook\"],\"c\":2}]]}",
   "{\"id\":\"Horned Devil\",\"ptr\":\"/monster/251/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Hydra\",\"ptr\":\"/monster/253/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Ice Devil\",\"ptr\":\"/monster/255/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Ice Devil\",\"ptr\":\"/monster/255/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Ice Spear\"],\"c\":3}],[{\"k\":\"attack\",\"o\":[\"Tail\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Ice Spear\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Ice Spear\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Tail\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Ice Spear\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Ice Spear\"],\"c\":2},{\"k\":\"attack\",\"o\":[\"Tail\"],\"c\":1}]]}",
   "{\"id\":\"Incubus\",\"ptr\":\"/monster/258/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Restless Touch\"],\"c\":2}]]}",
   "{\"id\":\"Intellect Devourer\",\"ptr\":\"/monster/259/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Devour Intellect\"],\"c\":1}]]}",
-  "{\"id\":\"Invisible Stalker\",\"ptr\":\"/monster/260/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Invisible Stalker\",\"ptr\":\"/monster/260/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Vortex\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Vortex\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Vortex\"],\"c\":1}]]}",
   "{\"id\":\"Iron Golem\",\"ptr\":\"/monster/261/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bladed Arm\",\"Fiery Bolt\"],\"c\":2}]]}",
   "{\"id\":\"Jackalwere\",\"ptr\":\"/monster/263/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Juvenile Shadow Dragon\",\"ptr\":\"/monster/264/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}]]}",
@@ -180,9 +180,9 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Kuo-toa Archpriest\",\"ptr\":\"/monster/271/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Strange Scepter\"],\"c\":3}]]}",
   "{\"id\":\"Kuo-toa Monitor\",\"ptr\":\"/monster/272/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bone Whip\"],\"c\":2}]]}",
   "{\"id\":\"Lacedon Ghoul\",\"ptr\":\"/monster/274/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Icy Bite\"],\"c\":2}]]}",
-  "{\"id\":\"Lamia\",\"ptr\":\"/monster/275/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Lamia\",\"ptr\":\"/monster/275/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2}],[{\"k\":\"use\",\"o\":[\"Corrupting Touch\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Corrupting Touch\"],\"c\":1}]]}",
   "{\"id\":\"Lich\",\"ptr\":\"/monster/278/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Eldritch Burst\",\"Paralyzing Touch\"],\"c\":3}]]}",
-  "{\"id\":\"Lion\",\"ptr\":\"/monster/279/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Lion\",\"ptr\":\"/monster/279/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}],[{\"k\":\"use\",\"o\":[\"Roar\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Roar\"],\"c\":1}]]}",
   "{\"id\":\"Lizardfolk Geomancer\",\"ptr\":\"/monster/281/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Earth Burst\"],\"c\":2}]]}",
   "{\"id\":\"Lizardfolk Sovereign\",\"ptr\":\"/monster/282/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Earthen Maul\"],\"c\":1}]]}",
   "{\"id\":\"Mage\",\"ptr\":\"/monster/283/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Arcane Burst\"],\"c\":3}]]}",
@@ -214,7 +214,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Performer Maestro\",\"ptr\":\"/monster/338/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rapier\"],\"c\":3}]]}",
   "{\"id\":\"Peryton\",\"ptr\":\"/monster/339/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Gore\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Talons\"],\"c\":1}]]}",
   "{\"id\":\"Phase Spider\",\"ptr\":\"/monster/340/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":2}]]}",
-  "{\"id\":\"Pirate\",\"ptr\":\"/monster/343/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Pirate\",\"ptr\":\"/monster/343/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Dagger\"],\"c\":2}],[{\"k\":\"use\",\"o\":[\"Enthralling Panache\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Dagger\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Dagger\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Enthralling Panache\"],\"c\":1}]]}",
   "{\"id\":\"Pirate Admiral\",\"ptr\":\"/monster/344/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Scimitar\",\"Pistol\"],\"c\":3}]]}",
   "{\"id\":\"Pirate Captain\",\"ptr\":\"/monster/345/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rapier\",\"Pistol\"],\"c\":3}]]}",
   "{\"id\":\"Pit Fiend\",\"ptr\":\"/monster/346/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Devilish Claw\"],\"c\":2},{\"k\":\"attack\",\"o\":[\"Fiery Mace\"],\"c\":1}]]}",
@@ -240,16 +240,16 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Sahuagin Baron\",\"ptr\":\"/monster/379/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Trident\"],\"c\":3}]]}",
   "{\"id\":\"Sahuagin Priest\",\"ptr\":\"/monster/380/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Spectral Jaws\"],\"c\":2}]]}",
   "{\"id\":\"Sahuagin Warrior\",\"ptr\":\"/monster/381/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2}]]}",
-  "{\"id\":\"Salamander\",\"ptr\":\"/monster/382/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Salamander\",\"ptr\":\"/monster/382/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Flame Spear\"],\"c\":2}],[{\"k\":\"use\",\"o\":[\"Constrict\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Flame Spear\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Flame Spear\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Constrict\"],\"c\":1}]]}",
   "{\"id\":\"Salamander Inferno Master\",\"ptr\":\"/monster/384/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Flame Trident\"],\"c\":2}]]}",
   "{\"id\":\"Satyr Revelmaster\",\"ptr\":\"/monster/386/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Prance\"],\"c\":3}]]}",
   "{\"id\":\"Scout\",\"ptr\":\"/monster/389/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Shortsword\",\"Longbow\"],\"c\":2}]]}",
   "{\"id\":\"Scout Captain\",\"ptr\":\"/monster/390/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Shortsword\",\"Longbow\"],\"c\":2}]]}",
   "{\"id\":\"Shadow Dragon\",\"ptr\":\"/monster/395/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":3}]]}",
-  "{\"id\":\"Shambling Mound\",\"ptr\":\"/monster/396/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Shambling Mound\",\"ptr\":\"/monster/396/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Charged Tendril\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Engulf\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Charged Tendril\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Charged Tendril\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Engulf\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Charged Tendril\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Charged Tendril\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Engulf\"],\"c\":1}]]}",
   "{\"id\":\"Shield Guardian\",\"ptr\":\"/monster/397/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Fist\"],\"c\":2}]]}",
   "{\"id\":\"Silver Dragon Wyrmling\",\"ptr\":\"/monster/399/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}]]}",
-  "{\"id\":\"Solar\",\"ptr\":\"/monster/403/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Solar\",\"ptr\":\"/monster/403/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Flying Sword\"],\"c\":2}],[{\"k\":\"use\",\"o\":[\"Slaying Bow\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Flying Sword\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Flying Sword\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Slaying Bow\"],\"c\":1}]]}",
   "{\"id\":\"Spectator\",\"ptr\":\"/monster/404/action/0/entries\",\"v\":[[{\"k\":\"use\",\"o\":[\"Eye Rays\"],\"c\":2}]]}",
   "{\"id\":\"Sphinx of Lore\",\"ptr\":\"/monster/406/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":3}]]}",
   "{\"id\":\"Sphinx of Secrets\",\"ptr\":\"/monster/407/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":3}],[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2},{\"k\":\"action\",\"o\":[\"Curse of the Riddle\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1},{\"k\":\"action\",\"o\":[\"Curse of the Riddle\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1}],[{\"k\":\"action\",\"o\":[\"Curse of the Riddle\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2}]]}",
@@ -313,7 +313,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Yuan-ti Malison (Type 3)\",\"ptr\":\"/monster/501/action/0/entries\",\"v\":[]}"
  };
  private static final Map<String,JSONObject> MAP=new LinkedHashMap<>();
- static{try{int ready=0;for(String s:RAW){JSONObject x=new JSONObject(s);if(MAP.put(x.getString("id"),x)!=null)throw new IllegalStateException("duplicate multiattack");if(x.getJSONArray("v").length()>0)ready++;}if(MAP.size()!=306||ready!=261)throw new IllegalStateException("incomplete multiattack index");}catch(Exception e){throw new ExceptionInInitializerError(e);}}
+ static{try{int ready=0;for(String s:RAW){JSONObject x=new JSONObject(s);if(MAP.put(x.getString("id"),x)!=null)throw new IllegalStateException("duplicate multiattack");if(x.getJSONArray("v").length()>0)ready++;}if(MAP.size()!=306||ready!=272)throw new IllegalStateException("incomplete multiattack index");}catch(Exception e){throw new ExceptionInInitializerError(e);}}
  private Xmm2025MultiattackPlanIndex(){}
  private static JSONObject blocked(String reason)throws Exception{return new JSONObject().put("resolved",false).put("status",reason).put("auto_rolls",false).put("auto_mutation_allowed",false).put("actions_applied",false);}
  public static JSONArray ids(){JSONArray a=new JSONArray();for(String id:MAP.keySet())a.put(id);return a;}
@@ -400,5 +400,5 @@ public final class Xmm2025MultiattackPlanIndex {
   if(context!=null)result.put("variant_context_field",context.getString("field")).put("variant_context_value",in.getBoolean(context.getString("field")));
   return result;
  }
- public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("multiattacks",306).put("structured_plans",261).put("manual_source_bound",45).put("source_blob_sha1",SOURCE_BLOB).put("full_combat_automation_certified",false).put("auto_rolls",false);}
+ public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("multiattacks",306).put("structured_plans",272).put("manual_source_bound",34).put("source_blob_sha1",SOURCE_BLOB).put("full_combat_automation_certified",false).put("auto_rolls",false);}
 }

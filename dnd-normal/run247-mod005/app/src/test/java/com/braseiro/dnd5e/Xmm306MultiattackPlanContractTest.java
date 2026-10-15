@@ -1,6 +1,6 @@
 package com.braseiro.dnd5e;
 import java.util.*;import org.json.*;import org.junit.*;import org.junit.runner.RunWith;import org.junit.runners.Parameterized;import static org.junit.Assert.*;
-/** 306 source-bound multiattack contracts, with 45 explicit manual plans. */
+/** 306 source-bound multiattack contracts, with 34 explicit manual plans. */
 @RunWith(Parameterized.class)
 public final class Xmm306MultiattackPlanContractTest {
  @Parameterized.Parameters(name="{index}: {0}") public static Collection<Object[]> cases(){

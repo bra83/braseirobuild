@@ -36,7 +36,7 @@ public final class XmmMultiattackSafetyTest {
  }
  @Test public void coverageIsNotMisreportedAsFullCombat()throws Exception{
   JSONObject c=Xmm2025MultiattackPlanIndex.coverage();
-  assertEquals(306,c.getInt("multiattacks"));assertEquals(261,c.getInt("structured_plans"));assertEquals(45,c.getInt("manual_source_bound"));
+  assertEquals(306,c.getInt("multiattacks"));assertEquals(272,c.getInt("structured_plans"));assertEquals(34,c.getInt("manual_source_bound"));
   assertFalse(c.getBoolean("full_combat_automation_certified"));
  }
  @Test public void sphinxOfSecretsCanReplaceAtMostOneClawWithItsRiddleCurse()throws Exception{
