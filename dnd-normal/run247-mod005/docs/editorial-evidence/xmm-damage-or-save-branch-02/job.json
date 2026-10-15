@@ -1,0 +1,253 @@
+{
+  "job_id": "damage_or_save_branch-02",
+  "family": "damage_or_save_branch",
+  "count": 12,
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "entries": [
+    {
+      "source_pointer": "/monster/58/action/2/entries/0",
+      "monster_id": "Bearded Devil",
+      "action_id": "Infernal Glaive",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 10,
+        "damage": "1d10 + 3",
+        "damage_type": "slashing",
+        "save_ability": "con",
+        "save_dc": 12
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/63/action/1/entries/0",
+      "monster_id": "Berserker Commander",
+      "action_id": "Greataxe",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 7,
+        "reach_ft": 5,
+        "damage": "1d12 + 4 + 3d6",
+        "damage_type": "slashing + thunder"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/92/action/0/entries/0",
+      "monster_id": "Chasme",
+      "action_id": "Proboscis",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "4d6 + 2 + 6d6",
+        "damage_type": "piercing + necrotic"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/95/action/1/entries/0",
+      "monster_id": "Clay Golem",
+      "action_id": "Slam",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 9,
+        "reach_ft": 5,
+        "damage": "1d10 + 5 + 1d12",
+        "damage_type": "bludgeoning + acid"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/111/action/2/entries/0",
+      "monster_id": "Cyclops Oracle",
+      "action_id": "Flash of Light",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 10,
+        "range_normal_ft": 120,
+        "range_long_ft": 120,
+        "damage": "2d10 + 6",
+        "damage_type": "radiant"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/113/action/2/entries/0",
+      "monster_id": "Dao",
+      "action_id": "Earth Burst",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 10,
+        "range_normal_ft": 120,
+        "range_long_ft": 120,
+        "damage": "2d8 + 6",
+        "damage_type": "bludgeoning",
+        "save_ability": "dex",
+        "save_dc": 16
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/114/action/0/entries/0",
+      "monster_id": "Darkmantle",
+      "action_id": "Crush",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 5,
+        "reach_ft": 5,
+        "damage": "1d6 + 3",
+        "damage_type": "bludgeoning"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/117/legendary/1/entries/0",
+      "monster_id": "Death Knight",
+      "action_id": "Fell Word",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "damage": "5d6",
+        "damage_type": "necrotic",
+        "save_ability": "con",
+        "save_dc": 18
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/141/action/2/entries/0",
+      "monster_id": "Elemental Cultist",
+      "action_id": "Elemental Claw",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 7,
+        "range_normal_ft": 120,
+        "range_long_ft": 120,
+        "damage": "4d10"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/148/action/2/entries/0",
+      "monster_id": "Ettin",
+      "action_id": "Morningstar",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 7,
+        "reach_ft": 5,
+        "damage": "2d8 + 5",
+        "damage_type": "piercing"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/152/action/1/entries/0",
+      "monster_id": "Fire Elemental",
+      "action_id": "Burn",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "m"
+        ],
+        "to_hit": 6,
+        "reach_ft": 5,
+        "damage": "2d6 + 3",
+        "damage_type": "fire"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/153/action/2/entries/0",
+      "monster_id": "Fire Giant",
+      "action_id": "Hammer Throw",
+      "family": "damage_or_save_branch",
+      "mechanical_contract": {
+        "attack_modes": [
+          "r"
+        ],
+        "to_hit": 11,
+        "range_normal_ft": 60,
+        "range_long_ft": 240,
+        "damage": "3d10 + 7 + 1d8",
+        "damage_type": "bludgeoning + fire"
+      },
+      "engine_owner": "XMM action-specific executor (not implemented)",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "",
+      "proof_sha": "",
+      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    }
+  ],
+  "status": "UNIMPLEMENTED_NOT_CERTIFIED"
+}
