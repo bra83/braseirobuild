@@ -5032,6 +5032,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
     // RUN191_GUIDED_COMBAT_EDITOR: never ask for JSON, preserve unknown resource/timer keys.
     private void advancedCombatantDialog(final JSONObject combatant){
+        // listCombatants adds display-only defenses; compare persisted snapshots on save.
+        final JSONObject persistedAtOpen=db.getCombatant(combatant.optLong("id"));
         LinearLayout f=new LinearLayout(this);f.setOrientation(LinearLayout.VERTICAL);f.setPadding(dp(12),0,dp(12),dp(16));
         final EditText temp=labeledField(f,"PV temporários",String.valueOf(combatant.optInt("temp_hp",0)),false);
         temp.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -5125,7 +5127,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     }
                     String[] values={"","meia","tres quartos","total"};resources.put("cover",values[coverChoice.getSelectedItemPosition()]);
                     JSONObject before=db.getCombatant(combatant.optLong("id"));
-                    if(!before.toString().equals(combatant.toString()))throw new IllegalStateException("O combatente mudou. Cancele e reabra o formulário para preservar o estado atual.");
+                    if(!CanonicalJson.stringify(before).equals(CanonicalJson.stringify(persistedAtOpen)))throw new IllegalStateException("O combatente mudou. Cancele e reabra o formulário para preservar o estado atual.");
                     String editedConditions=value(conditions);
                     if(fresh.length()>0&&!ConditionRulesEngine.has(editedConditions,fresh))editedConditions+=(editedConditions.trim().isEmpty()?"":", ")+fresh;
                     db.updateCombatantAdvancedChecked(combatant.optLong("id"),tempHp,value(concentration),reaction.isChecked(),success,fails,editedConditions,timers.toString(),value(resistances),value(vulnerabilities),value(immunities),resources.toString());
