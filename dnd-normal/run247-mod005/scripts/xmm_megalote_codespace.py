@@ -253,7 +253,7 @@ def main() -> int:
         print("CODEX_CLI_UNAVAILABLE: geração de jobs é possível; execução automática requer Codex CLI autenticado.", file=sys.stderr)
         return 2
     top = git("rev-parse", "--show-toplevel").stdout.strip()
-    if Path(top).resolve() != ROOT.resolve():
+    if Path(top).resolve() != ROOT.parents[1].resolve():
         raise RuntimeError("RUN_FROM_ISOLATED_MEGA_WORKTREE_PROJECT_ROOT")
     sha = git("rev-parse", "HEAD").stdout.strip()
     inventory_file, data = read_inventory()
