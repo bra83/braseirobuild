@@ -5,6 +5,54 @@ from io import BytesIO
 import verify_xmm_503_source as xmm
 
 class XmmIndependentSourceTests(unittest.TestCase):
+    def test_five_werebeast_multiattacks_keep_attack_choices_and_substitution_positions(self):
+        source=[{"name":"prefix-"+str(i),"action":[]} for i in range(469)];plans=[]
+        for index,(monster,(first,second,substitute,text)) in enumerate(
+                xmm.WEREBEAST_MULTIATTACKS.items(),469):
+            source.append({"name":monster,"action":[{"name":"Multiattack","entries":[text]},
+                {"name":first,"entries":[]},{"name":second,"entries":[]},
+                {"name":substitute,"entries":[]}]})
+            plans.append({"id":monster,"ptr":f"/monster/{index}/action/0/entries",
+                "v":xmm.expected_werebeast_multiattack_variants(first,second,substitute)})
+        self.assertEqual(([],5),xmm.check_werebeast_multiattack_variants(source,plans))
+        plans[0]["v"][1][0]["o"]=["Rend"]
+        errors,count=xmm.check_werebeast_multiattack_variants(source,plans)
+        self.assertEqual(0,count)
+        self.assertIn("Werebear:WEREBEAST_MULTIATTACK_SOURCE_PLAN_MISMATCH",errors)
+
+    def test_zero_hp_condition_profiles_require_source_duration_link_and_stability(self):
+        source=[];compiled=[];profiles=[]
+        for index,((monster,action_name),(ptr,conditions,stable,_phrases)) in enumerate(
+                xmm.ZERO_HP_CONDITION_CONTRACTS.items()):
+            text=("If this damage reduces the target to 0 HP, the target becomes {@variantrule Stable|XPHB} and has "
+                "{@condition Poisoned|XPHB} for 1 hour. While {@condition Poisoned|XPHB}, "
+                "the target has {@condition Paralyzed|XPHB}." if monster=="Phase Spider" else
+                "If the target is reduced to 0 HP by this attack, it becomes {@variantrule Stable|XPHB} but has "
+                "{@condition Poisoned|XPHB} for 1 hour. While it has the {@condition Poisoned|XPHB} "
+                "condition, the target has the {@condition Paralyzed|XPHB} condition.")
+            source.append({"name":monster,"action":[{"name":action_name,"entries":[text]}]})
+            compiled.append({"id":monster,"actions":[{"name":action_name,"source_bound":True,
+                "manual_unmodeled_source_effect_required":True,
+                "condition_on_target_reduced_to_zero_hp":conditions,
+                "target_stable_when_reduced_to_zero_hp":stable}]})
+            profiles.append({"id":monster,"action":action_name,"ptr":ptr,"conditions":conditions,
+                "duration_minutes":60,"stable":stable,"linked":"paralyzed while poisoned"})
+        self.assertEqual(([],2),xmm.check_zero_hp_condition_profiles(source,compiled,profiles))
+        profiles[0]["duration_minutes"]=1
+        errors,count=xmm.check_zero_hp_condition_profiles(source,compiled,profiles)
+        self.assertEqual(0,count);self.assertIn("Phase Spider:Bite:ZERO_HP_CONTRACT_MISMATCH",errors)
+
+    def test_multiattack_catalog_checks_source_pointer_and_simple_sequence(self):
+        source=[{"name":"Ape","action":[{"name":"Multiattack","entries":[
+            "The ape makes two Fist attacks."]},{"name":"Fist","entries":[]}]}]
+        plans=[{"id":"Ape","ptr":"/monster/0/action/0/entries",
+            "v":[[{"k":"attack","o":["Fist"],"c":2}]]}]
+        self.assertEqual(([],1,1,0),xmm.check_multiattack_plan_catalog(source,plans,1,1,1))
+        plans[0]["ptr"]="/monster/4/action/0/entries"
+        errors,structured,simple,manual=xmm.check_multiattack_plan_catalog(source,plans,1,1,1)
+        self.assertEqual((1,1,0),(structured,simple,manual))
+        self.assertIn("Ape:MULTIATTACK_SOURCE_POINTER_MISMATCH",errors)
+
     def test_sphinx_multiattack_exactly_allows_one_riddle_replacement(self):
         source=[{"name":"Sphinx of Secrets","action":[{"name":"Multiattack","entries":[
             "The sphinx makes three Claw attacks. It can replace one attack with a use of Curses of the Riddle."]}]}]

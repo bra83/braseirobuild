@@ -192,7 +192,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Marilith\",\"ptr\":\"/monster/292/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Pact Blade\"],\"c\":6},{\"k\":\"use\",\"o\":[\"Constrict\"],\"c\":1}]]}",
   "{\"id\":\"Medusa\",\"ptr\":\"/monster/294/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Merfolk Wavebender\",\"ptr\":\"/monster/296/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Aquatic Burst\"],\"c\":2}]]}",
-  "{\"id\":\"Merrow\",\"ptr\":\"/monster/297/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Merrow\",\"ptr\":\"/monster/297/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\",\"Claw\",\"Harpoon\"],\"c\":2}]]}",
   "{\"id\":\"Mezzoloth\",\"ptr\":\"/monster/298/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claws\",\"Mercurial Trident\"],\"c\":2}]]}",
   "{\"id\":\"Mind Flayer Arcanist\",\"ptr\":\"/monster/301/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Arcane Tentacles\"],\"c\":3}]]}",
   "{\"id\":\"Modron Duodrone\",\"ptr\":\"/monster/304/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Clockwork Blade\"],\"c\":2}]]}",
@@ -217,7 +217,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Pirate\",\"ptr\":\"/monster/343/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Pirate Admiral\",\"ptr\":\"/monster/344/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Scimitar\",\"Pistol\"],\"c\":3}]]}",
   "{\"id\":\"Pirate Captain\",\"ptr\":\"/monster/345/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rapier\",\"Pistol\"],\"c\":3}]]}",
-  "{\"id\":\"Pit Fiend\",\"ptr\":\"/monster/346/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Pit Fiend\",\"ptr\":\"/monster/346/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Devilish Claw\"],\"c\":2},{\"k\":\"attack\",\"o\":[\"Fiery Mace\"],\"c\":1}]]}",
   "{\"id\":\"Pixie Wonderbringer\",\"ptr\":\"/monster/348/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Faerie Dust\"],\"c\":2}]]}",
   "{\"id\":\"Planetar\",\"ptr\":\"/monster/349/action/0/entries\",\"v\":[[{\"k\":\"use\",\"o\":[\"Holy Burst\"],\"c\":2}]]}",
   "{\"id\":\"Polar Bear\",\"ptr\":\"/monster/351/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}]]}",
@@ -285,11 +285,11 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Warrior Commander\",\"ptr\":\"/monster/463/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Greatsword\",\"Longbow\"],\"c\":3}]]}",
   "{\"id\":\"Warrior Veteran\",\"ptr\":\"/monster/465/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Greatsword\",\"Heavy Crossbow\"],\"c\":2}]]}",
   "{\"id\":\"Water Elemental\",\"ptr\":\"/monster/466/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Slam\"],\"c\":2}]]}",
-  "{\"id\":\"Werebear\",\"ptr\":\"/monster/469/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Wereboar\",\"ptr\":\"/monster/470/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Wererat\",\"ptr\":\"/monster/471/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Weretiger\",\"ptr\":\"/monster/472/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Werewolf\",\"ptr\":\"/monster/473/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Werebear\",\"ptr\":\"/monster/469/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Handaxe (Humanoid or Hybrid Form Only)\",\"Rend (Bear or Hybrid Form Only)\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Bite (Bear or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Handaxe (Humanoid or Hybrid Form Only)\",\"Rend (Bear or Hybrid Form Only)\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Handaxe (Humanoid or Hybrid Form Only)\",\"Rend (Bear or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite (Bear or Hybrid Form Only)\"],\"c\":1}]]}",
+  "{\"id\":\"Wereboar\",\"ptr\":\"/monster/470/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Javelin (Humanoid or Hybrid Form Only)\",\"Tusk (Boar or Hybrid Form Only)\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Gore (Boar or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Javelin (Humanoid or Hybrid Form Only)\",\"Tusk (Boar or Hybrid Form Only)\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Javelin (Humanoid or Hybrid Form Only)\",\"Tusk (Boar or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Gore (Boar or Hybrid Form Only)\"],\"c\":1}]]}",
+  "{\"id\":\"Wererat\",\"ptr\":\"/monster/471/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Scratch\",\"Hand Crossbow (Humanoid or Hybrid Form Only)\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Bite (Rat or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Scratch\",\"Hand Crossbow (Humanoid or Hybrid Form Only)\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Scratch\",\"Hand Crossbow (Humanoid or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite (Rat or Hybrid Form Only)\"],\"c\":1}]]}",
+  "{\"id\":\"Weretiger\",\"ptr\":\"/monster/472/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Scratch\",\"Longbow (Humanoid or Hybrid Form Only)\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Bite (Tiger or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Scratch\",\"Longbow (Humanoid or Hybrid Form Only)\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Scratch\",\"Longbow (Humanoid or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite (Tiger or Hybrid Form Only)\"],\"c\":1}]]}",
+  "{\"id\":\"Werewolf\",\"ptr\":\"/monster/473/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Scratch\",\"Longbow (Humanoid or Hybrid Form Only)\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Bite (Wolf or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Scratch\",\"Longbow (Humanoid or Hybrid Form Only)\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Scratch\",\"Longbow (Humanoid or Hybrid Form Only)\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite (Wolf or Hybrid Form Only)\"],\"c\":1}]]}",
   "{\"id\":\"White Dragon Wyrmling\",\"ptr\":\"/monster/474/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}]]}",
   "{\"id\":\"Wight\",\"ptr\":\"/monster/475/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Wyvern\",\"ptr\":\"/monster/482/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Sting\"],\"c\":1}]]}",
@@ -313,7 +313,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Yuan-ti Malison (Type 3)\",\"ptr\":\"/monster/501/action/0/entries\",\"v\":[]}"
  };
  private static final Map<String,JSONObject> MAP=new LinkedHashMap<>();
- static{try{int ready=0;for(String s:RAW){JSONObject x=new JSONObject(s);if(MAP.put(x.getString("id"),x)!=null)throw new IllegalStateException("duplicate multiattack");if(x.getJSONArray("v").length()>0)ready++;}if(MAP.size()!=306||ready!=225)throw new IllegalStateException("incomplete multiattack index");}catch(Exception e){throw new ExceptionInInitializerError(e);}}
+ static{try{int ready=0;for(String s:RAW){JSONObject x=new JSONObject(s);if(MAP.put(x.getString("id"),x)!=null)throw new IllegalStateException("duplicate multiattack");if(x.getJSONArray("v").length()>0)ready++;}if(MAP.size()!=306||ready!=232)throw new IllegalStateException("incomplete multiattack index");}catch(Exception e){throw new ExceptionInInitializerError(e);}}
  private Xmm2025MultiattackPlanIndex(){}
  private static JSONObject blocked(String reason)throws Exception{return new JSONObject().put("resolved",false).put("status",reason).put("auto_rolls",false).put("auto_mutation_allowed",false).put("actions_applied",false);}
  public static JSONArray ids(){JSONArray a=new JSONArray();for(String id:MAP.keySet())a.put(id);return a;}
@@ -378,5 +378,5 @@ public final class Xmm2025MultiattackPlanIndex {
   }
   return new JSONObject().put("resolved",true).put("status","source_sequence_validated_pending_manual_effect_resolution").put("monster",id).put("source","XMM").put("source_pointer",r.getString("ptr")).put("source_blob_sha1",SOURCE_BLOB).put("variant_index",variant).put("steps",steps).put("attack_slots",attacks).put("use_slots",uses).put("auto_rolls",false).put("auto_mutation_allowed",false).put("actions_applied",false).put("damage_applied",false).put("turn_advanced",false).put("manual_effect_resolution_required",true);
  }
- public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("multiattacks",306).put("structured_plans",225).put("manual_source_bound",81).put("source_blob_sha1",SOURCE_BLOB).put("full_combat_automation_certified",false).put("auto_rolls",false);}
+ public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("multiattacks",306).put("structured_plans",232).put("manual_source_bound",74).put("source_blob_sha1",SOURCE_BLOB).put("full_combat_automation_certified",false).put("auto_rolls",false);}
 }

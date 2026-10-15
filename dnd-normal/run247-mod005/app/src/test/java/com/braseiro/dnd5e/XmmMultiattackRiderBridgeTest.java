@@ -76,6 +76,6 @@ public final class XmmMultiattackRiderBridgeTest {
     }else assertFalse(step.has("on_hit_condition_contract"));
    }
   }
-  assertEquals(225,structured);assertEquals(47,linkedRiderSteps);
+  assertEquals(232,structured);assertEquals(47,linkedRiderSteps);
  }
 }

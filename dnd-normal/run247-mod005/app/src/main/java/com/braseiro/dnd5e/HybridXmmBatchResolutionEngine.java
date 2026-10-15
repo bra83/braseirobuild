@@ -20,7 +20,8 @@ public final class HybridXmmBatchResolutionEngine {
             "spell_options", "spell_usage_check", "condition_choice_profile",
             "condition_choice_resolve", "multiattack_profile", "multiattack_resolve",
             "save_condition_profile", "save_condition_resolve",
-            "recurring_damage_profile", "recurring_damage_resolve"));
+            "recurring_damage_profile", "recurring_damage_resolve",
+            "zero_hp_condition_profile", "zero_hp_condition_resolve"));
     private static final Set<String> ENVELOPE_KEYS = new HashSet<String>(Arrays.asList(
             "origin", "source_blob_sha1", "requests"));
     private static final Set<String> REQUEST_KEYS = new HashSet<String>(Arrays.asList(
@@ -179,6 +180,24 @@ public final class HybridXmmBatchResolutionEngine {
                 result=Xmm2025RecurringDamagePreviewEngine.resolve(inputs);
                 if(!result.optBoolean("resolved",false))
                     return block(out,result.optString("reason","recurring_damage_unresolved"));
+            }
+            return out.put("resolved",true).put("reason","deterministic_preview_only")
+                .put("operation",operation).put("monster",monster)
+                .put("source_pointer",pointer).put("runtime_result",result);
+        } else if (operation.startsWith("zero_hp_condition_")) {
+            JSONObject profile=Xmm2025ZeroHpConditionPreviewEngine.profile(monster,
+                    inputs.optString("action"));
+            if(!profile.optBoolean("resolved",false)||!pointer.equals(profile.optString("ptr")))
+                return block(out,"zero_hp_condition_pointer_mismatch");
+            JSONObject result;
+            if("zero_hp_condition_profile".equals(operation)){
+                result=profile;
+            }else{
+                inputs.put("source_blob_sha1",Xmm2025ZeroHpConditionPreviewEngine.SOURCE_BLOB)
+                    .put("source_pointer",pointer);
+                result=Xmm2025ZeroHpConditionPreviewEngine.resolve(inputs);
+                if(!result.optBoolean("resolved",false))
+                    return block(out,result.optString("reason","zero_hp_condition_unresolved"));
             }
             return out.put("resolved",true).put("reason","deterministic_preview_only")
                 .put("operation",operation).put("monster",monster)

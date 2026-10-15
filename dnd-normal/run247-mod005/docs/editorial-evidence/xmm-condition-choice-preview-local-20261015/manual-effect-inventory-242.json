@@ -3,11 +3,51 @@
   "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
   "source_bestiary_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
   "source_monsters": 503,
-  "manual_unmodeled_effect_count": 168,
-  "tipado_preview_pendente_integracao_count": 65,
+  "manual_unmodeled_effect_count": 242,
+  "tipado_preview_pendente_integracao_count": 67,
   "source_review_required_count": 1,
   "full_monster_combat_automation_certified": false,
   "entries": [
+    {
+      "source_pointer": "/monster/0/action/0/entries",
+      "monster_id": "Aarakocra Aeromancer",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Gust of Wind"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/2/action/0/entries",
+      "monster_id": "Aberrant Cultist",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/3/action/0/entries",
+      "monster_id": "Aboleth",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
     {
       "source_pointer": "/monster/3/action/2/entries/0",
       "monster_id": "Aboleth",
@@ -24,7 +64,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -40,7 +80,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -54,8 +94,24 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "SOURCE_REVIEW_REQUIRED",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/5/action/0/entries",
+      "monster_id": "Adult Black Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Melf's Acid Arrow"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/5/legendary/0/entries/0",
@@ -75,6 +131,38 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/6/action/0/entries",
+      "monster_id": "Adult Blue Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Shatter"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/7/action/0/entries",
+      "monster_id": "Adult Brass Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Scorching Ray"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/7/action/3/entries/0",
       "monster_id": "Adult Brass Dragon",
       "action_id": "Sleep Breath",
@@ -87,7 +175,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -108,6 +196,38 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/8/action/0/entries",
+      "monster_id": "Adult Bronze Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Guiding Bolt"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/9/action/0/entries",
+      "monster_id": "Adult Copper Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Mind Spike"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/9/action/3/entries/0",
       "monster_id": "Adult Copper Dragon",
       "action_id": "Slowing Breath",
@@ -121,6 +241,22 @@
       "test_id": "",
       "proof_sha": "",
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/10/action/0/entries",
+      "monster_id": "Adult Gold Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Guiding Bolt"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/10/action/3/entries/0",
@@ -138,6 +274,54 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/11/action/0/entries",
+      "monster_id": "Adult Green Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Mind Spike"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/12/action/0/entries",
+      "monster_id": "Adult Red Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Scorching Ray"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/13/action/0/entries",
+      "monster_id": "Adult Silver Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Ice Knife"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/13/action/3/entries/0",
       "monster_id": "Adult Silver Dragon",
       "action_id": "Paralyzing Breath",
@@ -150,7 +334,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -172,6 +356,22 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/17/action/0/entries",
+      "monster_id": "Ancient Black Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Melf's Acid Arrow"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/17/legendary/0/entries/0",
       "monster_id": "Ancient Black Dragon",
       "action_id": "Cloud of Insects",
@@ -189,6 +389,38 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/18/action/0/entries",
+      "monster_id": "Ancient Blue Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Shatter"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/19/action/0/entries",
+      "monster_id": "Ancient Brass Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Scorching Ray"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/19/action/3/entries/0",
       "monster_id": "Ancient Brass Dragon",
       "action_id": "Sleep Breath",
@@ -201,7 +433,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -222,6 +454,38 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/20/action/0/entries",
+      "monster_id": "Ancient Bronze Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Guiding Bolt"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/21/action/0/entries",
+      "monster_id": "Ancient Copper Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Mind Spike"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/21/action/3/entries/0",
       "monster_id": "Ancient Copper Dragon",
       "action_id": "Slowing Breath",
@@ -235,6 +499,22 @@
       "test_id": "",
       "proof_sha": "",
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/22/action/0/entries",
+      "monster_id": "Ancient Gold Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Guiding Bolt"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/22/action/3/entries/0",
@@ -252,6 +532,54 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/23/action/0/entries",
+      "monster_id": "Ancient Green Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Mind Spike"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/24/action/0/entries",
+      "monster_id": "Ancient Red Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Scorching Ray"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/25/action/0/entries",
+      "monster_id": "Ancient Silver Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Ice Knife"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/25/action/3/entries/0",
       "monster_id": "Ancient Silver Dragon",
       "action_id": "Paralyzing Breath",
@@ -264,7 +592,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -327,6 +655,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/35/action/0/entries",
+      "monster_id": "Arcanaloth",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/35/action/2/entries/0",
       "monster_id": "Arcanaloth",
       "action_id": "Banishing Claw (Requires Soul Tome)",
@@ -346,7 +686,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -418,6 +758,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/54/action/0/entries",
+      "monster_id": "Barbed Devil",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/54/action/3/entries/0",
       "monster_id": "Barbed Devil",
       "action_id": "Hurl Flame",
@@ -452,7 +804,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -492,7 +844,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -552,6 +904,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/68/action/0/entries",
+      "monster_id": "Blob of Annihilation",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/68/action/2/entries/0",
       "monster_id": "Blob of Annihilation",
       "action_id": "Engulf",
@@ -566,7 +930,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -595,6 +959,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/74/action/0/entries",
+      "monster_id": "Bone Naga",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/75/action/2/entries/0",
       "monster_id": "Brass Dragon Wyrmling",
       "action_id": "Sleep Breath",
@@ -607,7 +983,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -626,7 +1002,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -645,8 +1021,24 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/83/action/0/entries",
+      "monster_id": "Bullywug Bog Sage",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Ray of Sickness"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/92/action/0/entries/0",
@@ -681,8 +1073,20 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/93/action/0/entries",
+      "monster_id": "Chimera",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/94/action/2/entries/0",
@@ -697,8 +1101,20 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/95/action/0/entries",
+      "monster_id": "Clay Golem",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/95/action/1/entries/0",
@@ -721,6 +1137,22 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/97/action/0/entries",
+      "monster_id": "Cloud Giant",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Fog Cloud"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/98/action/0/entries/0",
       "monster_id": "Cockatrice",
       "action_id": "Petrifying Bite",
@@ -740,7 +1172,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -763,7 +1195,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -879,7 +1311,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -919,7 +1351,7 @@
       "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
     },
     {
@@ -976,8 +1408,48 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/128/action/0/entries",
+      "monster_id": "Doppelganger",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/129/action/0/entries",
+      "monster_id": "Dracolich",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Ray of Sickness"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/131/action/0/entries",
+      "monster_id": "Dragon Turtle",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/132/action/1/entries/0",
@@ -992,8 +1464,24 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/135/action/0/entries",
+      "monster_id": "Dryad",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Charm Monster"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/140/action/2/entries/0",
@@ -1054,6 +1542,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/146/action/0/entries",
+      "monster_id": "Erinyes",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/148/action/2/entries/0",
       "monster_id": "Ettin",
       "action_id": "Morningstar",
@@ -1087,7 +1587,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -1132,6 +1632,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/159/action/0/entries",
+      "monster_id": "Fomorian",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/161/bonus/0/entries/0",
       "monster_id": "Frost Giant",
       "action_id": "War Cry {@recharge 5}",
@@ -1144,6 +1656,18 @@
       "test_id": "",
       "proof_sha": "",
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/167/action/0/entries",
+      "monster_id": "Ghast Gravecaller",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/171/action/1/entries/0",
@@ -1198,6 +1722,22 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/202/action/0/entries",
+      "monster_id": "Githyanki Knight",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Telekinesis"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/205/action/1/entries/0",
       "monster_id": "Githzerai Psion",
       "action_id": "Psychic Warp",
@@ -1219,8 +1759,32 @@
       "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
+    },
+    {
+      "source_pointer": "/monster/207/action/0/entries",
+      "monster_id": "Glabrezu",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/208/action/0/entries",
+      "monster_id": "Gladiator",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/209/action/2/entries/0",
@@ -1242,6 +1806,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/211/action/0/entries",
+      "monster_id": "Gnoll Pack Lord",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/211/action/3/entries/0",
       "monster_id": "Gnoll Pack Lord",
       "action_id": "Incite Rampage {@recharge 5}",
@@ -1254,6 +1830,18 @@
       "test_id": "",
       "proof_sha": "",
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/215/action/0/entries",
+      "monster_id": "Goblin Hexer",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/218/action/3/entries/0",
@@ -1284,7 +1872,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -1307,7 +1895,7 @@
       "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
     },
     {
@@ -1333,7 +1921,7 @@
       "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
     },
     {
@@ -1359,8 +1947,32 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/234/action/0/entries",
+      "monster_id": "Guardian Naga",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/235/action/0/entries",
+      "monster_id": "Gulthias Blight",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/235/action/3/entries/0",
@@ -1377,7 +1989,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -1413,7 +2025,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -1459,8 +2071,20 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/251/action/0/entries",
+      "monster_id": "Horned Devil",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/251/action/2/entries/0",
@@ -1499,6 +2123,30 @@
       "test_id": "",
       "proof_sha": "",
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/253/action/0/entries",
+      "monster_id": "Hydra",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/255/action/0/entries",
+      "monster_id": "Ice Devil",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/255/action/1/entries/0",
@@ -1544,6 +2192,42 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/260/action/0/entries",
+      "monster_id": "Invisible Stalker",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/263/action/0/entries",
+      "monster_id": "Jackalwere",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/269/action/0/entries",
+      "monster_id": "Kraken",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/269/action/2/entries/0",
       "monster_id": "Kraken",
       "action_id": "Fling",
@@ -1559,7 +2243,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -1577,7 +2261,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -1593,7 +2277,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -1609,8 +2293,20 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/275/action/0/entries",
+      "monster_id": "Lamia",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/275/action/2/entries/0",
@@ -1627,8 +2323,20 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/279/action/0/entries",
+      "monster_id": "Lion",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/282/action/1/entries/0",
@@ -1671,6 +2379,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/294/action/0/entries",
+      "monster_id": "Medusa",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/294/bonus/0/entries/0",
       "monster_id": "Medusa",
       "action_id": "Petrifying Gaze {@recharge 5}",
@@ -1684,7 +2404,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -1771,6 +2491,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/312/action/0/entries",
+      "monster_id": "Mummy Lord",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/312/action/1/entries/0",
       "monster_id": "Mummy Lord",
       "action_id": "Rotting Fist",
@@ -1803,6 +2535,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/330/action/0/entries",
+      "monster_id": "Oni",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/331/action/1/entries/0",
       "monster_id": "Otyugh",
       "action_id": "Bite",
@@ -1822,7 +2566,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -1841,7 +2585,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -1860,7 +2604,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -1896,13 +2640,26 @@
         "reach_ft": 5,
         "damage": "1d10 + 3 + 2d8",
         "damage_type": "piercing + poison",
-        "condition_on_target_reduced_to_zero_hp": "poisoned, paralyzed"
+        "condition_on_target_reduced_to_zero_hp": "poisoned, paralyzed",
+        "target_stable_when_reduced_to_zero_hp": true
       },
-      "engine_owner": "XMM zero-HP transition executor (not implemented)",
+      "engine_owner": "Xmm2025ZeroHpConditionPreviewEngine / HybridXmmBatchResolutionEngine",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025ZeroHpConditionPreviewEngineTest#bothProfilesMatchTheirTypedSourceContract",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
+      "blocker_reason": "Preview de condições após redução a 0 PV; estabilidade, duração e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/343/action/0/entries",
+      "monster_id": "Pirate",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
       "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
       "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/344/action/1/entries/0",
@@ -1979,7 +2736,7 @@
       "engine_owner": "XMM recurring-condition executor (not implemented)",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2005,7 +2762,7 @@
       "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
     },
     {
@@ -2031,7 +2788,7 @@
       "engine_owner": "Xmm2025ConditionChoiceEngine / HybridXmmBatchResolutionEngine",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025ConditionChoiceEngineTest#allSixSourceContractsRemainManualAndSourceBound",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Preview tipado; execução em combate depende da integração protegida de UI/SQLite após o PR #39."
     },
     {
@@ -2049,7 +2806,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2087,7 +2844,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2159,7 +2916,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2175,7 +2932,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2189,6 +2946,30 @@
       "test_id": "",
       "proof_sha": "",
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/375/action/0/entries",
+      "monster_id": "Roc",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/376/action/0/entries",
+      "monster_id": "Roper",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/376/action/2/entries/0",
@@ -2225,8 +3006,20 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/382/action/0/entries",
+      "monster_id": "Salamander",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/384/action/2/entries/0",
@@ -2245,7 +3038,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2285,6 +3078,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/396/action/0/entries",
+      "monster_id": "Shambling Mound",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/396/action/2/entries/0",
       "monster_id": "Shambling Mound",
       "action_id": "Engulf",
@@ -2299,7 +3104,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2315,8 +3120,20 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/403/action/0/entries",
+      "monster_id": "Solar",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/403/action/1/entries/0",
@@ -2403,6 +3220,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/408/action/0/entries",
+      "monster_id": "Sphinx of Valor",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/408/action/2/entries/0",
       "monster_id": "Sphinx of Valor",
       "action_id": "Roar (3/Day)",
@@ -2465,8 +3294,20 @@
       "engine_owner": "XMM recurring-condition executor (not implemented)",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025RecurringDamagePreviewEngineTest#allThreeSourceProfilesRetainTheirDistinctTicks",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Preview do tick fonte-vinculado; ciclo de vida, defesas e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/421/action/0/entries",
+      "monster_id": "Succubus",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/421/action/3/entries/0",
@@ -2484,7 +3325,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2501,7 +3342,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2526,6 +3367,18 @@
       "test_id": "",
       "proof_sha": "",
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+    },
+    {
+      "source_pointer": "/monster/433/action/0/entries",
+      "monster_id": "Tarrasque",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/433/action/1/entries/0",
@@ -2564,7 +3417,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2582,7 +3435,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2648,7 +3501,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2667,13 +3520,14 @@
         "range_long_ft": 60,
         "damage": "1d4 + 3 + 3d4",
         "damage_type": "piercing + necrotic",
-        "condition_on_target_reduced_to_zero_hp": "poisoned, paralyzed"
+        "condition_on_target_reduced_to_zero_hp": "poisoned, paralyzed",
+        "target_stable_when_reduced_to_zero_hp": true
       },
-      "engine_owner": "XMM zero-HP transition executor (not implemented)",
-      "coverage_status": "MANUAL_UNSUPPORTED",
-      "test_id": "",
-      "proof_sha": "",
-      "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
+      "engine_owner": "Xmm2025ZeroHpConditionPreviewEngine / HybridXmmBatchResolutionEngine",
+      "coverage_status": "BLOCKED_MISSING_CONTEXT",
+      "test_id": "Xmm2025ZeroHpConditionPreviewEngineTest#bothProfilesMatchTheirTypedSourceContract",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
+      "blocker_reason": "Preview de condições após redução a 0 PV; estabilidade, duração e aplicação dependem de integração de combate."
     },
     {
       "source_pointer": "/monster/452/action/1/entries/0",
@@ -2710,7 +3564,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2753,7 +3607,7 @@
       "engine_owner": "XMM recurring-condition executor (not implemented)",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025RecurringDamagePreviewEngineTest#allThreeSourceProfilesRetainTheirDistinctTicks",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Preview do tick fonte-vinculado; ciclo de vida, defesas e aplicação dependem de integração de combate."
     },
     {
@@ -2773,7 +3627,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2789,7 +3643,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2808,7 +3662,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2848,7 +3702,7 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
     },
     {
@@ -2962,6 +3816,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/475/action/0/entries",
+      "monster_id": "Wight",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/475/action/3/entries/0",
       "monster_id": "Wight",
       "action_id": "Life Drain",
@@ -3019,6 +3885,23 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/485/action/0/entries",
+      "monster_id": "Yochlol",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Web",
+          "Dominate Person"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/485/reaction/0/entries/0",
       "monster_id": "Yochlol",
       "action_id": "Toxic Escape",
@@ -3031,8 +3914,20 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/488/action/0/entries",
+      "monster_id": "Young Brass Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/488/action/3/entries/0",
@@ -3047,8 +3942,32 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/489/action/0/entries",
+      "monster_id": "Young Bronze Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/490/action/0/entries",
+      "monster_id": "Young Copper Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     },
     {
       "source_pointer": "/monster/490/action/3/entries/0",
@@ -3066,6 +3985,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/491/action/0/entries",
+      "monster_id": "Young Gold Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/491/action/3/entries/0",
       "monster_id": "Young Gold Dragon",
       "action_id": "Weakening Breath",
@@ -3081,6 +4012,18 @@
       "blocker_reason": "A ação permanece manual: requer executor específico, contexto adicional ou integração ainda ausente."
     },
     {
+      "source_pointer": "/monster/495/action/0/entries",
+      "monster_id": "Young Silver Dragon",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {},
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
       "source_pointer": "/monster/495/action/3/entries/0",
       "monster_id": "Young Silver Dragon",
       "action_id": "Paralyzing Breath",
@@ -3093,8 +4036,72 @@
       "engine_owner": "StatblockCombatFlowEngine / MonsterConditionRecoveryLedger",
       "coverage_status": "BLOCKED_MISSING_CONTEXT",
       "test_id": "Xmm2025SaveConditionPreviewEngineTest#allFiftyEightProfilesRemainSourceBoundAndManual",
-      "proof_sha": "fcb06394a640f35269a127edce80736bb2fe8611439a774056ffb7c9db32770d",
+      "proof_sha": "97d7f6454086ec99193a8046ca045529205c13b8a66c9abe05ff53c382b07bc3",
       "blocker_reason": "Proposta de condições validada; duração/recuperação, demais efeitos da ação e aplicação dependem de integração de combate."
+    },
+    {
+      "source_pointer": "/monster/497/action/0/entries",
+      "monster_id": "Yuan-ti Abomination",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Suggestion"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/499/action/0/entries",
+      "monster_id": "Yuan-ti Malison (Type 1)",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Suggestion"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/500/action/0/entries",
+      "monster_id": "Yuan-ti Malison (Type 2)",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Suggestion"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
+    },
+    {
+      "source_pointer": "/monster/501/action/0/entries",
+      "monster_id": "Yuan-ti Malison (Type 3)",
+      "action_id": "Multiattack",
+      "family": "multiattack_sequence",
+      "mechanical_contract": {
+        "spells": [
+          "Suggestion"
+        ]
+      },
+      "engine_owner": "Xmm2025MultiattackPlanIndex / StatblockCombatFlowEngine",
+      "coverage_status": "MANUAL_UNSUPPORTED",
+      "test_id": "Xmm306MultiattackPlanContractTest#validatePlanOrFailClosed",
+      "proof_sha": "",
+      "blocker_reason": "Multiattack ainda não possui plano sequencial estruturado fonte-verificado; sua sintaxe e exceções permanecem manuais."
     }
   ]
 }

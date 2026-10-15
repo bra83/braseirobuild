@@ -70,5 +70,33 @@ class ManualEffectInventoryTests(unittest.TestCase):
         self.assertEqual("proof-sha",row["proof_sha"])
         self.assertIn("RecurringDamagePreviewEngineTest",row["test_id"])
 
+    def test_unstructured_multiattack_is_counted_even_without_compiler_manual_flag(self):
+        source=[{"name":"Test Monster","action":[{"name":"Multiattack","entries":[
+            "The monster uses an unsupported sequence."]}]}]
+        compiled=[{"id":"Test Monster","actions":[{"name":"Multiattack"}]}]
+        plans=[{"id":"Test Monster","ptr":"/monster/0/action/0/entries","v":[]}]
+        inventory=exporter.build_inventory(source,compiled,multiattack_plans=plans)
+        row=inventory["entries"][0]
+        self.assertEqual("/monster/0/action/0/entries",row["source_pointer"])
+        self.assertEqual("multiattack_sequence",row["family"])
+        self.assertEqual("MANUAL_UNSUPPORTED",row["coverage_status"])
+
+    def test_zero_hp_condition_preview_remains_blocked_and_source_linked(self):
+        source=[{"name":"Phase Spider","action":[{"name":"Bite","entries":[
+            "If this damage reduces the target to 0 HP, it becomes {@condition Poisoned|XPHB} "
+            "and {@condition Paralyzed|XPHB}."]}]}]
+        compiled=[{"id":"Phase Spider","actions":[{"name":"Bite",
+            "condition_on_target_reduced_to_zero_hp":"poisoned, paralyzed",
+            "target_stable_when_reduced_to_zero_hp":True,
+            "manual_unmodeled_source_effect_required":True}]}]
+        profile={"id":"Phase Spider","action":"Bite",
+            "ptr":"/monster/0/action/0/entries/0","conditions":"poisoned, paralyzed"}
+        inventory=exporter.build_inventory(source,compiled,"proof-sha",zero_hp_condition_profiles=[profile])
+        row=inventory["entries"][0]
+        self.assertEqual("condition_at_zero_hp",row["family"])
+        self.assertEqual("BLOCKED_MISSING_CONTEXT",row["coverage_status"])
+        self.assertEqual("proof-sha",row["proof_sha"])
+        self.assertTrue(row["mechanical_contract"]["target_stable_when_reduced_to_zero_hp"])
+
 if __name__=="__main__":
     unittest.main()

@@ -8,6 +8,12 @@ public final class XmmMultiattackSafetyTest {
   JSONObject beholder=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Beholder"));
   assertTrue(beholder.getBoolean("resolved"));assertEquals(3,beholder.getInt("use_slots"));
   assertFalse(beholder.getBoolean("actions_applied"));
+  JSONObject merrow=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Merrow")
+      .put("selected_actions",new JSONArray().put("Bite").put("Harpoon")));
+  assertTrue(merrow.toString(),merrow.optBoolean("resolved"));assertEquals(2,merrow.optInt("attack_slots"));
+  JSONObject pitFiend=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Pit Fiend"));
+  assertTrue(pitFiend.toString(),pitFiend.optBoolean("resolved"));assertEquals(4,pitFiend.optInt("attack_slots"));
+  assertFalse(pitFiend.optBoolean("actions_applied"));
  }
  @Test public void explicitChoicesCannotInventAttacks()throws Exception{
   JSONObject in=new JSONObject().put("monster","Assassin");
@@ -23,7 +29,7 @@ public final class XmmMultiattackSafetyTest {
  }
  @Test public void coverageIsNotMisreportedAsFullCombat()throws Exception{
   JSONObject c=Xmm2025MultiattackPlanIndex.coverage();
-  assertEquals(306,c.getInt("multiattacks"));assertEquals(225,c.getInt("structured_plans"));assertEquals(81,c.getInt("manual_source_bound"));
+  assertEquals(306,c.getInt("multiattacks"));assertEquals(232,c.getInt("structured_plans"));assertEquals(74,c.getInt("manual_source_bound"));
   assertFalse(c.getBoolean("full_combat_automation_certified"));
  }
  @Test public void sphinxOfSecretsCanReplaceAtMostOneClawWithItsRiddleCurse()throws Exception{
@@ -41,6 +47,26 @@ public final class XmmMultiattackSafetyTest {
   assertEquals(2,alternate.optInt("attack_slots"));assertEquals(1,alternate.optInt("use_slots"));
   assertTrue(alternate.optBoolean("manual_effect_resolution_required"));
   assertFalse(alternate.optBoolean("actions_applied",true));assertFalse(alternate.optBoolean("auto_rolls",true));
+ }
+ @Test public void werebeastsChooseTwoBaseAttacksOrOneBasePlusFormBite()throws Exception{
+  for(String id:new String[]{"Werebear","Wereboar","Wererat","Weretiger","Werewolf"}){
+   JSONObject plan=Xmm2025MultiattackPlanIndex.plan(id);assertTrue(id,plan.optBoolean("structured"));
+   assertEquals(3,plan.getJSONArray("v").length());
+   JSONObject base=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster",id)
+       .put("variant_index",0).put("selected_actions",new JSONArray()
+           .put(plan.getJSONArray("v").getJSONArray(0).getJSONObject(0).getJSONArray("o").getString(0))
+           .put(plan.getJSONArray("v").getJSONArray(0).getJSONObject(0).getJSONArray("o").getString(1))));
+   assertTrue(id+base,base.optBoolean("resolved"));assertEquals(2,base.optInt("attack_slots"));
+   assertFalse(base.optBoolean("actions_applied"));
+   JSONObject substitute=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster",id)
+       .put("variant_index",1).put("selected_actions",new JSONArray()
+           .put(plan.getJSONArray("v").getJSONArray(1).getJSONObject(0).getJSONArray("o").getString(0))
+           .put(plan.getJSONArray("v").getJSONArray(1).getJSONObject(1).getJSONArray("o").getString(0))));
+   assertTrue(id+substitute,substitute.optBoolean("resolved"));assertEquals(2,substitute.optInt("attack_slots"));
+   JSONObject invalid=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster",id)
+       .put("variant_index",1).put("selected_actions",new JSONArray().put("Bite").put("Bite")));
+   assertFalse(invalid.optBoolean("resolved"));assertEquals("attack_choice_not_allowed",invalid.optString("status"));
+  }
  }
  @Test public void hybridBatchAcceptsOnlyThePinnedMultiattackPlan()throws Exception{
   JSONObject request=new JSONObject().put("request_id","sphinx-sequence").put("book_id","xmm").put("edition","2025")
