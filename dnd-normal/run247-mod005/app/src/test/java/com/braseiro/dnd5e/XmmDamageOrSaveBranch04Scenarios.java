@@ -41,8 +41,12 @@ public final class XmmDamageOrSaveBranch04Scenarios {
                 ranged?100:5,ranged,hit,saved,first,second,extra,choice,true);
     }
     private static Request hit(Session s,Action a,Choice choice,int... extras){
-        return request(s,a,a==Action.SPHINX?null:true,
-                a==Action.SPHINX?false:a==Action.RED_SLAAD?true:null,
+        // Keep nullable Boolean objects: mixing primitive boolean and null in a
+        // ternary causes javac to unbox null and throw NullPointerException.
+        Boolean attackHit=a==Action.SPHINX?null:Boolean.TRUE;
+        Boolean saveSucceeded=a==Action.SPHINX?Boolean.FALSE:
+                (a==Action.RED_SLAAD?Boolean.TRUE:null);
+        return request(s,a,attackHit,saveSucceeded,
                 low(a.first),low(a.second),extras,choice,false);
     }
     private static int raw(Dice dice) {
