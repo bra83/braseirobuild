@@ -228,8 +228,12 @@ public final class XmmOtherSourceEffect02Scenarios {
         ok(has(weak,Rider.WEAKENING_REPEAT_STR13_SAVE_END_TURN_AUTO_END_ONE_MINUTE));
         blocked(()->w.propose(request(w,Action.GOLD_WYRMLING_WEAKENING,
             "weak2","two",0,choice("hero",10,false,null,null))));
-        Result saved=w.propose(request(w,Action.GOLD_WYRMLING_WEAKENING,
-            "weak3","two",0,choice("hero",10,true,null,null))).result;
+        blocked(()->w.propose(request(w,Action.GOLD_WYRMLING_WEAKENING,
+            "weak3","two",0,choice("hero",10,true,null,null))));
+        Session unaffected=session(target("actor",Kind.CREATURE,40,0),
+            target("hero",Kind.CREATURE,30,0));
+        Result saved=unaffected.propose(request(unaffected,Action.GOLD_WYRMLING_WEAKENING,
+            "weak4","two",0,choice("hero",10,true,null,null))).result;
         ok(!has(saved,Rider.WEAKENING_STR_TEST_DISADVANTAGE_DAMAGE_MINUS_1D4));
     }
     private static void teleportAndRally(){
