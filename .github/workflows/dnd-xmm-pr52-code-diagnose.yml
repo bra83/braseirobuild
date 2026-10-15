@@ -24,6 +24,10 @@ jobs:
             ('MainActivity.java',['void showHeroes','showHeroes(','Editar Nome','updateCharacter(','updateCharacterSheet(','updateCharacterRuleDetails(','EDITAR']),
             ('AppDb.java',['updateCharacter(','updateCharacterSheet(','importAll(','exportAll(']),
           ]
+          for filename,lower,upper in [('MainActivity.java',2388,2418),('AppDb.java',1088,1125)]:
+            lines=(root/filename).read_text(encoding='utf-8').splitlines()
+            for i in range(lower-1,min(upper,len(lines))):
+              print(f'FOCUSED {filename}:{i+1}: '+lines[i].encode('unicode_escape').decode('ascii'),flush=True)
           for filename,patterns in tasks:
             lines=(root/filename).read_text(encoding='utf-8').splitlines()
             print('SOURCE_FILE',filename,'TOTAL_LINES',len(lines),flush=True)
