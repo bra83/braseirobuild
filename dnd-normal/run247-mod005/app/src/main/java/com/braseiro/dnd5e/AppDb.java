@@ -1146,7 +1146,14 @@ public class AppDb extends SQLiteOpenHelper {
             persistCharacterSheetChecked(id, state);
             saveCharacterControl(id, controlMode == null ? "manual" : controlMode,
                 "{\"routine_only\":true,\"combat\":\"assisted\",\"user_override\":true,\"limited_resources\":\"confirm\"}");
-            return state.put("character_saved", true).put("character_id", id).put("multiclass_validation", gate);
+            // The edited resource sheet may carry historical *_blocked or *_error
+            // metadata. Returning it as the commit receipt makes characterAtomic
+            // reject and ROLLBACK a successful edit, while the UI still sees
+            // character_saved=true. Keep the committed sheet in SQLite; send a
+            // narrowly typed acknowledgement to the transaction guard instead.
+            return new JSONObject().put("character_saved", true).put("character_id", id)
+                .put("saved_name", name).put("rules_source", source)
+                .put("multiclass_validation", gate);
         }});
     }
 
