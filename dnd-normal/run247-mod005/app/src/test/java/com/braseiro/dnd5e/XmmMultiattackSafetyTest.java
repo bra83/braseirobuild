@@ -23,7 +23,44 @@ public final class XmmMultiattackSafetyTest {
  }
  @Test public void coverageIsNotMisreportedAsFullCombat()throws Exception{
   JSONObject c=Xmm2025MultiattackPlanIndex.coverage();
-  assertEquals(306,c.getInt("multiattacks"));assertEquals(224,c.getInt("structured_plans"));assertEquals(82,c.getInt("manual_source_bound"));
+  assertEquals(306,c.getInt("multiattacks"));assertEquals(225,c.getInt("structured_plans"));assertEquals(81,c.getInt("manual_source_bound"));
   assertFalse(c.getBoolean("full_combat_automation_certified"));
+ }
+ @Test public void sphinxOfSecretsCanReplaceAtMostOneClawWithItsRiddleCurse()throws Exception{
+  JSONObject plan=Xmm2025MultiattackPlanIndex.plan("Sphinx of Secrets");
+  assertTrue(plan.optBoolean("structured"));assertEquals("/monster/407/action/0/entries",plan.optString("ptr"));
+  JSONArray claws=new JSONArray().put("Claw").put("Claw").put("Claw");
+  JSONObject normal=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Sphinx of Secrets")
+      .put("variant_index",0).put("selected_actions",claws));
+  assertTrue(normal.toString(),normal.optBoolean("resolved"));
+  assertEquals(3,normal.optInt("attack_slots"));assertEquals(0,normal.optInt("use_slots"));
+  JSONArray replacement=new JSONArray().put("Claw").put("Curse of the Riddle").put("Claw");
+  JSONObject alternate=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Sphinx of Secrets")
+      .put("variant_index",2).put("selected_actions",replacement));
+  assertTrue(alternate.toString(),alternate.optBoolean("resolved"));
+  assertEquals(2,alternate.optInt("attack_slots"));assertEquals(1,alternate.optInt("use_slots"));
+  assertTrue(alternate.optBoolean("manual_effect_resolution_required"));
+  assertFalse(alternate.optBoolean("actions_applied",true));assertFalse(alternate.optBoolean("auto_rolls",true));
+ }
+ @Test public void hybridBatchAcceptsOnlyThePinnedMultiattackPlan()throws Exception{
+  JSONObject request=new JSONObject().put("request_id","sphinx-sequence").put("book_id","xmm").put("edition","2025")
+      .put("monster","Sphinx of Secrets").put("source_pointer","/monster/407/action/0/entries")
+      .put("operation","multiattack_resolve").put("inputs",new JSONObject()
+          .put("variant_index",2).put("selected_actions",new JSONArray()
+              .put("Claw").put("Curse of the Riddle").put("Claw")));
+  JSONObject packet=new JSONObject().put("origin","player_preview")
+      .put("source_blob_sha1",Xmm2025SourceIndex.SOURCE_BLOB).put("requests",new JSONArray().put(request));
+  JSONObject result=new OfficialBookRuntimeGateway(null).execute("xmm","hybrid_batch_preview",packet)
+      .getJSONObject("result");
+  assertEquals(1,result.optInt("resolved_count"));
+  JSONObject preview=result.getJSONArray("results").getJSONObject(0).getJSONObject("runtime_result");
+  assertEquals(1,preview.optInt("use_slots"));assertFalse(preview.optBoolean("actions_applied",true));
+  request.put("inputs",new JSONObject().put("variant_index",2).put("selected_actions",new JSONArray()
+      .put("Claw").put("Curse of the Riddle").put("Claw").put("Curse of the Riddle"))
+      .put("untrusted_override",true));
+  result=new OfficialBookRuntimeGateway(null).execute("xmm","hybrid_batch_preview",packet).getJSONObject("result");
+  assertEquals(0,result.optInt("resolved_count"));
+  assertEquals("unrecognized_multiattack_inputs",
+      result.getJSONArray("results").getJSONObject(0).optString("reason"));
  }
 }

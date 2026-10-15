@@ -1,9 +1,51 @@
 """Negative-path, no-network tests for the XMM 503 independent comparator."""
 import unittest
+import json
 from io import BytesIO
 import verify_xmm_503_source as xmm
 
 class XmmIndependentSourceTests(unittest.TestCase):
+    def test_sphinx_multiattack_exactly_allows_one_riddle_replacement(self):
+        source=[{"name":"Sphinx of Secrets","action":[{"name":"Multiattack","entries":[
+            "The sphinx makes three Claw attacks. It can replace one attack with a use of Curses of the Riddle."]}]}]
+        expected={"id":"Sphinx of Secrets","ptr":"/monster/407/action/0/entries","v":[
+            [{"k":"attack","o":["Claw"],"c":3}],
+            [{"k":"attack","o":["Claw"],"c":2},{"k":"action","o":["Curse of the Riddle"],"c":1}]]}
+        expected["v"].extend([
+            [{"k":"attack","o":["Claw"],"c":1},{"k":"action","o":["Curse of the Riddle"],"c":1},
+             {"k":"attack","o":["Claw"],"c":1}],
+            [{"k":"action","o":["Curse of the Riddle"],"c":1},{"k":"attack","o":["Claw"],"c":2}],
+        ])
+        self.assertEqual(([],1),xmm.check_sphinx_of_secrets_multiattack(source,[expected]))
+        invalid=json.loads(json.dumps(expected))
+        invalid["v"][1][1]["c"]=2
+        errors,count=xmm.check_sphinx_of_secrets_multiattack(source,[invalid])
+        self.assertEqual(0,count)
+        self.assertEqual(["SPHINX_MULTIATTACK_SOURCE_PLAN_MISMATCH"],errors)
+
+    def test_condition_choice_profiles_remain_manual_until_host_integration(self):
+        source={"name":"Pixie","action":[{"name":"Faerie Dust","entries":[
+            "The target has the {@condition Charmed|XPHB} or {@condition Poisoned|XPHB} condition (pixie's choice) until the start of the pixie's next turn."]}]}
+        compiled={"name":"Faerie Dust","condition_choice_on_hit":"charmed, poisoned",
+            "condition_duration_rounds":1,"condition_duration_tick":"source_turn_start",
+            "manual_rider_resolution_required":True,"manual_unmodeled_source_effect_required":True}
+        self.assertTrue(xmm.condition_choice_contract_matches("Pixie",source["action"][0],compiled))
+        compiled["manual_unmodeled_source_effect_required"]=False
+        self.assertFalse(xmm.condition_choice_contract_matches("Pixie",source["action"][0],compiled))
+
+    def test_slaad_condition_choice_requires_source_ordered_d4_contract(self):
+        source={"name":"Death Slaad","action":[{"name":"Chaos Blade","entries":[
+            "The target has a condition determined by rolling {@dice 1d4}: on a 1, {@condition Charmed|XPHB}; on a 2, {@condition Frightened|XPHB}; on a 3, {@condition Poisoned|XPHB}; or on a 4, {@condition Incapacitated|XPHB}."]}]}
+        compiled={"name":"Chaos Blade","condition_choice_on_hit":"charmed, frightened, poisoned, incapacitated",
+            "condition_duration_rounds":1,"condition_duration_tick":"source_turn_start",
+            "manual_rider_resolution_required":True,"manual_unmodeled_source_effect_required":True}
+        self.assertTrue(xmm.condition_choice_contract_matches("Death Slaad",source["action"][0],compiled))
+        compiled["condition_choice_on_hit"]="frightened, charmed, poisoned, incapacitated"
+        self.assertFalse(xmm.condition_choice_contract_matches("Death Slaad",source["action"][0],compiled))
+
+    def test_condition_choice_rejects_unpinned_action_family(self):
+        self.assertFalse(xmm.condition_choice_contract_matches("Pixie",{"name":"Faerie Dust","entries":[]},{}))
+
     def test_scarecrow_glare_requires_both_source_conditions_and_turn_expiry(self):
         source={"name":"Scarecrow","action":[{"name":"Terrifying Glare","entries":[
             "{@actSave wis} {@dc 11}, one creature the scarecrow can see within 30 feet. "

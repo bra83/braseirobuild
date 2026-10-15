@@ -252,7 +252,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Solar\",\"ptr\":\"/monster/403/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Spectator\",\"ptr\":\"/monster/404/action/0/entries\",\"v\":[[{\"k\":\"use\",\"o\":[\"Eye Rays\"],\"c\":2}]]}",
   "{\"id\":\"Sphinx of Lore\",\"ptr\":\"/monster/406/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":3}]]}",
-  "{\"id\":\"Sphinx of Secrets\",\"ptr\":\"/monster/407/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Sphinx of Secrets\",\"ptr\":\"/monster/407/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":3}],[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2},{\"k\":\"action\",\"o\":[\"Curse of the Riddle\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1},{\"k\":\"action\",\"o\":[\"Curse of the Riddle\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1}],[{\"k\":\"action\",\"o\":[\"Curse of the Riddle\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":2}]]}",
   "{\"id\":\"Sphinx of Valor\",\"ptr\":\"/monster/408/action/0/entries\",\"v\":[]}",
   "{\"id\":\"Spined Devil\",\"ptr\":\"/monster/411/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Infernal Fork\",\"Tail Spine\"],\"c\":2}]]}",
   "{\"id\":\"Spirit Naga\",\"ptr\":\"/monster/412/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\",\"Necrotic Ray\"],\"c\":3}]]}",
@@ -313,7 +313,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Yuan-ti Malison (Type 3)\",\"ptr\":\"/monster/501/action/0/entries\",\"v\":[]}"
  };
  private static final Map<String,JSONObject> MAP=new LinkedHashMap<>();
- static{try{int ready=0;for(String s:RAW){JSONObject x=new JSONObject(s);if(MAP.put(x.getString("id"),x)!=null)throw new IllegalStateException("duplicate multiattack");if(x.getJSONArray("v").length()>0)ready++;}if(MAP.size()!=306||ready!=224)throw new IllegalStateException("incomplete multiattack index");}catch(Exception e){throw new ExceptionInInitializerError(e);}}
+ static{try{int ready=0;for(String s:RAW){JSONObject x=new JSONObject(s);if(MAP.put(x.getString("id"),x)!=null)throw new IllegalStateException("duplicate multiattack");if(x.getJSONArray("v").length()>0)ready++;}if(MAP.size()!=306||ready!=225)throw new IllegalStateException("incomplete multiattack index");}catch(Exception e){throw new ExceptionInInitializerError(e);}}
  private Xmm2025MultiattackPlanIndex(){}
  private static JSONObject blocked(String reason)throws Exception{return new JSONObject().put("resolved",false).put("status",reason).put("auto_rolls",false).put("auto_mutation_allowed",false).put("actions_applied",false);}
  public static JSONArray ids(){JSONArray a=new JSONArray();for(String id:MAP.keySet())a.put(id);return a;}
@@ -378,5 +378,5 @@ public final class Xmm2025MultiattackPlanIndex {
   }
   return new JSONObject().put("resolved",true).put("status","source_sequence_validated_pending_manual_effect_resolution").put("monster",id).put("source","XMM").put("source_pointer",r.getString("ptr")).put("source_blob_sha1",SOURCE_BLOB).put("variant_index",variant).put("steps",steps).put("attack_slots",attacks).put("use_slots",uses).put("auto_rolls",false).put("auto_mutation_allowed",false).put("actions_applied",false).put("damage_applied",false).put("turn_advanced",false).put("manual_effect_resolution_required",true);
  }
- public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("multiattacks",306).put("structured_plans",224).put("manual_source_bound",82).put("source_blob_sha1",SOURCE_BLOB).put("full_combat_automation_certified",false).put("auto_rolls",false);}
+ public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("multiattacks",306).put("structured_plans",225).put("manual_source_bound",81).put("source_blob_sha1",SOURCE_BLOB).put("full_combat_automation_certified",false).put("auto_rolls",false);}
 }

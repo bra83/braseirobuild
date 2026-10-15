@@ -16,6 +16,7 @@ JAVA_BOOK="app/src/main/java/com/braseiro/dnd5e/Xmm2025BookIndex.java"
 JAVA_SPELLS="app/src/main/java/com/braseiro/dnd5e/Xmm2025SpellUsageIndex.java"
 JAVA_TRAITS="app/src/main/java/com/braseiro/dnd5e/Xmm2025TraitMechanicsEngine.java"
 JAVA_RUNTIME="app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java"
+JAVA_MULTIATTACK="app/src/main/java/com/braseiro/dnd5e/Xmm2025MultiattackPlanIndex.java"
 JAVA_ATTACK_CONDITIONS="app/src/main/java/com/braseiro/dnd5e/Xmm2025AttackConditionEngine.java"
 JAVA_SAVE_DAMAGE="app/src/main/java/com/braseiro/dnd5e/Xmm2025SaveDamageEngine.java"
 SOURCE_TURN_START_HIT_CONDITIONS={
@@ -1626,6 +1627,77 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
         compiled_action.get("condition_duration_tick")=="source_turn_start" and
         not compiled_action.get("manual_unmodeled_source_effect_required",False))
 
+CONDITION_CHOICE_CONTRACTS={
+    ("Death Slaad","Chaos Blade"):("charmed, frightened, poisoned, incapacitated","d4",1,"source_turn_start","",("rolling {@dice 1d4}","on a 1","on a 2","on a 3","on a 4")),
+    ("Gray Slaad","Chaos Claw"):("charmed, frightened, poisoned, incapacitated","d4",1,"source_turn_start","",("rolling {@dice 1d4}","on a 1","on a 2","on a 3","on a 4")),
+    ("Green Slaad","Chaos Staff"):("charmed, frightened, poisoned, incapacitated","d4",1,"source_turn_start","",("rolling {@dice 1d4}","on a 1","on a 2","on a 3","on a 4")),
+    ("Githzerai Psion","Psychic Warp"):("charmed, prone","player_choice",0,"","large",("githzerai's choice","(a)","(b)","large or smaller")),
+    ("Pixie","Faerie Dust"):("charmed, poisoned","player_choice",1,"source_turn_start","",("pixie's choice",)),
+    ("Pixie Wonderbringer","Faerie Dust"):("charmed, poisoned","player_choice",1,"source_turn_start","",("pixie's choice",)),
+}
+
+def condition_choice_contract_matches(monster_name,action,compiled_action):
+    expected=CONDITION_CHOICE_CONTRACTS.get((monster_name,RCH.sub("",action.get("name","" )).strip()))
+    if expected is None:return False
+    choices,mode,rounds,tick,max_size,phrases=expected
+    def flatten(value):
+        if isinstance(value,str):return value
+        if isinstance(value,list):return " ".join(flatten(x) for x in value)
+        if isinstance(value,dict):return " ".join(flatten(x) for x in value.values())
+        return ""
+    text=flatten(action.get("entries",[])).casefold()
+    source_conditions=[x.strip().casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)]
+    expected_conditions=[x.strip() for x in choices.split(",")]
+    return (all(p in text for p in phrases) and
+        source_conditions==expected_conditions and
+        compiled_action.get("condition_choice_on_hit")==choices and
+        compiled_action.get("condition_duration_rounds",0)==rounds and
+        compiled_action.get("condition_duration_tick","")==tick and
+        compiled_action.get("condition_choice_max_target_size","")==max_size and
+        compiled_action.get("manual_rider_resolution_required") is True and
+        compiled_action.get("manual_unmodeled_source_effect_required") is True)
+
+def check_condition_choice_contracts(source,compiled):
+    by_id={m["id"]:m for m in compiled}; by_source={m.get("name"):m for m in source};errors=[];matched=0
+    for key in CONDITION_CHOICE_CONTRACTS:
+        monster,action_name=key;src=by_source.get(monster);dst=by_id.get(monster,{})
+        if src is None:
+            errors.append(f"{monster}:{action_name}:SOURCE_MONSTER_MISSING");continue
+        source_actions=src.get("action",[]);slot=next((i for i,a in enumerate(source_actions) if RCH.sub("",a.get("name","" )).strip()==action_name),-1)
+        destination=dst.get("actions",[]);compiled_action=destination[slot] if 0<=slot<len(destination) else {}
+        if slot<0 or not condition_choice_contract_matches(monster,source_actions[slot],compiled_action):
+            errors.append(f"{monster}:{action_name}:CONDITION_CHOICE_SOURCE_MISMATCH")
+        else:
+            matched+=1
+    compiled_choice_keys={(m.get("id"),a.get("name")) for m in compiled for a in m.get("actions",[]) if a.get("condition_choice_on_hit")}
+    if compiled_choice_keys!=set(CONDITION_CHOICE_CONTRACTS):
+        errors.append("CONDITION_CHOICE_CATALOG_MISMATCH")
+    return errors,matched
+
+def check_sphinx_of_secrets_multiattack(source,plans):
+    """Verify the one-attack substitution variant against its exact XMM action."""
+    monster=next((m for m in source if m.get("name")=="Sphinx of Secrets"),None)
+    plan=next((p for p in plans if p.get("id")=="Sphinx of Secrets"),None)
+    if monster is None or plan is None:return ["SPHINX_MULTIATTACK_SOURCE_OR_PLAN_MISSING"],0
+    action=next((a for a in monster.get("action",[]) if a.get("name")=="Multiattack"),None)
+    if action is None:return ["SPHINX_MULTIATTACK_ACTION_MISSING"],0
+    text=json.dumps(action.get("entries",[]),ensure_ascii=False).casefold()
+    source_ok=("makes three claw attacks" in text and "replace one attack" in text and
+        "curses" in text and "of the riddle" in text)
+    expected=[
+        [{"k":"attack","o":["Claw"],"c":3}],
+        [{"k":"attack","o":["Claw"],"c":2},
+         {"k":"action","o":["Curse of the Riddle"],"c":1}],
+        [{"k":"attack","o":["Claw"],"c":1},
+         {"k":"action","o":["Curse of the Riddle"],"c":1},
+         {"k":"attack","o":["Claw"],"c":1}],
+        [{"k":"action","o":["Curse of the Riddle"],"c":1},
+         {"k":"attack","o":["Claw"],"c":2}],
+    ]
+    pointer_ok=plan.get("ptr")=="/monster/407/action/0/entries"
+    valid=source_ok and pointer_ok and plan.get("v")==expected
+    return ([] if valid else ["SPHINX_MULTIATTACK_SOURCE_PLAN_MISMATCH"]),int(valid)
+
 def check_unmodeled_action_effects(source,compiled):
     """Require a dedicated fail-closed flag for known untyped source effects."""
     by_id={m["id"]:m for m in compiled}; errors=[]; checked=0; typed_conditions=0
@@ -1813,6 +1885,7 @@ def check(project, bestiary_bytes, book_bytes):
     spellrows=java_rows((project/JAVA_SPELLS).read_text(encoding="utf-8"))
     traitrows=java_rows((project/JAVA_TRAITS).read_text(encoding="utf-8"))
     save_damage_rows=java_rows((project/JAVA_SAVE_DAMAGE).read_text(encoding="utf-8"))
+    multiattack_plans=java_rows((project/JAVA_MULTIATTACK).read_text(encoding="utf-8"))
     if traitrows!=trait_rows(src):
         raise ValueError("XMM_178_TRAIT_SOURCE_INDEX_MISMATCH")
     expected_usage=usage_rows(src)
@@ -1822,6 +1895,8 @@ def check(project, bestiary_bytes, book_bytes):
     monster_errors,totals=check_monsters(src,index,compiled,attack_contracts)
     branch_errors,branch_totals=check_conditional_attack_damage(src,compiled)
     effect_errors,effect_count=check_unmodeled_action_effects(src,compiled)
+    condition_choice_errors,condition_choice_count=check_condition_choice_contracts(src,compiled)
+    sphinx_multiattack_errors,sphinx_multiattack_count=check_sphinx_of_secrets_multiattack(src,multiattack_plans)
     chain_errors=check_chain_devil_infernal_chain(src,compiled)
     attack_damage_errors,attack_damage_count=check_attack_primary_damage(src,compiled)
     multiattack_errors,multiattack_count=check_simple_multiattacks(src,compiled)
@@ -1834,7 +1909,7 @@ def check(project, bestiary_bytes, book_bytes):
     turn_start_errors,turn_start_count=check_source_turn_start_hit_conditions(src,compiled)
     save_errors,save_count=check_save_damage_actions(src,save_damage_rows)
     section_errors=check_book(book,bookrows)
-    if (monster_errors or branch_errors or effect_errors or chain_errors or section_errors or save_errors or
+    if (monster_errors or branch_errors or effect_errors or condition_choice_errors or sphinx_multiattack_errors or chain_errors or section_errors or save_errors or
         multiattack_errors or
         turn_start_errors or attack_damage_errors or advantage_damage_errors or
         wounded_advantage_errors or grappled_advantage_errors or attack_secondary_errors):
@@ -1842,6 +1917,8 @@ def check(project, bestiary_bytes, book_bytes):
             {"monsters":monster_errors[:20],"monster_count":len(monster_errors),
              "conditional_attack_damage":branch_errors[:20],"conditional_attack_damage_count":len(branch_errors),
              "unmodeled_action_effects":effect_errors[:20],"unmodeled_action_effects_count":len(effect_errors),
+             "condition_choice_contracts":condition_choice_errors,
+             "sphinx_multiattack":sphinx_multiattack_errors,
              "chain_devil_infernal_chain":chain_errors,
              "typed_multiattack":multiattack_errors,
              "source_turn_start_conditions":turn_start_errors[:20],"source_turn_start_conditions_count":len(turn_start_errors),
@@ -1870,6 +1947,9 @@ def check(project, bestiary_bytes, book_bytes):
         "source_attack_grappled_target_advantage_contracts_compared":grappled_advantage_count,
         "source_attack_secondary_damage_contracts_compared":attack_secondary_count,
         "source_abilities_with_unmodeled_effects_manual":effect_count,
+        "source_condition_choice_pure_profiles_compared":condition_choice_count,
+        "source_condition_choice_profiles_pending_integration":condition_choice_count,
+        "source_complex_multiattack_variants_compared":sphinx_multiattack_count,
         "source_chain_devil_infernal_chain_semantics_compared":1,
         "source_compound_condition_actions_typed":2,
         "source_single_condition_actions_typed":9+turn_start_count,
