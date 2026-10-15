@@ -189,7 +189,45 @@ jobs:
           # BRELGA safe cleanup measured >2 GB free before this run.
           $gradleArgs = @(':app:testDebugUnitTest', '--no-daemon', '--console=plain')
           & .\gradlew.bat @gradleArgs
-          if ($LASTEXITCODE -ne 0) { throw 'FULL_SUITE_FAILED' }
+          $gradleExitCode=$LASTEXITCODE
+          if ($gradleExitCode -ne 0) {
+            # Keep the real Gradle failure, but print only the three known PR #39
+            # testcase failures. A pull_request run cannot publish the QA branch.
+            $pr39Targets=@(
+              @{file='TEST-com.braseiro.dnd5e.CharacterCreationUiRobolectricTest.xml'; tests=@('create2024SaveReopenAndEditName','damagedCharacterNameEditPreservesHpAndMaximum')},
+              @{file='TEST-com.braseiro.dnd5e.SessionContinuityUiRobolectricTest.xml'; tests=@('backup21RoundTripRestoresHeroAndResourceState')}
+            )
+            foreach ($target in $pr39Targets) {
+              $pr39XmlPath=Join-Path 'app/build/test-results/testDebugUnitTest' $target.file
+              if (!(Test-Path -LiteralPath $pr39XmlPath)) {
+                Write-Host ('PR39_TEST_XML_MISSING=' + $target.file)
+                continue
+              }
+              try {
+                [xml]$pr39Xml=Get-Content -LiteralPath $pr39XmlPath -Raw
+                foreach ($testCase in @($pr39Xml.testsuite.testcase)) {
+                  $testName=[string]$testCase.name
+                  if ($target.tests -notcontains $testName) { continue }
+                  $failure=$testCase.failure
+                  if ($null -eq $failure) { $failure=$testCase.error }
+                  if ($null -eq $failure) {
+                    Write-Host ('PR39_TEST_PASS=' + $testName)
+                    continue
+                  }
+                  $detail=[string]$failure.message
+                  Write-Host ('PR39_TEST_FAIL=' + $testName)
+                  Write-Host ('PR39_FAILURE_LENGTH=' + $detail.Length)
+                  Write-Host ('PR39_FAILURE_HEAD=' + $detail.Substring(0,[Math]::Min(2500,$detail.Length)))
+                  if ($detail.Length -gt 2500) {
+                    Write-Host ('PR39_FAILURE_TAIL=' + $detail.Substring([Math]::Max(0,$detail.Length-1200)))
+                  }
+                }
+              } catch {
+                Write-Warning ('PR39_XML_DIAGNOSTIC_ERROR=' + $target.file + ': ' + $_.Exception.Message)
+              }
+            }
+            throw 'FULL_SUITE_FAILED'
+          }
           $xml='app/build/test-results/testDebugUnitTest/TEST-com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest.xml'
           if (!(Test-Path $xml)) { throw 'FOCUSED_XML_MISSING' }
           [xml]$result=Get-Content -LiteralPath $xml -Raw
