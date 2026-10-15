@@ -1776,6 +1776,63 @@ for _monster,_substitute,_text in (
 ):
     COMPOUND_MULTIATTACKS[_monster]=(_text,(expected_single_attack_replacement("Rend",_substitute),None))
 
+DRAGON_MULTIATTACK_SPELLS={
+    "Adult Black Dragon":("Melf's Acid Arrow",3,None),
+    "Adult Blue Dragon":("Shatter",None,None),
+    "Adult Brass Dragon":("Scorching Ray",None,"Sleep Breath"),
+    "Adult Bronze Dragon":("Guiding Bolt",2,"Repulsion Breath"),
+    "Adult Copper Dragon":("Mind Spike",4,"Slowing Breath"),
+    "Adult Gold Dragon":("Guiding Bolt",2,"Weakening Breath"),
+    "Adult Green Dragon":("Mind Spike",3,None),
+    "Adult Red Dragon":("Scorching Ray",None,None),
+    "Adult Silver Dragon":("Ice Knife",None,"Paralyzing Breath"),
+    "Ancient Black Dragon":("Melf's Acid Arrow",4,None),
+    "Ancient Blue Dragon":("Shatter",3,None),
+    "Ancient Brass Dragon":("Scorching Ray",3,"Sleep Breath"),
+    "Ancient Bronze Dragon":("Guiding Bolt",2,"Repulsion Breath"),
+    "Ancient Copper Dragon":("Mind Spike",5,"Slowing Breath"),
+    "Ancient Gold Dragon":("Guiding Bolt",4,"Weakening Breath"),
+    "Ancient Green Dragon":("Mind Spike",5,None),
+    "Ancient Red Dragon":("Scorching Ray",3,None),
+    "Ancient Silver Dragon":("Ice Knife",2,"Paralyzing Breath"),
+    "Dracolich":("Ray of Sickness",2,None),
+}
+
+def expected_dragon_spell_variants(spell,level,breath=None):
+    attack={"k":"attack","o":["Rend"],"c":3};variants=[[attack]]
+    replacements=[]
+    if breath:replacements.append({"k":"use","o":[breath],"c":1})
+    spell_step={"k":"spell","o":[spell],"c":1}
+    if level is not None:spell_step["spell_level"]=level
+    replacements.append(spell_step)
+    for slot in range(3):
+        for replacement in replacements:
+            steps=[]
+            if slot:steps.append({"k":"attack","o":["Rend"],"c":slot})
+            steps.append(replacement.copy())
+            if slot<2:steps.append({"k":"attack","o":["Rend"],"c":2-slot})
+            variants.append(steps)
+    return variants
+
+def check_dragon_multiattack_spell_variants(source,plans):
+    source_by_name={m.get("name"):m for m in source};plan_by_name={p.get("id"):p for p in plans};errors=[]
+    for monster,(spell,level,breath) in DRAGON_MULTIATTACK_SPELLS.items():
+        block=source_by_name.get(monster);action=next((a for a in (block or {}).get("action",[])
+            if a.get("name")=="Multiattack"),None);plan=plan_by_name.get(monster)
+        text=" ".join((action or {}).get("entries",[]));spell_names=SP.findall(text)
+        if (action is None or "three Rend attacks" not in text or "replace one attack" not in text or
+                spell_names!=[spell] or plan is None or
+                plan.get("ptr")!=f"/monster/{source.index(block)}/action/0/entries" or
+                plan.get("v")!=expected_dragon_spell_variants(spell,level,breath)):
+            errors.append(monster+":DRAGON_MULTIATTACK_SPELL_PLAN_MISMATCH");continue
+        level_match=re.search(r"\(level (\d+) version\)",text)
+        observed_level=int(level_match.group(1)) if level_match else None
+        if observed_level!=level:errors.append(monster+":DRAGON_MULTIATTACK_SPELL_LEVEL_MISMATCH")
+        if breath and breath not in text:errors.append(monster+":DRAGON_MULTIATTACK_BREATH_OPTION_MISSING")
+        action_names={a.get("name") for a in block.get("action",[]) if a.get("name")!="Multiattack"}
+        if breath and breath not in action_names:errors.append(monster+":DRAGON_MULTIATTACK_BREATH_ACTION_MISSING")
+    return errors,0 if errors else len(DRAGON_MULTIATTACK_SPELLS)
+
 def check_compound_multiattack_variants(source,plans):
     source_by_name={m.get("name"):m for m in source};plan_by_name={p.get("id"):p for p in plans}
     errors=[]
@@ -1808,7 +1865,7 @@ def _expected_simple_multiattack_plan(monster,action):
         else:groups.append({"k":"attack","o":[name],"c":1})
     return [groups]
 
-def check_multiattack_plan_catalog(source,plans,expected_structured=242,expected_simple=197,
+def check_multiattack_plan_catalog(source,plans,expected_structured=261,expected_simple=197,
                                    expected_total=306):
     source_rows=[]
     for monster_index,monster in enumerate(source):
@@ -2156,6 +2213,7 @@ def check(project, bestiary_bytes, book_bytes):
     werebeast_multiattack_errors,werebeast_multiattack_count=check_werebeast_multiattack_variants(
         src,multiattack_plans)
     compound_multiattack_errors,compound_multiattack_count=check_compound_multiattack_variants(src,multiattack_plans)
+    dragon_spell_multiattack_errors,dragon_spell_multiattack_count=check_dragon_multiattack_spell_variants(src,multiattack_plans)
     multiattack_catalog_errors,multiattack_structured_count,multiattack_simple_plan_count,multiattack_manual_count=(
         check_multiattack_plan_catalog(src,multiattack_plans))
     save_condition_errors,save_condition_count=check_save_condition_profiles(src,compiled,save_condition_profiles)
@@ -2175,7 +2233,7 @@ def check(project, bestiary_bytes, book_bytes):
     turn_start_errors,turn_start_count=check_source_turn_start_hit_conditions(src,compiled)
     save_errors,save_count=check_save_damage_actions(src,save_damage_rows)
     section_errors=check_book(book,bookrows)
-    if (monster_errors or branch_errors or effect_errors or condition_choice_errors or sphinx_multiattack_errors or werebeast_multiattack_errors or compound_multiattack_errors or multiattack_catalog_errors or save_condition_errors or recurring_damage_errors or zero_hp_condition_errors or chain_errors or section_errors or save_errors or
+    if (monster_errors or branch_errors or effect_errors or condition_choice_errors or sphinx_multiattack_errors or werebeast_multiattack_errors or compound_multiattack_errors or dragon_spell_multiattack_errors or multiattack_catalog_errors or save_condition_errors or recurring_damage_errors or zero_hp_condition_errors or chain_errors or section_errors or save_errors or
         multiattack_errors or
         turn_start_errors or attack_damage_errors or advantage_damage_errors or
         wounded_advantage_errors or grappled_advantage_errors or attack_secondary_errors):
@@ -2187,6 +2245,7 @@ def check(project, bestiary_bytes, book_bytes):
              "sphinx_multiattack":sphinx_multiattack_errors,
              "werebeast_multiattack":werebeast_multiattack_errors,
              "compound_multiattack":compound_multiattack_errors,
+             "dragon_spell_multiattack":dragon_spell_multiattack_errors,
              "multiattack_catalog":multiattack_catalog_errors,
              "save_condition_profiles":save_condition_errors,
              "recurring_damage_profiles":recurring_damage_errors,
@@ -2226,6 +2285,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_condition_choice_profiles_pending_integration":condition_choice_count,
         "source_complex_multiattack_variants_compared":sphinx_multiattack_count,
         "source_compound_multiattack_variants_compared":compound_multiattack_count,
+        "source_dragon_spell_multiattack_variants_compared":dragon_spell_multiattack_count,
         "source_werebeast_multiattack_variants_compared":werebeast_multiattack_count,
         "source_manual_save_condition_profiles_compared":save_condition_count,
         "source_manual_save_condition_profiles_pending_integration":save_condition_count,

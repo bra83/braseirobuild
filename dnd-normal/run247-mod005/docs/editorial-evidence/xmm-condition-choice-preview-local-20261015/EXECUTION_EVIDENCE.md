@@ -15,7 +15,7 @@ Data: 2026-10-15
 
 ### B0 — inventário e isolamento
 
-O verificador independente usa o bestiário e livro XMM pinados em `8c026b807fac21862a309379a0c3228a0683198b`. O manifesto `manual-effect-inventory-232.json` tem 232 ponteiros únicos para ações que ainda não são executáveis integralmente. Cada linha contém contrato mecânico, dono do executor, situação, evidência e bloqueio. A contagem de inventário inclui entradas de Multiattacks sem plano estruturado e efeitos ainda parciais; ela não representa 232 executores ausentes.
+O verificador independente usa o bestiário e livro XMM pinados em `8c026b807fac21862a309379a0c3228a0683198b`. O manifesto `manual-effect-inventory-213.json` tem 213 ponteiros únicos para ações que ainda não são executáveis integralmente. Cada linha contém contrato mecânico, dono do executor, situação, evidência e bloqueio. A contagem de inventário inclui entradas de Multiattacks sem plano estruturado e efeitos ainda parciais; ela não representa 213 executores ausentes.
 
 ### B1 — riders e condições
 
@@ -29,7 +29,7 @@ Também foram adicionados previews source-bound para 58 famílias de condição 
 
 O plano fonte-verificado de Sphinx of Secrets admite as três Garras ou a substituição de exatamente uma das três por Curse of the Riddle em qualquer posição. Foram adicionadas sequências reusáveis para Werebear, Wereboar, Wererat, Weretiger, Werewolf, Merrow e Pit Fiend. A sequência exige escolhas explícitas, total de slots exato e ações compiladas fonte-vinculadas. O passo da maldição continua com resolução manual; os planos descrevem a sequência, sem executar efeitos nem consumir recursos.
 
-O índice agora tem 242 planos estruturados entre 306 Multiattacks; 64 ainda não têm sequência estruturada. O comparador confirma 197 sequências simples e verifica separadamente a substituição do Sphinx, cinco variantes de licantropos, seis contratos compostos e quatro variantes dos dragões jovens Bronze, Copper, Gold e Silver. O Clay Golem exige contexto explícito de Hasten para escolher a variante correta. O inventário contabiliza 66 efeitos Multiattack sem execução completa, pois alguns planos estruturados ainda incluem efeitos especiais que precisam de resolução manual. O resolvedor permanece um preview com ponteiro exato e lista de campos permitidos.
+O índice agora tem 261 planos estruturados entre 306 Multiattacks; 45 ainda não têm sequência estruturada. O comparador confirma 197 sequências simples, substituição do Sphinx, cinco variantes de licantropos, seis contratos compostos, quatro variantes de dragões jovens e 19 sequências de dragões adultos/ancient/Dracolich que substituem uma posição por uma magia fonte-listada ou sopro. A escolha da magia passa pelo índice de uso fonte-verificado; nível, limites de uso e efeito continuam manuais e nenhum feitiço é lançado/debitado pelo preview. O Clay Golem exige contexto explícito de Hasten. O inventário contabiliza 47 efeitos Multiattack sem execução completa, pois alguns planos estruturados ainda incluem efeitos especiais que precisam de resolução manual.
 
 ### B3 — conjuradores e exceções
 
@@ -38,15 +38,15 @@ Não foi introduzido um executor novo de magia nesta execução. O comparador va
 ### B4 — testes e publicação
 
 - Comparador XMM: aprovado; 503 monstros, 36 seções, 120 recargas, 132 registros de magia, 178 contratos de traits, 59 ações de dano por salvaguarda e 306 Multiattacks analisados.
-- Testes Python: 104 aprovados (`PYTHONPATH=tools python3 -m unittest discover -s tools -p 'test_*.py'`).
+- Testes Python: 105 aprovados (`PYTHONPATH=tools python3 -m unittest discover -s tools -p 'test_*.py'`).
 - O comparador independente passou com 58 perfis save-condition, 3 perfis recurring-damage e 2 perfis zero-HP; `source_field_and_catalog_gate_pass=true`.
 - Gradle/Robolectric local: `JAVA_HOME=/workspace/jdk21 ANDROID_HOME=/workspace/android-sdk bash gradlew --offline --console=plain testDebugUnitTest` aprovado; XMLs agregam 2.605 testes, 0 falhas, 0 erros e 0 ignorados em 134 classes. Inclui 5 testes do preview zero-HP e os 2 testes novos para variantes compostas/contexto de Hasten.
-- Fonte de verificação: `xmm-source-verification.json`; SHA-256: `9cca03b1fad03a249cf0b8be12bfc6aca96166cb4f6307839dd4f9c94c33584c`.
+- Fonte de verificação: `xmm-source-verification.json`; SHA-256: `55d38010e4444b30f21ca48074af21ca6f298675a3e9b262c6668eeec355cb21`.
 - O comparador continua declarando `full_monster_combat_automation_certified=false`.
 - Não foram executados fluxos E2E de estado real, SQLite ou Backup21 para estes previews.
 
 ## Pendências e integração
 
-Dos 232 efeitos no inventário manual, 67 possuem preview tipado bloqueado para integração, 1 exige revisão do contrato fonte e 164 seguem sem executor completo. A contagem de previews inclui 6 escolhas de condição, 56 perfis de condição após salvaguarda, 3 ticks recorrentes e 2 efeitos em zero PV. O trabalho atual não reduz artificialmente essa contagem: os efeitos propostos não foram aplicados ao combate. A integração posterior exige componentes de fluxo/UI e persistência protegidos, entre eles `MainActivity.java`, `AppDb.java` e contratos Backup21, fora desta branch.
+Dos 213 efeitos no inventário manual, 67 possuem preview tipado bloqueado para integração, 1 exige revisão do contrato fonte e 145 seguem sem executor completo. A contagem de previews inclui 6 escolhas de condição, 56 perfis de condição após salvaguarda, 3 ticks recorrentes e 2 efeitos em zero PV. O trabalho atual não reduz artificialmente essa contagem: os efeitos propostos não foram aplicados ao combate. A integração posterior exige componentes de fluxo/UI e persistência protegidos, entre eles `MainActivity.java`, `AppDb.java` e contratos Backup21, fora desta branch.
 
 O draft PR deve permanecer aberto e sem merge até a aprovação e integração da Frente A.

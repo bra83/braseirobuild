@@ -36,6 +36,22 @@ class XmmIndependentSourceTests(unittest.TestCase):
         self.assertEqual(0,count)
         self.assertIn("Clay Golem:COMPOUND_MULTIATTACK_SOURCE_PLAN_MISMATCH",errors)
 
+    def test_nineteen_dragon_spell_multiattacks_keep_exact_spell_level_and_substitution_slots(self):
+        source=[];plans=[]
+        for index,(monster,(spell,level,breath)) in enumerate(xmm.DRAGON_MULTIATTACK_SPELLS.items()):
+            suffix=f" (level {level} version)" if level is not None else ""
+            text=f"The dragon makes three Rend attacks. It can replace one attack with a use of {breath or 'Spellcasting'} to cast {{@spell {spell}|XPHB}}{suffix}."
+            actions=[{"name":"Multiattack","entries":[text]},{"name":"Rend","entries":[]}]
+            if breath:actions.append({"name":breath,"entries":[]})
+            source.append({"name":monster,"action":actions})
+            plans.append({"id":monster,"ptr":f"/monster/{index}/action/0/entries",
+                "v":xmm.expected_dragon_spell_variants(spell,level,breath)})
+        self.assertEqual(([],19),xmm.check_dragon_multiattack_spell_variants(source,plans))
+        plans[0]["v"][1][0]["o"]=["Fireball"]
+        errors,count=xmm.check_dragon_multiattack_spell_variants(source,plans)
+        self.assertEqual(0,count)
+        self.assertIn("Adult Black Dragon:DRAGON_MULTIATTACK_SPELL_PLAN_MISMATCH",errors)
+
     def test_zero_hp_condition_profiles_require_source_duration_link_and_stability(self):
         source=[];compiled=[];profiles=[]
         for index,((monster,action_name),(ptr,conditions,stable,_phrases)) in enumerate(
