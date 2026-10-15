@@ -71,7 +71,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Centaur Trooper\",\"ptr\":\"/monster/89/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Pike\",\"Longbow\"],\"c\":2}]]}",
   "{\"id\":\"Centaur Warden\",\"ptr\":\"/monster/90/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Forest Staff\",\"Sun Ray\"],\"c\":2}]]}",
   "{\"id\":\"Chain Devil\",\"ptr\":\"/monster/91/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Chain\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Conjure Infernal Chain\"],\"c\":1}]]}",
-  "{\"id\":\"Chimera\",\"ptr\":\"/monster/93/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Chimera\",\"ptr\":\"/monster/93/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Ram\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Ram\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Fire Breath\"],\"c\":1}]]}",
   "{\"id\":\"Chuul\",\"ptr\":\"/monster/94/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Pincer\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Paralyzing Tentacles\"],\"c\":1}]]}",
   "{\"id\":\"Clay Golem\",\"ptr\":\"/monster/95/action/0/entries\",\"context\":{\"field\":\"hasten_used_this_turn\",\"variant_index\":1},\"v\":[[{\"k\":\"attack\",\"o\":[\"Slam\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Slam\"],\"c\":3}]]}",
   "{\"id\":\"Cloaker\",\"ptr\":\"/monster/96/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Attach\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Tail\"],\"c\":2}]]}",
@@ -135,7 +135,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Githzerai Psion\",\"ptr\":\"/monster/205/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Psychic Warp\"],\"c\":3}]]}",
   "{\"id\":\"Githzerai Zerth\",\"ptr\":\"/monster/206/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Psi Strike\"],\"c\":2}]]}",
   "{\"id\":\"Glabrezu\",\"ptr\":\"/monster/207/action/0/entries\",\"v\":[]}",
-  "{\"id\":\"Gladiator\",\"ptr\":\"/monster/208/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Gladiator\",\"ptr\":\"/monster/208/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Spear\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Shield Bash\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Spear\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Spear\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Shield Bash\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Spear\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Spear\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Shield Bash\"],\"c\":1}]]}",
   "{\"id\":\"Gnoll Demoniac\",\"ptr\":\"/monster/209/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Abyssal Strike\"],\"c\":2}]]}",
   "{\"id\":\"Gnoll Fang of Yeenoghu\",\"ptr\":\"/monster/210/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bite\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Bone Flail\"],\"c\":2}]]}",
   "{\"id\":\"Gnoll Pack Lord\",\"ptr\":\"/monster/211/action/0/entries\",\"v\":[]}",
@@ -173,7 +173,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Intellect Devourer\",\"ptr\":\"/monster/259/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Claw\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Devour Intellect\"],\"c\":1}]]}",
   "{\"id\":\"Invisible Stalker\",\"ptr\":\"/monster/260/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":3}],[{\"k\":\"use\",\"o\":[\"Vortex\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":2}],[{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":1},{\"k\":\"use\",\"o\":[\"Vortex\"],\"c\":1},{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":1}],[{\"k\":\"attack\",\"o\":[\"Wind Swipe\"],\"c\":2},{\"k\":\"use\",\"o\":[\"Vortex\"],\"c\":1}]]}",
   "{\"id\":\"Iron Golem\",\"ptr\":\"/monster/261/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Bladed Arm\",\"Fiery Bolt\"],\"c\":2}]]}",
-  "{\"id\":\"Jackalwere\",\"ptr\":\"/monster/263/action/0/entries\",\"v\":[]}",
+  "{\"id\":\"Jackalwere\",\"ptr\":\"/monster/263/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend (Jackal or Hybrid Form Only)\",\"Slam (Human or Hybrid Form Only)\"],\"c\":2}]]}",
   "{\"id\":\"Juvenile Shadow Dragon\",\"ptr\":\"/monster/264/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Rend\"],\"c\":2}]]}",
   "{\"id\":\"Knight\",\"ptr\":\"/monster/267/action/0/entries\",\"v\":[[{\"k\":\"attack\",\"o\":[\"Greatsword\",\"Heavy Crossbow\"],\"c\":2}]]}",
   "{\"id\":\"Kraken\",\"ptr\":\"/monster/269/action/0/entries\",\"v\":[]}",
@@ -313,7 +313,7 @@ public final class Xmm2025MultiattackPlanIndex {
   "{\"id\":\"Yuan-ti Malison (Type 3)\",\"ptr\":\"/monster/501/action/0/entries\",\"v\":[]}"
  };
  private static final Map<String,JSONObject> MAP=new LinkedHashMap<>();
- static{try{int ready=0;for(String s:RAW){JSONObject x=new JSONObject(s);if(MAP.put(x.getString("id"),x)!=null)throw new IllegalStateException("duplicate multiattack");if(x.getJSONArray("v").length()>0)ready++;}if(MAP.size()!=306||ready!=272)throw new IllegalStateException("incomplete multiattack index");}catch(Exception e){throw new ExceptionInInitializerError(e);}}
+ static{try{int ready=0;for(String s:RAW){JSONObject x=new JSONObject(s);if(MAP.put(x.getString("id"),x)!=null)throw new IllegalStateException("duplicate multiattack");if(x.getJSONArray("v").length()>0)ready++;}if(MAP.size()!=306||ready!=275)throw new IllegalStateException("incomplete multiattack index");}catch(Exception e){throw new ExceptionInInitializerError(e);}}
  private Xmm2025MultiattackPlanIndex(){}
  private static JSONObject blocked(String reason)throws Exception{return new JSONObject().put("resolved",false).put("status",reason).put("auto_rolls",false).put("auto_mutation_allowed",false).put("actions_applied",false);}
  public static JSONArray ids(){JSONArray a=new JSONArray();for(String id:MAP.keySet())a.put(id);return a;}
@@ -400,5 +400,5 @@ public final class Xmm2025MultiattackPlanIndex {
   if(context!=null)result.put("variant_context_field",context.getString("field")).put("variant_context_value",in.getBoolean(context.getString("field")));
   return result;
  }
- public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("multiattacks",306).put("structured_plans",272).put("manual_source_bound",34).put("source_blob_sha1",SOURCE_BLOB).put("full_combat_automation_certified",false).put("auto_rolls",false);}
+ public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("multiattacks",306).put("structured_plans",275).put("manual_source_bound",31).put("source_blob_sha1",SOURCE_BLOB).put("full_combat_automation_certified",false).put("auto_rolls",false);}
 }

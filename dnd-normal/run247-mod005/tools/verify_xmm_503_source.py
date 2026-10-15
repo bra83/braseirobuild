@@ -1791,6 +1791,17 @@ for _monster,_attack,_count,_substitute,_kind,_text in (
 ):
     COMPOUND_MULTIATTACKS[_monster]=(_text,(expected_single_attack_replacement(_attack,_substitute,_count,_kind),None))
 
+COMPOUND_MULTIATTACKS["Chimera"]=(
+    "The chimera makes one Ram attack, one Bite attack, and one Claw attack. It can replace the Claw attack with a use of Fire Breath if available.",
+    ([[{"k":"attack","o":["Ram"],"c":1},{"k":"attack","o":["Bite"],"c":1},{"k":"attack","o":["Claw"],"c":1}],
+     [{"k":"attack","o":["Ram"],"c":1},{"k":"attack","o":["Bite"],"c":1},{"k":"use","o":["Fire Breath"],"c":1}]],None))
+COMPOUND_MULTIATTACKS["Gladiator"]=(
+    "The gladiator makes three Spear attacks. It can replace one attack with a use of Shield Bash.",
+    (expected_single_attack_replacement("Spear","Shield Bash",3,"use"),None))
+COMPOUND_MULTIATTACKS["Jackalwere"]=(
+    "The jackalwere makes two Rend or Slam attacks.",
+    ([[{"k":"attack","o":["Rend (Jackal or Hybrid Form Only)","Slam (Human or Hybrid Form Only)"],"c":2}]],None))
+
 DRAGON_MULTIATTACK_SPELLS={
     "Adult Black Dragon":("Melf's Acid Arrow",3,None),
     "Adult Blue Dragon":("Shatter",None,None),
@@ -1881,7 +1892,7 @@ def _expected_simple_multiattack_plan(monster,action):
         else:groups.append({"k":"attack","o":[name],"c":1})
     return [groups]
 
-def check_multiattack_plan_catalog(source,plans,expected_structured=272,expected_simple=197,
+def check_multiattack_plan_catalog(source,plans,expected_structured=275,expected_simple=197,
                                    expected_total=306):
     source_rows=[]
     for monster_index,monster in enumerate(source):
