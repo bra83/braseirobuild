@@ -3089,6 +3089,28 @@ public class AppDb extends SQLiteOpenHelper {
             secondNatural,0,damageComponents,riderSaveRoll,additionalThreatId,destinationX,
             destinationY,token);
     }
+    /** Shared admission transaction for families 04-13. Rejected identities and
+     * unhosted effects never spend an action, write damage, or mint a receipt.
+     * The standalone Session.commit methods are intentionally NOT called: their
+     * in-memory revision/event sets are not SQLite authority.
+     */
+    public JSONObject applyXmmSourceAction(final XmmCombatAdmission.Request request){
+        return combatAtomic("xmm_source_action",new CombatAtomicWork(){
+            public JSONObject run()throws Exception{
+                JSONObject actor=request==null?new JSONObject():getCombatant(request.actorId);
+                JSONObject target=request==null?new JSONObject():getCombatant(request.targetId);
+                XmmCombatAdmission.Decision decision=XmmCombatAdmission.preflight(request,
+                    combatResources(actor).optString("block_id",""),target.length()>0);
+                JSONObject out=new JSONObject().put("xmm_action_blocked",decision.blocked)
+                    .put("persisted_to_combat",false);
+                if(decision.source!=null)out.put("source_pointer",decision.source.pointer)
+                    .put("family",decision.source.family.name()).put("lot",decision.source.lot)
+                    .put("integration_status",decision.source.status.name())
+                    .put("executor",decision.source.executor).put("blocker_reason",decision.source.blocker);
+                return out;
+            }});
+    }
+
     private JSONObject applyCompiledStatblockAttackInternal(final long actorId,final long targetId,
         final String statblockId,final String action,final int natural,final int secondNatural,
         final int damageTotal,final JSONArray damageComponents,final int riderSaveRoll,

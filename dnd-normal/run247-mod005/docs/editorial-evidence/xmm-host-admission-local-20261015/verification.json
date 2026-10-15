@@ -1,0 +1,65 @@
+{
+  "base_git_head": "2818d68cf53d5ab7fde7d1b3c3856321a5efc284",
+  "scope": "admission_boundary_only_NO_GAMEPLAY_INTEGRATION",
+  "complete_block_1": false,
+  "committed": false,
+  "source_prose": {
+    "status": "UNAVAILABLE",
+    "expected_blob": "9a4137b508ef37562ed948894a70b1594b57e85c",
+    "local_git_object_present": false,
+    "download_attempt": "raw.githubusercontent.com DNS resolution failed; web fallback cache miss",
+    "official_pdf_parity": "NOT_TESTED"
+  },
+  "checks": {
+    "registry_62_pointer_identities": "PASS",
+    "registry_monster_action_family_executor_bindings": "PASS",
+    "new_admission_jvm_assertions": 441,
+    "standalone_04_13_jvm_assertions": 1808,
+    "standalone_04_13_gates_passed": 10,
+    "branch02_report": "executed exit 0; pinned source false; 0 complete actions; 12 blocked",
+    "branch03_jvm_assertions": 73,
+    "branch03_source_gate": "not run successfully: invoked without required source argument (IndexError); independent JVM core subsequently passed",
+    "diff_check": "PASS"
+  },
+  "android": {
+    "sdk_35": "PRESENT",
+    "robolectric": "NOT_RUN",
+    "attempts": [
+      {
+        "command": "gradle --offline --no-daemon -p dnd-normal/run247-mod005 :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --tests com.braseiro.dnd5e.XmmCombatAdmissionRobolectricTest",
+        "exit_code": 1,
+        "failure": "Failed to load native library libnative-platform.so for Linux amd64"
+      },
+      {
+        "command": "gradle --offline --no-daemon -Dorg.gradle.native=false -g /tmp/braseiro-xmm-gradle -p dnd-normal/run247-mod005 :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --tests com.braseiro.dnd5e.XmmCombatAdmissionRobolectricTest",
+        "exit_code": 1,
+        "failure": "Could not determine a usable wildcard IP for this machine"
+      }
+    ],
+    "installed_gradle": "9.7.1",
+    "project_wrapper_gradle": "8.11.1; distribution not cached"
+  },
+  "preserved_for_brelga": [
+    "all 62 typed admissions reject without SQL writes or receipt",
+    "existing Bearded Devil attack and Bone Naga save fail at final receipt and roll back action/damage/timers/receipts",
+    "same failed token can subsequently commit; successful token cannot replay after three SQLite reopenings",
+    "two new round tokens each apply once and source turn timers expire"
+  ],
+  "pending": [
+    "actual executor integration for every family 04-13",
+    "Wraith hit/miss/critical, necrotic defense, temp HP, max HP reduction and character synchronization",
+    "persistent 24h/rest/recharge recovery for these families",
+    "new Android tests execution",
+    "Backup21 round trip execution",
+    "UI admission routing",
+    "official source semantic comparison"
+  ],
+  "sha256": {
+    "app/src/main/java/com/braseiro/dnd5e/AppDb.java": "deed3eccc969e4da82a256c8844672852bd0948890f95d803ee534af4d9e286a",
+    "app/src/main/java/com/braseiro/dnd5e/XmmCombatAdmission.java": "5131166aa821a4241e7e282dc63a89428a2b27c0472924d0a8adf95da54e20c6",
+    "app/src/main/java/com/braseiro/dnd5e/XmmCombatSourceRegistry.java": "6b6acf821dd0d48e810098881ef91a387c1eeb45ec523be5d9a99e6a1c528740",
+    "app/src/test/java/com/braseiro/dnd5e/XmmCombatAdmissionScenarios.java": "8bfd2ee5712b7b85416bb7f962c1e912be5e9ff548216144b3becff902172a3e",
+    "app/src/test/java/com/braseiro/dnd5e/XmmCombatAdmissionRobolectricTest.java": "f44bc206552cfe86d7470aca999894e4ea45dd2b36d84acccc17c29e381fa623",
+    "tools/verify_xmm_combat_admission.py": "d64342136639a0437082645fe45ec204568e3e72c2123228345471c9b3f66bbf"
+  }
+}
