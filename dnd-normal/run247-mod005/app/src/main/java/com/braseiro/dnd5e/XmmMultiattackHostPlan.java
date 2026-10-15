@@ -35,7 +35,9 @@ public final class XmmMultiattackHostPlan {
             String field = context.optString("field", "");
             if (field.isEmpty()) return blocked("multiattack_context_field_invalid");
             Object stored = persistedActorResources == null ? null : persistedActorResources.opt(field);
-            if (stored != null && stored != JSONObject.NULL && !(stored instanceof Boolean))
+            // Missing legacy state means false; an explicitly persisted JSON null
+            // is corrupt state and must never become an authorization decision.
+            if (stored != null && !(stored instanceof Boolean))
                 return blocked("multiattack_context_persisted_invalid");
             boolean hostValue = Boolean.TRUE.equals(stored);
             if (selection.has(field)) {
