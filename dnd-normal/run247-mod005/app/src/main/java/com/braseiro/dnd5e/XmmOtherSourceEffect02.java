@@ -278,13 +278,15 @@ public final class XmmOtherSourceEffect02 {
                         &&t.kind!=Kind.OBJECT&&t.kind!=Kind.HUMANOID_CORPSE,
                         "demilich_creature_visible_120ft_required");
                     need(choice.saveSucceeded!=null,"con19_save_required");
+                    need(choice.secondaryDice.length==0,"demilich_secondary_dice_not_applicable");
                     if(!choice.saveSucceeded){
                         int lost=rolled(choice.primaryDice,4,6,0,"demilich_4d6");
                         int newMax=Math.max(0,t.maxHp-lost);
                         stats.put(t.id,new int[]{Math.min(t.hp,newMax),newMax,t.tempHp});
                         effects.add(effect(Rider.MAX_HP_DRAIN_4D6,req.actor,t.id,lost,
                             "until_max_hp_restored"));
-                    } else noRolls(choice);
+                    } else need(choice.primaryDice.length==0,
+                        "demilich_success_must_not_roll_damage");
                     effects.add(effect(Rider.DEMILICH_UNAVAILABLE_UNTIL_ITS_NEXT_TURN,
                         req.actor,req.actor,0,"start_of_demilich_next_turn"));
                 } else if(catEvent) {
