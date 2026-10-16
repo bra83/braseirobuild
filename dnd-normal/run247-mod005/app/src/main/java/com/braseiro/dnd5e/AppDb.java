@@ -8573,14 +8573,46 @@ public List<JSONObject> listWorldEventsForMaster(int limit){return queryList("SE
             Long newActor=idMap.get(oldActor);if(newActor==null)continue;
             String rawResources=oldRow.optString("resources_json","{}");
             ContentValues fixed=new ContentValues();
+            boolean resourcesChanged=false;
+            JSONObject resources=null;
             if(rawResources.contains(MonsterHostilityLedgerCodec.KEY)){
-                JSONObject resources=new JSONObject(rawResources);
+                resources=new JSONObject(rawResources);
                 if(resources.has(MonsterHostilityLedgerCodec.KEY)){
-                    JSONObject rewritten=MonsterHostilityLedgerCodec.remapForRestore(oldActor,
+                    resources=MonsterHostilityLedgerCodec.remapForRestore(oldActor,
                         getActiveMapProfile(),resources,idMap);
-                    fixed.put("resources_json",rewritten.toString());
+                    resourcesChanged=true;
                 }
             }
+            if(rawResources.contains(XmmMovementSpeedEffectLedger.FIELD)||
+                rawResources.contains("xmm_grapple_state")||
+                rawResources.contains("xmm_next_attack_advantage")){
+                if(resources==null)resources=new JSONObject(rawResources);
+                if(resources.has(XmmMovementSpeedEffectLedger.FIELD)){
+                    JSONArray effects=resources.optJSONArray(XmmMovementSpeedEffectLedger.FIELD);
+                    if(effects!=null){
+                        for(int ei=0;ei<effects.length();ei++){
+                            JSONObject eff=effects.optJSONObject(ei);
+                            if(eff==null)continue;
+                            Long mappedSource=idMap.get(eff.optLong("source_actor_id",0));
+                            Long mappedTarget=idMap.get(eff.optLong("target_id",0));
+                            if(mappedSource!=null)eff.put("source_actor_id",mappedSource.longValue());
+                            if(mappedTarget!=null)eff.put("target_id",mappedTarget.longValue());
+                        }
+                        resourcesChanged=true;
+                    }
+                }
+                JSONObject grapple=resources.optJSONObject("xmm_grapple_state");
+                if(grapple!=null){
+                    Long mappedSource=idMap.get(grapple.optLong("source_actor_id",0));
+                    if(mappedSource!=null){grapple.put("source_actor_id",mappedSource.longValue());resourcesChanged=true;}
+                }
+                JSONObject adv=resources.optJSONObject("xmm_next_attack_advantage");
+                if(adv!=null){
+                    Long mappedAdvActor=idMap.get(adv.optLong("actor_id",0));
+                    if(mappedAdvActor!=null){adv.put("actor_id",mappedAdvActor.longValue());resourcesChanged=true;}
+                }
+            }
+            if(resourcesChanged&&resources!=null)fixed.put("resources_json",resources.toString());
             // RUN236: typed condition timers embed the SOURCE combatant's old
             // SQLite primary key. Remap only after the full roster is inserted;
             // an orphan source aborts the entire backup transaction.

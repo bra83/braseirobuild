@@ -46,6 +46,7 @@ public final class PartyDirector {
     }
 
     public long recruitHero(long characterId,String recruitmentType)throws Exception{
+        ensureFounderMembership();
         JSONObject hero=db.getCharacter(characterId);if(hero.length()==0)throw new IllegalArgumentException("Herói inexistente.");
         return db.upsertPartyMembership(new JSONObject().put("actor_kind","hero").put("character_id",characterId).put("status","active")
                 .put("party_role","companion").put("recruitment_type",cleanRecruitmentType(recruitmentType)).put("joined_day",currentDay())
@@ -53,6 +54,7 @@ public final class PartyDirector {
     }
 
     public long recruitNpc(String npcName,String recruitmentType,JSONObject compensation)throws Exception{
+        ensureFounderMembership();
         String name=npcName==null?"":npcName.trim();if(name.length()==0)throw new IllegalArgumentException("NPC inválido.");
         JSONObject npc=db.findNpcMemoryByName(name);if(npc.length()==0)throw new IllegalArgumentException("O NPC precisa existir no Mundo Vivo antes de ser recrutado.");
         JSONObject pay=compensation==null?new JSONObject():new JSONObject(compensation.toString());
@@ -69,8 +71,29 @@ public final class PartyDirector {
         return false;
     }
 
+    public boolean releaseHero(long characterId,String homeLocation,String reason){
+        if(characterId<=0)return false;
+        for(JSONObject row:db.listPartyMemberships(null,200)){
+            if(!"hero".equalsIgnoreCase(row.optString("actor_kind"))||row.optLong("character_id")!=characterId)continue;
+            long membershipId=row.optLong("id");
+            db.updatePartyMembershipStatus(membershipId,"away",homeLocation==null?row.optString("home_location"):homeLocation,reason==null?"Saiu da companhia, mas continua existindo no Mundo Vivo.":reason);
+            return true;
+        }
+        return false;
+    }
+
     public boolean reactivateMember(long membershipId)throws Exception{
         for(JSONObject row:db.listPartyMemberships(null,200)){if(row.optLong("id")!=membershipId)continue;db.updatePartyMembershipStatus(membershipId,"active",row.optString("home_location"),"Retornou à companhia.");return true;}return false;
+    }
+
+    public boolean reactivateHero(long characterId)throws Exception{
+        if(characterId<=0)return false;
+        for(JSONObject row:db.listPartyMemberships(null,200)){
+            if(!"hero".equalsIgnoreCase(row.optString("actor_kind"))||row.optLong("character_id")!=characterId)continue;
+            db.updatePartyMembershipStatus(row.optLong("id"),"active",row.optString("home_location"),"Retornou à companhia.");
+            return true;
+        }
+        return false;
     }
 
     public JSONArray availableHeroesToRecruit(){
@@ -83,7 +106,15 @@ public final class PartyDirector {
 
     public void ensureFounderMembership(){
         if(!db.listPartyMemberships(null,1).isEmpty())return;List<JSONObject> heroes=db.listActiveCharacters();if(heroes.isEmpty())return;
-        try{JSONObject first=heroes.get(0);db.upsertPartyMembership(new JSONObject().put("actor_kind","hero").put("character_id",first.optLong("id")).put("status","active").put("party_role","protagonist").put("recruitment_type","founder").put("joined_day",currentDay()).put("loyalty",100).put("reason","Protagonista inicial da campanha."));}catch(Exception ignored){AppLog.ignored("PartyDirector","Falha ao registrar protagonista fundador.",ignored);}
+        try{
+            JSONObject first=heroes.get(0);
+            for(JSONObject candidate:heroes){
+                long cid=candidate.optLong("id",Long.MAX_VALUE);
+                long fid=first.optLong("id",Long.MAX_VALUE);
+                if(cid>0&&cid<fid)first=candidate;
+            }
+            db.upsertPartyMembership(new JSONObject().put("actor_kind","hero").put("character_id",first.optLong("id")).put("status","active").put("party_role","protagonist").put("recruitment_type","founder").put("joined_day",currentDay()).put("loyalty",100).put("reason","Protagonista inicial da campanha."));
+        }catch(Exception ignored){AppLog.ignored("PartyDirector","Falha ao registrar protagonista fundador.",ignored);}
     }
 
     public String buildActionBatch(String fallback){
