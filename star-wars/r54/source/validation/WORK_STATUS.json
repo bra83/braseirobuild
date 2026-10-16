@@ -266,5 +266,25 @@
       "The book leaves several player/GM dispositions open; the UI records explicit rulings and does not auto-resolve unscripted outcomes.",
       "Continue source audit/integration on pp.2–14, including actual Krayt Fang item/time effects and p.12 Thwheek."
     ]
+  },
+  "swe02_p13_physician_followup": {
+    "status": "IMPLEMENTADO_NAO_CERTIFICADO",
+    "source": "The Long Arm of the Hutt printed p.13",
+    "proof": "validation/P241_SWE02_SOURCE_PROOFS.json",
+    "executor": "app/src/main/assets/vtt/js/adventure/swe02SocialP241.mjs:nynCriticalCare",
+    "controller": "GameController.treatSWE02NynCritical",
+    "ui": "swe02NynCritical",
+    "tests": {
+      "file": "tests/uae-p241-swe02-nyn-newmeen-social.test.mjs",
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "skip": 0,
+      "evidence": "evidence/SWE02_P13_PHYSICIAN_20261016/"
+    },
+    "reopens": "Three independent GameController reloads are asserted for successful and failed attempts.",
+    "pending": [
+      "Printed p.13 page-wide certification: fuel, system strain/ship critical repairs, exact docking/source gates, remaining branch and page-level evidence."
+    ]
   }
 }

@@ -46,11 +46,11 @@
       "ui": "swe02NabatCare",
       "persistence": "CHARACTER_UPDATED + WORLD_UPDATED atomicAction",
       "tests": "tests/uae-p240-swe02-nabat-port-economy-medical.test.mjs",
-      "limitations": "Official physician's critical injury check is not implemented and critical injuries remain unchanged."
+      "limitations": "P240's focused suite covered ordinary wound/strain care only. The physician's Critical Injury attempt was added in P241 via swe02SocialP241.mjs:nynCriticalCare, with bridge/UI wiring and three-reopen evidence; see validation/P241_SWE02_SOURCE_PROOFS.json and tests/uae-p241-swe02-nyn-newmeen-social.test.mjs. Other p.13 source gaps remain open."
     }
   ],
   "still_not_certified": [
-    "SWE02 Nyn equipment negotiations, advantages/triumph, defective items and critical injury treatment",
+    "SWE02 Nyn equipment negotiation follow-through, defective first use and individual grenade distribution",
     "SWE02 full New Meen nonviolent surrender and bribes with real casualty proof/debits",
     "SWE02 spaceport fuel/ship criticals, Krayt Fang beginner loadout, complete initiative",
     "SWE02 all Act 2 and Act 3 branches/rewards/endings",

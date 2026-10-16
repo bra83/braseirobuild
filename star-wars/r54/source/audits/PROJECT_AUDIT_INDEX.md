@@ -5,7 +5,7 @@ All audits below are evidence maps, not certification. A claim can move to `CERT
 ## Intake and preserved source
 
 - `BASELINE_INTAKE.json` records the verified P244 archive, WIP5 MERGED overlay, Drive inventory, and Git branch baseline.
-- `audits/INVENTORY_FULL.json` records 527 Drive records / 44 folders; 500 records are metadata-only and remain unreviewed. Adventure scope is restricted to the five named PDFs; 22 other adventure PDFs are excluded.
+- `audits/INVENTORY_FULL.json` records 527 Drive records / 44 folders; 498 records remain unreviewed after limited intake of the two Core Rulebook PDFs. Adventure scope is restricted to the five named PDFs; 22 other adventure PDFs are excluded.
 - `audits/INITIAL_FULL_CODE_AUDIT.md` records the initial architecture and preservation scan.
 
 ## SWE02: The Long Arm of the Hutt
@@ -25,6 +25,8 @@ All audits below are evidence maps, not certification. A claim can move to `CERT
 - `validation/AOR_360_INDIVIDUAL_PROOFS.jsonl` is the position-level proof ledger; all 360 positions remain pending.
 - `audits/MECHANICAL_AUTHORITY_AUDIT.md` traces rules, controller/UI, persistence, RAG, and Gemini/Barbara boundaries. All reviewed domains remain pending full executed end-to-end evidence.
 - Narrator proposals are constrained and deterministic executors own mutations, but allowlisted economy/world operations can still persist state changes. Source-rule ID membership is not semantic proof that a specific operation is authorized.
+- `audits/RULES_CORE_SOURCE_INTAKE_20261016.md` records local SHA-256, page count, cover/metadata and extraction quality for both EotE/AoR core PDFs; matching Drive byte sizes do not prove remote byte identity or semantic rule coverage. The other 17 source rows and final supplement selection remain unresolved.
+- P.13's physician Critical Injury attempt was added after the P240 audit: `validation/P241_SWE02_SOURCE_PROOFS.json` and `tests/uae-p241-swe02-nyn-newmeen-social.test.mjs` document the exact pool, one-attempt gate, success/failure state, UI and three reopens. Printed p.13 remains pending for the other page-wide gaps.
 
 ## Other required adventures
 
