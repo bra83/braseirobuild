@@ -134,23 +134,26 @@ public class XmmMultiattackHostRobolectricTest {
         assertEquals(0,DatabaseUtils.longForQuery(db.getReadableDatabase(),
             "SELECT COUNT(*) FROM effect_receipts",null));
     }
-    @Test public void hybridMultiattackDeclarationPermitsKnownSpellsAndBlocksUnknown() throws Exception {
+    @Test public void hybridMultiattackRequiresAtomicExecutorEvenWhenSpellExistsInStatblock() throws Exception {
         bind("Adult Red Dragon");
+        // Source admission is distinct from effect execution.
         assertTrue(XmmMultiattackHostPlan.actionExistsInStatblock("Adult Red Dragon", "Scorching Ray"));
         assertTrue(XmmMultiattackHostPlan.actionExistsInStatblock("Adult Red Dragon", "Fire Breath"));
         assertFalse(XmmMultiattackHostPlan.actionExistsInStatblock("Adult Red Dragon", "Wish"));
 
-        // Valid registered variant with Scorching Ray + 2x Rend
         JSONObject selection=new JSONObject().put("variant_index",1)
             .put("selected_actions",new JSONArray().put("Scorching Ray").put("Rend").put("Rend"));
-        JSONObject decl = XmmMultiattackHostPlan.declaration("Adult Red Dragon", selection, new JSONObject());
-        assertFalse("Known spell Scorching Ray must be permitted: " + decl, decl.has("statblock_multiattack_blocked"));
-        assertEquals(3, decl.optInt("count"));
+        JSONObject decl=XmmMultiattackHostPlan.declaration("Adult Red Dragon",selection,new JSONObject());
+        assertEquals("A compiled name alone is not an atomic spell executor",
+            "multiattack_component_executor_not_installed_spell_0",
+            decl.optString("statblock_multiattack_blocked"));
 
-        // Rejection when rolls mismatch count
-        JSONObject countMismatch = db.applyCompiledStatblockMultiattack(actor, "Adult Red Dragon", new JSONArray(),
-            "ui-monster-multi-spell-count", selection);
-        assertEquals("multiattack_count_mismatch", countMismatch.optString("statblock_multiattack_blocked"));
+        // Host must refuse this variant before checking attack-roll count,
+        // decrementing an action, applying damage or writing effect receipts.
+        JSONObject blocked=db.applyCompiledStatblockMultiattack(actor,"Adult Red Dragon",new JSONArray(),
+            "ui-monster-multi-spell-count",selection);
+        assertEquals("multiattack_component_executor_not_installed_spell_0",
+            blocked.optString("statblock_multiattack_blocked"));
         unchanged();
     }
     @Test public void hastenStateSurvivesBackup21RestoreAndThreeSqliteReopens() throws Exception {
