@@ -1,0 +1,147 @@
+name: DND V1 - Tested debug APK for be1f379b (BRELGA)
+on:
+  push:
+    branches:
+      - build/dnd-v1-debug-be1f379b-20261016
+    paths:
+      - .github/workflows/dnd-v1-be1f-debug-prerelease-brelga.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: dnd-v1-be1f-debug-prerelease
+  cancel-in-progress: false
+jobs:
+  build-and-publish:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 150
+    env:
+      SOURCE_SHA: be1f379b86349bd5286263deb1db1dd2c5518699
+      TESTED_CI_RUN: '38917010533'
+      RELEASE_TAG: DND-V1-TEST-be1f379b
+      APK_FILENAME: BRASEIRO_DND_V1_be1f379b_DEBUG_TEST.apk
+    steps:
+      - name: Require BRELGA and independent green unit regression
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner,repo}=context.repo;
+            const testedSha=process.env.SOURCE_SHA;
+            const runId=Number(process.env.TESTED_CI_RUN);
+            const run=(await github.rest.actions.getWorkflowRun({owner,repo,run_id:runId})).data;
+            if(run.head_sha !== testedSha || run.status !== 'completed' || run.conclusion !== 'success')
+              throw Error('DND_APK_BLOCKED_WITHOUT_GREEN_ANDROID_RUN_ON_PINNED_SHA');
+            core.info('SOURCE_SHA='+testedSha+' GREEN_CI_RUN='+runId);
+      - uses: actions/checkout@v4
+        with:
+          ref: be1f379b86349bd5286263deb1db1dd2c5518699
+          persist-credentials: false
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - name: Compile and inspect signed APK without touching existing release
+        id: apk
+        shell: powershell
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'BRELGA_REQUIRED'}
+          $head=git rev-parse HEAD
+          if($LASTEXITCODE -ne 0 -or $head -ne $env:SOURCE_SHA){throw 'SOURCE_SHA_MISMATCH'}
+          $java='C:\actions-runner\_work\_tool\Java_Temurin-Hotspot_jdk\17.0.20-101\x64'
+          if(!(Test-Path $java)){throw 'JDK17_MISSING'}
+          $env:JAVA_HOME=$java
+          $env:PATH=(Join-Path $java 'bin')+';'+$env:PATH
+          $sdk=$env:ANDROID_HOME
+          if(!$sdk -or !(Test-Path $sdk)){$sdk=Join-Path $env:LOCALAPPDATA 'Android\Sdk'}
+          if(!(Test-Path $sdk)){throw 'ANDROID_SDK_MISSING'}
+          $env:ANDROID_HOME=$sdk
+          $env:ANDROID_SDK_ROOT=$sdk
+          $shared=Join-Path $env:USERPROFILE '.gradle'
+          $isolated=Join-Path $env:RUNNER_TEMP ('dnd-v1-apk-be1f-'+$env:GITHUB_RUN_ID)
+          New-Item -ItemType Directory -Force -Path $isolated | Out-Null
+          foreach($item in @('wrapper','caches')){
+            $from=Join-Path $shared $item
+            $to=Join-Path $isolated $item
+            if((Test-Path $from)-and !(Test-Path $to)){New-Item -ItemType Junction -Path $to -Target $from | Out-Null}
+          }
+          $env:GRADLE_USER_HOME=$isolated
+          if(!(Test-Path 'app/src/main/assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip')){
+            throw 'CANONICAL_FAERUN_MAP_MISSING'
+          }
+          & .\gradlew.bat :app:assembleDebug --no-daemon --console=plain
+          if($LASTEXITCODE -ne 0){throw 'ANDROID_APK_BUILD_FAILED'}
+          $src=Get-ChildItem 'app/build/outputs/apk/debug' -Filter '*.apk' -File | Select-Object -First 1
+          if(!$src){throw 'APK_FILE_NOT_GENERATED'}
+          $tools=Get-ChildItem (Join-Path $sdk 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          if(!$tools){throw 'ANDROID_BUILD_TOOLS_MISSING'}
+          $aapt=Join-Path $tools.FullName 'aapt.exe'
+          $signer=Join-Path $tools.FullName 'apksigner.bat'
+          if(!(Test-Path $aapt) -or !(Test-Path $signer)){throw 'APK_INSPECTOR_MISSING'}
+          $badging=(& $aapt dump badging $src.FullName) -join "`n"
+          if($LASTEXITCODE -ne 0 -or $badging -notmatch "package: name='com.braseiro.dnd5e'"){throw 'WRONG_ANDROID_APPLICATION'}
+          if($badging -notmatch "versionCode='606548'"){throw ('VERSION_CODE_MISMATCH '+$badging.Substring(0,[Math]::Min(300,$badging.Length)))}
+          & $signer verify --verbose --print-certs $src.FullName
+          if($LASTEXITCODE -ne 0){throw 'APK_SIGNATURE_FAILED'}
+          $target=Join-Path $env:RUNNER_TEMP $env:APK_FILENAME
+          Copy-Item -LiteralPath $src.FullName -Destination $target -Force
+          $size=(Get-Item -LiteralPath $target).Length
+          if($size -lt 20000000){throw 'APK_UNEXPECTEDLY_SMALL'}
+          $sha=(Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash
+          Write-Host ('TEST_APK_SOURCE_SHA='+$head)
+          Write-Host ('TEST_APK_SHA256='+$sha)
+          Write-Host ('TEST_APK_BYTES='+$size)
+          Write-Host ('TEST_APK_BADGING='+$badging.Substring(0,[Math]::Min(300,$badging.Length)))
+          Write-Host 'THREE_BOOKS_COMPLETENESS=NOT_CERTIFIED'
+          Write-Host 'PHYSICAL_A57=NOT_TESTED'
+          Add-Content $env:GITHUB_OUTPUT ('apk_path='+$target)
+          Add-Content $env:GITHUB_OUTPUT ('apk_bytes='+$size)
+          Add-Content $env:GITHUB_OUTPUT ('apk_sha256='+$sha)
+      - name: Publish TEST ONLY GitHub prerelease APK
+        shell: powershell
+        env:
+          GH_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APK_PATH: ${{ steps.apk.outputs.apk_path }}
+          APK_BYTES: ${{ steps.apk.outputs.apk_bytes }}
+          APK_SHA256: ${{ steps.apk.outputs.apk_sha256 }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if(!(Test-Path -LiteralPath $env:APK_PATH)){throw 'SIGNED_APK_MISSING'}
+          $api='https://api.github.com/repos/'+$env:GITHUB_REPOSITORY+'/releases'
+          $headers=@{
+            'Authorization'='Bearer '+$env:GH_API_TOKEN
+            'Accept'='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='Braseiro-DND-BRELGA-Verified-Tester'
+          }
+          $release=$null
+          try{$release=Invoke-RestMethod -Method GET -Uri ($api+'/tags/'+$env:RELEASE_TAG) -Headers $headers -ErrorAction Stop}catch{}
+          if(!$release){
+            $data=@{
+              tag_name=$env:RELEASE_TAG
+              target_commitish=$env:SOURCE_SHA
+              name='Braseiro D&D V1 - TEST APK - be1f379b (not final)'
+              body=('TEST DEBUG APK ONLY. Source code SHA: '+$env:SOURCE_SHA+'. BRELGA full Robolectric run #'+$env:TESTED_CI_RUN+' has 2741/2741 PASS. SHA256: '+$env:APK_SHA256+'. Three-book parity NOT CERTIFIED. Physical Galaxy A57 NOT TESTED. Do not uninstall existing app or delete data. Upgrade may require same signing certificate.')
+              prerelease=$true
+              draft=$false
+            }
+            $json=$data|ConvertTo-Json -Compress -Depth 5
+            $utf8=[System.Text.Encoding]::UTF8.GetBytes($json)
+            $release=Invoke-RestMethod -Method POST -Uri $api -Headers $headers -Body $utf8 -ContentType 'application/json; charset=utf-8'
+          }
+          if(!$release -or !$release.id -or !$release.prerelease){throw 'NOT_A_TEST_PRERELEASE'}
+          $present=@($release.assets|Where-Object {$_.name -eq $env:APK_FILENAME})
+          if($present.Count -gt 0){
+            if($present[0].size -ne [long]$env:APK_BYTES){throw 'EXISTING_APK_FILENAME_COLLISION'}
+            $download=$present[0].browser_download_url
+          } else {
+            $base=([string]$release.upload_url).Split('{')[0]
+            $uri=$base+'?name='+[uri]::EscapeDataString($env:APK_FILENAME)
+            $up=Invoke-RestMethod -Method POST -Uri $uri -Headers $headers -InFile $env:APK_PATH -ContentType 'application/vnd.android.package-archive' -TimeoutSec 1800
+            if(!$up -or $up.size -ne [long]$env:APK_BYTES){throw 'APK_UPLOAD_INCOMPLETE'}
+            $download=$up.browser_download_url
+          }
+          Write-Host ('DND_TEST_APK_DIRECT_URL='+$download)
+          Write-Host ('DND_TEST_APK_SHA256='+$env:APK_SHA256)
+          Write-Host ('DND_TEST_APK_RELEASE=https://github.com/'+$env:GITHUB_REPOSITORY+'/releases/tag/'+$env:RELEASE_TAG)
+          Write-Host 'DND_FINAL_CERTIFICATION=NO'
