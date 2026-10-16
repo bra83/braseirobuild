@@ -1,0 +1,17 @@
+✔ R43 manifest V3.6 baseline remains preserved after later visual promotions (2.9792ms)
+✔ R43 wave4 indexes exactly 3 vehicles plus 1 droid (2.4761ms)
+✔ R43 wave4 contains only the direct-proven recovery set (0.6015ms)
+✔ R43 URLs are secure direct raw Kainrath media URLs (1.6928ms)
+✔ R43 recovery remains visual-only and never infers mechanics (0.5344ms)
+✔ R43 bridge exposes 120 vehicles and 75 Kainrath visual entities (127.6677ms)
+✔ R43 direct-recovery group is searchable without affecting old walker wave (18.6219ms)
+✔ R43 preserves R40-R42 vehicle waves unchanged (25.8697ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1517.1626
+

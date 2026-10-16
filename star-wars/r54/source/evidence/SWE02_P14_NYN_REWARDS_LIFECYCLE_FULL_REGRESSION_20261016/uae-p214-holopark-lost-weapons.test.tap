@@ -1,0 +1,13 @@
+✔ P214 alderaan NPC Threat drops a real weapon and blocks its attack until actual recovery (1608.9638ms)
+✔ P214 kashyyyk NPC Threat drops a real weapon and blocks its attack until actual recovery (944.4372ms)
+✔ P214 unused NPC Threat falls back to one real strain/wound, cannot be double spent (1000.7361ms)
+✔ P214 rules, UI, bridge and offline bundle contain physical weapon loss and GM fallback (61.4356ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4744.3637
+

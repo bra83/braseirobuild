@@ -1,0 +1,19 @@
+✔ P201 source-backed detect average Mechanics and persistent 30-second scene deadline (895.0383ms)
+✔ P201 perception is hard; ordinary computers check is average (1323.6084ms)
+✔ P201 real disarm Hard Cool succeeds and never awards funds (685.7752ms)
+✔ P201 steering and jumping reduce Athletics difficulty from average to easy (733.2747ms)
+✔ P201 without steering jump remains average and loose jewel requires hard coordination (762.4446ms)
+✔ P201 no steering without detection or GM-confirmed warning (921.9605ms)
+✔ P201 tampered dice face, pool and status rejected (576.6102ms)
+✔ P201 rejects duplicate IDs and disarm without detection atomically (689.4519ms)
+✔ P201 persists across three reopens and legacy saves without trap remain valid (614.7225ms)
+✔ P201 Android offline bridge/controller and UI contain bomb action (52.0439ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8468.1576
+

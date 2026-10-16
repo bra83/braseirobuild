@@ -1,0 +1,17 @@
+✔ R44 manifest V3.7 baseline remains preserved after later visual promotions (2.916ms)
+✔ R44 wave5 indexes exactly Skekfish and Nerf (2.6757ms)
+✔ R44 direct media provenance is recorded without filename invention (0.7288ms)
+✔ R44 URLs obey secure raw Kainrath cache policy (5.5559ms)
+✔ R44 beasts remain visual-only and mechanically unbound (0.895ms)
+✔ R44 bridge exposes 17 creatures while preserving vehicles, droids and maps (110.5061ms)
+✔ R44 direct-recovery beasts are searchable by id and title (11.9628ms)
+✔ R44 preserves R43 recovery set and older visual waves (8.9636ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1464.028
+

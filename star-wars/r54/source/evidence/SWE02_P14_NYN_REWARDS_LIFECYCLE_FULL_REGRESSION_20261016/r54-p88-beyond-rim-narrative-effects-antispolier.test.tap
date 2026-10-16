@@ -1,0 +1,14 @@
+✔ P88: Triumph/Despair de Além da Orla geram efeitos narrativos persistentes específicos (43.9144ms)
+✔ P88: feedback público leva os efeitos da rolagem para a UI (6.3832ms)
+✔ P88: projeção pública esconde atenção ISB e rastreamento não detectado (2.8528ms)
+✔ P88: rastreador detectado pode ser mostrado sem revelar atenção interna do ISB (3.4003ms)
+✔ P88: exposição alta sozinha não revela facção ISB nem epílogo imperial (4.0346ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 754.813
+

@@ -1,0 +1,16 @@
+✔ EQUIP.QUALITIES: Cortosis torna armadura imune a Pierce e arma imune a Sunder (6.9475ms)
+✔ EQUIP.QUALITIES: Superior adiciona +1 dano base e 1 Advantage na arma (15.5167ms)
+✔ EQUIP.QUALITIES: Superior na armadura concede +1 soak e -1 encumbrance (7.3443ms)
+✔ EQUIP.QUALITIES: Inferior na arma reduz dano base e adiciona Threat (0.8805ms)
+✔ EQUIP.QUALITIES: Inferior na armadura aumenta encumbrance e reduz defense/soak (10.1225ms)
+✔ EQUIP.QUALITIES: Burn e Ensnare possuem verificações determinísticas de remoção (1.6127ms)
+✔ VEHICLE.ACTIONS: Jamming bloqueia comunicações e sensores temporariamente (11.1897ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 776.1941
+

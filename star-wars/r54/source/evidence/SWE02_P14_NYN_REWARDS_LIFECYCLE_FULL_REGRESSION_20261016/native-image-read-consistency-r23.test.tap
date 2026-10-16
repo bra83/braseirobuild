@@ -1,0 +1,13 @@
+✔ imagem principal é aberta sob o mesmo lock usado por clear/commit (3.9926ms)
+✔ status da imagem principal usa sceneImageCommitLock (0.5704ms)
+✔ imagem do cache é aberta sob cacheCommitLock (0.4958ms)
+✔ status do cache usa cacheCommitLock sem perder validação do assetId (0.9038ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 595.1108
+

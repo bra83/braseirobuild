@@ -1,0 +1,44 @@
+✔ P158: six source slots become mechanically active, all other pending slots remain fail closed (54.3286ms)
+✔ P158: Aclimatação 0 removes at most two setback in foraging only (7.4621ms)
+✔ P158: Aclimatação 1 removes at most two setback in foraging only (4.7132ms)
+✔ P158: Aclimatação 2 removes at most two setback in foraging only (4.8341ms)
+✔ P158: Poison Resistance 0 grants Boost only on toxin resistance (4.5534ms)
+✔ P158: Poison Resistance 1 grants Boost only on toxin resistance (3.9009ms)
+✔ P158: foraging and poison flags change actual dice, persist and survive three reopens (67.6538ms)
+✔ P158: forged skill context {"foraging":"true"} rejected without writing (9.2852ms)
+✔ P158: forged skill context {"poisonResistance":1} rejected without writing (6.7891ms)
+✔ P158: forged skill context {"foraging":[]} rejected without writing (5.8333ms)
+✔ P158: forged skill context {"poisonResistance":null} rejected without writing (10.5493ms)
+✔ P158: selective detonation rank 0 never excludes more targets than purchased (3.9103ms)
+✔ P158: selective detonation rank 1 never excludes more targets than purchased (3.4275ms)
+✔ P158: selective detonation rank 2 never excludes more targets than purchased (5.472ms)
+✔ P158: Master Grenadier rank 0 discounts Blast by one, never below one (3.3924ms)
+✔ P158: Master Grenadier rank 1 discounts Blast by one, never below one (3.0477ms)
+✔ P158: Master Grenadier is included in the actual attack pending quality receipt (42.7521ms)
+✔ P158: selective blast excludes one of two adjudicated affected targets, pays shared budget and persists (29.7083ms)
+✔ P158: one Triumph excludes two blast targets, but base activation still costs Advantage (18.267ms)
+✔ P158: Master Grenadier and Selective Detonation combine with Powerful Blast in a single ledger (17.9411ms)
+✔ P158: forged blast exclusion {"excludedTargetIds":["unknown"]} cannot mutate combat (14.1644ms)
+✔ P158: forged blast exclusion {"excludedTargetIds":["unknown"],"useSelectiveTriumph":true} cannot mutate combat (14.0905ms)
+✔ P158: forged blast exclusion {"excludedTargetIds":["duplicate","duplicate"]} cannot mutate combat (19.0455ms)
+✔ P158: forged blast exclusion {"excludedTargetIds":["not-affected"]} cannot mutate combat (16.1112ms)
+✔ P158: forged blast exclusion {"excludedTargetIds":[],"useSelectiveTriumph":"true"} cannot mutate combat (13.6325ms)
+✔ P158: cannot exclude more than rank or pay with absent Advantage/Triumph (58.122ms)
+✔ P158: repository failure rolls back target wounds, excluded targets and entire Advantage/Triumph ledger (19.546ms)
+✔ P158: Android UI and bundle expose blast exclusion, Triumph payment, foraging and poison context (45.7518ms)
+✔ P158: UAE published adventure under-black-sun preserves objective graph and idempotent choice after three reopens (182.1353ms)
+✔ P158: UAE published adventure beyond-the-rim preserves objective graph and idempotent choice after three reopens (158.5122ms)
+✔ P158: UAE published adventure long-arm-of-the-hutt preserves objective graph and idempotent choice after three reopens (174.7235ms)
+✔ P158: UAE published adventure jewel-of-yavin preserves objective graph and idempotent choice after three reopens (136.1842ms)
+✔ P158: UAE published adventure mask-of-the-pirate-queen preserves objective graph and idempotent choice after three reopens (170.6701ms)
+✔ P158: a character without Selective Detonation cannot exclude a target even with spare Advantage (16.4297ms)
+✔ P158: a missed explosive shot may exclude the original target with one Advantage after paying miss-Blast cost (16.6673ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2473.5118
+

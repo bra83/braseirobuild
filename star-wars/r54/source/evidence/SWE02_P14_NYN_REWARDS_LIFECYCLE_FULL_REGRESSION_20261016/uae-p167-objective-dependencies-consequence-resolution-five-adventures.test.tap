@@ -1,0 +1,35 @@
+✔ P167 under-black-sun: objective prerequisites fail closed with complete transaction rollback (43.0358ms)
+✔ P167 under-black-sun: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens (76.7285ms)
+✔ P167 under-black-sun: authored resolution effect failure reverses consequence and all prior effects (18.0908ms)
+✔ P167 under-black-sun: imported completed objective without prerequisite is rejected (5.5683ms)
+✔ P167 under-black-sun: forged consequence metadata cannot inject resolution effects (9.2083ms)
+✔ P167 beyond-the-rim: objective prerequisites fail closed with complete transaction rollback (6.2899ms)
+✔ P167 beyond-the-rim: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens (47.4605ms)
+✔ P167 beyond-the-rim: authored resolution effect failure reverses consequence and all prior effects (13.3847ms)
+✔ P167 beyond-the-rim: imported completed objective without prerequisite is rejected (10.9994ms)
+✔ P167 beyond-the-rim: forged consequence metadata cannot inject resolution effects (25.994ms)
+✔ P167 long-arm-of-the-hutt: objective prerequisites fail closed with complete transaction rollback (10.0515ms)
+✔ P167 long-arm-of-the-hutt: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens (69.525ms)
+✔ P167 long-arm-of-the-hutt: authored resolution effect failure reverses consequence and all prior effects (10.631ms)
+✔ P167 long-arm-of-the-hutt: imported completed objective without prerequisite is rejected (6.2395ms)
+✔ P167 long-arm-of-the-hutt: forged consequence metadata cannot inject resolution effects (15.5295ms)
+✔ P167 jewel-of-yavin: objective prerequisites fail closed with complete transaction rollback (7.1088ms)
+✔ P167 jewel-of-yavin: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens (43.3751ms)
+✔ P167 jewel-of-yavin: authored resolution effect failure reverses consequence and all prior effects (18.8047ms)
+✔ P167 jewel-of-yavin: imported completed objective without prerequisite is rejected (2.9322ms)
+✔ P167 jewel-of-yavin: forged consequence metadata cannot inject resolution effects (6.2769ms)
+✔ P167 mask-of-the-pirate-queen: objective prerequisites fail closed with complete transaction rollback (4.9591ms)
+✔ P167 mask-of-the-pirate-queen: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens (32.5387ms)
+✔ P167 mask-of-the-pirate-queen: authored resolution effect failure reverses consequence and all prior effects (20.0024ms)
+✔ P167 mask-of-the-pirate-queen: imported completed objective without prerequisite is rejected (6.4048ms)
+✔ P167 mask-of-the-pirate-queen: forged consequence metadata cannot inject resolution effects (6.8792ms)
+✔ P167 preflight rejects missing, duplicate and cyclic objective dependencies (2.9467ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1881.699
+

@@ -1,0 +1,20 @@
+✔ P182: semantic preflight, source-specific nodes, Porel and Lathe persistent NPCs (57.3172ms)
+✔ P182: third lead SororiNet is playable only after successful checks (299.4798ms)
+✔ P182: SororiNet failure records detection and alert but not fabricated coordinates (89.2591ms)
+✔ P182: final capture and alliance cannot bypass encounter adjudication (405.753ms)
+✔ P182: Noira capture leads to Paradise confrontation, not automatic payout (445.1809ms)
+✔ P182: siding with Venlana records Consortium retaliation; no Porel bonus (348.1346ms)
+✔ P182: no reward without completed mission; no duplicate award (362.3361ms)
+✔ P182: retainer 500 once, Porel source bounty 10000+1000, no unsupported Obligation reduction (1086.1126ms)
+✔ P182: Venlana doubles source bounty, alliance forfeits payment (888.3691ms)
+✔ P182: bridge uses two groups of three source-checked guards and Noira stat block (288.2809ms)
+✔ P182: unknown conditions fail closed and no active encounter can be skipped (292.7763ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5626.0216
+

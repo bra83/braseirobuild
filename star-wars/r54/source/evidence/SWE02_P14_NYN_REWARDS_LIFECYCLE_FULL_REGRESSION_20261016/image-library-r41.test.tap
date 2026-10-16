@@ -1,0 +1,17 @@
+✔ R41 manifest V3.4 has 329 unique assets (26.3053ms)
+✔ R41 vehicle wave2 adds exactly 47 direct-URL assets (0.3919ms)
+✔ R41 wave2 grouping is 28 freighter/transport page assets + 12 landspeeders + 7 airspeeders (2.4369ms)
+✔ R41 URLs obey secure Kainrath cache policy (5.0776ms)
+✔ R41 vehicle images remain visual-only (0.6083ms)
+✔ R41 bridge exposes all 90 vehicles while preserving maps and old visual entities (117.2602ms)
+✔ R41 category searches expose surface subtypes without mechanics (26.1894ms)
+✔ R41 previous R40 vehicle wave remains present and unchanged (4.8887ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1558.9545
+

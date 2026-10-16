@@ -1,0 +1,17 @@
+✔ P101: assistência de equipamento rejeita item que não está realmente possuído (42.6334ms)
+✔ P101: Kit de ferramentas possuído remove apenas setback declarado de falta de ferramentas (13.4128ms)
+✔ P101: Eletrobinóculos possuídos removem no máximo 1 setback auditado (6.0275ms)
+✔ P101: remendo de reparo cura droide, consome item e persiste limite diário (10.0678ms)
+✔ P101: remendo é ação real em combate e orgânico não pode usá-lo (9.1626ms)
+✔ P101: Fear continua source-bound, persiste efeitos e não rerrola a mesma fonte (12.0846ms)
+✔ P101: Encumbrance/lifting continuam no engine e refletem carga real (3.8437ms)
+✔ P101: bridge/contratos/R46 expõem Fear, carga, gear assist e reparo sem grant de item ou raw status (25.8583ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1495.8911
+

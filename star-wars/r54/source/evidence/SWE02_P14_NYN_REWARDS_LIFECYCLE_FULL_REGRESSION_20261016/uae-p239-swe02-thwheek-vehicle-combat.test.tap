@@ -1,0 +1,32 @@
+✔ P239 SWE02 p.12: official Dunelizard profile and linked laser cannons (4.4561ms)
+✔ P239 optimal navigation + slowed transponder: direct Nabat, no fighter (561.5037ms)
+✔ P239 SWE02 p.11 six-hour transit advances one persisted living-world tick exactly once (269.1336ms)
+✔ P239 SWE02 p.8 failed route records unquantified extra transit time for GM adjudication (185.5284ms)
+✔ P239 SWE02 normal route rejects extra transit time adjudication (189.4854ms)
+✔ P239 failed route forces interception even after slowed tracker (420.812ms)
+✔ P239 p.12: cannot start Thwheek without actual Krayt Fang (200.6512ms)
+✔ P239 real vehicle engine: Short-range fighter and player must maneuver into Bocajarro (320.5328ms)
+✔ P239 p.12: each PC Cool slot selects its owner and receipts its vehicle actions (403.3804ms)
+✔ P239 p.12: PCs who did not see Thwheek emerge roll Vigilance; the others roll Cool (401.1384ms)
+✔ P239 p.12: unaware PC selection rejects unknown or duplicated roster IDs (251.5858ms)
+✔ P239 p.12: initiative blocks bypassing Thwheek and manual round advancement (323.97ms)
+✔ P239 legacy active Thwheek saves without initiative remain loadable and use their old round flow (397.1378ms)
+✔ P239 real hit + five hull trauma: pursuit remains open, withdrawal permits Nabat (570.9942ms)
+✔ P239 p.12: no victory without actual hits and no duplicate start/resolve (287.9476ms)
+✔ P239 p.12: incoming attack uses fixed Agility 3, Gunnery 0 even with forged GM overrides (318.4514ms)
+✔ P239 p.12: target stay-on-target switches to evasive after first actual hit, persists next round (369.1822ms)
+✔ P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience checks (1331.4339ms)
+✔ P239 p.12: three-person crew cannot be falsely certified by one PC (2682.9578ms)
+✔ P239 p.12: crash Resilience is recorded once per stable PC ID, including duplicate names (1997.7863ms)
+✔ P239 p.12: successful Pilot soft landing upgrades one crew Resilience die (1097.5467ms)
+✔ P239 fail-closed: forged outcome or crew completion cannot survive adapter status (307.4222ms)
+✔ P239 bridge exposes authoritative vehicle result and crash methods (0.7329ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14244.4982
+

@@ -1,0 +1,15 @@
+✔ P91 audit: ILUSTRAÇÃO chama método que existe no bridge Android e registra destino persistente (4.0196ms)
+✔ P91 audit: Star Wars é destino image share e recebe retorno em Activity singleTop (0.6133ms)
+✔ P91 audit: retorno compartilhado é roteado para cena ou NPC e destino sobrevive à recriação (0.6492ms)
+✔ P91 audit: TTS migra pacote legado/DB Next-gen para Sherpa instalado sem fabricar vozes (1.1066ms)
+✔ P91 audit: Sherpa aparece como Braseiro Kokoro PT-BR neural e mantém fluxo neural encadeado (0.7126ms)
+✔ P91 audit: wrapper Android não depende do host GitHub para obter Gradle (5.5901ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 779.2248
+

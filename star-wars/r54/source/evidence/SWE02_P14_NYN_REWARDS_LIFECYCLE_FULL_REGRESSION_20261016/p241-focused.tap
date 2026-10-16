@@ -1,0 +1,112 @@
+TAP version 13
+# Subtest: P241 p13: official physician uses 1 proficiency 2 difficulty, heals one actual critical
+ok 1 - P241 p13: official physician uses 1 proficiency 2 difficulty, heals one actual critical
+  ---
+  duration_ms: 179.4972
+  type: 'test'
+  ...
+# Subtest: P241 physician failure consumes only attempt; never erases injury
+ok 2 - P241 physician failure consumes only attempt; never erases injury
+  ---
+  duration_ms: 131.2464
+  type: 'test'
+  ...
+# Subtest: P241 physician blocks unhealable/dead injuries and care-before-critical
+ok 3 - P241 physician blocks unhealable/dead injuries and care-before-critical
+  ---
+  duration_ms: 110.7456
+  type: 'test'
+  ...
+# Subtest: P241 p14: negotiation records claims; party PCs receive sourced EotE profiles individually
+ok 4 - P241 p14: negotiation records claims; party PCs receive sourced EotE profiles individually
+  ---
+  duration_ms: 146.6554
+  type: 'test'
+  ...
+# Subtest: P241 p14: Coerce Hard failure gives no gear, no retries
+ok 5 - P241 p14: Coerce Hard failure gives no gear, no retries
+  ---
+  duration_ms: 116.7501
+  type: 'test'
+  ...
+# Subtest: P241 p14: Triumph with two Threat grants defective rifle and preserves defect marker
+ok 6 - P241 p14: Triumph with two Threat grants defective rifle and preserves defect marker
+  ---
+  duration_ms: 122.0287
+  type: 'test'
+  ...
+# Subtest: P241 p14: first combat use removes defective Nyn rifle at encounter closure
+ok 7 - P241 p14: first combat use removes defective Nyn rifle at encounter closure
+  ---
+  duration_ms: 142.9211
+  type: 'test'
+  ...
+# Subtest: P241 p14: unused Nyn award survives an encounter
+ok 8 - P241 p14: unused Nyn award survives an encounter
+  ---
+  duration_ms: 225.2395
+  type: 'test'
+  ...
+# Subtest: P241 Nyn invalid method and wrong scene rollback without save
+ok 9 - P241 Nyn invalid method and wrong scene rollback without save
+  ---
+  duration_ms: 166.0702
+  type: 'test'
+  ...
+# Subtest: P241 social receipt rejects tampered dice face or Nyn reward
+ok 10 - P241 social receipt rejects tampered dice face or Nyn reward
+  ---
+  duration_ms: 134.5137
+  type: 'test'
+  ...
+# Subtest: P241 p23: 400-500 credits bribe uses actual opposed Negotiation and debit
+ok 11 - P241 p23: 400-500 credits bribe uses actual opposed Negotiation and debit
+  ---
+  duration_ms: 49.3383
+  type: 'test'
+  ...
+# Subtest: P241 failed bribe does not debit and cannot be converted into victory
+ok 12 - P241 failed bribe does not debit and cannot be converted into victory
+  ---
+  duration_ms: 61.9409
+  type: 'test'
+  ...
+# Subtest: P241 invalid bribe, Drombb cannot be bribed and no overspending
+ok 13 - P241 invalid bribe, Drombb cannot be bribed and no overspending
+  ---
+  duration_ms: 52.8197
+  type: 'test'
+  ...
+# Subtest: P241 all minions bribed still leaves Drombb as live adversary
+ok 14 - P241 all minions bribed still leaves Drombb as live adversary
+  ---
+  duration_ms: 82.0152
+  type: 'test'
+  ...
+# Subtest: P241 New Meen cannot bribe during live encounter or from wrong scene
+ok 15 - P241 New Meen cannot bribe during live encounter or from wrong scene
+  ---
+  duration_ms: 56.716
+  type: 'test'
+  ...
+# Subtest: P241 New Meen receipt rejects fake credit debit, forged dice, or unconfirmed party
+ok 16 - P241 New Meen receipt rejects fake credit debit, forged dice, or unconfirmed party
+  ---
+  duration_ms: 35.1113
+  type: 'test'
+  ...
+# Subtest: P241 Android offline bridge and UI expose social and gear distribution operations
+ok 17 - P241 Android offline bridge and UI expose social and gear distribution operations
+  ---
+  duration_ms: 2.0705
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2211.8847

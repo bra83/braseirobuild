@@ -1,0 +1,18 @@
+✔ P100: primeira modificação custa 100 créditos, exige Mecânica Difícil e altera o attachment instalado (87.5511ms)
+✔ P100: segunda modificação fica mais difícil, consome o último slot e reduz Imprecisa novamente (58.0503ms)
+✔ P100: falha de Mod custa créditos, consome uma opção e não concede o efeito (26.8644ms)
+✔ P100: Mod é bloqueado sem kit de ferramentas, com créditos insuficientes e durante combate (50.0542ms)
+✔ P100: Mods instalados chegam ao resolveWeaponAttack real (141.3807ms)
+✔ P100: Mods pertencem ao attachment e sobrevivem remoção, reopen e reinstalação (50.9302ms)
+✔ P100: Postura Defensiva consome manobra e adiciona Setback aos próprios testes de combate (48.7807ms)
+✔ P100: Postura Defensiva adiciona Setback a ataque melee contra o jogador, mas não a ranged (36.9638ms)
+✔ P100: bridge/contratos/R46 expõem Mods e Postura Defensiva sem mutação bruta (23.4089ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1961.2119
+

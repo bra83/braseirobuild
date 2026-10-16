@@ -1,0 +1,12 @@
+✔ r46-shell.html has no missing local script or stylesheet assets (49.0751ms)
+✔ R46 boot script order keeps engine before bootstrap, shell and final runtime (0.9353ms)
+✔ R46 stylesheets have no missing local url(...) dependencies (59.8285ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 878.7504
+

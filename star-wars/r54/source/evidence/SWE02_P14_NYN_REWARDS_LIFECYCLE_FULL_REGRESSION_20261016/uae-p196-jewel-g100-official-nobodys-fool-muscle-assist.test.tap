@@ -1,0 +1,20 @@
+✔ P196 source: printed G-100 Nobody’s Fool 3 upgrades Average Charm three times (1069.8747ms)
+✔ P196 versioned receipt rejects deletion/downgrade of Nobody’s Fool (858.8147ms)
+✔ P196 preserves P195 legacy unversioned Charm receipt without retroactive reroll (736.4301ms)
+✔ P196 Hard Athletics assist rolls actual dice and applies two Boost to Computers (552.8548ms)
+✔ P196 Hard Brawl assist uses Strength skill and same source-backed bonus (640.5176ms)
+✔ P196 failed physical assist adds no fictitious Boost (607.3677ms)
+✔ P196 no optional assist retains P195 disable pool (559.2285ms)
+✔ P196 forged physical faces, skill and outcome are rejected by replay (552.3619ms)
+✔ P196 invalid assist choices rollback without saving (586.0764ms)
+✔ P196 three save reopenings preserve both source-backed mechanics (817.3818ms)
+✔ P196 Android UI offers both physical skills and documents Nobody’s Fool 3 (6.0321ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8144.0302
+

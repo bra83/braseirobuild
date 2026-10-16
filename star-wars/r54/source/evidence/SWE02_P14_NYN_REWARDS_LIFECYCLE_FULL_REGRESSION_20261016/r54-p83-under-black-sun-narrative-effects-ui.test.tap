@@ -1,0 +1,12 @@
+✔ P83: feedback público expõe efeitos narrativos concretos sem estado oculto (33.4355ms)
+✔ P83: Desespero de perseguição fica visível e custo mecânico continua persistente (5.6561ms)
+✔ P83: runtime renderiza consequências por tipo em bloco compacto (2.3433ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 756.1917
+

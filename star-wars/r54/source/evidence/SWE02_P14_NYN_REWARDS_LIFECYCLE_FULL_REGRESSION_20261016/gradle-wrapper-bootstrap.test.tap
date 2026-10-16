@@ -1,0 +1,13 @@
+✔ BUILD: launchers delegate only to the packaged GradleWrapperMain (40.7438ms)
+﹣ BUILD: packaged wrapper executes a verified offline distribution and forwards arguments (0.3683ms) # JDK jar não disponível neste ambiente; testes de empacotamento offline exigem um JDK.
+﹣ BUILD: packaged wrapper rejects a distribution with the wrong SHA-256 (2.6606ms) # JDK jar não disponível neste ambiente; testes de empacotamento offline exigem um JDK.
+✔ BUILD: production wrapper uses the official Gradle distribution host with pinned SHA-256 (32.755ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 2
+ℹ todo 0
+ℹ duration_ms 802.1437
+

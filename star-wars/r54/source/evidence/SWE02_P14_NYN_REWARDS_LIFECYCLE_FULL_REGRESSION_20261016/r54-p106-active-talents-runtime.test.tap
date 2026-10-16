@@ -1,0 +1,16 @@
+✔ P106: Foco Intenso custa manobra +1 Tensão e aprimora a habilidade do próximo teste (75.4051ms)
+✔ P106: Sentir o Perigo remove até 2 Setbacks e Toque do Destino adiciona 2 Boost, ambos 1x por sessão (44.8858ms)
+✔ P106: nova sessão limpa os usos únicos de Sentir o Perigo e Toque do Destino (27.7661ms)
+✔ P106: Levantar Rápido remove prone como incidental sem gastar manobra (14.8099ms)
+✔ P106: Equilíbrio acrescenta recuperação real de Tensão ao encerrar encontro (13.2902ms)
+✔ P106: bridge expõe teste simples e estado dos talentos ativos (2.6246ms)
+✔ P106: R46 expõe talentos ativos sem inventar aquisição (6.5449ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1524.4523
+

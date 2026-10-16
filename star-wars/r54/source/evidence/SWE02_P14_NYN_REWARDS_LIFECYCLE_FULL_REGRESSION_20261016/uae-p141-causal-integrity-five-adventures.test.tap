@@ -1,0 +1,41 @@
+✔ P141 under-black-sun: grafo completo e rota estrutural para desfecho (5.5064ms)
+✔ P141 under-black-sun: primeira transição oficial, JSON e reabertura preservam causa e estado (96.2973ms)
+✔ P141 under-black-sun: gatilho real de marco gera contador e journal causal íntegros (8.0551ms)
+✔ P141 under-black-sun: alteração de contador, objetivo e evento é recusada sem reparo (21.7392ms)
+✔ P141 under-black-sun: consequência registrada/resolvida não aceita histórico falso (9.3248ms)
+✔ P141 under-black-sun: rollback transacional preserva journal, objetivo, consequência e clock (5.0899ms)
+✔ P141 beyond-the-rim: grafo completo e rota estrutural para desfecho (0.4721ms)
+✔ P141 beyond-the-rim: primeira transição oficial, JSON e reabertura preservam causa e estado (63.8319ms)
+✔ P141 beyond-the-rim: gatilho real de marco gera contador e journal causal íntegros (5.0809ms)
+✔ P141 beyond-the-rim: alteração de contador, objetivo e evento é recusada sem reparo (16.6667ms)
+✔ P141 beyond-the-rim: consequência registrada/resolvida não aceita histórico falso (6.4395ms)
+✔ P141 beyond-the-rim: rollback transacional preserva journal, objetivo, consequência e clock (4.3726ms)
+✔ P141 long-arm-of-the-hutt: grafo completo e rota estrutural para desfecho (0.3171ms)
+✔ P141 long-arm-of-the-hutt: primeira transição oficial, JSON e reabertura preservam causa e estado (65.019ms)
+✔ P141 long-arm-of-the-hutt: gatilho real de marco gera contador e journal causal íntegros (7.3339ms)
+✔ P141 long-arm-of-the-hutt: alteração de contador, objetivo e evento é recusada sem reparo (23.4431ms)
+✔ P141 long-arm-of-the-hutt: consequência registrada/resolvida não aceita histórico falso (5.2129ms)
+✔ P141 long-arm-of-the-hutt: rollback transacional preserva journal, objetivo, consequência e clock (3.9664ms)
+✔ P141 jewel-of-yavin: grafo completo e rota estrutural para desfecho (0.1854ms)
+✔ P141 jewel-of-yavin: primeira transição oficial, JSON e reabertura preservam causa e estado (51.566ms)
+✔ P141 jewel-of-yavin: gatilho real de marco gera contador e journal causal íntegros (8.9165ms)
+✔ P141 jewel-of-yavin: alteração de contador, objetivo e evento é recusada sem reparo (11.0304ms)
+✔ P141 jewel-of-yavin: consequência registrada/resolvida não aceita histórico falso (3.8552ms)
+✔ P141 jewel-of-yavin: rollback transacional preserva journal, objetivo, consequência e clock (11.7645ms)
+✔ P141 mask-of-the-pirate-queen: grafo completo e rota estrutural para desfecho (0.1949ms)
+✔ P141 mask-of-the-pirate-queen: primeira transição oficial, JSON e reabertura preservam causa e estado (40.1873ms)
+✔ P141 mask-of-the-pirate-queen: gatilho real de marco gera contador e journal causal íntegros (8.1497ms)
+✔ P141 mask-of-the-pirate-queen: alteração de contador, objetivo e evento é recusada sem reparo (22.3975ms)
+✔ P141 mask-of-the-pirate-queen: consequência registrada/resolvida não aceita histórico falso (11.1186ms)
+✔ P141 mask-of-the-pirate-queen: rollback transacional preserva journal, objetivo, consequência e clock (5.0791ms)
+✔ P141: módulo publicado sem desfecho ou com cena isolada falha antes de jogar (1.9133ms)
+✔ P141: contrato de visibilidade e alvo do objetivo não pode ser adulterado (3.1472ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1474.7926
+

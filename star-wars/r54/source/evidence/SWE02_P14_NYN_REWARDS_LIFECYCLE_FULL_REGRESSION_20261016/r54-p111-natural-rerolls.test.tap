@@ -1,0 +1,14 @@
+✔ P111: catálogo Nato reconhece as 13 famílias EotE Core nas perícias corretas (4.5746ms)
+✔ P111: rerrolagem Nato usa o mesmo pool e preserva o primeiro resultado como evidência (60.9506ms)
+✔ P111: talento Nato é limitado a uma vez por sessão (21.6726ms)
+✔ P111: nova sessão limpa o uso Nato (91.8256ms)
+✔ P111: rerrolagem Nato é rejeitada quando a perícia não pertence ao talento adquirido (8.3207ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1439.3069
+

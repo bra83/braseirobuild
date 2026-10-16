@@ -1,0 +1,32 @@
+✔ P173: source-backed Negotiation roll pays strain before receipt, not at sale (66.9967ms)
+✔ P173: replayed receipt cannot sell another asset (25.6381ms)
+✔ P173: receipt cannot be reused after reopening or rolled back to earlier object (33.6733ms)
+✔ P173: failed Negotiation charges 2 strain, grants no sale bonus (14.9472ms)
+✔ P173: successful purchase consumes prepaid receipt without second strain charge (31.0885ms)
+✔ P173: failed purchase records rejection, consumes receipt, keeps paid strain (28.0036ms)
+✔ P173: receipt cannot migrate to another character, session, campaign or item (75.3937ms)
+✔ P173: no purchased talent means no receipt, no strain or changes (19.7477ms)
+✔ P173: over-threshold strain rejects before rolling or modifying save (25.2455ms)
+✔ P173: save failure on negotiation rolls back paid strain and receipt (22.2389ms)
+✔ P173: save failure on sale rolls back assets, credits and receipt consumption (26.5941ms)
+✔ P173: corrupted receipt or missing event fails validation and reopening (76.5753ms)
+✔ P173: bridge exposes receipt-based operation and returns errors instead of side effects (29.741ms)
+✔ P173: invalid check parameters cannot create receipts or spend strain (14.3387ms)
+✔ P173: legacy P172 save without ledger migrates with no synthetic receipts (9.2754ms)
+✔ P173 under-black-sun: real published adventure and Merchant receipt survive three reopens (141.8692ms)
+✔ P173 beyond-the-rim: real published adventure and Merchant receipt survive three reopens (103.5205ms)
+✔ P173 long-arm-of-the-hutt: real published adventure and Merchant receipt survive three reopens (133.406ms)
+✔ P173 jewel-of-yavin: real published adventure and Merchant receipt survive three reopens (78.7913ms)
+✔ P173 mask-of-the-pirate-queen: real published adventure and Merchant receipt survive three reopens (93.6804ms)
+✔ P173: receipt ledger refuses to discard 32 unconsumed rolls and rolls back the 33rd strain (1458.7441ms)
+✔ P173: event and consumption timestamp tampering are rejected (37.6421ms)
+✔ P173: Android UI binds roll, receipt, GM authorization, sale and purchase; offline bundle 81 modules (47.8328ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3977.8362
+

@@ -1,0 +1,12 @@
+✔ Mestre cria e avança plano de facção por operações estruturadas (86.23ms)
+✔ operação inválida em plano reverte a proposta inteira (29.4793ms)
+✔ contexto do Mestre inclui planos completos e versão 6 (80.2373ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1752.9036
+

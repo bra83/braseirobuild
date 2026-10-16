@@ -114,3 +114,9 @@
 - Focused P241 social suite: 15/15 pass. Full per-file regression: 382 files, 3,453 tests, 3,451 pass, 0 fail, 2 JDK jar packaging skips. Evidence: `evidence/SWE02_P14_NYN_REWARDS_FULL_REGRESSION_20261016/`.
 - A two-Threat Triumph case marks the granted rifle defective; automatic discard after the first encounter of use and remaining p.14 dialogue/transition gates stay open. SWE02 remains `IMPLEMENTADO_NAO_CERTIFICADO`; all adventure, rules and AoR gates remain pending.
 - Hybrid boundary unchanged: deterministic code owns mechanics/state, cited RAG retrieves source, Gemini narrates or proposes typed actions only.
+
+## Resume update — Nyn defective-equipment encounter lifecycle (2026-10-16)
+
+- Added encounter use tracking for Nyn defect-marked weapons and armor. At `finishCombat`, only the used owned assets are removed from the stable roster character; unused defective items remain. This is atomic with encounter closure and survives reopen.
+- Focused P241 suite now passes 17/17; full per-file regression passes 3,453/3,455 tests across 382 files (376 regular + 6 stress), 0 failures, 2 offline JDK `jar` packaging skips. Evidence: `evidence/SWE02_P14_NYN_REWARDS_LIFECYCLE_FULL_REGRESSION_20261016/`.
+- P.14 remains `PENDENTE` for complete dialogue and service-tunnel transition evidence. Overall SWE02 stays `IMPLEMENTADO_NAO_CERTIFICADO`; five-adventure, rules and AoR 0/360 gates remain open.

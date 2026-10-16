@@ -1,0 +1,12 @@
+✔ Comando adiciona 1 Impulso por grau somente a Liderança (3.3535ms)
+✔ Ataque rápido adiciona Impulso igual ao grau contra alvo que ainda não agiu (11.3888ms)
+✔ Ataque rápido não se aplica sem alvo de iniciativa conhecido (0.6825ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 768.381
+

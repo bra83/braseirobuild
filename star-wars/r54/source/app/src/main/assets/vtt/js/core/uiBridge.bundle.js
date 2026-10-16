@@ -25835,6 +25835,14 @@ class GameController {
         let criticalResult = null;
         let targetText = stoodFromProne ? 'levantou-se e falhou o ataque' : 'falhou o ataque';
         if (attack.hit) {
+            const characterId = this.state.player?.roster?.activeCharacterId;
+            const defectiveArmor = (nextCharacter.armor ?? []).filter(item => item?.defectiveUntilFirstUse === true && item?.ownedAssetId);
+            if (characterId && defectiveArmor.length) {
+                nextCombat.swe02NynDefectiveUses = Array.isArray(nextCombat.swe02NynDefectiveUses) ? nextCombat.swe02NynDefectiveUses : [];
+                for (const item of defectiveArmor)
+                    if (!nextCombat.swe02NynDefectiveUses.some(x => x.characterId === characterId && x.ownedAssetId === item.ownedAssetId))
+                        nextCombat.swe02NynDefectiveUses.push({ characterId, ownedAssetId: item.ownedAssetId, kind: 'armor' });
+            }
             damageResult = health_mjs_1.applyDamage(nextCharacter, { damage: attack.damage, pierce: attack.pierce, damageType: attack.damageType, reason: `Ataque de ${adversary.name}`, criticalRng: rng });
             nextCharacter = damageResult.character;
             if (Number(damageResult.suffered ?? 0) > 0)
@@ -26024,7 +26032,28 @@ class GameController {
             if (Array.isArray(group.companions))
                 for (const member of group.companions)
                     member.character = recovery_mjs_1.expireStimApplication(member.character);
+            const defectiveUses = Array.isArray(preCombat.swe02NynDefectiveUses) ? preCombat.swe02NynDefectiveUses : [];
+            let updatedRoster = null;
+            if (defectiveUses.length) {
+                updatedRoster = clone(this.state.player?.roster ?? { schema: 1, activeCharacterId: null, entries: [] });
+                for (const entry of updatedRoster.entries) {
+                    const usedIds = new Set(defectiveUses.filter(x => x.characterId === entry.id).map(x => x.ownedAssetId));
+                    if (!usedIds.size)
+                        continue;
+                    const pc = entry.id === updatedRoster.activeCharacterId ? character : clone(entry.character);
+                    if (!pc)
+                        continue;
+                    pc.weapons = (pc.weapons ?? []).filter(item => !usedIds.has(item.ownedAssetId));
+                    pc.armor = (pc.armor ?? []).filter(item => !usedIds.has(item.ownedAssetId));
+                    entry.character = pc;
+                    if (entry.id === updatedRoster.activeCharacterId)
+                        character = pc;
+                }
+                delete combat.swe02NynDefectiveUses;
+            }
             this.commit('COMBAT_ACTION', { combat, character, group });
+            if (updatedRoster)
+                this.commit('PLAYER_ROSTER_UPDATED', { roster: updatedRoster });
             if (persistentAdversaries.length) {
                 let world = clone(this.state.world);
                 for (const a of persistentAdversaries) {
@@ -27666,6 +27695,14 @@ class GameController {
                     { round: combat.round, netAdvantage: Number(check.netAdvantage) || 0, sourcePage: 18 }];
                 if (Number(check.netAdvantage) > 0)
                     combat.swe02OldLylekAdvantageTriggered = true;
+            }
+            if (combat.active && attackWeapon.defectiveUntilFirstUse === true && attackWeapon.ownedAssetId) {
+                const characterId = this.state.player?.roster?.activeCharacterId;
+                if (characterId) {
+                    combat.swe02NynDefectiveUses = Array.isArray(combat.swe02NynDefectiveUses) ? combat.swe02NynDefectiveUses : [];
+                    if (!combat.swe02NynDefectiveUses.some(x => x.characterId === characterId && x.ownedAssetId === attackWeapon.ownedAssetId))
+                        combat.swe02NynDefectiveUses.push({ characterId, ownedAssetId: attackWeapon.ownedAssetId, kind: 'weapon' });
+                }
             }
             const lylekEventResult = this._applySWE02OldLylekAdvantage(combat, check, { preferredHunterId: targetAdversaryId });
             combat = lylekEventResult.combat;
