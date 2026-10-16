@@ -38,6 +38,12 @@ public final class Bastion2024EventResolutionEngine {
                     out.put("detail_d8", d8);
                 }
             } else if ("Attack".equals(event)) {
+                // DMG p.351: a friendly monster guest prevents EVERY defender
+                // casualty on its one Bastion defense, then leaves.
+                if (in.optBoolean("friendly_monster_available",false))
+                    return out.put("status","ok").put("event_resolved",true)
+                        .put("requires_resolution",false)
+                        .put("friendly_monster_attack_prevented",true);
                 int defenders = count(in, "defenders_before", 0, 100000);
                 if (defenders < 0) return block(out, "defenders_before_required");
                 int[] rolls = faces(in.optJSONArray("attack_6d6"), 6, 6);
