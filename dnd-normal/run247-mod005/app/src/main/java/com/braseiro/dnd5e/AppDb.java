@@ -1130,6 +1130,20 @@ public class AppDb extends SQLiteOpenHelper {
             String name = candidate.optString("name").trim();
             if (name.isEmpty()) return gate.put("save_blocked", "name_required");
             int level = Math.max(1, Math.min(20, candidate.optInt("level", 1)));
+            // PHB 2024: a catalog entry alone is not authority to select a subclass.
+            // Validate edition, owning class and level before any SQLite mutation.
+            if ("dnd".equals(getActiveMapProfile()) && new DndRulesEngine().is2024(source)) {
+                String requestedSubclass = candidate.optString("subclass_2024", "").trim();
+                if (!requestedSubclass.isEmpty()) {
+                    if (!Core2024SubclassRuntimeEngine.isSubclassSelectionValid(
+                            candidate.optString("class_name", ""), level, requestedSubclass))
+                        return new JSONObject().put("subclass_blocked", "invalid_2024_subclass_for_class_or_level");
+                    // Canonical PT-BR form: accepting the English alias must not produce
+                    // two different stored values for one official subclass.
+                    candidate.put("subclass_2024",
+                            Core2024SubclassRuntimeEngine.getSubclass(requestedSubclass).name);
+                }
+            }
             long id;
             if (edit) {
                 if (existingId <= 0 || getCharacter(existingId).length() == 0) return gate.put("save_blocked", "character_missing");
