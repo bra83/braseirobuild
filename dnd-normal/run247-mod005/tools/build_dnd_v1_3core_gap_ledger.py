@@ -12,6 +12,8 @@ Permitted states:
 """
 
 import csv
+import argparse
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -208,15 +210,15 @@ ENTRIES = [
         "id": "PHB-SUB-001",
         "book": "PHB 2024",
         "source_section": "Capitulo 3: Classes (Subclasses)",
-        "mechanic_name": "48 Subclasses Oficiais (4 por classe) - Niveis de Selecao e Recursos Ativos",
+        "mechanic_name": "48 subclasses PHB 2024: catalogo e validacao de selecao, sem execucao das habilidades",
         "source_citation": "PHB 2024 Cap. 3",
-        "deterministic_executor": "Core2024SubclassRuntimeEngine",
-        "host_call": "Core2024SubclassRuntimeEngine.getSubclassesForClass / isSubclassLevelValid",
-        "ui_binding": "MainActivity.characterCreationDialog (subclasse 2024)",
-        "sqlite_transaction": "characters.sheet_json (subclass_2024, crit_threshold, subclass_features)",
-        "backup21_reopen_tested": "SIM",
-        "status": "VERIFIED_E2E",
-        "status_notes": "48 subclasses oficiais (4 por classe) homologadas com portao estrito de nivel 3 e testes verdes em Core2024SubclassRobolectricTest"
+        "deterministic_executor": "Core2024SubclassRuntimeEngine (catalogo/portao, nao executor de habilidades)",
+        "host_call": "AppDb.saveCharacterSheetAtomic (valida classe/nivel antes do SQLite)",
+        "ui_binding": "Interface da selecao nao homologada ponta a ponta",
+        "sqlite_transaction": "saveCharacterSheetAtomic (seleciona e persiste nome da subclasse)",
+        "backup21_reopen_tested": "NAO",
+        "status": "IN_PROGRESS",
+        "status_notes": "Registra 48 subclasses; testes de classe/nivel e 3 reaberturas SQLite adicionados, aguardando CI. Faltam efeitos ativos/passivos individuais, conexao a combate e prova Backup21/UI; catalogo nao equivale a mecanica."
     },
     # ----------------------------------------------------
     # PHB 2024: Spells & Combat & Rest
@@ -313,15 +315,15 @@ ENTRIES = [
         "id": "DMG-ITM-001",
         "book": "DMG 2024",
         "source_section": "Capitulo 7: Itens Mágicos",
-        "mechanic_name": "Catalogo de Itens Magicos, Regra de 3 Sintonizacoes, Descanso Curto e Precificacao por Raridade",
+        "mechanic_name": "Itens magicos: catalogo parcial, precificacao e regras de sintonizacao",
         "source_citation": "DMG 2024 p. 210-275",
         "deterministic_executor": "Dmg2024RulesEngine",
         "host_call": "Dmg2024RulesEngine.attuneItem / unattuneItem",
         "ui_binding": "MainActivity.magicItemAttunementDialog",
         "sqlite_transaction": "inventory_items.attuned, resources_json.attuned_slots",
         "backup21_reopen_tested": "SIM",
-        "status": "VERIFIED_E2E",
-        "status_notes": "Validado em Dmg2024RulesRobolectricTest com limite estrito de 3 slots e rejeicao de duplicatas"
+        "status": "IN_PROGRESS",
+        "status_notes": "Teste cobre catalogo limitado e operacoes de sintonizacao; faltam provar efeitos mecanicos dos itens oficiais, inventario/host, persistencia e Backup21 para a totalidade da familia."
     },
     {
         "id": "DMG-ENV-001",
@@ -401,15 +403,15 @@ ENTRIES = [
         "id": "XMM-BST-001",
         "book": "Monster Manual 2025",
         "source_section": "Catalogo de Monstros A-Z",
-        "mechanic_name": "503 Fichas de Monstros Compiladas e Indice Alfabetico 2025",
+        "mechanic_name": "503 registros de monstros no catalogo compilado, sem certificacao das 503 fichas em combate",
         "source_citation": "XMM 2025 A-Z",
         "deterministic_executor": "Xmm2025CompiledBestiaryEngine",
         "host_call": "CompiledStatblockEngine.runtimeProfile",
         "ui_binding": "MainActivity.monsterPickerDialog",
         "sqlite_transaction": "combatants table insert (spawn)",
         "backup21_reopen_tested": "SIM",
-        "status": "VERIFIED_E2E",
-        "status_notes": "503 blocos registrados e validados contra fontes canônicas 2025"
+        "status": "IN_PROGRESS",
+        "status_notes": "Indice/spawn de 503 fichas compiladas nao prova todas as acoes e efeitos em combate. Validar cada familia mecanica e ligar a host/SQLite/UI antes de concluir manual."
     },
     {
         "id": "XMM-MLA-001",
@@ -469,14 +471,50 @@ ENTRIES = [
     }
 ]
 
+def validate_ledger(rows):
+    seen = set()
+    allowed = {"VERIFIED_E2E", "IN_PROGRESS", "BLOCKED_SOURCE", "BLOCKED_HOST", "NARRATIVE_ONLY"}
+    for row in rows:
+        key = row.get("id", "")
+        if not key or key in seen:
+            raise ValueError(f"Identificador ausente ou duplicado: {key}")
+        seen.add(key)
+        if row.get("status") not in allowed:
+            raise ValueError(f"Estado desconhecido para {key}: {row.get('status')}")
+        if not row.get("source_citation") or not row.get("status_notes"):
+            raise ValueError(f"Fonte ou justificativa ausente para {key}")
+    by_id = {row["id"]: row for row in rows}
+    # Descritores e indices nao sao executores. Impede regressao dos falsos PASS.
+    for catalog_id in ("PHB-SUB-001", "DMG-ITM-001", "XMM-BST-001"):
+        if by_id[catalog_id]["status"] == "VERIFIED_E2E":
+            raise ValueError(f"{catalog_id} e apenas cobertura parcial/catalogo, sem prova integral E2E")
+    return Counter(row["status"] for row in rows)
+
+
 def main():
-    LEDGER_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with open(LEDGER_FILE, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=FIELDS)
-        writer.writeheader()
-        for row in ENTRIES:
-            writer.writerow(row)
-    print(f"Generated {LEDGER_FILE} with {len(ENTRIES)} audited mechanics.")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--check", action="store_true", help="rejeitar divergencia no CSV versionado")
+    args = parser.parse_args()
+    summary = validate_ledger(ENTRIES)
+    if args.check:
+        if not LEDGER_FILE.exists():
+            raise SystemExit("GAP_LEDGER.csv ausente; execute o gerador primeiro")
+        with open(LEDGER_FILE, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            if reader.fieldnames != FIELDS:
+                raise SystemExit("Cabecalho invalido do ledger")
+            existing = list(reader)
+        if existing != ENTRIES:
+            raise SystemExit("GAP_LEDGER.csv diverge do gerador; nao homologar")
+    else:
+        LEDGER_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(LEDGER_FILE, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=FIELDS)
+            writer.writeheader()
+            writer.writerows(ENTRIES)
+    print(f"GAP_LEDGER_CHECK_PASS rows={len(ENTRIES)} statuses={dict(summary)}")
+    print("AVISO: amostra auditada, nao inventario exaustivo de PHB/DMG/MM")
+
 
 if __name__ == "__main__":
     main()
