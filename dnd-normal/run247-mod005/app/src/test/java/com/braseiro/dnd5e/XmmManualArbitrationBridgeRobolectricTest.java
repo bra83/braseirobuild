@@ -22,7 +22,7 @@ import java.util.Map;
 public class XmmManualArbitrationBridgeRobolectricTest {
 
     private static String databaseName() {
-        return "xmm_arb_bridge_" + Long.toHexString(System.nanoTime() & 0xFFFFFFFL) + ".db";
+        return "xab_" + Long.toHexString(System.nanoTime() & 0xFFFFFL) + ".db";
     }
 
     private static void bindMonsterResources(AppDb db, long actorId, String monsterName) throws Exception {
