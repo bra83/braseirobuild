@@ -73,10 +73,10 @@ jobs:
           $ErrorActionPreference='Stop'
           $dir='app/build/test-results/testDebugUnitTest'
           if(Test-Path $dir){Remove-Item -LiteralPath $dir -Recurse -Force}
-          & .\gradlew.bat :app:testDebugUnitTest --tests com.braseiro.dnd5e.Xmm70MultiattackHostPlanTest --tests com.braseiro.dnd5e.V1ManualBackupIsolationRobolectricTest --no-daemon --console=plain
+          & .\gradlew.bat :app:testDebugUnitTest --tests com.braseiro.dnd5e.Xmm70MultiattackHostPlanTest --tests com.braseiro.dnd5e.V1ManualBackupIsolationRobolectricTest --tests com.braseiro.dnd5e.XmmMultiattackHostRobolectricTest --no-daemon --console=plain
           $code=$LASTEXITCODE
           $sum=0;$fail=0;$err=0;$skip=0
-          foreach($class in @('com.braseiro.dnd5e.Xmm70MultiattackHostPlanTest','com.braseiro.dnd5e.V1ManualBackupIsolationRobolectricTest')){
+          foreach($class in @('com.braseiro.dnd5e.Xmm70MultiattackHostPlanTest','com.braseiro.dnd5e.V1ManualBackupIsolationRobolectricTest','com.braseiro.dnd5e.XmmMultiattackHostRobolectricTest')){
             $file=Join-Path $dir ('TEST-'+$class+'.xml')
             if(!(Test-Path $file)){throw ('MISSING_XML='+$class)}
             [xml]$d=Get-Content -LiteralPath $file -Raw
@@ -86,7 +86,7 @@ jobs:
             $skip += [int]$d.testsuite.skipped
           }
           Write-Host ('DND_HYBRID_TARGETED_TESTS='+$sum+' FAIL='+$fail+' ERR='+$err+' SKIP='+$skip)
-          if($code -ne 0 -or $sum -lt 3 -or $fail -ne 0 -or $err -ne 0 -or $skip -ne 0){throw 'HYBRID_TARGETED_FAILED'}
+          if($code -ne 0 -or $sum -lt 4 -or $fail -ne 0 -or $err -ne 0 -or $skip -ne 0){throw 'HYBRID_TARGETED_FAILED'}
       - name: Full Android unit test suite at same SHA
         shell: powershell
         working-directory: dnd-normal/run247-mod005
