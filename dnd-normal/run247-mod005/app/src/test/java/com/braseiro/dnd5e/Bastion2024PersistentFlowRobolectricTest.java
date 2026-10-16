@@ -132,4 +132,41 @@ public final class Bastion2024PersistentFlowRobolectricTest {
             assertEquals("hero_level_five_required",blocked.optString("bastion_blocked"));
         } finally {db.close();ctx.deleteDatabase(dbName);}
     }
+    @Test public void friendlyGuestCancelsOneAttackAndIsConsumedExactlyOnce() throws Exception {
+        Context ctx=RuntimeEnvironment.getApplication();
+        String dbName=name();
+        AppDb db=new AppDb(ctx,dbName);
+        try {
+            db.setActiveMapProfile("dnd");
+            db.saveCampaign("DMG Friendly Guest",DndRulesEngine.PROFILE_2024,
+                "Sandbox",true,true,false,"");
+            long hero=db.addCharacter("Mira","Humano","Bardo",6,39,39,16,
+                10,14,12,12,13,18,true,"Artista");
+            JSONObject initial=db.configureBastion2024(hero,0,2,
+                new JSONArray().put("inn"),true);
+            assertTrue(initial.toString(),initial.optBoolean("bastion_configured"));
+            JSONObject guest=db.commitBastion2024Event(hero,
+                new JSONObject().put("d100_roll",73).put("guest_d4",4),
+                true,"ui-bastion-guest-protection-001");
+            assertTrue(guest.toString(),guest.optBoolean("bastion_event_committed"));
+            assertEquals(1,db.getBastion2024State(hero).optInt("friendly_monster_protection"));
+            JSONObject attack=db.commitBastion2024Event(hero,
+                new JSONObject().put("d100_roll",51)
+                    .put("friendly_monster_available",false),
+                true,"ui-bastion-protected-attack-002");
+            assertTrue(attack.toString(),attack.optBoolean("bastion_event_committed"));
+            assertTrue(attack.getJSONObject("event_resolution")
+                .optBoolean("friendly_monster_attack_prevented"));
+            assertEquals(2,db.getBastion2024State(hero).optInt("defenders"));
+            assertEquals(0,db.getBastion2024State(hero).optInt("friendly_monster_protection"));
+            JSONObject second=db.commitBastion2024Event(hero,
+                new JSONObject().put("d100_roll",51),true,"ui-bastion-attack-003");
+            assertEquals("defenders_before_required",second.optString("bastion_blocked"));
+            assertEquals(2,db.getBastion2024State(hero).optInt("defenders"));
+            JSONObject backup=db.exportAll();db.importAll(backup);
+            long restored=db.findCharacterByName("Mira").optLong("id");
+            assertEquals(0,db.getBastion2024State(restored).optInt("friendly_monster_protection"));
+        }finally{db.close();ctx.deleteDatabase(dbName);}
+    }
+
 }
