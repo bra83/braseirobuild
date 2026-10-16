@@ -8,10 +8,26 @@
     "sha256": "6f3dca72ea55080b4ce7e6befeb5d4d84e51f63453ead6a5719495178a40d264",
     "crc_test": "PASS",
     "parts": [
-      {"name": "P244_SOURCE_CHECKPOINT.zip.part01", "bytes": 33554432, "sha256": "e7a0d5debad4d3b6219a0c46cf8f514ec0b0f5237c81a44a3777e795d8aaf93f"},
-      {"name": "P244_SOURCE_CHECKPOINT.zip.part02", "bytes": 33554432, "sha256": "54a4c8ccb7d748475f9d8477165185d0ccfa0d2e0124ff968c197f8668ab446e"},
-      {"name": "P244_SOURCE_CHECKPOINT.zip.part03", "bytes": 33554432, "sha256": "139b0370d80d0d9bcfa04108a3e79739d329452fe8e74c33d1ce2ea179873d94"},
-      {"name": "P244_SOURCE_CHECKPOINT.zip.part04", "bytes": 10739198, "sha256": "69c739adb57277f85c012165994f72f13af969308f001d0f419907540f2ee8aa"}
+      {
+        "name": "P244_SOURCE_CHECKPOINT.zip.part01",
+        "bytes": 33554432,
+        "sha256": "e7a0d5debad4d3b6219a0c46cf8f514ec0b0f5237c81a44a3777e795d8aaf93f"
+      },
+      {
+        "name": "P244_SOURCE_CHECKPOINT.zip.part02",
+        "bytes": 33554432,
+        "sha256": "54a4c8ccb7d748475f9d8477165185d0ccfa0d2e0124ff968c197f8668ab446e"
+      },
+      {
+        "name": "P244_SOURCE_CHECKPOINT.zip.part03",
+        "bytes": 33554432,
+        "sha256": "139b0370d80d0d9bcfa04108a3e79739d329452fe8e74c33d1ce2ea179873d94"
+      },
+      {
+        "name": "P244_SOURCE_CHECKPOINT.zip.part04",
+        "bytes": 10739198,
+        "sha256": "69c739adb57277f85c012165994f72f13af969308f001d0f419907540f2ee8aa"
+      }
     ]
   },
   "cumulative_overlay": {
@@ -27,10 +43,46 @@
     "status": "IMPLEMENTADO_NAO_CERTIFICADO"
   },
   "instruction_files": [
-    {"name": "PROMPT_CODEX_EXECUCAO_BRASEIRO_STAR_WARS_2026-10-16.md", "sha256": "FD9C066FE9E6ACAE287B9E66EF8EF176045F62C7641145D1EB4F6FE5F9E946A5"},
-    {"name": "BRASEIRO_STAR_WARS_CODEX_MASTER_HANDOFF_HIBRIDO_2026-10-16.md", "sha256": "E517D241AC70CAF4FA8B88EC32644F76728C37B5222678E01F871E95D800ADA0"}
+    {
+      "name": "PROMPT_CODEX_EXECUCAO_BRASEIRO_STAR_WARS_2026-10-16.md",
+      "sha256": "FD9C066FE9E6ACAE287B9E66EF8EF176045F62C7641145D1EB4F6FE5F9E946A5"
+    },
+    {
+      "name": "BRASEIRO_STAR_WARS_CODEX_MASTER_HANDOFF_HIBRIDO_2026-10-16.md",
+      "sha256": "E517D241AC70CAF4FA8B88EC32644F76728C37B5222678E01F871E95D800ADA0"
+    }
   ],
-  "drive_inventory": {"root_folder_id": "1xIV-Ltig3Efzgs54owyyfnIaakuS30cN", "records": 527, "folders": 44, "in_scope_adventure_pdfs": 5, "out_of_scope_adventure_pdfs": 22, "metadata_only_unreviewed": 500},
-  "source_audit": {"SWE02_physical_pdf_pages": 46, "SWE02_status": "IMPLEMENTADO_NAO_CERTIFICADO", "AoR_positions": 360, "AoR_individual_proofs_certified_at_intake": 0},
-  "github": {"repository": "bra83/braseirobuild", "default_branch": "main", "default_branch_head": "98b6a391401818e74eaa53c752cc98dc9082fea9", "working_branch": "codex/star-wars-hibrido-integral-20261016", "working_branch_base": "98b6a391401818e74eaa53c752cc98dc9082fea9", "remote_branch_pre_push": null, "scope": "star-wars/r54/source"}
+  "drive_inventory": {
+    "root_folder_id": "1xIV-Ltig3Efzgs54owyyfnIaakuS30cN",
+    "records": 527,
+    "folders": 44,
+    "in_scope_adventure_pdfs": 5,
+    "out_of_scope_adventure_pdfs": 22,
+    "metadata_only_unreviewed": 500
+  },
+  "source_audit": {
+    "SWE02_physical_pdf_pages": 46,
+    "SWE02_status": "IMPLEMENTADO_NAO_CERTIFICADO",
+    "AoR_positions": 360,
+    "AoR_individual_proofs_certified_at_intake": 0
+  },
+  "github": {
+    "repository": "bra83/braseirobuild",
+    "default_branch": "main",
+    "default_branch_head": "98b6a391401818e74eaa53c752cc98dc9082fea9",
+    "working_branch": "codex/star-wars-hibrido-integral-20261016",
+    "working_branch_base": "98b6a391401818e74eaa53c752cc98dc9082fea9",
+    "remote_branch_pre_push": null,
+    "scope": "star-wars/r54/source",
+    "working_branch_head_after_initial_push": "c8daa86f20d4a1c31940d3d0187af7dfeba81cd2",
+    "remote_head_verified": "c8daa86f20d4a1c31940d3d0187af7dfeba81cd2"
+  },
+  "fresh_regression": {
+    "files": 376,
+    "tests": 3393,
+    "pass": 3391,
+    "fail": 0,
+    "skip": 2,
+    "status": "PASS_WITH_2_EXPLAINED_JDK_DEPENDENT_SKIPS"
+  }
 }
