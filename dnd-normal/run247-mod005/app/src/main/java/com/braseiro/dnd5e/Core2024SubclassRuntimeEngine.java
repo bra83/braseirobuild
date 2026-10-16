@@ -461,6 +461,420 @@ public final class Core2024SubclassRuntimeEngine {
         return !expected.isEmpty() && expected.equals(provided);
     }
 
+    public static String extractSubclass(JSONObject sheet) {
+        if (sheet == null) return "";
+        String s = sheet.optString("subclass_2024", sheet.optString("subclass_name", sheet.optString("subclass", "")));
+        if (!s.isEmpty()) return s;
+        String full = sheet.optString("class_name", "");
+        int idx = full.indexOf(" — ");
+        if (idx < 0) idx = full.indexOf(" - ");
+        return idx > 0 ? full.substring(idx + 3).trim() : "";
+    }
+
+    public static int criticalThreshold(JSONObject sheet) {
+        if (sheet == null) return 20;
+        String sub = extractSubclass(sheet);
+        if (sub.isEmpty()) return 20;
+        String k = norm(sub);
+        if (k.contains("campeao") || k.contains("champion")) {
+            int lvl = sheet.optInt("level", 1);
+            if (lvl >= 15) return 18;
+            if (lvl >= 3) return 19;
+        }
+        return 20;
+    }
+
+    public static boolean applyToSheet(JSONObject sheet) {
+        if (sheet == null) return false;
+        String sub = extractSubclass(sheet);
+        if (sub.isEmpty() || !hasSubclass(sub)) return false;
+        int level = sheet.optInt("level", 1);
+        if (!isSubclassLevelValid(level)) return false;
+        SubclassDef def = getSubclass(sub);
+        try {
+            sheet.put("subclass_name", def.name);
+            sheet.put("subclass_class", def.className);
+            sheet.put("subclass_source", SOURCE_BOOK);
+            sheet.put("subclass_runtime", "Core2024SubclassRuntimeEngine");
+            sheet.put("subclass_mechanics_compiled", true);
+            sheet.put("subclass_auto_rolls", false);
+            JSONObject res = sheet.optJSONObject("subclass_resources");
+            if (res == null) res = new JSONObject();
+            String k = norm(def.name);
+            if (k.contains("mestre da batalha") || k.contains("battle master")) {
+                int count = level >= 15 ? 6 : level >= 7 ? 5 : 4;
+                String die = level >= 18 ? "d12" : level >= 10 ? "d10" : "d8";
+                resource(res, "superiority_dice", count, "short_or_long_rest").put("die", die);
+            } else if (k.contains("psi guerreiro") || k.contains("psi warrior")) {
+                int pb = new DndRulesEngine().proficiencyBonus(level);
+                String die = level >= 17 ? "d12" : level >= 11 ? "d10" : level >= 5 ? "d8" : "d6";
+                resource(res, "psionic_energy_dice", 2 * pb, "long_rest").put("die", die);
+            } else if (k.contains("dominio da luz") || k.contains("light domain")) {
+                int wis = Math.max(1, new DndRulesEngine().modifier(sheet.optInt("wis", 10)));
+                resource(res, "warding_flare", wis, "long_rest");
+            } else if (k.contains("dominio da guerra") || k.contains("war domain")) {
+                int wis = Math.max(1, new DndRulesEngine().modifier(sheet.optInt("wis", 10)));
+                resource(res, "war_priest", wis, "short_or_long_rest");
+            } else if (k.contains("corruptor") || k.contains("fiend")) {
+                if (level >= 6) resource(res, "dark_ones_own_luck", 1, "short_or_long_rest");
+            } else if (k.contains("mao aberta") || k.contains("open hand")) {
+                if (level >= 6) resource(res, "wholeness_of_body", 1, "long_rest");
+            }
+            sheet.put("subclass_resources", res);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static JSONArray actionsFor(String subclass, int level) {
+        JSONArray a = new JSONArray();
+        if (level < 3 || subclass == null) return a;
+        String k = norm(subclass);
+        if (k.contains("berserker")) {
+            a.put("Frenesi");
+            if (level >= 6) a.put("Fúria Descerebrada");
+            if (level >= 10) a.put("Retaliação");
+            if (level >= 14) a.put("Presença Intimidadora");
+        } else if (k.contains("coracao selvagem") || k.contains("wild heart")) {
+            a.put("Fúria das Selvas");
+        } else if (k.contains("fanatico") || k.contains("zealot")) {
+            a.put("Fúria Divina");
+            if (level >= 10) a.put("Presença Zelosa");
+        } else if (k.contains("arvore do mundo") || k.contains("world tree")) {
+            a.put("Vitalidade da Árvore");
+            if (level >= 6) a.put("Ramos da Árvore");
+            if (level >= 14) a.put("Viagem pela Árvore");
+        } else if (k.contains("campeao") || k.contains("champion")) {
+            if (level >= 18) a.put("Sobrevivente");
+        } else if (k.contains("mestre da batalha") || k.contains("battle master")) {
+            a.put("Manobra: Ataque Ameaçador");
+            a.put("Manobra: Derrubar");
+            a.put("Manobra: Desarmar");
+            a.put("Manobra: Empurrão");
+            a.put("Manobra: Riposta");
+            if (level >= 7) a.put("Conheça Seu Inimigo");
+        } else if (k.contains("cavaleiro arcano") || k.contains("eldritch knight")) {
+            a.put("Vínculo com Arma");
+            if (level >= 15) a.put("Investida Arcana");
+        } else if (k.contains("psi guerreiro") || k.contains("psi warrior")) {
+            a.put("Golpe Telecinético");
+            a.put("Campo de Força Protetor");
+            if (level >= 7) a.put("Movimento Telecinético");
+        } else if (k.contains("ladrao") || k.contains("thief")) {
+            a.put("Mãos Rápidas");
+            a.put("Trabalho no Segundo Andar");
+            if (level >= 13) a.put("Usar Instrumento Mágico");
+        } else if (k.contains("assassino") || k.contains("assassin")) {
+            a.put("Assassinar");
+        } else if (k.contains("trapaceiro arcano") || k.contains("arcane trickster")) {
+            a.put("Mão do Mago Trapaceira");
+        } else if (k.contains("dominio da vida") || k.contains("life domain")) {
+            a.put("Preservar a Vida");
+        } else if (k.contains("dominio da luz") || k.contains("light domain")) {
+            a.put("Resplendor do Alvorecer");
+            a.put("Clarão Protetor");
+            if (level >= 17) a.put("Coroa de Luz");
+        } else if (k.contains("dominio da trapaca") || k.contains("trickery domain")) {
+            a.put("Invocar Duplicidade");
+            a.put("Bênção do Trapaceiro");
+            if (level >= 6) a.put("Transposição do Trapaceiro");
+        } else if (k.contains("dominio da guerra") || k.contains("war domain")) {
+            a.put("Ataque Guiado");
+            a.put("Sacerdote da Guerra");
+        } else if (k.contains("mao aberta") || k.contains("open hand")) {
+            a.put("Técnica da Mão Aberta: Derrubar");
+            a.put("Técnica da Mão Aberta: Empurrar");
+            a.put("Técnica da Mão Aberta: Sem Reação");
+            if (level >= 6) a.put("Integridade Corporal");
+        } else if (k.contains("devocao") || k.contains("devotion")) {
+            a.put("Arma Sagrada");
+            a.put("Expulsar os Ímpios");
+        } else if (k.contains("vinganca") || k.contains("vengeance")) {
+            a.put("Voto de Inimizade");
+        } else if (k.contains("corruptor") || k.contains("fiend")) {
+            a.put("Bênção do Obscuro");
+            if (level >= 6) a.put("Sorte do Obscuro");
+            if (level >= 14) a.put("Projetar no Inferno");
+        } else if (k.contains("evocador") || k.contains("evoker") || k.contains("evocacao")) {
+            a.put("Esculpir Magias");
+            if (level >= 14) a.put("Sobrecarga Mágica");
+        } else if (k.contains("danca") || k.contains("dance")) {
+            a.put("Passos Deslumbrantes");
+            if (level >= 6) a.put("Movimento Inspirador");
+        } else if (k.contains("glamour")) {
+            a.put("Manto da Inspiração");
+            if (level >= 6) a.put("Manto da Majestade");
+        } else if (k.contains("sabedoria") || k.contains("lore")) {
+            a.put("Palavras Cortantes");
+        } else if (k.contains("valor")) {
+            a.put("Inspiração de Combate");
+        } else if (k.contains("lua") || k.contains("moon")) {
+            a.put("Forma Selvagem de Combate");
+            if (level >= 6) a.put("Passo do Luar");
+        } else if (k.contains("estrelas") || k.contains("stars")) {
+            a.put("Forma Estelar");
+            if (level >= 6) a.put("Presságio Cósmico");
+        }
+        return a;
+    }
+
+    public static JSONObject resolve(JSONObject input, String subclass, int level, String feature, JSONObject payload) {
+        JSONObject s = copy(input);
+        try {
+            if (!s.has("level") || s.optInt("level", 0) <= 0) s.put("level", level);
+            applyToSheet(s);
+            if (payload == null) payload = new JSONObject();
+            if (level < 3) return blocked(s, "requires_level_3");
+            String k = norm(subclass), f = norm(feature);
+
+            // Bárbaro - Berserker
+            if (k.contains("berserker") && f.equals("frenesi")) {
+                if (!s.optBoolean("rage_active", false)) return blocked(s, "rage_inactive");
+                s.put("frenzy_bonus_active", true);
+                return mark(s, "barbarian_frenzy", new JSONObject().put("extra_damage_dice", "1d6").put("frenzy_active", true));
+            }
+            if (k.contains("berserker") && (f.equals("furia descerebrada") || f.contains("descerebrada"))) {
+                if (level < 6) return blocked(s, "requires_level_6");
+                if (!s.optBoolean("rage_active", false)) return blocked(s, "rage_inactive");
+                String conds = s.optString("conditions", "");
+                String cleaned = conds.replace("charmed", "").replace("frightened", "").replace("  ", " ").trim();
+                s.put("conditions", cleaned);
+                return mark(s, "barbarian_mindless_rage", new JSONObject().put("immune_charmed", true).put("immune_frightened", true));
+            }
+            if (k.contains("berserker") && f.equals("retaliacao")) {
+                if (level < 10) return blocked(s, "requires_level_10");
+                return mark(s, "barbarian_retaliation", new JSONObject().put("reaction_melee_attack_granted", true));
+            }
+            if (k.contains("berserker") && (f.equals("presenca intimidadora") || f.contains("intimidadora"))) {
+                if (level < 14) return blocked(s, "requires_level_14");
+                String target = payload.optString("target_id", "");
+                if (target.isEmpty()) return pending(s, "target_id");
+                int dc = 8 + new DndRulesEngine().proficiencyBonus(level) + new DndRulesEngine().modifier(s.optInt("str", 10));
+                int saveRoll = payload.optInt("target_wis_save", -1);
+                if (saveRoll < 0) return pending(s, "target_wis_save");
+                boolean success = saveRoll >= dc;
+                return mark(s, "barbarian_intimidating_presence", new JSONObject().put("target_id", target).put("dc", dc).put("save_roll", saveRoll).put("frightened", !success));
+            }
+
+            // Bárbaro - Fanático
+            if (k.contains("fanatico") && (f.equals("furia divina") || f.contains("divina"))) {
+                if (!s.optBoolean("rage_active", false)) return blocked(s, "rage_inactive");
+                String type = payload.optString("damage_type", "radiant");
+                return mark(s, "zealot_divine_fury", new JSONObject().put("extra_damage_dice", "1d6").put("extra_damage_flat", level / 2).put("damage_type", type));
+            }
+            if (k.contains("fanatico") && (f.equals("presenca zelosa") || f.contains("zelosa"))) {
+                if (level < 10) return blocked(s, "requires_level_10");
+                return mark(s, "zealot_zealous_presence", new JSONObject().put("allies_advantage_granted", true).put("duration_rounds", 1));
+            }
+
+            // Bárbaro - Árvore do Mundo
+            if (k.contains("arvore do mundo") && (f.equals("vitalidade da arvore") || f.contains("vitalidade"))) {
+                int curTemp = s.optInt("temp_hp", 0);
+                s.put("temp_hp", Math.max(curTemp, level));
+                return mark(s, "world_tree_vitality", new JSONObject().put("temp_hp_granted", level));
+            }
+
+            // Guerreiro - Campeão
+            if (k.contains("campeao") && f.equals("sobrevivente")) {
+                if (level < 18) return blocked(s, "requires_level_18");
+                int maxHp = Math.max(1, s.optInt("max_hp", 1)), hp = s.optInt("hp", maxHp);
+                if (hp <= 0) return blocked(s, "character_unconscious_or_dead");
+                if (hp > maxHp / 2) return blocked(s, "hp_above_half_threshold");
+                int conMod = Math.max(0, new DndRulesEngine().modifier(s.optInt("con", 10)));
+                int heal = Math.min(maxHp - hp, 5 + conMod);
+                s.put("hp", hp + heal);
+                return mark(s, "champion_survivor", new JSONObject().put("healing", heal).put("new_hp", hp + heal));
+            }
+
+            // Guerreiro - Mestre da Batalha
+            if (k.contains("mestre da batalha") && f.contains("manobra")) {
+                if (!spend(s, "superiority_dice", 1)) return blocked(s, "superiority_dice");
+                if (!payload.has("die_roll")) return pending(s, "die_roll");
+                int dieRoll = payload.optInt("die_roll", 1);
+                String subAction = f.replace("manobra:", "").replace("manobra", "").trim();
+                return mark(s, "battlemaster_maneuver", new JSONObject().put("maneuver", subAction).put("superiority_die_roll", dieRoll).put("superiority_dice_spent", 1));
+            }
+
+            // Guerreiro - Cavaleiro Arcano
+            if (k.contains("cavaleiro arcano") && (f.equals("vinculo com arma") || f.contains("vinculo"))) {
+                String weaponId = payload.optString("weapon_item_id", "");
+                if (weaponId.isEmpty()) return pending(s, "weapon_item_id");
+                s.put("bonded_weapon_id", weaponId);
+                return mark(s, "eldritch_knight_weapon_bond", new JSONObject().put("bonded_weapon_id", weaponId));
+            }
+
+            // Guerreiro - Psi Guerreiro
+            if (k.contains("psi guerreiro") && (f.contains("golpe telecinetico") || f.contains("campo de forca"))) {
+                if (!spend(s, "psionic_energy_dice", 1)) return blocked(s, "psionic_energy_dice");
+                if (!payload.has("die_roll")) return pending(s, "die_roll");
+                int roll = payload.optInt("die_roll", 1);
+                int intMod = Math.max(0, new DndRulesEngine().modifier(s.optInt("int_score", s.optInt("int", 10))));
+                return mark(s, "psi_warrior_psionic_feature", new JSONObject().put("feature", feature).put("die_roll", roll).put("int_mod", intMod).put("total", roll + intMod));
+            }
+
+            // Ladino - Ladrão
+            if (k.contains("ladrao") && (f.equals("maos rapidas") || f.contains("rapidas"))) {
+                return mark(s, "thief_fast_hands", new JSONObject().put("bonus_action_use_object_granted", true));
+            }
+            if (k.contains("ladrao") && (f.contains("segundo andar"))) {
+                s.put("climb_speed_equals_walk", true);
+                return mark(s, "thief_second_story_work", new JSONObject().put("climb_speed_match", true));
+            }
+
+            // Clérigo - Domínio da Vida
+            if (k.contains("dominio da vida") && (f.equals("preservar a vida") || f.contains("preservar"))) {
+                if (!spend(s, "channel_divinity", 1)) return blocked(s, "channel_divinity");
+                int budget = 5 * level;
+                JSONArray distribution = payload.optJSONArray("distribution");
+                if (distribution == null) return pending(s, "distribution [{target_id, healing}] up to budget " + budget);
+                int total = 0;
+                for (int i = 0; i < distribution.length(); i++) {
+                    JSONObject d = distribution.optJSONObject(i);
+                    if (d != null) total += d.optInt("healing", 0);
+                }
+                if (total > budget) return blocked(s, "healing_exceeds_budget_" + budget);
+                return mark(s, "cleric_preserve_life", new JSONObject().put("healing_budget", budget).put("healing_total", total).put("channel_divinity_spent", 1));
+            }
+
+            // Clérigo - Domínio da Luz
+            if (k.contains("dominio da luz") && (f.contains("resplendor") || f.contains("alvorecer"))) {
+                if (!spend(s, "channel_divinity", 1)) return blocked(s, "channel_divinity");
+                return mark(s, "cleric_radiance_of_the_dawn", new JSONObject().put("damage_dice", "2d10 + " + level).put("damage_type", "radiant").put("radius_ft", 30).put("channel_divinity_spent", 1));
+            }
+            if (k.contains("dominio da luz") && (f.contains("clarao") || f.contains("flare"))) {
+                if (!spend(s, "warding_flare", 1)) return blocked(s, "warding_flare");
+                return mark(s, "cleric_warding_flare", new JSONObject().put("attacker_disadvantage_applied", true));
+            }
+
+            // Clérigo - Domínio da Guerra
+            if (k.contains("dominio da guerra") && (f.contains("ataque guiado") || f.contains("guided strike"))) {
+                if (!spend(s, "channel_divinity", 1)) return blocked(s, "channel_divinity");
+                return mark(s, "cleric_guided_strike", new JSONObject().put("attack_roll_bonus", 10).put("channel_divinity_spent", 1));
+            }
+            if (k.contains("dominio da guerra") && (f.contains("sacerdote") || f.contains("war priest"))) {
+                if (!spend(s, "war_priest", 1)) return blocked(s, "war_priest");
+                return mark(s, "cleric_war_priest", new JSONObject().put("bonus_action_attack_granted", true));
+            }
+
+            // Paladino - Devoção
+            if (k.contains("devocao") && (f.contains("arma sagrada") || f.contains("sacred weapon"))) {
+                if (!spend(s, "channel_divinity", 1)) return blocked(s, "channel_divinity");
+                int chaMod = Math.max(0, new DndRulesEngine().modifier(s.optInt("cha", 10)));
+                s.put("sacred_weapon_active", true);
+                s.put("sacred_weapon_bonus", chaMod);
+                return mark(s, "paladin_sacred_weapon", new JSONObject().put("attack_bonus", chaMod).put("duration_minutes", 1).put("channel_divinity_spent", 1));
+            }
+            if (k.contains("devocao") && (f.contains("expulsar") || f.contains("turn the unholy"))) {
+                if (!spend(s, "channel_divinity", 1)) return blocked(s, "channel_divinity");
+                return mark(s, "paladin_turn_the_unholy", new JSONObject().put("turned_targets", "fiends_and_undead").put("radius_ft", 30).put("channel_divinity_spent", 1));
+            }
+
+            // Monge - Mão Aberta
+            if (k.contains("mao aberta") && f.contains("tecnica")) {
+                String tech = f.contains("derrubar") ? "derrubar" : f.contains("empurrar") ? "empurrar" : "sem_reacao";
+                return mark(s, "monk_open_hand_technique", new JSONObject().put("technique", tech).put("trigger", "flurry_of_blows_hit"));
+            }
+            if (k.contains("mao aberta") && (f.contains("integridade corporal") || f.contains("wholeness"))) {
+                if (level < 6) return blocked(s, "requires_level_6");
+                if (!spend(s, "wholeness_of_body", 1)) return blocked(s, "wholeness_of_body");
+                if (!payload.has("d10_roll")) return pending(s, "d10_roll");
+                int d10 = payload.optInt("d10_roll", 1);
+                int maxHp = Math.max(1, s.optInt("max_hp", 1)), hp = s.optInt("hp", maxHp);
+                int heal = Math.min(maxHp - hp, d10 + level);
+                s.put("hp", hp + heal);
+                return mark(s, "monk_wholeness_of_body", new JSONObject().put("d10_roll", d10).put("healing", heal).put("new_hp", hp + heal));
+            }
+
+            // Bruxo - Corruptor (Fiend)
+            if (k.contains("corruptor") && (f.contains("bencao do obscuro") || f.contains("blessing"))) {
+                int chaMod = Math.max(0, new DndRulesEngine().modifier(s.optInt("cha", 10)));
+                int temp = chaMod + level;
+                s.put("temp_hp", Math.max(s.optInt("temp_hp", 0), temp));
+                return mark(s, "warlock_dark_ones_blessing", new JSONObject().put("temp_hp_granted", temp));
+            }
+            if (k.contains("corruptor") && (f.contains("sorte do obscuro") || f.contains("luck"))) {
+                if (level < 6) return blocked(s, "requires_level_6");
+                if (!spend(s, "dark_ones_own_luck", 1)) return blocked(s, "dark_ones_own_luck");
+                if (!payload.has("d10_roll")) return pending(s, "d10_roll");
+                int d10 = payload.optInt("d10_roll", 1);
+                return mark(s, "warlock_dark_ones_luck", new JSONObject().put("d10_bonus", d10));
+            }
+
+            // Mago - Evocador
+            if ((k.contains("evocador") || k.contains("evocacao")) && (f.contains("esculpir") || f.contains("sculpt"))) {
+                int spellLevel = payload.optInt("spell_level", 1);
+                int safeCount = 1 + spellLevel;
+                return mark(s, "wizard_sculpt_spells", new JSONObject().put("safe_creatures_max", safeCount).put("spell_level", spellLevel));
+            }
+
+            // Bardo - Sabedoria
+            if (k.contains("sabedoria") && (f.contains("palavras cortantes") || f.contains("cutting words"))) {
+                if (!spend(s, "bardic_inspiration", 1)) return blocked(s, "bardic_inspiration");
+                if (!payload.has("die_roll")) return pending(s, "die_roll");
+                int die = payload.optInt("die_roll", 1);
+                return mark(s, "bard_cutting_words", new JSONObject().put("subtracted_amount", die).put("bardic_inspiration_spent", 1));
+            }
+
+            return s.put("subclass_action_resolved", false).put("subclass_action_reason", "unknown_subclass_feature").put("feature", feature);
+        } catch (Exception e) {
+            return s;
+        }
+    }
+
+    private static JSONObject mark(JSONObject s, String event, JSONObject effect) throws Exception {
+        return s.put("subclass_action_resolved", true)
+                .put("subclass_action_event", event)
+                .put("subclass_action_effect", effect)
+                .put("subclass_action_auto_rolls", false);
+    }
+
+    private static JSONObject pending(JSONObject s, String need) throws Exception {
+        return s.put("subclass_action_resolved", false)
+                .put("subclass_action_status", "requires_player_or_gm_resolution")
+                .put("subclass_action_required_input", need)
+                .put("subclass_action_auto_rolls", false);
+    }
+
+    private static JSONObject blocked(JSONObject s, String why) throws Exception {
+        return s.put("subclass_action_resolved", false)
+                .put("subclass_action_status", "blocked")
+                .put("subclass_action_reason", why)
+                .put("subclass_action_auto_rolls", false);
+    }
+
+    private static JSONObject resource(JSONObject all, String key, int max, String recharge) throws Exception {
+        JSONObject r = all.optJSONObject(key);
+        if (r == null) r = new JSONObject().put("current", max);
+        int cur = Math.max(0, Math.min(max, r.optInt("current", max)));
+        r.put("max", max).put("current", cur).put("recharge", recharge).put("source", SOURCE_BOOK);
+        all.put(key, r);
+        return r;
+    }
+
+    private static JSONObject res(JSONObject s, String key) {
+        JSONObject all = s.optJSONObject("subclass_resources");
+        if (all != null && all.has(key)) return all.optJSONObject(key);
+        JSONObject classRes = s.optJSONObject("class_resources");
+        if (classRes != null && classRes.has(key)) return classRes.optJSONObject(key);
+        return null;
+    }
+
+    private static boolean spend(JSONObject s, String key, int n) throws Exception {
+        JSONObject r = res(s, key);
+        if (r == null || r.optInt("current", 0) < n) return false;
+        r.put("current", r.optInt("current", 0) - n);
+        return true;
+    }
+
+    private static JSONObject copy(JSONObject o) {
+        try {
+            return o == null ? new JSONObject() : new JSONObject(o.toString());
+        } catch (Exception e) {
+            return new JSONObject();
+        }
+    }
+
     private static String canonicalClass(String className) {
         String cls = norm(className);
         switch (cls) {

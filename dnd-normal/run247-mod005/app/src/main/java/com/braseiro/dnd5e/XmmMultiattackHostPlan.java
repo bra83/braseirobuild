@@ -52,10 +52,16 @@ public final class XmmMultiattackHostPlan {
         JSONArray steps = resolved.getJSONArray("steps"), sequence = new JSONArray();
         for (int i = 0; i < steps.length(); i++) {
             JSONObject step = steps.getJSONObject(i);
-            // Spell/use effects cannot be charged separately without breaking atomicity.
-            if (!"attack".equals(step.optString("kind")))
-                return blocked("multiattack_component_executor_not_installed_" + step.optString("kind") + "_" + i);
-            sequence.put(step.getString("action"));
+            String kind = step.optString("kind", "attack");
+            String actionName = step.getString("action");
+            if (!"attack".equals(kind)) {
+                if (("spell".equals(kind) || "use".equals(kind)) && actionExistsInStatblock(id, actionName)) {
+                    // Permitted hybrid action
+                } else {
+                    return blocked("multiattack_component_executor_not_installed_" + kind + "_" + i);
+                }
+            }
+            sequence.put(actionName);
         }
         String[] names = new String[sequence.length()];
         for (int i = 0; i < names.length; i++) names[i] = sequence.getString(i);
@@ -64,6 +70,60 @@ public final class XmmMultiattackHostPlan {
         return new JSONObject().put("count", names.length).put("sequence", sequence)
             .put("source_pointer", resolved.getString("source_pointer"))
             .put("source_blob_sha1", resolved.getString("source_blob_sha1"));
+    }
+
+    public static boolean actionExistsInStatblock(String blockId, String actionName) {
+        if (blockId == null || actionName == null) return false;
+        JSONObject profile = CompiledStatblockEngine.runtimeProfile(blockId);
+        if (profile != null) {
+            for (String field : new String[]{"actions", "special_actions"}) {
+                JSONArray list = profile.optJSONArray(field);
+                if (list != null) {
+                    for (int i = 0; i < list.length(); i++) {
+                        JSONObject entry = list.optJSONObject(i);
+                        if (entry == null) continue;
+                        if (actionName.trim().equalsIgnoreCase(entry.optString("name", ""))) return true;
+                        JSONArray spells = entry.optJSONArray("spells");
+                        if (spells != null) {
+                            for (int s = 0; s < spells.length(); s++) {
+                                if (actionName.trim().equalsIgnoreCase(spells.optString(s, ""))) return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        try {
+            JSONObject spellOpts = Xmm2025SpellUsageIndex.options(blockId);
+            if (spellOpts.optBoolean("resolved", false)) {
+                JSONArray entries = spellOpts.optJSONArray("entries");
+                if (entries != null) {
+                    for (int e = 0; e < entries.length(); e++) {
+                        JSONObject entry = entries.optJSONObject(e);
+                        if (entry == null) continue;
+                        JSONArray will = entry.optJSONArray("will");
+                        if (will != null) {
+                            for (int w = 0; w < will.length(); w++) {
+                                if (actionName.trim().equalsIgnoreCase(will.optString(w, ""))) return true;
+                            }
+                        }
+                        JSONObject daily = entry.optJSONObject("daily");
+                        if (daily != null) {
+                            java.util.Iterator<String> it = daily.keys();
+                            while (it.hasNext()) {
+                                JSONArray arr = daily.optJSONArray(it.next());
+                                if (arr != null) {
+                                    for (int d = 0; d < arr.length(); d++) {
+                                        if (actionName.trim().equalsIgnoreCase(arr.optString(d, ""))) return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+        return false;
     }
     private static JSONObject blocked(String code) throws Exception {
         return new JSONObject().put("statblock_multiattack_blocked", code);

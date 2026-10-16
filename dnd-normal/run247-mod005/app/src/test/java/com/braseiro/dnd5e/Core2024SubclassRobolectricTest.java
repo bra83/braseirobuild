@@ -197,4 +197,151 @@ public class Core2024SubclassRobolectricTest {
         }
     }
 
+    @Test
+    public void criticalThresholdAccuratelyReflectsChampionLevels() throws Exception {
+        JSONObject normalSheet = new JSONObject().put("class_name", "Guerreiro").put("level", 5);
+        assertEquals(20, Core2024SubclassRuntimeEngine.criticalThreshold(normalSheet));
+
+        JSONObject championLvl3 = new JSONObject().put("class_name", "Guerreiro")
+            .put("subclass_name", "Campeão").put("level", 3);
+        assertEquals(19, Core2024SubclassRuntimeEngine.criticalThreshold(championLvl3));
+
+        JSONObject championLvl14 = new JSONObject().put("class_name", "Guerreiro")
+            .put("subclass", "Champion").put("level", 14);
+        assertEquals(19, Core2024SubclassRuntimeEngine.criticalThreshold(championLvl14));
+
+        JSONObject championLvl15 = new JSONObject().put("class_name", "Guerreiro")
+            .put("subclass_name", "Campeão").put("level", 15);
+        assertEquals(18, Core2024SubclassRuntimeEngine.criticalThreshold(championLvl15));
+    }
+
+    @Test
+    public void actionsForReturnsValidOfficialFeatures() {
+        org.json.JSONArray barbActs = Core2024SubclassRuntimeEngine.actionsFor("Caminho do Berserker", 14);
+        assertTrue(barbActs.toString().contains("Frenesi"));
+        assertTrue(barbActs.toString().contains("Fúria Descerebrada"));
+        assertTrue(barbActs.toString().contains("Retaliação"));
+        assertTrue(barbActs.toString().contains("Presença Intimidadora"));
+
+        org.json.JSONArray bmActs = Core2024SubclassRuntimeEngine.actionsFor("Mestre da Batalha", 7);
+        assertTrue(bmActs.toString().contains("Manobra: Ataque Ameaçador"));
+        assertTrue(bmActs.toString().contains("Manobra: Derrubar"));
+        assertTrue(bmActs.toString().contains("Conheça Seu Inimigo"));
+
+        org.json.JSONArray clericActs = Core2024SubclassRuntimeEngine.actionsFor("Domínio da Luz", 3);
+        assertTrue(clericActs.toString().contains("Resplendor do Alvorecer"));
+        assertTrue(clericActs.toString().contains("Clarão Protetor"));
+    }
+
+    @Test
+    public void berserkerFrenzyAndMindlessRageExecuteDeterministically() throws Exception {
+        JSONObject sheet = new JSONObject()
+            .put("class_name", "Bárbaro")
+            .put("subclass_name", "Caminho do Berserker")
+            .put("level", 6)
+            .put("rage_active", false)
+            .put("conditions", "frightened");
+
+        // Frenesi requires rage active
+        JSONObject blockedRage = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Caminho do Berserker", 6, "Frenesi", null);
+        assertFalse(blockedRage.optBoolean("subclass_action_resolved"));
+        assertEquals("rage_inactive", blockedRage.optString("subclass_action_reason"));
+
+        // Activate rage and resolve Frenesi
+        sheet.put("rage_active", true);
+        JSONObject frenzy = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Caminho do Berserker", 6, "Frenesi", null);
+        assertTrue(frenzy.optBoolean("subclass_action_resolved"));
+        assertEquals("barbarian_frenzy", frenzy.optString("subclass_action_event"));
+        assertEquals("1d6", frenzy.optJSONObject("subclass_action_effect").optString("extra_damage_dice"));
+
+        // Mindless rage cleanses frightened
+        JSONObject mindless = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Caminho do Berserker", 6, "Fúria Descerebrada", null);
+        assertTrue(mindless.optBoolean("subclass_action_resolved"));
+        assertEquals("barbarian_mindless_rage", mindless.optString("subclass_action_event"));
+        assertFalse(mindless.optString("conditions").contains("frightened"));
+    }
+
+    @Test
+    public void battleMasterSuperiorityDiceSpendAndExecuteViaAppDb() throws Exception {
+        Context context = RuntimeEnvironment.getApplication();
+        String dbName = databaseName();
+        AppDb db = new AppDb(context, dbName);
+        try {
+            db.setActiveMapProfile("dnd");
+            long charId = db.addCharacter(
+                "Marcus", "Humano", "Guerreiro", 5, 44, 44, 18,
+                16, 12, 14, 10, 12, 10, true, "Soldado");
+            JSONObject ch = db.getCharacter(charId);
+            JSONObject sheet = new JSONObject(ch.optString("sheet_json", "{}"));
+            sheet.put("subclass_name", "Mestre da Batalha");
+            sheet.put("rules_source", DndRulesEngine.PROFILE_2024);
+            Core2024SubclassRuntimeEngine.applyToSheet(sheet);
+            db.updateCharacterSheet(charId, sheet.toString());
+
+            // Resolve maneuver
+            JSONObject payload = new JSONObject().put("die_roll", 6);
+            JSONObject result = db.resolveCharacterHomebrewSubclassAction(
+                charId, "Manobra: Derrubar", payload);
+            assertTrue("Maneuver must resolve: " + result,
+                result.optBoolean("subclass_action_resolved"));
+            assertEquals("battlemaster_maneuver", result.optString("subclass_action_event"));
+            JSONObject effect = result.optJSONObject("subclass_action_effect");
+            assertNotNull(effect);
+            assertEquals(6, effect.optInt("superiority_die_roll"));
+
+            // Check resource deducted
+            JSONObject updatedSheet = new JSONObject(db.getCharacter(charId).optString("sheet_json", "{}"));
+            JSONObject res = updatedSheet.optJSONObject("subclass_resources").optJSONObject("superiority_dice");
+            assertNotNull(res);
+            assertEquals(3, res.optInt("current")); // Started with 4 at level 5, spent 1
+        } finally {
+            db.close();
+            context.deleteDatabase(dbName);
+        }
+    }
+
+    @Test
+    public void lifeClericPreserveLifeHealsAndSpendsChannelDivinityViaAppDb() throws Exception {
+        Context context = RuntimeEnvironment.getApplication();
+        String dbName = databaseName();
+        AppDb db = new AppDb(context, dbName);
+        try {
+            db.setActiveMapProfile("dnd");
+            long charId = db.addCharacter(
+                "Elysia", "Humano", "Clérigo", 3, 24, 24, 16,
+                10, 12, 14, 10, 16, 12, true, "Acólito");
+            JSONObject ch = db.getCharacter(charId);
+            JSONObject sheet = new JSONObject(ch.optString("sheet_json", "{}"));
+            sheet.put("subclass_name", "Domínio da Vida");
+            sheet.put("rules_source", DndRulesEngine.PROFILE_2024);
+            Core2024ClassRuntimeEngine.ensure(sheet, "Clérigo", 3);
+            Core2024SubclassRuntimeEngine.applyToSheet(sheet);
+            db.updateCharacterSheet(charId, sheet.toString());
+
+            // Channel divinity budget = 5 * 3 = 15 HP
+            org.json.JSONArray dist = new org.json.JSONArray()
+                .put(new JSONObject().put("target_id", "ally-1").put("healing", 10))
+                .put(new JSONObject().put("target_id", "ally-2").put("healing", 5));
+            JSONObject payload = new JSONObject().put("distribution", dist);
+
+            JSONObject result = db.resolveCharacterHomebrewSubclassAction(
+                charId, "Preservar a Vida", payload);
+            assertTrue("Preserve Life must resolve: " + result,
+                result.optBoolean("subclass_action_resolved"));
+            assertEquals("cleric_preserve_life", result.optString("subclass_action_event"));
+            assertEquals(15, result.optJSONObject("subclass_action_effect").optInt("healing_total"));
+
+            // Check Channel Divinity spent in class_resources
+            JSONObject updatedSheet = new JSONObject(db.getCharacter(charId).optString("sheet_json", "{}"));
+            JSONObject cd = updatedSheet.optJSONObject("class_resources").optJSONObject("channel_divinity");
+            assertNotNull(cd);
+            assertEquals(1, cd.optInt("current")); // Started with 2 at level 3, spent 1
+        } finally {
+            db.close();
+            context.deleteDatabase(dbName);
+        }
+    }
 }

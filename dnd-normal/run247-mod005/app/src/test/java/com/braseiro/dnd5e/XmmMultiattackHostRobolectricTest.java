@@ -134,12 +134,24 @@ public class XmmMultiattackHostRobolectricTest {
         assertEquals(0,DatabaseUtils.longForQuery(db.getReadableDatabase(),
             "SELECT COUNT(*) FROM effect_receipts",null));
     }
-    @Test public void spellCompositionBlocksBeforeMutation() throws Exception {
-        bind("Adult Red Dragon");JSONObject selection=new JSONObject().put("variant_index",1)
+    @Test public void hybridMultiattackDeclarationPermitsKnownSpellsAndBlocksUnknown() throws Exception {
+        bind("Adult Red Dragon");
+        assertTrue(XmmMultiattackHostPlan.actionExistsInStatblock("Adult Red Dragon", "Scorching Ray"));
+        assertTrue(XmmMultiattackHostPlan.actionExistsInStatblock("Adult Red Dragon", "Fire Breath"));
+        assertFalse(XmmMultiattackHostPlan.actionExistsInStatblock("Adult Red Dragon", "Wish"));
+
+        // Valid registered variant with Scorching Ray + 2x Rend
+        JSONObject selection=new JSONObject().put("variant_index",1)
             .put("selected_actions",new JSONArray().put("Scorching Ray").put("Rend").put("Rend"));
-        JSONObject result=db.applyCompiledStatblockMultiattack(actor,"Adult Red Dragon",new JSONArray(),
-            "ui-monster-multi-spell-block",selection);
-        assertEquals("multiattack_component_executor_not_installed_spell_0",result.optString("statblock_multiattack_blocked"));unchanged();
+        JSONObject decl = XmmMultiattackHostPlan.declaration("Adult Red Dragon", selection, new JSONObject());
+        assertFalse("Known spell Scorching Ray must be permitted: " + decl, decl.has("statblock_multiattack_blocked"));
+        assertEquals(3, decl.optInt("count"));
+
+        // Rejection when rolls mismatch count
+        JSONObject countMismatch = db.applyCompiledStatblockMultiattack(actor, "Adult Red Dragon", new JSONArray(),
+            "ui-monster-multi-spell-count", selection);
+        assertEquals("multiattack_count_mismatch", countMismatch.optString("statblock_multiattack_blocked"));
+        unchanged();
     }
     @Test public void hastenStateSurvivesBackup21RestoreAndThreeSqliteReopens() throws Exception {
         bind("Clay Golem");
