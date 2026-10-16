@@ -1,4 +1,4 @@
-import {chooseLongArmOldLylekRoute,approachLongArmOldLylekOnFoot} from '../app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs';
+import {selectLongArmTrexCarryover,chooseLongArmOldLylekRoute,approachLongArmOldLylekOnFoot} from '../app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs';
 
 /** A downstream test fixture records a valid, source-shaped retreat from the prior hunter scene. */
 export function resolveOldLylekRetreat(adapter,world,partySize=null){
@@ -7,7 +7,8 @@ export function resolveOldLylekRetreat(adapter,world,partySize=null){
  const size=Number.isInteger(partySize)&&partySize>=1&&partySize<=8?partySize:
    Number.isInteger(configured)&&configured>=1&&configured<=8?configured:1;
  p.flags={...(p.flags||{}),confirmedPartySize:size};
- let w=chooseLongArmOldLylekRoute(next,{slowDown:true}).world;
+ let selected=selectLongArmTrexCarryover(next,{history:'confirmed_dead'}).world;
+ let w=chooseLongArmOldLylekRoute(selected,{slowDown:true}).world;
  w=approachLongArmOldLylekOnFoot(w).world;
  const encounterId='lylek-den-bounty-hunters';w=adapter.markEncounterActive(w,encounterId);
  const spec=adapter.encounterSpec(w,encounterId),adversaries=[];

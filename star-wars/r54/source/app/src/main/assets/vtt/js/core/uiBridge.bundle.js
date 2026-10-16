@@ -3021,6 +3021,17 @@ class BraseiroUiBridge {
             return fail('SWE02_LYLEK_FAILED', messageOf(e));
         }
     }
+    selectSWE02TrexCarryover(options = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.selectSWE02TrexCarryover(options ?? {})));
+        }
+        catch (e) {
+            return fail('SWE02_LYLEK_FAILED', messageOf(e));
+        }
+    }
     proceedSWE02OldLylekBluff() {
         const r = this._controllerForExistingCampaign();
         if (!r.ok)
@@ -13406,6 +13417,7 @@ exports.currentLongArmOfTheHuttScene = currentLongArmOfTheHuttScene;
 exports.currentLongArmOfTheHuttChecks = currentLongArmOfTheHuttChecks;
 exports.adjudicateLongArmOfTheHuttCheck = adjudicateLongArmOfTheHuttCheck;
 exports.chooseLongArmOldLylekRoute = chooseLongArmOldLylekRoute;
+exports.selectLongArmTrexCarryover = selectLongArmTrexCarryover;
 exports.proceedLongArmOldLylekBluff = proceedLongArmOldLylekBluff;
 exports.approachLongArmOldLylekOnFoot = approachLongArmOldLylekOnFoot;
 exports.recordLongArmOldLylekCrashCheck = recordLongArmOldLylekCrashCheck;
@@ -14325,6 +14337,7 @@ function chooseLongArmOldLylekRoute(world, options) {
     p.updatedAt = now();
     return { world: next, progress: clone(p) };
 }
+function selectLongArmTrexCarryover(world, options) { const out = (0, swe02OldLylekP15_mjs_1.selectSWE02TrexCarryover)(world, options); return { world: out.world, carryover: clone(out.carryover) }; }
 function proceedLongArmOldLylekBluff(world) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
     throw Error('SWE02: aventura inativa.'); p.oldLylek = (0, swe02OldLylekP15_mjs_1.proceedSWE02OldLylekBluff)(p).progress.oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p) }; }
 function approachLongArmOldLylekOnFoot(world) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
@@ -14444,6 +14457,10 @@ function longArmOfTheHuttEncounterSpec(world, encounterId = null) {
         const derived = Array.isArray(members) ? members.filter(m => m?.active !== false).length : null;
         const partySize = Number.isInteger(explicit) && explicit >= 1 && explicit <= 8 ? explicit :
             Number.isInteger(derived) && derived >= 1 && derived <= 8 ? derived : 1;
+        const trex = (0, swe02OldLylekP15_mjs_1.requireSWE02TrexCarryover)(world?.publishedAdventure);
+        const trexPresent = trex.present === true, trexRequiresReview = trexPresent && partySize < 2;
+        const trexSlot = trexPresent && !trexRequiresReview ? { profileKey: 'trex', count: 1, range: 'Médio', preWounds: trex.preWounds } : null;
+        const humanCount = Math.max(0, partySize - 1 - (trexSlot ? 1 : 0));
         return {
             id, label: 'Caçadores de Teemo — antigo covil de lylek',
             source: { title: 'Long Arm of the Hutt', productCode: 'SWE02', printedPages: [15, 16, 17], authority: 'OFFICIAL_PDF_TEXT_VERIFIED' },
@@ -14451,9 +14468,10 @@ function longArmOfTheHuttEncounterSpec(world, encounterId = null) {
             playerInitiativeSkill: 'frialdad', npcInitiativeSkill: 'frialdad',
             npcInitiativeSetback: world?.publishedAdventure?.oldLylek?.route === 'fast' ? 1 : 0,
             initiativeSource: { title: 'The Long Arm of the Hutt', productCode: 'SWE02', printedPage: 17, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' },
-            trexCarryover: world?.publishedAdventure?.oldLylek?.trexCarryover ?? { status: 'PENDENTE', reason: 'SWE02 p.15 requires Escape from Mos Shuuta campaign history and the separate Adventure Book p.24 profile.' },
+            trexCarryover: clone(trex), requiresTrexSlotReview: trexRequiresReview,
             adversaries: [{ profileKey: 'laoth_gand_bounty_hunter', count: 1, range: 'Longo' },
-                ...(partySize > 1 ? [{ profileKey: 'laoth_bounty_hunter', count: partySize - 1, range: 'Médio' }] : [])]
+                ...(trexSlot ? [trexSlot] : []),
+                ...Array.from({ length: humanCount }, (_, index) => ({ profileKey: 'laoth_bounty_hunter', count: 1, range: 'Médio', name: `Caçador humano ${index + 1}` }))]
         };
     }
     if (id === 'lylek-den-lylek') {
@@ -18219,6 +18237,8 @@ define("js/adventure/swe02OldLylekP15.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createSWE02OldLylekState = createSWE02OldLylekState;
+exports.requireSWE02TrexCarryover = requireSWE02TrexCarryover;
+exports.selectSWE02TrexCarryover = selectSWE02TrexCarryover;
 exports.chooseSWE02OldLylekRoute = chooseSWE02OldLylekRoute;
 exports.recordSWE02OldLylekPilot = recordSWE02OldLylekPilot;
 exports.recordSWE02OldLylekLookout = recordSWE02OldLylekLookout;
@@ -18245,8 +18265,33 @@ function requireProgress(progress) {
 function createSWE02OldLylekState() {
     return { schema: 1, phase: 'approach', route: null, pilotChecks: [], lookout: null, crashChecks: [], crashResolved: false,
         repairChecks: [], huntersOutcome: null, lylekTriggered: false, lylekWarning: null, lylekEncounter: null, hunterLoot: null,
-        trexCarryover: { status: 'PENDENTE', reason: 'SWE02 p.15 requires Escape from Mos Shuuta campaign history and the separate Adventure Book p.24 profile; neither prior outcome nor verified profile is available in this encounter state.' },
+        trexCarryover: { status: 'pending', history: null, source: { title: 'The Long Arm of the Hutt', productCode: 'SWE02', printedPage: 15 }, reference: { title: 'Edge of the Empire Adventure Book', productCode: 'SWE01', printedPage: 24 } },
         source: clone(SOURCE) };
+}
+const TREX_HISTORY = Object.freeze({
+    escaped: Object.freeze({ present: true, preWounds: 0, label: 'Escapou de T’rex sem luta' }),
+    defeated_unconfirmed_dead: Object.freeze({ present: true, preWounds: 10, label: 'T’rex foi derrotado, mas sua morte não foi confirmada' }),
+    confirmed_dead: Object.freeze({ present: false, preWounds: 0, label: 'T’rex foi morto com confirmação' })
+});
+function requireSWE02TrexCarryover(progress) {
+    const t = progress?.oldLylek?.trexCarryover, rule = TREX_HISTORY[t?.history];
+    if (t?.status !== 'selected' || !rule || t.present !== rule.present || t.preWounds !== rule.preWounds)
+        throw new Error('SWE02 p.15: histórico de T’rex ausente ou adulterado; registre novamente uma opção válida de Escape from Mos Shuuta.');
+    return clone(t);
+}
+function selectSWE02TrexCarryover(world, { history } = {}) {
+    const next = clone(world || {}), p = next.publishedAdventure;
+    if (!p || p.id !== 'long-arm-of-the-hutt' || p.currentNodeId !== 'lylek-den-ambush')
+        throw new Error('SWE02 p.15: histórico de T’rex só pode ser registrado na cena do Old Lylek Den.');
+    const old = p.oldLylek || createSWE02OldLylekState();
+    if (old.phase !== 'approach' || old.trexCarryover?.status === 'selected' || !Object.hasOwn(TREX_HISTORY, history))
+        throw new Error('SWE02 p.15: escolha um resultado válido de Escape from Mos Shuuta antes de iniciar a emboscada.');
+    const result = TREX_HISTORY[history];
+    p.oldLylek = { ...old, trexCarryover: { status: 'selected', history, present: result.present, preWounds: result.preWounds,
+            label: result.label, source: { title: 'The Long Arm of the Hutt', productCode: 'SWE02', printedPage: 15, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' },
+            profileSource: { title: 'Edge of the Empire Adventure Book', productCode: 'SWE01', printedPage: 24, authority: 'OFFICIAL_SOURCE_PROFILE_VERIFIED' } } };
+    p.updatedAt = new Date().toISOString();
+    return { world: next, carryover: clone(p.oldLylek.trexCarryover) };
 }
 function chooseSWE02OldLylekRoute(progress, { slowDown } = {}) {
     const p = requireProgress(progress), old = p.oldLylek || createSWE02OldLylekState();
@@ -18351,7 +18396,12 @@ function recordSWE02OldLylekHunterOutcome(progress, { outcome, adversaries = [],
     if (!['adversaries_defeated', 'player_incapacitated', 'ended', 'escaped'].includes(outcome))
         throw new Error('SWE02 p.18: resultado de combate inválido.');
     const expectedCount = Number(p.flags?.confirmedPartySize), expected = Number.isInteger(expectedCount) && expectedCount > 0 ? expectedCount : null;
+    const history = old.trexCarryover?.history, carryover = requireSWE02TrexCarryover(p), hasTrex = TREX_HISTORY[history]?.present === true;
+    const expectedTrex = hasTrex && expected > 1 ? 1 : 0;
+    const trexCount = adversaries.filter(a => a.profileKey === 'trex').length;
+    const gandCount = adversaries.filter(a => a.profileKey === 'laoth_gand_bounty_hunter').length;
     if (!expected || adversaries.length !== expected || adversaries.some(a => a.profileKey !== 'laoth_gand_bounty_hunter' && !['laoth_bounty_hunter', 'trex'].includes(a.profileKey)) ||
+        gandCount !== 1 || trexCount !== expectedTrex ||
         adversaries.some(a => !a.id) || new Set(adversaries.map(a => a.id)).size !== adversaries.length)
         throw new Error('SWE02 p.15: resultado exige os caçadores reais em quantidade igual aos PCs.');
     const defeated = adversaries.every(a => ['incapacitated', 'defeated'].includes(a.status));
@@ -23342,6 +23392,8 @@ class GameController {
                 throw Error('Encontro de Teemo exige conferência editorial e confirmação do segundo grupo.');
             if (spec.requiresPartySizeConfirmation)
                 throw new Error('Confirme o tamanho do grupo na sessão antes de iniciar a emboscada.');
+            if (spec.requiresTrexSlotReview)
+                throw new Error('SWE02 p.15: T’rex está vivo, mas um grupo de um único PC não permite confirmar um slot adicional sem remover o Gand obrigatório. A composição fica PENDENTE.');
             const adversaries = spec.adversaries.map(entry => {
                 const npc = entry.worldNpcId ? this.state.world?.npcs?.[entry.worldNpcId] : null;
                 const adversary = adversaries_mjs_1.createAdversary(entry.profileKey, { count: entry.count, range: entry.range, name: entry.name || npc?.name || null });
@@ -23361,6 +23413,11 @@ class GameController {
                     else if (Number(entry.preWounds) > 0 && adversary.wounds) {
                         adversary.wounds.current = Math.min(Number(adversary.wounds.threshold) || 0, Math.max(0, Number(adversary.wounds.current) || 0) + Number(entry.preWounds));
                     }
+                }
+                else if (Number(entry.preWounds) > 0 && adversary.wounds) {
+                    // Published encounter source may carry pre-existing damage for
+                    // a profile-backed adversary without a separate world-NPC row.
+                    adversary.wounds.current = Math.min(Number(adversary.wounds.threshold) || 0, Math.max(0, Number(adversary.wounds.current) || 0) + Number(entry.preWounds));
                 }
                 return adversary;
             });
@@ -26665,6 +26722,15 @@ class GameController {
             const out = (0, longArmOfTheHutt_mjs_1.chooseLongArmOldLylekRoute)(this.state.world, { slowDown });
             this.commit('WORLD_UPDATED', { world: out.world });
             return clone(out.progress.oldLylek);
+        });
+    }
+    selectSWE02TrexCarryover({ history } = {}) {
+        return this.atomicAction(() => {
+            if (this.state.combat?.active)
+                throw Error('SWE02 p.15: o histórico de T’rex deve ser selecionado antes do combate.');
+            const out = (0, longArmOfTheHutt_mjs_1.selectLongArmTrexCarryover)(this.state.world, { history });
+            this.commit('WORLD_UPDATED', { world: out.world });
+            return clone(out.carryover);
         });
     }
     proceedSWE02OldLylekBluff() {
@@ -31150,6 +31216,23 @@ exports.PUBLISHED_ADVENTURE_ADVERSARY_PROFILES = Object.freeze({
         weapons: [{ name: 'Fuzil blaster', skill: 'armas_distancia_pesadas', range: 'Longo', damage: 9, crit: 3, stunSetting: true },
             { name: 'Pistola blaster pesada', skill: 'armas_distancia_ligeras', range: 'Médio', damage: 7, crit: 3, stunSetting: true }],
         source: { title: 'Long Arm of the Hutt', productCode: 'SWE02', page: 16, authority: 'SOURCE_CHECKED_PROFILE' }
+    }),
+    // SWE02 p.15 conditionally brings this Adventure Book p.24 Nemesis into an
+    // existing human hunter slot. preWounds is supplied only by that history.
+    trex: Object.freeze({
+        key: 'trex', name: 'T’rex, escravizador trandoshano', kind: 'nemesis',
+        characteristics: { fortaleza: 4, agilidade: 3, intelecto: 2, astucia: 3, voluntad: 3, presencia: 2 },
+        soak: 5, woundsThreshold: 16, strainThreshold: 11, defense: { melee: 0, ranged: 0 }, groupSkills: [],
+        skills: { pelea: 1, frialdad: 1, disciplina: 1, mecanica: 3, negociacao: 1, percepcao: 2, pilotar_veiculo_planetario: 1, armas_distancia_ligeras: 2, vigilancia: 1 },
+        talents: [], abilities: [],
+        weapons: [
+            { name: 'Heavy Blaster Pistol', skill: 'armas_distancia_ligeras', range: 'Médio', damage: 7, crit: 3 },
+            { name: 'Trandoshan Claws', skill: 'pelea', range: 'Engajado', damage: 5, crit: 3 }
+        ],
+        equipment: ['Heavy clothing', 'comlink', 'stimpack (heals living creature 4 wounds)', 'emergency repair kit (repairs droid 4 wounds)'],
+        source: { title: 'Edge of the Empire Adventure Book', productCode: 'SWE01', printedPage: 24,
+            encounterSource: { title: 'The Long Arm of the Hutt', productCode: 'SWE02', printedPage: 15 },
+            authority: 'OFFICIAL_SOURCE_PROFILE_VERIFIED', verification: 'VISUAL_PAGE_REVIEW', sourceImage: 'beg_29.png' }
     }),
     // SWE02 p.18 directs the optional lylek attack to this exact Beginner Game profile.
     swe02_captive_rancor: Object.freeze({

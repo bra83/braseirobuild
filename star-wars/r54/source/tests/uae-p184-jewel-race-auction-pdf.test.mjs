@@ -1,13 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
-import {chooseLongArmOldLylekRoute,proceedLongArmOldLylekBluff} from '../app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs';
+import {selectLongArmTrexCarryover,chooseLongArmOldLylekRoute,proceedLongArmOldLylekBluff} from '../app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs';
 import {validatePublishedAdventureRuntimeState,publishedAdventureRuntimeModule} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureUaeBridge.mjs';
 import {jewelAuctionStatus,jewelGrandPrixStatus} from '../app/src/main/assets/vtt/js/adventure/jewelOfYavin.mjs';
 const a=getPublishedAdventureAdapter('jewel-of-yavin');
 const arm=getPublishedAdventureAdapter('long-arm-of-the-hutt');
 function lylekReadyWorld(size=1){
  let w=arm.start({}).world;for(const choice of ['dock-ryloth','help-new-meen','travel-lylek-den'])w=arm.advance(w,choice).world;
+ w=selectLongArmTrexCarryover(w,{history:'confirmed_dead'}).world;
  w=chooseLongArmOldLylekRoute(w,{slowDown:true}).world;
  w=arm.adjudicateCheck(w,{checkIndex:0,result:{success:true,netSuccess:1,netAdvantage:0}}).world;
  w=proceedLongArmOldLylekBluff(w).world;w.publishedAdventure.flags.confirmedPartySize=size;return w;
@@ -101,7 +102,7 @@ test('P184 SWE02: old lylek den creates one source-checked hunter per PC includi
  let w=lylekReadyWorld(4);
  const spec=arm.encounterSpec(w,'lylek-den-bounty-hunters');
  assert.equal(spec.partySize,4);assert.equal(spec.requiresPartySizeConfirmation,false);
- assert.deepEqual(spec.adversaries.map(x=>[x.profileKey,x.count]),[['laoth_gand_bounty_hunter',1],['laoth_bounty_hunter',3]]);
+ assert.deepEqual(spec.adversaries.map(x=>[x.profileKey,x.count]),[['laoth_gand_bounty_hunter',1],['laoth_bounty_hunter',1],['laoth_bounty_hunter',1],['laoth_bounty_hunter',1]]);
  const {PUBLISHED_ADVENTURE_ADVERSARY_PROFILES:ADVERSARY_PROFILES}=await import('../app/src/main/assets/vtt/js/rules/adversaries.mjs');
  assert.equal(ADVERSARY_PROFILES.laoth_bounty_hunter.soak,5);
  assert.equal(ADVERSARY_PROFILES.laoth_gand_bounty_hunter.weapons[0].damage,9);

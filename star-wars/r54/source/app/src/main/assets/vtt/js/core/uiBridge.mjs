@@ -1719,6 +1719,8 @@ completeMerchantAcquisition(options={}){
     }
     chooseSWE02OldLylekRoute(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.chooseSWE02OldLylekRoute(options??{})));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    selectSWE02TrexCarryover(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.selectSWE02TrexCarryover(options??{})));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
     proceedSWE02OldLylekBluff(){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.proceedSWE02OldLylekBluff()));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
     approachSWE02OldLylekOnFoot(){const r=this._controllerForExistingCampaign();if(!r.ok)return r;

@@ -300,12 +300,14 @@ function renderSWE02OldLylek(state){
   host.hidden=!active;
   if(!active)return;
   const phase=o.phase,combatId=state.combat?.publishedAdventureContext?.encounterId;
-  $('swe02OldLylekStatus').textContent=`Etapa: ${phase} · rota: ${o.route||'não escolhida'}${o.lookout?.spottedGand?' · Gand avistado (SWE02 p.17)':''}${o.lookout&&!o.lookout.spottedGand?' · Gand não avistado (SWE02 p.17)':''}${o.route==='fast'?' · caçadores recebem 1 Setback na iniciativa Cool (SWE02 p.17)':''}${o.lylekTriggered?' · ninho perturbado':''}${o.huntersOutcome?` · caçadores: ${o.huntersOutcome}`:''}${o.hunterLoot?.status==='available'?' · speeder dos caçadores pode ser inspecionado':o.hunterLoot?.status==='found'?' · encontrados: 2 stimpacks, medpac, kit de reparo (SWE02 p.18)':''}${o.trexCarryover?.status==='PENDENTE'?' · T’rex depende do histórico de Mos Shuuta (PENDENTE)':''}`;
+  const trex=o.trexCarryover,pcCount=Number(state.session?.campaignRules?.destiny?.playerCount??state.session?.eoteRules?.destiny?.playerCount??state.session?.playerCount);
+  $('swe02OldLylekStatus').textContent=`Etapa: ${phase} · rota: ${o.route||'não escolhida'}${o.lookout?.spottedGand?' · Gand avistado (SWE02 p.17)':''}${o.lookout&&!o.lookout.spottedGand?' · Gand não avistado (SWE02 p.17)':''}${o.route==='fast'?' · caçadores recebem 1 Setback na iniciativa Cool (SWE02 p.17)':''}${o.lylekTriggered?' · ninho perturbado':''}${o.huntersOutcome?` · caçadores: ${o.huntersOutcome}`:''}${o.hunterLoot?.status==='available'?' · speeder dos caçadores pode ser inspecionado':o.hunterLoot?.status==='found'?' · encontrados: 2 stimpacks, medpac, kit de reparo (SWE02 p.18)':''}${trex?.status!=='selected'?' · histórico de T’rex precisa ser selecionado':trex.present?` · T’rex presente (${trex.history==='defeated_unconfirmed_dead'?'começa com 10 ferimentos':'sem ferimentos prévios'})`:' · T’rex morto e ausente'}${trex?.present&&pcCount===1?' · composição Gand + T’rex para 1 PC PENDENTE':''}`;
+  $('swe02TrexHistoryControls').hidden=trex?.status==='selected';
   $('swe02LylekSlow').hidden=phase!=='approach';$('swe02LylekFast').hidden=phase!=='approach';
   $('swe02LylekCheck').hidden=!['pilot-1','pilot-2','lookout','repair','repair-failed'].includes(phase);
   $('swe02LylekProceed').hidden=!['lookout','bluff'].includes(phase);$('swe02LylekFoot').hidden=!['lookout','bluff'].includes(phase);
   $('swe02LylekCrash').hidden=phase!=='crash-checks';
-  $('swe02LylekHunters').hidden=phase!=='combat-ready';
+  $('swe02LylekHunters').hidden=phase!=='combat-ready'||trex?.status!=='selected';
   $('swe02LylekInsist').hidden=phase!=='post-hunters'||!o.lylekTriggered;
   $('swe02LylekLoot').hidden=o.hunterLoot?.status!=='available';
   $('swe02LylekBeast').hidden=phase!=='lylek-warned';
@@ -1029,6 +1031,7 @@ $('resolveSuggestedCheck').addEventListener('click',()=>{
 for(const [id,run,okText] of [
  ['swe02LylekSlow',()=>game.chooseSWE02OldLylekRoute({slowDown:true}),'Velocidade reduzida; o terreno pode ser atravessado sem teste.'],
  ['swe02LylekFast',()=>game.chooseSWE02OldLylekRoute({slowDown:false}),'Rota rápida: resolva os dois testes de Pilotagem Média sugeridos, um por vez.'],
+ ['swe02TrexHistorySave',()=>game.selectSWE02TrexCarryover({history:$('swe02TrexHistory').value}),'Histórico de T’rex registrado para a composição do combate (SWE02 p.15).'],
  ['swe02LylekProceed',()=>game.proceedSWE02OldLylekBluff(),'Aproximação pelo bluff registrada.'],
  ['swe02LylekFoot',()=>game.approachSWE02OldLylekOnFoot(),'Grupo parou e se aproxima a pé; combate pode começar.'],
  ['swe02LylekCrash',()=>game.resolveSWE02OldLylekCrashCheck({skillKey:$('swe02LylekCrashSkill').value}),'Teste de colisão registrado.'],

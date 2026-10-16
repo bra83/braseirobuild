@@ -10,6 +10,7 @@ class Repo { constructor(){this.state=createCampaign('SWE02 Old Lylek');this.sav
 function fixture(){
  const repo=new Repo(),g=new GameController(repo);g.loadStarterCharacter('cael');g.startPublishedAdventureSession('long-arm-of-the-hutt',{rng:()=>.5});
  for(const choice of ['dock-ryloth','help-new-meen','travel-lylek-den'])g.advancePublishedAdventure(choice);
+ g.selectSWE02TrexCarryover({history:'confirmed_dead'});
  return {repo,g};
 }
 function reopenThree(repo,assertState){let last;for(let n=0;n<3;n++){last=new GameController(repo);assertState(last.state);}return last;}

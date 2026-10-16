@@ -11,7 +11,7 @@ import {validateSWE02Palace} from './swe02Act3PalaceWip.mjs';
 import {validateSWE02Anatta} from './swe02Act2Anatta.mjs';
 import {validateSWE02Act2Contracts,askSWE02Piddock} from './swe02Act2ContractsWip.mjs';
 import {validateSWE02PalaceOperations} from './swe02PalaceOperations.mjs';
-import {createSWE02OldLylekState,chooseSWE02OldLylekRoute,recordSWE02OldLylekPilot,recordSWE02OldLylekLookout,
+import {createSWE02OldLylekState,selectSWE02TrexCarryover,requireSWE02TrexCarryover,chooseSWE02OldLylekRoute,recordSWE02OldLylekPilot,recordSWE02OldLylekLookout,
   proceedSWE02OldLylekBluff,approachSWE02OldLylekOnFoot,recordSWE02OldLylekCrashCheck,confirmSWE02OldLylekCrashCrew,
   recordSWE02OldLylekRepair,markSWE02OldLylekCombatStarted,recordSWE02OldLylekHunterOutcome,inspectSWE02OldLylekSpeeder,warnSWE02OldLylek,
   persistSWE02OldLylek,markSWE02OldLylekAttackStarted,resolveSWE02OldLylek,canSWE02OldLylekContinue} from './swe02OldLylekP15.mjs';
@@ -832,6 +832,7 @@ export function chooseLongArmOldLylekRoute(world,options){
   if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');
   p.oldLylek=chooseSWE02OldLylekRoute(p,options).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};
 }
+export function selectLongArmTrexCarryover(world,options){const out=selectSWE02TrexCarryover(world,options);return {world:out.world,carryover:clone(out.carryover)};}
 export function proceedLongArmOldLylekBluff(world){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=proceedSWE02OldLylekBluff(p).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
 export function approachLongArmOldLylekOnFoot(world){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=approachSWE02OldLylekOnFoot(p).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
 export function recordLongArmOldLylekCrashCheck(world,receipt){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=recordSWE02OldLylekCrashCheck(p,receipt).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
@@ -932,6 +933,10 @@ export function longArmOfTheHuttEncounterSpec(world, encounterId = null) {
     const derived = Array.isArray(members) ? members.filter(m=>m?.active!==false).length : null;
     const partySize = Number.isInteger(explicit)&&explicit>=1&&explicit<=8 ? explicit :
       Number.isInteger(derived)&&derived>=1&&derived<=8 ? derived : 1;
+    const trex=requireSWE02TrexCarryover(world?.publishedAdventure);
+    const trexPresent=trex.present===true,trexRequiresReview=trexPresent&&partySize<2;
+    const trexSlot=trexPresent&&!trexRequiresReview?{profileKey:'trex',count:1,range:'Médio',preWounds:trex.preWounds}:null;
+    const humanCount=Math.max(0,partySize-1-(trexSlot?1:0));
     return {
       id,label:'Caçadores de Teemo — antigo covil de lylek',
       source:{title:'Long Arm of the Hutt',productCode:'SWE02',printedPages:[15,16,17],authority:'OFFICIAL_PDF_TEXT_VERIFIED'},
@@ -939,9 +944,10 @@ export function longArmOfTheHuttEncounterSpec(world, encounterId = null) {
       playerInitiativeSkill:'frialdad',npcInitiativeSkill:'frialdad',
       npcInitiativeSetback:world?.publishedAdventure?.oldLylek?.route==='fast'?1:0,
       initiativeSource:{title:'The Long Arm of the Hutt',productCode:'SWE02',printedPage:17,authority:'OFFICIAL_PDF_TEXT_VERIFIED'},
-      trexCarryover:world?.publishedAdventure?.oldLylek?.trexCarryover??{status:'PENDENTE',reason:'SWE02 p.15 requires Escape from Mos Shuuta campaign history and the separate Adventure Book p.24 profile.'},
+      trexCarryover:clone(trex),requiresTrexSlotReview:trexRequiresReview,
       adversaries:[{profileKey:'laoth_gand_bounty_hunter',count:1,range:'Longo'},
-        ...(partySize>1?[{profileKey:'laoth_bounty_hunter',count:partySize-1,range:'Médio'}]:[])]
+        ...(trexSlot?[trexSlot]:[]),
+        ...Array.from({length:humanCount},(_,index)=>({profileKey:'laoth_bounty_hunter',count:1,range:'Médio',name:`Caçador humano ${index+1}`}))]
     };
   }
   if(id==='lylek-den-lylek') {

@@ -43,7 +43,7 @@
     "metadata_only_unreviewed": 500
   },
   "fresh_regression": {
-    "state": "PASS_WITH_2_EXPLAINED_SKIPS",
+    "state": "STALE_AFTER_TREX_CARRYOVER",
     "files": 378,
     "regular_files": 372,
     "stress_files": 6,
@@ -55,6 +55,7 @@
     "evidence": "evidence/fresh-regression-20261016-old-lylek-rerun/",
     "skip_reason": "JDK jar executable unavailable for two offline Gradle-wrapper packaging checks.",
     "runner_environment": "NODE_PATH pointed to recovered project-local node_modules/typescript; no dependency files copied into Git.",
+    "superseded_by": "T’rex carryover integration and subsequent Old Lylek source audit. The prior full regression is preserved as historical evidence; rerun the complete suite after the current Old Lylek block closes.",
     "initial_attempt": {
       "files": 378,
       "tests": 3399,
@@ -73,7 +74,16 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Wire verified T-rex p.15 / Adventure Book p.24 source into persisted campaign history; close party-wide strain, per-PC crash roster/effects, bluff outcome, loot inventory transfer and mandatory Bura/lylek branch with source-backed controller/UI/persistence tests; then complete remaining Act 1/2/3 ledgers. Keep all statuses uncertified.",
+  "next_action": "Close the full Old Lylek printed pp.15–18 family: persisted PC roster and party effects, map/approach, ruse and hunter tactics, optional GM-selected lylek branch, loot transfer, and New Meen arrival, with source-backed controller/UI/save-reopen tests. Then finish the remaining SWE02 Act 1/2/3 ledgers. Keep all statuses uncertified.",
+  "trex_carryover": {
+    "status": "IMPLEMENTADO_NAO_CERTIFICADO",
+    "source": ["SWE02 p.15", "Edge of the Empire Adventure Book p.24 (PDF p.29)"],
+    "focused_tests": {"file": "tests/swe02-trex-carryover.test.mjs", "tests": 5, "pass": 5, "fail": 0},
+    "affected_sparse_sweep": {"tests": 24, "pass": 24, "fail": 0, "skip": 0, "evidence": "evidence/SWE02_TREX_CARRYOVER_20261016/affected-tests-sparse.tap"},
+    "bundle": {"result": "PASS", "modules": 133, "evidence": "evidence/SWE02_TREX_CARRYOVER_20261016/bundle-build.log"},
+    "pending": ["Solo or unknown-size party with living T’rex: source does not reconcile the mandatory Gand with the one-hunter-per-PC count.", "Full pp.15–18 encounter semantics, roster-bound effects, loot grant, branch and arrival proofs."],
+    "evidence_report": "evidence/SWE02_TREX_CARRYOVER_20261016/T_REX_CARRYOVER_REPORT.md"
+  },
   "source_corrections": {
     "SWE02_palace_page_provenance": "Corrected p.43 map vs p.44 room/recruitment data and p.45 Bith interview references; generated bundle rebuilt; four focused tests pass. The earlier 376-file fresh regression predates current Old Lylek and AoR source corrections."
   },

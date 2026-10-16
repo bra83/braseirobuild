@@ -10,8 +10,36 @@ function requireProgress(progress) {
 export function createSWE02OldLylekState() {
   return { schema:1, phase:'approach', route:null, pilotChecks:[], lookout:null, crashChecks:[], crashResolved:false,
     repairChecks:[], huntersOutcome:null, lylekTriggered:false, lylekWarning:null, lylekEncounter:null, hunterLoot:null,
-    trexCarryover:{status:'PENDENTE',reason:'SWE02 p.15 requires Escape from Mos Shuuta campaign history and the separate Adventure Book p.24 profile; neither prior outcome nor verified profile is available in this encounter state.'},
+    trexCarryover:{status:'pending',history:null,source:{title:'The Long Arm of the Hutt',productCode:'SWE02',printedPage:15},reference:{title:'Edge of the Empire Adventure Book',productCode:'SWE01',printedPage:24}},
     source:clone(SOURCE) };
+}
+
+const TREX_HISTORY=Object.freeze({
+  escaped:Object.freeze({present:true,preWounds:0,label:'Escapou de T’rex sem luta'}),
+  defeated_unconfirmed_dead:Object.freeze({present:true,preWounds:10,label:'T’rex foi derrotado, mas sua morte não foi confirmada'}),
+  confirmed_dead:Object.freeze({present:false,preWounds:0,label:'T’rex foi morto com confirmação'})
+});
+
+export function requireSWE02TrexCarryover(progress) {
+  const t=progress?.oldLylek?.trexCarryover,rule=TREX_HISTORY[t?.history];
+  if(t?.status!=='selected'||!rule||t.present!==rule.present||t.preWounds!==rule.preWounds)
+    throw new Error('SWE02 p.15: histórico de T’rex ausente ou adulterado; registre novamente uma opção válida de Escape from Mos Shuuta.');
+  return clone(t);
+}
+
+export function selectSWE02TrexCarryover(world,{history}={}) {
+  const next=clone(world||{}),p=next.publishedAdventure;
+  if(!p||p.id!=='long-arm-of-the-hutt'||p.currentNodeId!=='lylek-den-ambush')
+    throw new Error('SWE02 p.15: histórico de T’rex só pode ser registrado na cena do Old Lylek Den.');
+  const old=p.oldLylek||createSWE02OldLylekState();
+  if(old.phase!=='approach'||old.trexCarryover?.status==='selected'||!Object.hasOwn(TREX_HISTORY,history))
+    throw new Error('SWE02 p.15: escolha um resultado válido de Escape from Mos Shuuta antes de iniciar a emboscada.');
+  const result=TREX_HISTORY[history];
+  p.oldLylek={...old,trexCarryover:{status:'selected',history,present:result.present,preWounds:result.preWounds,
+    label:result.label,source:{title:'The Long Arm of the Hutt',productCode:'SWE02',printedPage:15,authority:'OFFICIAL_PDF_TEXT_VERIFIED'},
+    profileSource:{title:'Edge of the Empire Adventure Book',productCode:'SWE01',printedPage:24,authority:'OFFICIAL_SOURCE_PROFILE_VERIFIED'}}};
+  p.updatedAt=new Date().toISOString();
+  return {world:next,carryover:clone(p.oldLylek.trexCarryover)};
 }
 
 export function chooseSWE02OldLylekRoute(progress, { slowDown } = {}) {
@@ -107,7 +135,12 @@ export function recordSWE02OldLylekHunterOutcome(progress,{outcome,adversaries=[
   if(!old||old.phase!=='hunters-combat'||old.huntersOutcome)throw new Error('SWE02 pp.15–18: combate dos caçadores não está ativo.');
   if(!['adversaries_defeated','player_incapacitated','ended','escaped'].includes(outcome))throw new Error('SWE02 p.18: resultado de combate inválido.');
   const expectedCount=Number(p.flags?.confirmedPartySize), expected=Number.isInteger(expectedCount)&&expectedCount>0?expectedCount:null;
+  const history=old.trexCarryover?.history,carryover=requireSWE02TrexCarryover(p),hasTrex=TREX_HISTORY[history]?.present===true;
+  const expectedTrex=hasTrex&&expected>1?1:0;
+  const trexCount=adversaries.filter(a=>a.profileKey==='trex').length;
+  const gandCount=adversaries.filter(a=>a.profileKey==='laoth_gand_bounty_hunter').length;
   if(!expected||adversaries.length!==expected||adversaries.some(a=>a.profileKey!=='laoth_gand_bounty_hunter'&&!['laoth_bounty_hunter','trex'].includes(a.profileKey))||
+     gandCount!==1||trexCount!==expectedTrex||
      adversaries.some(a=>!a.id)||new Set(adversaries.map(a=>a.id)).size!==adversaries.length)
     throw new Error('SWE02 p.15: resultado exige os caçadores reais em quantidade igual aos PCs.');
   const defeated=adversaries.every(a=>['incapacitated','defeated'].includes(a.status));

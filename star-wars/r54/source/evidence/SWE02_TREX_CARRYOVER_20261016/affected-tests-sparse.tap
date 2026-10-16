@@ -1,0 +1,154 @@
+TAP version 13
+# Subtest: Old Lylek foot approach is available without a Perception declaration; hunter loot, warning and optional verified lylek attack survive three reopenings
+ok 1 - Old Lylek foot approach is available without a Perception declaration; hunter loot, warning and optional verified lylek attack survive three reopenings
+  ---
+  duration_ms: 419.6678
+  type: 'test'
+  ...
+# Subtest: failed fast-route Pilot checks keep the party-wide strain consequence visibly pending
+ok 2 - failed fast-route Pilot checks keep the party-wide strain consequence visibly pending
+  ---
+  duration_ms: 108.7397
+  type: 'test'
+  ...
+# Subtest: retreat or incapacitation settles the hunter branch while preserving the lylek trigger and its p.18 loot rule
+ok 3 - retreat or incapacitation settles the hunter branch while preserving the lylek trigger and its p.18 loot rule
+  ---
+  duration_ms: 347.7154
+  type: 'test'
+  ...
+# Subtest: T’rex p.24 profile matches the official Adventure Book block
+ok 4 - T’rex p.24 profile matches the official Adventure Book block
+  ---
+  duration_ms: 3.8992
+  type: 'test'
+  ...
+# Subtest: T’rex carryover is explicit, persists on reopen, and replaces one existing hunter slot with only the correct starting wounds
+ok 5 - T’rex carryover is explicit, persists on reopen, and replaces one existing hunter slot with only the correct starting wounds
+  ---
+  duration_ms: 851.7496
+  type: 'test'
+  ...
+# Subtest: living T’rex stays pending for a solo or unknown-size party rather than removing the required Gand or adding an extra hunter
+ok 6 - living T’rex stays pending for a solo or unknown-size party rather than removing the required Gand or adding an extra hunter
+  ---
+  duration_ms: 115.4741
+  type: 'test'
+  ...
+# Subtest: invalid and duplicate history selections do not rewrite the source history
+ok 7 - invalid and duplicate history selections do not rewrite the source history
+  ---
+  duration_ms: 84.9714
+  type: 'test'
+  ...
+# Subtest: Android UI bridge exposes explicit T’rex history persistence
+ok 8 - Android UI bridge exposes explicit T’rex history persistence
+  ---
+  duration_ms: 28.5724
+  type: 'test'
+  ...
+# Subtest: P184 PDF SWE09: seven ordered Grand Prix legs accumulate speed into Place Value
+ok 9 - P184 PDF SWE09: seven ordered Grand Prix legs accumulate speed into Place Value
+  ---
+  duration_ms: 130.1259
+  type: 'test'
+  ...
+# Subtest: P184 race rejects skipped leg, forged actionId and repeat without mutating input
+ok 10 - P184 race rejects skipped leg, forged actionId and repeat without mutating input
+  ---
+  duration_ms: 46.237
+  type: 'test'
+  ...
+# Subtest: P184 race missed buoy, strain and collision persist, no unearned victory
+ok 11 - P184 race missed buoy, strain and collision persist, no unearned victory
+  ---
+  duration_ms: 37.2182
+  type: 'test'
+  ...
+# Subtest: P184 race placement must match rival Place Values, with tie GM-adjudicated
+ok 12 - P184 race placement must match rival Place Values, with tie GM-adjudicated
+  ---
+  duration_ms: 77.8579
+  type: 'test'
+  ...
+# Subtest: P184 auction official baseline Kaltho 200k after ten rounds without PC interference
+ok 13 - P184 auction official baseline Kaltho 200k after ten rounds without PC interference
+  ---
+  duration_ms: 111.7054
+  type: 'test'
+  ...
+# Subtest: P184 auction successful influence adds 10k per affected round, successes and triumph to Bid Value
+ok 14 - P184 auction successful influence adds 10k per affected round, successes and triumph to Bid Value
+  ---
+  duration_ms: 58.4929
+  type: 'test'
+  ...
+# Subtest: P184 auction rejects unknown bidder, duplicate receipt, invalid result and out-of-scene action
+ok 15 - P184 auction rejects unknown bidder, duplicate receipt, invalid result and out-of-scene action
+  ---
+  duration_ms: 69.4352
+  type: 'test'
+  ...
+# Subtest: P184 auction fail does not increase bid, no automatic credit payout
+ok 16 - P184 auction fail does not increase bid, no automatic credit payout
+  ---
+  duration_ms: 56.9147
+  type: 'test'
+  ...
+# Subtest: P184 new race/auction receipts survive three reopenings with canonical UAE state
+ok 17 - P184 new race/auction receipts survive three reopenings with canonical UAE state
+  ---
+  duration_ms: 64.5206
+  type: 'test'
+  ...
+# Subtest: P184 legacy Jewel progress migrates without creating phantom race results or bids
+ok 18 - P184 legacy Jewel progress migrates without creating phantom race results or bids
+  ---
+  duration_ms: 41.4629
+  type: 'test'
+  ...
+# Subtest: P184 receipt audit rejects edited race Place Value and preserves source state
+ok 19 - P184 receipt audit rejects edited race Place Value and preserves source state
+  ---
+  duration_ms: 40.3568
+  type: 'test'
+  ...
+# Subtest: P184 receipt audit rejects inflated auction credits and ghost influence
+ok 20 - P184 receipt audit rejects inflated auction credits and ghost influence
+  ---
+  duration_ms: 60.7106
+  type: 'test'
+  ...
+# Subtest: P184 reserved receipt identifiers cannot mutate Object prototype
+ok 21 - P184 reserved receipt identifiers cannot mutate Object prototype
+  ---
+  duration_ms: 58.6826
+  type: 'test'
+  ...
+# Subtest: P184 SWE02: old lylek den creates one source-checked hunter per PC including Gand
+ok 22 - P184 SWE02: old lylek den creates one source-checked hunter per PC including Gand
+  ---
+  duration_ms: 58.9358
+  type: 'test'
+  ...
+# Subtest: P184 SWE02: hunters cannot be marked defeated without combat, and never defeat Teemo
+ok 23 - P184 SWE02: hunters cannot be marked defeated without combat, and never defeat Teemo
+  ---
+  duration_ms: 70.0284
+  type: 'test'
+  ...
+# Subtest: P184 Android UI and controller expose four adjudicated operations
+ok 24 - P184 Android UI and controller expose four adjudicated operations
+  ---
+  duration_ms: 826.7801
+  type: 'test'
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2548.668

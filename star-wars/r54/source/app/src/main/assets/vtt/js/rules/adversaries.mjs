@@ -221,6 +221,23 @@ export const PUBLISHED_ADVENTURE_ADVERSARY_PROFILES = Object.freeze({
       {name:'Pistola blaster pesada',skill:'armas_distancia_ligeras',range:'Médio',damage:7,crit:3,stunSetting:true}],
     source:{title:'Long Arm of the Hutt',productCode:'SWE02',page:16,authority:'SOURCE_CHECKED_PROFILE'}
   }),
+  // SWE02 p.15 conditionally brings this Adventure Book p.24 Nemesis into an
+  // existing human hunter slot. preWounds is supplied only by that history.
+  trex: Object.freeze({
+    key:'trex',name:'T’rex, escravizador trandoshano',kind:'nemesis',
+    characteristics:{fortaleza:4,agilidade:3,intelecto:2,astucia:3,voluntad:3,presencia:2},
+    soak:5,woundsThreshold:16,strainThreshold:11,defense:{melee:0,ranged:0},groupSkills:[],
+    skills:{pelea:1,frialdad:1,disciplina:1,mecanica:3,negociacao:1,percepcao:2,pilotar_veiculo_planetario:1,armas_distancia_ligeras:2,vigilancia:1},
+    talents:[],abilities:[],
+    weapons:[
+      {name:'Heavy Blaster Pistol',skill:'armas_distancia_ligeras',range:'Médio',damage:7,crit:3},
+      {name:'Trandoshan Claws',skill:'pelea',range:'Engajado',damage:5,crit:3}
+    ],
+    equipment:['Heavy clothing','comlink','stimpack (heals living creature 4 wounds)','emergency repair kit (repairs droid 4 wounds)'],
+    source:{title:'Edge of the Empire Adventure Book',productCode:'SWE01',printedPage:24,
+      encounterSource:{title:'The Long Arm of the Hutt',productCode:'SWE02',printedPage:15},
+      authority:'OFFICIAL_SOURCE_PROFILE_VERIFIED',verification:'VISUAL_PAGE_REVIEW',sourceImage:'beg_29.png'}
+  }),
   // SWE02 p.18 directs the optional lylek attack to this exact Beginner Game profile.
   swe02_captive_rancor: Object.freeze({
     key:'swe02_captive_rancor',name:'Lylek (perfil Captive Rancor)',kind:'nemesis',

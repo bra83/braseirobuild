@@ -26,7 +26,7 @@ import { safeP177Id } from '../rules/aorP177Actions.mjs';
 import {npcBlastReceipt,assertBlastReceipt} from '../rules/aorP179Reactions.mjs';
 import { mechanicFieldPreflight, mechanicFieldReceipt, assertOwnedEquipmentOperational } from '../rules/aorMechanicFieldActions.mjs';
 import { advanceBeyondTheRimImperialClock, beyondTheRimImperialClockStatus } from '../adventure/beyondTheRim.mjs';
-import { longArmShipSmellSetback,chooseLongArmOldLylekRoute,proceedLongArmOldLylekBluff,approachLongArmOldLylekOnFoot,
+import { longArmShipSmellSetback,selectLongArmTrexCarryover,chooseLongArmOldLylekRoute,proceedLongArmOldLylekBluff,approachLongArmOldLylekOnFoot,
     recordLongArmOldLylekCrashCheck,confirmLongArmOldLylekCrashCrew,inspectLongArmOldLylekSpeeder,recordLongArmOldLylekWarning,persistLongArmOldLylek } from '../adventure/longArmOfTheHutt.mjs';
 import {beginThwheekInterception,resolveThwheekInterception,thwheekTactics,THWHEEK_ID,THWHEEK_CONTEXT} from '../adventure/swe02ThwheekP239.mjs';
 import {nabatMarketCatalog,nabatPurchase,requestNabatSpaceportWatch,deliverNabatNightAlert,nabatShipRepair,nabatSafehouseCare} from '../adventure/swe02NabatP240.mjs';
@@ -3239,6 +3239,7 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         if(spec.requiresGMAdditionalGroupReview||spec.requiresOfficialHuttProfileReview)
             throw Error('Encontro de Teemo exige conferência editorial e confirmação do segundo grupo.');
         if(spec.requiresPartySizeConfirmation)throw new Error('Confirme o tamanho do grupo na sessão antes de iniciar a emboscada.');
+        if(spec.requiresTrexSlotReview)throw new Error('SWE02 p.15: T’rex está vivo, mas um grupo de um único PC não permite confirmar um slot adicional sem remover o Gand obrigatório. A composição fica PENDENTE.');
         const adversaries = spec.adversaries.map(entry => {
             const npc = entry.worldNpcId ? this.state.world?.npcs?.[entry.worldNpcId] : null;
             const adversary = adversaries_mjs_1.createAdversary(entry.profileKey, { count: entry.count, range: entry.range, name: entry.name || npc?.name || null });
@@ -3255,6 +3256,10 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
                 } else if (Number(entry.preWounds) > 0 && adversary.wounds) {
                     adversary.wounds.current = Math.min(Number(adversary.wounds.threshold) || 0, Math.max(0, Number(adversary.wounds.current) || 0) + Number(entry.preWounds));
                 }
+            } else if (Number(entry.preWounds) > 0 && adversary.wounds) {
+                // Published encounter source may carry pre-existing damage for
+                // a profile-backed adversary without a separate world-NPC row.
+                adversary.wounds.current = Math.min(Number(adversary.wounds.threshold) || 0, Math.max(0, Number(adversary.wounds.current) || 0) + Number(entry.preWounds));
             }
             return adversary;
         });
@@ -5970,6 +5975,10 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         if(this.state.combat?.active)throw Error('SWE02 p.15: escolha a rota antes do combate.');
         const out=chooseLongArmOldLylekRoute(this.state.world,{slowDown});
         this.commit('WORLD_UPDATED',{world:out.world});return clone(out.progress.oldLylek);
+    });}
+    selectSWE02TrexCarryover({history}={}){return this.atomicAction(()=>{
+        if(this.state.combat?.active)throw Error('SWE02 p.15: o histórico de T’rex deve ser selecionado antes do combate.');
+        const out=selectLongArmTrexCarryover(this.state.world,{history});this.commit('WORLD_UPDATED',{world:out.world});return clone(out.carryover);
     });}
     proceedSWE02OldLylekBluff(){return this.atomicAction(()=>{
         if(this.state.combat?.active)throw Error('SWE02 p.17: não é possível avançar durante combate.');
