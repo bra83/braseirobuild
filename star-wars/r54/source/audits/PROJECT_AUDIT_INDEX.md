@@ -15,7 +15,7 @@ All audits below are evidence maps, not certification. A claim can move to `CERT
 - `audits/SWE02_ACT1_DEEP_AUDIT.md` covers printed pp.2–24.
 - `audits/SWE02_ACT2_DEEP_AUDIT.md` covers printed pp.25–38.
 - `audits/SWE02_ACT3_DEEP_AUDIT.md` covers printed pp.39–46.
-- Each audited source claim remains pending pending implementation and full per-claim proof. The Act 1 Old Lylek Den block (pp.15–18) is currently in implementation review.
+- Each audited source claim remains pending implementation and full per-claim proof. The Act 1 Old Lylek Den block (pp.15–18) is currently in implementation review.
 
 ## Rules and mechanical authority
 
@@ -27,7 +27,7 @@ All audits below are evidence maps, not certification. A claim can move to `CERT
 
 ## Other required adventures
 
-- Source-led review of SWEP01 Under a Black Sun is underway.
+- `audits/SWEP01_DEEP_AUDIT.md` audits Under a Black Sun pp.18–39 against the official Drive PDF and recovered UI/state/tests. It finds major source and runtime gaps; status remains `PENDENTE`.
 - SWE05 Beyond the Rim, SWE09 The Jewel of Yavin, and SWE13 Mask of the Pirate Queen remain unaudited and pending.
 
 ## Current execution gate
