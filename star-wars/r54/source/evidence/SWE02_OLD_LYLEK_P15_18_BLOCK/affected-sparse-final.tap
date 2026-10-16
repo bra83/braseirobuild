@@ -1,0 +1,1132 @@
+TAP version 13
+# Subtest: C:\\Users\\bcruz\\Documents\\Codex\\2026-10-16\\files-mentioned-by-the-user-prompt\\work\\star-wars\\repo-sparse\\star-wars\\r54\\source\\tests\\swe02-act1-fixture.mjs
+ok 1 - C:\\Users\\bcruz\\Documents\\Codex\\2026-10-16\\files-mentioned-by-the-user-prompt\\work\\star-wars\\repo-sparse\\star-wars\\r54\\source\\tests\\swe02-act1-fixture.mjs
+  ---
+  duration_ms: 444.9629
+  type: 'test'
+  ...
+# Subtest: Old Lylek foot approach is available without a Perception declaration; hunter loot, warning and optional verified lylek attack survive three reopenings
+ok 2 - Old Lylek foot approach is available without a Perception declaration; hunter loot, warning and optional verified lylek attack survive three reopenings
+  ---
+  duration_ms: 947.9465
+  type: 'test'
+  ...
+# Subtest: lylek submission requires an explicit GM confirmation and preserves source absence of a numeric threshold
+ok 3 - lylek submission requires an explicit GM confirmation and preserves source absence of a numeric threshold
+  ---
+  duration_ms: 538.3189
+  type: 'test'
+  ...
+# Subtest: failed fast-route Pilot checks apply party-wide strain by stable PC ID and persist after reopen
+ok 4 - failed fast-route Pilot checks apply party-wide strain by stable PC ID and persist after reopen
+  ---
+  duration_ms: 367.5342
+  type: 'test'
+  ...
+# Subtest: crash checks resolve once for each onboard PC, apply failure damage to the matching sheet, and exclude companions
+ok 5 - crash checks resolve once for each onboard PC, apply failure damage to the matching sheet, and exclude companions
+  ---
+  duration_ms: 452.546
+  type: 'test'
+  ...
+# Subtest: schema 14 singleton migration creates one stable PC ID and mirrors active-sheet updates without importing companions
+ok 6 - schema 14 singleton migration creates one stable PC ID and mirrors active-sheet updates without importing companions
+  ---
+  duration_ms: 143.9951
+  type: 'test'
+  ...
+# Subtest: retreat or incapacitation settles the hunter branch while preserving the lylek trigger and its p.18 loot rule
+ok 7 - retreat or incapacitation settles the hunter branch while preserving the lylek trigger and its p.18 loot rule
+  ---
+  duration_ms: 436.8244
+  type: 'test'
+  ...
+# Subtest: p.17 rock cover adds two setback to ranged checks and hunters begin with stun/capture intent, then switch to lethal after a hunter falls
+ok 8 - p.17 rock cover adds two setback to ranged checks and hunters begin with stun/capture intent, then switch to lethal after a hunter falls
+  ---
+  duration_ms: 723.2683
+  type: 'test'
+  ...
+# Subtest: p.16 eastern cave flank is a persisted position choice; frontal fighting retreat uses the dotted path and persists the escaped outcome
+ok 9 - p.16 eastern cave flank is a persisted position choice; frontal fighting retreat uses the dotted path and persists the escaped outcome
+  ---
+  duration_ms: 410.5724
+  type: 'test'
+  ...
+# Subtest: p.17 repair Advantage leaves reduction amount to GM and persists an explicit chosen reduction
+ok 10 - p.17 repair Advantage leaves reduction amount to GM and persists an explicit chosen reduction
+  ---
+  duration_ms: 656.3475
+  type: 'test'
+  ...
+# Subtest: any player Advantage automatically kills one hunter for prey when GM selected the beast branch, with persisted one-time receipt
+ok 11 - any player Advantage automatically kills one hunter for prey when GM selected the beast branch, with persisted one-time receipt
+  ---
+  duration_ms: 193.5303
+  type: 'test'
+  ...
+# Subtest: New Meen conditional developer details require a PC question and persist with their printed pp.18–19 source
+ok 12 - New Meen conditional developer details require a PC question and persist with their printed pp.18–19 source
+  ---
+  duration_ms: 311.791
+  type: 'test'
+  ...
+# Subtest: printed p.16 map exposes source-named zones and persists only explicit PC/hunter locations across three reopenings
+ok 13 - printed p.16 map exposes source-named zones and persists only explicit PC/hunter locations across three reopenings
+  ---
+  duration_ms: 284.7926
+  type: 'test'
+  ...
+# Subtest: T’rex p.24 profile matches the official Adventure Book block
+ok 14 - T’rex p.24 profile matches the official Adventure Book block
+  ---
+  duration_ms: 6.285
+  type: 'test'
+  ...
+# Subtest: T’rex carryover is explicit, persists on reopen, and replaces one existing hunter slot with only the correct starting wounds
+ok 15 - T’rex carryover is explicit, persists on reopen, and replaces one existing hunter slot with only the correct starting wounds
+  ---
+  duration_ms: 1643.2103
+  type: 'test'
+  ...
+# Subtest: living T’rex stays pending for a solo or unknown-size party rather than removing the required Gand or adding an extra hunter
+ok 16 - living T’rex stays pending for a solo or unknown-size party rather than removing the required Gand or adding an extra hunter
+  ---
+  duration_ms: 147.2107
+  type: 'test'
+  ...
+# Subtest: invalid and duplicate history selections do not rewrite the source history
+ok 17 - invalid and duplicate history selections do not rewrite the source history
+  ---
+  duration_ms: 136.3648
+  type: 'test'
+  ...
+# Subtest: Android UI bridge exposes explicit T’rex history persistence
+ok 18 - Android UI bridge exposes explicit T’rex history persistence
+  ---
+  duration_ms: 56.9715
+  type: 'test'
+  ...
+# Subtest: SWE02 print pp21-22: Drombb thug official minion stats, group skills and weapons
+ok 19 - SWE02 print pp21-22: Drombb thug official minion stats, group skills and weapons
+  ---
+  duration_ms: 15.7422
+  type: 'test'
+  ...
+# Subtest: SWE02 p22: Angu Drombb official rival stats; no improvised nemesis
+ok 20 - SWE02 p22: Angu Drombb official rival stats; no improvised nemesis
+  ---
+  duration_ms: 0.6391
+  type: 'test'
+  ...
+# Subtest: SWE02 New Meen remains player choice; skipping never means community saved
+ok 21 - SWE02 New Meen remains player choice; skipping never means community saved
+  ---
+  duration_ms: 318.0377
+  type: 'test'
+  ...
+# Subtest: SWE02 p19: party size 2, 3 and 4+ creates three groups of 2,3,4; no invented solo difficulty
+ok 22 - SWE02 p19: party size 2, 3 and 4+ creates three groups of 2,3,4; no invented solo difficulty
+  ---
+  duration_ms: 621.2853
+  type: 'test'
+  ...
+# Subtest: SWE02 p20: night raid has one group and officially requires one setback for each action
+ok 23 - SWE02 p20: night raid has one group and officially requires one setback for each action
+  ---
+  duration_ms: 100.9103
+  type: 'test'
+  ...
+# Subtest: SWE02 cannot leave an active New Meen combat by clicking another node
+ok 24 - SWE02 cannot leave an active New Meen combat by clicking another node
+  ---
+  duration_ms: 105.7146
+  type: 'test'
+  ...
+# Subtest: SWE02 New Meen combat rejects forged groups, ids, and victory without enemy defeat; atomic rollback
+ok 25 - SWE02 New Meen combat rejects forged groups, ids, and victory without enemy defeat; atomic rollback
+  ---
+  duration_ms: 80.501
+  type: 'test'
+  ...
+# Subtest: SWE02 p21: resolved night group not recreated in Drombb cantina; sequential combat only
+ok 26 - SWE02 p21: resolved night group not recreated in Drombb cantina; sequential combat only
+  ---
+  duration_ms: 128.7183
+  type: 'test'
+  ...
+# Subtest: SWE02 New Meen full sequence: victory requires actual Drombb defeat with proof and 3 save reopens
+ok 27 - SWE02 New Meen full sequence: victory requires actual Drombb defeat with proof and 3 save reopens
+  ---
+  duration_ms: 161.9913
+  type: 'test'
+  ...
+# Subtest: SWE02 New Meen escape and evacuation persist without victory or experience
+ok 28 - SWE02 New Meen escape and evacuation persist without victory or experience
+  ---
+  duration_ms: 101.7038
+  type: 'test'
+  ...
+# Subtest: SWE02 tampered victory flag without corresponding combat receipt fails closed on restore/status/advance
+ok 29 - SWE02 tampered victory flag without corresponding combat receipt fails closed on restore/status/advance
+  ---
+  duration_ms: 70.2624
+  type: 'test'
+  ...
+# Subtest: SWE02 cannot invent combat by calling encounter without scene context
+ok 30 - SWE02 cannot invent combat by calling encounter without scene context
+  ---
+  duration_ms: 68.6545
+  type: 'test'
+  ...
+# Subtest: P235 actual Android controller starts New Meen raid with EotE session playerCount, official profile, persisted encounter
+ok 31 - P235 actual Android controller starts New Meen raid with EotE session playerCount, official profile, persisted encounter
+  ---
+  duration_ms: 355.9462
+  type: 'test'
+  ...
+# Subtest: P235 closing official night combat restores prior environment and does not automatically grant credits, PE or save New Meen
+ok 32 - P235 closing official night combat restores prior environment and does not automatically grant credits, PE or save New Meen
+  ---
+  duration_ms: 303.2362
+  type: 'test'
+  ...
+# Subtest: SWE02 printed p41: elite Gamorrean guards do not inherit generic inaccurate profile
+ok 33 - SWE02 printed p41: elite Gamorrean guards do not inherit generic inaccurate profile
+  ---
+  duration_ms: 6.9467
+  type: 'test'
+  ...
+# Subtest: SWE02 p41: frontal stealth not offered; deception gate only opens with successful actual check
+ok 34 - SWE02 p41: frontal stealth not offered; deception gate only opens with successful actual check
+  ---
+  duration_ms: 341.6555
+  type: 'test'
+  ...
+# Subtest: SWE02 p41: disguise requires Hard Deception and separate Average Charm
+ok 35 - SWE02 p41: disguise requires Hard Deception and separate Average Charm
+  ---
+  duration_ms: 147.4471
+  type: 'test'
+  ...
+# Subtest: SWE02 pp44-45: workshop B1 evidence is acquired explicitly and persists three reopens
+ok 36 - SWE02 pp44-45: workshop B1 evidence is acquired explicitly and persists three reopens
+  ---
+  duration_ms: 193.4175
+  type: 'test'
+  ...
+# Subtest: SWE02 p44: ryll kitchen evidence requires successful Hard Perception, not merely entering room
+ok 37 - SWE02 p44: ryll kitchen evidence requires successful Hard Perception, not merely entering room
+  ---
+  duration_ms: 187.0576
+  type: 'test'
+  ...
+# Subtest: SWE02 p45: communications five official pools, setback, evidence, two-threat lockout
+ok 38 - SWE02 p45: communications five official pools, setback, evidence, two-threat lockout
+  ---
+  duration_ms: 212.2765
+  type: 'test'
+  ...
+# Subtest: SWE02 p45: throne encounter party count, elite guards and no fake victory without proof
+ok 39 - SWE02 p45: throne encounter party count, elite guards and no fake victory without proof
+  ---
+  duration_ms: 102.4798
+  type: 'test'
+  ...
+# Subtest: SWE02 pp45-46: Teemo defeated only by real group proof, rollback on tamper, no fabricated title
+ok 40 - SWE02 pp45-46: Teemo defeated only by real group proof, rollback on tamper, no fabricated title
+  ---
+  duration_ms: 148.4518
+  type: 'test'
+  ...
+# Subtest: P236 actual controller: palace checks use deterministic dice, persist and do not grant unearned access
+ok 41 - P236 actual controller: palace checks use deterministic dice, persist and do not grant unearned access
+  ---
+  duration_ms: 367.5921
+  type: 'test'
+  ...
+# Subtest: P236 actual controller: Teemo combat fails closed without reviewed extra group and Hutt source
+ok 42 - P236 actual controller: Teemo combat fails closed without reviewed extra group and Hutt source
+  ---
+  duration_ms: 312.4642
+  type: 'test'
+  ...
+# Subtest: P237 p37: official separate soldier and Vrixx’tt profiles
+ok 43 - P237 p37: official separate soldier and Vrixx’tt profiles
+  ---
+  duration_ms: 4.801
+  type: 'test'
+  ...
+# Subtest: P237 p34: Piddock Kubaz clue no roll, B1 clue requires Hard Charm
+ok 44 - P237 p34: Piddock Kubaz clue no roll, B1 clue requires Hard Charm
+  ---
+  duration_ms: 263.5909
+  type: 'test'
+  ...
+# Subtest: P237 pp7,30: Sivor shell needs explicit collection and identification
+ok 45 - P237 pp7,30: Sivor shell needs explicit collection and identification
+  ---
+  duration_ms: 127.2901
+  type: 'test'
+  ...
+# Subtest: P237 p23: Drombb messages require victory and Hard Computers
+ok 46 - P237 p23: Drombb messages require victory and Hard Computers
+  ---
+  duration_ms: 159.8243
+  type: 'test'
+  ...
+# Subtest: P237 p36: zero points means five Geonosians and one Gand
+ok 47 - P237 p36: zero points means five Geonosians and one Gand
+  ---
+  duration_ms: 119.3973
+  type: 'test'
+  ...
+# Subtest: P237 p36: three points means three Geonosians
+ok 48 - P237 p36: three points means three Geonosians
+  ---
+  duration_ms: 107.8132
+  type: 'test'
+  ...
+# Subtest: P237 p36: six-plus removes soldiers, not Vrixx’tt
+ok 49 - P237 p36: six-plus removes soldiers, not Vrixx’tt
+  ---
+  duration_ms: 500.8349
+  type: 'test'
+  ...
+# Subtest: P237 p36: failed Daunting Coerce, rude and Imperial loyalty apply penalties
+ok 50 - P237 p36: failed Daunting Coerce, rude and Imperial loyalty apply penalties
+  ---
+  duration_ms: 111.5933
+  type: 'test'
+  ...
+# Subtest: P237: forged negotiation points, facts and statements fail closed
+ok 51 - P237: forged negotiation points, facts and statements fail closed
+  ---
+  duration_ms: 69.9966
+  type: 'test'
+  ...
+# Subtest: P237 p37: boarding requires resolved combat, no false victory or unverified bribe
+ok 52 - P237 p37: boarding requires resolved combat, no false victory or unverified bribe
+  ---
+  duration_ms: 160.4582
+  type: 'test'
+  ...
+# Subtest: P237 p37: Vio rescue from player incapacitation does not claim enemy defeat
+ok 53 - P237 p37: Vio rescue from player incapacitation does not claim enemy defeat
+  ---
+  duration_ms: 71.7762
+  type: 'test'
+  ...
+# Subtest: P237 controller: real dice, persistence and gantry encounter across three reopens
+ok 54 - P237 controller: real dice, persistence and gantry encounter across three reopens
+  ---
+  duration_ms: 368.2824
+  type: 'test'
+  ...
+# Subtest: P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery
+ok 55 - P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery
+  ---
+  duration_ms: 241.3612
+  type: 'test'
+  ...
+# Subtest: P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed
+ok 56 - P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed
+  ---
+  duration_ms: 114.6591
+  type: 'test'
+  ...
+# Subtest: P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters
+ok 57 - P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters
+  ---
+  duration_ms: 88.0124
+  type: 'test'
+  ...
+# Subtest: P238 p7-8: both noises upgrade one difficulty; one disabled restores pool
+ok 58 - P238 p7-8: both noises upgrade one difficulty; one disabled restores pool
+  ---
+  duration_ms: 49.32
+  type: 'test'
+  ...
+# Subtest: P238 p8: transponder cannot be switched off in flight or removed before landing
+ok 59 - P238 p8: transponder cannot be switched off in flight or removed before landing
+  ---
+  duration_ms: 88.3004
+  type: 'test'
+  ...
+# Subtest: P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception
+ok 60 - P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception
+  ---
+  duration_ms: 27.2347
+  type: 'test'
+  ...
+# Subtest: P238 p9: jettison requires actual successful Perception and Computers
+ok 61 - P238 p9: jettison requires actual successful Perception and Computers
+  ---
+  duration_ms: 47.8101
+  type: 'test'
+  ...
+# Subtest: P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill
+ok 62 - P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill
+  ---
+  duration_ms: 14.6061
+  type: 'test'
+  ...
+# Subtest: P238: forged ship flags, forged Bura and forged intercept outcome fail closed
+ok 63 - P238: forged ship flags, forged Bura and forged intercept outcome fail closed
+  ---
+  duration_ms: 44.1716
+  type: 'test'
+  ...
+# Subtest: P238: legacy route remains loadable but is explicitly uncertified
+ok 64 - P238: legacy route remains loadable but is explicitly uncertified
+  ---
+  duration_ms: 20.5009
+  type: 'test'
+  ...
+# Subtest: P238 real controller: skill pool, roll receipt and three saved reopens
+ok 65 - P238 real controller: skill pool, roll receipt and three saved reopens
+  ---
+  duration_ms: 242.9663
+  type: 'test'
+  ...
+# Subtest: P238: changing a successful slow tracker to false cannot conceal skipped interception
+ok 66 - P238: changing a successful slow tracker to false cannot conceal skipped interception
+  ---
+  duration_ms: 79.6709
+  type: 'test'
+  ...
+# Subtest: P239 SWE02 p.12: official Dunelizard profile and linked laser cannons
+ok 67 - P239 SWE02 p.12: official Dunelizard profile and linked laser cannons
+  ---
+  duration_ms: 4.361
+  type: 'test'
+  ...
+# Subtest: P239 optimal navigation + slowed transponder: direct Nabat, no fighter
+ok 68 - P239 optimal navigation + slowed transponder: direct Nabat, no fighter
+  ---
+  duration_ms: 529.3112
+  type: 'test'
+  ...
+# Subtest: P239 failed route forces interception even after slowed tracker
+ok 69 - P239 failed route forces interception even after slowed tracker
+  ---
+  duration_ms: 445.937
+  type: 'test'
+  ...
+# Subtest: P239 p.12: cannot start Thwheek without actual Krayt Fang
+ok 70 - P239 p.12: cannot start Thwheek without actual Krayt Fang
+  ---
+  duration_ms: 228.9646
+  type: 'test'
+  ...
+# Subtest: P239 real vehicle engine: Short-range fighter and player must maneuver into Bocajarro
+ok 71 - P239 real vehicle engine: Short-range fighter and player must maneuver into Bocajarro
+  ---
+  duration_ms: 284.0725
+  type: 'test'
+  ...
+# Subtest: P239 real hit + five hull trauma: pursuit remains open, withdrawal permits Nabat
+ok 72 - P239 real hit + five hull trauma: pursuit remains open, withdrawal permits Nabat
+  ---
+  duration_ms: 417.8393
+  type: 'test'
+  ...
+# Subtest: P239 p.12: no victory without actual hits and no duplicate start/resolve
+ok 73 - P239 p.12: no victory without actual hits and no duplicate start/resolve
+  ---
+  duration_ms: 281.8088
+  type: 'test'
+  ...
+# Subtest: P239 p.12: incoming attack uses fixed Agility 3, Gunnery 0 even with forged GM overrides
+ok 74 - P239 p.12: incoming attack uses fixed Agility 3, Gunnery 0 even with forged GM overrides
+  ---
+  duration_ms: 293.8003
+  type: 'test'
+  ...
+# Subtest: P239 p.12: target stay-on-target switches to evasive after first actual hit, persists next round
+ok 75 - P239 p.12: target stay-on-target switches to evasive after first actual hit, persists next round
+  ---
+  duration_ms: 295.9971
+  type: 'test'
+  ...
+# Subtest: P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience checks
+ok 76 - P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience checks
+  ---
+  duration_ms: 680.3239
+  type: 'test'
+  ...
+# Subtest: P239 p.12: three-person crew cannot be falsely certified by one PC
+ok 77 - P239 p.12: three-person crew cannot be falsely certified by one PC
+  ---
+  duration_ms: 516.7361
+  type: 'test'
+  ...
+# Subtest: P239 fail-closed: forged outcome or crew completion cannot survive adapter status
+ok 78 - P239 fail-closed: forged outcome or crew completion cannot survive adapter status
+  ---
+  duration_ms: 265.9646
+  type: 'test'
+  ...
+# Subtest: P239 bridge exposes authoritative vehicle result and crash methods
+ok 79 - P239 bridge exposes authoritative vehicle result and crash methods
+  ---
+  duration_ms: 0.6909
+  type: 'test'
+  ...
+# Subtest: P240 p.13: market uses only primary EotE Core entries priced <= 500
+ok 80 - P240 p.13: market uses only primary EotE Core entries priced <= 500
+  ---
+  duration_ms: 6.5835
+  type: 'test'
+  ...
+# Subtest: P240 p.13: real purchase debits wallet and adds catalog gear atomically
+ok 81 - P240 p.13: real purchase debits wallet and adds catalog gear atomically
+  ---
+  duration_ms: 533.4018
+  type: 'test'
+  ...
+# Subtest: P240 market rejects forged price, non-EotE source, 501+ item and bad quantities
+ok 82 - P240 market rejects forged price, non-EotE source, 501+ item and bad quantities
+  ---
+  duration_ms: 420.1956
+  type: 'test'
+  ...
+# Subtest: P240 purchase insufficient credits: rollback of character, receipts and save
+ok 83 - P240 purchase insufficient credits: rollback of character, receipts and save
+  ---
+  duration_ms: 339.7038
+  type: 'test'
+  ...
+# Subtest: P240 p.13: Bura contact pays actual hull repairs, never creates a new ship
+ok 84 - P240 p.13: Bura contact pays actual hull repairs, never creates a new ship
+  ---
+  duration_ms: 357.477
+  type: 'test'
+  ...
+# Subtest: P240 p.13: no ship repair if Bura not found, or ship name forged
+ok 85 - P240 p.13: no ship repair if Bura not found, or ship name forged
+  ---
+  duration_ms: 345.0926
+  type: 'test'
+  ...
+# Subtest: P240 p.13–14: port watch must be requested, alert only after Nyn meeting
+ok 86 - P240 p.13–14: port watch must be requested, alert only after Nyn meeting
+  ---
+  duration_ms: 341.9635
+  type: 'test'
+  ...
+# Subtest: P240 p.13–14: watch at arrival, alert in Nyn safehouse, no automatic knowledge
+ok 87 - P240 p.13–14: watch at arrival, alert in Nyn safehouse, no automatic knowledge
+  ---
+  duration_ms: 429.6424
+  type: 'test'
+  ...
+# Subtest: P240 p.13: Nyn shelter heals real wounds and strain, never erases critical injuries
+ok 88 - P240 p.13: Nyn shelter heals real wounds and strain, never erases critical injuries
+  ---
+  duration_ms: 394.3881
+  type: 'test'
+  ...
+# Subtest: P240 anti-forgery: missing or modified receipt fails adapter status
+ok 89 - P240 anti-forgery: missing or modified receipt fails adapter status
+  ---
+  duration_ms: 334.6331
+  type: 'test'
+  ...
+# Subtest: P240 no mutation outside Nabat; failed actions do not save
+ok 90 - P240 no mutation outside Nabat; failed actions do not save
+  ---
+  duration_ms: 279.2378
+  type: 'test'
+  ...
+# Subtest: P240 Android bridge and UI source expose port operations
+ok 91 - P240 Android bridge and UI source expose port operations
+  ---
+  duration_ms: 19.5354
+  type: 'test'
+  ...
+# Subtest: P241 p13: official physician uses 1 proficiency 2 difficulty, heals one actual critical
+ok 92 - P241 p13: official physician uses 1 proficiency 2 difficulty, heals one actual critical
+  ---
+  duration_ms: 644.8784
+  type: 'test'
+  ...
+# Subtest: P241 physician failure consumes only attempt; never erases injury
+ok 93 - P241 physician failure consumes only attempt; never erases injury
+  ---
+  duration_ms: 420.2396
+  type: 'test'
+  ...
+# Subtest: P241 physician blocks unhealable/dead injuries and care-before-critical
+ok 94 - P241 physician blocks unhealable/dead injuries and care-before-critical
+  ---
+  duration_ms: 384.2222
+  type: 'test'
+  ...
+# Subtest: P241 p14: Charm Average uses real character dice and grants EotE padded armor on 2 Advantages
+ok 95 - P241 p14: Charm Average uses real character dice and grants EotE padded armor on 2 Advantages
+  ---
+  duration_ms: 413.1256
+  type: 'test'
+  ...
+# Subtest: P241 p14: Coerce Hard failure gives no gear, no retries
+ok 96 - P241 p14: Coerce Hard failure gives no gear, no retries
+  ---
+  duration_ms: 393.0223
+  type: 'test'
+  ...
+# Subtest: P241 Nyn invalid method and wrong scene rollback without save
+ok 97 - P241 Nyn invalid method and wrong scene rollback without save
+  ---
+  duration_ms: 441.7856
+  type: 'test'
+  ...
+# Subtest: P241 social receipt rejects tampered dice face or Nyn reward
+ok 98 - P241 social receipt rejects tampered dice face or Nyn reward
+  ---
+  duration_ms: 426.4294
+  type: 'test'
+  ...
+# Subtest: P241 p23: 400-500 credits bribe uses actual opposed Negotiation and debit
+ok 99 - P241 p23: 400-500 credits bribe uses actual opposed Negotiation and debit
+  ---
+  duration_ms: 160.8507
+  type: 'test'
+  ...
+# Subtest: P241 failed bribe does not debit and cannot be converted into victory
+ok 100 - P241 failed bribe does not debit and cannot be converted into victory
+  ---
+  duration_ms: 104.0765
+  type: 'test'
+  ...
+# Subtest: P241 invalid bribe, Drombb cannot be bribed and no overspending
+ok 101 - P241 invalid bribe, Drombb cannot be bribed and no overspending
+  ---
+  duration_ms: 93.6326
+  type: 'test'
+  ...
+# Subtest: P241 all minions bribed still leaves Drombb as live adversary
+ok 102 - P241 all minions bribed still leaves Drombb as live adversary
+  ---
+  duration_ms: 164.9088
+  type: 'test'
+  ...
+# Subtest: P241 New Meen cannot bribe during live encounter or from wrong scene
+ok 103 - P241 New Meen cannot bribe during live encounter or from wrong scene
+  ---
+  duration_ms: 139.2482
+  type: 'test'
+  ...
+# Subtest: P241 New Meen receipt rejects fake credit debit, forged dice, or unconfirmed party
+ok 104 - P241 New Meen receipt rejects fake credit debit, forged dice, or unconfirmed party
+  ---
+  duration_ms: 109.5698
+  type: 'test'
+  ...
+# Subtest: P241 Android offline bridge and UI expose three real operations
+ok 105 - P241 Android offline bridge and UI expose three real operations
+  ---
+  duration_ms: 10.0705
+  type: 'test'
+  ...
+# Subtest: P242 GM cannot declare deaths without live combat damage
+ok 106 - P242 GM cannot declare deaths without live combat damage
+  ---
+  duration_ms: 292.0256
+  type: 'test'
+  ...
+# Subtest: P242 GM confirmation bounded by actual incapacitated minions and never automatic
+ok 107 - P242 GM confirmation bounded by actual incapacitated minions and never automatic
+  ---
+  duration_ms: 224.672
+  type: 'test'
+  ...
+# Subtest: P242 1-4 confirmed deaths use Hard Coerce; success surrenders only thugs
+ok 108 - P242 1-4 confirmed deaths use Hard Coerce; success surrenders only thugs
+  ---
+  duration_ms: 213.2687
+  type: 'test'
+  ...
+# Subtest: P242 failed Coerce consumes player action, never surrenders enemies
+ok 109 - P242 failed Coerce consumes player action, never surrenders enemies
+  ---
+  duration_ms: 256.0808
+  type: 'test'
+  ...
+# Subtest: P242 5-8 / 9+ difficulty thresholds are calculated from actual casualty-confirmed receipts
+ok 110 - P242 5-8 / 9+ difficulty thresholds are calculated from actual casualty-confirmed receipts
+  ---
+  duration_ms: 432.4074
+  type: 'test'
+  ...
+# Subtest: P242 night-raid verified fatalities carry into cantina only after combat proof
+ok 111 - P242 night-raid verified fatalities carry into cantina only after combat proof
+  ---
+  duration_ms: 366.0649
+  type: 'test'
+  ...
+# Subtest: P242 fake receipt and fake dice rejected by adapter status
+ok 112 - P242 fake receipt and fake dice rejected by adapter status
+  ---
+  duration_ms: 180.1559
+  type: 'test'
+  ...
+# Subtest: P242 encounter closure accepts verified surrender only with Drombb incapacitated
+ok 113 - P242 encounter closure accepts verified surrender only with Drombb incapacitated
+  ---
+  duration_ms: 292.9359
+  type: 'test'
+  ...
+# Subtest: P242 player incapacitated by Drombb opens Ota rescue without claiming liberation
+ok 114 - P242 player incapacitated by Drombb opens Ota rescue without claiming liberation
+  ---
+  duration_ms: 332.1097
+  type: 'test'
+  ...
+# Subtest: P242 p23 Drombb safe grants exactly 2000 credits once after actual victory
+ok 115 - P242 p23 Drombb safe grants exactly 2000 credits once after actual victory
+  ---
+  duration_ms: 265.7348
+  type: 'test'
+  ...
+# Subtest: P242 safe Skulduggery Hard failed roll does not mint credits
+ok 116 - P242 safe Skulduggery Hard failed roll does not mint credits
+  ---
+  duration_ms: 239.8019
+  type: 'test'
+  ...
+# Subtest: P242 safe cannot be claimed after retreat or via forged credit receipt
+ok 117 - P242 safe cannot be claimed after retreat or via forged credit receipt
+  ---
+  duration_ms: 174.2261
+  type: 'test'
+  ...
+# Subtest: P242 bridge and offline UI contain live confirmation and Coerce operations
+ok 118 - P242 bridge and offline UI contain live confirmation and Coerce operations
+  ---
+  duration_ms: 9.6807
+  type: 'test'
+  ...
+# Subtest: P243 PDF p20: prepare tracks exactly 20 adults and unspecified children without false victory
+ok 119 - P243 PDF p20: prepare tracks exactly 20 adults and unspecified children without false victory
+  ---
+  duration_ms: 275.9405
+  type: 'test'
+  ...
+# Subtest: P243 PDF p20: approved travel ticks advance living world and record Bura favor but not liberation
+ok 120 - P243 PDF p20: approved travel ticks advance living world and record Bura favor but not liberation
+  ---
+  duration_ms: 207.0145
+  type: 'test'
+  ...
+# Subtest: P243 elapsed world time counts toward escort and is not charged twice
+ok 121 - P243 elapsed world time counts toward escort and is not charged twice
+  ---
+  duration_ms: 145.0302
+  type: 'test'
+  ...
+# Subtest: P243 cannot depart without assembly, arrive without departure or duplicate arrival
+ok 122 - P243 cannot depart without assembly, arrive without departure or duplicate arrival
+  ---
+  duration_ms: 158.9694
+  type: 'test'
+  ...
+# Subtest: P243 invalid GM ticks fail closed without advancing clock or saving
+ok 123 - P243 invalid GM ticks fail closed without advancing clock or saving
+  ---
+  duration_ms: 121.4376
+  type: 'test'
+  ...
+# Subtest: P243 abandon has no Bura favor, no liberated settlement and survives three reopens
+ok 124 - P243 abandon has no Bura favor, no liberated settlement and survives three reopens
+  ---
+  duration_ms: 174.5677
+  type: 'test'
+  ...
+# Subtest: P243 legacy direct Ota departure is explicitly abandonment, never credited escort
+ok 125 - P243 legacy direct Ota departure is explicitly abandonment, never credited escort
+  ---
+  duration_ms: 155.8724
+  type: 'test'
+  ...
+# Subtest: P243 tampered escort arrival, duration, or adults rejected by adapter status
+ok 126 - P243 tampered escort arrival, duration, or adults rejected by adapter status
+  ---
+  duration_ms: 104.8036
+  type: 'test'
+  ...
+# Subtest: P243 militia takes a real blaster weapon out of inventory and tracks one adult
+ok 127 - P243 militia takes a real blaster weapon out of inventory and tracks one adult
+  ---
+  duration_ms: 106.6236
+  type: 'test'
+  ...
+# Subtest: P243 rejects grenade, nonexistent weapon, wrong scene and no double spend
+ok 128 - P243 rejects grenade, nonexistent weapon, wrong scene and no double spend
+  ---
+  duration_ms: 98.7983
+  type: 'test'
+  ...
+# Subtest: P243 official optional abstract combat: one wound per armed ally and one allied loss, once per round
+ok 129 - P243 official optional abstract combat: one wound per armed ally and one allied loss, once per round
+  ---
+  duration_ms: 228.5275
+  type: 'test'
+  ...
+# Subtest: P243 militia never wounds Drombb, cannot attack outside combat and cannot act twice
+ok 130 - P243 militia never wounds Drombb, cannot attack outside combat and cannot act twice
+  ---
+  duration_ms: 162.5373
+  type: 'test'
+  ...
+# Subtest: P243 invalid militia receipts and casualties rejected by adapter status
+ok 131 - P243 invalid militia receipts and casualties rejected by adapter status
+  ---
+  duration_ms: 97.8143
+  type: 'test'
+  ...
+# Subtest: P243 bridge and offline Android UI expose escort and militia actions
+ok 132 - P243 bridge and offline Android UI expose escort and militia actions
+  ---
+  duration_ms: 7.1053
+  type: 'test'
+  ...
+# Subtest: P243 optional militia round cannot be duplicated or applied after combat outcome
+ok 133 - P243 optional militia round cannot be duplicated or applied after combat outcome
+  ---
+  duration_ms: 246.6998
+  type: 'test'
+  ...
+# Subtest: P243 New Meen escort and militia panels remain visible without a vehicle
+ok 134 - P243 New Meen escort and militia panels remain visible without a vehicle
+  ---
+  duration_ms: 14.966
+  type: 'test'
+  ...
+# Subtest: P244 surviving militia returns exact borrowed weapon, once, with three save reopens
+ok 135 - P244 surviving militia returns exact borrowed weapon, once, with three save reopens
+  ---
+  duration_ms: 227.2332
+  type: 'test'
+  ...
+# Subtest: P244 loan owner cannot be spoofed; no duplicate or fabricated weapon
+ok 136 - P244 loan owner cannot be spoofed; no duplicate or fabricated weapon
+  ---
+  duration_ms: 96.3381
+  type: 'test'
+  ...
+# Subtest: P244 an eliminated ally never returns a weapon without separate recovery proof
+ok 137 - P244 an eliminated ally never returns a weapon without separate recovery proof
+  ---
+  duration_ms: 235.413
+  type: 'test'
+  ...
+# Subtest: P244 no return during active combat; failure does not save
+ok 138 - P244 no return during active combat; failure does not save
+  ---
+  duration_ms: 135.2976
+  type: 'test'
+  ...
+# Subtest: P244 P243 save with unmarked loans is migrated before return, preserving casualty count
+ok 139 - P244 P243 save with unmarked loans is migrated before return, preserving casualty count
+  ---
+  duration_ms: 247.5509
+  type: 'test'
+  ...
+# Subtest: P244 rejects tampered custody, duplicate loans, forged return receipts
+ok 140 - P244 rejects tampered custody, duplicate loans, forged return receipts
+  ---
+  duration_ms: 77.4696
+  type: 'test'
+  ...
+# Subtest: P244 return action is wired into bridge and offline Android UI
+ok 141 - P244 return action is wired into bridge and offline Android UI
+  ---
+  duration_ms: 7.2973
+  type: 'test'
+  ...
+# Subtest: Piddock p.33: quatro perguntas, aviso na quarta, encerramento na quinta, sem inventar respostas
+ok 142 - Piddock p.33: quatro perguntas, aviso na quarta, encerramento na quinta, sem inventar respostas
+  ---
+  duration_ms: 106.5406
+  type: 'test'
+  ...
+# Subtest: Piddock: manifestar comércio mantém diálogo aberto, mas não inventa armas
+ok 143 - Piddock: manifestar comércio mantém diálogo aberto, mas não inventa armas
+  ---
+  duration_ms: 86.1967
+  type: 'test'
+  ...
+# Subtest: Piddock choices oficializadas incrementam perguntas, sem bloquear escolhas já válidas
+ok 144 - Piddock choices oficializadas incrementam perguntas, sem bloquear escolhas já válidas
+  ---
+  duration_ms: 102.0613
+  type: 'test'
+  ...
+# Subtest: Vio p.33: contratar rota direta com débito exato, sem Dimmock/AA7 e sem trocar dono da nave
+ok 145 - Vio p.33: contratar rota direta com débito exato, sem Dimmock/AA7 e sem trocar dono da nave
+  ---
+  duration_ms: 135.0448
+  type: 'test'
+  ...
+# Subtest: Vio: negociação Média com dados reais, 250 por pessoa se passar e 500 se falhar
+ok 146 - Vio: negociação Média com dados reais, 250 por pessoa se passar e 500 se falhar
+  ---
+  duration_ms: 131.1112
+  type: 'test'
+  ...
+# Subtest: Vio controller/bridge/UI: compra atômica, rollback, três reaberturas
+ok 147 - Vio controller/bridge/UI: compra atômica, rollback, três reaberturas
+  ---
+  duration_ms: 175.6623
+  type: 'test'
+  ...
+# Subtest: AA7 p.37: 500 créditos retira apenas Vrixx, sem neutralizar soldados nem fabricar vitória
+ok 148 - AA7 p.37: 500 créditos retira apenas Vrixx, sem neutralizar soldados nem fabricar vitória
+  ---
+  duration_ms: 300.3551
+  type: 'test'
+  ...
+# Subtest: AA7 p.37: 1000 créditos executa tiro de Gand com dados, dano e cobertura reais
+ok 149 - AA7 p.37: 1000 créditos executa tiro de Gand com dados, dano e cobertura reais
+  ---
+  duration_ms: 210.2994
+  type: 'test'
+  ...
+# Subtest: AA7: pagamento falho preserva saldo, combate e saves; sem alvo real não há tiro
+ok 150 - AA7: pagamento falho preserva saldo, combate e saves; sem alvo real não há tiro
+  ---
+  duration_ms: 208.8011
+  type: 'test'
+  ...
+# Subtest: AA7: fechamento só aceita soldados realmente derrotados + Gand pago; embarque persiste
+ok 151 - AA7: fechamento só aceita soldados realmente derrotados + Gand pago; embarque persiste
+  ---
+  duration_ms: 377.0342
+  type: 'test'
+  ...
+# Subtest: Ato3 dossiê exige duas provas distintas concretas, não meras flags
+ok 152 - Ato3 dossiê exige duas provas distintas concretas, não meras flags
+  ---
+  duration_ms: 293.6567
+  type: 'test'
+  ...
+# Subtest: Ato3 Anatta: provas verificadas, recibo durável, sem créditos e sem morte
+ok 153 - Ato3 Anatta: provas verificadas, recibo durável, sem créditos e sem morte
+  ---
+  duration_ms: 213.6409
+  type: 'test'
+  ...
+# Subtest: Ato3 chantagem só diante de Teemo, sem combate e com dossiê
+ok 154 - Ato3 chantagem só diante de Teemo, sem combate e com dossiê
+  ---
+  duration_ms: 280.3072
+  type: 'test'
+  ...
+# Subtest: Ato3 intervenção Jabba via Anatta encerra sem fabricar morte ou combate
+ok 155 - Ato3 intervenção Jabba via Anatta encerra sem fabricar morte ou combate
+  ---
+  duration_ms: 205.1419
+  type: 'test'
+  ...
+# Subtest: Ato3 dossiê adulterado, falso fim e falso crédito são rejeitados
+ok 156 - Ato3 dossiê adulterado, falso fim e falso crédito são rejeitados
+  ---
+  duration_ms: 265.3936
+  type: 'test'
+  ...
+# Subtest: Ato3 cofre oficial: 10000 créditos somente depois de vitória real, sem duplicação
+ok 157 - Ato3 cofre oficial: 10000 créditos somente depois de vitória real, sem duplicação
+  ---
+  duration_ms: 90.5094
+  type: 'test'
+  ...
+# Subtest: Ato3 controller/bridge/UI: persistência e três reaberturas; rollback em falha
+ok 158 - Ato3 controller/bridge/UI: persistência e três reaberturas; rollback em falha
+  ---
+  duration_ms: 364.1455
+  type: 'test'
+  ...
+# Subtest: Ato3 controlador: cofre realmente credita carteira e persiste três vezes
+ok 159 - Ato3 controlador: cofre realmente credita carteira e persiste três vezes
+  ---
+  duration_ms: 162.9498
+  type: 'test'
+  ...
+# Subtest: Ato3 lustre exige combate, percepção e blaster; falha consome ação sem vitória
+ok 160 - Ato3 lustre exige combate, percepção e blaster; falha consome ação sem vitória
+  ---
+  duration_ms: 188.8345
+  type: 'test'
+  ...
+# Subtest: Ato3 lustre acerta por dados reais: Hutt cai, minions recuam, combate fecha, cofre credita
+ok 161 - Ato3 lustre acerta por dados reais: Hutt cai, minions recuam, combate fecha, cofre credita
+  ---
+  duration_ms: 382.6552
+  type: 'test'
+  ...
+# Subtest: Ato3 não aceita recibo adulterado de tiro ou sucesso sem teste de Percepção
+ok 162 - Ato3 não aceita recibo adulterado de tiro ou sucesso sem teste de Percepção
+  ---
+  duration_ms: 137.5699
+  type: 'test'
+  ...
+# Subtest: Ato2 Anatta: 11 assuntos e preços oficiais, sem barganha nem compras duplicadas
+ok 163 - Ato2 Anatta: 11 assuntos e preços oficiais, sem barganha nem compras duplicadas
+  ---
+  duration_ms: 68.0309
+  type: 'test'
+  ...
+# Subtest: p.44: four gladiators, real bribe, once, no charm, no fake alliance
+ok 164 - p.44: four gladiators, real bribe, once, no charm, no fake alliance
+  ---
+  duration_ms: 217.1848
+  type: 'test'
+  ...
+# Subtest: p.44: opposed Coercion dice, failed check does not mint allies; receipt anti-fraud
+ok 165 - p.44: opposed Coercion dice, failed check does not mint allies; receipt anti-fraud
+  ---
+  duration_ms: 140.2895
+  type: 'test'
+  ...
+# Subtest: p.44: gladiator combat is real and separate from Teemo; cannot fake victory
+ok 166 - p.44: gladiator combat is real and separate from Teemo; cannot fake victory
+  ---
+  duration_ms: 166.6937
+  type: 'test'
+  ...
+# Subtest: p.44: controller/bridge/UI: credits atomic, rollback and 3 reopenings
+ok 167 - p.44: controller/bridge/UI: credits atomic, rollback and 3 reopenings
+  ---
+  duration_ms: 258.7277
+  type: 'test'
+  ...
+# Subtest: p.44: GM confirms count; Teemo must spend maneuver on actual NPC turn; no premature arrival
+ok 168 - p.44: GM confirms count; Teemo must spend maneuver on actual NPC turn; no premature arrival
+  ---
+  duration_ms: 14.0107
+  type: 'test'
+  ...
+# Subtest: p.44: no alarm from incapacitated Teemo; no reinforcements without alarm
+ok 169 - p.44: no alarm from incapacitated Teemo; no reinforcements without alarm
+  ---
+  duration_ms: 1.5822
+  type: 'test'
+  ...
+# Subtest: p.44: controller commits real Teemo NPC maneuver, initiative countdown and three persisted reopens
+ok 170 - p.44: controller commits real Teemo NPC maneuver, initiative countdown and three persisted reopens
+  ---
+  duration_ms: 226.9875
+  type: 'test'
+  ...
+# Subtest: p.40: eletroportão energizado; teste Difícil real, quatro guardas, sem teletransporte para palácio
+ok 171 - p.40: eletroportão energizado; teste Difícil real, quatro guardas, sem teletransporte para palácio
+  ---
+  duration_ms: 251.2863
+  type: 'test'
+  ...
+# Subtest: p.40: falha não afasta guardas, tentativas persistem e não geram reforço inexistente
+ok 172 - p.40: falha não afasta guardas, tentativas persistem e não geram reforço inexistente
+  ---
+  duration_ms: 100.0885
+  type: 'test'
+  ...
+# Subtest: Controller: barracks diversion blocks Teemo alarm; three persistent reopens and rollback
+ok 173 - Controller: barracks diversion blocks Teemo alarm; three persistent reopens and rollback
+  ---
+  duration_ms: 505.5713
+  type: 'test'
+  ...
+# Subtest: DATA official pp.42, 44–45: bulk 11 authored operations; no arbitrary op or NPC-specific executor
+ok 174 - DATA official pp.42, 44–45: bulk 11 authored operations; no arbitrary op or NPC-specific executor
+  ---
+  duration_ms: 286.556
+  type: 'test'
+  ...
+# Subtest: Workshop: both certified EotE gear allocations and six source-authored locations/actions through shared executor
+ok 175 - Workshop: both certified EotE gear allocations and six source-authored locations/actions through shared executor
+  ---
+  duration_ms: 135.3229
+  type: 'test'
+  ...
+# Subtest: Kitchen: cannot grant ryll evidence without adjudicated successful source check
+ok 176 - Kitchen: cannot grant ryll evidence without adjudicated successful source check
+  ---
+  duration_ms: 98.0083
+  type: 'test'
+  ...
+# Subtest: Bar & landing pad: new official locations reachable without inventing combat/effects
+ok 177 - Bar & landing pad: new official locations reachable without inventing combat/effects
+  ---
+  duration_ms: 182.6111
+  type: 'test'
+  ...
+# Subtest: Bith: interview is gated by real location, source-authored witness and idempotency
+ok 178 - Bith: interview is gated by real location, source-authored witness and idempotency
+  ---
+  duration_ms: 89.1545
+  type: 'test'
+  ...
+# Subtest: Live Controller/Bridge/UI: one generic call handles all operations and 3 reopens, rollback on failure
+ok 179 - Live Controller/Bridge/UI: one generic call handles all operations and 3 reopens, rollback on failure
+  ---
+  duration_ms: 180.3747
+  type: 'test'
+  ...
+# Subtest: Two independently witnessed palace proofs feed existing universal ending executor without Computers flag
+ok 180 - Two independently witnessed palace proofs feed existing universal ending executor without Computers flag
+  ---
+  duration_ms: 116.1323
+  type: 'test'
+  ...
+# Subtest: Family authoring: 14 added noncombat source-backed operations across 9 palace scenes
+ok 181 - Family authoring: 14 added noncombat source-backed operations across 9 palace scenes
+  ---
+  duration_ms: 1170.5969
+  type: 'test'
+  ...
+# Subtest: Full reconnaissance route: reception, hallway, gladiators, workshop, kitchen, bar, pad, spy, comms
+ok 182 - Full reconnaissance route: reception, hallway, gladiators, workshop, kitchen, bar, pad, spy, comms
+  ---
+  duration_ms: 187.5047
+  type: 'test'
+  ...
+# Subtest: Cannot loot hallway artwork from another room, mint sale cash, or impersonate proof
+ok 183 - Cannot loot hallway artwork from another room, mint sale cash, or impersonate proof
+  ---
+  duration_ms: 42.7259
+  type: 'test'
+  ...
+# Subtest: Atomic controller + 3 reopenings: hallway cargo, rollback on unavailable operation
+ok 184 - Atomic controller + 3 reopenings: hallway cargo, rollback on unavailable operation
+  ---
+  duration_ms: 80.6669
+  type: 'test'
+  ...
+# Subtest: p.33: três armas oficiais, preços fixos e críticos reduzidos, sem entregar na festa
+ok 185 - p.33: três armas oficiais, preços fixos e críticos reduzidos, sem entregar na festa
+  ---
+  duration_ms: 215.9131
+  type: 'test'
+  ...
+# Subtest: p.33: rolagem oposta com desafio real concede exatamente 10% somente se houver sucesso
+ok 186 - p.33: rolagem oposta com desafio real concede exatamente 10% somente se houver sucesso
+  ---
+  duration_ms: 35.2429
+  type: 'test'
+  ...
+# Subtest: Controller + UI + Bridge: rollback insuficiência, recibos reais, três reaberturas
+ok 187 - Controller + UI + Bridge: rollback insuficiência, recibos reais, três reaberturas
+  ---
+  duration_ms: 136.3418
+  type: 'test'
+  ...
+1..187
+# tests 187
+# suites 0
+# pass 187
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10210.1908

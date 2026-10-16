@@ -94,13 +94,13 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Close the remaining Old Lylek printed pp.15–18 mechanics and UI gaps recorded in evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/RESULTS.md, then rerun the full per-file regression. Continue the remaining SWE02 Act 1/2/3 ledgers. Keep all statuses uncertified.",
+  "next_action": "Commit and push the reviewed Old Lylek p.15–18 named-zone map/combat integration, then rerun all 372 regular test files individually plus six stress suites. Continue SWE02 Act 1 pp.2–24 from audits/SWE02_ACT1_DEEP_AUDIT.md; keep every page and adventure uncertified until its individual source, executor, UI, save/reopen and test gates close.",
   "old_lylek_p15_18": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
-    "focused_tests": {"tests": 11, "pass": 11, "fail": 0, "skip": 0, "evidence": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/focused-sparse.tap"},
-    "affected_sparse_sweep": {"tests": 181, "pass": 181, "fail": 0, "skip": 0, "evidence": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/affected-sparse.tap"},
-    "offline_bundle": {"result": "PASS", "modules": 133, "evidence": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/offline-bundle-build.log"},
-    "pending": ["Interactive tactical map and enforced +2 ranged setback from rock cover.", "Enforced hunter capture/stun preference and lethal switch after a hunter falls.", "Enforced eastern flank and source-directed frontal fighting retreat.", "Repair-time reduction when Advantage is rolled; source gives no fixed reduction amount.", "Immediate lylek Advantage event that removes one hunter and returns prey to the nest when the GM selected that branch.", "Interactive New Meen arrival and exact conditional developer details only when requested.", "Full pp.15–18 page certification and other details in the source audit remain outstanding."],
+    "focused_tests": {"tests": 17, "pass": 17, "fail": 0, "skip": 0, "evidence": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/focused-final.tap"},
+    "affected_sparse_sweep": {"tests": 187, "pass": 187, "fail": 0, "skip": 0, "evidence": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/affected-sparse-final.tap"},
+    "offline_bundle": {"result": "PASS", "modules": 133, "evidence": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/bundle-final.log"},
+    "pending": ["The p.16 map is a persisted interactive named-zone schematic, not a scaled tactical map; source does not provide supported range/LOS mechanics, and no flank-specific modifier is inferred.", "The numeric reduction for repair Advantage is a GM-entered runtime choice because the source does not specify an amount.", "Living T’rex competing with mandatory Gand for a one-hunter solo/unknown-size party remains unresolved by the source combination.", "Full pp.15–18 page certification and other SWE02 Act 1 details remain outstanding."],
     "evidence_report": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/RESULTS.md"
   },
   "trex_carryover": {

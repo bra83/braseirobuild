@@ -3142,6 +3142,50 @@ class BraseiroUiBridge {
             return fail('SWE02_LYLEK_FAILED', messageOf(e));
         }
     }
+    setSWE02OldLylekPlayerCover(options = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.setSWE02OldLylekPlayerCover(options ?? {})));
+        }
+        catch (e) {
+            return fail('SWE02_LYLEK_FAILED', messageOf(e));
+        }
+    }
+    setSWE02OldLylekMapLocation(options = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.setSWE02OldLylekMapLocation(options ?? {})));
+        }
+        catch (e) {
+            return fail('SWE02_LYLEK_FAILED', messageOf(e));
+        }
+    }
+    resolveSWE02OldLylekHunterRetreat() {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.resolveSWE02OldLylekHunterRetreat()));
+        }
+        catch (e) {
+            return fail('SWE02_LYLEK_FAILED', messageOf(e));
+        }
+    }
+    revealSWE02OldLylekDeveloperDetails(options = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.revealSWE02OldLylekDeveloperDetails(options ?? {})));
+        }
+        catch (e) {
+            return fail('SWE02_LYLEK_FAILED', messageOf(e));
+        }
+    }
     swe02NabatMarket() {
         const r = this._controllerForExistingCampaign();
         if (!r.ok)
@@ -13478,6 +13522,11 @@ exports.selectLongArmTrexCarryover = selectLongArmTrexCarryover;
 exports.proceedLongArmOldLylekBluff = proceedLongArmOldLylekBluff;
 exports.recordLongArmOldLylekRuse = recordLongArmOldLylekRuse;
 exports.chooseLongArmOldLylekTactics = chooseLongArmOldLylekTactics;
+exports.triggerLongArmOldLylekAdvantage = triggerLongArmOldLylekAdvantage;
+exports.resolveLongArmOldLylekRetreat = resolveLongArmOldLylekRetreat;
+exports.revealLongArmOldLylekDeveloperDetails = revealLongArmOldLylekDeveloperDetails;
+exports.createLongArmOldLylekMapState = createLongArmOldLylekMapState;
+exports.assignLongArmOldLylekMapLocation = assignLongArmOldLylekMapLocation;
 exports.approachLongArmOldLylekOnFoot = approachLongArmOldLylekOnFoot;
 exports.recordLongArmOldLylekCrashCheck = recordLongArmOldLylekCrashCheck;
 exports.confirmLongArmOldLylekCrashCrew = confirmLongArmOldLylekCrashCrew;
@@ -14325,7 +14374,7 @@ function currentLongArmOfTheHuttChecks(world) {
         requiresGMSourceVerification: !Number.isInteger(check.sourcePage)
     }));
 }
-function adjudicateLongArmOfTheHuttCheck(world, { checkIndex = 0, result = {} } = {}) {
+function adjudicateLongArmOfTheHuttCheck(world, { checkIndex = 0, result = {}, repairReductionMinutes = null } = {}) {
     const next = clone(world || {});
     const p = next.publishedAdventure;
     if (!p || p.id !== ID || p.status !== 'ACTIVE')
@@ -14349,7 +14398,7 @@ function adjudicateLongArmOfTheHuttCheck(world, { checkIndex = 0, result = {} } 
         else if (phase === 'lookout')
             p.oldLylek = (0, swe02OldLylekP15_mjs_1.recordSWE02OldLylekLookout)(p, result).progress.oldLylek;
         else if (['repair', 'repair-failed'].includes(phase))
-            p.oldLylek = (0, swe02OldLylekP15_mjs_1.recordSWE02OldLylekRepair)(p, result).progress.oldLylek;
+            p.oldLylek = (0, swe02OldLylekP15_mjs_1.recordSWE02OldLylekRepair)(p, result, { reductionMinutes: repairReductionMinutes }).progress.oldLylek;
     }
     if (['krayt-fang-logs', 'krayt-fang-ground-inspection'].includes(p.currentNodeId))
         (0, swe02KraytFangP238_mjs_1.recordShipCheck)(p, checkIndex, result.success);
@@ -14410,6 +14459,40 @@ function recordLongArmOldLylekRuse(world, options) { const next = clone(world ||
     throw Error('SWE02: aventura inativa.'); const out = (0, swe02OldLylekP15_mjs_1.recordSWE02OldLylekRuse)(p, options); p.oldLylek = out.progress.oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p), receipt: clone(out.receipt) }; }
 function chooseLongArmOldLylekTactics(world, options) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
     throw Error('SWE02: aventura inativa.'); const out = (0, swe02OldLylekP15_mjs_1.chooseSWE02OldLylekTactics)(p, options); p.oldLylek = out.progress.oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p), receipt: clone(out.receipt) }; }
+function triggerLongArmOldLylekAdvantage(world, options) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
+    throw Error('SWE02: aventura inativa.'); const out = (0, swe02OldLylekP15_mjs_1.triggerSWE02OldLylekAdvantage)(p, options); p.oldLylek = out.progress.oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p), receipt: clone(out.receipt) }; }
+function resolveLongArmOldLylekRetreat(world, options) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
+    throw Error('SWE02: aventura inativa.'); const out = (0, swe02OldLylekP15_mjs_1.resolveSWE02OldLylekHuntersRetreat)(p, options); p.oldLylek = out.progress.oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p), receipt: clone(out.receipt) }; }
+function revealLongArmOldLylekDeveloperDetails(world, { asked = false } = {}) {
+    const next = clone(world || {}), p = next.publishedAdventure, arrival = p?.oldLylek?.arrivalReceipt;
+    if (!p || p.id !== ID || p.currentNodeId !== 'new-meen-miners' || !arrival || asked !== true)
+        throw Error('SWE02 pp.18–19: os detalhes dos desenvolvedores só são revelados em New Meen se os PCs perguntarem.');
+    const facts = {
+        contractor: 'Angu Drombb é um empreiteiro humano que comprou terras de um oligarca feudal alegando que construiria um complexo de lazer/oásis no deserto.',
+        underworld: 'No submundo de Ryloth, acredita-se que o plano real seja tomar parte no comércio de ryll.',
+        identity: 'Ninguém parece conhecer o passado de Drombb; como ele distribui créditos, suspeita-se que represente um financiador rico e anônimo.'
+    };
+    p.oldLylek = { ...p.oldLylek, arrivalReceipt: { ...arrival, developerDetails: { status: 'SHARED_AFTER_ASK', asked: true, facts, source: { title: 'The Long Arm of the Hutt', productCode: 'SWE02', printedPages: [18, 19], authority: 'OFFICIAL_PDF_TEXT_VERIFIED' } } } };
+    p.updatedAt = now();
+    return { world: next, receipt: clone(p.oldLylek.arrivalReceipt.developerDetails) };
+}
+function createLongArmOldLylekMapState(world, combat, rosterEntries = []) {
+    const p = world?.publishedAdventure, old = p?.oldLylek;
+    if (!p || p.id !== ID || p.currentNodeId !== 'lylek-den-ambush' || !combat?.adversaries)
+        throw Error('SWE02 p.16: o mapa de combate só pode ser iniciado no Old Lylek Den.');
+    const crewIds = new Set(old?.crewPcIds ?? []), roster = Array.isArray(rosterEntries) ? rosterEntries : [];
+    const pcs = roster.filter(x => crewIds.has(x.id));
+    if (pcs.length !== crewIds.size)
+        throw Error('SWE02 p.16: todo PC a bordo precisa manter seu ID estável no mapa.');
+    return (0, swe02OldLylekP15_mjs_1.createSWE02OldLylekMapState)({ pcEntries: pcs, hunters: combat.adversaries.filter(a => ['laoth_gand_bounty_hunter', 'laoth_bounty_hunter', 'trex'].includes(a.profileKey)) });
+}
+function assignLongArmOldLylekMapLocation(combat, options) {
+    if (combat?.publishedAdventureContext?.adventureId !== ID || combat?.publishedAdventureContext?.encounterId !== 'lylek-den-bounty-hunters')
+        throw Error('SWE02 p.16: atribuições do mapa só podem mudar durante o combate dos caçadores.');
+    const next = clone(combat);
+    next.swe02OldLylekMap = (0, swe02OldLylekP15_mjs_1.assignSWE02OldLylekMapLocation)(next.swe02OldLylekMap, options);
+    return next;
+}
 function approachLongArmOldLylekOnFoot(world) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
     throw Error('SWE02: aventura inativa.'); p.oldLylek = (0, swe02OldLylekP15_mjs_1.approachSWE02OldLylekOnFoot)(p).progress.oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p) }; }
 function recordLongArmOldLylekCrashCheck(world, receipt) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
@@ -18308,6 +18391,9 @@ function validateNewMeenSafe(p) {
 define("js/adventure/swe02OldLylekP15.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SWE02_OLD_LYLEK_MAP_ZONES = void 0;
+exports.createSWE02OldLylekMapState = createSWE02OldLylekMapState;
+exports.assignSWE02OldLylekMapLocation = assignSWE02OldLylekMapLocation;
 exports.createSWE02OldLylekState = createSWE02OldLylekState;
 exports.chooseSWE02OldLylekCrew = chooseSWE02OldLylekCrew;
 exports.requireSWE02TrexCarryover = requireSWE02TrexCarryover;
@@ -18325,6 +18411,8 @@ exports.confirmSWE02OldLylekCrashCrew = confirmSWE02OldLylekCrashCrew;
 exports.recordSWE02OldLylekRepair = recordSWE02OldLylekRepair;
 exports.markSWE02OldLylekCombatStarted = markSWE02OldLylekCombatStarted;
 exports.recordSWE02OldLylekHunterOutcome = recordSWE02OldLylekHunterOutcome;
+exports.triggerSWE02OldLylekAdvantage = triggerSWE02OldLylekAdvantage;
+exports.resolveSWE02OldLylekHuntersRetreat = resolveSWE02OldLylekHuntersRetreat;
 exports.inspectSWE02OldLylekSpeeder = inspectSWE02OldLylekSpeeder;
 exports.recordSWE02OldLylekLootGrant = recordSWE02OldLylekLootGrant;
 exports.warnSWE02OldLylek = warnSWE02OldLylek;
@@ -18334,6 +18422,44 @@ exports.resolveSWE02OldLylek = resolveSWE02OldLylek;
 exports.canSWE02OldLylekContinue = canSWE02OldLylekContinue;
 const SOURCE = Object.freeze({ title: 'The Long Arm of the Hutt', productCode: 'SWE02', printedPages: [15, 16, 17, 18], authority: 'OFFICIAL_PDF_TEXT_VERIFIED' });
 const clone = value => structuredClone(value);
+exports.SWE02_OLD_LYLEK_MAP_ZONES = Object.freeze([
+    Object.freeze({ id: 'heroes_approach', label: 'Heroes’ Journey / approach', printedPage: 16 }),
+    Object.freeze({ id: 'cave_mouth', label: 'Bounty Hunters / cave mouth', printedPage: 16 }),
+    Object.freeze({ id: 'hunter_speeder', label: 'Bounty Hunters’ Speeder', printedPage: 16 }),
+    Object.freeze({ id: 'eastern_flank', label: 'Partially blocked eastern cave entrance', printedPage: 17 }),
+    Object.freeze({ id: 'southern_nest', label: 'Lylek Nest / southern nest', printedPage: 16 })
+]);
+function createSWE02OldLylekMapState({ pcEntries = [], hunters = [] } = {}) {
+    if (!Array.isArray(pcEntries) || !Array.isArray(hunters) || pcEntries.some(x => !x?.id) || hunters.some(x => !x?.id))
+        throw new Error('SWE02 p.16: o esquema do mapa exige IDs estáveis para PCs a bordo e caçadores.');
+    const actors = {};
+    for (const pc of pcEntries) {
+        const key = `pc:${pc.id}`;
+        if (actors[key])
+            throw new Error('SWE02 p.16: ID de PC duplicado no mapa.');
+        actors[key] = { kind: 'pc', id: pc.id, label: String(pc.character?.name || pc.name || pc.id) };
+    }
+    for (const hunter of hunters) {
+        const key = `hunter:${hunter.id}`;
+        if (actors[key])
+            throw new Error('SWE02 p.16: ID de caçador duplicado no mapa.');
+        actors[key] = { kind: 'hunter', id: hunter.id, label: String(hunter.name || hunter.id), profileKey: hunter.profileKey || null };
+    }
+    return { schema: 1, zones: clone(exports.SWE02_OLD_LYLEK_MAP_ZONES), actors,
+        actorLocations: Object.fromEntries(Object.keys(actors).map(key => [key, actors[key].kind === 'pc' ? 'heroes_approach' : 'cave_mouth'])),
+        fixedFeatures: { huntersSpeeder: 'hunter_speeder', lylekNest: 'southern_nest' },
+        geometry: { scale: null, distances: null, rangeBands: null, coverGeometry: null, lineOfSight: null,
+            note: 'Source-faithful named areas only; no scale, distance, range, cover geometry, or line-of-sight rules are inferred.' },
+        source: { title: SOURCE.title, productCode: 'SWE02', printedPage: 16, relatedPrintedPage: 17, authority: SOURCE.authority, visualMapReviewed: true } };
+}
+function assignSWE02OldLylekMapLocation(map, { actorKey, locationId } = {}) {
+    if (!map || map.schema !== 1 || !map.actors?.[actorKey] || !exports.SWE02_OLD_LYLEK_MAP_ZONES.some(z => z.id === locationId))
+        throw new Error('SWE02 pp.16–17: escolha um PC ou caçador registrado e uma das áreas nomeadas do mapa.');
+    const next = clone(map);
+    next.actorLocations = { ...(next.actorLocations || {}), [actorKey]: locationId };
+    next.moves = [...(next.moves || []), { actorKey, locationId, source: { productCode: 'SWE02', printedPage: 16, relatedPrintedPage: 17 } }];
+    return next;
+}
 function requireProgress(progress) {
     if (!progress || progress.id !== 'long-arm-of-the-hutt' || progress.currentNodeId !== 'lylek-den-ambush')
         throw new Error('SWE02: a sequência do Old Lylek Den só está disponível na cena do covil.');
@@ -18501,12 +18627,18 @@ function confirmSWE02OldLylekCrashCrew(progress, { expectedPcCount } = {}) {
     next.oldLylek = { ...old, phase: 'repair', crashResolved: true, expectedPcCount: n };
     return { progress: next, phase: 'repair' };
 }
-function recordSWE02OldLylekRepair(progress, check) {
+function recordSWE02OldLylekRepair(progress, check, { reductionMinutes = null } = {}) {
     const p = requireProgress(progress), old = p.oldLylek;
     if (!old || !['repair', 'repair-failed'].includes(old.phase) || typeof check?.success !== 'boolean')
         throw new Error('SWE02 p.17: reparo não disponível.');
+    const advantage = Math.max(0, Number(check.netAdvantage) || 0) > 0;
+    if (reductionMinutes !== null && (!advantage || !Number.isInteger(Number(reductionMinutes)) || Number(reductionMinutes) < 1 || Number(reductionMinutes) > 29))
+        throw new Error('SWE02 p.17: redução escolhida pelo Mestre exige Vantagem e deve deixar ao menos um minuto de reparo.');
+    const reduction = advantage && reductionMinutes !== null ? Number(reductionMinutes) : null;
     const receipt = { skillKey: 'mecanica', difficulty: 1, success: check.success, netSuccess: Number(check.netSuccess) || 0,
-        netAdvantage: Number(check.netAdvantage) || 0, timeMinutes: 30, source: clone(SOURCE) };
+        netAdvantage: Number(check.netAdvantage) || 0, timeMinutes: reduction === null ? 30 : 30 - reduction,
+        advantageReduction: advantage ? { status: reduction === null ? 'PENDING_GM_CHOICE' : 'APPLIED', sourceAllowsReduction: true, minutes: reduction, amountUnspecifiedByBook: true } : null,
+        source: clone(SOURCE) };
     const next = clone(p), checks = [...old.repairChecks, receipt];
     next.oldLylek = { ...old, repairChecks: checks, phase: check.success ? 'ruse' : 'repair-failed', repairSuccess: check.success };
     return { progress: next, receipt, phase: next.oldLylek.phase };
@@ -18537,7 +18669,7 @@ function recordSWE02OldLylekHunterOutcome(progress, { outcome, adversaries = [],
     const defeated = adversaries.every(a => ['incapacitated', 'defeated'].includes(a.status));
     if (outcome === 'adversaries_defeated' && !defeated)
         throw new Error('SWE02 p.15: vitória exige os caçadores incapacitados.');
-    const advantageTrigger = old.tactics?.lylekBranch === 'disturb_on_advantage' && (combatLog || []).some(x => Number(x?.check?.netAdvantage) > 0 || Number(x?.netAdvantage) > 0);
+    const advantageTrigger = !old.lylekTriggered && old.tactics?.lylekBranch === 'disturb_on_advantage' && (combatLog || []).some(x => Number(x?.check?.netAdvantage) > 0 || Number(x?.netAdvantage) > 0);
     const huntersOutcome = outcome === 'adversaries_defeated' && defeated ? 'defeated' : outcome === 'player_incapacitated' ? 'party-incapacitated' : 'retreated';
     const next = clone(p);
     next.oldLylek = { ...old, phase: 'post-hunters', huntersOutcome, lylekTriggered: old.lylekTriggered || advantageTrigger,
@@ -18551,6 +18683,23 @@ function recordSWE02OldLylekHunterOutcome(progress, { outcome, adversaries = [],
     if (huntersOutcome === 'defeated')
         next.oldLylek.hunterLoot = { status: 'available', items: [{ name: 'stimpack', quantity: 2 }, { name: 'medpac', quantity: 1 }, { name: 'emergency repair kit', quantity: 1 }], source: { title: SOURCE.title, productCode: 'SWE02', printedPage: 18, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' } };
     return { progress: next, huntersOutcome, lylekTriggered: next.oldLylek.lylekTriggered };
+}
+function triggerSWE02OldLylekAdvantage(progress, { hunterId, triggerId } = {}) {
+    const p = requireProgress(progress), old = p.oldLylek;
+    if (!old || old.phase !== 'hunters-combat' || old.tactics?.lylekBranch !== 'disturb_on_advantage' || old.lylekTriggered || typeof hunterId !== 'string' || !hunterId)
+        throw new Error('SWE02 p.18: vantagem do combate só pode acionar uma vez quando o Mestre escolheu perturbar o ninho.');
+    const receipt = { hunterId, triggerId: String(triggerId || ''), disposition: 'killed by lylek; prey taken to nest', event: 'The lylek bursts from the southern nest, kills one hunter and retreats with its prey.', source: { title: SOURCE.title, productCode: 'SWE02', printedPage: 18, authority: SOURCE.authority } };
+    const next = clone(p);
+    next.oldLylek = { ...old, lylekTriggered: true, lylekKillReceipt: receipt };
+    return { progress: next, receipt };
+}
+function resolveSWE02OldLylekHuntersRetreat(progress, { enemyIds = [] } = {}) {
+    const p = requireProgress(progress), old = p.oldLylek;
+    if (!old || old.phase !== 'hunters-combat' || old.tactics?.approach !== 'frontal' || old.tactics?.frontalOutcome !== 'fighting_retreat' || !Array.isArray(enemyIds) || enemyIds.length < 1 || new Set(enemyIds).size !== enemyIds.length)
+        throw new Error('SWE02 p.17: a retirada de combate exige abordagem frontal e escolha de retirada registrada.');
+    const next = clone(p);
+    next.oldLylek = { ...old, hunterRetreatReceipt: { status: 'RESOLVED', route: 'dotted map path', enemyIds: [...enemyIds], source: { title: SOURCE.title, productCode: 'SWE02', printedPage: 16, relatedPrintedPage: 17, authority: SOURCE.authority } } };
+    return { progress: next, receipt: clone(next.oldLylek.hunterRetreatReceipt) };
 }
 function inspectSWE02OldLylekSpeeder(progress) {
     const p = requireProgress(progress), old = p.oldLylek;
@@ -23501,9 +23650,9 @@ class GameController {
             return { adventure: adapter.status(this.state.world), rewards, state: structuredClone(this.state) };
         });
     }
-    resolvePublishedAdventureCheck(checkIndex = 0, { adventureId = null, useLightDestiny = false, useDarkDestiny = false, rng = Math.random, actionId = null } = {}) {
+    resolvePublishedAdventureCheck(checkIndex = 0, { adventureId = null, useLightDestiny = false, useDarkDestiny = false, repairReductionMinutes = null, rng = Math.random, actionId = null } = {}) {
         if (actionId !== null)
-            return this.executePublishedAdventureCommand({ actionId, kind: 'check', adventureId, checkIndex, options: { useLightDestiny, useDarkDestiny, rng } });
+            return this.executePublishedAdventureCommand({ actionId, kind: 'check', adventureId, checkIndex, options: { useLightDestiny, useDarkDestiny, repairReductionMinutes, rng } });
         return this.atomicAction(() => {
             const resolvedAdventureId = adventureId || this.state.world?.publishedAdventure?.id || 'under-black-sun';
             const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(resolvedAdventureId);
@@ -23517,7 +23666,7 @@ class GameController {
             const shipOdorSetback = adapter.id === 'long-arm-of-the-hutt' && spec.shipOdorRule
                 ? (0, longArmOfTheHutt_mjs_1.longArmShipSmellSetback)(this.state.world, this.state.player?.character?.name, spec.index) : 0;
             const check = this.resolveSkillCheck({ skillKey: spec.skillKey, difficulty: spec.pool.difficulty, challenge: spec.pool.challenge, setback: (Number(spec.pool.setback) || 0) + shipOdorSetback, useLightDestiny, useDarkDestiny, cloudCitySlicing: adapter.id === 'jewel-of-yavin' && spec.skillKey === 'computadoras' && this.state.world?.publishedAdventure?.currentNodeId === 'gala-reconnaissance', rng });
-            let adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: check });
+            let adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: check, repairReductionMinutes });
             const characterEffects = { creditsDelta: 0, strainDelta: 0, partyStrain: [] };
             if (adapter.id === 'long-arm-of-the-hutt' && spec.source?.printedPage === 15 && check.success === false) {
                 const old = adjudicated.world.publishedAdventure?.oldLylek, ids = old?.crewPcIds ?? [], roster = clone(this.state.player?.roster);
@@ -23630,6 +23779,17 @@ class GameController {
             this.commit('WORLD_UPDATED', { world: marked });
             const next = clone(this.state);
             next.combat.publishedAdventureContext = { adventureId: adapter.id, encounterId: spec.id, label: spec.label, nodeId: next.world?.publishedAdventure?.currentNodeId ?? null, ...(priorPublishedEnvironment ? { priorEnvironment: priorPublishedEnvironment } : {}) };
+            if (adapter.id === 'long-arm-of-the-hutt' && encounterId === 'lylek-den-bounty-hunters') {
+                const tactics = clone(next.world?.publishedAdventure?.oldLylek?.tactics ?? {});
+                next.combat.swe02OldLylekTactics = { approach: tactics.approach, frontalOutcome: tactics.frontalOutcome,
+                    startingPosition: tactics.approach === 'east_cave_flank' ? 'partially blocked eastern cave entrance' : 'frontal approach',
+                    hunterRetreatPath: tactics.approach === 'frontal' && tactics.frontalOutcome === 'fighting_retreat' ? 'dotted route' : 'unselected',
+                    source: { productCode: 'SWE02', printedPage: 16, relatedPrintedPage: 17 } };
+                next.combat.swe02OldLylekCover = { playerBehindRockPile: false, source: { productCode: 'SWE02', printedPage: 17, coverSetback: 2 } };
+                next.combat.swe02HunterIntent = { mode: 'CAPTURE', stunArmedResistance: true, lethalAfterHunterFalls: true,
+                    source: { productCode: 'SWE02', printedPage: 17 } };
+                next.combat.swe02OldLylekMap = (0, longArmOfTheHutt_mjs_1.createLongArmOldLylekMapState)(next.world, next.combat, next.player?.roster?.entries ?? []);
+            }
             next.combat.log = [...(next.combat.log ?? []), { type: 'ENCONTRO_AVENTURA_PUBLICADA', round: next.combat.round, encounterId: spec.id, summary: spec.label }];
             // The published-combat context must be committed through the event
             // reducer, not assigned directly: otherwise causal replay and any
@@ -24001,7 +24161,7 @@ class GameController {
         nextCombat = wing.combat;
         adversary = clone(nextCombat.adversaries.find(a => a.id === adversaryId));
         const arrow7Weapon = (0, jewelArrow7Turret_mjs_1.arrow7WeaponForNpcTurn)(nextCombat, adversary);
-        const weapon = arrow7Weapon ?? chooseNpcWeapon(adversary);
+        let weapon = arrow7Weapon ?? chooseNpcWeapon(adversary);
         if (!weapon) {
             adversary = statusEffects_mjs_1.expireStatusTurn(adversary);
             nextCombat = encounter_mjs_1.updateAdversaryInCombat(nextCombat, adversary);
@@ -24010,6 +24170,14 @@ class GameController {
         const tactical = (0, wingGuardTactics_mjs_1.consumeWingGuardTacticalBoost)(adversary);
         adversary = tactical.adversary;
         const wingTacticalBoost = tactical.boost;
+        const oldLylekHunterFight = nextCombat.publishedAdventureContext?.adventureId === 'long-arm-of-the-hutt' && nextCombat.publishedAdventureContext?.encounterId === 'lylek-den-bounty-hunters';
+        const priorHunterDown = oldLylekHunterFight && nextCombat.adversaries.some(a => ['laoth_gand_bounty_hunter', 'laoth_bounty_hunter', 'trex'].includes(a.profileKey) && adversaries_mjs_1.adversaryHealthStatus(a).incapacitated);
+        const playerArmed = Boolean((character.weapons ?? []).some(w => w && typeof w === 'object'));
+        const oldLylekStunIntent = Boolean(oldLylekHunterFight && !priorHunterDown && playerArmed && weapons_mjs_1.weaponHasQuality(weapon, 'stunSetting'));
+        if (oldLylekHunterFight) {
+            weapon = { ...clone(weapon), ...(oldLylekStunIntent ? { damageType: 'strain', stunSettingActive: true } : { stunSettingActive: false }) };
+            nextCombat.swe02HunterIntent = { ...(nextCombat.swe02HunterIntent ?? {}), mode: priorHunterDown ? 'LETHAL_AFTER_HUNTER_FALLEN' : oldLylekStunIntent ? 'STUN_ARMED_RESISTANCE' : 'CAPTURE_PREFERENCE', armedResistance: Boolean(playerArmed), hunterAlreadyDown: Boolean(priorHunterDown), lastActorId: adversary.id, source: { productCode: 'SWE02', printedPage: 17 } };
+        }
         const damagePenalty = itemDamageUsePenalty(weapon);
         const characteristic = adversaries_mjs_1.adversaryCharacteristicForSkill(adversary, weapon.skill);
         const skill = adversaries_mjs_1.adversarySkillRank(adversary, weapon.skill);
@@ -24112,10 +24280,10 @@ class GameController {
             difficulty,
             challenge: senseDifficulty.challenge,
             boost: pendingBoost + wingTacticalBoost + Number(status.boost ?? 0) + Number(proneTargetModifiers(character, weapon).boost ?? 0) + Number(environmentModifiers.boost ?? 0),
-            setback: defenseSetback(character, weapon, nextCombat) + (0, jewelHoloParkEffects_mjs_1.holoParkSpotlightSetback)(nextCombat) + damagePenalty.setback + Number(status.setback ?? 0) + aorSocial_mjs_1.activeScathingSetback(adversary, nextCombat.round) + Number(proneTargetModifiers(character, weapon).setback ?? 0) + (guardedStanceActive(character, nextCombat?.round) && isMeleeWeapon(weapon) ? 1 : 0) + Number(environmentModifiers.setback ?? 0)
+            setback: defenseSetback(character, weapon, nextCombat) + (0, jewelHoloParkEffects_mjs_1.holoParkSpotlightSetback)(nextCombat) + (oldLylekHunterFight && Boolean(nextCombat.swe02OldLylekCover?.playerBehindRockPile) && !isMeleeWeapon(weapon) ? 2 : 0) + damagePenalty.setback + Number(status.setback ?? 0) + aorSocial_mjs_1.activeScathingSetback(adversary, nextCombat.round) + Number(proneTargetModifiers(character, weapon).setback ?? 0) + (guardedStanceActive(character, nextCombat?.round) && isMeleeWeapon(weapon) ? 1 : 0) + Number(environmentModifiers.setback ?? 0)
         }, rng);
         let attack = weapons_mjs_1.resolveWeaponHit(weapon, check);
-        attack = { ...attack, wingTacticalBoost, targetRange: adversary.range, difficulty, challenge: senseDifficulty.challenge, attackerId: adversary.id, attackerName: adversary.name, weaponDamageState: damagePenalty.state, environmentModifiers, senseDefense: { applied: senseDefense.applied, upgrades: senseDefense.upgrades, triggersUsed: senseDefense.triggersUsed, triggersPerRound: senseDefense.triggersPerRound }, defensiveTalentUpgrades, defensiveTalent: defensiveTalentUpgrades > 0 ? (incomingMelee ? 'Postura Defensiva' : 'Passo Lateral') : null, feintUpgrades, dodgeUpgrades, dodgeApplied: dodgeUpgrades > 0 };
+        attack = { ...attack, ...(oldLylekHunterFight ? { oldLylekHunterIntent: { stun: oldLylekStunIntent, mode: nextCombat.swe02HunterIntent.mode, sourcePage: 17 }, coverSetback: oldLylekHunterFight && Boolean(nextCombat.swe02OldLylekCover?.playerBehindRockPile) && !isMeleeWeapon(weapon) ? 2 : 0 } : {}), wingTacticalBoost, targetRange: adversary.range, difficulty, challenge: senseDifficulty.challenge, attackerId: adversary.id, attackerName: adversary.name, weaponDamageState: damagePenalty.state, environmentModifiers, senseDefense: { applied: senseDefense.applied, upgrades: senseDefense.upgrades, triggersUsed: senseDefense.triggersUsed, triggersPerRound: senseDefense.triggersPerRound }, defensiveTalentUpgrades, defensiveTalent: defensiveTalentUpgrades > 0 ? (incomingMelee ? 'Postura Defensiva' : 'Passo Lateral') : null, feintUpgrades, dodgeUpgrades, dodgeApplied: dodgeUpgrades > 0 };
         let nextCharacter = clone(character);
         nextCombat.pendingNpcBoost = 0;
         let damageResult = null;
@@ -24156,6 +24324,10 @@ class GameController {
             targetText += `; ${burnNotes.join('; ')}`;
         updatedAdversary = statusEffects_mjs_1.expireStatusTurn(updatedAdversary);
         nextCombat = encounter_mjs_1.updateAdversaryInCombat(nextCombat, updatedAdversary);
+        const lylekNpcEvent = this._applySWE02OldLylekAdvantage(nextCombat, check, { preferredHunterId: adversaryId });
+        nextCombat = lylekNpcEvent.combat;
+        if (lylekNpcEvent.event)
+            targetText += ` ${lylekNpcEvent.event.display}`;
         const blast = (0, aorP179Reactions_mjs_1.npcBlastReceipt)({ attackId: ids_mjs_1.newId('npcblast'), attacker: adversary, weapon, check,
             hit: Boolean(attack.hit), sessionId: this.state.sessionId, round: nextCombat.round });
         if (blast) {
@@ -25494,6 +25666,10 @@ class GameController {
             if (useNaturalReroll)
                 character = markTalentUsedThisSession(character, naturalReroll.sessionKey);
             character = applyActionCriticalStrain(character, critical);
+            const lylekSkillEvent = this._applySWE02OldLylekAdvantage(combat, check);
+            combat = lylekSkillEvent.combat;
+            if (lylekSkillEvent.event)
+                check.lylekEvent = clone(lylekSkillEvent.event);
             this.commit('COMBAT_ACTION', { combat, character, check });
             if (greasedPalms) {
                 const receipt = { kind: 'greased_palms', actionId: greasedPalmsActionId, subjectId: 'social_' + skillKey,
@@ -25682,14 +25858,19 @@ class GameController {
     resolveCheck({ characteristic, skill, difficulty = 2, challenge = 0, boost = 0, setback = 0, rng = Math.random }) {
         return this.atomicAction(() => {
             const positive = narrativeDice_mjs_1.buildPositivePool(characteristic, skill);
-            const result = narrativeDice_mjs_1.rollPool({ ...positive, difficulty: Number(difficulty), challenge: Number(challenge), boost: Number(boost), setback: Number(setback) }, rng);
+            let result = narrativeDice_mjs_1.rollPool({ ...positive, difficulty: Number(difficulty), challenge: Number(challenge), boost: Number(boost), setback: Number(setback) }, rng);
+            const lylekResult = this._applySWE02OldLylekAdvantage(clone(this.state.combat), result);
+            if (lylekResult.event) {
+                result = { ...result, lylekEvent: clone(lylekResult.event) };
+                this.commit('COMBAT_ACTION', { combat: lylekResult.combat, check: result });
+            }
             this.commit('CHECK_RESOLVED', result);
             if (this.state.session?.status === 'ativa')
                 this.commit('SESSION_CHECK_RESOLVED', { session: sessionFlow_mjs_1.noteSessionCheck(this.state.session) });
             return result;
         });
     }
-    resolveWeaponAttack({ weaponIndex = 0, targetAdversaryId = null, targetRange = null, difficulty = 2, challenge = 0, boost = 0, setback = 0, useLightDestiny = false, useDarkDestiny = false, useAutoFire = false, useTargetedBlow = false, useAnatomyLessons = false, useStunningBlow = false, useSoftSpot = false, useCripplingBlow = false, useKashyyykInsect = false, gmInsectConfirmed = false, rng = Math.random }) {
+    resolveWeaponAttack({ weaponIndex = 0, targetAdversaryId = null, targetRange = null, targetBehindRockPile = false, difficulty = 2, challenge = 0, boost = 0, setback = 0, useLightDestiny = false, useDarkDestiny = false, useAutoFire = false, useTargetedBlow = false, useAnatomyLessons = false, useStunningBlow = false, useSoftSpot = false, useCripplingBlow = false, useKashyyykInsect = false, gmInsectConfirmed = false, rng = Math.random }) {
         (0, jewelHoloParkEffects_mjs_1.assertJewelHoloWeaponUsable)(this.state.combat, Number(weaponIndex));
         return this.atomicAction(() => {
             let character = this.state.player.character;
@@ -25809,6 +25990,11 @@ class GameController {
             const quickStrike = targetAdversary ? talents_mjs_1.quickStrikeBoost(character, { targetActorId: targetAdversary.id, actedActorIds: combat.encounter?.actedActorIds ?? [] }) : { rank: 0, boost: 0, applies: false };
             const proneMods = targetAdversary ? proneTargetModifiers(targetAdversary, effectiveAttackWeapon) : { boost: 0, setback: 0 };
             const environmentModifiers = environment_mjs_1.environmentSkillModifiers(this.state.environment, weapon.skill, characteristicKey);
+            const oldLylekTargetCover = Boolean(targetBehindRockPile && targetAdversary &&
+                combat.publishedAdventureContext?.adventureId === 'long-arm-of-the-hutt' &&
+                combat.publishedAdventureContext?.encounterId === 'lylek-den-bounty-hunters' && !isMeleeWeapon(effectiveAttackWeapon));
+            if (typeof targetBehindRockPile !== 'boolean')
+                throw Error('SWE02 p.17: estado de cobertura deve ser explícito.');
             const totalBoost = Number(boost) + Number(status.boost ?? 0) + Number(combat.pendingAttackBoost ?? 0) + Number(quickStrike.boost ?? 0) + Number(weaponQualityModifiers.accurate ?? 0) + Number(proneMods.boost ?? 0) + Number(environmentModifiers.boost ?? 0) + (0, jewelHoloParkEffects_mjs_1.holoParkThrantaBoost)(combat, weapon);
             const qualitySetback = Number(weaponQualityModifiers.setback ?? 0);
             const targetedAimSetback = pendingAim?.mode === 'targeted' ? (Number(pendingAim.count ?? 1) >= 2 ? 1 : 2) : 0;
@@ -25818,8 +26004,9 @@ class GameController {
                     difficulty: upgraded.difficulty,
                     challenge: upgraded.challenge,
                     boost: critical.removeBoost ? 0 : totalBoost,
-                    setback: Number(setback) + critical.setback + Number(status.setback ?? 0) + qualitySetback + Number(proneMods.setback ?? 0) + targetedAimSetback + targetDefense + encumbrance_mjs_1.encumbranceSetback(character, characteristicKey) + (guardedStanceActive(character, combat?.round) ? 1 : 0) + Number(environmentModifiers.setback ?? 0) + (0, jewelHoloParkEffects_mjs_1.holoParkTransportSetback)(combat)
+                    setback: Number(setback) + (oldLylekTargetCover ? 2 : 0) + critical.setback + Number(status.setback ?? 0) + qualitySetback + Number(proneMods.setback ?? 0) + targetedAimSetback + targetDefense + encumbrance_mjs_1.encumbranceSetback(character, characteristicKey) + (guardedStanceActive(character, combat?.round) ? 1 : 0) + Number(environmentModifiers.setback ?? 0) + (0, jewelHoloParkEffects_mjs_1.holoParkTransportSetback)(combat)
                 }, rng), environmentModifiers, quickStrike, aim: pendingAim, trueAimUpgrades, targetedAimSetback, targetDefense, preciseAim: pendingPreciseAim, sniperShot: pendingSniperShot, strongArmBands, frenziedAttack, senseOffense: { applied: senseOffense.applied, upgrades: senseOffense.upgrades, triggersUsed: senseOffense.triggersUsed, triggersPerRound: senseOffense.triggersPerRound } };
+            check.swe02OldLylekCover = oldLylekTargetCover ? { behindRockPile: true, setback: 2, sourcePage: 17 } : null;
             let kashyyykInsectProof = null;
             if (useKashyyykInsect) {
                 const park = this.state.world?.publishedAdventure?.operations?.holoPark;
@@ -25935,6 +26122,10 @@ class GameController {
                 if (Number(check.netAdvantage) > 0)
                     combat.swe02OldLylekAdvantageTriggered = true;
             }
+            const lylekEventResult = this._applySWE02OldLylekAdvantage(combat, check, { preferredHunterId: targetAdversaryId });
+            combat = lylekEventResult.combat;
+            if (lylekEventResult.event)
+                attack = { ...attack, lylekEvent: clone(lylekEventResult.event) };
             this.commit('COMBAT_ACTION', { combat, character, check, attack });
             return attack;
         });
@@ -26915,7 +27106,78 @@ class GameController {
             return clone(out.receipt);
         });
     }
-    /** SWE02 p.12: adventure action, not a decorative 'interception' flag. */
+    /** SWE02 p.18: an Advantage during the hunters' fight can trigger this source event. */
+    _applySWE02OldLylekAdvantage(combat, check, { preferredHunterId = null } = {}) {
+        if (!combat?.active || combat.publishedAdventureContext?.adventureId !== 'long-arm-of-the-hutt' || combat.publishedAdventureContext?.encounterId !== 'lylek-den-bounty-hunters' || Number(check?.netAdvantage) <= 0)
+            return { combat, event: null };
+        const old = this.state.world?.publishedAdventure?.oldLylek;
+        if (old?.tactics?.lylekBranch !== 'disturb_on_advantage' || old.lylekTriggered)
+            return { combat, event: null };
+        const hunters = combat.adversaries.filter(a => ['laoth_gand_bounty_hunter', 'laoth_bounty_hunter', 'trex'].includes(a.profileKey) && !a.swe02KilledByLylek);
+        const victim = hunters.find(a => a.id === preferredHunterId && !adversaries_mjs_1.adversaryHealthStatus(a).incapacitated) || hunters.find(a => !adversaries_mjs_1.adversaryHealthStatus(a).incapacitated) || hunters[0];
+        if (!victim)
+            return { combat, event: null };
+        const triggerId = ids_mjs_1.newId('lylek_event'), out = (0, longArmOfTheHutt_mjs_1.triggerLongArmOldLylekAdvantage)(this.state.world, { hunterId: victim.id, triggerId });
+        const killed = clone(victim);
+        killed.wounds = { ...killed.wounds, current: Number(killed.wounds.threshold) + 1 };
+        killed.status = 'incapacitated';
+        killed.swe02KilledByLylek = true;
+        killed.swe02Fate = { kind: 'KILLED_BY_LYLEK', preyReturnedToNest: true, source: { productCode: 'SWE02', printedPage: 18 } };
+        combat = encounter_mjs_1.updateAdversaryInCombat(combat, killed);
+        const event = { ...clone(out.receipt), display: 'The southern lylek kills one bounty hunter and retreats to its nest with the prey.' };
+        combat.swe02OldLylekAdvantageEvent = event;
+        combat.log = [...(combat.log ?? []), { type: 'SWE02_LYLEK_ADVANTAGE_EVENT', round: combat.round, event: clone(event) }];
+        this.commit('WORLD_UPDATED', { world: out.world });
+        return { combat, event };
+    }
+    setSWE02OldLylekPlayerCover({ behindRockPile = false } = {}) {
+        return this.atomicAction(() => {
+            const combat = clone(this.state.combat);
+            if (!combat?.active || combat.publishedAdventureContext?.adventureId !== 'long-arm-of-the-hutt' || combat.publishedAdventureContext?.encounterId !== 'lylek-den-bounty-hunters' || typeof behindRockPile !== 'boolean')
+                throw Error('SWE02 p.17: marque posição atrás das rochas somente durante o combate dos caçadores.');
+            combat.swe02OldLylekCover = { ...(combat.swe02OldLylekCover ?? {}), playerBehindRockPile: behindRockPile,
+                source: { productCode: 'SWE02', printedPage: 17, coverSetback: 2 } };
+            combat.log = [...(combat.log ?? []), { type: 'SWE02_LYLEK_COVER_POSITION', behindRockPile, round: combat.round, sourcePage: 17 }];
+            this.commit('COMBAT_ACTION', { combat });
+            return clone(combat.swe02OldLylekCover);
+        });
+    }
+    setSWE02OldLylekMapLocation({ actorKey, locationId } = {}) {
+        return this.atomicAction(() => {
+            let combat = clone(this.state.combat);
+            combat = (0, longArmOfTheHutt_mjs_1.assignLongArmOldLylekMapLocation)(combat, { actorKey, locationId });
+            combat.log = [...(combat.log ?? []), { type: 'SWE02_LYLEK_MAP_LOCATION', actorKey, locationId, round: combat.round, sourcePage: 16 }];
+            this.commit('COMBAT_ACTION', { combat });
+            return clone(combat.swe02OldLylekMap);
+        });
+    }
+    resolveSWE02OldLylekHunterRetreat() {
+        return this.atomicAction(() => {
+            const combat = clone(this.state.combat);
+            if (!combat?.active || combat.publishedAdventureContext?.adventureId !== 'long-arm-of-the-hutt' || combat.publishedAdventureContext?.encounterId !== 'lylek-den-bounty-hunters')
+                throw Error('SWE02 p.17: a retirada só pode ser resolvida durante o combate dos caçadores.');
+            const active = combat.adversaries.filter(a => !adversaries_mjs_1.adversaryHealthStatus(a).incapacitated && a.status !== 'retreated');
+            const out = (0, longArmOfTheHutt_mjs_1.resolveLongArmOldLylekRetreat)(this.state.world, { enemyIds: active.map(a => a.id) });
+            for (const enemy of active) {
+                enemy.status = 'retreated';
+                enemy.swe02RetreatRoute = 'dotted map path';
+            }
+            combat.encounter = { ...(combat.encounter ?? {}), outcome: 'escaped' };
+            combat.swe02OldLylekTactics = { ...(combat.swe02OldLylekTactics ?? {}), retreat: { ...out.receipt } };
+            combat.log = [...(combat.log ?? []), { type: 'SWE02_LYLEK_FIGHTING_RETREAT', round: combat.round, enemyIds: active.map(a => a.id), sourcePage: 17 }];
+            this.commit('WORLD_UPDATED', { world: out.world });
+            this.commit('COMBAT_ACTION', { combat });
+            return clone(out.receipt);
+        });
+    }
+    revealSWE02OldLylekDeveloperDetails({ asked = false } = {}) {
+        return this.atomicAction(() => {
+            const out = (0, longArmOfTheHutt_mjs_1.revealLongArmOldLylekDeveloperDetails)(this.state.world, { asked });
+            this.commit('WORLD_UPDATED', { world: out.world });
+            return clone(out.receipt);
+        });
+    }
+    /** SWE02 p.15: crew IDs are explicit and exclude companions/NPCs. */
     chooseSWE02OldLylekCrew({ crewPcIds } = {}) {
         return this.atomicAction(() => {
             if (this.state.combat?.active)
@@ -27071,7 +27333,7 @@ class GameController {
             return clone(out.progress.oldLylek.lylekEncounter);
         });
     }
-    /** SWE02 p.12: adventure action, not a decorative 'interception' flag. */
+    /** SWE02 p.18: adventure action, not a decorative 'triggered' flag. */
     beginSWE02ThwheekCombat() {
         return this.atomicAction(() => {
             if (this.state.combat?.active)

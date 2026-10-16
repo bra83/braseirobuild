@@ -26,7 +26,7 @@ import { safeP177Id } from '../rules/aorP177Actions.mjs';
 import {npcBlastReceipt,assertBlastReceipt} from '../rules/aorP179Reactions.mjs';
 import { mechanicFieldPreflight, mechanicFieldReceipt, assertOwnedEquipmentOperational } from '../rules/aorMechanicFieldActions.mjs';
 import { advanceBeyondTheRimImperialClock, beyondTheRimImperialClockStatus } from '../adventure/beyondTheRim.mjs';
-import { longArmShipSmellSetback,recordLongArmOldLylekLootGrant,recordLongArmOldLylekPilotStrain,recordLongArmOldLylekRuse,chooseLongArmOldLylekTactics,selectLongArmTrexCarryover,chooseLongArmOldLylekCrew,chooseLongArmOldLylekRoute,proceedLongArmOldLylekBluff,approachLongArmOldLylekOnFoot,
+import { longArmShipSmellSetback,recordLongArmOldLylekLootGrant,recordLongArmOldLylekPilotStrain,recordLongArmOldLylekRuse,chooseLongArmOldLylekTactics,triggerLongArmOldLylekAdvantage,resolveLongArmOldLylekRetreat,revealLongArmOldLylekDeveloperDetails,createLongArmOldLylekMapState,assignLongArmOldLylekMapLocation,selectLongArmTrexCarryover,chooseLongArmOldLylekCrew,chooseLongArmOldLylekRoute,proceedLongArmOldLylekBluff,approachLongArmOldLylekOnFoot,
     recordLongArmOldLylekCrashCheck,confirmLongArmOldLylekCrashCrew,inspectLongArmOldLylekSpeeder,recordLongArmOldLylekWarning,persistLongArmOldLylek } from '../adventure/longArmOfTheHutt.mjs';
 import {beginThwheekInterception,resolveThwheekInterception,thwheekTactics,THWHEEK_ID,THWHEEK_CONTEXT} from '../adventure/swe02ThwheekP239.mjs';
 import {nabatMarketCatalog,nabatPurchase,requestNabatSpaceportWatch,deliverNabatNightAlert,nabatShipRepair,nabatSafehouseCare} from '../adventure/swe02NabatP240.mjs';
@@ -3205,8 +3205,8 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
     
         });
     }
-    resolvePublishedAdventureCheck(checkIndex = 0, { adventureId = null, useLightDestiny = false, useDarkDestiny = false, rng = Math.random, actionId = null } = {}) {
-        if (actionId !== null) return this.executePublishedAdventureCommand({ actionId, kind: 'check', adventureId, checkIndex, options: { useLightDestiny, useDarkDestiny, rng } });
+    resolvePublishedAdventureCheck(checkIndex = 0, { adventureId = null, useLightDestiny = false, useDarkDestiny = false, repairReductionMinutes=null, rng = Math.random, actionId = null } = {}) {
+        if (actionId !== null) return this.executePublishedAdventureCommand({ actionId, kind: 'check', adventureId, checkIndex, options: { useLightDestiny, useDarkDestiny, repairReductionMinutes, rng } });
         return this.atomicAction(() => {
         const resolvedAdventureId = adventureId || this.state.world?.publishedAdventure?.id || 'under-black-sun';
         const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(resolvedAdventureId);
@@ -3218,7 +3218,7 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         const shipOdorSetback=adapter.id==='long-arm-of-the-hutt'&&spec.shipOdorRule
             ?longArmShipSmellSetback(this.state.world,this.state.player?.character?.name,spec.index):0;
         const check = this.resolveSkillCheck({ skillKey: spec.skillKey, difficulty: spec.pool.difficulty, challenge: spec.pool.challenge, setback: (Number(spec.pool.setback)||0)+shipOdorSetback, useLightDestiny, useDarkDestiny, cloudCitySlicing: adapter.id === 'jewel-of-yavin' && spec.skillKey === 'computadoras' && this.state.world?.publishedAdventure?.currentNodeId === 'gala-reconnaissance', rng });
-        let adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: check });
+        let adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: check, repairReductionMinutes });
         const characterEffects = { creditsDelta: 0, strainDelta: 0, partyStrain:[] };
         if(adapter.id==='long-arm-of-the-hutt'&&spec.source?.printedPage===15&&check.success===false){
             const old=adjudicated.world.publishedAdventure?.oldLylek,ids=old?.crewPcIds??[],roster=clone(this.state.player?.roster);
@@ -3319,6 +3319,17 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         this.commit('WORLD_UPDATED', { world: marked });
         const next = clone(this.state);
         next.combat.publishedAdventureContext = { adventureId: adapter.id, encounterId: spec.id, label: spec.label, nodeId: next.world?.publishedAdventure?.currentNodeId ?? null, ...(priorPublishedEnvironment?{priorEnvironment:priorPublishedEnvironment}:{}) };
+        if(adapter.id==='long-arm-of-the-hutt'&&encounterId==='lylek-den-bounty-hunters'){
+            const tactics=clone(next.world?.publishedAdventure?.oldLylek?.tactics??{});
+            next.combat.swe02OldLylekTactics={approach:tactics.approach,frontalOutcome:tactics.frontalOutcome,
+                startingPosition:tactics.approach==='east_cave_flank'?'partially blocked eastern cave entrance':'frontal approach',
+                hunterRetreatPath:tactics.approach==='frontal'&&tactics.frontalOutcome==='fighting_retreat'?'dotted route':'unselected',
+                source:{productCode:'SWE02',printedPage:16,relatedPrintedPage:17}};
+            next.combat.swe02OldLylekCover={playerBehindRockPile:false,source:{productCode:'SWE02',printedPage:17,coverSetback:2}};
+            next.combat.swe02HunterIntent={mode:'CAPTURE',stunArmedResistance:true,lethalAfterHunterFalls:true,
+                source:{productCode:'SWE02',printedPage:17}};
+            next.combat.swe02OldLylekMap=createLongArmOldLylekMapState(next.world,next.combat,next.player?.roster?.entries??[]);
+        }
         next.combat.log = [...(next.combat.log ?? []), { type: 'ENCONTRO_AVENTURA_PUBLICADA', round: next.combat.round, encounterId: spec.id, summary: spec.label }];
         // The published-combat context must be committed through the event
         // reducer, not assigned directly: otherwise causal replay and any
@@ -3653,7 +3664,7 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         nextCombat=wing.combat;
         adversary=clone(nextCombat.adversaries.find(a=>a.id===adversaryId));
         const arrow7Weapon=arrow7WeaponForNpcTurn(nextCombat,adversary);
-        const weapon = arrow7Weapon??chooseNpcWeapon(adversary);
+        let weapon = arrow7Weapon??chooseNpcWeapon(adversary);
         if (!weapon) {
             adversary=statusEffects_mjs_1.expireStatusTurn(adversary);
             nextCombat=encounter_mjs_1.updateAdversaryInCombat(nextCombat,adversary);
@@ -3662,6 +3673,14 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         const tactical=consumeWingGuardTacticalBoost(adversary);
         adversary=tactical.adversary;
         const wingTacticalBoost=tactical.boost;
+        const oldLylekHunterFight=nextCombat.publishedAdventureContext?.adventureId==='long-arm-of-the-hutt'&&nextCombat.publishedAdventureContext?.encounterId==='lylek-den-bounty-hunters';
+        const priorHunterDown=oldLylekHunterFight&&nextCombat.adversaries.some(a=>['laoth_gand_bounty_hunter','laoth_bounty_hunter','trex'].includes(a.profileKey)&&adversaries_mjs_1.adversaryHealthStatus(a).incapacitated);
+        const playerArmed=Boolean((character.weapons??[]).some(w=>w&&typeof w==='object'));
+        const oldLylekStunIntent=Boolean(oldLylekHunterFight&&!priorHunterDown&&playerArmed&&weapons_mjs_1.weaponHasQuality(weapon,'stunSetting'));
+        if(oldLylekHunterFight){
+            weapon={...clone(weapon),...(oldLylekStunIntent?{damageType:'strain',stunSettingActive:true}:{stunSettingActive:false})};
+            nextCombat.swe02HunterIntent={...(nextCombat.swe02HunterIntent??{}),mode:priorHunterDown?'LETHAL_AFTER_HUNTER_FALLEN':oldLylekStunIntent?'STUN_ARMED_RESISTANCE':'CAPTURE_PREFERENCE',armedResistance:Boolean(playerArmed),hunterAlreadyDown:Boolean(priorHunterDown),lastActorId:adversary.id,source:{productCode:'SWE02',printedPage:17}};
+        }
         const damagePenalty=itemDamageUsePenalty(weapon);
         const characteristic = adversaries_mjs_1.adversaryCharacteristicForSkill(adversary, weapon.skill);
         const skill = adversaries_mjs_1.adversarySkillRank(adversary, weapon.skill);
@@ -3752,10 +3771,10 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
             difficulty,
             challenge: senseDifficulty.challenge,
             boost: pendingBoost+wingTacticalBoost+Number(status.boost??0)+Number(proneTargetModifiers(character,weapon).boost??0)+Number(environmentModifiers.boost??0),
-            setback: defenseSetback(character, weapon,nextCombat)+holoParkSpotlightSetback(nextCombat)+damagePenalty.setback+Number(status.setback??0)+aorSocial_mjs_1.activeScathingSetback(adversary,nextCombat.round)+Number(proneTargetModifiers(character,weapon).setback??0)+(guardedStanceActive(character,nextCombat?.round)&&isMeleeWeapon(weapon)?1:0)+Number(environmentModifiers.setback??0)
+            setback: defenseSetback(character, weapon,nextCombat)+holoParkSpotlightSetback(nextCombat)+(oldLylekHunterFight&&Boolean(nextCombat.swe02OldLylekCover?.playerBehindRockPile)&&!isMeleeWeapon(weapon)?2:0)+damagePenalty.setback+Number(status.setback??0)+aorSocial_mjs_1.activeScathingSetback(adversary,nextCombat.round)+Number(proneTargetModifiers(character,weapon).setback??0)+(guardedStanceActive(character,nextCombat?.round)&&isMeleeWeapon(weapon)?1:0)+Number(environmentModifiers.setback??0)
         }, rng);
         let attack = weapons_mjs_1.resolveWeaponHit(weapon, check);
-        attack = { ...attack, wingTacticalBoost, targetRange: adversary.range, difficulty, challenge:senseDifficulty.challenge, attackerId: adversary.id, attackerName: adversary.name, weaponDamageState:damagePenalty.state, environmentModifiers, senseDefense:{applied:senseDefense.applied,upgrades:senseDefense.upgrades,triggersUsed:senseDefense.triggersUsed,triggersPerRound:senseDefense.triggersPerRound}, defensiveTalentUpgrades, defensiveTalent: defensiveTalentUpgrades>0?(incomingMelee?'Postura Defensiva':'Passo Lateral'):null, feintUpgrades, dodgeUpgrades, dodgeApplied:dodgeUpgrades>0 };
+        attack = { ...attack, ...(oldLylekHunterFight?{oldLylekHunterIntent:{stun:oldLylekStunIntent,mode:nextCombat.swe02HunterIntent.mode,sourcePage:17},coverSetback:oldLylekHunterFight&&Boolean(nextCombat.swe02OldLylekCover?.playerBehindRockPile)&&!isMeleeWeapon(weapon)?2:0}:{}),wingTacticalBoost, targetRange: adversary.range, difficulty, challenge:senseDifficulty.challenge, attackerId: adversary.id, attackerName: adversary.name, weaponDamageState:damagePenalty.state, environmentModifiers, senseDefense:{applied:senseDefense.applied,upgrades:senseDefense.upgrades,triggersUsed:senseDefense.triggersUsed,triggersPerRound:senseDefense.triggersPerRound}, defensiveTalentUpgrades, defensiveTalent: defensiveTalentUpgrades>0?(incomingMelee?'Postura Defensiva':'Passo Lateral'):null, feintUpgrades, dodgeUpgrades, dodgeApplied:dodgeUpgrades>0 };
         let nextCharacter = clone(character);
         nextCombat.pendingNpcBoost = 0;
         let damageResult = null;
@@ -3796,6 +3815,9 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         if(burnNotes.length) targetText += `; ${burnNotes.join('; ')}`;
         updatedAdversary=statusEffects_mjs_1.expireStatusTurn(updatedAdversary);
         nextCombat = encounter_mjs_1.updateAdversaryInCombat(nextCombat, updatedAdversary);
+        const lylekNpcEvent=this._applySWE02OldLylekAdvantage(nextCombat,check,{preferredHunterId:adversaryId});
+        nextCombat=lylekNpcEvent.combat;
+        if(lylekNpcEvent.event)targetText+=` ${lylekNpcEvent.event.display}`;
         const blast=npcBlastReceipt({attackId:ids_mjs_1.newId('npcblast'),attacker:adversary,weapon,check,
             hit:Boolean(attack.hit),sessionId:this.state.sessionId,round:nextCombat.round});
         if(blast){if((nextCombat.pendingNpcBlasts??[]).length>=16)throw Error('Fila de explosões NPC cheia; resolva recibos pendentes antes de avançar.');
@@ -4877,6 +4899,9 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         if(useTouchOfFate) character=markTalentUsedThisSession(character,'touchOfFate');
         if(useNaturalReroll) character=markTalentUsedThisSession(character,naturalReroll.sessionKey);
         character = applyActionCriticalStrain(character, critical);
+        const lylekSkillEvent=this._applySWE02OldLylekAdvantage(combat,check);
+        combat=lylekSkillEvent.combat;
+        if(lylekSkillEvent.event)check.lylekEvent=clone(lylekSkillEvent.event);
         this.commit('COMBAT_ACTION', { combat, character, check });
         if(greasedPalms){const receipt={kind:'greased_palms',actionId:greasedPalmsActionId,subjectId:'social_'+skillKey,
           campaignId:this.state.campaignId,sessionId:this.state.sessionId,characterName:character.name,approved:true,
@@ -5061,14 +5086,16 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
     resolveCheck({ characteristic, skill, difficulty = 2, challenge = 0, boost = 0, setback = 0, rng = Math.random }) {
         return this.atomicAction(() => {
         const positive = narrativeDice_mjs_1.buildPositivePool(characteristic, skill);
-        const result = narrativeDice_mjs_1.rollPool({ ...positive, difficulty: Number(difficulty), challenge: Number(challenge), boost: Number(boost), setback: Number(setback) }, rng);
+        let result = narrativeDice_mjs_1.rollPool({ ...positive, difficulty: Number(difficulty), challenge: Number(challenge), boost: Number(boost), setback: Number(setback) }, rng);
+        const lylekResult=this._applySWE02OldLylekAdvantage(clone(this.state.combat),result);
+        if(lylekResult.event){result={...result,lylekEvent:clone(lylekResult.event)};this.commit('COMBAT_ACTION',{combat:lylekResult.combat,check:result});}
         this.commit('CHECK_RESOLVED', result);
         if (this.state.session?.status === 'ativa')
             this.commit('SESSION_CHECK_RESOLVED', { session: sessionFlow_mjs_1.noteSessionCheck(this.state.session) });
         return result;
         });
     }
-    resolveWeaponAttack({ weaponIndex = 0, targetAdversaryId = null, targetRange = null, difficulty = 2, challenge = 0, boost = 0, setback = 0, useLightDestiny = false, useDarkDestiny = false, useAutoFire = false, useTargetedBlow = false, useAnatomyLessons = false, useStunningBlow = false, useSoftSpot = false, useCripplingBlow = false, useKashyyykInsect = false, gmInsectConfirmed = false, rng = Math.random }) {
+    resolveWeaponAttack({ weaponIndex = 0, targetAdversaryId = null, targetRange = null, targetBehindRockPile=false, difficulty = 2, challenge = 0, boost = 0, setback = 0, useLightDestiny = false, useDarkDestiny = false, useAutoFire = false, useTargetedBlow = false, useAnatomyLessons = false, useStunningBlow = false, useSoftSpot = false, useCripplingBlow = false, useKashyyykInsect = false, gmInsectConfirmed = false, rng = Math.random }) {
         assertJewelHoloWeaponUsable(this.state.combat,Number(weaponIndex));
         return this.atomicAction(() => {
         let character = this.state.player.character;
@@ -5155,6 +5182,10 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         const quickStrike = targetAdversary ? talents_mjs_1.quickStrikeBoost(character, { targetActorId: targetAdversary.id, actedActorIds: combat.encounter?.actedActorIds ?? [] }) : { rank: 0, boost: 0, applies: false };
         const proneMods=targetAdversary?proneTargetModifiers(targetAdversary,effectiveAttackWeapon):{boost:0,setback:0};
         const environmentModifiers=environment_mjs_1.environmentSkillModifiers(this.state.environment,weapon.skill,characteristicKey);
+        const oldLylekTargetCover=Boolean(targetBehindRockPile&&targetAdversary&&
+            combat.publishedAdventureContext?.adventureId==='long-arm-of-the-hutt'&&
+            combat.publishedAdventureContext?.encounterId==='lylek-den-bounty-hunters'&&!isMeleeWeapon(effectiveAttackWeapon));
+        if(typeof targetBehindRockPile!=='boolean')throw Error('SWE02 p.17: estado de cobertura deve ser explícito.');
         const totalBoost = Number(boost) + Number(status.boost ?? 0) + Number(combat.pendingAttackBoost ?? 0) + Number(quickStrike.boost ?? 0) + Number(weaponQualityModifiers.accurate??0) + Number(proneMods.boost??0) + Number(environmentModifiers.boost??0) + holoParkThrantaBoost(combat,weapon);
         const qualitySetback=Number(weaponQualityModifiers.setback??0);
         const targetedAimSetback = pendingAim?.mode === 'targeted' ? (Number(pendingAim.count ?? 1) >= 2 ? 1 : 2) : 0;
@@ -5164,8 +5195,9 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
                 difficulty: upgraded.difficulty,
                 challenge: upgraded.challenge,
                 boost: critical.removeBoost ? 0 : totalBoost,
-                setback: Number(setback) + critical.setback + Number(status.setback ?? 0) + qualitySetback + Number(proneMods.setback??0) + targetedAimSetback + targetDefense + encumbrance_mjs_1.encumbranceSetback(character, characteristicKey) + (guardedStanceActive(character,combat?.round)?1:0) + Number(environmentModifiers.setback??0) + holoParkTransportSetback(combat)
+                setback: Number(setback) + (oldLylekTargetCover?2:0) + critical.setback + Number(status.setback ?? 0) + qualitySetback + Number(proneMods.setback??0) + targetedAimSetback + targetDefense + encumbrance_mjs_1.encumbranceSetback(character, characteristicKey) + (guardedStanceActive(character,combat?.round)?1:0) + Number(environmentModifiers.setback??0) + holoParkTransportSetback(combat)
             }, rng), environmentModifiers, quickStrike, aim: pendingAim, trueAimUpgrades, targetedAimSetback, targetDefense, preciseAim:pendingPreciseAim, sniperShot:pendingSniperShot, strongArmBands, frenziedAttack, senseOffense: { applied:senseOffense.applied, upgrades:senseOffense.upgrades, triggersUsed:senseOffense.triggersUsed, triggersPerRound:senseOffense.triggersPerRound } };
+        check.swe02OldLylekCover=oldLylekTargetCover?{behindRockPile:true,setback:2,sourcePage:17}:null;
         let kashyyykInsectProof=null;
         if(useKashyyykInsect){
             const park=this.state.world?.publishedAdventure?.operations?.holoPark;
@@ -5241,6 +5273,9 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
                 {round:combat.round,netAdvantage:Number(check.netAdvantage)||0,sourcePage:18}];
             if(Number(check.netAdvantage)>0)combat.swe02OldLylekAdvantageTriggered=true;
         }
+        const lylekEventResult=this._applySWE02OldLylekAdvantage(combat,check,{preferredHunterId:targetAdversaryId});
+        combat=lylekEventResult.combat;
+        if(lylekEventResult.event)attack={...attack,lylekEvent:clone(lylekEventResult.event)};
         this.commit('COMBAT_ACTION', { combat, character, check, attack });
         return attack;
         });
@@ -6018,7 +6053,55 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         this.commit('WORLD_UPDATED',{world:out.world});this.commit('COMBAT_ACTION',{combat:out.combat});
         return clone(out.receipt);
     });}
-    /** SWE02 p.12: adventure action, not a decorative 'interception' flag. */
+    /** SWE02 p.18: an Advantage during the hunters' fight can trigger this source event. */
+    _applySWE02OldLylekAdvantage(combat,check,{preferredHunterId=null}={}){
+        if(!combat?.active||combat.publishedAdventureContext?.adventureId!=='long-arm-of-the-hutt'||combat.publishedAdventureContext?.encounterId!=='lylek-den-bounty-hunters'||Number(check?.netAdvantage)<=0)return {combat,event:null};
+        const old=this.state.world?.publishedAdventure?.oldLylek;
+        if(old?.tactics?.lylekBranch!=='disturb_on_advantage'||old.lylekTriggered)return {combat,event:null};
+        const hunters=combat.adversaries.filter(a=>['laoth_gand_bounty_hunter','laoth_bounty_hunter','trex'].includes(a.profileKey)&&!a.swe02KilledByLylek);
+        const victim=hunters.find(a=>a.id===preferredHunterId&&!adversaries_mjs_1.adversaryHealthStatus(a).incapacitated)||hunters.find(a=>!adversaries_mjs_1.adversaryHealthStatus(a).incapacitated)||hunters[0];
+        if(!victim)return {combat,event:null};
+        const triggerId=ids_mjs_1.newId('lylek_event'),out=triggerLongArmOldLylekAdvantage(this.state.world,{hunterId:victim.id,triggerId});
+        const killed=clone(victim);killed.wounds={...killed.wounds,current:Number(killed.wounds.threshold)+1};killed.status='incapacitated';killed.swe02KilledByLylek=true;
+        killed.swe02Fate={kind:'KILLED_BY_LYLEK',preyReturnedToNest:true,source:{productCode:'SWE02',printedPage:18}};
+        combat=encounter_mjs_1.updateAdversaryInCombat(combat,killed);
+        const event={...clone(out.receipt),display:'The southern lylek kills one bounty hunter and retreats to its nest with the prey.'};
+        combat.swe02OldLylekAdvantageEvent=event;
+        combat.log=[...(combat.log??[]),{type:'SWE02_LYLEK_ADVANTAGE_EVENT',round:combat.round,event:clone(event)}];
+        this.commit('WORLD_UPDATED',{world:out.world});
+        return {combat,event};
+    }
+    setSWE02OldLylekPlayerCover({behindRockPile=false}={}){return this.atomicAction(()=>{
+        const combat=clone(this.state.combat);
+        if(!combat?.active||combat.publishedAdventureContext?.adventureId!=='long-arm-of-the-hutt'||combat.publishedAdventureContext?.encounterId!=='lylek-den-bounty-hunters'||typeof behindRockPile!=='boolean')
+            throw Error('SWE02 p.17: marque posição atrás das rochas somente durante o combate dos caçadores.');
+        combat.swe02OldLylekCover={...(combat.swe02OldLylekCover??{}),playerBehindRockPile:behindRockPile,
+            source:{productCode:'SWE02',printedPage:17,coverSetback:2}};
+        combat.log=[...(combat.log??[]),{type:'SWE02_LYLEK_COVER_POSITION',behindRockPile,round:combat.round,sourcePage:17}];
+        this.commit('COMBAT_ACTION',{combat});return clone(combat.swe02OldLylekCover);
+    });}
+    setSWE02OldLylekMapLocation({actorKey,locationId}={}){return this.atomicAction(()=>{
+        let combat=clone(this.state.combat);
+        combat=assignLongArmOldLylekMapLocation(combat,{actorKey,locationId});
+        combat.log=[...(combat.log??[]),{type:'SWE02_LYLEK_MAP_LOCATION',actorKey,locationId,round:combat.round,sourcePage:16}];
+        this.commit('COMBAT_ACTION',{combat});return clone(combat.swe02OldLylekMap);
+    });}
+    resolveSWE02OldLylekHunterRetreat(){return this.atomicAction(()=>{
+        const combat=clone(this.state.combat);
+        if(!combat?.active||combat.publishedAdventureContext?.adventureId!=='long-arm-of-the-hutt'||combat.publishedAdventureContext?.encounterId!=='lylek-den-bounty-hunters')
+            throw Error('SWE02 p.17: a retirada só pode ser resolvida durante o combate dos caçadores.');
+        const active=combat.adversaries.filter(a=>!adversaries_mjs_1.adversaryHealthStatus(a).incapacitated&&a.status!=='retreated');
+        const out=resolveLongArmOldLylekRetreat(this.state.world,{enemyIds:active.map(a=>a.id)});
+        for(const enemy of active){enemy.status='retreated';enemy.swe02RetreatRoute='dotted map path';}
+        combat.encounter={...(combat.encounter??{}),outcome:'escaped'};
+        combat.swe02OldLylekTactics={...(combat.swe02OldLylekTactics??{}),retreat:{...out.receipt}};
+        combat.log=[...(combat.log??[]),{type:'SWE02_LYLEK_FIGHTING_RETREAT',round:combat.round,enemyIds:active.map(a=>a.id),sourcePage:17}];
+        this.commit('WORLD_UPDATED',{world:out.world});this.commit('COMBAT_ACTION',{combat});return clone(out.receipt);
+    });}
+    revealSWE02OldLylekDeveloperDetails({asked=false}={}){return this.atomicAction(()=>{
+        const out=revealLongArmOldLylekDeveloperDetails(this.state.world,{asked});this.commit('WORLD_UPDATED',{world:out.world});return clone(out.receipt);
+    });}
+    /** SWE02 p.15: crew IDs are explicit and exclude companions/NPCs. */
     chooseSWE02OldLylekCrew({crewPcIds}={}){return this.atomicAction(()=>{
         if(this.state.combat?.active)throw Error('SWE02 p.15: registre os PCs a bordo antes do combate.');
         const roster=this.state.player?.roster,entries=roster?.entries??[];
@@ -6106,7 +6189,7 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         if(this.state.combat?.active)throw Error('SWE02 p.18: encerre o combate ativo primeiro.');
         const out=persistLongArmOldLylek(this.state.world);this.commit('WORLD_UPDATED',{world:out.world});return clone(out.progress.oldLylek.lylekEncounter);
     });}
-    /** SWE02 p.12: adventure action, not a decorative 'interception' flag. */
+    /** SWE02 p.18: adventure action, not a decorative 'triggered' flag. */
     beginSWE02ThwheekCombat(){
         return this.atomicAction(()=>{
             if(this.state.combat?.active)throw Error('Encerre o combate pessoal antes da interceptação.');

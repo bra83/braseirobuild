@@ -95,14 +95,27 @@ ROTA PONTILHADA: retirada dos caçadores · SWE02 p.16</pre>
             <label>Decisão do Mestre sobre o lylek<select id="swe02LylekBranch"><option value="disturb_on_advantage">Permitir perturbação; qualquer Vantagem aciona o lylek</option><option value="stay_passive">Manter no ninho</option></select></label>
             <button id="swe02LylekTactics">Registrar mapa, abordagem e decisão do Mestre</button>
           </div>
+          <section id="swe02EncounterMap" class="swe02-encounter-map" hidden aria-label="Mapa esquemático interativo do Old Lylek Den">
+            <h4>Old Lylek Den · mapa de áreas</h4>
+            <p class="microcopy">Áreas nomeadas do mapa oficial (SWE02 p.16; entrada leste p.17). Esquema sem escala: não define distância, alcance, cobertura ou linha de visão.</p>
+            <label>Ator para posicionar<select id="swe02MapActor"></select></label>
+            <div id="swe02MapGrid" class="swe02-map-grid"></div>
+            <p id="swe02MapFeedback" class="microcopy"></p>
+          </section>
           <button id="swe02LylekCrash">Resolver meu teste de Aguante/Coordenação</button>
+          <label id="swe02RepairReductionLabel" hidden>Minutos que o Mestre escolhe descontar por Vantagem (p.17 não fixa quantidade)<input id="swe02RepairReduction" type="number" min="1" max="29" step="1" placeholder="em branco = registrar como escolha pendente"></label>
           <button id="swe02LylekHunters">Iniciar combate com os caçadores</button>
+          <label id="swe02PlayerCoverLabel" hidden><input id="swe02PlayerBehindRocks" type="checkbox"> Meu PC está atrás de uma pilha de rochas (SWE02 p.17)</label>
+          <label id="swe02TargetCoverLabel" hidden><input id="swe02TargetBehindRocks" type="checkbox"> Alvo selecionado está atrás de uma pilha de rochas (aplica +2 Setback a ataque à distância, p.17)</label>
+          <button id="swe02LylekRetreat" hidden>Resolver retirada de combate pelo caminho pontilhado (Mestre)</button>
           <button id="swe02LylekInsist">Persistir na perseguição do lylek · B’ura avisa</button>
           <button id="swe02LylekLoot">Inspecionar speeder dos caçadores · p.18</button>
           <button id="swe02LylekBeast">Persistir após o aviso · enfrentar lylek</button>
           <label id="swe02LylekSubmissionLabel"><input type="checkbox" id="swe02LylekSubmission"> Mestre confirma submissão narrativa dos PCs (SWE02 p.18; sem limite numérico publicado)</label>
           <button id="swe02LylekFinish">Encerrar combate do lylek</button>
           <button id="swe02LylekContinue">Continuar para New Meen</button>
+          <button id="swe02ArrivalDetails" hidden>Os PCs perguntaram: revelar o que se sabe sobre Angu Drombb e os desenvolvedores</button>
+          <div id="swe02ArrivalDeveloperFacts" hidden class="result"></div>
         </div>
         <label>Escolha do teste após a colisão<select id="swe02LylekCrashSkill"><option value="aguante">Aguante</option><option value="coordinacion">Coordenação</option></select></label>
         <div id="swe02TrexHistoryControls" class="button-row">

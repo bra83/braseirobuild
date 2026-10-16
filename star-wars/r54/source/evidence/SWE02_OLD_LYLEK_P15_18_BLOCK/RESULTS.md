@@ -1,37 +1,34 @@
 # SWE02 Old Lylek Den pp.15–18 scoped implementation handoff
 
-Status: `IMPLEMENTADO_NAO_CERTIFICADO` for the bounded items listed below. This is not certification of pp.15–18 or SWE02 Act 1.
+Status: `IMPLEMENTADO_NAO_CERTIFICADO` for the listed source-specific paths. This is not certification of pp.15–18, New Meen, or SWE02 Act 1.
 
-## Source authority
+## Authority and scope
 
-- Official SWE02 PDF: *The Long Arm of the Hutt*, printed pp.15–18 (audit recheck identifies physical PDF pp.16–18 and SHA-256 `18FB9880242743D11765EACA442168FC3441A3B0D17AA92BC769057734B45489`). Source ledger: [`audits/SWE02_ACT1_DEEP_AUDIT.md`](../../audits/SWE02_ACT1_DEEP_AUDIT.md).
-- T’rex carryover facts: SWE02 p.15; *Edge of the Empire Adventure Book* p.24 for profile. The verified profile is an existing hunter slot and is never an extra adversary. Unknown/single-PC composition when living T’rex would conflict with the mandatory Gand remains pending.
-- Optional lylek stats: *Edge of the Empire Beginner Game*, SWE01, printed p.47. This exact profile was visually verified. No Core Rulebook profile substitution is made.
-- Submission has no printed numeric threshold. The controller now requires an explicit GM confirmation when the chosen combat outcome is PC incapacitation and records `numericSubmissionThreshold: null`.
+- Official source: *The Long Arm of the Hutt*, printed pp.15–18; Old Lylek source recheck in [`audits/SWE02_ACT1_DEEP_AUDIT.md`](../../audits/SWE02_ACT1_DEEP_AUDIT.md). The downloaded official PDF was the source for all sequence details.
+- Printed pp.15–17 cover route, crew, lookout, ruse, crash, cover, hunter tactics, flank, retreat and repair. Printed p.18 covers the optional lylek event, warning/pursuit, loot and New Meen arrival. Developer details are on pp.18–19.
+- T’rex carryover: SWE02 p.15, profile from *Edge of the Empire Adventure Book* p.24. Optional Captive Rancor profile: *Edge of the Empire Beginner Game* p.47, visually verified. No Core Rulebook replacement profile is used.
+- All unspecified choices and mechanics remain explicit GM/player inputs; no Bluff test or numeric lylek-submission threshold is invented.
 
-## Implemented and exercised
+## Implemented and tested in this block
 
-- Roster v15 migration promotes the legacy active sheet into a stable PC ID and keeps the active-sheet mirror synchronized. Only explicitly registered roster PCs can be selected as onboard crew; group companions are excluded.
-- Fast route checks apply 1 strain to each onboard PC for each failed Pilot check. Crash checks resolve per onboard PC ID and apply the 6-damage failure effect to that character's sheet. Party receipts and state are persisted.
-- Explicit ruse record stores the fake Imperial hail, absence of Imperial uniforms, whether PCs ask for identification, T’rex recognition if present, Oskara’s conditional recognition, presumed ruse failure and initiative continuation. No Bluff test is introduced.
-- Route and tactical-choice receipts include the map labels, eastern flank/frontal approach, rock-cover reminder, frontal retreat/fight-to-last choice and GM lylek branch choice. Fast-route hunter initiative carries one setback.
-- T’rex history selects escaped / defeated with death unconfirmed (10 wounds) / confirmed dead (absent); replaces one hunter slot, with source profile and reopen tests.
-- Speeder search grants exactly two stimpaks, one medpac and one emergency repair kit to party inventory, with duplicate prevention.
-- B’ura warning and optional verified SWE01 p.47 Captive Rancor path persist. GM submission confirmation is recorded without inventing a threshold.
-- `reach-new-meen` records approximately one mile, B’ura’s aid explanation, cautious welcome/hero recognition, larger dwelling invitation and basic rations offered; no ration count is invented.
+- p.17 cover: PC attacks against a selected target behind a rock pile add exactly two Setback dice for ranged weapons; hunters also receive two Setback dice for ranged attacks against a PC who selected rock cover. Both choices/effects are recorded in combat state.
+- p.17 hunter intent: hunters prefer capture; when armed PCs resist, a hunter with the printed stun setting uses strain damage. Once any hunter is down, later hunter attacks use the weapon's lethal wound damage. Intent receipts are persisted.
+- pp.16–17 approach: the eastern-cave flank starts combat at the source-described partially blocked east entrance. Frontal choice records the GM's fighting-retreat or fight-to-last outcome. A fighting retreat resolves active hunters along the dotted map route and records an escaped encounter.
+- p.17 repair Advantage: about 30 minutes remains the default receipt. Advantage opens an explicit GM-selected reduction; because the text gives no amount, it stays `PENDING_GM_CHOICE` until the GM supplies a duration. The chosen reduction persists without implying a printed duration.
+- p.18 lylek event: with the GM's `disturb_on_advantage` branch selected, a player check with Advantage immediately incapacitates/kills one active hunter, records the hunter as lylek prey returned to the nest, and persists a one-time receipt. Passive branch does not trigger it.
+- pp.18–19 New Meen: arrival UI presents the mile of travel, cautious welcome/hero recognition, B’ura's aid, invitation to the larger dwelling and basic rations offered; no ration quantity is invented. Developer facts appear only after the PCs ask and persist with pp.18–19 citations.
+- Earlier scoped pp.15–18 paths remain represented: explicit crew roster and stable PC IDs; fast-route Pilot failure strain to each onboard PC; per-PC crash checks and damage; fake-Imperial hail/recognition with no Bluff roll; T’rex history and slot replacement; optional verified lylek/Rancor branch; transactional loot grant; B’ura warning and GM-confirmed submission. See test names in the focused log.
 
-## Still PENDENTE (do not infer completion)
+## Remaining `PENDENTE`
 
-- p.16 map is a static labeled text rendering plus a receipt, not an interactive tactical map or runtime position model. Cover is recorded/reminded, but the +2 ranged setback is not enforced against selected targets.
-- p.17 hunters’ capture preference, stun while PCs resist, switch to earnest/lethal combat after a hunter falls, actual eastern-flank mechanics, and source-directed frontal fighting retreat are not enforced by combat execution. Their GM choice receipts do not substitute for mechanics.
-- Repair time records approximately 30 minutes, but Advantage does not yet reduce that time. Per-PC crash/test model exists, but no additional roster-driven combat attack selection was added.
-- Lylek Advantage currently records the trigger/victim receipt at hunter combat closure; it is not yet delivered as an immediate combat event that removes/kills one hunter, returns prey to the nest and alters active adversary state.
-- The p.18 arrival receipt is persisted, but not surfaced as a New Meen arrival UI interaction. Conditional developer details have only an `ONLY_IF_ASKED` marker; exact details and asked/not-asked interaction remain pending pending a source-text-backed implementation.
-- Other Old Lylek scene details not specifically listed above remain pending under the deep source audit. No page or adventure certification is claimed.
+- p.16 now has an interactive, persisted named-zone schematic for Heroes’ Journey, cave mouth, hunters’ speeder, eastern flank (p.17), and southern nest. It is explicitly not to scale and does not infer distances, range bands, cover geometry, or line of sight. The text gives no flank-specific modifier, so none is inferred.
+- The source recheck does not specify a numerical reduction for repair Advantage. The controller leaves the duration at 30 minutes until the GM explicitly enters a reduction; this remains a runtime GM choice, not a printed value.
+- A living T’rex competing with mandatory Gand for a one-hunter solo/unknown-size party remains unresolved by the source combination and is kept pending.
+- The broader encounter and adventure remain uncertified. Other Old Lylek detail closure must follow the full source ledger and is outside this bounded proof claim.
 
 ## Verification
 
-- Focused command: `node --test tests/swe02-old-lylek-encounter.test.mjs tests/swe02-trex-carryover.test.mjs` — 11/11 pass. Log: [`focused-tests.log`](focused-tests.log).
-- Affected SWE02 sweep command covers Old Lylek/T’rex and p.235, p.238–244 page tests — 112/112 pass. Log: [`affected-swe02-sweep.log`](affected-swe02-sweep.log).
-- Offline bridge build: `node tools/build-ui-bridge-bundle.mjs` — `ok: true`, 133 modules. Log: [`offline-bundle-build.log`](offline-bundle-build.log).
-- Tests demonstrate state persistence through three reopenings for specified roster, loot, lylek, T’rex and arrival paths. This does not extend coverage to pending items.
+- Focused: `node --test --test-reporter=tap tests/swe02-old-lylek-encounter.test.mjs tests/swe02-trex-carryover.test.mjs` — 17/17 pass. Full output: [`focused-final.tap`](focused-final.tap).
+- Affected sparse checkout sweep: `node --test --test-reporter=tap <files matching swe02|p235|p238|p239|p240|p241|p242|p243|p244>` — 187/187 pass, zero skips. Exact output: [`affected-sparse-final.tap`](affected-sparse-final.tap). Earlier full-project handoff sweep remains recorded separately as 117/117 in [`affected-swe02-sweep.log`](affected-swe02-sweep.log).
+- Offline bridge rebuilt in the integrated sparse checkout: `node tools/build-ui-bridge-bundle.mjs` — `ok: true`, 133 modules. Output: [`bundle-final.log`](bundle-final.log).
+- Tests cover the named source paths with saved state and three controller reopenings where state supports it. This does not establish complete page coverage or certify SWE02 Act 1.

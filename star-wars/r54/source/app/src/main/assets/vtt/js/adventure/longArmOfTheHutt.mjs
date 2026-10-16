@@ -13,8 +13,8 @@ import {validateSWE02Act2Contracts,askSWE02Piddock} from './swe02Act2ContractsWi
 import {validateSWE02PalaceOperations} from './swe02PalaceOperations.mjs';
 import {createSWE02OldLylekState,selectSWE02TrexCarryover,requireSWE02TrexCarryover,chooseSWE02OldLylekCrew,chooseSWE02OldLylekRoute,recordSWE02OldLylekPilot,recordSWE02OldLylekPilotStrain,recordSWE02OldLylekLookout,chooseSWE02OldLylekTactics,recordSWE02OldLylekLootGrant,
   proceedSWE02OldLylekBluff,recordSWE02OldLylekRuse,approachSWE02OldLylekOnFoot,recordSWE02OldLylekCrashCheck,confirmSWE02OldLylekCrashCrew,
-  recordSWE02OldLylekRepair,markSWE02OldLylekCombatStarted,recordSWE02OldLylekHunterOutcome,inspectSWE02OldLylekSpeeder,warnSWE02OldLylek,
-  persistSWE02OldLylek,markSWE02OldLylekAttackStarted,resolveSWE02OldLylek,canSWE02OldLylekContinue} from './swe02OldLylekP15.mjs';
+  recordSWE02OldLylekRepair,markSWE02OldLylekCombatStarted,recordSWE02OldLylekHunterOutcome,triggerSWE02OldLylekAdvantage,resolveSWE02OldLylekHuntersRetreat,inspectSWE02OldLylekSpeeder,warnSWE02OldLylek,
+  persistSWE02OldLylek,markSWE02OldLylekAttackStarted,resolveSWE02OldLylek,canSWE02OldLylekContinue,createSWE02OldLylekMapState,assignSWE02OldLylekMapLocation} from './swe02OldLylekP15.mjs';
 
 const ID = 'long-arm-of-the-hutt';
 const SOURCE = { title: 'Long Arm of the Hutt', system: 'Star Wars: Edge of the Empire', productCode: 'SWE02', userMaterial: true };
@@ -781,7 +781,7 @@ export function currentLongArmOfTheHuttChecks(world) {
   }));
 }
 
-export function adjudicateLongArmOfTheHuttCheck(world, { checkIndex = 0, result = {} } = {}) {
+export function adjudicateLongArmOfTheHuttCheck(world, { checkIndex = 0, result = {}, repairReductionMinutes=null } = {}) {
   const next = clone(world || {});
   const p = next.publishedAdventure;
   if (!p || p.id !== ID || p.status !== 'ACTIVE') throw new Error('Aventura não está ativa.');
@@ -799,7 +799,7 @@ export function adjudicateLongArmOfTheHuttCheck(world, { checkIndex = 0, result 
       const receipt=recordSWE02OldLylekPilot(p,result);p.oldLylek=receipt.progress.oldLylek;
 
     } else if(phase==='lookout')p.oldLylek=recordSWE02OldLylekLookout(p,result).progress.oldLylek;
-    else if(['repair','repair-failed'].includes(phase))p.oldLylek=recordSWE02OldLylekRepair(p,result).progress.oldLylek;
+    else if(['repair','repair-failed'].includes(phase))p.oldLylek=recordSWE02OldLylekRepair(p,result,{reductionMinutes:repairReductionMinutes}).progress.oldLylek;
   }
   if(['krayt-fang-logs','krayt-fang-ground-inspection'].includes(p.currentNodeId))recordShipCheck(p,checkIndex,result.success);
   if(result.success){
@@ -839,6 +839,33 @@ export function selectLongArmTrexCarryover(world,options){const out=selectSWE02T
 export function proceedLongArmOldLylekBluff(world){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=proceedSWE02OldLylekBluff(p).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
 export function recordLongArmOldLylekRuse(world,options){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');const out=recordSWE02OldLylekRuse(p,options);p.oldLylek=out.progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p),receipt:clone(out.receipt)};}
 export function chooseLongArmOldLylekTactics(world,options){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');const out=chooseSWE02OldLylekTactics(p,options);p.oldLylek=out.progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p),receipt:clone(out.receipt)};}
+export function triggerLongArmOldLylekAdvantage(world,options){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');const out=triggerSWE02OldLylekAdvantage(p,options);p.oldLylek=out.progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p),receipt:clone(out.receipt)};}
+export function resolveLongArmOldLylekRetreat(world,options){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');const out=resolveSWE02OldLylekHuntersRetreat(p,options);p.oldLylek=out.progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p),receipt:clone(out.receipt)};}
+export function revealLongArmOldLylekDeveloperDetails(world,{asked=false}={}){
+  const next=clone(world||{}),p=next.publishedAdventure,arrival=p?.oldLylek?.arrivalReceipt;
+  if(!p||p.id!==ID||p.currentNodeId!=='new-meen-miners'||!arrival||asked!==true)throw Error('SWE02 pp.18–19: os detalhes dos desenvolvedores só são revelados em New Meen se os PCs perguntarem.');
+  const facts={
+    contractor:'Angu Drombb é um empreiteiro humano que comprou terras de um oligarca feudal alegando que construiria um complexo de lazer/oásis no deserto.',
+    underworld:'No submundo de Ryloth, acredita-se que o plano real seja tomar parte no comércio de ryll.',
+    identity:'Ninguém parece conhecer o passado de Drombb; como ele distribui créditos, suspeita-se que represente um financiador rico e anônimo.'
+  };
+  p.oldLylek={...p.oldLylek,arrivalReceipt:{...arrival,developerDetails:{status:'SHARED_AFTER_ASK',asked:true,facts,source:{title:'The Long Arm of the Hutt',productCode:'SWE02',printedPages:[18,19],authority:'OFFICIAL_PDF_TEXT_VERIFIED'}}}};
+  p.updatedAt=now();return {world:next,receipt:clone(p.oldLylek.arrivalReceipt.developerDetails)};
+}
+export function createLongArmOldLylekMapState(world,combat,rosterEntries=[]){
+  const p=world?.publishedAdventure,old=p?.oldLylek;
+  if(!p||p.id!==ID||p.currentNodeId!=='lylek-den-ambush'||!combat?.adversaries)
+    throw Error('SWE02 p.16: o mapa de combate só pode ser iniciado no Old Lylek Den.');
+  const crewIds=new Set(old?.crewPcIds??[]),roster=Array.isArray(rosterEntries)?rosterEntries:[];
+  const pcs=roster.filter(x=>crewIds.has(x.id));
+  if(pcs.length!==crewIds.size)throw Error('SWE02 p.16: todo PC a bordo precisa manter seu ID estável no mapa.');
+  return createSWE02OldLylekMapState({pcEntries:pcs,hunters:combat.adversaries.filter(a=>['laoth_gand_bounty_hunter','laoth_bounty_hunter','trex'].includes(a.profileKey))});
+}
+export function assignLongArmOldLylekMapLocation(combat,options){
+  if(combat?.publishedAdventureContext?.adventureId!==ID||combat?.publishedAdventureContext?.encounterId!=='lylek-den-bounty-hunters')
+    throw Error('SWE02 p.16: atribuições do mapa só podem mudar durante o combate dos caçadores.');
+  const next=clone(combat);next.swe02OldLylekMap=assignSWE02OldLylekMapLocation(next.swe02OldLylekMap,options);return next;
+}
 export function approachLongArmOldLylekOnFoot(world){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=approachSWE02OldLylekOnFoot(p).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
 export function recordLongArmOldLylekCrashCheck(world,receipt){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=recordSWE02OldLylekCrashCheck(p,receipt).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
 export function confirmLongArmOldLylekCrashCrew(world,options){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=confirmSWE02OldLylekCrashCrew(p,options).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}

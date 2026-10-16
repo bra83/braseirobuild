@@ -1,6 +1,36 @@
 const SOURCE = Object.freeze({ title:'The Long Arm of the Hutt', productCode:'SWE02', printedPages:[15,16,17,18], authority:'OFFICIAL_PDF_TEXT_VERIFIED' });
 const clone = value => structuredClone(value);
 
+export const SWE02_OLD_LYLEK_MAP_ZONES=Object.freeze([
+  Object.freeze({id:'heroes_approach',label:'Heroes’ Journey / approach',printedPage:16}),
+  Object.freeze({id:'cave_mouth',label:'Bounty Hunters / cave mouth',printedPage:16}),
+  Object.freeze({id:'hunter_speeder',label:'Bounty Hunters’ Speeder',printedPage:16}),
+  Object.freeze({id:'eastern_flank',label:'Partially blocked eastern cave entrance',printedPage:17}),
+  Object.freeze({id:'southern_nest',label:'Lylek Nest / southern nest',printedPage:16})
+]);
+
+export function createSWE02OldLylekMapState({pcEntries=[],hunters=[]}={}){
+  if(!Array.isArray(pcEntries)||!Array.isArray(hunters)||pcEntries.some(x=>!x?.id)||hunters.some(x=>!x?.id))
+    throw new Error('SWE02 p.16: o esquema do mapa exige IDs estáveis para PCs a bordo e caçadores.');
+  const actors={};
+  for(const pc of pcEntries){const key=`pc:${pc.id}`;if(actors[key])throw new Error('SWE02 p.16: ID de PC duplicado no mapa.');actors[key]={kind:'pc',id:pc.id,label:String(pc.character?.name||pc.name||pc.id)};}
+  for(const hunter of hunters){const key=`hunter:${hunter.id}`;if(actors[key])throw new Error('SWE02 p.16: ID de caçador duplicado no mapa.');actors[key]={kind:'hunter',id:hunter.id,label:String(hunter.name||hunter.id),profileKey:hunter.profileKey||null};}
+  return {schema:1,zones:clone(SWE02_OLD_LYLEK_MAP_ZONES),actors,
+    actorLocations:Object.fromEntries(Object.keys(actors).map(key=>[key,actors[key].kind==='pc'?'heroes_approach':'cave_mouth'])),
+    fixedFeatures:{huntersSpeeder:'hunter_speeder',lylekNest:'southern_nest'},
+    geometry:{scale:null,distances:null,rangeBands:null,coverGeometry:null,lineOfSight:null,
+      note:'Source-faithful named areas only; no scale, distance, range, cover geometry, or line-of-sight rules are inferred.'},
+    source:{title:SOURCE.title,productCode:'SWE02',printedPage:16,relatedPrintedPage:17,authority:SOURCE.authority,visualMapReviewed:true}};
+}
+
+export function assignSWE02OldLylekMapLocation(map,{actorKey,locationId}={}){
+  if(!map||map.schema!==1||!map.actors?.[actorKey]||!SWE02_OLD_LYLEK_MAP_ZONES.some(z=>z.id===locationId))
+    throw new Error('SWE02 pp.16–17: escolha um PC ou caçador registrado e uma das áreas nomeadas do mapa.');
+  const next=clone(map);next.actorLocations={...(next.actorLocations||{}),[actorKey]:locationId};
+  next.moves=[...(next.moves||[]),{actorKey,locationId,source:{productCode:'SWE02',printedPage:16,relatedPrintedPage:17}}];
+  return next;
+}
+
 function requireProgress(progress) {
   if (!progress || progress.id !== 'long-arm-of-the-hutt' || progress.currentNodeId !== 'lylek-den-ambush')
     throw new Error('SWE02: a sequência do Old Lylek Den só está disponível na cena do covil.');
@@ -166,11 +196,17 @@ export function confirmSWE02OldLylekCrashCrew(progress,{expectedPcCount}={}) {
   return {progress:next,phase:'repair'};
 }
 
-export function recordSWE02OldLylekRepair(progress,check) {
+export function recordSWE02OldLylekRepair(progress,check,{reductionMinutes=null}={}) {
   const p=requireProgress(progress),old=p.oldLylek;
   if(!old||!['repair','repair-failed'].includes(old.phase)||typeof check?.success!=='boolean')throw new Error('SWE02 p.17: reparo não disponível.');
+  const advantage=Math.max(0,Number(check.netAdvantage)||0)>0;
+  if(reductionMinutes!==null&&(!advantage||!Number.isInteger(Number(reductionMinutes))||Number(reductionMinutes)<1||Number(reductionMinutes)>29))
+    throw new Error('SWE02 p.17: redução escolhida pelo Mestre exige Vantagem e deve deixar ao menos um minuto de reparo.');
+  const reduction=advantage&&reductionMinutes!==null?Number(reductionMinutes):null;
   const receipt={skillKey:'mecanica',difficulty:1,success:check.success,netSuccess:Number(check.netSuccess)||0,
-    netAdvantage:Number(check.netAdvantage)||0,timeMinutes:30,source:clone(SOURCE)};
+    netAdvantage:Number(check.netAdvantage)||0,timeMinutes:reduction===null?30:30-reduction,
+    advantageReduction:advantage?{status:reduction===null?'PENDING_GM_CHOICE':'APPLIED',sourceAllowsReduction:true,minutes:reduction,amountUnspecifiedByBook:true}:null,
+    source:clone(SOURCE)};
   const next=clone(p),checks=[...old.repairChecks,receipt];
   next.oldLylek={...old,repairChecks:checks,phase:check.success?'ruse':'repair-failed',repairSuccess:check.success};
   return {progress:next,receipt,phase:next.oldLylek.phase};
@@ -197,7 +233,7 @@ export function recordSWE02OldLylekHunterOutcome(progress,{outcome,adversaries=[
     throw new Error('SWE02 p.15: resultado exige os caçadores reais em quantidade igual aos PCs.');
   const defeated=adversaries.every(a=>['incapacitated','defeated'].includes(a.status));
   if(outcome==='adversaries_defeated'&&!defeated)throw new Error('SWE02 p.15: vitória exige os caçadores incapacitados.');
-  const advantageTrigger=old.tactics?.lylekBranch==='disturb_on_advantage'&&(combatLog||[]).some(x=>Number(x?.check?.netAdvantage)>0||Number(x?.netAdvantage)>0);
+  const advantageTrigger=!old.lylekTriggered&&old.tactics?.lylekBranch==='disturb_on_advantage'&&(combatLog||[]).some(x=>Number(x?.check?.netAdvantage)>0||Number(x?.netAdvantage)>0);
   const huntersOutcome=outcome==='adversaries_defeated'&&defeated?'defeated':outcome==='player_incapacitated'?'party-incapacitated':'retreated';
   const next=clone(p);next.oldLylek={...old,phase:'post-hunters',huntersOutcome,lylekTriggered:old.lylekTriggered||advantageTrigger,
     hunterProof:{enemyIds:adversaries.map(a=>a.id),outcome,defeated,source:clone(SOURCE)}};
@@ -205,6 +241,22 @@ export function recordSWE02OldLylekHunterOutcome(progress,{outcome,adversaries=[
   next.flags={...(next.flags||{}),lylekHuntersResolved:true};
   if(huntersOutcome==='defeated')next.oldLylek.hunterLoot={status:'available',items:[{name:'stimpack',quantity:2},{name:'medpac',quantity:1},{name:'emergency repair kit',quantity:1}],source:{title:SOURCE.title,productCode:'SWE02',printedPage:18,authority:'OFFICIAL_PDF_TEXT_VERIFIED'}};
   return {progress:next,huntersOutcome,lylekTriggered:next.oldLylek.lylekTriggered};
+}
+
+export function triggerSWE02OldLylekAdvantage(progress,{hunterId,triggerId}={}){
+  const p=requireProgress(progress),old=p.oldLylek;
+  if(!old||old.phase!=='hunters-combat'||old.tactics?.lylekBranch!=='disturb_on_advantage'||old.lylekTriggered||typeof hunterId!=='string'||!hunterId)
+    throw new Error('SWE02 p.18: vantagem do combate só pode acionar uma vez quando o Mestre escolheu perturbar o ninho.');
+  const receipt={hunterId,triggerId:String(triggerId||''),disposition:'killed by lylek; prey taken to nest',event:'The lylek bursts from the southern nest, kills one hunter and retreats with its prey.',source:{title:SOURCE.title,productCode:'SWE02',printedPage:18,authority:SOURCE.authority}};
+  const next=clone(p);next.oldLylek={...old,lylekTriggered:true,lylekKillReceipt:receipt};return {progress:next,receipt};
+}
+
+export function resolveSWE02OldLylekHuntersRetreat(progress,{enemyIds=[]}={}){
+  const p=requireProgress(progress),old=p.oldLylek;
+  if(!old||old.phase!=='hunters-combat'||old.tactics?.approach!=='frontal'||old.tactics?.frontalOutcome!=='fighting_retreat'||!Array.isArray(enemyIds)||enemyIds.length<1||new Set(enemyIds).size!==enemyIds.length)
+    throw new Error('SWE02 p.17: a retirada de combate exige abordagem frontal e escolha de retirada registrada.');
+  const next=clone(p);next.oldLylek={...old,hunterRetreatReceipt:{status:'RESOLVED',route:'dotted map path',enemyIds:[...enemyIds],source:{title:SOURCE.title,productCode:'SWE02',printedPage:16,relatedPrintedPage:17,authority:SOURCE.authority}}};
+  return {progress:next,receipt:clone(next.oldLylek.hunterRetreatReceipt)};
 }
 
 export function inspectSWE02OldLylekSpeeder(progress) {

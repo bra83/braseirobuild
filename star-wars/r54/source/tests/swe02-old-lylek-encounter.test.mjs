@@ -82,7 +82,7 @@ test('Old Lylek foot approach is available without a Perception declaration; hun
 });
 
 test('lylek submission requires an explicit GM confirmation and preserves source absence of a numeric threshold',()=>{
- const {repo,g}=fixture();reachHuntersReady(g);g.beginPublishedAdventureEncounter('lylek-den-bounty-hunters',{rng:()=>.5});
+ const {repo,g}=fixture(2);reachHuntersReady(g);g.beginPublishedAdventureEncounter('lylek-den-bounty-hunters',{rng:()=>.5});
  const hunters=structuredClone(g.state.combat);hunters.encounter.outcome='adversaries_defeated';hunters.swe02OldLylekAdvantageTriggered=true;for(const enemy of hunters.adversaries)enemy.status='incapacitated';
  g.commit('COMBAT_ACTION',{combat:hunters});g.finishCombat({rng:()=>.5});g.insistSWE02OldLylek();g.persistSWE02OldLylek();
  g.beginPublishedAdventureEncounter('lylek-den-lylek',{rng:()=>.5});const beast=structuredClone(g.state.combat);beast.encounter.outcome='player_incapacitated';
@@ -141,5 +141,99 @@ test('retreat or incapacitation settles the hunter branch while preserving the l
    assert.equal(old.huntersOutcome,outcome==='player_incapacitated'?'party-incapacitated':'retreated');
    assert.equal(old.hunterLoot,null);
  }
+});
+
+test('p.17 rock cover adds two setback to ranged checks and hunters begin with stun/capture intent, then switch to lethal after a hunter falls',()=>{
+ const runAttack=behind=>{
+   const {g}=fixture();reachHuntersReady(g);g.beginPublishedAdventureEncounter('lylek-den-bounty-hunters',{rng:()=>.5});
+   const target=g.state.combat.adversaries[0];
+   g.resolveWeaponAttack({weaponIndex:0,targetAdversaryId:target.id,targetBehindRockPile:behind,rng:()=>.5});
+   return g.state.lastCheck;
+ };
+ const exposed=runAttack(false),covered=runAttack(true);
+ assert.equal(covered.swe02OldLylekCover.setback,2);assert.equal(covered.pool.setback-exposed.pool.setback,2);
+
+ const {repo,g}=fixture(2);reachHuntersReady(g);g.beginPublishedAdventureEncounter('lylek-den-bounty-hunters',{rng:()=>.5});
+ g.setSWE02OldLylekPlayerCover({behindRockPile:true});
+ let combat=structuredClone(g.state.combat);const [first,second]=combat.adversaries;
+ const capture=g._resolveNpcTurn(combat,structuredClone(g.state.player.character),first.id,()=>.5,g.state.group);
+ assert.equal(capture.attack.weapon.damageType,'strain');assert.equal(capture.attack.weapon.stunSettingActive,true);assert.equal(capture.attack.coverSetback,2);
+ assert.equal(capture.combat.swe02HunterIntent.mode,'STUN_ARMED_RESISTANCE');
+ combat=structuredClone(capture.combat);const down=structuredClone(combat.adversaries.find(a=>a.id===first.id));down.wounds={...down.wounds,current:down.wounds.threshold+1};down.status='incapacitated';
+ combat.adversaries=combat.adversaries.map(a=>a.id===down.id?down:a);
+ const lethal=g._resolveNpcTurn(combat,structuredClone(g.state.player.character),second.id,()=>.5,g.state.group);
+ assert.equal(lethal.attack.weapon.damageType,undefined);assert.equal(lethal.attack.weapon.stunSettingActive,false);assert.equal(lethal.combat.swe02HunterIntent.mode,'LETHAL_AFTER_HUNTER_FALLEN');
+ g.commit('COMBAT_ACTION',{combat:lethal.combat});
+ reopenThree(repo,s=>{assert.equal(s.combat.swe02OldLylekCover.playerBehindRockPile,true);assert.equal(s.combat.swe02HunterIntent.mode,'LETHAL_AFTER_HUNTER_FALLEN');});
+});
+
+test('p.16 eastern cave flank is a persisted position choice; frontal fighting retreat uses the dotted path and persists the escaped outcome',()=>{
+ const {repo,g}=fixture();
+ g.chooseSWE02OldLylekRoute({slowDown:true});g.approachSWE02OldLylekOnFoot();g.recordSWE02OldLylekRuse({oskaraPresent:false});
+ g.chooseSWE02OldLylekTactics({approach:'east_cave_flank',lylekBranch:'stay_passive'});
+ g.beginPublishedAdventureEncounter('lylek-den-bounty-hunters',{rng:()=>.5});
+ assert.equal(g.state.combat.swe02OldLylekTactics.startingPosition,'partially blocked eastern cave entrance');
+ assert.equal(g.state.combat.swe02OldLylekTactics.hunterRetreatPath,'unselected');
+ reopenThree(repo,s=>{assert.equal(s.combat.swe02OldLylekTactics.startingPosition,'partially blocked eastern cave entrance');assert.equal(s.world.publishedAdventure.oldLylek.tactics.approach,'east_cave_flank');});
+ g.finishCombat({rng:()=>.5});
+ const {repo:repo2,g:g2}=fixture();reachHuntersReady(g2);g2.beginPublishedAdventureEncounter('lylek-den-bounty-hunters',{rng:()=>.5});
+ const receipt=g2.resolveSWE02OldLylekHunterRetreat();assert.equal(receipt.route,'dotted map path');
+ assert.equal(g2.state.combat.encounter.outcome,'escaped');assert.ok(g2.state.combat.adversaries.every(a=>a.status==='retreated'));
+ g2.finishCombat({rng:()=>.5});
+ reopenThree(repo2,s=>{assert.equal(s.world.publishedAdventure.oldLylek.hunterRetreatReceipt.route,'dotted map path');assert.equal(s.world.publishedAdventure.oldLylek.huntersOutcome,'retreated');});
+});
+
+test('p.17 repair Advantage leaves reduction amount to GM and persists an explicit chosen reduction',()=>{
+ const enterRepair=g=>{g.chooseSWE02OldLylekRoute({slowDown:false});g.resolvePublishedAdventureCheck(0,{adventureId:'long-arm-of-the-hutt',rng:()=>0});g.resolvePublishedAdventureCheck(0,{adventureId:'long-arm-of-the-hutt',rng:()=>0});g.proceedSWE02OldLylekBluff();g.resolveSWE02OldLylekCrashCheck({skillKey:'aguante',rng:()=>0});};
+ const {repo,g}=fixture();enterRepair(g);
+ g.resolvePublishedAdventureCheck(0,{adventureId:'long-arm-of-the-hutt',rng:()=>.5});
+ let receipt=g.state.world.publishedAdventure.oldLylek.repairChecks.at(-1);
+ assert.ok(receipt.netAdvantage>0);assert.equal(receipt.timeMinutes,30);assert.equal(receipt.advantageReduction.status,'PENDING_GM_CHOICE');
+ reopenThree(repo,s=>assert.equal(s.world.publishedAdventure.oldLylek.repairChecks.at(-1).advantageReduction.status,'PENDING_GM_CHOICE'));
+ const {repo:repo2,g:g2}=fixture();enterRepair(g2);
+ g2.resolvePublishedAdventureCheck(0,{adventureId:'long-arm-of-the-hutt',repairReductionMinutes:5,rng:()=>.5});
+ receipt=g2.state.world.publishedAdventure.oldLylek.repairChecks.at(-1);assert.equal(receipt.timeMinutes,25);assert.equal(receipt.advantageReduction.minutes,5);assert.equal(receipt.advantageReduction.amountUnspecifiedByBook,true);
+ reopenThree(repo2,s=>assert.equal(s.world.publishedAdventure.oldLylek.repairChecks.at(-1).timeMinutes,25));
+});
+
+test('any player Advantage automatically kills one hunter for prey when GM selected the beast branch, with persisted one-time receipt',()=>{
+ const {repo,g}=fixture();reachHuntersReady(g);g.beginPublishedAdventureEncounter('lylek-den-bounty-hunters',{rng:()=>.5});
+ const before=g.state.combat.adversaries.map(a=>({id:a.id,status:a.status}));
+ const attack=g.resolveWeaponAttack({weaponIndex:0,targetAdversaryId:before[0].id,rng:()=>.9});
+ assert.ok(attack.lylekEvent);assert.equal(attack.lylekEvent.source.printedPage,18);assert.match(attack.lylekEvent.disposition,/prey taken/);
+ const killed=g.state.combat.adversaries.find(a=>a.id===before[0].id);assert.equal(killed.status,'incapacitated');assert.equal(killed.swe02Fate.preyReturnedToNest,true);
+ assert.equal(g.state.combat.adversaries.filter(a=>a.swe02KilledByLylek).length,1);
+ reopenThree(repo,s=>{const old=s.world.publishedAdventure.oldLylek;assert.equal(old.lylekTriggered,true);assert.equal(old.lylekKillReceipt.hunterId,before[0].id);assert.equal(s.combat.adversaries.filter(a=>a.swe02KilledByLylek).length,1);});
+ assert.equal(g._applySWE02OldLylekAdvantage(structuredClone(g.state.combat),{netAdvantage:1}).event,null);
+});
+
+test('New Meen conditional developer details require a PC question and persist with their printed pp.18–19 source',()=>{
+ const {repo,g}=fixture();
+ // Arrival is already covered by the full optional-lylek path; place this test at the same source-backed arrival state.
+ reachHuntersReady(g);g.beginPublishedAdventureEncounter('lylek-den-bounty-hunters',{rng:()=>.5});
+ const combat=structuredClone(g.state.combat);combat.encounter.outcome='adversaries_defeated';for(const enemy of combat.adversaries)enemy.status='incapacitated';combat.swe02OldLylekAdvantageTriggered=true;
+ g.commit('COMBAT_ACTION',{combat});g.finishCombat({rng:()=>.5});g.advancePublishedAdventure('reach-new-meen');
+ assert.throws(()=>g.revealSWE02OldLylekDeveloperDetails({asked:false}),/perguntarem/);
+ const facts=g.revealSWE02OldLylekDeveloperDetails({asked:true});assert.deepEqual(facts.source.printedPages,[18,19]);
+ assert.match(facts.facts.contractor,/Angu Drombb/);assert.match(facts.facts.underworld,/ryll/);
+ reopenThree(repo,s=>{const d=s.world.publishedAdventure.oldLylek.arrivalReceipt.developerDetails;assert.equal(d.status,'SHARED_AFTER_ASK');assert.deepEqual(d.source.printedPages,[18,19]);assert.match(d.facts.identity,/anônimo/);});
+});
+
+test('printed p.16 map exposes source-named zones and persists only explicit PC/hunter locations across three reopenings',()=>{
+ const {repo,g}=fixture(2),crew=g.state.player.roster.entries.map(x=>x.id);
+ g.state.group.companions=[{id:'npc-companion',name:'NPC Companion',character:structuredClone(g.state.player.character)}];repo.save(g.state);
+ reachHuntersReady(g);g.beginPublishedAdventureEncounter('lylek-den-bounty-hunters',{rng:()=>.5});
+ const map=g.state.combat.swe02OldLylekMap,hunters=g.state.combat.adversaries,pcKey=`pc:${crew[0]}`,hunterKey=`hunter:${hunters[0].id}`;
+ assert.deepEqual(map.zones.map(z=>z.id),['heroes_approach','cave_mouth','hunter_speeder','eastern_flank','southern_nest']);
+ assert.equal(map.actors[pcKey].label,g.state.player.roster.entries[0].character.name);assert.equal(map.actorLocations[pcKey],'heroes_approach');
+ assert.equal(map.actors[hunterKey].profileKey,'laoth_gand_bounty_hunter');assert.equal(map.actorLocations[hunterKey],'cave_mouth');
+ assert.equal(map.fixedFeatures.huntersSpeeder,'hunter_speeder');assert.equal(map.fixedFeatures.lylekNest,'southern_nest');
+ assert.deepEqual(map.geometry,{scale:null,distances:null,rangeBands:null,coverGeometry:null,lineOfSight:null,note:'Source-faithful named areas only; no scale, distance, range, cover geometry, or line-of-sight rules are inferred.'});
+ assert.ok(!Object.keys(map.actors).some(key=>key.includes('npc-companion')));
+ g.setSWE02OldLylekMapLocation({actorKey:pcKey,locationId:'eastern_flank'});
+ g.setSWE02OldLylekMapLocation({actorKey:hunterKey,locationId:'hunter_speeder'});
+ assert.throws(()=>g.setSWE02OldLylekMapLocation({actorKey:'pc:npc-companion',locationId:'cave_mouth'}),/áreas nomeadas|caçador registrado/);
+ assert.throws(()=>g.setSWE02OldLylekMapLocation({actorKey:pcKey,locationId:'north_30m'}),/áreas nomeadas/);
+ reopenThree(repo,s=>{const saved=s.combat.swe02OldLylekMap;assert.equal(saved.actorLocations[pcKey],'eastern_flank');assert.equal(saved.actorLocations[hunterKey],'hunter_speeder');assert.equal(saved.moves.length,2);assert.equal(saved.source.printedPage,16);assert.equal(saved.source.relatedPrintedPage,17);});
 });
 

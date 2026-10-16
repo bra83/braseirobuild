@@ -294,12 +294,45 @@ function render() {
   renderLibrary();
 }
 
+function renderSWE02OldLylekMap(state){
+  const host=$('swe02EncounterMap'),combat=state.combat,map=combat?.swe02OldLylekMap;
+  const visible=Boolean(combat?.active&&combat.publishedAdventureContext?.adventureId==='long-arm-of-the-hutt'&&combat.publishedAdventureContext?.encounterId==='lylek-den-bounty-hunters'&&map?.schema===1);
+  if(!host)return;host.hidden=!visible;if(!visible)return;
+  const actorSelect=$('swe02MapActor'),grid=$('swe02MapGrid'),feedback=$('swe02MapFeedback'),previous=actorSelect.value;
+  actorSelect.replaceChildren();
+  for(const [key,actor] of Object.entries(map.actors??{})){const option=document.createElement('option');option.value=key;option.textContent=`${actor.kind==='pc'?'PC':'Caçador'}: ${actor.label}`;actorSelect.append(option);}
+  if(Object.hasOwn(map.actors??{},previous))actorSelect.value=previous;
+  grid.replaceChildren();
+  for(const zone of map.zones??[]){
+    const card=document.createElement('div');card.className=`swe02-map-zone swe02-zone-${zone.id}`;
+    const heading=document.createElement('strong');heading.textContent=zone.label;card.append(heading);
+    const occupants=Object.entries(map.actors??{}).filter(([key])=>map.actorLocations?.[key]===zone.id).map(([,actor])=>`${actor.kind==='pc'?'PC':'Caçador'}: ${actor.label}`);
+    const occupantsLine=document.createElement('span');occupantsLine.className='swe02-map-occupants';occupantsLine.textContent=occupants.length?occupants.join(' · '):'Sem ator atribuído';card.append(occupantsLine);
+    const assign=document.createElement('button');assign.type='button';assign.textContent='Atribuir ator selecionado';assign.disabled=!actorSelect.value;
+    assign.addEventListener('click',()=>{try{const result=game.setSWE02OldLylekMapLocation({actorKey:actorSelect.value,locationId:zone.id});if(!result.ok)throw Error(result.message);$('swe02MapFeedback').textContent=`${map.actors[actorSelect.value]?.label??'Ator'} → ${zone.label}. Posição salva.`;render();}catch(e){$('swe02MapFeedback').textContent=e.message;}});
+    card.append(assign);grid.append(card);
+  }
+  const last=map.moves?.at(-1);if(last){const actor=map.actors?.[last.actorKey],zone=map.zones?.find(x=>x.id===last.locationId);feedback.textContent=`Última posição salva: ${actor?.label??last.actorKey} → ${zone?.label??last.locationId}.`;}else feedback.textContent='Posições iniciais registradas: PCs no início da Heroes’ Journey; caçadores junto à boca da caverna (SWE02 p.16).';
+}
+
 function renderSWE02OldLylek(state){
   const p=state.world?.publishedAdventure,o=p?.oldLylek,host=$('swe02OldLylek');if(!host)return;
-  const active=p?.id==='long-arm-of-the-hutt'&&p.status==='ACTIVE'&&p.currentNodeId==='lylek-den-ambush'&&o;
-  host.hidden=!active;
-  if(!active)return;
+  const encounterActive=p?.id==='long-arm-of-the-hutt'&&p.status==='ACTIVE'&&p.currentNodeId==='lylek-den-ambush'&&o;
+  const arrival=p?.id==='long-arm-of-the-hutt'&&p.status==='ACTIVE'&&p.currentNodeId==='new-meen-miners'&&o?.arrivalReceipt;
+  host.hidden=!(encounterActive||arrival);
+  if(arrival){
+    $('swe02EncounterMap').hidden=true;
+    $('swe02OldLylekStatus').textContent='Chegada a New Meen após cerca de uma milha: moradores cautelosos reconhecem B’ura, recebem o grupo como heróis, oferecem abrigo e rações (SWE02 p.18).';
+    const details=o.arrivalReceipt.developerDetails;
+    $('swe02ArrivalDetails').hidden=details?.status==='SHARED_AFTER_ASK';
+    const factsHost=$('swe02ArrivalDeveloperFacts');factsHost.hidden=details?.status!=='SHARED_AFTER_ASK';factsHost.textContent=details?.facts?`${details.facts.contractor} ${details.facts.underworld} ${details.facts.identity}`:'';
+    for(const id of ['swe02PcRoster','swe02CrewConfirm','swe02TrexHistoryControls','swe02LylekSlow','swe02LylekFast','swe02LylekCheck','swe02LylekProceed','swe02LylekFoot','swe02LylekRuse','swe02TacticsControls','swe02EncounterMap','swe02LylekCrash','swe02RepairReductionLabel','swe02LylekHunters','swe02PlayerCoverLabel','swe02TargetCoverLabel','swe02LylekRetreat','swe02LylekInsist','swe02LylekLoot','swe02LylekBeast','swe02LylekSubmissionLabel','swe02LylekFinish','swe02LylekContinue'])$(id).hidden=true;
+    return;
+  }
+  $('swe02ArrivalDetails').hidden=true;$('swe02ArrivalDeveloperFacts').hidden=true;
+  if(!encounterActive){$('swe02EncounterMap').hidden=true;return;}
   const phase=o.phase,combatId=state.combat?.publishedAdventureContext?.encounterId;
+  renderSWE02OldLylekMap(state);
   const trex=o.trexCarryover,pcCount=Number(state.session?.campaignRules?.destiny?.playerCount??state.session?.eoteRules?.destiny?.playerCount??state.session?.playerCount);
   $('swe02OldLylekStatus').textContent=`Etapa: ${phase} · rota: ${o.route||'não escolhida'}${o.lookout?.spottedGand?' · Gand avistado (SWE02 p.17)':''}${o.lookout&&!o.lookout.spottedGand?' · Gand não avistado (SWE02 p.17)':''}${o.route==='fast'?' · caçadores recebem 1 Setback na iniciativa Cool (SWE02 p.17)':''}${o.lylekTriggered?' · ninho perturbado':''}${o.huntersOutcome?` · caçadores: ${o.huntersOutcome}`:''}${o.hunterLoot?.status==='available'?' · speeder dos caçadores pode ser inspecionado':o.hunterLoot?.status==='found'?' · encontrados: 2 stimpacks, medpac, kit de reparo (SWE02 p.18)':''}${o.ruse?` · hail: “${o.ruse.hail}”; sem uniformes imperiais; identificação perguntada: ${o.ruse.identificationAsked?'sim':'não'}; T’rex reconhecido: ${o.ruse.identifiedByHunters?.includes('T’rex')?'sim':'não'}; Oskara reconhece humanos: ${o.ruse.oskaraIdentifiesHumanHunters?'sim':'não'}`:''}${o.arrivalReceipt?' · chegada a ~1 milha: boas-vindas, convite e rações registrados':''}${trex?.status!=='selected'?' · histórico de T’rex precisa ser selecionado':trex.present?` · T’rex presente (${trex.history==='defeated_unconfirmed_dead'?'começa com 10 ferimentos':'sem ferimentos prévios'})`:' · T’rex morto e ausente'}${trex?.present&&pcCount===1?' · composição Gand + T’rex para 1 PC PENDENTE':''}`;
   const rosterHost=$('swe02PcRoster');if(rosterHost){rosterHost.replaceChildren();for(const entry of state.player?.roster?.entries??[]){const label=document.createElement('label'),check=document.createElement('input');check.type='checkbox';check.dataset.swe02PcId=entry.id;check.checked=Boolean(o.crewPcIds?.includes(entry.id));check.disabled=phase!=='approach';label.append(check,document.createTextNode(` ${entry.character?.name??entry.id}${entry.id===state.player?.roster?.activeCharacterId?' · ficha ativa':''}`));rosterHost.append(label);}}
@@ -310,14 +343,20 @@ function renderSWE02OldLylek(state){
   for(const id of ['swe02RuseRecognizedLabel','swe02OskaraPresentLabel','swe02OskaraRecognizesLabel','swe02LylekRuse'])$(id).hidden=phase!=='ruse';
   $('swe02TacticsControls').hidden=phase!=='combat-ready';
   $('swe02LylekCrash').hidden=phase!=='crash-checks';
+  $('swe02RepairReductionLabel').hidden=!['repair','repair-failed'].includes(phase);
   $('swe02LylekHunters').hidden=phase!=='combat-ready'||trex?.status!=='selected'||!o.tactics;
   $('swe02LylekInsist').hidden=phase!=='post-hunters'||!o.lylekTriggered;
   $('swe02LylekLoot').hidden=o.hunterLoot?.status!=='available';
   $('swe02LylekBeast').hidden=phase!=='lylek-warned';
   $('swe02LylekFinish').hidden=!(state.combat?.active&&combatId==='lylek-den-lylek');
+  $('swe02LylekSubmissionLabel').hidden=!(state.combat?.active&&combatId==='lylek-den-lylek');
+  $('swe02PlayerCoverLabel').hidden=!(state.combat?.active&&combatId==='lylek-den-bounty-hunters');
+  $('swe02PlayerBehindRocks').checked=Boolean(state.combat?.swe02OldLylekCover?.playerBehindRockPile);
+  $('swe02TargetCoverLabel').hidden=!(state.combat?.active&&combatId==='lylek-den-bounty-hunters'&&Boolean($('targetAdversary')?.value));
+  $('swe02LylekRetreat').hidden=!(state.combat?.active&&combatId==='lylek-den-bounty-hunters'&&o.tactics?.approach==='frontal'&&o.tactics?.frontalOutcome==='fighting_retreat');
   $('swe02LylekContinue').hidden=!['post-hunters','post-lylek','lylek-warned','lylek-ready'].includes(phase)||!p.flags?.lylekHuntersResolved;
   const locked=Boolean(state.combat?.active);
-  for(const id of ['swe02LylekSlow','swe02LylekFast','swe02LylekProceed','swe02LylekFoot','swe02LylekCrash','swe02LylekHunters','swe02LylekInsist','swe02LylekBeast','swe02LylekContinue','swe02LylekLoot'])$(id).disabled=locked;
+  for(const id of ['swe02LylekSlow','swe02LylekFast','swe02LylekProceed','swe02LylekFoot','swe02LylekCrash','swe02LylekHunters','swe02LylekInsist','swe02LylekBeast','swe02LylekContinue','swe02LylekLoot','swe02LylekRetreat'])$(id).disabled=locked&&id!=='swe02LylekRetreat';
 }
 
 
@@ -1044,14 +1083,14 @@ for(const [id,run,okText] of [
  ['swe02LylekBeast',()=>{game.persistSWE02OldLylek();return game.beginPublishedAdventureEncounter('lylek-den-lylek',{rng:Math.random});},'O lylek atacou usando Captive Rancor do Beginner Game p.47.'],
  ['swe02LylekFinish',()=>game.finishCombat({gmConfirmedSubmission:$('swe02LylekSubmission').checked}),'Combate encerrado; verifique o desfecho registrado.'],
  ['swe02LylekContinue',()=>game.advancePublishedAdventure('reach-new-meen'),'A tripulação seguiu para New Meen.']
-])$(id).addEventListener('click',()=>{try{const r=run();showFeedback('swe02OldLylekFeedback',okText);render();}
+])$(id).addEventListener('click',()=>{try{const r=run();if(r?.ok===false)throw Error(r.message);showFeedback('swe02OldLylekFeedback',okText);render();}
  catch(e){showFeedback('swe02OldLylekFeedback',e.message);}});
 $('swe02LylekRuse').addEventListener('click',()=>{try{const r=game.recordSWE02OldLylekRuse({identificationAsked:$('swe02IdentificationAsked').value==='true',oskaraPresent:$('swe02OskaraPresent').value==='true',oskaraRecognizes:$('swe02OskaraRecognizes').value==='true'});if(!r.ok)throw Error(r.message);showFeedback('swe02OldLylekFeedback','Hail, ausência de uniforme, pergunta de identificação e reconhecimento condicional registrados; ruse presumidamente falha sem teste de Bluff (SWE02 p.17).');render();}catch(e){showFeedback('swe02OldLylekFeedback',e.message);}});
 $('swe02LylekTactics').addEventListener('click',()=>{try{const r=game.chooseSWE02OldLylekTactics({approach:$('swe02LylekApproach').value,frontalOutcome:$('swe02LylekApproach').value==='frontal'?$('swe02LylekFrontalOutcome').value:'not_applicable',lylekBranch:$('swe02LylekBranch').value});if(!r.ok)throw Error(r.message);showFeedback('swe02OldLylekFeedback','Mapa tático, abordagem e decisão de GM persistidos com fonte pp.16–18.');render();}catch(e){showFeedback('swe02OldLylekFeedback',e.message);}});
  $('swe02PcImportButton').addEventListener('click',()=>{try{const character=JSON.parse($('swe02PcImport').value);const r=game.registerPartyCharacter({character});if(!r.ok)throw Error(r.message);showFeedback('swe02OldLylekFeedback',`Ficha ${r.data.character.name} adicionada ao roster com ID ${r.data.id}.`);render();}catch(e){showFeedback('swe02OldLylekFeedback',e.message);}});
 $('swe02CrewConfirm').addEventListener('click',()=>{try{const crewPcIds=[...document.querySelectorAll('[data-swe02-pc-id]:checked')].map(x=>x.dataset.swe02PcId);const r=game.chooseSWE02OldLylekCrew({crewPcIds});if(!r.ok)throw Error(r.message);showFeedback('swe02OldLylekFeedback','IDs de PCs a bordo registrados em SWE02 p.15.');render();}catch(e){showFeedback('swe02OldLylekFeedback',e.message);}});
 $('swe02LylekCheck').addEventListener('click',()=>{try{
- const r=game.resolvePublishedAdventureCheck(0,{adventureId:'long-arm-of-the-hutt',rng:Math.random});
+ const raw=$('swe02RepairReduction').value;const r=game.resolvePublishedAdventureCheck(0,{adventureId:'long-arm-of-the-hutt',repairReductionMinutes:raw===''?null:Number(raw),rng:Math.random});
  showFeedback('swe02OldLylekFeedback',`Teste ${r.check.success?'bem-sucedido':'falhou'} · ${r.adjudication?.source?.printedPage?'fonte p.'+r.adjudication.source.printedPage:'SWE02'}.`);render();
 }catch(e){showFeedback('swe02OldLylekFeedback',e.message);}});
 
@@ -1109,6 +1148,11 @@ $('actionManeuver').addEventListener('click',()=>{ try { game.useManeuver({metho
 $('weaponSelect').addEventListener('change',()=>renderAttackRangeControls(game.state.player.character));
 $('targetRange').addEventListener('change',()=>renderAttackRangeControls(game.state.player.character));
 $('targetAdversary').addEventListener('change',()=>renderAttackRangeControls(game.state.player.character));
+$('targetAdversary').addEventListener('change',()=>renderSWE02OldLylek(game.state));
+$('targetAdversary').addEventListener('change',()=>{$('swe02TargetBehindRocks').checked=false;});
+$('swe02PlayerBehindRocks').addEventListener('change',()=>{try{const r=game.setSWE02OldLylekPlayerCover({behindRockPile:$('swe02PlayerBehindRocks').checked});if(!r.ok)throw Error(r.message);showFeedback('swe02OldLylekFeedback','Cobertura do PC registrada; ataques à distância dos caçadores recebem +2 Setback (SWE02 p.17).');render();}catch(e){showFeedback('swe02OldLylekFeedback',e.message);render();}});
+$('swe02LylekRetreat').addEventListener('click',()=>{try{const r=game.resolveSWE02OldLylekHunterRetreat();if(!r.ok)throw Error(r.message);showFeedback('swe02OldLylekFeedback','Caçadores recuaram pelo caminho pontilhado da rota frontal (SWE02 p.16–17).');render();}catch(e){showFeedback('swe02OldLylekFeedback',e.message);}});
+$('swe02ArrivalDetails').addEventListener('click',()=>{try{const r=game.revealSWE02OldLylekDeveloperDetails({asked:true});if(!r.ok)throw Error(r.message);showFeedback('swe02OldLylekFeedback','Detalhes do desenvolvedor revelados após pergunta dos PCs (SWE02 pp.18–19).');render();}catch(e){showFeedback('swe02OldLylekFeedback',e.message);}});
 $('aimButton').addEventListener('click',()=>{
   try { game.aim({maneuverMethod:$('aimManeuverMethod').value}); showFeedback('maneuverFeedback','Mirar preparado: +1 Impulso no próximo ataque.'); render(); }
   catch(e){ showFeedback('maneuverFeedback',e.message); }
@@ -1120,6 +1164,7 @@ $('attackButton').addEventListener('click',()=>{
       weaponIndex:$('weaponSelect').value,
       targetAdversaryId:game.state.combat.encounter ? $('targetAdversary').value : null,
       targetRange:$('targetRange').value,
+      targetBehindRockPile:$('swe02TargetBehindRocks').checked,
       challenge:$('attackChallenge').value,
       boost:$('attackBoost').value,
       setback:$('attackSetback').value

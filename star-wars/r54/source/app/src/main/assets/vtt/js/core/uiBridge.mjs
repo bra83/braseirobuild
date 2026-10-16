@@ -1741,6 +1741,14 @@ completeMerchantAcquisition(options={}){
         try{return ok(clone(r.data.insistSWE02OldLylek()));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
     persistSWE02OldLylek(){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.persistSWE02OldLylek()));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    setSWE02OldLylekPlayerCover(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.setSWE02OldLylekPlayerCover(options??{})));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    setSWE02OldLylekMapLocation(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.setSWE02OldLylekMapLocation(options??{})));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    resolveSWE02OldLylekHunterRetreat(){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.resolveSWE02OldLylekHunterRetreat()));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    revealSWE02OldLylekDeveloperDetails(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.revealSWE02OldLylekDeveloperDetails(options??{})));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
     swe02NabatMarket(){
         const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.swe02NabatMarket()));}catch(e){return fail('SWE02_NABAT_FAILED',messageOf(e));}
