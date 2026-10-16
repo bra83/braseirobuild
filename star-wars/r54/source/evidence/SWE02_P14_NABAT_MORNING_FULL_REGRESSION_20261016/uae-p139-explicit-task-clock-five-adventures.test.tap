@@ -1,0 +1,31 @@
+✔ P139 under-black-sun: tempo explícito + journal UAE idempotente após 3 reaberturas (307.9678ms)
+✔ P139 under-black-sun: 2 tarefas sequenciais acumulam minutos sem duplicar eventos (126.5286ms)
+✔ P139 under-black-sun: id de teste antigo não pode debitar tempo ainda não confirmado (107.2944ms)
+✔ P139 beyond-the-rim: tempo explícito + journal UAE idempotente após 3 reaberturas (74.0589ms)
+✔ P139 beyond-the-rim: 2 tarefas sequenciais acumulam minutos sem duplicar eventos (68.2722ms)
+✔ P139 beyond-the-rim: id de teste antigo não pode debitar tempo ainda não confirmado (98.4987ms)
+✔ P139 long-arm-of-the-hutt: tempo explícito + journal UAE idempotente após 3 reaberturas (153.0874ms)
+✔ P139 long-arm-of-the-hutt: 2 tarefas sequenciais acumulam minutos sem duplicar eventos (92.6137ms)
+✔ P139 long-arm-of-the-hutt: id de teste antigo não pode debitar tempo ainda não confirmado (96.2393ms)
+✔ P139 jewel-of-yavin: tempo explícito + journal UAE idempotente após 3 reaberturas (63.6569ms)
+✔ P139 jewel-of-yavin: 2 tarefas sequenciais acumulam minutos sem duplicar eventos (64.8192ms)
+✔ P139 jewel-of-yavin: id de teste antigo não pode debitar tempo ainda não confirmado (48.5963ms)
+✔ P139 mask-of-the-pirate-queen: tempo explícito + journal UAE idempotente após 3 reaberturas (140.1777ms)
+✔ P139 mask-of-the-pirate-queen: 2 tarefas sequenciais acumulam minutos sem duplicar eventos (71.7853ms)
+✔ P139 mask-of-the-pirate-queen: id de teste antigo não pode debitar tempo ainda não confirmado (51.5028ms)
+✔ P139: testes sem duração não recebem ID de tarefa nem podem avançar minutos (35.7707ms)
+✔ P139: journal de tempo exige IDs válidos e nunca converte minutos em ticks (1.1924ms)
+✔ P139: validação rejeita duração, ledger e relógio inválidos sem mutação (1.9127ms)
+✔ P139: mundo e UAE permanecem íntegros se checkpoint de aventura rejeitar o débito (68.9605ms)
+✔ P139: gatilhos UAE recebem TASK_TIME_COMMITTED e persistem sem reaplicar (9.8458ms)
+✔ P139: UI expõe confirmação explícita e recupera tarefa pendente após reinício (16.9856ms)
+✔ P139: ponte Android expõe confirmação com resposta estruturada e rejeita replay divergente (211.9133ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4308.8719
+

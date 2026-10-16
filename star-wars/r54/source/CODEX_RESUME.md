@@ -120,3 +120,8 @@
 - Added encounter use tracking for Nyn defect-marked weapons and armor. At `finishCombat`, only the used owned assets are removed from the stable roster character; unused defective items remain. This is atomic with encounter closure and survives reopen.
 - Focused P241 suite now passes 17/17; full per-file regression passes 3,453/3,455 tests across 382 files (376 regular + 6 stress), 0 failures, 2 offline JDK `jar` packaging skips. Evidence: `evidence/SWE02_P14_NYN_REWARDS_LIFECYCLE_FULL_REGRESSION_20261016/`.
 - P.14 remains `PENDENTE` for complete dialogue and service-tunnel transition evidence. Overall SWE02 stays `IMPLEMENTADO_NAO_CERTIFICADO`; five-adventure, rules and AoR 0/360 gates remain open.
+## Resume update — SWE02 p.14 Nabat night-to-morning transition (2026-10-16)
+
+- Implemented the official p.14 transition: Nyn conversation closure/refusal, conditional requested spaceport alert for the reported human and Gand, the service-tunnel route with B’ura and a speeder programmed for the ryll mines, and a typed PC response before departure. The controller, Android UI and source-backed/tamper-checked receipts are wired.
+- Focused P240/P241 suites: 31/31. Full per-file regression: 382 files (376 regular + 6 stress), 3,457 tests, 3,455 pass, 0 fail, 2 skipped for missing JDK `jar`; raw logs and summary are under `evidence/SWE02_P14_NABAT_MORNING_FULL_REGRESSION_20261016/`.
+- SWE02 remains `IMPLEMENTADO_NAO_CERTIFICADO`; the page-wide p.14 dialogue/source crosswalk, other SWE02 branches, remaining adventures, rules, and 360 AoR proofs remain pending. No release gates ran.

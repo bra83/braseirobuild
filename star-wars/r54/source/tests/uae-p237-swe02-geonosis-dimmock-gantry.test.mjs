@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
-import {resolveOldLylekRetreat} from './swe02-act1-fixture.mjs';
+import {advanceNabatMorning,resolveOldLylekRetreat} from './swe02-act1-fixture.mjs';
 import {PUBLISHED_ADVENTURE_ADVERSARY_PROFILES as profiles} from '../app/src/main/assets/vtt/js/rules/adversaries.mjs';
 import {GameController} from '../app/src/main/assets/vtt/js/core/controller.mjs';
 import {createCampaign} from '../app/src/main/assets/vtt/js/core/state.mjs';
 const a=getPublishedAdventureAdapter('long-arm-of-the-hutt');
-const step=(w,id)=>a.advance(w,id).world,chain=(w,...ids)=>ids.reduce((state,id)=>step(id==='reach-new-meen'?resolveOldLylekRetreat(a,state):state,id),w),start=()=>a.start({}).world;
+const step=(w,id)=>a.advance(w,id).world,chain=(w,...ids)=>ids.reduce((state,id)=>id==='travel-lylek-den'?advanceNabatMorning(a,state):step(id==='reach-new-meen'?resolveOldLylekRetreat(a,state):state,id),w),start=()=>a.start({}).world;
 const enterCantina=w=>step(a.recordNewMeenLifecycle(w,'compound_approach',{precautions:true}).world,'new-meen-enter-cantina');
 const mark=(w,id)=>{const stage=w.publishedAdventure?.newMeenLifecycle?.stage;if(id==='laoth-drombb-cantina'&&stage==='CANTINA_READY')w=a.recordNewMeenLifecycle(w,'cantina_start').world;return a.markEncounterActive(w,id);};
 const examineAndKeepShell=w=>{

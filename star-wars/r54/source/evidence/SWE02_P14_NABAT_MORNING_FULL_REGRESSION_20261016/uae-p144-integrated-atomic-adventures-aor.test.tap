@@ -1,0 +1,29 @@
+✔ P144 under-black-sun: início transacional único, falha de armazenamento sem meia sessão (149.1262ms)
+✔ P144 under-black-sun: escolha transacional não deixa cena/UAE parcial em falha de save (167.6466ms)
+✔ P144 beyond-the-rim: início transacional único, falha de armazenamento sem meia sessão (103.3001ms)
+✔ P144 beyond-the-rim: escolha transacional não deixa cena/UAE parcial em falha de save (166.6734ms)
+✔ P144 long-arm-of-the-hutt: início transacional único, falha de armazenamento sem meia sessão (105.3936ms)
+✔ P144 long-arm-of-the-hutt: escolha transacional não deixa cena/UAE parcial em falha de save (143.3407ms)
+✔ P144 jewel-of-yavin: início transacional único, falha de armazenamento sem meia sessão (74.9828ms)
+✔ P144 jewel-of-yavin: escolha transacional não deixa cena/UAE parcial em falha de save (57.4934ms)
+✔ P144 mask-of-the-pirate-queen: início transacional único, falha de armazenamento sem meia sessão (46.2378ms)
+✔ P144 mask-of-the-pirate-queen: escolha transacional não deixa cena/UAE parcial em falha de save (80.0324ms)
+✔ P144: 9 posições AoR executáveis novas, sem conceder efeitos a outras posições (60.5563ms)
+✔ P144: Dotes de comando + Observador removem somente revés nas perícias permitidas (9.6886ms)
+✔ P144: Decifrador só reduz dificuldade e revés de código explicitamente declarado (1.6261ms)
+✔ P144: Mateiro reduz revés e tempo apenas em deslocamento ambiental (1.8072ms)
+✔ P144: Observador reduz tempo de busca; Cinturão de acessórios continua pendente (2.6928ms)
+✔ P144: controlador real persiste modificadores AoR e tempo sem alterar a ficha (47.2628ms)
+✔ P144 under-black-sun: teste de perícia da aventura persiste junto com UAE ou reverte tudo (112.3794ms)
+✔ P144 beyond-the-rim: teste de perícia da aventura persiste junto com UAE ou reverte tudo (158.6635ms)
+✔ P144: início e encerramento de combate publicado não criam combate órfão se armazenamento falhar (217.798ms)
+✔ P144: compra real de Dotes de comando, Mateiro e Decifrador conecta a árvore ao motor (17.9173ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4819.6874
+

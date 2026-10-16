@@ -1,0 +1,30 @@
+✔ R35: catálogo veicular Core EotE possui 15 perfis ativos e nenhum AoR (9.7325ms)
+✔ R35: x34 reproduz perfil/custo/raridade Core (2.9391ms)
+✔ R35: digger_crawler reproduz perfil/custo/raridade Core (0.6321ms)
+✔ R35: personnel_carrier reproduz perfil/custo/raridade Core (0.6865ms)
+✔ R35: at_pt reproduz perfil/custo/raridade Core (1.035ms)
+✔ R35: at_est reproduz perfil/custo/raridade Core (1.0392ms)
+✔ R35: cloakshape reproduz perfil/custo/raridade Core (0.7361ms)
+✔ R35: jumpmaster_jm5000 reproduz perfil/custo/raridade Core (0.6462ms)
+✔ R35: firespray reproduz perfil/custo/raridade Core (0.7226ms)
+✔ R35: lambda_t4a reproduz perfil/custo/raridade Core (0.934ms)
+✔ R35: tie_ln reproduz perfil/custo/raridade Core (0.8584ms)
+✔ R35: ywing_btl reproduz perfil/custo/raridade Core (0.8043ms)
+✔ R35: z95_af4 reproduz perfil/custo/raridade Core (0.5023ms)
+✔ R35: skipray_gat12h reproduz perfil/custo/raridade Core (0.5707ms)
+✔ R35: wayfarer reproduz perfil/custo/raridade Core (0.4295ms)
+✔ R35: yt1300 reproduz perfil/custo/raridade Core (0.3926ms)
+✔ R35: perfis terrestres Core preservam capacidade e sensores comprovados (0.3566ms)
+✔ R35: naves Core preservam hiperdrive/defesa/restrição e munição (0.4563ms)
+✔ R35: os 15 veículos Core permanecem disponíveis na economia e X-Wing segue excluído (7.3549ms)
+✔ R35: disponibilidade de veículo respeita raridade e restrição do Core (1.7078ms)
+✔ R35: X-Wing continua fail-closed na economia até fonte EotE própria (1.8164ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 998.1156
+

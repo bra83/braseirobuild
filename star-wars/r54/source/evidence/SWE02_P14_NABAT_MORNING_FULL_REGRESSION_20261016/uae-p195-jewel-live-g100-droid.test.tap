@@ -1,0 +1,23 @@
+✔ P195 live G-100 uses real Average Charm dice and confirmed berth (1059.4707ms)
+✔ P195 success leaves droid alive, with no black box extraction and no automatic reward (1137.517ms)
+✔ P195 cannot convince droid before slicing (573.4384ms)
+✔ P195 requires explicit ship berth, no invented travel or lodging (605.2714ms)
+✔ P195 failed persuasion is not fabricated as success and can be retried (661.3333ms)
+✔ P195 rejects duplicate receipt and prevents second successful persuasion (746.2553ms)
+✔ P195 rejects persuasion after any dismantling attempt (701.7159ms)
+✔ P195 forged dice, berth, derived state and receipt order are rejected (655.0366ms)
+✔ P195 three reopenings preserve droid status and all earlier receipts (675.7165ms)
+✔ P195 P194 legacy disassembly route remains available without live-droid receipt (651.0015ms)
+✔ P195 Android PT-BR source, bundle and bridge contain live droid action (42.0734ms)
+✔ P195 rejects an orphan BANK_DROID receipt without a bank state (491.9718ms)
+✔ P195 a bank locked after four failures cannot produce a living droid resolution (857.6394ms)
+✔ P195 forged living droid status without receipts or bank is rejected (543.3306ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15725.9319
+

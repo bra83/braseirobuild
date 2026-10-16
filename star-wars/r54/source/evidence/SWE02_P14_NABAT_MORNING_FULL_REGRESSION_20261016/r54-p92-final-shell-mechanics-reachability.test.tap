@@ -1,0 +1,12 @@
+✔ P92: shell final expõe painéis P0 nas rotas de combate, veículo, viagem, personagem, progressão e itens (5.99ms)
+✔ P92: UI P0 chama apenas bridge mecânico, sem consultRules/RAG (1.7414ms)
+✔ P92: bridge final alcança as mutações P0 do GameController (6.1771ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1095.7239
+

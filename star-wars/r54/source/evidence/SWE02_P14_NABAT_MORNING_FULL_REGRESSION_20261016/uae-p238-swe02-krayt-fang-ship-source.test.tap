@@ -1,0 +1,24 @@
+✔ P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery (210.8951ms)
+✔ P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed (131.2607ms)
+✔ P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters (85.0863ms)
+✔ P238 p7-8: both noises upgrade one difficulty; one disabled restores pool (27.9383ms)
+✔ P238 p8: transponder cannot be switched off in flight or removed before landing (130.0559ms)
+✔ P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception (34.6459ms)
+✔ P238 p9: jettison requires actual successful Perception and Computers (53.0121ms)
+✔ P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill (14.8916ms)
+✔ P238: forged ship flags, forged Bura and forged intercept outcome fail closed (51.5602ms)
+✔ P238: legacy route remains loadable but is explicitly uncertified (29.8495ms)
+✔ P238 real controller: skill pool, roll receipt and three saved reopens (172.7324ms)
+✔ P238 real controller: GM selects an EotE Knowledge specialty and the roll receipt survives reopen (152.1754ms)
+✔ P238 real controller: observations, cargo, Bura conversation and six-hour transit survive three reopens (255.1594ms)
+✔ P238 controller: cargo transfers enter the selected roster PC inventory and survive reopen exactly once (175.1689ms)
+✔ P238: changing a successful slow tracker to false cannot conceal skipped interception (61.9798ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5481.6488
+

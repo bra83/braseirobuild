@@ -1,0 +1,21 @@
+✔ P237 p37: official separate soldier and Vrixx’tt profiles (7.3445ms)
+✔ P237 p34: Piddock Kubaz clue no roll, B1 clue requires Hard Charm (229.6712ms)
+✔ SWE02 pp9-10 + p30: Sivor shell must be found, examined and explicitly kept before Geonosis can use it (248.6804ms)
+✔ P237 p23: Drombb messages require victory and Hard Computers (328.7793ms)
+✔ P237 p36: zero points means five Geonosians and one Gand (255.902ms)
+✔ P237 p36: three points means three Geonosians (138.895ms)
+✔ P237 p36: six-plus removes soldiers, not Vrixx’tt (704.574ms)
+✔ P237 p36: failed Daunting Coerce, rude and Imperial loyalty apply penalties (98.2295ms)
+✔ P237: forged negotiation points, facts and statements fail closed (74.2604ms)
+✔ P237 p37: boarding requires resolved combat, no false victory or unverified bribe (223.4096ms)
+✔ P237 p37: Vio rescue from player incapacitation does not claim enemy defeat (78.0224ms)
+✔ P237 controller: real dice, persistence and gantry encounter across three reopens (440.9863ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5648.6217
+

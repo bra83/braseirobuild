@@ -3318,6 +3318,17 @@ class BraseiroUiBridge {
             return fail('SWE02_NABAT_FAILED', messageOf(e));
         }
     }
+    respondSWE02NabatMorning(options = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.respondSWE02NabatMorning(options ?? {})));
+        }
+        catch (e) {
+            return fail('SWE02_NABAT_FAILED', messageOf(e));
+        }
+    }
     repairSWE02KraytFangAtNabat() {
         const r = this._controllerForExistingCampaign();
         if (!r.ok)
@@ -13815,7 +13826,16 @@ exports.LONG_ARM_OF_THE_HUTT = Object.freeze({
             summary: 'Nyn e B’ura B’an procuram ajuda para os mineiros de New Meen.',
             narration: 'Entre passagens subterrâneas, trabalhadores deslocados descrevem a pressão crescente sobre as minas de ryll.',
             visibleNpcIds: [NPC.nyn, NPC.bura], checks: [{ skill: 'Charme', difficulty: 'Média', purpose: 'conquistar a confiança dos representantes twi’lek' }],
-            choices: [{ id: 'travel-lylek-den', label: 'Viajar para New Meen', to: 'lylek-den-ambush' }]
+            choices: [{ id: 'travel-lylek-den', label: 'Descansar no abrigo de Nyn durante a noite', to: 'nabat-morning-departure' }]
+        },
+        'nabat-morning-departure': {
+            episode: 1, title: 'Manhã em Nabat', locationId: LOC.nabat,
+            summary: 'SWE02 p.14: Nyn acompanha os PCs e B’ura por um túnel de serviço até um speeder programado para as minas de ryll.',
+            narration: 'Ao amanhecer, Nyn conduz vocês e B’ura B’an por uma passagem estreita sob as muralhas. Um speeder aguarda com a rota para as minas programada. Ela pede que devolvam B’ura rapidamente para ajudar o moral dos mineiros e diz que podem conversar sobre negócios quando retomarem a operação. Pergunta se vocês também têm problemas com o Hutt que pressiona os Twi’leks. Se o aviso noturno do espaçoporto chegou, a fonte informou que um humano e um Gand vindos de Tatooine negociaram a guarda da nave duas horas antes.',
+            visibleNpcIds: [NPC.nyn, NPC.bura], checks: [], choices: [
+                { id: 'nabat-defer-favor', label: 'Adiar a resposta e permanecer em Nabat', to: 'nabat-morning-departure' },
+                { id: 'nabat-depart-for-mines', label: 'Responder a Nyn e partir no speeder para New Meen', to: 'lylek-den-ambush', condition: 'flag:nabatMorningResponseRecorded' }
+            ]
         },
         'lylek-den-ambush': {
             episode: 1, title: 'Emboscada no covil de lylek', locationId: LOC.lylekDen,
@@ -14220,6 +14240,10 @@ function conditionOk(choice, progress) {
         return Boolean(progress.flags?.shipCoursePlotted && progress.flags?.shipBuraFound);
     if (c === 'flag:shipThwheekCombatStarted')
         return progress.currentNodeId === 'thwheek-orbit' && progress.flags?.shipThwheekInterceptionRequired === true && !progress.flags?.shipThwheekCombatStarted;
+    if (c === 'flag:nabatNynConversationClosed')
+        return Boolean(progress.flags?.nabatNynConversationClosed) || Boolean((progress.socialReceipts || []).some(r => ['NYN_NEGOTIATION', 'NYN_REWARDS_DECLINED'].includes(r.type)));
+    if (c === 'receipt:nabatMorningResponse')
+        return (progress.nabatReceipts || []).some(r => r.type === 'NABAT_MORNING_RESPONSE');
     if (c.startsWith('flag:'))
         return Boolean(progress.flags?.[c.slice(5)]);
     if (c.startsWith('!flag:'))
@@ -14424,6 +14448,34 @@ function advanceLongArmOfTheHutt(world, choiceId) {
         throw Error('SWE02: sem prova de combate espacial.');
     if (p.activeEncounterId && ['new-meen-night-raid', 'drombb-cantina', 'teemo-showdown', 'gantry-aa7'].includes(p.currentNodeId))
         throw new Error('Encerre o combate de New Meen antes de sair desta cena.');
+    if (p.currentNodeId === 'nabat-contact' && choiceId === 'travel-lylek-den') {
+        if (!p.flags?.nabatNynConversationClosed && !(p.socialReceipts || []).some(r => ['NYN_NEGOTIATION', 'NYN_REWARDS_DECLINED'].includes(r.type))) {
+            const closed = (0, swe02SocialP241_mjs_1.declineNynRewards)(next).world.publishedAdventure;
+            for (const key of Object.keys(p))
+                delete p[key];
+            Object.assign(p, closed);
+        }
+        p.flags = { ...(p.flags || {}), nabatNynConversationClosed: true };
+        if (p.flags?.nabatSpaceportWatchRequested && !p.flags?.nabatSpaceportAlertDelivered) {
+            const delivered = (0, swe02NabatP240_mjs_1.deliverNabatNightAlert)(next).world.publishedAdventure;
+            for (const key of Object.keys(p))
+                delete p[key];
+            Object.assign(p, delivered);
+        }
+        p.nabatReceipts = [...(p.nabatReceipts || []), { type: 'NABAT_MORNING_BRIEFING', nodeId: 'nabat-morning-departure',
+                serviceTunnel: true, speederProgrammedForRyllMines: true, buraTravelsWithParty: true,
+                visitorReport: p.flags?.nabatSpaceportAlertDelivered ? 'HUMAN_AND_GAND_REPORTED' : 'NO_PRIOR_VISITOR_REPORT',
+                source: { productCode: 'SWE02', printedPage: 14, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' } }];
+        p.flags = { ...(p.flags || {}), nabatMorningBriefingReady: true };
+    }
+    if (p.currentNodeId === 'nabat-morning-departure' && choiceId === 'nabat-depart-for-mines') {
+        if (!(p.nabatReceipts || []).some(r => r.type === 'NABAT_MORNING_RESPONSE'))
+            throw Error('SWE02 p.14: registre a resposta a Nyn antes de partir.');
+        p.nabatReceipts = [...(p.nabatReceipts || []), { type: 'NABAT_MORNING_DEPARTURE', nodeId: p.currentNodeId,
+                serviceTunnel: true, speederProgrammedForRyllMines: true, buraTravelsWithParty: true,
+                source: { productCode: 'SWE02', printedPage: 14, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' } }];
+        p.flags = { ...(p.flags || {}), nabatMorningDepartureRecorded: true };
+    }
     p.flags = { ...(p.flags || {}), ...(choice.effects || {}) };
     (0, swe02GeonosisP237_mjs_1.recordGeonosisChoice)(p, choiceId, p.currentNodeId);
     if (choiceId === 'dock-ryloth' || choiceId === 'finish-ship-inspection')
@@ -18812,6 +18864,7 @@ exports.nabatMarketCatalog = nabatMarketCatalog;
 exports.nabatPurchase = nabatPurchase;
 exports.requestNabatSpaceportWatch = requestNabatSpaceportWatch;
 exports.deliverNabatNightAlert = deliverNabatNightAlert;
+exports.recordNabatMorningResponse = recordNabatMorningResponse;
 exports.nabatShipRepair = nabatShipRepair;
 exports.nabatSafehouseCare = nabatSafehouseCare;
 exports.validateNabat = validateNabat;
@@ -18822,6 +18875,7 @@ const equipmentCatalog_mjs_1 = require("../rules/equipmentCatalog.mjs");
 const health_mjs_1 = require("../rules/health.mjs");
 const clone = v => structuredClone(v);
 exports.NABAT_SOURCE = Object.freeze({ productCode: 'SWE02', printedPages: [13, 14], authority: 'OFFICIAL_PDF_TEXT_VERIFIED' });
+const NABAT_P14_SOURCE = Object.freeze({ productCode: 'SWE02', printedPage: 14, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' });
 const SCENES = new Set(['nabat-arrival', 'nabat-contact', 'krayt-fang-ground-inspection']);
 function active(world, allowed = SCENES) {
     const p = world?.publishedAdventure;
@@ -18882,11 +18936,28 @@ function deliverNabatNightAlert(world) {
     const w = clone(world), p = active(w, new Set(['nabat-contact']));
     if (!p.flags?.nabatSpaceportWatchRequested)
         throw Error('SWE02: nenhum pedido de aviso feito ao porto.');
+    if (!p.flags?.nabatNynConversationClosed && !(p.socialReceipts || []).some(x => ['NYN_NEGOTIATION', 'NYN_REWARDS_DECLINED'].includes(x.type)))
+        throw Error('SWE02 p.14: o aviso chega depois da conversa com Nyn.');
     if (p.flags.nabatSpaceportAlertDelivered)
         throw Error('SWE02: aviso já entregue.');
     p.flags = { ...p.flags, nabatSpaceportAlertDelivered: true };
     const r = receipt(p, 'TATOOINE_VISITORS_ALERT', { visitors: ['human', 'gand'], arrivalLeadHours: 2 });
     return { world: w, receipt: r };
+}
+function recordNabatMorningResponse(world, character, { response } = {}) {
+    const w = clone(world), p = active(w, new Set(['nabat-morning-departure'])), who = key(character);
+    if (!who)
+        throw Error('SWE02 p.14: identifique o PC que responde a Nyn.');
+    if (!p.nabatReceipts?.some(x => x.type === 'NABAT_MORNING_BRIEFING'))
+        throw Error('SWE02 p.14: a conversa da manhã ainda não foi apresentada.');
+    if (!['same_hutt', 'different_problem', 'uncertain'].includes(response))
+        throw Error('SWE02 p.14: resposta de história inválida.');
+    if ((p.nabatReceipts || []).some(x => x.type === 'NABAT_MORNING_RESPONSE'))
+        throw Error('SWE02 p.14: resposta à conversa da manhã já registrada.');
+    const r = { type: 'NABAT_MORNING_RESPONSE', nodeId: p.currentNodeId, characterKey: who, response, source: NABAT_P14_SOURCE };
+    p.nabatReceipts = [...(p.nabatReceipts || []), r];
+    p.flags = { ...(p.flags || {}), nabatMorningResponseRecorded: true };
+    return { world: w, receipt: clone(r) };
 }
 function nabatShipRepair(world, vehicles) {
     const w = clone(world), v = clone(vehicles), p = active(w, new Set(['nabat-arrival']));
@@ -18938,7 +19009,9 @@ function validateNabat(p) {
         throw Error('SWE02: alerta sem solicitação prévia.');
     const catalog = nabatMarketCatalog();
     for (const x of rr) {
-        if (x.source?.productCode !== 'SWE02' || x.source?.printedPages?.[0] !== 13 || !SCENES.has(x.nodeId))
+        const validP13 = x.source?.printedPages?.[0] === 13 && SCENES.has(x.nodeId);
+        const validP14 = x.source?.printedPage === 14 && ['nabat-morning-departure', 'lylek-den-ambush'].includes(x.nodeId);
+        if (x.source?.productCode !== 'SWE02' || (!validP13 && !validP14))
             throw Error('SWE02: recibo de Nabat sem proveniência.');
         if (x.type === 'MARKET_PURCHASE') {
             const item = catalog.find(y => y.id === x.itemId);
@@ -18952,10 +19025,26 @@ function validateNabat(p) {
             throw Error('SWE02: cuidado médico inválido.');
         if (x.type === 'TATOOINE_VISITORS_ALERT' && (x.nodeId !== 'nabat-contact' || x.arrivalLeadHours !== 2))
             throw Error('SWE02: aviso do porto adulterado.');
+        if (x.type === 'NABAT_MORNING_BRIEFING' && (x.nodeId !== 'nabat-morning-departure' || x.serviceTunnel !== true || x.speederProgrammedForRyllMines !== true || x.buraTravelsWithParty !== true || !['HUMAN_AND_GAND_REPORTED', 'NO_PRIOR_VISITOR_REPORT'].includes(x.visitorReport)))
+            throw Error('SWE02 p.14: briefing matinal inválido.');
+        if (x.type === 'NABAT_MORNING_RESPONSE' && (x.nodeId !== 'nabat-morning-departure' || !x.characterKey || !['same_hutt', 'different_problem', 'uncertain'].includes(x.response) || !one('NABAT_MORNING_BRIEFING').length))
+            throw Error('SWE02 p.14: resposta matinal inválida.');
+        if (x.type === 'NABAT_MORNING_DEPARTURE' && (x.nodeId !== 'nabat-morning-departure' || !one('NABAT_MORNING_RESPONSE').length || x.serviceTunnel !== true || x.speederProgrammedForRyllMines !== true))
+            throw Error('SWE02 p.14: saída matinal inválida.');
     }
+    if (rr.filter(x => x.type === 'NABAT_MORNING_BRIEFING').length > 1 || rr.filter(x => x.type === 'NABAT_MORNING_RESPONSE').length > 1 || rr.filter(x => x.type === 'NABAT_MORNING_DEPARTURE').length > 1)
+        throw Error('SWE02 p.14: etapa matinal duplicada.');
+    const response = one('NABAT_MORNING_RESPONSE'), departure = one('NABAT_MORNING_DEPARTURE');
+    if (Boolean(f.nabatMorningResponseRecorded) !== Boolean(response.length) || Boolean(f.nabatMorningDepartureRecorded) !== Boolean(departure.length))
+        throw Error('SWE02 p.14: indicador da manhã sem recibo.');
     const care = one('SAFEHOUSE_CARE');
     if (new Set(care.map(x => x.characterKey)).size !== care.length)
         throw Error('SWE02: atendimento médico duplicado.');
+    const briefing = one('NABAT_MORNING_BRIEFING');
+    if (Boolean(f.nabatMorningBriefingReady) !== Boolean(briefing.length) || Boolean(f.nabatMorningResponseRecorded) !== Boolean(response.length) || Boolean(f.nabatMorningDepartureRecorded) !== Boolean(departure.length))
+        throw Error('SWE02 p.14: etapa da manhã sem recibo correspondente.');
+    if (briefing.length && briefing[0].visitorReport !== (f.nabatSpaceportAlertDelivered ? 'HUMAN_AND_GAND_REPORTED' : 'NO_PRIOR_VISITOR_REPORT'))
+        throw Error('SWE02 p.14: relato do espaçoporto não corresponde ao aviso solicitado.');
     return true;
 }
 });
@@ -20281,6 +20370,7 @@ exports.nynCriticalCare = nynCriticalCare;
 exports.nynNegotiate = nynNegotiate;
 exports.nynRewardOptions = nynRewardOptions;
 exports.distributeNynReward = distributeNynReward;
+exports.declineNynRewards = declineNynRewards;
 exports.bribeNewMeenThug = bribeNewMeenThug;
 exports.remainingDrombbThugs = remainingDrombbThugs;
 exports.validateSWE02Social = validateSWE02Social;
@@ -20347,6 +20437,7 @@ function nynNegotiate(world, character, { method = 'charm', rng = Math.random } 
     // Triumph = blaster rifle; two Threat = defective gear. No fabricated combat stats.
     const grants = success ? { grenadeClaim: check.netAdvantage >= 1, armor: check.netAdvantage >= 2, rifleClaim: check.triumph >= 1, defective: check.netAdvantage <= -2 } : { grenadeClaim: false, armor: false, rifleClaim: false, defective: false };
     const r = receipt(p, 'NYN_NEGOTIATION', 14, { characterKey: who, method, skillKey, difficulty, check, grants });
+    p.flags = { ...(p.flags || {}), nabatNynConversationClosed: true };
     return { world: w, character: c, receipt: r };
 }
 function nynRewardOptions(world, roster) {
@@ -20403,6 +20494,14 @@ function distributeNynReward(world, character, { characterId, itemId } = {}) {
     const r = receipt(p, 'NYN_GEAR_DISTRIBUTION', 14, { characterKey: id(c), characterId: who, itemId, ownedAssetId: assetId, profileSource: clone(profile.source) });
     return { world: w, character: c, receipt: r };
 }
+function declineNynRewards(world) {
+    const w = clone(world), p = active(w, 'nabat-contact');
+    if ((p.socialReceipts || []).some(r => ['NYN_NEGOTIATION', 'NYN_REWARDS_DECLINED'].includes(r.type)))
+        throw Error('SWE02: conversa de recompensas com Nyn já foi concluída.');
+    const r = receipt(p, 'NYN_REWARDS_DECLINED', 14, { conversationClosed: true, additionalRewardsRequested: false });
+    p.flags = { ...(p.flags || {}), nabatNynConversationClosed: true };
+    return { world: w, receipt: r };
+}
 function bribeNewMeenThug(world, character, { credits = 500, rng = Math.random } = {}) {
     const w = clone(world), c = clone(character), p = active(w, 'drombb-cantina'), who = id(c);
     if (p.activeEncounterId || (p.encounterHistory || []).some(r => r.encounterId === 'laoth-drombb-cantina' && r.outcome))
@@ -20433,6 +20532,11 @@ function validateSWE02Social(p) {
         throw Error('SWE02: recibos sociais inválidos.');
     if (rr.filter(r => r.type === 'NYN_NEGOTIATION').length > 1)
         throw Error('SWE02: Nyn negociada duas vezes.');
+    if (rr.filter(r => r.type === 'NYN_REWARDS_DECLINED').length > 1 || rr.some(r => r.type === 'NYN_REWARDS_DECLINED') && rr.some(r => r.type === 'NYN_NEGOTIATION'))
+        throw Error('SWE02 p.14: conversa de Nyn fechada ou negociada mais de uma vez.');
+    const conversationClosed = rr.some(r => ['NYN_NEGOTIATION', 'NYN_REWARDS_DECLINED'].includes(r.type));
+    if (p.flags?.nabatNynConversationClosed && !conversationClosed)
+        throw Error('SWE02 p.14: conversa encerrada sem recibo.');
     const crit = new Set();
     let bribed = 0;
     for (const r of rr) {
@@ -20453,6 +20557,10 @@ function validateSWE02Social(p) {
             const g = r.check.success ? { grenadeClaim: r.check.netAdvantage >= 1, armor: r.check.netAdvantage >= 2, rifleClaim: r.check.triumph >= 1, defective: r.check.netAdvantage <= -2 } : { grenadeClaim: false, armor: false, rifleClaim: false, defective: false };
             if (JSON.stringify(g) !== JSON.stringify(r.grants) || r.armorAssetId || r.pendingWeaponProfileCertification)
                 throw Error('SWE02: recompensa de Nyn adulterada.');
+        }
+        else if (r.type === 'NYN_REWARDS_DECLINED') {
+            if (r.nodeId !== 'nabat-contact' || r.source.printedPage !== 14 || r.conversationClosed !== true || r.additionalRewardsRequested !== false)
+                throw Error('SWE02 p.14: encerramento da conversa com Nyn inválido.');
         }
         else if (r.type === 'NYN_GEAR_DISTRIBUTION') {
             const n = rr.find(x => x.type === 'NYN_NEGOTIATION'), allowed = { frag_grenade: n?.grants?.grenadeClaim, stun_grenade: n?.grants?.grenadeClaim, padded_armor: n?.grants?.armor, blaster_rifle: n?.grants?.rifleClaim };
@@ -28505,6 +28613,13 @@ class GameController {
     receiveSWE02SpaceportAlert() {
         return this.atomicAction(() => {
             const out = (0, swe02NabatP240_mjs_1.deliverNabatNightAlert)(this.state.world);
+            this.commit('WORLD_UPDATED', { world: out.world });
+            return clone(out.receipt);
+        });
+    }
+    respondSWE02NabatMorning({ response } = {}) {
+        return this.atomicAction(() => {
+            const out = (0, swe02NabatP240_mjs_1.recordNabatMorningResponse)(this.state.world, requireCharacter(this.state.player?.character), { response });
             this.commit('WORLD_UPDATED', { world: out.world });
             return clone(out.receipt);
         });

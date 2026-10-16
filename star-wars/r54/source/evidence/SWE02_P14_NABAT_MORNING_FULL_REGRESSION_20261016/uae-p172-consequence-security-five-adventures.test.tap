@@ -1,0 +1,34 @@
+✔ P172 under-black-sun: authored string consequence rejects injected rewards without mutation (54.2006ms)
+✔ P172 under-black-sun: trigger -> string/object consequences -> prerequisites -> clocks -> three restores (47.3089ms)
+✔ P172 under-black-sun: rollback if a resolution action injects a script after legitimate events (17.7185ms)
+✔ P172 under-black-sun: invalid compound conditions, unknown operators and nonexistent scenes fail closed (5.914ms)
+✔ P172 under-black-sun: source preflight blocks forged consequence metadata and reserved event emission (16.4355ms)
+✔ P172 beyond-the-rim: authored string consequence rejects injected rewards without mutation (10.9733ms)
+✔ P172 beyond-the-rim: trigger -> string/object consequences -> prerequisites -> clocks -> three restores (45.2082ms)
+✔ P172 beyond-the-rim: rollback if a resolution action injects a script after legitimate events (21.6427ms)
+✔ P172 beyond-the-rim: invalid compound conditions, unknown operators and nonexistent scenes fail closed (5.2468ms)
+✔ P172 beyond-the-rim: source preflight blocks forged consequence metadata and reserved event emission (15.5898ms)
+✔ P172 long-arm-of-the-hutt: authored string consequence rejects injected rewards without mutation (11.6366ms)
+✔ P172 long-arm-of-the-hutt: trigger -> string/object consequences -> prerequisites -> clocks -> three restores (46.4376ms)
+✔ P172 long-arm-of-the-hutt: rollback if a resolution action injects a script after legitimate events (20.9309ms)
+✔ P172 long-arm-of-the-hutt: invalid compound conditions, unknown operators and nonexistent scenes fail closed (5.5279ms)
+✔ P172 long-arm-of-the-hutt: source preflight blocks forged consequence metadata and reserved event emission (30.1692ms)
+✔ P172 jewel-of-yavin: authored string consequence rejects injected rewards without mutation (5.6012ms)
+✔ P172 jewel-of-yavin: trigger -> string/object consequences -> prerequisites -> clocks -> three restores (28.6187ms)
+✔ P172 jewel-of-yavin: rollback if a resolution action injects a script after legitimate events (9.3326ms)
+✔ P172 jewel-of-yavin: invalid compound conditions, unknown operators and nonexistent scenes fail closed (1.8556ms)
+✔ P172 jewel-of-yavin: source preflight blocks forged consequence metadata and reserved event emission (10.1817ms)
+✔ P172 mask-of-the-pirate-queen: authored string consequence rejects injected rewards without mutation (8.3036ms)
+✔ P172 mask-of-the-pirate-queen: trigger -> string/object consequences -> prerequisites -> clocks -> three restores (39.0731ms)
+✔ P172 mask-of-the-pirate-queen: rollback if a resolution action injects a script after legitimate events (18.77ms)
+✔ P172 mask-of-the-pirate-queen: invalid compound conditions, unknown operators and nonexistent scenes fail closed (4.4894ms)
+✔ P172 mask-of-the-pirate-queen: source preflight blocks forged consequence metadata and reserved event emission (9.6347ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2253.0241
+

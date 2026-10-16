@@ -1,0 +1,26 @@
+✔ P241 p13: official physician uses 1 proficiency 2 difficulty, heals one actual critical (752.843ms)
+✔ P241 physician failure consumes only attempt; never erases injury (699.5745ms)
+✔ P241 physician blocks unhealable/dead injuries and care-before-critical (523.702ms)
+✔ P241 p14: negotiation records claims; party PCs receive sourced EotE profiles individually (672.5754ms)
+✔ P241 p14: Coerce Hard failure gives no gear, no retries (549.3306ms)
+✔ P241 p14: Triumph with two Threat grants defective rifle and preserves defect marker (489.35ms)
+✔ P241 p14: first combat use removes defective Nyn rifle at encounter closure (474.5538ms)
+✔ P241 p14: unused Nyn award survives an encounter (398.7855ms)
+✔ P241 Nyn invalid method and wrong scene rollback without save (285.5311ms)
+✔ P241 social receipt rejects tampered dice face or Nyn reward (191.1602ms)
+✔ P241 p23: 400-500 credits bribe uses actual opposed Negotiation and debit (82.6607ms)
+✔ P241 failed bribe does not debit and cannot be converted into victory (81.3366ms)
+✔ P241 invalid bribe, Drombb cannot be bribed and no overspending (62.5393ms)
+✔ P241 all minions bribed still leaves Drombb as live adversary (114.4575ms)
+✔ P241 New Meen cannot bribe during live encounter or from wrong scene (78.1409ms)
+✔ P241 New Meen receipt rejects fake credit debit, forged dice, or unconfirmed party (60.7513ms)
+✔ P241 Android offline bridge and UI expose social and gear distribution operations (5.4781ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7650.9687
+

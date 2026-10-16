@@ -1022,8 +1022,21 @@ function renderVehicle(state){
   const swe02Crash=state.world?.publishedAdventure?.currentNodeId==='thwheek-crash';
   $('swe02VehicleActions').hidden=!(swe02Combat||swe02Crash);
   const nabatNode=state.world?.publishedAdventure?.id==='long-arm-of-the-hutt'&&
-    ['nabat-arrival','nabat-contact','krayt-fang-ground-inspection'].includes(state.world?.publishedAdventure?.currentNodeId);
+    ['nabat-arrival','nabat-contact','krayt-fang-ground-inspection','nabat-morning-departure'].includes(state.world?.publishedAdventure?.currentNodeId);
+  const nabatContact=state.world?.publishedAdventure?.currentNodeId==='nabat-contact';
+  const nabatMorning=state.world?.publishedAdventure?.currentNodeId==='nabat-morning-departure';
   $('swe02NabatActions').hidden=!nabatNode;
+  $('swe02NabatRest').hidden=!nabatContact;
+  $('swe02NabatMorning').hidden=!nabatMorning;
+  $('swe02NynCritical').hidden=!nabatContact;
+  $('swe02NynNegotiate').hidden=!nabatContact;
+  $('swe02NynMethod').hidden=!nabatContact;
+  $('swe02NynReward').hidden=!nabatContact;
+  $('swe02NynDistribute').hidden=!nabatContact;
+  $('swe02NabatWatch').hidden=!['nabat-arrival','nabat-contact'].includes(state.world?.publishedAdventure?.currentNodeId);
+  $('swe02NabatAlert').hidden=!nabatContact;
+  $('swe02NabatRepair').hidden=state.world?.publishedAdventure?.currentNodeId!=='nabat-arrival';
+  $('swe02NabatCare').hidden=!nabatContact;
   const newMeenNode=state.world?.publishedAdventure?.id==='long-arm-of-the-hutt'&&['new-meen-miners','new-meen-night-raid','drombb-compound-approach','drombb-cantina'].includes(state.world?.publishedAdventure?.currentNodeId);
   $('swe02NewMeenSocial').hidden=!(state.world?.publishedAdventure?.id==='long-arm-of-the-hutt'&&(newMeenNode||state.world?.publishedAdventure?.currentNodeId==='drombb-cantina'));
   $('swe02NewMeenLifecycle').hidden=!newMeenNode;
@@ -1038,6 +1051,10 @@ function renderVehicle(state){
   const lifecycleStage=state.world?.publishedAdventure?.newMeenLifecycle?.stage;
   $('swe02NewMeenNightResult').disabled=Boolean(state.combat?.active)||lifecycleStage!=='NIGHT_COMBAT';
   if(nabatNode){
+    const p=state.world?.publishedAdventure;
+    const marketEligible=['nabat-arrival','nabat-contact'].includes(p?.currentNodeId);
+    $('swe02NabatItem').hidden=!marketEligible;$('swe02NabatQuantity').hidden=!marketEligible;$('swe02NabatBuy').hidden=!marketEligible;
+    if(marketEligible){
     const market=game.swe02NabatMarket();const select=$('swe02NabatItem');
     const selected=select.value;
     select.replaceChildren(new Option('Selecione um item do catálogo',''),...market.map(x=>new Option(`${x.name} — ${x.price} créditos`,x.id)));
@@ -1050,6 +1067,13 @@ function renderVehicle(state){
     const rewardOptions=game.swe02NynRewardOptions();
     rewardSelect.replaceChildren(new Option('Selecione equipamento e destinatário',''),...rewardOptions.items.map(x=>new Option(`${x.name} → ${x.characterName}`,`${x.itemId}|${x.characterId}`)));
     if(rewardOptions.items.some(x=>`${x.itemId}|${x.characterId}`===selectedReward))rewardSelect.value=selectedReward;
+    }
+    const briefing=(p?.nabatReceipts||[]).find(x=>x.type==='NABAT_MORNING_BRIEFING');
+    $('swe02NabatMorningBriefing').textContent=briefing?`SWE02 p.14 · Túnel de serviço e speeder programado para as minas; B’ura viaja com o grupo.${briefing.visitorReport==='HUMAN_AND_GAND_REPORTED'?' Aviso do espaçoporto: um humano e um Gand de Tatooine chegaram duas horas antes.':''} Nyn pergunta se vocês enfrentam o mesmo Hutt.`:'';
+    const morningResponse=(p?.nabatReceipts||[]).some(x=>x.type==='NABAT_MORNING_RESPONSE');
+    $('swe02NabatMorningRespond').disabled=!nabatMorning||morningResponse||Boolean(state.combat?.active);
+    $('swe02NabatDepart').disabled=!nabatMorning||!morningResponse||Boolean(state.combat?.active);
+    $('swe02NabatRest').disabled=!nabatContact||Boolean(state.combat?.active);
   }
 
   for(const id of ['swe02Resolve','swe02Pursue','swe02Linked'])$(''+id).disabled=!swe02Combat||!combat.active;
@@ -1386,6 +1410,18 @@ $('swe02NynNegotiate').addEventListener('click',()=>{try{
 $('swe02NynDistribute').addEventListener('click',()=>{try{
  const [itemId,characterId]=$('swe02NynReward').value.split('|');if(!itemId||!characterId)throw Error('Selecione equipamento e destinatário.');
  const r=game.distributeSWE02NynReward({itemId,characterId});showFeedback('swe02NabatFeedback',`Nyn entregou ${r.itemId} a ${r.characterId}.`);render();
+}catch(e){showFeedback('swe02NabatFeedback',e.message);}});
+$('swe02NabatRest').addEventListener('click',()=>{try{
+ const r=game.advancePublishedAdventure('travel-lylek-den');if(r?.ok===false)throw Error(r.message);
+ showFeedback('swe02NabatFeedback','A conversa terminou; o aviso solicitado foi entregue à noite e a cena avançou para a manhã.');render();
+}catch(e){showFeedback('swe02NabatFeedback',e.message);}});
+$('swe02NabatMorningRespond').addEventListener('click',()=>{try{
+ const r=game.respondSWE02NabatMorning({response:$('swe02NabatHuttResponse').value});if(r?.ok===false)throw Error(r.message);
+ showFeedback('swe02NabatFeedback','Resposta registrada; o grupo pode decidir se parte para New Meen.');render();
+}catch(e){showFeedback('swe02NabatFeedback',e.message);}});
+$('swe02NabatDepart').addEventListener('click',()=>{try{
+ const r=game.advancePublishedAdventure('nabat-depart-for-mines');if(r?.ok===false)throw Error(r.message);
+ showFeedback('swe02NabatFeedback','O grupo partiu pelo túnel de serviço no speeder rumo às minas de ryll.');render();
 }catch(e){showFeedback('swe02NabatFeedback',e.message);}});
 for(const [id,method,args] of [
  ['swe02EscortPrepare','prepareSWE02NewMeenEscort',null],

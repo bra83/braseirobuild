@@ -1,0 +1,26 @@
+✔ P183 source: Jewel SWE09 opens with Aris in Port Town, not at the museum (3.2697ms)
+✔ P183 source: the Grand Prix precedes the auction and central bank slice (249.8786ms)
+✔ P183: bank transfer cannot be claimed by clicking without a successful roll (124.58ms)
+✔ P183: failed bank slice increments alarm, but does not divert credits (186.5998ms)
+✔ P183: successful bank slice authorizes one explicit diversion flag (127.9221ms)
+✔ P183: the vault cannot yield the jewel without an adjudicated successful check (188.2409ms)
+✔ P183: successful vault check unlocks acquisition; final state survives three reopens (292.2556ms)
+✔ P183: withdrawing from the vault completes without inventing the jewel (222.9201ms)
+✔ P183: malformed check result is rejected without mutation (102.141ms)
+✔ P183: Long Arm contains source-based New Meen, Ota, Piddock and Dimmock route (0.8468ms)
+✔ P183: Long Arm investigation path persists into Geonosis, and retains legacy choices (399.9293ms)
+✔ P183: published reward policies do not fabricate fixed credits or Obligation (0.5108ms)
+✔ P183: forged Long Arm encounter cannot defeat Teemo or skip the scene (107.8379ms)
+✔ P183: Long Arm can retreat without claiming Teemo defeated (111.5516ms)
+✔ P183: Teemo defeat needs active encounter, valid outcome and cannot be duplicated (141.1094ms)
+✔ P183: Jewel security encounter requires actual start and cannot be repeated (180.9339ms)
+✔ P183: P182 Jewel save at original Bespin node migrates without losing progress (10.912ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5437.8664
+

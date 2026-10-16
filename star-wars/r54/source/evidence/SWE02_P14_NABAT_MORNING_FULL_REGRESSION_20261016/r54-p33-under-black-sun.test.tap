@@ -1,0 +1,18 @@
+✔ P33: catálogo preserva EotE/MIXED e não oferece aventura EotE pura em AoR (5.147ms)
+✔ P33: início é PT-BR, persistente e não revela nós futuros ao jogador (14.2673ms)
+✔ P33: Episódio II aceita investigação em qualquer ordem e só libera desfecho após 2 linhas (36.102ms)
+✔ P33: flags de consequências persistem até o Episódio III e epílogo (71.0139ms)
+✔ P33: recompensa fica registrada e não reseta ao reiniciar a aventura na mesma campanha (5.1153ms)
+✔ P33: UI oferece aventura publicada separada do mundo livre e bridge expõe contrato (15.9025ms)
+✔ P34: checks da aventura expõem pool mecânico sem revelar destinos (1.3672ms)
+✔ P34: Advantage/Threat/Triumph/Despair alimentam consequência persistente e relógio de alerta (5.7936ms)
+✔ P34: controller e bridge ligam teste publicado ao resolvedor narrativo real (34.7655ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1057.851
+

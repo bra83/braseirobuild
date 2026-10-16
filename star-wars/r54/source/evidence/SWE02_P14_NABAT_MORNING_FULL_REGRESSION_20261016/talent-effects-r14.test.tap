@@ -1,0 +1,16 @@
+✔ Reação rápida limita gasto ao grau e converte Tensão em Impulso de iniciativa (37.4831ms)
+✔ Condução defensiva soma Defesa em todas as zonas sem alterar a ficha base da nave (3.5008ms)
+✔ Alvo ardiloso reduz em 1 a Silhueta defensiva do veículo pilotado (1.9551ms)
+✔ Aceleração máxima usa dificuldade 3, duração por Astúcia e Suprema aumenta +2 (3.2149ms)
+✔ Aceleração máxima aprimorada pode ser tentada como manobra, custa 1 Tensão e usa dificuldade 2 (63.3467ms)
+✔ ataque contra piloto com Alvo ardiloso e Condução defensiva usa Silhueta/Defesa efetivas (2.6722ms)
+✔ Cartógrafo galáctico reduz à metade o tempo habitual da Astronavegação (8.0272ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3170.3512
+

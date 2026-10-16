@@ -1,0 +1,18 @@
+✔ P52 registry instala Além da Orla como EotE/MIXED sem alterar Sob um Sol Negro (7.8931ms)
+✔ P52 início é anti-spoiler: não revela IT-3PO, Yiyar ou ISB antes da hora (22.6109ms)
+✔ P52 preparação exige ao menos uma ação real e persiste pista de rumores após reopen (16.4796ms)
+✔ P52 inspeção da nave persiste detecção/remoção de rastreador e não inventa consequência imperial (11.4969ms)
+✔ P52 perseguição pode recuperar IT-3PO e consolida consequência do Episódio I (25.8748ms)
+✔ P52 falha severa na perseguição permite fuga dos Yiyar e mantém desvantagem persistente (17.2641ms)
+✔ P52 controller usa o adapter genérico e mantém gate EotE/MIXED (205.0824ms)
+✔ P52/P53 metadados preservam Episódio I e avançam a fronteira sem removê-lo (0.4277ms)
+✔ P52 UI deixou de fixar Sob um Sol Negro e usa a aventura ativa em checks, escolhas e restart (7.9713ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1956.2875
+

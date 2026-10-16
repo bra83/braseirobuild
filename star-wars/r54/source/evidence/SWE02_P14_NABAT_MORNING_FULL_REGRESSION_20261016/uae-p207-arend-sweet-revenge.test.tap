@@ -1,0 +1,19 @@
+✔ P207 four published holdings, correct pages and no invented current location (4.6426ms)
+✔ P207 actual Average Computers roll discovers leads without locating Arend (967.6507ms)
+✔ P207 Streetwise uses Cunning and failure needs GM retry (858.648ms)
+✔ P207 d100 25/50/75/automatic at distinct locations, no teleports (747.5173ms)
+✔ P207 first visit 1/100 locates Arend, no extra visits (703.4523ms)
+✔ P207 requires betrayal, no combat, resolved goons, GM access and arrival (729.7251ms)
+✔ P207 duplicate receipts, repeated holdings and premature searches are atomic (742.8993ms)
+✔ P207 receipt replay rejects fake narrative faces, probabilities and fabricated findings (626.8565ms)
+✔ P207 controller atomic commits and three reopenings retain receipts (695.3307ms)
+✔ P207 Android PTBR bridge, offline bundle, version, Kokoro preservation markers (81.6089ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8834.564
+

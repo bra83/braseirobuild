@@ -1,0 +1,20 @@
+✔ P200 cannot post funds before successful or definitively failed bank transfer (1253.0412ms)
+✔ P200 posted transfer derives exact winning amount from auction, never PC wallet (814.4996ms)
+✔ P200 extra bidder source-backed 10k is posted only after successful slice and verified symbol spend (916.9216ms)
+✔ P200 cannot invent destination, skip GM confirmation or overwrite existing settlement (685.4411ms)
+✔ P200 allows GM-confirmed alternate account but never awards credits to party (590.2977ms)
+✔ P200 tamper proof rejects fake winning bid, beneficiary, amount, source and duplicate receipts (875.0442ms)
+✔ P200 prevents post-settlement slicing or later symbol spends from falsifying ledger (711.1037ms)
+✔ P200 settlement survives three real save reopenings and status exposes bank ledger (758.8674ms)
+✔ P200 P199 legacy saves remain valid without retroactive bank settlement (675.343ms)
+✔ P200 bridge/controller operation is available for offline UI without altering TTS Java (38.2868ms)
+✔ P200 four real failed attempts settle as FAILED with zero funds and no wallet reward (872.1437ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11216.085
+

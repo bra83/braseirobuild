@@ -1,13 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
+import {advanceNabatMorning} from './swe02-act1-fixture.mjs';
 import {selectLongArmTrexCarryover,chooseLongArmOldLylekCrew,chooseLongArmOldLylekRoute,proceedLongArmOldLylekBluff,recordLongArmOldLylekRuse,chooseLongArmOldLylekTactics} from '../app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs';
 import {validatePublishedAdventureRuntimeState,publishedAdventureRuntimeModule} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureUaeBridge.mjs';
 import {jewelAuctionStatus,jewelGrandPrixStatus} from '../app/src/main/assets/vtt/js/adventure/jewelOfYavin.mjs';
 const a=getPublishedAdventureAdapter('jewel-of-yavin');
 const arm=getPublishedAdventureAdapter('long-arm-of-the-hutt');
 function lylekReadyWorld(size=1){
- let w=arm.start({}).world;for(const choice of ['dock-ryloth','help-new-meen','travel-lylek-den'])w=arm.advance(w,choice).world;
+ let w=arm.start({}).world;for(const choice of ['dock-ryloth','help-new-meen'])w=arm.advance(w,choice).world;w=advanceNabatMorning(arm,w);
  w=selectLongArmTrexCarryover(w,{history:'confirmed_dead'}).world;
  const crewPcIds=Array.from({length:size},(_,i)=>`p184-pc-${i+1}`),rosterEntries=crewPcIds.map((id,i)=>({id,character:{name:`PC ${i+1}`}}));
  w=chooseLongArmOldLylekCrew(w,{crewPcIds,rosterEntries,playerCount:size}).world;

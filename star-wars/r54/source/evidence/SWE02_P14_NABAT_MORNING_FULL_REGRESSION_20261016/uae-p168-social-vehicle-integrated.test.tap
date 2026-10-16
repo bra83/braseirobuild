@@ -1,0 +1,24 @@
+✔ P168: six Diplomat positions and two Solid Repairs positions are executable, not mere labels (24.8444ms)
+✔ P168: source-backed social talent blocks forged labels and wrong-tree purchases (35.3876ms)
+✔ P168: Scathing Tirade requires real short-range adversary, uses action, persists real strain and nonstacking setback (67.9157ms)
+✔ P168: Scathing refuses long range and does not charge action on validation failure (16.087ms)
+✔ P168: Supreme Scathing costs one voluntary strain and a maneuver instead of action (41.5132ms)
+✔ P168: Inspiring Rhetoric recovers actual companion strain and improves companion dice pool (34.7024ms)
+✔ P168: Inspiring cannot affect a companion without explicit proximity confirmation (16.4337ms)
+✔ P168: improved and supreme versions require separate authentic source purchases (28.8887ms)
+✔ P168: failed storage write rolls back check, costs, adversary/companion state and logs atomically (63.7256ms)
+✔ P168: two Solid Repairs AoR nodes improve successful hull repairs but never heal on failure or forged label (16.5514ms)
+✔ P168: Intense Presence spends one light Destiny and recovers only Presence strain, transactionally (25.5374ms)
+✔ P168: Inspiring bonus cannot reactivate in a later encounter with the same round number (32.5658ms)
+✔ P168: UI bridge exposes social, companion and Intense Presence APIs (41.3548ms)
+✔ P168: invalid social effect markers rejected rather than silently normalized (17.2564ms)
+✔ P168: improved Scathing setback affects NPC combat, social and computer checks, but expires by round (38.7547ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2594.2725
+

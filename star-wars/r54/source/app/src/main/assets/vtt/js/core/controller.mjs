@@ -31,7 +31,7 @@ import { longArmShipSmellSetback,recordLongArmOldLylekLootGrant,recordLongArmOld
 import {beginThwheekInterception,resolveThwheekInterception,thwheekTactics,THWHEEK_ID,THWHEEK_CONTEXT} from '../adventure/swe02ThwheekP239.mjs';
 import {rollSWE02VehicleInitiative} from '../adventure/swe02VehicleInitiative.mjs';
 const SWE02_INITIATIVE_ADVANCE=Symbol('SWE02 initiative round transition');
-import {nabatMarketCatalog,nabatPurchase,requestNabatSpaceportWatch,deliverNabatNightAlert,nabatShipRepair,nabatSafehouseCare} from '../adventure/swe02NabatP240.mjs';
+import {nabatMarketCatalog,nabatPurchase,requestNabatSpaceportWatch,deliverNabatNightAlert,recordNabatMorningResponse,nabatShipRepair,nabatSafehouseCare} from '../adventure/swe02NabatP240.mjs';
 import {nynCriticalCare,nynNegotiate,nynRewardOptions,distributeNynReward,bribeNewMeenThug} from '../adventure/swe02SocialP241.mjs';
 import {adjudicateNewMeenDeaths,coerceNewMeenThugs,openDrombbSafe} from '../adventure/swe02NewMeenP242.mjs';
 import {prepareNewMeenEscort,departNewMeenEscort,arriveNewMeenEscort,abandonNewMeenEscort,armNewMeenMilitia,applyNewMeenMilitiaAbstractRound,returnNewMeenMilitiaWeapon} from '../adventure/swe02EvacuationP243.mjs';
@@ -6015,6 +6015,12 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
     receiveSWE02SpaceportAlert(){
         return this.atomicAction(()=>{
             const out=deliverNabatNightAlert(this.state.world);
+            this.commit('WORLD_UPDATED',{world:out.world});return clone(out.receipt);
+        });
+    }
+    respondSWE02NabatMorning({response}={}){
+        return this.atomicAction(()=>{
+            const out=recordNabatMorningResponse(this.state.world,requireCharacter(this.state.player?.character),{response});
             this.commit('WORLD_UPDATED',{world:out.world});return clone(out.receipt);
         });
     }

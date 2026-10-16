@@ -1,0 +1,17 @@
+✔ P212 official results: Coruscant flickering building and Alderaan nerf herd are distinct Triumph outcomes (7.2382ms)
+✔ P212 Coruscant consumes actual Triumph, applies defense 2 to ranged only, no melee (1308.3384ms)
+✔ P212 Coruscant real movement clears cover without erasing the receipt (961.5854ms)
+✔ P212 Coruscant rejects no Triumph, wrong landscape, duplicate receipt and tampering atomically (1104.4985ms)
+✔ P212 Alderaan nerfs spend a real maneuver, roll Average Stealth and await GM adjudication (995.1193ms)
+✔ P212 Alderaan refuses unconfirmed herd, missing Triumph, and invented stealth faces with atomic rollback (960.7832ms)
+✔ P212 Coruscant defense modifies ACTUAL NPC attack pool by two setback dice (822.3366ms)
+✔ P212 Android version, PT-BR UI and bundle expose the new effects (31.1528ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12323.5624
+

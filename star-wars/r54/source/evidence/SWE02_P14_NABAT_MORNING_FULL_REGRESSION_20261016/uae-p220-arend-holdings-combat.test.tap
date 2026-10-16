@@ -1,0 +1,18 @@
+✔ P220: exact official Arend, K4 and yacht crew profiles with real defenses (13.1983ms)
+✔ P220: cannot conjure Arend at wrong property, without confirmation or before search (1156.1775ms)
+✔ P220: residence starts actual initiative with three independent K4 rivals and six distinct goons (970.4067ms)
+✔ P220: four published security complements and no fabricated extra combatants (3737.1658ms)
+✔ P220: residence sitting room has six goons in its own encounter, never at entrance (776.6919ms)
+✔ P220: Arend nemesis cannot be teleported past guards without GM-confirmed bypass (793.2428ms)
+✔ P220: active guard fight prevents Arend encounter; no automatic outcome, XP, credits or NPC teleport (958.7592ms)
+✔ P220: receipt tampering and derived state tampering rejected after reopening (764.4929ms)
+✔ P220: no P219 receipt, save or Kokoro regression; UI, bridge, bundle and Android version wired (134.8413ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12037.2433
+

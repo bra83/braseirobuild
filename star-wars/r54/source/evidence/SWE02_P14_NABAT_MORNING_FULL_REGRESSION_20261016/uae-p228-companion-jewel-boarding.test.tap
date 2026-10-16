@@ -1,0 +1,17 @@
+✔ P228 actual companion carries sole Jewel aboard existing ship; PJ also confirmed boarded (1237.6195ms)
+✔ P228 refuses unconfirmed companion presence, individual boarding, wrong carrier or phantom (966.7203ms)
+✔ P228 real hyperjump succeeds with confirmed companion aboard, no duplicate Jewel or premature XP (806.7261ms)
+✔ P228 before escape, cannot delete the companion or the physical Jewel without detection (1035.9718ms)
+✔ P228 tampered receipt companion confirmation, ID or inventory is rejected (1035.2938ms)
+✔ P228 three persisted reopens preserve companion board and real inventories (731.7915ms)
+✔ P228 legacy PJ-only boarding remains valid; companion flags cannot be faked (686.3781ms)
+✔ P228 UI, controller, bundle, version and receipt fields are wired (464.1964ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9456.7205
+

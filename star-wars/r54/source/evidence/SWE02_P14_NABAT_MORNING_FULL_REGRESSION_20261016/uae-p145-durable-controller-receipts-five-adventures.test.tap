@@ -1,0 +1,35 @@
+✔ P145 under-black-sun: início e escolha têm recibos causais e retry sem duplicação após reabrir (251.0401ms)
+✔ P145 under-black-sun: teste de perícia só adjudica uma vez, inclusive após reinício (188.8753ms)
+✔ P145 under-black-sun: falha na gravação reverte recibo, UAE, cena e recompensa (164.3786ms)
+✔ P145 beyond-the-rim: início e escolha têm recibos causais e retry sem duplicação após reabrir (147.6711ms)
+✔ P145 beyond-the-rim: teste de perícia só adjudica uma vez, inclusive após reinício (100.8488ms)
+✔ P145 beyond-the-rim: falha na gravação reverte recibo, UAE, cena e recompensa (139.0751ms)
+✔ P145 long-arm-of-the-hutt: início e escolha têm recibos causais e retry sem duplicação após reabrir (169.3293ms)
+✔ P145 long-arm-of-the-hutt: teste de perícia só adjudica uma vez, inclusive após reinício (35.545ms)
+✔ P145 long-arm-of-the-hutt: falha na gravação reverte recibo, UAE, cena e recompensa (144.9945ms)
+✔ P145 jewel-of-yavin: início e escolha têm recibos causais e retry sem duplicação após reabrir (164.3083ms)
+✔ P145 jewel-of-yavin: teste de perícia só adjudica uma vez, inclusive após reinício (28.1428ms)
+✔ P145 jewel-of-yavin: falha na gravação reverte recibo, UAE, cena e recompensa (81.1675ms)
+✔ P145 mask-of-the-pirate-queen: início e escolha têm recibos causais e retry sem duplicação após reabrir (107.4082ms)
+✔ P145 mask-of-the-pirate-queen: teste de perícia só adjudica uma vez, inclusive após reinício (43.4935ms)
+✔ P145 mask-of-the-pirate-queen: falha na gravação reverte recibo, UAE, cena e recompensa (156.4983ms)
+✔ P145: encontro publicado e encerramento preservam causalidade e não recuperam Tensão duas vezes (193.5371ms)
+✔ P145: corrupção do livro de recibos impede novas ações e não altera armazenamento (42.8038ms)
+✔ P145: idempotency key malformada ou reutilizada em outra operação é rejeitada (31.975ms)
+✔ P145: bridge Android expõe execução idempotente e reabertura não regrava storage (198.3791ms)
+✔ P145: importação de save adulterado é bloqueada antes da normalização do mundo (68.2351ms)
+✔ P145 under-black-sun: três reaberturas mantêm a prova causal sem reexecutar ação (130.0669ms)
+✔ P145 beyond-the-rim: três reaberturas mantêm a prova causal sem reexecutar ação (105.2893ms)
+✔ P145 long-arm-of-the-hutt: três reaberturas mantêm a prova causal sem reexecutar ação (123.3505ms)
+✔ P145 jewel-of-yavin: três reaberturas mantêm a prova causal sem reexecutar ação (84.9925ms)
+✔ P145 mask-of-the-pirate-queen: três reaberturas mantêm a prova causal sem reexecutar ação (122.6258ms)
+✔ P145: recibos anteriores não podem ser reaplicados após reiniciar a mesma aventura (114.9132ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6132.3742
+

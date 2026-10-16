@@ -1,0 +1,34 @@
+✔ P178 five distinct AoR source slots have actual consumers (19.2298ms)
+✔ P178 MANO DE SANTO substitutes the live dice pool, once/session, survives three reopens (110.4474ms)
+✔ P178 MANO DE SANTO refuses unowned talent and rolls back on failed save (45.3422ms)
+✔ P178 INGENIOSO substitutes the live dice pool, once/session, survives three reopens (33.6631ms)
+✔ P178 INGENIOSO refuses unowned talent and rolls back on failed save (65.9486ms)
+✔ P178 SOLUCIÓN IMPROVISADA substitutes the live dice pool, once/session, survives three reopens (38.501ms)
+✔ P178 SOLUCIÓN IMPROVISADA refuses unowned talent and rolls back on failed save (54.7031ms)
+✔ P178 rejects multiple characteristic substitutions without charging actions (34.3412ms)
+✔ P178 Unstoppable suppresses an actual critical total of 1, including immediate strain (48.5616ms)
+✔ P178 Unstoppable does not suppress total above 1 or unowned (22.0948ms)
+✔ P178 Crippling Blow changes real attack difficulty and wounds real target (100.0581ms)
+✔ P178 Crippling Blow rejects unowned and phantom targets atomically (28.1324ms)
+✔ P178 P177 idempotency cannot silently accept a different GM-approved fact (29.0542ms)
+✔ P178 offline bridge includes canonical consumers (35.4952ms)
+✔ P178 under-black-sun attribute use is persistent and adventure state unchanged after 3 reopens (86.9906ms)
+✔ P178 beyond-the-rim attribute use is persistent and adventure state unchanged after 3 reopens (63.6011ms)
+✔ P178 long-arm-of-the-hutt attribute use is persistent and adventure state unchanged after 3 reopens (194.3026ms)
+✔ P178 jewel-of-yavin attribute use is persistent and adventure state unchanged after 3 reopens (189.6433ms)
+✔ P178 mask-of-the-pirate-queen attribute use is persistent and adventure state unchanged after 3 reopens (151.8931ms)
+✔ P178 Form on Me propagates real Gain the Advantage to a confirmed nearby allied ship (50.6102ms)
+✔ P178 Form on Me rejects phantom, unconfirmed and unowned allied ships atomically (88.308ms)
+✔ P178 GM confirms only registered formation allies and rolls back on storage failure (51.993ms)
+✔ P178 Crippling Blow inflicts actual NPC strain on movement and not on idle turns (21.1766ms)
+✔ P178 forged critical movement and formation references rejected on reload (20.3714ms)
+✔ P178 Unstoppable wound-threshold crossing does not fabricate criticalAdded (10.8775ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4787.4756
+

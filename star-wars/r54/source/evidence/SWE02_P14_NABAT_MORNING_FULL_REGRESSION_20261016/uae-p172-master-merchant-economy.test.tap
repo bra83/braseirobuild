@@ -1,0 +1,19 @@
+✔ P172: source-backed merchant slot becomes mechanically active, not a label alias (37.9386ms)
+✔ P172: successful sale adds 25% base price plus independent Wheel and Deal 10%; consumes exactly 2 strain (22.0706ms)
+✔ P172: buy with a successful Negotiation check deducts 25% and spends 2 strain atomically (11.0153ms)
+✔ P172: failed negotiation spends the declared strain without granting a discounted item (5.8333ms)
+✔ P172: no activation preserves old sales and acquisitions byte-for-byte in player resources (11.0158ms)
+✔ P172: invalid activation {"masterMerchant":true,"negotiationSucceeded":false} never grants credits (9.0626ms)
+✔ P172: invalid activation {"masterMerchant":"true","negotiationSucceeded":true} never grants credits (7.9062ms)
+✔ P172: invalid activation {"masterMerchant":true,"negotiationSucceeded":"true"} never grants credits (6.0245ms)
+✔ P172: over-threshold voluntary strain rejected without losing the item (8.3194ms)
+✔ P172: bridge quotes authorized sale and reports master merchant without modifying save (11.3131ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2592.8096
+

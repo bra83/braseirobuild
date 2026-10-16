@@ -1781,6 +1781,8 @@ completeMerchantAcquisition(options={}){
         const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.receiveSWE02SpaceportAlert()));}catch(e){return fail('SWE02_NABAT_FAILED',messageOf(e));}
     }
+    respondSWE02NabatMorning(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.respondSWE02NabatMorning(options??{})));}catch(e){return fail('SWE02_NABAT_FAILED',messageOf(e));}}
     repairSWE02KraytFangAtNabat(){
         const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.repairSWE02KraytFangAtNabat()));}catch(e){return fail('SWE02_NABAT_FAILED',messageOf(e));}

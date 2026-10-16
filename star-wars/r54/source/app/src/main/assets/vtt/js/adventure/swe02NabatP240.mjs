@@ -5,6 +5,7 @@ import {equipmentCatalog} from '../rules/equipmentCatalog.mjs';
 import {healWounds,recoverStrain} from '../rules/health.mjs';
 const clone=v=>structuredClone(v);
 export const NABAT_SOURCE=Object.freeze({productCode:'SWE02',printedPages:[13,14],authority:'OFFICIAL_PDF_TEXT_VERIFIED'});
+const NABAT_P14_SOURCE=Object.freeze({productCode:'SWE02',printedPage:14,authority:'OFFICIAL_PDF_TEXT_VERIFIED'});
 const SCENES=new Set(['nabat-arrival','nabat-contact','krayt-fang-ground-inspection']);
 function active(world,allowed=SCENES){
  const p=world?.publishedAdventure;
@@ -56,10 +57,22 @@ export function requestNabatSpaceportWatch(world){
 export function deliverNabatNightAlert(world){
  const w=clone(world),p=active(w,new Set(['nabat-contact']));
  if(!p.flags?.nabatSpaceportWatchRequested)throw Error('SWE02: nenhum pedido de aviso feito ao porto.');
+ if(!p.flags?.nabatNynConversationClosed&&!(p.socialReceipts||[]).some(x=>['NYN_NEGOTIATION','NYN_REWARDS_DECLINED'].includes(x.type)))
+  throw Error('SWE02 p.14: o aviso chega depois da conversa com Nyn.');
  if(p.flags.nabatSpaceportAlertDelivered)throw Error('SWE02: aviso já entregue.');
  p.flags={...p.flags,nabatSpaceportAlertDelivered:true};
  const r=receipt(p,'TATOOINE_VISITORS_ALERT',{visitors:['human','gand'],arrivalLeadHours:2});
  return {world:w,receipt:r};
+}
+export function recordNabatMorningResponse(world,character,{response}={}){
+ const w=clone(world),p=active(w,new Set(['nabat-morning-departure'])),who=key(character);
+ if(!who)throw Error('SWE02 p.14: identifique o PC que responde a Nyn.');
+ if(!p.nabatReceipts?.some(x=>x.type==='NABAT_MORNING_BRIEFING'))throw Error('SWE02 p.14: a conversa da manhã ainda não foi apresentada.');
+ if(!['same_hutt','different_problem','uncertain'].includes(response))throw Error('SWE02 p.14: resposta de história inválida.');
+ if((p.nabatReceipts||[]).some(x=>x.type==='NABAT_MORNING_RESPONSE'))throw Error('SWE02 p.14: resposta à conversa da manhã já registrada.');
+ const r={type:'NABAT_MORNING_RESPONSE',nodeId:p.currentNodeId,characterKey:who,response,source:NABAT_P14_SOURCE};
+ p.nabatReceipts=[...(p.nabatReceipts||[]),r];p.flags={...(p.flags||{}),nabatMorningResponseRecorded:true};
+ return {world:w,receipt:clone(r)};
 }
 export function nabatShipRepair(world,vehicles){
  const w=clone(world),v=clone(vehicles),p=active(w,new Set(['nabat-arrival']));
@@ -103,7 +116,9 @@ export function validateNabat(p){
  if(f.nabatSpaceportAlertDelivered&&!f.nabatSpaceportWatchRequested)throw Error('SWE02: alerta sem solicitação prévia.');
  const catalog=nabatMarketCatalog();
  for(const x of rr){
-  if(x.source?.productCode!=='SWE02'||x.source?.printedPages?.[0]!==13||!SCENES.has(x.nodeId))
+  const validP13=x.source?.printedPages?.[0]===13&&SCENES.has(x.nodeId);
+  const validP14=x.source?.printedPage===14&&['nabat-morning-departure','lylek-den-ambush'].includes(x.nodeId);
+  if(x.source?.productCode!=='SWE02'||(!validP13&&!validP14))
    throw Error('SWE02: recibo de Nabat sem proveniência.');
   if(x.type==='MARKET_PURCHASE'){
    const item=catalog.find(y=>y.id===x.itemId);
@@ -117,8 +132,24 @@ export function validateNabat(p){
    throw Error('SWE02: cuidado médico inválido.');
   if(x.type==='TATOOINE_VISITORS_ALERT'&&(x.nodeId!=='nabat-contact'||x.arrivalLeadHours!==2))
    throw Error('SWE02: aviso do porto adulterado.');
+  if(x.type==='NABAT_MORNING_BRIEFING'&&(x.nodeId!=='nabat-morning-departure'||x.serviceTunnel!==true||x.speederProgrammedForRyllMines!==true||x.buraTravelsWithParty!==true||!['HUMAN_AND_GAND_REPORTED','NO_PRIOR_VISITOR_REPORT'].includes(x.visitorReport)))
+   throw Error('SWE02 p.14: briefing matinal inválido.');
+  if(x.type==='NABAT_MORNING_RESPONSE'&&(x.nodeId!=='nabat-morning-departure'||!x.characterKey||!['same_hutt','different_problem','uncertain'].includes(x.response)||!one('NABAT_MORNING_BRIEFING').length))
+   throw Error('SWE02 p.14: resposta matinal inválida.');
+  if(x.type==='NABAT_MORNING_DEPARTURE'&&(x.nodeId!=='nabat-morning-departure'||!one('NABAT_MORNING_RESPONSE').length||x.serviceTunnel!==true||x.speederProgrammedForRyllMines!==true))
+   throw Error('SWE02 p.14: saída matinal inválida.');
  }
+ if(rr.filter(x=>x.type==='NABAT_MORNING_BRIEFING').length>1||rr.filter(x=>x.type==='NABAT_MORNING_RESPONSE').length>1||rr.filter(x=>x.type==='NABAT_MORNING_DEPARTURE').length>1)
+  throw Error('SWE02 p.14: etapa matinal duplicada.');
+ const response=one('NABAT_MORNING_RESPONSE'),departure=one('NABAT_MORNING_DEPARTURE');
+ if(Boolean(f.nabatMorningResponseRecorded)!==Boolean(response.length)||Boolean(f.nabatMorningDepartureRecorded)!==Boolean(departure.length))
+  throw Error('SWE02 p.14: indicador da manhã sem recibo.');
  const care=one('SAFEHOUSE_CARE');
  if(new Set(care.map(x=>x.characterKey)).size!==care.length)throw Error('SWE02: atendimento médico duplicado.');
+ const briefing=one('NABAT_MORNING_BRIEFING');
+ if(Boolean(f.nabatMorningBriefingReady)!==Boolean(briefing.length)||Boolean(f.nabatMorningResponseRecorded)!==Boolean(response.length)||Boolean(f.nabatMorningDepartureRecorded)!==Boolean(departure.length))
+  throw Error('SWE02 p.14: etapa da manhã sem recibo correspondente.');
+ if(briefing.length&&briefing[0].visitorReport!==(f.nabatSpaceportAlertDelivered?'HUMAN_AND_GAND_REPORTED':'NO_PRIOR_VISITOR_REPORT'))
+  throw Error('SWE02 p.14: relato do espaçoporto não corresponde ao aviso solicitado.');
  return true;
 }

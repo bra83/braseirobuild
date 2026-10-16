@@ -1,0 +1,13 @@
+✔ P56: painel publicado renderiza timeline compacta a partir do sceneJournal público (2.5989ms)
+✔ P56: timeline mostra somente choiceLabel e destino já projetados, sem effects internos (0.7205ms)
+✔ P56: timeline mobile tem truncamento e tipografia compacta (1.2511ms)
+✔ P56: journal fornece títulos somente das cenas visitadas para a timeline (17.4158ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 627.4785
+

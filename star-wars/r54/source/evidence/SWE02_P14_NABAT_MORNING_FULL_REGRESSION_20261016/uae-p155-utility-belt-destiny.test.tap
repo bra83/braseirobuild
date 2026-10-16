@@ -1,0 +1,25 @@
+✔ P155: both source-backed AoR Utility Belt slots have actual controller and UI consumer (75.3346ms)
+✔ P155: catalog filters rarity, encumbrance, restricted items and non-single-use weapons (30.6393ms)
+✔ P155: glow_rod consumes exactly one light Destiny, adds gear, reopens and replays without writes (25.6015ms)
+✔ P155: stun_grenade consumes exactly one light Destiny, adds weapon, reopens and replays without writes (15.8482ms)
+✔ P155: rejects unauthorized heavy_blaster_pistol with light=2, rank=1 without mutations (8.9548ms)
+✔ P155: rejects unauthorized medpac with light=2, rank=1 without mutations (9.0271ms)
+✔ P155: rejects unauthorized tool_kit with light=2, rank=1 without mutations (8.9044ms)
+✔ P155: rejects unauthorized blaster_pistol with light=2, rank=1 without mutations (9.8063ms)
+✔ P155: rejects unauthorized unknown with light=2, rank=1 without mutations (11.521ms)
+✔ P155: rejects unauthorized glow_rod with light=0, rank=1 without mutations (27.2031ms)
+✔ P155: rejects unauthorized glow_rod with light=2, rank=0 without mutations (12.076ms)
+✔ P155: invalid and missing action IDs fail closed (6.073ms)
+✔ P155: two legitimate activations spend two points, produce two independently owned assets (17.0279ms)
+✔ P155: failing storage rolls back both inventory and Destiny (11.6973ms)
+✔ P155: unsupported foreign talent label cannot authorize Utility Belt (34.4941ms)
+✔ P155: tampered duplicate or malformed Utility Belt receipts cannot authorize a replay (40.0063ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2850.214
+

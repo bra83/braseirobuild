@@ -1,0 +1,16 @@
+✔ P225 failed roll generates pending patrol, not invented NPCs or damage (1466.3528ms)
+✔ P225 requires real failure, physical presence, distinct guards, GM faction and real range/count (1104.6237ms)
+✔ P225 GM-confirmed physical Wing Guard uses official minion profile and real initiative (975.316ms)
+✔ P225 real encounter closes into persistent published encounter history without replay (1066.3628ms)
+✔ P225 anti-fraud replay detects modified count, source, proof, chronology and derived state (866.5892ms)
+✔ P225 positive check never creates Wing Guard, preserves clock and saves (1092.8324ms)
+✔ P225 Android PT-BR UI, bridge, bundle, source and version integrated without Kokoro changes (180.4993ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10200.2213
+

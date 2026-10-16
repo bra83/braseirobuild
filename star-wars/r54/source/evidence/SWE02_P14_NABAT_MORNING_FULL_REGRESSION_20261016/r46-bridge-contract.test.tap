@@ -1,0 +1,12 @@
+✔ R54 bridge contract: shell interface and BraseiroUiBridge implementation are exact peers (30.9628ms)
+✔ R46 bridge contract: every gameBridgeClient import used by shell files is actually exported (36.3036ms)
+✔ R46 bridge contract: public bridge expõe perfil compartilhado sem comandos Duty/AoR crus na shell (6.0528ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1213.1568
+

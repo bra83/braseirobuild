@@ -36,6 +36,7 @@ export function nynNegotiate(world,character,{method='charm',rng=Math.random}={}
  // Triumph = blaster rifle; two Threat = defective gear. No fabricated combat stats.
  const grants=success?{grenadeClaim:check.netAdvantage>=1,armor:check.netAdvantage>=2,rifleClaim:check.triumph>=1,defective:check.netAdvantage<=-2}:{grenadeClaim:false,armor:false,rifleClaim:false,defective:false};
  const r=receipt(p,'NYN_NEGOTIATION',14,{characterKey:who,method,skillKey,difficulty,check,grants});
+ p.flags={...(p.flags||{}),nabatNynConversationClosed:true};
  return {world:w,character:c,receipt:r};
 }
 export function nynRewardOptions(world,roster){
@@ -73,6 +74,14 @@ export function distributeNynReward(world,character,{characterId,itemId}={}){
  const r=receipt(p,'NYN_GEAR_DISTRIBUTION',14,{characterKey:id(c),characterId:who,itemId,ownedAssetId:assetId,profileSource:clone(profile.source)});
  return {world:w,character:c,receipt:r};
 }
+export function declineNynRewards(world){
+ const w=clone(world),p=active(w,'nabat-contact');
+ if((p.socialReceipts||[]).some(r=>['NYN_NEGOTIATION','NYN_REWARDS_DECLINED'].includes(r.type)))
+  throw Error('SWE02: conversa de recompensas com Nyn já foi concluída.');
+ const r=receipt(p,'NYN_REWARDS_DECLINED',14,{conversationClosed:true,additionalRewardsRequested:false});
+ p.flags={...(p.flags||{}),nabatNynConversationClosed:true};
+ return {world:w,receipt:r};
+}
 export function bribeNewMeenThug(world,character,{credits=500,rng=Math.random}={}){
  const w=clone(world),c=clone(character),p=active(w,'drombb-cantina'),who=id(c);
  if(p.activeEncounterId||(p.encounterHistory||[]).some(r=>r.encounterId==='laoth-drombb-cantina'&&r.outcome))throw Error('SWE02: negociação deve ocorrer antes do combate e de seu desfecho.');
@@ -91,6 +100,9 @@ export function remainingDrombbThugs(p){return (p?.socialReceipts||[]).filter(r=
 export function validateSWE02Social(p){if(p?.id!=='long-arm-of-the-hutt')return true;
  const rr=p.socialReceipts||[];if(!Array.isArray(rr))throw Error('SWE02: recibos sociais inválidos.');
  if(rr.filter(r=>r.type==='NYN_NEGOTIATION').length>1)throw Error('SWE02: Nyn negociada duas vezes.');
+ if(rr.filter(r=>r.type==='NYN_REWARDS_DECLINED').length>1||rr.some(r=>r.type==='NYN_REWARDS_DECLINED')&&rr.some(r=>r.type==='NYN_NEGOTIATION'))throw Error('SWE02 p.14: conversa de Nyn fechada ou negociada mais de uma vez.');
+ const conversationClosed=rr.some(r=>['NYN_NEGOTIATION','NYN_REWARDS_DECLINED'].includes(r.type));
+ if(p.flags?.nabatNynConversationClosed&&!conversationClosed)throw Error('SWE02 p.14: conversa encerrada sem recibo.');
  const crit=new Set();let bribed=0;
  for(const r of rr){if(r.source?.productCode!=='SWE02'||![13,14,23].includes(r.source.printedPage))throw Error('SWE02: recibo social sem fonte oficial.');
   if(r.type==='NYN_CRITICAL_ATTEMPT'){
@@ -101,6 +113,9 @@ export function validateSWE02Social(p){if(p?.id!=='long-arm-of-the-hutt')return 
    validateCheck(r.check,{difficulty:r.difficulty,challenge:0,boost:0,setback:0});
    const g=r.check.success?{grenadeClaim:r.check.netAdvantage>=1,armor:r.check.netAdvantage>=2,rifleClaim:r.check.triumph>=1,defective:r.check.netAdvantage<=-2}:{grenadeClaim:false,armor:false,rifleClaim:false,defective:false};
    if(JSON.stringify(g)!==JSON.stringify(r.grants)||r.armorAssetId||r.pendingWeaponProfileCertification)throw Error('SWE02: recompensa de Nyn adulterada.');
+  }else if(r.type==='NYN_REWARDS_DECLINED'){
+   if(r.nodeId!=='nabat-contact'||r.source.printedPage!==14||r.conversationClosed!==true||r.additionalRewardsRequested!==false)
+    throw Error('SWE02 p.14: encerramento da conversa com Nyn inválido.');
   }else if(r.type==='NYN_GEAR_DISTRIBUTION'){
    const n=rr.find(x=>x.type==='NYN_NEGOTIATION'),allowed={frag_grenade:n?.grants?.grenadeClaim,stun_grenade:n?.grants?.grenadeClaim,padded_armor:n?.grants?.armor,blaster_rifle:n?.grants?.rifleClaim};
    if(r.nodeId!=='nabat-contact'||r.source.printedPage!==14||!n||!r.characterId||!r.characterKey||!allowed[r.itemId]||!r.ownedAssetId)

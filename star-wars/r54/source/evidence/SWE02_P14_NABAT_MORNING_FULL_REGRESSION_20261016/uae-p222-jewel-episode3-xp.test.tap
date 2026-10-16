@@ -1,0 +1,15 @@
+✔ P222 official Episode III p.95 rewards are 10/5/15, no speculative cloud car or escape reward (4.4732ms)
+✔ P222 Aris cannot grant PE before a real alliance or without GM approval (1089.971ms)
+✔ P222 real Aris milestone grants exactly 5 to actual PC, persists across 3 reopens and blocks double awards (887.006ms)
+✔ P222 tampered XP amount, proof, PC, faces of receipt and derived state rejected (798.3155ms)
+✔ P222 Arend XP cannot be granted merely because a GM recorded his fate; requires defeated real encounter (662.9543ms)
+✔ P222 bridge, controller, Android UI, offline bundle, save validator and version are connected (178.5466ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6884.2251
+

@@ -1,0 +1,13 @@
+✔ P79 physically insets WebView inside system bars (2.8721ms)
+✔ P79 loads a single coalesced global DOM scheduler before repair scripts (2.306ms)
+✔ P79 uses the optimized mobile galaxy map (1.9084ms)
+✔ P79 keeps P78 gameplay/TTS fixes while bumping version (1.4735ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1230.5036
+

@@ -1,0 +1,16 @@
+✔ P108: Esquiva sofre Tensão e aprimora exatamente o próximo ataque recebido (47.3903ms)
+✔ P108: Mira Precisa paga manobra/Tensão e reduz defesa do alvo no próximo ataque (36.6438ms)
+✔ P108: Tiro de Precisão estende alcance e aprimora dificuldade por banda (18.2669ms)
+✔ P108: Golpe Direcionado só gasta Destiny após acerto e soma Agilidade (24.9743ms)
+✔ P108: Anatomia só gasta Destiny após acerto e soma Intelecto (27.0007ms)
+✔ P108: Precisão Letal usa a perícia escolhida na compra e soma ranks ao dano (81.3753ms)
+✔ P108: bridge expõe todas as novas ações e R46 contém bloco P108 (8.4517ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2340.8833
+

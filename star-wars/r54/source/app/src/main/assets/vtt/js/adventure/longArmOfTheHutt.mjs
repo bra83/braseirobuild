@@ -4,8 +4,8 @@ import { SHIP_CHECKS,shipCheckAvailable,shipNoisePool,shipCheckPool,recordShipCh
   EOTE_KNOWLEDGE_SKILL_OPTIONS,recordShipObservation,recordShipRoomDiscovery,recordBuraConversation,adjudicateShipTransitExtraDuration,
   recordShipCargoTransfer,shipCargoTransferOptions } from './swe02KraytFangP238.mjs';
 import {validateThwheek} from './swe02ThwheekP239.mjs';
-import {validateNabat} from './swe02NabatP240.mjs';
-import {validateSWE02Social,remainingDrombbThugs} from './swe02SocialP241.mjs';
+import {validateNabat,deliverNabatNightAlert} from './swe02NabatP240.mjs';
+import {validateSWE02Social,declineNynRewards,remainingDrombbThugs} from './swe02SocialP241.mjs';
 import {validateNewMeenP242,validateNewMeenSafe} from './swe02NewMeenP242.mjs';
 import {validateNewMeenP243} from './swe02EvacuationP243.mjs';
 import {validateSWE02Act3,swe02Act3Consequences} from './swe02Act3Resolution.mjs';
@@ -142,7 +142,15 @@ export const LONG_ARM_OF_THE_HUTT = Object.freeze({
       summary:'Nyn e B’ura B’an procuram ajuda para os mineiros de New Meen.',
       narration:'Entre passagens subterrâneas, trabalhadores deslocados descrevem a pressão crescente sobre as minas de ryll.',
       visibleNpcIds:[NPC.nyn,NPC.bura],checks:[{skill:'Charme',difficulty:'Média',purpose:'conquistar a confiança dos representantes twi’lek'}],
-      choices:[{id:'travel-lylek-den',label:'Viajar para New Meen',to:'lylek-den-ambush'}]
+      choices:[{id:'travel-lylek-den',label:'Descansar no abrigo de Nyn durante a noite',to:'nabat-morning-departure'}]
+    },
+    'nabat-morning-departure': {
+      episode:1,title:'Manhã em Nabat',locationId:LOC.nabat,
+      summary:'SWE02 p.14: Nyn acompanha os PCs e B’ura por um túnel de serviço até um speeder programado para as minas de ryll.',
+      narration:'Ao amanhecer, Nyn conduz vocês e B’ura B’an por uma passagem estreita sob as muralhas. Um speeder aguarda com a rota para as minas programada. Ela pede que devolvam B’ura rapidamente para ajudar o moral dos mineiros e diz que podem conversar sobre negócios quando retomarem a operação. Pergunta se vocês também têm problemas com o Hutt que pressiona os Twi’leks. Se o aviso noturno do espaçoporto chegou, a fonte informou que um humano e um Gand vindos de Tatooine negociaram a guarda da nave duas horas antes.',
+      visibleNpcIds:[NPC.nyn,NPC.bura],checks:[],choices:[
+        {id:'nabat-defer-favor',label:'Adiar a resposta e permanecer em Nabat',to:'nabat-morning-departure'},
+        {id:'nabat-depart-for-mines',label:'Responder a Nyn e partir no speeder para New Meen',to:'lylek-den-ambush',condition:'flag:nabatMorningResponseRecorded'}]
     },
     'lylek-den-ambush': {
       episode:1,title:'Emboscada no covil de lylek',locationId:LOC.lylekDen,
@@ -533,6 +541,8 @@ function conditionOk(choice, progress) {
   if (c.startsWith('visited:')) return progress.visitedNodeIds.includes(c.slice(8));
   if (c==='flag:shipDepartureVerified') return Boolean(progress.flags?.shipCoursePlotted&&progress.flags?.shipBuraFound);
   if (c==='flag:shipThwheekCombatStarted') return progress.currentNodeId==='thwheek-orbit'&&progress.flags?.shipThwheekInterceptionRequired===true&&!progress.flags?.shipThwheekCombatStarted;
+  if (c==='flag:nabatNynConversationClosed') return Boolean(progress.flags?.nabatNynConversationClosed)||Boolean((progress.socialReceipts||[]).some(r=>['NYN_NEGOTIATION','NYN_REWARDS_DECLINED'].includes(r.type)));
+  if (c==='receipt:nabatMorningResponse') return (progress.nabatReceipts||[]).some(r=>r.type==='NABAT_MORNING_RESPONSE');
   if (c.startsWith('flag:')) return Boolean(progress.flags?.[c.slice(5)]);
   if (c.startsWith('!flag:')) return !Boolean(progress.flags?.[c.slice(6)]);
   if (c.startsWith('encounter-resolved:')) return (progress.encounterHistory || []).some(x => x.encounterId === c.slice(19) && x.outcome === 'adversaries_defeated');
@@ -719,6 +729,29 @@ export function advanceLongArmOfTheHutt(world, choiceId) {
   if(['teemo-peaceful-ending','palace-jabba-resolution','palace-comms-peaceful-ending'].includes(choiceId)&&!p.act3Resolution)throw Error('SWE02: acordo ou intervenção de Jabba não comprovados.');
   if(choiceId==='ship-thwheek-to-nabat'&&!p.shipThwheekReceipt)throw Error('SWE02: sem prova de combate espacial.');
   if (p.activeEncounterId && ['new-meen-night-raid','drombb-cantina','teemo-showdown','gantry-aa7'].includes(p.currentNodeId)) throw new Error('Encerre o combate de New Meen antes de sair desta cena.');
+  if(p.currentNodeId==='nabat-contact'&&choiceId==='travel-lylek-den'){
+    if(!p.flags?.nabatNynConversationClosed&&!(p.socialReceipts||[]).some(r=>['NYN_NEGOTIATION','NYN_REWARDS_DECLINED'].includes(r.type))){
+      const closed=declineNynRewards(next).world.publishedAdventure;
+      for(const key of Object.keys(p))delete p[key];Object.assign(p,closed);
+    }
+    p.flags={...(p.flags||{}),nabatNynConversationClosed:true};
+    if(p.flags?.nabatSpaceportWatchRequested&&!p.flags?.nabatSpaceportAlertDelivered){
+      const delivered=deliverNabatNightAlert(next).world.publishedAdventure;
+      for(const key of Object.keys(p))delete p[key];Object.assign(p,delivered);
+    }
+    p.nabatReceipts=[...(p.nabatReceipts||[]),{type:'NABAT_MORNING_BRIEFING',nodeId:'nabat-morning-departure',
+      serviceTunnel:true,speederProgrammedForRyllMines:true,buraTravelsWithParty:true,
+      visitorReport:p.flags?.nabatSpaceportAlertDelivered?'HUMAN_AND_GAND_REPORTED':'NO_PRIOR_VISITOR_REPORT',
+      source:{productCode:'SWE02',printedPage:14,authority:'OFFICIAL_PDF_TEXT_VERIFIED'}}];
+    p.flags={...(p.flags||{}),nabatMorningBriefingReady:true};
+  }
+  if(p.currentNodeId==='nabat-morning-departure'&&choiceId==='nabat-depart-for-mines'){
+    if(!(p.nabatReceipts||[]).some(r=>r.type==='NABAT_MORNING_RESPONSE'))throw Error('SWE02 p.14: registre a resposta a Nyn antes de partir.');
+    p.nabatReceipts=[...(p.nabatReceipts||[]),{type:'NABAT_MORNING_DEPARTURE',nodeId:p.currentNodeId,
+      serviceTunnel:true,speederProgrammedForRyllMines:true,buraTravelsWithParty:true,
+      source:{productCode:'SWE02',printedPage:14,authority:'OFFICIAL_PDF_TEXT_VERIFIED'}}];
+    p.flags={...(p.flags||{}),nabatMorningDepartureRecorded:true};
+  }
   p.flags = { ...(p.flags || {}), ...(choice.effects || {}) };
   recordGeonosisChoice(p,choiceId,p.currentNodeId);
   if(choiceId==='dock-ryloth'||choiceId==='finish-ship-inspection')recordShipChoice(p,'ship-legacy-landing');

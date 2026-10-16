@@ -1,0 +1,13 @@
+✔ finishCombat grava desfecho causal, resolve hook e cria aftermath uma única vez (329.1371ms)
+✔ save/reopen preserva histórico do encontro e aftermath ativo (130.2903ms)
+✔ Mestre fecha aftermath por operação estruturada e rollback protege estado inválido (121.6703ms)
+✔ PNPC persistente incapacitado no combate também deixa de parecer ativo no mundo (87.5665ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2414.0899
+

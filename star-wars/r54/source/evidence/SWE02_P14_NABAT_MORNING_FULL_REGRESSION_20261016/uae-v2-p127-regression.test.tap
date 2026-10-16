@@ -1,0 +1,18 @@
+✔ P127 UAE: cadeia evento → trigger → objetivo → consequência em transição atômica (53.1499ms)
+✔ P127 UAE: snapshot JSON restaura efeitos sem reaplicar gatilhos e sem reabrir objetivo (49.7233ms)
+✔ P127 UAE: escolha inválida e erro no efeito não deixam mutações parciais (5.2358ms)
+✔ P127 UAE: desconhecido não libera escolhas e lógica all/any não permite bypass (2.5338ms)
+✔ P127 UAE: relógio concluído dispara uma única vez e resolve consequência (9.3404ms)
+✔ P127 UAE: ciclo de gatilhos termina com limite auditável sem travamento (4.6552ms)
+✔ P127 UAE: validação rejeita links quebrados, IDs duplicados e gatilhos malformados (1.2254ms)
+✔ P127 UAE: migração é idempotente, impede cruzamento de aventura e snapshot futuro (3.0273ms)
+✔ P127 UAE: as cinco aventuras publicadas preservam grafo íntegro, adaptadores e restauração (47.9871ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2612.5667
+

@@ -1,0 +1,14 @@
+✔ grupo de lacaios ganha um grau de perícia por membro além do primeiro (23.9283ms)
+✔ Ferimentos reduzem o grupo e sua perícia automaticamente (2.7977ms)
+✔ lacaios e rivais convertem Tensão em Ferimentos (1.2645ms)
+✔ crítico em grupo de lacaios elimina exatamente um membro ainda ativo (1.8844ms)
+✔ oficial imperial é rival com Adversário 1 e limiar 15 (0.9439ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 717.2737
+

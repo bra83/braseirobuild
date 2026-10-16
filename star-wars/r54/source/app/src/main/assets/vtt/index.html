@@ -592,6 +592,14 @@ ROTA PONTILHADA: retirada dos caçadores · SWE02 p.16</pre>
               <select id="swe02NabatItem"><option value="">Selecione um item do catálogo</option></select>
               <input id="swe02NabatQuantity" type="number" min="1" max="10" value="1" />
               <button id="swe02NabatBuy">Comprar em Nabat</button>
+              <button id="swe02NabatRest">Concluir a conversa e descansar até a manhã</button>
+              <div id="swe02NabatMorning" hidden>
+                <p id="swe02NabatMorningBriefing"></p>
+                <label for="swe02NabatHuttResponse">Resposta a Nyn sobre a relação com o Hutt</label>
+                <select id="swe02NabatHuttResponse"><option value="same_hutt">É o mesmo Hutt que nos persegue</option><option value="different_problem">Nossos problemas são outros</option><option value="uncertain">Ainda não sabemos</option></select>
+                <button id="swe02NabatMorningRespond">Registrar resposta</button>
+                <button id="swe02NabatDepart">Partir pelo túnel de serviço no speeder</button>
+              </div>
               <p id="swe02NabatFeedback" class="feedback"></p>
               <p>As concessões são distribuídas a PCs identificados, com perfis de combate da EotE Core.</p>
             </div><div id="swe02NewMeenSocial" hidden>

@@ -1,0 +1,25 @@
+✔ P190 R3-8C Streetwise/Negotiation dice and 500-1000 GM price are real and durable (190.7926ms)
+✔ P190 Naboka has source-backed Intellect 4/Computers 5 and minimum 2000 (74.303ms)
+✔ P190 GM price outside official NPC bounds is rejected atomically (166.1083ms)
+✔ P190 failed Streetwise search does not pay or create hired slicer (58.5051ms)
+✔ P190 no GM confirmation or Port Town contact: atomic rejection (32.0275ms)
+✔ P190 insufficient funds prevents a hire without committing dice/credits (37.7635ms)
+✔ P190 duplicate hire or reused action ID cannot double debit (42.5094ms)
+✔ P190 hired slicer actually rolls bank Computers 3/3 and retains NPC identity in receipt (1039.007ms)
+✔ P190 Naboka uses 4/5 instead of the player stats for slicing (976.0054ms)
+✔ P190 NPC slicing without prior hiring is rejected without mutation (803.4623ms)
+✔ P190 forged hire price, NPC stats, rolls, identity or missing hire receipt fail status (1104.7613ms)
+✔ P190 three reopens preserve hire payment, source stats and bank receipt (966.1245ms)
+✔ P190 P189 legacy saves without hired slicers remain valid (1312.5277ms)
+✔ P190 no hiring after slicing started and NPC never applies to G-100 capture (1438.0989ms)
+✔ P190 Android WebView bridge and PT-BR panel expose hiring and explicit NPC slicing choice (237.3163ms)
+✔ P190 receipt cannot pretend an R3 negotiation took place after failed Streetwise discovery (47.8482ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11543.9534
+

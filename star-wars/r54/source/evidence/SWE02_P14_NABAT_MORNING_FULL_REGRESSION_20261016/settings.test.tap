@@ -1,0 +1,11 @@
+✔ configuração do Mestre remoto persiste somente endpoint, sem campo de chave (29.177ms)
+✔ modo local remove endpoint remoto persistido (13.8019ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2629.6756
+

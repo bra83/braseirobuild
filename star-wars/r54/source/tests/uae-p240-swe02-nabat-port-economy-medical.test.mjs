@@ -65,9 +65,31 @@ test('P240 p.13–14: port watch must be requested, alert only after Nyn meeting
 test('P240 p.13–14: watch at arrival, alert in Nyn safehouse, no automatic knowledge',()=>{
  const {g,repo}=setup();g.requestSWE02SpaceportWatch();assert.throws(()=>g.requestSWE02SpaceportWatch(),/já solicitada/);
  assert.equal(g.state.world.publishedAdventure.flags.nabatSpaceportAlertDelivered,undefined);
- g.advancePublishedAdventure('nabat-meet-nyn');const r=g.receiveSWE02SpaceportAlert();
+ g.advancePublishedAdventure('nabat-meet-nyn');assert.throws(()=>g.receiveSWE02SpaceportAlert(),/depois da conversa/);
+ g.negotiateSWE02Nyn({method:'coerce',rng:()=>0});const r=g.receiveSWE02SpaceportAlert();
  assert.deepEqual(r.visitors,['human','gand']);assert.equal(r.arrivalLeadHours,2);
  assert.throws(()=>g.receiveSWE02SpaceportAlert(),/já entregue/);reopen(repo);
+});
+test('P240 p.14: overnight choice closes Nyn scene, delivers requested alert and records the morning briefing',()=>{
+ const {g,repo}=setup();g.requestSWE02SpaceportWatch();g.advancePublishedAdventure('nabat-meet-nyn');
+ g.advancePublishedAdventure('travel-lylek-den');const p=g.state.world.publishedAdventure;
+ assert.equal(p.currentNodeId,'nabat-morning-departure');assert.equal(p.flags.nabatNynConversationClosed,true);
+ assert.equal(p.flags.nabatSpaceportAlertDelivered,true);
+ assert.deepEqual(p.nabatReceipts.find(x=>x.type==='TATOOINE_VISITORS_ALERT').visitors,['human','gand']);
+ const briefing=p.nabatReceipts.find(x=>x.type==='NABAT_MORNING_BRIEFING');
+ assert.equal(briefing.serviceTunnel,true);assert.equal(briefing.speederProgrammedForRyllMines,true);
+ assert.equal(briefing.buraTravelsWithParty,true);assert.equal(briefing.visitorReport,'HUMAN_AND_GAND_REPORTED');
+ assert.throws(()=>g.advancePublishedAdventure('nabat-depart-for-mines'),/Escolha inválida/);reopen(repo);
+});
+test('P240 p.14: morning reply is typed, one-time, and required before mine departure',()=>{
+ const {g,repo}=setup();g.advancePublishedAdventure('nabat-meet-nyn');g.advancePublishedAdventure('travel-lylek-den');
+ assert.throws(()=>g.respondSWE02NabatMorning({response:'promise_everything'}),/inválida/);
+ const r=g.respondSWE02NabatMorning({response:'same_hutt'});assert.equal(r.response,'same_hutt');
+ assert.throws(()=>g.respondSWE02NabatMorning({response:'uncertain'}),/já registrada/);
+ g.advancePublishedAdventure('nabat-depart-for-mines');const p=g.state.world.publishedAdventure;
+ assert.equal(p.currentNodeId,'lylek-den-ambush');assert.ok(p.nabatReceipts.some(x=>x.type==='NABAT_MORNING_DEPARTURE'));
+ assert.throws(()=>adapter.status({...g.state.world,publishedAdventure:{...p,nabatReceipts:p.nabatReceipts.filter(x=>x.type!=='NABAT_MORNING_RESPONSE')}}),/saída matinal inválida/);
+ reopen(repo);
 });
 test('P240 p.13: Nyn shelter heals real wounds and strain, never erases critical injuries',()=>{
  const {g,repo}=setup();g.advancePublishedAdventure('nabat-meet-nyn');

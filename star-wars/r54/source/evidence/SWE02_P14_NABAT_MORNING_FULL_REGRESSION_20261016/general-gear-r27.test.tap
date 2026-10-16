@@ -1,0 +1,12 @@
+✔ Tabla 5-3 da Caja de Inicio fornece exatamente 21 itens gerais com preço (16.8193ms)
+✔ Tabela 5-3 não autoriza inventar raridade nem restrição (0.5476ms)
+✔ referência geral entra no catálogo como cópia e preserva autoridade imutável (3.0535ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 877.1642
+

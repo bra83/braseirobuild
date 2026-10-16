@@ -1,0 +1,19 @@
+✔ P94: Destino luminoso gasto vira sombrio e persiste (50.6564ms)
+✔ P94: movimento entre faixas consome manobra e segunda manobra custa 2 de Tensão (119.0087ms)
+✔ P94: immobilized bloqueia manobra de movimento real (81.7233ms)
+✔ P94: cobertura e sacar/trocar arma consomem manobra real (30.4738ms)
+✔ P94: deslocar-se entre faixas abandona cobertura (318.3192ms)
+✔ P94: equipamentos expõem attachments e hard points reais sem instalar nada automaticamente (15.0382ms)
+✔ P94: UI final mostra Destino, condições, movimento e hard points sem consultar RAG (8.9669ms)
+✔ P94: contratos TypeScript incluem as operações novas (95.6392ms)
+✔ P94: cobertura adiciona Setback real a ataque NPC ranged e some ao fim do combate (137.732ms)
+✔ P94: condição disoriented visível também aplica Setback real ao ataque (96.7314ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3132.6868
+

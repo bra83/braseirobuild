@@ -1,0 +1,12 @@
+✔ encontro converte iniciativa em posições e para na posição do jogador (60.216ms)
+✔ ao encerrar posição PJ, motor executa posições PNPC e volta ao PJ no novo assalto (60.4212ms)
+✔ ataque do jogador pode atingir adversário do encontro e Adversário 1 melhora a dificuldade (60.8185ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1774.5295
+

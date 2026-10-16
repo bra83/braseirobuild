@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
-import {resolveOldLylekRetreat} from './swe02-act1-fixture.mjs';
+import {advanceNabatMorning,advanceNabatMorningController,resolveOldLylekRetreat} from './swe02-act1-fixture.mjs';
 import {PUBLISHED_ADVENTURE_ADVERSARY_PROFILES} from '../app/src/main/assets/vtt/js/rules/adversaries.mjs';
 const getAdversaryProfile = key => PUBLISHED_ADVENTURE_ADVERSARY_PROFILES[key];
 const a=getPublishedAdventureAdapter('long-arm-of-the-hutt');
 const clone=x=>structuredClone(x);
 const start=()=>a.start({}).world;
 const step=(w,id)=>a.advance(w,id).world;
-const arrive=()=>step(step(step(start(),'dock-ryloth'),'help-new-meen'),'travel-lylek-den');
+const arrive=()=>advanceNabatMorning(a,step(step(start(),'dock-ryloth'),'help-new-meen'));
 const meen=()=>step(resolveOldLylekRetreat(a,arrive()),'reach-new-meen');
 const withParty=(world,n)=>{const w=clone(world);w.publishedAdventure.flags.confirmedPartySize=n;return w;};
 const enterCantina=w=>{w=step(a.recordNewMeenLifecycle(w,'compound_approach',{precautions:true}).world,'new-meen-enter-cantina');return a.recordNewMeenLifecycle(w,'cantina_start').world;};
@@ -135,7 +135,8 @@ function controllerNightRaid(){
  g.loadStarterCharacter('cael');
  g.startSession({playerCount:3,rng:()=>.9});
  g.startPublishedAdventureSession('long-arm-of-the-hutt',{rng:()=>.9});
- for(const choice of ['dock-ryloth','help-new-meen','travel-lylek-den']) g.advancePublishedAdventure(choice);
+ for(const choice of ['dock-ryloth','help-new-meen']) g.advancePublishedAdventure(choice);
+ advanceNabatMorningController(g);
  g.state.world=resolveOldLylekRetreat(a,g.state.world,Number(g.state.session?.playerCount)||1);
  for(const choice of ['reach-new-meen','stay-new-meen-night']) g.advancePublishedAdventure(choice);
  return {g,repo};

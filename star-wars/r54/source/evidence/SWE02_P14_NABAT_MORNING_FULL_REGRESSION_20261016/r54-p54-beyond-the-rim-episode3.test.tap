@@ -1,0 +1,13 @@
+✔ P54 implementa os três episódios sem fronteira pendente (128.1515ms)
+✔ P54 aproximação de Raxus exige teste real (57.1584ms)
+✔ P54 fecha Raxus com consequências persistentes e estado completed (110.7687ms)
+✔ P54 anti-spoiler: Raxus não aparece antes da saída de Cholganna (2.204ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1120.9921
+

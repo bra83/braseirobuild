@@ -1,0 +1,12 @@
+✔ R80/R82: ilustração da cena abre Gemini externo; retorno é compartilhado ao app (6.6191ms)
+✔ R80: host Android expõe bridge persistente de tokens de NPC (44.9084ms)
+✔ R80: dados narrativos mostram símbolos por face e animação mais curta (2.1961ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1770.94
+

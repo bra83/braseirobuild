@@ -1,0 +1,13 @@
+✔ P43 feedback de teste persiste apenas como efeito player-safe de cena visitada (21.8124ms)
+✔ P43 cards só incluem NPC conhecido/presente e portraitAsset é sanitizado (5.0375ms)
+✔ P43 preserva EOTE/MIXED e não habilita AOR puro (3.2032ms)
+✔ P44 feedback contextual revela apenas efeito mecânico já ocorrido (21.9971ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 872.5646
+

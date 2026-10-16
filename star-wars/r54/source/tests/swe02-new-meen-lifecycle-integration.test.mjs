@@ -3,14 +3,15 @@ import assert from 'node:assert/strict';
 import {GameController} from '../app/src/main/assets/vtt/js/core/controller.mjs';
 import {createCampaign} from '../app/src/main/assets/vtt/js/core/state.mjs';
 import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
-import {resolveOldLylekRetreat} from './swe02-act1-fixture.mjs';
+import {advanceNabatMorning,resolveOldLylekRetreat} from './swe02-act1-fixture.mjs';
 
 const adapter=getPublishedAdventureAdapter('long-arm-of-the-hutt');
 class Repo{constructor(){this.state=createCampaign('P19-23');this.saves=0;}load(){return structuredClone(this.state)}save(s){this.state=structuredClone(s);this.saves++;}}
 function setup(){
  const repo=new Repo(),g=new GameController(repo);g.loadStarterCharacter('cael');g.startSession({playerCount:3,rng:()=>.9});
  let w=adapter.start(g.state.world).world;
- for(const id of ['dock-ryloth','help-new-meen','travel-lylek-den'])w=adapter.advance(w,id).world;
+ for(const id of ['dock-ryloth','help-new-meen'])w=adapter.advance(w,id).world;
+ w=advanceNabatMorning(adapter,w);
  w=resolveOldLylekRetreat(adapter,w,3);
  for(const id of ['reach-new-meen','confront-drombb-directly'])w=adapter.advance(w,id).world;
  w.publishedAdventure.flags.confirmedPartySize=3;g.state.world=w;repo.save(g.state);

@@ -1,0 +1,17 @@
+✔ host injeta BraseiroGemini sem substituir BraseiroLibrary (3.4235ms)
+✔ chave Gemini fica fora do estado e protegida por AndroidKeyStore/no-backup (1.5617ms)
+✔ host usa endpoint/modelo oficial atual e nunca envia chave no corpo JSON (0.7404ms)
+✔ geração é explícita, assíncrona e limitada a prompt/sceneKey (0.5559ms)
+✔ imagem gerada usa 16:9 e 1K (0.5336ms)
+✔ host aceita fallback de importação manual com cópia privada (1.2422ms)
+✔ imagem só é servida pela URL local interceptada (0.4566ms)
+✔ eventos nativos não incluem chave nem prompt (4.1199ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 571.2357
+

@@ -73,27 +73,20 @@
     }
   },
   "fresh_regression": {
-    "state": "PASS_FULL_REGRESSION_AFTER_SWE02_P14_NYN_DEFECT_LIFECYCLE",
+    "state": "PASS_FULL_REGRESSION_AFTER_SWE02_P14_NABAT_MORNING",
     "files": 382,
     "regular_files": 376,
     "stress_files": 6,
-    "tests": 3455,
-    "pass": 3453,
+    "tests": 3457,
+    "pass": 3455,
     "fail": 0,
     "skip": 2,
     "files_without_complete_summary": [],
-    "evidence": "evidence/SWE02_P14_NYN_REWARDS_LIFECYCLE_FULL_REGRESSION_20261016/",
+    "evidence": "evidence/SWE02_P14_NABAT_MORNING_FULL_REGRESSION_20261016/",
+    "summary": "evidence/SWE02_P14_NABAT_MORNING_FULL_REGRESSION_20261016/summary.json",
     "skip_reason": "JDK jar executable unavailable for two offline Gradle-wrapper packaging checks.",
-    "runner_environment": "Per-file TAP runner, 8 workers, NODE_PATH points to work/build-deps5/node_modules; Python subprocess decode and log output UTF-8; no dependency files copied into Git.",
-    "supersedes": "evidence/SWE02_HYBRID_FULL_REGRESSION_20261016_VERIFIED/",
-    "focused_followup": {
-      "files": 8,
-      "tests": 92,
-      "pass": 92,
-      "fail": 0,
-      "skip": 0,
-      "command": "node --test --test-reporter=tap tests/swe02-new-meen-lifecycle-p19-23.test.mjs tests/swe02-new-meen-lifecycle-integration.test.mjs tests/uae-p235-longarm-newmeen-official.test.mjs tests/uae-p237-swe02-geonosis-dimmock-gantry.test.mjs tests/uae-p241-swe02-nyn-newmeen-social.test.mjs tests/uae-p242-swe02-newmeen-fatalities-coercion-rescue.test.mjs tests/uae-p243-swe02-escort-militia.test.mjs tests/uae-p244-swe02-militia-custody.test.mjs"
-    }
+    "runner_environment": "Per-file TAP runner, 8 workers; NODE_PATH points to work/build-deps5/node_modules; Python subprocess output decoded as UTF-8.",
+    "supersedes": "evidence/SWE02_P14_NYN_REWARDS_LIFECYCLE_FULL_REGRESSION_20261016/"
   },
   "blockers": [
     "All 360 AoR positions lack individual source-to-effect, UI, persistence, and test evidence.",
@@ -104,14 +97,14 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Continue SWE02 pp.2–14; complete p.12 end-to-end UI review and page-wide source audit. The p.9 Knowledge grades and p.10 optional shell-retention chain now have deterministic controller/UI and persistence evidence; exact cataloged cargo transfers have focused controller/UI/persistence proof. Remaining p.6–11 gaps include complete cargo ownership, GM rest qualification and B’ura clue causality. Keep all certification gates open; do not create P245 or run Android release gates until all five adventures and rules/AoR 360 are certified.",
+  "next_action": "Continue the SWE02 source-to-semantic audit across Act 1 pp.2–14 and the remaining Acts 2–3 branches. P.14 night-to-morning transition now has deterministic receipts, UI/controller wiring and regression evidence; page-wide P14 remains pending. Keep all five adventure, rules and AoR 360 certification gates open; do not create P245 or run Android release gates until the global gates pass.",
   "swe02_krayt_fang_pp06_11": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
     "source": "Long Arm of the Hutt printed pp.6–11 / PDF pp.6–11",
     "focused_tests": {
       "files": [
-      "tests/eote-personal-catalog-r37.test.mjs",
-      "tests/swe02-krayt-fang-pp06-11-family.test.mjs",
+        "tests/eote-personal-catalog-r37.test.mjs",
+        "tests/swe02-krayt-fang-pp06-11-family.test.mjs",
         "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
         "tests/ui-bridge-r22.test.mjs"
       ],
@@ -300,7 +293,11 @@
       "evidence": "evidence/SWE02_P12_INITIATIVE_EXCEPTION_20261016/focused.tap"
     },
     "reopens": "Two-PC initiative order and actor-bound action receipts are reopened through a separate GameController instance.",
-    "bundle": {"result": "PASS", "modules": 135, "command": "node tools/build-ui-bridge-bundle.mjs"},
+    "bundle": {
+      "result": "PASS",
+      "modules": 135,
+      "command": "node tools/build-ui-bridge-bundle.mjs"
+    },
     "pending": [
       "Printed p.12 remains pending for end-to-end UI review, full-project regression and complete adventure source audit. Focused source-to-code crosswalk and current P239 test run: evidence/SWE02_P12_PAGE_20261016/ (23/23)."
     ]
@@ -320,7 +317,11 @@
       "evidence": "evidence/SWE02_P12_CRASH_CREW_IDS_20261016/focused.tap"
     },
     "reopens": "Distinct roster IDs, including duplicate names, remain bound through independent controller reloads; pre-feature active Thwheek saves without initiative migrate and continue their prior round flow.",
-    "bundle": {"result": "PASS", "modules": 135, "command": "node tools/build-ui-bridge-bundle.mjs"},
+    "bundle": {
+      "result": "PASS",
+      "modules": 135,
+      "command": "node tools/build-ui-bridge-bundle.mjs"
+    },
     "pending": [
       "Printed p.12 remains pending for end-to-end UI review, full-project regression and complete adventure source audit; focused evidence is consolidated in evidence/SWE02_P12_PAGE_20261016/."
     ]
@@ -333,7 +334,10 @@
     "controller": "GameController.advancePublishedAdventure(ship-depart-verified) / adjudicateSWE02ShipTransitExtraDuration",
     "ui": "Persisted transit summary; GM extra-time control at the Ryloth arrival decision applies chosen six-hour blocks",
     "tests": {
-      "files": ["tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs", "tests/uae-p239-swe02-thwheek-vehicle-combat.test.mjs"],
+      "files": [
+        "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
+        "tests/uae-p239-swe02-thwheek-vehicle-combat.test.mjs"
+      ],
       "combined": 36,
       "pass": 36,
       "fail": 0,
@@ -364,5 +368,34 @@
     "pending": [
       "Printed p.13 page-wide certification: fuel, system strain/ship critical repairs, exact docking/source gates, remaining branch and page-level evidence."
     ]
+  },
+  "swe02_nabat_p14_morning": {
+    "status": "IMPLEMENTADO_NAO_CERTIFICADO",
+    "source": "Long Arm of the Hutt printed p.14 / official PDF p.13",
+    "implemented": [
+      "Nyn conversation closure or recorded refusal before overnight transition",
+      "requested visitor alert arrives after conversation, reporting human and Gand from Tatooine with two-hour lead",
+      "morning service tunnel, B’ura accompanies party, speeder programmed for ryll mines",
+      "typed PC reply recorded before departure",
+      "p.14 source receipts with tamper validation and Android UI/controller wiring"
+    ],
+    "focused_tests": {
+      "files": 2,
+      "tests": 31,
+      "pass": 31,
+      "fail": 0,
+      "skip": 0,
+      "evidence": "evidence/SWE02_P14_NABAT_MORNING_FULL_REGRESSION_20261016/"
+    },
+    "full_regression": {
+      "files": 382,
+      "tests": 3457,
+      "pass": 3455,
+      "fail": 0,
+      "skip": 2,
+      "stress_files": 6,
+      "evidence": "evidence/SWE02_P14_NABAT_MORNING_FULL_REGRESSION_20261016/summary.json"
+    },
+    "limit": "Full p.14 dialogue crosswalk and page-wide certification remain pending."
   }
 }

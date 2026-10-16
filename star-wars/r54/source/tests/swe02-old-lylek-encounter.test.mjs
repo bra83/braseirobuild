@@ -4,13 +4,15 @@ import {GameController} from '../app/src/main/assets/vtt/js/core/controller.mjs'
 import {createCampaign,migrateState} from '../app/src/main/assets/vtt/js/core/state.mjs';
 import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
 import {PUBLISHED_ADVENTURE_ADVERSARY_PROFILES} from '../app/src/main/assets/vtt/js/rules/adversaries.mjs';
+import {advanceNabatMorningController} from './swe02-act1-fixture.mjs';
 
 const adapter=getPublishedAdventureAdapter('long-arm-of-the-hutt');
 class Repo { constructor(){this.state=createCampaign('SWE02 Old Lylek');this.saves=0;} load(){return structuredClone(this.state);} save(s){this.state=structuredClone(s);this.saves++;} }
 function fixture(playerCount=1){
  const repo=new Repo(),g=new GameController(repo);g.loadStarterCharacter('cael');g.startSession({playerCount,rng:()=>.5});g.startPublishedAdventureSession('long-arm-of-the-hutt',{rng:()=>.5});
  for(let i=1;i<playerCount;i++){const c=structuredClone(g.state.player.character);c.name=`PC ${i+1}`;g.registerPartyCharacter({character:c,id:`test-pc-${i+1}`});}
- for(const choice of ['dock-ryloth','help-new-meen','travel-lylek-den'])g.advancePublishedAdventure(choice);
+ for(const choice of ['dock-ryloth','help-new-meen'])g.advancePublishedAdventure(choice);
+ advanceNabatMorningController(g);
  g.selectSWE02TrexCarryover({history:'confirmed_dead'});
  g.chooseSWE02OldLylekCrew({crewPcIds:g.state.player.roster.entries.map(x=>x.id)});
  return {repo,g};

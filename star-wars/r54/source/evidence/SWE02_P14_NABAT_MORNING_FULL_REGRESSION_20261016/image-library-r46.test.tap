@@ -1,0 +1,16 @@
+✔ R46 freezes the validated V3.8 subset without count inflation (4.4947ms)
+✔ R46 keeps R45 unresolved provenance lists complete and deferred (14.5624ms)
+✔ R46 does not silently index the specifically observed posts without direct media (1.031ms)
+✔ R46 policy forbids filename inference and preserves mechanical firewall (0.9094ms)
+✔ R46 every external remote-ready asset still obeys Kainrath allowlist and visual-only binding (7.296ms)
+✔ R46 bridge remains gameplay-readable with frozen visual catalog and no repository mutation (88.1187ms)
+✔ R46 deferred provenance is duplicate-free and contains no synthetic URL field (4.9359ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1953.9827
+
