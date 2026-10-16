@@ -46,13 +46,14 @@
     "All 360 AoR positions lack individual source-to-effect, UI, persistence, and test evidence.",
     "500 Drive inventory items remain metadata-only and unreviewed.",
     "Four adventures have not been semantically audited and certified in this execution.",
-    "EotE/AoR rules family certification remains outstanding."
+    "EotE/AoR rules family certification remains outstanding.",
+    "Mechanical authority, source authorization, persistence, migration, and rollback gates have not been closed by executed end-to-end proofs."
   ],
   "next_action": "Finish and review the Old Lylek Den implementation (printed pp.15-18), verify its focused tests and persistence evidence, then selectively sync, commit, and push the reviewed WIP. Continue SWE02 source-led closure; do not certify or start P245 until every SWE02 branch is proven.",
   "source_corrections": {
     "SWE02_palace_page_provenance": "Corrected p.43 map vs p.44 room/recruitment data and p.45 Bith interview references; generated bundle rebuilt; four focused tests and all 376 tests pass."
   },
-  "audit_index": "audits/SWE02_THREE_ACT_AUDIT_INDEX.md",
+  "audit_index": "audits/PROJECT_AUDIT_INDEX.md",
   "aor_crosswalk_audit": {
     "audit": "audits/AOR_360_CONSUMER_CROSSWALK_AUDIT.md",
     "positions": 360,
@@ -60,5 +61,11 @@
     "broader_name_key_test_refs": 290,
     "certified": 0,
     "status": "PENDENTE"
+  },
+  "mechanical_authority_audit": {
+    "audit": "audits/MECHANICAL_AUTHORITY_AUDIT.md",
+    "status": "PENDENTE",
+    "all_reviewed_domains_certified": 0,
+    "narrator_allowlisted_mutations_require_semantic_source_authorization": true
   }
 }
