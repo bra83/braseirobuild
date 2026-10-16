@@ -198,6 +198,73 @@ public class Core2024SubclassRobolectricTest {
     }
 
     @Test
+    public void championCriticalNeverAppliesToWrongClassOrPrematureLevel() throws Exception {
+        JSONObject wizard = new JSONObject().put("class_name", "Mago")
+            .put("subclass_2024", "Campeão").put("level", 15);
+        assertEquals("Wizard must not inherit Fighter Champion crit range", 20,
+            Core2024SubclassRuntimeEngine.criticalThreshold(wizard));
+        JSONObject tooEarly = new JSONObject().put("class_name", "Guerreiro")
+            .put("subclass_2024", "Campeão").put("level", 2);
+        assertEquals(20, Core2024SubclassRuntimeEngine.criticalThreshold(tooEarly));
+    }
+
+    @Test
+    public void liveGatewayRejectsUnofficialSubclassOwnershipWithoutAnySheetWrite() throws Exception {
+        Context context = RuntimeEnvironment.getApplication();
+        String name = databaseName();
+        AppDb db = new AppDb(context, name);
+        try {
+            db.setActiveMapProfile("dnd");
+            JSONObject saved = db.saveCharacterSheetAtomic(0, false,
+                subclassCandidate("Mago", 3, ""), "", "manual");
+            assertTrue(saved.toString(), saved.optBoolean("character_saved"));
+            long id = saved.optLong("character_id");
+            assertTrue(id > 0);
+            JSONObject original = db.getCharacter(id);
+            JSONObject sheet = new JSONObject(original.optString("sheet_json", "{}"));
+            sheet.put("subclass_2024", "Campeão");
+            db.updateCharacterSheet(id, sheet.toString());
+            String before = db.getCharacter(id).optString("sheet_json", "");
+            JSONObject blocked = db.resolveCharacterHomebrewSubclassAction(id,
+                "Crítico Aprimorado", new JSONObject());
+            assertFalse(blocked.toString(), blocked.optBoolean("subclass_action_resolved"));
+            assertEquals("official_2024_subclass_not_owned_by_character",
+                blocked.optString("subclass_action_reason"));
+            assertEquals("Unowned subclass must not change resource or sheet state",
+                before, db.getCharacter(id).optString("sheet_json", ""));
+        } finally {
+            db.close();
+            context.deleteDatabase(name);
+        }
+    }
+
+    @Test
+    public void liveGatewayAcceptsProperFighterChampionAndPersistsEffect() throws Exception {
+        Context context = RuntimeEnvironment.getApplication();
+        String name = databaseName();
+        AppDb db = new AppDb(context, name);
+        try {
+            db.setActiveMapProfile("dnd");
+            JSONObject saved = db.saveCharacterSheetAtomic(0, false,
+                subclassCandidate("Guerreiro", 3, "Campeão"), "", "manual");
+            assertTrue(saved.toString(), saved.optBoolean("character_saved"));
+            long id = saved.optLong("character_id");
+            JSONObject resolved = db.resolveCharacterHomebrewSubclassAction(id,
+                "Crítico Aprimorado", new JSONObject());
+            assertTrue("Official owner must be allowed: " + resolved,
+                resolved.optBoolean("subclass_action_resolved"));
+            assertEquals("champion_improved_critical",
+                resolved.optString("subclass_action_event"));
+            JSONObject reopened = new JSONObject(db.getCharacter(id).optString("sheet_json", "{}"));
+            assertEquals("champion_improved_critical",
+                reopened.optString("subclass_action_event"));
+        } finally {
+            db.close();
+            context.deleteDatabase(name);
+        }
+    }
+
+    @Test
     public void criticalThresholdAccuratelyReflectsChampionLevels() throws Exception {
         JSONObject normalSheet = new JSONObject().put("class_name", "Guerreiro").put("level", 5);
         assertEquals(20, Core2024SubclassRuntimeEngine.criticalThreshold(normalSheet));
