@@ -3659,6 +3659,17 @@ class BraseiroUiBridge {
             return fail('VEHICLE_FAILED', messageOf(error));
         }
     }
+    passSWE02VehicleTurn(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.passSWE02VehicleTurn(options ?? {})));
+        }
+        catch (error) {
+            return fail('VEHICLE_FAILED', messageOf(error));
+        }
+    }
     endVehicleCombat() {
         const controllerResult = this._controllerForExistingCampaign();
         if (!controllerResult.ok)
@@ -20223,12 +20234,14 @@ function context(vehicles) {
         throw Error('SWE02: combate de Thwheek não pertence a esta aventura.');
     return c;
 }
-function beginThwheekInterception(world, vehicles) {
+function beginThwheekInterception(world, vehicles, { initiative } = {}) {
     const w = clone(world), v = clone(vehicles), p = progress(w);
     if (p.currentNodeId !== 'thwheek-orbit' || p.flags?.shipThwheekInterceptionRequired !== true || p.flags?.shipThwheekCombatStarted)
         throw Error('SWE02: interceptação não confirmada ou já iniciada.');
     if (v.combat?.active)
         throw Error('SWE02: outro combate veicular ainda ativo.');
+    if (!initiative || initiative.source?.printedPage !== 12 || !Array.isArray(initiative.slots))
+        throw Error('SWE02 p.12: iniciativa de Cool obrigatória antes do combate.');
     const ship = v.vehicles?.[v.activeVehicleId];
     if (!ship || ship.key !== 'yt1300' || String(ship.name || '').trim().toLowerCase() !== 'krayt fang')
         throw Error('SWE02: selecione a Krayt Fang YT-1300 real; o motor não cria uma nave fictícia.');
@@ -20241,6 +20254,7 @@ function beginThwheekInterception(world, vehicles) {
     enemy.roundEffects.stayOnTarget = true;
     v.vehicles[enemy.id] = enemy;
     v.combat = { ...v.combat, active: true, round: 1, targetVehicleId: enemy.id, range: 'Curto', actionUsed: false, maneuversUsed: 0,
+        swe02Initiative: clone(initiative),
         npcAttackResolvedRound: null, lastAttack: null, lastIncomingAttack: null, pendingTargetCritical: null, pendingIncomingCritical: null,
         pendingVehicleSpend: null, publishedVehicleContext: { id: exports.THWHEEK_CONTEXT, adventureId: p.id, source: exports.THWHEEK_SOURCE,
             playerVehicleId: ship.id, playerInitialHull: ship.hullDamage, enemyInitialHull: enemy.hullDamage, firstHitRecorded: false },
@@ -20341,6 +20355,88 @@ function validateThwheek(p) {
         throw Error('SWE02: resultado espacial forjado.');
     if (f.shipCrashCrewPending === true && f.shipThwheekOutcome !== 'KRAYT_FANG_SHOT_DOWN')
         throw Error('SWE02: acidente sem derrota espacial.');
+    return true;
+}
+});
+define("js/adventure/swe02VehicleInitiative.mjs",function(module,exports,require){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SWE02_VEHICLE_INITIATIVE_SOURCE = void 0;
+exports.rollSWE02VehicleInitiative = rollSWE02VehicleInitiative;
+exports.validateSWE02VehicleInitiative = validateSWE02VehicleInitiative;
+// SWE02 printed p.12: Thwheek and each PC roll Cool for the vehicle encounter.
+// Dice and ordering are deterministic engine work; this module only records the
+// source-backed participants and initiative slots.
+const narrativeDice_mjs_1 = require("../rules/narrativeDice.mjs");
+const initiative_mjs_1 = require("../rules/initiative.mjs");
+exports.SWE02_VEHICLE_INITIATIVE_SOURCE = Object.freeze({
+    productCode: 'SWE02', printedPage: 12, authority: 'OFFICIAL_PDF_TEXT_VERIFIED'
+});
+function rollSWE02VehicleInitiative(roster, { rng = Math.random } = {}) {
+    const entries = roster?.entries;
+    if (!Array.isArray(entries) || entries.length < 1 || entries.length > 8)
+        throw Error('SWE02 p.12: roster de PCs inválido para iniciativa.');
+    const seen = new Set(), rolled = [];
+    for (const entry of entries) {
+        const character = entry?.character, id = String(entry?.id ?? '');
+        if (!id || seen.has(id) || !character?.name || !character.characteristics || !character.skills)
+            throw Error('SWE02 p.12: cada participante precisa de uma ficha de PC válida e única.');
+        seen.add(id);
+        const presence = Number(character.characteristics.presencia), cool = Number(character.skills.frialdad ?? 0);
+        if (!Number.isSafeInteger(presence) || presence < 1 || presence > 6 || !Number.isSafeInteger(cool) || cool < 0 || cool > 5)
+            throw Error('SWE02 p.12: atributo Presença ou perícia Frialdade inválido.');
+        const check = (0, narrativeDice_mjs_1.rollPool)((0, narrativeDice_mjs_1.buildPositivePool)(presence, cool), rng);
+        rolled.push({ entry: (0, initiative_mjs_1.initiativeEntry)({ id, side: 'player', check, label: character.name }), check });
+    }
+    // The stat block lists Presence 2 and no Cool ranks for Thwheek.
+    const thwheekCheck = (0, narrativeDice_mjs_1.rollPool)({ ability: 2, proficiency: 0, difficulty: 0, challenge: 0, boost: 0, setback: 0 }, rng);
+    rolled.push({ entry: (0, initiative_mjs_1.initiativeEntry)({ id: 'swe02-thwheek', side: 'npc', check: thwheekCheck, label: 'Thwheek' }), check: thwheekCheck });
+    const ordered = (0, initiative_mjs_1.sortInitiative)(rolled.map(x => x.entry));
+    const byId = new Map(rolled.map(x => [x.entry.id, x]));
+    return {
+        source: exports.SWE02_VEHICLE_INITIATIVE_SOURCE,
+        slots: ordered.map((entry, index) => ({ index, side: entry.side, actorId: entry.id, label: entry.label,
+            successes: entry.successes, advantages: entry.advantages, triumphs: entry.triumphs,
+            check: structuredClone(byId.get(entry.id).check) })),
+        round: 1, index: 0, completedRounds: 0, actionReceipts: []
+    };
+}
+function validateSWE02VehicleInitiative(combat, roster = null) {
+    const initiative = combat?.swe02Initiative;
+    if (combat?.publishedVehicleContext?.id !== 'swe02-thwheek-p239')
+        return true;
+    if (!combat.active)
+        return true;
+    if (!initiative || initiative.source?.printedPage !== 12 || initiative.source?.productCode !== 'SWE02' ||
+        !Array.isArray(initiative.slots) || initiative.slots.length < 2 || initiative.slots.length > 9 ||
+        !Number.isSafeInteger(initiative.index) || initiative.index < 0 || initiative.index >= initiative.slots.length ||
+        initiative.completedRounds !== initiative.round - 1 || initiative.round !== combat.round ||
+        initiative.round !== combat.round || initiative.slots.filter(x => x.actorId === 'swe02-thwheek').length !== 1)
+        throw Error('SWE02 p.12: iniciativa veicular ausente ou inválida.');
+    const ids = new Set();
+    for (let i = 0; i < initiative.slots.length; i++) {
+        const slot = initiative.slots[i];
+        if (slot.index !== i || !['player', 'npc'].includes(slot.side) || typeof slot.actorId !== 'string' || ids.has(slot.actorId) ||
+            !Number.isSafeInteger(slot.successes) || slot.successes < 0 || !Number.isSafeInteger(slot.advantages) || slot.advantages < 0 ||
+            !Number.isSafeInteger(slot.triumphs) || slot.triumphs < 0 || !slot.check)
+            throw Error('SWE02 p.12: slot de iniciativa adulterado.');
+        ids.add(slot.actorId);
+    }
+    const ordered = [...initiative.slots].sort((a, b) => b.successes - a.successes || b.advantages - a.advantages ||
+        b.triumphs - a.triumphs || (a.side === 'player' && b.side === 'npc' ? -1 : a.side === 'npc' && b.side === 'player' ? 1 : 0));
+    if (ordered.some((slot, i) => slot.actorId !== initiative.slots[i].actorId))
+        throw Error('SWE02 p.12: a ordem salva diverge dos resultados de iniciativa.');
+    if (initiative.slots.some(x => x.actorId === 'swe02-thwheek' && x.side !== 'npc') ||
+        initiative.slots.some(x => x.actorId !== 'swe02-thwheek' && x.side !== 'player'))
+        throw Error('SWE02 p.12: identidade de participante incompatível com iniciativa.');
+    if (roster && (!Array.isArray(roster.entries) || roster.entries.length !== initiative.slots.length - 1 ||
+        roster.entries.some(x => !initiative.slots.some(slot => slot.actorId === x.id))))
+        throw Error('SWE02 p.12: roster de PCs diverge dos participantes da iniciativa.');
+    if (!Array.isArray(initiative.actionReceipts) || initiative.actionReceipts.length > 4096 ||
+        initiative.actionReceipts.some(x => !x || !Number.isSafeInteger(x.round) || x.round < 1 ||
+            !Number.isSafeInteger(x.slotIndex) || x.slotIndex < 0 || x.slotIndex >= initiative.slots.length ||
+            x.actorId !== initiative.slots[x.slotIndex]?.actorId || !['action', 'maneuver', 'attack', 'crew-action'].includes(x.kind)))
+        throw Error('SWE02 p.12: recibo de ação fora da iniciativa.');
     return true;
 }
 });
@@ -21211,6 +21307,8 @@ const aorMechanicFieldActions_mjs_1 = require("../rules/aorMechanicFieldActions.
 const beyondTheRim_mjs_1 = require("../adventure/beyondTheRim.mjs");
 const longArmOfTheHutt_mjs_1 = require("../adventure/longArmOfTheHutt.mjs");
 const swe02ThwheekP239_mjs_1 = require("../adventure/swe02ThwheekP239.mjs");
+const swe02VehicleInitiative_mjs_1 = require("../adventure/swe02VehicleInitiative.mjs");
+const SWE02_INITIATIVE_ADVANCE = Symbol('SWE02 initiative round transition');
 const swe02NabatP240_mjs_1 = require("../adventure/swe02NabatP240.mjs");
 const swe02SocialP241_mjs_1 = require("../adventure/swe02SocialP241.mjs");
 const swe02NewMeenP242_mjs_1 = require("../adventure/swe02NewMeenP242.mjs");
@@ -24676,7 +24774,7 @@ class GameController {
             return { adventure: adapter.status(this.state.world), session: structuredClone(session), state: structuredClone(this.state) };
         });
     }
-    advancePublishedAdventure(choiceId, { adventureId = null, actionId = null } = {}) {
+    advancePublishedAdventure(choiceId, { adventureId = null, actionId = null, rng = Math.random } = {}) {
         if (actionId !== null)
             return this.executePublishedAdventureCommand({ actionId, kind: 'choice', adventureId, choiceId });
         return this.atomicAction(() => {
@@ -24686,7 +24784,7 @@ class GameController {
             if (this.state.combat?.active)
                 throw new Error('Encerre o encontro ou combate ativo antes de avançar para outra cena da aventura publicada.');
             if (adapter.id === 'long-arm-of-the-hutt' && choiceId === 'ship-start-interception')
-                this.beginSWE02ThwheekCombat();
+                this.beginSWE02ThwheekCombat({ rng });
             const result = adapter.advance(this.state.world, String(choiceId ?? ''));
             this.commit('WORLD_UPDATED', { world: result.world });
             // SWE13 p. 17: 500 credits per controlled PC for accepting the
@@ -28526,15 +28624,76 @@ class GameController {
         });
     }
     /** SWE02 p.18: adventure action, not a decorative 'triggered' flag. */
-    beginSWE02ThwheekCombat() {
+    beginSWE02ThwheekCombat({ rng = Math.random } = {}) {
         return this.atomicAction(() => {
             if (this.state.combat?.active)
                 throw Error('Encerre o combate pessoal antes da interceptação.');
-            const out = (0, swe02ThwheekP239_mjs_1.beginThwheekInterception)(this.state.world, this.state.vehicles);
+            const roster = this.state.player?.roster;
+            const count = Number(this.state.session?.campaignRules?.destiny?.playerCount ?? this.state.session?.playerCount ?? 1);
+            if (!Number.isSafeInteger(count) || count < 1 || count > 8 || roster?.entries?.length !== count)
+                throw Error('SWE02 p.12: cadastre no roster uma ficha individual para cada PC confirmado na sessão antes da iniciativa.');
+            const initiative = (0, swe02VehicleInitiative_mjs_1.rollSWE02VehicleInitiative)(roster, { rng });
+            const out = (0, swe02ThwheekP239_mjs_1.beginThwheekInterception)(this.state.world, this.state.vehicles, { initiative });
             this.commit('VEHICLES_UPDATED', { vehicles: out.vehicles });
             this.commit('WORLD_UPDATED', { world: out.world });
+            const first = out.vehicles.combat.swe02Initiative.slots[0];
+            if (first.side === 'player')
+                this.selectPartyCharacter(first.actorId);
             return { combat: clone(this.state.vehicles.combat), adventure: clone(this.state.world.publishedAdventure) };
         });
+    }
+    /** End the current Cool slot; only the last slot advances the vehicle round. */
+    passSWE02VehicleTurn({ rng = Math.random } = {}) {
+        return this.atomicAction(() => {
+            const vehicles = clone(this.state.vehicles), combat = vehicles.combat, initiative = combat?.swe02Initiative;
+            if (!combat?.active || combat.publishedVehicleContext?.id !== swe02ThwheekP239_mjs_1.THWHEEK_CONTEXT || !initiative)
+                throw Error('SWE02 p.12: não há turno de iniciativa ativo.');
+            const previous = initiative.slots[initiative.index];
+            const enemy = this.state.vehicles.vehicles?.[swe02ThwheekP239_mjs_1.THWHEEK_ID];
+            if (previous.side === 'npc' && enemy && enemy.hullDamage < 5 && combat.npcAttackResolvedRound !== combat.round)
+                throw Error('SWE02 p.12: Thwheek precisa resolver seu ataque antes de passar o turno.');
+            const nextIndex = initiative.index + 1;
+            if (nextIndex < initiative.slots.length) {
+                initiative.index = nextIndex;
+                const next = initiative.slots[nextIndex];
+                if (next.side === 'player') {
+                    this.selectPartyCharacter(next.actorId);
+                    combat.actionUsed = false;
+                    combat.maneuversUsed = 0;
+                }
+            }
+            else {
+                // nextVehicleRound owns all round-end effects and is nested in
+                // this transaction, so round effects and initiative persist atomically.
+                this.nextVehicleRound({ rng, initiativeAdvanceToken: SWE02_INITIATIVE_ADVANCE });
+                const updated = clone(this.state.vehicles), order = updated.combat.swe02Initiative;
+                const next = order.slots[0];
+                if (next.side === 'player')
+                    this.selectPartyCharacter(next.actorId);
+                this.commit('VEHICLES_UPDATED', { vehicles: updated });
+            }
+            if (nextIndex < initiative.slots.length)
+                this.commit('VEHICLES_UPDATED', { vehicles });
+            return { previous: clone(previous), current: clone(this.state.vehicles.combat.swe02Initiative.slots[this.state.vehicles.combat.swe02Initiative.index]),
+                combat: clone(this.state.vehicles.combat) };
+        });
+    }
+    _assertSWE02VehicleTurn(side) {
+        const combat = this.state.vehicles?.combat;
+        if (combat?.publishedVehicleContext?.id !== swe02ThwheekP239_mjs_1.THWHEEK_CONTEXT)
+            return;
+        const initiative = combat.swe02Initiative, slot = initiative?.slots?.[initiative.index];
+        if (!slot || slot.side !== side)
+            throw Error('SWE02 p.12: a ação não pertence ao lado cujo turno está ativo na iniciativa.');
+        if (side === 'player' && slot.actorId !== this.state.player?.roster?.activeCharacterId)
+            throw Error('SWE02 p.12: selecione o PC do turno ativo antes de agir.');
+    }
+    _recordSWE02VehicleAction(vehicles, kind) {
+        const combat = vehicles?.combat, initiative = combat?.swe02Initiative;
+        if (combat?.publishedVehicleContext?.id !== swe02ThwheekP239_mjs_1.THWHEEK_CONTEXT || !initiative)
+            return;
+        const slot = initiative.slots[initiative.index];
+        initiative.actionReceipts.push({ round: combat.round, slotIndex: initiative.index, actorId: slot.actorId, kind });
     }
     /** Combat resolution requires actual logged dice damage; no GM-only victory toggle. */
     resolveSWE02ThwheekCombat({ pursue = false } = {}) {
@@ -28663,10 +28822,12 @@ class GameController {
         this.commit('VEHICLES_UPDATED', { vehicles });
         return vehicles.combat;
     }
-    nextVehicleRound({ rng = Math.random } = {}) {
+    nextVehicleRound({ rng = Math.random, initiativeAdvanceToken = null } = {}) {
         const vehicles = clone(this.state.vehicles);
         if (!vehicles.combat.active)
             throw new Error('Não há combate de naves/veículos ativo.');
+        if (vehicles.combat.publishedVehicleContext?.id === swe02ThwheekP239_mjs_1.THWHEEK_CONTEXT && initiativeAdvanceToken !== SWE02_INITIATIVE_ADVANCE)
+            throw Error('SWE02 p.12: avance a iniciativa slot por slot para iniciar o próximo assalto.');
         const endingRound = Math.max(1, Number(vehicles.combat.round || 1));
         const due = (vehicles.combat.guidedProjectiles ?? []).filter(p => Number(p.resolveAtRound ?? endingRound) <= endingRound);
         const future = (vehicles.combat.guidedProjectiles ?? []).filter(p => Number(p.resolveAtRound ?? endingRound) > endingRound);
@@ -28685,6 +28846,11 @@ class GameController {
         vehicles.combat.guidedProjectiles = future;
         vehicles.combat.guidedReactivations = reactivations;
         vehicles.combat.round = endingRound + 1;
+        if (vehicles.combat.publishedVehicleContext?.id === swe02ThwheekP239_mjs_1.THWHEEK_CONTEXT && vehicles.combat.swe02Initiative) {
+            vehicles.combat.swe02Initiative.round = vehicles.combat.round;
+            vehicles.combat.swe02Initiative.index = 0;
+            vehicles.combat.swe02Initiative.completedRounds += 1;
+        }
         vehicles.combat.aorFireControl = null;
         for (const ship of Object.values(vehicles.vehicles ?? {})) {
             if (ship?.roundEffects)
@@ -28724,6 +28890,7 @@ class GameController {
         return vehicles.combat;
     }
     useVehiclePilotManeuver(kind, { method = 'normal', direction = 'closer' } = {}) {
+        this._assertSWE02VehicleTurn('player');
         const vehicles = clone(this.state.vehicles);
         const active = vehicles.vehicles?.[vehicles.activeVehicleId];
         if (!active)
@@ -28783,10 +28950,12 @@ class GameController {
             throw new Error('Manobra de nave/veículo desconhecida.');
         vehicles.vehicles[active.id] = result;
         vehicles.combat.log = [...(vehicles.combat.log ?? []), { type: 'MANOBRA_VEICULO', round: vehicles.combat.round, kind, vehicleId: active.id }];
+        this._recordSWE02VehicleAction(vehicles, 'maneuver');
         this.commit('VEHICLES_UPDATED', { vehicles });
         return { vehicle: result, combat: vehicles.combat, status: vehicles_mjs_1.vehicleStatus(result) };
     }
     useFullThrottle({ asManeuver = false, secondManeuverMethod = 'normal', skillKey = 'pilotar_vehiculo_espacial', rng = Math.random } = {}) {
+        this._assertSWE02VehicleTurn('player');
         let character = requireCharacter(this.state.player.character);
         const vehicles = clone(this.state.vehicles);
         const active = vehicles.vehicles?.[vehicles.activeVehicleId];
@@ -28829,6 +28998,7 @@ class GameController {
             character = health_mjs_1.sufferStrain(character, result.personalStrainCost, { voluntary: true }).character;
         vehicles.vehicles[active.id] = result.vehicle;
         vehicles.combat.log = [...(vehicles.combat.log ?? []), { type: 'ACELERACAO_MAXIMA', round: vehicles.combat.round, vehicleId: active.id, success: result.check.success, bonus: result.bonus, asManeuver }];
+        this._recordSWE02VehicleAction(vehicles, asManeuver ? 'maneuver' : 'action');
         this.commit('VEHICLES_UPDATED', { vehicles });
         if (result.personalStrainCost > 0)
             this.commit('CHARACTER_UPDATED', { character });
@@ -28850,6 +29020,7 @@ class GameController {
         });
     }
     gainVehicleAdvantage({ zone = 'proa', skillKey = 'pilotar_vehiculo_espacial', alliedVehicleIds = [], rng = Math.random } = {}) {
+        this._assertSWE02VehicleTurn('player');
         const character = requireCharacter(this.state.player.character), vehicles = clone(this.state.vehicles);
         if (!vehicles.combat?.active)
             throw new Error('Ganhar a Vantagem exige combate veicular ativo.');
@@ -28900,11 +29071,13 @@ class GameController {
         }
         vehicles.combat.actionUsed = true;
         vehicles.combat.log = [...(vehicles.combat.log ?? []), { type: 'GANHAR_VANTAGEM', round: vehicles.combat.round, vehicleId: active.id, targetId: target.id, success: Boolean(check.success), zone, formationAllies: check.success ? [...alliedVehicleIds] : [], difficulty: negative.difficulty, baseDifficulty }];
+        this._recordSWE02VehicleAction(vehicles, 'action');
         this.commit('VEHICLES_UPDATED', { vehicles });
         this.commit('CHECK_RESOLVED', check);
         return { check, success: Boolean(check.success), difficulty: negative.difficulty, baseDifficulty, difficultyDowngrades: copilot.downgrades, zone, formationAllies: check.success ? [...alliedVehicleIds] : [], vehicle: clone(vehicles.vehicles[active.id]), combat: clone(vehicles.combat) };
     }
     useVehicleCrewAction(kind, { skillKey = null, zone = 'proa', rng = Math.random, spendAdvantage = false, spendTriumph = false, weaponIndex = 0, gmAllowed = false } = {}) {
+        this._assertSWE02VehicleTurn('player');
         const character = requireCharacter(this.state.player.character), vehicles = clone(this.state.vehicles);
         if (!vehicles.combat?.active)
             throw new Error('A ação de tripulação exige combate veicular ativo.');
@@ -29013,6 +29186,7 @@ class GameController {
         }
         vehicles.combat.actionUsed = true;
         vehicles.combat.log = [...(vehicles.combat.log ?? []), { type: 'ACAO_TRIPULACAO_VEICULO', kind, round: vehicles.combat.round, vehicleId: active.id, targetId: target?.id ?? null, success: Boolean(check.success), skillKey: chosen, difficulty, effect: clone(effect) }];
+        this._recordSWE02VehicleAction(vehicles, 'crew-action');
         this.commit('VEHICLES_UPDATED', { vehicles });
         this.commit('CHECK_RESOLVED', check);
         return { kind, skillKey: chosen, difficulty, check, success: Boolean(check.success), effect, vehicle: clone(vehicles.vehicles[active.id]), target: target ? clone(vehicles.vehicles[target.id]) : null, combat: clone(vehicles.combat) };
@@ -29067,6 +29241,7 @@ class GameController {
      * once-per-round marker and log are persisted in one repository write. */
     resolveIncomingVehicleAttack({ npcAgility = 3, npcGunnery = 2, weaponIndex = 0, facing = 'proa', playerPiloting = true, rng = Math.random } = {}) {
         return this.atomicAction(() => {
+            this._assertSWE02VehicleTurn('npc');
             const player = requireCharacter(this.state.player?.character);
             const vehicles = clone(this.state.vehicles);
             const combat = vehicles.combat;
@@ -29167,6 +29342,7 @@ class GameController {
                     hit: attack.hit, damage: attack.targetDamage?.suffered ?? 0,
                     targetSilhouette: attack.targetSilhouette, playerPiloting,
                     criticalAvailable: attack.criticalAvailable }];
+            this._recordSWE02VehicleAction(vehicles, 'attack');
             this.commit('VEHICLES_UPDATED', { vehicles });
             return { attack, vehicle: clone(vehicles.vehicles[target.id]),
                 pendingCritical: clone(combat.pendingIncomingCritical ?? null) };
@@ -29222,6 +29398,7 @@ class GameController {
     }
     resolveVehicleAttack({ weaponIndex = 0, facing = 'proa', useExhaustPort = false, useDeadToRights = false, rng = Math.random } = {}) {
         return this.atomicAction(() => {
+            this._assertSWE02VehicleTurn('player');
             const character = requireCharacter(this.state.player.character);
             const vehicles = clone(this.state.vehicles);
             if (!vehicles.combat.active)
@@ -29329,6 +29506,7 @@ class GameController {
                 vehicles.combat.pendingTargetCritical = { targetVehicleId: target.id, weapon: attack.weapon?.name ?? 'Arma veicular', cost: Number(attack.criticalCost ?? 0), byTriumph: Number(attack.check?.triumph ?? 0) > 0, defenseZone: effectiveFacing, rawRoll: null, componentRequired: false, paidWith: null };
             }
             vehicles.combat.log = [...(vehicles.combat.log ?? []), { type: 'ATAQUE_VEICULO', round: vehicles.combat.round, attackerId: attacker.id, targetId: target.id, hit: attack.hit, damage: attack.targetDamage?.suffered ?? 0, damageType: attack.ion ? 'systemStrain' : 'hull', specialEffect: attack.targetEffect?.type ?? null }];
+            this._recordSWE02VehicleAction(vehicles, 'attack');
             this.commit('VEHICLES_UPDATED', { vehicles });
             return { ...attack, pendingSpend: clone(vehicles.combat.pendingVehicleSpend) };
         });
@@ -29918,6 +30096,7 @@ const jewelArendPatrols_mjs_1 = require("../adventure/jewelArendPatrols.mjs");
 const jewelPursuitTravel_mjs_1 = require("../adventure/jewelPursuitTravel.mjs");
 const jewelResidenceWingResponse_mjs_1 = require("../adventure/jewelResidenceWingResponse.mjs");
 const jewelLandoPardon_mjs_1 = require("../adventure/jewelLandoPardon.mjs");
+const swe02VehicleInitiative_mjs_1 = require("../adventure/swe02VehicleInitiative.mjs");
 exports.migrateState = migrateState = migrateState;
 const ids_mjs_1 = require("./ids.mjs");
 const combat_mjs_1 = require("../rules/combat.mjs");
@@ -30126,6 +30305,7 @@ function migrateState(value) {
     (0, merchantNegotiationReceipts_mjs_1.validateMerchantReceiptLedger)(next);
     (0, aorP177Actions_mjs_1.validateP177Ledger)(next);
     validateP178CombatState(next);
+    (0, swe02VehicleInitiative_mjs_1.validateSWE02VehicleInitiative)(next.vehicles?.combat, next.player?.roster);
     return next;
 }
 function validateState(value) {
@@ -42632,5 +42812,5 @@ function masterWorldSummary(world) {
     };
 }
 });
-try{const m=req("js/core/uiBridge.mjs");m.installBraseiroUiBridge(g);g.__BRASEIRO_ENGINE_BUNDLE__={ok:true,version:m.UI_BRIDGE_VERSION||null,modules:134,final:'1.0.244-r54-p244'};}catch(e){console.error(e);g.__BRASEIRO_ENGINE_BUNDLE__={ok:false,error:String(e&&e.stack||e)}};
+try{const m=req("js/core/uiBridge.mjs");m.installBraseiroUiBridge(g);g.__BRASEIRO_ENGINE_BUNDLE__={ok:true,version:m.UI_BRIDGE_VERSION||null,modules:135,final:'1.0.244-r54-p244'};}catch(e){console.error(e);g.__BRASEIRO_ENGINE_BUNDLE__={ok:false,error:String(e&&e.stack||e)}};
 })(window);

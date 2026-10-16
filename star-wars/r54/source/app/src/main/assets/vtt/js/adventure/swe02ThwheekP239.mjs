@@ -17,11 +17,13 @@ function context(vehicles){
   throw Error('SWE02: combate de Thwheek não pertence a esta aventura.');
  return c;
 }
-export function beginThwheekInterception(world,vehicles){
+export function beginThwheekInterception(world,vehicles,{initiative}={}){
  const w=clone(world),v=clone(vehicles),p=progress(w);
  if(p.currentNodeId!=='thwheek-orbit'||p.flags?.shipThwheekInterceptionRequired!==true||p.flags?.shipThwheekCombatStarted)
   throw Error('SWE02: interceptação não confirmada ou já iniciada.');
  if(v.combat?.active)throw Error('SWE02: outro combate veicular ainda ativo.');
+ if(!initiative||initiative.source?.printedPage!==12||!Array.isArray(initiative.slots))
+  throw Error('SWE02 p.12: iniciativa de Cool obrigatória antes do combate.');
  const ship=v.vehicles?.[v.activeVehicleId];
  if(!ship||ship.key!=='yt1300'||String(ship.name||'').trim().toLowerCase()!=='krayt fang')
   throw Error('SWE02: selecione a Krayt Fang YT-1300 real; o motor não cria uma nave fictícia.');
@@ -31,6 +33,7 @@ export function beginThwheekInterception(world,vehicles){
  enemy.speed=4;enemy.roundEffects.stayOnTarget=true;
  v.vehicles[enemy.id]=enemy;
  v.combat={...v.combat,active:true,round:1,targetVehicleId:enemy.id,range:'Curto',actionUsed:false,maneuversUsed:0,
+   swe02Initiative:clone(initiative),
    npcAttackResolvedRound:null,lastAttack:null,lastIncomingAttack:null,pendingTargetCritical:null,pendingIncomingCritical:null,
    pendingVehicleSpend:null,publishedVehicleContext:{id:THWHEEK_CONTEXT,adventureId:p.id,source:THWHEEK_SOURCE,
     playerVehicleId:ship.id,playerInitialHull:ship.hullDamage,enemyInitialHull:enemy.hullDamage,firstHitRecorded:false},

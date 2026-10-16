@@ -12,6 +12,7 @@ import {validateJewelArendPatrols} from '../adventure/jewelArendPatrols.mjs';
 import {validateJewelPursuitTravel} from '../adventure/jewelPursuitTravel.mjs';
 import {validateJewelResidenceWingResponse} from '../adventure/jewelResidenceWingResponse.mjs';
 import {validateJewelLandoPardon} from '../adventure/jewelLandoPardon.mjs';
+import {validateSWE02VehicleInitiative} from '../adventure/swe02VehicleInitiative.mjs';
 migrateState = migrateState;
 import * as ids_mjs_1 from "./ids.mjs";
 import * as combat_mjs_1 from "../rules/combat.mjs";
@@ -202,6 +203,7 @@ export function migrateState(value) {
     validateMerchantReceiptLedger(next);
     validateP177Ledger(next);
     validateP178CombatState(next);
+    validateSWE02VehicleInitiative(next.vehicles?.combat,next.player?.roster);
     return next;
 }
 export function validateState(value) {

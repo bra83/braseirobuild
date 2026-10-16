@@ -104,7 +104,7 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Continue remaining SWE02 source-to-semantic gaps, starting pp.2–14 and p.12 Thwheek; then Acts 2–3. Keep all adventure/rules/AoR certification gates open until their evidence requirements pass. Do not create P245 or run Android release gates until all five adventures and rules/AoR 360 are certified.",
+  "next_action": "Continue SWE02 pp.2–14; p.12 Cool initiative is now wired to persisted vehicle turns, while the rest of p.12 and chapter evidence remain pending. Then proceed through Acts 2–3. Keep all adventure/rules/AoR certification gates open until evidence passes. Do not create P245 or run Android release gates until all five adventures and rules/AoR 360 are certified.",
   "swe02_krayt_fang_pp06_11": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
     "source": "Long Arm of the Hutt printed pp.6–11 / PDF pp.6–11",
@@ -130,7 +130,7 @@
       "Cargo findings are recorded as discovered, not transferred into character inventory; parts sale/build and item transfer remain absent.",
       "Six-hour transit record does not yet apply rest, recovery or the app world clock.",
       "B’ura story facts and optional Oskara links are recorded but not connected to subsequent Geonosis/quest choices.",
-      "p.12 Thwheek integration, full chapter source audit and final global regression remain outstanding."
+      "p.12 Cool initiative and turn integration is implemented/tested; remaining p.12 claims, full chapter source audit and final global regression remain outstanding."
     ],
     "integration_files": [
       "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
@@ -264,7 +264,28 @@
     "pending": [
       "SWE02 remains uncertified: all page/branch and global source-to-semantic gates across Acts 1–3 are still open.",
       "The book leaves several player/GM dispositions open; the UI records explicit rulings and does not auto-resolve unscripted outcomes.",
-      "Continue source audit/integration on pp.2–14, including actual Krayt Fang item/time effects and p.12 Thwheek."
+      "Continue source audit/integration on pp.2–14, including actual Krayt Fang item/time effects and remaining p.12 Thwheek claims."
+    ]
+  },
+  "swe02_p12_initiative_followup": {
+    "status": "IMPLEMENTADO_NAO_CERTIFICADO",
+    "source": "The Long Arm of the Hutt printed p.12",
+    "proof": "validation/P239_SWE02_SOURCE_PROOFS.json",
+    "executor": "app/src/main/assets/vtt/js/adventure/swe02VehicleInitiative.mjs",
+    "controller": "GameController.beginSWE02ThwheekCombat / passSWE02VehicleTurn / _assertSWE02VehicleTurn",
+    "ui": "vehicle initiative order, actor turn, pass-turn and Thwheek attack controls; party roster import available before combat",
+    "tests": {
+      "file": "tests/uae-p239-swe02-thwheek-vehicle-combat.test.mjs",
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "skip": 0,
+      "evidence": "evidence/SWE02_P12_INITIATIVE_20261016/focused.tap"
+    },
+    "reopens": "Two-PC initiative order and actor-bound action receipts are reopened through a separate GameController instance.",
+    "bundle": {"result": "PASS", "modules": 135, "command": "node tools/build-ui-bridge-bundle.mjs"},
+    "pending": [
+      "Printed p.12 remains pending for full source-to-semantic proof of crash and crew consequences, conditional gate completeness, and page-wide evidence."
     ]
   },
   "swe02_p13_physician_followup": {

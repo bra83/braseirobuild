@@ -27,6 +27,7 @@ All audits below are evidence maps, not certification. A claim can move to `CERT
 - Narrator proposals are constrained and deterministic executors own mutations, but allowlisted economy/world operations can still persist state changes. Source-rule ID membership is not semantic proof that a specific operation is authorized.
 - `audits/RULES_CORE_SOURCE_INTAKE_20261016.md` records local SHA-256, page count, cover/metadata and extraction quality for both EotE/AoR core PDFs; matching Drive byte sizes do not prove remote byte identity or semantic rule coverage. The other 17 source rows and final supplement selection remain unresolved.
 - P.13's physician Critical Injury attempt was added after the P240 audit: `validation/P241_SWE02_SOURCE_PROOFS.json` and `tests/uae-p241-swe02-nyn-newmeen-social.test.mjs` document the exact pool, one-attempt gate, success/failure state, UI and three reopens. Printed p.13 remains pending for the other page-wide gaps.
+- P.12's Cool initiative gap has now been integrated: each registered PC and Thwheek rolls through deterministic code, persisted slots govern vehicle actions, and the hybrid boundary keeps RAG citation and Gemini/Barbara narration outside mechanical authority. Focused evidence is in `evidence/SWE02_P12_INITIATIVE_20261016/`; printed p.12 remains pending for the other page claims.
 
 ## Other required adventures
 

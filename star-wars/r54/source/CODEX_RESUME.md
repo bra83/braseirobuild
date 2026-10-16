@@ -4,7 +4,7 @@
 - Repository: `bra83/braseirobuild`
 - Branch: `codex/star-wars-hibrido-integral-20261016`
 - Base HEAD: `98b6a391401818e74eaa53c752cc98dc9082fea9`
-- Last verified local and remote checkpoint: `24fddccc5400fbc5c83192fb8648e95875d99f66` (core-source intake plus corrected SWE02 p.13 physician audit and 14/14 focused test evidence; pushed)
+- Last verified local and remote checkpoint: `121262b9d6ace95b2601650225f159385db895a4` (resume refresh after the core-source intake and SWE02 p.13 evidence; pushed)
 - Source working copy: `work/star-wars/project`; sparse Git checkout: `work/star-wars/repo-sparse/star-wars/r54/source`
 - P244 SHA-256: `6f3dca72ea55080b4ce7e6befeb5d4d84e51f63453ead6a5719495178a40d264`
 - WIP5 MERGED SHA-256: `7615fc8d156f8909a7a31b0878d6e08715cd71867325c5ad6c97ac5dd830409e`
@@ -20,7 +20,7 @@
 
 ## Exact next actions
 
-1. Resume SWE02 Act 1 pp.2–14 from `audits/SWE02_ACT1_DEEP_AUDIT.md` and `validation/WORK_STATUS.json`. On p.12, implement the printed Cool initiative for Thwheek and each PC only when it can be tied to actual persisted/consumed vehicle turn order; do not count initiative checks disconnected from vehicle actions as closure.
+1. Resume SWE02 Act 1 pp.2–14 from `audits/SWE02_ACT1_DEEP_AUDIT.md` and `validation/WORK_STATUS.json`. The p.12 Cool initiative gap is now integrated with persisted actor slots/actions; continue the remaining p.12 source claims and p.6–11 item/time effects.
 2. Close pp.6–11 gaps with source-backed actual cargo transfers/sales, numeric fuel/time/world-clock effects and downstream clue causality; preserve GM adjudication where the book leaves outcomes open. Then close pp.13–14 and the outstanding p.15–23 branches recorded in the audit.
 3. Keep SWE02 uncertified until all Acts 1–3 source claims, branches and persistence gates have end-to-end evidence. Only then work through SWEP01, SWE05, SWE09, SWE13, the selected rules corpus and all 360 AoR ledger rows.
 4. Current verified checkpoint is pushed at `e31cb33611f194cefcb01452ec53e7df448a49f1`. The active execution goal hit the session usage limit before project completion; do not interpret the checkpoint as completion.
@@ -45,4 +45,11 @@
 - Local EotE and AoR Core Rulebook PDFs were hashed, page-counted, metadata-reviewed, and cover-checked; their byte sizes match the exact Drive records. EotE extraction is degraded; AoR first pages have no extractable text. Full contents and Drive checksums remain unverified. See `audits/RULES_CORE_SOURCE_INTAKE_20261016.md`.
 - Inventory unreviewed count is now 498; the selected supplement boundary remains unresolved, rules status remains `PENDENTE`, and AoR remains 0/360 certified.
 - SWE02 p.13 doctor treatment was already implemented in P241 but was incorrectly described as missing in the older P240 audit. Reconciled the audit and ran `tests/uae-p241-swe02-nyn-newmeen-social.test.mjs`: 14/14 passed, 0 skipped; actual injury removal/retention and three controller reopens are covered. Raw evidence is in `evidence/SWE02_P13_PHYSICIAN_20261016/`. Page 13 remains pending for the other open claims.
-- Next: resume SWE02 p.12 by connecting Thwheek and each persisted party PC's Cool roll to an actual consumed/persisted vehicle turn order; source-proof and test each crash/crew effect before revising any page status. Do not run release gates or create P245.
+- Next at the prior checkpoint: finish the p.12 Cool initiative turn-order integration before moving on to remaining p.12 claims. That integration is now done; see the update below. Do not run release gates or create P245.
+
+## Resume update — SWE02 p.12 initiative integration (2026-10-16)
+
+- Added source-bound Cool rolls for Thwheek and every registered PC, persistent sorted initiative slots, actor-bound vehicle action receipts, turn and round advancement, wrong-side action guards, save/reopen validation, party roster import before combat, and the UI pass-turn/Thwheek attack controls.
+- Focused SWE02 p.12/Thwheek suite passed 15/15; generic vehicle controller regression passed 4/4. Changed JS modules and generated bridge bundle passed `node --check`, and `git diff --check` passed. Official UI bridge bundle rebuilt with 135 modules. Raw focused output and hybrid authority notes are in `evidence/SWE02_P12_INITIATIVE_20261016/`.
+- `tools/verify-p239-syntax.py` could not run because its required P238 source checkpoint ZIP is absent from this checkout. No full project regression or release gate was run.
+- P.12, SWE02, all five adventures, rules, and AoR 360 remain uncertified/pending. Next: inspect and implement the other p.12 source claims, then continue the remaining SWE02 p.2–14 audit. Preserve the hybrid boundary: code owns mechanics/state, RAG retrieves cited text, Gemini/Barbara narrates or proposes typed actions only.

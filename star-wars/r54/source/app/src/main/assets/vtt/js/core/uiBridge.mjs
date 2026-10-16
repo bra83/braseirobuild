@@ -1867,6 +1867,12 @@ completeMerchantAcquisition(options={}){
         try { return ok(clone(controllerResult.data.nextVehicleRound())); }
         catch (error) { return fail('VEHICLE_FAILED', messageOf(error)); }
     }
+    passSWE02VehicleTurn(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.passSWE02VehicleTurn(options ?? {}))); }
+        catch (error) { return fail('VEHICLE_FAILED', messageOf(error)); }
+    }
     endVehicleCombat() {
         const controllerResult = this._controllerForExistingCampaign();
         if (!controllerResult.ok) return controllerResult;

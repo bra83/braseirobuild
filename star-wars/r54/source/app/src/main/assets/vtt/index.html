@@ -70,8 +70,6 @@
         <p id="swe02OldLylekStatus" class="microcopy"></p>
         <details class="rules-panel"><summary>Roster de PCs e tripulação a bordo</summary>
           <div id="swe02PcRoster" class="rule-results"></div>
-          <label>Importar ficha de outro PC (JSON exportado)<textarea id="swe02PcImport" rows="3" placeholder="Cole o JSON exportado da ficha"></textarea></label>
-          <button id="swe02PcImportButton">Adicionar ficha ao roster</button>
           <button id="swe02CrewConfirm">Confirmar PCs a bordo</button>
         </details>
         <div class="button-row">
@@ -313,6 +311,12 @@ ROTA PONTILHADA: retirada dos caçadores · SWE02 p.16</pre>
           </div>
           <p id="characterJsonFeedback" class="feedback"></p>
         </details>
+        <details class="sheet-details json-panel">
+          <summary>Adicionar ficha de outro PC ao grupo</summary>
+          <p class="microcopy">Para iniciativa em grupo, importe uma ficha individual por cada participante antes de iniciar a interceptação.</p>
+          <textarea id="swe02PcImport" rows="4" placeholder="Cole o JSON exportado da ficha do outro PC."></textarea>
+          <button id="swe02PcImportButton" class="secondary">Adicionar ficha ao roster</button>
+        </details>
       </section>
     </section>
 
@@ -539,7 +543,8 @@ ROTA PONTILHADA: retirada dos caçadores · SWE02 p.16</pre>
           <details class="sheet-details" open>
             <summary>Combate e manobras</summary>
             <p id="vehicleCombatLine" class="microcopy">Fora de combate.</p>
-            <div class="button-row three"><button id="startVehicleCombat" class="secondary">Iniciar vs TIE</button><button id="nextVehicleRound" class="secondary">Próximo assalto</button><button id="endVehicleCombat" class="secondary">Encerrar</button></div>
+            <p id="vehicleInitiativeLine" class="microcopy" hidden></p>
+            <div class="button-row three"><button id="startVehicleCombat" class="secondary">Iniciar vs TIE</button><button id="nextVehicleRound" class="secondary">Próximo assalto</button><button id="passSWE02VehicleTurn" class="secondary" hidden>Passar turno</button><button id="swe02ThwheekAttack" class="secondary" hidden>Thwheek ataca</button><button id="endVehicleCombat" class="secondary">Encerrar</button></div>
             <label class="starter-label" for="vehicleManeuverMethod">Se for a segunda manobra exclusiva</label>
             <select id="vehicleManeuverMethod" class="starter-select"><option value="normal">Usar a 1ª manobra</option><option value="strain">2ª · +2 Tensão de sistemas</option><option value="action">2ª · trocar a ação</option></select>
             <div class="vehicle-maneuvers">

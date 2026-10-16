@@ -12,6 +12,7 @@
     {"id":"ship-tracker-route", "page":8,"fact":"Non-optimal Astrogation route still causes interception even with slowed tracker; optimal course plus slowed tracker skips interception", "executor":"swe02KraytFangP238.mjs + longArmOfTheHutt.mjs", "controller":"GameController.advancePublishedAdventure", "test":"uae-p239-swe02-thwheek-vehicle-combat.test.mjs"},
     {"id":"fighter-profile", "page":12,"fact":"G1-M4-C: silhouette 3, speed 4, handling +1, defense 1, armor 3, hull 8, system 7, linked medium laser damage 6", "executor":"rules/vehicles.mjs SWE02_ADVENTURE_VEHICLE_PROFILES", "controller":"GameController.advancePublishedAdventure / beginSWE02ThwheekCombat", "test":"uae-p239-swe02-thwheek-vehicle-combat.test.mjs"},
     {"id":"vehicle-combat", "page":12,"fact":"Short initial range, actual attack dice, hull trauma, and separate player/enemy ship records", "executor":"rules/vehicles.mjs and swe02ThwheekP239.mjs", "controller":"GameController.resolveVehicleAttack / resolveIncomingVehicleAttack", "test":"uae-p239-swe02-thwheek-vehicle-combat.test.mjs"},
+    {"id":"cool-initiative-turn-order", "page":12,"fact":"Thwheek and every registered PC roll Cool; sorted slots govern player vehicle actions and the Thwheek attack, persist across rounds/reopen, and bind action receipts to actor and slot", "executor":"swe02VehicleInitiative.mjs and rules/initiative.mjs", "controller":"GameController.beginSWE02ThwheekCombat / passSWE02VehicleTurn / _assertSWE02VehicleTurn", "ui":"vehicle initiative display, pass-turn and Thwheek attack controls", "test":"uae-p239-swe02-thwheek-vehicle-combat.test.mjs"},
     {"id":"tactics", "page":12,"fact":"Thwheek begins Stay on Target, changes to Evasive Maneuvers after first actual hit", "executor":"swe02ThwheekP239.mjs thwheekTactics", "controller":"GameController.resolveVehicleAttack / nextVehicleRound", "test":"uae-p239-swe02-thwheek-vehicle-combat.test.mjs"},
     {"id":"retreat", "page":12,"fact":"Five or more hull trauma triggers atmospheric retreat; player may pursue or proceed", "executor":"swe02ThwheekP239.mjs resolveThwheekInterception", "controller":"GameController.resolveSWE02ThwheekCombat", "test":"uae-p239-swe02-thwheek-vehicle-combat.test.mjs"},
     {"id":"crash", "page":12,"fact":"Krayt Fang shot down: Hard Pilot then each crew member Hard Resilience; successful soft landing upgrades ability once; failed Resilience inflicts Critical Injury; each Threat inflicts 1 wound", "executor":"swe02ThwheekP239.mjs + rules/critical.mjs", "controller":"GameController.resolveSWE02CrashPilot / resolveSWE02CrashResilience", "test":"uae-p239-swe02-thwheek-vehicle-combat.test.mjs"},
@@ -19,11 +20,11 @@
   ],
   "limitations": [
     "Krayt Fang YT-1300 base profile is inherited from EotE Core; exact modified beginner-game vessel loadout and ownership are not independently certified here; player must explicitly select the actual named vessel.",
-    "Initiative Cool rolls for Thwheek and all PCs are not connected to vehicle turn order; the engine uses its existing round/action vehicle combat system.",
     "No automatic time/fuel expenditure or global odor penalty outside the P238 shipboard checks.",
     "Nabat repairs/refueling, Nyn's resources and critical injury healing, New Meen non-violent path still pending.",
     "Other four adventures, EotE/AoR supplements and 360 AoR consumers still lack complete individual editorial certification.",
     "No Android APK, Gradle, CI, physical device or GitHub push executed."
   ],
-  "testEvidence": "evidence/P239/GLOBAL_PER_FILE_SUMMARY.json"
+  "testEvidence": "evidence/P239/GLOBAL_PER_FILE_SUMMARY.json",
+  "initiativeTestEvidence": "evidence/SWE02_P12_INITIATIVE_20261016/RESULTS.md"
 }
