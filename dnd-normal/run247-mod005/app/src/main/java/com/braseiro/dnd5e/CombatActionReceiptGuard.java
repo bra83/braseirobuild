@@ -11,6 +11,11 @@ public final class CombatActionReceiptGuard {
         return true;
     }
     public static String replayDecision(String persistedSignature,String requestedSignature){
-        return persistedSignature!=null&&persistedSignature.equals(requestedSignature)?"replayed":"operation_token_collision";
+        // Empty or missing signatures in a restored sheet are not proof of the
+        // original operation. Never allow two blank values to count as replay.
+        return persistedSignature!=null&&!persistedSignature.isEmpty()
+            &&requestedSignature!=null&&!requestedSignature.isEmpty()
+            &&persistedSignature.equals(requestedSignature)
+            ?"replayed":"operation_token_collision";
     }
 }
