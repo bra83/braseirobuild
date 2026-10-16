@@ -4,7 +4,7 @@
 - Repository: `bra83/braseirobuild`
 - Branch: `codex/star-wars-hibrido-integral-20261016`
 - Base HEAD: `98b6a391401818e74eaa53c752cc98dc9082fea9`
-- Last verified local and remote checkpoint before this turn: `fc0bc8ad1dcaf76ca93409bb14b3d4925c7c3336` (resume/next-action checkpoint; pushed)
+- Last verified local and remote checkpoint: `e31cb33611f194cefcb01452ec53e7df448a49f1` (New Meen pp.19–23 integration plus corrected resume checkpoint; pushed)
 - Source working copy: `work/star-wars/project`; sparse Git checkout: `work/star-wars/repo-sparse/star-wars/r54/source`
 - P244 SHA-256: `6f3dca72ea55080b4ce7e6befeb5d4d84e51f63453ead6a5719495178a40d264`
 - WIP5 MERGED SHA-256: `7615fc8d156f8909a7a31b0878d6e08715cd71867325c5ad6c97ac5dd830409e`
@@ -20,11 +20,11 @@
 
 ## Exact next actions
 
-1. Integrate `swe02NewMeenLifecycleP19.mjs` into the SWE02 controller, scene graph, UI, P241/P243 receipts and actual combat outcomes; add controller save/reopen proofs and rebuild the offline bundle.
-2. Continue Act 1 pages 2–24, including Krayt Fang actual inventory/time effects and p.12 Thwheek, then Acts 2 and 3; keep all editorial statuses uncertified until each page/branch gate passes.
-3. Continue Acts 2 and 3, then the four remaining adventures and rules/AoR 360 ledgers. Do not create P245 or run release gates before all certification gates pass.
-4. Continue complete SWE02 coverage through Acts 1–3, then SWEP01, SWE05, SWE09, SWE13, rules families and all 360 AoR positions; keep claims uncertified until their full semantic gates pass.
-5. Do not create P245 or run Android release gates before all five adventure and rules gates pass.
+1. Resume SWE02 Act 1 pp.2–14 from `audits/SWE02_ACT1_DEEP_AUDIT.md` and `validation/WORK_STATUS.json`. On p.12, implement the printed Cool initiative for Thwheek and each PC only when it can be tied to actual persisted/consumed vehicle turn order; do not count initiative checks disconnected from vehicle actions as closure.
+2. Close pp.6–11 gaps with source-backed actual cargo transfers/sales, numeric fuel/time/world-clock effects and downstream clue causality; preserve GM adjudication where the book leaves outcomes open. Then close pp.13–14 and the outstanding p.15–23 branches recorded in the audit.
+3. Keep SWE02 uncertified until all Acts 1–3 source claims, branches and persistence gates have end-to-end evidence. Only then work through SWEP01, SWE05, SWE09, SWE13, the selected rules corpus and all 360 AoR ledger rows.
+4. Current verified checkpoint is pushed at `e31cb33611f194cefcb01452ec53e7df448a49f1`. The active execution goal hit the session usage limit before project completion; do not interpret the checkpoint as completion.
+5. Do not create P245 or run Android release gates until all five adventures and the rules/AoR certification gates pass.
 
 
 
@@ -33,3 +33,8 @@
 - Working tree includes the integrated New Meen lifecycle and corrections to older pp.21–23 consumers that now traverse the p.22 approach gate. The 382-file fresh regression is green (3,436 pass, 0 fail, 2 JDK packaging skips).
 - Latest New Meen integration checkpoint committed and pushed: `9ed0c1590675b877e98c554cdcf1d384eb272021`.
 - Next: continue SWE02 pp.2–14 and p.12. Keep the full adventure uncertified and respect all global gates.
+
+## Resume update — session limit checkpoint
+
+- The session's execution goal is `usageLimited`; the project is not complete. `validation/WORK_STATUS.json` remains authoritative: 0/5 adventures certified, rules pending, and 0/360 AoR proof rows certified.
+- Current evidence and completed New Meen implementation are in the pushed checkpoint above. Continue from SWE02 pp.2–14; do not redo New Meen pp.19–23 or its 382-file regression unless code changes affect it.
