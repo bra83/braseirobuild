@@ -110,6 +110,21 @@ public final class V1ManualBackupIsolationRobolectricTest {
         }
     }
 
+    @Test public void emptyRestoredReceiptSignatureCannotMasqueradeAsReplay() throws Exception {
+        assertEquals("operation_token_collision",
+            CombatActionReceiptGuard.replayDecision("", ""));
+        assertEquals("operation_token_collision",
+            CombatActionReceiptGuard.replayDecision(null, null));
+        assertEquals("operation_token_collision",
+            CombatPersistentReceiptKey.replayDecision("", ""));
+        assertEquals("operation_token_collision",
+            CombatPersistentReceiptKey.replayDecision("spell_slot:1", ""));
+        assertEquals("replayed",
+            CombatActionReceiptGuard.replayDecision("spell_slot:1", "spell_slot:1"));
+        assertEquals("operation_token_collision",
+            CombatActionReceiptGuard.replayDecision("spell_slot:1", "spell_slot:2"));
+    }
+
     @Test public void tamperedBackup21IsRejectedWithoutOverwritingCampaign() throws Exception {
         JSONObject backup = db.exportAll();
         assertEquals("", Backup21IntegrityEnvelope.check(backup));
