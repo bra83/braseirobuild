@@ -18,11 +18,13 @@ VALIDADO_E2E
 import csv
 import json
 import re
+import hashlib
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_CSV = ROOT / "docs" / "dnd-v1-3core" / "MATRIZ_INTEGRAL_TRES_LIVROS.csv"
-CURRENT_SHA = "1ab7e7a9"
+CURRENT_SHA = ""  # Only a per-row, verified CI proof can populate this field.
 
 COLUMNS = [
     "id_estavel",
@@ -1064,6 +1066,54 @@ for m in monster_records:
             "evidencia": f"XMM 2025 Plan: {m_id}"
         })
 
+# Coverage classifications must reflect individual, reproducible execution
+# evidence. A generated source row or generic family test is NOT E2E proof.
+def audit_status(row):
+    if row["estado"] == "NARRATIVO_JUSTIFICADO":
+        return row["estado"]
+    entry_id = row["id_estavel"]
+    if entry_id.startswith("XMM-MOB-") or entry_id.startswith("PHB-SUB-"):
+        return "CATALOGO_APENAS"
+    if entry_id.startswith("XMM-MLA-") and "(Hibrido)" in row["nome"]:
+        return "BLOQUEADO_HOST"
+    return "IMPLEMENTADO_NAO_TESTADO"
+
+
+def unique_stable_ids(entries):
+    base_counts = Counter(row["id_estavel"] for row in entries)
+    used = set()
+    for row in entries:
+        original = row["id_estavel"]
+        if base_counts[original] > 1:
+            identity = "\\x1f".join(row[key] for key in
+                ("livro", "edicao", "capitulo", "secao", "pagina", "nome", "tipo"))
+            suffix = hashlib.sha256(identity.encode("utf-8")).hexdigest()[:12].upper()
+            candidate = original + "-" + suffix
+        else:
+            candidate = original
+        index = 2
+        stable = candidate
+        while stable in used:
+            stable = candidate + "-" + str(index)
+            index += 1
+        row["id_estavel"] = stable
+        used.add(stable)
+    if len(used) != len(entries):
+        raise AssertionError("A matriz nao pode conter IDs duplicados")
+
+
+unique_stable_ids(rows)
+for row in rows:
+    row["estado"] = audit_status(row)
+    if row["estado"] != "NARRATIVO_JUSTIFICADO":
+        # A SHA is a result of a per-item CI run, never a generator-wide constant.
+        row["sha_testado"] = ""
+        row["backup_reaberturas"] = "NAO_COMPROVADO_POR_ITEM"
+        row["testes_exatos"] = "TESTE_DE_FAMILIA_SEM_PROVA_INDIVIDUAL: " + row["testes_exatos"]
+        row["bloqueio"] = ("COMPONENTE_HIBRIDO_NAO_EXECUTAVEL"
+            if row["estado"] == "BLOQUEADO_HOST" else "PROVA_E2E_INDIVIDUAL_AUSENTE")
+        row["evidencia"] = "REFERENCIA_NAO_EVIDENCIA_DE_EXECUCAO: " + row["evidencia"]
+
 OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
 with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
     writer = csv.DictWriter(f, fieldnames=COLUMNS)
@@ -1071,7 +1121,7 @@ with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
     for r in rows:
         writer.writerow(r)
 
-print(f"Generated {OUTPUT_CSV} with {len(rows)} exhaustive canonical rows.")
+print(f"Generated {OUTPUT_CSV} with {len(rows)} inventory candidate rows; individual E2E evidence required.")
 
 # Count totals
 counts = {}
