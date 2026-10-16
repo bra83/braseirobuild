@@ -4,7 +4,7 @@
 - Repository: `bra83/braseirobuild`
 - Branch: `codex/star-wars-hibrido-integral-20261016`
 - Base HEAD: `98b6a391401818e74eaa53c752cc98dc9082fea9`
-- Last verified local and remote checkpoint: `5d762e77edf70554c315be61408c1769ef8d0e3c` (Old Lylek combat/named-zone WIP; schema and regression follow-up are currently uncommitted)
+- Last verified local and remote checkpoint: `5bb5153f8f33f110e307d8e4750144f27379f41f` (Old Lylek combat/named-zone WIP, schema 15/R46 compatibility, full per-file regression evidence)
 - Source working copy: `work/star-wars/project`; sparse Git checkout: `work/star-wars/repo-sparse/star-wars/r54/source`
 - P244 SHA-256: `6f3dca72ea55080b4ce7e6befeb5d4d84e51f63453ead6a5719495178a40d264`
 - WIP5 MERGED SHA-256: `7615fc8d156f8909a7a31b0878d6e08715cd71867325c5ad6c97ac5dd830409e`
@@ -17,8 +17,8 @@
 
 ## Exact next actions
 
-1. Commit and push schema 15/R46 compatibility, P184 Old Lylek fixture updates, full regression summary and all 379 per-file TAP logs; verify with `git ls-remote`.
-2. Continue SWE02 Act 1 pp.2–24 from `audits/SWE02_ACT1_DEEP_AUDIT.md`; every page and adventure remains uncertified until its exact source→executor→UI→save/reopen→test gates close.
+1. Continue SWE02 Act 1 pp.2–24 from `audits/SWE02_ACT1_DEEP_AUDIT.md`, starting with source-rechecked gaps around pp.2–14 and pp.19–23; source audits are running in parallel, with root retaining integration/code ownership.
+2. Close each functional family with deterministic effects, usable UI, save/reopen proof and focused tests; update status and commit/push recoverable WIP after each coherent block.
 3. Continue Acts 2 and 3, then the four remaining adventures and rules/AoR 360 ledgers. Do not create P245 or run release gates before all certification gates pass.
 4. Continue complete SWE02 coverage through Acts 1–3, then SWEP01, SWE05, SWE09, SWE13, rules families and all 360 AoR positions; keep claims uncertified until their full semantic gates pass.
 5. Do not create P245 or run Android release gates before all five adventure and rules gates pass.
