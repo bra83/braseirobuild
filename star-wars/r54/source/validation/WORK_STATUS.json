@@ -15,7 +15,13 @@
     "positions": 360,
     "certified": 0,
     "pending": 360,
-    "ledger": "validation/AOR_360_INDIVIDUAL_PROOFS.jsonl"
+    "ledger": "validation/AOR_360_INDIVIDUAL_PROOFS.jsonl",
+    "individual_proofs_certified": 0,
+    "individual_proofs_pending": 360,
+    "static_exact_node_id_test_mentions": 10,
+    "static_broader_name_key_test_mentions": 290,
+    "ledger_includes_static_references": true,
+    "static_references_are_certification": false
   },
   "drive_inventory": {
     "records": 527,
