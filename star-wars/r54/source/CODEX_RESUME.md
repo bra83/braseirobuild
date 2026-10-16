@@ -31,5 +31,5 @@
 ## Resume update — New Meen pp.19–23
 
 - Working tree includes the integrated New Meen lifecycle and corrections to older pp.21–23 consumers that now traverse the p.22 approach gate. The 382-file fresh regression is green (3,436 pass, 0 fail, 2 JDK packaging skips).
-- Latest committed/pushed checkpoint at start of this update: `08a24da5082b32990581c7b239f2462c1d58bd1d`. Current New Meen changes are not yet committed/pushed.
-- Next: review/commit/push this cohesive integration, sync changed source/tests/status to recovered `work/star-wars/project`, then resume SWE02 pp.2–14 and p.12. Keep full adventure uncertified and respect all global gates.
+- Latest New Meen integration checkpoint committed and pushed: `9ed0c1590675b877e98c554cdcf1d384eb272021`.
+- Next: continue SWE02 pp.2–14 and p.12. Keep the full adventure uncertified and respect all global gates.
