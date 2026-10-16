@@ -7982,6 +7982,10 @@ public class AppDb extends SQLiteOpenHelper {
                 EquippedWeaponAttackRules.Dice dice=EquippedWeaponAttackRules.parse(damageFormula);
                 JSONObject ch=getCharacter(charId);
                 JSONObject sheet=readCharacterSheet(ch);
+                // Pin the attacker class/level to persistent DB columns.
+                // A mutable sheet_json class label must not grant other subclasses.
+                sheet.put("class_name",ch.optString("class_name",""));
+                sheet.put("level",ch.optInt("level",1));
                 int critThreshold=Core2024SubclassRuntimeEngine.criticalThreshold(sheet);
                 boolean crit=natural>=critThreshold;
                 if(weapon.length()==0||dice==null||
