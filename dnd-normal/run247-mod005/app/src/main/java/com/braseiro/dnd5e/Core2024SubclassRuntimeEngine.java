@@ -474,12 +474,12 @@ public final class Core2024SubclassRuntimeEngine {
     public static int criticalThreshold(JSONObject sheet) {
         if (sheet == null) return 20;
         String sub = extractSubclass(sheet);
-        if (sub.isEmpty()) return 20;
+        int level = sheet.optInt("level", 1);
+        if (!isSubclassSelectionValid(sheet.optString("class_name", ""), level, sub))
+            return 20;
         String k = norm(sub);
-        if (k.contains("campeao") || k.contains("champion")) {
-            int lvl = sheet.optInt("level", 1);
-            if (lvl >= 15) return 18;
-            if (lvl >= 3) return 19;
+        if (k.equals("campeao") || k.equals("champion")) {
+            return level >= 15 ? 18 : 19;
         }
         return 20;
     }
