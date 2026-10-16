@@ -897,8 +897,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void showBastion2024Dialog(){
         final ArrayList<JSONObject> eligible=new ArrayList<JSONObject>();
         for(JSONObject hero:db.listActiveCharacters()){
-            String source=DndRulesEngine.canonicalProfile(hero.optString("rules_source",
-                db.getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2014)));
+            String rawSource=hero.optString("rules_source","").trim();
+            if(rawSource.isEmpty())rawSource=db.getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2014);
+            String source=DndRulesEngine.canonicalProfile(rawSource);
             if(hero.optInt("level",0)>=5&&DndRulesEngine.PROFILE_2024.equals(source))
                 eligible.add(hero);
         }
