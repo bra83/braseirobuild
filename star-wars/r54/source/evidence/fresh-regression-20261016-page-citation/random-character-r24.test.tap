@@ -1,0 +1,15 @@
+✔ gerador exige nome e motivação fornecidos pelo usuário (5.6327ms)
+✔ gerador usa somente catálogos AoR auditados e produz ficha válida sem gastar PE aleatoriamente (12.5688ms)
+✔ amostra múltiplas sequências sem ultrapassar grau 2 ou sair dos contratos de criação (13.7154ms)
+✔ GameController constrói sem mutar e só persiste quando criação é confirmada (63.2201ms)
+✔ ponte v3 cria ficha aleatória e snapshot somente quando substitui ficha existente (27.6357ms)
+✔ falha de entrada não muta estado nem cria snapshot (7.7362ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2697.9006
+

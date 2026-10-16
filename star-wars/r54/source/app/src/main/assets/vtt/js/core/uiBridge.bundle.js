@@ -13740,7 +13740,7 @@ exports.LONG_ARM_OF_THE_HUTT = Object.freeze({
         },
         'palace-gladiator-cells': {
             episode: 3, title: 'Celas dos quatro gladiadores', locationId: LOC.teemoPalace,
-            summary: 'Quatro gladiadores usam a ficha de capangas (p.21); Charme não funciona. Podem ser subornados por 1.000 créditos ou coagidos contra Disciplina (p.43).',
+            summary: 'Quatro gladiadores usam a ficha de capangas (p.21); Charme não funciona. Podem ser subornados por 1.000 créditos ou coagidos contra Disciplina (p.44).',
             narration: 'Quatro lutadores esperam entre grades e armas de treino. O dinheiro e a força os impressionam mais que palavras gentis.',
             visibleNpcIds: [], checks: [], choices: [
                 { id: 'palace-gladiators-return', label: 'Voltar à recepção', to: 'palace-reception' },
@@ -13749,7 +13749,7 @@ exports.LONG_ARM_OF_THE_HUTT = Object.freeze({
         },
         'palace-cantina-bar': {
             episode: 3, title: 'Bar do palácio', locationId: LOC.teemoPalace,
-            summary: 'Droide COO pacífico, cobertura +2 revés contra alvos atrás do bar; explosão com duas Vantagens requer executor de atordoamento certificado (p.43).',
+            summary: 'Droide COO pacífico, cobertura +2 revés contra alvos atrás do bar; explosão com duas Vantagens requer executor de atordoamento certificado (p.44).',
             narration: 'O droide prepara bebidas atrás de um balcão pesado, longe do centro do trono.',
             visibleNpcIds: [], checks: [], choices: [{ id: 'palace-bar-return', label: 'Voltar à recepção', to: 'palace-reception' },
                 { id: 'palace-bar-throne', label: 'Voltar ao salão do trono', to: 'teemo-showdown' }]
@@ -13762,7 +13762,7 @@ exports.LONG_ARM_OF_THE_HUTT = Object.freeze({
         },
         'palace-spy-interview': {
             episode: 3, title: 'Entrevista reservada com Smooth Banjaxx Wab', locationId: LOC.teemoPalace,
-            summary: 'O músico Bith deixa o salão e pode ser confrontado sem combate; seu relato prova espionagem de Jabba (pp.43–44).',
+            summary: 'O músico Bith deixa o salão e pode ser confrontado sem combate; seu relato prova espionagem de Jabba (pp.44–45).',
             narration: 'O músico atravessa o corredor em direção ao refresher, longe da atenção dos guardas.',
             visibleNpcIds: [], checks: [], choices: [{ id: 'palace-spy-return', label: 'Voltar ao salão', to: 'palace-reception' }]
         },
@@ -14325,7 +14325,7 @@ function longArmOfTheHuttEncounterSpec(world, encounterId = null) {
     if (id === 'laoth-palace-gladiators') {
         if (world?.publishedAdventure?.currentNodeId !== 'palace-gladiator-cells' || world.publishedAdventure.flags?.palaceGladiatorsAllied)
             throw Error('SWE02: gladiadores não hostis nesta cena.');
-        return { id, label: 'Quatro gladiadores de Teemo', source: { productCode: 'SWE02', printedPages: [21, 43] },
+        return { id, label: 'Quatro gladiadores de Teemo', source: { productCode: 'SWE02', printedPages: [21, 44] },
             playerInitiativeSkill: 'frialdad', npcInitiativeSkill: 'alerta',
             adversaries: [{ profileKey: 'laoth_drombb_thug', count: 4, range: 'Curto', name: 'Quatro gladiadores' }] };
     }
@@ -16852,7 +16852,7 @@ exports.queueSWE02ThroneAlarm = queueSWE02ThroneAlarm;
 exports.triggerSWE02ThroneAlarmOnNpcTurn = triggerSWE02ThroneAlarmOnNpcTurn;
 exports.applySWE02ThroneReinforcementsAtRoundBoundary = applySWE02ThroneReinforcementsAtRoundBoundary;
 exports.validateSWE02ThroneAlarm = validateSWE02ThroneAlarm;
-// SWE02 pp.43–44: gladiator cells and throne-alarm countdown.
+// SWE02 pp.44–45: gladiator recruitment and throne-alarm countdown.
 // No automatic gladiator loyalty or fabricated barracks headcount.
 const narrativeDice_mjs_1 = require("../rules/narrativeDice.mjs");
 const character_mjs_1 = require("../rules/character.mjs");
@@ -16860,7 +16860,7 @@ const swe02SocialP241_mjs_1 = require("./swe02SocialP241.mjs");
 const adversaries_mjs_1 = require("../rules/adversaries.mjs");
 const initiative_mjs_1 = require("../rules/initiative.mjs");
 const clone = structuredClone;
-const SOURCE = Object.freeze({ productCode: 'SWE02', printedPage: 43, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' });
+const SOURCE = Object.freeze({ productCode: 'SWE02', printedPage: 44, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' });
 const PALACE = 'long-arm-of-the-hutt';
 function active(world, node) {
     const p = world?.publishedAdventure;
@@ -16884,7 +16884,7 @@ function recruitSWE02Gladiators(world, character, { method = 'BRIBE', rng = Math
     let check = null, success = true, spent = 0;
     if (method === 'BRIBE') {
         if (!Number.isSafeInteger(c.credits) || c.credits < 1000)
-            throw Error('SWE02 p.43: suborno exige 1.000 créditos reais.');
+            throw Error('SWE02 p.44: suborno exige 1.000 créditos reais.');
         c.credits -= 1000;
         spent = 1000;
     }
@@ -16908,7 +16908,7 @@ function validateSWE02Palace(world) {
         return true;
     const r = p.palaceGladiatorReceipt;
     if (r) {
-        if (r.type !== 'SWE02_GLADIATORS_RECRUITMENT' || r.source?.productCode !== 'SWE02' || r.source?.printedPage !== 43 || r.source?.authority !== 'OFFICIAL_PDF_TEXT_VERIFIED' || r.nodeId !== 'palace-gladiator-cells' || !r.characterKey || r.gladiators !== 4 || !['BRIBE', 'COERCE'].includes(r.method) || r.success !== p.flags?.palaceGladiatorsAllied || !Number.isSafeInteger(r.creditsAfter) || r.creditsAfter < 0)
+        if (r.type !== 'SWE02_GLADIATORS_RECRUITMENT' || r.source?.productCode !== 'SWE02' || r.source?.printedPage !== 44 || r.source?.authority !== 'OFFICIAL_PDF_TEXT_VERIFIED' || r.nodeId !== 'palace-gladiator-cells' || !r.characterKey || r.gladiators !== 4 || !['BRIBE', 'COERCE'].includes(r.method) || r.success !== p.flags?.palaceGladiatorsAllied || !Number.isSafeInteger(r.creditsAfter) || r.creditsAfter < 0)
             throw Error('SWE02: recibo de gladiadores adulterado.');
         if (r.method === 'BRIBE') {
             if (r.creditsSpent !== 1000 || r.check !== null || r.success !== true)
@@ -18060,7 +18060,7 @@ exports.validateSWE02PalaceOperations = validateSWE02PalaceOperations;
 /** SWE02 palace operations: source-authored DATA, shared deterministic executor.
  * No generated narrative may grant money, gear, evidence or combat effects.
  * Inert claims are tracked but never become usable weapons without a primary
- * EotE rule profile. Official SWE02 printed pp.42–44.
+ * EotE rule profile. Official SWE02 printed pp.42, 44–45.
  */
 const equipmentCatalog_mjs_1 = require("../rules/equipmentCatalog.mjs");
 const narrativeDice_mjs_1 = require("../rules/narrativeDice.mjs");
@@ -18070,17 +18070,17 @@ const clone = structuredClone;
 const ID = 'long-arm-of-the-hutt';
 const source = printedPage => ({ productCode: 'SWE02', printedPage, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' });
 exports.SWE02_PALACE_OPERATIONS = Object.freeze([
-    { id: 'workshop-toolkit', scene: 'palace-workshop', label: 'Recolher kit de ferramentas', page: 43, mode: 'GEAR', itemId: 'tool_kit', quantity: 1 },
-    { id: 'workshop-lights', scene: 'palace-workshop', label: 'Recolher duas barras luminosas', page: 43, mode: 'GEAR', itemId: 'glow_rod', quantity: 2 },
-    { id: 'workshop-repair', scene: 'palace-workshop', label: 'Separar dois kits emergenciais de reparo (ficha pendente)', page: 43, mode: 'SEALED', assetName: 'emergency repair kits', quantity: 2 },
-    { id: 'workshop-stimpacks', scene: 'palace-workshop', label: 'Separar dois stimpacks (ficha pendente)', page: 43, mode: 'SEALED', assetName: 'stimpacks', quantity: 2 },
-    { id: 'workshop-carbines', scene: 'palace-workshop', label: 'Reservar três carabinas blaster, sem perfil de combate EotE', page: 43, mode: 'SEALED', assetName: 'blaster carbines', quantity: 3 },
-    { id: 'workshop-vibroaxes', scene: 'palace-workshop', label: 'Reservar três vibromachados, sem perfil EotE', page: 43, mode: 'SEALED', assetName: 'vibro-axes', quantity: 3 },
-    { id: 'workshop-b1-worklog', scene: 'palace-workshop', label: 'Recolher diário dos três droides B1 inoperantes', page: 43, mode: 'EVIDENCE', flag: 'b1ReverseEngineeringEvidence' },
-    { id: 'kitchen-ryll', scene: 'palace-kitchen', label: 'Abrir os dois caixotes suspeitos de ryll após teste', page: 43, mode: 'EVIDENCE', flag: 'ryllKitchenEvidence', requiredCheck: { scene: 'palace-kitchen', index: 0 } },
-    { id: 'bar-cook', scene: 'palace-cantina-bar', label: 'Conversar com o droide cozinheiro (não combatente)', page: 43, mode: 'OBSERVATION', flag: 'palaceCookHarmless' },
-    { id: 'bar-cover', scene: 'palace-cantina-bar', label: 'Examinar a cobertura do balcão (+2 revés para atiradores externos)', page: 43, mode: 'OBSERVATION', flag: 'palaceBarCoverSeen' },
-    { id: 'spy-bith-testimony', scene: 'palace-spy-interview', label: 'Confrontar o músico Bith com sua espionagem', page: 44, mode: 'EVIDENCE', flag: 'palaceBithWitnessEvidence', requiresVisited: 'palace-spy-interview' }
+    { id: 'workshop-toolkit', scene: 'palace-workshop', label: 'Recolher kit de ferramentas', page: 44, mode: 'GEAR', itemId: 'tool_kit', quantity: 1 },
+    { id: 'workshop-lights', scene: 'palace-workshop', label: 'Recolher duas barras luminosas', page: 44, mode: 'GEAR', itemId: 'glow_rod', quantity: 2 },
+    { id: 'workshop-repair', scene: 'palace-workshop', label: 'Separar dois kits emergenciais de reparo (ficha pendente)', page: 44, mode: 'SEALED', assetName: 'emergency repair kits', quantity: 2 },
+    { id: 'workshop-stimpacks', scene: 'palace-workshop', label: 'Separar dois stimpacks (ficha pendente)', page: 44, mode: 'SEALED', assetName: 'stimpacks', quantity: 2 },
+    { id: 'workshop-carbines', scene: 'palace-workshop', label: 'Reservar três carabinas blaster, sem perfil de combate EotE', page: 44, mode: 'SEALED', assetName: 'blaster carbines', quantity: 3 },
+    { id: 'workshop-vibroaxes', scene: 'palace-workshop', label: 'Reservar três vibromachados, sem perfil EotE', page: 44, mode: 'SEALED', assetName: 'vibro-axes', quantity: 3 },
+    { id: 'workshop-b1-worklog', scene: 'palace-workshop', label: 'Recolher diário dos três droides B1 inoperantes', page: 44, mode: 'EVIDENCE', flag: 'b1ReverseEngineeringEvidence' },
+    { id: 'kitchen-ryll', scene: 'palace-kitchen', label: 'Abrir os dois caixotes suspeitos de ryll após teste', page: 44, mode: 'EVIDENCE', flag: 'ryllKitchenEvidence', requiredCheck: { scene: 'palace-kitchen', index: 0 } },
+    { id: 'bar-cook', scene: 'palace-cantina-bar', label: 'Conversar com o droide cozinheiro (não combatente)', page: 44, mode: 'OBSERVATION', flag: 'palaceCookHarmless' },
+    { id: 'bar-cover', scene: 'palace-cantina-bar', label: 'Examinar a cobertura do balcão (+2 revés para atiradores externos)', page: 44, mode: 'OBSERVATION', flag: 'palaceBarCoverSeen' },
+    { id: 'spy-bith-testimony', scene: 'palace-spy-interview', label: 'Confrontar o músico Bith com sua espionagem', page: 45, mode: 'EVIDENCE', flag: 'palaceBithWitnessEvidence', requiresVisited: 'palace-spy-interview' }
 ]);
 // Additional source-authored scene operations use the SAME executor as the palace.
 // Printed p.40: deactivating the unattended gate calls exactly four guards
@@ -18098,13 +18098,13 @@ exports.SWE02_SITE_OPERATIONS = Object.freeze([
     { id: 'hallway-teemo-sculpture', scene: 'palace-grand-hallway', label: 'Inspecionar a holoescultura de Teemo e o mosaico do piso', page: 42, mode: 'OBSERVATION', flag: 'palaceHallwayArtSeen' },
     { id: 'hallway-painting-cargo', scene: 'palace-grand-hallway', label: 'Recolher um quadro volumoso (revenda aproximada 450 créditos, não recebidos)', page: 42,
         mode: 'CARGO', itemId: 'swe02_hallway_painting', quantity: 1, marketEstimate: 450, bulky: true },
-    { id: 'gladiator-cells-layout', scene: 'palace-gladiator-cells', label: 'Reconhecer quatro gladiadores e as seis celas', page: 43, mode: 'OBSERVATION', flag: 'palaceGladiatorCellsSeen' },
+    { id: 'gladiator-cells-layout', scene: 'palace-gladiator-cells', label: 'Reconhecer quatro gladiadores e as seis celas', page: 44, mode: 'OBSERVATION', flag: 'palaceGladiatorCellsSeen' },
     { id: 'workshop-baktoid-frame', scene: 'palace-workshop', label: 'Inspecionar três droides B1 incompletos, sem ativá-los', page: 44, mode: 'OBSERVATION', flag: 'palaceBaktoidFramesSeen' },
     { id: 'kitchen-galley', scene: 'palace-kitchen', label: 'Inspecionar a cozinha e os caixotes de alimentos sem presumir ryll', page: 44, mode: 'OBSERVATION', flag: 'palaceKitchenGalleySeen' },
     { id: 'bar-volatile-containers', scene: 'palace-cantina-bar', label: 'Identificar recipientes voláteis — explosão exige ataque e regras de granada', page: 44, mode: 'OBSERVATION', flag: 'palaceBarVolatileContainersSeen' },
     { id: 'landing-cannon-silhouette', scene: 'palace-landing-pad', label: 'Identificar canhão leve estacionário, silhueta 3, dano veicular 4', page: 45, mode: 'OBSERVATION', flag: 'palaceLandingCannonSeen' },
     { id: 'comms-network-security', scene: 'palace-communications', label: 'Identificar rede de segurança e acesso restrito aos terminais', page: 45, mode: 'OBSERVATION', flag: 'palaceCommsSecuritySeen' },
-    { id: 'spy-player-characters', scene: 'palace-spy-interview', label: 'Identificar possível informante Bith sem conceder prova sem entrevista', page: 44, mode: 'OBSERVATION', flag: 'palaceBithInterviewOpportunitySeen' }
+    { id: 'spy-player-characters', scene: 'palace-spy-interview', label: 'Identificar possível informante Bith sem conceder prova sem entrevista', page: 42, mode: 'OBSERVATION', flag: 'palaceBithInterviewOpportunitySeen' }
 ]);
 const map = new Map([...exports.SWE02_PALACE_OPERATIONS, ...exports.SWE02_SITE_OPERATIONS].map(o => [o.id, o]));
 function active(world, character) {

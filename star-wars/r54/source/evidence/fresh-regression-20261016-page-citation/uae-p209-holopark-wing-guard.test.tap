@@ -1,0 +1,16 @@
+✔ P209 published SWE09 p94 Wing Guard force is two separate two-officer groups plus sergeant (3436.982ms)
+✔ P209 explicit physical arrival is required and errors roll back all state (1542.8732ms)
+✔ P209 real initiative, distinct minion groups, published context and receipt in ONE save (1344.292ms)
+✔ P209 three reopenings retain combat groups and landscape without duplicating receipts (1280.3017ms)
+✔ P209 no Wing Guard encounter before goons resolved or during active combat (732.91ms)
+✔ P209 Android bridge, UI and offline bundle source wired (15.0688ms)
+✔ P209 finishing published Holo-Park combat records the real encounter outcome once (1014.2505ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12460.7867
+

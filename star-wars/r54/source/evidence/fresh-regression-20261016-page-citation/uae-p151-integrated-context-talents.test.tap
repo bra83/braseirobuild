@@ -1,0 +1,26 @@
+✔ P151: 11 P151 source slots remain active after P154 (98.6118ms)
+✔ P151: Shortcut and Inventor apply only on explicitly selected tasks (4.6393ms)
+✔ P151: All-Terrain Driver cancels only terrain setback, not other penalties (5.5161ms)
+✔ P151: Scholar only downgrades institutional social checks, Natural Driver rerolls planetary piloting (3.5234ms)
+✔ P151: contextual skill checks persist only one transaction and work after reopening (91.4084ms)
+✔ P151: Respected Scholar downgrades only red dice and never deletes purple dice (41.0704ms)
+✔ P151: directed droid uses NPC stats and 2 boosts, not owner skill (7.0476ms)
+✔ P151: invalid droid or invalid contextual parameters cannot write partial state (8.9821ms)
+✔ P151: repository failure rolls back skill, droid and character strain changes (53.0907ms)
+✔ P151: Expert Astrogator spends 2 strain, reduces difficulty, persists and rolls back on save error (49.6278ms)
+✔ P151: Android bridge, UI and version contain all contextual mechanics (1022.3415ms)
+✔ P151 under-black-sun: contextual skill + droid roll survive three published-adventure reopens (437.5972ms)
+✔ P151 beyond-the-rim: contextual skill + droid roll survive three published-adventure reopens (196.5081ms)
+✔ P151 long-arm-of-the-hutt: contextual skill + droid roll survive three published-adventure reopens (205.3735ms)
+✔ P151 jewel-of-yavin: contextual skill + droid roll survive three published-adventure reopens (138.4078ms)
+✔ P151 mask-of-the-pirate-queen: contextual skill + droid roll survive three published-adventure reopens (154.6968ms)
+✔ P151: atomic skill check restores spent destiny on storage failure (3.8742ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4874.7
+

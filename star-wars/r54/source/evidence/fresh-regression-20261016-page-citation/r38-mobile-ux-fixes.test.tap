@@ -1,0 +1,19 @@
+✔ R38: início do mundo não exige texto livre e oferece seleção visual e aleatória (5.1347ms)
+✔ R38: existe gate explícito INICIAR SANDBOX ligado ao motor (0.8645ms)
+✔ R38: cena oferece geração Gemini diretamente e modelos configuráveis (2.1872ms)
+✔ R38: Gemini TTS é funcional com Android TTS como fallback (0.621ms)
+✔ R38: personagem vazio oferece geração completa aleatória e import JSON (1.163ms)
+✔ R38: Biblioteca é descoberta por utilidade e atalho de Ajustes (4.7534ms)
+✔ R38: Android respeita insets e teclado sem sobrepor UI (2.1213ms)
+✔ R38: launcher profissional aprovado está configurado (44.3844ms)
+✔ R38: startSandboxSession produz narração e ações sem exigir prompt do jogador (1514.0413ms)
+✔ R38: chave de imagem da cena é compatível entre shell, botão direto e host Android (1.4709ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4106.1721
+

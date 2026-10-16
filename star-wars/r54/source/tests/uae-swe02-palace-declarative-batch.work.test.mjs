@@ -15,10 +15,10 @@ const c={id:'test-player',name:'Teste',credits:0,gear:[]};
 class Repo{constructor(){this.s=createCampaign('WIP4 palace batch')} load(){return structuredClone(this.s)}save(s){this.s=structuredClone(s)}}
 function withGame(w){const repo=new Repo(),g=new GameController(repo);g.loadStarterCharacter('cael');g.startSession({playerCount:3,rng:()=>.9});g.startPublishedAdventureSession('long-arm-of-the-hutt',{rng:()=>.9});g.commit('WORLD_UPDATED',{world:w});return {g,repo}}
 const reopening=repo=>{for(let i=0;i<3;i++){const g=new GameController(repo);assert.equal(validateSWE02PalaceOperations(g.state.world),true)}};
-test('DATA official pp.43–44: bulk 11 authored operations; no arbitrary op or NPC-specific executor',()=>{
+test('DATA official pp.42, 44–45: bulk 11 authored operations; no arbitrary op or NPC-specific executor',()=>{
  assert.equal(SWE02_PALACE_OPERATIONS.length,11);
  assert.equal(new Set(SWE02_PALACE_OPERATIONS.map(x=>x.id)).size,11);
- for(const op of SWE02_PALACE_OPERATIONS){assert.ok([43,44].includes(op.page));assert.ok(['GEAR','SEALED','EVIDENCE','OBSERVATION'].includes(op.mode))}
+ for(const op of SWE02_PALACE_OPERATIONS){assert.ok([44,45].includes(op.page));assert.ok(['GEAR','SEALED','EVIDENCE','OBSERVATION'].includes(op.mode))}
  assert.equal(listSWE02PalaceOperations(reception()).filter(o=>SWE02_PALACE_OPERATIONS.some(p=>p.id===o.id)).length,0);
  assert.throws(()=>executeSWE02PalaceOperation(reception(),c,{operationId:'workshop-toolkit'}),/indisponível/);
 });
@@ -27,7 +27,7 @@ test('Workshop: both certified EotE gear allocations and six source-authored loc
  assert.equal(listSWE02PalaceOperations(w).filter(o=>SWE02_PALACE_OPERATIONS.some(p=>p.id===o.id)).length,7);
  for(const op of ['workshop-toolkit','workshop-lights','workshop-repair','workshop-stimpacks','workshop-carbines','workshop-vibroaxes','workshop-b1-worklog']){
   const r=executeSWE02PalaceOperation(w,character,{operationId:op});w=r.world;character=r.character;
-  assert.equal(r.receipt.source.productCode,'SWE02');assert.equal(r.receipt.source.printedPage,43);
+  assert.equal(r.receipt.source.productCode,'SWE02');assert.equal(r.receipt.source.printedPage,44);
   assert.equal(validateSWE02PalaceOperations(w),true);
   assert.throws(()=>executeSWE02PalaceOperation(w,character,{operationId:op}),/indisponível/);
  }

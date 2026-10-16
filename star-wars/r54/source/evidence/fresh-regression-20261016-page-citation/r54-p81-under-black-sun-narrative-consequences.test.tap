@@ -1,0 +1,13 @@
+✔ Triunfo na perseguição cria vantagem persistente sem spoiler interno (81.5997ms)
+✔ Desespero na perseguição persiste dano e custo físico (2.6777ms)
+✔ Triunfo social no Umbra preserva discrição (244.9171ms)
+✔ Desespero no Spyder cria Obligation persistente sem encerrar investigação (6.0462ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3446.8818
+

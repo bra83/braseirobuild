@@ -1,0 +1,37 @@
+✔ P156: book p.29 Yiyar group skills and equipment consumed by real adversary engine (21.9133ms)
+✔ P156: Talo source-backed skills, adversary talent, weapons and explicit unverified attributes (5.8534ms)
+✔ P156: raid exists in episode 3, 3 opponent groups, no duplicate active encounters (28.6845ms)
+✔ P156: Yiyar raid adversaries_defeated persists source-appropriate consequences, no invented victory (6.9353ms)
+✔ P156: Yiyar raid retreat persists source-appropriate consequences, no invented victory (2.9074ms)
+✔ P156: Yiyar raid player_incapacitated persists source-appropriate consequences, no invented victory (2.6703ms)
+✔ P156: Yiyar raid ended persists source-appropriate consequences, no invented victory (3.7222ms)
+✔ P156: controller persists encounter ownership through COMBAT_ACTION and reopens before finishing (291.2097ms)
+✔ P156: combat ownership cannot be bypassed by changing adventure while another combat is active (124.8213ms)
+✔ P156: combat start rolls back all changes on storage failure (130.8602ms)
+✔ P156: official Imperial deployment thresholds are 5,10,15,25,30 minutes (6.0771ms)
+✔ P156: one 30-minute action crosses all milestones, creates consequences exactly once (7.8671ms)
+✔ P156: six 5-minute ticks are deterministic and do not repeat timeline events (103.7041ms)
+✔ P156: clock replay idempotent, conflict rejected, forged receipts and events rejected (337.5228ms)
+✔ P156: invalid action IDs and minutes fail without mutation (47.2576ms)
+✔ P156: clock action rollback restores time, flags, journal and world after failed save (48.1904ms)
+✔ P156: active combat blocks countdown without writes (66.0972ms)
+✔ P156: Android bridge, visible clock button, source docs and bundle builder are wired (18.4357ms)
+✔ P156: under-black-sun survives 3 reopenings after UAE start and choice (177.3807ms)
+✔ P156: beyond-the-rim survives 3 reopenings after UAE start and choice (201.8695ms)
+✔ P156: long-arm-of-the-hutt survives 3 reopenings after UAE start and choice (237.0442ms)
+✔ P156: jewel-of-yavin survives 3 reopenings after UAE start and choice (174.2791ms)
+✔ P156: mask-of-the-pirate-queen survives 3 reopenings after UAE start and choice (192.265ms)
+✔ P156: after 30 minutes, published adventure follows costly escape branch and reopens (147.2541ms)
+✔ P156: Android BraseiroUiBridge executes countdown and exposes failure without state mutation (205.2194ms)
+✔ P156: published clock command commits one UAE causal receipt, replays exactly once (128.2017ms)
+✔ P156: published clock rejects other adventures, preserves world and rolls back failed save (335.9098ms)
+✔ P156: Android outbox restores lost ACK for imperial clock without double advancing (112.4601ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6558.9518
+

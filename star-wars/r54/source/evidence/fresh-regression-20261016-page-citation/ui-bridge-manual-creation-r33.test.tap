@@ -1,0 +1,13 @@
+✔ bridge expõe catálogo manual somente a partir das tabelas EotE Core canônicas (74.0619ms)
+✔ preview manual é não-mutante e calcula orçamento canônico (38.2992ms)
+✔ criação manual válida persiste ficha e usa snapshot somente ao substituir (30.4242ms)
+✔ entrada manual inválida não cria snapshot nem muta campanha (18.8885ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3206.6745
+

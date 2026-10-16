@@ -1,0 +1,12 @@
+✔ P63: save/reopen preserva encontro publicado ativo e impede avanço de cena concorrente (11710.9082ms)
+✔ P63: finishCombat valida contexto antes de salvar e não deixa estado parcial em divergência (9157.5003ms)
+✔ P63: combate retomado após reopen conclui uma vez, recompensa uma vez e transita ao mundo livre sem perder MIXED/Duty/Obligation (3490.6564ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 30193.3763
+

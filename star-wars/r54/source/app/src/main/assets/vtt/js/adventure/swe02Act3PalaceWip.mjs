@@ -1,4 +1,4 @@
-// SWE02 pp.43–44: gladiator cells and throne-alarm countdown.
+// SWE02 pp.44–45: gladiator recruitment and throne-alarm countdown.
 // No automatic gladiator loyalty or fabricated barracks headcount.
 import {buildPositivePool,rollPool} from '../rules/narrativeDice.mjs';
 import {SKILLS} from '../rules/character.mjs';
@@ -6,7 +6,7 @@ import {validateCheck} from './swe02SocialP241.mjs';
 import {createAdversary,adversaryCharacteristicForSkill,adversarySkillRank} from '../rules/adversaries.mjs';
 import {initiativeEntry,buildInitiativeSlots} from '../rules/initiative.mjs';
 const clone=structuredClone;
-const SOURCE=Object.freeze({productCode:'SWE02',printedPage:43,authority:'OFFICIAL_PDF_TEXT_VERIFIED'});
+const SOURCE=Object.freeze({productCode:'SWE02',printedPage:44,authority:'OFFICIAL_PDF_TEXT_VERIFIED'});
 const PALACE='long-arm-of-the-hutt';
 function active(world,node){const p=world?.publishedAdventure;
  if(p?.id!==PALACE||p.status!=='ACTIVE'||p.currentNodeId!==node)throw Error('SWE02 palácio: cena incompatível.');return p;}
@@ -19,7 +19,7 @@ export function recruitSWE02Gladiators(world,character,{method='BRIBE',rng=Math.
  const key=String(c.id||c.name||'');if(!key)throw Error('SWE02: personagem não identificado.');
  let check=null,success=true,spent=0;
  if(method==='BRIBE'){
-  if(!Number.isSafeInteger(c.credits)||c.credits<1000)throw Error('SWE02 p.43: suborno exige 1.000 créditos reais.');
+  if(!Number.isSafeInteger(c.credits)||c.credits<1000)throw Error('SWE02 p.44: suborno exige 1.000 créditos reais.');
   c.credits-=1000;spent=1000;
  }else{
   const skill='coaccion',characteristic=c.characteristics?.[SKILLS[skill]];
@@ -37,7 +37,7 @@ export function recruitSWE02Gladiators(world,character,{method='BRIBE',rng=Math.
 export function validateSWE02Palace(world){const p=world?.publishedAdventure;
  if(p?.id!==PALACE)return true;
  const r=p.palaceGladiatorReceipt;
- if(r){if(r.type!=='SWE02_GLADIATORS_RECRUITMENT'||r.source?.productCode!=='SWE02'||r.source?.printedPage!==43||r.source?.authority!=='OFFICIAL_PDF_TEXT_VERIFIED'||r.nodeId!=='palace-gladiator-cells'||!r.characterKey||r.gladiators!==4||!['BRIBE','COERCE'].includes(r.method)||r.success!==p.flags?.palaceGladiatorsAllied||!Number.isSafeInteger(r.creditsAfter)||r.creditsAfter<0)throw Error('SWE02: recibo de gladiadores adulterado.');
+ if(r){if(r.type!=='SWE02_GLADIATORS_RECRUITMENT'||r.source?.productCode!=='SWE02'||r.source?.printedPage!==44||r.source?.authority!=='OFFICIAL_PDF_TEXT_VERIFIED'||r.nodeId!=='palace-gladiator-cells'||!r.characterKey||r.gladiators!==4||!['BRIBE','COERCE'].includes(r.method)||r.success!==p.flags?.palaceGladiatorsAllied||!Number.isSafeInteger(r.creditsAfter)||r.creditsAfter<0)throw Error('SWE02: recibo de gladiadores adulterado.');
   if(r.method==='BRIBE'){
    if(r.creditsSpent!==1000||r.check!==null||r.success!==true)throw Error('SWE02: suborno de gladiadores adulterado.');
   }else{

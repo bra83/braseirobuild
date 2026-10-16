@@ -381,7 +381,7 @@ export const LONG_ARM_OF_THE_HUTT = Object.freeze({
     },
     'palace-gladiator-cells': {
       episode:3,title:'Celas dos quatro gladiadores',locationId:LOC.teemoPalace,
-      summary:'Quatro gladiadores usam a ficha de capangas (p.21); Charme não funciona. Podem ser subornados por 1.000 créditos ou coagidos contra Disciplina (p.43).',
+      summary:'Quatro gladiadores usam a ficha de capangas (p.21); Charme não funciona. Podem ser subornados por 1.000 créditos ou coagidos contra Disciplina (p.44).',
       narration:'Quatro lutadores esperam entre grades e armas de treino. O dinheiro e a força os impressionam mais que palavras gentis.',
       visibleNpcIds:[],checks:[],choices:[
         {id:'palace-gladiators-return',label:'Voltar à recepção',to:'palace-reception'},
@@ -389,7 +389,7 @@ export const LONG_ARM_OF_THE_HUTT = Object.freeze({
     },
     'palace-cantina-bar': {
       episode:3,title:'Bar do palácio',locationId:LOC.teemoPalace,
-      summary:'Droide COO pacífico, cobertura +2 revés contra alvos atrás do bar; explosão com duas Vantagens requer executor de atordoamento certificado (p.43).',
+      summary:'Droide COO pacífico, cobertura +2 revés contra alvos atrás do bar; explosão com duas Vantagens requer executor de atordoamento certificado (p.44).',
       narration:'O droide prepara bebidas atrás de um balcão pesado, longe do centro do trono.',
       visibleNpcIds:[],checks:[],choices:[{id:'palace-bar-return',label:'Voltar à recepção',to:'palace-reception'},
         {id:'palace-bar-throne',label:'Voltar ao salão do trono',to:'teemo-showdown'}]
@@ -402,7 +402,7 @@ export const LONG_ARM_OF_THE_HUTT = Object.freeze({
     },
     'palace-spy-interview': {
       episode:3,title:'Entrevista reservada com Smooth Banjaxx Wab',locationId:LOC.teemoPalace,
-      summary:'O músico Bith deixa o salão e pode ser confrontado sem combate; seu relato prova espionagem de Jabba (pp.43–44).',
+      summary:'O músico Bith deixa o salão e pode ser confrontado sem combate; seu relato prova espionagem de Jabba (pp.44–45).',
       narration:'O músico atravessa o corredor em direção ao refresher, longe da atenção dos guardas.',
       visibleNpcIds:[],checks:[],choices:[{id:'palace-spy-return',label:'Voltar ao salão',to:'palace-reception'}]
     },
@@ -905,7 +905,7 @@ export function longArmOfTheHuttEncounterSpec(world, encounterId = null) {
   }
   if(id==='laoth-palace-gladiators'){
     if(world?.publishedAdventure?.currentNodeId!=='palace-gladiator-cells'||world.publishedAdventure.flags?.palaceGladiatorsAllied)throw Error('SWE02: gladiadores não hostis nesta cena.');
-    return {id,label:'Quatro gladiadores de Teemo',source:{productCode:'SWE02',printedPages:[21,43]},
+    return {id,label:'Quatro gladiadores de Teemo',source:{productCode:'SWE02',printedPages:[21,44]},
       playerInitiativeSkill:'frialdad',npcInitiativeSkill:'alerta',
       adversaries:[{profileKey:'laoth_drombb_thug',count:4,range:'Curto',name:'Quatro gladiadores'}]};
   }

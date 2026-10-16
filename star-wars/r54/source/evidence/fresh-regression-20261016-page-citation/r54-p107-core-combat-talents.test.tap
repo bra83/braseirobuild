@@ -1,0 +1,18 @@
+✔ P107: Ataque Frenético sofre Tensão, fica pendente e aprimora somente Briga/Corpo a Corpo (218.9274ms)
+✔ P107: Força Feroz e Rajada adicionam dano real apenas nos ataques auditados (29.6929ms)
+✔ P107: Golpes Letais soma +10 por rank ao crítico realmente ativado (80.5919ms)
+✔ P107: Segundo Fôlego recupera Tensão pelo rank e só funciona 1x por encontro (58.0748ms)
+✔ P107: Saque Rápido troca arma como incidental 1x por turno sem gastar manobra (12.1772ms)
+✔ P107: Passo Lateral aprimora dificuldade só de ataque ranged até o próximo turno (95.5638ms)
+✔ P107: Postura Defensiva aprimora dificuldade só de ataque melee até o próximo turno (32.9953ms)
+✔ P107: bridge expõe as novas ações de talentos de combate (3.5222ms)
+✔ P107: R46 oferece controles somente para talentos adquiridos e chama o bridge real (62.6951ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5282.5518
+

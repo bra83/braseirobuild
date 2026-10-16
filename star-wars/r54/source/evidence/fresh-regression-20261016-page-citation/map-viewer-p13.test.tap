@@ -1,0 +1,12 @@
+✔ P13 mapas disponíveis abrem visualizador em tela cheia (2.7668ms)
+✔ P13 visualizador preserva proveniência mapa dedicado esquema e galáctico (3.1094ms)
+✔ P13 mapa é acessível por teclado (3.4854ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1750.6694
+

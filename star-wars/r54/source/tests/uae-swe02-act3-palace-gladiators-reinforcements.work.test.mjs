@@ -17,7 +17,7 @@ function gladiatorWorld(){let w=step(arrive(),'approach-fortified-gate');
 class Repo{constructor(){this.state=createCampaign('palace WIP3');}load(){return structuredClone(this.state)}save(s){this.state=structuredClone(s)}}
 function game(w){const repo=new Repo(),g=new GameController(repo);g.loadStarterCharacter('cael');g.startSession({playerCount:3,rng:()=>.9});g.startPublishedAdventureSession('long-arm-of-the-hutt',{rng:()=>.9});g.commit('WORLD_UPDATED',{world:w});return {g,repo};}
 function reopen(repo){for(let i=0;i<3;i++){const g=new GameController(repo);assert.ok(adapter.status(g.state.world).active);}}
-test('p.43: four gladiators, real bribe, once, no charm, no fake alliance',()=>{
+test('p.44: four gladiators, real bribe, once, no charm, no fake alliance',()=>{
  const w=gladiatorWorld(),c={id:'cael',credits:1600};
  assert.equal(adapter.status(w).node.id,'palace-gladiator-cells');
  assert.throws(()=>recruitSWE02Gladiators(w,c,{method:'CHARM'}),/Charme/);
@@ -30,7 +30,7 @@ test('p.43: four gladiators, real bribe, once, no charm, no fake alliance',()=>{
  const f=structuredClone(r.world);f.publishedAdventure.palaceGladiatorReceipt.creditsSpent=0;
  assert.throws(()=>adapter.status(f),/suborno de gladiadores adulterado/);
 });
-test('p.43: opposed Coercion dice, failed check does not mint allies; receipt anti-fraud',()=>{
+test('p.44: opposed Coercion dice, failed check does not mint allies; receipt anti-fraud',()=>{
  const w=gladiatorWorld(),c={id:'cael',credits:0,characteristics:{voluntad:2},skills:{coaccion:0}};
  const r=recruitSWE02Gladiators(w,c,{method:'COERCE',rng:()=>0});
  assert.equal(r.receipt.method,'COERCE');assert.equal(r.receipt.creditsSpent,0);
@@ -39,7 +39,7 @@ test('p.43: opposed Coercion dice, failed check does not mint allies; receipt an
  const f=structuredClone(r.world);f.publishedAdventure.palaceGladiatorReceipt.check.netSuccess=999;
  assert.throws(()=>adapter.status(f),/dados adulterados/);
 });
-test('p.43: gladiator combat is real and separate from Teemo; cannot fake victory',()=>{
+test('p.44: gladiator combat is real and separate from Teemo; cannot fake victory',()=>{
  const w=gladiatorWorld(),spec=adapter.encounterSpec(w,'laoth-palace-gladiators');
  assert.equal(spec.adversaries.length,1);assert.equal(spec.adversaries[0].count,4);
  const active=adapter.markEncounterActive(w,'laoth-palace-gladiators');
@@ -47,7 +47,7 @@ test('p.43: gladiator combat is real and separate from Teemo; cannot fake victor
  const r=adapter.recordEncounterOutcome(active,{encounterId:'laoth-palace-gladiators',outcome:'adversaries_defeated',adversaries:[{id:'g1',profileKey:'laoth_drombb_thug',status:'incapacitated'}]});
  assert.equal(r.record.combatProof.eliminated,true);
 });
-test('p.43: controller/bridge/UI: credits atomic, rollback and 3 reopenings',()=>{
+test('p.44: controller/bridge/UI: credits atomic, rollback and 3 reopenings',()=>{
  const {g,repo}=game(gladiatorWorld());g.state.player.character.credits=1200;g.commit('CHARACTER_UPDATED',{character:g.state.player.character});
  const r=g.recruitSWE02Gladiators({method:'BRIBE'});assert.equal(r.creditsSpent,1000);
  assert.equal(g.state.player.character.credits,200);assert.equal(g.state.world.publishedAdventure.flags.palaceGladiatorsAllied,true);

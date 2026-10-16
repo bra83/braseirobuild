@@ -31,8 +31,9 @@
     "pass": 3391,
     "fail": 0,
     "skip": 2,
-    "failed_files": [],
-    "evidence": "evidence/fresh-regression-20261016/"
+    "files_without_complete_summary": [],
+    "evidence": "evidence/fresh-regression-20261016-page-citation/",
+    "skip_reason": "JDK jar executable unavailable for two offline Gradle-wrapper packaging checks."
   },
   "blockers": [
     "SWE02 source-to-semantic coverage is incomplete across all three acts.",
@@ -41,5 +42,17 @@
     "Four adventures have not been semantically audited and certified in this execution.",
     "EotE/AoR rules family certification remains outstanding."
   ],
-  "next_action": "Complete the corrected 376-file regression run, preserve evidence, push the recoverable WIP branch, and continue source-led SWE02 semantic closure."
+  "next_action": "Complete the corrected 376-file regression run, preserve evidence, push the recoverable WIP branch, and continue source-led SWE02 semantic closure.",
+  "source_corrections": {
+    "SWE02_palace_page_provenance": "Corrected p.43 map vs p.44 room/recruitment data and p.45 Bith interview references; generated bundle rebuilt; four focused tests and all 376 tests pass."
+  },
+  "audit_index": "audits/SWE02_THREE_ACT_AUDIT_INDEX.md",
+  "aor_crosswalk_audit": {
+    "audit": "audits/AOR_360_CONSUMER_CROSSWALK_AUDIT.md",
+    "positions": 360,
+    "exact_node_id_test_refs": 10,
+    "broader_name_key_test_refs": 290,
+    "certified": 0,
+    "status": "PENDENTE"
+  }
 }

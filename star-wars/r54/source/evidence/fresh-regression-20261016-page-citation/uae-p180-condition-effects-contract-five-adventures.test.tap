@@ -1,0 +1,39 @@
+✔ P180 under-black-sun: authored preflight bounds mirror runtime grammar (47.6229ms)
+✔ P180 under-black-sun: source preflight rejects reserved events in BOTH effect syntaxes (86.0088ms)
+✔ P180 under-black-sun: malformed runtime effect guard never grants reward (32.6969ms)
+✔ P180 under-black-sun: trigger -> clock -> objective -> consequence -> 3 durable reopens (71.4703ms)
+✔ P180 under-black-sun: invalid mid-transaction command rolls back triggers and consequence (10.3389ms)
+✔ P180 under-black-sun: invalid condition does not fire trigger or corrupt saved state (8.9497ms)
+✔ P180 beyond-the-rim: authored preflight bounds mirror runtime grammar (15.6607ms)
+✔ P180 beyond-the-rim: source preflight rejects reserved events in BOTH effect syntaxes (30.4374ms)
+✔ P180 beyond-the-rim: malformed runtime effect guard never grants reward (6.0318ms)
+✔ P180 beyond-the-rim: trigger -> clock -> objective -> consequence -> 3 durable reopens (52.6629ms)
+✔ P180 beyond-the-rim: invalid mid-transaction command rolls back triggers and consequence (9.3727ms)
+✔ P180 beyond-the-rim: invalid condition does not fire trigger or corrupt saved state (7.1847ms)
+✔ P180 long-arm-of-the-hutt: authored preflight bounds mirror runtime grammar (44.7116ms)
+✔ P180 long-arm-of-the-hutt: source preflight rejects reserved events in BOTH effect syntaxes (16.9885ms)
+✔ P180 long-arm-of-the-hutt: malformed runtime effect guard never grants reward (19.9021ms)
+✔ P180 long-arm-of-the-hutt: trigger -> clock -> objective -> consequence -> 3 durable reopens (23.4248ms)
+✔ P180 long-arm-of-the-hutt: invalid mid-transaction command rolls back triggers and consequence (17.9696ms)
+✔ P180 long-arm-of-the-hutt: invalid condition does not fire trigger or corrupt saved state (34.5516ms)
+✔ P180 jewel-of-yavin: authored preflight bounds mirror runtime grammar (7.4812ms)
+✔ P180 jewel-of-yavin: source preflight rejects reserved events in BOTH effect syntaxes (6.8274ms)
+✔ P180 jewel-of-yavin: malformed runtime effect guard never grants reward (4.0379ms)
+✔ P180 jewel-of-yavin: trigger -> clock -> objective -> consequence -> 3 durable reopens (23.9704ms)
+✔ P180 jewel-of-yavin: invalid mid-transaction command rolls back triggers and consequence (7.6567ms)
+✔ P180 jewel-of-yavin: invalid condition does not fire trigger or corrupt saved state (7.7989ms)
+✔ P180 mask-of-the-pirate-queen: authored preflight bounds mirror runtime grammar (13.9534ms)
+✔ P180 mask-of-the-pirate-queen: source preflight rejects reserved events in BOTH effect syntaxes (44.4797ms)
+✔ P180 mask-of-the-pirate-queen: malformed runtime effect guard never grants reward (5.7026ms)
+✔ P180 mask-of-the-pirate-queen: trigger -> clock -> objective -> consequence -> 3 durable reopens (27.8248ms)
+✔ P180 mask-of-the-pirate-queen: invalid mid-transaction command rolls back triggers and consequence (7.4079ms)
+✔ P180 mask-of-the-pirate-queen: invalid condition does not fire trigger or corrupt saved state (8.7822ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2822.3609
+

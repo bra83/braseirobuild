@@ -1,0 +1,12 @@
+✔ MediaStore cria JSON como pendente antes de escrever (8.2538ms)
+✔ publicação exige exatamente uma linha atualizada antes de retornar sucesso (0.6514ms)
+✔ falha de escrita ou publicação remove o item pendente do MediaStore (0.643ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1625.4898
+

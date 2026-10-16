@@ -1,0 +1,12 @@
+✔ R33 UI: primeiro uso oferece EotE, AoR ou Misto e apenas um ponto inicial (13.8871ms)
+✔ R33 UI: criação AoR reutiliza a shell aprovada e troca rótulos Obligation→Duty (12.8661ms)
+✔ R33 UI: sandbox vivo é uma extensão funcional da R46, não um redesenho (880.0197ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2111.0674
+

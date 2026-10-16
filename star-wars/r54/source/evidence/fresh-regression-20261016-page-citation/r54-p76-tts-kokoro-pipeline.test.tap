@@ -1,0 +1,15 @@
+✔ P76: catálogo Android lista motores/vozes e permite seleção persistente (7.607ms)
+✔ P76: perfil neural usa 250-650 com alvo 450 e não divide cada sentença (6.1237ms)
+✔ P76: Kokoro avança apenas por onDone sem flush/stop entre blocos (0.8822ms)
+✔ P76: contrato Sherpa/Kokoro expõe parâmetros e prewarm/streaming (0.6417ms)
+✔ P76: velocidade Kokoro é aplicada uma única vez no parâmetro da engine (0.7336ms)
+✔ P76: Samsung/Google continuam no fluxo Android padrão (0.5474ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4377.0547
+

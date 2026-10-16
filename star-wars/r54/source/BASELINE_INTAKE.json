@@ -75,8 +75,9 @@
     "remote_branch_pre_push": null,
     "scope": "star-wars/r54/source",
     "working_branch_head_after_initial_push": "c8daa86f20d4a1c31940d3d0187af7dfeba81cd2",
-    "remote_head_verified": "284793ae0f93fe0bd99ec144a9c96d37f445f4e5",
-    "last_local_commit": "284793ae0f93fe0bd99ec144a9c96d37f445f4e5"
+    "remote_head_verified": "abfeb23a51d4440d1757f560d28870683fc7e24b",
+    "last_local_commit": "284793ae",
+    "local_head_before_source_audit_commit": "abfeb23a51d4440d1757f560d28870683fc7e24b"
   },
   "fresh_regression": {
     "files": 376,
@@ -85,6 +86,14 @@
     "fail": 0,
     "skip": 2,
     "status": "PASS_WITH_2_EXPLAINED_JDK_DEPENDENT_SKIPS"
+  },
+  "fresh_regression_page_citation_correction": {
+    "files": 376,
+    "tests": 3393,
+    "pass": 3391,
+    "fail": 0,
+    "skip": 2,
+    "files_without_complete_summary": 0,
+    "log_dir": "evidence/fresh-regression-20261016-page-citation"
   }
 }
-

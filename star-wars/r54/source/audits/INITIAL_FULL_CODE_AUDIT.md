@@ -19,6 +19,9 @@ This is an intake and structural audit, not a completion certificate.
 
 - - Corrected fresh regression covered 376 files (370 regular plus all six stress files), 3,393 tests, 3,391 passes, zero failures, and two skips. The skips are the two JDK `jar`-dependent offline Gradle-wrapper packaging checks; the reason is recorded in raw TAP. Full logs and summary are in `evidence/fresh-regression-20261016/`.
 - The first-run stale catalog assertion was corrected to assert the electro-gate operation exists; the affected file passed individually and again in the full run.
+- After the page corrections, a second individual fresh run covered 376 files, 3,393 tests, 3,391 passes, zero failures, and two JDK-dependent offline-wrapper skips. Complete TAP output and summary are in `evidence/fresh-regression-20261016-page-citation/`.
+- The Act 3 source-page mismatch (p.43 is the map; room mechanics p.44; Bith interview p.45) was corrected in operation data, receipt validation, source-proof JSON, assertions, and regenerated offline bundle. Four focused Act 3 tests passed.
+- Separate source-led audits for all three SWE02 acts and the 360 AoR positions are recorded in `audits/SWE02_ACT1_DEEP_AUDIT.md`, `audits/SWE02_ACT2_DEEP_AUDIT.md`, `audits/SWE02_ACT3_DEEP_AUDIT.md`, and `audits/AOR_360_CONSUMER_CROSSWALK_AUDIT.md`. Each remains PENDENTE.
 - No APK, Gradle, CI, or device gate was run.
 
 ## Risk and next work

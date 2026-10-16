@@ -1,0 +1,18 @@
+✔ P203 long fall forces incapacitation, +50 critical and actual 30 strain less advantages (1295.0587ms)
+✔ P203 extreme fall forces incapacitation, +75 critical, 40 strain, no automatic GM-discretion death (1278.2546ms)
+✔ P203 GM may use rolled triumph to reduce long to medium, applying numeric 30/20 (1099.4288ms)
+✔ P203 GM may use rolled triumph to reduce extreme to long, retaining +50 forced critical (1258.0386ms)
+✔ P203 rejects GM reduction without a real triumph and leaves state intact (1522.537ms)
+✔ P203 tampered forced-critical receipt and range are detected (2069.4366ms)
+✔ P203 forced fall survives three independent reloads, duplicate receipt rollback (1705.9694ms)
+✔ P203 Android UI includes long/extreme and GM triumph switch, bundle source is versioned (7.6496ms)
+✔ P203 rejects forged long-fall fields on legacy blast receipt (992.1306ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 21230.7329
+

@@ -6,7 +6,7 @@
   "features": [
     {
       "id": "PALACE_GLADIATORS",
-      "printedPages": [21,43],
+      "printedPages": [21,44],
       "sourceSemantics": "Four gladiators use the thug profile; 1000-credit bribe or opposed Coerce against Discipline; Charm ineffective.",
       "executor": "app/src/main/assets/vtt/js/adventure/swe02Act3PalaceWip.mjs:recruitSWE02Gladiators",
       "encounter": "app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs:laoth-palace-gladiators",

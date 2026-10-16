@@ -1,0 +1,13 @@
+✔ R54 mantém catálogo visual V3.8 fechado e semanticamente presente (103.2139ms)
+✔ R54 não fixa Nera Voss e não expõe NPC fora da cena (4.5358ms)
+✔ P21 reiniciar limpa a sessão/snapshots sem apagar personagem nem foto local (6.0214ms)
+✔ R54 bloqueia acesso universal a arquivos do WebView (130.6123ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3386.1581
+

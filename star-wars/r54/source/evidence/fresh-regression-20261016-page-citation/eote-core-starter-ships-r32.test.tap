@@ -1,0 +1,16 @@
+✔ starter ships EotE Core ativos são Wayfarer, YT-1300 e Firespray (4.1339ms)
+✔ Wayfarer reproduz perfil Core final + errata de Sensor Range Short (4.9369ms)
+✔ YT-1300 reproduz perfil Core final (0.8235ms)
+✔ Firespray reproduz perfil Core final (0.7119ms)
+✔ Tractor 2 acerta sem causar Hull Trauma e trava movimento com dificuldade 2 (19.51ms)
+✔ teste de Pilotagem contra Tractor usa rating e libera a nave em sucesso (3.0251ms)
+✔ X-Wing legado continua referência AoR; TIE/ln e Lambda foram promovidos pelo próprio Core EotE no R35 (0.4792ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1738.4462
+

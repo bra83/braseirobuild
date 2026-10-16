@@ -4,7 +4,7 @@
 - Repository: `bra83/braseirobuild`
 - Branch: `codex/star-wars-hibrido-integral-20261016`
 - Base HEAD: `98b6a391401818e74eaa53c752cc98dc9082fea9`
-- Last local and remote HEAD: `284793ae0f93fe0bd99ec144a9c96d37f445f4e5` (verified with `git ls-remote`)
+- Last local and remote HEAD: `abfeb23a51d4440d1757f560d28870683fc7e24b` (verified with `git ls-remote`)
 - Remote branch: not present before first push
 - Source working tree: `work/star-wars/project`; Git sparse checkout: `work/star-wars/repo-sparse/star-wars/r54/source`
 - P244 SHA-256: `6f3dca72ea55080b4ce7e6befeb5d4d84e51f63453ead6a5719495178a40d264`
@@ -18,5 +18,4 @@
 
 ## Next command
 
-From the workspace root, Commit and push this recoverable WIP branch. Continue source-led SWE02 closure with the Act 1 gaps in `audits/SWE02_INITIAL_SOURCE_GAP_MATRIX.md`.
-
+From the workspace root, Commit and push this recoverable WIP branch. Continue implementation from the page-level gaps, beginning with the Act 1 Old Lylek Den sequence (printed pp.15-18) and its required UI/save/reopen proof. Keep SWE02 and AoR statuses pending until each semantic gate closes.

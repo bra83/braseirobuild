@@ -1,0 +1,37 @@
+✔ P150: sete posições AoR têm consumidores reais; nomes não equivalentes permanecem bloqueados (33.0905ms)
+✔ P150: programação defensiva normal concede um contratempo por rank apenas ao defender computador próprio (11.7825ms)
+✔ P150: versão aprimorada SUBSTITUI contratempo por upgrades de dificuldade (2.7096ms)
+✔ P150: invasão NPC gera pool correto e persiste, reabre sem rerrolar (37.7933ms)
+✔ P150: invasão aprimorada modifica dificuldade sem somar Contratempos (11.8972ms)
+✔ P150: adversário real usa Computadores, não os dados forjados do formulário (15.348ms)
+✔ P150: entradas inválidas e sistema não possuído não gravam dados (13.0304ms)
+✔ P150: erro de armazenamento reverte integralmente o histórico da invasão (15.7078ms)
+✔ P150: Escurridizo só reduz silhueta ao receber ataque; não altera nave nem acumula (46.3041ms)
+✔ P150: UI, bridge e bundle offline contêm as rotas novas; Java Kokoro intocado (2130.3344ms)
+✔ P150 under-black-sun: prova do controlador é reservada; replay idempotente e 3 reaberturas (41.8602ms)
+✔ P150 under-black-sun: START do controlador registra prova válida e reabre sem escrita (160.1819ms)
+✔ P150 beyond-the-rim: prova do controlador é reservada; replay idempotente e 3 reaberturas (15.2316ms)
+✔ P150 beyond-the-rim: START do controlador registra prova válida e reabre sem escrita (76.5002ms)
+✔ P150 long-arm-of-the-hutt: prova do controlador é reservada; replay idempotente e 3 reaberturas (14.5043ms)
+✔ P150 long-arm-of-the-hutt: START do controlador registra prova válida e reabre sem escrita (63.4193ms)
+✔ P150 jewel-of-yavin: prova do controlador é reservada; replay idempotente e 3 reaberturas (11.0482ms)
+✔ P150 jewel-of-yavin: START do controlador registra prova válida e reabre sem escrita (108.6061ms)
+✔ P150 mask-of-the-pirate-queen: prova do controlador é reservada; replay idempotente e 3 reaberturas (17.5519ms)
+✔ P150 mask-of-the-pirate-queen: START do controlador registra prova válida e reabre sem escrita (49.7434ms)
+✔ P150: ataque NPC usa defesa Escurridizo da nave do jogador e persiste dano/rolagem (29.1378ms)
+✔ P150: talento veicular não é aplicado quando personagem não está pilotando (13.8349ms)
+✔ P150: ataque NPC não consome ação do jogador e só ocorre uma vez por rodada (19.7348ms)
+✔ P150: ataque NPC inválido, fora de alcance e sem combate não alteram a campanha (70.4306ms)
+✔ P150: falha de armazenamento reverte ataque NPC, dano, munição e turno (16.4895ms)
+✔ P150: crítico inimigo consome resultado real, permite escolha de componente e não duplica (72.3952ms)
+✔ P150: crítico inimigo pode ser dispensado sem rolar nem aplicar dano adicional (17.5651ms)
+✔ P150: interface expõe combate veicular inimigo, custos e escolha de crítico (154.4991ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5792.6316
+

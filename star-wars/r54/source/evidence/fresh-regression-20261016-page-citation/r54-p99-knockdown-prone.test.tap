@@ -1,0 +1,16 @@
+✔ P99 Derrubar aparece como qualidade ativa por 2 Vantagens base (9.8499ms)
+✔ P99 Derrubar aplica prone persistente e consome orçamento único (67.7763ms)
+✔ P99 Derrubar cobra +1 Vantagem por Silhueta do alvo acima do atacante (20.3772ms)
+✔ P99 alvo prone concede Boost a ataque melee e Setback a ataque ranged (163.9174ms)
+✔ P99 jogador caído precisa gastar manobra real para levantar (50.698ms)
+✔ P99 NPC prone levanta no próprio turno antes de agir (78.194ms)
+✔ P99 bridge/contratos/R46 expõem Levantar-se sem mutação bruta de prone (195.9961ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5341.6037
+

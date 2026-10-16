@@ -1,0 +1,16 @@
+✔ P211 official source: thranta Advantage and Christophsis shadow Advantage are two distinct published results (4.9561ms)
+✔ P211 Alderaan consumes REAL Advantage, grants one ranged Boost for two rounds and no melee bonus (1867.9247ms)
+✔ P211 Christophsis consumes REAL Advantage and gives the actual attacked NPC ranged defense 1 until next round (1244.7701ms)
+✔ P211 rejects invented symbols, wrong landscape, duplicate ID, mutated receipt and stacks atomically (1345.6676ms)
+✔ P211 actual attack controller consumes thranta Boost in the real narrative dice pool (1185.0723ms)
+✔ P211 Android source and generated bundle expose both effects without altering Kokoro (2104.7331ms)
+✔ P211 Christophsis shadow adds one setback to the ACTUAL player ranged attack pool (1336.971ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12088.4599
+

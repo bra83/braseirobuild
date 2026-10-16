@@ -1,0 +1,23 @@
+✔ P104: Mirar e Cobertura usam o mesmo custo de manobra sob carga grave (237.455ms)
+✔ P104: Postura Defensiva e Levantar-se usam o mesmo custo sob carga grave (29.8036ms)
+✔ P104: sacar/trocar, Preparação e recarga usam o mesmo custo sob carga grave (93.5235ms)
+✔ P104: Stimpack em combate também respeita carga grave e orçamento de manobra (10.3078ms)
+✔ P104: trocar a ação paga a primeira manobra quando a carga remove a gratuita (12.3439ms)
+✔ P104: Ferimento Crítico sem manobra gratuita usa o mesmo resolvedor e pode ser pago com ação (10.4995ms)
+✔ P104: controller não mantém caminhos paralelos de spendManeuver fora do resolvedor unificado (52.8629ms)
+✔ P104: R46 propaga a escolha de pagamento para Mirar, Stimpack, Preparação e Recarga (26.6921ms)
+✔ P104: Ficar caído é uma manobra real, persistente e usa o orçamento unificado (46.2091ms)
+✔ P104: Mirar específico aplica 2 Setbacks com uma mira e 1 com duas miras consecutivas (45.6219ms)
+✔ P104: qualquer outra manobra ou ação cancela Mirar antes do próximo ataque (98.6956ms)
+✔ P104: dano que ultrapassa soak cancela Mirar (11.0266ms)
+✔ P104: bridge e R46 expõem Ficar Caído e os dois modos de Mirar (12.2717ms)
+✔ P104: Médio↔Longo e Longo↔Extremo exigem duas manobras e só mudam a faixa na segunda (27.2333ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4213.7266
+

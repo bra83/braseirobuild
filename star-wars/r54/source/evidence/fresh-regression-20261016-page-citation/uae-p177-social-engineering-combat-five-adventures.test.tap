@@ -1,0 +1,37 @@
+✔ P177 seven source-backed positions have real consumers, no blanket alias (6.6754ms)
+✔ P177 Careful Planning persists an approved fact without flipping Destiny, one/session (113.6446ms)
+✔ P177 Careful Planning rejects unowned, invalid fact, absent GM approval, and rollback (52.1808ms)
+✔ P177 Contraption rolls Hard Mechanics, consumes owned parts and tools only on success (77.7662ms)
+✔ P177 Contraption fails closed for missing gear, noncombat, missing approval, duplicated ids (99.5032ms)
+✔ P177 Incite Rebellion rolls Hard Coercion against real minion/rival, respects skill cap (26.0912ms)
+✔ P177 Incite Rebellion rejects phantom/duplicate/over-cap targets, leaves state unchanged (48.6074ms)
+✔ P177 Hidden Storage uses owned gear capacity and no item duplication (16.3471ms)
+✔ P177 Hidden Storage rejects nonexistent item/container, capacity overrun, cross-campaign replay (31.8009ms)
+✔ P177 Greased Palms spends 50 credits, upgrades actual Negotiation roll and records causal receipt (69.3735ms)
+✔ P177 Greased Palms refuses unearned rank, non-social skill, invalid credits, duplicate id (78.7217ms)
+✔ P177 Stunning Blow replaces personal melee wounds with strain without ignoring soak (38.3007ms)
+✔ P177 Stunning Blow rejects unowned talent and nonmelee attack (51.5022ms)
+✔ P177 Improved Stunning Blow spends real pending Triumph only once, applies staggered (62.0458ms)
+✔ P177 Improved Stunning Blow fails closed without Triumph or target, no fabricated status (27.2388ms)
+✔ P177 forged ledgers, missing events, duplicates, tampered credits are rejected (14.0018ms)
+✔ P177 P176 save migration, Android bridge, and panel are connected (58.5331ms)
+✔ P177 under-black-sun: approved Careful Planning leaves UAE untouched across three reopenings (147.6345ms)
+✔ P177 beyond-the-rim: approved Careful Planning leaves UAE untouched across three reopenings (82.3211ms)
+✔ P177 long-arm-of-the-hutt: approved Careful Planning leaves UAE untouched across three reopenings (120.0761ms)
+✔ P177 jewel-of-yavin: approved Careful Planning leaves UAE untouched across three reopenings (54.6851ms)
+✔ P177 mask-of-the-pirate-queen: approved Careful Planning leaves UAE untouched across three reopenings (49.9925ms)
+✔ P177 Contraption temporary gear disappears when the encounter closes, ledger persists (94.9439ms)
+✔ P177 all four action families roll back on failed repository save (72.2164ms)
+✔ P177 Greased Palms rolls back credits, maneuvers and receipts on save failure (29.3571ms)
+✔ P177 Stunning Blow does not ignore target soak or allow improvised critical spending (62.3274ms)
+✔ P177 Soft Spot AoR adds Cunning to real personal attack on hit, spends exactly one Destiny (34.7392ms)
+✔ P177 Soft Spot rejects unowned, conflicting Destiny options and rolls back on missing Destiny (81.3461ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3724.569
+

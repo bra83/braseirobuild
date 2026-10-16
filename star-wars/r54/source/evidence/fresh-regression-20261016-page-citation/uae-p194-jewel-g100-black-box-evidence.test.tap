@@ -1,0 +1,18 @@
+✔ P194 official Leave No Trace: disassembly costs two real hours, including on failure (1925.9796ms)
+✔ P194 failed disassembly still spends 120 minutes without extracting evidence (983.3216ms)
+✔ P194 cannot dispose of the black box before successful extraction (820.4901ms)
+✔ P194 stolen black box remains incriminating; parts can be dumped only after confirmed travel (1890.9961ms)
+✔ P194 Hard Streetwise uses actual dice and does not fabricate payment (1024.1272ms)
+✔ P194 forged bank evidence receipt and cleanup clock are rejected (1257.2261ms)
+✔ P194 three reopenings preserve evidence decisions and ledger (811.3417ms)
+✔ P194 legacy P193 cleanup receipt without time remains valid without retroactive charge (932.3571ms)
+✔ P194 Android bridge and PT-BR source options are bundled (87.9871ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13940.6458
+

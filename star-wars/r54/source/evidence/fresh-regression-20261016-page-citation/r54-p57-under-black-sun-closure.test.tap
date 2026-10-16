@@ -1,0 +1,11 @@
+✔ P57: falhas reais na NovaCORE persistem e pioram a abertura do confronto (229.1943ms)
+✔ P57: consequência de falhas industriais sobrevive até o estado persistente do epílogo (31.3242ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2786.8629
+

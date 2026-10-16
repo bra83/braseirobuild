@@ -1,0 +1,11 @@
+✔ verificador cria validation/ antes de executar suíte ou gravar relatório (9.352ms)
+✔ relatório final usa o validationDir garantido (1.0477ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1371.6867
+

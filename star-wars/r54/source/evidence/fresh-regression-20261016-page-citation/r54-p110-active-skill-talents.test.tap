@@ -1,0 +1,15 @@
+✔ P110: Mestre das Sombras sofre 2 Tensão e reduz dificuldade de Sigilo (159.6224ms)
+✔ P110: Mestre das Sombras rejeita perícia fora de Sigilo/Atividade Criminal (7.3659ms)
+✔ P110: Médico Mestre reduz Medicina a no mínimo Fácil (5.1788ms)
+✔ P110: Slicer Mestre reduz dificuldade de Computadores (26.9245ms)
+✔ P110: Intimidador sofre Tensão e faz downgrade real da dificuldade de Coerção (46.3028ms)
+✔ P110: Determinação não reduz custo voluntário dos talentos mestre (10.0112ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4275.8274
+

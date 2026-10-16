@@ -1,0 +1,22 @@
+✔ P242 GM cannot declare deaths without live combat damage (453.3156ms)
+✔ P242 GM confirmation bounded by actual incapacitated minions and never automatic (320.5687ms)
+✔ P242 1-4 confirmed deaths use Hard Coerce; success surrenders only thugs (270.0017ms)
+✔ P242 failed Coerce consumes player action, never surrenders enemies (386.9395ms)
+✔ P242 5-8 / 9+ difficulty thresholds are calculated from actual casualty-confirmed receipts (532.1352ms)
+✔ P242 night-raid verified fatalities carry into cantina only after combat proof (442.4408ms)
+✔ P242 fake receipt and fake dice rejected by adapter status (220.2318ms)
+✔ P242 encounter closure accepts verified surrender only with Drombb incapacitated (377.6776ms)
+✔ P242 player incapacitated by Drombb opens Ota rescue without claiming liberation (368.474ms)
+✔ P242 p23 Drombb safe grants exactly 2000 credits once after actual victory (262.4902ms)
+✔ P242 safe Skulduggery Hard failed roll does not mint credits (230.4337ms)
+✔ P242 safe cannot be claimed after retreat or via forged credit receipt (194.2035ms)
+✔ P242 bridge and offline UI contain live confirmation and Coerce operations (3.8578ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6903.0976
+

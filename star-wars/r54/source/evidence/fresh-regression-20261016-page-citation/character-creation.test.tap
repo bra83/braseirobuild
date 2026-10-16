@@ -1,0 +1,19 @@
+✔ tabela oficial de Duty e política solo ficam distinguidas (31.388ms)
+✔ reduções de Duty cobrem as quatro opções e não permitem gasto maior que o Duty inicial (2.6629ms)
+✔ custo de Característica é sequencial e respeita o máximo 5 (5.6561ms)
+✔ Humano personalizado gera ficha válida com sobreposição carreira/especialização até grau 2 (3.2418ms)
+✔ Humano não pode usar como bônus racial uma perícia profissional (1.3314ms)
+✔ Droide recebe treinamento ampliado, Resistente e Proteção derivada (37.5698ms)
+✔ bônus racial e escolhas gratuitas nunca ultrapassam grau 2 durante a criação (0.7755ms)
+✔ Motivação é obrigatória e PE insuficientes impedem criação (0.8576ms)
+✔ prévia soma bônus de Duty, créditos e PE de Características sem alterar estado (44.5709ms)
+✔ dados do núcleo AoR mantêm oito espécies, seis carreiras e três especializações por carreira (5.9292ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1949.6426
+

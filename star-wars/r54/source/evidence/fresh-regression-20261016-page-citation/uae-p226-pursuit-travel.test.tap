@@ -1,0 +1,18 @@
+✔ P226 visit must be real and confirmed; no check before a visit, no double roll (1953.9227ms)
+✔ P226 real failed Hard dice produce one pending group, never teleport NPC (991.987ms)
+✔ P226 successful Hard roll records zero pursuers and cannot deploy invented NPCs (921.2238ms)
+✔ P226 two Threat on a failed real roll permit two distinct sequential groups (1372.0227ms)
+✔ P226 one Despair on a real upgraded Hard pool permits exactly three groups (755.5367ms)
+✔ P226 GM physical presence, faction, distinct personnel, count and range are mandatory (1014.4831ms)
+✔ P226 physical Wing Guard encounter uses actual profile, initiative and history (1057.5075ms)
+✔ P226 replay rejects falsified roll, arrival, chronology, derived state and receipt deletion (1431.0047ms)
+✔ P226 bridge, PT-BR UI, offline bundle and state validation integrated (2968.4507ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16826.7547
+

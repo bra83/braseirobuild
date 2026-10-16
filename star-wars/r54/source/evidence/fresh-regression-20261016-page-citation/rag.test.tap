@@ -1,0 +1,17 @@
+✔ RAG lexical encontra Obligation inicial EotE e preserva autoridade (1193.6102ms)
+✔ RAG lexical encontra estrutura EotE 8/6/18 (324.1817ms)
+✔ RAG EotE apresenta raridade/disponibilidade auditada pelo Core e sem AoR (96.7182ms)
+✔ dado da Força é autoridade mecânica EotE Core auditada no RAG (97.0338ms)
+✔ compra de especialização adicional é autoridade mecânica EotE Core auditada no RAG (36.4479ms)
+✔ corpus ativo mantém AoR restrito ao subconjunto Duty/Contribution explicitamente auditado (2.8981ms)
+✔ políticas operacionais do VTT permanecem explicitamente não oficiais (307.0325ms)
+✔ RAG encontra os três poderes da Força do Core EotE (292.5562ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4025.5572
+

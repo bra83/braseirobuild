@@ -1,0 +1,13 @@
+✔ endpoint remoto exige HTTPS, exceto localhost de desenvolvimento (7.3327ms)
+✔ adaptador HTTP envia contexto e recebe somente proposta estruturada (134.4604ms)
+✔ falha de rede do Mestre não altera o estado válido (104.9025ms)
+✔ resposta remota validada altera só a camada narrativa autorizada (43.9773ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2490.1794
+

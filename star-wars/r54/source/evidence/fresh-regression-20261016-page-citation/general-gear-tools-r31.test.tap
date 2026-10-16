@@ -1,0 +1,13 @@
+✔ kit de ferramentas remove somente a parcela explicitamente atribuída à falta de ferramentas (18.3957ms)
+✔ GameController aplica kit de ferramentas apenas a Mecânica (109.2269ms)
+✔ remendo de reparo de emergência fica registrado como ação para droide, equivalente ao injetor, sem fingir consumo (0.6796ms)
+✔ recarga adicional fica registrada como manobra após Desespero de munição, sem inventar rastreamento de munição (0.5738ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2947.6101
+

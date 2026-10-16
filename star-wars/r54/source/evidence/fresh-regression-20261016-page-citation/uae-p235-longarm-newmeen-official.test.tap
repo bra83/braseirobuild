@@ -1,0 +1,23 @@
+✔ SWE02 print pp21-22: Drombb thug official minion stats, group skills and weapons (17.3691ms)
+✔ SWE02 p22: Angu Drombb official rival stats; no improvised nemesis (1.0405ms)
+✔ SWE02 New Meen remains player choice; skipping never means community saved (190.7016ms)
+✔ SWE02 p19: party size 2, 3 and 4+ creates three groups of 2,3,4; no invented solo difficulty (758.6322ms)
+✔ SWE02 p20: night raid has one group and officially requires one setback for each action (85.8979ms)
+✔ SWE02 cannot leave an active New Meen combat by clicking another node (152.2871ms)
+✔ SWE02 New Meen combat rejects forged groups, ids, and victory without enemy defeat; atomic rollback (100.2038ms)
+✔ SWE02 p21: resolved night group not recreated in Drombb cantina; sequential combat only (144.5769ms)
+✔ SWE02 New Meen full sequence: victory requires actual Drombb defeat with proof and 3 save reopens (207.8331ms)
+✔ SWE02 New Meen escape and evacuation persist without victory or experience (142.1401ms)
+✔ SWE02 tampered victory flag without corresponding combat receipt fails closed on restore/status/advance (53.9682ms)
+✔ SWE02 cannot invent combat by calling encounter without scene context (135.7682ms)
+✔ P235 actual Android controller starts New Meen raid with EotE session playerCount, official profile, persisted encounter (359.276ms)
+✔ P235 closing official night combat restores prior environment and does not automatically grant credits, PE or save New Meen (556.8562ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7651.1916
+

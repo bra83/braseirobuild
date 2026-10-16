@@ -1,0 +1,12 @@
+✔ P60: tracker público começa em PT-BR sem spoiler futuro (74.6477ms)
+✔ P60: tracker acompanha investigação e gating sem revelar conteúdo não visitado (16.0887ms)
+✔ P60: tracker persiste após serialização e não altera flags de regras (4.6447ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3166.3416
+

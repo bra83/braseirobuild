@@ -1,0 +1,17 @@
+✔ R40 manifest V3.3 has 282 unique assets (4.3143ms)
+✔ R40 vehicle wave contains exactly 43 Kainrath vehicles/ships (0.4763ms)
+✔ R40 vehicle URLs obey the existing Kainrath whitelist and cache contract (37.2594ms)
+✔ R40 vehicle assets remain visual-only and cannot infer mechanics (0.6258ms)
+✔ R40 source metadata records vehicle wave separately without mutating prior visual waves (0.4604ms)
+✔ R40 generic visual bridge exposes vehicles and keeps prior visual categories (190.4359ms)
+✔ R40 searchImageLibrary can query vehicle subtype without touching map catalog (43.8866ms)
+✔ R40 Android visual library exposes Veículos/Naves filter without mechanical binding language regression (2.7444ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2641.5707
+
