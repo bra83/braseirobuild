@@ -4,7 +4,7 @@
 - Repository: `bra83/braseirobuild`
 - Branch: `codex/star-wars-hibrido-integral-20261016`
 - Base HEAD: `98b6a391401818e74eaa53c752cc98dc9082fea9`
-- Last verified local and remote checkpoint: `e31cb33611f194cefcb01452ec53e7df448a49f1` (New Meen pp.19–23 integration plus corrected resume checkpoint; pushed)
+- Last verified local and remote checkpoint: `24fddccc5400fbc5c83192fb8648e95875d99f66` (core-source intake plus corrected SWE02 p.13 physician audit and 14/14 focused test evidence; pushed)
 - Source working copy: `work/star-wars/project`; sparse Git checkout: `work/star-wars/repo-sparse/star-wars/r54/source`
 - P244 SHA-256: `6f3dca72ea55080b4ce7e6befeb5d4d84e51f63453ead6a5719495178a40d264`
 - WIP5 MERGED SHA-256: `7615fc8d156f8909a7a31b0878d6e08715cd71867325c5ad6c97ac5dd830409e`
