@@ -240,6 +240,19 @@ export function sourceBackedTalentRank(character, canonical) {
   }).map(p=>p.nodeId)).size;
 }
 
+/** AoR Brace removes setbacks only after its maneuver has prepared the next
+ * action, and only from the environment-attributed portion of that action's
+ * pool. The controller owns the persisted one-action preparation/consumption;
+ * this helper provides the deterministic, source-backed reduction. */
+export function braceEnvironmentalSetbackRelief(character, {maneuverPrepared=false, environmentalSetback=0}={}) {
+  if(typeof maneuverPrepared!=='boolean' || !Number.isSafeInteger(environmentalSetback) || environmentalSetback<0)
+    throw new Error('Estado de Brace inválido.');
+  const rank=sourceBackedTalentRank(character,'BRACE');
+  const removedSetback=maneuverPrepared ? Math.min(rank,environmentalSetback) : 0;
+  return {available:rank>0,rank,maneuverPrepared,removedSetback,
+    remainingEnvironmentalSetback:environmentalSetback-removedSetback};
+}
+
 
 /** P170: the ranked Hard Headed check is an ACTION even while staggered.
  * The improved variant alone may be attempted after strain incapacitation.

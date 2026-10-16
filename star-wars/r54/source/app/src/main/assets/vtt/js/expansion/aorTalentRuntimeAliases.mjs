@@ -3,12 +3,16 @@
  *
  * The AoR source tree stores printed Spanish names while the legacy combat,
  * skill, vehicle and recovery engines use short EotE keys. These mappings
- * only cover effects that already have a concrete consumer in the game.
- * They do not confer an effect on unrelated talents merely because their
- * translated display labels happen to be similar.
+ * identify source semantics and runtime keys; the separate
+ * AOR_RUNTIME_MECHANICAL_TALENTS list gates catalog claims of an integrated
+ * consumer. BRACE is source-backed for rank accounting but stays excluded
+ * from that list until its maneuver and one-action consumer are wired.
+ * Mappings do not grant effects from display-label similarity.
  */
 export const AOR_RUNTIME_TALENT_ALIASES = Object.freeze({
-  'FIRMEZA': 'GRIT',
+  // The source catalog uses FIRMEZA for the active Brace talent, not Grit.
+  // Keep it distinct from APLOMO, which is the source-backed Grit key.
+  'FIRMEZA': 'BRACE',
   'SEXTO SENTIDO': 'SIXTHSENSE',
   'REFLEJOS SUPERIORES': 'SUPREF',
   'PRECISIÓN LETAL': 'DEADACC',
@@ -212,11 +216,14 @@ export const AOR_RUNTIME_TALENT_ALIASES = Object.freeze({
 
 export const AOR_IMMEDIATE_TALENT_EFFECTS = Object.freeze([
   'APLOMO', 'ENDURECIDO', 'RESISTENTE', 'DEDICACIÓN',
-  'FIRMEZA', 'SEXTO SENTIDO', 'REFLEJOS SUPERIORES', 'PRECISIÓN LETAL'
+  'SEXTO SENTIDO', 'REFLEJOS SUPERIORES', 'PRECISIÓN LETAL'
 ]);
 
 export const AOR_RUNTIME_MECHANICAL_TALENTS = Object.freeze([
-  ...new Set([...AOR_IMMEDIATE_TALENT_EFFECTS, ...Object.keys(AOR_RUNTIME_TALENT_ALIASES)])
+  // BRACE has a deterministic rank/relief helper, but remains catalog-inactive
+  // until its maneuver and one-action controller consumer are integrated.
+  ...new Set([...AOR_IMMEDIATE_TALENT_EFFECTS,
+    ...Object.keys(AOR_RUNTIME_TALENT_ALIASES).filter(name=>AOR_RUNTIME_TALENT_ALIASES[name]!=='BRACE')])
 ]);
 
 export function aorCanonicalTalentName(originalName) {

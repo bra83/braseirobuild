@@ -25,7 +25,17 @@
     "individually_source_audited": 20,
     "first_tree_audit": "audits/AOR_ACE_GUNNER_INDIVIDUAL_AUDIT.md",
     "first_tree_rows": 20,
-    "first_tree_rows_status": "PENDENTE"
+    "first_tree_rows_status": "PENDENTE",
+    "first_tree_test": {
+      "command": "node --test --test-reporter=tap tests/uae-aor-brace-talent-authority.test.mjs",
+      "result": "PASS",
+      "tests": 2,
+      "pass": 2,
+      "fail": 0,
+      "skip": 0,
+      "evidence": "evidence/aor-brace-helper-20261016/brace-helper.tap",
+      "scope": "Source mapping and pure Brace setback arithmetic only; no controller/UI/save-reopen integration. All 20 rows remain PENDENTE."
+    }
   },
   "drive_inventory": {
     "records": 527,
@@ -53,7 +63,7 @@
     "EotE/AoR rules family certification remains outstanding.",
     "Mechanical authority, source authorization, persistence, migration, and rollback gates have not been closed by executed end-to-end proofs."
   ],
-  "next_action": "Review and close the Old Lylek implementation and integrated source/test evidence. Continue the source-backed Brace action and save/reopen integration after shared Act 1 controller/UI paths are free; audit SWE13.",
+  "next_action": "Integrate Brace maneuver and next-action consumption through controller/UI with origin-aware pools and save/reopen; finish Old Lylek source, UI, party-effect and focused tests; audit SWE13. Do not promote any AoR proof row yet.",
   "source_corrections": {
     "SWE02_palace_page_provenance": "Corrected p.43 map vs p.44 room/recruitment data and p.45 Bith interview references; generated bundle rebuilt; four focused tests and all 376 tests pass."
   },
