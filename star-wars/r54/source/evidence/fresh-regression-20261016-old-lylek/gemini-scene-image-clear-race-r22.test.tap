@@ -1,0 +1,13 @@
+✔ geração e importação capturam uma geração de imagem antes do trabalho assíncrono (3.4408ms)
+✔ limpar imagem invalida trabalho anterior e remove temporário sob o mesmo lock (0.8115ms)
+✔ commit só persiste geração atual e ordena evento de sucesso dentro do lock (0.6281ms)
+✔ erros tardios de geração/importação invalidados não chegam à UI (0.6611ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 368.8982
+

@@ -1,0 +1,12 @@
+✔ backup -> mutação -> import restaura estado e emite refresh na mesma WebView (46.199ms)
+✔ clear remove campanha e emite refresh de clear (1.5493ms)
+✔ uiBridge mantém import de backup e restore de snapshot passando por repository.save (3.335ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1834.6038
+

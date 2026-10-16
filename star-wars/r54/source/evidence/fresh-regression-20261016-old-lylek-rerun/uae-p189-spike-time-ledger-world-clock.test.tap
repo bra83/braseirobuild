@@ -1,0 +1,21 @@
+✔ P189 ten hours are committed to the canonical world task clock, not just an adventure receipt (519.511ms)
+✔ P189 failed crafting still costs 300 credits and ten hours (324.629ms)
+✔ P189 no double charge when the action ID is repeated; atomic state and saves unchanged (378.979ms)
+✔ P189 rejected crafting with insufficient credits leaves clock and world unchanged (315.4812ms)
+✔ P189 forged or missing task ledger cannot pass adventure status validation (424.6597ms)
+✔ P189 three reopenings preserve world clock, credits and spike receipt (444.3681ms)
+✔ P189 legacy P188 spike receipts remain valid without retroactively charging time (364.4605ms)
+✔ P189 spike crafting does not incorrectly advance abstract world ticks (separate event-turn clock) (519.7868ms)
+✔ P189 bank retry charges thirty minutes to canonical clock after a failed first slicing (1269.262ms)
+✔ P189 retry receipt with removed time ledger or forged time key is rejected (907.4676ms)
+✔ P189 bank retry idempotency protects clock and saves (1593.6285ms)
+✔ P189 failed bank retries retain thirty-minute charges after three reopenings (1129.4825ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10447.8026
+

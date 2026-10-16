@@ -1,0 +1,16 @@
+✔ ponte de Biblioteca lista documentos anexados e traduz status (2.8804ms)
+✔ busca em PDF importado vira fonte local citável (1.6353ms)
+✔ RAG combina corpus auditado e Biblioteca importada sem tratar PDF como regra implementada (9.4088ms)
+✔ contexto do Mestre incorpora PDF da Biblioteca quando a ponte Android está disponível (35.6951ms)
+✔ shell Android contém importação privada e indexação PDFBox, sem permissão de armazenamento externo (51.1023ms)
+✔ shell Android persiste autoridade e permite ativar/desativar fonte sem apagar PDF (3.2853ms)
+✔ Biblioteca permite reindexar PDF preservado e registra falha de indexação (3.2814ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1191.1633
+

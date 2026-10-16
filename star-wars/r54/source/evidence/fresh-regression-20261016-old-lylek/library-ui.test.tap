@@ -1,0 +1,13 @@
+✔ interface possui aba Biblioteca e fluxo de importação em PT-BR (3.2138ms)
+✔ interface diferencia PDF indexado de PDF anexado sem texto extraível (1.1987ms)
+✔ Biblioteca expõe autoridade e ativação da fonte em PT-BR (4.5944ms)
+✔ Biblioteca oferece reindexação sem exigir nova importação (2.4066ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 386.7596
+

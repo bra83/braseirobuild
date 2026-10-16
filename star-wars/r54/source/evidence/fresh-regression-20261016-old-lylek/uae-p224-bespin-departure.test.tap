@@ -1,0 +1,17 @@
+✔ P224 does not grant Bespin escape XP from a story flag, ship selection or an epilogue alone (808.5268ms)
+✔ P224 physical custody adds ONE real item and blocks duplicate, boarding needs security and real ship (734.32ms)
+✔ P224 actual successful astrogation advances persistent world clock and unlocks exactly 5 XP (1263.0816ms)
+✔ P224 no exit without offworld destination and GM launch approval, atomic rollback (1037.8979ms)
+✔ P224 rejects tampered receipts, item custody, invented jump faces, time and derived state (1168.3066ms)
+✔ P224 failed astrogation never creates escape proof or grants XP, but keeps the actual failed roll (1089.1653ms)
+✔ P224 Android UI, bridge, controller, bundle, save validator and source are wired (334.0078ms)
+✔ P224 epilogue cannot claim a completed Bespin escape before the verified hyperjump (1210.2796ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9394.7015
+

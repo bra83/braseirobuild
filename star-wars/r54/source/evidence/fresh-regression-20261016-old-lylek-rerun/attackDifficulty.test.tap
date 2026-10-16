@@ -1,0 +1,12 @@
+✔ ataque à distância calcula dificuldade pela faixa (6.4238ms)
+✔ Interação modifica armas à distância e corpo a corpo usa dificuldade 2 (3.8529ms)
+✔ não permite atacar além do alcance da arma (1.2629ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1243.9214
+

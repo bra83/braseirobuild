@@ -1,0 +1,12 @@
+✔ interface PT-BR inclui aba Base e grupo de Orla com Obligation (3.4035ms)
+✔ interface expõe árvore completa de talentos com desbloqueio por conexão (0.8759ms)
+✔ interface expõe catálogo auditado sem compra automática (0.7183ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 796.6088
+

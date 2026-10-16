@@ -1,0 +1,16 @@
+✔ P105: ativar Sentir contínuo consome a ação e compromete 1 dado da Força (129.2457ms)
+✔ P105: Sentir defensivo aprimora a dificuldade do primeiro ataque NPC do assalto (46.2017ms)
+✔ P105: Sentir ofensivo aprimora a habilidade do próximo ataque do jogador (21.9097ms)
+✔ P105: Influência básica exige poder comprado, consome ação e aplica Tensão real a alvo engajado (21.6629ms)
+✔ P105: Influência falha sem pontos suficientes mas ainda consome a ação (6.2331ms)
+✔ P105: bridge expõe ativação executável de Sentir e Influência sem RAG (2.8174ms)
+✔ P105: R46 expõe somente Sentir adquirido e Influência contra alvo persistente (6.4185ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1626.6417
+

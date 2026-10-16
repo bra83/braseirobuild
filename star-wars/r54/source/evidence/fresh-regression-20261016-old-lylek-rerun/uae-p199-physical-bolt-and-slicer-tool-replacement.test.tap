@@ -1,0 +1,29 @@
+✔ P199 source-backed Core Table 5-8: bolt 35/0/0 and slicer gear 500/2/4 are separate from restraining_device (5.5986ms)
+✔ P199 bolt cannot be claimed from a missing inventory item, even with GM checkbox (1244.2822ms)
+✔ P199 restraining_device alone does not authorize a physical bolt (810.5974ms)
+✔ P199 buying bolt debits 35 real credits, records receipt, and adds one owned physical item (1092.6217ms)
+✔ P199 cannot buy without GM approval or sufficient credits; both rollback (624.4048ms)
+✔ P199 official EotE Core requires spot-welder or owned toolkit to install bolt (946.9367ms)
+✔ P199 bolt attaches only after real successful capture, physically leaves inventory and downgrades G-100 (1530.6086ms)
+✔ P199 failed capture retains physical bolt and records failed dice, not fictional attachment (926.6755ms)
+✔ P199 no-bolt capture retains upgraded negative pool and never removes gear (1084.6417ms)
+✔ P199 bolt purchase/action idempotence prevents duplicate charges or forged item (1090.3019ms)
+✔ P199 bank contract rejects forged physical bolt receipts, actor and state (626.1862ms)
+✔ P199 captured signature remains a historical fact after purchasing fresh 500-credit slicer gear (945.9095ms)
+✔ P199 subsequent G-100 slicing no longer suffers captured-signature upgrade after replacement (1224.2296ms)
+✔ P199 signature penalty stops on generic Cloud City slicing after physical kit replacement, not on unrelated Computers (1030.8217ms)
+✔ P199 no signature cannot trigger tool purchase; no GM approval/insufficient funds cannot spend (1231.4798ms)
+✔ P199 tool replacement removes one compromised owned kit before inserting fresh kit (1559.334ms)
+✔ P199 replay rejects altered cost, fake clearance, signature missing, and repeated tool replacement (904.3891ms)
+✔ P199 three reopenings retain credits, bolt attachment, signed tool replacement and dice history (844.3337ms)
+✔ P199 P198 legacy bolt receipt without inventory fields is still replayable when contract absent (661.0797ms)
+✔ P199 UI/bridge provides explicit GM purchase, inventory count and replacement buttons (102.3824ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20125.7595
+

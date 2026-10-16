@@ -1,0 +1,12 @@
+✔ FINAL Star Wars: motor compartilhado mantém EotE como default e só ativa AoR/Misto por escolha explícita (85.5323ms)
+✔ FINAL shell compartilhada mantém EotE padrão e só expõe origem AoR por escolha explícita (9.2256ms)
+✔ FINAL: corpus mantém EotE dominante e permite somente o subconjunto AoR recuperado para Duty/Contribution (3.2645ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 950.1444
+

@@ -1,0 +1,22 @@
+✔ P239 SWE02 p.12: official Dunelizard profile and linked laser cannons (4.7715ms)
+✔ P239 optimal navigation + slowed transponder: direct Nabat, no fighter (479.1642ms)
+✔ P239 failed route forces interception even after slowed tracker (405.7432ms)
+✔ P239 p.12: cannot start Thwheek without actual Krayt Fang (262.19ms)
+✔ P239 real vehicle engine: Short-range fighter and player must maneuver into Bocajarro (495.0322ms)
+✔ P239 real hit + five hull trauma: pursuit remains open, withdrawal permits Nabat (422.2905ms)
+✔ P239 p.12: no victory without actual hits and no duplicate start/resolve (315.0664ms)
+✔ P239 p.12: incoming attack uses fixed Agility 3, Gunnery 0 even with forged GM overrides (414.7546ms)
+✔ P239 p.12: target stay-on-target switches to evasive after first actual hit, persists next round (316.2218ms)
+✔ P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience checks (735.1088ms)
+✔ P239 p.12: three-person crew cannot be falsely certified by one PC (712.5895ms)
+✔ P239 fail-closed: forged outcome or crew completion cannot survive adapter status (336.1659ms)
+✔ P239 bridge exposes authoritative vehicle result and crash methods (3.07ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7305.2058
+

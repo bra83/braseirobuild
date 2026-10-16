@@ -1,0 +1,13 @@
+✔ Ala-X entra no estado persistente e combate de veículos reabre intacto (52.5302ms)
+✔ segunda manobra exclusiva exige Tensão de sistemas ou ação (10.8007ms)
+✔ ataque veicular consome ação e aplica resultado ao alvo (13.5984ms)
+✔ controle de danos usa Mecânica do personagem e persiste (12.7531ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1365.8904
+

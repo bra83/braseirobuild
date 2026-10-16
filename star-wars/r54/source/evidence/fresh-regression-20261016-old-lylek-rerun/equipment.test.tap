@@ -1,0 +1,13 @@
+✔ Pantalla fornece catálogo auditado de 31 armas e 7 blindagens de referência (4.5493ms)
+✔ preços, raridade e restrição de exemplos centrais permanecem estáveis (3.7776ms)
+✔ armas corpo a corpo preservam dano por Fortaleza quando a tabela usa +N (0.6051ms)
+✔ catálogo retorna cópia e não permite mutar a autoridade em memória (3.6241ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 505.3261
+

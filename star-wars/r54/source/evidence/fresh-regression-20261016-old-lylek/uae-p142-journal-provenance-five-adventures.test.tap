@@ -1,0 +1,41 @@
+✔ P142 under-black-sun: journal vincula gatilho a evento causal real e persiste três reaberturas (95.34ms)
+✔ P142 under-black-sun: falsificação de causa, duplicação e downgrade são rejeitados (17.3648ms)
+✔ P142 under-black-sun: origem interna e eventos de sistema não podem ser injetados (4.4768ms)
+✔ P142 under-black-sun: consequência, objetivo e relógio continuam atômicos após replay (15.7865ms)
+✔ P142 under-black-sun: conclusão de relógio exige avanço causal verificável (6.7955ms)
+✔ P142 under-black-sun: adaptador oficial preserva vínculo causal durante transição real (123.0705ms)
+✔ P142 beyond-the-rim: journal vincula gatilho a evento causal real e persiste três reaberturas (12.6632ms)
+✔ P142 beyond-the-rim: falsificação de causa, duplicação e downgrade são rejeitados (36.0014ms)
+✔ P142 beyond-the-rim: origem interna e eventos de sistema não podem ser injetados (3.0422ms)
+✔ P142 beyond-the-rim: consequência, objetivo e relógio continuam atômicos após replay (12.1753ms)
+✔ P142 beyond-the-rim: conclusão de relógio exige avanço causal verificável (4.0446ms)
+✔ P142 beyond-the-rim: adaptador oficial preserva vínculo causal durante transição real (42.9048ms)
+✔ P142 long-arm-of-the-hutt: journal vincula gatilho a evento causal real e persiste três reaberturas (14.6073ms)
+✔ P142 long-arm-of-the-hutt: falsificação de causa, duplicação e downgrade são rejeitados (33.0007ms)
+✔ P142 long-arm-of-the-hutt: origem interna e eventos de sistema não podem ser injetados (2.8957ms)
+✔ P142 long-arm-of-the-hutt: consequência, objetivo e relógio continuam atômicos após replay (8.1618ms)
+✔ P142 long-arm-of-the-hutt: conclusão de relógio exige avanço causal verificável (14.7217ms)
+✔ P142 long-arm-of-the-hutt: adaptador oficial preserva vínculo causal durante transição real (46.7814ms)
+✔ P142 jewel-of-yavin: journal vincula gatilho a evento causal real e persiste três reaberturas (9.3959ms)
+✔ P142 jewel-of-yavin: falsificação de causa, duplicação e downgrade são rejeitados (8.9079ms)
+✔ P142 jewel-of-yavin: origem interna e eventos de sistema não podem ser injetados (2.0054ms)
+✔ P142 jewel-of-yavin: consequência, objetivo e relógio continuam atômicos após replay (6.574ms)
+✔ P142 jewel-of-yavin: conclusão de relógio exige avanço causal verificável (4.7569ms)
+✔ P142 jewel-of-yavin: adaptador oficial preserva vínculo causal durante transição real (46.2091ms)
+✔ P142 mask-of-the-pirate-queen: journal vincula gatilho a evento causal real e persiste três reaberturas (10.345ms)
+✔ P142 mask-of-the-pirate-queen: falsificação de causa, duplicação e downgrade são rejeitados (18.7973ms)
+✔ P142 mask-of-the-pirate-queen: origem interna e eventos de sistema não podem ser injetados (2.3475ms)
+✔ P142 mask-of-the-pirate-queen: consequência, objetivo e relógio continuam atômicos após replay (7.1653ms)
+✔ P142 mask-of-the-pirate-queen: conclusão de relógio exige avanço causal verificável (4.6789ms)
+✔ P142 mask-of-the-pirate-queen: adaptador oficial preserva vínculo causal durante transição real (19.3725ms)
+✔ P142: P141 sem marcador é promovido sem reescrever causalidade antiga (9.3335ms)
+✔ P142: gatilho acionado por evento interno legítimo mantém encadeamento causal (4.2092ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2178.7546
+

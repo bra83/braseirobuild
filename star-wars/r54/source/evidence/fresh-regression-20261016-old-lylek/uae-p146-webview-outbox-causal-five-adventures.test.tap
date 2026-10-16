@@ -1,0 +1,42 @@
+✔ P146 under-black-sun: escolha real, reabertura, recibo e prova causal íntegros (282.9354ms)
+✔ P146 under-black-sun: ACK perdido após commit não duplica escolha nem recompensa (128.4489ms)
+✔ P146 under-black-sun: adulteração do journal não atravessa validação/importação (60.7756ms)
+✔ P146 beyond-the-rim: escolha real, reabertura, recibo e prova causal íntegros (146.5118ms)
+✔ P146 beyond-the-rim: ACK perdido após commit não duplica escolha nem recompensa (117.985ms)
+✔ P146 beyond-the-rim: adulteração do journal não atravessa validação/importação (84.2434ms)
+✔ P146 long-arm-of-the-hutt: escolha real, reabertura, recibo e prova causal íntegros (209.4663ms)
+✔ P146 long-arm-of-the-hutt: ACK perdido após commit não duplica escolha nem recompensa (108.9136ms)
+✔ P146 long-arm-of-the-hutt: adulteração do journal não atravessa validação/importação (58.9413ms)
+✔ P146 jewel-of-yavin: escolha real, reabertura, recibo e prova causal íntegros (103.3809ms)
+✔ P146 jewel-of-yavin: ACK perdido após commit não duplica escolha nem recompensa (91.1856ms)
+✔ P146 jewel-of-yavin: adulteração do journal não atravessa validação/importação (233.1153ms)
+✔ P146 mask-of-the-pirate-queen: escolha real, reabertura, recibo e prova causal íntegros (220.8929ms)
+✔ P146 mask-of-the-pirate-queen: ACK perdido após commit não duplica escolha nem recompensa (311.4984ms)
+✔ P146 mask-of-the-pirate-queen: adulteração do journal não atravessa validação/importação (61.2903ms)
+✔ P146: comando pendente de outra campanha é preservado e bloqueia mutações (187.7645ms)
+✔ P146: falha ao gravar outbox impede qualquer efeito no mundo (29.4721ms)
+✔ P146: falha determinística de gravação reverte estado e libera retry seguro (94.1636ms)
+✔ P146: recusa de outro comando recupera o pendente antes de qualquer nova ação (42.2322ms)
+✔ P146: combate publicado usa outbox; combate sandbox preserva rota legada (338.1666ms)
+✔ P146: shell loads outbox before UI and routes all five published operations (5.1475ms)
+✔ P146 under-black-sun: remoção de evento causal da execução atual bloqueia checkpoint (44.5742ms)
+✔ P146 under-black-sun: recibo antigo não contamina nova execução da aventura (125.3231ms)
+✔ P146 beyond-the-rim: remoção de evento causal da execução atual bloqueia checkpoint (113.6146ms)
+✔ P146 beyond-the-rim: recibo antigo não contamina nova execução da aventura (204.6942ms)
+✔ P146 long-arm-of-the-hutt: remoção de evento causal da execução atual bloqueia checkpoint (60.2393ms)
+✔ P146 long-arm-of-the-hutt: recibo antigo não contamina nova execução da aventura (116.8106ms)
+✔ P146 jewel-of-yavin: remoção de evento causal da execução atual bloqueia checkpoint (33.3718ms)
+✔ P146 jewel-of-yavin: recibo antigo não contamina nova execução da aventura (65.8077ms)
+✔ P146 mask-of-the-pirate-queen: remoção de evento causal da execução atual bloqueia checkpoint (156.7696ms)
+✔ P146 mask-of-the-pirate-queen: recibo antigo não contamina nova execução da aventura (263.854ms)
+✔ P146: evento UAE de comando sem recibo correspondente é rejeitado (45.9879ms)
+✔ P146: outbox corrompido não é apagado nem executado silenciosamente (11.9485ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7564.5201
+

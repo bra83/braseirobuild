@@ -1,0 +1,13 @@
+✔ R54 usa file picker apenas para imports JSON conhecidos (10.862ms)
+✔ Android abre ACTION_OPEN_DOCUMENT restrito a JSON/texto compatível (0.7324ms)
+✔ resultado do picker JSON volta ao input WebView pelo FileChooserParams.parseResult (24.7975ms)
+✔ shell lê conteúdo do arquivo antes de chamar os imports do Motor Barbara (2.0584ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4295.2134
+

@@ -1,0 +1,16 @@
+✔ bridge construction is zero-mutation when no campaign exists (3.3991ms)
+✔ player intent never creates a default campaign when storage is empty (1.2171ms)
+✔ corrupt canonical state is reported and never overwritten (0.6963ms)
+✔ local player intent delegates to the canonical GameController and persists it (45.415ms)
+✔ configured HTTP provider follows the canonical requestMasterTurn path (20.3921ms)
+✔ global bridge installation is idempotent and does not create campaign state (0.589ms)
+✔ blank player intent is rejected before controller construction or mutation (1.1591ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1423.7535
+

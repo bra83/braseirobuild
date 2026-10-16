@@ -1,0 +1,18 @@
+✔ tipos de autoridade da Biblioteca são normalizados e rotulados em PT-BR (2.7303ms)
+✔ mecânica testada do motor prevalece sobre qualquer PDF importado (1.1442ms)
+✔ PDF importado pode preencher consulta onde a matriz só tem lacuna pendente (0.5474ms)
+✔ entre PDFs igualmente pertinentes, errata prevalece sobre livro básico e complemento (4.4489ms)
+✔ ponte atualiza autoridade e estado ativo de uma fonte (0.8237ms)
+✔ busca importada preserva autoridade devolvida pelo Android (1.1431ms)
+✔ fonte desativada fica disponível na Biblioteca, mas não chega ao RAG (0.611ms)
+✔ decisão de autoridade fica disponível para persistência da consulta (440.2192ms)
+✔ ponte de reindexação retorna erro legível quando indisponível (39.6127ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1251.8224
+

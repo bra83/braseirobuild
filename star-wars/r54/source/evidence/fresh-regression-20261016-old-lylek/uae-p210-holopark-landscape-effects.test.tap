@@ -1,0 +1,18 @@
+✔ P210 source-backed four real landscape symbols and effects are explicitly scoped (19.7882ms)
+✔ P210 Christophsis consumes actual Triumph and staggers real NPC one round (1186.109ms)
+✔ P210 Coruscant spends one real Advantage and disorients target (955.6357ms)
+✔ P210 Kashyyyk consumes Advantage and adds one REAL ranged setback until next round (958.8226ms)
+✔ P210 Alderaan requires player attack Despair and applies real 2 strain plus lost maneuver (855.541ms)
+✔ P210 rejects scene mismatch, fabricated symbols, GM omission and duplicate receipts atomically (1020.1019ms)
+✔ P210 receipts reject mutation and preserve legacy P209 saves without effects (934.0616ms)
+✔ P210 Android bridge, source, UI, version and generated bundle expose the real effect (130.6368ms)
+✔ P210 Kashyyyk cover changes the ACTUAL NPC attack dice pool by one setback (1124.6513ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9585.645
+

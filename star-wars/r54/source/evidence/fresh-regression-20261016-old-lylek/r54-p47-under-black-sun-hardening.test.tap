@@ -1,0 +1,12 @@
+✔ P47: ações sugeridas ao Mestre respeitam gating e não vazam opções futuras (90.5295ms)
+✔ P47: rota escritórios só oferece testes coerentes e preserva índices canônicos (20.7464ms)
+✔ P47: rota refinaria remove teste de Computadores e mantém Frieza no índice original (12.5924ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1080.9967
+

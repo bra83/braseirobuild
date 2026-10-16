@@ -1,0 +1,13 @@
+✔ ataque bem-sucedido soma Êxitos líquidos ao dano da arma (8.6943ms)
+✔ Vantagens suficientes disponibilizam crítico e Explosão conforme a arma (1.8436ms)
+✔ granada atordoante produz dano de Tensão (1.089ms)
+✔ Triunfo pode disponibilizar crítico mesmo sem Vantagens suficientes (0.9387ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 672.8138
+

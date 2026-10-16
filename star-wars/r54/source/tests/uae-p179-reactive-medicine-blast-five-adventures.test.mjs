@@ -32,8 +32,11 @@ function pendingBlast(g,rng=()=>0.9){
  g.commit('COMBAT_ACTION',{combat:result.combat,character:result.character,group:result.group??g.state.group});
  return result.combat.pendingNpcBlasts[0];
 }
-test('P179 360 AoR source positions have executable consumers (not editorial certification)',()=>{
- const c=aorTalentCoverage();assert.equal(c.positions,360);assert.equal(c.mechanicalPositions,360);
+test('P179 AoR catalog keeps 360 source positions distinct from 356 integrated effects; Brace remains pending',()=>{
+ const c=aorTalentCoverage();assert.equal(c.positions,360);assert.equal(c.mechanicalPositions,356);
+ const brace=catalog.filter(x=>x.originalName==='FIRMEZA');assert.equal(brace.length,4);
+ assert.deepEqual(brace.map(x=>x.source.printedPage).sort((a,b)=>a-b),[68,68,93,93]);
+ assert.ok(brace.every(x=>!x.mechanicallyActive));
  for(const n of talents)assert.ok(catalog.some(x=>x.originalName===n&&x.mechanicallyActive),n);
 });
 test('P179 Tactician Superviviente is Natural Outdoorsman, not Unmatched Courage',()=>{

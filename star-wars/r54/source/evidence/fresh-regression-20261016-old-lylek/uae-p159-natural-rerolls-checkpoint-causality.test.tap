@@ -1,0 +1,36 @@
+✔ P159: 270/360 AoR slots; two natural talents source-backed, unrelated slots remain disabled (176.7263ms)
+✔ P159: EMBAUCADOR NATO rerolls carisma once, persists across three reopens (131.1021ms)
+✔ P159: EMBAUCADOR NATO rerolls engano once, persists across three reopens (35.0879ms)
+✔ P159: EMBAUCADOR NATO does not reroll unrelated liderazgo and cannot mutate save (10.7529ms)
+✔ P159: EMBAUCADOR NATO storage failure rolls back session use and dice (90.394ms)
+✔ P159: LÍDER NATO rerolls liderazgo once, persists across three reopens (48.9824ms)
+✔ P159: LÍDER NATO rerolls frialdad once, persists across three reopens (39.871ms)
+✔ P159: LÍDER NATO does not reroll unrelated medicina and cannot mutate save (12.3503ms)
+✔ P159: LÍDER NATO storage failure rolls back session use and dice (85.9233ms)
+✔ P159 under-black-sun: atomic trigger → consequence → clock → objective → nested event → receipt → restore (92.1289ms)
+✔ P159 under-black-sun: checkpoint rejects tampered progress, completed clock and missing trigger journal (45.915ms)
+✔ P159 under-black-sun: failed multi-command transaction does not grant reward, clock, objective or receipt (8.1459ms)
+✔ P159 beyond-the-rim: atomic trigger → consequence → clock → objective → nested event → receipt → restore (22.9947ms)
+✔ P159 beyond-the-rim: checkpoint rejects tampered progress, completed clock and missing trigger journal (20.9129ms)
+✔ P159 beyond-the-rim: failed multi-command transaction does not grant reward, clock, objective or receipt (10.415ms)
+✔ P159 long-arm-of-the-hutt: atomic trigger → consequence → clock → objective → nested event → receipt → restore (37.0577ms)
+✔ P159 long-arm-of-the-hutt: checkpoint rejects tampered progress, completed clock and missing trigger journal (48.351ms)
+✔ P159 long-arm-of-the-hutt: failed multi-command transaction does not grant reward, clock, objective or receipt (12.2606ms)
+✔ P159 jewel-of-yavin: atomic trigger → consequence → clock → objective → nested event → receipt → restore (17.6039ms)
+✔ P159 jewel-of-yavin: checkpoint rejects tampered progress, completed clock and missing trigger journal (13.6947ms)
+✔ P159 jewel-of-yavin: failed multi-command transaction does not grant reward, clock, objective or receipt (13.0079ms)
+✔ P159 mask-of-the-pirate-queen: atomic trigger → consequence → clock → objective → nested event → receipt → restore (19.95ms)
+✔ P159 mask-of-the-pirate-queen: checkpoint rejects tampered progress, completed clock and missing trigger journal (22.633ms)
+✔ P159 mask-of-the-pirate-queen: failed multi-command transaction does not grant reward, clock, objective or receipt (8.3501ms)
+✔ P159: bundle/version Android 1.0.159, existing TTS untouched (43.8233ms)
+✔ P159: Android bridge offers EMBAUCADOR NATO only for the purchased skill, then disables it after use (61.8054ms)
+✔ P159: Android bridge offers LÍDER NATO only for the purchased skill, then disables it after use (40.6644ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2891.5521
+

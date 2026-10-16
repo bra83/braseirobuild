@@ -1,0 +1,12 @@
+✔ P92: cibernético altera ficha, respeita persistência e remoção reverte efeito (30.2219ms)
+✔ P92: limite de cibernéticos por Fortaleza é realmente bloqueante (12.5741ms)
+✔ P92: bridge público não concede veículo nem instala cibernético sem aquisição (4.6704ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2257.061
+

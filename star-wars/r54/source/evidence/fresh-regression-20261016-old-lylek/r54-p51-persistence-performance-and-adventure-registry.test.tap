@@ -1,0 +1,14 @@
+✔ P51 WORLD_UPDATED mantém estado completo mas histórico de eventos guarda somente resumo compacto e idempotente (48.8861ms)
+✔ P51 migrateState compacta snapshot WORLD_UPDATED legado sem alterar o mundo atual (1.9061ms)
+✔ P51 Desespero em negociação final fracassada encerra a via diplomática, persiste e não oferece rendição (37.5546ms)
+✔ P51 Threat + Despair em NovaCORE produz risco crítico persistente e consequência mecânica explícita (14.6187ms)
+✔ P51 registry mantém Sob um Sol Negro funcional e expõe contrato genérico para próximas aventuras (3.8033ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2458.8656
+

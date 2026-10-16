@@ -1,0 +1,40 @@
+✔ P185 replay rejects forged auction bidValue (405.2408ms)
+✔ P185 replay rejects forged auction active (310.8045ms)
+✔ P185 replay rejects forged auction base (122.286ms)
+✔ P185 replay rejects forged auction name (120.934ms)
+✔ P185 replay rejects auction winner changed without changing credit total (160.2729ms)
+✔ P185 replay rejects auction round order and remaining bidders forged (110.7732ms)
+✔ P185 replay rejects auction completed flag forged (75.5531ms)
+✔ P185 replay rejects auction receipt amount forged in both receipt and history (109.7308ms)
+✔ P185 replay rejects bidder influence moved to wrong round (65.8299ms)
+✔ P185 replay rejects influence pending without receipt (151.6677ms)
+✔ P185 failed influence does not auto-award triumph bonus (62.2196ms)
+✔ P185 started auction cannot be skipped by advancing to bank (115.0539ms)
+✔ P185 legacy auction scene can advance without creating phantom bids (144.7468ms)
+✔ P185 started Grand Prix cannot skip seven legs (78.0827ms)
+✔ P185 completed Grand Prix requires classified place to advance (252.9684ms)
+✔ P185 legacy Grand Prix without operation remains playable (82.3539ms)
+✔ P185 source hazard leg 4 has two setbacks and tibannuck (28.2178ms)
+✔ P185 source hazard leg 5 has one setback and beldon (0.4779ms)
+✔ P185 missed buoy requires next-check setback and survives three reopens (107.2041ms)
+✔ P185 tibannuck threat causes one system strain (115.8554ms)
+✔ P185 tibannuck despair records critical modifier minus twenty (58.163ms)
+✔ P185 beldon three threats records critical without modifier (140.4511ms)
+✔ P185 critical hazard without critical collision receipt is rejected (101.8196ms)
+✔ P185 hazard cannot be forged for safe leg (70.2949ms)
+✔ P185 forged hazard strain fails replay even if total changed (107.6254ms)
+✔ P185 forged missed buoy next setback fails replay (67.9388ms)
+✔ P185 forged race victory flag fails replay (164.0833ms)
+✔ P185 corrupted save rejects scene advance without mutating original (86.4804ms)
+✔ P185 original P184 auction and race saves without hazard fields remain valid (119.2132ms)
+✔ P185 new bidder receipt stores verifiable successes and triumphs (139.1269ms)
+✔ P185 Android published status exposes terrain and missed buoy setback guidance (135.8562ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5632.5577
+

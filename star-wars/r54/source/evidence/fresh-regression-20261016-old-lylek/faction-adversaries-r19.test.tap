@@ -1,0 +1,12 @@
+✔ adversário não persistente pode carregar facção explícita validada (190.2704ms)
+✔ PNPC persistente herda facção e tentativa de troca silenciosa é rejeitada (48.9918ms)
+✔ consequência de facção pode inferir afiliação dos adversários do encontro (61.2925ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1820.0054
+

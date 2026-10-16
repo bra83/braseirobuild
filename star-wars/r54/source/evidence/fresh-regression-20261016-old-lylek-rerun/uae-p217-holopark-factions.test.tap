@@ -1,0 +1,18 @@
+✔ P217 SWE09 p78 Grayson security uses published NPC card, not generic Wing Guard (21.8848ms)
+✔ P217 cannot teleport faction or invent count and cannot join ongoing Wing Guard (1417.7765ms)
+✔ P217 Arend group starts actual initiative atomically, is not old Arrow-7 goon group (2868.9391ms)
+✔ P217 Grayson profile starts combat and persists across three reopenings (2048.7303ms)
+✔ P217 Grayson outcome recorded once and faction cannot respawn (1105.2783ms)
+✔ P217 replay detects tampered faction count and identity (2380.2424ms)
+✔ P217 Android bridge and PT-BR UI wired to real controller (45.6423ms)
+✔ P217 preserves Holo-Park clock across distinct combat encounters without fictitious rounds (1677.5687ms)
+✔ P217 both source-backed factions can enter sequentially, never together or respawn (1569.0041ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14676.7312
+

@@ -1,0 +1,22 @@
+✔ P128: cinco adaptadores geram UAE persistido, objetivos por episódio e transição real (346.9313ms)
+✔ P128: reinício e reabertura no controlador mantêm journal UAE e estado de personagem (125.2278ms)
+✔ P128: migração de save legado sem UAE preserva cena e audita origem (9.4608ms)
+✔ P128: três aventuras por episódios concluem objetivos e arquivam sem duplicar eventos (898.5252ms)
+✔ P128: teste da aventura gera evento canônico e preserva progressão de check (30.3764ms)
+✔ P128: reimportação de snapshot com sequência lacunar não duplica IDs de eventos (3.699ms)
+✔ P128: falha ao resolver consequência não deixa marca de resolução nem evento órfão (8.2585ms)
+✔ P128: attachment ignora efeito e modificação forjados em snapshot persistido (8.934ms)
+✔ P128: qualidades graduadas combinam corretamente base + attachment + mods (15.5399ms)
+✔ P128: UI recebe objetivos visíveis sem flags, pistas secretas nem episódios futuros (78.6378ms)
+✔ P128: painel Android exibe objetivos da UAE sem exibir estados internos (358.3769ms)
+✔ P128: Sob um Sol Negro mantém UAE até desfecho e arquivamento com consequência (1461.1384ms)
+✔ P128: Além da Orla preserva UAE e três episódios até arquivamento real (1942.0658ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7581.4841
+

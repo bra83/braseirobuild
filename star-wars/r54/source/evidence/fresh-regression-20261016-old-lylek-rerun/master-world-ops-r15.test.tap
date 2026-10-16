@@ -1,0 +1,14 @@
+✔ proposta do Mestre pode alterar apenas o mundo por operações estruturadas validadas (84.2648ms)
+✔ operação do Mestre com PNPC/local inexistente falha transacionalmente e preserva o save (29.9649ms)
+✔ Mestre pode criar PNPC/local sem fornecer ID e o motor gera identidades estáveis (45.3497ms)
+✔ mundo alterado fora de cena reabre com o mesmo PNPC, ID, local, objetivo e fato (90.8874ms)
+✔ proposta rejeita campos de mundo arbitrários e lote excessivo (18.4963ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2055.7316
+

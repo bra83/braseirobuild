@@ -1,0 +1,17 @@
+✔ P98 Iônica causa Tensão de sistemas sem Trauma de Casco e não oferece Critical Hit (65.138ms)
+✔ P98 Vinculada usa o mesmo orçamento do crítico veicular (26.0681ms)
+✔ P98 Guiada em ataque perdido custa 3 Vantagens e agenda nova passagem (16.2779ms)
+✔ P98 passagem Guiada resolve no fim do round e aplica dano real (22.0542ms)
+✔ P98 Raio Trator bloqueia movimento e fuga legítima remove o lock (27.4343ms)
+✔ P98 Munição Limitada veicular e Cadência Lenta persistem por arma/round (79.8219ms)
+✔ P98 orçamento veicular não permite Vinculada além do rating (70.9169ms)
+✔ P98 bridge/R46 expõem gasto veicular, Guiada e fuga do Trator sem mutação bruta (61.2965ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2490.8268
+

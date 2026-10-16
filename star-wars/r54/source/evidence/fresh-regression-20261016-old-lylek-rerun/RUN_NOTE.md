@@ -1,0 +1,5 @@
+# Fresh regression note
+
+The first full run (`evidence/fresh-regression-20261016-old-lylek/`) recorded 2 failures and 2 skips. One was environmental: `bundle-builder-p20.test.mjs` could not resolve TypeScript because the sparse checkout has no `node_modules`; rerunning with `NODE_PATH` set to the recovered project’s local `node_modules` resolved it without copying dependencies into the repository. The other was a stale structural assertion that treated all 360 AoR positions as integrated effects. After the source-backed Brace corrections, the catalog has 360 source positions but 356 currently active effect aliases; the four Brace positions remain mechanically inactive pending the action path. The assertion now checks that distinction and the four source pages.
+
+The corrected full run is `evidence/fresh-regression-20261016-old-lylek-rerun/`: 378 test files, including all six stress files; 3,399 tests; 3,397 pass; 0 fail; 2 explained JDK-dependent skips. This proves code/test regression status only, not source certification.

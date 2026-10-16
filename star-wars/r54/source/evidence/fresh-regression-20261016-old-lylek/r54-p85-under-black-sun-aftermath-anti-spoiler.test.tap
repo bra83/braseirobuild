@@ -1,0 +1,13 @@
+✔ P85: planos pós-epílogo recebem createdDay estável (20.145ms)
+✔ P85: retorno latente de Kaa’to não vaza evento público ao ativar (14.1058ms)
+✔ P85: Zelcomm continua podendo produzir consequência conhecida depois do epílogo (90.754ms)
+✔ P85: retorno de Kaa’to só vira consequência pendente oculta quando realmente resolve (50.2232ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1803.0375
+

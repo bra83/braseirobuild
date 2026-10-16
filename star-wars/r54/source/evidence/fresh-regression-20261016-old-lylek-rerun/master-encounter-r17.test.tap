@@ -1,0 +1,13 @@
+✔ diretriz do Mestre aceita apenas perfis, quantidades, alcances e iniciativa válidos (10.6404ms)
+✔ Mestre prepara encontro e jogador ainda escolhe Reação rápida antes da iniciativa (196.4191ms)
+✔ consequência causal pode originar encontro e só é resolvida quando o combate tem desfecho (149.931ms)
+✔ diretriz causal inválida reverte a proposta inteira (13.5651ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1888.8796
+

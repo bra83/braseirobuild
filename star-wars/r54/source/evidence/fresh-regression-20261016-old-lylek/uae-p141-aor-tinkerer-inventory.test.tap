@@ -1,0 +1,15 @@
+✔ P141 AoR Mañoso: 4 posições mecânicas, equivalência TINK e compra pela árvore real (27.0393ms)
+✔ P141 Mañoso: +1 hard point por item, limites por rank e instalação real (33.5058ms)
+✔ P141 Mañoso: tentativas inválidas não concedem bônus nem alteram ficha (5.8897ms)
+✔ P141 Mañoso: bônus falsificados e acima dos ranks são recusados no inventário (9.0605ms)
+✔ P141 Mañoso: controller e reabertura persistem capacidade, inventário e limite (33.3713ms)
+✔ P141 Mañoso: interface Android expõe status e aplicação, preservando erro tipado (17.1418ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1641.6156
+

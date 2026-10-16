@@ -1,0 +1,12 @@
+✔ encontro causal cria histórico persistente e consequência duradoura ligada a facção/plano/local (217.327ms)
+✔ mesmo hook não duplica histórico/aftermath e consequência pode ser encerrada sem apagar histórico (7.7501ms)
+✔ migração de mundo anterior recebe coleções de histórico sem inventar registros (2.4094ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4282.5022
+

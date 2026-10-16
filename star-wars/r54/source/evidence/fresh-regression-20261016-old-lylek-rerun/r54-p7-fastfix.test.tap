@@ -1,0 +1,13 @@
+✔ P7: catálogo pessoal core inteiro tem binding exato e arquivo local (402.6138ms)
+✔ P12: 82 locais têm visual de localização honesto e zero path quebrado (187.8569ms)
+✔ P7: seed não fixa Voss e remove texto técnico RAG (3.9031ms)
+✔ P7: renderer visual não usa scoring fuzzy (1.8532ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1558.6741
+

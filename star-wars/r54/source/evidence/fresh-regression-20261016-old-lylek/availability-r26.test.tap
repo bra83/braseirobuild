@@ -1,0 +1,20 @@
+✔ tabela de raridade converte 0-10 para as dificuldades oficiais (4.5411ms)
+✔ raridade acima de 10 mantém Formidável e melhora a dificuldade uma vez por ponto (5.1052ms)
+✔ modificador explícito altera raridade, nunca preço (0.8295ms)
+✔ item legal usa Negociação e permite alternativa de Conhecimento a critério do Mestre (0.873ms)
+✔ item restrito usa Vida nas ruas e preserva ajuste de lei como decisão do Mestre (0.6293ms)
+✔ sem perfil local o motor não inventa modificador nem raridade efetiva (0.4429ms)
+✔ referência de circunstâncias oficiais é consultável mas não aplicada automaticamente (0.5189ms)
+✔ pedido de aquisição nasce sem classificação inventada de planeta (14.8909ms)
+✔ modificador do local só entra por ação explícita e não muda os demais dados do pedido (3.2671ms)
+✔ controller expõe cálculo auditado e persiste apenas modificador explicitamente definido (855.9395ms)
+✔ RAG EotE fundamenta raridade/disponibilidade no Core real sem autoridade AoR (90.8635ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3064.4136
+

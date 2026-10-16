@@ -1,0 +1,41 @@
+✔ P136 evento com ID de outra campanha: transação reverte e importação falha fechada (37.452ms)
+✔ P136 evento fora de ordem: transação reverte e importação falha fechada (7.0079ms)
+✔ P136 timestamp inválido: transação reverte e importação falha fechada (4.9922ms)
+✔ P136 evento sem payload: transação reverte e importação falha fechada (22.1836ms)
+✔ P136 evento sem turno: transação reverte e importação falha fechada (11.6943ms)
+✔ P136 contador não numérico: transação reverte e importação falha fechada (40.3923ms)
+✔ P136 contador booleano: transação reverte e importação falha fechada (4.9065ms)
+✔ P136 gatilho inexistente: transação reverte e importação falha fechada (3.9129ms)
+✔ P136 gatilho acima do limite: transação reverte e importação falha fechada (5.6063ms)
+✔ P136 objetivo concluído sem histórico: transação reverte e importação falha fechada (10.4363ms)
+✔ P136 objetivo concluído com progresso impossível: transação reverte e importação falha fechada (76.0554ms)
+✔ P136 objetivo no histórico sem conclusão: transação reverte e importação falha fechada (6.5574ms)
+✔ P136 histórico de objetivo duplicado: transação reverte e importação falha fechada (26.1165ms)
+✔ P136 relógio fora dos limites: transação reverte e importação falha fechada (6.0613ms)
+✔ P136 relógio booleano: transação reverte e importação falha fechada (184.8483ms)
+✔ P136 cena atual inexistente: transação reverte e importação falha fechada (3.1236ms)
+✔ P136 visita duplicada: transação reverte e importação falha fechada (3.3143ms)
+✔ P136 consequência duplicada: transação reverte e importação falha fechada (3.7992ms)
+✔ P136 consequência resolvida sem data: transação reverte e importação falha fechada (3.1881ms)
+✔ P136 dados não numéricos em efeitos falham sem contaminar clocks, counters ou journal (198.9998ms)
+✔ P136 módulos com identificadores que colidem com protótipos são recusados (6.7701ms)
+✔ P136 under-black-sun: evento, consequência, objetivo, clock, restauração e projeção em um commit (55.2058ms)
+✔ P136 beyond-the-rim: evento, consequência, objetivo, clock, restauração e projeção em um commit (75.9812ms)
+✔ P136 long-arm-of-the-hutt: evento, consequência, objetivo, clock, restauração e projeção em um commit (51.5413ms)
+✔ P136 jewel-of-yavin: evento, consequência, objetivo, clock, restauração e projeção em um commit (33.3184ms)
+✔ P136 mask-of-the-pirate-queen: evento, consequência, objetivo, clock, restauração e projeção em um commit (64.5337ms)
+✔ P136 AoR Jump Up compartilha o efeito JUMP sem criar efeito para talento não mapeado (34.6303ms)
+✔ P136 under-black-sun: três reaberturas e 100 turnos preservam journal, objetivos e sequência (2430.1161ms)
+✔ P136 beyond-the-rim: três reaberturas e 100 turnos preservam journal, objetivos e sequência (2881.6246ms)
+✔ P136 long-arm-of-the-hutt: três reaberturas e 100 turnos preservam journal, objetivos e sequência (2473.242ms)
+✔ P136 jewel-of-yavin: três reaberturas e 100 turnos preservam journal, objetivos e sequência (1704.3127ms)
+✔ P136 mask-of-the-pirate-queen: três reaberturas e 100 turnos preservam journal, objetivos e sequência (2904.1342ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15141.1523
+

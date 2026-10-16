@@ -74,12 +74,12 @@ The slice covers route choices, two sequential Average Pilot checks, optional Ha
 
 Open source/effect gaps after review:
 
-- SWE02 p.15’s T-rex carryover remains explicitly `PENDENTE`; the recovered branch has no verified Escape from Mos Shuuta history predicate or Adventure Book p.24 profile wired into this encounter.
+- SWE02 p.15 carryover source is verified: if T-rex was evaded without a fight he is present; if defeated and confirmed dead he is absent; if defeated but not confirmed dead he is present with 10 wounds. The referenced official Beginner Game Adventure Book p.24 profile is visually verified at PDF p.29. The recovered app still has no persisted Escape from Mos Shuuta history predicate/profile integration, so this branch remains `PENDENTE`. Source PDFs: Long Arm Drive ID `1Lm26krELYpWU0Rx0WgPj__g72YU_F2lC`, SHA-256 `18FB9880242743D11765EACA442168FC3441A3B0D17AA92BC769057734B45489`; Beginner Game Drive ID `1UtxFwtuN6pfc2kzHpA02Ooa2-jyiKjNk`, SHA-256 `2B5718B58107B9906BC99368F014279F50A039AB369F5E68584661583C6168DD`.
 - Failed fast-route Pilot checks record the required 1 strain per onboard PC as a manual `PENDENTE` receipt; the engine does not yet apply it to every onboard PC.
 - The p.17 crash UI resolves checks and damage for only the active PC. It has no validated player-character roster selector/identity binding, so a multi-PC crash branch is not executable end-to-end.
 - The “fake Imperial demand” is currently represented by a UI “bluff” button that advances the approach without a Bluff roll, recognition result, or persisted social outcome.
 - Hunter loot is a source-backed `found` receipt after inspection, but no inventory transaction adds the two stimpacks, medpac, or emergency repair kit to a character/party inventory.
 - The Advantage-triggered lylek/B’ura sequence is not mandatory before advancing; scene exposure and explicit pass/skip semantics still need reconciliation with p.18.
-- The map/geometry on p.16, branch matrix (route success/failure, repair, Gand spotted/unspotted, combat retreat/defeat, lylek outcomes), T-rex, party-wide effects, loot transfer and broader page proof remain open.
+- The map/geometry on p.16, branch matrix (route success/failure, repair, Gand spotted/unspotted, combat retreat/defeat, lylek outcomes), T-rex history integration, party-wide effects, loot transfer and broader page proof remain open.
 
 The affected regression includes downstream suites whose fixtures were changed to record a valid source-shaped retreat from the Old Lylek encounter. Their source assertions remain in place; this fixture adjustment is not evidence that those downstream adventure pages are newly certified. SWE02 Act 1 and the entire adventure remain `PENDENTE` / `IMPLEMENTADO_NAO_CERTIFICADO` as tracked in `WORK_STATUS.json`.

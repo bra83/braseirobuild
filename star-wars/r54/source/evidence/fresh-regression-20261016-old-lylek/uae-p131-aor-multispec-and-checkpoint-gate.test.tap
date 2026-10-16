@@ -1,0 +1,18 @@
+✔ P131 AoR: segunda especialização da carreira custa 20 PE, concede perícias, abre sua árvore e persiste (57.6626ms)
+✔ P131 AoR: terceira especialização e fora da carreira têm custo escalonado e ownership isolado (3.3573ms)
+✔ P131 AoR: todas as 18 especializações podem ser compradas a partir de personagem de outra árvore (43.3521ms)
+✔ P131 AoR: controlador e UI bridge compartilham compra persistente de especialização (28.4661ms)
+✔ P131 under-black-sun: checkpoint corrupto é rejeitado antes da migração sem alterar mundo (87.3259ms)
+✔ P131 beyond-the-rim: checkpoint corrupto é rejeitado antes da migração sem alterar mundo (41.7632ms)
+✔ P131 long-arm-of-the-hutt: checkpoint corrupto é rejeitado antes da migração sem alterar mundo (48.5005ms)
+✔ P131 jewel-of-yavin: checkpoint corrupto é rejeitado antes da migração sem alterar mundo (36.1646ms)
+✔ P131 mask-of-the-pirate-queen: checkpoint corrupto é rejeitado antes da migração sem alterar mundo (41.8755ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2264.3792
+

@@ -1,0 +1,23 @@
+✔ P36: save P35 sem systems migra sem resetar nó, flags ou histórico (13.824ms)
+✔ P36: perseguição usa consequência narrativa persistente e superfície anti-spoiler (9.882ms)
+✔ P36: sabacc acumula rodadas e créditos de modo persistente (14.7436ms)
+✔ P36: Zelcomm entra em lockdown e NovaCORE pode escalar risco + Tensão (14.004ms)
+✔ P36: perfis Black Sun e Kaa’to existem na autoridade de combate usada pelo controller (29.111ms)
+✔ P36: controller inicia encontro publicado e grava desfecho persistente (383.9846ms)
+✔ P36: Kaa’to usa NPC do mundo, persiste incapacitação e não reaparece íntegro (806.5949ms)
+✔ P36: consequência de sabacc atinge créditos reais do personagem pelo controller (160.606ms)
+✔ P36: mantém gate EotE/MIXED e não converte Duty/Obligation entre linhas (26.3328ms)
+✔ P36: runtime e bridge expõem sistemas/encontro sem revelar especificação futura (9.5183ms)
+✔ P37: epílogo persiste destino de Kaa’to e consequências de facções sem spoiler antecipado (18.9977ms)
+✔ P37: roubo Zelcomm adiciona Obligation antes da recompensa e mantém Duty separado (602.1467ms)
+✔ P39: epílogo integra consequências ao Mundo Vivo somente após o desfecho (10.9197ms)
+✔ P39: Kaa’to morto sincroniza estado profundo e não cria plano de retorno (11.2133ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3375.6739
+

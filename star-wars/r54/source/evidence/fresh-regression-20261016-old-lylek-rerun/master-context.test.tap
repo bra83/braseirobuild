@@ -1,0 +1,12 @@
+✔ contexto do Mestre inclui estado pertinente, eventos e regras recuperadas (192.0164ms)
+✔ preparação local não finge provedor de IA (52.4584ms)
+✔ consulta local devolve regra EotE auditada e falha fechado fora da autoridade disponível (278.3743ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2026.1541
+

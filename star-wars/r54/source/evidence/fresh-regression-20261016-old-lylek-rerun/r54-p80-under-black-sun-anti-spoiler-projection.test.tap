@@ -1,0 +1,13 @@
+✔ P80: projeção pública não expõe flags arbitrárias/secretas mesmo se save antigo estiver contaminado (15.0451ms)
+✔ P80: start/advance retornam snapshot público e não o progresso mestre bruto (3.806ms)
+✔ P80: rotas futuras permanecem invisíveis até serem descobertas (7.1655ms)
+✔ P80: save/reopen mantém estado e a projeção anti-spoiler (7.7529ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1125.6899
+

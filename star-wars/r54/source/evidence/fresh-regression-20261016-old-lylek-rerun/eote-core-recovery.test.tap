@@ -1,0 +1,17 @@
+✔ EotE Core expõe exatamente 8 espécies, 6 carreiras e 18 especializações (3.5376ms)
+✔ Obligation usa tabela oficial 2+ e política solo explícita; benefícios aumentam Obligation (3.0406ms)
+✔ Humano Contrabandista/Piloto é criado sem Duty e com Obligation (5.8731ms)
+✔ Droide recebe 6 perícias de carreira e 3 da especialização (2.1593ms)
+✔ Gand com pulmões recebe +10 PE e preview reflete variante (1.543ms)
+✔ estado novo é schema 14 EOTE_CORE e usa group EotE (21.9527ms)
+✔ migração AoR preserva Duty/Contribution somente em legacyAoR sem converter em Obligation (7.3027ms)
+✔ controller bloqueia mutação Duty/Contribution e oferece Obligation (11.7461ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1629.1081
+

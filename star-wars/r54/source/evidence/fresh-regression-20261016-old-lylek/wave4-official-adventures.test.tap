@@ -1,0 +1,14 @@
+✔ Wave 4: catálogo contém 5 aventuras oficiais publicadas (3.1919ms)
+✔ Wave 4: todas as novas aventuras passam na validação do Universal Adventure Engine (1.9444ms)
+✔ Wave 4: adapters das novas aventuras executam início e avanço de cenas sem erro (122.9048ms)
+✔ Universal Adventure Engine: capacidades refletem implementação real, sem anunciar combate inexistente (5.2567ms)
+✔ Universal Adventure Engine: fluxo completo de jogo até conclusão e arquivamento nas 5 aventuras (1455.5466ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2688.3241
+

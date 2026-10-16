@@ -1,0 +1,56 @@
+✖ P179 360 AoR source positions have executable consumers (not editorial certification) (14.8379ms)
+✔ P179 Tactician Superviviente is Natural Outdoorsman, not Unmatched Courage (75.353ms)
+✔ P179 Medic blocks a real threshold critical with Hard Medicine, not the wound damage (35.9396ms)
+✔ P179 Medic failed Medicine check consumes the session use and leaves the critical intact (15.5736ms)
+✔ P179 Medic does not consume once/session when no critical event occurs (12.9093ms)
+✔ P179 Medic rejects self, unowned, repeated, unapproved, and invalid targets atomically (55.0308ms)
+✔ P179 Medicine action rollback restores ally and medic on failed persistent save (23.4963ms)
+✔ P179 prepared Medic reacts during actual NPC attack and persists once/session (73.2178ms)
+✔ P179 preparing Medic is atomic and validates real ally, ownership and GM approval (33.5032ms)
+✔ P179 NPC blast receipt is derived from a real grenade and real attack Advantage (31.3094ms)
+✔ P179 NPC blast requires actual Advantage and Blast quality, not a GM fabricated event (32.4124ms)
+✔ P179 Time to Go escapes NPC blast, spends exactly one light Destiny and saves companion via Improved (47.9671ms)
+✔ P179 Blast with no Time to Go damages real player and companion with soak (34.1096ms)
+✔ P179 Blast refuses phantom, duplicate, unsupported and unapproved escapes atomically (73.8899ms)
+✔ P179 Blast rejects an unowned Time to Go and preserves Destiny (27.7341ms)
+✔ P179 Blast cannot be resolved without light Destiny, even when all targets would escape (31.6724ms)
+✔ P179 blast rollback restores spent Destiny, wounds and attack receipt (31.4126ms)
+✔ P179 forged pending blast and forged Medic preparation rejected by state validator (12.9607ms)
+✔ P179 combat closure removes pending blast, prepared Medic and encounter-only escape receipts (34.558ms)
+✔ P179 rejects forged blast escape without a matching resolved attack (15.1695ms)
+✔ P179 UI bundle and Android source include actual controller reaction bridge (44.9283ms)
+✔ P179 under-black-sun: critical reaction and blast preserve adventure runtime after 3 reopens (111.002ms)
+✔ P179 beyond-the-rim: critical reaction and blast preserve adventure runtime after 3 reopens (89.0136ms)
+✔ P179 long-arm-of-the-hutt: critical reaction and blast preserve adventure runtime after 3 reopens (63.0953ms)
+✔ P179 jewel-of-yavin: critical reaction and blast preserve adventure runtime after 3 reopens (85.893ms)
+✔ P179 mask-of-the-pirate-queen: critical reaction and blast preserve adventure runtime after 3 reopens (50.5238ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 25
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2859.078
+
+✖ failing tests:
+
+test at tests\uae-p179-reactive-medicine-blast-five-adventures.test.mjs:35:1
+✖ P179 360 AoR source positions have executable consumers (not editorial certification) (14.8379ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  356 !== 360
+  
+      at TestContext.<anonymous> (file:///C:/Users/bcruz/Documents/Codex/2026-10-16/files-mentioned-by-the-user-prompt/work/star-wars/repo-sparse/star-wars/r54/source/tests/uae-p179-reactive-medicine-blast-five-adventures.test.mjs:36:67)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.start (node:internal/test_runner/test:1191:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 356,
+    expected: 360,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+

@@ -1,0 +1,13 @@
+✔ Mestre cria duas facções e um PNPC afiliado usando somente operações estruturadas (149.298ms)
+✔ operação de facção inválida faz rollback transacional da proposta inteira (23.737ms)
+✔ contexto do Mestre inclui facções, afiliação do PNPC e contagem digestível (17.399ms)
+✔ save/reopen preserva facções, relações, recursos, fatos e afiliação de PNPC (15.0614ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2001.0599
+

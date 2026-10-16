@@ -1,0 +1,40 @@
+✔ P152 social: single durable commit and three read-only reopens (242.0678ms)
+✔ P152 social: disk failure rolls back every event (8.4803ms)
+✔ P152 assisted: single durable commit and three read-only reopens (13.5397ms)
+✔ P152 assisted: disk failure rolls back every event (36.1399ms)
+✔ P152 competitive: single durable commit and three read-only reopens (39.3961ms)
+✔ P152 competitive: disk failure rolls back every event (5.6088ms)
+✔ P152 raw: single durable commit and three read-only reopens (8.4048ms)
+✔ P152 raw: disk failure rolls back every event (26.4086ms)
+✔ P152 opposed: single durable commit and three read-only reopens (15.8858ms)
+✔ P152 opposed: disk failure rolls back every event (7.0912ms)
+✔ P152 suggested-master-check: single durable commit and three read-only reopens (38.4758ms)
+✔ P152 suggested-master-check: disk failure rolls back every event (9.7568ms)
+✔ P152 weapon-attack: single durable commit and three read-only reopens (25.7783ms)
+✔ P152 weapon-attack: disk failure rolls back every event (9.4277ms)
+✔ P152 begin-combat: single durable commit and three read-only reopens (9.8296ms)
+✔ P152 begin-combat: disk failure rolls back every event (17.2761ms)
+✔ P152 begin-encounter: single durable commit and three read-only reopens (46.7306ms)
+✔ P152 begin-encounter: disk failure rolls back every event (6.5541ms)
+✔ P152 environment-start: single durable commit and three read-only reopens (8.3282ms)
+✔ P152 environment-start: disk failure rolls back every event (5.3059ms)
+✔ P152 fall: single durable commit and three read-only reopens (61.6952ms)
+✔ P152 fall: disk failure rolls back every event (12.0233ms)
+✔ P152 impassable-terrain: single durable commit and three read-only reopens (15.9615ms)
+✔ P152 impassable-terrain: disk failure rolls back every event (8.0631ms)
+✔ P152 combat-turn: single durable commit and three read-only reopens (11.135ms)
+✔ P152 combat-turn: disk failure rolls back every event (6.5193ms)
+✔ P152 under-black-sun: social adjudication remains atomic inside active published adventure (143.268ms)
+✔ P152 beyond-the-rim: social adjudication remains atomic inside active published adventure (119.965ms)
+✔ P152 long-arm-of-the-hutt: social adjudication remains atomic inside active published adventure (162.4312ms)
+✔ P152 jewel-of-yavin: social adjudication remains atomic inside active published adventure (114.1665ms)
+✔ P152 mask-of-the-pirate-queen: social adjudication remains atomic inside active published adventure (65.9697ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2997.8099
+

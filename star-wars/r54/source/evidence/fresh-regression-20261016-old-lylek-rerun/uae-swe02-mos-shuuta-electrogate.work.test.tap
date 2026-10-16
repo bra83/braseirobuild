@@ -1,0 +1,12 @@
+✔ p.40: eletroportão energizado; teste Difícil real, quatro guardas, sem teletransporte para palácio (347.3642ms)
+✔ p.40: falha não afasta guardas, tentativas persistem e não geram reforço inexistente (167.4592ms)
+✔ Controller: barracks diversion blocks Teemo alarm; three persistent reopens and rollback (465.4127ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2447.8015
+

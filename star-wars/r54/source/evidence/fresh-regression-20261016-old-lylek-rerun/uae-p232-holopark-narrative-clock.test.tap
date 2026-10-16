@@ -1,0 +1,17 @@
+✔ P232 refuses narrative park without real scene, GM confirmation or outside structured combat (772.5788ms)
+✔ P232 two minutes come ONLY from audited task-time receipts, no passive time (604.168ms)
+✔ P232 overdue 6-minute clock produces three ordered landscape events without skipping or clock ticks (638.5388ms)
+✔ P232 printed d100=47 overlap requires explicit GM choice and receipts survive three reopenings (590.3826ms)
+✔ P232 tampered receipt, clock, chronology or derived landscape rejected (872.9042ms)
+✔ P232 physical exit ends narrative mode without escape, XP, NPC or encounter fabrication (1250.87ms)
+✔ P232 Android PT-BR UI, controller, bridge, offline bundle, save validation and version wired (86.9518ms)
+✔ P232 published adventure status replays narrative receipts and keeps older P229-P231 receipt kinds valid (1157.3075ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7137.5243
+

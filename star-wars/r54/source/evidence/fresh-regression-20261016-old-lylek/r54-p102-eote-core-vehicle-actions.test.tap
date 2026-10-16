@@ -1,0 +1,18 @@
+✔ P102 Ganhar a Vantagem usa dificuldade por velocidade, consome ação, persiste zona e ignora Evasivas (103.3213ms)
+✔ P102 Copiloto sobrevive à troca de assalto e rebaixa o próximo teste de Pilotagem (40.142ms)
+✔ P102 Traçar Curso reduz apenas Setback externo do próximo perigo e é consumido (41.0318ms)
+✔ P102 Reforçar Escudos sofre 1 Tensão e aumenta somente a zona escolhida durante a duração (31.5068ms)
+✔ P102 Disciplina de Fogo concede Boost ao próximo disparo real e consome a carga (28.1125ms)
+✔ P102 Escanear revela armamento/modificações e limiares, sem revelar níveis atuais de graça (13.7332ms)
+✔ P102 Fatiar Sistemas reduz defesa da zona por um round por êxito (28.0973ms)
+✔ P102 Despistar Mísseis melhora a dificuldade contra arma Guiada no assalto atual (15.6032ms)
+✔ P102 bridge, contratos e R46 expõem ações sem mutação bruta (13.8006ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1784.0843
+

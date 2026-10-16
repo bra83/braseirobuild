@@ -1,0 +1,12 @@
+✔ P84: resultado imediato usa narrativeEffects da adjudicação e render dedicado (3.0327ms)
+✔ P84: projeção do último teste casa por checkId antes de mostrar efeitos (0.7512ms)
+✔ P84: adjudicação pública continua sem flags ocultas (19.575ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1464.476
+

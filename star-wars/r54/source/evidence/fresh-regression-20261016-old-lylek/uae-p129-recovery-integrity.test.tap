@@ -1,0 +1,27 @@
+✔ P129 under-black-sun: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original (114.6405ms)
+✔ P129 beyond-the-rim: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original (59.2418ms)
+✔ P129 long-arm-of-the-hutt: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original (43.658ms)
+✔ P129 jewel-of-yavin: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original (31.2827ms)
+✔ P129 mask-of-the-pirate-queen: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original (61.876ms)
+✔ P129: save legado avançado recebe projeção de objetivos sem mutação nem novo turno (61.5175ms)
+✔ P129: migração recupera episódios percorridos, sem inventar cenas ou recompensas (24.9249ms)
+✔ P129: save legado encerrado e arquivado recupera final e histórico uma vez (41.6471ms)
+✔ P129: alteração externa de cena recupera marcos sem repetir início nem prêmio (19.2382ms)
+✔ P129: flags apagadas no legado não reaparecem após restauração UAE (41.6659ms)
+✔ P129: journal duplicado é rejeitado sem mutar save ou conceder recompensa (9.5941ms)
+✔ P129: validador rejeita divergência de cena, sequência e objetivo inválido (8.3756ms)
+✔ P129: catálogo não anuncia combate para Além da Orla enquanto não houver encontro implementado (32.0467ms)
+✔ P129: attachment incompatível injetado no save não altera arma nem mods (3.0285ms)
+✔ P129: hard points vêm da arma e catálogo, nunca do custo forjado no save (4.0596ms)
+✔ P129: duplicar ID de ativo não duplica attachment nem efeitos (1.3896ms)
+✔ P129: armas legadas sem capacidade declarada preservam attachments válidos (1.6585ms)
+✔ P129: mods de attachment desativado não entram na resolução de ataque (0.7444ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2179.6555
+

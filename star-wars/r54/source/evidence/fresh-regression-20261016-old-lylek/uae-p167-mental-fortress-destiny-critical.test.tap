@@ -1,0 +1,14 @@
+✔ P167 two authentic AoR Mental Fortress slots, 304/360 mechanically active (43.3445ms)
+✔ P167 Mental Fortress only suppresses critical check modifiers on Intellect/Cunning, not incapacitation (7.2545ms)
+✔ P167 Mental Fortress activation spends exactly one Destiny, persists, repeats blocked (27.8231ms)
+✔ P167 Mental Fortress rejects no talent, no combat, no Destiny and rolls back disk failure (52.4725ms)
+✔ P167 Android bridge exposes mental defense and UI action (38.4824ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1777.6657
+

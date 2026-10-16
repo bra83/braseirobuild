@@ -1,0 +1,14 @@
+✔ mundo v2 preserva objetivo, relação, fatos privados e locais (21.2435ms)
+✔ agenda do mundo executa eventos vencidos por orçamento e sem duplicação (16.3105ms)
+✔ evento inválido falha isoladamente e não impede os demais (38.2816ms)
+✔ orçamento limita processamento de centenas de eventos sem perder pendências (9747.3122ms)
+✔ normalização migra aliases antigos relationship/objective/knownFacts (0.8367ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10238.9877
+
