@@ -1,0 +1,24 @@
+✔ P133 UAE OBJECTIVE_PROGRESS: falha de gatilho desfaz estado, journal e sequência (86.3607ms)
+✔ P133 UAE OBJECTIVE_COMPLETED: falha de gatilho desfaz estado, journal e sequência (59.8318ms)
+✔ P133 UAE OBJECTIVE_FAILED: falha de gatilho desfaz estado, journal e sequência (8.9918ms)
+✔ P133 UAE CONSEQUENCE_RECORDED: falha de gatilho desfaz estado, journal e sequência (7.361ms)
+✔ P133 UAE CLUE_DISCOVERED: falha de gatilho desfaz estado, journal e sequência (4.035ms)
+✔ P133 UAE SECRET_REVEALED: falha de gatilho desfaz estado, journal e sequência (6.7501ms)
+✔ P133 UAE: transação composta desfaz relógio, flag, objetivo e journal se etapa final falhar (7.9109ms)
+✔ P133 UAE: validação de chave protege contra prototype pollution e rollback (16.6515ms)
+✔ P133 UAE: overflow numérico de contadores não gera estado impossível (7.8977ms)
+✔ P133 UAE: sequência esgotada não duplica eventos nem perde atomicidade (6.3378ms)
+✔ P133 under-black-sun: cinco aventuras preservam consequências, relógios e objetivos no JSON (74.3715ms)
+✔ P133 beyond-the-rim: cinco aventuras preservam consequências, relógios e objetivos no JSON (103.3898ms)
+✔ P133 long-arm-of-the-hutt: cinco aventuras preservam consequências, relógios e objetivos no JSON (63.7717ms)
+✔ P133 jewel-of-yavin: cinco aventuras preservam consequências, relógios e objetivos no JSON (16.3148ms)
+✔ P133 mask-of-the-pirate-queen: cinco aventuras preservam consequências, relógios e objetivos no JSON (101.6957ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2852.1508
+

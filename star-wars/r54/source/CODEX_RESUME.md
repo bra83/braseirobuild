@@ -130,3 +130,11 @@
 - Updated B’ura B’an’s contact operation to apply the source-backed “any repairs needed” clause to the actual Krayt Fang: hull damage and system strain are cleared, repairable vehicle Critical Hits are marked repaired with history retained, disabled components clear, and Nabat contacts pay without charging the PCs. Vaporized/destroyed ships fail closed.
 - Focused P240 Nabat tests 15/15 and EotE vehicle critical tests 18/18. Full regression: 382 files (376 regular + 6 stress), 3,458 tests, 3,456 pass, 0 fail, 2 JDK `jar` packaging skips. Raw logs and summary: `evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/`.
 - Fuel quantity/pricing is left open because the adventure does not specify amounts. SWE02, all five adventure gates, selected rules and AoR 360 remain uncertified/pending. No release gates ran.
+
+
+## Resume update — SWE02 p.13 safe docking source receipt (2026-10-16)
+
+- Added a source-backed safe-docking receipt at the verified Nabat arrival transition. It accepts only three completed routes: no Thwheek interception, Thwheek landed safely, or the crash crew resolved. Receipt validation ties the route, B’ura, the Krayt Fang and printed p.13 together. Nabat scenes and operations require the receipt; the separate legacy Ryloth ship-inspection path remains loadable.
+- Replaced old test shortcuts that jumped from Ryloth directly to Nabat with fixtures that play the verified ship checks, B’ura discovery, transit and landing. Focused affected suites pass 146/146.
+- Full per-file regression passes 3,457/3,459 tests across 382 files (376 regular + 6 stress), with zero failures and two offline JDK `jar` packaging skips. Evidence: `evidence/SWE02_P13_NABAT_DOCKING_FULL_REGRESSION_FIXED_20261016/`. The Android UI bridge bundle rebuilt successfully with 135 modules.
+- SWE02 remains `IMPLEMENTADO_NAO_CERTIFICADO`; all five-adventure, rules and AoR 0/360 gates remain open. P.13 still needs page-wide source crosswalk and review; fuel amount/pricing remain unspecified. No P245 or Android release gates ran.

@@ -1,0 +1,16 @@
+✔ P231 requires real boarding and takeoff, refuses phantom arrival (1084.1017ms)
+✔ P231 first squadron creates four separate official Storm IV and does not clone Venture patrol (839.801ms)
+✔ P231 cannot fabricate combat outcome or overwrite pilot skills (748.0247ms)
+✔ P231 12 distinct cars in three physical waves of four with 12 actual piloting dice rolls (4306.9111ms)
+✔ P231 receipt tampering and vehicle tampering are rejected on load (692.4366ms)
+✔ P231 player attack and official lone minion incoming attack use real vehicle combat (821.0944ms)
+✔ P231 Android bridge, controller, UI and bundle wired, without Java/Kokoro change (178.1941ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11277.398
+

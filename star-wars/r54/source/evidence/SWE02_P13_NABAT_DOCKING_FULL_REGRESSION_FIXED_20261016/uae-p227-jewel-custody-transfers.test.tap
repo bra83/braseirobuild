@@ -1,0 +1,18 @@
+✔ P227 transfer PC → companion changes TWO real inventories exactly once (1015.4204ms)
+✔ P227 companion → PC return restores boarding compatibility and does not award XP (895.7702ms)
+✔ P227 no duplicate, phantom recipient, unconfirmed handoff or transfer after boarding (673.8283ms)
+✔ P227 three persisted reopens preserve holder, receipts and unique physical item (743.7887ms)
+✔ P227 replay rejects altered transfer, derived holder, missing or duplicated inventory (782.7454ms)
+✔ P227 source, bridge, Android UI, bundle and version are wired (541.0779ms)
+✔ P227 old P224 custody remains valid without transfers or derived ledger (674.6377ms)
+✔ P227 companion → companion passes physical item without creating a copy (832.8629ms)
+✔ P227 after boarding, a new transfer is rejected with atomic rollback (686.0663ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9261.2315
+

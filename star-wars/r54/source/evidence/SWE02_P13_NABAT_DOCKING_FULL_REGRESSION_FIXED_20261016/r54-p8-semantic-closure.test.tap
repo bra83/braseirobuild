@@ -1,0 +1,14 @@
+✔ P8 exact visual coverage closes full active equipment catalog (446.224ms)
+✔ P8 exact visual coverage closes active vehicle catalog (34.8459ms)
+✔ P8 known adversaries have deterministic exact identity visuals (6.5272ms)
+✔ P12 all 82 catalog worlds have honest playable location visuals (144.8359ms)
+✔ P8 no fuzzy visual resolver and no rejected technical RAG copy (1.2201ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1723.239
+

@@ -1,0 +1,12 @@
+✔ Ataque rápido entra automaticamente no pool contra alvo que ainda não agiu (121.1185ms)
+✔ Ataque rápido não concede Impulso depois que o alvo já agiu (31.692ms)
+✔ Mando acrescenta Impulso automaticamente a teste de Liderança (14.5431ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1936.7502
+

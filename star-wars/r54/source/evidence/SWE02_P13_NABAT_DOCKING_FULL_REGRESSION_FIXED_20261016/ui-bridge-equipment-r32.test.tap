@@ -1,0 +1,12 @@
+✔ bridge expõe somente o catálogo canônico do controller (35.7486ms)
+✔ proposta pelo bridge cria pendingAcquisition sem compra direta (797.9595ms)
+✔ bridge recusa aquisição desconhecida e segundo pedido concorrente (608.2421ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3515.5386
+

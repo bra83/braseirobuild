@@ -23,6 +23,12 @@ test('P240 p.13: market uses only primary EotE Core entries priced <= 500',()=>{
  assert.ok(c.every(x=>x.price>0&&x.price<=500&&x.source.activeRulesAuthority===true));
  assert.ok(!c.some(x=>x.id==='electronic_lockpick'||x.id==='blaster_rifle'));
 });
+test('P240 p.13: Nabat operations require source-backed safe docking arranged by B’ura',()=>{
+ const {g,repo}=setup({land:false}),p=g.state.world.publishedAdventure,saves=repo.saves;
+ p.currentNodeId='nabat-arrival';p.visitedNodeIds.push('nabat-arrival');
+ assert.throws(()=>adapter.status(g.state.world),/sem recibo de atracamento seguro/);
+ assert.throws(()=>g.repairSWE02KraytFangAtNabat(),/atracamento seguro/);assert.equal(repo.saves,saves);
+});
 test('P240 p.13: real purchase debits wallet and adds catalog gear atomically',()=>{
  const {g,repo}=setup();const before=g.state.player.character.credits;
  const r=g.purchaseSWE02NabatItem({itemId:'glow_rod',quantity:2});
@@ -114,7 +120,7 @@ test('P240 p.13: Nyn shelter heals real wounds and strain, never erases critical
 });
 test('P240 anti-forgery: missing or modified receipt fails adapter status',()=>{
  const {g}=setup();g.purchaseSWE02NabatItem({itemId:'glow_rod'});
- const w=structuredClone(g.state.world);w.publishedAdventure.nabatReceipts[0].unitPrice=1;
+ const w=structuredClone(g.state.world),purchase=w.publishedAdventure.nabatReceipts.find(x=>x.type==='MARKET_PURCHASE');purchase.unitPrice=1;
  assert.throws(()=>adapter.status(w),/preço ou compra adulterados/);
  const x=structuredClone(g.state.world);x.publishedAdventure.flags.nabatHullRepaired=true;
  assert.throws(()=>adapter.status(x),/sem recibo/);

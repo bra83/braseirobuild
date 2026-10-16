@@ -1,0 +1,44 @@
+✔ P164: player-authored companion has explicit non-official provenance and persisted health (45.275ms)
+✔ P164: companion roster bounds, name, thresholds, ID and duplicate validation (81.6564ms)
+✔ P164: damage to a companion is real, saved, never applied to player (28.3171ms)
+✔ P164: foreign, null and unsafe target IDs cannot heal arbitrary actors (8.1261ms)
+✔ P164: actual Medicine dice heal companion, self treatment penalties do not apply (50.8401ms)
+✔ P164: Master Doctor costs healer strain, not patient strain (21.7497ms)
+✔ P164: Medicine action on companion consumes combat action and prevents repeat (19.7711ms)
+✔ P164: Stim Application boosts companion only, then expires on encounter closure (37.7772ms)
+✔ P164: failed stim check changes neither patient nor healer, but spends action (13.1468ms)
+✔ P164: companion Bacta heals target with source-backed player supervision (19.1679ms)
+✔ P164: Bacta requires explicit facility and is prohibited during combat (10.8685ms)
+✔ P164: companion registration and medical actions are rollback-safe (36.9503ms)
+✔ P164: failed companion stim rolls back both action and target (12.2848ms)
+✔ P164: removal is durable and forbidden during active encounter (29.6976ms)
+✔ P164: bridge and offline UI expose companions and target-aware treatment (56.6961ms)
+✔ P164: under-black-sun adventure trigger/clock/objective/consequence and companion health survive 3 reloads (67.2829ms)
+✔ P164: beyond-the-rim adventure trigger/clock/objective/consequence and companion health survive 3 reloads (61.2208ms)
+✔ P164: long-arm-of-the-hutt adventure trigger/clock/objective/consequence and companion health survive 3 reloads (52.5448ms)
+✔ P164: jewel-of-yavin adventure trigger/clock/objective/consequence and companion health survive 3 reloads (39.145ms)
+✔ P164: mask-of-the-pirate-queen adventure trigger/clock/objective/consequence and companion health survive 3 reloads (33.4129ms)
+✔ P164: imported roster with wrong shape is rejected, never silently erased (8.2417ms)
+✔ P164: companion treatment cannot forge a medical kit or use equipment not owned (19.2769ms)
+✔ P164: failed encounter close cannot strip companion buffs from persisted state (37.4163ms)
+✔ P164: custom companions are independent from published adventure mode EotE/AoR (58.1574ms)
+✔ P164: UAE predicate engine rejects pathological recursion and object coercion (56.2678ms)
+✔ P164: under-black-sun trigger payload provenance cannot be forged by JS object stringification (67.9027ms)
+✔ P164: beyond-the-rim trigger payload provenance cannot be forged by JS object stringification (12.392ms)
+✔ P164: long-arm-of-the-hutt trigger payload provenance cannot be forged by JS object stringification (29.63ms)
+✔ P164: jewel-of-yavin trigger payload provenance cannot be forged by JS object stringification (31.8244ms)
+✔ P164: mask-of-the-pirate-queen trigger payload provenance cannot be forged by JS object stringification (12.6705ms)
+✔ P164: under-black-sun controller keeps published UAE checkpoint intact while treating companion (165.4243ms)
+✔ P164: beyond-the-rim controller keeps published UAE checkpoint intact while treating companion (116.5479ms)
+✔ P164: long-arm-of-the-hutt controller keeps published UAE checkpoint intact while treating companion (66.545ms)
+✔ P164: jewel-of-yavin controller keeps published UAE checkpoint intact while treating companion (63.0139ms)
+✔ P164: mask-of-the-pirate-queen controller keeps published UAE checkpoint intact while treating companion (68.904ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4028.6779
+

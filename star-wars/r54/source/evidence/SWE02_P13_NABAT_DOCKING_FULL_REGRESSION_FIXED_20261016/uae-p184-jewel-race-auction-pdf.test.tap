@@ -1,0 +1,25 @@
+✔ P184 PDF SWE09: seven ordered Grand Prix legs accumulate speed into Place Value (226.2256ms)
+✔ P184 race rejects skipped leg, forged actionId and repeat without mutating input (96.6323ms)
+✔ P184 race missed buoy, strain and collision persist, no unearned victory (51.7916ms)
+✔ P184 race placement must match rival Place Values, with tie GM-adjudicated (184.805ms)
+✔ P184 auction official baseline Kaltho 200k after ten rounds without PC interference (277.7532ms)
+✔ P184 auction successful influence adds 10k per affected round, successes and triumph to Bid Value (124.8728ms)
+✔ P184 auction rejects unknown bidder, duplicate receipt, invalid result and out-of-scene action (328.6665ms)
+✔ P184 auction fail does not increase bid, no automatic credit payout (199.9888ms)
+✔ P184 new race/auction receipts survive three reopenings with canonical UAE state (167.8893ms)
+✔ P184 legacy Jewel progress migrates without creating phantom race results or bids (64.2109ms)
+✔ P184 receipt audit rejects edited race Place Value and preserves source state (77.942ms)
+✔ P184 receipt audit rejects inflated auction credits and ghost influence (85.4472ms)
+✔ P184 reserved receipt identifiers cannot mutate Object prototype (162.6863ms)
+✔ P184 SWE02: old lylek den creates one source-checked hunter per PC including Gand (196.783ms)
+✔ P184 SWE02: hunters cannot be marked defeated without combat, and never defeat Teemo (327.7328ms)
+✔ P184 Android UI and controller expose four adjudicated operations (702.8203ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6015.2442
+

@@ -1,0 +1,27 @@
+✔ P154: 5 AoR source slots have real consumers and other incomplete slots remain fail-closed (38.3355ms)
+✔ P154: Powerful Blast ranks are contextual; only activated Blast gets bonus (6.9607ms)
+✔ P154: Blast hit gets two bonus damage, once, with persisted shared Advantage (43.318ms)
+✔ P154: Blast miss gets two bonus damage, once, with persisted shared Advantage (23.59ms)
+✔ P154: Blast bonus is not applied to unrelated weapon qualities or characters without talent (126.5622ms)
+✔ P154: Blast activation is atomic when repository rejects a write (60.9569ms)
+✔ P154: Strong Arm only extends thrown personal ranged weapons by one band (9.4672ms)
+✔ P154: Strong Arm is used in actual attack range validation and survives reopening (59.9648ms)
+✔ P154: Knockdown talent requires melee hit and exactly one Triumph (4.6053ms)
+✔ P154: Knockdown consumes Triumph and persists prone without spending Advantage (18.0611ms)
+✔ P154: Knockdown rejects missing talent, miss, ranged hit and empty Triumph without writes (91.7433ms)
+✔ P154: Knockdown rolls back on storage failure, including status and Triumph (17.7253ms)
+✔ P154: bridge and Android combat UI expose the actual Knockdown action (41.8199ms)
+✔ P154: under-black-sun start/choice + 3 reopens keep UAE graph valid (334.7849ms)
+✔ P154: beyond-the-rim start/choice + 3 reopens keep UAE graph valid (123.7255ms)
+✔ P154: long-arm-of-the-hutt start/choice + 3 reopens keep UAE graph valid (293.2729ms)
+✔ P154: jewel-of-yavin start/choice + 3 reopens keep UAE graph valid (243.3553ms)
+✔ P154: mask-of-the-pirate-queen start/choice + 3 reopens keep UAE graph valid (508.4776ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4475.9787
+

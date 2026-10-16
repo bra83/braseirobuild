@@ -1,0 +1,13 @@
+✔ R46 projection accepts the canonical EOTE schema 15 state and schema 14 read-only snapshot (26.4023ms)
+✔ R46 projection validates state.group and no longer requires state.rebelGroup (6.6829ms)
+✔ compiled R46 projection contains no active rebelGroup dependency (5.7672ms)
+✔ R46 character projection shows EotE Obligation instead of obsolete Duty slot (49.5413ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1566.843
+

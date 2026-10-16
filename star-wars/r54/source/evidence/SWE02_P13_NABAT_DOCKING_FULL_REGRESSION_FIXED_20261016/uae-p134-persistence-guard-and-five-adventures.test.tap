@@ -1,0 +1,33 @@
+✔ P134 rollback de NaN em evento (70.4427ms)
+✔ P134 rollback de Infinity em evento (9.0186ms)
+✔ P134 rollback de BigInt em evento (4.8379ms)
+✔ P134 rollback de Map em evento (5.359ms)
+✔ P134 rollback de undefined em evento (7.7594ms)
+✔ P134 rollback de chave perigosa em evento (25.0482ms)
+✔ P134 rollback de ciclo em evento (34.873ms)
+✔ P134 rollback de flag não persistível (14.4767ms)
+✔ P134 rollback de efeito desconhecido (19.6572ms)
+✔ P134 rollback de segredo sem ID (72.0932ms)
+✔ P134 rollback de pista sem ID (70.1084ms)
+✔ P134 condição nunca lê propriedades herdadas de flags, contadores, objetivos ou payload (37.9123ms)
+✔ P134 pistas e segredos opcionais geram snapshots JSON recuperáveis (18.0502ms)
+✔ P134 under-black-sun: save, projeção e restauração sem vazamento (110.5179ms)
+✔ P134 under-black-sun: recusa snapshot corrompido antes da migração (56.8596ms)
+✔ P134 beyond-the-rim: save, projeção e restauração sem vazamento (105.3652ms)
+✔ P134 beyond-the-rim: recusa snapshot corrompido antes da migração (53.3353ms)
+✔ P134 long-arm-of-the-hutt: save, projeção e restauração sem vazamento (31.8738ms)
+✔ P134 long-arm-of-the-hutt: recusa snapshot corrompido antes da migração (28.0612ms)
+✔ P134 jewel-of-yavin: save, projeção e restauração sem vazamento (44.8511ms)
+✔ P134 jewel-of-yavin: recusa snapshot corrompido antes da migração (12.7002ms)
+✔ P134 mask-of-the-pirate-queen: save, projeção e restauração sem vazamento (24.5636ms)
+✔ P134 mask-of-the-pirate-queen: recusa snapshot corrompido antes da migração (41.5037ms)
+✔ P134 Além da Orla não confirma combate que não existe (10.033ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3574.7495
+

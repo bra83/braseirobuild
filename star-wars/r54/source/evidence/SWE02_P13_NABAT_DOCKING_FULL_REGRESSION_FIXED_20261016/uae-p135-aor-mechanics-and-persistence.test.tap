@@ -1,0 +1,26 @@
+✔ P135 catálogo AoR mantém todas as 360 posições e habilita somente efeitos conectados (32.2997ms)
+✔ P135 compra AoR CONCENTRACIÓN INTENSA: efeito no motor, PE e restauração JSON (90.2281ms)
+✔ P135 compra AoR LECCIONES DE ANATOMÍA: efeito no motor, PE e restauração JSON (15.6362ms)
+✔ P135 compra AoR FUERZA SALVAJE: efeito no motor, PE e restauração JSON (6.2649ms)
+✔ P135 compra AoR ATAQUE FURIOSO: efeito no motor, PE e restauração JSON (6.2978ms)
+✔ P135 compra AoR GOLPE DIRIGIDO: efeito no motor, PE e restauração JSON (65.678ms)
+✔ P135 compra AoR DISPARO DE PRECISIÓN: efeito no motor, PE e restauração JSON (34.752ms)
+✔ P135 compra AoR DOMINIO DE BLINDAJES: efeito no motor, PE e restauração JSON (11.148ms)
+✔ P135 compra AoR DOMINIO DE BLINDAJES MEJORADO: efeito no motor, PE e restauração JSON (45.5541ms)
+✔ P135 compra AoR ACECHADOR: efeito no motor, PE e restauração JSON (42.4819ms)
+✔ P135 compra AoR ENTRENAMIENTO FÍSICO: efeito no motor, PE e restauração JSON (20.9279ms)
+✔ P135 compra AoR DELINCUENTE NATO: efeito no motor, PE e restauração JSON (13.5685ms)
+✔ P135 compra AoR ERUDITO NATO: efeito no motor, PE e restauração JSON (7.1217ms)
+✔ P135 compra AoR MATÓN NATO: efeito no motor, PE e restauração JSON (13.4727ms)
+✔ P135 compra AoR CHAPUCERO NATO: efeito no motor, PE e restauração JSON (7.1103ms)
+✔ P135 compra AoR PIRATA INFORMÁTICO CONSUMADO: efeito no motor, PE e restauração JSON (6.6712ms)
+✔ P135 talentos AoR não adquiridos não alteram testes nem combate (1.4197ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1817.6821
+

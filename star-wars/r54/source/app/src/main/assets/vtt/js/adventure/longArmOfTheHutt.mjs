@@ -4,7 +4,7 @@ import { SHIP_CHECKS,shipCheckAvailable,shipNoisePool,shipCheckPool,recordShipCh
   EOTE_KNOWLEDGE_SKILL_OPTIONS,recordShipObservation,recordShipRoomDiscovery,recordBuraConversation,adjudicateShipTransitExtraDuration,
   recordShipCargoTransfer,shipCargoTransferOptions } from './swe02KraytFangP238.mjs';
 import {validateThwheek} from './swe02ThwheekP239.mjs';
-import {validateNabat,deliverNabatNightAlert} from './swe02NabatP240.mjs';
+import {validateNabat,deliverNabatNightAlert,recordNabatSafeDocking} from './swe02NabatP240.mjs';
 import {validateSWE02Social,declineNynRewards,remainingDrombbThugs} from './swe02SocialP241.mjs';
 import {validateNewMeenP242,validateNewMeenSafe} from './swe02NewMeenP242.mjs';
 import {validateNewMeenP243} from './swe02EvacuationP243.mjs';
@@ -784,6 +784,10 @@ export function advanceLongArmOfTheHutt(world, choiceId) {
     applyNewMeenLifecycle(p,'retaliation',{choice:'go_to_compound'});
   if(p.currentNodeId==='drombb-compound-approach'&&choiceId==='new-meen-enter-cantina'&&
       !['CANTINA_READY','CANTINA_COMBAT'].includes(p.newMeenLifecycle?.stage))throw Error('SWE02 p.22: resolva a aproximação antes de entrar na cantina.');
+  if(destination==='nabat-arrival'){
+    const docking=recordNabatSafeDocking(next,{fromNodeId:p.currentNodeId,choiceId});
+    for(const key of Object.keys(p))delete p[key];Object.assign(p,docking.world.publishedAdventure);
+  }
   p.currentNodeId = destination;
   if(destination==='new-meen-miners')ensureNewMeenLifecycle(p);
   if(destination==='lylek-den-ambush'&&!p.oldLylek)p.oldLylek=createSWE02OldLylekState();

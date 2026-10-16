@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import { JEWEL_OF_YAVIN, startJewelOfYavin, adjudicateJewelOfYavinCheck, advanceJewelOfYavin } from '../app/src/main/assets/vtt/js/adventure/jewelOfYavin.mjs';
 import { LONG_ARM_OF_THE_HUTT, startLongArmOfTheHutt } from '../app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs';
 import { getPublishedAdventureAdapter } from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
-import {advanceNabatMorning,resolveOldLylekRetreat} from './swe02-act1-fixture.mjs';
+import {arriveAtNabat,advanceNabatMorning,resolveOldLylekRetreat} from './swe02-act1-fixture.mjs';
 import { publishedAdventureRuntimeModule, validatePublishedAdventureRuntimeState } from '../app/src/main/assets/vtt/js/adventure/publishedAdventureUaeBridge.mjs';
 import { AdventureRuntime } from '../app/src/main/assets/vtt/js/adventure/adventureRuntime.mjs';
 
 const jewel = getPublishedAdventureAdapter('jewel-of-yavin');
 const arm = getPublishedAdventureAdapter('long-arm-of-the-hutt');
-const go = (a,w,id)=>a===arm&&id==='travel-lylek-den'?advanceNabatMorning(a,w):a.advance(a===arm&&id==='reach-new-meen'?resolveOldLylekRetreat(a,w):w,id).world;
+const go = (a,w,id)=>a===arm&&id==='arrive-nabat'?arriveAtNabat(a,w):a===arm&&id==='travel-lylek-den'?advanceNabatMorning(a,w):a.advance(a===arm&&id==='reach-new-meen'?resolveOldLylekRetreat(a,w):w,id).world;
 const chain=(a,w,ids)=>ids.reduce((s,id)=>go(a,s,id),w);
 // This P183 regression intentionally exercises the P183 manual-check save format.
 const toBank=w=>{
@@ -100,7 +100,7 @@ test('P183: Long Arm contains source-based New Meen, Ota, Piddock and Dimmock ro
 });
 test('P183: Long Arm investigation path persists into Geonosis, and retains legacy choices',()=>{
   let w=arm.start({}).world;
-  w=chain(arm,w,['dock-ryloth','help-new-meen','travel-lylek-den','reach-new-meen','meet-bothan-ota','follow-ota-geonosis','attend-piddock-party','speak-with-dimmock','geonosis-final-evidence']);
+  w=chain(arm,w,['arrive-nabat','travel-lylek-den','reach-new-meen','meet-bothan-ota','follow-ota-geonosis','attend-piddock-party','speak-with-dimmock','geonosis-final-evidence']);
   assert.equal(w.publishedAdventure.currentNodeId,'geonosis-surface');
   assert.ok(w.publishedAdventure.visitedNodeIds.includes('new-meen-miners'));
   assert.ok(w.publishedAdventure.visitedNodeIds.includes('dimmock-negotiation'));

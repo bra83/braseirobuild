@@ -1,0 +1,15 @@
+✔ Medpac e Medpac de emergência carregam apenas os efeitos de Medicina comprovados (4.6896ms)
+✔ perfil médico recusa item sem efeito de Medicina auditado (1.5082ms)
+✔ Medpac remove penalização de falta de suprimentos e adiciona 1 dado de Benefício (4.5237ms)
+✔ Medpac de emergência remove penalização sem acrescentar dado de Benefício (1.1346ms)
+✔ sem item médico, ausência de suprimentos mantém a penalização existente (1.0507ms)
+✔ GameController aceita item médico explícito sem alterar a API legada (46.1726ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1600.0728
+

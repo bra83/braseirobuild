@@ -1,0 +1,12 @@
+✔ P65: ações genéricas da UI seguem a aventura ativa em vez de cair em Sob um Sol Negro (1116.992ms)
+✔ P65: save/reopen preserva Além da Orla, MIXED, Duty e Obligation (621.6102ms)
+✔ P65: conclusão/reopen/continuação genérica arquiva Além da Orla sem recompensas indevidas (952.1489ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4572.5602
+

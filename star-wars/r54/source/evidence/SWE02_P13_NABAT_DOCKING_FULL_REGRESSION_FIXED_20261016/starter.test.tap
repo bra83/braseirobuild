@@ -1,0 +1,17 @@
+✔ Zal gera ficha inicial válida com recursos verificados (4.3578ms)
+✔ Vendri gera ficha inicial válida com recursos verificados (0.7948ms)
+✔ Tendaar gera ficha inicial válida com recursos verificados (0.7123ms)
+✔ Jin-Rio gera ficha inicial válida com recursos verificados (0.5651ms)
+✔ Cael gera ficha inicial válida com recursos verificados (1.3029ms)
+✔ Arkhan gera ficha inicial válida com recursos verificados (0.6807ms)
+✔ valores centrais dos perfis iniciais permanecem estáveis (0.8068ms)
+✔ fixtures locais de regressão são EotE, não oficiais e sem autoridade AoR (2.0129ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 963.2433
+

@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import {GameController} from '../app/src/main/assets/vtt/js/core/controller.mjs';
 import {createCampaign} from '../app/src/main/assets/vtt/js/core/state.mjs';
 import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
-import {advanceNabatMorning,resolveOldLylekRetreat} from './swe02-act1-fixture.mjs';
+import {arriveAtNabat,advanceNabatMorning,resolveOldLylekRetreat} from './swe02-act1-fixture.mjs';
 import {BraseiroUiBridge} from '../app/src/main/assets/vtt/js/core/uiBridge.mjs';
 import {applyAdversaryDamage} from '../app/src/main/assets/vtt/js/rules/adversaries.mjs';
 import {applyDamage} from '../app/src/main/assets/vtt/js/rules/health.mjs';
@@ -14,7 +14,7 @@ class Repo{constructor(){this.state=createCampaign('P242');this.saves=0;}load(){
 function fixture({night=false,partySize=3}={}){
  const repo=new Repo(),g=new GameController(repo);g.loadStarterCharacter('cael');g.startSession({playerCount:partySize,rng:()=>.9});
  let w=adapter.start(g.state.world).world;
- for(const id of ['dock-ryloth','help-new-meen'])w=adapter.advance(w,id).world;w=advanceNabatMorning(adapter,w);w=resolveOldLylekRetreat(adapter,w,partySize);
+ w=arriveAtNabat(adapter,w);w=advanceNabatMorning(adapter,w);w=resolveOldLylekRetreat(adapter,w,partySize);
  for(const id of ['reach-new-meen',night?'stay-new-meen-night':'confront-drombb-directly'])w=adapter.advance(w,id).world;
  if(!night){w=adapter.recordNewMeenLifecycle(w,'compound_approach',{precautions:true}).world;w=adapter.advance(w,'new-meen-enter-cantina').world;}
  w.publishedAdventure.flags.confirmedPartySize=partySize;g.state.world=w;repo.save(g.state);

@@ -1,0 +1,19 @@
+✔ personagem inicial entra no estado persistente e a perícia usa seus valores (83.33ms)
+✔ combate consome ação no ataque e segunda manobra por Tensão persiste na ficha (77.6011ms)
+✔ dificuldade automática por alcance, Mirar e crítico são aplicados no ataque (72.604ms)
+✔ não rola uma segunda ação no mesmo turno nem permite agir incapacitado (85.8672ms)
+✔ consulta de regras e contexto do Mestre persistem sem narrar livremente (282.7925ms)
+✔ personagem personalizado EotE entra no mesmo estado persistente (7.6468ms)
+✔ Base, recursos e Obligation persistem ao reabrir a campanha (11.3622ms)
+✔ compra de talento de primeira linha persiste e desconta PE uma única vez (19.1366ms)
+✔ compra genérica da árvore completa desbloqueia conexão e persiste linha inferior (32.6804ms)
+✔ propor aquisição de arma consulta o Mestre sem descontar créditos (768.4988ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3615.5179
+

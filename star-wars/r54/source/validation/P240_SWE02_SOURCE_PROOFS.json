@@ -5,6 +5,17 @@
   "source": "https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf",
   "implementation": [
     {
+      "feature": "B’ura arranges safe Krayt Fang docking before any Nabat local services",
+      "printedPage": 13,
+      "executor": "swe02NabatP240.mjs:recordNabatSafeDocking + validateNabat",
+      "controller": "GameController.advancePublishedAdventure",
+      "bridge": "BraseiroUiBridge.advancePublishedAdventure",
+      "ui": "SWE02 arrival choices ship-safe-landing / ship-thwheek-to-nabat / ship-crash-to-nabat",
+      "persistence": "A source-p13 NABAT_SAFE_DOCKING receipt records exactly one verified route (no interception, Thwheek landed, or crash crew resolved); local repair, market, watch, and care require that receipt. Reopen and tamper validation are included.",
+      "tests": ["tests/uae-p239-swe02-thwheek-vehicle-combat.test.mjs", "tests/uae-p240-swe02-nabat-port-economy-medical.test.mjs"],
+      "limitations": "Fuel quantity and price are not specified by the adventure and remain unmodified."
+    },
+    {
       "feature": "Nabat market limited to <=500 credits",
       "printedPage": 13,
       "executor": "app/src/main/assets/vtt/js/adventure/swe02NabatP240.mjs:nabatPurchase",

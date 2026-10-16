@@ -1,0 +1,41 @@
+✔ P169 under-black-sun: forged source consequence, direct API and command rollback (49.6412ms)
+✔ P169 under-black-sun: two authored triggers, replay receipt, reward once, three reopens (63.0805ms)
+✔ P169 under-black-sun: tampered journal provenance cannot restore (19.4043ms)
+✔ P169 under-black-sun: ad-hoc consequence remains allowed but has no authored rewards (8.2748ms)
+✔ P169 under-black-sun: legacy checkpoint receives provenance boundary without rewriting old events (17.0631ms)
+✔ P169 beyond-the-rim: forged source consequence, direct API and command rollback (7.5852ms)
+✔ P169 beyond-the-rim: two authored triggers, replay receipt, reward once, three reopens (104.7334ms)
+✔ P169 beyond-the-rim: tampered journal provenance cannot restore (13.1414ms)
+✔ P169 beyond-the-rim: ad-hoc consequence remains allowed but has no authored rewards (7.3964ms)
+✔ P169 beyond-the-rim: legacy checkpoint receives provenance boundary without rewriting old events (8.0814ms)
+✔ P169 long-arm-of-the-hutt: forged source consequence, direct API and command rollback (23.3154ms)
+✔ P169 long-arm-of-the-hutt: two authored triggers, replay receipt, reward once, three reopens (145.79ms)
+✔ P169 long-arm-of-the-hutt: tampered journal provenance cannot restore (15.7057ms)
+✔ P169 long-arm-of-the-hutt: ad-hoc consequence remains allowed but has no authored rewards (8.9016ms)
+✔ P169 long-arm-of-the-hutt: legacy checkpoint receives provenance boundary without rewriting old events (8.7074ms)
+✔ P169 jewel-of-yavin: forged source consequence, direct API and command rollback (3.1194ms)
+✔ P169 jewel-of-yavin: two authored triggers, replay receipt, reward once, three reopens (45.643ms)
+✔ P169 jewel-of-yavin: tampered journal provenance cannot restore (10.7032ms)
+✔ P169 jewel-of-yavin: ad-hoc consequence remains allowed but has no authored rewards (11.4852ms)
+✔ P169 jewel-of-yavin: legacy checkpoint receives provenance boundary without rewriting old events (30.3292ms)
+✔ P169 mask-of-the-pirate-queen: forged source consequence, direct API and command rollback (5.4857ms)
+✔ P169 mask-of-the-pirate-queen: two authored triggers, replay receipt, reward once, three reopens (79.6092ms)
+✔ P169 mask-of-the-pirate-queen: tampered journal provenance cannot restore (20.111ms)
+✔ P169 mask-of-the-pirate-queen: ad-hoc consequence remains allowed but has no authored rewards (8.7473ms)
+✔ P169 mask-of-the-pirate-queen: legacy checkpoint receives provenance boundary without rewriting old events (6.6672ms)
+✔ P169 AoR: one source-backed Master of Shadows position is a real skill consumer (92.3018ms)
+✔ P169 AoR: stealth skill fails closed on wrong skill and storage rollback (26.9669ms)
+✔ P169 under-black-sun: AoR stealth check persists in published campaign with three reopens (121.7543ms)
+✔ P169 beyond-the-rim: AoR stealth check persists in published campaign with three reopens (131.3975ms)
+✔ P169 long-arm-of-the-hutt: AoR stealth check persists in published campaign with three reopens (86.2655ms)
+✔ P169 jewel-of-yavin: AoR stealth check persists in published campaign with three reopens (104.6551ms)
+✔ P169 mask-of-the-pirate-queen: AoR stealth check persists in published campaign with three reopens (119.382ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4054.8648
+

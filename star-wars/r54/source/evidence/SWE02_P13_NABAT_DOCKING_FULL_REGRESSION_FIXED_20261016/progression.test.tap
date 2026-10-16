@@ -1,0 +1,14 @@
+✔ perícia profissional custa novo grau multiplicado por 5 (3.2741ms)
+✔ perícia não profissional acrescenta 5 PE por grau adquirido (0.5362ms)
+✔ progressão é sequencial, respeita grau máximo 5 e desconta PE uma vez (34.896ms)
+✔ personagem inicial usa automaticamente suas perícias profissionais auditadas (2.1592ms)
+✔ concessão de PE aumenta total e saldo sem alterar a ficha original (1.0024ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 911.4306
+

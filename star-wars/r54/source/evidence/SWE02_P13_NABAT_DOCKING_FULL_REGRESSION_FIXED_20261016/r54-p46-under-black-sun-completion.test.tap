@@ -1,0 +1,15 @@
+✔ P46: grafo publicado não tem destinos quebrados e só o epílogo é terminal (3.813ms)
+✔ P46: rota NovaCORE muda a apresentação sem revelar rota não escolhida (32.3483ms)
+✔ P46: negociação final permite concluir sem combate somente após teste bem-sucedido (35.5493ms)
+✔ P46: combate final não permite escolher destino antes do encontro e preparação altera abertura (42.1833ms)
+✔ P46: playthrough controller fecha missão, persiste recompensa e continua no sandbox sem apagar MIXED/Duty (2215.269ms)
+✔ P46: UI diferencia bloqueio ativo de missão concluída e oferece continuar no mundo livre (11.7165ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4077.2404
+

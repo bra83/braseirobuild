@@ -1,0 +1,12 @@
+✔ p.33: três armas oficiais, preços fixos e críticos reduzidos, sem entregar na festa (260.7532ms)
+✔ p.33: rolagem oposta com desafio real concede exatamente 10% somente se houver sucesso (62.1612ms)
+✔ Controller + UI + Bridge: rollback insuficiência, recibos reais, três reaberturas (390.9727ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2227.5852
+

@@ -4,7 +4,7 @@ import {GameController} from '../app/src/main/assets/vtt/js/core/controller.mjs'
 import {createCampaign} from '../app/src/main/assets/vtt/js/core/state.mjs';
 import {PUBLISHED_ADVENTURE_ADVERSARY_PROFILES} from '../app/src/main/assets/vtt/js/rules/adversaries.mjs';
 import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
-import {advanceNabatMorningController} from './swe02-act1-fixture.mjs';
+import {arriveAtNabatController,advanceNabatMorningController} from './swe02-act1-fixture.mjs';
 
 class Repo {
   constructor(){this.state=createCampaign('SWE02 T’rex carryover');this.saves=0;}
@@ -16,7 +16,7 @@ function fixture(playerCount){
   g.loadStarterCharacter('cael');g.startSession({playerCount,rng:()=>.5});
   for(let i=1;i<playerCount;i++){const c=structuredClone(g.state.player.character);c.name=`PC ${i+1}`;g.registerPartyCharacter({character:c,id:`test-pc-${i+1}`});}
   g.startPublishedAdventureSession('long-arm-of-the-hutt',{rng:()=>.5});
-  for(const choice of ['dock-ryloth','help-new-meen'])g.advancePublishedAdventure(choice);
+  arriveAtNabatController(g);
   advanceNabatMorningController(g);
   return {repo,g};
 }

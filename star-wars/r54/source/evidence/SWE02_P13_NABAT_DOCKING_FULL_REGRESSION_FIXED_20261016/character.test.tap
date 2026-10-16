@@ -1,0 +1,12 @@
+✔ ficha estrutural vazia respeita seis características e habilidades conhecidas (3.7026ms)
+✔ importação rejeita característica fora da faixa 1-6 sem substituir ficha válida (3.9487ms)
+✔ ficha JSON faz ida e volta (0.8943ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 764.6417
+

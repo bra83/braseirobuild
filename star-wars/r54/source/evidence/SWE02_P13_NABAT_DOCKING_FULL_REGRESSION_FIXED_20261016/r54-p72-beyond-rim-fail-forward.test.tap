@@ -1,0 +1,17 @@
+✔ P72 fail-forward cholganna-search (26.2342ms)
+✔ P72 fail-forward crash-trail (32.1226ms)
+✔ P72 fail-forward imperial-contingency (5.1598ms)
+✔ P72 fail-forward raxus-arrival (6.2356ms)
+✔ P72 fail-forward dropoff-point (4.9017ms)
+✔ P72 fail-forward imperial-interruption (38.7053ms)
+✔ P72 fail-forward flying-junk (6.634ms)
+✔ P72 costly completion persists consequence without exposing future nodes (5.1724ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1366.9094
+

@@ -1,0 +1,19 @@
+✔ catálogo EotE preserva 18 especializações e AoR permanece aditivo (19.223ms)
+✔ API de primeira linha preserva árvores Core e adiciona AoR e Exilado (1.1455ms)
+✔ somente primeira linha inicia desbloqueada; conexão adquirida libera nó seguinte (42.3227ms)
+✔ talento profundo desconectado não pode ser comprado diretamente (6.073ms)
+✔ compra desconta o custo da linha e um mesmo espaço só é comprado uma vez (7.0494ms)
+✔ talento repetido em espaços diferentes soma graus (3.255ms)
+✔ Dedicação exige escolha, respeita máximo 6 e atualiza derivados ligados (16.0705ms)
+✔ Firmeza, Endurecido e Resistente aplicam somente seus efeitos passivos EotE (11.1195ms)
+✔ API compatível de primeira linha continua restrita à linha 1 (2.8662ms)
+✔ talento de outra especialização não pode ser comprado por ID (4.2358ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1685.9237
+

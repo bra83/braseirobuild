@@ -73,20 +73,20 @@
     }
   },
   "fresh_regression": {
-    "state": "PASS_FULL_REGRESSION_AFTER_SWE02_P13_NABAT_SHIP_REPAIRS",
+    "state": "PASS_FULL_REGRESSION_AFTER_SWE02_P13_NABAT_SAFE_DOCKING",
     "files": 382,
     "regular_files": 376,
     "stress_files": 6,
-    "tests": 3458,
-    "pass": 3456,
+    "tests": 3459,
+    "pass": 3457,
     "fail": 0,
     "skip": 2,
     "files_without_complete_summary": [],
-    "evidence": "evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/",
-    "summary": "evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/summary.json",
+    "evidence": "evidence/SWE02_P13_NABAT_DOCKING_FULL_REGRESSION_FIXED_20261016/",
+    "summary": "evidence/SWE02_P13_NABAT_DOCKING_FULL_REGRESSION_FIXED_20261016/summary.json",
     "skip_reason": "JDK jar executable unavailable for two offline Gradle-wrapper packaging checks.",
     "runner_environment": "Per-file TAP runner, 8 workers; NODE_PATH points to work/build-deps5/node_modules; Python subprocess output decoded as UTF-8.",
-    "supersedes": "evidence/SWE02_P14_NABAT_MORNING_FULL_REGRESSION_20261016/"
+    "supersedes": "evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/"
   },
   "blockers": [
     "All 360 AoR positions lack individual source-to-effect, UI, persistence, and test evidence.",
@@ -97,7 +97,7 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Continue SWE02 Act 1 page-wide source-to-semantic coverage, preserving explicit source ambiguity for unquantified fuel. Then close outstanding Act 2/3 branches and the remaining four adventures; selected rules and 360 AoR individual proofs remain pending. Do not create P245 or run Android release gates until all global certification criteria pass.",
+  "next_action": "Continue SWE02 printed p.13 page-wide source-to-semantic coverage, retaining the source ambiguity around unquantified fuel. Then close outstanding Acts 1–3 and the remaining four adventures; selected rules and 360 AoR individual proofs remain pending. Do not create P245 or run Android release gates until all global certification criteria pass.",
   "swe02_krayt_fang_pp06_11": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
     "source": "Long Arm of the Hutt printed pp.6–11 / PDF pp.6–11",
@@ -366,7 +366,7 @@
     },
     "reopens": "Three independent GameController reloads are asserted for successful and failed attempts.",
     "pending": [
-      "Printed p.13 page-wide certification: fuel, system strain/ship critical repairs, exact docking/source gates, remaining branch and page-level evidence."
+      "Printed p.13 page-wide certification: unspecified fuel quantity and pricing, remaining branch crosswalk, and page-level source/evidence review."
     ]
   },
   "swe02_nabat_p14_morning": {
@@ -385,16 +385,16 @@
       "pass": 32,
       "fail": 0,
       "skip": 0,
-      "evidence": "evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/"
+      "evidence": "evidence/SWE02_P13_NABAT_DOCKING_FULL_REGRESSION_FIXED_20261016/"
     },
     "full_regression": {
       "files": 382,
-      "tests": 3458,
-      "pass": 3456,
+      "tests": 3459,
+      "pass": 3457,
       "fail": 0,
       "skip": 2,
       "stress_files": 6,
-      "evidence": "evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/summary.json"
+      "evidence": "evidence/SWE02_P13_NABAT_DOCKING_FULL_REGRESSION_FIXED_20261016/summary.json"
     },
     "limit": "Full p.14 dialogue crosswalk and page-wide certification remain pending."
   },
@@ -424,5 +424,22 @@
       "evidence": "evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/summary.json"
     },
     "limit": "Fuel amount and price are unspecified by the adventure source and remain unmodified; page 13 and Act 1 remain pending."
+  },
+  "swe02_p13_nabat_safe_docking": {
+    "status": "IMPLEMENTADO_NAO_CERTIFICADO",
+    "source": "The Long Arm of the Hutt printed p.13; official PDF printed p.13 / physical PDF p.12",
+    "effect": "A source-cited safe-docking receipt is recorded only when the Krayt Fang, with B’ura aboard, reaches Nabat by one of the three resolved routes: no interception, Thwheek landed safely, or crash crew resolved. Nabat scenes and operations require the receipt; legacy Ryloth ship inspection remains loadable.",
+    "executor": "swe02NabatP240.mjs:recordNabatSafeDocking + longArmOfTheHutt.mjs arrival transition",
+    "source_proof": "validation/P240_SWE02_SOURCE_PROOFS.json",
+    "tests": {
+      "files": 3,
+      "focused_tests_passed": true,
+      "full_regression_tests": 3459,
+      "full_regression_failures": 0,
+      "evidence": "evidence/SWE02_P13_NABAT_DOCKING_FULL_REGRESSION_FIXED_20261016/"
+    },
+    "pending": [
+      "Page-wide p.13 crosswalk, remaining arrival/Act 1 branch evidence, and unspecified fuel amount/pricing."
+    ]
   }
 }

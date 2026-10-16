@@ -1,0 +1,12 @@
+✔ repository emits the exact R46 state-changed event after save and clear (52.1659ms)
+✔ a real GameController mutation emits same-window refresh events (33.0958ms)
+✔ R46 listens to the same custom event used by the repository (40.2473ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1884.607
+

@@ -1,0 +1,21 @@
+✔ Old Lylek foot approach is available without a Perception declaration; hunter loot, warning and optional verified lylek attack survive three reopenings (1898.6706ms)
+✔ lylek submission requires an explicit GM confirmation and preserves source absence of a numeric threshold (1638.3253ms)
+✔ failed fast-route Pilot checks apply party-wide strain by stable PC ID and persist after reopen (1276.5225ms)
+✔ crash checks resolve once for each onboard PC, apply failure damage to the matching sheet, and exclude companions (1238.3143ms)
+✔ schema 14 singleton migration to schema 15 creates one stable PC ID and mirrors active-sheet updates without importing companions (1182.5457ms)
+✔ retreat or incapacitation settles the hunter branch while preserving the lylek trigger and its p.18 loot rule (2480.5279ms)
+✔ p.17 rock cover adds two setback to ranged checks and hunters begin with stun/capture intent, then switch to lethal after a hunter falls (3320.4256ms)
+✔ p.16 eastern cave flank is a persisted position choice; frontal fighting retreat uses the dotted path and persists the escaped outcome (2350.7654ms)
+✔ p.17 repair Advantage leaves reduction amount to GM and persists an explicit chosen reduction (2721.2158ms)
+✔ any player Advantage automatically kills one hunter for prey when GM selected the beast branch, with persisted one-time receipt (796.4195ms)
+✔ New Meen conditional developer details require a PC question and persist with their printed pp.18–19 source (863.66ms)
+✔ printed p.16 map exposes source-named zones and persists only explicit PC/hunter locations across three reopenings (866.257ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22690.6106
+

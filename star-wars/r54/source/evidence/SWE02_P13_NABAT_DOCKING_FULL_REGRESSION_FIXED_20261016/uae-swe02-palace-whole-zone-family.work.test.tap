@@ -1,0 +1,13 @@
+✔ Family authoring: 14 added noncombat source-backed operations across 9 palace scenes (1813.8607ms)
+✔ Full reconnaissance route: reception, hallway, gladiators, workshop, kitchen, bar, pad, spy, comms (550.1209ms)
+✔ Cannot loot hallway artwork from another room, mint sale cash, or impersonate proof (119.7752ms)
+✔ Atomic controller + 3 reopenings: hallway cargo, rollback on unavailable operation (178.498ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4276.363
+

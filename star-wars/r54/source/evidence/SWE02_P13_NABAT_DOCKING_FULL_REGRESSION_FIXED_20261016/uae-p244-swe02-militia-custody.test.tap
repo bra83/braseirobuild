@@ -1,0 +1,16 @@
+✔ P244 surviving militia returns exact borrowed weapon, once, with three save reopens (423.9335ms)
+✔ P244 loan owner cannot be spoofed; no duplicate or fabricated weapon (213.457ms)
+✔ P244 an eliminated ally never returns a weapon without separate recovery proof (509.1189ms)
+✔ P244 no return during active combat; failure does not save (367.8986ms)
+✔ P244 P243 save with unmarked loans is migrated before return, preserving casualty count (406.9378ms)
+✔ P244 rejects tampered custody, duplicate loans, forged return receipts (191.5123ms)
+✔ P244 return action is wired into bridge and offline Android UI (84.628ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5069.0914
+

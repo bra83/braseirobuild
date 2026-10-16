@@ -1,0 +1,15 @@
+✔ eletrobinóculos removem no máximo 1 Complicação causada por alcance ou iluminação (6.1313ms)
+✔ macrobinóculos só removem Complicação explicitamente atribuída ao longo alcance (0.6555ms)
+✔ óptica nunca remove Complicação sem causa declarada nem aceita causas acima do total (1.5732ms)
+✔ algemas usam teste Difícil de Atletismo ou Coordenação para escapar (0.6337ms)
+✔ dispositivo de retenção de droide usa Disciplina Difícil e nova tentativa depende do Mestre (0.6769ms)
+✔ GameController aplica alívio óptico só aos setbacks ambientais declarados (46.6573ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1422.9904
+

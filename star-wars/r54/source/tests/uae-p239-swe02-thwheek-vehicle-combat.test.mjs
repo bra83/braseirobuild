@@ -34,6 +34,7 @@ test('P239 optimal navigation + slowed transponder: direct Nabat, no fighter',()
  assert.equal(p.currentNodeId,'rylos-arrival-decision');assert.equal(p.flags.shipThwheekInterceptionRequired,false);
  assert.throws(()=>g.advancePublishedAdventure('ship-follow-interception'),/inválida/);
  g.advancePublishedAdventure('ship-safe-landing');assert.equal(g.state.world.publishedAdventure.currentNodeId,'nabat-arrival');
+ const docking=g.state.world.publishedAdventure.nabatReceipts.at(-1);assert.equal(docking.type,'NABAT_SAFE_DOCKING');assert.equal(docking.arrivalRoute,'NO_INTERCEPTION');assert.equal(docking.buraArranged,true);
 });
 test('P239 SWE02 p.11 six-hour transit advances one persisted living-world tick exactly once',()=>{
  const {g,repo}=make();const p=g.state.world.publishedAdventure;
@@ -130,7 +131,8 @@ test('P239 real hit + five hull trauma: pursuit remains open, withdrawal permits
  assert.throws(()=>g.resolveIncomingVehicleAttack({rng:()=>.1}),/fugindo|iniciativa/);
  const ended=g.resolveSWE02ThwheekCombat();assert.equal(ended.outcome,'THWHEEK_WITHDREW');
  assert.equal(g.state.vehicles.combat.active,false);assert.equal(g.state.world.publishedAdventure.shipThwheekReceipt.outgoingHits,1);
- g.advancePublishedAdventure('ship-thwheek-to-nabat');assert.equal(g.state.world.publishedAdventure.currentNodeId,'nabat-arrival');reopen(repo);
+ g.advancePublishedAdventure('ship-thwheek-to-nabat');assert.equal(g.state.world.publishedAdventure.currentNodeId,'nabat-arrival');
+ assert.equal(g.state.world.publishedAdventure.nabatReceipts.at(-1).arrivalRoute,'THWHEEK_LANDED');reopen(repo);
 });
 test('P239 p.12: no victory without actual hits and no duplicate start/resolve',()=>{
  const {g,repo}=make();begin(g);const before=repo.saves;
@@ -158,7 +160,8 @@ test('P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience check
  const pilot=g.resolveSWE02CrashPilot({rng:()=>.1});assert.equal(pilot.softLanding,false);
  const crew=g.resolveSWE02CrashResilience({rng:()=>.1});assert.equal(crew.completed,true);
  assert.throws(()=>g.resolveSWE02CrashResilience({rng:()=>.1}),/falta Pilotagem|indisponível/);
- g.advancePublishedAdventure('ship-crash-to-nabat');assert.equal(g.state.world.publishedAdventure.currentNodeId,'nabat-arrival');reopen(repo);
+ g.advancePublishedAdventure('ship-crash-to-nabat');assert.equal(g.state.world.publishedAdventure.currentNodeId,'nabat-arrival');
+ assert.equal(g.state.world.publishedAdventure.nabatReceipts.at(-1).arrivalRoute,'CRASH_CREW_RESOLVED');reopen(repo);
 });
 test('P239 p.12: three-person crew cannot be falsely certified by one PC',()=>{
  const {g}=make({count:3});begin(g);

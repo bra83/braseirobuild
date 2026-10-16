@@ -1,0 +1,21 @@
+✔ P95 opposed: maior valor define dados negativos e menor faz upgrades (5.5928ms)
+✔ P95 assistência hábil combina melhor característica e melhor perícia (2.7935ms)
+✔ P95 assistência não-hábil adiciona exatamente um Boost (1.2053ms)
+✔ P95 competitivo desempata por Triumph e depois Advantage (2.1975ms)
+✔ P95 competitivo sem sucesso é empate e empate completo continua empate (0.9329ms)
+✔ P95 social: Coerção é oposta por Disciplina e persiste em save/reopen (68.0214ms)
+✔ P95 social rejeita combinação que contorna oposição oficial (5.8191ms)
+✔ P95 social: Negociação aceita Negociação ou Frialdade (26.3282ms)
+✔ P95 checks avançados persistem tipo e resultado para reopen (37.3408ms)
+✔ P95 bridge não expõe criação arbitrária de crítico veicular (205.4985ms)
+✔ P95 reparo de crítico veicular exige teste de Mecânica e persiste somente no sucesso (46.2693ms)
+✔ P95 falha em reparo de crítico não limpa o dano e consome ação durante combate (16.4578ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2160.0945
+

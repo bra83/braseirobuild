@@ -4,6 +4,7 @@ import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/advent
 import {advanceNabatMorning,resolveOldLylekRetreat} from './swe02-act1-fixture.mjs';
 import {PUBLISHED_ADVENTURE_ADVERSARY_PROFILES as profiles} from '../app/src/main/assets/vtt/js/rules/adversaries.mjs';
 import {GameController} from '../app/src/main/assets/vtt/js/core/controller.mjs';
+import {arriveAtNabat,finishNabatArrival} from './swe02-act1-fixture.mjs';
 import {createCampaign} from '../app/src/main/assets/vtt/js/core/state.mjs';
 const a=getPublishedAdventureAdapter('long-arm-of-the-hutt');
 const step=(w,id)=>a.advance(w,id).world,chain=(w,...ids)=>ids.reduce((state,id)=>id==='travel-lylek-den'?advanceNabatMorning(a,state):step(id==='reach-new-meen'?resolveOldLylekRetreat(a,state):state,id),w),start=()=>a.start({}).world;
@@ -48,7 +49,7 @@ test('SWE02 pp9-10 + p30: Sivor shell must be found, examined and explicitly kep
  for(let i=0;i<3;i++){w=reopen(w);a.status(w)}
 });
 test('P237 p23: Drombb messages require victory and Hard Computers',()=>{
- let w=enterCantina(chain(start(),'dock-ryloth','help-new-meen','travel-lylek-den','reach-new-meen','confront-drombb-directly'));
+ let w=enterCantina(chain(arriveAtNabat(a,start()),'travel-lylek-den','reach-new-meen','confront-drombb-directly'));
  assert.equal(a.currentChecks(w).length,0);assert.throws(()=>step(w,'drombb-messages'),/inválida/);
  w=structuredClone(w);w.publishedAdventure.flags.confirmedPartySize=3;w=mark(w,'laoth-drombb-cantina');
  const enemies=a.encounterSpec(w,'laoth-drombb-cantina').adversaries.map((x,i)=>({id:`drombb-${i}`,profileKey:x.profileKey,status:'incapacitated'}));
@@ -69,7 +70,7 @@ test('P237 p36: three points means three Geonosians',()=>{
  assert.equal(w.publishedAdventure.flags.geoScore,3);assert.equal(a.encounterSpec(w,'laoth-gantry-aa7').geonosianGuardCount,3);
 });
 test('P237 p36: six-plus removes soldiers, not Vrixx’tt',()=>{
- let w=enterCantina(chain(examineAndKeepShell(step(start(),'inspect-krayt-fang')),'sivor-shell','finish-ship-inspection','help-new-meen','travel-lylek-den','reach-new-meen','confront-drombb-directly'));
+ let w=enterCantina(chain(finishNabatArrival(a,chain(examineAndKeepShell(step(start(),'inspect-krayt-fang')),'sivor-shell')),'travel-lylek-den','reach-new-meen','confront-drombb-directly'));
  w=structuredClone(w);w.publishedAdventure.flags.confirmedPartySize=3;w=mark(w,'laoth-drombb-cantina');
  w=a.recordEncounterOutcome(w,{encounterId:'laoth-drombb-cantina',outcome:'adversaries_defeated',adversaries:a.encounterSpec(w,'laoth-drombb-cantina').adversaries.map((x,i)=>({id:`dr-${i}`,profileKey:x.profileKey,status:'incapacitated'}))}).world;
  w=check(w,0,true);w=chain(w,'drombb-messages','new-meen-saved-confirmed','ota-after-new-meen-defense','follow-ota-geonosis','attend-piddock-party');

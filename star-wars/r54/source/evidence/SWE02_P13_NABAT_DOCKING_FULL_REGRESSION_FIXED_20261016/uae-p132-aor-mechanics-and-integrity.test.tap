@@ -1,0 +1,24 @@
+✔ P132 AoR: catálogo de 18 árvores declara efeito somente para aliases com consumidores reais (99.9327ms)
+✔ P132 AoR: piloto compra aceleração máxima e ativa opção já integrada ao motor (13.8836ms)
+✔ P132 AoR: reação rápida altera iniciativa e consome tensão de verdade (33.895ms)
+✔ P132 AoR: perícia piloto consumado remove setback na resolução de pool (42.5876ms)
+✔ P132 AoR: segundo fôlego, esquiva e recuperação rápida reutilizam motores existentes (37.5197ms)
+✔ P132 AoR: Sharpshooter Firmeza é Brace, não Grit, e permanece íntegra após restauração JSON (10.591ms)
+✔ P132 AoR: Precisão letal exige escolha, persiste a perícia e calcula bônus real (41.3113ms)
+✔ P132 AoR: talentos não adquiridos ou sem mecânica não concedem bônus (6.7756ms)
+✔ P132 AoR: compra pelo controlador persiste e desbloqueia ação real na UI Android (81.0849ms)
+✔ P132 UAE: efeitos diretos são atômicos e respeitam delta zero sem criar avanço falso (61.5217ms)
+✔ P132 under-black-sun: integridade do journal e gatilhos preservada após persistir/restaurar (77.7528ms)
+✔ P132 beyond-the-rim: integridade do journal e gatilhos preservada após persistir/restaurar (145.1264ms)
+✔ P132 long-arm-of-the-hutt: integridade do journal e gatilhos preservada após persistir/restaurar (66.2708ms)
+✔ P132 jewel-of-yavin: integridade do journal e gatilhos preservada após persistir/restaurar (64.653ms)
+✔ P132 mask-of-the-pirate-queen: integridade do journal e gatilhos preservada após persistir/restaurar (32.9194ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4512.5022
+

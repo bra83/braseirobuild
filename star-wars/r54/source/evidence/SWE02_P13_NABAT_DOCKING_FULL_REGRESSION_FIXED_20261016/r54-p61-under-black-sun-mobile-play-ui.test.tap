@@ -1,0 +1,14 @@
+✔ P61: sessão renderiza tracker público com objetivo, investigação e pressão (4.9171ms)
+✔ P61: superfície de sessão usa tracker anti-spoiler em vez de flags internas (5.8843ms)
+✔ P61: ações essenciais aparecem antes dos detalhes secundários (0.7509ms)
+✔ P61: layout 415x915 mantém alvos touch grandes e tracker compacto (0.6825ms)
+✔ P61: tracker pós-investigação continua sem revelar rota futura (41.6889ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 918.6417
+

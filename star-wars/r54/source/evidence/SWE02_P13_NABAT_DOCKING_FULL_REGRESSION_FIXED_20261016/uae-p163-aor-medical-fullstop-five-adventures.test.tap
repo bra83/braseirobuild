@@ -1,0 +1,34 @@
+✔ P163: 8 AoR positions wired without source/display forgery (54.6895ms)
+✔ P163: Well Rounded chooses two distinct, permanent career skills with purchase provenance (17.3745ms)
+✔ P163: Bacta Specialist increases actual healing, not empty or unsupervised time (47.9201ms)
+✔ P163: Bacta recovery is explicit, persistent and rolled back on storage failure (74.0677ms)
+✔ P163: base Stim Application spends an action, boosts exactly one stat and costs 4 strain (65.8759ms)
+✔ P163: Improved Stim raises difficulty and reduces strain to one (4.8677ms)
+✔ P163: Supreme Stim spends actual Triumph and applies a different extra stat (5.5566ms)
+✔ P163: Stim prevents repeat stat and equipment/alias forgery (6.8188ms)
+✔ P163: Stim failures never grant stat or strain, encounter end removes boosts (30.6161ms)
+✔ P163: Master Doctor applies real 2 strain and -1 Medicine difficulty (21.1963ms)
+✔ P163: Master Doctor cannot be invoked by display label (5.2614ms)
+✔ P163: AoR Full Stop gated by actual purchased node, costs speed in system strain (23.9616ms)
+✔ P163: AoR Full Stop rejects unowned nodes before charging maneuver (34.3276ms)
+✔ P163: successful Supreme application refuses invented Triumph (14.9889ms)
+✔ P163: Stim atomicity restores character and action after storage failure (33.3226ms)
+✔ P163: Medicine atomicity restores health and strain after storage failure (32.063ms)
+✔ P163: Well Rounded persists after three reopenings and cannot be purchased twice (17.7855ms)
+✔ P163: Stim application does not consume access-only medical equipment (29.0011ms)
+✔ P163: Master Doctor also powers contextual Medicine check without forged purchase (76.5899ms)
+✔ P163: Android bridge routes new medical actions and bundle contains new API (58.6881ms)
+✔ P163: under-black-sun UAE trigger/objective/clock/consequence, rollback and 3 reloads (157.108ms)
+✔ P163: beyond-the-rim UAE trigger/objective/clock/consequence, rollback and 3 reloads (33.3473ms)
+✔ P163: long-arm-of-the-hutt UAE trigger/objective/clock/consequence, rollback and 3 reloads (48.897ms)
+✔ P163: jewel-of-yavin UAE trigger/objective/clock/consequence, rollback and 3 reloads (32.976ms)
+✔ P163: mask-of-the-pirate-queen UAE trigger/objective/clock/consequence, rollback and 3 reloads (24.9825ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3639.4377
+

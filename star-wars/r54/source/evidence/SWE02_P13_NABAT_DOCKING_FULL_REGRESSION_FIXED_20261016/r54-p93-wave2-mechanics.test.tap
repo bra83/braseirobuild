@@ -1,0 +1,18 @@
+✔ P93: resolução de Astronavegação usa símbolos reais do rollPool e salto bem-sucedido avança tempo/local (1026.0572ms)
+✔ P93: desvio hiperespacial avança o tempo mas não teleporta ao destino pretendido (673.8887ms)
+✔ P93: falha de Astronavegação não avança relógio nem posição (526.2717ms)
+✔ P93: catálogo econômico inclui cibernéticos mas aquisição não instala efeitos automaticamente (25.6545ms)
+✔ P93: somente cibernético adquirido pode ser instalado e remoção preserva propriedade (20.0936ms)
+✔ P93: UI final expõe progressão de talentos, recuperação, hiperespaço real e cibernéticos sem consultRules (7.6652ms)
+✔ P93: recuperação pela UI usa regras reais de Stimpack, Medicina e descanso (25.1664ms)
+✔ P93: contratos TypeScript incluem apenas as operações novas seguras (118.6225ms)
+✔ P93: bridge não oferece instalação cibernética bruta sem ativo adquirido (3.552ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4171.709
+

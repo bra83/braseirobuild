@@ -1,0 +1,17 @@
+✔ P99: catálogo econômico expõe somente attachments source-bound com preço/raridade/hard points (10.5931ms)
+✔ P99: compra aprovada de attachment desconta créditos e cria propriedade sem instalar magicamente (64.4064ms)
+✔ P99: sourceCatalogId preserva hard points reais da arma adquirida (8.548ms)
+✔ P99: Rapid-Recharge e Spread Barrel exigem propriedade, compatibilidade e consomem hard points (34.0926ms)
+✔ P99: attachments alteram perfil de ataque real e remoção desfaz efeitos sem apagar propriedade (45.4769ms)
+✔ P99: attachment incompatível e venda/perda enquanto instalado são bloqueados (23.6826ms)
+✔ P99: bridge/contratos/R46 expõem aquisição e instalação seguras, sem mod arbitrário (56.5586ms)
+✔ P99: attachments chegam ao resolveWeaponAttack real — Imprimisa no pool, Automática na dificuldade e Spread reduz alcance (102.3216ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2186.1781
+

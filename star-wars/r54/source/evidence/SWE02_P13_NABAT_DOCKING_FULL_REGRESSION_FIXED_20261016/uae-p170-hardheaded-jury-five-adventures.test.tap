@@ -1,0 +1,35 @@
+✔ P170 AoR coverage: 2 Jury, 2 Hard Headed and 2 Improved slots (8.783ms)
+✔ P170 source-backed slots: display-only names and forged original do not confer mechanics (35.0599ms)
+✔ P170 Hard Headed rank 2: difficulty 3, stagger/disoriented removed, failure spends check (22.9255ms)
+✔ P170 Hard Headed improved: incapacitation due strain only, threshold-1 on success (16.8118ms)
+✔ P170 Hard Headed: rollback on save failure and forbidden unrelated critical incapacity (19.3787ms)
+✔ P170 Jury Rigged: permanent unique owned weapon assignment, damage and critical (12.3979ms)
+✔ P170 Jury Rigged: invalid item/slot, stale purchase and rollback (15.8764ms)
+✔ P170 Jury Rigged is consumed by real weapon attack and cannot clone instance IDs (63.7116ms)
+✔ P170 Android bridge and UI expose only source-backed owned slots and real actions (28.5937ms)
+✔ P170 Body Guard: maneuver, voluntary strain, live companion attack upgrades, expiration (69.6038ms)
+✔ P170 Body Guard: rejects forged display rank, absent ally and rolls back failed save (80.2066ms)
+✔ P170 under-black-sun: AoR gear + conditions survive published adventure and three restores (212.6979ms)
+✔ P170 under-black-sun: malformed predicates and forged consequence metadata fail closed (9.409ms)
+✔ P170 under-black-sun: UAE objective, consequence and clock transaction with rollback (63.0857ms)
+✔ P170 beyond-the-rim: AoR gear + conditions survive published adventure and three restores (96.2669ms)
+✔ P170 beyond-the-rim: malformed predicates and forged consequence metadata fail closed (4.3661ms)
+✔ P170 beyond-the-rim: UAE objective, consequence and clock transaction with rollback (22.7341ms)
+✔ P170 long-arm-of-the-hutt: AoR gear + conditions survive published adventure and three restores (190.9754ms)
+✔ P170 long-arm-of-the-hutt: malformed predicates and forged consequence metadata fail closed (6.0585ms)
+✔ P170 long-arm-of-the-hutt: UAE objective, consequence and clock transaction with rollback (33.3588ms)
+✔ P170 jewel-of-yavin: AoR gear + conditions survive published adventure and three restores (137.0379ms)
+✔ P170 jewel-of-yavin: malformed predicates and forged consequence metadata fail closed (4.5727ms)
+✔ P170 jewel-of-yavin: UAE objective, consequence and clock transaction with rollback (31.889ms)
+✔ P170 mask-of-the-pirate-queen: AoR gear + conditions survive published adventure and three restores (234.2205ms)
+✔ P170 mask-of-the-pirate-queen: malformed predicates and forged consequence metadata fail closed (5.348ms)
+✔ P170 mask-of-the-pirate-queen: UAE objective, consequence and clock transaction with rollback (21.1666ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4060.7194
+

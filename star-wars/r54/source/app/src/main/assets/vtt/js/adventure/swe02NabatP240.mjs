@@ -7,11 +7,33 @@ import {repairVehicleCritical,validateVehicle} from '../rules/vehicles.mjs';
 const clone=v=>structuredClone(v);
 export const NABAT_SOURCE=Object.freeze({productCode:'SWE02',printedPages:[13,14],authority:'OFFICIAL_PDF_TEXT_VERIFIED'});
 const NABAT_P14_SOURCE=Object.freeze({productCode:'SWE02',printedPage:14,authority:'OFFICIAL_PDF_TEXT_VERIFIED'});
-const SCENES=new Set(['nabat-arrival','nabat-contact','krayt-fang-ground-inspection']);
+const SCENES=new Set(['nabat-arrival','nabat-contact']);
+const SAFE_DOCKING_ROUTES=Object.freeze({
+ NO_INTERCEPTION:{fromNodeId:'rylos-arrival-decision',choiceId:'ship-safe-landing',flag:'shipThwheekSkipped'},
+ THWHEEK_LANDED:{fromNodeId:'thwheek-engagement',choiceId:'ship-thwheek-to-nabat',flag:'shipThwheekLandedSafely'},
+ CRASH_CREW_RESOLVED:{fromNodeId:'thwheek-crash',choiceId:'ship-crash-to-nabat',flag:'shipCrashCrewResolved'}
+});
+const hasSafeDocking=p=>Boolean(p?.flags?.nabatShipSafelyDocked&&p.nabatReceipts?.some(x=>x.type==='NABAT_SAFE_DOCKING'));
+export function recordNabatSafeDocking(world,{fromNodeId,choiceId}={}){
+ const w=clone(world),p=w?.publishedAdventure;
+ if(p?.id!=='long-arm-of-the-hutt'||p.status!=='ACTIVE'||!p.flags?.shipBuraFound)
+  throw Error('SWE02 p.13: B’ura deve estar a bordo e a nave precisa chegar a Nabat antes do atracamento.');
+ if(p.currentNodeId!==fromNodeId)throw Error('SWE02 p.13: origem da chegada a Nabat inválida.');
+ if(hasSafeDocking(p))throw Error('SWE02 p.13: atracamento seguro já registrado.');
+ const route=Object.entries(SAFE_DOCKING_ROUTES).find(([,r])=>r.fromNodeId===fromNodeId&&r.choiceId===choiceId);
+ if(!route||p.flags[route[1].flag]!==true)throw Error('SWE02 p.13: a rota de pouso não foi resolvida.');
+ const [arrivalRoute]=route;
+ p.nabatReceipts=[...(p.nabatReceipts||[]),{type:'NABAT_SAFE_DOCKING',nodeId:'nabat-arrival',fromNodeId,choiceId,
+  arrivalRoute,shipKey:'yt1300',shipName:'Krayt Fang',buraArranged:true,
+  source:{productCode:'SWE02',printedPage:13,authority:'OFFICIAL_PDF_TEXT_VERIFIED'}}];
+ p.flags={...(p.flags||{}),nabatShipSafelyDocked:true};
+ return {world:w,receipt:clone(p.nabatReceipts.at(-1))};
+}
 function active(world,allowed=SCENES){
  const p=world?.publishedAdventure;
  if(p?.id!=='long-arm-of-the-hutt'||p.status!=='ACTIVE'||!allowed.has(p.currentNodeId))
   throw Error('SWE02: operação de Nabat fora da cena oficial.');
+ if(SCENES.has(p.currentNodeId)&&!hasSafeDocking(p))throw Error('SWE02 p.13: B’ura ainda não providenciou o atracamento seguro em Nabat.');
  return p;
 }
 const key=c=>String(c?.id||c?.name||'').trim();
@@ -118,8 +140,19 @@ export function validateNabat(p){
  const f=p.flags||{},rr=p.nabatReceipts||[];
  if(!Array.isArray(rr))throw Error('SWE02: histórico de Nabat inválido.');
  const one=t=>rr.filter(x=>x.type===t);
- if(one('SPACEPORT_WATCH_REQUESTED').length>1||one('TATOOINE_VISITORS_ALERT').length>1||one('CONTACTS_PAID_SHIP_REPAIRS').length>1)
+ const docking=one('NABAT_SAFE_DOCKING');
+ if(docking.length>1||one('SPACEPORT_WATCH_REQUESTED').length>1||one('TATOOINE_VISITORS_ALERT').length>1||one('CONTACTS_PAID_SHIP_REPAIRS').length>1)
   throw Error('SWE02: operação única de Nabat duplicada.');
+ if(Boolean(f.nabatShipSafelyDocked)!==Boolean(docking.length)||
+   (['nabat-arrival','nabat-contact'].includes(p.currentNodeId)&&!docking.length))
+  throw Error('SWE02 p.13: cena de Nabat sem recibo de atracamento seguro.');
+ if(docking.length){
+  const x=docking[0],route=SAFE_DOCKING_ROUTES[x.arrivalRoute];
+  if(x.nodeId!=='nabat-arrival'||x.shipKey!=='yt1300'||x.shipName!=='Krayt Fang'||x.buraArranged!==true||
+    !route||x.fromNodeId!==route.fromNodeId||x.choiceId!==route.choiceId||f.shipBuraFound!==true||f[route.flag]!==true||
+    x.source?.productCode!=='SWE02'||x.source?.printedPage!==13)
+   throw Error('SWE02 p.13: recibo de atracamento seguro adulterado.');
+ }
  if(Boolean(f.nabatSpaceportWatchRequested)!==Boolean(one('SPACEPORT_WATCH_REQUESTED').length)||
     Boolean(f.nabatSpaceportAlertDelivered)!==Boolean(one('TATOOINE_VISITORS_ALERT').length)||
     Boolean(f.nabatHullRepaired)!==Boolean(one('CONTACTS_PAID_SHIP_REPAIRS').length))
@@ -127,7 +160,8 @@ export function validateNabat(p){
  if(f.nabatSpaceportAlertDelivered&&!f.nabatSpaceportWatchRequested)throw Error('SWE02: alerta sem solicitação prévia.');
  const catalog=nabatMarketCatalog();
  for(const x of rr){
-  const validP13=x.source?.printedPages?.[0]===13&&SCENES.has(x.nodeId);
+  const validP13=x.type==='NABAT_SAFE_DOCKING'?x.nodeId==='nabat-arrival'&&x.source?.printedPage===13:
+   x.source?.printedPages?.[0]===13&&SCENES.has(x.nodeId);
   const validP14=x.source?.printedPage===14&&['nabat-morning-departure','lylek-den-ambush'].includes(x.nodeId);
   if(x.source?.productCode!=='SWE02'||(!validP13&&!validP14))
    throw Error('SWE02: recibo de Nabat sem proveniência.');
