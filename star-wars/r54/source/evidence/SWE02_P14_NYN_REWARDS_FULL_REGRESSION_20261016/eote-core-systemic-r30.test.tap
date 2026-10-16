@@ -1,0 +1,32 @@
+✔ Encumbrance base é 5 + Brawn (3.9085ms)
+✔ mochila +4 e cinto utilitário +1 aumentam o threshold (0.884ms)
+✔ armadura vestida reduz Encumbrance em 3, mínimo zero (0.995ms)
+✔ excesso gera um setback por ponto e carga grave usa Brawn (1.6573ms)
+✔ levantamento usa threshold e Brawn bruto de ajudantes, limitado a Daunting (1.0102ms)
+✔ catálogo EotE expõe Encumbrance real sem apagar referência AoR histórica (3.5176ms)
+✔ status staggered, immobilized e disoriented produzem efeitos genéricos (2.3741ms)
+✔ efeitos repetidos estendem duração e expiram por turno (1.1862ms)
+✔ efeitos de encontro expiram ao fim do encontro (16.8007ms)
+✔ Destiny inicial rola um dado da Força por jogador e soma recursos (1.5223ms)
+✔ gastar Destiny luminoso vira sombrio e vice-versa (2.8438ms)
+✔ Destiny aprimora pools positivos e negativos (0.6478ms)
+✔ Obligation usa d100 cumulativo e identifica membro (2.6377ms)
+✔ doubles dobram penalidades de Obligation (0.7906ms)
+✔ Obligation acima de 100 marca progressão bloqueada (0.881ms)
+✔ dificuldades de medo vão de Easy a Formidable (0.5876ms)
+✔ medo usa Discipline normalmente e Cool quando preparado (4.5307ms)
+✔ falha de medo aplica setback de encontro (1.9652ms)
+✔ startSession prepara Destiny e aplica Obligation; close restaura threshold (54.4113ms)
+✔ Obligation acima de 100 bloqueia gasto de PE no controller mas não concessão (17.4375ms)
+✔ Destiny no controller aprimora pool e vira o ponto para o lado oposto (18.2ms)
+✔ status genérico bloqueia ação e manobra no combate (14.0994ms)
+✔ carga grave remove manobra gratuita e permite pagar 2 Tensão (14.4134ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1462.185
+

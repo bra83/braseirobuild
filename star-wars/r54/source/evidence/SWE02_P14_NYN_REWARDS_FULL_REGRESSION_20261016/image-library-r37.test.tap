@@ -1,0 +1,18 @@
+✔ R37 image library V3 adds 44 visual entities without losing R36 assets (2.9217ms)
+✔ R37 Kainrath visual entity index is complete and unique (1.3719ms)
+✔ all R37 visual entities are visual-only and use allowed cache URLs (2.3861ms)
+✔ R37 categories contain exactly 16 NPC portraits 20 droids and 8 beasts (0.6708ms)
+✔ R37 visual entity bridge searches all/npc/droid/beast without campaign state (74.4889ms)
+✔ R37 visual entity bridge rejects invalid kind without mutation (5.4525ms)
+✔ named searches resolve real visual references without mechanical inference (3.1893ms)
+✔ R37 visual entities do not pollute the 18-map catalog (7.172ms)
+✔ real static Android AJUSTES exposes visual entity search preview cache and provenance (19.5589ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1406.7259
+

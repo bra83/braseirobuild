@@ -1,0 +1,19 @@
+✔ SWE02 printed p41: elite Gamorrean guards do not inherit generic inaccurate profile (4.9131ms)
+✔ SWE02 p41: frontal stealth not offered; deception gate only opens with successful actual check (316.7314ms)
+✔ SWE02 p41: disguise requires Hard Deception and separate Average Charm (247.8169ms)
+✔ SWE02 pp44-45: workshop B1 evidence is acquired explicitly and persists three reopens (221.2673ms)
+✔ SWE02 p44: ryll kitchen evidence requires successful Hard Perception, not merely entering room (173.4059ms)
+✔ SWE02 p45: communications five official pools, setback, evidence, two-threat lockout (221.9279ms)
+✔ SWE02 p45: throne encounter party count, elite guards and no fake victory without proof (115.137ms)
+✔ SWE02 pp45-46: Teemo defeated only by real group proof, rollback on tamper, no fabricated title (297.7927ms)
+✔ P236 actual controller: palace checks use deterministic dice, persist and do not grant unearned access (354.2227ms)
+✔ P236 actual controller: Teemo combat fails closed without reviewed extra group and Hutt source (323.4512ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3737.8986
+

@@ -16,3 +16,16 @@ This is a limited documentary intake for the two authorized core rulebooks. It s
 - The other 17 corpus rows have not had their PDF bytes examined. The selected supplement set remains unresolved; no rules, RAG, Gemini, or AoR statuses are upgraded by this intake.
 
 The intended architecture remains hybrid: official source text is retrieved through cited RAG; Gemini may narrate or propose typed actions; deterministic code performs validation and all state/mechanical mutations.
+
+## Limited EotE Core rules text review — Nyn p.14 rewards
+
+The Google Drive document-content connector successfully returned readable text from the same 457-page EotE Core PDF record above. The following exact equipment table rows were reviewed for this change (this scoped review does not resolve text quality on other pages or certify the full rules corpus):
+
+| Printed page/table | Profile values used by the app |
+|---|---|
+| 162–163, Table 5-6, Blaster Rifle | Damage 9; Critical 3; Long range; Encumbrance 4; HP 4; 900 credits; rarity 5; Stun setting |
+| 165, Table 5-6, Frag Grenade | Ranged (Light); damage 8; Critical 4; Short range; Encumbrance 1; HP 0; 50 credits; rarity 5; Blast 6; Limited Ammo 1 |
+| 165, Table 5-6, Stun Grenade | Ranged (Light); damage 8; no Critical; Short range; Encumbrance 1; HP 0; 75 credits; rarity 4; Disorient 3; Stun Damage; Blast 8; Limited Ammo 1 |
+| 169, Table 5-7, Padded Armor | Defense 0; soak 2; 500 credits; Encumbrance 2; HP 0; rarity 1 |
+
+These four profiles now carry `PRIMARY_RULE_SOURCE` / `EOTE_CORE` source tags in `app/src/main/assets/vtt/js/rules/equipmentCatalog.mjs`. No PDF bytes or extracted full-book text were added to Git. This per-profile source check does not certify all EotE Core equipment, skills, talents, adversaries, errata, RAG coverage, or AoR rules consumers.

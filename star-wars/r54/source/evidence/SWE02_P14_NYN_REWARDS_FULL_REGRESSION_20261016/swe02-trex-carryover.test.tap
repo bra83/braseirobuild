@@ -1,0 +1,14 @@
+✔ T’rex p.24 profile matches the official Adventure Book block (4.5808ms)
+✔ T’rex carryover is explicit, persists on reopen, and replaces one existing hunter slot with only the correct starting wounds (1554.6677ms)
+✔ living T’rex stays pending for a solo or unknown-size party rather than removing the required Gand or adding an extra hunter (157.1676ms)
+✔ invalid and duplicate history selections do not rewrite the source history (192.7717ms)
+✔ Android UI bridge exposes explicit T’rex history persistence (28.2666ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3165.993
+

@@ -1,0 +1,13 @@
+✔ P215 Christophsis: actual NPC Despair gives selected real NPC ranged defense 2 until confirmed movement (1486.2641ms)
+✔ P215 Coruscant: real Despair triggers opposed NPC Stealth vs real player Perception and blocks unseen targeting (1267.0684ms)
+✔ P215 reserved Despair not spent on landscape has GM-only fallback and no double spend (964.2278ms)
+✔ P215 source contracts, Android UI and bridge integration (9.0429ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5320.6401
+

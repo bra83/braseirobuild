@@ -32,7 +32,7 @@ import {beginThwheekInterception,resolveThwheekInterception,thwheekTactics,THWHE
 import {rollSWE02VehicleInitiative} from '../adventure/swe02VehicleInitiative.mjs';
 const SWE02_INITIATIVE_ADVANCE=Symbol('SWE02 initiative round transition');
 import {nabatMarketCatalog,nabatPurchase,requestNabatSpaceportWatch,deliverNabatNightAlert,nabatShipRepair,nabatSafehouseCare} from '../adventure/swe02NabatP240.mjs';
-import {nynCriticalCare,nynNegotiate,bribeNewMeenThug} from '../adventure/swe02SocialP241.mjs';
+import {nynCriticalCare,nynNegotiate,nynRewardOptions,distributeNynReward,bribeNewMeenThug} from '../adventure/swe02SocialP241.mjs';
 import {adjudicateNewMeenDeaths,coerceNewMeenThugs,openDrombbSafe} from '../adventure/swe02NewMeenP242.mjs';
 import {prepareNewMeenEscort,departNewMeenEscort,arriveNewMeenEscort,abandonNewMeenEscort,armNewMeenMilitia,applyNewMeenMilitiaAbstractRound,returnNewMeenMilitiaWeapon} from '../adventure/swe02EvacuationP243.mjs';
 import {prepareSWE02AnattaDossier,resolveSWE02TeemoWithoutCombat,claimSWE02TeemoStrongbox,shootSWE02Chandelier} from '../adventure/swe02Act3Resolution.mjs';
@@ -6016,6 +6016,19 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         return this.atomicAction(()=>{
             const out=nynNegotiate(this.state.world,requireCharacter(this.state.player?.character),{method,rng});
             this.commit('CHARACTER_UPDATED',{character:out.character});this.commit('WORLD_UPDATED',{world:out.world});
+            return clone(out.receipt);
+        });
+    }
+    swe02NynRewardOptions(){return nynRewardOptions(this.state.world,this.state.player?.roster);}
+    distributeSWE02NynReward({characterId,itemId}={}){
+        return this.atomicAction(()=>{
+            if(this.state.combat?.active)throw Error('SWE02: encerre o combate antes de distribuir equipamento.');
+            const roster=clone(this.state.player?.roster??{schema:1,activeCharacterId:null,entries:[]});
+            const entry=roster.entries.find(x=>x.id===String(characterId??''));
+            if(!entry?.character)throw Error('SWE02: PC destinatário não existe no roster.');
+            const out=distributeNynReward(this.state.world,entry.character,{characterId:entry.id,itemId});
+            character_mjs_1.validateCharacter(out.character);entry.character=clone(out.character);
+            this.commit('PLAYER_ROSTER_UPDATED',{roster});this.commit('WORLD_UPDATED',{world:out.world});
             return clone(out.receipt);
         });
     }

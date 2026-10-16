@@ -106,3 +106,11 @@
 - Added explicit optional shell retention after successful examination; P237 p.30 evidence requires that retained receipt before Piddock identifies it. New evidence cites SWE02 p.10 while validation accepts prior p.7 shell evidence for save compatibility. The p.9/p.10 chain persists through three JSON/controller reloads.
 - Added source-to-effect evidence at `evidence/SWE02_P09_CHITIN_CLUE_20261016/RESULTS.md`. Focused chain passed 59/59, bridge rebuilt at 135 modules, and full per-file regression passed 3,450/3,452 tests across 382 files (376 regular + 6 stress); 0 failed, 2 offline JDK `jar` packaging checks skipped. Raw logs: `evidence/SWE02_P09_CHITIN_FULL_REGRESSION_FINAL2_20261016/`.
 - Status remains `IMPLEMENTADO_NAO_CERTIFICADO`; p.9–10 page-wide audit, p.12 UI visual review, remaining SWE02 Acts 1–3, all other adventures, EotE/AoR rule corpus and AoR 0/360 evidence remain pending. No P245, Gradle/APK, CI or device gate.
+
+## Resume update — SWE02 p.14 Nyn sourced rewards (2026-10-16)
+
+- Added source-reviewed EotE Core profiles for blaster rifle (Table 5-6, printed pp.162–163), frag/stun grenades (p.165) and padded armor (Table 5-7, p.169). Drive ID and SHA-256 are recorded in `audits/RULES_CORE_SOURCE_INTAKE_20261016.md`; no licensed PDF was copied to Git.
+- Nyn's negotiation stores only deterministic claims. A separate recipient selection distributes one frag OR stun grenade per registered PC and the unique armor/rifle awards to stable roster IDs, with item source provenance and validated receipts. UI/offline bridge and catalog now expose these profiles.
+- Focused P241 social suite: 15/15 pass. Full per-file regression: 382 files, 3,453 tests, 3,451 pass, 0 fail, 2 JDK jar packaging skips. Evidence: `evidence/SWE02_P14_NYN_REWARDS_FULL_REGRESSION_20261016/`.
+- A two-Threat Triumph case marks the granted rifle defective; automatic discard after the first encounter of use and remaining p.14 dialogue/transition gates stay open. SWE02 remains `IMPLEMENTADO_NAO_CERTIFICADO`; all adventure, rules and AoR gates remain pending.
+- Hybrid boundary unchanged: deterministic code owns mechanics/state, cited RAG retrieves source, Gemini narrates or proposes typed actions only.

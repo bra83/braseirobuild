@@ -1046,6 +1046,10 @@ function renderVehicle(state){
     const criticalSelect=$('swe02NynCriticalId'),selectedInjury=criticalSelect.value;
     criticalSelect.replaceChildren(new Option('Selecione um Ferimento Crítico',''),...injuries.filter(x=>x.id).map(x=>new Option(`${x.label||x.code||x.id} · ${x.id}`,x.id)));
     if(injuries.some(x=>x.id===selectedInjury))criticalSelect.value=selectedInjury;
+    const rewardSelect=$('swe02NynReward'),selectedReward=rewardSelect.value;
+    const rewardOptions=game.swe02NynRewardOptions();
+    rewardSelect.replaceChildren(new Option('Selecione equipamento e destinatário',''),...rewardOptions.items.map(x=>new Option(`${x.name} → ${x.characterName}`,`${x.itemId}|${x.characterId}`)));
+    if(rewardOptions.items.some(x=>`${x.itemId}|${x.characterId}`===selectedReward))rewardSelect.value=selectedReward;
   }
 
   for(const id of ['swe02Resolve','swe02Pursue','swe02Linked'])$(''+id).disabled=!swe02Combat||!combat.active;
@@ -1377,7 +1381,11 @@ $('swe02NynCritical').addEventListener('click',()=>{try{
 }catch(e){showFeedback('swe02NabatFeedback',e.message);}});
 $('swe02NynNegotiate').addEventListener('click',()=>{try{
  const r=game.negotiateSWE02Nyn({method:$('swe02NynMethod').value});
- showFeedback('swe02NabatFeedback',`Nyn: ${r.check.success?'sucesso':'falha'} · ${r.check.netAdvantage} Vantagens · ${r.check.triumph} Triunfos. Armas pendentes de perfil EotE.`);render();
+ showFeedback('swe02NabatFeedback',`Nyn: ${r.check.success?'sucesso':'falha'} · ${r.check.netAdvantage} Vantagens · ${r.check.triumph} Triunfos. Distribua as concessões entre os PCs.`);render();
+}catch(e){showFeedback('swe02NabatFeedback',e.message);}});
+$('swe02NynDistribute').addEventListener('click',()=>{try{
+ const [itemId,characterId]=$('swe02NynReward').value.split('|');if(!itemId||!characterId)throw Error('Selecione equipamento e destinatário.');
+ const r=game.distributeSWE02NynReward({itemId,characterId});showFeedback('swe02NabatFeedback',`Nyn entregou ${r.itemId} a ${r.characterId}.`);render();
 }catch(e){showFeedback('swe02NabatFeedback',e.message);}});
 for(const [id,method,args] of [
  ['swe02EscortPrepare','prepareSWE02NewMeenEscort',null],

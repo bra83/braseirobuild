@@ -1797,6 +1797,10 @@ completeMerchantAcquisition(options={}){
         const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.negotiateSWE02Nyn(options??{})));}catch(e){return fail('SWE02_SOCIAL_FAILED',messageOf(e));}
     }
+    swe02NynRewardOptions(){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.swe02NynRewardOptions()));}catch(e){return fail('SWE02_SOCIAL_FAILED',messageOf(e));}}
+    distributeSWE02NynReward(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.distributeSWE02NynReward(options??{})));}catch(e){return fail('SWE02_SOCIAL_FAILED',messageOf(e));}}
     bribeSWE02NewMeenThug(options={}){
         const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.bribeSWE02NewMeenThug(options??{})));}catch(e){return fail('SWE02_SOCIAL_FAILED',messageOf(e));}

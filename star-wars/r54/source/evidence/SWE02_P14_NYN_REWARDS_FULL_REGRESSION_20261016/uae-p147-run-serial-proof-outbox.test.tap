@@ -1,0 +1,27 @@
+✔ P147 under-black-sun: reinícios no mesmo milissegundo geram identidades distintas e prova causal (376.7662ms)
+✔ P147 under-black-sun: recibo e journal adulterados não passam pela importação (142.5704ms)
+✔ P147 under-black-sun: prova nova não exige reescrever eventos legados P146 (72.6633ms)
+✔ P147 beyond-the-rim: reinícios no mesmo milissegundo geram identidades distintas e prova causal (178.4532ms)
+✔ P147 beyond-the-rim: recibo e journal adulterados não passam pela importação (136.3621ms)
+✔ P147 beyond-the-rim: prova nova não exige reescrever eventos legados P146 (59.5522ms)
+✔ P147 long-arm-of-the-hutt: reinícios no mesmo milissegundo geram identidades distintas e prova causal (183.6876ms)
+✔ P147 long-arm-of-the-hutt: recibo e journal adulterados não passam pela importação (112.4295ms)
+✔ P147 long-arm-of-the-hutt: prova nova não exige reescrever eventos legados P146 (40.6344ms)
+✔ P147 jewel-of-yavin: reinícios no mesmo milissegundo geram identidades distintas e prova causal (167.1854ms)
+✔ P147 jewel-of-yavin: recibo e journal adulterados não passam pela importação (82.4907ms)
+✔ P147 jewel-of-yavin: prova nova não exige reescrever eventos legados P146 (36.7609ms)
+✔ P147 mask-of-the-pirate-queen: reinícios no mesmo milissegundo geram identidades distintas e prova causal (135.8856ms)
+✔ P147 mask-of-the-pirate-queen: recibo e journal adulterados não passam pela importação (141.9124ms)
+✔ P147 mask-of-the-pirate-queen: prova nova não exige reescrever eventos legados P146 (108.6255ms)
+✔ P147: ACK perdido ao terminar combate publicado não pode cair no combate sandbox (285.4502ms)
+✔ P147: ACK perdido em escolha também bloqueia finishCombat até a recuperação (87.1322ms)
+✔ P147: falha de disco em START não incrementa serial nem cria recibo órfão (76.7894ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4090.9164
+

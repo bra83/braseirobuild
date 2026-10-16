@@ -1,0 +1,26 @@
+✔ P174: source tree activates two source-backed AoR positions (8.0034ms)
+✔ P174: Redundant Systems repairs broken gear, donor intact, with real Easy Mechanics check (118.8277ms)
+✔ P174: Bad Motivator fails a GM-approved device after real Hard Mechanics check (31.4923ms)
+✔ P174: failed check and refused GM authorization never damage or repair (61.4916ms)
+✔ P174: duplicate receipt replay is idempotent, other ID cannot spend same session talent (52.3706ms)
+✔ P174: rejects missing talent, donor mismatch, damaged donor, invalid target, no session (91.3647ms)
+✔ P174: save failure rolls back check, equipment, receipt and event atomically (31.6873ms)
+✔ P174: forged or missing causal receipt rejected by state validation (122.6409ms)
+✔ P174: bridge exposes durable source-backed action (58.0972ms)
+✔ P174: legacy P173 save migrates with empty mechanic ledger (17.4212ms)
+✔ P174 under-black-sun: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores (141.7187ms)
+✔ P174 beyond-the-rim: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores (87.6489ms)
+✔ P174 long-arm-of-the-hutt: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores (70.7659ms)
+✔ P174 jewel-of-yavin: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores (92.6769ms)
+✔ P174 mask-of-the-pirate-queen: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores (67.2455ms)
+✔ P174: Bad Motivator disables actual catalog weapon actions until repaired (59.1611ms)
+✔ P174: Unicode character names survive mechanic receipt and three reopenings (30.7192ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2588.3039
+

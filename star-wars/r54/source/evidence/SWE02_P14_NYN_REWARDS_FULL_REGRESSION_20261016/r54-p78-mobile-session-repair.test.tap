@@ -1,0 +1,17 @@
+✔ P78: início de jogo depende de estado explícito, nunca de texto de narração (22.1995ms)
+✔ P78: Novo mundo força seleção em SCREEN 00 e o overlay consome campaignSetup uma vez (0.9502ms)
+✔ P78: reset preserva personagem, grupo, veículos e modo mas limpa sessão/mundo da campanha anterior (636.0261ms)
+✔ P78: testes publicados mantêm resultado visível e animação não controla a mecânica (1.2223ms)
+✔ P78: teste sugerido mostra perícia, dificuldade e resultado antes de pedir consequência ao Mestre (0.6774ms)
+✔ P78: Mestre local não é rotulado como offline e Gemini configurado é reconhecido antes da primeira ação (1.0194ms)
+✔ P78: alvos touch e textos críticos ficam legíveis em 415x915 (0.6204ms)
+✔ P78: Android/shell/runtime permanecem em P78 ou posterior (72.1535ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2042.6743
+

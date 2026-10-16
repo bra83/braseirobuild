@@ -1,0 +1,12 @@
+✔ R37: Duty de criação recupera autoridade AoR sem transformar política solo em oficial (3.7396ms)
+✔ R37: RAG distingue regra AoR recuperada de runtime local guardado (0.759ms)
+✔ R37: runtime Duty testado permanece separado da autoridade editorial (1.6019ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 323.3874
+

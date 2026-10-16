@@ -1,0 +1,11 @@
+✔ P64 completion reports completed and persists aftermath without spoilers before completion (23.008ms)
+✔ P64 aftermath application is idempotent (9.3934ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 477.9505
+

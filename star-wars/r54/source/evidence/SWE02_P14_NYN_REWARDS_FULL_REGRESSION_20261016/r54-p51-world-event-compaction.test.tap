@@ -1,0 +1,12 @@
+✔ WORLD_UPDATED persiste mundo autoritativo sem duplicar snapshots integrais no event log (87.9421ms)
+✔ P51: Despair na Zelcomm persiste alerta/lockdown sem revelar futuro (23.057ms)
+✔ P51: Despair na NovaCORE persiste risco crítico e strain mecânico (11.5343ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1206.3152
+

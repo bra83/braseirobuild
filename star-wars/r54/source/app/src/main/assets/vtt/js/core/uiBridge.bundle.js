@@ -3362,6 +3362,28 @@ class BraseiroUiBridge {
             return fail('SWE02_SOCIAL_FAILED', messageOf(e));
         }
     }
+    swe02NynRewardOptions() {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.swe02NynRewardOptions()));
+        }
+        catch (e) {
+            return fail('SWE02_SOCIAL_FAILED', messageOf(e));
+        }
+    }
+    distributeSWE02NynReward(options = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.distributeSWE02NynReward(options ?? {})));
+        }
+        catch (e) {
+            return fail('SWE02_SOCIAL_FAILED', messageOf(e));
+        }
+    }
     bribeSWE02NewMeenThug(options = {}) {
         const r = this._controllerForExistingCampaign();
         if (!r.ok)
@@ -20257,6 +20279,8 @@ exports.skillRoll = skillRoll;
 exports.validateCheck = validateCheck;
 exports.nynCriticalCare = nynCriticalCare;
 exports.nynNegotiate = nynNegotiate;
+exports.nynRewardOptions = nynRewardOptions;
+exports.distributeNynReward = distributeNynReward;
 exports.bribeNewMeenThug = bribeNewMeenThug;
 exports.remainingDrombbThugs = remainingDrombbThugs;
 exports.validateSWE02Social = validateSWE02Social;
@@ -20322,18 +20346,61 @@ function nynNegotiate(world, character, { method = 'charm', rng = Math.random } 
     // Official symbols: one Advantage = grenades, two Advantages = padded armor,
     // Triumph = blaster rifle; two Threat = defective gear. No fabricated combat stats.
     const grants = success ? { grenadeClaim: check.netAdvantage >= 1, armor: check.netAdvantage >= 2, rifleClaim: check.triumph >= 1, defective: check.netAdvantage <= -2 } : { grenadeClaim: false, armor: false, rifleClaim: false, defective: false };
-    let armorAssetId = null;
-    if (grants.armor) {
-        const armor = (0, equipmentCatalog_mjs_1.equipmentCatalog)().armor.find(x => x.id === 'padded_armor' && x.source?.activeRulesAuthority === true);
-        if (!armor)
-            throw Error('SWE02: armadura sem ficha primária EotE.');
-        armorAssetId = `swe02-nyn-armor:${(p.socialReceipts || []).length + 1}`;
-        c.armor = [...(c.armor || []), { ...clone(armor), ownedAssetId: armorAssetId, sourceAdventure: source(14), defectiveUntilFirstUse: grants.defective }];
+    const r = receipt(p, 'NYN_NEGOTIATION', 14, { characterKey: who, method, skillKey, difficulty, check, grants });
+    return { world: w, character: c, receipt: r };
+}
+function nynRewardOptions(world, roster) {
+    const p = world?.publishedAdventure;
+    active(world, 'nabat-contact');
+    const negotiation = (p.socialReceipts || []).find(r => r.type === 'NYN_NEGOTIATION');
+    if (!negotiation)
+        return { pcs: (roster?.entries || []).map(x => ({ id: x.id, name: x.character?.name ?? x.id })), items: [] };
+    const entries = roster?.entries || [], receipts = (p.socialReceipts || []).filter(r => r.type === 'NYN_GEAR_DISTRIBUTION');
+    const distributed = new Set(receipts.map(r => r.itemId));
+    const items = [];
+    const add = (itemId, name, limit) => {
+        if (distributed.has(itemId))
+            return;
+        const recipients = entries.filter(entry => entry?.id && entry.character &&
+            (itemId !== 'frag_grenade' && itemId !== 'stun_grenade' || !receipts.some(r => r.characterId === entry.id && ['frag_grenade', 'stun_grenade'].includes(r.itemId))));
+        for (const pc of recipients)
+            items.push({ itemId, name, characterId: pc.id, characterName: pc.character?.name ?? pc.id });
+    };
+    if (negotiation.grants.grenadeClaim) {
+        add('frag_grenade', 'Granada de fragmentação');
+        add('stun_grenade', 'Granada atordoante');
     }
-    // Grenades/rifle are granted as claims, NOT usable weapons, until their
-    // EotE primary combat statistics are certified (catalog currently AoR-only).
-    const r = receipt(p, 'NYN_NEGOTIATION', 14, { characterKey: who, method, skillKey, difficulty, check, grants, armorAssetId,
-        pendingWeaponProfileCertification: grants.grenadeClaim || grants.rifleClaim });
+    if (negotiation.grants.armor)
+        add('padded_armor', 'Armadura acolchoada');
+    if (negotiation.grants.rifleClaim)
+        add('blaster_rifle', 'Fuzil blaster');
+    return { pcs: entries.map(x => ({ id: x.id, name: x.character?.name ?? x.id })), items };
+}
+function distributeNynReward(world, character, { characterId, itemId } = {}) {
+    const w = clone(world), c = clone(character), p = active(w, 'nabat-contact'), who = String(characterId ?? '').trim();
+    const negotiation = (p.socialReceipts || []).find(r => r.type === 'NYN_NEGOTIATION');
+    if (!negotiation)
+        throw Error('SWE02: negocie com Nyn antes de receber equipamento.');
+    if (!who || !id(c))
+        throw Error('SWE02: personagem destinatário inválido.');
+    const options = nynRewardOptions(w, { entries: [{ id: who, character: c }] });
+    if (!options.items.some(x => x.itemId === itemId && x.characterId === who))
+        throw Error('SWE02: equipamento não concedido, já distribuído ou destinatário inválido.');
+    const assetId = `swe02-nyn:${itemId}:${who}`;
+    let profile;
+    if (itemId === 'padded_armor') {
+        profile = (0, equipmentCatalog_mjs_1.equipmentCatalog)().armor.find(x => x.id === itemId && x.source?.activeRulesAuthority === true);
+        if (!profile)
+            throw Error('SWE02: armadura sem ficha primária EotE.');
+        c.armor = [...(c.armor || []), { ...clone(profile), ownedAssetId: assetId, sourceAdventure: source(14), defectiveUntilFirstUse: negotiation.grants.defective }];
+    }
+    else {
+        profile = (0, equipmentCatalog_mjs_1.weaponCatalogEntry)(itemId);
+        if (!profile || profile.source?.authority !== 'PRIMARY_RULE_SOURCE' || profile.source?.rulesProfile !== 'EOTE_CORE')
+            throw Error('SWE02: arma sem perfil de combate primário EotE.');
+        c.weapons = [...(c.weapons || []), { ...clone(profile), ownedAssetId: assetId, sourceAdventure: source(14), defectiveUntilFirstUse: negotiation.grants.defective }];
+    }
+    const r = receipt(p, 'NYN_GEAR_DISTRIBUTION', 14, { characterKey: id(c), characterId: who, itemId, ownedAssetId: assetId, profileSource: clone(profile.source) });
     return { world: w, character: c, receipt: r };
 }
 function bribeNewMeenThug(world, character, { credits = 500, rng = Math.random } = {}) {
@@ -20384,8 +20451,22 @@ function validateSWE02Social(p) {
                 throw Error('SWE02: negociação de Nyn inválida.');
             validateCheck(r.check, { difficulty: r.difficulty, challenge: 0, boost: 0, setback: 0 });
             const g = r.check.success ? { grenadeClaim: r.check.netAdvantage >= 1, armor: r.check.netAdvantage >= 2, rifleClaim: r.check.triumph >= 1, defective: r.check.netAdvantage <= -2 } : { grenadeClaim: false, armor: false, rifleClaim: false, defective: false };
-            if (JSON.stringify(g) !== JSON.stringify(r.grants) || Boolean(r.armorAssetId) !== g.armor)
+            if (JSON.stringify(g) !== JSON.stringify(r.grants) || r.armorAssetId || r.pendingWeaponProfileCertification)
                 throw Error('SWE02: recompensa de Nyn adulterada.');
+        }
+        else if (r.type === 'NYN_GEAR_DISTRIBUTION') {
+            const n = rr.find(x => x.type === 'NYN_NEGOTIATION'), allowed = { frag_grenade: n?.grants?.grenadeClaim, stun_grenade: n?.grants?.grenadeClaim, padded_armor: n?.grants?.armor, blaster_rifle: n?.grants?.rifleClaim };
+            if (r.nodeId !== 'nabat-contact' || r.source.printedPage !== 14 || !n || !r.characterId || !r.characterKey || !allowed[r.itemId] || !r.ownedAssetId)
+                throw Error('SWE02: distribuição de equipamento inválida.');
+            if (r.itemId === 'frag_grenade' || r.itemId === 'stun_grenade') {
+                if (rr.filter(x => x.type === 'NYN_GEAR_DISTRIBUTION' && ['frag_grenade', 'stun_grenade'].includes(x.itemId) && x.characterId === r.characterId).length > 1)
+                    throw Error('SWE02: PC recebeu mais de uma granada de Nyn.');
+            }
+            else if (rr.filter(x => x.type === 'NYN_GEAR_DISTRIBUTION' && x.itemId === r.itemId).length > 1)
+                throw Error('SWE02: equipamento único de Nyn distribuído mais de uma vez.');
+            const profile = r.itemId === 'padded_armor' ? (0, equipmentCatalog_mjs_1.equipmentCatalog)().armor.find(x => x.id === r.itemId) : (0, equipmentCatalog_mjs_1.weaponCatalogEntry)(r.itemId);
+            if (!profile || JSON.stringify(r.profileSource) !== JSON.stringify(profile.source) || profile.source?.rulesProfile !== 'EOTE_CORE' || profile.source?.authority !== 'PRIMARY_RULE_SOURCE')
+                throw Error('SWE02: perfil recebido sem fonte primária EotE.');
         }
         else if (r.type === 'NEW_MEEN_THUG_BRIBE') {
             if (r.nodeId !== 'drombb-cantina' || r.source.printedPage !== 23 || !Number.isInteger(r.creditsOffered) || r.creditsOffered < 400 || r.creditsOffered > 500 || r.skillKey !== 'negociacion' || r.difficulty !== 1 || r.success !== r.check?.success || r.creditsSpent !== (r.success ? r.creditsOffered : 0) || !Number.isSafeInteger(r.creditsRemaining) || r.creditsRemaining < 0)
@@ -28420,6 +28501,23 @@ class GameController {
         return this.atomicAction(() => {
             const out = (0, swe02SocialP241_mjs_1.nynNegotiate)(this.state.world, requireCharacter(this.state.player?.character), { method, rng });
             this.commit('CHARACTER_UPDATED', { character: out.character });
+            this.commit('WORLD_UPDATED', { world: out.world });
+            return clone(out.receipt);
+        });
+    }
+    swe02NynRewardOptions() { return (0, swe02SocialP241_mjs_1.nynRewardOptions)(this.state.world, this.state.player?.roster); }
+    distributeSWE02NynReward({ characterId, itemId } = {}) {
+        return this.atomicAction(() => {
+            if (this.state.combat?.active)
+                throw Error('SWE02: encerre o combate antes de distribuir equipamento.');
+            const roster = clone(this.state.player?.roster ?? { schema: 1, activeCharacterId: null, entries: [] });
+            const entry = roster.entries.find(x => x.id === String(characterId ?? ''));
+            if (!entry?.character)
+                throw Error('SWE02: PC destinatário não existe no roster.');
+            const out = (0, swe02SocialP241_mjs_1.distributeNynReward)(this.state.world, entry.character, { characterId: entry.id, itemId });
+            character_mjs_1.validateCharacter(out.character);
+            entry.character = clone(out.character);
+            this.commit('PLAYER_ROSTER_UPDATED', { roster });
             this.commit('WORLD_UPDATED', { world: out.world });
             return clone(out.receipt);
         });
@@ -37057,7 +37155,7 @@ function createRandomEoteCoreCharacter(options = {}) {
 define("js/rules/equipmentCatalog.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EOTE_CORE_ARMOR_CATALOG = exports.EOTE_CORE_GENERAL_GEAR = exports.CORE_ARMOR_REFERENCE = exports.CORE_WEAPON_CATALOG = exports.STARTER_GENERAL_GEAR_REFERENCE = void 0;
+exports.EOTE_CORE_ARMOR_CATALOG = exports.EOTE_CORE_GENERAL_GEAR = exports.CORE_ARMOR_REFERENCE = exports.EOTE_CORE_WEAPON_PROFILES = exports.CORE_WEAPON_CATALOG = exports.STARTER_GENERAL_GEAR_REFERENCE = void 0;
 exports.equipmentCatalog = equipmentCatalog;
 exports.weaponCatalogEntry = weaponCatalogEntry;
 exports.generalGearCatalogEntry = generalGearCatalogEntry;
@@ -37081,6 +37179,8 @@ const SRC_EOTE_CORE_MEDICINE = eoteCoreSource({ book: 'Edge of the Empire Core R
 const SRC_EOTE_CORE_SURVIVAL_GEAR = eoteCoreSource({ book: 'Edge of the Empire Core Rulebook', printedPage: 179, section: 'Survival gear' });
 const SRC_EOTE_CORE_SECURITY = eoteCoreSource({ book: 'Edge of the Empire Core Rulebook', printedPage: 179, section: 'Table 5-8: Gear and Equipment — Security' });
 const SRC_EOTE_CORE_ARMOR = eoteCoreSource({ book: 'Edge of the Empire Core Rulebook', printedPage: 169, section: 'Table 5-7: Armor' });
+const SRC_EOTE_CORE_BLASTER_RIFLE = eoteCoreSource({ book: 'Edge of the Empire Core Rulebook', printedPages: '162–163', section: 'Table 5-6: Ranged Weapons' });
+const SRC_EOTE_CORE_GRENADE = eoteCoreSource({ book: 'Edge of the Empire Core Rulebook', printedPage: 165, section: 'Table 5-6: Explosives and Other Weapons' });
 const SRC_FLY_CASUAL_GEAR = eoteCoreSource({ book: 'Fly Casual', printedPage: 48, section: 'Table 2-4: Gear' });
 function g(id, sourceNameEs, name, price, { medicine = null, effectSource = null } = {}) {
     const entry = { id, name, sourceNameEs, category: 'general_gear', price, rarity: null, restricted: null, source: SRC_GENERAL_GEAR };
@@ -37113,8 +37213,8 @@ exports.STARTER_GENERAL_GEAR_REFERENCE = Object.freeze([
     g('space_suit', 'Traje espacial', 'Traje espacial', 100),
     g('power_pack_or_ammo_reload', 'Unidad de alimentación o recarga de munición', 'Unidade de alimentação ou recarga de munição', 25)
 ]);
-function w(id, name, skill, { damage = null, damageBonus = null, crit = null, range, encumbrance, hardPoints, price, rarity, restricted = false, qualities = [] } = {}) {
-    return Object.freeze({ id, name, category: 'weapon', skill, damage, damageBonus, crit, range, encumbrance, hardPoints, price, rarity, restricted, qualities: Object.freeze([...qualities]), source: SRC_WEAPONS });
+function w(id, name, skill, { damage = null, damageBonus = null, crit = null, range, encumbrance, hardPoints, price, rarity, restricted = false, qualities = [], source = SRC_WEAPONS } = {}) {
+    return Object.freeze({ id, name, category: 'weapon', skill, damage, damageBonus, crit, range, encumbrance, hardPoints, price, rarity, restricted, qualities: Object.freeze([...qualities]), source });
 }
 exports.CORE_WEAPON_CATALOG = Object.freeze([
     w('pocket_blaster', 'Blaster de bolso', 'armas_distancia_ligeras', { damage: 5, crit: 4, range: 'Curto', encumbrance: 1, hardPoints: 1, price: 200, rarity: 4, qualities: ['Modo atordoante'] }),
@@ -37148,6 +37248,13 @@ exports.CORE_WEAPON_CATALOG = Object.freeze([
     w('vibroknife', 'Vibrofaca', 'armas_cuerpo_a_cuerpo', { damageBonus: 1, crit: 2, range: 'Interação', encumbrance: 1, hardPoints: 2, price: 250, rarity: 3, qualities: ['Letal 1', 'Perfurante 2'] }),
     w('vibrosword', 'Vibroespada', 'armas_cuerpo_a_cuerpo', { damageBonus: 2, crit: 2, range: 'Interação', encumbrance: 3, hardPoints: 3, price: 750, rarity: 5, qualities: ['Defensiva 1', 'Letal 1', 'Perfurante 2'] }),
     w('vibroaxe', 'Vibromachado', 'armas_cuerpo_a_cuerpo', { damageBonus: 3, crit: 2, range: 'Interação', encumbrance: 4, hardPoints: 3, price: 750, rarity: 5, qualities: ['Hendedura', 'Letal 3', 'Perfurante 2'] })
+]);
+// Primary EotE Core profiles used by Nyn's p.14 armory. These override the
+// same cross-line reference rows only where the EotE source has been checked.
+exports.EOTE_CORE_WEAPON_PROFILES = Object.freeze([
+    w('blaster_rifle', 'Fuzil blaster', 'armas_distancia_pesadas', { damage: 9, crit: 3, range: 'Longo', encumbrance: 4, hardPoints: 4, price: 900, rarity: 5, qualities: ['Modo atordoante'], source: SRC_EOTE_CORE_BLASTER_RIFLE }),
+    w('frag_grenade', 'Granada de fragmentação', 'armas_distancia_ligeras', { damage: 8, crit: 4, range: 'Curto', encumbrance: 1, hardPoints: 0, price: 50, rarity: 5, qualities: ['Explosão 6', 'Munição limitada 1'], source: SRC_EOTE_CORE_GRENADE }),
+    w('stun_grenade', 'Granada atordoante', 'armas_distancia_ligeras', { damage: 8, crit: null, range: 'Curto', encumbrance: 1, hardPoints: 0, price: 75, rarity: 4, qualities: ['Desorientação 3', 'Dano de atordoamento', 'Explosão 8', 'Munição limitada 1'], source: SRC_EOTE_CORE_GRENADE })
 ]);
 exports.CORE_ARMOR_REFERENCE = Object.freeze([
     Object.freeze({ id: 'padded_armor', name: 'Armadura acolchoada', defense: 0, soak: 2, price: 500, priceSource: SRC_STARTER_ARMOR_PRICE, source: SRC_ARMOR }),
@@ -37190,8 +37297,8 @@ exports.EOTE_CORE_ARMOR_CATALOG = Object.freeze([
     ar('heavy_clothing', 'Roupa grossa', 0, 1, 50, 1, 0, 0), ar('laminate_armor', 'Armadura laminada', 0, 2, 2500, 4, 3, 5),
     ar('personal_deflector_shield', 'Escudo defletor pessoal', 2, 0, 10000, 3, 0, 8), ar('padded_armor', 'Armadura acolchoada', 0, 2, 500, 2, 0, 1)
 ]);
-function equipmentCatalog() { return { weapons: exports.CORE_WEAPON_CATALOG.map(v => structuredClone(v)), armor: exports.EOTE_CORE_ARMOR_CATALOG.map(v => structuredClone(v)), generalGear: exports.EOTE_CORE_GENERAL_GEAR.map(v => structuredClone(v)) }; }
-function weaponCatalogEntry(id) { const target = String(id ?? '').trim().toLocaleLowerCase('pt-BR'); return exports.CORE_WEAPON_CATALOG.find(v => v.id === id || v.id?.toLocaleLowerCase('pt-BR') === target || v.name?.toLocaleLowerCase('pt-BR') === target) ?? null; }
+function equipmentCatalog() { const weapons = exports.CORE_WEAPON_CATALOG.map(v => exports.EOTE_CORE_WEAPON_PROFILES.find(x => x.id === v.id) ?? v); return { weapons: weapons.map(v => structuredClone(v)), armor: exports.EOTE_CORE_ARMOR_CATALOG.map(v => structuredClone(v)), generalGear: exports.EOTE_CORE_GENERAL_GEAR.map(v => structuredClone(v)) }; }
+function weaponCatalogEntry(id) { const target = String(id ?? '').trim().toLocaleLowerCase('pt-BR'); return [...exports.EOTE_CORE_WEAPON_PROFILES, ...exports.CORE_WEAPON_CATALOG].find(v => v.id === id || v.id?.toLocaleLowerCase('pt-BR') === target || v.name?.toLocaleLowerCase('pt-BR') === target) ?? null; }
 function generalGearCatalogEntry(id) { return exports.EOTE_CORE_GENERAL_GEAR.find(v => v.id === id || v.aliases?.includes(id)) ?? exports.STARTER_GENERAL_GEAR_REFERENCE.find(v => v.id === id) ?? null; }
 function armorCatalogEntry(id) {
     const target = String(id ?? '').trim().toLocaleLowerCase('pt-BR');

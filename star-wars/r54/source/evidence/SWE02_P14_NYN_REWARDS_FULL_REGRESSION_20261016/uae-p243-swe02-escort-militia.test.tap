@@ -1,0 +1,25 @@
+✔ P243 PDF p20: prepare tracks exactly 20 adults and unspecified children without false victory (700.6603ms)
+✔ P243 PDF p20: approved travel ticks advance living world and record Bura favor but not liberation (674.7704ms)
+✔ P243 elapsed world time counts toward escort and is not charged twice (308.5911ms)
+✔ P243 cannot depart without assembly, arrive without departure or duplicate arrival (467.276ms)
+✔ P243 invalid GM ticks fail closed without advancing clock or saving (206.1881ms)
+✔ P243 abandon has no Bura favor, no liberated settlement and survives three reopens (339.2179ms)
+✔ P243 legacy direct Ota departure is explicitly abandonment, never credited escort (266.5798ms)
+✔ P243 tampered escort arrival, duration, or adults rejected by adapter status (213.2562ms)
+✔ P243 militia takes a real blaster weapon out of inventory and tracks one adult (395.8171ms)
+✔ P243 rejects grenade, nonexistent weapon, wrong scene and no double spend (382.3825ms)
+✔ P243 official optional abstract combat: one wound per armed ally and one allied loss, once per round (546.6766ms)
+✔ P243 militia never wounds Drombb, cannot attack outside combat and cannot act twice (389.3194ms)
+✔ P243 invalid militia receipts and casualties rejected by adapter status (267.6587ms)
+✔ P243 bridge and offline Android UI expose escort and militia actions (4.3389ms)
+✔ P243 optional militia round cannot be duplicated or applied after combat outcome (499.0009ms)
+✔ P243 New Meen escort and militia panels remain visible without a vehicle (3.0673ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7951.6436
+

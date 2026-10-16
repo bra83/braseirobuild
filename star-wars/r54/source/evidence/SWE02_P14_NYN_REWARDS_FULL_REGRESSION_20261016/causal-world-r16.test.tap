@@ -1,0 +1,13 @@
+✔ evento concluído gera consequência causal persistente no local do PNPC (69.8403ms)
+✔ consequência causal pode ser resolvida uma única vez e some dos candidatos (8.0053ms)
+✔ Mestre move a cena apenas para local existente e recebe consequências causais no contexto (77.8255ms)
+✔ Mestre pode narrar e resolver a consequência no mesmo fluxo transacional (117.2871ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1736.511
+

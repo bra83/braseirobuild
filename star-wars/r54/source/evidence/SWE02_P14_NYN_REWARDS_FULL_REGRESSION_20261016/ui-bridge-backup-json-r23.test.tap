@@ -1,0 +1,17 @@
+✔ export de ficha usa JSON canônico e nome .json sem criar estado (68.0635ms)
+✔ import de ficha inválida não altera campanha nem cria snapshot (5.7779ms)
+✔ import de ficha válida cria snapshot antes da mutação e persiste nova ficha (11.6397ms)
+✔ backup de campanha exporta JSON validado sem remover estado (4.329ms)
+✔ backup corrompido é rejeitado sem sobrescrever campanha nem snapshot (2.4637ms)
+✔ restore de backup válido preserva snapshot automático do estado anterior (4.9153ms)
+✔ snapshot manual pode restaurar exatamente o estado salvo (5.5244ms)
+✔ operações de backup/ficha sem campanha falham sem criar campanha padrão (0.5012ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2107.5319
+

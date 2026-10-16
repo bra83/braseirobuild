@@ -1,0 +1,12 @@
+✔ P33 MIXED: bridge escolhe origem EotE/AoR sem converter Obligation em Duty (4.6092ms)
+✔ P33 MIXED: shell permite escolher origem da ficha e rotula vínculo corretamente (4.4234ms)
+✔ P33 MIXED: fontes editáveis acompanham o bundle entregue (43.1228ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 799.1401
+

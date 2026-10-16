@@ -3,7 +3,7 @@
 import {buildPositivePool,rollPool,resolveSymbols,diceFacesForTests} from '../rules/narrativeDice.mjs';
 import {SKILLS} from '../rules/character.mjs';
 import {healCriticalInjury} from '../rules/critical.mjs';
-import {equipmentCatalog} from '../rules/equipmentCatalog.mjs';
+import {equipmentCatalog,weaponCatalogEntry} from '../rules/equipmentCatalog.mjs';
 const clone=structuredClone;
 const source=page=>({productCode:'SWE02',printedPage:page,authority:'OFFICIAL_PDF_TEXT_VERIFIED'});
 const id=c=>String(c?.id||c?.name||'').trim();
@@ -35,12 +35,42 @@ export function nynNegotiate(world,character,{method='charm',rng=Math.random}={}
  // Official symbols: one Advantage = grenades, two Advantages = padded armor,
  // Triumph = blaster rifle; two Threat = defective gear. No fabricated combat stats.
  const grants=success?{grenadeClaim:check.netAdvantage>=1,armor:check.netAdvantage>=2,rifleClaim:check.triumph>=1,defective:check.netAdvantage<=-2}:{grenadeClaim:false,armor:false,rifleClaim:false,defective:false};
- let armorAssetId=null;
- if(grants.armor){const armor=equipmentCatalog().armor.find(x=>x.id==='padded_armor'&&x.source?.activeRulesAuthority===true);if(!armor)throw Error('SWE02: armadura sem ficha primária EotE.');armorAssetId=`swe02-nyn-armor:${(p.socialReceipts||[]).length+1}`;c.armor=[...(c.armor||[]),{...clone(armor),ownedAssetId:armorAssetId,sourceAdventure:source(14),defectiveUntilFirstUse:grants.defective}];}
- // Grenades/rifle are granted as claims, NOT usable weapons, until their
- // EotE primary combat statistics are certified (catalog currently AoR-only).
- const r=receipt(p,'NYN_NEGOTIATION',14,{characterKey:who,method,skillKey,difficulty,check,grants,armorAssetId,
-  pendingWeaponProfileCertification:grants.grenadeClaim||grants.rifleClaim});
+ const r=receipt(p,'NYN_NEGOTIATION',14,{characterKey:who,method,skillKey,difficulty,check,grants});
+ return {world:w,character:c,receipt:r};
+}
+export function nynRewardOptions(world,roster){
+ const p=world?.publishedAdventure;active(world,'nabat-contact');
+ const negotiation=(p.socialReceipts||[]).find(r=>r.type==='NYN_NEGOTIATION');
+ if(!negotiation)return {pcs:(roster?.entries||[]).map(x=>({id:x.id,name:x.character?.name??x.id})),items:[]};
+ const entries=roster?.entries||[],receipts=(p.socialReceipts||[]).filter(r=>r.type==='NYN_GEAR_DISTRIBUTION');
+ const distributed=new Set(receipts.map(r=>r.itemId));
+ const items=[];
+ const add=(itemId,name,limit)=>{if(distributed.has(itemId))return;const recipients=entries.filter(entry=>entry?.id&&entry.character&&
+   (itemId!=='frag_grenade'&&itemId!=='stun_grenade'||!receipts.some(r=>r.characterId===entry.id&&['frag_grenade','stun_grenade'].includes(r.itemId))));
+   for(const pc of recipients)items.push({itemId,name,characterId:pc.id,characterName:pc.character?.name??pc.id});};
+ if(negotiation.grants.grenadeClaim){add('frag_grenade','Granada de fragmentação');add('stun_grenade','Granada atordoante');}
+ if(negotiation.grants.armor)add('padded_armor','Armadura acolchoada');
+ if(negotiation.grants.rifleClaim)add('blaster_rifle','Fuzil blaster');
+ return {pcs:entries.map(x=>({id:x.id,name:x.character?.name??x.id})),items};
+}
+export function distributeNynReward(world,character,{characterId,itemId}={}){
+ const w=clone(world),c=clone(character),p=active(w,'nabat-contact'),who=String(characterId??'').trim();
+ const negotiation=(p.socialReceipts||[]).find(r=>r.type==='NYN_NEGOTIATION');
+ if(!negotiation)throw Error('SWE02: negocie com Nyn antes de receber equipamento.');
+ if(!who||!id(c))throw Error('SWE02: personagem destinatário inválido.');
+ const options=nynRewardOptions(w,{entries:[{id:who,character:c}]});
+ if(!options.items.some(x=>x.itemId===itemId&&x.characterId===who))throw Error('SWE02: equipamento não concedido, já distribuído ou destinatário inválido.');
+ const assetId=`swe02-nyn:${itemId}:${who}`;let profile;
+ if(itemId==='padded_armor'){
+   profile=equipmentCatalog().armor.find(x=>x.id===itemId&&x.source?.activeRulesAuthority===true);
+   if(!profile)throw Error('SWE02: armadura sem ficha primária EotE.');
+   c.armor=[...(c.armor||[]),{...clone(profile),ownedAssetId:assetId,sourceAdventure:source(14),defectiveUntilFirstUse:negotiation.grants.defective}];
+ }else{
+   profile=weaponCatalogEntry(itemId);
+   if(!profile||profile.source?.authority!=='PRIMARY_RULE_SOURCE'||profile.source?.rulesProfile!=='EOTE_CORE')throw Error('SWE02: arma sem perfil de combate primário EotE.');
+   c.weapons=[...(c.weapons||[]),{...clone(profile),ownedAssetId:assetId,sourceAdventure:source(14),defectiveUntilFirstUse:negotiation.grants.defective}];
+ }
+ const r=receipt(p,'NYN_GEAR_DISTRIBUTION',14,{characterKey:id(c),characterId:who,itemId,ownedAssetId:assetId,profileSource:clone(profile.source)});
  return {world:w,character:c,receipt:r};
 }
 export function bribeNewMeenThug(world,character,{credits=500,rng=Math.random}={}){
@@ -70,7 +100,16 @@ export function validateSWE02Social(p){if(p?.id!=='long-arm-of-the-hutt')return 
    if(r.nodeId!=='nabat-contact'||r.source.printedPage!==14||!['charm','coerce'].includes(r.method)||r.skillKey!==(r.method==='charm'?'carisma':'coaccion')||r.difficulty!==(r.method==='charm'?2:3))throw Error('SWE02: negociação de Nyn inválida.');
    validateCheck(r.check,{difficulty:r.difficulty,challenge:0,boost:0,setback:0});
    const g=r.check.success?{grenadeClaim:r.check.netAdvantage>=1,armor:r.check.netAdvantage>=2,rifleClaim:r.check.triumph>=1,defective:r.check.netAdvantage<=-2}:{grenadeClaim:false,armor:false,rifleClaim:false,defective:false};
-   if(JSON.stringify(g)!==JSON.stringify(r.grants)||Boolean(r.armorAssetId)!==g.armor)throw Error('SWE02: recompensa de Nyn adulterada.');
+   if(JSON.stringify(g)!==JSON.stringify(r.grants)||r.armorAssetId||r.pendingWeaponProfileCertification)throw Error('SWE02: recompensa de Nyn adulterada.');
+  }else if(r.type==='NYN_GEAR_DISTRIBUTION'){
+   const n=rr.find(x=>x.type==='NYN_NEGOTIATION'),allowed={frag_grenade:n?.grants?.grenadeClaim,stun_grenade:n?.grants?.grenadeClaim,padded_armor:n?.grants?.armor,blaster_rifle:n?.grants?.rifleClaim};
+   if(r.nodeId!=='nabat-contact'||r.source.printedPage!==14||!n||!r.characterId||!r.characterKey||!allowed[r.itemId]||!r.ownedAssetId)
+    throw Error('SWE02: distribuição de equipamento inválida.');
+   if(r.itemId==='frag_grenade'||r.itemId==='stun_grenade'){
+    if(rr.filter(x=>x.type==='NYN_GEAR_DISTRIBUTION'&&['frag_grenade','stun_grenade'].includes(x.itemId)&&x.characterId===r.characterId).length>1)throw Error('SWE02: PC recebeu mais de uma granada de Nyn.');
+   }else if(rr.filter(x=>x.type==='NYN_GEAR_DISTRIBUTION'&&x.itemId===r.itemId).length>1)throw Error('SWE02: equipamento único de Nyn distribuído mais de uma vez.');
+   const profile=r.itemId==='padded_armor'?equipmentCatalog().armor.find(x=>x.id===r.itemId):weaponCatalogEntry(r.itemId);
+   if(!profile||JSON.stringify(r.profileSource)!==JSON.stringify(profile.source)||profile.source?.rulesProfile!=='EOTE_CORE'||profile.source?.authority!=='PRIMARY_RULE_SOURCE')throw Error('SWE02: perfil recebido sem fonte primária EotE.');
   }else if(r.type==='NEW_MEEN_THUG_BRIBE'){
    if(r.nodeId!=='drombb-cantina'||r.source.printedPage!==23||!Number.isInteger(r.creditsOffered)||r.creditsOffered<400||r.creditsOffered>500||r.skillKey!=='negociacion'||r.difficulty!==1||r.success!==r.check?.success||r.creditsSpent!==(r.success?r.creditsOffered:0)||!Number.isSafeInteger(r.creditsRemaining)||r.creditsRemaining<0)throw Error('SWE02: suborno adulterado.');
    validateCheck(r.check,{difficulty:1,challenge:0,boost:0,setback:0});if(r.success)bribed++;

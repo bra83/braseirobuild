@@ -1,0 +1,11 @@
+✔ P77: TtsBridge usa somente APIs públicas disponíveis para identificar engine (31.5315ms)
+✔ P77: Android e shell publicam a mesma versão e permanecem em 1.0.77 ou posterior (22.878ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 600.6183
+

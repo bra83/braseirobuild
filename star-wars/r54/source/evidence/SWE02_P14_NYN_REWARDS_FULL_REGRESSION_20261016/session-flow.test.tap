@@ -1,0 +1,12 @@
+✔ fluxo de sessão local percorre fases sem se apresentar como regra do RPG (5.0104ms)
+✔ sessão completa persiste abertura, teste, combate, recuperação e encerramento (136.0157ms)
+✔ encerramento não inventa PE quando nenhum valor é informado (27.0711ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1744.7335
+

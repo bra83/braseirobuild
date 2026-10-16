@@ -1,0 +1,12 @@
+✔ proposta do Mestre aceita apenas narração, pergunta e teste estruturado (5.5694ms)
+✔ proposta rejeita mutação direta de ficha ou regra não recuperada (1.8754ms)
+✔ aplicar proposta narrativa não altera ficha nem combate (30.599ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 897.3518
+

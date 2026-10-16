@@ -17,6 +17,8 @@ const SRC_EOTE_CORE_MEDICINE=eoteCoreSource({book:'Edge of the Empire Core Ruleb
 const SRC_EOTE_CORE_SURVIVAL_GEAR=eoteCoreSource({book:'Edge of the Empire Core Rulebook',printedPage:179,section:'Survival gear'});
 const SRC_EOTE_CORE_SECURITY=eoteCoreSource({book:'Edge of the Empire Core Rulebook',printedPage:179,section:'Table 5-8: Gear and Equipment — Security'});
 const SRC_EOTE_CORE_ARMOR=eoteCoreSource({book:'Edge of the Empire Core Rulebook',printedPage:169,section:'Table 5-7: Armor'});
+const SRC_EOTE_CORE_BLASTER_RIFLE=eoteCoreSource({book:'Edge of the Empire Core Rulebook',printedPages:'162–163',section:'Table 5-6: Ranged Weapons'});
+const SRC_EOTE_CORE_GRENADE=eoteCoreSource({book:'Edge of the Empire Core Rulebook',printedPage:165,section:'Table 5-6: Explosives and Other Weapons'});
 const SRC_FLY_CASUAL_GEAR=eoteCoreSource({book:'Fly Casual',printedPage:48,section:'Table 2-4: Gear'});
 
 function g(id,sourceNameEs,name,price,{medicine=null,effectSource=null}={}){
@@ -50,8 +52,8 @@ export const STARTER_GENERAL_GEAR_REFERENCE=Object.freeze([
   g('power_pack_or_ammo_reload','Unidad de alimentación o recarga de munición','Unidade de alimentação ou recarga de munição',25)
 ]);
 
-function w(id,name,skill,{damage=null,damageBonus=null,crit=null,range,encumbrance,hardPoints,price,rarity,restricted=false,qualities=[]}={}){
-  return Object.freeze({id,name,category:'weapon',skill,damage,damageBonus,crit,range,encumbrance,hardPoints,price,rarity,restricted,qualities:Object.freeze([...qualities]),source:SRC_WEAPONS});
+function w(id,name,skill,{damage=null,damageBonus=null,crit=null,range,encumbrance,hardPoints,price,rarity,restricted=false,qualities=[],source=SRC_WEAPONS}={}){
+  return Object.freeze({id,name,category:'weapon',skill,damage,damageBonus,crit,range,encumbrance,hardPoints,price,rarity,restricted,qualities:Object.freeze([...qualities]),source});
 }
 
 export const CORE_WEAPON_CATALOG=Object.freeze([
@@ -86,6 +88,14 @@ export const CORE_WEAPON_CATALOG=Object.freeze([
   w('vibroknife','Vibrofaca','armas_cuerpo_a_cuerpo',{damageBonus:1,crit:2,range:'Interação',encumbrance:1,hardPoints:2,price:250,rarity:3,qualities:['Letal 1','Perfurante 2']}),
   w('vibrosword','Vibroespada','armas_cuerpo_a_cuerpo',{damageBonus:2,crit:2,range:'Interação',encumbrance:3,hardPoints:3,price:750,rarity:5,qualities:['Defensiva 1','Letal 1','Perfurante 2']}),
   w('vibroaxe','Vibromachado','armas_cuerpo_a_cuerpo',{damageBonus:3,crit:2,range:'Interação',encumbrance:4,hardPoints:3,price:750,rarity:5,qualities:['Hendedura','Letal 3','Perfurante 2']})
+]);
+
+// Primary EotE Core profiles used by Nyn's p.14 armory. These override the
+// same cross-line reference rows only where the EotE source has been checked.
+export const EOTE_CORE_WEAPON_PROFILES=Object.freeze([
+  w('blaster_rifle','Fuzil blaster','armas_distancia_pesadas',{damage:9,crit:3,range:'Longo',encumbrance:4,hardPoints:4,price:900,rarity:5,qualities:['Modo atordoante'],source:SRC_EOTE_CORE_BLASTER_RIFLE}),
+  w('frag_grenade','Granada de fragmentação','armas_distancia_ligeras',{damage:8,crit:4,range:'Curto',encumbrance:1,hardPoints:0,price:50,rarity:5,qualities:['Explosão 6','Munição limitada 1'],source:SRC_EOTE_CORE_GRENADE}),
+  w('stun_grenade','Granada atordoante','armas_distancia_ligeras',{damage:8,crit:null,range:'Curto',encumbrance:1,hardPoints:0,price:75,rarity:4,qualities:['Desorientação 3','Dano de atordoamento','Explosão 8','Munição limitada 1'],source:SRC_EOTE_CORE_GRENADE})
 ]);
 
 export const CORE_ARMOR_REFERENCE=Object.freeze([
@@ -128,8 +138,8 @@ export const EOTE_CORE_ARMOR_CATALOG=Object.freeze([
   ar('personal_deflector_shield','Escudo defletor pessoal',2,0,10000,3,0,8), ar('padded_armor','Armadura acolchoada',0,2,500,2,0,1)
 ]);
 
-export function equipmentCatalog(){ return {weapons:CORE_WEAPON_CATALOG.map(v=>structuredClone(v)),armor:EOTE_CORE_ARMOR_CATALOG.map(v=>structuredClone(v)),generalGear:EOTE_CORE_GENERAL_GEAR.map(v=>structuredClone(v))}; }
-export function weaponCatalogEntry(id){ const target=String(id??'').trim().toLocaleLowerCase('pt-BR'); return CORE_WEAPON_CATALOG.find(v=>v.id===id||v.id?.toLocaleLowerCase('pt-BR')===target||v.name?.toLocaleLowerCase('pt-BR')===target) ?? null; }
+export function equipmentCatalog(){ const weapons=CORE_WEAPON_CATALOG.map(v=>EOTE_CORE_WEAPON_PROFILES.find(x=>x.id===v.id)??v);return {weapons:weapons.map(v=>structuredClone(v)),armor:EOTE_CORE_ARMOR_CATALOG.map(v=>structuredClone(v)),generalGear:EOTE_CORE_GENERAL_GEAR.map(v=>structuredClone(v))}; }
+export function weaponCatalogEntry(id){ const target=String(id??'').trim().toLocaleLowerCase('pt-BR'); return [...EOTE_CORE_WEAPON_PROFILES,...CORE_WEAPON_CATALOG].find(v=>v.id===id||v.id?.toLocaleLowerCase('pt-BR')===target||v.name?.toLocaleLowerCase('pt-BR')===target) ?? null; }
 export function generalGearCatalogEntry(id){ return EOTE_CORE_GENERAL_GEAR.find(v=>v.id===id||v.aliases?.includes(id)) ?? STARTER_GENERAL_GEAR_REFERENCE.find(v=>v.id===id) ?? null; }
 export function armorCatalogEntry(id){
   const target=String(id??'').trim().toLocaleLowerCase('pt-BR');

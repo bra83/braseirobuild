@@ -1,0 +1,13 @@
+✔ download de cache captura uma geração antes de entrar no executor (2.8922ms)
+✔ clear invalida a geração e remove imagem metadata e temporário sob o mesmo lock de commit (0.5499ms)
+✔ fetch só confirma arquivos se sua geração continuar atual dentro do lock de commit (2.9861ms)
+✔ fetch invalidado não publica erro tardio depois de clear ou requisição mais nova (0.5999ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 571.8656
+

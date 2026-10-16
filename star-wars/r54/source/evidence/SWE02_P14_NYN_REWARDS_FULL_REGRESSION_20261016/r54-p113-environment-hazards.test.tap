@@ -1,0 +1,19 @@
+✔ P113: gravidade e ocultação modificam pools canônicos (4.7869ms)
+✔ P113: terreno difícil dobra manobras reais de faixa (33.1158ms)
+✔ P113: terreno intransponível bloqueia até Atletismo/Coordenação bem-sucedido (25.7143ms)
+✔ P113: submersão respeita Brawn antes de iniciar sufocamento (2.3474ms)
+✔ P113: vácuo causa 3 Ferimentos por rodada e também entra em sufocamento após Brawn (3.5178ms)
+✔ P113: fogo/ácido/atmosfera corrosiva aplicam Ferimentos diretos por rating (3.1888ms)
+✔ P113: sufocamento gera crítico em turno subsequente quando já incapacitado por Tensão (2.3814ms)
+✔ P113: queda curta usa soak e sucessos/vantagens para reduzir dano e Tensão (1.2511ms)
+✔ P113: queda longa incapacita e aplica Ferimento Crítico com +50 (1.5705ms)
+✔ P113: controller injeta ocultação em teste real e persiste ambiente (8.4715ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1441.6384
+
