@@ -40,7 +40,7 @@
   "drive_inventory": {
     "records": 527,
     "folders": 44,
-    "metadata_only_unreviewed": 500,
+    "metadata_only_unreviewed": 498,
     "pdf_metadata_triage": {
       "unreviewed_pdfs": 57,
       "filename_only_categories": {
@@ -48,8 +48,8 @@
         "ambiguous_source_pdfs": 11,
         "aids_sheets_cards": 26
       },
-      "pdf_bytes_examined": 0,
-      "artifact": "audits/INVENTORY_PDF_METADATA_TRIAGE.md"
+      "pdf_bytes_examined": 2,
+      "artifact": "audits/INVENTORY_PDF_METADATA_TRIAGE.md; two core PDFs assessed in audits/RULES_CORE_SOURCE_INTAKE_20261016.md"
     },
     "rules_corpus_reconciliation": {
       "handoff_entries": 19,
@@ -67,7 +67,9 @@
       "pdf_content_or_hash_verified": false,
       "artifact": "audits/RULES_CORPUS_RECONCILIATION.md",
       "matrix_rows": 19,
-      "unique_drive_ids": 19
+      "unique_drive_ids": 19,
+      "local_core_source_intakes": 2,
+      "local_core_source_intake_artifact": "audits/RULES_CORE_SOURCE_INTAKE_20261016.md"
     }
   },
   "fresh_regression": {

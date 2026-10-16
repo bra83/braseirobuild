@@ -3,7 +3,7 @@
 **Audit type:** read-only source-to-project reference comparison  
 **Scope:** the 19 rulebook/supplement-type rows in the master handoff’s “important PDFs found” table  
 **Project checkout:** `star-wars/r54/source` in the sparse Git checkout  
-**Evidence limit:** no PDF bytes were examined for this audit. Project references indicate catalog or rules artifacts only; they do not certify the underlying PDF.
+**Evidence limit:** the original comparison was metadata/reference-only. A follow-up local intake examined the two Core Rulebook PDFs listed below; the other 17 rows remain without byte-level verification. Project references indicate catalog or rules artifacts only; they do not certify the underlying PDF.
 
 The handoff describes these rows with an “initial role” column. The first 12 comprise two core books plus ten named supplements. Seven additional relevant entries remain unresolved. This reconciliation reports all 19 and does not settle which supplements the user selected for active implementation.
 
@@ -40,9 +40,20 @@ The handoff describes these rows with an “initial role” column. The first 12
 
 Thus the seven additional entries beyond the 12 initial roles include **six with some title/pending reference** (Allies, Rise, Collapse, Dawn, Gadgets, Starships) and **one absent** (Game Master's Kit). This does not determine whether those seven, or any specific subset, are in the user's selected implementation scope.
 
-## Verification limits
+## Core PDF byte intake follow-up (2026-10-16)
 
-No PDF bytes were examined. The available project references and metadata do not verify the following for any listed Drive PDF:
+Two local PDFs in the user-provided source workspace were hashed and inspected with PDF metadata/page-count tools. Their byte sizes exactly match the Drive records for the corresponding IDs; Drive did not provide a content checksum, so byte-for-byte identity against a fresh Drive download is not independently proven.
+
+| Source | Drive ID | Local size | Local SHA-256 | Pages | Visual/metadata | Text extraction |
+|---|---|---:|---|---:|---|---|
+| EotE Core Rulebook.pdf | `1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX` | 207,887,235 | `AFCF0FE3B5C9FC132DD7B641B54DCCE703BEE2FB01EE8F9EBE213F2CD3BB85C6` | 457 | Cover confirms *Edge of the Empire Roleplaying Game — Core Rulebook*; PDF metadata names Fantasy Flight Games. | First pages extract some text but the OCR is degraded; page 3 yielded no text. Full-book extraction quality is not established. |
+| Age of Rebellion Core Rulebook.pdf | `1w2M6f7R_dzaaHk6Q6R8Y7TIqAYM2MJIq` | 278,764,931 | `25087E5B43C289EF556A365EEC1177123055DFB75C3ECF03481CD66044CACE50` | 466 | Cover confirms *Age of Rebellion Roleplaying Game — Core Rulebook*; PDF metadata names Fantasy Flight Games. | First three pages yielded no extractable text; this appears image-only and needs page-level visual/OCR workflow for semantic audits. |
+
+This intake verifies local file identity by title/cover, metadata, exact byte-size agreement with Drive, and local SHA-256. It does **not** verify all contents, errata, printed-to-PDF page mapping, or semantic coverage. It does not select supplements or change rules/AoR certification status.
+
+## Remaining verification limits
+
+For the 17 remaining corpus rows, no PDF bytes were examined. For all 19 rows, the following are still not verified corpus-wide:
 
 - edition and printing;
 - PDF hash (SHA-256) or identity of the bytes behind the Drive ID;
