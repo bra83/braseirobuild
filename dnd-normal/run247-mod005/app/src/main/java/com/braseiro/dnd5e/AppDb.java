@@ -1344,6 +1344,78 @@ public class AppDb extends SQLiteOpenHelper {
         }});
     }
 
+    public JSONObject addBastion2024SpecialFacility(final long heroId,final String facilityId,final boolean confirmed){
+        return characterAtomic("bastion2024_add_facility",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(!confirmed)return out.put("bastion_blocked","explicit_dm_confirmation_required");
+            JSONObject ch=getCharacter(heroId);
+            if(ch.length()==0)return out.put("bastion_blocked","character_not_found");
+            int level=ch.optInt("level",0);
+            if(level<5)return out.put("bastion_blocked","hero_level_five_required");
+            JSONObject sheet=readCharacterSheet(ch);
+            String rawRules=explicitRulesProfile(ch,"rules_source");
+            if(rawRules.isEmpty())rawRules=explicitRulesProfile(sheet,"rules_source");
+            if(rawRules.isEmpty())rawRules=explicitRulesProfile(sheet,"rules_profile");
+            String rules=DndRulesEngine.canonicalProfile(rawRules);
+            if(!DndRulesEngine.PROFILE_2024.equals(rules))
+                return out.put("bastion_blocked","2024_core_rules_required");
+            JSONObject before=sheet.optJSONObject("bastion_2024");
+            if(before==null)return out.put("bastion_blocked","bastion_not_configured");
+            JSONObject facilities=before.optJSONObject("facilities");
+            JSONArray existingNames=facilities==null?new JSONArray():facilities.names();
+            JSONObject valInput=new JSONObject()
+                .put("character_level",level)
+                .put("character_class",ch.optString("class_name",sheet.optString("class","")))
+                .put("facility_id",facilityId)
+                .put("existing_facilities",existingNames);
+            JSONObject val=Bastion2024SpecialFacilitiesEngine.validate(valInput);
+            if(!"ok".equals(val.optString("status")))
+                return out.put("bastion_blocked",val.optString("reason","validation_failed"));
+            JSONObject after=Bastion2024StateEngine.addFacility(before,facilityId);
+            if(!"ok".equals(after.optString("status")))
+                return out.put("bastion_blocked",after.optString("bastion_blocked","facility_addition_failed"));
+            sheet.put("bastion_2024",after);
+            updateCharacterSheetChecked(heroId,sheet.toString());
+            return out.put("bastion_facility_added",true).put("persisted_to_world",true)
+                .put("hero_id",heroId).put("facility_id",facilityId).put("bastion_state",after);
+        }});
+    }
+
+    public JSONObject issueBastion2024SpecialFacilityOrder(final long heroId,final String facilityId,
+            final String order,final JSONObject orderParams,final boolean dmConfirmed,final String token){
+        return characterAtomic("bastion2024_facility_order",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(!dmConfirmed)return out.put("bastion_blocked","explicit_dm_confirmation_required");
+            JSONObject ch=getCharacter(heroId);
+            if(ch.length()==0)return out.put("bastion_blocked","character_not_found");
+            JSONObject sheet=readCharacterSheet(ch);
+            JSONObject before=sheet.optJSONObject("bastion_2024");
+            if(before==null)return out.put("bastion_blocked","bastion_not_configured");
+            JSONObject facilities=before.optJSONObject("facilities");
+            if(facilities==null||!facilities.has(facilityId))
+                return out.put("bastion_blocked","facility_not_present_in_bastion");
+            JSONObject facObj=facilities.optJSONObject(facilityId);
+            int unavailTurn=facObj!=null?facObj.optInt("unavailable_turn",0):0;
+            int currTurn=before.optInt("turn_number",0);
+            JSONObject in=orderParams==null?new JSONObject():new JSONObject(orderParams.toString());
+            in.put("facility_id",facilityId).put("order",order)
+              .put("unavailable_turn",unavailTurn).put("current_turn",currTurn);
+            JSONObject res=Bastion2024SpecialFacilitiesEngine.resolveOrder(in);
+            if(!"ok".equals(res.optString("status")))
+                return out.put("bastion_blocked",res.optString("reason","order_resolution_blocked"))
+                    .put("order_preview",res);
+            JSONObject after=Bastion2024StateEngine.applyOrder(before,res,token);
+            if(!"ok".equals(after.optString("status")))
+                return out.put("bastion_blocked",after.optString("bastion_blocked","order_state_transition_blocked"))
+                    .put("order_preview",res);
+            sheet.put("bastion_2024",after);
+            updateCharacterSheetChecked(heroId,sheet.toString());
+            return out.put("bastion_order_committed",true).put("persisted_to_world",true)
+                .put("hero_id",heroId).put("order_resolution",res)
+                .put("bastion_state",after).put("order_receipt_token",token);
+        }});
+    }
+
     private interface CharacterAtomicWork{JSONObject run()throws Exception;}
     private synchronized JSONObject characterAtomic(String label,CharacterAtomicWork work){
         SQLiteDatabase sql=getWritableDatabase();boolean owner=!sql.inTransaction();

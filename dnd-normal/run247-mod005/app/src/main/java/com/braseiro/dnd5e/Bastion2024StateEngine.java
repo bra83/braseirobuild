@@ -113,6 +113,61 @@ public final class Bastion2024StateEngine {
         }catch(Exception e){return blocked("bastion_state_transition_failed");}
     }
 
+    public static JSONObject addFacility(JSONObject old, String facilityId) {
+        JSONObject state = cloneState(old);
+        if (!"ok".equals(state.optString("status"))) return state;
+        if (facilityId == null || facilityId.trim().isEmpty()) return blocked("invalid_facility_id");
+        String name = facilityId.trim();
+        try {
+            JSONObject facilities = state.getJSONObject("facilities");
+            if (facilities.has(name)) return blocked("duplicate_facility_id");
+            if (facilities.length() >= 100) return blocked("facility_list_too_large");
+            facilities.put(name, new JSONObject().put("unavailable_turn", 0));
+            return state;
+        } catch (Exception e) {
+            return blocked("facility_addition_failed");
+        }
+    }
+
+    public static JSONObject applyOrder(JSONObject old, JSONObject orderResult, String token) {
+        JSONObject state = cloneState(old);
+        if (!"ok".equals(state.optString("status"))) return state;
+        if (!validToken(token)) return blocked("invalid_operation_token");
+        if (usedToken(state, token)) return blocked("already_resolved_or_replayed");
+        if (orderResult == null || !"ok".equals(orderResult.optString("status")) ||
+                !orderResult.optBoolean("requires_dm_confirmation", false) ||
+                orderResult.optBoolean("persisted_to_world", true))
+            return blocked("source_resolved_order_required");
+        try {
+            int gold = state.getInt("gold_gp");
+            int defenders = state.getInt("defenders");
+            long nextGold = (long) gold + orderResult.optInt("gold_delta_gp", 0);
+            long nextDefenders = (long) defenders + orderResult.optInt("defenders_delta", 0);
+            if (nextGold < 0) return blocked("bastion_treasury_insufficient");
+            if (nextGold > 100000000 || nextDefenders < 0 || nextDefenders > 100000)
+                return blocked("bastion_resources_out_of_range");
+            state.put("gold_gp", (int) nextGold).put("defenders", (int) nextDefenders);
+            String facilityId = orderResult.optString("facility_id");
+            JSONObject facilities = state.getJSONObject("facilities");
+            if (facilities.has(facilityId)) {
+                JSONObject fac = facilities.optJSONObject(facilityId);
+                if (fac != null) {
+                    fac.put("last_order", orderResult.optString("canonical_order"));
+                    fac.put("last_order_turn", state.getInt("turn_number"));
+                }
+            }
+            appendHistory(state, new JSONObject().put("token", token)
+                    .put("kind", "bastion_order").put("turn", state.getInt("turn_number"))
+                    .put("facility_id", facilityId)
+                    .put("order", orderResult.optString("canonical_order"))
+                    .put("delta_gold", orderResult.optInt("gold_delta_gp", 0))
+                    .put("delta_defenders", orderResult.optInt("defenders_delta", 0)));
+            return state;
+        } catch (Exception e) {
+            return blocked("bastion_order_transition_failed");
+        }
+    }
+
     private static void appendHistory(JSONObject state,JSONObject event)throws Exception {
         JSONArray history=state.getJSONArray("event_history");
         if(history.length()>=10000)throw new IllegalStateException("bastion_history_limit");

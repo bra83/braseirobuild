@@ -20,6 +20,9 @@ public final class Bastion2024RulesEngine {
                         .put("core2024.bastion.basic_facility_enlarge")
                         .put("core2024.bastion.special_facility_count")
                         .put("core2024.bastion.order.validate")
+                        .put("core2024.bastion.special_facility_catalog")
+                        .put("core2024.bastion.special_facility_validate")
+                        .put("core2024.bastion.special_facility_order_resolve")
                         .put("core2024.bastion.event.resolve")
                         .put("core2024.bastion.event.effects"));}catch(Exception ignored){}
         return o;
@@ -32,6 +35,9 @@ public final class Bastion2024RulesEngine {
         if("core2024.bastion.basic_facility_enlarge".equals(id))return enlargeBasic(x);
         if("core2024.bastion.special_facility_count".equals(id))return specialCount(x);
         if("core2024.bastion.order.validate".equals(id))return validateOrder(x);
+        if("core2024.bastion.special_facility_catalog".equals(id))return Bastion2024SpecialFacilitiesEngine.catalog(x);
+        if("core2024.bastion.special_facility_validate".equals(id))return Bastion2024SpecialFacilitiesEngine.validate(x);
+        if("core2024.bastion.special_facility_order_resolve".equals(id))return Bastion2024SpecialFacilitiesEngine.resolveOrder(x);
         if("core2024.bastion.event.resolve".equals(id))return x.optBoolean("resolve_full_event",false)?Bastion2024EventResolutionEngine.resolve(x):resolveEvent(x);
         if("core2024.bastion.event.effects".equals(id))return Bastion2024EventResolutionEngine.resolve(x);
         return blocked("unknown_bastion_rule");
