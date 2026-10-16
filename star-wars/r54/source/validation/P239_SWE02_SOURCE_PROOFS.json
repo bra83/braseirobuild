@@ -27,6 +27,7 @@
     "No Android APK, Gradle, CI, physical device or GitHub push executed."
   ],
   "testEvidence": "evidence/P239/GLOBAL_PER_FILE_SUMMARY.json",
+  "page12FocusedEvidence": "evidence/SWE02_P12_PAGE_20261016/RESULTS.md",
   "initiativeTestEvidence": "evidence/SWE02_P12_INITIATIVE_20261016/RESULTS.md",
   "crashCrewIdentityEvidence": "evidence/SWE02_P12_CRASH_CREW_IDS_20261016/RESULTS.md"
 }

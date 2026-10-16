@@ -104,7 +104,7 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Continue SWE02 pp.2–14; finish p.12 page-wide source and persistence evidence, then close p.6–11 cargo transfer/ownership, GM rest qualification and clue gaps. The six-hour baseline clock tick is implemented; failed-route extra time remains a GM adjudication because the source does not quantify it. Proceed through Acts 2–3 only after the Act 1 source claims are bound to deterministic effects, UI, persistence and tests. Keep all certification gates open; do not create P245 or run Android release gates until all five adventures and rules/AoR 360 are certified.",
+  "next_action": "Continue SWE02 pp.2–14; complete p.12 end-to-end UI review and full-project regression evidence, then close p.6–11 cargo transfer/ownership, GM rest qualification and clue gaps. The six-hour baseline clock tick is implemented; failed-route extra time remains a GM adjudication because the source does not quantify it. Proceed through Acts 2–3 only after the Act 1 source claims are bound to deterministic effects, UI, persistence and tests. Keep all certification gates open; do not create P245 or run Android release gates until all five adventures and rules/AoR 360 are certified.",
   "swe02_krayt_fang_pp06_11": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
     "source": "Long Arm of the Hutt printed pp.6–11 / PDF pp.6–11",
@@ -130,7 +130,7 @@
       "Cargo findings are recorded as discovered, not transferred into character inventory; parts sale/build and item transfer remain absent.",
       "Six-hour transit record does not yet apply rest, recovery or the app world clock.",
       "B’ura story facts and optional Oskara links are recorded but not connected to subsequent Geonosis/quest choices.",
-      "p.12 Cool/Vigilance initiative (including the unaware-PC exception), stable-ID crew checks and soft-landing upgrade are implemented/tested; page-wide source/persistence evidence, full chapter audit and final global regression remain outstanding."
+      "p.12 Cool/Vigilance initiative (including the unaware-PC exception), stable-ID crew checks and soft-landing upgrade are implemented/tested; end-to-end UI review, full chapter audit and final global regression remain outstanding."
     ],
     "integration_files": [
       "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
@@ -285,7 +285,7 @@
     "reopens": "Two-PC initiative order and actor-bound action receipts are reopened through a separate GameController instance.",
     "bundle": {"result": "PASS", "modules": 135, "command": "node tools/build-ui-bridge-bundle.mjs"},
     "pending": [
-      "Printed p.12 remains pending for page-wide source-to-semantic proof, persistence evidence and regression."
+      "Printed p.12 remains pending for end-to-end UI review, full-project regression and complete adventure source audit. Focused source-to-code crosswalk and current P239 test run: evidence/SWE02_P12_PAGE_20261016/ (23/23)."
     ]
   },
   "swe02_p12_crash_crew_identity_followup": {
@@ -305,7 +305,7 @@
     "reopens": "Distinct roster IDs, including duplicate names, remain bound through independent controller reloads; pre-feature active Thwheek saves without initiative migrate and continue their prior round flow.",
     "bundle": {"result": "PASS", "modules": 135, "command": "node tools/build-ui-bridge-bundle.mjs"},
     "pending": [
-      "Printed-page-wide source/persistence evidence remains open."
+      "Printed p.12 remains pending for end-to-end UI review, full-project regression and complete adventure source audit; focused evidence is consolidated in evidence/SWE02_P12_PAGE_20261016/."
     ]
   },
   "swe02_p11_transit_clock_followup": {
