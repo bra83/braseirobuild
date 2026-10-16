@@ -1,0 +1,15 @@
+✔ evento com mesmo ID só é aplicado uma vez (35.0664ms)
+✔ export/import JSON preserva estado válido (29.6034ms)
+✔ fechar/reabrir um repositório de arquivo preserva estado (8.3654ms)
+✔ estado v1 é migrado sem perder campanha e recebe combate v10, veículos e sessão (2.2391ms)
+✔ estado v2 migra para v10 preservando combate e adicionando encontro (4.2947ms)
+✔ estado v3 migra para v10 adicionando contexto do Mestre sem perder encontro (2.1197ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1587.7922
+

@@ -1,0 +1,15 @@
+✔ P112: marco de Contribution cria recompensa pendente com raridade máxima 3 + rank (27.3813ms)
+✔ P112: recompensa de equipamento respeita raridade e entra na posse mecânica sem custo (10.2709ms)
+✔ P112: item acima do limite de raridade é rejeitado (7.9938ms)
+✔ P112: veículo dentro do limite entra no runtime e registro de ativos (10.8705ms)
+✔ P112: ativo estratégico é persistido como recurso da base (8.9908ms)
+✔ P112: opções expõem somente ativos dentro do limite do Contribution atual (11.6763ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2776.7525
+

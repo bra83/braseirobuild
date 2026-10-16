@@ -1,0 +1,21 @@
+✔ P230 official route requires GM physical arrival, route, security, no phantom movement (1092.8693ms)
+✔ P230 non-destructive maintenance/sewer/deeper routes do not award Criminal Obligation (2253.4459ms)
+✔ P230 destructive escape requires real published completed encounter and explicit GM proof (764.5943ms)
+✔ P230 receipts detect falsified route, physical proof, duplicate, chronology and encounter (814.0328ms)
+✔ P230 3 reopens preserve Criminal Obligation, physical route and receipts (717.4009ms)
+✔ P230 upgrade scope: borrowed ship only, Space Piloting only, before offworld escape (680.748ms)
+✔ P230 crew Copilot real Piloting Space roll is upgraded, Planetary roll is not (1617.1274ms)
+✔ P230 tractor escape and hazard real rolls upgrade in borrowed craft (774.4664ms)
+✔ P230 UI/controller/bridge/bundle/Android source integration (549.1813ms)
+✔ P230 real Wing Guard combat ending in player incapacitation does NOT trigger Criminal Obligation (1048.9163ms)
+✔ P230 Gain the Advantage uses upgraded difficulty on real Space Piloting and not Planetary (1509.6979ms)
+✔ P230 Full Throttle real skill action upgrades borrowed ship Space Piloting only (1460.5208ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15179.6748
+

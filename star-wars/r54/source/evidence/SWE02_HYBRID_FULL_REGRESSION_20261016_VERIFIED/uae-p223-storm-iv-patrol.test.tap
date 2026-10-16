@@ -1,0 +1,18 @@
+✔ P223 source-backed PDF Storm IV and Bespin pilot are exact, without invented solo minion skill (4.9336ms)
+✔ P223 cannot deploy before arrival or without a real player craft; no duplicate vehicles (1691.1605ms)
+✔ P223 deploys four physically distinct combat vehicles, keeps exact crew and survives 3 reopenings (1223.5973ms)
+✔ P223 real vehicle combat targets exactly one of four; no premature defeat or XP (1214.7878ms)
+✔ P223 real successful piloting evasion consumes one physical car, validates dice faces, no replay (1266.0134ms)
+✔ P223 defeat requires real combat damage log AND hull damage greater than threshold (1201.9644ms)
+✔ P223 attack on a physical Storm IV uses the existing vehicle dice/damage runtime (1090.6163ms)
+✔ P223 full patrol only clears after all four distinct vehicle outcomes (1872.8564ms)
+✔ P223 bridge, UI, state, source, version and offline bundle are wired (446.9922ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13163.1754
+

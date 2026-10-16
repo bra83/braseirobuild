@@ -1,0 +1,23 @@
+✔ P193 official JoY p12 Wing Guard officer and sergeant profiles are combat-capable (24.6105ms)
+✔ P193 no Wing Guard encounter before ETA and no fabricated dispatch (1020.1977ms)
+✔ P193 ETA activates actual encounter with exactly as many Wing Guards as PCs (1664.3121ms)
+✔ P193 cannot skip Wing Guard already at the bank (859.1048ms)
+✔ P193 encounter cannot be forged, resolved before starting or started twice (905.4653ms)
+✔ P193 Wing Guard combat can be finished and persists after three reopenings (1362.0977ms)
+✔ P193 if party left bank, dispatched Wing Guard investigates location instead of teleporting (1273.3955ms)
+✔ P193 invalid forged Wing Guard encounter history rejected (1035.2508ms)
+✔ P193 multiple alarms remain independent patrols, no phantom sergeants (851.5223ms)
+✔ P193 legacy adventure with no Wing Guard receipts retains normal progression (684.9949ms)
+✔ P193 captured signature upgrades generic Cloud City slicing but not unrelated Computers checks (814.9613ms)
+✔ P193 signature also applies to a confirmed named Cloud City slicing system (853.9413ms)
+✔ P193 cannot forge an active patrol before arrival or unknown dispatch ID (633.7925ms)
+✔ P193 Android PT-BR presents patrol arrival and generic combat button (5.9596ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14271.3285
+

@@ -1,0 +1,12 @@
+✔ Parada brusca reduz Velocidade a 0 e causa Tensão de sistemas igual à Velocidade reduzida (17.0546ms)
+✔ Fogo controlado permanece bloqueado como legado Age of Rebellion no perfil EotE Core (27.8441ms)
+✔ interface PT-BR mantém Parada em seco e oculta Fogo controlado legado (4.2524ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1353.2932
+

@@ -1,0 +1,16 @@
+✔ P45 pistas começam vazias e não antecipam investigação futura (19.739ms)
+✔ P45 hub expõe somente alvo já conhecido (6.6655ms)
+✔ P45 pista Umbra persiste ao voltar ao hub sem vazar outras rotas (10.0763ms)
+✔ P45 Zelcomm libera Sector 943 apenas após a rota correspondente (4.4792ms)
+✔ P45 convergência NovaCORE só aparece quando o endgame foi alcançado (6.0859ms)
+✔ P45 rota spyder-sabacc usa subsistema real e o exibe na cena (8.7895ms)
+✔ P45 UI possui superfície explícita de pistas conhecidas (8.5708ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1131.9921
+

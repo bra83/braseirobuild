@@ -1,0 +1,11 @@
+✔ seletor de imagem captura falha de startActivityForResult dentro da UI thread (3.361ms)
+✔ falha assíncrona do picker limpa a cena pendente e informa mensagem segura (0.5556ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 835.3313
+

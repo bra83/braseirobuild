@@ -1,0 +1,27 @@
+✔ P165: three AoR Gunner positions newly executable; full 360 tree still available (38.6043ms)
+✔ P165: failed attack offers Overwhelm ranks, costs actual Advantage, lowers zone defense (85.2114ms)
+✔ P165: Overwhelm is per-zone and persists across rounds, not after combat (33.6314ms)
+✔ P165: Overwhelm cannot spend more ranks, or reuse Advantages on another effect (19.4321ms)
+✔ P165: Debilitating Shot requires a hit and 2 real Advantage, reduces max speed through next round (75.6127ms)
+✔ P165: speed reduction never reduces a speed-1 target below one (26.1723ms)
+✔ P165: display-only or forged AoR talent cannot authorize vehicle spend (24.574ms)
+✔ P165: removing purchased talent after roll prevents pending spend (26.5255ms)
+✔ P165: transaction rollback leaves target and Advantage untouched on save failure (26.8943ms)
+✔ P165: invalid imported AoR effects rejected, without sanitizing malicious values (8.8447ms)
+✔ P165: vehicle attack itself is atomic when disk save fails (25.102ms)
+✔ P165: Android bridge exposes effective speed and defense after a persisted Gunner spend (38.5008ms)
+✔ P165: Android dynamic quality buttons and offline bundle include integrated spend paths (62.2909ms)
+✔ P165: under-black-sun UAE trigger, consequences, clocks, objectives, rollback, 3 restores (50.2599ms)
+✔ P165: beyond-the-rim UAE trigger, consequences, clocks, objectives, rollback, 3 restores (36.7999ms)
+✔ P165: long-arm-of-the-hutt UAE trigger, consequences, clocks, objectives, rollback, 3 restores (50.0185ms)
+✔ P165: jewel-of-yavin UAE trigger, consequences, clocks, objectives, rollback, 3 restores (23.4122ms)
+✔ P165: mask-of-the-pirate-queen UAE trigger, consequences, clocks, objectives, rollback, 3 restores (26.2537ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2716.4374
+

@@ -1,0 +1,15 @@
+✔ Android host registers all five native bridges under the names used by JS (3.0026ms)
+✔ Library bridge methods consumed by R46 exist on the Android host (4.762ms)
+✔ Gemini bridge methods consumed by engine/R46 exist on the Android host (46.2745ms)
+✔ Image cache bridge methods consumed by R46 exist on the Android host (1.3508ms)
+✔ TTS runtime calls only methods exposed by TtsBridge (1.1358ms)
+✔ JSON export uses the native FileBridge saveJson contract (0.8489ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3005.7773
+

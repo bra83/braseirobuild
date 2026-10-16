@@ -1,0 +1,13 @@
+✔ TTS lê exatamente a narração recebida, em PT-BR, e cancela fala anterior (8.9447ms)
+✔ TTS falha claramente quando a API de voz está indisponível e normaliza velocidade (3.7478ms)
+✔ ajustes de TTS persistem no estado sem afetar configuração do Mestre (45.5448ms)
+✔ interface oferece voz somente para a narração visível da Cena (15.8584ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2402.7731
+

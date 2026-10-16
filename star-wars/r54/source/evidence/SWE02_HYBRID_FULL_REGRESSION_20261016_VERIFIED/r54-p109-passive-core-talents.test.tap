@@ -1,0 +1,15 @@
+✔ P109: Determinação reduz Tensão involuntária por rank, mínimo 1 (5.5173ms)
+✔ P109: Determinação não reduz Tensão voluntária (1.1075ms)
+✔ P109: custo voluntário de Ataque Frenético ignora Determinação (41.7263ms)
+✔ P109: Armeiro soma +1 soak somente com armadura vestida (85.6144ms)
+✔ P109: Armeiro aprimorado soma +1 Defesa quando armadura tem soak 2+ (8.5415ms)
+✔ P109: Recuperação rápida continua somando +1 Tensão recuperada por rank após encontro (3.3022ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2981.9129
+

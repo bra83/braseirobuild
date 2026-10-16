@@ -1,0 +1,52 @@
+✔ P161: exactly eight newly consumed AoR slots; all 360 source positions still purchasable (39.0833ms)
+✔ P161: translated display-only talents and forged source IDs do not activate powers (25.4131ms)
+✔ P161: Steely Nerves check protection characteristic presencia (6.1494ms)
+✔ P161: Steely Nerves check protection characteristic voluntad (8.8755ms)
+✔ P161: Steely Nerves check protection characteristic fortaleza (5.1671ms)
+✔ P161: Steely Nerves check protection characteristic agilidad (9.6915ms)
+✔ P161: Steely Nerves check protection characteristic intelecto (6.8487ms)
+✔ P161: Steely Nerves Destiny, replay, expiry and new encounter (52.4973ms)
+✔ P161: Steely Nerves rejected without source, encounter, Destiny and on storage failure (29.4024ms)
+✔ P161: boarding selected vehicle as incidental, no duplicate same round, persistent after three restores (42.6885ms)
+✔ P161: boarding without purchased talent consumes maneuver, station and vehicle validation (62.4986ms)
+✔ P161: boarding rollback does not spend maneuver or change vehicle station (33.5256ms)
+✔ P161: Knowledge Specialization chooses and preserves bajos_fondos (22.4299ms)
+✔ P161: Knowledge Specialization chooses and preserves borde_exterior (17.4485ms)
+✔ P161: Knowledge Specialization chooses and preserves educacion (8.8184ms)
+✔ P161: Knowledge Specialization chooses and preserves estrategia_militar (20.5141ms)
+✔ P161: Knowledge Specialization chooses and preserves mundos_del_nucleo (32.3339ms)
+✔ P161: Knowledge Specialization chooses and preserves saber_arcaico (5.7125ms)
+✔ P161: Knowledge Specialization chooses and preserves xenologia (14.2459ms)
+✔ P161: purchase requires actual Knowledge skill choice and stores it on node (10.2317ms)
+✔ P161: triumph spend grants source-ranked success and records spent triumph (31.1462ms)
+✔ P161: invalid Knowledge spend, no triumph and forged purchase roll back (29.4001ms)
+✔ P161: Know Somebody legal item reduces rarity and never modifies catalog (790.0907ms)
+✔ P161: Know Somebody market modifier changes preserve source rank and ledger (724.2997ms)
+✔ P161: Know Somebody unauthorized and restricted purchases do not write (18.4454ms)
+✔ P161: Know Somebody one use per session survives refusal and storage failure (1745.4068ms)
+✔ P161: under-black-sun UAE objectives/clocks/consequences, rollback and three reopens (66.7037ms)
+✔ P161: beyond-the-rim UAE objectives/clocks/consequences, rollback and three reopens (34.7126ms)
+✔ P161: long-arm-of-the-hutt UAE objectives/clocks/consequences, rollback and three reopens (69.7756ms)
+✔ P161: jewel-of-yavin UAE objectives/clocks/consequences, rollback and three reopens (28.4794ms)
+✔ P161: mask-of-the-pirate-queen UAE objectives/clocks/consequences, rollback and three reopens (33.0554ms)
+✔ P161: Android bridge exposes steely, boarding, market; bundle and PT-BR UI integrated (117.9704ms)
+✔ P161: purchased legacy Knowledge node can be bound once to educacion without XP (19.0185ms)
+✔ P161: purchased legacy Knowledge node can be bound once to xenologia without XP (25.8702ms)
+✔ P161: purchased legacy Knowledge node can be bound once to borde_exterior without XP (19.2608ms)
+✔ P161: binding rejects nonexistent, forged, wrong skill and storage failure atomically (32.4185ms)
+✔ P161: bridge supports binding and rejects repeated assignment (21.2322ms)
+✔ P161: Know Somebody rejects restricted catalog asset before any mutation (24.253ms)
+✔ P161: Know Somebody cannot be used twice in same session even after pending cleared (905.2271ms)
+✔ P161: market quote cannot fabricate a Know Somebody receipt after reload (600.8705ms)
+✔ P161: invalid Know Somebody boolean does not coerce truthy text (10.178ms)
+✔ P161: Steely Nerves never removes actual injury or unconscious condition (13.9651ms)
+✔ P161: no-triumph roll is valid and persists ordinary failure without fabricated bonus (16.2237ms)
+ℹ tests 43
+ℹ suites 0
+ℹ pass 43
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7948.8751
+

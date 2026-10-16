@@ -73,18 +73,18 @@
     }
   },
   "fresh_regression": {
-    "state": "PASS_FULL_REGRESSION_PLUS_FOCUSED_FOLLOWUP",
+    "state": "PASS_FULL_REGRESSION_AFTER_HYBRID_CARGO_IMPLEMENTATION",
     "files": 382,
     "regular_files": 376,
     "stress_files": 6,
-    "tests": 3438,
-    "pass": 3436,
+    "tests": 3451,
+    "pass": 3449,
     "fail": 0,
     "skip": 2,
     "files_without_complete_summary": [],
-    "evidence": "evidence/fresh-regression-20261016-new-meen-p19-23-verified/",
+    "evidence": "evidence/SWE02_HYBRID_FULL_REGRESSION_20261016_VERIFIED/",
     "skip_reason": "JDK jar executable unavailable for two offline Gradle-wrapper packaging checks.",
-    "runner_environment": "Per-file TAP runner; NODE_PATH points to recovered project-local node_modules; Python subprocess decode and log output UTF-8; no dependency files copied into Git.",
+    "runner_environment": "Per-file TAP runner, 8 workers, NODE_PATH points to work/build-deps5/node_modules; Python subprocess decode and log output UTF-8; no dependency files copied into Git.",
     "supersedes": "evidence/fresh-regression-20261016-lylek-map-wip/",
     "focused_followup": {
       "files": 8,

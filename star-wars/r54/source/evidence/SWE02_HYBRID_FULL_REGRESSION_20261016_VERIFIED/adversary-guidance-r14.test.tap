@@ -1,0 +1,12 @@
+✔ fallback de PNPC usa exatamente Características 2, Ferimentos 8 e grau 1 nas perícias escolhidas (14.0861ms)
+✔ fallback rejeita perícia inventada (4.7139ms)
+✔ modos de controle de aliados preservam as três opções documentadas (0.4591ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 729.1548
+

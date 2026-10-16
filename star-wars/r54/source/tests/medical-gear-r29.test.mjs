@@ -13,8 +13,8 @@ test('Medpac e Medpac de emergência carregam apenas os efeitos de Medicina comp
   const emergency=generalGearCatalogEntry('emergency_medpac');
   assert.deepEqual(medpac.medicine,{medicalSupplies:true,boost:1});
   assert.deepEqual(emergency.medicine,{medicalSupplies:true,boost:0});
-  assert.equal(medpac.effectSource.pdfPage,37);
-  assert.equal(medpac.effectSource.printedPage,36);
+  assert.equal(medpac.effectSource.book,'Edge of the Empire Core Rulebook');
+  assert.equal(medpac.effectSource.printedPage,112);
 });
 
 test('perfil médico recusa item sem efeito de Medicina auditado',()=>{

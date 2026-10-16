@@ -1,0 +1,16 @@
+✔ DATA official pp.42, 44–45: bulk 11 authored operations; no arbitrary op or NPC-specific executor (434.8691ms)
+✔ Workshop: both certified EotE gear allocations and six source-authored locations/actions through shared executor (190.3663ms)
+✔ Kitchen: cannot grant ryll evidence without adjudicated successful source check (157.0054ms)
+✔ Bar & landing pad: new official locations reachable without inventing combat/effects (306.486ms)
+✔ Bith: interview is gated by real location, source-authored witness and idempotency (108.5558ms)
+✔ Live Controller/Bridge/UI: one generic call handles all operations and 3 reopens, rollback on failure (217.4118ms)
+✔ Two independently witnessed palace proofs feed existing universal ending executor without Computers flag (179.2439ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3191.6173
+

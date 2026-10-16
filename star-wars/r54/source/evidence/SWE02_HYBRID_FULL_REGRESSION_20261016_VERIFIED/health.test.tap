@@ -1,0 +1,14 @@
+✔ Proteção reduz dano e Perfuração reduz a Proteção efetiva (4.7767ms)
+✔ ultrapassar o limiar de Ferimentos causa inconsciência e registra crítico (2.7848ms)
+✔ ultrapassar o limiar de Tensão causa inconsciência (1.43ms)
+✔ primeiro stimpack do dia cura 5 Ferimentos e é consumido (1.7201ms)
+✔ stimpacks seguintes curam 4, 3, 2, 1 e o sexto não cura no mesmo dia (4.03ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1134.0773
+

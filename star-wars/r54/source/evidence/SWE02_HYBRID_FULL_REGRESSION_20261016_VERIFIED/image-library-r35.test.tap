@@ -1,0 +1,17 @@
+✔ image library manifest is valid and unique (82.5808ms)
+✔ all local runtime asset paths exist (547.4012ms)
+✔ local token library has 143 individual tokens (1.9472ms)
+✔ search is category/tag based and does not invent mechanical binding (239.3474ms)
+✔ equipment images remain visual-only until mechanical mapping is validated (2.2725ms)
+✔ Kainrath is an external indexed source, not silently copied into local runtime assets (376.6481ms)
+✔ BraseiroGameBridge exposes image library without requiring a campaign (97.848ms)
+✔ image bridge rejects unknown asset IDs without mutating state (0.5905ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7379.4586
+

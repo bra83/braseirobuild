@@ -1,0 +1,18 @@
+✔ P229 real Hard Computers 3 difficulty dice, physical third-party ship, actual roll faces (1060.6843ms)
+✔ P229 refuses phantom ship, missing confirmations, active combat, duplicate receipt (958.2036ms)
+✔ P229 failure blocks boarding; GM-authorized real retry succeeds without faking faces (784.5617ms)
+✔ P229 real access receipt is mandatory for third-party boarding, but not own ship legacy (1439.1863ms)
+✔ P229 tampering with difficulty, face, result, proof ID, time, duplicate access fails (960.6531ms)
+✔ P229 three reopens preserve the physical ship access and boarding proof (707.8692ms)
+✔ P229 published one-difficulty upgrade applies to real Space Piloting hazard check while fleeing in borrowed ship (1435.1252ms)
+✔ P229 no invented XP, vehicles, pilot checks, guards or physical transit (640.2765ms)
+✔ P229 UI, bridge, bundle, source, Android version and save validator connected (785.4684ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10626.3299
+

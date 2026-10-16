@@ -1,0 +1,12 @@
+✔ folha de grupo persiste base, recursos, contatos e reserva sem automatizar progressão (7.0684ms)
+✔ Dever do grupo soma somente entradas registradas e pode ser removido (2.6264ms)
+✔ faixa de contribuição e reserva rejeitam limites inválidos (1.5857ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 692.3672
+

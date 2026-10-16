@@ -1,0 +1,23 @@
+✔ p19: party-size state supports 2, 3, 4+ groups and blocks unspecified solo force (21.3195ms)
+✔ p19–20: direct visit skips night, while avoid-and-stay makes the raid eligible (1.5208ms)
+✔ p20: no-help branch offers escort; refusal redirects thugs to PCs then requires adjudication (5.4184ms)
+✔ p20: optional road harassment requires a GM disposition instead of a fabricated encounter (1.3932ms)
+✔ p20: existing P243 arrival receipt grants only the source-stated favor and preserves non-liberation (1.7465ms)
+✔ p20: speeder surrender is recorded without inventing its later disposition; provocation triggers combat (8.4376ms)
+✔ p22: cautious approach avoids checks; detected polite negotiation guarantees gunfire alert (2.0673ms)
+✔ p21: prior night group is excluded; Charm does not roll and thugs resume fighting (2.941ms)
+✔ p23: safe methods include key, blast, and Hard Skulduggery; credit grant is one-time and GM-gated (18.3116ms)
+✔ p23: the office clue appears only after the existing Hard Computers result passes (4.4729ms)
+✔ p23: lifecycle imports the existing per-thug bribe receipt without charging twice or bribing Drombb (2.4353ms)
+✔ p23: victory requires Drombb defeated; defeat records B’ura/Ota rescue and no liberation (1.6892ms)
+✔ p21 and p23 defeat passages stay distinct rather than auto-merging their outcomes (1.0865ms)
+✔ lifecycle event stream is serializable and rejects tampered provenance/revisions (3.3658ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1246.6857
+

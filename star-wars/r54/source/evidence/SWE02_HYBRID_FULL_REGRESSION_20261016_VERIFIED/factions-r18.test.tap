@@ -1,0 +1,17 @@
+✔ facções têm ID estável, objetivo, recursos textuais e fatos com visibilidade separada (36.1838ms)
+✔ relações entre facções exigem IDs existentes e não aceitam autorrelação (3.4317ms)
+✔ PNPC mantém afiliação estável e afiliação inválida é rejeitada (7.1473ms)
+✔ evento de facção altera o mundo e gera consequência causal no local informado (14.6855ms)
+✔ evento de facção com local inexistente falha isoladamente sem alterar a facção (2.0292ms)
+✔ recursos de facção não duplicam e remoção inexistente falha claramente (2.8585ms)
+✔ resumo do Mestre contém facções completas, mas normalização remove relações e afiliações órfãs (3.7816ms)
+✔ mudanças de facção persistem por sequência de eventos sem criar números de economia ou relógios próprios (41.1745ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 964.3906
+

@@ -1,0 +1,12 @@
+✔ P68: Além da Orla expõe tracker próprio sem semântica de Sob um Sol Negro (47.1503ms)
+✔ P68: tracker acompanha episódios e conclusão sem spoiler futuro (4.7962ms)
+✔ P68: runtime possui renderização dedicada 415-friendly para tracker de Além da Orla (0.6661ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 777.0538
+

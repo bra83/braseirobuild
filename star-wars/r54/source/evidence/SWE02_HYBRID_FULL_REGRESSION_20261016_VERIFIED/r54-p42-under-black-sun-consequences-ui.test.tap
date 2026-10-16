@@ -1,0 +1,13 @@
+✔ P42 NPC só é revelado quando entra em cena e card não contém fatos futuros (18.312ms)
+✔ P42 solução discreta no Umbra vira memória/relação persistente (25.4708ms)
+✔ P42 Spyder discreto preserva relação de Fenn (34.259ms)
+✔ P42 Zelcomm social melhora relação sem armas/Obligation (11.9244ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1176.6757
+

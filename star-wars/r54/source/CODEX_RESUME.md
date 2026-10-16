@@ -92,3 +92,10 @@
 - Rebuilt official bridge bundle: 135 modules. Changed JS syntax checks, JSON parsing and `git diff --check` pass. Full project regression, UI review and the p.11 full-page audit remain outstanding.
 - Corrected the stale status claim: the six-hour baseline already advances the world clock; no recovery is automatic until the GM rules that the rest meets EotE's full-night/good-night condition. Fuel, unsupported cargo categories, droid-part sale/build and whole-page proof remain open.
 - All certification remains pending: 0/5 adventures, rules pending, AoR 0/360. No P245 or Android release gate.
+
+## Resume update — full regression after cargo transfer (2026-10-16)
+
+- Full per-file regression reran against the cargo-transfer implementation: 382 files, 3,451 tests, 3,449 pass, 0 fail, 2 JDK jar packaging skips; all 376 regular and six stress files completed. Raw logs and `summary.json` are in `evidence/SWE02_HYBRID_FULL_REGRESSION_20261016_VERIFIED/`.
+- One legacy medical equipment expectation now asserts the EotE Core Medicine effect citation at printed p.112. The bundle builder test passed with `NODE_PATH` set to the recovered local TypeScript dependency. No Gradle/APK/device or CI gate was run.
+- The initial pass without the local `NODE_PATH` exposed that environment requirement and the stale citation assertion; both are corrected in the verified rerun.
+- Certification gates remain open: 0/5 adventures, rules pending and AoR 0/360. Continue the remaining SWE02 source claims after p.12 UI review and p.6–11 unresolved cargo/rest/clue adjudications.

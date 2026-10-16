@@ -1,0 +1,23 @@
+✔ R36: Fly Casual adiciona exatamente 10 perfis EotE suplementares e catálogo ativo chega a 25 (5.1092ms)
+✔ R36: alpha_xg1_star_wing reproduz ficha/preço/raridade de Fly Casual (2.2919ms)
+✔ R36: vt49_decimator reproduz ficha/preço/raridade de Fly Casual (0.6945ms)
+✔ R36: wud500 reproduz ficha/preço/raridade de Fly Casual (0.636ms)
+✔ R36: starlight reproduz ficha/preço/raridade de Fly Casual (1.0081ms)
+✔ R36: ykl37r_nova_courier reproduz ficha/preço/raridade de Fly Casual (0.8998ms)
+✔ R36: gx1_short_hauler reproduz ficha/preço/raridade de Fly Casual (2.405ms)
+✔ R36: baudo_star_yacht reproduz ficha/preço/raridade de Fly Casual (25.3125ms)
+✔ R36: gozanti reproduz ficha/preço/raridade de Fly Casual (1.1928ms)
+✔ R36: hwk1000 reproduz ficha/preço/raridade de Fly Casual (1.869ms)
+✔ R36: yt2000 reproduz ficha/preço/raridade de Fly Casual (0.6933ms)
+✔ R36: hiperdrive, carga e armamento essencial dos cargueiros ficam preservados (0.6744ms)
+✔ R36: economia expõe 25 veículos EotE auditados e continua excluindo X-Wing de referência cruzada (8.2611ms)
+✔ R36: restrição/raridade suplementar alimentam o mesmo motor de disponibilidade (1.8075ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1119.8715
+

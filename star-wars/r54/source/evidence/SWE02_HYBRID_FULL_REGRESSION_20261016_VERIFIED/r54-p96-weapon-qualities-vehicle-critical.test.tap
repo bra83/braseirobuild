@@ -1,0 +1,17 @@
+✔ P96 qualidades passivas: Imprecisa, Aparatosa, Desajeitada, Defensiva e Deflexão produzem modificadores source-bound (6.0853ms)
+✔ P96 ataque real aplica Imprecisa/Aparatosa/Desajeitada ao pool, não apenas metadados (142.9259ms)
+✔ P96 Preparação exige manobras reais, persiste e é consumida no ataque (244.3974ms)
+✔ P96 Munição Limitada conta disparos e recarga consome item realmente possuído (132.3667ms)
+✔ P96 Cadência Lenta impede disparo pelos assaltos exigidos (90.895ms)
+✔ P96 ataque veicular real cria Critical Hit pendente e ativação grava crítico no alvo (207.1273ms)
+✔ P96 Critical Hit que exige componente preserva o mesmo d100 até a escolha (98.4476ms)
+✔ P96 bridge expõe apenas ativação de crítico pendente do ataque, não criação arbitrária (235.5132ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2691.5935
+

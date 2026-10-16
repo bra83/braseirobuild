@@ -1,0 +1,17 @@
+✔ P218 official p.90: +5 Favor per GM-confirmed real PC, not a narrative flag (106.3616ms)
+✔ P218 no automatic pardon before Lando actually accepts restoration plan and grants pardon (104.3094ms)
+✔ P218 exactly once even if caller changes actionId, plus three real reopenings (83.024ms)
+✔ P218 existing group and personal legacy Obligation retained instead of disappearing (64.2985ms)
+✔ P218 no double-count of pre-existing group obligations (44.9796ms)
+✔ P218 replay rejects tampering, extra flags, duplicate names and removed proof (32.4382ms)
+✔ P218 cannot grant pardon during combat, or in AoR-only campaign (40.8467ms)
+✔ P218 real bridge, status, UI and version wired, Java/Kokoro source untouched (1491.6764ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3492.744
+
