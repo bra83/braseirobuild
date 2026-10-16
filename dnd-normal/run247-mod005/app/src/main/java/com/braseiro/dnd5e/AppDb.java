@@ -3374,6 +3374,14 @@ public class AppDb extends SQLiteOpenHelper {
             JSONObject target=getCombatant(targetId);
             if(target.length()==0)
                 return out.put("manual_arbitration_revert_blocked","target_missing");
+            // An undo of a stale receipt must never overwrite intervening damage,
+            // healing or condition changes. This check runs within combatAtomic.
+            if(target.optInt("hp",-1)!=payload.optInt("target_hp_after",-1)||
+                target.optInt("temp_hp",-1)!=payload.optInt("target_temp_hp_after",-1)||
+                !normalizeConditionsCsv(target.optString("conditions",""))
+                    .equals(normalizeConditionsCsv(payload.optString("target_conditions_after",""))))
+                return out.put("manual_arbitration_revert_blocked",
+                    "target_state_changed_since_arbitration");
             int hpBefore=payload.optInt("target_hp_before",target.optInt("hp",0));
             int tempHpBefore=payload.optInt("target_temp_hp_before",target.optInt("temp_hp",0));
             String condBefore=payload.optString("target_conditions_before","");
