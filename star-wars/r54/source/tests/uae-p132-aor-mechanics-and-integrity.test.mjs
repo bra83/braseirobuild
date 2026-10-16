@@ -42,9 +42,19 @@ test('P132 AoR: catálogo de 18 árvores declara efeito somente para aliases com
   for(const [name,engineKey] of Object.entries(AOR_RUNTIME_TALENT_ALIASES)){
     assert.ok(names.has(name),name);
     assert.equal(typeof engineKey,'string');
-    assert.ok(AOR_RUNTIME_MECHANICAL_TALENTS.includes(name));
-    assert.ok(all.filter(x=>x.originalName===name).every(x=>x.mechanicallyActive));
+    if(engineKey==='BRACE'){
+      assert.ok(!AOR_RUNTIME_MECHANICAL_TALENTS.includes(name));
+      assert.ok(all.filter(x=>x.originalName===name).every(x=>!x.mechanicallyActive));
+    }else{
+      assert.ok(AOR_RUNTIME_MECHANICAL_TALENTS.includes(name));
+      assert.ok(all.filter(x=>x.originalName===name).every(x=>x.mechanicallyActive));
+    }
   }
+  const bracePositions=all.filter(x=>x.originalName==='FIRMEZA');
+  assert.deepEqual(bracePositions.map(x=>x.id).sort(),[
+    'ace:gunner:r2c2','ace:gunner:r4c3','soldier:sharpshooter:r1c3','soldier:sharpshooter:r3c1'
+  ]);
+  assert.deepEqual([...new Set(bracePositions.map(x=>x.source.printedPage))].sort((a,b)=>a-b),[68,93]);
   assert.ok(all.filter(x=>x.originalName==='DISPARO CERTERO').every(x=>x.mechanicallyActive)); // P137 True Aim
   assert.equal(Object.values(AOR_TALENT_TREES).reduce((n,s)=>n+Object.keys(s).length,0),18);
 });
@@ -87,11 +97,17 @@ test('P132 AoR: segundo fôlego, esquiva e recuperação rápida reutilizam moto
   assert.equal(recovered.talentBonus,recovered.basis>0?1:0);
 });
 
-test('P132 AoR: Firmeza aplica limiar e permanece íntegra após restauração JSON',()=>{
-  const {character}=buyFirst('soldier','sharpshooter','FIRMEZA');
-  assert.equal(character.derived.strain.threshold,create().derived.strain.threshold+1);
+test('P132 AoR: Sharpshooter Firmeza é Brace, não Grit, e permanece íntegra após restauração JSON',()=>{
+  // Official Age of Rebellion Core Rulebook, printed p.93: both FIRMEZA
+  // positions are the active BRACE card (remove environmental setback from
+  // the next action); Grit is a separate passive card on the same tree.
+  const {character,node}=buyFirst('soldier','sharpshooter','FIRMEZA');
+  assert.equal(node.id,'soldier:sharpshooter:r1c3');
+  assert.equal(node.source.printedPage,93);
+  assert.equal(character.derived.strain.threshold,create().derived.strain.threshold);
   const restored=JSON.parse(JSON.stringify(character));
-  assert.equal(talentRankByOriginal(restored,'GRIT'),1);
+  assert.equal(talentRankByOriginal(restored,'BRACE'),1);
+  assert.equal(talentRankByOriginal(restored,'GRIT'),0);
   assert.equal(talentRankByOriginal(restored,'FIRMEZA'),1);
 });
 

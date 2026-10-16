@@ -22,19 +22,19 @@
     "static_broader_name_key_test_mentions": 290,
     "ledger_includes_static_references": true,
     "static_references_are_certification": false,
-    "individually_source_audited": 20,
+    "individually_source_audited": 22,
     "first_tree_audit": "audits/AOR_ACE_GUNNER_INDIVIDUAL_AUDIT.md",
     "first_tree_rows": 20,
     "first_tree_rows_status": "PENDENTE",
     "first_tree_test": {
-      "command": "node --test --test-reporter=tap tests/uae-aor-brace-talent-authority.test.mjs",
+      "command": "node --test --test-reporter=tap tests/uae-p132-aor-mechanics-and-integrity.test.mjs tests/uae-aor-brace-talent-authority.test.mjs",
       "result": "PASS",
-      "tests": 2,
-      "pass": 2,
+      "tests": 18,
+      "pass": 18,
       "fail": 0,
       "skip": 0,
-      "evidence": "evidence/aor-brace-helper-20261016/brace-helper.tap",
-      "scope": "Source mapping and pure Brace setback arithmetic only; no controller/UI/save-reopen integration. All 20 rows remain PENDENTE."
+      "evidence": "evidence/aor-brace-integration-20261016/focused.tap",
+      "scope": "Source mapping, rank/purchase provenance and pure environmental Brace relief arithmetic passed. Brace is not yet wired to controller/UI action consumption or proven through save/reopen; all 360 proof rows remain PENDENTE. Includes source correction for two Sharpshooter Brace positions on AoR Core p.93."
     }
   },
   "drive_inventory": {
