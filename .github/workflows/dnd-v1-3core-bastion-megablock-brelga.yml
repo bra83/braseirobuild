@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/dnd-v1-3core-bastion-megablock-brelga.yml'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Bastion2024*.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AppDb.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Bastion2024*.java'
   workflow_dispatch:
 permissions:
