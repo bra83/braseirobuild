@@ -3543,6 +3543,83 @@ public class AppDb extends SQLiteOpenHelper {
         }});
     }
 
+    public JSONObject applyCompiledMonsterLifecycleEffect(final long sourceActorId, final long targetId,
+        final String monsterBlockId, final String action, final int kind, final JSONObject resolvedPreview,
+        final String token) {
+        return combatAtomic("compiled_monster_lifecycle_effect", new CombatAtomicWork() {
+            public JSONObject run() throws Exception {
+                JSONObject out = new JSONObject();
+                if (token == null || !token.startsWith("ui-monster-") || !CombatActionReceiptGuard.validToken(token)) {
+                    return out.put("effect_commit_blocked", "invalid_operation_token");
+                }
+                String receiptKey = combatReceiptKey(sourceActorId, token + "-life-eff");
+                if (hasEffectReceipt(receiptKey)) {
+                    return out.put("effect_commit_blocked", "already_resolved_or_replayed");
+                }
+                JSONObject actor = getCombatant(sourceActorId);
+                JSONObject target = getCombatant(targetId);
+                if (actor.length() == 0 || target.length() == 0 || target.optInt("hp", 0) <= 0) {
+                    return out.put("effect_commit_blocked", "invalid_actor_or_target");
+                }
+                if (kind == 0) {
+                    int dmg = resolvedPreview.optInt("damage_total", 0);
+                    String dmgType = resolvedPreview.optString("damage_type", "untyped");
+                    if (dmg > 0) {
+                        JSONObject dmgResult = applyCombatantDamage(targetId, dmg, dmgType, false, false, token + "-dmg");
+                        if (dmgResult.has("damage_blocked")) return out.put("effect_commit_blocked", dmgResult.optString("damage_blocked"));
+                        out.put("damage_applied", dmgResult);
+                    }
+                } else if (kind == 1) {
+                    if (resolvedPreview.optBoolean("condition_applied", false)) {
+                        String conds = resolvedPreview.optString("conditions", "");
+                        if (!conds.isEmpty()) {
+                            String existing = target.optString("conditions", "");
+                            String updated = existing;
+                            for (String c : conds.split("[,; ]+")) {
+                                String tr = c.trim().toLowerCase(Locale.US);
+                                if (!tr.isEmpty()) updated = ConditionRulesEngine.add(updated, tr);
+                            }
+                            if (!updated.equals(existing)) updateConditionsChecked(targetId, updated);
+                            out.put("conditions_updated", updated);
+                        }
+                    }
+                } else if (kind == 2) {
+                    if (resolvedPreview.optBoolean("condition_applied", false)) {
+                        String conds = resolvedPreview.optString("condition", "");
+                        if (!conds.isEmpty()) {
+                            String existing = target.optString("conditions", "");
+                            String updated = existing;
+                            for (String c : conds.split("[,; ]+")) {
+                                String tr = c.trim().toLowerCase(Locale.US);
+                                if (!tr.isEmpty()) updated = ConditionRulesEngine.add(updated, tr);
+                            }
+                            if (!updated.equals(existing)) updateConditionsChecked(targetId, updated);
+                            out.put("zero_hp_conditions_updated", updated);
+                        }
+                    }
+                }
+                JSONObject receiptPayload = new JSONObject()
+                    .put("schema", "compiled_monster_lifecycle_effect_v1")
+                    .put("receipt_key", receiptKey)
+                    .put("token", token)
+                    .put("actor_id", sourceActorId)
+                    .put("target_id", targetId)
+                    .put("monster", monsterBlockId)
+                    .put("action", action)
+                    .put("kind", kind);
+                recordEffectReceipt(receiptKey, receiptPayload.toString());
+                return out.put("effect_applied", true)
+                          .put("persisted_to_combat", true)
+                          .put("actor_id", sourceActorId)
+                          .put("target_id", targetId)
+                          .put("monster", monsterBlockId)
+                          .put("action", action)
+                          .put("receipt_key", receiptKey)
+                          .put("target", getCombatant(targetId));
+            }
+        });
+    }
+
     /** Reverts a previously committed XMM manual arbitration receipt in a single SQLite
      * combat transaction, restoring the target's HP/temp HP/conditions/resources and the
      * monster's turn economy while marking the causal receipt as reverted.

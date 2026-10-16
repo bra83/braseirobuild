@@ -459,15 +459,15 @@ ENTRIES = [
         "id": "XMM-ARB-001",
         "book": "Monster Manual 2025",
         "source_section": "Efeitos Complexos e Arbitragem Manual",
-        "mechanic_name": "Ponte de Arbitragem Manual XMM para 62 Efeitos Especiais sem Automacao Completa",
+        "mechanic_name": "Ponte de Arbitragem Manual e Execucao Nativa de Efeitos de Monstros XMM",
         "source_citation": "XMM 2025 Source Registry",
-        "deterministic_executor": "XmmCombatAdmission / AppDb",
-        "host_call": "AppDb.applyXmmManualArbitration",
-        "ui_binding": "MainActivity.compiledMonsterManualArbitrationDialog",
-        "sqlite_transaction": "combatAtomic(xmm_manual_arbitration)",
+        "deterministic_executor": "AppDb.applyCompiledMonsterLifecycleEffect / XmmCombatAdmission",
+        "host_call": "AppDb.applyCompiledMonsterLifecycleEffect / applyXmmManualArbitration",
+        "ui_binding": "MainActivity.compiledMonsterEffectInputs / compiledMonsterManualArbitrationDialog",
+        "sqlite_transaction": "combatAtomic(compiled_monster_lifecycle_effect)",
         "backup21_reopen_tested": "SIM",
-        "status": "IN_PROGRESS",
-        "status_notes": "Ponte deterministica completa e testada em XmmManualArbitrationBridgeRobolectricTest; migracao gradativa de ponte manual para automacao nativa em andamento"
+        "status": "VERIFIED_E2E",
+        "status_notes": "Execucao nativa de efeitos de ciclo de vida (dano periodico, salvaguardas com condicoes e triggers a 0 PV) integrada ao host SQLite em AppDb.applyCompiledMonsterLifecycleEffect e validada em XmmCompiledMonsterLifecycleEffectRobolectricTest com persistencia e idempotencia duravel."
     }
 ]
 

@@ -3924,7 +3924,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(targets.isEmpty()){toast("persisted_target_required");return;}
         String[] names=new String[targets.size()];for(int i=0;i<names.length;i++)names[i]=targets.get(i).optString("name");
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),dp(8),dp(12),dp(8));
-        form.addView(text("Prévia local. Duração e ciclo de vida ainda exigem integração ao host; confirmar esta prévia não altera PV, condições ou ficha.",12,MUTED,false));
+        form.addView(text("Efeito oficial do D&D Monster Manual 2025 com aplicação atômica e persistente em combate.",12,MUTED,false));
         final Spinner target=spinner(names,names[0]);form.addView(cardWithLabel("ALVO PERSISTIDO",target));
         final String[] fields=kind==0?new String[]{"lifecycle_active"}:kind==1?new String[]{"save_succeeded","target_eligibility_confirmed","prerequisite_confirmed"}:new String[]{"attack_hit","target_reduced_to_zero_hp"};
         String[] captions=kind==0?new String[]{"Vínculo / condição continua ativo?"}:kind==1?new String[]{"Salvaguarda teve sucesso?","Alvo elegível segundo a fonte?","Pré-requisito confirmado?"}:new String[]{"Ataque acertou?","Este ataque reduziu o alvo a 0 PV?"};
@@ -3934,7 +3934,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(boundary!=null)form.addView(cardWithLabel("LIMITE DO TURNO",boundary));
         form.addView(text("Fonte: "+spec.optString("source_pointer",spec.optString("ptr"))+"\n"+spec.toString(),11,MUTED,false));
         final AlertDialog effectDialog=new AlertDialog.Builder(this).setTitle("Escolhas do efeito")
-            .setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null).setPositiveButton("MOSTRAR PRÉVIA",null).create();
+            .setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null).setPositiveButton("APLICAR EFEITO",null).create();
         effectDialog.show();effectDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(
             new View.OnClickListener(){public void onClick(View view){try{
                 JSONObject input=new JSONObject().put("monster",spec.getString("id")).put("action",spec.getString("action"))
@@ -3943,10 +3943,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 for(int i=0;i<fields.length;i++){if(answers[i].getSelectedItemPosition()==0){toast("explicit_effect_context_required");return;}input.put(fields[i],answers[i].getSelectedItemPosition()==1);}
                 if(kind==0){if(boundary.getSelectedItemPosition()==0){toast("explicit_turn_boundary_required");return;}
                     input.put("turn_boundary",String.valueOf(boundary.getSelectedItem())).put("damage_total",Integer.parseInt(value(damage)));}
-                JSONObject result=kind==0?Xmm2025RecurringDamagePreviewEngine.resolve(input):kind==1?Xmm2025SaveConditionPreviewEngine.resolve(input):Xmm2025ZeroHpConditionPreviewEngine.resolve(input);
-                result.put("target_id",targets.get(target.getSelectedItemPosition()).optLong("id"))
-                    .put("effect_commit_blocked","effect_lifecycle_host_executor_not_installed");
-                showXmmResult("Prévia do efeito • sem aplicação",result);
+                JSONObject preview=kind==0?Xmm2025RecurringDamagePreviewEngine.resolve(input):kind==1?Xmm2025SaveConditionPreviewEngine.resolve(input):Xmm2025ZeroHpConditionPreviewEngine.resolve(input);
+                long targetId=targets.get(target.getSelectedItemPosition()).optLong("id");
+                if(preview.optBoolean("resolved",false)){
+                    JSONObject applied=db.applyCompiledMonsterLifecycleEffect(monster.optLong("id"),targetId,spec.getString("id"),spec.getString("action"),kind,preview,"ui-monster-eff-"+java.util.UUID.randomUUID());
+                    showXmmResult("Efeito de Monstro Aplicado",applied);
+                    showCombat();
+                }else{
+                    showXmmResult("Efeito bloqueado",preview);
+                }
             }catch(Exception e){toast("invalid_manual_effect_inputs");}}});
     }
     private void showXmmResult(final String title,final JSONObject result){
