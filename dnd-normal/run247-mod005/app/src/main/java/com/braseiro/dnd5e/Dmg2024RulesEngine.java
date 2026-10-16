@@ -144,6 +144,7 @@ public final class Dmg2024RulesEngine {
                      .put("dmg2024.magic_item.attune")
                      .put("dmg2024.magic_item.unattune")
                      .put("dmg2024.magic_item.value")
+                     .put("dmg2024.magic_item.use")
                      .put("dmg2024.hazard.resolve")
                      .put("dmg2024.trap.resolve")
                      .put("dmg2024.falling.resolve")
@@ -160,6 +161,7 @@ public final class Dmg2024RulesEngine {
         if ("dmg2024.magic_item.attune".equals(id)) return magicItemAttune(x);
         if ("dmg2024.magic_item.unattune".equals(id)) return magicItemUnattune(x);
         if ("dmg2024.magic_item.value".equals(id)) return magicItemValue(x);
+        if ("dmg2024.magic_item.use".equals(id)) return magicItemUse(x);
         if ("dmg2024.hazard.resolve".equals(id)) return resolveHazard(x);
         if ("dmg2024.trap.resolve".equals(id)) return resolveTrap(x);
         if ("dmg2024.falling.resolve".equals(id)) return resolveFalling(x);
@@ -253,6 +255,186 @@ public final class Dmg2024RulesEngine {
             return o;
         } catch (Exception e) {
             return blocked(o, "unattunement_failed");
+        }
+    }
+
+    public static JSONObject useItem(JSONObject in) {
+        return magicItemUse(in == null ? new JSONObject() : in);
+    }
+
+    private static JSONObject magicItemUse(JSONObject in) {
+        JSONObject o = base(210);
+        try {
+            String itemKey = in.optString("item_id", in.optString("item", ""));
+            MagicItemDef def = getMagicItem(itemKey);
+            if (def == null) return blocked(o, "unknown_magic_item");
+
+            if (def.requiresAttunement && !in.optBoolean("attuned", false)) {
+                return blocked(o, "attunement_required_to_use")
+                        .put("item_id", def.id)
+                        .put("attunement_details", def.attunementDetails);
+            }
+
+            o.put("item_id", def.id);
+            o.put("item_name_pt", def.namePt);
+            o.put("category", def.category);
+            o.put("rarity", def.rarity);
+
+            if (def.id.startsWith("potion_of_")) {
+                int hpRestored = 0;
+                String dice = "";
+                if ("potion_of_healing".equals(def.id)) {
+                    dice = "2d4+2";
+                    hpRestored = in.optInt("roll_override", 7);
+                } else if ("potion_of_greater_healing".equals(def.id)) {
+                    dice = "4d4+4";
+                    hpRestored = in.optInt("roll_override", 14);
+                } else if ("potion_of_superior_healing".equals(def.id)) {
+                    dice = "8d4+8";
+                    hpRestored = in.optInt("roll_override", 28);
+                } else if ("potion_of_supreme_healing".equals(def.id)) {
+                    dice = "10d4+20";
+                    hpRestored = in.optInt("roll_override", 45);
+                }
+                o.put("action_economy", in.optBoolean("administered_to_other", false) ? "action" : "bonus_action");
+                o.put("hp_restored", hpRestored);
+                o.put("dice_formula", dice);
+                o.put("consumed", true);
+                o.put("used", true);
+                return o;
+            }
+
+            if ("wand_of_magic_missiles".equals(def.id)) {
+                int currentCharges = in.optInt("current_charges", 7);
+                int chargesToSpend = in.optInt("charges_spent", 1);
+                if (chargesToSpend < 1) chargesToSpend = 1;
+                if (chargesToSpend > currentCharges) {
+                    return blocked(o, "insufficient_charges")
+                            .put("current_charges", currentCharges)
+                            .put("charges_requested", chargesToSpend);
+                }
+                int darts = 2 + chargesToSpend;
+                o.put("action_economy", "action");
+                o.put("charges_spent", chargesToSpend);
+                o.put("charges_remaining", currentCharges - chargesToSpend);
+                o.put("spell_cast", "Magic Missile");
+                o.put("spell_cast_pt", "Mísseis Mágicos");
+                o.put("dart_count", darts);
+                o.put("damage_per_dart", "1d4+1");
+                o.put("damage_type", "force");
+                o.put("damage_type_pt", "energia");
+                o.put("auto_hit", true);
+                o.put("used", true);
+                return o;
+            }
+
+            if ("pearl_of_power".equals(def.id)) {
+                if (in.optBoolean("already_used_today", false)) {
+                    return blocked(o, "pearl_of_power_already_used_today");
+                }
+                int slotLevel = in.optInt("slot_level", 1);
+                if (slotLevel < 1 || slotLevel > 3) {
+                    return blocked(o, "invalid_slot_level_max_3");
+                }
+                o.put("action_economy", "action");
+                o.put("slot_level_recovered", slotLevel);
+                o.put("used_today", true);
+                o.put("recharge", "dawn");
+                o.put("used", true);
+                return o;
+            }
+
+            if ("immovable_rod".equals(def.id)) {
+                boolean currentlyActive = in.optBoolean("active", false);
+                boolean nextState = !currentlyActive;
+                o.put("action_economy", "action");
+                o.put("active", nextState);
+                o.put("max_weight_lb", 8000);
+                o.put("strength_dc_to_move", 30);
+                o.put("used", true);
+                return o;
+            }
+
+            if ("boots_of_elvenkind".equals(def.id)) {
+                o.put("passive", true);
+                o.put("stealth_advantage_silent", true);
+                o.put("used", true);
+                return o;
+            }
+
+            if ("cloak_of_protection".equals(def.id) || "ring_of_protection".equals(def.id)) {
+                o.put("passive", true);
+                o.put("ac_bonus", 1);
+                o.put("save_bonus", 1);
+                o.put("used", true);
+                return o;
+            }
+
+            if ("bag_of_holding".equals(def.id)) {
+                o.put("max_capacity_lb", 500);
+                o.put("max_volume_cu_ft", 64);
+                o.put("used", true);
+                return o;
+            }
+
+            if ("weapon_plus_1".equals(def.id) || "weapon_plus_2".equals(def.id) || "weapon_plus_3".equals(def.id)) {
+                int bonus = "weapon_plus_1".equals(def.id) ? 1 : ("weapon_plus_2".equals(def.id) ? 2 : 3);
+                o.put("passive", true);
+                o.put("attack_bonus", bonus);
+                o.put("damage_bonus", bonus);
+                o.put("is_magic", true);
+                o.put("used", true);
+                return o;
+            }
+
+            if ("armor_plus_1".equals(def.id) || "armor_plus_2".equals(def.id) || "shield_plus_1".equals(def.id)) {
+                int bonus = "armor_plus_1".equals(def.id) ? 1 : ("armor_plus_2".equals(def.id) ? 2 : 1);
+                o.put("passive", true);
+                o.put("ac_bonus", bonus);
+                o.put("is_magic", true);
+                o.put("used", true);
+                return o;
+            }
+
+            if ("sun_blade".equals(def.id)) {
+                o.put("passive", true);
+                o.put("attack_bonus", 2);
+                o.put("damage_bonus", 2);
+                o.put("damage_type", "radiant");
+                o.put("finesse", true);
+                o.put("extra_damage_undead", "1d8");
+                o.put("sheds_light", true);
+                o.put("used", true);
+                return o;
+            }
+
+            if ("flame_tongue".equals(def.id)) {
+                boolean active = in.optBoolean("flames_active", true);
+                o.put("action_economy", "bonus_action");
+                o.put("flames_active", active);
+                o.put("extra_damage_dice", active ? "2d6" : "0");
+                o.put("extra_damage_type", "fire");
+                o.put("sheds_light", active);
+                o.put("used", true);
+                return o;
+            }
+
+            if ("holy_avenger".equals(def.id)) {
+                o.put("passive", true);
+                o.put("attack_bonus", 3);
+                o.put("damage_bonus", 3);
+                o.put("extra_damage_fiend_undead", "2d10");
+                o.put("extra_damage_type", "radiant");
+                o.put("aura_spell_save_advantage_radius_feet", 10);
+                o.put("used", true);
+                return o;
+            }
+
+            o.put("used", true);
+            o.put("note", def.descriptionPt);
+            return o;
+        } catch (Exception e) {
+            return blocked(o, "item_use_failed");
         }
     }
 

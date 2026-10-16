@@ -195,4 +195,105 @@ public final class Dmg2024RulesRobolectricTest {
         assertEquals("ok", hoard.optString("status"));
         assertTrue(hoard.has("magic_items_formula"));
     }
+
+    @Test
+    public void testMagicItemExecutionPotions() throws Exception {
+        // Potion of Healing
+        JSONObject pot = Dmg2024RulesEngine.execute("dmg2024.magic_item.use",
+                new JSONObject().put("item_id", "potion_of_healing"));
+        assertEquals("ok", pot.optString("status"));
+        assertTrue(pot.optBoolean("consumed"));
+        assertEquals("bonus_action", pot.optString("action_economy"));
+        assertEquals(7, pot.optInt("hp_restored"));
+        assertEquals("2d4+2", pot.optString("dice_formula"));
+
+        // Administering to another consumes an Action
+        JSONObject potAlly = Dmg2024RulesEngine.execute("dmg2024.magic_item.use",
+                new JSONObject().put("item_id", "potion_of_healing").put("administered_to_other", true));
+        assertEquals("ok", potAlly.optString("status"));
+        assertEquals("action", potAlly.optString("action_economy"));
+
+        // Potion of Supreme Healing with roll override
+        JSONObject supreme = Dmg2024RulesEngine.execute("dmg2024.magic_item.use",
+                new JSONObject().put("item_id", "potion_of_supreme_healing").put("roll_override", 58));
+        assertEquals("ok", supreme.optString("status"));
+        assertEquals(58, supreme.optInt("hp_restored"));
+        assertTrue(supreme.optBoolean("consumed"));
+    }
+
+    @Test
+    public void testMagicItemExecutionWandAndPearl() throws Exception {
+        // Wand of Magic Missiles (spend 2 charges)
+        JSONObject wand = Dmg2024RulesEngine.execute("dmg2024.magic_item.use",
+                new JSONObject().put("item_id", "wand_of_magic_missiles")
+                        .put("current_charges", 7)
+                        .put("charges_spent", 2));
+        assertEquals("ok", wand.optString("status"));
+        assertEquals(2, wand.optInt("charges_spent"));
+        assertEquals(5, wand.optInt("charges_remaining"));
+        assertEquals(4, wand.optInt("dart_count")); // 2 + 2 = 4
+        assertEquals("1d4+1", wand.optString("damage_per_dart"));
+        assertEquals("force", wand.optString("damage_type"));
+
+        // Wand with insufficient charges
+        JSONObject wandFail = Dmg2024RulesEngine.execute("dmg2024.magic_item.use",
+                new JSONObject().put("item_id", "wand_of_magic_missiles")
+                        .put("current_charges", 1)
+                        .put("charges_spent", 3));
+        assertEquals("blocked", wandFail.optString("status"));
+        assertEquals("insufficient_charges", wandFail.optString("reason"));
+
+        // Pearl of Power without attunement fails
+        JSONObject pearlNoAttune = Dmg2024RulesEngine.execute("dmg2024.magic_item.use",
+                new JSONObject().put("item_id", "pearl_of_power"));
+        assertEquals("blocked", pearlNoAttune.optString("status"));
+        assertEquals("attunement_required_to_use", pearlNoAttune.optString("reason"));
+
+        // Pearl of Power with attunement recovers 3rd level slot
+        JSONObject pearl = Dmg2024RulesEngine.execute("dmg2024.magic_item.use",
+                new JSONObject().put("item_id", "pearl_of_power")
+                        .put("attuned", true)
+                        .put("slot_level", 3));
+        assertEquals("ok", pearl.optString("status"));
+        assertEquals(3, pearl.optInt("slot_level_recovered"));
+        assertTrue(pearl.optBoolean("used_today"));
+
+        // Pearl of Power level 4 fails (max 3)
+        JSONObject pearlOver = Dmg2024RulesEngine.execute("dmg2024.magic_item.use",
+                new JSONObject().put("item_id", "pearl_of_power")
+                        .put("attuned", true)
+                        .put("slot_level", 4));
+        assertEquals("blocked", pearlOver.optString("status"));
+        assertEquals("invalid_slot_level_max_3", pearlOver.optString("reason"));
+    }
+
+    @Test
+    public void testMagicItemExecutionPassivesAndBonuses() throws Exception {
+        // Sun Blade requires attunement
+        JSONObject sunNoAttune = Dmg2024RulesEngine.execute("dmg2024.magic_item.use",
+                new JSONObject().put("item_id", "sun_blade"));
+        assertEquals("blocked", sunNoAttune.optString("status"));
+
+        // Sun Blade attuned
+        JSONObject sun = Dmg2024RulesEngine.execute("dmg2024.magic_item.use",
+                new JSONObject().put("item_id", "sun_blade").put("attuned", true));
+        assertEquals("ok", sun.optString("status"));
+        assertEquals(2, sun.optInt("attack_bonus"));
+        assertEquals("radiant", sun.optString("damage_type"));
+        assertTrue(sun.optBoolean("finesse"));
+
+        // Cloak of Protection attuned
+        JSONObject cloak = Dmg2024RulesEngine.execute("dmg2024.magic_item.use",
+                new JSONObject().put("item_id", "cloak_of_protection").put("attuned", true));
+        assertEquals("ok", cloak.optString("status"));
+        assertEquals(1, cloak.optInt("ac_bonus"));
+        assertEquals(1, cloak.optInt("save_bonus"));
+
+        // Flame Tongue
+        JSONObject flame = Dmg2024RulesEngine.execute("dmg2024.magic_item.use",
+                new JSONObject().put("item_id", "flame_tongue").put("attuned", true).put("flames_active", true));
+        assertEquals("ok", flame.optString("status"));
+        assertEquals("2d6", flame.optString("extra_damage_dice"));
+        assertEquals("fire", flame.optString("extra_damage_type"));
+    }
 }

@@ -317,13 +317,13 @@ ENTRIES = [
         "source_section": "Capitulo 7: Itens Mágicos",
         "mechanic_name": "Itens magicos: catalogo parcial, precificacao e regras de sintonizacao",
         "source_citation": "DMG 2024 p. 210-275",
-        "deterministic_executor": "Dmg2024RulesEngine",
-        "host_call": "Dmg2024RulesEngine.attuneItem / unattuneItem",
+        "deterministic_executor": "Dmg2024RulesEngine.useItem / magicItemAttune",
+        "host_call": "Dmg2024RulesEngine.execute('dmg2024.magic_item.use') / attuneItem",
         "ui_binding": "MainActivity.magicItemAttunementDialog",
-        "sqlite_transaction": "inventory_items.attuned, resources_json.attuned_slots",
+        "sqlite_transaction": "inventory_items.attuned, resources_json.attuned_slots, characters.sheet_json",
         "backup21_reopen_tested": "SIM",
         "status": "IN_PROGRESS",
-        "status_notes": "Teste cobre catalogo limitado e operacoes de sintonizacao; faltam provar efeitos mecanicos dos itens oficiais, inventario/host, persistencia e Backup21 para a totalidade da familia."
+        "status_notes": "Catalogo, sintonizacao e executores deterministas de uso (pocoes de cura, varinha de misseis, perola do poder, armas/armaduras magicas) implementados no Dmg2024RulesEngine e validados em Dmg2024RulesRobolectricTest."
     },
     {
         "id": "DMG-ENV-001",
