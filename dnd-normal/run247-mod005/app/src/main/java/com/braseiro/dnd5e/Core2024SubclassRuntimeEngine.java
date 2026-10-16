@@ -6,10 +6,10 @@ import java.text.Normalizer;
 import java.util.*;
 
 /**
- * Deterministic rules and active mechanics engine for all 48 official Player's Handbook 2024 subclasses.
- * Every class in PHB 2024 selects their subclass at level 3.
- * Adheres strictly to the Definition of Done:
- * source (PHB 2024 Cap. 3) -> deterministic executor -> host/SQLite -> UI PT-BR -> Backup21.
+ * PHB 2024 subclass definitions and selection gates, NOT a complete effects executor.
+ * The feature descriptors do not apply damage, resources, conditions or combat actions.
+ * Individual subclass features require separately tested host/SQLite implementations
+ * before their mechanical coverage can be marked VERIFIED_E2E.
  */
 public final class Core2024SubclassRuntimeEngine {
 
@@ -445,6 +445,38 @@ public final class Core2024SubclassRuntimeEngine {
      * Em D&D 2024, todas as 12 classes recebem subclasse no nível 3.
      */
     public static boolean isSubclassLevelValid(int level) {
-        return level >= 3;
+        return level >= 3 && level <= 20;
+    }
+
+    /**
+     * Selection only: does not claim that the selected subclass's features execute.
+     * Avoids accepting a valid subclass from a different class or outside levels 3-20.
+     */
+    public static boolean isSubclassSelectionValid(String className, int level, String subclassName) {
+        if (!isSubclassLevelValid(level)) return false;
+        SubclassDef selected = getSubclass(subclassName);
+        if (selected == null) return false;
+        String expected = canonicalClass(selected.className);
+        String provided = canonicalClass(className);
+        return !expected.isEmpty() && expected.equals(provided);
+    }
+
+    private static String canonicalClass(String className) {
+        String cls = norm(className);
+        switch (cls) {
+            case "barbaro": case "barbarian": return "barbaro";
+            case "bardo": case "bard": return "bardo";
+            case "clerigo": case "cleric": return "clerigo";
+            case "druida": case "druid": return "druida";
+            case "guerreiro": case "fighter": return "guerreiro";
+            case "monge": case "monk": return "monge";
+            case "paladino": case "paladin": return "paladino";
+            case "guardiao": case "ranger": return "guardiao";
+            case "ladino": case "rogue": return "ladino";
+            case "feiticeiro": case "sorcerer": return "feiticeiro";
+            case "bruxo": case "warlock": return "bruxo";
+            case "mago": case "wizard": return "mago";
+            default: return "";
+        }
     }
 }
