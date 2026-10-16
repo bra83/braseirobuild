@@ -5,11 +5,12 @@
     "publisher": "Fantasy Flight Games",
     "productCode": "SWE02",
     "url": "https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf",
-    "printedPages": [8, 12, 13],
+    "printedPages": [8, 11, 12, 13],
     "authority": "official publisher PDF; checked 2026-10-15"
   },
   "implemented": [
     {"id":"ship-tracker-route", "page":8,"fact":"Non-optimal Astrogation route still causes interception even with slowed tracker; optimal course plus slowed tracker skips interception", "executor":"swe02KraytFangP238.mjs + longArmOfTheHutt.mjs", "controller":"GameController.advancePublishedAdventure", "test":"uae-p239-swe02-thwheek-vehicle-combat.test.mjs"},
+    {"id":"hyperspace-transit-clock", "page":11,"fact":"Normal Tatooine-to-Ryloth trip takes little more than six hours; failed Astrogation makes it longer but the extra duration is unquantified. Code advances one six-hour baseline tick; on a failed route the GM can enter extra six-hour blocks at arrival, which advance the clock and persist. Fuel amount and recovery amounts remain unspecified", "executor":"world/sandbox.mjs advanceLivingWorld; swe02KraytFangP238.mjs transit receipt", "controller":"GameController.advancePublishedAdventure(ship-depart-verified) / adjudicateSWE02ShipTransitExtraDuration", "ui":"SWE02 transit summary and GM extra-time control", "test":"uae-p239-swe02-thwheek-vehicle-combat.test.mjs; uae-p238-swe02-krayt-fang-ship-source.test.mjs"},
     {"id":"fighter-profile", "page":12,"fact":"G1-M4-C: silhouette 3, speed 4, handling +1, defense 1, armor 3, hull 8, system 7, linked medium laser damage 6", "executor":"rules/vehicles.mjs SWE02_ADVENTURE_VEHICLE_PROFILES", "controller":"GameController.advancePublishedAdventure / beginSWE02ThwheekCombat", "test":"uae-p239-swe02-thwheek-vehicle-combat.test.mjs"},
     {"id":"vehicle-combat", "page":12,"fact":"Short initial range, actual attack dice, hull trauma, and separate player/enemy ship records", "executor":"rules/vehicles.mjs and swe02ThwheekP239.mjs", "controller":"GameController.resolveVehicleAttack / resolveIncomingVehicleAttack", "test":"uae-p239-swe02-thwheek-vehicle-combat.test.mjs"},
     {"id":"cool-initiative-turn-order", "page":12,"fact":"Thwheek rolls Cool; each registered PC rolls Cool unless that PC did not see the fighter emerge and turn to attack, in which case that PC rolls Vigilance. Sorted slots govern vehicle actions and Thwheek's attack, persist across rounds/reopen, and bind action receipts to actor and slot", "executor":"swe02VehicleInitiative.mjs and rules/initiative.mjs", "controller":"GameController.beginSWE02ThwheekCombat / passSWE02VehicleTurn / _assertSWE02VehicleTurn", "ui":"per-PC unaware selector, skill-labeled initiative display, pass-turn and Thwheek attack controls", "test":"uae-p239-swe02-thwheek-vehicle-combat.test.mjs"},
@@ -20,7 +21,7 @@
   ],
   "limitations": [
     "Krayt Fang YT-1300 base profile is inherited from EotE Core; exact modified beginner-game vessel loadout and ownership are not independently certified here; player must explicitly select the actual named vessel.",
-    "No automatic time/fuel expenditure or global odor penalty outside the P238 shipboard checks.",
+    "The p.11 six-hour trip advances one world tick. Numeric fuel expenditure and applying rest/recuperation to character resources remain pending; global odor penalty outside the shipboard checks also remains pending.",
     "Nabat repairs/refueling, Nyn's resources and critical injury healing, New Meen non-violent path still pending.",
     "Other four adventures, EotE/AoR supplements and 360 AoR consumers still lack complete individual editorial certification.",
     "No Android APK, Gradle, CI, physical device or GitHub push executed."

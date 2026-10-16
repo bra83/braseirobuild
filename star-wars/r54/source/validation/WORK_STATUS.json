@@ -104,7 +104,7 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Continue SWE02 pp.2–14; finish p.12 page-wide source and persistence evidence, then close p.6–11 cargo/time/clue gaps. Proceed through Acts 2–3 only after the Act 1 source claims are bound to deterministic effects, UI, persistence and tests. Keep all certification gates open; do not create P245 or run Android release gates until all five adventures and rules/AoR 360 are certified.",
+  "next_action": "Continue SWE02 pp.2–14; finish p.12 page-wide source and persistence evidence, then close p.6–11 cargo transfer/ownership, verified recovery rules and clue gaps. The six-hour baseline clock tick is implemented; failed-route extra time remains a GM adjudication because the source does not quantify it. Proceed through Acts 2–3 only after the Act 1 source claims are bound to deterministic effects, UI, persistence and tests. Keep all certification gates open; do not create P245 or run Android release gates until all five adventures and rules/AoR 360 are certified.",
   "swe02_krayt_fang_pp06_11": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
     "source": "Long Arm of the Hutt printed pp.6–11 / PDF pp.6–11",
@@ -306,6 +306,26 @@
     "bundle": {"result": "PASS", "modules": 135, "command": "node tools/build-ui-bridge-bundle.mjs"},
     "pending": [
       "Printed-page-wide source/persistence evidence remains open."
+    ]
+  },
+  "swe02_p11_transit_clock_followup": {
+    "status": "IMPLEMENTADO_NAO_CERTIFICADO",
+    "source": "The Long Arm of the Hutt printed pp.8 and 11",
+    "proof": "validation/P239_SWE02_SOURCE_PROOFS.json",
+    "executor": "swe02KraytFangP238.mjs transit receipt; world/sandbox.mjs advanceLivingWorld",
+    "controller": "GameController.advancePublishedAdventure(ship-depart-verified) / adjudicateSWE02ShipTransitExtraDuration",
+    "ui": "Persisted transit summary; GM extra-time control at the Ryloth arrival decision applies chosen six-hour blocks",
+    "tests": {
+      "files": ["tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs", "tests/uae-p239-swe02-thwheek-vehicle-combat.test.mjs"],
+      "combined": 36,
+      "pass": 36,
+      "fail": 0,
+      "skip": 0,
+      "evidence": "evidence/SWE02_P11_TRANSIT_CLOCK_20261016/focused.tap"
+    },
+    "reopens": "Normal and failed Astrogation routes preserve the transit receipt; base clock advancement occurs once and survives reload.",
+    "pending": [
+      "The book does not quantify failed-route extra duration; the GM selects whole six-hour clock blocks. Fuel amount and exact strain/wound recovery remain unverified."
     ]
   },
   "swe02_p13_physician_followup": {

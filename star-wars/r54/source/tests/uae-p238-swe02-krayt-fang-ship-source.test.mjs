@@ -91,7 +91,7 @@ test('P238 real controller: observations, cargo, Bura conversation and six-hour 
    assert.equal(p.shipSequence.discoveredRooms.includes('number-two-hold'),true);
    assert.equal(p.shipSequence.cargoReceipts[0].ownership,'DISCOVERED_NOT_TRANSFERRED');
    assert.equal(p.shipSequence.buraConversation.facts.some(x=>x.id==='mineReward'),true);
-   assert.deepEqual(p.shipSequence.transit,{elapsedHours:6,uneventful:true,restAndRecuperationAvailable:true,completed:true,source:{productCode:'SWE02',printedPage:11}});
+   assert.deepEqual(p.shipSequence.transit,{elapsedHours:6,elapsedHoursIsMinimum:true,durationStatus:'LONGER_THAN_OPTIMAL_UNQUANTIFIED',extraDurationStatus:'GM_TIME_ADJUDICATION_REQUIRED',uneventful:true,restAndRecuperationAvailable:true,completed:true,source:{productCode:'SWE02',printedPage:11}});
    a.status(h.state.world);
  }
 });

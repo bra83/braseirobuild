@@ -3208,6 +3208,17 @@ class BraseiroUiBridge {
             return fail('SWE02_SHIP_FAILED', messageOf(e));
         }
     }
+    adjudicateSWE02ShipTransitExtraDuration(details = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.adjudicateSWE02ShipTransitExtraDuration(details ?? {})));
+        }
+        catch (e) {
+            return fail('SWE02_SHIP_FAILED', messageOf(e));
+        }
+    }
     discoverSWE02ShipRoom(roomId) {
         const r = this._controllerForExistingCampaign();
         if (!r.ok)
@@ -13610,6 +13621,7 @@ exports.markLongArmOfTheHuttRewardsApplied = markLongArmOfTheHuttRewardsApplied;
 exports.archiveLongArmOfTheHutt = archiveLongArmOfTheHutt;
 exports.longArmShipSmellSetback = longArmShipSmellSetback;
 exports.recordLongArmShipObservation = recordLongArmShipObservation;
+exports.adjudicateLongArmShipTransitExtraDuration = adjudicateLongArmShipTransitExtraDuration;
 exports.discoverLongArmShipRoom = discoverLongArmShipRoom;
 exports.recordLongArmBuraConversation = recordLongArmBuraConversation;
 exports.setLongArmPeltSearchAnnounced = setLongArmPeltSearchAnnounced;
@@ -15020,6 +15032,9 @@ function shipWorldAction(world, action) {
 function recordLongArmShipObservation(world, id, details = {}) {
     return shipWorldAction(world, p => (0, swe02KraytFangP238_mjs_1.recordShipObservation)(p, id, details));
 }
+function adjudicateLongArmShipTransitExtraDuration(world, ticks) {
+    return shipWorldAction(world, p => (0, swe02KraytFangP238_mjs_1.adjudicateShipTransitExtraDuration)(p, ticks));
+}
 function discoverLongArmShipRoom(world, roomId) {
     return shipWorldAction(world, p => (0, swe02KraytFangP238_mjs_1.recordShipRoomDiscovery)(p, roomId));
 }
@@ -16420,6 +16435,7 @@ const LONG_ARM_OF_THE_HUTT_ADAPTER = Object.freeze({
     currentChecks: longArmOfTheHutt.currentLongArmOfTheHuttChecks,
     adjudicateCheck: longArmOfTheHutt.adjudicateLongArmOfTheHuttCheck,
     recordShipObservation: longArmOfTheHutt.recordLongArmShipObservation,
+    adjudicateShipTransitExtraDuration: longArmOfTheHutt.adjudicateLongArmShipTransitExtraDuration,
     discoverShipRoom: longArmOfTheHutt.discoverLongArmShipRoom,
     recordBuraConversation: longArmOfTheHutt.recordLongArmBuraConversation,
     setPeltSearchAnnounced: longArmOfTheHutt.setLongArmPeltSearchAnnounced,
@@ -18163,6 +18179,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.shipFlag = exports.SHIP_CHECKS = exports.BURA_CONVERSATION_FACTS = exports.SHIP_MANIFEST = exports.SHIP_ALERTS = exports.SHIP_SEQUENCE_VERSION = void 0;
 exports.shipIssueState = shipIssueState;
 exports.recordShipObservation = recordShipObservation;
+exports.adjudicateShipTransitExtraDuration = adjudicateShipTransitExtraDuration;
 exports.recordShipRoomDiscovery = recordShipRoomDiscovery;
 exports.recordBuraConversation = recordBuraConversation;
 exports.shipCheckAvailable = shipCheckAvailable;
@@ -18297,7 +18314,11 @@ function recordShipObservation(p, id, details = {}) {
         s.lowhhrickStrainReceipt = { amount: 2, applied: details.applied === true, characterId: details.characterId || null, source: { productCode: 'SWE02', printedPage: 9 } };
     }
     if (id === 'complete-hyperspace-transit') {
-        s.transit = { elapsedHours: 6, uneventful: true, restAndRecuperationAvailable: true, completed: true, source: { productCode: 'SWE02', printedPage: 11 } };
+        const routeFailed = p.flags?.shipCourseNonOptimal === true;
+        s.transit = { elapsedHours: 6, elapsedHoursIsMinimum: true,
+            durationStatus: routeFailed ? 'LONGER_THAN_OPTIMAL_UNQUANTIFIED' : 'A_LITTLE_MORE_THAN_SIX_HOURS',
+            extraDurationStatus: routeFailed ? 'GM_TIME_ADJUDICATION_REQUIRED' : 'NOT_REQUIRED',
+            uneventful: true, restAndRecuperationAvailable: true, completed: true, source: { productCode: 'SWE02', printedPage: 11 } };
         p.flags.shipHyperspaceTransitComplete = true;
     }
     if (id === 'keep-marked-chitin') {
@@ -18305,6 +18326,18 @@ function recordShipObservation(p, id, details = {}) {
         p.flags.shipMarkedChitinKept = true;
     }
     return receipt;
+}
+function adjudicateShipTransitExtraDuration(p, ticks) {
+    if (!Number.isSafeInteger(ticks) || ticks < 1 || ticks > 100000)
+        throw Error('Krayt Fang: informe pelo menos um bloco adicional válido de seis horas.');
+    const transit = p?.shipSequence?.transit;
+    if (!p || p.id !== 'long-arm-of-the-hutt' || p.status !== 'ACTIVE' || p.flags?.shipCourseNonOptimal !== true ||
+        p.currentNodeId !== 'rylos-arrival-decision' || !transit?.completed || transit.extraDurationStatus !== 'GM_TIME_ADJUDICATION_REQUIRED')
+        throw Error('Krayt Fang: não há atraso de rota aguardando adjudicação do Mestre.');
+    transit.extraDurationStatus = 'GM_ADJUDICATED';
+    transit.extraDurationTicks = ticks;
+    transit.extraDurationSource = { productCode: 'SWE02', printedPage: 8, authority: 'GM_ADJUDICATION' };
+    return structuredClone(transit);
 }
 function recordShipRoomDiscovery(p, roomId) {
     if (!p || p.id !== 'long-arm-of-the-hutt' || !exports.SHIP_MANIFEST[roomId])
@@ -18575,7 +18608,15 @@ function validateShip(p) {
             throw Error('Krayt Fang: viagem sem recibo.');
         if (Boolean(flags.shipMarkedChitinKept) !== ids.has('keep-marked-chitin'))
             throw Error('Krayt Fang: carapaça preservada sem recibo.');
-        if (s.transit && (!ids.has('complete-hyperspace-transit') || s.transit.elapsedHours !== 6 || s.transit.uneventful !== true))
+        if (s.transit && (!ids.has('complete-hyperspace-transit') || s.transit.elapsedHours !== 6 || s.transit.uneventful !== true ||
+            (s.transit.elapsedHoursIsMinimum !== undefined && s.transit.elapsedHoursIsMinimum !== true) ||
+            (s.transit.durationStatus !== undefined && !['A_LITTLE_MORE_THAN_SIX_HOURS', 'LONGER_THAN_OPTIMAL_UNQUANTIFIED'].includes(s.transit.durationStatus)) ||
+            (s.transit.extraDurationStatus !== undefined && !['NOT_REQUIRED', 'GM_TIME_ADJUDICATION_REQUIRED', 'GM_ADJUDICATED'].includes(s.transit.extraDurationStatus)) ||
+            (s.transit.durationStatus !== undefined && s.transit.durationStatus !== (flags.shipCourseNonOptimal ? 'LONGER_THAN_OPTIMAL_UNQUANTIFIED' : 'A_LITTLE_MORE_THAN_SIX_HOURS')) ||
+            (s.transit.extraDurationStatus !== undefined && ((flags.shipCourseNonOptimal && !['GM_TIME_ADJUDICATION_REQUIRED', 'GM_ADJUDICATED'].includes(s.transit.extraDurationStatus)) || (!flags.shipCourseNonOptimal && s.transit.extraDurationStatus !== 'NOT_REQUIRED'))) ||
+            (s.transit.extraDurationStatus === 'GM_ADJUDICATED' && (!Number.isSafeInteger(s.transit.extraDurationTicks) || s.transit.extraDurationTicks < 1 || s.transit.extraDurationTicks > 100000)) ||
+            (s.transit.extraDurationStatus !== 'GM_ADJUDICATED' && s.transit.extraDurationTicks !== undefined) ||
+            (s.transit.extraDurationStatus === 'GM_ADJUDICATED' && s.transit.extraDurationSource?.authority !== 'GM_ADJUDICATION')))
             throw Error('Krayt Fang: recibo de viagem contraditório.');
         if (s.lowhhrickStrainReceipt && (s.lowhhrickStrainReceipt.amount !== 2 || s.lowhhrickStrainReceipt.source?.printedPage !== 9))
             throw Error('Krayt Fang: consequência de Lowhhrick inválida.');
@@ -23929,7 +23970,8 @@ class GameController {
         if (!options || typeof options !== 'object' || Array.isArray(options))
             throw new Error('Opções de ação publicada inválidas.');
         const { rng, actionId: ignored, ...persistedOptions } = options;
-        const args = kind === 'choice' ? { choiceId: String(choiceId ?? '') } :
+        const args = kind === 'choice' ? { choiceId: String(choiceId ?? ''),
+            ...(choiceId === 'ship-start-interception' ? { unawareCharacterIds: [...(persistedOptions.unawareCharacterIds ?? [])].sort() } : {}) } :
             kind === 'check' ? { checkIndex: Number(checkIndex),
                 useLightDestiny: Boolean(persistedOptions.useLightDestiny),
                 useDarkDestiny: Boolean(persistedOptions.useDarkDestiny) } :
@@ -23960,7 +24002,8 @@ class GameController {
             if (kind === 'start')
                 result = this.startPublishedAdventureSession(adapter.id, { rng });
             else if (kind === 'choice')
-                result = this.advancePublishedAdventure(choiceId, { adventureId: adapter.id });
+                result = this.advancePublishedAdventure(choiceId, { adventureId: adapter.id,
+                    ...(choiceId === 'ship-start-interception' ? { unawareCharacterIds: persistedOptions.unawareCharacterIds ?? [] } : {}) });
             else if (kind === 'check')
                 result = this.resolvePublishedAdventureCheck(checkIndex, { adventureId: adapter.id, ...persistedOptions, rng });
             else if (kind === 'encounter')
@@ -24815,7 +24858,8 @@ class GameController {
     }
     advancePublishedAdventure(choiceId, { adventureId = null, actionId = null, rng = Math.random, unawareCharacterIds = [] } = {}) {
         if (actionId !== null)
-            return this.executePublishedAdventureCommand({ actionId, kind: 'choice', adventureId, choiceId });
+            return this.executePublishedAdventureCommand({ actionId, kind: 'choice', adventureId, choiceId,
+                options: choiceId === 'ship-start-interception' ? { unawareCharacterIds } : {} });
         return this.atomicAction(() => {
             const resolvedAdventureId = adventureId || this.state.world?.publishedAdventure?.id || 'under-black-sun';
             const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(resolvedAdventureId);
@@ -24825,7 +24869,13 @@ class GameController {
             if (adapter.id === 'long-arm-of-the-hutt' && choiceId === 'ship-start-interception')
                 this.beginSWE02ThwheekCombat({ rng, unawareCharacterIds });
             const result = adapter.advance(this.state.world, String(choiceId ?? ''));
-            this.commit('WORLD_UPDATED', { world: result.world });
+            let nextWorld = result.world;
+            // SWE02 p.11: the hyperspace trip is six hours. The living-world
+            // calendar uses four ticks per day, so one tick advances exactly six
+            // hours and is committed with the scene transition.
+            if (adapter.id === 'long-arm-of-the-hutt' && choiceId === 'ship-depart-verified')
+                nextWorld = sandbox_mjs_1.advanceLivingWorld(nextWorld, { ticks: 1, maxEvents: 50 }).world;
+            this.commit('WORLD_UPDATED', { world: nextWorld });
             // SWE13 p. 17: 500 credits per controlled PC for accepting the
             // Saleucami meeting. Atomic with the choice and its durable receipt;
             // never re-pay on reopens or actionId replays.
@@ -28086,6 +28136,15 @@ class GameController {
                 this.commit('CHARACTER_UPDATED', { character });
             this.commit('WORLD_UPDATED', { world: out.world });
             return { receipt: out.result, issueState: out.issueState, character: character ? clone(character) : null };
+        });
+    }
+    adjudicateSWE02ShipTransitExtraDuration({ ticks } = {}) {
+        return this.atomicAction(() => {
+            const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            const out = adapter.adjudicateShipTransitExtraDuration(this.state.world, Number(ticks));
+            const world = sandbox_mjs_1.advanceLivingWorld(out.world, { ticks: Number(ticks), maxEvents: 50 }).world;
+            this.commit('WORLD_UPDATED', { world });
+            return { transit: clone(out.result), clockTick: world.clock.tick };
         });
     }
     discoverSWE02ShipRoom(roomId) {

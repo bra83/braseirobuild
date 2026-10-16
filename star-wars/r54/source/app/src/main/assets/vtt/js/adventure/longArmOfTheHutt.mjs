@@ -1,7 +1,7 @@
 import { ensureLivingWorldDepth } from '../world/livingWorldDepth.mjs';
 import { FACTS,ARGUMENTS,guardCount,scoreDimmock,validateGeonosis,recordGeonosisChoice } from './swe02GeonosisP237.mjs';
 import { SHIP_CHECKS,shipCheckAvailable,shipNoisePool,shipCheckPool,recordShipCheck,recordShipChoice,validateShip,shipSmellSetback,shipIssueState,
-  recordShipObservation,recordShipRoomDiscovery,recordBuraConversation } from './swe02KraytFangP238.mjs';
+  recordShipObservation,recordShipRoomDiscovery,recordBuraConversation,adjudicateShipTransitExtraDuration } from './swe02KraytFangP238.mjs';
 import {validateThwheek} from './swe02ThwheekP239.mjs';
 import {validateNabat} from './swe02NabatP240.mjs';
 import {validateSWE02Social,remainingDrombbThugs} from './swe02SocialP241.mjs';
@@ -1257,6 +1257,9 @@ function shipWorldAction(world, action) {
 }
 export function recordLongArmShipObservation(world,id,details={}) {
  return shipWorldAction(world,p=>recordShipObservation(p,id,details));
+}
+export function adjudicateLongArmShipTransitExtraDuration(world,ticks) {
+ return shipWorldAction(world,p=>adjudicateShipTransitExtraDuration(p,ticks));
 }
 export function discoverLongArmShipRoom(world,roomId) {
  return shipWorldAction(world,p=>recordShipRoomDiscovery(p,roomId));

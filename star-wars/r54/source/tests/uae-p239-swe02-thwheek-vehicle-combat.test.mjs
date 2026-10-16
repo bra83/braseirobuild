@@ -35,6 +35,35 @@ test('P239 optimal navigation + slowed transponder: direct Nabat, no fighter',()
  assert.throws(()=>g.advancePublishedAdventure('ship-follow-interception'),/inválida/);
  g.advancePublishedAdventure('ship-safe-landing');assert.equal(g.state.world.publishedAdventure.currentNodeId,'nabat-arrival');
 });
+test('P239 SWE02 p.11 six-hour transit advances one persisted living-world tick exactly once',()=>{
+ const {g,repo}=make();const p=g.state.world.publishedAdventure;
+ assert.equal(p.shipSequence.transit.elapsedHours,6);assert.equal(p.shipSequence.transit.uneventful,true);
+ assert.equal(p.shipSequence.transit.durationStatus,'A_LITTLE_MORE_THAN_SIX_HOURS');
+ assert.equal(g.state.world.clock.tick,1);assert.equal(g.state.world.livingDepth.lastTick,1);
+ const saves=repo.saves;assert.throws(()=>g.advancePublishedAdventure('ship-depart-verified'),/inválida/);
+ assert.equal(repo.saves,saves);assert.equal(repo.state.world.clock.tick,1);
+ const reopened=new GameController(repo);assert.equal(reopened.state.world.clock.tick,1);
+ assert.equal(reopened.state.world.publishedAdventure.shipSequence.transit.elapsedHours,6);
+});
+test('P239 SWE02 p.8 failed route records unquantified extra transit time for GM adjudication',()=>{
+ const {g,repo}=make({nonOptimal:true}),transit=g.state.world.publishedAdventure.shipSequence.transit;
+ assert.equal(transit.elapsedHoursIsMinimum,true);
+ assert.equal(transit.durationStatus,'LONGER_THAN_OPTIMAL_UNQUANTIFIED');
+ assert.equal(transit.extraDurationStatus,'GM_TIME_ADJUDICATION_REQUIRED');
+ assert.equal(g.state.world.clock.tick,1);
+ const applied=g.adjudicateSWE02ShipTransitExtraDuration({ticks:2});
+ assert.equal(applied.transit.extraDurationStatus,'GM_ADJUDICATED');assert.equal(applied.transit.extraDurationTicks,2);
+ assert.equal(applied.clockTick,3);assert.equal(repo.state.world.livingDepth.lastTick,3);
+ assert.throws(()=>g.adjudicateSWE02ShipTransitExtraDuration({ticks:2}),/não há atraso/);
+ const reopened=new GameController(repo);assert.equal(reopened.state.world.clock.tick,3);
+ assert.equal(reopened.state.world.publishedAdventure.shipSequence.transit.extraDurationTicks,2);
+ assert.throws(()=>reopened.adjudicateSWE02ShipTransitExtraDuration({ticks:1}),/não há atraso/);
+});
+test('P239 SWE02 normal route rejects extra transit time adjudication',()=>{
+ const {g}=make();assert.equal(g.state.world.clock.tick,1);
+ assert.throws(()=>g.adjudicateSWE02ShipTransitExtraDuration({ticks:1}),/não há atraso/);
+ assert.equal(g.state.world.clock.tick,1);
+});
 test('P239 failed route forces interception even after slowed tracker',()=>{
  const {g}=make({slow:true,nonOptimal:true});assert.equal(g.state.world.publishedAdventure.flags.shipThwheekInterceptionRequired,true);
  begin(g);assert.equal(g.state.vehicles.combat.targetVehicleId,THWHEEK_ID);

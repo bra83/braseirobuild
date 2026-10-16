@@ -119,7 +119,11 @@ export function recordShipObservation(p,id,details={}) {
     s.lowhhrickStrainReceipt={amount:2,applied:details.applied===true,characterId:details.characterId||null,source:{productCode:'SWE02',printedPage:9}};
   }
   if(id==='complete-hyperspace-transit'){
-    s.transit={elapsedHours:6,uneventful:true,restAndRecuperationAvailable:true,completed:true,source:{productCode:'SWE02',printedPage:11}};
+    const routeFailed=p.flags?.shipCourseNonOptimal===true;
+    s.transit={elapsedHours:6,elapsedHoursIsMinimum:true,
+      durationStatus:routeFailed?'LONGER_THAN_OPTIMAL_UNQUANTIFIED':'A_LITTLE_MORE_THAN_SIX_HOURS',
+      extraDurationStatus:routeFailed?'GM_TIME_ADJUDICATION_REQUIRED':'NOT_REQUIRED',
+      uneventful:true,restAndRecuperationAvailable:true,completed:true,source:{productCode:'SWE02',printedPage:11}};
     p.flags.shipHyperspaceTransitComplete=true;
   }
   if(id==='keep-marked-chitin'){
@@ -127,6 +131,19 @@ export function recordShipObservation(p,id,details={}) {
     p.flags.shipMarkedChitinKept=true;
   }
   return receipt;
+}
+
+export function adjudicateShipTransitExtraDuration(p,ticks){
+  if(!Number.isSafeInteger(ticks)||ticks<1||ticks>100000)
+    throw Error('Krayt Fang: informe pelo menos um bloco adicional válido de seis horas.');
+  const transit=p?.shipSequence?.transit;
+  if(!p||p.id!=='long-arm-of-the-hutt'||p.status!=='ACTIVE'||p.flags?.shipCourseNonOptimal!==true||
+    p.currentNodeId!=='rylos-arrival-decision'||!transit?.completed||transit.extraDurationStatus!=='GM_TIME_ADJUDICATION_REQUIRED')
+    throw Error('Krayt Fang: não há atraso de rota aguardando adjudicação do Mestre.');
+  transit.extraDurationStatus='GM_ADJUDICATED';
+  transit.extraDurationTicks=ticks;
+  transit.extraDurationSource={productCode:'SWE02',printedPage:8,authority:'GM_ADJUDICATION'};
+  return structuredClone(transit);
 }
 
 export function recordShipRoomDiscovery(p,roomId) {
@@ -327,7 +344,16 @@ export function validateShip(p){
     if(Boolean(flags.shipBuraFreed)!==ids.has('bura-free'))throw Error('Krayt Fang: libertação de B’ura sem recibo.');
     if(Boolean(flags.shipHyperspaceTransitComplete)!==ids.has('complete-hyperspace-transit'))throw Error('Krayt Fang: viagem sem recibo.');
     if(Boolean(flags.shipMarkedChitinKept)!==ids.has('keep-marked-chitin'))throw Error('Krayt Fang: carapaça preservada sem recibo.');
-    if(s.transit&&(!ids.has('complete-hyperspace-transit')||s.transit.elapsedHours!==6||s.transit.uneventful!==true))throw Error('Krayt Fang: recibo de viagem contraditório.');
+    if(s.transit&&(!ids.has('complete-hyperspace-transit')||s.transit.elapsedHours!==6||s.transit.uneventful!==true||
+      (s.transit.elapsedHoursIsMinimum!==undefined&&s.transit.elapsedHoursIsMinimum!==true)||
+      (s.transit.durationStatus!==undefined&&!['A_LITTLE_MORE_THAN_SIX_HOURS','LONGER_THAN_OPTIMAL_UNQUANTIFIED'].includes(s.transit.durationStatus))||
+      (s.transit.extraDurationStatus!==undefined&&!['NOT_REQUIRED','GM_TIME_ADJUDICATION_REQUIRED','GM_ADJUDICATED'].includes(s.transit.extraDurationStatus))||
+      (s.transit.durationStatus!==undefined&&s.transit.durationStatus!==(flags.shipCourseNonOptimal?'LONGER_THAN_OPTIMAL_UNQUANTIFIED':'A_LITTLE_MORE_THAN_SIX_HOURS'))||
+      (s.transit.extraDurationStatus!==undefined&&((flags.shipCourseNonOptimal&& !['GM_TIME_ADJUDICATION_REQUIRED','GM_ADJUDICATED'].includes(s.transit.extraDurationStatus))||(!flags.shipCourseNonOptimal&&s.transit.extraDurationStatus!=='NOT_REQUIRED')))||
+      (s.transit.extraDurationStatus==='GM_ADJUDICATED'&&(!Number.isSafeInteger(s.transit.extraDurationTicks)||s.transit.extraDurationTicks<1||s.transit.extraDurationTicks>100000))||
+      (s.transit.extraDurationStatus!=='GM_ADJUDICATED'&&s.transit.extraDurationTicks!==undefined)||
+      (s.transit.extraDurationStatus==='GM_ADJUDICATED'&&s.transit.extraDurationSource?.authority!=='GM_ADJUDICATION')))
+      throw Error('Krayt Fang: recibo de viagem contraditório.');
     if(s.lowhhrickStrainReceipt&&(s.lowhhrickStrainReceipt.amount!==2||s.lowhhrickStrainReceipt.source?.printedPage!==9))throw Error('Krayt Fang: consequência de Lowhhrick inválida.');
     if(Boolean(s.lowhhrickStrainReceipt)!==ids.has('lowhhrick-pelt-strain'))throw Error('Krayt Fang: recibo de strain de Lowhhrick inconsistente.');
   }

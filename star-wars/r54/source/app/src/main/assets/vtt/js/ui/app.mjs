@@ -873,6 +873,19 @@ function renderVehicle(state){
   const swe02Scene=swe02p?.id==='long-arm-of-the-hutt'&&swe02p.status==='ACTIVE';
   const thwheekStart=swe02Scene&&swe02p.currentNodeId==='thwheek-orbit'&&!state.vehicles?.combat?.active;
   $('swe02ThwheekInitiative').hidden=!thwheekStart;
+  const transit=swe02p?.shipSequence?.transit;
+  $('swe02ShipTransitSummary').hidden=!(swe02Scene&&transit?.completed===true);
+  if(swe02Scene&&transit?.completed===true){
+    $('swe02ShipTransitStatus').textContent=transit.durationStatus==='LONGER_THAN_OPTIMAL_UNQUANTIFIED'
+      ?transit.extraDurationStatus==='GM_ADJUDICATED'
+        ?`Rota falha: o Mestre registrou ${transit.extraDurationTicks} bloco(s) adicional(is) de 6 horas. Descanso e recuperação estão disponíveis.`
+        :'Pelo menos um bloco de 6 horas passou; a rota falha leva mais que a normal. O acréscimo de duração não é quantificado pela aventura e aguarda adjudicação do Mestre.'
+      :'A rota normal levou pouco mais de 6 horas (um bloco de 6 horas no relógio do mundo). A viagem foi tranquila; descanso e recuperação estão disponíveis.';
+  }
+  const needsExtraTime=transit?.extraDurationStatus==='GM_TIME_ADJUDICATION_REQUIRED'&&swe02p?.currentNodeId==='rylos-arrival-decision';
+  $('swe02TransitExtraLabel').hidden=!needsExtraTime;$('swe02TransitExtraApply').hidden=!needsExtraTime;
+  const extraTicks=Number($('swe02TransitExtraTicks').value);
+  $('swe02TransitExtraApply').disabled=!needsExtraTime||!Number.isSafeInteger(extraTicks)||extraTicks<1||extraTicks>100000;
   if(thwheekStart){
     const select=$('swe02ThwheekUnaware'),prior=new Set([...select.selectedOptions].map(x=>x.value));
     select.replaceChildren(...(state.player?.roster?.entries??[]).map(entry=>new Option(entry.character?.name??entry.id,entry.id)));
@@ -1161,6 +1174,8 @@ for(const [id,run,label] of [
 ])$(id).addEventListener('click',()=>{try{const r=run();if(r?.ok===false)throw Error(r.message);showFeedback('swe02ShipFeedback',label);render();}catch(e){showFeedback('swe02ShipFeedback',e.message);}});
 $('swe02ShipFindBura').addEventListener('click',()=>{try{const r=game.advancePublishedAdventure('ship-find-bura');if(r?.ok===false)throw Error(r.message);showFeedback('swe02ShipFeedback','B’ura B’an encontrado e libertado sem teste.');render();}catch(e){showFeedback('swe02ShipFeedback',e.message);}});
 $('swe02ThwheekStart').addEventListener('click',()=>{try{const unawareCharacterIds=[...$('swe02ThwheekUnaware').selectedOptions].map(x=>x.value);const r=game.advancePublishedAdventure('ship-start-interception',{unawareCharacterIds});if(r?.ok===false)throw Error(r.message);showFeedback('swe02ThwheekInitiativeFeedback','Iniciativa registrada pela perícia correspondente à consciência de cada PC.');render();}catch(e){showFeedback('swe02ThwheekInitiativeFeedback',e.message);}});
+$('swe02TransitExtraApply').addEventListener('click',()=>{try{const ticks=Number($('swe02TransitExtraTicks').value),r=game.adjudicateSWE02ShipTransitExtraDuration({ticks});if(r?.ok===false)throw Error(r.message);showFeedback('swe02TransitFeedback','A duração adicional escolhida pelo Mestre foi aplicada ao relógio do mundo.');render();}catch(e){showFeedback('swe02TransitFeedback',e.message);}});
+$('swe02TransitExtraTicks').addEventListener('input',render);
 $('swe02BuraConversation').addEventListener('click',()=>{try{
  const topics=[...$('swe02BuraTopics').selectedOptions].map(o=>o.value);
  const r=game.recordSWE02BuraConversation({topics,oskaraPresent:$('swe02BuraOskaraPresent').checked,oskaraSharedHistory:$('swe02BuraOskaraStory').checked,oskaraRaisedCorruption:$('swe02BuraCorruption').checked});

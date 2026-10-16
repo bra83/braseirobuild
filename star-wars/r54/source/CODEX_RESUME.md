@@ -21,7 +21,7 @@
 ## Exact next actions
 
 1. Resume SWE02 Act 1 pp.2–14 from `audits/SWE02_ACT1_DEEP_AUDIT.md` and `validation/WORK_STATUS.json`. P.12 initiative (including the unaware-PC Vigilance exception) and crash crew identity/effects now have focused proof; finish p.12 page-wide evidence, then continue p.6–11 item/time effects.
-2. Close pp.6–11 gaps with source-backed actual cargo transfers/sales, numeric fuel/time/world-clock effects and downstream clue causality; preserve GM adjudication where the book leaves outcomes open. Then close pp.13–14 and the outstanding p.15–23 branches recorded in the audit.
+2. Close pp.6–11 gaps with source-backed actual cargo transfers/sales, verified rest recovery and downstream clue causality; preserve GM adjudication where the book leaves outcomes open. The p.11 baseline travel tick and GM-selected failed-route delay now persist. Then close pp.13–14 and the outstanding p.15–23 branches recorded in the audit.
 3. Keep SWE02 uncertified until all Acts 1–3 source claims, branches and persistence gates have end-to-end evidence. Only then work through SWEP01, SWE05, SWE09, SWE13, the selected rules corpus and all 360 AoR ledger rows.
 4. Current verified checkpoint is pushed at `775e378df1c118dd6d672b0e5f09eb8c52e61bce`. The project remains incomplete; do not interpret the checkpoint as completion.
 5. Do not create P245 or run Android release gates until all five adventures and the rules/AoR certification gates pass.
@@ -65,3 +65,8 @@
 - Implemented the printed exception: PCs marked by the GM as not seeing Thwheek emerge and turn to attack roll Vigilance; other PCs and Thwheek roll Cool. The selection, chosen skill and turn order persist and are validated. The UI defaults to all PCs aware and exposes a per-PC selector before combat.
 - Focused P239 suite passes 20/20, generic vehicle-controller regression 4/4; official bridge bundle rebuilt with 135 modules. Syntax, JSON and diff checks pass. Evidence: `evidence/SWE02_P12_INITIATIVE_EXCEPTION_20261016/`.
 - P.12 and SWE02 remain pending for page-wide source mapping, persistence and regression. Next: close p.12 page gate, then continue the p.6–11 cargo/time/clue gaps. All five adventure, selected rules and AoR 360 gates remain open; do not create P245 or run release gates.
+
+## Resume update — SWE02 p.11 transit clock (2026-10-16)
+
+- Confirmed p.11 says the normal hyperspace route takes a little more than six hours and offers rest/exploration; p.8 says failed Astrogation lengthens the trip without quantifying the delay. The code advances one six-hour baseline world tick; failed-route extra blocks are a GM-entered adjudication at Ryloth arrival and apply once.
+- Focused P238/P239 tests pass 36/36; vehicle-controller suite 4/4; 135-module bridge bundle rebuilt. See `evidence/SWE02_P11_TRANSIT_CLOCK_20261016/`. Numeric fuel amount and exact resource recovery remain open. Next: finish ship cargo ownership/transfer and recovery rules, then other pp.6–11 source claims.

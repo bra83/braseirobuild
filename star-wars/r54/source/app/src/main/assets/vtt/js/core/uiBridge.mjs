@@ -1753,6 +1753,8 @@ completeMerchantAcquisition(options={}){
         try{return ok(clone(r.data.setSWE02PeltSearchAnnounced(Boolean(announced))));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
     recordSWE02ShipObservation(id,details={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.recordSWE02ShipObservation(String(id),details??{})));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
+    adjudicateSWE02ShipTransitExtraDuration(details={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.adjudicateSWE02ShipTransitExtraDuration(details??{})));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
     discoverSWE02ShipRoom(roomId){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.discoverSWE02ShipRoom(String(roomId))));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
     recordSWE02BuraConversation(details={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;

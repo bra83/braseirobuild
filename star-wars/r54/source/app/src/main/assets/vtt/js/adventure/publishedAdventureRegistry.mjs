@@ -71,6 +71,7 @@ const LONG_ARM_OF_THE_HUTT_ADAPTER = Object.freeze({
   currentChecks: longArmOfTheHutt.currentLongArmOfTheHuttChecks,
   adjudicateCheck: longArmOfTheHutt.adjudicateLongArmOfTheHuttCheck,
   recordShipObservation: longArmOfTheHutt.recordLongArmShipObservation,
+  adjudicateShipTransitExtraDuration: longArmOfTheHutt.adjudicateLongArmShipTransitExtraDuration,
   discoverShipRoom: longArmOfTheHutt.discoverLongArmShipRoom,
   recordBuraConversation: longArmOfTheHutt.recordLongArmBuraConversation,
   setPeltSearchAnnounced: longArmOfTheHutt.setLongArmPeltSearchAnnounced,

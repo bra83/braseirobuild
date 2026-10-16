@@ -2308,7 +2308,8 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         if (!options || typeof options !== 'object' || Array.isArray(options))
             throw new Error('Opções de ação publicada inválidas.');
         const { rng, actionId: ignored, ...persistedOptions } = options;
-        const args = kind === 'choice' ? { choiceId: String(choiceId ?? '') } :
+        const args = kind === 'choice' ? { choiceId: String(choiceId ?? ''),
+                ...(choiceId==='ship-start-interception'?{unawareCharacterIds:[...(persistedOptions.unawareCharacterIds??[])].sort()}: {}) } :
             kind === 'check' ? { checkIndex: Number(checkIndex),
                 useLightDestiny: Boolean(persistedOptions.useLightDestiny),
                 useDarkDestiny: Boolean(persistedOptions.useDarkDestiny) } :
@@ -2337,7 +2338,8 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         return this.atomicAction(() => {
             let result;
             if (kind === 'start') result = this.startPublishedAdventureSession(adapter.id, { rng });
-            else if (kind === 'choice') result = this.advancePublishedAdventure(choiceId, { adventureId: adapter.id });
+            else if (kind === 'choice') result = this.advancePublishedAdventure(choiceId, { adventureId: adapter.id,
+                ...(choiceId==='ship-start-interception'?{unawareCharacterIds:persistedOptions.unawareCharacterIds??[]}: {}) });
             else if (kind === 'check') result = this.resolvePublishedAdventureCheck(checkIndex,
                 { adventureId: adapter.id, ...persistedOptions, rng });
             else if (kind === 'encounter') result = this.beginPublishedAdventureEncounter(encounterId,
@@ -3138,7 +3140,8 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         });
     }
     advancePublishedAdventure(choiceId, { adventureId = null, actionId = null, rng = Math.random, unawareCharacterIds = [] } = {}) {
-        if (actionId !== null) return this.executePublishedAdventureCommand({ actionId, kind: 'choice', adventureId, choiceId });
+        if (actionId !== null) return this.executePublishedAdventureCommand({ actionId, kind: 'choice', adventureId, choiceId,
+            options:choiceId==='ship-start-interception'?{unawareCharacterIds}:{} });
         return this.atomicAction(() => {
         const resolvedAdventureId = adventureId || this.state.world?.publishedAdventure?.id || 'under-black-sun';
         const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(resolvedAdventureId);
@@ -3148,7 +3151,13 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         if(adapter.id==='long-arm-of-the-hutt'&&choiceId==='ship-start-interception')
             this.beginSWE02ThwheekCombat({rng,unawareCharacterIds});
         const result = adapter.advance(this.state.world, String(choiceId ?? ''));
-        this.commit('WORLD_UPDATED', { world: result.world });
+        let nextWorld=result.world;
+        // SWE02 p.11: the hyperspace trip is six hours. The living-world
+        // calendar uses four ticks per day, so one tick advances exactly six
+        // hours and is committed with the scene transition.
+        if(adapter.id==='long-arm-of-the-hutt'&&choiceId==='ship-depart-verified')
+            nextWorld=sandbox_mjs_1.advanceLivingWorld(nextWorld,{ticks:1,maxEvents:50}).world;
+        this.commit('WORLD_UPDATED', { world: nextWorld });
         // SWE13 p. 17: 500 credits per controlled PC for accepting the
         // Saleucami meeting. Atomic with the choice and its durable receipt;
         // never re-pay on reopens or actionId replays.
@@ -5894,6 +5903,15 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
             const out=adapter.recordShipObservation(this.state.world,id,normalized);
             if(character)this.commit('CHARACTER_UPDATED',{character});
             this.commit('WORLD_UPDATED',{world:out.world});return {receipt:out.result,issueState:out.issueState,character:character?clone(character):null};
+        });
+    }
+    adjudicateSWE02ShipTransitExtraDuration({ticks}={}){
+        return this.atomicAction(()=>{
+            const adapter=publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            const out=adapter.adjudicateShipTransitExtraDuration(this.state.world,Number(ticks));
+            const world=sandbox_mjs_1.advanceLivingWorld(out.world,{ticks:Number(ticks),maxEvents:50}).world;
+            this.commit('WORLD_UPDATED',{world});
+            return {transit:clone(out.result),clockTick:world.clock.tick};
         });
     }
     discoverSWE02ShipRoom(roomId){
