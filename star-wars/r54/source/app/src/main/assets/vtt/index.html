@@ -126,6 +126,38 @@ ROTA PONTILHADA: retirada dos caçadores · SWE02 p.16</pre>
         <p id="swe02OldLylekFeedback" class="feedback"></p>
       </section>
 
+      <section id="swe02KraytFangShip" class="action-panel" hidden>
+        <h3>SWE02 — Krayt Fang · pp.6–11</h3>
+        <p id="swe02ShipStatus" class="microcopy"></p>
+        <div class="button-row">
+          <button id="swe02ShipObserveAlerts">Registrar os quatro alertas do computador · p.7</button>
+          <button id="swe02ShipLocateSmell">Investigar o odor no porão de carga · sem penalidade de Percepção · p.9</button>
+          <label>Oskara está presente no porão três?<select id="swe02ShipOskara"><option value="false">Não</option><option value="true">Sim</option></select></label>
+          <button id="swe02ShipInspectCage">Pressionar o ícone da cela · p.9</button>
+          <button id="swe02ShipFindBura">Encontrar e libertar B’ura B’an sem teste · p.9</button>
+          <label><input id="swe02ShipAnnouncePeltSearch" type="checkbox"> Anunciar busca cuidadosa pelas peles (1 Impulso) · p.9</label>
+          <button id="swe02ShipSetPeltSearch">Registrar anúncio da busca</button>
+        </div>
+        <div class="button-row">
+          <button id="swe02ShipDiscoverMainHold">Registrar inspeção do porão principal</button>
+          <button id="swe02ShipDiscoverHoldTwo">Registrar inspeção do porão dois</button>
+          <button id="swe02ShipDiscoverHoldThree">Registrar inspeção do porão três</button>
+          <label><input id="swe02ShipApplyLowhhrickStrain" type="checkbox"> Mestre confirmou 2 de Tensão na ficha ativa de Lowhhrick · p.9</label>
+          <button id="swe02ShipLowhhrickStrain">Registrar consequência dos peles para Lowhhrick</button>
+        </div>
+        <label>Fatos para conversar com B’ura (Ctrl/Command para selecionar vários)<select id="swe02BuraTopics" multiple size="4">
+          <option value="injury">Ferimento e lekku</option><option value="captureStory">Captura e operação de mineração</option><option value="teemoTheory">Suspeita sobre Teemo</option><option value="shipHelp">Ajuda com a nave</option><option value="mineReward">Possível recompensa em ryll</option><option value="drombbDetails">Angu Drombb</option>
+        </select></label>
+        <label><input id="swe02BuraOskaraPresent" type="checkbox"> Oskara está presente</label>
+        <label><input id="swe02BuraOskaraStory" type="checkbox"> Oskara compartilhou sua história com Makara</label>
+        <label><input id="swe02BuraCorruption" type="checkbox"> Oskara levantou a possibilidade de corrupção na organização</label>
+        <button id="swe02BuraConversation">Registrar conversa com B’ura · pp.10–11</button>
+        <label>Teste da nave<select id="swe02ShipCheck"></select></label>
+        <label><input id="swe02ShipAidLowhhrick" type="checkbox"> Esta perícia ajuda Lowhhrick (acrescenta 2 Setbacks) · p.7</label>
+        <button id="swe02ShipResolveCheck">Rolar teste da nave</button>
+        <p id="swe02ShipFeedback" class="feedback"></p>
+      </section>
+
       <details class="rules-panel" id="knownFactionsPanel">
         <summary>Forças em jogo</summary>
         <p class="microcopy">Mostra somente facções já conhecidas pelo jogador e fatos públicos. Objetivos, recursos e fatos privados continuam restritos ao Mestre.</p>

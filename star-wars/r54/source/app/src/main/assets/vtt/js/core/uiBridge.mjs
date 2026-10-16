@@ -1749,6 +1749,14 @@ completeMerchantAcquisition(options={}){
         try{return ok(clone(r.data.resolveSWE02OldLylekHunterRetreat()));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
     revealSWE02OldLylekDeveloperDetails(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.revealSWE02OldLylekDeveloperDetails(options??{})));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    setSWE02PeltSearchAnnounced(announced){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.setSWE02PeltSearchAnnounced(Boolean(announced))));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
+    recordSWE02ShipObservation(id,details={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.recordSWE02ShipObservation(String(id),details??{})));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
+    discoverSWE02ShipRoom(roomId){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.discoverSWE02ShipRoom(String(roomId))));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
+    recordSWE02BuraConversation(details={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.recordSWE02BuraConversation(details??{})));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
     swe02NabatMarket(){
         const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.swe02NabatMarket()));}catch(e){return fail('SWE02_NABAT_FAILED',messageOf(e));}

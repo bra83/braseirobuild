@@ -873,6 +873,27 @@ function renderVehicle(state){
   const swe02Scene=swe02p?.id==='long-arm-of-the-hutt'&&swe02p.status==='ACTIVE';
   $('swe02NewMeenEscort').hidden=!(swe02Scene&&swe02p.currentNodeId==='new-meen-evacuation');
   $('swe02NewMeenMilitia').hidden=!(swe02Scene&&['new-meen-miners','new-meen-night-raid','drombb-cantina'].includes(swe02p.currentNodeId));
+  const shipScene=swe02Scene&&['krayt-fang-logs','krayt-fang-ground-inspection'].includes(swe02p.currentNodeId);
+  $('swe02KraytFangShip').hidden=!shipScene;
+  if(shipScene){
+    const flags=swe02p.flags||{},checks=state.master?.openingRequest?.adventureId==='long-arm-of-the-hutt'?state.master.openingRequest.checks||[]:[];
+    const select=$('swe02ShipCheck'),previous=select.value;
+    select.replaceChildren(new Option('Selecione um teste disponível',''),...checks.filter(x=>Number.isInteger(x.index)).map(x=>new Option(`${x.skill} ${x.difficultyText} · ${x.purpose}`,String(x.index))));
+    if(checks.some(x=>String(x.index)===previous))select.value=previous;
+    const seq=swe02p.shipSequence||{};
+    $('swe02ShipStatus').textContent=[
+      `Rota ${flags.shipCoursePlotted?(flags.shipCourseNonOptimal?'não ótima':'traçada'):'pendente'}`,
+      `B’ura ${flags.shipBuraFound?'libertado':'não localizado'}`,
+      `rastreador ${flags.shipTrackerSlowed?'reduzido':flags.shipTrackerLocated?'localizado':'sem diagnóstico'}`,
+      `klaxon ${flags.shipKlaxonOff?'desligado':'ativo'}`,
+      `música ${flags.shipMusicOff?'desligada':'ativa'}`,
+      `${seq.discoveredRooms?.length||0} compartimentos examinados`,
+      seq.transit?.completed?'viagem de 6 horas registrada':null
+    ].filter(Boolean).join(' · ');
+    $('swe02ShipFindBura').disabled=Boolean(flags.shipBuraFound)||swe02p.currentNodeId!=='krayt-fang-logs';
+    $('swe02ShipSetPeltSearch').disabled=Boolean(flags.shipPeltsFound)||swe02p.currentNodeId!=='krayt-fang-logs';
+    $('swe02ShipResolveCheck').disabled=!select.value||Boolean(state.combat?.active);
+  }
   const militiaWeapons=state.player?.character?.weapons||[],weaponSelect=$('swe02MilitiaWeapon'),priorWeapon=weaponSelect.value;
   weaponSelect.replaceChildren(new Option('Arma blaster própria',''),...militiaWeapons.map((w,i)=>({w,i})).filter(({w})=>/blaster|pistola/i.test(String(w.name||''))&&Number(w.damage)>0).map(({w,i})=>new Option(w.name,String(i))));
   if([...weaponSelect.options].some(o=>o.value===priorWeapon))weaponSelect.value=priorWeapon;
@@ -1093,6 +1114,27 @@ $('swe02LylekCheck').addEventListener('click',()=>{try{
  const raw=$('swe02RepairReduction').value;const r=game.resolvePublishedAdventureCheck(0,{adventureId:'long-arm-of-the-hutt',repairReductionMinutes:raw===''?null:Number(raw),rng:Math.random});
  showFeedback('swe02OldLylekFeedback',`Teste ${r.check.success?'bem-sucedido':'falhou'} · ${r.adjudication?.source?.printedPage?'fonte p.'+r.adjudication.source.printedPage:'SWE02'}.`);render();
 }catch(e){showFeedback('swe02OldLylekFeedback',e.message);}});
+
+for(const [id,run,label] of [
+ ['swe02ShipObserveAlerts',()=>game.recordSWE02ShipObservation('observe-alert-icons'),'Quatro alertas registrados com estado persistente.'],
+ ['swe02ShipLocateSmell',()=>game.recordSWE02ShipObservation('notice-smell-source-in-main-hold'),'Origem do odor registrada; Percepção para localizar a fonte não recebe Setback.'],
+ ['swe02ShipInspectCage',()=>game.recordSWE02ShipObservation('press-cage-icon',{oskaraPresent:$('swe02ShipOskara').value==='true'}),'Ícone da cela consultado; B’ura identificado.'],
+ ['swe02ShipSetPeltSearch',()=>game.setSWE02PeltSearchAnnounced($('swe02ShipAnnouncePeltSearch').checked),'Anúncio da busca salvo; o teste de Percepção recebe 1 Impulso se marcado.'],
+ ['swe02ShipDiscoverMainHold',()=>game.discoverSWE02ShipRoom('main-cargo-hold'),'Conteúdo do porão principal descoberto; nada foi transferido ao inventário.'],
+ ['swe02ShipDiscoverHoldTwo',()=>game.discoverSWE02ShipRoom('number-two-hold'),'Conteúdo do porão dois descoberto; nada foi transferido ao inventário.'],
+ ['swe02ShipDiscoverHoldThree',()=>game.discoverSWE02ShipRoom('number-three-hold'),'Conteúdo do porão três descoberto; nada foi transferido ao inventário.'],
+ ['swe02ShipLowhhrickStrain',()=>game.recordSWE02ShipObservation('lowhhrick-pelt-strain',{applyToActiveLowhhrick:$('swe02ShipApplyLowhhrickStrain').checked}),'Consequência de Lowhhrick registrada; Tensão aplicada somente à ficha ativa de Lowhhrick quando confirmado.']
+])$(id).addEventListener('click',()=>{try{const r=run();if(r?.ok===false)throw Error(r.message);showFeedback('swe02ShipFeedback',label);render();}catch(e){showFeedback('swe02ShipFeedback',e.message);}});
+$('swe02ShipFindBura').addEventListener('click',()=>{try{const r=game.advancePublishedAdventure('ship-find-bura');if(r?.ok===false)throw Error(r.message);showFeedback('swe02ShipFeedback','B’ura B’an encontrado e libertado sem teste.');render();}catch(e){showFeedback('swe02ShipFeedback',e.message);}});
+$('swe02BuraConversation').addEventListener('click',()=>{try{
+ const topics=[...$('swe02BuraTopics').selectedOptions].map(o=>o.value);
+ const r=game.recordSWE02BuraConversation({topics,oskaraPresent:$('swe02BuraOskaraPresent').checked,oskaraSharedHistory:$('swe02BuraOskaraStory').checked,oskaraRaisedCorruption:$('swe02BuraCorruption').checked});
+ if(r?.ok===false)throw Error(r.message);const data=r?.data?.facts||[];showFeedback('swe02ShipFeedback',`Conversa registrada: ${data.map(x=>x.fact).join(' ')}`);render();
+}catch(e){showFeedback('swe02ShipFeedback',e.message);}});
+$('swe02ShipResolveCheck').addEventListener('click',()=>{try{
+ const r=game.resolvePublishedAdventureCheck(Number($('swe02ShipCheck').value),{adventureId:'long-arm-of-the-hutt',aidingLowhhrick:$('swe02ShipAidLowhhrick').checked,rng:Math.random});
+ if(r?.ok===false)throw Error(r.message);const data=r?.data||r;renderRoll(data.check);showFeedback('swe02ShipFeedback',`Teste ${data.check.success?'bem-sucedido':'falhou'} · ${data.adjudication?.source?.printedPage?'SWE02 p.'+data.adjudication.source.printedPage:'SWE02'}${data.check.boost?.length?' · Impulso aplicado':''}.`);render();
+}catch(e){showFeedback('swe02ShipFeedback',e.message);}});
 
 $('loadStarter').addEventListener('click',()=>{
   try { game.loadStarterCharacter($('starterCharacter').value); render(); }

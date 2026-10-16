@@ -3205,8 +3205,8 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
     
         });
     }
-    resolvePublishedAdventureCheck(checkIndex = 0, { adventureId = null, useLightDestiny = false, useDarkDestiny = false, repairReductionMinutes=null, rng = Math.random, actionId = null } = {}) {
-        if (actionId !== null) return this.executePublishedAdventureCommand({ actionId, kind: 'check', adventureId, checkIndex, options: { useLightDestiny, useDarkDestiny, repairReductionMinutes, rng } });
+    resolvePublishedAdventureCheck(checkIndex = 0, { adventureId = null, useLightDestiny = false, useDarkDestiny = false, repairReductionMinutes=null, aidingLowhhrick=false, rng = Math.random, actionId = null } = {}) {
+        if (actionId !== null) return this.executePublishedAdventureCommand({ actionId, kind: 'check', adventureId, checkIndex, options: { useLightDestiny, useDarkDestiny, repairReductionMinutes, aidingLowhhrick, rng } });
         return this.atomicAction(() => {
         const resolvedAdventureId = adventureId || this.state.world?.publishedAdventure?.id || 'under-black-sun';
         const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(resolvedAdventureId);
@@ -3217,7 +3217,7 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         if (!spec.skillKey) throw new Error('A perícia deste teste ainda exige adjudicação manual do Mestre.');
         const shipOdorSetback=adapter.id==='long-arm-of-the-hutt'&&spec.shipOdorRule
             ?longArmShipSmellSetback(this.state.world,this.state.player?.character?.name,spec.index):0;
-        const check = this.resolveSkillCheck({ skillKey: spec.skillKey, difficulty: spec.pool.difficulty, challenge: spec.pool.challenge, setback: (Number(spec.pool.setback)||0)+shipOdorSetback, useLightDestiny, useDarkDestiny, cloudCitySlicing: adapter.id === 'jewel-of-yavin' && spec.skillKey === 'computadoras' && this.state.world?.publishedAdventure?.currentNodeId === 'gala-reconnaissance', rng });
+        const check = this.resolveSkillCheck({ skillKey: spec.skillKey, difficulty: spec.pool.difficulty, challenge: spec.pool.challenge, boost:Number(spec.pool.boost||0), setback: (Number(spec.pool.setback)||0)+shipOdorSetback+(aidingLowhhrick&&adapter.id==='long-arm-of-the-hutt'?2:0), useLightDestiny, useDarkDestiny, cloudCitySlicing: adapter.id === 'jewel-of-yavin' && spec.skillKey === 'computadoras' && this.state.world?.publishedAdventure?.currentNodeId === 'gala-reconnaissance', rng });
         let adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: check, repairReductionMinutes });
         const characterEffects = { creditsDelta: 0, strainDelta: 0, partyStrain:[] };
         if(adapter.id==='long-arm-of-the-hutt'&&spec.source?.printedPage===15&&check.success===false){
@@ -5860,6 +5860,43 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         vehicles.activeVehicleId = vehicleId;
         this.commit('VEHICLES_UPDATED', { vehicles });
         return vehicles.vehicles[vehicleId];
+    }
+    /** SWE02 pp.7–11: persist shipboard discoveries and source-backed decisions. */
+    setSWE02PeltSearchAnnounced(announced){
+        return this.atomicAction(()=>{
+            const adapter=publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            const out=adapter.setPeltSearchAnnounced(this.state.world,Boolean(announced));
+            this.commit('WORLD_UPDATED',{world:out.world});return clone(out.result);
+        });
+    }
+    recordSWE02ShipObservation(id,details={}){
+        return this.atomicAction(()=>{
+            const adapter=publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            let character=null,normalized={...(details||{})};
+            if(id==='lowhhrick-pelt-strain'&&details?.applyToActiveLowhhrick===true){
+                character=structuredClone(requireCharacter(this.state.player?.character));
+                if(!String(character.name||'').toLowerCase().includes('lowhhrick'))throw Error('SWE02 p.9: aplique os 2 pontos de Tensão apenas à ficha de Lowhhrick selecionada.');
+                character=health_mjs_1.sufferStrain(character,2).character;
+                normalized={...normalized,applied:true,characterId:character.id||character.name};
+            }else if(id==='lowhhrick-pelt-strain')normalized={...normalized,applied:false,characterId:null};
+            const out=adapter.recordShipObservation(this.state.world,id,normalized);
+            if(character)this.commit('CHARACTER_UPDATED',{character});
+            this.commit('WORLD_UPDATED',{world:out.world});return {receipt:out.result,issueState:out.issueState,character:character?clone(character):null};
+        });
+    }
+    discoverSWE02ShipRoom(roomId){
+        return this.atomicAction(()=>{
+            const adapter=publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            const out=adapter.discoverShipRoom(this.state.world,roomId);
+            this.commit('WORLD_UPDATED',{world:out.world});return {items:out.result,receipt:clone(out.progress.shipSequence.cargoReceipts.at(-1))};
+        });
+    }
+    recordSWE02BuraConversation(details={}){
+        return this.atomicAction(()=>{
+            const adapter=publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            const out=adapter.recordBuraConversation(this.state.world,details);
+            this.commit('WORLD_UPDATED',{world:out.world});return clone(out.result);
+        });
     }
     /** SWE02 pp.13–14: source-backed Nabat operations; all commits atomic. */
     swe02NabatMarket(){return nabatMarketCatalog();}

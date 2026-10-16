@@ -3186,6 +3186,50 @@ class BraseiroUiBridge {
             return fail('SWE02_LYLEK_FAILED', messageOf(e));
         }
     }
+    setSWE02PeltSearchAnnounced(announced) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.setSWE02PeltSearchAnnounced(Boolean(announced))));
+        }
+        catch (e) {
+            return fail('SWE02_SHIP_FAILED', messageOf(e));
+        }
+    }
+    recordSWE02ShipObservation(id, details = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.recordSWE02ShipObservation(String(id), details ?? {})));
+        }
+        catch (e) {
+            return fail('SWE02_SHIP_FAILED', messageOf(e));
+        }
+    }
+    discoverSWE02ShipRoom(roomId) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.discoverSWE02ShipRoom(String(roomId))));
+        }
+        catch (e) {
+            return fail('SWE02_SHIP_FAILED', messageOf(e));
+        }
+    }
+    recordSWE02BuraConversation(details = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.recordSWE02BuraConversation(details ?? {})));
+        }
+        catch (e) {
+            return fail('SWE02_SHIP_FAILED', messageOf(e));
+        }
+    }
     swe02NabatMarket() {
         const r = this._controllerForExistingCampaign();
         if (!r.ok)
@@ -13543,6 +13587,10 @@ exports.recordLongArmOfTheHuttEncounterOutcome = recordLongArmOfTheHuttEncounter
 exports.markLongArmOfTheHuttRewardsApplied = markLongArmOfTheHuttRewardsApplied;
 exports.archiveLongArmOfTheHutt = archiveLongArmOfTheHutt;
 exports.longArmShipSmellSetback = longArmShipSmellSetback;
+exports.recordLongArmShipObservation = recordLongArmShipObservation;
+exports.discoverLongArmShipRoom = discoverLongArmShipRoom;
+exports.recordLongArmBuraConversation = recordLongArmBuraConversation;
+exports.setLongArmPeltSearchAnnounced = setLongArmPeltSearchAnnounced;
 const livingWorldDepth_mjs_1 = require("../world/livingWorldDepth.mjs");
 const swe02GeonosisP237_mjs_1 = require("./swe02GeonosisP237.mjs");
 const swe02KraytFangP238_mjs_1 = require("./swe02KraytFangP238.mjs");
@@ -14161,7 +14209,8 @@ function playerNode(node, progress) {
         choices: (node.choices || []).filter(c => conditionOk(c, progress) &&
             !(swe02GeonosisP237_mjs_1.FACTS[c.id] && (progress.geonosisEvidence || []).some(x => x.choiceId === c.id)) &&
             !(swe02GeonosisP237_mjs_1.ARGUMENTS[c.id] && (progress.geonosisArguments || []).some(x => x.choiceId === c.id)) &&
-            !(['dimmock-anti-empire', 'dimmock-loyal-empire'].includes(c.id) && (progress.geonosisArguments || []).some(x => ['antiEmpire', 'loyalEmpire'].includes(x.key)))).map(c => ({ id: c.id, label: c.label }))
+            !(['dimmock-anti-empire', 'dimmock-loyal-empire'].includes(c.id) && (progress.geonosisArguments || []).some(x => ['antiEmpire', 'loyalEmpire'].includes(x.key)))).map(c => ({ id: c.id, label: c.label })),
+        ...(progress.currentNodeId === 'krayt-fang-logs' ? { shipIssues: (0, swe02KraytFangP238_mjs_1.shipIssueState)(progress), shipSequence: clone(progress.shipSequence || null) } : {})
     };
 }
 function baseProgress({ rewardsApplied = false } = {}) {
@@ -14238,6 +14287,8 @@ function advanceLongArmOfTheHutt(world, choiceId) {
         (0, swe02KraytFangP238_mjs_1.recordShipChoice)(p, 'ship-legacy-landing');
     else
         (0, swe02KraytFangP238_mjs_1.recordShipChoice)(p, choiceId);
+    if (choiceId === 'ship-depart-verified')
+        (0, swe02KraytFangP238_mjs_1.recordShipObservation)(p, 'complete-hyperspace-transit');
     if (choiceId === 'ship-depart-verified')
         p.flags.shipThwheekSkipped = p.flags.shipThwheekInterceptionRequired === false;
     if (choice.to === 'palace-kitchen-evidence')
@@ -14358,7 +14409,7 @@ function currentLongArmOfTheHuttChecks(world) {
         return swe02KraytFangP238_mjs_1.SHIP_CHECKS.map((check, index) => ({ check, index })).filter(({ index }) => (0, swe02KraytFangP238_mjs_1.shipCheckAvailable)(p, index)).map(({ check, index }) => ({
             id: `${p.currentNodeId}:check:${index}`, index, skill: check.skill,
             skillKey: SWE02_SKILLS[check.skill] || null, difficultyText: ['', 'Fácil', 'Média', 'Difícil', 'Formidável'][check.difficulty], purpose: check.purpose,
-            pool: p.currentNodeId === 'krayt-fang-ground-inspection' ? { difficulty: check.difficulty, challenge: 0, setback: 0 } : (0, swe02KraytFangP238_mjs_1.shipNoisePool)(p, check.difficulty), shipOdorRule: check.key, source: { title: SOURCE.title, productCode: 'SWE02', printedPage: check.page, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' },
+            pool: p.currentNodeId === 'krayt-fang-ground-inspection' ? { difficulty: check.difficulty, challenge: 0, setback: 0, boost: 0 } : (0, swe02KraytFangP238_mjs_1.shipCheckPool)(p, index, { announcedSearch: p.flags?.shipPeltSearchAnnounced === true }), shipOdorRule: check.key, source: { title: SOURCE.title, productCode: 'SWE02', printedPage: check.page, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' },
             requiresGMSourceVerification: !SWE02_SKILLS[check.skill]
         }));
     if (p.currentNodeId === 'palace-communications' && p.flags?.palaceComputersLocked)
@@ -14401,7 +14452,8 @@ function adjudicateLongArmOfTheHuttCheck(world, { checkIndex = 0, result = {}, r
             p.oldLylek = (0, swe02OldLylekP15_mjs_1.recordSWE02OldLylekRepair)(p, result, { reductionMinutes: repairReductionMinutes }).progress.oldLylek;
     }
     if (['krayt-fang-logs', 'krayt-fang-ground-inspection'].includes(p.currentNodeId))
-        (0, swe02KraytFangP238_mjs_1.recordShipCheck)(p, checkIndex, result.success);
+        (0, swe02KraytFangP238_mjs_1.recordShipCheck)(p, checkIndex, { ...result,
+            netFailure: Math.max(0, -Number(result.netSuccess || 0)), netThreat: Math.max(0, -Number(result.netAdvantage || 0)), triumph: Number(result.triumph || 0) > 0 });
     if (result.success) {
         if (p.currentNodeId === 'piddock-party' && checkIndex === 0)
             p.flags.geoPiddockCharmPassed = true;
@@ -14839,6 +14891,31 @@ function archiveLongArmOfTheHutt(world) {
 function longArmShipSmellSetback(world, characterName, checkIndex) {
     const p = world?.publishedAdventure;
     return p?.id === ID ? (0, swe02KraytFangP238_mjs_1.shipSmellSetback)(p, characterName, swe02KraytFangP238_mjs_1.SHIP_CHECKS[checkIndex]?.key) : 0;
+}
+function shipWorldAction(world, action) {
+    const next = clone(world || {}), p = next.publishedAdventure;
+    if (!p || p.id !== ID || p.status !== 'ACTIVE')
+        throw Error('Krayt Fang: aventura não está ativa.');
+    const result = action(p);
+    (0, swe02KraytFangP238_mjs_1.validateShip)(p);
+    p.updatedAt = now();
+    next.publishedAdventure = p;
+    return { world: next, progress: clone(p), result: clone(result), issueState: (0, swe02KraytFangP238_mjs_1.shipIssueState)(p) };
+}
+function recordLongArmShipObservation(world, id, details = {}) {
+    return shipWorldAction(world, p => (0, swe02KraytFangP238_mjs_1.recordShipObservation)(p, id, details));
+}
+function discoverLongArmShipRoom(world, roomId) {
+    return shipWorldAction(world, p => (0, swe02KraytFangP238_mjs_1.recordShipRoomDiscovery)(p, roomId));
+}
+function recordLongArmBuraConversation(world, details = {}) {
+    return shipWorldAction(world, p => (0, swe02KraytFangP238_mjs_1.recordBuraConversation)(p, details));
+}
+function setLongArmPeltSearchAnnounced(world, announced) {
+    if (typeof announced !== 'boolean')
+        throw Error('Krayt Fang: anúncio de busca inválido.');
+    return shipWorldAction(world, p => { if (p.currentNodeId !== 'krayt-fang-logs' || p.flags?.shipPeltsFound)
+        throw Error('Krayt Fang: busca indisponível.'); p.flags = { ...(p.flags || {}), shipPeltSearchAnnounced: announced }; return { announced, boost: announced ? 1 : 0, source: { productCode: 'SWE02', printedPage: 9 } }; });
 }
 });
 define("js/adventure/maskOfThePirateQueen.mjs",function(module,exports,require){
@@ -16185,6 +16262,10 @@ const LONG_ARM_OF_THE_HUTT_ADAPTER = Object.freeze({
     masterRequest: longArmOfTheHutt.currentLongArmOfTheHuttMasterRequest,
     currentChecks: longArmOfTheHutt.currentLongArmOfTheHuttChecks,
     adjudicateCheck: longArmOfTheHutt.adjudicateLongArmOfTheHuttCheck,
+    recordShipObservation: longArmOfTheHutt.recordLongArmShipObservation,
+    discoverShipRoom: longArmOfTheHutt.discoverLongArmShipRoom,
+    recordBuraConversation: longArmOfTheHutt.recordLongArmBuraConversation,
+    setPeltSearchAnnounced: longArmOfTheHutt.setLongArmPeltSearchAnnounced,
     encounterSpec: longArmOfTheHutt.longArmOfTheHuttEncounterSpec,
     markEncounterActive: longArmOfTheHutt.markLongArmOfTheHuttEncounterActive,
     recordEncounterOutcome: longArmOfTheHutt.recordLongArmOfTheHuttEncounterOutcome,
@@ -17921,15 +18002,185 @@ function recordGeonosisChoice(p, choiceId, nodeId) {
 define("js/adventure/swe02KraytFangP238.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.shipFlag = exports.SHIP_CHECKS = void 0;
+exports.shipFlag = exports.SHIP_CHECKS = exports.BURA_CONVERSATION_FACTS = exports.SHIP_MANIFEST = exports.SHIP_ALERTS = exports.SHIP_SEQUENCE_VERSION = void 0;
+exports.shipIssueState = shipIssueState;
+exports.recordShipObservation = recordShipObservation;
+exports.recordShipRoomDiscovery = recordShipRoomDiscovery;
+exports.recordBuraConversation = recordBuraConversation;
 exports.shipCheckAvailable = shipCheckAvailable;
 exports.shipNoisePool = shipNoisePool;
 exports.shipSmellSetback = shipSmellSetback;
+exports.shipTaskPool = shipTaskPool;
+exports.shipCheckPool = shipCheckPool;
 exports.recordShipCheck = recordShipCheck;
 exports.recordShipChoice = recordShipChoice;
 exports.validateShip = validateShip;
-// SWE02 pp.7–11 (printed): Krayt Fang shipboard problems. This is an
-// authoritative state machine; narrative output may not mutate its receipts.
+// SWE02 printed pp.6–11: Krayt Fang shipboard sequence. This module owns the
+// deterministic rules and receipts; narration/UI must call these operations.
+exports.SHIP_SEQUENCE_VERSION = 1;
+exports.SHIP_ALERTS = Object.freeze([
+    Object.freeze({ id: 'fuel-low', label: 'Fuel Low', shape: 'large-flashing-red-script', page: 7 }),
+    Object.freeze({ id: 'tracker', label: 'Crescent/fang tracker', shape: 'flashing-crescent-or-fang', page: 7 }),
+    Object.freeze({ id: 'trandoshan-popup', label: 'Trandoshan software popup', shape: 'intermittent-popup', page: 7 }),
+    Object.freeze({ id: 'captive', label: 'Captive reminder', shape: 'flashing-cage', page: 7 })
+]);
+// A manifest is a source reference for discoveries, not automatic ownership.
+// Prices/descriptions remain leads; finding an entry never silently sells it.
+exports.SHIP_MANIFEST = Object.freeze({
+    'number-two-hold': Object.freeze([
+        { id: 'broken-astromech-parts', quantity: null, page: 11, note: 'broken parts; a skilled mechanic could build an astromech after arduous work or sell parts for up to 2,000 credits' },
+        { id: 'empty-crates-number-two', quantity: null, page: 11 },
+        { id: 'poorly-maintained-tools', quantity: null, page: 11 },
+        { id: 'medpac', quantity: 1, page: 11 }, { id: 'general-purpose-scanner', quantity: 1, page: 11 },
+        { id: 'electrobinoculars', quantity: 1, page: 11 }, { id: 'trandoshan-respirator', quantity: 1, page: 11 },
+        { id: 'glow-rod-number-two', quantity: 2, page: 11 }, { id: 'tool-kit', quantity: 1, page: 11 }
+    ]),
+    'main-cargo-hold': Object.freeze([
+        { id: 'empty-crates-main-hold', quantity: null, page: 11 },
+        { id: 'wookiee-pelts', quantity: 6, page: 9, pageAlso: 11 },
+        { id: 'holochess-set', quantity: 1, page: 11, note: 'good quality; challenging solo-game AI' }
+    ]),
+    galley: Object.freeze([
+        { id: 'raw-meat-meals', quantity: 2, page: 11, note: 'decent meals if the PCs choose an exclusively carnivorous diet' },
+        { id: 'ration-packs', quantity: 6, page: 11 }
+    ]),
+    'crew-quarters': Object.freeze([
+        { id: 'beds', quantity: 3, page: 11 }, { id: 'wampa-skin-rug', quantity: 1, page: 11, valueCredits: 250, note: 'may fetch this price from the right buyer' },
+        { id: 'glow-rod-quarters', quantity: 1, page: 11 }, { id: 'heavy-blaster-power-pack', quantity: 2, page: 11 },
+        { id: 'escape-from-mos-shuuta-credits', quantity: 1000, page: 11, note: 'GM may place the previously promised credits here' }
+    ]),
+    engineering: Object.freeze([
+        { id: 'hand-scanner', quantity: 1, page: 11 },
+        { id: 'hypermatter-reactor-igniter', quantity: 1, page: 11, note: 'working perfectly' },
+        { id: 'fuel-reserves', quantity: null, page: 11, note: 'low; source gives no numeric fuel amount' }
+    ]),
+    'number-three-hold': Object.freeze([
+        { id: 'binders', quantity: 7, page: 11 }, { id: 'portable-cell-units', quantity: 6, page: 9 },
+        { id: 'bura-baan', quantity: 1, page: 9, note: 'one cell occupied; free without a skill check' },
+        { id: 'marked-chitin', quantity: null, page: 9, note: 'other tracked cell; source does not give a piece count' }
+    ])
+});
+exports.BURA_CONVERSATION_FACTS = Object.freeze({
+    injury: { printedPage: 10, fact: 'A Trandoshan bounty hunter burned away B’ura’s left lekku before placing him in the cell.' },
+    captureStory: { printedPage: 10, fact: 'B’ura organized Twi’leks to protect New Meen from Aqualish extortion; after the Aqualish disappeared in an underworld takeover, outsiders bought nearby land to spy and harass the mines; rogues captured B’ura while he traveled to Nabat.' },
+    teemoTheory: { printedPage: 10, fact: 'B’ura suspects Teemo’s interest in ryll mining may be changing because the Trandoshan who captured him worked for Teemo.' },
+    shipHelp: { printedPage: 10, fact: 'B’ura suggests the navigation computer can stop the noise, says Ryloth is in range with affordable fuel, and offers contacts who can repair and refuel the ship in exchange for a ride to Nabat.' },
+    oskaraConnection: { printedPage: 10, fact: 'B’ura does not know Oskara or her sister Makara; if Oskara shares her story, he agrees the developers near his mine could be part of Teemo’s operation.' },
+    mineReward: { printedPage: 10, fact: 'If the PCs help save the mine, B’ura says his friends will offer lucrative ryll-smuggling opportunities.' },
+    drombbDetails: { printedPage: 11, referencedPrintedPage: 18, fact: 'If the PCs press for more information, B’ura can tell them about Angu Drombb.' }
+});
+const SHIP_OBSERVATIONS = Object.freeze({
+    'observe-alert-icons': { page: 7, once: true },
+    'notice-smell-source-in-main-hold': { page: 9, once: true },
+    'press-cage-icon': { page: 9, once: true },
+    'bura-free': { page: 9, once: true },
+    'lowhhrick-pelt-strain': { page: 9, once: true },
+    'complete-hyperspace-transit': { page: 11, once: true },
+    'keep-marked-chitin': { page: 10, once: true }
+});
+function ensureShipSequence(p) {
+    p.shipSequence ||= {
+        version: exports.SHIP_SEQUENCE_VERSION,
+        observations: [],
+        discoveredRooms: [],
+        cargoReceipts: [],
+        chitinKnowledge: null,
+        lowhhrickStrainReceipt: null,
+        transit: null,
+        keptChitin: false,
+        source: { productCode: 'SWE02', printedPages: [6, 7, 8, 9, 10, 11] }
+    };
+    return p.shipSequence;
+}
+function shipIssueState(p) {
+    const f = p?.flags || {};
+    return {
+        alerts: exports.SHIP_ALERTS.map(x => ({ ...x, status: f.shipAlertIconsObserved ? 'observed' : 'unresolved' })),
+        smell: { unresolved: !f.shipPeltsJettisoned, mainHoldSourceKnown: !!p?.shipSequence?.observations?.some(x => x.id === 'notice-smell-source-in-main-hold') },
+        noise: { klaxonActive: !f.shipKlaxonOff, musicActive: !f.shipMusicOff, concentrationPenalty: !f.shipKlaxonOff && !f.shipMusicOff },
+        tracker: { located: !!f.shipTrackerLocated, slowed: !!f.shipTrackerSlowed, removed: !!f.shipTrackerRemoved },
+        fuel: { alertActive: true, quantity: null, source: { productCode: 'SWE02', printedPage: 7 } }
+    };
+}
+function recordShipObservation(p, id, details = {}) {
+    if (!p || p.id !== 'long-arm-of-the-hutt')
+        throw Error('Krayt Fang: aventura inválida.');
+    const def = SHIP_OBSERVATIONS[id];
+    if (!def)
+        throw Error('Krayt Fang: observação não reconhecida.');
+    if (id === 'complete-hyperspace-transit' && !p.flags?.shipDepartureVerified)
+        throw Error('Krayt Fang: a viagem exige rota e B’ura registrados.');
+    if (id === 'keep-marked-chitin' && !p.flags?.shipChitinIdentified)
+        throw Error('Krayt Fang: a carapaça marcada ainda não foi examinada.');
+    if (id === 'lowhhrick-pelt-strain' && !p.flags?.shipPeltsFound)
+        throw Error('Krayt Fang: não há peles descobertas.');
+    if (id === 'bura-free' && !p.flags?.shipBuraFound)
+        throw Error('Krayt Fang: localize B’ura antes de libertá-lo.');
+    const s = ensureShipSequence(p);
+    if (def.once && s.observations.some(x => x.id === id))
+        throw Error('Krayt Fang: observação já registrada.');
+    const receipt = { id, printedPage: def.page, source: { productCode: 'SWE02', printedPage: def.page }, details: structuredClone(details || {}) };
+    s.observations.push(receipt);
+    if (id === 'observe-alert-icons')
+        p.flags.shipAlertIconsObserved = true;
+    if (id === 'notice-smell-source-in-main-hold')
+        p.flags.shipSmellSourceLocated = true;
+    if (id === 'press-cage-icon') {
+        p.flags.shipCageReminderRead = true;
+        receipt.details.oskaraRecognition = details.oskaraPresent === true;
+        receipt.details.buraLocated = true;
+        p.flags.shipBuraIdentified = true;
+    }
+    if (id === 'bura-free') {
+        p.flags.shipBuraFreed = true;
+    }
+    if (id === 'lowhhrick-pelt-strain') {
+        // This is an optional GM-directed consequence from the source, not automatic.
+        s.lowhhrickStrainReceipt = { amount: 2, applied: details.applied === true, characterId: details.characterId || null, source: { productCode: 'SWE02', printedPage: 9 } };
+    }
+    if (id === 'complete-hyperspace-transit') {
+        s.transit = { elapsedHours: 6, uneventful: true, restAndRecuperationAvailable: true, completed: true, source: { productCode: 'SWE02', printedPage: 11 } };
+        p.flags.shipHyperspaceTransitComplete = true;
+    }
+    if (id === 'keep-marked-chitin') {
+        s.keptChitin = true;
+        p.flags.shipMarkedChitinKept = true;
+    }
+    return receipt;
+}
+function recordShipRoomDiscovery(p, roomId) {
+    if (!p || p.id !== 'long-arm-of-the-hutt' || !exports.SHIP_MANIFEST[roomId])
+        throw Error('Krayt Fang: compartimento desconhecido.');
+    if (p.currentNodeId !== 'krayt-fang-logs')
+        throw Error('Krayt Fang: inspeção de compartimento fora da sequência a bordo.');
+    const s = ensureShipSequence(p);
+    if (s.discoveredRooms.includes(roomId))
+        throw Error('Krayt Fang: compartimento já registrado.');
+    const contents = exports.SHIP_MANIFEST[roomId].map(x => ({ ...x, source: { productCode: 'SWE02', printedPage: x.page } }));
+    s.discoveredRooms.push(roomId);
+    s.cargoReceipts.push({ roomId, items: contents, ownership: 'DISCOVERED_NOT_TRANSFERRED', source: { productCode: 'SWE02', printedPage: 11 } });
+    return structuredClone(contents);
+}
+function recordBuraConversation(p, { topics = [], oskaraPresent = false, oskaraSharedHistory = false, oskaraRaisedCorruption = false } = {}) {
+    if (!p || p.id !== 'long-arm-of-the-hutt' || !p.flags?.shipBuraFound)
+        throw Error('Krayt Fang: B’ura ainda não foi encontrado.');
+    if (!Array.isArray(topics) || topics.some(x => !['injury', 'captureStory', 'teemoTheory', 'shipHelp', 'mineReward', 'drombbDetails'].includes(x)))
+        throw Error('Krayt Fang: tópico de conversa inválido.');
+    const s = ensureShipSequence(p);
+    if (s.buraConversation)
+        throw Error('Krayt Fang: conversa com B’ura já registrada.');
+    const facts = topics.map(id => ({ id, ...exports.BURA_CONVERSATION_FACTS[id], source: { productCode: 'SWE02', printedPage: exports.BURA_CONVERSATION_FACTS[id].printedPage } }));
+    if (oskaraPresent)
+        facts.push({ id: 'oskaraRecognition', printedPage: 10, fact: 'B’ura does not recognize Oskara but is pleased to meet another Twi’lek.', source: { productCode: 'SWE02', printedPage: 10 } });
+    if (oskaraPresent && oskaraSharedHistory)
+        facts.push({ id: 'oskaraConnection', ...exports.BURA_CONVERSATION_FACTS.oskaraConnection, source: { productCode: 'SWE02', printedPage: 10 } });
+    if (oskaraPresent && oskaraRaisedCorruption)
+        facts.push({ id: 'organizationCorruption', printedPage: 10, fact: 'B’ura admits the hastily formed movement may include people seeking personal gain, while he still believes its cause is righteous.', source: { productCode: 'SWE02', printedPage: 10 } });
+    s.buraConversation = { facts, oskaraPresent: Boolean(oskaraPresent), oskaraSharedHistory: Boolean(oskaraSharedHistory), oskaraRaisedCorruption: Boolean(oskaraRaisedCorruption), source: { productCode: 'SWE02', printedPages: [10, 11] } };
+    return structuredClone(s.buraConversation);
+}
+// SWE02 pp.7–8. Odor penalties apply to ordinary activities; the search for
+// the smell source is exempt. Aid aimed at Lowhhrick adds two more setbacks.
 exports.SHIP_CHECKS = Object.freeze([
     { key: 'course', skill: 'Astrogação', difficulty: 1, page: 8, purpose: 'Traçar rota a Ryloth; falha produz rota não ótima e interceptação' },
     { key: 'klaxon', skill: 'Computadores', difficulty: 1, page: 8, purpose: 'Desligar o alarme de combustível' },
@@ -17967,7 +18218,7 @@ function shipNoisePool(p, base) {
     return { difficulty: base - (both ? 1 : 0), challenge: both ? 1 : 0, setback: 0 };
 }
 function shipSmellSetback(p, characterName, checkKey) {
-    if (p?.flags?.shipPeltsJettisoned || checkKey === 'findPelts')
+    if (p?.flags?.shipPeltsJettisoned || ['findPelts', 'locateSmell', 'investigateSmellSource'].includes(checkKey))
         return 0;
     const name = String(characterName || '').toLowerCase();
     if (name.includes('41-vex'))
@@ -17978,19 +18229,78 @@ function shipSmellSetback(p, characterName, checkKey) {
     // intentionally left to the GM, not assigned a fictitious species effect.
     return ['mathus', 'oskara', 'pash', 'sasha'].some(x => name.includes(x)) ? 1 : 0;
 }
+// Core helper for any shipboard task, including medical aid that is not one of
+// the eleven fixed checks. The source's two extra setbacks for aiding
+// Lowhhrick stack with the acting character's own smell penalty.
+function shipTaskPool(p, base, { characterName = '', task = 'generic', aidingLowhhrick = false, locatingSmell = false, concentration = true, announcedSearch = false } = {}) {
+    const noise = shipNoisePool(p, base);
+    return {
+        difficulty: concentration ? noise.difficulty : base,
+        challenge: concentration ? noise.challenge : 0,
+        setback: shipSmellSetback(p, characterName, locatingSmell ? 'locateSmell' : task) + (aidingLowhhrick ? 2 : 0),
+        boost: task === 'findPelts' && announcedSearch ? 1 : 0
+    };
+}
+function shipCheckPool(p, index, { characterName = '', announcedSearch = false, aidingLowhhrick = false } = {}) {
+    const check = exports.SHIP_CHECKS[index];
+    if (!check)
+        throw Error('Krayt Fang: operação desconhecida.');
+    return shipTaskPool(p, check.difficulty, { characterName, task: check.key, announcedSearch, aidingLowhhrick, concentration: true });
+}
 function recordShipCheck(p, index, success) {
     const check = exports.SHIP_CHECKS[index];
     if (!shipCheckAvailable(p, index))
         throw Error('Krayt Fang: teste fora da cena, repetido ou sem pré-requisito.');
+    const result = typeof success === 'boolean' ? { success } : success;
+    if (!result || typeof result.success !== 'boolean')
+        throw Error('Krayt Fang: resultado de teste inválido.');
     p.shipChecks = Array.isArray(p.shipChecks) ? p.shipChecks : [];
-    p.shipChecks.push({ key: check.key, index, success, printedPage: check.page, nodeId: p.currentNodeId });
+    const receipt = { key: check.key, index, success: result.success, printedPage: check.page, nodeId: p.currentNodeId };
+    for (const key of ['netSuccess', 'netFailure', 'netAdvantage', 'netThreat'])
+        if (Number.isFinite(result[key]))
+            receipt[key] = Number(result[key]);
+    if (typeof result.triumph === 'boolean' || Number.isFinite(Number(result.triumph)))
+        receipt.triumph = typeof result.triumph === 'boolean' ? result.triumph : Number(result.triumph) > 0;
+    p.shipChecks.push(receipt);
     p.flags = p.flags || {};
     if (index === 0) {
         p.flags.shipCoursePlotted = true;
-        p.flags.shipCourseNonOptimal = !success;
+        p.flags.shipCourseNonOptimal = !result.success;
     }
-    else if (success)
+    else if (result.success)
         p.flags[FLAG[check.key]] = true;
+    if (index === 6 && result.success) {
+        const s = ensureShipSequence(p);
+        if (!s.cargoReceipts.some(x => x.roomId === 'main-cargo-hold'))
+            s.cargoReceipts.push({ roomId: 'main-cargo-hold', items: [{ id: 'wookiee-pelts', quantity: 6, source: { productCode: 'SWE02', printedPage: 9 } }], ownership: 'DISCOVERED_NOT_TRANSFERRED', source: { productCode: 'SWE02', printedPage: 9 } });
+    }
+    if (index === 9 && result.success) {
+        p.shipChitinKnowledge = {
+            intelligentInsectileSpecies: Number.isFinite(result.netSuccess) ? result.netSuccess >= 1 : null,
+            mayHaveShedShell: Number.isFinite(result.netSuccess) ? result.netSuccess >= 2 : null,
+            redDustProbablyGeonosis: Number.isFinite(result.netAdvantage) ? result.netAdvantage >= 1 : null,
+            clanOrOwnershipMarkings: result.triumph === true,
+            exactOriginKnown: false,
+            source: { productCode: 'SWE02', printedPage: 9 }
+        };
+    }
+    if (index === 10 && result.success)
+        p.shipDroidPartsAssessment = {
+            skilledMechanicCouldBuildAstromech: true,
+            processArduous: true,
+            immediatelyAvailable: false,
+            possibleSaleValueCredits: { maximum: 2000, guaranteed: false },
+            source: { productCode: 'SWE02', printedPage: 11 }
+        };
+    if (index === 8) {
+        if (Number.isFinite(result.netThreat) && result.netThreat > 0)
+            p.shipTrackerRemovalHullDamage = {
+                status: 'GM_HULL_DAMAGE_ADJUDICATION_REQUIRED', threats: Number(result.netThreat), hullTraumaAmount: null,
+                source: { productCode: 'SWE02', printedPage: 8 }
+            };
+        if (Number.isFinite(result.netFailure) && result.netFailure > 0)
+            p.flags.shipTrackerRemovalFailedToLocate = true;
+    }
     if (p.flags.shipCoursePlotted && p.flags.shipBuraFound)
         p.flags.shipDepartureVerified = true;
 }
@@ -18001,6 +18311,10 @@ function recordShipChoice(p, id) {
         if (p.flags.shipBuraFound)
             throw Error('Krayt Fang: B’ura B’an já localizado.');
         p.flags.shipBuraFound = true;
+        p.flags.shipBuraFreed = true;
+        const s = ensureShipSequence(p);
+        if (!s.observations.some(x => x.id === 'bura-free'))
+            s.observations.push({ id: 'bura-free', printedPage: 9, source: { productCode: 'SWE02', printedPage: 9 }, details: { freeWithoutCheck: true } });
     }
     else if (id === 'ship-depart-verified') {
         if (!p.flags.shipCoursePlotted || !p.flags.shipBuraFound)
@@ -18053,6 +18367,62 @@ function validateShip(p) {
             throw Error('Krayt Fang: interceptação sem partida verificada.');
         if (flags.shipThwheekInterceptionRequired !== Boolean(flags.shipCourseNonOptimal || !flags.shipTrackerSlowed))
             throw Error('Krayt Fang: interceptação adulterada.');
+    }
+    if (p.shipChitinKnowledge) {
+        const k = p.shipChitinKnowledge;
+        if (!flags.shipChitinIdentified || k.source?.productCode !== 'SWE02' || k.source?.printedPage !== 9 || k.exactOriginKnown !== false)
+            throw Error('Krayt Fang: resultado de Conhecimento inválido.');
+    }
+    if (p.shipDroidPartsAssessment && (p.shipDroidPartsAssessment.source?.printedPage !== 11 || p.shipDroidPartsAssessment.possibleSaleValueCredits?.maximum !== 2000 || p.shipDroidPartsAssessment.possibleSaleValueCredits?.guaranteed !== false))
+        throw Error('Krayt Fang: avaliação das peças de astromecânico inválida.');
+    if (p.shipSequence?.buraConversation) {
+        const c = p.shipSequence.buraConversation;
+        if (!flags.shipBuraFound || c.source?.productCode !== 'SWE02' || !Array.isArray(c.facts) || c.facts.some(x => x.source?.productCode !== 'SWE02' || !Number.isInteger(x.printedPage)))
+            throw Error('Krayt Fang: conversa com B’ura inválida.');
+        if (c.facts.some(x => x.id === 'oskaraConnection') && (!c.oskaraPresent || !c.oskaraSharedHistory))
+            throw Error('Krayt Fang: ligação de Oskara sem pré-requisito.');
+        if (c.facts.some(x => x.id === 'organizationCorruption') && (!c.oskaraPresent || !c.oskaraRaisedCorruption))
+            throw Error('Krayt Fang: fala sobre corrupção sem pré-requisito.');
+    }
+    if (p.shipTrackerRemovalHullDamage && (p.shipTrackerRemovalHullDamage.source?.printedPage !== 8 || p.shipTrackerRemovalHullDamage.status !== 'GM_HULL_DAMAGE_ADJUDICATION_REQUIRED' || p.shipTrackerRemovalHullDamage.hullTraumaAmount !== null))
+        throw Error('Krayt Fang: efeito de Ameaça no casco inválido.');
+    if (p.shipTrackerRemovalFailedToLocate && (!checks.some(x => x.key === 'removeTracker' && Number(x.netFailure) > 0) || flags.shipTrackerRemoved))
+        throw Error('Krayt Fang: falha de localização sem dado de Falha ou com transponder removido.');
+    if (p.shipSequence !== undefined) {
+        const s = p.shipSequence;
+        if (s?.version !== exports.SHIP_SEQUENCE_VERSION || !Array.isArray(s.observations) || !Array.isArray(s.discoveredRooms) || !Array.isArray(s.cargoReceipts))
+            throw Error('Krayt Fang: recibos da sequência de bordo inválidos.');
+        const ids = new Set();
+        for (const x of s.observations) {
+            const d = SHIP_OBSERVATIONS[x?.id];
+            if (!d || x.printedPage !== d.page || x.source?.productCode !== 'SWE02' || x.source?.printedPage !== d.page || ids.has(x.id))
+                throw Error('Krayt Fang: recibo de observação inválido.');
+            ids.add(x.id);
+        }
+        for (const room of s.discoveredRooms)
+            if (!exports.SHIP_MANIFEST[room])
+                throw Error('Krayt Fang: descoberta de compartimento inválida.');
+        for (const r of s.cargoReceipts)
+            if (!exports.SHIP_MANIFEST[r.roomId] || r.ownership !== 'DISCOVERED_NOT_TRANSFERRED' || !Array.isArray(r.items))
+                throw Error('Krayt Fang: recibo de carga inválido.');
+        if (Boolean(flags.shipAlertIconsObserved) !== ids.has('observe-alert-icons'))
+            throw Error('Krayt Fang: alertas sem recibo de observação.');
+        if (Boolean(flags.shipSmellSourceLocated) !== ids.has('notice-smell-source-in-main-hold'))
+            throw Error('Krayt Fang: fonte do odor sem recibo.');
+        if (Boolean(flags.shipCageReminderRead) !== ids.has('press-cage-icon'))
+            throw Error('Krayt Fang: alerta da cela sem recibo.');
+        if (Boolean(flags.shipBuraFreed) !== ids.has('bura-free'))
+            throw Error('Krayt Fang: libertação de B’ura sem recibo.');
+        if (Boolean(flags.shipHyperspaceTransitComplete) !== ids.has('complete-hyperspace-transit'))
+            throw Error('Krayt Fang: viagem sem recibo.');
+        if (Boolean(flags.shipMarkedChitinKept) !== ids.has('keep-marked-chitin'))
+            throw Error('Krayt Fang: carapaça preservada sem recibo.');
+        if (s.transit && (!ids.has('complete-hyperspace-transit') || s.transit.elapsedHours !== 6 || s.transit.uneventful !== true))
+            throw Error('Krayt Fang: recibo de viagem contraditório.');
+        if (s.lowhhrickStrainReceipt && (s.lowhhrickStrainReceipt.amount !== 2 || s.lowhhrickStrainReceipt.source?.printedPage !== 9))
+            throw Error('Krayt Fang: consequência de Lowhhrick inválida.');
+        if (Boolean(s.lowhhrickStrainReceipt) !== ids.has('lowhhrick-pelt-strain'))
+            throw Error('Krayt Fang: recibo de strain de Lowhhrick inconsistente.');
     }
     return true;
 }
@@ -23650,9 +24020,9 @@ class GameController {
             return { adventure: adapter.status(this.state.world), rewards, state: structuredClone(this.state) };
         });
     }
-    resolvePublishedAdventureCheck(checkIndex = 0, { adventureId = null, useLightDestiny = false, useDarkDestiny = false, repairReductionMinutes = null, rng = Math.random, actionId = null } = {}) {
+    resolvePublishedAdventureCheck(checkIndex = 0, { adventureId = null, useLightDestiny = false, useDarkDestiny = false, repairReductionMinutes = null, aidingLowhhrick = false, rng = Math.random, actionId = null } = {}) {
         if (actionId !== null)
-            return this.executePublishedAdventureCommand({ actionId, kind: 'check', adventureId, checkIndex, options: { useLightDestiny, useDarkDestiny, repairReductionMinutes, rng } });
+            return this.executePublishedAdventureCommand({ actionId, kind: 'check', adventureId, checkIndex, options: { useLightDestiny, useDarkDestiny, repairReductionMinutes, aidingLowhhrick, rng } });
         return this.atomicAction(() => {
             const resolvedAdventureId = adventureId || this.state.world?.publishedAdventure?.id || 'under-black-sun';
             const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(resolvedAdventureId);
@@ -23665,7 +24035,7 @@ class GameController {
                 throw new Error('A perícia deste teste ainda exige adjudicação manual do Mestre.');
             const shipOdorSetback = adapter.id === 'long-arm-of-the-hutt' && spec.shipOdorRule
                 ? (0, longArmOfTheHutt_mjs_1.longArmShipSmellSetback)(this.state.world, this.state.player?.character?.name, spec.index) : 0;
-            const check = this.resolveSkillCheck({ skillKey: spec.skillKey, difficulty: spec.pool.difficulty, challenge: spec.pool.challenge, setback: (Number(spec.pool.setback) || 0) + shipOdorSetback, useLightDestiny, useDarkDestiny, cloudCitySlicing: adapter.id === 'jewel-of-yavin' && spec.skillKey === 'computadoras' && this.state.world?.publishedAdventure?.currentNodeId === 'gala-reconnaissance', rng });
+            const check = this.resolveSkillCheck({ skillKey: spec.skillKey, difficulty: spec.pool.difficulty, challenge: spec.pool.challenge, boost: Number(spec.pool.boost || 0), setback: (Number(spec.pool.setback) || 0) + shipOdorSetback + (aidingLowhhrick && adapter.id === 'long-arm-of-the-hutt' ? 2 : 0), useLightDestiny, useDarkDestiny, cloudCitySlicing: adapter.id === 'jewel-of-yavin' && spec.skillKey === 'computadoras' && this.state.world?.publishedAdventure?.currentNodeId === 'gala-reconnaissance', rng });
             let adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: check, repairReductionMinutes });
             const characterEffects = { creditsDelta: 0, strainDelta: 0, partyStrain: [] };
             if (adapter.id === 'long-arm-of-the-hutt' && spec.source?.printedPage === 15 && check.success === false) {
@@ -26804,6 +27174,51 @@ class GameController {
         vehicles.activeVehicleId = vehicleId;
         this.commit('VEHICLES_UPDATED', { vehicles });
         return vehicles.vehicles[vehicleId];
+    }
+    /** SWE02 pp.7–11: persist shipboard discoveries and source-backed decisions. */
+    setSWE02PeltSearchAnnounced(announced) {
+        return this.atomicAction(() => {
+            const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            const out = adapter.setPeltSearchAnnounced(this.state.world, Boolean(announced));
+            this.commit('WORLD_UPDATED', { world: out.world });
+            return clone(out.result);
+        });
+    }
+    recordSWE02ShipObservation(id, details = {}) {
+        return this.atomicAction(() => {
+            const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            let character = null, normalized = { ...(details || {}) };
+            if (id === 'lowhhrick-pelt-strain' && details?.applyToActiveLowhhrick === true) {
+                character = structuredClone(requireCharacter(this.state.player?.character));
+                if (!String(character.name || '').toLowerCase().includes('lowhhrick'))
+                    throw Error('SWE02 p.9: aplique os 2 pontos de Tensão apenas à ficha de Lowhhrick selecionada.');
+                character = health_mjs_1.sufferStrain(character, 2).character;
+                normalized = { ...normalized, applied: true, characterId: character.id || character.name };
+            }
+            else if (id === 'lowhhrick-pelt-strain')
+                normalized = { ...normalized, applied: false, characterId: null };
+            const out = adapter.recordShipObservation(this.state.world, id, normalized);
+            if (character)
+                this.commit('CHARACTER_UPDATED', { character });
+            this.commit('WORLD_UPDATED', { world: out.world });
+            return { receipt: out.result, issueState: out.issueState, character: character ? clone(character) : null };
+        });
+    }
+    discoverSWE02ShipRoom(roomId) {
+        return this.atomicAction(() => {
+            const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            const out = adapter.discoverShipRoom(this.state.world, roomId);
+            this.commit('WORLD_UPDATED', { world: out.world });
+            return { items: out.result, receipt: clone(out.progress.shipSequence.cargoReceipts.at(-1)) };
+        });
+    }
+    recordSWE02BuraConversation(details = {}) {
+        return this.atomicAction(() => {
+            const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            const out = adapter.recordBuraConversation(this.state.world, details);
+            this.commit('WORLD_UPDATED', { world: out.world });
+            return clone(out.result);
+        });
     }
     /** SWE02 pp.13–14: source-backed Nabat operations; all commits atomic. */
     swe02NabatMarket() { return (0, swe02NabatP240_mjs_1.nabatMarketCatalog)(); }

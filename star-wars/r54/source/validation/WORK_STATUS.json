@@ -62,7 +62,7 @@
     }
   },
   "fresh_regression": {
-    "state": "FRESH_AFTER_OLD_LYLEK_MAP_SCHEMA15",
+    "state": "STALE_AFTER_SWE02_KRAYT_FANG_PP06_11",
     "files": 379,
     "regular_files": 373,
     "stress_files": 6,
@@ -94,7 +94,16 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Commit and push the schema 15/R46 compatibility fixes and full regression evidence. Continue closing SWE02 Act 1 pp.2–24 gaps from audits/SWE02_ACT1_DEEP_AUDIT.md, then Acts 2 and 3. Do not create P245 until all SWE02 pages/branches are certified; keep all five adventures and all rules/AoR ledgers uncertified meanwhile.",
+  "next_action": "Continue integrating SWE02 pp.19–23 New Meen lifecycle into controller, scene graph, UI, P241/P243 receipts, save/reopen and combat; then finish pp.2–14 and p.12 interception. Do not create P245 or run Android release gates until all five adventures and rules/AoR 360 are certified.",
+  "swe02_krayt_fang_pp06_11": {
+    "status": "IMPLEMENTADO_NAO_CERTIFICADO",
+    "source": "Long Arm of the Hutt printed pp.6–11 / PDF pp.6–11",
+    "focused_tests": {"files": ["tests/swe02-krayt-fang-pp06-11-family.test.mjs", "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs", "tests/ui-bridge-r22.test.mjs"], "tests": 28, "pass": 28, "fail": 0, "skip": 0},
+    "controller_save_reopen": "Three independent GameController reloads verified for alert observations, room discovery, B’ura conversation, cargo receipts, route and six-hour transit.",
+    "bundle": {"result": "PASS", "modules": 133, "command": "node tools/build-ui-bridge-bundle.mjs"},
+    "pending": ["Official text still has unresolved GM rulings for Threat hull damage amount; no numeric trauma invented.", "Cargo findings are recorded as discovered, not transferred into character inventory; parts sale/build and item transfer remain absent.", "Six-hour transit record does not yet apply rest, recovery or the app world clock.", "B’ura story facts and optional Oskara links are recorded but not connected to subsequent Geonosis/quest choices.", "p.12 Thwheek integration, full chapter source audit and final global regression remain outstanding."],
+    "integration_files": ["app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs", "app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs", "app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs", "app/src/main/assets/vtt/js/core/controller.mjs", "app/src/main/assets/vtt/js/core/uiBridge.mjs", "app/src/main/assets/vtt/js/core/uiBridge.bundle.js", "app/src/main/assets/vtt/js/ui/app.mjs", "app/src/main/assets/vtt/index.html"]
+  },
   "old_lylek_p15_18": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
     "focused_tests": {"tests": 17, "pass": 17, "fail": 0, "skip": 0, "evidence": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/focused-final.tap"},

@@ -1,6 +1,7 @@
 import { ensureLivingWorldDepth } from '../world/livingWorldDepth.mjs';
 import { FACTS,ARGUMENTS,guardCount,scoreDimmock,validateGeonosis,recordGeonosisChoice } from './swe02GeonosisP237.mjs';
-import { SHIP_CHECKS,shipCheckAvailable,shipNoisePool,recordShipCheck,recordShipChoice,validateShip,shipSmellSetback } from './swe02KraytFangP238.mjs';
+import { SHIP_CHECKS,shipCheckAvailable,shipNoisePool,shipCheckPool,recordShipCheck,recordShipChoice,validateShip,shipSmellSetback,shipIssueState,
+  recordShipObservation,recordShipRoomDiscovery,recordBuraConversation } from './swe02KraytFangP238.mjs';
 import {validateThwheek} from './swe02ThwheekP239.mjs';
 import {validateNabat} from './swe02NabatP240.mjs';
 import {validateSWE02Social,remainingDrombbThugs} from './swe02SocialP241.mjs';
@@ -593,7 +594,8 @@ function playerNode(node, progress) {
     choices: (node.choices || []).filter(c => conditionOk(c, progress) &&
       !(FACTS[c.id]&&(progress.geonosisEvidence||[]).some(x=>x.choiceId===c.id)) &&
       !(ARGUMENTS[c.id]&&(progress.geonosisArguments||[]).some(x=>x.choiceId===c.id)) &&
-      !(['dimmock-anti-empire','dimmock-loyal-empire'].includes(c.id)&&(progress.geonosisArguments||[]).some(x=>['antiEmpire','loyalEmpire'].includes(x.key)))).map(c => ({ id: c.id, label: c.label }))
+      !(['dimmock-anti-empire','dimmock-loyal-empire'].includes(c.id)&&(progress.geonosisArguments||[]).some(x=>['antiEmpire','loyalEmpire'].includes(x.key)))).map(c => ({ id: c.id, label: c.label })),
+    ...(progress.currentNodeId==='krayt-fang-logs'?{shipIssues:shipIssueState(progress),shipSequence:clone(progress.shipSequence||null)}:{})
   };
 }
 
@@ -664,6 +666,7 @@ export function advanceLongArmOfTheHutt(world, choiceId) {
   recordGeonosisChoice(p,choiceId,p.currentNodeId);
   if(choiceId==='dock-ryloth'||choiceId==='finish-ship-inspection')recordShipChoice(p,'ship-legacy-landing');
   else recordShipChoice(p,choiceId);
+  if(choiceId==='ship-depart-verified')recordShipObservation(p,'complete-hyperspace-transit');
   if(choiceId==='ship-depart-verified')p.flags.shipThwheekSkipped=p.flags.shipThwheekInterceptionRequired===false;
   if (choice.to === 'palace-kitchen-evidence') p.flags.ryllTradeEvidence=true;
   if (choice.to === 'new-meen-evacuation'&&p.flags.newMeenOutcome!=='LOST') p.flags.newMeenOutcome = 'EVACUATING';
@@ -766,7 +769,7 @@ export function currentLongArmOfTheHuttChecks(world) {
   if(['krayt-fang-logs','krayt-fang-ground-inspection'].includes(p.currentNodeId))return SHIP_CHECKS.map((check,index)=>({check,index})).filter(({index})=>shipCheckAvailable(p,index)).map(({check,index})=>({
     id:`${p.currentNodeId}:check:${index}`,index,skill:check.skill,
     skillKey:SWE02_SKILLS[check.skill]||null,difficultyText:['','Fácil','Média','Difícil','Formidável'][check.difficulty],purpose:check.purpose,
-    pool:p.currentNodeId==='krayt-fang-ground-inspection'?{difficulty:check.difficulty,challenge:0,setback:0}:shipNoisePool(p,check.difficulty),shipOdorRule:check.key,source:{title:SOURCE.title,productCode:'SWE02',printedPage:check.page,authority:'OFFICIAL_PDF_TEXT_VERIFIED'},
+    pool:p.currentNodeId==='krayt-fang-ground-inspection'?{difficulty:check.difficulty,challenge:0,setback:0,boost:0}:shipCheckPool(p,index,{announcedSearch:p.flags?.shipPeltSearchAnnounced===true}),shipOdorRule:check.key,source:{title:SOURCE.title,productCode:'SWE02',printedPage:check.page,authority:'OFFICIAL_PDF_TEXT_VERIFIED'},
     requiresGMSourceVerification:!SWE02_SKILLS[check.skill]
   }));
   if(p.currentNodeId==='palace-communications'&&p.flags?.palaceComputersLocked)return [];
@@ -801,7 +804,8 @@ export function adjudicateLongArmOfTheHuttCheck(world, { checkIndex = 0, result 
     } else if(phase==='lookout')p.oldLylek=recordSWE02OldLylekLookout(p,result).progress.oldLylek;
     else if(['repair','repair-failed'].includes(phase))p.oldLylek=recordSWE02OldLylekRepair(p,result,{reductionMinutes:repairReductionMinutes}).progress.oldLylek;
   }
-  if(['krayt-fang-logs','krayt-fang-ground-inspection'].includes(p.currentNodeId))recordShipCheck(p,checkIndex,result.success);
+  if(['krayt-fang-logs','krayt-fang-ground-inspection'].includes(p.currentNodeId))recordShipCheck(p,checkIndex,{...result,
+    netFailure:Math.max(0,-Number(result.netSuccess||0)),netThreat:Math.max(0,-Number(result.netAdvantage||0)),triumph:Number(result.triumph||0)>0});
   if(result.success){
     if(p.currentNodeId==='piddock-party'&&checkIndex===0)p.flags.geoPiddockCharmPassed=true;
     if(p.currentNodeId==='drombb-cantina'&&checkIndex===0)p.flags.geoDrombbCheckPassed=true;
@@ -1164,4 +1168,25 @@ export function archiveLongArmOfTheHutt(world) {
 
 export function longArmShipSmellSetback(world,characterName,checkIndex){
  const p=world?.publishedAdventure;return p?.id===ID?shipSmellSetback(p,characterName,SHIP_CHECKS[checkIndex]?.key):0;
+}
+
+function shipWorldAction(world, action) {
+ const next=clone(world||{}),p=next.publishedAdventure;
+ if(!p||p.id!==ID||p.status!=='ACTIVE')throw Error('Krayt Fang: aventura não está ativa.');
+ const result=action(p);
+ validateShip(p);p.updatedAt=now();next.publishedAdventure=p;
+ return {world:next,progress:clone(p),result:clone(result),issueState:shipIssueState(p)};
+}
+export function recordLongArmShipObservation(world,id,details={}) {
+ return shipWorldAction(world,p=>recordShipObservation(p,id,details));
+}
+export function discoverLongArmShipRoom(world,roomId) {
+ return shipWorldAction(world,p=>recordShipRoomDiscovery(p,roomId));
+}
+export function recordLongArmBuraConversation(world,details={}) {
+ return shipWorldAction(world,p=>recordBuraConversation(p,details));
+}
+export function setLongArmPeltSearchAnnounced(world,announced) {
+ if(typeof announced!=='boolean')throw Error('Krayt Fang: anúncio de busca inválido.');
+ return shipWorldAction(world,p=>{if(p.currentNodeId!=='krayt-fang-logs'||p.flags?.shipPeltsFound)throw Error('Krayt Fang: busca indisponível.');p.flags={...(p.flags||{}),shipPeltSearchAnnounced:announced};return {announced,boost:announced?1:0,source:{productCode:'SWE02',printedPage:9}};});
 }
