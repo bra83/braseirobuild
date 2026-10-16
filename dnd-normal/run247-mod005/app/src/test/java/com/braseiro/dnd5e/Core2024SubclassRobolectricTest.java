@@ -125,6 +125,8 @@ public class Core2024SubclassRobolectricTest {
     public void selectionMustMatchClassAndLegalCharacterLevel() {
         assertTrue(Core2024SubclassRuntimeEngine.isSubclassSelectionValid("Guerreiro", 3, "Campeão"));
         assertTrue(Core2024SubclassRuntimeEngine.isSubclassSelectionValid("Fighter", 20, "Champion"));
+        assertTrue(Core2024SubclassRuntimeEngine.isSubclassSelectionValid("Guerreiro — Campeão", 3, "Champion"));
+        assertTrue(Core2024SubclassRuntimeEngine.isSubclassSelectionValid("Fighter - Champion", 3, "Campeão"));
         assertFalse(Core2024SubclassRuntimeEngine.isSubclassSelectionValid("Mago", 3, "Campeão"));
         assertFalse(Core2024SubclassRuntimeEngine.isSubclassSelectionValid("Guerreiro", 2, "Campeão"));
         assertFalse(Core2024SubclassRuntimeEngine.isSubclassSelectionValid("Guerreiro", 21, "Campeão"));
