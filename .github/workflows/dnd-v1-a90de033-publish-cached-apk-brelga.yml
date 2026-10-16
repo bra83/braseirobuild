@@ -46,6 +46,10 @@ jobs:
           if(!$bt){throw 'ANDROID_BUILD_TOOLS_MISSING'}
           $signer=Join-Path $bt.FullName 'apksigner.bat'
           if(!(Test-Path $signer)){throw 'APKSIGNER_NOT_FOUND'}
+          $java17='C:\actions-runner\_work\_tool\Java_Temurin-Hotspot_jdk\17.0.20-101\x64'
+          if(!(Test-Path $java17)){throw 'V1_SIGNER_JAVA17_MISSING'}
+          $env:JAVA_HOME=$java17
+          $env:PATH=(Join-Path $java17 'bin')+';'+$env:PATH
           & $signer verify --verbose $found
           if($LASTEXITCODE -ne 0){throw 'CACHED_APK_SIGNATURE_INVALID'}
           Add-Content -Path $env:GITHUB_OUTPUT -Value ('path='+$found)
