@@ -7,7 +7,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: dnd-v1-hybrid-matrix-qa-20261016
+  group: dnd-v1-hybrid-matrix-qa-${{ github.sha }}
   cancel-in-progress: false
 jobs:
   matrix:
