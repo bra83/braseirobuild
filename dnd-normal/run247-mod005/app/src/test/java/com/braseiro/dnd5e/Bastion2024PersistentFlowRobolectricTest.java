@@ -169,4 +169,55 @@ public final class Bastion2024PersistentFlowRobolectricTest {
         }finally{db.close();ctx.deleteDatabase(dbName);}
     }
 
+    @Test public void heroEditionIsPinnedAcrossCampaignProfileChangesAndBackup() throws Exception {
+        Context ctx=RuntimeEnvironment.getApplication();
+        String dbName=name();
+        AppDb db=new AppDb(ctx,dbName);
+        try {
+            db.setActiveMapProfile("dnd");
+            db.saveCampaign("Old",DndRulesEngine.PROFILE_2014,"Sandbox",true,true,false,"");
+            long old=db.addCharacter("OldHero","Humano","Guerreiro",5,30,30,15,
+                16,12,14,10,10,10,true,"Soldado");
+            assertEquals(DndRulesEngine.PROFILE_2014,db.getCharacter(old).optString("rules_source"));
+            db.saveCampaign("Modern",DndRulesEngine.PROFILE_2024,"Sandbox",true,true,false,"");
+            long modern=db.addCharacter("ModernHero","Humano","Guerreiro",5,30,30,15,
+                16,12,14,10,10,10,true,"Soldado");
+            assertEquals(DndRulesEngine.PROFILE_2024,db.getCharacter(modern).optString("rules_source"));
+            assertEquals("2024_core_rules_required",db.configureBastion2024(old,0,0,
+                new JSONArray(),true).optString("bastion_blocked"));
+            assertTrue(db.configureBastion2024(modern,0,0,
+                new JSONArray(),true).optBoolean("bastion_configured"));
+            JSONObject backup=db.exportAll();
+            db.importAll(backup);
+            long restoredOld=db.findCharacterByName("OldHero").optLong("id");
+            long restoredModern=db.findCharacterByName("ModernHero").optLong("id");
+            assertEquals(DndRulesEngine.PROFILE_2014,db.getCharacter(restoredOld).optString("rules_source"));
+            assertEquals(DndRulesEngine.PROFILE_2024,db.getCharacter(restoredModern).optString("rules_source"));
+            assertEquals("2024_core_rules_required",db.configureBastion2024(restoredOld,0,0,
+                new JSONArray(),true).optString("bastion_blocked"));
+            assertTrue(db.getBastion2024State(restoredModern).length()>0);
+        } finally {db.close();ctx.deleteDatabase(dbName);}
+    }
+
+    @Test public void unversionedLegacyCharacterCannotInheritNewCampaignEdition() throws Exception {
+        Context ctx=RuntimeEnvironment.getApplication();
+        String dbName=name();
+        AppDb db=new AppDb(ctx,dbName);
+        try {
+            db.setActiveMapProfile("dnd");
+            db.saveCampaign("Old",DndRulesEngine.PROFILE_2014,"Sandbox",true,true,false,"");
+            long hero=db.addCharacter("UnknownEdition","Humano","Guerreiro",5,30,30,15,
+                16,12,14,10,10,10,true,"Soldado");
+            android.content.ContentValues nullSource=new android.content.ContentValues();
+            nullSource.putNull("rules_source");
+            nullSource.put("sheet_json","{}");
+            db.getWritableDatabase().update("characters",nullSource,"id=?",
+                new String[]{String.valueOf(hero)});
+            db.saveCampaign("Modern",DndRulesEngine.PROFILE_2024,"Sandbox",true,true,false,"");
+            assertEquals("2024_core_rules_required",db.configureBastion2024(hero,0,0,
+                new JSONArray(),true).optString("bastion_blocked"));
+            assertEquals(0,db.getBastion2024State(hero).length());
+        } finally {db.close();ctx.deleteDatabase(dbName);}
+    }
+
 }
