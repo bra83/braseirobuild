@@ -13,11 +13,12 @@ class Repo {
 function fixture(playerCount){
   const repo=new Repo(),g=new GameController(repo);
   g.loadStarterCharacter('cael');g.startSession({playerCount,rng:()=>.5});
+  for(let i=1;i<playerCount;i++){const c=structuredClone(g.state.player.character);c.name=`PC ${i+1}`;g.registerPartyCharacter({character:c,id:`test-pc-${i+1}`});}
   g.startPublishedAdventureSession('long-arm-of-the-hutt',{rng:()=>.5});
   for(const choice of ['dock-ryloth','help-new-meen','travel-lylek-den'])g.advancePublishedAdventure(choice);
   return {repo,g};
 }
-function ready(g){g.chooseSWE02OldLylekRoute({slowDown:true});g.approachSWE02OldLylekOnFoot();}
+function ready(g){g.chooseSWE02OldLylekCrew({crewPcIds:g.state.player.roster.entries.map(x=>x.id)});g.chooseSWE02OldLylekRoute({slowDown:true});g.approachSWE02OldLylekOnFoot();g.recordSWE02OldLylekRuse({recognizedByHunters:false,oskaraPresent:false});g.chooseSWE02OldLylekTactics({approach:'frontal',frontalOutcome:'fighting_retreat',lylekBranch:'disturb_on_advantage'});}
 function reopenThree(repo,assertState){let last;for(let i=0;i<3;i++){last=new GameController(repo);assertState(last.state);}return last;}
 
 test('T’rex p.24 profile matches the official Adventure Book block',()=>{

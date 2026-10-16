@@ -106,6 +106,11 @@ export function applyEvent(state, event) {
   if (event.type === 'CAMPAIGN_MODE_UPDATED' && event.payload.campaignMode) next.campaignMode = String(event.payload.campaignMode);
   if (event.type === 'REBEL_GROUP_UPDATED' && event.payload.rebelGroup) next.rebelGroup = structuredClone(event.payload.rebelGroup); // legacy replay only
   if (event.type === 'WORLD_UPDATED' && event.payload.world) next.world = structuredClone(event.payload.world);
+  if (event.type === 'PLAYER_ROSTER_UPDATED' && event.payload.roster) {
+    next.player.roster=structuredClone(event.payload.roster);
+    const active=next.player.roster.entries?.find(x=>x?.id===next.player.roster.activeCharacterId);
+    if(active?.character)next.player.character=structuredClone(active.character);
+  }
   if (event.type === 'ENVIRONMENT_UPDATED' && event.payload.environment) next.environment = structuredClone(event.payload.environment);
   if (event.type === 'COMBAT_ACTION') {
     if (event.payload.combat) next.combat = structuredClone(event.payload.combat);
@@ -114,6 +119,18 @@ export function applyEvent(state, event) {
     if (event.payload.attack) next.combat.lastAttack = structuredClone(event.payload.attack);
     if (event.payload.group) next.group = structuredClone(event.payload.group);
     if (event.payload.environment) next.environment = structuredClone(event.payload.environment);
+  }
+  if (next.player?.character) {
+    next.player.roster = next.player.roster && Array.isArray(next.player.roster.entries)
+      ? next.player.roster : {schema:1,activeCharacterId:null,entries:[]};
+    let active=next.player.roster.entries.find(x=>x?.id===next.player.roster.activeCharacterId);
+    if(!active){
+      const id=`pc:${String(next.player.character.name??'character').normalize('NFKD').replace(/[^A-Za-z0-9_-]/g,'-').replace(/-+/g,'-').slice(0,64)}`;
+      active={id,character:structuredClone(next.player.character)};
+      next.player.roster.entries.push(active);
+      next.player.roster.activeCharacterId=id;
+    }else active.character=structuredClone(next.player.character);
+    next.player.roster.schema=1;
   }
   return next;
 }

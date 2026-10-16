@@ -8,10 +8,21 @@ function requireProgress(progress) {
 }
 
 export function createSWE02OldLylekState() {
-  return { schema:1, phase:'approach', route:null, pilotChecks:[], lookout:null, crashChecks:[], crashResolved:false,
-    repairChecks:[], huntersOutcome:null, lylekTriggered:false, lylekWarning:null, lylekEncounter:null, hunterLoot:null,
+  return { schema:2, phase:'approach', route:null, crewPcIds:null, pilotChecks:[], lookout:null, crashChecks:[], crashResolved:false,
+    repairChecks:[],ruse:null,tactics:null,huntersOutcome:null, lylekTriggered:false, lylekWarning:null, lylekEncounter:null, hunterLoot:null,
     trexCarryover:{status:'pending',history:null,source:{title:'The Long Arm of the Hutt',productCode:'SWE02',printedPage:15},reference:{title:'Edge of the Empire Adventure Book',productCode:'SWE01',printedPage:24}},
     source:clone(SOURCE) };
+}
+
+export function chooseSWE02OldLylekCrew(progress,{crewPcIds,rosterEntries,playerCount}={}){
+  const p=requireProgress(progress),old=p.oldLylek||createSWE02OldLylekState();
+  const ids=Array.isArray(crewPcIds)?crewPcIds:[],valid=new Set((rosterEntries||[]).map(x=>x?.id));
+  const expected=Number(playerCount);
+  if(old.phase!=='approach'||ids.length<1||ids.length>8||ids.some(x=>typeof x!=='string'||!valid.has(x))||new Set(ids).size!==ids.length||
+    (Number.isInteger(expected)&&expected>0&&ids.length!==expected))
+    throw new Error('SWE02 pp.15–17: registre uma vez cada PC humano a bordo; companheiros e NPCs não contam como PCs.');
+  const next=clone(p);next.oldLylek={...old,schema:2,crewPcIds:[...ids],crewSource:{title:SOURCE.title,productCode:'SWE02',printedPage:15,authority:SOURCE.authority}};
+  return {progress:next,crewPcIds:[...ids]};
 }
 
 const TREX_HISTORY=Object.freeze({
@@ -44,7 +55,7 @@ export function selectSWE02TrexCarryover(world,{history}={}) {
 
 export function chooseSWE02OldLylekRoute(progress, { slowDown } = {}) {
   const p=requireProgress(progress), old=p.oldLylek||createSWE02OldLylekState();
-  if(old.phase!=='approach'||typeof slowDown!=='boolean')throw new Error('SWE02 p.15: escolha de rota indisponível ou inválida.');
+  if(old.phase!=='approach'||typeof slowDown!=='boolean'||!Array.isArray(old.crewPcIds)||old.crewPcIds.length<1)throw new Error('SWE02 p.15: registre a tripulação e escolha uma rota válida.');
   const next=clone(p);next.oldLylek={...old,route:slowDown?'slow':'fast',phase:slowDown?'lookout':'pilot-1'};
   next.oldLylek.source=clone(SOURCE);return {progress:next,phase:next.oldLylek.phase};
 }
@@ -57,11 +68,23 @@ export function recordSWE02OldLylekPilot(progress, check) {
   if(index>1||old.phase!==`pilot-${index+1}`)throw new Error('SWE02 p.15: os dois testes devem ser sucessivos.');
   const receipt={index:index+1,skillKey:'pilotar_veiculo_planetario',difficulty:2,success:check.success,
     netSuccess:Number(check.netSuccess)||0,netAdvantage:Number(check.netAdvantage)||0,collision:!check.success,
-    onboardPcStrain:!check.success?{perPc:1,status:'PENDENTE',resolution:'Manual: aplicar 1 Tensão a cada PJ a bordo; o cadastro local não confirma a tripulação inteira.'}:null,
+    onboardPcStrain:!check.success?{perPc:1,crewPcIds:[...(old.crewPcIds||[])],status:'PENDENTE',resolution:'Aplicação transacional ao cadastro de PCs pendente.'}:null,
     source:clone(SOURCE)};
   const checks=[...old.pilotChecks,receipt],phase=checks.length===2?'lookout':'pilot-2';
   const next=clone(p);next.oldLylek={...old,pilotChecks:checks,phase};
   return {progress:next,receipt,phase};
+}
+
+export function recordSWE02OldLylekPilotStrain(progress,{checkIndex,applications}={}){
+  const p=requireProgress(progress),old=p.oldLylek,check=old?.pilotChecks?.[Number(checkIndex)];
+  const ids=old?.crewPcIds??[];
+  if(!check||check.success!==false||!Array.isArray(applications)||applications.length!==ids.length||
+    new Set(applications.map(x=>x.pcId)).size!==ids.length||ids.some(id=>!applications.some(x=>x.pcId===id&&x.strainApplied===1)))
+    throw new Error('SWE02 p.15: recibo exige 1 Tensão aplicada a cada PC a bordo após cada falha de Pilotagem.');
+  const next=clone(p),checks=next.oldLylek.pilotChecks.slice();
+  checks[Number(checkIndex)]={...check,onboardPcStrain:{perPc:1,crewPcIds:[...ids],status:'APPLIED',applications:clone(applications),source:{title:SOURCE.title,productCode:'SWE02',printedPage:15,authority:SOURCE.authority}}};
+  next.oldLylek={...next.oldLylek,pilotChecks:checks};
+  return next;
 }
 
 export function recordSWE02OldLylekLookout(progress, check) {
@@ -80,10 +103,37 @@ export function proceedSWE02OldLylekBluff(progress) {
   const next=clone(p);
   const lookout=old.lookout||{attempted:false,spottedGand:false,source:clone(SOURCE)};
   if(old.phase==='lookout'){
-    next.oldLylek={...old,lookout,phase:old.route==='fast'?'crash-checks':'combat-ready',crashResolved:old.route!=='fast'};
+    next.oldLylek={...old,lookout,phase:old.route==='fast'?'crash-checks':'ruse',crashResolved:old.route!=='fast'};
   } else if(old.route==='fast')next.oldLylek={...old,lookout,phase:'crash-checks',crashResolved:false};
-  else next.oldLylek={...old,lookout,phase:'combat-ready',crashResolved:true};
+  else next.oldLylek={...old,lookout,phase:'ruse',crashResolved:true};
   return {progress:next,phase:next.oldLylek.phase,crash:old.route==='fast'};
+}
+
+export function recordSWE02OldLylekRuse(progress,{recognizedByHunters=false,identificationAsked=false,oskaraPresent,oskaraRecognizes=false}={}){
+  const p=requireProgress(progress),old=p.oldLylek;
+  if(!old||old.phase!=='ruse'||typeof recognizedByHunters!=='boolean'||typeof identificationAsked!=='boolean'||typeof oskaraPresent!=='boolean'||
+    (oskaraPresent&&typeof oskaraRecognizes!=='boolean')||(!oskaraPresent&&oskaraRecognizes!==false))
+    throw new Error('SWE02 p.17: registre a resposta dos caçadores e se Oskara está presente antes do combate.');
+  const trexPresent=old.trexCarryover?.present===true;
+  const receipt={hail:'Local Imperial authorities; suspected ryll smuggling',uniformsWorn:false,identificationAsked,
+    identifiedByHunters:identificationAsked?(trexPresent?['T’rex']:[]):[],recognizedByHunters,
+    oskaraPresent,oskaraRecognizes:oskaraPresent?oskaraRecognizes:null,
+    oskaraIdentifiesHumanHunters:oskaraPresent&&oskaraRecognizes,
+    presumedRuseFailure:true,initiativeFollows:true,mechanicalOutcome:'No Bluff check or automatic combat advantage; source says ruse is ineffective.',
+    source:{title:SOURCE.title,productCode:'SWE02',printedPage:17,authority:SOURCE.authority}};
+  const next=clone(p);next.oldLylek={...old,ruse:receipt,phase:'combat-ready'};return {progress:next,receipt};
+}
+
+export function chooseSWE02OldLylekTactics(progress,{approach,frontalOutcome='not_applicable',lylekBranch}={}){
+  const p=requireProgress(progress),old=p.oldLylek;
+  if(!old||old.phase!=='combat-ready'||!old.ruse||!['frontal','east_cave_flank'].includes(approach)||
+    !['disturb_on_advantage','stay_passive'].includes(lylekBranch)||
+    (approach==='frontal'&&!['fighting_retreat','fight_to_last'].includes(frontalOutcome))||
+    (approach==='east_cave_flank'&&frontalOutcome!=='not_applicable'))
+    throw new Error('SWE02 pp.16–18: registre aproximação, resposta frontal dos caçadores e decisão do ramo do lylek.');
+  const receipt={approach,frontalOutcome,lylekBranch,cover:{rockPiles:true,cave:true,rangedSetback:2},map:{heroesJourney:'northern approach',hunterSpeeder:'cave mouth',cave:'north',eastFlank:'partially blocked eastern entrance',lylekNest:'southern nest'},
+    source:{title:SOURCE.title,productCode:'SWE02',printedPage:16,relatedPrintedPages:[17,18],authority:SOURCE.authority}};
+  const next=clone(p);next.oldLylek={...old,tactics:receipt};return {progress:next,receipt};
 }
 
 export function approachSWE02OldLylekOnFoot(progress) {
@@ -91,16 +141,16 @@ export function approachSWE02OldLylekOnFoot(progress) {
   if(!old||!['lookout','bluff'].includes(old.phase))
     throw new Error('SWE02 p.17: abordagem a pé indisponível.');
   const next=clone(p),lookout=old.lookout||{attempted:false,spottedGand:false,source:clone(SOURCE)};
-  next.oldLylek={...old,lookout,phase:'combat-ready',approachOnFoot:true,crashResolved:true};
+  next.oldLylek={...old,lookout,phase:'ruse',approachOnFoot:true,crashResolved:true};
   return {progress:next,phase:'combat-ready'};
 }
 
-export function recordSWE02OldLylekCrashCheck(progress,{characterName,skillKey,check}={}) {
+export function recordSWE02OldLylekCrashCheck(progress,{characterId,characterName,skillKey,check}={}) {
   const p=requireProgress(progress),old=p.oldLylek;
-  if(!old||old.phase!=='crash-checks'||!['aguante','coordenacion'].includes(skillKey)||!String(characterName||'').trim()||typeof check?.success!=='boolean')
+  if(!old||old.phase!=='crash-checks'||!Array.isArray(old.crewPcIds)||!old.crewPcIds.includes(characterId)||!['aguante','coordinacion'].includes(skillKey)||!String(characterName||'').trim()||typeof check?.success!=='boolean')
     throw new Error('SWE02 p.17: escolha Aguante ou Coordenação e um personagem da tripulação.');
-  if(old.crashChecks.some(x=>x.characterName===characterName))throw new Error('SWE02 p.17: este personagem já fez o teste do choque.');
-  const receipt={characterName:String(characterName),skillKey,difficulty:2,success:check.success,damage:check.success?0:6,
+  if(old.crashChecks.some(x=>x.characterId===characterId))throw new Error('SWE02 p.17: este personagem já fez o teste do choque.');
+  const receipt={characterId,characterName:String(characterName),skillKey,difficulty:2,success:check.success,damage:check.success?0:6,
     netSuccess:Number(check.netSuccess)||0,netAdvantage:Number(check.netAdvantage)||0,source:clone(SOURCE)};
   const next=clone(p);next.oldLylek={...old,crashChecks:[...old.crashChecks,receipt]};
   return {progress:next,receipt};
@@ -108,7 +158,9 @@ export function recordSWE02OldLylekCrashCheck(progress,{characterName,skillKey,c
 
 export function confirmSWE02OldLylekCrashCrew(progress,{expectedPcCount}={}) {
   const p=requireProgress(progress),old=p.oldLylek,n=Number(expectedPcCount);
-  if(!old||old.phase!=='crash-checks'||!Number.isInteger(n)||n<1||n>8||old.crashChecks.length!==n)
+  if(!old||old.phase!=='crash-checks'||!Number.isInteger(n)||n<1||n>8||old.crashChecks.length!==n||
+    new Set(old.crashChecks.map(x=>x.characterId)).size!==n||!old.crewPcIds||old.crewPcIds.length!==n||
+    old.crewPcIds.some(id=>!old.crashChecks.some(x=>x.characterId===id)))
     throw new Error('SWE02 p.17: cada PC precisa de seu teste de Aguante ou Coordenação antes do reparo.');
   const next=clone(p);next.oldLylek={...old,phase:'repair',crashResolved:true,expectedPcCount:n};
   return {progress:next,phase:'repair'};
@@ -120,13 +172,13 @@ export function recordSWE02OldLylekRepair(progress,check) {
   const receipt={skillKey:'mecanica',difficulty:1,success:check.success,netSuccess:Number(check.netSuccess)||0,
     netAdvantage:Number(check.netAdvantage)||0,timeMinutes:30,source:clone(SOURCE)};
   const next=clone(p),checks=[...old.repairChecks,receipt];
-  next.oldLylek={...old,repairChecks:checks,phase:check.success?'combat-ready':'repair-failed',repairSuccess:check.success};
+  next.oldLylek={...old,repairChecks:checks,phase:check.success?'ruse':'repair-failed',repairSuccess:check.success};
   return {progress:next,receipt,phase:next.oldLylek.phase};
 }
 
 export function markSWE02OldLylekCombatStarted(progress) {
   const p=requireProgress(progress),old=p.oldLylek;
-  if(!old||old.phase!=='combat-ready'||old.huntersOutcome)throw new Error('SWE02 pp.15–17: hunters só começam após resolver rota e aproximação.');
+  if(!old||old.phase!=='combat-ready'||!old.ruse||!old.tactics||old.huntersOutcome)throw new Error('SWE02 pp.16–18: ruse, mapa e decisão tática/lylek do Mestre precisam estar registrados antes dos caçadores.');
   const next=clone(p);next.oldLylek={...old,phase:'hunters-combat'};return next;
 }
 
@@ -145,10 +197,11 @@ export function recordSWE02OldLylekHunterOutcome(progress,{outcome,adversaries=[
     throw new Error('SWE02 p.15: resultado exige os caçadores reais em quantidade igual aos PCs.');
   const defeated=adversaries.every(a=>['incapacitated','defeated'].includes(a.status));
   if(outcome==='adversaries_defeated'&&!defeated)throw new Error('SWE02 p.15: vitória exige os caçadores incapacitados.');
-  const advantageTrigger=(combatLog||[]).some(x=>Number(x?.check?.netAdvantage)>0||Number(x?.netAdvantage)>0);
+  const advantageTrigger=old.tactics?.lylekBranch==='disturb_on_advantage'&&(combatLog||[]).some(x=>Number(x?.check?.netAdvantage)>0||Number(x?.netAdvantage)>0);
   const huntersOutcome=outcome==='adversaries_defeated'&&defeated?'defeated':outcome==='player_incapacitated'?'party-incapacitated':'retreated';
   const next=clone(p);next.oldLylek={...old,phase:'post-hunters',huntersOutcome,lylekTriggered:old.lylekTriggered||advantageTrigger,
     hunterProof:{enemyIds:adversaries.map(a=>a.id),outcome,defeated,source:clone(SOURCE)}};
+  if(advantageTrigger){const victim=adversaries.find(a=>!['incapacitated','defeated','retreated'].includes(a.status));if(victim)next.oldLylek.lylekKillReceipt={hunterId:victim.id,profileKey:victim.profileKey,disposition:'Killed by the lylek; prey taken to nest',trigger:'Any Advantage during subsequent hunter fight',source:{title:SOURCE.title,productCode:'SWE02',printedPage:18,authority:SOURCE.authority}};}
   next.flags={...(next.flags||{}),lylekHuntersResolved:true};
   if(huntersOutcome==='defeated')next.oldLylek.hunterLoot={status:'available',items:[{name:'stimpack',quantity:2},{name:'medpac',quantity:1},{name:'emergency repair kit',quantity:1}],source:{title:SOURCE.title,productCode:'SWE02',printedPage:18,authority:'OFFICIAL_PDF_TEXT_VERIFIED'}};
   return {progress:next,huntersOutcome,lylekTriggered:next.oldLylek.lylekTriggered};
@@ -159,6 +212,15 @@ export function inspectSWE02OldLylekSpeeder(progress) {
   if(!old||old.phase!=='post-hunters'||old.huntersOutcome!=='defeated'||old.hunterLoot?.status!=='available')
     throw new Error('SWE02 p.18: inspecione o speeder após derrotar os caçadores.');
   const next=clone(p);next.oldLylek={...old,hunterLoot:{...old.hunterLoot,status:'found',inspected:true}};return next;
+}
+
+export function recordSWE02OldLylekLootGrant(progress,{inventoryIds}={}){
+  const p=requireProgress(progress),old=p.oldLylek,ids=['swe02-old-lylek-stimpack-1','swe02-old-lylek-stimpack-2','swe02-old-lylek-medpac','swe02-old-lylek-emergency-repair-kit'];
+  if(old?.hunterLoot?.status!=='found'||old.hunterLoot.inventoryReceipt||!Array.isArray(inventoryIds)||
+    inventoryIds.length!==ids.length||new Set(inventoryIds).size!==ids.length||ids.some(id=>!inventoryIds.includes(id)))
+    throw new Error('SWE02 p.18: loot grant requires the four exact inventory entries and cannot be duplicated.');
+  const next=clone(p);next.oldLylek={...old,hunterLoot:{...old.hunterLoot,inventoryReceipt:{status:'GRANTED',inventoryIds:ids,owner:'party.belongings',source:{title:SOURCE.title,productCode:'SWE02',printedPage:18,authority:SOURCE.authority}}}};
+  return next;
 }
 
 export function warnSWE02OldLylek(progress) {
@@ -181,12 +243,14 @@ export function markSWE02OldLylekAttackStarted(progress) {
   const next=clone(p);next.oldLylek={...old,phase:'lylek-attack-started',lylekEncounter:{...old.lylekEncounter,started:true}};return next;
 }
 
-export function resolveSWE02OldLylek(progress,{outcome,combatAdversary}={}) {
+export function resolveSWE02OldLylek(progress,{outcome,combatAdversary,gmConfirmedSubmission=false}={}) {
   const p=requireProgress(progress),old=p.oldLylek;
   if(!old||old.phase!=='lylek-attack-started'||!['player_incapacitated','adversaries_defeated','ended','escaped'].includes(outcome))throw new Error('SWE02 p.18: desfecho do ataque ao lylek indisponível.');
+  if(outcome==='player_incapacitated'&&gmConfirmedSubmission!==true)
+    throw new Error('SWE02 p.18: confirme explicitamente a submissão decidida pelo Mestre; o texto não define um limite numérico.');
   // The published text says the beast beats PCs into submission, then returns to feed.
   // It does not specify a mechanical winner/defeat threshold; retain the GM adjudication.
-  const next=clone(p);next.oldLylek={...old,phase:'post-lylek',lylekResolution:{outcome,gmConfirmedSubmission:outcome==='player_incapacitated',beastProfileVerified:true,profileKey:old.lylekEncounter?.profileKey,source:{...clone(SOURCE),printedPage:18,profile:{title:'Edge of the Empire Beginner Game',productCode:'SWE01',printedPage:47,authority:'OFFICIAL_SOURCE_PROFILE_VERIFIED'}}}};return next;
+  const next=clone(p);next.oldLylek={...old,phase:'post-lylek',lylekResolution:{outcome,gmConfirmedSubmission:outcome==='player_incapacitated',numericSubmissionThreshold:null,beastProfileVerified:true,profileKey:old.lylekEncounter?.profileKey,source:{...clone(SOURCE),printedPage:18,profile:{title:'Edge of the Empire Beginner Game',productCode:'SWE01',printedPage:47,authority:'OFFICIAL_SOURCE_PROFILE_VERIFIED'}}}};return next;
 }
 
 export function canSWE02OldLylekContinue(progress) {

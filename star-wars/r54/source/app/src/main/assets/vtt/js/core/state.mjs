@@ -52,7 +52,7 @@ function validateP178CombatState(state){
     }
   }
 }
-export const STATE_VERSION = 14;
+export const STATE_VERSION = 15;
 export function createCampaign(name = 'Nova campanha') {
     const now = new Date().toISOString();
     return {
@@ -64,7 +64,7 @@ export function createCampaign(name = 'Nova campanha') {
         updatedAt: now,
         rulesProfile: 'EOTE_CORE',
         campaignMode: 'EOTE',
-        player: { character: null },
+        player: { character: null, roster:{schema:1,activeCharacterId:null,entries:[]} },
         world: world_mjs_1.createWorld(),
         scene: { title: 'Abertura', narration: 'Mestre de IA ainda não conectado.', locationId: null, imageAssetId: null, imageSource: null, imageLocked: false, imagePrompt: null },
         combat: combat_mjs_1.createCombatState(),
@@ -127,6 +127,9 @@ export function migrateState(value) {
     if (Number(next.schemaVersion) === 13) {
         next.schemaVersion = 14;
     }
+    if (Number(next.schemaVersion) === 14) {
+        next.schemaVersion = 15;
+    }
     const combatDefaults = combat_mjs_1.createCombatState();
     next.combat = { ...combatDefaults, ...(next.combat ?? {}), playerTurn: { ...combatDefaults.playerTurn, ...(next.combat?.playerTurn ?? {}) }, adversaries: Array.isArray(next.combat?.adversaries) ? next.combat.adversaries : [], encounter: next.combat?.encounter ?? null, log: Array.isArray(next.combat?.log) ? next.combat.log : [] };
     next.master = { corpusVersion: 1, lastRuleQuery: null, lastRuleResults: [], lastContext: null, pendingQuestion: null, suggestedActions: [], suggestedCheck: null, lastProposalRuleIds: [], lastRuleAuthority: null, pendingAcquisition: null, acquisitionHistory: [], merchantNegotiationReceipts: [], mechanicFieldActions: [], aorIntelActions: [], pendingEncounter: null, ...(next.master ?? {}) };
@@ -151,6 +154,23 @@ export function migrateState(value) {
     }
     if (next.player?.character) {
         next.player.character.statusEffects = Array.isArray(next.player.character.statusEffects) ? next.player.character.statusEffects : [];
+    }
+    next.player = next.player ?? { character:null };
+    next.player.roster = next.player.roster && Array.isArray(next.player.roster.entries)
+        ? next.player.roster
+        : { schema:1, activeCharacterId:null, entries:[] };
+    if (next.player.character) {
+        const roster=next.player.roster;
+        let active=roster.entries.find(x=>x?.id===roster.activeCharacterId);
+        if (!active) {
+            const id=ids_mjs_1.newId('pc');
+            active={id,character:structuredClone(next.player.character)};
+            roster.entries=[...roster.entries,active];
+            roster.activeCharacterId=id;
+        } else {
+            active.character=structuredClone(next.player.character);
+        }
+        roster.schema=1;
     }
     if (next.player?.character?.creation?.rulesProfile === 'AOR_CORE' && next.campaignMode === 'EOTE') {
         const c = next.player.character;

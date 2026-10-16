@@ -1719,10 +1719,20 @@ completeMerchantAcquisition(options={}){
     }
     chooseSWE02OldLylekRoute(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.chooseSWE02OldLylekRoute(options??{})));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    chooseSWE02OldLylekCrew(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.chooseSWE02OldLylekCrew(options??{})));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    registerPartyCharacter(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.registerPartyCharacter(options??{})));}catch(e){return fail('PARTY_ROSTER_FAILED',messageOf(e));}}
+    selectPartyCharacter(id){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.selectPartyCharacter(id)));}catch(e){return fail('PARTY_ROSTER_FAILED',messageOf(e));}}
     selectSWE02TrexCarryover(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.selectSWE02TrexCarryover(options??{})));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
     proceedSWE02OldLylekBluff(){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.proceedSWE02OldLylekBluff()));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    recordSWE02OldLylekRuse(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.recordSWE02OldLylekRuse(options??{})));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    chooseSWE02OldLylekTactics(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.chooseSWE02OldLylekTactics(options??{})));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
     approachSWE02OldLylekOnFoot(){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.approachSWE02OldLylekOnFoot()));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
     resolveSWE02OldLylekCrashCheck(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;

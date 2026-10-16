@@ -11,8 +11,8 @@ import {validateSWE02Palace} from './swe02Act3PalaceWip.mjs';
 import {validateSWE02Anatta} from './swe02Act2Anatta.mjs';
 import {validateSWE02Act2Contracts,askSWE02Piddock} from './swe02Act2ContractsWip.mjs';
 import {validateSWE02PalaceOperations} from './swe02PalaceOperations.mjs';
-import {createSWE02OldLylekState,selectSWE02TrexCarryover,requireSWE02TrexCarryover,chooseSWE02OldLylekRoute,recordSWE02OldLylekPilot,recordSWE02OldLylekLookout,
-  proceedSWE02OldLylekBluff,approachSWE02OldLylekOnFoot,recordSWE02OldLylekCrashCheck,confirmSWE02OldLylekCrashCrew,
+import {createSWE02OldLylekState,selectSWE02TrexCarryover,requireSWE02TrexCarryover,chooseSWE02OldLylekCrew,chooseSWE02OldLylekRoute,recordSWE02OldLylekPilot,recordSWE02OldLylekPilotStrain,recordSWE02OldLylekLookout,chooseSWE02OldLylekTactics,recordSWE02OldLylekLootGrant,
+  proceedSWE02OldLylekBluff,recordSWE02OldLylekRuse,approachSWE02OldLylekOnFoot,recordSWE02OldLylekCrashCheck,confirmSWE02OldLylekCrashCrew,
   recordSWE02OldLylekRepair,markSWE02OldLylekCombatStarted,recordSWE02OldLylekHunterOutcome,inspectSWE02OldLylekSpeeder,warnSWE02OldLylek,
   persistSWE02OldLylek,markSWE02OldLylekAttackStarted,resolveSWE02OldLylek,canSWE02OldLylekContinue} from './swe02OldLylekP15.mjs';
 
@@ -676,6 +676,7 @@ export function advanceLongArmOfTheHutt(world, choiceId) {
     p.flags.newMeenOutcome = 'SECURED';
   }
   const destination=choice.to;
+  if(p.currentNodeId==='lylek-den-ambush'&&choiceId==='reach-new-meen')p.oldLylek={...p.oldLylek,arrivalReceipt:{distanceMiles:1,buraExplainsAid:true,residentsWelcomeAsHeroes:true,invitedToLargerDwelling:true,basicRationsOffered:true,rationQuantity:null,developerDetails:{status:'ONLY_IF_ASKED'},source:{title:'The Long Arm of the Hutt',productCode:'SWE02',printedPage:18,authority:'OFFICIAL_PDF_TEXT_VERIFIED'}}};
   p.currentNodeId = destination;
   if(destination==='lylek-den-ambush'&&!p.oldLylek)p.oldLylek=createSWE02OldLylekState();
   if (!p.visitedNodeIds.includes(destination)) p.visitedNodeIds.push(destination);
@@ -832,12 +833,17 @@ export function chooseLongArmOldLylekRoute(world,options){
   if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');
   p.oldLylek=chooseSWE02OldLylekRoute(p,options).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};
 }
+export function chooseLongArmOldLylekCrew(world,options){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');const out=chooseSWE02OldLylekCrew(p,{...options,rosterEntries:options?.rosterEntries});p.oldLylek=out.progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p),crewPcIds:out.crewPcIds};}
+export function recordLongArmOldLylekPilotStrain(world,options){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=recordSWE02OldLylekPilotStrain(p,options).oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
 export function selectLongArmTrexCarryover(world,options){const out=selectSWE02TrexCarryover(world,options);return {world:out.world,carryover:clone(out.carryover)};}
 export function proceedLongArmOldLylekBluff(world){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=proceedSWE02OldLylekBluff(p).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
+export function recordLongArmOldLylekRuse(world,options){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');const out=recordSWE02OldLylekRuse(p,options);p.oldLylek=out.progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p),receipt:clone(out.receipt)};}
+export function chooseLongArmOldLylekTactics(world,options){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');const out=chooseSWE02OldLylekTactics(p,options);p.oldLylek=out.progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p),receipt:clone(out.receipt)};}
 export function approachLongArmOldLylekOnFoot(world){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=approachSWE02OldLylekOnFoot(p).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
 export function recordLongArmOldLylekCrashCheck(world,receipt){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=recordSWE02OldLylekCrashCheck(p,receipt).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
 export function confirmLongArmOldLylekCrashCrew(world,options){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=confirmSWE02OldLylekCrashCrew(p,options).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
 export function inspectLongArmOldLylekSpeeder(world){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=inspectSWE02OldLylekSpeeder(p).oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
+export function recordLongArmOldLylekLootGrant(world,options){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=recordSWE02OldLylekLootGrant(p,options).oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
 export function recordLongArmOldLylekWarning(world){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=warnSWE02OldLylek(p).oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
 export function persistLongArmOldLylek(world){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=persistSWE02OldLylek(p).oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
 export function resolveLongArmOldLylek(world,options){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=resolveSWE02OldLylek(p,options).oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
@@ -1013,7 +1019,7 @@ export function markLongArmOfTheHuttEncounterActive(world, encounterId) {
   return next;
 }
 
-export function recordLongArmOfTheHuttEncounterOutcome(world, { encounterId, outcome, adversaries = [], throneAlarm=null, combatLog=[] } = {}) {
+export function recordLongArmOfTheHuttEncounterOutcome(world, { encounterId, outcome, adversaries = [], throneAlarm=null, combatLog=[], gmConfirmedSubmission=false } = {}) {
   const next = clone(world || {});
   const p = next.publishedAdventure;
   if (!p || p.id !== ID || p.status !== 'ACTIVE') throw new Error('Aventura não ativa.');
@@ -1087,7 +1093,7 @@ export function recordLongArmOfTheHuttEncounterOutcome(world, { encounterId, out
   if(encounterId==='teemo-palace-guards')p.flags.teemoDefeated=outcome==='adversaries_defeated';
   if(encounterId==='laoth-gantry-aa7'){p.flags.geoGantryCleared=['adversaries_defeated','escaped','player_incapacitated'].includes(outcome);p.flags.geoRescuedByVios=outcome==='player_incapacitated';}
   if(encounterId==='lylek-den-lylek'){
-    const resolved=resolveSWE02OldLylek(p,{outcome});p.oldLylek=resolved.oldLylek;
+    const resolved=resolveSWE02OldLylek(p,{outcome,gmConfirmedSubmission});p.oldLylek=resolved.oldLylek;
   }
   if(encounterId==='lylek-den-bounty-hunters'){
     const resolved=recordSWE02OldLylekHunterOutcome(p,{outcome,adversaries,combatLog});p.oldLylek=resolved.progress.oldLylek;

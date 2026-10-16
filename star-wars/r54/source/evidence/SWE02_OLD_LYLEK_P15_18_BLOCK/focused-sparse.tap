@@ -1,0 +1,76 @@
+TAP version 13
+# Subtest: Old Lylek foot approach is available without a Perception declaration; hunter loot, warning and optional verified lylek attack survive three reopenings
+ok 1 - Old Lylek foot approach is available without a Perception declaration; hunter loot, warning and optional verified lylek attack survive three reopenings
+  ---
+  duration_ms: 380.1314
+  type: 'test'
+  ...
+# Subtest: lylek submission requires an explicit GM confirmation and preserves source absence of a numeric threshold
+ok 2 - lylek submission requires an explicit GM confirmation and preserves source absence of a numeric threshold
+  ---
+  duration_ms: 219.8793
+  type: 'test'
+  ...
+# Subtest: failed fast-route Pilot checks apply party-wide strain by stable PC ID and persist after reopen
+ok 3 - failed fast-route Pilot checks apply party-wide strain by stable PC ID and persist after reopen
+  ---
+  duration_ms: 142.011
+  type: 'test'
+  ...
+# Subtest: crash checks resolve once for each onboard PC, apply failure damage to the matching sheet, and exclude companions
+ok 4 - crash checks resolve once for each onboard PC, apply failure damage to the matching sheet, and exclude companions
+  ---
+  duration_ms: 191.7711
+  type: 'test'
+  ...
+# Subtest: schema 14 singleton migration creates one stable PC ID and mirrors active-sheet updates without importing companions
+ok 5 - schema 14 singleton migration creates one stable PC ID and mirrors active-sheet updates without importing companions
+  ---
+  duration_ms: 72.3591
+  type: 'test'
+  ...
+# Subtest: retreat or incapacitation settles the hunter branch while preserving the lylek trigger and its p.18 loot rule
+ok 6 - retreat or incapacitation settles the hunter branch while preserving the lylek trigger and its p.18 loot rule
+  ---
+  duration_ms: 171.665
+  type: 'test'
+  ...
+# Subtest: T’rex p.24 profile matches the official Adventure Book block
+ok 7 - T’rex p.24 profile matches the official Adventure Book block
+  ---
+  duration_ms: 2.7823
+  type: 'test'
+  ...
+# Subtest: T’rex carryover is explicit, persists on reopen, and replaces one existing hunter slot with only the correct starting wounds
+ok 8 - T’rex carryover is explicit, persists on reopen, and replaces one existing hunter slot with only the correct starting wounds
+  ---
+  duration_ms: 796.7205
+  type: 'test'
+  ...
+# Subtest: living T’rex stays pending for a solo or unknown-size party rather than removing the required Gand or adding an extra hunter
+ok 9 - living T’rex stays pending for a solo or unknown-size party rather than removing the required Gand or adding an extra hunter
+  ---
+  duration_ms: 72.3656
+  type: 'test'
+  ...
+# Subtest: invalid and duplicate history selections do not rewrite the source history
+ok 10 - invalid and duplicate history selections do not rewrite the source history
+  ---
+  duration_ms: 65.8201
+  type: 'test'
+  ...
+# Subtest: Android UI bridge exposes explicit T’rex history persistence
+ok 11 - Android UI bridge exposes explicit T’rex history persistence
+  ---
+  duration_ms: 20.2454
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1876.8427

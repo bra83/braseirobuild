@@ -3021,6 +3021,39 @@ class BraseiroUiBridge {
             return fail('SWE02_LYLEK_FAILED', messageOf(e));
         }
     }
+    chooseSWE02OldLylekCrew(options = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.chooseSWE02OldLylekCrew(options ?? {})));
+        }
+        catch (e) {
+            return fail('SWE02_LYLEK_FAILED', messageOf(e));
+        }
+    }
+    registerPartyCharacter(options = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.registerPartyCharacter(options ?? {})));
+        }
+        catch (e) {
+            return fail('PARTY_ROSTER_FAILED', messageOf(e));
+        }
+    }
+    selectPartyCharacter(id) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.selectPartyCharacter(id)));
+        }
+        catch (e) {
+            return fail('PARTY_ROSTER_FAILED', messageOf(e));
+        }
+    }
     selectSWE02TrexCarryover(options = {}) {
         const r = this._controllerForExistingCampaign();
         if (!r.ok)
@@ -3038,6 +3071,28 @@ class BraseiroUiBridge {
             return r;
         try {
             return ok(clone(r.data.proceedSWE02OldLylekBluff()));
+        }
+        catch (e) {
+            return fail('SWE02_LYLEK_FAILED', messageOf(e));
+        }
+    }
+    recordSWE02OldLylekRuse(options = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.recordSWE02OldLylekRuse(options ?? {})));
+        }
+        catch (e) {
+            return fail('SWE02_LYLEK_FAILED', messageOf(e));
+        }
+    }
+    chooseSWE02OldLylekTactics(options = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.chooseSWE02OldLylekTactics(options ?? {})));
         }
         catch (e) {
             return fail('SWE02_LYLEK_FAILED', messageOf(e));
@@ -13417,12 +13472,17 @@ exports.currentLongArmOfTheHuttScene = currentLongArmOfTheHuttScene;
 exports.currentLongArmOfTheHuttChecks = currentLongArmOfTheHuttChecks;
 exports.adjudicateLongArmOfTheHuttCheck = adjudicateLongArmOfTheHuttCheck;
 exports.chooseLongArmOldLylekRoute = chooseLongArmOldLylekRoute;
+exports.chooseLongArmOldLylekCrew = chooseLongArmOldLylekCrew;
+exports.recordLongArmOldLylekPilotStrain = recordLongArmOldLylekPilotStrain;
 exports.selectLongArmTrexCarryover = selectLongArmTrexCarryover;
 exports.proceedLongArmOldLylekBluff = proceedLongArmOldLylekBluff;
+exports.recordLongArmOldLylekRuse = recordLongArmOldLylekRuse;
+exports.chooseLongArmOldLylekTactics = chooseLongArmOldLylekTactics;
 exports.approachLongArmOldLylekOnFoot = approachLongArmOldLylekOnFoot;
 exports.recordLongArmOldLylekCrashCheck = recordLongArmOldLylekCrashCheck;
 exports.confirmLongArmOldLylekCrashCrew = confirmLongArmOldLylekCrashCrew;
 exports.inspectLongArmOldLylekSpeeder = inspectLongArmOldLylekSpeeder;
+exports.recordLongArmOldLylekLootGrant = recordLongArmOldLylekLootGrant;
 exports.recordLongArmOldLylekWarning = recordLongArmOldLylekWarning;
 exports.persistLongArmOldLylek = persistLongArmOldLylek;
 exports.resolveLongArmOldLylek = resolveLongArmOldLylek;
@@ -14151,6 +14211,8 @@ function advanceLongArmOfTheHutt(world, choiceId) {
         p.flags.newMeenOutcome = 'SECURED';
     }
     const destination = choice.to;
+    if (p.currentNodeId === 'lylek-den-ambush' && choiceId === 'reach-new-meen')
+        p.oldLylek = { ...p.oldLylek, arrivalReceipt: { distanceMiles: 1, buraExplainsAid: true, residentsWelcomeAsHeroes: true, invitedToLargerDwelling: true, basicRationsOffered: true, rationQuantity: null, developerDetails: { status: 'ONLY_IF_ASKED' }, source: { title: 'The Long Arm of the Hutt', productCode: 'SWE02', printedPage: 18, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' } } };
     p.currentNodeId = destination;
     if (destination === 'lylek-den-ambush' && !p.oldLylek)
         p.oldLylek = (0, swe02OldLylekP15_mjs_1.createSWE02OldLylekState)();
@@ -14337,9 +14399,17 @@ function chooseLongArmOldLylekRoute(world, options) {
     p.updatedAt = now();
     return { world: next, progress: clone(p) };
 }
+function chooseLongArmOldLylekCrew(world, options) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
+    throw Error('SWE02: aventura inativa.'); const out = (0, swe02OldLylekP15_mjs_1.chooseSWE02OldLylekCrew)(p, { ...options, rosterEntries: options?.rosterEntries }); p.oldLylek = out.progress.oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p), crewPcIds: out.crewPcIds }; }
+function recordLongArmOldLylekPilotStrain(world, options) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
+    throw Error('SWE02: aventura inativa.'); p.oldLylek = (0, swe02OldLylekP15_mjs_1.recordSWE02OldLylekPilotStrain)(p, options).oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p) }; }
 function selectLongArmTrexCarryover(world, options) { const out = (0, swe02OldLylekP15_mjs_1.selectSWE02TrexCarryover)(world, options); return { world: out.world, carryover: clone(out.carryover) }; }
 function proceedLongArmOldLylekBluff(world) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
     throw Error('SWE02: aventura inativa.'); p.oldLylek = (0, swe02OldLylekP15_mjs_1.proceedSWE02OldLylekBluff)(p).progress.oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p) }; }
+function recordLongArmOldLylekRuse(world, options) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
+    throw Error('SWE02: aventura inativa.'); const out = (0, swe02OldLylekP15_mjs_1.recordSWE02OldLylekRuse)(p, options); p.oldLylek = out.progress.oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p), receipt: clone(out.receipt) }; }
+function chooseLongArmOldLylekTactics(world, options) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
+    throw Error('SWE02: aventura inativa.'); const out = (0, swe02OldLylekP15_mjs_1.chooseSWE02OldLylekTactics)(p, options); p.oldLylek = out.progress.oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p), receipt: clone(out.receipt) }; }
 function approachLongArmOldLylekOnFoot(world) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
     throw Error('SWE02: aventura inativa.'); p.oldLylek = (0, swe02OldLylekP15_mjs_1.approachSWE02OldLylekOnFoot)(p).progress.oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p) }; }
 function recordLongArmOldLylekCrashCheck(world, receipt) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
@@ -14348,6 +14418,8 @@ function confirmLongArmOldLylekCrashCrew(world, options) { const next = clone(wo
     throw Error('SWE02: aventura inativa.'); p.oldLylek = (0, swe02OldLylekP15_mjs_1.confirmSWE02OldLylekCrashCrew)(p, options).progress.oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p) }; }
 function inspectLongArmOldLylekSpeeder(world) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
     throw Error('SWE02: aventura inativa.'); p.oldLylek = (0, swe02OldLylekP15_mjs_1.inspectSWE02OldLylekSpeeder)(p).oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p) }; }
+function recordLongArmOldLylekLootGrant(world, options) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
+    throw Error('SWE02: aventura inativa.'); p.oldLylek = (0, swe02OldLylekP15_mjs_1.recordSWE02OldLylekLootGrant)(p, options).oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p) }; }
 function recordLongArmOldLylekWarning(world) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
     throw Error('SWE02: aventura inativa.'); p.oldLylek = (0, swe02OldLylekP15_mjs_1.warnSWE02OldLylek)(p).oldLylek; p.updatedAt = now(); return { world: next, progress: clone(p) }; }
 function persistLongArmOldLylek(world) { const next = clone(world || {}), p = next.publishedAdventure; if (!p || p.id !== ID)
@@ -14542,7 +14614,7 @@ function markLongArmOfTheHuttEncounterActive(world, encounterId) {
     next.publishedAdventure = p;
     return next;
 }
-function recordLongArmOfTheHuttEncounterOutcome(world, { encounterId, outcome, adversaries = [], throneAlarm = null, combatLog = [] } = {}) {
+function recordLongArmOfTheHuttEncounterOutcome(world, { encounterId, outcome, adversaries = [], throneAlarm = null, combatLog = [], gmConfirmedSubmission = false } = {}) {
     const next = clone(world || {});
     const p = next.publishedAdventure;
     if (!p || p.id !== ID || p.status !== 'ACTIVE')
@@ -14639,7 +14711,7 @@ function recordLongArmOfTheHuttEncounterOutcome(world, { encounterId, outcome, a
         p.flags.geoRescuedByVios = outcome === 'player_incapacitated';
     }
     if (encounterId === 'lylek-den-lylek') {
-        const resolved = (0, swe02OldLylekP15_mjs_1.resolveSWE02OldLylek)(p, { outcome });
+        const resolved = (0, swe02OldLylekP15_mjs_1.resolveSWE02OldLylek)(p, { outcome, gmConfirmedSubmission });
         p.oldLylek = resolved.oldLylek;
     }
     if (encounterId === 'lylek-den-bounty-hunters') {
@@ -18237,12 +18309,16 @@ define("js/adventure/swe02OldLylekP15.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createSWE02OldLylekState = createSWE02OldLylekState;
+exports.chooseSWE02OldLylekCrew = chooseSWE02OldLylekCrew;
 exports.requireSWE02TrexCarryover = requireSWE02TrexCarryover;
 exports.selectSWE02TrexCarryover = selectSWE02TrexCarryover;
 exports.chooseSWE02OldLylekRoute = chooseSWE02OldLylekRoute;
 exports.recordSWE02OldLylekPilot = recordSWE02OldLylekPilot;
+exports.recordSWE02OldLylekPilotStrain = recordSWE02OldLylekPilotStrain;
 exports.recordSWE02OldLylekLookout = recordSWE02OldLylekLookout;
 exports.proceedSWE02OldLylekBluff = proceedSWE02OldLylekBluff;
+exports.recordSWE02OldLylekRuse = recordSWE02OldLylekRuse;
+exports.chooseSWE02OldLylekTactics = chooseSWE02OldLylekTactics;
 exports.approachSWE02OldLylekOnFoot = approachSWE02OldLylekOnFoot;
 exports.recordSWE02OldLylekCrashCheck = recordSWE02OldLylekCrashCheck;
 exports.confirmSWE02OldLylekCrashCrew = confirmSWE02OldLylekCrashCrew;
@@ -18250,6 +18326,7 @@ exports.recordSWE02OldLylekRepair = recordSWE02OldLylekRepair;
 exports.markSWE02OldLylekCombatStarted = markSWE02OldLylekCombatStarted;
 exports.recordSWE02OldLylekHunterOutcome = recordSWE02OldLylekHunterOutcome;
 exports.inspectSWE02OldLylekSpeeder = inspectSWE02OldLylekSpeeder;
+exports.recordSWE02OldLylekLootGrant = recordSWE02OldLylekLootGrant;
 exports.warnSWE02OldLylek = warnSWE02OldLylek;
 exports.persistSWE02OldLylek = persistSWE02OldLylek;
 exports.markSWE02OldLylekAttackStarted = markSWE02OldLylekAttackStarted;
@@ -18263,10 +18340,21 @@ function requireProgress(progress) {
     return progress;
 }
 function createSWE02OldLylekState() {
-    return { schema: 1, phase: 'approach', route: null, pilotChecks: [], lookout: null, crashChecks: [], crashResolved: false,
-        repairChecks: [], huntersOutcome: null, lylekTriggered: false, lylekWarning: null, lylekEncounter: null, hunterLoot: null,
+    return { schema: 2, phase: 'approach', route: null, crewPcIds: null, pilotChecks: [], lookout: null, crashChecks: [], crashResolved: false,
+        repairChecks: [], ruse: null, tactics: null, huntersOutcome: null, lylekTriggered: false, lylekWarning: null, lylekEncounter: null, hunterLoot: null,
         trexCarryover: { status: 'pending', history: null, source: { title: 'The Long Arm of the Hutt', productCode: 'SWE02', printedPage: 15 }, reference: { title: 'Edge of the Empire Adventure Book', productCode: 'SWE01', printedPage: 24 } },
         source: clone(SOURCE) };
+}
+function chooseSWE02OldLylekCrew(progress, { crewPcIds, rosterEntries, playerCount } = {}) {
+    const p = requireProgress(progress), old = p.oldLylek || createSWE02OldLylekState();
+    const ids = Array.isArray(crewPcIds) ? crewPcIds : [], valid = new Set((rosterEntries || []).map(x => x?.id));
+    const expected = Number(playerCount);
+    if (old.phase !== 'approach' || ids.length < 1 || ids.length > 8 || ids.some(x => typeof x !== 'string' || !valid.has(x)) || new Set(ids).size !== ids.length ||
+        (Number.isInteger(expected) && expected > 0 && ids.length !== expected))
+        throw new Error('SWE02 pp.15–17: registre uma vez cada PC humano a bordo; companheiros e NPCs não contam como PCs.');
+    const next = clone(p);
+    next.oldLylek = { ...old, schema: 2, crewPcIds: [...ids], crewSource: { title: SOURCE.title, productCode: 'SWE02', printedPage: 15, authority: SOURCE.authority } };
+    return { progress: next, crewPcIds: [...ids] };
 }
 const TREX_HISTORY = Object.freeze({
     escaped: Object.freeze({ present: true, preWounds: 0, label: 'Escapou de T’rex sem luta' }),
@@ -18295,8 +18383,8 @@ function selectSWE02TrexCarryover(world, { history } = {}) {
 }
 function chooseSWE02OldLylekRoute(progress, { slowDown } = {}) {
     const p = requireProgress(progress), old = p.oldLylek || createSWE02OldLylekState();
-    if (old.phase !== 'approach' || typeof slowDown !== 'boolean')
-        throw new Error('SWE02 p.15: escolha de rota indisponível ou inválida.');
+    if (old.phase !== 'approach' || typeof slowDown !== 'boolean' || !Array.isArray(old.crewPcIds) || old.crewPcIds.length < 1)
+        throw new Error('SWE02 p.15: registre a tripulação e escolha uma rota válida.');
     const next = clone(p);
     next.oldLylek = { ...old, route: slowDown ? 'slow' : 'fast', phase: slowDown ? 'lookout' : 'pilot-1' };
     next.oldLylek.source = clone(SOURCE);
@@ -18311,12 +18399,23 @@ function recordSWE02OldLylekPilot(progress, check) {
         throw new Error('SWE02 p.15: os dois testes devem ser sucessivos.');
     const receipt = { index: index + 1, skillKey: 'pilotar_veiculo_planetario', difficulty: 2, success: check.success,
         netSuccess: Number(check.netSuccess) || 0, netAdvantage: Number(check.netAdvantage) || 0, collision: !check.success,
-        onboardPcStrain: !check.success ? { perPc: 1, status: 'PENDENTE', resolution: 'Manual: aplicar 1 Tensão a cada PJ a bordo; o cadastro local não confirma a tripulação inteira.' } : null,
+        onboardPcStrain: !check.success ? { perPc: 1, crewPcIds: [...(old.crewPcIds || [])], status: 'PENDENTE', resolution: 'Aplicação transacional ao cadastro de PCs pendente.' } : null,
         source: clone(SOURCE) };
     const checks = [...old.pilotChecks, receipt], phase = checks.length === 2 ? 'lookout' : 'pilot-2';
     const next = clone(p);
     next.oldLylek = { ...old, pilotChecks: checks, phase };
     return { progress: next, receipt, phase };
+}
+function recordSWE02OldLylekPilotStrain(progress, { checkIndex, applications } = {}) {
+    const p = requireProgress(progress), old = p.oldLylek, check = old?.pilotChecks?.[Number(checkIndex)];
+    const ids = old?.crewPcIds ?? [];
+    if (!check || check.success !== false || !Array.isArray(applications) || applications.length !== ids.length ||
+        new Set(applications.map(x => x.pcId)).size !== ids.length || ids.some(id => !applications.some(x => x.pcId === id && x.strainApplied === 1)))
+        throw new Error('SWE02 p.15: recibo exige 1 Tensão aplicada a cada PC a bordo após cada falha de Pilotagem.');
+    const next = clone(p), checks = next.oldLylek.pilotChecks.slice();
+    checks[Number(checkIndex)] = { ...check, onboardPcStrain: { perPc: 1, crewPcIds: [...ids], status: 'APPLIED', applications: clone(applications), source: { title: SOURCE.title, productCode: 'SWE02', printedPage: 15, authority: SOURCE.authority } } };
+    next.oldLylek = { ...next.oldLylek, pilotChecks: checks };
+    return next;
 }
 function recordSWE02OldLylekLookout(progress, check) {
     const p = requireProgress(progress), old = p.oldLylek;
@@ -18335,29 +18434,58 @@ function proceedSWE02OldLylekBluff(progress) {
     const next = clone(p);
     const lookout = old.lookout || { attempted: false, spottedGand: false, source: clone(SOURCE) };
     if (old.phase === 'lookout') {
-        next.oldLylek = { ...old, lookout, phase: old.route === 'fast' ? 'crash-checks' : 'combat-ready', crashResolved: old.route !== 'fast' };
+        next.oldLylek = { ...old, lookout, phase: old.route === 'fast' ? 'crash-checks' : 'ruse', crashResolved: old.route !== 'fast' };
     }
     else if (old.route === 'fast')
         next.oldLylek = { ...old, lookout, phase: 'crash-checks', crashResolved: false };
     else
-        next.oldLylek = { ...old, lookout, phase: 'combat-ready', crashResolved: true };
+        next.oldLylek = { ...old, lookout, phase: 'ruse', crashResolved: true };
     return { progress: next, phase: next.oldLylek.phase, crash: old.route === 'fast' };
+}
+function recordSWE02OldLylekRuse(progress, { recognizedByHunters = false, identificationAsked = false, oskaraPresent, oskaraRecognizes = false } = {}) {
+    const p = requireProgress(progress), old = p.oldLylek;
+    if (!old || old.phase !== 'ruse' || typeof recognizedByHunters !== 'boolean' || typeof identificationAsked !== 'boolean' || typeof oskaraPresent !== 'boolean' ||
+        (oskaraPresent && typeof oskaraRecognizes !== 'boolean') || (!oskaraPresent && oskaraRecognizes !== false))
+        throw new Error('SWE02 p.17: registre a resposta dos caçadores e se Oskara está presente antes do combate.');
+    const trexPresent = old.trexCarryover?.present === true;
+    const receipt = { hail: 'Local Imperial authorities; suspected ryll smuggling', uniformsWorn: false, identificationAsked,
+        identifiedByHunters: identificationAsked ? (trexPresent ? ['T’rex'] : []) : [], recognizedByHunters,
+        oskaraPresent, oskaraRecognizes: oskaraPresent ? oskaraRecognizes : null,
+        oskaraIdentifiesHumanHunters: oskaraPresent && oskaraRecognizes,
+        presumedRuseFailure: true, initiativeFollows: true, mechanicalOutcome: 'No Bluff check or automatic combat advantage; source says ruse is ineffective.',
+        source: { title: SOURCE.title, productCode: 'SWE02', printedPage: 17, authority: SOURCE.authority } };
+    const next = clone(p);
+    next.oldLylek = { ...old, ruse: receipt, phase: 'combat-ready' };
+    return { progress: next, receipt };
+}
+function chooseSWE02OldLylekTactics(progress, { approach, frontalOutcome = 'not_applicable', lylekBranch } = {}) {
+    const p = requireProgress(progress), old = p.oldLylek;
+    if (!old || old.phase !== 'combat-ready' || !old.ruse || !['frontal', 'east_cave_flank'].includes(approach) ||
+        !['disturb_on_advantage', 'stay_passive'].includes(lylekBranch) ||
+        (approach === 'frontal' && !['fighting_retreat', 'fight_to_last'].includes(frontalOutcome)) ||
+        (approach === 'east_cave_flank' && frontalOutcome !== 'not_applicable'))
+        throw new Error('SWE02 pp.16–18: registre aproximação, resposta frontal dos caçadores e decisão do ramo do lylek.');
+    const receipt = { approach, frontalOutcome, lylekBranch, cover: { rockPiles: true, cave: true, rangedSetback: 2 }, map: { heroesJourney: 'northern approach', hunterSpeeder: 'cave mouth', cave: 'north', eastFlank: 'partially blocked eastern entrance', lylekNest: 'southern nest' },
+        source: { title: SOURCE.title, productCode: 'SWE02', printedPage: 16, relatedPrintedPages: [17, 18], authority: SOURCE.authority } };
+    const next = clone(p);
+    next.oldLylek = { ...old, tactics: receipt };
+    return { progress: next, receipt };
 }
 function approachSWE02OldLylekOnFoot(progress) {
     const p = requireProgress(progress), old = p.oldLylek;
     if (!old || !['lookout', 'bluff'].includes(old.phase))
         throw new Error('SWE02 p.17: abordagem a pé indisponível.');
     const next = clone(p), lookout = old.lookout || { attempted: false, spottedGand: false, source: clone(SOURCE) };
-    next.oldLylek = { ...old, lookout, phase: 'combat-ready', approachOnFoot: true, crashResolved: true };
+    next.oldLylek = { ...old, lookout, phase: 'ruse', approachOnFoot: true, crashResolved: true };
     return { progress: next, phase: 'combat-ready' };
 }
-function recordSWE02OldLylekCrashCheck(progress, { characterName, skillKey, check } = {}) {
+function recordSWE02OldLylekCrashCheck(progress, { characterId, characterName, skillKey, check } = {}) {
     const p = requireProgress(progress), old = p.oldLylek;
-    if (!old || old.phase !== 'crash-checks' || !['aguante', 'coordenacion'].includes(skillKey) || !String(characterName || '').trim() || typeof check?.success !== 'boolean')
+    if (!old || old.phase !== 'crash-checks' || !Array.isArray(old.crewPcIds) || !old.crewPcIds.includes(characterId) || !['aguante', 'coordinacion'].includes(skillKey) || !String(characterName || '').trim() || typeof check?.success !== 'boolean')
         throw new Error('SWE02 p.17: escolha Aguante ou Coordenação e um personagem da tripulação.');
-    if (old.crashChecks.some(x => x.characterName === characterName))
+    if (old.crashChecks.some(x => x.characterId === characterId))
         throw new Error('SWE02 p.17: este personagem já fez o teste do choque.');
-    const receipt = { characterName: String(characterName), skillKey, difficulty: 2, success: check.success, damage: check.success ? 0 : 6,
+    const receipt = { characterId, characterName: String(characterName), skillKey, difficulty: 2, success: check.success, damage: check.success ? 0 : 6,
         netSuccess: Number(check.netSuccess) || 0, netAdvantage: Number(check.netAdvantage) || 0, source: clone(SOURCE) };
     const next = clone(p);
     next.oldLylek = { ...old, crashChecks: [...old.crashChecks, receipt] };
@@ -18365,7 +18493,9 @@ function recordSWE02OldLylekCrashCheck(progress, { characterName, skillKey, chec
 }
 function confirmSWE02OldLylekCrashCrew(progress, { expectedPcCount } = {}) {
     const p = requireProgress(progress), old = p.oldLylek, n = Number(expectedPcCount);
-    if (!old || old.phase !== 'crash-checks' || !Number.isInteger(n) || n < 1 || n > 8 || old.crashChecks.length !== n)
+    if (!old || old.phase !== 'crash-checks' || !Number.isInteger(n) || n < 1 || n > 8 || old.crashChecks.length !== n ||
+        new Set(old.crashChecks.map(x => x.characterId)).size !== n || !old.crewPcIds || old.crewPcIds.length !== n ||
+        old.crewPcIds.some(id => !old.crashChecks.some(x => x.characterId === id)))
         throw new Error('SWE02 p.17: cada PC precisa de seu teste de Aguante ou Coordenação antes do reparo.');
     const next = clone(p);
     next.oldLylek = { ...old, phase: 'repair', crashResolved: true, expectedPcCount: n };
@@ -18378,13 +18508,13 @@ function recordSWE02OldLylekRepair(progress, check) {
     const receipt = { skillKey: 'mecanica', difficulty: 1, success: check.success, netSuccess: Number(check.netSuccess) || 0,
         netAdvantage: Number(check.netAdvantage) || 0, timeMinutes: 30, source: clone(SOURCE) };
     const next = clone(p), checks = [...old.repairChecks, receipt];
-    next.oldLylek = { ...old, repairChecks: checks, phase: check.success ? 'combat-ready' : 'repair-failed', repairSuccess: check.success };
+    next.oldLylek = { ...old, repairChecks: checks, phase: check.success ? 'ruse' : 'repair-failed', repairSuccess: check.success };
     return { progress: next, receipt, phase: next.oldLylek.phase };
 }
 function markSWE02OldLylekCombatStarted(progress) {
     const p = requireProgress(progress), old = p.oldLylek;
-    if (!old || old.phase !== 'combat-ready' || old.huntersOutcome)
-        throw new Error('SWE02 pp.15–17: hunters só começam após resolver rota e aproximação.');
+    if (!old || old.phase !== 'combat-ready' || !old.ruse || !old.tactics || old.huntersOutcome)
+        throw new Error('SWE02 pp.16–18: ruse, mapa e decisão tática/lylek do Mestre precisam estar registrados antes dos caçadores.');
     const next = clone(p);
     next.oldLylek = { ...old, phase: 'hunters-combat' };
     return next;
@@ -18407,11 +18537,16 @@ function recordSWE02OldLylekHunterOutcome(progress, { outcome, adversaries = [],
     const defeated = adversaries.every(a => ['incapacitated', 'defeated'].includes(a.status));
     if (outcome === 'adversaries_defeated' && !defeated)
         throw new Error('SWE02 p.15: vitória exige os caçadores incapacitados.');
-    const advantageTrigger = (combatLog || []).some(x => Number(x?.check?.netAdvantage) > 0 || Number(x?.netAdvantage) > 0);
+    const advantageTrigger = old.tactics?.lylekBranch === 'disturb_on_advantage' && (combatLog || []).some(x => Number(x?.check?.netAdvantage) > 0 || Number(x?.netAdvantage) > 0);
     const huntersOutcome = outcome === 'adversaries_defeated' && defeated ? 'defeated' : outcome === 'player_incapacitated' ? 'party-incapacitated' : 'retreated';
     const next = clone(p);
     next.oldLylek = { ...old, phase: 'post-hunters', huntersOutcome, lylekTriggered: old.lylekTriggered || advantageTrigger,
         hunterProof: { enemyIds: adversaries.map(a => a.id), outcome, defeated, source: clone(SOURCE) } };
+    if (advantageTrigger) {
+        const victim = adversaries.find(a => !['incapacitated', 'defeated', 'retreated'].includes(a.status));
+        if (victim)
+            next.oldLylek.lylekKillReceipt = { hunterId: victim.id, profileKey: victim.profileKey, disposition: 'Killed by the lylek; prey taken to nest', trigger: 'Any Advantage during subsequent hunter fight', source: { title: SOURCE.title, productCode: 'SWE02', printedPage: 18, authority: SOURCE.authority } };
+    }
     next.flags = { ...(next.flags || {}), lylekHuntersResolved: true };
     if (huntersOutcome === 'defeated')
         next.oldLylek.hunterLoot = { status: 'available', items: [{ name: 'stimpack', quantity: 2 }, { name: 'medpac', quantity: 1 }, { name: 'emergency repair kit', quantity: 1 }], source: { title: SOURCE.title, productCode: 'SWE02', printedPage: 18, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' } };
@@ -18423,6 +18558,15 @@ function inspectSWE02OldLylekSpeeder(progress) {
         throw new Error('SWE02 p.18: inspecione o speeder após derrotar os caçadores.');
     const next = clone(p);
     next.oldLylek = { ...old, hunterLoot: { ...old.hunterLoot, status: 'found', inspected: true } };
+    return next;
+}
+function recordSWE02OldLylekLootGrant(progress, { inventoryIds } = {}) {
+    const p = requireProgress(progress), old = p.oldLylek, ids = ['swe02-old-lylek-stimpack-1', 'swe02-old-lylek-stimpack-2', 'swe02-old-lylek-medpac', 'swe02-old-lylek-emergency-repair-kit'];
+    if (old?.hunterLoot?.status !== 'found' || old.hunterLoot.inventoryReceipt || !Array.isArray(inventoryIds) ||
+        inventoryIds.length !== ids.length || new Set(inventoryIds).size !== ids.length || ids.some(id => !inventoryIds.includes(id)))
+        throw new Error('SWE02 p.18: loot grant requires the four exact inventory entries and cannot be duplicated.');
+    const next = clone(p);
+    next.oldLylek = { ...old, hunterLoot: { ...old.hunterLoot, inventoryReceipt: { status: 'GRANTED', inventoryIds: ids, owner: 'party.belongings', source: { title: SOURCE.title, productCode: 'SWE02', printedPage: 18, authority: SOURCE.authority } } } };
     return next;
 }
 function warnSWE02OldLylek(progress) {
@@ -18450,14 +18594,16 @@ function markSWE02OldLylekAttackStarted(progress) {
     next.oldLylek = { ...old, phase: 'lylek-attack-started', lylekEncounter: { ...old.lylekEncounter, started: true } };
     return next;
 }
-function resolveSWE02OldLylek(progress, { outcome, combatAdversary } = {}) {
+function resolveSWE02OldLylek(progress, { outcome, combatAdversary, gmConfirmedSubmission = false } = {}) {
     const p = requireProgress(progress), old = p.oldLylek;
     if (!old || old.phase !== 'lylek-attack-started' || !['player_incapacitated', 'adversaries_defeated', 'ended', 'escaped'].includes(outcome))
         throw new Error('SWE02 p.18: desfecho do ataque ao lylek indisponível.');
+    if (outcome === 'player_incapacitated' && gmConfirmedSubmission !== true)
+        throw new Error('SWE02 p.18: confirme explicitamente a submissão decidida pelo Mestre; o texto não define um limite numérico.');
     // The published text says the beast beats PCs into submission, then returns to feed.
     // It does not specify a mechanical winner/defeat threshold; retain the GM adjudication.
     const next = clone(p);
-    next.oldLylek = { ...old, phase: 'post-lylek', lylekResolution: { outcome, gmConfirmedSubmission: outcome === 'player_incapacitated', beastProfileVerified: true, profileKey: old.lylekEncounter?.profileKey, source: { ...clone(SOURCE), printedPage: 18, profile: { title: 'Edge of the Empire Beginner Game', productCode: 'SWE01', printedPage: 47, authority: 'OFFICIAL_SOURCE_PROFILE_VERIFIED' } } } };
+    next.oldLylek = { ...old, phase: 'post-lylek', lylekResolution: { outcome, gmConfirmedSubmission: outcome === 'player_incapacitated', numericSubmissionThreshold: null, beastProfileVerified: true, profileKey: old.lylekEncounter?.profileKey, source: { ...clone(SOURCE), printedPage: 18, profile: { title: 'Edge of the Empire Beginner Game', productCode: 'SWE01', printedPage: 47, authority: 'OFFICIAL_SOURCE_PROFILE_VERIFIED' } } } };
     return next;
 }
 function canSWE02OldLylekContinue(progress) {
@@ -20796,10 +20942,45 @@ class GameController {
         character_mjs_1.validateCharacter(character);
         this.state = clone(this.state);
         this.state.player.character = clone(character);
+        const roster = this.state.player.roster ?? { schema: 1, activeCharacterId: null, entries: [] };
+        let active = roster.entries?.find(x => x?.id === roster.activeCharacterId);
+        if (active)
+            active.character = clone(character);
+        else {
+            const id = ids_mjs_1.newId('pc');
+            roster.entries = [...(roster.entries ?? []), { id, character: clone(character) }];
+            roster.activeCharacterId = id;
+        }
+        roster.schema = 1;
+        this.state.player.roster = roster;
         this.state.updatedAt = new Date().toISOString();
         if (!this._atomicActionDepth)
             this.repository.save(this.state);
         return this.state.player.character;
+    }
+    registerPartyCharacter({ character, id = null } = {}) {
+        return this.atomicAction(() => {
+            character_mjs_1.validateCharacter(character);
+            const roster = clone(this.state.player.roster ?? { schema: 1, activeCharacterId: null, entries: [] });
+            const pcId = String(id ?? ids_mjs_1.newId('pc')).trim();
+            if (!/^[A-Za-z0-9:_-]{1,120}$/.test(pcId) || roster.entries.some(x => x.id === pcId) || roster.entries.length >= 8)
+                throw new Error('Identificador de PC duplicado/inválido ou limite de oito PCs atingido.');
+            roster.entries.push({ id: pcId, character: clone(character), registeredAt: new Date().toISOString() });
+            roster.schema = 1;
+            this.commit('PLAYER_ROSTER_UPDATED', { roster });
+            return { id: pcId, character: clone(character), roster: clone(this.state.player.roster) };
+        });
+    }
+    selectPartyCharacter(id) {
+        return this.atomicAction(() => {
+            const roster = clone(this.state.player.roster ?? { schema: 1, activeCharacterId: null, entries: [] });
+            const entry = roster.entries.find(x => x.id === String(id));
+            if (!entry)
+                throw new Error('PC não encontrado no roster; companheiros NPC não são PCs.');
+            roster.activeCharacterId = entry.id;
+            this.commit('PLAYER_ROSTER_UPDATED', { roster });
+            return { activeCharacterId: entry.id, character: clone(this.state.player.character) };
+        });
     }
     importCharacter(text) {
         const character = character_mjs_1.importCharacterJson(text);
@@ -23336,9 +23517,26 @@ class GameController {
             const shipOdorSetback = adapter.id === 'long-arm-of-the-hutt' && spec.shipOdorRule
                 ? (0, longArmOfTheHutt_mjs_1.longArmShipSmellSetback)(this.state.world, this.state.player?.character?.name, spec.index) : 0;
             const check = this.resolveSkillCheck({ skillKey: spec.skillKey, difficulty: spec.pool.difficulty, challenge: spec.pool.challenge, setback: (Number(spec.pool.setback) || 0) + shipOdorSetback, useLightDestiny, useDarkDestiny, cloudCitySlicing: adapter.id === 'jewel-of-yavin' && spec.skillKey === 'computadoras' && this.state.world?.publishedAdventure?.currentNodeId === 'gala-reconnaissance', rng });
-            const adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: check });
-            this.commit('WORLD_UPDATED', { world: adjudicated.world });
-            const characterEffects = { creditsDelta: 0, strainDelta: 0 };
+            let adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: check });
+            const characterEffects = { creditsDelta: 0, strainDelta: 0, partyStrain: [] };
+            if (adapter.id === 'long-arm-of-the-hutt' && spec.source?.printedPage === 15 && check.success === false) {
+                const old = adjudicated.world.publishedAdventure?.oldLylek, ids = old?.crewPcIds ?? [], roster = clone(this.state.player?.roster);
+                if (!ids.length || ids.length !== Number(this.state.session?.campaignRules?.destiny?.playerCount ?? this.state.session?.eoteRules?.destiny?.playerCount ?? this.state.session?.playerCount))
+                    throw Error('SWE02 p.15: falha de Pilotagem exige roster completo dos PCs a bordo.');
+                const applications = [];
+                for (const id of ids) {
+                    const entry = roster?.entries?.find(x => x.id === id);
+                    if (!entry)
+                        throw Error('SWE02 p.15: PC a bordo ausente do roster.');
+                    const before = Number(entry.character.derived?.strain?.current ?? 0), applied = health_mjs_1.sufferStrain(entry.character, 1);
+                    entry.character = applied.character;
+                    applications.push({ pcId: id, characterName: entry.character.name, strainBefore: before, strainAfter: Number(entry.character.derived?.strain?.current ?? before + 1), strainApplied: 1 });
+                }
+                const checkIndex = old.pilotChecks.length - 1;
+                adjudicated = (0, longArmOfTheHutt_mjs_1.recordLongArmOldLylekPilotStrain)(adjudicated.world, { checkIndex, applications });
+                this.commit('PLAYER_ROSTER_UPDATED', { roster });
+                characterEffects.partyStrain = applications.map(x => ({ pcId: x.pcId, strainDelta: 1 }));
+            }
             const creditsDelta = Number(adjudicated.adjudication?.creditDelta ?? 0);
             const strainDelta = Math.max(0, Number(adjudicated.adjudication?.playerStrainDelta ?? 0));
             if (creditsDelta || strainDelta) {
@@ -23354,6 +23552,7 @@ class GameController {
                 }
                 this.commit('CHARACTER_UPDATED', { character });
             }
+            this.commit('WORLD_UPDATED', { world: adjudicated.world });
             const request = adapter.masterRequest(this.state.world);
             if (request)
                 this.commit('MASTER_OPENING_PREPARED', { suggestedActions: request.suggestedActions, request });
@@ -24036,15 +24235,17 @@ class GameController {
             return { combat, character, group, environment, npcTurns: progressed.npcTurns };
         });
     }
-    finishCombat({ rng = Math.random, strainSkill = 'frialdad', useBalance = false, actionId = null } = {}) {
+    finishCombat({ rng = Math.random, strainSkill = 'frialdad', useBalance = false, gmConfirmedSubmission = false, actionId = null } = {}) {
         if (actionId !== null)
-            return this.executePublishedAdventureCommand({ actionId, kind: 'finish-combat', adventureId: this.state.world?.publishedAdventure?.id, options: { rng, strainSkill, useBalance } });
+            return this.executePublishedAdventureCommand({ actionId, kind: 'finish-combat', adventureId: this.state.world?.publishedAdventure?.id, options: { rng, strainSkill, useBalance, gmConfirmedSubmission } });
         return this.atomicAction(() => {
             const preCombat = clone(this.state.combat);
             (0, swe02Act3PalaceWip_mjs_1.validateSWE02ThroneAlarm)(preCombat);
             const causalHookId = preCombat?.causalHookId ?? null;
             const causalOutcome = preCombat?.encounter?.outcome ?? null;
             const publishedAdventureContext = preCombat?.publishedAdventureContext ?? null;
+            if (publishedAdventureContext?.adventureId === 'long-arm-of-the-hutt' && publishedAdventureContext?.encounterId === 'lylek-den-lylek' && causalOutcome === 'player_incapacitated' && gmConfirmedSubmission !== true)
+                throw Error('SWE02 p.18: confirme submissão conforme adjudicação explícita do Mestre; não há limite numérico publicado.');
             let publishedAdventureAdapter = null;
             if (publishedAdventureContext?.adventureId) {
                 publishedAdventureAdapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(publishedAdventureContext.adventureId);
@@ -24133,7 +24334,7 @@ class GameController {
             }
             let publishedAdventureOutcome = null;
             if (publishedAdventureAdapter) {
-                const published = publishedAdventureAdapter.recordEncounterOutcome(this.state.world, { encounterId: publishedAdventureContext.encounterId, outcome: causalOutcome ?? 'ended', adversaries: encounterAdversaries, throneAlarm: preCombat.swe02ThroneAlarm ?? null,
+                const published = publishedAdventureAdapter.recordEncounterOutcome(this.state.world, { encounterId: publishedAdventureContext.encounterId, outcome: causalOutcome ?? 'ended', adversaries: encounterAdversaries, throneAlarm: preCombat.swe02ThroneAlarm ?? null, gmConfirmedSubmission,
                     combatLog: [...(preCombat.log ?? []), ...(preCombat.swe02OldLylekAdvantageTriggered ? [{ check: { netAdvantage: 1 }, sourcePage: 18 }] : [])] });
                 this.commit('WORLD_UPDATED', { world: published.world });
                 publishedAdventureOutcome = published.record;
@@ -26715,6 +26916,19 @@ class GameController {
         });
     }
     /** SWE02 p.12: adventure action, not a decorative 'interception' flag. */
+    chooseSWE02OldLylekCrew({ crewPcIds } = {}) {
+        return this.atomicAction(() => {
+            if (this.state.combat?.active)
+                throw Error('SWE02 p.15: registre os PCs a bordo antes do combate.');
+            const roster = this.state.player?.roster, entries = roster?.entries ?? [];
+            const count = Number(this.state.session?.campaignRules?.destiny?.playerCount ?? this.state.session?.eoteRules?.destiny?.playerCount ?? this.state.session?.playerCount);
+            if (!Number.isInteger(count) || count < 1 || count > 8 || entries.length !== count)
+                throw Error('SWE02 p.15: cadastre uma ficha para cada PC; playerCount não substitui o roster.');
+            const out = (0, longArmOfTheHutt_mjs_1.chooseLongArmOldLylekCrew)(this.state.world, { crewPcIds, rosterEntries: entries, playerCount: count });
+            this.commit('WORLD_UPDATED', { world: out.world });
+            return clone(out.progress.oldLylek);
+        });
+    }
     chooseSWE02OldLylekRoute({ slowDown } = {}) {
         return this.atomicAction(() => {
             if (this.state.combat?.active)
@@ -26742,6 +26956,24 @@ class GameController {
             return clone(out.progress.oldLylek);
         });
     }
+    recordSWE02OldLylekRuse(options = {}) {
+        return this.atomicAction(() => {
+            if (this.state.combat?.active)
+                throw Error('SWE02 p.17: registre o ruse antes do combate.');
+            const out = (0, longArmOfTheHutt_mjs_1.recordLongArmOldLylekRuse)(this.state.world, options);
+            this.commit('WORLD_UPDATED', { world: out.world });
+            return clone(out.receipt);
+        });
+    }
+    chooseSWE02OldLylekTactics(options = {}) {
+        return this.atomicAction(() => {
+            if (this.state.combat?.active)
+                throw Error('SWE02 pp.16–18: escolha tática antes do combate.');
+            const out = (0, longArmOfTheHutt_mjs_1.chooseLongArmOldLylekTactics)(this.state.world, options);
+            this.commit('WORLD_UPDATED', { world: out.world });
+            return clone(out.receipt);
+        });
+    }
     approachSWE02OldLylekOnFoot() {
         return this.atomicAction(() => {
             if (this.state.combat?.active)
@@ -26755,39 +26987,66 @@ class GameController {
         return this.atomicAction(() => {
             if (this.state.combat?.active)
                 throw Error('SWE02 p.17: o speeder já parou; teste indisponível durante combate.');
-            const character = clone(requireCharacter(this.state.player?.character));
-            if (!['aguante', 'coordenacion'].includes(skillKey))
+            if (!['aguante', 'coordinacion'].includes(skillKey))
                 throw Error('SWE02 p.17: escolha Aguante ou Coordenação.');
+            const old = this.state.world?.publishedAdventure?.oldLylek, crew = old?.crewPcIds ?? [], roster = clone(this.state.player?.roster);
             const sessionCount = Number(this.state.session?.campaignRules?.destiny?.playerCount ?? this.state.session?.eoteRules?.destiny?.playerCount ?? this.state.session?.playerCount);
-            if (!Number.isInteger(sessionCount) || sessionCount < 1 || sessionCount > 8)
-                throw Error('SWE02 p.17: número real de PCs não confirmado.');
-            const prior = this.state.world?.publishedAdventure?.oldLylek?.crashChecks ?? [];
-            if (prior.length >= sessionCount)
+            if (!Number.isInteger(sessionCount) || sessionCount < 1 || sessionCount > 8 || crew.length !== sessionCount)
+                throw Error('SWE02 p.17: roster e IDs de PCs a bordo não confirmados.');
+            const prior = old?.crashChecks ?? [];
+            const checked = new Set(prior.map(x => x.characterId));
+            const characterId = crew.find(id => !checked.has(id));
+            if (!characterId)
                 throw Error('SWE02 p.17: todos os testes da tripulação já foram registrados.');
+            const rosterEntry = roster.entries.find(x => x.id === characterId);
+            if (!rosterEntry)
+                throw Error('SWE02 p.17: PC a bordo ausente do roster.');
+            const character = clone(rosterEntry.character);
+            character.skills = { ...(character.skills ?? {}), [skillKey]: Number(character.skills?.[skillKey] ?? 0) };
+            roster.activeCharacterId = characterId;
+            roster.entries.find(x => x.id === characterId).character = character;
+            this.commit('PLAYER_ROSTER_UPDATED', { roster });
             const check = this.resolveSkillCheck({ skillKey, difficulty: 2, rng });
             let updated = character, damage = null;
             if (!check.success) {
                 damage = health_mjs_1.applyDamage(character, { damage: 6, damageType: 'wounds', reason: 'Lançado do speeder — SWE02 p.17', criticalRng: rng });
                 updated = damage.character;
             }
-            const out = (0, longArmOfTheHutt_mjs_1.recordLongArmOldLylekCrashCheck)(this.state.world, { characterName: character.name, skillKey, check });
+            const out = (0, longArmOfTheHutt_mjs_1.recordLongArmOldLylekCrashCheck)(this.state.world, { characterId, characterName: character.name, skillKey, check });
             let world = out.world;
             const checks = world.publishedAdventure.oldLylek.crashChecks;
             if (checks.length === sessionCount)
                 world = (0, longArmOfTheHutt_mjs_1.confirmLongArmOldLylekCrashCrew)(world, { expectedPcCount: sessionCount }).world;
-            this.commit('CHARACTER_UPDATED', { character: updated });
+            const updatedRoster = clone(this.state.player.roster);
+            updatedRoster.entries.find(x => x.id === characterId).character = updated;
+            if (roster.activeCharacterId === characterId)
+                this.commit('CHARACTER_UPDATED', { character: updated });
+            this.commit('PLAYER_ROSTER_UPDATED', { roster: updatedRoster });
             this.commit('WORLD_UPDATED', { world });
             return { check, damage: damage ? { rawDamage: damage.rawDamage, suffered: damage.suffered, effectiveSoak: damage.effectiveSoak } : null,
-                checked: checks.length, expected: sessionCount, phase: world.publishedAdventure.oldLylek.phase };
+                characterId, checked: checks.length, expected: sessionCount, phase: world.publishedAdventure.oldLylek.phase };
         });
     }
     inspectSWE02OldLylekSpeeder() {
         return this.atomicAction(() => {
             if (this.state.combat?.active)
                 throw Error('SWE02 p.18: encerre o combate antes de inspecionar o speeder.');
-            const out = (0, longArmOfTheHutt_mjs_1.inspectLongArmOldLylekSpeeder)(this.state.world);
-            this.commit('WORLD_UPDATED', { world: out.world });
-            return clone(out.progress.oldLylek.hunterLoot);
+            const out = (0, longArmOfTheHutt_mjs_1.inspectLongArmOldLylekSpeeder)(this.state.world), group = clone(this.state.group), loot = out.progress.oldLylek.hunterLoot;
+            const inventory = [
+                { id: 'swe02-old-lylek-stimpack-1', name: 'Stimpack', quantity: 1 },
+                { id: 'swe02-old-lylek-stimpack-2', name: 'Stimpack', quantity: 1 },
+                { id: 'swe02-old-lylek-medpac', name: 'Medpac', quantity: 1 },
+                { id: 'swe02-old-lylek-emergency-repair-kit', name: 'Emergency Repair Kit', quantity: 1 }
+            ];
+            group.belongings = Array.isArray(group.belongings) ? group.belongings : [];
+            if (inventory.some(x => group.belongings.some(y => y.id === x.id)))
+                throw Error('SWE02 p.18: item do speeder já consta no inventário do grupo.');
+            for (const item of inventory)
+                group.belongings.push({ ...item, source: { title: 'The Long Arm of the Hutt', productCode: 'SWE02', printedPage: 18, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' } });
+            const granted = (0, longArmOfTheHutt_mjs_1.recordLongArmOldLylekLootGrant)(out.world, { inventoryIds: inventory.map(x => x.id) });
+            this.commit('GROUP_UPDATED', { group });
+            this.commit('WORLD_UPDATED', { world: granted.world });
+            return clone(granted.progress.oldLylek.hunterLoot);
         });
     }
     insistSWE02OldLylek() {
@@ -28113,6 +28372,12 @@ function applyEvent(state, event) {
         next.rebelGroup = structuredClone(event.payload.rebelGroup); // legacy replay only
     if (event.type === 'WORLD_UPDATED' && event.payload.world)
         next.world = structuredClone(event.payload.world);
+    if (event.type === 'PLAYER_ROSTER_UPDATED' && event.payload.roster) {
+        next.player.roster = structuredClone(event.payload.roster);
+        const active = next.player.roster.entries?.find(x => x?.id === next.player.roster.activeCharacterId);
+        if (active?.character)
+            next.player.character = structuredClone(active.character);
+    }
     if (event.type === 'ENVIRONMENT_UPDATED' && event.payload.environment)
         next.environment = structuredClone(event.payload.environment);
     if (event.type === 'COMBAT_ACTION') {
@@ -28128,6 +28393,20 @@ function applyEvent(state, event) {
             next.group = structuredClone(event.payload.group);
         if (event.payload.environment)
             next.environment = structuredClone(event.payload.environment);
+    }
+    if (next.player?.character) {
+        next.player.roster = next.player.roster && Array.isArray(next.player.roster.entries)
+            ? next.player.roster : { schema: 1, activeCharacterId: null, entries: [] };
+        let active = next.player.roster.entries.find(x => x?.id === next.player.roster.activeCharacterId);
+        if (!active) {
+            const id = `pc:${String(next.player.character.name ?? 'character').normalize('NFKD').replace(/[^A-Za-z0-9_-]/g, '-').replace(/-+/g, '-').slice(0, 64)}`;
+            active = { id, character: structuredClone(next.player.character) };
+            next.player.roster.entries.push(active);
+            next.player.roster.activeCharacterId = id;
+        }
+        else
+            active.character = structuredClone(next.player.character);
+        next.player.roster.schema = 1;
     }
     return next;
 }
@@ -28228,7 +28507,7 @@ function validateP178CombatState(state) {
         }
     }
 }
-exports.STATE_VERSION = 14;
+exports.STATE_VERSION = 15;
 function createCampaign(name = 'Nova campanha') {
     const now = new Date().toISOString();
     return {
@@ -28240,7 +28519,7 @@ function createCampaign(name = 'Nova campanha') {
         updatedAt: now,
         rulesProfile: 'EOTE_CORE',
         campaignMode: 'EOTE',
-        player: { character: null },
+        player: { character: null, roster: { schema: 1, activeCharacterId: null, entries: [] } },
         world: world_mjs_1.createWorld(),
         scene: { title: 'Abertura', narration: 'Mestre de IA ainda não conectado.', locationId: null, imageAssetId: null, imageSource: null, imageLocked: false, imagePrompt: null },
         combat: combat_mjs_1.createCombatState(),
@@ -28303,6 +28582,9 @@ function migrateState(value) {
     if (Number(next.schemaVersion) === 13) {
         next.schemaVersion = 14;
     }
+    if (Number(next.schemaVersion) === 14) {
+        next.schemaVersion = 15;
+    }
     const combatDefaults = combat_mjs_1.createCombatState();
     next.combat = { ...combatDefaults, ...(next.combat ?? {}), playerTurn: { ...combatDefaults.playerTurn, ...(next.combat?.playerTurn ?? {}) }, adversaries: Array.isArray(next.combat?.adversaries) ? next.combat.adversaries : [], encounter: next.combat?.encounter ?? null, log: Array.isArray(next.combat?.log) ? next.combat.log : [] };
     next.master = { corpusVersion: 1, lastRuleQuery: null, lastRuleResults: [], lastContext: null, pendingQuestion: null, suggestedActions: [], suggestedCheck: null, lastProposalRuleIds: [], lastRuleAuthority: null, pendingAcquisition: null, acquisitionHistory: [], merchantNegotiationReceipts: [], mechanicFieldActions: [], aorIntelActions: [], pendingEncounter: null, ...(next.master ?? {}) };
@@ -28327,6 +28609,24 @@ function migrateState(value) {
     }
     if (next.player?.character) {
         next.player.character.statusEffects = Array.isArray(next.player.character.statusEffects) ? next.player.character.statusEffects : [];
+    }
+    next.player = next.player ?? { character: null };
+    next.player.roster = next.player.roster && Array.isArray(next.player.roster.entries)
+        ? next.player.roster
+        : { schema: 1, activeCharacterId: null, entries: [] };
+    if (next.player.character) {
+        const roster = next.player.roster;
+        let active = roster.entries.find(x => x?.id === roster.activeCharacterId);
+        if (!active) {
+            const id = ids_mjs_1.newId('pc');
+            active = { id, character: structuredClone(next.player.character) };
+            roster.entries = [...roster.entries, active];
+            roster.activeCharacterId = id;
+        }
+        else {
+            active.character = structuredClone(next.player.character);
+        }
+        roster.schema = 1;
     }
     if (next.player?.character?.creation?.rulesProfile === 'AOR_CORE' && next.campaignMode === 'EOTE') {
         const c = next.player.character;

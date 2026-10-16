@@ -62,7 +62,7 @@
     }
   },
   "fresh_regression": {
-    "state": "STALE_AFTER_TREX_CARRYOVER",
+    "state": "STALE_AFTER_OLD_LYLEK_P15_18_WIP",
     "files": 378,
     "regular_files": 372,
     "stress_files": 6,
@@ -74,7 +74,7 @@
     "evidence": "evidence/fresh-regression-20261016-old-lylek-rerun/",
     "skip_reason": "JDK jar executable unavailable for two offline Gradle-wrapper packaging checks.",
     "runner_environment": "NODE_PATH pointed to recovered project-local node_modules/typescript; no dependency files copied into Git.",
-    "superseded_by": "T’rex carryover integration and subsequent Old Lylek source audit. The prior full regression is preserved as historical evidence; rerun the complete suite after the current Old Lylek block closes.",
+    "superseded_by": "T’rex carryover and Old Lylek pp.15–18 WIP integration. The prior full regression is preserved as historical evidence; rerun the complete suite after the current Old Lylek block closes.",
     "initial_attempt": {
       "files": 378,
       "tests": 3399,
@@ -94,7 +94,15 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Close the full Old Lylek printed pp.15–18 family: persisted PC roster and party effects, map/approach, ruse and hunter tactics, optional GM-selected lylek branch, loot transfer, and New Meen arrival, with source-backed controller/UI/save-reopen tests. Then finish the remaining SWE02 Act 1/2/3 ledgers. Keep all statuses uncertified.",
+  "next_action": "Close the remaining Old Lylek printed pp.15–18 mechanics and UI gaps recorded in evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/RESULTS.md, then rerun the full per-file regression. Continue the remaining SWE02 Act 1/2/3 ledgers. Keep all statuses uncertified.",
+  "old_lylek_p15_18": {
+    "status": "IMPLEMENTADO_NAO_CERTIFICADO",
+    "focused_tests": {"tests": 11, "pass": 11, "fail": 0, "skip": 0, "evidence": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/focused-sparse.tap"},
+    "affected_sparse_sweep": {"tests": 181, "pass": 181, "fail": 0, "skip": 0, "evidence": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/affected-sparse.tap"},
+    "offline_bundle": {"result": "PASS", "modules": 133, "evidence": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/offline-bundle-build.log"},
+    "pending": ["Interactive tactical map and enforced +2 ranged setback from rock cover.", "Enforced hunter capture/stun preference and lethal switch after a hunter falls.", "Enforced eastern flank and source-directed frontal fighting retreat.", "Repair-time reduction when Advantage is rolled; source gives no fixed reduction amount.", "Immediate lylek Advantage event that removes one hunter and returns prey to the nest when the GM selected that branch.", "Interactive New Meen arrival and exact conditional developer details only when requested.", "Full pp.15–18 page certification and other details in the source audit remain outstanding."],
+    "evidence_report": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/RESULTS.md"
+  },
   "trex_carryover": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
     "source": ["SWE02 p.15", "Edge of the Empire Adventure Book p.24 (PDF p.29)"],

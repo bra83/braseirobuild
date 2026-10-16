@@ -26,7 +26,7 @@ import { safeP177Id } from '../rules/aorP177Actions.mjs';
 import {npcBlastReceipt,assertBlastReceipt} from '../rules/aorP179Reactions.mjs';
 import { mechanicFieldPreflight, mechanicFieldReceipt, assertOwnedEquipmentOperational } from '../rules/aorMechanicFieldActions.mjs';
 import { advanceBeyondTheRimImperialClock, beyondTheRimImperialClockStatus } from '../adventure/beyondTheRim.mjs';
-import { longArmShipSmellSetback,selectLongArmTrexCarryover,chooseLongArmOldLylekRoute,proceedLongArmOldLylekBluff,approachLongArmOldLylekOnFoot,
+import { longArmShipSmellSetback,recordLongArmOldLylekLootGrant,recordLongArmOldLylekPilotStrain,recordLongArmOldLylekRuse,chooseLongArmOldLylekTactics,selectLongArmTrexCarryover,chooseLongArmOldLylekCrew,chooseLongArmOldLylekRoute,proceedLongArmOldLylekBluff,approachLongArmOldLylekOnFoot,
     recordLongArmOldLylekCrashCheck,confirmLongArmOldLylekCrashCrew,inspectLongArmOldLylekSpeeder,recordLongArmOldLylekWarning,persistLongArmOldLylek } from '../adventure/longArmOfTheHutt.mjs';
 import {beginThwheekInterception,resolveThwheekInterception,thwheekTactics,THWHEEK_ID,THWHEEK_CONTEXT} from '../adventure/swe02ThwheekP239.mjs';
 import {nabatMarketCatalog,nabatPurchase,requestNabatSpaceportWatch,deliverNabatNightAlert,nabatShipRepair,nabatSafehouseCare} from '../adventure/swe02NabatP240.mjs';
@@ -965,9 +965,41 @@ export class GameController {
         character_mjs_1.validateCharacter(character);
         this.state = clone(this.state);
         this.state.player.character = clone(character);
+        const roster=this.state.player.roster??{schema:1,activeCharacterId:null,entries:[]};
+        let active=roster.entries?.find(x=>x?.id===roster.activeCharacterId);
+        if(active)active.character=clone(character);
+        else{
+            const id=ids_mjs_1.newId('pc');
+            roster.entries=[...(roster.entries??[]),{id,character:clone(character)}];
+            roster.activeCharacterId=id;
+        }
+        roster.schema=1;this.state.player.roster=roster;
         this.state.updatedAt = new Date().toISOString();
         if (!this._atomicActionDepth) this.repository.save(this.state);
         return this.state.player.character;
+    }
+    registerPartyCharacter({character,id=null}={}){
+        return this.atomicAction(()=>{
+            character_mjs_1.validateCharacter(character);
+            const roster=clone(this.state.player.roster??{schema:1,activeCharacterId:null,entries:[]});
+            const pcId=String(id??ids_mjs_1.newId('pc')).trim();
+            if(!/^[A-Za-z0-9:_-]{1,120}$/.test(pcId)||roster.entries.some(x=>x.id===pcId)||roster.entries.length>=8)
+                throw new Error('Identificador de PC duplicado/inválido ou limite de oito PCs atingido.');
+            roster.entries.push({id:pcId,character:clone(character),registeredAt:new Date().toISOString()});
+            roster.schema=1;
+            this.commit('PLAYER_ROSTER_UPDATED',{roster});
+            return {id:pcId,character:clone(character),roster:clone(this.state.player.roster)};
+        });
+    }
+    selectPartyCharacter(id){
+        return this.atomicAction(()=>{
+            const roster=clone(this.state.player.roster??{schema:1,activeCharacterId:null,entries:[]});
+            const entry=roster.entries.find(x=>x.id===String(id));
+            if(!entry)throw new Error('PC não encontrado no roster; companheiros NPC não são PCs.');
+            roster.activeCharacterId=entry.id;
+            this.commit('PLAYER_ROSTER_UPDATED',{roster});
+            return {activeCharacterId:entry.id,character:clone(this.state.player.character)};
+        });
     }
     importCharacter(text) {
         const character = character_mjs_1.importCharacterJson(text);
@@ -3186,9 +3218,22 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         const shipOdorSetback=adapter.id==='long-arm-of-the-hutt'&&spec.shipOdorRule
             ?longArmShipSmellSetback(this.state.world,this.state.player?.character?.name,spec.index):0;
         const check = this.resolveSkillCheck({ skillKey: spec.skillKey, difficulty: spec.pool.difficulty, challenge: spec.pool.challenge, setback: (Number(spec.pool.setback)||0)+shipOdorSetback, useLightDestiny, useDarkDestiny, cloudCitySlicing: adapter.id === 'jewel-of-yavin' && spec.skillKey === 'computadoras' && this.state.world?.publishedAdventure?.currentNodeId === 'gala-reconnaissance', rng });
-        const adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: check });
-        this.commit('WORLD_UPDATED', { world: adjudicated.world });
-        const characterEffects = { creditsDelta: 0, strainDelta: 0 };
+        let adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: check });
+        const characterEffects = { creditsDelta: 0, strainDelta: 0, partyStrain:[] };
+        if(adapter.id==='long-arm-of-the-hutt'&&spec.source?.printedPage===15&&check.success===false){
+            const old=adjudicated.world.publishedAdventure?.oldLylek,ids=old?.crewPcIds??[],roster=clone(this.state.player?.roster);
+            if(!ids.length||ids.length!==Number(this.state.session?.campaignRules?.destiny?.playerCount??this.state.session?.eoteRules?.destiny?.playerCount??this.state.session?.playerCount))
+                throw Error('SWE02 p.15: falha de Pilotagem exige roster completo dos PCs a bordo.');
+            const applications=[];
+            for(const id of ids){
+                const entry=roster?.entries?.find(x=>x.id===id);if(!entry)throw Error('SWE02 p.15: PC a bordo ausente do roster.');
+                const before=Number(entry.character.derived?.strain?.current??0),applied=health_mjs_1.sufferStrain(entry.character,1);
+                entry.character=applied.character;applications.push({pcId:id,characterName:entry.character.name,strainBefore:before,strainAfter:Number(entry.character.derived?.strain?.current??before+1),strainApplied:1});
+            }
+            const checkIndex=old.pilotChecks.length-1;
+            adjudicated=recordLongArmOldLylekPilotStrain(adjudicated.world,{checkIndex,applications});
+            this.commit('PLAYER_ROSTER_UPDATED',{roster});characterEffects.partyStrain=applications.map(x=>({pcId:x.pcId,strainDelta:1}));
+        }
         const creditsDelta = Number(adjudicated.adjudication?.creditDelta ?? 0);
         const strainDelta = Math.max(0, Number(adjudicated.adjudication?.playerStrainDelta ?? 0));
         if (creditsDelta || strainDelta) {
@@ -3204,6 +3249,7 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
             }
             this.commit('CHARACTER_UPDATED', { character });
         }
+        this.commit('WORLD_UPDATED', { world: adjudicated.world });
         const request = adapter.masterRequest(this.state.world);
         if (request) this.commit('MASTER_OPENING_PREPARED', { suggestedActions: request.suggestedActions, request });
         return { check, adjudication: adjudicated.adjudication, characterEffects, adventure: adapter.status(this.state.world), state: structuredClone(this.state) };
@@ -3812,14 +3858,16 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         return { combat, character, group, environment, npcTurns: progressed.npcTurns };
         });
     }
-    finishCombat({ rng = Math.random, strainSkill = 'frialdad', useBalance = false, actionId = null } = {}) {
-        if (actionId !== null) return this.executePublishedAdventureCommand({ actionId, kind: 'finish-combat', adventureId: this.state.world?.publishedAdventure?.id, options: { rng, strainSkill, useBalance } });
+    finishCombat({ rng = Math.random, strainSkill = 'frialdad', useBalance = false, gmConfirmedSubmission = false, actionId = null } = {}) {
+        if (actionId !== null) return this.executePublishedAdventureCommand({ actionId, kind: 'finish-combat', adventureId: this.state.world?.publishedAdventure?.id, options: { rng, strainSkill, useBalance, gmConfirmedSubmission } });
         return this.atomicAction(() => {
         const preCombat = clone(this.state.combat);
         validateSWE02ThroneAlarm(preCombat);
         const causalHookId = preCombat?.causalHookId ?? null;
         const causalOutcome = preCombat?.encounter?.outcome ?? null;
         const publishedAdventureContext = preCombat?.publishedAdventureContext ?? null;
+        if(publishedAdventureContext?.adventureId==='long-arm-of-the-hutt'&&publishedAdventureContext?.encounterId==='lylek-den-lylek'&&causalOutcome==='player_incapacitated'&&gmConfirmedSubmission!==true)
+            throw Error('SWE02 p.18: confirme submissão conforme adjudicação explícita do Mestre; não há limite numérico publicado.');
         let publishedAdventureAdapter = null;
         if (publishedAdventureContext?.adventureId) {
             publishedAdventureAdapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(publishedAdventureContext.adventureId);
@@ -3890,7 +3938,7 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         }
         let publishedAdventureOutcome = null;
         if (publishedAdventureAdapter) {
-            const published = publishedAdventureAdapter.recordEncounterOutcome(this.state.world, { encounterId: publishedAdventureContext.encounterId, outcome: causalOutcome ?? 'ended', adversaries: encounterAdversaries, throneAlarm:preCombat.swe02ThroneAlarm??null,
+            const published = publishedAdventureAdapter.recordEncounterOutcome(this.state.world, { encounterId: publishedAdventureContext.encounterId, outcome: causalOutcome ?? 'ended', adversaries: encounterAdversaries, throneAlarm:preCombat.swe02ThroneAlarm??null, gmConfirmedSubmission,
                 combatLog:[...(preCombat.log??[]),...(preCombat.swe02OldLylekAdvantageTriggered?[{check:{netAdvantage:1},sourcePage:18}]:[])] });
             this.commit('WORLD_UPDATED', { world: published.world });
             publishedAdventureOutcome = published.record;
@@ -5971,6 +6019,14 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         return clone(out.receipt);
     });}
     /** SWE02 p.12: adventure action, not a decorative 'interception' flag. */
+    chooseSWE02OldLylekCrew({crewPcIds}={}){return this.atomicAction(()=>{
+        if(this.state.combat?.active)throw Error('SWE02 p.15: registre os PCs a bordo antes do combate.');
+        const roster=this.state.player?.roster,entries=roster?.entries??[];
+        const count=Number(this.state.session?.campaignRules?.destiny?.playerCount??this.state.session?.eoteRules?.destiny?.playerCount??this.state.session?.playerCount);
+        if(!Number.isInteger(count)||count<1||count>8||entries.length!==count)throw Error('SWE02 p.15: cadastre uma ficha para cada PC; playerCount não substitui o roster.');
+        const out=chooseLongArmOldLylekCrew(this.state.world,{crewPcIds,rosterEntries:entries,playerCount:count});
+        this.commit('WORLD_UPDATED',{world:out.world});return clone(out.progress.oldLylek);
+    });}
     chooseSWE02OldLylekRoute({slowDown}={}){return this.atomicAction(()=>{
         if(this.state.combat?.active)throw Error('SWE02 p.15: escolha a rota antes do combate.');
         const out=chooseLongArmOldLylekRoute(this.state.world,{slowDown});
@@ -5984,32 +6040,63 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         if(this.state.combat?.active)throw Error('SWE02 p.17: não é possível avançar durante combate.');
         const out=proceedLongArmOldLylekBluff(this.state.world);this.commit('WORLD_UPDATED',{world:out.world});return clone(out.progress.oldLylek);
     });}
+    recordSWE02OldLylekRuse(options={}){return this.atomicAction(()=>{
+        if(this.state.combat?.active)throw Error('SWE02 p.17: registre o ruse antes do combate.');
+        const out=recordLongArmOldLylekRuse(this.state.world,options);this.commit('WORLD_UPDATED',{world:out.world});return clone(out.receipt);
+    });}
+    chooseSWE02OldLylekTactics(options={}){return this.atomicAction(()=>{
+        if(this.state.combat?.active)throw Error('SWE02 pp.16–18: escolha tática antes do combate.');
+        const out=chooseLongArmOldLylekTactics(this.state.world,options);this.commit('WORLD_UPDATED',{world:out.world});return clone(out.receipt);
+    });}
     approachSWE02OldLylekOnFoot(){return this.atomicAction(()=>{
         if(this.state.combat?.active)throw Error('SWE02 p.17: não é possível mudar a aproximação durante combate.');
         const out=approachLongArmOldLylekOnFoot(this.state.world);this.commit('WORLD_UPDATED',{world:out.world});return clone(out.progress.oldLylek);
     });}
     resolveSWE02OldLylekCrashCheck({skillKey='aguante',rng=Math.random}={}){return this.atomicAction(()=>{
         if(this.state.combat?.active)throw Error('SWE02 p.17: o speeder já parou; teste indisponível durante combate.');
-        const character=clone(requireCharacter(this.state.player?.character));
-        if(!['aguante','coordenacion'].includes(skillKey))throw Error('SWE02 p.17: escolha Aguante ou Coordenação.');
+        if(!['aguante','coordinacion'].includes(skillKey))throw Error('SWE02 p.17: escolha Aguante ou Coordenação.');
+        const old=this.state.world?.publishedAdventure?.oldLylek,crew=old?.crewPcIds??[],roster=clone(this.state.player?.roster);
         const sessionCount=Number(this.state.session?.campaignRules?.destiny?.playerCount??this.state.session?.eoteRules?.destiny?.playerCount??this.state.session?.playerCount);
-        if(!Number.isInteger(sessionCount)||sessionCount<1||sessionCount>8)throw Error('SWE02 p.17: número real de PCs não confirmado.');
-        const prior=this.state.world?.publishedAdventure?.oldLylek?.crashChecks??[];
-        if(prior.length>=sessionCount)throw Error('SWE02 p.17: todos os testes da tripulação já foram registrados.');
+        if(!Number.isInteger(sessionCount)||sessionCount<1||sessionCount>8||crew.length!==sessionCount)throw Error('SWE02 p.17: roster e IDs de PCs a bordo não confirmados.');
+        const prior=old?.crashChecks??[];
+        const checked=new Set(prior.map(x=>x.characterId));
+        const characterId=crew.find(id=>!checked.has(id));
+        if(!characterId)throw Error('SWE02 p.17: todos os testes da tripulação já foram registrados.');
+        const rosterEntry=roster.entries.find(x=>x.id===characterId);
+        if(!rosterEntry)throw Error('SWE02 p.17: PC a bordo ausente do roster.');
+        const character=clone(rosterEntry.character);
+        character.skills={...(character.skills??{}),[skillKey]:Number(character.skills?.[skillKey]??0)};
+        roster.activeCharacterId=characterId;
+        roster.entries.find(x=>x.id===characterId).character=character;
+        this.commit('PLAYER_ROSTER_UPDATED',{roster});
         const check=this.resolveSkillCheck({skillKey,difficulty:2,rng});
         let updated=character,damage=null;
         if(!check.success){damage=health_mjs_1.applyDamage(character,{damage:6,damageType:'wounds',reason:'Lançado do speeder — SWE02 p.17',criticalRng:rng});updated=damage.character;}
-        const out=recordLongArmOldLylekCrashCheck(this.state.world,{characterName:character.name,skillKey,check});
+        const out=recordLongArmOldLylekCrashCheck(this.state.world,{characterId,characterName:character.name,skillKey,check});
         let world=out.world;
         const checks=world.publishedAdventure.oldLylek.crashChecks;
         if(checks.length===sessionCount)world=confirmLongArmOldLylekCrashCrew(world,{expectedPcCount:sessionCount}).world;
-        this.commit('CHARACTER_UPDATED',{character:updated});this.commit('WORLD_UPDATED',{world});
+        const updatedRoster=clone(this.state.player.roster);
+        updatedRoster.entries.find(x=>x.id===characterId).character=updated;
+        if(roster.activeCharacterId===characterId)this.commit('CHARACTER_UPDATED',{character:updated});
+        this.commit('PLAYER_ROSTER_UPDATED',{roster:updatedRoster});this.commit('WORLD_UPDATED',{world});
         return {check,damage:damage?{rawDamage:damage.rawDamage,suffered:damage.suffered,effectiveSoak:damage.effectiveSoak}:null,
-            checked:checks.length,expected:sessionCount,phase:world.publishedAdventure.oldLylek.phase};
+            characterId,checked:checks.length,expected:sessionCount,phase:world.publishedAdventure.oldLylek.phase};
     });}
     inspectSWE02OldLylekSpeeder(){return this.atomicAction(()=>{
         if(this.state.combat?.active)throw Error('SWE02 p.18: encerre o combate antes de inspecionar o speeder.');
-        const out=inspectLongArmOldLylekSpeeder(this.state.world);this.commit('WORLD_UPDATED',{world:out.world});return clone(out.progress.oldLylek.hunterLoot);
+        const out=inspectLongArmOldLylekSpeeder(this.state.world),group=clone(this.state.group),loot=out.progress.oldLylek.hunterLoot;
+        const inventory=[
+          {id:'swe02-old-lylek-stimpack-1',name:'Stimpack',quantity:1},
+          {id:'swe02-old-lylek-stimpack-2',name:'Stimpack',quantity:1},
+          {id:'swe02-old-lylek-medpac',name:'Medpac',quantity:1},
+          {id:'swe02-old-lylek-emergency-repair-kit',name:'Emergency Repair Kit',quantity:1}
+        ];
+        group.belongings=Array.isArray(group.belongings)?group.belongings:[];
+        if(inventory.some(x=>group.belongings.some(y=>y.id===x.id)))throw Error('SWE02 p.18: item do speeder já consta no inventário do grupo.');
+        for(const item of inventory)group.belongings.push({...item,source:{title:'The Long Arm of the Hutt',productCode:'SWE02',printedPage:18,authority:'OFFICIAL_PDF_TEXT_VERIFIED'}});
+        const granted=recordLongArmOldLylekLootGrant(out.world,{inventoryIds:inventory.map(x=>x.id)});
+        this.commit('GROUP_UPDATED',{group});this.commit('WORLD_UPDATED',{world:granted.world});return clone(granted.progress.oldLylek.hunterLoot);
     });}
     insistSWE02OldLylek(){return this.atomicAction(()=>{
         if(this.state.combat?.active)throw Error('SWE02 p.18: encerre o combate dos caçadores primeiro.');

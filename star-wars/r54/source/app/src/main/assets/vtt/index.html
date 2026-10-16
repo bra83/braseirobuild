@@ -68,26 +68,48 @@
       <section id="swe02OldLylek" class="action-panel" hidden>
         <h3>SWE02 — Old Lylek Den · pp.15–18</h3>
         <p id="swe02OldLylekStatus" class="microcopy"></p>
+        <details class="rules-panel"><summary>Roster de PCs e tripulação a bordo</summary>
+          <div id="swe02PcRoster" class="rule-results"></div>
+          <label>Importar ficha de outro PC (JSON exportado)<textarea id="swe02PcImport" rows="3" placeholder="Cole o JSON exportado da ficha"></textarea></label>
+          <button id="swe02PcImportButton">Adicionar ficha ao roster</button>
+          <button id="swe02CrewConfirm">Confirmar PCs a bordo</button>
+        </details>
         <div class="button-row">
           <button id="swe02LylekSlow">Reduzir velocidade · rota segura</button>
           <button id="swe02LylekFast">Seguir rápido · dois testes de Pilotagem Média</button>
           <button id="swe02LylekCheck">Resolver teste de perícia desta etapa</button>
-          <button id="swe02LylekProceed">Passar pelo bluff</button>
+          <button id="swe02LylekProceed">Prosseguir sem parar (gera colisão se rota rápida)</button>
           <button id="swe02LylekFoot">Parar e abordar a pé</button>
+          <label id="swe02RuseRecognizedLabel">Os PCs perguntam quem são os agentes?<select id="swe02IdentificationAsked"><option value="false">Não perguntam</option><option value="true">Perguntam a identificação</option></select></label>
+          <label id="swe02OskaraPresentLabel">Oskara está presente<select id="swe02OskaraPresent"><option value="false">Não</option><option value="true">Sim</option></select></label>
+          <label id="swe02OskaraRecognizesLabel">Oskara reconhece os humanos<select id="swe02OskaraRecognizes"><option value="false">Não</option><option value="true">Sim</option></select></label>
+          <button id="swe02LylekRuse">Registrar abordagem dos falsos agentes · p.17</button>
+          <div id="swe02TacticsControls">
+            <pre aria-label="Mapa tático Old Lylek Den">NORTE: caverna / speeder dos caçadores
+ESTE: entrada parcialmente bloqueada (flanco)
+CENTRO: montes de rocha (cobertura)
+SUL: ninho do lylek
+ROTA PONTILHADA: retirada dos caçadores · SWE02 p.16</pre>
+            <label>Abordagem<select id="swe02LylekApproach"><option value="frontal">Frontal</option><option value="east_cave_flank">Flanco pela entrada leste da caverna</option></select></label>
+            <label>Se frontal, resposta dos caçadores<select id="swe02LylekFrontalOutcome"><option value="fighting_retreat">Retirada de combate</option><option value="fight_to_last">Lutar até o último</option></select></label>
+            <label>Decisão do Mestre sobre o lylek<select id="swe02LylekBranch"><option value="disturb_on_advantage">Permitir perturbação; qualquer Vantagem aciona o lylek</option><option value="stay_passive">Manter no ninho</option></select></label>
+            <button id="swe02LylekTactics">Registrar mapa, abordagem e decisão do Mestre</button>
+          </div>
           <button id="swe02LylekCrash">Resolver meu teste de Aguante/Coordenação</button>
           <button id="swe02LylekHunters">Iniciar combate com os caçadores</button>
           <button id="swe02LylekInsist">Persistir na perseguição do lylek · B’ura avisa</button>
           <button id="swe02LylekLoot">Inspecionar speeder dos caçadores · p.18</button>
           <button id="swe02LylekBeast">Persistir após o aviso · enfrentar lylek</button>
+          <label id="swe02LylekSubmissionLabel"><input type="checkbox" id="swe02LylekSubmission"> Mestre confirma submissão narrativa dos PCs (SWE02 p.18; sem limite numérico publicado)</label>
           <button id="swe02LylekFinish">Encerrar combate do lylek</button>
           <button id="swe02LylekContinue">Continuar para New Meen</button>
         </div>
-        <label>Escolha do teste após a colisão<select id="swe02LylekCrashSkill"><option value="aguante">Aguante</option><option value="coordenacion">Coordenação</option></select></label>
+        <label>Escolha do teste após a colisão<select id="swe02LylekCrashSkill"><option value="aguante">Aguante</option><option value="coordinacion">Coordenação</option></select></label>
         <div id="swe02TrexHistoryControls" class="button-row">
           <label>Histórico de T’rex em Escape from Mos Shuuta<select id="swe02TrexHistory"><option value="">Selecione o resultado anterior</option><option value="escaped">Escapou sem luta</option><option value="defeated_unconfirmed_dead">Derrotado, morte não confirmada · começa com 10 ferimentos</option><option value="confirmed_dead">Morto com confirmação · ausente</option></select></label>
           <button id="swe02TrexHistorySave">Registrar histórico de T’rex · p.15 / Adventure Book p.24</button>
         </div>
-        <p class="microcopy">Percepção Difícil é opcional para manter vigia. É possível parar e abordar a pé mesmo sem detectar Gand. Avistar Gand permite evitar o avanço de speeder; avançar sem reduzir a velocidade aplica um Setback à iniciativa Cool de cada caçador (SWE02 p.17). Falha em Pilotagem rápida causa colisão e exige aplicar manualmente 1 Tensão a cada PJ a bordo. Testes do acidente e seus 6 pontos de dano são aplicados apenas ao personagem ativo; escolha cada PJ manualmente (seleção/validação da tripulação PENDENTE). Se T’rex estiver vivo e houver pelo menos dois PCs, ele substitui um caçador humano; para grupo de um PC, Gand obrigatório + T’rex fica PENDENTE. Perfil de T’rex verificado em Adventure Book p.24; Captive Rancor verificado em Beginner Game p.47.</p>
+        <p class="microcopy">Percepção Difícil é opcional para manter vigia; a abordagem a pé está disponível mesmo sem avistar Gand. Cadastre fichas individuais de PCs no roster; companheiros NPC não contam. T’rex vivo e Gand obrigatório em grupo de um PC permanecem PENDENTE.</p>
         <p id="swe02OldLylekFeedback" class="feedback"></p>
       </section>
 
