@@ -1,0 +1,75 @@
+name: DND V1 - safety stale manual revert (BRELGA)
+on:
+  push:
+    branches: [audit/dnd-v1-manual-revert-safety-20261016]
+    paths:
+      - '.github/workflows/dnd-v1-stale-revert-safety-brelga.yml'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/V1ManualRevertSafetyRobolectricTest.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AppDb.java'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dnd-v1-stale-revert-safety-brelga
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 35
+    steps:
+      - name: Runner gate
+        shell: powershell
+        run: |
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'WRONG_RUNNER'}
+          Write-Host ('V1_STALE_REVERT_SHA='+$env:GITHUB_SHA)
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - name: Setup Android and isolated Gradle
+        shell: powershell
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          $ErrorActionPreference='Stop'
+          $java='C:\actions-runner\_work\_tool\Java_Temurin-Hotspot_jdk\17.0.20-101\x64'
+          if(Test-Path $java){
+            Add-Content $env:GITHUB_ENV ('JAVA_HOME='+$java)
+            Add-Content $env:GITHUB_PATH (Join-Path $java 'bin')
+          }
+          $sdk=$env:ANDROID_HOME
+          if(!$sdk -or !(Test-Path $sdk)){$sdk=Join-Path $env:LOCALAPPDATA 'Android\Sdk'}
+          if(!(Test-Path $sdk)){throw 'ANDROID_SDK_MISSING'}
+          Add-Content $env:GITHUB_ENV ('ANDROID_HOME='+$sdk)
+          Add-Content $env:GITHUB_ENV ('ANDROID_SDK_ROOT='+$sdk)
+          $base=Join-Path $env:USERPROFILE '.gradle'
+          $isolated=Join-Path $env:RUNNER_TEMP ('v1-stale-revert-'+$env:GITHUB_RUN_ID)
+          New-Item -ItemType Directory -Force -Path $isolated | Out-Null
+          foreach($entry in @('wrapper','caches')){
+            $source=Join-Path $base $entry;$target=Join-Path $isolated $entry
+            if((Test-Path $source)-and !(Test-Path $target)){
+              New-Item -ItemType Junction -Path $target -Target $source | Out-Null
+            }
+          }
+          Add-Content $env:GITHUB_ENV ('GRADLE_USER_HOME='+$isolated)
+      - name: Reject stale undo in real SQLite
+        shell: powershell
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          $ErrorActionPreference='Stop'
+          $dir='app/build/test-results/testDebugUnitTest'
+          if(Test-Path $dir){Remove-Item $dir -Recurse -Force}
+          & .\gradlew.bat :app:testDebugUnitTest --tests com.braseiro.dnd5e.V1ManualRevertSafetyRobolectricTest --no-daemon --console=plain --stacktrace
+          $exit=$LASTEXITCODE
+          $file=Join-Path $dir 'TEST-com.braseiro.dnd5e.V1ManualRevertSafetyRobolectricTest.xml'
+          if(!(Test-Path $file)){throw 'V1_STALE_REVERT_MISSING_XML'}
+          [xml]$r=Get-Content $file -Raw
+          foreach($node in @($r.SelectNodes('//testcase/failure | //testcase/error'))){
+            Write-Host ('STALE_REVERT_TEST_FAILED='+$node.GetAttribute('message'))
+            Write-Host ('STALE_REVERT_STACK='+([string]$node.InnerText).Substring(0,[Math]::Min(1800,([string]$node.InnerText).Length)))
+          }
+          Write-Host ('V1_STALE_REVERT_TESTS='+$r.testsuite.tests)
+          Write-Host ('V1_STALE_REVERT_FAILURES='+$r.testsuite.failures)
+          if($exit -ne 0 -or [int]$r.testsuite.failures -ne 0 -or [int]$r.testsuite.errors -ne 0){throw 'STALE_MANUAL_UNDO_RELEASE_BLOCKER'}
+          Write-Host 'V1_STALE_REVERT_SAFETY=PASS'
