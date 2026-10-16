@@ -344,4 +344,235 @@ public class Core2024SubclassRobolectricTest {
             context.deleteDatabase(dbName);
         }
     }
+
+    @Test
+    public void wildHeartBarbarianAspectSelectionAndRageResistances() throws Exception {
+        JSONObject sheet = new JSONObject()
+            .put("class_name", "Bárbaro")
+            .put("subclass_name", "Caminho do Coração Selvagem")
+            .put("level", 6)
+            .put("rage_active", true);
+
+        JSONObject payload = new JSONObject().put("aspect", "urso");
+        JSONObject res = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Caminho do Coração Selvagem", 6, "Fúria das Selvas", payload);
+        assertTrue(res.optBoolean("subclass_action_resolved"));
+        assertEquals("urso", res.optString("wild_heart_aspect"));
+        assertEquals("all_except_psychic", res.optString("damage_resistances"));
+    }
+
+    @Test
+    public void danceBardDazzlingFootworkUnarmoredAcAndInspiringMovement() throws Exception {
+        JSONObject sheet = new JSONObject()
+            .put("class_name", "Bardo")
+            .put("subclass_name", "Colégio da Dança")
+            .put("level", 6)
+            .put("dex", 14)
+            .put("cha", 16);
+
+        JSONObject dance = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Colégio da Dança", 6, "Passos Deslumbrantes", null);
+        assertTrue(dance.optBoolean("subclass_action_resolved"));
+        assertEquals(3, dance.optInt("dance_unarmored_ac_bonus"));
+
+        JSONObject move = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Colégio da Dança", 6, "Movimento Inspirador", null);
+        assertTrue(move.optBoolean("subclass_action_resolved"));
+        assertEquals("dance_inspiring_movement", move.optString("subclass_action_event"));
+    }
+
+    @Test
+    public void moonDruidCombatWildShapeTempHpAndMoonlightStep() throws Exception {
+        JSONObject sheet = new JSONObject()
+            .put("class_name", "Druida")
+            .put("subclass_name", "Círculo da Lua")
+            .put("level", 6)
+            .put("wis", 16);
+        sheet = Core2024ClassRuntimeEngine.ensure(sheet, "Druida", 6);
+        Core2024SubclassRuntimeEngine.applyToSheet(sheet);
+
+        JSONObject form = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Círculo da Lua", 6, "Forma Selvagem de Combate", null);
+        assertTrue(form.optBoolean("subclass_action_resolved"));
+        assertEquals(18, form.optInt("temp_hp")); // 3 * 6 = 18 temp hp
+        assertEquals(16, form.optInt("moon_wild_shape_ac")); // 13 + 3 = 16 ac
+
+        JSONObject step = Core2024SubclassRuntimeEngine.resolve(
+            form, "Círculo da Lua", 6, "Passo do Luar", null);
+        assertTrue(step.optBoolean("subclass_action_resolved"));
+        assertEquals(30, step.optJSONObject("subclass_action_effect").optInt("teleport_range_ft"));
+    }
+
+    @Test
+    public void vengeancePaladinVowOfEnmityAdvantageViaAppDb() throws Exception {
+        Context context = RuntimeEnvironment.getApplication();
+        String dbName = databaseName();
+        AppDb db = new AppDb(context, dbName);
+        try {
+            db.setActiveMapProfile("dnd");
+            long charId = db.addCharacter(
+                "Theron", "Humano", "Paladino", 3, 28, 28, 18,
+                16, 10, 14, 10, 12, 16, true, "Nobre");
+            JSONObject ch = db.getCharacter(charId);
+            JSONObject sheet = new JSONObject(ch.optString("sheet_json", "{}"));
+            sheet.put("subclass_name", "Juramento de Vingança");
+            sheet.put("rules_source", DndRulesEngine.PROFILE_2024);
+            sheet = Core2024ClassRuntimeEngine.ensure(sheet, "Paladino", 3);
+            Core2024SubclassRuntimeEngine.applyToSheet(sheet);
+            db.updateCharacterSheet(charId, sheet.toString());
+
+            JSONObject payload = new JSONObject().put("target_id", "dragon-1");
+            JSONObject res = db.resolveCharacterHomebrewSubclassAction(
+                charId, "Voto de Inimizade", payload);
+            assertTrue("Vow of enmity must resolve: " + res,
+                res.optBoolean("subclass_action_resolved"));
+            assertEquals("paladin_vow_of_enmity", res.optString("subclass_action_event"));
+            assertEquals("dragon-1", res.optString("vow_of_enmity_target"));
+
+            // Verify channel divinity spent
+            JSONObject updatedSheet = new JSONObject(db.getCharacter(charId).optString("sheet_json", "{}"));
+            assertEquals(1, updatedSheet.optJSONObject("class_resources").optJSONObject("channel_divinity").optInt("current"));
+        } finally {
+            db.close();
+            context.deleteDatabase(dbName);
+        }
+    }
+
+    @Test
+    public void shadowMonkShadowArtsDarknessAndShadowStep() throws Exception {
+        JSONObject sheet = new JSONObject()
+            .put("class_name", "Monge")
+            .put("subclass_name", "Caminho das Sombras")
+            .put("level", 6)
+            .put("dex", 16)
+            .put("wis", 16);
+        sheet = Core2024ClassRuntimeEngine.ensure(sheet, "Monge", 6);
+        Core2024SubclassRuntimeEngine.applyToSheet(sheet);
+
+        JSONObject darkness = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Caminho das Sombras", 6, "Artes das Sombras", null);
+        assertTrue(darkness.optBoolean("subclass_action_resolved"));
+        assertTrue(darkness.optBoolean("see_through_magical_darkness"));
+        assertEquals(5, darkness.optJSONObject("class_resources").optJSONObject("focus_points").optInt("current"));
+
+        JSONObject step = Core2024SubclassRuntimeEngine.resolve(
+            darkness, "Caminho das Sombras", 6, "Passo das Sombras", null);
+        assertTrue(step.optBoolean("subclass_action_resolved"));
+        assertEquals(60, step.optJSONObject("subclass_action_effect").optInt("teleport_range_ft"));
+    }
+
+    @Test
+    public void feyWandererRangerDreadfulStrikesAndOtherworldlyPresence() throws Exception {
+        JSONObject sheet = new JSONObject()
+            .put("class_name", "Guardião")
+            .put("subclass_name", "Andarilho Feérico")
+            .put("level", 3)
+            .put("wis", 16);
+        Core2024SubclassRuntimeEngine.applyToSheet(sheet);
+
+        JSONObject strikes = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Andarilho Feérico", 3, "Golpes Pavorosos", null);
+        assertTrue(strikes.optBoolean("subclass_action_resolved"));
+        assertEquals("1d4", strikes.optJSONObject("subclass_action_effect").optString("extra_damage_dice"));
+
+        JSONObject glamour = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Andarilho Feérico", 3, "Glamour Sobrenatural", null);
+        assertTrue(glamour.optBoolean("subclass_action_resolved"));
+        assertEquals(3, glamour.optInt("fey_otherworldly_presence_bonus"));
+    }
+
+    @Test
+    public void soulknifeRoguePsychicBladesAndPsiBolsteredKnack() throws Exception {
+        JSONObject sheet = new JSONObject()
+            .put("class_name", "Ladino")
+            .put("subclass_name", "Mente de Alma")
+            .put("level", 3)
+            .put("dex", 16);
+        Core2024SubclassRuntimeEngine.applyToSheet(sheet);
+
+        JSONObject blades = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Mente de Alma", 3, "Lâminas Psíquicas", null);
+        assertTrue(blades.optBoolean("subclass_action_resolved"));
+        assertEquals("1d6", blades.optJSONObject("subclass_action_effect").optString("main_blade_damage"));
+
+        JSONObject knack = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Mente de Alma", 3, "Poder Psiônico", new JSONObject().put("die_roll", 4));
+        assertTrue(knack.optBoolean("subclass_action_resolved"));
+        assertEquals(4, knack.optJSONObject("subclass_action_effect").optInt("die_roll"));
+        assertEquals(3, knack.optJSONObject("subclass_resources").optJSONObject("psionic_energy_dice").optInt("current")); // Started with 4 (2*PB), spent 1
+    }
+
+    @Test
+    public void draconicSorcererResilienceAcAndElementalAffinity() throws Exception {
+        JSONObject sheet = new JSONObject()
+            .put("class_name", "Feiticeiro")
+            .put("subclass_name", "Feitiçaria Dracônica")
+            .put("level", 6)
+            .put("dex", 14)
+            .put("cha", 18);
+        Core2024SubclassRuntimeEngine.applyToSheet(sheet);
+
+        JSONObject res = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Feitiçaria Dracônica", 6, "Resiliência Dracônica", null);
+        assertTrue(res.optBoolean("subclass_action_resolved"));
+        assertEquals(15, res.optInt("draconic_ac")); // 13 + 2 = 15
+        assertEquals(6, res.optInt("draconic_hp_bonus"));
+
+        JSONObject aff = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Feitiçaria Dracônica", 6, "Afinidade Elemental", null);
+        assertTrue(aff.optBoolean("subclass_action_resolved"));
+        assertEquals(4, aff.optJSONObject("subclass_action_effect").optInt("elemental_damage_bonus"));
+    }
+
+    @Test
+    public void celestialWarlockHealingLightSpendsPool() throws Exception {
+        JSONObject sheet = new JSONObject()
+            .put("class_name", "Bruxo")
+            .put("subclass_name", "Patrono Celestial")
+            .put("level", 3)
+            .put("cha", 16);
+        Core2024SubclassRuntimeEngine.applyToSheet(sheet);
+
+        JSONObject payload = new JSONObject().put("dice_spent", 2).put("heal_roll", 9);
+        JSONObject heal = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Patrono Celestial", 3, "Luz Curativa", payload);
+        assertTrue(heal.optBoolean("subclass_action_resolved"));
+        assertEquals(9, heal.optJSONObject("subclass_action_effect").optInt("healing_amount"));
+        assertEquals(2, heal.optJSONObject("subclass_resources").optJSONObject("healing_light").optInt("current")); // Started with 4 (1+3), spent 2
+    }
+
+    @Test
+    public void abjurationWizardArcaneWardAndProjectedWard() throws Exception {
+        JSONObject sheet = new JSONObject()
+            .put("class_name", "Mago")
+            .put("subclass_name", "Escola de Abjuração")
+            .put("level", 6)
+            .put("int_score", 18);
+        Core2024SubclassRuntimeEngine.applyToSheet(sheet);
+
+        JSONObject ward = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Escola de Abjuração", 6, "Proteção Arcana", null);
+        assertTrue(ward.optBoolean("subclass_action_resolved"));
+        assertEquals(16, ward.optInt("arcane_ward_max_hp")); // 2*6 + 4 = 16
+
+        JSONObject proj = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Escola de Abjuração", 6, "Proteção Projetada", new JSONObject().put("ally_id", "fighter-1"));
+        assertTrue(proj.optBoolean("subclass_action_resolved"));
+        assertEquals("fighter-1", proj.optJSONObject("subclass_action_effect").optString("protected_ally_id"));
+    }
+
+    @Test
+    public void divinationWizardPortentSubstitution() throws Exception {
+        JSONObject sheet = new JSONObject()
+            .put("class_name", "Mago")
+            .put("subclass_name", "Escola de Adivinhação")
+            .put("level", 3);
+        Core2024SubclassRuntimeEngine.applyToSheet(sheet);
+
+        JSONObject portent = Core2024SubclassRuntimeEngine.resolve(
+            sheet, "Escola de Adivinhação", 3, "Presságio", new JSONObject().put("portent_roll", 18));
+        assertTrue(portent.optBoolean("subclass_action_resolved"));
+        assertEquals(18, portent.optJSONObject("subclass_action_effect").optInt("substituted_roll"));
+        assertEquals(1, portent.optJSONObject("subclass_resources").optJSONObject("portent_dice").optInt("current")); // Started with 2, spent 1
+    }
 }
