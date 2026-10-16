@@ -3113,9 +3113,311 @@ public class AppDb extends SQLiteOpenHelper {
                 if(decision.source!=null)out.put("source_pointer",decision.source.pointer)
                     .put("family",decision.source.family.name()).put("lot",decision.source.lot)
                     .put("integration_status",decision.source.status.name())
-                    .put("executor",decision.source.executor).put("blocker_reason",decision.source.blocker);
+                    .put("executor",decision.source.executor).put("blocker_reason",decision.source.blocker)
+                    .put("manual_arbitration_available",true)
+                    .put("manual_arbitration_entrypoint","applyXmmManualArbitration");
                 return out;
             }});
+    }
+
+    /** Read-only preflight for the XMM Manual Arbitration Bridge. Validates whether a
+     * monster action/pointer/multiattack belongs to the unintegrated or manual-unsupported
+     * XMM surface and previews the exact deterministic state transition before confirmation.
+     */
+    public JSONObject previewXmmManualArbitration(final long actorId,final long targetId,
+        final String statblockId,final String actionOrPointer,final String actionCost,
+        final int damageTotal,final String damageType,final String addConditions,
+        final String removeConditions){
+        JSONObject out=new JSONObject();
+        try{
+            JSONObject actor=getCombatant(actorId),target=getCombatant(targetId);
+            if(actor.length()==0||target.length()==0||actorId==targetId||
+                actor.optInt("is_player",0)==1||actor.optInt("hp",0)<=0)
+                return out.put("manual_arbitration_blocked","invalid_monster_or_target");
+            if(getCombatState().optInt("running",0)!=1)
+                return out.put("manual_arbitration_blocked","encounter_not_running");
+            JSONObject resources=combatResources(actor);
+            String persistedBlock=resources.optString("block_id","").trim();
+            String authorityBlock=CompiledMonsterActionGuard.statblockBlock(persistedBlock,statblockId);
+            if(!authorityBlock.isEmpty())return out.put("manual_arbitration_blocked",authorityBlock);
+            String ref=actionOrPointer==null?"":actionOrPointer.trim();
+            if(ref.isEmpty())return out.put("manual_arbitration_blocked","action_or_pointer_required");
+            XmmCombatSourceRegistry.Entry registryEntry=XmmCombatSourceRegistry.get(ref);
+            if(registryEntry==null){
+                for(XmmCombatSourceRegistry.Entry candidate:XmmCombatSourceRegistry.entries().values()){
+                    if(persistedBlock.equals(candidate.monster)&&ref.equalsIgnoreCase(candidate.action)){
+                        registryEntry=candidate;break;
+                    }
+                }
+            }
+            if(registryEntry!=null&&!persistedBlock.equals(registryEntry.monster))
+                return out.put("manual_arbitration_blocked","persisted_actor_source_mismatch");
+            String sourceKind="",blockerReason="",resolvedPointer=ref,resolvedAction=ref;
+            if(registryEntry!=null){
+                sourceKind="xmm_registry_"+registryEntry.family.name().toLowerCase(Locale.US);
+                blockerReason=registryEntry.blocker;
+                resolvedPointer=registryEntry.pointer;
+                resolvedAction=registryEntry.action;
+            }else if("Multiattack".equalsIgnoreCase(ref)||ref.contains("/multiattack")){
+                JSONObject multiPlan=XmmMultiattackHostPlan.declaration(persistedBlock,new JSONObject(),resources);
+                String multiBlock=multiPlan.optString("statblock_multiattack_blocked","");
+                if(multiBlock.isEmpty()){
+                    JSONObject profile=CompiledStatblockEngine.runtimeProfile(persistedBlock);
+                    JSONObject rawMulti=profile.optJSONObject("multiattack");
+                    if(rawMulti!=null){
+                        JSONArray seq=rawMulti.optJSONArray("sequence");
+                        String[] seqArr=null;
+                        if(seq!=null){seqArr=new String[seq.length()];for(int i=0;i<seq.length();i++)seqArr[i]=seq.optString(i);}
+                        multiBlock=MultiattackActionRules.declarationBlock(seqArr,
+                            rawMulti.optInt("count",seqArr==null?0:seqArr.length),
+                            rawMulti.optString("action",""),rawMulti.optString("options",""));
+                    }
+                }
+                sourceKind="xmm_multiattack_manual";
+                blockerReason=multiBlock.isEmpty()?"manual_multiattack_arbitration":multiBlock;
+                resolvedAction="Multiattack";
+            }else{
+                JSONObject sourceAction=compiledMonsterRiderAction(persistedBlock,ref);
+                String riderBlock=sourceAction.length()>0?MonsterActionEconomyGuard.attackRiderBlock(sourceAction,persistedBlock):"";
+                sourceKind="xmm_compiled_manual_fallback";
+                blockerReason=riderBlock.isEmpty()?"manual_unmodeled_source_effect_required":riderBlock;
+            }
+            String cost=actionCost==null||actionCost.trim().isEmpty()?"action":actionCost.trim().toLowerCase(Locale.US);
+            if(!"action".equals(cost)&&!"bonus_action".equals(cost)&&!"reaction".equals(cost)&&!"none".equals(cost))
+                return out.put("manual_arbitration_blocked","unsupported_action_economy");
+            if(!"none".equals(cost)){
+                String turnBlock=CombatTurnGuard.spendBlock(cost,
+                    getCombatState().optInt("running",0)==1,
+                    actor.optInt("active_turn",0)==1,
+                    ConditionRulesEngine.incapacitated(actor.optString("conditions","")),
+                    actor.optInt("hp",0),
+                    resources.optBoolean("dead",false),
+                    actor.optInt("reaction_used",0)==1,
+                    resources.optBoolean("action_available",true),
+                    resources.optBoolean("bonus_action_available",true));
+                if(!turnBlock.isEmpty())return out.put("manual_arbitration_blocked",turnBlock);
+            }
+            if(damageTotal<0||damageTotal>500)
+                return out.put("manual_arbitration_blocked","invalid_manual_damage");
+            return out.put("preview_only",true)
+                .put("persisted_to_combat",false)
+                .put("actor_id",actorId).put("target_id",targetId)
+                .put("statblock_id",persistedBlock)
+                .put("source_kind",sourceKind)
+                .put("source_pointer",resolvedPointer)
+                .put("action",resolvedAction)
+                .put("blocker_reason",blockerReason)
+                .put("action_cost",cost)
+                .put("damage_total",damageTotal)
+                .put("damage_type",damageType==null?"":damageType.trim().toLowerCase(Locale.US))
+                .put("add_conditions",normalizeConditionsCsv(addConditions))
+                .put("remove_conditions",normalizeConditionsCsv(removeConditions));
+        }catch(Exception e){
+            try{out.put("manual_arbitration_error",String.valueOf(e.getMessage()));}catch(Exception ignored){}
+            return out;
+        }
+    }
+
+    private static String normalizeConditionsCsv(String raw){
+        if(raw==null)return "";
+        String merged="";
+        for(String part:raw.split("[,;•/\\n]+")){
+            String trimmed=part==null?"":part.trim().toLowerCase(Locale.US);
+            if(!trimmed.isEmpty())merged=ConditionRulesEngine.add(merged,trimmed);
+        }
+        return merged;
+    }
+
+    /** Executes an explicit, user-confirmed manual arbitration for an XMM monster action
+     * inside AppDb's single SQLite combat transaction, spending real turn economy,
+     * applying deterministic damage/condition deltas, and recording a durable reversible receipt.
+     */
+    public JSONObject applyXmmManualArbitration(final long actorId,final long targetId,
+        final String statblockId,final String actionOrPointer,final String actionCost,
+        final int damageTotal,final String damageType,final String addConditions,
+        final String removeConditions,final boolean manualConfirmation,final String note,
+        final String token){
+        return combatAtomic("xmm_manual_arbitration",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(!manualConfirmation)
+                return out.put("manual_arbitration_blocked","explicit_manual_confirmation_required");
+            if(token==null||!token.startsWith("ui-monster-")||!CombatActionReceiptGuard.validToken(token))
+                return out.put("manual_arbitration_blocked","invalid_operation_token");
+            String receiptKey=combatReceiptKey(actorId,token+"-manual-arb");
+            if(hasEffectReceipt(receiptKey))
+                return out.put("manual_arbitration_blocked","already_resolved_or_replayed");
+            JSONObject preview=previewXmmManualArbitration(actorId,targetId,statblockId,
+                actionOrPointer,actionCost,damageTotal,damageType,addConditions,removeConditions);
+            if(preview.has("manual_arbitration_blocked"))
+                return out.put("manual_arbitration_blocked",preview.optString("manual_arbitration_blocked"));
+            if(preview.has("manual_arbitration_error"))
+                return out.put("manual_arbitration_error",preview.optString("manual_arbitration_error"));
+            JSONObject actorBefore=getCombatant(actorId),targetBefore=getCombatant(targetId);
+            JSONObject actorResBefore=combatResources(actorBefore);
+            String cost=preview.optString("action_cost","action");
+            JSONObject spend=new JSONObject();
+            if(!"none".equals(cost)){
+                spend=spendCombatantTurnResource(actorId,cost,token+"-manual-arb-cost");
+                if(spend.has("turn_resource_blocked"))
+                    return out.put("manual_arbitration_blocked",spend.optString("turn_resource_blocked"));
+                if(spend.has("operation_error")||spend.optBoolean("operation_replayed",false))
+                    return out.put("manual_arbitration_blocked","action_spend_failed");
+            }
+            int targetHpBefore=targetBefore.optInt("hp",0);
+            int targetTempHpBefore=targetBefore.optInt("temp_hp",0);
+            String targetCondBefore=normalizeConditionsCsv(targetBefore.optString("conditions",""));
+            JSONObject targetResBefore=combatResources(targetBefore);
+            JSONObject damageResult=new JSONObject();
+            String normDamageType=preview.optString("damage_type","");
+            if(damageTotal>0){
+                damageResult=applyCombatantDamage(targetId,damageTotal,
+                    normDamageType.isEmpty()?"untyped":normDamageType,false,false,token+"-manual-arb-dmg");
+                if(damageResult.has("damage_blocked")||damageResult.has("operation_error")||
+                    damageResult.optBoolean("operation_replayed",false))
+                    return out.put("manual_arbitration_blocked","damage_application_failed");
+            }
+            JSONObject targetMid=getCombatant(targetId);
+            String mergedCond=normalizeConditionsCsv(targetMid.optString("conditions",""));
+            String toRemove=normalizeConditionsCsv(removeConditions);
+            if(!toRemove.isEmpty()){
+                for(String r:toRemove.split(","))if(!r.trim().isEmpty())
+                    mergedCond=ConditionRulesEngine.remove(mergedCond,r.trim());
+            }
+            String toAdd=normalizeConditionsCsv(addConditions);
+            if(!toAdd.isEmpty()){
+                for(String a:toAdd.split(","))if(!a.trim().isEmpty())
+                    mergedCond=ConditionRulesEngine.add(mergedCond,a.trim());
+            }
+            if(!mergedCond.equals(normalizeConditionsCsv(targetMid.optString("conditions","")))){
+                updateConditionsChecked(targetId,mergedCond);
+                JSONObject refreshedTarget=getCombatant(targetId);
+                syncCombatantHeroState(refreshedTarget,refreshedTarget.optInt("hp",0),
+                    refreshedTarget.optInt("temp_hp",0),mergedCond,combatResources(refreshedTarget));
+            }
+            JSONObject targetAfter=getCombatant(targetId);
+            JSONObject receiptPayload=new JSONObject()
+                .put("schema","xmm_manual_arbitration_v1")
+                .put("receipt_key",receiptKey)
+                .put("token",token)
+                .put("actor_id",actorId)
+                .put("target_id",targetId)
+                .put("statblock_id",preview.optString("statblock_id"))
+                .put("source_kind",preview.optString("source_kind"))
+                .put("source_pointer",preview.optString("source_pointer"))
+                .put("action",preview.optString("action"))
+                .put("blocker_reason",preview.optString("blocker_reason"))
+                .put("action_cost",cost)
+                .put("actor_action_available_before",actorResBefore.optBoolean("action_available",true))
+                .put("actor_bonus_available_before",actorResBefore.optBoolean("bonus_action_available",true))
+                .put("actor_reaction_used_before",actorBefore.optInt("reaction_used",0))
+                .put("damage_requested",damageTotal)
+                .put("damage_type",normDamageType)
+                .put("damage_applied",damageResult.optInt("applied_damage",0))
+                .put("target_hp_before",targetHpBefore)
+                .put("target_hp_after",targetAfter.optInt("hp",0))
+                .put("target_temp_hp_before",targetTempHpBefore)
+                .put("target_temp_hp_after",targetAfter.optInt("temp_hp",0))
+                .put("target_conditions_before",targetCondBefore)
+                .put("target_conditions_after",normalizeConditionsCsv(targetAfter.optString("conditions","")))
+                .put("target_resources_before",targetResBefore)
+                .put("note",note==null?"":note.trim())
+                .put("reverted",false);
+            recordEffectReceipt(receiptKey,receiptPayload.toString());
+            JSONObject actorAfter=getCombatant(actorId);
+            JSONObject actorResAfter=combatResources(actorAfter);
+            actorResAfter.put("last_xmm_manual_arbitration_receipt",receiptKey);
+            ContentValues av=new ContentValues();
+            av.put("resources_json",actorResAfter.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",av,
+                "id=? AND world_profile=?",new String[]{String.valueOf(actorId),getActiveMapProfile()}));
+            return out.put("manual_arbitration_applied",true)
+                .put("persisted_to_combat",true)
+                .put("receipt_key",receiptKey)
+                .put("receipt",receiptPayload)
+                .put("actor",getCombatant(actorId))
+                .put("target",getCombatant(targetId));
+        }});
+    }
+
+    /** Reverts a previously committed XMM manual arbitration receipt in a single SQLite
+     * combat transaction, restoring the target's HP/temp HP/conditions/resources and the
+     * monster's turn economy while marking the causal receipt as reverted.
+     */
+    public JSONObject revertXmmManualArbitration(final long actorId,final String arbitrationReceiptKey,
+        final String revertToken){
+        return combatAtomic("xmm_manual_arbitration_revert",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(revertToken==null||!revertToken.startsWith("ui-monster-")||!CombatActionReceiptGuard.validToken(revertToken))
+                return out.put("manual_arbitration_revert_blocked","invalid_operation_token");
+            String revertKey=combatReceiptKey(actorId,revertToken+"-manual-arb-revert");
+            if(hasEffectReceipt(revertKey))
+                return out.put("manual_arbitration_revert_blocked","already_resolved_or_replayed");
+            JSONObject actor=getCombatant(actorId);
+            if(actor.length()==0)return out.put("manual_arbitration_revert_blocked","actor_missing");
+            JSONObject actorRes=combatResources(actor);
+            String keyToRevert=arbitrationReceiptKey==null||arbitrationReceiptKey.trim().isEmpty()?
+                actorRes.optString("last_xmm_manual_arbitration_receipt",""):arbitrationReceiptKey.trim();
+            if(keyToRevert.isEmpty())
+                return out.put("manual_arbitration_revert_blocked","arbitration_receipt_missing");
+            JSONObject row=queryOne("SELECT effect_key,source FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{getActiveMapProfile(),keyToRevert});
+            if(row.length()==0)
+                return out.put("manual_arbitration_revert_blocked","arbitration_receipt_not_found");
+            JSONObject payload=new JSONObject(row.optString("source","{}"));
+            if(!"xmm_manual_arbitration_v1".equals(payload.optString("schema","")))
+                return out.put("manual_arbitration_revert_blocked","invalid_arbitration_receipt_schema");
+            if(payload.optLong("actor_id",0)!=actorId)
+                return out.put("manual_arbitration_revert_blocked","arbitration_actor_mismatch");
+            if(payload.optBoolean("reverted",false))
+                return out.put("manual_arbitration_revert_blocked","arbitration_already_reverted");
+            long targetId=payload.optLong("target_id",0);
+            JSONObject target=getCombatant(targetId);
+            if(target.length()==0)
+                return out.put("manual_arbitration_revert_blocked","target_missing");
+            int hpBefore=payload.optInt("target_hp_before",target.optInt("hp",0));
+            int tempHpBefore=payload.optInt("target_temp_hp_before",target.optInt("temp_hp",0));
+            String condBefore=payload.optString("target_conditions_before","");
+            JSONObject targetResBefore=payload.optJSONObject("target_resources_before");
+            if(targetResBefore==null)targetResBefore=combatResources(target);
+            ContentValues tv=new ContentValues();
+            tv.put("hp",hpBefore);
+            tv.put("temp_hp",tempHpBefore);
+            tv.put("conditions",condBefore);
+            tv.put("resources_json",targetResBefore.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",tv,
+                "id=? AND world_profile=?",new String[]{String.valueOf(targetId),getActiveMapProfile()}));
+            syncCombatantHeroState(getCombatant(targetId),hpBefore,tempHpBefore,condBefore,targetResBefore);
+            String cost=payload.optString("action_cost","action");
+            ContentValues av=new ContentValues();
+            if("action".equals(cost)){
+                actorRes.put("action_available",payload.optBoolean("actor_action_available_before",true));
+            }else if("bonus_action".equals(cost)){
+                actorRes.put("bonus_action_available",payload.optBoolean("actor_bonus_available_before",true));
+            }else if("reaction".equals(cost)){
+                int rxBefore=payload.optInt("actor_reaction_used_before",0);
+                av.put("reaction_used",rxBefore);
+                actorRes.put("reaction_available",rxBefore==0);
+            }
+            av.put("resources_json",actorRes.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",av,
+                "id=? AND world_profile=?",new String[]{String.valueOf(actorId),getActiveMapProfile()}));
+            payload.put("reverted",true).put("reverted_by_receipt",revertKey);
+            ContentValues rv=new ContentValues();
+            rv.put("source",payload.toString());
+            getWritableDatabase().update("effect_receipts",rv,
+                "world_profile=? AND effect_key=?",new String[]{getActiveMapProfile(),keyToRevert});
+            recordEffectReceipt(revertKey,new JSONObject()
+                .put("schema","xmm_manual_arbitration_v1")
+                .put("reverted_receipt_key",keyToRevert)
+                .put("actor_id",actorId)
+                .put("target_id",targetId)
+                .toString());
+            return out.put("manual_arbitration_reverted",true)
+                .put("reverted_receipt_key",keyToRevert)
+                .put("revert_receipt_key",revertKey)
+                .put("actor",getCombatant(actorId))
+                .put("target",getCombatant(targetId));
+        }});
     }
 
     private JSONObject applyCompiledStatblockAttackInternal(final long actorId,final long targetId,
@@ -8585,7 +8887,8 @@ public List<JSONObject> listWorldEventsForMaster(int limit){return queryList("SE
             }
             if(rawResources.contains(XmmMovementSpeedEffectLedger.FIELD)||
                 rawResources.contains("xmm_grapple_state")||
-                rawResources.contains("xmm_next_attack_advantage")){
+                rawResources.contains("xmm_next_attack_advantage")||
+                rawResources.contains("last_xmm_manual_arbitration_receipt")){
                 if(resources==null)resources=new JSONObject(rawResources);
                 if(resources.has(XmmMovementSpeedEffectLedger.FIELD)){
                     JSONArray effects=resources.optJSONArray(XmmMovementSpeedEffectLedger.FIELD);
@@ -8610,6 +8913,14 @@ public List<JSONObject> listWorldEventsForMaster(int limit){return queryList("SE
                 if(adv!=null){
                     Long mappedAdvActor=idMap.get(adv.optLong("actor_id",0));
                     if(mappedAdvActor!=null){adv.put("actor_id",mappedAdvActor.longValue());resourcesChanged=true;}
+                }
+                String lastArbReceipt=resources.optString("last_xmm_manual_arbitration_receipt","");
+                if(!lastArbReceipt.isEmpty()){
+                    String mappedReceipt=CombatPersistentReceiptKey.remap(lastArbReceipt,idMap);
+                    if(mappedReceipt!=null&&!mappedReceipt.equals(lastArbReceipt)){
+                        resources.put("last_xmm_manual_arbitration_receipt",mappedReceipt);
+                        resourcesChanged=true;
+                    }
                 }
             }
             if(resourcesChanged&&resources!=null)fixed.put("resources_json",resources.toString());

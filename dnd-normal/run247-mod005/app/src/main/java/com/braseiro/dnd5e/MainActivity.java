@@ -3725,8 +3725,126 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 showXmmResult("Prévia do efeito • sem aplicação",result);
             }catch(Exception e){toast("invalid_manual_effect_inputs");}}});
     }
-    private void showXmmResult(String title,JSONObject result){
-        new AlertDialog.Builder(this).setTitle(title).setMessage(result.toString()).setPositiveButton("Fechar",null).show();
+    private void showXmmResult(final String title,final JSONObject result){
+        AlertDialog.Builder b=new AlertDialog.Builder(this).setTitle(title)
+            .setMessage(result==null?"{}":result.toString()).setPositiveButton("Fechar",null);
+        if(result!=null&&result.optBoolean("manual_arbitration_applied",false)){
+            final long actorId=result.optJSONObject("actor")!=null?result.optJSONObject("actor").optLong("id",0):activeCombatant().optLong("id",0);
+            final String receiptKey=result.optString("receipt_key","");
+            b.setNeutralButton("REVERTER ARBITRAGEM",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int w){
+                    JSONObject rev=db.revertXmmManualArbitration(actorId,receiptKey,
+                        "ui-monster-arb-rev-"+java.util.UUID.randomUUID());
+                    if(!rev.optBoolean("manual_arbitration_reverted",false)){
+                        toast("Reversão bloqueada: "+rev.optString("manual_arbitration_revert_blocked","erro"));return;
+                    }
+                    showCombat();showXmmResult("Arbitragem revertida",rev);
+                }});
+        }else if(result!=null&&(result.has("xmm_action_blocked")||result.has("effect_commit_blocked")||
+                result.has("statblock_multiattack_blocked")||result.optBoolean("preview_only",false))){
+            final JSONObject active=activeCombatant();
+            if(active.length()>0&&active.optInt("is_player",0)==0){
+                final String ref=result.optString("source_pointer",result.optString("action","Multiattack"));
+                final String reason=result.optString("blocker_reason",
+                    result.optString("effect_commit_blocked",result.optString("statblock_multiattack_blocked","")));
+                b.setNeutralButton("ARBITRAR MANUALMENTE",new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface d,int w){
+                        compiledMonsterManualArbitrationDialog(active,ref,reason);
+                    }});
+            }
+        }
+        b.show();
+    }
+    private void compiledMonsterManualArbitrationDialog(final JSONObject monster,final String initialRef,final String initialBlocker){
+        final long actorId=monster.optLong("id",0);
+        final JSONObject resources=parseObjectSafe(monster.optString("resources_json","{}"));
+        final String statblockId=resources.optString("block_id","").trim();
+        if(statblockId.isEmpty()){toast("Este monstro não possui bloco compilado autorizado.");return;}
+        final ArrayList<JSONObject> targets=new ArrayList<JSONObject>();
+        for(JSONObject row:db.listCombatants())if(row.optLong("id")!=actorId)targets.add(row);
+        if(targets.isEmpty()){toast("Não há alvos persistidos no encontro.");return;}
+        final String[] targetNames=new String[targets.size()];
+        for(int i=0;i<targets.size();i++)targetNames[i]=targets.get(i).optString("name","Alvo")+" (#"+targets.get(i).optLong("id")+")";
+        final ArrayList<String> refOptions=new ArrayList<String>();
+        if(initialRef!=null&&!initialRef.trim().isEmpty())refOptions.add(initialRef.trim());
+        for(XmmCombatSourceRegistry.Entry e:XmmCombatSourceRegistry.entries().values()){
+            if(statblockId.equals(e.monster)&&!refOptions.contains(e.pointer))refOptions.add(e.pointer);
+        }
+        JSONObject profile=CompiledStatblockEngine.runtimeProfile(statblockId);
+        if(profile.optJSONObject("multiattack")!=null&&!refOptions.contains("Multiattack"))refOptions.add("Multiattack");
+        JSONArray actions=profile.optJSONArray("actions");
+        if(actions!=null)for(int i=0;i<actions.length();i++){
+            JSONObject a=actions.optJSONObject(i);
+            if(a!=null&&!a.optString("name","").isEmpty()&&!refOptions.contains(a.optString("name")))
+                refOptions.add(a.optString("name"));
+        }
+        if(refOptions.isEmpty())refOptions.add("Multiattack");
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),dp(8),dp(12),dp(8));
+        form.addView(text("Arbitragem manual determinística XMM 2025 • Bloco: "+statblockId+
+            (initialBlocker!=null&&!initialBlocker.isEmpty()?"\nMotivo: "+initialBlocker:""),12,MUTED,false));
+        final Spinner targetSpinner=spinner(targetNames,targetNames[0]);
+        form.addView(cardWithLabel("ALVO PERSISTIDO",targetSpinner));
+        final Spinner refSpinner=spinner(refOptions.toArray(new String[0]),refOptions.get(0));
+        form.addView(cardWithLabel("AÇÃO / PONTEIRO DA FONTE XMM",refSpinner));
+        final Spinner costSpinner=spinner(new String[]{"action","bonus_action","reaction","none"},"action");
+        form.addView(cardWithLabel("CUSTO DE ECONOMIA DE TURNO",costSpinner));
+        final EditText damageField=labeledField(form,"Dano total arbitrado (0 se nenhum)","0",true);
+        final EditText damageTypeField=labeledField(form,"Tipo de dano (ex.: necrotic, psychic, slashing)","",false);
+        final EditText addCondField=labeledField(form,"Adicionar condições CSV (ex.: poisoned, grappled)","",false);
+        final EditText remCondField=labeledField(form,"Remover condições CSV","",false);
+        final EditText noteField=labeledField(form,"Nota de arbitragem para o recibo causal","Arbitragem manual XMM confirmada",false);
+        AlertDialog.Builder builder=new AlertDialog.Builder(this).setTitle("Arbitragem Manual • XMM")
+            .setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null)
+            .setPositiveButton("PRÉVIA E CONFIRMAR",null);
+        final String lastReceiptKey=resources.optString("last_xmm_manual_arbitration_receipt","");
+        if(!lastReceiptKey.isEmpty()){
+            builder.setNeutralButton("REVERTER ÚLTIMA",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int w){
+                    JSONObject rev=db.revertXmmManualArbitration(actorId,lastReceiptKey,
+                        "ui-monster-arb-rev-"+java.util.UUID.randomUUID());
+                    if(!rev.optBoolean("manual_arbitration_reverted",false)){
+                        toast("Reversão bloqueada: "+rev.optString("manual_arbitration_revert_blocked","erro"));return;
+                    }
+                    showCombat();showXmmResult("Arbitragem revertida",rev);
+                }});
+        }
+        final AlertDialog dlg=builder.create();
+        dlg.show();
+        dlg.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                try{
+                    final long targetId=targets.get(targetSpinner.getSelectedItemPosition()).optLong("id");
+                    final String selectedRef=String.valueOf(refSpinner.getSelectedItem());
+                    final String selectedCost=String.valueOf(costSpinner.getSelectedItem());
+                    String rawDmg=value(damageField);
+                    final int dmg=rawDmg.isEmpty()?0:Integer.parseInt(rawDmg);
+                    final String dmgType=value(damageTypeField);
+                    final String addCond=value(addCondField);
+                    final String remCond=value(remCondField);
+                    final String note=value(noteField);
+                    JSONObject preview=db.previewXmmManualArbitration(actorId,targetId,statblockId,
+                        selectedRef,selectedCost,dmg,dmgType,addCond,remCond);
+                    if(preview.has("manual_arbitration_blocked")||preview.has("manual_arbitration_error")){
+                        toast("Arbitragem bloqueada: "+preview.optString("manual_arbitration_blocked",
+                            preview.optString("manual_arbitration_error","erro")));
+                        return;
+                    }
+                    new AlertDialog.Builder(MainActivity.this).setTitle("Confirmar arbitragem manual XMM")
+                        .setMessage("Confirmar aplicação determinística no SQLite?\n\n"+preview.toString())
+                        .setNegativeButton("Voltar",null)
+                        .setPositiveButton("CONFIRMAR E APLICAR",new DialogInterface.OnClickListener(){
+                            public void onClick(DialogInterface d2,int w2){
+                                JSONObject applied=db.applyXmmManualArbitration(actorId,targetId,statblockId,
+                                    selectedRef,selectedCost,dmg,dmgType,addCond,remCond,true,note,
+                                    "ui-monster-arb-"+java.util.UUID.randomUUID());
+                                if(!applied.optBoolean("manual_arbitration_applied",false)){
+                                    toast("Não aplicado: "+applied.optString("manual_arbitration_blocked","erro"));
+                                    return;
+                                }
+                                dlg.dismiss();showCombat();showXmmResult("Recibo de Arbitragem Manual XMM",applied);
+                            }}).show();
+                }catch(Exception ex){toast("Entradas inválidas para arbitragem manual.");}
+            }});
     }
     private void compiledMonsterMultiattackDialog(final JSONObject monster,JSONObject sourcePlan,final JSONObject sourceSelection){
         final long actorId=monster.optLong("id",0);
@@ -4131,6 +4249,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             Button monsterRecharge=button("RECARREGAR AÇÃO • D6 DO BLOCO",PANEL2);
             monsterRecharge.setOnClickListener(new View.OnClickListener(){public void onClick(View v){compiledMonsterRechargeDialog(active);}});
             panel.addView(monsterRecharge);
+            Button monsterManualArb=button("ARBITRAGEM MANUAL DA FONTE • XMM",PANEL2);
+            monsterManualArb.setOnClickListener(new View.OnClickListener(){public void onClick(View v){compiledMonsterManualArbitrationDialog(active,"","");}});
+            panel.addView(monsterManualArb);
         }
         parent.addView(panel);
     }

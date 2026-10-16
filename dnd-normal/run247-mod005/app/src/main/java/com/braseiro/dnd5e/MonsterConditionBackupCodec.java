@@ -60,11 +60,13 @@ public final class MonsterConditionBackupCodec {
     public static String remapReceiptSource(String source,Map<Long,Long> combatants)throws Exception {
         if(source==null||!source.trim().startsWith("{")||
             !source.contains("monster_condition_")&&
+            !source.contains("xmm_manual_arbitration_v1")&&
             !source.contains(MonsterForcedMovementRules.SCHEMA)&&
             !source.contains(TacticalGridMovementProofRules.SCHEMA))return source;
         JSONObject original;
         try{original=new JSONObject(source);}catch(Exception invalid){
-            if(source.contains("monster_condition_")||source.contains(MonsterForcedMovementRules.SCHEMA)||
+            if(source.contains("monster_condition_")||source.contains("xmm_manual_arbitration_v1")||
+                source.contains(MonsterForcedMovementRules.SCHEMA)||
                 source.contains(TacticalGridMovementProofRules.SCHEMA))
                 throw new IllegalArgumentException("malformed_condition_receipt_rollback",invalid);
             return source;
@@ -78,8 +80,10 @@ public final class MonsterConditionBackupCodec {
         boolean typed="monster_condition_recovery_v1".equals(schema)||
             "monster_condition_turn_v1".equals(schema)||
             "monster_condition_rider_v2".equals(schema)||
+            "xmm_manual_arbitration_v1".equals(schema)||
             MonsterForcedMovementRules.SCHEMA.equals(schema);
-        if(TacticalGridMovementProofRules.SCHEMA.equals(schema)&&out.has("actor_id"))
+        if((TacticalGridMovementProofRules.SCHEMA.equals(schema)||
+            "xmm_manual_arbitration_v1".equals(schema))&&out.has("actor_id"))
             out.put("actor_id",mapped(out.optLong("actor_id",0),combatants));
         if(typed){
             if(out.has("target_id"))out.put("target_id",mapped(out.optLong("target_id",0),combatants));
