@@ -1079,6 +1079,10 @@ public class AppDb extends SQLiteOpenHelper {
     public long addCharacter(String name, String species, String className, int level, int hp, int maxHp, int ac, int str, int dex, int con, int intel, int wis, int cha, boolean active, String notes) {
         ContentValues v = new ContentValues();
         v.put("world_profile",getActiveMapProfile()); v.put("name", name); v.put("species", species); v.put("class_name", className); v.put("level", level);
+        // Pin the edition when the character is created. Campaign changes must not silently
+        // turn a legacy 2014 hero into a 2024 hero (or downgrade a 2024 one).
+        if("dnd".equals(getActiveMapProfile()))
+            v.put("rules_source",DndRulesEngine.canonicalProfile(dbRulesProfileFallback()));
         v.put("hp", hp); v.put("max_hp", maxHp); v.put("ac", ac); v.put("str", str); v.put("dex", dex); v.put("con", con); v.put("int_score", intel); v.put("wis", wis); v.put("cha", cha); v.put("active", active ? 1 : 0); v.put("notes", notes);
         v.put("created_at", System.currentTimeMillis()); v.put("updated_at", System.currentTimeMillis());
         return getWritableDatabase().insert("characters", null, v);
@@ -1091,6 +1095,13 @@ public class AppDb extends SQLiteOpenHelper {
         getWritableDatabase().update("characters", v, "id=?", new String[]{String.valueOf(id)});
     }
 
+    /** A SQLite NULL edition is JSON.NULL, which optString can surface as the literal "null". */
+    private static String explicitRulesProfile(JSONObject row,String key){
+        if(row==null||row.isNull(key))return "";
+        String value=row.optString(key,"").trim();
+        return "null".equalsIgnoreCase(value)?"":value;
+    }
+
     /** G03/G06: ficha, recursos/progressão e identidade são gravados como uma unidade. */
     public JSONObject saveCharacterSheetAtomic(final long existingId, final boolean edit, final JSONObject sheet,
             final String notes, final String controlMode) {
@@ -1099,14 +1110,14 @@ public class AppDb extends SQLiteOpenHelper {
             // Persist the edition before creating resources. An empty SQL value
             // overrides optString's fallback and otherwise silently selects 2014.
             // Editing a legacy hero without an edition must retain its own rules.
-            String source = candidate.optString("rules_source", "").trim();
+            String source = explicitRulesProfile(candidate,"rules_source");
             if (source.isEmpty() && edit) {
                 JSONObject existing = getCharacter(existingId);
-                source = existing.optString("rules_source", "").trim();
+                source = explicitRulesProfile(existing,"rules_source");
                 if (source.isEmpty()) {
                     JSONObject stored = readCharacterSheet(existing);
-                    source = stored.optString("rules_source", "").trim();
-                    if (source.isEmpty()) source = stored.optString("rules_profile", "").trim();
+                    source = explicitRulesProfile(stored,"rules_source");
+                    if (source.isEmpty()) source = explicitRulesProfile(stored,"rules_profile");
                 }
                 if (source.isEmpty()) source = DndRulesEngine.PROFILE_2014;
             }
@@ -1253,12 +1264,15 @@ public class AppDb extends SQLiteOpenHelper {
             JSONObject ch=getCharacter(heroId);
             if(ch.length()==0)return out.put("bastion_blocked","character_not_found");
             if(ch.optInt("level",0)<5)return out.put("bastion_blocked","hero_level_five_required");
-            String rawRules=ch.optString("rules_source","").trim();
-            if(rawRules.isEmpty())rawRules=getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2014);
+            JSONObject sheet=readCharacterSheet(ch);
+            String rawRules=explicitRulesProfile(ch,"rules_source");
+            if(rawRules.isEmpty())rawRules=explicitRulesProfile(sheet,"rules_source");
+            if(rawRules.isEmpty())rawRules=explicitRulesProfile(sheet,"rules_profile");
+            // Unversioned old characters are not silently upgraded by the campaign setting.
+            // Newly created characters now persist their edition in characters.rules_source.
             String rules=DndRulesEngine.canonicalProfile(rawRules);
             if(!DndRulesEngine.PROFILE_2024.equals(rules))
                 return out.put("bastion_blocked","2024_core_rules_required");
-            JSONObject sheet=readCharacterSheet(ch);
             if(sheet.optJSONObject("bastion_2024")!=null)
                 return out.put("bastion_blocked","bastion_already_configured");
             JSONObject bastion=Bastion2024StateEngine.initialize(goldGp,defenders,facilityIds);
