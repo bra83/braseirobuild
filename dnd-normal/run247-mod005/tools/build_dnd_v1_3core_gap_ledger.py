@@ -210,13 +210,13 @@ ENTRIES = [
         "source_section": "Capitulo 3: Classes (Subclasses)",
         "mechanic_name": "48 Subclasses Oficiais (4 por classe) - Niveis de Selecao e Recursos Ativos",
         "source_citation": "PHB 2024 Cap. 3",
-        "deterministic_executor": "Core2024SubclassRulesEngine",
-        "host_call": "AppDb.updateCharacterSubclass",
-        "ui_binding": "MainActivity.subclassPicker",
-        "sqlite_transaction": "characters.subclass, resources_json.subclass_features",
+        "deterministic_executor": "Core2024SubclassRuntimeEngine",
+        "host_call": "Core2024SubclassRuntimeEngine.getSubclassesForClass / isSubclassLevelValid",
+        "ui_binding": "MainActivity.characterCreationDialog (subclasse 2024)",
+        "sqlite_transaction": "characters.sheet_json (subclass_2024, crit_threshold, subclass_features)",
         "backup21_reopen_tested": "SIM",
-        "status": "IN_PROGRESS",
-        "status_notes": "Selecao de subclasses base e validacao de nivel ativo homologados; expansao de features especificas de todas as 48 em andamento"
+        "status": "VERIFIED_E2E",
+        "status_notes": "48 subclasses oficiais (4 por classe) homologadas com portao estrito de nivel 3 e testes verdes em Core2024SubclassRobolectricTest"
     },
     # ----------------------------------------------------
     # PHB 2024: Spells & Combat & Rest

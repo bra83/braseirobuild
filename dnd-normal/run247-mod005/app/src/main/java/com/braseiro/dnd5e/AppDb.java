@@ -2253,11 +2253,14 @@ public class AppDb extends SQLiteOpenHelper {
     // RUN234: compiled action duration is a strict, integer, source-bound field.
     // Existing source actions without explicit timing preserve their RUN233 behavior.
     private JSONObject compiledMonsterRiderAction(String blockId,String actionName) {
-        JSONArray sourceActions=CompiledStatblockEngine.runtimeProfile(blockId).optJSONArray("actions");
-        if(sourceActions!=null)for(int i=0;i<sourceActions.length();i++){
-            JSONObject entry=sourceActions.optJSONObject(i);
-            if(entry!=null&&actionName!=null&&actionName.trim().equalsIgnoreCase(entry.optString("name","")))
-                return entry;
+        JSONObject profile=CompiledStatblockEngine.runtimeProfile(blockId);
+        for(String field:new String[]{"actions","special_actions"}){
+            JSONArray sourceActions=profile.optJSONArray(field);
+            if(sourceActions!=null)for(int i=0;i<sourceActions.length();i++){
+                JSONObject entry=sourceActions.optJSONObject(i);
+                if(entry!=null&&actionName!=null&&actionName.trim().equalsIgnoreCase(entry.optString("name","")))
+                    return entry;
+            }
         }
         throw new IllegalStateException("compiled_rider_action_not_found_rollback");
     }

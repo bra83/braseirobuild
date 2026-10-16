@@ -31,14 +31,15 @@
 ## 3. Matriz de Lacunas (GAP Ledger)
 - Criado o arquivo obrigatório `docs/dnd-v1-3core/GAP_LEDGER.csv` com 30 itens auditados cobrindo PHB 2024, DMG 2024 e MM 2025.
 - Estados rastreados:
-  - `VERIFIED_E2E`: 27 mecânicas completas com executor, SQLite, UI PT-BR, Backup21 e testes no SHA.
-  - `IN_PROGRESS`: Subclasses (expansão granular de 48) e Ponte de Arbitragem Manual XMM.
+  - `VERIFIED_E2E`: 28 mecânicas completas com executor, SQLite, UI PT-BR, Backup21 e testes no SHA (inclui agora as 48 subclasses oficiais do PHB 2024 via `Core2024SubclassRuntimeEngine`).
+  - `IN_PROGRESS`: Ponte de Arbitragem Manual XMM (62 efeitos cobertos com recibos reversíveis).
   - `BLOCKED_HOST`: Multiataques híbridos com componente de magia/uso (`XmmMultiattackHostPlan`).
   - `NARRATIVE_ONLY`: Gestão de Sessão (apoio ao mestre).
 
 ---
 
 ## 4. Testes Verificados no SHA
+- `Core2024SubclassRobolectricTest`: 4/4 PASS (48 subclasses, portão de nível 3, aliases EN/PT-BR e persistência)
 - `CharacterCreationUiRobolectricTest`: PASS
 - `SessionContinuityUiRobolectricTest`: PASS
 - `ExplorationCombatUiRobolectricTest`: PASS
