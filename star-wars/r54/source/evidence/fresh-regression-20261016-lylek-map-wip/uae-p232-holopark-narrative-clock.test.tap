@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: P232 refuses narrative park without real scene, GM confirmation or outside structured combat
+ok 1 - P232 refuses narrative park without real scene, GM confirmation or outside structured combat
+  ---
+  duration_ms: 984.4562
+  type: 'test'
+  ...
+# Subtest: P232 two minutes come ONLY from audited task-time receipts, no passive time
+ok 2 - P232 two minutes come ONLY from audited task-time receipts, no passive time
+  ---
+  duration_ms: 838.0517
+  type: 'test'
+  ...
+# Subtest: P232 overdue 6-minute clock produces three ordered landscape events without skipping or clock ticks
+ok 3 - P232 overdue 6-minute clock produces three ordered landscape events without skipping or clock ticks
+  ---
+  duration_ms: 863.3363
+  type: 'test'
+  ...
+# Subtest: P232 printed d100=47 overlap requires explicit GM choice and receipts survive three reopenings
+ok 4 - P232 printed d100=47 overlap requires explicit GM choice and receipts survive three reopenings
+  ---
+  duration_ms: 599.5266
+  type: 'test'
+  ...
+# Subtest: P232 tampered receipt, clock, chronology or derived landscape rejected
+ok 5 - P232 tampered receipt, clock, chronology or derived landscape rejected
+  ---
+  duration_ms: 593.6501
+  type: 'test'
+  ...
+# Subtest: P232 physical exit ends narrative mode without escape, XP, NPC or encounter fabrication
+ok 6 - P232 physical exit ends narrative mode without escape, XP, NPC or encounter fabrication
+  ---
+  duration_ms: 650.966
+  type: 'test'
+  ...
+# Subtest: P232 Android PT-BR UI, controller, bridge, offline bundle, save validation and version wired
+ok 7 - P232 Android PT-BR UI, controller, bridge, offline bundle, save validation and version wired
+  ---
+  duration_ms: 78.0425
+  type: 'test'
+  ...
+# Subtest: P232 published adventure status replays narrative receipts and keeps older P229-P231 receipt kinds valid
+ok 8 - P232 published adventure status replays narrative receipts and keeps older P229-P231 receipt kinds valid
+  ---
+  duration_ms: 640.005
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6621.6245

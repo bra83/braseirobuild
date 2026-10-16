@@ -21,13 +21,14 @@ function loadBundleModule(name) {
   return module.exports;
 }
 
-test('R46 projection accepts the canonical EOTE schema 14 state', () => {
+test('R46 projection accepts the canonical EOTE schema 15 state and schema 14 read-only snapshot', () => {
   const projection = loadBundleModule('r21Projection');
-  assert.equal(projection.R21_STATE_SCHEMA, 14);
+  assert.equal(projection.R21_STATE_SCHEMA, 15);
   const state = createCampaign('Teste EotE');
   const view = projection.projectR21CampaignState(state);
   assert.equal(view.status, 'ready');
   assert.equal(view.campaignName, 'Teste EotE');
+  assert.equal(projection.projectR21CampaignState({...state,schemaVersion:14}).status,'ready');
 });
 
 test('R46 projection validates state.group and no longer requires state.rebelGroup', () => {
@@ -45,7 +46,8 @@ test('compiled R46 projection contains no active rebelGroup dependency', () => {
   const start = bundle.indexOf('define("r21Projection"');
   const next = bundle.indexOf('\ndefine("', start + 1);
   const moduleText = bundle.slice(start, next);
-  assert.match(moduleText, /R21_STATE_SCHEMA = 14/);
+  assert.match(moduleText, /R21_STATE_SCHEMA = 15/);
+  assert.match(moduleText, /schema !== 14/);
   assert.match(moduleText, /record\(state\.group\)/);
   assert.doesNotMatch(moduleText, /record\(state\.rebelGroup\)/);
 });

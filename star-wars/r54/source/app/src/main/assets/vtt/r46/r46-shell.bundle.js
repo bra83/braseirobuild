@@ -96,7 +96,7 @@ exports.projectR21CampaignState = projectR21CampaignState;
 exports.readR21CampaignState = readR21CampaignState;
 exports.R21_STORAGE_KEY = 'braseiro.starwars.edge.state.v1';
 exports.R21_STATE_CHANGED_EVENT = 'braseiro:r21-state-changed';
-exports.R21_STATE_SCHEMA = 14;
+exports.R21_STATE_SCHEMA = 15;
 exports.EMPTY_R21_READ_MODEL = Object.freeze({
     status: 'missing',
     scene: null,
@@ -408,7 +408,7 @@ function projectR21CampaignState(value) {
     if (!state)
         return { ...exports.EMPTY_R21_READ_MODEL, status: 'unavailable', detail: 'Estado da campanha inválido.' };
     const schema = integer(state.schemaVersion);
-    if (schema !== exports.R21_STATE_SCHEMA) {
+    if (schema !== exports.R21_STATE_SCHEMA && schema !== 14) {
         return { ...exports.EMPTY_R21_READ_MODEL, status: 'unsupported', detail: `Versão de estado não suportada pela interface: ${String(state.schemaVersion ?? 'desconhecida')}.` };
     }
     const player = record(state.player);

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
-import {selectLongArmTrexCarryover,chooseLongArmOldLylekRoute,proceedLongArmOldLylekBluff} from '../app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs';
+import {selectLongArmTrexCarryover,chooseLongArmOldLylekCrew,chooseLongArmOldLylekRoute,proceedLongArmOldLylekBluff,recordLongArmOldLylekRuse,chooseLongArmOldLylekTactics} from '../app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs';
 import {validatePublishedAdventureRuntimeState,publishedAdventureRuntimeModule} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureUaeBridge.mjs';
 import {jewelAuctionStatus,jewelGrandPrixStatus} from '../app/src/main/assets/vtt/js/adventure/jewelOfYavin.mjs';
 const a=getPublishedAdventureAdapter('jewel-of-yavin');
@@ -9,9 +9,14 @@ const arm=getPublishedAdventureAdapter('long-arm-of-the-hutt');
 function lylekReadyWorld(size=1){
  let w=arm.start({}).world;for(const choice of ['dock-ryloth','help-new-meen','travel-lylek-den'])w=arm.advance(w,choice).world;
  w=selectLongArmTrexCarryover(w,{history:'confirmed_dead'}).world;
+ const crewPcIds=Array.from({length:size},(_,i)=>`p184-pc-${i+1}`),rosterEntries=crewPcIds.map((id,i)=>({id,character:{name:`PC ${i+1}`}}));
+ w=chooseLongArmOldLylekCrew(w,{crewPcIds,rosterEntries,playerCount:size}).world;
  w=chooseLongArmOldLylekRoute(w,{slowDown:true}).world;
  w=arm.adjudicateCheck(w,{checkIndex:0,result:{success:true,netSuccess:1,netAdvantage:0}}).world;
- w=proceedLongArmOldLylekBluff(w).world;w.publishedAdventure.flags.confirmedPartySize=size;return w;
+ w=proceedLongArmOldLylekBluff(w).world;
+ w=recordLongArmOldLylekRuse(w,{recognizedByHunters:false,oskaraPresent:false}).world;
+ w=chooseLongArmOldLylekTactics(w,{approach:'frontal',frontalOutcome:'fighting_retreat',lylekBranch:'stay_passive'}).world;
+ w.publishedAdventure.flags.confirmedPartySize=size;return w;
 }
 const go=(w,id)=>a.advance(w,id).world;
 const raceWorld=()=>['protect-aris','reach-tourist-district','survey-cloud-city','prepare-heist','prepare-grand-prix','take-race-start'].reduce(go,a.start({}).world);

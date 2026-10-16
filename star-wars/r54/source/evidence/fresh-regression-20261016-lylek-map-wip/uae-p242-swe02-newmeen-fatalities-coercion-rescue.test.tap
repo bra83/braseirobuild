@@ -1,0 +1,88 @@
+TAP version 13
+# Subtest: P242 GM cannot declare deaths without live combat damage
+ok 1 - P242 GM cannot declare deaths without live combat damage
+  ---
+  duration_ms: 255.8592
+  type: 'test'
+  ...
+# Subtest: P242 GM confirmation bounded by actual incapacitated minions and never automatic
+ok 2 - P242 GM confirmation bounded by actual incapacitated minions and never automatic
+  ---
+  duration_ms: 209.9223
+  type: 'test'
+  ...
+# Subtest: P242 1-4 confirmed deaths use Hard Coerce; success surrenders only thugs
+ok 3 - P242 1-4 confirmed deaths use Hard Coerce; success surrenders only thugs
+  ---
+  duration_ms: 239.9449
+  type: 'test'
+  ...
+# Subtest: P242 failed Coerce consumes player action, never surrenders enemies
+ok 4 - P242 failed Coerce consumes player action, never surrenders enemies
+  ---
+  duration_ms: 257.3893
+  type: 'test'
+  ...
+# Subtest: P242 5-8 / 9+ difficulty thresholds are calculated from actual casualty-confirmed receipts
+ok 5 - P242 5-8 / 9+ difficulty thresholds are calculated from actual casualty-confirmed receipts
+  ---
+  duration_ms: 491.1552
+  type: 'test'
+  ...
+# Subtest: P242 night-raid verified fatalities carry into cantina only after combat proof
+ok 6 - P242 night-raid verified fatalities carry into cantina only after combat proof
+  ---
+  duration_ms: 459.766
+  type: 'test'
+  ...
+# Subtest: P242 fake receipt and fake dice rejected by adapter status
+ok 7 - P242 fake receipt and fake dice rejected by adapter status
+  ---
+  duration_ms: 177.6
+  type: 'test'
+  ...
+# Subtest: P242 encounter closure accepts verified surrender only with Drombb incapacitated
+ok 8 - P242 encounter closure accepts verified surrender only with Drombb incapacitated
+  ---
+  duration_ms: 285.5601
+  type: 'test'
+  ...
+# Subtest: P242 player incapacitated by Drombb opens Ota rescue without claiming liberation
+ok 9 - P242 player incapacitated by Drombb opens Ota rescue without claiming liberation
+  ---
+  duration_ms: 322.684
+  type: 'test'
+  ...
+# Subtest: P242 p23 Drombb safe grants exactly 2000 credits once after actual victory
+ok 10 - P242 p23 Drombb safe grants exactly 2000 credits once after actual victory
+  ---
+  duration_ms: 250.4895
+  type: 'test'
+  ...
+# Subtest: P242 safe Skulduggery Hard failed roll does not mint credits
+ok 11 - P242 safe Skulduggery Hard failed roll does not mint credits
+  ---
+  duration_ms: 219.6345
+  type: 'test'
+  ...
+# Subtest: P242 safe cannot be claimed after retreat or via forged credit receipt
+ok 12 - P242 safe cannot be claimed after retreat or via forged credit receipt
+  ---
+  duration_ms: 150.5348
+  type: 'test'
+  ...
+# Subtest: P242 bridge and offline UI contain live confirmation and Coerce operations
+ok 13 - P242 bridge and offline UI contain live confirmation and Coerce operations
+  ---
+  duration_ms: 11.8839
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4745.9391

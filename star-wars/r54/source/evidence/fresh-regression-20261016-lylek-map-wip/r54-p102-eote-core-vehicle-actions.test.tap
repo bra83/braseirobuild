@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: P102 Ganhar a Vantagem usa dificuldade por velocidade, consome ação, persiste zona e ignora Evasivas
+ok 1 - P102 Ganhar a Vantagem usa dificuldade por velocidade, consome ação, persiste zona e ignora Evasivas
+  ---
+  duration_ms: 86.5173
+  type: 'test'
+  ...
+# Subtest: P102 Copiloto sobrevive à troca de assalto e rebaixa o próximo teste de Pilotagem
+ok 2 - P102 Copiloto sobrevive à troca de assalto e rebaixa o próximo teste de Pilotagem
+  ---
+  duration_ms: 37.0044
+  type: 'test'
+  ...
+# Subtest: P102 Traçar Curso reduz apenas Setback externo do próximo perigo e é consumido
+ok 3 - P102 Traçar Curso reduz apenas Setback externo do próximo perigo e é consumido
+  ---
+  duration_ms: 31.0704
+  type: 'test'
+  ...
+# Subtest: P102 Reforçar Escudos sofre 1 Tensão e aumenta somente a zona escolhida durante a duração
+ok 4 - P102 Reforçar Escudos sofre 1 Tensão e aumenta somente a zona escolhida durante a duração
+  ---
+  duration_ms: 36.4202
+  type: 'test'
+  ...
+# Subtest: P102 Disciplina de Fogo concede Boost ao próximo disparo real e consome a carga
+ok 5 - P102 Disciplina de Fogo concede Boost ao próximo disparo real e consome a carga
+  ---
+  duration_ms: 28.5461
+  type: 'test'
+  ...
+# Subtest: P102 Escanear revela armamento/modificações e limiares, sem revelar níveis atuais de graça
+ok 6 - P102 Escanear revela armamento/modificações e limiares, sem revelar níveis atuais de graça
+  ---
+  duration_ms: 16.2441
+  type: 'test'
+  ...
+# Subtest: P102 Fatiar Sistemas reduz defesa da zona por um round por êxito
+ok 7 - P102 Fatiar Sistemas reduz defesa da zona por um round por êxito
+  ---
+  duration_ms: 46.5334
+  type: 'test'
+  ...
+# Subtest: P102 Despistar Mísseis melhora a dificuldade contra arma Guiada no assalto atual
+ok 8 - P102 Despistar Mísseis melhora a dificuldade contra arma Guiada no assalto atual
+  ---
+  duration_ms: 17.676
+  type: 'test'
+  ...
+# Subtest: P102 bridge, contratos e R46 expõem ações sem mutação bruta
+ok 9 - P102 bridge, contratos e R46 expõem ações sem mutação bruta
+  ---
+  duration_ms: 25.041
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1503.4409

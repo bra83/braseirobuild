@@ -4,7 +4,7 @@
 - Repository: `bra83/braseirobuild`
 - Branch: `codex/star-wars-hibrido-integral-20261016`
 - Base HEAD: `98b6a391401818e74eaa53c752cc98dc9082fea9`
-- Last verified local and remote checkpoint before current Old Lylek p.16 map integration: `e99ef6cdf555f06413e601f791258c61aa6ab925` (Old Lylek roster/party effects WIP)
+- Last verified local and remote checkpoint: `5d762e77edf70554c315be61408c1769ef8d0e3c` (Old Lylek combat/named-zone WIP; schema and regression follow-up are currently uncommitted)
 - Source working copy: `work/star-wars/project`; sparse Git checkout: `work/star-wars/repo-sparse/star-wars/r54/source`
 - P244 SHA-256: `6f3dca72ea55080b4ce7e6befeb5d4d84e51f63453ead6a5719495178a40d264`
 - WIP5 MERGED SHA-256: `7615fc8d156f8909a7a31b0878d6e08715cd71867325c5ad6c97ac5dd830409e`
@@ -12,14 +12,14 @@
 - Official source audits are pushed for all five authorized adventures: SWE02, SWEP01, SWE05, SWE09, SWE13. All five remain uncertified.
 - AoR 360 proof rows: 0 certified, 360 pending. Twenty Gunner slots and two Sharpshooter Brace positions have source evidence. Brace helper/source focused suite passes 18/18; action/controller/UI consumption and save/reopen are unproven.
 - Drive inventory: 527 records/44 folders; 500 remain unreviewed. Metadata triage covers 57 PDFs in `audits/INVENTORY_PDF_METADATA_TRIAGE.md`; 0 PDF bytes examined. The 19-entry handoff rules-corpus matrix has 3 `PRESENT`, 3 `TITLE_ONLY`, 4 `UNRESOLVED`, 9 `ABSENT`; the final selected-supplement boundary remains unconfirmed. See `audits/RULES_CORPUS_RECONCILIATION.md`.
-- Prior full per-file regression: 378 files (372 regular + 6 stress), 3,399 tests, 3,397 pass, 0 fail, 2 explained JDK-dependent skips. This run predates T’rex integration and is stale for the current WIP. Logs: `evidence/fresh-regression-20261016-old-lylek-rerun/`.
+- Fresh full per-file regression after the Old Lylek named map and schema 15 updates: 379 files (373 regular + 6 stress), 3,413 tests, 3,411 pass, 0 fail, 2 JDK `jar` skips. All files have complete summaries. Logs and summary: `evidence/fresh-regression-20261016-lylek-map-wip/`.
 - No APK/Gradle/device gate, P245, Drive backup/readback, or PR has been run/created. No non-Star-Wars VTT files touched.
 
 ## Exact next actions
 
-1. Commit and push the reviewed Old Lylek map/combat implementation and evidence from `work/star-wars/repo-sparse/star-wars/r54/source`; verify with `git ls-remote`.
-2. Run the complete regression of all 372 regular test files individually plus six stress suites; preserve exact logs and resolve any failures before proceeding.
-3. Continue SWE02 Act 1 pp.2–24 from `audits/SWE02_ACT1_DEEP_AUDIT.md`; all page/adventure statuses remain uncertified until their exact source→executor→UI→save/reopen→test gates close.
+1. Commit and push schema 15/R46 compatibility, P184 Old Lylek fixture updates, full regression summary and all 379 per-file TAP logs; verify with `git ls-remote`.
+2. Continue SWE02 Act 1 pp.2–24 from `audits/SWE02_ACT1_DEEP_AUDIT.md`; every page and adventure remains uncertified until its exact source→executor→UI→save/reopen→test gates close.
+3. Continue Acts 2 and 3, then the four remaining adventures and rules/AoR 360 ledgers. Do not create P245 or run release gates before all certification gates pass.
 4. Continue complete SWE02 coverage through Acts 1–3, then SWEP01, SWE05, SWE09, SWE13, rules families and all 360 AoR positions; keep claims uncertified until their full semantic gates pass.
 5. Do not create P245 or run Android release gates before all five adventure and rules gates pass.
 

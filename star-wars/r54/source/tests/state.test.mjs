@@ -36,7 +36,7 @@ test('estado v1 é migrado sem perder campanha e recebe combate v10, veículos e
   const s=createCampaign('Migração');
   const legacy=structuredClone(s); legacy.schemaVersion=1; delete legacy.combat;
   const restored=importStateJson(JSON.stringify(legacy));
-  assert.equal(restored.schemaVersion,14);
+  assert.equal(restored.schemaVersion,15);
   assert.equal(restored.name,'Migração');
   assert.equal(restored.combat.active,false);
   assert.equal(restored.session.status,'nao_iniciada');
@@ -48,7 +48,7 @@ test('estado v2 migra para v10 preservando combate e adicionando encontro', () =
   legacy.schemaVersion=2;
   legacy.combat={active:true,round:3,turn:2,actionUsed:true,maneuversUsed:1,log:[{type:'LEGADO'}]};
   const restored=importStateJson(JSON.stringify(legacy));
-  assert.equal(restored.schemaVersion,14);
+  assert.equal(restored.schemaVersion,15);
   assert.equal(restored.name,'Migração v2');
   assert.equal(restored.combat.active,true);
   assert.equal(restored.combat.round,3);
@@ -61,7 +61,7 @@ test('estado v3 migra para v10 adicionando contexto do Mestre sem perder encontr
   const s=createCampaign('Migração v3');
   const legacy=structuredClone(s); legacy.schemaVersion=3; delete legacy.master;
   const restored=importStateJson(JSON.stringify(legacy));
-  assert.equal(restored.schemaVersion,14);
+  assert.equal(restored.schemaVersion,15);
   assert.deepEqual(restored.master.lastRuleResults,[]);
   assert.equal(restored.master.corpusVersion,1);
 });

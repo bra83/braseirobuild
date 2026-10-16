@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: interface possui aba Nave em PT-BR com combate, dano e viagem
+ok 1 - interface possui aba Nave em PT-BR com combate, dano e viagem
+  ---
+  duration_ms: 3.832
+  type: 'test'
+  ...
+# Subtest: interface de nave usa o motor persistente e não duplica regra em HTML estático
+ok 2 - interface de nave usa o motor persistente e não duplica regra em HTML estático
+  ---
+  duration_ms: 1.0612
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 451.6345

@@ -118,7 +118,7 @@ test('crash checks resolve once for each onboard PC, apply failure damage to the
  reopenThree(repo,s=>{assert.deepEqual(s.world.publishedAdventure.oldLylek.crashChecks.map(x=>x.characterId).sort(),ids.slice().sort());for(const entry of s.player.roster.entries){const check=s.world.publishedAdventure.oldLylek.crashChecks.find(x=>x.characterId===entry.id);assert.equal(entry.character.derived.wounds.current,check.success?0:Math.max(0,6-entry.character.derived.soak));}});
 });
 
-test('schema 14 singleton migration creates one stable PC ID and mirrors active-sheet updates without importing companions',()=>{
+test('schema 14 singleton migration to schema 15 creates one stable PC ID and mirrors active-sheet updates without importing companions',()=>{
  const legacy=createCampaign('legacy roster');legacy.schemaVersion=14;legacy.player.character=structuredClone((()=>{const {g}=fixture();return g.state.player.character;})());delete legacy.player.roster;
  const migrated=migrateState(legacy),id=migrated.player.roster.activeCharacterId;
  assert.equal(migrated.schemaVersion,15);assert.equal(migrated.player.roster.entries.length,1);assert.ok(id);
