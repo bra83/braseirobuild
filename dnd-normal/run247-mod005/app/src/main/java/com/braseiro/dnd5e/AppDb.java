@@ -1290,7 +1290,12 @@ public class AppDb extends SQLiteOpenHelper {
             JSONObject sheet=readCharacterSheet(ch);
             JSONObject before=sheet.optJSONObject("bastion_2024");
             if(before==null)return out.put("bastion_blocked","bastion_not_configured");
-            JSONObject event=Bastion2024RulesEngine.execute("core2024.bastion.event.effects",eventInput);
+            // Source authority for guest protection comes from the persisted
+            // Bastion, never from the caller's selected input or Gemini.
+            JSONObject sourceInput=eventInput==null?new JSONObject():new JSONObject(eventInput.toString());
+            sourceInput.put("friendly_monster_available",
+                before.optInt("friendly_monster_protection",0)>0);
+            JSONObject event=Bastion2024RulesEngine.execute("core2024.bastion.event.effects",sourceInput);
             if(!"ok".equals(event.optString("status")))
                 return out.put("bastion_blocked",event.optString("reason","source_event_blocked"))
                     .put("event_preview",event);
