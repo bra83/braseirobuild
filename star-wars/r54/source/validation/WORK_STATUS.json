@@ -40,7 +40,26 @@
   "drive_inventory": {
     "records": 527,
     "folders": 44,
-    "metadata_only_unreviewed": 500
+    "metadata_only_unreviewed": 500,
+    "pdf_metadata_triage": {
+      "unreviewed_pdfs": 57,
+      "filename_only_categories": {"rpg_books_supplements": 20, "ambiguous_source_pdfs": 11, "aids_sheets_cards": 26},
+      "pdf_bytes_examined": 0,
+      "artifact": "audits/INVENTORY_PDF_METADATA_TRIAGE.md"
+    },
+    "rules_corpus_reconciliation": {
+      "handoff_entries": 19,
+      "initial_core_or_supplement_roles": 12,
+      "initial_roles_with_project_reference": 4,
+      "initial_roles_missing_project_reference": 8,
+      "additional_scope_unresolved": 7,
+      "reference_statuses_all_19": {"present": 3, "title_only": 3, "unresolved": 4, "absent": 9},
+      "final_selected_set_confirmed": false,
+      "pdf_content_or_hash_verified": false,
+      "artifact": "audits/RULES_CORPUS_RECONCILIATION.md",
+      "matrix_rows": 19,
+      "unique_drive_ids": 19
+    }
   },
   "fresh_regression": {
     "state": "STALE_AFTER_TREX_CARRYOVER",
@@ -69,6 +88,7 @@
   "blockers": [
     "All 360 AoR positions lack individual source-to-effect, UI, persistence, and test evidence.",
     "500 Drive inventory items remain metadata-only and unreviewed.",
+    "The master handoff’s final selected-supplement boundary is unresolved; 19 rulebook/supplement-type entries are listed, with seven additional entries beyond the 12 initial core/supplement roles.",
     "EotE/AoR rules family certification remains outstanding.",
     "Mechanical authority, source authorization, persistence, migration, and rollback gates have not been closed by executed end-to-end proofs.",
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
