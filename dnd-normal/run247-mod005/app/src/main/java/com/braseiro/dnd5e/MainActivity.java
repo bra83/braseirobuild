@@ -1014,6 +1014,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final EditText second=labeledField(form,"Rolagem adicional secundária (se exigida)","",true);
         final Spinner choice=spinner(new String[]{"SIM","NÃO"},"SIM");
         form.addView(cardWithLabel("ESCOLHA / REQUISITO DO MESTRE",choice));
+        final Spinner onlyHireling=spinner(new String[]{"SIM","NÃO"},"SIM");
+        form.addView(cardWithLabel("A DEMISSÃO DEIXA A INSTALAÇÃO SEM CONTRATADOS?",onlyHireling));
         final JSONObject facilities=state.optJSONObject("facilities");
         final JSONArray facilityNames=facilities==null?new JSONArray():facilities.names();
         String[] selections=new String[facilityNames==null||facilityNames.length()==0?1:facilityNames.length()];
@@ -1048,12 +1050,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                         boolean yes=choice.getSelectedItemPosition()==0;
                         String selectedFacility=String.valueOf(facility.getSelectedItem());
                         in.put("facility_id",selectedFacility);
+                        in.put("friendly_monster_available",
+                            state.optInt("friendly_monster_protection",0)>0);
                         if("All Is Well".equals(eventName)){
                             if(faces.length()>0)in.put("detail_d8",faces.getInt(0));
                         }else if("Attack".equals(eventName)){
                             in.put("defenders_before",state.optInt("defenders",0)).put("attack_6d6",faces);
                         }else if("Criminal Hireling".equals(eventName)){
-                            in.put("retain_hireling",yes).put("facility_has_no_other_hirelings",!yes);
+                            in.put("retain_hireling",yes)
+                                .put("facility_has_no_other_hirelings",onlyHireling.getSelectedItemPosition()==0);
                             if(yes&&faces.length()>0)in.put("bribe_d6",faces.getInt(0));
                         }else if("Extraordinary Opportunity".equals(eventName)){
                             in.put("accept_opportunity",yes);
