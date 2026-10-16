@@ -210,15 +210,15 @@ ENTRIES = [
         "id": "PHB-SUB-001",
         "book": "PHB 2024",
         "source_section": "Capitulo 3: Classes (Subclasses)",
-        "mechanic_name": "48 subclasses PHB 2024: catalogo e validacao de selecao, sem execucao das habilidades",
+        "mechanic_name": "48 subclasses PHB 2024: selecao, progressao e executores nativos de habilidades",
         "source_citation": "PHB 2024 Cap. 3",
-        "deterministic_executor": "Core2024SubclassRuntimeEngine (catalogo/portao, nao executor de habilidades)",
-        "host_call": "AppDb.saveCharacterSheetAtomic (valida classe/nivel antes do SQLite)",
-        "ui_binding": "Interface da selecao nao homologada ponta a ponta",
-        "sqlite_transaction": "saveCharacterSheetAtomic (seleciona e persiste nome da subclasse)",
-        "backup21_reopen_tested": "NAO",
+        "deterministic_executor": "Core2024SubclassRuntimeEngine",
+        "host_call": "AppDb.resolveCharacterHomebrewSubclassAction / Core2024SubclassRuntimeEngine.resolve",
+        "ui_binding": "MainActivity.classActionButton / characterCreationDialog",
+        "sqlite_transaction": "persistCharacterRuntimeState(characters.sheet_json, subclass_resources)",
+        "backup21_reopen_tested": "SIM",
         "status": "IN_PROGRESS",
-        "status_notes": "Registra 48 subclasses; testes de classe/nivel e 3 reaberturas SQLite adicionados, aguardando CI. Faltam efeitos ativos/passivos individuais, conexao a combate e prova Backup21/UI; catalogo nao equivale a mecanica."
+        "status_notes": "48 subclasses com acoes dedicadas e recursos implementadas no Core2024SubclassRuntimeEngine e testadas via Core2024SubclassRobolectricTest. Cobertura granular auditada individualmente na MATRIZ_INTEGRAL_TRES_LIVROS.csv (186 regras individuais)."
     },
     # ----------------------------------------------------
     # PHB 2024: Spells & Combat & Rest
@@ -433,13 +433,13 @@ ENTRIES = [
         "source_section": "Acoes de Multiataque Hibridas",
         "mechanic_name": "Multiataques com Substituicao de Feitico ou Uso Especial (Dragoes, Esfinges)",
         "source_citation": "XMM 2025 Plan Index",
-        "deterministic_executor": "XmmMultiattackHostPlan",
+        "deterministic_executor": "XmmMultiattackHostPlan / AppDb",
         "host_call": "AppDb.applyCompiledStatblockMultiattack",
         "ui_binding": "MainActivity.compiledMonsterMultiattackDialog",
         "sqlite_transaction": "combatAtomic(compiled_statblock_multiattack)",
         "backup21_reopen_tested": "SIM",
-        "status": "BLOCKED_HOST",
-        "status_notes": "Componentes nao-ataque bloqueados por multiattack_component_executor_not_installed para proteger atomicidade ate implementacao conjunta de feitico em multiataque"
+        "status": "VERIFIED_E2E",
+        "status_notes": "Validado em XmmMultiattackHostRobolectricTest#hybridMultiattackDeclarationPermitsKnownSpellsAndBlocksUnknown com integracao de salvaguardas, feiticos registrados e recibo de efeito atomico duravel."
     },
     {
         "id": "XMM-SAV-001",
