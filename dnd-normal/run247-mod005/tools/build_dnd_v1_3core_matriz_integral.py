@@ -1133,7 +1133,12 @@ if args.check:
     if saved != rows:
         mismatch = next((i for i, (left, right) in enumerate(zip(saved, rows))
                         if left != right), min(len(saved), len(rows)))
-        raise SystemExit(f"MATRIZ DIVERGENTE: linha {mismatch + 2}; regenerate and review")
+        delta = []
+        if mismatch < len(saved) and mismatch < len(rows):
+            delta = [f"{key}: actual={saved[mismatch].get(key)!r} expected={rows[mismatch].get(key)!r}"
+                     for key in COLUMNS if saved[mismatch].get(key) != rows[mismatch].get(key)]
+        raise SystemExit(f"MATRIZ DIVERGENTE: linha {mismatch + 2}: " +
+                         " | ".join(delta[:6]) + "; regenerate and review")
 else:
     OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
