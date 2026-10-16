@@ -1863,7 +1863,7 @@ public class AppDb extends SQLiteOpenHelper {
         // Before any resource initialization or SQLite mutation, pin official PHB
         // 2024 subclass features to the stored character's edition, class and level.
         // The untrusted UI action/feature and sheet labels cannot grant a subclass.
-        JSONObject recorded=new JSONObject(ch.optString("sheet_json","{}"));
+        JSONObject recorded=readCharacterSheet(ch);
         String selected=Core2024SubclassRuntimeEngine.extractSubclass(recorded);
         if(Core2024SubclassRuntimeEngine.hasSubclass(selected)){
             String profile=ch.optString("rules_source",
