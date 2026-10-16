@@ -976,7 +976,9 @@ function renderVehicle(state){
   const nabatNode=state.world?.publishedAdventure?.id==='long-arm-of-the-hutt'&&
     ['nabat-arrival','nabat-contact','krayt-fang-ground-inspection'].includes(state.world?.publishedAdventure?.currentNodeId);
   $('swe02NabatActions').hidden=!nabatNode;
-  $('swe02NewMeenSocial').hidden=!(state.world?.publishedAdventure?.id==='long-arm-of-the-hutt'&&state.world?.publishedAdventure?.currentNodeId==='drombb-cantina');
+  const newMeenNode=state.world?.publishedAdventure?.id==='long-arm-of-the-hutt'&&['new-meen-miners','new-meen-night-raid','drombb-compound-approach','drombb-cantina'].includes(state.world?.publishedAdventure?.currentNodeId);
+  $('swe02NewMeenSocial').hidden=!(state.world?.publishedAdventure?.id==='long-arm-of-the-hutt'&&(newMeenNode||state.world?.publishedAdventure?.currentNodeId==='drombb-cantina'));
+  $('swe02NewMeenLifecycle').hidden=!newMeenNode;
   const newMeenCombat=state.combat?.active&&['laoth-new-meen-night-raid','laoth-drombb-cantina'].includes(state.combat?.publishedAdventureContext?.encounterId);
   const newMeenGroup=$('swe02NewMeenGroup'),oldGroup=newMeenGroup.value;
   const thugGroups=newMeenCombat?(state.combat.adversaries||[]).filter(x=>x.profileKey==='laoth_drombb_thug'):[];
@@ -985,6 +987,8 @@ function renderVehicle(state){
   $('swe02NewMeenConfirmDeaths').disabled=!newMeenCombat;
   $('swe02NewMeenCoerce').disabled=!newMeenCombat||state.combat.publishedAdventureContext.encounterId!=='laoth-drombb-cantina';
   $('swe02DrombbSafeOpen').disabled=state.combat?.active||state.world?.publishedAdventure?.flags?.drombbThreatNeutralized!==true;
+  const lifecycleStage=state.world?.publishedAdventure?.newMeenLifecycle?.stage;
+  $('swe02NewMeenNightResult').disabled=Boolean(state.combat?.active)||lifecycleStage!=='NIGHT_COMBAT';
   if(nabatNode){
     const market=game.swe02NabatMarket();const select=$('swe02NabatItem');
     const selected=select.value;
@@ -1311,6 +1315,52 @@ $('swe02NewMeenBribe').addEventListener('click',()=>{try{
  const r=game.bribeSWE02NewMeenThug({credits:Number($('swe02NewMeenCredits').value)});
  showFeedback('swe02NewMeenFeedback',r.receipt.success?`Capanga deixou o grupo; ${r.receipt.creditsSpent} créditos debitados. Restam ${r.remainingThugs}.`:'Negociação falhou; nenhum crédito debitado.');render();
 }catch(e){showFeedback('swe02NewMeenFeedback',e.message);}});
+const recordNewMeen=(operation,details={})=>{const r=game.recordSWE02NewMeenLifecycle(operation,details);if(r?.ok===false)throw Error(r.error?.message||r.message||'Falha ao registrar decisão New Meen.');return r;};
+$('swe02NewMeenNightResolve').addEventListener('click',()=>{try{
+ const choice=$('swe02NewMeenNightChoice').value,details={choice};if(choice==='other')details.gmDisposition=$('swe02NewMeenGmNote').value.trim();
+ const r=recordNewMeen('night_stay',details);showFeedback('swe02NewMeenLifecycleFeedback',`Escolha registrada · ${r.lifecycle.stage}.`);render();
+}catch(e){showFeedback('swe02NewMeenLifecycleFeedback',e.message);}});
+$('swe02NewMeenNightInteraction').addEventListener('click',()=>{try{
+ const response=$('swe02NewMeenNightResponse').value,details={response};if(response==='hand_over_speeder')details.gmDisposition=$('swe02NewMeenGmNote').value.trim();
+ const r=recordNewMeen('night_interaction',details);showFeedback('swe02NewMeenLifecycleFeedback',`Resposta registrada · ${r.lifecycle.stage}.`);render();
+}catch(e){showFeedback('swe02NewMeenLifecycleFeedback',e.message);}});
+$('swe02NewMeenNightResult').addEventListener('click',()=>{try{
+ const outcome=$('swe02NewMeenNightOutcome').value,details={outcome,gmDisposition:$('swe02NewMeenGmNote').value.trim()};
+ const r=recordNewMeen('night_combat',details);showFeedback('swe02NewMeenLifecycleFeedback',`Resultado do combate noturno registrado · ${r.lifecycle.stage}.`);render();
+}catch(e){showFeedback('swe02NewMeenLifecycleFeedback',e.message);}});
+$('swe02NewMeenEscortRefuse').addEventListener('click',()=>{try{
+ const r=recordNewMeen('refuse_escort');showFeedback('swe02NewMeenLifecycleFeedback',`Recusa registrada; os capangas se voltam aos PJs · ${r.lifecycle.stage}.`);render();
+}catch(e){showFeedback('swe02NewMeenLifecycleFeedback',e.message);}});
+$('swe02NewMeenCoercionResolve').addEventListener('click',()=>{try{
+ const coerced=$('swe02NewMeenCoercionSucceeded').checked,details={coerced};if(!coerced)details.gmRuling=$('swe02NewMeenGmNote').value.trim();
+ const r=recordNewMeen('coercion',details);showFeedback('swe02NewMeenLifecycleFeedback',`Coerção registrada · ${r.lifecycle.stage}.`);render();
+}catch(e){showFeedback('swe02NewMeenLifecycleFeedback',e.message);}});
+$('swe02NewMeenRoadHarassment').addEventListener('click',()=>{try{
+ const r=recordNewMeen('road_harassment',{gmDisposition:$('swe02NewMeenGmNote').value.trim()});showFeedback('swe02NewMeenLifecycleFeedback',`Adjudicação da estrada registrada · ${r.lifecycle.stage}.`);render();
+}catch(e){showFeedback('swe02NewMeenLifecycleFeedback',e.message);}});
+$('swe02NewMeenRetaliationResolve').addEventListener('click',()=>{try{
+ const choice=$('swe02NewMeenRetaliation').value,details={choice};if(choice!=='go_to_compound')details.gmDisposition=$('swe02NewMeenGmNote').value.trim();
+ const r=recordNewMeen('retaliation',details);showFeedback('swe02NewMeenLifecycleFeedback',`Retaliação registrada · ${r.lifecycle.stage}.`);render();
+}catch(e){showFeedback('swe02NewMeenLifecycleFeedback',e.message);}});
+$('swe02NewMeenApproach').addEventListener('click',()=>{try{
+ const r=recordNewMeen('compound_approach',{precautions:$('swe02NewMeenPrecautions').checked});showFeedback('swe02NewMeenLifecycleFeedback',`Aproximação registrada · ${r.lifecycle.stage}.`);render();
+}catch(e){showFeedback('swe02NewMeenLifecycleFeedback',e.message);}});
+$('swe02NewMeenDetectedResolve').addEventListener('click',()=>{try{
+ const response=$('swe02NewMeenDetected').value,details={response};if(response!=='negotiate_politely')details.gmDisposition=$('swe02NewMeenGmNote').value.trim();
+ const r=recordNewMeen('detected_contact',details);showFeedback('swe02NewMeenLifecycleFeedback',`Contato registrado · ${r.lifecycle.stage}.`);render();
+}catch(e){showFeedback('swe02NewMeenLifecycleFeedback',e.message);}});
+$('swe02NewMeenAllyResolve').addEventListener('click',()=>{try{
+ const r=recordNewMeen('ally_resolution',{method:$('swe02NewMeenAllyMethod').value});showFeedback('swe02NewMeenLifecycleFeedback',`Método de resolução dos aliados registrado · ${r.lifecycle.stage}.`);render();
+}catch(e){showFeedback('swe02NewMeenLifecycleFeedback',e.message);}});
+$('swe02NewMeenCharm').addEventListener('click',()=>{try{
+ const r=recordNewMeen('charm_attempt');showFeedback('swe02NewMeenLifecycleFeedback',`Tentativa de Charme registrada sem rolagem · ${r.lifecycle.stage}.`);render();
+}catch(e){showFeedback('swe02NewMeenLifecycleFeedback',e.message);}});
+$('swe02NewMeenDefeatResolve').addEventListener('click',()=>{try{
+ const r=recordNewMeen('cantina_outcome',{outcome:'pcs_defeated',defeatResolution:$('swe02NewMeenDefeat').value});showFeedback('swe02NewMeenLifecycleFeedback',`Consequência da derrota real registrada · ${r.lifecycle.stage}.`);render();
+}catch(e){showFeedback('swe02NewMeenLifecycleFeedback',e.message);}});
+$('swe02NewMeenOfficeSearch').addEventListener('click',()=>{try{
+ const r=recordNewMeen('office_search');showFeedback('swe02NewMeenLifecycleFeedback',r.lifecycle.messages.found?'Mensagens oficiais registradas como encontradas.':'Teste Hard Computers falhou; nenhuma informação foi descoberta.');render();
+}catch(e){showFeedback('swe02NewMeenLifecycleFeedback',e.message);}});
 $('swe02NewMeenConfirmDeaths').addEventListener('click',()=>{try{
  const r=game.adjudicateSWE02NewMeenDeaths({groupId:$('swe02NewMeenGroup').value,confirmedDeaths:Number($('swe02NewMeenDeaths').value)});
  showFeedback('swe02NewMeenFeedback',`Mestre confirmou ${r.confirmedDeaths} morte(s), limitadas a ${r.verifiedCasualties} baixa(s) verificadas.`);render();
@@ -1319,8 +1369,8 @@ $('swe02NewMeenCoerce').addEventListener('click',()=>{try{
  const r=game.coerceSWE02NewMeenThugs();showFeedback('swe02NewMeenFeedback',r.success?`Coerção bem-sucedida: ${r.surrenderedGroupIds.length} grupo(s) se renderam; Drombb continua hostil.`:`Coerção falhou (dificuldade ${r.difficulty}). Ação consumida.`);render();
 }catch(e){showFeedback('swe02NewMeenFeedback',e.message);}});
 $('swe02DrombbSafeOpen').addEventListener('click',()=>{try{
- const r=game.openSWE02DrombbSafe({method:$('swe02DrombbSafeMethod').value});
- showFeedback('swe02NewMeenFeedback',r.success?'Cofre aberto: 2.000 créditos adicionados à carteira real.':'Cofre fechado: teste falhou, nenhum crédito concedido.');render();
+ const r=game.openSWE02DrombbSafe({method:$('swe02DrombbSafeMethod').value,gmConfirmedQuick:$('swe02DrombbSafeQuick').checked});
+ showFeedback('swe02NewMeenFeedback',r.creditsGranted?`Cofre aberto: ${r.creditsGranted} créditos adicionados à carteira real.`:r.success?'Cofre encontrado, mas os Twi’leks chegaram primeiro; nenhum crédito concedido.':'Cofre fechado: teste falhou, nenhum crédito concedido.');render();
 }catch(e){showFeedback('swe02NewMeenFeedback',e.message);}});
 $('swe02PiddockAsk').addEventListener('click',()=>{try{
  const r=game.askSWE02Piddock({topic:$('swe02PiddockQuestion').value});

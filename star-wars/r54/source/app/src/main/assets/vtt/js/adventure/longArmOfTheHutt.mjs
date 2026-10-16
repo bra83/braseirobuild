@@ -16,6 +16,7 @@ import {createSWE02OldLylekState,selectSWE02TrexCarryover,requireSWE02TrexCarryo
   proceedSWE02OldLylekBluff,recordSWE02OldLylekRuse,approachSWE02OldLylekOnFoot,recordSWE02OldLylekCrashCheck,confirmSWE02OldLylekCrashCrew,
   recordSWE02OldLylekRepair,markSWE02OldLylekCombatStarted,recordSWE02OldLylekHunterOutcome,triggerSWE02OldLylekAdvantage,resolveSWE02OldLylekHuntersRetreat,inspectSWE02OldLylekSpeeder,warnSWE02OldLylek,
   persistSWE02OldLylek,markSWE02OldLylekAttackStarted,resolveSWE02OldLylek,canSWE02OldLylekContinue,createSWE02OldLylekMapState,assignSWE02OldLylekMapLocation} from './swe02OldLylekP15.mjs';
+import {createSWE02NewMeenLifecycle,chooseSWE02NewMeenResponse,refuseSWE02NewMeenEscort,resolveSWE02NewMeenCoercionOfPcs,recordSWE02NewMeenRoadHarassment,chooseSWE02NewMeenAllyResolution,assembleSWE02NewMeenEscort,recordSWE02NewMeenEscortReceipt,resolveSWE02NewMeenNightStay,resolveSWE02NewMeenNightInteraction,resolveSWE02NewMeenNightCombat,resolveSWE02NewMeenRetaliationChoice,approachSWE02DrombbCompound,resolveSWE02DrombbDetectedContact,recordSWE02NewMeenGunfire,startSWE02DrombbCantina,recordSWE02NewMeenBribe,recordSWE02NewMeenCharmAttempt,resolveSWE02NewMeenCantinaOutcome,recordSWE02DrombbOfficeSearch,recordSWE02DrombbSafeSearch,validateSWE02NewMeenLifecycle} from './swe02NewMeenLifecycleP19.mjs';
 
 const ID = 'long-arm-of-the-hutt';
 const SOURCE = { title: 'Long Arm of the Hutt', system: 'Star Wars: Edge of the Empire', productCode: 'SWE02', userMaterial: true };
@@ -156,7 +157,7 @@ export const LONG_ARM_OF_THE_HUTT = Object.freeze({
       visibleNpcIds:[NPC.bura],checks:[{skill:'Liderança',difficulty:'Média',purpose:'organizar a defesa e a retirada dos civis'}],
       choices:[
         {id:'meet-bothan-ota',label:'Prosseguir com Ota sem resolver a situação dos mineiros (não é vitória)',to:'ota-briefing',effects:{newMeenOutcome:'UNRESOLVED'}},
-        {id:'confront-drombb-directly',label:'Investigar o acampamento e confrontar Angu Drombb',to:'drombb-cantina'},
+        {id:'confront-drombb-directly',label:'Investigar o acampamento e confrontar Angu Drombb',to:'drombb-compound-approach'},
         {id:'stay-new-meen-night',label:'Permanecer em New Meen e acompanhar a noite',to:'new-meen-night-raid'},
         {id:'escort-new-meen-evacuees',label:'Organizar retirada e escolta para Nabat',to:'new-meen-evacuation'}
       ]
@@ -168,8 +169,16 @@ export const LONG_ARM_OF_THE_HUTT = Object.freeze({
       narration:'O estrondo de um veículo de esteiras derruba o silêncio das barracas. Os mineiros correm para ver o dano.',
       visibleNpcIds:[NPC.bura],checks:[],
       choices:[
-        {id:'follow-drombb-raiders',label:'Seguir até o acampamento após neutralizar o grupo',to:'drombb-cantina',condition:'flag:newMeenNightRaidStopped'},
+        {id:'follow-drombb-raiders',label:'Seguir até o acampamento após neutralizar o grupo e decidir sobre a retaliação',to:'drombb-compound-approach',condition:'flag:newMeenNightRaidStopped'},
         {id:'leave-new-meen-after-raid',label:'Recuar e ajudar a retirar os mineiros',to:'new-meen-evacuation'}
+      ]
+    },
+    'drombb-compound-approach': {
+      episode:1,title:'Abordagem ao acampamento de Drombb',locationId:LOC.newMeen,
+      summary:'SWE02 p.22: aproximação cautelosa evita testes; aproximação detectada gera um contato tenso, e um Aqualish abre fogo mesmo durante negociação educada.',
+      narration:'Uma milha ao sul de New Meen, veículos de esteiras cercam as estruturas de Drombb. A cantina parece ser o ponto de reunião dos capangas.',
+      visibleNpcIds:[NPC.dromund],checks:[],choices:[
+        {id:'new-meen-enter-cantina',label:'Entrar na cantina após resolver a abordagem',to:'drombb-cantina',condition:'flag:newMeenApproachReady'}
       ]
     },
     'drombb-cantina': {
@@ -630,6 +639,51 @@ export function startLongArmOfTheHutt(world) {
   };
 }
 
+function ensureNewMeenLifecycle(progress) {
+  const confirmed=Number(progress.flags?.confirmedPartySize);
+  const crewCount=Array.isArray(progress.oldLylek?.crewPcIds)?progress.oldLylek.crewPcIds.length:null;
+  const partySize=Number.isInteger(confirmed)&&confirmed>=2&&confirmed<=8?confirmed:
+    Number.isInteger(crewCount)&&crewCount>=2&&crewCount<=8?crewCount:null;
+  if(progress.newMeenLifecycle){
+    if(progress.newMeenLifecycle.partySize===null&&partySize!==null)progress.newMeenLifecycle.partySize=partySize;
+    return progress.newMeenLifecycle;
+  }
+  progress.newMeenLifecycle=createSWE02NewMeenLifecycle({partySize});
+  return progress.newMeenLifecycle;
+}
+function applyNewMeenLifecycle(progress,operation,details={}) {
+  const state=ensureNewMeenLifecycle(progress),args=details||{};
+  const actions={
+    arrival_response:()=>chooseSWE02NewMeenResponse(state,args),
+    refuse_escort:()=>refuseSWE02NewMeenEscort(state),
+    coercion:()=>resolveSWE02NewMeenCoercionOfPcs(state,args),
+    road_harassment:()=>recordSWE02NewMeenRoadHarassment(state,args),
+    ally_resolution:()=>chooseSWE02NewMeenAllyResolution(state,args),
+    assemble_escort:()=>assembleSWE02NewMeenEscort(state),
+    escort_receipt:()=>recordSWE02NewMeenEscortReceipt(state,args),
+    night_stay:()=>resolveSWE02NewMeenNightStay(state,args),
+    night_interaction:()=>resolveSWE02NewMeenNightInteraction(state,args),
+    night_combat:()=>resolveSWE02NewMeenNightCombat(state,args),
+    retaliation:()=>resolveSWE02NewMeenRetaliationChoice(state,args),
+    compound_approach:()=>approachSWE02DrombbCompound(state,args),
+    detected_contact:()=>resolveSWE02DrombbDetectedContact(state,args),
+    gunfire:()=>recordSWE02NewMeenGunfire(state,args),
+    cantina_start:()=>startSWE02DrombbCantina(state),
+    bribe_receipt:()=>recordSWE02NewMeenBribe(state,args),
+    charm_attempt:()=>recordSWE02NewMeenCharmAttempt(state),
+    cantina_outcome:()=>resolveSWE02NewMeenCantinaOutcome(state,args),
+    office_search:()=>recordSWE02DrombbOfficeSearch(state,args),
+    safe_search:()=>recordSWE02DrombbSafeSearch(state,args)
+  };
+  const action=actions[operation];if(!action)throw Error('SWE02 New Meen: operação desconhecida.');
+  const out=action();progress.newMeenLifecycle=out.state;
+  if(['compound_approach','detected_contact','gunfire'].includes(operation))
+    progress.flags={...(progress.flags||{}),newMeenApproachReady:['CANTINA_READY','CANTINA_COMBAT'].includes(out.state.stage)};
+  if(operation==='night_combat')progress.flags={...(progress.flags||{}),newMeenNightRaidStopped:out.state.nightRaid.groupStopped};
+  validateSWE02NewMeenLifecycle(progress.newMeenLifecycle);
+  return out;
+}
+
 export function advanceLongArmOfTheHutt(world, choiceId) {
   const next = clone(world || {});
   const p = next.publishedAdventure;
@@ -643,6 +697,7 @@ export function advanceLongArmOfTheHutt(world, choiceId) {
   validateNabat(p);
   validateSWE02Social(p);
   validateNewMeenP242(p);
+  if(p.newMeenLifecycle)validateSWE02NewMeenLifecycle(p.newMeenLifecycle);
   validateNewMeenSafe(p);
   validateNewMeenP243(next);
   validateSWE02Anatta(next);
@@ -680,7 +735,22 @@ export function advanceLongArmOfTheHutt(world, choiceId) {
   }
   const destination=choice.to;
   if(p.currentNodeId==='lylek-den-ambush'&&choiceId==='reach-new-meen')p.oldLylek={...p.oldLylek,arrivalReceipt:{distanceMiles:1,buraExplainsAid:true,residentsWelcomeAsHeroes:true,invitedToLargerDwelling:true,basicRationsOffered:true,rationQuantity:null,developerDetails:{status:'ONLY_IF_ASKED'},source:{title:'The Long Arm of the Hutt',productCode:'SWE02',printedPage:18,authority:'OFFICIAL_PDF_TEXT_VERIFIED'}}};
+  if(p.currentNodeId==='new-meen-miners'){
+    const state=ensureNewMeenLifecycle(p);
+    if(choiceId==='confront-drombb-directly'&&state.stage==='ARRIVAL')applyNewMeenLifecycle(p,'arrival_response',{action:'confront_drombb'});
+    else if(choiceId==='stay-new-meen-night'&&state.stage==='ARRIVAL'){
+      applyNewMeenLifecycle(p,'arrival_response',{action:'avoid_and_stay'});
+      applyNewMeenLifecycle(p,'night_stay',{choice:'stay'});
+    }else if(choiceId==='escort-new-meen-evacuees'&&state.stage==='ARRIVAL'){
+      applyNewMeenLifecycle(p,'arrival_response',{action:'do_nothing'});applyNewMeenLifecycle(p,'assemble_escort');
+    }else if(choiceId==='meet-bothan-ota'&&state.stage==='ARRIVAL')applyNewMeenLifecycle(p,'arrival_response',{action:'other'});
+  }
+  if(p.currentNodeId==='new-meen-night-raid'&&choiceId==='follow-drombb-raiders'&&p.newMeenLifecycle?.stage==='DROMBB_RETALIATION')
+    applyNewMeenLifecycle(p,'retaliation',{choice:'go_to_compound'});
+  if(p.currentNodeId==='drombb-compound-approach'&&choiceId==='new-meen-enter-cantina'&&
+      !['CANTINA_READY','CANTINA_COMBAT'].includes(p.newMeenLifecycle?.stage))throw Error('SWE02 p.22: resolva a aproximação antes de entrar na cantina.');
   p.currentNodeId = destination;
+  if(destination==='new-meen-miners')ensureNewMeenLifecycle(p);
   if(destination==='lylek-den-ambush'&&!p.oldLylek)p.oldLylek=createSWE02OldLylekState();
   if (!p.visitedNodeIds.includes(destination)) p.visitedNodeIds.push(destination);
   const target = LONG_ARM_OF_THE_HUTT.nodes[destination];
@@ -716,6 +786,7 @@ export function longArmOfTheHuttStatus(world) {
   validateNabat(p);
   validateSWE02Social(p);
   validateNewMeenP242(p);
+  if(p.newMeenLifecycle)validateSWE02NewMeenLifecycle(p.newMeenLifecycle);
   validateNewMeenSafe(p);
   validateNewMeenP243(world);
   validateSWE02Anatta(world);
@@ -1121,6 +1192,13 @@ export function recordLongArmOfTheHuttEncounterOutcome(world, { encounterId, out
   p.flags = { ...(p.flags || {}) };
   if(encounterId==='laoth-new-meen-night-raid'){p.flags.newMeenNightRaidStopped=outcome==='adversaries_defeated';if(outcome==='player_incapacitated')p.flags.newMeenOutcome='LOST';}
   if(encounterId==='laoth-drombb-cantina'){p.flags.drombbThreatNeutralized=outcome==='adversaries_defeated';if(outcome==='player_incapacitated'){p.flags.drombbCaptured=true;p.flags.newMeenOutcome='LOST';}}
+  if(p.newMeenLifecycle&&encounterId==='laoth-new-meen-night-raid'&&p.newMeenLifecycle.stage==='NIGHT_COMBAT'&&outcome==='adversaries_defeated')
+    applyNewMeenLifecycle(p,'night_combat',{outcome:'thugs_driven_off'});
+  if(p.newMeenLifecycle&&encounterId==='laoth-drombb-cantina'&&outcome==='adversaries_defeated'){
+    const boss=adversaries.find(a=>a.profileKey==='laoth_angu_drombb');
+    const bossDefeated=Boolean(boss&&['incapacitated','defeated'].includes(boss.status));
+    if(bossDefeated)applyNewMeenLifecycle(p,'cantina_outcome',{outcome:'victory',drombbDefeated:true});
+  }
   if(encounterId==='teemo-palace-guards')p.flags.teemoDefeated=outcome==='adversaries_defeated';
   if(encounterId==='laoth-gantry-aa7'){p.flags.geoGantryCleared=['adversaries_defeated','escaped','player_incapacitated'].includes(outcome);p.flags.geoRescuedByVios=outcome==='player_incapacitated';}
   if(encounterId==='lylek-den-lylek'){
@@ -1189,4 +1267,34 @@ export function recordLongArmBuraConversation(world,details={}) {
 export function setLongArmPeltSearchAnnounced(world,announced) {
  if(typeof announced!=='boolean')throw Error('Krayt Fang: anúncio de busca inválido.');
  return shipWorldAction(world,p=>{if(p.currentNodeId!=='krayt-fang-logs'||p.flags?.shipPeltsFound)throw Error('Krayt Fang: busca indisponível.');p.flags={...(p.flags||{}),shipPeltSearchAnnounced:announced};return {announced,boost:announced?1:0,source:{productCode:'SWE02',printedPage:9}};});
+}
+export function recordLongArmNewMeenLifecycle(world,operation,details={}) {
+ const next=clone(world||{}),p=next.publishedAdventure;
+ if(!p||p.id!==ID||p.status!=='ACTIVE')throw Error('New Meen: aventura não está ativa.');
+ let args={...(details||{})};
+ if(operation==='office_search'){
+   const check=(p.checkHistory||[]).find(x=>x.nodeId==='drombb-cantina'&&x.checkIndex===0&&x.source?.printedPage===23);
+   if(!check)throw Error('SWE02 p.23: busca do escritório exige o teste Difícil de Computadores registrado.');
+   args={computersHardCheckPassed:check.success===true};
+ }
+ if(operation==='safe_search'){
+   const receipt=p.newMeenSafeReceipts?.at(-1);
+   if(!receipt)throw Error('SWE02 p.23: registre primeiro a abertura real do cofre.');
+   args={method:receipt.method,successful:receipt.success===true,gmConfirmedQuick:receipt.gmConfirmedQuick===true};
+ }
+ if(operation==='cantina_outcome'){
+   const last=[...(p.encounterHistory||[])].reverse().find(x=>x.encounterId==='laoth-drombb-cantina');
+   if(!last)throw Error('SWE02 pp.21–23: resultado exige combate real da cantina.');
+   if(args.outcome==='victory'&&last.outcome!=='adversaries_defeated')throw Error('SWE02 p.23: vitória exige adversários realmente derrotados.');
+   if(args.outcome==='pcs_defeated'&&last.outcome!=='player_incapacitated')throw Error('SWE02 p.21/23: derrota exige incapacitação real.');
+ }
+ if(operation==='night_combat'){
+   const last=[...(p.encounterHistory||[])].reverse().find(x=>x.encounterId==='laoth-new-meen-night-raid');
+   if(!last)throw Error('SWE02 p.20: resultado exige combate noturno real.');
+   if(args.outcome==='thugs_driven_off'&&last.outcome!=='adversaries_defeated')throw Error('SWE02 p.20: vitória exige capangas realmente derrotados.');
+   if(args.outcome==='pcs_defeated'&&last.outcome!=='player_incapacitated')throw Error('SWE02 p.20: derrota exige incapacitação real.');
+   if(args.outcome==='other'&&!['escaped','adversaries_defeated','player_incapacitated'].includes(last.outcome))throw Error('SWE02 p.20: resultado de combate inválido.');
+ }
+ const out=applyNewMeenLifecycle(p,operation,args);p.updatedAt=now();next.publishedAdventure=p;
+ return {world:next,progress:clone(p),receipt:clone(out.event),lifecycle:clone(out.state)};
 }

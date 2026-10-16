@@ -1,0 +1,190 @@
+TAP version 13
+# Subtest: P160: five source-backed AoR positions gain consumers, 275/360 total
+ok 1 - P160: five source-backed AoR positions gain consumers, 275/360 total
+  ---
+  duration_ms: 156.3074
+  type: 'test'
+  ...
+# Subtest: P160: Skilled Jockey rank 0 removes only actual piloting setback for pilotar_vehiculo_planetario
+ok 2 - P160: Skilled Jockey rank 0 removes only actual piloting setback for pilotar_vehiculo_planetario
+  ---
+  duration_ms: 11.3677
+  type: 'test'
+  ...
+# Subtest: P160: Skilled Jockey rank 0 removes only actual piloting setback for pilotar_vehiculo_espacial
+ok 3 - P160: Skilled Jockey rank 0 removes only actual piloting setback for pilotar_vehiculo_espacial
+  ---
+  duration_ms: 53.1015
+  type: 'test'
+  ...
+# Subtest: P160: Skilled Jockey rank 1 removes only actual piloting setback for pilotar_vehiculo_planetario
+ok 4 - P160: Skilled Jockey rank 1 removes only actual piloting setback for pilotar_vehiculo_planetario
+  ---
+  duration_ms: 20.4715
+  type: 'test'
+  ...
+# Subtest: P160: Skilled Jockey rank 1 removes only actual piloting setback for pilotar_vehiculo_espacial
+ok 5 - P160: Skilled Jockey rank 1 removes only actual piloting setback for pilotar_vehiculo_espacial
+  ---
+  duration_ms: 5.5997
+  type: 'test'
+  ...
+# Subtest: P160: Skilled Jockey rank 2 removes only actual piloting setback for pilotar_vehiculo_planetario
+ok 6 - P160: Skilled Jockey rank 2 removes only actual piloting setback for pilotar_vehiculo_planetario
+  ---
+  duration_ms: 5.9372
+  type: 'test'
+  ...
+# Subtest: P160: Skilled Jockey rank 2 removes only actual piloting setback for pilotar_vehiculo_espacial
+ok 7 - P160: Skilled Jockey rank 2 removes only actual piloting setback for pilotar_vehiculo_espacial
+  ---
+  duration_ms: 4.9635
+  type: 'test'
+  ...
+# Subtest: P160: pilot modifiers actually affect controller dice and survive three reopens
+ok 8 - P160: pilot modifiers actually affect controller dice and survive three reopens
+  ---
+  duration_ms: 39.9773
+  type: 'test'
+  ...
+# Subtest: P160: Heroic Fortitude rank 0 Destiny and repeat gate
+ok 9 - P160: Heroic Fortitude rank 0 Destiny and repeat gate
+  ---
+  duration_ms: 10.1758
+  type: 'test'
+  ...
+# Subtest: P160: Heroic Fortitude rank 1 Destiny and repeat gate
+ok 10 - P160: Heroic Fortitude rank 1 Destiny and repeat gate
+  ---
+  duration_ms: 28.1301
+  type: 'test'
+  ...
+# Subtest: P160: Heroic Fortitude rank 2 Destiny and repeat gate
+ok 11 - P160: Heroic Fortitude rank 2 Destiny and repeat gate
+  ---
+  duration_ms: 60.2096
+  type: 'test'
+  ...
+# Subtest: P160: Heroic Fortitude ignores check penalties on Brawn/Agility but not intellect or non-check effects
+ok 12 - P160: Heroic Fortitude ignores check penalties on Brawn/Agility but not intellect or non-check effects
+  ---
+  duration_ms: 7.6263
+  type: 'test'
+  ...
+# Subtest: P160: suppressed next-check critical remains pending, is consumed on later unprotected check
+ok 13 - P160: suppressed next-check critical remains pending, is consumed on later unprotected check
+  ---
+  duration_ms: 4.6142
+  type: 'test'
+  ...
+# Subtest: P160: Heroic Fortitude fails without Destiny or encounter, never partially commits
+ok 14 - P160: Heroic Fortitude fails without Destiny or encounter, never partially commits
+  ---
+  duration_ms: 147.7188
+  type: 'test'
+  ...
+# Subtest: P160: Heroic Fortitude disk failure rolls back character, Destiny and combat log
+ok 15 - P160: Heroic Fortitude disk failure rolls back character, Destiny and combat log
+  ---
+  duration_ms: 58.7422
+  type: 'test'
+  ...
+# Subtest: P160: starting new combat clears stale Heroic Fortitude from previous encounter
+ok 16 - P160: starting new combat clears stale Heroic Fortitude from previous encounter
+  ---
+  duration_ms: 70.5564
+  type: 'test'
+  ...
+# Subtest: P160: Spare Clip prevents GM Despair ammunition loss and writes an audit receipt
+ok 17 - P160: Spare Clip prevents GM Despair ammunition loss and writes an audit receipt
+  ---
+  duration_ms: 45.5482
+  type: 'test'
+  ...
+# Subtest: P160: without Spare Clip GM spends Despair, ammo blocks next attack, reload consumes gear
+ok 18 - P160: without Spare Clip GM spends Despair, ammo blocks next attack, reload consumes gear
+  ---
+  duration_ms: 51.5373
+  type: 'test'
+  ...
+# Subtest: P160: GM cannot fabricate Despair, weapon identity or replay loss
+ok 19 - P160: GM cannot fabricate Despair, weapon identity or replay loss
+  ---
+  duration_ms: 85.0838
+  type: 'test'
+  ...
+# Subtest: P160: ammo Despair disk failure rolls back both character and combat receipt
+ok 20 - P160: ammo Despair disk failure rolls back both character and combat receipt
+  ---
+  duration_ms: 79.7815
+  type: 'test'
+  ...
+# Subtest: P160: limited ammo remains limited even when Spare Clip is acquired
+ok 21 - P160: limited ammo remains limited even when Spare Clip is acquired
+  ---
+  duration_ms: 19.0644
+  type: 'test'
+  ...
+# Subtest: P160 under-black-sun: five-adventure UAE cascade, clocks, objectives, consequences and three restores
+ok 22 - P160 under-black-sun: five-adventure UAE cascade, clocks, objectives, consequences and three restores
+  ---
+  duration_ms: 266.36
+  type: 'test'
+  ...
+# Subtest: P160 beyond-the-rim: five-adventure UAE cascade, clocks, objectives, consequences and three restores
+ok 23 - P160 beyond-the-rim: five-adventure UAE cascade, clocks, objectives, consequences and three restores
+  ---
+  duration_ms: 88.1976
+  type: 'test'
+  ...
+# Subtest: P160 long-arm-of-the-hutt: five-adventure UAE cascade, clocks, objectives, consequences and three restores
+ok 24 - P160 long-arm-of-the-hutt: five-adventure UAE cascade, clocks, objectives, consequences and three restores
+  ---
+  duration_ms: 108.6215
+  type: 'test'
+  ...
+# Subtest: P160 jewel-of-yavin: five-adventure UAE cascade, clocks, objectives, consequences and three restores
+ok 25 - P160 jewel-of-yavin: five-adventure UAE cascade, clocks, objectives, consequences and three restores
+  ---
+  duration_ms: 17.5533
+  type: 'test'
+  ...
+# Subtest: P160 mask-of-the-pirate-queen: five-adventure UAE cascade, clocks, objectives, consequences and three restores
+ok 26 - P160 mask-of-the-pirate-queen: five-adventure UAE cascade, clocks, objectives, consequences and three restores
+  ---
+  duration_ms: 17.3773
+  type: 'test'
+  ...
+# Subtest: P160: Android 1.0.160, UI actions, 79-module bundle and eight Java sources present
+ok 27 - P160: Android 1.0.160, UI actions, 79-module bundle and eight Java sources present
+  ---
+  duration_ms: 239.2943
+  type: 'test'
+  ...
+# Subtest: P160: forged display labels and duplicated source node cannot multiply piloting, ammo or critical effects
+ok 28 - P160: forged display labels and duplicated source node cannot multiply piloting, ammo or critical effects
+  ---
+  duration_ms: 12.3535
+  type: 'test'
+  ...
+# Subtest: P160: ammo Despair cannot be adjudicated after combat has ended
+ok 29 - P160: ammo Despair cannot be adjudicated after combat has ended
+  ---
+  duration_ms: 117.333
+  type: 'test'
+  ...
+# Subtest: P160: Android bridge actually dispatches Heroic Fortitude and Despair receipts
+ok 30 - P160: Android bridge actually dispatches Heroic Fortitude and Despair receipts
+  ---
+  duration_ms: 310.174
+  type: 'test'
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5602.8587

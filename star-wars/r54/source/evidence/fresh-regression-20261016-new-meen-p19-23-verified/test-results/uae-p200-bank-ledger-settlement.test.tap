@@ -1,0 +1,76 @@
+TAP version 13
+# Subtest: P200 cannot post funds before successful or definitively failed bank transfer
+ok 1 - P200 cannot post funds before successful or definitively failed bank transfer
+  ---
+  duration_ms: 1928.0297
+  type: 'test'
+  ...
+# Subtest: P200 posted transfer derives exact winning amount from auction, never PC wallet
+ok 2 - P200 posted transfer derives exact winning amount from auction, never PC wallet
+  ---
+  duration_ms: 1629.0443
+  type: 'test'
+  ...
+# Subtest: P200 extra bidder source-backed 10k is posted only after successful slice and verified symbol spend
+ok 3 - P200 extra bidder source-backed 10k is posted only after successful slice and verified symbol spend
+  ---
+  duration_ms: 1131.4836
+  type: 'test'
+  ...
+# Subtest: P200 cannot invent destination, skip GM confirmation or overwrite existing settlement
+ok 4 - P200 cannot invent destination, skip GM confirmation or overwrite existing settlement
+  ---
+  duration_ms: 997.244
+  type: 'test'
+  ...
+# Subtest: P200 allows GM-confirmed alternate account but never awards credits to party
+ok 5 - P200 allows GM-confirmed alternate account but never awards credits to party
+  ---
+  duration_ms: 1036.8303
+  type: 'test'
+  ...
+# Subtest: P200 tamper proof rejects fake winning bid, beneficiary, amount, source and duplicate receipts
+ok 6 - P200 tamper proof rejects fake winning bid, beneficiary, amount, source and duplicate receipts
+  ---
+  duration_ms: 1311.6946
+  type: 'test'
+  ...
+# Subtest: P200 prevents post-settlement slicing or later symbol spends from falsifying ledger
+ok 7 - P200 prevents post-settlement slicing or later symbol spends from falsifying ledger
+  ---
+  duration_ms: 1253.7701
+  type: 'test'
+  ...
+# Subtest: P200 settlement survives three real save reopenings and status exposes bank ledger
+ok 8 - P200 settlement survives three real save reopenings and status exposes bank ledger
+  ---
+  duration_ms: 1423.5414
+  type: 'test'
+  ...
+# Subtest: P200 P199 legacy saves remain valid without retroactive bank settlement
+ok 9 - P200 P199 legacy saves remain valid without retroactive bank settlement
+  ---
+  duration_ms: 1046.1493
+  type: 'test'
+  ...
+# Subtest: P200 bridge/controller operation is available for offline UI without altering TTS Java
+ok 10 - P200 bridge/controller operation is available for offline UI without altering TTS Java
+  ---
+  duration_ms: 9.334
+  type: 'test'
+  ...
+# Subtest: P200 four real failed attempts settle as FAILED with zero funds and no wallet reward
+ok 11 - P200 four real failed attempts settle as FAILED with zero funds and no wallet reward
+  ---
+  duration_ms: 989.4685
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16645.9074

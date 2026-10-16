@@ -1,0 +1,100 @@
+TAP version 13
+# Subtest: P135 JSON gate rejeita getter em payload e flags sem mutação parcial
+ok 1 - P135 JSON gate rejeita getter em payload e flags sem mutação parcial
+  ---
+  duration_ms: 94.4778
+  type: 'test'
+  ...
+# Subtest: P135 JSON gate rejeita hidden em payload e flags sem mutação parcial
+ok 2 - P135 JSON gate rejeita hidden em payload e flags sem mutação parcial
+  ---
+  duration_ms: 71.7792
+  type: 'test'
+  ...
+# Subtest: P135 JSON gate rejeita serializer em payload e flags sem mutação parcial
+ok 3 - P135 JSON gate rejeita serializer em payload e flags sem mutação parcial
+  ---
+  duration_ms: 71.1123
+  type: 'test'
+  ...
+# Subtest: P135 JSON gate rejeita symbol em payload e flags sem mutação parcial
+ok 4 - P135 JSON gate rejeita symbol em payload e flags sem mutação parcial
+  ---
+  duration_ms: 4.1755
+  type: 'test'
+  ...
+# Subtest: P135 JSON gate rejeita array em payload e flags sem mutação parcial
+ok 5 - P135 JSON gate rejeita array em payload e flags sem mutação parcial
+  ---
+  duration_ms: 3.8998
+  type: 'test'
+  ...
+# Subtest: P135 under-black-sun: comparação com contador/relógio inexistente falha fechada
+ok 6 - P135 under-black-sun: comparação com contador/relógio inexistente falha fechada
+  ---
+  duration_ms: 75.5353
+  type: 'test'
+  ...
+# Subtest: P135 under-black-sun: importação adulterada rejeitada antes da migração
+ok 7 - P135 under-black-sun: importação adulterada rejeitada antes da migração
+  ---
+  duration_ms: 7.6196
+  type: 'test'
+  ...
+# Subtest: P135 beyond-the-rim: comparação com contador/relógio inexistente falha fechada
+ok 8 - P135 beyond-the-rim: comparação com contador/relógio inexistente falha fechada
+  ---
+  duration_ms: 88.4856
+  type: 'test'
+  ...
+# Subtest: P135 beyond-the-rim: importação adulterada rejeitada antes da migração
+ok 9 - P135 beyond-the-rim: importação adulterada rejeitada antes da migração
+  ---
+  duration_ms: 16.5443
+  type: 'test'
+  ...
+# Subtest: P135 long-arm-of-the-hutt: comparação com contador/relógio inexistente falha fechada
+ok 10 - P135 long-arm-of-the-hutt: comparação com contador/relógio inexistente falha fechada
+  ---
+  duration_ms: 74.0482
+  type: 'test'
+  ...
+# Subtest: P135 long-arm-of-the-hutt: importação adulterada rejeitada antes da migração
+ok 11 - P135 long-arm-of-the-hutt: importação adulterada rejeitada antes da migração
+  ---
+  duration_ms: 36.9861
+  type: 'test'
+  ...
+# Subtest: P135 jewel-of-yavin: comparação com contador/relógio inexistente falha fechada
+ok 12 - P135 jewel-of-yavin: comparação com contador/relógio inexistente falha fechada
+  ---
+  duration_ms: 11.378
+  type: 'test'
+  ...
+# Subtest: P135 jewel-of-yavin: importação adulterada rejeitada antes da migração
+ok 13 - P135 jewel-of-yavin: importação adulterada rejeitada antes da migração
+  ---
+  duration_ms: 3.9942
+  type: 'test'
+  ...
+# Subtest: P135 mask-of-the-pirate-queen: comparação com contador/relógio inexistente falha fechada
+ok 14 - P135 mask-of-the-pirate-queen: comparação com contador/relógio inexistente falha fechada
+  ---
+  duration_ms: 48.6747
+  type: 'test'
+  ...
+# Subtest: P135 mask-of-the-pirate-queen: importação adulterada rejeitada antes da migração
+ok 15 - P135 mask-of-the-pirate-queen: importação adulterada rejeitada antes da migração
+  ---
+  duration_ms: 7.1812
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3474.7798

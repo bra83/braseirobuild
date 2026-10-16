@@ -1757,6 +1757,8 @@ completeMerchantAcquisition(options={}){
         try{return ok(clone(r.data.discoverSWE02ShipRoom(String(roomId))));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
     recordSWE02BuraConversation(details={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.recordSWE02BuraConversation(details??{})));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
+    recordSWE02NewMeenLifecycle(operation,details={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.recordSWE02NewMeenLifecycle(String(operation),details??{})));}catch(e){return fail('SWE02_NEW_MEEN_FAILED',messageOf(e));}}
     swe02NabatMarket(){
         const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.swe02NabatMarket()));}catch(e){return fail('SWE02_NABAT_FAILED',messageOf(e));}

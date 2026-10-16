@@ -14,8 +14,8 @@
 - Drive inventory: 527 records/44 folders; 500 remain unreviewed. Metadata triage covers 57 PDFs in `audits/INVENTORY_PDF_METADATA_TRIAGE.md`; 0 PDF bytes examined. The 19-entry handoff rules-corpus matrix has 3 `PRESENT`, 3 `TITLE_ONLY`, 4 `UNRESOLVED`, 9 `ABSENT`; the final selected-supplement boundary remains unconfirmed. See `audits/RULES_CORPUS_RECONCILIATION.md`.
 - Fresh full per-file regression after the Old Lylek named map and schema 15 updates: 379 files (373 regular + 6 stress), 3,413 tests, 3,411 pass, 0 fail, 2 JDK `jar` skips. All files have complete summaries. Logs and summary: `evidence/fresh-regression-20261016-lylek-map-wip/`.
 - New WIP in this turn: SWE02 Krayt Fang printed pp.6–11 deterministic ship issue receipts, source manifest, smell/noise/announced-search pools, route×tracker causality, B’ura findings/conversation, room discovery, optional Lowhhrick Strain hook, six-hour transit, controller and UI wiring. Focused bundle pass: 133 modules. Focused tests: 28/28 across the pp.6–11 family, P238 source/controller tests and bridge regression; the P238 controller scenario persisted and passed three independent reloads. Status remains `IMPLEMENTADO_NAO_CERTIFICADO`; cargo is discovery-only, threat hull damage needs GM adjudication, transit does not yet apply world-clock/rest effects, and later clue/cargo follow-through remains open.
-- Source audit pp.19–23 found New Meen lifecycle gaps; a pure serialized lifecycle module and 14/14 focused tests now exist in the recovered `project` copy and have been copied into the sparse checkout, but controller/graph/UI integration is still pending. Both new families have no commit yet at the point of this note.
-- Full 379-file regression above is now stale after Krayt Fang code/UI changes and must be rerun after the current integration work.
+- New Meen printed pp.19–23 is integrated in the sparse checkout: lifecycle module, gated scene graph, UI decisions, actual combat result links, P241 bribe/P243 escort/P242 safe receipts, GM-confirmed loot race, and three-reopen controller proof. Focused follow-up 92/92 across eight lifecycle/consumer suites; bundle 134 modules PASS. Status remains `IMPLEMENTADO_NAO_CERTIFICADO`.
+- Fresh per-file TAP regression after Krayt Fang and New Meen work: 382 files, 3,438 tests, 3,436 pass, 0 fail, 2 JDK `jar` skips. Logs and summary: `evidence/fresh-regression-20261016-new-meen-p19-23-verified/`.
 - No APK/Gradle/device gate, P245, Drive backup/readback, or PR has been run/created. No non-Star-Wars VTT files touched.
 
 ## Exact next actions
@@ -26,3 +26,10 @@
 4. Continue complete SWE02 coverage through Acts 1–3, then SWEP01, SWE05, SWE09, SWE13, rules families and all 360 AoR positions; keep claims uncertified until their full semantic gates pass.
 5. Do not create P245 or run Android release gates before all five adventure and rules gates pass.
 
+
+
+## Resume update — New Meen pp.19–23
+
+- Working tree includes the integrated New Meen lifecycle and corrections to older pp.21–23 consumers that now traverse the p.22 approach gate. The 382-file fresh regression is green (3,436 pass, 0 fail, 2 JDK packaging skips).
+- Latest committed/pushed checkpoint at start of this update: `08a24da5082b32990581c7b239f2462c1d58bd1d`. Current New Meen changes are not yet committed/pushed.
+- Next: review/commit/push this cohesive integration, sync changed source/tests/status to recovered `work/star-wars/project`, then resume SWE02 pp.2–14 and p.12. Keep full adventure uncertified and respect all global gates.

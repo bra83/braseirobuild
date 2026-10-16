@@ -14,7 +14,7 @@ function fixture({evacuate=false,scene='new-meen-miners'}={}){
  for(const c of ['dock-ryloth','help-new-meen','travel-lylek-den'])w=adapter.advance(w,c).world;w=resolveOldLylekRetreat(adapter,w,3);w=adapter.advance(w,'reach-new-meen').world;
  w.publishedAdventure.flags.confirmedPartySize=3;
  if(evacuate)w=adapter.advance(w,'escort-new-meen-evacuees').world;
- else if(scene==='drombb-cantina')w=adapter.advance(w,'confront-drombb-directly').world;
+ else if(scene==='drombb-cantina'){w=adapter.advance(w,'confront-drombb-directly').world;w=adapter.recordNewMeenLifecycle(w,'compound_approach',{precautions:true}).world;w=adapter.advance(w,'new-meen-enter-cantina').world;}
  else if(scene==='new-meen-night-raid')w=adapter.advance(w,'stay-new-meen-night').world;
  g.state.world=w;repo.save(g.state);return {repo,g};
 }

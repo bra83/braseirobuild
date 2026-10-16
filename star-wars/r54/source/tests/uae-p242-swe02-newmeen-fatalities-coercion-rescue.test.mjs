@@ -16,6 +16,7 @@ function fixture({night=false,partySize=3}={}){
  let w=adapter.start(g.state.world).world;
  for(const id of ['dock-ryloth','help-new-meen','travel-lylek-den'])w=adapter.advance(w,id).world;w=resolveOldLylekRetreat(adapter,w,partySize);
  for(const id of ['reach-new-meen',night?'stay-new-meen-night':'confront-drombb-directly'])w=adapter.advance(w,id).world;
+ if(!night){w=adapter.recordNewMeenLifecycle(w,'compound_approach',{precautions:true}).world;w=adapter.advance(w,'new-meen-enter-cantina').world;}
  w.publishedAdventure.flags.confirmedPartySize=partySize;g.state.world=w;repo.save(g.state);
  g.beginPublishedAdventureEncounter(night?'laoth-new-meen-night-raid':'laoth-drombb-cantina',{rng:()=>.9});
  return {g,repo};
@@ -76,7 +77,7 @@ test('P242 night-raid verified fatalities carry into cantina only after combat p
  const r=g.adjudicateSWE02NewMeenDeaths({groupId:id,confirmedDeaths:3});assert.equal(r.confirmedTotal,3);
  const c=structuredClone(g.state.combat);c.encounter.outcome='adversaries_defeated';g.commit('COMBAT_ACTION',{combat:c});
  g.finishCombat({rng:()=>.9});assert.equal(g.state.world.publishedAdventure.flags.newMeenNightRaidStopped,true);
- g.advancePublishedAdventure('follow-drombb-raiders');g.beginPublishedAdventureEncounter('laoth-drombb-cantina',{rng:()=>.9});
+ g.advancePublishedAdventure('follow-drombb-raiders');g.recordSWE02NewMeenLifecycle('compound_approach',{precautions:true});g.advancePublishedAdventure('new-meen-enter-cantina');g.beginPublishedAdventureEncounter('laoth-drombb-cantina',{rng:()=>.9});
  const c2=structuredClone(g.state.combat);c2.encounter.waitingForPlayer=true;c2.encounter.activeActorId='player';c2.playerTurn.actionUsed=false;g.commit('COMBAT_ACTION',{combat:c2});
  const coerced=g.coerceSWE02NewMeenThugs({rng:rngSuccess});assert.equal(coerced.confirmedDeaths,3);assert.equal(coerced.difficulty,3);
  reopen(repo);
@@ -120,7 +121,7 @@ test('P242 p23 Drombb safe grants exactly 2000 credits once after actual victory
  const c=structuredClone(g.state.combat);
  for(const a of c.adversaries){a.wounds.current=a.wounds.threshold+1;a.status='incapacitated';}
  c.encounter.outcome='adversaries_defeated';g.commit('COMBAT_ACTION',{combat:c});g.finishCombat({rng:()=>.9});
- const receipt=g.openSWE02DrombbSafe({method:'key'});
+ const receipt=g.openSWE02DrombbSafe({method:'key',gmConfirmedQuick:true});
  assert.equal(receipt.creditsGranted,2000);assert.equal(g.state.player.character.credits,before+2000);
  assert.throws(()=>g.openSWE02DrombbSafe({method:'key'}),/já investigado/);
  reopen(repo);
@@ -130,20 +131,31 @@ test('P242 safe Skulduggery Hard failed roll does not mint credits',()=>{
  for(const a of c.adversaries){a.wounds.current=a.wounds.threshold+1;a.status='incapacitated';}
  c.encounter.outcome='adversaries_defeated';g.commit('COMBAT_ACTION',{combat:c});g.finishCombat({rng:()=>.9});
  const before=g.state.player.character.credits;
- const receipt=g.openSWE02DrombbSafe({method:'skulduggery',rng:()=>0});
+ const receipt=g.openSWE02DrombbSafe({method:'skulduggery',gmConfirmedQuick:true,rng:()=>0});
  assert.equal(receipt.check.pool.difficulty,3);assert.equal(receipt.success,false);
  assert.equal(g.state.player.character.credits,before);reopen(repo);
 });
 test('P242 safe cannot be claimed after retreat or via forged credit receipt',()=>{
  const {g}=fixture();const c=structuredClone(g.state.combat);c.encounter.outcome='escaped';g.commit('COMBAT_ACTION',{combat:c});g.finishCombat({rng:()=>.9});
  assert.throws(()=>g.openSWE02DrombbSafe(),/somente após neutralizar/);
- const w=structuredClone(g.state.world);w.publishedAdventure.newMeenSafeReceipts=[{type:'NEW_MEEN_SAFE',source:{productCode:'SWE02',printedPage:23},nodeId:'drombb-cantina',method:'key',check:null,success:true,characterKey:'cael',creditsGranted:2000,creditsRemaining:2000,combatEncounterId:'laoth-drombb-cantina'}];
+ const w=structuredClone(g.state.world);w.publishedAdventure.newMeenSafeReceipts=[{type:'NEW_MEEN_SAFE',source:{productCode:'SWE02',printedPage:23},nodeId:'drombb-cantina',method:'key',check:null,success:true,characterKey:'cael',gmConfirmedQuick:true,creditsGranted:2000,creditsRemaining:2000,combatEncounterId:'laoth-drombb-cantina'}];
  assert.throws(()=>adapter.status(w),/sem vitória real/);
+});
+test('P242 p23 safe accepts explosives and gates the 2000 credits on explicit GM race confirmation',()=>{
+ const {g,repo}=fixture();const c=structuredClone(g.state.combat);
+ for(const a of c.adversaries){a.wounds.current=a.wounds.threshold+1;a.status='incapacitated';}
+ c.encounter.outcome='adversaries_defeated';g.commit('COMBAT_ACTION',{combat:c});g.finishCombat({rng:()=>.9});
+ const before=g.state.player.character.credits;
+ assert.throws(()=>g.openSWE02DrombbSafe({method:'blast'}),/Mestre deve confirmar/);
+ const receipt=g.openSWE02DrombbSafe({method:'blast',gmConfirmedQuick:false});
+ assert.equal(receipt.success,true);assert.equal(receipt.creditsGranted,0);assert.equal(g.state.player.character.credits,before);
+ assert.equal(g.state.world.publishedAdventure.newMeenSafeReceipts[0].gmConfirmedQuick,false);reopen(repo);
 });
 test('P242 bridge and offline UI contain live confirmation and Coerce operations',()=>{
  const b=new BraseiroUiBridge({repository:new Repo()});
  for(const fn of ['adjudicateSWE02NewMeenDeaths','coerceSWE02NewMeenThugs','openSWE02DrombbSafe'])assert.equal(typeof b[fn],'function');
  const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
  const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
- for(const id of ['swe02NewMeenConfirmDeaths','swe02NewMeenCoerce','swe02NewMeenGroup','swe02DrombbSafeOpen']){assert.ok(html.includes(`id="${id}"`));assert.ok(ui.includes(id));}
+ for(const id of ['swe02NewMeenConfirmDeaths','swe02NewMeenCoerce','swe02NewMeenGroup','swe02DrombbSafeOpen','swe02NewMeenLifecycle','swe02NewMeenApproach','swe02DrombbSafeQuick','swe02NewMeenNightResolve','swe02NewMeenNightInteraction','swe02NewMeenNightResult','swe02NewMeenEscortRefuse','swe02NewMeenCoercionResolve','swe02NewMeenRoadHarassment','swe02NewMeenRetaliationResolve','swe02NewMeenDetectedResolve','swe02NewMeenAllyResolve','swe02NewMeenCharm','swe02NewMeenDefeatResolve','swe02NewMeenOfficeSearch','swe02NewMeenGmNote']){assert.ok(html.includes(`id="${id}"`));assert.ok(ui.includes(id));}
+ assert.doesNotMatch(ui,/window\.prompt\(/);
 });

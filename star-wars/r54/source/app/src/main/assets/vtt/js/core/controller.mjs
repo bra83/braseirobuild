@@ -3314,8 +3314,18 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
             const environmental=environment_mjs_1.configureEnvironment(this.state.environment,{scriptedSetbackDice:Number(spec.environment.darknessSetbackDice)});
             this.commit('ENVIRONMENT_UPDATED',{environment:environmental});
         }
+        let publishedEncounterWorld=encounterWorld;
+        if(adapter.id==='long-arm-of-the-hutt'&&publishedEncounterWorld.publishedAdventure?.newMeenLifecycle){
+            const stage=publishedEncounterWorld.publishedAdventure.newMeenLifecycle.stage;
+            if(encounterId==='laoth-new-meen-night-raid'&&stage==='NIGHT_STANDOFF')
+                publishedEncounterWorld=adapter.recordNewMeenLifecycle(publishedEncounterWorld,'night_interaction',{response:'aggressive_move'}).world;
+            else if(encounterId==='laoth-new-meen-night-raid'&&stage!=='NIGHT_COMBAT')
+                throw Error('SWE02 p.20: registre a resposta à abordagem noturna antes do combate.');
+            if(encounterId==='laoth-drombb-cantina'&&['CANTINA_READY','CANTINA_COMBAT'].includes(publishedEncounterWorld.publishedAdventure.newMeenLifecycle.stage))
+                publishedEncounterWorld=adapter.recordNewMeenLifecycle(publishedEncounterWorld,'cantina_start').world;
+        }
         const started = this.beginEncounter({ adversaries, rng, playerInitiativeSkill: spec.playerInitiativeSkill, npcInitiativeSkill: spec.npcInitiativeSkill, npcInitiativeSetback:spec.npcInitiativeSetback, playerQuickReactionStrain });
-        const marked = adapter.markEncounterActive(encounterWorld, spec.id);
+        const marked = adapter.markEncounterActive(publishedEncounterWorld, spec.id);
         this.commit('WORLD_UPDATED', { world: marked });
         const next = clone(this.state);
         next.combat.publishedAdventureContext = { adventureId: adapter.id, encounterId: spec.id, label: spec.label, nodeId: next.world?.publishedAdventure?.currentNodeId ?? null, ...(priorPublishedEnvironment?{priorEnvironment:priorPublishedEnvironment}:{}) };
@@ -5898,6 +5908,14 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
             this.commit('WORLD_UPDATED',{world:out.world});return clone(out.result);
         });
     }
+    recordSWE02NewMeenLifecycle(operation,details={}){
+        return this.atomicAction(()=>{
+            if(this.state.combat?.active)throw Error('SWE02 New Meen: encerre o combate antes de registrar uma escolha de cena.');
+            const adapter=publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            const out=adapter.recordNewMeenLifecycle(this.state.world,String(operation),details??{});
+            this.commit('WORLD_UPDATED',{world:out.world});return {receipt:out.receipt,lifecycle:out.lifecycle};
+        });
+    }
     /** SWE02 pp.13–14: source-backed Nabat operations; all commits atomic. */
     swe02NabatMarket(){return nabatMarketCatalog();}
     purchaseSWE02NabatItem({itemId,quantity=1}={}){
@@ -5952,7 +5970,10 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
     bribeSWE02NewMeenThug({credits=500,rng=Math.random}={}){
         return this.atomicAction(()=>{
             if(this.state.combat?.active)throw Error('SWE02: encerre o combate antes de negociar.');
-            const out=bribeNewMeenThug(this.state.world,requireCharacter(this.state.player?.character),{credits,rng});
+            let out=bribeNewMeenThug(this.state.world,requireCharacter(this.state.player?.character),{credits,rng});
+            const p=out.world?.publishedAdventure;
+            if(p?.newMeenLifecycle){const adapter=publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+                out={...out,world:adapter.recordNewMeenLifecycle(out.world,'bribe_receipt',{receipt:out.receipt}).world};}
             this.commit('CHARACTER_UPDATED',{character:out.character});this.commit('WORLD_UPDATED',{world:out.world});
             return {receipt:clone(out.receipt),remainingThugs:out.remainingThugs};
         });
@@ -5963,10 +5984,16 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
     departSWE02NewMeenEscort({travelTicks}={}){return this.atomicAction(()=>{if(this.state.combat?.active)throw Error('SWE02: combate ativo.');
         const out=departNewMeenEscort(this.state.world,{travelTicks});this.commit('WORLD_UPDATED',{world:out.world});return clone(out.receipt);});}
     arriveSWE02NewMeenEscort(){return this.atomicAction(()=>{if(this.state.combat?.active)throw Error('SWE02: combate ativo.');
-        const out=arriveNewMeenEscort(this.state.world);this.commit('WORLD_UPDATED',{world:out.world});
+        let out=arriveNewMeenEscort(this.state.world);const p=out.world?.publishedAdventure;
+        if(p?.newMeenLifecycle){const adapter=publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            out={...out,world:adapter.recordNewMeenLifecycle(out.world,'escort_receipt',{receipt:out.receipt}).world};}
+        this.commit('WORLD_UPDATED',{world:out.world});
         return {receipt:clone(out.receipt),timeAdvancedTicks:out.timeAdvancedTicks};});}
     abandonSWE02NewMeenEscort(){return this.atomicAction(()=>{if(this.state.combat?.active)throw Error('SWE02: combate ativo.');
-        const out=abandonNewMeenEscort(this.state.world);this.commit('WORLD_UPDATED',{world:out.world});return clone(out.receipt);});}
+        let out=abandonNewMeenEscort(this.state.world);const p=out.world?.publishedAdventure;
+        if(p?.newMeenLifecycle){const adapter=publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            out={...out,world:adapter.recordNewMeenLifecycle(out.world,'escort_receipt',{receipt:out.receipt}).world};}
+        this.commit('WORLD_UPDATED',{world:out.world});return clone(out.receipt);});}
     armSWE02NewMeenMilitia({weaponIndex}={}){return this.atomicAction(()=>{if(this.state.combat?.active)throw Error('SWE02: combate ativo.');
         const out=armNewMeenMilitia(this.state.world,requireCharacter(this.state.player?.character),{weaponIndex});
         this.commit('CHARACTER_UPDATED',{character:out.character});this.commit('WORLD_UPDATED',{world:out.world});return clone(out.receipt);});}
@@ -5995,10 +6022,13 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
             return clone(out.receipt);
         });
     }
-    openSWE02DrombbSafe({method='key',rng=Math.random}={}){
+    openSWE02DrombbSafe({method='key',gmConfirmedQuick,rng=Math.random}={}){
         return this.atomicAction(()=>{
             if(this.state.combat?.active)throw Error('SWE02: encerre o combate antes de abrir o cofre.');
-            const out=openDrombbSafe(this.state.world,requireCharacter(this.state.player?.character),{method,rng});
+            let out=openDrombbSafe(this.state.world,requireCharacter(this.state.player?.character),{method,gmConfirmedQuick,rng});
+            const p=out.world?.publishedAdventure;
+            if(p?.newMeenLifecycle){const adapter=publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+                out={...out,world:adapter.recordNewMeenLifecycle(out.world,'safe_search').world};}
             this.commit('CHARACTER_UPDATED',{character:out.character});this.commit('WORLD_UPDATED',{world:out.world});
             return clone(out.receipt);
         });

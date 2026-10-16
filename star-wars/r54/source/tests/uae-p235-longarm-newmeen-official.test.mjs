@@ -11,10 +11,12 @@ const step=(w,id)=>a.advance(w,id).world;
 const arrive=()=>step(step(step(start(),'dock-ryloth'),'help-new-meen'),'travel-lylek-den');
 const meen=()=>step(resolveOldLylekRetreat(a,arrive()),'reach-new-meen');
 const withParty=(world,n)=>{const w=clone(world);w.publishedAdventure.flags.confirmedPartySize=n;return w;};
+const enterCantina=w=>{w=step(a.recordNewMeenLifecycle(w,'compound_approach',{precautions:true}).world,'new-meen-enter-cantina');return a.recordNewMeenLifecycle(w,'cantina_start').world;};
+const mark=(w,id)=>{const stage=w.publishedAdventure?.newMeenLifecycle?.stage;if(id==='laoth-new-meen-night-raid'&&stage==='NIGHT_STANDOFF')w=a.recordNewMeenLifecycle(w,'night_interaction',{response:'aggressive_move'}).world;if(id==='laoth-drombb-cantina'&&stage==='CANTINA_READY')w=a.recordNewMeenLifecycle(w,'cantina_start').world;return a.markEncounterActive(w,id);};
 const members=(spec,dead=true)=>spec.adversaries.map((e,i)=>({id:`enemy-${i}`,profileKey:e.profileKey,status:dead?'incapacitated':'active',wounds:dead?500:0}));
 const win=(world,id)=>{
  const spec=a.encounterSpec(world,id);
- const active=a.markEncounterActive(world,id);
+ const active=mark(world,id);
  return a.recordEncounterOutcome(active,{encounterId:id,outcome:'adversaries_defeated',adversaries:members(spec)}).world;
 };
 
@@ -62,13 +64,13 @@ test('SWE02 p20: night raid has one group and officially requires one setback fo
 });
 test('SWE02 cannot leave an active New Meen combat by clicking another node',()=>{
  const w=withParty(step(meen(),'stay-new-meen-night'),3);
- const active=a.markEncounterActive(w,'laoth-new-meen-night-raid');
+ const active=mark(w,'laoth-new-meen-night-raid');
  assert.throws(()=>a.advance(active,'leave-new-meen-after-raid'),/Encerre o combate/);
  assert.ok(w.publishedAdventure.activeEncounterId==null);
 });
 test('SWE02 New Meen combat rejects forged groups, ids, and victory without enemy defeat; atomic rollback',()=>{
  const w=withParty(step(meen(),'stay-new-meen-night'),3);
- const active=a.markEncounterActive(w,'laoth-new-meen-night-raid'),before=clone(active);
+ const active=mark(w,'laoth-new-meen-night-raid'),before=clone(active);
  for(const adversaries of [[],[{id:'enemy-1',profileKey:'other',status:'incapacitated'}],members(a.encounterSpec(active,'laoth-new-meen-night-raid'),false),[{id:'',profileKey:'laoth_drombb_thug',status:'incapacitated'}]]) {
   assert.throws(()=>a.recordEncounterOutcome(active,{encounterId:'laoth-new-meen-night-raid',outcome:'adversaries_defeated',adversaries}),/grupos reais|incapacitados|identidades únicas/);
   assert.deepEqual(active,before);
@@ -79,13 +81,13 @@ test('SWE02 p21: resolved night group not recreated in Drombb cantina; sequentia
  const stopped=win(night,'laoth-new-meen-night-raid');
  assert.equal(stopped.publishedAdventure.flags.newMeenNightRaidStopped,true);
  assert.equal(a.status(stopped).node.choices.some(x=>x.id==='follow-drombb-raiders'),true);
- const camp=step(stopped,'follow-drombb-raiders');
+ const camp=enterCantina(step(stopped,'follow-drombb-raiders'));
  const spec=a.encounterSpec(camp,'laoth-drombb-cantina');
  assert.deepEqual(spec.adversaries.map(x=>x.count),[3,3,1]);
  assert.deepEqual(spec.adversaries.map(x=>x.profileKey),['laoth_drombb_thug','laoth_drombb_thug','laoth_angu_drombb']);
 });
 test('SWE02 New Meen full sequence: victory requires actual Drombb defeat with proof and 3 save reopens',()=>{
- let w=withParty(step(meen(),'confront-drombb-directly'),4);
+ let w=enterCantina(withParty(step(meen(),'confront-drombb-directly'),4));
  assert.equal(a.status(w).node.choices.some(x=>x.id==='new-meen-saved-confirmed'),false);
  w=win(w,'laoth-drombb-cantina');
  assert.equal(w.publishedAdventure.flags.drombbThreatNeutralized,true);
@@ -108,7 +110,7 @@ test('SWE02 New Meen escape and evacuation persist without victory or experience
  assert.equal(w.publishedAdventure.rewardsApplied,false);
 });
 test('SWE02 tampered victory flag without corresponding combat receipt fails closed on restore/status/advance',()=>{
- const w=withParty(step(meen(),'confront-drombb-directly'),4);
+ const w=enterCantina(withParty(step(meen(),'confront-drombb-directly'),4));
  const corrupted=clone(w);corrupted.publishedAdventure.flags.drombbThreatNeutralized=true;
  assert.throws(()=>a.status(corrupted),/registro de combate verificável/);
  assert.throws(()=>a.advance(corrupted,'new-meen-saved-confirmed'),/registro de combate verificável/);

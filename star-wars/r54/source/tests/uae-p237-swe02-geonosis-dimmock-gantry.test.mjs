@@ -7,6 +7,8 @@ import {GameController} from '../app/src/main/assets/vtt/js/core/controller.mjs'
 import {createCampaign} from '../app/src/main/assets/vtt/js/core/state.mjs';
 const a=getPublishedAdventureAdapter('long-arm-of-the-hutt');
 const step=(w,id)=>a.advance(w,id).world,chain=(w,...ids)=>ids.reduce((state,id)=>step(id==='reach-new-meen'?resolveOldLylekRetreat(a,state):state,id),w),start=()=>a.start({}).world;
+const enterCantina=w=>step(a.recordNewMeenLifecycle(w,'compound_approach',{precautions:true}).world,'new-meen-enter-cantina');
+const mark=(w,id)=>{const stage=w.publishedAdventure?.newMeenLifecycle?.stage;if(id==='laoth-drombb-cantina'&&stage==='CANTINA_READY')w=a.recordNewMeenLifecycle(w,'cantina_start').world;return a.markEncounterActive(w,id);};
 const party=()=>chain(start(),'dock-ryloth','head-to-geonosis','attend-piddock-party');
 const audience=()=>step(party(),'piddock-to-dimmock');
 const check=(w,i,success)=>a.adjudicateCheck(w,{checkIndex:i,result:{success,netSuccess:success?1:0,netAdvantage:0}}).world;
@@ -33,9 +35,9 @@ test('P237 pp7,30: Sivor shell needs explicit collection and identification',()=
  for(let i=0;i<3;i++){w=reopen(w);a.status(w)}
 });
 test('P237 p23: Drombb messages require victory and Hard Computers',()=>{
- let w=chain(start(),'dock-ryloth','help-new-meen','travel-lylek-den','reach-new-meen','confront-drombb-directly');
+ let w=enterCantina(chain(start(),'dock-ryloth','help-new-meen','travel-lylek-den','reach-new-meen','confront-drombb-directly'));
  assert.equal(a.currentChecks(w).length,0);assert.throws(()=>step(w,'drombb-messages'),/inválida/);
- w=structuredClone(w);w.publishedAdventure.flags.confirmedPartySize=3;w=a.markEncounterActive(w,'laoth-drombb-cantina');
+ w=structuredClone(w);w.publishedAdventure.flags.confirmedPartySize=3;w=mark(w,'laoth-drombb-cantina');
  const enemies=a.encounterSpec(w,'laoth-drombb-cantina').adversaries.map((x,i)=>({id:`drombb-${i}`,profileKey:x.profileKey,status:'incapacitated'}));
  w=a.recordEncounterOutcome(w,{encounterId:'laoth-drombb-cantina',outcome:'adversaries_defeated',adversaries:enemies}).world;
  assert.equal(a.currentChecks(w)[0].pool.difficulty,3);w=check(w,0,true);w=step(w,'drombb-messages');
@@ -54,8 +56,8 @@ test('P237 p36: three points means three Geonosians',()=>{
  assert.equal(w.publishedAdventure.flags.geoScore,3);assert.equal(a.encounterSpec(w,'laoth-gantry-aa7').geonosianGuardCount,3);
 });
 test('P237 p36: six-plus removes soldiers, not Vrixx’tt',()=>{
- let w=chain(start(),'inspect-krayt-fang','sivor-shell','finish-ship-inspection','help-new-meen','travel-lylek-den','reach-new-meen','confront-drombb-directly');
- w=structuredClone(w);w.publishedAdventure.flags.confirmedPartySize=3;w=a.markEncounterActive(w,'laoth-drombb-cantina');
+ let w=enterCantina(chain(start(),'inspect-krayt-fang','sivor-shell','finish-ship-inspection','help-new-meen','travel-lylek-den','reach-new-meen','confront-drombb-directly'));
+ w=structuredClone(w);w.publishedAdventure.flags.confirmedPartySize=3;w=mark(w,'laoth-drombb-cantina');
  w=a.recordEncounterOutcome(w,{encounterId:'laoth-drombb-cantina',outcome:'adversaries_defeated',adversaries:a.encounterSpec(w,'laoth-drombb-cantina').adversaries.map((x,i)=>({id:`dr-${i}`,profileKey:x.profileKey,status:'incapacitated'}))}).world;
  w=check(w,0,true);w=chain(w,'drombb-messages','new-meen-saved-confirmed','ota-after-new-meen-defense','follow-ota-geonosis','attend-piddock-party');
  w=step(w,'piddock-kubaz');w=check(w,0,true);w=chain(w,'piddock-b1','piddock-identify-shell','piddock-to-dimmock');

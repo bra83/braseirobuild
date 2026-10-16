@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: P99 Derrubar aparece como qualidade ativa por 2 Vantagens base
+ok 1 - P99 Derrubar aparece como qualidade ativa por 2 Vantagens base
+  ---
+  duration_ms: 5.5076
+  type: 'test'
+  ...
+# Subtest: P99 Derrubar aplica prone persistente e consome orçamento único
+ok 2 - P99 Derrubar aplica prone persistente e consome orçamento único
+  ---
+  duration_ms: 90.0738
+  type: 'test'
+  ...
+# Subtest: P99 Derrubar cobra +1 Vantagem por Silhueta do alvo acima do atacante
+ok 3 - P99 Derrubar cobra +1 Vantagem por Silhueta do alvo acima do atacante
+  ---
+  duration_ms: 76.7572
+  type: 'test'
+  ...
+# Subtest: P99 alvo prone concede Boost a ataque melee e Setback a ataque ranged
+ok 4 - P99 alvo prone concede Boost a ataque melee e Setback a ataque ranged
+  ---
+  duration_ms: 69.5127
+  type: 'test'
+  ...
+# Subtest: P99 jogador caído precisa gastar manobra real para levantar
+ok 5 - P99 jogador caído precisa gastar manobra real para levantar
+  ---
+  duration_ms: 44.5911
+  type: 'test'
+  ...
+# Subtest: P99 NPC prone levanta no próprio turno antes de agir
+ok 6 - P99 NPC prone levanta no próprio turno antes de agir
+  ---
+  duration_ms: 28.3302
+  type: 'test'
+  ...
+# Subtest: P99 bridge/contratos/R46 expõem Levantar-se sem mutação bruta de prone
+ok 7 - P99 bridge/contratos/R46 expõem Levantar-se sem mutação bruta de prone
+  ---
+  duration_ms: 551.2923
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3950.6851

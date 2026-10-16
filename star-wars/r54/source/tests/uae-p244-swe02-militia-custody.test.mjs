@@ -13,7 +13,7 @@ function fixture({cantina=false}={}){
  let w=adapter.start(g.state.world).world;
  for(const c of ['dock-ryloth','help-new-meen','travel-lylek-den'])w=adapter.advance(w,c).world;w=resolveOldLylekRetreat(adapter,w,3);w=adapter.advance(w,'reach-new-meen').world;
  w.publishedAdventure.flags.confirmedPartySize=3;
- if(cantina)w=adapter.advance(w,'confront-drombb-directly').world;
+ if(cantina){w=adapter.advance(w,'confront-drombb-directly').world;w=adapter.recordNewMeenLifecycle(w,'compound_approach',{precautions:true}).world;w=adapter.advance(w,'new-meen-enter-cantina').world;}
  g.state.world=w;repo.save(g.state);return {repo,g};
 }
 function reopen(repo){for(let i=0;i<3;i++){const g=new GameController(repo);assert.ok(adapter.status(g.state.world).active);}}

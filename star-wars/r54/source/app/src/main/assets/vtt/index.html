@@ -573,8 +573,44 @@ ROTA PONTILHADA: retirada dos caçadores · SWE02 p.16</pre>
               <input id="swe02NewMeenDeaths" type="number" min="1" max="12" value="1" />
               <button id="swe02NewMeenConfirmDeaths">Confirmar mortes efetivas deste grupo</button>
               <button id="swe02NewMeenCoerce">Coagir capangas sobreviventes (consome ação)</button>
-              <select id="swe02DrombbSafeMethod"><option value="key">Chave de Drombb após derrota</option><option value="skulduggery">Atividade Criminal · Difícil</option></select>
+              <select id="swe02DrombbSafeMethod"><option value="key">Chave de Drombb após derrota</option><option value="blast">Arrombar com explosivos</option><option value="skulduggery">Atividade Criminal · Difícil</option></select>
               <button id="swe02DrombbSafeOpen">Abrir cofre da cantina (2.000 créditos oficiais)</button>
+              <label><input id="swe02DrombbSafeQuick" type="checkbox" /> Mestre confirma que os PJs chegaram antes do saque dos Twi’leks</label>
+              <div id="swe02NewMeenLifecycle" class="scene-actions">
+                <p>SWE02 · decisões e recibos da sequência New Meen (pp.19–23)</p>
+                <label for="swe02NewMeenGmNote">Nota do Mestre para ramo não especificado pelo livro</label>
+                <textarea id="swe02NewMeenGmNote" rows="2" maxlength="500" placeholder="Registre a adjudicação antes de confirmar o ramo"></textarea>
+                <label for="swe02NewMeenNightChoice">Noite em New Meen</label>
+                <select id="swe02NewMeenNightChoice"><option value="stay">Ficar e esperar o ataque</option><option value="other">Outra decisão (exige nota do Mestre)</option></select>
+                <button id="swe02NewMeenNightResolve">Registrar escolha da noite</button>
+                <label for="swe02NewMeenNightResponse">Resposta aos capangas</label>
+                <select id="swe02NewMeenNightResponse"><option value="refuse_speeder">Recusar entregar o speeder</option><option value="speak_out_of_turn">Falar fora de hora</option><option value="aggressive_move">Agir agressivamente</option><option value="hand_over_speeder">Entregar o speeder (adjudicação do Mestre)</option></select>
+                <button id="swe02NewMeenNightInteraction">Registrar resposta e gatilho de combate</button>
+                <label for="swe02NewMeenNightOutcome">Resultado do combate noturno</label>
+                <select id="swe02NewMeenNightOutcome"><option value="pcs_defeated">PJs incapacitados</option><option value="other">Outro desfecho do Mestre</option></select>
+                <button id="swe02NewMeenNightResult">Registrar resultado real do combate noturno</button>
+                <button id="swe02NewMeenEscortRefuse">Recusar a escolta (ramo p.20)</button>
+                <label><input id="swe02NewMeenCoercionSucceeded" type="checkbox" /> Coerção dos PJs foi bem-sucedida</label>
+                <button id="swe02NewMeenCoercionResolve">Registrar resultado da coerção</button>
+                <button id="swe02NewMeenRoadHarassment">Registrar adjudicação de assédio na estrada</button>
+                <label for="swe02NewMeenRetaliation">Retaliação de Drombb</label>
+                <select id="swe02NewMeenRetaliation"><option value="go_to_compound">Ir ao acampamento de Drombb</option><option value="defend_new_meen">Ficar para defender New Meen (adjudicação)</option><option value="other">Outra decisão (adjudicação)</option></select>
+                <button id="swe02NewMeenRetaliationResolve">Registrar decisão sobre a retaliação</button>
+                <label><input id="swe02NewMeenPrecautions" type="checkbox" /> Grupo tomou precauções na aproximação</label>
+                <button id="swe02NewMeenApproach">Registrar aproximação ao acampamento</button>
+                <label for="swe02NewMeenDetected">Contato após ser detectado</label>
+                <select id="swe02NewMeenDetected"><option value="negotiate_politely">Tentar conversar educadamente</option><option value="turn_back">Recuar</option><option value="other">Outra decisão (adjudicação)</option></select>
+                <button id="swe02NewMeenDetectedResolve">Resolver contato detectado</button>
+                <label for="swe02NewMeenAllyMethod">Método para os aliados Twi’lek</label>
+                <select id="swe02NewMeenAllyMethod"><option value="narrative">Resolução narrativa (após avaliação)</option><option value="abstracted">Resolução abstrata da milícia</option><option value="delegated">Resolução delegada pelo Mestre</option></select>
+                <button id="swe02NewMeenAllyResolve">Registrar método de resolução dos aliados (p.21)</button>
+                <button id="swe02NewMeenCharm">Registrar tentativa de Charme sem rolagem</button>
+                <label for="swe02NewMeenDefeat">Se os PJs forem derrotados na cantina</label>
+                <select id="swe02NewMeenDefeat"><option value="p21_residents_rescue">p.21: residentes são espancados; escolta oferecida</option><option value="p23_capture_rescue">p.23: capturados; resgate de B’ura e Ota</option></select>
+                <button id="swe02NewMeenDefeatResolve">Registrar consequência da derrota real</button>
+                <button id="swe02NewMeenOfficeSearch">Registrar resultado da busca de mensagens (Hard Computers)</button>
+                <p id="swe02NewMeenLifecycleFeedback" class="feedback"></p>
+              </div>
               <p id="swe02NewMeenFeedback" class="feedback"></p>
             </div><div id="swe02VehicleActions" hidden><p>SWE02 · Interceptação Thwheek · fonte p.12</p><button id="swe02Resolve">Resolver confronto</button><button id="swe02Pursue">Perseguir</button><button id="swe02Linked">Vinculada (2 Vant.)</button><button id="swe02CrashPilot">Pilotagem Difícil</button><button id="swe02CrashCrew">Aguante Difícil</button></div>
             <label class="starter-label" for="vehicleWeaponSelect">Arma da nave</label><select id="vehicleWeaponSelect" class="starter-select"></select>

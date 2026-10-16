@@ -86,7 +86,7 @@ export function validateNewMeenP242(p){if(p?.id!=='long-arm-of-the-hutt')return 
 
 // SWE02 p.23: Drombb's cantina safe contains exactly 2,000 credits.
 // A defeated Drombb carries the key; alternatively Hard Skulduggery.
-export function openDrombbSafe(world,character,{method='key',rng=Math.random}={}){
+export function openDrombbSafe(world,character,{method='key',gmConfirmedQuick,rng=Math.random}={}){
  const w=clone(world),c=clone(character),p=w?.publishedAdventure;
  if(p?.id!=='long-arm-of-the-hutt'||p.status!=='ACTIVE'||p.currentNodeId!=='drombb-cantina'||!p.flags?.drombbThreatNeutralized)
   throw Error('SWE02: cofre disponível somente após neutralizar Drombb na cantina.');
@@ -94,24 +94,25 @@ export function openDrombbSafe(world,character,{method='key',rng=Math.random}={}
  if(!combat?.combatProof?.eliminated||!combat.combatProof.groupSnapshots?.some(x=>x.profileKey==='laoth_angu_drombb'&&['incapacitated','defeated'].includes(x.status)))
   throw Error('SWE02: sem prova da derrota de Drombb e acesso à chave.');
  if((p.newMeenSafeReceipts||[]).length)throw Error('SWE02: cofre já investigado; recompensa não pode ser repetida.');
- if(!['key','skulduggery'].includes(method))throw Error('SWE02: método do cofre inválido.');
+ if(!['key','blast','skulduggery'].includes(method))throw Error('SWE02: método do cofre inválido.');
+ if(typeof gmConfirmedQuick!=='boolean')throw Error('SWE02: Mestre deve confirmar se os PJs chegaram antes do saque dos Twi’leks.');
  const check=method==='skulduggery'?skillRoll(c,'actividad_criminal',3,rng):null;
- const success=method==='key'||check.success;
+ const success=method==='key'||method==='blast'||check.success,creditsGranted=success&&gmConfirmedQuick?2000:0;
  if(!Number.isSafeInteger(c.credits)||c.credits<0||c.credits>Number.MAX_SAFE_INTEGER-2000)throw Error('SWE02: carteira inválida.');
- if(success)c.credits+=2000;
+ if(creditsGranted)c.credits+=creditsGranted;
  const receipt={type:'NEW_MEEN_SAFE',source:clone(SRC),nodeId:p.currentNodeId,method,check,success,
-  characterKey:String(c.id||c.name||''),creditsGranted:success?2000:0,creditsRemaining:c.credits,
+  characterKey:String(c.id||c.name||''),gmConfirmedQuick,creditsGranted,creditsRemaining:c.credits,
   combatEncounterId:combat.encounterId};
  p.newMeenSafeReceipts=[receipt];return {world:w,character:c,receipt};
 }
 export function validateNewMeenSafe(p){if(p?.id!=='long-arm-of-the-hutt')return true;
  const rr=p.newMeenSafeReceipts||[];if(!Array.isArray(rr)||rr.length>1)throw Error('SWE02: cofre duplicado.');
  for(const r of rr){if(r.type!=='NEW_MEEN_SAFE'||r.source?.productCode!=='SWE02'||r.source.printedPage!==23||r.nodeId!=='drombb-cantina'||
-   !['key','skulduggery'].includes(r.method)||!r.characterKey||r.combatEncounterId!=='laoth-drombb-cantina'||
-   r.success!==(r.method==='key'||r.check?.success)||r.creditsGranted!==(r.success?2000:0)||
+   !['key','blast','skulduggery'].includes(r.method)||!r.characterKey||r.combatEncounterId!=='laoth-drombb-cantina'||
+   r.success!==(r.method==='key'||r.method==='blast'||r.check?.success)||typeof r.gmConfirmedQuick!=='boolean'||r.creditsGranted!==(r.success&&r.gmConfirmedQuick?2000:0)||
    !Number.isSafeInteger(r.creditsRemaining)||r.creditsRemaining<0)throw Error('SWE02: recibo do cofre adulterado.');
   if(r.method==='skulduggery')validateCheck(r.check,{difficulty:3,challenge:0,boost:0,setback:0});
-  else if(r.check!==null)throw Error('SWE02: chave não exige rolagem.');
+  else if(r.check!==null)throw Error('SWE02: chave/explosivo não exige rolagem.');
   if(!p.encounterHistory?.some(x=>x.encounterId==='laoth-drombb-cantina'&&x.outcome==='adversaries_defeated'&&x.combatProof?.eliminated))throw Error('SWE02: cofre sem vitória real.');
  }
  return true;

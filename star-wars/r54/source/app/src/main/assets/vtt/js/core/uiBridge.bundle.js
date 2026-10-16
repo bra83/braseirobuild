@@ -3230,6 +3230,17 @@ class BraseiroUiBridge {
             return fail('SWE02_SHIP_FAILED', messageOf(e));
         }
     }
+    recordSWE02NewMeenLifecycle(operation, details = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.recordSWE02NewMeenLifecycle(String(operation), details ?? {})));
+        }
+        catch (e) {
+            return fail('SWE02_NEW_MEEN_FAILED', messageOf(e));
+        }
+    }
     swe02NabatMarket() {
         const r = this._controllerForExistingCampaign();
         if (!r.ok)
@@ -13591,6 +13602,7 @@ exports.recordLongArmShipObservation = recordLongArmShipObservation;
 exports.discoverLongArmShipRoom = discoverLongArmShipRoom;
 exports.recordLongArmBuraConversation = recordLongArmBuraConversation;
 exports.setLongArmPeltSearchAnnounced = setLongArmPeltSearchAnnounced;
+exports.recordLongArmNewMeenLifecycle = recordLongArmNewMeenLifecycle;
 const livingWorldDepth_mjs_1 = require("../world/livingWorldDepth.mjs");
 const swe02GeonosisP237_mjs_1 = require("./swe02GeonosisP237.mjs");
 const swe02KraytFangP238_mjs_1 = require("./swe02KraytFangP238.mjs");
@@ -13605,6 +13617,7 @@ const swe02Act2Anatta_mjs_1 = require("./swe02Act2Anatta.mjs");
 const swe02Act2ContractsWip_mjs_1 = require("./swe02Act2ContractsWip.mjs");
 const swe02PalaceOperations_mjs_1 = require("./swe02PalaceOperations.mjs");
 const swe02OldLylekP15_mjs_1 = require("./swe02OldLylekP15.mjs");
+const swe02NewMeenLifecycleP19_mjs_1 = require("./swe02NewMeenLifecycleP19.mjs");
 const ID = 'long-arm-of-the-hutt';
 const SOURCE = { title: 'Long Arm of the Hutt', system: 'Star Wars: Edge of the Empire', productCode: 'SWE02', userMaterial: true };
 const LOC = {
@@ -13749,7 +13762,7 @@ exports.LONG_ARM_OF_THE_HUTT = Object.freeze({
             visibleNpcIds: [NPC.bura], checks: [{ skill: 'Liderança', difficulty: 'Média', purpose: 'organizar a defesa e a retirada dos civis' }],
             choices: [
                 { id: 'meet-bothan-ota', label: 'Prosseguir com Ota sem resolver a situação dos mineiros (não é vitória)', to: 'ota-briefing', effects: { newMeenOutcome: 'UNRESOLVED' } },
-                { id: 'confront-drombb-directly', label: 'Investigar o acampamento e confrontar Angu Drombb', to: 'drombb-cantina' },
+                { id: 'confront-drombb-directly', label: 'Investigar o acampamento e confrontar Angu Drombb', to: 'drombb-compound-approach' },
                 { id: 'stay-new-meen-night', label: 'Permanecer em New Meen e acompanhar a noite', to: 'new-meen-night-raid' },
                 { id: 'escort-new-meen-evacuees', label: 'Organizar retirada e escolta para Nabat', to: 'new-meen-evacuation' }
             ]
@@ -13761,8 +13774,16 @@ exports.LONG_ARM_OF_THE_HUTT = Object.freeze({
             narration: 'O estrondo de um veículo de esteiras derruba o silêncio das barracas. Os mineiros correm para ver o dano.',
             visibleNpcIds: [NPC.bura], checks: [],
             choices: [
-                { id: 'follow-drombb-raiders', label: 'Seguir até o acampamento após neutralizar o grupo', to: 'drombb-cantina', condition: 'flag:newMeenNightRaidStopped' },
+                { id: 'follow-drombb-raiders', label: 'Seguir até o acampamento após neutralizar o grupo e decidir sobre a retaliação', to: 'drombb-compound-approach', condition: 'flag:newMeenNightRaidStopped' },
                 { id: 'leave-new-meen-after-raid', label: 'Recuar e ajudar a retirar os mineiros', to: 'new-meen-evacuation' }
+            ]
+        },
+        'drombb-compound-approach': {
+            episode: 1, title: 'Abordagem ao acampamento de Drombb', locationId: LOC.newMeen,
+            summary: 'SWE02 p.22: aproximação cautelosa evita testes; aproximação detectada gera um contato tenso, e um Aqualish abre fogo mesmo durante negociação educada.',
+            narration: 'Uma milha ao sul de New Meen, veículos de esteiras cercam as estruturas de Drombb. A cantina parece ser o ponto de reunião dos capangas.',
+            visibleNpcIds: [NPC.dromund], checks: [], choices: [
+                { id: 'new-meen-enter-cantina', label: 'Entrar na cantina após resolver a abordagem', to: 'drombb-cantina', condition: 'flag:newMeenApproachReady' }
             ]
         },
         'drombb-cantina': {
@@ -14242,6 +14263,55 @@ function startLongArmOfTheHutt(world) {
         node: playerNode(exports.LONG_ARM_OF_THE_HUTT.nodes[p.currentNodeId], p)
     };
 }
+function ensureNewMeenLifecycle(progress) {
+    const confirmed = Number(progress.flags?.confirmedPartySize);
+    const crewCount = Array.isArray(progress.oldLylek?.crewPcIds) ? progress.oldLylek.crewPcIds.length : null;
+    const partySize = Number.isInteger(confirmed) && confirmed >= 2 && confirmed <= 8 ? confirmed :
+        Number.isInteger(crewCount) && crewCount >= 2 && crewCount <= 8 ? crewCount : null;
+    if (progress.newMeenLifecycle) {
+        if (progress.newMeenLifecycle.partySize === null && partySize !== null)
+            progress.newMeenLifecycle.partySize = partySize;
+        return progress.newMeenLifecycle;
+    }
+    progress.newMeenLifecycle = (0, swe02NewMeenLifecycleP19_mjs_1.createSWE02NewMeenLifecycle)({ partySize });
+    return progress.newMeenLifecycle;
+}
+function applyNewMeenLifecycle(progress, operation, details = {}) {
+    const state = ensureNewMeenLifecycle(progress), args = details || {};
+    const actions = {
+        arrival_response: () => (0, swe02NewMeenLifecycleP19_mjs_1.chooseSWE02NewMeenResponse)(state, args),
+        refuse_escort: () => (0, swe02NewMeenLifecycleP19_mjs_1.refuseSWE02NewMeenEscort)(state),
+        coercion: () => (0, swe02NewMeenLifecycleP19_mjs_1.resolveSWE02NewMeenCoercionOfPcs)(state, args),
+        road_harassment: () => (0, swe02NewMeenLifecycleP19_mjs_1.recordSWE02NewMeenRoadHarassment)(state, args),
+        ally_resolution: () => (0, swe02NewMeenLifecycleP19_mjs_1.chooseSWE02NewMeenAllyResolution)(state, args),
+        assemble_escort: () => (0, swe02NewMeenLifecycleP19_mjs_1.assembleSWE02NewMeenEscort)(state),
+        escort_receipt: () => (0, swe02NewMeenLifecycleP19_mjs_1.recordSWE02NewMeenEscortReceipt)(state, args),
+        night_stay: () => (0, swe02NewMeenLifecycleP19_mjs_1.resolveSWE02NewMeenNightStay)(state, args),
+        night_interaction: () => (0, swe02NewMeenLifecycleP19_mjs_1.resolveSWE02NewMeenNightInteraction)(state, args),
+        night_combat: () => (0, swe02NewMeenLifecycleP19_mjs_1.resolveSWE02NewMeenNightCombat)(state, args),
+        retaliation: () => (0, swe02NewMeenLifecycleP19_mjs_1.resolveSWE02NewMeenRetaliationChoice)(state, args),
+        compound_approach: () => (0, swe02NewMeenLifecycleP19_mjs_1.approachSWE02DrombbCompound)(state, args),
+        detected_contact: () => (0, swe02NewMeenLifecycleP19_mjs_1.resolveSWE02DrombbDetectedContact)(state, args),
+        gunfire: () => (0, swe02NewMeenLifecycleP19_mjs_1.recordSWE02NewMeenGunfire)(state, args),
+        cantina_start: () => (0, swe02NewMeenLifecycleP19_mjs_1.startSWE02DrombbCantina)(state),
+        bribe_receipt: () => (0, swe02NewMeenLifecycleP19_mjs_1.recordSWE02NewMeenBribe)(state, args),
+        charm_attempt: () => (0, swe02NewMeenLifecycleP19_mjs_1.recordSWE02NewMeenCharmAttempt)(state),
+        cantina_outcome: () => (0, swe02NewMeenLifecycleP19_mjs_1.resolveSWE02NewMeenCantinaOutcome)(state, args),
+        office_search: () => (0, swe02NewMeenLifecycleP19_mjs_1.recordSWE02DrombbOfficeSearch)(state, args),
+        safe_search: () => (0, swe02NewMeenLifecycleP19_mjs_1.recordSWE02DrombbSafeSearch)(state, args)
+    };
+    const action = actions[operation];
+    if (!action)
+        throw Error('SWE02 New Meen: operação desconhecida.');
+    const out = action();
+    progress.newMeenLifecycle = out.state;
+    if (['compound_approach', 'detected_contact', 'gunfire'].includes(operation))
+        progress.flags = { ...(progress.flags || {}), newMeenApproachReady: ['CANTINA_READY', 'CANTINA_COMBAT'].includes(out.state.stage) };
+    if (operation === 'night_combat')
+        progress.flags = { ...(progress.flags || {}), newMeenNightRaidStopped: out.state.nightRaid.groupStopped };
+    (0, swe02NewMeenLifecycleP19_mjs_1.validateSWE02NewMeenLifecycle)(progress.newMeenLifecycle);
+    return out;
+}
 function advanceLongArmOfTheHutt(world, choiceId) {
     const next = clone(world || {});
     const p = next.publishedAdventure;
@@ -14256,6 +14326,8 @@ function advanceLongArmOfTheHutt(world, choiceId) {
     (0, swe02NabatP240_mjs_1.validateNabat)(p);
     (0, swe02SocialP241_mjs_1.validateSWE02Social)(p);
     (0, swe02NewMeenP242_mjs_1.validateNewMeenP242)(p);
+    if (p.newMeenLifecycle)
+        (0, swe02NewMeenLifecycleP19_mjs_1.validateSWE02NewMeenLifecycle)(p.newMeenLifecycle);
     (0, swe02NewMeenP242_mjs_1.validateNewMeenSafe)(p);
     (0, swe02EvacuationP243_mjs_1.validateNewMeenP243)(next);
     (0, swe02Act2Anatta_mjs_1.validateSWE02Anatta)(next);
@@ -14313,7 +14385,29 @@ function advanceLongArmOfTheHutt(world, choiceId) {
     const destination = choice.to;
     if (p.currentNodeId === 'lylek-den-ambush' && choiceId === 'reach-new-meen')
         p.oldLylek = { ...p.oldLylek, arrivalReceipt: { distanceMiles: 1, buraExplainsAid: true, residentsWelcomeAsHeroes: true, invitedToLargerDwelling: true, basicRationsOffered: true, rationQuantity: null, developerDetails: { status: 'ONLY_IF_ASKED' }, source: { title: 'The Long Arm of the Hutt', productCode: 'SWE02', printedPage: 18, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' } } };
+    if (p.currentNodeId === 'new-meen-miners') {
+        const state = ensureNewMeenLifecycle(p);
+        if (choiceId === 'confront-drombb-directly' && state.stage === 'ARRIVAL')
+            applyNewMeenLifecycle(p, 'arrival_response', { action: 'confront_drombb' });
+        else if (choiceId === 'stay-new-meen-night' && state.stage === 'ARRIVAL') {
+            applyNewMeenLifecycle(p, 'arrival_response', { action: 'avoid_and_stay' });
+            applyNewMeenLifecycle(p, 'night_stay', { choice: 'stay' });
+        }
+        else if (choiceId === 'escort-new-meen-evacuees' && state.stage === 'ARRIVAL') {
+            applyNewMeenLifecycle(p, 'arrival_response', { action: 'do_nothing' });
+            applyNewMeenLifecycle(p, 'assemble_escort');
+        }
+        else if (choiceId === 'meet-bothan-ota' && state.stage === 'ARRIVAL')
+            applyNewMeenLifecycle(p, 'arrival_response', { action: 'other' });
+    }
+    if (p.currentNodeId === 'new-meen-night-raid' && choiceId === 'follow-drombb-raiders' && p.newMeenLifecycle?.stage === 'DROMBB_RETALIATION')
+        applyNewMeenLifecycle(p, 'retaliation', { choice: 'go_to_compound' });
+    if (p.currentNodeId === 'drombb-compound-approach' && choiceId === 'new-meen-enter-cantina' &&
+        !['CANTINA_READY', 'CANTINA_COMBAT'].includes(p.newMeenLifecycle?.stage))
+        throw Error('SWE02 p.22: resolva a aproximação antes de entrar na cantina.');
     p.currentNodeId = destination;
+    if (destination === 'new-meen-miners')
+        ensureNewMeenLifecycle(p);
     if (destination === 'lylek-den-ambush' && !p.oldLylek)
         p.oldLylek = (0, swe02OldLylekP15_mjs_1.createSWE02OldLylekState)();
     if (!p.visitedNodeIds.includes(destination))
@@ -14350,6 +14444,8 @@ function longArmOfTheHuttStatus(world) {
     (0, swe02NabatP240_mjs_1.validateNabat)(p);
     (0, swe02SocialP241_mjs_1.validateSWE02Social)(p);
     (0, swe02NewMeenP242_mjs_1.validateNewMeenP242)(p);
+    if (p.newMeenLifecycle)
+        (0, swe02NewMeenLifecycleP19_mjs_1.validateSWE02NewMeenLifecycle)(p.newMeenLifecycle);
     (0, swe02NewMeenP242_mjs_1.validateNewMeenSafe)(p);
     (0, swe02EvacuationP243_mjs_1.validateNewMeenP243)(world);
     (0, swe02Act2Anatta_mjs_1.validateSWE02Anatta)(world);
@@ -14839,6 +14935,14 @@ function recordLongArmOfTheHuttEncounterOutcome(world, { encounterId, outcome, a
             p.flags.newMeenOutcome = 'LOST';
         }
     }
+    if (p.newMeenLifecycle && encounterId === 'laoth-new-meen-night-raid' && p.newMeenLifecycle.stage === 'NIGHT_COMBAT' && outcome === 'adversaries_defeated')
+        applyNewMeenLifecycle(p, 'night_combat', { outcome: 'thugs_driven_off' });
+    if (p.newMeenLifecycle && encounterId === 'laoth-drombb-cantina' && outcome === 'adversaries_defeated') {
+        const boss = adversaries.find(a => a.profileKey === 'laoth_angu_drombb');
+        const bossDefeated = Boolean(boss && ['incapacitated', 'defeated'].includes(boss.status));
+        if (bossDefeated)
+            applyNewMeenLifecycle(p, 'cantina_outcome', { outcome: 'victory', drombbDefeated: true });
+    }
     if (encounterId === 'teemo-palace-guards')
         p.flags.teemoDefeated = outcome === 'adversaries_defeated';
     if (encounterId === 'laoth-gantry-aa7') {
@@ -14916,6 +15020,48 @@ function setLongArmPeltSearchAnnounced(world, announced) {
         throw Error('Krayt Fang: anúncio de busca inválido.');
     return shipWorldAction(world, p => { if (p.currentNodeId !== 'krayt-fang-logs' || p.flags?.shipPeltsFound)
         throw Error('Krayt Fang: busca indisponível.'); p.flags = { ...(p.flags || {}), shipPeltSearchAnnounced: announced }; return { announced, boost: announced ? 1 : 0, source: { productCode: 'SWE02', printedPage: 9 } }; });
+}
+function recordLongArmNewMeenLifecycle(world, operation, details = {}) {
+    const next = clone(world || {}), p = next.publishedAdventure;
+    if (!p || p.id !== ID || p.status !== 'ACTIVE')
+        throw Error('New Meen: aventura não está ativa.');
+    let args = { ...(details || {}) };
+    if (operation === 'office_search') {
+        const check = (p.checkHistory || []).find(x => x.nodeId === 'drombb-cantina' && x.checkIndex === 0 && x.source?.printedPage === 23);
+        if (!check)
+            throw Error('SWE02 p.23: busca do escritório exige o teste Difícil de Computadores registrado.');
+        args = { computersHardCheckPassed: check.success === true };
+    }
+    if (operation === 'safe_search') {
+        const receipt = p.newMeenSafeReceipts?.at(-1);
+        if (!receipt)
+            throw Error('SWE02 p.23: registre primeiro a abertura real do cofre.');
+        args = { method: receipt.method, successful: receipt.success === true, gmConfirmedQuick: receipt.gmConfirmedQuick === true };
+    }
+    if (operation === 'cantina_outcome') {
+        const last = [...(p.encounterHistory || [])].reverse().find(x => x.encounterId === 'laoth-drombb-cantina');
+        if (!last)
+            throw Error('SWE02 pp.21–23: resultado exige combate real da cantina.');
+        if (args.outcome === 'victory' && last.outcome !== 'adversaries_defeated')
+            throw Error('SWE02 p.23: vitória exige adversários realmente derrotados.');
+        if (args.outcome === 'pcs_defeated' && last.outcome !== 'player_incapacitated')
+            throw Error('SWE02 p.21/23: derrota exige incapacitação real.');
+    }
+    if (operation === 'night_combat') {
+        const last = [...(p.encounterHistory || [])].reverse().find(x => x.encounterId === 'laoth-new-meen-night-raid');
+        if (!last)
+            throw Error('SWE02 p.20: resultado exige combate noturno real.');
+        if (args.outcome === 'thugs_driven_off' && last.outcome !== 'adversaries_defeated')
+            throw Error('SWE02 p.20: vitória exige capangas realmente derrotados.');
+        if (args.outcome === 'pcs_defeated' && last.outcome !== 'player_incapacitated')
+            throw Error('SWE02 p.20: derrota exige incapacitação real.');
+        if (args.outcome === 'other' && !['escaped', 'adversaries_defeated', 'player_incapacitated'].includes(last.outcome))
+            throw Error('SWE02 p.20: resultado de combate inválido.');
+    }
+    const out = applyNewMeenLifecycle(p, operation, args);
+    p.updatedAt = now();
+    next.publishedAdventure = p;
+    return { world: next, progress: clone(p), receipt: clone(out.event), lifecycle: clone(out.state) };
 }
 });
 define("js/adventure/maskOfThePirateQueen.mjs",function(module,exports,require){
@@ -16266,6 +16412,7 @@ const LONG_ARM_OF_THE_HUTT_ADAPTER = Object.freeze({
     discoverShipRoom: longArmOfTheHutt.discoverLongArmShipRoom,
     recordBuraConversation: longArmOfTheHutt.recordLongArmBuraConversation,
     setPeltSearchAnnounced: longArmOfTheHutt.setLongArmPeltSearchAnnounced,
+    recordNewMeenLifecycle: longArmOfTheHutt.recordLongArmNewMeenLifecycle,
     encounterSpec: longArmOfTheHutt.longArmOfTheHuttEncounterSpec,
     markEncounterActive: longArmOfTheHutt.markLongArmOfTheHuttEncounterActive,
     recordEncounterOutcome: longArmOfTheHutt.recordLongArmOfTheHuttEncounterOutcome,
@@ -18582,6 +18729,594 @@ function validateNabat(p) {
     return true;
 }
 });
+define("js/adventure/swe02NewMeenLifecycleP19.mjs",function(module,exports,require){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SWE02_NEW_MEEN_SOURCE = exports.SWE02_NEW_MEEN_LIFECYCLE_VERSION = void 0;
+exports.createSWE02NewMeenLifecycle = createSWE02NewMeenLifecycle;
+exports.chooseSWE02NewMeenResponse = chooseSWE02NewMeenResponse;
+exports.refuseSWE02NewMeenEscort = refuseSWE02NewMeenEscort;
+exports.resolveSWE02NewMeenCoercionOfPcs = resolveSWE02NewMeenCoercionOfPcs;
+exports.recordSWE02NewMeenRoadHarassment = recordSWE02NewMeenRoadHarassment;
+exports.chooseSWE02NewMeenAllyResolution = chooseSWE02NewMeenAllyResolution;
+exports.assembleSWE02NewMeenEscort = assembleSWE02NewMeenEscort;
+exports.recordSWE02NewMeenEscortReceipt = recordSWE02NewMeenEscortReceipt;
+exports.resolveSWE02NewMeenNightStay = resolveSWE02NewMeenNightStay;
+exports.resolveSWE02NewMeenNightInteraction = resolveSWE02NewMeenNightInteraction;
+exports.resolveSWE02NewMeenNightCombat = resolveSWE02NewMeenNightCombat;
+exports.resolveSWE02NewMeenRetaliationChoice = resolveSWE02NewMeenRetaliationChoice;
+exports.approachSWE02DrombbCompound = approachSWE02DrombbCompound;
+exports.resolveSWE02DrombbDetectedContact = resolveSWE02DrombbDetectedContact;
+exports.recordSWE02NewMeenGunfire = recordSWE02NewMeenGunfire;
+exports.startSWE02DrombbCantina = startSWE02DrombbCantina;
+exports.recordSWE02NewMeenBribe = recordSWE02NewMeenBribe;
+exports.recordSWE02NewMeenCharmAttempt = recordSWE02NewMeenCharmAttempt;
+exports.resolveSWE02NewMeenCantinaOutcome = resolveSWE02NewMeenCantinaOutcome;
+exports.recordSWE02DrombbOfficeSearch = recordSWE02DrombbOfficeSearch;
+exports.recordSWE02DrombbSafeSearch = recordSWE02DrombbSafeSearch;
+exports.validateSWE02NewMeenLifecycle = validateSWE02NewMeenLifecycle;
+// SWE02 printed pp.19–23: source-bounded New Meen encounter lifecycle.
+// This module is deliberately pure. The host application owns persistence,
+// dice execution, inventory/credit transactions, and combat proof.
+const clone = value => structuredClone(value);
+const SOURCE = Object.freeze({
+    title: 'The Long Arm of the Hutt',
+    productCode: 'SWE02',
+    authority: 'OFFICIAL_PDF_TEXT_VERIFIED'
+});
+exports.SWE02_NEW_MEEN_LIFECYCLE_VERSION = 1;
+exports.SWE02_NEW_MEEN_SOURCE = SOURCE;
+const PAGE = Object.freeze({
+    arrival: 19,
+    refusal: 20,
+    night: 20,
+    militia: 21,
+    compound: 22,
+    resolution: 23
+});
+const MESSAGE_CLAIMS = Object.freeze([
+    {
+        id: 'THWHEEK_SIVOR_AND_GEOSIS_DEALS',
+        summary: 'Thwheek describes Teemo-linked dealings with Geonosians and his role in Sivor’s death.'
+    },
+    {
+        id: 'THWHEEK_DUKE_DIMMOCK_OPPORTUNITY',
+        summary: 'The messages mention losing Duke Piddock’s support and considering Dimmock as a possible partner.'
+    },
+    {
+        id: 'SIVOR_DECAPITATION_COVERUP',
+        summary: 'A later message refers to Sivor’s decapitation and keeping it from the Geonosian contact.'
+    }
+]);
+const STAGES = new Set([
+    'ARRIVAL', 'AWAITING_ESCORT', 'THUGS_TARGET_PCS', 'NIGHT_ELIGIBLE',
+    'NIGHT_STANDOFF', 'NIGHT_COMBAT', 'DROMBB_RETALIATION', 'CANTINA_APPROACH',
+    'DETECTED_CONTACT', 'CANTINA_READY', 'CANTINA_COMBAT',
+    'VICTORY', 'DEFEAT_RESCUED', 'ESCORT_COMPLETED', 'UNRESOLVED'
+]);
+function assertState(state) {
+    if (!state || state.schemaVersion !== exports.SWE02_NEW_MEEN_LIFECYCLE_VERSION ||
+        !STAGES.has(state.stage) || !Array.isArray(state.events) ||
+        !Number.isSafeInteger(state.revision) || state.revision < 0) {
+        throw new Error('SWE02 New Meen lifecycle: invalid state.');
+    }
+    if (state.partySize !== null && (!Number.isInteger(state.partySize) || state.partySize < 2 || state.partySize > 8)) {
+        throw new Error('SWE02 New Meen lifecycle: party size must be source-confirmed (2–8) or unresolved.');
+    }
+    return state;
+}
+function append(state, type, printedPage, fields = {}) {
+    const next = clone(assertState(state));
+    const event = {
+        id: `new-meen-${next.revision + 1}`,
+        type,
+        revision: next.revision + 1,
+        source: { ...SOURCE, printedPage },
+        ...clone(fields)
+    };
+    next.revision++;
+    next.events.push(event);
+    return { state: next, event };
+}
+function requireStage(state, allowed) {
+    assertState(state);
+    if (!allowed.includes(state.stage))
+        throw new Error(`SWE02 New Meen lifecycle: expected ${allowed.join(' or ')}, got ${state.stage}.`);
+}
+function gmNote(value) {
+    if (typeof value !== 'string' || !value.trim()) {
+        throw new Error('SWE02 New Meen lifecycle: this source branch needs an explicit GM disposition.');
+    }
+    return value.trim();
+}
+function createSWE02NewMeenLifecycle({ partySize = null } = {}) {
+    if (partySize !== null && (!Number.isInteger(partySize) || partySize < 2 || partySize > 8)) {
+        throw new Error('SWE02 New Meen lifecycle: source gives no force size for solo or unconfirmed parties.');
+    }
+    return {
+        schemaVersion: exports.SWE02_NEW_MEEN_LIFECYCLE_VERSION,
+        revision: 0,
+        stage: 'ARRIVAL',
+        partySize,
+        response: null,
+        escort: { offered: false, assembled: false, departed: false, arrived: false, abandoned: false, significantFavor: false },
+        nightRaid: { eligible: false, skipped: false, interaction: null, combatTriggered: false, outcome: null, groupStopped: false },
+        approach: { precautions: null, detected: false, gunfire: false, remainingThugGroups: null },
+        cantina: { started: false, groupSize: null, groups: null, thugCount: null, bribedThugs: 0, bribeReceipts: [], charmAttempted: false, outcome: null },
+        safe: { searched: false, method: null, creditsGranted: 0 },
+        messages: { checked: false, found: false, claimIds: [] },
+        unresolved: [],
+        events: []
+    };
+}
+// The printed scenario supports these response branches, but does not dictate
+// how an individual table's players choose to help.
+function chooseSWE02NewMeenResponse(state, { action } = {}) {
+    requireStage(state, ['ARRIVAL']);
+    if (!['confront_drombb', 'avoid_and_stay', 'do_nothing', 'other'].includes(action)) {
+        throw new Error('SWE02 New Meen lifecycle: unknown arrival response.');
+    }
+    const next = clone(state);
+    next.response = action;
+    if (action === 'confront_drombb')
+        next.stage = 'CANTINA_APPROACH';
+    else if (action === 'avoid_and_stay') {
+        next.stage = 'NIGHT_ELIGIBLE';
+        next.nightRaid.eligible = true;
+    }
+    else if (action === 'do_nothing') {
+        next.stage = 'AWAITING_ESCORT';
+        next.escort.offered = true;
+    }
+    else
+        next.stage = 'UNRESOLVED';
+    const out = append(next, 'ARRIVAL_RESPONSE_RECORDED', PAGE.arrival, { action });
+    out.state.stage = next.stage;
+    return out;
+}
+function refuseSWE02NewMeenEscort(state) {
+    requireStage(state, ['AWAITING_ESCORT']);
+    const next = clone(state);
+    next.escort.abandoned = true;
+    next.stage = 'THUGS_TARGET_PCS';
+    return append(next, 'ESCORT_REFUSED_THUGS_REDIRECT_TO_PCS', PAGE.refusal, {
+        sequence: ['coerce_pcs_to_return_to_cantina', 'violence_if_coercion_fails'],
+        nextResolution: 'GM_ADJUDICATION'
+    });
+}
+function resolveSWE02NewMeenCoercionOfPcs(state, { coerced, gmRuling } = {}) {
+    requireStage(state, ['THUGS_TARGET_PCS']);
+    if (typeof coerced !== 'boolean')
+        throw new Error('SWE02 New Meen lifecycle: record the GM-adjudicated coercion result.');
+    const next = clone(state);
+    if (coerced)
+        next.stage = 'CANTINA_APPROACH';
+    else {
+        // The source says the thugs resort to violence; it does not give a check,
+        // initiative detail, or a scripted combat profile for this branch.
+        next.stage = 'UNRESOLVED';
+        next.unresolved.push({ claim: 'P20_PC_REFUSAL_VIOLENCE', gmRuling: gmNote(gmRuling) });
+    }
+    return append(next, 'PC_COERCION_RESOLVED', PAGE.refusal, {
+        coerced, consequence: coerced ? 'RETURN_TO_CANTINA' : 'VIOLENCE',
+        gmRuling: coerced ? null : gmNote(gmRuling)
+    });
+}
+function recordSWE02NewMeenRoadHarassment(state, { gmDisposition } = {}) {
+    requireStage(state, ['AWAITING_ESCORT']);
+    const note = gmNote(gmDisposition);
+    const next = clone(state);
+    next.unresolved.push({ claim: 'P20_OPTIONAL_ROAD_HARASSMENT', gmRuling: note });
+    return append(next, 'OPTIONAL_ROAD_HARASSMENT_GM_DISPOSITION', PAGE.refusal, { gmRuling: note });
+}
+function chooseSWE02NewMeenAllyResolution(state, { method } = {}) {
+    requireStage(state, ['CANTINA_APPROACH', 'CANTINA_READY']);
+    if (!['narrative', 'abstracted', 'delegated'].includes(method)) {
+        throw new Error('SWE02 New Meen lifecycle: choose one of the three source-listed allied NPC methods.');
+    }
+    const next = clone(state);
+    next.allyResolutionMethod = method;
+    return append(next, 'TWILEK_ALLY_RESOLUTION_SELECTED', PAGE.militia, {
+        method,
+        sourceDefined: true,
+        mechanicalImplementation: method === 'abstracted' ? 'EXISTING_P243_API' : 'GM_RUNS_SOURCE_METHOD'
+    });
+}
+function assembleSWE02NewMeenEscort(state) {
+    requireStage(state, ['AWAITING_ESCORT']);
+    if (state.escort.assembled)
+        throw new Error('SWE02 New Meen lifecycle: escort already assembled.');
+    const next = clone(state);
+    next.escort.assembled = true;
+    return append(next, 'ESCORT_ASSEMBLED', PAGE.refusal, {
+        adults: 20, childrenCount: null, destination: 'Nabat', threatMayHarassOnRoad: true
+    });
+}
+// Import, rather than duplicate, the existing P243 travel and world-clock
+// transaction. This only aligns the page-19–23 lifecycle with that receipt.
+function recordSWE02NewMeenEscortReceipt(state, { receipt } = {}) {
+    requireStage(state, ['AWAITING_ESCORT']);
+    if (!receipt || !['NEW_MEEN_ESCORT_ARRIVED', 'NEW_MEEN_ESCORT_ABANDONED'].includes(receipt.type) ||
+        receipt.source?.productCode !== 'SWE02' || !Array.isArray(receipt.source.printedPages) ||
+        !receipt.source.printedPages.includes(20) || !receipt.source.printedPages.includes(21)) {
+        throw new Error('SWE02 New Meen lifecycle: import a verified P243 escort receipt.');
+    }
+    const next = clone(state);
+    if (receipt.type === 'NEW_MEEN_ESCORT_ARRIVED') {
+        if (receipt.favor !== 'BURA_BAN_SIGNIFICANT_FAVOR_NOT_NEW_MEEN_LIBERATION') {
+            throw new Error('SWE02 New Meen lifecycle: escort arrival must preserve the source distinction from liberation.');
+        }
+        next.escort.assembled = true;
+        next.escort.departed = true;
+        next.escort.arrived = true;
+        next.escort.significantFavor = true;
+        next.stage = 'ESCORT_COMPLETED';
+    }
+    else {
+        next.escort.abandoned = true;
+        next.escort.significantFavor = false;
+    }
+    const out = append(next, 'EXISTING_P243_ESCORT_RECEIPT_IMPORTED', PAGE.refusal, {
+        importedType: receipt.type,
+        adults: receipt.adults ?? 20,
+        significantFavor: receipt.type === 'NEW_MEEN_ESCORT_ARRIVED',
+        newMeenLiberated: false
+    });
+    out.state.stage = next.stage;
+    return out;
+}
+function resolveSWE02NewMeenNightStay(state, { choice, gmDisposition } = {}) {
+    requireStage(state, ['NIGHT_ELIGIBLE']);
+    if (!['stay', 'visit_drombb', 'other'].includes(choice))
+        throw new Error('SWE02 New Meen lifecycle: unknown night choice.');
+    const next = clone(state);
+    if (choice === 'visit_drombb') {
+        next.nightRaid.skipped = true;
+        next.nightRaid.eligible = false;
+        next.stage = 'CANTINA_APPROACH';
+    }
+    else if (choice === 'stay')
+        next.stage = 'NIGHT_STANDOFF';
+    else {
+        next.stage = 'UNRESOLVED';
+        next.unresolved.push({ claim: 'P20_NIGHT_CHOICE', gmRuling: gmNote(gmDisposition) });
+    }
+    const out = append(next, 'NIGHT_SCENE_CHOICE', PAGE.night, {
+        choice, consequence: choice === 'visit_drombb' ? 'SKIP_DRUNK_AND_DISORDERLY' : choice === 'stay' ? 'AWAKENED_BY_CRASH' : 'GM_DISPOSITION_REQUIRED',
+        gmRuling: choice === 'other' ? gmNote(gmDisposition) : null
+    });
+    out.state.stage = next.stage;
+    return out;
+}
+function resolveSWE02NewMeenNightInteraction(state, { response, gmDisposition } = {}) {
+    requireStage(state, ['NIGHT_STANDOFF']);
+    if (!['hand_over_speeder', 'refuse_speeder', 'speak_out_of_turn', 'aggressive_move', 'other'].includes(response)) {
+        throw new Error('SWE02 New Meen lifecycle: unknown night-raid response.');
+    }
+    const next = clone(state);
+    next.nightRaid.interaction = response;
+    if (response === 'hand_over_speeder') {
+        next.stage = 'UNRESOLVED';
+        next.unresolved.push({ claim: 'P20_SPEeder_HANDOVER', gmRuling: gmNote(gmDisposition) });
+    }
+    else if (response === 'speak_out_of_turn' || response === 'aggressive_move') {
+        next.nightRaid.combatTriggered = true;
+        next.stage = 'NIGHT_COMBAT';
+    }
+    else if (response === 'refuse_speeder') {
+        next.stage = 'NIGHT_STANDOFF';
+    }
+    else {
+        next.stage = 'UNRESOLVED';
+        next.unresolved.push({ claim: 'P20_NIGHT_INTERACTION', gmRuling: gmNote(gmDisposition) });
+    }
+    const out = append(next, 'NIGHT_RAID_INTERACTION', PAGE.night, {
+        response, combatTriggered: next.nightRaid.combatTriggered,
+        handoverOutcomeRequiresGM: response === 'hand_over_speeder'
+    });
+    out.state.stage = next.stage;
+    return out;
+}
+function resolveSWE02NewMeenNightCombat(state, { outcome, gmDisposition } = {}) {
+    requireStage(state, ['NIGHT_COMBAT']);
+    if (!['thugs_driven_off', 'pcs_defeated', 'other'].includes(outcome))
+        throw new Error('SWE02 New Meen lifecycle: unknown night combat outcome.');
+    const next = clone(state);
+    next.nightRaid.outcome = outcome;
+    if (outcome === 'thugs_driven_off') {
+        next.nightRaid.groupStopped = true;
+        next.approach.remainingThugGroups = 2;
+        next.stage = 'DROMBB_RETALIATION';
+    }
+    else {
+        // The printed pages do not specify a night-raid defeat transition.
+        const note = gmNote(gmDisposition);
+        next.stage = 'UNRESOLVED';
+        next.unresolved.push({ claim: 'P20_NIGHT_COMBAT_OUTCOME', outcome, gmRuling: note });
+    }
+    const out = append(next, 'NIGHT_RAID_COMBAT_RESOLVED', PAGE.night, {
+        outcome, remainingCantinaGroups: next.approach.remainingThugGroups,
+        gmRuling: outcome === 'thugs_driven_off' ? null : gmNote(gmDisposition)
+    });
+    out.state.stage = next.stage;
+    return out;
+}
+function resolveSWE02NewMeenRetaliationChoice(state, { choice, gmDisposition } = {}) {
+    requireStage(state, ['DROMBB_RETALIATION']);
+    if (!['go_to_compound', 'defend_new_meen', 'other'].includes(choice)) {
+        throw new Error('SWE02 New Meen lifecycle: choose a response to Drombb’s source-stated retaliation.');
+    }
+    const next = clone(state);
+    if (choice === 'go_to_compound')
+        next.stage = 'CANTINA_APPROACH';
+    else {
+        next.stage = 'UNRESOLVED';
+        next.unresolved.push({
+            claim: choice === 'defend_new_meen' ? 'P19_DROMBB_RETALIATES_AT_NEW_MEEN' : 'P19_ALT_RESPONSE',
+            gmRuling: gmNote(gmDisposition)
+        });
+    }
+    const out = append(next, 'DROMBB_REMAINING_FORCE_RESPONSE', PAGE.arrival, {
+        choice,
+        sourceSaysRemainingMenAttackNewMeen: choice === 'defend_new_meen',
+        remainingThugGroups: next.approach.remainingThugGroups,
+        sourceDoesNotSpecifyTheDetailedRetaliationCombat: choice === 'defend_new_meen',
+        gmRuling: choice === 'go_to_compound' ? null : gmNote(gmDisposition)
+    });
+    out.state.stage = next.stage;
+    return out;
+}
+function approachSWE02DrombbCompound(state, { precautions } = {}) {
+    requireStage(state, ['CANTINA_APPROACH']);
+    if (typeof precautions !== 'boolean')
+        throw new Error('SWE02 New Meen lifecycle: explicitly record whether precautions were taken.');
+    const next = clone(state);
+    next.approach.precautions = precautions;
+    next.approach.detected = !precautions;
+    if (precautions) {
+        next.stage = 'CANTINA_READY';
+        next.approach.remainingThugGroups ??= 3;
+    }
+    else
+        next.stage = 'DETECTED_CONTACT';
+    const out = append(next, 'COMPOUND_APPROACH', PAGE.compound, {
+        precautions, detected: !precautions,
+        skillChecksRequired: precautions ? false : null,
+        detectedContactSent: !precautions
+    });
+    out.state.stage = next.stage;
+    return out;
+}
+function resolveSWE02DrombbDetectedContact(state, { response, gmDisposition } = {}) {
+    requireStage(state, ['DETECTED_CONTACT']);
+    if (!['negotiate_politely', 'turn_back', 'other'].includes(response))
+        throw new Error('SWE02 New Meen lifecycle: unknown detected-contact response.');
+    const next = clone(state);
+    if (response === 'negotiate_politely') {
+        // The source explicitly says an Aqualish fires even during polite negotiation.
+        next.approach.gunfire = true;
+        next.stage = 'CANTINA_READY';
+        next.approach.remainingThugGroups ??= 3;
+    }
+    else {
+        next.stage = 'UNRESOLVED';
+        next.unresolved.push({ claim: 'P22_DETECTED_APPROACH', response, gmRuling: gmNote(gmDisposition) });
+    }
+    const out = append(next, 'DETECTED_CONTACT_RESOLVED', PAGE.compound, {
+        response, aqualishFired: response === 'negotiate_politely',
+        allDefendersAlerted: response === 'negotiate_politely',
+        gmRuling: response === 'negotiate_politely' ? null : gmNote(gmDisposition)
+    });
+    out.state.approach.gunfire = next.approach.gunfire;
+    out.state.stage = next.stage;
+    return out;
+}
+function recordSWE02NewMeenGunfire(state, { cause } = {}) {
+    requireStage(state, ['CANTINA_READY', 'CANTINA_COMBAT']);
+    if (typeof cause !== 'string' || !cause.trim())
+        throw new Error('SWE02 New Meen lifecycle: record what caused gunfire.');
+    const next = clone(state);
+    next.approach.gunfire = true;
+    if (next.stage === 'CANTINA_READY')
+        next.stage = 'CANTINA_COMBAT';
+    return append(next, 'GUNFIRE_ALERT_PROPAGATED', PAGE.compound, {
+        cause: cause.trim(), defendersAlerted: true
+    });
+}
+function startSWE02DrombbCantina(state) {
+    requireStage(state, ['CANTINA_READY', 'CANTINA_COMBAT']);
+    if (state.cantina.started)
+        throw new Error('SWE02 New Meen lifecycle: cantina encounter already started.');
+    if (state.partySize === null)
+        throw new Error('SWE02 New Meen lifecycle: confirm party size; the source does not define a solo force.');
+    const groupSize = Math.min(4, state.partySize);
+    const groups = state.approach.remainingThugGroups ?? 3;
+    const baseThugs = groupSize * groups;
+    const bribedThugs = state.cantina.bribeReceipts.filter(receipt => receipt.success).length;
+    if (bribedThugs > baseThugs)
+        throw new Error('SWE02 New Meen lifecycle: bribes exceed the remaining thug group.');
+    const next = clone(state);
+    next.cantina.started = true;
+    next.cantina.groupSize = groupSize;
+    next.cantina.groups = groups;
+    next.cantina.thugCount = baseThugs - bribedThugs;
+    next.stage = 'CANTINA_COMBAT';
+    const out = append(next, 'CANTINA_ENCOUNTER_STARTED', PAGE.compound, {
+        groupSize, groups, thugCount: next.cantina.thugCount, bribedThugs,
+        drombbPresent: true, priorNightGroupExcluded: state.nightRaid.groupStopped
+    });
+    out.state.stage = 'CANTINA_COMBAT';
+    return out;
+}
+// Wrap the existing P241 transaction receipt so this lifecycle can show the
+// correct number of remaining minions without rolling or charging credits a
+// second time.
+function recordSWE02NewMeenBribe(state, { receipt } = {}) {
+    requireStage(state, ['CANTINA_READY']);
+    if (!receipt || receipt.type !== 'NEW_MEEN_THUG_BRIBE' || receipt.source?.productCode !== 'SWE02' ||
+        receipt.source?.printedPage !== 23 || !Number.isInteger(receipt.creditsOffered) ||
+        receipt.creditsOffered < 400 || receipt.creditsOffered > 500 ||
+        receipt.success !== receipt.check?.success || receipt.creditsSpent !== (receipt.success ? receipt.creditsOffered : 0) ||
+        receipt.skillKey !== 'negociacion' || receipt.difficulty !== 1 || receipt.targetProfileKey === 'laoth_angu_drombb') {
+        throw new Error('SWE02 New Meen lifecycle: import a verified P241 per-thug bribe receipt.');
+    }
+    const next = clone(state);
+    const max = Math.min(4, next.partySize) * (next.approach.remainingThugGroups ?? 3);
+    if (next.cantina.bribeReceipts.filter(x => x.success).length >= max)
+        throw new Error('SWE02 New Meen lifecycle: no eligible thug remains; Drombb cannot be bribed.');
+    next.cantina.bribeReceipts.push(clone(receipt));
+    next.cantina.bribedThugs = next.cantina.bribeReceipts.filter(x => x.success).length;
+    return append(next, 'THUG_BRIBE_IMPORTED', PAGE.resolution, {
+        creditsOffered: receipt.creditsOffered,
+        creditsSpent: receipt.creditsSpent,
+        success: receipt.success,
+        remainingThugsAfterBribe: max - next.cantina.bribedThugs,
+        drombbBribed: false
+    });
+}
+function recordSWE02NewMeenCharmAttempt(state) {
+    requireStage(state, ['CANTINA_READY', 'CANTINA_COMBAT']);
+    if (state.cantina.charmAttempted)
+        throw new Error('SWE02 New Meen lifecycle: Charm already attempted.');
+    const next = clone(state);
+    next.cantina.charmAttempted = true;
+    // Source says Charm never settles matters: thugs feign a truce, reposition,
+    // and resume fighting. It does not give this branch a Charm check.
+    return append(next, 'CHARM_ATTEMPT_FAILED_SOURCE', PAGE.resolution, {
+        check: 'NONE', thugsFeignTruce: true, thugsReposition: true, fightResumes: true
+    });
+}
+function resolveSWE02NewMeenCantinaOutcome(state, { outcome, drombbDefeated = false, defeatResolution, gmDisposition } = {}) {
+    requireStage(state, ['CANTINA_COMBAT']);
+    if (!state.cantina.started)
+        throw new Error('SWE02 New Meen lifecycle: start cantina encounter first.');
+    if (!['victory', 'pcs_defeated', 'other'].includes(outcome))
+        throw new Error('SWE02 New Meen lifecycle: unknown cantina outcome.');
+    const next = clone(state);
+    next.cantina.outcome = outcome;
+    if (outcome === 'victory') {
+        if (drombbDefeated !== true)
+            throw new Error('SWE02 New Meen lifecycle: page-23 victory requires Drombb defeated.');
+        next.stage = 'VICTORY';
+    }
+    else if (outcome === 'pcs_defeated') {
+        if (!['p21_residents_rescue', 'p23_capture_rescue'].includes(defeatResolution)) {
+            throw new Error('SWE02 New Meen lifecycle: select the printed p.21 or p.23 defeat resolution explicitly.');
+        }
+        if (defeatResolution === 'p21_residents_rescue') {
+            next.stage = 'AWAITING_ESCORT';
+            next.escort.offered = true;
+        }
+        else
+            next.stage = 'DEFEAT_RESCUED';
+    }
+    else {
+        const note = gmNote(gmDisposition);
+        next.stage = 'UNRESOLVED';
+        next.unresolved.push({ claim: 'P23_CANTINA_OTHER_OUTCOME', gmRuling: note });
+    }
+    const sourcePage = outcome === 'pcs_defeated' && defeatResolution === 'p21_residents_rescue' ? PAGE.militia : PAGE.resolution;
+    const out = append(next, 'CANTINA_OUTCOME', sourcePage, {
+        outcome, drombbDefeated: outcome === 'victory',
+        celebrationAvailable: outcome === 'victory',
+        communityResult: outcome === 'victory' ? 'THREATS_DEFEATED' : outcome === 'pcs_defeated' ? 'NOT_LIBERATED' : 'GM_DISPOSITION_REQUIRED',
+        defeatResolution: outcome === 'pcs_defeated' ? defeatResolution : null,
+        residentsBeatenAndAbandonBySunrise: outcome === 'pcs_defeated' && defeatResolution === 'p21_residents_rescue',
+        thugsLeaveAfterBeatingResidents: outcome === 'pcs_defeated' && defeatResolution === 'p21_residents_rescue',
+        eldersDiscussSellingSettlement: outcome === 'pcs_defeated' && defeatResolution === 'p21_residents_rescue',
+        buraDisappointed: outcome === 'pcs_defeated' && defeatResolution === 'p21_residents_rescue',
+        significantEscortFavorOffered: outcome === 'pcs_defeated' && defeatResolution === 'p21_residents_rescue',
+        capturedAndBoundFor: outcome === 'pcs_defeated' && defeatResolution === 'p23_capture_rescue' ? 'Tatooine' : null,
+        rescueBy: outcome === 'pcs_defeated' && defeatResolution === 'p23_capture_rescue' ? ['B’ura B’an', 'Ota'] : [],
+        rescueMethod: outcome === 'pcs_defeated' && defeatResolution === 'p23_capture_rescue' ? 'pick_storage_closet_lock_then_pass_sleeping_guard' : null,
+        proceedToAct2: outcome === 'pcs_defeated' && defeatResolution === 'p23_capture_rescue',
+        gmRuling: outcome === 'other' ? gmNote(gmDisposition) : null
+    });
+    out.state.stage = next.stage;
+    return out;
+}
+function recordSWE02DrombbOfficeSearch(state, { computersHardCheckPassed } = {}) {
+    requireStage(state, ['VICTORY']);
+    if (typeof computersHardCheckPassed !== 'boolean')
+        throw new Error('SWE02 New Meen lifecycle: resolve the printed Hard Computers check first.');
+    if (state.messages.checked)
+        throw new Error('SWE02 New Meen lifecycle: office search already recorded.');
+    const next = clone(state);
+    next.messages.checked = true;
+    next.messages.found = computersHardCheckPassed;
+    next.messages.claimIds = computersHardCheckPassed ? [
+        'THWHEEK_SIVOR_AND_GEOSIS_DEALS',
+        'THWHEEK_DUKE_DIMMOCK_OPPORTUNITY',
+        'SIVOR_DECAPITATION_COVERUP'
+    ] : [];
+    return append(next, 'DROMBB_OFFICE_MESSAGES_SEARCHED', PAGE.resolution, {
+        check: { skill: 'Computers', difficulty: 'Hard', passed: computersHardCheckPassed },
+        foundMessageCount: computersHardCheckPassed ? 2 : 0,
+        disclosedClaimIds: [...next.messages.claimIds],
+        disclosedClaims: computersHardCheckPassed ? MESSAGE_CLAIMS.map(claim => ({ ...claim })) : [],
+        informationOptional: true
+    });
+}
+function recordSWE02DrombbSafeSearch(state, { method, successful = true, gmConfirmedQuick = true } = {}) {
+    requireStage(state, ['VICTORY']);
+    if (!['key', 'blast', 'skulduggery'].includes(method))
+        throw new Error('SWE02 New Meen lifecycle: source-safe method must be key, blast, or Skulduggery.');
+    if (method === 'skulduggery' && typeof successful !== 'boolean')
+        throw new Error('SWE02 New Meen lifecycle: Hard Skulduggery result required.');
+    if (typeof gmConfirmedQuick !== 'boolean')
+        throw new Error('SWE02 New Meen lifecycle: GM must adjudicate whether PCs reached loot before the Twi’leks.');
+    if (state.safe.searched)
+        throw new Error('SWE02 New Meen lifecycle: safe already searched.');
+    const methodSuccess = method !== 'skulduggery' || successful;
+    const granted = methodSuccess && gmConfirmedQuick ? 2000 : 0;
+    const next = clone(state);
+    next.safe.searched = true;
+    next.safe.method = method;
+    next.safe.creditsGranted = granted;
+    if (!gmConfirmedQuick)
+        next.unresolved.push({ claim: 'P23_LOOT_RACE', gmRuling: 'PCs arrived after Twi’lek ransacking began.' });
+    return append(next, 'DROMBB_SAFE_SEARCHED', PAGE.resolution, {
+        method, skulduggeryDifficulty: method === 'skulduggery' ? 'Hard' : null,
+        successful: methodSuccess, gmConfirmedQuick,
+        creditsGranted: granted, exactSafeValue: 2000,
+        inventoryContents: { drinks: 'present', rationPackets: 'present' }
+    });
+}
+function validateSWE02NewMeenLifecycle(state) {
+    assertState(state);
+    if (state.revision !== state.events.length)
+        throw new Error('SWE02 New Meen lifecycle: revision/event count mismatch.');
+    for (let i = 0; i < state.events.length; i++) {
+        const event = state.events[i];
+        if (event.id !== `new-meen-${i + 1}` || event.revision !== i + 1 || event.source?.productCode !== 'SWE02' ||
+            !Object.values(PAGE).includes(event.source.printedPage)) {
+            throw new Error('SWE02 New Meen lifecycle: source event is invalid.');
+        }
+    }
+    if (state.nightRaid.groupStopped && state.approach.remainingThugGroups !== 2)
+        throw new Error('SWE02 New Meen lifecycle: remaining thug groups mismatch.');
+    if (state.cantina.bribedThugs !== state.cantina.bribeReceipts.filter(receipt => receipt.success).length ||
+        state.cantina.bribeReceipts.some(receipt => receipt.source?.productCode !== 'SWE02' || receipt.source?.printedPage !== 23 ||
+            receipt.type !== 'NEW_MEEN_THUG_BRIBE' || !Number.isInteger(receipt.creditsOffered) || receipt.creditsOffered < 400 || receipt.creditsOffered > 500 ||
+            receipt.success !== receipt.check?.success || receipt.creditsSpent !== (receipt.success ? receipt.creditsOffered : 0) ||
+            receipt.targetProfileKey === 'laoth_angu_drombb')) {
+        throw new Error('SWE02 New Meen lifecycle: bribe receipt invalid.');
+    }
+    if (state.cantina.started && (state.cantina.groups !== state.approach.remainingThugGroups || state.cantina.groupSize !== Math.min(4, state.partySize) ||
+        state.cantina.thugCount !== state.cantina.groupSize * state.cantina.groups - state.cantina.bribedThugs)) {
+        throw new Error('SWE02 New Meen lifecycle: cantina force does not match source party scaling.');
+    }
+    if (state.cantina.outcome === 'victory' && (state.stage !== 'VICTORY' || !state.events.some(e => e.type === 'CANTINA_OUTCOME' && e.drombbDefeated))) {
+        throw new Error('SWE02 New Meen lifecycle: victory without Drombb defeat.');
+    }
+    if (state.safe.creditsGranted !== 0 && (state.safe.creditsGranted !== 2000 || !state.safe.searched || state.stage !== 'VICTORY')) {
+        throw new Error('SWE02 New Meen lifecycle: invalid safe reward.');
+    }
+    if (state.messages.found !== (state.messages.claimIds.length > 0) || state.messages.claimIds.some(id => !MESSAGE_CLAIMS.some(claim => claim.id === id)))
+        throw new Error('SWE02 New Meen lifecycle: message claims are invalid.');
+    return true;
+}
+});
 define("js/adventure/swe02NewMeenP242.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -18713,7 +19448,7 @@ function validateNewMeenP242(p) {
 }
 // SWE02 p.23: Drombb's cantina safe contains exactly 2,000 credits.
 // A defeated Drombb carries the key; alternatively Hard Skulduggery.
-function openDrombbSafe(world, character, { method = 'key', rng = Math.random } = {}) {
+function openDrombbSafe(world, character, { method = 'key', gmConfirmedQuick, rng = Math.random } = {}) {
     const w = clone(world), c = clone(character), p = w?.publishedAdventure;
     if (p?.id !== 'long-arm-of-the-hutt' || p.status !== 'ACTIVE' || p.currentNodeId !== 'drombb-cantina' || !p.flags?.drombbThreatNeutralized)
         throw Error('SWE02: cofre disponível somente após neutralizar Drombb na cantina.');
@@ -18722,16 +19457,18 @@ function openDrombbSafe(world, character, { method = 'key', rng = Math.random } 
         throw Error('SWE02: sem prova da derrota de Drombb e acesso à chave.');
     if ((p.newMeenSafeReceipts || []).length)
         throw Error('SWE02: cofre já investigado; recompensa não pode ser repetida.');
-    if (!['key', 'skulduggery'].includes(method))
+    if (!['key', 'blast', 'skulduggery'].includes(method))
         throw Error('SWE02: método do cofre inválido.');
+    if (typeof gmConfirmedQuick !== 'boolean')
+        throw Error('SWE02: Mestre deve confirmar se os PJs chegaram antes do saque dos Twi’leks.');
     const check = method === 'skulduggery' ? (0, swe02SocialP241_mjs_1.skillRoll)(c, 'actividad_criminal', 3, rng) : null;
-    const success = method === 'key' || check.success;
+    const success = method === 'key' || method === 'blast' || check.success, creditsGranted = success && gmConfirmedQuick ? 2000 : 0;
     if (!Number.isSafeInteger(c.credits) || c.credits < 0 || c.credits > Number.MAX_SAFE_INTEGER - 2000)
         throw Error('SWE02: carteira inválida.');
-    if (success)
-        c.credits += 2000;
+    if (creditsGranted)
+        c.credits += creditsGranted;
     const receipt = { type: 'NEW_MEEN_SAFE', source: clone(SRC), nodeId: p.currentNodeId, method, check, success,
-        characterKey: String(c.id || c.name || ''), creditsGranted: success ? 2000 : 0, creditsRemaining: c.credits,
+        characterKey: String(c.id || c.name || ''), gmConfirmedQuick, creditsGranted, creditsRemaining: c.credits,
         combatEncounterId: combat.encounterId };
     p.newMeenSafeReceipts = [receipt];
     return { world: w, character: c, receipt };
@@ -18744,14 +19481,14 @@ function validateNewMeenSafe(p) {
         throw Error('SWE02: cofre duplicado.');
     for (const r of rr) {
         if (r.type !== 'NEW_MEEN_SAFE' || r.source?.productCode !== 'SWE02' || r.source.printedPage !== 23 || r.nodeId !== 'drombb-cantina' ||
-            !['key', 'skulduggery'].includes(r.method) || !r.characterKey || r.combatEncounterId !== 'laoth-drombb-cantina' ||
-            r.success !== (r.method === 'key' || r.check?.success) || r.creditsGranted !== (r.success ? 2000 : 0) ||
+            !['key', 'blast', 'skulduggery'].includes(r.method) || !r.characterKey || r.combatEncounterId !== 'laoth-drombb-cantina' ||
+            r.success !== (r.method === 'key' || r.method === 'blast' || r.check?.success) || typeof r.gmConfirmedQuick !== 'boolean' || r.creditsGranted !== (r.success && r.gmConfirmedQuick ? 2000 : 0) ||
             !Number.isSafeInteger(r.creditsRemaining) || r.creditsRemaining < 0)
             throw Error('SWE02: recibo do cofre adulterado.');
         if (r.method === 'skulduggery')
             (0, swe02SocialP241_mjs_1.validateCheck)(r.check, { difficulty: 3, challenge: 0, boost: 0, setback: 0 });
         else if (r.check !== null)
-            throw Error('SWE02: chave não exige rolagem.');
+            throw Error('SWE02: chave/explosivo não exige rolagem.');
         if (!p.encounterHistory?.some(x => x.encounterId === 'laoth-drombb-cantina' && x.outcome === 'adversaries_defeated' && x.combatProof?.eliminated))
             throw Error('SWE02: cofre sem vitória real.');
     }
@@ -24144,8 +24881,18 @@ class GameController {
                 const environmental = environment_mjs_1.configureEnvironment(this.state.environment, { scriptedSetbackDice: Number(spec.environment.darknessSetbackDice) });
                 this.commit('ENVIRONMENT_UPDATED', { environment: environmental });
             }
+            let publishedEncounterWorld = encounterWorld;
+            if (adapter.id === 'long-arm-of-the-hutt' && publishedEncounterWorld.publishedAdventure?.newMeenLifecycle) {
+                const stage = publishedEncounterWorld.publishedAdventure.newMeenLifecycle.stage;
+                if (encounterId === 'laoth-new-meen-night-raid' && stage === 'NIGHT_STANDOFF')
+                    publishedEncounterWorld = adapter.recordNewMeenLifecycle(publishedEncounterWorld, 'night_interaction', { response: 'aggressive_move' }).world;
+                else if (encounterId === 'laoth-new-meen-night-raid' && stage !== 'NIGHT_COMBAT')
+                    throw Error('SWE02 p.20: registre a resposta à abordagem noturna antes do combate.');
+                if (encounterId === 'laoth-drombb-cantina' && ['CANTINA_READY', 'CANTINA_COMBAT'].includes(publishedEncounterWorld.publishedAdventure.newMeenLifecycle.stage))
+                    publishedEncounterWorld = adapter.recordNewMeenLifecycle(publishedEncounterWorld, 'cantina_start').world;
+            }
             const started = this.beginEncounter({ adversaries, rng, playerInitiativeSkill: spec.playerInitiativeSkill, npcInitiativeSkill: spec.npcInitiativeSkill, npcInitiativeSetback: spec.npcInitiativeSetback, playerQuickReactionStrain });
-            const marked = adapter.markEncounterActive(encounterWorld, spec.id);
+            const marked = adapter.markEncounterActive(publishedEncounterWorld, spec.id);
             this.commit('WORLD_UPDATED', { world: marked });
             const next = clone(this.state);
             next.combat.publishedAdventureContext = { adventureId: adapter.id, encounterId: spec.id, label: spec.label, nodeId: next.world?.publishedAdventure?.currentNodeId ?? null, ...(priorPublishedEnvironment ? { priorEnvironment: priorPublishedEnvironment } : {}) };
@@ -27220,6 +27967,16 @@ class GameController {
             return clone(out.result);
         });
     }
+    recordSWE02NewMeenLifecycle(operation, details = {}) {
+        return this.atomicAction(() => {
+            if (this.state.combat?.active)
+                throw Error('SWE02 New Meen: encerre o combate antes de registrar uma escolha de cena.');
+            const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            const out = adapter.recordNewMeenLifecycle(this.state.world, String(operation), details ?? {});
+            this.commit('WORLD_UPDATED', { world: out.world });
+            return { receipt: out.receipt, lifecycle: out.lifecycle };
+        });
+    }
     /** SWE02 pp.13–14: source-backed Nabat operations; all commits atomic. */
     swe02NabatMarket() { return (0, swe02NabatP240_mjs_1.nabatMarketCatalog)(); }
     purchaseSWE02NabatItem({ itemId, quantity = 1 } = {}) {
@@ -27281,7 +28038,12 @@ class GameController {
         return this.atomicAction(() => {
             if (this.state.combat?.active)
                 throw Error('SWE02: encerre o combate antes de negociar.');
-            const out = (0, swe02SocialP241_mjs_1.bribeNewMeenThug)(this.state.world, requireCharacter(this.state.player?.character), { credits, rng });
+            let out = (0, swe02SocialP241_mjs_1.bribeNewMeenThug)(this.state.world, requireCharacter(this.state.player?.character), { credits, rng });
+            const p = out.world?.publishedAdventure;
+            if (p?.newMeenLifecycle) {
+                const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+                out = { ...out, world: adapter.recordNewMeenLifecycle(out.world, 'bribe_receipt', { receipt: out.receipt }).world };
+            }
             this.commit('CHARACTER_UPDATED', { character: out.character });
             this.commit('WORLD_UPDATED', { world: out.world });
             return { receipt: clone(out.receipt), remainingThugs: out.remainingThugs };
@@ -27310,7 +28072,12 @@ class GameController {
         return this.atomicAction(() => {
             if (this.state.combat?.active)
                 throw Error('SWE02: combate ativo.');
-            const out = (0, swe02EvacuationP243_mjs_1.arriveNewMeenEscort)(this.state.world);
+            let out = (0, swe02EvacuationP243_mjs_1.arriveNewMeenEscort)(this.state.world);
+            const p = out.world?.publishedAdventure;
+            if (p?.newMeenLifecycle) {
+                const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+                out = { ...out, world: adapter.recordNewMeenLifecycle(out.world, 'escort_receipt', { receipt: out.receipt }).world };
+            }
             this.commit('WORLD_UPDATED', { world: out.world });
             return { receipt: clone(out.receipt), timeAdvancedTicks: out.timeAdvancedTicks };
         });
@@ -27319,7 +28086,12 @@ class GameController {
         return this.atomicAction(() => {
             if (this.state.combat?.active)
                 throw Error('SWE02: combate ativo.');
-            const out = (0, swe02EvacuationP243_mjs_1.abandonNewMeenEscort)(this.state.world);
+            let out = (0, swe02EvacuationP243_mjs_1.abandonNewMeenEscort)(this.state.world);
+            const p = out.world?.publishedAdventure;
+            if (p?.newMeenLifecycle) {
+                const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+                out = { ...out, world: adapter.recordNewMeenLifecycle(out.world, 'escort_receipt', { receipt: out.receipt }).world };
+            }
             this.commit('WORLD_UPDATED', { world: out.world });
             return clone(out.receipt);
         });
@@ -27370,11 +28142,16 @@ class GameController {
             return clone(out.receipt);
         });
     }
-    openSWE02DrombbSafe({ method = 'key', rng = Math.random } = {}) {
+    openSWE02DrombbSafe({ method = 'key', gmConfirmedQuick, rng = Math.random } = {}) {
         return this.atomicAction(() => {
             if (this.state.combat?.active)
                 throw Error('SWE02: encerre o combate antes de abrir o cofre.');
-            const out = (0, swe02NewMeenP242_mjs_1.openDrombbSafe)(this.state.world, requireCharacter(this.state.player?.character), { method, rng });
+            let out = (0, swe02NewMeenP242_mjs_1.openDrombbSafe)(this.state.world, requireCharacter(this.state.player?.character), { method, gmConfirmedQuick, rng });
+            const p = out.world?.publishedAdventure;
+            if (p?.newMeenLifecycle) {
+                const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+                out = { ...out, world: adapter.recordNewMeenLifecycle(out.world, 'safe_search').world };
+            }
             this.commit('CHARACTER_UPDATED', { character: out.character });
             this.commit('WORLD_UPDATED', { world: out.world });
             return clone(out.receipt);
@@ -41855,5 +42632,5 @@ function masterWorldSummary(world) {
     };
 }
 });
-try{const m=req("js/core/uiBridge.mjs");m.installBraseiroUiBridge(g);g.__BRASEIRO_ENGINE_BUNDLE__={ok:true,version:m.UI_BRIDGE_VERSION||null,modules:133,final:'1.0.244-r54-p244'};}catch(e){console.error(e);g.__BRASEIRO_ENGINE_BUNDLE__={ok:false,error:String(e&&e.stack||e)}};
+try{const m=req("js/core/uiBridge.mjs");m.installBraseiroUiBridge(g);g.__BRASEIRO_ENGINE_BUNDLE__={ok:true,version:m.UI_BRIDGE_VERSION||null,modules:134,final:'1.0.244-r54-p244'};}catch(e){console.error(e);g.__BRASEIRO_ENGINE_BUNDLE__={ok:false,error:String(e&&e.stack||e)}};
 })(window);
