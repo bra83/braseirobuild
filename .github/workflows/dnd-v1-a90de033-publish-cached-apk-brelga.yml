@@ -1,0 +1,103 @@
+name: DND V1 BASE - upload already built APK to private prerelease
+on:
+  push:
+    branches:
+      - implementation/dnd-v1-base-final-20261015
+    paths:
+      - .github/workflows/dnd-v1-a90de033-publish-cached-apk-brelga.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: dnd-v1-a90de033-private-prerelease-upload
+  cancel-in-progress: false
+jobs:
+  publish-existing:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 55
+    env:
+      SOURCE_SHA: a90de03338318dd146be74f3813fcb78a3d74406
+      APK_EXPECTED_SHA256: 401B3785859F1410CC4683D91ADDCB1459996896E422D2CC41B8672F59D108A7
+      APK_EXPECTED_SIZE: 333572204
+      RELEASE_TAG: DND-V1-BASE-TEST-a90de033
+    steps:
+      - name: Locate already built and signed identical APK on BRELGA
+        id: source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'BRELGA_REQUIRED'}
+          $root=Join-Path $env:GITHUB_WORKSPACE 'dnd-normal\run247-mod005\app\build\outputs\apk\debug'
+          $paths=@()
+          if(Test-Path $root){$paths+=@(Get-ChildItem -LiteralPath $root -File -Filter '*.apk' | Select-Object -ExpandProperty FullName)}
+          $paths+=@(Join-Path $env:RUNNER_TEMP 'BRASEIRO_DND_V1_BASE_a90de033_DEBUG_TEST.apk')
+          $found=$null
+          foreach($p in $paths){
+            if(!(Test-Path -LiteralPath $p)){continue}
+            $f=Get-Item -LiteralPath $p
+            if($f.Length -ne [long]$env:APK_EXPECTED_SIZE){continue}
+            $hash=(Get-FileHash -LiteralPath $p -Algorithm SHA256).Hash
+            if($hash -eq $env:APK_EXPECTED_SHA256){$found=$p;break}
+          }
+          if(!$found){throw 'EXACT_SIGNED_APK_NOT_IN_RUNNER_CACHE_NO_REBUILD_PERFORMED'}
+          $sdk=$env:ANDROID_HOME
+          if(!$sdk -or !(Test-Path $sdk)){$sdk=Join-Path $env:LOCALAPPDATA 'Android\Sdk'}
+          $bt=Get-ChildItem (Join-Path $sdk 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          if(!$bt){throw 'ANDROID_BUILD_TOOLS_MISSING'}
+          $signer=Join-Path $bt.FullName 'apksigner.bat'
+          if(!(Test-Path $signer)){throw 'APKSIGNER_NOT_FOUND'}
+          & $signer verify --verbose $found
+          if($LASTEXITCODE -ne 0){throw 'CACHED_APK_SIGNATURE_INVALID'}
+          Add-Content -Path $env:GITHUB_OUTPUT -Value ('path='+$found)
+          Write-Host ('EXACT_PREVIOUSLY_BUILT_APK_FOUND='+$found)
+          Write-Host ('APK_SHA256='+$env:APK_EXPECTED_SHA256)
+          Write-Host 'APK_RECOMPILED=NO'
+      - name: Publish release with UTF-8 bytes JSON and upload APK binary
+        shell: powershell
+        env:
+          GH_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APK_PATH: ${{ steps.source.outputs.path }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if(!(Test-Path -LiteralPath $env:APK_PATH)){throw 'APK_MISSING_BEFORE_UPLOAD'}
+          $repo=$env:GITHUB_REPOSITORY
+          $tag=$env:RELEASE_TAG
+          $api='https://api.github.com/repos/'+$repo+'/releases'
+          $headers=@{
+            'Authorization'='Bearer '+$env:GH_API_TOKEN
+            'Accept'='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='Braseiro-DND-V1-BRELGA'
+          }
+          $release=$null
+          try{$release=Invoke-RestMethod -Method GET -Uri ($api+'/tags/'+$tag) -Headers $headers -ErrorAction Stop}catch{}
+          if(!$release){
+            $data=@{
+              tag_name=$tag
+              target_commitish=$env:SOURCE_SHA
+              name='Braseiro DND V1 BASE - ANDROID DEBUG TEST ONLY'
+              body=('Private debug APK candidate. NOT a final release. Source SHA: '+$env:SOURCE_SHA+'. APK SHA256: '+$env:APK_EXPECTED_SHA256+'. BRELGA 2677/2677 tests passed for identical code tree. Physical Galaxy A57 upgrade and Backup21/3 reopens NOT YET CERTIFIED. Unsupported XMM mechanics require explicit manual arbitration. Do not delete existing app data.')
+              draft=$false
+              prerelease=$true
+            }
+            $json=$data|ConvertTo-Json -Depth 5 -Compress
+            $bytes=[System.Text.Encoding]::UTF8.GetBytes($json)
+            $release=Invoke-RestMethod -Method POST -Uri $api -Headers $headers -Body $bytes -ContentType 'application/json; charset=utf-8'
+          }
+          if(!$release -or !$release.id){throw 'PRIVATE_RELEASE_CREATION_NOT_CONFIRMED'}
+          if(!$release.prerelease){throw 'V1_MUST_REMAIN_PRERELEASE'}
+          $filename='BRASEIRO_DND_V1_BASE_a90de033_DEBUG_TEST.apk'
+          $present=@($release.assets|Where-Object {$_.name -eq $filename})
+          if($present.Count -eq 1){
+            if($present[0].size -ne [long]$env:APK_EXPECTED_SIZE){throw 'EXISTING_APK_ASSET_SIZE_DIFFERENT'}
+            Write-Host ('V1_PRIVATE_APK_URL='+$present[0].browser_download_url)
+          } else {
+            $uploadBase=([string]$release.upload_url).Split('{')[0]
+            $uploadUrl=$uploadBase+'?name='+[uri]::EscapeDataString($filename)
+            $up=Invoke-RestMethod -Method POST -Uri $uploadUrl -Headers $headers -InFile $env:APK_PATH -ContentType 'application/vnd.android.package-archive' -TimeoutSec 1800
+            if(!$up -or $up.size -ne [long]$env:APK_EXPECTED_SIZE -or $up.name -ne $filename){throw 'V1_APK_ASSET_UPLOAD_VERIFICATION_FAILED'}
+            Write-Host ('V1_PRIVATE_APK_URL='+$up.browser_download_url)
+          }
+          Write-Host ('V1_PRIVATE_PRERELEASE=https://github.com/'+$repo+'/releases/tag/'+$tag)
+          Write-Host ('V1_PRE_RELEASE_SHA256='+$env:APK_EXPECTED_SHA256)
+          Write-Host 'V1_PHYSICAL_GALAXY_A57=NOT_CERTIFIED'
