@@ -1239,6 +1239,91 @@ public class AppDb extends SQLiteOpenHelper {
             persistCharacterSheetChecked(id,after);return after;
         }});
     }
+
+    /** DMG 2024 p.333+: one live Bastion owned by a level-5+ 2024 hero.
+     * The treasury and defender count are explicit starting values; they are
+     * never guessed from prose or RAG, and never reset on a second setup call.
+     * All data lives in sheet_json, which Backup21 already exports.
+     */
+    public JSONObject configureBastion2024(final long heroId,final int goldGp,
+            final int defenders,final JSONArray facilityIds,final boolean confirmed){
+        return characterAtomic("bastion2024_configure",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(!confirmed)return out.put("bastion_blocked","explicit_dm_confirmation_required");
+            JSONObject ch=getCharacter(heroId);
+            if(ch.length()==0)return out.put("bastion_blocked","character_not_found");
+            if(ch.optInt("level",0)<5)return out.put("bastion_blocked","hero_level_five_required");
+            String rules=DndRulesEngine.canonicalProfile(ch.optString("rules_source",
+                getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2014)));
+            if(!DndRulesEngine.PROFILE_2024.equals(rules))
+                return out.put("bastion_blocked","2024_core_rules_required");
+            JSONObject sheet=readCharacterSheet(ch);
+            if(sheet.optJSONObject("bastion_2024")!=null)
+                return out.put("bastion_blocked","bastion_already_configured");
+            JSONObject bastion=Bastion2024StateEngine.initialize(goldGp,defenders,facilityIds);
+            if(!"ok".equals(bastion.optString("status")))
+                return out.put("bastion_blocked",bastion.optString("bastion_blocked"));
+            sheet.put("bastion_2024",bastion);
+            updateCharacterSheetChecked(heroId,sheet.toString());
+            return out.put("bastion_configured",true).put("persisted_to_world",true)
+                .put("hero_id",heroId).put("bastion_state",bastion);
+        }});
+    }
+
+    public JSONObject getBastion2024State(long heroId){
+        JSONObject ch=getCharacter(heroId);
+        return readCharacterSheet(ch).optJSONObject("bastion_2024")==null?
+            new JSONObject():readCharacterSheet(ch).optJSONObject("bastion_2024");
+    }
+
+    /** Atomic rule resolution, economy mutation, and durable replay receipt.
+     * No die roll or gold transfer is inferred. All inputs are source-validated
+     * and the target hero's existing Bastion treasury/defenders are checked.
+     */
+    public JSONObject commitBastion2024Event(final long heroId,final JSONObject eventInput,
+            final boolean dmConfirmed,final String token){
+        return characterAtomic("bastion2024_event",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(!dmConfirmed)return out.put("bastion_blocked","explicit_dm_confirmation_required");
+            JSONObject ch=getCharacter(heroId);
+            if(ch.length()==0)return out.put("bastion_blocked","character_not_found");
+            JSONObject sheet=readCharacterSheet(ch);
+            JSONObject before=sheet.optJSONObject("bastion_2024");
+            if(before==null)return out.put("bastion_blocked","bastion_not_configured");
+            JSONObject event=Bastion2024RulesEngine.execute("core2024.bastion.event.effects",eventInput);
+            if(!"ok".equals(event.optString("status")))
+                return out.put("bastion_blocked",event.optString("reason","source_event_blocked"))
+                    .put("event_preview",event);
+            JSONObject after=Bastion2024StateEngine.apply(before,event,token);
+            if(!"ok".equals(after.optString("status")))
+                return out.put("bastion_blocked",after.optString("bastion_blocked","state_transition_blocked"))
+                    .put("event_preview",event);
+            sheet.put("bastion_2024",after);
+            updateCharacterSheetChecked(heroId,sheet.toString());
+            return out.put("bastion_event_committed",true).put("persisted_to_world",true)
+                .put("hero_id",heroId).put("event_resolution",event)
+                .put("bastion_state",after).put("event_receipt_token",token);
+        }});
+    }
+
+    public JSONObject advanceBastion2024Turn(final long heroId,final boolean confirmed,final String token){
+        return characterAtomic("bastion2024_turn",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(!confirmed)return out.put("bastion_blocked","explicit_dm_confirmation_required");
+            JSONObject ch=getCharacter(heroId);
+            if(ch.length()==0)return out.put("bastion_blocked","character_not_found");
+            JSONObject sheet=readCharacterSheet(ch);
+            JSONObject previous=sheet.optJSONObject("bastion_2024");
+            JSONObject next=Bastion2024StateEngine.advanceTurn(previous,token);
+            if(!"ok".equals(next.optString("status")))
+                return out.put("bastion_blocked",next.optString("bastion_blocked","turn_blocked"));
+            sheet.put("bastion_2024",next);
+            updateCharacterSheetChecked(heroId,sheet.toString());
+            return out.put("bastion_turn_committed",true).put("persisted_to_world",true)
+                .put("hero_id",heroId).put("bastion_state",next);
+        }});
+    }
+
     private interface CharacterAtomicWork{JSONObject run()throws Exception;}
     private synchronized JSONObject characterAtomic(String label,CharacterAtomicWork work){
         SQLiteDatabase sql=getWritableDatabase();boolean owner=!sql.inTransaction();
