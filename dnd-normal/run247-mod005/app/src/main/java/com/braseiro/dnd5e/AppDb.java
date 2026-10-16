@@ -1253,8 +1253,9 @@ public class AppDb extends SQLiteOpenHelper {
             JSONObject ch=getCharacter(heroId);
             if(ch.length()==0)return out.put("bastion_blocked","character_not_found");
             if(ch.optInt("level",0)<5)return out.put("bastion_blocked","hero_level_five_required");
-            String rules=DndRulesEngine.canonicalProfile(ch.optString("rules_source",
-                getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2014)));
+            String rawRules=ch.optString("rules_source","").trim();
+            if(rawRules.isEmpty())rawRules=getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2014);
+            String rules=DndRulesEngine.canonicalProfile(rawRules);
             if(!DndRulesEngine.PROFILE_2024.equals(rules))
                 return out.put("bastion_blocked","2024_core_rules_required");
             JSONObject sheet=readCharacterSheet(ch);
