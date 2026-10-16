@@ -20,7 +20,7 @@
 
 ## Exact next actions
 
-1. Resume SWE02 Act 1 pp.2–14 from `audits/SWE02_ACT1_DEEP_AUDIT.md` and `validation/WORK_STATUS.json`. The p.12 Cool initiative gap is now integrated with persisted actor slots/actions; continue the remaining p.12 source claims and p.6–11 item/time effects.
+1. Resume SWE02 Act 1 pp.2–14 from `audits/SWE02_ACT1_DEEP_AUDIT.md` and `validation/WORK_STATUS.json`. P.12 initiative (including the unaware-PC Vigilance exception) and crash crew identity/effects now have focused proof; finish p.12 page-wide evidence, then continue p.6–11 item/time effects.
 2. Close pp.6–11 gaps with source-backed actual cargo transfers/sales, numeric fuel/time/world-clock effects and downstream clue causality; preserve GM adjudication where the book leaves outcomes open. Then close pp.13–14 and the outstanding p.15–23 branches recorded in the audit.
 3. Keep SWE02 uncertified until all Acts 1–3 source claims, branches and persistence gates have end-to-end evidence. Only then work through SWEP01, SWE05, SWE09, SWE13, the selected rules corpus and all 360 AoR ledger rows.
 4. Current verified checkpoint is pushed at `775e378df1c118dd6d672b0e5f09eb8c52e61bce`. The project remains incomplete; do not interpret the checkpoint as completion.
@@ -53,3 +53,15 @@
 - Focused SWE02 p.12/Thwheek suite passed 15/15; generic vehicle controller regression passed 4/4. Changed JS modules and generated bridge bundle passed `node --check`, and `git diff --check` passed. Official UI bridge bundle rebuilt with 135 modules. Raw focused output and hybrid authority notes are in `evidence/SWE02_P12_INITIATIVE_20261016/`.
 - `tools/verify-p239-syntax.py` could not run because its required P238 source checkpoint ZIP is absent from this checkout. No full project regression or release gate was run.
 - P.12, SWE02, all five adventures, rules, and AoR 360 remain uncertified/pending. Next: inspect and implement the other p.12 source claims, then continue the remaining SWE02 p.2–14 audit. Preserve the hybrid boundary: code owns mechanics/state, RAG retrieves cited text, Gemini/Barbara narrates or proposes typed actions only.
+
+## Resume update — SWE02 p.12 crash crew identity (2026-10-16)
+
+- Crash Pilot now snapshots the player roster IDs from the Thwheek initiative and requires the actual roster to match the confirmed session count. Pilot and crew checks carry stable character IDs; duplicate names no longer block or falsify crew completion. State migration rejects a changed expected crew set.
+- Added a UI selector for the active crew PC, a two-PC duplicate-name test, an explicit successful soft-landing die-upgrade test, and compatibility proof for a pre-feature active Thwheek save. P239 focused suite passes 18/18; generic vehicle-controller suite 4/4; bundle regenerated with 135 modules; changed JS syntax checks and diff check pass.
+- Evidence: `evidence/SWE02_P12_CRASH_CREW_IDS_20261016/`. Printed p.12 remains pending, especially the unaware-PC initiative exception and page-wide evidence. Overall certification gates remain open.
+
+## Resume update — SWE02 p.12 awareness-based initiative (2026-10-16)
+
+- Implemented the printed exception: PCs marked by the GM as not seeing Thwheek emerge and turn to attack roll Vigilance; other PCs and Thwheek roll Cool. The selection, chosen skill and turn order persist and are validated. The UI defaults to all PCs aware and exposes a per-PC selector before combat.
+- Focused P239 suite passes 20/20, generic vehicle-controller regression 4/4; official bridge bundle rebuilt with 135 modules. Syntax, JSON and diff checks pass. Evidence: `evidence/SWE02_P12_INITIATIVE_EXCEPTION_20261016/`.
+- P.12 and SWE02 remain pending for page-wide source mapping, persistence and regression. Next: close p.12 page gate, then continue the p.6–11 cargo/time/clue gaps. All five adventure, selected rules and AoR 360 gates remain open; do not create P245 or run release gates.

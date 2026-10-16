@@ -3137,7 +3137,7 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
     
         });
     }
-    advancePublishedAdventure(choiceId, { adventureId = null, actionId = null, rng = Math.random } = {}) {
+    advancePublishedAdventure(choiceId, { adventureId = null, actionId = null, rng = Math.random, unawareCharacterIds = [] } = {}) {
         if (actionId !== null) return this.executePublishedAdventureCommand({ actionId, kind: 'choice', adventureId, choiceId });
         return this.atomicAction(() => {
         const resolvedAdventureId = adventureId || this.state.world?.publishedAdventure?.id || 'under-black-sun';
@@ -3146,7 +3146,7 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         if (this.state.combat?.active)
             throw new Error('Encerre o encontro ou combate ativo antes de avançar para outra cena da aventura publicada.');
         if(adapter.id==='long-arm-of-the-hutt'&&choiceId==='ship-start-interception')
-            this.beginSWE02ThwheekCombat({rng});
+            this.beginSWE02ThwheekCombat({rng,unawareCharacterIds});
         const result = adapter.advance(this.state.world, String(choiceId ?? ''));
         this.commit('WORLD_UPDATED', { world: result.world });
         // SWE13 p. 17: 500 credits per controlled PC for accepting the
@@ -6259,14 +6259,14 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         const out=persistLongArmOldLylek(this.state.world);this.commit('WORLD_UPDATED',{world:out.world});return clone(out.progress.oldLylek.lylekEncounter);
     });}
     /** SWE02 p.18: adventure action, not a decorative 'triggered' flag. */
-    beginSWE02ThwheekCombat({rng=Math.random}={}){
+    beginSWE02ThwheekCombat({rng=Math.random,unawareCharacterIds=[]}={}){
         return this.atomicAction(()=>{
             if(this.state.combat?.active)throw Error('Encerre o combate pessoal antes da interceptação.');
             const roster=this.state.player?.roster;
             const count=Number(this.state.session?.campaignRules?.destiny?.playerCount??this.state.session?.playerCount??1);
             if(!Number.isSafeInteger(count)||count<1||count>8||roster?.entries?.length!==count)
                 throw Error('SWE02 p.12: cadastre no roster uma ficha individual para cada PC confirmado na sessão antes da iniciativa.');
-            const initiative=rollSWE02VehicleInitiative(roster,{rng});
+            const initiative=rollSWE02VehicleInitiative(roster,{rng,unawareCharacterIds});
             const out=beginThwheekInterception(this.state.world,this.state.vehicles,{initiative});
             this.commit('VEHICLES_UPDATED',{vehicles:out.vehicles});
             this.commit('WORLD_UPDATED',{world:out.world});
@@ -6309,7 +6309,7 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
     }
     _assertSWE02VehicleTurn(side){
         const combat=this.state.vehicles?.combat;
-        if(combat?.publishedVehicleContext?.id!==THWHEEK_CONTEXT)return;
+        if(combat?.publishedVehicleContext?.id!==THWHEEK_CONTEXT||!combat.swe02Initiative)return;
         const initiative=combat.swe02Initiative,slot=initiative?.slots?.[initiative.index];
         if(!slot||slot.side!==side)throw Error('SWE02 p.12: a ação não pertence ao lado cujo turno está ativo na iniciativa.');
         if(side==='player'&&slot.actorId!==this.state.player?.roster?.activeCharacterId)
@@ -6364,13 +6364,23 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
             if(p?.id!=='long-arm-of-the-hutt'||p.currentNodeId!=='thwheek-crash'||
                p.flags?.shipCrashCrewPending!==true||p.shipCrashPilotCheck)
                 throw Error('SWE02: pouso de emergência indisponível ou já resolvido.');
+            const count=Number(this.state.session?.campaignRules?.destiny?.playerCount??this.state.session?.playerCount);
+            const crewEntries=this.state.player?.roster?.entries??[];
+            const crewIds=crewEntries.map(x=>x?.id),initiativeIds=(this.state.vehicles?.combat?.swe02Initiative?.slots??[])
+                .filter(x=>x.side==='player').map(x=>x.actorId);
+            const pilotCharacterId=this.state.player?.roster?.activeCharacterId;
+            if(!Number.isInteger(count)||count<1||count>8||crewEntries.length!==count||
+                crewEntries.some(x=>typeof x?.id!=='string'||!x.id)||new Set(crewIds).size!==count||
+                initiativeIds.length!==count||initiativeIds.some(id=>!crewIds.includes(id))||!crewIds.includes(pilotCharacterId))
+                throw Error('SWE02 p.12: roster de tripulação não corresponde ao número de PCs confirmado.');
             const check=this.resolveSkillCheck({skillKey:'pilotar_vehiculo_espacial',difficulty:3,rng});
             const world=clone(this.state.world),q=world.publishedAdventure;
             q.shipCrashPilotCheck={success:check.success,netSuccess:check.netSuccess,
-                source:{productCode:'SWE02',printedPage:12},skill:'pilotar_vehiculo_espacial',difficulty:3};
+                source:{productCode:'SWE02',printedPage:12},skill:'pilotar_vehiculo_espacial',difficulty:3,pilotCharacterId};
             q.shipCrashCrewChecks=[];
-            const count=Number(this.state.session?.campaignRules?.destiny?.playerCount??this.state.session?.playerCount);
-            q.shipCrashExpectedCrewCount=Number.isInteger(count)&&count>=1&&count<=8?count:null;
+            q.shipCrashCrewIdentitySchema=1;
+            q.shipCrashExpectedCrewIds=crewEntries.map(x=>x.id);
+            q.shipCrashExpectedCrewCount=count;
             this.commit('WORLD_UPDATED',{world});
             return {check,softLanding:check.success,expectedCrew:q.shipCrashExpectedCrewCount};
         });
@@ -6381,7 +6391,10 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
             if(p?.id!=='long-arm-of-the-hutt'||p.currentNodeId!=='thwheek-crash'||!p.shipCrashPilotCheck||
                p.flags?.shipCrashCrewPending!==true||!p.shipCrashExpectedCrewCount)
                 throw Error('SWE02: falta Pilotagem ou número de tripulantes confirmado.');
-            if((p.shipCrashCrewChecks||[]).some(x=>x.characterName===character.name))throw Error('SWE02: este tripulante já realizou Aguante.');
+            const crewId=this.state.player?.roster?.activeCharacterId;
+            const expectedIds=p.shipCrashExpectedCrewIds??[];
+            if(p.shipCrashCrewIdentitySchema===1&&!expectedIds.includes(crewId))throw Error('SWE02: PC não pertence à tripulação registrada para esta queda.');
+            if((p.shipCrashCrewChecks||[]).some(x=>p.shipCrashCrewIdentitySchema===1?x.characterId===crewId:x.characterName===character.name))throw Error('SWE02: este tripulante já realizou Aguante.');
             const positive=narrativeDice_mjs_1.buildPositivePool(character.characteristics.fortaleza,character.skills.aguante??0);
             if(p.shipCrashPilotCheck.success){if(positive.ability>0){positive.ability--;positive.proficiency++;}else positive.ability++;}
             const check=narrativeDice_mjs_1.rollPool({...positive,difficulty:3,challenge:0,boost:0,setback:0},rng);
@@ -6394,7 +6407,7 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
                 next=applied.character;critical=applied.injury??null;}
             this.commit('CHARACTER_UPDATED',{character:next});
             const world=clone(this.state.world),q=world.publishedAdventure;
-            q.shipCrashCrewChecks=[...(q.shipCrashCrewChecks||[]),{characterName:character.name,success:check.success,
+            q.shipCrashCrewChecks=[...(q.shipCrashCrewChecks||[]),{characterId:crewId??null,characterName:character.name,success:check.success,
                 netAdvantage:check.netAdvantage,wounds,criticalInjuryId:critical?.id??null,sourcePage:12}];
             if(q.shipCrashCrewChecks.length===q.shipCrashExpectedCrewCount){
                 q.flags.shipCrashCrewPending=false;q.flags.shipCrashCrewResolved=true;
@@ -6439,7 +6452,7 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         const vehicles = clone(this.state.vehicles);
         if (!vehicles.combat.active)
             throw new Error('Não há combate de naves/veículos ativo.');
-        if(vehicles.combat.publishedVehicleContext?.id===THWHEEK_CONTEXT&&initiativeAdvanceToken!==SWE02_INITIATIVE_ADVANCE)
+        if(vehicles.combat.publishedVehicleContext?.id===THWHEEK_CONTEXT&&vehicles.combat.swe02Initiative&&initiativeAdvanceToken!==SWE02_INITIATIVE_ADVANCE)
             throw Error('SWE02 p.12: avance a iniciativa slot por slot para iniciar o próximo assalto.');
         const endingRound=Math.max(1,Number(vehicles.combat.round||1));
         const due=(vehicles.combat.guidedProjectiles??[]).filter(p=>Number(p.resolveAtRound??endingRound)<=endingRound);

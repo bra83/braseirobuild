@@ -104,7 +104,7 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Continue SWE02 pp.2–14; p.12 Cool initiative is now wired to persisted vehicle turns, while the rest of p.12 and chapter evidence remain pending. Then proceed through Acts 2–3. Keep all adventure/rules/AoR certification gates open until evidence passes. Do not create P245 or run Android release gates until all five adventures and rules/AoR 360 are certified.",
+  "next_action": "Continue SWE02 pp.2–14; finish p.12 page-wide source and persistence evidence, then close p.6–11 cargo/time/clue gaps. Proceed through Acts 2–3 only after the Act 1 source claims are bound to deterministic effects, UI, persistence and tests. Keep all certification gates open; do not create P245 or run Android release gates until all five adventures and rules/AoR 360 are certified.",
   "swe02_krayt_fang_pp06_11": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
     "source": "Long Arm of the Hutt printed pp.6–11 / PDF pp.6–11",
@@ -130,7 +130,7 @@
       "Cargo findings are recorded as discovered, not transferred into character inventory; parts sale/build and item transfer remain absent.",
       "Six-hour transit record does not yet apply rest, recovery or the app world clock.",
       "B’ura story facts and optional Oskara links are recorded but not connected to subsequent Geonosis/quest choices.",
-      "p.12 Cool initiative and turn integration is implemented/tested; remaining p.12 claims, full chapter source audit and final global regression remain outstanding."
+      "p.12 Cool initiative, stable-ID crew checks and soft-landing upgrade are implemented/tested; unaware-PC initiative adjudication, page-wide source proof, full chapter audit and final global regression remain outstanding."
     ],
     "integration_files": [
       "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
@@ -146,8 +146,8 @@
   "old_lylek_p15_18": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
     "focused_tests": {
-      "tests": 17,
-      "pass": 17,
+      "tests": 18,
+      "pass": 18,
       "fail": 0,
       "skip": 0,
       "evidence": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/focused-final.tap"
@@ -273,19 +273,39 @@
     "proof": "validation/P239_SWE02_SOURCE_PROOFS.json",
     "executor": "app/src/main/assets/vtt/js/adventure/swe02VehicleInitiative.mjs",
     "controller": "GameController.beginSWE02ThwheekCombat / passSWE02VehicleTurn / _assertSWE02VehicleTurn",
-    "ui": "vehicle initiative order, actor turn, pass-turn and Thwheek attack controls; party roster import available before combat",
+    "ui": "per-PC unaware selector; each PC rolls Frialdade unless the GM records that they did not see the fighter emerge and turn to attack, then they roll Vigilância; skill-labeled initiative, actor turn, pass-turn and Thwheek attack controls",
     "tests": {
       "file": "tests/uae-p239-swe02-thwheek-vehicle-combat.test.mjs",
-      "tests": 15,
-      "pass": 15,
+      "tests": 20,
+      "pass": 20,
       "fail": 0,
       "skip": 0,
-      "evidence": "evidence/SWE02_P12_INITIATIVE_20261016/focused.tap"
+      "evidence": "evidence/SWE02_P12_INITIATIVE_EXCEPTION_20261016/focused.tap"
     },
     "reopens": "Two-PC initiative order and actor-bound action receipts are reopened through a separate GameController instance.",
     "bundle": {"result": "PASS", "modules": 135, "command": "node tools/build-ui-bridge-bundle.mjs"},
     "pending": [
-      "Printed p.12 remains pending for full source-to-semantic proof of crash and crew consequences, conditional gate completeness, and page-wide evidence."
+      "Printed p.12 remains pending for page-wide source-to-semantic proof, persistence evidence and regression."
+    ]
+  },
+  "swe02_p12_crash_crew_identity_followup": {
+    "status": "IMPLEMENTADO_NAO_CERTIFICADO",
+    "source": "The Long Arm of the Hutt printed p.12, If the Krayt Fang Is Shot Down",
+    "proof": "validation/P239_SWE02_SOURCE_PROOFS.json",
+    "executor": "GameController.resolveSWE02CrashPilot / resolveSWE02CrashResilience; validateSWE02CrashRoster",
+    "ui": "swe02CrashPcSelect selects each actual roster PC",
+    "tests": {
+      "file": "tests/uae-p239-swe02-thwheek-vehicle-combat.test.mjs",
+      "tests": 18,
+      "pass": 18,
+      "fail": 0,
+      "skip": 0,
+      "evidence": "evidence/SWE02_P12_CRASH_CREW_IDS_20261016/focused.tap"
+    },
+    "reopens": "Distinct roster IDs, including duplicate names, remain bound through independent controller reloads; pre-feature active Thwheek saves without initiative migrate and continue their prior round flow.",
+    "bundle": {"result": "PASS", "modules": 135, "command": "node tools/build-ui-bridge-bundle.mjs"},
+    "pending": [
+      "Printed-page-wide source/persistence evidence remains open."
     ]
   },
   "swe02_p13_physician_followup": {

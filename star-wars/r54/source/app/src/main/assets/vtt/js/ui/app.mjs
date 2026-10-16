@@ -871,6 +871,14 @@ function renderVehicle(state){
   const vehicle=game.activeVehicle(); $('vehicleNoActive').hidden=Boolean(vehicle); $('vehicleData').hidden=!vehicle;
   const swe02p=state.world?.publishedAdventure;
   const swe02Scene=swe02p?.id==='long-arm-of-the-hutt'&&swe02p.status==='ACTIVE';
+  const thwheekStart=swe02Scene&&swe02p.currentNodeId==='thwheek-orbit'&&!state.vehicles?.combat?.active;
+  $('swe02ThwheekInitiative').hidden=!thwheekStart;
+  if(thwheekStart){
+    const select=$('swe02ThwheekUnaware'),prior=new Set([...select.selectedOptions].map(x=>x.value));
+    select.replaceChildren(...(state.player?.roster?.entries??[]).map(entry=>new Option(entry.character?.name??entry.id,entry.id)));
+    for(const option of select.options)option.selected=prior.has(option.value);
+    $('swe02ThwheekStart').disabled=(state.player?.roster?.entries?.length??0)!==(Number(state.session?.campaignRules?.destiny?.playerCount??state.session?.playerCount??1));
+  }
   $('swe02NewMeenEscort').hidden=!(swe02Scene&&swe02p.currentNodeId==='new-meen-evacuation');
   $('swe02NewMeenMilitia').hidden=!(swe02Scene&&['new-meen-miners','new-meen-night-raid','drombb-cantina'].includes(swe02p.currentNodeId));
   const shipScene=swe02Scene&&['krayt-fang-logs','krayt-fang-ground-inspection'].includes(swe02p.currentNodeId);
@@ -1002,10 +1010,25 @@ function renderVehicle(state){
 
   for(const id of ['swe02Resolve','swe02Pursue','swe02Linked'])$(''+id).disabled=!swe02Combat||!combat.active;
   for(const id of ['swe02CrashPilot','swe02CrashCrew'])$(''+id).disabled=!swe02Crash;
-  const initiative=combat.swe02Initiative,initiativeSlot=initiative?.slots?.[initiative.index],swe02Turn=combat.publishedVehicleContext?.id==='swe02-thwheek-p239';
+  const published=state.world?.publishedAdventure,crewPending=swe02Crash&&published?.flags?.shipCrashCrewPending===true;
+  const crewSelect=$('swe02CrashPcSelect'),priorCrewId=crewSelect.value,crewIds=published?.shipCrashExpectedCrewIds??[];
+  const crewEntries=(state.player?.roster?.entries??[]).filter(entry=>crewIds.includes(entry.id));
+  crewSelect.replaceChildren(...crewEntries.map(entry=>{
+    const option=new Option(`${entry.character?.name??entry.id}${(published?.shipCrashCrewChecks??[]).some(x=>x.characterId===entry.id)?' · resolvido':''}`,entry.id);
+    return option;
+  }));
+  const priorCrewOption=[...crewSelect.options].find(option=>option.value===priorCrewId);
+  if(crewEntries.some(x=>x.id===state.player?.roster?.activeCharacterId))crewSelect.value=state.player.roster.activeCharacterId;
+  else if(priorCrewOption)crewSelect.value=priorCrewId;
+  else crewSelect.value=crewEntries.find(x=>!(published?.shipCrashCrewChecks??[]).some(c=>c.characterId===x.id))?.id??'';
+  $('swe02CrashPcLabel').hidden=!crewPending;
+  $('swe02CrashCrew').disabled=!crewPending||!published?.shipCrashPilotCheck||!crewSelect.value||
+    crewSelect.value!==state.player?.roster?.activeCharacterId||
+    (published?.shipCrashCrewChecks??[]).some(x=>x.characterId===crewSelect.value);
+  const initiative=combat.swe02Initiative,initiativeSlot=initiative?.slots?.[initiative.index],swe02Turn=combat.publishedVehicleContext?.id==='swe02-thwheek-p239'&&Boolean(initiative);
   $('vehicleCombatLine').textContent=combat.active?`Assalto ${combat.round} · alcance ${combat.range} · ação ${combat.actionUsed?'usada':'disponível'} · manobras ${combat.maneuversUsed}/2${ft?` · Aceleração máxima +${ft.bonus} até o assalto ${ft.expiresAfterRound}`:''}`:'Fora de combate.';
   const initiativeLine=$('vehicleInitiativeLine');initiativeLine.hidden=!swe02Turn;
-  if(swe02Turn&&initiative){initiativeLine.textContent=`Iniciativa Cool · ${initiative.slots.map((slot,i)=>`${i===initiative.index?'▶ ':''}${slot.label}`).join(' → ')} · turno de ${initiativeSlot?.label??'—'}`;}
+  if(swe02Turn&&initiative){initiativeLine.textContent=`Iniciativa · ${initiative.slots.map((slot,i)=>`${i===initiative.index?'▶ ':''}${slot.label} (${slot.side==='npc'?'Cool':slot.skill==='vigilance'?'Vigilância':'Frialdade'})`).join(' → ')} · turno de ${initiativeSlot?.label??'—'}`;}
   $('passSWE02VehicleTurn').hidden=!swe02Turn;$('passSWE02VehicleTurn').disabled=!combat.active||!initiativeSlot;
   $('swe02ThwheekAttack').hidden=!swe02Turn;$('swe02ThwheekAttack').disabled=!combat.active||initiativeSlot?.side!=='npc';
   const playerInitiativeTurn=!swe02Turn||initiativeSlot?.side==='player';
@@ -1137,6 +1160,7 @@ for(const [id,run,label] of [
  ['swe02ShipLowhhrickStrain',()=>game.recordSWE02ShipObservation('lowhhrick-pelt-strain',{applyToActiveLowhhrick:$('swe02ShipApplyLowhhrickStrain').checked}),'Consequência de Lowhhrick registrada; Tensão aplicada somente à ficha ativa de Lowhhrick quando confirmado.']
 ])$(id).addEventListener('click',()=>{try{const r=run();if(r?.ok===false)throw Error(r.message);showFeedback('swe02ShipFeedback',label);render();}catch(e){showFeedback('swe02ShipFeedback',e.message);}});
 $('swe02ShipFindBura').addEventListener('click',()=>{try{const r=game.advancePublishedAdventure('ship-find-bura');if(r?.ok===false)throw Error(r.message);showFeedback('swe02ShipFeedback','B’ura B’an encontrado e libertado sem teste.');render();}catch(e){showFeedback('swe02ShipFeedback',e.message);}});
+$('swe02ThwheekStart').addEventListener('click',()=>{try{const unawareCharacterIds=[...$('swe02ThwheekUnaware').selectedOptions].map(x=>x.value);const r=game.advancePublishedAdventure('ship-start-interception',{unawareCharacterIds});if(r?.ok===false)throw Error(r.message);showFeedback('swe02ThwheekInitiativeFeedback','Iniciativa registrada pela perícia correspondente à consciência de cada PC.');render();}catch(e){showFeedback('swe02ThwheekInitiativeFeedback',e.message);}});
 $('swe02BuraConversation').addEventListener('click',()=>{try{
  const topics=[...$('swe02BuraTopics').selectedOptions].map(o=>o.value);
  const r=game.recordSWE02BuraConversation({topics,oskaraPresent:$('swe02BuraOskaraPresent').checked,oskaraSharedHistory:$('swe02BuraOskaraStory').checked,oskaraRaisedCorruption:$('swe02BuraCorruption').checked});
@@ -1279,6 +1303,7 @@ for(const button of document.querySelectorAll('[data-vehicle-maneuver]')) button
 $('fullThrottleAction').addEventListener('click',()=>{ try { const r=game.useFullThrottle({asManeuver:false}); showFeedback('vehicleManeuverFeedback',r.check.success?`Aceleração máxima: Velocidade máxima +${r.bonus} por ${r.durationRounds} assalto(s).`:'Aceleração máxima falhou.'); render(); } catch(e){ showFeedback('vehicleManeuverFeedback',e.message); } });
 $('fullThrottleManeuver').addEventListener('click',()=>{ try { const r=game.useFullThrottle({asManeuver:true,secondManeuverMethod:$('vehicleManeuverMethod').value}); showFeedback('vehicleManeuverFeedback',r.check.success?`Aceleração máxima aprimorada: Velocidade máxima +${r.bonus} por ${r.durationRounds} assalto(s); +${r.personalStrainCost} Tensão pessoal.`:`Aceleração máxima aprimorada falhou; +${r.personalStrainCost} Tensão pessoal.`); render(); } catch(e){ showFeedback('vehicleManeuverFeedback',e.message); } });
 $('controlledFireAction').addEventListener('click',()=>{ showFeedback('vehicleManeuverFeedback','Fogo controlado pertence ao legado Age of Rebellion e não está ativo no perfil EotE Core.'); });
+$('swe02CrashPcSelect').addEventListener('change',()=>{try{const r=game.selectPartyCharacter($('swe02CrashPcSelect').value);if(!r.ok)throw Error(r.message);render();}catch(e){showFeedback('vehicleManeuverFeedback',e.message);}});
 
 for(const [id,method,args] of [
  ['swe02Resolve','resolveSWE02ThwheekCombat',{}],['swe02Pursue','resolveSWE02ThwheekCombat',{pursue:true}],

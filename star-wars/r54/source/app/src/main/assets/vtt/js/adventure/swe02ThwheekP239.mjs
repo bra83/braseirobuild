@@ -100,13 +100,34 @@ export function validateThwheek(p){
  }
  if(f.shipCrashCrewResolved===true){
   const crew=p.shipCrashCrewChecks||[],pilot=p.shipCrashPilotCheck,expected=p.shipCrashExpectedCrewCount;
+  const modern=p.shipCrashCrewIdentitySchema===1,expectedIds=p.shipCrashExpectedCrewIds||[];
   if(receipt?.outcome!=='KRAYT_FANG_SHOT_DOWN'||!pilot||pilot.source?.printedPage!==12||
      !Number.isInteger(expected)||expected<1||crew.length!==expected||
-     new Set(crew.map(x=>x.characterName)).size!==expected||crew.some(x=>x.sourcePage!==12)||
+     (modern?(expectedIds.length!==expected||new Set(expectedIds).size!==expected||
+       !expectedIds.includes(pilot.pilotCharacterId)||
+       new Set(crew.map(x=>x.characterId)).size!==expected||crew.some(x=>!expectedIds.includes(x.characterId))):
+       new Set(crew.map(x=>x.characterName)).size!==expected)||crew.some(x=>x.sourcePage!==12)||
      f.shipCrashCrewPending===true)
    throw Error('SWE02: tripulação declarada segura sem rolagens oficiais completas.');
  }
+ if(p.shipCrashCrewIdentitySchema===1){
+  const expected=p.shipCrashExpectedCrewIds||[],crew=p.shipCrashCrewChecks||[],pilot=p.shipCrashPilotCheck;
+  if(expected.length!==p.shipCrashExpectedCrewCount||new Set(expected).size!==expected.length||
+     !pilot||!expected.includes(pilot.pilotCharacterId)||
+     crew.some(x=>!expected.includes(x.characterId))||new Set(crew.map(x=>x.characterId)).size!==crew.length||
+     (f.shipCrashCrewResolved===true&&
+       (crew.length!==expected.length||expected.some(id=>!crew.some(x=>x.characterId===id)))))
+   throw Error('SWE02: identidade individual da tripulação ou lista de PCs alterada.');
+ }
  if(f.shipThwheekOutcome&&!f.shipThwheekResolved)throw Error('SWE02: resultado espacial forjado.');
  if(f.shipCrashCrewPending===true&&f.shipThwheekOutcome!=='KRAYT_FANG_SHOT_DOWN')throw Error('SWE02: acidente sem derrota espacial.');
+ return true;
+}
+export function validateSWE02CrashRoster(p,roster){
+ if(p?.id!=='long-arm-of-the-hutt'||p.shipCrashCrewIdentitySchema!==1)return true;
+ const expected=p.shipCrashExpectedCrewIds||[],actual=(roster?.entries||[]).map(x=>x?.id);
+ if(actual.length!==expected.length||new Set(actual).size!==actual.length||
+   expected.some(id=>!actual.includes(id))||actual.some(id=>!expected.includes(id)))
+  throw Error('SWE02: roster atual diverge da tripulação congelada na queda.');
  return true;
 }

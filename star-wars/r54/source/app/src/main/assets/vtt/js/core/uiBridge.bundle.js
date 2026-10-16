@@ -20214,6 +20214,7 @@ exports.beginThwheekInterception = beginThwheekInterception;
 exports.thwheekTactics = thwheekTactics;
 exports.resolveThwheekInterception = resolveThwheekInterception;
 exports.validateThwheek = validateThwheek;
+exports.validateSWE02CrashRoster = validateSWE02CrashRoster;
 // SWE02, printed p.12 (PDF p.12): Thwheek's real G1-M4-C interception.
 // The authoritative damage/roll engine remains rules/vehicles.mjs; this
 // module only enforces the adventure's causality and records its outcome.
@@ -20345,16 +20346,38 @@ function validateThwheek(p) {
     }
     if (f.shipCrashCrewResolved === true) {
         const crew = p.shipCrashCrewChecks || [], pilot = p.shipCrashPilotCheck, expected = p.shipCrashExpectedCrewCount;
+        const modern = p.shipCrashCrewIdentitySchema === 1, expectedIds = p.shipCrashExpectedCrewIds || [];
         if (receipt?.outcome !== 'KRAYT_FANG_SHOT_DOWN' || !pilot || pilot.source?.printedPage !== 12 ||
             !Number.isInteger(expected) || expected < 1 || crew.length !== expected ||
-            new Set(crew.map(x => x.characterName)).size !== expected || crew.some(x => x.sourcePage !== 12) ||
+            (modern ? (expectedIds.length !== expected || new Set(expectedIds).size !== expected ||
+                !expectedIds.includes(pilot.pilotCharacterId) ||
+                new Set(crew.map(x => x.characterId)).size !== expected || crew.some(x => !expectedIds.includes(x.characterId))) :
+                new Set(crew.map(x => x.characterName)).size !== expected) || crew.some(x => x.sourcePage !== 12) ||
             f.shipCrashCrewPending === true)
             throw Error('SWE02: tripulação declarada segura sem rolagens oficiais completas.');
+    }
+    if (p.shipCrashCrewIdentitySchema === 1) {
+        const expected = p.shipCrashExpectedCrewIds || [], crew = p.shipCrashCrewChecks || [], pilot = p.shipCrashPilotCheck;
+        if (expected.length !== p.shipCrashExpectedCrewCount || new Set(expected).size !== expected.length ||
+            !pilot || !expected.includes(pilot.pilotCharacterId) ||
+            crew.some(x => !expected.includes(x.characterId)) || new Set(crew.map(x => x.characterId)).size !== crew.length ||
+            (f.shipCrashCrewResolved === true &&
+                (crew.length !== expected.length || expected.some(id => !crew.some(x => x.characterId === id)))))
+            throw Error('SWE02: identidade individual da tripulação ou lista de PCs alterada.');
     }
     if (f.shipThwheekOutcome && !f.shipThwheekResolved)
         throw Error('SWE02: resultado espacial forjado.');
     if (f.shipCrashCrewPending === true && f.shipThwheekOutcome !== 'KRAYT_FANG_SHOT_DOWN')
         throw Error('SWE02: acidente sem derrota espacial.');
+    return true;
+}
+function validateSWE02CrashRoster(p, roster) {
+    if (p?.id !== 'long-arm-of-the-hutt' || p.shipCrashCrewIdentitySchema !== 1)
+        return true;
+    const expected = p.shipCrashExpectedCrewIds || [], actual = (roster?.entries || []).map(x => x?.id);
+    if (actual.length !== expected.length || new Set(actual).size !== actual.length ||
+        expected.some(id => !actual.includes(id)) || actual.some(id => !expected.includes(id)))
+        throw Error('SWE02: roster atual diverge da tripulação congelada na queda.');
     return true;
 }
 });
@@ -20372,21 +20395,27 @@ const initiative_mjs_1 = require("../rules/initiative.mjs");
 exports.SWE02_VEHICLE_INITIATIVE_SOURCE = Object.freeze({
     productCode: 'SWE02', printedPage: 12, authority: 'OFFICIAL_PDF_TEXT_VERIFIED'
 });
-function rollSWE02VehicleInitiative(roster, { rng = Math.random } = {}) {
+function rollSWE02VehicleInitiative(roster, { rng = Math.random, unawareCharacterIds = [] } = {}) {
     const entries = roster?.entries;
     if (!Array.isArray(entries) || entries.length < 1 || entries.length > 8)
         throw Error('SWE02 p.12: roster de PCs inválido para iniciativa.');
+    if (!Array.isArray(unawareCharacterIds) || new Set(unawareCharacterIds).size !== unawareCharacterIds.length ||
+        unawareCharacterIds.some(id => typeof id !== 'string' || !entries.some(entry => entry?.id === id)))
+        throw Error('SWE02 p.12: PCs sem percepção do ataque não correspondem ao roster.');
+    const unaware = new Set(unawareCharacterIds);
     const seen = new Set(), rolled = [];
     for (const entry of entries) {
         const character = entry?.character, id = String(entry?.id ?? '');
         if (!id || seen.has(id) || !character?.name || !character.characteristics || !character.skills)
             throw Error('SWE02 p.12: cada participante precisa de uma ficha de PC válida e única.');
         seen.add(id);
-        const presence = Number(character.characteristics.presencia), cool = Number(character.skills.frialdad ?? 0);
-        if (!Number.isSafeInteger(presence) || presence < 1 || presence > 6 || !Number.isSafeInteger(cool) || cool < 0 || cool > 5)
-            throw Error('SWE02 p.12: atributo Presença ou perícia Frialdade inválido.');
-        const check = (0, narrativeDice_mjs_1.rollPool)((0, narrativeDice_mjs_1.buildPositivePool)(presence, cool), rng);
-        rolled.push({ entry: (0, initiative_mjs_1.initiativeEntry)({ id, side: 'player', check, label: character.name }), check });
+        const skill = unaware.has(id) ? 'vigilancia' : 'frialdad';
+        const characteristic = Number(character.characteristics[skill === 'vigilancia' ? 'voluntad' : 'presencia']);
+        const ranks = Number(character.skills[skill] ?? 0);
+        if (!Number.isSafeInteger(characteristic) || characteristic < 1 || characteristic > 6 || !Number.isSafeInteger(ranks) || ranks < 0 || ranks > 5)
+            throw Error(`SWE02 p.12: atributo/perícia inválido para iniciativa de ${character.name}.`);
+        const check = (0, narrativeDice_mjs_1.rollPool)((0, narrativeDice_mjs_1.buildPositivePool)(characteristic, ranks), rng);
+        rolled.push({ entry: { ...(0, initiative_mjs_1.initiativeEntry)({ id, side: 'player', check, label: character.name }), skill: skill === 'vigilancia' ? 'vigilance' : 'cool' }, check });
     }
     // The stat block lists Presence 2 and no Cool ranks for Thwheek.
     const thwheekCheck = (0, narrativeDice_mjs_1.rollPool)({ ability: 2, proficiency: 0, difficulty: 0, challenge: 0, boost: 0, setback: 0 }, rng);
@@ -20394,8 +20423,8 @@ function rollSWE02VehicleInitiative(roster, { rng = Math.random } = {}) {
     const ordered = (0, initiative_mjs_1.sortInitiative)(rolled.map(x => x.entry));
     const byId = new Map(rolled.map(x => [x.entry.id, x]));
     return {
-        source: exports.SWE02_VEHICLE_INITIATIVE_SOURCE,
-        slots: ordered.map((entry, index) => ({ index, side: entry.side, actorId: entry.id, label: entry.label,
+        source: exports.SWE02_VEHICLE_INITIATIVE_SOURCE, unawareCharacterIds: [...unaware].sort(),
+        slots: ordered.map((entry, index) => ({ index, side: entry.side, actorId: entry.id, label: entry.label, skill: entry.skill ?? 'cool',
             successes: entry.successes, advantages: entry.advantages, triumphs: entry.triumphs,
             check: structuredClone(byId.get(entry.id).check) })),
         round: 1, index: 0, completedRounds: 0, actionReceipts: []
@@ -20406,6 +20435,11 @@ function validateSWE02VehicleInitiative(combat, roster = null) {
     if (combat?.publishedVehicleContext?.id !== 'swe02-thwheek-p239')
         return true;
     if (!combat.active)
+        return true;
+    // A pre-feature active encounter has no honest initiative roll to recover.
+    // Keep its historical round flow loadable; all newly started encounters
+    // require a complete source-backed initiative record.
+    if (!initiative)
         return true;
     if (!initiative || initiative.source?.printedPage !== 12 || initiative.source?.productCode !== 'SWE02' ||
         !Array.isArray(initiative.slots) || initiative.slots.length < 2 || initiative.slots.length > 9 ||
@@ -20429,6 +20463,11 @@ function validateSWE02VehicleInitiative(combat, roster = null) {
     if (initiative.slots.some(x => x.actorId === 'swe02-thwheek' && x.side !== 'npc') ||
         initiative.slots.some(x => x.actorId !== 'swe02-thwheek' && x.side !== 'player'))
         throw Error('SWE02 p.12: identidade de participante incompatível com iniciativa.');
+    const unaware = initiative.unawareCharacterIds ?? [];
+    if (!Array.isArray(unaware) || new Set(unaware).size !== unaware.length ||
+        unaware.some(id => typeof id !== 'string' || !initiative.slots.some(slot => slot.actorId === id && slot.side === 'player')) ||
+        initiative.slots.some(slot => slot.side === 'player' && (slot.skill ?? 'cool') !== (unaware.includes(slot.actorId) ? 'vigilance' : 'cool')))
+        throw Error('SWE02 p.12: perícia de iniciativa diverge da consciência registrada.');
     if (roster && (!Array.isArray(roster.entries) || roster.entries.length !== initiative.slots.length - 1 ||
         roster.entries.some(x => !initiative.slots.some(slot => slot.actorId === x.id))))
         throw Error('SWE02 p.12: roster de PCs diverge dos participantes da iniciativa.');
@@ -24774,7 +24813,7 @@ class GameController {
             return { adventure: adapter.status(this.state.world), session: structuredClone(session), state: structuredClone(this.state) };
         });
     }
-    advancePublishedAdventure(choiceId, { adventureId = null, actionId = null, rng = Math.random } = {}) {
+    advancePublishedAdventure(choiceId, { adventureId = null, actionId = null, rng = Math.random, unawareCharacterIds = [] } = {}) {
         if (actionId !== null)
             return this.executePublishedAdventureCommand({ actionId, kind: 'choice', adventureId, choiceId });
         return this.atomicAction(() => {
@@ -24784,7 +24823,7 @@ class GameController {
             if (this.state.combat?.active)
                 throw new Error('Encerre o encontro ou combate ativo antes de avançar para outra cena da aventura publicada.');
             if (adapter.id === 'long-arm-of-the-hutt' && choiceId === 'ship-start-interception')
-                this.beginSWE02ThwheekCombat({ rng });
+                this.beginSWE02ThwheekCombat({ rng, unawareCharacterIds });
             const result = adapter.advance(this.state.world, String(choiceId ?? ''));
             this.commit('WORLD_UPDATED', { world: result.world });
             // SWE13 p. 17: 500 credits per controlled PC for accepting the
@@ -28624,7 +28663,7 @@ class GameController {
         });
     }
     /** SWE02 p.18: adventure action, not a decorative 'triggered' flag. */
-    beginSWE02ThwheekCombat({ rng = Math.random } = {}) {
+    beginSWE02ThwheekCombat({ rng = Math.random, unawareCharacterIds = [] } = {}) {
         return this.atomicAction(() => {
             if (this.state.combat?.active)
                 throw Error('Encerre o combate pessoal antes da interceptação.');
@@ -28632,7 +28671,7 @@ class GameController {
             const count = Number(this.state.session?.campaignRules?.destiny?.playerCount ?? this.state.session?.playerCount ?? 1);
             if (!Number.isSafeInteger(count) || count < 1 || count > 8 || roster?.entries?.length !== count)
                 throw Error('SWE02 p.12: cadastre no roster uma ficha individual para cada PC confirmado na sessão antes da iniciativa.');
-            const initiative = (0, swe02VehicleInitiative_mjs_1.rollSWE02VehicleInitiative)(roster, { rng });
+            const initiative = (0, swe02VehicleInitiative_mjs_1.rollSWE02VehicleInitiative)(roster, { rng, unawareCharacterIds });
             const out = (0, swe02ThwheekP239_mjs_1.beginThwheekInterception)(this.state.world, this.state.vehicles, { initiative });
             this.commit('VEHICLES_UPDATED', { vehicles: out.vehicles });
             this.commit('WORLD_UPDATED', { world: out.world });
@@ -28680,7 +28719,7 @@ class GameController {
     }
     _assertSWE02VehicleTurn(side) {
         const combat = this.state.vehicles?.combat;
-        if (combat?.publishedVehicleContext?.id !== swe02ThwheekP239_mjs_1.THWHEEK_CONTEXT)
+        if (combat?.publishedVehicleContext?.id !== swe02ThwheekP239_mjs_1.THWHEEK_CONTEXT || !combat.swe02Initiative)
             return;
         const initiative = combat.swe02Initiative, slot = initiative?.slots?.[initiative.index];
         if (!slot || slot.side !== side)
@@ -28739,13 +28778,23 @@ class GameController {
             if (p?.id !== 'long-arm-of-the-hutt' || p.currentNodeId !== 'thwheek-crash' ||
                 p.flags?.shipCrashCrewPending !== true || p.shipCrashPilotCheck)
                 throw Error('SWE02: pouso de emergência indisponível ou já resolvido.');
+            const count = Number(this.state.session?.campaignRules?.destiny?.playerCount ?? this.state.session?.playerCount);
+            const crewEntries = this.state.player?.roster?.entries ?? [];
+            const crewIds = crewEntries.map(x => x?.id), initiativeIds = (this.state.vehicles?.combat?.swe02Initiative?.slots ?? [])
+                .filter(x => x.side === 'player').map(x => x.actorId);
+            const pilotCharacterId = this.state.player?.roster?.activeCharacterId;
+            if (!Number.isInteger(count) || count < 1 || count > 8 || crewEntries.length !== count ||
+                crewEntries.some(x => typeof x?.id !== 'string' || !x.id) || new Set(crewIds).size !== count ||
+                initiativeIds.length !== count || initiativeIds.some(id => !crewIds.includes(id)) || !crewIds.includes(pilotCharacterId))
+                throw Error('SWE02 p.12: roster de tripulação não corresponde ao número de PCs confirmado.');
             const check = this.resolveSkillCheck({ skillKey: 'pilotar_vehiculo_espacial', difficulty: 3, rng });
             const world = clone(this.state.world), q = world.publishedAdventure;
             q.shipCrashPilotCheck = { success: check.success, netSuccess: check.netSuccess,
-                source: { productCode: 'SWE02', printedPage: 12 }, skill: 'pilotar_vehiculo_espacial', difficulty: 3 };
+                source: { productCode: 'SWE02', printedPage: 12 }, skill: 'pilotar_vehiculo_espacial', difficulty: 3, pilotCharacterId };
             q.shipCrashCrewChecks = [];
-            const count = Number(this.state.session?.campaignRules?.destiny?.playerCount ?? this.state.session?.playerCount);
-            q.shipCrashExpectedCrewCount = Number.isInteger(count) && count >= 1 && count <= 8 ? count : null;
+            q.shipCrashCrewIdentitySchema = 1;
+            q.shipCrashExpectedCrewIds = crewEntries.map(x => x.id);
+            q.shipCrashExpectedCrewCount = count;
             this.commit('WORLD_UPDATED', { world });
             return { check, softLanding: check.success, expectedCrew: q.shipCrashExpectedCrewCount };
         });
@@ -28756,7 +28805,11 @@ class GameController {
             if (p?.id !== 'long-arm-of-the-hutt' || p.currentNodeId !== 'thwheek-crash' || !p.shipCrashPilotCheck ||
                 p.flags?.shipCrashCrewPending !== true || !p.shipCrashExpectedCrewCount)
                 throw Error('SWE02: falta Pilotagem ou número de tripulantes confirmado.');
-            if ((p.shipCrashCrewChecks || []).some(x => x.characterName === character.name))
+            const crewId = this.state.player?.roster?.activeCharacterId;
+            const expectedIds = p.shipCrashExpectedCrewIds ?? [];
+            if (p.shipCrashCrewIdentitySchema === 1 && !expectedIds.includes(crewId))
+                throw Error('SWE02: PC não pertence à tripulação registrada para esta queda.');
+            if ((p.shipCrashCrewChecks || []).some(x => p.shipCrashCrewIdentitySchema === 1 ? x.characterId === crewId : x.characterName === character.name))
                 throw Error('SWE02: este tripulante já realizou Aguante.');
             const positive = narrativeDice_mjs_1.buildPositivePool(character.characteristics.fortaleza, character.skills.aguante ?? 0);
             if (p.shipCrashPilotCheck.success) {
@@ -28780,7 +28833,7 @@ class GameController {
             }
             this.commit('CHARACTER_UPDATED', { character: next });
             const world = clone(this.state.world), q = world.publishedAdventure;
-            q.shipCrashCrewChecks = [...(q.shipCrashCrewChecks || []), { characterName: character.name, success: check.success,
+            q.shipCrashCrewChecks = [...(q.shipCrashCrewChecks || []), { characterId: crewId ?? null, characterName: character.name, success: check.success,
                     netAdvantage: check.netAdvantage, wounds, criticalInjuryId: critical?.id ?? null, sourcePage: 12 }];
             if (q.shipCrashCrewChecks.length === q.shipCrashExpectedCrewCount) {
                 q.flags.shipCrashCrewPending = false;
@@ -28826,7 +28879,7 @@ class GameController {
         const vehicles = clone(this.state.vehicles);
         if (!vehicles.combat.active)
             throw new Error('Não há combate de naves/veículos ativo.');
-        if (vehicles.combat.publishedVehicleContext?.id === swe02ThwheekP239_mjs_1.THWHEEK_CONTEXT && initiativeAdvanceToken !== SWE02_INITIATIVE_ADVANCE)
+        if (vehicles.combat.publishedVehicleContext?.id === swe02ThwheekP239_mjs_1.THWHEEK_CONTEXT && vehicles.combat.swe02Initiative && initiativeAdvanceToken !== SWE02_INITIATIVE_ADVANCE)
             throw Error('SWE02 p.12: avance a iniciativa slot por slot para iniciar o próximo assalto.');
         const endingRound = Math.max(1, Number(vehicles.combat.round || 1));
         const due = (vehicles.combat.guidedProjectiles ?? []).filter(p => Number(p.resolveAtRound ?? endingRound) <= endingRound);
@@ -30097,6 +30150,7 @@ const jewelPursuitTravel_mjs_1 = require("../adventure/jewelPursuitTravel.mjs");
 const jewelResidenceWingResponse_mjs_1 = require("../adventure/jewelResidenceWingResponse.mjs");
 const jewelLandoPardon_mjs_1 = require("../adventure/jewelLandoPardon.mjs");
 const swe02VehicleInitiative_mjs_1 = require("../adventure/swe02VehicleInitiative.mjs");
+const swe02ThwheekP239_mjs_1 = require("../adventure/swe02ThwheekP239.mjs");
 exports.migrateState = migrateState = migrateState;
 const ids_mjs_1 = require("./ids.mjs");
 const combat_mjs_1 = require("../rules/combat.mjs");
@@ -30306,6 +30360,7 @@ function migrateState(value) {
     (0, aorP177Actions_mjs_1.validateP177Ledger)(next);
     validateP178CombatState(next);
     (0, swe02VehicleInitiative_mjs_1.validateSWE02VehicleInitiative)(next.vehicles?.combat, next.player?.roster);
+    (0, swe02ThwheekP239_mjs_1.validateSWE02CrashRoster)(next.world?.publishedAdventure, next.player?.roster);
     return next;
 }
 function validateState(value) {
