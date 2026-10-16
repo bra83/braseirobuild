@@ -1,0 +1,20 @@
+✔ modo padrão continua EOTE e bloqueia Duty legado sem regredir guard (21.557ms)
+✔ modo MIXED mantém Obligation e Duty simultaneamente (33.4019ms)
+✔ Duty d100 usa faixa cumulativa e doubles dobram bônus de sessão (0.7594ms)
+✔ criação AoR fica disponível em AOR/MIXED e Duty entra no grupo (7.1994ms)
+✔ Contribution Rank sobe somente com Duty total >=100 e zera Duty corrente (13.8315ms)
+✔ seed de mundo vivo cria 6 facções, 36 NPCs, 12 locais, clocks e oportunidades sem roteiro obrigatório (446.531ms)
+✔ seed é idempotente e não duplica o mundo ao reabrir campanha (356.1933ms)
+✔ tempo fora da cena move planos, clocks e transforma consequências em oportunidades (638.0149ms)
+✔ controller inicializa sandbox, persiste local e viagem avança o mundo (497.5442ms)
+✔ contexto do Mestre inclui modo, mundo vivo e abertura estruturada separada da narração (628.8078ms)
+✔ Mestre pode operar oportunidades/clocks/mercado apenas por operações estruturadas (561.5285ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4547.3913
+

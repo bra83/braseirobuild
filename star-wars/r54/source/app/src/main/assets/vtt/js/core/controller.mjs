@@ -3216,8 +3216,8 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
     
         });
     }
-    resolvePublishedAdventureCheck(checkIndex = 0, { adventureId = null, useLightDestiny = false, useDarkDestiny = false, repairReductionMinutes=null, aidingLowhhrick=false, rng = Math.random, actionId = null } = {}) {
-        if (actionId !== null) return this.executePublishedAdventureCommand({ actionId, kind: 'check', adventureId, checkIndex, options: { useLightDestiny, useDarkDestiny, repairReductionMinutes, aidingLowhhrick, rng } });
+    resolvePublishedAdventureCheck(checkIndex = 0, { adventureId = null, useLightDestiny = false, useDarkDestiny = false, repairReductionMinutes=null, aidingLowhhrick=false, knowledgeSkillKey=null, rng = Math.random, actionId = null } = {}) {
+        if (actionId !== null) return this.executePublishedAdventureCommand({ actionId, kind: 'check', adventureId, checkIndex, options: { useLightDestiny, useDarkDestiny, repairReductionMinutes, aidingLowhhrick, knowledgeSkillKey, rng } });
         return this.atomicAction(() => {
         const resolvedAdventureId = adventureId || this.state.world?.publishedAdventure?.id || 'under-black-sun';
         const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(resolvedAdventureId);
@@ -3225,11 +3225,14 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         const requestedIndex = Number(checkIndex);
         const spec = specs.find(x => x.index === requestedIndex) || specs[requestedIndex];
         if (!spec) throw new Error('Teste da aventura indisponível neste ponto.');
-        if (!spec.skillKey) throw new Error('A perícia deste teste ainda exige adjudicação manual do Mestre.');
+        const allowedKnowledgeSkill=spec.knowledgeSkillOptions?.some(x=>x.key===String(knowledgeSkillKey??''))===true;
+        if (!spec.skillKey&&!allowedKnowledgeSkill) throw new Error(spec.knowledgeSkillOptions?'O Mestre deve escolher uma especialização de Conhecimento do EotE Core para este teste.':'A perícia deste teste ainda exige adjudicação manual do Mestre.');
+        if(spec.skillKey&&knowledgeSkillKey!==null)throw new Error('Especialização de Conhecimento não se aplica a este teste.');
+        const resolvedSkillKey=spec.skillKey||String(knowledgeSkillKey);
         const shipOdorSetback=adapter.id==='long-arm-of-the-hutt'&&spec.shipOdorRule
             ?longArmShipSmellSetback(this.state.world,this.state.player?.character?.name,spec.index):0;
-        const check = this.resolveSkillCheck({ skillKey: spec.skillKey, difficulty: spec.pool.difficulty, challenge: spec.pool.challenge, boost:Number(spec.pool.boost||0), setback: (Number(spec.pool.setback)||0)+shipOdorSetback+(aidingLowhhrick&&adapter.id==='long-arm-of-the-hutt'?2:0), useLightDestiny, useDarkDestiny, cloudCitySlicing: adapter.id === 'jewel-of-yavin' && spec.skillKey === 'computadoras' && this.state.world?.publishedAdventure?.currentNodeId === 'gala-reconnaissance', rng });
-        let adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: check, repairReductionMinutes });
+        const check = this.resolveSkillCheck({ skillKey: resolvedSkillKey, difficulty: spec.pool.difficulty, challenge: spec.pool.challenge, boost:Number(spec.pool.boost||0), setback: (Number(spec.pool.setback)||0)+shipOdorSetback+(aidingLowhhrick&&adapter.id==='long-arm-of-the-hutt'?2:0), useLightDestiny, useDarkDestiny, cloudCitySlicing: adapter.id === 'jewel-of-yavin' && resolvedSkillKey === 'computadoras' && this.state.world?.publishedAdventure?.currentNodeId === 'gala-reconnaissance', rng });
+        let adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: {...check,...(allowedKnowledgeSkill?{skillKey:resolvedSkillKey}:{})}, repairReductionMinutes });
         const characterEffects = { creditsDelta: 0, strainDelta: 0, partyStrain:[] };
         if(adapter.id==='long-arm-of-the-hutt'&&spec.source?.printedPage===15&&check.success===false){
             const old=adjudicated.world.publishedAdventure?.oldLylek,ids=old?.crewPcIds??[],roster=clone(this.state.player?.roster);

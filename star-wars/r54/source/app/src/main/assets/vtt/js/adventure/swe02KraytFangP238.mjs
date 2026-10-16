@@ -1,6 +1,16 @@
 // SWE02 printed pp.6–11: Krayt Fang shipboard sequence. This module owns the
 // deterministic rules and receipts; narration/UI must call these operations.
 export const SHIP_SEQUENCE_VERSION = 1;
+// The Beginner Game adventure calls this generic "Knowledge". EotE Core uses
+// six separate Knowledge skills, so the GM selects the fitting specialty.
+export const EOTE_KNOWLEDGE_SKILL_OPTIONS = Object.freeze([
+  Object.freeze({key:'mundos_del_nucleo',label:'Mundos do Núcleo'}),
+  Object.freeze({key:'educacion',label:'Educação'}),
+  Object.freeze({key:'saber_arcaico',label:'Conhecimento arcaico'}),
+  Object.freeze({key:'borde_exterior',label:'Orla Exterior'}),
+  Object.freeze({key:'bajos_fondos',label:'Submundo'}),
+  Object.freeze({key:'xenologia',label:'Xenologia'})
+]);
 export const SHIP_ALERTS = Object.freeze([
   Object.freeze({ id:'fuel-low', label:'Fuel Low', shape:'large-flashing-red-script', page:7 }),
   Object.freeze({ id:'tracker', label:'Crescent/fang tracker', shape:'flashing-crescent-or-fang', page:7 }),
@@ -116,7 +126,7 @@ export function recordShipObservation(p,id,details={}) {
   const def=SHIP_OBSERVATIONS[id];
   if(!def)throw Error('Krayt Fang: observação não reconhecida.');
   if(id==='complete-hyperspace-transit'&&!p.flags?.shipDepartureVerified)throw Error('Krayt Fang: a viagem exige rota e B’ura registrados.');
-  if(id==='keep-marked-chitin'&&!p.flags?.shipChitinIdentified)throw Error('Krayt Fang: a carapaça marcada ainda não foi examinada.');
+  if(id==='keep-marked-chitin'&&(!p.flags?.shipChitinIdentified||!p.shipSequence?.discoveredRooms?.includes('number-three-hold')))throw Error('Krayt Fang: a carapaça marcada ainda não foi examinada.');
   if(id==='lowhhrick-pelt-strain'&&!p.flags?.shipPeltsFound)throw Error('Krayt Fang: não há peles descobertas.');
   if(id==='bura-free'&&!p.flags?.shipBuraFound)throw Error('Krayt Fang: localize B’ura antes de libertá-lo.');
   const s=ensureShipSequence(p);
@@ -248,6 +258,7 @@ export function shipCheckAvailable(p,index){
   if(index===7&&!f.shipPeltsFound)return false;
   if(index===8&&p.currentNodeId!=='krayt-fang-ground-inspection')return false;
   if(index!==8&&p.currentNodeId!=='krayt-fang-logs')return false;
+  if(index===9&&!p.shipSequence?.discoveredRooms?.includes('number-three-hold'))return false;
   if(index===5&&!f.shipTrandoshanTranslated&&!f.shipTrackerLocated)return false;
   return !f[FLAG[SHIP_CHECKS[index].key]];
 }
@@ -288,8 +299,12 @@ export function recordShipCheck(p,index,success){
   if(!shipCheckAvailable(p,index))throw Error('Krayt Fang: teste fora da cena, repetido ou sem pré-requisito.');
   const result=typeof success==='boolean'?{success}:success;
   if(!result||typeof result.success!=='boolean')throw Error('Krayt Fang: resultado de teste inválido.');
+  if(index===9&&(!Number.isSafeInteger(result.netSuccess)||result.success!==(result.netSuccess>0)||!Number.isSafeInteger(result.netAdvantage)||typeof result.triumph!=='boolean'||
+    !EOTE_KNOWLEDGE_SKILL_OPTIONS.some(x=>x.key===result.skillKey)))
+    throw Error('Krayt Fang: o resultado de Conhecimento precisa conservar Sucesso, Vantagem e Triunfo do teste real.');
   p.shipChecks=Array.isArray(p.shipChecks)?p.shipChecks:[];
   const receipt={key:check.key,index,success:result.success,printedPage:check.page,nodeId:p.currentNodeId};
+  if(index===9){receipt.skillKey=result.skillKey;receipt.rulesSource={book:'Edge of the Empire Core Rulebook',printedPage:122};}
   for(const key of ['netSuccess','netFailure','netAdvantage','netThreat'])if(Number.isFinite(result[key]))receipt[key]=Number(result[key]);
   if(typeof result.triumph==='boolean'||Number.isFinite(Number(result.triumph)))receipt.triumph=typeof result.triumph==='boolean'?result.triumph:Number(result.triumph)>0;
   p.shipChecks.push(receipt);
@@ -302,11 +317,12 @@ export function recordShipCheck(p,index,success){
   }
   if(index===9&&result.success){
     p.shipChitinKnowledge={
-      intelligentInsectileSpecies:Number.isFinite(result.netSuccess)?result.netSuccess>=1:null,
-      mayHaveShedShell:Number.isFinite(result.netSuccess)?result.netSuccess>=2:null,
-      redDustProbablyGeonosis:Number.isFinite(result.netAdvantage)?result.netAdvantage>=1:null,
+      intelligentInsectileSpecies:result.netSuccess>=1,
+      mayHaveShedShell:result.netSuccess>=2,
+      redDustProbablyGeonosis:result.netAdvantage>=1,
       clanOrOwnershipMarkings:result.triumph===true,
       exactOriginKnown:false,
+      checkReceipt:{checkIndex:9,skillKey:result.skillKey,rulesSource:{book:'Edge of the Empire Core Rulebook',printedPage:122},netSuccess:result.netSuccess,netAdvantage:result.netAdvantage,triumph:result.triumph},
       source:{productCode:'SWE02',printedPage:9}
     };
   }
@@ -353,6 +369,10 @@ export function validateShip(p){
   for(const x of checks){
     const d=SHIP_CHECKS[x.index];
     if(!d||x.key!==d.key||x.printedPage!==d.page||x.nodeId!==(x.index===8?'krayt-fang-ground-inspection':'krayt-fang-logs')||typeof x.success!=='boolean')throw Error('Krayt Fang: recibo de teste inválido.');
+    if(x.key==='identifyChitin'&&x.skillKey!==undefined&&(!EOTE_KNOWLEDGE_SKILL_OPTIONS.some(k=>k.key===x.skillKey)||
+      x.rulesSource?.book!=='Edge of the Empire Core Rulebook'||x.rulesSource?.printedPage!==122||
+      !Number.isSafeInteger(x.netSuccess)||!Number.isSafeInteger(x.netAdvantage)||typeof x.triumph!=='boolean'||x.success!==(x.netSuccess>0)))
+      throw Error('Krayt Fang: fonte/perícia do teste de Conhecimento inválida.');
     if(completed.has(x.key))throw Error('Krayt Fang: teste repetido após sucesso ou navegação concluída.');
     if(x.success)success.add(x.key);
     if(x.success||x.key==='course')completed.add(x.key);
@@ -371,7 +391,20 @@ export function validateShip(p){
   }
   if(p.shipChitinKnowledge){
     const k=p.shipChitinKnowledge;
-    if(!flags.shipChitinIdentified||k.source?.productCode!=='SWE02'||k.source?.printedPage!==9||k.exactOriginKnown!==false)throw Error('Krayt Fang: resultado de Conhecimento inválido.');
+    const check=checks.find(x=>x.key==='identifyChitin');
+    const legacyResult=!k.checkReceipt&&!check?.skillKey;
+    if(legacyResult){
+      if(!flags.shipChitinIdentified||k.source?.productCode!=='SWE02'||k.source?.printedPage!==9||k.exactOriginKnown!==false)
+        throw Error('Krayt Fang: resultado legado de Conhecimento inválido.');
+    }else
+    if(!flags.shipChitinIdentified||!p.shipSequence?.discoveredRooms?.includes('number-three-hold')||!check?.success||
+      !EOTE_KNOWLEDGE_SKILL_OPTIONS.some(x=>x.key===check.skillKey)||check.rulesSource?.book!=='Edge of the Empire Core Rulebook'||check.rulesSource?.printedPage!==122||
+      k.source?.productCode!=='SWE02'||k.source?.printedPage!==9||k.exactOriginKnown!==false||
+      k.checkReceipt?.checkIndex!==9||k.checkReceipt?.skillKey!==check.skillKey||k.checkReceipt?.rulesSource?.book!=='Edge of the Empire Core Rulebook'||k.checkReceipt?.rulesSource?.printedPage!==122||
+      k.checkReceipt?.netSuccess!==check.netSuccess||k.checkReceipt?.netAdvantage!==check.netAdvantage||k.checkReceipt?.triumph!==check.triumph||
+      k.intelligentInsectileSpecies!==(check.netSuccess>=1)||k.mayHaveShedShell!==(check.netSuccess>=2)||
+      k.redDustProbablyGeonosis!==(check.netAdvantage>=1)||k.clanOrOwnershipMarkings!==(check.triumph===true))
+      throw Error('Krayt Fang: resultado graduado de Conhecimento inválido.');
   }
   if(p.shipDroidPartsAssessment&&(p.shipDroidPartsAssessment.source?.printedPage!==11||p.shipDroidPartsAssessment.possibleSaleValueCredits?.maximum!==2000||p.shipDroidPartsAssessment.possibleSaleValueCredits?.guaranteed!==false))throw Error('Krayt Fang: avaliação das peças de astromecânico inválida.');
   if(p.shipSequence?.buraConversation){

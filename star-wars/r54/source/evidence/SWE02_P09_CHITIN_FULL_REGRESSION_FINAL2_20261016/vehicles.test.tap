@@ -1,0 +1,26 @@
+✔ perfil Ala-X reproduz os valores do livro inicial (5.5306ms)
+✔ Blindagem reduz dano em escala de veículo e limiar só inutiliza ao superar (3.8149ms)
+✔ Tensão de sistemas acima do limiar desliga velocidade, armas e defesa (4.5841ms)
+✔ um dia completo sem nova tensão recupera 1 Tensão de sistemas (0.8573ms)
+✔ Manejo positivo vira Impulso e negativo Contratempo (1.0265ms)
+✔ Acelerar/Frear altera exatamente 1 e respeita limites (1.6426ms)
+✔ Pisar a fundo vai à velocidade máxima e sofre tensão igual à diferença (1.0443ms)
+✔ Avançar usa passos de alcance conforme velocidade (0.7745ms)
+✔ dificuldade de Artilharia usa diferença de Silhueta (0.6576ms)
+✔ Enfilar usa diferença de Velocidade (0.7688ms)
+✔ perigo de pilotagem usa maior entre Velocidade e metade da Silhueta, com upgrades pelo menor (0.8934ms)
+✔ controle de danos calcula dificuldade e repara um tipo por vez (1.4779ms)
+✔ Critical Hits de veículo usam a Table 7-9 EotE Core com d100 e +10 cumulativo (2.8932ms)
+✔ ataque de arma de nave usa Artilharia, Silhueta, Defesa e Blindagem (4.0523ms)
+✔ Manobras evasivas aumentam a Dificuldade e Seguir o objetivo melhora Capacidade, sem dados extras indevidos (1.429ms)
+✔ arma de veículo não pode atingir além do alcance indicado no perfil (2.6258ms)
+✔ Ajuste fino e Reparos sólidos ampliam somente o tipo correspondente (1.8683ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 827.6093
+

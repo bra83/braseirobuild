@@ -1,0 +1,13 @@
+✔ P49: save/reopen preserva rota NovaCORE e projeção dinâmica sem spoiler (24.226ms)
+✔ P49: save/reopen preserva investigação, flags e nó atual (7.5969ms)
+✔ P49: desfechos do showdown continuam mutuamente exclusivos após reopen (12.7104ms)
+✔ P49: consequência de epílogo não duplica ao reabrir estado concluído (17.5045ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 451.1087
+

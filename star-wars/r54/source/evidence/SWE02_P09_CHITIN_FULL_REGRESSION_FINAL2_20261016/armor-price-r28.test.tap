@@ -1,0 +1,12 @@
+✔ Tabla 5-2 da Caja de Inicio prova preços de quatro blindagens sobrepostas (4.0754ms)
+✔ preço da Caja de Inicio não substitui a fonte de Defesa/Proteção da Pantalla (0.3875ms)
+✔ blindagens sem preço comprovado nesta tabela permanecem sem preço (1.4677ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 266.7824
+

@@ -99,3 +99,10 @@
 - One legacy medical equipment expectation now asserts the EotE Core Medicine effect citation at printed p.112. The bundle builder test passed with `NODE_PATH` set to the recovered local TypeScript dependency. No Gradle/APK/device or CI gate was run.
 - The initial pass without the local `NODE_PATH` exposed that environment requirement and the stale citation assertion; both are corrected in the verified rerun.
 - Certification gates remain open: 0/5 adventures, rules pending and AoR 0/360. Continue the remaining SWE02 source claims after p.12 UI review and p.6–11 unresolved cargo/rest/clue adjudications.
+
+## Resume update — SWE02 pp.9–10 chitin evidence (2026-10-16)
+
+- P238 now gates the Hard Knowledge check on discovering cargo hold three and stores each printed Success/Advantage/Triumph clue from the actual roll. The GM selects one of the six EotE Core Knowledge specialties (printed p.122); the UI does not silently substitute Xenology. Exact origin remains unknown.
+- Added explicit optional shell retention after successful examination; P237 p.30 evidence requires that retained receipt before Piddock identifies it. New evidence cites SWE02 p.10 while validation accepts prior p.7 shell evidence for save compatibility. The p.9/p.10 chain persists through three JSON/controller reloads.
+- Added source-to-effect evidence at `evidence/SWE02_P09_CHITIN_CLUE_20261016/RESULTS.md`. Focused chain passed 59/59, bridge rebuilt at 135 modules, and full per-file regression passed 3,450/3,452 tests across 382 files (376 regular + 6 stress); 0 failed, 2 offline JDK `jar` packaging checks skipped. Raw logs: `evidence/SWE02_P09_CHITIN_FULL_REGRESSION_FINAL2_20261016/`.
+- Status remains `IMPLEMENTADO_NAO_CERTIFICADO`; p.9–10 page-wide audit, p.12 UI visual review, remaining SWE02 Acts 1–3, all other adventures, EotE/AoR rule corpus and AoR 0/360 evidence remain pending. No P245, Gradle/APK, CI or device gate.

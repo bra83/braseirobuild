@@ -1,0 +1,14 @@
+✔ P40: planos só existem após epílogo e avançam pelo relógio (39.6616ms)
+✔ P40: Pykes resolvem consequência e alteram influência persistentemente (25.1309ms)
+✔ P40: retaliação Zelcomm cria consequência jogável conhecida (19.1003ms)
+✔ P40: retorno de Kaa’to resolve sem vazar ao jogador antes de entrar em cena (19.6003ms)
+✔ P40: Kaa’to morto continua sem plano de retorno (28.0529ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 632.9319
+

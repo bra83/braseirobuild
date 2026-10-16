@@ -2,11 +2,13 @@
   "checkpoint": "P237",
   "scope": "SWE02 Geonosis: Piddock, Dimmock and gantry AA7 (NOT whole adventure)",
   "officialSource": "https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf",
-  "sourcePrintedPagesCompared": [7, 23, 30, 34, 36, 37],
+  "sourcePrintedPagesCompared": [7, 9, 10, 23, 30, 34, 36, 37],
   "sourceToExecutor": [
-    {"page":7,"semantic":"carapace fragments in cargo hold; explicit recovery","executor":"longArmOfTheHutt.advance + swe02GeonosisP237.FACTS","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs"},
+    {"page":7,"semantic":"Finding chitin in the third hold is listed as optional; this does not by itself prove that the marked piece was identified or retained","executor":"SHIP_MANIFEST + discoverShipRoom; optional task state","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs"},
+    {"page":9,"semantic":"Hard Knowledge check yields the exact Success, Advantage and Triumph clues from the chitin; requires discovery of the third hold","executor":"swe02KraytFangP238.recordShipCheck + validateShip","ui":"graded result shown in Krayt Fang panel","test":"swe02-krayt-fang-pp06-11-family.test.mjs; uae-p237-swe02-geonosis-dimmock-gantry.test.mjs"},
+    {"page":10,"semantic":"The marked shell can be retained as optional Sivor evidence; later Geonosis evidence requires the recorded discovery, successful examination and explicit keep action","executor":"longArmOfTheHutt.advance + swe02GeonosisP237.FACTS","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs","stateReopens":3},
     {"page":23,"semantic":"Drombb messages require Hard Computers, accessible only after defeated Drombb","executor":"currentLongArmOfTheHuttChecks/adjudicate + geonosisEvidence ledger","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs"},
-    {"page":30,"semantic":"Piddock can identify recovered carapace","executor":"piddock-identify-shell + ledger","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs"},
+    {"page":30,"semantic":"Piddock can identify a retained carapace in Geonosis; underlying Act 1 keep receipt is now prerequisite","executor":"piddock-identify-shell + ledger","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs"},
     {"page":34,"semantic":"Piddock reveals Kubaz and Hard Charm reveals B1 interest","executor":"piddock-party official checks + source receipts","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs"},
     {"page":36,"semantic":"Dimmock: Average Charm +1, anti-Empire +1, four facts +1 each, carapace +1, communications +1; rude -1, failed Daunting Coerce -2, Empire loyal -1; bands 0-2=5, 3-5=3, >=6=0","executor":"swe02GeonosisP237.scoreDimmock/guardCount/validateGeonosis; GameController.resolvePublishedAdventureCheck","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs","stateReopens":3},
     {"page":37,"semantic":"Geonosian Soldier and Vrixx'tt official separate profiles; Gand always present; boarding requires encounter proof; Vio rescue does not count as victory","executor":"adversaries + longArmOfTheHutt.encounterSpec/recordEncounterOutcome + GameController.beginPublishedAdventureEncounter","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs","stateReopens":3}

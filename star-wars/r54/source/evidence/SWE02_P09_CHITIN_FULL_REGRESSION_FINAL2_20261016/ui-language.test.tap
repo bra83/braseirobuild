@@ -1,0 +1,11 @@
+✔ interface principal declara português do Brasil e usa rótulos PT-BR (3.3282ms)
+✔ interface principal não expõe rótulos espanhóis conhecidos (1.7719ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 360.5547
+

@@ -1,0 +1,22 @@
+✔ P197 Covering Fire +1 ranged defense on two confirmed allies, no stacking, expires after next round (18.9536ms)
+✔ P197 tactical direction grants exactly one real Boost consumed on next NPC check (2.6351ms)
+✔ P197 rejects invalid actor, forged distances, self targeting, wrong group, duplicate and missing targets (2.0574ms)
+✔ P197 rejects incapacitated source and target, and cannot grant cover in inactive combat (1.2946ms)
+✔ P197 duplicate orders cannot grant a second maneuver in the same round (2.8015ms)
+✔ P197 no wing tactics for non-Wing Guard profiles (1.2984ms)
+✔ P197 persistent order and applied effects survive three JSON reopens (11.107ms)
+✔ P197 controller and UI bridge expose queued maneuver without touching inactive campaign (9.0212ms)
+✔ P197 cover is not applied to melee attacks (2.3789ms)
+✔ P197 actual NPC attack pool receives tactical boost once and consumes it (31.7009ms)
+✔ P197 actual player ranged attack rolls one extra setback against officer under Covering Fire (63.5115ms)
+✔ P197 Android UI exposes GM-confirmed tactic queue and runtime parses (P196 apostrophe regression fixed) (5.8292ms)
+✔ P197 queued Covering Fire cancels without freezing NPC turn if ally is incapacitated meanwhile (1.5821ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1195.2134
+

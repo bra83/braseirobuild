@@ -1,7 +1,7 @@
 import { ensureLivingWorldDepth } from '../world/livingWorldDepth.mjs';
 import { FACTS,ARGUMENTS,guardCount,scoreDimmock,validateGeonosis,recordGeonosisChoice } from './swe02GeonosisP237.mjs';
 import { SHIP_CHECKS,shipCheckAvailable,shipNoisePool,shipCheckPool,recordShipCheck,recordShipChoice,validateShip,shipSmellSetback,shipIssueState,
-  recordShipObservation,recordShipRoomDiscovery,recordBuraConversation,adjudicateShipTransitExtraDuration,
+  EOTE_KNOWLEDGE_SKILL_OPTIONS,recordShipObservation,recordShipRoomDiscovery,recordBuraConversation,adjudicateShipTransitExtraDuration,
   recordShipCargoTransfer,shipCargoTransferOptions } from './swe02KraytFangP238.mjs';
 import {validateThwheek} from './swe02ThwheekP239.mjs';
 import {validateNabat} from './swe02NabatP240.mjs';
@@ -88,7 +88,7 @@ export const LONG_ARM_OF_THE_HUTT = Object.freeze({
       visibleNpcIds:[],checks:[{skill:'Computadores',difficulty:'Média',purpose:'localizar registros e sinais de rastreamento'}],
       choices:[
         {id:'finish-ship-inspection',label:'Continuar pela rota legada (inspeção NÃO certificada)',to:'ryloth-safehouse'},
-        {id:'sivor-shell',label:'Guardar a carapaça do porão três (SWE02 p.7)',to:'krayt-fang-logs'},
+        {id:'sivor-shell',label:'Guardar a carapaça marcada já examinada (SWE02 pp.9–10)',to:'krayt-fang-logs',condition:'flag:shipChitinIdentified'},
         {id:'ship-find-bura',label:'Localizar e libertar B’ura B’an no porão três (sem teste, p.9)',to:'krayt-fang-logs',condition:'!flag:shipBuraFound'},
         {id:'ship-depart-verified',label:'Seguir para Ryloth após traçar a rota e encontrar B’ura B’an',to:'rylos-arrival-decision',condition:'flag:shipDepartureVerified'}]
     },
@@ -709,6 +709,7 @@ export function advanceLongArmOfTheHutt(world, choiceId) {
   if (!choice || !conditionOk(choice, p)) throw new Error('Escolha inválida.');
   if(p.currentNodeId==='lylek-den-ambush'&&choiceId==='reach-new-meen'&&!canSWE02OldLylekContinue(p))
     throw Error('SWE02 pp.15–18: resolva o encontro dos caçadores e a consequência do lylek antes de chegar a New Meen.');
+  if(choiceId==='sivor-shell')recordShipObservation(p,'keep-marked-chitin');
   if(p.currentNodeId==='piddock-party'&&['piddock-kubaz','piddock-b1','piddock-identify-shell'].includes(choiceId)){
     const tracked=askSWE02Piddock(next,{topic:choiceId});
     p.piddockQuestionReceipts=tracked.world.publishedAdventure.piddockQuestionReceipts;
@@ -840,7 +841,9 @@ export function currentLongArmOfTheHuttChecks(world) {
   }
   if(['krayt-fang-logs','krayt-fang-ground-inspection'].includes(p.currentNodeId))return SHIP_CHECKS.map((check,index)=>({check,index})).filter(({index})=>shipCheckAvailable(p,index)).map(({check,index})=>({
     id:`${p.currentNodeId}:check:${index}`,index,skill:check.skill,
-    skillKey:SWE02_SKILLS[check.skill]||null,difficultyText:['','Fácil','Média','Difícil','Formidável'][check.difficulty],purpose:check.purpose,
+    skillKey:SWE02_SKILLS[check.skill]||null,
+    ...(check.key==='identifyChitin'?{knowledgeSkillOptions:clone(EOTE_KNOWLEDGE_SKILL_OPTIONS),knowledgeSkillSource:{book:'Edge of the Empire Core Rulebook',printedPage:122}}:{}),
+    difficultyText:['','Fácil','Média','Difícil','Formidável'][check.difficulty],purpose:check.purpose,
     pool:p.currentNodeId==='krayt-fang-ground-inspection'?{difficulty:check.difficulty,challenge:0,setback:0,boost:0}:shipCheckPool(p,index,{announcedSearch:p.flags?.shipPeltSearchAnnounced===true}),shipOdorRule:check.key,source:{title:SOURCE.title,productCode:'SWE02',printedPage:check.page,authority:'OFFICIAL_PDF_TEXT_VERIFIED'},
     requiresGMSourceVerification:!SWE02_SKILLS[check.skill]
   }));

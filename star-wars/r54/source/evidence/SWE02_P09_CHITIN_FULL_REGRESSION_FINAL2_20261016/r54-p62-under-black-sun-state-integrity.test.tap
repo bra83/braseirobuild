@@ -1,0 +1,13 @@
+✔ P62: encontro inexistente não pode contaminar o estado persistente (11.4231ms)
+✔ P62: resultado de encontro de outra cena é rejeitado (2.3609ms)
+✔ P62: confronto final válido ainda persiste e libera desfecho (19.1296ms)
+✔ P62: encontro já resolvido não pode ser reaberto e duplicado (10.069ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 495.1333
+

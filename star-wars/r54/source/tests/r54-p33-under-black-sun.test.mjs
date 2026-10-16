@@ -126,7 +126,7 @@ test('P34: controller e bridge ligam teste publicado ao resolvedor narrativo rea
   const bridge=readFileSync(new URL('../app/src/main/assets/vtt/js/core/uiBridge.mjs',import.meta.url),'utf8');
   const controller=readFileSync(new URL('../app/src/main/assets/vtt/js/core/controller.mjs',import.meta.url),'utf8');
   assert.match(controller,/resolvePublishedAdventureCheck/);
-  assert.match(controller,/resolveSkillCheck\(\{ skillKey: spec\.skillKey/);
+  assert.match(controller,/resolveSkillCheck\(\{ skillKey: resolvedSkillKey/);
   assert.match(controller,/publishedAdventureRegistry_mjs_1/);
   assert.match(controller,/adapter\.adjudicateCheck/);
   assert.match(bridge,/resolvePublishedAdventureCheck/);

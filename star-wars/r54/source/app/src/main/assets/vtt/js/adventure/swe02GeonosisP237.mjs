@@ -1,6 +1,6 @@
 // SWE02 official printed pp.7, 23, 30, 34, 36-37. Deterministic only.
 export const FACTS=Object.freeze({
- 'sivor-shell':['shell','krayt-fang-logs',7],
+ 'sivor-shell':['shell','krayt-fang-logs',10],
  'drombb-messages':['messages','drombb-cantina',23],
  'piddock-kubaz':['kubaz','piddock-party',34],
  'piddock-b1':['b1','piddock-party',34],
@@ -32,7 +32,8 @@ export function validateGeonosis(p){
  const keys=new Set();
  for(const x of evidence){
   const d=FACTS[x.choiceId];
-  if(!d||x.key!==d[0]||x.nodeId!==d[1]||x.page!==d[2]||keys.has(x.key))throw Error('SWE02 Geonosis: recibo de prova inválido ou duplicado.');
+  const legacyShellPage=x.choiceId==='sivor-shell'&&x.page===7;
+  if(!d||x.key!==d[0]||x.nodeId!==d[1]||(x.page!==d[2]&&!legacyShellPage)||keys.has(x.key))throw Error('SWE02 Geonosis: recibo de prova inválido ou duplicado.');
   if(x.key==='messages'&&p.flags?.drombbThreatNeutralized!==true)throw Error('SWE02 Geonosis: mensagens sem Drombb neutralizado.');
   keys.add(x.key);
  }
@@ -59,6 +60,7 @@ export function recordGeonosisChoice(p,choiceId,nodeId){
  const fact=FACTS[choiceId],arg=ARGUMENTS[choiceId];
  if(fact){
   if(nodeId!==fact[1])throw Error('SWE02 Geonosis: cena incorreta.');
+  if(choiceId==='sivor-shell'&&(!p.flags?.shipMarkedChitinKept||!p.shipChitinKnowledge||p.shipChitinKnowledge.source?.printedPage!==9))throw Error('SWE02 pp.9–10: pista de Sivor exige identificar e conservar a carapaça marcada.');
   p.geonosisEvidence=p.geonosisEvidence||[];
   if(p.geonosisEvidence.some(x=>x.key===fact[0]))throw Error('SWE02 Geonosis: prova já registrada.');
   p.geonosisEvidence.push({choiceId,key:fact[0],nodeId,page:fact[2]});

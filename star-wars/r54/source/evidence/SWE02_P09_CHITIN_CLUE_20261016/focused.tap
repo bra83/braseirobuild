@@ -1,0 +1,364 @@
+TAP version 13
+# Subtest: SWE02 p7: four alerts and unresolved issue state have exact ordered source cues
+ok 1 - SWE02 p7: four alerts and unresolved issue state have exact ordered source cues
+  ---
+  duration_ms: 3.3861
+  type: 'test'
+  ...
+# Subtest: SWE02 p7: odor and noise penalties compose for checks and medical aid
+ok 2 - SWE02 p7: odor and noise penalties compose for checks and medical aid
+  ---
+  duration_ms: 0.5477
+  type: 'test'
+  ...
+# Subtest: SWE02 p7-8: route and slowed-tracker combination is deterministic and survives JSON reopen
+ok 3 - SWE02 p7-8: route and slowed-tracker combination is deterministic and survives JSON reopen
+  ---
+  duration_ms: 0.9048
+  type: 'test'
+  ...
+# Subtest: SWE02 pp9-11: cargo discovery records source manifest without transferring or selling items
+ok 4 - SWE02 pp9-11: cargo discovery records source manifest without transferring or selling items
+  ---
+  duration_ms: 0.7147
+  type: 'test'
+  ...
+# Subtest: SWE02 p11 + EotE Core: exact cataloged cargo transfers by count to a stable PC owner
+ok 5 - SWE02 p11 + EotE Core: exact cataloged cargo transfers by count to a stable PC owner
+  ---
+  duration_ms: 1.5361
+  type: 'test'
+  ...
+# Subtest: SWE02 p9: pelt find creates six discovered items; odor-source search remains exempt
+ok 6 - SWE02 p9: pelt find creates six discovered items; odor-source search remains exempt
+  ---
+  duration_ms: 0.4911
+  type: 'test'
+  ...
+# Subtest: SWE02 p9-10: cage identifies B’ura; freeing is free; knowledge symbols retain graded shell facts
+ok 7 - SWE02 p9-10: cage identifies B’ura; freeing is free; knowledge symbols retain graded shell facts
+  ---
+  duration_ms: 2.5154
+  type: 'test'
+  ...
+# Subtest: SWE02 p8: tracker-removal threats preserve a hull-damage obligation without inventing trauma
+ok 8 - SWE02 p8: tracker-removal threats preserve a hull-damage obligation without inventing trauma
+  ---
+  duration_ms: 0.4284
+  type: 'test'
+  ...
+# Subtest: SWE02 p11: verified route records six uneventful hours and available rest without inventing recovery
+ok 9 - SWE02 p11: verified route records six uneventful hours and available rest without inventing recovery
+  ---
+  duration_ms: 0.4417
+  type: 'test'
+  ...
+# Subtest: P237 p37: official separate soldier and Vrixx’tt profiles
+ok 10 - P237 p37: official separate soldier and Vrixx’tt profiles
+  ---
+  duration_ms: 2.1093
+  type: 'test'
+  ...
+# Subtest: P237 p34: Piddock Kubaz clue no roll, B1 clue requires Hard Charm
+ok 11 - P237 p34: Piddock Kubaz clue no roll, B1 clue requires Hard Charm
+  ---
+  duration_ms: 64.2965
+  type: 'test'
+  ...
+# Subtest: SWE02 pp9-10 + p30: Sivor shell must be found, examined and explicitly kept before Geonosis can use it
+ok 12 - SWE02 pp9-10 + p30: Sivor shell must be found, examined and explicitly kept before Geonosis can use it
+  ---
+  duration_ms: 47.2309
+  type: 'test'
+  ...
+# Subtest: P237 p23: Drombb messages require victory and Hard Computers
+ok 13 - P237 p23: Drombb messages require victory and Hard Computers
+  ---
+  duration_ms: 51.9744
+  type: 'test'
+  ...
+# Subtest: P237 p36: zero points means five Geonosians and one Gand
+ok 14 - P237 p36: zero points means five Geonosians and one Gand
+  ---
+  duration_ms: 36.9491
+  type: 'test'
+  ...
+# Subtest: P237 p36: three points means three Geonosians
+ok 15 - P237 p36: three points means three Geonosians
+  ---
+  duration_ms: 39.3864
+  type: 'test'
+  ...
+# Subtest: P237 p36: six-plus removes soldiers, not Vrixx’tt
+ok 16 - P237 p36: six-plus removes soldiers, not Vrixx’tt
+  ---
+  duration_ms: 161.9968
+  type: 'test'
+  ...
+# Subtest: P237 p36: failed Daunting Coerce, rude and Imperial loyalty apply penalties
+ok 17 - P237 p36: failed Daunting Coerce, rude and Imperial loyalty apply penalties
+  ---
+  duration_ms: 30.7565
+  type: 'test'
+  ...
+# Subtest: P237: forged negotiation points, facts and statements fail closed
+ok 18 - P237: forged negotiation points, facts and statements fail closed
+  ---
+  duration_ms: 18.6243
+  type: 'test'
+  ...
+# Subtest: P237 p37: boarding requires resolved combat, no false victory or unverified bribe
+ok 19 - P237 p37: boarding requires resolved combat, no false victory or unverified bribe
+  ---
+  duration_ms: 49.7418
+  type: 'test'
+  ...
+# Subtest: P237 p37: Vio rescue from player incapacitation does not claim enemy defeat
+ok 20 - P237 p37: Vio rescue from player incapacitation does not claim enemy defeat
+  ---
+  duration_ms: 20.5824
+  type: 'test'
+  ...
+# Subtest: P237 controller: real dice, persistence and gantry encounter across three reopens
+ok 21 - P237 controller: real dice, persistence and gantry encounter across three reopens
+  ---
+  duration_ms: 103.3942
+  type: 'test'
+  ...
+# Subtest: P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery
+ok 22 - P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery
+  ---
+  duration_ms: 72.1087
+  type: 'test'
+  ...
+# Subtest: P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed
+ok 23 - P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed
+  ---
+  duration_ms: 28.5842
+  type: 'test'
+  ...
+# Subtest: P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters
+ok 24 - P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters
+  ---
+  duration_ms: 20.834
+  type: 'test'
+  ...
+# Subtest: P238 p7-8: both noises upgrade one difficulty; one disabled restores pool
+ok 25 - P238 p7-8: both noises upgrade one difficulty; one disabled restores pool
+  ---
+  duration_ms: 8.3659
+  type: 'test'
+  ...
+# Subtest: P238 p8: transponder cannot be switched off in flight or removed before landing
+ok 26 - P238 p8: transponder cannot be switched off in flight or removed before landing
+  ---
+  duration_ms: 36.0997
+  type: 'test'
+  ...
+# Subtest: P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception
+ok 27 - P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception
+  ---
+  duration_ms: 10.7675
+  type: 'test'
+  ...
+# Subtest: P238 p9: jettison requires actual successful Perception and Computers
+ok 28 - P238 p9: jettison requires actual successful Perception and Computers
+  ---
+  duration_ms: 18.7955
+  type: 'test'
+  ...
+# Subtest: P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill
+ok 29 - P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill
+  ---
+  duration_ms: 5.7132
+  type: 'test'
+  ...
+# Subtest: P238: forged ship flags, forged Bura and forged intercept outcome fail closed
+ok 30 - P238: forged ship flags, forged Bura and forged intercept outcome fail closed
+  ---
+  duration_ms: 15.4032
+  type: 'test'
+  ...
+# Subtest: P238: legacy route remains loadable but is explicitly uncertified
+ok 31 - P238: legacy route remains loadable but is explicitly uncertified
+  ---
+  duration_ms: 7.1777
+  type: 'test'
+  ...
+# Subtest: P238 real controller: skill pool, roll receipt and three saved reopens
+ok 32 - P238 real controller: skill pool, roll receipt and three saved reopens
+  ---
+  duration_ms: 52.2376
+  type: 'test'
+  ...
+# Subtest: P238 real controller: GM selects an EotE Knowledge specialty and the roll receipt survives reopen
+ok 33 - P238 real controller: GM selects an EotE Knowledge specialty and the roll receipt survives reopen
+  ---
+  duration_ms: 39.3353
+  type: 'test'
+  ...
+# Subtest: P238 real controller: observations, cargo, Bura conversation and six-hour transit survive three reopens
+ok 34 - P238 real controller: observations, cargo, Bura conversation and six-hour transit survive three reopens
+  ---
+  duration_ms: 72.4883
+  type: 'test'
+  ...
+# Subtest: P238 controller: cargo transfers enter the selected roster PC inventory and survive reopen exactly once
+ok 35 - P238 controller: cargo transfers enter the selected roster PC inventory and survive reopen exactly once
+  ---
+  duration_ms: 42.246
+  type: 'test'
+  ...
+# Subtest: P238: changing a successful slow tracker to false cannot conceal skipped interception
+ok 36 - P238: changing a successful slow tracker to false cannot conceal skipped interception
+  ---
+  duration_ms: 17.1871
+  type: 'test'
+  ...
+# Subtest: P239 SWE02 p.12: official Dunelizard profile and linked laser cannons
+ok 37 - P239 SWE02 p.12: official Dunelizard profile and linked laser cannons
+  ---
+  duration_ms: 1.9436
+  type: 'test'
+  ...
+# Subtest: P239 optimal navigation + slowed transponder: direct Nabat, no fighter
+ok 38 - P239 optimal navigation + slowed transponder: direct Nabat, no fighter
+  ---
+  duration_ms: 168.2467
+  type: 'test'
+  ...
+# Subtest: P239 SWE02 p.11 six-hour transit advances one persisted living-world tick exactly once
+ok 39 - P239 SWE02 p.11 six-hour transit advances one persisted living-world tick exactly once
+  ---
+  duration_ms: 57.0973
+  type: 'test'
+  ...
+# Subtest: P239 SWE02 p.8 failed route records unquantified extra transit time for GM adjudication
+ok 40 - P239 SWE02 p.8 failed route records unquantified extra transit time for GM adjudication
+  ---
+  duration_ms: 58.5128
+  type: 'test'
+  ...
+# Subtest: P239 SWE02 normal route rejects extra transit time adjudication
+ok 41 - P239 SWE02 normal route rejects extra transit time adjudication
+  ---
+  duration_ms: 54.6751
+  type: 'test'
+  ...
+# Subtest: P239 failed route forces interception even after slowed tracker
+ok 42 - P239 failed route forces interception even after slowed tracker
+  ---
+  duration_ms: 125.1097
+  type: 'test'
+  ...
+# Subtest: P239 p.12: cannot start Thwheek without actual Krayt Fang
+ok 43 - P239 p.12: cannot start Thwheek without actual Krayt Fang
+  ---
+  duration_ms: 57.8313
+  type: 'test'
+  ...
+# Subtest: P239 real vehicle engine: Short-range fighter and player must maneuver into Bocajarro
+ok 44 - P239 real vehicle engine: Short-range fighter and player must maneuver into Bocajarro
+  ---
+  duration_ms: 89.6414
+  type: 'test'
+  ...
+# Subtest: P239 p.12: each PC Cool slot selects its owner and receipts its vehicle actions
+ok 45 - P239 p.12: each PC Cool slot selects its owner and receipts its vehicle actions
+  ---
+  duration_ms: 97.9838
+  type: 'test'
+  ...
+# Subtest: P239 p.12: PCs who did not see Thwheek emerge roll Vigilance; the others roll Cool
+ok 46 - P239 p.12: PCs who did not see Thwheek emerge roll Vigilance; the others roll Cool
+  ---
+  duration_ms: 83.4635
+  type: 'test'
+  ...
+# Subtest: P239 p.12: unaware PC selection rejects unknown or duplicated roster IDs
+ok 47 - P239 p.12: unaware PC selection rejects unknown or duplicated roster IDs
+  ---
+  duration_ms: 54.2004
+  type: 'test'
+  ...
+# Subtest: P239 p.12: initiative blocks bypassing Thwheek and manual round advancement
+ok 48 - P239 p.12: initiative blocks bypassing Thwheek and manual round advancement
+  ---
+  duration_ms: 68.573
+  type: 'test'
+  ...
+# Subtest: P239 legacy active Thwheek saves without initiative remain loadable and use their old round flow
+ok 49 - P239 legacy active Thwheek saves without initiative remain loadable and use their old round flow
+  ---
+  duration_ms: 74.4084
+  type: 'test'
+  ...
+# Subtest: P239 real hit + five hull trauma: pursuit remains open, withdrawal permits Nabat
+ok 50 - P239 real hit + five hull trauma: pursuit remains open, withdrawal permits Nabat
+  ---
+  duration_ms: 109.5162
+  type: 'test'
+  ...
+# Subtest: P239 p.12: no victory without actual hits and no duplicate start/resolve
+ok 51 - P239 p.12: no victory without actual hits and no duplicate start/resolve
+  ---
+  duration_ms: 66.2522
+  type: 'test'
+  ...
+# Subtest: P239 p.12: incoming attack uses fixed Agility 3, Gunnery 0 even with forged GM overrides
+ok 52 - P239 p.12: incoming attack uses fixed Agility 3, Gunnery 0 even with forged GM overrides
+  ---
+  duration_ms: 80.1842
+  type: 'test'
+  ...
+# Subtest: P239 p.12: target stay-on-target switches to evasive after first actual hit, persists next round
+ok 53 - P239 p.12: target stay-on-target switches to evasive after first actual hit, persists next round
+  ---
+  duration_ms: 83.6247
+  type: 'test'
+  ...
+# Subtest: P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience checks
+ok 54 - P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience checks
+  ---
+  duration_ms: 300.5703
+  type: 'test'
+  ...
+# Subtest: P239 p.12: three-person crew cannot be falsely certified by one PC
+ok 55 - P239 p.12: three-person crew cannot be falsely certified by one PC
+  ---
+  duration_ms: 656.0404
+  type: 'test'
+  ...
+# Subtest: P239 p.12: crash Resilience is recorded once per stable PC ID, including duplicate names
+ok 56 - P239 p.12: crash Resilience is recorded once per stable PC ID, including duplicate names
+  ---
+  duration_ms: 505.7724
+  type: 'test'
+  ...
+# Subtest: P239 p.12: successful Pilot soft landing upgrades one crew Resilience die
+ok 57 - P239 p.12: successful Pilot soft landing upgrades one crew Resilience die
+  ---
+  duration_ms: 259.0853
+  type: 'test'
+  ...
+# Subtest: P239 fail-closed: forged outcome or crew completion cannot survive adapter status
+ok 58 - P239 fail-closed: forged outcome or crew completion cannot survive adapter status
+  ---
+  duration_ms: 78.4887
+  type: 'test'
+  ...
+# Subtest: P239 bridge exposes authoritative vehicle result and crash methods
+ok 59 - P239 bridge exposes authoritative vehicle result and crash methods
+  ---
+  duration_ms: 0.2806
+  type: 'test'
+  ...
+1..59
+# tests 59
+# suites 0
+# pass 59
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3565.2301

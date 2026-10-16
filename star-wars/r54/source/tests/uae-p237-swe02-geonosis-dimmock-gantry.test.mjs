@@ -9,6 +9,10 @@ const a=getPublishedAdventureAdapter('long-arm-of-the-hutt');
 const step=(w,id)=>a.advance(w,id).world,chain=(w,...ids)=>ids.reduce((state,id)=>step(id==='reach-new-meen'?resolveOldLylekRetreat(a,state):state,id),w),start=()=>a.start({}).world;
 const enterCantina=w=>step(a.recordNewMeenLifecycle(w,'compound_approach',{precautions:true}).world,'new-meen-enter-cantina');
 const mark=(w,id)=>{const stage=w.publishedAdventure?.newMeenLifecycle?.stage;if(id==='laoth-drombb-cantina'&&stage==='CANTINA_READY')w=a.recordNewMeenLifecycle(w,'cantina_start').world;return a.markEncounterActive(w,id);};
+const examineAndKeepShell=w=>{
+ w=a.discoverShipRoom(w,'number-three-hold').world;
+ return a.adjudicateCheck(w,{checkIndex:9,result:{success:true,netSuccess:1,netAdvantage:0,triumph:0,skillKey:'xenologia'}}).world;
+};
 const party=()=>chain(start(),'dock-ryloth','head-to-geonosis','attend-piddock-party');
 const audience=()=>step(party(),'piddock-to-dimmock');
 const check=(w,i,success)=>a.adjudicateCheck(w,{checkIndex:i,result:{success,netSuccess:success?1:0,netAdvantage:0}}).world;
@@ -28,9 +32,18 @@ test('P237 p34: Piddock Kubaz clue no roll, B1 clue requires Hard Charm',()=>{
  assert.throws(()=>step(w,'piddock-b1'),/inválida/);
  w=check(w,0,true);w=step(w,'piddock-b1');assert.equal(w.publishedAdventure.flags.geo_b1,true);
 });
-test('P237 pp7,30: Sivor shell needs explicit collection and identification',()=>{
- let w=chain(start(),'inspect-krayt-fang','sivor-shell','finish-ship-inspection','head-to-geonosis','attend-piddock-party');
+test('SWE02 pp9-10 + p30: Sivor shell must be found, examined and explicitly kept before Geonosis can use it',()=>{
+ let w=step(start(),'inspect-krayt-fang');
+ assert.equal(a.currentChecks(w).some(x=>x.index===9),false);
+ assert.throws(()=>step(w,'sivor-shell'),/inválida/);
+ w=examineAndKeepShell(w);
+ assert.equal(w.publishedAdventure.shipChitinKnowledge.intelligentInsectileSpecies,true);
+ assert.equal(w.publishedAdventure.shipChitinKnowledge.mayHaveShedShell,false);
+ w=chain(w,'sivor-shell');
+ assert.equal(w.publishedAdventure.flags.shipMarkedChitinKept,true);
+ w=chain(w,'finish-ship-inspection','head-to-geonosis','attend-piddock-party');
  assert.equal(w.publishedAdventure.flags.geo_shell,true);
+ assert.equal(w.publishedAdventure.geonosisEvidence.find(x=>x.key==='shell').page,10);
  w=step(w,'piddock-identify-shell');assert.equal(w.publishedAdventure.flags.geo_identifiedShell,true);
  for(let i=0;i<3;i++){w=reopen(w);a.status(w)}
 });
@@ -56,7 +69,7 @@ test('P237 p36: three points means three Geonosians',()=>{
  assert.equal(w.publishedAdventure.flags.geoScore,3);assert.equal(a.encounterSpec(w,'laoth-gantry-aa7').geonosianGuardCount,3);
 });
 test('P237 p36: six-plus removes soldiers, not Vrixx’tt',()=>{
- let w=enterCantina(chain(start(),'inspect-krayt-fang','sivor-shell','finish-ship-inspection','help-new-meen','travel-lylek-den','reach-new-meen','confront-drombb-directly'));
+ let w=enterCantina(chain(examineAndKeepShell(step(start(),'inspect-krayt-fang')),'sivor-shell','finish-ship-inspection','help-new-meen','travel-lylek-den','reach-new-meen','confront-drombb-directly'));
  w=structuredClone(w);w.publishedAdventure.flags.confirmedPartySize=3;w=mark(w,'laoth-drombb-cantina');
  w=a.recordEncounterOutcome(w,{encounterId:'laoth-drombb-cantina',outcome:'adversaries_defeated',adversaries:a.encounterSpec(w,'laoth-drombb-cantina').adversaries.map((x,i)=>({id:`dr-${i}`,profileKey:x.profileKey,status:'incapacitated'}))}).world;
  w=check(w,0,true);w=chain(w,'drombb-messages','new-meen-saved-confirmed','ota-after-new-meen-defense','follow-ota-geonosis','attend-piddock-party');

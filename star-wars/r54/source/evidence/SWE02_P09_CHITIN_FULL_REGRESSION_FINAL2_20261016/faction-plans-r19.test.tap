@@ -1,0 +1,14 @@
+✔ plano de facção usa etapas textuais explícitas e não avança sozinho (28.803ms)
+✔ avanço explícito conclui uma etapa por vez e encerra o plano no final (6.2024ms)
+✔ evento de avanço de plano gera consequência causal deduplicada no local da etapa ativa (5.9591ms)
+✔ plano rejeita etapa ligada a local inexistente (0.9086ms)
+✔ plano ativo não volta silenciosamente a planejado e aborto encerra etapas restantes (4.0654ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 438.9959
+

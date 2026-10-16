@@ -1,0 +1,15 @@
+✔ P181: official chapter sequence Saleucami -> Worlport -> Renegade’s Blood (607.7629ms)
+✔ P181: two Vandin alternatives and the Noira alliance are playable (358.6816ms)
+✔ P181: actual NPC encounter only in authored scene, replay guarded, outcomes persistent (108.7108ms)
+✔ P181: check failure raises persistent alert, success never fabricates a win (64.2764ms)
+✔ P181: v1 Ord Mantell start migrates to Saleucami without changing event receipts (39.9272ms)
+✔ P181: controller credits only the Consortium contract outcome, not an alliance (2199.5421ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4327.0055
+

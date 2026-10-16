@@ -1,0 +1,21 @@
+✔ R36 image library V2 has expected local/external/map counts (3.4144ms)
+✔ all 17 Kainrath maps use allowed HTTPS wp-content URLs (2.1901ms)
+✔ external maps are reference/cache assets and never masquerade as packaged mechanics (0.749ms)
+✔ map catalog covers useful map kinds without inferring campaign state (0.5672ms)
+✔ Kainrath source index contains the complete Maps batch (0.7182ms)
+✔ game bridge exposes map catalog and runtime descriptors without campaign (27.1036ms)
+✔ native image cache is constrained by host path size MIME and redirect guards (1.4322ms)
+✔ native cache is private and served through braseiro.local rather than exposing file paths (0.905ms)
+✔ MainActivity installs BraseiroImages and preserves scene image interceptor order (1.4602ms)
+✔ real static Android MAPA surface exposes search selection cache and provenance controls (1.2325ms)
+✔ external URL validator rejects arbitrary hosts and non-HTTPS schemes (1.0294ms)
+✔ map search is deterministic and bounded (11.7309ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1361.3693
+

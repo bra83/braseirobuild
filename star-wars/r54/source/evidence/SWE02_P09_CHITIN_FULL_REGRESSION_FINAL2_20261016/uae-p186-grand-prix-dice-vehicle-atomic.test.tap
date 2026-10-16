@@ -1,0 +1,21 @@
+✔ P186 real narrative dice are rolled with real pilot and persisted in the receipt (363.9915ms)
+✔ P186 missed buoy actually increases the next rolled pool and survives three reopenings (356.9494ms)
+✔ P186 tibannuck setbacks are rolled, system strain is applied to the real vehicle (277.774ms)
+✔ P186 real challenge despair produces actual EotE vehicle critical with -20 modifier (286.4816ms)
+✔ P186 beldon 3+ net threats creates a real vehicle critical (307.0753ms)
+✔ P186 duplicate and invalid requests roll back both world and vehicle without save (173.6552ms)
+✔ P186 forged die face and net successes rejected before advancing (169.2432ms)
+✔ P186 no active vehicle cannot invent a race result or persist a receipt (156.8672ms)
+✔ P186 Android bridge and offline bundle expose real roll without changing legacy adjudication (82.5801ms)
+✔ P186 actual critical and system strain persist together after three controller reopens (344.4031ms)
+✔ P186 forged difficulty upgrades or extra dice are rejected on replay (225.7138ms)
+✔ P186 duplicate action through existing Android operation path cannot roll twice (182.0336ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4146.4273
+

@@ -1,0 +1,16 @@
+✔ P221 residence cannot start without physical presence, and never invents time (1203.2814ms)
+✔ P221 fifteen real minutes trigger one Hard roll; no replay or double charging (999.8956ms)
+✔ P221 multiple intervals remain due sequentially; leaving cannot erase pending checks (1231.2689ms)
+✔ P221 Venture alert requires real crew encounter, physical transponder and four distinct cloud cars (1000.1818ms)
+✔ P221 no phantom arrival at ten minutes; overdue requires GM, no invented combat (1068.6926ms)
+✔ P221 forged faces, derived state, future timestamp and replay are rejected (884.3238ms)
+✔ P221 controller, bridge, UI, bundle, version and Kokoro-preserving integration (63.8142ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7802.9873
+

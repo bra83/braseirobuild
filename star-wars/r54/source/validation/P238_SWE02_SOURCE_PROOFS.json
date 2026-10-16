@@ -96,11 +96,13 @@
     {
       "key": "identifyChitin",
       "printedPage": 9,
-      "semantic": "Conhecimento Difícil",
+        "semantic": "Conhecimento Difícil após descobrir o porão três; 1 Sucesso identifica espécie inteligente, 2+ Sucessos permitem considerar troca de carapaça, 1+ Vantagem revela poeira provavelmente de Geonosis, Triunfo reconhece marcas de clã/propriedade; origem exata fica desconhecida",
       "flags": "shipChitinIdentified",
       "executor": "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
-      "controller": "app/src/main/assets/vtt/js/core/controller.mjs",
-      "test": "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
+        "controller": "GameController.resolvePublishedAdventureCheck; GameController.advancePublishedAdventure(sivor-shell)",
+        "ui": "Resultado graduado visível no status da nave; manter peça só após identificar",
+        "test": "tests/swe02-krayt-fang-pp06-11-family.test.mjs; tests/uae-p237-swe02-geonosis-dimmock-gantry.test.mjs",
+        "focusedEvidence": "evidence/SWE02_P09_CHITIN_CLUE_20261016/RESULTS.md",
       "status": "IMPLEMENTED_AND_TESTED_WITH_DOCUMENTED_LIMITS"
     },
     {
@@ -141,7 +143,7 @@
     "Hull damage on Threat",
     "Global odor beyond ship checks",
     "Fuel quantity; cargo with unknown quantity or no exact Core gear mapping; droid-part sale/build; full-page ownership and inventory audit",
-    "Chitin symbol result grades",
+    "Page-wide verification of all p.9 findings, GM narration and controller/UI branches",
     "Item loot and selling",
     "Editorial certification of entire SWE02"
   ]

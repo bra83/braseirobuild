@@ -1,0 +1,17 @@
+✔ R38 manifest grows exactly to 229 assets with unique IDs (3.2774ms)
+✔ R38 wave adds exactly 20 entries from Enemies and NPCs page 3 (0.5716ms)
+✔ R38 totals preserve R37 categories and add 18 NPCs plus 2 droids (0.515ms)
+✔ all R38 wave URLs pass the same Kainrath external-image security policy (2.0335ms)
+✔ R38 wave remains visual-only with no mechanical inference (0.6119ms)
+✔ R38 source metadata records the second NPC wave without overwriting R37 entries (0.5117ms)
+✔ visual entity bridge automatically exposes expanded R38 totals without API changes (102.7605ms)
+✔ R38 expansion does not alter the 18-map catalog (6.2921ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1359.7368
+

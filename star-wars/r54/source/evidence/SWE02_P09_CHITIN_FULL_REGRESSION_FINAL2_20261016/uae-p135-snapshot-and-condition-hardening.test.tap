@@ -1,0 +1,24 @@
+✔ P135 JSON gate rejeita getter em payload e flags sem mutação parcial (36.7853ms)
+✔ P135 JSON gate rejeita hidden em payload e flags sem mutação parcial (5.3206ms)
+✔ P135 JSON gate rejeita serializer em payload e flags sem mutação parcial (5.8537ms)
+✔ P135 JSON gate rejeita symbol em payload e flags sem mutação parcial (4.0631ms)
+✔ P135 JSON gate rejeita array em payload e flags sem mutação parcial (3.8346ms)
+✔ P135 under-black-sun: comparação com contador/relógio inexistente falha fechada (35.7106ms)
+✔ P135 under-black-sun: importação adulterada rejeitada antes da migração (15.1856ms)
+✔ P135 beyond-the-rim: comparação com contador/relógio inexistente falha fechada (31.0996ms)
+✔ P135 beyond-the-rim: importação adulterada rejeitada antes da migração (8.0114ms)
+✔ P135 long-arm-of-the-hutt: comparação com contador/relógio inexistente falha fechada (27.3248ms)
+✔ P135 long-arm-of-the-hutt: importação adulterada rejeitada antes da migração (17.4083ms)
+✔ P135 jewel-of-yavin: comparação com contador/relógio inexistente falha fechada (10.4146ms)
+✔ P135 jewel-of-yavin: importação adulterada rejeitada antes da migração (3.9674ms)
+✔ P135 mask-of-the-pirate-queen: comparação com contador/relógio inexistente falha fechada (22.1849ms)
+✔ P135 mask-of-the-pirate-queen: importação adulterada rejeitada antes da migração (7.5065ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1017.6515
+

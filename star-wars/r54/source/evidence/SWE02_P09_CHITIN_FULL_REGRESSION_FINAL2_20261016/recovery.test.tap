@@ -1,0 +1,15 @@
+✔ Medicina escala pela condição do paciente, falta de suprimentos e autotratamento (3.8211ms)
+✔ Medicina usa sucesso para Ferimentos e Vantagem para Tensão (3.5636ms)
+✔ fim de encontro exige teste Simple de Frialdade ou Disciplina e Rapid Recovery só soma em sucesso (2.1087ms)
+✔ noite completa recupera 1 Ferimento, toda Tensão e restaura eficácia diária (1.1895ms)
+✔ tratamento de Ferimento Crítico usa a dificuldade de severidade e remove em sucesso (2.7168ms)
+✔ bacta cura orgânicos e banho de óleo cura droides sem apagar críticos (3.3019ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 599.5617
+

@@ -1,0 +1,18 @@
+✔ P205 official Arrow-7 aft blaster is personal-scale, not planetary or a forward gun (2.9476ms)
+✔ P205 requires real encounter, GM arc, gunner, and current combat range (1586.3768ms)
+✔ P205 queue creates real WORLD_UPDATED and COMBAT_ACTION persistent state (819.2163ms)
+✔ P205 one turret per round, no duplicate IDs, atomic rollback (861.5045ms)
+✔ P205 actual NPC turn uses Gunnery group skill and personal damage with Pierce 1 (958.1638ms)
+✔ P205 normal carbine remains selected when no Arrow-7 gunner order exists (767.0848ms)
+✔ P205 replay detects modified damage, arc, target range and duplicate round (869.141ms)
+✔ P205 Android PT-BR UI, bridge and bundle include turret controls (49.057ms)
+✔ P205 real initiative advance consumes queued Arrow-7 order and persists NPC attack (863.3046ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7800.8168
+

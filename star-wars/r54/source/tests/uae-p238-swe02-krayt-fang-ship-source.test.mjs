@@ -56,7 +56,8 @@ test('P238 p9: jettison requires actual successful Perception and Computers',()=
  w=roll(w,7,true);assert.equal(w.publishedAdventure.flags.shipPeltsJettisoned,true);
 });
 test('P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill',()=>{
- const w=ship();const knowledge=a.currentChecks(w).find(x=>x.index===9),parts=a.currentChecks(w).find(x=>x.index===10);
+ let w=ship();assert.equal(a.currentChecks(w).some(x=>x.index===9),false);w=a.discoverShipRoom(w,'number-three-hold').world;
+ const knowledge=a.currentChecks(w).find(x=>x.index===9),parts=a.currentChecks(w).find(x=>x.index===10);
  assert.equal(knowledge.pool.difficulty,2);assert.equal(knowledge.pool.challenge,1);
  assert.equal(knowledge.skillKey,null);assert.equal(knowledge.requiresGMSourceVerification,true);
  assert.equal(parts.skillKey,'mecanica');assert.equal(parts.source.printedPage,11);
@@ -77,6 +78,23 @@ test('P238 real controller: skill pool, roll receipt and three saved reopens',()
  const specs=a.currentChecks(g.state.world);assert.equal(specs.find(x=>x.index===0).pool.challenge,1);
  const r=g.resolvePublishedAdventureCheck(0,{rng:()=>.9});assert.equal(r.adjudication.source.printedPage,8);
  for(let i=0;i<3;i++){const h=new GameController(repo);assert.equal(h.state.world.publishedAdventure.shipChecks.at(-1).key,'course');a.status(h.state.world)}
+});
+test('P238 real controller: GM selects an EotE Knowledge specialty and the roll receipt survives reopen',()=>{
+ const repo=new Repo(),g=new GameController(repo);g.loadStarterCharacter('cael');g.startSession({playerCount:1,rng:()=>.9});
+ g.startPublishedAdventureSession('long-arm-of-the-hutt',{rng:()=>.9});g.advancePublishedAdventure('inspect-krayt-fang');
+ g.discoverSWE02ShipRoom('number-three-hold');
+ assert.throws(()=>g.resolvePublishedAdventureCheck(9,{rng:()=>.9}),/Mestre deve escolher/);
+ assert.throws(()=>g.resolvePublishedAdventureCheck(9,{knowledgeSkillKey:'estrategia_militar',rng:()=>.9}),/Mestre deve escolher/);
+ const result=g.resolvePublishedAdventureCheck(9,{knowledgeSkillKey:'xenologia',rng:()=>.9});
+ assert.equal(result.adjudication.source.printedPage,9);
+ const receipt=repo.state.world.publishedAdventure.shipChecks.at(-1);
+ assert.equal(receipt.key,'identifyChitin');assert.equal(receipt.skillKey,'xenologia');
+ assert.deepEqual(receipt.rulesSource,{book:'Edge of the Empire Core Rulebook',printedPage:122});
+ assert.equal(receipt.success,false);
+ for(let i=0;i<3;i++){
+  const h=new GameController(repo),p=h.state.world.publishedAdventure;
+  assert.equal(p.shipChecks.at(-1).skillKey,'xenologia');assert.equal(p.flags.shipChitinIdentified,undefined);a.status(h.state.world);
+ }
 });
 test('P238 real controller: observations, cargo, Bura conversation and six-hour transit survive three reopens',()=>{
  const repo=new Repo(),g=new GameController(repo);g.loadStarterCharacter('cael');g.startSession({playerCount:3,rng:()=>.9});

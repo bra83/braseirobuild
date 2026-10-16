@@ -1,0 +1,23 @@
+✔ P191 PDF p70: one advantage creates one real boost for next bank slicing roll (1007.3731ms)
+✔ P191 PDF p70: two advantages upgrade positive dice in the next check (777.4444ms)
+✔ P191 PDF p70: two threats cost 15 actual elapsed minutes and durable ledger (698.172ms)
+✔ P191 cannot spend more advantages than rolled or threats on advantage result (615.0006ms)
+✔ P191 spending must follow a real latest bank slice and cannot be replayed (666.5136ms)
+✔ P191 tampering with spending choices, roll faces or pending state fails status (622.3627ms)
+✔ P191 tampering with the 15-minute task ledger fails status (576.3957ms)
+✔ P191 no automatic credit payout, no fake bank transfer, no second spend (600.9916ms)
+✔ P191 P190 legacy receipts without BANK_SLICE_SPEND stay valid (539.0875ms)
+✔ P191 UI bridge exposes after-roll choices and displays only supported table outcomes (34.2481ms)
+✔ P191 combines a boost and an upgrade from the same post-roll choice without overspending (591.5046ms)
+✔ P191 unknown spend fields, fractional counts and empty choices reject atomically (627.6962ms)
+✔ P191 unknown receipt fields and forged extra time receipt are rejected on readback (691.4069ms)
+✔ P191 UI offline bundle includes the new Table 2-1 engine and the bridge method (34.7506ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9323.2493
+

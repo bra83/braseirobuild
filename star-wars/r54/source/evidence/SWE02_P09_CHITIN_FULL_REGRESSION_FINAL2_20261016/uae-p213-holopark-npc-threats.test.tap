@@ -1,0 +1,18 @@
+✔ P213 official PDF NPC Threat effects have separate landscapes and do not fake PC Advantage (4.7306ms)
+✔ P213 actual NPC Threat is RESERVED and cannot also cause generic NPC strain (892.553ms)
+✔ P213 Christophsis spotlight applies REAL setback to NPC attacks against PC, then expires (900.1366ms)
+✔ P213 Coruscant transport adds one setback to actual player ranged combat pool, clears on real movement (886.8674ms)
+✔ P213 NPC Threat cannot be forged, reused, or transferred between landscapes (842.4309ms)
+✔ P213 Coruscant companion targets must be real group members, and only their actual combat skill gets setback (882.9112ms)
+✔ P213 Android UI, controller, bridge and offline build contain both NPC Threat effects (31.2853ms)
+✔ P213 actual player attack consumes Coruscant transport setback die, not just a UI flag (1025.6075ms)
+✔ P213 companion transport is individual: real combat skill setback and GM movement clears only selected companion (1206.8943ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7860.9387
+

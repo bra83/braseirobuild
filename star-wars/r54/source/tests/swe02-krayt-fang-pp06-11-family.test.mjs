@@ -4,7 +4,7 @@ import {
   SHIP_ALERTS, SHIP_MANIFEST,
   SHIP_CARGO_GEAR_MAPPINGS, shipCargoTransferOptions, recordShipCargoTransfer,
   shipIssueState, shipSmellSetback, shipTaskPool, shipCheckPool,
-  recordShipObservation, recordShipRoomDiscovery, recordShipCheck,
+  recordShipObservation, recordShipRoomDiscovery, recordShipCheck, shipCheckAvailable,
   recordShipChoice, recordBuraConversation, validateShip
 } from '../app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs';
 
@@ -118,10 +118,16 @@ test('SWE02 p9-10: cage identifies B’ura; freeing is free; knowledge symbols r
   const conversation=recordBuraConversation(p,{topics:['injury','captureStory','shipHelp','mineReward','drombbDetails'],oskaraPresent:true,oskaraSharedHistory:true,oskaraRaisedCorruption:true});
   assert.ok(conversation.facts.some(x=>x.id==='oskaraConnection'&&x.printedPage===10));
   assert.ok(conversation.facts.some(x=>x.id==='drombbDetails'&&x.referencedPrintedPage===18));
-  recordShipCheck(p,9,{success:true,netSuccess:2,netAdvantage:1,triumph:true});
-  assert.deepEqual(p.shipChitinKnowledge,{intelligentInsectileSpecies:true,mayHaveShedShell:true,redDustProbablyGeonosis:true,clanOrOwnershipMarkings:true,exactOriginKnown:false,source:{productCode:'SWE02',printedPage:9}});
+  assert.equal(shipCheckAvailable(p,9),false);
+  assert.throws(()=>recordShipCheck(p,9,{success:true,netSuccess:1,netAdvantage:0,triumph:false,skillKey:'xenologia'}),/fora da cena|pré-requisito/);
+  recordShipRoomDiscovery(p,'number-three-hold');
+  assert.equal(shipCheckAvailable(p,9),true);
+  recordShipCheck(p,9,{success:true,netSuccess:2,netAdvantage:1,triumph:true,skillKey:'xenologia'});
+  assert.deepEqual(p.shipChitinKnowledge,{intelligentInsectileSpecies:true,mayHaveShedShell:true,redDustProbablyGeonosis:true,clanOrOwnershipMarkings:true,exactOriginKnown:false,checkReceipt:{checkIndex:9,skillKey:'xenologia',rulesSource:{book:'Edge of the Empire Core Rulebook',printedPage:122},netSuccess:2,netAdvantage:1,triumph:true},source:{productCode:'SWE02',printedPage:9}});
   recordShipObservation(p,'keep-marked-chitin');
   assert.equal(validateShip(reopen(p)),true);
+  const forged=reopen(p);forged.shipChitinKnowledge.redDustProbablyGeonosis=false;
+  assert.throws(()=>validateShip(forged),/resultado graduado de Conhecimento inválido/);
 });
 
 test('SWE02 p8: tracker-removal threats preserve a hull-damage obligation without inventing trauma',()=>{

@@ -1,0 +1,19 @@
+✔ P202 explosion deducts real soak and persists actual wounds, never a naked raw 10 (910.7905ms)
+✔ P202 source-backed fall medium 30 damage 20 strain reduced by soak and actual symbols (797.2051ms)
+✔ P202 short fall uses 10/10 and only one confirmation (806.5374ms)
+✔ P202 no impact without explosion; GM must confirm distance; invalid range rejected (676.7629ms)
+✔ P202 receipt replay rejects tampered wound and dice face (735.6914ms)
+✔ P202 atomic rollback and three reopenings with real health persistence (753.3094ms)
+✔ P202 official four Shen goons are medium-range minions with compendium profile (1.0911ms)
+✔ P202 four goons become a real combat encounter after blast + fall, never before (760.057ms)
+✔ P202 cannot skip goons or impact before advancing, legacy without bomb still valid (758.7593ms)
+✔ P202 Android bridge, source and UI use the same actual impact action (46.1904ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7398.2841
+

@@ -13732,7 +13732,7 @@ exports.LONG_ARM_OF_THE_HUTT = Object.freeze({
             visibleNpcIds: [], checks: [{ skill: 'Computadores', difficulty: 'Média', purpose: 'localizar registros e sinais de rastreamento' }],
             choices: [
                 { id: 'finish-ship-inspection', label: 'Continuar pela rota legada (inspeção NÃO certificada)', to: 'ryloth-safehouse' },
-                { id: 'sivor-shell', label: 'Guardar a carapaça do porão três (SWE02 p.7)', to: 'krayt-fang-logs' },
+                { id: 'sivor-shell', label: 'Guardar a carapaça marcada já examinada (SWE02 pp.9–10)', to: 'krayt-fang-logs', condition: 'flag:shipChitinIdentified' },
                 { id: 'ship-find-bura', label: 'Localizar e libertar B’ura B’an no porão três (sem teste, p.9)', to: 'krayt-fang-logs', condition: '!flag:shipBuraFound' },
                 { id: 'ship-depart-verified', label: 'Seguir para Ryloth após traçar a rota e encontrar B’ura B’an', to: 'rylos-arrival-decision', condition: 'flag:shipDepartureVerified' }
             ]
@@ -14387,6 +14387,8 @@ function advanceLongArmOfTheHutt(world, choiceId) {
         throw new Error('Escolha inválida.');
     if (p.currentNodeId === 'lylek-den-ambush' && choiceId === 'reach-new-meen' && !(0, swe02OldLylekP15_mjs_1.canSWE02OldLylekContinue)(p))
         throw Error('SWE02 pp.15–18: resolva o encontro dos caçadores e a consequência do lylek antes de chegar a New Meen.');
+    if (choiceId === 'sivor-shell')
+        (0, swe02KraytFangP238_mjs_1.recordShipObservation)(p, 'keep-marked-chitin');
     if (p.currentNodeId === 'piddock-party' && ['piddock-kubaz', 'piddock-b1', 'piddock-identify-shell'].includes(choiceId)) {
         const tracked = (0, swe02Act2ContractsWip_mjs_1.askSWE02Piddock)(next, { topic: choiceId });
         p.piddockQuestionReceipts = tracked.world.publishedAdventure.piddockQuestionReceipts;
@@ -14551,7 +14553,9 @@ function currentLongArmOfTheHuttChecks(world) {
     if (['krayt-fang-logs', 'krayt-fang-ground-inspection'].includes(p.currentNodeId))
         return swe02KraytFangP238_mjs_1.SHIP_CHECKS.map((check, index) => ({ check, index })).filter(({ index }) => (0, swe02KraytFangP238_mjs_1.shipCheckAvailable)(p, index)).map(({ check, index }) => ({
             id: `${p.currentNodeId}:check:${index}`, index, skill: check.skill,
-            skillKey: SWE02_SKILLS[check.skill] || null, difficultyText: ['', 'Fácil', 'Média', 'Difícil', 'Formidável'][check.difficulty], purpose: check.purpose,
+            skillKey: SWE02_SKILLS[check.skill] || null,
+            ...(check.key === 'identifyChitin' ? { knowledgeSkillOptions: clone(swe02KraytFangP238_mjs_1.EOTE_KNOWLEDGE_SKILL_OPTIONS), knowledgeSkillSource: { book: 'Edge of the Empire Core Rulebook', printedPage: 122 } } : {}),
+            difficultyText: ['', 'Fácil', 'Média', 'Difícil', 'Formidável'][check.difficulty], purpose: check.purpose,
             pool: p.currentNodeId === 'krayt-fang-ground-inspection' ? { difficulty: check.difficulty, challenge: 0, setback: 0, boost: 0 } : (0, swe02KraytFangP238_mjs_1.shipCheckPool)(p, index, { announcedSearch: p.flags?.shipPeltSearchAnnounced === true }), shipOdorRule: check.key, source: { title: SOURCE.title, productCode: 'SWE02', printedPage: check.page, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' },
             requiresGMSourceVerification: !SWE02_SKILLS[check.skill]
         }));
@@ -18112,7 +18116,7 @@ exports.validateGeonosis = validateGeonosis;
 exports.recordGeonosisChoice = recordGeonosisChoice;
 // SWE02 official printed pp.7, 23, 30, 34, 36-37. Deterministic only.
 exports.FACTS = Object.freeze({
-    'sivor-shell': ['shell', 'krayt-fang-logs', 7],
+    'sivor-shell': ['shell', 'krayt-fang-logs', 10],
     'drombb-messages': ['messages', 'drombb-cantina', 23],
     'piddock-kubaz': ['kubaz', 'piddock-party', 34],
     'piddock-b1': ['b1', 'piddock-party', 34],
@@ -18147,7 +18151,8 @@ function validateGeonosis(p) {
     const keys = new Set();
     for (const x of evidence) {
         const d = exports.FACTS[x.choiceId];
-        if (!d || x.key !== d[0] || x.nodeId !== d[1] || x.page !== d[2] || keys.has(x.key))
+        const legacyShellPage = x.choiceId === 'sivor-shell' && x.page === 7;
+        if (!d || x.key !== d[0] || x.nodeId !== d[1] || (x.page !== d[2] && !legacyShellPage) || keys.has(x.key))
             throw Error('SWE02 Geonosis: recibo de prova inválido ou duplicado.');
         if (x.key === 'messages' && p.flags?.drombbThreatNeutralized !== true)
             throw Error('SWE02 Geonosis: mensagens sem Drombb neutralizado.');
@@ -18181,6 +18186,8 @@ function recordGeonosisChoice(p, choiceId, nodeId) {
     if (fact) {
         if (nodeId !== fact[1])
             throw Error('SWE02 Geonosis: cena incorreta.');
+        if (choiceId === 'sivor-shell' && (!p.flags?.shipMarkedChitinKept || !p.shipChitinKnowledge || p.shipChitinKnowledge.source?.printedPage !== 9))
+            throw Error('SWE02 pp.9–10: pista de Sivor exige identificar e conservar a carapaça marcada.');
         p.geonosisEvidence = p.geonosisEvidence || [];
         if (p.geonosisEvidence.some(x => x.key === fact[0]))
             throw Error('SWE02 Geonosis: prova já registrada.');
@@ -18208,7 +18215,7 @@ function recordGeonosisChoice(p, choiceId, nodeId) {
 define("js/adventure/swe02KraytFangP238.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.shipFlag = exports.SHIP_CHECKS = exports.BURA_CONVERSATION_FACTS = exports.SHIP_CARGO_GEAR_MAPPINGS = exports.SHIP_MANIFEST = exports.SHIP_ALERTS = exports.SHIP_SEQUENCE_VERSION = void 0;
+exports.shipFlag = exports.SHIP_CHECKS = exports.BURA_CONVERSATION_FACTS = exports.SHIP_CARGO_GEAR_MAPPINGS = exports.SHIP_MANIFEST = exports.SHIP_ALERTS = exports.EOTE_KNOWLEDGE_SKILL_OPTIONS = exports.SHIP_SEQUENCE_VERSION = void 0;
 exports.shipIssueState = shipIssueState;
 exports.recordShipObservation = recordShipObservation;
 exports.adjudicateShipTransitExtraDuration = adjudicateShipTransitExtraDuration;
@@ -18227,6 +18234,16 @@ exports.validateShip = validateShip;
 // SWE02 printed pp.6–11: Krayt Fang shipboard sequence. This module owns the
 // deterministic rules and receipts; narration/UI must call these operations.
 exports.SHIP_SEQUENCE_VERSION = 1;
+// The Beginner Game adventure calls this generic "Knowledge". EotE Core uses
+// six separate Knowledge skills, so the GM selects the fitting specialty.
+exports.EOTE_KNOWLEDGE_SKILL_OPTIONS = Object.freeze([
+    Object.freeze({ key: 'mundos_del_nucleo', label: 'Mundos do Núcleo' }),
+    Object.freeze({ key: 'educacion', label: 'Educação' }),
+    Object.freeze({ key: 'saber_arcaico', label: 'Conhecimento arcaico' }),
+    Object.freeze({ key: 'borde_exterior', label: 'Orla Exterior' }),
+    Object.freeze({ key: 'bajos_fondos', label: 'Submundo' }),
+    Object.freeze({ key: 'xenologia', label: 'Xenologia' })
+]);
 exports.SHIP_ALERTS = Object.freeze([
     Object.freeze({ id: 'fuel-low', label: 'Fuel Low', shape: 'large-flashing-red-script', page: 7 }),
     Object.freeze({ id: 'tracker', label: 'Crescent/fang tracker', shape: 'flashing-crescent-or-fang', page: 7 }),
@@ -18338,7 +18355,7 @@ function recordShipObservation(p, id, details = {}) {
         throw Error('Krayt Fang: observação não reconhecida.');
     if (id === 'complete-hyperspace-transit' && !p.flags?.shipDepartureVerified)
         throw Error('Krayt Fang: a viagem exige rota e B’ura registrados.');
-    if (id === 'keep-marked-chitin' && !p.flags?.shipChitinIdentified)
+    if (id === 'keep-marked-chitin' && (!p.flags?.shipChitinIdentified || !p.shipSequence?.discoveredRooms?.includes('number-three-hold')))
         throw Error('Krayt Fang: a carapaça marcada ainda não foi examinada.');
     if (id === 'lowhhrick-pelt-strain' && !p.flags?.shipPeltsFound)
         throw Error('Krayt Fang: não há peles descobertas.');
@@ -18493,6 +18510,8 @@ function shipCheckAvailable(p, index) {
         return false;
     if (index !== 8 && p.currentNodeId !== 'krayt-fang-logs')
         return false;
+    if (index === 9 && !p.shipSequence?.discoveredRooms?.includes('number-three-hold'))
+        return false;
     if (index === 5 && !f.shipTrandoshanTranslated && !f.shipTrackerLocated)
         return false;
     return !f[FLAG[exports.SHIP_CHECKS[index].key]];
@@ -18540,8 +18559,15 @@ function recordShipCheck(p, index, success) {
     const result = typeof success === 'boolean' ? { success } : success;
     if (!result || typeof result.success !== 'boolean')
         throw Error('Krayt Fang: resultado de teste inválido.');
+    if (index === 9 && (!Number.isSafeInteger(result.netSuccess) || result.success !== (result.netSuccess > 0) || !Number.isSafeInteger(result.netAdvantage) || typeof result.triumph !== 'boolean' ||
+        !exports.EOTE_KNOWLEDGE_SKILL_OPTIONS.some(x => x.key === result.skillKey)))
+        throw Error('Krayt Fang: o resultado de Conhecimento precisa conservar Sucesso, Vantagem e Triunfo do teste real.');
     p.shipChecks = Array.isArray(p.shipChecks) ? p.shipChecks : [];
     const receipt = { key: check.key, index, success: result.success, printedPage: check.page, nodeId: p.currentNodeId };
+    if (index === 9) {
+        receipt.skillKey = result.skillKey;
+        receipt.rulesSource = { book: 'Edge of the Empire Core Rulebook', printedPage: 122 };
+    }
     for (const key of ['netSuccess', 'netFailure', 'netAdvantage', 'netThreat'])
         if (Number.isFinite(result[key]))
             receipt[key] = Number(result[key]);
@@ -18562,11 +18588,12 @@ function recordShipCheck(p, index, success) {
     }
     if (index === 9 && result.success) {
         p.shipChitinKnowledge = {
-            intelligentInsectileSpecies: Number.isFinite(result.netSuccess) ? result.netSuccess >= 1 : null,
-            mayHaveShedShell: Number.isFinite(result.netSuccess) ? result.netSuccess >= 2 : null,
-            redDustProbablyGeonosis: Number.isFinite(result.netAdvantage) ? result.netAdvantage >= 1 : null,
+            intelligentInsectileSpecies: result.netSuccess >= 1,
+            mayHaveShedShell: result.netSuccess >= 2,
+            redDustProbablyGeonosis: result.netAdvantage >= 1,
             clanOrOwnershipMarkings: result.triumph === true,
             exactOriginKnown: false,
+            checkReceipt: { checkIndex: 9, skillKey: result.skillKey, rulesSource: { book: 'Edge of the Empire Core Rulebook', printedPage: 122 }, netSuccess: result.netSuccess, netAdvantage: result.netAdvantage, triumph: result.triumph },
             source: { productCode: 'SWE02', printedPage: 9 }
         };
     }
@@ -18627,6 +18654,10 @@ function validateShip(p) {
         const d = exports.SHIP_CHECKS[x.index];
         if (!d || x.key !== d.key || x.printedPage !== d.page || x.nodeId !== (x.index === 8 ? 'krayt-fang-ground-inspection' : 'krayt-fang-logs') || typeof x.success !== 'boolean')
             throw Error('Krayt Fang: recibo de teste inválido.');
+        if (x.key === 'identifyChitin' && x.skillKey !== undefined && (!exports.EOTE_KNOWLEDGE_SKILL_OPTIONS.some(k => k.key === x.skillKey) ||
+            x.rulesSource?.book !== 'Edge of the Empire Core Rulebook' || x.rulesSource?.printedPage !== 122 ||
+            !Number.isSafeInteger(x.netSuccess) || !Number.isSafeInteger(x.netAdvantage) || typeof x.triumph !== 'boolean' || x.success !== (x.netSuccess > 0)))
+            throw Error('Krayt Fang: fonte/perícia do teste de Conhecimento inválida.');
         if (completed.has(x.key))
             throw Error('Krayt Fang: teste repetido após sucesso ou navegação concluída.');
         if (x.success)
@@ -18656,8 +18687,20 @@ function validateShip(p) {
     }
     if (p.shipChitinKnowledge) {
         const k = p.shipChitinKnowledge;
-        if (!flags.shipChitinIdentified || k.source?.productCode !== 'SWE02' || k.source?.printedPage !== 9 || k.exactOriginKnown !== false)
-            throw Error('Krayt Fang: resultado de Conhecimento inválido.');
+        const check = checks.find(x => x.key === 'identifyChitin');
+        const legacyResult = !k.checkReceipt && !check?.skillKey;
+        if (legacyResult) {
+            if (!flags.shipChitinIdentified || k.source?.productCode !== 'SWE02' || k.source?.printedPage !== 9 || k.exactOriginKnown !== false)
+                throw Error('Krayt Fang: resultado legado de Conhecimento inválido.');
+        }
+        else if (!flags.shipChitinIdentified || !p.shipSequence?.discoveredRooms?.includes('number-three-hold') || !check?.success ||
+            !exports.EOTE_KNOWLEDGE_SKILL_OPTIONS.some(x => x.key === check.skillKey) || check.rulesSource?.book !== 'Edge of the Empire Core Rulebook' || check.rulesSource?.printedPage !== 122 ||
+            k.source?.productCode !== 'SWE02' || k.source?.printedPage !== 9 || k.exactOriginKnown !== false ||
+            k.checkReceipt?.checkIndex !== 9 || k.checkReceipt?.skillKey !== check.skillKey || k.checkReceipt?.rulesSource?.book !== 'Edge of the Empire Core Rulebook' || k.checkReceipt?.rulesSource?.printedPage !== 122 ||
+            k.checkReceipt?.netSuccess !== check.netSuccess || k.checkReceipt?.netAdvantage !== check.netAdvantage || k.checkReceipt?.triumph !== check.triumph ||
+            k.intelligentInsectileSpecies !== (check.netSuccess >= 1) || k.mayHaveShedShell !== (check.netSuccess >= 2) ||
+            k.redDustProbablyGeonosis !== (check.netAdvantage >= 1) || k.clanOrOwnershipMarkings !== (check.triumph === true))
+            throw Error('Krayt Fang: resultado graduado de Conhecimento inválido.');
     }
     if (p.shipDroidPartsAssessment && (p.shipDroidPartsAssessment.source?.printedPage !== 11 || p.shipDroidPartsAssessment.possibleSaleValueCredits?.maximum !== 2000 || p.shipDroidPartsAssessment.possibleSaleValueCredits?.guaranteed !== false))
         throw Error('Krayt Fang: avaliação das peças de astromecânico inválida.');
@@ -25057,9 +25100,9 @@ class GameController {
             return { adventure: adapter.status(this.state.world), rewards, state: structuredClone(this.state) };
         });
     }
-    resolvePublishedAdventureCheck(checkIndex = 0, { adventureId = null, useLightDestiny = false, useDarkDestiny = false, repairReductionMinutes = null, aidingLowhhrick = false, rng = Math.random, actionId = null } = {}) {
+    resolvePublishedAdventureCheck(checkIndex = 0, { adventureId = null, useLightDestiny = false, useDarkDestiny = false, repairReductionMinutes = null, aidingLowhhrick = false, knowledgeSkillKey = null, rng = Math.random, actionId = null } = {}) {
         if (actionId !== null)
-            return this.executePublishedAdventureCommand({ actionId, kind: 'check', adventureId, checkIndex, options: { useLightDestiny, useDarkDestiny, repairReductionMinutes, aidingLowhhrick, rng } });
+            return this.executePublishedAdventureCommand({ actionId, kind: 'check', adventureId, checkIndex, options: { useLightDestiny, useDarkDestiny, repairReductionMinutes, aidingLowhhrick, knowledgeSkillKey, rng } });
         return this.atomicAction(() => {
             const resolvedAdventureId = adventureId || this.state.world?.publishedAdventure?.id || 'under-black-sun';
             const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(resolvedAdventureId);
@@ -25068,12 +25111,16 @@ class GameController {
             const spec = specs.find(x => x.index === requestedIndex) || specs[requestedIndex];
             if (!spec)
                 throw new Error('Teste da aventura indisponível neste ponto.');
-            if (!spec.skillKey)
-                throw new Error('A perícia deste teste ainda exige adjudicação manual do Mestre.');
+            const allowedKnowledgeSkill = spec.knowledgeSkillOptions?.some(x => x.key === String(knowledgeSkillKey ?? '')) === true;
+            if (!spec.skillKey && !allowedKnowledgeSkill)
+                throw new Error(spec.knowledgeSkillOptions ? 'O Mestre deve escolher uma especialização de Conhecimento do EotE Core para este teste.' : 'A perícia deste teste ainda exige adjudicação manual do Mestre.');
+            if (spec.skillKey && knowledgeSkillKey !== null)
+                throw new Error('Especialização de Conhecimento não se aplica a este teste.');
+            const resolvedSkillKey = spec.skillKey || String(knowledgeSkillKey);
             const shipOdorSetback = adapter.id === 'long-arm-of-the-hutt' && spec.shipOdorRule
                 ? (0, longArmOfTheHutt_mjs_1.longArmShipSmellSetback)(this.state.world, this.state.player?.character?.name, spec.index) : 0;
-            const check = this.resolveSkillCheck({ skillKey: spec.skillKey, difficulty: spec.pool.difficulty, challenge: spec.pool.challenge, boost: Number(spec.pool.boost || 0), setback: (Number(spec.pool.setback) || 0) + shipOdorSetback + (aidingLowhhrick && adapter.id === 'long-arm-of-the-hutt' ? 2 : 0), useLightDestiny, useDarkDestiny, cloudCitySlicing: adapter.id === 'jewel-of-yavin' && spec.skillKey === 'computadoras' && this.state.world?.publishedAdventure?.currentNodeId === 'gala-reconnaissance', rng });
-            let adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: check, repairReductionMinutes });
+            const check = this.resolveSkillCheck({ skillKey: resolvedSkillKey, difficulty: spec.pool.difficulty, challenge: spec.pool.challenge, boost: Number(spec.pool.boost || 0), setback: (Number(spec.pool.setback) || 0) + shipOdorSetback + (aidingLowhhrick && adapter.id === 'long-arm-of-the-hutt' ? 2 : 0), useLightDestiny, useDarkDestiny, cloudCitySlicing: adapter.id === 'jewel-of-yavin' && resolvedSkillKey === 'computadoras' && this.state.world?.publishedAdventure?.currentNodeId === 'gala-reconnaissance', rng });
+            let adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: { ...check, ...(allowedKnowledgeSkill ? { skillKey: resolvedSkillKey } : {}) }, repairReductionMinutes });
             const characterEffects = { creditsDelta: 0, strainDelta: 0, partyStrain: [] };
             if (adapter.id === 'long-arm-of-the-hutt' && spec.source?.printedPage === 15 && check.success === false) {
                 const old = adjudicated.world.publishedAdventure?.oldLylek, ids = old?.crewPcIds ?? [], roster = clone(this.state.player?.roster);

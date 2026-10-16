@@ -73,19 +73,19 @@
     }
   },
   "fresh_regression": {
-    "state": "PASS_FULL_REGRESSION_AFTER_HYBRID_CARGO_IMPLEMENTATION",
+    "state": "PASS_FULL_REGRESSION_AFTER_P09_CHITIN_AND_KNOWLEDGE_SKILL_SELECTION",
     "files": 382,
     "regular_files": 376,
     "stress_files": 6,
-    "tests": 3451,
-    "pass": 3449,
+    "tests": 3452,
+    "pass": 3450,
     "fail": 0,
     "skip": 2,
     "files_without_complete_summary": [],
-    "evidence": "evidence/SWE02_HYBRID_FULL_REGRESSION_20261016_VERIFIED/",
+    "evidence": "evidence/SWE02_P09_CHITIN_FULL_REGRESSION_FINAL2_20261016/",
     "skip_reason": "JDK jar executable unavailable for two offline Gradle-wrapper packaging checks.",
     "runner_environment": "Per-file TAP runner, 8 workers, NODE_PATH points to work/build-deps5/node_modules; Python subprocess decode and log output UTF-8; no dependency files copied into Git.",
-    "supersedes": "evidence/fresh-regression-20261016-lylek-map-wip/",
+    "supersedes": "evidence/SWE02_HYBRID_FULL_REGRESSION_20261016_VERIFIED/",
     "focused_followup": {
       "files": 8,
       "tests": 92,
@@ -104,7 +104,7 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Continue SWE02 pp.2–14; complete p.12 end-to-end UI review and full-project regression evidence, then close p.6–11 remaining cargo gaps, GM rest qualification and clue gaps. Exact cataloged cargo transfers now have focused controller/UI/persistence proof; the six-hour baseline clock tick is implemented and failed-route extra time remains a GM adjudication because the source does not quantify it. Proceed through Acts 2–3 only after the Act 1 source claims are bound to deterministic effects, UI, persistence and tests. Keep all certification gates open; do not create P245 or run Android release gates until all five adventures and rules/AoR 360 are certified.",
+  "next_action": "Continue SWE02 pp.2–14; complete p.12 end-to-end UI review and page-wide source audit. The p.9 Knowledge grades and p.10 optional shell-retention chain now have deterministic controller/UI and persistence evidence; exact cataloged cargo transfers have focused controller/UI/persistence proof. Remaining p.6–11 gaps include complete cargo ownership, GM rest qualification and B’ura clue causality. Keep all certification gates open; do not create P245 or run Android release gates until all five adventures and rules/AoR 360 are certified.",
   "swe02_krayt_fang_pp06_11": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
     "source": "Long Arm of the Hutt printed pp.6–11 / PDF pp.6–11",
@@ -125,6 +125,14 @@
       "result": "PASS",
       "modules": 135,
       "command": "node tools/build-ui-bridge-bundle.mjs"
+    },
+    "chitin_clue_focused_evidence": {
+      "result": "PASS",
+      "tests": 59,
+      "pass": 59,
+      "fail": 0,
+      "skip": 0,
+      "evidence": "evidence/SWE02_P09_CHITIN_CLUE_20261016/RESULTS.md"
     },
     "cargo_transfer_focused_evidence": {
       "result": "PASS",

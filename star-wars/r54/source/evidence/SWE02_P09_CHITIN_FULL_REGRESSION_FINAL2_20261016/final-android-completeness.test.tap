@@ -1,0 +1,21 @@
+✔ FINAL: Android Studio project has deterministic Gradle launcher and compatible pins (16.3866ms)
+✔ FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency (3.3481ms)
+✔ FINAL: WebView exposes only required bridges and blocks universal file access (5.5915ms)
+✔ FINAL: native PT-BR TTS exists and has bounded visible-text contract (13.1193ms)
+✔ FINAL: JSON export/import is Android-capable (26.2088ms)
+✔ FINAL: accessibility settings are functional and persistent (9.4852ms)
+✔ FINAL: canonical engine bundle is synchronized with live scene bridge (63.8037ms)
+✔ FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks (6.1466ms)
+✔ FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs (3.2538ms)
+✔ FINAL: Android host disables WebView debugging and supports system back navigation (6.7511ms)
+✔ FINAL: shell script order installs engine before React shell and final runtime (16.7461ms)
+✔ FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts (14.2338ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 611.5907
+

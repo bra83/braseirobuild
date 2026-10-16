@@ -1,0 +1,12 @@
+✔ P67: painel visual consome epílogo público sem acessar flags internas (5.4727ms)
+✔ P67: aventura ativa não fornece linhas de epílogo para a UI (14.8405ms)
+✔ P67: UI recebe somente resumos públicos em PT-BR depois da conclusão (4.9032ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 429.1555
+

@@ -1,0 +1,11 @@
+✔ fonte R46 limita importação de ficha e backup ao mesmo teto de 16 MB do FileBridge (6.0307ms)
+✔ bundle Android contém os mesmos guards antes de file.text() (1.1351ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 428.7373
+

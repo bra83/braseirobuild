@@ -913,7 +913,19 @@ function renderVehicle(state){
     const select=$('swe02ShipCheck'),previous=select.value;
     select.replaceChildren(new Option('Selecione um teste disponível',''),...checks.filter(x=>Number.isInteger(x.index)).map(x=>new Option(`${x.skill} ${x.difficultyText} · ${x.purpose}`,String(x.index))));
     if(checks.some(x=>String(x.index)===previous))select.value=previous;
+    const selectedCheck=checks.find(x=>String(x.index)===select.value),knowledgeSelect=$('swe02ShipKnowledgeSkill'),priorKnowledge=knowledgeSelect.value;
+    const knowledgeOptions=selectedCheck?.knowledgeSkillOptions||[];
+    knowledgeSelect.replaceChildren(new Option('Mestre: escolha a especialização adequada',''),...knowledgeOptions.map(x=>new Option(`${x.label} · EotE Core p.${selectedCheck.knowledgeSkillSource?.printedPage??122}`,x.key)));
+    if(knowledgeOptions.some(x=>x.key===priorKnowledge))knowledgeSelect.value=priorKnowledge;
+    $('swe02ShipKnowledgeSkillLabel').hidden=!knowledgeOptions.length;
     const seq=swe02p.shipSequence||{};
+    const chitin=swe02p.shipChitinKnowledge;
+    const chitinFacts=chitin?[
+      [chitin.intelligentInsectileSpecies,'origem em espécie insetoide inteligente'],
+      [chitin.mayHaveShedShell,'a espécie pode trocar a carapaça ao crescer e se curar'],
+      [chitin.redDustProbablyGeonosis,'poeira vermelha provavelmente de Geonosis'],
+      [chitin.clanOrOwnershipMarkings,'marcas de clã ou propriedade']
+    ].filter(([known])=>known).map(([,fact])=>fact):[];
     $('swe02ShipStatus').textContent=[
       `Rota ${flags.shipCoursePlotted?(flags.shipCourseNonOptimal?'não ótima':'traçada'):'pendente'}`,
       `B’ura ${flags.shipBuraFound?'libertado':'não localizado'}`,
@@ -921,11 +933,14 @@ function renderVehicle(state){
       `klaxon ${flags.shipKlaxonOff?'desligado':'ativo'}`,
       `música ${flags.shipMusicOff?'desligada':'ativa'}`,
       `${seq.discoveredRooms?.length||0} compartimentos examinados`,
+      chitinFacts.length?`Conhecimento da carapaça · ${chitinFacts.join('; ')} · SWE02 p.9`:null,
+      swe02p.flags?.shipMarkedChitinKept?'carapaça marcada guardada para futura identificação · SWE02 p.10':null,
       seq.transit?.completed?'viagem de 6 horas registrada':null
     ].filter(Boolean).join(' · ');
+    $('swe02ShipKeepChitin').hidden=!swe02p.flags?.shipChitinIdentified||Boolean(swe02p.flags?.shipMarkedChitinKept);
     $('swe02ShipFindBura').disabled=Boolean(flags.shipBuraFound)||swe02p.currentNodeId!=='krayt-fang-logs';
     $('swe02ShipSetPeltSearch').disabled=Boolean(flags.shipPeltsFound)||swe02p.currentNodeId!=='krayt-fang-logs';
-    $('swe02ShipResolveCheck').disabled=!select.value||Boolean(state.combat?.active);
+    $('swe02ShipResolveCheck').disabled=!select.value||Boolean(state.combat?.active)||(knowledgeOptions.length>0&&!knowledgeSelect.value);
   }
   const militiaWeapons=state.player?.character?.weapons||[],weaponSelect=$('swe02MilitiaWeapon'),priorWeapon=weaponSelect.value;
   weaponSelect.replaceChildren(new Option('Arma blaster própria',''),...militiaWeapons.map((w,i)=>({w,i})).filter(({w})=>/blaster|pistola/i.test(String(w.name||''))&&Number(w.damage)>0).map(({w,i})=>new Option(w.name,String(i))));
@@ -1193,6 +1208,8 @@ $('swe02ShipCargoTransfer').addEventListener('click',()=>{try{
 $('swe02ShipCargoItem').addEventListener('change',render);
 $('swe02ShipCargoPc').addEventListener('change',render);
 $('swe02ShipCargoQuantity').addEventListener('input',render);
+$('swe02ShipCheck').addEventListener('change',render);
+$('swe02ShipKeepChitin').addEventListener('click',()=>{try{const r=game.advancePublishedAdventure('sivor-shell');if(r?.ok===false)throw Error(r.message);showFeedback('swe02ShipFeedback','Carapaça marcada examinada e guardada; a pista de Sivor fica disponível em Geonosis.');render();}catch(e){showFeedback('swe02ShipFeedback',e.message);}});
 $('swe02ShipFindBura').addEventListener('click',()=>{try{const r=game.advancePublishedAdventure('ship-find-bura');if(r?.ok===false)throw Error(r.message);showFeedback('swe02ShipFeedback','B’ura B’an encontrado e libertado sem teste.');render();}catch(e){showFeedback('swe02ShipFeedback',e.message);}});
 $('swe02ThwheekStart').addEventListener('click',()=>{try{const unawareCharacterIds=[...$('swe02ThwheekUnaware').selectedOptions].map(x=>x.value);const r=game.advancePublishedAdventure('ship-start-interception',{unawareCharacterIds});if(r?.ok===false)throw Error(r.message);showFeedback('swe02ThwheekInitiativeFeedback','Iniciativa registrada pela perícia correspondente à consciência de cada PC.');render();}catch(e){showFeedback('swe02ThwheekInitiativeFeedback',e.message);}});
 $('swe02TransitExtraApply').addEventListener('click',()=>{try{const ticks=Number($('swe02TransitExtraTicks').value),r=game.adjudicateSWE02ShipTransitExtraDuration({ticks});if(r?.ok===false)throw Error(r.message);showFeedback('swe02TransitFeedback','A duração adicional escolhida pelo Mestre foi aplicada ao relógio do mundo.');render();}catch(e){showFeedback('swe02TransitFeedback',e.message);}});
@@ -1203,9 +1220,10 @@ $('swe02BuraConversation').addEventListener('click',()=>{try{
  if(r?.ok===false)throw Error(r.message);const data=r?.data?.facts||[];showFeedback('swe02ShipFeedback',`Conversa registrada: ${data.map(x=>x.fact).join(' ')}`);render();
 }catch(e){showFeedback('swe02ShipFeedback',e.message);}});
 $('swe02ShipResolveCheck').addEventListener('click',()=>{try{
- const r=game.resolvePublishedAdventureCheck(Number($('swe02ShipCheck').value),{adventureId:'long-arm-of-the-hutt',aidingLowhhrick:$('swe02ShipAidLowhhrick').checked,rng:Math.random});
+ const r=game.resolvePublishedAdventureCheck(Number($('swe02ShipCheck').value),{adventureId:'long-arm-of-the-hutt',aidingLowhhrick:$('swe02ShipAidLowhhrick').checked,knowledgeSkillKey:$('swe02ShipKnowledgeSkill').value||null,rng:Math.random});
  if(r?.ok===false)throw Error(r.message);const data=r?.data||r;renderRoll(data.check);showFeedback('swe02ShipFeedback',`Teste ${data.check.success?'bem-sucedido':'falhou'} · ${data.adjudication?.source?.printedPage?'SWE02 p.'+data.adjudication.source.printedPage:'SWE02'}${data.check.boost?.length?' · Impulso aplicado':''}.`);render();
 }catch(e){showFeedback('swe02ShipFeedback',e.message);}});
+$('swe02ShipKnowledgeSkill').addEventListener('change',render);
 
 $('loadStarter').addEventListener('click',()=>{
   try { game.loadStarterCharacter($('starterCharacter').value); render(); }

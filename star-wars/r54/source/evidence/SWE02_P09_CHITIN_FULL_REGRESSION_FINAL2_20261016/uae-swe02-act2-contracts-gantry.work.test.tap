@@ -1,0 +1,19 @@
+✔ Piddock p.33: quatro perguntas, aviso na quarta, encerramento na quinta, sem inventar respostas (100.2699ms)
+✔ Piddock: manifestar comércio mantém diálogo aberto, mas não inventa armas (52.9035ms)
+✔ Piddock choices oficializadas incrementam perguntas, sem bloquear escolhas já válidas (59.6307ms)
+✔ Vio p.33: contratar rota direta com débito exato, sem Dimmock/AA7 e sem trocar dono da nave (154.252ms)
+✔ Vio: negociação Média com dados reais, 250 por pessoa se passar e 500 se falhar (162.3568ms)
+✔ Vio controller/bridge/UI: compra atômica, rollback, três reaberturas (167.2923ms)
+✔ AA7 p.37: 500 créditos retira apenas Vrixx, sem neutralizar soldados nem fabricar vitória (270.4503ms)
+✔ AA7 p.37: 1000 créditos executa tiro de Gand com dados, dano e cobertura reais (313.0917ms)
+✔ AA7: pagamento falho preserva saldo, combate e saves; sem alvo real não há tiro (190.7912ms)
+✔ AA7: fechamento só aceita soldados realmente derrotados + Gand pago; embarque persiste (310.0631ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3425.9801
+
