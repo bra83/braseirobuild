@@ -4,7 +4,7 @@
 - Repository: `bra83/braseirobuild`
 - Branch: `codex/star-wars-hibrido-integral-20261016`
 - Base HEAD: `98b6a391401818e74eaa53c752cc98dc9082fea9`
-- Last verified local and remote checkpoint: `121262b9d6ace95b2601650225f159385db895a4` (resume refresh after the core-source intake and SWE02 p.13 evidence; pushed)
+- Last verified local and remote checkpoint: `775e378df1c118dd6d672b0e5f09eb8c52e61bce` (SWE02 p.12 Cool initiative bound to persistent vehicle turn order; pushed)
 - Source working copy: `work/star-wars/project`; sparse Git checkout: `work/star-wars/repo-sparse/star-wars/r54/source`
 - P244 SHA-256: `6f3dca72ea55080b4ce7e6befeb5d4d84e51f63453ead6a5719495178a40d264`
 - WIP5 MERGED SHA-256: `7615fc8d156f8909a7a31b0878d6e08715cd71867325c5ad6c97ac5dd830409e`
@@ -23,7 +23,7 @@
 1. Resume SWE02 Act 1 pp.2–14 from `audits/SWE02_ACT1_DEEP_AUDIT.md` and `validation/WORK_STATUS.json`. The p.12 Cool initiative gap is now integrated with persisted actor slots/actions; continue the remaining p.12 source claims and p.6–11 item/time effects.
 2. Close pp.6–11 gaps with source-backed actual cargo transfers/sales, numeric fuel/time/world-clock effects and downstream clue causality; preserve GM adjudication where the book leaves outcomes open. Then close pp.13–14 and the outstanding p.15–23 branches recorded in the audit.
 3. Keep SWE02 uncertified until all Acts 1–3 source claims, branches and persistence gates have end-to-end evidence. Only then work through SWEP01, SWE05, SWE09, SWE13, the selected rules corpus and all 360 AoR ledger rows.
-4. Current verified checkpoint is pushed at `e31cb33611f194cefcb01452ec53e7df448a49f1`. The active execution goal hit the session usage limit before project completion; do not interpret the checkpoint as completion.
+4. Current verified checkpoint is pushed at `775e378df1c118dd6d672b0e5f09eb8c52e61bce`. The project remains incomplete; do not interpret the checkpoint as completion.
 5. Do not create P245 or run Android release gates until all five adventures and the rules/AoR certification gates pass.
 
 
