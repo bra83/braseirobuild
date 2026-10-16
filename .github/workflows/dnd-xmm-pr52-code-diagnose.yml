@@ -1,0 +1,45 @@
+name: DND PR52 - inspect live save and backup code
+on:
+  push:
+    branches: [wip/dnd-xmm-block02-resgate-20261015]
+    paths: ['.github/workflows/dnd-xmm-pr52-code-diagnose.yml']
+permissions:
+  contents: read
+jobs:
+  trace:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+          persist-credentials: false
+      - name: Print bounded production code references
+        shell: powershell
+        run: |
+          @'
+          from pathlib import Path
+          root=Path('dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e')
+          tasks=[
+            ('MainActivity.java',['void showHeroes','showHeroes(','Editar Nome','updateCharacter(','updateCharacterSheet(','updateCharacterRuleDetails(','EDITAR']),
+            ('AppDb.java',['updateCharacter(','updateCharacterSheet(','importAll(','exportAll(']),
+          ]
+          for filename,lower,upper in [('MainActivity.java',2388,2418),('AppDb.java',1088,1125)]:
+            lines=(root/filename).read_text(encoding='utf-8').splitlines()
+            for i in range(lower-1,min(upper,len(lines))):
+              print(f'FOCUSED {filename}:{i+1}: '+lines[i].encode('unicode_escape').decode('ascii'),flush=True)
+          for filename,patterns in tasks:
+            lines=(root/filename).read_text(encoding='utf-8').splitlines()
+            print('SOURCE_FILE',filename,'TOTAL_LINES',len(lines),flush=True)
+            emitted=set()
+            for pattern in patterns:
+              indices=[i for i,l in enumerate(lines) if pattern in l]
+              print('LOOKUP',repr(pattern),'HITS',len(indices),flush=True)
+              for i in indices[:6]:
+                lo=max(0,i-15);hi=min(len(lines),i+42)
+                for j in range(lo,hi):
+                  if j not in emitted:
+                    print(f'{filename}:{j+1}: {lines[j].encode("unicode_escape").decode("ascii")}',flush=True)
+                    emitted.add(j)
+          '@ | python.exe -B -
+          if ($LASTEXITCODE -ne 0) { throw 'PR52_SOURCE_INSPECTION_FAILED' }

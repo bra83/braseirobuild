@@ -1146,7 +1146,14 @@ public class AppDb extends SQLiteOpenHelper {
             persistCharacterSheetChecked(id, state);
             saveCharacterControl(id, controlMode == null ? "manual" : controlMode,
                 "{\"routine_only\":true,\"combat\":\"assisted\",\"user_override\":true,\"limited_resources\":\"confirm\"}");
-            return state.put("character_saved", true).put("character_id", id).put("multiclass_validation", gate);
+            // The edited resource sheet may carry historical *_blocked or *_error
+            // metadata. Returning it as the commit receipt makes characterAtomic
+            // reject and ROLLBACK a successful edit, while the UI still sees
+            // character_saved=true. Keep the committed sheet in SQLite; send a
+            // narrowly typed acknowledgement to the transaction guard instead.
+            return new JSONObject().put("character_saved", true).put("character_id", id)
+                .put("saved_name", name).put("rules_source", source)
+                .put("multiclass_validation", gate);
         }});
     }
 
@@ -3089,6 +3096,28 @@ public class AppDb extends SQLiteOpenHelper {
             secondNatural,0,damageComponents,riderSaveRoll,additionalThreatId,destinationX,
             destinationY,token);
     }
+    /** Shared admission transaction for families 04-13. Rejected identities and
+     * unhosted effects never spend an action, write damage, or mint a receipt.
+     * The standalone Session.commit methods are intentionally NOT called: their
+     * in-memory revision/event sets are not SQLite authority.
+     */
+    public JSONObject applyXmmSourceAction(final XmmCombatAdmission.Request request){
+        return combatAtomic("xmm_source_action",new CombatAtomicWork(){
+            public JSONObject run()throws Exception{
+                JSONObject actor=request==null?new JSONObject():getCombatant(request.actorId);
+                JSONObject target=request==null?new JSONObject():getCombatant(request.targetId);
+                XmmCombatAdmission.Decision decision=XmmCombatAdmission.preflight(request,
+                    combatResources(actor).optString("block_id",""),target.length()>0);
+                JSONObject out=new JSONObject().put("xmm_action_blocked",decision.blocked)
+                    .put("persisted_to_combat",false);
+                if(decision.source!=null)out.put("source_pointer",decision.source.pointer)
+                    .put("family",decision.source.family.name()).put("lot",decision.source.lot)
+                    .put("integration_status",decision.source.status.name())
+                    .put("executor",decision.source.executor).put("blocker_reason",decision.source.blocker);
+                return out;
+            }});
+    }
+
     private JSONObject applyCompiledStatblockAttackInternal(final long actorId,final long targetId,
         final String statblockId,final String action,final int natural,final int secondNatural,
         final int damageTotal,final JSONArray damageComponents,final int riderSaveRoll,
@@ -3404,6 +3433,11 @@ public class AppDb extends SQLiteOpenHelper {
      * A count-only statblock is NEVER treated as permission to improvise attacks. */
     public JSONObject applyCompiledStatblockMultiattack(final long actorId,
         final String statblockId,final JSONArray rolls,final String token){
+        return applyCompiledStatblockMultiattack(actorId,statblockId,rolls,token,null);
+    }
+    /** Source selection is revalidated inside the same action/damage/receipt transaction. */
+    public JSONObject applyCompiledStatblockMultiattack(final long actorId,
+        final String statblockId,final JSONArray rolls,final String token,final JSONObject sourceSelection){
         return combatAtomic("compiled_statblock_multiattack",new CombatAtomicWork(){public JSONObject run()throws Exception{
             JSONObject out=new JSONObject(),actor=getCombatant(actorId);
             if(token==null||!token.startsWith("ui-monster-multi-")||!CombatActionReceiptGuard.validToken(token))
@@ -3418,6 +3452,10 @@ public class AppDb extends SQLiteOpenHelper {
             if(getCombatState().optInt("running",0)!=1)
                 return out.put("statblock_multiattack_blocked","encounter_not_running");
             JSONObject profile=CompiledStatblockEngine.runtimeProfile(id),declared=profile.optJSONObject("multiattack");
+            if(sourceSelection!=null){
+                declared=XmmMultiattackHostPlan.declaration(id,sourceSelection,combatResources(actor));
+                if(declared.has("statblock_multiattack_blocked"))return declared;
+            }
             if(declared==null)return out.put("statblock_multiattack_blocked","multiattack_not_compiled");
             JSONArray seq=declared.optJSONArray("sequence");String[] sequence=null;
             if(seq!=null){sequence=new String[seq.length()];for(int i=0;i<sequence.length;i++)sequence[i]=seq.optString(i);}
@@ -3708,6 +3746,9 @@ public class AppDb extends SQLiteOpenHelper {
             }
             JSONObject proof=new JSONObject().put("schema","statblock_multiattack_v1").put("actor_id",actorId)
                 .put("statblock_id",id).put("count",count).put("components",outcomes);
+            if(sourceSelection!=null)proof.put("source_selection",new JSONObject(sourceSelection.toString()))
+                .put("source_pointer",declared.optString("source_pointer"))
+                .put("source_blob_sha1",declared.optString("source_blob_sha1"));
             recordEffectReceipt(key,proof.toString());
             return out.put("statblock_multiattack_committed",true).put("statblock_multiattack_receipt",key)
                 .put("components",outcomes).put("action_spent_once",true);
@@ -3825,6 +3866,31 @@ public class AppDb extends SQLiteOpenHelper {
             !live.optString("scene_key","").equals(saved.optString("scene_key","")))
             throw new IllegalStateException("forced_movement_readback_rollback");
         return live.put("source_actor_id",actorId).put("target_id",targetId);
+    }
+
+    /** UI preflight only: execution rechecks source and map in its transaction. */
+    public JSONObject previewCompiledStatblockSaveAction(long actorId,long targetId,String statblockId,
+        String action,int saveRoll){
+        JSONObject out=new JSONObject();
+        try{
+            JSONObject actor=getCombatant(actorId),target=getCombatant(targetId);
+            if(actor.length()==0||target.length()==0||actorId==targetId||actor.optInt("is_player",0)==1)
+                return out.put("statblock_save_preview_blocked","invalid_monster_or_target");
+            String id=combatResources(actor).optString("block_id","");
+            String authority=CompiledMonsterActionGuard.statblockBlock(id,statblockId);
+            if(!authority.isEmpty())return out.put("statblock_save_preview_blocked",authority);
+            JSONObject source=compiledMonsterRiderAction(id,action);
+            int range=source.optInt("target_range_ft",0);
+            // This host has no source-bound area origin/direction selector yet.
+            if(range<=0)return out.put("statblock_save_preview_blocked","source_save_geometry_not_compiled");
+            String geometry=compiledSaveTargetRangeBlock(actorId,targetId,actor,target,range);
+            if(!geometry.isEmpty())return out.put("statblock_save_preview_blocked",geometry);
+            JSONObject resolved=StatblockCombatRuntimeEngine.savingThrowAction(id,action,saveRoll);
+            if(!resolved.optBoolean("resolved",false))return out.put("statblock_save_preview_blocked",resolved.optString("reason","statblock_save_unresolved"));
+            return out.put("statblock_save_preview_valid",true).put("range_ft",range)
+                .put("source_position",tacticalGridPosition(actorId)).put("target_position",tacticalGridPosition(targetId))
+                .put("resolved",resolved).put("persisted",false);
+        }catch(Exception e){try{return out.put("statblock_save_preview_blocked","save_preview_unavailable");}catch(Exception ignored){return out;}}
     }
 
     /** Legacy caller cannot silently skip a compiled displacement effect. */

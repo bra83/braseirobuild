@@ -1,0 +1,16 @@
+{
+  "base_head": "f216ba7de74d353bb03bd3535a27a440d5d46361",
+  "state": "uncommitted_worktree_not_homologated",
+  "files": {
+    "app/src/main/java/com/braseiro/dnd5e/MainActivity.java": "505c2142f778131fcdd1165139d91df16b672afe0f63efa0301fe995ae9d7784",
+    "app/src/main/java/com/braseiro/dnd5e/AppDb.java": "75b4462432911f794a5fc8ad4bc23006aed1f27edaa07900f6c1cedf36a15233",
+    "app/src/main/java/com/braseiro/dnd5e/XmmMultiattackHostPlan.java": "3965382986cf4a48ddc67cd928d006e33edd48593c022831db9213e9df0dc1e2",
+    "app/src/main/java/com/braseiro/dnd5e/Xmm2025MultiattackPlanIndex.java": "960acd7271d6117d26184d71e553e77cd31c6a911ac20d993a5078b6869735c6",
+    "app/src/test/java/com/braseiro/dnd5e/CharacterCreationUiRobolectricTest.java": "268d792ed7e9b5134d82467ad90e7b1cf5e417a0c58a821035d3f8850fd18ce1",
+    "app/src/test/java/com/braseiro/dnd5e/ExplorationCombatUiRobolectricTest.java": "8b2dcb169cdfd91639c89447cb4efcf354060a3f130bf0e1c1d086508d7e63d0",
+    "app/src/test/java/com/braseiro/dnd5e/PlayableUiRobolectricTest.java": "9dd69512a21477f6e1c385ea08213ff68aef0644b48c84bf976d9c14a447c7a1",
+    "app/src/test/java/com/braseiro/dnd5e/SessionContinuityUiRobolectricTest.java": "952460b86c58cf17770995b5d82f0edf94f32a7d047e2985e5038215725e2f3e",
+    "app/src/test/java/com/braseiro/dnd5e/XmmMultiattackHostRobolectricTest.java": "4e602edf9a04939b82adf0b7f4bc2234a4a53eed3583cceff270d7fc54d329d6",
+    "app/src/test/java/com/braseiro/dnd5e/Xmm70MultiattackHostPlanTest.java": "792272b8f224acc75260af34584de499a3152226e8c0c45b3b913cb9f17085f5"
+  }
+}

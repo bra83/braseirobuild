@@ -1,0 +1,19 @@
+XMM_LOT_04_POINTER_IDENTITIES=PASS count=12
+XMM_LOT_05_POINTER_IDENTITIES=PASS count=12
+XMM_LOT_06_POINTER_IDENTITIES=PASS count=1
+XMM_LOT_07_POINTER_IDENTITIES=PASS count=10
+XMM_LOT_08_POINTER_IDENTITIES=PASS count=10
+XMM_LOT_09_POINTER_IDENTITIES=PASS count=9
+XMM_LOT_10_POINTER_IDENTITIES=PASS count=4
+XMM_LOT_11_POINTER_IDENTITIES=PASS count=2
+XMM_LOT_12_POINTER_IDENTITIES=PASS count=1
+XMM_LOT_13_POINTER_IDENTITIES=PASS count=1
+XMM_62_SOURCE_POINTER_IDENTITIES=PASS
+XMM_REGISTRY_REPORT={"actions": 62, "android_combat_integrated": false, "inventory_other_36_damage_branch": "UNVERIFIED_BY_THIS_GATE", "lots": [{"family": "damage_or_save_branch", "identity_check": "PASS", "lot": "04", "pointer_count": 12, "source_file": "XmmDamageOrSaveBranch04.java"}, {"family": "damage_or_save_branch", "identity_check": "PASS", "lot": "05", "pointer_count": 12, "source_file": "XmmDamageOrSaveBranch05.java"}, {"family": "damage_or_save_branch", "identity_check": "PASS", "lot": "06", "pointer_count": 1, "source_file": "XmmDamageOrSaveBranch06.java"}, {"family": "other_source_effect", "identity_check": "PASS", "lot": "07", "pointer_count": 10, "source_file": "XmmOtherSourceEffect01.java"}, {"family": "other_source_effect", "identity_check": "PASS", "lot": "08", "pointer_count": 10, "source_file": "XmmOtherSourceEffect02.java"}, {"family": "other_source_effect", "identity_check": "PASS", "lot": "09", "pointer_count": 9, "source_file": "XmmOtherSourceEffect03.java"}, {"family": "attack_hit_condition", "identity_check": "PASS", "lot": "10", "pointer_count": 4, "source_file": "XmmAttackHitCondition01.java"}, {"family": "swallow_and_escape", "identity_check": "PASS", "lot": "11", "pointer_count": 2, "source_file": "XmmSwallowAndEscape01.java"}, {"family": "explicit_effect_choice", "identity_check": "PASS", "lot": "12", "pointer_count": 1, "source_file": "XmmExplicitEffectChoice01.java"}, {"family": "monster_spell_action", "identity_check": "PASS", "lot": "13", "pointer_count": 1, "source_file": "XmmMonsterSpellAction01.java"}], "manual_unsupported_98_actions": "NOT_CERTIFIED_BY_THIS_GATE", "official_pdf_parity_verified": false, "scope": "source_pointer_identity_only", "semantics_verified": false, "sqlite_persistence_integrated": false}
+XMM_HOST_REGISTRY_IDENTITIES=PASS count=62
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+XMM_COMBAT_ADMISSION_JVM=PASS assertions=441
+XMM_FAMILIES_04_13_GAMEPLAY=NOT_INTEGRATED

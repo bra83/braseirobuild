@@ -347,8 +347,19 @@ public final class CharacterSheetGenerator {
             if (!visual.isEmpty() && out.optString("visual_description").trim().isEmpty()) out.put("visual_description", visual);
             copyIfMissing(out, "proficiencies", character.optString("proficiencies"));
 
+            // A structured sheet may have a newer inventory than the legacy
+            // equipment column (including customized quantities and unlisted
+            // items). Never replace it during edit/reopen. An explicitly empty
+            // inventory is also authoritative: it must not resurrect old gear.
             String equipment = character.optString("equipment").trim();
-            if (!equipment.isEmpty()) { out.put("inventory", equipment); out.put("equipment", equipment); }
+            if (out.has("inventory")) {
+                out.put("equipment", out.optString("inventory", ""));
+            } else if (out.has("equipment")) {
+                out.put("inventory", out.optString("equipment", ""));
+            } else if (!equipment.isEmpty()) {
+                out.put("inventory", equipment);
+                out.put("equipment", equipment);
+            }
             copyIfMissing(out, "spells", character.optString("spells"));
 
             String notes = character.optString("notes");

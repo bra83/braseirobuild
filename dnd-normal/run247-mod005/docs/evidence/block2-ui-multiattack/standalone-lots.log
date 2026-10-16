@@ -1,0 +1,109 @@
+=== XMM LOTE 04: verify_damage_or_save_branch04.py / 12 ações ===
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+PASS branch-04 214 independent Java assertions; 12 pointer-specific core contracts; combat SQLite NOT integrated
+BRANCH04_SOURCE_PIN=NOT_TESTED_LOCALLY; pass --source /path/to/pinned-bestiary.json
+BRANCH04_COMBAT_INTEGRATION=NOT_TESTED
+BRANCH04_SQLITE_PERSISTENCE=NOT_IMPLEMENTED
+XMM_LOT_04_JVM=PASS
+=== XMM LOTE 05: verify_damage_or_save_branch05.py / 12 ações ===
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+PASS branch-05 198 independent JVM assertions; 12 contracts; combat/SQLite NOT integrated
+XMM_BRANCH05_SOURCE_PIN=NOT_TESTED_LOCALLY
+BRANCH05_ANDROID_COMBAT=NOT_INTEGRATED
+BRANCH05_SQLITE=NOT_INTEGRATED
+XMM_LOT_05_JVM=PASS
+=== XMM LOTE 06: verify_damage_or_save_branch06.py / 1 ações ===
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+PASS branch-06 100 JVM assertions; Wraith Life Drain core; Android/SQLite NOT integrated
+XMM_BRANCH06_PINNED_SOURCE=NOT_TESTED_LOCALLY
+XMM_BRANCH06_ANDROID_COMBAT=NOT_INTEGRATED
+XMM_BRANCH06_SQLITE_PERSISTENCE=NOT_IMPLEMENTED
+XMM_LOT_06_JVM=PASS
+=== XMM LOTE 07: verify_xmm_other_effects01.py / 10 ações ===
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+PASS other_source_effect-01 349 independent Java assertions; 10 contracts; Android/SQLite not integrated
+XMM_OTHER01_PINNED_SOURCE=NOT_TESTED_LOCALLY
+OTHER01_COMBAT_ANDROID=NOT_INTEGRATED
+OTHER01_SQLITE_BACKUP21=NOT_INTEGRATED
+OTHER01_TIMED_EFFECT_RUNNER=NOT_INTEGRATED
+XMM_LOT_07_JVM=PASS
+=== XMM LOTE 08: verify_xmm_other_effects02.py / 10 ações ===
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+PASS other_source_effect-02 118 independent JVM assertions; 10 actions; Android and SQLite NOT integrated
+XMM_OTHER02_SOURCE_PIN=NOT_TESTED_LOCALLY
+XMM_OTHER02_ANDROID_COMBAT=NOT_INTEGRATED
+XMM_OTHER02_SQLITE_PERSISTENCE=NOT_IMPLEMENTED
+XMM_OTHER02_TIMED_EFFECT_LIFECYCLE=NOT_INTEGRATED
+XMM_LOT_08_JVM=PASS
+=== XMM LOTE 09: verify_xmm_other_effects03.py / 9 ações ===
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+PASS other_source_effect-03 133 Java assertions; 9 source-pinned contracts; Android/SQLite NOT integrated
+XMM_OTHER03_PINNED_SOURCE=NOT_TESTED_LOCALLY
+OTHER03_ANDROID_COMBAT=NOT_INTEGRATED
+OTHER03_SQLITE_PERSISTENCE=NOT_IMPLEMENTED
+OTHER03_TIMED_EFFECT_LIFECYCLE=NOT_INTEGRATED
+XMM_LOT_09_JVM=PASS
+=== XMM LOTE 10: verify_xmm_attack_hit_condition01.py / 4 ações ===
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+PASS attack_hit_condition-01 168 independent Java assertions; 4 XMM contracts; Android/SQLite NOT integrated
+XMM_HIT01_PINNED_SOURCE=NOT_TESTED_LOCALLY
+HIT01_ANDROID_COMBAT=NOT_INTEGRATED
+HIT01_SQLITE_PERSISTENCE=NOT_IMPLEMENTED
+HIT01_TURN_GRAPPLE_ADAPTER=NOT_INTEGRATED
+XMM_LOT_10_JVM=PASS
+=== XMM LOTE 11: verify_xmm_swallow_and_escape01.py / 2 ações ===
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+PASS swallow_and_escape-01 207 independent Java assertions; 2 official XMM contracts; Android/SQLite NOT integrated
+XMM_SWALLOW01_PINNED_SOURCE=NOT_TESTED_LOCALLY
+SWALLOW01_ANDROID_COMBAT=NOT_INTEGRATED
+SWALLOW01_SQLITE_PERSISTENCE=NOT_IMPLEMENTED
+SWALLOW01_TURN_AND_MOVEMENT_ADAPTER=NOT_INTEGRATED
+XMM_LOT_11_JVM=PASS
+=== XMM LOTE 12: verify_xmm_explicit_effect_choice01.py / 1 ações ===
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+PASS explicit_effect_choice-01 179 independent Java assertions; Animated Rug of Smothering contract; Android/SQLite NOT integrated
+XMM_CHOICE01_PINNED_SOURCE=NOT_TESTED_LOCALLY
+CHOICE01_ANDROID_COMBAT=NOT_INTEGRATED
+CHOICE01_SQLITE_PERSISTENCE=NOT_IMPLEMENTED
+CHOICE01_TURN_AND_CONDITION_ADAPTER=NOT_INTEGRATED
+XMM_LOT_12_JVM=PASS
+=== XMM LOTE 13: verify_xmm_monster_spell_action01.py / 1 ações ===
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+PASS monster_spell_action-01 142 independent Java assertions; Blue Slaad Mutating Claw; Wish NOT cast; Android/SQLite NOT integrated
+XMM_MONSTER13_PINNED_SOURCE=NOT_TESTED_LOCALLY
+MONSTER13_ANDROID_COMBAT=NOT_INTEGRATED
+MONSTER13_SQLITE_PERSISTENCE=NOT_IMPLEMENTED
+MONSTER13_24H_CLOCK_AND_WISH_ADAPTER=NOT_INTEGRATED
+XMM_LOT_13_JVM=PASS
+XMM_STANDALONE_VERIFICATION={"actions_in_passed_lots": 62, "android_device": "NOT_TESTED", "failures": [], "live_combat_integration": "NOT_INTEGRATED", "lots": [{"contracts": 12, "exit_code": 0, "lot": "04", "script": "verify_damage_or_save_branch04.py"}, {"contracts": 12, "exit_code": 0, "lot": "05", "script": "verify_damage_or_save_branch05.py"}, {"contracts": 1, "exit_code": 0, "lot": "06", "script": "verify_damage_or_save_branch06.py"}, {"contracts": 10, "exit_code": 0, "lot": "07", "script": "verify_xmm_other_effects01.py"}, {"contracts": 10, "exit_code": 0, "lot": "08", "script": "verify_xmm_other_effects02.py"}, {"contracts": 9, "exit_code": 0, "lot": "09", "script": "verify_xmm_other_effects03.py"}, {"contracts": 4, "exit_code": 0, "lot": "10", "script": "verify_xmm_attack_hit_condition01.py"}, {"contracts": 2, "exit_code": 0, "lot": "11", "script": "verify_xmm_swallow_and_escape01.py"}, {"contracts": 1, "exit_code": 0, "lot": "12", "script": "verify_xmm_explicit_effect_choice01.py"}, {"contracts": 1, "exit_code": 0, "lot": "13", "script": "verify_xmm_monster_spell_action01.py"}], "lots_failed": 0, "lots_passed": 10, "scope": "independent_jvm_only", "source_binary_parity": "NOT_TESTED_BY_THIS_GATE", "sqlite_persistence": "NOT_IMPLEMENTED"}
+XMM_LOTS_04_TO_13_STANDALONE_JVM=PASS

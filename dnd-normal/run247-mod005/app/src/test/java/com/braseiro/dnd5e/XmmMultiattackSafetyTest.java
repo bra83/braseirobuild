@@ -23,13 +23,20 @@ public final class XmmMultiattackSafetyTest {
   in.put("selected_actions",new JSONArray().put("Shortsword").put("Fireball").put("Shortsword"));
   assertEquals("attack_choice_not_allowed",Xmm2025MultiattackPlanIndex.resolve(in).getString("status"));
  }
- @Test public void complexSpellsAndSubstitutionsFailClosed()throws Exception{
-  JSONObject r=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Adult Red Dragon"));
-  assertFalse(r.getBoolean("resolved"));assertEquals("complex_multiattack_requires_manual_source_resolution",r.getString("status"));
+ @Test public void dragonSpellReplacementUsesPinnedSpellAndRemainsUncast()throws Exception{
+  JSONObject r=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Adult Red Dragon")
+      .put("variant_index",1).put("selected_actions",new JSONArray()
+          .put("Scorching Ray").put("Rend").put("Rend")));
+  assertTrue(r.toString(),r.optBoolean("resolved"));
+  JSONObject spell=r.getJSONArray("steps").getJSONObject(0);
+  assertEquals("spell",spell.optString("kind"));assertEquals("Scorching Ray",spell.optString("action"));
+  assertTrue(spell.getJSONObject("spell_usage_gate").optBoolean("resolved"));
+  assertFalse(spell.getJSONObject("spell_usage_gate").optBoolean("spell_effects_applied",true));
+  assertTrue(r.optBoolean("manual_effect_resolution_required"));assertFalse(r.optBoolean("actions_applied"));
  }
  @Test public void coverageIsNotMisreportedAsFullCombat()throws Exception{
   JSONObject c=Xmm2025MultiattackPlanIndex.coverage();
-  assertEquals(306,c.getInt("multiattacks"));assertEquals(238,c.getInt("structured_plans"));assertEquals(68,c.getInt("manual_source_bound"));
+  assertEquals(306,c.getInt("multiattacks"));assertEquals(275,c.getInt("structured_plans"));assertEquals(31,c.getInt("manual_source_bound"));
   assertFalse(c.getBoolean("full_combat_automation_certified"));
  }
  @Test public void sphinxOfSecretsCanReplaceAtMostOneClawWithItsRiddleCurse()throws Exception{
@@ -81,6 +88,10 @@ public final class XmmMultiattackSafetyTest {
   JSONObject roc=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Roc")
       .put("variant_index",1).put("selected_actions",new JSONArray().put("Talons").put("Beak")));
   assertTrue(roc.toString(),roc.optBoolean("resolved"));
+  JSONObject youngSilver=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Young Silver Dragon")
+      .put("variant_index",1).put("selected_actions",new JSONArray().put("Paralyzing Breath").put("Rend").put("Rend")));
+  assertTrue(youngSilver.toString(),youngSilver.optBoolean("resolved"));
+  assertEquals(2,youngSilver.optInt("attack_slots"));assertEquals(1,youngSilver.optInt("use_slots"));
   JSONObject tarrasque=Xmm2025MultiattackPlanIndex.resolve(new JSONObject().put("monster","Tarrasque")
       .put("selected_actions",new JSONArray().put("Bite").put("Claw").put("Tail").put("Claw")));
   assertTrue(tarrasque.toString(),tarrasque.optBoolean("resolved"));assertEquals(4,tarrasque.optInt("attack_slots"));

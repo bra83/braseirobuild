@@ -1,0 +1,151 @@
+name: DND XMM PR52 - focused Android host gates (BRELGA)
+on:
+  push:
+    branches:
+      - wip/dnd-xmm-block02-resgate-20261015
+    paths:
+      - '.github/workflows/dnd-xmm-pr52-focused-brelga.yml'
+      - 'dnd-normal/run247-mod005/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dnd-xmm-pr52-focused-brelga
+  cancel-in-progress: false
+
+jobs:
+  focused-android-host:
+    name: XMM admission, UI and Multiattack - JVM + Robolectric
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 75
+    steps:
+      - name: Verify the expected build runner
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw 'EXPECTED_RUNNER_BRELGA' }
+          Write-Host ('XMM_FOCUSED_RUNNER=' + $env:RUNNER_NAME)
+          Write-Host ('XMM_FOCUSED_SOURCE_SHA=' + $env:GITHUB_SHA)
+          Write-Host 'XMM_APK_BUILD=NO'
+      - name: Checkout only DND Normal at exact SHA
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - name: Pin project and Java toolchain
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $project = Join-Path $env:GITHUB_WORKSPACE 'dnd-normal/run247-mod005'
+          if (!(Test-Path (Join-Path $project 'gradlew.bat'))) { throw 'DND_GRADLE_WRAPPER_NOT_FOUND' }
+          $java17='C:\actions-runner\_work\_tool\Java_Temurin-Hotspot_jdk\17.0.20-101\x64'
+          if (Test-Path $java17) {
+            Add-Content -Path $env:GITHUB_ENV -Value ('JAVA_HOME=' + $java17)
+            Add-Content -Path $env:GITHUB_PATH -Value (Join-Path $java17 'bin')
+          }
+          if (!(Get-Command python.exe -ErrorAction SilentlyContinue)) { throw 'BRELGA_PYTHON_REQUIRED' }
+          Write-Host 'XMM_FOCUSED_PROJECT_PRESENT=YES'
+      - name: Check 62 source identities and ten isolated Java suites
+        shell: powershell
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & python.exe -B tools/audit_xmm_62_source_registry.py
+          if ($LASTEXITCODE -ne 0) { throw 'XMM_62_SOURCE_POINTER_GATE_FAILED' }
+          & python.exe -B tools/verify_xmm_10_standalone_lots.py
+          if ($LASTEXITCODE -ne 0) { throw 'XMM_04_TO_13_JVM_GATE_FAILED' }
+          & python.exe -B tools/audit_xmm_multiattack_host.py | Out-File -FilePath "$env:RUNNER_TEMP\xmm-pr52-multiattack-audit.json" -Encoding utf8
+          if ($LASTEXITCODE -ne 0) { throw 'XMM_70_MULTIATTACK_ADMISSION_AUDIT_FAILED' }
+          Write-Host 'XMM_FOCUSED_JVM_AND_SOURCE_GATES=PASS'
+          Write-Host 'XMM_70_MULTIATTACK_RUNTIME_CERTIFICATION=NOT_PROVEN'
+      - name: Run 7 focused Android/Robolectric host test classes
+        shell: powershell
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $sdk = $env:ANDROID_HOME
+          if (!$sdk -or !(Test-Path $sdk)) {
+            $sdk = Join-Path $env:LOCALAPPDATA 'Android\Sdk'
+          }
+          if (!(Test-Path $sdk)) { throw 'BRELGA_ANDROID_SDK_NOT_FOUND' }
+          $env:ANDROID_HOME = $sdk
+          $env:ANDROID_SDK_ROOT = $sdk
+          # Exclude broken global init.d scripts without deleting shared dependency caches.
+          $shared = Join-Path $env:USERPROFILE '.gradle'
+          $isolated = Join-Path $env:RUNNER_TEMP ('xmm-pr52-gradle-' + $env:GITHUB_RUN_ID + '-' + $env:GITHUB_RUN_ATTEMPT)
+          New-Item -ItemType Directory -Force -Path $isolated | Out-Null
+          foreach ($entry in @('wrapper', 'caches')) {
+            $source = Join-Path $shared $entry
+            $target = Join-Path $isolated $entry
+            if ((Test-Path $source) -and !(Test-Path $target)) {
+              New-Item -ItemType Junction -Path $target -Target $source -ErrorAction Stop | Out-Null
+            }
+          }
+          $env:GRADLE_USER_HOME = $isolated
+          $xmlDir = 'app/build/test-results/testDebugUnitTest'
+          if (Test-Path $xmlDir) { Remove-Item -LiteralPath $xmlDir -Recurse -Force }
+          $classes = @(
+            'com.braseiro.dnd5e.XmmCombatAdmissionRobolectricTest',
+            'com.braseiro.dnd5e.XmmMultiattackHostRobolectricTest',
+            'com.braseiro.dnd5e.Xmm70MultiattackHostPlanTest',
+            'com.braseiro.dnd5e.CharacterCreationUiRobolectricTest',
+            'com.braseiro.dnd5e.ExplorationCombatUiRobolectricTest',
+            'com.braseiro.dnd5e.PlayableUiRobolectricTest',
+            'com.braseiro.dnd5e.SessionContinuityUiRobolectricTest'
+          )
+          $arguments = @(':app:testDebugUnitTest','--no-daemon','--console=plain','--stacktrace')
+          foreach ($test in $classes) { $arguments += @('--tests',$test) }
+          & .\gradlew.bat @arguments
+          $gradleExit = $LASTEXITCODE
+          # Emit failed JUnit case, expected and actual from XML even when Gradle returns nonzero.
+          if (Test-Path $xmlDir) {
+            $allReports = @(Get-ChildItem $xmlDir -Filter 'TEST-*.xml' -File)
+            foreach ($report in $allReports) {
+              [xml]$diagnostics = Get-Content -LiteralPath $report.FullName -Raw
+              $failNodes = @($diagnostics.SelectNodes('//testcase/failure | //testcase/error'))
+              foreach ($node in $failNodes) {
+                $testName = $node.ParentNode.GetAttribute('name')
+                $className = $node.ParentNode.GetAttribute('classname')
+                Write-Host ('XMM_PR52_FAILED_TEST=' + $className + '::' + $testName)
+                Write-Host ('XMM_PR52_FAILURE_MESSAGE=' + $node.GetAttribute('message'))
+                $stack = [string]$node.InnerText
+                if ($stack.Length -gt 1400) { $stack = $stack.Substring(0, 1400) }
+                Write-Host ('XMM_PR52_FAILURE_TRACE=' + $stack)
+              }
+            }
+            Write-Host ('XMM_PR52_XML_FILES=' + $allReports.Count)
+          } else {
+            Write-Host 'XMM_PR52_XML_FILES=NONE'
+          }
+          if ($gradleExit -ne 0) { throw 'XMM_PR52_ANDROID_UNIT_OR_COMPILATION_FAILED' }
+          if (!(Test-Path $xmlDir)) { throw 'XMM_PR52_TEST_XML_MISSING' }
+          $xml = @(Get-ChildItem $xmlDir -Filter 'TEST-*.xml' -File)
+          if ($xml.Count -lt $classes.Count) { throw ('XMM_PR52_TEST_CLASSES_NOT_ALL_REPORTED=' + $xml.Count) }
+          $totals = @{ tests=0; failures=0; errors=0; skipped=0 }
+          foreach ($file in $xml) {
+            [xml]$doc = Get-Content -LiteralPath $file.FullName -Raw
+            foreach ($key in @('tests','failures','errors','skipped')) {
+              $totals[$key] += [int]$doc.testsuite.GetAttribute($key)
+            }
+          }
+          Write-Host ('XMM_PR52_TEST_TOTAL=' + $totals.tests)
+          Write-Host ('XMM_PR52_TEST_FAILURES=' + $totals.failures)
+          Write-Host ('XMM_PR52_TEST_ERRORS=' + $totals.errors)
+          Write-Host ('XMM_PR52_TEST_SKIPPED=' + $totals.skipped)
+          if ($totals.tests -lt $classes.Count -or $totals.failures -ne 0 -or $totals.errors -ne 0 -or $totals.skipped -ne 0) {
+            throw 'XMM_PR52_FOCUSED_XML_GATE_FAILED'
+          }
+          Write-Host 'XMM_PR52_FOCUSED_ROBOLECTRIC=PASS'
+          Write-Host 'XMM_PR52_BACKUP21_THREE_REOPENS=NOT_CERTIFIED_BY_THIS_GATE'
+          Write-Host 'XMM_PR52_98_ACTIONS_SEMANTIC_PARITY=NOT_CERTIFIED_BY_THIS_GATE'
+      - name: State exact validation scope
+        if: always()
+        shell: powershell
+        run: |
+          Write-Host ('XMM_PR52_VALIDATED_SHA=' + $env:GITHUB_SHA)
+          Write-Host 'NO_APK_BUILT_AND_NO_MERGE_PERFORMED'
+          Write-Host 'This focused workflow does not certify all 98 XMM actions or physical Android execution.'
