@@ -18,7 +18,6 @@ VALIDADO_E2E
 import csv
 import json
 import re
-import hashlib
 from collections import Counter
 from pathlib import Path
 
@@ -1087,8 +1086,12 @@ def unique_stable_ids(entries):
         if base_counts[original] > 1:
             identity = "\\x1f".join(row[key] for key in
                 ("livro", "edicao", "capitulo", "secao", "pagina", "nome", "tipo"))
-            suffix = hashlib.sha256(identity.encode("utf-8")).hexdigest()[:12].upper()
-            candidate = original + "-" + suffix
+            # Stable FNV-1a 64-bit over Unicode code points (not row order).
+            # Identical source rows receive a deterministic numeric suffix below.
+            fingerprint = 14695981039346656037
+            for char in identity:
+                fingerprint = ((fingerprint ^ ord(char)) * 1099511628211) & ((1 << 64) - 1)
+            candidate = original + "-" + format(fingerprint, "016X")
         else:
             candidate = original
         index = 2
