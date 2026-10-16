@@ -75,7 +75,8 @@
     "remote_branch_pre_push": null,
     "scope": "star-wars/r54/source",
     "working_branch_head_after_initial_push": "c8daa86f20d4a1c31940d3d0187af7dfeba81cd2",
-    "remote_head_verified": "c8daa86f20d4a1c31940d3d0187af7dfeba81cd2"
+    "remote_head_verified": "284793ae0f93fe0bd99ec144a9c96d37f445f4e5",
+    "last_local_commit": "284793ae0f93fe0bd99ec144a9c96d37f445f4e5"
   },
   "fresh_regression": {
     "files": 376,
@@ -86,3 +87,4 @@
     "status": "PASS_WITH_2_EXPLAINED_JDK_DEPENDENT_SKIPS"
   }
 }
+

@@ -4,7 +4,7 @@
 - Repository: `bra83/braseirobuild`
 - Branch: `codex/star-wars-hibrido-integral-20261016`
 - Base HEAD: `98b6a391401818e74eaa53c752cc98dc9082fea9`
-- Last local and remote HEAD: `c8daa86f20d4a1c31940d3d0187af7dfeba81cd2` (verified with `git ls-remote`)
+- Last local and remote HEAD: `284793ae0f93fe0bd99ec144a9c96d37f445f4e5` (verified with `git ls-remote`)
 - Remote branch: not present before first push
 - Source working tree: `work/star-wars/project`; Git sparse checkout: `work/star-wars/repo-sparse/star-wars/r54/source`
 - P244 SHA-256: `6f3dca72ea55080b4ce7e6befeb5d4d84e51f63453ead6a5719495178a40d264`
@@ -12,9 +12,11 @@
 - SWE02 is IMPLEMENTADO_NAO_CERTIFICADO. See `audits/SWE02_INITIAL_SOURCE_GAP_MATRIX.md`.
 - All 360 AoR rows are enumerated in `validation/AOR_360_INDIVIDUAL_PROOFS.jsonl`; each remains PENDENTE.
 - Drive inventory contains 527 records; 500 remain metadata-only/unreviewed.
+- Fresh regression runner is now non-destructive, preserves timestamped evidence, parses both Node TAP summary formats, and returns a nonzero exit on failures.
 - Fresh regression completed: 376 files (370 regular + six stress), 3,393 tests, 3,391 pass, zero fail, two documented JDK-dependent skips. TAP and summary are in `evidence/fresh-regression-20261016/`.
 - APK/Gradle/device gates have not run.
 
 ## Next command
 
 From the workspace root, Commit and push this recoverable WIP branch. Continue source-led SWE02 closure with the Act 1 gaps in `audits/SWE02_INITIAL_SOURCE_GAP_MATRIX.md`.
+
