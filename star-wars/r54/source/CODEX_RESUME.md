@@ -84,3 +84,11 @@
 
 - Consolidated the p.12 source-to-code crosswalk and fresh focused output in `evidence/SWE02_P12_PAGE_20261016/`. The P239 suite passed 23/23 and generic vehicle controller passed 4/4. This suite also contains adjacent p.8/p.11 route/transit checks.
 - The p.12 page remains pending for end-to-end UI review, full-project regression and the complete adventure audit. Current project status remains 0/5 adventures certified, selected rules pending and AoR 0/360. Next: complete p.12 UI review and proceed through remaining Act 1 gaps.
+
+## Resume update — SWE02 p.11 cataloged cargo transfer (2026-10-16)
+
+- Added source-backed gear page citations for EotE Core and a focused transfer flow from discovered Long Arm p.11 cargo into a selected stable-ID PC inventory. The UI requires an explicit item, PC and positive quantity; the controller validates the exact catalog mapping and quantity, then atomically persists both gear and receipt. Unsupported/unknown cargo remains unavailable.
+- Focused suite passed 32/32 across the EotE catalog, SWE02 pp.6–11, P238 controller and UI bridge files. The controller test verifies duplicate display names, inventory persistence after reopen and exactly-once transfer. Raw output and source map: `evidence/SWE02_P11_CARGO_TRANSFER_20261016/`.
+- Rebuilt official bridge bundle: 135 modules. Changed JS syntax checks, JSON parsing and `git diff --check` pass. Full project regression, UI review and the p.11 full-page audit remain outstanding.
+- Corrected the stale status claim: the six-hour baseline already advances the world clock; no recovery is automatic until the GM rules that the rest meets EotE's full-night/good-night condition. Fuel, unsupported cargo categories, droid-part sale/build and whole-page proof remain open.
+- All certification remains pending: 0/5 adventures, rules pending, AoR 0/360. No P245 or Android release gate.

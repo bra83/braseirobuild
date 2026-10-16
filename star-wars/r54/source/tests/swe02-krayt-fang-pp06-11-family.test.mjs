@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   SHIP_ALERTS, SHIP_MANIFEST,
+  SHIP_CARGO_GEAR_MAPPINGS, shipCargoTransferOptions, recordShipCargoTransfer,
   shipIssueState, shipSmellSetback, shipTaskPool, shipCheckPool,
   recordShipObservation, recordShipRoomDiscovery, recordShipCheck,
   recordShipChoice, recordBuraConversation, validateShip
@@ -70,6 +71,28 @@ test('SWE02 pp9-11: cargo discovery records source manifest without transferring
   assert.equal(SHIP_MANIFEST['crew-quarters'].find(x=>x.id==='escape-from-mos-shuuta-credits').note.includes('may place'),true);
 });
 
+test('SWE02 p11 + EotE Core: exact cataloged cargo transfers by count to a stable PC owner',()=>{
+  const p=ship();p.status='ACTIVE';recordShipRoomDiscovery(p,'number-two-hold');recordShipRoomDiscovery(p,'galley');
+  let options=shipCargoTransferOptions(p);
+  assert.ok(options.some(x=>x.itemId==='medpac'&&x.catalogId==='medpac'&&x.availableQuantity===1&&x.rulePage===177));
+  assert.ok(options.some(x=>x.itemId==='general-purpose-scanner'&&x.catalogId==='multi_scanner'&&x.rulePage===175));
+  assert.ok(options.some(x=>x.itemId==='ration-packs'&&x.catalogId==='rations'&&x.availableQuantity===6&&x.rulePage===179));
+  assert.equal(options.some(x=>x.itemId==='broken-astromech-parts'),false);
+  assert.equal(options.some(x=>x.itemId==='empty-crates-number-two'),false);
+  recordShipCargoTransfer(p,{roomId:'number-two-hold',itemId:'medpac',quantity:1,characterId:'pc:receiver'});
+  recordShipCargoTransfer(p,{roomId:'galley',itemId:'ration-packs',quantity:2,characterId:'pc:receiver'});
+  assert.equal(p.shipSequence.cargoTransfers.length,2);
+  assert.equal(p.shipSequence.cargoTransfers[0].source.printedPage,11);
+  assert.equal(p.shipSequence.cargoTransfers[0].rulesSource.printedPage,177);
+  assert.equal(shipCargoTransferOptions(reopen(p)).find(x=>x.itemId==='ration-packs').availableQuantity,4);
+  assert.throws(()=>recordShipCargoTransfer(p,{roomId:'number-two-hold',itemId:'medpac',quantity:1,characterId:'pc:receiver'}),/excede o item/);
+  assert.throws(()=>recordShipCargoTransfer(p,{roomId:'number-two-hold',itemId:'broken-astromech-parts',quantity:1,characterId:'pc:receiver'}),/mapeamento/);
+  assert.throws(()=>recordShipCargoTransfer(p,{roomId:'galley',itemId:'ration-packs',quantity:5,characterId:'pc:receiver'}),/excede/);
+  assert.equal(validateShip(reopen(p)),true);
+  const forged=reopen(p);forged.shipSequence.cargoTransfers[0].rulesSource.printedPage=181;
+  assert.throws(()=>validateShip(forged),/transferência de carga inválido/);
+});
+
 test('SWE02 p9: pelt find creates six discovered items; odor-source search remains exempt',()=>{
   const p=ship();
   recordShipCheck(p,6,true);
@@ -115,7 +138,7 @@ test('SWE02 p11: verified route records six uneventful hours and available rest 
   const p=ship();
   recordShipCheck(p,0,true);recordShipChoice(p,'ship-find-bura');recordShipChoice(p,'ship-depart-verified');
   recordShipObservation(p,'complete-hyperspace-transit');
-  assert.deepEqual(p.shipSequence.transit,{elapsedHours:6,uneventful:true,restAndRecuperationAvailable:true,completed:true,source:{productCode:'SWE02',printedPage:11}});
+  assert.deepEqual(p.shipSequence.transit,{elapsedHours:6,elapsedHoursIsMinimum:true,durationStatus:'A_LITTLE_MORE_THAN_SIX_HOURS',extraDurationStatus:'NOT_REQUIRED',uneventful:true,restAndRecuperationAvailable:true,completed:true,source:{productCode:'SWE02',printedPage:11}});
   assert.equal(p.shipSequence.transit.strainRecovered,undefined);
   assert.equal(validateShip(reopen(p)),true);
 });

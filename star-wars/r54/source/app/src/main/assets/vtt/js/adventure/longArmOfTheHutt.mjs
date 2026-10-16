@@ -1,7 +1,8 @@
 import { ensureLivingWorldDepth } from '../world/livingWorldDepth.mjs';
 import { FACTS,ARGUMENTS,guardCount,scoreDimmock,validateGeonosis,recordGeonosisChoice } from './swe02GeonosisP237.mjs';
 import { SHIP_CHECKS,shipCheckAvailable,shipNoisePool,shipCheckPool,recordShipCheck,recordShipChoice,validateShip,shipSmellSetback,shipIssueState,
-  recordShipObservation,recordShipRoomDiscovery,recordBuraConversation,adjudicateShipTransitExtraDuration } from './swe02KraytFangP238.mjs';
+  recordShipObservation,recordShipRoomDiscovery,recordBuraConversation,adjudicateShipTransitExtraDuration,
+  recordShipCargoTransfer,shipCargoTransferOptions } from './swe02KraytFangP238.mjs';
 import {validateThwheek} from './swe02ThwheekP239.mjs';
 import {validateNabat} from './swe02NabatP240.mjs';
 import {validateSWE02Social,remainingDrombbThugs} from './swe02SocialP241.mjs';
@@ -1263,6 +1264,12 @@ export function adjudicateLongArmShipTransitExtraDuration(world,ticks) {
 }
 export function discoverLongArmShipRoom(world,roomId) {
  return shipWorldAction(world,p=>recordShipRoomDiscovery(p,roomId));
+}
+export function longArmShipCargoTransferOptions(world) {
+ return shipCargoTransferOptions(world?.publishedAdventure);
+}
+export function transferLongArmShipCargo(world,details={}) {
+ return shipWorldAction(world,p=>recordShipCargoTransfer(p,details));
 }
 export function recordLongArmBuraConversation(world,details={}) {
  return shipWorldAction(world,p=>recordBuraConversation(p,details));

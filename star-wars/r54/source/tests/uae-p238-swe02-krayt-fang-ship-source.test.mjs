@@ -95,6 +95,33 @@ test('P238 real controller: observations, cargo, Bura conversation and six-hour 
    a.status(h.state.world);
  }
 });
+
+test('P238 controller: cargo transfers enter the selected roster PC inventory and survive reopen exactly once',()=>{
+ const repo=new Repo(),g=new GameController(repo);g.loadStarterCharacter('cael');g.startSession({playerCount:1,rng:()=>.9});
+ g.startPublishedAdventureSession('long-arm-of-the-hutt',{rng:()=>.9});g.advancePublishedAdventure('inspect-krayt-fang');
+ g.discoverSWE02ShipRoom('number-two-hold');g.discoverSWE02ShipRoom('galley');
+ const receiver=structuredClone(g.state.player.character);receiver.name=g.state.player.character.name;
+ g.registerPartyCharacter({character:receiver,id:'pc:receiver'});
+ let options=g.swe02ShipCargoTransferOptions();assert.equal(options.items.find(x=>x.itemId==='medpac').availableQuantity,1);
+ g.transferSWE02ShipCargo({roomId:'number-two-hold',itemId:'medpac',quantity:1,characterId:'pc:receiver'});
+ g.transferSWE02ShipCargo({roomId:'galley',itemId:'ration-packs',quantity:3,characterId:'pc:receiver'});
+ const owned=g.state.player.roster.entries.find(x=>x.id==='pc:receiver').character.gear;
+ assert.equal(owned.find(x=>x.id==='medpac').quantity,1);
+ assert.equal(owned.find(x=>x.id==='rations').quantity,3);
+ assert.equal(owned.find(x=>x.id==='medpac').source.printedPage,177);
+ assert.equal(g.state.player.character.gear.some(x=>x.id==='medpac'),false);
+ options=g.swe02ShipCargoTransferOptions();assert.equal(options.items.some(x=>x.itemId==='medpac'),false);
+ assert.equal(options.items.find(x=>x.itemId==='ration-packs').availableQuantity,3);
+ const before=repo.saves;
+ assert.throws(()=>g.transferSWE02ShipCargo({roomId:'number-two-hold',itemId:'medpac',quantity:1,characterId:'pc:receiver'}),/excede o item/);
+ assert.equal(repo.saves,before);
+ for(let i=0;i<3;i++){
+  const h=new GameController(repo),p=h.state.world.publishedAdventure,pc=h.state.player.roster.entries.find(x=>x.id==='pc:receiver');
+  assert.equal(p.shipSequence.cargoTransfers.length,2);assert.equal(pc.character.gear.find(x=>x.id==='medpac').quantity,1);
+  assert.equal(pc.character.gear.find(x=>x.id==='rations').quantity,3);assert.equal(h.swe02ShipCargoTransferOptions().items.some(x=>x.itemId==='medpac'),false);
+  a.status(h.state.world);
+ }
+});
 test('P238: changing a successful slow tracker to false cannot conceal skipped interception',()=>{
  let w=ship();w=roll(w,3,true);w=roll(w,5,true);w=roll(w,0,true);w=step(w,'ship-find-bura');w=step(w,'ship-depart-verified');
  let f=reopen(w);f.publishedAdventure.flags.shipTrackerSlowed=false;assert.throws(()=>a.status(f),/recibo omitido/);

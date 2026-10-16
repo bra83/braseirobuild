@@ -12,3 +12,15 @@ test('R37: catálogo pessoal inclui os 2 itens oficiais SWE09/EotE (62 itens) co
   assert.equal(item.source.book,'Fly Casual'); assert.equal(item.source.section,'Table 2-4: Gear');
   assert.equal(item.source.authority,'PRIMARY_RULE_SOURCE'); assert.equal(item.source.rulesProfile,'EOTE_CORE');
 });
+
+test('EotE Core printed-page citations resolve each ship-transfer gear profile to its actual printed entry',()=>{
+  for(const [id,page] of [['electrobinoculars',175],['multi_scanner',175],['hand_scanner',176],['medpac',177],['breath_mask',179],['rations',179],['glow_rod',181],['tool_kit',181]]){
+    const item=generalGearCatalogEntry(id);
+    assert.equal(item.source.book,'Edge of the Empire Core Rulebook',id);
+    assert.equal(item.source.printedPage,page,id);
+    assert.equal(item.source.authority,'PRIMARY_RULE_SOURCE',id);
+    assert.equal(item.source.rulesProfile,'EOTE_CORE',id);
+  }
+  assert.equal(generalGearCatalogEntry('medpac').effectSource.printedPage,112);
+  assert.equal(generalGearCatalogEntry('medpac').effectSource.section,'Medicine');
+});

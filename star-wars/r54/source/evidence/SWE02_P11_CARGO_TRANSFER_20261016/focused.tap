@@ -1,0 +1,202 @@
+TAP version 13
+# Subtest: R37: catálogo pessoal inclui os 2 itens oficiais SWE09/EotE (62 itens) com Appraiser's Eye fundamentado em Fly Casual
+ok 1 - R37: catálogo pessoal inclui os 2 itens oficiais SWE09/EotE (62 itens) com Appraiser's Eye fundamentado em Fly Casual
+  ---
+  duration_ms: 1.9975
+  type: 'test'
+  ...
+# Subtest: EotE Core printed-page citations resolve each ship-transfer gear profile to its actual printed entry
+ok 2 - EotE Core printed-page citations resolve each ship-transfer gear profile to its actual printed entry
+  ---
+  duration_ms: 0.5767
+  type: 'test'
+  ...
+# Subtest: SWE02 p7: four alerts and unresolved issue state have exact ordered source cues
+ok 3 - SWE02 p7: four alerts and unresolved issue state have exact ordered source cues
+  ---
+  duration_ms: 9.0897
+  type: 'test'
+  ...
+# Subtest: SWE02 p7: odor and noise penalties compose for checks and medical aid
+ok 4 - SWE02 p7: odor and noise penalties compose for checks and medical aid
+  ---
+  duration_ms: 1.3921
+  type: 'test'
+  ...
+# Subtest: SWE02 p7-8: route and slowed-tracker combination is deterministic and survives JSON reopen
+ok 5 - SWE02 p7-8: route and slowed-tracker combination is deterministic and survives JSON reopen
+  ---
+  duration_ms: 2.0576
+  type: 'test'
+  ...
+# Subtest: SWE02 pp9-11: cargo discovery records source manifest without transferring or selling items
+ok 6 - SWE02 pp9-11: cargo discovery records source manifest without transferring or selling items
+  ---
+  duration_ms: 1.5232
+  type: 'test'
+  ...
+# Subtest: SWE02 p11 + EotE Core: exact cataloged cargo transfers by count to a stable PC owner
+ok 7 - SWE02 p11 + EotE Core: exact cataloged cargo transfers by count to a stable PC owner
+  ---
+  duration_ms: 3.7126
+  type: 'test'
+  ...
+# Subtest: SWE02 p9: pelt find creates six discovered items; odor-source search remains exempt
+ok 8 - SWE02 p9: pelt find creates six discovered items; odor-source search remains exempt
+  ---
+  duration_ms: 0.9081
+  type: 'test'
+  ...
+# Subtest: SWE02 p9-10: cage identifies B’ura; freeing is free; knowledge symbols retain graded shell facts
+ok 9 - SWE02 p9-10: cage identifies B’ura; freeing is free; knowledge symbols retain graded shell facts
+  ---
+  duration_ms: 2.9814
+  type: 'test'
+  ...
+# Subtest: SWE02 p8: tracker-removal threats preserve a hull-damage obligation without inventing trauma
+ok 10 - SWE02 p8: tracker-removal threats preserve a hull-damage obligation without inventing trauma
+  ---
+  duration_ms: 2.7365
+  type: 'test'
+  ...
+# Subtest: SWE02 p11: verified route records six uneventful hours and available rest without inventing recovery
+ok 11 - SWE02 p11: verified route records six uneventful hours and available rest without inventing recovery
+  ---
+  duration_ms: 1.0816
+  type: 'test'
+  ...
+# Subtest: P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery
+ok 12 - P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery
+  ---
+  duration_ms: 95.6016
+  type: 'test'
+  ...
+# Subtest: P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed
+ok 13 - P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed
+  ---
+  duration_ms: 53.7499
+  type: 'test'
+  ...
+# Subtest: P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters
+ok 14 - P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters
+  ---
+  duration_ms: 38.573
+  type: 'test'
+  ...
+# Subtest: P238 p7-8: both noises upgrade one difficulty; one disabled restores pool
+ok 15 - P238 p7-8: both noises upgrade one difficulty; one disabled restores pool
+  ---
+  duration_ms: 12.2441
+  type: 'test'
+  ...
+# Subtest: P238 p8: transponder cannot be switched off in flight or removed before landing
+ok 16 - P238 p8: transponder cannot be switched off in flight or removed before landing
+  ---
+  duration_ms: 44.7764
+  type: 'test'
+  ...
+# Subtest: P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception
+ok 17 - P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception
+  ---
+  duration_ms: 13.8888
+  type: 'test'
+  ...
+# Subtest: P238 p9: jettison requires actual successful Perception and Computers
+ok 18 - P238 p9: jettison requires actual successful Perception and Computers
+  ---
+  duration_ms: 24.2014
+  type: 'test'
+  ...
+# Subtest: P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill
+ok 19 - P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill
+  ---
+  duration_ms: 7.7324
+  type: 'test'
+  ...
+# Subtest: P238: forged ship flags, forged Bura and forged intercept outcome fail closed
+ok 20 - P238: forged ship flags, forged Bura and forged intercept outcome fail closed
+  ---
+  duration_ms: 22.5665
+  type: 'test'
+  ...
+# Subtest: P238: legacy route remains loadable but is explicitly uncertified
+ok 21 - P238: legacy route remains loadable but is explicitly uncertified
+  ---
+  duration_ms: 11.2607
+  type: 'test'
+  ...
+# Subtest: P238 real controller: skill pool, roll receipt and three saved reopens
+ok 22 - P238 real controller: skill pool, roll receipt and three saved reopens
+  ---
+  duration_ms: 80.8952
+  type: 'test'
+  ...
+# Subtest: P238 real controller: observations, cargo, Bura conversation and six-hour transit survive three reopens
+ok 23 - P238 real controller: observations, cargo, Bura conversation and six-hour transit survive three reopens
+  ---
+  duration_ms: 123.3976
+  type: 'test'
+  ...
+# Subtest: P238 controller: cargo transfers enter the selected roster PC inventory and survive reopen exactly once
+ok 24 - P238 controller: cargo transfers enter the selected roster PC inventory and survive reopen exactly once
+  ---
+  duration_ms: 80.3069
+  type: 'test'
+  ...
+# Subtest: P238: changing a successful slow tracker to false cannot conceal skipped interception
+ok 25 - P238: changing a successful slow tracker to false cannot conceal skipped interception
+  ---
+  duration_ms: 29.7581
+  type: 'test'
+  ...
+# Subtest: bridge construction is zero-mutation when no campaign exists
+ok 26 - bridge construction is zero-mutation when no campaign exists
+  ---
+  duration_ms: 2.9513
+  type: 'test'
+  ...
+# Subtest: player intent never creates a default campaign when storage is empty
+ok 27 - player intent never creates a default campaign when storage is empty
+  ---
+  duration_ms: 1.0566
+  type: 'test'
+  ...
+# Subtest: corrupt canonical state is reported and never overwritten
+ok 28 - corrupt canonical state is reported and never overwritten
+  ---
+  duration_ms: 0.9422
+  type: 'test'
+  ...
+# Subtest: local player intent delegates to the canonical GameController and persists it
+ok 29 - local player intent delegates to the canonical GameController and persists it
+  ---
+  duration_ms: 36.5268
+  type: 'test'
+  ...
+# Subtest: configured HTTP provider follows the canonical requestMasterTurn path
+ok 30 - configured HTTP provider follows the canonical requestMasterTurn path
+  ---
+  duration_ms: 18.2235
+  type: 'test'
+  ...
+# Subtest: global bridge installation is idempotent and does not create campaign state
+ok 31 - global bridge installation is idempotent and does not create campaign state
+  ---
+  duration_ms: 0.6469
+  type: 'test'
+  ...
+# Subtest: blank player intent is rejected before controller construction or mutation
+ok 32 - blank player intent is rejected before controller construction or mutation
+  ---
+  duration_ms: 1.1409
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1381.391

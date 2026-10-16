@@ -10,6 +10,11 @@ const SRC_GENERAL_GEAR_EFFECTS=aorReference({book:'La Era de la Rebelión - Libr
 
 const eoteCoreSource=(source)=>Object.freeze({...source,authority:'PRIMARY_RULE_SOURCE',rulesProfile:'EOTE_CORE',activeRulesAuthority:true});
 const SRC_EOTE_CORE_GEAR=eoteCoreSource({book:'Edge of the Empire Core Rulebook',printedPage:181,section:'Table 5-8: Gear and Equipment'});
+const SRC_EOTE_CORE_SCANNERS=eoteCoreSource({book:'Edge of the Empire Core Rulebook',printedPage:175,section:'Detection Devices'});
+const SRC_EOTE_CORE_HAND_SCANNER=eoteCoreSource({book:'Edge of the Empire Core Rulebook',printedPage:176,section:'Hand Scanner'});
+const SRC_EOTE_CORE_MEDPAC=eoteCoreSource({book:'Edge of the Empire Core Rulebook',printedPage:177,section:'Medpac'});
+const SRC_EOTE_CORE_MEDICINE=eoteCoreSource({book:'Edge of the Empire Core Rulebook',printedPage:112,section:'Medicine'});
+const SRC_EOTE_CORE_SURVIVAL_GEAR=eoteCoreSource({book:'Edge of the Empire Core Rulebook',printedPage:179,section:'Survival gear'});
 const SRC_EOTE_CORE_SECURITY=eoteCoreSource({book:'Edge of the Empire Core Rulebook',printedPage:179,section:'Table 5-8: Gear and Equipment — Security'});
 const SRC_EOTE_CORE_ARMOR=eoteCoreSource({book:'Edge of the Empire Core Rulebook',printedPage:169,section:'Table 5-7: Armor'});
 const SRC_FLY_CASUAL_GEAR=eoteCoreSource({book:'Fly Casual',printedPage:48,section:'Table 2-4: Gear'});
@@ -102,14 +107,14 @@ function eg(id,name,price,encumbrance,rarity,{encumbranceThresholdBonus=0,medici
 }
 export const EOTE_CORE_GENERAL_GEAR=Object.freeze([
   eg('glow_rod','Bastão luminoso',10,1,0), eg('comlink','Comunicador',25,0,0), eg('long_range_comlink','Comunicador de longo alcance',200,2,1),
-  eg('electrobinoculars','Eletrobinóculos',250,1,1), eg('hand_scanner','Scanner manual',100,0,2), eg('multi_scanner','Scanner geral',500,2,3,{aliases:['Scanner multiuso']}),
-  eg('macrobinoculars','Macrobinóculos',75,1,2), eg('breath_mask','Máscara respiratória',25,1,1), eg('space_suit','Traje espacial',100,4,1),
-  eg('emergency_medpac','Medpac de emergência',100,1,1,{medicine:{medicalSupplies:true,boost:0},effectSource:SRC_GENERAL_GEAR_EFFECTS}), eg('medpac','Medpac',400,2,2,{medicine:{medicalSupplies:true,boost:1},effectSource:SRC_GENERAL_GEAR_EFFECTS}),
+  eg('electrobinoculars','Eletrobinóculos',250,1,1,{source:SRC_EOTE_CORE_SCANNERS}), eg('hand_scanner','Scanner manual',100,0,2,{source:SRC_EOTE_CORE_HAND_SCANNER}), eg('multi_scanner','Scanner geral',500,2,3,{aliases:['Scanner multiuso'],source:SRC_EOTE_CORE_SCANNERS}),
+  eg('macrobinoculars','Macrobinóculos',75,1,2), eg('breath_mask','Máscara respiratória',25,1,1,{source:SRC_EOTE_CORE_SURVIVAL_GEAR}), eg('space_suit','Traje espacial',100,4,1,{source:SRC_EOTE_CORE_SURVIVAL_GEAR}),
+  eg('emergency_medpac','Medpac de emergência',100,1,1,{medicine:{medicalSupplies:true,boost:0},effectSource:SRC_EOTE_CORE_MEDICINE,source:SRC_EOTE_CORE_MEDPAC}), eg('medpac','Medpac',400,2,2,{medicine:{medicalSupplies:true,boost:1},effectSource:SRC_EOTE_CORE_MEDICINE,source:SRC_EOTE_CORE_MEDPAC}),
   eg('stimpack_injector','Injetor de estimulantes',25,0,1), eg('backpack','Mochila',50,0,0,{encumbranceThresholdBonus:4}),
   eg('climbing_gear','Equipamento de escalada',50,1,2), eg('data_module','Datapad',75,1,1,{aliases:['Módulo de dados']}),
   eg('emergency_repair_patch','Remendo de reparo de emergência',25,0,1), eg('power_pack_or_ammo_reload','Recarga adicional',25,1,1),
   eg('fusion_lantern','Lanterna de fusão',150,2,2), eg('tool_kit','Kit de ferramentas',350,4,2), eg('utility_belt','Cinto utilitário',25,0,0,{encumbranceThresholdBonus:1}),
-  eg('rations','Rações',5,0,0),
+  eg('rations','Rações',5,0,0,{source:SRC_EOTE_CORE_SURVIVAL_GEAR}),
   // EotE Core p.179, Table 5-8 (Security). NOT 'restraining_device'.
   eg('restraining_bolt','Parafuso de restrição (droide)',35,0,0,{source:SRC_EOTE_CORE_SECURITY}),
   eg('slicer_gear','Equipamento de slicing',500,2,4,{source:SRC_EOTE_CORE_SECURITY}),

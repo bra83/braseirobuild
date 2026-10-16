@@ -5921,6 +5921,35 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
             this.commit('WORLD_UPDATED',{world:out.world});return {items:out.result,receipt:clone(out.progress.shipSequence.cargoReceipts.at(-1))};
         });
     }
+    swe02ShipCargoTransferOptions(){
+        const adapter=publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+        return {items:adapter.shipCargoTransferOptions(this.state.world),pcs:(this.state.player?.roster?.entries??[]).map(x=>({id:x.id,name:x.character?.name??x.id}))};
+    }
+    transferSWE02ShipCargo({roomId,itemId,quantity,characterId}={}){
+        return this.atomicAction(()=>{
+            const roster=clone(this.state.player?.roster??{schema:1,activeCharacterId:null,entries:[]});
+            const entry=roster.entries.find(x=>x.id===String(characterId??''));
+            if(!entry||!entry.character)throw Error('SWE02 p.11: PC destinatário não existe no roster.');
+            const adapter=publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            const out=adapter.transferShipCargo(this.state.world,{roomId,itemId,quantity:Number(quantity),characterId:entry.id});
+            const transfer=out.result,gearSource=equipmentCatalog_mjs_1.generalGearCatalogEntry(transfer.catalogId);
+            if(!gearSource||gearSource.source?.authority!=='PRIMARY_RULE_SOURCE'||gearSource.source?.rulesProfile!=='EOTE_CORE'||
+                gearSource.source?.printedPage!==transfer.rulesSource.printedPage)
+                throw Error('SWE02 p.11: mapeamento do equipamento não corresponde à fonte EotE Core registrada.');
+            const character=clone(entry.character);character.gear=Array.isArray(character.gear)?character.gear:[];
+            const existing=character.gear.find(x=>String(x?.id??x?.sourceCatalogId??'')===transfer.catalogId);
+            if(existing){
+                const prior=Number(existing.quantity??1);
+                if(!Number.isSafeInteger(prior)||prior<1||prior+transfer.quantity>999)throw Error('SWE02 p.11: quantidade de equipamento na ficha inválida.');
+                existing.quantity=prior+transfer.quantity;
+            }else character.gear.push({...clone(gearSource),quantity:transfer.quantity});
+            character_mjs_1.validateCharacter(character);
+            entry.character=character;
+            this.commit('PLAYER_ROSTER_UPDATED',{roster});
+            this.commit('WORLD_UPDATED',{world:out.world});
+            return {transfer:clone(transfer),character:clone(character),remaining:this.swe02ShipCargoTransferOptions().items};
+        });
+    }
     recordSWE02BuraConversation(details={}){
         return this.atomicAction(()=>{
             const adapter=publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');

@@ -898,6 +898,18 @@ function renderVehicle(state){
   $('swe02KraytFangShip').hidden=!shipScene;
   if(shipScene){
     const flags=swe02p.flags||{},checks=state.master?.openingRequest?.adventureId==='long-arm-of-the-hutt'?state.master.openingRequest.checks||[]:[];
+    const cargo=game.swe02ShipCargoTransferOptions(),cargoData=cargo?.ok?cargo.data:{items:[],pcs:[]};
+    const cargoSelect=$('swe02ShipCargoItem'),priorCargo=cargoSelect.value;
+    cargoSelect.replaceChildren(new Option(cargoData.items.length?'Escolha item e compartimento':'Nenhum item catalogado disponível',''),
+      ...cargoData.items.map(x=>new Option(`${x.label} · ${x.roomId} · ${x.availableQuantity} disponível(is) · EotE Core p.${x.rulePage}`,`${x.roomId}|${x.itemId}`)));
+    if([...cargoSelect.options].some(x=>x.value===priorCargo))cargoSelect.value=priorCargo;
+    const cargoPc=$('swe02ShipCargoPc'),priorPc=cargoPc.value;
+    cargoPc.replaceChildren(new Option('Selecione um PC',''),...cargoData.pcs.map(x=>new Option(`${x.name} · ${x.id}`,x.id)));
+    if(cargoData.pcs.some(x=>x.id===priorPc))cargoPc.value=priorPc;
+    const cargoPcId=cargoPc.value;
+    const selectedCargo=cargoData.items.find(x=>`${x.roomId}|${x.itemId}`===cargoSelect.value);
+    const cargoQty=Number($('swe02ShipCargoQuantity').value);
+    $('swe02ShipCargoTransfer').disabled=!selectedCargo||!cargoPcId||!Number.isSafeInteger(cargoQty)||cargoQty<1||cargoQty>selectedCargo.availableQuantity;
     const select=$('swe02ShipCheck'),previous=select.value;
     select.replaceChildren(new Option('Selecione um teste disponível',''),...checks.filter(x=>Number.isInteger(x.index)).map(x=>new Option(`${x.skill} ${x.difficultyText} · ${x.purpose}`,String(x.index))));
     if(checks.some(x=>String(x.index)===previous))select.value=previous;
@@ -1167,11 +1179,20 @@ for(const [id,run,label] of [
  ['swe02ShipLocateSmell',()=>game.recordSWE02ShipObservation('notice-smell-source-in-main-hold'),'Origem do odor registrada; Percepção para localizar a fonte não recebe Setback.'],
  ['swe02ShipInspectCage',()=>game.recordSWE02ShipObservation('press-cage-icon',{oskaraPresent:$('swe02ShipOskara').value==='true'}),'Ícone da cela consultado; B’ura identificado.'],
  ['swe02ShipSetPeltSearch',()=>game.setSWE02PeltSearchAnnounced($('swe02ShipAnnouncePeltSearch').checked),'Anúncio da busca salvo; o teste de Percepção recebe 1 Impulso se marcado.'],
- ['swe02ShipDiscoverMainHold',()=>game.discoverSWE02ShipRoom('main-cargo-hold'),'Conteúdo do porão principal descoberto; nada foi transferido ao inventário.'],
- ['swe02ShipDiscoverHoldTwo',()=>game.discoverSWE02ShipRoom('number-two-hold'),'Conteúdo do porão dois descoberto; nada foi transferido ao inventário.'],
- ['swe02ShipDiscoverHoldThree',()=>game.discoverSWE02ShipRoom('number-three-hold'),'Conteúdo do porão três descoberto; nada foi transferido ao inventário.'],
+ ['swe02ShipDiscoverMainHold',()=>game.discoverSWE02ShipRoom('main-cargo-hold'),'Conteúdo do porão principal registrado; itens catalogados podem ser transferidos para um PC.'],
+ ['swe02ShipDiscoverHoldTwo',()=>game.discoverSWE02ShipRoom('number-two-hold'),'Conteúdo do porão dois registrado; itens catalogados podem ser transferidos para um PC.'],
+ ['swe02ShipDiscoverHoldThree',()=>game.discoverSWE02ShipRoom('number-three-hold'),'Conteúdo do porão três registrado; itens catalogados podem ser transferidos para um PC.'],
  ['swe02ShipLowhhrickStrain',()=>game.recordSWE02ShipObservation('lowhhrick-pelt-strain',{applyToActiveLowhhrick:$('swe02ShipApplyLowhhrickStrain').checked}),'Consequência de Lowhhrick registrada; Tensão aplicada somente à ficha ativa de Lowhhrick quando confirmado.']
 ])$(id).addEventListener('click',()=>{try{const r=run();if(r?.ok===false)throw Error(r.message);showFeedback('swe02ShipFeedback',label);render();}catch(e){showFeedback('swe02ShipFeedback',e.message);}});
+$('swe02ShipCargoTransfer').addEventListener('click',()=>{try{
+ const [roomId,itemId]=String($('swe02ShipCargoItem').value||'').split('|');
+ const quantity=Number($('swe02ShipCargoQuantity').value),characterId=$('swe02ShipCargoPc').value;
+ const r=game.transferSWE02ShipCargo({roomId,itemId,quantity,characterId});if(r?.ok===false)throw Error(r.message);
+ showFeedback('swe02ShipCargoFeedback',`${quantity} ${r.data.transfer.catalogId} transferido(s) para ${r.data.character.name}; fonte SWE02 p.${r.data.transfer.source.printedPage}, perfil EotE Core p.${r.data.transfer.rulesSource.printedPage}.`);render();
+}catch(e){showFeedback('swe02ShipCargoFeedback',e.message);}});
+$('swe02ShipCargoItem').addEventListener('change',render);
+$('swe02ShipCargoPc').addEventListener('change',render);
+$('swe02ShipCargoQuantity').addEventListener('input',render);
 $('swe02ShipFindBura').addEventListener('click',()=>{try{const r=game.advancePublishedAdventure('ship-find-bura');if(r?.ok===false)throw Error(r.message);showFeedback('swe02ShipFeedback','B’ura B’an encontrado e libertado sem teste.');render();}catch(e){showFeedback('swe02ShipFeedback',e.message);}});
 $('swe02ThwheekStart').addEventListener('click',()=>{try{const unawareCharacterIds=[...$('swe02ThwheekUnaware').selectedOptions].map(x=>x.value);const r=game.advancePublishedAdventure('ship-start-interception',{unawareCharacterIds});if(r?.ok===false)throw Error(r.message);showFeedback('swe02ThwheekInitiativeFeedback','Iniciativa registrada pela perícia correspondente à consciência de cada PC.');render();}catch(e){showFeedback('swe02ThwheekInitiativeFeedback',e.message);}});
 $('swe02TransitExtraApply').addEventListener('click',()=>{try{const ticks=Number($('swe02TransitExtraTicks').value),r=game.adjudicateSWE02ShipTransitExtraDuration({ticks});if(r?.ok===false)throw Error(r.message);showFeedback('swe02TransitFeedback','A duração adicional escolhida pelo Mestre foi aplicada ao relógio do mundo.');render();}catch(e){showFeedback('swe02TransitFeedback',e.message);}});

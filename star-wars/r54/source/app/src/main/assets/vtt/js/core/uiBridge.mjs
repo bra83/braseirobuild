@@ -1757,6 +1757,10 @@ completeMerchantAcquisition(options={}){
         try{return ok(clone(r.data.adjudicateSWE02ShipTransitExtraDuration(details??{})));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
     discoverSWE02ShipRoom(roomId){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.discoverSWE02ShipRoom(String(roomId))));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
+    swe02ShipCargoTransferOptions(){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.swe02ShipCargoTransferOptions()));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
+    transferSWE02ShipCargo(details={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.transferSWE02ShipCargo(details??{})));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
     recordSWE02BuraConversation(details={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.recordSWE02BuraConversation(details??{})));}catch(e){return fail('SWE02_SHIP_FAILED',messageOf(e));}}
     recordSWE02NewMeenLifecycle(operation,details={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;

@@ -112,13 +112,35 @@
       "controller": "app/src/main/assets/vtt/js/core/controller.mjs",
       "test": "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
       "status": "IMPLEMENTED_AND_TESTED_WITH_DOCUMENTED_LIMITS"
+    },
+    {
+      "key": "ship-cargo-transfer",
+      "printedPage": 11,
+      "semantic": "Transferência explícita por quantidade dos itens descobertos com mapeamento exato para equipamento do EotE Core; PC proprietário selecionado por ID estável",
+      "gearSources": {
+        "electrobinoculars": 175,
+        "general-purpose-scanner": 175,
+        "hand-scanner": 176,
+        "medpac": 177,
+        "breath-mask": 179,
+        "rations": 179,
+        "glow-rod": 181,
+        "tool-kit": 181
+      },
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs + rules/equipmentCatalog.mjs",
+      "controller": "GameController.transferSWE02ShipCargo",
+      "ui": "Selecionar item, personagem por ID estável e quantidade; itens sem mapeamento ficam indisponíveis",
+      "persistence": "Inventário do PC e recibo de transferência persistidos na operação transacional",
+      "test": "tests/swe02-krayt-fang-pp06-11-family.test.mjs; tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
+      "focusedEvidence": "evidence/SWE02_P11_CARGO_TRANSFER_20261016/RESULTS.md",
+      "status": "IMPLEMENTED_AND_TESTED_WITH_DOCUMENTED_LIMITS"
     }
   ],
   "unresolved": [
     "Thwheek space combat",
     "Hull damage on Threat",
     "Global odor beyond ship checks",
-    "Actual fuel/time/inventory transfer",
+    "Fuel quantity; cargo with unknown quantity or no exact Core gear mapping; droid-part sale/build; full-page ownership and inventory audit",
     "Chitin symbol result grades",
     "Item loot and selling",
     "Editorial certification of entire SWE02"

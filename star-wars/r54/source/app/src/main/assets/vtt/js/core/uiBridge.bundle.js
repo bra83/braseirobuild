@@ -3230,6 +3230,28 @@ class BraseiroUiBridge {
             return fail('SWE02_SHIP_FAILED', messageOf(e));
         }
     }
+    swe02ShipCargoTransferOptions() {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.swe02ShipCargoTransferOptions()));
+        }
+        catch (e) {
+            return fail('SWE02_SHIP_FAILED', messageOf(e));
+        }
+    }
+    transferSWE02ShipCargo(details = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.transferSWE02ShipCargo(details ?? {})));
+        }
+        catch (e) {
+            return fail('SWE02_SHIP_FAILED', messageOf(e));
+        }
+    }
     recordSWE02BuraConversation(details = {}) {
         const r = this._controllerForExistingCampaign();
         if (!r.ok)
@@ -13623,6 +13645,8 @@ exports.longArmShipSmellSetback = longArmShipSmellSetback;
 exports.recordLongArmShipObservation = recordLongArmShipObservation;
 exports.adjudicateLongArmShipTransitExtraDuration = adjudicateLongArmShipTransitExtraDuration;
 exports.discoverLongArmShipRoom = discoverLongArmShipRoom;
+exports.longArmShipCargoTransferOptions = longArmShipCargoTransferOptions;
+exports.transferLongArmShipCargo = transferLongArmShipCargo;
 exports.recordLongArmBuraConversation = recordLongArmBuraConversation;
 exports.setLongArmPeltSearchAnnounced = setLongArmPeltSearchAnnounced;
 exports.recordLongArmNewMeenLifecycle = recordLongArmNewMeenLifecycle;
@@ -15038,6 +15062,12 @@ function adjudicateLongArmShipTransitExtraDuration(world, ticks) {
 function discoverLongArmShipRoom(world, roomId) {
     return shipWorldAction(world, p => (0, swe02KraytFangP238_mjs_1.recordShipRoomDiscovery)(p, roomId));
 }
+function longArmShipCargoTransferOptions(world) {
+    return (0, swe02KraytFangP238_mjs_1.shipCargoTransferOptions)(world?.publishedAdventure);
+}
+function transferLongArmShipCargo(world, details = {}) {
+    return shipWorldAction(world, p => (0, swe02KraytFangP238_mjs_1.recordShipCargoTransfer)(p, details));
+}
 function recordLongArmBuraConversation(world, details = {}) {
     return shipWorldAction(world, p => (0, swe02KraytFangP238_mjs_1.recordBuraConversation)(p, details));
 }
@@ -16437,6 +16467,8 @@ const LONG_ARM_OF_THE_HUTT_ADAPTER = Object.freeze({
     recordShipObservation: longArmOfTheHutt.recordLongArmShipObservation,
     adjudicateShipTransitExtraDuration: longArmOfTheHutt.adjudicateLongArmShipTransitExtraDuration,
     discoverShipRoom: longArmOfTheHutt.discoverLongArmShipRoom,
+    shipCargoTransferOptions: longArmOfTheHutt.longArmShipCargoTransferOptions,
+    transferShipCargo: longArmOfTheHutt.transferLongArmShipCargo,
     recordBuraConversation: longArmOfTheHutt.recordLongArmBuraConversation,
     setPeltSearchAnnounced: longArmOfTheHutt.setLongArmPeltSearchAnnounced,
     recordNewMeenLifecycle: longArmOfTheHutt.recordLongArmNewMeenLifecycle,
@@ -18176,11 +18208,13 @@ function recordGeonosisChoice(p, choiceId, nodeId) {
 define("js/adventure/swe02KraytFangP238.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.shipFlag = exports.SHIP_CHECKS = exports.BURA_CONVERSATION_FACTS = exports.SHIP_MANIFEST = exports.SHIP_ALERTS = exports.SHIP_SEQUENCE_VERSION = void 0;
+exports.shipFlag = exports.SHIP_CHECKS = exports.BURA_CONVERSATION_FACTS = exports.SHIP_CARGO_GEAR_MAPPINGS = exports.SHIP_MANIFEST = exports.SHIP_ALERTS = exports.SHIP_SEQUENCE_VERSION = void 0;
 exports.shipIssueState = shipIssueState;
 exports.recordShipObservation = recordShipObservation;
 exports.adjudicateShipTransitExtraDuration = adjudicateShipTransitExtraDuration;
 exports.recordShipRoomDiscovery = recordShipRoomDiscovery;
+exports.shipCargoTransferOptions = shipCargoTransferOptions;
+exports.recordShipCargoTransfer = recordShipCargoTransfer;
 exports.recordBuraConversation = recordBuraConversation;
 exports.shipCheckAvailable = shipCheckAvailable;
 exports.shipNoisePool = shipNoisePool;
@@ -18235,6 +18269,24 @@ exports.SHIP_MANIFEST = Object.freeze({
         { id: 'marked-chitin', quantity: null, page: 9, note: 'other tracked cell; source does not give a piece count' }
     ])
 });
+// Only source-named, countable objects with an exact Core gear analogue can
+// transfer to a PC sheet. Narrative cargo stays in the ship receipt until its
+// handling has its own source-backed rule.
+exports.SHIP_CARGO_GEAR_MAPPINGS = Object.freeze({
+    'medpac': Object.freeze({ catalogId: 'medpac', rulePage: 177, label: 'Medpac' }),
+    'general-purpose-scanner': Object.freeze({ catalogId: 'multi_scanner', rulePage: 175, label: 'Scanner geral' }),
+    'electrobinoculars': Object.freeze({ catalogId: 'electrobinoculars', rulePage: 175, label: 'Eletrobinóculos' }),
+    'hand-scanner': Object.freeze({ catalogId: 'hand_scanner', rulePage: 176, label: 'Scanner manual' }),
+    'trandoshan-respirator': Object.freeze({ catalogId: 'breath_mask', rulePage: 179, label: 'Respirador trandoshano' }),
+    'glow-rod-number-two': Object.freeze({ catalogId: 'glow_rod', rulePage: 181, label: 'Bastão luminoso (porão 2)' }),
+    'glow-rod-quarters': Object.freeze({ catalogId: 'glow_rod', rulePage: 181, label: 'Bastão luminoso (alojamento)' }),
+    'tool-kit': Object.freeze({ catalogId: 'tool_kit', rulePage: 181, label: 'Kit de ferramentas' }),
+    'ration-packs': Object.freeze({ catalogId: 'rations', rulePage: 179, label: 'Rações' }),
+    'raw-meat-meals': Object.freeze({ catalogId: null, rulePage: null, label: 'Refeições de carne crua' }),
+    'wookiee-pelts': Object.freeze({ catalogId: null, rulePage: null, label: 'Peles Wookiee' }),
+    'holochess-set': Object.freeze({ catalogId: null, rulePage: null, label: 'Conjunto de holochess' }),
+    'heavy-blaster-power-pack': Object.freeze({ catalogId: null, rulePage: null, label: 'Carga de blaster pesado' })
+});
 exports.BURA_CONVERSATION_FACTS = Object.freeze({
     injury: { printedPage: 10, fact: 'A Trandoshan bounty hunter burned away B’ura’s left lekku before placing him in the cell.' },
     captureStory: { printedPage: 10, fact: 'B’ura organized Twi’leks to protect New Meen from Aqualish extortion; after the Aqualish disappeared in an underworld takeover, outsiders bought nearby land to spy and harass the mines; rogues captured B’ura while he traveled to Nabat.' },
@@ -18259,6 +18311,7 @@ function ensureShipSequence(p) {
         observations: [],
         discoveredRooms: [],
         cargoReceipts: [],
+        cargoTransfers: [],
         chitinKnowledge: null,
         lowhhrickStrainReceipt: null,
         transit: null,
@@ -18351,6 +18404,48 @@ function recordShipRoomDiscovery(p, roomId) {
     s.discoveredRooms.push(roomId);
     s.cargoReceipts.push({ roomId, items: contents, ownership: 'DISCOVERED_NOT_TRANSFERRED', source: { productCode: 'SWE02', printedPage: 11 } });
     return structuredClone(contents);
+}
+function shipCargoTransferOptions(p) {
+    const s = p?.shipSequence;
+    if (p?.id !== 'long-arm-of-the-hutt' || !Array.isArray(s?.cargoReceipts))
+        return [];
+    return s.cargoReceipts.flatMap(receipt => receipt.items.flatMap(item => {
+        const mapping = exports.SHIP_CARGO_GEAR_MAPPINGS[item.id];
+        if (!mapping?.catalogId || !Number.isSafeInteger(item.quantity) || item.quantity < 1)
+            return [];
+        const transferred = (s.cargoTransfers ?? []).filter(x => x.roomId === receipt.roomId && x.itemId === item.id).reduce((sum, x) => sum + x.quantity, 0);
+        const available = item.quantity - transferred;
+        return available > 0 ? [{ roomId: receipt.roomId, itemId: item.id, catalogId: mapping.catalogId,
+                availableQuantity: available, printedPage: item.source?.printedPage ?? item.page,
+                rulePage: mapping.rulePage, label: mapping.label }] : [];
+    }));
+}
+function recordShipCargoTransfer(p, { roomId, itemId, quantity, characterId } = {}) {
+    if (!p || p.id !== 'long-arm-of-the-hutt' || p.status !== 'ACTIVE')
+        throw Error('Krayt Fang: aventura não está ativa.');
+    const transferQuantity = Number(quantity), pcId = String(characterId ?? '').trim();
+    if (!/^[A-Za-z0-9:_-]{1,120}$/.test(pcId))
+        throw Error('Krayt Fang: selecione um PC registrado para receber o item.');
+    if (!Number.isSafeInteger(transferQuantity) || transferQuantity < 1)
+        throw Error('Krayt Fang: quantidade transferida deve ser um inteiro positivo.');
+    const receipt = p.shipSequence?.cargoReceipts?.find(x => x.roomId === String(roomId));
+    const item = receipt?.items?.find(x => x.id === String(itemId));
+    const mapping = exports.SHIP_CARGO_GEAR_MAPPINGS[String(itemId)];
+    if (!receipt || !item || !mapping?.catalogId)
+        throw Error('Krayt Fang: item não foi descoberto ou não tem mapeamento de equipamento validado.');
+    if (!Number.isSafeInteger(item.quantity) || item.quantity < 1)
+        throw Error('Krayt Fang: fonte não define uma quantidade transferível para este item.');
+    const s = ensureShipSequence(p);
+    s.cargoTransfers = Array.isArray(s.cargoTransfers) ? s.cargoTransfers : [];
+    const alreadyTransferred = s.cargoTransfers.filter(x => x.roomId === receipt.roomId && x.itemId === item.id).reduce((sum, x) => sum + x.quantity, 0);
+    if (transferQuantity > item.quantity - alreadyTransferred)
+        throw Error('Krayt Fang: quantidade excede o item ainda disponível no compartimento.');
+    const transfer = { roomId: receipt.roomId, itemId: item.id, quantity: transferQuantity, characterId: pcId,
+        catalogId: mapping.catalogId, source: { productCode: 'SWE02', printedPage: item.source?.printedPage ?? item.page },
+        rulesSource: { book: 'Edge of the Empire Core Rulebook', printedPage: mapping.rulePage },
+        ownership: 'PC_INVENTORY', status: 'TRANSFERRED' };
+    s.cargoTransfers.push(transfer);
+    return structuredClone(transfer);
 }
 function recordBuraConversation(p, { topics = [], oskaraPresent = false, oskaraSharedHistory = false, oskaraRaisedCorruption = false } = {}) {
     if (!p || p.id !== 'long-arm-of-the-hutt' || !p.flags?.shipBuraFound)
@@ -18596,6 +18691,24 @@ function validateShip(p) {
         for (const r of s.cargoReceipts)
             if (!exports.SHIP_MANIFEST[r.roomId] || r.ownership !== 'DISCOVERED_NOT_TRANSFERRED' || !Array.isArray(r.items))
                 throw Error('Krayt Fang: recibo de carga inválido.');
+        if (s.cargoTransfers !== undefined && !Array.isArray(s.cargoTransfers))
+            throw Error('Krayt Fang: histórico de transferência de carga inválido.');
+        const moved = new Map();
+        for (const transfer of s.cargoTransfers ?? []) {
+            const manifestItem = exports.SHIP_MANIFEST[transfer?.roomId]?.find(x => x.id === transfer?.itemId);
+            const mapping = exports.SHIP_CARGO_GEAR_MAPPINGS[transfer?.itemId];
+            if (!manifestItem || !mapping?.catalogId || !s.discoveredRooms.includes(transfer.roomId) || !Number.isSafeInteger(manifestItem.quantity) ||
+                !Number.isSafeInteger(transfer.quantity) || transfer.quantity < 1 || transfer.catalogId !== mapping.catalogId ||
+                !/^[A-Za-z0-9:_-]{1,120}$/.test(String(transfer.characterId ?? '')) ||
+                transfer.source?.productCode !== 'SWE02' || transfer.source?.printedPage !== (manifestItem.page) ||
+                transfer.rulesSource?.book !== 'Edge of the Empire Core Rulebook' || transfer.rulesSource?.printedPage !== mapping.rulePage ||
+                transfer.ownership !== 'PC_INVENTORY' || transfer.status !== 'TRANSFERRED')
+                throw Error('Krayt Fang: recibo de transferência de carga inválido.');
+            const key = `${transfer.roomId}:${transfer.itemId}`, sum = (moved.get(key) || 0) + transfer.quantity;
+            if (sum > manifestItem.quantity)
+                throw Error('Krayt Fang: quantidade transferida excede a carga de origem.');
+            moved.set(key, sum);
+        }
         if (Boolean(flags.shipAlertIconsObserved) !== ids.has('observe-alert-icons'))
             throw Error('Krayt Fang: alertas sem recibo de observação.');
         if (Boolean(flags.shipSmellSourceLocated) !== ids.has('notice-smell-source-in-main-hold'))
@@ -28155,6 +28268,40 @@ class GameController {
             return { items: out.result, receipt: clone(out.progress.shipSequence.cargoReceipts.at(-1)) };
         });
     }
+    swe02ShipCargoTransferOptions() {
+        const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+        return { items: adapter.shipCargoTransferOptions(this.state.world), pcs: (this.state.player?.roster?.entries ?? []).map(x => ({ id: x.id, name: x.character?.name ?? x.id })) };
+    }
+    transferSWE02ShipCargo({ roomId, itemId, quantity, characterId } = {}) {
+        return this.atomicAction(() => {
+            const roster = clone(this.state.player?.roster ?? { schema: 1, activeCharacterId: null, entries: [] });
+            const entry = roster.entries.find(x => x.id === String(characterId ?? ''));
+            if (!entry || !entry.character)
+                throw Error('SWE02 p.11: PC destinatário não existe no roster.');
+            const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
+            const out = adapter.transferShipCargo(this.state.world, { roomId, itemId, quantity: Number(quantity), characterId: entry.id });
+            const transfer = out.result, gearSource = equipmentCatalog_mjs_1.generalGearCatalogEntry(transfer.catalogId);
+            if (!gearSource || gearSource.source?.authority !== 'PRIMARY_RULE_SOURCE' || gearSource.source?.rulesProfile !== 'EOTE_CORE' ||
+                gearSource.source?.printedPage !== transfer.rulesSource.printedPage)
+                throw Error('SWE02 p.11: mapeamento do equipamento não corresponde à fonte EotE Core registrada.');
+            const character = clone(entry.character);
+            character.gear = Array.isArray(character.gear) ? character.gear : [];
+            const existing = character.gear.find(x => String(x?.id ?? x?.sourceCatalogId ?? '') === transfer.catalogId);
+            if (existing) {
+                const prior = Number(existing.quantity ?? 1);
+                if (!Number.isSafeInteger(prior) || prior < 1 || prior + transfer.quantity > 999)
+                    throw Error('SWE02 p.11: quantidade de equipamento na ficha inválida.');
+                existing.quantity = prior + transfer.quantity;
+            }
+            else
+                character.gear.push({ ...clone(gearSource), quantity: transfer.quantity });
+            character_mjs_1.validateCharacter(character);
+            entry.character = character;
+            this.commit('PLAYER_ROSTER_UPDATED', { roster });
+            this.commit('WORLD_UPDATED', { world: out.world });
+            return { transfer: clone(transfer), character: clone(character), remaining: this.swe02ShipCargoTransferOptions().items };
+        });
+    }
     recordSWE02BuraConversation(details = {}) {
         return this.atomicAction(() => {
             const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');
@@ -36880,6 +37027,11 @@ const SRC_GENERAL_GEAR = aorReference({ book: 'La Era de la Rebelión - Libro de
 const SRC_GENERAL_GEAR_EFFECTS = aorReference({ book: 'La Era de la Rebelión - Libro de reglas', pdfPage: 37, printedPage: 36, section: 'Medpac / Medpac de emergencia' });
 const eoteCoreSource = (source) => Object.freeze({ ...source, authority: 'PRIMARY_RULE_SOURCE', rulesProfile: 'EOTE_CORE', activeRulesAuthority: true });
 const SRC_EOTE_CORE_GEAR = eoteCoreSource({ book: 'Edge of the Empire Core Rulebook', printedPage: 181, section: 'Table 5-8: Gear and Equipment' });
+const SRC_EOTE_CORE_SCANNERS = eoteCoreSource({ book: 'Edge of the Empire Core Rulebook', printedPage: 175, section: 'Detection Devices' });
+const SRC_EOTE_CORE_HAND_SCANNER = eoteCoreSource({ book: 'Edge of the Empire Core Rulebook', printedPage: 176, section: 'Hand Scanner' });
+const SRC_EOTE_CORE_MEDPAC = eoteCoreSource({ book: 'Edge of the Empire Core Rulebook', printedPage: 177, section: 'Medpac' });
+const SRC_EOTE_CORE_MEDICINE = eoteCoreSource({ book: 'Edge of the Empire Core Rulebook', printedPage: 112, section: 'Medicine' });
+const SRC_EOTE_CORE_SURVIVAL_GEAR = eoteCoreSource({ book: 'Edge of the Empire Core Rulebook', printedPage: 179, section: 'Survival gear' });
 const SRC_EOTE_CORE_SECURITY = eoteCoreSource({ book: 'Edge of the Empire Core Rulebook', printedPage: 179, section: 'Table 5-8: Gear and Equipment — Security' });
 const SRC_EOTE_CORE_ARMOR = eoteCoreSource({ book: 'Edge of the Empire Core Rulebook', printedPage: 169, section: 'Table 5-7: Armor' });
 const SRC_FLY_CASUAL_GEAR = eoteCoreSource({ book: 'Fly Casual', printedPage: 48, section: 'Table 2-4: Gear' });
@@ -36971,14 +37123,14 @@ function eg(id, name, price, encumbrance, rarity, { encumbranceThresholdBonus = 
 }
 exports.EOTE_CORE_GENERAL_GEAR = Object.freeze([
     eg('glow_rod', 'Bastão luminoso', 10, 1, 0), eg('comlink', 'Comunicador', 25, 0, 0), eg('long_range_comlink', 'Comunicador de longo alcance', 200, 2, 1),
-    eg('electrobinoculars', 'Eletrobinóculos', 250, 1, 1), eg('hand_scanner', 'Scanner manual', 100, 0, 2), eg('multi_scanner', 'Scanner geral', 500, 2, 3, { aliases: ['Scanner multiuso'] }),
-    eg('macrobinoculars', 'Macrobinóculos', 75, 1, 2), eg('breath_mask', 'Máscara respiratória', 25, 1, 1), eg('space_suit', 'Traje espacial', 100, 4, 1),
-    eg('emergency_medpac', 'Medpac de emergência', 100, 1, 1, { medicine: { medicalSupplies: true, boost: 0 }, effectSource: SRC_GENERAL_GEAR_EFFECTS }), eg('medpac', 'Medpac', 400, 2, 2, { medicine: { medicalSupplies: true, boost: 1 }, effectSource: SRC_GENERAL_GEAR_EFFECTS }),
+    eg('electrobinoculars', 'Eletrobinóculos', 250, 1, 1, { source: SRC_EOTE_CORE_SCANNERS }), eg('hand_scanner', 'Scanner manual', 100, 0, 2, { source: SRC_EOTE_CORE_HAND_SCANNER }), eg('multi_scanner', 'Scanner geral', 500, 2, 3, { aliases: ['Scanner multiuso'], source: SRC_EOTE_CORE_SCANNERS }),
+    eg('macrobinoculars', 'Macrobinóculos', 75, 1, 2), eg('breath_mask', 'Máscara respiratória', 25, 1, 1, { source: SRC_EOTE_CORE_SURVIVAL_GEAR }), eg('space_suit', 'Traje espacial', 100, 4, 1, { source: SRC_EOTE_CORE_SURVIVAL_GEAR }),
+    eg('emergency_medpac', 'Medpac de emergência', 100, 1, 1, { medicine: { medicalSupplies: true, boost: 0 }, effectSource: SRC_EOTE_CORE_MEDICINE, source: SRC_EOTE_CORE_MEDPAC }), eg('medpac', 'Medpac', 400, 2, 2, { medicine: { medicalSupplies: true, boost: 1 }, effectSource: SRC_EOTE_CORE_MEDICINE, source: SRC_EOTE_CORE_MEDPAC }),
     eg('stimpack_injector', 'Injetor de estimulantes', 25, 0, 1), eg('backpack', 'Mochila', 50, 0, 0, { encumbranceThresholdBonus: 4 }),
     eg('climbing_gear', 'Equipamento de escalada', 50, 1, 2), eg('data_module', 'Datapad', 75, 1, 1, { aliases: ['Módulo de dados'] }),
     eg('emergency_repair_patch', 'Remendo de reparo de emergência', 25, 0, 1), eg('power_pack_or_ammo_reload', 'Recarga adicional', 25, 1, 1),
     eg('fusion_lantern', 'Lanterna de fusão', 150, 2, 2), eg('tool_kit', 'Kit de ferramentas', 350, 4, 2), eg('utility_belt', 'Cinto utilitário', 25, 0, 0, { encumbranceThresholdBonus: 1 }),
-    eg('rations', 'Rações', 5, 0, 0),
+    eg('rations', 'Rações', 5, 0, 0, { source: SRC_EOTE_CORE_SURVIVAL_GEAR }),
     // EotE Core p.179, Table 5-8 (Security). NOT 'restraining_device'.
     eg('restraining_bolt', 'Parafuso de restrição (droide)', 35, 0, 0, { source: SRC_EOTE_CORE_SECURITY }),
     eg('slicer_gear', 'Equipamento de slicing', 500, 2, 4, { source: SRC_EOTE_CORE_SECURITY }),

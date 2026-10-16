@@ -45,6 +45,25 @@ export const SHIP_MANIFEST = Object.freeze({
   ])
 });
 
+// Only source-named, countable objects with an exact Core gear analogue can
+// transfer to a PC sheet. Narrative cargo stays in the ship receipt until its
+// handling has its own source-backed rule.
+export const SHIP_CARGO_GEAR_MAPPINGS = Object.freeze({
+  'medpac': Object.freeze({catalogId:'medpac',rulePage:177,label:'Medpac'}),
+  'general-purpose-scanner': Object.freeze({catalogId:'multi_scanner',rulePage:175,label:'Scanner geral'}),
+  'electrobinoculars': Object.freeze({catalogId:'electrobinoculars',rulePage:175,label:'Eletrobinóculos'}),
+  'hand-scanner': Object.freeze({catalogId:'hand_scanner',rulePage:176,label:'Scanner manual'}),
+  'trandoshan-respirator': Object.freeze({catalogId:'breath_mask',rulePage:179,label:'Respirador trandoshano'}),
+  'glow-rod-number-two': Object.freeze({catalogId:'glow_rod',rulePage:181,label:'Bastão luminoso (porão 2)'}),
+  'glow-rod-quarters': Object.freeze({catalogId:'glow_rod',rulePage:181,label:'Bastão luminoso (alojamento)'}),
+  'tool-kit': Object.freeze({catalogId:'tool_kit',rulePage:181,label:'Kit de ferramentas'}),
+  'ration-packs': Object.freeze({catalogId:'rations',rulePage:179,label:'Rações'}),
+  'raw-meat-meals': Object.freeze({catalogId:null,rulePage:null,label:'Refeições de carne crua'}),
+  'wookiee-pelts': Object.freeze({catalogId:null,rulePage:null,label:'Peles Wookiee'}),
+  'holochess-set': Object.freeze({catalogId:null,rulePage:null,label:'Conjunto de holochess'}),
+  'heavy-blaster-power-pack': Object.freeze({catalogId:null,rulePage:null,label:'Carga de blaster pesado'})
+});
+
 export const BURA_CONVERSATION_FACTS = Object.freeze({
   injury:{ printedPage:10, fact:'A Trandoshan bounty hunter burned away B’ura’s left lekku before placing him in the cell.' },
   captureStory:{ printedPage:10, fact:'B’ura organized Twi’leks to protect New Meen from Aqualish extortion; after the Aqualish disappeared in an underworld takeover, outsiders bought nearby land to spy and harass the mines; rogues captured B’ura while he traveled to Nabat.' },
@@ -71,6 +90,7 @@ function ensureShipSequence(p) {
     observations:[],
     discoveredRooms:[],
     cargoReceipts:[],
+    cargoTransfers:[],
     chitinKnowledge:null,
     lowhhrickStrainReceipt:null,
     transit:null,
@@ -155,6 +175,41 @@ export function recordShipRoomDiscovery(p,roomId) {
   s.discoveredRooms.push(roomId);
   s.cargoReceipts.push({roomId,items:contents,ownership:'DISCOVERED_NOT_TRANSFERRED',source:{productCode:'SWE02',printedPage:11}});
   return structuredClone(contents);
+}
+
+export function shipCargoTransferOptions(p){
+  const s=p?.shipSequence;
+  if(p?.id!=='long-arm-of-the-hutt'||!Array.isArray(s?.cargoReceipts))return [];
+  return s.cargoReceipts.flatMap(receipt=>receipt.items.flatMap(item=>{
+    const mapping=SHIP_CARGO_GEAR_MAPPINGS[item.id];
+    if(!mapping?.catalogId||!Number.isSafeInteger(item.quantity)||item.quantity<1)return [];
+    const transferred=(s.cargoTransfers??[]).filter(x=>x.roomId===receipt.roomId&&x.itemId===item.id).reduce((sum,x)=>sum+x.quantity,0);
+    const available=item.quantity-transferred;
+    return available>0?[{roomId:receipt.roomId,itemId:item.id,catalogId:mapping.catalogId,
+      availableQuantity:available,printedPage:item.source?.printedPage??item.page,
+      rulePage:mapping.rulePage,label:mapping.label}]:[];
+  }));
+}
+
+export function recordShipCargoTransfer(p,{roomId,itemId,quantity,characterId}={}){
+  if(!p||p.id!=='long-arm-of-the-hutt'||p.status!=='ACTIVE')throw Error('Krayt Fang: aventura não está ativa.');
+  const transferQuantity=Number(quantity),pcId=String(characterId??'').trim();
+  if(!/^[A-Za-z0-9:_-]{1,120}$/.test(pcId))throw Error('Krayt Fang: selecione um PC registrado para receber o item.');
+  if(!Number.isSafeInteger(transferQuantity)||transferQuantity<1)throw Error('Krayt Fang: quantidade transferida deve ser um inteiro positivo.');
+  const receipt=p.shipSequence?.cargoReceipts?.find(x=>x.roomId===String(roomId));
+  const item=receipt?.items?.find(x=>x.id===String(itemId));
+  const mapping=SHIP_CARGO_GEAR_MAPPINGS[String(itemId)];
+  if(!receipt||!item||!mapping?.catalogId)throw Error('Krayt Fang: item não foi descoberto ou não tem mapeamento de equipamento validado.');
+  if(!Number.isSafeInteger(item.quantity)||item.quantity<1)throw Error('Krayt Fang: fonte não define uma quantidade transferível para este item.');
+  const s=ensureShipSequence(p);s.cargoTransfers=Array.isArray(s.cargoTransfers)?s.cargoTransfers:[];
+  const alreadyTransferred=s.cargoTransfers.filter(x=>x.roomId===receipt.roomId&&x.itemId===item.id).reduce((sum,x)=>sum+x.quantity,0);
+  if(transferQuantity>item.quantity-alreadyTransferred)throw Error('Krayt Fang: quantidade excede o item ainda disponível no compartimento.');
+  const transfer={roomId:receipt.roomId,itemId:item.id,quantity:transferQuantity,characterId:pcId,
+    catalogId:mapping.catalogId,source:{productCode:'SWE02',printedPage:item.source?.printedPage??item.page},
+    rulesSource:{book:'Edge of the Empire Core Rulebook',printedPage:mapping.rulePage},
+    ownership:'PC_INVENTORY',status:'TRANSFERRED'};
+  s.cargoTransfers.push(transfer);
+  return structuredClone(transfer);
 }
 
 export function recordBuraConversation(p,{topics=[],oskaraPresent=false,oskaraSharedHistory=false,oskaraRaisedCorruption=false}={}){
@@ -338,6 +393,22 @@ export function validateShip(p){
     }
     for(const room of s.discoveredRooms)if(!SHIP_MANIFEST[room])throw Error('Krayt Fang: descoberta de compartimento inválida.');
     for(const r of s.cargoReceipts)if(!SHIP_MANIFEST[r.roomId]||r.ownership!=='DISCOVERED_NOT_TRANSFERRED'||!Array.isArray(r.items))throw Error('Krayt Fang: recibo de carga inválido.');
+    if(s.cargoTransfers!==undefined&&!Array.isArray(s.cargoTransfers))throw Error('Krayt Fang: histórico de transferência de carga inválido.');
+    const moved=new Map();
+    for(const transfer of s.cargoTransfers??[]){
+      const manifestItem=SHIP_MANIFEST[transfer?.roomId]?.find(x=>x.id===transfer?.itemId);
+      const mapping=SHIP_CARGO_GEAR_MAPPINGS[transfer?.itemId];
+      if(!manifestItem||!mapping?.catalogId||!s.discoveredRooms.includes(transfer.roomId)||!Number.isSafeInteger(manifestItem.quantity)||
+        !Number.isSafeInteger(transfer.quantity)||transfer.quantity<1||transfer.catalogId!==mapping.catalogId||
+        !/^[A-Za-z0-9:_-]{1,120}$/.test(String(transfer.characterId??''))||
+        transfer.source?.productCode!=='SWE02'||transfer.source?.printedPage!==(manifestItem.page)||
+        transfer.rulesSource?.book!=='Edge of the Empire Core Rulebook'||transfer.rulesSource?.printedPage!==mapping.rulePage||
+        transfer.ownership!=='PC_INVENTORY'||transfer.status!=='TRANSFERRED')
+        throw Error('Krayt Fang: recibo de transferência de carga inválido.');
+      const key=`${transfer.roomId}:${transfer.itemId}`,sum=(moved.get(key)||0)+transfer.quantity;
+      if(sum>manifestItem.quantity)throw Error('Krayt Fang: quantidade transferida excede a carga de origem.');
+      moved.set(key,sum);
+    }
     if(Boolean(flags.shipAlertIconsObserved)!==ids.has('observe-alert-icons'))throw Error('Krayt Fang: alertas sem recibo de observação.');
     if(Boolean(flags.shipSmellSourceLocated)!==ids.has('notice-smell-source-in-main-hold'))throw Error('Krayt Fang: fonte do odor sem recibo.');
     if(Boolean(flags.shipCageReminderRead)!==ids.has('press-cage-icon'))throw Error('Krayt Fang: alerta da cela sem recibo.');
