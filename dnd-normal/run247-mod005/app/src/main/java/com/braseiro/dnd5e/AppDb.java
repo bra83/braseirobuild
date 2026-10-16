@@ -2307,8 +2307,43 @@ public class AppDb extends SQLiteOpenHelper {
             if(spellOpts.optBoolean("resolved",false)){
                 JSONObject in=new JSONObject().put("monster",blockId).put("spell",actionName);
                 JSONObject checked=Xmm2025SpellUsageIndex.check(in);
-                if(checked.optBoolean("legal",false)){
-                    return new JSONObject().put("name",actionName).put("category","action").put("source_bound",true).put("is_spell",true);
+                if(checked.optBoolean("resolved",false)){
+                    String ability=checked.optString("spellcasting_ability","cha");
+                    int abilityScore=profile!=null&&profile.optJSONObject("abilities")!=null?
+                        profile.optJSONObject("abilities").optInt(ability,10):10;
+                    int abilityMod=(abilityScore-10)/2;
+                    double cr=profile!=null?profile.optDouble("challenge_rating",1.0):1.0;
+                    int pb=cr>=17?6:cr>=13?5:cr>=9?4:cr>=5?3:2;
+                    int spellBonus=abilityMod+pb,saveDc=8+abilityMod+pb;
+                    String clean=actionName.toLowerCase(java.util.Locale.ROOT).trim();
+                    JSONObject spellAction=new JSONObject()
+                        .put("name",actionName).put("category","action").put("source_bound",true)
+                        .put("is_spell",true).put("spellcasting_ability",ability)
+                        .put("spell_attack_bonus",spellBonus).put("spell_save_dc",saveDc);
+                    if(clean.contains("scorching ray")){
+                        spellAction.put("to_hit",spellBonus).put("damage","2d6").put("damage_type","fire")
+                            .put("reach_ft",0).put("range_normal_ft",120).put("range_long_ft",120).put("attack_modes",new JSONArray().put("r"));
+                    }else if(clean.contains("melf")||clean.contains("acid arrow")){
+                        spellAction.put("to_hit",spellBonus).put("damage","4d4").put("damage_type","acid")
+                            .put("reach_ft",0).put("range_normal_ft",90).put("range_long_ft",90).put("attack_modes",new JSONArray().put("r"));
+                    }else if(clean.contains("guiding bolt")){
+                        spellAction.put("to_hit",spellBonus).put("damage","4d6").put("damage_type","radiant")
+                            .put("reach_ft",0).put("range_normal_ft",120).put("range_long_ft",120).put("attack_modes",new JSONArray().put("r"));
+                    }else if(clean.contains("ice knife")){
+                        spellAction.put("to_hit",spellBonus).put("damage","1d10").put("damage_type","piercing")
+                            .put("reach_ft",0).put("range_normal_ft",60).put("range_long_ft",60).put("attack_modes",new JSONArray().put("r"));
+                    }else if(clean.contains("ray of sickness")){
+                        spellAction.put("to_hit",spellBonus).put("damage","2d8").put("damage_type","poison")
+                            .put("reach_ft",0).put("range_normal_ft",60).put("range_long_ft",60).put("attack_modes",new JSONArray().put("r"))
+                            .put("condition_on_fail","poisoned").put("save_dc",saveDc).put("save_ability","con");
+                    }else if(clean.contains("shatter")){
+                        spellAction.put("save_ability","con").put("save_dc",saveDc).put("damage","3d8").put("damage_type","thunder")
+                            .put("half_damage_on_success",true);
+                    }else if(clean.contains("mind spike")){
+                        spellAction.put("save_ability","wis").put("save_dc",saveDc).put("damage","3d8").put("damage_type","psychic")
+                            .put("half_damage_on_success",true);
+                    }
+                    return spellAction;
                 }
             }
         }catch(Exception ignored){}
