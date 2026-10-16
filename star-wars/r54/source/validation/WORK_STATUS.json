@@ -130,7 +130,7 @@
       "Cargo findings are recorded as discovered, not transferred into character inventory; parts sale/build and item transfer remain absent.",
       "Six-hour transit record does not yet apply rest, recovery or the app world clock.",
       "B’ura story facts and optional Oskara links are recorded but not connected to subsequent Geonosis/quest choices.",
-      "p.12 Cool initiative, stable-ID crew checks and soft-landing upgrade are implemented/tested; unaware-PC initiative adjudication, page-wide source proof, full chapter audit and final global regression remain outstanding."
+      "p.12 Cool/Vigilance initiative (including the unaware-PC exception), stable-ID crew checks and soft-landing upgrade are implemented/tested; page-wide source/persistence evidence, full chapter audit and final global regression remain outstanding."
     ],
     "integration_files": [
       "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",

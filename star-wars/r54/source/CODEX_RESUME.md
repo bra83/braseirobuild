@@ -4,7 +4,7 @@
 - Repository: `bra83/braseirobuild`
 - Branch: `codex/star-wars-hibrido-integral-20261016`
 - Base HEAD: `98b6a391401818e74eaa53c752cc98dc9082fea9`
-- Last verified code checkpoint: `0cd31b7ce76ff1451a4b6a6adc5c6d41c15e39a3` (SWE02 p.11 transit clock; pushed)
+- Last code checkpoint: `0cd31b7ce76ff1451a4b6a6adc5c6d41c15e39a3` (SWE02 p.11 transit clock; pushed). Latest documentation checkpoint: `06be4e6f76d74e250184f3af5e1b06e62d31d065` (recovery boundary; pushed)
 - Source working copy: `work/star-wars/project`; sparse Git checkout: `work/star-wars/repo-sparse/star-wars/r54/source`
 - P244 SHA-256: `6f3dca72ea55080b4ce7e6befeb5d4d84e51f63453ead6a5719495178a40d264`
 - WIP5 MERGED SHA-256: `7615fc8d156f8909a7a31b0878d6e08715cd71867325c5ad6c97ac5dd830409e`
@@ -23,7 +23,7 @@
 1. Resume SWE02 Act 1 pp.2–14 from `audits/SWE02_ACT1_DEEP_AUDIT.md` and `validation/WORK_STATUS.json`. P.12 initiative (including the unaware-PC Vigilance exception) and crash crew identity/effects now have focused proof; finish p.12 page-wide evidence, then continue p.6–11 item/time effects.
 2. Close pp.6–11 gaps with source-backed actual cargo transfers/sales, a GM ruling on whether transit qualifies as a full/good night's rest, and downstream clue causality; preserve GM adjudication where the book leaves outcomes open. The p.11 baseline travel tick and GM-selected failed-route delay now persist. Then close pp.13–14 and the outstanding p.15–23 branches recorded in the audit.
 3. Keep SWE02 uncertified until all Acts 1–3 source claims, branches and persistence gates have end-to-end evidence. Only then work through SWEP01, SWE05, SWE09, SWE13, the selected rules corpus and all 360 AoR ledger rows.
-4. Current verified code checkpoint is pushed at `0cd31b7ce76ff1451a4b6a6adc5c6d41c15e39a3`; the recovery-rule documentation update is the current follow-up. The project remains incomplete; do not interpret the checkpoint as completion.
+4. Current verified code checkpoint is pushed at `0cd31b7ce76ff1451a4b6a6adc5c6d41c15e39a3`; latest documentation checkpoint is `06be4e6f76d74e250184f3af5e1b06e62d31d065`. The project remains incomplete; do not interpret either checkpoint as completion.
 5. Do not create P245 or run Android release gates until all five adventures and the rules/AoR certification gates pass.
 
 
@@ -75,3 +75,7 @@
 
 - Added the Core Rulebook recovery conditions to the p.11 source proof and evidence: one wound per full night's rest; a good night's rest generally removes all strain. The adventure only says that the little-more-than-six-hour trip permits rest; it does not say that this is a full/good night's rest. Recovery therefore remains pending a GM ruling; the code does not apply it automatically from travel duration.
 - Reconciled `validation/WORK_STATUS.json`, the p.11 evidence, and both audit notes to preserve that boundary. Project remains 0/5 adventures certified, rules pending, AoR 0/360. Next: p.12 page-wide evidence, then cargo transfer/ownership and GM rest qualification for pp.6–11.
+
+## Resume update — p.12 status reconciliation (2026-10-16)
+
+- Removed stale audit wording that still listed the unaware-PC initiative exception as unimplemented. The Cool/Vigilance choice, stable roster ID, persistence, UI and focused tests are already covered; printed p.12 remains pending for page-wide source/persistence evidence and regression.
