@@ -31,10 +31,11 @@ All audits below are evidence maps, not certification. A claim can move to `CERT
 - `audits/SWEP01_DEEP_AUDIT.md` audits Under a Black Sun pp.18–39 against the official Drive PDF and recovered UI/state/tests. It finds major source and runtime gaps; status remains `PENDENTE`.
 - `audits/SWE05_DEEP_AUDIT.md` audits Beyond the Rim pp.4–96 (PDF pp.5–97) against its official Drive PDF. It finds major source/effect/persistence gaps; status remains `PENDENTE`.
 - `audits/SWE09_DEEP_AUDIT.md` audits The Jewel of Yavin against the official PDF, including printed/PDF page mapping and the race, bank, heist, escape, and aftermath surfaces. Major source-completeness gaps remain; status is `PENDENTE`.
-- SWE13 Mask of the Pirate Queen remains unaudited and pending.
+- `audits/SWE13_DEEP_AUDIT.md` audits Mask of the Pirate Queen against the official Drive PDF, including printed/PDF page mapping and route, checks, space combat, boarding, and ending surfaces. Major source/effect/persistence gaps remain; status is `PENDENTE`.
 
 ## Current execution gate
 
 - SWE02 is `IMPLEMENTADO_NAO_CERTIFICADO`.
 - No P245 canonical checkpoint, APK/Gradle build, CI/device gate, or sixth adventure is authorized before all semantic gates close.
 - The last full fresh regression passed 3,391 of 3,393 tests across 376 files; 2 offline wrapper tests were skipped because the JDK `jar` executable is absent. The regression predates the in-progress Old Lylek implementation, so it does not validate that work.
+

@@ -59,11 +59,11 @@
     "SWE02 source-to-semantic coverage is incomplete across all three acts.",
     "All 360 AoR positions lack individual source-to-effect, UI, persistence, and test evidence.",
     "500 Drive inventory items remain metadata-only and unreviewed.",
-    "One adventure has not yet been semantically audited in this execution.",
     "EotE/AoR rules family certification remains outstanding.",
-    "Mechanical authority, source authorization, persistence, migration, and rollback gates have not been closed by executed end-to-end proofs."
+    "Mechanical authority, source authorization, persistence, migration, and rollback gates have not been closed by executed end-to-end proofs.",
+    "SWE13 source-to-semantic coverage remains incomplete after its audit."
   ],
-  "next_action": "Integrate Brace maneuver and next-action consumption through controller/UI with origin-aware pools and save/reopen; finish Old Lylek source, UI, party-effect and focused tests; audit SWE13. Do not promote any AoR proof row yet.",
+  "next_action": "Complete source-backed Old Lylek implementation and tests; continue Brace controller/UI/save-reopen integration; then run fresh full regression. Keep every adventure and AoR proof row uncertified until the complete semantic gates pass.",
   "source_corrections": {
     "SWE02_palace_page_provenance": "Corrected p.43 map vs p.44 room/recruitment data and p.45 Bith interview references; generated bundle rebuilt; four focused tests and all 376 tests pass."
   },
@@ -87,6 +87,6 @@
     "SWEP01": "audits/SWEP01_DEEP_AUDIT.md",
     "SWE05": "audits/SWE05_DEEP_AUDIT.md",
     "SWE09": "audits/SWE09_DEEP_AUDIT.md",
-    "SWE13": "PENDENTE"
+    "SWE13": "audits/SWE13_DEEP_AUDIT.md"
   }
 }
