@@ -2050,7 +2050,14 @@ public final class Core2024SubclassRuntimeEngine {
     }
 
     private static String canonicalClass(String className) {
-        String cls = norm(className);
+        // Some older sheets persist "Guerreiro — Campeão" in class_name.
+        // Honor the same separator recognized by extractSubclass without
+        // granting a subclass to an unrelated character class.
+        String raw = className == null ? "" : className.trim();
+        int separator = raw.indexOf(" — ");
+        if (separator < 0) separator = raw.indexOf(" - ");
+        if (separator >= 0) raw = raw.substring(0, separator);
+        String cls = norm(raw);
         switch (cls) {
             case "barbaro": case "barbarian": return "barbaro";
             case "bardo": case "bard": return "bardo";
