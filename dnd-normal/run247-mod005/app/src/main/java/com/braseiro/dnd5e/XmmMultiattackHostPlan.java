@@ -55,11 +55,11 @@ public final class XmmMultiattackHostPlan {
             String kind = step.optString("kind", "attack");
             String actionName = step.getString("action");
             if (!"attack".equals(kind)) {
-                if (("spell".equals(kind) || "use".equals(kind)) && actionExistsInStatblock(id, actionName)) {
-                    // Permitted hybrid action
-                } else {
-                    return blocked("multiattack_component_executor_not_installed_" + kind + "_" + i);
-                }
+                // Presence in the official statblock is NOT proof of a compatible
+                // executable host component. AppDb's multiattack transaction
+                // currently commits attack rolls only; spell/use components must
+                // fail closed until their effects and costs execute atomically.
+                return blocked("multiattack_component_executor_not_installed_" + kind + "_" + i);
             }
             sequence.put(actionName);
         }
