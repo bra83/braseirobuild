@@ -892,8 +892,226 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private ScrollView page(String heading,String subtitle){content.removeAllViews();ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);LinearLayout body=new LinearLayout(this);body.setOrientation(LinearLayout.VERTICAL);body.setPadding(dp(12),dp(12),dp(12),dp(32));if(isMystaraWorld()){LinearLayout banner=new LinearLayout(this);banner.setOrientation(LinearLayout.VERTICAL);banner.setGravity(Gravity.CENTER);banner.setPadding(dp(10),dp(8),dp(10),dp(8));banner.setBackground(makeBg(PANEL2,GOLD,2));TextView world=text("◆  M Y S T A R A  ◆",13,GOLD,true);world.setGravity(Gravity.CENTER);banner.addView(world);TextView rules=text("D&D Rules Cyclopedia • BECMI • regras clássicas completas",10,TEXT,false);rules.setGravity(Gravity.CENTER);banner.addView(rules);LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,-2);bp.setMargins(0,0,0,dp(10));body.addView(banner,bp);}TextView h=text(worldHeading(heading),26,GOLD,true);body.addView(h);String transformed=worldSubtitle(subtitle);if(transformed!=null&&transformed.length()>0){TextView st=text(transformed,14,MUTED,false);st.setPadding(0,dp(2),0,dp(12));body.addView(st);}scroll.addView(body);content.addView(scroll,new FrameLayout.LayoutParams(-1,-1));scroll.setTag(body);cacheCurrentScreen();return scroll;}
     private LinearLayout body(ScrollView s){return (LinearLayout)s.getTag();}
 
+
+    /** DMG 2024 Bastion: explicit dice, explicit DM approval, live AppDb writes. */
+    private void showBastion2024Dialog(){
+        final ArrayList<JSONObject> eligible=new ArrayList<JSONObject>();
+        for(JSONObject hero:db.listActiveCharacters()){
+            String source=DndRulesEngine.canonicalProfile(hero.optString("rules_source",
+                db.getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2014)));
+            if(hero.optInt("level",0)>=5&&DndRulesEngine.PROFILE_2024.equals(source))
+                eligible.add(hero);
+        }
+        if(eligible.isEmpty()){
+            toast("Bastiões 2024 exigem personagem do perfil 2024 de nível 5 ou superior.");
+            return;
+        }
+        final String[] names=new String[eligible.size()];
+        for(int i=0;i<names.length;i++)names[i]=eligible.get(i).optString("name","Herói");
+        final Spinner who=spinner(names,names[0]);
+        new AlertDialog.Builder(this).setTitle("Bastiões • DMG 2024")
+            .setMessage("Escolha o personagem proprietário do Bastião.")
+            .setView(who).setNegativeButton("Voltar",null)
+            .setPositiveButton("ABRIR",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int which){
+                    long heroId=eligible.get(who.getSelectedItemPosition()).optLong("id");
+                    showBastion2024ForHero(heroId);
+                }}).show();
+    }
+
+    private void showBastion2024ForHero(final long heroId){
+        final JSONObject state=db.getBastion2024State(heroId);
+        if(state.length()==0){showBastion2024Setup(heroId);return;}
+        int gp=state.optInt("gold_gp"),def=state.optInt("defenders"),
+            turn=state.optInt("turn_number");
+        String summary="Turno "+turn+" • Tesouro "+gp+" PO • Defensores "+def+
+            "\\nRefugiados "+state.optInt("refugees")+
+            " • Proteção de hóspede "+state.optInt("friendly_monster_protection")+
+            "\\nInstalações "+(state.optJSONObject("facilities")==null?0:state.optJSONObject("facilities").length())+
+            " • Eventos "+(state.optJSONArray("event_history")==null?0:state.optJSONArray("event_history").length());
+        new AlertDialog.Builder(this).setTitle("Bastião 2024 • Estado salvo")
+            .setMessage(summary)
+            .setNegativeButton("Fechar",null)
+            .setNeutralButton("PRÓXIMO TURNO",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int w){
+                    new AlertDialog.Builder(MainActivity.this).setTitle("Confirmar turno do Bastião?")
+                        .setMessage("A passagem de turno e a indisponibilidade das instalações serão persistidas na ficha.")
+                        .setNegativeButton("Cancelar",null)
+                        .setPositiveButton("CONFIRMAR",new DialogInterface.OnClickListener(){
+                            public void onClick(DialogInterface d2,int w2){
+                                JSONObject result=db.advanceBastion2024Turn(heroId,true,
+                                    "ui-bastion-turn-"+java.util.UUID.randomUUID());
+                                if(!result.optBoolean("bastion_turn_committed",false))
+                                    toast("Turno bloqueado: "+result.optString("bastion_blocked","erro"));
+                                else showBastion2024ForHero(heroId);
+                            }}).show();
+                }})
+            .setPositiveButton("ROLAR EVENTO",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int w){showBastion2024EventRoll(heroId);}
+            }).show();
+    }
+
+    private void showBastion2024Setup(final long heroId){
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);
+        form.setPadding(dp(14),dp(8),dp(14),dp(8));
+        form.addView(text("Somente o Mestre pode confirmar os recursos iniciais. Bastiões começam disponíveis no nível 5. Não apagaremos estado existente.",13,TEXT,false));
+        final EditText gp=labeledField(form,"Ouro do Bastião, confirmado pelo Mestre","0",true);
+        final EditText defenders=labeledField(form,"Defensores iniciais confirmados","0",true);
+        final EditText facilities=labeledField(form,
+            "Identificadores das instalações especiais (separados por vírgula)","",false);
+        new AlertDialog.Builder(this).setTitle("Preparar Bastião 2024")
+            .setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null)
+            .setPositiveButton("CONFIRMAR CONFIGURAÇÃO",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int w){
+                    try{
+                        JSONArray ids=new JSONArray();
+                        for(String item:value(facilities).split(",")){
+                            if(!item.trim().isEmpty())ids.put(item.trim());
+                        }
+                        JSONObject result=db.configureBastion2024(heroId,
+                            Integer.parseInt(value(gp)),Integer.parseInt(value(defenders)),ids,true);
+                        if(result.optBoolean("bastion_configured",false))showBastion2024ForHero(heroId);
+                        else toast("Configuração bloqueada: "+result.optString("bastion_blocked","erro"));
+                    }catch(Exception error){toast("Informe inteiros válidos para ouro e defensores.");}
+                }}).show();
+    }
+
+    private static JSONArray parseBastion2024Dice(String raw)throws Exception {
+        JSONArray output=new JSONArray();
+        if(raw==null||raw.trim().isEmpty())return output;
+        for(String part:raw.split(","))output.put(Integer.parseInt(part.trim()));
+        return output;
+    }
+
+    private void showBastion2024EventRoll(final long heroId){
+        LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(dp(14),dp(8),dp(14),dp(8));
+        box.addView(text("Role 1d100 manualmente e informe o resultado. O motor não escolhe dados nem altera o Bastião sem confirmação.",13,TEXT,false));
+        final EditText roll=labeledField(box,"Resultado de 1d100 (1–100 ou 0=100)","",true);
+        new AlertDialog.Builder(this).setTitle("Evento do Bastião")
+            .setView(scrollableDialogView(box)).setNegativeButton("Voltar",null)
+            .setPositiveButton("CONTINUAR",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int w){
+                    try{
+                        int value=Integer.parseInt(value(roll));
+                        JSONObject event=Bastion2024RulesEngine.execute(
+                            "core2024.bastion.event.resolve",new JSONObject().put("d100_roll",value));
+                        if(!"ok".equals(event.optString("status"))){
+                            toast("Resultado de 1d100 inválido.");return;
+                        }
+                        showBastion2024EventDetails(heroId,event.optInt("d100_roll"),event.optString("event"));
+                    }catch(Exception e){toast("D100 inválido.");}
+                }}).show();
+    }
+
+    private void showBastion2024EventDetails(final long heroId,final int roll,final String eventName){
+        final JSONObject state=db.getBastion2024State(heroId);
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);
+        form.setPadding(dp(14),dp(8),dp(14),dp(8));
+        form.addView(text("Evento "+roll+": "+eventName,15,GOLD,true));
+        form.addView(text("Todos os dados devem ser rolados fisicamente. As escolhas só serão aplicadas após a segunda confirmação.",12,TEXT,false));
+        final EditText dice=labeledField(form,"Rolagens adicionais (d6/d4, separadas por vírgula)","",false);
+        final EditText second=labeledField(form,"Rolagem adicional secundária (se exigida)","",true);
+        final Spinner choice=spinner(new String[]{"SIM","NÃO"},"SIM");
+        form.addView(cardWithLabel("ESCOLHA / REQUISITO DO MESTRE",choice));
+        final JSONObject facilities=state.optJSONObject("facilities");
+        final JSONArray facilityNames=facilities==null?new JSONArray():facilities.names();
+        String[] selections=new String[facilityNames==null||facilityNames.length()==0?1:facilityNames.length()];
+        if(facilityNames==null||facilityNames.length()==0)selections[0]="SEM INSTALAÇÃO";
+        else for(int i=0;i<selections.length;i++)selections[i]=facilityNames.optString(i);
+        final Spinner facility=spinner(selections,selections[0]);
+        form.addView(cardWithLabel("INSTALAÇÃO AFETADA (QUANDO NECESSÁRIO)",facility));
+        final EditText item=labeledField(form,"Nome de poção/pergaminho incomum, quando necessário","",false);
+        final Spinner itemType=spinner(new String[]{"potion","scroll"},"potion");
+        form.addView(cardWithLabel("TIPO DO ITEM MÁGICO",itemType));
+        String guidance="Escolha uma instalação quando o evento indicar prejuízo. Campos não utilizados são ignorados.";
+        if("Attack".equals(eventName))guidance="Informe seis resultados d6 separados por vírgula. As baixas são os dados que caíram em 1.";
+        else if("Criminal Hireling".equals(eventName))guidance="SIM = pagar suborno; informe o d6. NÃO = perder o contratado temporariamente.";
+        else if("Extraordinary Opportunity".equals(eventName))guidance="SIM = gastar 500 PO e rolar outro evento. NÃO = ignorar.";
+        else if("Friendly Visitors".equals(eventName))guidance="Informe um d6 para receber 100 × resultado em PO.";
+        else if("Guest".equals(eventName))guidance="Informe d4 para selecionar o tipo de hóspede. Se sair 2, informe também o d8 secundário.";
+        else if("Lost Hirelings".equals(eventName))guidance="Selecione a instalação cujos empregados partiram.";
+        else if("Magical Discovery".equals(eventName))guidance="Escolha uma poção ou pergaminho INCOMUM verificado pelo Mestre e escreva o nome.";
+        else if("Refugees".equals(eventName))guidance="Informe 2d4 separados por vírgula, pagamento d6 no campo secundário; SIM = há espaço para acolher.";
+        else if("Request for Aid".equals(eventName))guidance="SIM = enviar defensores. Informe um d6 POR DEFENSOR separado por vírgula e o d6 de recompensa no segundo campo.";
+        else if("Treasure".equals(eventName))guidance="Informe o segundo d100 no primeiro campo; o item final continua sujeito à tabela oficial.";
+        else guidance="Nenhuma rolagem adicional obrigatória; d8 opcional no primeiro campo.";
+        form.addView(text(guidance,12,GOLD,true));
+        new AlertDialog.Builder(this).setTitle("Bastião 2024 • "+eventName)
+            .setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null)
+            .setPositiveButton("PRÉVIA",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int w){
+                    try{
+                        JSONObject in=new JSONObject().put("d100_roll",roll);
+                        JSONArray faces=parseBastion2024Dice(value(dice));
+                        String secondary=value(second);
+                        boolean yes=choice.getSelectedItemPosition()==0;
+                        String selectedFacility=String.valueOf(facility.getSelectedItem());
+                        in.put("facility_id",selectedFacility);
+                        if("All Is Well".equals(eventName)){
+                            if(faces.length()>0)in.put("detail_d8",faces.getInt(0));
+                        }else if("Attack".equals(eventName)){
+                            in.put("defenders_before",state.optInt("defenders",0)).put("attack_6d6",faces);
+                        }else if("Criminal Hireling".equals(eventName)){
+                            in.put("retain_hireling",yes).put("facility_has_no_other_hirelings",!yes);
+                            if(yes&&faces.length()>0)in.put("bribe_d6",faces.getInt(0));
+                        }else if("Extraordinary Opportunity".equals(eventName)){
+                            in.put("accept_opportunity",yes);
+                        }else if("Friendly Visitors".equals(eventName)){
+                            if(faces.length()>0)in.put("payment_d6",faces.getInt(0));
+                        }else if("Guest".equals(eventName)){
+                            if(faces.length()>0)in.put("guest_d4",faces.getInt(0));
+                            if(!secondary.isEmpty())in.put("gift_d8",Integer.parseInt(secondary));
+                        }else if("Lost Hirelings".equals(eventName)){
+                            in.put("facility_id",selectedFacility);
+                        }else if("Magical Discovery".equals(eventName)){
+                            in.put("magic_item_type",String.valueOf(itemType.getSelectedItem()))
+                                .put("magic_item_id",value(item)).put("chosen_item_is_uncommon",yes);
+                        }else if("Refugees".equals(eventName)){
+                            in.put("refugees_2d4",faces).put("sufficient_basic_facility_space",yes);
+                            if(!secondary.isEmpty())in.put("payment_d6",Integer.parseInt(secondary));
+                        }else if("Request for Aid".equals(eventName)){
+                            in.put("send_defenders",yes).put("defenders_before",state.optInt("defenders",0));
+                            if(yes){in.put("aid_defender_d6",faces);
+                                if(!secondary.isEmpty())in.put("reward_d6",Integer.parseInt(secondary));}
+                        }else if("Treasure".equals(eventName)){
+                            if(faces.length()>0)in.put("treasure_d100",faces.getInt(0));
+                        }
+                        final JSONObject preview=Bastion2024RulesEngine.execute("core2024.bastion.event.effects",in);
+                        if(!"ok".equals(preview.optString("status"))){
+                            toast("Evento pendente: "+preview.optString("reason","dados inválidos"));return;
+                        }
+                        final JSONObject approvedInput=new JSONObject(in.toString());
+                        new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("CONFIRMAR CONSEQUÊNCIAS • "+eventName)
+                            .setMessage("Confirmar as alterações persistidas no Bastião?\\n\\n"+preview.toString())
+                            .setNegativeButton("NÃO APLICAR",null)
+                            .setPositiveButton("CONFIRMAR E SALVAR",new DialogInterface.OnClickListener(){
+                                public void onClick(DialogInterface d2,int w2){
+                                    JSONObject result=db.commitBastion2024Event(heroId,approvedInput,true,
+                                        "ui-bastion-event-"+java.util.UUID.randomUUID());
+                                    if(!result.optBoolean("bastion_event_committed",false)){
+                                        toast("Não aplicado: "+result.optString("bastion_blocked","erro"));return;
+                                    }
+                                    new AlertDialog.Builder(MainActivity.this)
+                                        .setTitle("Evento persistido • Bastião")
+                                        .setMessage(result.toString()).setPositiveButton("Fechar",null)
+                                        .show();
+                                }}).show();
+                    }catch(Exception ex){toast("Rolagens adicionais inválidas para esse evento.");}
+                }}).show();
+    }
+
     private void showCampaign(){
         final JSONObject c=db.getCampaign();final JSONObject story=db.getStoryState();ScrollView s=page("Aventura","Configure a campanha, os heróis e inicie ou continue a história.");LinearLayout b=body(s);
+        if(!isMystaraWorld()){
+            Button bastion2024Button=smallButton("BASTIÕES • DMG 2024",GOLD);
+            b.addView(bastion2024Button);
+            bastion2024Button.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v){showBastion2024Dialog();}
+            });
+        }
+
         final EditText name=input(isMystaraWorld()?"Nome da crônica":"Nome da campanha",c.optString("name","Nova Campanha"),false);b.addView(cardWithLabel(isMystaraWorld()?"NOME DA CRÔNICA":"NOME",name));
         final String selectedRulesProfile=DndRulesEngine.canonicalProfile(c.optString("rules_profile",DndRulesEngine.PROFILE_2024));
         final Spinner profile=spinner(new String[]{DndRulesEngine.PROFILE_2014,DndRulesEngine.PROFILE_2024,DndRulesEngine.PROFILE_HYBRID},selectedRulesProfile);
