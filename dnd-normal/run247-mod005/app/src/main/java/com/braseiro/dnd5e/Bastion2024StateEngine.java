@@ -68,8 +68,13 @@ public final class Bastion2024StateEngine {
         try {
             int gold=state.getInt("gold_gp");
             int defenders=state.getInt("defenders");
+            boolean intercepted=event.optBoolean("friendly_monster_attack_prevented",false);
+            int protection=state.optInt("friendly_monster_protection",0);
+            if(intercepted && protection<1)return blocked("friendly_monster_not_available");
+            if("Attack".equals(event.optString("event")) && protection>0 && !intercepted)
+                return blocked("friendly_monster_protection_must_be_applied");
             long nextGold=(long)gold+event.optInt("gold_delta_gp",0);
-            long nextDefenders=(long)defenders+event.optInt("defenders_delta",0);
+            long nextDefenders=(long)defenders+(intercepted?0:event.optInt("defenders_delta",0));
             if(nextGold<0)return blocked("bastion_treasury_insufficient");
             if(nextGold>100000000 || nextDefenders<0 || nextDefenders>100000)
                 return blocked("bastion_resources_out_of_range");
@@ -94,7 +99,8 @@ public final class Bastion2024StateEngine {
                 .put("refugees",refugees)
                 .put("friendly_monster_protection",
                     state.optInt("friendly_monster_protection",0)+
-                    (event.optBoolean("friendly_monster_protects_next_bastion_attack",false)?1:0));
+                    (event.optBoolean("friendly_monster_protects_next_bastion_attack",false)?1:0)
+                    -(intercepted?1:0));
             appendHistory(state,new JSONObject().put("token",token)
                 .put("kind","bastion_event").put("turn",state.getInt("turn_number"))
                 .put("roll",event.optInt("d100_roll"))
