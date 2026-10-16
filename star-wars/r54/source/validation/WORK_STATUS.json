@@ -21,7 +21,11 @@
     "static_exact_node_id_test_mentions": 10,
     "static_broader_name_key_test_mentions": 290,
     "ledger_includes_static_references": true,
-    "static_references_are_certification": false
+    "static_references_are_certification": false,
+    "individually_source_audited": 20,
+    "first_tree_audit": "audits/AOR_ACE_GUNNER_INDIVIDUAL_AUDIT.md",
+    "first_tree_rows": 20,
+    "first_tree_rows_status": "PENDENTE"
   },
   "drive_inventory": {
     "records": 527,
@@ -49,7 +53,7 @@
     "EotE/AoR rules family certification remains outstanding.",
     "Mechanical authority, source authorization, persistence, migration, and rollback gates have not been closed by executed end-to-end proofs."
   ],
-  "next_action": "Complete the Act 1 Old Lylek Den implementation review and focused evidence; continue full SWE02 closure. Complete source audits for SWE09 and SWE13 in parallel without changing adventure status from PENDENTE.",
+  "next_action": "Complete the Old Lylek Den implementation review; implement and verify the identified Gunner page metadata and Brace effect defects without upgrading AoR proof status; continue the remaining adventure audits.",
   "source_corrections": {
     "SWE02_palace_page_provenance": "Corrected p.43 map vs p.44 room/recruitment data and p.45 Bith interview references; generated bundle rebuilt; four focused tests and all 376 tests pass."
   },

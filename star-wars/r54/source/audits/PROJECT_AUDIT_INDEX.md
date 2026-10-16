@@ -21,6 +21,7 @@ All audits below are evidence maps, not certification. A claim can move to `CERT
 
 - `audits/AOR_360_INITIAL_AUDIT.md` is the structural AoR inventory audit.
 - `audits/AOR_360_CONSUMER_CROSSWALK_AUDIT.md` statically maps all 360 positions to source labels and likely runtime references. It is not a semantic PDF review; 0/360 individual positions are certified.
+- `audits/AOR_ACE_GUNNER_INDIVIDUAL_AUDIT.md` verifies all 20 `ace:gunner` rows against the official PDF (printed p.68). All remain pending; it found a printed-page metadata error and two Brace slots currently mapped to Grit.
 - `validation/AOR_360_INDIVIDUAL_PROOFS.jsonl` is the position-level proof ledger; all 360 positions remain pending.
 - `audits/MECHANICAL_AUTHORITY_AUDIT.md` traces rules, controller/UI, persistence, RAG, and Gemini/Barbara boundaries. All reviewed domains remain pending full executed end-to-end evidence.
 - Narrator proposals are constrained and deterministic executors own mutations, but allowlisted economy/world operations can still persist state changes. Source-rule ID membership is not semantic proof that a specific operation is authorized.
