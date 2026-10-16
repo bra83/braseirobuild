@@ -15,6 +15,7 @@ CATALOGO_APENAS, PREVIEW_APENAS, NARRATIVO_JUSTIFICADO, IMPLEMENTADO_NAO_TESTADO
 VALIDADO_E2E
 """
 
+import argparse
 import csv
 import json
 import re
@@ -1117,14 +1118,34 @@ for row in rows:
             if row["estado"] == "BLOQUEADO_HOST" else "PROVA_E2E_INDIVIDUAL_AUSENTE")
         row["evidencia"] = "REFERENCIA_NAO_EVIDENCIA_DE_EXECUCAO: " + row["evidencia"]
 
-OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
-with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
-    writer = csv.DictWriter(f, fieldnames=COLUMNS)
-    writer.writeheader()
-    for r in rows:
-        writer.writerow(r)
+parser = argparse.ArgumentParser()
+parser.add_argument("--check", action="store_true",
+                    help="Check checked-in matrix without modifying it.")
+args = parser.parse_args()
+if args.check:
+    if not OUTPUT_CSV.is_file():
+        raise SystemExit("MATRIZ_INTEGRAL_TRES_LIVROS.csv ausente")
+    with open(OUTPUT_CSV, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames != COLUMNS:
+            raise SystemExit("Colunas da matriz divergem do gerador")
+        saved = list(reader)
+    if saved != rows:
+        mismatch = next((i for i, (left, right) in enumerate(zip(saved, rows))
+                        if left != right), min(len(saved), len(rows)))
+        raise SystemExit(f"MATRIZ DIVERGENTE: linha {mismatch + 2}; regenerate and review")
+else:
+    OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
+    with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=COLUMNS)
+        writer.writeheader()
+        writer.writerows(rows)
 
-print(f"Generated {OUTPUT_CSV} with {len(rows)} inventory candidate rows; individual E2E evidence required.")
+if len({r["id_estavel"] for r in rows}) != len(rows):
+    raise SystemExit("IDs da matriz duplicados")
+if any(r["estado"] == "VALIDADO_E2E" and not r["sha_testado"] for r in rows):
+    raise SystemExit("FALSO E2E: prova individual ausente")
+print(f"MATRIZ_INTEGRITY_PASS rows={len(rows)} ids={len(rows)} checked={args.check} (NOT certification)")
 
 # Count totals
 counts = {}
