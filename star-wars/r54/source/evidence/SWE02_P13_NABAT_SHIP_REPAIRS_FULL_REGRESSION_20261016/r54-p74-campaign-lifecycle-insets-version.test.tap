@@ -1,0 +1,13 @@
+✔ P74: Android version no longer reports 1.0.0 (34.6865ms)
+✔ P74: Android reads modern system bars and exports bottom safe inset (245.0586ms)
+✔ P74: campaign hub exposes restart, new world/selection and full reset (6.1004ms)
+✔ P74: UI bridge exposes canonical full newCampaign without changing Duty/Obligation logic (14.4917ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1287.3205
+

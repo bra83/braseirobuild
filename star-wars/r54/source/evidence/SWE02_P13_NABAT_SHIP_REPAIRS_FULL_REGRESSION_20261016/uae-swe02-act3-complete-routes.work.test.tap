@@ -1,0 +1,21 @@
+✔ Ato3 dossiê exige duas provas distintas concretas, não meras flags (577.271ms)
+✔ Ato3 Anatta: provas verificadas, recibo durável, sem créditos e sem morte (229.5041ms)
+✔ Ato3 chantagem só diante de Teemo, sem combate e com dossiê (357.6448ms)
+✔ Ato3 intervenção Jabba via Anatta encerra sem fabricar morte ou combate (245.2113ms)
+✔ Ato3 dossiê adulterado, falso fim e falso crédito são rejeitados (462.4085ms)
+✔ Ato3 cofre oficial: 10000 créditos somente depois de vitória real, sem duplicação (180.6599ms)
+✔ Ato3 controller/bridge/UI: persistência e três reaberturas; rollback em falha (878.3668ms)
+✔ Ato3 controlador: cofre realmente credita carteira e persiste três vezes (189.0537ms)
+✔ Ato3 lustre exige combate, percepção e blaster; falha consome ação sem vitória (279.6396ms)
+✔ Ato3 lustre acerta por dados reais: Hutt cai, minions recuam, combate fecha, cofre credita (494.0079ms)
+✔ Ato3 não aceita recibo adulterado de tiro ou sucesso sem teste de Percepção (234.4625ms)
+✔ Ato2 Anatta: 11 assuntos e preços oficiais, sem barganha nem compras duplicadas (106.2023ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8175.9832
+

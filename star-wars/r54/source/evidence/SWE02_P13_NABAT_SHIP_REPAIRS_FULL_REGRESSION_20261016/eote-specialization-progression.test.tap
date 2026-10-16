@@ -1,0 +1,17 @@
+✔ segunda especialização dentro da carreira custa 20 PE; fora da carreira custa 30 PE (6.75ms)
+✔ terceira especialização usa o total após a compra e mantém sobretaxa fora da carreira original (1.9322ms)
+✔ compra adiciona especialização e perícias de carreira sem conceder ranks gratuitos (5.113ms)
+✔ especialização já possuída não pode ser comprada novamente e PE insuficiente falha sem mutar (3.0901ms)
+✔ árvore de talentos da especialização comprada fica acessível e a inicial continua intacta (6.6875ms)
+✔ não é permitido acessar árvore de especialização que o personagem não possui (1.4367ms)
+✔ controller compra e persiste especialização adicional com custo e career skills corretos (38.0947ms)
+✔ RAG fundamenta compra de especialização adicional no Core EotE real (170.3127ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1920.7534
+

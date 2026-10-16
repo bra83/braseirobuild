@@ -1,0 +1,12 @@
+✔ P73: UI publica tracker de Além da Orla sem flags internas (2.8073ms)
+✔ P73: escolhas fail-forward continuam acionáveis em 415x915 (63.8621ms)
+✔ P73: status público pós-falha não serializa spoilers de flags futuras (3.5068ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 816.8594
+

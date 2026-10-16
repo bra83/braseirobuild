@@ -4,6 +4,7 @@ import {GameController} from '../app/src/main/assets/vtt/js/core/controller.mjs'
 import {createCampaign} from '../app/src/main/assets/vtt/js/core/state.mjs';
 import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
 import {nabatMarketCatalog} from '../app/src/main/assets/vtt/js/adventure/swe02NabatP240.mjs';
+import {applyVehicleCritical} from '../app/src/main/assets/vtt/js/rules/vehicles.mjs';
 import {BraseiroUiBridge} from '../app/src/main/assets/vtt/js/core/uiBridge.mjs';
 import fs from 'node:fs';
 class Repo{constructor(){this.state=createCampaign('P240');this.saves=0}load(){return structuredClone(this.state)}save(s){this.state=structuredClone(s);this.saves++}}
@@ -42,13 +43,24 @@ test('P240 purchase insufficient credits: rollback of character, receipts and sa
  assert.throws(()=>g.purchaseSWE02NabatItem({itemId:'multi_scanner'}),/insuficientes/);
  assert.deepEqual(g.state,before);assert.equal(repo.saves,n);
 });
-test('P240 p.13: Bura contact pays actual hull repairs, never creates a new ship',()=>{
- const {g,repo}=setup();const v=g.state.vehicles;v.vehicles[v.activeVehicleId].hullDamage=7;
+test('P240 p.13: Bura contacts repair the real ship hull, systems and repairable criticals without creating a ship',()=>{
+ const {g,repo}=setup();const v=g.state.vehicles,ship=v.vehicles[v.activeVehicleId];ship.hullDamage=7;ship.systemStrain=4;
+ const damaged=applyVehicleCritical(ship,{roll:95}).vehicle;damaged.disabledComponents=['hyperdrive'];v.vehicles[v.activeVehicleId]=damaged;
  const before=g.state.player.character.credits;
  const r=g.repairSWE02KraytFangAtNabat();assert.equal(r.hullBefore,7);assert.equal(r.hullAfter,0);
- assert.equal(g.activeVehicle().hullDamage,0);assert.equal(g.state.player.character.credits,before);
+ assert.equal(r.systemStrainBefore,4);assert.equal(r.systemStrainAfter,0);assert.equal(r.criticalHitsRepaired[0].key,'engine_damaged');
+ assert.equal(g.activeVehicle().hullDamage,0);assert.equal(g.activeVehicle().systemStrain,0);
+ assert.equal(g.activeVehicle().criticalHits[0].repaired,true);assert.deepEqual(g.activeVehicle().disabledComponents,[]);
+ assert.equal(g.state.player.character.credits,before);assert.equal(r.creditsSpent,0);
  assert.equal(Object.keys(g.state.vehicles.vehicles).length,1);
- assert.throws(()=>g.repairSWE02KraytFangAtNabat(),/já pago/);reopen(repo);
+ const forged=structuredClone(g.state.world);forged.publishedAdventure.nabatReceipts.at(-1).systemStrainAfter=1;
+ assert.throws(()=>adapter.status(forged),/reparos dos contatos inválido/);
+ assert.throws(()=>g.repairSWE02KraytFangAtNabat(),/já foram pagos/);reopen(repo);
+});
+test('P240 p.13: contacts cannot claim to repair a destroyed ship; failure rolls back all state',()=>{
+ const {g,repo}=setup();const v=g.state.vehicles,ship=v.vehicles[v.activeVehicleId];ship.hullDamage=3;ship.systemStrain=2;
+ v.vehicles[v.activeVehicleId]=applyVehicleCritical(ship,{roll:100,modifier:54}).vehicle;const before=structuredClone(g.state),saves=repo.saves;
+ assert.throws(()=>g.repairSWE02KraytFangAtNabat(),/nave destruída/);assert.deepEqual(g.state,before);assert.equal(repo.saves,saves);
 });
 test('P240 p.13: no ship repair if Bura not found, or ship name forged',()=>{
  const {g,repo}=setup();const p=g.state.world.publishedAdventure;

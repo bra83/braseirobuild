@@ -1,0 +1,24 @@
+✔ P240 p.13: market uses only primary EotE Core entries priced <= 500 (9.1431ms)
+✔ P240 p.13: real purchase debits wallet and adds catalog gear atomically (609.7856ms)
+✔ P240 market rejects forged price, non-EotE source, 501+ item and bad quantities (419.9551ms)
+✔ P240 purchase insufficient credits: rollback of character, receipts and save (418.6443ms)
+✔ P240 p.13: Bura contacts repair the real ship hull, systems and repairable criticals without creating a ship (452.118ms)
+✔ P240 p.13: contacts cannot claim to repair a destroyed ship; failure rolls back all state (327.525ms)
+✔ P240 p.13: no ship repair if Bura not found, or ship name forged (326.7702ms)
+✔ P240 p.13–14: port watch must be requested, alert only after Nyn meeting (418.3607ms)
+✔ P240 p.13–14: watch at arrival, alert in Nyn safehouse, no automatic knowledge (499.2935ms)
+✔ P240 p.14: overnight choice closes Nyn scene, delivers requested alert and records the morning briefing (459.9055ms)
+✔ P240 p.14: morning reply is typed, one-time, and required before mine departure (485.7129ms)
+✔ P240 p.13: Nyn shelter heals real wounds and strain, never erases critical injuries (417.4881ms)
+✔ P240 anti-forgery: missing or modified receipt fails adapter status (382.622ms)
+✔ P240 no mutation outside Nabat; failed actions do not save (431.3919ms)
+✔ P240 Android bridge and UI source expose port operations (2505.9911ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10205.6019
+

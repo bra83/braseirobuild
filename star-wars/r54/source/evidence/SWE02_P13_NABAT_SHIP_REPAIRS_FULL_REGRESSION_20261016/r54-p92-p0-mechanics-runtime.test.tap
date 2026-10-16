@@ -1,0 +1,15 @@
+✔ P92: Precisa/Accurate entra no pool real antes da rolagem (97.1554ms)
+✔ P92: Automática aumenta a dificuldade real e resolve acertos extras por Vantagem (32.9909ms)
+✔ P92: Brecha é convertida em 10 pontos de Soak ignorado no dano real (27.2091ms)
+✔ P92: Viciosa/Letal chega ao crítico ativado como modificador d100 (32.4888ms)
+✔ P92: equipar arma/armadura altera estado e sobrevive a reabertura (49.5183ms)
+✔ P92: salto hiperespacial usa nave + Astronavegação e persiste resultado (23.4027ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1621.6054
+

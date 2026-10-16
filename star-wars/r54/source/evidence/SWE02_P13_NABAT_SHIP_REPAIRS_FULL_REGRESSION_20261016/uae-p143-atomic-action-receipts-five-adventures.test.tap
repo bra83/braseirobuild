@@ -1,0 +1,40 @@
+✔ P143 under-black-sun: commit atômico de evento, relógio, objetivo, consequência e flag (92.0759ms)
+✔ P143 under-black-sun: falha no último comando reverte todos os efeitos e journal (49.626ms)
+✔ P143 under-black-sun: falsificação de recibo, origem e ordem causal é rejeitada (54.482ms)
+✔ P143 under-black-sun: injeções, parâmetros inválidos e cascatas não deixam estado parcial (10.2494ms)
+✔ P143 under-black-sun: 120 ações persistentes + três reaberturas sem duplicação (4028.7327ms)
+✔ P143 under-black-sun: escolha do grafo e gatilhos persistem no mesmo recibo (42.9321ms)
+✔ P143 beyond-the-rim: commit atômico de evento, relógio, objetivo, consequência e flag (19.227ms)
+✔ P143 beyond-the-rim: falha no último comando reverte todos os efeitos e journal (37.8686ms)
+✔ P143 beyond-the-rim: falsificação de recibo, origem e ordem causal é rejeitada (24.3953ms)
+✔ P143 beyond-the-rim: injeções, parâmetros inválidos e cascatas não deixam estado parcial (5.5218ms)
+✔ P143 beyond-the-rim: 120 ações persistentes + três reaberturas sem duplicação (3946.2264ms)
+✔ P143 beyond-the-rim: escolha do grafo e gatilhos persistem no mesmo recibo (7.3072ms)
+✔ P143 long-arm-of-the-hutt: commit atômico de evento, relógio, objetivo, consequência e flag (63.0474ms)
+✔ P143 long-arm-of-the-hutt: falha no último comando reverte todos os efeitos e journal (19.6173ms)
+✔ P143 long-arm-of-the-hutt: falsificação de recibo, origem e ordem causal é rejeitada (86.0493ms)
+✔ P143 long-arm-of-the-hutt: injeções, parâmetros inválidos e cascatas não deixam estado parcial (49.6394ms)
+✔ P143 long-arm-of-the-hutt: 120 ações persistentes + três reaberturas sem duplicação (3237.5009ms)
+✔ P143 long-arm-of-the-hutt: escolha do grafo e gatilhos persistem no mesmo recibo (9.862ms)
+✔ P143 jewel-of-yavin: commit atômico de evento, relógio, objetivo, consequência e flag (52.5235ms)
+✔ P143 jewel-of-yavin: falha no último comando reverte todos os efeitos e journal (5.7802ms)
+✔ P143 jewel-of-yavin: falsificação de recibo, origem e ordem causal é rejeitada (24.8218ms)
+✔ P143 jewel-of-yavin: injeções, parâmetros inválidos e cascatas não deixam estado parcial (5.3542ms)
+✔ P143 jewel-of-yavin: 120 ações persistentes + três reaberturas sem duplicação (3126.4659ms)
+✔ P143 jewel-of-yavin: escolha do grafo e gatilhos persistem no mesmo recibo (3.5949ms)
+✔ P143 mask-of-the-pirate-queen: commit atômico de evento, relógio, objetivo, consequência e flag (19.1251ms)
+✔ P143 mask-of-the-pirate-queen: falha no último comando reverte todos os efeitos e journal (10.3058ms)
+✔ P143 mask-of-the-pirate-queen: falsificação de recibo, origem e ordem causal é rejeitada (52.9205ms)
+✔ P143 mask-of-the-pirate-queen: injeções, parâmetros inválidos e cascatas não deixam estado parcial (4.6779ms)
+✔ P143 mask-of-the-pirate-queen: 120 ações persistentes + três reaberturas sem duplicação (3945.9139ms)
+✔ P143 mask-of-the-pirate-queen: escolha do grafo e gatilhos persistem no mesmo recibo (4.5556ms)
+✔ P143: recibo registra também cascatas e eventos internos de objetivo (7.4234ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20474.1894
+

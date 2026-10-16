@@ -125,3 +125,8 @@
 - Implemented the official p.14 transition: Nyn conversation closure/refusal, conditional requested spaceport alert for the reported human and Gand, the service-tunnel route with B’ura and a speeder programmed for the ryll mines, and a typed PC response before departure. The controller, Android UI and source-backed/tamper-checked receipts are wired.
 - Focused P240/P241 suites: 31/31. Full per-file regression: 382 files (376 regular + 6 stress), 3,457 tests, 3,455 pass, 0 fail, 2 skipped for missing JDK `jar`; raw logs and summary are under `evidence/SWE02_P14_NABAT_MORNING_FULL_REGRESSION_20261016/`.
 - SWE02 remains `IMPLEMENTADO_NAO_CERTIFICADO`; the page-wide p.14 dialogue/source crosswalk, other SWE02 branches, remaining adventures, rules, and 360 AoR proofs remain pending. No release gates ran.
+## Resume update — SWE02 p.13 ship repairs at Nabat (2026-10-16)
+
+- Updated B’ura B’an’s contact operation to apply the source-backed “any repairs needed” clause to the actual Krayt Fang: hull damage and system strain are cleared, repairable vehicle Critical Hits are marked repaired with history retained, disabled components clear, and Nabat contacts pay without charging the PCs. Vaporized/destroyed ships fail closed.
+- Focused P240 Nabat tests 15/15 and EotE vehicle critical tests 18/18. Full regression: 382 files (376 regular + 6 stress), 3,458 tests, 3,456 pass, 0 fail, 2 JDK `jar` packaging skips. Raw logs and summary: `evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/`.
+- Fuel quantity/pricing is left open because the adventure does not specify amounts. SWE02, all five adventure gates, selected rules and AoR 360 remain uncertified/pending. No release gates ran.

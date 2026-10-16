@@ -1,0 +1,39 @@
+✔ P160: five source-backed AoR positions gain consumers, 275/360 total (225.2499ms)
+✔ P160: Skilled Jockey rank 0 removes only actual piloting setback for pilotar_vehiculo_planetario (67.61ms)
+✔ P160: Skilled Jockey rank 0 removes only actual piloting setback for pilotar_vehiculo_espacial (5.0096ms)
+✔ P160: Skilled Jockey rank 1 removes only actual piloting setback for pilotar_vehiculo_planetario (8.0522ms)
+✔ P160: Skilled Jockey rank 1 removes only actual piloting setback for pilotar_vehiculo_espacial (4.5593ms)
+✔ P160: Skilled Jockey rank 2 removes only actual piloting setback for pilotar_vehiculo_planetario (10.1383ms)
+✔ P160: Skilled Jockey rank 2 removes only actual piloting setback for pilotar_vehiculo_espacial (4.6406ms)
+✔ P160: pilot modifiers actually affect controller dice and survive three reopens (197.1199ms)
+✔ P160: Heroic Fortitude rank 0 Destiny and repeat gate (28.8544ms)
+✔ P160: Heroic Fortitude rank 1 Destiny and repeat gate (41.2582ms)
+✔ P160: Heroic Fortitude rank 2 Destiny and repeat gate (45.1487ms)
+✔ P160: Heroic Fortitude ignores check penalties on Brawn/Agility but not intellect or non-check effects (20.8764ms)
+✔ P160: suppressed next-check critical remains pending, is consumed on later unprotected check (32.3582ms)
+✔ P160: Heroic Fortitude fails without Destiny or encounter, never partially commits (19.7581ms)
+✔ P160: Heroic Fortitude disk failure rolls back character, Destiny and combat log (228.0216ms)
+✔ P160: starting new combat clears stale Heroic Fortitude from previous encounter (158.4267ms)
+✔ P160: Spare Clip prevents GM Despair ammunition loss and writes an audit receipt (77.9104ms)
+✔ P160: without Spare Clip GM spends Despair, ammo blocks next attack, reload consumes gear (462.6869ms)
+✔ P160: GM cannot fabricate Despair, weapon identity or replay loss (185.3948ms)
+✔ P160: ammo Despair disk failure rolls back both character and combat receipt (23.5718ms)
+✔ P160: limited ammo remains limited even when Spare Clip is acquired (117.7405ms)
+✔ P160 under-black-sun: five-adventure UAE cascade, clocks, objectives, consequences and three restores (161.8797ms)
+✔ P160 beyond-the-rim: five-adventure UAE cascade, clocks, objectives, consequences and three restores (298.1601ms)
+✔ P160 long-arm-of-the-hutt: five-adventure UAE cascade, clocks, objectives, consequences and three restores (79.0569ms)
+✔ P160 jewel-of-yavin: five-adventure UAE cascade, clocks, objectives, consequences and three restores (18.912ms)
+✔ P160 mask-of-the-pirate-queen: five-adventure UAE cascade, clocks, objectives, consequences and three restores (21.5998ms)
+✔ P160: Android 1.0.160, UI actions, 79-module bundle and eight Java sources present (122.1247ms)
+✔ P160: forged display labels and duplicated source node cannot multiply piloting, ammo or critical effects (7.4408ms)
+✔ P160: ammo Despair cannot be adjudicated after combat has ended (38.3328ms)
+✔ P160: Android bridge actually dispatches Heroic Fortitude and Despair receipts (200.146ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6488.2356
+

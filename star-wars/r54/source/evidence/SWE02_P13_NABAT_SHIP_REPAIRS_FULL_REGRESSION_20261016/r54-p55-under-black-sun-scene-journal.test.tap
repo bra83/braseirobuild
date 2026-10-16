@@ -1,0 +1,13 @@
+✔ P55: journal de cenas nasce vazio e registra escolhas sem conteúdo futuro (21.4653ms)
+✔ P55: journal persiste após reopen e conserva a rota tomada (22.436ms)
+✔ P55: progresso legado sem sceneJournal migra sem quebrar status (1.8445ms)
+✔ P55: journal público não expõe effects internos (2.056ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1072.8899
+

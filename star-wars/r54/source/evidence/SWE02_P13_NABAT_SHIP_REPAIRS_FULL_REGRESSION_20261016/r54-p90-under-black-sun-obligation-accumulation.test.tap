@@ -1,0 +1,13 @@
+✔ P90: dívida do Spyder e saque da Zelcomm acumulam Obligation em vez de sobrescrever (27.8678ms)
+✔ P90: save/reopen preserva total e origem de Obligation acumulada (7.5495ms)
+✔ P90: save legado sem ledger migra saldo anterior para legacy antes de somar nova origem (5.5923ms)
+✔ P90: epílogo persiste total e ledger de Obligation (32.5642ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 652.3983
+

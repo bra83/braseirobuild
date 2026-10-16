@@ -1,0 +1,32 @@
+✔ P176 source-backed four new AoR slots; separate Skilled and Master Slicer (65.657ms)
+✔ P176 Bought Info charges 150 credits, automatic one success, GM revelation pending, causal receipt (91.6497ms)
+✔ P176 Bought Info rejects unowned talent, missing approval, invalid subject and insufficient funds (77.0284ms)
+✔ P176 Known Schematic Hard Education maneuver, one/session and no invented maps (82.9215ms)
+✔ P176 Known Schematic failure still consumes the single session use (21.0767ms)
+✔ P176 Fire Control gives +1 target silhouette on actual ship gunnery and expires (51.1346ms)
+✔ P176 Fire Control second maneuver pays vehicle strain and cannot bypass action budget (29.9679ms)
+✔ P176 Skilled Slicer Triumph grants only same-system Computers maneuver; Master Slicer separate (108.9465ms)
+✔ P176 Skilled Slicer cannot activate from a display label or without Triumph (35.9845ms)
+✔ P176 rollback on repository failure covers credits, events, maneuvers, source receipts (84.2764ms)
+✔ P176 tampered receipts, missing causal events and forged fire control are rejected (85.5135ms)
+✔ P176 Android bridge, UI and old P175 checkpoint migration are compatible (115.8797ms)
+✔ P176 under-black-sun: Bought Info does not overwrite UAE, three reopenings (330.7413ms)
+✔ P176 beyond-the-rim: Bought Info does not overwrite UAE, three reopenings (82.0379ms)
+✔ P176 long-arm-of-the-hutt: Bought Info does not overwrite UAE, three reopenings (83.9629ms)
+✔ P176 jewel-of-yavin: Bought Info does not overwrite UAE, three reopenings (120.1275ms)
+✔ P176 mask-of-the-pirate-queen: Bought Info does not overwrite UAE, three reopenings (100.1576ms)
+✔ P176 Massive 2 raises actual critical cost by 2; Exhaust Port spends Destiny to ignore it (34.5869ms)
+✔ P176 Massive without Exhaust Port increases critical cost and never consumes Destiny (65.7681ms)
+✔ P176 Dead to Rights applies Agility-based vehicle damage only on hit and flips Destiny (102.9846ms)
+✔ P176 Exhaust Port and Dead to Rights reject unearned talents and insufficient Destiny atomically (76.209ms)
+✔ P176 Dead to Rights miss does not consume light Destiny (27.4225ms)
+✔ P176 Fire Control expires on original ship even when active ship is switched (60.2236ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4924.6541
+

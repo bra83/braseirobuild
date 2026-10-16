@@ -1,0 +1,32 @@
+✔ Encumbrance threshold Core é 5 + Brawn e mochila soma +4 (10.2972ms)
+✔ armadura vestida reduz Encumbrance em 3 (1.078ms)
+✔ cada ponto acima do threshold gera setback em Brawn/Agility e excesso >= Brawn remove manobra grátis (1.0071ms)
+✔ levantamento usa threshold efetivo e ajuda soma Brawn bruto (1.5669ms)
+✔ condições genéricas aplicam staggered/immobilized/disoriented e acumulam duração (1.422ms)
+✔ condições expiram por turno sem ficar negativas (2.023ms)
+✔ Fear usa Discipline ou Cool e dificuldade 1..5 (3.5446ms)
+✔ falha de Fear impõe setback e Despair aumenta dificuldade (0.8047ms)
+✔ três Threat podem virar staggered no primeiro turno (0.5488ms)
+✔ sucesso com Advantage prepara boost no primeiro check (0.9073ms)
+✔ Destiny inicial soma um Force die por jogador (3.418ms)
+✔ gastar Destiny vira o ponto para o lado oposto (0.7724ms)
+✔ upgrade de pool converte Ability em Proficiency e adiciona Ability quando necessário (0.601ms)
+✔ Obligation é d100 antes da sessão e identifica entrada por faixa cumulativa (3.2192ms)
+✔ doubles dobram penalidade de Obligation (0.6696ms)
+✔ Obligation acima de 100 bloqueia progressão (0.6078ms)
+✔ startSession prepara Destiny e Obligation e aplica threshold efetivo sem destruir base (38.2775ms)
+✔ encerrar sessão remove penalidade temporária de Obligation (18.7042ms)
+✔ Obligation >100 bloqueia treino, especialização, talento e Força pelo mesmo gate (4.4181ms)
+✔ Fear no controller evita rerrolar a mesma fonte sem mudança significativa (14.5791ms)
+✔ disoriented do controller adiciona setback ao teste real (21.9213ms)
+✔ Encumbrance remove a manobra gratuita e cobra 2 Strain já na primeira (8.6488ms)
+✔ Destiny gasto em skill check aprimora pool e vira a reserva (6.9032ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1680.0063
+

@@ -1,0 +1,22 @@
+✔ P166: MANITAS AoR has exactly two purchased, mechanically active positions (19.8941ms)
+✔ P166: Mechanics removes one setback per rank, never a different skill (89.3341ms)
+✔ P166: two ranks do not stack the once-only half-price Mod discount (144.3025ms)
+✔ P166: failed Mod spends discounted credits and one attempt, never grants success (88.4613ms)
+✔ P166: display labels, forged node ids and altered original names never grant discount (23.1959ms)
+✔ P166: mod save failure atomically rolls back credits, attempts, weapon and ledger (57.0345ms)
+✔ P166: attachment install/remove each roll back all state on storage failure (42.371ms)
+✔ P166: Android bridge exposes the source-backed price and generated UI uses dynamic cost (33.7599ms)
+✔ P166: under-black-sun UAE transactional triggers, objectives, consequences and three restores (134.8626ms)
+✔ P166: beyond-the-rim UAE transactional triggers, objectives, consequences and three restores (199.3407ms)
+✔ P166: long-arm-of-the-hutt UAE transactional triggers, objectives, consequences and three restores (171.6844ms)
+✔ P166: jewel-of-yavin UAE transactional triggers, objectives, consequences and three restores (49.0171ms)
+✔ P166: mask-of-the-pirate-queen UAE transactional triggers, objectives, consequences and three restores (55.4743ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3861.5149
+

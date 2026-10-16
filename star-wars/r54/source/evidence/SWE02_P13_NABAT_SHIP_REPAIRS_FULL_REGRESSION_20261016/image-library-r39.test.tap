@@ -1,0 +1,17 @@
+✔ R39 baseline remains present in current additive image-library manifest (3.1035ms)
+✔ R39 visual wave3 contains exactly 10 confirmed assets (2.1466ms)
+✔ R39 totals add 3 NPC portraits and 7 beasts without changing maps or droids (0.3844ms)
+✔ R39 direct URLs obey the existing Kainrath whitelist and cache contract (1.3283ms)
+✔ R39 assets remain visual-only and cannot infer mechanics (0.4689ms)
+✔ R39 source metadata keeps prior waves and records wave3 separately (0.3676ms)
+✔ generic visual bridge automatically exposes R39 expanded totals (113.7658ms)
+✔ R39 visual expansion leaves map catalog exactly unchanged (6.6537ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1459.3515
+

@@ -1,0 +1,33 @@
+✔ P162: 360 positions preserved, four new source-backed positions active (15.3283ms)
+✔ P162: Sound Investments 2 ranks credits and session receipt are atomic (104.6875ms)
+✔ P162: Sound Investments 0 and 1 rank grant exact amounts (111.9786ms)
+✔ P162: Sound Investments cannot activate via display-only names or forged node (10.9059ms)
+✔ P162: session start failure restores Destiny, income, character, session and repository (60.8742ms)
+✔ P162: session start failure due to already active session is rollback safe (46.045ms)
+✔ P162: credit overflow is rejected before commit (6.055ms)
+✔ P162: Lábia ranks are bound only to carisma (5.9709ms)
+✔ P162: Lábia ranks are bound only to coaccion (6.2462ms)
+✔ P162: Lábia ranks are bound only to engano (8.8256ms)
+✔ P162: Lábia ranks are bound only to negociacion (8.8935ms)
+✔ P162: Lábia spends one real Triumph and adds ranked successes (61.4723ms)
+✔ P162: Lábia never invents Triumph when check fails (14.5042ms)
+✔ P162: Lábia cannot be spent on an unpurchased skill or with fake boolean (83.0765ms)
+✔ P162: Lábia cannot be forged by translated labels and wrong original ID (7.4883ms)
+✔ P162: legacy Lábia node can be bound once without XP (11.6064ms)
+✔ P162: binding rejects foreign nodes, invalid skills and storage failures atomically (8.1017ms)
+✔ P162: purchase of Lábia demands selected social skill (8.6786ms)
+✔ P162: under-black-sun UAE objectives, triggers, consequences, replay and three reopenings (101.6112ms)
+✔ P162: beyond-the-rim UAE objectives, triggers, consequences, replay and three reopenings (49.1127ms)
+✔ P162: long-arm-of-the-hutt UAE objectives, triggers, consequences, replay and three reopenings (26.5914ms)
+✔ P162: jewel-of-yavin UAE objectives, triggers, consequences, replay and three reopenings (30.0519ms)
+✔ P162: mask-of-the-pirate-queen UAE objectives, triggers, consequences, replay and three reopenings (25.0181ms)
+✔ P162: Android bridge binds Lábia, rolls, and offline bundle exposes methods (81.4213ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4696.6127
+

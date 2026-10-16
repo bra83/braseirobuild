@@ -1,0 +1,23 @@
+✔ P97 identifica qualidades ativas source-bound sem confundir passivas (12.3535ms)
+✔ P97 orçamento de Vantagens é único: qualidade gasta impede crítico com as mesmas Vantagens (54.719ms)
+✔ P97 Desorientação aplica Setback real ao próximo ataque do adversário e expira por turnos (22.9796ms)
+✔ P97 Atordoadora causa Tensão direta e rival converte em Ferimentos (10.632ms)
+✔ P97 Incendiária persiste e aplica dano base no início dos turnos do alvo (15.469ms)
+✔ P97 Hendedura/Sunder gasta 1 Vantagem por etapa e dano Moderate aumenta dificuldade da arma NPC (15.8935ms)
+✔ P97 Automática só aplica acerto adicional depois de gastar 2 Vantagens (9.2434ms)
+✔ P97 Explosão em acerto exige alvos Engajados explícitos e aplica dano só aos selecionados (17.1059ms)
+✔ P97 Explosão em ataque que errou custa 3 Vantagens e atinge o alvo original (19.266ms)
+✔ P97 Concussiva deixa o alvo Atordoado e ele perde a próxima ação (60.9471ms)
+✔ P97 Enredante aplica immobilized pelo rating sem inventar dano (11.0843ms)
+✔ P97 Vinculada respeita rating e orçamento compartilhado (13.9525ms)
+✔ P97 Modo atordoante é incidental persistente, muda dano para Tensão e limita alcance a Curto (36.0275ms)
+✔ P97 bridge e R46 expõem gasto explícito de qualidades e Modo atordoante (108.3177ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2249.3082
+

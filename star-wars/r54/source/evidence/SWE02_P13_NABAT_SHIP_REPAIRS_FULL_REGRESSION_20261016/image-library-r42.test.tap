@@ -1,0 +1,17 @@
+✔ R42 manifest V3.5 baseline remains preserved after later library promotions (4.0717ms)
+✔ R42 vehicle wave3 adds exactly 27 direct-URL assets (3.7328ms)
+✔ R42 wave3 grouping is 19 landspeeders page2 plus 8 walkers (0.7493ms)
+✔ R42 URLs obey secure Kainrath cache policy and are raw direct image URLs (2.8273ms)
+✔ R42 vehicle images remain visual-only with no inferred mechanics (0.4966ms)
+✔ R42 bridge preserves at least the R42 vehicle/visual baseline (68.0663ms)
+✔ R42 subtype searches expose walkers and added surface vehicle classes without mechanics (21.0407ms)
+✔ R42 preserves both previous vehicle waves unchanged (48.9562ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1574.9431
+

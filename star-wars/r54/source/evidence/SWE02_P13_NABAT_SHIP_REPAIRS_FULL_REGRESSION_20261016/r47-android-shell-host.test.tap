@@ -1,0 +1,17 @@
+✔ R47 Android inicia pela shell visual R46 sem remover as pontes nativas (40.0483ms)
+✔ host offline instala BraseiroGameBridge antes de montar o bundle React (20.2989ms)
+✔ bundle offline da shell e CSS estão presentes e sintaticamente fechados (5.7647ms)
+✔ rotas e domínio principal continuam na arquitetura R46 (11.2644ms)
+✔ CSS Android mantém viewport 415×915 e não referencia assets inexistentes (13.6333ms)
+✔ apenas ícones canônicos materializados são usados no host (21.6422ms)
+✔ mapeamento de ícones não pede items.png ou records.png ausentes (5.5681ms)
+✔ entrada legada permanece no pacote apenas como fallback não carregado (1.5543ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 906.4611
+

@@ -1,0 +1,12 @@
+✔ P69: tracker publica somente caminho já percorrido (20.3902ms)
+✔ P69: histórico é limitado para não estourar mobile (6.8658ms)
+✔ P69: runtime renderiza trilha compacta e rotulada (0.891ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 704.6749
+

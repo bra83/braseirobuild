@@ -1,0 +1,13 @@
+✔ onInit e shutdown compartilham lifecycleLock para impedir reativação tardia (2.7938ms)
+✔ shutdown é idempotente e marca TTS fechado/indisponível antes de encerrar engine (2.5206ms)
+✔ speak recusa bridge fechado e UI runnable revalida lifecycle antes de tocar TTS (1.1692ms)
+✔ stop não agenda operação efetiva depois de shutdown (0.6489ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1154.1071
+

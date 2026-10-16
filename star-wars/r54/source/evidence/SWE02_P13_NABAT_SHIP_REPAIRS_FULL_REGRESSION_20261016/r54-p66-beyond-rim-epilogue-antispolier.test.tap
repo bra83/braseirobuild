@@ -1,0 +1,12 @@
+✔ P66: epílogo permanece oculto enquanto Além da Orla está ativa (29.6606ms)
+✔ P66: conclusão revela apenas consequências conquistadas em PT-BR (4.0035ms)
+✔ P66: epílogo não inventa rivalidade ou perseguição imperial não conquistadas (2.1931ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 674.3742
+

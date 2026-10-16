@@ -1,0 +1,14 @@
+✔ P216 Kashyyyk: actual NPC Despair triggers Difficult Discipline, strain and next action downgrade (1391.7806ms)
+✔ P216 insect: same attack roll gains exactly two real Boost dice only with original Triumph (1206.4794ms)
+✔ P216 insect integrated in actual weapon attack, atomic receipt and three reopens (1092.7382ms)
+✔ P216 insect without original Triumph does not fabricate bonus or receipt (1326.1006ms)
+✔ P216 vertigo downgrades actual next weapon attack and cannot affect a second roll (1321.1692ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8642.9727
+

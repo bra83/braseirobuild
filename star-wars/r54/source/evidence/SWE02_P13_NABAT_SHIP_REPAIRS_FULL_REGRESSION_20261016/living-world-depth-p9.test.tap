@@ -1,0 +1,12 @@
+✔ mundo vivo mantém memória, riqueza, atividade, clima e tempo persistentes (62.2301ms)
+✔ simulação avança estado econômico sem alterar créditos do jogador (18.2982ms)
+✔ P9 porta memória social, compromissos e diplomacia persistentes do desenho DnD (1.6206ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 762.0256
+

@@ -1,0 +1,24 @@
+✔ P130 AoR: todas as 18 árvores de origem ficam navegáveis e a primeira linha desbloqueada (79.2129ms)
+✔ P130 AoR: compra real desconta PE, preserva fonte, posição e não modifica entrada (35.5602ms)
+✔ P130 AoR: somente vizinhos de slots comprados são liberados, mesmo após JSON restore (5.1229ms)
+✔ P130 AoR: bloqueia aquisição de outra especialização, árvore EotE e saldo insuficiente (37.2137ms)
+✔ P130 AoR: efeitos passivos já implementados são aplicados à ficha sem duplicação (2.6313ms)
+✔ P130 AoR: compra no controlador persiste após reiniciar e passa pelo bridge Android (102.6514ms)
+✔ P130 under-black-sun: journal íntegro aceita save e rejeita reordenação/IDs cruzados (58.6595ms)
+✔ P130 beyond-the-rim: journal íntegro aceita save e rejeita reordenação/IDs cruzados (37.0457ms)
+✔ P130 long-arm-of-the-hutt: journal íntegro aceita save e rejeita reordenação/IDs cruzados (19.2337ms)
+✔ P130 jewel-of-yavin: journal íntegro aceita save e rejeita reordenação/IDs cruzados (9.2215ms)
+✔ P130 mask-of-the-pirate-queen: journal íntegro aceita save e rejeita reordenação/IDs cruzados (33.2844ms)
+✔ P130 UAE: objetivo histórico contraditório e consequência duplicada são rejeitados (25.6188ms)
+✔ P130 equipamentos: tentativa de mod falhada consome slot também na resolução de combate (43.7047ms)
+✔ P130 AoR: catálogo distingue aquisição de efeito mecânico realmente implementado (5.8428ms)
+✔ P130 AoR: talento racial e compra do mesmo nome acumulam graus sem duplicação (4.1488ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2275.5352
+

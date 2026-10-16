@@ -1,0 +1,18 @@
+✔ P21 reiniciar sandbox preserva personagem, grupo, nave e ajustes, mas limpa mundo/sessão (574.8606ms)
+✔ P21 botão REINICIAR usa reset seguro e não apaga estado/personagem/foto diretamente (64.6841ms)
+✔ P21 status Gemini nativo é adaptado para Result ok/data esperado pela shell (11.4887ms)
+✔ P21 TTS cai para Web Speech quando o bridge Android existe mas responde indisponível (5.3735ms)
+✔ P21 seletor oferece 82 mapas locais offline válidos sem adulterar o manifesto V3.8 congelado (573.5966ms)
+✔ P21 bridge mantém catálogo congelado por padrão e entrega os 82 mapas locais ao seletor P21 (19.1866ms)
+✔ P21 fonte e bundle da shell solicitam mapas jogáveis e mantêm auto-cache de externos (36.2727ms)
+✔ P21 Android TTS aceita pt-BR e recua para português genérico antes de declarar indisponível (69.8887ms)
+✔ P21 Android não tenta exibir mapa externo remoto antes do cache e seleção dispara cache (40.2423ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2810.1892
+

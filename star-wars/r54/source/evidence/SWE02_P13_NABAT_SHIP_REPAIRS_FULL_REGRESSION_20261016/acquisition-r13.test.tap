@@ -1,0 +1,16 @@
+✔ pedido de aquisição fica pendente e persiste sem gastar créditos (756.5344ms)
+✔ não permite abrir um segundo pedido enquanto o Mestre não resolver o primeiro (624.5695ms)
+✔ decisão do Mestre sem regra recuperada não pode concluir aquisição (805.8301ms)
+✔ decisão estruturada e ancorada conclui a compra exatamente uma vez (654.8411ms)
+✔ créditos insuficientes revertem toda a proposta e preservam o pedido (485.9553ms)
+✔ rejeição do Mestre encerra o pedido sem alterar créditos ou inventário (622.2201ms)
+✔ conversão do catálogo calcula dano por Fortaleza e propriedades já suportadas (3.7826ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5756.1696
+

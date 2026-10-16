@@ -1,0 +1,23 @@
+✔ P192 PDF p70: successful three-advantage bidder adds 10k conditional entitlement, never player credits (1414.4382ms)
+✔ P192 PDF p70: triumph can pay bidder choice; success is still required (811.12ms)
+✔ P192 no additional bidder if success missing, winner chosen, unfunded Pos or symbols missing (2497.4375ms)
+✔ P192 PDF p70: one threat adds actual strain to player slicer and survives three reopenings (1011.26ms)
+✔ P192 slicer strain cannot exceed real threshold or be assigned to hired NPC (942.1345ms)
+✔ P192 PDF p70: three threats dispatch a Wing Guard team equal to party size with four-hour ETA (1027.2073ms)
+✔ P192 PDF p70: despair dispatches Wing Guard or captures signature, not both with one despair (1150.1009ms)
+✔ P192 electronic signature applies one real difficulty upgrade on subsequent G-100 slicing (1324.7478ms)
+✔ P192 rejects forged signatures, additional bidder receipts, guard counts and time (679.9717ms)
+✔ P192 prevents spending one symbol twice, invalid extra bidder IDs and duplicate action (694.5529ms)
+✔ P192 UI exposes all new table outcomes and offline engine (46.0906ms)
+✔ P192 second Wing Guard alarm may shorten ETA by one hour instead of adding another team (1091.2692ms)
+✔ P192 P191 legacy after-roll receipt survives the expanded replay and new actions (715.2686ms)
+✔ P192 PDF p70: duplicate despair result can accelerate an existing patrol by one hour (847.721ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16280.3818
+

@@ -1,0 +1,21 @@
+✔ P206 official vehicle chase range is planetary and personal turret stays distinct (1390.7474ms)
+✔ P206 requires active official encounter and actual pilot sheets (1859.7432ms)
+✔ P206 two real rolls, optional speed bonus only when both verified, with persistence x3 (1052.7394ms)
+✔ P206 does not invent speeds or accept unverified bonuses (958.8887ms)
+✔ P206 repeated chase in same round and after acted actor are atomic errors (988.4572ms)
+✔ P206 anti-fraud checks face, pool, outcome, pilot provenance, duplicate receipt and order (861.2326ms)
+✔ P206 Android UI, bridge, offline bundle, version and source remain integrated (240.0608ms)
+✔ P206 a second round compares actual successes; tied checks preserve planetary distance (893.1799ms)
+✔ P206 forbids moving chase range after any actor has taken a turn (955.0133ms)
+✔ P206 pending GM escape cannot silently trigger more pursuit rolls (735.6975ms)
+✔ P206 GM explicitly confirms ESCAPED; end receipt replays and persists (1017.4915ms)
+✔ P206 chase end receipt rejects fake range, source and outcome (809.2533ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13753.4643
+

@@ -3,6 +3,7 @@
 // computed here from catalog records and committed by GameController.
 import {equipmentCatalog} from '../rules/equipmentCatalog.mjs';
 import {healWounds,recoverStrain} from '../rules/health.mjs';
+import {repairVehicleCritical,validateVehicle} from '../rules/vehicles.mjs';
 const clone=v=>structuredClone(v);
 export const NABAT_SOURCE=Object.freeze({productCode:'SWE02',printedPages:[13,14],authority:'OFFICIAL_PDF_TEXT_VERIFIED'});
 const NABAT_P14_SOURCE=Object.freeze({productCode:'SWE02',printedPage:14,authority:'OFFICIAL_PDF_TEXT_VERIFIED'});
@@ -77,17 +78,27 @@ export function recordNabatMorningResponse(world,character,{response}={}){
 export function nabatShipRepair(world,vehicles){
  const w=clone(world),v=clone(vehicles),p=active(w,new Set(['nabat-arrival']));
  if(!p.flags?.shipBuraFound)throw Error('SWE02: B’ura B’an não foi encontrado.');
- if(p.flags?.nabatHullRepaired)throw Error('SWE02: reparo de casco já pago pelos contatos.');
+ if(p.flags?.nabatHullRepaired)throw Error('SWE02: reparos da Krayt Fang já foram pagos pelos contatos.');
  if(v.combat?.active)throw Error('SWE02: não é possível reparar durante combate veicular.');
  const ship=v.vehicles?.[v.activeVehicleId];
  if(!ship||ship.key!=='yt1300'||String(ship.name||'').trim().toLowerCase()!=='krayt fang')
   throw Error('SWE02: selecione a Krayt Fang real; nenhuma nave é criada.');
- const before=ship.hullDamage;
- if(!Number.isFinite(before)||before<0)throw Error('SWE02: estado de casco inválido.');
- ship.hullDamage=0;
+ validateVehicle(ship);
+ const before={hullDamage:ship.hullDamage,systemStrain:ship.systemStrain,
+  criticalHits:ship.criticalHits.filter(x=>!x.repaired).map(x=>({number:x.number,key:x.key,title:x.title})),
+  disabledComponents:[...(ship.disabledComponents||[])]};
+ if(ship.criticalHits.some(x=>!x.repaired&&(x.key==='vaporized'||x.destroyed)))
+  throw Error('SWE02: nave destruída não pode ser reparada pelos contatos.');
+ for(let index=0;index<ship.criticalHits.length;index++)
+  if(!ship.criticalHits[index].repaired) v.vehicles[v.activeVehicleId]=repairVehicleCritical(v.vehicles[v.activeVehicleId],index);
+ const repairedShip=v.vehicles[v.activeVehicleId];
+ repairedShip.hullDamage=0;repairedShip.systemStrain=0;repairedShip.disabledComponents=[];repairedShip.lastSystemStrainAt=null;
  p.flags={...p.flags,nabatHullRepaired:true};
- const r=receipt(p,'CONTACTS_PAID_HULL_REPAIR',{vehicleId:ship.id,hullBefore:before,hullAfter:0,creditsSpent:0,
-  criticalShipDamageUntouched:true,systemStrainUntouched:true});
+ const r=receipt(p,'CONTACTS_PAID_SHIP_REPAIRS',{vehicleId:ship.id,repairer:'NABAT_CONTACTS',creditsSpent:0,
+  hullBefore:before.hullDamage,hullAfter:repairedShip.hullDamage,
+  systemStrainBefore:before.systemStrain,systemStrainAfter:repairedShip.systemStrain,
+  criticalHitsRepaired:before.criticalHits,criticalHitCountAfter:repairedShip.criticalHits.filter(x=>!x.repaired).length,
+  disabledComponentsBefore:before.disabledComponents,disabledComponentsAfter:[...repairedShip.disabledComponents]});
  return {world:w,vehicles:v,receipt:r};
 }
 export function nabatSafehouseCare(world,character){
@@ -107,11 +118,11 @@ export function validateNabat(p){
  const f=p.flags||{},rr=p.nabatReceipts||[];
  if(!Array.isArray(rr))throw Error('SWE02: histórico de Nabat inválido.');
  const one=t=>rr.filter(x=>x.type===t);
- if(one('SPACEPORT_WATCH_REQUESTED').length>1||one('TATOOINE_VISITORS_ALERT').length>1||one('CONTACTS_PAID_HULL_REPAIR').length>1)
+ if(one('SPACEPORT_WATCH_REQUESTED').length>1||one('TATOOINE_VISITORS_ALERT').length>1||one('CONTACTS_PAID_SHIP_REPAIRS').length>1)
   throw Error('SWE02: operação única de Nabat duplicada.');
  if(Boolean(f.nabatSpaceportWatchRequested)!==Boolean(one('SPACEPORT_WATCH_REQUESTED').length)||
     Boolean(f.nabatSpaceportAlertDelivered)!==Boolean(one('TATOOINE_VISITORS_ALERT').length)||
-    Boolean(f.nabatHullRepaired)!==Boolean(one('CONTACTS_PAID_HULL_REPAIR').length))
+    Boolean(f.nabatHullRepaired)!==Boolean(one('CONTACTS_PAID_SHIP_REPAIRS').length))
   throw Error('SWE02: sinalizador de Nabat sem recibo correspondente.');
  if(f.nabatSpaceportAlertDelivered&&!f.nabatSpaceportWatchRequested)throw Error('SWE02: alerta sem solicitação prévia.');
  const catalog=nabatMarketCatalog();
@@ -126,8 +137,13 @@ export function validateNabat(p){
      x.cost!==x.unitPrice*x.quantity||!Number.isSafeInteger(x.remainingCredits)||x.remainingCredits<0)
     throw Error('SWE02: preço ou compra adulterados.');
   }
-  if(x.type==='CONTACTS_PAID_HULL_REPAIR'&&(!f.shipBuraFound||x.creditsSpent!==0||x.hullAfter!==0||x.hullBefore<0))
-   throw Error('SWE02: reparo sem B’ura ou sem prova de casco.');
+  if(x.type==='CONTACTS_PAID_SHIP_REPAIRS'&&(!f.shipBuraFound||x.repairer!=='NABAT_CONTACTS'||x.creditsSpent!==0||
+    x.hullBefore<0||x.hullAfter!==0||x.systemStrainBefore<0||x.systemStrainAfter!==0||
+    !Array.isArray(x.criticalHitsRepaired)||x.criticalHitCountAfter!==0||
+    x.criticalHitsRepaired.some(hit=>!Number.isSafeInteger(hit.number)||hit.number<1||typeof hit.key!=='string'||typeof hit.title!=='string')||
+    !Array.isArray(x.disabledComponentsBefore)||x.disabledComponentsBefore.some(component=>typeof component!=='string')||
+    !Array.isArray(x.disabledComponentsAfter)||x.disabledComponentsAfter.length!==0))
+   throw Error('SWE02: recibo de reparos dos contatos inválido.');
   if(x.type==='SAFEHOUSE_CARE'&&(x.nodeId!=='nabat-contact'||!x.characterKey||x.woundsHealed<0||x.strainRecovered<0))
    throw Error('SWE02: cuidado médico inválido.');
   if(x.type==='TATOOINE_VISITORS_ALERT'&&(x.nodeId!=='nabat-contact'||x.arrivalLeadHours!==2))

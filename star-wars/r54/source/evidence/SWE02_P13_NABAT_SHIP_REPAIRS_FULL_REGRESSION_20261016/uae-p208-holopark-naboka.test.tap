@@ -1,0 +1,20 @@
+✔ P208 Naboka refuses any additional hired NPC slice after a first real failure; player can retry (1415.6949ms)
+✔ P208 slicer policy receipt and anchor cannot be forged independently (959.1283ms)
+✔ P208 old P207 receipt format without slicer policy still replays (799.7353ms)
+✔ P208 Naboka refusal persists across three real repository reopenings (808.7311ms)
+✔ P208 Holo-Park cannot begin without real combat, physical arrival and confirmed factions (647.6281ms)
+✔ P208 Table 3-1 d100 official ranges and printed overlap at 47 requires GM (6770.4753ms)
+✔ P208 Holo-Park changes scene only every two ACTUAL combat rounds (623.104ms)
+✔ P208 Long range or dispersed pursuers requires a separate GM outcome receipt (583.9771ms)
+✔ P208 tenth round ends chase but NEVER fabricates escape or XP (630.3029ms)
+✔ P208 Holo-Park replay rejects forged landscapes, rounds, range, GM confirmations and endings (624.3212ms)
+✔ P208 Holo-Park controller atomic saves, bridge, PT-BR controls, and three reopenings (694.0856ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16327.1368
+

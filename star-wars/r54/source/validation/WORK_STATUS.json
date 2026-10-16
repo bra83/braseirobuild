@@ -73,20 +73,20 @@
     }
   },
   "fresh_regression": {
-    "state": "PASS_FULL_REGRESSION_AFTER_SWE02_P14_NABAT_MORNING",
+    "state": "PASS_FULL_REGRESSION_AFTER_SWE02_P13_NABAT_SHIP_REPAIRS",
     "files": 382,
     "regular_files": 376,
     "stress_files": 6,
-    "tests": 3457,
-    "pass": 3455,
+    "tests": 3458,
+    "pass": 3456,
     "fail": 0,
     "skip": 2,
     "files_without_complete_summary": [],
-    "evidence": "evidence/SWE02_P14_NABAT_MORNING_FULL_REGRESSION_20261016/",
-    "summary": "evidence/SWE02_P14_NABAT_MORNING_FULL_REGRESSION_20261016/summary.json",
+    "evidence": "evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/",
+    "summary": "evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/summary.json",
     "skip_reason": "JDK jar executable unavailable for two offline Gradle-wrapper packaging checks.",
     "runner_environment": "Per-file TAP runner, 8 workers; NODE_PATH points to work/build-deps5/node_modules; Python subprocess output decoded as UTF-8.",
-    "supersedes": "evidence/SWE02_P14_NYN_REWARDS_LIFECYCLE_FULL_REGRESSION_20261016/"
+    "supersedes": "evidence/SWE02_P14_NABAT_MORNING_FULL_REGRESSION_20261016/"
   },
   "blockers": [
     "All 360 AoR positions lack individual source-to-effect, UI, persistence, and test evidence.",
@@ -97,7 +97,7 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Continue the SWE02 source-to-semantic audit across Act 1 pp.2–14 and the remaining Acts 2–3 branches. P.14 night-to-morning transition now has deterministic receipts, UI/controller wiring and regression evidence; page-wide P14 remains pending. Keep all five adventure, rules and AoR 360 certification gates open; do not create P245 or run Android release gates until the global gates pass.",
+  "next_action": "Continue SWE02 Act 1 page-wide source-to-semantic coverage, preserving explicit source ambiguity for unquantified fuel. Then close outstanding Act 2/3 branches and the remaining four adventures; selected rules and 360 AoR individual proofs remain pending. Do not create P245 or run Android release gates until all global certification criteria pass.",
   "swe02_krayt_fang_pp06_11": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
     "source": "Long Arm of the Hutt printed pp.6–11 / PDF pp.6–11",
@@ -381,21 +381,48 @@
     ],
     "focused_tests": {
       "files": 2,
-      "tests": 31,
-      "pass": 31,
+      "tests": 32,
+      "pass": 32,
       "fail": 0,
       "skip": 0,
-      "evidence": "evidence/SWE02_P14_NABAT_MORNING_FULL_REGRESSION_20261016/"
+      "evidence": "evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/"
     },
     "full_regression": {
       "files": 382,
-      "tests": 3457,
-      "pass": 3455,
+      "tests": 3458,
+      "pass": 3456,
       "fail": 0,
       "skip": 2,
       "stress_files": 6,
-      "evidence": "evidence/SWE02_P14_NABAT_MORNING_FULL_REGRESSION_20261016/summary.json"
+      "evidence": "evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/summary.json"
     },
     "limit": "Full p.14 dialogue crosswalk and page-wide certification remain pending."
+  },
+  "swe02_p13_nabat_ship_repairs": {
+    "status": "IMPLEMENTADO_NAO_CERTIFICADO",
+    "source": "The Long Arm of the Hutt printed p.13; official PDF printed p.13 / physical PDF p.12",
+    "source_claim": "B’ura B’an arranges safe docking and has his Nabat contacts carry out and pay for any needed ship repairs.",
+    "executor": "swe02NabatP240.mjs:nabatShipRepair + rules/vehicles.mjs:repairVehicleCritical",
+    "controller": "GameController.repairSWE02KraytFangAtNabat",
+    "ui": "swe02NabatRepair",
+    "effect": "Clears actual hull damage and system strain; marks each repairable Critical Hit repaired while preserving history; clears disabled components; charges no player credits; rejects a vaporized/destroyed ship and rolls back.",
+    "tests": {
+      "files": 2,
+      "tests": 33,
+      "pass": 33,
+      "fail": 0,
+      "skip": 0,
+      "evidence": "evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/"
+    },
+    "full_regression": {
+      "files": 382,
+      "tests": 3458,
+      "pass": 3456,
+      "fail": 0,
+      "skip": 2,
+      "stress_files": 6,
+      "evidence": "evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/summary.json"
+    },
+    "limit": "Fuel amount and price are unspecified by the adventure source and remain unmodified; page 13 and Act 1 remain pending."
   }
 }

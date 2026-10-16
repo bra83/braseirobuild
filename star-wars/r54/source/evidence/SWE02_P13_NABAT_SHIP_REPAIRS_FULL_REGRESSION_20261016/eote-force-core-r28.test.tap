@@ -1,0 +1,28 @@
+✔ dado da Força reproduz as 12 faces oficiais do Core (37.4378ms)
+✔ Exilado Sensível à Força é universal, custa como carreira e concede Force Rating 1 sem skills grátis (7.2896ms)
+✔ Droide não pode adquirir Exilado Sensível à Força (17.6681ms)
+✔ árvore universal do Exilado tem 20 nós e talentos de primeira linha acessíveis (29.5655ms)
+✔ Perspicácia torna Percepção e Disciplina perícias de carreira sem dar ranks (3.4668ms)
+✔ Sentidos e Reações sobrenaturais alimentam modificadores de perícia (5.6042ms)
+✔ rolagem usa Force Rating disponível e dados comprometidos reduzem a quantidade rolada (3.4053ms)
+✔ usuário luminoso pode converter resultados sombrios com um Destino e Tensão por ponto usado (11.4683ms)
+✔ sem Destino luminoso não é permitido usar resultados sombrios (1.9664ms)
+✔ Sense, Influence e Move custam 10 PE e exigem Force Rating (7.2191ms)
+✔ aprimoramentos da Força respeitam conexões e custos da árvore (15.5744ms)
+✔ Influência básica causa 1 Tensão por ponto ou 2 com Strength (1.8295ms)
+✔ regra especial de Influência separa emoções positivas/negativas por lado (1.2017ms)
+✔ Mover com Control de arremesso calcula dano oficial por silhueta (5.1293ms)
+✔ árvore do Exilado respeita a malha oficial e não cria atalhos sob Insight/Forager (9.0197ms)
+✔ Sentir calcula alcance, magnitude e pensamentos sem confundir gasto de pontos (3.0861ms)
+✔ Mover separa ativações de Strength, Range e Magnitude conforme o Core (2.2697ms)
+✔ Sobrecarregar Emoções usa lados diferentes em Carisma versus Coerção/Enganação (8.6799ms)
+✔ controller persiste compra universal, poderes e consumo de Destino (43.4295ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1771.2078
+

@@ -1,0 +1,51 @@
+✔ P140 under-black-sun: recibos, journal, soma e três restaurações coerentes (305.648ms)
+✔ P140 under-black-sun: adulteração do relógio bloqueia débito e replay sem mutação (294.7356ms)
+✔ P140 under-black-sun: adulteração de recibo bloqueia replay e novos commits (211.6274ms)
+✔ P140 under-black-sun: adulteração de journal UAE rejeitada sem reparo silencioso (99.0722ms)
+✔ P140 under-black-sun: evento sem recibo é rejeitado na restauração auditada (73.0393ms)
+✔ P140 under-black-sun: evento não pode ser inserido sem recibo confirmado (25.9483ms)
+✔ P140 under-black-sun: rollback UAE mantém recibos intactos quando evento falha (53.1337ms)
+✔ P140 beyond-the-rim: recibos, journal, soma e três restaurações coerentes (124.8117ms)
+✔ P140 beyond-the-rim: adulteração do relógio bloqueia débito e replay sem mutação (100.6644ms)
+✔ P140 beyond-the-rim: adulteração de recibo bloqueia replay e novos commits (126.391ms)
+✔ P140 beyond-the-rim: adulteração de journal UAE rejeitada sem reparo silencioso (92.7915ms)
+✔ P140 beyond-the-rim: evento sem recibo é rejeitado na restauração auditada (79.7227ms)
+✔ P140 beyond-the-rim: evento não pode ser inserido sem recibo confirmado (31.3838ms)
+✔ P140 beyond-the-rim: rollback UAE mantém recibos intactos quando evento falha (61.5582ms)
+✔ P140 long-arm-of-the-hutt: recibos, journal, soma e três restaurações coerentes (118.135ms)
+✔ P140 long-arm-of-the-hutt: adulteração do relógio bloqueia débito e replay sem mutação (86.2809ms)
+✔ P140 long-arm-of-the-hutt: adulteração de recibo bloqueia replay e novos commits (152.113ms)
+✔ P140 long-arm-of-the-hutt: adulteração de journal UAE rejeitada sem reparo silencioso (156.6763ms)
+✔ P140 long-arm-of-the-hutt: evento sem recibo é rejeitado na restauração auditada (136.9645ms)
+✔ P140 long-arm-of-the-hutt: evento não pode ser inserido sem recibo confirmado (45.0308ms)
+✔ P140 long-arm-of-the-hutt: rollback UAE mantém recibos intactos quando evento falha (46.9501ms)
+✔ P140 jewel-of-yavin: recibos, journal, soma e três restaurações coerentes (93.7485ms)
+✔ P140 jewel-of-yavin: adulteração do relógio bloqueia débito e replay sem mutação (79.3023ms)
+✔ P140 jewel-of-yavin: adulteração de recibo bloqueia replay e novos commits (118.1371ms)
+✔ P140 jewel-of-yavin: adulteração de journal UAE rejeitada sem reparo silencioso (53.3965ms)
+✔ P140 jewel-of-yavin: evento sem recibo é rejeitado na restauração auditada (110.0211ms)
+✔ P140 jewel-of-yavin: evento não pode ser inserido sem recibo confirmado (24.7266ms)
+✔ P140 jewel-of-yavin: rollback UAE mantém recibos intactos quando evento falha (31.3898ms)
+✔ P140 mask-of-the-pirate-queen: recibos, journal, soma e três restaurações coerentes (114.1459ms)
+✔ P140 mask-of-the-pirate-queen: adulteração do relógio bloqueia débito e replay sem mutação (64.3007ms)
+✔ P140 mask-of-the-pirate-queen: adulteração de recibo bloqueia replay e novos commits (179.8258ms)
+✔ P140 mask-of-the-pirate-queen: adulteração de journal UAE rejeitada sem reparo silencioso (78.4032ms)
+✔ P140 mask-of-the-pirate-queen: evento sem recibo é rejeitado na restauração auditada (93.3015ms)
+✔ P140 mask-of-the-pirate-queen: evento não pode ser inserido sem recibo confirmado (35.1601ms)
+✔ P140 mask-of-the-pirate-queen: rollback UAE mantém recibos intactos quando evento falha (84.7494ms)
+✔ P140: save legado sem ledger continua aceito e primeiro débito é persistido (1.7773ms)
+✔ P140: tempo confirmado antes de começar aventura não exige journal retroativo (75.6089ms)
+✔ P140: relógio fracionário é auditado sem perder precisão de save JSON (4.0832ms)
+✔ P140: ledger rejeita registros órfãos, IDs perigosos e dados não numéricos (1.9037ms)
+✔ P140: importação JSON rejeita relógio adulterado antes da migração (163.3625ms)
+✔ P140: repositório rejeita gravação e restauração de ledger adulterado (80.3723ms)
+✔ P140: journal UAE adulterado é rejeitado ao validar estado completo (121.8845ms)
+ℹ tests 42
+ℹ suites 0
+ℹ pass 42
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5865.0179
+

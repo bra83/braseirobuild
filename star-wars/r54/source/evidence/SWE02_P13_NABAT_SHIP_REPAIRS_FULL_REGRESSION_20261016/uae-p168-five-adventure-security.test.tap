@@ -1,0 +1,29 @@
+✔ P168 under-black-sun: imported objective completed without prerequisite rejected even when journal predates causal audit (64.8935ms)
+✔ P168 under-black-sun: published resolution rejects injected effects and rolls back all state (142.2428ms)
+✔ P168 under-black-sun: full trigger -> consequence -> objectives -> clock -> triple restore and replay (141.9728ms)
+✔ P168 under-black-sun: source collision with same consequence ID but different effects rejected at preflight (3.3701ms)
+✔ P168 beyond-the-rim: imported objective completed without prerequisite rejected even when journal predates causal audit (9.0054ms)
+✔ P168 beyond-the-rim: published resolution rejects injected effects and rolls back all state (8.9502ms)
+✔ P168 beyond-the-rim: full trigger -> consequence -> objectives -> clock -> triple restore and replay (93.8646ms)
+✔ P168 beyond-the-rim: source collision with same consequence ID but different effects rejected at preflight (2.9373ms)
+✔ P168 long-arm-of-the-hutt: imported objective completed without prerequisite rejected even when journal predates causal audit (9.3387ms)
+✔ P168 long-arm-of-the-hutt: published resolution rejects injected effects and rolls back all state (9.4488ms)
+✔ P168 long-arm-of-the-hutt: full trigger -> consequence -> objectives -> clock -> triple restore and replay (68.1514ms)
+✔ P168 long-arm-of-the-hutt: source collision with same consequence ID but different effects rejected at preflight (3.4845ms)
+✔ P168 jewel-of-yavin: imported objective completed without prerequisite rejected even when journal predates causal audit (4.2648ms)
+✔ P168 jewel-of-yavin: published resolution rejects injected effects and rolls back all state (23.0881ms)
+✔ P168 jewel-of-yavin: full trigger -> consequence -> objectives -> clock -> triple restore and replay (22.0332ms)
+✔ P168 jewel-of-yavin: source collision with same consequence ID but different effects rejected at preflight (1.2079ms)
+✔ P168 mask-of-the-pirate-queen: imported objective completed without prerequisite rejected even when journal predates causal audit (5.129ms)
+✔ P168 mask-of-the-pirate-queen: published resolution rejects injected effects and rolls back all state (7.7251ms)
+✔ P168 mask-of-the-pirate-queen: full trigger -> consequence -> objectives -> clock -> triple restore and replay (53.1697ms)
+✔ P168 mask-of-the-pirate-queen: source collision with same consequence ID but different effects rejected at preflight (3.1187ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2650.3599
+
