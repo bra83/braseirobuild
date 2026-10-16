@@ -26,7 +26,8 @@ import { safeP177Id } from '../rules/aorP177Actions.mjs';
 import {npcBlastReceipt,assertBlastReceipt} from '../rules/aorP179Reactions.mjs';
 import { mechanicFieldPreflight, mechanicFieldReceipt, assertOwnedEquipmentOperational } from '../rules/aorMechanicFieldActions.mjs';
 import { advanceBeyondTheRimImperialClock, beyondTheRimImperialClockStatus } from '../adventure/beyondTheRim.mjs';
-import { longArmShipSmellSetback } from '../adventure/longArmOfTheHutt.mjs';
+import { longArmShipSmellSetback,chooseLongArmOldLylekRoute,proceedLongArmOldLylekBluff,approachLongArmOldLylekOnFoot,
+    recordLongArmOldLylekCrashCheck,confirmLongArmOldLylekCrashCrew,inspectLongArmOldLylekSpeeder,recordLongArmOldLylekWarning,persistLongArmOldLylek } from '../adventure/longArmOfTheHutt.mjs';
 import {beginThwheekInterception,resolveThwheekInterception,thwheekTactics,THWHEEK_ID,THWHEEK_CONTEXT} from '../adventure/swe02ThwheekP239.mjs';
 import {nabatMarketCatalog,nabatPurchase,requestNabatSpaceportWatch,deliverNabatNightAlert,nabatShipRepair,nabatSafehouseCare} from '../adventure/swe02NabatP240.mjs';
 import {nynCriticalCare,nynNegotiate,bribeNewMeenThug} from '../adventure/swe02SocialP241.mjs';
@@ -3262,7 +3263,7 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
             const environmental=environment_mjs_1.configureEnvironment(this.state.environment,{scriptedSetbackDice:Number(spec.environment.darknessSetbackDice)});
             this.commit('ENVIRONMENT_UPDATED',{environment:environmental});
         }
-        const started = this.beginEncounter({ adversaries, rng, playerInitiativeSkill: spec.playerInitiativeSkill, npcInitiativeSkill: spec.npcInitiativeSkill, playerQuickReactionStrain });
+        const started = this.beginEncounter({ adversaries, rng, playerInitiativeSkill: spec.playerInitiativeSkill, npcInitiativeSkill: spec.npcInitiativeSkill, npcInitiativeSetback:spec.npcInitiativeSetback, playerQuickReactionStrain });
         const marked = adapter.markEncounterActive(encounterWorld, spec.id);
         this.commit('WORLD_UPDATED', { world: marked });
         const next = clone(this.state);
@@ -3448,7 +3449,7 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         ];
         return this.beginEncounter({ adversaries, rng, playerInitiativeSkill, npcInitiativeSkill, playerQuickReactionStrain });
     }
-    beginEncounter({ adversaries, rng = Math.random, playerInitiativeSkill = 'alerta', npcInitiativeSkill = 'alerta', playerQuickReactionStrain = 0 } = {}) {
+    beginEncounter({ adversaries, rng = Math.random, playerInitiativeSkill = 'alerta', npcInitiativeSkill = 'alerta', npcInitiativeSetback = 0, playerQuickReactionStrain = 0 } = {}) {
         return this.atomicAction(() => {
         let character = this.state.player.character;
         assertCanAct(character);
@@ -3467,7 +3468,8 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         const entries = [initiative_mjs_1.initiativeEntry({ id: 'player', side: 'player', check: playerCheck, label: character.name })];
         for (const adversary of adversaries) {
             const pool = narrativeDice_mjs_1.buildPositivePool(adversaries_mjs_1.adversaryCharacteristicForSkill(adversary, npcInitiativeSkill), adversaries_mjs_1.adversarySkillRank(adversary, npcInitiativeSkill));
-            const check = narrativeDice_mjs_1.rollPool(pool, rng);
+            const setback=Number(adversary.initiativeSetback??npcInitiativeSetback)||0;
+            const check = narrativeDice_mjs_1.rollPool({ ...pool, setback }, rng);
             entries.push(initiative_mjs_1.initiativeEntry({ id: adversary.id, side: 'npc', check, label: adversary.name }));
         }
         combat = encounter_mjs_1.setupEncounter(combat, { entries, adversaries, playerActorId: 'player' });
@@ -3883,7 +3885,8 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         }
         let publishedAdventureOutcome = null;
         if (publishedAdventureAdapter) {
-            const published = publishedAdventureAdapter.recordEncounterOutcome(this.state.world, { encounterId: publishedAdventureContext.encounterId, outcome: causalOutcome ?? 'ended', adversaries: encounterAdversaries, throneAlarm:preCombat.swe02ThroneAlarm??null });
+            const published = publishedAdventureAdapter.recordEncounterOutcome(this.state.world, { encounterId: publishedAdventureContext.encounterId, outcome: causalOutcome ?? 'ended', adversaries: encounterAdversaries, throneAlarm:preCombat.swe02ThroneAlarm??null,
+                combatLog:[...(preCombat.log??[]),...(preCombat.swe02OldLylekAdvantageTriggered?[{check:{netAdvantage:1},sourcePage:18}]:[])] });
             this.commit('WORLD_UPDATED', { world: published.world });
             publishedAdventureOutcome = published.record;
         }
@@ -5179,6 +5182,12 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
             this.commit('WORLD_UPDATED',{world:recorded.world});
         }
         character = applyActionCriticalStrain(character, critical);
+        if(this.state.combat?.publishedAdventureContext?.adventureId==='long-arm-of-the-hutt'&&
+           this.state.combat?.publishedAdventureContext?.encounterId==='lylek-den-bounty-hunters'){
+            combat.swe02OldLylekFightChecks=[...(combat.swe02OldLylekFightChecks||[]),
+                {round:combat.round,netAdvantage:Number(check.netAdvantage)||0,sourcePage:18}];
+            if(Number(check.netAdvantage)>0)combat.swe02OldLylekAdvantageTriggered=true;
+        }
         this.commit('COMBAT_ACTION', { combat, character, check, attack });
         return attack;
         });
@@ -5955,6 +5964,51 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
         const out=shootSWE02Chandelier(this.state.world,this.state.combat,requireCharacter(this.state.player?.character),{weaponIndex,rng});
         this.commit('WORLD_UPDATED',{world:out.world});this.commit('COMBAT_ACTION',{combat:out.combat});
         return clone(out.receipt);
+    });}
+    /** SWE02 p.12: adventure action, not a decorative 'interception' flag. */
+    chooseSWE02OldLylekRoute({slowDown}={}){return this.atomicAction(()=>{
+        if(this.state.combat?.active)throw Error('SWE02 p.15: escolha a rota antes do combate.');
+        const out=chooseLongArmOldLylekRoute(this.state.world,{slowDown});
+        this.commit('WORLD_UPDATED',{world:out.world});return clone(out.progress.oldLylek);
+    });}
+    proceedSWE02OldLylekBluff(){return this.atomicAction(()=>{
+        if(this.state.combat?.active)throw Error('SWE02 p.17: não é possível avançar durante combate.');
+        const out=proceedLongArmOldLylekBluff(this.state.world);this.commit('WORLD_UPDATED',{world:out.world});return clone(out.progress.oldLylek);
+    });}
+    approachSWE02OldLylekOnFoot(){return this.atomicAction(()=>{
+        if(this.state.combat?.active)throw Error('SWE02 p.17: não é possível mudar a aproximação durante combate.');
+        const out=approachLongArmOldLylekOnFoot(this.state.world);this.commit('WORLD_UPDATED',{world:out.world});return clone(out.progress.oldLylek);
+    });}
+    resolveSWE02OldLylekCrashCheck({skillKey='aguante',rng=Math.random}={}){return this.atomicAction(()=>{
+        if(this.state.combat?.active)throw Error('SWE02 p.17: o speeder já parou; teste indisponível durante combate.');
+        const character=clone(requireCharacter(this.state.player?.character));
+        if(!['aguante','coordenacion'].includes(skillKey))throw Error('SWE02 p.17: escolha Aguante ou Coordenação.');
+        const sessionCount=Number(this.state.session?.campaignRules?.destiny?.playerCount??this.state.session?.eoteRules?.destiny?.playerCount??this.state.session?.playerCount);
+        if(!Number.isInteger(sessionCount)||sessionCount<1||sessionCount>8)throw Error('SWE02 p.17: número real de PCs não confirmado.');
+        const prior=this.state.world?.publishedAdventure?.oldLylek?.crashChecks??[];
+        if(prior.length>=sessionCount)throw Error('SWE02 p.17: todos os testes da tripulação já foram registrados.');
+        const check=this.resolveSkillCheck({skillKey,difficulty:2,rng});
+        let updated=character,damage=null;
+        if(!check.success){damage=health_mjs_1.applyDamage(character,{damage:6,damageType:'wounds',reason:'Lançado do speeder — SWE02 p.17',criticalRng:rng});updated=damage.character;}
+        const out=recordLongArmOldLylekCrashCheck(this.state.world,{characterName:character.name,skillKey,check});
+        let world=out.world;
+        const checks=world.publishedAdventure.oldLylek.crashChecks;
+        if(checks.length===sessionCount)world=confirmLongArmOldLylekCrashCrew(world,{expectedPcCount:sessionCount}).world;
+        this.commit('CHARACTER_UPDATED',{character:updated});this.commit('WORLD_UPDATED',{world});
+        return {check,damage:damage?{rawDamage:damage.rawDamage,suffered:damage.suffered,effectiveSoak:damage.effectiveSoak}:null,
+            checked:checks.length,expected:sessionCount,phase:world.publishedAdventure.oldLylek.phase};
+    });}
+    inspectSWE02OldLylekSpeeder(){return this.atomicAction(()=>{
+        if(this.state.combat?.active)throw Error('SWE02 p.18: encerre o combate antes de inspecionar o speeder.');
+        const out=inspectLongArmOldLylekSpeeder(this.state.world);this.commit('WORLD_UPDATED',{world:out.world});return clone(out.progress.oldLylek.hunterLoot);
+    });}
+    insistSWE02OldLylek(){return this.atomicAction(()=>{
+        if(this.state.combat?.active)throw Error('SWE02 p.18: encerre o combate dos caçadores primeiro.');
+        const out=recordLongArmOldLylekWarning(this.state.world);this.commit('WORLD_UPDATED',{world:out.world});const adapter=publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter('long-arm-of-the-hutt');const scene=adapter.currentScene(this.state.world);if(scene)this.commit('SCENE_UPDATED',{scene});return clone(out.progress.oldLylek.lylekWarning);
+    });}
+    persistSWE02OldLylek(){return this.atomicAction(()=>{
+        if(this.state.combat?.active)throw Error('SWE02 p.18: encerre o combate ativo primeiro.');
+        const out=persistLongArmOldLylek(this.state.world);this.commit('WORLD_UPDATED',{world:out.world});return clone(out.progress.oldLylek.lylekEncounter);
     });}
     /** SWE02 p.12: adventure action, not a decorative 'interception' flag. */
     beginSWE02ThwheekCombat(){

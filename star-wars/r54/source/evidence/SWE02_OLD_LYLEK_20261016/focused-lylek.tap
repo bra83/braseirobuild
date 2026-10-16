@@ -1,0 +1,11 @@
+✔ Old Lylek foot approach is available without a Perception declaration; hunter loot, warning and optional verified lylek attack survive three reopenings (440.4357ms)
+✔ failed fast-route Pilot checks keep the party-wide strain consequence visibly pending (100.675ms)
+✔ retreat or incapacitation settles the hunter branch while preserving the lylek trigger and its p.18 loot rule (246.6756ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1627.907

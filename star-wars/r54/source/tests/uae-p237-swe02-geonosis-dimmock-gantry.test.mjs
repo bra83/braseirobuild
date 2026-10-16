@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
+import {resolveOldLylekRetreat} from './swe02-act1-fixture.mjs';
 import {PUBLISHED_ADVENTURE_ADVERSARY_PROFILES as profiles} from '../app/src/main/assets/vtt/js/rules/adversaries.mjs';
 import {GameController} from '../app/src/main/assets/vtt/js/core/controller.mjs';
 import {createCampaign} from '../app/src/main/assets/vtt/js/core/state.mjs';
 const a=getPublishedAdventureAdapter('long-arm-of-the-hutt');
-const step=(w,id)=>a.advance(w,id).world,chain=(w,...ids)=>ids.reduce(step,w),start=()=>a.start({}).world;
+const step=(w,id)=>a.advance(w,id).world,chain=(w,...ids)=>ids.reduce((state,id)=>step(id==='reach-new-meen'?resolveOldLylekRetreat(a,state):state,id),w),start=()=>a.start({}).world;
 const party=()=>chain(start(),'dock-ryloth','head-to-geonosis','attend-piddock-party');
 const audience=()=>step(party(),'piddock-to-dimmock');
 const check=(w,i,success)=>a.adjudicateCheck(w,{checkIndex:i,result:{success,netSuccess:success?1:0,netAdvantage:0}}).world;

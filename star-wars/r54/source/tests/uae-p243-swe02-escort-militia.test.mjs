@@ -4,13 +4,14 @@ import fs from 'node:fs';
 import {GameController} from '../app/src/main/assets/vtt/js/core/controller.mjs';
 import {createCampaign} from '../app/src/main/assets/vtt/js/core/state.mjs';
 import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
+import {resolveOldLylekRetreat} from './swe02-act1-fixture.mjs';
 import {BraseiroUiBridge} from '../app/src/main/assets/vtt/js/core/uiBridge.mjs';
 const adapter=getPublishedAdventureAdapter('long-arm-of-the-hutt');
 class Repo{constructor(){this.state=createCampaign('P243');this.saves=0}load(){return structuredClone(this.state)}save(s){this.state=structuredClone(s);this.saves++}}
 function fixture({evacuate=false,scene='new-meen-miners'}={}){
  const repo=new Repo(),g=new GameController(repo);g.loadStarterCharacter('cael');g.startSession({playerCount:3,rng:()=>.9});
  let w=adapter.start(g.state.world).world;
- for(const c of ['dock-ryloth','help-new-meen','travel-lylek-den','reach-new-meen'])w=adapter.advance(w,c).world;
+ for(const c of ['dock-ryloth','help-new-meen','travel-lylek-den'])w=adapter.advance(w,c).world;w=resolveOldLylekRetreat(adapter,w,3);w=adapter.advance(w,'reach-new-meen').world;
  w.publishedAdventure.flags.confirmedPartySize=3;
  if(evacuate)w=adapter.advance(w,'escort-new-meen-evacuees').world;
  else if(scene==='drombb-cantina')w=adapter.advance(w,'confront-drombb-directly').world;

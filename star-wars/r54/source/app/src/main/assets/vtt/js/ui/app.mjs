@@ -290,7 +290,29 @@ function render() {
   renderSkillSelect(s.player.character);
   renderCombat(s.player.character, s.combat);
   renderVehicle(s);
+  renderSWE02OldLylek(s);
   renderLibrary();
+}
+
+function renderSWE02OldLylek(state){
+  const p=state.world?.publishedAdventure,o=p?.oldLylek,host=$('swe02OldLylek');if(!host)return;
+  const active=p?.id==='long-arm-of-the-hutt'&&p.status==='ACTIVE'&&p.currentNodeId==='lylek-den-ambush'&&o;
+  host.hidden=!active;
+  if(!active)return;
+  const phase=o.phase,combatId=state.combat?.publishedAdventureContext?.encounterId;
+  $('swe02OldLylekStatus').textContent=`Etapa: ${phase} · rota: ${o.route||'não escolhida'}${o.lookout?.spottedGand?' · Gand avistado (SWE02 p.17)':''}${o.lookout&&!o.lookout.spottedGand?' · Gand não avistado (SWE02 p.17)':''}${o.route==='fast'?' · caçadores recebem 1 Setback na iniciativa Cool (SWE02 p.17)':''}${o.lylekTriggered?' · ninho perturbado':''}${o.huntersOutcome?` · caçadores: ${o.huntersOutcome}`:''}${o.hunterLoot?.status==='available'?' · speeder dos caçadores pode ser inspecionado':o.hunterLoot?.status==='found'?' · encontrados: 2 stimpacks, medpac, kit de reparo (SWE02 p.18)':''}${o.trexCarryover?.status==='PENDENTE'?' · T’rex depende do histórico de Mos Shuuta (PENDENTE)':''}`;
+  $('swe02LylekSlow').hidden=phase!=='approach';$('swe02LylekFast').hidden=phase!=='approach';
+  $('swe02LylekCheck').hidden=!['pilot-1','pilot-2','lookout','repair','repair-failed'].includes(phase);
+  $('swe02LylekProceed').hidden=!['lookout','bluff'].includes(phase);$('swe02LylekFoot').hidden=!['lookout','bluff'].includes(phase);
+  $('swe02LylekCrash').hidden=phase!=='crash-checks';
+  $('swe02LylekHunters').hidden=phase!=='combat-ready';
+  $('swe02LylekInsist').hidden=phase!=='post-hunters'||!o.lylekTriggered;
+  $('swe02LylekLoot').hidden=o.hunterLoot?.status!=='available';
+  $('swe02LylekBeast').hidden=phase!=='lylek-warned';
+  $('swe02LylekFinish').hidden=!(state.combat?.active&&combatId==='lylek-den-lylek');
+  $('swe02LylekContinue').hidden=!['post-hunters','post-lylek','lylek-warned','lylek-ready'].includes(phase)||!p.flags?.lylekHuntersResolved;
+  const locked=Boolean(state.combat?.active);
+  for(const id of ['swe02LylekSlow','swe02LylekFast','swe02LylekProceed','swe02LylekFoot','swe02LylekCrash','swe02LylekHunters','swe02LylekInsist','swe02LylekBeast','swe02LylekContinue','swe02LylekLoot'])$(id).disabled=locked;
 }
 
 
@@ -1003,6 +1025,25 @@ $('resolveSuggestedCheck').addEventListener('click',()=>{
   try { const check=game.resolveSuggestedMasterCheck(); renderRoll(check); showFeedback('intentFeedback','Teste sugerido pelo Mestre resolvido e registrado.'); render(); }
   catch(e) { showFeedback('intentFeedback',e.message); }
 });
+
+for(const [id,run,okText] of [
+ ['swe02LylekSlow',()=>game.chooseSWE02OldLylekRoute({slowDown:true}),'Velocidade reduzida; o terreno pode ser atravessado sem teste.'],
+ ['swe02LylekFast',()=>game.chooseSWE02OldLylekRoute({slowDown:false}),'Rota rápida: resolva os dois testes de Pilotagem Média sugeridos, um por vez.'],
+ ['swe02LylekProceed',()=>game.proceedSWE02OldLylekBluff(),'Aproximação pelo bluff registrada.'],
+ ['swe02LylekFoot',()=>game.approachSWE02OldLylekOnFoot(),'Grupo parou e se aproxima a pé; combate pode começar.'],
+ ['swe02LylekCrash',()=>game.resolveSWE02OldLylekCrashCheck({skillKey:$('swe02LylekCrashSkill').value}),'Teste de colisão registrado.'],
+ ['swe02LylekHunters',()=>game.beginPublishedAdventureEncounter('lylek-den-bounty-hunters',{rng:Math.random}),'Combate dos caçadores iniciado.'],
+ ['swe02LylekInsist',()=>game.insistSWE02OldLylek(),'B’ura B’an advertiu para deixar o lylek com a presa.'],
+ ['swe02LylekLoot',()=>game.inspectSWE02OldLylekSpeeder(),'Speeder inspecionado: encontrados dois stimpacks, um medpac e um kit emergencial de reparo (SWE02 p.18).'],
+ ['swe02LylekBeast',()=>{game.persistSWE02OldLylek();return game.beginPublishedAdventureEncounter('lylek-den-lylek',{rng:Math.random});},'O lylek atacou usando Captive Rancor do Beginner Game p.47.'],
+ ['swe02LylekFinish',()=>game.finishCombat(),'Combate encerrado; verifique o desfecho registrado.'],
+ ['swe02LylekContinue',()=>game.advancePublishedAdventure('reach-new-meen'),'A tripulação seguiu para New Meen.']
+])$(id).addEventListener('click',()=>{try{const r=run();showFeedback('swe02OldLylekFeedback',okText);render();}
+ catch(e){showFeedback('swe02OldLylekFeedback',e.message);}});
+$('swe02LylekCheck').addEventListener('click',()=>{try{
+ const r=game.resolvePublishedAdventureCheck(0,{adventureId:'long-arm-of-the-hutt',rng:Math.random});
+ showFeedback('swe02OldLylekFeedback',`Teste ${r.check.success?'bem-sucedido':'falhou'} · ${r.adjudication?.source?.printedPage?'fonte p.'+r.adjudication.source.printedPage:'SWE02'}.`);render();
+}catch(e){showFeedback('swe02OldLylekFeedback',e.message);}});
 
 $('loadStarter').addEventListener('click',()=>{
   try { game.loadStarterCharacter($('starterCharacter').value); render(); }

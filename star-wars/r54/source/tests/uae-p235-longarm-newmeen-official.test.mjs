@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
+import {resolveOldLylekRetreat} from './swe02-act1-fixture.mjs';
 import {PUBLISHED_ADVENTURE_ADVERSARY_PROFILES} from '../app/src/main/assets/vtt/js/rules/adversaries.mjs';
 const getAdversaryProfile = key => PUBLISHED_ADVENTURE_ADVERSARY_PROFILES[key];
 const a=getPublishedAdventureAdapter('long-arm-of-the-hutt');
@@ -8,7 +9,7 @@ const clone=x=>structuredClone(x);
 const start=()=>a.start({}).world;
 const step=(w,id)=>a.advance(w,id).world;
 const arrive=()=>step(step(step(start(),'dock-ryloth'),'help-new-meen'),'travel-lylek-den');
-const meen=()=>step(arrive(),'reach-new-meen');
+const meen=()=>step(resolveOldLylekRetreat(a,arrive()),'reach-new-meen');
 const withParty=(world,n)=>{const w=clone(world);w.publishedAdventure.flags.confirmedPartySize=n;return w;};
 const members=(spec,dead=true)=>spec.adversaries.map((e,i)=>({id:`enemy-${i}`,profileKey:e.profileKey,status:dead?'incapacitated':'active',wounds:dead?500:0}));
 const win=(world,id)=>{
@@ -63,7 +64,7 @@ test('SWE02 cannot leave an active New Meen combat by clicking another node',()=
  const w=withParty(step(meen(),'stay-new-meen-night'),3);
  const active=a.markEncounterActive(w,'laoth-new-meen-night-raid');
  assert.throws(()=>a.advance(active,'leave-new-meen-after-raid'),/Encerre o combate/);
- assert.equal(w.publishedAdventure.activeEncounterId,undefined);
+ assert.ok(w.publishedAdventure.activeEncounterId==null);
 });
 test('SWE02 New Meen combat rejects forged groups, ids, and victory without enemy defeat; atomic rollback',()=>{
  const w=withParty(step(meen(),'stay-new-meen-night'),3);
@@ -132,7 +133,9 @@ function controllerNightRaid(){
  g.loadStarterCharacter('cael');
  g.startSession({playerCount:3,rng:()=>.9});
  g.startPublishedAdventureSession('long-arm-of-the-hutt',{rng:()=>.9});
- for(const choice of ['dock-ryloth','help-new-meen','travel-lylek-den','reach-new-meen','stay-new-meen-night']) g.advancePublishedAdventure(choice);
+ for(const choice of ['dock-ryloth','help-new-meen','travel-lylek-den']) g.advancePublishedAdventure(choice);
+ g.state.world=resolveOldLylekRetreat(a,g.state.world,Number(g.state.session?.playerCount)||1);
+ for(const choice of ['reach-new-meen','stay-new-meen-night']) g.advancePublishedAdventure(choice);
  return {g,repo};
 }
 test('P235 actual Android controller starts New Meen raid with EotE session playerCount, official profile, persisted encounter',()=>{

@@ -11,6 +11,10 @@ import {validateSWE02Palace} from './swe02Act3PalaceWip.mjs';
 import {validateSWE02Anatta} from './swe02Act2Anatta.mjs';
 import {validateSWE02Act2Contracts,askSWE02Piddock} from './swe02Act2ContractsWip.mjs';
 import {validateSWE02PalaceOperations} from './swe02PalaceOperations.mjs';
+import {createSWE02OldLylekState,chooseSWE02OldLylekRoute,recordSWE02OldLylekPilot,recordSWE02OldLylekLookout,
+  proceedSWE02OldLylekBluff,approachSWE02OldLylekOnFoot,recordSWE02OldLylekCrashCheck,confirmSWE02OldLylekCrashCrew,
+  recordSWE02OldLylekRepair,markSWE02OldLylekCombatStarted,recordSWE02OldLylekHunterOutcome,inspectSWE02OldLylekSpeeder,warnSWE02OldLylek,
+  persistSWE02OldLylek,markSWE02OldLylekAttackStarted,resolveSWE02OldLylek,canSWE02OldLylekContinue} from './swe02OldLylekP15.mjs';
 
 const ID = 'long-arm-of-the-hutt';
 const SOURCE = { title: 'Long Arm of the Hutt', system: 'Star Wars: Edge of the Empire', productCode: 'SWE02', userMaterial: true };
@@ -139,10 +143,10 @@ export const LONG_ARM_OF_THE_HUTT = Object.freeze({
     },
     'lylek-den-ambush': {
       episode:1,title:'Emboscada no covil de lylek',locationId:LOC.lylekDen,
-      summary:'O caminho das minas atravessa um antigo covil onde caçadores de Teemo aguardam a tripulação.',
-      narration:'A poeira cobre a trilha. O eco de um disparo distante anuncia que os perseguidores encontraram a rota.',
-      visibleNpcIds:[],checks:[{skill:'Percepção',difficulty:'Difícil',purpose:'identificar o ataque antes de entrar na passagem'}],
-      choices:[{id:'reach-new-meen',label:'Continuar até New Meen após resolver a ameaça',to:'new-meen-miners'}]
+      summary:'Em Ryloth, pedras soltas e espigões obrigam a reduzir a velocidade ou arriscar colisões. Um Gand observa o desfiladeiro; o lylek do ninho ainda está quieto.',
+      narration:'O terreno fica cada vez mais perigoso. A trilha passa por um antigo covil de lylek onde os caçadores de Teemo prepararam uma emboscada.',
+      visibleNpcIds:[],checks:[],
+      choices:[{id:'reach-new-meen',label:'Continuar até New Meen após resolver a ameaça',to:'new-meen-miners',condition:'flag:lylekHuntersResolved'}]
     },
     'new-meen-miners': {
       episode:1,title:'A comunidade de New Meen',locationId:LOC.newMeen,
@@ -583,7 +587,8 @@ function playerNode(node, progress) {
     locationId: node.locationId,
     summary: consequence?.teemoAliveDeal?'Teemo continua vivo e prometeu deixar o grupo em paz mediante provas concretas.':consequence?.teemoRemovedByJabba?'Anatta apresentou as provas; Jabba retirou Teemo de circulação, sem morte confirmada.':node.summary,
     narration: consequence?.teemoAliveDeal?'Teemo ainda respira, mas agora sabe que seus segredos estão nas mãos da tripulação. O acordo afasta a caçada por enquanto.':consequence?.teemoRemovedByJabba?'O poder de Teemo se desfaz sob a intervenção de Jabba; nenhuma notícia confirma sua morte.':node.narration,
-    visibleNpcIds: [...(node.visibleNpcIds || [])],
+    visibleNpcIds: progress.currentNodeId==='lylek-den-ambush'&&progress.oldLylek?.lylekWarning?.warned
+      ?[...(node.visibleNpcIds||[]),NPC.bura]:[...(node.visibleNpcIds || [])],
     checks: clone(node.checks || []),
     choices: (node.choices || []).filter(c => conditionOk(c, progress) &&
       !(FACTS[c.id]&&(progress.geonosisEvidence||[]).some(x=>x.choiceId===c.id)) &&
@@ -644,6 +649,8 @@ export function advanceLongArmOfTheHutt(world, choiceId) {
   const node = LONG_ARM_OF_THE_HUTT.nodes[p.currentNodeId];
   const choice = (node?.choices || []).find(c => c.id === choiceId);
   if (!choice || !conditionOk(choice, p)) throw new Error('Escolha inválida.');
+  if(p.currentNodeId==='lylek-den-ambush'&&choiceId==='reach-new-meen'&&!canSWE02OldLylekContinue(p))
+    throw Error('SWE02 pp.15–18: resolva o encontro dos caçadores e a consequência do lylek antes de chegar a New Meen.');
   if(p.currentNodeId==='piddock-party'&&['piddock-kubaz','piddock-b1','piddock-identify-shell'].includes(choiceId)){
     const tracked=askSWE02Piddock(next,{topic:choiceId});
     p.piddockQuestionReceipts=tracked.world.publishedAdventure.piddockQuestionReceipts;
@@ -670,6 +677,7 @@ export function advanceLongArmOfTheHutt(world, choiceId) {
   }
   const destination=choice.to;
   p.currentNodeId = destination;
+  if(destination==='lylek-den-ambush'&&!p.oldLylek)p.oldLylek=createSWE02OldLylekState();
   if (!p.visitedNodeIds.includes(destination)) p.visitedNodeIds.push(destination);
   const target = LONG_ARM_OF_THE_HUTT.nodes[destination];
   if (!target.choices || target.choices.length === 0) {
@@ -728,7 +736,10 @@ export function currentLongArmOfTheHuttScene(world) {
   if (!p || p.id !== ID) return null;
   const node = LONG_ARM_OF_THE_HUTT.nodes[p.currentNodeId];
   if (!node) return null;
-  return { locationId: node.locationId, title: node.title, narration: node.narration, visibleNpcIds: [...(node.visibleNpcIds || [])] };
+  const buraWarning=p.currentNodeId==='lylek-den-ambush'&&p.oldLylek?.lylekWarning?.warned;
+  return { locationId: node.locationId, title: node.title,
+    narration:buraWarning?'B’ura B’an surge após se libertar do speeder e adverte: o lylek está ocupado com a presa, mas provocá-lo pode ser fatal.':node.narration,
+    visibleNpcIds:buraWarning?[...new Set([...(node.visibleNpcIds||[]),NPC.bura])]:[...(node.visibleNpcIds || [])] };
 }
 
 const SWE02_SKILLS=Object.freeze({'Enganação':'engano','Charme':'carisma','Coerção':'coaccion','Percepção':'percepcion','Computadores':'computadoras','Astrogação':'astronavegacion','Mecânica':'mecanica'});
@@ -741,6 +752,16 @@ export function currentLongArmOfTheHuttChecks(world) {
   const p = world?.publishedAdventure;
   if (!p || p.id !== ID || p.status !== 'ACTIVE') return [];
   const node = LONG_ARM_OF_THE_HUTT.nodes[p.currentNodeId];
+  if(p.currentNodeId==='lylek-den-ambush'){
+    const o=p.oldLylek||createSWE02OldLylekState();
+    if(o.phase==='pilot-1'||o.phase==='pilot-2')return [{id:`lylek-den:pilot:${o.pilotChecks.length+1}`,index:0,
+      skill:'Pilotagem (veículo planetário)',skillKey:'pilotar_vehiculo_planetario',difficultyText:'Média',purpose:`navegar o obstáculo de rochas — teste sucessivo ${o.pilotChecks.length+1} de 2`,
+      pool:{difficulty:2,challenge:0,setback:0},source:{title:SOURCE.title,productCode:'SWE02',printedPage:15,authority:'OFFICIAL_PDF_TEXT_VERIFIED'}}];
+    if(o.phase==='lookout')return [{id:'lylek-den:lookout',index:0,skill:'Percepção',skillKey:'percepcion',difficultyText:'Difícil',purpose:'manter vigia para notar o Gand na entrada da caverna',
+      pool:{difficulty:3,challenge:0,setback:0},source:{title:SOURCE.title,productCode:'SWE02',printedPage:17,authority:'OFFICIAL_PDF_TEXT_VERIFIED'}}];
+    if(['repair','repair-failed'].includes(o.phase))return [{id:'lylek-den:repair',index:0,skill:'Mecânica',skillKey:'mecanica',difficultyText:'Fácil',purpose:'desenterrar e reparar suficientemente o speeder em cerca de 30 minutos',
+      pool:{difficulty:1,challenge:0,setback:0},source:{title:SOURCE.title,productCode:'SWE02',printedPage:17,authority:'OFFICIAL_PDF_TEXT_VERIFIED'}}];
+  }
   if(['krayt-fang-logs','krayt-fang-ground-inspection'].includes(p.currentNodeId))return SHIP_CHECKS.map((check,index)=>({check,index})).filter(({index})=>shipCheckAvailable(p,index)).map(({check,index})=>({
     id:`${p.currentNodeId}:check:${index}`,index,skill:check.skill,
     skillKey:SWE02_SKILLS[check.skill]||null,difficultyText:['','Fácil','Média','Difícil','Formidável'][check.difficulty],purpose:check.purpose,
@@ -770,6 +791,15 @@ export function adjudicateLongArmOfTheHuttCheck(world, { checkIndex = 0, result 
   const entry = { at: now(), nodeId: p.currentNodeId, checkIndex, success: result.success,
     source:check.source||null,netAdvantage:Number.isFinite(Number(result.netAdvantage))?Number(result.netAdvantage):null };
   p.flags={...(p.flags||{})};
+  let playerStrainDelta=0;
+  if(p.currentNodeId==='lylek-den-ambush'){
+    const phase=p.oldLylek?.phase;
+    if(['pilot-1','pilot-2'].includes(phase)){
+      const receipt=recordSWE02OldLylekPilot(p,result);p.oldLylek=receipt.progress.oldLylek;
+
+    } else if(phase==='lookout')p.oldLylek=recordSWE02OldLylekLookout(p,result).progress.oldLylek;
+    else if(['repair','repair-failed'].includes(phase))p.oldLylek=recordSWE02OldLylekRepair(p,result).progress.oldLylek;
+  }
   if(['krayt-fang-logs','krayt-fang-ground-inspection'].includes(p.currentNodeId))recordShipCheck(p,checkIndex,result.success);
   if(result.success){
     if(p.currentNodeId==='piddock-party'&&checkIndex===0)p.flags.geoPiddockCharmPassed=true;
@@ -793,8 +823,23 @@ export function adjudicateLongArmOfTheHuttCheck(world, { checkIndex = 0, result 
   p.checkHistory.push(entry);
   p.updatedAt = now();
   next.publishedAdventure = p;
-  return { world: next, progress: clone(p), adjudication: entry };
+  if(playerStrainDelta)entry.playerStrainDelta=playerStrainDelta;
+  return { world: next, progress: clone(p), adjudication: {...entry,playerStrainDelta} };
 }
+
+export function chooseLongArmOldLylekRoute(world,options){
+  const next=clone(world||{}),p=next.publishedAdventure;
+  if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');
+  p.oldLylek=chooseSWE02OldLylekRoute(p,options).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};
+}
+export function proceedLongArmOldLylekBluff(world){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=proceedSWE02OldLylekBluff(p).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
+export function approachLongArmOldLylekOnFoot(world){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=approachSWE02OldLylekOnFoot(p).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
+export function recordLongArmOldLylekCrashCheck(world,receipt){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=recordSWE02OldLylekCrashCheck(p,receipt).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
+export function confirmLongArmOldLylekCrashCrew(world,options){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=confirmSWE02OldLylekCrashCrew(p,options).progress.oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
+export function inspectLongArmOldLylekSpeeder(world){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=inspectSWE02OldLylekSpeeder(p).oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
+export function recordLongArmOldLylekWarning(world){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=warnSWE02OldLylek(p).oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
+export function persistLongArmOldLylek(world){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=persistSWE02OldLylek(p).oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
+export function resolveLongArmOldLylek(world,options){const next=clone(world||{}),p=next.publishedAdventure;if(!p||p.id!==ID)throw Error('SWE02: aventura inativa.');p.oldLylek=resolveSWE02OldLylek(p,options).oldLylek;p.updatedAt=now();return {world:next,progress:clone(p)};}
 
 export function currentLongArmOfTheHuttMasterRequest(world) {
   const s = longArmOfTheHuttStatus(world);
@@ -830,8 +875,10 @@ export function currentLongArmOfTheHuttEncounter(world) {
     label = 'Angu Drombb e seus capangas — cantina';
   }
   if (p.currentNodeId === 'lylek-den-ambush') {
-    id = 'lylek-den-bounty-hunters';
-    label = 'Emboscada dos caçadores de Teemo no covil de lylek';
+    if(['lylek-ready','lylek-attack-started'].includes(p.oldLylek?.phase)){id='lylek-den-lylek';label='Lylek provocado — perfil Captive Rancor (Beginner Game p.47)';}
+    else if(!['post-hunters','lylek-warned','post-lylek'].includes(p.oldLylek?.phase)) {
+      id = 'lylek-den-bounty-hunters';label = 'Emboscada dos caçadores de Teemo no covil de lylek';
+    }
   }
   if (p.currentNodeId === 'gantry-aa7') {id='laoth-gantry-aa7';label='Gantry AA7 — soldados e Vrixx’tt';}
   if (p.currentNodeId === 'palace-gladiator-cells' && !p.flags?.palaceGladiatorsAllied) {
@@ -876,6 +923,7 @@ export function longArmOfTheHuttEncounterSpec(world, encounterId = null) {
     };
   }
   if (id === 'lylek-den-bounty-hunters') {
+    if(!['combat-ready','hunters-combat'].includes(world?.publishedAdventure?.oldLylek?.phase))throw Error('SWE02 pp.15–17: primeiro resolva rota, vigia e aproximação do covil.');
     // SWE02 p.16: one hunter per PC, including one Gand with a blaster rifle.
     // If the group size is unavailable, return the solo baseline and request
     // GM confirmation rather than silently inventing a four-player party.
@@ -886,12 +934,20 @@ export function longArmOfTheHuttEncounterSpec(world, encounterId = null) {
       Number.isInteger(derived)&&derived>=1&&derived<=8 ? derived : 1;
     return {
       id,label:'Caçadores de Teemo — antigo covil de lylek',
-      source:{title:'Long Arm of the Hutt',productCode:'SWE02',page:16},
+      source:{title:'Long Arm of the Hutt',productCode:'SWE02',printedPages:[15,16,17],authority:'OFFICIAL_PDF_TEXT_VERIFIED'},
       partySize,requiresPartySizeConfirmation:!Number.isInteger(explicit)&&!Number.isInteger(derived),
-      playerInitiativeSkill:'alerta',npcInitiativeSkill:'alerta',
+      playerInitiativeSkill:'frialdad',npcInitiativeSkill:'frialdad',
+      npcInitiativeSetback:world?.publishedAdventure?.oldLylek?.route==='fast'?1:0,
+      initiativeSource:{title:'The Long Arm of the Hutt',productCode:'SWE02',printedPage:17,authority:'OFFICIAL_PDF_TEXT_VERIFIED'},
+      trexCarryover:world?.publishedAdventure?.oldLylek?.trexCarryover??{status:'PENDENTE',reason:'SWE02 p.15 requires Escape from Mos Shuuta campaign history and the separate Adventure Book p.24 profile.'},
       adversaries:[{profileKey:'laoth_gand_bounty_hunter',count:1,range:'Longo'},
         ...(partySize>1?[{profileKey:'laoth_bounty_hunter',count:partySize-1,range:'Médio'}]:[])]
     };
+  }
+  if(id==='lylek-den-lylek') {
+    const old=world?.publishedAdventure?.oldLylek;
+    if(!['lylek-ready','lylek-attack-started'].includes(old?.phase)||old.lylekEncounter?.profileKey!=='swe02_captive_rancor'||old.lylekEncounter?.source?.profileSourceVerified!==true)throw Error('SWE02 p.18: decisão de persistir e perfil Captive Rancor p.47 verificado são obrigatórios.');
+    return {id,label:'Lylek provocado — Captive Rancor',source:{title:'The Long Arm of the Hutt',productCode:'SWE02',printedPage:18,reference:{title:'Edge of the Empire Beginner Game',productCode:'SWE01',printedPage:47}},playerInitiativeSkill:'frialdad',npcInitiativeSkill:'frialdad',adversaries:[{profileKey:'swe02_captive_rancor',count:1,range:'Interação',name:'Lylek'}]};
   }
   if(id==='laoth-gantry-aa7'){
     const p=world?.publishedAdventure;validateGeonosis(p);
@@ -944,12 +1000,14 @@ export function markLongArmOfTheHuttEncounterActive(world, encounterId) {
   if (!current || current.id !== encounterId || !current.available || current.status !== 'ready')
     throw new Error('Encontro incompatível com a cena atual ou já resolvido.');
   p.activeEncounterId = encounterId;
+  if(encounterId==='lylek-den-bounty-hunters')p.oldLylek=markSWE02OldLylekCombatStarted(p).oldLylek;
+  if(encounterId==='lylek-den-lylek')p.oldLylek=markSWE02OldLylekAttackStarted(p).oldLylek;
   p.updatedAt = now();
   next.publishedAdventure = p;
   return next;
 }
 
-export function recordLongArmOfTheHuttEncounterOutcome(world, { encounterId, outcome, adversaries = [], throneAlarm=null } = {}) {
+export function recordLongArmOfTheHuttEncounterOutcome(world, { encounterId, outcome, adversaries = [], throneAlarm=null, combatLog=[] } = {}) {
   const next = clone(world || {});
   const p = next.publishedAdventure;
   if (!p || p.id !== ID || p.status !== 'ACTIVE') throw new Error('Aventura não ativa.');
@@ -1022,7 +1080,14 @@ export function recordLongArmOfTheHuttEncounterOutcome(world, { encounterId, out
   if(encounterId==='laoth-drombb-cantina'){p.flags.drombbThreatNeutralized=outcome==='adversaries_defeated';if(outcome==='player_incapacitated'){p.flags.drombbCaptured=true;p.flags.newMeenOutcome='LOST';}}
   if(encounterId==='teemo-palace-guards')p.flags.teemoDefeated=outcome==='adversaries_defeated';
   if(encounterId==='laoth-gantry-aa7'){p.flags.geoGantryCleared=['adversaries_defeated','escaped','player_incapacitated'].includes(outcome);p.flags.geoRescuedByVios=outcome==='player_incapacitated';}
-  if(encounterId==='lylek-den-bounty-hunters')p.flags.lylekHuntersResolved=outcome==='adversaries_defeated'||outcome==='negotiated'||outcome==='escaped';
+  if(encounterId==='lylek-den-lylek'){
+    const resolved=resolveSWE02OldLylek(p,{outcome});p.oldLylek=resolved.oldLylek;
+  }
+  if(encounterId==='lylek-den-bounty-hunters'){
+    const resolved=recordSWE02OldLylekHunterOutcome(p,{outcome,adversaries,combatLog});p.oldLylek=resolved.progress.oldLylek;
+    p.flags.lylekHuntersResolved=true;
+    if(resolved.lylekTriggered&&resolved.huntersOutcome==='defeated')p.oldLylek.lylekKilledHunter=true;
+  }
   p.updatedAt = now();
   next.publishedAdventure = p;
   return { world: next, record };

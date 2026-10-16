@@ -65,3 +65,21 @@ The supplied PDF contains 46 physical pages. PDF p.1 is an image cover; the numb
 ## Audit disposition
 
 **Act 1: PENDENTE — substantial implementation exists; complete semantic and persistence closure is not evidenced.** The audit does not certify SWE02, does not claim unimplemented behavior is absent where only evidence is missing, and does not alter recovered code or prior audit artifacts.
+
+## Old Lylek Den WIP implementation review (2026-10-16)
+
+A source-bounded implementation slice now exists in `swe02OldLylekP15.mjs`, `longArmOfTheHutt.mjs`, `controller.mjs`, `uiBridge.mjs`, the offline bundle, and the Old Lylek panel/UI. Evidence: `evidence/SWE02_OLD_LYLEK_20261016/focused-lylek.tap` (3/3), `affected-tests.tap` (112/112 across the Old Lylek and dependent downstream suites), and `bundle-build.log` (133 modules, success). A fresh integrator run also passed the focused Old Lylek file 3/3 and is saved in the WIP evidence folder.
+
+The slice covers route choices, two sequential Average Pilot checks, optional Hard Perception lookout, foot approach, the Average crash checks/6 wound damage on the active PC, Easy Mechanics repair receipt, Hunter encounter, Cool initiative setback on the fast route, combat Advantage trigger, B’ura warning flow, source-verified optional Beginner Game Captive Rancor p.47 profile, a speeder-loot receipt, and a guarded transition to New Meen. State survives the test’s three fresh-controller reopens for its sampled success branch. These claims remain `PENDENTE`, not certified.
+
+Open source/effect gaps after review:
+
+- SWE02 p.15’s T-rex carryover remains explicitly `PENDENTE`; the recovered branch has no verified Escape from Mos Shuuta history predicate or Adventure Book p.24 profile wired into this encounter.
+- Failed fast-route Pilot checks record the required 1 strain per onboard PC as a manual `PENDENTE` receipt; the engine does not yet apply it to every onboard PC.
+- The p.17 crash UI resolves checks and damage for only the active PC. It has no validated player-character roster selector/identity binding, so a multi-PC crash branch is not executable end-to-end.
+- The “fake Imperial demand” is currently represented by a UI “bluff” button that advances the approach without a Bluff roll, recognition result, or persisted social outcome.
+- Hunter loot is a source-backed `found` receipt after inspection, but no inventory transaction adds the two stimpacks, medpac, or emergency repair kit to a character/party inventory.
+- The Advantage-triggered lylek/B’ura sequence is not mandatory before advancing; scene exposure and explicit pass/skip semantics still need reconciliation with p.18.
+- The map/geometry on p.16, branch matrix (route success/failure, repair, Gand spotted/unspotted, combat retreat/defeat, lylek outcomes), T-rex, party-wide effects, loot transfer and broader page proof remain open.
+
+The affected regression includes downstream suites whose fixtures were changed to record a valid source-shaped retreat from the Old Lylek encounter. Their source assertions remain in place; this fixture adjustment is not evidence that those downstream adventure pages are newly certified. SWE02 Act 1 and the entire adventure remain `PENDENTE` / `IMPLEMENTADO_NAO_CERTIFICADO` as tracked in `WORK_STATUS.json`.

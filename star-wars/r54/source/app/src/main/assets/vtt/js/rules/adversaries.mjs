@@ -221,6 +221,19 @@ export const PUBLISHED_ADVENTURE_ADVERSARY_PROFILES = Object.freeze({
       {name:'Pistola blaster pesada',skill:'armas_distancia_ligeras',range:'Médio',damage:7,crit:3,stunSetting:true}],
     source:{title:'Long Arm of the Hutt',productCode:'SWE02',page:16,authority:'SOURCE_CHECKED_PROFILE'}
   }),
+  // SWE02 p.18 directs the optional lylek attack to this exact Beginner Game profile.
+  swe02_captive_rancor: Object.freeze({
+    key:'swe02_captive_rancor',name:'Lylek (perfil Captive Rancor)',kind:'nemesis',
+    characteristics:{fortaleza:6,agilidad:2,intelecto:1,astucia:3,voluntad:3,presencia:1},
+    soak:12,woundsThreshold:40,strainThreshold:15,defense:{melee:0,ranged:0},groupSkills:[],
+    skills:{pelea:2,percepcion:2,supervivencia:3,vigilancia:2},talents:[],
+    abilities:[{key:'sweep_attack',name:'Sweep attack',source:{productCode:'SWE01',printedPage:47}}],
+    weapons:[{name:'Garras enormes',skill:'pelea',range:'Curto',damage:20,crit:3,knockdown:true}],
+    silhouette:3,
+    source:{title:'Edge of the Empire Beginner Game',productCode:'SWE01',printedPage:47,
+      referenceSource:{title:'The Long Arm of the Hutt',productCode:'SWE02',printedPage:18},
+      authority:'OFFICIAL_SOURCE_PROFILE_VERIFIED',verification:'VISUAL_PAGE_REVIEW',driveFileId:'1UtxFwtuN6pfc2kzHpA02Ooa2-jyiKjNk'}
+  }),
   // SWE02 printed p.41: elite Gamorrean guard, distinct from legacy
   // generic Gamorrean profile (which has different Brawn/Soak/Agility).
   laoth_geonosian_soldier: Object.freeze({

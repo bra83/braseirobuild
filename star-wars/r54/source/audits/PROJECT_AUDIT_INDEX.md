@@ -15,7 +15,7 @@ All audits below are evidence maps, not certification. A claim can move to `CERT
 - `audits/SWE02_ACT1_DEEP_AUDIT.md` covers printed pp.2–24.
 - `audits/SWE02_ACT2_DEEP_AUDIT.md` covers printed pp.25–38.
 - `audits/SWE02_ACT3_DEEP_AUDIT.md` covers printed pp.39–46.
-- Each audited source claim remains pending implementation and full per-claim proof. The Act 1 Old Lylek Den block (pp.15–18) is currently in implementation review.
+- Each audited source claim remains pending implementation and full per-claim proof. The Act 1 Old Lylek Den pp.15–18 has a source-bounded WIP and passing focused/affected tests, but still has explicit pending gaps: T-rex, party-wide consequences, per-PC crash selection, bluff adjudication, inventory transfer, and lylek/Bura branch disposition. See the Act 1 audit addendum; no page is certified.
 
 ## Rules and mechanical authority
 
@@ -38,4 +38,3 @@ All audits below are evidence maps, not certification. A claim can move to `CERT
 - SWE02 is `IMPLEMENTADO_NAO_CERTIFICADO`.
 - No P245 canonical checkpoint, APK/Gradle build, CI/device gate, or sixth adventure is authorized before all semantic gates close.
 - The last full fresh regression passed 3,391 of 3,393 tests across 376 files; 2 offline wrapper tests were skipped because the JDK `jar` executable is absent. The regression predates the in-progress Old Lylek implementation, so it does not validate that work.
-

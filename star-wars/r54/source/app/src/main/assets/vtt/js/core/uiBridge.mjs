@@ -1717,6 +1717,18 @@ completeMerchantAcquisition(options={}){
         try{return ok(clone(r.data.resolveSWE02CrashResilience()));}
         catch(e){return fail('SWE02_CRASH_FAILED',messageOf(e));}
     }
+    chooseSWE02OldLylekRoute(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.chooseSWE02OldLylekRoute(options??{})));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    proceedSWE02OldLylekBluff(){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.proceedSWE02OldLylekBluff()));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    approachSWE02OldLylekOnFoot(){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.approachSWE02OldLylekOnFoot()));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    resolveSWE02OldLylekCrashCheck(options={}){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.resolveSWE02OldLylekCrashCheck(options??{})));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    insistSWE02OldLylek(){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.insistSWE02OldLylek()));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
+    persistSWE02OldLylek(){const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.persistSWE02OldLylek()));}catch(e){return fail('SWE02_LYLEK_FAILED',messageOf(e));}}
     swe02NabatMarket(){
         const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.swe02NabatMarket()));}catch(e){return fail('SWE02_NABAT_FAILED',messageOf(e));}

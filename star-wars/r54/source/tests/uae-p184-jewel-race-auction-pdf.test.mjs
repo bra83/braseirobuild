@@ -1,9 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {getPublishedAdventureAdapter} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs';
+import {chooseLongArmOldLylekRoute,proceedLongArmOldLylekBluff} from '../app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs';
 import {validatePublishedAdventureRuntimeState,publishedAdventureRuntimeModule} from '../app/src/main/assets/vtt/js/adventure/publishedAdventureUaeBridge.mjs';
 import {jewelAuctionStatus,jewelGrandPrixStatus} from '../app/src/main/assets/vtt/js/adventure/jewelOfYavin.mjs';
 const a=getPublishedAdventureAdapter('jewel-of-yavin');
+const arm=getPublishedAdventureAdapter('long-arm-of-the-hutt');
+function lylekReadyWorld(size=1){
+ let w=arm.start({}).world;for(const choice of ['dock-ryloth','help-new-meen','travel-lylek-den'])w=arm.advance(w,choice).world;
+ w=chooseLongArmOldLylekRoute(w,{slowDown:true}).world;
+ w=arm.adjudicateCheck(w,{checkIndex:0,result:{success:true,netSuccess:1,netAdvantage:0}}).world;
+ w=proceedLongArmOldLylekBluff(w).world;w.publishedAdventure.flags.confirmedPartySize=size;return w;
+}
 const go=(w,id)=>a.advance(w,id).world;
 const raceWorld=()=>['protect-aris','reach-tourist-district','survey-cloud-city','prepare-heist','prepare-grand-prix','take-race-start'].reduce(go,a.start({}).world);
 const auctionWorld=()=>['race-aftermath','go-to-museum','attend-cloud-nine'].reduce(go,raceWorld());
@@ -90,9 +98,7 @@ test('P184 reserved receipt identifiers cannot mutate Object prototype',()=>{
 });
 
 test('P184 SWE02: old lylek den creates one source-checked hunter per PC including Gand',async()=>{
- const arm=getPublishedAdventureAdapter('long-arm-of-the-hutt');
- let w=arm.start({}).world;for(const choice of ['dock-ryloth','help-new-meen','travel-lylek-den'])w=arm.advance(w,choice).world;
- w.publishedAdventure.flags.confirmedPartySize=4;
+ let w=lylekReadyWorld(4);
  const spec=arm.encounterSpec(w,'lylek-den-bounty-hunters');
  assert.equal(spec.partySize,4);assert.equal(spec.requiresPartySizeConfirmation,false);
  assert.deepEqual(spec.adversaries.map(x=>[x.profileKey,x.count]),[['laoth_gand_bounty_hunter',1],['laoth_bounty_hunter',3]]);
@@ -102,14 +108,13 @@ test('P184 SWE02: old lylek den creates one source-checked hunter per PC includi
  assert.equal(ADVERSARY_PROFILES.laoth_bounty_hunter.source.page,16);
 });
 test('P184 SWE02: hunters cannot be marked defeated without combat, and never defeat Teemo',()=>{
- const arm=getPublishedAdventureAdapter('long-arm-of-the-hutt');
- let w=arm.start({}).world;for(const choice of ['dock-ryloth','help-new-meen','travel-lylek-den'])w=arm.advance(w,choice).world;
+ let w=lylekReadyWorld(1);
  assert.throws(()=>arm.recordEncounterOutcome(w,{encounterId:'lylek-den-bounty-hunters',outcome:'adversaries_defeated'}),/não iniciado/);
  w=arm.markEncounterActive(w,'lylek-den-bounty-hunters');
- const next=arm.recordEncounterOutcome(w,{encounterId:'lylek-den-bounty-hunters',outcome:'adversaries_defeated'}).world;
+ const next=arm.recordEncounterOutcome(w,{encounterId:'lylek-den-bounty-hunters',outcome:'adversaries_defeated',adversaries:[{id:'hunter-1',profileKey:'laoth_gand_bounty_hunter',status:'incapacitated'}]}).world;
  assert.equal(next.publishedAdventure.flags.lylekHuntersResolved,true);
  assert.equal(next.publishedAdventure.flags.teemoDefeated,undefined);
- assert.throws(()=>arm.recordEncounterOutcome(next,{encounterId:'lylek-den-bounty-hunters',outcome:'adversaries_defeated'}),/incompatível/);
+ assert.throws(()=>arm.recordEncounterOutcome(next,{encounterId:'lylek-den-bounty-hunters',outcome:'adversaries_defeated',adversaries:[{id:'hunter-1',profileKey:'laoth_gand_bounty_hunter',status:'incapacitated'}]}),/incompatível/);
  assert.equal(validatePublishedAdventureRuntimeState(publishedAdventureRuntimeModule(arm.meta),next.publishedAdventureRuntime,next.publishedAdventure),true);
 });
 test('P184 Android UI and controller expose four adjudicated operations',async()=>{
