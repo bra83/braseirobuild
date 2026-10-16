@@ -28,7 +28,8 @@ All audits below are evidence maps, not certification. A claim can move to `CERT
 ## Other required adventures
 
 - `audits/SWEP01_DEEP_AUDIT.md` audits Under a Black Sun pp.18–39 against the official Drive PDF and recovered UI/state/tests. It finds major source and runtime gaps; status remains `PENDENTE`.
-- SWE05 Beyond the Rim, SWE09 The Jewel of Yavin, and SWE13 Mask of the Pirate Queen remain unaudited and pending.
+- `audits/SWE05_DEEP_AUDIT.md` audits Beyond the Rim pp.4–96 (PDF pp.5–97) against its official Drive PDF. It finds major source/effect/persistence gaps; status remains `PENDENTE`.
+- SWE09 The Jewel of Yavin and SWE13 Mask of the Pirate Queen remain unaudited and pending.
 
 ## Current execution gate
 
