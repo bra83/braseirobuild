@@ -1,0 +1,38 @@
+{
+  "source": {
+    "title": "The Jewel of Yavin",
+    "productCode": "SWE09",
+    "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+    "retrievedVia": "Google Drive connected PDF text"
+  },
+  "comparison": "direcionada, não integral",
+  "facts": [
+    {
+      "sourcePages": "Grand Prix pp.49-53",
+      "rule": "buoy miss causes setback on following Piloting check",
+      "implementation": "race.legs[*].appliedSetbacks; status.raceNextLegRequirements"
+    },
+    {
+      "sourcePages": "Grand Prix pp.50-51",
+      "rule": "tibannuck leg adds two setbacks; threats add one system strain; despair causes vehicle critical with -20",
+      "implementation": "race leg4 optional GM hazard receipt and replay"
+    },
+    {
+      "sourcePages": "Grand Prix pp.51-52",
+      "rule": "beldon leg adds one setback; three threats or despair cause vehicle critical",
+      "implementation": "race leg5 optional GM hazard receipt and replay"
+    },
+    {
+      "sourcePages": "Auction pp.58-68",
+      "rule": "bidder Bid Value increases per round; influence adds success/triumph modifiers; completed round determines leader",
+      "implementation": "receipt-based deterministic auction replay and tamper gate"
+    }
+  ],
+  "notCertified": [
+    "entire Grand Prix vehicle critical effect integration (critical modifier is recorded but not applied to a specific vehicle)",
+    "gas fields, velker and rivals full AI",
+    "bank slicing, betrayal and escape",
+    "all five adventures scene-by-scene",
+    "EotE/AoR expansions semantic certification"
+  ]
+}

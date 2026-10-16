@@ -1,0 +1,538 @@
+TAP version 13
+# Subtest: Cena possui painel PT-BR de consequências duradouras e filtra apenas conhecidas/ativas
+ok 1 - Cena possui painel PT-BR de consequências duradouras e filtra apenas conhecidas/ativas
+  ---
+  duration_ms: 16.810788
+  type: 'test'
+  ...
+# Subtest: P20: builders da raiz e tools recompilam o mesmo bundle canônico
+ok 2 - P20: builders da raiz e tools recompilam o mesmo bundle canônico
+  ---
+  duration_ms: 6455.255041
+  type: 'test'
+  ...
+# Subtest: Comando adiciona 1 Impulso por grau somente a Liderança
+ok 3 - Comando adiciona 1 Impulso por grau somente a Liderança
+  ---
+  duration_ms: 1.831949
+  type: 'test'
+  ...
+# Subtest: Ataque rápido adiciona Impulso igual ao grau contra alvo que ainda não agiu
+ok 4 - Ataque rápido adiciona Impulso igual ao grau contra alvo que ainda não agiu
+  ---
+  duration_ms: 1.59551
+  type: 'test'
+  ...
+# Subtest: Ataque rápido não se aplica sem alvo de iniciativa conhecido
+ok 5 - Ataque rápido não se aplica sem alvo de iniciativa conhecido
+  ---
+  duration_ms: 0.530532
+  type: 'test'
+  ...
+# Subtest: R34 catálogo econômico cobre 31 armas, 7 armaduras, 21 gear e veículos comprovados
+ok 6 - R34 catálogo econômico cobre 31 armas, 7 armaduras, 21 gear e veículos comprovados
+  ---
+  duration_ms: 12.010239
+  type: 'test'
+  ...
+# Subtest: R34 perfis veiculares sem raridade comprovada falham fechados
+ok 7 - R34 perfis veiculares sem raridade comprovada falham fechados
+  ---
+  duration_ms: 0.85068
+  type: 'test'
+  ...
+# Subtest: R34 disponibilidade genérica usa raridade da armadura
+ok 8 - R34 disponibilidade genérica usa raridade da armadura
+  ---
+  duration_ms: 0.600824
+  type: 'test'
+  ...
+# Subtest: R34 mercado local altera raridade efetiva
+ok 9 - R34 mercado local altera raridade efetiva
+  ---
+  duration_ms: 0.459874
+  type: 'test'
+  ...
+# Subtest: R34 pedido de compra guarda tipo, mercado e localização
+ok 10 - R34 pedido de compra guarda tipo, mercado e localização
+  ---
+  duration_ms: 225.5438
+  type: 'test'
+  ...
+# Subtest: R34 item desconhecido falha fechado
+ok 11 - R34 item desconhecido falha fechado
+  ---
+  duration_ms: 0.477381
+  type: 'test'
+  ...
+# Subtest: R34 recompensa de arma cria inventário e ownership
+ok 12 - R34 recompensa de arma cria inventário e ownership
+  ---
+  duration_ms: 170.486207
+  type: 'test'
+  ...
+# Subtest: R34 saque de armadura cria ownership sem equipar magicamente
+ok 13 - R34 saque de armadura cria ownership sem equipar magicamente
+  ---
+  duration_ms: 148.14431
+  type: 'test'
+  ...
+# Subtest: R34 gear catalogado persiste em gear + ownership
+ok 14 - R34 gear catalogado persiste em gear + ownership
+  ---
+  duration_ms: 106.371718
+  type: 'test'
+  ...
+# Subtest: R34 veículo adquirido separa profile availability ownership state e visual
+ok 15 - R34 veículo adquirido separa profile availability ownership state e visual
+  ---
+  duration_ms: 122.420707
+  type: 'test'
+  ...
+# Subtest: R34 compra aprovada desconta créditos e concede ativo
+ok 16 - R34 compra aprovada desconta créditos e concede ativo
+  ---
+  duration_ms: 117.796314
+  type: 'test'
+  ...
+# Subtest: R34 compra rejeitada não altera créditos/propriedade
+ok 17 - R34 compra rejeitada não altera créditos/propriedade
+  ---
+  duration_ms: 125.523737
+  type: 'test'
+  ...
+# Subtest: R34 compra sem créditos é bloqueada
+ok 18 - R34 compra sem créditos é bloqueada
+  ---
+  duration_ms: 203.567565
+  type: 'test'
+  ...
+# Subtest: R34 decisão econômica numérica exige evidência
+ok 19 - R34 decisão econômica numérica exige evidência
+  ---
+  duration_ms: 125.294977
+  type: 'test'
+  ...
+# Subtest: R34 perda remove arma do inventário e registry
+ok 20 - R34 perda remove arma do inventário e registry
+  ---
+  duration_ms: 155.323788
+  type: 'test'
+  ...
+# Subtest: R34 dano de item exige regra recuperada
+ok 21 - R34 dano de item exige regra recuperada
+  ---
+  duration_ms: 110.413297
+  type: 'test'
+  ...
+# Subtest: R34 dano e reparo pessoal persistem condição e custo
+ok 22 - R34 dano e reparo pessoal persistem condição e custo
+  ---
+  duration_ms: 137.662747
+  type: 'test'
+  ...
+# Subtest: R34 dano e reparo veicular alteram Hull Damage da unidade possuída
+ok 23 - R34 dano e reparo veicular alteram Hull Damage da unidade possuída
+  ---
+  duration_ms: 123.489765
+  type: 'test'
+  ...
+# Subtest: R34 venda adiciona créditos e remove ativo mecânico
+ok 24 - R34 venda adiciona créditos e remove ativo mecânico
+  ---
+  duration_ms: 137.066433
+  type: 'test'
+  ...
+# Subtest: R34 proposta aceita pedido estruturado de veículo
+ok 25 - R34 proposta aceita pedido estruturado de veículo
+  ---
+  duration_ms: 3.860169
+  type: 'test'
+  ...
+# Subtest: R34 proposta rejeita escrita econômica livre
+ok 26 - R34 proposta rejeita escrita econômica livre
+  ---
+  duration_ms: 0.626433
+  type: 'test'
+  ...
+# Subtest: R34 dano/reparo/venda estruturados exigem regra conhecida
+ok 27 - R34 dano/reparo/venda estruturados exigem regra conhecida
+  ---
+  duration_ms: 0.492259
+  type: 'test'
+  ...
+# Subtest: R34 contexto do Mestre inclui mercado, catálogo e ownership
+ok 28 - R34 contexto do Mestre inclui mercado, catálogo e ownership
+  ---
+  duration_ms: 142.660205
+  type: 'test'
+  ...
+# Subtest: R34 GameController abre pedido genérico usando mercado local
+ok 29 - R34 GameController abre pedido genérico usando mercado local
+  ---
+  duration_ms: 321.510919
+  type: 'test'
+  ...
+# Subtest: R34 proposta do Mestre pode conceder saque catalogado sem escrita livre
+ok 30 - R34 proposta do Mestre pode conceder saque catalogado sem escrita livre
+  ---
+  duration_ms: 161.839896
+  type: 'test'
+  ...
+# Subtest: R34 compatibilidade: proposeWeaponAcquisition continua funcional
+ok 31 - R34 compatibilidade: proposeWeaponAcquisition continua funcional
+  ---
+  duration_ms: 321.401903
+  type: 'test'
+  ...
+# Subtest: FINAL Star Wars: motor compartilhado mantém EotE como default e só ativa AoR/Misto por escolha explícita
+ok 32 - FINAL Star Wars: motor compartilhado mantém EotE como default e só ativa AoR/Misto por escolha explícita
+  ---
+  duration_ms: 39.4465
+  type: 'test'
+  ...
+# Subtest: FINAL shell compartilhada mantém EotE padrão e só expõe origem AoR por escolha explícita
+ok 33 - FINAL shell compartilhada mantém EotE padrão e só expõe origem AoR por escolha explícita
+  ---
+  duration_ms: 6.584892
+  type: 'test'
+  ...
+# Subtest: FINAL: corpus mantém EotE dominante e permite somente o subconjunto AoR recuperado para Duty/Contribution
+ok 34 - FINAL: corpus mantém EotE dominante e permite somente o subconjunto AoR recuperado para Duty/Contribution
+  ---
+  duration_ms: 1.88534
+  type: 'test'
+  ...
+# Subtest: combate só mostra nome da facção do adversário quando ela é conhecida pelo jogador
+ok 35 - combate só mostra nome da facção do adversário quando ela é conhecida pelo jogador
+  ---
+  duration_ms: 17.3872
+  type: 'test'
+  ...
+# Subtest: seletor de imagem captura falha de startActivityForResult dentro da UI thread
+ok 36 - seletor de imagem captura falha de startActivityForResult dentro da UI thread
+  ---
+  duration_ms: 1.80873
+  type: 'test'
+  ...
+# Subtest: falha assíncrona do picker limpa a cena pendente e informa mensagem segura
+ok 37 - falha assíncrona do picker limpa a cena pendente e informa mensagem segura
+  ---
+  duration_ms: 0.307475
+  type: 'test'
+  ...
+# Subtest: download de cache captura uma geração antes de entrar no executor
+ok 38 - download de cache captura uma geração antes de entrar no executor
+  ---
+  duration_ms: 2.028035
+  type: 'test'
+  ...
+# Subtest: clear invalida a geração e remove imagem metadata e temporário sob o mesmo lock de commit
+ok 39 - clear invalida a geração e remove imagem metadata e temporário sob o mesmo lock de commit
+  ---
+  duration_ms: 0.297869
+  type: 'test'
+  ...
+# Subtest: fetch só confirma arquivos se sua geração continuar atual dentro do lock de commit
+ok 40 - fetch só confirma arquivos se sua geração continuar atual dentro do lock de commit
+  ---
+  duration_ms: 7.902895
+  type: 'test'
+  ...
+# Subtest: fetch invalidado não publica erro tardio depois de clear ou requisição mais nova
+ok 41 - fetch invalidado não publica erro tardio depois de clear ou requisição mais nova
+  ---
+  duration_ms: 0.659667
+  type: 'test'
+  ...
+# Subtest: R42 manifest V3.5 baseline remains preserved after later library promotions
+ok 42 - R42 manifest V3.5 baseline remains preserved after later library promotions
+  ---
+  duration_ms: 8.865391
+  type: 'test'
+  ...
+# Subtest: R42 vehicle wave3 adds exactly 27 direct-URL assets
+ok 43 - R42 vehicle wave3 adds exactly 27 direct-URL assets
+  ---
+  duration_ms: 3.610582
+  type: 'test'
+  ...
+# Subtest: R42 wave3 grouping is 19 landspeeders page2 plus 8 walkers
+ok 44 - R42 wave3 grouping is 19 landspeeders page2 plus 8 walkers
+  ---
+  duration_ms: 0.336246
+  type: 'test'
+  ...
+# Subtest: R42 URLs obey secure Kainrath cache policy and are raw direct image URLs
+ok 45 - R42 URLs obey secure Kainrath cache policy and are raw direct image URLs
+  ---
+  duration_ms: 2.286888
+  type: 'test'
+  ...
+# Subtest: R42 vehicle images remain visual-only with no inferred mechanics
+ok 46 - R42 vehicle images remain visual-only with no inferred mechanics
+  ---
+  duration_ms: 7.112075
+  type: 'test'
+  ...
+# Subtest: R42 bridge preserves at least the R42 vehicle/visual baseline
+ok 47 - R42 bridge preserves at least the R42 vehicle/visual baseline
+  ---
+  duration_ms: 43.117737
+  type: 'test'
+  ...
+# Subtest: R42 subtype searches expose walkers and added surface vehicle classes without mechanics
+ok 48 - R42 subtype searches expose walkers and added surface vehicle classes without mechanics
+  ---
+  duration_ms: 23.589855
+  type: 'test'
+  ...
+# Subtest: R42 preserves both previous vehicle waves unchanged
+ok 49 - R42 preserves both previous vehicle waves unchanged
+  ---
+  duration_ms: 1.501615
+  type: 'test'
+  ...
+# Subtest: harness web legado permanece EOTE_CORE e não reativa criação/grupo AoR
+ok 50 - harness web legado permanece EOTE_CORE e não reativa criação/grupo AoR
+  ---
+  duration_ms: 2.712993
+  type: 'test'
+  ...
+# Subtest: diretriz do Mestre aceita apenas perfis, quantidades, alcances e iniciativa válidos
+ok 51 - diretriz do Mestre aceita apenas perfis, quantidades, alcances e iniciativa válidos
+  ---
+  duration_ms: 4.573774
+  type: 'test'
+  ...
+# Subtest: Mestre prepara encontro e jogador ainda escolhe Reação rápida antes da iniciativa
+ok 52 - Mestre prepara encontro e jogador ainda escolhe Reação rápida antes da iniciativa
+  ---
+  duration_ms: 111.263734
+  type: 'test'
+  ...
+# Subtest: consequência causal pode originar encontro e só é resolvida quando o combate tem desfecho
+ok 53 - consequência causal pode originar encontro e só é resolvida quando o combate tem desfecho
+  ---
+  duration_ms: 40.237734
+  type: 'test'
+  ...
+# Subtest: diretriz causal inválida reverte a proposta inteira
+ok 54 - diretriz causal inválida reverte a proposta inteira
+  ---
+  duration_ms: 15.107538
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre recebe goal/relation/facts reais e agenda pendente do mundo
+ok 55 - contexto do Mestre recebe goal/relation/facts reais e agenda pendente do mundo
+  ---
+  duration_ms: 116.302968
+  type: 'test'
+  ...
+# Subtest: PNPC persistente usa o mesmo ID no combate e conserva dano entre reencontros
+ok 56 - PNPC persistente usa o mesmo ID no combate e conserva dano entre reencontros
+  ---
+  duration_ms: 61.738373
+  type: 'test'
+  ...
+# Subtest: PNPC persistente não pode trocar silenciosamente de perfil nem reaparecer incapacitado
+ok 57 - PNPC persistente não pode trocar silenciosamente de perfil nem reaparecer incapacitado
+  ---
+  duration_ms: 76.102419
+  type: 'test'
+  ...
+# Subtest: R54 mantém catálogo visual V3.8 fechado e semanticamente presente
+ok 58 - R54 mantém catálogo visual V3.8 fechado e semanticamente presente
+  ---
+  duration_ms: 12.29596
+  type: 'test'
+  ...
+# Subtest: R54 não fixa Nera Voss e não expõe NPC fora da cena
+ok 59 - R54 não fixa Nera Voss e não expõe NPC fora da cena
+  ---
+  duration_ms: 2.204754
+  type: 'test'
+  ...
+# Subtest: P21 reiniciar limpa a sessão/snapshots sem apagar personagem nem foto local
+ok 60 - P21 reiniciar limpa a sessão/snapshots sem apagar personagem nem foto local
+  ---
+  duration_ms: 2.406192
+  type: 'test'
+  ...
+# Subtest: R54 bloqueia acesso universal a arquivos do WebView
+ok 61 - R54 bloqueia acesso universal a arquivos do WebView
+  ---
+  duration_ms: 6.707778
+  type: 'test'
+  ...
+# Subtest: P42 NPC só é revelado quando entra em cena e card não contém fatos futuros
+ok 62 - P42 NPC só é revelado quando entra em cena e card não contém fatos futuros
+  ---
+  duration_ms: 14.607911
+  type: 'test'
+  ...
+# Subtest: P42 solução discreta no Umbra vira memória/relação persistente
+ok 63 - P42 solução discreta no Umbra vira memória/relação persistente
+  ---
+  duration_ms: 12.209446
+  type: 'test'
+  ...
+# Subtest: P42 Spyder discreto preserva relação de Fenn
+ok 64 - P42 Spyder discreto preserva relação de Fenn
+  ---
+  duration_ms: 8.552084
+  type: 'test'
+  ...
+# Subtest: P42 Zelcomm social melhora relação sem armas/Obligation
+ok 65 - P42 Zelcomm social melhora relação sem armas/Obligation
+  ---
+  duration_ms: 6.491536
+  type: 'test'
+  ...
+# Subtest: WORLD_UPDATED persiste mundo autoritativo sem duplicar snapshots integrais no event log
+ok 66 - WORLD_UPDATED persiste mundo autoritativo sem duplicar snapshots integrais no event log
+  ---
+  duration_ms: 35.792522
+  type: 'test'
+  ...
+# Subtest: P51: Despair na Zelcomm persiste alerta/lockdown sem revelar futuro
+ok 67 - P51: Despair na Zelcomm persiste alerta/lockdown sem revelar futuro
+  ---
+  duration_ms: 11.530381
+  type: 'test'
+  ...
+# Subtest: P51: Despair na NovaCORE persiste risco crítico e strain mecânico
+ok 68 - P51: Despair na NovaCORE persiste risco crítico e strain mecânico
+  ---
+  duration_ms: 27.988285
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: locais distinguem mapa dedicado de esquema gerado
+ok 69 - auditoria visual independente: locais distinguem mapa dedicado de esquema gerado
+  ---
+  duration_ms: 30.145553
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: bindings de itens usam o objeto certo e todos os paths existem
+ok 70 - auditoria visual independente: bindings de itens usam o objeto certo e todos os paths existem
+  ---
+  duration_ms: 9.784677
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: índice P6 e UI não contêm fallback genérico para entidades
+ok 71 - auditoria visual independente: índice P6 e UI não contêm fallback genérico para entidades
+  ---
+  duration_ms: 15.627143
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: todos os caminhos do índice P6 que representam imagens são resolvíveis
+ok 72 - auditoria visual independente: todos os caminhos do índice P6 que representam imagens são resolvíveis
+  ---
+  duration_ms: 27.363265
+  type: 'test'
+  ...
+# Subtest: R33 UI: primeiro uso oferece EotE, AoR ou Misto e apenas um ponto inicial
+ok 73 - R33 UI: primeiro uso oferece EotE, AoR ou Misto e apenas um ponto inicial
+  ---
+  duration_ms: 15.520178
+  type: 'test'
+  ...
+# Subtest: R33 UI: criação AoR reutiliza a shell aprovada e troca rótulos Obligation→Duty
+ok 74 - R33 UI: criação AoR reutiliza a shell aprovada e troca rótulos Obligation→Duty
+  ---
+  duration_ms: 16.833715
+  type: 'test'
+  ...
+# Subtest: R33 UI: sandbox vivo é uma extensão funcional da R46, não um redesenho
+ok 75 - R33 UI: sandbox vivo é uma extensão funcional da R46, não um redesenho
+  ---
+  duration_ms: 6.810225
+  type: 'test'
+  ...
+# Subtest: 33 sessões simuladas preservam histórico causal/aftermaths após reaberturas repetidas
+ok 76 - 33 sessões simuladas preservam histórico causal/aftermaths após reaberturas repetidas
+  ---
+  duration_ms: 18110.426971
+  type: 'test'
+  ...
+# Subtest: interface PT-BR expõe Reação rápida antes da iniciativa
+ok 77 - interface PT-BR expõe Reação rápida antes da iniciativa
+  ---
+  duration_ms: 33.080837
+  type: 'test'
+  ...
+# Subtest: interface de Nave expõe Aceleração máxima como ação e versão aprimorada como manobra
+ok 78 - interface de Nave expõe Aceleração máxima como ação e versão aprimorada como manobra
+  ---
+  duration_ms: 0.819075
+  type: 'test'
+  ...
+# Subtest: export de ficha usa JSON canônico e nome .json sem criar estado
+ok 79 - export de ficha usa JSON canônico e nome .json sem criar estado
+  ---
+  duration_ms: 15.268895
+  type: 'test'
+  ...
+# Subtest: import de ficha inválida não altera campanha nem cria snapshot
+ok 80 - import de ficha inválida não altera campanha nem cria snapshot
+  ---
+  duration_ms: 2.616671
+  type: 'test'
+  ...
+# Subtest: import de ficha válida cria snapshot antes da mutação e persiste nova ficha
+ok 81 - import de ficha válida cria snapshot antes da mutação e persiste nova ficha
+  ---
+  duration_ms: 10.000794
+  type: 'test'
+  ...
+# Subtest: backup de campanha exporta JSON validado sem remover estado
+ok 82 - backup de campanha exporta JSON validado sem remover estado
+  ---
+  duration_ms: 1.77584
+  type: 'test'
+  ...
+# Subtest: backup corrompido é rejeitado sem sobrescrever campanha nem snapshot
+ok 83 - backup corrompido é rejeitado sem sobrescrever campanha nem snapshot
+  ---
+  duration_ms: 0.720765
+  type: 'test'
+  ...
+# Subtest: restore de backup válido preserva snapshot automático do estado anterior
+ok 84 - restore de backup válido preserva snapshot automático do estado anterior
+  ---
+  duration_ms: 1.573089
+  type: 'test'
+  ...
+# Subtest: snapshot manual pode restaurar exatamente o estado salvo
+ok 85 - snapshot manual pode restaurar exatamente o estado salvo
+  ---
+  duration_ms: 1.507913
+  type: 'test'
+  ...
+# Subtest: operações de backup/ficha sem campanha falham sem criar campanha padrão
+ok 86 - operações de backup/ficha sem campanha falham sem criar campanha padrão
+  ---
+  duration_ms: 0.19151
+  type: 'test'
+  ...
+# Subtest: interface possui aba Nave em PT-BR com combate, dano e viagem
+ok 87 - interface possui aba Nave em PT-BR com combate, dano e viagem
+  ---
+  duration_ms: 14.201391
+  type: 'test'
+  ...
+# Subtest: interface de nave usa o motor persistente e não duplica regra em HTML estático
+ok 88 - interface de nave usa o motor persistente e não duplica regra em HTML estático
+  ---
+  duration_ms: 0.750754
+  type: 'test'
+  ...
+1..88
+# tests 88
+# suites 0
+# pass 88
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 23197.144591

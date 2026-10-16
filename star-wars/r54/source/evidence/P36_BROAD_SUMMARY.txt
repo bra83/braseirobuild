@@ -1,0 +1,21 @@
+P36 BROAD REGRESSION SUMMARY
+Batch 1: 280/282 pass, 2 fail (both reproduced on untouched P35).
+not ok 23 - R54 usa file picker apenas para imports JSON conhecidos
+not ok 239 - FINAL EotE: shell Android compilada não contém criação Duty/AoR nem Contribution
+Batch 2: 207/209 pass, 2 fail (both reproduced on untouched P35).
+not ok 34 - FINAL: JSON export/import is Android-capable
+not ok 36 - FINAL: canonical engine bundle is synchronized with live scene bridge
+Batch 3 final: 182/188 pass, 6 fail (all 6 reproduced on untouched P35).
+not ok 53 - JSON export uses the native FileBridge saveJson contract
+not ok 75 - R38: início do mundo não exige texto livre e oferece lista, mapa e aleatório
+not ok 77 - R38: cena oferece geração Gemini diretamente e modelos configuráveis
+not ok 84 - R38: chave de imagem da cena é compatível entre shell, botão direto e host Android
+not ok 85 - R46 bridge contract: shell interface and BraseiroUiBridge implementation are exact 53-method peers
+not ok 107 - R54 não fixa Nera Voss e não expõe NPC fora da cena
+Batch 4: 144/144 pass.
+TOTAL: 813/823 pass; 10/823 known baseline failures; 0 new P36 failures remaining.
+Baseline reproduction evidence:
+- P36_P35_BASELINE_KNOWN_FAILURES.txt
+- P36_P35_BASELINE_FINAL_ANDROID_COMPLETENESS.txt
+- P36_P35_BASELINE_BATCH3_FAILURES.txt
+Android compile: attempted once at milestone; blocked by UnknownHostException services.gradle.org; no APK claimed.

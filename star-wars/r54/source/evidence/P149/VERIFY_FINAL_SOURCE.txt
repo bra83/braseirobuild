@@ -1,0 +1,2 @@
+# STAR WARS EOTG — verificação reproduzível
+timestamp=2026-10-12T02:53:52.154Z

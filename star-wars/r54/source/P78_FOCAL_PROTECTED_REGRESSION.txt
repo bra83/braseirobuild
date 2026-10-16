@@ -1,0 +1,334 @@
+TAP version 13
+# Subtest: R37: Duty de criação recupera autoridade AoR sem transformar política solo em oficial
+ok 1 - R37: Duty de criação recupera autoridade AoR sem transformar política solo em oficial
+  ---
+  duration_ms: 1.596235
+  type: 'test'
+  ...
+# Subtest: R37: RAG distingue regra AoR recuperada de runtime local guardado
+ok 2 - R37: RAG distingue regra AoR recuperada de runtime local guardado
+  ---
+  duration_ms: 0.460423
+  type: 'test'
+  ...
+# Subtest: R37: runtime Duty testado permanece separado da autoridade editorial
+ok 3 - R37: runtime Duty testado permanece separado da autoridade editorial
+  ---
+  duration_ms: 0.7291
+  type: 'test'
+  ...
+# Subtest: FINAL: Android Studio project has deterministic Gradle launcher and compatible pins
+ok 4 - FINAL: Android Studio project has deterministic Gradle launcher and compatible pins
+  ---
+  duration_ms: 2.156255
+  type: 'test'
+  ...
+# Subtest: FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency
+ok 5 - FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency
+  ---
+  duration_ms: 0.45952
+  type: 'test'
+  ...
+# Subtest: FINAL: WebView exposes only required bridges and blocks universal file access
+ok 6 - FINAL: WebView exposes only required bridges and blocks universal file access
+  ---
+  duration_ms: 0.390608
+  type: 'test'
+  ...
+# Subtest: FINAL: native PT-BR TTS exists and has bounded visible-text contract
+ok 7 - FINAL: native PT-BR TTS exists and has bounded visible-text contract
+  ---
+  duration_ms: 1.300487
+  type: 'test'
+  ...
+# Subtest: FINAL: JSON export/import is Android-capable
+ok 8 - FINAL: JSON export/import is Android-capable
+  ---
+  duration_ms: 1.443078
+  type: 'test'
+  ...
+# Subtest: FINAL: accessibility settings are functional and persistent
+ok 9 - FINAL: accessibility settings are functional and persistent
+  ---
+  duration_ms: 0.934865
+  type: 'test'
+  ...
+# Subtest: FINAL: canonical engine bundle is synchronized with live scene bridge
+ok 10 - FINAL: canonical engine bundle is synchronized with live scene bridge
+  ---
+  duration_ms: 9.311587
+  type: 'test'
+  ...
+# Subtest: FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks
+ok 11 - FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks
+  ---
+  duration_ms: 1.139679
+  type: 'test'
+  ...
+# Subtest: FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs
+ok 12 - FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs
+  ---
+  duration_ms: 0.531628
+  type: 'test'
+  ...
+# Subtest: FINAL: Android host disables WebView debugging and supports system back navigation
+ok 13 - FINAL: Android host disables WebView debugging and supports system back navigation
+  ---
+  duration_ms: 0.623014
+  type: 'test'
+  ...
+# Subtest: FINAL: shell script order installs engine before React shell and final runtime
+ok 14 - FINAL: shell script order installs engine before React shell and final runtime
+  ---
+  duration_ms: 0.183431
+  type: 'test'
+  ...
+# Subtest: FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts
+ok 15 - FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts
+  ---
+  duration_ms: 0.301597
+  type: 'test'
+  ...
+# Subtest: P58: fluxo real inicia Sob um Sol Negro em EotE e abre a primeira cena jogável
+ok 16 - P58: fluxo real inicia Sob um Sol Negro em EotE e abre a primeira cena jogável
+  ---
+  duration_ms: 138.333339
+  type: 'test'
+  ...
+# Subtest: P58: entrada inicial não bloqueia criação de personagem e oferece quick start da aventura
+ok 17 - P58: entrada inicial não bloqueia criação de personagem e oferece quick start da aventura
+  ---
+  duration_ms: 0.894736
+  type: 'test'
+  ...
+# Subtest: P61: sessão renderiza tracker público com objetivo, investigação e pressão
+ok 18 - P61: sessão renderiza tracker público com objetivo, investigação e pressão
+  ---
+  duration_ms: 0.743471
+  type: 'test'
+  ...
+# Subtest: P61: superfície de sessão usa tracker anti-spoiler em vez de flags internas
+ok 19 - P61: superfície de sessão usa tracker anti-spoiler em vez de flags internas
+  ---
+  duration_ms: 0.846744
+  type: 'test'
+  ...
+# Subtest: P61: ações essenciais aparecem antes dos detalhes secundários
+ok 20 - P61: ações essenciais aparecem antes dos detalhes secundários
+  ---
+  duration_ms: 0.151504
+  type: 'test'
+  ...
+# Subtest: P61: layout 415x915 mantém alvos touch grandes e tracker compacto
+ok 21 - P61: layout 415x915 mantém alvos touch grandes e tracker compacto
+  ---
+  duration_ms: 0.157694
+  type: 'test'
+  ...
+# Subtest: P61: tracker pós-investigação continua sem revelar rota futura
+ok 22 - P61: tracker pós-investigação continua sem revelar rota futura
+  ---
+  duration_ms: 4.45386
+  type: 'test'
+  ...
+# Subtest: P62: encontro inexistente não pode contaminar o estado persistente
+ok 23 - P62: encontro inexistente não pode contaminar o estado persistente
+  ---
+  duration_ms: 4.258109
+  type: 'test'
+  ...
+# Subtest: P62: resultado de encontro de outra cena é rejeitado
+ok 24 - P62: resultado de encontro de outra cena é rejeitado
+  ---
+  duration_ms: 0.88078
+  type: 'test'
+  ...
+# Subtest: P62: confronto final válido ainda persiste e libera desfecho
+ok 25 - P62: confronto final válido ainda persiste e libera desfecho
+  ---
+  duration_ms: 4.471285
+  type: 'test'
+  ...
+# Subtest: P62: encontro já resolvido não pode ser reaberto e duplicado
+ok 26 - P62: encontro já resolvido não pode ser reaberto e duplicado
+  ---
+  duration_ms: 2.312517
+  type: 'test'
+  ...
+# Subtest: P70: grafo publicado inteiro é alcançável a partir da abertura e não contém destinos quebrados
+ok 27 - P70: grafo publicado inteiro é alcançável a partir da abertura e não contém destinos quebrados
+  ---
+  duration_ms: 1.199657
+  type: 'test'
+  ...
+# Subtest: P70: todos os nós jogáveis têm texto PT-BR, local e escolhas ou são epílogo terminal
+ok 28 - P70: todos os nós jogáveis têm texto PT-BR, local e escolhas ou são epílogo terminal
+  ---
+  duration_ms: 0.244362
+  type: 'test'
+  ...
+# Subtest: P70: projeção inicial ao jogador não vaza nós futuros nem consequências finais
+ok 29 - P70: projeção inicial ao jogador não vaza nós futuros nem consequências finais
+  ---
+  duration_ms: 2.828181
+  type: 'test'
+  ...
+# Subtest: P74: Android version no longer reports 1.0.0
+ok 30 - P74: Android version no longer reports 1.0.0
+  ---
+  duration_ms: 1.037707
+  type: 'test'
+  ...
+# Subtest: P74: Android reads modern system bars and exports bottom safe inset
+ok 31 - P74: Android reads modern system bars and exports bottom safe inset
+  ---
+  duration_ms: 1.671667
+  type: 'test'
+  ...
+# Subtest: P74: campaign hub exposes restart, new world/selection and full reset
+ok 32 - P74: campaign hub exposes restart, new world/selection and full reset
+  ---
+  duration_ms: 0.850089
+  type: 'test'
+  ...
+# Subtest: P74: UI bridge exposes canonical full newCampaign without changing Duty/Obligation logic
+ok 33 - P74: UI bridge exposes canonical full newCampaign without changing Duty/Obligation logic
+  ---
+  duration_ms: 0.860936
+  type: 'test'
+  ...
+# Subtest: P75: rota social Zelcomm mantém objetivo de investigação em PT-BR após reabrir save
+ok 34 - P75: rota social Zelcomm mantém objetivo de investigação em PT-BR após reabrir save
+  ---
+  duration_ms: 5.801255
+  type: 'test'
+  ...
+# Subtest: P75: reabertura serializada preserva escolha e não expõe destinos internos nas escolhas públicas
+ok 35 - P75: reabertura serializada preserva escolha e não expõe destinos internos nas escolhas públicas
+  ---
+  duration_ms: 1.989068
+  type: 'test'
+  ...
+# Subtest: P76: catálogo Android lista motores/vozes e permite seleção persistente
+ok 36 - P76: catálogo Android lista motores/vozes e permite seleção persistente
+  ---
+  duration_ms: 2.010439
+  type: 'test'
+  ...
+# Subtest: P76: perfil neural usa 250-650 com alvo 450 e não divide cada sentença
+ok 37 - P76: perfil neural usa 250-650 com alvo 450 e não divide cada sentença
+  ---
+  duration_ms: 0.278813
+  type: 'test'
+  ...
+# Subtest: P76: Kokoro avança apenas por onDone sem flush/stop entre blocos
+ok 38 - P76: Kokoro avança apenas por onDone sem flush/stop entre blocos
+  ---
+  duration_ms: 0.204904
+  type: 'test'
+  ...
+# Subtest: P76: contrato Sherpa/Kokoro expõe parâmetros e prewarm/streaming
+ok 39 - P76: contrato Sherpa/Kokoro expõe parâmetros e prewarm/streaming
+  ---
+  duration_ms: 0.251342
+  type: 'test'
+  ...
+# Subtest: P76: velocidade Kokoro é aplicada uma única vez no parâmetro da engine
+ok 40 - P76: velocidade Kokoro é aplicada uma única vez no parâmetro da engine
+  ---
+  duration_ms: 0.146397
+  type: 'test'
+  ...
+# Subtest: P76: Samsung/Google continuam no fluxo Android padrão
+ok 41 - P76: Samsung/Google continuam no fluxo Android padrão
+  ---
+  duration_ms: 0.176581
+  type: 'test'
+  ...
+# Subtest: P77: TtsBridge usa somente APIs públicas disponíveis para identificar engine
+ok 42 - P77: TtsBridge usa somente APIs públicas disponíveis para identificar engine
+  ---
+  duration_ms: 2.170916
+  type: 'test'
+  ...
+# Subtest: P77: Android e shell publicam a mesma versão e permanecem em 1.0.77 ou posterior
+ok 43 - P77: Android e shell publicam a mesma versão e permanecem em 1.0.77 ou posterior
+  ---
+  duration_ms: 1.320267
+  type: 'test'
+  ...
+# Subtest: P78: início de jogo depende de estado explícito, nunca de texto de narração
+ok 44 - P78: início de jogo depende de estado explícito, nunca de texto de narração
+  ---
+  duration_ms: 1.921977
+  type: 'test'
+  ...
+# Subtest: P78: Novo mundo força seleção em SCREEN 00 e o overlay consome campaignSetup uma vez
+ok 45 - P78: Novo mundo força seleção em SCREEN 00 e o overlay consome campaignSetup uma vez
+  ---
+  duration_ms: 0.240145
+  type: 'test'
+  ...
+# Subtest: P78: reset preserva personagem, grupo, veículos e modo mas limpa sessão/mundo da campanha anterior
+ok 46 - P78: reset preserva personagem, grupo, veículos e modo mas limpa sessão/mundo da campanha anterior
+  ---
+  duration_ms: 106.291488
+  type: 'test'
+  ...
+# Subtest: P78: testes publicados mantêm resultado visível e animação não controla a mecânica
+ok 47 - P78: testes publicados mantêm resultado visível e animação não controla a mecânica
+  ---
+  duration_ms: 0.290981
+  type: 'test'
+  ...
+# Subtest: P78: teste sugerido mostra perícia, dificuldade e resultado antes de pedir consequência ao Mestre
+ok 48 - P78: teste sugerido mostra perícia, dificuldade e resultado antes de pedir consequência ao Mestre
+  ---
+  duration_ms: 0.173688
+  type: 'test'
+  ...
+# Subtest: P78: Mestre local não é rotulado como offline e Gemini configurado é reconhecido antes da primeira ação
+ok 49 - P78: Mestre local não é rotulado como offline e Gemini configurado é reconhecido antes da primeira ação
+  ---
+  duration_ms: 0.172405
+  type: 'test'
+  ...
+# Subtest: P78: alvos touch e textos críticos ficam legíveis em 415x915
+ok 50 - P78: alvos touch e textos críticos ficam legíveis em 415x915
+  ---
+  duration_ms: 0.232364
+  type: 'test'
+  ...
+# Subtest: P78: Android/shell/runtime publicam 1.0.78
+ok 51 - P78: Android/shell/runtime publicam 1.0.78
+  ---
+  duration_ms: 4.57561
+  type: 'test'
+  ...
+# Subtest: folha de grupo persiste base, recursos, contatos e reserva sem automatizar progressão
+ok 52 - folha de grupo persiste base, recursos, contatos e reserva sem automatizar progressão
+  ---
+  duration_ms: 1.412413
+  type: 'test'
+  ...
+# Subtest: Dever do grupo soma somente entradas registradas e pode ser removido
+ok 53 - Dever do grupo soma somente entradas registradas e pode ser removido
+  ---
+  duration_ms: 0.280546
+  type: 'test'
+  ...
+# Subtest: faixa de contribuição e reserva rejeitam limites inválidos
+ok 54 - faixa de contribuição e reserva rejeitam limites inválidos
+  ---
+  duration_ms: 1.143144
+  type: 'test'
+  ...
+1..54
+# tests 54
+# suites 0
+# pass 54
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 483.990993

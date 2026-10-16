@@ -1,0 +1,20 @@
+{
+  "checkpoint": "P229",
+  "base": "P228",
+  "baseZipSha256": "97157e88f6f034a00dc861428bd99e69ef25d0652fdb83e0082813f7dad55c77",
+  "source": "SWE09 The Jewel of Yavin, printed p.94",
+  "newModule": "app/src/main/assets/vtt/js/adventure/jewelStarportSecurity.mjs",
+  "receipt": "JEWEL_STARPORT_SHIP_ACCESS",
+  "boardingProof": "JEWEL_BESPIN_BOARD.accessReceiptId",
+  "realCheck": "Computers Hard / 3 difficulty dice; positive dice from active PC sheet",
+  "retry": "GM explicit authorization after failure",
+  "pilotPenalty": "One difficulty upgrade integrated with vehiclePilotingHazardCheck; other Piloting (Space) checks still pending",
+  "androidVersion": "1.0.229",
+  "versionCode": 10229,
+  "bundleModules": 116,
+  "javaKokoroPreserved": true,
+  "noInventedShipsOrNPCs": true,
+  "apkBuilt": false,
+  "githubPushed": false,
+  "physicalAndroidTested": false
+}

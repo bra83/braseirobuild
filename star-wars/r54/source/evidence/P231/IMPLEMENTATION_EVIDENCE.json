@@ -1,0 +1,21 @@
+{
+  "checkpoint": "P231",
+  "base": "P230",
+  "source": "SWE09 The Jewel of Yavin p.94",
+  "newModule": "app/src/main/assets/vtt/js/adventure/jewelStarportCloudCars.mjs",
+  "features": [
+    "12 distinct Storm IV in 3 physically confirmed squadrons of four, not the four Venture cars",
+    "Actual boarding proof required; GM confirms takeoff, arrival, positions, distinct pilots, range",
+    "Individual vehicle combat using existing engine and official Storm IV stats",
+    "Real Planetary Piloting dice for evasion; vehicle damage logs and hull threshold for disabled",
+    "Receipt replay, anti-duplication, chronology, save validation, rollback, three reopens",
+    "Android PT-BR UI, controller, bridge, offline bundle; no automatic XP"
+  ],
+  "limitations": [
+    "At least twelve official cars: only first twelve implemented",
+    "GM confirmation of airborne/positions is not a simulated flight physics engine",
+    "Further reinforcements and other factions not implemented",
+    "No physical Android or APK certification",
+    "Five adventures and 360 EotE/AoR consumers not certified"
+  ]
+}

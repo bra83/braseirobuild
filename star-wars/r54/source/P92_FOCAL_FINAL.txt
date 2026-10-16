@@ -1,0 +1,172 @@
+TAP version 13
+# Subtest: FINAL: Android Studio project has deterministic Gradle launcher and compatible pins
+ok 1 - FINAL: Android Studio project has deterministic Gradle launcher and compatible pins
+  ---
+  duration_ms: 6.749632
+  type: 'test'
+  ...
+# Subtest: FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency
+ok 2 - FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency
+  ---
+  duration_ms: 1.017264
+  type: 'test'
+  ...
+# Subtest: FINAL: WebView exposes only required bridges and blocks universal file access
+ok 3 - FINAL: WebView exposes only required bridges and blocks universal file access
+  ---
+  duration_ms: 1.457255
+  type: 'test'
+  ...
+# Subtest: FINAL: native PT-BR TTS exists and has bounded visible-text contract
+ok 4 - FINAL: native PT-BR TTS exists and has bounded visible-text contract
+  ---
+  duration_ms: 5.987274
+  type: 'test'
+  ...
+# Subtest: FINAL: JSON export/import is Android-capable
+ok 5 - FINAL: JSON export/import is Android-capable
+  ---
+  duration_ms: 6.872641
+  type: 'test'
+  ...
+# Subtest: FINAL: accessibility settings are functional and persistent
+ok 6 - FINAL: accessibility settings are functional and persistent
+  ---
+  duration_ms: 11.042441
+  type: 'test'
+  ...
+# Subtest: FINAL: canonical engine bundle is synchronized with live scene bridge
+ok 7 - FINAL: canonical engine bundle is synchronized with live scene bridge
+  ---
+  duration_ms: 48.955717
+  type: 'test'
+  ...
+# Subtest: FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks
+ok 8 - FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks
+  ---
+  duration_ms: 5.171307
+  type: 'test'
+  ...
+# Subtest: FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs
+ok 9 - FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs
+  ---
+  duration_ms: 1.247392
+  type: 'test'
+  ...
+# Subtest: FINAL: Android host disables WebView debugging and supports system back navigation
+ok 10 - FINAL: Android host disables WebView debugging and supports system back navigation
+  ---
+  duration_ms: 1.127161
+  type: 'test'
+  ...
+# Subtest: FINAL: shell script order installs engine before React shell and final runtime
+ok 11 - FINAL: shell script order installs engine before React shell and final runtime
+  ---
+  duration_ms: 0.314714
+  type: 'test'
+  ...
+# Subtest: FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts
+ok 12 - FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts
+  ---
+  duration_ms: 1.705481
+  type: 'test'
+  ...
+# Subtest: R54 bridge contract: shell interface and BraseiroUiBridge implementation are exact peers
+ok 13 - R54 bridge contract: shell interface and BraseiroUiBridge implementation are exact peers
+  ---
+  duration_ms: 23.869284
+  type: 'test'
+  ...
+# Subtest: R46 bridge contract: every gameBridgeClient import used by shell files is actually exported
+ok 14 - R46 bridge contract: every gameBridgeClient import used by shell files is actually exported
+  ---
+  duration_ms: 8.427188
+  type: 'test'
+  ...
+# Subtest: R46 bridge contract: public bridge expõe perfil compartilhado sem comandos Duty/AoR crus na shell
+ok 15 - R46 bridge contract: public bridge expõe perfil compartilhado sem comandos Duty/AoR crus na shell
+  ---
+  duration_ms: 3.110708
+  type: 'test'
+  ...
+# Subtest: P92: cibernético altera ficha, respeita persistência e remoção reverte efeito
+ok 16 - P92: cibernético altera ficha, respeita persistência e remoção reverte efeito
+  ---
+  duration_ms: 22.528241
+  type: 'test'
+  ...
+# Subtest: P92: limite de cibernéticos por Fortaleza é realmente bloqueante
+ok 17 - P92: limite de cibernéticos por Fortaleza é realmente bloqueante
+  ---
+  duration_ms: 3.778737
+  type: 'test'
+  ...
+# Subtest: P92: bridge público não concede veículo nem instala cibernético sem aquisição
+ok 18 - P92: bridge público não concede veículo nem instala cibernético sem aquisição
+  ---
+  duration_ms: 1.360679
+  type: 'test'
+  ...
+# Subtest: P92: shell final expõe painéis P0 nas rotas de combate, veículo, viagem, personagem, progressão e itens
+ok 19 - P92: shell final expõe painéis P0 nas rotas de combate, veículo, viagem, personagem, progressão e itens
+  ---
+  duration_ms: 2.808717
+  type: 'test'
+  ...
+# Subtest: P92: UI P0 chama apenas bridge mecânico, sem consultRules/RAG
+ok 20 - P92: UI P0 chama apenas bridge mecânico, sem consultRules/RAG
+  ---
+  duration_ms: 0.918456
+  type: 'test'
+  ...
+# Subtest: P92: bridge final alcança as mutações P0 do GameController
+ok 21 - P92: bridge final alcança as mutações P0 do GameController
+  ---
+  duration_ms: 0.917751
+  type: 'test'
+  ...
+# Subtest: P92: Precisa/Accurate entra no pool real antes da rolagem
+ok 22 - P92: Precisa/Accurate entra no pool real antes da rolagem
+  ---
+  duration_ms: 24.658452
+  type: 'test'
+  ...
+# Subtest: P92: Automática aumenta a dificuldade real e resolve acertos extras por Vantagem
+ok 23 - P92: Automática aumenta a dificuldade real e resolve acertos extras por Vantagem
+  ---
+  duration_ms: 11.283976
+  type: 'test'
+  ...
+# Subtest: P92: Brecha é convertida em 10 pontos de Soak ignorado no dano real
+ok 24 - P92: Brecha é convertida em 10 pontos de Soak ignorado no dano real
+  ---
+  duration_ms: 4.757358
+  type: 'test'
+  ...
+# Subtest: P92: Viciosa/Letal chega ao crítico ativado como modificador d100
+ok 25 - P92: Viciosa/Letal chega ao crítico ativado como modificador d100
+  ---
+  duration_ms: 3.176942
+  type: 'test'
+  ...
+# Subtest: P92: equipar arma/armadura altera estado e sobrevive a reabertura
+ok 26 - P92: equipar arma/armadura altera estado e sobrevive a reabertura
+  ---
+  duration_ms: 15.59669
+  type: 'test'
+  ...
+# Subtest: P92: salto hiperespacial usa nave + Astronavegação e persiste resultado
+ok 27 - P92: salto hiperespacial usa nave + Astronavegação e persiste resultado
+  ---
+  duration_ms: 6.512826
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 751.416493

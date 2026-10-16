@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: personagem inicial entra no estado persistente e a perícia usa seus valores
+ok 1 - personagem inicial entra no estado persistente e a perícia usa seus valores
+  ---
+  duration_ms: 12.584737
+  type: 'test'
+  ...
+# Subtest: combate consome ação no ataque e segunda manobra por Tensão persiste na ficha
+ok 2 - combate consome ação no ataque e segunda manobra por Tensão persiste na ficha
+  ---
+  duration_ms: 9.9483
+  type: 'test'
+  ...
+# Subtest: dificuldade automática por alcance, Mirar e crítico são aplicados no ataque
+ok 3 - dificuldade automática por alcance, Mirar e crítico são aplicados no ataque
+  ---
+  duration_ms: 5.926841
+  type: 'test'
+  ...
+# Subtest: não rola uma segunda ação no mesmo turno nem permite agir incapacitado
+ok 4 - não rola uma segunda ação no mesmo turno nem permite agir incapacitado
+  ---
+  duration_ms: 4.459958
+  type: 'test'
+  ...
+# Subtest: consulta de regras e contexto do Mestre persistem sem narrar livremente
+ok 5 - consulta de regras e contexto do Mestre persistem sem narrar livremente
+  ---
+  duration_ms: 55.253668
+  type: 'test'
+  ...
+# Subtest: personagem personalizado EotE entra no mesmo estado persistente
+ok 6 - personagem personalizado EotE entra no mesmo estado persistente
+  ---
+  duration_ms: 2.536238
+  type: 'test'
+  ...
+# Subtest: Base, recursos e Obligation persistem ao reabrir a campanha
+ok 7 - Base, recursos e Obligation persistem ao reabrir a campanha
+  ---
+  duration_ms: 1.831433
+  type: 'test'
+  ...
+# Subtest: compra de talento de primeira linha persiste e desconta PE uma única vez
+ok 8 - compra de talento de primeira linha persiste e desconta PE uma única vez
+  ---
+  duration_ms: 3.284486
+  type: 'test'
+  ...
+# Subtest: compra genérica da árvore completa desbloqueia conexão e persiste linha inferior
+ok 9 - compra genérica da árvore completa desbloqueia conexão e persiste linha inferior
+  ---
+  duration_ms: 2.271135
+  type: 'test'
+  ...
+# Subtest: propor aquisição de arma consulta o Mestre sem descontar créditos
+ok 10 - propor aquisição de arma consulta o Mestre sem descontar créditos
+  ---
+  duration_ms: 113.819114
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 460.697881

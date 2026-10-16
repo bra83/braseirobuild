@@ -1,0 +1,30 @@
+{
+  "checkpoint": "R54_P146",
+  "base": "R54_P145",
+  "androidVersionCode": 10146,
+  "androidVersionName": "1.0.146",
+  "regularTests": 1696,
+  "stressTests": 6,
+  "totalTests": 1702,
+  "passed": 1702,
+  "failed": 0,
+  "newP146Tests": 33,
+  "newP146Passed": 33,
+  "ttsTests": 27,
+  "ttsPassed": 27,
+  "javascriptSyntaxChecked": 128,
+  "jsonFilesChecked": 22,
+  "androidJavaFilesUnchanged": 8,
+  "bundleModules": 78,
+  "androidApkBuilt": false,
+  "androidDeviceValidated": false,
+  "aorMechanicalPositions": 224,
+  "aorTotalPositions": 360,
+  "implemented": [
+    "WebView durable published-command outbox",
+    "UI wiring for five published adventures and published combat",
+    "cross-ledger causal validation",
+    "per-run receipt identity",
+    "rollback and crash-retry tests"
+  ]
+}

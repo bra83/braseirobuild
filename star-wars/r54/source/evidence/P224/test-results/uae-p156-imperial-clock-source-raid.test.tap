@@ -1,0 +1,178 @@
+TAP version 13
+# Subtest: P156: book p.29 Yiyar group skills and equipment consumed by real adversary engine
+ok 1 - P156: book p.29 Yiyar group skills and equipment consumed by real adversary engine
+  ---
+  duration_ms: 4.072257
+  type: 'test'
+  ...
+# Subtest: P156: Talo source-backed skills, adversary talent, weapons and explicit unverified attributes
+ok 2 - P156: Talo source-backed skills, adversary talent, weapons and explicit unverified attributes
+  ---
+  duration_ms: 0.296319
+  type: 'test'
+  ...
+# Subtest: P156: raid exists in episode 3, 3 opponent groups, no duplicate active encounters
+ok 3 - P156: raid exists in episode 3, 3 opponent groups, no duplicate active encounters
+  ---
+  duration_ms: 3.879975
+  type: 'test'
+  ...
+# Subtest: P156: Yiyar raid adversaries_defeated persists source-appropriate consequences, no invented victory
+ok 4 - P156: Yiyar raid adversaries_defeated persists source-appropriate consequences, no invented victory
+  ---
+  duration_ms: 1.385218
+  type: 'test'
+  ...
+# Subtest: P156: Yiyar raid retreat persists source-appropriate consequences, no invented victory
+ok 5 - P156: Yiyar raid retreat persists source-appropriate consequences, no invented victory
+  ---
+  duration_ms: 1.154937
+  type: 'test'
+  ...
+# Subtest: P156: Yiyar raid player_incapacitated persists source-appropriate consequences, no invented victory
+ok 6 - P156: Yiyar raid player_incapacitated persists source-appropriate consequences, no invented victory
+  ---
+  duration_ms: 2.961327
+  type: 'test'
+  ...
+# Subtest: P156: Yiyar raid ended persists source-appropriate consequences, no invented victory
+ok 7 - P156: Yiyar raid ended persists source-appropriate consequences, no invented victory
+  ---
+  duration_ms: 0.775835
+  type: 'test'
+  ...
+# Subtest: P156: controller persists encounter ownership through COMBAT_ACTION and reopens before finishing
+ok 8 - P156: controller persists encounter ownership through COMBAT_ACTION and reopens before finishing
+  ---
+  duration_ms: 76.838052
+  type: 'test'
+  ...
+# Subtest: P156: combat ownership cannot be bypassed by changing adventure while another combat is active
+ok 9 - P156: combat ownership cannot be bypassed by changing adventure while another combat is active
+  ---
+  duration_ms: 27.037194
+  type: 'test'
+  ...
+# Subtest: P156: combat start rolls back all changes on storage failure
+ok 10 - P156: combat start rolls back all changes on storage failure
+  ---
+  duration_ms: 25.67444
+  type: 'test'
+  ...
+# Subtest: P156: official Imperial deployment thresholds are 5,10,15,25,30 minutes
+ok 11 - P156: official Imperial deployment thresholds are 5,10,15,25,30 minutes
+  ---
+  duration_ms: 1.420653
+  type: 'test'
+  ...
+# Subtest: P156: one 30-minute action crosses all milestones, creates consequences exactly once
+ok 12 - P156: one 30-minute action crosses all milestones, creates consequences exactly once
+  ---
+  duration_ms: 1.460427
+  type: 'test'
+  ...
+# Subtest: P156: six 5-minute ticks are deterministic and do not repeat timeline events
+ok 13 - P156: six 5-minute ticks are deterministic and do not repeat timeline events
+  ---
+  duration_ms: 1.512467
+  type: 'test'
+  ...
+# Subtest: P156: clock replay idempotent, conflict rejected, forged receipts and events rejected
+ok 14 - P156: clock replay idempotent, conflict rejected, forged receipts and events rejected
+  ---
+  duration_ms: 20.82181
+  type: 'test'
+  ...
+# Subtest: P156: invalid action IDs and minutes fail without mutation
+ok 15 - P156: invalid action IDs and minutes fail without mutation
+  ---
+  duration_ms: 9.71001
+  type: 'test'
+  ...
+# Subtest: P156: clock action rollback restores time, flags, journal and world after failed save
+ok 16 - P156: clock action rollback restores time, flags, journal and world after failed save
+  ---
+  duration_ms: 13.322301
+  type: 'test'
+  ...
+# Subtest: P156: active combat blocks countdown without writes
+ok 17 - P156: active combat blocks countdown without writes
+  ---
+  duration_ms: 17.051241
+  type: 'test'
+  ...
+# Subtest: P156: Android bridge, visible clock button, source docs and bundle builder are wired
+ok 18 - P156: Android bridge, visible clock button, source docs and bundle builder are wired
+  ---
+  duration_ms: 3.654809
+  type: 'test'
+  ...
+# Subtest: P156: under-black-sun survives 3 reopenings after UAE start and choice
+ok 19 - P156: under-black-sun survives 3 reopenings after UAE start and choice
+  ---
+  duration_ms: 46.991631
+  type: 'test'
+  ...
+# Subtest: P156: beyond-the-rim survives 3 reopenings after UAE start and choice
+ok 20 - P156: beyond-the-rim survives 3 reopenings after UAE start and choice
+  ---
+  duration_ms: 34.333102
+  type: 'test'
+  ...
+# Subtest: P156: long-arm-of-the-hutt survives 3 reopenings after UAE start and choice
+ok 21 - P156: long-arm-of-the-hutt survives 3 reopenings after UAE start and choice
+  ---
+  duration_ms: 34.030078
+  type: 'test'
+  ...
+# Subtest: P156: jewel-of-yavin survives 3 reopenings after UAE start and choice
+ok 22 - P156: jewel-of-yavin survives 3 reopenings after UAE start and choice
+  ---
+  duration_ms: 25.967893
+  type: 'test'
+  ...
+# Subtest: P156: mask-of-the-pirate-queen survives 3 reopenings after UAE start and choice
+ok 23 - P156: mask-of-the-pirate-queen survives 3 reopenings after UAE start and choice
+  ---
+  duration_ms: 47.960094
+  type: 'test'
+  ...
+# Subtest: P156: after 30 minutes, published adventure follows costly escape branch and reopens
+ok 24 - P156: after 30 minutes, published adventure follows costly escape branch and reopens
+  ---
+  duration_ms: 36.858554
+  type: 'test'
+  ...
+# Subtest: P156: Android BraseiroUiBridge executes countdown and exposes failure without state mutation
+ok 25 - P156: Android BraseiroUiBridge executes countdown and exposes failure without state mutation
+  ---
+  duration_ms: 64.968514
+  type: 'test'
+  ...
+# Subtest: P156: published clock command commits one UAE causal receipt, replays exactly once
+ok 26 - P156: published clock command commits one UAE causal receipt, replays exactly once
+  ---
+  duration_ms: 31.293679
+  type: 'test'
+  ...
+# Subtest: P156: published clock rejects other adventures, preserves world and rolls back failed save
+ok 27 - P156: published clock rejects other adventures, preserves world and rolls back failed save
+  ---
+  duration_ms: 13.944912
+  type: 'test'
+  ...
+# Subtest: P156: Android outbox restores lost ACK for imperial clock without double advancing
+ok 28 - P156: Android outbox restores lost ACK for imperial clock without double advancing
+  ---
+  duration_ms: 23.640805
+  type: 'test'
+  ...
+1..28
+# tests 28
+# suites 0
+# pass 28
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 883.337135

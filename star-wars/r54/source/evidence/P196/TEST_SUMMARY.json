@@ -1,0 +1,15 @@
+{
+  "checkpoint": "P196",
+  "mode": "node --test per-file, regular 6 parallel workers; stress sequential, NOT monolithic",
+  "regularFiles": 315,
+  "stressFiles": 6,
+  "regularTests": 2880,
+  "regularPassed": 2880,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "elapsedSeconds": 76.2,
+  "totalFiles": 321,
+  "totalTests": 2886,
+  "totalPassed": 2886
+}

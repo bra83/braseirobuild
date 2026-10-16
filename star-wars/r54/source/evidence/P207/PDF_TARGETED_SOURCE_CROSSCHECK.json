@@ -1,0 +1,47 @@
+{
+  "checkpoint": "P207",
+  "source": "SWE09 The Jewel of Yavin",
+  "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "readVia": "Google Drive connected fetch, extracted PDF text",
+  "printedPages": [
+    90,
+    91
+  ],
+  "section": "Sweet Revenge",
+  "checkedFacts": [
+    {
+      "fact": "Computer network yields four holdings only on successful Average Computers or Streetwise check",
+      "implemented": "difficulty 2, computers/intellect or streetwise/cunning, actual narrative dice"
+    },
+    {
+      "fact": "Private residence in plaza district",
+      "implementedId": "plaza-residence"
+    },
+    {
+      "fact": "Office near Figg Hall",
+      "implementedId": "figg-hall-office"
+    },
+    {
+      "fact": "Port Town merchant building",
+      "implementedId": "port-town-building"
+    },
+    {
+      "fact": "Private yacht docked on plaza level",
+      "implementedId": "plaza-yacht"
+    },
+    {
+      "fact": "Mainframe does not reveal current location",
+      "implemented": "no current location after lead check"
+    },
+    {
+      "fact": "Optional GM d100 search chance: first 25%, second 50%, third 75%, fourth automatic",
+      "implemented": "unique holding visits, real d100 engine, GM confirms arrival"
+    }
+  ],
+  "limits": [
+    "Not full PDF comparison",
+    "Does not implement final confrontation or Arend combat",
+    "Does not add vehicle stats absent from Arrow-7 source",
+    "RNG receipt validates range/outcome but cannot cryptographically prove external randomness"
+  ]
+}

@@ -1,0 +1,124 @@
+TAP version 13
+# Subtest: P61: sessão renderiza tracker público com objetivo, investigação e pressão
+ok 1 - P61: sessão renderiza tracker público com objetivo, investigação e pressão
+  ---
+  duration_ms: 1.155767
+  type: 'test'
+  ...
+# Subtest: P61: superfície de sessão usa tracker anti-spoiler em vez de flags internas
+ok 2 - P61: superfície de sessão usa tracker anti-spoiler em vez de flags internas
+  ---
+  duration_ms: 0.605812
+  type: 'test'
+  ...
+# Subtest: P61: ações essenciais aparecem antes dos detalhes secundários
+ok 3 - P61: ações essenciais aparecem antes dos detalhes secundários
+  ---
+  duration_ms: 1.574398
+  type: 'test'
+  ...
+# Subtest: P61: layout 415x915 mantém alvos touch grandes e tracker compacto
+ok 4 - P61: layout 415x915 mantém alvos touch grandes e tracker compacto
+  ---
+  duration_ms: 0.331116
+  type: 'test'
+  ...
+# Subtest: P61: tracker pós-investigação continua sem revelar rota futura
+ok 5 - P61: tracker pós-investigação continua sem revelar rota futura
+  ---
+  duration_ms: 11.746243
+  type: 'test'
+  ...
+# Subtest: P71 Beyond the Rim graph remains closed and fully localized
+ok 6 - P71 Beyond the Rim graph remains closed and fully localized
+  ---
+  duration_ms: 1.651106
+  type: 'test'
+  ...
+# Subtest: P71 episode 2/3 check feedback is scene-specific and anti-spoiler
+ok 7 - P71 episode 2/3 check feedback is scene-specific and anti-spoiler
+  ---
+  duration_ms: 12.697125
+  type: 'test'
+  ...
+# Subtest: P71 adjudication keeps EotE framing and does not create Duty or overwrite Obligation
+ok 8 - P71 adjudication keeps EotE framing and does not create Duty or overwrite Obligation
+  ---
+  duration_ms: 2.142395
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward cholganna-search
+ok 9 - P72 fail-forward cholganna-search
+  ---
+  duration_ms: 9.295907
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward crash-trail
+ok 10 - P72 fail-forward crash-trail
+  ---
+  duration_ms: 1.952536
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward imperial-contingency
+ok 11 - P72 fail-forward imperial-contingency
+  ---
+  duration_ms: 2.745854
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward raxus-arrival
+ok 12 - P72 fail-forward raxus-arrival
+  ---
+  duration_ms: 2.317531
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward dropoff-point
+ok 13 - P72 fail-forward dropoff-point
+  ---
+  duration_ms: 2.201253
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward imperial-interruption
+ok 14 - P72 fail-forward imperial-interruption
+  ---
+  duration_ms: 3.109082
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward flying-junk
+ok 15 - P72 fail-forward flying-junk
+  ---
+  duration_ms: 3.600259
+  type: 'test'
+  ...
+# Subtest: P72 costly completion persists consequence without exposing future nodes
+ok 16 - P72 costly completion persists consequence without exposing future nodes
+  ---
+  duration_ms: 2.849508
+  type: 'test'
+  ...
+# Subtest: P73: UI publica tracker de Além da Orla sem flags internas
+ok 17 - P73: UI publica tracker de Além da Orla sem flags internas
+  ---
+  duration_ms: 1.141693
+  type: 'test'
+  ...
+# Subtest: P73: escolhas fail-forward continuam acionáveis em 415x915
+ok 18 - P73: escolhas fail-forward continuam acionáveis em 415x915
+  ---
+  duration_ms: 20.006184
+  type: 'test'
+  ...
+# Subtest: P73: status público pós-falha não serializa spoilers de flags futuras
+ok 19 - P73: status público pós-falha não serializa spoilers de flags futuras
+  ---
+  duration_ms: 2.284565
+  type: 'test'
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 231.779715

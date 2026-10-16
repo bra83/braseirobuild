@@ -1,0 +1,5 @@
+P160 PATCH REPLAY: PASS
+Baseline: BRASEIRO_STAR_WARS_EDGE_R54_P159_SOURCE_CHECKPOINT.zip
+Baseline SHA256: 7fbb300ab17f556801bd2906912b12ced55061fb23e4226ad06ed6e30ddcf289
+Method: git apply --check; git apply; byte-for-byte comparison of every project file.
+First replay: 2178 files, missing=0, different=0, extra=0.

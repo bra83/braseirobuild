@@ -1,0 +1,172 @@
+TAP version 13
+# Subtest: P159: 270/360 AoR slots; two natural talents source-backed, unrelated slots remain disabled
+ok 1 - P159: 270/360 AoR slots; two natural talents source-backed, unrelated slots remain disabled
+  ---
+  duration_ms: 9.567874
+  type: 'test'
+  ...
+# Subtest: P159: EMBAUCADOR NATO rerolls carisma once, persists across three reopens
+ok 2 - P159: EMBAUCADOR NATO rerolls carisma once, persists across three reopens
+  ---
+  duration_ms: 12.101967
+  type: 'test'
+  ...
+# Subtest: P159: EMBAUCADOR NATO rerolls engano once, persists across three reopens
+ok 3 - P159: EMBAUCADOR NATO rerolls engano once, persists across three reopens
+  ---
+  duration_ms: 6.859013
+  type: 'test'
+  ...
+# Subtest: P159: EMBAUCADOR NATO does not reroll unrelated liderazgo and cannot mutate save
+ok 4 - P159: EMBAUCADOR NATO does not reroll unrelated liderazgo and cannot mutate save
+  ---
+  duration_ms: 2.76118
+  type: 'test'
+  ...
+# Subtest: P159: EMBAUCADOR NATO storage failure rolls back session use and dice
+ok 5 - P159: EMBAUCADOR NATO storage failure rolls back session use and dice
+  ---
+  duration_ms: 4.457908
+  type: 'test'
+  ...
+# Subtest: P159: LÍDER NATO rerolls liderazgo once, persists across three reopens
+ok 6 - P159: LÍDER NATO rerolls liderazgo once, persists across three reopens
+  ---
+  duration_ms: 6.731344
+  type: 'test'
+  ...
+# Subtest: P159: LÍDER NATO rerolls frialdad once, persists across three reopens
+ok 7 - P159: LÍDER NATO rerolls frialdad once, persists across three reopens
+  ---
+  duration_ms: 5.520806
+  type: 'test'
+  ...
+# Subtest: P159: LÍDER NATO does not reroll unrelated medicina and cannot mutate save
+ok 8 - P159: LÍDER NATO does not reroll unrelated medicina and cannot mutate save
+  ---
+  duration_ms: 2.018607
+  type: 'test'
+  ...
+# Subtest: P159: LÍDER NATO storage failure rolls back session use and dice
+ok 9 - P159: LÍDER NATO storage failure rolls back session use and dice
+  ---
+  duration_ms: 5.374319
+  type: 'test'
+  ...
+# Subtest: P159 under-black-sun: atomic trigger → consequence → clock → objective → nested event → receipt → restore
+ok 10 - P159 under-black-sun: atomic trigger → consequence → clock → objective → nested event → receipt → restore
+  ---
+  duration_ms: 12.162476
+  type: 'test'
+  ...
+# Subtest: P159 under-black-sun: checkpoint rejects tampered progress, completed clock and missing trigger journal
+ok 11 - P159 under-black-sun: checkpoint rejects tampered progress, completed clock and missing trigger journal
+  ---
+  duration_ms: 5.450893
+  type: 'test'
+  ...
+# Subtest: P159 under-black-sun: failed multi-command transaction does not grant reward, clock, objective or receipt
+ok 12 - P159 under-black-sun: failed multi-command transaction does not grant reward, clock, objective or receipt
+  ---
+  duration_ms: 1.879461
+  type: 'test'
+  ...
+# Subtest: P159 beyond-the-rim: atomic trigger → consequence → clock → objective → nested event → receipt → restore
+ok 13 - P159 beyond-the-rim: atomic trigger → consequence → clock → objective → nested event → receipt → restore
+  ---
+  duration_ms: 5.097468
+  type: 'test'
+  ...
+# Subtest: P159 beyond-the-rim: checkpoint rejects tampered progress, completed clock and missing trigger journal
+ok 14 - P159 beyond-the-rim: checkpoint rejects tampered progress, completed clock and missing trigger journal
+  ---
+  duration_ms: 3.737619
+  type: 'test'
+  ...
+# Subtest: P159 beyond-the-rim: failed multi-command transaction does not grant reward, clock, objective or receipt
+ok 15 - P159 beyond-the-rim: failed multi-command transaction does not grant reward, clock, objective or receipt
+  ---
+  duration_ms: 1.959059
+  type: 'test'
+  ...
+# Subtest: P159 long-arm-of-the-hutt: atomic trigger → consequence → clock → objective → nested event → receipt → restore
+ok 16 - P159 long-arm-of-the-hutt: atomic trigger → consequence → clock → objective → nested event → receipt → restore
+  ---
+  duration_ms: 3.646874
+  type: 'test'
+  ...
+# Subtest: P159 long-arm-of-the-hutt: checkpoint rejects tampered progress, completed clock and missing trigger journal
+ok 17 - P159 long-arm-of-the-hutt: checkpoint rejects tampered progress, completed clock and missing trigger journal
+  ---
+  duration_ms: 2.448265
+  type: 'test'
+  ...
+# Subtest: P159 long-arm-of-the-hutt: failed multi-command transaction does not grant reward, clock, objective or receipt
+ok 18 - P159 long-arm-of-the-hutt: failed multi-command transaction does not grant reward, clock, objective or receipt
+  ---
+  duration_ms: 1.328342
+  type: 'test'
+  ...
+# Subtest: P159 jewel-of-yavin: atomic trigger → consequence → clock → objective → nested event → receipt → restore
+ok 19 - P159 jewel-of-yavin: atomic trigger → consequence → clock → objective → nested event → receipt → restore
+  ---
+  duration_ms: 2.70751
+  type: 'test'
+  ...
+# Subtest: P159 jewel-of-yavin: checkpoint rejects tampered progress, completed clock and missing trigger journal
+ok 20 - P159 jewel-of-yavin: checkpoint rejects tampered progress, completed clock and missing trigger journal
+  ---
+  duration_ms: 2.8496
+  type: 'test'
+  ...
+# Subtest: P159 jewel-of-yavin: failed multi-command transaction does not grant reward, clock, objective or receipt
+ok 21 - P159 jewel-of-yavin: failed multi-command transaction does not grant reward, clock, objective or receipt
+  ---
+  duration_ms: 1.390895
+  type: 'test'
+  ...
+# Subtest: P159 mask-of-the-pirate-queen: atomic trigger → consequence → clock → objective → nested event → receipt → restore
+ok 22 - P159 mask-of-the-pirate-queen: atomic trigger → consequence → clock → objective → nested event → receipt → restore
+  ---
+  duration_ms: 2.717855
+  type: 'test'
+  ...
+# Subtest: P159 mask-of-the-pirate-queen: checkpoint rejects tampered progress, completed clock and missing trigger journal
+ok 23 - P159 mask-of-the-pirate-queen: checkpoint rejects tampered progress, completed clock and missing trigger journal
+  ---
+  duration_ms: 2.331782
+  type: 'test'
+  ...
+# Subtest: P159 mask-of-the-pirate-queen: failed multi-command transaction does not grant reward, clock, objective or receipt
+ok 24 - P159 mask-of-the-pirate-queen: failed multi-command transaction does not grant reward, clock, objective or receipt
+  ---
+  duration_ms: 1.307471
+  type: 'test'
+  ...
+# Subtest: P159: bundle/version Android 1.0.159, existing TTS untouched
+ok 25 - P159: bundle/version Android 1.0.159, existing TTS untouched
+  ---
+  duration_ms: 7.805928
+  type: 'test'
+  ...
+# Subtest: P159: Android bridge offers EMBAUCADOR NATO only for the purchased skill, then disables it after use
+ok 26 - P159: Android bridge offers EMBAUCADOR NATO only for the purchased skill, then disables it after use
+  ---
+  duration_ms: 27.952578
+  type: 'test'
+  ...
+# Subtest: P159: Android bridge offers LÍDER NATO only for the purchased skill, then disables it after use
+ok 27 - P159: Android bridge offers LÍDER NATO only for the purchased skill, then disables it after use
+  ---
+  duration_ms: 5.905256
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 296.764634

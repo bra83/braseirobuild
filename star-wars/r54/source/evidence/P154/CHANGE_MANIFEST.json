@@ -1,0 +1,30 @@
+{
+  "base": "R54_P153",
+  "checkpoint": "R54_P154",
+  "changed": [
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+    "app/src/main/assets/vtt/js/expansion/aorTalentRuntimeAliases.mjs",
+    "app/src/main/assets/vtt/js/rules/talents.mjs",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "tests/uae-p151-integrated-context-talents.test.mjs"
+  ],
+  "added": [
+    "HANDOFF_STAR_WARS_EDGE_R54_P154_2026-10-12.md",
+    "evidence/P154/ANDROID_GRADLE_ATTEMPT.txt",
+    "evidence/P154/AOR_PENDING_SLOTS.json",
+    "evidence/P154/BUNDLE_BUILD.txt",
+    "evidence/P154/JAVA_SYNTAX.txt",
+    "evidence/P154/KOKORO_TTS_REGRESSION.txt",
+    "evidence/P154/NODE_REGULAR.txt",
+    "evidence/P154/NODE_STRESS.txt",
+    "evidence/P154/P154_FOCAL_TESTS.txt",
+    "evidence/P154/RELEASE_AUDIT.json",
+    "tests/uae-p154-aor-combat-talents-five-adventures.test.mjs",
+    "tools/audit-p154-release.mjs"
+  ],
+  "removed": []
+}

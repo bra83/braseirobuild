@@ -1,0 +1,19 @@
+# Codex resume
+
+- Captured: 2026-10-16 (America/Sao_Paulo)
+- Repository: `bra83/braseirobuild`
+- Branch: `codex/star-wars-hibrido-integral-20261016`
+- Local HEAD before WIP commit: `98b6a391401818e74eaa53c752cc98dc9082fea9`
+- Remote branch: not present before first push
+- Source working tree: `work/star-wars/project`; Git sparse checkout: `work/star-wars/repo-sparse/star-wars/r54/source`
+- P244 SHA-256: `6f3dca72ea55080b4ce7e6befeb5d4d84e51f63453ead6a5719495178a40d264`
+- WIP5 SHA-256: `7615fc8d156f8909a7a31b0878d6e08715cd71867325c5ad6c97ac5dd830409e`
+- SWE02 is IMPLEMENTADO_NAO_CERTIFICADO. See `audits/SWE02_INITIAL_SOURCE_GAP_MATRIX.md`.
+- All 360 AoR rows are enumerated in `validation/AOR_360_INDIVIDUAL_PROOFS.jsonl`; each remains PENDENTE.
+- Drive inventory contains 527 records; 500 remain metadata-only/unreviewed.
+- Fresh regression completed: 376 files (370 regular + six stress), 3,393 tests, 3,391 pass, zero fail, two documented JDK-dependent skips. TAP and summary are in `evidence/fresh-regression-20261016/`.
+- APK/Gradle/device gates have not run.
+
+## Next command
+
+From the workspace root, Commit and push this recoverable WIP branch. Continue source-led SWE02 closure with the Act 1 gaps in `audits/SWE02_INITIAL_SOURCE_GAP_MATRIX.md`.

@@ -1,0 +1,10 @@
+{
+  "checkpoint":"R54 P241",
+  "base":"R54 P240",
+  "source":"SWE02 official PDF printed pp.13,14,23",
+  "implementation":["Nyn fixed-pool critical injury treatment with one attempt per injury", "Nyn Charm/Coerce with live narrative dice and equipment entitlements", "EotE padded armor awarded atomically on 2 Advantages", "New Meen thug-by-thug opposed Negotiation, 400-500 credit debit, actual minion group reduction", "Controller, Android bridge and offline UI, anti-forgery receipts, atomic rollback, three reopens"],
+  "blocked":["Grenades/rifle combat profiles await primary EotE Core source", "New Meen coercion based on verified casualties", "SWE02 full closure and other four adventures", "360 AoR consumers individual certification", "APK/CI/physical Android"],
+  "testFiles":366,"testsPass":3311,"testsFail":0,"testsSkip":0,"stressFiles":6,"stressPass":6,
+  "syntaxMjs":553,"syntaxJsRuntime":2,"jsonFiles":22,"xmlFiles":2,"javaKokoroPreserved":8,"bundleModules":125,"androidSourceVersion":"1.0.241",
+  "apkBuilt":false,"githubPush":false,"ci":false,"physicalAndroidTest":false
+}

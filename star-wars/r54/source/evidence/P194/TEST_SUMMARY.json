@@ -1,0 +1,31 @@
+{
+  "checkpoint": "P194",
+  "executionMode": "node --test one file per invocation; regular parallel 6, stress sequential; NOT monolithic",
+  "regularFiles": 313,
+  "regularTests": 2855,
+  "regularPassed": 2855,
+  "stressFiles": 6,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "totalFiles": 319,
+  "totalTests": 2861,
+  "totalPassed": 2861,
+  "baseline": "P193",
+  "newFocalFile": "tests/uae-p194-jewel-g100-black-box-evidence.test.mjs",
+  "newFocalTests": 9,
+  "syntax": {
+    "mjs": 126,
+    "json": 22,
+    "xml": 2,
+    "failures": 0
+  },
+  "bundleModules": 92,
+  "androidVersion": "1.0.194",
+  "javaFilesByteIdentical": 8,
+  "limitations": [
+    "Not monolithic suite",
+    "No APK/Gradle/SDK/adb/CI BRELGA",
+    "Targeted PDF crosscheck only, no full semantic certification"
+  ]
+}

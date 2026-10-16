@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "source": "rules/rules_matrix.json",
+  "sourceSha256": "a46c85c35f8e8ca3561058c6b2a9be0e2f04af674a8f4e5c0aebe14aceb6d7f1",
+  "documentCount": 54,
+  "statuses": {
+    "TESTADO": 54
+  }
+}

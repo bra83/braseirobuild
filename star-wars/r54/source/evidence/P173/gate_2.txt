@@ -1,0 +1,6 @@
+COMMAND: node tools/java-syntax-gate.mjs
+EXIT: 0
+
+JAVA_SYNTAX_PASS files=8 unresolved_android_symbols=699
+
+STDERR:

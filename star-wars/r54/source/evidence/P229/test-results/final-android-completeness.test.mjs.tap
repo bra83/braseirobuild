@@ -1,0 +1,82 @@
+TAP version 13
+# Subtest: FINAL: Android Studio project has deterministic Gradle launcher and compatible pins
+ok 1 - FINAL: Android Studio project has deterministic Gradle launcher and compatible pins
+  ---
+  duration_ms: 3.282188
+  type: 'test'
+  ...
+# Subtest: FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency
+ok 2 - FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency
+  ---
+  duration_ms: 0.48288
+  type: 'test'
+  ...
+# Subtest: FINAL: WebView exposes only required bridges and blocks universal file access
+ok 3 - FINAL: WebView exposes only required bridges and blocks universal file access
+  ---
+  duration_ms: 0.405372
+  type: 'test'
+  ...
+# Subtest: FINAL: native PT-BR TTS exists and has bounded visible-text contract
+ok 4 - FINAL: native PT-BR TTS exists and has bounded visible-text contract
+  ---
+  duration_ms: 1.878638
+  type: 'test'
+  ...
+# Subtest: FINAL: JSON export/import is Android-capable
+ok 5 - FINAL: JSON export/import is Android-capable
+  ---
+  duration_ms: 2.023106
+  type: 'test'
+  ...
+# Subtest: FINAL: accessibility settings are functional and persistent
+ok 6 - FINAL: accessibility settings are functional and persistent
+  ---
+  duration_ms: 4.535281
+  type: 'test'
+  ...
+# Subtest: FINAL: canonical engine bundle is synchronized with live scene bridge
+ok 7 - FINAL: canonical engine bundle is synchronized with live scene bridge
+  ---
+  duration_ms: 34.316812
+  type: 'test'
+  ...
+# Subtest: FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks
+ok 8 - FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks
+  ---
+  duration_ms: 3.556833
+  type: 'test'
+  ...
+# Subtest: FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs
+ok 9 - FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs
+  ---
+  duration_ms: 0.863194
+  type: 'test'
+  ...
+# Subtest: FINAL: Android host disables WebView debugging and supports system back navigation
+ok 10 - FINAL: Android host disables WebView debugging and supports system back navigation
+  ---
+  duration_ms: 2.511164
+  type: 'test'
+  ...
+# Subtest: FINAL: shell script order installs engine before React shell and final runtime
+ok 11 - FINAL: shell script order installs engine before React shell and final runtime
+  ---
+  duration_ms: 0.387756
+  type: 'test'
+  ...
+# Subtest: FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts
+ok 12 - FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts
+  ---
+  duration_ms: 0.778706
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 193.106792

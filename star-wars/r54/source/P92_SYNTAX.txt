@@ -1,0 +1,16 @@
+CHECK app/src/main/assets/vtt/js/core/controller.mjs
+PASS app/src/main/assets/vtt/js/core/controller.mjs
+CHECK app/src/main/assets/vtt/js/core/uiBridge.mjs
+PASS app/src/main/assets/vtt/js/core/uiBridge.mjs
+CHECK app/src/main/assets/vtt/js/rules/weapons.mjs
+PASS app/src/main/assets/vtt/js/rules/weapons.mjs
+CHECK app/src/main/assets/vtt/js/rules/equipmentCatalog.mjs
+PASS app/src/main/assets/vtt/js/rules/equipmentCatalog.mjs
+CHECK app/src/main/assets/vtt/js/rules/cybernetics.mjs
+PASS app/src/main/assets/vtt/js/rules/cybernetics.mjs
+CHECK app/src/main/assets/vtt/js/rules/astrogation.mjs
+PASS app/src/main/assets/vtt/js/rules/astrogation.mjs
+CHECK app/src/main/assets/vtt/r46/final-runtime.js
+PASS app/src/main/assets/vtt/r46/final-runtime.js
+CHECK app/src/main/assets/vtt/js/core/uiBridge.bundle.js
+PASS app/src/main/assets/vtt/js/core/uiBridge.bundle.js

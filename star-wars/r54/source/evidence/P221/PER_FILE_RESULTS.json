@@ -1,0 +1,3116 @@
+[
+  {
+    "file": "tests/acquisition-r13.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/acquisition-r13.test.tap"
+  },
+  {
+    "file": "tests/adversaries-r15.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/adversaries-r15.test.tap"
+  },
+  {
+    "file": "tests/adversaries.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/adversaries.test.tap"
+  },
+  {
+    "file": "tests/adversary-guidance-r14.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/adversary-guidance-r14.test.tap"
+  },
+  {
+    "file": "tests/aftermath-r20.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/aftermath-r20.test.tap"
+  },
+  {
+    "file": "tests/aftermath-ui-r20.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/aftermath-ui-r20.test.tap"
+  },
+  {
+    "file": "tests/android-json-file-chooser-contract-r16.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/android-json-file-chooser-contract-r16.test.tap"
+  },
+  {
+    "file": "tests/aor-duty-r37.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/aor-duty-r37.test.tap"
+  },
+  {
+    "file": "tests/armor-price-r28.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/armor-price-r28.test.tap"
+  },
+  {
+    "file": "tests/attackDifficulty.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/attackDifficulty.test.tap"
+  },
+  {
+    "file": "tests/availability-r26.test.mjs",
+    "exitCode": 0,
+    "tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/availability-r26.test.tap"
+  },
+  {
+    "file": "tests/backup-restore-live-refresh-r15.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/backup-restore-live-refresh-r15.test.tap"
+  },
+  {
+    "file": "tests/base-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/base-ui.test.tap"
+  },
+  {
+    "file": "tests/bundle-builder-p20.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/bundle-builder-p20.test.tap"
+  },
+  {
+    "file": "tests/causal-hook-reset-r21.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/causal-hook-reset-r21.test.tap"
+  },
+  {
+    "file": "tests/causal-world-r16.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/causal-world-r16.test.tap"
+  },
+  {
+    "file": "tests/character-creation-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/character-creation-ui.test.tap"
+  },
+  {
+    "file": "tests/character-creation.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/character-creation.test.tap"
+  },
+  {
+    "file": "tests/character.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/character.test.tap"
+  },
+  {
+    "file": "tests/combat.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/combat.test.tap"
+  },
+  {
+    "file": "tests/command-talents-controller-r17.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/command-talents-controller-r17.test.tap"
+  },
+  {
+    "file": "tests/command-talents-r17.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/command-talents-r17.test.tap"
+  },
+  {
+    "file": "tests/context-aftermath-r20.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/context-aftermath-r20.test.tap"
+  },
+  {
+    "file": "tests/controller-aftermath-r20.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/controller-aftermath-r20.test.tap"
+  },
+  {
+    "file": "tests/controller.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/controller.test.tap"
+  },
+  {
+    "file": "tests/core-rules-closure.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/core-rules-closure.test.tap"
+  },
+  {
+    "file": "tests/critical.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/critical.test.tap"
+  },
+  {
+    "file": "tests/cross-line-reference-guard.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/cross-line-reference-guard.test.tap"
+  },
+  {
+    "file": "tests/documentation-current-state.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/documentation-current-state.test.tap"
+  },
+  {
+    "file": "tests/duty-type-guard-r34.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/duty-type-guard-r34.test.tap"
+  },
+  {
+    "file": "tests/economy-r34.test.mjs",
+    "exitCode": 0,
+    "tests": 26,
+    "passed": 26,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/economy-r34.test.tap"
+  },
+  {
+    "file": "tests/encounter.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/encounter.test.tap"
+  },
+  {
+    "file": "tests/eote-core-recovery.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/eote-core-recovery.test.tap"
+  },
+  {
+    "file": "tests/eote-core-session-load-fear-r30.test.mjs",
+    "exitCode": 0,
+    "tests": 23,
+    "passed": 23,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/eote-core-session-load-fear-r30.test.tap"
+  },
+  {
+    "file": "tests/eote-core-starter-ships-r32.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/eote-core-starter-ships-r32.test.tap"
+  },
+  {
+    "file": "tests/eote-core-systemic-r30.test.mjs",
+    "exitCode": 0,
+    "tests": 23,
+    "passed": 23,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/eote-core-systemic-r30.test.tap"
+  },
+  {
+    "file": "tests/eote-core-vehicle-catalog-r35.test.mjs",
+    "exitCode": 0,
+    "tests": 21,
+    "passed": 21,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/eote-core-vehicle-catalog-r35.test.tap"
+  },
+  {
+    "file": "tests/eote-core-vehicle-criticals-r31.test.mjs",
+    "exitCode": 0,
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/eote-core-vehicle-criticals-r31.test.tap"
+  },
+  {
+    "file": "tests/eote-final-rag-guards.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/eote-final-rag-guards.test.tap"
+  },
+  {
+    "file": "tests/eote-fly-casual-vehicle-catalog-r36.test.mjs",
+    "exitCode": 0,
+    "tests": 14,
+    "passed": 14,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/eote-fly-casual-vehicle-catalog-r36.test.tap"
+  },
+  {
+    "file": "tests/eote-force-core-r28.test.mjs",
+    "exitCode": 0,
+    "tests": 19,
+    "passed": 19,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/eote-force-core-r28.test.tap"
+  },
+  {
+    "file": "tests/eote-personal-catalog-r37.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/eote-personal-catalog-r37.test.tap"
+  },
+  {
+    "file": "tests/eote-specialization-progression.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/eote-specialization-progression.test.tap"
+  },
+  {
+    "file": "tests/equipment.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/equipment.test.tap"
+  },
+  {
+    "file": "tests/expert-talents-r16.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/expert-talents-r16.test.tap"
+  },
+  {
+    "file": "tests/faction-adversaries-r19.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/faction-adversaries-r19.test.tap"
+  },
+  {
+    "file": "tests/faction-combat-ui-r19.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/faction-combat-ui-r19.test.tap"
+  },
+  {
+    "file": "tests/faction-plan-ui-r19.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/faction-plan-ui-r19.test.tap"
+  },
+  {
+    "file": "tests/faction-plans-r19.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/faction-plans-r19.test.tap"
+  },
+  {
+    "file": "tests/faction-ui-r18.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/faction-ui-r18.test.tap"
+  },
+  {
+    "file": "tests/factions-r18.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/factions-r18.test.tap"
+  },
+  {
+    "file": "tests/filebridge-mediastore-publish-r25.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/filebridge-mediastore-publish-r25.test.tap"
+  },
+  {
+    "file": "tests/final-android-completeness.test.mjs",
+    "exitCode": 0,
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/final-android-completeness.test.tap"
+  },
+  {
+    "file": "tests/force-move-scene-object.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/force-move-scene-object.test.tap"
+  },
+  {
+    "file": "tests/gemini-host-r25.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/gemini-host-r25.test.tap"
+  },
+  {
+    "file": "tests/gemini-image-picker-ui-thread-r19.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/gemini-image-picker-ui-thread-r19.test.tap"
+  },
+  {
+    "file": "tests/gemini-interactions-schema-r17.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/gemini-interactions-schema-r17.test.tap"
+  },
+  {
+    "file": "tests/gemini-scene-image-clear-race-r22.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/gemini-scene-image-clear-race-r22.test.tap"
+  },
+  {
+    "file": "tests/general-gear-effects-r30.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/general-gear-effects-r30.test.tap"
+  },
+  {
+    "file": "tests/general-gear-r27.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/general-gear-r27.test.tap"
+  },
+  {
+    "file": "tests/general-gear-tools-r31.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/general-gear-tools-r31.test.tap"
+  },
+  {
+    "file": "tests/gradle-wrapper-bootstrap.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/gradle-wrapper-bootstrap.test.tap"
+  },
+  {
+    "file": "tests/health.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/health.test.tap"
+  },
+  {
+    "file": "tests/image-cache-clear-race-r21.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/image-cache-clear-race-r21.test.tap"
+  },
+  {
+    "file": "tests/image-library-r35.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/image-library-r35.test.tap"
+  },
+  {
+    "file": "tests/image-library-r36.test.mjs",
+    "exitCode": 0,
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/image-library-r36.test.tap"
+  },
+  {
+    "file": "tests/image-library-r37.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/image-library-r37.test.tap"
+  },
+  {
+    "file": "tests/image-library-r38.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/image-library-r38.test.tap"
+  },
+  {
+    "file": "tests/image-library-r39.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/image-library-r39.test.tap"
+  },
+  {
+    "file": "tests/image-library-r40.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/image-library-r40.test.tap"
+  },
+  {
+    "file": "tests/image-library-r41.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/image-library-r41.test.tap"
+  },
+  {
+    "file": "tests/image-library-r42.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/image-library-r42.test.tap"
+  },
+  {
+    "file": "tests/image-library-r43.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/image-library-r43.test.tap"
+  },
+  {
+    "file": "tests/image-library-r44.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/image-library-r44.test.tap"
+  },
+  {
+    "file": "tests/image-library-r45.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/image-library-r45.test.tap"
+  },
+  {
+    "file": "tests/image-library-r46.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/image-library-r46.test.tap"
+  },
+  {
+    "file": "tests/initiative.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/initiative.test.tap"
+  },
+  {
+    "file": "tests/json-import-size-guard-r16.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/json-import-size-guard-r16.test.tap"
+  },
+  {
+    "file": "tests/legacy-ui-dom-contract.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/legacy-ui-dom-contract.test.tap"
+  },
+  {
+    "file": "tests/legacy-ui-eote-guard.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/legacy-ui-eote-guard.test.tap"
+  },
+  {
+    "file": "tests/library-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/library-ui.test.tap"
+  },
+  {
+    "file": "tests/library.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/library.test.tap"
+  },
+  {
+    "file": "tests/living-world-depth-p9.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/living-world-depth-p9.test.tap"
+  },
+  {
+    "file": "tests/map-provenance-p12.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/map-provenance-p12.test.tap"
+  },
+  {
+    "file": "tests/map-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/map-ui.test.tap"
+  },
+  {
+    "file": "tests/map-viewer-p13.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/map-viewer-p13.test.tap"
+  },
+  {
+    "file": "tests/master-context.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/master-context.test.tap"
+  },
+  {
+    "file": "tests/master-encounter-r17.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/master-encounter-r17.test.tap"
+  },
+  {
+    "file": "tests/master-encounter-ui-r17.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/master-encounter-ui-r17.test.tap"
+  },
+  {
+    "file": "tests/master-faction-plans-r19.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/master-faction-plans-r19.test.tap"
+  },
+  {
+    "file": "tests/master-factions-r18.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/master-factions-r18.test.tap"
+  },
+  {
+    "file": "tests/master-long-narration-p20.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/master-long-narration-p20.test.tap"
+  },
+  {
+    "file": "tests/master-proposal.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/master-proposal.test.tap"
+  },
+  {
+    "file": "tests/master-provider.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/master-provider.test.tap"
+  },
+  {
+    "file": "tests/master-world-ops-r15.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/master-world-ops-r15.test.tap"
+  },
+  {
+    "file": "tests/master-world-r15.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/master-world-r15.test.tap"
+  },
+  {
+    "file": "tests/medical-gear-r29.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/medical-gear-r29.test.tap"
+  },
+  {
+    "file": "tests/mixed-campaign-sandbox-r33.test.mjs",
+    "exitCode": 0,
+    "tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/mixed-campaign-sandbox-r33.test.tap"
+  },
+  {
+    "file": "tests/native-bridge-contract.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/native-bridge-contract.test.tap"
+  },
+  {
+    "file": "tests/native-callback-contract.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/native-callback-contract.test.tap"
+  },
+  {
+    "file": "tests/native-image-read-consistency-r23.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/native-image-read-consistency-r23.test.tap"
+  },
+  {
+    "file": "tests/pdf-picker-ui-thread-r17.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/pdf-picker-ui-thread-r17.test.tap"
+  },
+  {
+    "file": "tests/pdf-policy-index-race-r20.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/pdf-policy-index-race-r20.test.tap"
+  },
+  {
+    "file": "tests/persistent-adversary-r17.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/persistent-adversary-r17.test.tap"
+  },
+  {
+    "file": "tests/progression.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/progression.test.tap"
+  },
+  {
+    "file": "tests/r38-mobile-ux-fixes.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r38-mobile-ux-fixes.test.tap"
+  },
+  {
+    "file": "tests/r46-bridge-contract.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r46-bridge-contract.test.tap"
+  },
+  {
+    "file": "tests/r46-live-state-refresh.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r46-live-state-refresh.test.tap"
+  },
+  {
+    "file": "tests/r46-runtime-asset-closure.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r46-runtime-asset-closure.test.tap"
+  },
+  {
+    "file": "tests/r46-state-projection-eote.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r46-state-projection-eote.test.tap"
+  },
+  {
+    "file": "tests/r47-android-shell-host.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r47-android-shell-host.test.tap"
+  },
+  {
+    "file": "tests/r54-device-p6-audit.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-device-p6-audit.test.tap"
+  },
+  {
+    "file": "tests/r54-p100-attachment-mods-guarded-stance.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p100-attachment-mods-guarded-stance.test.tap"
+  },
+  {
+    "file": "tests/r54-p101-fear-encumbrance-gear-repair.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p101-fear-encumbrance-gear-repair.test.tap"
+  },
+  {
+    "file": "tests/r54-p102-eote-core-vehicle-actions.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p102-eote-core-vehicle-actions.test.tap"
+  },
+  {
+    "file": "tests/r54-p103-vehicle-actions-damage-control.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p103-vehicle-actions-damage-control.test.tap"
+  },
+  {
+    "file": "tests/r54-p104-unified-personal-maneuvers.test.mjs",
+    "exitCode": 0,
+    "tests": 14,
+    "passed": 14,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p104-unified-personal-maneuvers.test.tap"
+  },
+  {
+    "file": "tests/r54-p105-force-actions-runtime.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p105-force-actions-runtime.test.tap"
+  },
+  {
+    "file": "tests/r54-p106-active-talents-runtime.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p106-active-talents-runtime.test.tap"
+  },
+  {
+    "file": "tests/r54-p107-core-combat-talents.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p107-core-combat-talents.test.tap"
+  },
+  {
+    "file": "tests/r54-p108-assassin-combat-talents.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p108-assassin-combat-talents.test.tap"
+  },
+  {
+    "file": "tests/r54-p109-passive-core-talents.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p109-passive-core-talents.test.tap"
+  },
+  {
+    "file": "tests/r54-p110-active-skill-talents.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p110-active-skill-talents.test.tap"
+  },
+  {
+    "file": "tests/r54-p111-natural-rerolls.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p111-natural-rerolls.test.tap"
+  },
+  {
+    "file": "tests/r54-p112-aor-alliance-rewards.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p112-aor-alliance-rewards.test.tap"
+  },
+  {
+    "file": "tests/r54-p113-environment-hazards.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p113-environment-hazards.test.tap"
+  },
+  {
+    "file": "tests/r54-p21-device-regressions.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p21-device-regressions.test.tap"
+  },
+  {
+    "file": "tests/r54-p33-mixed-creation-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p33-mixed-creation-ui.test.tap"
+  },
+  {
+    "file": "tests/r54-p33-under-black-sun.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p33-under-black-sun.test.tap"
+  },
+  {
+    "file": "tests/r54-p35-published-adventure-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p35-published-adventure-ui.test.tap"
+  },
+  {
+    "file": "tests/r54-p36-under-black-sun-systems.test.mjs",
+    "exitCode": 0,
+    "tests": 14,
+    "passed": 14,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p36-under-black-sun-systems.test.tap"
+  },
+  {
+    "file": "tests/r54-p40-published-world-plans.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p40-published-world-plans.test.tap"
+  },
+  {
+    "file": "tests/r54-p41-under-black-sun-branches.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p41-under-black-sun-branches.test.tap"
+  },
+  {
+    "file": "tests/r54-p42-under-black-sun-consequences-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p42-under-black-sun-consequences-ui.test.tap"
+  },
+  {
+    "file": "tests/r54-p43-player-safe-feedback.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p43-player-safe-feedback.test.tap"
+  },
+  {
+    "file": "tests/r54-p45-known-clues-and-contracts.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p45-known-clues-and-contracts.test.tap"
+  },
+  {
+    "file": "tests/r54-p46-under-black-sun-completion.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p46-under-black-sun-completion.test.tap"
+  },
+  {
+    "file": "tests/r54-p47-under-black-sun-hardening.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p47-under-black-sun-hardening.test.tap"
+  },
+  {
+    "file": "tests/r54-p49-under-black-sun-persistence.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p49-under-black-sun-persistence.test.tap"
+  },
+  {
+    "file": "tests/r54-p50-under-black-sun-branch-persistence.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p50-under-black-sun-branch-persistence.test.tap"
+  },
+  {
+    "file": "tests/r54-p51-persistence-performance-and-adventure-registry.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p51-persistence-performance-and-adventure-registry.test.tap"
+  },
+  {
+    "file": "tests/r54-p51-world-event-compaction.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p51-world-event-compaction.test.tap"
+  },
+  {
+    "file": "tests/r54-p52-beyond-the-rim-episode1.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p52-beyond-the-rim-episode1.test.tap"
+  },
+  {
+    "file": "tests/r54-p53-beyond-the-rim-episode2.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p53-beyond-the-rim-episode2.test.tap"
+  },
+  {
+    "file": "tests/r54-p54-beyond-the-rim-episode3.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p54-beyond-the-rim-episode3.test.tap"
+  },
+  {
+    "file": "tests/r54-p55-under-black-sun-scene-journal.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p55-under-black-sun-scene-journal.test.tap"
+  },
+  {
+    "file": "tests/r54-p56-under-black-sun-timeline-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p56-under-black-sun-timeline-ui.test.tap"
+  },
+  {
+    "file": "tests/r54-p57-under-black-sun-closure.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p57-under-black-sun-closure.test.tap"
+  },
+  {
+    "file": "tests/r54-p58-under-black-sun-ready-to-play.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p58-under-black-sun-ready-to-play.test.tap"
+  },
+  {
+    "file": "tests/r54-p60-under-black-sun-tracker.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p60-under-black-sun-tracker.test.tap"
+  },
+  {
+    "file": "tests/r54-p61-under-black-sun-mobile-play-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p61-under-black-sun-mobile-play-ui.test.tap"
+  },
+  {
+    "file": "tests/r54-p62-under-black-sun-state-integrity.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p62-under-black-sun-state-integrity.test.tap"
+  },
+  {
+    "file": "tests/r54-p63-under-black-sun-reopen-transition.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p63-under-black-sun-reopen-transition.test.tap"
+  },
+  {
+    "file": "tests/r54-p64-beyond-rim-persistence.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p64-beyond-rim-persistence.test.tap"
+  },
+  {
+    "file": "tests/r54-p65-beyond-rim-controller-continuity.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p65-beyond-rim-controller-continuity.test.tap"
+  },
+  {
+    "file": "tests/r54-p66-beyond-rim-epilogue-antispolier.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p66-beyond-rim-epilogue-antispolier.test.tap"
+  },
+  {
+    "file": "tests/r54-p67-beyond-rim-epilogue-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p67-beyond-rim-epilogue-ui.test.tap"
+  },
+  {
+    "file": "tests/r54-p68-beyond-rim-tracker-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p68-beyond-rim-tracker-ui.test.tap"
+  },
+  {
+    "file": "tests/r54-p69-beyond-rim-trail-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p69-beyond-rim-trail-ui.test.tap"
+  },
+  {
+    "file": "tests/r54-p7-fastfix.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p7-fastfix.test.tap"
+  },
+  {
+    "file": "tests/r54-p70-under-black-sun-graph-integrity.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p70-under-black-sun-graph-integrity.test.tap"
+  },
+  {
+    "file": "tests/r54-p71-beyond-rim-adjudication-antispolier.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p71-beyond-rim-adjudication-antispolier.test.tap"
+  },
+  {
+    "file": "tests/r54-p72-beyond-rim-fail-forward.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p72-beyond-rim-fail-forward.test.tap"
+  },
+  {
+    "file": "tests/r54-p73-beyond-rim-mobile-fail-forward-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p73-beyond-rim-mobile-fail-forward-ui.test.tap"
+  },
+  {
+    "file": "tests/r54-p74-campaign-lifecycle-insets-version.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p74-campaign-lifecycle-insets-version.test.tap"
+  },
+  {
+    "file": "tests/r54-p75-under-black-sun-ptbr-resume.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p75-under-black-sun-ptbr-resume.test.tap"
+  },
+  {
+    "file": "tests/r54-p76-tts-kokoro-pipeline.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p76-tts-kokoro-pipeline.test.tap"
+  },
+  {
+    "file": "tests/r54-p77-android-build-fix.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p77-android-build-fix.test.tap"
+  },
+  {
+    "file": "tests/r54-p78-mobile-session-repair.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p78-mobile-session-repair.test.tap"
+  },
+  {
+    "file": "tests/r54-p79-performance-insets.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p79-performance-insets.test.tap"
+  },
+  {
+    "file": "tests/r54-p8-semantic-closure.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p8-semantic-closure.test.tap"
+  },
+  {
+    "file": "tests/r54-p80-under-black-sun-anti-spoiler-projection.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p80-under-black-sun-anti-spoiler-projection.test.tap"
+  },
+  {
+    "file": "tests/r54-p81-under-black-sun-narrative-consequences.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p81-under-black-sun-narrative-consequences.test.tap"
+  },
+  {
+    "file": "tests/r54-p83-under-black-sun-narrative-effects-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p83-under-black-sun-narrative-effects-ui.test.tap"
+  },
+  {
+    "file": "tests/r54-p84-under-black-sun-immediate-roll-and-world.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p84-under-black-sun-immediate-roll-and-world.test.tap"
+  },
+  {
+    "file": "tests/r54-p85-under-black-sun-aftermath-anti-spoiler.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p85-under-black-sun-aftermath-anti-spoiler.test.tap"
+  },
+  {
+    "file": "tests/r54-p86-beyond-rim-world-aftermath.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p86-beyond-rim-world-aftermath.test.tap"
+  },
+  {
+    "file": "tests/r54-p88-beyond-rim-narrative-effects-antispolier.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p88-beyond-rim-narrative-effects-antispolier.test.tap"
+  },
+  {
+    "file": "tests/r54-p89-under-black-sun-aftermath-depth.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p89-under-black-sun-aftermath-depth.test.tap"
+  },
+  {
+    "file": "tests/r54-p90-under-black-sun-obligation-accumulation.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p90-under-black-sun-obligation-accumulation.test.tap"
+  },
+  {
+    "file": "tests/r54-p91-android-share-kokoro-audit.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p91-android-share-kokoro-audit.test.tap"
+  },
+  {
+    "file": "tests/r54-p92-cybernetics-engine-safe.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p92-cybernetics-engine-safe.test.tap"
+  },
+  {
+    "file": "tests/r54-p92-final-shell-mechanics-reachability.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p92-final-shell-mechanics-reachability.test.tap"
+  },
+  {
+    "file": "tests/r54-p92-p0-mechanics-runtime.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p92-p0-mechanics-runtime.test.tap"
+  },
+  {
+    "file": "tests/r54-p93-wave2-mechanics.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p93-wave2-mechanics.test.tap"
+  },
+  {
+    "file": "tests/r54-p94-wave3-destiny-maneuvers.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p94-wave3-destiny-maneuvers.test.tap"
+  },
+  {
+    "file": "tests/r54-p95-check-types-social-vehicle.test.mjs",
+    "exitCode": 0,
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p95-check-types-social-vehicle.test.tap"
+  },
+  {
+    "file": "tests/r54-p95-final-shell-reachability.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p95-final-shell-reachability.test.tap"
+  },
+  {
+    "file": "tests/r54-p96-weapon-qualities-vehicle-critical.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p96-weapon-qualities-vehicle-critical.test.tap"
+  },
+  {
+    "file": "tests/r54-p97-active-quality-spend.test.mjs",
+    "exitCode": 0,
+    "tests": 14,
+    "passed": 14,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p97-active-quality-spend.test.tap"
+  },
+  {
+    "file": "tests/r54-p98-vehicle-guided-ion-tractor.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p98-vehicle-guided-ion-tractor.test.tap"
+  },
+  {
+    "file": "tests/r54-p99-attachments-source-bound.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p99-attachments-source-bound.test.tap"
+  },
+  {
+    "file": "tests/r54-p99-knockdown-prone.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-p99-knockdown-prone.test.tap"
+  },
+  {
+    "file": "tests/r54-visual-semantic-audit.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r54-visual-semantic-audit.test.tap"
+  },
+  {
+    "file": "tests/r80-gemini-external-scene-npc-dice.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/r80-gemini-external-scene-npc-dice.test.tap"
+  },
+  {
+    "file": "tests/rag-benchmark.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/rag-benchmark.test.tap"
+  },
+  {
+    "file": "tests/rag-sync.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/rag-sync.test.tap"
+  },
+  {
+    "file": "tests/rag.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/rag.test.tap"
+  },
+  {
+    "file": "tests/random-character-r24.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/random-character-r24.test.tap"
+  },
+  {
+    "file": "tests/rebellion-group.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/rebellion-group.test.tap"
+  },
+  {
+    "file": "tests/recovery.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/recovery.test.tap"
+  },
+  {
+    "file": "tests/rules.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/rules.test.tap"
+  },
+  {
+    "file": "tests/sandbox-ui-r33.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/sandbox-ui-r33.test.tap"
+  },
+  {
+    "file": "tests/session-flow.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/session-flow.test.tap"
+  },
+  {
+    "file": "tests/session-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/session-ui.test.tap"
+  },
+  {
+    "file": "tests/settings.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/settings.test.tap"
+  },
+  {
+    "file": "tests/snapshots.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/snapshots.test.tap"
+  },
+  {
+    "file": "tests/source-authority.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/source-authority.test.tap"
+  },
+  {
+    "file": "tests/starter.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/starter.test.tap"
+  },
+  {
+    "file": "tests/state.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/state.test.tap"
+  },
+  {
+    "file": "tests/stress-33-aftermath-r20.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": true,
+    "log": "evidence/P221/test-results/stress-33-aftermath-r20.test.tap"
+  },
+  {
+    "file": "tests/stress-33-faction-plan-r19.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": true,
+    "log": "evidence/P221/test-results/stress-33-faction-plan-r19.test.tap"
+  },
+  {
+    "file": "tests/stress-33-sessions-r15.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": true,
+    "log": "evidence/P221/test-results/stress-33-sessions-r15.test.tap"
+  },
+  {
+    "file": "tests/stress-faction-plans-r19.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": true,
+    "log": "evidence/P221/test-results/stress-faction-plans-r19.test.tap"
+  },
+  {
+    "file": "tests/stress-factions-r18.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": true,
+    "log": "evidence/P221/test-results/stress-factions-r18.test.tap"
+  },
+  {
+    "file": "tests/stress-persistent-adversary-r17.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": true,
+    "log": "evidence/P221/test-results/stress-persistent-adversary-r17.test.tap"
+  },
+  {
+    "file": "tests/talent-effects-r13.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/talent-effects-r13.test.tap"
+  },
+  {
+    "file": "tests/talent-effects-r14.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/talent-effects-r14.test.tap"
+  },
+  {
+    "file": "tests/talent-ui-r14.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/talent-ui-r14.test.tap"
+  },
+  {
+    "file": "tests/talents.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/talents.test.tap"
+  },
+  {
+    "file": "tests/tts-bundle-status-p15.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/tts-bundle-status-p15.test.tap"
+  },
+  {
+    "file": "tests/tts-lifecycle-r24.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/tts-lifecycle-r24.test.tap"
+  },
+  {
+    "file": "tests/tts-multiblock-p9.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/tts-multiblock-p9.test.tap"
+  },
+  {
+    "file": "tests/tts-provider-fallback-p17.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/tts-provider-fallback-p17.test.tap"
+  },
+  {
+    "file": "tests/tts-r15.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/tts-r15.test.tap"
+  },
+  {
+    "file": "tests/tts-ui-status-p11.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/tts-ui-status-p11.test.tap"
+  },
+  {
+    "file": "tests/uae-p128-published-equipment-integration.test.mjs",
+    "exitCode": 0,
+    "tests": 13,
+    "passed": 13,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p128-published-equipment-integration.test.tap"
+  },
+  {
+    "file": "tests/uae-p129-recovery-integrity.test.mjs",
+    "exitCode": 0,
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p129-recovery-integrity.test.tap"
+  },
+  {
+    "file": "tests/uae-p130-aor-expansion-integrity.test.mjs",
+    "exitCode": 0,
+    "tests": 15,
+    "passed": 15,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p130-aor-expansion-integrity.test.tap"
+  },
+  {
+    "file": "tests/uae-p131-aor-multispec-and-checkpoint-gate.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p131-aor-multispec-and-checkpoint-gate.test.tap"
+  },
+  {
+    "file": "tests/uae-p132-aor-mechanics-and-integrity.test.mjs",
+    "exitCode": 0,
+    "tests": 15,
+    "passed": 15,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p132-aor-mechanics-and-integrity.test.tap"
+  },
+  {
+    "file": "tests/uae-p133-transactional-adventure-integration.test.mjs",
+    "exitCode": 0,
+    "tests": 15,
+    "passed": 15,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p133-transactional-adventure-integration.test.tap"
+  },
+  {
+    "file": "tests/uae-p134-persistence-guard-and-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 24,
+    "passed": 24,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p134-persistence-guard-and-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p135-aor-mechanics-and-persistence.test.mjs",
+    "exitCode": 0,
+    "tests": 17,
+    "passed": 17,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p135-aor-mechanics-and-persistence.test.tap"
+  },
+  {
+    "file": "tests/uae-p135-snapshot-and-condition-hardening.test.mjs",
+    "exitCode": 0,
+    "tests": 15,
+    "passed": 15,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p135-snapshot-and-condition-hardening.test.tap"
+  },
+  {
+    "file": "tests/uae-p136-checkpoint-atomicity-and-aor.test.mjs",
+    "exitCode": 0,
+    "tests": 32,
+    "passed": 32,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p136-checkpoint-atomicity-and-aor.test.tap"
+  },
+  {
+    "file": "tests/uae-p137-aor-cross-system-mechanics.test.mjs",
+    "exitCode": 0,
+    "tests": 16,
+    "passed": 16,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p137-aor-cross-system-mechanics.test.tap"
+  },
+  {
+    "file": "tests/uae-p138-idempotent-events-and-aor-time.test.mjs",
+    "exitCode": 0,
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p138-idempotent-events-and-aor-time.test.tap"
+  },
+  {
+    "file": "tests/uae-p139-explicit-task-clock-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 22,
+    "passed": 22,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p139-explicit-task-clock-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p140-task-ledger-journal-integrity.test.mjs",
+    "exitCode": 0,
+    "tests": 42,
+    "passed": 42,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p140-task-ledger-journal-integrity.test.tap"
+  },
+  {
+    "file": "tests/uae-p141-aor-tinkerer-inventory.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p141-aor-tinkerer-inventory.test.tap"
+  },
+  {
+    "file": "tests/uae-p141-causal-integrity-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 32,
+    "passed": 32,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p141-causal-integrity-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p142-journal-provenance-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 32,
+    "passed": 32,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p142-journal-provenance-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p143-atomic-action-receipts-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 31,
+    "passed": 31,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p143-atomic-action-receipts-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p144-integrated-atomic-adventures-aor.test.mjs",
+    "exitCode": 0,
+    "tests": 20,
+    "passed": 20,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p144-integrated-atomic-adventures-aor.test.tap"
+  },
+  {
+    "file": "tests/uae-p145-durable-controller-receipts-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 26,
+    "passed": 26,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p145-durable-controller-receipts-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p146-webview-outbox-causal-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 33,
+    "passed": 33,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p146-webview-outbox-causal-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p147-run-serial-proof-outbox.test.mjs",
+    "exitCode": 0,
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p147-run-serial-proof-outbox.test.tap"
+  },
+  {
+    "file": "tests/uae-p148-semantic-and-strict-transactions.test.mjs",
+    "exitCode": 0,
+    "tests": 32,
+    "passed": 32,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p148-semantic-and-strict-transactions.test.tap"
+  },
+  {
+    "file": "tests/uae-p149-aor-combat-social-causality-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 29,
+    "passed": 29,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p149-aor-combat-social-causality-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p150-defensive-slicing-tricky-target-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 28,
+    "passed": 28,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p150-defensive-slicing-tricky-target-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p151-integrated-context-talents.test.mjs",
+    "exitCode": 0,
+    "tests": 17,
+    "passed": 17,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p151-integrated-context-talents.test.tap"
+  },
+  {
+    "file": "tests/uae-p152-atomic-composite-recovery.test.mjs",
+    "exitCode": 0,
+    "tests": 31,
+    "passed": 31,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p152-atomic-composite-recovery.test.tap"
+  },
+  {
+    "file": "tests/uae-p153-trigger-context-recovery.test.mjs",
+    "exitCode": 0,
+    "tests": 45,
+    "passed": 45,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p153-trigger-context-recovery.test.tap"
+  },
+  {
+    "file": "tests/uae-p154-aor-combat-talents-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p154-aor-combat-talents-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p155-beyond-rim-combat-integration.test.mjs",
+    "exitCode": 0,
+    "tests": 23,
+    "passed": 23,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p155-beyond-rim-combat-integration.test.tap"
+  },
+  {
+    "file": "tests/uae-p155-utility-belt-destiny.test.mjs",
+    "exitCode": 0,
+    "tests": 16,
+    "passed": 16,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p155-utility-belt-destiny.test.tap"
+  },
+  {
+    "file": "tests/uae-p156-imperial-clock-source-raid.test.mjs",
+    "exitCode": 0,
+    "tests": 28,
+    "passed": 28,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p156-imperial-clock-source-raid.test.tap"
+  },
+  {
+    "file": "tests/uae-p157-diplomat-commander-economy.test.mjs",
+    "exitCode": 0,
+    "tests": 54,
+    "passed": 54,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p157-diplomat-commander-economy.test.tap"
+  },
+  {
+    "file": "tests/uae-p158-explosives-survival-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 35,
+    "passed": 35,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p158-explosives-survival-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p159-natural-rerolls-checkpoint-causality.test.mjs",
+    "exitCode": 0,
+    "tests": 27,
+    "passed": 27,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p159-natural-rerolls-checkpoint-causality.test.tap"
+  },
+  {
+    "file": "tests/uae-p160-ammo-heroic-piloting-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 30,
+    "passed": 30,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p160-ammo-heroic-piloting-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p161-aor-knowledge-market-boarding-steely-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 43,
+    "passed": 43,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p161-aor-knowledge-market-boarding-steely-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p162-sound-investments-smooth-talker-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 24,
+    "passed": 24,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p162-sound-investments-smooth-talker-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p163-aor-medical-fullstop-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 25,
+    "passed": 25,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p163-aor-medical-fullstop-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p164-companion-medical-integrated.test.mjs",
+    "exitCode": 0,
+    "tests": 35,
+    "passed": 35,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p164-companion-medical-integrated.test.tap"
+  },
+  {
+    "file": "tests/uae-p165-aor-gunner-vehicle-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p165-aor-gunner-vehicle-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p166-gearhead-atomic-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 13,
+    "passed": 13,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p166-gearhead-atomic-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p167-familiar-suns-android.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p167-familiar-suns-android.test.tap"
+  },
+  {
+    "file": "tests/uae-p167-mental-fortress-destiny-critical.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p167-mental-fortress-destiny-critical.test.tap"
+  },
+  {
+    "file": "tests/uae-p167-objective-dependencies-consequence-resolution-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 26,
+    "passed": 26,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p167-objective-dependencies-consequence-resolution-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p168-five-adventure-security.test.mjs",
+    "exitCode": 0,
+    "tests": 20,
+    "passed": 20,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p168-five-adventure-security.test.tap"
+  },
+  {
+    "file": "tests/uae-p168-social-vehicle-integrated.test.mjs",
+    "exitCode": 0,
+    "tests": 15,
+    "passed": 15,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p168-social-vehicle-integrated.test.tap"
+  },
+  {
+    "file": "tests/uae-p169-provenance-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 32,
+    "passed": 32,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p169-provenance-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p170-hardheaded-jury-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 26,
+    "passed": 26,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p170-hardheaded-jury-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p171-npc-companions-hardheaded-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p171-npc-companions-hardheaded-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p172-consequence-security-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 25,
+    "passed": 25,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p172-consequence-security-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p172-master-merchant-economy.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p172-master-merchant-economy.test.tap"
+  },
+  {
+    "file": "tests/uae-p173-merchant-receipts-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 23,
+    "passed": 23,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p173-merchant-receipts-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p174-mechanic-field-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 17,
+    "passed": 17,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p174-mechanic-field-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p175-command-leadership-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 20,
+    "passed": 20,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p175-command-leadership-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p176-intel-fire-slicer-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 23,
+    "passed": 23,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p176-intel-fire-slicer-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p177-social-engineering-combat-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 28,
+    "passed": 28,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p177-social-engineering-combat-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p178-aor-substitution-critical-crippling-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 25,
+    "passed": 25,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p178-aor-substitution-critical-crippling-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p179-reactive-medicine-blast-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 26,
+    "passed": 26,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p179-reactive-medicine-blast-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p180-condition-effects-contract-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 30,
+    "passed": 30,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p180-condition-effects-contract-five-adventures.test.tap"
+  },
+  {
+    "file": "tests/uae-p181-mask-saleucami-source-migration.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p181-mask-saleucami-source-migration.test.tap"
+  },
+  {
+    "file": "tests/uae-p182-sororinet-porel-contract-integrated.test.mjs",
+    "exitCode": 0,
+    "tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p182-sororinet-porel-contract-integrated.test.tap"
+  },
+  {
+    "file": "tests/uae-p183-jewel-longarm-pdf-branches.test.mjs",
+    "exitCode": 0,
+    "tests": 17,
+    "passed": 17,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p183-jewel-longarm-pdf-branches.test.tap"
+  },
+  {
+    "file": "tests/uae-p184-jewel-race-auction-pdf.test.mjs",
+    "exitCode": 0,
+    "tests": 16,
+    "passed": 16,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p184-jewel-race-auction-pdf.test.tap"
+  },
+  {
+    "file": "tests/uae-p185-race-auction-integrity-source.test.mjs",
+    "exitCode": 0,
+    "tests": 31,
+    "passed": 31,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p185-race-auction-integrity-source.test.tap"
+  },
+  {
+    "file": "tests/uae-p186-grand-prix-dice-vehicle-atomic.test.mjs",
+    "exitCode": 0,
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p186-grand-prix-dice-vehicle-atomic.test.tap"
+  },
+  {
+    "file": "tests/uae-p187-bank-droid-slicing-integrated.test.mjs",
+    "exitCode": 0,
+    "tests": 13,
+    "passed": 13,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p187-bank-droid-slicing-integrated.test.tap"
+  },
+  {
+    "file": "tests/uae-p188-bank-preparation-spike-encryption-lobot.test.mjs",
+    "exitCode": 0,
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p188-bank-preparation-spike-encryption-lobot.test.tap"
+  },
+  {
+    "file": "tests/uae-p189-spike-time-ledger-world-clock.test.mjs",
+    "exitCode": 0,
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p189-spike-time-ledger-world-clock.test.tap"
+  },
+  {
+    "file": "tests/uae-p190-npc-slicer-hiring-and-bank-integrity.test.mjs",
+    "exitCode": 0,
+    "tests": 16,
+    "passed": 16,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p190-npc-slicer-hiring-and-bank-integrity.test.tap"
+  },
+  {
+    "file": "tests/uae-p191-bank-table-2-1-post-roll-backdoors-time.test.mjs",
+    "exitCode": 0,
+    "tests": 14,
+    "passed": 14,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p191-bank-table-2-1-post-roll-backdoors-time.test.tap"
+  },
+  {
+    "file": "tests/uae-p192-jewel-bank-table-completion.test.mjs",
+    "exitCode": 0,
+    "tests": 14,
+    "passed": 14,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p192-jewel-bank-table-completion.test.tap"
+  },
+  {
+    "file": "tests/uae-p193-jewel-wing-guard-arrival.test.mjs",
+    "exitCode": 0,
+    "tests": 14,
+    "passed": 14,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p193-jewel-wing-guard-arrival.test.tap"
+  },
+  {
+    "file": "tests/uae-p194-jewel-g100-black-box-evidence.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p194-jewel-g100-black-box-evidence.test.tap"
+  },
+  {
+    "file": "tests/uae-p195-jewel-live-g100-droid.test.mjs",
+    "exitCode": 0,
+    "tests": 14,
+    "passed": 14,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p195-jewel-live-g100-droid.test.tap"
+  },
+  {
+    "file": "tests/uae-p196-jewel-g100-official-nobodys-fool-muscle-assist.test.mjs",
+    "exitCode": 0,
+    "tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p196-jewel-g100-official-nobodys-fool-muscle-assist.test.tap"
+  },
+  {
+    "file": "tests/uae-p197-wing-guard-tactics.test.mjs",
+    "exitCode": 0,
+    "tests": 13,
+    "passed": 13,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p197-wing-guard-tactics.test.tap"
+  },
+  {
+    "file": "tests/uae-p198-wing-guard-free-maneuver.test.mjs",
+    "exitCode": 0,
+    "tests": 13,
+    "passed": 13,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p198-wing-guard-free-maneuver.test.tap"
+  },
+  {
+    "file": "tests/uae-p199-physical-bolt-and-slicer-tool-replacement.test.mjs",
+    "exitCode": 0,
+    "tests": 20,
+    "passed": 20,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p199-physical-bolt-and-slicer-tool-replacement.test.tap"
+  },
+  {
+    "file": "tests/uae-p200-bank-ledger-settlement.test.mjs",
+    "exitCode": 0,
+    "tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p200-bank-ledger-settlement.test.tap"
+  },
+  {
+    "file": "tests/uae-p201-escape-bomb.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p201-escape-bomb.test.tap"
+  },
+  {
+    "file": "tests/uae-p202-jewel-impact-goons.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p202-jewel-impact-goons.test.tap"
+  },
+  {
+    "file": "tests/uae-p203-jewel-long-extreme-falls.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p203-jewel-long-extreme-falls.test.tap"
+  },
+  {
+    "file": "tests/uae-p204-jewel-companion-impacts.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p204-jewel-companion-impacts.test.tap"
+  },
+  {
+    "file": "tests/uae-p205-arrow7-personal-scale-turret.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p205-arrow7-personal-scale-turret.test.tap"
+  },
+  {
+    "file": "tests/uae-p206-arrow7-competitive-chase.test.mjs",
+    "exitCode": 0,
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p206-arrow7-competitive-chase.test.tap"
+  },
+  {
+    "file": "tests/uae-p207-arend-sweet-revenge.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p207-arend-sweet-revenge.test.tap"
+  },
+  {
+    "file": "tests/uae-p208-holopark-naboka.test.mjs",
+    "exitCode": 0,
+    "tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p208-holopark-naboka.test.tap"
+  },
+  {
+    "file": "tests/uae-p209-holopark-wing-guard.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p209-holopark-wing-guard.test.tap"
+  },
+  {
+    "file": "tests/uae-p210-holopark-landscape-effects.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p210-holopark-landscape-effects.test.tap"
+  },
+  {
+    "file": "tests/uae-p211-holopark-thranta-shadow.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p211-holopark-thranta-shadow.test.tap"
+  },
+  {
+    "file": "tests/uae-p212-holopark-cover-nerfs.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p212-holopark-cover-nerfs.test.tap"
+  },
+  {
+    "file": "tests/uae-p213-holopark-npc-threats.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p213-holopark-npc-threats.test.tap"
+  },
+  {
+    "file": "tests/uae-p214-holopark-lost-weapons.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p214-holopark-lost-weapons.test.tap"
+  },
+  {
+    "file": "tests/uae-p215-holopark-despair.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p215-holopark-despair.test.tap"
+  },
+  {
+    "file": "tests/uae-p216-kashyyyk-vertigo.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p216-kashyyyk-vertigo.test.tap"
+  },
+  {
+    "file": "tests/uae-p217-holopark-factions.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p217-holopark-factions.test.tap"
+  },
+  {
+    "file": "tests/uae-p218-lando-pardon.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p218-lando-pardon.test.tap"
+  },
+  {
+    "file": "tests/uae-p219-shen-aftermath.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p219-shen-aftermath.test.tap"
+  },
+  {
+    "file": "tests/uae-p220-arend-holdings-combat.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p220-arend-holdings-combat.test.tap"
+  },
+  {
+    "file": "tests/uae-p221-arend-patrols.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-p221-arend-patrols.test.tap"
+  },
+  {
+    "file": "tests/uae-v2-p127-regression.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/uae-v2-p127-regression.test.tap"
+  },
+  {
+    "file": "tests/ui-bridge-backup-json-r23.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/ui-bridge-backup-json-r23.test.tap"
+  },
+  {
+    "file": "tests/ui-bridge-equipment-r32.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/ui-bridge-equipment-r32.test.tap"
+  },
+  {
+    "file": "tests/ui-bridge-manual-creation-r33.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/ui-bridge-manual-creation-r33.test.tap"
+  },
+  {
+    "file": "tests/ui-bridge-r22.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/ui-bridge-r22.test.tap"
+  },
+  {
+    "file": "tests/ui-language.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/ui-language.test.tap"
+  },
+  {
+    "file": "tests/universal-adventure-engine.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/universal-adventure-engine.test.tap"
+  },
+  {
+    "file": "tests/validation-capabilities-copy-p18.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/validation-capabilities-copy-p18.test.tap"
+  },
+  {
+    "file": "tests/vehicle-controller.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/vehicle-controller.test.tap"
+  },
+  {
+    "file": "tests/vehicle-talents-r15.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/vehicle-talents-r15.test.tap"
+  },
+  {
+    "file": "tests/vehicle-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/vehicle-ui.test.tap"
+  },
+  {
+    "file": "tests/vehicles.test.mjs",
+    "exitCode": 0,
+    "tests": 17,
+    "passed": 17,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/vehicles.test.tap"
+  },
+  {
+    "file": "tests/verifier-async-suite-r16.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/verifier-async-suite-r16.test.tap"
+  },
+  {
+    "file": "tests/verifier-process-exit-r16.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/verifier-process-exit-r16.test.tap"
+  },
+  {
+    "file": "tests/verifier-validation-dir-r17.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/verifier-validation-dir-r17.test.tap"
+  },
+  {
+    "file": "tests/wave4-official-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/wave4-official-adventures.test.tap"
+  },
+  {
+    "file": "tests/weapons.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/weapons.test.tap"
+  },
+  {
+    "file": "tests/world-r15.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/world-r15.test.tap"
+  },
+  {
+    "file": "tests/world.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "stress": false,
+    "log": "evidence/P221/test-results/world.test.tap"
+  }
+]

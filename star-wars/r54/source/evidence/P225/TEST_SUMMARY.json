@@ -1,0 +1,16 @@
+{
+  "checkpoint": "P225",
+  "mode": "node --test each of 350 files individually, 8 parallel workers (no monolithic suite)",
+  "regularFiles": 344,
+  "stressFiles": 6,
+  "regularTests": 3141,
+  "regularPassed": 3141,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "totalFiles": 350,
+  "totalTests": 3147,
+  "totalPassed": 3147,
+  "focalTests": 7,
+  "elapsedSeconds": 220.5
+}

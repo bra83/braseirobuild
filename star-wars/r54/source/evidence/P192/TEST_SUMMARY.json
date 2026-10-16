@@ -1,0 +1,32 @@
+{
+  "checkpoint": "P192",
+  "mode": "per-file Node --test, 6 parallel regular workers, stress sequential; not monolithic",
+  "regular": {
+    "files": 311,
+    "tests": 2832,
+    "passed": 2832,
+    "failed": 0
+  },
+  "stress": {
+    "files": 6,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0
+  },
+  "global": {
+    "files": 317,
+    "tests": 2838,
+    "passed": 2838,
+    "failed": 0
+  },
+  "focalP192": {
+    "file": "uae-p192-jewel-bank-table-completion.test.mjs",
+    "tests": 14,
+    "passed": 14
+  },
+  "failedFiles": [],
+  "elapsedSeconds": 47.2,
+  "apkCompiled": false,
+  "androidPhysicalHomologation": false,
+  "monolithicSuiteRun": false
+}

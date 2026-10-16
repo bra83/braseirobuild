@@ -1,0 +1,8 @@
+P92 STRESS FINAL
+P92_stress-33-aftermath-r20.txt: 1 PASS, 0 FAIL
+P92_stress-33-faction-plan-r19.txt: 1 PASS, 0 FAIL
+P92_stress-33-sessions-r15.txt: 1 PASS, 0 FAIL
+P92_stress-faction-plans-r19.txt: 1 PASS, 0 FAIL
+P92_stress-factions-r18.txt: 1 PASS, 0 FAIL
+P92_stress-persistent-adversary-r17.txt: 1 PASS, 0 FAIL
+TOTAL: 6/6 PASS, 0 FAIL

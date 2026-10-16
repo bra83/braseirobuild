@@ -1,0 +1,29 @@
+{
+  "checkpoint": "P184",
+  "regular": {
+    "shard": 0,
+    "shards": 1,
+    "files": 303,
+    "tests": 2708,
+    "passed": 2708,
+    "failed": 0,
+    "badFiles": []
+  },
+  "stress": {
+    "shard": 0,
+    "shards": 1,
+    "files": 6,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "badFiles": []
+  },
+  "total": {
+    "files": 309,
+    "passed": 2714,
+    "failed": 0
+  },
+  "sourceVerification": "targeted only",
+  "androidApk": false,
+  "monolithicSuite": false
+}

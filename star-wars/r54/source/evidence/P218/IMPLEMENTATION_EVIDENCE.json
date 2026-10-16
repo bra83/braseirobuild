@@ -1,0 +1,18 @@
+{
+  "checkpoint":"P218",
+  "base":"P217",
+  "module":"app/src/main/assets/vtt/js/adventure/jewelLandoPardon.mjs",
+  "entryPoint":"GameController.grantJewelLandoPardon",
+  "bridge":"BraseiroUiBridge.grantJewelLandoPardon",
+  "ui":"r46/final-runtime.js data-p218-lando-grant",
+  "receipt":"JEWEL_LANDO_PARDON",
+  "persistentRealMutation":"group.obligationEntries +5 Favor for each GM-confirmed PC",
+  "antiDuplication":true,
+  "rollback":true,
+  "reopeningsTested":3,
+  "legacyObligationsPreserved":true,
+  "gmGates":["actual Lando audience","restoration plan accepted","pardon granted","party roster confirmed","roster contains only player characters"],
+  "noAutomaticArendOrArisOutcome":true,
+  "noAPK":true,
+  "noGitHubPush":true
+}

@@ -1,0 +1,11 @@
+{
+  "file": "stress-factions-r18.test.mjs",
+  "okay": true,
+  "tests": 1,
+  "pass": 1,
+  "fail": 0,
+  "skipped": 0,
+  "exit": 0,
+  "seconds": 1.1,
+  "tail": ""
+}

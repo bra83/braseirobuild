@@ -1,0 +1,51 @@
+===== tests/stress-33-aftermath-r20.test.mjs =====
+TAP version 13
+# Subtest: 33 sessões simuladas preservam histórico causal/aftermaths após reaberturas repetidas
+ok 1 - 33 sessões simuladas preservam histórico causal/aftermaths após reaberturas repetidas
+  ---
+  duration_ms: 25687.174237
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 25811.604737
+===== tests/stress-33-faction-plan-r19.test.mjs =====
+TAP version 13
+# Subtest: 33 sessões simuladas preservam plano de facção, afiliação do PNPC e avanço explícito após reaberturas
+ok 1 - 33 sessões simuladas preservam plano de facção, afiliação do PNPC e avanço explícito após reaberturas
+  ---
+  duration_ms: 1476.501535
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1581.320796
+===== tests/stress-33-sessions-r15.test.mjs =====
+TAP version 13
+# Subtest: 33 sessões simuladas preservam campanha, histórico e PNPC após reaberturas repetidas
+ok 1 - 33 sessões simuladas preservam campanha, histórico e PNPC após reaberturas repetidas
+  ---
+  duration_ms: 9654.70793
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9779.38019

@@ -1,0 +1,38 @@
+{
+  "checkpoint": "P190",
+  "baseline": "P189",
+  "source": {
+    "title": "The Jewel of Yavin",
+    "productCode": "SWE09",
+    "location": "Cloud City / Port Town",
+    "googleDriveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+    "pages": "preparations, around printed page 40; targeted comparison only",
+    "observations": [
+      "Average Streetwise to find freelance slicers in Port Town",
+      "R3-8C Intellect 3, Computers 3; owner fee 500-1000 credits; Hard Negotiation check",
+      "Naboka Intellect 4, Computers 5; starts 3000 credits and does not go below 2000",
+      "Naboka may betray the group if it saves him; NOT implemented as automatic betrayal"
+    ]
+  },
+  "implementation": [
+    "jewelHiredSlicers.mjs new replay-validated hiring, narrative dice Streetwise Average and R3-8C Negotiation Hard, GM-confirmed bounded price, atomic credits, actionId idempotency",
+    "jewelBankingOperations.mjs hired NPC uses actual published Intellect/Computers for slicing only, validated actor identity/ranks and hire receipt, preserves player/legacy flow",
+    "controller.mjs, uiBridge.mjs, jewelOfYavin.mjs, registry and final-runtime.js integrated Android UI and action bridge",
+    "16 focal tests cover hiring, failures, replay forgery, payment, NPC slicing, three reopenings, legacy saves"
+  ],
+  "limits": [
+    "No automatic price formula invented; GM chooses final price within book bounds",
+    "Naboka betrayal remains narrative, not automatically applied",
+    "Restraining bolt still GM-confirmed; no catalog item yet",
+    "No full Table 2-1, settlement, pursuit or complete editorial certification",
+    "No APK/CI/physical Android tests"
+  ],
+  "kokoJavaUnchanged": 8,
+  "bundleModules": 90,
+  "androidVersion": "1.0.190",
+  "syntax": {
+    "mjs": 124,
+    "json": 22,
+    "xml": 2
+  }
+}

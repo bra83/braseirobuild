@@ -1,0 +1,107 @@
+{
+  "run": "R44",
+  "manifestVersion": "3.7.0",
+  "newAssets": [
+    {
+      "assetId": "external.kainrath.beast.skekfish",
+      "title": "Skekfish",
+      "category": "creature",
+      "subtype": "beast",
+      "sourceType": "external_reference",
+      "sourceName": "Kainrath — STAR WARS Roleplaying",
+      "sourceRef": "external.kainrath.wordpress",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2021/08/21/skekfish/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2021/08/skekfish.png",
+      "remoteReady": true,
+      "offlineReady": false,
+      "cachePolicy": "explicit_on_demand",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "creature",
+        "skekfish",
+        "beast-direct-recovery"
+      ],
+      "usage": "visual_reference",
+      "mechanicalBinding": null,
+      "indexWave": "R44_BEAST_WAVE5"
+    },
+    {
+      "assetId": "external.kainrath.beast.nerf",
+      "title": "Nerf",
+      "category": "creature",
+      "subtype": "beast",
+      "sourceType": "external_reference",
+      "sourceName": "Kainrath — STAR WARS Roleplaying",
+      "sourceRef": "external.kainrath.wordpress",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2021/08/21/nerf/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2021/08/nerf.png",
+      "remoteReady": true,
+      "offlineReady": false,
+      "cachePolicy": "explicit_on_demand",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "creature",
+        "nerf",
+        "beast-direct-recovery"
+      ],
+      "usage": "visual_reference",
+      "mechanicalBinding": null,
+      "indexWave": "R44_BEAST_WAVE5"
+    }
+  ],
+  "provenanceEvidence": {
+    "Skekfish": {
+      "sourcePageUrl": "https://kainrath.wordpress.com/2021/08/21/skekfish/",
+      "observedImageUrl": "https://kainrath.wordpress.com/wp-content/uploads/2021/08/skekfish.png?w=731",
+      "canonicalRemoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2021/08/skekfish.png",
+      "evidence": "Image archive exposed the image link directly; resize query removed for canonical raw-media URL."
+    },
+    "Nerf": {
+      "sourcePageUrl": "https://kainrath.wordpress.com/2021/08/21/nerf/",
+      "observedImageUrl": "https://kainrath.wordpress.com/wp-content/uploads/2021/08/nerf.png?w=731",
+      "canonicalRemoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2021/08/nerf.png",
+      "evidence": "Image archive exposed the image link directly; resize query removed for canonical raw-media URL."
+    }
+  },
+  "blockedByDirectMediaProvenance": {
+    "vehicles": [
+      "Gymsnor-4 Light Freighter",
+      "G9 Rigger Light Freighter",
+      "Seltiss-2 Caravel",
+      "CSS-1 Corellian Star Shuttle",
+      "CEC HWK-1000 Light Freighter",
+      "HT-2200 Medium Freighter",
+      "SoroSuub Luxury 3000 Space Yacht",
+      "YT-2400 Light Freighter",
+      "YT-1300 Light Freighter",
+      "Starwind Pleasure Yacht",
+      "Ghtroc 720 Light Freighter",
+      "ILH-KK Citadel-Class Light Freighter",
+      "Storm IV Cloud Car",
+      "T-16 Skyhopper",
+      "T-47 Airspeeder",
+      "Wheeled/tracked category: direct media URLs not yet observed"
+    ],
+    "beasts_page1_without_direct_media_url_observed": [
+      "Cybernetically-Enhanced Nexu",
+      "Sand Panther",
+      "Sacorrian Grey Bear",
+      "Spooked Ronto",
+      "Kowakian Monkey-Lizard",
+      "Spade-Headed Smooka",
+      "Lurking Scrange",
+      "Lesser Bogwing",
+      "Gigantic Dragonsnake",
+      "Flying Leaf-Tail",
+      "Kaadu"
+    ],
+    "droids_missing_known_page_with_direct_media_not_observed": [
+      "Antiquated Battle Droid"
+    ]
+  },
+  "policy": "No remote filename or mechanics inferred. Only direct URLs actually observed are indexed."
+}

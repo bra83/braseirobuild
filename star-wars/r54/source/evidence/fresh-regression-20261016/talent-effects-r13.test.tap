@@ -1,0 +1,16 @@
+✔ Perseguidor e Comando acrescentam Impulso apenas às perícias previstas (28.2905ms)
+✔ talentos EotE de perícia removem Contratempo sem tornar a reserva negativa (2.5208ms)
+✔ À queima-roupa soma dano por grau só com armas à distância leves/pesadas em curto/interação (2.3156ms)
+✔ resolveSkillCheck aplica Perseguidor à reserva real (157.506ms)
+✔ ataque real aplica À queima-roupa e não aplica fora do alcance permitido (32.3979ms)
+✔ Piloto consumado e Cartógrafo galáctico removem Contratempo nos testes veiculares correspondentes (79.3634ms)
+✔ Firmeza adquirida pela árvore aumenta o limiar de Tensão exatamente em 1 (8.5447ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3054.7327
+

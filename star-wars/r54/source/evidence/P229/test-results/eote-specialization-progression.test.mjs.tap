@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: segunda especialização dentro da carreira custa 20 PE; fora da carreira custa 30 PE
+ok 1 - segunda especialização dentro da carreira custa 20 PE; fora da carreira custa 30 PE
+  ---
+  duration_ms: 1.652286
+  type: 'test'
+  ...
+# Subtest: terceira especialização usa o total após a compra e mantém sobretaxa fora da carreira original
+ok 2 - terceira especialização usa o total após a compra e mantém sobretaxa fora da carreira original
+  ---
+  duration_ms: 0.614929
+  type: 'test'
+  ...
+# Subtest: compra adiciona especialização e perícias de carreira sem conceder ranks gratuitos
+ok 3 - compra adiciona especialização e perícias de carreira sem conceder ranks gratuitos
+  ---
+  duration_ms: 0.983315
+  type: 'test'
+  ...
+# Subtest: especialização já possuída não pode ser comprada novamente e PE insuficiente falha sem mutar
+ok 4 - especialização já possuída não pode ser comprada novamente e PE insuficiente falha sem mutar
+  ---
+  duration_ms: 0.8999
+  type: 'test'
+  ...
+# Subtest: árvore de talentos da especialização comprada fica acessível e a inicial continua intacta
+ok 5 - árvore de talentos da especialização comprada fica acessível e a inicial continua intacta
+  ---
+  duration_ms: 1.821171
+  type: 'test'
+  ...
+# Subtest: não é permitido acessar árvore de especialização que o personagem não possui
+ok 6 - não é permitido acessar árvore de especialização que o personagem não possui
+  ---
+  duration_ms: 2.430412
+  type: 'test'
+  ...
+# Subtest: controller compra e persiste especialização adicional com custo e career skills corretos
+ok 7 - controller compra e persiste especialização adicional com custo e career skills corretos
+  ---
+  duration_ms: 7.755185
+  type: 'test'
+  ...
+# Subtest: RAG fundamenta compra de especialização adicional no Core EotE real
+ok 8 - RAG fundamenta compra de especialização adicional no Core EotE real
+  ---
+  duration_ms: 48.836546
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 286.431005

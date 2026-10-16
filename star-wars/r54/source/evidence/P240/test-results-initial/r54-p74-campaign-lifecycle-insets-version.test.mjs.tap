@@ -1,0 +1,53 @@
+TAP version 13
+# Subtest: P74: Android version no longer reports 1.0.0
+not ok 1 - P74: Android version no longer reports 1.0.0
+  ---
+  duration_ms: 36.505009
+  type: 'test'
+  location: '/mnt/data/starwars_p240_work/tests/r54-p74-campaign-lifecycle-insets-version.test.mjs:7:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(shell.includes(`data-version="${version}"`))
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///mnt/data/starwars_p240_work/tests/r54-p74-campaign-lifecycle-insets-version.test.mjs:14:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: P74: Android reads modern system bars and exports bottom safe inset
+ok 2 - P74: Android reads modern system bars and exports bottom safe inset
+  ---
+  duration_ms: 4.730994
+  type: 'test'
+  ...
+# Subtest: P74: campaign hub exposes restart, new world/selection and full reset
+ok 3 - P74: campaign hub exposes restart, new world/selection and full reset
+  ---
+  duration_ms: 6.692997
+  type: 'test'
+  ...
+# Subtest: P74: UI bridge exposes canonical full newCampaign without changing Duty/Obligation logic
+ok 4 - P74: UI bridge exposes canonical full newCampaign without changing Duty/Obligation logic
+  ---
+  duration_ms: 50.703373
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 3
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 465.040354
+

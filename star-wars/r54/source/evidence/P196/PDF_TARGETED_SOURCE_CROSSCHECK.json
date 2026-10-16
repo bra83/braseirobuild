@@ -1,0 +1,29 @@
+{
+  "source": "SWE09 The Jewel of Yavin.pdf",
+  "googleDriveId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "access": "Google Drive fetch text 2026-10-14",
+  "scope": "TARGETED ONLY, not complete adventure certification",
+  "checks": [
+    {
+      "location": "G-100 Remote Banking Droid NPC, section Banking on a Break (printed ~p.68–70)",
+      "fact": "NPC has Nobody’s Fool rank 3, upgrading Charm/Coercion/Deception checks against it three times",
+      "implementation": "P196 new Charm check: Average 2 difficulty upgraded three times -> 1 difficulty + 2 challenge; P195 unversioned receipts replay with old pool"
+    },
+    {
+      "location": "Slicing Ahead, section Banking on a Break",
+      "fact": "A character can make Hard Athletics or Brawl to restrain the G-100; success adds two boost dice to Computers disabling attempt",
+      "implementation": "P196 optional muscleAssistSkill atletismo/pelea with a real Hard dice roll and two Boost only on success; both rolls in replay-validated receipt"
+    },
+    {
+      "location": "G-100 NPC sheet",
+      "fact": "Printed skills include Discipline 2 but not Cool rank",
+      "implementation": "Do not infer numeric Cool rank; preserve published Average baseline and apply explicit Nobody’s Fool 3 upgrades"
+    }
+  ],
+  "excluded": [
+    "restraining bolt catalog item not certified",
+    "electronic signature equipment replacement not implemented",
+    "Covering Fire and Tactical Direction not implemented",
+    "full five-adventure or 360 AoR/EotE certification not performed"
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "checkpoint": "R54 P164",
+  "base": "R54 P163",
+  "baseSha256": "4bef4f090755878e6845fcead8082f269c91795fe376ff8b79334edceecdfd65",
+  "androidVersion": "1.0.164",
+  "androidVersionCode": 10164,
+  "integrationRegression": {
+    "passed": 2254,
+    "total": 2254,
+    "files": 279
+  },
+  "focal": {
+    "passed": 35,
+    "total": 35
+  },
+  "stress": {
+    "passed": 6,
+    "total": 6
+  },
+  "kokoroTtsSourceTests": {
+    "passed": 27,
+    "total": 27
+  },
+  "javaSyntax": {
+    "passed": 8,
+    "total": 8
+  },
+  "javaSourcesUnchanged": true,
+  "offlineBundleModules": 79,
+  "adventuresIntegratedTests": 5,
+  "aorMechanicalPositions": 295,
+  "aorTotalPositions": 360,
+  "aorPendingPositions": 65,
+  "androidApkBuilt": false,
+  "physicalAudioTested": false,
+  "pdfEditorialCertification": false,
+  "changedFromP163": [
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/adventure/adventureRuntime.mjs",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+    "app/src/main/assets/vtt/js/rules/fringeGroup.mjs",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "evidence/P164/ANDROID_BUILD.txt",
+    "evidence/P164/AOR_PENDING_65_POSITIONS.json",
+    "evidence/P164/BUNDLE_BUILD.txt",
+    "evidence/P164/JAVA_SYNTAX.txt",
+    "evidence/P164/KOKORO_TTS_REGRESSION.txt",
+    "evidence/P164/NODE_FOCAL.txt",
+    "evidence/P164/NODE_REGULAR.txt",
+    "evidence/P164/NODE_STRESS.txt",
+    "evidence/P164/POSTBUNDLE_FOCAL.txt",
+    "tests/r54-p77-android-build-fix.test.mjs",
+    "tests/uae-p164-companion-medical-integrated.test.mjs"
+  ],
+  "removedFromP163": [],
+  "knownBuildBlocker": "Gradle 8.13 distribution unavailable: UnknownHostException downloads.gradle.org"
+}

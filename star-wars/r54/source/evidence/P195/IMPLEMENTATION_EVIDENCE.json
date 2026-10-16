@@ -1,0 +1,11 @@
+{
+  "checkpoint":"P195",
+  "baseline":"P194",
+  "feature":"SWE09 live G-100 branch, mutually exclusive with dismantling",
+  "sourceModules":["app/src/main/assets/vtt/js/adventure/jewelBankLiveDroid.mjs","app/src/main/assets/vtt/js/adventure/jewelBankingOperations.mjs","app/src/main/assets/vtt/js/adventure/jewelOfYavinOperations.mjs","app/src/main/assets/vtt/js/adventure/jewelOfYavin.mjs","app/src/main/assets/vtt/js/core/controller.mjs","app/src/main/assets/vtt/js/core/uiBridge.mjs","app/src/main/assets/vtt/r46/final-runtime.js"],
+  "receiptKind":"BANK_DROID",
+  "newFocalTestFile":"tests/uae-p195-jewel-live-g100-droid.test.mjs",
+  "newFocalTests":14,
+  "compatibility":"P194 saves without BANK_DROID remain unchanged",
+  "limitations":["Cool rank not present in the sourced G-100 stat block; only Average baseline used","No APK or physical Android test"]
+}

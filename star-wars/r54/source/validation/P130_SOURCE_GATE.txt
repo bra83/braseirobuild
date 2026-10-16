@@ -1,0 +1,15 @@
+# STAR WARS EOTG — verificação reproduzível
+timestamp=2026-10-11T07:56:50.411Z
+node_tests=PASS pass=1297 fail=0 skipped=0
+stress_33=PASS embedded_in_full_suite files=6
+js_syntax=PASS files=121
+java_syntax=JAVA_SYNTAX_PASS files=8 unresolved_android_symbols=699
+json_parse=PASS files=77
+xml_parse=PASS files=2
+secret_scan=PASS hits=0
+apk_aab_count=0
+gradle_wrapper=PASS jar_sha256=14013df926465d9e70158430a0b560b1aa83da0f98732da7882015e6bdff9c88
+gradle_distribution=https://downloads.gradle.org/distributions/gradle-8.13-bin.zip
+gradle_distribution_sha256=20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78
+android_gate=BLOCKED_EXTERNAL sdk=missing adb=missing sdkmanager=missing
+report=validation/LATEST_SOURCE_VALIDATION.txt

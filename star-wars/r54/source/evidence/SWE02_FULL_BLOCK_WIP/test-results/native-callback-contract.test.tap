@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: Library Java callback name and payload envelope match the R46 consumer
+ok 1 - Library Java callback name and payload envelope match the R46 consumer
+  ---
+  duration_ms: 12.05279
+  type: 'test'
+  ...
+# Subtest: Image cache Java callback name and data envelope match the R46 consumer
+ok 2 - Image cache Java callback name and data envelope match the R46 consumer
+  ---
+  duration_ms: 0.643261
+  type: 'test'
+  ...
+# Subtest: Gemini UI callback name and payload envelope match the R46 consumer
+ok 3 - Gemini UI callback name and payload envelope match the R46 consumer
+  ---
+  duration_ms: 0.935272
+  type: 'test'
+  ...
+# Subtest: Gemini master callback name matches Motor Barbara native request hook
+ok 4 - Gemini master callback name matches Motor Barbara native request hook
+  ---
+  duration_ms: 0.31081
+  type: 'test'
+  ...
+# Subtest: Gemini master callback preserves proposal object and model contract
+ok 5 - Gemini master callback preserves proposal object and model contract
+  ---
+  duration_ms: 1.430081
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 783.595124

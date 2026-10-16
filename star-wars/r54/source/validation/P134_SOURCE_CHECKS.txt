@@ -1,0 +1,4 @@
+js_syntax=PASS files=107
+json_parse=PASS files=22
+xml_parse=PASS files=2
+JAVA_SYNTAX_PASS files=8 unresolved_android_symbols=699

@@ -1,0 +1,15 @@
+✔ tabela Core de Ferimentos Críticos cobre 01-05 até 151+ em 29 faixas (6.6015ms)
+✔ cada Ferimento Crítico anterior adiciona +10 à nova rolagem (3.1302ms)
+✔ Off-Balance afeta um único teste e Compromised dura até o fim do encontro (45.3379ms)
+✔ Stunned expira ao final do próximo turno e bloqueia apenas ações via modifier (43.7869ms)
+✔ Horrific Injury reduz característica apenas enquanto o crítico existir; Gruesome reduz permanentemente (3.4687ms)
+✔ resultado 151+ registra Dead (1.4988ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2045.7767
+

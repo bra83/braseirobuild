@@ -1,0 +1,57 @@
+{
+  "checkpoint": "P205",
+  "javaCompared": 8,
+  "javaAllIdentical": true,
+  "javaFiles": [
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/ExternalImageShareState.java",
+      "identical": true
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/FileBridge.java",
+      "identical": true
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java",
+      "identical": true
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java",
+      "identical": true
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/MainActivity.java",
+      "identical": true
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/NpcTokenBridge.java",
+      "identical": true
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java",
+      "identical": true
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/TtsChunker.java",
+      "identical": true
+    }
+  ],
+  "syntax": {
+    ".mjs": {
+      "files": 134,
+      "failures": []
+    },
+    ".js": {
+      "files": 2,
+      "failures": []
+    },
+    ".json": {
+      "files": 22,
+      "failures": []
+    },
+    ".xml": {
+      "files": 2,
+      "failures": []
+    }
+  }
+}

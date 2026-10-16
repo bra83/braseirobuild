@@ -1,0 +1,53 @@
+TAP version 13
+# Subtest: Reação rápida limita gasto ao grau e converte Tensão em Impulso de iniciativa
+ok 1 - Reação rápida limita gasto ao grau e converte Tensão em Impulso de iniciativa
+  ---
+  duration_ms: 11.210105
+  type: 'test'
+  ...
+# Subtest: Condução defensiva soma Defesa em todas as zonas sem alterar a ficha base da nave
+ok 2 - Condução defensiva soma Defesa em todas as zonas sem alterar a ficha base da nave
+  ---
+  duration_ms: 1.506975
+  type: 'test'
+  ...
+# Subtest: Alvo ardiloso reduz em 1 a Silhueta defensiva do veículo pilotado
+ok 3 - Alvo ardiloso reduz em 1 a Silhueta defensiva do veículo pilotado
+  ---
+  duration_ms: 0.32279
+  type: 'test'
+  ...
+# Subtest: Aceleração máxima usa dificuldade 3, duração por Astúcia e Suprema aumenta +2
+ok 4 - Aceleração máxima usa dificuldade 3, duração por Astúcia e Suprema aumenta +2
+  ---
+  duration_ms: 24.965388
+  type: 'test'
+  ...
+# Subtest: Aceleração máxima aprimorada pode ser tentada como manobra, custa 1 Tensão e usa dificuldade 2
+ok 5 - Aceleração máxima aprimorada pode ser tentada como manobra, custa 1 Tensão e usa dificuldade 2
+  ---
+  duration_ms: 16.59632
+  type: 'test'
+  ...
+# Subtest: ataque contra piloto com Alvo ardiloso e Condução defensiva usa Silhueta/Defesa efetivas
+ok 6 - ataque contra piloto com Alvo ardiloso e Condução defensiva usa Silhueta/Defesa efetivas
+  ---
+  duration_ms: 1.048369
+  type: 'test'
+  ...
+# Subtest: Cartógrafo galáctico reduz à metade o tempo habitual da Astronavegação
+ok 7 - Cartógrafo galáctico reduz à metade o tempo habitual da Astronavegação
+  ---
+  duration_ms: 14.808359
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 505.562995
+

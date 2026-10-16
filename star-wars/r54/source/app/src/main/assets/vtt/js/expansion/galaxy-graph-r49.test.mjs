@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict'; import * as g from './galaxyGraphDarkElfR49.mjs';
+const t=[]; const ok=(n,f)=>{f();t.push(n)};
+ok('reference only',()=>assert.equal(g.source49().mechanicalAuthority,false));
+ok('major5',()=>assert.equal(g.coverage49().major,5));
+ok('risky15',()=>assert.equal(g.coverage49().risky,15));
+ok('secret6',()=>assert.equal(g.coverage49().secret,6));
+ok('minor41',()=>assert.equal(g.coverage49().minor,41));
+ok('nodes8',()=>assert.equal(g.coverage49().verifiedNodes,8));
+ok('edges9',()=>assert.equal(g.coverage49().verifiedEdges,9));
+ok('ord mantell neighbors',()=>assert.equal(g.neighbors49('Ord Mantell').length,2));
+ok('route search',()=>assert.ok(g.findRoutes49('Hydian').includes('Hydian Way')));
+ok('major time',()=>assert.equal(g.estimateTravel49({distance:1,laneClass:'MAJOR'}).hours,12));
+ok('outer rim mods',()=>{const x=g.estimateTravel49({distance:1,laneClass:'MINOR',fromRegion:'Outer Rim',toRegion:'Outer Rim'});assert.equal(x.upgrade,2);assert.equal(x.setback,4)});
+ok('master gate',()=>{const x=g.prepareTravel49({distance:.5,laneClass:'MINOR'});assert.equal(x.status,'PENDING_MASTER');assert.equal(x.mechanicalMutation,false)});
+ok('invalid fail closed',()=>assert.throws(()=>g.estimateTravel49({distance:1,laneClass:'FAKE'})));
+console.log(`GALAXY_GRAPH_R49 ${t.length}/${t.length} PASS`,JSON.stringify(g.coverage49()));

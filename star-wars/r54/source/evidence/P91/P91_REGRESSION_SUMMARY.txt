@@ -1,0 +1,11 @@
+STAR WARS EDGE R54 P91 — REGRESSION SUMMARY
+Focal Android/share/Kokoro: 6/6 PASS
+High-risk audit suite: 256/256 PASS
+Sob um Sol Negro: 106/106 PASS
+Além da Orla: 57/57 PASS
+Full regression shard 1: 268/268 PASS
+Full regression shard 2: 228/228 PASS
+Full regression shard 3: 249/249 PASS
+Full regression shard 4: 280/280 PASS
+TOTAL FULL REGRESSION: 1025/1025 PASS, 0 FAIL
+Android assembleDebug: SEM EVIDÊNCIA — wrapper blocked before compile by UnknownHostException downloads.gradle.org

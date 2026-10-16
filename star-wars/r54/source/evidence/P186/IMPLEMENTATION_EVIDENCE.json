@@ -1,0 +1,24 @@
+{
+  "source": "SWE09 Grand Prix PDF pp.49-53, previously targeted P185; no new full-book certification",
+  "code": [
+    "app/src/main/assets/vtt/js/adventure/jewelGrandPrixDice.mjs",
+    "app/src/main/assets/vtt/js/adventure/jewelOfYavinOperations.mjs",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js"
+  ],
+  "effects": [
+    "Actual narrative dice with pilot skill and setback for terrain/missed buoy",
+    "challenge upgrades for real Despair; EotE critical table applied to actual selected vehicle",
+    "tibannuck system strain applied to selected vehicle",
+    "persisted dice faces, source receipt, vehicle effects in controller state",
+    "atomic rollback for invalid/duplicate action, three reopens"
+  ],
+  "notCertified": [
+    "Five adventures scene-by-scene against PDFs",
+    "EotE/AoR 360 talents semantic equivalence",
+    "Full Grand Prix race source and all rival AI",
+    "Android physical build and Kokoro audio"
+  ],
+  "tests": "evidence/P186/TEST_SUMMARY.json"
+}

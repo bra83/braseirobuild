@@ -1,0 +1,335 @@
+TAP version 13
+# Subtest: P157: exact 8 AoR source positions are wired and no unrelated slots are marked complete
+ok 1 - P157: exact 8 AoR source positions are wired and no unrelated slots are marked complete
+  ---
+  duration_ms: 35.528054
+  type: 'test'
+  ...
+# Subtest: P157: Don de gentes rank 0 affects carisma only
+ok 2 - P157: Don de gentes rank 0 affects carisma only
+  ---
+  duration_ms: 1.220986
+  type: 'test'
+  ...
+# Subtest: P157: Don de gentes rank 0 affects liderazgo only
+ok 3 - P157: Don de gentes rank 0 affects liderazgo only
+  ---
+  duration_ms: 3.49194
+  type: 'test'
+  ...
+# Subtest: P157: Don de gentes rank 0 affects engano only
+ok 4 - P157: Don de gentes rank 0 affects engano only
+  ---
+  duration_ms: 0.740854
+  type: 'test'
+  ...
+# Subtest: P157: Don de gentes rank 0 affects mecanica only
+ok 5 - P157: Don de gentes rank 0 affects mecanica only
+  ---
+  duration_ms: 0.685641
+  type: 'test'
+  ...
+# Subtest: P157: Don de gentes rank 1 affects carisma only
+ok 6 - P157: Don de gentes rank 1 affects carisma only
+  ---
+  duration_ms: 0.726382
+  type: 'test'
+  ...
+# Subtest: P157: Don de gentes rank 1 affects liderazgo only
+ok 7 - P157: Don de gentes rank 1 affects liderazgo only
+  ---
+  duration_ms: 0.606772
+  type: 'test'
+  ...
+# Subtest: P157: Don de gentes rank 1 affects engano only
+ok 8 - P157: Don de gentes rank 1 affects engano only
+  ---
+  duration_ms: 0.624299
+  type: 'test'
+  ...
+# Subtest: P157: Don de gentes rank 1 affects mecanica only
+ok 9 - P157: Don de gentes rank 1 affects mecanica only
+  ---
+  duration_ms: 0.763508
+  type: 'test'
+  ...
+# Subtest: P157: Don de gentes rank 2 affects carisma only
+ok 10 - P157: Don de gentes rank 2 affects carisma only
+  ---
+  duration_ms: 0.955767
+  type: 'test'
+  ...
+# Subtest: P157: Don de gentes rank 2 affects liderazgo only
+ok 11 - P157: Don de gentes rank 2 affects liderazgo only
+  ---
+  duration_ms: 0.643117
+  type: 'test'
+  ...
+# Subtest: P157: Don de gentes rank 2 affects engano only
+ok 12 - P157: Don de gentes rank 2 affects engano only
+  ---
+  duration_ms: 0.531419
+  type: 'test'
+  ...
+# Subtest: P157: Don de gentes rank 2 affects mecanica only
+ok 13 - P157: Don de gentes rank 2 affects mecanica only
+  ---
+  duration_ms: 4.478635
+  type: 'test'
+  ...
+# Subtest: P157: Don de gentes actually changes controller skill dice and persists result
+ok 14 - P157: Don de gentes actually changes controller skill dice and persists result
+  ---
+  duration_ms: 14.378951
+  type: 'test'
+  ...
+# Subtest: P157: Indistinguível rank 0 is strictly identity-contextual
+ok 15 - P157: Indistinguível rank 0 is strictly identity-contextual
+  ---
+  duration_ms: 0.657699
+  type: 'test'
+  ...
+# Subtest: P157: Indistinguível rank 1 is strictly identity-contextual
+ok 16 - P157: Indistinguível rank 1 is strictly identity-contextual
+  ---
+  duration_ms: 0.45254
+  type: 'test'
+  ...
+# Subtest: P157: Indistinguível rank 2 is strictly identity-contextual
+ok 17 - P157: Indistinguível rank 2 is strictly identity-contextual
+  ---
+  duration_ms: 0.619592
+  type: 'test'
+  ...
+# Subtest: P157: NPC identification upgrades negative dice and saves one authoritative result
+ok 18 - P157: NPC identification upgrades negative dice and saves one authoritative result
+  ---
+  duration_ms: 1.567136
+  type: 'test'
+  ...
+# Subtest: P157: forged identity check {"actorCharacteristic":-1} rejected atomically
+ok 19 - P157: forged identity check {"actorCharacteristic":-1} rejected atomically
+  ---
+  duration_ms: 1.592745
+  type: 'test'
+  ...
+# Subtest: P157: forged identity check {"actorCharacteristic":99} rejected atomically
+ok 20 - P157: forged identity check {"actorCharacteristic":99} rejected atomically
+  ---
+  duration_ms: 4.972117
+  type: 'test'
+  ...
+# Subtest: P157: forged identity check {"actorSkill":6} rejected atomically
+ok 21 - P157: forged identity check {"actorSkill":6} rejected atomically
+  ---
+  duration_ms: 0.641915
+  type: 'test'
+  ...
+# Subtest: P157: forged identity check {"difficulty":-1} rejected atomically
+ok 22 - P157: forged identity check {"difficulty":-1} rejected atomically
+  ---
+  duration_ms: 0.624259
+  type: 'test'
+  ...
+# Subtest: P157: forged identity check {"challenge":7} rejected atomically
+ok 23 - P157: forged identity check {"challenge":7} rejected atomically
+  ---
+  duration_ms: 0.614514
+  type: 'test'
+  ...
+# Subtest: P157: identity check repository failure restores state
+ok 24 - P157: identity check repository failure restores state
+  ---
+  duration_ms: 1.161246
+  type: 'test'
+  ...
+# Subtest: P157: Chanchullero rank 0, legal=false applies only legal sale bonus
+ok 25 - P157: Chanchullero rank 0, legal=false applies only legal sale bonus
+  ---
+  duration_ms: 8.796097
+  type: 'test'
+  ...
+# Subtest: P157: Chanchullero rank 0, legal=true applies only legal sale bonus
+ok 26 - P157: Chanchullero rank 0, legal=true applies only legal sale bonus
+  ---
+  duration_ms: 0.724439
+  type: 'test'
+  ...
+# Subtest: P157: Chanchullero rank 1, legal=false applies only legal sale bonus
+ok 27 - P157: Chanchullero rank 1, legal=false applies only legal sale bonus
+  ---
+  duration_ms: 0.442906
+  type: 'test'
+  ...
+# Subtest: P157: Chanchullero rank 1, legal=true applies only legal sale bonus
+ok 28 - P157: Chanchullero rank 1, legal=true applies only legal sale bonus
+  ---
+  duration_ms: 0.769757
+  type: 'test'
+  ...
+# Subtest: P157: Chanchullero rank 2, legal=false applies only legal sale bonus
+ok 29 - P157: Chanchullero rank 2, legal=false applies only legal sale bonus
+  ---
+  duration_ms: 0.599751
+  type: 'test'
+  ...
+# Subtest: P157: Chanchullero rank 2, legal=true applies only legal sale bonus
+ok 30 - P157: Chanchullero rank 2, legal=true applies only legal sale bonus
+  ---
+  duration_ms: 1.64224
+  type: 'test'
+  ...
+# Subtest: P157: legal sale removes owned item, increases credits by +20%, and survives reload
+ok 31 - P157: legal sale removes owned item, increases credits by +20%, and survives reload
+  ---
+  duration_ms: 28.358212
+  type: 'test'
+  ...
+# Subtest: P157: illegal sale gets no bonus and restricted legal sale fails closed
+ok 32 - P157: illegal sale gets no bonus and restricted legal sale fails closed
+  ---
+  duration_ms: 2.988764
+  type: 'test'
+  ...
+# Subtest: P157: illegal sale quote -1 cannot create credits
+ok 33 - P157: illegal sale quote -1 cannot create credits
+  ---
+  duration_ms: 0.617298
+  type: 'test'
+  ...
+# Subtest: P157: illegal sale quote 1.5 cannot create credits
+ok 34 - P157: illegal sale quote 1.5 cannot create credits
+  ---
+  duration_ms: 0.528385
+  type: 'test'
+  ...
+# Subtest: P157: illegal sale quote Infinity cannot create credits
+ok 35 - P157: illegal sale quote Infinity cannot create credits
+  ---
+  duration_ms: 0.468644
+  type: 'test'
+  ...
+# Subtest: P157: illegal sale quote 1000000000000000 cannot create credits
+ok 36 - P157: illegal sale quote 1000000000000000 cannot create credits
+  ---
+  duration_ms: 0.502406
+  type: 'test'
+  ...
+# Subtest: P157: Finta rank 0 has exact strain budget
+ok 37 - P157: Finta rank 0 has exact strain budget
+  ---
+  duration_ms: 0.747824
+  type: 'test'
+  ...
+# Subtest: P157: Finta rank 1 has exact strain budget
+ok 38 - P157: Finta rank 1 has exact strain budget
+  ---
+  duration_ms: 4.516171
+  type: 'test'
+  ...
+# Subtest: P157: Finta rank 2 has exact strain budget
+ok 39 - P157: Finta rank 2 has exact strain budget
+  ---
+  duration_ms: 0.70444
+  type: 'test'
+  ...
+# Subtest: P157: Finta spends maneuver and strain, survives reload, rejects same-round replay
+ok 40 - P157: Finta spends maneuver and strain, survives reload, rejects same-round replay
+  ---
+  duration_ms: 7.602532
+  type: 'test'
+  ...
+# Subtest: P157: Finta modifies ranged NPC attack but not melee; expires next player turn
+ok 41 - P157: Finta modifies ranged NPC attack but not melee; expires next player turn
+  ---
+  duration_ms: 22.253142
+  type: 'test'
+  ...
+# Subtest: P157: Finta unauthorized rank=0, strain=1 no writes
+ok 42 - P157: Finta unauthorized rank=0, strain=1 no writes
+  ---
+  duration_ms: 9.906045
+  type: 'test'
+  ...
+# Subtest: P157: Finta unauthorized rank=1, strain=2 no writes
+ok 43 - P157: Finta unauthorized rank=1, strain=2 no writes
+  ---
+  duration_ms: 5.88514
+  type: 'test'
+  ...
+# Subtest: P157: Finta unauthorized rank=2, strain=0 no writes
+ok 44 - P157: Finta unauthorized rank=2, strain=0 no writes
+  ---
+  duration_ms: 1.479945
+  type: 'test'
+  ...
+# Subtest: P157: Finta unauthorized rank=2, strain=-1 no writes
+ok 45 - P157: Finta unauthorized rank=2, strain=-1 no writes
+  ---
+  duration_ms: 4.671284
+  type: 'test'
+  ...
+# Subtest: P157: Finta repository failure rolls back strain, maneuver and effect
+ok 46 - P157: Finta repository failure rolls back strain, maneuver and effect
+  ---
+  duration_ms: 5.950447
+  type: 'test'
+  ...
+# Subtest: P157: Android bridge/contract/UI wired to real talent and economy actions
+ok 47 - P157: Android bridge/contract/UI wired to real talent and economy actions
+  ---
+  duration_ms: 93.240245
+  type: 'test'
+  ...
+# Subtest: P157: five-adventure UAE graph, choice and 3 recoveries under-black-sun
+ok 48 - P157: five-adventure UAE graph, choice and 3 recoveries under-black-sun
+  ---
+  duration_ms: 256.808358
+  type: 'test'
+  ...
+# Subtest: P157: five-adventure UAE graph, choice and 3 recoveries beyond-the-rim
+ok 49 - P157: five-adventure UAE graph, choice and 3 recoveries beyond-the-rim
+  ---
+  duration_ms: 99.755138
+  type: 'test'
+  ...
+# Subtest: P157: five-adventure UAE graph, choice and 3 recoveries long-arm-of-the-hutt
+ok 50 - P157: five-adventure UAE graph, choice and 3 recoveries long-arm-of-the-hutt
+  ---
+  duration_ms: 38.27234
+  type: 'test'
+  ...
+# Subtest: P157: five-adventure UAE graph, choice and 3 recoveries jewel-of-yavin
+ok 51 - P157: five-adventure UAE graph, choice and 3 recoveries jewel-of-yavin
+  ---
+  duration_ms: 65.160101
+  type: 'test'
+  ...
+# Subtest: P157: five-adventure UAE graph, choice and 3 recoveries mask-of-the-pirate-queen
+ok 52 - P157: five-adventure UAE graph, choice and 3 recoveries mask-of-the-pirate-queen
+  ---
+  duration_ms: 79.09113
+  type: 'test'
+  ...
+# Subtest: P157: GM validated structured legal-sale proposal actually grants Chanchullero and records provenance
+ok 53 - P157: GM validated structured legal-sale proposal actually grants Chanchullero and records provenance
+  ---
+  duration_ms: 6.114695
+  type: 'test'
+  ...
+# Subtest: P157: GM proposal rejects stringified legalSale and never mutates state
+ok 54 - P157: GM proposal rejects stringified legalSale and never mutates state
+  ---
+  duration_ms: 1.18363
+  type: 'test'
+  ...
+1..54
+# tests 54
+# suites 0
+# pass 54
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1285.785494
+

@@ -1,0 +1,58 @@
+{
+  "checkpoint": "R54_P149",
+  "base": "R54_P148",
+  "version": "1.0.149",
+  "bundleModules": 79,
+  "changedExistingFiles": 15,
+  "newFiles": 13,
+  "removedFiles": 0,
+  "tests": {
+    "regular": {
+      "files": 263,
+      "regular_files": 263,
+      "stress_files": 0,
+      "tests": 1775,
+      "pass": 1775,
+      "fail": 0,
+      "skipped": 0,
+      "bad": 0,
+      "seconds": 24.741
+    },
+    "stress": {
+      "files": 6,
+      "regular_files": 0,
+      "stress_files": 6,
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "skipped": 0,
+      "bad": 0,
+      "seconds": 17.121
+    },
+    "total": 1781,
+    "pass": 1781,
+    "kokoro": 27,
+    "newP149": 29
+  },
+  "aor": {
+    "mechanicalPositions": 229,
+    "positions": 360,
+    "pendingPositions": 131
+  },
+  "fiveAdventures": 5,
+  "javaSources": 8,
+  "javaByteIdenticalToP148": true,
+  "onnxFiles": [],
+  "apkCompiled": false,
+  "certifiedAgainstOfficialPdfs": false,
+  "androidDeviceHomologated": false,
+  "limits": [
+    "131 AoR positions remain",
+    "Five adventures not fully certified against source PDFs",
+    "Beyond the Rim official combat encounter absent",
+    "Android SDK / APK / real device and Kokoro audio not tested",
+    "verify-final-source did not complete in execution limit"
+  ],
+  "patchReproducedFromP148": true,
+  "patchSourceFiles": 18
+}

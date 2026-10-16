@@ -1,0 +1,29 @@
+{
+  "checkpoint": "P236",
+  "kind": "SOURCE_TO_EXECUTOR_EVIDENCE_NOT_FULL_EDITORIAL_CERTIFICATION",
+  "source": {
+    "title": "The Long Arm of the Hutt",
+    "code": "SWE02",
+    "officialUrl": "https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf",
+    "printedPagesCompared": [41, 44, 45, 46]
+  },
+  "implemented": [
+    {"page":41,"subject":"fortified gates; Deceit Average; disguise Hard + Charm Average","executor":"longArmOfTheHutt.currentChecks/adjudicate/advance","tests":"uae-p236-swe02-teemo-palace-source-gates.test.mjs","stateReopens":3},
+    {"page":41,"subject":"elite Gamorrean profile distinct from generic","executor":"adversaries.laoth_elite_gamorrean_guard","tests":"uae-p236-swe02-teemo-palace-source-gates.test.mjs"},
+    {"page":44,"subject":"workshop B1 worklog and ryll Perception Hard","executor":"longArmOfTheHutt.advance/adjudicate","tests":"uae-p236-swe02-teemo-palace-source-gates.test.mjs","stateReopens":3},
+    {"page":45,"subject":"five communications pools, security setback, two-threat lockout","executor":"longArmOfTheHutt.currentChecks/adjudicate","tests":"uae-p236-swe02-teemo-palace-source-gates.test.mjs","stateReopens":3},
+    {"page":44,"subject":"two elite throne guards; primary henchman group per player; additional group requires explicit GM count","executor":"longArmOfTheHutt.encounterSpec + controller.beginPublishedAdventureEncounter","tests":"uae-p236-swe02-teemo-palace-source-gates.test.mjs","stateReopens":3},
+    {"page":46,"subject":"Teemo combat cannot resolve from forged or missing enemy proof","executor":"longArmOfTheHutt.recordEncounterOutcome/assertTeemoCausality","tests":"uae-p236-swe02-teemo-palace-source-gates.test.mjs","stateReopens":3}
+  ],
+  "unresolved": [
+    "SWE01 Beginner Game printed p46 Hutt Crime Lord profile not source-verified",
+    "Second throne henchman group count not specified in SWE02; GM review required",
+    "SWE02 chandelier upgraded attack, palace reinforcement timer, gladiator bribery, Anatta/Jabba alternative",
+    "Full Geonosis negotiations and all five intelligence paths",
+    "Whole SWE02 adventure official page-by-page certification",
+    "Four other adventures official page-by-page certification",
+    "EotE/AoR selected expansions and 360 AoR consumers individual certification",
+    "APK compilation and real Android tests deferred"
+  ],
+  "claims": {"wholeSWE02Certified":false,"allFiveAdventuresCertified":false,"allRulesCertified":false,"apkBuilt":false,"androidRealTested":false}
+}

@@ -1,0 +1,39 @@
+{
+  "checkpoint": "P187",
+  "source": "The Jewel of Yavin (SWE09), Google Drive user-provided PDF, 98 pages",
+  "sourceFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "scope": "targeted verification of Banking on a Break, pages 68-72; NOT full adventure certification",
+  "confirmedMechanics": [
+    {
+      "source": "p.69",
+      "implementation": "three G-100 locations: industrial docks, Port Town, tourist district; capture difficulty Easy/Average/Hard, upgrade if not silenced"
+    },
+    {
+      "source": "p.70",
+      "implementation": "Hard Computers vs Discipline to disable remote droid; restraining bolt downgrades twice; failed disable triggers alarm"
+    },
+    {
+      "source": "pp.69-70",
+      "implementation": "bank slice opposed by Lobot subroutine Intellect 5, Computers 2; alarm upgrades difficulty"
+    },
+    {
+      "source": "p.70",
+      "implementation": "up to three additional slicing attempts; upgrade per prior failure; thirty minutes per retry"
+    },
+    {
+      "source": "pp.68-70",
+      "implementation": "Pos Podura winning bid has insufficient funds, so success does not create credit transfer"
+    },
+    {
+      "source": "pp.71-72",
+      "implementation": "black-box dismantling requires Daunting Mechanics check; recorded as evidenceCleared only after success"
+    }
+  ],
+  "explicitLimits": [
+    "No automatic inventory validation/consumption of restraining bolts; restrainingBolt is a GM-confirmed input.",
+    "NPC slicers, computer spikes, encryption samples, Lobot neutralization, and detailed table 2-1 symbol spends not yet implemented.",
+    "No automatic payout/credit transfer to player inventory; bank diversion is a persistent outcome flag.",
+    "Dice face receipts are internally replayable but not cryptographic proof of physical dice randomness.",
+    "Banking implementation is partial against this chapter; five adventures and expansions remain uncertified."
+  ]
+}

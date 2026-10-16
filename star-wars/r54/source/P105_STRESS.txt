@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: 33 sessões simuladas preservam histórico causal/aftermaths após reaberturas repetidas
+ok 1 - 33 sessões simuladas preservam histórico causal/aftermaths após reaberturas repetidas
+  ---
+  duration_ms: 8972.174228
+  type: 'test'
+  ...
+# Subtest: 33 sessões simuladas preservam plano de facção, afiliação do PNPC e avanço explícito após reaberturas
+ok 2 - 33 sessões simuladas preservam plano de facção, afiliação do PNPC e avanço explícito após reaberturas
+  ---
+  duration_ms: 757.086061
+  type: 'test'
+  ...
+# Subtest: 33 sessões simuladas preservam campanha, histórico e PNPC após reaberturas repetidas
+ok 3 - 33 sessões simuladas preservam campanha, histórico e PNPC após reaberturas repetidas
+  ---
+  duration_ms: 2554.515677
+  type: 'test'
+  ...
+# Subtest: 50 facções com planos de 3 etapas avançam por 200 eventos com orçamento e sem duplicar consequências
+ok 4 - 50 facções com planos de 3 etapas avançam por 200 eventos com orçamento e sem duplicar consequências
+  ---
+  duration_ms: 900.562409
+  type: 'test'
+  ...
+# Subtest: 100 facções e 200 eventos são processados por orçamento sem duplicar consequências
+ok 5 - 100 facções e 200 eventos são processados por orçamento sem duplicar consequências
+  ---
+  duration_ms: 779.352517
+  type: 'test'
+  ...
+# Subtest: 33 sessões simuladas reencontram o mesmo PNPC com o mesmo estado de combate
+ok 6 - 33 sessões simuladas reencontram o mesmo PNPC com o mesmo estado de combate
+  ---
+  duration_ms: 3775.078642
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9080.439903

@@ -1,0 +1,544 @@
+TAP version 13
+# Subtest: R42 manifest V3.5 baseline remains preserved after later library promotions
+ok 1 - R42 manifest V3.5 baseline remains preserved after later library promotions
+  ---
+  duration_ms: 0.993765
+  type: 'test'
+  ...
+# Subtest: R42 vehicle wave3 adds exactly 27 direct-URL assets
+ok 2 - R42 vehicle wave3 adds exactly 27 direct-URL assets
+  ---
+  duration_ms: 1.325025
+  type: 'test'
+  ...
+# Subtest: R42 wave3 grouping is 19 landspeeders page2 plus 8 walkers
+ok 3 - R42 wave3 grouping is 19 landspeeders page2 plus 8 walkers
+  ---
+  duration_ms: 0.46301
+  type: 'test'
+  ...
+# Subtest: R42 URLs obey secure Kainrath cache policy and are raw direct image URLs
+ok 4 - R42 URLs obey secure Kainrath cache policy and are raw direct image URLs
+  ---
+  duration_ms: 2.78221
+  type: 'test'
+  ...
+# Subtest: R42 vehicle images remain visual-only with no inferred mechanics
+ok 5 - R42 vehicle images remain visual-only with no inferred mechanics
+  ---
+  duration_ms: 0.178833
+  type: 'test'
+  ...
+# Subtest: R42 bridge preserves at least the R42 vehicle/visual baseline
+ok 6 - R42 bridge preserves at least the R42 vehicle/visual baseline
+  ---
+  duration_ms: 17.285665
+  type: 'test'
+  ...
+# Subtest: R42 subtype searches expose walkers and added surface vehicle classes without mechanics
+ok 7 - R42 subtype searches expose walkers and added surface vehicle classes without mechanics
+  ---
+  duration_ms: 6.115977
+  type: 'test'
+  ...
+# Subtest: R42 preserves both previous vehicle waves unchanged
+ok 8 - R42 preserves both previous vehicle waves unchanged
+  ---
+  duration_ms: 0.818193
+  type: 'test'
+  ...
+# Subtest: R43 manifest V3.6 baseline remains preserved after later visual promotions
+ok 9 - R43 manifest V3.6 baseline remains preserved after later visual promotions
+  ---
+  duration_ms: 1.725144
+  type: 'test'
+  ...
+# Subtest: R43 wave4 indexes exactly 3 vehicles plus 1 droid
+ok 10 - R43 wave4 indexes exactly 3 vehicles plus 1 droid
+  ---
+  duration_ms: 1.26653
+  type: 'test'
+  ...
+# Subtest: R43 wave4 contains only the direct-proven recovery set
+ok 11 - R43 wave4 contains only the direct-proven recovery set
+  ---
+  duration_ms: 0.354964
+  type: 'test'
+  ...
+# Subtest: R43 URLs are secure direct raw Kainrath media URLs
+ok 12 - R43 URLs are secure direct raw Kainrath media URLs
+  ---
+  duration_ms: 1.306134
+  type: 'test'
+  ...
+# Subtest: R43 recovery remains visual-only and never infers mechanics
+ok 13 - R43 recovery remains visual-only and never infers mechanics
+  ---
+  duration_ms: 0.331036
+  type: 'test'
+  ...
+# Subtest: R43 bridge exposes 120 vehicles and 75 Kainrath visual entities
+ok 14 - R43 bridge exposes 120 vehicles and 75 Kainrath visual entities
+  ---
+  duration_ms: 32.344501
+  type: 'test'
+  ...
+# Subtest: R43 direct-recovery group is searchable without affecting old walker wave
+ok 15 - R43 direct-recovery group is searchable without affecting old walker wave
+  ---
+  duration_ms: 8.561523
+  type: 'test'
+  ...
+# Subtest: R43 preserves R40-R42 vehicle waves unchanged
+ok 16 - R43 preserves R40-R42 vehicle waves unchanged
+  ---
+  duration_ms: 3.501024
+  type: 'test'
+  ...
+# Subtest: R44 manifest V3.7 baseline remains preserved after later visual promotions
+ok 17 - R44 manifest V3.7 baseline remains preserved after later visual promotions
+  ---
+  duration_ms: 1.459297
+  type: 'test'
+  ...
+# Subtest: R44 wave5 indexes exactly Skekfish and Nerf
+ok 18 - R44 wave5 indexes exactly Skekfish and Nerf
+  ---
+  duration_ms: 1.558714
+  type: 'test'
+  ...
+# Subtest: R44 direct media provenance is recorded without filename invention
+ok 19 - R44 direct media provenance is recorded without filename invention
+  ---
+  duration_ms: 0.462521
+  type: 'test'
+  ...
+# Subtest: R44 URLs obey secure raw Kainrath cache policy
+ok 20 - R44 URLs obey secure raw Kainrath cache policy
+  ---
+  duration_ms: 0.843276
+  type: 'test'
+  ...
+# Subtest: R44 beasts remain visual-only and mechanically unbound
+ok 21 - R44 beasts remain visual-only and mechanically unbound
+  ---
+  duration_ms: 0.208007
+  type: 'test'
+  ...
+# Subtest: R44 bridge exposes 17 creatures while preserving vehicles, droids and maps
+ok 22 - R44 bridge exposes 17 creatures while preserving vehicles, droids and maps
+  ---
+  duration_ms: 34.227993
+  type: 'test'
+  ...
+# Subtest: R44 direct-recovery beasts are searchable by id and title
+ok 23 - R44 direct-recovery beasts are searchable by id and title
+  ---
+  duration_ms: 9.240389
+  type: 'test'
+  ...
+# Subtest: R44 preserves R43 recovery set and older visual waves
+ok 24 - R44 preserves R43 recovery set and older visual waves
+  ---
+  duration_ms: 0.64385
+  type: 'test'
+  ...
+# Subtest: R45 manifest V3.8 has 369 unique assets and 127 vehicles
+ok 25 - R45 manifest V3.8 has 369 unique assets and 127 vehicles
+  ---
+  duration_ms: 1.488443
+  type: 'test'
+  ...
+# Subtest: R45 vehicle wave5 indexes exactly the 7 direct-proven recovery entries
+ok 26 - R45 vehicle wave5 indexes exactly the 7 direct-proven recovery entries
+  ---
+  duration_ms: 1.360553
+  type: 'test'
+  ...
+# Subtest: R45 direct-media provenance records the exact observed Kainrath links
+ok 27 - R45 direct-media provenance records the exact observed Kainrath links
+  ---
+  duration_ms: 0.279943
+  type: 'test'
+  ...
+# Subtest: R45 URLs obey secure Kainrath cache policy
+ok 28 - R45 URLs obey secure Kainrath cache policy
+  ---
+  duration_ms: 1.109658
+  type: 'test'
+  ...
+# Subtest: R45 recovered vehicles remain visual-only and mechanically unbound
+ok 29 - R45 recovered vehicles remain visual-only and mechanically unbound
+  ---
+  duration_ms: 2.107307
+  type: 'test'
+  ...
+# Subtest: R45 bridge exposes 127 vehicles while preserving other visual categories
+ok 30 - R45 bridge exposes 127 vehicles while preserving other visual categories
+  ---
+  duration_ms: 25.017642
+  type: 'test'
+  ...
+# Subtest: R45 recovered landspeeders and freighters are searchable without campaign mutation
+ok 31 - R45 recovered landspeeders and freighters are searchable without campaign mutation
+  ---
+  duration_ms: 15.14211
+  type: 'test'
+  ...
+# Subtest: R45 preserves R44 beast recovery and leaves unproven media blocked
+ok 32 - R45 preserves R44 beast recovery and leaves unproven media blocked
+  ---
+  duration_ms: 0.595641
+  type: 'test'
+  ...
+# Subtest: R46 freezes the validated V3.8 subset without count inflation
+ok 33 - R46 freezes the validated V3.8 subset without count inflation
+  ---
+  duration_ms: 2.565655
+  type: 'test'
+  ...
+# Subtest: R46 keeps R45 unresolved provenance lists complete and deferred
+ok 34 - R46 keeps R45 unresolved provenance lists complete and deferred
+  ---
+  duration_ms: 0.435719
+  type: 'test'
+  ...
+# Subtest: R46 does not silently index the specifically observed posts without direct media
+ok 35 - R46 does not silently index the specifically observed posts without direct media
+  ---
+  duration_ms: 0.5149
+  type: 'test'
+  ...
+# Subtest: R46 policy forbids filename inference and preserves mechanical firewall
+ok 36 - R46 policy forbids filename inference and preserves mechanical firewall
+  ---
+  duration_ms: 0.297499
+  type: 'test'
+  ...
+# Subtest: R46 every external remote-ready asset still obeys Kainrath allowlist and visual-only binding
+ok 37 - R46 every external remote-ready asset still obeys Kainrath allowlist and visual-only binding
+  ---
+  duration_ms: 3.442197
+  type: 'test'
+  ...
+# Subtest: R46 bridge remains gameplay-readable with frozen visual catalog and no repository mutation
+ok 38 - R46 bridge remains gameplay-readable with frozen visual catalog and no repository mutation
+  ---
+  duration_ms: 26.79263
+  type: 'test'
+  ...
+# Subtest: R46 deferred provenance is duplicate-free and contains no synthetic URL field
+ok 39 - R46 deferred provenance is duplicate-free and contains no synthetic URL field
+  ---
+  duration_ms: 0.472225
+  type: 'test'
+  ...
+# Subtest: iniciativa ordena por Êxitos, Vantagens, Triunfos e favorece PJ no empate final
+ok 40 - iniciativa ordena por Êxitos, Vantagens, Triunfos e favorece PJ no empate final
+  ---
+  duration_ms: 2.010916
+  type: 'test'
+  ...
+# Subtest: fonte R46 limita importação de ficha e backup ao mesmo teto de 16 MB do FileBridge
+ok 41 - fonte R46 limita importação de ficha e backup ao mesmo teto de 16 MB do FileBridge
+  ---
+  duration_ms: 3.131274
+  type: 'test'
+  ...
+# Subtest: bundle Android contém os mesmos guards antes de file.text()
+ok 42 - bundle Android contém os mesmos guards antes de file.text()
+  ---
+  duration_ms: 0.668744
+  type: 'test'
+  ...
+# Subtest: harness web: todo id literal acessado por $(id) existe no HTML
+ok 43 - harness web: todo id literal acessado por $(id) existe no HTML
+  ---
+  duration_ms: 2.834797
+  type: 'test'
+  ...
+# Subtest: harness web legado permanece EOTE_CORE e não reativa criação/grupo AoR
+ok 44 - harness web legado permanece EOTE_CORE e não reativa criação/grupo AoR
+  ---
+  duration_ms: 1.83629
+  type: 'test'
+  ...
+# Subtest: interface possui aba Biblioteca e fluxo de importação em PT-BR
+ok 45 - interface possui aba Biblioteca e fluxo de importação em PT-BR
+  ---
+  duration_ms: 2.690212
+  type: 'test'
+  ...
+# Subtest: interface diferencia PDF indexado de PDF anexado sem texto extraível
+ok 46 - interface diferencia PDF indexado de PDF anexado sem texto extraível
+  ---
+  duration_ms: 0.496244
+  type: 'test'
+  ...
+# Subtest: Biblioteca expõe autoridade e ativação da fonte em PT-BR
+ok 47 - Biblioteca expõe autoridade e ativação da fonte em PT-BR
+  ---
+  duration_ms: 1.102772
+  type: 'test'
+  ...
+# Subtest: Biblioteca oferece reindexação sem exigir nova importação
+ok 48 - Biblioteca oferece reindexação sem exigir nova importação
+  ---
+  duration_ms: 1.285675
+  type: 'test'
+  ...
+# Subtest: ponte de Biblioteca lista documentos anexados e traduz status
+ok 49 - ponte de Biblioteca lista documentos anexados e traduz status
+  ---
+  duration_ms: 1.590226
+  type: 'test'
+  ...
+# Subtest: busca em PDF importado vira fonte local citável
+ok 50 - busca em PDF importado vira fonte local citável
+  ---
+  duration_ms: 0.584878
+  type: 'test'
+  ...
+# Subtest: RAG combina corpus auditado e Biblioteca importada sem tratar PDF como regra implementada
+ok 51 - RAG combina corpus auditado e Biblioteca importada sem tratar PDF como regra implementada
+  ---
+  duration_ms: 3.54507
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre incorpora PDF da Biblioteca quando a ponte Android está disponível
+ok 52 - contexto do Mestre incorpora PDF da Biblioteca quando a ponte Android está disponível
+  ---
+  duration_ms: 11.984217
+  type: 'test'
+  ...
+# Subtest: shell Android contém importação privada e indexação PDFBox, sem permissão de armazenamento externo
+ok 53 - shell Android contém importação privada e indexação PDFBox, sem permissão de armazenamento externo
+  ---
+  duration_ms: 0.719534
+  type: 'test'
+  ...
+# Subtest: shell Android persiste autoridade e permite ativar/desativar fonte sem apagar PDF
+ok 54 - shell Android persiste autoridade e permite ativar/desativar fonte sem apagar PDF
+  ---
+  duration_ms: 0.409191
+  type: 'test'
+  ...
+# Subtest: Biblioteca permite reindexar PDF preservado e registra falha de indexação
+ok 55 - Biblioteca permite reindexar PDF preservado e registra falha de indexação
+  ---
+  duration_ms: 0.427296
+  type: 'test'
+  ...
+# Subtest: mundo vivo mantém memória, riqueza, atividade, clima e tempo persistentes
+ok 56 - mundo vivo mantém memória, riqueza, atividade, clima e tempo persistentes
+  ---
+  duration_ms: 16.027874
+  type: 'test'
+  ...
+# Subtest: simulação avança estado econômico sem alterar créditos do jogador
+ok 57 - simulação avança estado econômico sem alterar créditos do jogador
+  ---
+  duration_ms: 9.539686
+  type: 'test'
+  ...
+# Subtest: P9 porta memória social, compromissos e diplomacia persistentes do desenho DnD
+ok 58 - P9 porta memória social, compromissos e diplomacia persistentes do desenho DnD
+  ---
+  duration_ms: 0.680257
+  type: 'test'
+  ...
+# Subtest: P12 não chama esquema gerado de mapa real/dedicado
+ok 59 - P12 não chama esquema gerado de mapa real/dedicado
+  ---
+  duration_ms: 1.06083
+  type: 'test'
+  ...
+# Subtest: P12 mantém Shantipole como único mapa dedicado confirmado
+ok 60 - P12 mantém Shantipole como único mapa dedicado confirmado
+  ---
+  duration_ms: 6.096823
+  type: 'test'
+  ...
+# Subtest: Mapa Galáctico é destino próprio e usa asset local offline
+ok 61 - Mapa Galáctico é destino próprio e usa asset local offline
+  ---
+  duration_ms: 3.182351
+  type: 'test'
+  ...
+# Subtest: mapa permite zoom e arraste mas viagem vira intenção do jogador
+ok 62 - mapa permite zoom e arraste mas viagem vira intenção do jogador
+  ---
+  duration_ms: 0.439904
+  type: 'test'
+  ...
+# Subtest: P13 mapas disponíveis abrem visualizador em tela cheia
+ok 63 - P13 mapas disponíveis abrem visualizador em tela cheia
+  ---
+  duration_ms: 1.434533
+  type: 'test'
+  ...
+# Subtest: P13 visualizador preserva proveniência mapa dedicado esquema e galáctico
+ok 64 - P13 visualizador preserva proveniência mapa dedicado esquema e galáctico
+  ---
+  duration_ms: 0.272663
+  type: 'test'
+  ...
+# Subtest: P13 mapa é acessível por teclado
+ok 65 - P13 mapa é acessível por teclado
+  ---
+  duration_ms: 0.372597
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre inclui estado pertinente, eventos e regras recuperadas
+ok 66 - contexto do Mestre inclui estado pertinente, eventos e regras recuperadas
+  ---
+  duration_ms: 76.770312
+  type: 'test'
+  ...
+# Subtest: preparação local não finge provedor de IA
+ok 67 - preparação local não finge provedor de IA
+  ---
+  duration_ms: 18.871432
+  type: 'test'
+  ...
+# Subtest: consulta local devolve regra EotE auditada e falha fechado fora da autoridade disponível
+ok 68 - consulta local devolve regra EotE auditada e falha fechado fora da autoridade disponível
+  ---
+  duration_ms: 89.005869
+  type: 'test'
+  ...
+# Subtest: diretriz do Mestre aceita apenas perfis, quantidades, alcances e iniciativa válidos
+ok 69 - diretriz do Mestre aceita apenas perfis, quantidades, alcances e iniciativa válidos
+  ---
+  duration_ms: 5.198157
+  type: 'test'
+  ...
+# Subtest: Mestre prepara encontro e jogador ainda escolhe Reação rápida antes da iniciativa
+ok 70 - Mestre prepara encontro e jogador ainda escolhe Reação rápida antes da iniciativa
+  ---
+  duration_ms: 56.536924
+  type: 'test'
+  ...
+# Subtest: consequência causal pode originar encontro e só é resolvida quando o combate tem desfecho
+ok 71 - consequência causal pode originar encontro e só é resolvida quando o combate tem desfecho
+  ---
+  duration_ms: 30.832735
+  type: 'test'
+  ...
+# Subtest: diretriz causal inválida reverte a proposta inteira
+ok 72 - diretriz causal inválida reverte a proposta inteira
+  ---
+  duration_ms: 4.829985
+  type: 'test'
+  ...
+# Subtest: interface PT-BR mostra encontro preparado sem esconder escolha de Reação rápida
+ok 73 - interface PT-BR mostra encontro preparado sem esconder escolha de Reação rápida
+  ---
+  duration_ms: 2.184004
+  type: 'test'
+  ...
+# Subtest: Mestre cria e avança plano de facção por operações estruturadas
+ok 74 - Mestre cria e avança plano de facção por operações estruturadas
+  ---
+  duration_ms: 26.510102
+  type: 'test'
+  ...
+# Subtest: operação inválida em plano reverte a proposta inteira
+ok 75 - operação inválida em plano reverte a proposta inteira
+  ---
+  duration_ms: 6.624958
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre inclui planos completos e versão 6
+ok 76 - contexto do Mestre inclui planos completos e versão 6
+  ---
+  duration_ms: 15.553221
+  type: 'test'
+  ...
+# Subtest: Mestre cria duas facções e um PNPC afiliado usando somente operações estruturadas
+ok 77 - Mestre cria duas facções e um PNPC afiliado usando somente operações estruturadas
+  ---
+  duration_ms: 45.61818
+  type: 'test'
+  ...
+# Subtest: operação de facção inválida faz rollback transacional da proposta inteira
+ok 78 - operação de facção inválida faz rollback transacional da proposta inteira
+  ---
+  duration_ms: 8.108376
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre inclui facções, afiliação do PNPC e contagem digestível
+ok 79 - contexto do Mestre inclui facções, afiliação do PNPC e contagem digestível
+  ---
+  duration_ms: 4.120338
+  type: 'test'
+  ...
+# Subtest: save/reopen preserva facções, relações, recursos, fatos e afiliação de PNPC
+ok 80 - save/reopen preserva facções, relações, recursos, fatos e afiliação de PNPC
+  ---
+  duration_ms: 3.775742
+  type: 'test'
+  ...
+# Subtest: P20: contrato do Mestre aceita a narração longa pedida ao Gemini
+ok 81 - P20: contrato do Mestre aceita a narração longa pedida ao Gemini
+  ---
+  duration_ms: 4.967138
+  type: 'test'
+  ...
+# Subtest: P20: host nativo e Motor Barbara usam o mesmo teto de 12k
+ok 82 - P20: host nativo e Motor Barbara usam o mesmo teto de 12k
+  ---
+  duration_ms: 0.524921
+  type: 'test'
+  ...
+# Subtest: proposta do Mestre aceita apenas narração, pergunta e teste estruturado
+ok 83 - proposta do Mestre aceita apenas narração, pergunta e teste estruturado
+  ---
+  duration_ms: 3.19861
+  type: 'test'
+  ...
+# Subtest: proposta rejeita mutação direta de ficha ou regra não recuperada
+ok 84 - proposta rejeita mutação direta de ficha ou regra não recuperada
+  ---
+  duration_ms: 1.356023
+  type: 'test'
+  ...
+# Subtest: aplicar proposta narrativa não altera ficha nem combate
+ok 85 - aplicar proposta narrativa não altera ficha nem combate
+  ---
+  duration_ms: 8.893414
+  type: 'test'
+  ...
+# Subtest: endpoint remoto exige HTTPS, exceto localhost de desenvolvimento
+ok 86 - endpoint remoto exige HTTPS, exceto localhost de desenvolvimento
+  ---
+  duration_ms: 1.254785
+  type: 'test'
+  ...
+# Subtest: adaptador HTTP envia contexto e recebe somente proposta estruturada
+ok 87 - adaptador HTTP envia contexto e recebe somente proposta estruturada
+  ---
+  duration_ms: 26.630412
+  type: 'test'
+  ...
+# Subtest: falha de rede do Mestre não altera o estado válido
+ok 88 - falha de rede do Mestre não altera o estado válido
+  ---
+  duration_ms: 16.553383
+  type: 'test'
+  ...
+# Subtest: resposta remota validada altera só a camada narrativa autorizada
+ok 89 - resposta remota validada altera só a camada narrativa autorizada
+  ---
+  duration_ms: 6.750196
+  type: 'test'
+  ...
+1..89
+# tests 89
+# suites 0
+# pass 89
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1284.454166

@@ -1,0 +1,11 @@
+{
+  "file": "vehicles.test.mjs",
+  "okay": true,
+  "tests": 17,
+  "pass": 17,
+  "fail": 0,
+  "skipped": 0,
+  "exit": 0,
+  "seconds": 0.21,
+  "tail": ""
+}

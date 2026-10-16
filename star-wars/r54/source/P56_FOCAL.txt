@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: P55: journal de cenas nasce vazio e registra escolhas sem conteúdo futuro
+ok 1 - P55: journal de cenas nasce vazio e registra escolhas sem conteúdo futuro
+  ---
+  duration_ms: 15.53501
+  type: 'test'
+  ...
+# Subtest: P55: journal persiste após reopen e conserva a rota tomada
+ok 2 - P55: journal persiste após reopen e conserva a rota tomada
+  ---
+  duration_ms: 5.754991
+  type: 'test'
+  ...
+# Subtest: P55: progresso legado sem sceneJournal migra sem quebrar status
+ok 3 - P55: progresso legado sem sceneJournal migra sem quebrar status
+  ---
+  duration_ms: 0.675602
+  type: 'test'
+  ...
+# Subtest: P55: journal público não expõe effects internos
+ok 4 - P55: journal público não expõe effects internos
+  ---
+  duration_ms: 1.000452
+  type: 'test'
+  ...
+# Subtest: P56: painel publicado renderiza timeline compacta a partir do sceneJournal público
+ok 5 - P56: painel publicado renderiza timeline compacta a partir do sceneJournal público
+  ---
+  duration_ms: 1.868074
+  type: 'test'
+  ...
+# Subtest: P56: timeline mostra somente choiceLabel e destino já projetados, sem effects internos
+ok 6 - P56: timeline mostra somente choiceLabel e destino já projetados, sem effects internos
+  ---
+  duration_ms: 0.736182
+  type: 'test'
+  ...
+# Subtest: P56: timeline mobile tem truncamento e tipografia compacta
+ok 7 - P56: timeline mobile tem truncamento e tipografia compacta
+  ---
+  duration_ms: 0.458581
+  type: 'test'
+  ...
+# Subtest: P56: journal fornece títulos somente das cenas visitadas para a timeline
+ok 8 - P56: journal fornece títulos somente das cenas visitadas para a timeline
+  ---
+  duration_ms: 9.683537
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 361.771504

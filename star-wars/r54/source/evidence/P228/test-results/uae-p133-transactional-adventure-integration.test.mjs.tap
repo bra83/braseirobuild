@@ -1,0 +1,100 @@
+TAP version 13
+# Subtest: P133 UAE OBJECTIVE_PROGRESS: falha de gatilho desfaz estado, journal e sequência
+ok 1 - P133 UAE OBJECTIVE_PROGRESS: falha de gatilho desfaz estado, journal e sequência
+  ---
+  duration_ms: 58.477226
+  type: 'test'
+  ...
+# Subtest: P133 UAE OBJECTIVE_COMPLETED: falha de gatilho desfaz estado, journal e sequência
+ok 2 - P133 UAE OBJECTIVE_COMPLETED: falha de gatilho desfaz estado, journal e sequência
+  ---
+  duration_ms: 13.130952
+  type: 'test'
+  ...
+# Subtest: P133 UAE OBJECTIVE_FAILED: falha de gatilho desfaz estado, journal e sequência
+ok 3 - P133 UAE OBJECTIVE_FAILED: falha de gatilho desfaz estado, journal e sequência
+  ---
+  duration_ms: 20.189731
+  type: 'test'
+  ...
+# Subtest: P133 UAE CONSEQUENCE_RECORDED: falha de gatilho desfaz estado, journal e sequência
+ok 4 - P133 UAE CONSEQUENCE_RECORDED: falha de gatilho desfaz estado, journal e sequência
+  ---
+  duration_ms: 15.046138
+  type: 'test'
+  ...
+# Subtest: P133 UAE CLUE_DISCOVERED: falha de gatilho desfaz estado, journal e sequência
+ok 5 - P133 UAE CLUE_DISCOVERED: falha de gatilho desfaz estado, journal e sequência
+  ---
+  duration_ms: 7.839817
+  type: 'test'
+  ...
+# Subtest: P133 UAE SECRET_REVEALED: falha de gatilho desfaz estado, journal e sequência
+ok 6 - P133 UAE SECRET_REVEALED: falha de gatilho desfaz estado, journal e sequência
+  ---
+  duration_ms: 28.804695
+  type: 'test'
+  ...
+# Subtest: P133 UAE: transação composta desfaz relógio, flag, objetivo e journal se etapa final falhar
+ok 7 - P133 UAE: transação composta desfaz relógio, flag, objetivo e journal se etapa final falhar
+  ---
+  duration_ms: 3.420962
+  type: 'test'
+  ...
+# Subtest: P133 UAE: validação de chave protege contra prototype pollution e rollback
+ok 8 - P133 UAE: validação de chave protege contra prototype pollution e rollback
+  ---
+  duration_ms: 2.987961
+  type: 'test'
+  ...
+# Subtest: P133 UAE: overflow numérico de contadores não gera estado impossível
+ok 9 - P133 UAE: overflow numérico de contadores não gera estado impossível
+  ---
+  duration_ms: 11.189679
+  type: 'test'
+  ...
+# Subtest: P133 UAE: sequência esgotada não duplica eventos nem perde atomicidade
+ok 10 - P133 UAE: sequência esgotada não duplica eventos nem perde atomicidade
+  ---
+  duration_ms: 12.899873
+  type: 'test'
+  ...
+# Subtest: P133 under-black-sun: cinco aventuras preservam consequências, relógios e objetivos no JSON
+ok 11 - P133 under-black-sun: cinco aventuras preservam consequências, relógios e objetivos no JSON
+  ---
+  duration_ms: 73.927157
+  type: 'test'
+  ...
+# Subtest: P133 beyond-the-rim: cinco aventuras preservam consequências, relógios e objetivos no JSON
+ok 12 - P133 beyond-the-rim: cinco aventuras preservam consequências, relógios e objetivos no JSON
+  ---
+  duration_ms: 43.155761
+  type: 'test'
+  ...
+# Subtest: P133 long-arm-of-the-hutt: cinco aventuras preservam consequências, relógios e objetivos no JSON
+ok 13 - P133 long-arm-of-the-hutt: cinco aventuras preservam consequências, relógios e objetivos no JSON
+  ---
+  duration_ms: 14.421374
+  type: 'test'
+  ...
+# Subtest: P133 jewel-of-yavin: cinco aventuras preservam consequências, relógios e objetivos no JSON
+ok 14 - P133 jewel-of-yavin: cinco aventuras preservam consequências, relógios e objetivos no JSON
+  ---
+  duration_ms: 56.343063
+  type: 'test'
+  ...
+# Subtest: P133 mask-of-the-pirate-queen: cinco aventuras preservam consequências, relógios e objetivos no JSON
+ok 15 - P133 mask-of-the-pirate-queen: cinco aventuras preservam consequências, relógios e objetivos no JSON
+  ---
+  duration_ms: 21.394064
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1133.514058

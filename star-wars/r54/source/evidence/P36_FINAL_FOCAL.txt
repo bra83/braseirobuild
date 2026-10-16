@@ -1,0 +1,172 @@
+TAP version 13
+# Subtest: P33: catálogo preserva EotE/MIXED e não oferece aventura EotE pura em AoR
+ok 1 - P33: catálogo preserva EotE/MIXED e não oferece aventura EotE pura em AoR
+  ---
+  duration_ms: 1.249125
+  type: 'test'
+  ...
+# Subtest: P33: início é PT-BR, persistente e não revela nós futuros ao jogador
+ok 2 - P33: início é PT-BR, persistente e não revela nós futuros ao jogador
+  ---
+  duration_ms: 2.343928
+  type: 'test'
+  ...
+# Subtest: P33: Episódio II aceita investigação em qualquer ordem e só libera desfecho após 2 linhas
+ok 3 - P33: Episódio II aceita investigação em qualquer ordem e só libera desfecho após 2 linhas
+  ---
+  duration_ms: 2.879957
+  type: 'test'
+  ...
+# Subtest: P33: flags de consequências persistem até o Episódio III e epílogo
+ok 4 - P33: flags de consequências persistem até o Episódio III e epílogo
+  ---
+  duration_ms: 4.292061
+  type: 'test'
+  ...
+# Subtest: P33: recompensa fica registrada e não reseta ao reiniciar a aventura na mesma campanha
+ok 5 - P33: recompensa fica registrada e não reseta ao reiniciar a aventura na mesma campanha
+  ---
+  duration_ms: 0.77321
+  type: 'test'
+  ...
+# Subtest: P33: UI oferece aventura publicada separada do mundo livre e bridge expõe contrato
+ok 6 - P33: UI oferece aventura publicada separada do mundo livre e bridge expõe contrato
+  ---
+  duration_ms: 1.673972
+  type: 'test'
+  ...
+# Subtest: P34: checks da aventura expõem pool mecânico sem revelar destinos
+ok 7 - P34: checks da aventura expõem pool mecânico sem revelar destinos
+  ---
+  duration_ms: 0.514001
+  type: 'test'
+  ...
+# Subtest: P34: Advantage/Threat/Triumph/Despair alimentam consequência persistente e relógio de alerta
+ok 8 - P34: Advantage/Threat/Triumph/Despair alimentam consequência persistente e relógio de alerta
+  ---
+  duration_ms: 1.550227
+  type: 'test'
+  ...
+# Subtest: P34: controller e bridge ligam teste publicado ao resolvedor narrativo real
+ok 9 - P34: controller e bridge ligam teste publicado ao resolvedor narrativo real
+  ---
+  duration_ms: 1.074372
+  type: 'test'
+  ...
+# Subtest: UI publicada oferece ROLAR por check
+ok 10 - UI publicada oferece ROLAR por check
+  ---
+  duration_ms: 0.875714
+  type: 'test'
+  ...
+# Subtest: resultado narrativo mostra sucesso, vantagem, momentum e alerta
+ok 11 - resultado narrativo mostra sucesso, vantagem, momentum e alerta
+  ---
+  duration_ms: 1.154632
+  type: 'test'
+  ...
+# Subtest: check resolvido tem estado visual
+ok 12 - check resolvido tem estado visual
+  ---
+  duration_ms: 0.179619
+  type: 'test'
+  ...
+# Subtest: P36: save P35 sem systems migra sem resetar nó, flags ou histórico
+ok 13 - P36: save P35 sem systems migra sem resetar nó, flags ou histórico
+  ---
+  duration_ms: 2.299912
+  type: 'test'
+  ...
+# Subtest: P36: perseguição usa consequência narrativa persistente e superfície anti-spoiler
+ok 14 - P36: perseguição usa consequência narrativa persistente e superfície anti-spoiler
+  ---
+  duration_ms: 3.266102
+  type: 'test'
+  ...
+# Subtest: P36: sabacc acumula rodadas e créditos de modo persistente
+ok 15 - P36: sabacc acumula rodadas e créditos de modo persistente
+  ---
+  duration_ms: 1.430998
+  type: 'test'
+  ...
+# Subtest: P36: Zelcomm entra em lockdown e NovaCORE pode escalar risco + Tensão
+ok 16 - P36: Zelcomm entra em lockdown e NovaCORE pode escalar risco + Tensão
+  ---
+  duration_ms: 3.393423
+  type: 'test'
+  ...
+# Subtest: P36: perfis Black Sun e Kaa’to existem na autoridade de combate usada pelo controller
+ok 17 - P36: perfis Black Sun e Kaa’to existem na autoridade de combate usada pelo controller
+  ---
+  duration_ms: 1.667622
+  type: 'test'
+  ...
+# Subtest: P36: controller inicia encontro publicado e grava desfecho persistente
+ok 18 - P36: controller inicia encontro publicado e grava desfecho persistente
+  ---
+  duration_ms: 19.197058
+  type: 'test'
+  ...
+# Subtest: P36: Kaa’to usa NPC do mundo, persiste incapacitação e não reaparece íntegro
+ok 19 - P36: Kaa’to usa NPC do mundo, persiste incapacitação e não reaparece íntegro
+  ---
+  duration_ms: 76.987511
+  type: 'test'
+  ...
+# Subtest: P36: consequência de sabacc atinge créditos reais do personagem pelo controller
+ok 20 - P36: consequência de sabacc atinge créditos reais do personagem pelo controller
+  ---
+  duration_ms: 17.828904
+  type: 'test'
+  ...
+# Subtest: P36: mantém gate EotE/MIXED e não converte Duty/Obligation entre linhas
+ok 21 - P36: mantém gate EotE/MIXED e não converte Duty/Obligation entre linhas
+  ---
+  duration_ms: 4.122136
+  type: 'test'
+  ...
+# Subtest: P36: runtime e bridge expõem sistemas/encontro sem revelar especificação futura
+ok 22 - P36: runtime e bridge expõem sistemas/encontro sem revelar especificação futura
+  ---
+  duration_ms: 1.089565
+  type: 'test'
+  ...
+# Subtest: P8 exact visual coverage closes full active equipment catalog
+ok 23 - P8 exact visual coverage closes full active equipment catalog
+  ---
+  duration_ms: 5.22449
+  type: 'test'
+  ...
+# Subtest: P8 exact visual coverage closes active vehicle catalog
+ok 24 - P8 exact visual coverage closes active vehicle catalog
+  ---
+  duration_ms: 0.390766
+  type: 'test'
+  ...
+# Subtest: P8 known adversaries have deterministic exact identity visuals
+ok 25 - P8 known adversaries have deterministic exact identity visuals
+  ---
+  duration_ms: 0.208162
+  type: 'test'
+  ...
+# Subtest: P12 all 82 catalog worlds have honest playable location visuals
+ok 26 - P12 all 82 catalog worlds have honest playable location visuals
+  ---
+  duration_ms: 0.771778
+  type: 'test'
+  ...
+# Subtest: P8 no fuzzy visual resolver and no rejected technical RAG copy
+ok 27 - P8 no fuzzy visual resolver and no rejected technical RAG copy
+  ---
+  duration_ms: 0.369254
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 258.860376

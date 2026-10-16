@@ -1,0 +1,50 @@
+{
+  "mjs": 515,
+  "jsRuntime": 2,
+  "json": 22,
+  "xml": 2,
+  "errors": [],
+  "javaKokoro": [
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/ExternalImageShareState.java",
+      "shaP221": "338a61259b46b20de19a21d7bc5ee7c09a376a5a2cf94ef1f7ebf74651904f11",
+      "identical": true
+    },
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/FileBridge.java",
+      "shaP221": "2218bc10d2feb21058bb80306870486fcd3ffe3855d24ce88f7bd071b1e510c0",
+      "identical": true
+    },
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java",
+      "shaP221": "490d3ad144d9a3f1a54bdfa0eb5f07abd270a7ee1fcc596c7da6882ba56f1df6",
+      "identical": true
+    },
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java",
+      "shaP221": "5d5518efb75012c014c8d2aba813b570c0a9027e9586d20136b97f480397e21f",
+      "identical": true
+    },
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/MainActivity.java",
+      "shaP221": "b3c4a13efef1b6ba221aec7fe918741de7df05f277919cb16be50f5021e4453d",
+      "identical": true
+    },
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/NpcTokenBridge.java",
+      "shaP221": "c086bc126062240ac3fdeaf8e0c9ab972f4ef6bc5c94835d347697f887fdb826",
+      "identical": true
+    },
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java",
+      "shaP221": "c2b25345f80c7112556b1cc9de9dc57d3f9335cbd01ec9d8ecd95d6cec776c3b",
+      "identical": true
+    },
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/TtsChunker.java",
+      "shaP221": "247812ac2f243cdcf508cb0a71d67774742c4fde473636430af35eb423ee25cf",
+      "identical": true
+    }
+  ],
+  "bundleModuleCount": 109
+}

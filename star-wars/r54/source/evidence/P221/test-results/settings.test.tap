@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: configuração do Mestre remoto persiste somente endpoint, sem campo de chave
+ok 1 - configuração do Mestre remoto persiste somente endpoint, sem campo de chave
+  ---
+  duration_ms: 15.397115
+  type: 'test'
+  ...
+# Subtest: modo local remove endpoint remoto persistido
+ok 2 - modo local remove endpoint remoto persistido
+  ---
+  duration_ms: 2.034037
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 285.431653

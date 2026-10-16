@@ -1,0 +1,53 @@
+{
+  "source": "SWE09 The Jewel of Yavin, official PDF supplied in Google Drive",
+  "googleDriveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "printedPages": [
+    90,
+    91
+  ],
+  "readingMethod": "Google Drive fetch: text extracted from official PDF, source NPC compendium parsed from checkpoint; printed characteristics crosschecked against JoY:90 card",
+  "checks": [
+    {
+      "holding": "plaza-residence",
+      "security": "three K4 rivals at door, six goons in sitting room",
+      "implemented": "two separate stages; no teleport"
+    },
+    {
+      "holding": "figg-hall-office",
+      "security": "four Grayson guards",
+      "implemented": "one minion group of four"
+    },
+    {
+      "holding": "port-town-building",
+      "security": "ten Shen goons along boardwalk",
+      "implemented": "two minion groups of five; no teleport"
+    },
+    {
+      "holding": "plaza-yacht",
+      "security": "three groups of three yacht crew",
+      "implemented": "three minion groups of three; no Wing Guard auto-arrival"
+    },
+    {
+      "npc": "Arend Shen",
+      "compendium": "JoY:90 card arend_shen_429",
+      "stats": "Nemesis; characteristics 2/3/4/4/3/3; soak 3; wounds 14; strain 16; Adversary 3; disruptor pistol damage 10, critical 2, Vicious 4"
+    },
+    {
+      "npc": "K4 Security Droid",
+      "compendium": "JoY:90 card k4_security_droid_267",
+      "stats": "rival; soak 3; wounds 12; defense melee 2/ranged 1"
+    },
+    {
+      "npc": "Yacht Crew",
+      "compendium": "JoY:91 card yacht_crew_122",
+      "stats": "minion; soak 3; wounds 6; heavy blaster pistol damage 7, crit 3"
+    }
+  ],
+  "notYetImplemented": [
+    "15-minute residence patrols with real elapsed time",
+    "Venture 10-minute Wing Guard arrival with real elapsed time",
+    "automatic progression between rooms",
+    "Arend future pursuit consequences",
+    "official XP awards"
+  ]
+}

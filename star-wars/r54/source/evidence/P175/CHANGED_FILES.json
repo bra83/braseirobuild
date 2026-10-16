@@ -1,0 +1,31 @@
+{
+  "base": "P174",
+  "checkpoint": "P175",
+  "modifiedFromP174": [
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/state.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+    "app/src/main/assets/vtt/js/expansion/aorTalentRuntimeAliases.mjs",
+    "app/src/main/assets/vtt/js/rules/combat.mjs",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "tests/r54-p101-fear-encumbrance-gear-repair.test.mjs",
+    "tests/uae-p172-master-merchant-economy.test.mjs",
+    "tests/uae-p173-merchant-receipts-five-adventures.test.mjs",
+    "tests/uae-p174-mechanic-field-five-adventures.test.mjs"
+  ],
+  "new": [
+    "tests/uae-p175-command-leadership-five-adventures.test.mjs",
+    "evidence/P175/ANDROID_BUILD_STATUS.txt",
+    "evidence/P175/AOR_PENDING_25_POSITIONS.json",
+    "evidence/P175/GLOBAL_VERIFY_INCOMPLETE.txt",
+    "evidence/P175/KOKORO_TTS.txt",
+    "evidence/P175/REGRESSION.txt",
+    "evidence/P175/RESULTS.json",
+    "evidence/P175/STRESS.txt",
+    "evidence/P175/TARGETED_P175.txt"
+  ],
+  "removed": []
+}

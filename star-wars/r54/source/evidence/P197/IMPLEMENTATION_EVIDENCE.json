@@ -1,0 +1,24 @@
+{
+  "checkpoint": "P197",
+  "baseline": "P196",
+  "changes": [
+    "wingGuardTactics.mjs: ordens do Mestre com confirmação de alcance, validação de perfil, alvos, limite de manobra por rodada e execução no turno real do NPC",
+    "Covering Fire: +1 defesa à distância para até dois aliados; não acumula; expira ao final da rodada seguinte; aplica revés no pool real do ataque do jogador",
+    "Tactical Direction: sargento concede +1 dado de Reforço real no próximo ataque do grupo minion, consumido exatamente uma vez",
+    "Persistência de ordens/efeitos na ficha de combate, cancelamento quando aliado cai, rejeição de duplicatas e ator inválido",
+    "Controller e UI bridge; painel Android PT-BR com confirmação explícita do Mestre e alvos NPC reais",
+    "Correção de erro sintático preexistente P196 em final-runtime.js (apóstrofo não escapado em Nobody’s Fool)",
+    "Regressões de burn/prone corrigidas após primeira execução de testes; regressão global final reexecutada limpa"
+  ],
+  "limits": [
+    "Tactical Direction modo manobra livre ainda não implementado; só modo Boost",
+    "Alcance entre NPCs confirmado pelo Mestre; não há geometria NPC-NPC automática",
+    "As ordens são agendadas e aplicadas no turno NPC, não instantaneamente",
+    "Não foi feita nova certificação integral do PDF",
+    "Restraining bolt e ferramentas de slicing ainda não vinculados a itens certificados",
+    "Sem APK, Gradle, adb, BRELGA CI ou homologação física Android"
+  ],
+  "regressionEvidence": "evidence/P197/TEST_SUMMARY.json",
+  "syntaxEvidence": "evidence/P197/SYNTAX_CHECK.json",
+  "javaEvidence": "evidence/P197/JAVA_PRESERVATION.json"
+}

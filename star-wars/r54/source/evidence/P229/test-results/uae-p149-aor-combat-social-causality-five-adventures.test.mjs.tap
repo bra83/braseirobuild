@@ -1,0 +1,184 @@
+TAP version 13
+# Subtest: P149: 5 source-backed AoR slots have active consumers; all others stay fail-closed
+ok 1 - P149: 5 source-backed AoR slots have active consumers; all others stay fail-closed
+  ---
+  duration_ms: 12.571516
+  type: 'test'
+  ...
+# Subtest: P149: Nobody's Fool upgrades only incoming social checks, never outgoing or unrelated skills
+ok 2 - P149: Nobody's Fool upgrades only incoming social checks, never outgoing or unrelated skills
+  ---
+  duration_ms: 2.853732
+  type: 'test'
+  ...
+# Subtest: P149: incoming social check uses NPC positive dice and player negative pool; saved/reopened
+ok 3 - P149: incoming social check uses NPC positive dice and player negative pool; saved/reopened
+  ---
+  duration_ms: 7.296686
+  type: 'test'
+  ...
+# Subtest: P149: incoming social rejects forged skill/defense/NPC and does not persist invalid requests
+ok 4 - P149: incoming social rejects forged skill/defense/NPC and does not persist invalid requests
+  ---
+  duration_ms: 2.617195
+  type: 'test'
+  ...
+# Subtest: P149: incoming social storage failure is atomic
+ok 5 - P149: incoming social storage failure is atomic
+  ---
+  duration_ms: 2.280386
+  type: 'test'
+  ...
+# Subtest: P149: Disorient option is contextual, rank-bound and rejects invalid budgets
+ok 6 - P149: Disorient option is contextual, rank-bound and rejects invalid budgets
+  ---
+  duration_ms: 0.992119
+  type: 'test'
+  ...
+# Subtest: P149: Disorient consumes the same advantage budget, persists status and prevents double activation
+ok 7 - P149: Disorient consumes the same advantage budget, persists status and prevents double activation
+  ---
+  duration_ms: 9.13984
+  type: 'test'
+  ...
+# Subtest: P149: Disorient expires on real NPC turns
+ok 8 - P149: Disorient expires on real NPC turns
+  ---
+  duration_ms: 8.63615
+  type: 'test'
+  ...
+# Subtest: P149: Disorient rejects miss, low advantage, missing talent and incapacitated target
+ok 9 - P149: Disorient rejects miss, low advantage, missing talent and incapacitated target
+  ---
+  duration_ms: 18.693702
+  type: 'test'
+  ...
+# Subtest: P149: Disorient storage failure rolls back target, advantage and log
+ok 10 - P149: Disorient storage failure rolls back target, advantage and log
+  ---
+  duration_ms: 3.059503
+  type: 'test'
+  ...
+# Subtest: P149 under-black-sun: duplicate/overlapping UAE action receipts rejected on import
+ok 11 - P149 under-black-sun: duplicate/overlapping UAE action receipts rejected on import
+  ---
+  duration_ms: 6.075741
+  type: 'test'
+  ...
+# Subtest: P149 under-black-sun: two durable commands, three reopens and no double rewards
+ok 12 - P149 under-black-sun: two durable commands, three reopens and no double rewards
+  ---
+  duration_ms: 4.874425
+  type: 'test'
+  ...
+# Subtest: P149 under-black-sun: authored check schema invalid fails preflight
+ok 13 - P149 under-black-sun: authored check schema invalid fails preflight
+  ---
+  duration_ms: 0.358982
+  type: 'test'
+  ...
+# Subtest: P149 beyond-the-rim: duplicate/overlapping UAE action receipts rejected on import
+ok 14 - P149 beyond-the-rim: duplicate/overlapping UAE action receipts rejected on import
+  ---
+  duration_ms: 2.082046
+  type: 'test'
+  ...
+# Subtest: P149 beyond-the-rim: two durable commands, three reopens and no double rewards
+ok 15 - P149 beyond-the-rim: two durable commands, three reopens and no double rewards
+  ---
+  duration_ms: 3.003609
+  type: 'test'
+  ...
+# Subtest: P149 beyond-the-rim: authored check schema invalid fails preflight
+ok 16 - P149 beyond-the-rim: authored check schema invalid fails preflight
+  ---
+  duration_ms: 0.321096
+  type: 'test'
+  ...
+# Subtest: P149 long-arm-of-the-hutt: duplicate/overlapping UAE action receipts rejected on import
+ok 17 - P149 long-arm-of-the-hutt: duplicate/overlapping UAE action receipts rejected on import
+  ---
+  duration_ms: 1.74078
+  type: 'test'
+  ...
+# Subtest: P149 long-arm-of-the-hutt: two durable commands, three reopens and no double rewards
+ok 18 - P149 long-arm-of-the-hutt: two durable commands, three reopens and no double rewards
+  ---
+  duration_ms: 2.614471
+  type: 'test'
+  ...
+# Subtest: P149 long-arm-of-the-hutt: authored check schema invalid fails preflight
+ok 19 - P149 long-arm-of-the-hutt: authored check schema invalid fails preflight
+  ---
+  duration_ms: 0.272391
+  type: 'test'
+  ...
+# Subtest: P149 jewel-of-yavin: duplicate/overlapping UAE action receipts rejected on import
+ok 20 - P149 jewel-of-yavin: duplicate/overlapping UAE action receipts rejected on import
+  ---
+  duration_ms: 2.425354
+  type: 'test'
+  ...
+# Subtest: P149 jewel-of-yavin: two durable commands, three reopens and no double rewards
+ok 21 - P149 jewel-of-yavin: two durable commands, three reopens and no double rewards
+  ---
+  duration_ms: 3.053884
+  type: 'test'
+  ...
+# Subtest: P149 jewel-of-yavin: authored check schema invalid fails preflight
+ok 22 - P149 jewel-of-yavin: authored check schema invalid fails preflight
+  ---
+  duration_ms: 0.193974
+  type: 'test'
+  ...
+# Subtest: P149 mask-of-the-pirate-queen: duplicate/overlapping UAE action receipts rejected on import
+ok 23 - P149 mask-of-the-pirate-queen: duplicate/overlapping UAE action receipts rejected on import
+  ---
+  duration_ms: 1.56804
+  type: 'test'
+  ...
+# Subtest: P149 mask-of-the-pirate-queen: two durable commands, three reopens and no double rewards
+ok 24 - P149 mask-of-the-pirate-queen: two durable commands, three reopens and no double rewards
+  ---
+  duration_ms: 2.321357
+  type: 'test'
+  ...
+# Subtest: P149 mask-of-the-pirate-queen: authored check schema invalid fails preflight
+ok 25 - P149 mask-of-the-pirate-queen: authored check schema invalid fails preflight
+  ---
+  duration_ms: 0.293924
+  type: 'test'
+  ...
+# Subtest: P149: Android bridge and TypeScript contract expose both new mechanical actions
+ok 26 - P149: Android bridge and TypeScript contract expose both new mechanical actions
+  ---
+  duration_ms: 0.982895
+  type: 'test'
+  ...
+# Subtest: P149: R46 combat and social panels expose real buttons wired to bridge actions
+ok 27 - P149: R46 combat and social panels expose real buttons wired to bridge actions
+  ---
+  duration_ms: 1.730665
+  type: 'test'
+  ...
+# Subtest: P149: Android bridge actually invokes incoming social talent and persists result
+ok 28 - P149: Android bridge actually invokes incoming social talent and persists result
+  ---
+  duration_ms: 30.972561
+  type: 'test'
+  ...
+# Subtest: P149: Android bridge actually activates Disorient on pending attack and survives reopening
+ok 29 - P149: Android bridge actually activates Disorient on pending attack and survives reopening
+  ---
+  duration_ms: 3.705058
+  type: 'test'
+  ...
+1..29
+# tests 29
+# suites 0
+# pass 29
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 338.534797

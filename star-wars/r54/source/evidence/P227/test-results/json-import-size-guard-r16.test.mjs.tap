@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: fonte R46 limita importação de ficha e backup ao mesmo teto de 16 MB do FileBridge
+ok 1 - fonte R46 limita importação de ficha e backup ao mesmo teto de 16 MB do FileBridge
+  ---
+  duration_ms: 9.531512
+  type: 'test'
+  ...
+# Subtest: bundle Android contém os mesmos guards antes de file.text()
+ok 2 - bundle Android contém os mesmos guards antes de file.text()
+  ---
+  duration_ms: 0.398863
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 105.518727

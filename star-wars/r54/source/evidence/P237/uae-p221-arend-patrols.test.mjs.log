@@ -1,0 +1,53 @@
+TAP version 13
+# Subtest: P221 residence cannot start without physical presence, and never invents time
+ok 1 - P221 residence cannot start without physical presence, and never invents time
+  ---
+  duration_ms: 656.718748
+  type: 'test'
+  ...
+# Subtest: P221 fifteen real minutes trigger one Hard roll; no replay or double charging
+ok 2 - P221 fifteen real minutes trigger one Hard roll; no replay or double charging
+  ---
+  duration_ms: 491.308051
+  type: 'test'
+  ...
+# Subtest: P221 multiple intervals remain due sequentially; leaving cannot erase pending checks
+ok 3 - P221 multiple intervals remain due sequentially; leaving cannot erase pending checks
+  ---
+  duration_ms: 400.121447
+  type: 'test'
+  ...
+# Subtest: P221 Venture alert requires real crew encounter, physical transponder and four distinct cloud cars
+ok 4 - P221 Venture alert requires real crew encounter, physical transponder and four distinct cloud cars
+  ---
+  duration_ms: 360.885306
+  type: 'test'
+  ...
+# Subtest: P221 no phantom arrival at ten minutes; overdue requires GM, no invented combat
+ok 5 - P221 no phantom arrival at ten minutes; overdue requires GM, no invented combat
+  ---
+  duration_ms: 300.821552
+  type: 'test'
+  ...
+# Subtest: P221 forged faces, derived state, future timestamp and replay are rejected
+ok 6 - P221 forged faces, derived state, future timestamp and replay are rejected
+  ---
+  duration_ms: 283.492424
+  type: 'test'
+  ...
+# Subtest: P221 controller, bridge, UI, bundle, version and Kokoro-preserving integration
+ok 7 - P221 controller, bridge, UI, bundle, version and Kokoro-preserving integration
+  ---
+  duration_ms: 13.247786
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3056.112096
+

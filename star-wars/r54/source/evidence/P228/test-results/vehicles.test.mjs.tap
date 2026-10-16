@@ -1,0 +1,112 @@
+TAP version 13
+# Subtest: perfil Ala-X reproduz os valores do livro inicial
+ok 1 - perfil Ala-X reproduz os valores do livro inicial
+  ---
+  duration_ms: 2.943897
+  type: 'test'
+  ...
+# Subtest: Blindagem reduz dano em escala de veículo e limiar só inutiliza ao superar
+ok 2 - Blindagem reduz dano em escala de veículo e limiar só inutiliza ao superar
+  ---
+  duration_ms: 1.960099
+  type: 'test'
+  ...
+# Subtest: Tensão de sistemas acima do limiar desliga velocidade, armas e defesa
+ok 3 - Tensão de sistemas acima do limiar desliga velocidade, armas e defesa
+  ---
+  duration_ms: 0.932579
+  type: 'test'
+  ...
+# Subtest: um dia completo sem nova tensão recupera 1 Tensão de sistemas
+ok 4 - um dia completo sem nova tensão recupera 1 Tensão de sistemas
+  ---
+  duration_ms: 4.588847
+  type: 'test'
+  ...
+# Subtest: Manejo positivo vira Impulso e negativo Contratempo
+ok 5 - Manejo positivo vira Impulso e negativo Contratempo
+  ---
+  duration_ms: 0.416677
+  type: 'test'
+  ...
+# Subtest: Acelerar/Frear altera exatamente 1 e respeita limites
+ok 6 - Acelerar/Frear altera exatamente 1 e respeita limites
+  ---
+  duration_ms: 0.881678
+  type: 'test'
+  ...
+# Subtest: Pisar a fundo vai à velocidade máxima e sofre tensão igual à diferença
+ok 7 - Pisar a fundo vai à velocidade máxima e sofre tensão igual à diferença
+  ---
+  duration_ms: 0.424438
+  type: 'test'
+  ...
+# Subtest: Avançar usa passos de alcance conforme velocidade
+ok 8 - Avançar usa passos de alcance conforme velocidade
+  ---
+  duration_ms: 0.310171
+  type: 'test'
+  ...
+# Subtest: dificuldade de Artilharia usa diferença de Silhueta
+ok 9 - dificuldade de Artilharia usa diferença de Silhueta
+  ---
+  duration_ms: 0.680219
+  type: 'test'
+  ...
+# Subtest: Enfilar usa diferença de Velocidade
+ok 10 - Enfilar usa diferença de Velocidade
+  ---
+  duration_ms: 4.74614
+  type: 'test'
+  ...
+# Subtest: perigo de pilotagem usa maior entre Velocidade e metade da Silhueta, com upgrades pelo menor
+ok 11 - perigo de pilotagem usa maior entre Velocidade e metade da Silhueta, com upgrades pelo menor
+  ---
+  duration_ms: 0.451483
+  type: 'test'
+  ...
+# Subtest: controle de danos calcula dificuldade e repara um tipo por vez
+ok 12 - controle de danos calcula dificuldade e repara um tipo por vez
+  ---
+  duration_ms: 0.81384
+  type: 'test'
+  ...
+# Subtest: Critical Hits de veículo usam a Table 7-9 EotE Core com d100 e +10 cumulativo
+ok 13 - Critical Hits de veículo usam a Table 7-9 EotE Core com d100 e +10 cumulativo
+  ---
+  duration_ms: 1.205313
+  type: 'test'
+  ...
+# Subtest: ataque de arma de nave usa Artilharia, Silhueta, Defesa e Blindagem
+ok 14 - ataque de arma de nave usa Artilharia, Silhueta, Defesa e Blindagem
+  ---
+  duration_ms: 7.103164
+  type: 'test'
+  ...
+# Subtest: Manobras evasivas aumentam a Dificuldade e Seguir o objetivo melhora Capacidade, sem dados extras indevidos
+ok 15 - Manobras evasivas aumentam a Dificuldade e Seguir o objetivo melhora Capacidade, sem dados extras indevidos
+  ---
+  duration_ms: 1.147433
+  type: 'test'
+  ...
+# Subtest: arma de veículo não pode atingir além do alcance indicado no perfil
+ok 16 - arma de veículo não pode atingir além do alcance indicado no perfil
+  ---
+  duration_ms: 9.253941
+  type: 'test'
+  ...
+# Subtest: Ajuste fino e Reparos sólidos ampliam somente o tipo correspondente
+ok 17 - Ajuste fino e Reparos sólidos ampliam somente o tipo correspondente
+  ---
+  duration_ms: 1.092509
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 795.011655

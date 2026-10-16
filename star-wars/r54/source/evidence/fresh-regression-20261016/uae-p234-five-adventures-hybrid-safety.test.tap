@@ -1,0 +1,17 @@
+✔ P234 canonical registry contains exactly five published adventures and rejects a sixth (8.8835ms)
+✔ P234 all five source aliases are recognized, foreign adventures remain excluded (5.3692ms)
+✔ P234 native Android RAG and merged source path both exclude noncanonical adventure PDF (4.0004ms)
+✔ P234 hybrid routing never authorizes mechanical state changes by RAG/Gemini (1.0629ms)
+✔ P234 Master context and provider prompt express correct hybrid authority and five-adventure boundary (36.6558ms)
+✔ P234 offline app continues to register player intents without fabricated narration or dice (33.6783ms)
+✔ P234 native Gemini failure falls back to local and never accepts fabricated rule IDs (34.6308ms)
+✔ P234 offline Android bundle includes the safeguards and Java/Kokoro files were not modified (30.8582ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2695.4828
+

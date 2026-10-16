@@ -1,0 +1,88 @@
+TAP version 13
+# Subtest: P52 registry instala Além da Orla como EotE/MIXED sem alterar Sob um Sol Negro
+ok 1 - P52 registry instala Além da Orla como EotE/MIXED sem alterar Sob um Sol Negro
+  ---
+  duration_ms: 4.23847
+  type: 'test'
+  ...
+# Subtest: P52 início é anti-spoiler: não revela IT-3PO, Yiyar ou ISB antes da hora
+ok 2 - P52 início é anti-spoiler: não revela IT-3PO, Yiyar ou ISB antes da hora
+  ---
+  duration_ms: 6.973661
+  type: 'test'
+  ...
+# Subtest: P52 preparação exige ao menos uma ação real e persiste pista de rumores após reopen
+ok 3 - P52 preparação exige ao menos uma ação real e persiste pista de rumores após reopen
+  ---
+  duration_ms: 4.346618
+  type: 'test'
+  ...
+# Subtest: P52 inspeção da nave persiste detecção/remoção de rastreador e não inventa consequência imperial
+ok 4 - P52 inspeção da nave persiste detecção/remoção de rastreador e não inventa consequência imperial
+  ---
+  duration_ms: 2.898762
+  type: 'test'
+  ...
+# Subtest: P52 perseguição pode recuperar IT-3PO e consolida consequência do Episódio I
+ok 5 - P52 perseguição pode recuperar IT-3PO e consolida consequência do Episódio I
+  ---
+  duration_ms: 5.340931
+  type: 'test'
+  ...
+# Subtest: P52 falha severa na perseguição permite fuga dos Yiyar e mantém desvantagem persistente
+ok 6 - P52 falha severa na perseguição permite fuga dos Yiyar e mantém desvantagem persistente
+  ---
+  duration_ms: 4.86718
+  type: 'test'
+  ...
+# Subtest: P52 controller usa o adapter genérico e mantém gate EotE/MIXED
+ok 7 - P52 controller usa o adapter genérico e mantém gate EotE/MIXED
+  ---
+  duration_ms: 31.401617
+  type: 'test'
+  ...
+# Subtest: P52/P53 metadados preservam Episódio I e avançam a fronteira sem removê-lo
+ok 8 - P52/P53 metadados preservam Episódio I e avançam a fronteira sem removê-lo
+  ---
+  duration_ms: 0.522653
+  type: 'test'
+  ...
+# Subtest: P52 UI deixou de fixar Sob um Sol Negro e usa a aventura ativa em checks, escolhas e restart
+ok 9 - P52 UI deixou de fixar Sob um Sol Negro e usa a aventura ativa em checks, escolhas e restart
+  ---
+  duration_ms: 4.450166
+  type: 'test'
+  ...
+# Subtest: P53 metadados e fronteira avançam para Episódio II sem expor Episódio III
+ok 10 - P53 metadados e fronteira avançam para Episódio II sem expor Episódio III
+  ---
+  duration_ms: 26.934945
+  type: 'test'
+  ...
+# Subtest: P53 busca em Cholganna exige resultado real para revelar rastro
+ok 11 - P53 busca em Cholganna exige resultado real para revelar rastro
+  ---
+  duration_ms: 11.69821
+  type: 'test'
+  ...
+# Subtest: P53 fluxo principal persiste sobreviventes, confiança e crise imperial
+ok 12 - P53 fluxo principal persiste sobreviventes, confiança e crise imperial
+  ---
+  duration_ms: 20.692941
+  type: 'test'
+  ...
+# Subtest: P53 consequência do rastreador do Episódio I continua persistente no Episódio II
+ok 13 - P53 consequência do rastreador do Episódio I continua persistente no Episódio II
+  ---
+  duration_ms: 8.257056
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 259.09695

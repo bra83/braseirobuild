@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: P45 pistas começam vazias e não antecipam investigação futura
+ok 1 - P45 pistas começam vazias e não antecipam investigação futura
+  ---
+  duration_ms: 6.092425
+  type: 'test'
+  ...
+# Subtest: P45 hub expõe somente alvo já conhecido
+ok 2 - P45 hub expõe somente alvo já conhecido
+  ---
+  duration_ms: 2.803185
+  type: 'test'
+  ...
+# Subtest: P45 pista Umbra persiste ao voltar ao hub sem vazar outras rotas
+ok 3 - P45 pista Umbra persiste ao voltar ao hub sem vazar outras rotas
+  ---
+  duration_ms: 4.667618
+  type: 'test'
+  ...
+# Subtest: P45 Zelcomm libera Sector 943 apenas após a rota correspondente
+ok 4 - P45 Zelcomm libera Sector 943 apenas após a rota correspondente
+  ---
+  duration_ms: 2.344184
+  type: 'test'
+  ...
+# Subtest: P45 convergência NovaCORE só aparece quando o endgame foi alcançado
+ok 5 - P45 convergência NovaCORE só aparece quando o endgame foi alcançado
+  ---
+  duration_ms: 5.230012
+  type: 'test'
+  ...
+# Subtest: P45 rota spyder-sabacc usa subsistema real e o exibe na cena
+ok 6 - P45 rota spyder-sabacc usa subsistema real e o exibe na cena
+  ---
+  duration_ms: 3.897822
+  type: 'test'
+  ...
+# Subtest: P45 UI possui superfície explícita de pistas conhecidas
+ok 7 - P45 UI possui superfície explícita de pistas conhecidas
+  ---
+  duration_ms: 3.600485
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 169.649582

@@ -1,0 +1,35 @@
+TAP version 13
+# Subtest: P49: save/reopen preserva rota NovaCORE e projeção dinâmica sem spoiler
+ok 1 - P49: save/reopen preserva rota NovaCORE e projeção dinâmica sem spoiler
+  ---
+  duration_ms: 6.759954
+  type: 'test'
+  ...
+# Subtest: P49: save/reopen preserva investigação, flags e nó atual
+ok 2 - P49: save/reopen preserva investigação, flags e nó atual
+  ---
+  duration_ms: 1.812591
+  type: 'test'
+  ...
+# Subtest: P49: desfechos do showdown continuam mutuamente exclusivos após reopen
+ok 3 - P49: desfechos do showdown continuam mutuamente exclusivos após reopen
+  ---
+  duration_ms: 2.597102
+  type: 'test'
+  ...
+# Subtest: P49: consequência de epílogo não duplica ao reabrir estado concluído
+ok 4 - P49: consequência de epílogo não duplica ao reabrir estado concluído
+  ---
+  duration_ms: 4.517726
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 71.547262
+

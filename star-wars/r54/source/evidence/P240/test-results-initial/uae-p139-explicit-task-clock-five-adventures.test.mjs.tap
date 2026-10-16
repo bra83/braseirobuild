@@ -1,0 +1,143 @@
+TAP version 13
+# Subtest: P139 under-black-sun: tempo explícito + journal UAE idempotente após 3 reaberturas
+ok 1 - P139 under-black-sun: tempo explícito + journal UAE idempotente após 3 reaberturas
+  ---
+  duration_ms: 175.243308
+  type: 'test'
+  ...
+# Subtest: P139 under-black-sun: 2 tarefas sequenciais acumulam minutos sem duplicar eventos
+ok 2 - P139 under-black-sun: 2 tarefas sequenciais acumulam minutos sem duplicar eventos
+  ---
+  duration_ms: 124.48274
+  type: 'test'
+  ...
+# Subtest: P139 under-black-sun: id de teste antigo não pode debitar tempo ainda não confirmado
+ok 3 - P139 under-black-sun: id de teste antigo não pode debitar tempo ainda não confirmado
+  ---
+  duration_ms: 83.350978
+  type: 'test'
+  ...
+# Subtest: P139 beyond-the-rim: tempo explícito + journal UAE idempotente após 3 reaberturas
+ok 4 - P139 beyond-the-rim: tempo explícito + journal UAE idempotente após 3 reaberturas
+  ---
+  duration_ms: 95.132212
+  type: 'test'
+  ...
+# Subtest: P139 beyond-the-rim: 2 tarefas sequenciais acumulam minutos sem duplicar eventos
+ok 5 - P139 beyond-the-rim: 2 tarefas sequenciais acumulam minutos sem duplicar eventos
+  ---
+  duration_ms: 112.457885
+  type: 'test'
+  ...
+# Subtest: P139 beyond-the-rim: id de teste antigo não pode debitar tempo ainda não confirmado
+ok 6 - P139 beyond-the-rim: id de teste antigo não pode debitar tempo ainda não confirmado
+  ---
+  duration_ms: 63.55843
+  type: 'test'
+  ...
+# Subtest: P139 long-arm-of-the-hutt: tempo explícito + journal UAE idempotente após 3 reaberturas
+ok 7 - P139 long-arm-of-the-hutt: tempo explícito + journal UAE idempotente após 3 reaberturas
+  ---
+  duration_ms: 86.655853
+  type: 'test'
+  ...
+# Subtest: P139 long-arm-of-the-hutt: 2 tarefas sequenciais acumulam minutos sem duplicar eventos
+ok 8 - P139 long-arm-of-the-hutt: 2 tarefas sequenciais acumulam minutos sem duplicar eventos
+  ---
+  duration_ms: 60.584709
+  type: 'test'
+  ...
+# Subtest: P139 long-arm-of-the-hutt: id de teste antigo não pode debitar tempo ainda não confirmado
+ok 9 - P139 long-arm-of-the-hutt: id de teste antigo não pode debitar tempo ainda não confirmado
+  ---
+  duration_ms: 63.414603
+  type: 'test'
+  ...
+# Subtest: P139 jewel-of-yavin: tempo explícito + journal UAE idempotente após 3 reaberturas
+ok 10 - P139 jewel-of-yavin: tempo explícito + journal UAE idempotente após 3 reaberturas
+  ---
+  duration_ms: 102.513414
+  type: 'test'
+  ...
+# Subtest: P139 jewel-of-yavin: 2 tarefas sequenciais acumulam minutos sem duplicar eventos
+ok 11 - P139 jewel-of-yavin: 2 tarefas sequenciais acumulam minutos sem duplicar eventos
+  ---
+  duration_ms: 70.499786
+  type: 'test'
+  ...
+# Subtest: P139 jewel-of-yavin: id de teste antigo não pode debitar tempo ainda não confirmado
+ok 12 - P139 jewel-of-yavin: id de teste antigo não pode debitar tempo ainda não confirmado
+  ---
+  duration_ms: 38.0726
+  type: 'test'
+  ...
+# Subtest: P139 mask-of-the-pirate-queen: tempo explícito + journal UAE idempotente após 3 reaberturas
+ok 13 - P139 mask-of-the-pirate-queen: tempo explícito + journal UAE idempotente após 3 reaberturas
+  ---
+  duration_ms: 72.530719
+  type: 'test'
+  ...
+# Subtest: P139 mask-of-the-pirate-queen: 2 tarefas sequenciais acumulam minutos sem duplicar eventos
+ok 14 - P139 mask-of-the-pirate-queen: 2 tarefas sequenciais acumulam minutos sem duplicar eventos
+  ---
+  duration_ms: 88.087256
+  type: 'test'
+  ...
+# Subtest: P139 mask-of-the-pirate-queen: id de teste antigo não pode debitar tempo ainda não confirmado
+ok 15 - P139 mask-of-the-pirate-queen: id de teste antigo não pode debitar tempo ainda não confirmado
+  ---
+  duration_ms: 36.088089
+  type: 'test'
+  ...
+# Subtest: P139: testes sem duração não recebem ID de tarefa nem podem avançar minutos
+ok 16 - P139: testes sem duração não recebem ID de tarefa nem podem avançar minutos
+  ---
+  duration_ms: 10.106601
+  type: 'test'
+  ...
+# Subtest: P139: journal de tempo exige IDs válidos e nunca converte minutos em ticks
+ok 17 - P139: journal de tempo exige IDs válidos e nunca converte minutos em ticks
+  ---
+  duration_ms: 0.756689
+  type: 'test'
+  ...
+# Subtest: P139: validação rejeita duração, ledger e relógio inválidos sem mutação
+ok 18 - P139: validação rejeita duração, ledger e relógio inválidos sem mutação
+  ---
+  duration_ms: 1.07128
+  type: 'test'
+  ...
+# Subtest: P139: mundo e UAE permanecem íntegros se checkpoint de aventura rejeitar o débito
+ok 19 - P139: mundo e UAE permanecem íntegros se checkpoint de aventura rejeitar o débito
+  ---
+  duration_ms: 63.83722
+  type: 'test'
+  ...
+# Subtest: P139: gatilhos UAE recebem TASK_TIME_COMMITTED e persistem sem reaplicar
+ok 20 - P139: gatilhos UAE recebem TASK_TIME_COMMITTED e persistem sem reaplicar
+  ---
+  duration_ms: 9.961324
+  type: 'test'
+  ...
+# Subtest: P139: UI expõe confirmação explícita e recupera tarefa pendente após reinício
+ok 21 - P139: UI expõe confirmação explícita e recupera tarefa pendente após reinício
+  ---
+  duration_ms: 14.610171
+  type: 'test'
+  ...
+# Subtest: P139: ponte Android expõe confirmação com resposta estruturada e rejeita replay divergente
+ok 22 - P139: ponte Android expõe confirmação com resposta estruturada e rejeita replay divergente
+  ---
+  duration_ms: 172.967933
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 22
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2323.699254
+

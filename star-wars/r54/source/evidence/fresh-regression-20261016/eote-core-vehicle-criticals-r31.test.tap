@@ -1,0 +1,27 @@
+✔ Tabela 7-9 Core cobre 01-09 até 154+ sem lacunas (5.7932ms)
+✔ Mechanical Stress causa 1 system strain, não a sequência simplificada antiga (26.8121ms)
+✔ cada Critical Hit não reparado soma +10 à próxima rolagem (2.5116ms)
+✔ Critical Hit reparado continua no histórico mas deixa de somar +10 (2.4642ms)
+✔ Jostled devolve consequências de tripulação para integração do controller (0.9043ms)
+✔ Losing Power to Shields reduz apenas a zona afetada e reparo restaura derivação (1.1074ms)
+✔ Shields Failing sem Defesa usa fallback de 2 system strain (1.0819ms)
+✔ falha de hiperimpulsor bloqueia salto até reparo (14.9154ms)
+✔ Power Fluctuations bloqueia system strain voluntário e Punch It (2.1805ms)
+✔ Engine Damaged reduz velocidade máxima efetiva sem corromper valor-base (1.2413ms)
+✔ Engines Down impede manobras mas preserva curso/velocidade atual (4.6996ms)
+✔ Destabilized reduz ambos thresholds efetivos à metade (52.7211ms)
+✔ Major Hull Breach em atmosfera vira Destabilized (0.7994ms)
+✔ Component Hit expira mecanicamente mas segue contando +10 até reparo (1.2783ms)
+✔ Shield Overload só pode ser reparado após o encontro (4.9667ms)
+✔ Breaking Up destrói ao atravessar o fim do assalto seguinte (1.0576ms)
+✔ Vaporized destrói imediatamente e não admite reparo (1.1913ms)
+✔ normalizador preserva saves antigos sem criticalState novo (2.9019ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1740.6285
+

@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: P99: catálogo econômico expõe somente attachments source-bound com preço/raridade/hard points
+ok 1 - P99: catálogo econômico expõe somente attachments source-bound com preço/raridade/hard points
+  ---
+  duration_ms: 3.002739
+  type: 'test'
+  ...
+# Subtest: P99: compra aprovada de attachment desconta créditos e cria propriedade sem instalar magicamente
+ok 2 - P99: compra aprovada de attachment desconta créditos e cria propriedade sem instalar magicamente
+  ---
+  duration_ms: 6.034194
+  type: 'test'
+  ...
+# Subtest: P99: sourceCatalogId preserva hard points reais da arma adquirida
+ok 3 - P99: sourceCatalogId preserva hard points reais da arma adquirida
+  ---
+  duration_ms: 4.653805
+  type: 'test'
+  ...
+# Subtest: P99: Rapid-Recharge e Spread Barrel exigem propriedade, compatibilidade e consomem hard points
+ok 4 - P99: Rapid-Recharge e Spread Barrel exigem propriedade, compatibilidade e consomem hard points
+  ---
+  duration_ms: 7.421142
+  type: 'test'
+  ...
+# Subtest: P99: attachments alteram perfil de ataque real e remoção desfaz efeitos sem apagar propriedade
+ok 5 - P99: attachments alteram perfil de ataque real e remoção desfaz efeitos sem apagar propriedade
+  ---
+  duration_ms: 10.24274
+  type: 'test'
+  ...
+# Subtest: P99: attachment incompatível e venda/perda enquanto instalado são bloqueados
+ok 6 - P99: attachment incompatível e venda/perda enquanto instalado são bloqueados
+  ---
+  duration_ms: 5.080182
+  type: 'test'
+  ...
+# Subtest: P99: bridge/contratos/R46 expõem aquisição e instalação seguras, sem mod arbitrário
+ok 7 - P99: bridge/contratos/R46 expõem aquisição e instalação seguras, sem mod arbitrário
+  ---
+  duration_ms: 3.40598
+  type: 'test'
+  ...
+# Subtest: P99: attachments chegam ao resolveWeaponAttack real — Imprimisa no pool, Automática na dificuldade e Spread reduz alcance
+ok 8 - P99: attachments chegam ao resolveWeaponAttack real — Imprimisa no pool, Automática na dificuldade e Spread reduz alcance
+  ---
+  duration_ms: 13.760072
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 298.296149

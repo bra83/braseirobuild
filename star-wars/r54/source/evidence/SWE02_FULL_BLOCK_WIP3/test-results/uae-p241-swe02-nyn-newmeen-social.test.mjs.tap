@@ -1,0 +1,95 @@
+TAP version 13
+# Subtest: P241 p13: official physician uses 1 proficiency 2 difficulty, heals one actual critical
+ok 1 - P241 p13: official physician uses 1 proficiency 2 difficulty, heals one actual critical
+  ---
+  duration_ms: 112.446998
+  type: 'test'
+  ...
+# Subtest: P241 physician failure consumes only attempt; never erases injury
+ok 2 - P241 physician failure consumes only attempt; never erases injury
+  ---
+  duration_ms: 77.537488
+  type: 'test'
+  ...
+# Subtest: P241 physician blocks unhealable/dead injuries and care-before-critical
+ok 3 - P241 physician blocks unhealable/dead injuries and care-before-critical
+  ---
+  duration_ms: 70.769182
+  type: 'test'
+  ...
+# Subtest: P241 p14: Charm Average uses real character dice and grants EotE padded armor on 2 Advantages
+ok 4 - P241 p14: Charm Average uses real character dice and grants EotE padded armor on 2 Advantages
+  ---
+  duration_ms: 72.24176
+  type: 'test'
+  ...
+# Subtest: P241 p14: Coerce Hard failure gives no gear, no retries
+ok 5 - P241 p14: Coerce Hard failure gives no gear, no retries
+  ---
+  duration_ms: 75.926561
+  type: 'test'
+  ...
+# Subtest: P241 Nyn invalid method and wrong scene rollback without save
+ok 6 - P241 Nyn invalid method and wrong scene rollback without save
+  ---
+  duration_ms: 69.286218
+  type: 'test'
+  ...
+# Subtest: P241 social receipt rejects tampered dice face or Nyn reward
+ok 7 - P241 social receipt rejects tampered dice face or Nyn reward
+  ---
+  duration_ms: 62.115255
+  type: 'test'
+  ...
+# Subtest: P241 p23: 400-500 credits bribe uses actual opposed Negotiation and debit
+ok 8 - P241 p23: 400-500 credits bribe uses actual opposed Negotiation and debit
+  ---
+  duration_ms: 21.24811
+  type: 'test'
+  ...
+# Subtest: P241 failed bribe does not debit and cannot be converted into victory
+ok 9 - P241 failed bribe does not debit and cannot be converted into victory
+  ---
+  duration_ms: 19.34308
+  type: 'test'
+  ...
+# Subtest: P241 invalid bribe, Drombb cannot be bribed and no overspending
+ok 10 - P241 invalid bribe, Drombb cannot be bribed and no overspending
+  ---
+  duration_ms: 12.866513
+  type: 'test'
+  ...
+# Subtest: P241 all minions bribed still leaves Drombb as live adversary
+ok 11 - P241 all minions bribed still leaves Drombb as live adversary
+  ---
+  duration_ms: 24.914252
+  type: 'test'
+  ...
+# Subtest: P241 New Meen cannot bribe during live encounter or from wrong scene
+ok 12 - P241 New Meen cannot bribe during live encounter or from wrong scene
+  ---
+  duration_ms: 19.452074
+  type: 'test'
+  ...
+# Subtest: P241 New Meen receipt rejects fake credit debit, forged dice, or unconfirmed party
+ok 13 - P241 New Meen receipt rejects fake credit debit, forged dice, or unconfirmed party
+  ---
+  duration_ms: 12.551008
+  type: 'test'
+  ...
+# Subtest: P241 Android offline bridge and UI expose three real operations
+ok 14 - P241 Android offline bridge and UI expose three real operations
+  ---
+  duration_ms: 1.023662
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 813.931725
+

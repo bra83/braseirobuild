@@ -1,0 +1,676 @@
+TAP version 13
+# Subtest: P21 reiniciar sandbox preserva personagem, grupo, nave e ajustes, mas limpa mundo/sessão
+ok 1 - P21 reiniciar sandbox preserva personagem, grupo, nave e ajustes, mas limpa mundo/sessão
+  ---
+  duration_ms: 237.286037
+  type: 'test'
+  ...
+# Subtest: P21 botão REINICIAR usa reset seguro e não apaga estado/personagem/foto diretamente
+ok 2 - P21 botão REINICIAR usa reset seguro e não apaga estado/personagem/foto diretamente
+  ---
+  duration_ms: 18.937397
+  type: 'test'
+  ...
+# Subtest: P21 status Gemini nativo é adaptado para Result ok/data esperado pela shell
+ok 3 - P21 status Gemini nativo é adaptado para Result ok/data esperado pela shell
+  ---
+  duration_ms: 5.479151
+  type: 'test'
+  ...
+# Subtest: P21 TTS cai para Web Speech quando o bridge Android existe mas responde indisponível
+ok 4 - P21 TTS cai para Web Speech quando o bridge Android existe mas responde indisponível
+  ---
+  duration_ms: 4.136716
+  type: 'test'
+  ...
+# Subtest: P21 seletor oferece 82 mapas locais offline válidos sem adulterar o manifesto V3.8 congelado
+ok 5 - P21 seletor oferece 82 mapas locais offline válidos sem adulterar o manifesto V3.8 congelado
+  ---
+  duration_ms: 17.751784
+  type: 'test'
+  ...
+# Subtest: P21 bridge mantém catálogo congelado por padrão e entrega os 82 mapas locais ao seletor P21
+ok 6 - P21 bridge mantém catálogo congelado por padrão e entrega os 82 mapas locais ao seletor P21
+  ---
+  duration_ms: 9.07766
+  type: 'test'
+  ...
+# Subtest: P21 fonte e bundle da shell solicitam mapas jogáveis e mantêm auto-cache de externos
+ok 7 - P21 fonte e bundle da shell solicitam mapas jogáveis e mantêm auto-cache de externos
+  ---
+  duration_ms: 8.040106
+  type: 'test'
+  ...
+# Subtest: P21 Android TTS aceita pt-BR e recua para português genérico antes de declarar indisponível
+ok 8 - P21 Android TTS aceita pt-BR e recua para português genérico antes de declarar indisponível
+  ---
+  duration_ms: 1.812572
+  type: 'test'
+  ...
+# Subtest: P21 Android não tenta exibir mapa externo remoto antes do cache e seleção dispara cache
+ok 9 - P21 Android não tenta exibir mapa externo remoto antes do cache e seleção dispara cache
+  ---
+  duration_ms: 4.690755
+  type: 'test'
+  ...
+# Subtest: P33 MIXED: bridge escolhe origem EotE/AoR sem converter Obligation em Duty
+ok 10 - P33 MIXED: bridge escolhe origem EotE/AoR sem converter Obligation em Duty
+  ---
+  duration_ms: 10.927592
+  type: 'test'
+  ...
+# Subtest: P33 MIXED: shell permite escolher origem da ficha e rotula vínculo corretamente
+ok 11 - P33 MIXED: shell permite escolher origem da ficha e rotula vínculo corretamente
+  ---
+  duration_ms: 2.506772
+  type: 'test'
+  ...
+# Subtest: P33 MIXED: fontes editáveis acompanham o bundle entregue
+ok 12 - P33 MIXED: fontes editáveis acompanham o bundle entregue
+  ---
+  duration_ms: 1.183512
+  type: 'test'
+  ...
+# Subtest: P33: catálogo preserva EotE/MIXED e não oferece aventura EotE pura em AoR
+ok 13 - P33: catálogo preserva EotE/MIXED e não oferece aventura EotE pura em AoR
+  ---
+  duration_ms: 1.635022
+  type: 'test'
+  ...
+# Subtest: P33: início é PT-BR, persistente e não revela nós futuros ao jogador
+ok 14 - P33: início é PT-BR, persistente e não revela nós futuros ao jogador
+  ---
+  duration_ms: 5.129629
+  type: 'test'
+  ...
+# Subtest: P33: Episódio II aceita investigação em qualquer ordem e só libera desfecho após 2 linhas
+ok 15 - P33: Episódio II aceita investigação em qualquer ordem e só libera desfecho após 2 linhas
+  ---
+  duration_ms: 3.843183
+  type: 'test'
+  ...
+# Subtest: P33: flags de consequências persistem até o Episódio III e epílogo
+ok 16 - P33: flags de consequências persistem até o Episódio III e epílogo
+  ---
+  duration_ms: 7.500076
+  type: 'test'
+  ...
+# Subtest: P33: recompensa fica registrada e não reseta ao reiniciar a aventura na mesma campanha
+ok 17 - P33: recompensa fica registrada e não reseta ao reiniciar a aventura na mesma campanha
+  ---
+  duration_ms: 1.339779
+  type: 'test'
+  ...
+# Subtest: P33: UI oferece aventura publicada separada do mundo livre e bridge expõe contrato
+ok 18 - P33: UI oferece aventura publicada separada do mundo livre e bridge expõe contrato
+  ---
+  duration_ms: 2.088339
+  type: 'test'
+  ...
+# Subtest: P34: checks da aventura expõem pool mecânico sem revelar destinos
+ok 19 - P34: checks da aventura expõem pool mecânico sem revelar destinos
+  ---
+  duration_ms: 1.052336
+  type: 'test'
+  ...
+# Subtest: P34: Advantage/Threat/Triumph/Despair alimentam consequência persistente e relógio de alerta
+ok 20 - P34: Advantage/Threat/Triumph/Despair alimentam consequência persistente e relógio de alerta
+  ---
+  duration_ms: 1.494258
+  type: 'test'
+  ...
+# Subtest: P34: controller e bridge ligam teste publicado ao resolvedor narrativo real
+ok 21 - P34: controller e bridge ligam teste publicado ao resolvedor narrativo real
+  ---
+  duration_ms: 1.479306
+  type: 'test'
+  ...
+# Subtest: UI publicada oferece ROLAR por check
+ok 22 - UI publicada oferece ROLAR por check
+  ---
+  duration_ms: 2.415463
+  type: 'test'
+  ...
+# Subtest: resultado narrativo mostra sucesso, vantagem, momentum e alerta
+ok 23 - resultado narrativo mostra sucesso, vantagem, momentum e alerta
+  ---
+  duration_ms: 4.149119
+  type: 'test'
+  ...
+# Subtest: check resolvido tem estado visual
+ok 24 - check resolvido tem estado visual
+  ---
+  duration_ms: 0.393123
+  type: 'test'
+  ...
+# Subtest: P36: save P35 sem systems migra sem resetar nó, flags ou histórico
+ok 25 - P36: save P35 sem systems migra sem resetar nó, flags ou histórico
+  ---
+  duration_ms: 4.878158
+  type: 'test'
+  ...
+# Subtest: P36: perseguição usa consequência narrativa persistente e superfície anti-spoiler
+ok 26 - P36: perseguição usa consequência narrativa persistente e superfície anti-spoiler
+  ---
+  duration_ms: 4.107794
+  type: 'test'
+  ...
+# Subtest: P36: sabacc acumula rodadas e créditos de modo persistente
+ok 27 - P36: sabacc acumula rodadas e créditos de modo persistente
+  ---
+  duration_ms: 3.135635
+  type: 'test'
+  ...
+# Subtest: P36: Zelcomm entra em lockdown e NovaCORE pode escalar risco + Tensão
+ok 28 - P36: Zelcomm entra em lockdown e NovaCORE pode escalar risco + Tensão
+  ---
+  duration_ms: 9.660799
+  type: 'test'
+  ...
+# Subtest: P36: perfis Black Sun e Kaa’to existem na autoridade de combate usada pelo controller
+ok 29 - P36: perfis Black Sun e Kaa’to existem na autoridade de combate usada pelo controller
+  ---
+  duration_ms: 2.901378
+  type: 'test'
+  ...
+# Subtest: P36: controller inicia encontro publicado e grava desfecho persistente
+ok 30 - P36: controller inicia encontro publicado e grava desfecho persistente
+  ---
+  duration_ms: 24.987061
+  type: 'test'
+  ...
+# Subtest: P36: Kaa’to usa NPC do mundo, persiste incapacitação e não reaparece íntegro
+ok 31 - P36: Kaa’to usa NPC do mundo, persiste incapacitação e não reaparece íntegro
+  ---
+  duration_ms: 80.518788
+  type: 'test'
+  ...
+# Subtest: P36: consequência de sabacc atinge créditos reais do personagem pelo controller
+ok 32 - P36: consequência de sabacc atinge créditos reais do personagem pelo controller
+  ---
+  duration_ms: 19.134603
+  type: 'test'
+  ...
+# Subtest: P36: mantém gate EotE/MIXED e não converte Duty/Obligation entre linhas
+ok 33 - P36: mantém gate EotE/MIXED e não converte Duty/Obligation entre linhas
+  ---
+  duration_ms: 4.678491
+  type: 'test'
+  ...
+# Subtest: P36: runtime e bridge expõem sistemas/encontro sem revelar especificação futura
+ok 34 - P36: runtime e bridge expõem sistemas/encontro sem revelar especificação futura
+  ---
+  duration_ms: 2.571919
+  type: 'test'
+  ...
+# Subtest: P37: epílogo persiste destino de Kaa’to e consequências de facções sem spoiler antecipado
+ok 35 - P37: epílogo persiste destino de Kaa’to e consequências de facções sem spoiler antecipado
+  ---
+  duration_ms: 5.168153
+  type: 'test'
+  ...
+# Subtest: P37: roubo Zelcomm adiciona Obligation antes da recompensa e mantém Duty separado
+ok 36 - P37: roubo Zelcomm adiciona Obligation antes da recompensa e mantém Duty separado
+  ---
+  duration_ms: 67.868427
+  type: 'test'
+  ...
+# Subtest: P39: epílogo integra consequências ao Mundo Vivo somente após o desfecho
+ok 37 - P39: epílogo integra consequências ao Mundo Vivo somente após o desfecho
+  ---
+  duration_ms: 2.863357
+  type: 'test'
+  ...
+# Subtest: P39: Kaa’to morto sincroniza estado profundo e não cria plano de retorno
+ok 38 - P39: Kaa’to morto sincroniza estado profundo e não cria plano de retorno
+  ---
+  duration_ms: 3.321672
+  type: 'test'
+  ...
+# Subtest: P40: planos só existem após epílogo e avançam pelo relógio
+ok 39 - P40: planos só existem após epílogo e avançam pelo relógio
+  ---
+  duration_ms: 23.546238
+  type: 'test'
+  ...
+# Subtest: P40: Pykes resolvem consequência e alteram influência persistentemente
+ok 40 - P40: Pykes resolvem consequência e alteram influência persistentemente
+  ---
+  duration_ms: 8.441918
+  type: 'test'
+  ...
+# Subtest: P40: retaliação Zelcomm cria consequência jogável conhecida
+ok 41 - P40: retaliação Zelcomm cria consequência jogável conhecida
+  ---
+  duration_ms: 8.667415
+  type: 'test'
+  ...
+# Subtest: P40: retorno de Kaa’to resolve sem vazar ao jogador antes de entrar em cena
+ok 42 - P40: retorno de Kaa’to resolve sem vazar ao jogador antes de entrar em cena
+  ---
+  duration_ms: 10.791038
+  type: 'test'
+  ...
+# Subtest: P40: Kaa’to morto continua sem plano de retorno
+ok 43 - P40: Kaa’to morto continua sem plano de retorno
+  ---
+  duration_ms: 8.984211
+  type: 'test'
+  ...
+# Subtest: P41 Umbra oferece rota social sem combate e persiste abordagem
+ok 44 - P41 Umbra oferece rota social sem combate e persiste abordagem
+  ---
+  duration_ms: 5.985491
+  type: 'test'
+  ...
+# Subtest: P41 Spyder oferece infiltração por sabacc e pode manter Black Sun fora
+ok 45 - P41 Spyder oferece infiltração por sabacc e pode manter Black Sun fora
+  ---
+  duration_ms: 1.107485
+  type: 'test'
+  ...
+# Subtest: P41 Zelcomm oferece engenharia social sem roubo/Obligation
+ok 46 - P41 Zelcomm oferece engenharia social sem roubo/Obligation
+  ---
+  duration_ms: 2.405607
+  type: 'test'
+  ...
+# Subtest: P41 status do jogador filtra consequências ocultas
+ok 47 - P41 status do jogador filtra consequências ocultas
+  ---
+  duration_ms: 4.009542
+  type: 'test'
+  ...
+# Subtest: P41 mantém campanha publicada EOTE/MIXED
+ok 48 - P41 mantém campanha publicada EOTE/MIXED
+  ---
+  duration_ms: 0.36793
+  type: 'test'
+  ...
+# Subtest: P42 NPC só é revelado quando entra em cena e card não contém fatos futuros
+ok 49 - P42 NPC só é revelado quando entra em cena e card não contém fatos futuros
+  ---
+  duration_ms: 7.861008
+  type: 'test'
+  ...
+# Subtest: P42 solução discreta no Umbra vira memória/relação persistente
+ok 50 - P42 solução discreta no Umbra vira memória/relação persistente
+  ---
+  duration_ms: 9.835544
+  type: 'test'
+  ...
+# Subtest: P42 Spyder discreto preserva relação de Fenn
+ok 51 - P42 Spyder discreto preserva relação de Fenn
+  ---
+  duration_ms: 4.634407
+  type: 'test'
+  ...
+# Subtest: P42 Zelcomm social melhora relação sem armas/Obligation
+ok 52 - P42 Zelcomm social melhora relação sem armas/Obligation
+  ---
+  duration_ms: 6.353843
+  type: 'test'
+  ...
+# Subtest: P43 feedback de teste persiste apenas como efeito player-safe de cena visitada
+ok 53 - P43 feedback de teste persiste apenas como efeito player-safe de cena visitada
+  ---
+  duration_ms: 5.69142
+  type: 'test'
+  ...
+# Subtest: P43 cards só incluem NPC conhecido/presente e portraitAsset é sanitizado
+ok 54 - P43 cards só incluem NPC conhecido/presente e portraitAsset é sanitizado
+  ---
+  duration_ms: 2.710812
+  type: 'test'
+  ...
+# Subtest: P43 preserva EOTE/MIXED e não habilita AOR puro
+ok 55 - P43 preserva EOTE/MIXED e não habilita AOR puro
+  ---
+  duration_ms: 0.728054
+  type: 'test'
+  ...
+# Subtest: P44 feedback contextual revela apenas efeito mecânico já ocorrido
+ok 56 - P44 feedback contextual revela apenas efeito mecânico já ocorrido
+  ---
+  duration_ms: 0.793177
+  type: 'test'
+  ...
+# Subtest: P45 pistas começam vazias e não antecipam investigação futura
+ok 57 - P45 pistas começam vazias e não antecipam investigação futura
+  ---
+  duration_ms: 9.979069
+  type: 'test'
+  ...
+# Subtest: P45 hub expõe somente alvo já conhecido
+ok 58 - P45 hub expõe somente alvo já conhecido
+  ---
+  duration_ms: 7.720612
+  type: 'test'
+  ...
+# Subtest: P45 pista Umbra persiste ao voltar ao hub sem vazar outras rotas
+ok 59 - P45 pista Umbra persiste ao voltar ao hub sem vazar outras rotas
+  ---
+  duration_ms: 2.284873
+  type: 'test'
+  ...
+# Subtest: P45 Zelcomm libera Sector 943 apenas após a rota correspondente
+ok 60 - P45 Zelcomm libera Sector 943 apenas após a rota correspondente
+  ---
+  duration_ms: 10.964711
+  type: 'test'
+  ...
+# Subtest: P45 convergência NovaCORE só aparece quando o endgame foi alcançado
+ok 61 - P45 convergência NovaCORE só aparece quando o endgame foi alcançado
+  ---
+  duration_ms: 11.385271
+  type: 'test'
+  ...
+# Subtest: P45 rota spyder-sabacc usa subsistema real e o exibe na cena
+ok 62 - P45 rota spyder-sabacc usa subsistema real e o exibe na cena
+  ---
+  duration_ms: 4.148516
+  type: 'test'
+  ...
+# Subtest: P45 UI possui superfície explícita de pistas conhecidas
+ok 63 - P45 UI possui superfície explícita de pistas conhecidas
+  ---
+  duration_ms: 2.281488
+  type: 'test'
+  ...
+# Subtest: P46: grafo publicado não tem destinos quebrados e só o epílogo é terminal
+ok 64 - P46: grafo publicado não tem destinos quebrados e só o epílogo é terminal
+  ---
+  duration_ms: 2.583474
+  type: 'test'
+  ...
+# Subtest: P46: rota NovaCORE muda a apresentação sem revelar rota não escolhida
+ok 65 - P46: rota NovaCORE muda a apresentação sem revelar rota não escolhida
+  ---
+  duration_ms: 16.382691
+  type: 'test'
+  ...
+# Subtest: P46: negociação final permite concluir sem combate somente após teste bem-sucedido
+ok 66 - P46: negociação final permite concluir sem combate somente após teste bem-sucedido
+  ---
+  duration_ms: 13.245642
+  type: 'test'
+  ...
+# Subtest: P46: combate final não permite escolher destino antes do encontro e preparação altera abertura
+ok 67 - P46: combate final não permite escolher destino antes do encontro e preparação altera abertura
+  ---
+  duration_ms: 3.439535
+  type: 'test'
+  ...
+# Subtest: P46: playthrough controller fecha missão, persiste recompensa e continua no sandbox sem apagar MIXED/Duty
+ok 68 - P46: playthrough controller fecha missão, persiste recompensa e continua no sandbox sem apagar MIXED/Duty
+  ---
+  duration_ms: 365.544664
+  type: 'test'
+  ...
+# Subtest: P46: UI diferencia bloqueio ativo de missão concluída e oferece continuar no mundo livre
+ok 69 - P46: UI diferencia bloqueio ativo de missão concluída e oferece continuar no mundo livre
+  ---
+  duration_ms: 1.375785
+  type: 'test'
+  ...
+# Subtest: P47: ações sugeridas ao Mestre respeitam gating e não vazam opções futuras
+ok 70 - P47: ações sugeridas ao Mestre respeitam gating e não vazam opções futuras
+  ---
+  duration_ms: 25.056818
+  type: 'test'
+  ...
+# Subtest: P47: rota escritórios só oferece testes coerentes e preserva índices canônicos
+ok 71 - P47: rota escritórios só oferece testes coerentes e preserva índices canônicos
+  ---
+  duration_ms: 11.459917
+  type: 'test'
+  ...
+# Subtest: P47: rota refinaria remove teste de Computadores e mantém Frieza no índice original
+ok 72 - P47: rota refinaria remove teste de Computadores e mantém Frieza no índice original
+  ---
+  duration_ms: 5.394718
+  type: 'test'
+  ...
+# Subtest: P49: save/reopen preserva rota NovaCORE e projeção dinâmica sem spoiler
+ok 73 - P49: save/reopen preserva rota NovaCORE e projeção dinâmica sem spoiler
+  ---
+  duration_ms: 8.784919
+  type: 'test'
+  ...
+# Subtest: P49: save/reopen preserva investigação, flags e nó atual
+ok 74 - P49: save/reopen preserva investigação, flags e nó atual
+  ---
+  duration_ms: 2.551371
+  type: 'test'
+  ...
+# Subtest: P49: desfechos do showdown continuam mutuamente exclusivos após reopen
+ok 75 - P49: desfechos do showdown continuam mutuamente exclusivos após reopen
+  ---
+  duration_ms: 3.366531
+  type: 'test'
+  ...
+# Subtest: P49: consequência de epílogo não duplica ao reabrir estado concluído
+ok 76 - P49: consequência de epílogo não duplica ao reabrir estado concluído
+  ---
+  duration_ms: 7.961352
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva rota social Umbra e não revela pistas futuras
+ok 77 - P50: reopen preserva rota social Umbra e não revela pistas futuras
+  ---
+  duration_ms: 5.807742
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva sabacc discreto no Spyder e não inventa Black Sun hostil
+ok 78 - P50: reopen preserva sabacc discreto no Spyder e não inventa Black Sun hostil
+  ---
+  duration_ms: 1.509406
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva solução social Zelcomm sem armas nem Obligation
+ok 79 - P50: reopen preserva solução social Zelcomm sem armas nem Obligation
+  ---
+  duration_ms: 2.042193
+  type: 'test'
+  ...
+# Subtest: P50: negociação com Kaa’to persiste após reopen e mantém rendição desbloqueada
+ok 80 - P50: negociação com Kaa’to persiste após reopen e mantém rendição desbloqueada
+  ---
+  duration_ms: 3.62188
+  type: 'test'
+  ...
+# Subtest: P51 WORLD_UPDATED mantém estado completo mas histórico de eventos guarda somente resumo compacto e idempotente
+ok 81 - P51 WORLD_UPDATED mantém estado completo mas histórico de eventos guarda somente resumo compacto e idempotente
+  ---
+  duration_ms: 9.229593
+  type: 'test'
+  ...
+# Subtest: P51 migrateState compacta snapshot WORLD_UPDATED legado sem alterar o mundo atual
+ok 82 - P51 migrateState compacta snapshot WORLD_UPDATED legado sem alterar o mundo atual
+  ---
+  duration_ms: 0.725887
+  type: 'test'
+  ...
+# Subtest: P51 Desespero em negociação final fracassada encerra a via diplomática, persiste e não oferece rendição
+ok 83 - P51 Desespero em negociação final fracassada encerra a via diplomática, persiste e não oferece rendição
+  ---
+  duration_ms: 19.210223
+  type: 'test'
+  ...
+# Subtest: P51 Threat + Despair em NovaCORE produz risco crítico persistente e consequência mecânica explícita
+ok 84 - P51 Threat + Despair em NovaCORE produz risco crítico persistente e consequência mecânica explícita
+  ---
+  duration_ms: 3.512535
+  type: 'test'
+  ...
+# Subtest: P51 registry mantém Sob um Sol Negro funcional e expõe contrato genérico para próximas aventuras
+ok 85 - P51 registry mantém Sob um Sol Negro funcional e expõe contrato genérico para próximas aventuras
+  ---
+  duration_ms: 1.500509
+  type: 'test'
+  ...
+# Subtest: WORLD_UPDATED persiste mundo autoritativo sem duplicar snapshots integrais no event log
+ok 86 - WORLD_UPDATED persiste mundo autoritativo sem duplicar snapshots integrais no event log
+  ---
+  duration_ms: 45.818104
+  type: 'test'
+  ...
+# Subtest: P51: Despair na Zelcomm persiste alerta/lockdown sem revelar futuro
+ok 87 - P51: Despair na Zelcomm persiste alerta/lockdown sem revelar futuro
+  ---
+  duration_ms: 24.393109
+  type: 'test'
+  ...
+# Subtest: P51: Despair na NovaCORE persiste risco crítico e strain mecânico
+ok 88 - P51: Despair na NovaCORE persiste risco crítico e strain mecânico
+  ---
+  duration_ms: 12.164619
+  type: 'test'
+  ...
+# Subtest: P7: catálogo pessoal core inteiro tem binding exato e arquivo local
+ok 89 - P7: catálogo pessoal core inteiro tem binding exato e arquivo local
+  ---
+  duration_ms: 29.496638
+  type: 'test'
+  ...
+# Subtest: P12: 82 locais têm visual de localização honesto e zero path quebrado
+ok 90 - P12: 82 locais têm visual de localização honesto e zero path quebrado
+  ---
+  duration_ms: 3.515079
+  type: 'test'
+  ...
+# Subtest: P7: seed não fixa Voss e remove texto técnico RAG
+ok 91 - P7: seed não fixa Voss e remove texto técnico RAG
+  ---
+  duration_ms: 0.47441
+  type: 'test'
+  ...
+# Subtest: P7: renderer visual não usa scoring fuzzy
+ok 92 - P7: renderer visual não usa scoring fuzzy
+  ---
+  duration_ms: 0.438912
+  type: 'test'
+  ...
+# Subtest: P8 exact visual coverage closes full active equipment catalog
+ok 93 - P8 exact visual coverage closes full active equipment catalog
+  ---
+  duration_ms: 7.634115
+  type: 'test'
+  ...
+# Subtest: P8 exact visual coverage closes active vehicle catalog
+ok 94 - P8 exact visual coverage closes active vehicle catalog
+  ---
+  duration_ms: 0.710033
+  type: 'test'
+  ...
+# Subtest: P8 known adversaries have deterministic exact identity visuals
+ok 95 - P8 known adversaries have deterministic exact identity visuals
+  ---
+  duration_ms: 1.853544
+  type: 'test'
+  ...
+# Subtest: P12 all 82 catalog worlds have honest playable location visuals
+ok 96 - P12 all 82 catalog worlds have honest playable location visuals
+  ---
+  duration_ms: 0.828495
+  type: 'test'
+  ...
+# Subtest: P8 no fuzzy visual resolver and no rejected technical RAG copy
+ok 97 - P8 no fuzzy visual resolver and no rejected technical RAG copy
+  ---
+  duration_ms: 0.459953
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: locais distinguem mapa dedicado de esquema gerado
+ok 98 - auditoria visual independente: locais distinguem mapa dedicado de esquema gerado
+  ---
+  duration_ms: 8.534832
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: bindings de itens usam o objeto certo e todos os paths existem
+ok 99 - auditoria visual independente: bindings de itens usam o objeto certo e todos os paths existem
+  ---
+  duration_ms: 8.224821
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: índice P6 e UI não contêm fallback genérico para entidades
+ok 100 - auditoria visual independente: índice P6 e UI não contêm fallback genérico para entidades
+  ---
+  duration_ms: 3.677743
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: todos os caminhos do índice P6 que representam imagens são resolvíveis
+ok 101 - auditoria visual independente: todos os caminhos do índice P6 que representam imagens são resolvíveis
+  ---
+  duration_ms: 15.504282
+  type: 'test'
+  ...
+# Subtest: benchmark RAG EotE recupera a entrada esperada em primeiro lugar
+ok 102 - benchmark RAG EotE recupera a entrada esperada em primeiro lugar
+  ---
+  duration_ms: 393.468386
+  type: 'test'
+  ...
+# Subtest: corpus RAG permanece sincronizado com a matriz de regras
+ok 103 - corpus RAG permanece sincronizado com a matriz de regras
+  ---
+  duration_ms: 2.90671
+  type: 'test'
+  ...
+# Subtest: RAG lexical encontra Obligation inicial EotE e preserva autoridade
+ok 104 - RAG lexical encontra Obligation inicial EotE e preserva autoridade
+  ---
+  duration_ms: 119.555532
+  type: 'test'
+  ...
+# Subtest: RAG lexical encontra estrutura EotE 8/6/18
+ok 105 - RAG lexical encontra estrutura EotE 8/6/18
+  ---
+  duration_ms: 66.591409
+  type: 'test'
+  ...
+# Subtest: RAG EotE apresenta raridade/disponibilidade auditada pelo Core e sem AoR
+ok 106 - RAG EotE apresenta raridade/disponibilidade auditada pelo Core e sem AoR
+  ---
+  duration_ms: 18.579643
+  type: 'test'
+  ...
+# Subtest: dado da Força é autoridade mecânica EotE Core auditada no RAG
+ok 107 - dado da Força é autoridade mecânica EotE Core auditada no RAG
+  ---
+  duration_ms: 22.62151
+  type: 'test'
+  ...
+# Subtest: compra de especialização adicional é autoridade mecânica EotE Core auditada no RAG
+ok 108 - compra de especialização adicional é autoridade mecânica EotE Core auditada no RAG
+  ---
+  duration_ms: 11.292608
+  type: 'test'
+  ...
+# Subtest: corpus ativo mantém AoR restrito ao subconjunto Duty/Contribution explicitamente auditado
+ok 109 - corpus ativo mantém AoR restrito ao subconjunto Duty/Contribution explicitamente auditado
+  ---
+  duration_ms: 0.966219
+  type: 'test'
+  ...
+# Subtest: políticas operacionais do VTT permanecem explicitamente não oficiais
+ok 110 - políticas operacionais do VTT permanecem explicitamente não oficiais
+  ---
+  duration_ms: 17.896785
+  type: 'test'
+  ...
+# Subtest: RAG encontra os três poderes da Força do Core EotE
+ok 111 - RAG encontra os três poderes da Força do Core EotE
+  ---
+  duration_ms: 50.000251
+  type: 'test'
+  ...
+1..111
+# tests 111
+# suites 0
+# pass 111
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1805.723115

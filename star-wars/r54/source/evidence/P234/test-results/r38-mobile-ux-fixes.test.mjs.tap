@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: R38: início do mundo não exige texto livre e oferece seleção visual e aleatória
+ok 1 - R38: início do mundo não exige texto livre e oferece seleção visual e aleatória
+  ---
+  duration_ms: 7.768355
+  type: 'test'
+  ...
+# Subtest: R38: existe gate explícito INICIAR SANDBOX ligado ao motor
+ok 2 - R38: existe gate explícito INICIAR SANDBOX ligado ao motor
+  ---
+  duration_ms: 0.68404
+  type: 'test'
+  ...
+# Subtest: R38: cena oferece geração Gemini diretamente e modelos configuráveis
+ok 3 - R38: cena oferece geração Gemini diretamente e modelos configuráveis
+  ---
+  duration_ms: 0.638582
+  type: 'test'
+  ...
+# Subtest: R38: Gemini TTS é funcional com Android TTS como fallback
+ok 4 - R38: Gemini TTS é funcional com Android TTS como fallback
+  ---
+  duration_ms: 0.277702
+  type: 'test'
+  ...
+# Subtest: R38: personagem vazio oferece geração completa aleatória e import JSON
+ok 5 - R38: personagem vazio oferece geração completa aleatória e import JSON
+  ---
+  duration_ms: 0.398719
+  type: 'test'
+  ...
+# Subtest: R38: Biblioteca é descoberta por utilidade e atalho de Ajustes
+ok 6 - R38: Biblioteca é descoberta por utilidade e atalho de Ajustes
+  ---
+  duration_ms: 0.362263
+  type: 'test'
+  ...
+# Subtest: R38: Android respeita insets e teclado sem sobrepor UI
+ok 7 - R38: Android respeita insets e teclado sem sobrepor UI
+  ---
+  duration_ms: 0.499134
+  type: 'test'
+  ...
+# Subtest: R38: launcher profissional aprovado está configurado
+ok 8 - R38: launcher profissional aprovado está configurado
+  ---
+  duration_ms: 0.487586
+  type: 'test'
+  ...
+# Subtest: R38: startSandboxSession produz narração e ações sem exigir prompt do jogador
+ok 9 - R38: startSandboxSession produz narração e ações sem exigir prompt do jogador
+  ---
+  duration_ms: 419.015613
+  type: 'test'
+  ...
+# Subtest: R38: chave de imagem da cena é compatível entre shell, botão direto e host Android
+ok 10 - R38: chave de imagem da cena é compatível entre shell, botão direto e host Android
+  ---
+  duration_ms: 1.038459
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1214.224164

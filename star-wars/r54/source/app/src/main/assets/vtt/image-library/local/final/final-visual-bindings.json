@@ -1,0 +1,414 @@
+{
+  "schemaVersion": 1,
+  "policy": {
+    "matching": "explicit-name-or-key-only",
+    "semanticSceneFallback": true,
+    "neverInferMechanicsFromImage": true
+  },
+  "source": "user-created Star Wars visual assets; explicit mapping approved by audit",
+  "scenes": [
+    {
+      "archetype": "customs_checkpoint",
+      "variant": 1,
+      "file": "scenes/customs_checkpoint_01.webp",
+      "primary": true,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_20_53.png",
+      "fileSha256": "4563b42a36ba4af25a3709f11304b793b24112a5f02d0d0e34069626c89345e7",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "customs_checkpoint",
+      "variant": 2,
+      "file": "scenes/customs_checkpoint_02.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_21_36.png",
+      "fileSha256": "4563b42a36ba4af25a3709f11304b793b24112a5f02d0d0e34069626c89345e7",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "customs_checkpoint",
+      "variant": 3,
+      "file": "scenes/customs_checkpoint_03.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_21_57 (1).png",
+      "fileSha256": "9cb5e520ab050fb255c456c583521bb65dcd148f0234c6607543f5a21e286969",
+      "fileWidth": 1536,
+      "fileHeight": 1024
+    },
+    {
+      "archetype": "customs_checkpoint",
+      "variant": 4,
+      "file": "scenes/customs_checkpoint_04.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_21_57 (2).png",
+      "fileSha256": "4fa3653eee9321b06a25b3be835df1a38f796c9f345b9db20331ab18b083f853",
+      "fileWidth": 1536,
+      "fileHeight": 1024
+    },
+    {
+      "archetype": "customs_checkpoint",
+      "variant": 5,
+      "file": "scenes/customs_checkpoint_05.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_32 (1).png",
+      "fileSha256": "8ed3d4742c1f9e8357373a01e30b8e45b743f37f6373ec7ce66a41ad71b36f41",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "customs_checkpoint",
+      "variant": 6,
+      "file": "scenes/customs_checkpoint_06.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_44 (1).png",
+      "fileSha256": "a85d1c3e93bcd587f3ad1d2ff24db9d2771c257416fd79c38aefea487c5c9797",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "medbay",
+      "variant": 1,
+      "file": "scenes/medbay_01.webp",
+      "primary": true,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_21_41.png",
+      "fileSha256": "03ea5e384f66189e46af03fb815af0b722391db8927695eaf854ff799c92d973",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "medbay",
+      "variant": 2,
+      "file": "scenes/medbay_02.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_06.png",
+      "fileSha256": "dfba6bebdd3d2a6de68bb55a3b7d8f7b59a2102794e9f7284cf70a1c5a33d36d",
+      "fileWidth": 1024,
+      "fileHeight": 1536
+    },
+    {
+      "archetype": "medbay",
+      "variant": 3,
+      "file": "scenes/medbay_03.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_33 (2).png",
+      "fileSha256": "c6a72567fd077478e8fb69097f6653f84d0f7253d88d9d2bf99bb1ca8bedd0b6",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "medbay",
+      "variant": 4,
+      "file": "scenes/medbay_04.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_44 (2).png",
+      "fileSha256": "16d90c9ed73e16d6453e5015b22f9fecc0a5d72eda28ea5e08deead6ebd471c4",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "cargo_warehouse",
+      "variant": 1,
+      "file": "scenes/cargo_warehouse_01.webp",
+      "primary": true,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_21_46.png",
+      "fileSha256": "af9b8a2977b221aad10503f078901fe17690cb218d8ae2a986eb3ed4e3172bc0",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "cargo_warehouse",
+      "variant": 2,
+      "file": "scenes/cargo_warehouse_02.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_12 (1).png",
+      "fileSha256": "9aaa169fa8e9d046f77d53ccbd8c9af94c75e4153b86664c148aa583f41fba89",
+      "fileWidth": 1024,
+      "fileHeight": 1536
+    },
+    {
+      "archetype": "cargo_warehouse",
+      "variant": 3,
+      "file": "scenes/cargo_warehouse_03.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_12 (2).png",
+      "fileSha256": "1f6bd9ba5b10544707103a51eee803a65ab0d22c1406a60c33bebfca1425991a",
+      "fileWidth": 1024,
+      "fileHeight": 1536
+    },
+    {
+      "archetype": "cargo_warehouse",
+      "variant": 4,
+      "file": "scenes/cargo_warehouse_04.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_45 (3).png",
+      "fileSha256": "f63750ca44679ff4ed111972e9afac9e2e9c168b77b1622ef5ec771a09639ba6",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "outer_rim_settlement",
+      "variant": 1,
+      "file": "scenes/outer_rim_settlement_01.webp",
+      "primary": true,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_21_50.png",
+      "fileSha256": "51b670b5aa029c869a0a1740c001d60e975c97870e09d4c10e99a57a8a52d7a7",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "outer_rim_settlement",
+      "variant": 2,
+      "file": "scenes/outer_rim_settlement_02.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_17.png",
+      "fileSha256": "466bd05479fe43a2dc3aa9383c5e0cda3f7193dc47b2ea71e52c1868ad3d27b9",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "outer_rim_settlement",
+      "variant": 3,
+      "file": "scenes/outer_rim_settlement_03.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_26.png",
+      "fileSha256": "4730578ca0bacf900bcec866f6d194f29c6b83be2a7ab1ca668ab89904325722",
+      "fileWidth": 1800,
+      "fileHeight": 874
+    },
+    {
+      "archetype": "outer_rim_settlement",
+      "variant": 4,
+      "file": "scenes/outer_rim_settlement_04.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_37.png",
+      "fileSha256": "6eaa5a7c27c42ba32b15db42b0d8650ac2e86a7136f2946209fa4e3218d4566a",
+      "fileWidth": 1800,
+      "fileHeight": 874
+    },
+    {
+      "archetype": "outer_rim_settlement",
+      "variant": 5,
+      "file": "scenes/outer_rim_settlement_05.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_45 (4).png",
+      "fileSha256": "ae027867a2500e5ce97601c3c6c6899b6e5b9ed134c3a732ff248e2cfc3689a7",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "relay_station",
+      "variant": 1,
+      "file": "scenes/relay_station_01.webp",
+      "primary": true,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_22.png",
+      "fileSha256": "b5d30c633db98c233d8b7cf610f9e2e3b17f6343c384ecbc72ed7ea4bc85b995",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "relay_station",
+      "variant": 2,
+      "file": "scenes/relay_station_02.webp",
+      "primary": false,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_45 (5).png",
+      "fileSha256": "40ee3cd332bac756e8dae4af80f6dcaa5c21c81d89110e05036be4a25d1a41be",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "mining_complex",
+      "variant": 1,
+      "file": "scenes/mining_complex_01.webp",
+      "primary": true,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_56 (1).png",
+      "fileSha256": "eb795bd8c2d63371c3405de4f2b648f1ba44e935c396a6a5df7d9f754fb2d1ce",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "remote_hideout",
+      "variant": 1,
+      "file": "scenes/remote_hideout_01.webp",
+      "primary": true,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_56 (2).png",
+      "fileSha256": "5765f3ca8b6c930ace747771571aa62a0655ac75b8ba062c7bc0aea6d2e82d58",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "repair_dock",
+      "variant": 1,
+      "file": "scenes/repair_dock_01.webp",
+      "primary": true,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_57 (3).png",
+      "fileSha256": "0fd2e1ff450c6b9a98634ebc6ab02bf223da5d37d08c8f56a001572ed79b2d32",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "industrial_district",
+      "variant": 1,
+      "file": "scenes/industrial_district_01.webp",
+      "primary": true,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_57 (4).png",
+      "fileSha256": "743548d4631021b5bc1c733d46fa9740c445d4e92fd143882a68afb2dcadef6b",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    },
+    {
+      "archetype": "wreck_field",
+      "variant": 1,
+      "file": "scenes/wreck_field_01.webp",
+      "primary": true,
+      "source_name": "ChatGPT Image 14 de set. de 2026, 23_22_57 (5).png",
+      "fileSha256": "c7b8f02daeec2c5204c9a758dbcb632ff798571f57357290c3ee153c455994dc",
+      "fileWidth": 1672,
+      "fileHeight": 941
+    }
+  ],
+  "vehicles": [
+    {
+      "key": "digger_crawler",
+      "title": "Digger Crawler",
+      "file": "vehicles/digger_crawler.png",
+      "fileSha256": "90df45b013003e04b579d22d51b97165b78c9a706298c5e63f962cf0bbcbdefa",
+      "fileWidth": 359,
+      "fileHeight": 536
+    },
+    {
+      "key": "at_est",
+      "title": "AT-EST Exploration and Survey Walker",
+      "file": "vehicles/at_est.png",
+      "fileSha256": "3c50be1e1a51b8a4629bb76bb6809b19d60169bfa4a63588df5e80357c2d39a0",
+      "fileWidth": 531,
+      "fileHeight": 536
+    },
+    {
+      "key": "cloakshape",
+      "title": "CloakShape",
+      "file": "vehicles/cloakshape.png",
+      "fileSha256": "aced6bac4ad6e68fa8188e34d256b98b3ed3bd30220d4b0a0899b59d9e45aff8",
+      "fileWidth": 436,
+      "fileHeight": 539
+    },
+    {
+      "key": "jumpmaster_jm5000",
+      "title": "JM-5000 JumpMaster",
+      "file": "vehicles/jumpmaster_jm5000.png",
+      "fileSha256": "7a23e91c91f507f63907e16547987e9bff44dc787eeb82c43692718fcba8e8a8",
+      "fileWidth": 504,
+      "fileHeight": 531
+    },
+    {
+      "key": "firespray",
+      "title": "Firespray",
+      "file": "vehicles/firespray.png",
+      "fileSha256": "4972836dcfb78076f66d958a98b6009904344daafcdf1ca20f2dbac951fa1ba3",
+      "fileWidth": 527,
+      "fileHeight": 493
+    },
+    {
+      "key": "skipray_gat12h",
+      "title": "GAT-12h Skipray Blastboat",
+      "file": "vehicles/skipray_gat12h.png",
+      "fileSha256": "c994fc2f3730ae41a9c20a598a5b51461f340cf1e71ee3825c91f01d55b3c67f",
+      "fileWidth": 521,
+      "fileHeight": 441
+    },
+    {
+      "key": "alpha_xg1_star_wing",
+      "title": "Alpha-class XG-1 Star Wing",
+      "file": "vehicles/alpha_xg1_star_wing.png",
+      "fileSha256": "c746feb12ef5457d1489d1aba0c1666a004a89e06145a583a6501bdab66fbc65",
+      "fileWidth": 515,
+      "fileHeight": 536
+    },
+    {
+      "key": "vt49_decimator",
+      "title": "VT-49 Decimator",
+      "file": "vehicles/vt49_decimator.png",
+      "fileSha256": "0ebb9099336b840f122a1c63d32b45718afd5bd7530b3832641561c1144f707d",
+      "fileWidth": 503,
+      "fileHeight": 511
+    },
+    {
+      "key": "wud500",
+      "title": "CEC WUD-500",
+      "file": "vehicles/wud500.png",
+      "fileSha256": "2e812f9349dcf46f6143f4dc2f01c87c354ba30e0b85ac5f3f97a40ca6535215",
+      "fileWidth": 483,
+      "fileHeight": 519
+    }
+  ],
+  "creatures": [
+    {
+      "key": "kowakian_monkey_lizard",
+      "title": "Kowakian Monkey-Lizard",
+      "file": "creatures/kowakian_monkey_lizard.png",
+      "fileSha256": "386ec616b0e0c0cabb2bdb9ff3c77b69283bffb9a4048a6e3254b15f9eceeca8",
+      "fileWidth": 677,
+      "fileHeight": 1131
+    },
+    {
+      "key": "lurking_scrange",
+      "title": "Lurking Scrange",
+      "file": "creatures/lurking_scrange.png",
+      "fileSha256": "54fb1415003090ffe3f3da345f455fbc57968c6dc456ad0cbfbe0c7fa2353700",
+      "fileWidth": 434,
+      "fileHeight": 760
+    },
+    {
+      "key": "gigantic_dragonsnake",
+      "title": "Gigantic Dragonsnake",
+      "file": "creatures/gigantic_dragonsnake.png",
+      "fileSha256": "c13d0c74892abe67c2098897f3a501d3587853b5f8a4d33851e07f0c6ca50e09",
+      "fileWidth": 586,
+      "fileHeight": 715
+    }
+  ],
+  "npcs": [
+    {
+      "key": "son_barab",
+      "title": "Capitão Son Barab, ISB",
+      "file": "npcs/son_barab_portrait.webp",
+      "dossier": "npcs/son_barab_dossier.webp",
+      "fileSha256": "636af387c867489d9025988ca978b45054aef547608b8df423013c6f885eb974",
+      "fileWidth": 565,
+      "fileHeight": 575,
+      "dossierSha256": "4ff6d3a3ec732e4e64811c1386fc82f64010dcfe49b15275e1eee5e699e390a6",
+      "dossierWidth": 1024,
+      "dossierHeight": 1536
+    }
+  ],
+  "equipment": [
+    {
+      "key": "spacesuit",
+      "title": "Traje espacial",
+      "file": "equipment/spacesuit.webp",
+      "aliases": [
+        "traje espacial",
+        "spacesuit",
+        "space suit"
+      ],
+      "fileSha256": "07bb59a194ea33921620f497f1417f376b5df7b13a097a68cd6c0ed4c9230218",
+      "fileWidth": 1536,
+      "fileHeight": 1536
+    },
+    {
+      "key": "reload_power_pack",
+      "title": "Recarga adicional / Power Pack",
+      "file": "equipment/power_pack_reload.webp",
+      "aliases": [
+        "recarga adicional",
+        "power pack",
+        "ammo reload",
+        "recarga"
+      ],
+      "fileSha256": "1b047bbcc356a9ef09bc02b47f796ee86604ad55e84fa442c72685bde877fde6",
+      "fileWidth": 1536,
+      "fileHeight": 1536
+    }
+  ]
+}

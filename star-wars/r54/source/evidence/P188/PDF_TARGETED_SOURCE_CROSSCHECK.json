@@ -1,0 +1,33 @@
+{
+  "source": "The Jewel of Yavin (SWE09), PDF oficial do usuário no Google Drive",
+  "source_file_id": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "verified_sections": [
+    {
+      "section": "Setting Up the Slicing Shop",
+      "printed_pages": "39–41",
+      "facts": [
+        "Spike requer pelo menos 10 horas e materiais por aproximadamente 300 créditos; Computadores Difícil",
+        "Cada vantagem na fabricação contribui reforço à tentativa de slicing",
+        "Sem amostra de criptografia: 3 reveses; amostra básica: 1; completa: 0",
+        "Arend pode fornecer acesso completo; escritório público pode oferecer amostra básica",
+        "Lobot pode ser distraído ou neutralizado; Bea pode alertá-lo"
+      ]
+    },
+    {
+      "section": "Banking on a Break",
+      "printed_pages": "68–72",
+      "facts": [
+        "Droid remoto G-100 em três postos; ausência de contenção pode melhorar dificuldade",
+        "Slicing contra Lobot, contramedidas e alertas; Daunting quando neutralizado",
+        "Tabela 2-1 de resultados especiais ainda não implementada integralmente"
+      ]
+    }
+  ],
+  "verification_scope": "Cotejo direcionado das seções indicadas; não certificação editorial integral.",
+  "limits": [
+    "Aprovação GM representa fato narrativo, não rolagem de sucesso fabricada.",
+    "Tempo de fabricação é ledger, não avanço automático do relógio mundial.",
+    "A verificação do item físico restraining bolt ainda falta.",
+    "Slicers NPC e liquidação financeira ainda pendentes."
+  ]
+}

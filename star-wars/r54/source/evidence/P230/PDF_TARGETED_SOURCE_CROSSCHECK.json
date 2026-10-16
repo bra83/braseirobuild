@@ -1,0 +1,13 @@
+{
+  "checkpoint": "P230",
+  "primarySource": "SWE09 The Jewel of Yavin, official Google Drive file 1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K, printed page 94, Flight over Fight / After the Battle",
+  "sourceRead": "Google Drive connector fetched and targeted text inspected in this execution",
+  "verifiedRules": [
+    {"topic": "port_security", "official": "Wing Guard blocks exits; initial force is two minion groups of two officers plus one sergeant; other factions do not directly obstruct Wing Guard", "implementation": "Preserved existing P209 encounter; no duplicate guard or instant enemy spawn"},
+    {"topic": "physical_escape_routes", "official": "Maintenance crawlways, sewers, deeper to ship, or forceful breakout", "implementation": "jewelStarportRoutes.mjs route receipts with GM physical location/route/security confirmations; no fake movement"},
+    {"topic": "criminal_obligation", "official": "Destruction of part of the commercial starport adds 10 Criminal Obligation", "implementation": "Conditional group obligation +10 only for BLAST_OUT route, completed published combat evidence and GM confirmation of real destruction; no automatic award"},
+    {"topic": "borrowed_ship", "official": "Hard Computers access check; unprepared getaway upgrades difficulty once on ALL Piloting (Space) checks", "implementation": "P229 access proof preserved; P230 upgrade helper applied to controller hazard, tractor escape, Full Throttle, Gain Advantage, copilot crew action, AoR Brilliant Evasion (only Space skill), scoped to active borrowed ship until offworld escape"},
+    {"topic": "airborne_patrols", "official": "At least a dozen Wing Guard cloud cars in squadrons of four", "implementation": "NOT implemented P230: distinct airborne reinforcement vehicles require independent physical deployment and positions, cannot be silently borrowed from P223's four Venture cars"}
+  ],
+  "limits": ["No Gradle, APK, CI or physical Android validation", "No complete five-adventure or 360-consumer certification", "Route confirmation is GM-adjudicated; it is not automatic pathfinding", "Published encounter record plus GM confirmation does not constitute independent environmental-damage simulation"]
+}

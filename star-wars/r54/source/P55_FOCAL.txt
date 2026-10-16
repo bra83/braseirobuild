@@ -1,0 +1,82 @@
+TAP version 13
+# Subtest: P49: save/reopen preserva rota NovaCORE e projeção dinâmica sem spoiler
+ok 1 - P49: save/reopen preserva rota NovaCORE e projeção dinâmica sem spoiler
+  ---
+  duration_ms: 8.336675
+  type: 'test'
+  ...
+# Subtest: P49: save/reopen preserva investigação, flags e nó atual
+ok 2 - P49: save/reopen preserva investigação, flags e nó atual
+  ---
+  duration_ms: 2.834632
+  type: 'test'
+  ...
+# Subtest: P49: desfechos do showdown continuam mutuamente exclusivos após reopen
+ok 3 - P49: desfechos do showdown continuam mutuamente exclusivos após reopen
+  ---
+  duration_ms: 3.750302
+  type: 'test'
+  ...
+# Subtest: P49: consequência de epílogo não duplica ao reabrir estado concluído
+ok 4 - P49: consequência de epílogo não duplica ao reabrir estado concluído
+  ---
+  duration_ms: 4.78984
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva rota social Umbra e não revela pistas futuras
+ok 5 - P50: reopen preserva rota social Umbra e não revela pistas futuras
+  ---
+  duration_ms: 6.239234
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva sabacc discreto no Spyder e não inventa Black Sun hostil
+ok 6 - P50: reopen preserva sabacc discreto no Spyder e não inventa Black Sun hostil
+  ---
+  duration_ms: 1.720584
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva solução social Zelcomm sem armas nem Obligation
+ok 7 - P50: reopen preserva solução social Zelcomm sem armas nem Obligation
+  ---
+  duration_ms: 1.059607
+  type: 'test'
+  ...
+# Subtest: P50: negociação com Kaa’to persiste após reopen e mantém rendição desbloqueada
+ok 8 - P50: negociação com Kaa’to persiste após reopen e mantém rendição desbloqueada
+  ---
+  duration_ms: 3.21097
+  type: 'test'
+  ...
+# Subtest: P55: journal de cenas nasce vazio e registra escolhas sem conteúdo futuro
+ok 9 - P55: journal de cenas nasce vazio e registra escolhas sem conteúdo futuro
+  ---
+  duration_ms: 5.803587
+  type: 'test'
+  ...
+# Subtest: P55: journal persiste após reopen e conserva a rota tomada
+ok 10 - P55: journal persiste após reopen e conserva a rota tomada
+  ---
+  duration_ms: 1.655876
+  type: 'test'
+  ...
+# Subtest: P55: progresso legado sem sceneJournal migra sem quebrar status
+ok 11 - P55: progresso legado sem sceneJournal migra sem quebrar status
+  ---
+  duration_ms: 0.341685
+  type: 'test'
+  ...
+# Subtest: P55: journal público não expõe effects internos
+ok 12 - P55: journal público não expõe effects internos
+  ---
+  duration_ms: 0.421204
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 106.083819

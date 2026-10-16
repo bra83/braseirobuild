@@ -1,0 +1,8 @@
+R54 P51 ANDROID STATUS
+- Java/Gradle changes in P51: NONE
+- Android/APK compile in P51: NOT RUN
+- Static Android-related repository gates: PASS as part of P51 focal suite
+- Local system Gradle: unavailable
+- Wrapper requirement: Gradle 8.13
+- Last native-build infrastructure evidence: R54_P21_ANDROID_BUILD.txt -> UnknownHostException: services.gradle.org
+- Conclusion: DO NOT DECLARE APK/ANDROID BUILD PASS for P51.

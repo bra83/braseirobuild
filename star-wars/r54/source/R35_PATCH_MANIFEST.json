@@ -1,0 +1,131 @@
+{
+  "project": "STAR WARS — EDGE OF THE GALAXY",
+  "block": 35,
+  "baseline": "BLOCK34_SANDBOX_ECONOMY_FULL_GREEN",
+  "status": "SOURCE_GREEN / EOTE_CORE_VEHICLE_CATALOG_15_GREEN / RAG_50_TESTADO_GREEN / BLOCK35_FULL_REGRESSION_724_GREEN / STRESS_6_OF_6_GREEN / REAL_ANDROID_SDK_DEVICE_GATE_PENDING",
+  "source_authority": {
+    "title": "EotE Core Rulebook.pdf",
+    "drive_file_id": "1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX",
+    "usage": "vehicle profile data and provenance; no estimated mechanics"
+  },
+  "tests": {
+    "node": "724/724 PASS",
+    "stress": "6/6 PASS (33-session suites)",
+    "r35_catalog_focus": "21/21 PASS",
+    "js": "65 PASS syntax",
+    "java": "5 PASS syntax/declaration gate",
+    "json": "26 PASS",
+    "xml": "2 PASS",
+    "secrets": "0 hits",
+    "apk_aab": "0"
+  },
+  "catalog": {
+    "core_eote_vehicle_profiles": 15,
+    "active_keys": [
+      "x34",
+      "digger_crawler",
+      "personnel_carrier",
+      "at_pt",
+      "at_est",
+      "cloakshape",
+      "jumpmaster_jm5000",
+      "firespray",
+      "lambda_t4a",
+      "tie_ln",
+      "ywing_btl",
+      "z95_af4",
+      "skipray_gat12h",
+      "wayfarer",
+      "yt1300"
+    ],
+    "xwing_policy": "cross-line reference only; excluded from Core EotE economy until EotE price/rarity provenance is proven"
+  },
+  "rag": {
+    "documents": 50,
+    "tested": 50,
+    "barbara_modules": 56
+  },
+  "android_gate": "BLOCKED_EXTERNAL: Android SDK/ADB/sdkmanager missing in host",
+  "files": [
+    {
+      "path": "app/src/main/assets/vtt/js/rules/vehicles.mjs",
+      "size": 50675,
+      "sha256": "ce862f76d875c7d5f126afd8e55d4e9c484f312afd00b65129ba1ae2060555ea"
+    },
+    {
+      "path": "tests/eote-core-starter-ships-r32.test.mjs",
+      "size": 4311,
+      "sha256": "741c804b51c7b5b8bd0d172eb1ffbb631ed6bdbae73dc403a5544428e9fb889f"
+    },
+    {
+      "path": "tests/eote-core-vehicle-catalog-r35.test.mjs",
+      "size": 5260,
+      "sha256": "0d0696d67696f5bc4ba2b7b5d2b73974ddf2d1e36ba033da41b1cd9d634a5896"
+    },
+    {
+      "path": "rules/rules_matrix.json",
+      "size": 50816,
+      "sha256": "b92700ab17caff92a2c2741d5bd3a47bfe60c676b95bfe2487220498dfa52a6d"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/rag/rulesCorpus.mjs",
+      "size": 49244,
+      "sha256": "d78991f24a1dbc204cd3802583482bba10bd18ce6c1161946f9fbd41c77d2873"
+    },
+    {
+      "path": "rules/rag_manifest.json",
+      "size": 206,
+      "sha256": "fbd2d691f4c746f298dc51d67138358d068123ce4759e35c3d5c87ec23e75ece"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+      "size": 1030569,
+      "sha256": "c7ff4e90ad94cf6cceb17897f937214e6ebaa6ae3e65de768fdfa2a1a4b34f63"
+    },
+    {
+      "path": "tests/documentation-current-state.test.mjs",
+      "size": 974,
+      "sha256": "50c090fef3b37ed7d47e8d74b3b36a13c85a36f8b07e1e9ccecf8280b1f8d478"
+    },
+    {
+      "path": "tests/verifier-async-suite-r16.test.mjs",
+      "size": 780,
+      "sha256": "3105689de19758b96630678eadba3fbe7ed5e0c645b179aa9aa232757f1b9abb"
+    },
+    {
+      "path": "tests/verifier-validation-dir-r17.test.mjs",
+      "size": 879,
+      "sha256": "f437c990a69fc74facaf896778ddd0d22e2845fc0dfcd5e176e83178bbd0d22b"
+    },
+    {
+      "path": "tools/verify-final-source.mjs",
+      "size": 11613,
+      "sha256": "86e0d3995cf0ad27fb5224c99272212082e40af1d1b56f9a23533a33b6972648"
+    },
+    {
+      "path": "tools/run-node-suite.py",
+      "size": 2241,
+      "sha256": "85f6b3de00b16cb5c7e8e8f4d62823451d6237e4883473bce66919b3aa31ca71"
+    },
+    {
+      "path": "README.md",
+      "size": 3249,
+      "sha256": "ed80c92b14524aad7f290cdf9dade991123883ccf0e07e3d27bf185bd77e381d"
+    },
+    {
+      "path": "LEIA_PRIMEIRO.md",
+      "size": 1062,
+      "sha256": "591165172d07f24af42b6cd4f881f594414afc36f60db618e31cc06b47a7e3c4"
+    },
+    {
+      "path": "FINAL_1.0.0_VALIDATION.md",
+      "size": 12336,
+      "sha256": "763b3301763b4323957a90842c4afd0dd57a229c37375a2a90b7d671bbc4aa82"
+    },
+    {
+      "path": "RETOMADA_ATUAL.md",
+      "size": 56440,
+      "sha256": "2cd7394be2c67c8d6c338e89c332ae28f07d1a194a095d2659d5078f204d1998"
+    }
+  ]
+}

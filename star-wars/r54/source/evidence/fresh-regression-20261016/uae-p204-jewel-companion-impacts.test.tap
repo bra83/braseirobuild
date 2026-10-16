@@ -1,0 +1,17 @@
+✔ P204 blast affects only GM-confirmed companion, not player or absent ally (1883.5152ms)
+✔ P204 separate companions and blast/fall use independent receipts and health (1098.1267ms)
+✔ P204 missing GM confirmation, wrong position, forged companion and duplicates roll back (905.331ms)
+✔ P204 tampered companion impact and location are detected (729.208ms)
+✔ P204 three reopenings preserve companion wounds and receipts (839.3126ms)
+✔ P204 long fall gives companion official forced critical and preserves player health (812.2353ms)
+✔ P204 official adventure status rejects forged companion receipts (798.0191ms)
+✔ P204 Android PTBR exposes independent companion controls and bridge bundle (41.9726ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9411.9558
+

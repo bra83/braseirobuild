@@ -1,0 +1,16 @@
+✔ P233 Medicine consumes Kashyyyk vertigo in actual healing dice, once (1427.6894ms)
+✔ P233 Stim Application consumes Kashyyyk vertigo in real talent dice, once (1198.6538ms)
+✔ P233 failed Medicine action rolls back combat, character and vertigo if save fails (950.5676ms)
+✔ P233 failed Stim save rolls back real gear, character and pending vertigo (984.9434ms)
+✔ P233 save validator rejects altered dice face and forged pool, duplicate consumption (992.1293ms)
+✔ P233 pure downgrade never changes NPC pools, no proficiency cannot fabricate die (0.6144ms)
+✔ P233 Android PT-BR status, offline bridge and version are integrated (111.9337ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8632.9
+

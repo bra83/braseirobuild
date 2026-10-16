@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: P141 AoR Mañoso: 4 posições mecânicas, equivalência TINK e compra pela árvore real
+ok 1 - P141 AoR Mañoso: 4 posições mecânicas, equivalência TINK e compra pela árvore real
+  ---
+  duration_ms: 20.347311
+  type: 'test'
+  ...
+# Subtest: P141 Mañoso: +1 hard point por item, limites por rank e instalação real
+ok 2 - P141 Mañoso: +1 hard point por item, limites por rank e instalação real
+  ---
+  duration_ms: 16.168161
+  type: 'test'
+  ...
+# Subtest: P141 Mañoso: tentativas inválidas não concedem bônus nem alteram ficha
+ok 3 - P141 Mañoso: tentativas inválidas não concedem bônus nem alteram ficha
+  ---
+  duration_ms: 2.743265
+  type: 'test'
+  ...
+# Subtest: P141 Mañoso: bônus falsificados e acima dos ranks são recusados no inventário
+ok 4 - P141 Mañoso: bônus falsificados e acima dos ranks são recusados no inventário
+  ---
+  duration_ms: 1.114454
+  type: 'test'
+  ...
+# Subtest: P141 Mañoso: controller e reabertura persistem capacidade, inventário e limite
+ok 5 - P141 Mañoso: controller e reabertura persistem capacidade, inventário e limite
+  ---
+  duration_ms: 7.719625
+  type: 'test'
+  ...
+# Subtest: P141 Mañoso: interface Android expõe status e aplicação, preservando erro tipado
+ok 6 - P141 Mañoso: interface Android expõe status e aplicação, preservando erro tipado
+  ---
+  duration_ms: 3.251423
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 336.553374

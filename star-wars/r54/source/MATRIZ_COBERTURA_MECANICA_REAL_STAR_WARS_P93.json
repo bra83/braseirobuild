@@ -1,0 +1,797 @@
+{
+  "summary": {
+    "baseline": "P92 Drive -> P93 P0 wave 2 mechanical reachability",
+    "canonical_families": 55,
+    "playable": 26,
+    "engine_real": 7,
+    "partial": 6,
+    "rag_declaration": 16,
+    "real_total": 33,
+    "real_pct": 60.0,
+    "playable_pct": 47.3,
+    "tests_non_stress": {
+      "pass": 1040,
+      "fail": 0
+    },
+    "tests_stress": {
+      "pass": 6,
+      "fail": 0
+    },
+    "adventures": {
+      "under_black_sun": "106/106 PASS",
+      "beyond_the_rim": "57/57 PASS"
+    },
+    "android_build": "NÃO EXECUTADO por instrução do usuário; compilar somente no fechamento final."
+  },
+  "canonical_matrix": [
+    {
+      "id": "CORE.DICE.POOL",
+      "domain": "Core",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "N/A (cálculo)",
+      "tests": "SIM",
+      "evidence": "narrativeDice.mjs; r54-device-p6.js; rules.test.mjs",
+      "next_step": "Manter"
+    },
+    {
+      "id": "CORE.DICE.SYMBOLS",
+      "domain": "Core",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "N/A (cálculo)",
+      "tests": "SIM",
+      "evidence": "resolveSymbols()/rollPool(); 901/901 regressão",
+      "next_step": "Manter"
+    },
+    {
+      "id": "CORE.CHECKS.TYPES",
+      "domain": "Core",
+      "status": "PARCIAL",
+      "engine_without_rag": "PARCIAL",
+      "live_ui": "PARCIAL",
+      "persistence": "SIM quando via controller",
+      "tests": "PARCIAL",
+      "evidence": "Teste simples funciona; assistência hábil/não-hábil funciona no engine; não há implementação dedicada de teste oposto/competitivo",
+      "next_step": "Implementar opostos/competitivos e expor assistência na UI"
+    },
+    {
+      "id": "CORE.DESTINY",
+      "domain": "Core",
+      "status": "ENGINE REAL",
+      "engine_without_rag": "SIM",
+      "live_ui": "NÃO",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "destiny.mjs; startSession(); eote-core-systemic-r30.test.mjs",
+      "next_step": "Expor gasto/visualização na shell R46"
+    },
+    {
+      "id": "CHAR.CHARACTERISTICS",
+      "domain": "Personagem",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "criação manual EotE/AoR/MIXED na shell R46",
+      "next_step": "Manter"
+    },
+    {
+      "id": "CHAR.ATTRIBUTES",
+      "domain": "Personagem",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM (leitura/efeitos)",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "health.mjs/character.mjs; criação e efeitos de sessão",
+      "next_step": "Manter; depois expor saúde ativa"
+    },
+    {
+      "id": "CHAR.SPECIES",
+      "domain": "Personagem",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "8 espécies EotE + 8 AoR; character-creation tests",
+      "next_step": "Manter"
+    },
+    {
+      "id": "CHAR.CAREERS.EOTE",
+      "domain": "Personagem",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "6 carreiras EotE + specs core",
+      "next_step": "Manter"
+    },
+    {
+      "id": "CHAR.OBLIGATION",
+      "domain": "Campanha EotE",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM na criação; automático na sessão",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "obligation.mjs; startSession(); obligation.test.mjs",
+      "next_step": "Adicionar painel de ativação/penalidade na UI"
+    },
+    {
+      "id": "SKILLS.GENERAL",
+      "domain": "Perícias",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM via teste sugerido/Mestre",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "resolveSkillCheck(); suggested checks",
+      "next_step": "Manter"
+    },
+    {
+      "id": "SKILLS.COMBAT",
+      "domain": "Perícias",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "resolveWeaponAttack + painel R46 COMBATE PESSOAL; P92 runtime/final-shell tests",
+      "next_step": "Manter e ampliar manobras/ações"
+    },
+    {
+      "id": "SKILLS.KNOWLEDGE",
+      "domain": "Perícias",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM via teste sugerido/Mestre",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "resolveSkillCheck()",
+      "next_step": "Manter"
+    },
+    {
+      "id": "TALENTS.TREES",
+      "domain": "Talentos",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "talentProgressionStatus + buyTalent expostos na R46; compra só árvore possuída/nó desbloqueado; PE e efeitos persistem",
+      "next_step": "Manter; depois melhorar UX de especializações"
+    },
+    {
+      "id": "EQUIP.WEAPONS",
+      "domain": "Equipamento",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "equipmentOwnedSummary/equipWeapon + painel EQUIPAMENTO ATIVO; ataque usa arma equipada",
+      "next_step": "Manter"
+    },
+    {
+      "id": "EQUIP.QUALITIES",
+      "domain": "Equipamento",
+      "status": "PARCIAL",
+      "engine_without_rag": "PARCIAL",
+      "live_ui": "NÃO",
+      "persistence": "PARCIAL",
+      "tests": "PARCIAL",
+      "evidence": "P92 aplica Precisa no pool antes da rolagem, Automática +1 dificuldade e hits extras, Brecha/Perfurante no soak e Letal/Viciosa no crítico. Ainda faltam qualidades e ativações restantes (ex.: Explosão e ciclo completo de todas as qualities).",
+      "next_step": "Completar todas as qualidades oficiais e seus custos/ativações; manter como PARCIAL até cobertura completa"
+    },
+    {
+      "id": "EQUIP.ARMOR",
+      "domain": "Equipamento",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "equipArmor/unequipArmor + painel R46; normaliza armadura legada em gear",
+      "next_step": "Manter"
+    },
+    {
+      "id": "EQUIP.ATTACHMENTS",
+      "domain": "Equipamento",
+      "status": "PARCIAL",
+      "engine_without_rag": "PARCIAL",
+      "live_ui": "NÃO",
+      "persistence": "NÃO completo",
+      "tests": "PARCIAL",
+      "evidence": "hard points e canInstallAttachment existem; não há instalar/remover/modificar + Mechanics + persistência + UI",
+      "next_step": "Implementar subsistema completo"
+    },
+    {
+      "id": "COMBAT.STRUCTURE",
+      "domain": "Combate",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "painel R46 lê encontro real, turno, alvo e encerra turno/combate sem criar inimigos grátis",
+      "next_step": "Expandir iniciativa/slot UX"
+    },
+    {
+      "id": "COMBAT.MANEUVERS",
+      "domain": "Combate",
+      "status": "ENGINE REAL",
+      "engine_without_rag": "SIM",
+      "live_ui": "PARCIAL",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "Engine completo existente; P92 expõe MIRAR e ações básicas de posicionamento/turno, mas não todo o conjunto de manobras pessoais.",
+      "next_step": "Expor manobras restantes sem criar atalhos de custo"
+    },
+    {
+      "id": "COMBAT.ACTIONS",
+      "domain": "Combate",
+      "status": "ENGINE REAL",
+      "engine_without_rag": "SIM",
+      "live_ui": "PARCIAL",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "P92 expõe ataque/critical/end turn e usa engine real, mas não todas as ações pessoais/Medicine/utility.",
+      "next_step": "Expor ações restantes por contexto"
+    },
+    {
+      "id": "COMBAT.DAMAGE",
+      "domain": "Combate",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "ataque pessoal aplica dano real ao adversário persistente; Breach/Pierce entram no soak",
+      "next_step": "Manter"
+    },
+    {
+      "id": "COMBAT.CRITICAL",
+      "domain": "Combate",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "crítico pendente/ativação pela UI; Vicious entra no d100 real",
+      "next_step": "Manter"
+    },
+    {
+      "id": "COMBAT.CONDITIONS",
+      "domain": "Combate",
+      "status": "ENGINE REAL",
+      "engine_without_rag": "SIM",
+      "live_ui": "NÃO",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "conditions.mjs/statusEffects.mjs",
+      "next_step": "Expor estados na UI"
+    },
+    {
+      "id": "COMBAT.HEALING",
+      "domain": "Combate",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "Stimpack, Medicine e descanso completo expostos na R46 usando recovery/medicine engine; não limpam estado diretamente",
+      "next_step": "Manter e ampliar feedback de resultados"
+    },
+    {
+      "id": "VEHICLE.STATS",
+      "domain": "Veículos",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "painel R46 mostra nave/veículo ativo e estado real",
+      "next_step": "Manter; não conceder veículo por bridge"
+    },
+    {
+      "id": "VEHICLE.MANEUVERS",
+      "domain": "Veículos",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "painel R46 expõe acelerar/frear, aproximar/recuar, evasivas, stay on target e full throttle",
+      "next_step": "Adicionar manobras restantes apenas com fonte"
+    },
+    {
+      "id": "VEHICLE.ACTIONS",
+      "domain": "Veículos",
+      "status": "ENGINE REAL",
+      "engine_without_rag": "SIM",
+      "live_ui": "PARCIAL",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "P92 expõe parte das ações veiculares e ataque; nem todas (ex.: damage control completo) estão no painel.",
+      "next_step": "Completar ações veiculares na UI"
+    },
+    {
+      "id": "VEHICLE.COMBAT",
+      "domain": "Veículos",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "painel R46 executa combate veicular sobre veículo já existente",
+      "next_step": "Manter e ampliar actions/critical UI"
+    },
+    {
+      "id": "VEHICLE.CRITICAL",
+      "domain": "Veículos",
+      "status": "ENGINE REAL",
+      "engine_without_rag": "SIM",
+      "live_ui": "NÃO",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "vehicle critical table + repair",
+      "next_step": "Ligar à UI"
+    },
+    {
+      "id": "TRAVEL.HYPERSPACE",
+      "domain": "Viagem",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "P93 corrige leitura dos símbolos narrativos; salto bem-sucedido avança Mundo Vivo em ticks de 6h e muda local/cena somente se não sair da rota; falha não move nem avança tempo",
+      "next_step": "Manter; ampliar destinos/feedback visual"
+    },
+    {
+      "id": "ENV.HAZARDS",
+      "domain": "Ambiente",
+      "status": "ENGINE REAL",
+      "engine_without_rag": "SIM",
+      "live_ui": "NÃO",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "queda, sufocamento, fogo, radiação; environmental-hazards.test.mjs",
+      "next_step": "Integrar a cenas/Mestre/UI"
+    },
+    {
+      "id": "SOCIAL.ENCOUNTERS",
+      "domain": "Social",
+      "status": "PARCIAL",
+      "engine_without_rag": "PARCIAL",
+      "live_ui": "PARCIAL via perícia genérica",
+      "persistence": "SIM",
+      "tests": "NÃO dedicado",
+      "evidence": "Charm/Coercion/Negotiation etc. existem como skills, mas não há motor dedicado de conflito social/oposto",
+      "next_step": "Implementar resolução social oficial"
+    },
+    {
+      "id": "AOR.DUTY",
+      "domain": "Campanha AoR",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM na criação; automático na sessão",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "duty.mjs; criação AoR",
+      "next_step": "Adicionar painel de sessão"
+    },
+    {
+      "id": "AOR.DUTY.ACTIVATION",
+      "domain": "Campanha AoR",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "AUTOMÁTICA",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "dutyCheck/applyDutyBonus em startSession()",
+      "next_step": "Mostrar gatilho/bônus na UI"
+    },
+    {
+      "id": "AOR.CONTRIBUTION",
+      "domain": "Campanha AoR",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "painel PROGRESSÃO mostra Duty/Contribution e resolve marco somente quando elegível via resolveCampaignMilestone",
+      "next_step": "Manter sem expor mutação bruta de Duty"
+    },
+    {
+      "id": "AOR.CAREERS",
+      "domain": "Personagem AoR",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "6 carreiras AoR + specs core na criação",
+      "next_step": "Manter"
+    },
+    {
+      "id": "AOR.BASE.REQUISITION",
+      "domain": "Campanha AoR",
+      "status": "PARCIAL",
+      "engine_without_rag": "PARCIAL",
+      "live_ui": "NÃO",
+      "persistence": "PARCIAL",
+      "tests": "PARCIAL",
+      "evidence": "Contribution rank calcula modifier/max rarity/navalSupport, mas não existe fluxo real de requisição/base",
+      "next_step": "Implementar requisição transacional e UI"
+    },
+    {
+      "id": "EXP.EOTE.HIREDGUN",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Demolitionist/Heavy/Enforcer não estão nas árvores de especialização",
+      "next_step": "Implementar ou retirar alegação"
+    },
+    {
+      "id": "EXP.EOTE.SIGNATURE",
+      "domain": "Expansão",
+      "status": "PARCIAL",
+      "engine_without_rag": "PARCIAL",
+      "live_ui": "NÃO",
+      "persistence": "SIM compra",
+      "tests": "PARCIAL",
+      "evidence": "7 abilities para apenas 4 carreiras EotE; Colonist/Explorer e AoR faltam; não há runtime de ativação dos efeitos",
+      "next_step": "Completar catálogo + ativação real"
+    },
+    {
+      "id": "EXP.EOTE.PAY_GUN",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Sem motor de contratos/equipes mercenárias",
+      "next_step": "Implementar"
+    },
+    {
+      "id": "EXP.EOTE.EXPLORER",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Archeologist/Big Game Hunter/Driver ausentes",
+      "next_step": "Implementar"
+    },
+    {
+      "id": "EXP.EOTE.SURVIVAL",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO específico",
+      "live_ui": "NÃO",
+      "persistence": "NÃO específico",
+      "tests": "NÃO",
+      "evidence": "Há Survival genérico, mas não o subsistema avançado declarado",
+      "next_step": "Implementar regras específicas"
+    },
+    {
+      "id": "EXP.EOTE.COLONIST",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Doctor/Marshal/Performer de Far Horizons não integrados como expansão",
+      "next_step": "Implementar"
+    },
+    {
+      "id": "EXP.EOTE.HOMESTEADS",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Mundo/economia genéricos não equivalem ao sistema oficial de Homesteads",
+      "next_step": "Implementar"
+    },
+    {
+      "id": "EXP.EOTE.SMUGGLER",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Charmer/Gambler/Gunslinger ausentes",
+      "next_step": "Implementar"
+    },
+    {
+      "id": "EXP.EOTE.GAMBLING",
+      "domain": "Expansão",
+      "status": "JOGÁVEL",
+      "engine_without_rag": "SIM",
+      "live_ui": "SIM dentro de Sob um Sol Negro",
+      "persistence": "SIM",
+      "tests": "SIM",
+      "evidence": "Sabacc persistente em underBlackSun.mjs",
+      "next_step": "Separar como subsistema reutilizável se desejado"
+    },
+    {
+      "id": "EXP.EOTE.SMUGGLING",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Sem inspeção alfandegária/compartimentos/suborno estruturado",
+      "next_step": "Implementar"
+    },
+    {
+      "id": "EXP.EOTE.TECHNICIAN",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Cyber Tech/Droid Tech/Modder ausentes",
+      "next_step": "Implementar"
+    },
+    {
+      "id": "EXP.EOTE.CRAFTING",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Sem crafting de armas/armaduras/droides/gadgets",
+      "next_step": "Implementar"
+    },
+    {
+      "id": "EXP.AOR.SOLDIER",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Heavy/Vanguard de Forged in Battle não integrados",
+      "next_step": "Implementar"
+    },
+    {
+      "id": "EXP.AOR.ENTRENCHED",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Sem fortificação/fogo supressivo específico",
+      "next_step": "Implementar"
+    },
+    {
+      "id": "EXP.AOR.SPY",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Sleeper Agent/Interrogator de Cyphers & Masks ausentes",
+      "next_step": "Implementar"
+    },
+    {
+      "id": "EXP.AOR.ESPIONAGE",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Sem identidade falsa/grampos/contraespionagem estruturada",
+      "next_step": "Implementar"
+    },
+    {
+      "id": "EXP.AOR.ENGINEER",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Droid Specialist e conteúdo expansion-specific não integrados",
+      "next_step": "Implementar"
+    },
+    {
+      "id": "EXP.AOR.VEHICLE_CRAFTING",
+      "domain": "Expansão",
+      "status": "RAG/DECLARAÇÃO",
+      "engine_without_rag": "NÃO",
+      "live_ui": "NÃO",
+      "persistence": "NÃO",
+      "tests": "NÃO",
+      "evidence": "Sem construção/customização oficial de veículos/bases",
+      "next_step": "Implementar"
+    }
+  ],
+  "extra_real_mechanics": [
+    {
+      "id": "FORCE.CORE",
+      "domain": "Força",
+      "status": "JOGÁVEL",
+      "implementation": "Force Rating, dado da Força, compra de poderes/upgrades, commit/release e conversão light/dark; P92 expõe painel apenas para personagem Force-sensitive",
+      "evidence": "eote-force-core-r28.test.mjs + P92 final-shell mechanics tests",
+      "note": "Sem grant artificial de sensibilidade à Força"
+    },
+    {
+      "id": "FORCE.SENSE",
+      "domain": "Força",
+      "status": "ENGINE REAL",
+      "implementation": "Sense básico + upgrades/alcance/magnitude/pensamentos",
+      "evidence": "eote-force-core-r28.test.mjs",
+      "note": "Sem UI atual"
+    },
+    {
+      "id": "FORCE.INFLUENCE",
+      "domain": "Força",
+      "status": "ENGINE REAL",
+      "implementation": "Influence básico, strain e regra de emoção por lado",
+      "evidence": "eote-force-core-r28.test.mjs",
+      "note": "Sem UI atual"
+    },
+    {
+      "id": "FORCE.MOVE",
+      "domain": "Força",
+      "status": "ENGINE REAL",
+      "implementation": "Move básico, Strength/Range/Magnitude e Hurl damage",
+      "evidence": "eote-force-core-r28.test.mjs",
+      "note": "Sem UI atual"
+    },
+    {
+      "id": "FEAR.CHECKS",
+      "domain": "Core/GM",
+      "status": "ENGINE REAL",
+      "implementation": "Dificuldade, rolagem e consequências de medo",
+      "evidence": "eote-core-session-load-fear-r30.test.mjs",
+      "note": "Bridge existe; shell principal não usa o adapter"
+    },
+    {
+      "id": "ECONOMY.ACQUISITION",
+      "domain": "Economia",
+      "status": "JOGÁVEL",
+      "implementation": "Raridade/disponibilidade, pedido pendente e decisão estruturada do Mestre",
+      "evidence": "acquisition-r13.test.mjs; economy-r34.test.mjs",
+      "note": "UI atual permite propor armas ao Mestre"
+    },
+    {
+      "id": "ECONOMY.ASSET_LIFECYCLE",
+      "domain": "Economia",
+      "status": "ENGINE REAL",
+      "implementation": "grant/lose/damage/repair/sell catalog asset",
+      "evidence": "economy-r34.test.mjs",
+      "note": "Pode ser acionado por proposal do Mestre; sem painel direto"
+    },
+    {
+      "id": "TRAVEL.SUBLIGHT",
+      "domain": "Viagem",
+      "status": "ENGINE REAL",
+      "implementation": "Tempo subluz e planejamento interstelar",
+      "evidence": "travel.mjs",
+      "note": "Sem UI dedicada"
+    },
+    {
+      "id": "GEAR.ACTIVE_EFFECTS",
+      "domain": "Equipamento",
+      "status": "ENGINE REAL",
+      "implementation": "óptica, tool kit, patch, reload, restraints",
+      "evidence": "general-gear-effects tests",
+      "note": "Aplicação parcial via engine; sem UI dedicada"
+    },
+    {
+      "id": "SESSION.LIFECYCLE",
+      "domain": "Sessão",
+      "status": "JOGÁVEL",
+      "implementation": "start/close, Destiny, Obligation/Duty, XP, histórico",
+      "evidence": "session-flow.test.mjs",
+      "note": "Start é usado automaticamente por sandbox/aventura"
+    },
+    {
+      "id": "CYBERNETICS.CORE",
+      "domain": "Personagem/Equipamento",
+      "status": "JOGÁVEL",
+      "implementation": "Aquisição transacional desconta créditos e gera ativo possuído; instalação/remoção só aceita asset cybernetic realmente possuído; capacidade e efeitos persistem; nenhum bridge concede implante grátis.",
+      "evidence": "r54-p92-cybernetics-engine-safe.test.mjs (3/3) + cybernetics.mjs",
+      "note": "P93 fecha propriedade -> instalação -> remoção com segurança econômica; aquisição pode passar por proposta/Mestre conforme disponibilidade."
+    }
+  ],
+  "vtt_systems": [
+    {
+      "id": "VTT.PERSISTENCE",
+      "status": "JOGÁVEL",
+      "evidence": "LocalStorageRepository + reducer/eventos; estado sobrevive reload",
+      "note": "state/storage tests"
+    },
+    {
+      "id": "VTT.BACKUP_SNAPSHOTS",
+      "status": "JOGÁVEL",
+      "evidence": "export/import campanha e personagem + snapshots",
+      "note": "backup/restore + snapshot tests"
+    },
+    {
+      "id": "VTT.SANDBOX",
+      "status": "JOGÁVEL",
+      "evidence": "seed, ponto inicial, abertura Barbara, oportunidades",
+      "note": "sandbox-ui-r33 + living-world tests"
+    },
+    {
+      "id": "VTT.MAP_TRAVEL",
+      "status": "JOGÁVEL",
+      "evidence": "rotas reais, avanço de tempo e mudança de cena",
+      "note": "r54-final-map-travel.js + world tests"
+    },
+    {
+      "id": "VTT.NPC_FACTIONS",
+      "status": "ENGINE REAL / PARCIAL UI",
+      "evidence": "NPCs persistentes, relações, objetivos, facções e planos",
+      "note": "world/faction/persistent-adversary tests"
+    },
+    {
+      "id": "VTT.MASTER_PROPOSALS",
+      "status": "JOGÁVEL",
+      "evidence": "proposal estruturada, whitelist, rollback transacional",
+      "note": "master-proposal/world-ops tests"
+    },
+    {
+      "id": "VTT.PUBLISHED_UNDER_BLACK_SUN",
+      "status": "JOGÁVEL",
+      "evidence": "13 nós, checks, chase, sabacc, Zelcomm, NovaCORE, encontros",
+      "note": "r54-p36-under-black-sun-systems.test.mjs"
+    },
+    {
+      "id": "VTT.PUBLISHED_WHISPER_BASE",
+      "status": "ENGINE REAL",
+      "evidence": "8 nós, encontros, powerCut/commsJammed, +10 Duty",
+      "note": "whisper-base-adventure.test.mjs; não exposta na shell final"
+    },
+    {
+      "id": "VTT.ANTI_SPOILER_ADVENTURE",
+      "status": "PARCIAL",
+      "evidence": "playerNode filtra choices/effects, mas underBlackSunStatus ainda expõe progress.flags completos",
+      "note": "auditoria estática"
+    },
+    {
+      "id": "VTT.TTS_ANDROID",
+      "status": "PARCIAL / SEM EVIDÊNCIA DE APARELHO",
+      "evidence": "código e testes host existem, mas este branch é anterior ao pipeline Kokoro atual",
+      "note": "tts tests; sem validação de dispositivo nesta auditoria"
+    },
+    {
+      "id": "VTT.GEMINI_MASTER",
+      "status": "PARCIAL / DEPENDE SERVIÇO",
+      "evidence": "bridge/configuração/proposal estruturada existem",
+      "note": "gemini/master tests; requer chave/rede para prova real"
+    },
+    {
+      "id": "VTT.PDF_RAG",
+      "status": "FORA DO CONTADOR MECÂNICO",
+      "evidence": "import/index/search de PDFs é infraestrutura de consulta, não implementação da regra",
+      "note": "rag/library tests"
+    }
+  ]
+}

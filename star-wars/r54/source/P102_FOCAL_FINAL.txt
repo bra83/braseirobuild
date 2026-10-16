@@ -1,0 +1,706 @@
+TAP version 13
+# Subtest: P100: primeira modificação custa 100 créditos, exige Mecânica Difícil e altera o attachment instalado
+ok 1 - P100: primeira modificação custa 100 créditos, exige Mecânica Difícil e altera o attachment instalado
+  ---
+  duration_ms: 11.220176
+  type: 'test'
+  ...
+# Subtest: P100: segunda modificação fica mais difícil, consome o último slot e reduz Imprecisa novamente
+ok 2 - P100: segunda modificação fica mais difícil, consome o último slot e reduz Imprecisa novamente
+  ---
+  duration_ms: 10.28657
+  type: 'test'
+  ...
+# Subtest: P100: falha de Mod custa créditos, consome uma opção e não concede o efeito
+ok 3 - P100: falha de Mod custa créditos, consome uma opção e não concede o efeito
+  ---
+  duration_ms: 4.442005
+  type: 'test'
+  ...
+# Subtest: P100: Mod é bloqueado sem kit de ferramentas, com créditos insuficientes e durante combate
+ok 4 - P100: Mod é bloqueado sem kit de ferramentas, com créditos insuficientes e durante combate
+  ---
+  duration_ms: 7.850825
+  type: 'test'
+  ...
+# Subtest: P100: Mods instalados chegam ao resolveWeaponAttack real
+ok 5 - P100: Mods instalados chegam ao resolveWeaponAttack real
+  ---
+  duration_ms: 23.886268
+  type: 'test'
+  ...
+# Subtest: P100: Mods pertencem ao attachment e sobrevivem remoção, reopen e reinstalação
+ok 6 - P100: Mods pertencem ao attachment e sobrevivem remoção, reopen e reinstalação
+  ---
+  duration_ms: 13.154287
+  type: 'test'
+  ...
+# Subtest: P100: Postura Defensiva consome manobra e adiciona Setback aos próprios testes de combate
+ok 7 - P100: Postura Defensiva consome manobra e adiciona Setback aos próprios testes de combate
+  ---
+  duration_ms: 6.173481
+  type: 'test'
+  ...
+# Subtest: P100: Postura Defensiva adiciona Setback a ataque melee contra o jogador, mas não a ranged
+ok 8 - P100: Postura Defensiva adiciona Setback a ataque melee contra o jogador, mas não a ranged
+  ---
+  duration_ms: 5.852328
+  type: 'test'
+  ...
+# Subtest: P100: bridge/contratos/R46 expõem Mods e Postura Defensiva sem mutação bruta
+ok 9 - P100: bridge/contratos/R46 expõem Mods e Postura Defensiva sem mutação bruta
+  ---
+  duration_ms: 2.360793
+  type: 'test'
+  ...
+# Subtest: P101: assistência de equipamento rejeita item que não está realmente possuído
+ok 10 - P101: assistência de equipamento rejeita item que não está realmente possuído
+  ---
+  duration_ms: 5.852789
+  type: 'test'
+  ...
+# Subtest: P101: Kit de ferramentas possuído remove apenas setback declarado de falta de ferramentas
+ok 11 - P101: Kit de ferramentas possuído remove apenas setback declarado de falta de ferramentas
+  ---
+  duration_ms: 1.496192
+  type: 'test'
+  ...
+# Subtest: P101: Eletrobinóculos possuídos removem no máximo 1 setback auditado
+ok 12 - P101: Eletrobinóculos possuídos removem no máximo 1 setback auditado
+  ---
+  duration_ms: 0.822688
+  type: 'test'
+  ...
+# Subtest: P101: remendo de reparo cura droide, consome item e persiste limite diário
+ok 13 - P101: remendo de reparo cura droide, consome item e persiste limite diário
+  ---
+  duration_ms: 1.562201
+  type: 'test'
+  ...
+# Subtest: P101: remendo é ação real em combate e orgânico não pode usá-lo
+ok 14 - P101: remendo é ação real em combate e orgânico não pode usá-lo
+  ---
+  duration_ms: 1.536172
+  type: 'test'
+  ...
+# Subtest: P101: Fear continua source-bound, persiste efeitos e não rerrola a mesma fonte
+ok 15 - P101: Fear continua source-bound, persiste efeitos e não rerrola a mesma fonte
+  ---
+  duration_ms: 1.34214
+  type: 'test'
+  ...
+# Subtest: P101: Encumbrance/lifting continuam no engine e refletem carga real
+ok 16 - P101: Encumbrance/lifting continuam no engine e refletem carga real
+  ---
+  duration_ms: 0.731981
+  type: 'test'
+  ...
+# Subtest: P101: bridge/contratos/R46 expõem Fear, carga, gear assist e reparo sem grant de item ou raw status
+ok 17 - P101: bridge/contratos/R46 expõem Fear, carga, gear assist e reparo sem grant de item ou raw status
+  ---
+  duration_ms: 1.520679
+  type: 'test'
+  ...
+# Subtest: P102 Ganhar a Vantagem usa dificuldade por velocidade, consome ação, persiste zona e ignora Evasivas
+ok 18 - P102 Ganhar a Vantagem usa dificuldade por velocidade, consome ação, persiste zona e ignora Evasivas
+  ---
+  duration_ms: 12.160942
+  type: 'test'
+  ...
+# Subtest: P102 Copiloto sobrevive à troca de assalto e rebaixa o próximo teste de Pilotagem
+ok 19 - P102 Copiloto sobrevive à troca de assalto e rebaixa o próximo teste de Pilotagem
+  ---
+  duration_ms: 4.381744
+  type: 'test'
+  ...
+# Subtest: P102 Traçar Curso reduz apenas Setback externo do próximo perigo e é consumido
+ok 20 - P102 Traçar Curso reduz apenas Setback externo do próximo perigo e é consumido
+  ---
+  duration_ms: 4.680884
+  type: 'test'
+  ...
+# Subtest: P102 Reforçar Escudos sofre 1 Tensão e aumenta somente a zona escolhida durante a duração
+ok 21 - P102 Reforçar Escudos sofre 1 Tensão e aumenta somente a zona escolhida durante a duração
+  ---
+  duration_ms: 4.939344
+  type: 'test'
+  ...
+# Subtest: P102 Disciplina de Fogo concede Boost ao próximo disparo real e consome a carga
+ok 22 - P102 Disciplina de Fogo concede Boost ao próximo disparo real e consome a carga
+  ---
+  duration_ms: 4.218189
+  type: 'test'
+  ...
+# Subtest: P102 Escanear revela armamento/modificações e limiares, sem revelar níveis atuais de graça
+ok 23 - P102 Escanear revela armamento/modificações e limiares, sem revelar níveis atuais de graça
+  ---
+  duration_ms: 2.289235
+  type: 'test'
+  ...
+# Subtest: P102 Fatiar Sistemas reduz defesa da zona por um round por êxito
+ok 24 - P102 Fatiar Sistemas reduz defesa da zona por um round por êxito
+  ---
+  duration_ms: 4.60499
+  type: 'test'
+  ...
+# Subtest: P102 Despistar Mísseis melhora a dificuldade contra arma Guiada no assalto atual
+ok 25 - P102 Despistar Mísseis melhora a dificuldade contra arma Guiada no assalto atual
+  ---
+  duration_ms: 2.279891
+  type: 'test'
+  ...
+# Subtest: P102 bridge, contratos e R46 expõem ações sem mutação bruta
+ok 26 - P102 bridge, contratos e R46 expõem ações sem mutação bruta
+  ---
+  duration_ms: 1.384203
+  type: 'test'
+  ...
+# Subtest: P92: cibernético altera ficha, respeita persistência e remoção reverte efeito
+ok 27 - P92: cibernético altera ficha, respeita persistência e remoção reverte efeito
+  ---
+  duration_ms: 5.958998
+  type: 'test'
+  ...
+# Subtest: P92: limite de cibernéticos por Fortaleza é realmente bloqueante
+ok 28 - P92: limite de cibernéticos por Fortaleza é realmente bloqueante
+  ---
+  duration_ms: 1.880219
+  type: 'test'
+  ...
+# Subtest: P92: bridge público não concede veículo nem instala cibernético sem aquisição
+ok 29 - P92: bridge público não concede veículo nem instala cibernético sem aquisição
+  ---
+  duration_ms: 0.835477
+  type: 'test'
+  ...
+# Subtest: P92: shell final expõe painéis P0 nas rotas de combate, veículo, viagem, personagem, progressão e itens
+ok 30 - P92: shell final expõe painéis P0 nas rotas de combate, veículo, viagem, personagem, progressão e itens
+  ---
+  duration_ms: 1.469702
+  type: 'test'
+  ...
+# Subtest: P92: UI P0 chama apenas bridge mecânico, sem consultRules/RAG
+ok 31 - P92: UI P0 chama apenas bridge mecânico, sem consultRules/RAG
+  ---
+  duration_ms: 0.400683
+  type: 'test'
+  ...
+# Subtest: P92: bridge final alcança as mutações P0 do GameController
+ok 32 - P92: bridge final alcança as mutações P0 do GameController
+  ---
+  duration_ms: 0.825823
+  type: 'test'
+  ...
+# Subtest: P92: Precisa/Accurate entra no pool real antes da rolagem
+ok 33 - P92: Precisa/Accurate entra no pool real antes da rolagem
+  ---
+  duration_ms: 10.229525
+  type: 'test'
+  ...
+# Subtest: P92: Automática aumenta a dificuldade real e resolve acertos extras por Vantagem
+ok 34 - P92: Automática aumenta a dificuldade real e resolve acertos extras por Vantagem
+  ---
+  duration_ms: 4.295755
+  type: 'test'
+  ...
+# Subtest: P92: Brecha é convertida em 10 pontos de Soak ignorado no dano real
+ok 35 - P92: Brecha é convertida em 10 pontos de Soak ignorado no dano real
+  ---
+  duration_ms: 2.935468
+  type: 'test'
+  ...
+# Subtest: P92: Viciosa/Letal chega ao crítico ativado como modificador d100
+ok 36 - P92: Viciosa/Letal chega ao crítico ativado como modificador d100
+  ---
+  duration_ms: 2.096245
+  type: 'test'
+  ...
+# Subtest: P92: equipar arma/armadura altera estado e sobrevive a reabertura
+ok 37 - P92: equipar arma/armadura altera estado e sobrevive a reabertura
+  ---
+  duration_ms: 5.884816
+  type: 'test'
+  ...
+# Subtest: P92: salto hiperespacial usa nave + Astronavegação e persiste resultado
+ok 38 - P92: salto hiperespacial usa nave + Astronavegação e persiste resultado
+  ---
+  duration_ms: 3.7138
+  type: 'test'
+  ...
+# Subtest: P93: resolução de Astronavegação usa símbolos reais do rollPool e salto bem-sucedido avança tempo/local
+ok 39 - P93: resolução de Astronavegação usa símbolos reais do rollPool e salto bem-sucedido avança tempo/local
+  ---
+  duration_ms: 150.967755
+  type: 'test'
+  ...
+# Subtest: P93: desvio hiperespacial avança o tempo mas não teleporta ao destino pretendido
+ok 40 - P93: desvio hiperespacial avança o tempo mas não teleporta ao destino pretendido
+  ---
+  duration_ms: 121.315942
+  type: 'test'
+  ...
+# Subtest: P93: falha de Astronavegação não avança relógio nem posição
+ok 41 - P93: falha de Astronavegação não avança relógio nem posição
+  ---
+  duration_ms: 102.288231
+  type: 'test'
+  ...
+# Subtest: P93: catálogo econômico inclui cibernéticos mas aquisição não instala efeitos automaticamente
+ok 42 - P93: catálogo econômico inclui cibernéticos mas aquisição não instala efeitos automaticamente
+  ---
+  duration_ms: 3.009809
+  type: 'test'
+  ...
+# Subtest: P93: somente cibernético adquirido pode ser instalado e remoção preserva propriedade
+ok 43 - P93: somente cibernético adquirido pode ser instalado e remoção preserva propriedade
+  ---
+  duration_ms: 3.119975
+  type: 'test'
+  ...
+# Subtest: P93: UI final expõe progressão de talentos, recuperação, hiperespaço real e cibernéticos sem consultRules
+ok 44 - P93: UI final expõe progressão de talentos, recuperação, hiperespaço real e cibernéticos sem consultRules
+  ---
+  duration_ms: 0.89714
+  type: 'test'
+  ...
+# Subtest: P93: recuperação pela UI usa regras reais de Stimpack, Medicina e descanso
+ok 45 - P93: recuperação pela UI usa regras reais de Stimpack, Medicina e descanso
+  ---
+  duration_ms: 2.71121
+  type: 'test'
+  ...
+# Subtest: P93: contratos TypeScript incluem apenas as operações novas seguras
+ok 46 - P93: contratos TypeScript incluem apenas as operações novas seguras
+  ---
+  duration_ms: 0.294543
+  type: 'test'
+  ...
+# Subtest: P93: bridge não oferece instalação cibernética bruta sem ativo adquirido
+ok 47 - P93: bridge não oferece instalação cibernética bruta sem ativo adquirido
+  ---
+  duration_ms: 0.599242
+  type: 'test'
+  ...
+# Subtest: P94: Destino luminoso gasto vira sombrio e persiste
+ok 48 - P94: Destino luminoso gasto vira sombrio e persiste
+  ---
+  duration_ms: 5.104082
+  type: 'test'
+  ...
+# Subtest: P94: movimento entre faixas consome manobra e segunda manobra custa 2 de Tensão
+ok 49 - P94: movimento entre faixas consome manobra e segunda manobra custa 2 de Tensão
+  ---
+  duration_ms: 7.402891
+  type: 'test'
+  ...
+# Subtest: P94: immobilized bloqueia manobra de movimento real
+ok 50 - P94: immobilized bloqueia manobra de movimento real
+  ---
+  duration_ms: 1.912338
+  type: 'test'
+  ...
+# Subtest: P94: cobertura e sacar/trocar arma consomem manobra real
+ok 51 - P94: cobertura e sacar/trocar arma consomem manobra real
+  ---
+  duration_ms: 2.633955
+  type: 'test'
+  ...
+# Subtest: P94: deslocar-se entre faixas abandona cobertura
+ok 52 - P94: deslocar-se entre faixas abandona cobertura
+  ---
+  duration_ms: 8.43214
+  type: 'test'
+  ...
+# Subtest: P94: equipamentos expõem attachments e hard points reais sem instalar nada automaticamente
+ok 53 - P94: equipamentos expõem attachments e hard points reais sem instalar nada automaticamente
+  ---
+  duration_ms: 1.318825
+  type: 'test'
+  ...
+# Subtest: P94: UI final mostra Destino, condições, movimento e hard points sem consultar RAG
+ok 54 - P94: UI final mostra Destino, condições, movimento e hard points sem consultar RAG
+  ---
+  duration_ms: 1.152004
+  type: 'test'
+  ...
+# Subtest: P94: contratos TypeScript incluem as operações novas
+ok 55 - P94: contratos TypeScript incluem as operações novas
+  ---
+  duration_ms: 0.368565
+  type: 'test'
+  ...
+# Subtest: P94: cobertura adiciona Setback real a ataque NPC ranged e some ao fim do combate
+ok 56 - P94: cobertura adiciona Setback real a ataque NPC ranged e some ao fim do combate
+  ---
+  duration_ms: 3.378394
+  type: 'test'
+  ...
+# Subtest: P94: condição disoriented visível também aplica Setback real ao ataque
+ok 57 - P94: condição disoriented visível também aplica Setback real ao ataque
+  ---
+  duration_ms: 3.814301
+  type: 'test'
+  ...
+# Subtest: P95 opposed: maior valor define dados negativos e menor faz upgrades
+ok 58 - P95 opposed: maior valor define dados negativos e menor faz upgrades
+  ---
+  duration_ms: 1.298645
+  type: 'test'
+  ...
+# Subtest: P95 assistência hábil combina melhor característica e melhor perícia
+ok 59 - P95 assistência hábil combina melhor característica e melhor perícia
+  ---
+  duration_ms: 0.218789
+  type: 'test'
+  ...
+# Subtest: P95 assistência não-hábil adiciona exatamente um Boost
+ok 60 - P95 assistência não-hábil adiciona exatamente um Boost
+  ---
+  duration_ms: 0.195274
+  type: 'test'
+  ...
+# Subtest: P95 competitivo desempata por Triumph e depois Advantage
+ok 61 - P95 competitivo desempata por Triumph e depois Advantage
+  ---
+  duration_ms: 0.257338
+  type: 'test'
+  ...
+# Subtest: P95 competitivo sem sucesso é empate e empate completo continua empate
+ok 62 - P95 competitivo sem sucesso é empate e empate completo continua empate
+  ---
+  duration_ms: 0.217797
+  type: 'test'
+  ...
+# Subtest: P95 social: Coerção é oposta por Disciplina e persiste em save/reopen
+ok 63 - P95 social: Coerção é oposta por Disciplina e persiste em save/reopen
+  ---
+  duration_ms: 6.401855
+  type: 'test'
+  ...
+# Subtest: P95 social rejeita combinação que contorna oposição oficial
+ok 64 - P95 social rejeita combinação que contorna oposição oficial
+  ---
+  duration_ms: 1.052754
+  type: 'test'
+  ...
+# Subtest: P95 social: Negociação aceita Negociação ou Frialdade
+ok 65 - P95 social: Negociação aceita Negociação ou Frialdade
+  ---
+  duration_ms: 3.040316
+  type: 'test'
+  ...
+# Subtest: P95 checks avançados persistem tipo e resultado para reopen
+ok 66 - P95 checks avançados persistem tipo e resultado para reopen
+  ---
+  duration_ms: 3.602512
+  type: 'test'
+  ...
+# Subtest: P95 bridge não expõe criação arbitrária de crítico veicular
+ok 67 - P95 bridge não expõe criação arbitrária de crítico veicular
+  ---
+  duration_ms: 7.379747
+  type: 'test'
+  ...
+# Subtest: P95 reparo de crítico veicular exige teste de Mecânica e persiste somente no sucesso
+ok 68 - P95 reparo de crítico veicular exige teste de Mecânica e persiste somente no sucesso
+  ---
+  duration_ms: 4.158478
+  type: 'test'
+  ...
+# Subtest: P95 falha em reparo de crítico não limpa o dano e consome ação durante combate
+ok 69 - P95 falha em reparo de crítico não limpa o dano e consome ação durante combate
+  ---
+  duration_ms: 2.120281
+  type: 'test'
+  ...
+# Subtest: P95 R46 alcança social/oposto/competitivo/assistência sem fallback textual
+ok 70 - P95 R46 alcança social/oposto/competitivo/assistência sem fallback textual
+  ---
+  duration_ms: 1.477714
+  type: 'test'
+  ...
+# Subtest: P95 UI veicular oferece Damage Control e reparo testado, não criação manual de crítico
+ok 71 - P95 UI veicular oferece Damage Control e reparo testado, não criação manual de crítico
+  ---
+  duration_ms: 0.319931
+  type: 'test'
+  ...
+# Subtest: P96 qualidades passivas: Imprecisa, Aparatosa, Desajeitada, Defensiva e Deflexão produzem modificadores source-bound
+ok 72 - P96 qualidades passivas: Imprecisa, Aparatosa, Desajeitada, Defensiva e Deflexão produzem modificadores source-bound
+  ---
+  duration_ms: 2.140411
+  type: 'test'
+  ...
+# Subtest: P96 ataque real aplica Imprecisa/Aparatosa/Desajeitada ao pool, não apenas metadados
+ok 73 - P96 ataque real aplica Imprecisa/Aparatosa/Desajeitada ao pool, não apenas metadados
+  ---
+  duration_ms: 11.60106
+  type: 'test'
+  ...
+# Subtest: P96 Preparação exige manobras reais, persiste e é consumida no ataque
+ok 74 - P96 Preparação exige manobras reais, persiste e é consumida no ataque
+  ---
+  duration_ms: 6.496948
+  type: 'test'
+  ...
+# Subtest: P96 Munição Limitada conta disparos e recarga consome item realmente possuído
+ok 75 - P96 Munição Limitada conta disparos e recarga consome item realmente possuído
+  ---
+  duration_ms: 5.486497
+  type: 'test'
+  ...
+# Subtest: P96 Cadência Lenta impede disparo pelos assaltos exigidos
+ok 76 - P96 Cadência Lenta impede disparo pelos assaltos exigidos
+  ---
+  duration_ms: 5.48869
+  type: 'test'
+  ...
+# Subtest: P96 ataque veicular real cria Critical Hit pendente e ativação grava crítico no alvo
+ok 77 - P96 ataque veicular real cria Critical Hit pendente e ativação grava crítico no alvo
+  ---
+  duration_ms: 9.18907
+  type: 'test'
+  ...
+# Subtest: P96 Critical Hit que exige componente preserva o mesmo d100 até a escolha
+ok 78 - P96 Critical Hit que exige componente preserva o mesmo d100 até a escolha
+  ---
+  duration_ms: 3.353727
+  type: 'test'
+  ...
+# Subtest: P96 bridge expõe apenas ativação de crítico pendente do ataque, não criação arbitrária
+ok 79 - P96 bridge expõe apenas ativação de crítico pendente do ataque, não criação arbitrária
+  ---
+  duration_ms: 5.472736
+  type: 'test'
+  ...
+# Subtest: P97 identifica qualidades ativas source-bound sem confundir passivas
+ok 80 - P97 identifica qualidades ativas source-bound sem confundir passivas
+  ---
+  duration_ms: 2.029465
+  type: 'test'
+  ...
+# Subtest: P97 orçamento de Vantagens é único: qualidade gasta impede crítico com as mesmas Vantagens
+ok 81 - P97 orçamento de Vantagens é único: qualidade gasta impede crítico com as mesmas Vantagens
+  ---
+  duration_ms: 7.921651
+  type: 'test'
+  ...
+# Subtest: P97 Desorientação aplica Setback real ao próximo ataque do adversário e expira por turnos
+ok 82 - P97 Desorientação aplica Setback real ao próximo ataque do adversário e expira por turnos
+  ---
+  duration_ms: 4.25546
+  type: 'test'
+  ...
+# Subtest: P97 Atordoadora causa Tensão direta e rival converte em Ferimentos
+ok 83 - P97 Atordoadora causa Tensão direta e rival converte em Ferimentos
+  ---
+  duration_ms: 2.088313
+  type: 'test'
+  ...
+# Subtest: P97 Incendiária persiste e aplica dano base no início dos turnos do alvo
+ok 84 - P97 Incendiária persiste e aplica dano base no início dos turnos do alvo
+  ---
+  duration_ms: 2.694285
+  type: 'test'
+  ...
+# Subtest: P97 Hendedura/Sunder gasta 1 Vantagem por etapa e dano Moderate aumenta dificuldade da arma NPC
+ok 85 - P97 Hendedura/Sunder gasta 1 Vantagem por etapa e dano Moderate aumenta dificuldade da arma NPC
+  ---
+  duration_ms: 2.413823
+  type: 'test'
+  ...
+# Subtest: P97 Automática só aplica acerto adicional depois de gastar 2 Vantagens
+ok 86 - P97 Automática só aplica acerto adicional depois de gastar 2 Vantagens
+  ---
+  duration_ms: 2.277593
+  type: 'test'
+  ...
+# Subtest: P97 Explosão em acerto exige alvos Engajados explícitos e aplica dano só aos selecionados
+ok 87 - P97 Explosão em acerto exige alvos Engajados explícitos e aplica dano só aos selecionados
+  ---
+  duration_ms: 3.896013
+  type: 'test'
+  ...
+# Subtest: P97 Explosão em ataque que errou custa 3 Vantagens e atinge o alvo original
+ok 88 - P97 Explosão em ataque que errou custa 3 Vantagens e atinge o alvo original
+  ---
+  duration_ms: 2.188564
+  type: 'test'
+  ...
+# Subtest: P97 Concussiva deixa o alvo Atordoado e ele perde a próxima ação
+ok 89 - P97 Concussiva deixa o alvo Atordoado e ele perde a próxima ação
+  ---
+  duration_ms: 1.963746
+  type: 'test'
+  ...
+# Subtest: P97 Enredante aplica immobilized pelo rating sem inventar dano
+ok 90 - P97 Enredante aplica immobilized pelo rating sem inventar dano
+  ---
+  duration_ms: 1.50159
+  type: 'test'
+  ...
+# Subtest: P97 Vinculada respeita rating e orçamento compartilhado
+ok 91 - P97 Vinculada respeita rating e orçamento compartilhado
+  ---
+  duration_ms: 1.743935
+  type: 'test'
+  ...
+# Subtest: P97 Modo atordoante é incidental persistente, muda dano para Tensão e limita alcance a Curto
+ok 92 - P97 Modo atordoante é incidental persistente, muda dano para Tensão e limita alcance a Curto
+  ---
+  duration_ms: 5.367828
+  type: 'test'
+  ...
+# Subtest: P97 bridge e R46 expõem gasto explícito de qualidades e Modo atordoante
+ok 93 - P97 bridge e R46 expõem gasto explícito de qualidades e Modo atordoante
+  ---
+  duration_ms: 12.275635
+  type: 'test'
+  ...
+# Subtest: P98 Iônica causa Tensão de sistemas sem Trauma de Casco e não oferece Critical Hit
+ok 94 - P98 Iônica causa Tensão de sistemas sem Trauma de Casco e não oferece Critical Hit
+  ---
+  duration_ms: 9.192204
+  type: 'test'
+  ...
+# Subtest: P98 Vinculada usa o mesmo orçamento do crítico veicular
+ok 95 - P98 Vinculada usa o mesmo orçamento do crítico veicular
+  ---
+  duration_ms: 4.288915
+  type: 'test'
+  ...
+# Subtest: P98 Guiada em ataque perdido custa 3 Vantagens e agenda nova passagem
+ok 96 - P98 Guiada em ataque perdido custa 3 Vantagens e agenda nova passagem
+  ---
+  duration_ms: 6.094672
+  type: 'test'
+  ...
+# Subtest: P98 passagem Guiada resolve no fim do round e aplica dano real
+ok 97 - P98 passagem Guiada resolve no fim do round e aplica dano real
+  ---
+  duration_ms: 4.889709
+  type: 'test'
+  ...
+# Subtest: P98 Raio Trator bloqueia movimento e fuga legítima remove o lock
+ok 98 - P98 Raio Trator bloqueia movimento e fuga legítima remove o lock
+  ---
+  duration_ms: 6.540073
+  type: 'test'
+  ...
+# Subtest: P98 Munição Limitada veicular e Cadência Lenta persistem por arma/round
+ok 99 - P98 Munição Limitada veicular e Cadência Lenta persistem por arma/round
+  ---
+  duration_ms: 5.527939
+  type: 'test'
+  ...
+# Subtest: P98 orçamento veicular não permite Vinculada além do rating
+ok 100 - P98 orçamento veicular não permite Vinculada além do rating
+  ---
+  duration_ms: 4.766263
+  type: 'test'
+  ...
+# Subtest: P98 bridge/R46 expõem gasto veicular, Guiada e fuga do Trator sem mutação bruta
+ok 101 - P98 bridge/R46 expõem gasto veicular, Guiada e fuga do Trator sem mutação bruta
+  ---
+  duration_ms: 9.69449
+  type: 'test'
+  ...
+# Subtest: P99: catálogo econômico expõe somente attachments source-bound com preço/raridade/hard points
+ok 102 - P99: catálogo econômico expõe somente attachments source-bound com preço/raridade/hard points
+  ---
+  duration_ms: 3.248639
+  type: 'test'
+  ...
+# Subtest: P99: compra aprovada de attachment desconta créditos e cria propriedade sem instalar magicamente
+ok 103 - P99: compra aprovada de attachment desconta créditos e cria propriedade sem instalar magicamente
+  ---
+  duration_ms: 3.731525
+  type: 'test'
+  ...
+# Subtest: P99: sourceCatalogId preserva hard points reais da arma adquirida
+ok 104 - P99: sourceCatalogId preserva hard points reais da arma adquirida
+  ---
+  duration_ms: 1.792908
+  type: 'test'
+  ...
+# Subtest: P99: Rapid-Recharge e Spread Barrel exigem propriedade, compatibilidade e consomem hard points
+ok 105 - P99: Rapid-Recharge e Spread Barrel exigem propriedade, compatibilidade e consomem hard points
+  ---
+  duration_ms: 6.755858
+  type: 'test'
+  ...
+# Subtest: P99: attachments alteram perfil de ataque real e remoção desfaz efeitos sem apagar propriedade
+ok 106 - P99: attachments alteram perfil de ataque real e remoção desfaz efeitos sem apagar propriedade
+  ---
+  duration_ms: 7.713017
+  type: 'test'
+  ...
+# Subtest: P99: attachment incompatível e venda/perda enquanto instalado são bloqueados
+ok 107 - P99: attachment incompatível e venda/perda enquanto instalado são bloqueados
+  ---
+  duration_ms: 4.815498
+  type: 'test'
+  ...
+# Subtest: P99: bridge/contratos/R46 expõem aquisição e instalação seguras, sem mod arbitrário
+ok 108 - P99: bridge/contratos/R46 expõem aquisição e instalação seguras, sem mod arbitrário
+  ---
+  duration_ms: 1.895273
+  type: 'test'
+  ...
+# Subtest: P99: attachments chegam ao resolveWeaponAttack real — Imprimisa no pool, Automática na dificuldade e Spread reduz alcance
+ok 109 - P99: attachments chegam ao resolveWeaponAttack real — Imprimisa no pool, Automática na dificuldade e Spread reduz alcance
+  ---
+  duration_ms: 10.488264
+  type: 'test'
+  ...
+# Subtest: P99 Derrubar aparece como qualidade ativa por 2 Vantagens base
+ok 110 - P99 Derrubar aparece como qualidade ativa por 2 Vantagens base
+  ---
+  duration_ms: 0.956009
+  type: 'test'
+  ...
+# Subtest: P99 Derrubar aplica prone persistente e consome orçamento único
+ok 111 - P99 Derrubar aplica prone persistente e consome orçamento único
+  ---
+  duration_ms: 6.948538
+  type: 'test'
+  ...
+# Subtest: P99 Derrubar cobra +1 Vantagem por Silhueta do alvo acima do atacante
+ok 112 - P99 Derrubar cobra +1 Vantagem por Silhueta do alvo acima do atacante
+  ---
+  duration_ms: 2.048323
+  type: 'test'
+  ...
+# Subtest: P99 alvo prone concede Boost a ataque melee e Setback a ataque ranged
+ok 113 - P99 alvo prone concede Boost a ataque melee e Setback a ataque ranged
+  ---
+  duration_ms: 7.250852
+  type: 'test'
+  ...
+# Subtest: P99 jogador caído precisa gastar manobra real para levantar
+ok 114 - P99 jogador caído precisa gastar manobra real para levantar
+  ---
+  duration_ms: 2.234493
+  type: 'test'
+  ...
+# Subtest: P99 NPC prone levanta no próprio turno antes de agir
+ok 115 - P99 NPC prone levanta no próprio turno antes de agir
+  ---
+  duration_ms: 1.889313
+  type: 'test'
+  ...
+# Subtest: P99 bridge/contratos/R46 expõem Levantar-se sem mutação bruta de prone
+ok 116 - P99 bridge/contratos/R46 expõem Levantar-se sem mutação bruta de prone
+  ---
+  duration_ms: 7.759638
+  type: 'test'
+  ...
+1..116
+# tests 116
+# suites 0
+# pass 116
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 800.251158

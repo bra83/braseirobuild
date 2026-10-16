@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: ponte de Biblioteca lista documentos anexados e traduz status
+ok 1 - ponte de Biblioteca lista documentos anexados e traduz status
+  ---
+  duration_ms: 0.950035
+  type: 'test'
+  ...
+# Subtest: busca em PDF importado vira fonte local citável
+ok 2 - busca em PDF importado vira fonte local citável
+  ---
+  duration_ms: 0.574017
+  type: 'test'
+  ...
+# Subtest: RAG combina corpus auditado e Biblioteca importada sem tratar PDF como regra implementada
+ok 3 - RAG combina corpus auditado e Biblioteca importada sem tratar PDF como regra implementada
+  ---
+  duration_ms: 3.922663
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre incorpora PDF da Biblioteca quando a ponte Android está disponível
+ok 4 - contexto do Mestre incorpora PDF da Biblioteca quando a ponte Android está disponível
+  ---
+  duration_ms: 8.763212
+  type: 'test'
+  ...
+# Subtest: shell Android contém importação privada e indexação PDFBox, sem permissão de armazenamento externo
+ok 5 - shell Android contém importação privada e indexação PDFBox, sem permissão de armazenamento externo
+  ---
+  duration_ms: 0.861271
+  type: 'test'
+  ...
+# Subtest: shell Android persiste autoridade e permite ativar/desativar fonte sem apagar PDF
+ok 6 - shell Android persiste autoridade e permite ativar/desativar fonte sem apagar PDF
+  ---
+  duration_ms: 0.400215
+  type: 'test'
+  ...
+# Subtest: Biblioteca permite reindexar PDF preservado e registra falha de indexação
+ok 7 - Biblioteca permite reindexar PDF preservado e registra falha de indexação
+  ---
+  duration_ms: 0.398051
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 152.06552

@@ -1,0 +1,24 @@
+{
+  "checkpoint": "P198",
+  "method": "node --test --test-reporter=tap each file, regular and stress separately",
+  "regularFiles": 317,
+  "regularTests": 2906,
+  "regularPassed": 2906,
+  "regularFailed": 0,
+  "stressFiles": 6,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "stressFailed": 0,
+  "totalFiles": 323,
+  "totalTests": 2912,
+  "totalPassed": 2912,
+  "totalFailed": 0,
+  "newFocusedTests": 13,
+  "monolithicSuiteClaim": false,
+  "apkBuilt": false,
+  "androidPhysicalValidation": false,
+  "sources": [
+    "/mnt/data/p198_regular_final2.log",
+    "/mnt/data/p198_stress_final.log"
+  ]
+}

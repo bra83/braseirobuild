@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: P227 transfer PC → companion changes TWO real inventories exactly once
+ok 1 - P227 transfer PC → companion changes TWO real inventories exactly once
+  ---
+  duration_ms: 1285.460749
+  type: 'test'
+  ...
+# Subtest: P227 companion → PC return restores boarding compatibility and does not award XP
+ok 2 - P227 companion → PC return restores boarding compatibility and does not award XP
+  ---
+  duration_ms: 904.030592
+  type: 'test'
+  ...
+# Subtest: P227 no duplicate, phantom recipient, unconfirmed handoff or transfer after boarding
+ok 3 - P227 no duplicate, phantom recipient, unconfirmed handoff or transfer after boarding
+  ---
+  duration_ms: 904.623175
+  type: 'test'
+  ...
+# Subtest: P227 three persisted reopens preserve holder, receipts and unique physical item
+ok 4 - P227 three persisted reopens preserve holder, receipts and unique physical item
+  ---
+  duration_ms: 614.965374
+  type: 'test'
+  ...
+# Subtest: P227 replay rejects altered transfer, derived holder, missing or duplicated inventory
+ok 5 - P227 replay rejects altered transfer, derived holder, missing or duplicated inventory
+  ---
+  duration_ms: 1014.457735
+  type: 'test'
+  ...
+# Subtest: P227 source, bridge, Android UI, bundle and version are wired
+ok 6 - P227 source, bridge, Android UI, bundle and version are wired
+  ---
+  duration_ms: 32.426977
+  type: 'test'
+  ...
+# Subtest: P227 old P224 custody remains valid without transfers or derived ledger
+ok 7 - P227 old P224 custody remains valid without transfers or derived ledger
+  ---
+  duration_ms: 608.75733
+  type: 'test'
+  ...
+# Subtest: P227 companion → companion passes physical item without creating a copy
+ok 8 - P227 companion → companion passes physical item without creating a copy
+  ---
+  duration_ms: 439.641473
+  type: 'test'
+  ...
+# Subtest: P227 after boarding, a new transfer is rejected with atomic rollback
+ok 9 - P227 after boarding, a new transfer is rejected with atomic rollback
+  ---
+  duration_ms: 454.259338
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7195.640196

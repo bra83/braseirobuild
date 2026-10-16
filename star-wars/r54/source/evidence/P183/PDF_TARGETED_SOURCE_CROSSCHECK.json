@@ -1,0 +1,44 @@
+{
+  "checkpoint": "P183",
+  "kind": "targeted editorial crosscheck (NOT complete certification)",
+  "officialDriveFiles": [
+    {
+      "id": "1Lm26krELYpWU0Rx0WgPj__g72YU_F2lC",
+      "name": "Long Arm of the Hutt.pdf",
+      "knownSHA256FromP181": "18fb9880242743d11765eaca442168fc3441a3b0d17aa92bc769057734b45489",
+      "scope": "Adventure Summary Acts 1-3 and source terms Nabat, New Meen, lylek den, Ota, Piddock, Dimmock",
+      "confirmed": "Ryloth mine conflict before Geonosian negotiation and Teemo palace return",
+      "notCertified": [
+        "full scene details",
+        "combat stat blocks",
+        "encounter outcome fidelity",
+        "all NPCs"
+      ]
+    },
+    {
+      "id": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+      "name": "The Jewel of Yavin.pdf",
+      "scope": "Title/credits, table of contents, adventure overview and episode I summary",
+      "confirmed": "SWE09; opening Aris Shen in Port Town, Market Row chase, Arend Shen briefing, Grand Prix before gala, bank diversion and jewel theft as distinct tasks",
+      "notCertified": [
+        "race rules",
+        "bank financial amounts",
+        "all encounters",
+        "all NPC stats",
+        "all scenes"
+      ]
+    }
+  ],
+  "sourceNotIncludedInCheckpoint": true,
+  "implementation": {
+    "LongArmNodesBefore": 7,
+    "LongArmNodesAfter": 15,
+    "JewelNodesBefore": 5,
+    "JewelNodesAfter": 15,
+    "jewelMechanics": "check-success gates for bank diversion and vault acquisition; alarm increases on failed attempts; alternative retreat without jewel",
+    "longArmMechanics": "New Meen and Geonosian investigation branches; Teemo defeat only after active combat and adjudicated victory",
+    "legacySaves": "Old Jewel bespin-arrival and Long Arm first two choice IDs remain accepted; no retroactive reward rewrite",
+    "rewards": "Remove fabricated fixed defaults for newly completed Long Arm and Jewel sessions; preserve existing saved receipts"
+  },
+  "editoriallyCertified": false
+}

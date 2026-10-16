@@ -1,0 +1,197 @@
+TAP version 13
+# Subtest: P143 under-black-sun: commit atômico de evento, relógio, objetivo, consequência e flag
+ok 1 - P143 under-black-sun: commit atômico de evento, relógio, objetivo, consequência e flag
+  ---
+  duration_ms: 98.482183
+  type: 'test'
+  ...
+# Subtest: P143 under-black-sun: falha no último comando reverte todos os efeitos e journal
+ok 2 - P143 under-black-sun: falha no último comando reverte todos os efeitos e journal
+  ---
+  duration_ms: 9.047687
+  type: 'test'
+  ...
+# Subtest: P143 under-black-sun: falsificação de recibo, origem e ordem causal é rejeitada
+ok 3 - P143 under-black-sun: falsificação de recibo, origem e ordem causal é rejeitada
+  ---
+  duration_ms: 79.633168
+  type: 'test'
+  ...
+# Subtest: P143 under-black-sun: injeções, parâmetros inválidos e cascatas não deixam estado parcial
+ok 4 - P143 under-black-sun: injeções, parâmetros inválidos e cascatas não deixam estado parcial
+  ---
+  duration_ms: 11.685029
+  type: 'test'
+  ...
+# Subtest: P143 under-black-sun: 120 ações persistentes + três reaberturas sem duplicação
+ok 5 - P143 under-black-sun: 120 ações persistentes + três reaberturas sem duplicação
+  ---
+  duration_ms: 2257.760225
+  type: 'test'
+  ...
+# Subtest: P143 under-black-sun: escolha do grafo e gatilhos persistem no mesmo recibo
+ok 6 - P143 under-black-sun: escolha do grafo e gatilhos persistem no mesmo recibo
+  ---
+  duration_ms: 5.546112
+  type: 'test'
+  ...
+# Subtest: P143 beyond-the-rim: commit atômico de evento, relógio, objetivo, consequência e flag
+ok 7 - P143 beyond-the-rim: commit atômico de evento, relógio, objetivo, consequência e flag
+  ---
+  duration_ms: 11.960948
+  type: 'test'
+  ...
+# Subtest: P143 beyond-the-rim: falha no último comando reverte todos os efeitos e journal
+ok 8 - P143 beyond-the-rim: falha no último comando reverte todos os efeitos e journal
+  ---
+  duration_ms: 3.425378
+  type: 'test'
+  ...
+# Subtest: P143 beyond-the-rim: falsificação de recibo, origem e ordem causal é rejeitada
+ok 9 - P143 beyond-the-rim: falsificação de recibo, origem e ordem causal é rejeitada
+  ---
+  duration_ms: 20.917613
+  type: 'test'
+  ...
+# Subtest: P143 beyond-the-rim: injeções, parâmetros inválidos e cascatas não deixam estado parcial
+ok 10 - P143 beyond-the-rim: injeções, parâmetros inválidos e cascatas não deixam estado parcial
+  ---
+  duration_ms: 3.575528
+  type: 'test'
+  ...
+# Subtest: P143 beyond-the-rim: 120 ações persistentes + três reaberturas sem duplicação
+ok 11 - P143 beyond-the-rim: 120 ações persistentes + três reaberturas sem duplicação
+  ---
+  duration_ms: 2604.272854
+  type: 'test'
+  ...
+# Subtest: P143 beyond-the-rim: escolha do grafo e gatilhos persistem no mesmo recibo
+ok 12 - P143 beyond-the-rim: escolha do grafo e gatilhos persistem no mesmo recibo
+  ---
+  duration_ms: 8.314556
+  type: 'test'
+  ...
+# Subtest: P143 long-arm-of-the-hutt: commit atômico de evento, relógio, objetivo, consequência e flag
+ok 13 - P143 long-arm-of-the-hutt: commit atômico de evento, relógio, objetivo, consequência e flag
+  ---
+  duration_ms: 48.685662
+  type: 'test'
+  ...
+# Subtest: P143 long-arm-of-the-hutt: falha no último comando reverte todos os efeitos e journal
+ok 14 - P143 long-arm-of-the-hutt: falha no último comando reverte todos os efeitos e journal
+  ---
+  duration_ms: 6.863494
+  type: 'test'
+  ...
+# Subtest: P143 long-arm-of-the-hutt: falsificação de recibo, origem e ordem causal é rejeitada
+ok 15 - P143 long-arm-of-the-hutt: falsificação de recibo, origem e ordem causal é rejeitada
+  ---
+  duration_ms: 24.722152
+  type: 'test'
+  ...
+# Subtest: P143 long-arm-of-the-hutt: injeções, parâmetros inválidos e cascatas não deixam estado parcial
+ok 16 - P143 long-arm-of-the-hutt: injeções, parâmetros inválidos e cascatas não deixam estado parcial
+  ---
+  duration_ms: 11.42282
+  type: 'test'
+  ...
+# Subtest: P143 long-arm-of-the-hutt: 120 ações persistentes + três reaberturas sem duplicação
+ok 17 - P143 long-arm-of-the-hutt: 120 ações persistentes + três reaberturas sem duplicação
+  ---
+  duration_ms: 1714.993462
+  type: 'test'
+  ...
+# Subtest: P143 long-arm-of-the-hutt: escolha do grafo e gatilhos persistem no mesmo recibo
+ok 18 - P143 long-arm-of-the-hutt: escolha do grafo e gatilhos persistem no mesmo recibo
+  ---
+  duration_ms: 1.877762
+  type: 'test'
+  ...
+# Subtest: P143 jewel-of-yavin: commit atômico de evento, relógio, objetivo, consequência e flag
+ok 19 - P143 jewel-of-yavin: commit atômico de evento, relógio, objetivo, consequência e flag
+  ---
+  duration_ms: 36.551219
+  type: 'test'
+  ...
+# Subtest: P143 jewel-of-yavin: falha no último comando reverte todos os efeitos e journal
+ok 20 - P143 jewel-of-yavin: falha no último comando reverte todos os efeitos e journal
+  ---
+  duration_ms: 10.737953
+  type: 'test'
+  ...
+# Subtest: P143 jewel-of-yavin: falsificação de recibo, origem e ordem causal é rejeitada
+ok 21 - P143 jewel-of-yavin: falsificação de recibo, origem e ordem causal é rejeitada
+  ---
+  duration_ms: 16.404893
+  type: 'test'
+  ...
+# Subtest: P143 jewel-of-yavin: injeções, parâmetros inválidos e cascatas não deixam estado parcial
+ok 22 - P143 jewel-of-yavin: injeções, parâmetros inválidos e cascatas não deixam estado parcial
+  ---
+  duration_ms: 5.704307
+  type: 'test'
+  ...
+# Subtest: P143 jewel-of-yavin: 120 ações persistentes + três reaberturas sem duplicação
+ok 23 - P143 jewel-of-yavin: 120 ações persistentes + três reaberturas sem duplicação
+  ---
+  duration_ms: 1035.550362
+  type: 'test'
+  ...
+# Subtest: P143 jewel-of-yavin: escolha do grafo e gatilhos persistem no mesmo recibo
+ok 24 - P143 jewel-of-yavin: escolha do grafo e gatilhos persistem no mesmo recibo
+  ---
+  duration_ms: 1.415757
+  type: 'test'
+  ...
+# Subtest: P143 mask-of-the-pirate-queen: commit atômico de evento, relógio, objetivo, consequência e flag
+ok 25 - P143 mask-of-the-pirate-queen: commit atômico de evento, relógio, objetivo, consequência e flag
+  ---
+  duration_ms: 25.484976
+  type: 'test'
+  ...
+# Subtest: P143 mask-of-the-pirate-queen: falha no último comando reverte todos os efeitos e journal
+ok 26 - P143 mask-of-the-pirate-queen: falha no último comando reverte todos os efeitos e journal
+  ---
+  duration_ms: 2.599081
+  type: 'test'
+  ...
+# Subtest: P143 mask-of-the-pirate-queen: falsificação de recibo, origem e ordem causal é rejeitada
+ok 27 - P143 mask-of-the-pirate-queen: falsificação de recibo, origem e ordem causal é rejeitada
+  ---
+  duration_ms: 16.819904
+  type: 'test'
+  ...
+# Subtest: P143 mask-of-the-pirate-queen: injeções, parâmetros inválidos e cascatas não deixam estado parcial
+ok 28 - P143 mask-of-the-pirate-queen: injeções, parâmetros inválidos e cascatas não deixam estado parcial
+  ---
+  duration_ms: 4.000177
+  type: 'test'
+  ...
+# Subtest: P143 mask-of-the-pirate-queen: 120 ações persistentes + três reaberturas sem duplicação
+ok 29 - P143 mask-of-the-pirate-queen: 120 ações persistentes + três reaberturas sem duplicação
+  ---
+  duration_ms: 1242.264761
+  type: 'test'
+  ...
+# Subtest: P143 mask-of-the-pirate-queen: escolha do grafo e gatilhos persistem no mesmo recibo
+ok 30 - P143 mask-of-the-pirate-queen: escolha do grafo e gatilhos persistem no mesmo recibo
+  ---
+  duration_ms: 1.866546
+  type: 'test'
+  ...
+# Subtest: P143: recibo registra também cascatas e eventos internos de objetivo
+ok 31 - P143: recibo registra também cascatas e eventos internos de objetivo
+  ---
+  duration_ms: 2.30167
+  type: 'test'
+  ...
+1..31
+# tests 31
+# suites 0
+# pass 31
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10074.069631
+

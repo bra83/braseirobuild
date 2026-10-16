@@ -1,0 +1,28 @@
+TAP version 13
+# Subtest: P70: grafo publicado inteiro é alcançável a partir da abertura e não contém destinos quebrados
+ok 1 - P70: grafo publicado inteiro é alcançável a partir da abertura e não contém destinos quebrados
+  ---
+  duration_ms: 1.490302
+  type: 'test'
+  ...
+# Subtest: P70: todos os nós jogáveis têm texto PT-BR, local e escolhas ou são epílogo terminal
+ok 2 - P70: todos os nós jogáveis têm texto PT-BR, local e escolhas ou são epílogo terminal
+  ---
+  duration_ms: 1.048694
+  type: 'test'
+  ...
+# Subtest: P70: projeção inicial ao jogador não vaza nós futuros nem consequências finais
+ok 3 - P70: projeção inicial ao jogador não vaza nós futuros nem consequências finais
+  ---
+  duration_ms: 2.479886
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 82.288902

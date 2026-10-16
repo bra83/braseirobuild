@@ -1,0 +1,135 @@
+{
+  "checkpoint": "P180",
+  "editoriallyCertified": false,
+  "note": "Only TOC and opening-setting cross-check; not a line-by-line encounter, NPC, or rule comparison.",
+  "adventures": [
+    {
+      "id": "under-black-sun",
+      "nodes": 17,
+      "authoredEpisodes": [
+        1,
+        2,
+        3
+      ],
+      "authoredStartNode": "hot-pursuit",
+      "authoredStartTitle": "Perseguição em alta velocidade",
+      "sourceAvailable": false,
+      "editoriallyCertified": false,
+      "discrepancies": [
+        "PDF not available for TOC comparison in this run."
+      ]
+    },
+    {
+      "id": "beyond-the-rim",
+      "nodes": 26,
+      "authoredEpisodes": [
+        1,
+        2,
+        3
+      ],
+      "authoredStartNode": "wheel-arrival",
+      "authoredStartTitle": "Chegada à Roda",
+      "sourceAvailable": true,
+      "editoriallyCertified": false,
+      "discrepancies": [],
+      "pdfName": "Beyond the Rim.pdf",
+      "sha256": "9abfb0f1603fb0c5fe5e792ed9a3cd262e1d0b6914aa43aff712c492cff1256f",
+      "pdfPages": 98,
+      "tocEpisodes": [
+        {
+          "title": "Episode I: The Tale of the Sa Nalaor",
+          "headingFound": true
+        },
+        {
+          "title": "Episode II: Welcome to the Jungle",
+          "headingFound": true
+        },
+        {
+          "title": "Episode III: Toxic Motherlode",
+          "headingFound": true
+        }
+      ]
+    },
+    {
+      "id": "long-arm-of-the-hutt",
+      "nodes": 7,
+      "authoredEpisodes": [
+        1,
+        2,
+        3
+      ],
+      "authoredStartNode": "rylos-escape-aftermath",
+      "authoredStartTitle": "Após a fuga de Tatooine",
+      "sourceAvailable": false,
+      "editoriallyCertified": false,
+      "discrepancies": [
+        "PDF not available for TOC comparison in this run."
+      ]
+    },
+    {
+      "id": "jewel-of-yavin",
+      "nodes": 5,
+      "authoredEpisodes": [
+        1,
+        2,
+        3
+      ],
+      "authoredStartNode": "bespin-arrival",
+      "authoredStartTitle": "Chegada a Cloud City",
+      "sourceAvailable": true,
+      "editoriallyCertified": false,
+      "discrepancies": [],
+      "pdfName": "The Jewel of Yavin.pdf",
+      "sha256": "f65f89727892e25f1135057eec95fe838a1ba291a335fbaa9b747bd8cda5a1c9",
+      "pdfPages": 98,
+      "tocEpisodes": [
+        {
+          "title": "Episode I: Odds and Opportunity",
+          "headingFound": true
+        },
+        {
+          "title": "Episode II: The Greatest Caper",
+          "headingFound": true
+        },
+        {
+          "title": "Episode III: Escape to the Clouds",
+          "headingFound": true
+        }
+      ]
+    },
+    {
+      "id": "mask-of-the-pirate-queen",
+      "nodes": 5,
+      "authoredEpisodes": [
+        1,
+        2,
+        3
+      ],
+      "authoredStartNode": "ord-mantell-arrival",
+      "authoredStartTitle": "Chegada a Ord Mantell",
+      "sourceAvailable": true,
+      "editoriallyCertified": false,
+      "discrepancies": [
+        "Book Episode I opens on Saleucami, while authored start is ord-mantell-arrival (Chegada a Ord Mantell)."
+      ],
+      "pdfName": "mask of the pirate queen.pdf",
+      "sha256": "1eed9b0e63602b067f7f4004447bee9cf9717d76e40ede5b31adc0c8aa71428a",
+      "pdfPages": 98,
+      "tocEpisodes": [
+        {
+          "title": "Episode I: Search on Saleucami",
+          "headingFound": true
+        },
+        {
+          "title": "Episode II: Going to Ground",
+          "headingFound": true
+        },
+        {
+          "title": "Episode III: Prepare for Boarders",
+          "headingFound": true
+        }
+      ],
+      "openingWorldMatches": false
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "checkpoint": "R54_P153",
+  "base": "R54_P152",
+  "date": "2026-10-12",
+  "changedCode": [
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/adventure/adventureRuntime.mjs",
+    "app/src/main/assets/vtt/js/adventure/adventureSemanticGate.mjs",
+    "app/src/main/assets/vtt/js/adventure/uaeJournalCausality.mjs",
+    "app/src/main/assets/vtt/js/adventure/universalAdventureEngine.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/r46-shell.html"
+  ],
+  "newCode": [
+    "tests/uae-p153-trigger-context-recovery.test.mjs",
+    "tools/audit-p153-release.mjs"
+  ],
+  "tests": {
+    "regular": 1896,
+    "stress": 6,
+    "kokoro": 27,
+    "newFocal": 45
+  },
+  "aorMechanicalPositions": 247,
+  "aorTotalPositions": 360,
+  "pdfCertified": false,
+  "apkCompiled": false
+}

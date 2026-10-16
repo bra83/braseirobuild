@@ -1,0 +1,10 @@
+P161 stress suites — six files, each executed independently (node --test --test-reporter=tap):
+p161-stress-33-aftermath-r20.test.mjs.log: PASS 1/1
+p161-stress-33-faction-plan-r19.test.mjs.log: PASS 1/1
+p161-stress-33-sessions-r15.test.mjs.log: PASS 1/1
+p161-stress-faction-plans-r19.test.mjs.log: PASS 1/1
+p161-stress-factions-r18.test.mjs.log: PASS 1/1
+p161-stress-persistent-adversary-r17.test.mjs.log: PASS 1/1
+# tests 6
+# pass 6
+# fail 0

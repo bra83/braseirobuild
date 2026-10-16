@@ -1,0 +1,4653 @@
+=== SHARD 1 files 0-19 ===
+TAP version 13
+# Subtest: pedido de aquisição fica pendente e persiste sem gastar créditos
+ok 1 - pedido de aquisição fica pendente e persiste sem gastar créditos
+  ---
+  duration_ms: 290.530998
+  type: 'test'
+  ...
+# Subtest: não permite abrir um segundo pedido enquanto o Mestre não resolver o primeiro
+ok 2 - não permite abrir um segundo pedido enquanto o Mestre não resolver o primeiro
+  ---
+  duration_ms: 157.468803
+  type: 'test'
+  ...
+# Subtest: decisão do Mestre sem regra recuperada não pode concluir aquisição
+ok 3 - decisão do Mestre sem regra recuperada não pode concluir aquisição
+  ---
+  duration_ms: 154.687163
+  type: 'test'
+  ...
+# Subtest: decisão estruturada e ancorada conclui a compra exatamente uma vez
+ok 4 - decisão estruturada e ancorada conclui a compra exatamente uma vez
+  ---
+  duration_ms: 151.294443
+  type: 'test'
+  ...
+# Subtest: créditos insuficientes revertem toda a proposta e preservam o pedido
+ok 5 - créditos insuficientes revertem toda a proposta e preservam o pedido
+  ---
+  duration_ms: 154.401729
+  type: 'test'
+  ...
+# Subtest: rejeição do Mestre encerra o pedido sem alterar créditos ou inventário
+ok 6 - rejeição do Mestre encerra o pedido sem alterar créditos ou inventário
+  ---
+  duration_ms: 183.239131
+  type: 'test'
+  ...
+# Subtest: conversão do catálogo calcula dano por Fortaleza e propriedades já suportadas
+ok 7 - conversão do catálogo calcula dano por Fortaleza e propriedades já suportadas
+  ---
+  duration_ms: 1.079913
+  type: 'test'
+  ...
+# Subtest: soldados de assalto da aventura usam grupo de lacaios com Proteção 5 e perícia por tamanho
+ok 8 - soldados de assalto da aventura usam grupo de lacaios com Proteção 5 e perícia por tamanho
+  ---
+  duration_ms: 4.656023
+  type: 'test'
+  ...
+# Subtest: oficial de aduana da aventura é rival com Percepção 3 e limiar 12
+ok 9 - oficial de aduana da aventura é rival com Percepção 3 e limiar 12
+  ---
+  duration_ms: 0.60944
+  type: 'test'
+  ...
+# Subtest: Son Barab é antagonista com Tensão, Adversário 1 e Golpes letais 2 registrados
+ok 10 - Son Barab é antagonista com Tensão, Adversário 1 e Golpes letais 2 registrados
+  ---
+  duration_ms: 0.391821
+  type: 'test'
+  ...
+# Subtest: grupo de lacaios ganha um grau de perícia por membro além do primeiro
+ok 11 - grupo de lacaios ganha um grau de perícia por membro além do primeiro
+  ---
+  duration_ms: 4.291274
+  type: 'test'
+  ...
+# Subtest: Ferimentos reduzem o grupo e sua perícia automaticamente
+ok 12 - Ferimentos reduzem o grupo e sua perícia automaticamente
+  ---
+  duration_ms: 1.441925
+  type: 'test'
+  ...
+# Subtest: lacaios e rivais convertem Tensão em Ferimentos
+ok 13 - lacaios e rivais convertem Tensão em Ferimentos
+  ---
+  duration_ms: 0.855042
+  type: 'test'
+  ...
+# Subtest: crítico em grupo de lacaios elimina exatamente um membro ainda ativo
+ok 14 - crítico em grupo de lacaios elimina exatamente um membro ainda ativo
+  ---
+  duration_ms: 0.55507
+  type: 'test'
+  ...
+# Subtest: oficial imperial é rival com Adversário 1 e limiar 15
+ok 15 - oficial imperial é rival com Adversário 1 e limiar 15
+  ---
+  duration_ms: 0.384944
+  type: 'test'
+  ...
+# Subtest: fallback de PNPC usa exatamente Características 2, Ferimentos 8 e grau 1 nas perícias escolhidas
+ok 16 - fallback de PNPC usa exatamente Características 2, Ferimentos 8 e grau 1 nas perícias escolhidas
+  ---
+  duration_ms: 12.057605
+  type: 'test'
+  ...
+# Subtest: fallback rejeita perícia inventada
+ok 17 - fallback rejeita perícia inventada
+  ---
+  duration_ms: 6.562738
+  type: 'test'
+  ...
+# Subtest: modos de controle de aliados preservam as três opções documentadas
+ok 18 - modos de controle de aliados preservam as três opções documentadas
+  ---
+  duration_ms: 0.198037
+  type: 'test'
+  ...
+# Subtest: encontro causal cria histórico persistente e consequência duradoura ligada a facção/plano/local
+ok 19 - encontro causal cria histórico persistente e consequência duradoura ligada a facção/plano/local
+  ---
+  duration_ms: 13.682348
+  type: 'test'
+  ...
+# Subtest: mesmo hook não duplica histórico/aftermath e consequência pode ser encerrada sem apagar histórico
+ok 20 - mesmo hook não duplica histórico/aftermath e consequência pode ser encerrada sem apagar histórico
+  ---
+  duration_ms: 6.683966
+  type: 'test'
+  ...
+# Subtest: migração de mundo anterior recebe coleções de histórico sem inventar registros
+ok 21 - migração de mundo anterior recebe coleções de histórico sem inventar registros
+  ---
+  duration_ms: 0.973761
+  type: 'test'
+  ...
+# Subtest: Cena possui painel PT-BR de consequências duradouras e filtra apenas conhecidas/ativas
+ok 22 - Cena possui painel PT-BR de consequências duradouras e filtra apenas conhecidas/ativas
+  ---
+  duration_ms: 9.769351
+  type: 'test'
+  ...
+# Subtest: R54 usa file picker apenas para imports JSON conhecidos
+ok 23 - R54 usa file picker apenas para imports JSON conhecidos
+  ---
+  duration_ms: 9.293284
+  type: 'test'
+  ...
+# Subtest: Android abre ACTION_OPEN_DOCUMENT restrito a JSON/texto compatível
+ok 24 - Android abre ACTION_OPEN_DOCUMENT restrito a JSON/texto compatível
+  ---
+  duration_ms: 0.795342
+  type: 'test'
+  ...
+# Subtest: resultado do picker JSON volta ao input WebView pelo FileChooserParams.parseResult
+ok 25 - resultado do picker JSON volta ao input WebView pelo FileChooserParams.parseResult
+  ---
+  duration_ms: 0.448618
+  type: 'test'
+  ...
+# Subtest: shell lê conteúdo do arquivo antes de chamar os imports do Motor Barbara
+ok 26 - shell lê conteúdo do arquivo antes de chamar os imports do Motor Barbara
+  ---
+  duration_ms: 0.404721
+  type: 'test'
+  ...
+# Subtest: R37: Duty de criação recupera autoridade AoR sem transformar política solo em oficial
+ok 27 - R37: Duty de criação recupera autoridade AoR sem transformar política solo em oficial
+  ---
+  duration_ms: 1.455418
+  type: 'test'
+  ...
+# Subtest: R37: RAG distingue regra AoR recuperada de runtime local guardado
+ok 28 - R37: RAG distingue regra AoR recuperada de runtime local guardado
+  ---
+  duration_ms: 0.618127
+  type: 'test'
+  ...
+# Subtest: R37: runtime Duty testado permanece separado da autoridade editorial
+ok 29 - R37: runtime Duty testado permanece separado da autoridade editorial
+  ---
+  duration_ms: 1.093505
+  type: 'test'
+  ...
+# Subtest: Tabla 5-2 da Caja de Inicio prova preços de quatro blindagens sobrepostas
+ok 30 - Tabla 5-2 da Caja de Inicio prova preços de quatro blindagens sobrepostas
+  ---
+  duration_ms: 0.890157
+  type: 'test'
+  ...
+# Subtest: preço da Caja de Inicio não substitui a fonte de Defesa/Proteção da Pantalla
+ok 31 - preço da Caja de Inicio não substitui a fonte de Defesa/Proteção da Pantalla
+  ---
+  duration_ms: 0.219167
+  type: 'test'
+  ...
+# Subtest: blindagens sem preço comprovado nesta tabela permanecem sem preço
+ok 32 - blindagens sem preço comprovado nesta tabela permanecem sem preço
+  ---
+  duration_ms: 0.788856
+  type: 'test'
+  ...
+# Subtest: ataque à distância calcula dificuldade pela faixa
+ok 33 - ataque à distância calcula dificuldade pela faixa
+  ---
+  duration_ms: 3.482251
+  type: 'test'
+  ...
+# Subtest: Interação modifica armas à distância e corpo a corpo usa dificuldade 2
+ok 34 - Interação modifica armas à distância e corpo a corpo usa dificuldade 2
+  ---
+  duration_ms: 2.216118
+  type: 'test'
+  ...
+# Subtest: não permite atacar além do alcance da arma
+ok 35 - não permite atacar além do alcance da arma
+  ---
+  duration_ms: 0.473134
+  type: 'test'
+  ...
+# Subtest: tabela de raridade converte 0-10 para as dificuldades oficiais
+ok 36 - tabela de raridade converte 0-10 para as dificuldades oficiais
+  ---
+  duration_ms: 2.147657
+  type: 'test'
+  ...
+# Subtest: raridade acima de 10 mantém Formidável e melhora a dificuldade uma vez por ponto
+ok 37 - raridade acima de 10 mantém Formidável e melhora a dificuldade uma vez por ponto
+  ---
+  duration_ms: 1.334888
+  type: 'test'
+  ...
+# Subtest: modificador explícito altera raridade, nunca preço
+ok 38 - modificador explícito altera raridade, nunca preço
+  ---
+  duration_ms: 0.353267
+  type: 'test'
+  ...
+# Subtest: item legal usa Negociação e permite alternativa de Conhecimento a critério do Mestre
+ok 39 - item legal usa Negociação e permite alternativa de Conhecimento a critério do Mestre
+  ---
+  duration_ms: 0.174388
+  type: 'test'
+  ...
+# Subtest: item restrito usa Vida nas ruas e preserva ajuste de lei como decisão do Mestre
+ok 40 - item restrito usa Vida nas ruas e preserva ajuste de lei como decisão do Mestre
+  ---
+  duration_ms: 0.177747
+  type: 'test'
+  ...
+# Subtest: sem perfil local o motor não inventa modificador nem raridade efetiva
+ok 41 - sem perfil local o motor não inventa modificador nem raridade efetiva
+  ---
+  duration_ms: 0.198171
+  type: 'test'
+  ...
+# Subtest: referência de circunstâncias oficiais é consultável mas não aplicada automaticamente
+ok 42 - referência de circunstâncias oficiais é consultável mas não aplicada automaticamente
+  ---
+  duration_ms: 1.684496
+  type: 'test'
+  ...
+# Subtest: pedido de aquisição nasce sem classificação inventada de planeta
+ok 43 - pedido de aquisição nasce sem classificação inventada de planeta
+  ---
+  duration_ms: 1.232913
+  type: 'test'
+  ...
+# Subtest: modificador do local só entra por ação explícita e não muda os demais dados do pedido
+ok 44 - modificador do local só entra por ação explícita e não muda os demais dados do pedido
+  ---
+  duration_ms: 1.705583
+  type: 'test'
+  ...
+# Subtest: controller expõe cálculo auditado e persiste apenas modificador explicitamente definido
+ok 45 - controller expõe cálculo auditado e persiste apenas modificador explicitamente definido
+  ---
+  duration_ms: 261.520291
+  type: 'test'
+  ...
+# Subtest: RAG EotE fundamenta raridade/disponibilidade no Core real sem autoridade AoR
+ok 46 - RAG EotE fundamenta raridade/disponibilidade no Core real sem autoridade AoR
+  ---
+  duration_ms: 22.976754
+  type: 'test'
+  ...
+# Subtest: backup -> mutação -> import restaura estado e emite refresh na mesma WebView
+ok 47 - backup -> mutação -> import restaura estado e emite refresh na mesma WebView
+  ---
+  duration_ms: 12.587924
+  type: 'test'
+  ...
+# Subtest: clear remove campanha e emite refresh de clear
+ok 48 - clear remove campanha e emite refresh de clear
+  ---
+  duration_ms: 0.684021
+  type: 'test'
+  ...
+# Subtest: uiBridge mantém import de backup e restore de snapshot passando por repository.save
+ok 49 - uiBridge mantém import de backup e restore de snapshot passando por repository.save
+  ---
+  duration_ms: 0.996427
+  type: 'test'
+  ...
+# Subtest: interface PT-BR inclui aba Base e grupo de Orla com Obligation
+ok 50 - interface PT-BR inclui aba Base e grupo de Orla com Obligation
+  ---
+  duration_ms: 5.66966
+  type: 'test'
+  ...
+# Subtest: interface expõe árvore completa de talentos com desbloqueio por conexão
+ok 51 - interface expõe árvore completa de talentos com desbloqueio por conexão
+  ---
+  duration_ms: 0.458765
+  type: 'test'
+  ...
+# Subtest: interface expõe catálogo auditado sem compra automática
+ok 52 - interface expõe catálogo auditado sem compra automática
+  ---
+  duration_ms: 1.278788
+  type: 'test'
+  ...
+# Subtest: P20: builders da raiz e tools recompilam o mesmo bundle canônico
+ok 53 - P20: builders da raiz e tools recompilam o mesmo bundle canônico
+  ---
+  duration_ms: 3261.597936
+  type: 'test'
+  ...
+# Subtest: metadado causal não vaza para um combate posterior não causal
+ok 54 - metadado causal não vaza para um combate posterior não causal
+  ---
+  duration_ms: 58.422199
+  type: 'test'
+  ...
+# Subtest: evento concluído gera consequência causal persistente no local do PNPC
+ok 55 - evento concluído gera consequência causal persistente no local do PNPC
+  ---
+  duration_ms: 12.114923
+  type: 'test'
+  ...
+# Subtest: consequência causal pode ser resolvida uma única vez e some dos candidatos
+ok 56 - consequência causal pode ser resolvida uma única vez e some dos candidatos
+  ---
+  duration_ms: 5.069468
+  type: 'test'
+  ...
+# Subtest: Mestre move a cena apenas para local existente e recebe consequências causais no contexto
+ok 57 - Mestre move a cena apenas para local existente e recebe consequências causais no contexto
+  ---
+  duration_ms: 22.882531
+  type: 'test'
+  ...
+# Subtest: Mestre pode narrar e resolver a consequência no mesmo fluxo transacional
+ok 58 - Mestre pode narrar e resolver a consequência no mesmo fluxo transacional
+  ---
+  duration_ms: 45.720508
+  type: 'test'
+  ...
+# Subtest: criador personalizado EotE aparece em PT-BR com etapas mecânicas essenciais
+ok 59 - criador personalizado EotE aparece em PT-BR com etapas mecânicas essenciais
+  ---
+  duration_ms: 2.648889
+  type: 'test'
+  ...
+# Subtest: interface envia os quatro benefícios de Obligation e usa o criador EotE do motor
+ok 60 - interface envia os quatro benefícios de Obligation e usa o criador EotE do motor
+  ---
+  duration_ms: 0.960145
+  type: 'test'
+  ...
+# Subtest: tabela oficial de Duty e política solo ficam distinguidas
+ok 61 - tabela oficial de Duty e política solo ficam distinguidas
+  ---
+  duration_ms: 6.189755
+  type: 'test'
+  ...
+# Subtest: reduções de Duty cobrem as quatro opções e não permitem gasto maior que o Duty inicial
+ok 62 - reduções de Duty cobrem as quatro opções e não permitem gasto maior que o Duty inicial
+  ---
+  duration_ms: 0.903765
+  type: 'test'
+  ...
+# Subtest: custo de Característica é sequencial e respeita o máximo 5
+ok 63 - custo de Característica é sequencial e respeita o máximo 5
+  ---
+  duration_ms: 3.016881
+  type: 'test'
+  ...
+# Subtest: Humano personalizado gera ficha válida com sobreposição carreira/especialização até grau 2
+ok 64 - Humano personalizado gera ficha válida com sobreposição carreira/especialização até grau 2
+  ---
+  duration_ms: 4.076472
+  type: 'test'
+  ...
+# Subtest: Humano não pode usar como bônus racial uma perícia profissional
+ok 65 - Humano não pode usar como bônus racial uma perícia profissional
+  ---
+  duration_ms: 0.472961
+  type: 'test'
+  ...
+# Subtest: Droide recebe treinamento ampliado, Resistente e Proteção derivada
+ok 66 - Droide recebe treinamento ampliado, Resistente e Proteção derivada
+  ---
+  duration_ms: 0.831295
+  type: 'test'
+  ...
+# Subtest: bônus racial e escolhas gratuitas nunca ultrapassam grau 2 durante a criação
+ok 67 - bônus racial e escolhas gratuitas nunca ultrapassam grau 2 durante a criação
+  ---
+  duration_ms: 1.248817
+  type: 'test'
+  ...
+# Subtest: Motivação é obrigatória e PE insuficientes impedem criação
+ok 68 - Motivação é obrigatória e PE insuficientes impedem criação
+  ---
+  duration_ms: 1.315238
+  type: 'test'
+  ...
+# Subtest: prévia soma bônus de Duty, créditos e PE de Características sem alterar estado
+ok 69 - prévia soma bônus de Duty, créditos e PE de Características sem alterar estado
+  ---
+  duration_ms: 0.637211
+  type: 'test'
+  ...
+# Subtest: dados do núcleo AoR mantêm oito espécies, seis carreiras e três especializações por carreira
+ok 70 - dados do núcleo AoR mantêm oito espécies, seis carreiras e três especializações por carreira
+  ---
+  duration_ms: 1.470226
+  type: 'test'
+  ...
+# Subtest: ficha estrutural vazia respeita seis características e habilidades conhecidas
+ok 71 - ficha estrutural vazia respeita seis características e habilidades conhecidas
+  ---
+  duration_ms: 1.954177
+  type: 'test'
+  ...
+# Subtest: importação rejeita característica fora da faixa 1-6 sem substituir ficha válida
+ok 72 - importação rejeita característica fora da faixa 1-6 sem substituir ficha válida
+  ---
+  duration_ms: 2.692807
+  type: 'test'
+  ...
+# Subtest: ficha JSON faz ida e volta
+ok 73 - ficha JSON faz ida e volta
+  ---
+  duration_ms: 0.749157
+  type: 'test'
+  ...
+# Subtest: turno permite 1 ação e 1 manobra normal
+ok 74 - turno permite 1 ação e 1 manobra normal
+  ---
+  duration_ms: 5.322299
+  type: 'test'
+  ...
+# Subtest: segunda manobra exige Tensão ou troca da ação e nunca passa de 2
+ok 75 - segunda manobra exige Tensão ou troca da ação e nunca passa de 2
+  ---
+  duration_ms: 6.108153
+  type: 'test'
+  ...
+# Subtest: ação pode ser trocada pela segunda manobra e o turno seguinte reinicia recursos
+ok 76 - ação pode ser trocada pela segunda manobra e o turno seguinte reinicia recursos
+  ---
+  duration_ms: 1.504654
+  type: 'test'
+  ...
+1..76
+# tests 76
+# suites 0
+# pass 76
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4076.211263
+=== SHARD 2 files 20-39 ===
+TAP version 13
+# Subtest: Ataque rápido entra automaticamente no pool contra alvo que ainda não agiu
+ok 1 - Ataque rápido entra automaticamente no pool contra alvo que ainda não agiu
+  ---
+  duration_ms: 20.267622
+  type: 'test'
+  ...
+# Subtest: Ataque rápido não concede Impulso depois que o alvo já agiu
+ok 2 - Ataque rápido não concede Impulso depois que o alvo já agiu
+  ---
+  duration_ms: 6.33002
+  type: 'test'
+  ...
+# Subtest: Mando acrescenta Impulso automaticamente a teste de Liderança
+ok 3 - Mando acrescenta Impulso automaticamente a teste de Liderança
+  ---
+  duration_ms: 2.891322
+  type: 'test'
+  ...
+# Subtest: Comando adiciona 1 Impulso por grau somente a Liderança
+ok 4 - Comando adiciona 1 Impulso por grau somente a Liderança
+  ---
+  duration_ms: 0.919388
+  type: 'test'
+  ...
+# Subtest: Ataque rápido adiciona Impulso igual ao grau contra alvo que ainda não agiu
+ok 5 - Ataque rápido adiciona Impulso igual ao grau contra alvo que ainda não agiu
+  ---
+  duration_ms: 0.862592
+  type: 'test'
+  ...
+# Subtest: Ataque rápido não se aplica sem alvo de iniciativa conhecido
+ok 6 - Ataque rápido não se aplica sem alvo de iniciativa conhecido
+  ---
+  duration_ms: 0.314122
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre inclui aftermaths e encontros recentes sem depender da narração
+ok 7 - contexto do Mestre inclui aftermaths e encontros recentes sem depender da narração
+  ---
+  duration_ms: 73.220448
+  type: 'test'
+  ...
+# Subtest: finishCombat grava desfecho causal, resolve hook e cria aftermath uma única vez
+ok 8 - finishCombat grava desfecho causal, resolve hook e cria aftermath uma única vez
+  ---
+  duration_ms: 63.632764
+  type: 'test'
+  ...
+# Subtest: save/reopen preserva histórico do encontro e aftermath ativo
+ok 9 - save/reopen preserva histórico do encontro e aftermath ativo
+  ---
+  duration_ms: 21.878005
+  type: 'test'
+  ...
+# Subtest: Mestre fecha aftermath por operação estruturada e rollback protege estado inválido
+ok 10 - Mestre fecha aftermath por operação estruturada e rollback protege estado inválido
+  ---
+  duration_ms: 35.936081
+  type: 'test'
+  ...
+# Subtest: PNPC persistente incapacitado no combate também deixa de parecer ativo no mundo
+ok 11 - PNPC persistente incapacitado no combate também deixa de parecer ativo no mundo
+  ---
+  duration_ms: 19.576839
+  type: 'test'
+  ...
+# Subtest: personagem inicial entra no estado persistente e a perícia usa seus valores
+ok 12 - personagem inicial entra no estado persistente e a perícia usa seus valores
+  ---
+  duration_ms: 17.947083
+  type: 'test'
+  ...
+# Subtest: combate consome ação no ataque e segunda manobra por Tensão persiste na ficha
+ok 13 - combate consome ação no ataque e segunda manobra por Tensão persiste na ficha
+  ---
+  duration_ms: 14.751279
+  type: 'test'
+  ...
+# Subtest: dificuldade automática por alcance, Mirar e crítico são aplicados no ataque
+ok 14 - dificuldade automática por alcance, Mirar e crítico são aplicados no ataque
+  ---
+  duration_ms: 5.904227
+  type: 'test'
+  ...
+# Subtest: não rola uma segunda ação no mesmo turno nem permite agir incapacitado
+ok 15 - não rola uma segunda ação no mesmo turno nem permite agir incapacitado
+  ---
+  duration_ms: 5.964253
+  type: 'test'
+  ...
+# Subtest: consulta de regras e contexto do Mestre persistem sem narrar livremente
+ok 16 - consulta de regras e contexto do Mestre persistem sem narrar livremente
+  ---
+  duration_ms: 76.399704
+  type: 'test'
+  ...
+# Subtest: personagem personalizado EotE entra no mesmo estado persistente
+ok 17 - personagem personalizado EotE entra no mesmo estado persistente
+  ---
+  duration_ms: 2.441595
+  type: 'test'
+  ...
+# Subtest: Base, recursos e Obligation persistem ao reabrir a campanha
+ok 18 - Base, recursos e Obligation persistem ao reabrir a campanha
+  ---
+  duration_ms: 3.615466
+  type: 'test'
+  ...
+# Subtest: compra de talento de primeira linha persiste e desconta PE uma única vez
+ok 19 - compra de talento de primeira linha persiste e desconta PE uma única vez
+  ---
+  duration_ms: 3.777172
+  type: 'test'
+  ...
+# Subtest: compra genérica da árvore completa desbloqueia conexão e persiste linha inferior
+ok 20 - compra genérica da árvore completa desbloqueia conexão e persiste linha inferior
+  ---
+  duration_ms: 2.497388
+  type: 'test'
+  ...
+# Subtest: propor aquisição de arma consulta o Mestre sem descontar créditos
+ok 21 - propor aquisição de arma consulta o Mestre sem descontar créditos
+  ---
+  duration_ms: 251.742976
+  type: 'test'
+  ...
+# Subtest: tabela Core de Ferimentos Críticos cobre 01-05 até 151+ em 29 faixas
+ok 22 - tabela Core de Ferimentos Críticos cobre 01-05 até 151+ em 29 faixas
+  ---
+  duration_ms: 2.172804
+  type: 'test'
+  ...
+# Subtest: cada Ferimento Crítico anterior adiciona +10 à nova rolagem
+ok 23 - cada Ferimento Crítico anterior adiciona +10 à nova rolagem
+  ---
+  duration_ms: 1.451545
+  type: 'test'
+  ...
+# Subtest: Off-Balance afeta um único teste e Compromised dura até o fim do encontro
+ok 24 - Off-Balance afeta um único teste e Compromised dura até o fim do encontro
+  ---
+  duration_ms: 1.820461
+  type: 'test'
+  ...
+# Subtest: Stunned expira ao final do próximo turno e bloqueia apenas ações via modifier
+ok 25 - Stunned expira ao final do próximo turno e bloqueia apenas ações via modifier
+  ---
+  duration_ms: 0.778314
+  type: 'test'
+  ...
+# Subtest: Horrific Injury reduz característica apenas enquanto o crítico existir; Gruesome reduz permanentemente
+ok 26 - Horrific Injury reduz característica apenas enquanto o crítico existir; Gruesome reduz permanentemente
+  ---
+  duration_ms: 1.923702
+  type: 'test'
+  ...
+# Subtest: resultado 151+ registra Dead
+ok 27 - resultado 151+ registra Dead
+  ---
+  duration_ms: 0.481498
+  type: 'test'
+  ...
+# Subtest: conteúdo AoR reutilizado é marcado como referência cruzada, nunca autoridade EotE
+ok 28 - conteúdo AoR reutilizado é marcado como referência cruzada, nunca autoridade EotE
+  ---
+  duration_ms: 1.207252
+  type: 'test'
+  ...
+# Subtest: referências cruzadas AoR continuam bloqueadas; somente Duty/Contribution auditados entram como autoridade explícita
+ok 29 - referências cruzadas AoR continuam bloqueadas; somente Duty/Contribution auditados entram como autoridade explícita
+  ---
+  duration_ms: 1.161521
+  type: 'test'
+  ...
+# Subtest: entry documentation identifies EOTE_CORE + Obligation and current recovery path
+ok 30 - entry documentation identifies EOTE_CORE + Obligation and current recovery path
+  ---
+  duration_ms: 2.043485
+  type: 'test'
+  ...
+# Subtest: validation documentation reports the current full suite and six stress suites
+ok 31 - validation documentation reports the current full suite and six stress suites
+  ---
+  duration_ms: 1.183027
+  type: 'test'
+  ...
+# Subtest: criação AoR aceita somente Duty do catálogo canônico
+ok 32 - criação AoR aceita somente Duty do catálogo canônico
+  ---
+  duration_ms: 4.301597
+  type: 'test'
+  ...
+# Subtest: R34 catálogo econômico cobre 31 armas, 7 armaduras, 21 gear e veículos comprovados
+ok 33 - R34 catálogo econômico cobre 31 armas, 7 armaduras, 21 gear e veículos comprovados
+  ---
+  duration_ms: 4.303447
+  type: 'test'
+  ...
+# Subtest: R34 perfis veiculares sem raridade comprovada falham fechados
+ok 34 - R34 perfis veiculares sem raridade comprovada falham fechados
+  ---
+  duration_ms: 0.463301
+  type: 'test'
+  ...
+# Subtest: R34 disponibilidade genérica usa raridade da armadura
+ok 35 - R34 disponibilidade genérica usa raridade da armadura
+  ---
+  duration_ms: 0.580563
+  type: 'test'
+  ...
+# Subtest: R34 mercado local altera raridade efetiva
+ok 36 - R34 mercado local altera raridade efetiva
+  ---
+  duration_ms: 0.224352
+  type: 'test'
+  ...
+# Subtest: R34 pedido de compra guarda tipo, mercado e localização
+ok 37 - R34 pedido de compra guarda tipo, mercado e localização
+  ---
+  duration_ms: 123.683476
+  type: 'test'
+  ...
+# Subtest: R34 item desconhecido falha fechado
+ok 38 - R34 item desconhecido falha fechado
+  ---
+  duration_ms: 0.421972
+  type: 'test'
+  ...
+# Subtest: R34 recompensa de arma cria inventário e ownership
+ok 39 - R34 recompensa de arma cria inventário e ownership
+  ---
+  duration_ms: 164.922918
+  type: 'test'
+  ...
+# Subtest: R34 saque de armadura cria ownership sem equipar magicamente
+ok 40 - R34 saque de armadura cria ownership sem equipar magicamente
+  ---
+  duration_ms: 144.530776
+  type: 'test'
+  ...
+# Subtest: R34 gear catalogado persiste em gear + ownership
+ok 41 - R34 gear catalogado persiste em gear + ownership
+  ---
+  duration_ms: 136.29954
+  type: 'test'
+  ...
+# Subtest: R34 veículo adquirido separa profile availability ownership state e visual
+ok 42 - R34 veículo adquirido separa profile availability ownership state e visual
+  ---
+  duration_ms: 157.637233
+  type: 'test'
+  ...
+# Subtest: R34 compra aprovada desconta créditos e concede ativo
+ok 43 - R34 compra aprovada desconta créditos e concede ativo
+  ---
+  duration_ms: 154.976496
+  type: 'test'
+  ...
+# Subtest: R34 compra rejeitada não altera créditos/propriedade
+ok 44 - R34 compra rejeitada não altera créditos/propriedade
+  ---
+  duration_ms: 143.014457
+  type: 'test'
+  ...
+# Subtest: R34 compra sem créditos é bloqueada
+ok 45 - R34 compra sem créditos é bloqueada
+  ---
+  duration_ms: 89.92542
+  type: 'test'
+  ...
+# Subtest: R34 decisão econômica numérica exige evidência
+ok 46 - R34 decisão econômica numérica exige evidência
+  ---
+  duration_ms: 80.965064
+  type: 'test'
+  ...
+# Subtest: R34 perda remove arma do inventário e registry
+ok 47 - R34 perda remove arma do inventário e registry
+  ---
+  duration_ms: 111.618462
+  type: 'test'
+  ...
+# Subtest: R34 dano de item exige regra recuperada
+ok 48 - R34 dano de item exige regra recuperada
+  ---
+  duration_ms: 83.789986
+  type: 'test'
+  ...
+# Subtest: R34 dano e reparo pessoal persistem condição e custo
+ok 49 - R34 dano e reparo pessoal persistem condição e custo
+  ---
+  duration_ms: 186.562067
+  type: 'test'
+  ...
+# Subtest: R34 dano e reparo veicular alteram Hull Damage da unidade possuída
+ok 50 - R34 dano e reparo veicular alteram Hull Damage da unidade possuída
+  ---
+  duration_ms: 86.548923
+  type: 'test'
+  ...
+# Subtest: R34 venda adiciona créditos e remove ativo mecânico
+ok 51 - R34 venda adiciona créditos e remove ativo mecânico
+  ---
+  duration_ms: 117.076363
+  type: 'test'
+  ...
+# Subtest: R34 proposta aceita pedido estruturado de veículo
+ok 52 - R34 proposta aceita pedido estruturado de veículo
+  ---
+  duration_ms: 1.598159
+  type: 'test'
+  ...
+# Subtest: R34 proposta rejeita escrita econômica livre
+ok 53 - R34 proposta rejeita escrita econômica livre
+  ---
+  duration_ms: 0.150586
+  type: 'test'
+  ...
+# Subtest: R34 dano/reparo/venda estruturados exigem regra conhecida
+ok 54 - R34 dano/reparo/venda estruturados exigem regra conhecida
+  ---
+  duration_ms: 0.605705
+  type: 'test'
+  ...
+# Subtest: R34 contexto do Mestre inclui mercado, catálogo e ownership
+ok 55 - R34 contexto do Mestre inclui mercado, catálogo e ownership
+  ---
+  duration_ms: 97.123351
+  type: 'test'
+  ...
+# Subtest: R34 GameController abre pedido genérico usando mercado local
+ok 56 - R34 GameController abre pedido genérico usando mercado local
+  ---
+  duration_ms: 283.226481
+  type: 'test'
+  ...
+# Subtest: R34 proposta do Mestre pode conceder saque catalogado sem escrita livre
+ok 57 - R34 proposta do Mestre pode conceder saque catalogado sem escrita livre
+  ---
+  duration_ms: 92.302117
+  type: 'test'
+  ...
+# Subtest: R34 compatibilidade: proposeWeaponAcquisition continua funcional
+ok 58 - R34 compatibilidade: proposeWeaponAcquisition continua funcional
+  ---
+  duration_ms: 211.65307
+  type: 'test'
+  ...
+# Subtest: encontro converte iniciativa em posições e para na posição do jogador
+ok 59 - encontro converte iniciativa em posições e para na posição do jogador
+  ---
+  duration_ms: 13.301482
+  type: 'test'
+  ...
+# Subtest: ao encerrar posição PJ, motor executa posições PNPC e volta ao PJ no novo assalto
+ok 60 - ao encerrar posição PJ, motor executa posições PNPC e volta ao PJ no novo assalto
+  ---
+  duration_ms: 7.720596
+  type: 'test'
+  ...
+# Subtest: ataque do jogador pode atingir adversário do encontro e Adversário 1 melhora a dificuldade
+ok 61 - ataque do jogador pode atingir adversário do encontro e Adversário 1 melhora a dificuldade
+  ---
+  duration_ms: 9.545912
+  type: 'test'
+  ...
+# Subtest: EotE Core expõe exatamente 8 espécies, 6 carreiras e 18 especializações
+ok 62 - EotE Core expõe exatamente 8 espécies, 6 carreiras e 18 especializações
+  ---
+  duration_ms: 2.986503
+  type: 'test'
+  ...
+# Subtest: Obligation usa tabela oficial 2+ e política solo explícita; benefícios aumentam Obligation
+ok 63 - Obligation usa tabela oficial 2+ e política solo explícita; benefícios aumentam Obligation
+  ---
+  duration_ms: 2.058579
+  type: 'test'
+  ...
+# Subtest: Humano Contrabandista/Piloto é criado sem Duty e com Obligation
+ok 64 - Humano Contrabandista/Piloto é criado sem Duty e com Obligation
+  ---
+  duration_ms: 0.924429
+  type: 'test'
+  ...
+# Subtest: Droide recebe 6 perícias de carreira e 3 da especialização
+ok 65 - Droide recebe 6 perícias de carreira e 3 da especialização
+  ---
+  duration_ms: 4.20647
+  type: 'test'
+  ...
+# Subtest: Gand com pulmões recebe +10 PE e preview reflete variante
+ok 66 - Gand com pulmões recebe +10 PE e preview reflete variante
+  ---
+  duration_ms: 1.575522
+  type: 'test'
+  ...
+# Subtest: estado novo é schema 14 EOTE_CORE e usa group EotE
+ok 67 - estado novo é schema 14 EOTE_CORE e usa group EotE
+  ---
+  duration_ms: 4.077007
+  type: 'test'
+  ...
+# Subtest: migração AoR preserva Duty/Contribution somente em legacyAoR sem converter em Obligation
+ok 68 - migração AoR preserva Duty/Contribution somente em legacyAoR sem converter em Obligation
+  ---
+  duration_ms: 1.382205
+  type: 'test'
+  ...
+# Subtest: controller bloqueia mutação Duty/Contribution e oferece Obligation
+ok 69 - controller bloqueia mutação Duty/Contribution e oferece Obligation
+  ---
+  duration_ms: 2.7674
+  type: 'test'
+  ...
+# Subtest: Encumbrance threshold Core é 5 + Brawn e mochila soma +4
+ok 70 - Encumbrance threshold Core é 5 + Brawn e mochila soma +4
+  ---
+  duration_ms: 3.717272
+  type: 'test'
+  ...
+# Subtest: armadura vestida reduz Encumbrance em 3
+ok 71 - armadura vestida reduz Encumbrance em 3
+  ---
+  duration_ms: 0.309018
+  type: 'test'
+  ...
+# Subtest: cada ponto acima do threshold gera setback em Brawn/Agility e excesso >= Brawn remove manobra grátis
+ok 72 - cada ponto acima do threshold gera setback em Brawn/Agility e excesso >= Brawn remove manobra grátis
+  ---
+  duration_ms: 0.17942
+  type: 'test'
+  ...
+# Subtest: levantamento usa threshold efetivo e ajuda soma Brawn bruto
+ok 73 - levantamento usa threshold efetivo e ajuda soma Brawn bruto
+  ---
+  duration_ms: 0.63843
+  type: 'test'
+  ...
+# Subtest: condições genéricas aplicam staggered/immobilized/disoriented e acumulam duração
+ok 74 - condições genéricas aplicam staggered/immobilized/disoriented e acumulam duração
+  ---
+  duration_ms: 0.458369
+  type: 'test'
+  ...
+# Subtest: condições expiram por turno sem ficar negativas
+ok 75 - condições expiram por turno sem ficar negativas
+  ---
+  duration_ms: 0.281634
+  type: 'test'
+  ...
+# Subtest: Fear usa Discipline ou Cool e dificuldade 1..5
+ok 76 - Fear usa Discipline ou Cool e dificuldade 1..5
+  ---
+  duration_ms: 1.020411
+  type: 'test'
+  ...
+# Subtest: falha de Fear impõe setback e Despair aumenta dificuldade
+ok 77 - falha de Fear impõe setback e Despair aumenta dificuldade
+  ---
+  duration_ms: 0.166731
+  type: 'test'
+  ...
+# Subtest: três Threat podem virar staggered no primeiro turno
+ok 78 - três Threat podem virar staggered no primeiro turno
+  ---
+  duration_ms: 0.266593
+  type: 'test'
+  ...
+# Subtest: sucesso com Advantage prepara boost no primeiro check
+ok 79 - sucesso com Advantage prepara boost no primeiro check
+  ---
+  duration_ms: 0.455469
+  type: 'test'
+  ...
+# Subtest: Destiny inicial soma um Force die por jogador
+ok 80 - Destiny inicial soma um Force die por jogador
+  ---
+  duration_ms: 0.699313
+  type: 'test'
+  ...
+# Subtest: gastar Destiny vira o ponto para o lado oposto
+ok 81 - gastar Destiny vira o ponto para o lado oposto
+  ---
+  duration_ms: 0.187857
+  type: 'test'
+  ...
+# Subtest: upgrade de pool converte Ability em Proficiency e adiciona Ability quando necessário
+ok 82 - upgrade de pool converte Ability em Proficiency e adiciona Ability quando necessário
+  ---
+  duration_ms: 0.128587
+  type: 'test'
+  ...
+# Subtest: Obligation é d100 antes da sessão e identifica entrada por faixa cumulativa
+ok 83 - Obligation é d100 antes da sessão e identifica entrada por faixa cumulativa
+  ---
+  duration_ms: 0.346133
+  type: 'test'
+  ...
+# Subtest: doubles dobram penalidade de Obligation
+ok 84 - doubles dobram penalidade de Obligation
+  ---
+  duration_ms: 0.365867
+  type: 'test'
+  ...
+# Subtest: Obligation acima de 100 bloqueia progressão
+ok 85 - Obligation acima de 100 bloqueia progressão
+  ---
+  duration_ms: 0.174345
+  type: 'test'
+  ...
+# Subtest: startSession prepara Destiny e Obligation e aplica threshold efetivo sem destruir base
+ok 86 - startSession prepara Destiny e Obligation e aplica threshold efetivo sem destruir base
+  ---
+  duration_ms: 8.161494
+  type: 'test'
+  ...
+# Subtest: encerrar sessão remove penalidade temporária de Obligation
+ok 87 - encerrar sessão remove penalidade temporária de Obligation
+  ---
+  duration_ms: 2.844735
+  type: 'test'
+  ...
+# Subtest: Obligation >100 bloqueia treino, especialização, talento e Força pelo mesmo gate
+ok 88 - Obligation >100 bloqueia treino, especialização, talento e Força pelo mesmo gate
+  ---
+  duration_ms: 0.877406
+  type: 'test'
+  ...
+# Subtest: Fear no controller evita rerrolar a mesma fonte sem mudança significativa
+ok 89 - Fear no controller evita rerrolar a mesma fonte sem mudança significativa
+  ---
+  duration_ms: 2.18606
+  type: 'test'
+  ...
+# Subtest: disoriented do controller adiciona setback ao teste real
+ok 90 - disoriented do controller adiciona setback ao teste real
+  ---
+  duration_ms: 2.38652
+  type: 'test'
+  ...
+# Subtest: Encumbrance remove a manobra gratuita e cobra 2 Strain já na primeira
+ok 91 - Encumbrance remove a manobra gratuita e cobra 2 Strain já na primeira
+  ---
+  duration_ms: 2.258848
+  type: 'test'
+  ...
+# Subtest: Destiny gasto em skill check aprimora pool e vira a reserva
+ok 92 - Destiny gasto em skill check aprimora pool e vira a reserva
+  ---
+  duration_ms: 1.63838
+  type: 'test'
+  ...
+# Subtest: starter ships EotE Core ativos são Wayfarer, YT-1300 e Firespray
+ok 93 - starter ships EotE Core ativos são Wayfarer, YT-1300 e Firespray
+  ---
+  duration_ms: 1.35746
+  type: 'test'
+  ...
+# Subtest: Wayfarer reproduz perfil Core final + errata de Sensor Range Short
+ok 94 - Wayfarer reproduz perfil Core final + errata de Sensor Range Short
+  ---
+  duration_ms: 0.458919
+  type: 'test'
+  ...
+# Subtest: YT-1300 reproduz perfil Core final
+ok 95 - YT-1300 reproduz perfil Core final
+  ---
+  duration_ms: 0.31827
+  type: 'test'
+  ...
+# Subtest: Firespray reproduz perfil Core final
+ok 96 - Firespray reproduz perfil Core final
+  ---
+  duration_ms: 0.320907
+  type: 'test'
+  ...
+# Subtest: Tractor 2 acerta sem causar Hull Trauma e trava movimento com dificuldade 2
+ok 97 - Tractor 2 acerta sem causar Hull Trauma e trava movimento com dificuldade 2
+  ---
+  duration_ms: 2.093455
+  type: 'test'
+  ...
+# Subtest: teste de Pilotagem contra Tractor usa rating e libera a nave em sucesso
+ok 98 - teste de Pilotagem contra Tractor usa rating e libera a nave em sucesso
+  ---
+  duration_ms: 1.396133
+  type: 'test'
+  ...
+# Subtest: X-Wing legado continua referência AoR; TIE/ln e Lambda foram promovidos pelo próprio Core EotE no R35
+ok 99 - X-Wing legado continua referência AoR; TIE/ln e Lambda foram promovidos pelo próprio Core EotE no R35
+  ---
+  duration_ms: 0.211138
+  type: 'test'
+  ...
+# Subtest: Encumbrance base é 5 + Brawn
+ok 100 - Encumbrance base é 5 + Brawn
+  ---
+  duration_ms: 2.252381
+  type: 'test'
+  ...
+# Subtest: mochila +4 e cinto utilitário +1 aumentam o threshold
+ok 101 - mochila +4 e cinto utilitário +1 aumentam o threshold
+  ---
+  duration_ms: 0.60588
+  type: 'test'
+  ...
+# Subtest: armadura vestida reduz Encumbrance em 3, mínimo zero
+ok 102 - armadura vestida reduz Encumbrance em 3, mínimo zero
+  ---
+  duration_ms: 0.510567
+  type: 'test'
+  ...
+# Subtest: excesso gera um setback por ponto e carga grave usa Brawn
+ok 103 - excesso gera um setback por ponto e carga grave usa Brawn
+  ---
+  duration_ms: 0.7105
+  type: 'test'
+  ...
+# Subtest: levantamento usa threshold e Brawn bruto de ajudantes, limitado a Daunting
+ok 104 - levantamento usa threshold e Brawn bruto de ajudantes, limitado a Daunting
+  ---
+  duration_ms: 1.818564
+  type: 'test'
+  ...
+# Subtest: catálogo EotE expõe Encumbrance real sem apagar referência AoR histórica
+ok 105 - catálogo EotE expõe Encumbrance real sem apagar referência AoR histórica
+  ---
+  duration_ms: 1.932773
+  type: 'test'
+  ...
+# Subtest: status staggered, immobilized e disoriented produzem efeitos genéricos
+ok 106 - status staggered, immobilized e disoriented produzem efeitos genéricos
+  ---
+  duration_ms: 3.264406
+  type: 'test'
+  ...
+# Subtest: efeitos repetidos estendem duração e expiram por turno
+ok 107 - efeitos repetidos estendem duração e expiram por turno
+  ---
+  duration_ms: 0.69475
+  type: 'test'
+  ...
+# Subtest: efeitos de encontro expiram ao fim do encontro
+ok 108 - efeitos de encontro expiram ao fim do encontro
+  ---
+  duration_ms: 0.735731
+  type: 'test'
+  ...
+# Subtest: Destiny inicial rola um dado da Força por jogador e soma recursos
+ok 109 - Destiny inicial rola um dado da Força por jogador e soma recursos
+  ---
+  duration_ms: 1.172563
+  type: 'test'
+  ...
+# Subtest: gastar Destiny luminoso vira sombrio e vice-versa
+ok 110 - gastar Destiny luminoso vira sombrio e vice-versa
+  ---
+  duration_ms: 1.971778
+  type: 'test'
+  ...
+# Subtest: Destiny aprimora pools positivos e negativos
+ok 111 - Destiny aprimora pools positivos e negativos
+  ---
+  duration_ms: 0.339721
+  type: 'test'
+  ...
+# Subtest: Obligation usa d100 cumulativo e identifica membro
+ok 112 - Obligation usa d100 cumulativo e identifica membro
+  ---
+  duration_ms: 0.768921
+  type: 'test'
+  ...
+# Subtest: doubles dobram penalidades de Obligation
+ok 113 - doubles dobram penalidades de Obligation
+  ---
+  duration_ms: 0.301251
+  type: 'test'
+  ...
+# Subtest: Obligation acima de 100 marca progressão bloqueada
+ok 114 - Obligation acima de 100 marca progressão bloqueada
+  ---
+  duration_ms: 0.298214
+  type: 'test'
+  ...
+# Subtest: dificuldades de medo vão de Easy a Formidable
+ok 115 - dificuldades de medo vão de Easy a Formidable
+  ---
+  duration_ms: 0.184929
+  type: 'test'
+  ...
+# Subtest: medo usa Discipline normalmente e Cool quando preparado
+ok 116 - medo usa Discipline normalmente e Cool quando preparado
+  ---
+  duration_ms: 1.505088
+  type: 'test'
+  ...
+# Subtest: falha de medo aplica setback de encontro
+ok 117 - falha de medo aplica setback de encontro
+  ---
+  duration_ms: 0.733541
+  type: 'test'
+  ...
+# Subtest: startSession prepara Destiny e aplica Obligation; close restaura threshold
+ok 118 - startSession prepara Destiny e aplica Obligation; close restaura threshold
+  ---
+  duration_ms: 11.294096
+  type: 'test'
+  ...
+# Subtest: Obligation acima de 100 bloqueia gasto de PE no controller mas não concessão
+ok 119 - Obligation acima de 100 bloqueia gasto de PE no controller mas não concessão
+  ---
+  duration_ms: 3.047262
+  type: 'test'
+  ...
+# Subtest: Destiny no controller aprimora pool e vira o ponto para o lado oposto
+ok 120 - Destiny no controller aprimora pool e vira o ponto para o lado oposto
+  ---
+  duration_ms: 3.400652
+  type: 'test'
+  ...
+# Subtest: status genérico bloqueia ação e manobra no combate
+ok 121 - status genérico bloqueia ação e manobra no combate
+  ---
+  duration_ms: 3.000224
+  type: 'test'
+  ...
+# Subtest: carga grave remove manobra gratuita e permite pagar 2 Tensão
+ok 122 - carga grave remove manobra gratuita e permite pagar 2 Tensão
+  ---
+  duration_ms: 3.851651
+  type: 'test'
+  ...
+# Subtest: R35: catálogo veicular Core EotE possui 15 perfis ativos e nenhum AoR
+ok 123 - R35: catálogo veicular Core EotE possui 15 perfis ativos e nenhum AoR
+  ---
+  duration_ms: 1.802453
+  type: 'test'
+  ...
+# Subtest: R35: x34 reproduz perfil/custo/raridade Core
+ok 124 - R35: x34 reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.416923
+  type: 'test'
+  ...
+# Subtest: R35: digger_crawler reproduz perfil/custo/raridade Core
+ok 125 - R35: digger_crawler reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.24421
+  type: 'test'
+  ...
+# Subtest: R35: personnel_carrier reproduz perfil/custo/raridade Core
+ok 126 - R35: personnel_carrier reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.140434
+  type: 'test'
+  ...
+# Subtest: R35: at_pt reproduz perfil/custo/raridade Core
+ok 127 - R35: at_pt reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.143028
+  type: 'test'
+  ...
+# Subtest: R35: at_est reproduz perfil/custo/raridade Core
+ok 128 - R35: at_est reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.157937
+  type: 'test'
+  ...
+# Subtest: R35: cloakshape reproduz perfil/custo/raridade Core
+ok 129 - R35: cloakshape reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.365604
+  type: 'test'
+  ...
+# Subtest: R35: jumpmaster_jm5000 reproduz perfil/custo/raridade Core
+ok 130 - R35: jumpmaster_jm5000 reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.14035
+  type: 'test'
+  ...
+# Subtest: R35: firespray reproduz perfil/custo/raridade Core
+ok 131 - R35: firespray reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.519449
+  type: 'test'
+  ...
+# Subtest: R35: lambda_t4a reproduz perfil/custo/raridade Core
+ok 132 - R35: lambda_t4a reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.457236
+  type: 'test'
+  ...
+# Subtest: R35: tie_ln reproduz perfil/custo/raridade Core
+ok 133 - R35: tie_ln reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.192287
+  type: 'test'
+  ...
+# Subtest: R35: ywing_btl reproduz perfil/custo/raridade Core
+ok 134 - R35: ywing_btl reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.171283
+  type: 'test'
+  ...
+# Subtest: R35: z95_af4 reproduz perfil/custo/raridade Core
+ok 135 - R35: z95_af4 reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.093989
+  type: 'test'
+  ...
+# Subtest: R35: skipray_gat12h reproduz perfil/custo/raridade Core
+ok 136 - R35: skipray_gat12h reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.081499
+  type: 'test'
+  ...
+# Subtest: R35: wayfarer reproduz perfil/custo/raridade Core
+ok 137 - R35: wayfarer reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.062375
+  type: 'test'
+  ...
+# Subtest: R35: yt1300 reproduz perfil/custo/raridade Core
+ok 138 - R35: yt1300 reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.056685
+  type: 'test'
+  ...
+# Subtest: R35: perfis terrestres Core preservam capacidade e sensores comprovados
+ok 139 - R35: perfis terrestres Core preservam capacidade e sensores comprovados
+  ---
+  duration_ms: 0.095365
+  type: 'test'
+  ...
+# Subtest: R35: naves Core preservam hiperdrive/defesa/restrição e munição
+ok 140 - R35: naves Core preservam hiperdrive/defesa/restrição e munição
+  ---
+  duration_ms: 0.071116
+  type: 'test'
+  ...
+# Subtest: R35: os 15 veículos Core permanecem disponíveis na economia e X-Wing segue excluído
+ok 141 - R35: os 15 veículos Core permanecem disponíveis na economia e X-Wing segue excluído
+  ---
+  duration_ms: 1.704081
+  type: 'test'
+  ...
+# Subtest: R35: disponibilidade de veículo respeita raridade e restrição do Core
+ok 142 - R35: disponibilidade de veículo respeita raridade e restrição do Core
+  ---
+  duration_ms: 0.384004
+  type: 'test'
+  ...
+# Subtest: R35: X-Wing continua fail-closed na economia até fonte EotE própria
+ok 143 - R35: X-Wing continua fail-closed na economia até fonte EotE própria
+  ---
+  duration_ms: 0.492427
+  type: 'test'
+  ...
+# Subtest: Tabela 7-9 Core cobre 01-09 até 154+ sem lacunas
+ok 144 - Tabela 7-9 Core cobre 01-09 até 154+ sem lacunas
+  ---
+  duration_ms: 1.314233
+  type: 'test'
+  ...
+# Subtest: Mechanical Stress causa 1 system strain, não a sequência simplificada antiga
+ok 145 - Mechanical Stress causa 1 system strain, não a sequência simplificada antiga
+  ---
+  duration_ms: 2.831812
+  type: 'test'
+  ...
+# Subtest: cada Critical Hit não reparado soma +10 à próxima rolagem
+ok 146 - cada Critical Hit não reparado soma +10 à próxima rolagem
+  ---
+  duration_ms: 1.702079
+  type: 'test'
+  ...
+# Subtest: Critical Hit reparado continua no histórico mas deixa de somar +10
+ok 147 - Critical Hit reparado continua no histórico mas deixa de somar +10
+  ---
+  duration_ms: 0.547324
+  type: 'test'
+  ...
+# Subtest: Jostled devolve consequências de tripulação para integração do controller
+ok 148 - Jostled devolve consequências de tripulação para integração do controller
+  ---
+  duration_ms: 0.21995
+  type: 'test'
+  ...
+# Subtest: Losing Power to Shields reduz apenas a zona afetada e reparo restaura derivação
+ok 149 - Losing Power to Shields reduz apenas a zona afetada e reparo restaura derivação
+  ---
+  duration_ms: 0.312224
+  type: 'test'
+  ...
+# Subtest: Shields Failing sem Defesa usa fallback de 2 system strain
+ok 150 - Shields Failing sem Defesa usa fallback de 2 system strain
+  ---
+  duration_ms: 0.282202
+  type: 'test'
+  ...
+# Subtest: falha de hiperimpulsor bloqueia salto até reparo
+ok 151 - falha de hiperimpulsor bloqueia salto até reparo
+  ---
+  duration_ms: 0.794494
+  type: 'test'
+  ...
+# Subtest: Power Fluctuations bloqueia system strain voluntário e Punch It
+ok 152 - Power Fluctuations bloqueia system strain voluntário e Punch It
+  ---
+  duration_ms: 1.21836
+  type: 'test'
+  ...
+# Subtest: Engine Damaged reduz velocidade máxima efetiva sem corromper valor-base
+ok 153 - Engine Damaged reduz velocidade máxima efetiva sem corromper valor-base
+  ---
+  duration_ms: 0.605133
+  type: 'test'
+  ...
+# Subtest: Engines Down impede manobras mas preserva curso/velocidade atual
+ok 154 - Engines Down impede manobras mas preserva curso/velocidade atual
+  ---
+  duration_ms: 0.641276
+  type: 'test'
+  ...
+# Subtest: Destabilized reduz ambos thresholds efetivos à metade
+ok 155 - Destabilized reduz ambos thresholds efetivos à metade
+  ---
+  duration_ms: 0.255756
+  type: 'test'
+  ...
+# Subtest: Major Hull Breach em atmosfera vira Destabilized
+ok 156 - Major Hull Breach em atmosfera vira Destabilized
+  ---
+  duration_ms: 0.188741
+  type: 'test'
+  ...
+# Subtest: Component Hit expira mecanicamente mas segue contando +10 até reparo
+ok 157 - Component Hit expira mecanicamente mas segue contando +10 até reparo
+  ---
+  duration_ms: 0.546744
+  type: 'test'
+  ...
+# Subtest: Shield Overload só pode ser reparado após o encontro
+ok 158 - Shield Overload só pode ser reparado após o encontro
+  ---
+  duration_ms: 0.413367
+  type: 'test'
+  ...
+# Subtest: Breaking Up destrói ao atravessar o fim do assalto seguinte
+ok 159 - Breaking Up destrói ao atravessar o fim do assalto seguinte
+  ---
+  duration_ms: 0.517009
+  type: 'test'
+  ...
+# Subtest: Vaporized destrói imediatamente e não admite reparo
+ok 160 - Vaporized destrói imediatamente e não admite reparo
+  ---
+  duration_ms: 0.495973
+  type: 'test'
+  ...
+# Subtest: normalizador preserva saves antigos sem criticalState novo
+ok 161 - normalizador preserva saves antigos sem criticalState novo
+  ---
+  duration_ms: 6.378399
+  type: 'test'
+  ...
+# Subtest: FINAL Star Wars: motor compartilhado mantém EotE como default e só ativa AoR/Misto por escolha explícita
+ok 162 - FINAL Star Wars: motor compartilhado mantém EotE como default e só ativa AoR/Misto por escolha explícita
+  ---
+  duration_ms: 14.091848
+  type: 'test'
+  ...
+# Subtest: FINAL shell compartilhada mantém EotE padrão e só expõe origem AoR por escolha explícita
+ok 163 - FINAL shell compartilhada mantém EotE padrão e só expõe origem AoR por escolha explícita
+  ---
+  duration_ms: 3.547545
+  type: 'test'
+  ...
+# Subtest: FINAL: corpus mantém EotE dominante e permite somente o subconjunto AoR recuperado para Duty/Contribution
+ok 164 - FINAL: corpus mantém EotE dominante e permite somente o subconjunto AoR recuperado para Duty/Contribution
+  ---
+  duration_ms: 1.592949
+  type: 'test'
+  ...
+# Subtest: R36: Fly Casual adiciona exatamente 10 perfis EotE suplementares e catálogo ativo chega a 25
+ok 165 - R36: Fly Casual adiciona exatamente 10 perfis EotE suplementares e catálogo ativo chega a 25
+  ---
+  duration_ms: 1.983776
+  type: 'test'
+  ...
+# Subtest: R36: alpha_xg1_star_wing reproduz ficha/preço/raridade de Fly Casual
+ok 166 - R36: alpha_xg1_star_wing reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.938733
+  type: 'test'
+  ...
+# Subtest: R36: vt49_decimator reproduz ficha/preço/raridade de Fly Casual
+ok 167 - R36: vt49_decimator reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.410572
+  type: 'test'
+  ...
+# Subtest: R36: wud500 reproduz ficha/preço/raridade de Fly Casual
+ok 168 - R36: wud500 reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.223609
+  type: 'test'
+  ...
+# Subtest: R36: starlight reproduz ficha/preço/raridade de Fly Casual
+ok 169 - R36: starlight reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.175949
+  type: 'test'
+  ...
+# Subtest: R36: ykl37r_nova_courier reproduz ficha/preço/raridade de Fly Casual
+ok 170 - R36: ykl37r_nova_courier reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.188999
+  type: 'test'
+  ...
+# Subtest: R36: gx1_short_hauler reproduz ficha/preço/raridade de Fly Casual
+ok 171 - R36: gx1_short_hauler reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.186472
+  type: 'test'
+  ...
+# Subtest: R36: baudo_star_yacht reproduz ficha/preço/raridade de Fly Casual
+ok 172 - R36: baudo_star_yacht reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.112346
+  type: 'test'
+  ...
+# Subtest: R36: gozanti reproduz ficha/preço/raridade de Fly Casual
+ok 173 - R36: gozanti reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.727215
+  type: 'test'
+  ...
+# Subtest: R36: hwk1000 reproduz ficha/preço/raridade de Fly Casual
+ok 174 - R36: hwk1000 reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.549686
+  type: 'test'
+  ...
+# Subtest: R36: yt2000 reproduz ficha/preço/raridade de Fly Casual
+ok 175 - R36: yt2000 reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.52196
+  type: 'test'
+  ...
+# Subtest: R36: hiperdrive, carga e armamento essencial dos cargueiros ficam preservados
+ok 176 - R36: hiperdrive, carga e armamento essencial dos cargueiros ficam preservados
+  ---
+  duration_ms: 0.126911
+  type: 'test'
+  ...
+# Subtest: R36: economia expõe 25 veículos EotE auditados e continua excluindo X-Wing de referência cruzada
+ok 177 - R36: economia expõe 25 veículos EotE auditados e continua excluindo X-Wing de referência cruzada
+  ---
+  duration_ms: 1.708213
+  type: 'test'
+  ...
+# Subtest: R36: restrição/raridade suplementar alimentam o mesmo motor de disponibilidade
+ok 178 - R36: restrição/raridade suplementar alimentam o mesmo motor de disponibilidade
+  ---
+  duration_ms: 0.877998
+  type: 'test'
+  ...
+# Subtest: dado da Força reproduz as 12 faces oficiais do Core
+ok 179 - dado da Força reproduz as 12 faces oficiais do Core
+  ---
+  duration_ms: 2.621362
+  type: 'test'
+  ...
+# Subtest: Exilado Sensível à Força é universal, custa como carreira e concede Force Rating 1 sem skills grátis
+ok 180 - Exilado Sensível à Força é universal, custa como carreira e concede Force Rating 1 sem skills grátis
+  ---
+  duration_ms: 4.013831
+  type: 'test'
+  ...
+# Subtest: Droide não pode adquirir Exilado Sensível à Força
+ok 181 - Droide não pode adquirir Exilado Sensível à Força
+  ---
+  duration_ms: 3.424771
+  type: 'test'
+  ...
+# Subtest: árvore universal do Exilado tem 20 nós e talentos de primeira linha acessíveis
+ok 182 - árvore universal do Exilado tem 20 nós e talentos de primeira linha acessíveis
+  ---
+  duration_ms: 2.033031
+  type: 'test'
+  ...
+# Subtest: Perspicácia torna Percepção e Disciplina perícias de carreira sem dar ranks
+ok 183 - Perspicácia torna Percepção e Disciplina perícias de carreira sem dar ranks
+  ---
+  duration_ms: 2.91065
+  type: 'test'
+  ...
+# Subtest: Sentidos e Reações sobrenaturais alimentam modificadores de perícia
+ok 184 - Sentidos e Reações sobrenaturais alimentam modificadores de perícia
+  ---
+  duration_ms: 2.186915
+  type: 'test'
+  ...
+# Subtest: rolagem usa Force Rating disponível e dados comprometidos reduzem a quantidade rolada
+ok 185 - rolagem usa Force Rating disponível e dados comprometidos reduzem a quantidade rolada
+  ---
+  duration_ms: 1.797269
+  type: 'test'
+  ...
+# Subtest: usuário luminoso pode converter resultados sombrios com um Destino e Tensão por ponto usado
+ok 186 - usuário luminoso pode converter resultados sombrios com um Destino e Tensão por ponto usado
+  ---
+  duration_ms: 1.302479
+  type: 'test'
+  ...
+# Subtest: sem Destino luminoso não é permitido usar resultados sombrios
+ok 187 - sem Destino luminoso não é permitido usar resultados sombrios
+  ---
+  duration_ms: 1.280928
+  type: 'test'
+  ...
+# Subtest: Sense, Influence e Move custam 10 PE e exigem Force Rating
+ok 188 - Sense, Influence e Move custam 10 PE e exigem Force Rating
+  ---
+  duration_ms: 2.518245
+  type: 'test'
+  ...
+# Subtest: aprimoramentos da Força respeitam conexões e custos da árvore
+ok 189 - aprimoramentos da Força respeitam conexões e custos da árvore
+  ---
+  duration_ms: 1.901122
+  type: 'test'
+  ...
+# Subtest: Influência básica causa 1 Tensão por ponto ou 2 com Strength
+ok 190 - Influência básica causa 1 Tensão por ponto ou 2 com Strength
+  ---
+  duration_ms: 0.825718
+  type: 'test'
+  ...
+# Subtest: regra especial de Influência separa emoções positivas/negativas por lado
+ok 191 - regra especial de Influência separa emoções positivas/negativas por lado
+  ---
+  duration_ms: 0.205849
+  type: 'test'
+  ...
+# Subtest: Mover com Control de arremesso calcula dano oficial por silhueta
+ok 192 - Mover com Control de arremesso calcula dano oficial por silhueta
+  ---
+  duration_ms: 0.774416
+  type: 'test'
+  ...
+# Subtest: árvore do Exilado respeita a malha oficial e não cria atalhos sob Insight/Forager
+ok 193 - árvore do Exilado respeita a malha oficial e não cria atalhos sob Insight/Forager
+  ---
+  duration_ms: 3.519931
+  type: 'test'
+  ...
+# Subtest: Sentir calcula alcance, magnitude e pensamentos sem confundir gasto de pontos
+ok 194 - Sentir calcula alcance, magnitude e pensamentos sem confundir gasto de pontos
+  ---
+  duration_ms: 1.339408
+  type: 'test'
+  ...
+# Subtest: Mover separa ativações de Strength, Range e Magnitude conforme o Core
+ok 195 - Mover separa ativações de Strength, Range e Magnitude conforme o Core
+  ---
+  duration_ms: 1.179729
+  type: 'test'
+  ...
+# Subtest: Sobrecarregar Emoções usa lados diferentes em Carisma versus Coerção/Enganação
+ok 196 - Sobrecarregar Emoções usa lados diferentes em Carisma versus Coerção/Enganação
+  ---
+  duration_ms: 2.525307
+  type: 'test'
+  ...
+# Subtest: controller persiste compra universal, poderes e consumo de Destino
+ok 197 - controller persiste compra universal, poderes e consumo de Destino
+  ---
+  duration_ms: 11.29381
+  type: 'test'
+  ...
+1..197
+# tests 197
+# suites 0
+# pass 197
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3083.950367
+=== SHARD 3 files 40-59 ===
+TAP version 13
+# Subtest: R37: catálogo pessoal inicial atinge 60 itens com Appraiser's Eye fundamentado em Fly Casual
+ok 1 - R37: catálogo pessoal inicial atinge 60 itens com Appraiser's Eye fundamentado em Fly Casual
+  ---
+  duration_ms: 3.131336
+  type: 'test'
+  ...
+# Subtest: segunda especialização dentro da carreira custa 20 PE; fora da carreira custa 30 PE
+ok 2 - segunda especialização dentro da carreira custa 20 PE; fora da carreira custa 30 PE
+  ---
+  duration_ms: 2.107078
+  type: 'test'
+  ...
+# Subtest: terceira especialização usa o total após a compra e mantém sobretaxa fora da carreira original
+ok 3 - terceira especialização usa o total após a compra e mantém sobretaxa fora da carreira original
+  ---
+  duration_ms: 0.819802
+  type: 'test'
+  ...
+# Subtest: compra adiciona especialização e perícias de carreira sem conceder ranks gratuitos
+ok 4 - compra adiciona especialização e perícias de carreira sem conceder ranks gratuitos
+  ---
+  duration_ms: 1.744343
+  type: 'test'
+  ...
+# Subtest: especialização já possuída não pode ser comprada novamente e PE insuficiente falha sem mutar
+ok 5 - especialização já possuída não pode ser comprada novamente e PE insuficiente falha sem mutar
+  ---
+  duration_ms: 0.992234
+  type: 'test'
+  ...
+# Subtest: árvore de talentos da especialização comprada fica acessível e a inicial continua intacta
+ok 6 - árvore de talentos da especialização comprada fica acessível e a inicial continua intacta
+  ---
+  duration_ms: 4.581823
+  type: 'test'
+  ...
+# Subtest: não é permitido acessar árvore de especialização que o personagem não possui
+ok 7 - não é permitido acessar árvore de especialização que o personagem não possui
+  ---
+  duration_ms: 0.435363
+  type: 'test'
+  ...
+# Subtest: controller compra e persiste especialização adicional com custo e career skills corretos
+ok 8 - controller compra e persiste especialização adicional com custo e career skills corretos
+  ---
+  duration_ms: 6.366726
+  type: 'test'
+  ...
+# Subtest: RAG fundamenta compra de especialização adicional no Core EotE real
+ok 9 - RAG fundamenta compra de especialização adicional no Core EotE real
+  ---
+  duration_ms: 39.394559
+  type: 'test'
+  ...
+# Subtest: Pantalla fornece catálogo auditado de 31 armas e 7 blindagens de referência
+ok 10 - Pantalla fornece catálogo auditado de 31 armas e 7 blindagens de referência
+  ---
+  duration_ms: 7.43323
+  type: 'test'
+  ...
+# Subtest: preços, raridade e restrição de exemplos centrais permanecem estáveis
+ok 11 - preços, raridade e restrição de exemplos centrais permanecem estáveis
+  ---
+  duration_ms: 5.818569
+  type: 'test'
+  ...
+# Subtest: armas corpo a corpo preservam dano por Fortaleza quando a tabela usa +N
+ok 12 - armas corpo a corpo preservam dano por Fortaleza quando a tabela usa +N
+  ---
+  duration_ms: 0.317203
+  type: 'test'
+  ...
+# Subtest: catálogo retorna cópia e não permite mutar a autoridade em memória
+ok 13 - catálogo retorna cópia e não permite mutar a autoridade em memória
+  ---
+  duration_ms: 1.125355
+  type: 'test'
+  ...
+# Subtest: Navegador mestre custa 2 Tensão e reduz Astrogation em 1, mínimo Fácil
+ok 14 - Navegador mestre custa 2 Tensão e reduz Astrogation em 1, mínimo Fácil
+  ---
+  duration_ms: 16.44838
+  type: 'test'
+  ...
+# Subtest: perfil EotE Core não oferece talento especialista genérico para Liderança
+ok 15 - perfil EotE Core não oferece talento especialista genérico para Liderança
+  ---
+  duration_ms: 1.72117
+  type: 'test'
+  ...
+# Subtest: interface PT-BR expõe Navegador mestre somente como opção explícita
+ok 16 - interface PT-BR expõe Navegador mestre somente como opção explícita
+  ---
+  duration_ms: 7.498713
+  type: 'test'
+  ...
+# Subtest: adversário não persistente pode carregar facção explícita validada
+ok 17 - adversário não persistente pode carregar facção explícita validada
+  ---
+  duration_ms: 57.351
+  type: 'test'
+  ...
+# Subtest: PNPC persistente herda facção e tentativa de troca silenciosa é rejeitada
+ok 18 - PNPC persistente herda facção e tentativa de troca silenciosa é rejeitada
+  ---
+  duration_ms: 15.621035
+  type: 'test'
+  ...
+# Subtest: consequência de facção pode inferir afiliação dos adversários do encontro
+ok 19 - consequência de facção pode inferir afiliação dos adversários do encontro
+  ---
+  duration_ms: 18.838244
+  type: 'test'
+  ...
+# Subtest: combate só mostra nome da facção do adversário quando ela é conhecida pelo jogador
+ok 20 - combate só mostra nome da facção do adversário quando ela é conhecida pelo jogador
+  ---
+  duration_ms: 8.300857
+  type: 'test'
+  ...
+# Subtest: Cena mostra somente planos explicitamente públicos e não lê objetivo/recursos privados
+ok 21 - Cena mostra somente planos explicitamente públicos e não lê objetivo/recursos privados
+  ---
+  duration_ms: 6.30981
+  type: 'test'
+  ...
+# Subtest: plano de facção usa etapas textuais explícitas e não avança sozinho
+ok 22 - plano de facção usa etapas textuais explícitas e não avança sozinho
+  ---
+  duration_ms: 7.526207
+  type: 'test'
+  ...
+# Subtest: avanço explícito conclui uma etapa por vez e encerra o plano no final
+ok 23 - avanço explícito conclui uma etapa por vez e encerra o plano no final
+  ---
+  duration_ms: 2.445249
+  type: 'test'
+  ...
+# Subtest: evento de avanço de plano gera consequência causal deduplicada no local da etapa ativa
+ok 24 - evento de avanço de plano gera consequência causal deduplicada no local da etapa ativa
+  ---
+  duration_ms: 4.552123
+  type: 'test'
+  ...
+# Subtest: plano rejeita etapa ligada a local inexistente
+ok 25 - plano rejeita etapa ligada a local inexistente
+  ---
+  duration_ms: 0.568794
+  type: 'test'
+  ...
+# Subtest: plano ativo não volta silenciosamente a planejado e aborto encerra etapas restantes
+ok 26 - plano ativo não volta silenciosamente a planejado e aborto encerra etapas restantes
+  ---
+  duration_ms: 1.032389
+  type: 'test'
+  ...
+# Subtest: Cena mostra Forças em jogo em PT-BR sem expor objetivo ou recursos privados
+ok 27 - Cena mostra Forças em jogo em PT-BR sem expor objetivo ou recursos privados
+  ---
+  duration_ms: 5.831162
+  type: 'test'
+  ...
+# Subtest: facções têm ID estável, objetivo, recursos textuais e fatos com visibilidade separada
+ok 28 - facções têm ID estável, objetivo, recursos textuais e fatos com visibilidade separada
+  ---
+  duration_ms: 5.52152
+  type: 'test'
+  ...
+# Subtest: relações entre facções exigem IDs existentes e não aceitam autorrelação
+ok 29 - relações entre facções exigem IDs existentes e não aceitam autorrelação
+  ---
+  duration_ms: 1.537525
+  type: 'test'
+  ...
+# Subtest: PNPC mantém afiliação estável e afiliação inválida é rejeitada
+ok 30 - PNPC mantém afiliação estável e afiliação inválida é rejeitada
+  ---
+  duration_ms: 1.850979
+  type: 'test'
+  ...
+# Subtest: evento de facção altera o mundo e gera consequência causal no local informado
+ok 31 - evento de facção altera o mundo e gera consequência causal no local informado
+  ---
+  duration_ms: 2.036672
+  type: 'test'
+  ...
+# Subtest: evento de facção com local inexistente falha isoladamente sem alterar a facção
+ok 32 - evento de facção com local inexistente falha isoladamente sem alterar a facção
+  ---
+  duration_ms: 0.350555
+  type: 'test'
+  ...
+# Subtest: recursos de facção não duplicam e remoção inexistente falha claramente
+ok 33 - recursos de facção não duplicam e remoção inexistente falha claramente
+  ---
+  duration_ms: 0.42148
+  type: 'test'
+  ...
+# Subtest: resumo do Mestre contém facções completas, mas normalização remove relações e afiliações órfãs
+ok 34 - resumo do Mestre contém facções completas, mas normalização remove relações e afiliações órfãs
+  ---
+  duration_ms: 0.800437
+  type: 'test'
+  ...
+# Subtest: mudanças de facção persistem por sequência de eventos sem criar números de economia ou relógios próprios
+ok 35 - mudanças de facção persistem por sequência de eventos sem criar números de economia ou relógios próprios
+  ---
+  duration_ms: 9.81148
+  type: 'test'
+  ...
+# Subtest: MediaStore cria JSON como pendente antes de escrever
+ok 36 - MediaStore cria JSON como pendente antes de escrever
+  ---
+  duration_ms: 1.080527
+  type: 'test'
+  ...
+# Subtest: publicação exige exatamente uma linha atualizada antes de retornar sucesso
+ok 37 - publicação exige exatamente uma linha atualizada antes de retornar sucesso
+  ---
+  duration_ms: 0.196473
+  type: 'test'
+  ...
+# Subtest: falha de escrita ou publicação remove o item pendente do MediaStore
+ok 38 - falha de escrita ou publicação remove o item pendente do MediaStore
+  ---
+  duration_ms: 0.17695
+  type: 'test'
+  ...
+# Subtest: FINAL: Android Studio project has deterministic Gradle launcher and compatible pins
+ok 39 - FINAL: Android Studio project has deterministic Gradle launcher and compatible pins
+  ---
+  duration_ms: 2.703355
+  type: 'test'
+  ...
+# Subtest: FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency
+ok 40 - FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency
+  ---
+  duration_ms: 0.422138
+  type: 'test'
+  ...
+# Subtest: FINAL: WebView exposes only required bridges and blocks universal file access
+ok 41 - FINAL: WebView exposes only required bridges and blocks universal file access
+  ---
+  duration_ms: 0.558219
+  type: 'test'
+  ...
+# Subtest: FINAL: native PT-BR TTS exists and has bounded visible-text contract
+ok 42 - FINAL: native PT-BR TTS exists and has bounded visible-text contract
+  ---
+  duration_ms: 0.976792
+  type: 'test'
+  ...
+# Subtest: FINAL: JSON export/import is Android-capable
+ok 43 - FINAL: JSON export/import is Android-capable
+  ---
+  duration_ms: 1.433387
+  type: 'test'
+  ...
+# Subtest: FINAL: accessibility settings are functional and persistent
+ok 44 - FINAL: accessibility settings are functional and persistent
+  ---
+  duration_ms: 0.786941
+  type: 'test'
+  ...
+# Subtest: FINAL: canonical engine bundle is synchronized with live scene bridge
+ok 45 - FINAL: canonical engine bundle is synchronized with live scene bridge
+  ---
+  duration_ms: 11.143329
+  type: 'test'
+  ...
+# Subtest: FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks
+ok 46 - FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks
+  ---
+  duration_ms: 1.54816
+  type: 'test'
+  ...
+# Subtest: FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs
+ok 47 - FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs
+  ---
+  duration_ms: 0.692552
+  type: 'test'
+  ...
+# Subtest: FINAL: Android host disables WebView debugging and supports system back navigation
+ok 48 - FINAL: Android host disables WebView debugging and supports system back navigation
+  ---
+  duration_ms: 0.700874
+  type: 'test'
+  ...
+# Subtest: FINAL: shell script order installs engine before React shell and final runtime
+ok 49 - FINAL: shell script order installs engine before React shell and final runtime
+  ---
+  duration_ms: 0.224358
+  type: 'test'
+  ...
+# Subtest: FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts
+ok 50 - FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts
+  ---
+  duration_ms: 0.469176
+  type: 'test'
+  ...
+# Subtest: host injeta BraseiroGemini sem substituir BraseiroLibrary
+ok 51 - host injeta BraseiroGemini sem substituir BraseiroLibrary
+  ---
+  duration_ms: 0.84244
+  type: 'test'
+  ...
+# Subtest: chave Gemini fica fora do estado e protegida por AndroidKeyStore/no-backup
+ok 52 - chave Gemini fica fora do estado e protegida por AndroidKeyStore/no-backup
+  ---
+  duration_ms: 0.439514
+  type: 'test'
+  ...
+# Subtest: host usa endpoint/modelo oficial atual e nunca envia chave no corpo JSON
+ok 53 - host usa endpoint/modelo oficial atual e nunca envia chave no corpo JSON
+  ---
+  duration_ms: 0.537165
+  type: 'test'
+  ...
+# Subtest: geração é explícita, assíncrona e limitada a prompt/sceneKey
+ok 54 - geração é explícita, assíncrona e limitada a prompt/sceneKey
+  ---
+  duration_ms: 0.209819
+  type: 'test'
+  ...
+# Subtest: imagem gerada usa 16:9 e 1K
+ok 55 - imagem gerada usa 16:9 e 1K
+  ---
+  duration_ms: 0.179631
+  type: 'test'
+  ...
+# Subtest: host aceita fallback de importação manual com cópia privada
+ok 56 - host aceita fallback de importação manual com cópia privada
+  ---
+  duration_ms: 0.527894
+  type: 'test'
+  ...
+# Subtest: imagem só é servida pela URL local interceptada
+ok 57 - imagem só é servida pela URL local interceptada
+  ---
+  duration_ms: 0.138112
+  type: 'test'
+  ...
+# Subtest: eventos nativos não incluem chave nem prompt
+ok 58 - eventos nativos não incluem chave nem prompt
+  ---
+  duration_ms: 0.306095
+  type: 'test'
+  ...
+# Subtest: seletor de imagem captura falha de startActivityForResult dentro da UI thread
+ok 59 - seletor de imagem captura falha de startActivityForResult dentro da UI thread
+  ---
+  duration_ms: 0.943021
+  type: 'test'
+  ...
+# Subtest: falha assíncrona do picker limpa a cena pendente e informa mensagem segura
+ok 60 - falha assíncrona do picker limpa a cena pendente e informa mensagem segura
+  ---
+  duration_ms: 0.164369
+  type: 'test'
+  ...
+# Subtest: Gemini Interactions schema usa apenas limites estruturais suportados e não envia maxLength
+ok 61 - Gemini Interactions schema usa apenas limites estruturais suportados e não envia maxLength
+  ---
+  duration_ms: 0.972733
+  type: 'test'
+  ...
+# Subtest: limites textuais removidos do schema remoto continuam obrigatórios no Motor Barbara
+ok 62 - limites textuais removidos do schema remoto continuam obrigatórios no Motor Barbara
+  ---
+  duration_ms: 1.650175
+  type: 'test'
+  ...
+# Subtest: quantidade máxima de ações sugeridas continua protegida local e remotamente
+ok 63 - quantidade máxima de ações sugeridas continua protegida local e remotamente
+  ---
+  duration_ms: 0.589504
+  type: 'test'
+  ...
+# Subtest: geração e importação capturam uma geração de imagem antes do trabalho assíncrono
+ok 64 - geração e importação capturam uma geração de imagem antes do trabalho assíncrono
+  ---
+  duration_ms: 0.926368
+  type: 'test'
+  ...
+# Subtest: limpar imagem invalida trabalho anterior e remove temporário sob o mesmo lock
+ok 65 - limpar imagem invalida trabalho anterior e remove temporário sob o mesmo lock
+  ---
+  duration_ms: 0.213333
+  type: 'test'
+  ...
+# Subtest: commit só persiste geração atual e ordena evento de sucesso dentro do lock
+ok 66 - commit só persiste geração atual e ordena evento de sucesso dentro do lock
+  ---
+  duration_ms: 0.173697
+  type: 'test'
+  ...
+# Subtest: erros tardios de geração/importação invalidados não chegam à UI
+ok 67 - erros tardios de geração/importação invalidados não chegam à UI
+  ---
+  duration_ms: 0.240504
+  type: 'test'
+  ...
+# Subtest: eletrobinóculos removem no máximo 1 Complicação causada por alcance ou iluminação
+ok 68 - eletrobinóculos removem no máximo 1 Complicação causada por alcance ou iluminação
+  ---
+  duration_ms: 1.737715
+  type: 'test'
+  ...
+# Subtest: macrobinóculos só removem Complicação explicitamente atribuída ao longo alcance
+ok 69 - macrobinóculos só removem Complicação explicitamente atribuída ao longo alcance
+  ---
+  duration_ms: 0.438313
+  type: 'test'
+  ...
+# Subtest: óptica nunca remove Complicação sem causa declarada nem aceita causas acima do total
+ok 70 - óptica nunca remove Complicação sem causa declarada nem aceita causas acima do total
+  ---
+  duration_ms: 0.867355
+  type: 'test'
+  ...
+# Subtest: algemas usam teste Difícil de Atletismo ou Coordenação para escapar
+ok 71 - algemas usam teste Difícil de Atletismo ou Coordenação para escapar
+  ---
+  duration_ms: 0.465418
+  type: 'test'
+  ...
+# Subtest: dispositivo de retenção de droide usa Disciplina Difícil e nova tentativa depende do Mestre
+ok 72 - dispositivo de retenção de droide usa Disciplina Difícil e nova tentativa depende do Mestre
+  ---
+  duration_ms: 0.35407
+  type: 'test'
+  ...
+# Subtest: GameController aplica alívio óptico só aos setbacks ambientais declarados
+ok 73 - GameController aplica alívio óptico só aos setbacks ambientais declarados
+  ---
+  duration_ms: 7.787244
+  type: 'test'
+  ...
+# Subtest: Tabla 5-3 da Caja de Inicio fornece exatamente 21 itens gerais com preço
+ok 74 - Tabla 5-3 da Caja de Inicio fornece exatamente 21 itens gerais com preço
+  ---
+  duration_ms: 3.337663
+  type: 'test'
+  ...
+# Subtest: Tabela 5-3 não autoriza inventar raridade nem restrição
+ok 75 - Tabela 5-3 não autoriza inventar raridade nem restrição
+  ---
+  duration_ms: 0.702356
+  type: 'test'
+  ...
+# Subtest: referência geral entra no catálogo como cópia e preserva autoridade imutável
+ok 76 - referência geral entra no catálogo como cópia e preserva autoridade imutável
+  ---
+  duration_ms: 1.390971
+  type: 'test'
+  ...
+# Subtest: kit de ferramentas remove somente a parcela explicitamente atribuída à falta de ferramentas
+ok 77 - kit de ferramentas remove somente a parcela explicitamente atribuída à falta de ferramentas
+  ---
+  duration_ms: 1.195998
+  type: 'test'
+  ...
+# Subtest: GameController aplica kit de ferramentas apenas a Mecânica
+ok 78 - GameController aplica kit de ferramentas apenas a Mecânica
+  ---
+  duration_ms: 11.336865
+  type: 'test'
+  ...
+# Subtest: remendo de reparo de emergência fica registrado como ação para droide, equivalente ao injetor, sem fingir consumo
+ok 79 - remendo de reparo de emergência fica registrado como ação para droide, equivalente ao injetor, sem fingir consumo
+  ---
+  duration_ms: 1.550824
+  type: 'test'
+  ...
+# Subtest: recarga adicional fica registrada como manobra após Desespero de munição, sem inventar rastreamento de munição
+ok 80 - recarga adicional fica registrada como manobra após Desespero de munição, sem inventar rastreamento de munição
+  ---
+  duration_ms: 0.253438
+  type: 'test'
+  ...
+# Subtest: BUILD: launchers delegate only to the packaged GradleWrapperMain
+ok 81 - BUILD: launchers delegate only to the packaged GradleWrapperMain
+  ---
+  duration_ms: 1.303359
+  type: 'test'
+  ...
+# Subtest: BUILD: packaged wrapper executes a verified offline distribution and forwards arguments
+ok 82 - BUILD: packaged wrapper executes a verified offline distribution and forwards arguments
+  ---
+  duration_ms: 321.834244
+  type: 'test'
+  ...
+# Subtest: BUILD: packaged wrapper rejects a distribution with the wrong SHA-256
+ok 83 - BUILD: packaged wrapper rejects a distribution with the wrong SHA-256
+  ---
+  duration_ms: 235.095911
+  type: 'test'
+  ...
+1..83
+# tests 83
+# suites 0
+# pass 83
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1472.007603
+=== SHARD 4 files 60-79 ===
+TAP version 13
+# Subtest: Proteção reduz dano e Perfuração reduz a Proteção efetiva
+ok 1 - Proteção reduz dano e Perfuração reduz a Proteção efetiva
+  ---
+  duration_ms: 2.645694
+  type: 'test'
+  ...
+# Subtest: ultrapassar o limiar de Ferimentos causa inconsciência e registra crítico
+ok 2 - ultrapassar o limiar de Ferimentos causa inconsciência e registra crítico
+  ---
+  duration_ms: 1.15287
+  type: 'test'
+  ...
+# Subtest: ultrapassar o limiar de Tensão causa inconsciência
+ok 3 - ultrapassar o limiar de Tensão causa inconsciência
+  ---
+  duration_ms: 0.68144
+  type: 'test'
+  ...
+# Subtest: primeiro stimpack do dia cura 5 Ferimentos e é consumido
+ok 4 - primeiro stimpack do dia cura 5 Ferimentos e é consumido
+  ---
+  duration_ms: 0.910549
+  type: 'test'
+  ...
+# Subtest: stimpacks seguintes curam 4, 3, 2, 1 e o sexto não cura no mesmo dia
+ok 5 - stimpacks seguintes curam 4, 3, 2, 1 e o sexto não cura no mesmo dia
+  ---
+  duration_ms: 2.117383
+  type: 'test'
+  ...
+# Subtest: download de cache captura uma geração antes de entrar no executor
+ok 6 - download de cache captura uma geração antes de entrar no executor
+  ---
+  duration_ms: 1.040701
+  type: 'test'
+  ...
+# Subtest: clear invalida a geração e remove imagem metadata e temporário sob o mesmo lock de commit
+ok 7 - clear invalida a geração e remove imagem metadata e temporário sob o mesmo lock de commit
+  ---
+  duration_ms: 0.199335
+  type: 'test'
+  ...
+# Subtest: fetch só confirma arquivos se sua geração continuar atual dentro do lock de commit
+ok 8 - fetch só confirma arquivos se sua geração continuar atual dentro do lock de commit
+  ---
+  duration_ms: 1.390948
+  type: 'test'
+  ...
+# Subtest: fetch invalidado não publica erro tardio depois de clear ou requisição mais nova
+ok 9 - fetch invalidado não publica erro tardio depois de clear ou requisição mais nova
+  ---
+  duration_ms: 0.342271
+  type: 'test'
+  ...
+# Subtest: image library manifest is valid and unique
+ok 10 - image library manifest is valid and unique
+  ---
+  duration_ms: 5.9013
+  type: 'test'
+  ...
+# Subtest: all local runtime asset paths exist
+ok 11 - all local runtime asset paths exist
+  ---
+  duration_ms: 3.975763
+  type: 'test'
+  ...
+# Subtest: local token library has 143 individual tokens
+ok 12 - local token library has 143 individual tokens
+  ---
+  duration_ms: 0.881073
+  type: 'test'
+  ...
+# Subtest: search is category/tag based and does not invent mechanical binding
+ok 13 - search is category/tag based and does not invent mechanical binding
+  ---
+  duration_ms: 13.658474
+  type: 'test'
+  ...
+# Subtest: equipment images remain visual-only until mechanical mapping is validated
+ok 14 - equipment images remain visual-only until mechanical mapping is validated
+  ---
+  duration_ms: 0.355255
+  type: 'test'
+  ...
+# Subtest: Kainrath is an external indexed source, not silently copied into local runtime assets
+ok 15 - Kainrath is an external indexed source, not silently copied into local runtime assets
+  ---
+  duration_ms: 2.941413
+  type: 'test'
+  ...
+# Subtest: BraseiroGameBridge exposes image library without requiring a campaign
+ok 16 - BraseiroGameBridge exposes image library without requiring a campaign
+  ---
+  duration_ms: 5.867952
+  type: 'test'
+  ...
+# Subtest: image bridge rejects unknown asset IDs without mutating state
+ok 17 - image bridge rejects unknown asset IDs without mutating state
+  ---
+  duration_ms: 0.258129
+  type: 'test'
+  ...
+# Subtest: R36 image library V2 has expected local/external/map counts
+ok 18 - R36 image library V2 has expected local/external/map counts
+  ---
+  duration_ms: 1.69453
+  type: 'test'
+  ...
+# Subtest: all 17 Kainrath maps use allowed HTTPS wp-content URLs
+ok 19 - all 17 Kainrath maps use allowed HTTPS wp-content URLs
+  ---
+  duration_ms: 0.756297
+  type: 'test'
+  ...
+# Subtest: external maps are reference/cache assets and never masquerade as packaged mechanics
+ok 20 - external maps are reference/cache assets and never masquerade as packaged mechanics
+  ---
+  duration_ms: 0.156502
+  type: 'test'
+  ...
+# Subtest: map catalog covers useful map kinds without inferring campaign state
+ok 21 - map catalog covers useful map kinds without inferring campaign state
+  ---
+  duration_ms: 0.210267
+  type: 'test'
+  ...
+# Subtest: Kainrath source index contains the complete Maps batch
+ok 22 - Kainrath source index contains the complete Maps batch
+  ---
+  duration_ms: 0.212544
+  type: 'test'
+  ...
+# Subtest: game bridge exposes map catalog and runtime descriptors without campaign
+ok 23 - game bridge exposes map catalog and runtime descriptors without campaign
+  ---
+  duration_ms: 4.36504
+  type: 'test'
+  ...
+# Subtest: native image cache is constrained by host path size MIME and redirect guards
+ok 24 - native image cache is constrained by host path size MIME and redirect guards
+  ---
+  duration_ms: 0.420929
+  type: 'test'
+  ...
+# Subtest: native cache is private and served through braseiro.local rather than exposing file paths
+ok 25 - native cache is private and served through braseiro.local rather than exposing file paths
+  ---
+  duration_ms: 0.149433
+  type: 'test'
+  ...
+# Subtest: MainActivity installs BraseiroImages and preserves scene image interceptor order
+ok 26 - MainActivity installs BraseiroImages and preserves scene image interceptor order
+  ---
+  duration_ms: 0.433707
+  type: 'test'
+  ...
+# Subtest: real static Android MAPA surface exposes search selection cache and provenance controls
+ok 27 - real static Android MAPA surface exposes search selection cache and provenance controls
+  ---
+  duration_ms: 0.941746
+  type: 'test'
+  ...
+# Subtest: external URL validator rejects arbitrary hosts and non-HTTPS schemes
+ok 28 - external URL validator rejects arbitrary hosts and non-HTTPS schemes
+  ---
+  duration_ms: 0.365842
+  type: 'test'
+  ...
+# Subtest: map search is deterministic and bounded
+ok 29 - map search is deterministic and bounded
+  ---
+  duration_ms: 0.69178
+  type: 'test'
+  ...
+# Subtest: R37 image library V3 adds 44 visual entities without losing R36 assets
+ok 30 - R37 image library V3 adds 44 visual entities without losing R36 assets
+  ---
+  duration_ms: 1.5266
+  type: 'test'
+  ...
+# Subtest: R37 Kainrath visual entity index is complete and unique
+ok 31 - R37 Kainrath visual entity index is complete and unique
+  ---
+  duration_ms: 0.440243
+  type: 'test'
+  ...
+# Subtest: all R37 visual entities are visual-only and use allowed cache URLs
+ok 32 - all R37 visual entities are visual-only and use allowed cache URLs
+  ---
+  duration_ms: 1.159902
+  type: 'test'
+  ...
+# Subtest: R37 categories contain exactly 16 NPC portraits 20 droids and 8 beasts
+ok 33 - R37 categories contain exactly 16 NPC portraits 20 droids and 8 beasts
+  ---
+  duration_ms: 0.497524
+  type: 'test'
+  ...
+# Subtest: R37 visual entity bridge searches all/npc/droid/beast without campaign state
+ok 34 - R37 visual entity bridge searches all/npc/droid/beast without campaign state
+  ---
+  duration_ms: 28.492223
+  type: 'test'
+  ...
+# Subtest: R37 visual entity bridge rejects invalid kind without mutation
+ok 35 - R37 visual entity bridge rejects invalid kind without mutation
+  ---
+  duration_ms: 3.117257
+  type: 'test'
+  ...
+# Subtest: named searches resolve real visual references without mechanical inference
+ok 36 - named searches resolve real visual references without mechanical inference
+  ---
+  duration_ms: 2.35834
+  type: 'test'
+  ...
+# Subtest: R37 visual entities do not pollute the 18-map catalog
+ok 37 - R37 visual entities do not pollute the 18-map catalog
+  ---
+  duration_ms: 4.193338
+  type: 'test'
+  ...
+# Subtest: real static Android AJUSTES exposes visual entity search preview cache and provenance
+ok 38 - real static Android AJUSTES exposes visual entity search preview cache and provenance
+  ---
+  duration_ms: 1.78972
+  type: 'test'
+  ...
+# Subtest: R38 manifest grows exactly to 229 assets with unique IDs
+ok 39 - R38 manifest grows exactly to 229 assets with unique IDs
+  ---
+  duration_ms: 1.593633
+  type: 'test'
+  ...
+# Subtest: R38 wave adds exactly 20 entries from Enemies and NPCs page 3
+ok 40 - R38 wave adds exactly 20 entries from Enemies and NPCs page 3
+  ---
+  duration_ms: 0.384092
+  type: 'test'
+  ...
+# Subtest: R38 totals preserve R37 categories and add 18 NPCs plus 2 droids
+ok 41 - R38 totals preserve R37 categories and add 18 NPCs plus 2 droids
+  ---
+  duration_ms: 0.175509
+  type: 'test'
+  ...
+# Subtest: all R38 wave URLs pass the same Kainrath external-image security policy
+ok 42 - all R38 wave URLs pass the same Kainrath external-image security policy
+  ---
+  duration_ms: 1.055607
+  type: 'test'
+  ...
+# Subtest: R38 wave remains visual-only with no mechanical inference
+ok 43 - R38 wave remains visual-only with no mechanical inference
+  ---
+  duration_ms: 0.323451
+  type: 'test'
+  ...
+# Subtest: R38 source metadata records the second NPC wave without overwriting R37 entries
+ok 44 - R38 source metadata records the second NPC wave without overwriting R37 entries
+  ---
+  duration_ms: 0.280564
+  type: 'test'
+  ...
+# Subtest: visual entity bridge automatically exposes expanded R38 totals without API changes
+ok 45 - visual entity bridge automatically exposes expanded R38 totals without API changes
+  ---
+  duration_ms: 29.091901
+  type: 'test'
+  ...
+# Subtest: R38 expansion does not alter the 18-map catalog
+ok 46 - R38 expansion does not alter the 18-map catalog
+  ---
+  duration_ms: 3.140179
+  type: 'test'
+  ...
+# Subtest: R39 baseline remains present in current additive image-library manifest
+ok 47 - R39 baseline remains present in current additive image-library manifest
+  ---
+  duration_ms: 1.361245
+  type: 'test'
+  ...
+# Subtest: R39 visual wave3 contains exactly 10 confirmed assets
+ok 48 - R39 visual wave3 contains exactly 10 confirmed assets
+  ---
+  duration_ms: 1.64146
+  type: 'test'
+  ...
+# Subtest: R39 totals add 3 NPC portraits and 7 beasts without changing maps or droids
+ok 49 - R39 totals add 3 NPC portraits and 7 beasts without changing maps or droids
+  ---
+  duration_ms: 0.194202
+  type: 'test'
+  ...
+# Subtest: R39 direct URLs obey the existing Kainrath whitelist and cache contract
+ok 50 - R39 direct URLs obey the existing Kainrath whitelist and cache contract
+  ---
+  duration_ms: 0.877765
+  type: 'test'
+  ...
+# Subtest: R39 assets remain visual-only and cannot infer mechanics
+ok 51 - R39 assets remain visual-only and cannot infer mechanics
+  ---
+  duration_ms: 0.35239
+  type: 'test'
+  ...
+# Subtest: R39 source metadata keeps prior waves and records wave3 separately
+ok 52 - R39 source metadata keeps prior waves and records wave3 separately
+  ---
+  duration_ms: 0.182217
+  type: 'test'
+  ...
+# Subtest: generic visual bridge automatically exposes R39 expanded totals
+ok 53 - generic visual bridge automatically exposes R39 expanded totals
+  ---
+  duration_ms: 28.215184
+  type: 'test'
+  ...
+# Subtest: R39 visual expansion leaves map catalog exactly unchanged
+ok 54 - R39 visual expansion leaves map catalog exactly unchanged
+  ---
+  duration_ms: 3.489057
+  type: 'test'
+  ...
+# Subtest: R40 manifest V3.3 has 282 unique assets
+ok 55 - R40 manifest V3.3 has 282 unique assets
+  ---
+  duration_ms: 0.968297
+  type: 'test'
+  ...
+# Subtest: R40 vehicle wave contains exactly 43 Kainrath vehicles/ships
+ok 56 - R40 vehicle wave contains exactly 43 Kainrath vehicles/ships
+  ---
+  duration_ms: 0.193828
+  type: 'test'
+  ...
+# Subtest: R40 vehicle URLs obey the existing Kainrath whitelist and cache contract
+ok 57 - R40 vehicle URLs obey the existing Kainrath whitelist and cache contract
+  ---
+  duration_ms: 0.756712
+  type: 'test'
+  ...
+# Subtest: R40 vehicle assets remain visual-only and cannot infer mechanics
+ok 58 - R40 vehicle assets remain visual-only and cannot infer mechanics
+  ---
+  duration_ms: 0.142147
+  type: 'test'
+  ...
+# Subtest: R40 source metadata records vehicle wave separately without mutating prior visual waves
+ok 59 - R40 source metadata records vehicle wave separately without mutating prior visual waves
+  ---
+  duration_ms: 0.164974
+  type: 'test'
+  ...
+# Subtest: R40 generic visual bridge exposes vehicles and keeps prior visual categories
+ok 60 - R40 generic visual bridge exposes vehicles and keeps prior visual categories
+  ---
+  duration_ms: 20.71714
+  type: 'test'
+  ...
+# Subtest: R40 searchImageLibrary can query vehicle subtype without touching map catalog
+ok 61 - R40 searchImageLibrary can query vehicle subtype without touching map catalog
+  ---
+  duration_ms: 3.923259
+  type: 'test'
+  ...
+# Subtest: R40 Android visual library exposes Veículos/Naves filter without mechanical binding language regression
+ok 62 - R40 Android visual library exposes Veículos/Naves filter without mechanical binding language regression
+  ---
+  duration_ms: 1.040234
+  type: 'test'
+  ...
+# Subtest: R41 manifest V3.4 has 329 unique assets
+ok 63 - R41 manifest V3.4 has 329 unique assets
+  ---
+  duration_ms: 1.5021
+  type: 'test'
+  ...
+# Subtest: R41 vehicle wave2 adds exactly 47 direct-URL assets
+ok 64 - R41 vehicle wave2 adds exactly 47 direct-URL assets
+  ---
+  duration_ms: 0.470813
+  type: 'test'
+  ...
+# Subtest: R41 wave2 grouping is 28 freighter/transport page assets + 12 landspeeders + 7 airspeeders
+ok 65 - R41 wave2 grouping is 28 freighter/transport page assets + 12 landspeeders + 7 airspeeders
+  ---
+  duration_ms: 1.203864
+  type: 'test'
+  ...
+# Subtest: R41 URLs obey secure Kainrath cache policy
+ok 66 - R41 URLs obey secure Kainrath cache policy
+  ---
+  duration_ms: 1.259609
+  type: 'test'
+  ...
+# Subtest: R41 vehicle images remain visual-only
+ok 67 - R41 vehicle images remain visual-only
+  ---
+  duration_ms: 0.364848
+  type: 'test'
+  ...
+# Subtest: R41 bridge exposes all 90 vehicles while preserving maps and old visual entities
+ok 68 - R41 bridge exposes all 90 vehicles while preserving maps and old visual entities
+  ---
+  duration_ms: 34.693754
+  type: 'test'
+  ...
+# Subtest: R41 category searches expose surface subtypes without mechanics
+ok 69 - R41 category searches expose surface subtypes without mechanics
+  ---
+  duration_ms: 6.819542
+  type: 'test'
+  ...
+# Subtest: R41 previous R40 vehicle wave remains present and unchanged
+ok 70 - R41 previous R40 vehicle wave remains present and unchanged
+  ---
+  duration_ms: 0.618629
+  type: 'test'
+  ...
+# Subtest: R42 manifest V3.5 baseline remains preserved after later library promotions
+ok 71 - R42 manifest V3.5 baseline remains preserved after later library promotions
+  ---
+  duration_ms: 1.788934
+  type: 'test'
+  ...
+# Subtest: R42 vehicle wave3 adds exactly 27 direct-URL assets
+ok 72 - R42 vehicle wave3 adds exactly 27 direct-URL assets
+  ---
+  duration_ms: 1.920058
+  type: 'test'
+  ...
+# Subtest: R42 wave3 grouping is 19 landspeeders page2 plus 8 walkers
+ok 73 - R42 wave3 grouping is 19 landspeeders page2 plus 8 walkers
+  ---
+  duration_ms: 0.281948
+  type: 'test'
+  ...
+# Subtest: R42 URLs obey secure Kainrath cache policy and are raw direct image URLs
+ok 74 - R42 URLs obey secure Kainrath cache policy and are raw direct image URLs
+  ---
+  duration_ms: 3.412967
+  type: 'test'
+  ...
+# Subtest: R42 vehicle images remain visual-only with no inferred mechanics
+ok 75 - R42 vehicle images remain visual-only with no inferred mechanics
+  ---
+  duration_ms: 0.267016
+  type: 'test'
+  ...
+# Subtest: R42 bridge preserves at least the R42 vehicle/visual baseline
+ok 76 - R42 bridge preserves at least the R42 vehicle/visual baseline
+  ---
+  duration_ms: 34.561224
+  type: 'test'
+  ...
+# Subtest: R42 subtype searches expose walkers and added surface vehicle classes without mechanics
+ok 77 - R42 subtype searches expose walkers and added surface vehicle classes without mechanics
+  ---
+  duration_ms: 16.714909
+  type: 'test'
+  ...
+# Subtest: R42 preserves both previous vehicle waves unchanged
+ok 78 - R42 preserves both previous vehicle waves unchanged
+  ---
+  duration_ms: 1.270774
+  type: 'test'
+  ...
+# Subtest: R43 manifest V3.6 baseline remains preserved after later visual promotions
+ok 79 - R43 manifest V3.6 baseline remains preserved after later visual promotions
+  ---
+  duration_ms: 1.140445
+  type: 'test'
+  ...
+# Subtest: R43 wave4 indexes exactly 3 vehicles plus 1 droid
+ok 80 - R43 wave4 indexes exactly 3 vehicles plus 1 droid
+  ---
+  duration_ms: 1.035996
+  type: 'test'
+  ...
+# Subtest: R43 wave4 contains only the direct-proven recovery set
+ok 81 - R43 wave4 contains only the direct-proven recovery set
+  ---
+  duration_ms: 0.146722
+  type: 'test'
+  ...
+# Subtest: R43 URLs are secure direct raw Kainrath media URLs
+ok 82 - R43 URLs are secure direct raw Kainrath media URLs
+  ---
+  duration_ms: 1.032211
+  type: 'test'
+  ...
+# Subtest: R43 recovery remains visual-only and never infers mechanics
+ok 83 - R43 recovery remains visual-only and never infers mechanics
+  ---
+  duration_ms: 0.268164
+  type: 'test'
+  ...
+# Subtest: R43 bridge exposes 120 vehicles and 75 Kainrath visual entities
+ok 84 - R43 bridge exposes 120 vehicles and 75 Kainrath visual entities
+  ---
+  duration_ms: 27.867366
+  type: 'test'
+  ...
+# Subtest: R43 direct-recovery group is searchable without affecting old walker wave
+ok 85 - R43 direct-recovery group is searchable without affecting old walker wave
+  ---
+  duration_ms: 11.797513
+  type: 'test'
+  ...
+# Subtest: R43 preserves R40-R42 vehicle waves unchanged
+ok 86 - R43 preserves R40-R42 vehicle waves unchanged
+  ---
+  duration_ms: 1.151819
+  type: 'test'
+  ...
+# Subtest: R44 manifest V3.7 baseline remains preserved after later visual promotions
+ok 87 - R44 manifest V3.7 baseline remains preserved after later visual promotions
+  ---
+  duration_ms: 1.918021
+  type: 'test'
+  ...
+# Subtest: R44 wave5 indexes exactly Skekfish and Nerf
+ok 88 - R44 wave5 indexes exactly Skekfish and Nerf
+  ---
+  duration_ms: 1.966235
+  type: 'test'
+  ...
+# Subtest: R44 direct media provenance is recorded without filename invention
+ok 89 - R44 direct media provenance is recorded without filename invention
+  ---
+  duration_ms: 0.482301
+  type: 'test'
+  ...
+# Subtest: R44 URLs obey secure raw Kainrath cache policy
+ok 90 - R44 URLs obey secure raw Kainrath cache policy
+  ---
+  duration_ms: 0.825138
+  type: 'test'
+  ...
+# Subtest: R44 beasts remain visual-only and mechanically unbound
+ok 91 - R44 beasts remain visual-only and mechanically unbound
+  ---
+  duration_ms: 0.218992
+  type: 'test'
+  ...
+# Subtest: R44 bridge exposes 17 creatures while preserving vehicles, droids and maps
+ok 92 - R44 bridge exposes 17 creatures while preserving vehicles, droids and maps
+  ---
+  duration_ms: 36.895159
+  type: 'test'
+  ...
+# Subtest: R44 direct-recovery beasts are searchable by id and title
+ok 93 - R44 direct-recovery beasts are searchable by id and title
+  ---
+  duration_ms: 11.684115
+  type: 'test'
+  ...
+# Subtest: R44 preserves R43 recovery set and older visual waves
+ok 94 - R44 preserves R43 recovery set and older visual waves
+  ---
+  duration_ms: 1.011477
+  type: 'test'
+  ...
+# Subtest: R45 manifest V3.8 has 369 unique assets and 127 vehicles
+ok 95 - R45 manifest V3.8 has 369 unique assets and 127 vehicles
+  ---
+  duration_ms: 2.016793
+  type: 'test'
+  ...
+# Subtest: R45 vehicle wave5 indexes exactly the 7 direct-proven recovery entries
+ok 96 - R45 vehicle wave5 indexes exactly the 7 direct-proven recovery entries
+  ---
+  duration_ms: 1.601234
+  type: 'test'
+  ...
+# Subtest: R45 direct-media provenance records the exact observed Kainrath links
+ok 97 - R45 direct-media provenance records the exact observed Kainrath links
+  ---
+  duration_ms: 0.477642
+  type: 'test'
+  ...
+# Subtest: R45 URLs obey secure Kainrath cache policy
+ok 98 - R45 URLs obey secure Kainrath cache policy
+  ---
+  duration_ms: 1.437108
+  type: 'test'
+  ...
+# Subtest: R45 recovered vehicles remain visual-only and mechanically unbound
+ok 99 - R45 recovered vehicles remain visual-only and mechanically unbound
+  ---
+  duration_ms: 0.270973
+  type: 'test'
+  ...
+# Subtest: R45 bridge exposes 127 vehicles while preserving other visual categories
+ok 100 - R45 bridge exposes 127 vehicles while preserving other visual categories
+  ---
+  duration_ms: 45.783606
+  type: 'test'
+  ...
+# Subtest: R45 recovered landspeeders and freighters are searchable without campaign mutation
+ok 101 - R45 recovered landspeeders and freighters are searchable without campaign mutation
+  ---
+  duration_ms: 22.676859
+  type: 'test'
+  ...
+# Subtest: R45 preserves R44 beast recovery and leaves unproven media blocked
+ok 102 - R45 preserves R44 beast recovery and leaves unproven media blocked
+  ---
+  duration_ms: 0.492446
+  type: 'test'
+  ...
+# Subtest: R46 freezes the validated V3.8 subset without count inflation
+ok 103 - R46 freezes the validated V3.8 subset without count inflation
+  ---
+  duration_ms: 1.746086
+  type: 'test'
+  ...
+# Subtest: R46 keeps R45 unresolved provenance lists complete and deferred
+ok 104 - R46 keeps R45 unresolved provenance lists complete and deferred
+  ---
+  duration_ms: 0.388643
+  type: 'test'
+  ...
+# Subtest: R46 does not silently index the specifically observed posts without direct media
+ok 105 - R46 does not silently index the specifically observed posts without direct media
+  ---
+  duration_ms: 0.285089
+  type: 'test'
+  ...
+# Subtest: R46 policy forbids filename inference and preserves mechanical firewall
+ok 106 - R46 policy forbids filename inference and preserves mechanical firewall
+  ---
+  duration_ms: 0.175655
+  type: 'test'
+  ...
+# Subtest: R46 every external remote-ready asset still obeys Kainrath allowlist and visual-only binding
+ok 107 - R46 every external remote-ready asset still obeys Kainrath allowlist and visual-only binding
+  ---
+  duration_ms: 2.425111
+  type: 'test'
+  ...
+# Subtest: R46 bridge remains gameplay-readable with frozen visual catalog and no repository mutation
+ok 108 - R46 bridge remains gameplay-readable with frozen visual catalog and no repository mutation
+  ---
+  duration_ms: 20.80031
+  type: 'test'
+  ...
+# Subtest: R46 deferred provenance is duplicate-free and contains no synthetic URL field
+ok 109 - R46 deferred provenance is duplicate-free and contains no synthetic URL field
+  ---
+  duration_ms: 0.558758
+  type: 'test'
+  ...
+# Subtest: iniciativa ordena por Êxitos, Vantagens, Triunfos e favorece PJ no empate final
+ok 110 - iniciativa ordena por Êxitos, Vantagens, Triunfos e favorece PJ no empate final
+  ---
+  duration_ms: 1.685177
+  type: 'test'
+  ...
+# Subtest: fonte R46 limita importação de ficha e backup ao mesmo teto de 16 MB do FileBridge
+ok 111 - fonte R46 limita importação de ficha e backup ao mesmo teto de 16 MB do FileBridge
+  ---
+  duration_ms: 3.46951
+  type: 'test'
+  ...
+# Subtest: bundle Android contém os mesmos guards antes de file.text()
+ok 112 - bundle Android contém os mesmos guards antes de file.text()
+  ---
+  duration_ms: 0.67248
+  type: 'test'
+  ...
+# Subtest: harness web: todo id literal acessado por $(id) existe no HTML
+ok 113 - harness web: todo id literal acessado por $(id) existe no HTML
+  ---
+  duration_ms: 2.939565
+  type: 'test'
+  ...
+# Subtest: harness web legado permanece EOTE_CORE e não reativa criação/grupo AoR
+ok 114 - harness web legado permanece EOTE_CORE e não reativa criação/grupo AoR
+  ---
+  duration_ms: 2.495394
+  type: 'test'
+  ...
+# Subtest: interface possui aba Biblioteca e fluxo de importação em PT-BR
+ok 115 - interface possui aba Biblioteca e fluxo de importação em PT-BR
+  ---
+  duration_ms: 1.693278
+  type: 'test'
+  ...
+# Subtest: interface diferencia PDF indexado de PDF anexado sem texto extraível
+ok 116 - interface diferencia PDF indexado de PDF anexado sem texto extraível
+  ---
+  duration_ms: 0.340104
+  type: 'test'
+  ...
+# Subtest: Biblioteca expõe autoridade e ativação da fonte em PT-BR
+ok 117 - Biblioteca expõe autoridade e ativação da fonte em PT-BR
+  ---
+  duration_ms: 1.120463
+  type: 'test'
+  ...
+# Subtest: Biblioteca oferece reindexação sem exigir nova importação
+ok 118 - Biblioteca oferece reindexação sem exigir nova importação
+  ---
+  duration_ms: 0.625503
+  type: 'test'
+  ...
+# Subtest: ponte de Biblioteca lista documentos anexados e traduz status
+ok 119 - ponte de Biblioteca lista documentos anexados e traduz status
+  ---
+  duration_ms: 1.029151
+  type: 'test'
+  ...
+# Subtest: busca em PDF importado vira fonte local citável
+ok 120 - busca em PDF importado vira fonte local citável
+  ---
+  duration_ms: 0.503851
+  type: 'test'
+  ...
+# Subtest: RAG combina corpus auditado e Biblioteca importada sem tratar PDF como regra implementada
+ok 121 - RAG combina corpus auditado e Biblioteca importada sem tratar PDF como regra implementada
+  ---
+  duration_ms: 2.525452
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre incorpora PDF da Biblioteca quando a ponte Android está disponível
+ok 122 - contexto do Mestre incorpora PDF da Biblioteca quando a ponte Android está disponível
+  ---
+  duration_ms: 8.361634
+  type: 'test'
+  ...
+# Subtest: shell Android contém importação privada e indexação PDFBox, sem permissão de armazenamento externo
+ok 123 - shell Android contém importação privada e indexação PDFBox, sem permissão de armazenamento externo
+  ---
+  duration_ms: 0.739933
+  type: 'test'
+  ...
+# Subtest: shell Android persiste autoridade e permite ativar/desativar fonte sem apagar PDF
+ok 124 - shell Android persiste autoridade e permite ativar/desativar fonte sem apagar PDF
+  ---
+  duration_ms: 0.320127
+  type: 'test'
+  ...
+# Subtest: Biblioteca permite reindexar PDF preservado e registra falha de indexação
+ok 125 - Biblioteca permite reindexar PDF preservado e registra falha de indexação
+  ---
+  duration_ms: 0.289113
+  type: 'test'
+  ...
+1..125
+# tests 125
+# suites 0
+# pass 125
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1236.678703
+=== SHARD 5 files 80-99 ===
+TAP version 13
+# Subtest: mundo vivo mantém memória, riqueza, atividade, clima e tempo persistentes
+ok 1 - mundo vivo mantém memória, riqueza, atividade, clima e tempo persistentes
+  ---
+  duration_ms: 19.077982
+  type: 'test'
+  ...
+# Subtest: simulação avança estado econômico sem alterar créditos do jogador
+ok 2 - simulação avança estado econômico sem alterar créditos do jogador
+  ---
+  duration_ms: 7.527084
+  type: 'test'
+  ...
+# Subtest: P9 porta memória social, compromissos e diplomacia persistentes do desenho DnD
+ok 3 - P9 porta memória social, compromissos e diplomacia persistentes do desenho DnD
+  ---
+  duration_ms: 0.690874
+  type: 'test'
+  ...
+# Subtest: P12 não chama esquema gerado de mapa real/dedicado
+ok 4 - P12 não chama esquema gerado de mapa real/dedicado
+  ---
+  duration_ms: 2.509362
+  type: 'test'
+  ...
+# Subtest: P12 mantém Shantipole como único mapa dedicado confirmado
+ok 5 - P12 mantém Shantipole como único mapa dedicado confirmado
+  ---
+  duration_ms: 1.18124
+  type: 'test'
+  ...
+# Subtest: Mapa Galáctico é destino próprio e usa asset local offline
+ok 6 - Mapa Galáctico é destino próprio e usa asset local offline
+  ---
+  duration_ms: 2.798469
+  type: 'test'
+  ...
+# Subtest: mapa permite zoom e arraste mas viagem vira intenção do jogador
+ok 7 - mapa permite zoom e arraste mas viagem vira intenção do jogador
+  ---
+  duration_ms: 0.635485
+  type: 'test'
+  ...
+# Subtest: P13 mapas disponíveis abrem visualizador em tela cheia
+ok 8 - P13 mapas disponíveis abrem visualizador em tela cheia
+  ---
+  duration_ms: 0.96125
+  type: 'test'
+  ...
+# Subtest: P13 visualizador preserva proveniência mapa dedicado esquema e galáctico
+ok 9 - P13 visualizador preserva proveniência mapa dedicado esquema e galáctico
+  ---
+  duration_ms: 0.20683
+  type: 'test'
+  ...
+# Subtest: P13 mapa é acessível por teclado
+ok 10 - P13 mapa é acessível por teclado
+  ---
+  duration_ms: 0.188866
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre inclui estado pertinente, eventos e regras recuperadas
+ok 11 - contexto do Mestre inclui estado pertinente, eventos e regras recuperadas
+  ---
+  duration_ms: 50.090884
+  type: 'test'
+  ...
+# Subtest: preparação local não finge provedor de IA
+ok 12 - preparação local não finge provedor de IA
+  ---
+  duration_ms: 15.03682
+  type: 'test'
+  ...
+# Subtest: consulta local devolve regra EotE auditada e falha fechado fora da autoridade disponível
+ok 13 - consulta local devolve regra EotE auditada e falha fechado fora da autoridade disponível
+  ---
+  duration_ms: 119.253358
+  type: 'test'
+  ...
+# Subtest: diretriz do Mestre aceita apenas perfis, quantidades, alcances e iniciativa válidos
+ok 14 - diretriz do Mestre aceita apenas perfis, quantidades, alcances e iniciativa válidos
+  ---
+  duration_ms: 2.04082
+  type: 'test'
+  ...
+# Subtest: Mestre prepara encontro e jogador ainda escolhe Reação rápida antes da iniciativa
+ok 15 - Mestre prepara encontro e jogador ainda escolhe Reação rápida antes da iniciativa
+  ---
+  duration_ms: 43.089289
+  type: 'test'
+  ...
+# Subtest: consequência causal pode originar encontro e só é resolvida quando o combate tem desfecho
+ok 16 - consequência causal pode originar encontro e só é resolvida quando o combate tem desfecho
+  ---
+  duration_ms: 22.991438
+  type: 'test'
+  ...
+# Subtest: diretriz causal inválida reverte a proposta inteira
+ok 17 - diretriz causal inválida reverte a proposta inteira
+  ---
+  duration_ms: 4.642999
+  type: 'test'
+  ...
+# Subtest: interface PT-BR mostra encontro preparado sem esconder escolha de Reação rápida
+ok 18 - interface PT-BR mostra encontro preparado sem esconder escolha de Reação rápida
+  ---
+  duration_ms: 0.990009
+  type: 'test'
+  ...
+# Subtest: Mestre cria e avança plano de facção por operações estruturadas
+ok 19 - Mestre cria e avança plano de facção por operações estruturadas
+  ---
+  duration_ms: 44.729569
+  type: 'test'
+  ...
+# Subtest: operação inválida em plano reverte a proposta inteira
+ok 20 - operação inválida em plano reverte a proposta inteira
+  ---
+  duration_ms: 9.95903
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre inclui planos completos e versão 6
+ok 21 - contexto do Mestre inclui planos completos e versão 6
+  ---
+  duration_ms: 28.24261
+  type: 'test'
+  ...
+# Subtest: Mestre cria duas facções e um PNPC afiliado usando somente operações estruturadas
+ok 22 - Mestre cria duas facções e um PNPC afiliado usando somente operações estruturadas
+  ---
+  duration_ms: 44.232498
+  type: 'test'
+  ...
+# Subtest: operação de facção inválida faz rollback transacional da proposta inteira
+ok 23 - operação de facção inválida faz rollback transacional da proposta inteira
+  ---
+  duration_ms: 8.254124
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre inclui facções, afiliação do PNPC e contagem digestível
+ok 24 - contexto do Mestre inclui facções, afiliação do PNPC e contagem digestível
+  ---
+  duration_ms: 4.298833
+  type: 'test'
+  ...
+# Subtest: save/reopen preserva facções, relações, recursos, fatos e afiliação de PNPC
+ok 25 - save/reopen preserva facções, relações, recursos, fatos e afiliação de PNPC
+  ---
+  duration_ms: 4.691125
+  type: 'test'
+  ...
+# Subtest: P20: contrato do Mestre aceita a narração longa pedida ao Gemini
+ok 26 - P20: contrato do Mestre aceita a narração longa pedida ao Gemini
+  ---
+  duration_ms: 2.292644
+  type: 'test'
+  ...
+# Subtest: P20: host nativo e Motor Barbara usam o mesmo teto de 12k
+ok 27 - P20: host nativo e Motor Barbara usam o mesmo teto de 12k
+  ---
+  duration_ms: 0.724154
+  type: 'test'
+  ...
+# Subtest: proposta do Mestre aceita apenas narração, pergunta e teste estruturado
+ok 28 - proposta do Mestre aceita apenas narração, pergunta e teste estruturado
+  ---
+  duration_ms: 6.165273
+  type: 'test'
+  ...
+# Subtest: proposta rejeita mutação direta de ficha ou regra não recuperada
+ok 29 - proposta rejeita mutação direta de ficha ou regra não recuperada
+  ---
+  duration_ms: 4.459351
+  type: 'test'
+  ...
+# Subtest: aplicar proposta narrativa não altera ficha nem combate
+ok 30 - aplicar proposta narrativa não altera ficha nem combate
+  ---
+  duration_ms: 11.061913
+  type: 'test'
+  ...
+# Subtest: endpoint remoto exige HTTPS, exceto localhost de desenvolvimento
+ok 31 - endpoint remoto exige HTTPS, exceto localhost de desenvolvimento
+  ---
+  duration_ms: 7.066593
+  type: 'test'
+  ...
+# Subtest: adaptador HTTP envia contexto e recebe somente proposta estruturada
+ok 32 - adaptador HTTP envia contexto e recebe somente proposta estruturada
+  ---
+  duration_ms: 51.545034
+  type: 'test'
+  ...
+# Subtest: falha de rede do Mestre não altera o estado válido
+ok 33 - falha de rede do Mestre não altera o estado válido
+  ---
+  duration_ms: 28.810626
+  type: 'test'
+  ...
+# Subtest: resposta remota validada altera só a camada narrativa autorizada
+ok 34 - resposta remota validada altera só a camada narrativa autorizada
+  ---
+  duration_ms: 11.22691
+  type: 'test'
+  ...
+# Subtest: proposta do Mestre pode alterar apenas o mundo por operações estruturadas validadas
+ok 35 - proposta do Mestre pode alterar apenas o mundo por operações estruturadas validadas
+  ---
+  duration_ms: 34.359949
+  type: 'test'
+  ...
+# Subtest: operação do Mestre com PNPC/local inexistente falha transacionalmente e preserva o save
+ok 36 - operação do Mestre com PNPC/local inexistente falha transacionalmente e preserva o save
+  ---
+  duration_ms: 6.280871
+  type: 'test'
+  ...
+# Subtest: Mestre pode criar PNPC/local sem fornecer ID e o motor gera identidades estáveis
+ok 37 - Mestre pode criar PNPC/local sem fornecer ID e o motor gera identidades estáveis
+  ---
+  duration_ms: 14.741721
+  type: 'test'
+  ...
+# Subtest: mundo alterado fora de cena reabre com o mesmo PNPC, ID, local, objetivo e fato
+ok 38 - mundo alterado fora de cena reabre com o mesmo PNPC, ID, local, objetivo e fato
+  ---
+  duration_ms: 22.999884
+  type: 'test'
+  ...
+# Subtest: proposta rejeita campos de mundo arbitrários e lote excessivo
+ok 39 - proposta rejeita campos de mundo arbitrários e lote excessivo
+  ---
+  duration_ms: 4.744112
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre recebe goal/relation/facts reais e agenda pendente do mundo
+ok 40 - contexto do Mestre recebe goal/relation/facts reais e agenda pendente do mundo
+  ---
+  duration_ms: 45.701491
+  type: 'test'
+  ...
+# Subtest: Medpac e Medpac de emergência carregam apenas os efeitos de Medicina comprovados
+ok 41 - Medpac e Medpac de emergência carregam apenas os efeitos de Medicina comprovados
+  ---
+  duration_ms: 1.990447
+  type: 'test'
+  ...
+# Subtest: perfil médico recusa item sem efeito de Medicina auditado
+ok 42 - perfil médico recusa item sem efeito de Medicina auditado
+  ---
+  duration_ms: 0.847223
+  type: 'test'
+  ...
+# Subtest: Medpac remove penalização de falta de suprimentos e adiciona 1 dado de Benefício
+ok 43 - Medpac remove penalização de falta de suprimentos e adiciona 1 dado de Benefício
+  ---
+  duration_ms: 2.393779
+  type: 'test'
+  ...
+# Subtest: Medpac de emergência remove penalização sem acrescentar dado de Benefício
+ok 44 - Medpac de emergência remove penalização sem acrescentar dado de Benefício
+  ---
+  duration_ms: 0.646856
+  type: 'test'
+  ...
+# Subtest: sem item médico, ausência de suprimentos mantém a penalização existente
+ok 45 - sem item médico, ausência de suprimentos mantém a penalização existente
+  ---
+  duration_ms: 0.562742
+  type: 'test'
+  ...
+# Subtest: GameController aceita item médico explícito sem alterar a API legada
+ok 46 - GameController aceita item médico explícito sem alterar a API legada
+  ---
+  duration_ms: 11.968023
+  type: 'test'
+  ...
+# Subtest: modo padrão continua EOTE e bloqueia Duty legado sem regredir guard
+ok 47 - modo padrão continua EOTE e bloqueia Duty legado sem regredir guard
+  ---
+  duration_ms: 4.840452
+  type: 'test'
+  ...
+# Subtest: modo MIXED mantém Obligation e Duty simultaneamente
+ok 48 - modo MIXED mantém Obligation e Duty simultaneamente
+  ---
+  duration_ms: 8.617913
+  type: 'test'
+  ...
+# Subtest: Duty d100 usa faixa cumulativa e doubles dobram bônus de sessão
+ok 49 - Duty d100 usa faixa cumulativa e doubles dobram bônus de sessão
+  ---
+  duration_ms: 0.285121
+  type: 'test'
+  ...
+# Subtest: criação AoR fica disponível em AOR/MIXED e Duty entra no grupo
+ok 50 - criação AoR fica disponível em AOR/MIXED e Duty entra no grupo
+  ---
+  duration_ms: 2.084897
+  type: 'test'
+  ...
+# Subtest: Contribution Rank sobe somente com Duty total >=100 e zera Duty corrente
+ok 51 - Contribution Rank sobe somente com Duty total >=100 e zera Duty corrente
+  ---
+  duration_ms: 1.555865
+  type: 'test'
+  ...
+# Subtest: seed de mundo vivo cria 6 facções, 36 NPCs, 12 locais, clocks e oportunidades sem roteiro obrigatório
+ok 52 - seed de mundo vivo cria 6 facções, 36 NPCs, 12 locais, clocks e oportunidades sem roteiro obrigatório
+  ---
+  duration_ms: 158.092835
+  type: 'test'
+  ...
+# Subtest: seed é idempotente e não duplica o mundo ao reabrir campanha
+ok 53 - seed é idempotente e não duplica o mundo ao reabrir campanha
+  ---
+  duration_ms: 117.669829
+  type: 'test'
+  ...
+# Subtest: tempo fora da cena move planos, clocks e transforma consequências em oportunidades
+ok 54 - tempo fora da cena move planos, clocks e transforma consequências em oportunidades
+  ---
+  duration_ms: 181.513041
+  type: 'test'
+  ...
+# Subtest: controller inicializa sandbox, persiste local e viagem avança o mundo
+ok 55 - controller inicializa sandbox, persiste local e viagem avança o mundo
+  ---
+  duration_ms: 183.74779
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre inclui modo, mundo vivo e abertura estruturada separada da narração
+ok 56 - contexto do Mestre inclui modo, mundo vivo e abertura estruturada separada da narração
+  ---
+  duration_ms: 214.430398
+  type: 'test'
+  ...
+# Subtest: Mestre pode operar oportunidades/clocks/mercado apenas por operações estruturadas
+ok 57 - Mestre pode operar oportunidades/clocks/mercado apenas por operações estruturadas
+  ---
+  duration_ms: 199.788763
+  type: 'test'
+  ...
+# Subtest: Android host registers all five native bridges under the names used by JS
+ok 58 - Android host registers all five native bridges under the names used by JS
+  ---
+  duration_ms: 1.037665
+  type: 'test'
+  ...
+# Subtest: Library bridge methods consumed by R46 exist on the Android host
+ok 59 - Library bridge methods consumed by R46 exist on the Android host
+  ---
+  duration_ms: 1.726831
+  type: 'test'
+  ...
+# Subtest: Gemini bridge methods consumed by engine/R46 exist on the Android host
+ok 60 - Gemini bridge methods consumed by engine/R46 exist on the Android host
+  ---
+  duration_ms: 1.643339
+  type: 'test'
+  ...
+# Subtest: Image cache bridge methods consumed by R46 exist on the Android host
+ok 61 - Image cache bridge methods consumed by R46 exist on the Android host
+  ---
+  duration_ms: 0.398998
+  type: 'test'
+  ...
+# Subtest: TTS runtime calls only methods exposed by TtsBridge
+ok 62 - TTS runtime calls only methods exposed by TtsBridge
+  ---
+  duration_ms: 0.347193
+  type: 'test'
+  ...
+# Subtest: JSON export uses the native FileBridge saveJson contract
+ok 63 - JSON export uses the native FileBridge saveJson contract
+  ---
+  duration_ms: 0.314794
+  type: 'test'
+  ...
+# Subtest: Library Java callback name and payload envelope match the R46 consumer
+ok 64 - Library Java callback name and payload envelope match the R46 consumer
+  ---
+  duration_ms: 1.50876
+  type: 'test'
+  ...
+# Subtest: Image cache Java callback name and data envelope match the R46 consumer
+ok 65 - Image cache Java callback name and data envelope match the R46 consumer
+  ---
+  duration_ms: 0.447228
+  type: 'test'
+  ...
+# Subtest: Gemini UI callback name and payload envelope match the R46 consumer
+ok 66 - Gemini UI callback name and payload envelope match the R46 consumer
+  ---
+  duration_ms: 0.421445
+  type: 'test'
+  ...
+# Subtest: Gemini master callback name matches Motor Barbara native request hook
+ok 67 - Gemini master callback name matches Motor Barbara native request hook
+  ---
+  duration_ms: 0.160737
+  type: 'test'
+  ...
+# Subtest: Gemini master callback preserves proposal object and model contract
+ok 68 - Gemini master callback preserves proposal object and model contract
+  ---
+  duration_ms: 0.350889
+  type: 'test'
+  ...
+# Subtest: imagem principal é aberta sob o mesmo lock usado por clear/commit
+ok 69 - imagem principal é aberta sob o mesmo lock usado por clear/commit
+  ---
+  duration_ms: 1.587934
+  type: 'test'
+  ...
+# Subtest: status da imagem principal usa sceneImageCommitLock
+ok 70 - status da imagem principal usa sceneImageCommitLock
+  ---
+  duration_ms: 0.589981
+  type: 'test'
+  ...
+# Subtest: imagem do cache é aberta sob cacheCommitLock
+ok 71 - imagem do cache é aberta sob cacheCommitLock
+  ---
+  duration_ms: 0.148559
+  type: 'test'
+  ...
+# Subtest: status do cache usa cacheCommitLock sem perder validação do assetId
+ok 72 - status do cache usa cacheCommitLock sem perder validação do assetId
+  ---
+  duration_ms: 0.175151
+  type: 'test'
+  ...
+# Subtest: PDF picker catches Activity launch errors inside the UI-thread runnable
+ok 73 - PDF picker catches Activity launch errors inside the UI-thread runnable
+  ---
+  duration_ms: 2.527792
+  type: 'test'
+  ...
+# Subtest: PDF reindex timestamp is written once per reindex request
+ok 74 - PDF reindex timestamp is written once per reindex request
+  ---
+  duration_ms: 0.279236
+  type: 'test'
+  ...
+1..74
+# tests 74
+# suites 0
+# pass 74
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2058.613192
+=== SHARD 6 files 100-119 ===
+TAP version 13
+# Subtest: política da Biblioteca e gravações do indexador usam o mesmo lock de metadados
+ok 1 - política da Biblioteca e gravações do indexador usam o mesmo lock de metadados
+  ---
+  duration_ms: 1.873287
+  type: 'test'
+  ...
+# Subtest: indexação periódica, conclusão e falha preservam a política mais recente
+ok 2 - indexação periódica, conclusão e falha preservam a política mais recente
+  ---
+  duration_ms: 0.268269
+  type: 'test'
+  ...
+# Subtest: remoção e acesso a metadata são serializados para impedir documento fantasma durante indexação
+ok 3 - remoção e acesso a metadata são serializados para impedir documento fantasma durante indexação
+  ---
+  duration_ms: 0.316352
+  type: 'test'
+  ...
+# Subtest: PNPC persistente usa o mesmo ID no combate e conserva dano entre reencontros
+ok 4 - PNPC persistente usa o mesmo ID no combate e conserva dano entre reencontros
+  ---
+  duration_ms: 27.808516
+  type: 'test'
+  ...
+# Subtest: PNPC persistente não pode trocar silenciosamente de perfil nem reaparecer incapacitado
+ok 5 - PNPC persistente não pode trocar silenciosamente de perfil nem reaparecer incapacitado
+  ---
+  duration_ms: 28.230707
+  type: 'test'
+  ...
+# Subtest: perícia profissional custa novo grau multiplicado por 5
+ok 6 - perícia profissional custa novo grau multiplicado por 5
+  ---
+  duration_ms: 1.724513
+  type: 'test'
+  ...
+# Subtest: perícia não profissional acrescenta 5 PE por grau adquirido
+ok 7 - perícia não profissional acrescenta 5 PE por grau adquirido
+  ---
+  duration_ms: 0.188782
+  type: 'test'
+  ...
+# Subtest: progressão é sequencial, respeita grau máximo 5 e desconta PE uma vez
+ok 8 - progressão é sequencial, respeita grau máximo 5 e desconta PE uma vez
+  ---
+  duration_ms: 0.814356
+  type: 'test'
+  ...
+# Subtest: personagem inicial usa automaticamente suas perícias profissionais auditadas
+ok 9 - personagem inicial usa automaticamente suas perícias profissionais auditadas
+  ---
+  duration_ms: 0.855753
+  type: 'test'
+  ...
+# Subtest: concessão de PE aumenta total e saldo sem alterar a ficha original
+ok 10 - concessão de PE aumenta total e saldo sem alterar a ficha original
+  ---
+  duration_ms: 1.697548
+  type: 'test'
+  ...
+# Subtest: R38: início do mundo não exige texto livre e oferece seleção visual e aleatória
+ok 11 - R38: início do mundo não exige texto livre e oferece seleção visual e aleatória
+  ---
+  duration_ms: 1.425031
+  type: 'test'
+  ...
+# Subtest: R38: existe gate explícito INICIAR SANDBOX ligado ao motor
+ok 12 - R38: existe gate explícito INICIAR SANDBOX ligado ao motor
+  ---
+  duration_ms: 0.455999
+  type: 'test'
+  ...
+# Subtest: R38: cena oferece geração Gemini diretamente e modelos configuráveis
+ok 13 - R38: cena oferece geração Gemini diretamente e modelos configuráveis
+  ---
+  duration_ms: 0.233723
+  type: 'test'
+  ...
+# Subtest: R38: Gemini TTS é funcional com Android TTS como fallback
+ok 14 - R38: Gemini TTS é funcional com Android TTS como fallback
+  ---
+  duration_ms: 0.148398
+  type: 'test'
+  ...
+# Subtest: R38: personagem vazio oferece geração completa aleatória e import JSON
+ok 15 - R38: personagem vazio oferece geração completa aleatória e import JSON
+  ---
+  duration_ms: 0.531978
+  type: 'test'
+  ...
+# Subtest: R38: Biblioteca é descoberta por utilidade e atalho de Ajustes
+ok 16 - R38: Biblioteca é descoberta por utilidade e atalho de Ajustes
+  ---
+  duration_ms: 0.216854
+  type: 'test'
+  ...
+# Subtest: R38: Android respeita insets e teclado sem sobrepor UI
+ok 17 - R38: Android respeita insets e teclado sem sobrepor UI
+  ---
+  duration_ms: 0.453719
+  type: 'test'
+  ...
+# Subtest: R38: launcher profissional aprovado está configurado
+ok 18 - R38: launcher profissional aprovado está configurado
+  ---
+  duration_ms: 0.344908
+  type: 'test'
+  ...
+# Subtest: R38: startSandboxSession produz narração e ações sem exigir prompt do jogador
+ok 19 - R38: startSandboxSession produz narração e ações sem exigir prompt do jogador
+  ---
+  duration_ms: 188.656669
+  type: 'test'
+  ...
+# Subtest: R38: chave de imagem da cena é compatível entre shell, botão direto e host Android
+ok 20 - R38: chave de imagem da cena é compatível entre shell, botão direto e host Android
+  ---
+  duration_ms: 0.856384
+  type: 'test'
+  ...
+# Subtest: R54 bridge contract: shell interface and BraseiroUiBridge implementation are exact peers
+ok 21 - R54 bridge contract: shell interface and BraseiroUiBridge implementation are exact peers
+  ---
+  duration_ms: 9.472846
+  type: 'test'
+  ...
+# Subtest: R46 bridge contract: every gameBridgeClient import used by shell files is actually exported
+ok 22 - R46 bridge contract: every gameBridgeClient import used by shell files is actually exported
+  ---
+  duration_ms: 2.52846
+  type: 'test'
+  ...
+# Subtest: R46 bridge contract: public bridge expõe perfil compartilhado sem comandos Duty/AoR crus na shell
+ok 23 - R46 bridge contract: public bridge expõe perfil compartilhado sem comandos Duty/AoR crus na shell
+  ---
+  duration_ms: 0.663356
+  type: 'test'
+  ...
+# Subtest: repository emits the exact R46 state-changed event after save and clear
+ok 24 - repository emits the exact R46 state-changed event after save and clear
+  ---
+  duration_ms: 4.555386
+  type: 'test'
+  ...
+# Subtest: a real GameController mutation emits same-window refresh events
+ok 25 - a real GameController mutation emits same-window refresh events
+  ---
+  duration_ms: 0.971144
+  type: 'test'
+  ...
+# Subtest: R46 listens to the same custom event used by the repository
+ok 26 - R46 listens to the same custom event used by the repository
+  ---
+  duration_ms: 1.78267
+  type: 'test'
+  ...
+# Subtest: r46-shell.html has no missing local script or stylesheet assets
+ok 27 - r46-shell.html has no missing local script or stylesheet assets
+  ---
+  duration_ms: 2.16161
+  type: 'test'
+  ...
+# Subtest: R46 boot script order keeps engine before bootstrap, shell and final runtime
+ok 28 - R46 boot script order keeps engine before bootstrap, shell and final runtime
+  ---
+  duration_ms: 4.311037
+  type: 'test'
+  ...
+# Subtest: R46 stylesheets have no missing local url(...) dependencies
+ok 29 - R46 stylesheets have no missing local url(...) dependencies
+  ---
+  duration_ms: 1.207077
+  type: 'test'
+  ...
+# Subtest: R46 projection accepts the canonical EOTE schema 14 state
+ok 30 - R46 projection accepts the canonical EOTE schema 14 state
+  ---
+  duration_ms: 5.052771
+  type: 'test'
+  ...
+# Subtest: R46 projection validates state.group and no longer requires state.rebelGroup
+ok 31 - R46 projection validates state.group and no longer requires state.rebelGroup
+  ---
+  duration_ms: 1.823436
+  type: 'test'
+  ...
+# Subtest: compiled R46 projection contains no active rebelGroup dependency
+ok 32 - compiled R46 projection contains no active rebelGroup dependency
+  ---
+  duration_ms: 0.311198
+  type: 'test'
+  ...
+# Subtest: R46 character projection shows EotE Obligation instead of obsolete Duty slot
+ok 33 - R46 character projection shows EotE Obligation instead of obsolete Duty slot
+  ---
+  duration_ms: 10.754516
+  type: 'test'
+  ...
+# Subtest: R47 Android inicia pela shell visual R46 sem remover as pontes nativas
+ok 34 - R47 Android inicia pela shell visual R46 sem remover as pontes nativas
+  ---
+  duration_ms: 3.091694
+  type: 'test'
+  ...
+# Subtest: host offline instala BraseiroGameBridge antes de montar o bundle React
+ok 35 - host offline instala BraseiroGameBridge antes de montar o bundle React
+  ---
+  duration_ms: 0.445888
+  type: 'test'
+  ...
+# Subtest: bundle offline da shell e CSS estão presentes e sintaticamente fechados
+ok 36 - bundle offline da shell e CSS estão presentes e sintaticamente fechados
+  ---
+  duration_ms: 2.250018
+  type: 'test'
+  ...
+# Subtest: rotas e domínio principal continuam na arquitetura R46
+ok 37 - rotas e domínio principal continuam na arquitetura R46
+  ---
+  duration_ms: 2.683509
+  type: 'test'
+  ...
+# Subtest: CSS Android mantém viewport 415×915 e não referencia assets inexistentes
+ok 38 - CSS Android mantém viewport 415×915 e não referencia assets inexistentes
+  ---
+  duration_ms: 0.55655
+  type: 'test'
+  ...
+# Subtest: apenas ícones canônicos materializados são usados no host
+ok 39 - apenas ícones canônicos materializados são usados no host
+  ---
+  duration_ms: 0.703108
+  type: 'test'
+  ...
+# Subtest: mapeamento de ícones não pede items.png ou records.png ausentes
+ok 40 - mapeamento de ícones não pede items.png ou records.png ausentes
+  ---
+  duration_ms: 2.821709
+  type: 'test'
+  ...
+# Subtest: entrada legada permanece no pacote apenas como fallback não carregado
+ok 41 - entrada legada permanece no pacote apenas como fallback não carregado
+  ---
+  duration_ms: 0.473808
+  type: 'test'
+  ...
+# Subtest: R54 mantém catálogo visual V3.8 fechado e semanticamente presente
+ok 42 - R54 mantém catálogo visual V3.8 fechado e semanticamente presente
+  ---
+  duration_ms: 6.912061
+  type: 'test'
+  ...
+# Subtest: R54 não fixa Nera Voss e não expõe NPC fora da cena
+ok 43 - R54 não fixa Nera Voss e não expõe NPC fora da cena
+  ---
+  duration_ms: 1.512225
+  type: 'test'
+  ...
+# Subtest: P21 reiniciar limpa a sessão/snapshots sem apagar personagem nem foto local
+ok 44 - P21 reiniciar limpa a sessão/snapshots sem apagar personagem nem foto local
+  ---
+  duration_ms: 0.904497
+  type: 'test'
+  ...
+# Subtest: R54 bloqueia acesso universal a arquivos do WebView
+ok 45 - R54 bloqueia acesso universal a arquivos do WebView
+  ---
+  duration_ms: 0.282077
+  type: 'test'
+  ...
+# Subtest: P21 reiniciar sandbox preserva personagem, grupo, nave e ajustes, mas limpa mundo/sessão
+ok 46 - P21 reiniciar sandbox preserva personagem, grupo, nave e ajustes, mas limpa mundo/sessão
+  ---
+  duration_ms: 185.88799
+  type: 'test'
+  ...
+# Subtest: P21 botão REINICIAR usa reset seguro e não apaga estado/personagem/foto diretamente
+ok 47 - P21 botão REINICIAR usa reset seguro e não apaga estado/personagem/foto diretamente
+  ---
+  duration_ms: 9.144359
+  type: 'test'
+  ...
+# Subtest: P21 status Gemini nativo é adaptado para Result ok/data esperado pela shell
+ok 48 - P21 status Gemini nativo é adaptado para Result ok/data esperado pela shell
+  ---
+  duration_ms: 12.865977
+  type: 'test'
+  ...
+# Subtest: P21 TTS cai para Web Speech quando o bridge Android existe mas responde indisponível
+ok 49 - P21 TTS cai para Web Speech quando o bridge Android existe mas responde indisponível
+  ---
+  duration_ms: 3.259123
+  type: 'test'
+  ...
+# Subtest: P21 seletor oferece 82 mapas locais offline válidos sem adulterar o manifesto V3.8 congelado
+ok 50 - P21 seletor oferece 82 mapas locais offline válidos sem adulterar o manifesto V3.8 congelado
+  ---
+  duration_ms: 10.976948
+  type: 'test'
+  ...
+# Subtest: P21 bridge mantém catálogo congelado por padrão e entrega os 82 mapas locais ao seletor P21
+ok 51 - P21 bridge mantém catálogo congelado por padrão e entrega os 82 mapas locais ao seletor P21
+  ---
+  duration_ms: 5.15405
+  type: 'test'
+  ...
+# Subtest: P21 fonte e bundle da shell solicitam mapas jogáveis e mantêm auto-cache de externos
+ok 52 - P21 fonte e bundle da shell solicitam mapas jogáveis e mantêm auto-cache de externos
+  ---
+  duration_ms: 3.841479
+  type: 'test'
+  ...
+# Subtest: P21 Android TTS aceita pt-BR e recua para português genérico antes de declarar indisponível
+ok 53 - P21 Android TTS aceita pt-BR e recua para português genérico antes de declarar indisponível
+  ---
+  duration_ms: 0.894635
+  type: 'test'
+  ...
+# Subtest: P21 Android não tenta exibir mapa externo remoto antes do cache e seleção dispara cache
+ok 54 - P21 Android não tenta exibir mapa externo remoto antes do cache e seleção dispara cache
+  ---
+  duration_ms: 2.402629
+  type: 'test'
+  ...
+# Subtest: P33 MIXED: bridge escolhe origem EotE/AoR sem converter Obligation em Duty
+ok 55 - P33 MIXED: bridge escolhe origem EotE/AoR sem converter Obligation em Duty
+  ---
+  duration_ms: 3.971798
+  type: 'test'
+  ...
+# Subtest: P33 MIXED: shell permite escolher origem da ficha e rotula vínculo corretamente
+ok 56 - P33 MIXED: shell permite escolher origem da ficha e rotula vínculo corretamente
+  ---
+  duration_ms: 2.699292
+  type: 'test'
+  ...
+# Subtest: P33 MIXED: fontes editáveis acompanham o bundle entregue
+ok 57 - P33 MIXED: fontes editáveis acompanham o bundle entregue
+  ---
+  duration_ms: 1.474698
+  type: 'test'
+  ...
+# Subtest: P33: catálogo preserva EotE/MIXED e não oferece aventura EotE pura em AoR
+ok 58 - P33: catálogo preserva EotE/MIXED e não oferece aventura EotE pura em AoR
+  ---
+  duration_ms: 1.584688
+  type: 'test'
+  ...
+# Subtest: P33: início é PT-BR, persistente e não revela nós futuros ao jogador
+ok 59 - P33: início é PT-BR, persistente e não revela nós futuros ao jogador
+  ---
+  duration_ms: 7.216198
+  type: 'test'
+  ...
+# Subtest: P33: Episódio II aceita investigação em qualquer ordem e só libera desfecho após 2 linhas
+ok 60 - P33: Episódio II aceita investigação em qualquer ordem e só libera desfecho após 2 linhas
+  ---
+  duration_ms: 3.007912
+  type: 'test'
+  ...
+# Subtest: P33: flags de consequências persistem até o Episódio III e epílogo
+ok 61 - P33: flags de consequências persistem até o Episódio III e epílogo
+  ---
+  duration_ms: 7.692524
+  type: 'test'
+  ...
+# Subtest: P33: recompensa fica registrada e não reseta ao reiniciar a aventura na mesma campanha
+ok 62 - P33: recompensa fica registrada e não reseta ao reiniciar a aventura na mesma campanha
+  ---
+  duration_ms: 0.762207
+  type: 'test'
+  ...
+# Subtest: P33: UI oferece aventura publicada separada do mundo livre e bridge expõe contrato
+ok 63 - P33: UI oferece aventura publicada separada do mundo livre e bridge expõe contrato
+  ---
+  duration_ms: 2.038945
+  type: 'test'
+  ...
+# Subtest: P34: checks da aventura expõem pool mecânico sem revelar destinos
+ok 64 - P34: checks da aventura expõem pool mecânico sem revelar destinos
+  ---
+  duration_ms: 0.503175
+  type: 'test'
+  ...
+# Subtest: P34: Advantage/Threat/Triumph/Despair alimentam consequência persistente e relógio de alerta
+ok 65 - P34: Advantage/Threat/Triumph/Despair alimentam consequência persistente e relógio de alerta
+  ---
+  duration_ms: 1.707479
+  type: 'test'
+  ...
+# Subtest: P34: controller e bridge ligam teste publicado ao resolvedor narrativo real
+ok 66 - P34: controller e bridge ligam teste publicado ao resolvedor narrativo real
+  ---
+  duration_ms: 2.161188
+  type: 'test'
+  ...
+# Subtest: UI publicada oferece ROLAR por check
+ok 67 - UI publicada oferece ROLAR por check
+  ---
+  duration_ms: 1.400974
+  type: 'test'
+  ...
+# Subtest: resultado narrativo mostra sucesso, vantagem, momentum e alerta
+ok 68 - resultado narrativo mostra sucesso, vantagem, momentum e alerta
+  ---
+  duration_ms: 1.822725
+  type: 'test'
+  ...
+# Subtest: check resolvido tem estado visual
+ok 69 - check resolvido tem estado visual
+  ---
+  duration_ms: 0.331335
+  type: 'test'
+  ...
+# Subtest: P36: save P35 sem systems migra sem resetar nó, flags ou histórico
+ok 70 - P36: save P35 sem systems migra sem resetar nó, flags ou histórico
+  ---
+  duration_ms: 5.090235
+  type: 'test'
+  ...
+# Subtest: P36: perseguição usa consequência narrativa persistente e superfície anti-spoiler
+ok 71 - P36: perseguição usa consequência narrativa persistente e superfície anti-spoiler
+  ---
+  duration_ms: 3.235997
+  type: 'test'
+  ...
+# Subtest: P36: sabacc acumula rodadas e créditos de modo persistente
+ok 72 - P36: sabacc acumula rodadas e créditos de modo persistente
+  ---
+  duration_ms: 3.333618
+  type: 'test'
+  ...
+# Subtest: P36: Zelcomm entra em lockdown e NovaCORE pode escalar risco + Tensão
+ok 73 - P36: Zelcomm entra em lockdown e NovaCORE pode escalar risco + Tensão
+  ---
+  duration_ms: 3.070923
+  type: 'test'
+  ...
+# Subtest: P36: perfis Black Sun e Kaa’to existem na autoridade de combate usada pelo controller
+ok 74 - P36: perfis Black Sun e Kaa’to existem na autoridade de combate usada pelo controller
+  ---
+  duration_ms: 3.835549
+  type: 'test'
+  ...
+# Subtest: P36: controller inicia encontro publicado e grava desfecho persistente
+ok 75 - P36: controller inicia encontro publicado e grava desfecho persistente
+  ---
+  duration_ms: 89.159384
+  type: 'test'
+  ...
+# Subtest: P36: Kaa’to usa NPC do mundo, persiste incapacitação e não reaparece íntegro
+ok 76 - P36: Kaa’to usa NPC do mundo, persiste incapacitação e não reaparece íntegro
+  ---
+  duration_ms: 138.542581
+  type: 'test'
+  ...
+# Subtest: P36: consequência de sabacc atinge créditos reais do personagem pelo controller
+ok 77 - P36: consequência de sabacc atinge créditos reais do personagem pelo controller
+  ---
+  duration_ms: 25.830747
+  type: 'test'
+  ...
+# Subtest: P36: mantém gate EotE/MIXED e não converte Duty/Obligation entre linhas
+ok 78 - P36: mantém gate EotE/MIXED e não converte Duty/Obligation entre linhas
+  ---
+  duration_ms: 5.042664
+  type: 'test'
+  ...
+# Subtest: P36: runtime e bridge expõem sistemas/encontro sem revelar especificação futura
+ok 79 - P36: runtime e bridge expõem sistemas/encontro sem revelar especificação futura
+  ---
+  duration_ms: 1.558308
+  type: 'test'
+  ...
+# Subtest: P37: epílogo persiste destino de Kaa’to e consequências de facções sem spoiler antecipado
+ok 80 - P37: epílogo persiste destino de Kaa’to e consequências de facções sem spoiler antecipado
+  ---
+  duration_ms: 5.540461
+  type: 'test'
+  ...
+# Subtest: P37: roubo Zelcomm adiciona Obligation antes da recompensa e mantém Duty separado
+ok 81 - P37: roubo Zelcomm adiciona Obligation antes da recompensa e mantém Duty separado
+  ---
+  duration_ms: 100.535498
+  type: 'test'
+  ...
+# Subtest: P39: epílogo integra consequências ao Mundo Vivo somente após o desfecho
+ok 82 - P39: epílogo integra consequências ao Mundo Vivo somente após o desfecho
+  ---
+  duration_ms: 3.741268
+  type: 'test'
+  ...
+# Subtest: P39: Kaa’to morto sincroniza estado profundo e não cria plano de retorno
+ok 83 - P39: Kaa’to morto sincroniza estado profundo e não cria plano de retorno
+  ---
+  duration_ms: 3.355099
+  type: 'test'
+  ...
+# Subtest: P40: planos só existem após epílogo e avançam pelo relógio
+ok 84 - P40: planos só existem após epílogo e avançam pelo relógio
+  ---
+  duration_ms: 17.880785
+  type: 'test'
+  ...
+# Subtest: P40: Pykes resolvem consequência e alteram influência persistentemente
+ok 85 - P40: Pykes resolvem consequência e alteram influência persistentemente
+  ---
+  duration_ms: 5.671081
+  type: 'test'
+  ...
+# Subtest: P40: retaliação Zelcomm cria consequência jogável conhecida
+ok 86 - P40: retaliação Zelcomm cria consequência jogável conhecida
+  ---
+  duration_ms: 5.00674
+  type: 'test'
+  ...
+# Subtest: P40: retorno de Kaa’to resolve sem vazar ao jogador antes de entrar em cena
+ok 87 - P40: retorno de Kaa’to resolve sem vazar ao jogador antes de entrar em cena
+  ---
+  duration_ms: 5.123353
+  type: 'test'
+  ...
+# Subtest: P40: Kaa’to morto continua sem plano de retorno
+ok 88 - P40: Kaa’to morto continua sem plano de retorno
+  ---
+  duration_ms: 5.006089
+  type: 'test'
+  ...
+# Subtest: P41 Umbra oferece rota social sem combate e persiste abordagem
+ok 89 - P41 Umbra oferece rota social sem combate e persiste abordagem
+  ---
+  duration_ms: 4.78602
+  type: 'test'
+  ...
+# Subtest: P41 Spyder oferece infiltração por sabacc e pode manter Black Sun fora
+ok 90 - P41 Spyder oferece infiltração por sabacc e pode manter Black Sun fora
+  ---
+  duration_ms: 1.192466
+  type: 'test'
+  ...
+# Subtest: P41 Zelcomm oferece engenharia social sem roubo/Obligation
+ok 91 - P41 Zelcomm oferece engenharia social sem roubo/Obligation
+  ---
+  duration_ms: 1.78413
+  type: 'test'
+  ...
+# Subtest: P41 status do jogador filtra consequências ocultas
+ok 92 - P41 status do jogador filtra consequências ocultas
+  ---
+  duration_ms: 5.316314
+  type: 'test'
+  ...
+# Subtest: P41 mantém campanha publicada EOTE/MIXED
+ok 93 - P41 mantém campanha publicada EOTE/MIXED
+  ---
+  duration_ms: 0.226099
+  type: 'test'
+  ...
+# Subtest: P42 NPC só é revelado quando entra em cena e card não contém fatos futuros
+ok 94 - P42 NPC só é revelado quando entra em cena e card não contém fatos futuros
+  ---
+  duration_ms: 12.798603
+  type: 'test'
+  ...
+# Subtest: P42 solução discreta no Umbra vira memória/relação persistente
+ok 95 - P42 solução discreta no Umbra vira memória/relação persistente
+  ---
+  duration_ms: 18.334797
+  type: 'test'
+  ...
+# Subtest: P42 Spyder discreto preserva relação de Fenn
+ok 96 - P42 Spyder discreto preserva relação de Fenn
+  ---
+  duration_ms: 6.659255
+  type: 'test'
+  ...
+# Subtest: P42 Zelcomm social melhora relação sem armas/Obligation
+ok 97 - P42 Zelcomm social melhora relação sem armas/Obligation
+  ---
+  duration_ms: 7.012488
+  type: 'test'
+  ...
+# Subtest: P43 feedback de teste persiste apenas como efeito player-safe de cena visitada
+ok 98 - P43 feedback de teste persiste apenas como efeito player-safe de cena visitada
+  ---
+  duration_ms: 9.009212
+  type: 'test'
+  ...
+# Subtest: P43 cards só incluem NPC conhecido/presente e portraitAsset é sanitizado
+ok 99 - P43 cards só incluem NPC conhecido/presente e portraitAsset é sanitizado
+  ---
+  duration_ms: 3.064379
+  type: 'test'
+  ...
+# Subtest: P43 preserva EOTE/MIXED e não habilita AOR puro
+ok 100 - P43 preserva EOTE/MIXED e não habilita AOR puro
+  ---
+  duration_ms: 1.585782
+  type: 'test'
+  ...
+# Subtest: P44 feedback contextual revela apenas efeito mecânico já ocorrido
+ok 101 - P44 feedback contextual revela apenas efeito mecânico já ocorrido
+  ---
+  duration_ms: 1.449588
+  type: 'test'
+  ...
+# Subtest: P45 pistas começam vazias e não antecipam investigação futura
+ok 102 - P45 pistas começam vazias e não antecipam investigação futura
+  ---
+  duration_ms: 3.541428
+  type: 'test'
+  ...
+# Subtest: P45 hub expõe somente alvo já conhecido
+ok 103 - P45 hub expõe somente alvo já conhecido
+  ---
+  duration_ms: 2.887046
+  type: 'test'
+  ...
+# Subtest: P45 pista Umbra persiste ao voltar ao hub sem vazar outras rotas
+ok 104 - P45 pista Umbra persiste ao voltar ao hub sem vazar outras rotas
+  ---
+  duration_ms: 1.205741
+  type: 'test'
+  ...
+# Subtest: P45 Zelcomm libera Sector 943 apenas após a rota correspondente
+ok 105 - P45 Zelcomm libera Sector 943 apenas após a rota correspondente
+  ---
+  duration_ms: 1.026457
+  type: 'test'
+  ...
+# Subtest: P45 convergência NovaCORE só aparece quando o endgame foi alcançado
+ok 106 - P45 convergência NovaCORE só aparece quando o endgame foi alcançado
+  ---
+  duration_ms: 2.791087
+  type: 'test'
+  ...
+# Subtest: P45 rota spyder-sabacc usa subsistema real e o exibe na cena
+ok 107 - P45 rota spyder-sabacc usa subsistema real e o exibe na cena
+  ---
+  duration_ms: 1.804499
+  type: 'test'
+  ...
+# Subtest: P45 UI possui superfície explícita de pistas conhecidas
+ok 108 - P45 UI possui superfície explícita de pistas conhecidas
+  ---
+  duration_ms: 1.492433
+  type: 'test'
+  ...
+1..108
+# tests 108
+# suites 0
+# pass 108
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1224.292474
+=== SHARD 7 files 120-139 ===
+TAP version 13
+# Subtest: P46: grafo publicado não tem destinos quebrados e só o epílogo é terminal
+ok 1 - P46: grafo publicado não tem destinos quebrados e só o epílogo é terminal
+  ---
+  duration_ms: 1.011116
+  type: 'test'
+  ...
+# Subtest: P46: rota NovaCORE muda a apresentação sem revelar rota não escolhida
+ok 2 - P46: rota NovaCORE muda a apresentação sem revelar rota não escolhida
+  ---
+  duration_ms: 8.369136
+  type: 'test'
+  ...
+# Subtest: P46: negociação final permite concluir sem combate somente após teste bem-sucedido
+ok 3 - P46: negociação final permite concluir sem combate somente após teste bem-sucedido
+  ---
+  duration_ms: 6.45591
+  type: 'test'
+  ...
+# Subtest: P46: combate final não permite escolher destino antes do encontro e preparação altera abertura
+ok 4 - P46: combate final não permite escolher destino antes do encontro e preparação altera abertura
+  ---
+  duration_ms: 2.413626
+  type: 'test'
+  ...
+# Subtest: P46: playthrough controller fecha missão, persiste recompensa e continua no sandbox sem apagar MIXED/Duty
+ok 5 - P46: playthrough controller fecha missão, persiste recompensa e continua no sandbox sem apagar MIXED/Duty
+  ---
+  duration_ms: 858.163272
+  type: 'test'
+  ...
+# Subtest: P46: UI diferencia bloqueio ativo de missão concluída e oferece continuar no mundo livre
+ok 6 - P46: UI diferencia bloqueio ativo de missão concluída e oferece continuar no mundo livre
+  ---
+  duration_ms: 1.821056
+  type: 'test'
+  ...
+# Subtest: P47: ações sugeridas ao Mestre respeitam gating e não vazam opções futuras
+ok 7 - P47: ações sugeridas ao Mestre respeitam gating e não vazam opções futuras
+  ---
+  duration_ms: 10.86834
+  type: 'test'
+  ...
+# Subtest: P47: rota escritórios só oferece testes coerentes e preserva índices canônicos
+ok 8 - P47: rota escritórios só oferece testes coerentes e preserva índices canônicos
+  ---
+  duration_ms: 8.370394
+  type: 'test'
+  ...
+# Subtest: P47: rota refinaria remove teste de Computadores e mantém Frieza no índice original
+ok 9 - P47: rota refinaria remove teste de Computadores e mantém Frieza no índice original
+  ---
+  duration_ms: 4.40638
+  type: 'test'
+  ...
+# Subtest: P49: save/reopen preserva rota NovaCORE e projeção dinâmica sem spoiler
+ok 10 - P49: save/reopen preserva rota NovaCORE e projeção dinâmica sem spoiler
+  ---
+  duration_ms: 13.463018
+  type: 'test'
+  ...
+# Subtest: P49: save/reopen preserva investigação, flags e nó atual
+ok 11 - P49: save/reopen preserva investigação, flags e nó atual
+  ---
+  duration_ms: 5.348035
+  type: 'test'
+  ...
+# Subtest: P49: desfechos do showdown continuam mutuamente exclusivos após reopen
+ok 12 - P49: desfechos do showdown continuam mutuamente exclusivos após reopen
+  ---
+  duration_ms: 5.689314
+  type: 'test'
+  ...
+# Subtest: P49: consequência de epílogo não duplica ao reabrir estado concluído
+ok 13 - P49: consequência de epílogo não duplica ao reabrir estado concluído
+  ---
+  duration_ms: 6.576182
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva rota social Umbra e não revela pistas futuras
+ok 14 - P50: reopen preserva rota social Umbra e não revela pistas futuras
+  ---
+  duration_ms: 2.240685
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva sabacc discreto no Spyder e não inventa Black Sun hostil
+ok 15 - P50: reopen preserva sabacc discreto no Spyder e não inventa Black Sun hostil
+  ---
+  duration_ms: 1.691375
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva solução social Zelcomm sem armas nem Obligation
+ok 16 - P50: reopen preserva solução social Zelcomm sem armas nem Obligation
+  ---
+  duration_ms: 2.173058
+  type: 'test'
+  ...
+# Subtest: P50: negociação com Kaa’to persiste após reopen e mantém rendição desbloqueada
+ok 17 - P50: negociação com Kaa’to persiste após reopen e mantém rendição desbloqueada
+  ---
+  duration_ms: 7.087569
+  type: 'test'
+  ...
+# Subtest: P7: catálogo pessoal core inteiro tem binding exato e arquivo local
+ok 18 - P7: catálogo pessoal core inteiro tem binding exato e arquivo local
+  ---
+  duration_ms: 47.652754
+  type: 'test'
+  ...
+# Subtest: P12: 82 locais têm visual de localização honesto e zero path quebrado
+ok 19 - P12: 82 locais têm visual de localização honesto e zero path quebrado
+  ---
+  duration_ms: 3.591482
+  type: 'test'
+  ...
+# Subtest: P7: seed não fixa Voss e remove texto técnico RAG
+ok 20 - P7: seed não fixa Voss e remove texto técnico RAG
+  ---
+  duration_ms: 0.520184
+  type: 'test'
+  ...
+# Subtest: P7: renderer visual não usa scoring fuzzy
+ok 21 - P7: renderer visual não usa scoring fuzzy
+  ---
+  duration_ms: 0.452815
+  type: 'test'
+  ...
+# Subtest: P8 exact visual coverage closes full active equipment catalog
+ok 22 - P8 exact visual coverage closes full active equipment catalog
+  ---
+  duration_ms: 9.701131
+  type: 'test'
+  ...
+# Subtest: P8 exact visual coverage closes active vehicle catalog
+ok 23 - P8 exact visual coverage closes active vehicle catalog
+  ---
+  duration_ms: 0.826549
+  type: 'test'
+  ...
+# Subtest: P8 known adversaries have deterministic exact identity visuals
+ok 24 - P8 known adversaries have deterministic exact identity visuals
+  ---
+  duration_ms: 0.377667
+  type: 'test'
+  ...
+# Subtest: P12 all 82 catalog worlds have honest playable location visuals
+ok 25 - P12 all 82 catalog worlds have honest playable location visuals
+  ---
+  duration_ms: 3.786063
+  type: 'test'
+  ...
+# Subtest: P8 no fuzzy visual resolver and no rejected technical RAG copy
+ok 26 - P8 no fuzzy visual resolver and no rejected technical RAG copy
+  ---
+  duration_ms: 1.717636
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: locais distinguem mapa dedicado de esquema gerado
+ok 27 - auditoria visual independente: locais distinguem mapa dedicado de esquema gerado
+  ---
+  duration_ms: 12.710543
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: bindings de itens usam o objeto certo e todos os paths existem
+ok 28 - auditoria visual independente: bindings de itens usam o objeto certo e todos os paths existem
+  ---
+  duration_ms: 4.641881
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: índice P6 e UI não contêm fallback genérico para entidades
+ok 29 - auditoria visual independente: índice P6 e UI não contêm fallback genérico para entidades
+  ---
+  duration_ms: 5.907292
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: todos os caminhos do índice P6 que representam imagens são resolvíveis
+ok 30 - auditoria visual independente: todos os caminhos do índice P6 que representam imagens são resolvíveis
+  ---
+  duration_ms: 19.214176
+  type: 'test'
+  ...
+# Subtest: benchmark RAG EotE recupera a entrada esperada em primeiro lugar
+ok 31 - benchmark RAG EotE recupera a entrada esperada em primeiro lugar
+  ---
+  duration_ms: 587.454029
+  type: 'test'
+  ...
+# Subtest: corpus RAG permanece sincronizado com a matriz de regras
+ok 32 - corpus RAG permanece sincronizado com a matriz de regras
+  ---
+  duration_ms: 3.061535
+  type: 'test'
+  ...
+# Subtest: RAG lexical encontra Obligation inicial EotE e preserva autoridade
+ok 33 - RAG lexical encontra Obligation inicial EotE e preserva autoridade
+  ---
+  duration_ms: 184.0479
+  type: 'test'
+  ...
+# Subtest: RAG lexical encontra estrutura EotE 8/6/18
+ok 34 - RAG lexical encontra estrutura EotE 8/6/18
+  ---
+  duration_ms: 142.63477
+  type: 'test'
+  ...
+# Subtest: RAG EotE apresenta raridade/disponibilidade auditada pelo Core e sem AoR
+ok 35 - RAG EotE apresenta raridade/disponibilidade auditada pelo Core e sem AoR
+  ---
+  duration_ms: 30.724287
+  type: 'test'
+  ...
+# Subtest: dado da Força é autoridade mecânica EotE Core auditada no RAG
+ok 36 - dado da Força é autoridade mecânica EotE Core auditada no RAG
+  ---
+  duration_ms: 31.811365
+  type: 'test'
+  ...
+# Subtest: compra de especialização adicional é autoridade mecânica EotE Core auditada no RAG
+ok 37 - compra de especialização adicional é autoridade mecânica EotE Core auditada no RAG
+  ---
+  duration_ms: 23.38302
+  type: 'test'
+  ...
+# Subtest: corpus ativo mantém AoR restrito ao subconjunto Duty/Contribution explicitamente auditado
+ok 38 - corpus ativo mantém AoR restrito ao subconjunto Duty/Contribution explicitamente auditado
+  ---
+  duration_ms: 1.824991
+  type: 'test'
+  ...
+# Subtest: políticas operacionais do VTT permanecem explicitamente não oficiais
+ok 39 - políticas operacionais do VTT permanecem explicitamente não oficiais
+  ---
+  duration_ms: 36.442761
+  type: 'test'
+  ...
+# Subtest: RAG encontra os três poderes da Força do Core EotE
+ok 40 - RAG encontra os três poderes da Força do Core EotE
+  ---
+  duration_ms: 63.10827
+  type: 'test'
+  ...
+# Subtest: gerador exige nome e motivação fornecidos pelo usuário
+ok 41 - gerador exige nome e motivação fornecidos pelo usuário
+  ---
+  duration_ms: 2.448295
+  type: 'test'
+  ...
+# Subtest: gerador usa somente catálogos AoR auditados e produz ficha válida sem gastar PE aleatoriamente
+ok 42 - gerador usa somente catálogos AoR auditados e produz ficha válida sem gastar PE aleatoriamente
+  ---
+  duration_ms: 1.457438
+  type: 'test'
+  ...
+# Subtest: amostra múltiplas sequências sem ultrapassar grau 2 ou sair dos contratos de criação
+ok 43 - amostra múltiplas sequências sem ultrapassar grau 2 ou sair dos contratos de criação
+  ---
+  duration_ms: 6.853907
+  type: 'test'
+  ...
+# Subtest: GameController constrói sem mutar e só persiste quando criação é confirmada
+ok 44 - GameController constrói sem mutar e só persiste quando criação é confirmada
+  ---
+  duration_ms: 6.813079
+  type: 'test'
+  ...
+# Subtest: ponte v3 cria ficha aleatória e snapshot somente quando substitui ficha existente
+ok 45 - ponte v3 cria ficha aleatória e snapshot somente quando substitui ficha existente
+  ---
+  duration_ms: 4.119892
+  type: 'test'
+  ...
+# Subtest: falha de entrada não muta estado nem cria snapshot
+ok 46 - falha de entrada não muta estado nem cria snapshot
+  ---
+  duration_ms: 1.458962
+  type: 'test'
+  ...
+# Subtest: folha de grupo persiste base, recursos, contatos e reserva sem automatizar progressão
+ok 47 - folha de grupo persiste base, recursos, contatos e reserva sem automatizar progressão
+  ---
+  duration_ms: 2.991786
+  type: 'test'
+  ...
+# Subtest: Dever do grupo soma somente entradas registradas e pode ser removido
+ok 48 - Dever do grupo soma somente entradas registradas e pode ser removido
+  ---
+  duration_ms: 0.696683
+  type: 'test'
+  ...
+# Subtest: faixa de contribuição e reserva rejeitam limites inválidos
+ok 49 - faixa de contribuição e reserva rejeitam limites inválidos
+  ---
+  duration_ms: 2.976221
+  type: 'test'
+  ...
+# Subtest: Medicina escala pela condição do paciente, falta de suprimentos e autotratamento
+ok 50 - Medicina escala pela condição do paciente, falta de suprimentos e autotratamento
+  ---
+  duration_ms: 1.572766
+  type: 'test'
+  ...
+# Subtest: Medicina usa sucesso para Ferimentos e Vantagem para Tensão
+ok 51 - Medicina usa sucesso para Ferimentos e Vantagem para Tensão
+  ---
+  duration_ms: 1.535347
+  type: 'test'
+  ...
+# Subtest: fim de encontro exige teste Simple de Frialdade ou Disciplina e Rapid Recovery só soma em sucesso
+ok 52 - fim de encontro exige teste Simple de Frialdade ou Disciplina e Rapid Recovery só soma em sucesso
+  ---
+  duration_ms: 0.623628
+  type: 'test'
+  ...
+# Subtest: noite completa recupera 1 Ferimento, toda Tensão e restaura eficácia diária
+ok 53 - noite completa recupera 1 Ferimento, toda Tensão e restaura eficácia diária
+  ---
+  duration_ms: 1.4887
+  type: 'test'
+  ...
+# Subtest: tratamento de Ferimento Crítico usa a dificuldade de severidade e remove em sucesso
+ok 54 - tratamento de Ferimento Crítico usa a dificuldade de severidade e remove em sucesso
+  ---
+  duration_ms: 2.034141
+  type: 'test'
+  ...
+# Subtest: bacta cura orgânicos e banho de óleo cura droides sem apagar críticos
+ok 55 - bacta cura orgânicos e banho de óleo cura droides sem apagar críticos
+  ---
+  duration_ms: 1.676823
+  type: 'test'
+  ...
+# Subtest: reserva positiva usa o maior valor como total e o menor como upgrades
+ok 56 - reserva positiva usa o maior valor como total e o menor como upgrades
+  ---
+  duration_ms: 1.481378
+  type: 'test'
+  ...
+# Subtest: êxito/falha e vantagem/ameaça se cancelam em eixos independentes
+ok 57 - êxito/falha e vantagem/ameaça se cancelam em eixos independentes
+  ---
+  duration_ms: 0.237308
+  type: 'test'
+  ...
+# Subtest: triunfo conta como êxito e desespero conta como falha sem apagar o símbolo especial
+ok 58 - triunfo conta como êxito e desespero conta como falha sem apagar o símbolo especial
+  ---
+  duration_ms: 0.112436
+  type: 'test'
+  ...
+# Subtest: rolagem aceita RNG injetado para testes determinísticos
+ok 59 - rolagem aceita RNG injetado para testes determinísticos
+  ---
+  duration_ms: 0.49369
+  type: 'test'
+  ...
+# Subtest: R33 UI: primeiro uso oferece EotE, AoR ou Misto e apenas um ponto inicial
+ok 60 - R33 UI: primeiro uso oferece EotE, AoR ou Misto e apenas um ponto inicial
+  ---
+  duration_ms: 2.777888
+  type: 'test'
+  ...
+# Subtest: R33 UI: criação AoR reutiliza a shell aprovada e troca rótulos Obligation→Duty
+ok 61 - R33 UI: criação AoR reutiliza a shell aprovada e troca rótulos Obligation→Duty
+  ---
+  duration_ms: 3.023663
+  type: 'test'
+  ...
+# Subtest: R33 UI: sandbox vivo é uma extensão funcional da R46, não um redesenho
+ok 62 - R33 UI: sandbox vivo é uma extensão funcional da R46, não um redesenho
+  ---
+  duration_ms: 1.41609
+  type: 'test'
+  ...
+# Subtest: fluxo de sessão local percorre fases sem se apresentar como regra do RPG
+ok 63 - fluxo de sessão local percorre fases sem se apresentar como regra do RPG
+  ---
+  duration_ms: 1.965701
+  type: 'test'
+  ...
+# Subtest: sessão completa persiste abertura, teste, combate, recuperação e encerramento
+ok 64 - sessão completa persiste abertura, teste, combate, recuperação e encerramento
+  ---
+  duration_ms: 42.330804
+  type: 'test'
+  ...
+# Subtest: encerramento não inventa PE quando nenhum valor é informado
+ok 65 - encerramento não inventa PE quando nenhum valor é informado
+  ---
+  duration_ms: 6.197591
+  type: 'test'
+  ...
+# Subtest: Cena expõe fluxo de sessão e teste sugerido do Mestre em PT-BR
+ok 66 - Cena expõe fluxo de sessão e teste sugerido do Mestre em PT-BR
+  ---
+  duration_ms: 1.781741
+  type: 'test'
+  ...
+# Subtest: Personagem expõe progressão por PE com custo automático de perícia profissional
+ok 67 - Personagem expõe progressão por PE com custo automático de perícia profissional
+  ---
+  duration_ms: 0.216848
+  type: 'test'
+  ...
+# Subtest: configuração do Mestre remoto persiste somente endpoint, sem campo de chave
+ok 68 - configuração do Mestre remoto persiste somente endpoint, sem campo de chave
+  ---
+  duration_ms: 7.249818
+  type: 'test'
+  ...
+# Subtest: modo local remove endpoint remoto persistido
+ok 69 - modo local remove endpoint remoto persistido
+  ---
+  duration_ms: 1.056768
+  type: 'test'
+  ...
+# Subtest: snapshot restaura cópia íntegra do estado e mantém limite
+ok 70 - snapshot restaura cópia íntegra do estado e mantém limite
+  ---
+  duration_ms: 7.10022
+  type: 'test'
+  ...
+# Subtest: tipos de autoridade da Biblioteca são normalizados e rotulados em PT-BR
+ok 71 - tipos de autoridade da Biblioteca são normalizados e rotulados em PT-BR
+  ---
+  duration_ms: 1.805972
+  type: 'test'
+  ...
+# Subtest: mecânica testada do motor prevalece sobre qualquer PDF importado
+ok 72 - mecânica testada do motor prevalece sobre qualquer PDF importado
+  ---
+  duration_ms: 0.676614
+  type: 'test'
+  ...
+# Subtest: PDF importado pode preencher consulta onde a matriz só tem lacuna pendente
+ok 73 - PDF importado pode preencher consulta onde a matriz só tem lacuna pendente
+  ---
+  duration_ms: 0.162251
+  type: 'test'
+  ...
+# Subtest: entre PDFs igualmente pertinentes, errata prevalece sobre livro básico e complemento
+ok 74 - entre PDFs igualmente pertinentes, errata prevalece sobre livro básico e complemento
+  ---
+  duration_ms: 1.137075
+  type: 'test'
+  ...
+# Subtest: ponte atualiza autoridade e estado ativo de uma fonte
+ok 75 - ponte atualiza autoridade e estado ativo de uma fonte
+  ---
+  duration_ms: 0.521726
+  type: 'test'
+  ...
+# Subtest: busca importada preserva autoridade devolvida pelo Android
+ok 76 - busca importada preserva autoridade devolvida pelo Android
+  ---
+  duration_ms: 0.462396
+  type: 'test'
+  ...
+# Subtest: fonte desativada fica disponível na Biblioteca, mas não chega ao RAG
+ok 77 - fonte desativada fica disponível na Biblioteca, mas não chega ao RAG
+  ---
+  duration_ms: 1.149735
+  type: 'test'
+  ...
+# Subtest: decisão de autoridade fica disponível para persistência da consulta
+ok 78 - decisão de autoridade fica disponível para persistência da consulta
+  ---
+  duration_ms: 32.928518
+  type: 'test'
+  ...
+# Subtest: ponte de reindexação retorna erro legível quando indisponível
+ok 79 - ponte de reindexação retorna erro legível quando indisponível
+  ---
+  duration_ms: 1.018863
+  type: 'test'
+  ...
+# Subtest: Zal gera ficha inicial válida com recursos verificados
+ok 80 - Zal gera ficha inicial válida com recursos verificados
+  ---
+  duration_ms: 1.473797
+  type: 'test'
+  ...
+# Subtest: Vendri gera ficha inicial válida com recursos verificados
+ok 81 - Vendri gera ficha inicial válida com recursos verificados
+  ---
+  duration_ms: 0.449242
+  type: 'test'
+  ...
+# Subtest: Tendaar gera ficha inicial válida com recursos verificados
+ok 82 - Tendaar gera ficha inicial válida com recursos verificados
+  ---
+  duration_ms: 0.221524
+  type: 'test'
+  ...
+# Subtest: Jin-Rio gera ficha inicial válida com recursos verificados
+ok 83 - Jin-Rio gera ficha inicial válida com recursos verificados
+  ---
+  duration_ms: 0.244683
+  type: 'test'
+  ...
+# Subtest: Cael gera ficha inicial válida com recursos verificados
+ok 84 - Cael gera ficha inicial válida com recursos verificados
+  ---
+  duration_ms: 0.365014
+  type: 'test'
+  ...
+# Subtest: Arkhan gera ficha inicial válida com recursos verificados
+ok 85 - Arkhan gera ficha inicial válida com recursos verificados
+  ---
+  duration_ms: 0.220818
+  type: 'test'
+  ...
+# Subtest: valores centrais dos perfis iniciais permanecem estáveis
+ok 86 - valores centrais dos perfis iniciais permanecem estáveis
+  ---
+  duration_ms: 0.397364
+  type: 'test'
+  ...
+# Subtest: fixtures locais de regressão são EotE, não oficiais e sem autoridade AoR
+ok 87 - fixtures locais de regressão são EotE, não oficiais e sem autoridade AoR
+  ---
+  duration_ms: 0.727954
+  type: 'test'
+  ...
+1..87
+# tests 87
+# suites 0
+# pass 87
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1556.103732
+=== SHARD 8 files 140-159 ===
+TAP version 13
+# Subtest: evento com mesmo ID só é aplicado uma vez
+ok 1 - evento com mesmo ID só é aplicado uma vez
+  ---
+  duration_ms: 4.414381
+  type: 'test'
+  ...
+# Subtest: export/import JSON preserva estado válido
+ok 2 - export/import JSON preserva estado válido
+  ---
+  duration_ms: 1.573216
+  type: 'test'
+  ...
+# Subtest: fechar/reabrir um repositório de arquivo preserva estado
+ok 3 - fechar/reabrir um repositório de arquivo preserva estado
+  ---
+  duration_ms: 1.377692
+  type: 'test'
+  ...
+# Subtest: estado v1 é migrado sem perder campanha e recebe combate v10, veículos e sessão
+ok 4 - estado v1 é migrado sem perder campanha e recebe combate v10, veículos e sessão
+  ---
+  duration_ms: 1.814562
+  type: 'test'
+  ...
+# Subtest: estado v2 migra para v10 preservando combate e adicionando encontro
+ok 5 - estado v2 migra para v10 preservando combate e adicionando encontro
+  ---
+  duration_ms: 2.156202
+  type: 'test'
+  ...
+# Subtest: estado v3 migra para v10 adicionando contexto do Mestre sem perder encontro
+ok 6 - estado v3 migra para v10 adicionando contexto do Mestre sem perder encontro
+  ---
+  duration_ms: 0.644927
+  type: 'test'
+  ...
+=== CONT SHARD files 140-149 ===
+TAP version 13
+# Subtest: evento com mesmo ID só é aplicado uma vez
+ok 1 - evento com mesmo ID só é aplicado uma vez
+  ---
+  duration_ms: 5.387987
+  type: 'test'
+  ...
+# Subtest: export/import JSON preserva estado válido
+ok 2 - export/import JSON preserva estado válido
+  ---
+  duration_ms: 2.776177
+  type: 'test'
+  ...
+# Subtest: fechar/reabrir um repositório de arquivo preserva estado
+ok 3 - fechar/reabrir um repositório de arquivo preserva estado
+  ---
+  duration_ms: 2.078206
+  type: 'test'
+  ...
+# Subtest: estado v1 é migrado sem perder campanha e recebe combate v10, veículos e sessão
+ok 4 - estado v1 é migrado sem perder campanha e recebe combate v10, veículos e sessão
+  ---
+  duration_ms: 2.710021
+  type: 'test'
+  ...
+# Subtest: estado v2 migra para v10 preservando combate e adicionando encontro
+ok 5 - estado v2 migra para v10 preservando combate e adicionando encontro
+  ---
+  duration_ms: 1.612784
+  type: 'test'
+  ...
+# Subtest: estado v3 migra para v10 adicionando contexto do Mestre sem perder encontro
+ok 6 - estado v3 migra para v10 adicionando contexto do Mestre sem perder encontro
+  ---
+  duration_ms: 0.797199
+  type: 'test'
+  ...

@@ -1,0 +1,2968 @@
+[
+  {
+    "key": "coruscant",
+    "name": "Coruscant",
+    "region": "Core Worlds",
+    "grid": "L10",
+    "mapPoint": {
+      "x": 53.4,
+      "y": 51.2
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": {
+      "key": "coruscant",
+      "name": "Coruscant",
+      "kind": "planet",
+      "astrogationData": "Coruscant System, Corusca Sector, Core Worlds",
+      "orbitalMetrics": "368 local days per year / 24 standard hours per day",
+      "government": "Galactic Empire",
+      "population": "1 trillion (68% Humans, 32% others)",
+      "languages": "Basic",
+      "terrain": "ecumenopolis",
+      "majorCities": "Imperial Center/Coruscant",
+      "areasOfInterest": "Senate District, Imperial Palace, ruined Jedi Temple, Underworld, Manarai Mountains, Invisec",
+      "majorExports": "culture, luxury goods, hyperdrive systems, governance",
+      "majorImports": "foodstuffs, raw materials, water",
+      "tradeRoutes": "Martial Cross, Shawken Spur, Koros Trunk Line, Metellos Trade Route, Perlemian Trade Route, Corellian Run",
+      "specialConditions": "Most buildings have internally regulated environments; city suffers periodic superstorms due to climate instability",
+      "source": {
+        "line": "EOTE/AOR_REFERENCE",
+        "book": "CCC Planets reference card",
+        "driveFileId": "1vt1xpQ6dv64MtQ_ktPO9VzVIytkCYqwS",
+        "authority": "REFERENCE_CARD"
+      },
+      "catalogStatus": "REFERENCE_PROFILE_SOURCE_REAL"
+    },
+    "detailStatus": "DETAILED",
+    "travelData": {
+      "tradeRoutes": "Martial Cross, Shawken Spur, Koros Trunk Line, Metellos Trade Route, Perlemian Trade Route, Corellian Run",
+      "astrogationData": "Coruscant System, Corusca Sector, Core Worlds",
+      "specialConditions": "Most buildings have internally regulated environments; city suffers periodic superstorms due to climate instability"
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": {
+        "line": "EOTE/AOR_REFERENCE",
+        "book": "CCC Planets reference card",
+        "driveFileId": "1vt1xpQ6dv64MtQ_ktPO9VzVIytkCYqwS",
+        "authority": "REFERENCE_CARD"
+      }
+    }
+  },
+  {
+    "key": "alderaan",
+    "name": "Alderaan",
+    "region": "Core Worlds",
+    "grid": "M10",
+    "mapPoint": {
+      "x": 57.8,
+      "y": 54.7
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "corellia",
+    "name": "Corellia",
+    "region": "Core Worlds",
+    "grid": "N10",
+    "mapPoint": {
+      "x": 61.7,
+      "y": 50.4
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": {
+      "key": "corellia",
+      "name": "Corellia",
+      "kind": "planet",
+      "astrogationData": "Corel- lian System, Corellian Sec- tor, Core Region",
+      "orbitalMetrics": "3 2 9 days per year/25 hours per day",
+      "government": "Republic .",
+      "population": "3 billion (Human 60%, Drall 2 0 % , Selonians 20%)",
+      "languages": "Basic",
+      "terrain": "Forests, hills, plains",
+      "majorCities": "Coronet (capi- tal), Kor Vella, Tyrena",
+      "areasOfInterest": "Treasure Ship Row, Corona House, The Cold Beaches, Selonian Tunnels",
+      "majorExports": "Alcohol, finished starships, starship components (hulls, weapon systems, sensors, drives, etc.), agricultural products (raw and processed foodstuffs, fibers and textiles, fuels)",
+      "majorImports": "Luxury goods,, raw materials, per- sonal weapons",
+      "tradeRoutes": "Corellian Trade Spine, Corellian Run rial Grand Moff—first Fliry Vorru, then Naomi Dargon.",
+      "specialConditions": "None CorSec, Corellia's Security Force, now operates with",
+      "source": {
+        "line": "EOTE",
+        "book": "Suns of Fortune",
+        "printedPage": 10,
+        "driveFileId": "1J90hz3rQuaxqt_uHTnCF1z3HtAzK4Lve",
+        "authority": "PRIMARY_SUPPLEMENT"
+      },
+      "catalogStatus": "DETAILED_SOURCE_PROFILE"
+    },
+    "detailStatus": "DETAILED",
+    "travelData": {
+      "tradeRoutes": "Corellian Trade Spine, Corellian Run rial Grand Moff—first Fliry Vorru, then Naomi Dargon.",
+      "astrogationData": "Corel- lian System, Corellian Sec- tor, Core Region",
+      "specialConditions": "None CorSec, Corellia's Security Force, now operates with"
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": {
+        "line": "EOTE",
+        "book": "Suns of Fortune",
+        "printedPage": 10,
+        "driveFileId": "1J90hz3rQuaxqt_uHTnCF1z3HtAzK4Lve",
+        "authority": "PRIMARY_SUPPLEMENT"
+      }
+    }
+  },
+  {
+    "key": "kashyyyk",
+    "name": "Kashyyyk",
+    "region": "Mid Rim",
+    "grid": "Q10",
+    "mapPoint": {
+      "x": 71.1,
+      "y": 46.7
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "naboo",
+    "name": "Naboo",
+    "region": "Mid Rim",
+    "grid": "R16",
+    "mapPoint": {
+      "x": 76.5,
+      "y": 77.1
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "tatooine",
+    "name": "Tatooine",
+    "region": "Outer Rim",
+    "grid": "R16",
+    "mapPoint": {
+      "x": 73.2,
+      "y": 78.4
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": {
+      "key": "tatooine",
+      "name": "Tatooine",
+      "kind": "planet",
+      "astrogationData": "Tatoo system, Arkanis Sector, Outer Rim region",
+      "orbitalMetrics": "304 local days/year; 23 standard hours/day",
+      "government": "local councils under nominal Imperial governor",
+      "population": "~200,000 (rough estimate)",
+      "languages": "Basic, Jawa, Tusken, Huttese",
+      "terrain": "desert",
+      "majorCities": "Bestine (capital), Anchorhead, Fort Tusken, Mos Espa, Mos Eisley",
+      "areasOfInterest": "Jundland Wastes, Beggar's Canyon, Jabba's Palace",
+      "majorExports": "minerals, illegal goods",
+      "majorImports": "consumables, technology, chemicals, water",
+      "tradeRoutes": "Triellus Trade Route",
+      "specialConditions": "none",
+      "source": {
+        "line": "EOTE",
+        "book": "EotE Core Rulebook",
+        "printedPage": null,
+        "driveFileId": "1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX",
+        "authority": "PRIMARY_CORE"
+      },
+      "catalogStatus": "DETAILED_SOURCE_PROFILE"
+    },
+    "detailStatus": "DETAILED",
+    "travelData": {
+      "tradeRoutes": "Triellus Trade Route",
+      "astrogationData": "Tatoo system, Arkanis Sector, Outer Rim region",
+      "specialConditions": "none"
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": {
+        "line": "EOTE",
+        "book": "EotE Core Rulebook",
+        "printedPage": null,
+        "driveFileId": "1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX",
+        "authority": "PRIMARY_CORE"
+      }
+    }
+  },
+  {
+    "key": "hoth",
+    "name": "Hoth",
+    "region": "Outer Rim",
+    "grid": "J18",
+    "mapPoint": {
+      "x": 43.6,
+      "y": 83.9
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "bespin",
+    "name": "Bespin",
+    "region": "Outer Rim",
+    "grid": "J4",
+    "mapPoint": {
+      "x": 45.1,
+      "y": 17.8
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": {
+      "key": "bespin",
+      "name": "Bespin",
+      "kind": "planet",
+      "astrogationData": "Bespin system, Anoat Sector, Outer Rim region",
+      "orbitalMetrics": "5,110 days/year; 12 hours/day",
+      "government": "guild",
+      "population": "6 million (Humans 68%, Ugnaughts 8%, Lutrillians 6%, other 18%)",
+      "languages": "Basic",
+      "terrain": "gas clouds",
+      "majorCities": "Cloud City (capital), Tibannopolis (semi-abandoned), Ugnaught Surface",
+      "areasOfInterest": "Life Zone",
+      "majorExports": "tourism, Tibanna gas, cloud cars",
+      "majorImports": "consumables, industrial goods",
+      "tradeRoutes": "Corellian Trade Spine, Corellian Run",
+      "specialConditions": "Type I atmosphere (breathable) only in band of the Life Zone",
+      "source": {
+        "line": "EOTE",
+        "book": "EotE Core Rulebook",
+        "printedPage": null,
+        "driveFileId": "1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX",
+        "authority": "PRIMARY_CORE"
+      },
+      "catalogStatus": "DETAILED_SOURCE_PROFILE"
+    },
+    "detailStatus": "DETAILED",
+    "travelData": {
+      "tradeRoutes": "Corellian Trade Spine, Corellian Run",
+      "astrogationData": "Bespin system, Anoat Sector, Outer Rim region",
+      "specialConditions": "Type I atmosphere (breathable) only in band of the Life Zone"
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": {
+        "line": "EOTE",
+        "book": "EotE Core Rulebook",
+        "printedPage": null,
+        "driveFileId": "1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX",
+        "authority": "PRIMARY_CORE"
+      }
+    }
+  },
+  {
+    "key": "dagobah",
+    "name": "Dagobah",
+    "region": "Outer Rim",
+    "grid": "M18",
+    "mapPoint": {
+      "x": 59,
+      "y": 87.8
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "mustafar",
+    "name": "Mustafar",
+    "region": "Outer Rim",
+    "grid": "K19",
+    "mapPoint": {
+      "x": 51,
+      "y": 91.1
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "endor",
+    "name": "Endor",
+    "region": "Outer Rim",
+    "grid": "H16",
+    "mapPoint": {
+      "x": 37.7,
+      "y": 75.6
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "geonosis",
+    "name": "Geonosis",
+    "region": "Outer Rim",
+    "grid": "R17",
+    "mapPoint": {
+      "x": 78.1,
+      "y": 82.2
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "dantooine",
+    "name": "Dantooine",
+    "region": "Outer Rim",
+    "grid": "K4",
+    "mapPoint": {
+      "x": 48.2,
+      "y": 16.2
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "mandalore",
+    "name": "Mandalore",
+    "region": "Outer Rim",
+    "grid": "P7",
+    "mapPoint": {
+      "x": 66.8,
+      "y": 35.5
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "kessel",
+    "name": "Kessel",
+    "region": "Outer Rim",
+    "grid": "S10",
+    "mapPoint": {
+      "x": 82.5,
+      "y": 48.6
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": {
+      "key": "kessel",
+      "name": "Kessel",
+      "kind": "planet",
+      "astrogationData": "Kessa system, Kessel Sector, Outer Rim region",
+      "orbitalMetrics": "322 days/year; 26 hours/day",
+      "government": "military prison",
+      "population": "700–1,000 military/administrative; prisoner population varies in the thousands",
+      "languages": "Basic",
+      "terrain": "alkali flats, mountains, caves",
+      "majorCities": "Kessendra",
+      "areasOfInterest": "Imperial prison facilities, spice mines",
+      "majorExports": "glitterstim spice",
+      "majorImports": "consumables, technology",
+      "tradeRoutes": "Pabol Sleheyron, Kessel Trade Corridor",
+      "specialConditions": "Type III atmosphere; breath mask required; radiation suit for prolonged surface excursions",
+      "source": {
+        "line": "EOTE",
+        "book": "EotE Core Rulebook",
+        "printedPage": null,
+        "driveFileId": "1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX",
+        "authority": "PRIMARY_CORE"
+      },
+      "catalogStatus": "DETAILED_SOURCE_PROFILE"
+    },
+    "detailStatus": "DETAILED",
+    "travelData": {
+      "tradeRoutes": "Pabol Sleheyron, Kessel Trade Corridor",
+      "astrogationData": "Kessa system, Kessel Sector, Outer Rim region",
+      "specialConditions": "Type III atmosphere; breath mask required; radiation suit for prolonged surface excursions"
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": {
+        "line": "EOTE",
+        "book": "EotE Core Rulebook",
+        "printedPage": null,
+        "driveFileId": "1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX",
+        "authority": "PRIMARY_CORE"
+      }
+    }
+  },
+  {
+    "key": "jakku",
+    "name": "Jakku",
+    "region": "Unknown Regions",
+    "grid": "G13",
+    "mapPoint": {
+      "x": 31.3,
+      "y": 61.5
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "ahch_to",
+    "name": "Ahch-To",
+    "region": "Unknown Regions",
+    "grid": "F14",
+    "mapPoint": {
+      "x": 29.2,
+      "y": 66.2
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "rakata_prime",
+    "name": "Rakata Prime",
+    "region": "Unknown Regions",
+    "grid": "G11",
+    "mapPoint": {
+      "x": 29.8,
+      "y": 49.6
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "mon_calamari",
+    "name": "Mon Calamari",
+    "region": "Outer Rim",
+    "grid": "V6",
+    "mapPoint": {
+      "x": 94.7,
+      "y": 29.4
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "ryloth",
+    "name": "Ryloth",
+    "region": "Outer Rim",
+    "grid": "R17",
+    "mapPoint": {
+      "x": 77.1,
+      "y": 84.4
+    },
+    "known": true,
+    "coordinateSource": "visual_map_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": {
+      "key": "ryloth",
+      "name": "Ryloth",
+      "kind": "planet",
+      "astrogationData": "Ryloth system, Gaulus Sector, Outer Rim region",
+      "orbitalMetrics": "305 days/year; 30 hours/day",
+      "government": "feudalism",
+      "population": "1.5 billion (Twi'leks 76%, other 24%)",
+      "languages": "Twi'leki, Lekku, Basic, Huttese",
+      "terrain": "caves, deserts, mountains, plains",
+      "majorCities": "Lessu (capital), Kala'uun, Roancu",
+      "areasOfInterest": "ryll spice mines, Floating Rock Gardens",
+      "majorExports": "slaves, ryll spice",
+      "majorImports": "consumables, luxury goods, medicines, technology",
+      "tradeRoutes": "Corellian Run, Death Wind Corridor",
+      "specialConditions": "none",
+      "source": {
+        "line": "EOTE",
+        "book": "EotE Core Rulebook",
+        "printedPage": null,
+        "driveFileId": "1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX",
+        "authority": "PRIMARY_CORE"
+      },
+      "catalogStatus": "DETAILED_SOURCE_PROFILE"
+    },
+    "detailStatus": "DETAILED",
+    "travelData": {
+      "tradeRoutes": "Corellian Run, Death Wind Corridor",
+      "astrogationData": "Ryloth system, Gaulus Sector, Outer Rim region",
+      "specialConditions": "none"
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": {
+        "line": "EOTE",
+        "book": "EotE Core Rulebook",
+        "printedPage": null,
+        "driveFileId": "1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX",
+        "authority": "PRIMARY_CORE"
+      }
+    }
+  },
+  {
+    "key": "montross",
+    "name": "Montross",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 43.5,
+      "y": 9.6
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "sernpidal",
+    "name": "Sernpidal",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 52.7,
+      "y": 8.1
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "birgis",
+    "name": "Birgis",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 54.9,
+      "y": 10.6
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "maltha_obex",
+    "name": "Maltha Obex",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 59.9,
+      "y": 12.4
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "kalee",
+    "name": "Kalee",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 39.9,
+      "y": 14.5
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "bimmiel",
+    "name": "Bimmiel",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 56.6,
+      "y": 14.8
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "kadavo",
+    "name": "Kadavo",
+    "region": "Corporate Sector",
+    "grid": null,
+    "mapPoint": {
+      "x": 83.1,
+      "y": 15.4
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "naraka",
+    "name": "Naraka",
+    "region": "Corporate Sector",
+    "grid": null,
+    "mapPoint": {
+      "x": 74.6,
+      "y": 16.1
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "rekkiad",
+    "name": "Rekkiad",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 85.2,
+      "y": 16.3
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "valce",
+    "name": "Valce",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 40.4,
+      "y": 16.7
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "akuria",
+    "name": "Akuria",
+    "region": "Mid Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 55,
+      "y": 18.3
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "ord_radama",
+    "name": "Ord Radama",
+    "region": "Mid Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 72.3,
+      "y": 18.3
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "dromund_kaas",
+    "name": "Dromund Kaas",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 78.2,
+      "y": 18.2
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "karkaris",
+    "name": "Karkaris",
+    "region": "Corporate Sector",
+    "grid": null,
+    "mapPoint": {
+      "x": 83.5,
+      "y": 18.4
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "toofa",
+    "name": "Toofa",
+    "region": "Corporate Sector",
+    "grid": null,
+    "mapPoint": {
+      "x": 82.8,
+      "y": 19.4
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "phaeda",
+    "name": "Phaeda",
+    "region": "Mid Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 51.7,
+      "y": 24.1
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "raydonia",
+    "name": "Raydonia",
+    "region": "Mid Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 65,
+      "y": 23.9
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "munto_codru",
+    "name": "Munto Codru",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 88.8,
+      "y": 24.1
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "ossus",
+    "name": "Ossus",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 79.6,
+      "y": 26.4
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "lothal",
+    "name": "Lothal",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 67,
+      "y": 28
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "parnassos",
+    "name": "Parnassos",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 36,
+      "y": 28
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "bogano",
+    "name": "Bogano",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 79,
+      "y": 31
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "garel",
+    "name": "Garel",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 72,
+      "y": 31
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "paatus",
+    "name": "Paatus",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 25,
+      "y": 31
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "crustai",
+    "name": "Crustai",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 34,
+      "y": 33
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "exegol",
+    "name": "Exegol",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 24,
+      "y": 34
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "karthon",
+    "name": "Karthon",
+    "region": "Mid Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 69,
+      "y": 34
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "toongl",
+    "name": "Toongl",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 85,
+      "y": 35
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "targonn",
+    "name": "Targonn",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 91,
+      "y": 35
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "avidich",
+    "name": "Avidich",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 20,
+      "y": 38
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "naporar",
+    "name": "Naporar",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 27,
+      "y": 38
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "brask_oto",
+    "name": "Brask Oto",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 32,
+      "y": 38
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "schesa",
+    "name": "Schesa",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 27,
+      "y": 42
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "gand",
+    "name": "Gand",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 83,
+      "y": 42
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "centrality",
+    "name": "Centrality",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 91,
+      "y": 42
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "csilla",
+    "name": "Csilla",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 23,
+      "y": 45
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "jamiron",
+    "name": "Jamiron",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 27,
+      "y": 45
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "shantipole",
+    "name": "Shantipole",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 80,
+      "y": 45
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "renatasia",
+    "name": "Renatasia",
+    "region": "Outer Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 90,
+      "y": 45
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "kinoss",
+    "name": "Kinoss",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 22,
+      "y": 48
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "pesfari",
+    "name": "Pesfari",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 31,
+      "y": 48
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "jetha",
+    "name": "Jetha",
+    "region": "Mid Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 43,
+      "y": 50
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "vakkar",
+    "name": "Vakkar",
+    "region": "Mid Rim",
+    "grid": null,
+    "mapPoint": {
+      "x": 46,
+      "y": 50
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "borleias",
+    "name": "Borleias",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 57,
+      "y": 51
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "castell",
+    "name": "Castell",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 66,
+      "y": 53
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "corulag",
+    "name": "Corulag",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 71,
+      "y": 53
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "caamas",
+    "name": "Caamas",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 76,
+      "y": 53
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "bardram_scott",
+    "name": "Bardram Scott",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 60,
+      "y": 57
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "nikardun",
+    "name": "Nikardun",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 29,
+      "y": 58
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "zakuul",
+    "name": "Zakuul",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 39,
+      "y": 57
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "wortan",
+    "name": "Wortan",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 43,
+      "y": 60
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "aargau",
+    "name": "Aargau",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 51,
+      "y": 59
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "kattada",
+    "name": "Kattada",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 66,
+      "y": 59
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "fedalle",
+    "name": "Fedalle",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 59,
+      "y": 62
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "vulpter",
+    "name": "Vulpter",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 48,
+      "y": 62
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "balmorra",
+    "name": "Balmorra",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 62,
+      "y": 63
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "tython",
+    "name": "Tython",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 49,
+      "y": 65
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "sarapin",
+    "name": "Sarapin",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 53,
+      "y": 65
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "gatalenta",
+    "name": "Gatalenta",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 57,
+      "y": 65
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "humbarine",
+    "name": "Humbarine",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 56,
+      "y": 68
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "commenor",
+    "name": "Commenor",
+    "region": "Core Worlds",
+    "grid": null,
+    "mapPoint": {
+      "x": 67,
+      "y": 68
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  },
+  {
+    "key": "rapacc",
+    "name": "Rapacc",
+    "region": "Unknown Regions",
+    "grid": null,
+    "mapPoint": {
+      "x": 26,
+      "y": 69
+    },
+    "known": true,
+    "coordinateSource": "ocr_visual_reference",
+    "source": {
+      "title": "Star Wars — mapa galáctico do acervo do usuário",
+      "asset": "star-wars-maps.zip",
+      "authority": "CATALOG_REFERENCE",
+      "kind": "map_visual_reference"
+    },
+    "detail": null,
+    "detailStatus": "MAP_REFERENCE_ONLY",
+    "travelData": {
+      "tradeRoutes": null,
+      "astrogationData": null,
+      "specialConditions": null
+    },
+    "provenance": {
+      "map": {
+        "title": "Star Wars — mapa galáctico do acervo do usuário",
+        "asset": "star-wars-maps.zip",
+        "authority": "CATALOG_REFERENCE",
+        "kind": "map_visual_reference"
+      },
+      "detail": null
+    }
+  }
+]

@@ -1,0 +1,30 @@
+{
+  "base": "P174",
+  "checkpoint": "P175",
+  "androidVersion": "1.0.175",
+  "newAoRPositions": 10,
+  "tests": {
+    "regular": {
+      "pass": 2526,
+      "fail": 0
+    },
+    "stress": {
+      "pass": 6,
+      "fail": 0
+    },
+    "ttsKokoro": {
+      "pass": 27,
+      "fail": 0
+    },
+    "P175Focused": {
+      "pass": 20,
+      "fail": 0
+    }
+  },
+  "fivePublishedAdventures": "integration and 3 reopenings passed; not PDF-certified",
+  "globalVerifier": "TIMEOUT; not certified",
+  "androidAPK": "NOT_BUILT",
+  "javaFilesPreserved": 8,
+  "javaHashesIdentical": true,
+  "offlineBundleModules": 82
+}

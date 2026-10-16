@@ -1,0 +1,65 @@
+TAP version 13
+# Subtest: P210 source-backed four real landscape symbols and effects are explicitly scoped
+ok 1 - P210 source-backed four real landscape symbols and effects are explicitly scoped
+  ---
+  duration_ms: 3.915788
+  type: 'test'
+  ...
+# Subtest: P210 Christophsis consumes actual Triumph and staggers real NPC one round
+ok 2 - P210 Christophsis consumes actual Triumph and staggers real NPC one round
+  ---
+  duration_ms: 426.551285
+  type: 'test'
+  ...
+# Subtest: P210 Coruscant spends one real Advantage and disorients target
+ok 3 - P210 Coruscant spends one real Advantage and disorients target
+  ---
+  duration_ms: 589.242717
+  type: 'test'
+  ...
+# Subtest: P210 Kashyyyk consumes Advantage and adds one REAL ranged setback until next round
+ok 4 - P210 Kashyyyk consumes Advantage and adds one REAL ranged setback until next round
+  ---
+  duration_ms: 494.536294
+  type: 'test'
+  ...
+# Subtest: P210 Alderaan requires player attack Despair and applies real 2 strain plus lost maneuver
+ok 5 - P210 Alderaan requires player attack Despair and applies real 2 strain plus lost maneuver
+  ---
+  duration_ms: 628.524755
+  type: 'test'
+  ...
+# Subtest: P210 rejects scene mismatch, fabricated symbols, GM omission and duplicate receipts atomically
+ok 6 - P210 rejects scene mismatch, fabricated symbols, GM omission and duplicate receipts atomically
+  ---
+  duration_ms: 481.004795
+  type: 'test'
+  ...
+# Subtest: P210 receipts reject mutation and preserve legacy P209 saves without effects
+ok 7 - P210 receipts reject mutation and preserve legacy P209 saves without effects
+  ---
+  duration_ms: 447.261902
+  type: 'test'
+  ...
+# Subtest: P210 Android bridge, source, UI, version and generated bundle expose the real effect
+ok 8 - P210 Android bridge, source, UI, version and generated bundle expose the real effect
+  ---
+  duration_ms: 20.345185
+  type: 'test'
+  ...
+# Subtest: P210 Kashyyyk cover changes the ACTUAL NPC attack dice pool by one setback
+ok 9 - P210 Kashyyyk cover changes the ACTUAL NPC attack dice pool by one setback
+  ---
+  duration_ms: 381.439478
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4162.710384
+

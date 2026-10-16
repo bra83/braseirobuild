@@ -1,0 +1,696 @@
+{
+  "checkpoint": "P172",
+  "count": 37,
+  "baseCount": 46,
+  "activated": [
+    {
+      "originalName": "MEJORAS CASERAS",
+      "positions": 2
+    },
+    {
+      "originalName": "TENACIDAD",
+      "positions": 2
+    },
+    {
+      "originalName": "TENACIDAD MEJORADA",
+      "positions": 2
+    },
+    {
+      "originalName": "GUARDAESPALDAS",
+      "positions": 2
+    },
+    {
+      "originalName": "MERCADER EXPERTO",
+      "positions": 1,
+      "implementation": "Master Merchant: 2 strain before Negotiation, 25% buy/sell successful transaction"
+    }
+  ],
+  "positions": [
+    {
+      "campaignMode": "AOR",
+      "career": "ace",
+      "specialization": "gunner",
+      "row": 4,
+      "column": 4,
+      "originalName": "SALIDA TÉRMICA",
+      "cost": 20,
+      "id": "ace:gunner:r4c4",
+      "name": "Saída térmica",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 67,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "ace",
+      "specialization": "pilot",
+      "row": 2,
+      "column": 2,
+      "originalName": "IMPACTO DIRECTO",
+      "cost": 10,
+      "id": "ace:pilot:r2c2",
+      "name": "Impacto direto",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 69,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "ace",
+      "specialization": "pilot",
+      "row": 3,
+      "column": 2,
+      "originalName": "IMPACTO DIRECTO MEJORADO",
+      "cost": 15,
+      "id": "ace:pilot:r3c2",
+      "name": "Impacto direto aprimorado",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 69,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "ace",
+      "specialization": "pilot",
+      "row": 5,
+      "column": 4,
+      "originalName": "EVASIÓN IMPECABLE",
+      "cost": 25,
+      "id": "ace:pilot:r5c4",
+      "name": "Evasão impecável",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 69,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "commander",
+      "specialization": "commodore",
+      "row": 2,
+      "column": 1,
+      "originalName": "DISEÑO FAMILIAR",
+      "cost": 10,
+      "id": "commander:commodore:r2c1",
+      "name": "Projeto familiar",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 73,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "commander",
+      "specialization": "commodore",
+      "row": 5,
+      "column": 2,
+      "originalName": "FUEGO CONTROLADO",
+      "cost": 25,
+      "id": "commander:commodore:r5c2",
+      "name": "Fogo controlado",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 73,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "commander",
+      "specialization": "squadron_leader",
+      "row": 2,
+      "column": 1,
+      "originalName": "COORDINACIÓN TÁCTICA",
+      "cost": 10,
+      "id": "commander:squadron_leader:r2c1",
+      "name": "Coordenação tática",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 74,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "commander",
+      "specialization": "squadron_leader",
+      "row": 2,
+      "column": 4,
+      "originalName": "CONOCIMIENTO DEL ENTORNO",
+      "cost": 10,
+      "id": "commander:squadron_leader:r2c4",
+      "name": "Conhecimento do ambiente",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 74,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "commander",
+      "specialization": "squadron_leader",
+      "row": 4,
+      "column": 1,
+      "originalName": "COORDINACIÓN TÁCTICA MEJORADA",
+      "cost": 20,
+      "id": "commander:squadron_leader:r4c1",
+      "name": "Coordenação tática aprimorada",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 74,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "commander",
+      "specialization": "squadron_leader",
+      "row": 4,
+      "column": 3,
+      "originalName": "FORMACIÓN DE COMBATE",
+      "cost": 20,
+      "id": "commander:squadron_leader:r4c3",
+      "name": "Formação de combate",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 74,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "commander",
+      "specialization": "squadron_leader",
+      "row": 5,
+      "column": 1,
+      "originalName": "LÍDER EXPERTO",
+      "cost": 25,
+      "id": "commander:squadron_leader:r5c1",
+      "name": "Líder especialista",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 74,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "commander",
+      "specialization": "squadron_leader",
+      "row": 5,
+      "column": 4,
+      "originalName": "EVASIÓN IMPECABLE",
+      "cost": 25,
+      "id": "commander:squadron_leader:r5c4",
+      "name": "Evasão impecável",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 74,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "commander",
+      "specialization": "tactician",
+      "row": 3,
+      "column": 1,
+      "originalName": "SUPERVIVIENTE",
+      "cost": 15,
+      "id": "commander:tactician:r3c1",
+      "name": "Sobrevivente",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 75,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "commander",
+      "specialization": "tactician",
+      "row": 4,
+      "column": 3,
+      "originalName": "COORDINACIÓN TÁCTICA",
+      "cost": 20,
+      "id": "commander:tactician:r4c3",
+      "name": "Coordenação tática",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 75,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "commander",
+      "specialization": "tactician",
+      "row": 5,
+      "column": 1,
+      "originalName": "ATAQUE COORDINADO",
+      "cost": 25,
+      "id": "commander:tactician:r5c1",
+      "name": "Ataque coordenado",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 75,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "commander",
+      "specialization": "tactician",
+      "row": 5,
+      "column": 3,
+      "originalName": "COORDINACIÓN TÁCTICA MEJORADA",
+      "cost": 25,
+      "id": "commander:tactician:r5c3",
+      "name": "Coordenação tática aprimorada",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 75,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "diplomat",
+      "specialization": "ambassador",
+      "row": 4,
+      "column": 3,
+      "originalName": "MANO DE SANTO",
+      "cost": 20,
+      "id": "diplomat:ambassador:r4c3",
+      "name": "Mão santa",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 79,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "diplomat",
+      "specialization": "agitator",
+      "row": 5,
+      "column": 4,
+      "originalName": "INCITAR A LA REBELIÓN",
+      "cost": 25,
+      "id": "diplomat:agitator:r5c4",
+      "name": "Incitar à rebelião",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 80,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "diplomat",
+      "specialization": "quartermaster",
+      "row": 2,
+      "column": 2,
+      "originalName": "UNTAR MANOS",
+      "cost": 10,
+      "id": "diplomat:quartermaster:r2c2",
+      "name": "Subornar",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 81,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "diplomat",
+      "specialization": "quartermaster",
+      "row": 3,
+      "column": 3,
+      "originalName": "COMPRAR INFORMACIÓN",
+      "cost": 15,
+      "id": "diplomat:quartermaster:r3c3",
+      "name": "Comprar informação",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 81,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "engineer",
+      "specialization": "mechanic",
+      "row": 2,
+      "column": 1,
+      "originalName": "SISTEMAS REDUNDANTES",
+      "cost": 10,
+      "id": "engineer:mechanic:r2c1",
+      "name": "Sistemas redundantes",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 85,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "engineer",
+      "specialization": "mechanic",
+      "row": 3,
+      "column": 3,
+      "originalName": "PIEZA DEFECTUOSA",
+      "cost": 15,
+      "id": "engineer:mechanic:r3c3",
+      "name": "Peça defeituosa",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 85,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "engineer",
+      "specialization": "mechanic",
+      "row": 4,
+      "column": 1,
+      "originalName": "ARTILUGIO",
+      "cost": 20,
+      "id": "engineer:mechanic:r4c1",
+      "name": "Engenhoca",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 85,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "engineer",
+      "specialization": "saboteur",
+      "row": 3,
+      "column": 1,
+      "originalName": "CUERPO A TIERRA",
+      "cost": 15,
+      "id": "engineer:saboteur:r3c1",
+      "name": "Jogar-se ao chão",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 86,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "engineer",
+      "specialization": "saboteur",
+      "row": 4,
+      "column": 1,
+      "originalName": "CUERPO A TIERRA MEJORADO",
+      "cost": 20,
+      "id": "engineer:saboteur:r4c1",
+      "name": "Jogar-se ao chão aprimorado",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 86,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "engineer",
+      "specialization": "scientist",
+      "row": 2,
+      "column": 3,
+      "originalName": "COMPARTIMENTO OCULTO",
+      "cost": 10,
+      "id": "engineer:scientist:r2c3",
+      "name": "Compartimento oculto",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 87,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "engineer",
+      "specialization": "scientist",
+      "row": 4,
+      "column": 2,
+      "originalName": "INGENIOSO",
+      "cost": 20,
+      "id": "engineer:scientist:r4c2",
+      "name": "Engenhoso",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 87,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "engineer",
+      "specialization": "scientist",
+      "row": 5,
+      "column": 2,
+      "originalName": "METICULOSO",
+      "cost": 25,
+      "id": "engineer:scientist:r5c2",
+      "name": "Meticuloso",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 87,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "soldier",
+      "specialization": "commando",
+      "row": 5,
+      "column": 3,
+      "originalName": "IMPARABLE",
+      "cost": 25,
+      "id": "soldier:commando:r5c3",
+      "name": "Imparável",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 91,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "soldier",
+      "specialization": "medic",
+      "row": 5,
+      "column": 3,
+      "originalName": "NO ES PARA TANTO",
+      "cost": 25,
+      "id": "soldier:medic:r5c3",
+      "name": "Não é tão grave",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 92,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "soldier",
+      "specialization": "sharpshooter",
+      "row": 4,
+      "column": 4,
+      "originalName": "GOLPE INCAPACITANTE",
+      "cost": 20,
+      "id": "soldier:sharpshooter:r4c4",
+      "name": "Golpe incapacitante",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 93,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "soldier",
+      "specialization": "sharpshooter",
+      "row": 5,
+      "column": 1,
+      "originalName": "SOLUCIÓN IMPROVISADA",
+      "cost": 25,
+      "id": "soldier:sharpshooter:r5c1",
+      "name": "Solução improvisada",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 93,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "spy",
+      "specialization": "infiltrator",
+      "row": 2,
+      "column": 1,
+      "originalName": "GOLPE CONMOCIONADOR",
+      "cost": 10,
+      "id": "spy:infiltrator:r2c1",
+      "name": "Golpe atordoante",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 97,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "spy",
+      "specialization": "infiltrator",
+      "row": 2,
+      "column": 3,
+      "originalName": "PUNTO DÉBIL",
+      "cost": 10,
+      "id": "spy:infiltrator:r2c3",
+      "name": "Ponto fraco",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 97,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "spy",
+      "specialization": "infiltrator",
+      "row": 4,
+      "column": 3,
+      "originalName": "GOLPE CONMOCIONADOR MEJORADO",
+      "cost": 20,
+      "id": "spy:infiltrator:r4c3",
+      "name": "Golpe atordoante aprimorado",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 97,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "spy",
+      "specialization": "infiltrator",
+      "row": 5,
+      "column": 2,
+      "originalName": "SOLUCIÓN INGENIOSA",
+      "cost": 25,
+      "id": "spy:infiltrator:r5c2",
+      "name": "Solução engenhosa",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 97,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    },
+    {
+      "campaignMode": "AOR",
+      "career": "spy",
+      "specialization": "slicer",
+      "row": 5,
+      "column": 2,
+      "originalName": "PIRATA INFORMÁTICO EXPERTO",
+      "cost": 25,
+      "id": "spy:slicer:r5c2",
+      "name": "Hacker especialista",
+      "source": {
+        "book": "Star Wars - Age of Rebellion - Core Rulebook",
+        "printedPage": 99,
+        "section": "Árvore de talentos"
+      },
+      "purchaseActive": true,
+      "mechanicallyActive": false
+    }
+  ]
+}

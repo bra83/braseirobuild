@@ -1,0 +1,23 @@
+{
+  "version": "1.0.111",
+  "versionCode": 10111,
+  "families": 55,
+  "playable": 31,
+  "playablePct": 56.4,
+  "deterministicEngine": 34,
+  "deterministicPct": 61.8,
+  "tests": {
+    "focal": 24,
+    "global": 1209,
+    "fail": 0,
+    "stress": 6
+  },
+  "bundleModules": 64,
+  "androidExecuted": false,
+  "blocks": [
+    "P108 assassin/combat talents",
+    "P109 passive core talents",
+    "P110 active skill talents",
+    "P111 natural rerolls"
+  ]
+}

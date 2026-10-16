@@ -1,0 +1,2 @@
+import assert from 'node:assert/strict'; import * as r from './recoveryExpansionRegistryR49.mjs';
+const c=r.coverage49(); assert.equal(c.world.nodes,82); assert.equal(c.fleet.mechanicalFleetAfter,114); assert.equal(c.gadgets.mechanicsValidated,63); assert.equal(c.galaxyGraph.major,5); assert.equal(c.galaxyGraph.minor,41); assert.equal(r.prepareTravel49({distance:1,laneClass:'MAJOR'}).status,'PENDING_MASTER'); assert.ok(r.masterSearch49('Hydian').hyperlanes.includes('Hydian Way')); console.log('RECOVERY_R49_MAP 7/7 PASS');

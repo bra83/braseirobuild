@@ -1,0 +1,35 @@
+{
+  "checkpoint": "P199",
+  "sourceVerifiedOn": "2026-10-14",
+  "sources": [
+    {
+      "title": "Edge of the Empire Core Rulebook",
+      "driveFileId": "1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX",
+      "printedPage": 179,
+      "section": "Table 5-8: Gear and Equipment — Security",
+      "facts": [
+        "Restraining Bolt 35 credits, Encumbrance 0, Rarity 0",
+        "Slicer Gear 500 credits, Encumbrance 2, Rarity 4",
+        "Restraining bolt installation requires a few seconds and a spot-welder",
+        "Tool kit explicitly includes restraining bolts and welding tools"
+      ]
+    },
+    {
+      "title": "The Jewel of Yavin",
+      "productCode": "SWE09",
+      "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+      "printedPage": 69,
+      "section": "Banking on a Break, Table 2-1 and Slicing Ahead",
+      "facts": [
+        "Restraining bolt downgrades the Computers check twice",
+        "Electronic signature upgrades subsequent Cloud City slicing until slicer fully replaces tools"
+      ]
+    }
+  ],
+  "coverage": "TARGETED_ONLY",
+  "notCertified": [
+    "all five adventures scene-by-scene",
+    "EotE/AoR/expansions full semantic coverage",
+    "SWE09 bank payout/escape"
+  ]
+}

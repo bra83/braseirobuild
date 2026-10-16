@@ -1,0 +1,8 @@
+patching file app/build.gradle.kts
+patching file app/src/main/assets/vtt/r46-shell.html
+patching file app/src/main/assets/vtt/js/core/controller.mjs
+patching file app/src/main/assets/vtt/js/rules/talents.mjs
+patching file app/src/main/assets/vtt/js/expansion/aorTalentRuntimeAliases.mjs
+patching file app/src/main/assets/vtt/js/core/uiBridge.bundle.js
+patching file tests/uae-p141-aor-tinkerer-inventory.test.mjs
+patching file tests/uae-p144-integrated-atomic-adventures-aor.test.mjs

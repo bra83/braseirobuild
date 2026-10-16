@@ -1,0 +1,16 @@
+{
+  "checkpoint": "P205",
+  "source": "The Jewel of Yavin (SWE09), official PDF on connected Google Drive",
+  "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "printedPage": 90,
+  "section": "Time for a New Plan / Shen's Goons / Arrow-7 Airspeeder, Customized",
+  "verification": "Direct PDF text fetch on 2026-10-14; targeted cross-check, NOT full-book certification",
+  "facts": {
+    "goons": "Four agents of Arend Shen arrive on an airspeeder, at Medium range from the PCs",
+    "groupSkills": ["Brawl", "Coercion", "Gunnery", "Ranged (Heavy)", "Streetwise"],
+    "vehicle": "Arrow-7 Airspeeder, Customized; Aratech Repulsor Company; civilian airspeeder; one pilot; six passengers; encumbrance 20; 12000 credits; rarity 2; 2 hard points",
+    "weapon": "Aft-mounted light repeating blaster; PERSONAL SCALE rather than planetary; damage 11; critical 3; Extreme range; Auto-Fire; Pierce 1"
+  },
+  "implemented": ["GM-confirmed aft firing arc and gunner", "real four-minion Gunnery pool", "weapon selected in NPC initiative slot", "personal-scale damage/soak and Pierce 1 through existing combat engine", "receipt validation and persisted order", "no automatic Auto-Fire"],
+  "notImplemented": ["vehicle hull, armor, handling and speed omitted from extracted text; no invented stats", "vehicle-vs-vehicle chase and movement", "vehicle maneuver and pursuit distances", "full Auto-Fire multi-hit activation", "Arend/Naboka complete endings", "full editorial certification"]
+}

@@ -1,0 +1,22 @@
+# STAR WARS EOTG — P177 verified source gates
+checkpoint=P177
+android_version=1.0.177
+node_regular=PASS files=296 tests=2577 pass=2577 fail=0
+node_stress=PASS files=6 tests=6 pass=6 fail=0
+node_total=PASS files=302 tests=2583 pass=2583 fail=0
+p177_focal=PASS tests=28 pass=28 fail=0
+js_syntax=PASS files=134
+java_syntax=JAVA_SYNTAX_PASS files=8 unresolved_android_symbols=699
+json_parse=PASS files=158
+xml_parse=PASS files=2
+secret_scan=PASS hits=0
+apk_aab_count=0
+bundle=PASS modules=84
+kokoro_java_sources=8/8 SHA256 unchanged from P176
+AoR_mechanical_positions=350/360
+AoR_pending_positions=10
+AoR_semantic_book_certification=NOT_CERTIFIED
+published_adventures=5/5 P177 state integration and three reopenings passed; editorial PDF comparison NOT_CERTIFIED
+universal_adventure_engine=regression tests passed; full semantic book audit NOT_CERTIFIED
+canonical_verifier=INCOMPLETE_TIMEOUT; independent paced runner used for all Node suites
+android_gate=BLOCKED_EXTERNAL sdk=missing adb=missing sdkmanager=missing; APK NOT BUILT

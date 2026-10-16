@@ -1,0 +1,33 @@
+{
+  "checkpoint": "P209",
+  "implemented": [
+    "jewelOfYavin.mjs encounterSpec for published p94 force",
+    "controller.beginJewelHoloParkWingGuard atomic real initiative + Holo-Park entry",
+    "uiBridge.mjs and final-runtime.js explicit PT-BR GM controls",
+    "jewelOfYavinOperations.mjs accepts previously implemented receipt kinds in common validation",
+    "existing P205-P207 version assertions made forward-compatible"
+  ],
+  "persisted": "one save after atomic transaction; combat.publishedAdventureContext, operations.receipts.JEWEL_HOLO_ENTER and operations.holoPark; three reopenings",
+  "safety": [
+    "physical arrival and pursuers GM-confirmed",
+    "existing combat cannot be overwritten",
+    "no invented enemy stats, positions or third-party NPCs",
+    "no automatic XP, time or teleport",
+    "prior P208 standalone entry preserved"
+  ],
+  "javaKokoro": {
+    "unchanged": 8,
+    "total": 8,
+    "identical": true
+  },
+  "version": {
+    "versionName": "1.0.209",
+    "versionCode": 10209,
+    "offlineBundleModules": 103
+  },
+  "limits": [
+    "No SDK/Gradle/adb/APK or physical Android validation",
+    "No GitHub push or CI BRELGA",
+    "No full adventure semantic certification"
+  ]
+}

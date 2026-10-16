@@ -1,0 +1,41 @@
+✔ P148 under-black-sun: preflight semântico de todas as cenas, condições, objetivos e gatilhos (58.7702ms)
+✔ P148 under-black-sun: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução (8.7127ms)
+✔ P148 under-black-sun: cascata cíclica não confirma meia ação, nem recibo ou recompensa (59.5855ms)
+✔ P148 under-black-sun: transação manual com cascata cíclica também reverte (141.0263ms)
+✔ P148 under-black-sun: callback async/thenable não pode contornar rollback (5.6314ms)
+✔ P148 under-black-sun: comando publicado Android salva, reabre e não reaplica no mesmo ID (453.2736ms)
+✔ P148 beyond-the-rim: preflight semântico de todas as cenas, condições, objetivos e gatilhos (8.6811ms)
+✔ P148 beyond-the-rim: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução (29.9722ms)
+✔ P148 beyond-the-rim: cascata cíclica não confirma meia ação, nem recibo ou recompensa (21.6581ms)
+✔ P148 beyond-the-rim: transação manual com cascata cíclica também reverte (7.4509ms)
+✔ P148 beyond-the-rim: callback async/thenable não pode contornar rollback (10.1507ms)
+✔ P148 beyond-the-rim: comando publicado Android salva, reabre e não reaplica no mesmo ID (518.932ms)
+✔ P148 long-arm-of-the-hutt: preflight semântico de todas as cenas, condições, objetivos e gatilhos (2.8989ms)
+✔ P148 long-arm-of-the-hutt: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução (10.0661ms)
+✔ P148 long-arm-of-the-hutt: cascata cíclica não confirma meia ação, nem recibo ou recompensa (13.3846ms)
+✔ P148 long-arm-of-the-hutt: transação manual com cascata cíclica também reverte (7.5441ms)
+✔ P148 long-arm-of-the-hutt: callback async/thenable não pode contornar rollback (6.5799ms)
+✔ P148 long-arm-of-the-hutt: comando publicado Android salva, reabre e não reaplica no mesmo ID (410.7406ms)
+✔ P148 jewel-of-yavin: preflight semântico de todas as cenas, condições, objetivos e gatilhos (1.7538ms)
+✔ P148 jewel-of-yavin: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução (3.0919ms)
+✔ P148 jewel-of-yavin: cascata cíclica não confirma meia ação, nem recibo ou recompensa (23.6699ms)
+✔ P148 jewel-of-yavin: transação manual com cascata cíclica também reverte (6.8731ms)
+✔ P148 jewel-of-yavin: callback async/thenable não pode contornar rollback (2.6708ms)
+✔ P148 jewel-of-yavin: comando publicado Android salva, reabre e não reaplica no mesmo ID (169.3649ms)
+✔ P148 mask-of-the-pirate-queen: preflight semântico de todas as cenas, condições, objetivos e gatilhos (1.8246ms)
+✔ P148 mask-of-the-pirate-queen: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução (12.8166ms)
+✔ P148 mask-of-the-pirate-queen: cascata cíclica não confirma meia ação, nem recibo ou recompensa (17.0766ms)
+✔ P148 mask-of-the-pirate-queen: transação manual com cascata cíclica também reverte (4.6929ms)
+✔ P148 mask-of-the-pirate-queen: callback async/thenable não pode contornar rollback (2.7626ms)
+✔ P148 mask-of-the-pirate-queen: comando publicado Android salva, reabre e não reaplica no mesmo ID (102.9875ms)
+✔ P148: standalone legacy dispatch preserves the explicit cascade cap audit event (9.8073ms)
+✔ P148: unknown semantic condition fails closed rather than opening a branch (5.8306ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6305.2738
+

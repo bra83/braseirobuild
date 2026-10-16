@@ -1,0 +1,11 @@
+{
+  "checkpoint": "P231",
+  "mjs": 534,
+  "jsRuntime": 2,
+  "json": 22,
+  "xml": 2,
+  "bundleModules": 118,
+  "javaKokoroCompared": 8,
+  "javaKokoroIdentical": 8,
+  "errors": []
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-10-16",
+  "overall_status": "IMPLEMENTADO_NAO_CERTIFICADO",
+  "certified_adventures": 0,
+  "adventures": {
+    "SWE02 Long Arm of the Hutt": "IMPLEMENTADO_NAO_CERTIFICADO",
+    "SWEP01 Under a Black Sun": "PENDENTE",
+    "SWE05 Beyond the Rim": "PENDENTE",
+    "SWE09 The Jewel of Yavin": "PENDENTE",
+    "SWE13 Mask of the Pirate Queen": "PENDENTE"
+  },
+  "rules_status": "PENDENTE",
+  "aor_360": {
+    "positions": 360,
+    "certified": 0,
+    "pending": 360,
+    "ledger": "validation/AOR_360_INDIVIDUAL_PROOFS.jsonl"
+  },
+  "drive_inventory": {
+    "records": 527,
+    "folders": 44,
+    "metadata_only_unreviewed": 500
+  },
+  "fresh_regression": {
+    "state": "PASS_WITH_2_EXPLAINED_SKIPS",
+    "files": 376,
+    "regular_files": 370,
+    "stress_files": 6,
+    "tests": 3393,
+    "pass": 3391,
+    "fail": 0,
+    "skip": 2,
+    "failed_files": [],
+    "evidence": "evidence/fresh-regression-20261016/"
+  },
+  "blockers": [
+    "SWE02 source-to-semantic coverage is incomplete across all three acts.",
+    "All 360 AoR positions lack individual source-to-effect, UI, persistence, and test evidence.",
+    "500 Drive inventory items remain metadata-only and unreviewed.",
+    "Four adventures have not been semantically audited and certified in this execution.",
+    "EotE/AoR rules family certification remains outstanding."
+  ],
+  "next_action": "Complete the corrected 376-file regression run, preserve evidence, push the recoverable WIP branch, and continue source-led SWE02 semantic closure."
+}

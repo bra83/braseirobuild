@@ -1,0 +1,14 @@
+{
+  "checkpoint": "P211",
+  "mode": "node --test per-file, regular 4 parallel workers in 35-file batches; stress individual; NOT monolithic",
+  "regularFiles": 330,
+  "stressFiles": 6,
+  "regularTests": 3039,
+  "regularPassed": 3039,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "totalFiles": 336,
+  "totalTests": 3045,
+  "totalPassed": 3045
+}

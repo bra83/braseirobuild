@@ -1,0 +1,15 @@
+{
+  "checkpoint": "P217",
+  "mode": "node --test each test file separately, four nonmonolithic shards",
+  "regularFiles": 336,
+  "stressFiles": 6,
+  "regularTests": 3078,
+  "regularPassed": 3078,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "totalFiles": 342,
+  "totalTests": 3084,
+  "totalPassed": 3084,
+  "focalTests": 9
+}

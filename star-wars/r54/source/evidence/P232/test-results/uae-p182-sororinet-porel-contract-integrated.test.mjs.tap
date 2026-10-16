@@ -1,0 +1,77 @@
+TAP version 13
+# Subtest: P182: semantic preflight, source-specific nodes, Porel and Lathe persistent NPCs
+ok 1 - P182: semantic preflight, source-specific nodes, Porel and Lathe persistent NPCs
+  ---
+  duration_ms: 14.985579
+  type: 'test'
+  ...
+# Subtest: P182: third lead SororiNet is playable only after successful checks
+ok 2 - P182: third lead SororiNet is playable only after successful checks
+  ---
+  duration_ms: 47.224546
+  type: 'test'
+  ...
+# Subtest: P182: SororiNet failure records detection and alert but not fabricated coordinates
+ok 3 - P182: SororiNet failure records detection and alert but not fabricated coordinates
+  ---
+  duration_ms: 15.081342
+  type: 'test'
+  ...
+# Subtest: P182: final capture and alliance cannot bypass encounter adjudication
+ok 4 - P182: final capture and alliance cannot bypass encounter adjudication
+  ---
+  duration_ms: 67.641755
+  type: 'test'
+  ...
+# Subtest: P182: Noira capture leads to Paradise confrontation, not automatic payout
+ok 5 - P182: Noira capture leads to Paradise confrontation, not automatic payout
+  ---
+  duration_ms: 146.303045
+  type: 'test'
+  ...
+# Subtest: P182: siding with Venlana records Consortium retaliation; no Porel bonus
+ok 6 - P182: siding with Venlana records Consortium retaliation; no Porel bonus
+  ---
+  duration_ms: 117.583128
+  type: 'test'
+  ...
+# Subtest: P182: no reward without completed mission; no duplicate award
+ok 7 - P182: no reward without completed mission; no duplicate award
+  ---
+  duration_ms: 131.307335
+  type: 'test'
+  ...
+# Subtest: P182: retainer 500 once, Porel source bounty 10000+1000, no unsupported Obligation reduction
+ok 8 - P182: retainer 500 once, Porel source bounty 10000+1000, no unsupported Obligation reduction
+  ---
+  duration_ms: 190.43286
+  type: 'test'
+  ...
+# Subtest: P182: Venlana doubles source bounty, alliance forfeits payment
+ok 9 - P182: Venlana doubles source bounty, alliance forfeits payment
+  ---
+  duration_ms: 177.619185
+  type: 'test'
+  ...
+# Subtest: P182: bridge uses two groups of three source-checked guards and Noira stat block
+ok 10 - P182: bridge uses two groups of three source-checked guards and Noira stat block
+  ---
+  duration_ms: 73.815806
+  type: 'test'
+  ...
+# Subtest: P182: unknown conditions fail closed and no active encounter can be skipped
+ok 11 - P182: unknown conditions fail closed and no active encounter can be skipped
+  ---
+  duration_ms: 54.013715
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1257.254071
+

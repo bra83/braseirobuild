@@ -1,0 +1,107 @@
+TAP version 13
+# Subtest: P190 R3-8C Streetwise/Negotiation dice and 500-1000 GM price are real and durable
+ok 1 - P190 R3-8C Streetwise/Negotiation dice and 500-1000 GM price are real and durable
+  ---
+  duration_ms: 91.611909
+  type: 'test'
+  ...
+# Subtest: P190 Naboka has source-backed Intellect 4/Computers 5 and minimum 2000
+ok 2 - P190 Naboka has source-backed Intellect 4/Computers 5 and minimum 2000
+  ---
+  duration_ms: 20.010039
+  type: 'test'
+  ...
+# Subtest: P190 GM price outside official NPC bounds is rejected atomically
+ok 3 - P190 GM price outside official NPC bounds is rejected atomically
+  ---
+  duration_ms: 71.465273
+  type: 'test'
+  ...
+# Subtest: P190 failed Streetwise search does not pay or create hired slicer
+ok 4 - P190 failed Streetwise search does not pay or create hired slicer
+  ---
+  duration_ms: 30.026401
+  type: 'test'
+  ...
+# Subtest: P190 no GM confirmation or Port Town contact: atomic rejection
+ok 5 - P190 no GM confirmation or Port Town contact: atomic rejection
+  ---
+  duration_ms: 38.095976
+  type: 'test'
+  ...
+# Subtest: P190 insufficient funds prevents a hire without committing dice/credits
+ok 6 - P190 insufficient funds prevents a hire without committing dice/credits
+  ---
+  duration_ms: 19.433312
+  type: 'test'
+  ...
+# Subtest: P190 duplicate hire or reused action ID cannot double debit
+ok 7 - P190 duplicate hire or reused action ID cannot double debit
+  ---
+  duration_ms: 25.094915
+  type: 'test'
+  ...
+# Subtest: P190 hired slicer actually rolls bank Computers 3/3 and retains NPC identity in receipt
+ok 8 - P190 hired slicer actually rolls bank Computers 3/3 and retains NPC identity in receipt
+  ---
+  duration_ms: 510.051908
+  type: 'test'
+  ...
+# Subtest: P190 Naboka uses 4/5 instead of the player stats for slicing
+ok 9 - P190 Naboka uses 4/5 instead of the player stats for slicing
+  ---
+  duration_ms: 448.179465
+  type: 'test'
+  ...
+# Subtest: P190 NPC slicing without prior hiring is rejected without mutation
+ok 10 - P190 NPC slicing without prior hiring is rejected without mutation
+  ---
+  duration_ms: 253.313978
+  type: 'test'
+  ...
+# Subtest: P190 forged hire price, NPC stats, rolls, identity or missing hire receipt fail status
+ok 11 - P190 forged hire price, NPC stats, rolls, identity or missing hire receipt fail status
+  ---
+  duration_ms: 471.355049
+  type: 'test'
+  ...
+# Subtest: P190 three reopens preserve hire payment, source stats and bank receipt
+ok 12 - P190 three reopens preserve hire payment, source stats and bank receipt
+  ---
+  duration_ms: 479.338461
+  type: 'test'
+  ...
+# Subtest: P190 P189 legacy saves without hired slicers remain valid
+ok 13 - P190 P189 legacy saves without hired slicers remain valid
+  ---
+  duration_ms: 351.25932
+  type: 'test'
+  ...
+# Subtest: P190 no hiring after slicing started and NPC never applies to G-100 capture
+ok 14 - P190 no hiring after slicing started and NPC never applies to G-100 capture
+  ---
+  duration_ms: 338.529272
+  type: 'test'
+  ...
+# Subtest: P190 Android WebView bridge and PT-BR panel expose hiring and explicit NPC slicing choice
+ok 15 - P190 Android WebView bridge and PT-BR panel expose hiring and explicit NPC slicing choice
+  ---
+  duration_ms: 75.510667
+  type: 'test'
+  ...
+# Subtest: P190 receipt cannot pretend an R3 negotiation took place after failed Streetwise discovery
+ok 16 - P190 receipt cannot pretend an R3 negotiation took place after failed Streetwise discovery
+  ---
+  duration_ms: 39.286436
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3715.517854
+

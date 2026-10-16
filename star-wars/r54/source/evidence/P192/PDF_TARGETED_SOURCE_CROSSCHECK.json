@@ -1,0 +1,14 @@
+{
+  "checkpoint": "P192",
+  "source": {"title":"The Jewel of Yavin", "driveFileId":"1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K", "pdfPage":70, "printedPage":69, "section":"Table 2-1: Spending symbols during the slicing check", "method":"Google Drive PDF text fetched directly during this run"},
+  "verifiedOutcomes": [
+    {"symbols":"1 Advantage", "effect":"one Boost die on later attempt", "implementedSince":"P191"},
+    {"symbols":"2 Advantages", "effect":"one positive upgrade on later attempt", "implementedSince":"P191"},
+    {"symbols":"3 Advantages or Triumph", "effect":"one additional bidder account, conditional +10000 final payout; at least one uncanceled success", "implementedSince":"P192", "boundary":"entitlement only, no credits paid"},
+    {"symbols":"1 Threat", "effect":"one strain on slicer, cannot exceed strain threshold", "implementedSince":"P192", "boundary":"real player slicer only; NPC strain pending validated sheet"},
+    {"symbols":"2 Threats", "effect":"15 additional minutes of slicing", "implementedSince":"P191"},
+    {"symbols":"3 Threats or Despair", "effect":"Wing Guard team sized to PCs, within four hours; duplicate selection adds team or reduces ETA by one hour", "implementedSince":"P192", "boundary":"scheduled/persisted; NPC encounter not spawned automatically"},
+    {"symbols":"Despair", "effect":"captured electronic signature upgrades subsequent Cloud City slicing until tools replaced", "implementedSince":"P192", "boundary":"G-100 follow-up slicing only; global application and tool replacement pending"}
+  ],
+  "certification":"targeted source crosscheck only; five-adventure full scene-by-scene certification pending"
+}

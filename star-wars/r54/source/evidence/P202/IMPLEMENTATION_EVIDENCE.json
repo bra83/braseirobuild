@@ -1,0 +1,13 @@
+{
+  "checkpoint":"P202",
+  "changes":[
+    "jewelEscapeImpact.mjs: receipt-backed blast damage uses existing health.applyDamage and real soak; short/medium fall uses official Table 6-9 and actual dice for damage/strain reduction; GM confirms fall band",
+    "controller+bridge+Android PTBR: impact actions update CHARACTER_UPDATED and WORLD_UPDATED atomically; no duplicate damage; three reopenings tested",
+    "jewelOfYavin.mjs: four source-backed Shen's Goons now available as actual encounter after bomb consequences; 4 minions at Medium range; cannot bypass unresolved impact or encounter",
+    "adversaries.mjs: official goons profile cross-checked against NPC card and SWE09",
+    "jewelOfYavinOperations.mjs: receipt whitelist extended to JEWEL_ESCAPE_IMPACT",
+    "versionName 1.0.202, versionCode 10202, offline bundle 98 modules; 8 Java files identical to P201"
+  ],
+  "limitations":["Only player character blast/fall, no companion multi-target damage", "Long/Extreme require separate critical adjudication", "Goons combat encounter integrated but complete aerial chase not implemented", "No APK/Gradle/adb/CI/BRELGA/homologation"],
+  "evidenceFiles":["TEST_SUMMARY.json","PER_FILE_RESULTS.json","SYNTAX_AND_JAVA.json","PDF_TARGETED_SOURCE_CROSSCHECK.json"]
+}

@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: P62: encontro inexistente não pode contaminar o estado persistente
+ok 1 - P62: encontro inexistente não pode contaminar o estado persistente
+  ---
+  duration_ms: 4.744226
+  type: 'test'
+  ...
+# Subtest: P62: resultado de encontro de outra cena é rejeitado
+ok 2 - P62: resultado de encontro de outra cena é rejeitado
+  ---
+  duration_ms: 1.825101
+  type: 'test'
+  ...
+# Subtest: P62: confronto final válido ainda persiste e libera desfecho
+ok 3 - P62: confronto final válido ainda persiste e libera desfecho
+  ---
+  duration_ms: 4.472665
+  type: 'test'
+  ...
+# Subtest: P62: encontro já resolvido não pode ser reaberto e duplicado
+ok 4 - P62: encontro já resolvido não pode ser reaberto e duplicado
+  ---
+  duration_ms: 2.332849
+  type: 'test'
+  ...
+# Subtest: P63: save/reopen preserva encontro publicado ativo e impede avanço de cena concorrente
+ok 5 - P63: save/reopen preserva encontro publicado ativo e impede avanço de cena concorrente
+  ---
+  duration_ms: 243.246069
+  type: 'test'
+  ...
+# Subtest: P63: finishCombat valida contexto antes de salvar e não deixa estado parcial em divergência
+ok 6 - P63: finishCombat valida contexto antes de salvar e não deixa estado parcial em divergência
+  ---
+  duration_ms: 228.581008
+  type: 'test'
+  ...
+# Subtest: P63: combate retomado após reopen conclui uma vez, recompensa uma vez e transita ao mundo livre sem perder MIXED/Duty/Obligation
+ok 7 - P63: combate retomado após reopen conclui uma vez, recompensa uma vez e transita ao mundo livre sem perder MIXED/Duty/Obligation
+  ---
+  duration_ms: 287.572238
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 861.038849

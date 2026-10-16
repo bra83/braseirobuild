@@ -1,0 +1,15 @@
+{
+  "checkpoint": "P226",
+  "mode": "node --test invoked individually for every test file; regular tests in worker shards, six stress separate; no monolithic suite",
+  "regularFiles": 345,
+  "regularTests": 3150,
+  "regularPassed": 3150,
+  "stressFiles": 6,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "totalFiles": 351,
+  "totalTests": 3156,
+  "totalPassed": 3156,
+  "focalTests": 9,
+  "failedFiles": []
+}

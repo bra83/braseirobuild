@@ -1,0 +1,39 @@
+{
+  "status": "P9_TTS_LIVING_WORLD_CODE_COMPLETE",
+  "baseline": "R54_P8_SEMANTIC_CLOSURE",
+  "tts": {
+    "androidChunked": true,
+    "androidQueueAdd": true,
+    "queueDuringInitialization": true,
+    "geminiDedicatedExecutor": true,
+    "geminiFirstChunkChars": 420,
+    "geminiFollowingChunkChars": 850,
+    "geminiPlayWhileGeneratingFollowingChunks": true,
+    "webSpeechChunked": true
+  },
+  "livingWorld": {
+    "architectureReference": "Braseiro DnD functional living-world patch",
+    "starWarsAdaptation": true,
+    "persistentNpcMemory": true,
+    "npcRelationships": true,
+    "npcCommitments": true,
+    "npcWealth": true,
+    "npcAutonomousActivity": true,
+    "npcTravel": true,
+    "npcAgingAndMortality": true,
+    "weather": true,
+    "timeOfDay": true,
+    "marketPressure": true,
+    "factionDiplomacy": true,
+    "treatiesAndWars": true,
+    "barbaraContextIntegration": true,
+    "playerCreditsAutoMutation": false
+  },
+  "validation": {
+    "focusedTests": {"pass": 46, "fail": 0},
+    "regularNodeTests": {"pass": 769, "fail": 0},
+    "stressSuites": "PENDING_SEPARATE_LONG_RUN",
+    "androidBuild": "NOT_RUN_NO_ANDROID_SDK",
+    "physicalTts": "REQUIRES_DEVICE_AND_GEMINI_KEY"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "checkpoint": "P193",
+  "baseline": "P192",
+  "executionMode": "node --test one file per invocation; regular parallel 6, stress sequential; NOT monolithic",
+  "regularFiles": 312,
+  "regularTests": 2846,
+  "regularPassed": 2846,
+  "stressFiles": 6,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "totalFiles": 318,
+  "totalTests": 2852,
+  "totalPassed": 2852,
+  "failedFiles": [],
+  "newFocalFile": "tests/uae-p193-jewel-wing-guard-arrival.test.mjs",
+  "newFocalTests": 14,
+  "syntax": {
+    "mjs": 125,
+    "json": 22,
+    "xml": 2,
+    "failures": 0
+  },
+  "bundleModules": 91,
+  "androidVersion": "1.0.193",
+  "javaFilesByteIdentical": 8,
+  "limitations": [
+    "No monolithic test run",
+    "No Gradle/SDK/adb/CI or physical Android APK",
+    "No full editorial semantic certification"
+  ]
+}

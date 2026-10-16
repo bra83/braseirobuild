@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: P96 qualidades passivas: Imprecisa, Aparatosa, Desajeitada, Defensiva e Deflexão produzem modificadores source-bound
+ok 1 - P96 qualidades passivas: Imprecisa, Aparatosa, Desajeitada, Defensiva e Deflexão produzem modificadores source-bound
+  ---
+  duration_ms: 1.626496
+  type: 'test'
+  ...
+# Subtest: P96 ataque real aplica Imprecisa/Aparatosa/Desajeitada ao pool, não apenas metadados
+ok 2 - P96 ataque real aplica Imprecisa/Aparatosa/Desajeitada ao pool, não apenas metadados
+  ---
+  duration_ms: 30.737978
+  type: 'test'
+  ...
+# Subtest: P96 Preparação exige manobras reais, persiste e é consumida no ataque
+ok 3 - P96 Preparação exige manobras reais, persiste e é consumida no ataque
+  ---
+  duration_ms: 8.926921
+  type: 'test'
+  ...
+# Subtest: P96 Munição Limitada conta disparos e recarga consome item realmente possuído
+ok 4 - P96 Munição Limitada conta disparos e recarga consome item realmente possuído
+  ---
+  duration_ms: 10.738777
+  type: 'test'
+  ...
+# Subtest: P96 Cadência Lenta impede disparo pelos assaltos exigidos
+ok 5 - P96 Cadência Lenta impede disparo pelos assaltos exigidos
+  ---
+  duration_ms: 7.326515
+  type: 'test'
+  ...
+# Subtest: P96 ataque veicular real cria Critical Hit pendente e ativação grava crítico no alvo
+ok 6 - P96 ataque veicular real cria Critical Hit pendente e ativação grava crítico no alvo
+  ---
+  duration_ms: 7.168775
+  type: 'test'
+  ...
+# Subtest: P96 Critical Hit que exige componente preserva o mesmo d100 até a escolha
+ok 7 - P96 Critical Hit que exige componente preserva o mesmo d100 até a escolha
+  ---
+  duration_ms: 4.646937
+  type: 'test'
+  ...
+# Subtest: P96 bridge expõe apenas ativação de crítico pendente do ataque, não criação arbitrária
+ok 8 - P96 bridge expõe apenas ativação de crítico pendente do ataque, não criação arbitrária
+  ---
+  duration_ms: 5.709072
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 299.338594

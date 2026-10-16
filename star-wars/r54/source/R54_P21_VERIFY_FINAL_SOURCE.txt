@@ -1,0 +1,4 @@
+# STAR WARS EOTG — verificação reproduzível
+timestamp=2026-09-19T06:31:25.123Z
+stress_file=PASS file=tests/stress-33-aftermath-r20.test.mjs pass=1
+stress_file=PASS file=tests/stress-33-faction-plan-r19.test.mjs pass=1

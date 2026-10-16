@@ -1,0 +1,15 @@
+{
+  "checkpoint": "P143",
+  "base": "P142",
+  "newTests": 31,
+  "regular": {"passed": 1617, "total": 1617, "files": 257},
+  "stress": {"passed": 6, "total": 6, "files": 6},
+  "kokoroTts": {"passed": 27, "total": 27, "androidPlaybackCertified": false},
+  "adventureCount": 5,
+  "durableActionsStress": 600,
+  "offlineBundleModules": 77,
+  "aorMechanics": {"implementedPositions": 215, "totalPositions": 360},
+  "pdfCertified": false,
+  "apkBuilt": false,
+  "androidDeviceCertified": false
+}

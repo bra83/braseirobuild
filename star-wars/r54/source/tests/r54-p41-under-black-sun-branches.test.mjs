@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createWorld} from '../app/src/main/assets/vtt/js/world/world.mjs';
+import {startUnderBlackSun,advanceUnderBlackSun,underBlackSunStatus} from '../app/src/main/assets/vtt/js/adventure/underBlackSun.mjs';
+const step=(w,id)=>advanceUnderBlackSun(w,id).world;
+function hub(){let w=startUnderBlackSun(createWorld()).world;w=step(w,'escape-clean');return step(w,'begin-investigation')}
+test('P41 Umbra oferece rota social sem combate e persiste abordagem',()=>{let w=hub();w=step(w,'go-umbra');w=step(w,'umbra-talk');assert.equal(w.publishedAdventure.currentNodeId,'umbra-social');w=step(w,'umbra-social-clean');assert.equal(w.publishedAdventure.flags.umbraQuiet,true);assert.equal(w.publishedAdventure.flags.kaatoAlerted,undefined)});
+test('P41 Spyder oferece infiltração por sabacc e pode manter Black Sun fora',()=>{let w=hub();w=step(w,'go-spyder');w=step(w,'spyder-table');assert.equal(w.publishedAdventure.currentNodeId,'spyder-sabacc');w=step(w,'spyder-sabacc-quiet');assert.equal(w.publishedAdventure.flags.spyderQuiet,true);assert.equal(w.publishedAdventure.flags.blackSunAgainstKaato,undefined)});
+test('P41 Zelcomm oferece engenharia social sem roubo/Obligation',()=>{let w=hub();w=step(w,'go-zelcomm');w=step(w,'zelcomm-social');assert.equal(w.publishedAdventure.currentNodeId,'zelcomm-frontdesk');w=step(w,'zelcomm-contract');assert.equal(w.publishedAdventure.flags.zelcommQuiet,true);assert.equal(w.publishedAdventure.flags.weaponsTaken,undefined);assert.equal(w.publishedAdventure.flags.obligationPendingDelta,undefined)});
+test('P41 status do jogador filtra consequências ocultas',()=>{let w=hub();w.pendingWorldConsequences=[{id:'a',adventureId:'under-black-sun',playerKnown:true,summary:'visível',status:'pending'},{id:'b',adventureId:'under-black-sun',playerKnown:false,summary:'SEGREDO KAA',status:'pending'},{id:'c',adventureId:'other',playerKnown:true,summary:'outra',status:'pending'}];const s=underBlackSunStatus(w);assert.deepEqual(s.knownConsequences.map(x=>x.id),['a']);assert.doesNotMatch(JSON.stringify(s),/SEGREDO KAA/)});
+test('P41 mantém campanha publicada EOTE/MIXED',()=>{const s=underBlackSunStatus(createWorld());assert.deepEqual(s.catalog.campaignModes,['EOTE','MIXED'])});

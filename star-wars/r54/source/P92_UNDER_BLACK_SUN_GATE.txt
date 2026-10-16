@@ -1,0 +1,646 @@
+TAP version 13
+# Subtest: P33: catálogo preserva EotE/MIXED e não oferece aventura EotE pura em AoR
+ok 1 - P33: catálogo preserva EotE/MIXED e não oferece aventura EotE pura em AoR
+  ---
+  duration_ms: 3.844379
+  type: 'test'
+  ...
+# Subtest: P33: início é PT-BR, persistente e não revela nós futuros ao jogador
+ok 2 - P33: início é PT-BR, persistente e não revela nós futuros ao jogador
+  ---
+  duration_ms: 9.763725
+  type: 'test'
+  ...
+# Subtest: P33: Episódio II aceita investigação em qualquer ordem e só libera desfecho após 2 linhas
+ok 3 - P33: Episódio II aceita investigação em qualquer ordem e só libera desfecho após 2 linhas
+  ---
+  duration_ms: 7.829122
+  type: 'test'
+  ...
+# Subtest: P33: flags de consequências persistem até o Episódio III e epílogo
+ok 4 - P33: flags de consequências persistem até o Episódio III e epílogo
+  ---
+  duration_ms: 18.0496
+  type: 'test'
+  ...
+# Subtest: P33: recompensa fica registrada e não reseta ao reiniciar a aventura na mesma campanha
+ok 5 - P33: recompensa fica registrada e não reseta ao reiniciar a aventura na mesma campanha
+  ---
+  duration_ms: 1.707537
+  type: 'test'
+  ...
+# Subtest: P33: UI oferece aventura publicada separada do mundo livre e bridge expõe contrato
+ok 6 - P33: UI oferece aventura publicada separada do mundo livre e bridge expõe contrato
+  ---
+  duration_ms: 7.363775
+  type: 'test'
+  ...
+# Subtest: P34: checks da aventura expõem pool mecânico sem revelar destinos
+ok 7 - P34: checks da aventura expõem pool mecânico sem revelar destinos
+  ---
+  duration_ms: 1.775195
+  type: 'test'
+  ...
+# Subtest: P34: Advantage/Threat/Triumph/Despair alimentam consequência persistente e relógio de alerta
+ok 8 - P34: Advantage/Threat/Triumph/Despair alimentam consequência persistente e relógio de alerta
+  ---
+  duration_ms: 4.229988
+  type: 'test'
+  ...
+# Subtest: P34: controller e bridge ligam teste publicado ao resolvedor narrativo real
+ok 9 - P34: controller e bridge ligam teste publicado ao resolvedor narrativo real
+  ---
+  duration_ms: 3.321538
+  type: 'test'
+  ...
+# Subtest: P36: save P35 sem systems migra sem resetar nó, flags ou histórico
+ok 10 - P36: save P35 sem systems migra sem resetar nó, flags ou histórico
+  ---
+  duration_ms: 11.654809
+  type: 'test'
+  ...
+# Subtest: P36: perseguição usa consequência narrativa persistente e superfície anti-spoiler
+ok 11 - P36: perseguição usa consequência narrativa persistente e superfície anti-spoiler
+  ---
+  duration_ms: 12.391304
+  type: 'test'
+  ...
+# Subtest: P36: sabacc acumula rodadas e créditos de modo persistente
+ok 12 - P36: sabacc acumula rodadas e créditos de modo persistente
+  ---
+  duration_ms: 4.993478
+  type: 'test'
+  ...
+# Subtest: P36: Zelcomm entra em lockdown e NovaCORE pode escalar risco + Tensão
+ok 13 - P36: Zelcomm entra em lockdown e NovaCORE pode escalar risco + Tensão
+  ---
+  duration_ms: 7.852251
+  type: 'test'
+  ...
+# Subtest: P36: perfis Black Sun e Kaa’to existem na autoridade de combate usada pelo controller
+ok 14 - P36: perfis Black Sun e Kaa’to existem na autoridade de combate usada pelo controller
+  ---
+  duration_ms: 5.828694
+  type: 'test'
+  ...
+# Subtest: P36: controller inicia encontro publicado e grava desfecho persistente
+ok 15 - P36: controller inicia encontro publicado e grava desfecho persistente
+  ---
+  duration_ms: 45.020436
+  type: 'test'
+  ...
+# Subtest: P36: Kaa’to usa NPC do mundo, persiste incapacitação e não reaparece íntegro
+ok 16 - P36: Kaa’to usa NPC do mundo, persiste incapacitação e não reaparece íntegro
+  ---
+  duration_ms: 86.644991
+  type: 'test'
+  ...
+# Subtest: P36: consequência de sabacc atinge créditos reais do personagem pelo controller
+ok 17 - P36: consequência de sabacc atinge créditos reais do personagem pelo controller
+  ---
+  duration_ms: 23.011954
+  type: 'test'
+  ...
+# Subtest: P36: mantém gate EotE/MIXED e não converte Duty/Obligation entre linhas
+ok 18 - P36: mantém gate EotE/MIXED e não converte Duty/Obligation entre linhas
+  ---
+  duration_ms: 10.417501
+  type: 'test'
+  ...
+# Subtest: P36: runtime e bridge expõem sistemas/encontro sem revelar especificação futura
+ok 19 - P36: runtime e bridge expõem sistemas/encontro sem revelar especificação futura
+  ---
+  duration_ms: 4.793007
+  type: 'test'
+  ...
+# Subtest: P37: epílogo persiste destino de Kaa’to e consequências de facções sem spoiler antecipado
+ok 20 - P37: epílogo persiste destino de Kaa’to e consequências de facções sem spoiler antecipado
+  ---
+  duration_ms: 8.60301
+  type: 'test'
+  ...
+# Subtest: P37: roubo Zelcomm adiciona Obligation antes da recompensa e mantém Duty separado
+ok 21 - P37: roubo Zelcomm adiciona Obligation antes da recompensa e mantém Duty separado
+  ---
+  duration_ms: 133.59291
+  type: 'test'
+  ...
+# Subtest: P39: epílogo integra consequências ao Mundo Vivo somente após o desfecho
+ok 22 - P39: epílogo integra consequências ao Mundo Vivo somente após o desfecho
+  ---
+  duration_ms: 9.066215
+  type: 'test'
+  ...
+# Subtest: P39: Kaa’to morto sincroniza estado profundo e não cria plano de retorno
+ok 23 - P39: Kaa’to morto sincroniza estado profundo e não cria plano de retorno
+  ---
+  duration_ms: 8.746471
+  type: 'test'
+  ...
+# Subtest: P41 Umbra oferece rota social sem combate e persiste abordagem
+ok 24 - P41 Umbra oferece rota social sem combate e persiste abordagem
+  ---
+  duration_ms: 13.52165
+  type: 'test'
+  ...
+# Subtest: P41 Spyder oferece infiltração por sabacc e pode manter Black Sun fora
+ok 25 - P41 Spyder oferece infiltração por sabacc e pode manter Black Sun fora
+  ---
+  duration_ms: 2.433303
+  type: 'test'
+  ...
+# Subtest: P41 Zelcomm oferece engenharia social sem roubo/Obligation
+ok 26 - P41 Zelcomm oferece engenharia social sem roubo/Obligation
+  ---
+  duration_ms: 4.212889
+  type: 'test'
+  ...
+# Subtest: P41 status do jogador filtra consequências ocultas
+ok 27 - P41 status do jogador filtra consequências ocultas
+  ---
+  duration_ms: 3.934373
+  type: 'test'
+  ...
+# Subtest: P41 mantém campanha publicada EOTE/MIXED
+ok 28 - P41 mantém campanha publicada EOTE/MIXED
+  ---
+  duration_ms: 0.23001
+  type: 'test'
+  ...
+# Subtest: P42 NPC só é revelado quando entra em cena e card não contém fatos futuros
+ok 29 - P42 NPC só é revelado quando entra em cena e card não contém fatos futuros
+  ---
+  duration_ms: 12.423366
+  type: 'test'
+  ...
+# Subtest: P42 solução discreta no Umbra vira memória/relação persistente
+ok 30 - P42 solução discreta no Umbra vira memória/relação persistente
+  ---
+  duration_ms: 12.183738
+  type: 'test'
+  ...
+# Subtest: P42 Spyder discreto preserva relação de Fenn
+ok 31 - P42 Spyder discreto preserva relação de Fenn
+  ---
+  duration_ms: 6.450375
+  type: 'test'
+  ...
+# Subtest: P42 Zelcomm social melhora relação sem armas/Obligation
+ok 32 - P42 Zelcomm social melhora relação sem armas/Obligation
+  ---
+  duration_ms: 7.120935
+  type: 'test'
+  ...
+# Subtest: P46: grafo publicado não tem destinos quebrados e só o epílogo é terminal
+ok 33 - P46: grafo publicado não tem destinos quebrados e só o epílogo é terminal
+  ---
+  duration_ms: 1.870952
+  type: 'test'
+  ...
+# Subtest: P46: rota NovaCORE muda a apresentação sem revelar rota não escolhida
+ok 34 - P46: rota NovaCORE muda a apresentação sem revelar rota não escolhida
+  ---
+  duration_ms: 19.867171
+  type: 'test'
+  ...
+# Subtest: P46: negociação final permite concluir sem combate somente após teste bem-sucedido
+ok 35 - P46: negociação final permite concluir sem combate somente após teste bem-sucedido
+  ---
+  duration_ms: 15.82145
+  type: 'test'
+  ...
+# Subtest: P46: combate final não permite escolher destino antes do encontro e preparação altera abertura
+ok 36 - P46: combate final não permite escolher destino antes do encontro e preparação altera abertura
+  ---
+  duration_ms: 8.535659
+  type: 'test'
+  ...
+# Subtest: P46: playthrough controller fecha missão, persiste recompensa e continua no sandbox sem apagar MIXED/Duty
+ok 37 - P46: playthrough controller fecha missão, persiste recompensa e continua no sandbox sem apagar MIXED/Duty
+  ---
+  duration_ms: 478.463926
+  type: 'test'
+  ...
+# Subtest: P46: UI diferencia bloqueio ativo de missão concluída e oferece continuar no mundo livre
+ok 38 - P46: UI diferencia bloqueio ativo de missão concluída e oferece continuar no mundo livre
+  ---
+  duration_ms: 3.378505
+  type: 'test'
+  ...
+# Subtest: P47: ações sugeridas ao Mestre respeitam gating e não vazam opções futuras
+ok 39 - P47: ações sugeridas ao Mestre respeitam gating e não vazam opções futuras
+  ---
+  duration_ms: 16.527304
+  type: 'test'
+  ...
+# Subtest: P47: rota escritórios só oferece testes coerentes e preserva índices canônicos
+ok 40 - P47: rota escritórios só oferece testes coerentes e preserva índices canônicos
+  ---
+  duration_ms: 9.306459
+  type: 'test'
+  ...
+# Subtest: P47: rota refinaria remove teste de Computadores e mantém Frieza no índice original
+ok 41 - P47: rota refinaria remove teste de Computadores e mantém Frieza no índice original
+  ---
+  duration_ms: 3.355175
+  type: 'test'
+  ...
+# Subtest: P49: save/reopen preserva rota NovaCORE e projeção dinâmica sem spoiler
+ok 42 - P49: save/reopen preserva rota NovaCORE e projeção dinâmica sem spoiler
+  ---
+  duration_ms: 16.970377
+  type: 'test'
+  ...
+# Subtest: P49: save/reopen preserva investigação, flags e nó atual
+ok 43 - P49: save/reopen preserva investigação, flags e nó atual
+  ---
+  duration_ms: 6.401719
+  type: 'test'
+  ...
+# Subtest: P49: desfechos do showdown continuam mutuamente exclusivos após reopen
+ok 44 - P49: desfechos do showdown continuam mutuamente exclusivos após reopen
+  ---
+  duration_ms: 6.357106
+  type: 'test'
+  ...
+# Subtest: P49: consequência de epílogo não duplica ao reabrir estado concluído
+ok 45 - P49: consequência de epílogo não duplica ao reabrir estado concluído
+  ---
+  duration_ms: 11.08561
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva rota social Umbra e não revela pistas futuras
+ok 46 - P50: reopen preserva rota social Umbra e não revela pistas futuras
+  ---
+  duration_ms: 15.996172
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva sabacc discreto no Spyder e não inventa Black Sun hostil
+ok 47 - P50: reopen preserva sabacc discreto no Spyder e não inventa Black Sun hostil
+  ---
+  duration_ms: 5.125723
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva solução social Zelcomm sem armas nem Obligation
+ok 48 - P50: reopen preserva solução social Zelcomm sem armas nem Obligation
+  ---
+  duration_ms: 4.913247
+  type: 'test'
+  ...
+# Subtest: P50: negociação com Kaa’to persiste após reopen e mantém rendição desbloqueada
+ok 49 - P50: negociação com Kaa’to persiste após reopen e mantém rendição desbloqueada
+  ---
+  duration_ms: 7.713121
+  type: 'test'
+  ...
+# Subtest: P55: journal de cenas nasce vazio e registra escolhas sem conteúdo futuro
+ok 50 - P55: journal de cenas nasce vazio e registra escolhas sem conteúdo futuro
+  ---
+  duration_ms: 14.14279
+  type: 'test'
+  ...
+# Subtest: P55: journal persiste após reopen e conserva a rota tomada
+ok 51 - P55: journal persiste após reopen e conserva a rota tomada
+  ---
+  duration_ms: 8.624924
+  type: 'test'
+  ...
+# Subtest: P55: progresso legado sem sceneJournal migra sem quebrar status
+ok 52 - P55: progresso legado sem sceneJournal migra sem quebrar status
+  ---
+  duration_ms: 0.942105
+  type: 'test'
+  ...
+# Subtest: P55: journal público não expõe effects internos
+ok 53 - P55: journal público não expõe effects internos
+  ---
+  duration_ms: 0.736071
+  type: 'test'
+  ...
+# Subtest: P56: painel publicado renderiza timeline compacta a partir do sceneJournal público
+ok 54 - P56: painel publicado renderiza timeline compacta a partir do sceneJournal público
+  ---
+  duration_ms: 1.702514
+  type: 'test'
+  ...
+# Subtest: P56: timeline mostra somente choiceLabel e destino já projetados, sem effects internos
+ok 55 - P56: timeline mostra somente choiceLabel e destino já projetados, sem effects internos
+  ---
+  duration_ms: 0.600972
+  type: 'test'
+  ...
+# Subtest: P56: timeline mobile tem truncamento e tipografia compacta
+ok 56 - P56: timeline mobile tem truncamento e tipografia compacta
+  ---
+  duration_ms: 0.520105
+  type: 'test'
+  ...
+# Subtest: P56: journal fornece títulos somente das cenas visitadas para a timeline
+ok 57 - P56: journal fornece títulos somente das cenas visitadas para a timeline
+  ---
+  duration_ms: 11.927613
+  type: 'test'
+  ...
+# Subtest: P57: falhas reais na NovaCORE persistem e pioram a abertura do confronto
+ok 58 - P57: falhas reais na NovaCORE persistem e pioram a abertura do confronto
+  ---
+  duration_ms: 19.844012
+  type: 'test'
+  ...
+# Subtest: P57: consequência de falhas industriais sobrevive até o estado persistente do epílogo
+ok 59 - P57: consequência de falhas industriais sobrevive até o estado persistente do epílogo
+  ---
+  duration_ms: 17.593133
+  type: 'test'
+  ...
+# Subtest: P58: fluxo real inicia Sob um Sol Negro em EotE e abre a primeira cena jogável
+ok 60 - P58: fluxo real inicia Sob um Sol Negro em EotE e abre a primeira cena jogável
+  ---
+  duration_ms: 306.875935
+  type: 'test'
+  ...
+# Subtest: P58: entrada inicial não bloqueia criação de personagem e oferece quick start da aventura
+ok 61 - P58: entrada inicial não bloqueia criação de personagem e oferece quick start da aventura
+  ---
+  duration_ms: 2.765026
+  type: 'test'
+  ...
+# Subtest: P60: tracker público começa em PT-BR sem spoiler futuro
+ok 62 - P60: tracker público começa em PT-BR sem spoiler futuro
+  ---
+  duration_ms: 9.282667
+  type: 'test'
+  ...
+# Subtest: P60: tracker acompanha investigação e gating sem revelar conteúdo não visitado
+ok 63 - P60: tracker acompanha investigação e gating sem revelar conteúdo não visitado
+  ---
+  duration_ms: 8.957141
+  type: 'test'
+  ...
+# Subtest: P60: tracker persiste após serialização e não altera flags de regras
+ok 64 - P60: tracker persiste após serialização e não altera flags de regras
+  ---
+  duration_ms: 1.373528
+  type: 'test'
+  ...
+# Subtest: P61: sessão renderiza tracker público com objetivo, investigação e pressão
+ok 65 - P61: sessão renderiza tracker público com objetivo, investigação e pressão
+  ---
+  duration_ms: 1.779467
+  type: 'test'
+  ...
+# Subtest: P61: superfície de sessão usa tracker anti-spoiler em vez de flags internas
+ok 66 - P61: superfície de sessão usa tracker anti-spoiler em vez de flags internas
+  ---
+  duration_ms: 0.716939
+  type: 'test'
+  ...
+# Subtest: P61: ações essenciais aparecem antes dos detalhes secundários
+ok 67 - P61: ações essenciais aparecem antes dos detalhes secundários
+  ---
+  duration_ms: 0.379746
+  type: 'test'
+  ...
+# Subtest: P61: layout 415x915 mantém alvos touch grandes e tracker compacto
+ok 68 - P61: layout 415x915 mantém alvos touch grandes e tracker compacto
+  ---
+  duration_ms: 0.365481
+  type: 'test'
+  ...
+# Subtest: P61: tracker pós-investigação continua sem revelar rota futura
+ok 69 - P61: tracker pós-investigação continua sem revelar rota futura
+  ---
+  duration_ms: 13.651607
+  type: 'test'
+  ...
+# Subtest: P62: encontro inexistente não pode contaminar o estado persistente
+ok 70 - P62: encontro inexistente não pode contaminar o estado persistente
+  ---
+  duration_ms: 8.253689
+  type: 'test'
+  ...
+# Subtest: P62: resultado de encontro de outra cena é rejeitado
+ok 71 - P62: resultado de encontro de outra cena é rejeitado
+  ---
+  duration_ms: 1.759061
+  type: 'test'
+  ...
+# Subtest: P62: confronto final válido ainda persiste e libera desfecho
+ok 72 - P62: confronto final válido ainda persiste e libera desfecho
+  ---
+  duration_ms: 11.952678
+  type: 'test'
+  ...
+# Subtest: P62: encontro já resolvido não pode ser reaberto e duplicado
+ok 73 - P62: encontro já resolvido não pode ser reaberto e duplicado
+  ---
+  duration_ms: 4.564056
+  type: 'test'
+  ...
+# Subtest: P63: save/reopen preserva encontro publicado ativo e impede avanço de cena concorrente
+ok 74 - P63: save/reopen preserva encontro publicado ativo e impede avanço de cena concorrente
+  ---
+  duration_ms: 585.534957
+  type: 'test'
+  ...
+# Subtest: P63: finishCombat valida contexto antes de salvar e não deixa estado parcial em divergência
+ok 75 - P63: finishCombat valida contexto antes de salvar e não deixa estado parcial em divergência
+  ---
+  duration_ms: 542.470179
+  type: 'test'
+  ...
+# Subtest: P63: combate retomado após reopen conclui uma vez, recompensa uma vez e transita ao mundo livre sem perder MIXED/Duty/Obligation
+ok 76 - P63: combate retomado após reopen conclui uma vez, recompensa uma vez e transita ao mundo livre sem perder MIXED/Duty/Obligation
+  ---
+  duration_ms: 624.745728
+  type: 'test'
+  ...
+# Subtest: P70: grafo publicado inteiro é alcançável a partir da abertura e não contém destinos quebrados
+ok 77 - P70: grafo publicado inteiro é alcançável a partir da abertura e não contém destinos quebrados
+  ---
+  duration_ms: 2.769199
+  type: 'test'
+  ...
+# Subtest: P70: todos os nós jogáveis têm texto PT-BR, local e escolhas ou são epílogo terminal
+ok 78 - P70: todos os nós jogáveis têm texto PT-BR, local e escolhas ou são epílogo terminal
+  ---
+  duration_ms: 0.644719
+  type: 'test'
+  ...
+# Subtest: P70: projeção inicial ao jogador não vaza nós futuros nem consequências finais
+ok 79 - P70: projeção inicial ao jogador não vaza nós futuros nem consequências finais
+  ---
+  duration_ms: 6.727415
+  type: 'test'
+  ...
+# Subtest: P75: rota social Zelcomm mantém objetivo de investigação em PT-BR após reabrir save
+ok 80 - P75: rota social Zelcomm mantém objetivo de investigação em PT-BR após reabrir save
+  ---
+  duration_ms: 15.029497
+  type: 'test'
+  ...
+# Subtest: P75: reabertura serializada preserva escolha e não expõe destinos internos nas escolhas públicas
+ok 81 - P75: reabertura serializada preserva escolha e não expõe destinos internos nas escolhas públicas
+  ---
+  duration_ms: 4.988427
+  type: 'test'
+  ...
+# Subtest: P80: projeção pública não expõe flags arbitrárias/secretas mesmo se save antigo estiver contaminado
+ok 82 - P80: projeção pública não expõe flags arbitrárias/secretas mesmo se save antigo estiver contaminado
+  ---
+  duration_ms: 11.010455
+  type: 'test'
+  ...
+# Subtest: P80: start/advance retornam snapshot público e não o progresso mestre bruto
+ok 83 - P80: start/advance retornam snapshot público e não o progresso mestre bruto
+  ---
+  duration_ms: 3.966414
+  type: 'test'
+  ...
+# Subtest: P80: rotas futuras permanecem invisíveis até serem descobertas
+ok 84 - P80: rotas futuras permanecem invisíveis até serem descobertas
+  ---
+  duration_ms: 6.566359
+  type: 'test'
+  ...
+# Subtest: P80: save/reopen mantém estado e a projeção anti-spoiler
+ok 85 - P80: save/reopen mantém estado e a projeção anti-spoiler
+  ---
+  duration_ms: 2.216902
+  type: 'test'
+  ...
+# Subtest: Triunfo na perseguição cria vantagem persistente sem spoiler interno
+ok 86 - Triunfo na perseguição cria vantagem persistente sem spoiler interno
+  ---
+  duration_ms: 9.763351
+  type: 'test'
+  ...
+# Subtest: Desespero na perseguição persiste dano e custo físico
+ok 87 - Desespero na perseguição persiste dano e custo físico
+  ---
+  duration_ms: 1.831547
+  type: 'test'
+  ...
+# Subtest: Triunfo social no Umbra preserva discrição
+ok 88 - Triunfo social no Umbra preserva discrição
+  ---
+  duration_ms: 5.314585
+  type: 'test'
+  ...
+# Subtest: Desespero no Spyder cria Obligation persistente sem encerrar investigação
+ok 89 - Desespero no Spyder cria Obligation persistente sem encerrar investigação
+  ---
+  duration_ms: 1.846769
+  type: 'test'
+  ...
+# Subtest: P83: feedback público expõe efeitos narrativos concretos sem estado oculto
+ok 90 - P83: feedback público expõe efeitos narrativos concretos sem estado oculto
+  ---
+  duration_ms: 12.058366
+  type: 'test'
+  ...
+# Subtest: P83: Desespero de perseguição fica visível e custo mecânico continua persistente
+ok 91 - P83: Desespero de perseguição fica visível e custo mecânico continua persistente
+  ---
+  duration_ms: 4.809698
+  type: 'test'
+  ...
+# Subtest: P83: runtime renderiza consequências por tipo em bloco compacto
+ok 92 - P83: runtime renderiza consequências por tipo em bloco compacto
+  ---
+  duration_ms: 0.487621
+  type: 'test'
+  ...
+# Subtest: P84: resultado imediato usa narrativeEffects da adjudicação e render dedicado
+ok 93 - P84: resultado imediato usa narrativeEffects da adjudicação e render dedicado
+  ---
+  duration_ms: 1.667559
+  type: 'test'
+  ...
+# Subtest: P84: projeção do último teste casa por checkId antes de mostrar efeitos
+ok 94 - P84: projeção do último teste casa por checkId antes de mostrar efeitos
+  ---
+  duration_ms: 0.404176
+  type: 'test'
+  ...
+# Subtest: P84: adjudicação pública continua sem flags ocultas
+ok 95 - P84: adjudicação pública continua sem flags ocultas
+  ---
+  duration_ms: 9.953224
+  type: 'test'
+  ...
+# Subtest: P85: planos pós-epílogo recebem createdDay estável
+ok 96 - P85: planos pós-epílogo recebem createdDay estável
+  ---
+  duration_ms: 13.338064
+  type: 'test'
+  ...
+# Subtest: P85: retorno latente de Kaa’to não vaza evento público ao ativar
+ok 97 - P85: retorno latente de Kaa’to não vaza evento público ao ativar
+  ---
+  duration_ms: 12.918743
+  type: 'test'
+  ...
+# Subtest: P85: Zelcomm continua podendo produzir consequência conhecida depois do epílogo
+ok 98 - P85: Zelcomm continua podendo produzir consequência conhecida depois do epílogo
+  ---
+  duration_ms: 30.141776
+  type: 'test'
+  ...
+# Subtest: P85: retorno de Kaa’to só vira consequência pendente oculta quando realmente resolve
+ok 99 - P85: retorno de Kaa’to só vira consequência pendente oculta quando realmente resolve
+  ---
+  duration_ms: 15.023628
+  type: 'test'
+  ...
+# Subtest: P89 Desespero no Spyder vira dívida persistente e plano de mundo vivo após epílogo
+ok 100 - P89 Desespero no Spyder vira dívida persistente e plano de mundo vivo após epílogo
+  ---
+  duration_ms: 25.281401
+  type: 'test'
+  ...
+# Subtest: P89 rastro eletrônico da Black Sun permanece secreto como plano, sem vazar no resumo público
+ok 101 - P89 rastro eletrônico da Black Sun permanece secreto como plano, sem vazar no resumo público
+  ---
+  duration_ms: 8.914978
+  type: 'test'
+  ...
+# Subtest: P89 NovaCORE crítica gera aftermath persistente e resumo público somente depois do epílogo
+ok 102 - P89 NovaCORE crítica gera aftermath persistente e resumo público somente depois do epílogo
+  ---
+  duration_ms: 11.830233
+  type: 'test'
+  ...
+# Subtest: P90: dívida do Spyder e saque da Zelcomm acumulam Obligation em vez de sobrescrever
+ok 103 - P90: dívida do Spyder e saque da Zelcomm acumulam Obligation em vez de sobrescrever
+  ---
+  duration_ms: 17.211598
+  type: 'test'
+  ...
+# Subtest: P90: save/reopen preserva total e origem de Obligation acumulada
+ok 104 - P90: save/reopen preserva total e origem de Obligation acumulada
+  ---
+  duration_ms: 3.663603
+  type: 'test'
+  ...
+# Subtest: P90: save legado sem ledger migra saldo anterior para legacy antes de somar nova origem
+ok 105 - P90: save legado sem ledger migra saldo anterior para legacy antes de somar nova origem
+  ---
+  duration_ms: 3.098405
+  type: 'test'
+  ...
+# Subtest: P90: epílogo persiste total e ledger de Obligation
+ok 106 - P90: epílogo persiste total e ledger de Obligation
+  ---
+  duration_ms: 11.245942
+  type: 'test'
+  ...
+1..106
+# tests 106
+# suites 0
+# pass 106
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3891.030471

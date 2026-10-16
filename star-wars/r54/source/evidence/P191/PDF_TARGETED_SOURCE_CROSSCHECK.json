@@ -1,0 +1,27 @@
+{
+  "checkpoint": "P191",
+  "source": {
+    "title": "The Jewel of Yavin",
+    "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+    "sourcePdfPages": 98,
+    "printedPage": 69,
+    "pdfPage": 70,
+    "heading": "Table 2-1: Spending Advantage and Triumph, Threat and Despair During the Slicing Check",
+    "method": "Direct Google Drive PDF fetch; page 70 visually inspected against PDF rendering and extracted text."
+  },
+  "implementedAndTested": [
+    {"result": "1 Advantage -> 1 Boost on the NEXT slicing attempt", "code": "jewelBankSlicingSpends.mjs", "gate": "requires failed current slicing check; spend after roll; actual next roll pool receives Boost"},
+    {"result": "2 Advantage -> upgrade positive pool once on NEXT slicing attempt", "code": "jewelBankSlicingSpends.mjs", "gate": "requires failed current slicing check; spend after roll; actual next roll pool upgrades"},
+    {"result": "2 Threat -> additional 15 minutes", "code": "jewelBankSlicingSpends.mjs", "gate": "time ledger checkId and world.clock.elapsedMinutes; atomic and replay validated"}
+  ],
+  "notImplementedDoNotClaim": [
+    "3 Advantage or Triumph -> additional bidder account and possible +10,000 credits (no credit grant implemented)",
+    "1 Threat -> slicer suffers strain with threshold guard",
+    "3 Threat or Despair -> Cloud City Wing Guard investigation team and ETA",
+    "Despair -> electronic signature and upgrade for subsequent Cloud City slicing",
+    "full Bank Central settlement and transfer of credits",
+    "restraining bolt verified against actual owned inventory",
+    "full adventure editorial certification"
+  ],
+  "compatibility": "P190 bank receipts without BANK_SLICE_SPEND are valid unchanged. P191 BANK_SLICE_SPEND receipts are opt-in and replay-validated."
+}

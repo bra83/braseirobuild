@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
+import {startBeyondTheRim,advanceBeyondTheRim,beyondTheRimStatus} from '../app/src/main/assets/vtt/js/adventure/beyondTheRim.mjs';
+const runtime=fs.readFileSync(new URL('../app/src/main/assets/vtt/r46/final-runtime.js',import.meta.url),'utf8');
+test('P69: tracker publica somente caminho já percorrido',()=>{let {world}=startBeyondTheRim({});world=advanceBeyondTheRim(world,'meet-reom').world;const t=beyondTheRimStatus(world).tracker;assert.ok(t.trail.length>=2);assert.equal(t.trail.at(-1).title,'Uma proposta de negócios');assert.ok(!t.trail.some(x=>/Cholganna|Raxus/i.test(x.title)));});
+test('P69: histórico é limitado para não estourar mobile',()=>{let {world}=startBeyondTheRim({});world.publishedAdventure.visitedNodeIds=['wheel-arrival','isotech-briefing','wheel-prep','hangar-investigation','ship-security','droid-delivery'];const t=beyondTheRimStatus(world).tracker;assert.equal(t.trail.length,5);assert.equal(t.trail.at(-1).title,'A entrega de IT-3PO');});
+test('P69: runtime renderiza trilha compacta e rotulada',()=>{assert.match(runtime,/final-published-trail/);assert.match(runtime,/Caminho percorrido/);assert.match(runtime,/tracker\.trail/);});

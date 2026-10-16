@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: P203 long fall forces incapacitation, +50 critical and actual 30 strain less advantages
+ok 1 - P203 long fall forces incapacitation, +50 critical and actual 30 strain less advantages
+  ---
+  duration_ms: 894.954839
+  type: 'test'
+  ...
+# Subtest: P203 extreme fall forces incapacitation, +75 critical, 40 strain, no automatic GM-discretion death
+ok 2 - P203 extreme fall forces incapacitation, +75 critical, 40 strain, no automatic GM-discretion death
+  ---
+  duration_ms: 649.921662
+  type: 'test'
+  ...
+# Subtest: P203 GM may use rolled triumph to reduce long to medium, applying numeric 30/20
+ok 3 - P203 GM may use rolled triumph to reduce long to medium, applying numeric 30/20
+  ---
+  duration_ms: 756.915028
+  type: 'test'
+  ...
+# Subtest: P203 GM may use rolled triumph to reduce extreme to long, retaining +50 forced critical
+ok 4 - P203 GM may use rolled triumph to reduce extreme to long, retaining +50 forced critical
+  ---
+  duration_ms: 498.428516
+  type: 'test'
+  ...
+# Subtest: P203 rejects GM reduction without a real triumph and leaves state intact
+ok 5 - P203 rejects GM reduction without a real triumph and leaves state intact
+  ---
+  duration_ms: 430.012177
+  type: 'test'
+  ...
+# Subtest: P203 tampered forced-critical receipt and range are detected
+ok 6 - P203 tampered forced-critical receipt and range are detected
+  ---
+  duration_ms: 481.348131
+  type: 'test'
+  ...
+# Subtest: P203 forced fall survives three independent reloads, duplicate receipt rollback
+ok 7 - P203 forced fall survives three independent reloads, duplicate receipt rollback
+  ---
+  duration_ms: 775.440763
+  type: 'test'
+  ...
+# Subtest: P203 Android UI includes long/extreme and GM triumph switch, bundle source is versioned
+ok 8 - P203 Android UI includes long/extreme and GM triumph switch, bundle source is versioned
+  ---
+  duration_ms: 17.764754
+  type: 'test'
+  ...
+# Subtest: P203 rejects forged long-fall fields on legacy blast receipt
+ok 9 - P203 rejects forged long-fall fields on legacy blast receipt
+  ---
+  duration_ms: 599.38513
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5664.290723

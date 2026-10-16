@@ -1,0 +1,15 @@
+{
+  "checkpoint": "P232",
+  "mode": "node --test per file; regular parallel 4/8 workers in resumed batches, six stress sequential; no monolithic suite",
+  "regularFiles": 351,
+  "regularTests": 3203,
+  "regularPassed": 3203,
+  "stressFiles": 6,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "totalFiles": 357,
+  "totalTests": 3209,
+  "totalPassed": 3209,
+  "totalSkipped": 0,
+  "failedFiles": []
+}

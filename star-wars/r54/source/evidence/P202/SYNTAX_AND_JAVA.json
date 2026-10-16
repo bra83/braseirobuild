@@ -1,0 +1,15 @@
+{
+  "checkpoint": "P202",
+  "mjsCount": 132,
+  "jsCount": 16,
+  "jsonCount": 22,
+  "xmlCount": 2,
+  "syntaxErrors": [],
+  "javaCount": 8,
+  "javaIdenticalToP201": true,
+  "bundleModules": 98,
+  "androidVersion": "1.0.202",
+  "versionCode": 10202,
+  "apkBuilt": false,
+  "androidDeviceTested": false
+}

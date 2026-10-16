@@ -1,0 +1,598 @@
+TAP version 13
+# Subtest: Mestre cria duas facções e um PNPC afiliado usando somente operações estruturadas
+ok 1 - Mestre cria duas facções e um PNPC afiliado usando somente operações estruturadas
+  ---
+  duration_ms: 62.825739
+  type: 'test'
+  ...
+# Subtest: operação de facção inválida faz rollback transacional da proposta inteira
+ok 2 - operação de facção inválida faz rollback transacional da proposta inteira
+  ---
+  duration_ms: 11.812329
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre inclui facções, afiliação do PNPC e contagem digestível
+ok 3 - contexto do Mestre inclui facções, afiliação do PNPC e contagem digestível
+  ---
+  duration_ms: 7.752687
+  type: 'test'
+  ...
+# Subtest: save/reopen preserva facções, relações, recursos, fatos e afiliação de PNPC
+ok 4 - save/reopen preserva facções, relações, recursos, fatos e afiliação de PNPC
+  ---
+  duration_ms: 5.497708
+  type: 'test'
+  ...
+# Subtest: P20: contrato do Mestre aceita a narração longa pedida ao Gemini
+ok 5 - P20: contrato do Mestre aceita a narração longa pedida ao Gemini
+  ---
+  duration_ms: 2.718572
+  type: 'test'
+  ...
+# Subtest: P20: host nativo e Motor Barbara usam o mesmo teto de 12k
+ok 6 - P20: host nativo e Motor Barbara usam o mesmo teto de 12k
+  ---
+  duration_ms: 0.543517
+  type: 'test'
+  ...
+# Subtest: proposta do Mestre aceita apenas narração, pergunta e teste estruturado
+ok 7 - proposta do Mestre aceita apenas narração, pergunta e teste estruturado
+  ---
+  duration_ms: 2.461981
+  type: 'test'
+  ...
+# Subtest: proposta rejeita mutação direta de ficha ou regra não recuperada
+ok 8 - proposta rejeita mutação direta de ficha ou regra não recuperada
+  ---
+  duration_ms: 1.116088
+  type: 'test'
+  ...
+# Subtest: aplicar proposta narrativa não altera ficha nem combate
+ok 9 - aplicar proposta narrativa não altera ficha nem combate
+  ---
+  duration_ms: 5.455133
+  type: 'test'
+  ...
+# Subtest: endpoint remoto exige HTTPS, exceto localhost de desenvolvimento
+ok 10 - endpoint remoto exige HTTPS, exceto localhost de desenvolvimento
+  ---
+  duration_ms: 2.433262
+  type: 'test'
+  ...
+# Subtest: adaptador HTTP envia contexto e recebe somente proposta estruturada
+ok 11 - adaptador HTTP envia contexto e recebe somente proposta estruturada
+  ---
+  duration_ms: 30.368166
+  type: 'test'
+  ...
+# Subtest: falha de rede do Mestre não altera o estado válido
+ok 12 - falha de rede do Mestre não altera o estado válido
+  ---
+  duration_ms: 23.357009
+  type: 'test'
+  ...
+# Subtest: resposta remota validada altera só a camada narrativa autorizada
+ok 13 - resposta remota validada altera só a camada narrativa autorizada
+  ---
+  duration_ms: 12.938609
+  type: 'test'
+  ...
+# Subtest: proposta do Mestre pode alterar apenas o mundo por operações estruturadas validadas
+ok 14 - proposta do Mestre pode alterar apenas o mundo por operações estruturadas validadas
+  ---
+  duration_ms: 21.342001
+  type: 'test'
+  ...
+# Subtest: operação do Mestre com PNPC/local inexistente falha transacionalmente e preserva o save
+ok 15 - operação do Mestre com PNPC/local inexistente falha transacionalmente e preserva o save
+  ---
+  duration_ms: 7.56959
+  type: 'test'
+  ...
+# Subtest: Mestre pode criar PNPC/local sem fornecer ID e o motor gera identidades estáveis
+ok 16 - Mestre pode criar PNPC/local sem fornecer ID e o motor gera identidades estáveis
+  ---
+  duration_ms: 12.317568
+  type: 'test'
+  ...
+# Subtest: mundo alterado fora de cena reabre com o mesmo PNPC, ID, local, objetivo e fato
+ok 17 - mundo alterado fora de cena reabre com o mesmo PNPC, ID, local, objetivo e fato
+  ---
+  duration_ms: 21.77698
+  type: 'test'
+  ...
+# Subtest: proposta rejeita campos de mundo arbitrários e lote excessivo
+ok 18 - proposta rejeita campos de mundo arbitrários e lote excessivo
+  ---
+  duration_ms: 4.215309
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre recebe goal/relation/facts reais e agenda pendente do mundo
+ok 19 - contexto do Mestre recebe goal/relation/facts reais e agenda pendente do mundo
+  ---
+  duration_ms: 50.532627
+  type: 'test'
+  ...
+# Subtest: Medpac e Medpac de emergência carregam apenas os efeitos de Medicina comprovados
+ok 20 - Medpac e Medpac de emergência carregam apenas os efeitos de Medicina comprovados
+  ---
+  duration_ms: 1.894263
+  type: 'test'
+  ...
+# Subtest: perfil médico recusa item sem efeito de Medicina auditado
+ok 21 - perfil médico recusa item sem efeito de Medicina auditado
+  ---
+  duration_ms: 0.872157
+  type: 'test'
+  ...
+# Subtest: Medpac remove penalização de falta de suprimentos e adiciona 1 dado de Benefício
+ok 22 - Medpac remove penalização de falta de suprimentos e adiciona 1 dado de Benefício
+  ---
+  duration_ms: 1.770904
+  type: 'test'
+  ...
+# Subtest: Medpac de emergência remove penalização sem acrescentar dado de Benefício
+ok 23 - Medpac de emergência remove penalização sem acrescentar dado de Benefício
+  ---
+  duration_ms: 0.472273
+  type: 'test'
+  ...
+# Subtest: sem item médico, ausência de suprimentos mantém a penalização existente
+ok 24 - sem item médico, ausência de suprimentos mantém a penalização existente
+  ---
+  duration_ms: 0.434677
+  type: 'test'
+  ...
+# Subtest: GameController aceita item médico explícito sem alterar a API legada
+ok 25 - GameController aceita item médico explícito sem alterar a API legada
+  ---
+  duration_ms: 7.158345
+  type: 'test'
+  ...
+# Subtest: modo padrão continua EOTE e bloqueia Duty legado sem regredir guard
+ok 26 - modo padrão continua EOTE e bloqueia Duty legado sem regredir guard
+  ---
+  duration_ms: 7.558985
+  type: 'test'
+  ...
+# Subtest: modo MIXED mantém Obligation e Duty simultaneamente
+ok 27 - modo MIXED mantém Obligation e Duty simultaneamente
+  ---
+  duration_ms: 14.121258
+  type: 'test'
+  ...
+# Subtest: Duty d100 usa faixa cumulativa e doubles dobram bônus de sessão
+ok 28 - Duty d100 usa faixa cumulativa e doubles dobram bônus de sessão
+  ---
+  duration_ms: 0.383765
+  type: 'test'
+  ...
+# Subtest: criação AoR fica disponível em AOR/MIXED e Duty entra no grupo
+ok 29 - criação AoR fica disponível em AOR/MIXED e Duty entra no grupo
+  ---
+  duration_ms: 3.046342
+  type: 'test'
+  ...
+# Subtest: Contribution Rank sobe somente com Duty total >=100 e zera Duty corrente
+ok 30 - Contribution Rank sobe somente com Duty total >=100 e zera Duty corrente
+  ---
+  duration_ms: 2.496516
+  type: 'test'
+  ...
+# Subtest: seed de mundo vivo cria 6 facções, 36 NPCs, 12 locais, clocks e oportunidades sem roteiro obrigatório
+ok 31 - seed de mundo vivo cria 6 facções, 36 NPCs, 12 locais, clocks e oportunidades sem roteiro obrigatório
+  ---
+  duration_ms: 190.46732
+  type: 'test'
+  ...
+# Subtest: seed é idempotente e não duplica o mundo ao reabrir campanha
+ok 32 - seed é idempotente e não duplica o mundo ao reabrir campanha
+  ---
+  duration_ms: 139.197462
+  type: 'test'
+  ...
+# Subtest: tempo fora da cena move planos, clocks e transforma consequências em oportunidades
+ok 33 - tempo fora da cena move planos, clocks e transforma consequências em oportunidades
+  ---
+  duration_ms: 237.944794
+  type: 'test'
+  ...
+# Subtest: controller inicializa sandbox, persiste local e viagem avança o mundo
+ok 34 - controller inicializa sandbox, persiste local e viagem avança o mundo
+  ---
+  duration_ms: 214.386735
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre inclui modo, mundo vivo e abertura estruturada separada da narração
+ok 35 - contexto do Mestre inclui modo, mundo vivo e abertura estruturada separada da narração
+  ---
+  duration_ms: 260.273911
+  type: 'test'
+  ...
+# Subtest: Mestre pode operar oportunidades/clocks/mercado apenas por operações estruturadas
+ok 36 - Mestre pode operar oportunidades/clocks/mercado apenas por operações estruturadas
+  ---
+  duration_ms: 162.040792
+  type: 'test'
+  ...
+# Subtest: Android host registers all five native bridges under the names used by JS
+ok 37 - Android host registers all five native bridges under the names used by JS
+  ---
+  duration_ms: 1.579317
+  type: 'test'
+  ...
+# Subtest: Library bridge methods consumed by R46 exist on the Android host
+ok 38 - Library bridge methods consumed by R46 exist on the Android host
+  ---
+  duration_ms: 2.018377
+  type: 'test'
+  ...
+# Subtest: Gemini bridge methods consumed by engine/R46 exist on the Android host
+ok 39 - Gemini bridge methods consumed by engine/R46 exist on the Android host
+  ---
+  duration_ms: 2.510245
+  type: 'test'
+  ...
+# Subtest: Image cache bridge methods consumed by R46 exist on the Android host
+ok 40 - Image cache bridge methods consumed by R46 exist on the Android host
+  ---
+  duration_ms: 0.768618
+  type: 'test'
+  ...
+# Subtest: TTS runtime calls only methods exposed by TtsBridge
+ok 41 - TTS runtime calls only methods exposed by TtsBridge
+  ---
+  duration_ms: 1.685097
+  type: 'test'
+  ...
+# Subtest: JSON export uses the native FileBridge saveJson contract
+ok 42 - JSON export uses the native FileBridge saveJson contract
+  ---
+  duration_ms: 0.376186
+  type: 'test'
+  ...
+# Subtest: Library Java callback name and payload envelope match the R46 consumer
+ok 43 - Library Java callback name and payload envelope match the R46 consumer
+  ---
+  duration_ms: 1.841263
+  type: 'test'
+  ...
+# Subtest: Image cache Java callback name and data envelope match the R46 consumer
+ok 44 - Image cache Java callback name and data envelope match the R46 consumer
+  ---
+  duration_ms: 0.370147
+  type: 'test'
+  ...
+# Subtest: Gemini UI callback name and payload envelope match the R46 consumer
+ok 45 - Gemini UI callback name and payload envelope match the R46 consumer
+  ---
+  duration_ms: 0.569953
+  type: 'test'
+  ...
+# Subtest: Gemini master callback name matches Motor Barbara native request hook
+ok 46 - Gemini master callback name matches Motor Barbara native request hook
+  ---
+  duration_ms: 0.281752
+  type: 'test'
+  ...
+# Subtest: Gemini master callback preserves proposal object and model contract
+ok 47 - Gemini master callback preserves proposal object and model contract
+  ---
+  duration_ms: 0.337436
+  type: 'test'
+  ...
+# Subtest: imagem principal é aberta sob o mesmo lock usado por clear/commit
+ok 48 - imagem principal é aberta sob o mesmo lock usado por clear/commit
+  ---
+  duration_ms: 1.849301
+  type: 'test'
+  ...
+# Subtest: status da imagem principal usa sceneImageCommitLock
+ok 49 - status da imagem principal usa sceneImageCommitLock
+  ---
+  duration_ms: 0.221799
+  type: 'test'
+  ...
+# Subtest: imagem do cache é aberta sob cacheCommitLock
+ok 50 - imagem do cache é aberta sob cacheCommitLock
+  ---
+  duration_ms: 0.628436
+  type: 'test'
+  ...
+# Subtest: status do cache usa cacheCommitLock sem perder validação do assetId
+ok 51 - status do cache usa cacheCommitLock sem perder validação do assetId
+  ---
+  duration_ms: 0.277585
+  type: 'test'
+  ...
+# Subtest: PDF picker catches Activity launch errors inside the UI-thread runnable
+ok 52 - PDF picker catches Activity launch errors inside the UI-thread runnable
+  ---
+  duration_ms: 5.234392
+  type: 'test'
+  ...
+# Subtest: PDF reindex timestamp is written once per reindex request
+ok 53 - PDF reindex timestamp is written once per reindex request
+  ---
+  duration_ms: 0.299361
+  type: 'test'
+  ...
+# Subtest: política da Biblioteca e gravações do indexador usam o mesmo lock de metadados
+ok 54 - política da Biblioteca e gravações do indexador usam o mesmo lock de metadados
+  ---
+  duration_ms: 7.098216
+  type: 'test'
+  ...
+# Subtest: indexação periódica, conclusão e falha preservam a política mais recente
+ok 55 - indexação periódica, conclusão e falha preservam a política mais recente
+  ---
+  duration_ms: 2.642448
+  type: 'test'
+  ...
+# Subtest: remoção e acesso a metadata são serializados para impedir documento fantasma durante indexação
+ok 56 - remoção e acesso a metadata são serializados para impedir documento fantasma durante indexação
+  ---
+  duration_ms: 0.300735
+  type: 'test'
+  ...
+# Subtest: PNPC persistente usa o mesmo ID no combate e conserva dano entre reencontros
+ok 57 - PNPC persistente usa o mesmo ID no combate e conserva dano entre reencontros
+  ---
+  duration_ms: 30.517563
+  type: 'test'
+  ...
+# Subtest: PNPC persistente não pode trocar silenciosamente de perfil nem reaparecer incapacitado
+ok 58 - PNPC persistente não pode trocar silenciosamente de perfil nem reaparecer incapacitado
+  ---
+  duration_ms: 28.596002
+  type: 'test'
+  ...
+# Subtest: perícia profissional custa novo grau multiplicado por 5
+ok 59 - perícia profissional custa novo grau multiplicado por 5
+  ---
+  duration_ms: 1.920597
+  type: 'test'
+  ...
+# Subtest: perícia não profissional acrescenta 5 PE por grau adquirido
+ok 60 - perícia não profissional acrescenta 5 PE por grau adquirido
+  ---
+  duration_ms: 0.263667
+  type: 'test'
+  ...
+# Subtest: progressão é sequencial, respeita grau máximo 5 e desconta PE uma vez
+ok 61 - progressão é sequencial, respeita grau máximo 5 e desconta PE uma vez
+  ---
+  duration_ms: 1.069651
+  type: 'test'
+  ...
+# Subtest: personagem inicial usa automaticamente suas perícias profissionais auditadas
+ok 62 - personagem inicial usa automaticamente suas perícias profissionais auditadas
+  ---
+  duration_ms: 0.768502
+  type: 'test'
+  ...
+# Subtest: concessão de PE aumenta total e saldo sem alterar a ficha original
+ok 63 - concessão de PE aumenta total e saldo sem alterar a ficha original
+  ---
+  duration_ms: 1.593025
+  type: 'test'
+  ...
+# Subtest: R38: início do mundo não exige texto livre e oferece seleção visual e aleatória
+ok 64 - R38: início do mundo não exige texto livre e oferece seleção visual e aleatória
+  ---
+  duration_ms: 1.834181
+  type: 'test'
+  ...
+# Subtest: R38: existe gate explícito INICIAR SANDBOX ligado ao motor
+ok 65 - R38: existe gate explícito INICIAR SANDBOX ligado ao motor
+  ---
+  duration_ms: 0.37999
+  type: 'test'
+  ...
+# Subtest: R38: cena oferece geração Gemini diretamente e modelos configuráveis
+ok 66 - R38: cena oferece geração Gemini diretamente e modelos configuráveis
+  ---
+  duration_ms: 0.421051
+  type: 'test'
+  ...
+# Subtest: R38: Gemini TTS é funcional com Android TTS como fallback
+ok 67 - R38: Gemini TTS é funcional com Android TTS como fallback
+  ---
+  duration_ms: 0.242692
+  type: 'test'
+  ...
+# Subtest: R38: personagem vazio oferece geração completa aleatória e import JSON
+ok 68 - R38: personagem vazio oferece geração completa aleatória e import JSON
+  ---
+  duration_ms: 0.299181
+  type: 'test'
+  ...
+# Subtest: R38: Biblioteca é descoberta por utilidade e atalho de Ajustes
+ok 69 - R38: Biblioteca é descoberta por utilidade e atalho de Ajustes
+  ---
+  duration_ms: 0.281745
+  type: 'test'
+  ...
+# Subtest: R38: Android respeita insets e teclado sem sobrepor UI
+ok 70 - R38: Android respeita insets e teclado sem sobrepor UI
+  ---
+  duration_ms: 0.337257
+  type: 'test'
+  ...
+# Subtest: R38: launcher profissional aprovado está configurado
+ok 71 - R38: launcher profissional aprovado está configurado
+  ---
+  duration_ms: 0.418537
+  type: 'test'
+  ...
+# Subtest: R38: startSandboxSession produz narração e ações sem exigir prompt do jogador
+ok 72 - R38: startSandboxSession produz narração e ações sem exigir prompt do jogador
+  ---
+  duration_ms: 251.701093
+  type: 'test'
+  ...
+# Subtest: R38: chave de imagem da cena é compatível entre shell, botão direto e host Android
+ok 73 - R38: chave de imagem da cena é compatível entre shell, botão direto e host Android
+  ---
+  duration_ms: 1.39335
+  type: 'test'
+  ...
+# Subtest: R54 bridge contract: shell interface and BraseiroUiBridge implementation are exact peers
+ok 74 - R54 bridge contract: shell interface and BraseiroUiBridge implementation are exact peers
+  ---
+  duration_ms: 6.263755
+  type: 'test'
+  ...
+# Subtest: R46 bridge contract: every gameBridgeClient import used by shell files is actually exported
+ok 75 - R46 bridge contract: every gameBridgeClient import used by shell files is actually exported
+  ---
+  duration_ms: 2.253343
+  type: 'test'
+  ...
+# Subtest: R46 bridge contract: public bridge expõe perfil compartilhado sem comandos Duty/AoR crus na shell
+ok 76 - R46 bridge contract: public bridge expõe perfil compartilhado sem comandos Duty/AoR crus na shell
+  ---
+  duration_ms: 1.041053
+  type: 'test'
+  ...
+# Subtest: repository emits the exact R46 state-changed event after save and clear
+ok 77 - repository emits the exact R46 state-changed event after save and clear
+  ---
+  duration_ms: 5.192702
+  type: 'test'
+  ...
+# Subtest: a real GameController mutation emits same-window refresh events
+ok 78 - a real GameController mutation emits same-window refresh events
+  ---
+  duration_ms: 1.160666
+  type: 'test'
+  ...
+# Subtest: R46 listens to the same custom event used by the repository
+ok 79 - R46 listens to the same custom event used by the repository
+  ---
+  duration_ms: 1.61059
+  type: 'test'
+  ...
+# Subtest: r46-shell.html has no missing local script or stylesheet assets
+ok 80 - r46-shell.html has no missing local script or stylesheet assets
+  ---
+  duration_ms: 2.040062
+  type: 'test'
+  ...
+# Subtest: R46 boot script order keeps engine before bootstrap, shell and final runtime
+ok 81 - R46 boot script order keeps engine before bootstrap, shell and final runtime
+  ---
+  duration_ms: 1.23797
+  type: 'test'
+  ...
+# Subtest: R46 stylesheets have no missing local url(...) dependencies
+ok 82 - R46 stylesheets have no missing local url(...) dependencies
+  ---
+  duration_ms: 1.30614
+  type: 'test'
+  ...
+# Subtest: R46 projection accepts the canonical EOTE schema 14 state
+ok 83 - R46 projection accepts the canonical EOTE schema 14 state
+  ---
+  duration_ms: 4.849459
+  type: 'test'
+  ...
+# Subtest: R46 projection validates state.group and no longer requires state.rebelGroup
+ok 84 - R46 projection validates state.group and no longer requires state.rebelGroup
+  ---
+  duration_ms: 1.973167
+  type: 'test'
+  ...
+# Subtest: compiled R46 projection contains no active rebelGroup dependency
+ok 85 - compiled R46 projection contains no active rebelGroup dependency
+  ---
+  duration_ms: 0.288442
+  type: 'test'
+  ...
+# Subtest: R46 character projection shows EotE Obligation instead of obsolete Duty slot
+ok 86 - R46 character projection shows EotE Obligation instead of obsolete Duty slot
+  ---
+  duration_ms: 18.218939
+  type: 'test'
+  ...
+# Subtest: R47 Android inicia pela shell visual R46 sem remover as pontes nativas
+ok 87 - R47 Android inicia pela shell visual R46 sem remover as pontes nativas
+  ---
+  duration_ms: 2.313515
+  type: 'test'
+  ...
+# Subtest: host offline instala BraseiroGameBridge antes de montar o bundle React
+ok 88 - host offline instala BraseiroGameBridge antes de montar o bundle React
+  ---
+  duration_ms: 0.357712
+  type: 'test'
+  ...
+# Subtest: bundle offline da shell e CSS estão presentes e sintaticamente fechados
+ok 89 - bundle offline da shell e CSS estão presentes e sintaticamente fechados
+  ---
+  duration_ms: 2.35207
+  type: 'test'
+  ...
+# Subtest: rotas e domínio principal continuam na arquitetura R46
+ok 90 - rotas e domínio principal continuam na arquitetura R46
+  ---
+  duration_ms: 2.502544
+  type: 'test'
+  ...
+# Subtest: CSS Android mantém viewport 415×915 e não referencia assets inexistentes
+ok 91 - CSS Android mantém viewport 415×915 e não referencia assets inexistentes
+  ---
+  duration_ms: 0.78823
+  type: 'test'
+  ...
+# Subtest: apenas ícones canônicos materializados são usados no host
+ok 92 - apenas ícones canônicos materializados são usados no host
+  ---
+  duration_ms: 0.611224
+  type: 'test'
+  ...
+# Subtest: mapeamento de ícones não pede items.png ou records.png ausentes
+ok 93 - mapeamento de ícones não pede items.png ou records.png ausentes
+  ---
+  duration_ms: 2.956203
+  type: 'test'
+  ...
+# Subtest: entrada legada permanece no pacote apenas como fallback não carregado
+ok 94 - entrada legada permanece no pacote apenas como fallback não carregado
+  ---
+  duration_ms: 0.716774
+  type: 'test'
+  ...
+# Subtest: R54 mantém catálogo visual V3.8 fechado e semanticamente presente
+ok 95 - R54 mantém catálogo visual V3.8 fechado e semanticamente presente
+  ---
+  duration_ms: 9.862615
+  type: 'test'
+  ...
+# Subtest: R54 não fixa Nera Voss e não expõe NPC fora da cena
+ok 96 - R54 não fixa Nera Voss e não expõe NPC fora da cena
+  ---
+  duration_ms: 1.972815
+  type: 'test'
+  ...
+# Subtest: P21 reiniciar limpa a sessão/snapshots sem apagar personagem nem foto local
+ok 97 - P21 reiniciar limpa a sessão/snapshots sem apagar personagem nem foto local
+  ---
+  duration_ms: 1.102178
+  type: 'test'
+  ...
+# Subtest: R54 bloqueia acesso universal a arquivos do WebView
+ok 98 - R54 bloqueia acesso universal a arquivos do WebView
+  ---
+  duration_ms: 0.422738
+  type: 'test'
+  ...
+1..98
+# tests 98
+# suites 0
+# pass 98
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1781.727257

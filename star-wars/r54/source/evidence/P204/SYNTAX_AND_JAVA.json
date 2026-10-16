@@ -1,0 +1,17 @@
+{
+  "checkpoint": "P204",
+  "mjsCount": 133,
+  "jsCount": 16,
+  "jsonCount": 22,
+  "xmlCount": 2,
+  "syntaxErrors": [],
+  "javaCount": 8,
+  "javaIdenticalToP203": true,
+  "bundleModules": 99,
+  "androidVersion": "1.0.204",
+  "versionCode": 10204,
+  "apkBuilt": false,
+  "androidDeviceTested": false,
+  "gradleExecuted": false,
+  "ciExecuted": false
+}

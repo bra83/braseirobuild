@@ -1,0 +1,6 @@
+SYNTAX_PASS app/src/main/assets/vtt/js/core/events.mjs
+SYNTAX_PASS app/src/main/assets/vtt/js/core/state.mjs
+SYNTAX_PASS app/src/main/assets/vtt/js/adventure/underBlackSun.mjs
+SYNTAX_PASS app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs
+SYNTAX_PASS app/src/main/assets/vtt/js/core/controller.mjs
+SYNTAX_PASS app/src/main/assets/vtt/js/core/uiBridge.bundle.js

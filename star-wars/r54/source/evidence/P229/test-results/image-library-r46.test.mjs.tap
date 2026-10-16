@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: R46 freezes the validated V3.8 subset without count inflation
+ok 1 - R46 freezes the validated V3.8 subset without count inflation
+  ---
+  duration_ms: 1.38991
+  type: 'test'
+  ...
+# Subtest: R46 keeps R45 unresolved provenance lists complete and deferred
+ok 2 - R46 keeps R45 unresolved provenance lists complete and deferred
+  ---
+  duration_ms: 0.161113
+  type: 'test'
+  ...
+# Subtest: R46 does not silently index the specifically observed posts without direct media
+ok 3 - R46 does not silently index the specifically observed posts without direct media
+  ---
+  duration_ms: 0.338562
+  type: 'test'
+  ...
+# Subtest: R46 policy forbids filename inference and preserves mechanical firewall
+ok 4 - R46 policy forbids filename inference and preserves mechanical firewall
+  ---
+  duration_ms: 0.176637
+  type: 'test'
+  ...
+# Subtest: R46 every external remote-ready asset still obeys Kainrath allowlist and visual-only binding
+ok 5 - R46 every external remote-ready asset still obeys Kainrath allowlist and visual-only binding
+  ---
+  duration_ms: 1.605555
+  type: 'test'
+  ...
+# Subtest: R46 bridge remains gameplay-readable with frozen visual catalog and no repository mutation
+ok 6 - R46 bridge remains gameplay-readable with frozen visual catalog and no repository mutation
+  ---
+  duration_ms: 14.269737
+  type: 'test'
+  ...
+# Subtest: R46 deferred provenance is duplicate-free and contains no synthetic URL field
+ok 7 - R46 deferred provenance is duplicate-free and contains no synthetic URL field
+  ---
+  duration_ms: 0.222296
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 239.224951

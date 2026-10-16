@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: P131 AoR: segunda especialização da carreira custa 20 PE, concede perícias, abre sua árvore e persiste
+ok 1 - P131 AoR: segunda especialização da carreira custa 20 PE, concede perícias, abre sua árvore e persiste
+  ---
+  duration_ms: 6.056694
+  type: 'test'
+  ...
+# Subtest: P131 AoR: terceira especialização e fora da carreira têm custo escalonado e ownership isolado
+ok 2 - P131 AoR: terceira especialização e fora da carreira têm custo escalonado e ownership isolado
+  ---
+  duration_ms: 1.137976
+  type: 'test'
+  ...
+# Subtest: P131 AoR: todas as 18 especializações podem ser compradas a partir de personagem de outra árvore
+ok 3 - P131 AoR: todas as 18 especializações podem ser compradas a partir de personagem de outra árvore
+  ---
+  duration_ms: 9.054386
+  type: 'test'
+  ...
+# Subtest: P131 AoR: controlador e UI bridge compartilham compra persistente de especialização
+ok 4 - P131 AoR: controlador e UI bridge compartilham compra persistente de especialização
+  ---
+  duration_ms: 9.151835
+  type: 'test'
+  ...
+# Subtest: P131 under-black-sun: checkpoint corrupto é rejeitado antes da migração sem alterar mundo
+ok 5 - P131 under-black-sun: checkpoint corrupto é rejeitado antes da migração sem alterar mundo
+  ---
+  duration_ms: 19.843241
+  type: 'test'
+  ...
+# Subtest: P131 beyond-the-rim: checkpoint corrupto é rejeitado antes da migração sem alterar mundo
+ok 6 - P131 beyond-the-rim: checkpoint corrupto é rejeitado antes da migração sem alterar mundo
+  ---
+  duration_ms: 12.763642
+  type: 'test'
+  ...
+# Subtest: P131 long-arm-of-the-hutt: checkpoint corrupto é rejeitado antes da migração sem alterar mundo
+ok 7 - P131 long-arm-of-the-hutt: checkpoint corrupto é rejeitado antes da migração sem alterar mundo
+  ---
+  duration_ms: 5.858601
+  type: 'test'
+  ...
+# Subtest: P131 jewel-of-yavin: checkpoint corrupto é rejeitado antes da migração sem alterar mundo
+ok 8 - P131 jewel-of-yavin: checkpoint corrupto é rejeitado antes da migração sem alterar mundo
+  ---
+  duration_ms: 7.873556
+  type: 'test'
+  ...
+# Subtest: P131 mask-of-the-pirate-queen: checkpoint corrupto é rejeitado antes da migração sem alterar mundo
+ok 9 - P131 mask-of-the-pirate-queen: checkpoint corrupto é rejeitado antes da migração sem alterar mundo
+  ---
+  duration_ms: 9.09085
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 309.937766

@@ -1,0 +1,178 @@
+{
+  "checkpoint": "R54_P154",
+  "base": "R54_P153",
+  "sourceChecks": {
+    "newCombatWiring": {
+      "strongArm": true,
+      "blast": true,
+      "knockdown": true,
+      "knockdownUi": true,
+      "aliases": true
+    },
+    "compositeAtomicity": true,
+    "atomicMethods": 14,
+    "scopedTriggerPayload": true,
+    "reverseCausalAudit": true,
+    "authoredConsequencePreflight": true,
+    "version": "1.0.154",
+    "shellVersion": true,
+    "bundleVersion": true,
+    "bridgeMethodsBundled": true,
+    "javaUnchanged": true,
+    "javaSources": 8
+  },
+  "adventures": [
+    {
+      "id": "under-black-sun",
+      "structural": {
+        "adventureId": "under-black-sun",
+        "nodes": 17,
+        "choices": 37,
+        "endings": 1,
+        "episodes": [
+          1,
+          2,
+          3
+        ],
+        "structurallyReachable": true
+      },
+      "semantic": {
+        "adventureId": "under-black-sun",
+        "nodes": 17,
+        "choices": 37,
+        "checks": 32,
+        "conditions": 30,
+        "effects": 81,
+        "triggers": 23
+      },
+      "started": true,
+      "choiceApplied": true,
+      "reopens": 3,
+      "sourcePdfCompared": false
+    },
+    {
+      "id": "beyond-the-rim",
+      "structural": {
+        "adventureId": "beyond-the-rim",
+        "nodes": 26,
+        "choices": 37,
+        "endings": 1,
+        "episodes": [
+          1,
+          2,
+          3
+        ],
+        "structurallyReachable": true
+      },
+      "semantic": {
+        "adventureId": "beyond-the-rim",
+        "nodes": 26,
+        "choices": 37,
+        "checks": 46,
+        "conditions": 42,
+        "effects": 42,
+        "triggers": 22
+      },
+      "started": true,
+      "choiceApplied": true,
+      "reopens": 3,
+      "sourcePdfCompared": false
+    },
+    {
+      "id": "long-arm-of-the-hutt",
+      "structural": {
+        "adventureId": "long-arm-of-the-hutt",
+        "nodes": 7,
+        "choices": 6,
+        "endings": 1,
+        "episodes": [
+          1,
+          2,
+          3
+        ],
+        "structurallyReachable": true
+      },
+      "semantic": {
+        "adventureId": "long-arm-of-the-hutt",
+        "nodes": 7,
+        "choices": 6,
+        "checks": 12,
+        "conditions": 8,
+        "effects": 13,
+        "triggers": 9
+      },
+      "started": true,
+      "choiceApplied": true,
+      "reopens": 3,
+      "sourcePdfCompared": false
+    },
+    {
+      "id": "jewel-of-yavin",
+      "structural": {
+        "adventureId": "jewel-of-yavin",
+        "nodes": 5,
+        "choices": 4,
+        "endings": 1,
+        "episodes": [
+          1,
+          2,
+          3
+        ],
+        "structurallyReachable": true
+      },
+      "semantic": {
+        "adventureId": "jewel-of-yavin",
+        "nodes": 5,
+        "choices": 4,
+        "checks": 8,
+        "conditions": 4,
+        "effects": 9,
+        "triggers": 5
+      },
+      "started": true,
+      "choiceApplied": true,
+      "reopens": 3,
+      "sourcePdfCompared": false
+    },
+    {
+      "id": "mask-of-the-pirate-queen",
+      "structural": {
+        "adventureId": "mask-of-the-pirate-queen",
+        "nodes": 5,
+        "choices": 4,
+        "endings": 1,
+        "episodes": [
+          1,
+          2,
+          3
+        ],
+        "structurallyReachable": true
+      },
+      "semantic": {
+        "adventureId": "mask-of-the-pirate-queen",
+        "nodes": 5,
+        "choices": 4,
+        "checks": 8,
+        "conditions": 5,
+        "effects": 10,
+        "triggers": 6
+      },
+      "started": true,
+      "choiceApplied": true,
+      "reopens": 3,
+      "sourcePdfCompared": false
+    }
+  ],
+  "aor": {
+    "careers": 6,
+    "specializations": 18,
+    "positions": 360,
+    "mechanicalPositions": 252,
+    "purchasePositions": 360,
+    "pendingPositions": 108
+  },
+  "certifiedAgainstOfficialPdfs": false,
+  "androidApkCompiled": false,
+  "androidDeviceHomologated": false,
+  "allPassed": true
+}

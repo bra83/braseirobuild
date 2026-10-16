@@ -1,0 +1,33 @@
+{
+  "checkpoint": "P214",
+  "source": "SWE09 The Jewel of Yavin",
+  "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "printedPages": [
+    93,
+    94
+  ],
+  "readMethod": "Google Drive connector fetch; targeted official PDF text",
+  "verifiedEffects": [
+    {
+      "id": "alderaan_lost_weapon",
+      "trigger": "Threat from enemy attack",
+      "consequence": "weapon lost in holographic grass; next-round maneuver or 1 strain immediate recovery",
+      "implemented": true
+    },
+    {
+      "id": "kashyyyk_lost_weapon",
+      "trigger": "Threat from enemy attack",
+      "consequence": "red agr birds cause player to drop the wielded weapon",
+      "implemented": true
+    }
+  ],
+  "previousCoverage": 10,
+  "currentCoverage": 12,
+  "totalEffects": 16,
+  "notClaimed": [
+    "all Holo-Park effects",
+    "full PDF semantic certification",
+    "APK build",
+    "physical Android test"
+  ]
+}

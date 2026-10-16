@@ -1,0 +1,27 @@
+{
+  "checkpoint": "P209",
+  "source": "The Jewel of Yavin SWE09, official user Google Drive PDF id 1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "method": "targeted direct connector text inspection, printed p.94 (AFTER THE BATTLE); not integral certification",
+  "claims": [
+    {
+      "page": 94,
+      "official": "The initial Wing Guard attack is two minion groups of two officers and one sergeant",
+      "implementation": "jewelOfYavinEncounterSpec: holo-park-wing-guard; two distinct minion groups count 2 and one rival sergeant",
+      "tests": "uae-p209-holopark-wing-guard.test.mjs"
+    },
+    {
+      "page": 92,
+      "official": "Starport encounter prompts the chase into Grand Galaxy Holo-Park; other factions respond to Guard without directly obstructing them",
+      "implementation": "GM physical arrival and Wing Guard presence required, one atomic transaction with real combat initiative and holo receipt; no teleport or automatic other faction spawn",
+      "tests": "uae-p209-holopark-wing-guard.test.mjs"
+    }
+  ],
+  "notClaimed": [
+    "Grayson Security faction encounter",
+    "Arend goons faction encounter in Holo-Park",
+    "terrain symbol effects",
+    "narrative two-minute clock",
+    "Arend/Lando outcomes",
+    "full five adventures"
+  ]
+}

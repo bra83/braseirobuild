@@ -1,0 +1,31 @@
+{
+  "files": 365,
+  "elapsed_seconds": 123.41,
+  "passed_files": 363,
+  "failed_files": 2,
+  "tests": 3297,
+  "pass": 3295,
+  "fail": 2,
+  "skip": 0,
+  "unknown": 0,
+  "failed": [
+    {
+      "file": "r54-p74-campaign-lifecycle-insets-version.test.mjs",
+      "returncode": 1,
+      "tests": 4,
+      "pass": 3,
+      "fail": 1,
+      "skip": 0,
+      "error": "t.runInAsyncScope (node:async_hooks:214:14)\n    Test.run (node:internal/test_runner/test:1047:25)\n    Test.start (node:internal/test_runner/test:944:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)\n  ...\n# Subtest: P74: Android reads modern system bars and exports bottom safe inset\nok 2 - P74: Android reads modern system bars and exports bottom safe inset\n  ---\n  duration_ms: 4.730994\n  type: 'test'\n  ...\n# Subtest: P74: campaign hub exposes restart, new world/selection and full reset\nok 3 - P74: campaign hub exposes restart, new world/selection and full reset\n  ---\n  duration_ms: 6.692997\n  type: 'test'\n  ...\n# Subtest: P74: UI bridge exposes canonical full newCampaign without changing Duty/Obligation logic\nok 4 - P74: UI bridge exposes canonical full newCampaign without changing Duty/Obligation logic\n  ---\n  duration_ms: 50.703373\n  type: 'test'\n  ...\n1..4\n# tests 4\n# suites 0\n# pass 3\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 465.040354\n\n"
+    },
+    {
+      "file": "r54-p77-android-build-fix.test.mjs",
+      "returncode": 1,
+      "tests": 2,
+      "pass": 1,
+      "fail": 1,
+      "skip": 0,
+      "error": " ---\n  duration_ms: 25.489381\n  type: 'test'\n  location: '/mnt/data/starwars_p240_work/tests/r54-p77-android-build-fix.test.mjs:15:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    The expression evaluated to a falsy value:\n    \n      assert.ok(shell.includes(`data-version=\"${version}\"`))\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: true\n  actual: false\n  operator: '=='\n  stack: |-\n    TestContext.<anonymous> (file:///mnt/data/starwars_p240_work/tests/r54-p77-android-build-fix.test.mjs:23:10)\n    Test.runInAsyncScope (node:async_hooks:214:14)\n    Test.run (node:internal/test_runner/test:1047:25)\n    Test.processPendingSubtests (node:internal/test_runner/test:744:18)\n    Test.postRun (node:internal/test_runner/test:1173:19)\n    Test.run (node:internal/test_runner/test:1101:12)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n1..2\n# tests 2\n# suites 0\n# pass 1\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 227.346059\n\n"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "version": "P144",
+  "baseline": "P143",
+  "androidVersion": "1.0.144",
+  "aorMechanicalPositions": 224,
+  "aorTotalPositions": 360,
+  "aorRemaining": 136,
+  "regular": {
+    "tests": 1637,
+    "pass": 1637,
+    "fail": 0,
+    "files": 258
+  },
+  "stress": {
+    "tests": 6,
+    "pass": 6,
+    "fail": 0
+  },
+  "focal": {
+    "tests": 20,
+    "pass": 20,
+    "fail": 0
+  },
+  "kokoroTts": {
+    "tests": 27,
+    "pass": 27,
+    "fail": 0
+  },
+  "bundleModules": 77,
+  "androidApkBuilt": false,
+  "pdfCertification": false,
+  "beyondTheRimCombatCertified": false
+}

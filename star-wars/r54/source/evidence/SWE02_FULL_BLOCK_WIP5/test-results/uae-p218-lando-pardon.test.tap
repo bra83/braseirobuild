@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: P218 official p.90: +5 Favor per GM-confirmed real PC, not a narrative flag
+ok 1 - P218 official p.90: +5 Favor per GM-confirmed real PC, not a narrative flag
+  ---
+  duration_ms: 359.88806
+  type: 'test'
+  ...
+# Subtest: P218 no automatic pardon before Lando actually accepts restoration plan and grants pardon
+ok 2 - P218 no automatic pardon before Lando actually accepts restoration plan and grants pardon
+  ---
+  duration_ms: 200.818398
+  type: 'test'
+  ...
+# Subtest: P218 exactly once even if caller changes actionId, plus three real reopenings
+ok 3 - P218 exactly once even if caller changes actionId, plus three real reopenings
+  ---
+  duration_ms: 55.581517
+  type: 'test'
+  ...
+# Subtest: P218 existing group and personal legacy Obligation retained instead of disappearing
+ok 4 - P218 existing group and personal legacy Obligation retained instead of disappearing
+  ---
+  duration_ms: 74.38415
+  type: 'test'
+  ...
+# Subtest: P218 no double-count of pre-existing group obligations
+ok 5 - P218 no double-count of pre-existing group obligations
+  ---
+  duration_ms: 83.990842
+  type: 'test'
+  ...
+# Subtest: P218 replay rejects tampering, extra flags, duplicate names and removed proof
+ok 6 - P218 replay rejects tampering, extra flags, duplicate names and removed proof
+  ---
+  duration_ms: 40.795873
+  type: 'test'
+  ...
+# Subtest: P218 cannot grant pardon during combat, or in AoR-only campaign
+ok 7 - P218 cannot grant pardon during combat, or in AoR-only campaign
+  ---
+  duration_ms: 60.986579
+  type: 'test'
+  ...
+# Subtest: P218 real bridge, status, UI and version wired, Java/Kokoro source untouched
+ok 8 - P218 real bridge, status, UI and version wired, Java/Kokoro source untouched
+  ---
+  duration_ms: 103.915245
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2751.451701

@@ -1,0 +1,21 @@
+{
+  "checkpoint": "P232",
+  "source": "SWE09 The Jewel of Yavin.pdf",
+  "googleDriveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "printedPage": 92,
+  "section": "Smoke and Holograms / Table 3-1 Holo-Park Planets",
+  "access": "Google Drive connector fetch; full text searched in this run",
+  "verified": [
+    "GM rolls d100 when characters enter the Holo-Park to determine the initial landscape",
+    "Landscape changes every two rounds during structured gameplay OR every two minutes of narrative gameplay",
+    "Table 3-1 prints an overlap on d100=47 between Christophsis and Coruscant",
+    "Landscapes: Alderaan, Christophsis, Coruscant, Kashyyyk, projectors shut down"
+  ],
+  "implementationLimits": [
+    "Narrative clock uses only world.clock.elapsedMinutes backed by taskTimeLedger, not wall clock or synthetic increments",
+    "A GM-confirmed button registers one due interval at a time, preserving overdue intervals without skipping",
+    "Narrative landscape is independent of structured combat and cannot be active concurrently",
+    "Narrative mode does not automatically award XP, resolve a chase, instantiate pursuers, or trigger combat",
+    "Other-action vertigo integration remains pending"
+  ]
+}

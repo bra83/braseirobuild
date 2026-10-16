@@ -1,0 +1,50 @@
+[
+  {
+    "assetId": "external.kainrath.vehicle.y164-slave-transport",
+    "title": "Y164 Slave Transport",
+    "category": "vehicle",
+    "subtype": "transport",
+    "sourcePageUrl": "https://kainrath.wordpress.com/2015/11/15/y164-slave-transport/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2015/11/slave-transport.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "transport",
+      "y164-slave-transport",
+      "freighters-direct-recovery"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.simiyiar-light-freighter",
+    "title": "Simiyiar Light Freighter",
+    "category": "vehicle",
+    "subtype": "freighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/2015/11/12/simiyiar-light-freighter/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2015/11/simiyiar-light-freighter.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "freighter",
+      "simiyiar-light-freighter",
+      "freighters-direct-recovery"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.customized-nova-courier-the-lucky-guess",
+    "title": "Customized Nova Courier “The Lucky Guess”",
+    "category": "vehicle",
+    "subtype": "freighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/page/4/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2014/04/the-lucky-guess1.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "freighter",
+      "customized-nova-courier-the-lucky-guess",
+      "freighters-direct-recovery"
+    ]
+  }
+]

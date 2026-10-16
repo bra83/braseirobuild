@@ -1,0 +1,37 @@
+{
+  "checkpoint": "P208",
+  "source": "The Jewel of Yavin SWE09 official user Drive PDF",
+  "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "method": "Google Drive connector readable PDF text, directed passages (not complete editorial certification)",
+  "verified": [
+    {
+      "printedPage": 69,
+      "section": "Banking on a Break",
+      "rule": "Naboka refuses additional checks after an initial failed slicing attempt; hired R3-8C may retry within general retry limits",
+      "implementation": "bank step preflight, receipt replay and availability UI"
+    },
+    {
+      "printedPages": [
+        92,
+        93,
+        94
+      ],
+      "section": "Flight over Fight / Smoke and Holograms",
+      "rule": "Table 3-1 landscape d100, change every two structured rounds or two narrative minutes; combat chase ends at Long range, pursuers defeated/scattered, or ten rounds",
+      "implementation": "structured-round mode only, actual combat.round, d100 receipt, separate GM-confirmed end"
+    },
+    {
+      "printedPage": 92,
+      "section": "Table 3-1",
+      "rule": "Published ranges 1–23 Alderaan, 24–47 Christophsis, 47–71 Coruscant, 72–95 Kashyyyk, 96–100 projector shutdown",
+      "implementation": "d100=47 explicitly ambiguous and requires GM choice, not silently rewritten"
+    }
+  ],
+  "notCertified": [
+    "Full editorial review of five adventures",
+    "Landscape-specific symbol outcomes on pp.93–94",
+    "Three-faction encounters and faction spawn",
+    "Narrative two-minute clock mode",
+    "Arrow-7 vehicle missing official statistics"
+  ]
+}

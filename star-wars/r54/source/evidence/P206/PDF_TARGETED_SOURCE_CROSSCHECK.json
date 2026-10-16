@@ -1,0 +1,20 @@
+{
+  "checkpoint": "P206",
+  "verificationType": "DIRECT_TARGETED_PDF_TEXT_READ_NOT_FULL_BOOK_CERTIFICATION",
+  "sources": [
+    {
+      "title": "The Jewel of Yavin",
+      "driveId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+      "section": "Episode III / Time for a New Plan, printed page 90",
+      "verified": ["Four Shen's Goons approach at Medium personal range", "Arrow-7 customized airspeeder with one pilot", "Aft-mounted repeating blaster uses personal damage scale"],
+      "notProvidedInExtractedVehicleProfile": ["speed", "handling", "hull trauma threshold", "system strain threshold", "armor", "pilot character sheet"]
+    },
+    {
+      "title": "Edge of the Empire Core Rulebook",
+      "driveId": "1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX",
+      "section": "Chapter VII / The Chase, immediately after difficult maneuvers",
+      "verified": ["GM sets initial range", "Airspeeder chase normally uses planetary range bands", "Both pilots make competitive Piloting checks", "GM sets difficulty according to terrain", "Winner shifts range one band", "If winner is faster, add range bands equal to verified relative speed difference", "Competitive checks occur at beginning of round", "GM adjudicates ending at contact or beyond extreme range", "Chase maneuver does not override relative position via normal vehicle maneuvers"]
+    }
+  ],
+  "explicitLimitations": ["No published Arrow-7 speed/hull/armor values invented", "NPC pilot skill/Agility must be entered from a real sheet and explicitly confirmed by GM", "No automatic NPC pilot character sheet certification", "No planetary hull damage simulation", "No automatic encounter completion on chase outcome", "No editorial certification of all five adventures or 360 rule consumers"]
+}

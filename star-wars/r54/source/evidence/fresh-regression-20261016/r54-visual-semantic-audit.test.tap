@@ -1,0 +1,13 @@
+✔ auditoria visual independente: locais distinguem mapa dedicado de esquema gerado (157.8894ms)
+✔ auditoria visual independente: bindings de itens usam o objeto certo e todos os paths existem (516.8034ms)
+✔ auditoria visual independente: índice P6 e UI não contêm fallback genérico para entidades (17.7933ms)
+✔ auditoria visual independente: todos os caminhos do índice P6 que representam imagens são resolvíveis (2247.5795ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4139.0268
+

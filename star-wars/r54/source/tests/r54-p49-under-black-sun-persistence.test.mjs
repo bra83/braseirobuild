@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createWorld } from '../app/src/main/assets/vtt/js/world/world.mjs';
+import { startUnderBlackSun, advanceUnderBlackSun, underBlackSunStatus, currentUnderBlackSunScene, recordUnderBlackSunEncounterOutcome } from '../app/src/main/assets/vtt/js/adventure/underBlackSun.mjs';
+const step=(w,id)=>advanceUnderBlackSun(w,id).world;
+const reopen=w=>JSON.parse(JSON.stringify(w));
+function toPlant(route='through-offices'){let w=startUnderBlackSun(createWorld()).world;for(const id of ['escape-clean','begin-investigation','go-spyder','spyder-return','go-zelcomm','zelcomm-clean','move-endgame','plan-direct',route])w=step(w,id);return w}
+function toShowdown(){let w=toPlant(); for(const id of ['enter-abandoned','face-kaato']) w=step(w,id); return w}
+
+test('P49: save/reopen preserva rota NovaCORE e projeção dinâmica sem spoiler',()=>{let w=reopen(toPlant('through-offices'));let s=underBlackSunStatus(w);assert.equal(s.progress.flags.factoryRoute,'offices');assert.match(s.node.title,/escritórios/i);assert.match(currentUnderBlackSunScene(w).title,/escritórios/i);assert.equal(s.node.checks.some(c=>c.skill==='Frieza'),false)});
+test('P49: save/reopen preserva investigação, flags e nó atual',()=>{let w=startUnderBlackSun(createWorld()).world;for(const id of ['escape-fight','begin-investigation','go-spyder','spyder-warn-black-sun','go-zelcomm','zelcomm-clean'])w=step(w,id);w=reopen(w);const s=underBlackSunStatus(w);assert.equal(s.progress.currentNodeId,'investigation-hub');assert.equal(s.progress.investigationCount,2);assert.equal(s.progress.flags.blackSunAgainstKaato,true);assert.equal(s.progress.flags.policeAttention,true)});
+test('P49: desfechos do showdown continuam mutuamente exclusivos após reopen',()=>{let w=toShowdown();w=recordUnderBlackSunEncounterOutcome(w,{encounterId:'kaato-showdown',outcome:'adversaries_defeated',adversaries:[{profileKey:'kaato_leeachos',status:'incapacitated'}]}).world;w=reopen(w);const labels=underBlackSunStatus(w).node.choices.map(c=>c.id);assert.deepEqual(labels.sort(),['kaato-captured','kaato-killed'].sort());assert.equal(labels.includes('kaato-vanishes'),false)});
+test('P49: consequência de epílogo não duplica ao reabrir estado concluído',()=>{let w=toShowdown();w=recordUnderBlackSunEncounterOutcome(w,{encounterId:'kaato-showdown',outcome:'escaped',adversaries:[{profileKey:'kaato_leeachos',status:'active'}]}).world;w=step(w,'kaato-vanishes');const before=JSON.stringify(w.publishedAdventureConsequences);w=reopen(w);const s=underBlackSunStatus(w);assert.equal(s.completed,true);assert.equal(s.progress.consequencesApplied,true);assert.equal(JSON.stringify(w.publishedAdventureConsequences),before)});

@@ -1,0 +1,16 @@
+{
+  "checkpoint": "P214",
+  "mode": "node --test per-file; 12 regular workers, stress sequential; NOT monolithic",
+  "regularFiles": 333,
+  "stressFiles": 6,
+  "regularTests": 3060,
+  "regularPassed": 3060,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "totalFiles": 339,
+  "totalTests": 3066,
+  "totalPassed": 3066,
+  "focalTests": 4,
+  "elapsedSeconds": 100.25
+}

@@ -1,0 +1,10 @@
+{
+  "checkpoint":"P184",
+  "scope":"TARGETED SOURCE CROSSCHECK; NOT FULL BOOK CERTIFICATION",
+  "sourceDocuments":[
+    {"title":"The Jewel of Yavin","productCode":"SWE09","driveFileId":"1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K","sections":[{"printedPages":"48-55","topic":"Seven competitive Piloting (Planetary) checks; Place Value is sum of speed per leg plus adjustments; eight buoys"},{"printedPages":"58-68","topic":"Kaltho starts at 20,000 credits; auction baseline +20,000 per round, 200,000 after ten rounds; bidder values 1..7; successful persuasion +1 per uncanceled success and +3 per Triumph; +10,000 bid per round with successful persuasion; eliminate bidders more than ten behind"}]},
+    {"title":"Long Arm of the Hutt","productCode":"SWE02","driveFileId":"1Lm26krELYpWU0Rx0WgPj__g72YU_F2lC","sections":[{"printedPages":"15-17","topic":"Old lylek den: one bounty hunter per PC, one Gand with blaster rifle; bounty hunter characteristics, soak 5, wound threshold 13, heavy pistol 7 damage, Gand rifle 9 damage"}]}
+  ],
+  "implemented":"Jewel race seven legs, place value, ordered receipts, GM ranking, auction rounds and bidder influences; Long Arm lylek encounter with source-checked hunter profiles and session-based group size",
+  "limitations":["Jewel vehicle terrain/criticals/initiative/rival NPC complete race simulation not certified", "Bidder individual motivations, all possible special auction interactions and bank actual credit transfer not certified", "Trex optional presence and prior Escape from Mos Shuuta continuity not implemented", "Other Long Arm encounters and the remaining four adventure books not fully certified", "No Android APK or physical device homologation"]
+}

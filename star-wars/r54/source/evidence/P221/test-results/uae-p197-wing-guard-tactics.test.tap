@@ -1,0 +1,88 @@
+TAP version 13
+# Subtest: P197 Covering Fire +1 ranged defense on two confirmed allies, no stacking, expires after next round
+ok 1 - P197 Covering Fire +1 ranged defense on two confirmed allies, no stacking, expires after next round
+  ---
+  duration_ms: 8.324176
+  type: 'test'
+  ...
+# Subtest: P197 tactical direction grants exactly one real Boost consumed on next NPC check
+ok 2 - P197 tactical direction grants exactly one real Boost consumed on next NPC check
+  ---
+  duration_ms: 1.294622
+  type: 'test'
+  ...
+# Subtest: P197 rejects invalid actor, forged distances, self targeting, wrong group, duplicate and missing targets
+ok 3 - P197 rejects invalid actor, forged distances, self targeting, wrong group, duplicate and missing targets
+  ---
+  duration_ms: 1.54154
+  type: 'test'
+  ...
+# Subtest: P197 rejects incapacitated source and target, and cannot grant cover in inactive combat
+ok 4 - P197 rejects incapacitated source and target, and cannot grant cover in inactive combat
+  ---
+  duration_ms: 0.899271
+  type: 'test'
+  ...
+# Subtest: P197 duplicate orders cannot grant a second maneuver in the same round
+ok 5 - P197 duplicate orders cannot grant a second maneuver in the same round
+  ---
+  duration_ms: 1.272913
+  type: 'test'
+  ...
+# Subtest: P197 no wing tactics for non-Wing Guard profiles
+ok 6 - P197 no wing tactics for non-Wing Guard profiles
+  ---
+  duration_ms: 0.679627
+  type: 'test'
+  ...
+# Subtest: P197 persistent order and applied effects survive three JSON reopens
+ok 7 - P197 persistent order and applied effects survive three JSON reopens
+  ---
+  duration_ms: 1.895254
+  type: 'test'
+  ...
+# Subtest: P197 controller and UI bridge expose queued maneuver without touching inactive campaign
+ok 8 - P197 controller and UI bridge expose queued maneuver without touching inactive campaign
+  ---
+  duration_ms: 2.447431
+  type: 'test'
+  ...
+# Subtest: P197 cover is not applied to melee attacks
+ok 9 - P197 cover is not applied to melee attacks
+  ---
+  duration_ms: 1.320857
+  type: 'test'
+  ...
+# Subtest: P197 actual NPC attack pool receives tactical boost once and consumes it
+ok 10 - P197 actual NPC attack pool receives tactical boost once and consumes it
+  ---
+  duration_ms: 14.245919
+  type: 'test'
+  ...
+# Subtest: P197 actual player ranged attack rolls one extra setback against officer under Covering Fire
+ok 11 - P197 actual player ranged attack rolls one extra setback against officer under Covering Fire
+  ---
+  duration_ms: 27.626902
+  type: 'test'
+  ...
+# Subtest: P197 Android UI exposes GM-confirmed tactic queue and runtime parses (P196 apostrophe regression fixed)
+ok 12 - P197 Android UI exposes GM-confirmed tactic queue and runtime parses (P196 apostrophe regression fixed)
+  ---
+  duration_ms: 13.638294
+  type: 'test'
+  ...
+# Subtest: P197 queued Covering Fire cancels without freezing NPC turn if ally is incapacitated meanwhile
+ok 13 - P197 queued Covering Fire cancels without freezing NPC turn if ally is incapacitated meanwhile
+  ---
+  duration_ms: 0.55269
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 450.98382

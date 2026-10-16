@@ -1,0 +1,19 @@
+{
+  "status": "FIXED_WITH_DECLARED_GAPS",
+  "fixed": [
+    "visual lookup agora é exact-only; fallback fuzzy removido",
+    "seed de NPCs e ordem de facções varia por nova aventura",
+    "texto técnico sobre RAG removido da Situação imediata",
+    "82 mapas de localização galáctica reais gerados; Shantipole mantém mapa local dedicado",
+    "bindings específicos adicionados: Pistola blaster leve, Armadura laminada, Comunicador, Scanner geral, Macrobinóculos, Mochila, Equipamento de escalada, Lanterna de fusão",
+    "gradlew e MainActivity normalizados para LF"
+  ],
+  "declaredMissingSpecificAssets": [
+    "Faca de combate",
+    "Sabre de luz",
+    "Remendo de reparo de emergência",
+    "Rações",
+    "Olho do Avaliador"
+  ],
+  "policy": "sem asset correto => sem imagem, nunca fallback semanticamente incorreto"
+}

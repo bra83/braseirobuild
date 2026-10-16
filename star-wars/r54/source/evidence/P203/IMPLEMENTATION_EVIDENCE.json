@@ -1,0 +1,24 @@
+{
+  "checkpoint": "P203",
+  "changes": [
+    "Long/Extreme fall real forced incapacitation + Critical Injury with +50/+75, 30/40 strain; existing environment.applyForcedFall integrated",
+    "Existing environment.applyForcedFall now accepts actual net advantages to reduce strain without changing prior callers",
+    "Real Average Athletics/Coordination dice and optional GM-authorized Triumph one-band reduction; medium numeric result or long forced result",
+    "Receipt impactVersion 2 with effectiveFallRange, gmTriumphReduce, forcedCriticalCode; replay checks dice faces, order, outcomes and rollback; legacy P202 receipts unchanged",
+    "Android PTBR fall selector, GM Triumph checkbox, versionName 1.0.203/versionCode 10203, offline bundle rebuilt"
+  ],
+  "tests": [
+    "tests/uae-p203-jewel-long-extreme-falls.test.mjs",
+    "tests/uae-p202-jewel-impact-goons.test.mjs",
+    "tests/r54-p113-environment-hazards.test.mjs"
+  ],
+  "limitations": [
+    "Extreme death is GM discretion; not automatically applied",
+    "Destiny mitigation not automatically applied (no source-backed specific conversion)",
+    "Companion multi-target explosion/fall not implemented",
+    "Arrow-7 vehicle pursuit and Arend/Naboka finale not implemented",
+    "Five adventures and 360 rules not certified",
+    "No APK, CI BRELGA, Android physical test"
+  ],
+  "source": "EotE Core official Drive ID 1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX, Table 6-9 printed p215"
+}

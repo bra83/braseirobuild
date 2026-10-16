@@ -1,0 +1,15 @@
+{
+  "checkpoint":"P213",
+  "base":"P212",
+  "baseSha256":"68d698c5987dbfbcec1d85abe61718a87f361ecd6e7e80d6a339e01b7221ed29",
+  "implementedEffects":["christophsis_spotlight","coruscant_transport"],
+  "holoParkEffectsCovered":10,
+  "holoParkEffectsTotal":16,
+  "npcThreatProof":"NPC attack ID, attacker ID, round, landscape, actual roll pool, faces and symbols; one reserved Threat not double-spent as NPC strain",
+  "persistence":"World receipt and combat runtime state, atomic action, 3 reopen tests",
+  "ui":"Android PT-BR bridge and runtime controls",
+  "bundleModules":104,
+  "androidVersion":"1.0.213",
+  "androidVersionCode":10213,
+  "limits":["six landscape effects remain manual","unspent reserved NPC Threat awaits GM adjudication","no physical Android certification","no APK or CI","no full book semantic audit"]
+}

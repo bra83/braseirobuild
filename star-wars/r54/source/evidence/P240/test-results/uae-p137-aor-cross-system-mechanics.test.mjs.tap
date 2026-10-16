@@ -1,0 +1,107 @@
+TAP version 13
+# Subtest: P137 six AoR talent families remain active with at least 205/360 source-backed positions
+ok 1 - P137 six AoR talent families remain active with at least 205/360 source-backed positions
+  ---
+  duration_ms: 8.666879
+  type: 'test'
+  ...
+# Subtest: P137 REPARACIÓN EFICAZ bought through actual tree: rank, XP, immutability and JSON persistence
+ok 2 - P137 REPARACIÓN EFICAZ bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 21.201457
+  type: 'test'
+  ...
+# Subtest: P137 ROBUSTO bought through actual tree: rank, XP, immutability and JSON persistence
+ok 3 - P137 ROBUSTO bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 5.321929
+  type: 'test'
+  ...
+# Subtest: P137 CONFIANZA bought through actual tree: rank, XP, immutability and JSON persistence
+ok 4 - P137 CONFIANZA bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 2.178018
+  type: 'test'
+  ...
+# Subtest: P137 DISPARO CERTERO bought through actual tree: rank, XP, immutability and JSON persistence
+ok 5 - P137 DISPARO CERTERO bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 21.250189
+  type: 'test'
+  ...
+# Subtest: P137 ELUDIR SEGURIDAD bought through actual tree: rank, XP, immutability and JSON persistence
+ok 6 - P137 ELUDIR SEGURIDAD bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 2.841673
+  type: 'test'
+  ...
+# Subtest: P137 ESPECIALISTA EN ESTIMULANTES bought through actual tree: rank, XP, immutability and JSON persistence
+ok 7 - P137 ESPECIALISTA EN ESTIMULANTES bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 5.55855
+  type: 'test'
+  ...
+# Subtest: P137 ranked SOLREP repairs hull, never system strain, and persists vehicle result
+ok 8 - P137 ranked SOLREP repairs hull, never system strain, and persists vehicle result
+  ---
+  duration_ms: 30.189369
+  type: 'test'
+  ...
+# Subtest: P137 ROBUSTO lowers incoming critical result 10 per rank, minimum 1, without mutating input
+ok 9 - P137 ROBUSTO lowers incoming critical result 10 per rank, minimum 1, without mutating input
+  ---
+  duration_ms: 4.147646
+  type: 'test'
+  ...
+# Subtest: P137 CONFIANZA reduces Discipline fear, never Cool, never below difficulty 1
+ok 10 - P137 CONFIANZA reduces Discipline fear, never Cool, never below difficulty 1
+  ---
+  duration_ms: 15.25631
+  type: 'test'
+  ...
+# Subtest: P137 BYP removes setback only for security bypass Computers/Skulduggery checks
+ok 11 - P137 BYP removes setback only for security bypass Computers/Skulduggery checks
+  ---
+  duration_ms: 86.337055
+  type: 'test'
+  ...
+# Subtest: P137 STIMSPEC increases healing and retains daily diminishing returns and item consumption
+ok 12 - P137 STIMSPEC increases healing and retains daily diminishing returns and item consumption
+  ---
+  duration_ms: 9.099537
+  type: 'test'
+  ...
+# Subtest: P137 TRUEAIM consumes one real maneuver and upgrades ranged pool; once per round and persistent
+ok 13 - P137 TRUEAIM consumes one real maneuver and upgrades ranged pool; once per round and persistent
+  ---
+  duration_ms: 50.219063
+  type: 'test'
+  ...
+# Subtest: P137 TRUEAIM rejects unowned talent and melee attacks without committing illegal effects
+ok 14 - P137 TRUEAIM rejects unowned talent and melee attacks without committing illegal effects
+  ---
+  duration_ms: 35.419496
+  type: 'test'
+  ...
+# Subtest: P137 five adventures still restore canonical UAE state with new AoR rules loaded
+ok 15 - P137 five adventures still restore canonical UAE state with new AoR rules loaded
+  ---
+  duration_ms: 195.017603
+  type: 'test'
+  ...
+# Subtest: P137 Android UI offers true aim and keeps Kokoro untouched
+ok 16 - P137 Android UI offers true aim and keeps Kokoro untouched
+  ---
+  duration_ms: 6.765163
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1403.831858
+

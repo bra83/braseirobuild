@@ -1,0 +1,7 @@
+{
+  "checkpoint": "P206",
+  "realCode": ["app/src/main/assets/vtt/js/adventure/jewelArrow7Chase.mjs", "app/src/main/assets/vtt/js/core/controller.mjs", "app/src/main/assets/vtt/js/core/uiBridge.mjs", "app/src/main/assets/vtt/js/adventure/jewelOfYavin.mjs", "app/src/main/assets/vtt/r46/final-runtime.js", "app/src/main/assets/vtt/r46-shell.html", "app/src/main/assets/vtt/js/core/uiBridge.bundle.js", "app/build.gradle.kts"],
+  "features": ["competitive Piloting Planetary rolls for player and GM-confirmed NPC pilot", "planetary range tracking independent from personal turret range", "GM-confirmed terrain and optional source-verified speeds", "real success comparison with ties preserving range", "chase round must precede actor actions", "end-of-chase contact/escape confirmed by GM with separate receipt", "face/pool/symbol replay verification", "atomic WORLD_UPDATED and COMBAT_ACTION persistence", "three save reopens", "PT-BR Android controls"],
+  "previousMechanicsPreserved": ["P205 aft turret uses personal scale", "P204 companion impacts", "P203 fall criticals", "P200 bank settlement", "Kokoro Java byte-identical"],
+  "noApkOrCi": true
+}

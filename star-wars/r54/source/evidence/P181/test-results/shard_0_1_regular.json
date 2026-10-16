@@ -1,0 +1,12 @@
+{
+  "shard": 0,
+  "shards": 1,
+  "files": 300,
+  "tests": 2664,
+  "passed": 2662,
+  "failed": 2,
+  "badFiles": [
+    "r54-p74-campaign-lifecycle-insets-version.test.mjs",
+    "r54-p77-android-build-fix.test.mjs"
+  ]
+}

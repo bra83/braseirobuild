@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: R43 manifest V3.6 baseline remains preserved after later visual promotions
+ok 1 - R43 manifest V3.6 baseline remains preserved after later visual promotions
+  ---
+  duration_ms: 1.349287
+  type: 'test'
+  ...
+# Subtest: R43 wave4 indexes exactly 3 vehicles plus 1 droid
+ok 2 - R43 wave4 indexes exactly 3 vehicles plus 1 droid
+  ---
+  duration_ms: 0.920529
+  type: 'test'
+  ...
+# Subtest: R43 wave4 contains only the direct-proven recovery set
+ok 3 - R43 wave4 contains only the direct-proven recovery set
+  ---
+  duration_ms: 0.188047
+  type: 'test'
+  ...
+# Subtest: R43 URLs are secure direct raw Kainrath media URLs
+ok 4 - R43 URLs are secure direct raw Kainrath media URLs
+  ---
+  duration_ms: 0.83222
+  type: 'test'
+  ...
+# Subtest: R43 recovery remains visual-only and never infers mechanics
+ok 5 - R43 recovery remains visual-only and never infers mechanics
+  ---
+  duration_ms: 0.21824
+  type: 'test'
+  ...
+# Subtest: R43 bridge exposes 120 vehicles and 75 Kainrath visual entities
+ok 6 - R43 bridge exposes 120 vehicles and 75 Kainrath visual entities
+  ---
+  duration_ms: 26.436762
+  type: 'test'
+  ...
+# Subtest: R43 direct-recovery group is searchable without affecting old walker wave
+ok 7 - R43 direct-recovery group is searchable without affecting old walker wave
+  ---
+  duration_ms: 14.328462
+  type: 'test'
+  ...
+# Subtest: R43 preserves R40-R42 vehicle waves unchanged
+ok 8 - R43 preserves R40-R42 vehicle waves unchanged
+  ---
+  duration_ms: 2.287229
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 538.774371
+

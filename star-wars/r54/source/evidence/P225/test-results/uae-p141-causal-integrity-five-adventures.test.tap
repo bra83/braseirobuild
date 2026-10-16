@@ -1,0 +1,202 @@
+TAP version 13
+# Subtest: P141 under-black-sun: grafo completo e rota estrutural para desfecho
+ok 1 - P141 under-black-sun: grafo completo e rota estrutural para desfecho
+  ---
+  duration_ms: 21.680841
+  type: 'test'
+  ...
+# Subtest: P141 under-black-sun: primeira transição oficial, JSON e reabertura preservam causa e estado
+ok 2 - P141 under-black-sun: primeira transição oficial, JSON e reabertura preservam causa e estado
+  ---
+  duration_ms: 466.102122
+  type: 'test'
+  ...
+# Subtest: P141 under-black-sun: gatilho real de marco gera contador e journal causal íntegros
+ok 3 - P141 under-black-sun: gatilho real de marco gera contador e journal causal íntegros
+  ---
+  duration_ms: 105.666703
+  type: 'test'
+  ...
+# Subtest: P141 under-black-sun: alteração de contador, objetivo e evento é recusada sem reparo
+ok 4 - P141 under-black-sun: alteração de contador, objetivo e evento é recusada sem reparo
+  ---
+  duration_ms: 105.730978
+  type: 'test'
+  ...
+# Subtest: P141 under-black-sun: consequência registrada/resolvida não aceita histórico falso
+ok 5 - P141 under-black-sun: consequência registrada/resolvida não aceita histórico falso
+  ---
+  duration_ms: 58.006755
+  type: 'test'
+  ...
+# Subtest: P141 under-black-sun: rollback transacional preserva journal, objetivo, consequência e clock
+ok 6 - P141 under-black-sun: rollback transacional preserva journal, objetivo, consequência e clock
+  ---
+  duration_ms: 36.994371
+  type: 'test'
+  ...
+# Subtest: P141 beyond-the-rim: grafo completo e rota estrutural para desfecho
+ok 7 - P141 beyond-the-rim: grafo completo e rota estrutural para desfecho
+  ---
+  duration_ms: 1.305421
+  type: 'test'
+  ...
+# Subtest: P141 beyond-the-rim: primeira transição oficial, JSON e reabertura preservam causa e estado
+ok 8 - P141 beyond-the-rim: primeira transição oficial, JSON e reabertura preservam causa e estado
+  ---
+  duration_ms: 253.550597
+  type: 'test'
+  ...
+# Subtest: P141 beyond-the-rim: gatilho real de marco gera contador e journal causal íntegros
+ok 9 - P141 beyond-the-rim: gatilho real de marco gera contador e journal causal íntegros
+  ---
+  duration_ms: 18.842755
+  type: 'test'
+  ...
+# Subtest: P141 beyond-the-rim: alteração de contador, objetivo e evento é recusada sem reparo
+ok 10 - P141 beyond-the-rim: alteração de contador, objetivo e evento é recusada sem reparo
+  ---
+  duration_ms: 92.371444
+  type: 'test'
+  ...
+# Subtest: P141 beyond-the-rim: consequência registrada/resolvida não aceita histórico falso
+ok 11 - P141 beyond-the-rim: consequência registrada/resolvida não aceita histórico falso
+  ---
+  duration_ms: 23.571118
+  type: 'test'
+  ...
+# Subtest: P141 beyond-the-rim: rollback transacional preserva journal, objetivo, consequência e clock
+ok 12 - P141 beyond-the-rim: rollback transacional preserva journal, objetivo, consequência e clock
+  ---
+  duration_ms: 64.195415
+  type: 'test'
+  ...
+# Subtest: P141 long-arm-of-the-hutt: grafo completo e rota estrutural para desfecho
+ok 13 - P141 long-arm-of-the-hutt: grafo completo e rota estrutural para desfecho
+  ---
+  duration_ms: 0.270385
+  type: 'test'
+  ...
+# Subtest: P141 long-arm-of-the-hutt: primeira transição oficial, JSON e reabertura preservam causa e estado
+ok 14 - P141 long-arm-of-the-hutt: primeira transição oficial, JSON e reabertura preservam causa e estado
+  ---
+  duration_ms: 137.137003
+  type: 'test'
+  ...
+# Subtest: P141 long-arm-of-the-hutt: gatilho real de marco gera contador e journal causal íntegros
+ok 15 - P141 long-arm-of-the-hutt: gatilho real de marco gera contador e journal causal íntegros
+  ---
+  duration_ms: 125.143384
+  type: 'test'
+  ...
+# Subtest: P141 long-arm-of-the-hutt: alteração de contador, objetivo e evento é recusada sem reparo
+ok 16 - P141 long-arm-of-the-hutt: alteração de contador, objetivo e evento é recusada sem reparo
+  ---
+  duration_ms: 82.181612
+  type: 'test'
+  ...
+# Subtest: P141 long-arm-of-the-hutt: consequência registrada/resolvida não aceita histórico falso
+ok 17 - P141 long-arm-of-the-hutt: consequência registrada/resolvida não aceita histórico falso
+  ---
+  duration_ms: 65.749519
+  type: 'test'
+  ...
+# Subtest: P141 long-arm-of-the-hutt: rollback transacional preserva journal, objetivo, consequência e clock
+ok 18 - P141 long-arm-of-the-hutt: rollback transacional preserva journal, objetivo, consequência e clock
+  ---
+  duration_ms: 20.175851
+  type: 'test'
+  ...
+# Subtest: P141 jewel-of-yavin: grafo completo e rota estrutural para desfecho
+ok 19 - P141 jewel-of-yavin: grafo completo e rota estrutural para desfecho
+  ---
+  duration_ms: 0.218394
+  type: 'test'
+  ...
+# Subtest: P141 jewel-of-yavin: primeira transição oficial, JSON e reabertura preservam causa e estado
+ok 20 - P141 jewel-of-yavin: primeira transição oficial, JSON e reabertura preservam causa e estado
+  ---
+  duration_ms: 276.725166
+  type: 'test'
+  ...
+# Subtest: P141 jewel-of-yavin: gatilho real de marco gera contador e journal causal íntegros
+ok 21 - P141 jewel-of-yavin: gatilho real de marco gera contador e journal causal íntegros
+  ---
+  duration_ms: 40.481633
+  type: 'test'
+  ...
+# Subtest: P141 jewel-of-yavin: alteração de contador, objetivo e evento é recusada sem reparo
+ok 22 - P141 jewel-of-yavin: alteração de contador, objetivo e evento é recusada sem reparo
+  ---
+  duration_ms: 58.685309
+  type: 'test'
+  ...
+# Subtest: P141 jewel-of-yavin: consequência registrada/resolvida não aceita histórico falso
+ok 23 - P141 jewel-of-yavin: consequência registrada/resolvida não aceita histórico falso
+  ---
+  duration_ms: 15.009917
+  type: 'test'
+  ...
+# Subtest: P141 jewel-of-yavin: rollback transacional preserva journal, objetivo, consequência e clock
+ok 24 - P141 jewel-of-yavin: rollback transacional preserva journal, objetivo, consequência e clock
+  ---
+  duration_ms: 10.686724
+  type: 'test'
+  ...
+# Subtest: P141 mask-of-the-pirate-queen: grafo completo e rota estrutural para desfecho
+ok 25 - P141 mask-of-the-pirate-queen: grafo completo e rota estrutural para desfecho
+  ---
+  duration_ms: 0.11071
+  type: 'test'
+  ...
+# Subtest: P141 mask-of-the-pirate-queen: primeira transição oficial, JSON e reabertura preservam causa e estado
+ok 26 - P141 mask-of-the-pirate-queen: primeira transição oficial, JSON e reabertura preservam causa e estado
+  ---
+  duration_ms: 94.024302
+  type: 'test'
+  ...
+# Subtest: P141 mask-of-the-pirate-queen: gatilho real de marco gera contador e journal causal íntegros
+ok 27 - P141 mask-of-the-pirate-queen: gatilho real de marco gera contador e journal causal íntegros
+  ---
+  duration_ms: 15.314352
+  type: 'test'
+  ...
+# Subtest: P141 mask-of-the-pirate-queen: alteração de contador, objetivo e evento é recusada sem reparo
+ok 28 - P141 mask-of-the-pirate-queen: alteração de contador, objetivo e evento é recusada sem reparo
+  ---
+  duration_ms: 59.515788
+  type: 'test'
+  ...
+# Subtest: P141 mask-of-the-pirate-queen: consequência registrada/resolvida não aceita histórico falso
+ok 29 - P141 mask-of-the-pirate-queen: consequência registrada/resolvida não aceita histórico falso
+  ---
+  duration_ms: 8.31707
+  type: 'test'
+  ...
+# Subtest: P141 mask-of-the-pirate-queen: rollback transacional preserva journal, objetivo, consequência e clock
+ok 30 - P141 mask-of-the-pirate-queen: rollback transacional preserva journal, objetivo, consequência e clock
+  ---
+  duration_ms: 11.725733
+  type: 'test'
+  ...
+# Subtest: P141: módulo publicado sem desfecho ou com cena isolada falha antes de jogar
+ok 31 - P141: módulo publicado sem desfecho ou com cena isolada falha antes de jogar
+  ---
+  duration_ms: 4.490084
+  type: 'test'
+  ...
+# Subtest: P141: contrato de visibilidade e alvo do objetivo não pode ser adulterado
+ok 32 - P141: contrato de visibilidade e alvo do objetivo não pode ser adulterado
+  ---
+  duration_ms: 18.962549
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7998.487572

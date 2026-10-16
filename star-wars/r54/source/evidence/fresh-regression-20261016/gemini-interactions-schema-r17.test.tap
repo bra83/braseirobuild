@@ -1,0 +1,12 @@
+✔ Gemini Interactions schema usa apenas limites estruturais suportados e não envia maxLength (3.4376ms)
+✔ limites textuais removidos do schema remoto continuam obrigatórios no Motor Barbara (4.6812ms)
+✔ quantidade máxima de ações sugeridas continua protegida local e remotamente (1.0792ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1315.5546
+

@@ -1,0 +1,191 @@
+{
+  "project": "STAR WARS — EDGE OF THE GALAXY",
+  "block": 34,
+  "date": "2026-09-14",
+  "base": "BLOCK33_FULL_REGRESSION_673_GREEN",
+  "status": "BLOCK34_SANDBOX_ECONOMY_FULL_GREEN",
+  "baseline_zip_sha256": "38bb5e5f6e1ae19d63033bd69a328506cd81ebc90d1b43d2d12700aea99113a2",
+  "tests": {
+    "node": "703/703 PASS",
+    "stress": "6/6 PASS",
+    "js_esm": 65,
+    "java": 5,
+    "json": 25,
+    "xml": 2,
+    "secrets": 0,
+    "apk_aab": 0
+  },
+  "engine": {
+    "barbara_modules": 56,
+    "rag_testado": 49,
+    "visual": "R46 415x915 frozen"
+  },
+  "economy": [
+    "purchase",
+    "reward",
+    "loot",
+    "gift/theft",
+    "loss",
+    "damage",
+    "repair",
+    "sale"
+  ],
+  "asset_kinds": [
+    "weapon",
+    "armor",
+    "gear",
+    "vehicle"
+  ],
+  "files": [
+    {
+      "path": "app/src/main/assets/vtt/js/rules/economy.mjs",
+      "sha256": "29ed8eb7df52ed5b23a7f68ab898c03510cd2c94c5accd5999b48fdb8caac6e9",
+      "size": 13065
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/rules/fringeGroup.mjs",
+      "sha256": "72b679179b0e02c72e2ca1b19053b4166e24224231e7dd920d2ee5d9298636e7",
+      "size": 6394
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "sha256": "cf655b31ceac317d813aa466d271fab5ecc1369dc98896e031316fe763ee6e34",
+      "size": 112579
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+      "sha256": "6d0c9ab888b8d9992915a3e7f93c004ed28060caf9f3af56af5f4a3e48d2b650",
+      "size": 42962
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+      "sha256": "6c378aa4c517059be5cfd71e0247ac07dee82ea49d0c473250affb17141a290b",
+      "size": 1017808
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/master/context.mjs",
+      "sha256": "bfbe577a601364dbb0657a1beac40d27078ba8ff2668fdfe61ce7d788f6b08b0",
+      "size": 4757
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/master/proposal.mjs",
+      "sha256": "f299a5a642c0d1614d23819c43314659bf82307f1cdad0e55159d32ed4058e14",
+      "size": 25318
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/master/provider.mjs",
+      "sha256": "ecc506a82865d1871a822981587c5c3feb17ad13ecfbf1cd1850d5f36dc21f35",
+      "size": 3999
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/rag/rulesCorpus.mjs",
+      "sha256": "f2cf8b570e50144aad89e15fd82018665d2a1bda8748179a8140f47b2703c9cd",
+      "size": 47961
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/ui/app.mjs",
+      "sha256": "7b085d27197646f4809d57e4cb269f623556521d06be109337413527e15e52ba",
+      "size": 83612
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java",
+      "sha256": "b11a590cda6b7cff8714e0b19f41993ebe70f9a3738e0da45d2d00a72c44dc4e",
+      "size": 33746
+    },
+    {
+      "path": "shell-r46-run87/gameBridgeClient.ts",
+      "sha256": "bef14ee29c74e6a2f533589069d1ce7005086304d593a9fe6fdf6add23c60a48",
+      "size": 36777
+    },
+    {
+      "path": "shell-r46-run87/Templates.tsx",
+      "sha256": "8dc17f07606e59e9284bae76b3f053a55f0efb94425796604e722bc2b309f05c",
+      "size": 78040
+    },
+    {
+      "path": "rules/rules_matrix.json",
+      "sha256": "1dc81d0388dd2f484e05c1577d05b79e06aab1a1240fd867c5b76e7d96dea4f7",
+      "size": 49492
+    },
+    {
+      "path": "rules/rag_manifest.json",
+      "sha256": "cc1f9c33d7a2f03a22f0df23e8c60b937d4c8d25a6d84d8293613b0c24a03ed9",
+      "size": 206
+    },
+    {
+      "path": "tests/economy-r34.test.mjs",
+      "sha256": "b46354ff3f65891a41676e64e38cb6b0952c32c402c371e8fc9c09ed153d8297",
+      "size": 9686
+    },
+    {
+      "path": "tests/duty-type-guard-r34.test.mjs",
+      "sha256": "f229852965e6dedb593ba2d988e1a2003d5c6a28c70b0116272ae0e1f1e9b18f",
+      "size": 992
+    },
+    {
+      "path": "tests/eote-final-rag-guards.test.mjs",
+      "sha256": "381f4ae59603013722ff89a6034e2594691164b7c846cf6af213ea2a770daf9c",
+      "size": 1822
+    },
+    {
+      "path": "tests/final-android-completeness.test.mjs",
+      "sha256": "21d6832b70326bdc08c7cd72ed5b0befd4fc7d0f34354ae241ad5b6f7b48f53a",
+      "size": 7891
+    },
+    {
+      "path": "tests/documentation-current-state.test.mjs",
+      "sha256": "731000c46efe67cd8833e77ccd1ded1b5d3a98c153340f398d1f54aff8adf685",
+      "size": 974
+    },
+    {
+      "path": "gradlew",
+      "sha256": "8e4c023cf6b2cb20505cad4d4d1534111c875cf7af9ce90fd7db96d986e54b82",
+      "size": 197
+    },
+    {
+      "path": "gradlew.bat",
+      "sha256": "76f61d109e0cadd2303505aa13f639d1b322fdca743bfb4595cd403bcc4bbf3b",
+      "size": 218
+    },
+    {
+      "path": "tools/java-syntax-gate.mjs",
+      "sha256": "83cd1b951bb07cb47216b60674b86fc0c900454971df61b6eb670b9c3e12e6e2",
+      "size": 1880
+    },
+    {
+      "path": "tools/verify-final-source.mjs",
+      "sha256": "6ff7e44e7bd2aa8d47fb682c749e1eb5c63d275ec1573db5258257e0105d0fe0",
+      "size": 10564
+    },
+    {
+      "path": "README.md",
+      "sha256": "7ea1c909c553526641075bbae6ec3eccb3bd4d781be91c2b7774500f1d00e8ba",
+      "size": 3249
+    },
+    {
+      "path": "LEIA_PRIMEIRO.md",
+      "sha256": "0474e1f0fd2efb8a1ad6fc5bb1bd2f98a39dedeb59181ffa849c5ab10cd91000",
+      "size": 1062
+    },
+    {
+      "path": "FINAL_1.0.0_VALIDATION.md",
+      "sha256": "43bd2c8e26c7a43b4f907a27ec754aef80e7f63c7b3cc6140e93b60b3cf96a97",
+      "size": 10940
+    },
+    {
+      "path": "RETOMADA_ATUAL.md",
+      "sha256": "3151fa03c0968eb47b89efe662a490cd55da3b1b56e0631768aa3ffb3553b7bc",
+      "size": 54419
+    },
+    {
+      "path": "validation/LATEST_SOURCE_VALIDATION.txt",
+      "sha256": "4034a91fa8f3bfb272616b417caa66baa85831d010ef2de19fc1518e9f7db8c1",
+      "size": 685
+    },
+    {
+      "path": "validation/BLOCK34_VALIDATION.txt",
+      "sha256": "dc05570cf2be39770e601a202bc1bf69fb22b563ab45c93231c57fcf5dbef1c3",
+      "size": 979
+    }
+  ]
+}

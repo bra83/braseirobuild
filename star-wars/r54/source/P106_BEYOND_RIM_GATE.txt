@@ -1,0 +1,352 @@
+TAP version 13
+# Subtest: P52 registry instala Além da Orla como EotE/MIXED sem alterar Sob um Sol Negro
+ok 1 - P52 registry instala Além da Orla como EotE/MIXED sem alterar Sob um Sol Negro
+  ---
+  duration_ms: 1.977762
+  type: 'test'
+  ...
+# Subtest: P52 início é anti-spoiler: não revela IT-3PO, Yiyar ou ISB antes da hora
+ok 2 - P52 início é anti-spoiler: não revela IT-3PO, Yiyar ou ISB antes da hora
+  ---
+  duration_ms: 3.764765
+  type: 'test'
+  ...
+# Subtest: P52 preparação exige ao menos uma ação real e persiste pista de rumores após reopen
+ok 3 - P52 preparação exige ao menos uma ação real e persiste pista de rumores após reopen
+  ---
+  duration_ms: 5.713706
+  type: 'test'
+  ...
+# Subtest: P52 inspeção da nave persiste detecção/remoção de rastreador e não inventa consequência imperial
+ok 4 - P52 inspeção da nave persiste detecção/remoção de rastreador e não inventa consequência imperial
+  ---
+  duration_ms: 4.002154
+  type: 'test'
+  ...
+# Subtest: P52 perseguição pode recuperar IT-3PO e consolida consequência do Episódio I
+ok 5 - P52 perseguição pode recuperar IT-3PO e consolida consequência do Episódio I
+  ---
+  duration_ms: 5.355059
+  type: 'test'
+  ...
+# Subtest: P52 falha severa na perseguição permite fuga dos Yiyar e mantém desvantagem persistente
+ok 6 - P52 falha severa na perseguição permite fuga dos Yiyar e mantém desvantagem persistente
+  ---
+  duration_ms: 4.168618
+  type: 'test'
+  ...
+# Subtest: P52 controller usa o adapter genérico e mantém gate EotE/MIXED
+ok 7 - P52 controller usa o adapter genérico e mantém gate EotE/MIXED
+  ---
+  duration_ms: 16.150023
+  type: 'test'
+  ...
+# Subtest: P52/P53 metadados preservam Episódio I e avançam a fronteira sem removê-lo
+ok 8 - P52/P53 metadados preservam Episódio I e avançam a fronteira sem removê-lo
+  ---
+  duration_ms: 0.113747
+  type: 'test'
+  ...
+# Subtest: P52 UI deixou de fixar Sob um Sol Negro e usa a aventura ativa em checks, escolhas e restart
+ok 9 - P52 UI deixou de fixar Sob um Sol Negro e usa a aventura ativa em checks, escolhas e restart
+  ---
+  duration_ms: 2.18744
+  type: 'test'
+  ...
+# Subtest: P53 metadados e fronteira avançam para Episódio II sem expor Episódio III
+ok 10 - P53 metadados e fronteira avançam para Episódio II sem expor Episódio III
+  ---
+  duration_ms: 13.878339
+  type: 'test'
+  ...
+# Subtest: P53 busca em Cholganna exige resultado real para revelar rastro
+ok 11 - P53 busca em Cholganna exige resultado real para revelar rastro
+  ---
+  duration_ms: 6.716247
+  type: 'test'
+  ...
+# Subtest: P53 fluxo principal persiste sobreviventes, confiança e crise imperial
+ok 12 - P53 fluxo principal persiste sobreviventes, confiança e crise imperial
+  ---
+  duration_ms: 11.649889
+  type: 'test'
+  ...
+# Subtest: P53 consequência do rastreador do Episódio I persiste internamente sem vazar se não foi detectada
+ok 13 - P53 consequência do rastreador do Episódio I persiste internamente sem vazar se não foi detectada
+  ---
+  duration_ms: 3.628956
+  type: 'test'
+  ...
+# Subtest: P54 implementa os três episódios sem fronteira pendente
+ok 14 - P54 implementa os três episódios sem fronteira pendente
+  ---
+  duration_ms: 17.041432
+  type: 'test'
+  ...
+# Subtest: P54 aproximação de Raxus exige teste real
+ok 15 - P54 aproximação de Raxus exige teste real
+  ---
+  duration_ms: 9.763549
+  type: 'test'
+  ...
+# Subtest: P54 fecha Raxus com consequências persistentes e estado completed
+ok 16 - P54 fecha Raxus com consequências persistentes e estado completed
+  ---
+  duration_ms: 13.247032
+  type: 'test'
+  ...
+# Subtest: P54 anti-spoiler: Raxus não aparece antes da saída de Cholganna
+ok 17 - P54 anti-spoiler: Raxus não aparece antes da saída de Cholganna
+  ---
+  duration_ms: 0.617256
+  type: 'test'
+  ...
+# Subtest: P64 completion reports completed and persists aftermath without spoilers before completion
+ok 18 - P64 completion reports completed and persists aftermath without spoilers before completion
+  ---
+  duration_ms: 7.404738
+  type: 'test'
+  ...
+# Subtest: P64 aftermath application is idempotent
+ok 19 - P64 aftermath application is idempotent
+  ---
+  duration_ms: 2.269231
+  type: 'test'
+  ...
+# Subtest: P65: ações genéricas da UI seguem a aventura ativa em vez de cair em Sob um Sol Negro
+ok 20 - P65: ações genéricas da UI seguem a aventura ativa em vez de cair em Sob um Sol Negro
+  ---
+  duration_ms: 133.9199
+  type: 'test'
+  ...
+# Subtest: P65: save/reopen preserva Além da Orla, MIXED, Duty e Obligation
+ok 21 - P65: save/reopen preserva Além da Orla, MIXED, Duty e Obligation
+  ---
+  duration_ms: 116.52584
+  type: 'test'
+  ...
+# Subtest: P65: conclusão/reopen/continuação genérica arquiva Além da Orla sem recompensas indevidas
+ok 22 - P65: conclusão/reopen/continuação genérica arquiva Além da Orla sem recompensas indevidas
+  ---
+  duration_ms: 139.854127
+  type: 'test'
+  ...
+# Subtest: P66: epílogo permanece oculto enquanto Além da Orla está ativa
+ok 23 - P66: epílogo permanece oculto enquanto Além da Orla está ativa
+  ---
+  duration_ms: 3.90459
+  type: 'test'
+  ...
+# Subtest: P66: conclusão revela apenas consequências conquistadas em PT-BR
+ok 24 - P66: conclusão revela apenas consequências conquistadas em PT-BR
+  ---
+  duration_ms: 1.596864
+  type: 'test'
+  ...
+# Subtest: P66: epílogo não inventa rivalidade ou perseguição imperial não conquistadas
+ok 25 - P66: epílogo não inventa rivalidade ou perseguição imperial não conquistadas
+  ---
+  duration_ms: 0.596506
+  type: 'test'
+  ...
+# Subtest: P67: painel visual consome epílogo público sem acessar flags internas
+ok 26 - P67: painel visual consome epílogo público sem acessar flags internas
+  ---
+  duration_ms: 1.276904
+  type: 'test'
+  ...
+# Subtest: P67: aventura ativa não fornece linhas de epílogo para a UI
+ok 27 - P67: aventura ativa não fornece linhas de epílogo para a UI
+  ---
+  duration_ms: 4.697665
+  type: 'test'
+  ...
+# Subtest: P67: UI recebe somente resumos públicos em PT-BR depois da conclusão
+ok 28 - P67: UI recebe somente resumos públicos em PT-BR depois da conclusão
+  ---
+  duration_ms: 0.815667
+  type: 'test'
+  ...
+# Subtest: P68: Além da Orla expõe tracker próprio sem semântica de Sob um Sol Negro
+ok 29 - P68: Além da Orla expõe tracker próprio sem semântica de Sob um Sol Negro
+  ---
+  duration_ms: 4.205632
+  type: 'test'
+  ...
+# Subtest: P68: tracker acompanha episódios e conclusão sem spoiler futuro
+ok 30 - P68: tracker acompanha episódios e conclusão sem spoiler futuro
+  ---
+  duration_ms: 1.475806
+  type: 'test'
+  ...
+# Subtest: P68: runtime possui renderização dedicada 415-friendly para tracker de Além da Orla
+ok 31 - P68: runtime possui renderização dedicada 415-friendly para tracker de Além da Orla
+  ---
+  duration_ms: 0.171842
+  type: 'test'
+  ...
+# Subtest: P69: tracker publica somente caminho já percorrido
+ok 32 - P69: tracker publica somente caminho já percorrido
+  ---
+  duration_ms: 6.765819
+  type: 'test'
+  ...
+# Subtest: P69: histórico é limitado para não estourar mobile
+ok 33 - P69: histórico é limitado para não estourar mobile
+  ---
+  duration_ms: 0.761939
+  type: 'test'
+  ...
+# Subtest: P69: runtime renderiza trilha compacta e rotulada
+ok 34 - P69: runtime renderiza trilha compacta e rotulada
+  ---
+  duration_ms: 0.299299
+  type: 'test'
+  ...
+# Subtest: P71 Beyond the Rim graph remains closed and fully localized
+ok 35 - P71 Beyond the Rim graph remains closed and fully localized
+  ---
+  duration_ms: 0.754538
+  type: 'test'
+  ...
+# Subtest: P71 episode 2/3 check feedback is scene-specific and anti-spoiler
+ok 36 - P71 episode 2/3 check feedback is scene-specific and anti-spoiler
+  ---
+  duration_ms: 7.710378
+  type: 'test'
+  ...
+# Subtest: P71 adjudication keeps EotE framing and does not create Duty or overwrite Obligation
+ok 37 - P71 adjudication keeps EotE framing and does not create Duty or overwrite Obligation
+  ---
+  duration_ms: 1.296073
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward cholganna-search
+ok 38 - P72 fail-forward cholganna-search
+  ---
+  duration_ms: 7.781812
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward crash-trail
+ok 39 - P72 fail-forward crash-trail
+  ---
+  duration_ms: 2.093753
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward imperial-contingency
+ok 40 - P72 fail-forward imperial-contingency
+  ---
+  duration_ms: 1.75781
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward raxus-arrival
+ok 41 - P72 fail-forward raxus-arrival
+  ---
+  duration_ms: 1.808965
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward dropoff-point
+ok 42 - P72 fail-forward dropoff-point
+  ---
+  duration_ms: 1.703962
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward imperial-interruption
+ok 43 - P72 fail-forward imperial-interruption
+  ---
+  duration_ms: 1.364693
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward flying-junk
+ok 44 - P72 fail-forward flying-junk
+  ---
+  duration_ms: 1.868483
+  type: 'test'
+  ...
+# Subtest: P72 costly completion persists consequence without exposing future nodes
+ok 45 - P72 costly completion persists consequence without exposing future nodes
+  ---
+  duration_ms: 1.352776
+  type: 'test'
+  ...
+# Subtest: P73: UI publica tracker de Além da Orla sem flags internas
+ok 46 - P73: UI publica tracker de Além da Orla sem flags internas
+  ---
+  duration_ms: 0.784592
+  type: 'test'
+  ...
+# Subtest: P73: escolhas fail-forward continuam acionáveis em 415x915
+ok 47 - P73: escolhas fail-forward continuam acionáveis em 415x915
+  ---
+  duration_ms: 9.584528
+  type: 'test'
+  ...
+# Subtest: P73: status público pós-falha não serializa spoilers de flags futuras
+ok 48 - P73: status público pós-falha não serializa spoilers de flags futuras
+  ---
+  duration_ms: 1.079124
+  type: 'test'
+  ...
+# Subtest: P86: planos pós-epílogo de Além da Orla nascem no dia real da conclusão
+ok 49 - P86: planos pós-epílogo de Além da Orla nascem no dia real da conclusão
+  ---
+  duration_ms: 5.646639
+  type: 'test'
+  ...
+# Subtest: P86: ativação do acompanhamento imperial não vaza aviso público
+ok 50 - P86: ativação do acompanhamento imperial não vaza aviso público
+  ---
+  duration_ms: 4.404935
+  type: 'test'
+  ...
+# Subtest: P86: IsoTech, Yiyar e ISB resolvem consequências persistentes distintas
+ok 51 - P86: IsoTech, Yiyar e ISB resolvem consequências persistentes distintas
+  ---
+  duration_ms: 13.617638
+  type: 'test'
+  ...
+# Subtest: P86: status público mostra somente aftermath conhecido pelo jogador
+ok 52 - P86: status público mostra somente aftermath conhecido pelo jogador
+  ---
+  duration_ms: 1.358464
+  type: 'test'
+  ...
+# Subtest: P88: Triumph/Despair de Além da Orla geram efeitos narrativos persistentes específicos
+ok 53 - P88: Triumph/Despair de Além da Orla geram efeitos narrativos persistentes específicos
+  ---
+  duration_ms: 6.532418
+  type: 'test'
+  ...
+# Subtest: P88: feedback público leva os efeitos da rolagem para a UI
+ok 54 - P88: feedback público leva os efeitos da rolagem para a UI
+  ---
+  duration_ms: 2.002049
+  type: 'test'
+  ...
+# Subtest: P88: projeção pública esconde atenção ISB e rastreamento não detectado
+ok 55 - P88: projeção pública esconde atenção ISB e rastreamento não detectado
+  ---
+  duration_ms: 1.02161
+  type: 'test'
+  ...
+# Subtest: P88: rastreador detectado pode ser mostrado sem revelar atenção interna do ISB
+ok 56 - P88: rastreador detectado pode ser mostrado sem revelar atenção interna do ISB
+  ---
+  duration_ms: 0.682172
+  type: 'test'
+  ...
+# Subtest: P88: exposição alta sozinha não revela facção ISB nem epílogo imperial
+ok 57 - P88: exposição alta sozinha não revela facção ISB nem epílogo imperial
+  ---
+  duration_ms: 0.683824
+  type: 'test'
+  ...
+1..57
+# tests 57
+# suites 0
+# pass 57
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 613.252789

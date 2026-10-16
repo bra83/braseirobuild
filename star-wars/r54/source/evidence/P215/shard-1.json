@@ -1,0 +1,767 @@
+[
+  {
+    "file": "adversaries-r15.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 0.29,
+    "error": null
+  },
+  {
+    "file": "aftermath-ui-r20.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "elapsedSeconds": 0.25,
+    "error": null
+  },
+  {
+    "file": "attackDifficulty.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 0.19,
+    "error": null
+  },
+  {
+    "file": "bundle-builder-p20.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "elapsedSeconds": 11.76,
+    "error": null
+  },
+  {
+    "file": "character-creation.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "elapsedSeconds": 0.21,
+    "error": null
+  },
+  {
+    "file": "command-talents-r17.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 0.14,
+    "error": null
+  },
+  {
+    "file": "core-rules-closure.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "elapsedSeconds": 0.32,
+    "error": null
+  },
+  {
+    "file": "duty-type-guard-r34.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "elapsedSeconds": 0.2,
+    "error": null
+  },
+  {
+    "file": "eote-core-session-load-fear-r30.test.mjs",
+    "exitCode": 0,
+    "tests": 23,
+    "passed": 23,
+    "failed": 0,
+    "elapsedSeconds": 0.49,
+    "error": null
+  },
+  {
+    "file": "eote-core-vehicle-criticals-r31.test.mjs",
+    "exitCode": 0,
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "elapsedSeconds": 0.39,
+    "error": null
+  },
+  {
+    "file": "eote-personal-catalog-r37.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "elapsedSeconds": 0.19,
+    "error": null
+  },
+  {
+    "file": "faction-adversaries-r19.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 0.61,
+    "error": null
+  },
+  {
+    "file": "faction-ui-r18.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "elapsedSeconds": 0.25,
+    "error": null
+  },
+  {
+    "file": "force-move-scene-object.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "elapsedSeconds": 0.13,
+    "error": null
+  },
+  {
+    "file": "gemini-scene-image-clear-race-r22.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "elapsedSeconds": 0.22,
+    "error": null
+  },
+  {
+    "file": "gradle-wrapper-bootstrap.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "elapsedSeconds": 1.79,
+    "error": null
+  },
+  {
+    "file": "image-library-r36.test.mjs",
+    "exitCode": 0,
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "elapsedSeconds": 0.42,
+    "error": null
+  },
+  {
+    "file": "image-library-r40.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "elapsedSeconds": 0.52,
+    "error": null
+  },
+  {
+    "file": "image-library-r44.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "elapsedSeconds": 0.69,
+    "error": null
+  },
+  {
+    "file": "json-import-size-guard-r16.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "elapsedSeconds": 0.2,
+    "error": null
+  },
+  {
+    "file": "library.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "elapsedSeconds": 0.48,
+    "error": null
+  },
+  {
+    "file": "map-viewer-p13.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 0.24,
+    "error": null
+  },
+  {
+    "file": "master-faction-plans-r19.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 0.73,
+    "error": null
+  },
+  {
+    "file": "master-provider.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "elapsedSeconds": 0.69,
+    "error": null
+  },
+  {
+    "file": "mixed-campaign-sandbox-r33.test.mjs",
+    "exitCode": 0,
+    "tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "elapsedSeconds": 2.44,
+    "error": null
+  },
+  {
+    "file": "pdf-picker-ui-thread-r17.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "elapsedSeconds": 0.2,
+    "error": null
+  },
+  {
+    "file": "r38-mobile-ux-fixes.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "elapsedSeconds": 0.79,
+    "error": null
+  },
+  {
+    "file": "r46-state-projection-eote.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "elapsedSeconds": 0.5,
+    "error": null
+  },
+  {
+    "file": "r54-p101-fear-encumbrance-gear-repair.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "elapsedSeconds": 0.46,
+    "error": null
+  },
+  {
+    "file": "r54-p105-force-actions-runtime.test.mjs",
+    "exitCode": 0,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "elapsedSeconds": 0.71,
+    "error": null
+  },
+  {
+    "file": "r54-p109-passive-core-talents.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "elapsedSeconds": 0.68,
+    "error": null
+  },
+  {
+    "file": "r54-p113-environment-hazards.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "elapsedSeconds": 0.47,
+    "error": null
+  },
+  {
+    "file": "r54-p35-published-adventure-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 0.3,
+    "error": null
+  },
+  {
+    "file": "r54-p42-under-black-sun-consequences-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "elapsedSeconds": 0.26,
+    "error": null
+  },
+  {
+    "file": "r54-p47-under-black-sun-hardening.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 0.32,
+    "error": null
+  },
+  {
+    "file": "r54-p51-world-event-compaction.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 0.45,
+    "error": null
+  },
+  {
+    "file": "r54-p55-under-black-sun-scene-journal.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "elapsedSeconds": 0.28,
+    "error": null
+  },
+  {
+    "file": "r54-p60-under-black-sun-tracker.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 0.16,
+    "error": null
+  },
+  {
+    "file": "r54-p64-beyond-rim-persistence.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "elapsedSeconds": 0.31,
+    "error": null
+  },
+  {
+    "file": "r54-p68-beyond-rim-tracker-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 0.39,
+    "error": null
+  },
+  {
+    "file": "r54-p71-beyond-rim-adjudication-antispolier.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 0.36,
+    "error": null
+  },
+  {
+    "file": "r54-p75-under-black-sun-ptbr-resume.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "elapsedSeconds": 0.2,
+    "error": null
+  },
+  {
+    "file": "r54-p79-performance-insets.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "elapsedSeconds": 0.22,
+    "error": null
+  },
+  {
+    "file": "r54-p83-under-black-sun-narrative-effects-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 0.32,
+    "error": null
+  },
+  {
+    "file": "r54-p88-beyond-rim-narrative-effects-antispolier.test.mjs",
+    "exitCode": 0,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "elapsedSeconds": 0.3,
+    "error": null
+  },
+  {
+    "file": "r54-p92-cybernetics-engine-safe.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 0.6,
+    "error": null
+  },
+  {
+    "file": "r54-p94-wave3-destiny-maneuvers.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "elapsedSeconds": 0.61,
+    "error": null
+  },
+  {
+    "file": "r54-p97-active-quality-spend.test.mjs",
+    "exitCode": 0,
+    "tests": 14,
+    "passed": 14,
+    "failed": 0,
+    "elapsedSeconds": 0.99,
+    "error": null
+  },
+  {
+    "file": "r54-visual-semantic-audit.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "elapsedSeconds": 0.33,
+    "error": null
+  },
+  {
+    "file": "rag.test.mjs",
+    "exitCode": 0,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "elapsedSeconds": 0.65,
+    "error": null
+  },
+  {
+    "file": "rules.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "elapsedSeconds": 0.3,
+    "error": null
+  },
+  {
+    "file": "settings.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "elapsedSeconds": 0.46,
+    "error": null
+  },
+  {
+    "file": "state.test.mjs",
+    "exitCode": 0,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "elapsedSeconds": 0.5,
+    "error": null
+  },
+  {
+    "file": "talents.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "elapsedSeconds": 0.3,
+    "error": null
+  },
+  {
+    "file": "tts-provider-fallback-p17.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "elapsedSeconds": 0.28,
+    "error": null
+  },
+  {
+    "file": "uae-p129-recovery-integrity.test.mjs",
+    "exitCode": 0,
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "elapsedSeconds": 0.75,
+    "error": null
+  },
+  {
+    "file": "uae-p133-transactional-adventure-integration.test.mjs",
+    "exitCode": 0,
+    "tests": 15,
+    "passed": 15,
+    "failed": 0,
+    "elapsedSeconds": 0.55,
+    "error": null
+  },
+  {
+    "file": "uae-p136-checkpoint-atomicity-and-aor.test.mjs",
+    "exitCode": 0,
+    "tests": 32,
+    "passed": 32,
+    "failed": 0,
+    "elapsedSeconds": 2.92,
+    "error": null
+  },
+  {
+    "file": "uae-p140-task-ledger-journal-integrity.test.mjs",
+    "exitCode": 0,
+    "tests": 42,
+    "passed": 42,
+    "failed": 0,
+    "elapsedSeconds": 1.74,
+    "error": null
+  },
+  {
+    "file": "uae-p143-atomic-action-receipts-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 31,
+    "passed": 31,
+    "failed": 0,
+    "elapsedSeconds": 4.93,
+    "error": null
+  },
+  {
+    "file": "uae-p147-run-serial-proof-outbox.test.mjs",
+    "exitCode": 0,
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "elapsedSeconds": 1.88,
+    "error": null
+  },
+  {
+    "file": "uae-p151-integrated-context-talents.test.mjs",
+    "exitCode": 0,
+    "tests": 17,
+    "passed": 17,
+    "failed": 0,
+    "elapsedSeconds": 0.99,
+    "error": null
+  },
+  {
+    "file": "uae-p155-beyond-rim-combat-integration.test.mjs",
+    "exitCode": 0,
+    "tests": 23,
+    "passed": 23,
+    "failed": 0,
+    "elapsedSeconds": 1.2,
+    "error": null
+  },
+  {
+    "file": "uae-p158-explosives-survival-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 35,
+    "passed": 35,
+    "failed": 0,
+    "elapsedSeconds": 1.46,
+    "error": null
+  },
+  {
+    "file": "uae-p162-sound-investments-smooth-talker-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 24,
+    "passed": 24,
+    "failed": 0,
+    "elapsedSeconds": 0.77,
+    "error": null
+  },
+  {
+    "file": "uae-p166-gearhead-atomic-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 13,
+    "passed": 13,
+    "failed": 0,
+    "elapsedSeconds": 0.72,
+    "error": null
+  },
+  {
+    "file": "uae-p168-five-adventure-security.test.mjs",
+    "exitCode": 0,
+    "tests": 20,
+    "passed": 20,
+    "failed": 0,
+    "elapsedSeconds": 0.44,
+    "error": null
+  },
+  {
+    "file": "uae-p171-npc-companions-hardheaded-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "elapsedSeconds": 1.37,
+    "error": null
+  },
+  {
+    "file": "uae-p174-mechanic-field-five-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 17,
+    "passed": 17,
+    "failed": 0,
+    "elapsedSeconds": 1.21,
+    "error": null
+  },
+  {
+    "file": "uae-p178-aor-substitution-critical-crippling-adventures.test.mjs",
+    "exitCode": 0,
+    "tests": 25,
+    "passed": 25,
+    "failed": 0,
+    "elapsedSeconds": 1.33,
+    "error": null
+  },
+  {
+    "file": "uae-p182-sororinet-porel-contract-integrated.test.mjs",
+    "exitCode": 0,
+    "tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "elapsedSeconds": 3.02,
+    "error": null
+  },
+  {
+    "file": "uae-p186-grand-prix-dice-vehicle-atomic.test.mjs",
+    "exitCode": 0,
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "elapsedSeconds": 2.47,
+    "error": null
+  },
+  {
+    "file": "uae-p190-npc-slicer-hiring-and-bank-integrity.test.mjs",
+    "exitCode": 0,
+    "tests": 16,
+    "passed": 16,
+    "failed": 0,
+    "elapsedSeconds": 4.31,
+    "error": null
+  },
+  {
+    "file": "uae-p194-jewel-g100-black-box-evidence.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "elapsedSeconds": 4.0,
+    "error": null
+  },
+  {
+    "file": "uae-p198-wing-guard-free-maneuver.test.mjs",
+    "exitCode": 0,
+    "tests": 13,
+    "passed": 13,
+    "failed": 0,
+    "elapsedSeconds": 0.77,
+    "error": null
+  },
+  {
+    "file": "uae-p202-jewel-impact-goons.test.mjs",
+    "exitCode": 0,
+    "tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "elapsedSeconds": 3.92,
+    "error": null
+  },
+  {
+    "file": "uae-p206-arrow7-competitive-chase.test.mjs",
+    "exitCode": 0,
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "elapsedSeconds": 4.46,
+    "error": null
+  },
+  {
+    "file": "uae-p210-holopark-landscape-effects.test.mjs",
+    "exitCode": 0,
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "elapsedSeconds": 3.36,
+    "error": null
+  },
+  {
+    "file": "uae-p214-holopark-lost-weapons.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "elapsedSeconds": 2.22,
+    "error": null
+  },
+  {
+    "file": "ui-bridge-equipment-r32.test.mjs",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "elapsedSeconds": 1.59,
+    "error": null
+  },
+  {
+    "file": "universal-adventure-engine.test.mjs",
+    "exitCode": 0,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "elapsedSeconds": 0.4,
+    "error": null
+  },
+  {
+    "file": "vehicle-ui.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "elapsedSeconds": 0.28,
+    "error": null
+  },
+  {
+    "file": "verifier-validation-dir-r17.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "elapsedSeconds": 0.32,
+    "error": null
+  },
+  {
+    "file": "world.test.mjs",
+    "exitCode": 0,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "elapsedSeconds": 0.3,
+    "error": null
+  },
+  {
+    "file": "stress-faction-plans-r19.test.mjs",
+    "exitCode": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "elapsedSeconds": 1.31,
+    "error": null
+  }
+]

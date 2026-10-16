@@ -1,0 +1,1 @@
+{"allPassed":true,"coverage":{"careers":6,"specializations":18,"positions":360,"mechanicalPositions":254,"purchasePositions":360},"utilitySlots":2,"encounters":3,"adventures":5,"javaUnchanged":8,"version":true,"ui":true}

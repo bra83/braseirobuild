@@ -1,0 +1,31 @@
+{
+  "base": "BRASEIRO_STAR_WARS_EDGE_R54_P144_SOURCE_CHECKPOINT.zip",
+  "checkpoint": "BRASEIRO_STAR_WARS_EDGE_R54_P145_SOURCE_CHECKPOINT.zip",
+  "added": [
+    "HANDOFF_STAR_WARS_EDGE_R54_P145_2026-10-11.md",
+    "app/src/main/assets/vtt/js/adventure/publishedActionReceipts.mjs",
+    "evidence/P145/KOKORO_TTS_REGRESSION.txt",
+    "evidence/P145/NODE_SUITE_FULL.txt",
+    "evidence/P145/OFFLINE_BUNDLE_BUILD.txt",
+    "evidence/P145/PACKAGE_MANIFEST.json",
+    "evidence/P145/VALIDATION.json",
+    "tests/uae-p145-durable-controller-receipts-five-adventures.test.mjs"
+  ],
+  "modified": [
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/adventure/publishedAdventureUaeBridge.mjs",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/state.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+    "app/src/main/assets/vtt/r46-shell.html"
+  ],
+  "removed": [],
+  "patch": "BRASEIRO_STAR_WARS_EDGE_R54_P144_TO_P145_SOURCE.patch",
+  "zipEntries": 1995,
+  "testResults": {
+    "total": 1669,
+    "passed": 1669,
+    "tts": 27
+  }
+}

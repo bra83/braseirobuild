@@ -1,0 +1,115 @@
+{
+  "base": "R54_P150",
+  "target": "R54_P151",
+  "files": [
+    {
+      "file": "ESTADO_ATUAL.md",
+      "status": "modified",
+      "sha256": "dd362cdaa900804174ee04482e4149a4a8056f07c1c7b9941eacd6a1833961a9",
+      "bytes": 905
+    },
+    {
+      "file": "HANDOFF_STAR_WARS_EDGE_R54_P151_2026-10-12.md",
+      "status": "added",
+      "sha256": "416c55bacb8690c7aa6a86ef7187c73f919f983ddc5a6ef13ca27d1c7a18d048",
+      "bytes": 5214
+    },
+    {
+      "file": "app/build.gradle.kts",
+      "status": "modified",
+      "sha256": "f563e7bbff8040f2547455ab3b251a5e81e24644818c3f6abee5f1bc9e1de7e7",
+      "bytes": 606
+    },
+    {
+      "file": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "status": "modified",
+      "sha256": "6c36e46d8dc8910df6af223ebe7228128a8da2383ca69ebe159d238e7638678a",
+      "bytes": 300396
+    },
+    {
+      "file": "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+      "status": "modified",
+      "sha256": "26fcdd43c7e23e572ea14f145e8360cd220688aebc0426fe91e3bb52e2f7f07f",
+      "bytes": 2084453
+    },
+    {
+      "file": "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+      "status": "modified",
+      "sha256": "107f9dce4af52a3c6dd9f1dd03e2e50dff85daaef40a5e4b4dc38be6a29c14e8",
+      "bytes": 86194
+    },
+    {
+      "file": "app/src/main/assets/vtt/js/expansion/aorTalentRuntimeAliases.mjs",
+      "status": "modified",
+      "sha256": "742c8d65a66aef799df1be2e7d2a4c2f07d354279dbf350f4899a8d64e6f8c56",
+      "bytes": 4333
+    },
+    {
+      "file": "app/src/main/assets/vtt/js/rules/talents.mjs",
+      "status": "modified",
+      "sha256": "1db7b56fb5f13eb5472f96974ed6275e0571fd9cd0d7067d7ccf80ee9ca9f2e3",
+      "bytes": 38953
+    },
+    {
+      "file": "app/src/main/assets/vtt/r46-shell.html",
+      "status": "modified",
+      "sha256": "ff2fff752889118522d2d93e8dce342a26dc1496ed8a6bf33ceb71af4972a456",
+      "bytes": 1265
+    },
+    {
+      "file": "app/src/main/assets/vtt/r46/final-runtime.js",
+      "status": "modified",
+      "sha256": "1f009e108da3b3a9699c4b066dabb67f0f9701de353dcdb9a07f5f1955027d96",
+      "bytes": 286159
+    },
+    {
+      "file": "shell-r46-run87/gameBridgeClient.ts",
+      "status": "modified",
+      "sha256": "f7bfe106385cc5414bf62d9c65df3e433aac2f75f704c676c8a879e2f317eecf",
+      "bytes": 44911
+    },
+    {
+      "file": "tests/uae-p137-aor-cross-system-mechanics.test.mjs",
+      "status": "modified",
+      "sha256": "d993f118f036a1d303abd1611cff8e07104c4dea694087cf9cadd9077182e67c",
+      "bytes": 14295
+    },
+    {
+      "file": "tests/uae-p138-idempotent-events-and-aor-time.test.mjs",
+      "status": "modified",
+      "sha256": "73900c9fc7f1445b9d628a51f506a504b8e325d937c3f9ba6accd9e42c3383ec",
+      "bytes": 14151
+    },
+    {
+      "file": "tests/uae-p144-integrated-atomic-adventures-aor.test.mjs",
+      "status": "modified",
+      "sha256": "3bac66f5d36bf6032d886c4110fa6a2d6a6bc59c14d9ea75d05e50ec38bfb7ea",
+      "bytes": 11970
+    },
+    {
+      "file": "tests/uae-p149-aor-combat-social-causality-five-adventures.test.mjs",
+      "status": "modified",
+      "sha256": "469e7e7102bdff584d95171d930fa3734e02b1f542f7ddab603d55845875f808",
+      "bytes": 14203
+    },
+    {
+      "file": "tests/uae-p150-defensive-slicing-tricky-target-five-adventures.test.mjs",
+      "status": "modified",
+      "sha256": "ac24ac0c1a4f03cf259e1fc34a961132d69979ec115c150a7b2a9dc1f92342ee",
+      "bytes": 16567
+    },
+    {
+      "file": "tests/uae-p151-integrated-context-talents.test.mjs",
+      "status": "added",
+      "sha256": "4adc812da78acc311e053707b1bcb1fa6c034695791299279ddcb9e2616e6de1",
+      "bytes": 12324
+    },
+    {
+      "file": "tools/audit-p151-release.mjs",
+      "status": "added",
+      "sha256": "f0b3c2eb813fe9de21b6242b79dd7e542ef5ff21760053b4fe17331fc96f8b88",
+      "bytes": 4415
+    }
+  ],
+  "patchReproduction": "PASS"
+}

@@ -1,0 +1,83 @@
+{
+  "status": "P8_SEMANTIC_CLOSURE_CODE_COMPLETE",
+  "date": "2026-09-18",
+  "baseline": "R54_P7_FASTFIX",
+  "coverage": {
+    "activeWeapons": {
+      "total": 243,
+      "exactVisual": 243
+    },
+    "activeArmor": {
+      "total": 7,
+      "exactVisual": 7
+    },
+    "activeGeneralGear": {
+      "total": 22,
+      "exactVisual": 22
+    },
+    "activeVehicles": {
+      "total": 25,
+      "exactVisual": 25
+    },
+    "knownMechanicalAdversaries": {
+      "total": 5,
+      "exactVisual": 5
+    },
+    "catalogWorlds": {
+      "total": 82,
+      "localMap": 82,
+      "dedicatedSourceMap": 1,
+      "generatedPlayableSchematicMap": 81
+    }
+  },
+  "generatedAssets": {
+    "supplementWeaponCatalogCards": 193,
+    "vehicleCatalogCards": 14,
+    "adversaryIdentityCards": 5,
+    "localPlayableMaps": 82,
+    "note": "Cards/mapas gerados são rotulados semanticamente; não são apresentados como arte/cartografia oficial."
+  },
+  "narrativeFixes": [
+    "Nera/Kerr Voss não universal",
+    "seed rotacionada entre aventuras",
+    "texto técnico do RAG removido",
+    "reset canônico preservado"
+  ],
+  "visualPolicy": {
+    "exactOnly": true,
+    "noGenericFallbackForEntities": true,
+    "fullActiveEquipmentCatalog": true,
+    "activeVehicleCatalog": true,
+    "notes": "Sem fuzzy cross-entity; variantes suplementares recebem card visual de catálogo semanticamente rotulado quando não há arte específica."
+  },
+  "mapPolicy": {
+    "localMaps": 82,
+    "dedicatedSourceMaps": 1,
+    "generatedPlayableMaps": 81,
+    "galacticLocatorMaps": 0,
+    "labelPolicy": "Mapas gerados são identificados como esquemas locais de jogo, nunca como cartografia oficial.",
+    "shantipole": "asset local dedicado preservado"
+  },
+  "validation": {
+    "regularNodeTests": {
+      "tests": 763,
+      "pass": 763,
+      "fail": 0,
+      "files": 144
+    },
+    "generatedImageIntegrity": {
+      "files": 294,
+      "broken": 0
+    },
+    "indexMissingPaths": 0,
+    "stressSuites": "NOT_COMPLETED_IN_THIS_RUNTIME: stress suite exceeded 5 minute execution window; changes are visual/index/runtime map binding and regular regression is green.",
+    "androidBuild": "NOT_RUN: runtime lacks Android SDK and Gradle distribution/network access."
+  },
+  "requiresPhysicalDevice": [
+    "Gemini key persistence after process kill/restart",
+    "real Gemini/Barbara narration start",
+    "DADOS modal/roll on device",
+    "415x915 visual confirmation on device",
+    "final APK install/run"
+  ]
+}

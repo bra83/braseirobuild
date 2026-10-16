@@ -1,0 +1,3857 @@
+{
+  "kind": "SWE02_FULL_BLOCK_WIP_NOT_CANONICAL",
+  "base": "R54 P244",
+  "base_sha256": "6f3dca72ea55080b4ce7e6befeb5d4d84e51f63453ead6a5719495178a40d264",
+  "complete_adventure": false,
+  "cumulative_wip": 3,
+  "files": [
+    {
+      "path": "ACT3_FOCAL_WORK.log",
+      "bytes": 2586,
+      "sha256": "c3a58ecc143afbd60d7ac85a897b88f739c8a0b563d482fef51acd2da3bcff72"
+    },
+    {
+      "path": "SWE02_FULL_BLOCK_WIP_STATUS.md",
+      "bytes": 3640,
+      "sha256": "aa845be8092d262c90d01624020f67ff4997afc0a77af1bf695313c87dd896a1"
+    },
+    {
+      "path": "SWE02_WIP2_MANIFEST.json",
+      "bytes": 75621,
+      "sha256": "99edb5fbf4313e04b1d9fd52766fa48f464b9c01e142d9d42a6feabbb2ceb8f6"
+    },
+    {
+      "path": "app/src/main/assets/vtt/index.html",
+      "bytes": 48723,
+      "sha256": "27eea3093efa1605ebde65ce3b588d0da8fca777cef4443d4ccf28f39ce3719c"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs",
+      "bytes": 66556,
+      "sha256": "4278a139cfe26d47ab81e8bba3303cf1fea99dc850790640115efb1c49803988"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/adventure/swe02Act2Anatta.mjs",
+      "bytes": 3554,
+      "sha256": "9c79a8c99c2d6b252fc43c38b0d4881fe53d10163e9b04815209f66e2cee4536"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/adventure/swe02Act2ContractsWip.mjs",
+      "bytes": 11186,
+      "sha256": "17ff561a3c446cd87793cb0f7b174e36a4dc7db26932c5a2d0af19f6ea7dedec"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/adventure/swe02Act3PalaceWip.mjs",
+      "bytes": 7355,
+      "sha256": "a192e843566a07c5fa9de5231f22a8a331cf1b3afce063c74aba963e6eb4965c"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/adventure/swe02Act3Resolution.mjs",
+      "bytes": 12710,
+      "sha256": "1d2276d26a6483a6c07f345586c168e63a19a5ca280ea8fcfc1d3c1cdf6c45b3"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "bytes": 531880,
+      "sha256": "46b76f61fe4b238e6c2e8b593b6f645f30b41fe10df39e9c702f95040ed3ea75"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+      "bytes": 3225551,
+      "sha256": "dd38fc366be470a81b696ddb2a816c56f61e16891061edfc6d527977ed658474"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+      "bytes": 130780,
+      "sha256": "67ed131f726ac19bd4bacd30bf6e975c0d09d9b9c01e797b59d371a7a1396648"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/rules/encounter.mjs",
+      "bytes": 5502,
+      "sha256": "3495b6fa81fb2a360776730ca388027bec56cff8da4ee500ffa414f70fe821b2"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/ui/app.mjs",
+      "bytes": 100855,
+      "sha256": "96c15072de3159e02fdb081effdd50ec267679e9c4aaabf7d4bcf1c6a0125f1c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/bundle.log",
+      "bytes": 136,
+      "sha256": "d7c74118310294c72e85618a68ba56a7e0e58f6dcf8b285d7944011457439484"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/regression_summary.json",
+      "bytes": 57314,
+      "sha256": "49874652bca76c99e376e9d90cdc817fa6f85570c479c1df551f19954e9de69e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/source_syntax_preservation.json",
+      "bytes": 214,
+      "sha256": "7a83f75714a89e17c517e96ed67bea1789a1858cfdcfe375a4823e20cd6f6b07"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/acquisition-r13.test.tap",
+      "bytes": 1640,
+      "sha256": "b40ae0b3ea811b8009ad974cf62f2f3e2553491adf44b93f63eaff4e1ada20b2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/adversaries-r15.test.tap",
+      "bytes": 816,
+      "sha256": "31526e98c26f92b87390b053d596e22efcdf2a8cdcbe3ea4151141c2e5538248"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/adversaries.test.tap",
+      "bytes": 1075,
+      "sha256": "e528997f77de52014ed90e35a4bdc6040b39a2b364dc931c1a2b8e644c2e412c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/adversary-guidance-r14.test.tap",
+      "bytes": 736,
+      "sha256": "cfb1a7bfc940deb6f85ac64fa9b1609f05636b77342f6f3f30c777a2e6eead7f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/aftermath-r20.test.tap",
+      "bytes": 899,
+      "sha256": "4989a1496757396ecab7f5507121fb1c3cf4d133de4af7ed612083cdd73449b9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/aftermath-ui-r20.test.tap",
+      "bytes": 365,
+      "sha256": "f8a7c8ad7fa1cfc8addb2f97f006c04fa3c8a611f2209479741a434fd27821c7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/android-json-file-chooser-contract-r16.test.tap",
+      "bytes": 959,
+      "sha256": "ca11ef48b1874abb74c23192f3fa8214860ac4932dc00b2cc3158aca4a213262"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/aor-duty-r37.test.tap",
+      "bytes": 774,
+      "sha256": "64d84dd4e70cf4bf2fc166309000371f761b07bf801bcc852ff0cb9b998a8d9f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/armor-price-r28.test.tap",
+      "bytes": 774,
+      "sha256": "e4bc7b09f371ebe3ecdd542c821f88b4625871fc94cc7ccf5ca94da0295be8d7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/attackDifficulty.test.tap",
+      "bytes": 671,
+      "sha256": "6c70b074b6e92ed7dd47d386de7dfa486ff9e2de9003afa0415f0c6a41e1a57f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/availability-r26.test.tap",
+      "bytes": 2599,
+      "sha256": "e6db56674d6b75ad31b350d088cd97d6f0b73421e9fc6a6de23be0dc40091af5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/backup-restore-live-refresh-r15.test.tap",
+      "bytes": 746,
+      "sha256": "f01a406f77f71a6f17a1228bdbe336e2c0f153ae0ff2e96975bd647f255852c6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/base-ui.test.tap",
+      "bytes": 720,
+      "sha256": "025d2acadc437d35c126a8acab6fa7f7de0cbf324a04a6f6d9094d25b0031dd9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/bundle-builder-p20.test.tap",
+      "bytes": 326,
+      "sha256": "7707d6e72ff8c57c3d42925490761115bc5630a219c17203d7212115fcb40695"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/causal-hook-reset-r21.test.tap",
+      "bytes": 319,
+      "sha256": "43de511a74dbb7913725fe36c2161262f3dfe980cb88982633311ba294c9f25f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/causal-world-r16.test.tap",
+      "bytes": 1031,
+      "sha256": "9aea4b615b2d114f07d5d36aa14a7ab4edc7ab2da838ae189a2408bff5ceeb29"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/character-creation-ui.test.tap",
+      "bytes": 574,
+      "sha256": "20e96fc2c3a883c3e90734cd82c0b0365e838e34d0e7c63974f3185b516feea6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/character-creation.test.tap",
+      "bytes": 2357,
+      "sha256": "c55c968bb0c6f9ac9b14b2b881b74f55306c2f4e41becc155e69c5135f6929d3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/character.test.tap",
+      "bytes": 707,
+      "sha256": "c3ccfa0fd6169ed77b4750f6b703a7bbd36f3d3e3c9579ec215f3d7f32733084"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/combat.test.tap",
+      "bytes": 710,
+      "sha256": "a4e6b746538cee3e5ea37555f5adc22b472108cbe2e6434366b6cb77227dc91e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/command-talents-controller-r17.test.tap",
+      "bytes": 736,
+      "sha256": "812643f6f18da594120a130b1ac580b4cf272464a7c0b488f4bdcc51a1db97e8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/command-talents-r17.test.tap",
+      "bytes": 723,
+      "sha256": "72f92ee075e4648fa385cf56fb15692d952e94646e33e472d0caad192f676fbe"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/context-aftermath-r20.test.tap",
+      "bytes": 361,
+      "sha256": "a9bb68f34a585dd963eae34a6e5a57db67c7f67f2a01a8671d9518b8ecc4669a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/controller-aftermath-r20.test.tap",
+      "bytes": 1020,
+      "sha256": "28dd17a3e161891738cabab4fdf023d1095fc34e9f967aa74012e84a9c4810df"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/controller.test.tap",
+      "bytes": 2290,
+      "sha256": "be58f8763c90749498d0ed9daa26fa4c29b02b1b7b4894f82340eef628d3494c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/core-rules-closure.test.tap",
+      "bytes": 1657,
+      "sha256": "834a3a0fe72729f64979f70a584a59af9a7c7dc5bb0020a0f27ac7e557c35c0a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/critical.test.tap",
+      "bytes": 1380,
+      "sha256": "8a5292aaf39a53237e2ed318fb082d5d692788aed5eb0313f63038b44ae9e5b9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/cross-line-reference-guard.test.tap",
+      "bytes": 663,
+      "sha256": "9e6f831e2e452a8370c8f902e9660b5abdf8c2c4269d150f28de39332c8ecbd5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/documentation-current-state.test.tap",
+      "bytes": 574,
+      "sha256": "fae6f8fd43cb7201e6936150e5ee3bddefaaa0f5042bbf1b87064a9c4d8447e3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/duty-type-guard-r34.test.tap",
+      "bytes": 302,
+      "sha256": "623253a20280402b7ae5773601ed0f0738f1f6bbf67b5d70992fc55795768971"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/economy-r34.test.tap",
+      "bytes": 4883,
+      "sha256": "2387e564e6e7abef2254ff22bb3d8b861b912abcde2e4da1ccf33b6a3e35ae44"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/encounter.test.tap",
+      "bytes": 836,
+      "sha256": "2f3e2f1957feeffd1a27a57358a07c7e546a3ac25757496f2e19e9f017f96da2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-core-recovery.test.tap",
+      "bytes": 1812,
+      "sha256": "268a3eef863d4a649d03aef9fd6cace8c3fbf668171ece7abb2a2a4fd689ffa9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-core-session-load-fear-r30.test.tap",
+      "bytes": 4619,
+      "sha256": "82f4ee6b7f228e024da06ec2a597ec26839af777fdb1ba4cd77318b76e77d2a0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-core-starter-ships-r32.test.tap",
+      "bytes": 1518,
+      "sha256": "09351789fe9039cf8341d4f2ffd4d076ad6c08a98f7c7751b910087422ae2834"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-core-systemic-r30.test.tap",
+      "bytes": 4357,
+      "sha256": "10868037adc311180942bf13f5c71d8cecef19fc0039e9040fc8c40c64b63099"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-core-vehicle-catalog-r35.test.tap",
+      "bytes": 4007,
+      "sha256": "ba0ad64cb416593aa961f3d89951798642d024eb9e731bde441ae42e6329d5d5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-core-vehicle-criticals-r31.test.tap",
+      "bytes": 3645,
+      "sha256": "abb3157a820bf8c8103bd859a5fa4c04975c0d6d1565255a1cb6474793c85aaa"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-final-rag-guards.test.tap",
+      "bytes": 945,
+      "sha256": "93476a6a39ffa6120d34bc80b9d111e15730b98046a5b2b613d4a66897eda023"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-fly-casual-vehicle-catalog-r36.test.tap",
+      "bytes": 3054,
+      "sha256": "34b8f7644d55acbbc4ef904d5ba4bf934a036a24cdb67e94916b2a8adbfc6957"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-force-core-r28.test.tap",
+      "bytes": 4264,
+      "sha256": "9b19a7fd61bba64994a246d59d2864869256136482117cc0aecf133ef9a47c70"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-personal-catalog-r37.test.tap",
+      "bytes": 427,
+      "sha256": "ae6090ec42b1efcfea097fb70eb25afdd36df4ee0582f5a14693f4f12e2225b2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-specialization-progression.test.tap",
+      "bytes": 2090,
+      "sha256": "84494e028c18832a53ff0506b46a4619fdb21bdf28fb71b0ebe8aa1273dd0502"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/equipment.test.tap",
+      "bytes": 986,
+      "sha256": "b5aa08ad8516048b98bcbfb8dd3a86868f38b5e67ed07eede1e5b0c9e0738663"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/expert-talents-r16.test.tap",
+      "bytes": 774,
+      "sha256": "db19eb0a478ca93cdee2d04f5351a34132b1cb03fa7598b516f019bf240434d9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/faction-adversaries-r19.test.tap",
+      "bytes": 785,
+      "sha256": "a430ffa6953c7fbb5d9abae02f996d587e34cc22f0dd355988bd47b72bb8e546"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/faction-combat-ui-r19.test.tap",
+      "bytes": 365,
+      "sha256": "c638907dc19ff8630f2aaf4183b814752884ef073a4838aacbb15cdbb1b04b63"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/faction-plan-ui-r19.test.tap",
+      "bytes": 368,
+      "sha256": "9b212dd3d49c0d9dad6d08e44ea70d8bdd9f458e8e45ac1a702813ffa5a70144"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/faction-plans-r19.test.tap",
+      "bytes": 1198,
+      "sha256": "b735e4381522cab8c73e70509a23d365496fea30da74009b4314815c3c9a78e3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/faction-ui-r18.test.tap",
+      "bytes": 343,
+      "sha256": "9bed3ddd470302da42343fef1318317eeb75f5afb9a8e865e0bc3510a9b6a26f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/factions-r18.test.tap",
+      "bytes": 2070,
+      "sha256": "69494b1854420453205b96b01996fe885e937d3faa7f8ba43f2495ccce81ff1f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/filebridge-mediastore-publish-r25.test.tap",
+      "bytes": 726,
+      "sha256": "01f1ced8f33fe94212e6dffe06c75d137c2af833e0b85694cdea19accbf4696d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/final-android-completeness.test.tap",
+      "bytes": 2852,
+      "sha256": "2b14a09743a889b39b79fbc7da92755f0c89bebadd175f32b6873a77ad54c7b3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/force-move-scene-object.test.tap",
+      "bytes": 394,
+      "sha256": "d257aa501b2b5d3310b27cc1954668e9e897a59a0d10ea8277669eb41adb4f4e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/gemini-host-r25.test.tap",
+      "bytes": 1589,
+      "sha256": "f76f1d475e04018a33be8b80d404dd5e02e21c016628ff997c2e12b117b89e63"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/gemini-image-picker-ui-thread-r19.test.tap",
+      "bytes": 565,
+      "sha256": "3ff518f6e77b99d9d2671051c990e807b5fee8f93f110792532cad0887b357b5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/gemini-interactions-schema-r17.test.tap",
+      "bytes": 838,
+      "sha256": "67530476219e49163495a00c63ffe1a932f960faa0371b89c26b27d4dd13b58e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/gemini-scene-image-clear-race-r22.test.tap",
+      "bytes": 1025,
+      "sha256": "72e82631bc8e8558ca38415f37db05dd16f7062be4e2cd4e3b1a5844d8020d5f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/general-gear-effects-r30.test.tap",
+      "bytes": 1543,
+      "sha256": "80b5fbc1821ec0a24a6688f986ac8d7b477ebe3576426737f5526154f2e737f0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/general-gear-r27.test.tap",
+      "bytes": 754,
+      "sha256": "30366ca016e0d55f13b36ccc929092cf837c5ed80c47797058e1e0b82003100b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/general-gear-tools-r31.test.tap",
+      "bytes": 1171,
+      "sha256": "c675fd45c147acd45dbf5d2b0a0b62addd441ffc3c2c2f9895fff74637ab2bc3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/gradle-wrapper-bootstrap.test.tap",
+      "bytes": 1026,
+      "sha256": "7984d6394ddd000b31e1dddc46c85d68ed8a5e9d2c513fd50f6af5e502b9e6e4"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/health.test.tap",
+      "bytes": 1106,
+      "sha256": "cb5b43cc2827651f07bd1a637fc7da1422546fbd696a299e708e1244309293f6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-cache-clear-race-r21.test.tap",
+      "bytes": 1057,
+      "sha256": "e225f1a67fe248bd1f8c6b561f2501cff6a815f73d50beaa705e048ff24ca4ed"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r35.test.tap",
+      "bytes": 1644,
+      "sha256": "57c6b03d413591b03672e9343d4761d0049d456d17c420f6845d5c62dd1bba5a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r36.test.tap",
+      "bytes": 2638,
+      "sha256": "96dfab8470bdeea1955452ab97582717054d58ad65a7f9f0c0adf0d9ae9e8be8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r37.test.tap",
+      "bytes": 1980,
+      "sha256": "4c8b7ff055194579f19bf4b6c07a9b1a18de27748b80495012bf79097cdc92b5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r38.test.tap",
+      "bytes": 1723,
+      "sha256": "a32815974e9569940f9537729902eafd7b991bacc739bfe5df2c65154197d850"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r39.test.tap",
+      "bytes": 1714,
+      "sha256": "92aa6c1fe6b47e7af694243dce97546a1a0f762c5cf9a97bc17a2128d16e54ca"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r40.test.tap",
+      "bytes": 1849,
+      "sha256": "664f693c58d3bccdbb5d9ea9491a5c0e08f2ea0ece10d41a7aad6eaed72aeafb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r41.test.tap",
+      "bytes": 1614,
+      "sha256": "a875d1882af22bb5acaff6084d9617c87dea4dd74fb9da191d9bb4354bf446f8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r42.test.tap",
+      "bytes": 1728,
+      "sha256": "cf93328d3726ae956ef1b2a1def37cefebd42d7542be17b5e93384c59e9298f2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r43.test.tap",
+      "bytes": 1626,
+      "sha256": "cddc5a25918ff583b97671715e2e2e3c3e127f1761d84592aec6c7e3deaee397"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r44.test.tap",
+      "bytes": 1622,
+      "sha256": "877db775ac60ac7a894af94a9dce4423d01cb734d2ebdfa67cb3c6cfc9637dda"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r45.test.tap",
+      "bytes": 1738,
+      "sha256": "916fd5ae15798fda94ab414ad0b3ae893a6e04e03ed35e9b57f8faf965f24ad7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r46.test.tap",
+      "bytes": 1686,
+      "sha256": "8ac38da0817cd4911b1246289c48b8f2242ee31b74e528d28a3990e4b94e5e30"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/initiative.test.tap",
+      "bytes": 350,
+      "sha256": "eec1b46c16df90a3a5b35e20e8c96729a4804ee527e4f32cd9a73e833598b4f9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/json-import-size-guard-r16.test.tap",
+      "bytes": 548,
+      "sha256": "8dcc3e6d658f94320d25c7d266e52217ad4513d5787ab93e55a5bfc674d8aa87"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/legacy-ui-dom-contract.test.tap",
+      "bytes": 314,
+      "sha256": "32c07d50dbd3ad460a471277866cc1cc52a3be56997a1b88ee834cf5732a5ffa"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/legacy-ui-eote-guard.test.tap",
+      "bytes": 337,
+      "sha256": "44e3d1d8a0dc3438a386d868fcc3a49d9c90150460a080a554a08f09835cba10"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/library-ui.test.tap",
+      "bytes": 909,
+      "sha256": "5a5dcc8a0d958e4920cf567f46daca69c02aa2cdf440c17162595a5f282f8cd8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/library.test.tap",
+      "bytes": 1706,
+      "sha256": "033c6999e5ad2c94deaef3761f36b3e7098c4d307246b77d79f89b272f874630"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/living-world-depth-p9.test.tap",
+      "bytes": 783,
+      "sha256": "5c49eb69f836c6de9b686d8da868756f3dc56fe8944e0ef491122e1228abbe43"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/map-provenance-p12.test.tap",
+      "bytes": 481,
+      "sha256": "5169fc2588356a37005f833d11c7c68ed32eff5950163fe2c8415ad001f32b63"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/map-ui.test.tap",
+      "bytes": 513,
+      "sha256": "24430d2d08e7b03b1d42ef99fc6261ba07bda54226140d9dd2ca96ea0f481e37"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/map-viewer-p13.test.tap",
+      "bytes": 657,
+      "sha256": "49fccee029370282190927164287e0d8343d91341c83012b31651f6e9a72a3c9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-context.test.tap",
+      "bytes": 749,
+      "sha256": "f3a7bfd59ec90a22c8c3f8bc7ef5483c2f8eac5b34a019aa7b668cd3b8c8d3e1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-encounter-r17.test.tap",
+      "bytes": 1033,
+      "sha256": "5071651279c27e9ca55b4dcbab859e550082e923ad95aeb5450e1d368159991e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-encounter-ui-r17.test.tap",
+      "bytes": 355,
+      "sha256": "c61a175125bcbdcec462ce71fa699baaf3c75277bb8f8a1c1300c2ba17312675"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-faction-plans-r19.test.tap",
+      "bytes": 693,
+      "sha256": "4e36fc17482224641f0d86efcba3dd7916638f20e18f9a3c7d10ae2dbbe1dd4a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-factions-r18.test.tap",
+      "bytes": 1055,
+      "sha256": "f0faefc111cd252dd1571cec5083a01771c1e8c441eb11c4beb053a8ffaaac8b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-long-narration-p20.test.tap",
+      "bytes": 508,
+      "sha256": "c3dc66a381ec5cf317615d0958380b98bcbec1adaa431821a39cccdd70641f91"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-proposal.test.tap",
+      "bytes": 725,
+      "sha256": "90741d58c8135d4e8cf8b2a3baad7be491c66ba3ee8ae6f51e8a32dabbde288f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-provider.test.tap",
+      "bytes": 902,
+      "sha256": "7b96299a63a5b06334002bd561c3680001c21bddd04dadc382dc75358ee7e4b1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-world-ops-r15.test.tap",
+      "bytes": 1272,
+      "sha256": "3dd80b5a6627e99d52ea531fbcc79ac44cddef865f8190e30ab3829e6e5c8aca"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-world-r15.test.tap",
+      "bytes": 348,
+      "sha256": "a4d642e7ed026445c3e6b45568b8d47cded9949ef7efe44d1dde8bfd6d5507a5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/medical-gear-r29.test.tap",
+      "bytes": 1436,
+      "sha256": "14b39b6bcdc3156105af440bb7bbc32dcbfcefe2fc7c91f658c6b607d785c3ac"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/mixed-campaign-sandbox-r33.test.tap",
+      "bytes": 2541,
+      "sha256": "1861e4e0b73e256d89dab3d33cc1efd645e243249eeb6819dc54fd0a3a8842ba"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/native-bridge-contract.test.tap",
+      "bytes": 1309,
+      "sha256": "2e2c8060ccca992ea3be1295fe3ef346a655c9bd0cde14b249daec5a9ef63d96"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/native-callback-contract.test.tap",
+      "bytes": 1162,
+      "sha256": "46149c64aeb967a2a88b1cadac2af4378b308137a9a801cf80e259e32dbe7b85"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/native-image-read-consistency-r23.test.tap",
+      "bytes": 865,
+      "sha256": "c1de47de88187625a41c78c0db05e21943c9e07555430b5fe94e11c9e0bb98bb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/pdf-picker-ui-thread-r17.test.tap",
+      "bytes": 517,
+      "sha256": "8e72657407d019a63cdd443e41fd0ebda6ce1fbb8c930724cbed3e8af89c783a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/pdf-policy-index-race-r20.test.tap",
+      "bytes": 846,
+      "sha256": "ba70b12bb079c15abe72d85a5e808dddd3aa72ce9e135294ac45ec707818b0d1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/persistent-adversary-r17.test.tap",
+      "bytes": 592,
+      "sha256": "c12ad9c2bc2e6bb993002f6b0cc6c7f579b16477b2b76e2e9490769a542faf2b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/progression.test.tap",
+      "bytes": 1139,
+      "sha256": "cf74f7c154187a4204b9be2c74fc3094801605f664c8a873ea2a9e014e002da9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r38-mobile-ux-fixes.test.tap",
+      "bytes": 2199,
+      "sha256": "09545451b650719a09f0e322db5266ec7cc2be17315db9c098d710c1a7e26f54"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r46-bridge-contract.test.tap",
+      "bytes": 888,
+      "sha256": "e987977a02c4353139c6e5f9ca050ce453c4c982d161a1add0062deecf1a8a71"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r46-live-state-refresh.test.tap",
+      "bytes": 720,
+      "sha256": "4fb6b9fcb77497ff4a9a0adfc4db615ec276184eb8aa6d8f242c0ec2c527828c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r46-runtime-asset-closure.test.tap",
+      "bytes": 729,
+      "sha256": "a3efc1b0d3dfa3dcef133a765893b1d45d3983d0483229319d415c54aa62a3b5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r46-state-projection-eote.test.tap",
+      "bytes": 952,
+      "sha256": "6fbb3b22690730bc893dc0d8d87d0ecb0426721933c129672d143fade33d779b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r47-android-shell-host.test.tap",
+      "bytes": 1764,
+      "sha256": "ff34eb33c18d88a8664179c838e21fb7358868d85f3e1726095dd485af15accc"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-device-p6-audit.test.tap",
+      "bytes": 902,
+      "sha256": "7d6698fb9cf82a0b8d01b9b90654bb8dd40df2a09737565de3c6679bbb3d0b6b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p100-attachment-mods-guarded-stance.test.tap",
+      "bytes": 2315,
+      "sha256": "ba3f0158e3091465b755debda2a550d59af950e23145926680bd00dabc76a13c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p101-fear-encumbrance-gear-repair.test.tap",
+      "bytes": 1957,
+      "sha256": "5b583889de6a09334be1728ce181bcc70896bb8a1eac9ffb19fb0cf2cbd89f11"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p102-eote-core-vehicle-actions.test.tap",
+      "bytes": 2250,
+      "sha256": "3e432ecd78105f74304421d54c145e9c8c33f037af11fe1f29d2ce27177589f8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p103-vehicle-actions-damage-control.test.tap",
+      "bytes": 1813,
+      "sha256": "68086b5b96250c592359b83e951ddee52602dc1236650aa1cbd04858ba95c216"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p104-unified-personal-maneuvers.test.tap",
+      "bytes": 3304,
+      "sha256": "ac75aa42869598855e9e5a991abffbe881b289184be8b61c271563749bd27e9b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p105-force-actions-runtime.test.tap",
+      "bytes": 1728,
+      "sha256": "447f10024816ba247e032f04e9e41742fba483a4d2ace71aea82370b4b3ec5c6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p106-active-talents-runtime.test.tap",
+      "bytes": 1689,
+      "sha256": "0df429a85d159f41be4e63ea8349285d8a3b96c9596a9f28cc79685219dd007b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p107-core-combat-talents.test.tap",
+      "bytes": 2166,
+      "sha256": "f51faaf7839077473d685461c1df693829386422d67d8793c61638fad78c24c0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p108-assassin-combat-talents.test.tap",
+      "bytes": 1635,
+      "sha256": "3a6852d80c7e4cc0a4d3aa711a2676903d85d076db6bdb0ad538bc823295ccf9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p109-passive-core-talents.test.tap",
+      "bytes": 1341,
+      "sha256": "b842ad645f0c0ef178c135676c71778ae5207685f6e88f5933ab8608b9ca8571"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p110-active-skill-talents.test.tap",
+      "bytes": 1353,
+      "sha256": "335fb05ff5ae54b974f2ce74103eb36cbbcb882978f5bec2d74cb1dd82acf872"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p111-natural-rerolls.test.tap",
+      "bytes": 1157,
+      "sha256": "afcaf27217ae95ca89f7a1847258e20d63803231da9e575d4add2c0fac137f53"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p112-aor-alliance-rewards.test.tap",
+      "bytes": 1397,
+      "sha256": "fb8515e079d3f5b470e1d4bb656883d2ac783bd11de5a88c1197e72f0e114bb9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p113-environment-hazards.test.tap",
+      "bytes": 2245,
+      "sha256": "c29c8aecc65fb507e83574abe78b89cdf24673bb279664a935f580d9e38901d5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p21-device-regressions.test.tap",
+      "bytes": 2352,
+      "sha256": "7d92bf5f7e15000031fd24ad986553f5a9ceb6890d107ec4174ef0216df1115f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p33-mixed-creation-ui.test.tap",
+      "bytes": 754,
+      "sha256": "6a90693836fd897e0ed927021336cdaffb2fce483c45e018fc49b4773491a932"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p33-under-black-sun.test.tap",
+      "bytes": 2194,
+      "sha256": "8fa10588d0d40ef49346b05d1b05a43e2d37cb640e067136a97bc312d0818b1c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p35-published-adventure-ui.test.tap",
+      "bytes": 596,
+      "sha256": "6472253bcee646f0bc6d469905c54af0efb47492c1dd6c0854bb87e7a35cf9d5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p36-under-black-sun-systems.test.tap",
+      "bytes": 3303,
+      "sha256": "70b31298114d332a9ced3805ba48ee771e185bfb9b1fdaa6778da04c9f6b490e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p40-published-world-plans.test.tap",
+      "bytes": 1127,
+      "sha256": "8da181cd9f3fb15ccf40e8b88cc57f7f7bb8626ed6d0f774a5975316020d44fd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p41-under-black-sun-branches.test.tap",
+      "bytes": 1044,
+      "sha256": "95c1b51e1faee64855098efa586006f22910cc8d494b221c853c777c036ee275"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p42-under-black-sun-consequences-ui.test.tap",
+      "bytes": 901,
+      "sha256": "1fdbf74ffd848e7378d3086fc1ab4e43c1c64790aac980233c9794fa59970565"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p43-player-safe-feedback.test.tap",
+      "bytes": 939,
+      "sha256": "69977cfa95e387b2026f00cd33141fb19e077db502aede4e02269e2470fc0fe7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p45-known-clues-and-contracts.test.tap",
+      "bytes": 1459,
+      "sha256": "a7d868c1ca9ab2fd462ca22e56cb31bfeba406385ef14de17d5b839c067ea90d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p46-under-black-sun-completion.test.tap",
+      "bytes": 1605,
+      "sha256": "4fe26884352fa0ecdb76e8191758dfec9bfe3d8c3c3a3f2e5193c394b33c3332"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p47-under-black-sun-hardening.test.tap",
+      "bytes": 826,
+      "sha256": "5a641b6924d55f94cd2eea0351b2bc7e93ae19d313fb26f52f650b8a50ff4494"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p49-under-black-sun-persistence.test.tap",
+      "bytes": 959,
+      "sha256": "756a9716d458cec2bc2beffcc028dad18da496f412866206df2fc5f27bc05e88"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p50-under-black-sun-branch-persistence.test.tap",
+      "bytes": 1006,
+      "sha256": "cbb4a2f6f027ce3f99e47e9567c9e55785bfa1d9fc5d85eab2c2a8d224f10cf1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p51-persistence-performance-and-adventure-registry.test.tap",
+      "bytes": 1488,
+      "sha256": "6d6d0ca5a9c1b2bda2c49150b52f083eb665dfe012f599375d1a689760d98413"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p51-world-event-compaction.test.tap",
+      "bytes": 776,
+      "sha256": "5d4d788965606b5c1c8ab519d782aed91709156479572ff145f886e826427265"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p52-beyond-the-rim-episode1.test.tap",
+      "bytes": 2263,
+      "sha256": "eb895639d71b5e43c3005a64a67868cc5c69b5263b458ab32c93c1c3195fe6c3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p53-beyond-the-rim-episode2.test.tap",
+      "bytes": 1026,
+      "sha256": "bddee7c25ba562622ae8b32f4092140bc44531112f9f994015a03507dc2d1226"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p54-beyond-the-rim-episode3.test.tap",
+      "bytes": 869,
+      "sha256": "86a60543fe13566a5516eef5c249c36da5dfd6013eaea14e9d69493eacba1731"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p55-under-black-sun-scene-journal.test.tap",
+      "bytes": 895,
+      "sha256": "a12a9cb178262b13571f9ff3596758accc0837571f92822c76962ac66c8ceeab"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p56-under-black-sun-timeline-ui.test.tap",
+      "bytes": 1006,
+      "sha256": "b083e24be4cc38038c7b94904ffa69ccd7d751c4c29ffdb88721f4506cba6cfc"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p57-under-black-sun-closure.test.tap",
+      "bytes": 583,
+      "sha256": "697eb3686fa9f30c42028d74ed2955cbf8ba53f1318ae97b2c8a6ed1a5be4519"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p58-under-black-sun-ready-to-play.test.tap",
+      "bytes": 605,
+      "sha256": "0873bac68628fbb46895a7166a793aa4d09ce3c49919a3cc8e4647a5eef9ccb1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p60-under-black-sun-tracker.test.tap",
+      "bytes": 754,
+      "sha256": "64c22c09e8d31fac297caab124a9cc7ee5b4c8fe3904c0721d37b069c4e2ea9d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p61-under-black-sun-mobile-play-ui.test.tap",
+      "bytes": 1178,
+      "sha256": "23fb6c0b1099be3f2714e449f764efb3789b49dae214b2658a352210194c8ae1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p62-under-black-sun-state-integrity.test.tap",
+      "bytes": 892,
+      "sha256": "c3178887b388a5ed4a12d8127219299fa747929a12b1bc82f9a342dee5fc2403"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p63-under-black-sun-reopen-transition.test.tap",
+      "bytes": 959,
+      "sha256": "297e804e837dc7749fe232f28e8d2f010ce98ad333bfe9bdc4f2ead1f931e159"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p64-beyond-rim-persistence.test.tap",
+      "bytes": 521,
+      "sha256": "16c5a1ae42993dce3988f15932c4533b56b7b539f54c2481f72e480074d8d7be"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p65-beyond-rim-controller-continuity.test.tap",
+      "bytes": 834,
+      "sha256": "8ebbd49b270d7364608c8851b6413aa88c444711158827879c34d71761125ba5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p66-beyond-rim-epilogue-antispolier.test.tap",
+      "bytes": 758,
+      "sha256": "9f3bebfe7074fcd81692c2d61b3186262840731ecc35cbd966c730734795cbaa"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p67-beyond-rim-epilogue-ui.test.tap",
+      "bytes": 736,
+      "sha256": "79ec2c02973936b1b7821d294436e4250fd524de45ad964aabe5fd7ae98ffd5c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p68-beyond-rim-tracker-ui.test.tap",
+      "bytes": 789,
+      "sha256": "c8c2be3b6e33811ea9bcaeb6d1abfa16a35ba4d1dff8611184b4e269d4230b16"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p69-beyond-rim-trail-ui.test.tap",
+      "bytes": 639,
+      "sha256": "785096e63ccb5cd64ef5d7555e57f2cb6c4b47beb7e51e0a5429858f0903141a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p7-fastfix.test.tap",
+      "bytes": 871,
+      "sha256": "db257e6d6482418f18a61a61f86c2383f9bd1b5ae23bdacceaa0769b99bcf8b6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p70-under-black-sun-graph-integrity.test.tap",
+      "bytes": 875,
+      "sha256": "852d0de20c858a27a38e811a3633f224feab70b39293e767fab8bfe0784c0ab1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p71-beyond-rim-adjudication-antispolier.test.tap",
+      "bytes": 749,
+      "sha256": "33939edf3dbc7e5d655dc3179769200b08716d0e87632b451d81efc96daf6612"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p72-beyond-rim-fail-forward.test.tap",
+      "bytes": 1280,
+      "sha256": "b184f341d4159b6ada414f50f15ec783748bead5a3a097c0f6c11a1425208a65"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p73-beyond-rim-mobile-fail-forward-ui.test.tap",
+      "bytes": 715,
+      "sha256": "6603325a1d6b63fb2cd025eb60ba1951985026b144e84ac12b81e01803536d1c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p74-campaign-lifecycle-insets-version.test.tap",
+      "bytes": 937,
+      "sha256": "3e146a07c23c725ae7cf7fed5a41de4a0d999ef0111c257fc3ca307fb9249bf7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p75-under-black-sun-ptbr-resume.test.tap",
+      "bytes": 635,
+      "sha256": "c6145c505e237911e47d63b1eb13652c19210b5bf2c1660a86ed5b58a04b1e66"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p76-tts-kokoro-pipeline.test.tap",
+      "bytes": 1353,
+      "sha256": "8a4b2bb1e4a3657603b361ad2bbc7bfb0d73551d400f97ef94ae730b74e311c6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p77-android-build-fix.test.tap",
+      "bytes": 580,
+      "sha256": "072903c99ac6f106bf03175a706dc3363c981d6f2d8906206ad0991627401cb8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p78-mobile-session-repair.test.tap",
+      "bytes": 2050,
+      "sha256": "6845ef72f6b2bb3a66f19231753e4b28410c3782a982b50919a1583cdbec0a27"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p79-performance-insets.test.tap",
+      "bytes": 829,
+      "sha256": "9dacb076f15f31a9bbbecdcff398ce184ea1c1002f2dcb37067ce57f33c884d3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p8-semantic-closure.test.tap",
+      "bytes": 1079,
+      "sha256": "5622603bd24e48fc05b233b5d55195563d67b6f1e7d596084957bd394e91b98a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p80-under-black-sun-anti-spoiler-projection.test.tap",
+      "bytes": 1013,
+      "sha256": "97570e28bf06870af6933845ce7846164538e19df08139a52967fbc6eac191b8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p81-under-black-sun-narrative-consequences.test.tap",
+      "bytes": 894,
+      "sha256": "fa2807c5a7538a414c7a855302b66a82e5cac87da25bac4974e0ffa965f375b6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p83-under-black-sun-narrative-effects-ui.test.tap",
+      "bytes": 782,
+      "sha256": "b18be19cc8aef2e8400fefb1f423383338681d4315e3b5eca802abb0acea4b94"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p84-under-black-sun-immediate-roll-and-world.test.tap",
+      "bytes": 747,
+      "sha256": "8301a74806ee9284f01ef9a9e2635c264fd76a485d04df9914fb2cd36f21cb97"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p85-under-black-sun-aftermath-anti-spoiler.test.tap",
+      "bytes": 986,
+      "sha256": "e03265d4c9040ff5e7dbd3c2e1c445be28644a2f53eec5f4a311e63dbc2d99f2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p86-beyond-rim-world-aftermath.test.tap",
+      "bytes": 971,
+      "sha256": "acfaa5b78a6bb3f0d5de7f988d55fceb45f879e92f2ad5250b69d83b3bc5037f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p88-beyond-rim-narrative-effects-antispolier.test.tap",
+      "bytes": 1235,
+      "sha256": "75f56cd1bd1a4dfb4176f33070238fa3a59d205ea15243a0350658361aafc4cd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p89-under-black-sun-aftermath-depth.test.tap",
+      "bytes": 879,
+      "sha256": "48bed4b830c74e04bbd0aa8862d5844a8a242545624d428cc7603a08866acef4"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p90-under-black-sun-obligation-accumulation.test.tap",
+      "bytes": 977,
+      "sha256": "726b5764ae3fe02e5b71b299afc1b10566eb82d8784bb9200eea5ab97d6a6009"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p91-android-share-kokoro-audit.test.tap",
+      "bytes": 1595,
+      "sha256": "41181b7f89167a0ad472b9b0a7e51a48bcc3d770f6b0500fe7f0d6098f170d75"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p92-cybernetics-engine-safe.test.tap",
+      "bytes": 794,
+      "sha256": "aa67d9818ce90a7cf2f731d8337cd55b871a85775a5258b75ba5d8be379aeac3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p92-final-shell-mechanics-reachability.test.tap",
+      "bytes": 793,
+      "sha256": "d7ffcfb24a72ed07fb168f758bedca1a2781797bf7eeef98db9b014e8737da6e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p92-p0-mechanics-runtime.test.tap",
+      "bytes": 1370,
+      "sha256": "f280f15eaeccb59ed5e6f4966817eb0683c74819f355eb8284dcb1b1d856247b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p93-wave2-mechanics.test.tap",
+      "bytes": 2318,
+      "sha256": "6db49e179307d84a0e0985fb85db9d700c85387834ce130edc95ba6021d92567"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p94-wave3-destiny-maneuvers.test.tap",
+      "bytes": 2179,
+      "sha256": "8a653d6a178d376b64a9648240cc35cc17cbe7cdfb141128985ea175c61f21f0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p95-check-types-social-vehicle.test.tap",
+      "bytes": 2603,
+      "sha256": "a4af1d404ddc7376dd0609a68ae1de20e66b2998a94295bfafd514870774d887"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p95-final-shell-reachability.test.tap",
+      "bytes": 593,
+      "sha256": "b4e04280c38d676e06c5b92f880144f0a6bd0f0ae0cdeeac9103a0014f6fa1a8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p96-weapon-qualities-vehicle-critical.test.tap",
+      "bytes": 2030,
+      "sha256": "ef8694d14e76a48c5664371311c606bf1f43ce8b9bc67e3f4719d3f0683176d4"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p97-active-quality-spend.test.tap",
+      "bytes": 3298,
+      "sha256": "d988f56ce2bd5931fd607987026cde810d647467c1b87f4a08d3a0468d76c68f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p98-vehicle-guided-ion-tractor.test.tap",
+      "bytes": 1808,
+      "sha256": "266cdec30d03e45fe4f321427dd9da4d90bca1343e024e4d6e7c98fc1b8dae60"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p99-attachments-source-bound.test.tap",
+      "bytes": 2170,
+      "sha256": "9f7a06254437cd68352eecdc6f7e35356cfb3f3ae76eb3124f63fbe147719212"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p99-knockdown-prone.test.tap",
+      "bytes": 1527,
+      "sha256": "00a2733986fe26e78c3dd9c66a4c9aab189fda2ab79b9a476a9cecaf99371933"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-visual-semantic-audit.test.tap",
+      "bytes": 1146,
+      "sha256": "2f11a0748e53022531d1f702d368b8919cc5873d4f57e7b304f904366d749427"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r80-gemini-external-scene-npc-dice.test.tap",
+      "bytes": 759,
+      "sha256": "f910d468a11e9bd11f2dd318f9a70cb0df84c9610d025441b2f2311f2a99b883"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/rag-benchmark.test.tap",
+      "bytes": 322,
+      "sha256": "50d088477f7dbe9ad9aa38487a17bad56d917a4f58c13a11b6fded70c2b4bd1f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/rag-sync.test.tap",
+      "bytes": 302,
+      "sha256": "aae741e4df54a31249b62d647c49531f97eda478e4219724f7a4257a170fe91c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/rag.test.tap",
+      "bytes": 1781,
+      "sha256": "a214f21a4377c3249be885e1328528951eab92159cbbe84e0124f222fa08a85f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/random-character-r24.test.tap",
+      "bytes": 1455,
+      "sha256": "8da19685b2b4e302604db29219ab368f4de8ce282698857aa6525d89079ad2ba"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/rebellion-group.test.tap",
+      "bytes": 762,
+      "sha256": "6c0b46d5fb50926cec3a065465b7e55bd52084b518ec324227c495464cc30a7c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/recovery.test.tap",
+      "bytes": 1493,
+      "sha256": "607afa3addfd27106d2cc62462a5de05fc8e07f1157ab4b8ab0994ac382de083"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/rules.test.tap",
+      "bytes": 956,
+      "sha256": "cbc9a5bd82a5d176c4efcbdc38704dc96f3635c33d1baa173461d56452ae9520"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/sandbox-ui-r33.test.tap",
+      "bytes": 791,
+      "sha256": "7ff4f86438f1a143af77b71b8e5f381518cec2faac87a576359c64c60db9eb87"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/session-flow.test.tap",
+      "bytes": 763,
+      "sha256": "fe32f3c4cc9f7715949c5c01aecc59c31af950500f9aa4e5cf3c7b5cdedcdb01"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/session-ui.test.tap",
+      "bytes": 556,
+      "sha256": "8e7dedef25ae63a6892ab4b47b5a8fba5be9349a4b052d64bdf6f4926328988c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/settings.test.tap",
+      "bytes": 504,
+      "sha256": "225c5b36692a6b0f2c12091b35e44dcf1b3cb4ac77f832c75ca12e38686fba5a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/snapshots.test.tap",
+      "bytes": 311,
+      "sha256": "33d245ab7126c1319d8e8f2b77f14caacb4b7a42b14ab00eb64bf260af84c2f3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/source-authority.test.tap",
+      "bytes": 1987,
+      "sha256": "8d2b20c8ce7ce1e8bab34e269acb8428451c8b1d8a456de03e0c85a47bf43c61"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/starter.test.tap",
+      "bytes": 1638,
+      "sha256": "3bf0ebd776a490b3e7d309a08da256fab765da59c4b7870369228a34114a6281"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/state.test.tap",
+      "bytes": 1276,
+      "sha256": "810378d6ae2b4c8c0d2f91c65ecf9c11f8debccc1be23966e613592a698304e5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/stress-33-aftermath-r20.test.tap",
+      "bytes": 372,
+      "sha256": "aec49c738aa7d9400867af162741a3b72f718e6f74f313a507f54b243117678e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/stress-33-faction-plan-r19.test.tap",
+      "bytes": 412,
+      "sha256": "7880f01042086d58cc982543de49b84b39dea588e9e814e8f5281bbfbbb7d5a8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/stress-33-sessions-r15.test.tap",
+      "bytes": 370,
+      "sha256": "524ddc794a67fb1f9c64bb1fbe8d9b04320f09449aca3861c67ac6ce4af5e724"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/stress-faction-plans-r19.test.tap",
+      "bytes": 404,
+      "sha256": "5f835db4e5e7d5b4ae4364fa362624ad4fe8834f9cb07e46e4e545a98b3a3b3f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/stress-factions-r18.test.tap",
+      "bytes": 368,
+      "sha256": "e67b10c3d8f3ccddb556c0dc281e476b9fe0e1e723f57e4b1190744f42634eb0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/stress-persistent-adversary-r17.test.tap",
+      "bytes": 346,
+      "sha256": "73cd193c2cb0cc5b25a10ae484c5d0acab11a4207f7935513f6d03f90c4015d0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/talent-effects-r13.test.tap",
+      "bytes": 1706,
+      "sha256": "93afe00bbcb4456586281fd3191eec31c5df1c53f6ffda81fe9eff7694915142"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/talent-effects-r14.test.tap",
+      "bytes": 1771,
+      "sha256": "1457dfbfab76b742bb67c5a1c7e8e62a3337ab73668e76bb7396cb950ccec3b2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/talent-ui-r14.test.tap",
+      "bytes": 562,
+      "sha256": "061f05549a9123a2d27a759d97dfb2c9225521b0036e130958ae4d341d8a68e7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/talents.test.tap",
+      "bytes": 2201,
+      "sha256": "b78029024d1bba1ed9903580e7ce7f0905bf33f1b570a8075dffba86b245df67"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/tts-bundle-status-p15.test.tap",
+      "bytes": 289,
+      "sha256": "b28ee963336e779bb5d522134727e7b966d98765e5d12a8537e5aae72ae751a3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/tts-lifecycle-r24.test.tap",
+      "bytes": 987,
+      "sha256": "1c0e2e734f1277d4028543d8e848e8e4ea162a0f61f93ccb87786ed9f77503c6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/tts-multiblock-p9.test.tap",
+      "bytes": 734,
+      "sha256": "17881b2932649f3bfda95525a7a25eadd5d1fe4901c7d2bad19af5b422c9326a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/tts-provider-fallback-p17.test.tap",
+      "bytes": 518,
+      "sha256": "8a92c08ae6026580f4737eddeb8f52fb863526084a6e296aae5b4cac5e89d895"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/tts-r15.test.tap",
+      "bytes": 990,
+      "sha256": "fa014e5653def6e546c57a9fcb1008662779c8e8d6a80f123616df763a06434b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/tts-ui-status-p11.test.tap",
+      "bytes": 296,
+      "sha256": "0eb9c15ba2b6dd8fd4f0b6798495d49d75a654640f665f8fbb78991d2a588c46"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p128-published-equipment-integration.test.tap",
+      "bytes": 3144,
+      "sha256": "94e97a92ee772eaff86e6d8f90f97f26b940167d70ce000624feb879b5db4767"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p129-recovery-integrity.test.tap",
+      "bytes": 4458,
+      "sha256": "aa87c091e8cb0db1245e8a9af758c536c259e909c3adebc098e031cd60e63906"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p130-aor-expansion-integrity.test.tap",
+      "bytes": 3816,
+      "sha256": "293d7a32307b66e6be43b3b529c6ddbd3a7823345b3b1a7a1eac93183a02a510"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p131-aor-multispec-and-checkpoint-gate.test.tap",
+      "bytes": 2482,
+      "sha256": "985a8439f3db4d44b3b56de66a6e369bafc72b3031e2804cb2f0d9c0e13a2105"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p132-aor-mechanics-and-integrity.test.tap",
+      "bytes": 3765,
+      "sha256": "300f354756abaa4ab911e3e1d6371f2a35663c3406233a8333aa05eaeb7f72e1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p133-transactional-adventure-integration.test.tap",
+      "bytes": 3744,
+      "sha256": "203c0044ab304504472bcbde64d9bc0604adb871cc34abf52a2943a8b69c151f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p134-persistence-guard-and-five-adventures.test.tap",
+      "bytes": 4430,
+      "sha256": "3d30f33f3da7e0b3cca46529a5b70d2e72c9cc6da7a6e9bbd7b4995d57e57270"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p135-aor-mechanics-and-persistence.test.tap",
+      "bytes": 3922,
+      "sha256": "fd2c71e3d0dfed5946ac127c35731539d0f3ee3ba2e6af3b1ee99d4840b33612"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p135-snapshot-and-condition-hardening.test.tap",
+      "bytes": 3526,
+      "sha256": "4aa20c39cec51e844ad2f3eb3c2ef3e8b64a43ccb897389616c968ad33a1c163"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p136-checkpoint-atomicity-and-aor.test.tap",
+      "bytes": 7967,
+      "sha256": "13cb553495b44481691f3d3cc572b06eaa9dfae7aa5dcec676c03dd0fcd4c043"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p137-aor-cross-system-mechanics.test.tap",
+      "bytes": 4031,
+      "sha256": "ddda595821888adbc515f23bf8a822b55e053f3e3d4fc324334b0abf7a44b7ed"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p138-idempotent-events-and-aor-time.test.tap",
+      "bytes": 4708,
+      "sha256": "fbb73fad46e8bece8e790f8619a3ecb66b31afb1a0e5eb2448b1c5f06eec023c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p139-explicit-task-clock-five-adventures.test.tap",
+      "bytes": 5430,
+      "sha256": "3753b71eec6644803401f28ad37b6e1a185f1ed6f6ab0502a986b831a83f9f05"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p140-task-ledger-journal-integrity.test.tap",
+      "bytes": 9919,
+      "sha256": "48dbe7872467ebf853878441ae748c19b76813828c1954ead274be9c2a667311"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p141-aor-tinkerer-inventory.test.tap",
+      "bytes": 1513,
+      "sha256": "ba38cf276b3d5c3782433a21af6ed67e8f14b1c12e916cf3a01fd5e493eded94"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p141-causal-integrity-five-adventures.test.tap",
+      "bytes": 7985,
+      "sha256": "bc491f65404dc3d8f3eeb11922e3885f6612106572ebe5e76594c16e5f145228"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p142-journal-provenance-five-adventures.test.tap",
+      "bytes": 8078,
+      "sha256": "002dbfb05af987bf06f8fdbe65756d15122cad0170f0b73b4dcd0ff58d1d3f87"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p143-atomic-action-receipts-five-adventures.test.tap",
+      "bytes": 7698,
+      "sha256": "802fd9620d6ea7522fccea134fd1c8e650c51ee5d3e81103608a303c398f974b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p144-integrated-atomic-adventures-aor.test.tap",
+      "bytes": 5069,
+      "sha256": "d51ab0964640e38f085e8659c3f6773d023348ac0567d2e07219b65206eb47a8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p145-durable-controller-receipts-five-adventures.test.tap",
+      "bytes": 6649,
+      "sha256": "3d9a451084c4041a3c28324b3a20136b0c76ee07cf63a5ff5d91a674f5223807"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p146-webview-outbox-causal-five-adventures.test.tap",
+      "bytes": 7924,
+      "sha256": "51502acf404a3323805e195dc294d1e2d5e5fed7deceeb9095140bcd72b4c9bb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p147-run-serial-proof-outbox.test.tap",
+      "bytes": 4502,
+      "sha256": "94f70b185bcf6af3a261dc65a4d72eae6085c9c058f166245b069dfc86119050"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p148-semantic-and-strict-transactions.test.tap",
+      "bytes": 8280,
+      "sha256": "ca1b86d971dc495136d89a2a1a6bb202aedaa8303810c1997fb77d599f58ea5f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p149-aor-combat-social-causality-five-adventures.test.tap",
+      "bytes": 6763,
+      "sha256": "e9bb03164c6361b39e2de47fcbac1d4b612a22d0abcadf38e7c7b1388ce3f89e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p150-defensive-slicing-tricky-target-five-adventures.test.tap",
+      "bytes": 6838,
+      "sha256": "af59acacfc748dbea55c139c6e0cf5153a025541307847663e591f29acbc0c92"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p151-integrated-context-talents.test.tap",
+      "bytes": 4124,
+      "sha256": "733da0eb42b1299ee2d5e09534d08e4e751dd236ccac63271d7b49fbb675a49d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p152-atomic-composite-recovery.test.tap",
+      "bytes": 6423,
+      "sha256": "23ce399b9e22297e32040f59847cb0193db76ffe67e6c4dde3f09c680c163963"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p153-trigger-context-recovery.test.tap",
+      "bytes": 11418,
+      "sha256": "4f0b6a355d5cbc7781b1a1169ed17e5f143295e173820e240e7515d9aed90145"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p154-aor-combat-talents-five-adventures.test.tap",
+      "bytes": 4121,
+      "sha256": "d39d7657a3541f7e4f80f9f7947335e2687648205a4e1906842e512603dd99a9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p155-beyond-rim-combat-integration.test.tap",
+      "bytes": 5418,
+      "sha256": "90fb52aebe676c30aa0e0d897811095941411731747733c9a6c1c11c9f440b97"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p155-utility-belt-destiny.test.tap",
+      "bytes": 3775,
+      "sha256": "ded321a341c54e61de63d472a642c0ce2b104f5508b6c271871b1b601c8d6724"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p156-imperial-clock-source-raid.test.tap",
+      "bytes": 6678,
+      "sha256": "0e85e7faae4ac3f65f4a383d5a8ef80255fd59efe4eb48117e39d229e16793aa"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p157-diplomat-commander-economy.test.tap",
+      "bytes": 10695,
+      "sha256": "5a1a6c70f6827d54219079cb7844075235b820bd640436e0e4c00e1023cd8d2e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p158-explosives-survival-five-adventures.test.tap",
+      "bytes": 8767,
+      "sha256": "91e2c31a3aa21a423830ee52b332197375e89b7e32a8e2b94e85dd45eb27536e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p159-natural-rerolls-checkpoint-causality.test.tap",
+      "bytes": 7242,
+      "sha256": "e499ba92bdaeb5ca50091cd0d02e7e6457fdebb639e097ee2245ec049d9613f0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p160-ammo-heroic-piloting-five-adventures.test.tap",
+      "bytes": 7359,
+      "sha256": "dc66ce1af4bd42ee93f750787f21a062eb3065dd3240474fb3528b0a78c73dc5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p161-aor-knowledge-market-boarding-steely-five-adventures.test.tap",
+      "bytes": 9659,
+      "sha256": "43728544c2a41176467006fcd52a8244c198fc5aa164e107d52bcb2765cc7681"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p162-sound-investments-smooth-talker-five-adventures.test.tap",
+      "bytes": 5145,
+      "sha256": "71cf4c39fbfc2a02f4c6265668bd94c304359789fd334a440dd7fae640fdb05b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p163-aor-medical-fullstop-five-adventures.test.tap",
+      "bytes": 5696,
+      "sha256": "9c6abf906fa577f9a117272fe537e188ce50adc4a13047a5170b3af791ea99df"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p164-companion-medical-integrated.test.tap",
+      "bytes": 8600,
+      "sha256": "29e9508c6c90fc601d03a3a5b35412e792a321ddc1277a23c9ce75d84b957933"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p165-aor-gunner-vehicle-five-adventures.test.tap",
+      "bytes": 4345,
+      "sha256": "48870a39968b2c3f3c18f5c850e1651b54375e9a5186b689f03b028f861aac6a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p166-gearhead-atomic-five-adventures.test.tap",
+      "bytes": 3247,
+      "sha256": "87928531f5a6c2af96bd024924e0ee4f6fa91060fc3b31cff18d683c1edc8234"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p167-familiar-suns-android.test.tap",
+      "bytes": 1052,
+      "sha256": "a55e1e8b50b8956850e43e0e53cdbecc663a9298eb5ed7b84a0508626b4bfcf3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p167-mental-fortress-destiny-critical.test.tap",
+      "bytes": 1288,
+      "sha256": "a78e5cafc9d3b718b3cdf984193c4029a878fff469d19d48c8b264c7472fd160"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p167-objective-dependencies-consequence-resolution-five-adventures.test.tap",
+      "bytes": 6884,
+      "sha256": "6200764e42baaba9c745dcc8ab80458eae5ad27eacc97354eb41ba608083dd9f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p168-five-adventure-security.test.tap",
+      "bytes": 5862,
+      "sha256": "4576874de1b6f4f21bc93de6e7d1b690e29e00c009835b89362790b041812a0f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p168-social-vehicle-integrated.test.tap",
+      "bytes": 3872,
+      "sha256": "8d86fc7a4a9a03bff925a67321379f94f357ecfc278295d72a8f60b19b9c01e5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p169-provenance-five-adventures.test.tap",
+      "bytes": 7895,
+      "sha256": "3f625ccb87783bf4f0b388548e095b3d12511a2175538d77af987ac165e13147"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p170-hardheaded-jury-five-adventures.test.tap",
+      "bytes": 6435,
+      "sha256": "20d401dfc5a5f325e2c157ed1ba580a484ded1b789ab22c7d04b4f7d730283dc"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p171-npc-companions-hardheaded-five-adventures.test.tap",
+      "bytes": 4330,
+      "sha256": "85c02f517119b2b78416feeaf3f910b1d9c66af2956e30a1246c400c546a9f54"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p172-consequence-security-five-adventures.test.tap",
+      "bytes": 6976,
+      "sha256": "98da88e9ccb5714feb6481c59168acb28b2d5370fc41da8c71f1d67305470629"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p172-master-merchant-economy.test.tap",
+      "bytes": 2638,
+      "sha256": "32fdf44acfe138800cabdc9d48b5ee65ebc376872735a6afb3b64373c78cfc6e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p173-merchant-receipts-five-adventures.test.tap",
+      "bytes": 5353,
+      "sha256": "256078af5ec79a0c1b36fc8f3e7d13edb35447db3a8ccd256fa826c5e35befed"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p174-mechanic-field-five-adventures.test.tap",
+      "bytes": 4308,
+      "sha256": "8c000afa598efed2fa80485d32afc5c56c2dd708da65e3202865b25fc31ddc48"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p175-command-leadership-five-adventures.test.tap",
+      "bytes": 4819,
+      "sha256": "69ac8f331b5900344e9402003ed79caa9a9baaa5812f6fe56dceecd7266cda1d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p176-intel-fire-slicer-five-adventures.test.tap",
+      "bytes": 5499,
+      "sha256": "e80fd058412a623a542305d48ac8aa97bc580ce5b55373e723395d828969ecae"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p177-social-engineering-combat-five-adventures.test.tap",
+      "bytes": 6890,
+      "sha256": "f9d449cd6a34d3660457cd2a4923ac2126e47c0b5b01866c06d20c6acf5c262f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p178-aor-substitution-critical-crippling-adventures.test.tap",
+      "bytes": 5885,
+      "sha256": "e6edebc7aea6b95a7ad0aa63eec536c1df56871b115bcde9c7d7d70bc0eeca46"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p179-reactive-medicine-blast-five-adventures.test.tap",
+      "bytes": 6307,
+      "sha256": "252496f23c3103f10481d609c2ff90731e990cda35a21edd07db547630efd49d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p180-condition-effects-contract-five-adventures.test.tap",
+      "bytes": 7316,
+      "sha256": "1e0be5dd1b818fb71a67459c77251224a466708492a0bc917e7456b7617129b5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p181-mask-saleucami-source-migration.test.tap",
+      "bytes": 1475,
+      "sha256": "f39942da11c9fcc379f8ff523f24fa43e2ce9cc8c8378fe7fb9e21da5fa97deb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p182-sororinet-porel-contract-integrated.test.tap",
+      "bytes": 2552,
+      "sha256": "7edd810903481132aa24c633cd989dba72befebcf2645fbec3065f6e40e11c62"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p183-jewel-longarm-pdf-branches.test.tap",
+      "bytes": 3843,
+      "sha256": "b7e42db0813d37f0f41b0251bc522feac8979882753942b53b674fa87ed6cf8a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p184-jewel-race-auction-pdf.test.tap",
+      "bytes": 3782,
+      "sha256": "2982da1c1bfa2688ef450897b41b4a1a69484efee2a85fa67359d17dba000c54"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p185-race-auction-integrity-source.test.tap",
+      "bytes": 5911,
+      "sha256": "5144be4bfcb81f9126d20d4de94c4616ed66e50b7d7174bb02ef3affab7009ca"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p186-grand-prix-dice-vehicle-atomic.test.tap",
+      "bytes": 2858,
+      "sha256": "41080d0a5f3a27ac323ce64ec0008cc9e4875be2fff00710361d47ebf94a0214"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p187-bank-droid-slicing-integrated.test.tap",
+      "bytes": 2856,
+      "sha256": "ae0b759f318d4c2edbb86febcf221edec3013b0ebeca043bc08f825480ebb72b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p188-bank-preparation-spike-encryption-lobot.test.tap",
+      "bytes": 2703,
+      "sha256": "2c22217792fa68717b2a51cd1eedbee9889229759fe167866683a4c25c3a0cc5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p189-spike-time-ledger-world-clock.test.tap",
+      "bytes": 2849,
+      "sha256": "36f07754375be51780d9386c053be104a7b5c16ffbdb48213bd3906ae09d5e41"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p190-npc-slicer-hiring-and-bank-integrity.test.tap",
+      "bytes": 3596,
+      "sha256": "0ad3a133b5e447a1c4c7cd956303832a4363aab29f985d6ff574f031a76d993c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p191-bank-table-2-1-post-roll-backdoors-time.test.tap",
+      "bytes": 3245,
+      "sha256": "35b98dfeae5587ededf35b778b6435e31a56a0f8d762a9132b62e41fd8f808a5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p192-jewel-bank-table-completion.test.tap",
+      "bytes": 3508,
+      "sha256": "999133a41ccd50f9fd46344194ac07a2cafd7184fc592489f1847f32055a3bbb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p193-jewel-wing-guard-arrival.test.tap",
+      "bytes": 3187,
+      "sha256": "b847e698ba218aa0700569c8dbee5f3092315306d0cb15553e59c1a634cd5d1e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p194-jewel-g100-black-box-evidence.test.tap",
+      "bytes": 2078,
+      "sha256": "f6a004a8d051bc828174bd3405489ed94ca85f3dea0157ef425468d7a2a93ca0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p195-jewel-live-g100-droid.test.tap",
+      "bytes": 3038,
+      "sha256": "f7832cfd11fe7ab600a8eaefaadb872ae356ab98be2132f61af7f0a781e2de74"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p196-jewel-g100-official-nobodys-fool-muscle-assist.test.tap",
+      "bytes": 2396,
+      "sha256": "ddfdf1a9369efe659f0c50123261115f53a86fb8b731ec8a089e961f7ed983a2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p197-wing-guard-tactics.test.tap",
+      "bytes": 3148,
+      "sha256": "58c944b4efc7c722d27fcdc78e7951e439b9fc65fb87a0aea4f983cb746c597d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p198-wing-guard-free-maneuver.test.tap",
+      "bytes": 3139,
+      "sha256": "f66a181429b242e0cb39929d252a84fabb07b9e4ba12d85b4eda00f5ec7b9fb1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p199-physical-bolt-and-slicer-tool-replacement.test.tap",
+      "bytes": 5117,
+      "sha256": "8a4b2e2844f12e9203080825c415c557951a826d17d38102691c401d19e701e6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p200-bank-ledger-settlement.test.tap",
+      "bytes": 2762,
+      "sha256": "26f817b7298123f4c30d88ee37f42b7a1c3e0e6df157a0e8371ba1ceca861fa6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p201-escape-bomb.test.tap",
+      "bytes": 2202,
+      "sha256": "2ab62d42e24295ca555d0b7700fc27cb58758f42a31d185b4b82aa26bd26628d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p202-jewel-impact-goons.test.tap",
+      "bytes": 2320,
+      "sha256": "1da5c78b982d3d5aedbe74586b2908a3dcfb3c47c24587fd4bb813ad7e0e5cf0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p203-jewel-long-extreme-falls.test.tap",
+      "bytes": 2194,
+      "sha256": "a48adf67dc9a4e9ea1c26b279969f07a910da33a5cdb49cfa478a127f6c7c035"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p204-jewel-companion-impacts.test.tap",
+      "bytes": 1850,
+      "sha256": "40ce1a01050ef79b5de92c5e3b19230b7e014b24d13172d5287424ab105ff2ed"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p205-arrow7-personal-scale-turret.test.tap",
+      "bytes": 2091,
+      "sha256": "dc804c65fd21090cba75624ee0a7e3afa1ee04127af4e6be83e06490e6b6f796"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p206-arrow7-competitive-chase.test.tap",
+      "bytes": 2746,
+      "sha256": "18d77cb4f5f695ad367e5f9ea4c7f867eace78154af63739c9e491671f2a9753"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p207-arend-sweet-revenge.test.tap",
+      "bytes": 2252,
+      "sha256": "f408988234ec71bb24e0964f3301f0c11528bd020b3071b057eb1e1d7d3e0769"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p208-holopark-naboka.test.tap",
+      "bytes": 2594,
+      "sha256": "c6ba8d62ea249224fdd6853a384a988a0d398d63a6bce441e505ed0a06e20784"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p209-holopark-wing-guard.test.tap",
+      "bytes": 1721,
+      "sha256": "1102096c9d2bd6faba8ee5819a972d1e522371c75778c235bd5bc1f2e4f15cff"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p210-holopark-landscape-effects.test.tap",
+      "bytes": 2206,
+      "sha256": "0a76bff539688e5d3b1339f3b2a0d765e70f5d1311f671f37043d9871434f1ae"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p211-holopark-thranta-shadow.test.tap",
+      "bytes": 1951,
+      "sha256": "f42cf1cf7f43fcb5b64b042277acaf067d7e46d37b6873a198394775aa53c201"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p212-holopark-cover-nerfs.test.tap",
+      "bytes": 2063,
+      "sha256": "8f38ce2aebd37b9c31bbd1171b26b3f42f792cb6f4702e93db05be621f7bf3b4"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p213-holopark-npc-threats.test.tap",
+      "bytes": 2419,
+      "sha256": "593595d8384a379db9d9beb413ada3c85b6bdf5d0a48d5846ec4bcff7f57560c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p214-holopark-lost-weapons.test.tap",
+      "bytes": 1101,
+      "sha256": "9cdba2f35c401d2e3b5e6e914a77959c0a18ca15a1e9c65a57fae2e047401367"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p215-holopark-despair.test.tap",
+      "bytes": 1121,
+      "sha256": "54f88fc3d57d26bdab9745ccf02680ede35fd654d3895d4ea84e664f41da886d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p216-kashyyyk-vertigo.test.tap",
+      "bytes": 1324,
+      "sha256": "ac061b9dd96646c4f5e3deb4371a949cfbd9d214e75fab51069217565ef93187"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p217-holopark-factions.test.tap",
+      "bytes": 2088,
+      "sha256": "efdfa89820eaa90774b6a4b5237d8bebe7dc966da4f1c01e82145cc2e8558220"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p218-lando-pardon.test.tap",
+      "bytes": 1885,
+      "sha256": "46942f4d5d77b6c8531cd38dddd298dad4265e5c5cb8f734fb658e36d768c01e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p219-shen-aftermath.test.tap",
+      "bytes": 2099,
+      "sha256": "65123099419306668e07c45669a3bd55792efb8302fee4a94ce6d15afb0f874d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p220-arend-holdings-combat.test.tap",
+      "bytes": 2301,
+      "sha256": "7005ac45806d63c65f9f6a818236d12dcc808bc2ed7a325f410e70d4b3ce0bd1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p221-arend-patrols.test.tap",
+      "bytes": 1767,
+      "sha256": "83e1a5ac4e15eb54e90012c7796aefd94fd2673fb203f0f0df8eae8db4534c39"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p222-jewel-episode3-xp.test.tap",
+      "bytes": 1645,
+      "sha256": "778dcbf38e073e199175aaa6c7631c7d804de574b631018ad70edcb5c1e678d7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p223-storm-iv-patrol.test.tap",
+      "bytes": 2286,
+      "sha256": "088c91fe5ed3991d38471051969d9dd73fdf6b6804334f189596462f2c80fe7d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p224-bespin-departure.test.tap",
+      "bytes": 2126,
+      "sha256": "dc44848bfc2732f536e20919be1d0da947aae026ae9dd14c6a9696cdf3bb86b1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p225-residence-wing-response.test.tap",
+      "bytes": 1806,
+      "sha256": "aaa3775cf6a59e09ce8342bec4cf08e67d49a9335dac1c7eaf882002086d86ac"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p226-pursuit-travel.test.tap",
+      "bytes": 2180,
+      "sha256": "17b1f4b39bd7260ddeb1a1c208d315c7a2f3b15b191942064935ed6aa7f5aea7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p227-jewel-custody-transfers.test.tap",
+      "bytes": 2124,
+      "sha256": "5429f3d0fa54854ead5c8e3f007a3e4b64cd23fd1c4ad0b0252cda228ca29864"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p228-companion-jewel-boarding.test.tap",
+      "bytes": 2002,
+      "sha256": "a4fe3b40e9237b57b9a1dd82cead386b97f19e424de248a4a34a39205ad1f003"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p229-starport-ship-security.test.tap",
+      "bytes": 2290,
+      "sha256": "1823200697c5e15998b42b98dfa8f0d637e5251a701f0c0ffa675ea8a8ae5241"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p230-starport-routes-piloting.test.tap",
+      "bytes": 2944,
+      "sha256": "5d5ba475fd9f85533aa1ee1e478e5b733b9bb5ff145b3e0b452133c93b1868c7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p231-starport-cloud-cars.test.tap",
+      "bytes": 1700,
+      "sha256": "b3ac03cd584adceaaa5bf85489fb2caf28aedab8d6befd9149fd9a50612fdc6e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p232-holopark-narrative-clock.test.tap",
+      "bytes": 2127,
+      "sha256": "6b35eceb6da7737defd6733a5bae44b96f1b004959b4cbf524c393b92fd7dfa9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p233-kashyyyk-medical-actions.test.tap",
+      "bytes": 1687,
+      "sha256": "6f9516e92ffd09e7fceefe1bc26d6bb700476e5dc1570ce016e465c4f3b0f0e1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p234-five-adventures-hybrid-safety.test.tap",
+      "bytes": 2073,
+      "sha256": "69226d2706326c09d5ad2ae4a864805ceb753050aaffc2f24a72e43abc9721bf"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p235-longarm-newmeen-official.test.tap",
+      "bytes": 3624,
+      "sha256": "9d35aaabcd7b21d096ab2ebf2bd8ffe0f10f4813366653c450756164150ffdc2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p236-swe02-teemo-palace-source-gates.test.tap",
+      "bytes": 2623,
+      "sha256": "d8e2c71e0b4c7bc9ca019892d7d96dee8c60a8497042cf76ec97030bfe0b6a8a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p237-swe02-geonosis-dimmock-gantry.test.tap",
+      "bytes": 2560,
+      "sha256": "d8289ef53f3ea01a1c2476e8b4c43d190f19b5eb239fbf9de1203acef0fd7504"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p238-swe02-krayt-fang-ship-source.test.tap",
+      "bytes": 2894,
+      "sha256": "f4a7ae2a24d336a4ce5cbe669703f5d9108b235d950307a405ecf4e5b1940c3c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p239-swe02-thwheek-vehicle-combat.test.tap",
+      "bytes": 3008,
+      "sha256": "264f5a2097f44fe54bf2ce36b8fb51c4adb2e25bbca0ca981495044286fef7fd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p240-swe02-nabat-port-economy-medical.test.tap",
+      "bytes": 2693,
+      "sha256": "1a010fadc0c50cf84daa6118f739bf9cdf0003723467e2438eb8f33b3d14ad9a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p241-swe02-nyn-newmeen-social.test.tap",
+      "bytes": 3081,
+      "sha256": "6cc1297aeeea727919354c7dfd6a8a65f0d8895d4e8913c96ee479cfdff18e7c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p242-swe02-newmeen-fatalities-coercion-rescue.test.tap",
+      "bytes": 2952,
+      "sha256": "c35eb89d2ec8d914d4801001493d2873bc6e0471b47c09897151c1516e403c13"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p243-swe02-escort-militia.test.tap",
+      "bytes": 3832,
+      "sha256": "629c4edff12dbc5a8b5b5ae2b12839c48e675123c9bd81a433a87c65d7cb9132"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p244-swe02-militia-custody.test.tap",
+      "bytes": 1641,
+      "sha256": "094edba34684dc4fb79d5ae705dadaed03f0660d6fc1901fc1992c0f66a076b7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-swe02-act2-contracts-gantry.work.test.tap",
+      "bytes": 2533,
+      "sha256": "2e3abba753b42fe8d275adb1d7d32ee7a99fc337d0a0392c0b46f6754cf1f727"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-swe02-act3-complete-routes.work.test.tap",
+      "bytes": 2819,
+      "sha256": "7e423a6e157ad4cd8de091449f4c3d36473bd454fe6fabef3063ae03fdff1ded"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-v2-p127-regression.test.tap",
+      "bytes": 2244,
+      "sha256": "18823e846a600b0e49dd786c5cc12233e9f0e42ce04a76703403ac07b65a0bf6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/ui-bridge-backup-json-r23.test.tap",
+      "bytes": 1766,
+      "sha256": "a4356bb741cc430086d57af0a69cb988e5d3962f994acab95e3f8cc660a81f7b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/ui-bridge-equipment-r32.test.tap",
+      "bytes": 710,
+      "sha256": "01c84f1b70fb0d12b5f0b16c05f59ee17865a6bd55d18945b4fc46b13a70c3a7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/ui-bridge-manual-creation-r33.test.tap",
+      "bytes": 964,
+      "sha256": "8dc3b5bd3f949a892562f44bd891c3cbff966096fef0160c6f2638d6c8675f08"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/ui-bridge-r22.test.tap",
+      "bytes": 1580,
+      "sha256": "2657e79df149a16ff62b381ecb88f978d6782a8c85a39d7e1cf3bb753cd01108"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/ui-language.test.tap",
+      "bytes": 523,
+      "sha256": "2fb5c60040eaada4854e709d9b127e77d7ababe4c3a986df748ca2e9733ea53a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/universal-adventure-engine.test.tap",
+      "bytes": 948,
+      "sha256": "b6c1b061d4a3d6734ef886d29b180e674b7bf9b3ac03956d62d1fd65ff1d4ba5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/validation-capabilities-copy-p18.test.tap",
+      "bytes": 350,
+      "sha256": "fe39e38dc5673c53701ead211b77d54018cd2fa18b25cf58f9ef468e388e4926"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/vehicle-controller.test.tap",
+      "bytes": 895,
+      "sha256": "9e9b9b668661dc5db306b98dbc38fa47377a43a1eb1f1775b377f9019d5b2a8d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/vehicle-talents-r15.test.tap",
+      "bytes": 823,
+      "sha256": "7410a0f21ff02abbef3107bc23f45592ac5158f8f051e26edda33b3bd6bc30aa"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/vehicle-ui.test.tap",
+      "bytes": 543,
+      "sha256": "4880e010c4778def677a5f260c5894975223b9bc3f72cb2ff18d2009b39b9e36"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/vehicles.test.tap",
+      "bytes": 3577,
+      "sha256": "7b2b159d7eba0dc829035d7dcea3706ada6a3530ce83d8e18bd149efb37a79dc"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/verifier-async-suite-r16.test.tap",
+      "bytes": 394,
+      "sha256": "9d110ab35a579e5c548c6bc0628fad5a2b3a9dc3a60fb372a4866039848429e8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/verifier-process-exit-r16.test.tap",
+      "bytes": 315,
+      "sha256": "2ec2c0043269be7928bcc18247aa6b218019edb28acee46be0c6b30b72c0b843"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/verifier-validation-dir-r17.test.tap",
+      "bytes": 500,
+      "sha256": "4f1b57ccb7a5e19b9480097f52f6c25c6278f978b060e6a0eac97476763b49d1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/wave4-official-adventures.test.tap",
+      "bytes": 1321,
+      "sha256": "c4a2701e8d1fcdf959dc168313c2f45036b030d76cda3a41d2ae9715e93badfa"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/weapons.test.tap",
+      "bytes": 880,
+      "sha256": "5d6d8649aa11d7743ce99b22874fd551f542942eb70e58a60e4817939581e1b3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/world-r15.test.tap",
+      "bytes": 1162,
+      "sha256": "4e677ac30e54189f6b4e41bd775cf172df52863b5524f19ee07b308a127be646"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/world.test.tap",
+      "bytes": 476,
+      "sha256": "38fadc815f6a67f06079a08ecd5f9f72dce8f644c6ecfc38082abf9b07dd3896"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/regression_summary.json",
+      "bytes": 78378,
+      "sha256": "8202fbee7f5c79a50ee5daae599deae8dfa78e786539edf45a3c8a8dd3ed0328"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/source_syntax_preservation.json",
+      "bytes": 1026,
+      "sha256": "fb412ad9181d87017bb7d365ae4db2223f4c546fd63652c90f484a5aab1b8197"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/acquisition-r13.test.mjs.tap",
+      "bytes": 1641,
+      "sha256": "37f979be80d81b34e2f390e5be8814fadcde4163ad80efbd6a2ffe0eb902f93e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/adversaries-r15.test.mjs.tap",
+      "bytes": 816,
+      "sha256": "60d71a980395558559c08268a05bf84c389c5f5492283db2228bd73e246e3a49"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/adversaries.test.mjs.tap",
+      "bytes": 1074,
+      "sha256": "cefb5dffd1c470dde13782efb50c29b801fa70179bd8625393024a7d3010c85b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/adversary-guidance-r14.test.mjs.tap",
+      "bytes": 736,
+      "sha256": "7aa0a1aaea35185a5d3818b2ad6fb39def854ad68f6d4fef1e53a4713d03b104"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/aftermath-r20.test.mjs.tap",
+      "bytes": 898,
+      "sha256": "fd78b317f8cbfe8bdc5177f67eeac6cefeb1be81fe51017b983af83001196631"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/aftermath-ui-r20.test.mjs.tap",
+      "bytes": 364,
+      "sha256": "dc4b595ecef604190f5c31a1de41d52e11fc10f59cfeea93f39605e417ead9bd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/android-json-file-chooser-contract-r16.test.mjs.tap",
+      "bytes": 958,
+      "sha256": "d1f50afbb896aaef142b5030d22e5849f7ba63b8f9acbfe4c7ed11009087ebdd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/aor-duty-r37.test.mjs.tap",
+      "bytes": 774,
+      "sha256": "e6fe25f1d5bee2d1f414c9eecc58a58819dcb2989f7314b1c0c397c7d68097a6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/armor-price-r28.test.mjs.tap",
+      "bytes": 774,
+      "sha256": "53225be8502a44977002733d561c6c3623a9ae901083b221f6cba0b3aa4e7425"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/attackDifficulty.test.mjs.tap",
+      "bytes": 670,
+      "sha256": "23e44f7b6732273ec00dd788ade2e0700a96f54f9626026b88add25b5e2dc42c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/availability-r26.test.mjs.tap",
+      "bytes": 2598,
+      "sha256": "77721643ef500cc2a0eafdca50ba6ed42abe2b9a19cc98ff379703aee58bbb1b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/backup-restore-live-refresh-r15.test.mjs.tap",
+      "bytes": 748,
+      "sha256": "3ec81b0588b66ddccdbc14b1e86911c1e97ead67b903e167c2bbe8a18218b7ee"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/base-ui.test.mjs.tap",
+      "bytes": 719,
+      "sha256": "ffa603bb28c157c0bf473f3a2866613efa6c028ec71f086401883724b944971e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/bundle-builder-p20.test.mjs.tap",
+      "bytes": 325,
+      "sha256": "b76ed69b1be5da325b3381a1f5c14e3545d1eb752d18068cf707e49fbb5a81a5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/causal-hook-reset-r21.test.mjs.tap",
+      "bytes": 318,
+      "sha256": "9d6b93b63933d157427b740b28ba586a7109d3edaafb939b78f352ef8edc2934"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/causal-world-r16.test.mjs.tap",
+      "bytes": 1028,
+      "sha256": "a42ee80ae949e1081e8e3d07d893269a229306805bef1df656c2aa120797a408"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/character-creation-ui.test.mjs.tap",
+      "bytes": 575,
+      "sha256": "bc7b74c9fb7f0ac302f1cd7698533646fbefb06dbdafef68b267bf915faab93b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/character-creation.test.mjs.tap",
+      "bytes": 2356,
+      "sha256": "aa8beee0930b3b005d264b9de05fb56dc30514384167fccb9402811c946041d6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/character.test.mjs.tap",
+      "bytes": 705,
+      "sha256": "29c09fb0a5659331a14f3db3d7fef15f0532f1f6ec867f3c35fca80faa3c8e5c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/combat.test.mjs.tap",
+      "bytes": 709,
+      "sha256": "17dfd019664d6db95e87b1ba98b0255b9d292c5155dfdfd964be5079bd0d4a7f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/command-talents-controller-r17.test.mjs.tap",
+      "bytes": 733,
+      "sha256": "694efb9abbbaff5a85b5f3d89130da11ac41559909febab4959a1c4151c5f77f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/command-talents-r17.test.mjs.tap",
+      "bytes": 722,
+      "sha256": "fc98a8de7f4805212ad0ede6ecbf701b5de6d939d51df82b4a91d8b0cc4c0ca3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/context-aftermath-r20.test.mjs.tap",
+      "bytes": 360,
+      "sha256": "1833eebea8c967942ee7c3121349a0d28567cc56dd4458afdaa7e8a2a86f4d8d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/controller-aftermath-r20.test.mjs.tap",
+      "bytes": 1020,
+      "sha256": "1b048f767df854821a065494509ee62d10c7e3887df26bf1b44f9cea47c898dd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/controller.test.mjs.tap",
+      "bytes": 2287,
+      "sha256": "e319ce7237ee44e49a06251f6a62d72e41b3434bc3bc0afce813c28676c4a1c5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/core-rules-closure.test.mjs.tap",
+      "bytes": 1654,
+      "sha256": "aa5e60e03c5af67590542880e8c7d4a7f566648c9726cc3fdd33b7dd64359557"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/critical.test.mjs.tap",
+      "bytes": 1380,
+      "sha256": "9a39bcdd5aa54fb8209669e1e48bfbc31dba9b5384b3dd67563ff701d7a745cf"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/cross-line-reference-guard.test.mjs.tap",
+      "bytes": 663,
+      "sha256": "7b12ffe75eb07e84fcc8dc3f32b5bc3add898804096a33b2dafa1d870ede76d9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/documentation-current-state.test.mjs.tap",
+      "bytes": 573,
+      "sha256": "7ef1dccf57aa4829aaf2f88eeb15800e6fdf1a67cbef40ea7458d62189203451"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/duty-type-guard-r34.test.mjs.tap",
+      "bytes": 302,
+      "sha256": "b670f72d2fa0f89125e03aa58c1257a1e7aeecaef13bc5f549de60be681dd1b8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/economy-r34.test.mjs.tap",
+      "bytes": 4863,
+      "sha256": "090e268138e65bedc4ed8c21e31840a53e8f615d67207f8614a7cc8008848938"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/encounter.test.mjs.tap",
+      "bytes": 836,
+      "sha256": "2d69522146bd0f04e041e2fe9da3c15bd2bab7da2c483116b7d5780debd6f0a2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/eote-core-recovery.test.mjs.tap",
+      "bytes": 1808,
+      "sha256": "dfaf57642a9c53ba63aa8fcdcd20871f66ca12806b3cbce6b83140b0f107897f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/eote-core-session-load-fear-r30.test.mjs.tap",
+      "bytes": 4614,
+      "sha256": "901768126dc5908ce40138691f4edd843c11b3d89d3cecfac1f644e764e05550"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/eote-core-starter-ships-r32.test.mjs.tap",
+      "bytes": 1515,
+      "sha256": "01e76f9ef056d3aa532e0999d500ae6cc51230a5cad32d86ebbaf0b8eb288aa5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/eote-core-systemic-r30.test.mjs.tap",
+      "bytes": 4351,
+      "sha256": "a20c69f37cf8a90e44d17c196dc8eddf7b95554ea0100a16a2b28dbe749b7bda"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/eote-core-vehicle-catalog-r35.test.mjs.tap",
+      "bytes": 4007,
+      "sha256": "7230cf41ed547781e39e26aed3e075ddd96ce16e05aecb006bc5a89ab57a75eb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/eote-core-vehicle-criticals-r31.test.mjs.tap",
+      "bytes": 3640,
+      "sha256": "c93b3a07d800d950edfe998485259171424d4d3dc3c658b1e1b22b6122fba6da"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/eote-final-rag-guards.test.mjs.tap",
+      "bytes": 945,
+      "sha256": "143f10fa4728d39104e4d5581ed3e37665a61e5085e069a5f12d5fc09997bb77"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/eote-fly-casual-vehicle-catalog-r36.test.mjs.tap",
+      "bytes": 3056,
+      "sha256": "bc2cfafe1b21512b24ca127d757604f4bacd1c8f8ea419e4f426305f37ea4726"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/eote-force-core-r28.test.mjs.tap",
+      "bytes": 4254,
+      "sha256": "c53ebccf38e335e67ddb89014e2f8a25604c187d8a7b3f5519670309b4402b21"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/eote-personal-catalog-r37.test.mjs.tap",
+      "bytes": 425,
+      "sha256": "eeaf6e2705c3eb6981617f043b2a8a887bc80bce72ed9363b40c2fd3d70f1b2d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/eote-specialization-progression.test.mjs.tap",
+      "bytes": 2087,
+      "sha256": "09c9312464b10b625767693c0f3b95210b324bf796954ae597ea3d83e1fc0922"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/equipment.test.mjs.tap",
+      "bytes": 985,
+      "sha256": "0fad4fe69aa67b5ebbd4af31299e2e50fc50bd2fefa2736e0af1e347e1c1d18a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/expert-talents-r16.test.mjs.tap",
+      "bytes": 771,
+      "sha256": "6b723c04f60b8a9e0877e78728916bc00fec07db1b4f603cee0c7adf0b0f6695"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/faction-adversaries-r19.test.mjs.tap",
+      "bytes": 788,
+      "sha256": "f35c4ae950db9ba5ad753b1df394b2ec656f7bf4ae5e3872681a25e840b7595f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/faction-combat-ui-r19.test.mjs.tap",
+      "bytes": 364,
+      "sha256": "022f594e7a8a7c3d32012dcce004d1109a9b9654290b8fe133db2348192fef41"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/faction-plan-ui-r19.test.mjs.tap",
+      "bytes": 368,
+      "sha256": "6d7a1ec0e2801ae6d4cb436729c4009fd0d50b8682bbcc8afb819ce78964b518"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/faction-plans-r19.test.mjs.tap",
+      "bytes": 1196,
+      "sha256": "d4dbf465fe47d2aa5811f7aa2bf7eb45edd08e5a13bf89fb1f7ae3ddf477be95"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/faction-ui-r18.test.mjs.tap",
+      "bytes": 342,
+      "sha256": "a4fd6bfb025686544fc9f0c82e975b18cba55e50fba24e33f3cd50f017c5e722"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/factions-r18.test.mjs.tap",
+      "bytes": 2066,
+      "sha256": "e0121b536098534f89142ed187178801b0a7cfdf2e05fb3e54b9415464f2d8ac"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/filebridge-mediastore-publish-r25.test.mjs.tap",
+      "bytes": 725,
+      "sha256": "d21b3f6d9afd01e70fcefae00ac026a8de8e3424e490e2ec98e004409950c85c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/final-android-completeness.test.mjs.tap",
+      "bytes": 2847,
+      "sha256": "b69a34d4b1d8dd1acbec2a128d100e8fefc4078c93c2afcb49bfc9000fde5abb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/force-move-scene-object.test.mjs.tap",
+      "bytes": 394,
+      "sha256": "e96cc6e613dc889713c45f7a836f8a6ab282ed37aeeef4e5cb1ca5e0a2ac2106"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/gemini-host-r25.test.mjs.tap",
+      "bytes": 1587,
+      "sha256": "6d8c639cb06ef6fcfddb870974e33e8080779f8a862aa2e14154b6615e3ba940"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/gemini-image-picker-ui-thread-r19.test.mjs.tap",
+      "bytes": 564,
+      "sha256": "59d45cf3652f340255f22ea6aec8e9eaef7bae5705dc1842d01f5b65cbd14751"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/gemini-interactions-schema-r17.test.mjs.tap",
+      "bytes": 838,
+      "sha256": "5fa4056dfa51a8d3c2d04909735d21d990542ae3a060e9dcd0523f69c67969b3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/gemini-scene-image-clear-race-r22.test.mjs.tap",
+      "bytes": 1025,
+      "sha256": "10ce78942e5edbb8a27ce4088fe8fbbd5ff56cc5d7887e9afeb506791d5a582a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/general-gear-effects-r30.test.mjs.tap",
+      "bytes": 1541,
+      "sha256": "d3de67186a7eb0e4a9201b2a60a85070e363497a09d657b88069fba8e5542264"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/general-gear-r27.test.mjs.tap",
+      "bytes": 753,
+      "sha256": "c937260fd283b09b7a6e69f519394925666b55e8db9f876a2ec28f62f14f25b3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/general-gear-tools-r31.test.mjs.tap",
+      "bytes": 1170,
+      "sha256": "784cea76172d5286f48aad190a96bfa03531870b22c1f2d410b19a70be23f12d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/gradle-wrapper-bootstrap.test.mjs.tap",
+      "bytes": 1022,
+      "sha256": "2f2433460ef4336e85aa955655cea4cfd8230fbcfbbb1788313c8c67ed25e2c1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/health.test.mjs.tap",
+      "bytes": 1106,
+      "sha256": "26479148286a2bec424ae1e980de8b41e5404d9cc44049c8aa9ea305fedb7c6d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/image-cache-clear-race-r21.test.mjs.tap",
+      "bytes": 1057,
+      "sha256": "6f542f1610ee7f6a5d6f01952765397eb8b16514d6b4a1109bb584b78294d693"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/image-library-r35.test.mjs.tap",
+      "bytes": 1641,
+      "sha256": "c705a59666f96650bbf32351ff66fc9e5298158a4019e64aa9d5b538f295c553"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/image-library-r36.test.mjs.tap",
+      "bytes": 2634,
+      "sha256": "1d1ed3823be89c6a2953e72afb07c9ce24864eb5a907850cc711f60ca9cc3638"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/image-library-r37.test.mjs.tap",
+      "bytes": 1982,
+      "sha256": "ced47f5274909e8b7481538f93ce55be3d4990926e94da320e562ecdccbf8872"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/image-library-r38.test.mjs.tap",
+      "bytes": 1723,
+      "sha256": "38da13a1ead4d6d749f69ce95b5ef9aebbedeebbce9d46493342e341517645e0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/image-library-r39.test.mjs.tap",
+      "bytes": 1711,
+      "sha256": "19b8d5227822abf36d072b2f11f2aca3c92f323ff10d6d52eea55fedb572123b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/image-library-r40.test.mjs.tap",
+      "bytes": 1847,
+      "sha256": "c66ad3dd16c72f760eb4a8fbaca201b9e6d5c405de02b5df9a93a7673c152c6f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/image-library-r41.test.mjs.tap",
+      "bytes": 1611,
+      "sha256": "a0eb2e546b8da3448fa92b09f52b9e773ab892a1b1ef8dcb94efca76e702fce1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/image-library-r42.test.mjs.tap",
+      "bytes": 1727,
+      "sha256": "295001ee7dbde20f746955c7b445b7c5229f749a7058ce2b6443e6a70367230a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/image-library-r43.test.mjs.tap",
+      "bytes": 1623,
+      "sha256": "ad137af298bb08a7b73fef87d5c0e546c4a2844a7667d5bbfdab0d2af2138779"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/image-library-r44.test.mjs.tap",
+      "bytes": 1621,
+      "sha256": "7944f5562819504b893171a1a70db8b4fcc99878db153229ea980167dc06cbcd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/image-library-r45.test.mjs.tap",
+      "bytes": 1733,
+      "sha256": "c45884b0bfd75e658b8a52dcc5df315d173ef10ece9f641cca0c3c763b25c3a9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/image-library-r46.test.mjs.tap",
+      "bytes": 1685,
+      "sha256": "2a7a4969ec54ea9f623dd65c776e476bdfdcd966ca07704a7fb9c0920bd788be"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/initiative.test.mjs.tap",
+      "bytes": 350,
+      "sha256": "e1337ffc35d911ae13c88a3dac6352d3645a0e94fdffc6d4272696b9028d6440"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/json-import-size-guard-r16.test.mjs.tap",
+      "bytes": 547,
+      "sha256": "6555634ebb7e2e00a2b260e75aae78657d3743017156d73676905e80b4594dd8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/legacy-ui-dom-contract.test.mjs.tap",
+      "bytes": 314,
+      "sha256": "06d3891e2a47826f0816e49a61b29923ea881d055a8294aa3ba13a38c5a0a493"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/legacy-ui-eote-guard.test.mjs.tap",
+      "bytes": 336,
+      "sha256": "fda5fac9fdb7cab5b77f2fabd4faa05a08bdc72825a3749d8f343b14e39ddfc7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/library-ui.test.mjs.tap",
+      "bytes": 907,
+      "sha256": "794ffd40ff3fb654cd7bc02c82037cedc9e241d5af388bebf9532a47a39b74ea"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/library.test.mjs.tap",
+      "bytes": 1707,
+      "sha256": "9956b88f293a3ca8980dc7bade4a3b6d0a5fa1b6d3e1c46b934ba6f823a61ee1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/living-world-depth-p9.test.mjs.tap",
+      "bytes": 781,
+      "sha256": "d9ef3ce5627237e9526b5d660be0902b15bdae48c715aca42b545e4d44128086"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/map-provenance-p12.test.mjs.tap",
+      "bytes": 481,
+      "sha256": "2ffbae18dc212cc50d5faabe8e92f6aab704076c460ce2d7a42efbb39a9e8aec"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/map-ui.test.mjs.tap",
+      "bytes": 513,
+      "sha256": "482ad7ca173247315ffce270c613ff41f43cc1edb7d6cde62a362ed6495ece10"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/map-viewer-p13.test.mjs.tap",
+      "bytes": 658,
+      "sha256": "3e2507d30426b72b18c249e031e7db85adc982e5ac4ce975c371063667b12e31"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/master-context.test.mjs.tap",
+      "bytes": 748,
+      "sha256": "ed21e4f882e204dbdf874427e9922603656be4b244abb8a1d295ef9f30efadcd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/master-encounter-r17.test.mjs.tap",
+      "bytes": 1029,
+      "sha256": "3b01acb5493f60cad645beee94af654364a33074654eab622a9eae7ef02e5100"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/master-encounter-ui-r17.test.mjs.tap",
+      "bytes": 354,
+      "sha256": "7aae508c6913d4f0d0747ad8fc661790aa900a568fc697666c86c4fa1f036806"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/master-faction-plans-r19.test.mjs.tap",
+      "bytes": 691,
+      "sha256": "175b899ef9ac5971dfc039f86ba997cd7c2778fb561b3c0a2b30f16a618c2e56"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/master-factions-r18.test.mjs.tap",
+      "bytes": 1051,
+      "sha256": "ea98c15490083c73d1efb1141737b83512f8cd51d0ffbe76c57355b9c5725bcd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/master-long-narration-p20.test.mjs.tap",
+      "bytes": 507,
+      "sha256": "8add05e4d9bc45fdb9d64bf9f645769aaa9daa52d1f9f3b9381a0e068d17c637"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/master-proposal.test.mjs.tap",
+      "bytes": 724,
+      "sha256": "9480054ee217bd4791c62fd8473c16be262ce19098b9fd064b64678ff6da6785"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/master-provider.test.mjs.tap",
+      "bytes": 902,
+      "sha256": "14fd8b7cfcff87da7d2df3d053327ab160d657bd1cf301c60e1521ac7653c4b6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/master-world-ops-r15.test.mjs.tap",
+      "bytes": 1268,
+      "sha256": "23b5ccaa5252cd88c5e29641d521c42e9d9cdf8f4178fc0f36b6426ca893db97"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/master-world-r15.test.mjs.tap",
+      "bytes": 348,
+      "sha256": "34946db84b24c97f6fdc287cc45eabfc952af30d9640a0fff77896def208df79"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/medical-gear-r29.test.mjs.tap",
+      "bytes": 1435,
+      "sha256": "38836dd9f60dadab484b8b3384a6943ea9e8fcdc3670b537c2d46f329e27d7df"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/mixed-campaign-sandbox-r33.test.mjs.tap",
+      "bytes": 2539,
+      "sha256": "38b96efb7a598854c37e4acf8b528946f82be7d1cbaf1d1857040523dad68f71"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/native-bridge-contract.test.mjs.tap",
+      "bytes": 1307,
+      "sha256": "4f56c771616bfef17a4b855ffd1d4ea3b98f99a4a8965726f460890f6d8158b0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/native-callback-contract.test.mjs.tap",
+      "bytes": 1161,
+      "sha256": "0e55dcc1e1430312c9f35ffeb3f70d82ee223a4fd3eab56d8024c250fad86657"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/native-image-read-consistency-r23.test.mjs.tap",
+      "bytes": 864,
+      "sha256": "e2af2768737bffb89f25da700b5aefa862200d922e237642f5040135cb9bbe3f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/pdf-picker-ui-thread-r17.test.mjs.tap",
+      "bytes": 515,
+      "sha256": "63a5190ecf17b222355209a36baa37a3b13924fe94fe015f0d2c9e13edfdb268"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/pdf-policy-index-race-r20.test.mjs.tap",
+      "bytes": 846,
+      "sha256": "b678fbb916ab4f0fb52a2456731dea52249c5eca5e99b1eaad0c83a63b467a06"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/persistent-adversary-r17.test.mjs.tap",
+      "bytes": 589,
+      "sha256": "f07e15d5e31de19d6abe8dfd9fb760e585569346ac8b2b0a5a5dcddb5365b167"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/progression.test.mjs.tap",
+      "bytes": 1140,
+      "sha256": "5a43b83191aba0521b9c4bf5964e6672f5aa8db4012d03f9bac5da83aa5733ec"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r38-mobile-ux-fixes.test.mjs.tap",
+      "bytes": 2196,
+      "sha256": "f3fb1b8cc16d3e0e375a22bdd9541d35502e285e57669e0ea9f0771b7201ea83"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r46-bridge-contract.test.mjs.tap",
+      "bytes": 886,
+      "sha256": "78adad37c47a96f26d85a87bcac7d72184ce5fd7c01b2b7a058c9751d640c12d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r46-live-state-refresh.test.mjs.tap",
+      "bytes": 718,
+      "sha256": "45a36a8bafe29436a55b2abd3c94fe23b7db89b0b00bad11b4dba5780dba8329"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r46-runtime-asset-closure.test.mjs.tap",
+      "bytes": 728,
+      "sha256": "a33a66bf581674a474e45201bec06daa68874d737aca6f2b92d948302fcd0593"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r46-state-projection-eote.test.mjs.tap",
+      "bytes": 950,
+      "sha256": "a3c93874f3eb9ba028cf8fba9974d7b1e67b4ab80f757aeb6425a72b59fa068a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r47-android-shell-host.test.mjs.tap",
+      "bytes": 1760,
+      "sha256": "2330aa1cf0839208d59d83ffc82d63e94ff7abf3895191e000849e8f8261a44f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-device-p6-audit.test.mjs.tap",
+      "bytes": 900,
+      "sha256": "3c91ae5380e51527bd2b20ab7e91822f8d394346e113cb320d75d0e67c1ef085"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p100-attachment-mods-guarded-stance.test.mjs.tap",
+      "bytes": 2306,
+      "sha256": "ee55f619e121d8d7d24f01961581f637ec32083fa5c8dbe9fd5dbcff87012ca6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p101-fear-encumbrance-gear-repair.test.mjs.tap",
+      "bytes": 1952,
+      "sha256": "2e330f1857587131e3f797704c586c9efab7f438896808b4dc57a42bb100ebd4"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p102-eote-core-vehicle-actions.test.mjs.tap",
+      "bytes": 2246,
+      "sha256": "3767ac52ed131dba11e02595a802c24c76431628a45f4a277132de11a6392142"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p103-vehicle-actions-damage-control.test.mjs.tap",
+      "bytes": 1808,
+      "sha256": "d71f29d94d5e6ce8b0495051ded7167b38f439bd64a269589bba8b58d6ae6b68"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p104-unified-personal-maneuvers.test.mjs.tap",
+      "bytes": 3299,
+      "sha256": "5508f5aab68b6bc46f16d560a92594ecbe99885307b76925667700416e49da18"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p105-force-actions-runtime.test.mjs.tap",
+      "bytes": 1725,
+      "sha256": "35806d40f149dc7cd9affaaccab1afc90a1629afa0c923d1113739041cdf6c26"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p106-active-talents-runtime.test.mjs.tap",
+      "bytes": 1681,
+      "sha256": "9498243e5c5d5ade11c2443d255adfc884d0706ae166db680def55d319ae3b9f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p107-core-combat-talents.test.mjs.tap",
+      "bytes": 2160,
+      "sha256": "fae472516fbe11d15c3041c226bcc5cfe13f67fc7205bd44bc3924b5a60864dd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p108-assassin-combat-talents.test.mjs.tap",
+      "bytes": 1630,
+      "sha256": "bc718dff2649f7b8db85753116c09acfab3b7323da681cee17735f89249676f3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p109-passive-core-talents.test.mjs.tap",
+      "bytes": 1341,
+      "sha256": "a6913dc946e2e79ec47c72946d316392a8fd35fadd857936ddb5d8554e7b2d87"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p110-active-skill-talents.test.mjs.tap",
+      "bytes": 1350,
+      "sha256": "df7a5076fdcbc9a40eb04f95545fcbc3ed4005912a55b2843f0a0815a2a18009"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p111-natural-rerolls.test.mjs.tap",
+      "bytes": 1153,
+      "sha256": "989a052609eb759a84599ef9a924921261ca8ad124e069b2ff405f544385b3a9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p112-aor-alliance-rewards.test.mjs.tap",
+      "bytes": 1391,
+      "sha256": "7f71953c9e5dab714591ef88078e32c397580ff09b36d12f356729ae2a36aee7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p113-environment-hazards.test.mjs.tap",
+      "bytes": 2239,
+      "sha256": "a43adf2925641733f1b93bd64077743a5d6f9a06205f1adf227eb3cbaedc731a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p21-device-regressions.test.mjs.tap",
+      "bytes": 2343,
+      "sha256": "70b0b16ed008e77a7a7394631991b29b8b6dbb4f78f64dbee50f0716b7d11c6e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p33-mixed-creation-ui.test.mjs.tap",
+      "bytes": 754,
+      "sha256": "387a594d4ad1c89e39cf416df437cfdda8fcd5af55de07bfe912c28d706d3a27"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p33-under-black-sun.test.mjs.tap",
+      "bytes": 2192,
+      "sha256": "0ed7b7b7f396cb180aed12444fb8d10d35419832f8a1cf4d45df037ad72d66f1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p35-published-adventure-ui.test.mjs.tap",
+      "bytes": 596,
+      "sha256": "0ef1149743a22f36055967f623fffee608df7a4f2b26f476bfdc0394be4c128a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p36-under-black-sun-systems.test.mjs.tap",
+      "bytes": 3292,
+      "sha256": "b03682f28ed9c018e9ad194e1123f8a33f7b2954502d65bcfc21868ded4b68e9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p40-published-world-plans.test.mjs.tap",
+      "bytes": 1123,
+      "sha256": "ac694afdd0232acc205d9a1ab86d48493a053650ad28a330b197c2b93e570851"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p41-under-black-sun-branches.test.mjs.tap",
+      "bytes": 1041,
+      "sha256": "ddcc90c19f36fa5bf2b681c6012f99502a3519e8ac75002b07cf0528356c36c0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p42-under-black-sun-consequences-ui.test.mjs.tap",
+      "bytes": 899,
+      "sha256": "3f0c7a341163d7e344ce9252b8ee64b04c8ad4625d8bf348bf536bc311307250"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p43-player-safe-feedback.test.mjs.tap",
+      "bytes": 937,
+      "sha256": "e046c886007937209fc1acf494eb90eb3aec7c54b87ad9afcec3554ef9601614"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p45-known-clues-and-contracts.test.mjs.tap",
+      "bytes": 1456,
+      "sha256": "5b79fde50e7924d841e749ba731cead7a055f6a5862073bd44d5e08fa5bb54ac"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p46-under-black-sun-completion.test.mjs.tap",
+      "bytes": 1601,
+      "sha256": "26ed2738ff28f85d9aac9f93337beed9233d2feddc914ae9e5cb94ecbb24ff34"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p47-under-black-sun-hardening.test.mjs.tap",
+      "bytes": 824,
+      "sha256": "3b2fc890de5cd76e85dcabc803ae075b12a04262082a2ad8a968900c854000ad"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p49-under-black-sun-persistence.test.mjs.tap",
+      "bytes": 955,
+      "sha256": "8aef924a66071d7f3e1ae21925a0d9f92c92e3b98fb6cbbf9be709372ccf8578"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p50-under-black-sun-branch-persistence.test.mjs.tap",
+      "bytes": 1005,
+      "sha256": "17b19007423b8d2fe11e69b4d6ccacdd6710e8b6a34ec1c053509b3b1505881b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p51-persistence-performance-and-adventure-registry.test.mjs.tap",
+      "bytes": 1484,
+      "sha256": "8cb803739257530ad25d84d0a68105d579d76de0208a564eea0e51772e4a5650"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p51-world-event-compaction.test.mjs.tap",
+      "bytes": 774,
+      "sha256": "a859346e1637aea34caa35c314aefcee6d756bf6b43f93873996654b13b4b934"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p52-beyond-the-rim-episode1.test.mjs.tap",
+      "bytes": 2253,
+      "sha256": "6f64ab711514d30e6f44527892936c71f87026206129c13fe9ae37f04f87c99a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p53-beyond-the-rim-episode2.test.mjs.tap",
+      "bytes": 1023,
+      "sha256": "99e0ef43d4ee0ce3741c9ad6901e01ee1c5a91ff4a918da34721cc1a72688945"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p54-beyond-the-rim-episode3.test.mjs.tap",
+      "bytes": 869,
+      "sha256": "a7ef9039d8a8bbea9872e7873fe4f6eb809ded1f3a1245c623818e5538d3ff55"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p55-under-black-sun-scene-journal.test.mjs.tap",
+      "bytes": 895,
+      "sha256": "32d5de56b67d928e2fe3651a4cbb17b5fbde340ea2741f7cf615c33edefbce69"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p56-under-black-sun-timeline-ui.test.mjs.tap",
+      "bytes": 1005,
+      "sha256": "a925f3a17be747fd0c660f6e792ed6bc9d530f53d5a33aeaceb9d443b76ebdcc"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p57-under-black-sun-closure.test.mjs.tap",
+      "bytes": 581,
+      "sha256": "716bbcd33d7a748343eee2408a3fe3caabf54eb03ee402eed6c08f70c3197845"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p58-under-black-sun-ready-to-play.test.mjs.tap",
+      "bytes": 606,
+      "sha256": "73d7520f58b7dde25386ef655fc4a536911ef7abafce2c4385e49e3fb96730b3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p60-under-black-sun-tracker.test.mjs.tap",
+      "bytes": 754,
+      "sha256": "b90a9bf2d7754586f1b161105eab9cccdf2b9876b2d48e3dbcd895a597e49ec7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p61-under-black-sun-mobile-play-ui.test.mjs.tap",
+      "bytes": 1175,
+      "sha256": "2f5448e5c828778206d3ecee2653e7f9b9e0459ed4216805aed98452ea1610b8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p62-under-black-sun-state-integrity.test.mjs.tap",
+      "bytes": 889,
+      "sha256": "b8b8e4434626888de1b8b5ddbd6a73c79e0ac570740624f796f4fbc4c2830167"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p63-under-black-sun-reopen-transition.test.mjs.tap",
+      "bytes": 957,
+      "sha256": "d75a76d48f107df4b3f7f649f058a18b2df6c7742c0c7671e442e3503e82e92e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p64-beyond-rim-persistence.test.mjs.tap",
+      "bytes": 519,
+      "sha256": "0ad7a3b29be549d93f55d696b0a8c01b71c38a7cb76da9f20dd96d1d63082af1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p65-beyond-rim-controller-continuity.test.mjs.tap",
+      "bytes": 833,
+      "sha256": "02abcd3f58d37e5be5c87482cdd6ba59ddbabebf805a0cd75a996ae1c4e9ef68"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p66-beyond-rim-epilogue-antispolier.test.mjs.tap",
+      "bytes": 756,
+      "sha256": "99880eaa1c0b49a8f647b2f323ebdfb8b5d3edb6900854679529104cb8b78e63"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p67-beyond-rim-epilogue-ui.test.mjs.tap",
+      "bytes": 736,
+      "sha256": "2dd12eb556689ad2b831d134f56b1f8f3d96ce98ed2525c7cf4eb686c96df80e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p68-beyond-rim-tracker-ui.test.mjs.tap",
+      "bytes": 788,
+      "sha256": "530872ef98e00f750520c31b77487db6448fa7bb54f7e7c318ed68bf6ccaf93e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p69-beyond-rim-trail-ui.test.mjs.tap",
+      "bytes": 638,
+      "sha256": "fedb1b0613d67280982cf6051b8720fa3c5600bef037584591dc2aa9fca63db3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p7-fastfix.test.mjs.tap",
+      "bytes": 869,
+      "sha256": "05587e885ef47ac7fbf5aced2cbf784193db461719250adc7d9007dc3dc938b7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p70-under-black-sun-graph-integrity.test.mjs.tap",
+      "bytes": 872,
+      "sha256": "872569822340941d573bedcd7ccc9e419b1fe19e88cd5f7618093aa3108a717e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p71-beyond-rim-adjudication-antispolier.test.mjs.tap",
+      "bytes": 746,
+      "sha256": "c84c63e0e568b60972bdf5c2144ed14e6e34e493490a5f77e5e7ac89a26e53aa"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p72-beyond-rim-fail-forward.test.mjs.tap",
+      "bytes": 1278,
+      "sha256": "cf5ceb9a6300d42c887192e624950fa9492b59de2c6fafd13b42553e6a6d28bb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p73-beyond-rim-mobile-fail-forward-ui.test.mjs.tap",
+      "bytes": 710,
+      "sha256": "9c431218253f9e0d023f956f3f44388814f941fbffedea284b25b41170eb0a8b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p74-campaign-lifecycle-insets-version.test.mjs.tap",
+      "bytes": 939,
+      "sha256": "9b78f69ef0e4352e33c31cb364432233f9606fe27c9e99cbeaf9d93c6aee5d80"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p75-under-black-sun-ptbr-resume.test.mjs.tap",
+      "bytes": 633,
+      "sha256": "afbf826568290b20b21d5ec9756e0791549f613cf9a28dfee38ca8564083c0b8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p76-tts-kokoro-pipeline.test.mjs.tap",
+      "bytes": 1352,
+      "sha256": "dddef4b15980fb264661f2213405fe7071cd4527f6fdf9948e31f844d05d1c8f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p77-android-build-fix.test.mjs.tap",
+      "bytes": 579,
+      "sha256": "2f3ccb1654cac143d0afdf068991bebd1e369cfb7cde9b07280f6605a1018ac0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p78-mobile-session-repair.test.mjs.tap",
+      "bytes": 2050,
+      "sha256": "3a11381e1e88eea714ebafd74d462ac0b8c3a3a5365d131867a0d9f7f6db62a1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p79-performance-insets.test.mjs.tap",
+      "bytes": 829,
+      "sha256": "92afb0be767a7068dcbbb3d388bc10c74c99e649aa08533afd48d8df8f028371"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p8-semantic-closure.test.mjs.tap",
+      "bytes": 1078,
+      "sha256": "a706b7da30b1ff18048cd7ff650f6254d5cd3a38c0ad71574923ffb100fc0c38"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p80-under-black-sun-anti-spoiler-projection.test.mjs.tap",
+      "bytes": 1012,
+      "sha256": "933a169cb3492321dd136bfffebef5ad959a7a58ac30de1a548de7ff456e833a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p81-under-black-sun-narrative-consequences.test.mjs.tap",
+      "bytes": 893,
+      "sha256": "22665c21330cc5cc361ad81eab8725aa1d84313ae534b7a9bb838c52a2bc0293"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p83-under-black-sun-narrative-effects-ui.test.mjs.tap",
+      "bytes": 780,
+      "sha256": "59ee0e011550282dc4a224607660c5f730c30750023ac6a03490c867e7faa104"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p84-under-black-sun-immediate-roll-and-world.test.mjs.tap",
+      "bytes": 744,
+      "sha256": "b6196bdbad5e80cbe4753e9143acbcab4556d5a19c94d8350e588f17476cb57f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p85-under-black-sun-aftermath-anti-spoiler.test.mjs.tap",
+      "bytes": 980,
+      "sha256": "736c7f39b4eae6f6eb696e743ac55c71191c8ae50e452c1d83f6f33c6704a3a9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p86-beyond-rim-world-aftermath.test.mjs.tap",
+      "bytes": 967,
+      "sha256": "752446f5637821248db7ebff2867e3f78ea0b455960703ba2aadc3e62ab3e480"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p88-beyond-rim-narrative-effects-antispolier.test.mjs.tap",
+      "bytes": 1232,
+      "sha256": "2790bac494b1cc27abd4368d23dbfe15fff8efa47eea13b5b5aa8b59bbc2e31f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p89-under-black-sun-aftermath-depth.test.mjs.tap",
+      "bytes": 876,
+      "sha256": "02affcf9a6a13c1b3a3fbd7b857370d2218c38edbd4ac5e9c294b4660f0f8fd7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p90-under-black-sun-obligation-accumulation.test.mjs.tap",
+      "bytes": 975,
+      "sha256": "e1d7f8533de18dded486502781f0a9ea5e303f410ef48e8876ccaf7374f38e67"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p91-android-share-kokoro-audit.test.mjs.tap",
+      "bytes": 1594,
+      "sha256": "881a75415e8daaeca1d53335227f1cd96c25a58f3aa66528f43578e282262dd8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p92-cybernetics-engine-safe.test.mjs.tap",
+      "bytes": 793,
+      "sha256": "f08bf112604960507a378e475377b2cc060871f73bfa42edd3270e4dc990c256"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p92-final-shell-mechanics-reachability.test.mjs.tap",
+      "bytes": 791,
+      "sha256": "1ed06ee8c93297d30c97793e2d05a85c386939ec4e40b856265338e615c99d87"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p92-p0-mechanics-runtime.test.mjs.tap",
+      "bytes": 1367,
+      "sha256": "f471fe404ff18697378d5f81d53537a5f7b39c20951cb4f48cd547baf3b33627"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p93-wave2-mechanics.test.mjs.tap",
+      "bytes": 2313,
+      "sha256": "b03b03c1f375d7b305fcfce462d5957792970e32d77e82d7e480bfa2d8426d43"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p94-wave3-destiny-maneuvers.test.mjs.tap",
+      "bytes": 2174,
+      "sha256": "a657bc6795c923639acd69026a37fdf1c24136104577928e27688490cf963ab6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p95-check-types-social-vehicle.test.mjs.tap",
+      "bytes": 2597,
+      "sha256": "d6426f0f4c50377761bb35af267ad3bfd2769800e182c7a7902179f26a0ddcc6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p95-final-shell-reachability.test.mjs.tap",
+      "bytes": 593,
+      "sha256": "b57aa45eecf4ba8eca5329624fc8775b452b52e0bc1bfc49f2f5a3866e5175d8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p96-weapon-qualities-vehicle-critical.test.mjs.tap",
+      "bytes": 2023,
+      "sha256": "586802d5a8ea7419de53fddde116abfe117a7e2981992bd5f8d86afed35d026f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p97-active-quality-spend.test.mjs.tap",
+      "bytes": 3287,
+      "sha256": "2010cd49974949513078468edcbee559c044418dd6d09454d040cf2b79b163dc"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p98-vehicle-guided-ion-tractor.test.mjs.tap",
+      "bytes": 1801,
+      "sha256": "e681c0a977df313c3cd335bdd6b22b05980e425665f53efbd9fcd7dcbd64ab73"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p99-attachments-source-bound.test.mjs.tap",
+      "bytes": 2169,
+      "sha256": "61ada606d432f28d100e8a027b5fd0fbd4d759c12c8f449ae6488452a9002d01"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-p99-knockdown-prone.test.mjs.tap",
+      "bytes": 1520,
+      "sha256": "655c14afe38a283105b0b060990d9cb878632b372630a4a60345e1dcb35bce92"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r54-visual-semantic-audit.test.mjs.tap",
+      "bytes": 1142,
+      "sha256": "91e2a57f4d8e1561ee0151844cd1f508c093e5468b9c49879a790c419075ca70"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/r80-gemini-external-scene-npc-dice.test.mjs.tap",
+      "bytes": 761,
+      "sha256": "c1ab52aa6b923bb90f78aead700ad0eb39cbae81dcfb1062ae2ed6d4f2bd2a67"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/rag-benchmark.test.mjs.tap",
+      "bytes": 321,
+      "sha256": "aec8ee02b38e7e8e627cef61ba6fadde3950280a7df201f2c11e52bb8b3a544e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/rag-sync.test.mjs.tap",
+      "bytes": 302,
+      "sha256": "fab271f3f7d7217052620dcec15c7784de8ee059986a2031f9f348cd26f97975"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/rag.test.mjs.tap",
+      "bytes": 1777,
+      "sha256": "3d57c3c7b9711fbfc06e7952022930d783fa7630630cfedfdc711b5fe87d757c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/random-character-r24.test.mjs.tap",
+      "bytes": 1452,
+      "sha256": "4958b7853343c7e33d312cf1af312c0c7f5d187489c64d8d5d77102f2ea2d663"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/rebellion-group.test.mjs.tap",
+      "bytes": 762,
+      "sha256": "996b358854b980b59276ab4f4ecb76a4771e0155eded8a9fe8947eb5f268201c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/recovery.test.mjs.tap",
+      "bytes": 1492,
+      "sha256": "407a77711a8b62e481fd4470001886390f07c5055824c5564e5133a20d54c99d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/rules.test.mjs.tap",
+      "bytes": 954,
+      "sha256": "9887aab412f00a44dc0ea09eef7ffaf0a2dfdb8d1f2d17479b0e9394cbecec78"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/sandbox-ui-r33.test.mjs.tap",
+      "bytes": 790,
+      "sha256": "b706d3ee53f153bfcdbc4db1eff3da23376b8ba372f7305b084907ceb717907d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/session-flow.test.mjs.tap",
+      "bytes": 762,
+      "sha256": "c578d20a3649e481a69fadb8d74e16f51fe3a63f6f243133c18e2f0e47abe8a5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/session-ui.test.mjs.tap",
+      "bytes": 555,
+      "sha256": "77d405cd05965cfadce48890fa0bb17096924f2b39e262b09faee67ad532df40"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/settings.test.mjs.tap",
+      "bytes": 504,
+      "sha256": "4c36b45a672dfe5c5762d6f56adfafc390d7194e6a801df90e666e876eb0c767"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/snapshots.test.mjs.tap",
+      "bytes": 311,
+      "sha256": "1af202e37e0ae1bfdaee4f8baef84922a5a5899d3fd3f33960356fee85f2c6ec"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/source-authority.test.mjs.tap",
+      "bytes": 1985,
+      "sha256": "6a0ce53a82672297abaf8aef53a04cf6806e6c0a220c79bb3195f2134539760b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/starter.test.mjs.tap",
+      "bytes": 1640,
+      "sha256": "4b5064b976b49fa974f31501ea84a3cdcf4c6e8debc2ea4e67db609f2d37c250"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/state.test.mjs.tap",
+      "bytes": 1278,
+      "sha256": "d49cdb0a2477dea963477337594b67fc503aee71751883a0a7c9913bb784381e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/stress-33-aftermath-r20.test.mjs.tap",
+      "bytes": 371,
+      "sha256": "a19635f201c7adbc0bec523aac7f17bee06d8d14c96a6f9c878066d129600f4d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/stress-33-faction-plan-r19.test.mjs.tap",
+      "bytes": 411,
+      "sha256": "179bf193a899ded4d91da42f4de0e9396d8b2f0fc24ea5d7414818021d50525c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/stress-33-sessions-r15.test.mjs.tap",
+      "bytes": 369,
+      "sha256": "c534dfa5bea9825486a9d23feb57de73a6fe470151c61e5e3d2f113b4eb7bde6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/stress-faction-plans-r19.test.mjs.tap",
+      "bytes": 403,
+      "sha256": "71dbd3710615b71e18982d06bb6c0b00eed701c01a340716dba2ee3cd2d2b008"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/stress-factions-r18.test.mjs.tap",
+      "bytes": 367,
+      "sha256": "a3f34c8b6083816e6817ede25d4c6ba75ac3b554b4428d5477fce599cdacd3f5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/stress-persistent-adversary-r17.test.mjs.tap",
+      "bytes": 347,
+      "sha256": "b936253ae7b34f3c0592c613eee3a278f7bd7bec8a433a2e258ce6c3caf0b03d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/talent-effects-r13.test.mjs.tap",
+      "bytes": 1703,
+      "sha256": "91c89b27c849018727fe1f80e39e5a66aac4ec0cab9f7f8afd6a310a703b0b2b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/talent-effects-r14.test.mjs.tap",
+      "bytes": 1768,
+      "sha256": "9e89a14d1d0532e877a96ec37e98d4b292bfca06cb8b7c6069c284955c75a3ce"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/talent-ui-r14.test.mjs.tap",
+      "bytes": 561,
+      "sha256": "fc753b7b9a70ee1235e05def99848eb10851e57d58c0678e2402b8b02a4cce6d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/talents.test.mjs.tap",
+      "bytes": 2197,
+      "sha256": "4b82561064e279d7be687552a4c1fc17248d19c3efca0395d393fbe2fa9a36a9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/tts-bundle-status-p15.test.mjs.tap",
+      "bytes": 290,
+      "sha256": "7cea9402228747ea78fe30871490f604da4d3a42b68825edc75eafcc6541d033"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/tts-lifecycle-r24.test.mjs.tap",
+      "bytes": 987,
+      "sha256": "841fe895545e5bb20326531c85e11b3a871dbf9ac65ba8be7e06c642b03008ef"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/tts-multiblock-p9.test.mjs.tap",
+      "bytes": 736,
+      "sha256": "c33cedc11bafe001a22eeeddc17046433d8369e03a3652c7797f1c161def7325"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/tts-provider-fallback-p17.test.mjs.tap",
+      "bytes": 518,
+      "sha256": "a145dfe302b9ee7270606aa99ff35e9f66ea33974de09ab10a397f8eaeda5ca2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/tts-r15.test.mjs.tap",
+      "bytes": 987,
+      "sha256": "03d043f30cedb4d1b5b2a31bdcd4101d900f0936b6aff214013a377798ebec75"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/tts-ui-status-p11.test.mjs.tap",
+      "bytes": 295,
+      "sha256": "541b83f8399e8896c8f3de9f75157bdc97f7ba3140685dcbefc1295a58977fe2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p128-published-equipment-integration.test.mjs.tap",
+      "bytes": 3138,
+      "sha256": "c32fca4d1df77e17597821da8fa0e6942d339f65c00dcab8b8fb7d3b4425f3f6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p129-recovery-integrity.test.mjs.tap",
+      "bytes": 4446,
+      "sha256": "cc5bdc4f2dc9205732da7ee837b664ddcb71b7f4d1e6aa091b406a829616d8bd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p130-aor-expansion-integrity.test.mjs.tap",
+      "bytes": 3806,
+      "sha256": "5681cc00c6983034a0806ce3e522c068ba3a72d82c9a65f7daa138672dc19dbb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p131-aor-multispec-and-checkpoint-gate.test.mjs.tap",
+      "bytes": 2478,
+      "sha256": "077d7678d33c841c51f45c2a2366ac7d9405786d55b8d7890f211094761f6f40"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p132-aor-mechanics-and-integrity.test.mjs.tap",
+      "bytes": 3757,
+      "sha256": "ec2a575ef97d012c08260d7904709a409a419bc30728f43e8fb97b0b2e33eb5c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p133-transactional-adventure-integration.test.mjs.tap",
+      "bytes": 3735,
+      "sha256": "2836481437691757df256b173388dc29fd3742a808d56ede735bcd0ade0509f1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p134-persistence-guard-and-five-adventures.test.mjs.tap",
+      "bytes": 4417,
+      "sha256": "252d733ee16411423529de5a80818cd5a60e7d103aa97c1e36edd5c7e789bf65"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p135-aor-mechanics-and-persistence.test.mjs.tap",
+      "bytes": 3918,
+      "sha256": "2635a0206c58e02f182f80b8677f98c811623139e8acb1d5ed517ab3b7568631"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p135-snapshot-and-condition-hardening.test.mjs.tap",
+      "bytes": 3519,
+      "sha256": "726ca9e66627e4fde10931a3b894500fac9624e7de6e77682b09bc06259bb3fd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p136-checkpoint-atomicity-and-aor.test.mjs.tap",
+      "bytes": 7950,
+      "sha256": "75e5a5f36bc7b8cd60b5d69f052d0d9e2d874abfb685f45d787ef6b34ab2ea5c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p137-aor-cross-system-mechanics.test.mjs.tap",
+      "bytes": 4028,
+      "sha256": "86b78fa1e8fd25d079edf072a35c73cf6148a599b505b5b41bf1068bd21617ad"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p138-idempotent-events-and-aor-time.test.mjs.tap",
+      "bytes": 4702,
+      "sha256": "dea2c12f7341459e02326d91e59e440f9f548aadde7f7926e2ff2b89557c6f07"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p139-explicit-task-clock-five-adventures.test.mjs.tap",
+      "bytes": 5415,
+      "sha256": "8ec85d7b1be2a8d5d512ba2f867c2479a35021da1eddbc139d1f4e9ff5e8a733"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p140-task-ledger-journal-integrity.test.mjs.tap",
+      "bytes": 9896,
+      "sha256": "3f967e3768acc65308be0759502b6115518b8f0314560b3cbf9f50c5a40cfa22"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p141-aor-tinkerer-inventory.test.mjs.tap",
+      "bytes": 1508,
+      "sha256": "e5eb3e8869313331a5dc3378c903b0c4d57237507dc43ffbe1fbf3a5e3b8f0e2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p141-causal-integrity-five-adventures.test.mjs.tap",
+      "bytes": 7973,
+      "sha256": "0a2350cb0dfe5e642a70f8e290a23eb973d940f8382b360b1a53753fe47c93ea"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p142-journal-provenance-five-adventures.test.mjs.tap",
+      "bytes": 8052,
+      "sha256": "4198c7c50aa16da8d89b6bad90411d7333becca0d3531e687f706568ac448533"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p143-atomic-action-receipts-five-adventures.test.mjs.tap",
+      "bytes": 7676,
+      "sha256": "6b4973b8d515e96c3fe20a11d85373ad9aabac7b7a769eb021832c6de6d0df5c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p144-integrated-atomic-adventures-aor.test.mjs.tap",
+      "bytes": 5058,
+      "sha256": "27292d48c01d680492e7f486464e63a2e7c700457fa33c8283177aecbec6dae8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p145-durable-controller-receipts-five-adventures.test.mjs.tap",
+      "bytes": 6627,
+      "sha256": "dc2e30eeaa824492d0ee00a01235c6425d70baab74282ad11860d10bfdca7727"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p146-webview-outbox-causal-five-adventures.test.mjs.tap",
+      "bytes": 7905,
+      "sha256": "727b7072783459ebf13b447437bf10d42a2c5d9ef82be98ba84d7a656370c37f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p147-run-serial-proof-outbox.test.mjs.tap",
+      "bytes": 4489,
+      "sha256": "278058a570578d9f9a5d1bfd995b7ae33db40af3ccd998e9686f421fab4c463c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p148-semantic-and-strict-transactions.test.mjs.tap",
+      "bytes": 8262,
+      "sha256": "01566f54e9ba4b214798c1c5e5f7ee0a1e635ed8dd11ccbc8f7b883f1acc9f46"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p149-aor-combat-social-causality-five-adventures.test.mjs.tap",
+      "bytes": 6748,
+      "sha256": "5c77d9ad5124bde81fe0c82612e846f3326a52b95b58b7f4c3726f2e55902352"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p150-defensive-slicing-tricky-target-five-adventures.test.mjs.tap",
+      "bytes": 6822,
+      "sha256": "dc909cef577cb19d6209cce0907affcba1957226b07285705044b492233549bf"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p151-integrated-context-talents.test.mjs.tap",
+      "bytes": 4112,
+      "sha256": "8d210d509ce3fe215681552463702e7d8e0fe0c4689a74251c64807b5c47c372"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p152-atomic-composite-recovery.test.mjs.tap",
+      "bytes": 6409,
+      "sha256": "0a4523d7728dec5a553ab573f32e1eb0f981f40a29571243179b412d58358885"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p153-trigger-context-recovery.test.mjs.tap",
+      "bytes": 11395,
+      "sha256": "e6e0eae3bb6e15530875545ad8a4f402af0515e3615da901b16c497c203520e0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p154-aor-combat-talents-five-adventures.test.mjs.tap",
+      "bytes": 4113,
+      "sha256": "82483265697e583b4dd6d744ffa7ced8d8dc90a2c22704b22d5dd06410e40272"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p155-beyond-rim-combat-integration.test.mjs.tap",
+      "bytes": 5404,
+      "sha256": "1ddb01bd59034f76fd2c9a4d08684d9a9cda7dcc1c2675b62fa57338e19c1df3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p155-utility-belt-destiny.test.mjs.tap",
+      "bytes": 3771,
+      "sha256": "f70228384aac1fc75f6a018b53dba94b13d307ec9a908110b38c35b68b5a3f49"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p156-imperial-clock-source-raid.test.mjs.tap",
+      "bytes": 6661,
+      "sha256": "ff539f63b86d72269a8dd1a99e96c8129ceb018458161df27970745710d9406a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p157-diplomat-commander-economy.test.mjs.tap",
+      "bytes": 10677,
+      "sha256": "51d46e82233df550df1a0c1829d7620047993c05c5d0a3c85688f1e9473deba7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p158-explosives-survival-five-adventures.test.mjs.tap",
+      "bytes": 8743,
+      "sha256": "2b123e6c3f131657f421a546ceb9ae49443f19c98f7b73a47bc97ab8f29adff2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p159-natural-rerolls-checkpoint-causality.test.mjs.tap",
+      "bytes": 7227,
+      "sha256": "b171c653f3c7688094bbb7990bcce8b51567499c3dacbe883c1b3e846a88cd94"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p160-ammo-heroic-piloting-five-adventures.test.mjs.tap",
+      "bytes": 7338,
+      "sha256": "ff056a21fed01c71948b394a21ab35138b5809123567df9f696414e046c0c1ac"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p161-aor-knowledge-market-boarding-steely-five-adventures.test.mjs.tap",
+      "bytes": 9641,
+      "sha256": "5bde30c590da8aecdfef7ee42a715808afc437d9fbf1b5d71f40d822fad79e13"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p162-sound-investments-smooth-talker-five-adventures.test.mjs.tap",
+      "bytes": 5127,
+      "sha256": "169b84e07afc07786026120042475baf808b8b179ff5c18e7cf0ccbd2f51d77e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p163-aor-medical-fullstop-five-adventures.test.mjs.tap",
+      "bytes": 5679,
+      "sha256": "303df782fdf483ad843d7d9c20777c52184dc1e7d3adbcfdce75fef978d205a4"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p164-companion-medical-integrated.test.mjs.tap",
+      "bytes": 8585,
+      "sha256": "63d2ca7be81ac11fff446929ded73d1b00dabd91d4cd9ef7086c26d231f1f1c4"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p165-aor-gunner-vehicle-five-adventures.test.mjs.tap",
+      "bytes": 4329,
+      "sha256": "63140787c6786901a7ffaf9042dec508d67dec8efd06b807de9bb0e9194df0e9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p166-gearhead-atomic-five-adventures.test.mjs.tap",
+      "bytes": 3242,
+      "sha256": "62c5bc25ecf55eb01f6e23ee835248430a5d388bd35465897577437080e100cd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p167-familiar-suns-android.test.mjs.tap",
+      "bytes": 1049,
+      "sha256": "26c9410085978569bb06ccf2d99a40f45a11f6200970826507dfaf831a4cee07"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p167-mental-fortress-destiny-critical.test.mjs.tap",
+      "bytes": 1283,
+      "sha256": "bdd560834c2a01ade84c628a7d33f0ce3e904b19f7056e0db49907c2d532e1a0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p167-objective-dependencies-consequence-resolution-five-adventures.test.mjs.tap",
+      "bytes": 6877,
+      "sha256": "8fa5b683b0f90fb7b0898630d1e174bc8baff26d432e650afcf5ff0e716c7637"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p168-five-adventure-security.test.mjs.tap",
+      "bytes": 5848,
+      "sha256": "db0d13bc121642540e335ed6be86e32bb6d599d435ab7ad0ecd19e3399b75f69"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p168-social-vehicle-integrated.test.mjs.tap",
+      "bytes": 3859,
+      "sha256": "ca940e01b05fc9caeda4052244d3317f8ff5042f4968cedf36e118fa4c57fd54"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p169-provenance-five-adventures.test.mjs.tap",
+      "bytes": 7879,
+      "sha256": "677fcccc713f6c9ad211bd61d4461a4bfdecde96bb7a39f4cd2b8a9d4f91cae7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p170-hardheaded-jury-five-adventures.test.mjs.tap",
+      "bytes": 6416,
+      "sha256": "56dfb405155f2dc3936c985804299a857ef8396b284df44627c31f1b1ca4a0ed"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p171-npc-companions-hardheaded-five-adventures.test.mjs.tap",
+      "bytes": 4313,
+      "sha256": "509228338edb0a5134914e898ce2b2d288294440fb5d878b5008dc259e67d486"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p172-consequence-security-five-adventures.test.mjs.tap",
+      "bytes": 6961,
+      "sha256": "d37ac19dfceda578773161b2bf390960ee1da2bf273cd5f5d2d7180286b8def6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p172-master-merchant-economy.test.mjs.tap",
+      "bytes": 2633,
+      "sha256": "d66f7d1681d1e89480b8730d0075b31c32ed021ebcd4832244765fd774c2ca1b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p173-merchant-receipts-five-adventures.test.mjs.tap",
+      "bytes": 5342,
+      "sha256": "47d2db1dbaf8ccad6897303903e0cd032f5665e9daae4cdc2c3b23c42ea5f2e3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p174-mechanic-field-five-adventures.test.mjs.tap",
+      "bytes": 4296,
+      "sha256": "6230123a44daa1fd0aeef5432819b4c841f201e2cc011a10e55dae3517105d28"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p175-command-leadership-five-adventures.test.mjs.tap",
+      "bytes": 4805,
+      "sha256": "bee4658ba810f3f91e98480e0749989c39c769ad020434422cb64bf172289741"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p176-intel-fire-slicer-five-adventures.test.mjs.tap",
+      "bytes": 5486,
+      "sha256": "be5308fdba3e7512e35f074b2f7d4544bc7aabcd8e4235afd3ba5a06de042310"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p177-social-engineering-combat-five-adventures.test.mjs.tap",
+      "bytes": 6868,
+      "sha256": "d02f2ae794204eebedd3104846f10fa3e6c976f27c968dc1ec95e19c5f3d7541"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p178-aor-substitution-critical-crippling-adventures.test.mjs.tap",
+      "bytes": 5868,
+      "sha256": "ed207922dfe24ebad13a73dd998a5e0672264b4e1054599a232b741803311d7d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p179-reactive-medicine-blast-five-adventures.test.mjs.tap",
+      "bytes": 6296,
+      "sha256": "f66490a7a6ca82ba3d2d2507237fd3d5a1e45b40b3b90c743179bb50a6be9367"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p180-condition-effects-contract-five-adventures.test.mjs.tap",
+      "bytes": 7297,
+      "sha256": "62300391c8f74331dfeee4c8d1b4ac1ca381074f0eeedb6117d912745c68f07a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p181-mask-saleucami-source-migration.test.mjs.tap",
+      "bytes": 1470,
+      "sha256": "7ad53ae225f6fbc1c5aa4deac74a779f7b82b3208290f117a1100492f2025e14"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p182-sororinet-porel-contract-integrated.test.mjs.tap",
+      "bytes": 2547,
+      "sha256": "d31bb936f14d3022146bafb5ad01ac1959c09fb6542c050b73a3e96e7c8f1c60"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p183-jewel-longarm-pdf-branches.test.mjs.tap",
+      "bytes": 3828,
+      "sha256": "7882f9c3360d25e94897e830bb49b9df98426e43a11993b4d4090816a494702b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p184-jewel-race-auction-pdf.test.mjs.tap",
+      "bytes": 3779,
+      "sha256": "55f232a2e2cc2087229860317036d3c6512ac52431e9c00e4b4c77b9b5ff47ac"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p185-race-auction-integrity-source.test.mjs.tap",
+      "bytes": 5913,
+      "sha256": "fea5349ee2b64dbe892dc05a70ad95bded1b3cdee7da4581339d4ea5152ed27a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p186-grand-prix-dice-vehicle-atomic.test.mjs.tap",
+      "bytes": 2844,
+      "sha256": "ae6dbc09ad44c42de0107e54ecedcdcdc65baadba510a425893b4947ac44677c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p187-bank-droid-slicing-integrated.test.mjs.tap",
+      "bytes": 2857,
+      "sha256": "0e1ed943d4a24c256eb658ada13b9f5813514badf90bcb7becbb11bd39e4ae81"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p188-bank-preparation-spike-encryption-lobot.test.mjs.tap",
+      "bytes": 2703,
+      "sha256": "2f64c1699559e5df768ed48111cb76f6c70f74727ffd542eed2910657ed6a720"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p189-spike-time-ledger-world-clock.test.mjs.tap",
+      "bytes": 2842,
+      "sha256": "9b93944dd1b339c34387df9aec96e13b332e1204ab7d02ef2265caa9e28452cd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p190-npc-slicer-hiring-and-bank-integrity.test.mjs.tap",
+      "bytes": 3590,
+      "sha256": "540266fb8fba6f593cb785f14fa3c9bdcb0ac812a8d0766e00bc6532837f1fb5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p191-bank-table-2-1-post-roll-backdoors-time.test.mjs.tap",
+      "bytes": 3244,
+      "sha256": "d09e6dd4d68b022964ccab9bd966373997681745462dca951009bf932ed39d66"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p192-jewel-bank-table-completion.test.mjs.tap",
+      "bytes": 3506,
+      "sha256": "84e1f753b9aab02926f899678477be85db7b6ff89134786d869c5537c851a82f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p193-jewel-wing-guard-arrival.test.mjs.tap",
+      "bytes": 3181,
+      "sha256": "a9985722778de549ebc91e27758ac61ccd4e2ba05251a13e843a6c2b269ccbef"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p194-jewel-g100-black-box-evidence.test.mjs.tap",
+      "bytes": 2076,
+      "sha256": "011fa9019b593872d42096905bbf65a333cd219a1e070dfe531ce9ec4db4555e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p195-jewel-live-g100-droid.test.mjs.tap",
+      "bytes": 3035,
+      "sha256": "9f6522e94423199334de8f8312e99edc0e96bc9e1982f79d9d51053031e56c92"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p196-jewel-g100-official-nobodys-fool-muscle-assist.test.mjs.tap",
+      "bytes": 2392,
+      "sha256": "0853869222363682782fd5139108f548627ecb7c206e85b85b98a7eaa36ea64e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p197-wing-guard-tactics.test.mjs.tap",
+      "bytes": 3141,
+      "sha256": "2d0263b30ade762d97be951e7870ccb0bbf0762831f510f95de5f7a7abb767ab"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p198-wing-guard-free-maneuver.test.mjs.tap",
+      "bytes": 3130,
+      "sha256": "7bd851130d3208d6ec9f9c2c1d6eb3e7d780c79629b6be1a7060a6b089397898"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p199-physical-bolt-and-slicer-tool-replacement.test.mjs.tap",
+      "bytes": 5107,
+      "sha256": "1b8608c69380b63b5ce328cb329655a15e88937fa53c31b5b107ef43bb515eb8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p200-bank-ledger-settlement.test.mjs.tap",
+      "bytes": 2758,
+      "sha256": "8c19f96da028ed9079a8c84733fcccf951573543b5eb38352b4563ca0cf2131f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p201-escape-bomb.test.mjs.tap",
+      "bytes": 2202,
+      "sha256": "4f4a29fb1c36f5357beade695588799a5c6a0ac960f2294798286bc7ca96eff2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p202-jewel-impact-goons.test.mjs.tap",
+      "bytes": 2318,
+      "sha256": "3acb761c07ef86ea499e2ec194b1942fe483fb18aa4cbd12ee5c9298b458e30b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p203-jewel-long-extreme-falls.test.mjs.tap",
+      "bytes": 2193,
+      "sha256": "36db7faf92d4f2bc44a11a33b184cfdf017aba8c9419d4484da1d8f4213aef29"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p204-jewel-companion-impacts.test.mjs.tap",
+      "bytes": 1845,
+      "sha256": "9823ef0ec0775c878932f32ed9aecbe02bc31e43baa54545f4b78dc99b2a1458"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p205-arrow7-personal-scale-turret.test.mjs.tap",
+      "bytes": 2086,
+      "sha256": "7e53131eb4d31919ce91d8f9636b61a742c32c2b23d824ffa4b8bd14ecc06f34"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p206-arrow7-competitive-chase.test.mjs.tap",
+      "bytes": 2741,
+      "sha256": "771ac8809ecaa94a5fb78d7391c50e66d04d9417533c4288a18e8df227cbf31d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p207-arend-sweet-revenge.test.mjs.tap",
+      "bytes": 2253,
+      "sha256": "7f1a81885521d10801b6d2bf4e8e501829732772da0ea9dd98f17b14ddf871df"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p208-holopark-naboka.test.mjs.tap",
+      "bytes": 2593,
+      "sha256": "c9e76e5dc9ca83b2c73f768624b971f8faf546ab49cc1fbaa462fbd249653987"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p209-holopark-wing-guard.test.mjs.tap",
+      "bytes": 1718,
+      "sha256": "1531f74ded22e745e67cbe67984c3a9b5df372b89f56394829d63213e6e2164c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p210-holopark-landscape-effects.test.mjs.tap",
+      "bytes": 2202,
+      "sha256": "14c97143d433c500441c27d1af442503d3412ebcb098030eaffaaa7b88d3707a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p211-holopark-thranta-shadow.test.mjs.tap",
+      "bytes": 1950,
+      "sha256": "30c1dffc44abd38d94e63f68dba24f70e35b05f17be1f60cce5229f772e64289"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p212-holopark-cover-nerfs.test.mjs.tap",
+      "bytes": 2061,
+      "sha256": "d0e4576ecf170f829e135dd797184b3097c64987937694fec66f99f6f9a432cf"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p213-holopark-npc-threats.test.mjs.tap",
+      "bytes": 2415,
+      "sha256": "623db6bab4600c7a8daf3e7a7ff209a7755e420f3f076d40ae7d17bc291a59d8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p214-holopark-lost-weapons.test.mjs.tap",
+      "bytes": 1098,
+      "sha256": "6645e44fbf5fe2878eaa8aaefed7ddbab128a1b6f0eac13f7b44b51dc22174f4"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p215-holopark-despair.test.mjs.tap",
+      "bytes": 1119,
+      "sha256": "918ac90769e3aaafced2df5b341bda8eed59e1a22826f1c1427275f535736441"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p216-kashyyyk-vertigo.test.mjs.tap",
+      "bytes": 1325,
+      "sha256": "dc1ac0f4e819a23ef64292e9cbd51ff2224ea6690978b9e2a87731bf94e4dc71"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p217-holopark-factions.test.mjs.tap",
+      "bytes": 2088,
+      "sha256": "b1ce4933e0f817b89fc090036fbfc31a23f3de3175b3f56e723530ff5584dbe3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p218-lando-pardon.test.mjs.tap",
+      "bytes": 1878,
+      "sha256": "ba474e79fab17095d2700c5e034684c441569e451d36425be240fd215a541352"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p219-shen-aftermath.test.mjs.tap",
+      "bytes": 2100,
+      "sha256": "98c1c2cbfaae81523585afb7fc0221fc6d213e35c64af480f5f8ba5445131eca"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p220-arend-holdings-combat.test.mjs.tap",
+      "bytes": 2294,
+      "sha256": "179eeeb907f600a854d782a304fd21fb5931b3487463d3578724f920a39ac4d9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p221-arend-patrols.test.mjs.tap",
+      "bytes": 1765,
+      "sha256": "f0699cb2a5a24518407c386dcebde885b86263cf8c4a076aaaff23b2b69dfd04"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p222-jewel-episode3-xp.test.mjs.tap",
+      "bytes": 1645,
+      "sha256": "6ee99ee012b9ba869f42404b04cf24f086abb77222de6edbe092536e337d5ea4"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p223-storm-iv-patrol.test.mjs.tap",
+      "bytes": 2279,
+      "sha256": "7c1a5c1892be29945b7ead1113a7763aa495c4e5b0618ef60c531c1fd193be1c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p224-bespin-departure.test.mjs.tap",
+      "bytes": 2126,
+      "sha256": "e3779019ac3fcddbf9131f63065ccab93f0d3071a164c904702482932729ba86"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p225-residence-wing-response.test.mjs.tap",
+      "bytes": 1805,
+      "sha256": "9a3806a306ea0d16bb9353d595d84358d84a2c1a336a2d792e98d077be53686f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p226-pursuit-travel.test.mjs.tap",
+      "bytes": 2179,
+      "sha256": "70bffa49ff920ab512a0a3e74562115c0758b75f61fa8cc84f12bcae909dceee"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p227-jewel-custody-transfers.test.mjs.tap",
+      "bytes": 2125,
+      "sha256": "154dd18f6984a0dd14799f96ac28b9cab3c2170be83a20901e95dd7719686107"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p228-companion-jewel-boarding.test.mjs.tap",
+      "bytes": 2000,
+      "sha256": "9c5a3a999d66e70540c0e024be1a5d7c4c0ba51b714539899e37fc5c9bd1b2bf"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p229-starport-ship-security.test.mjs.tap",
+      "bytes": 2288,
+      "sha256": "7bdfe90ce6262360126e943a54f24c2a2547e856b017e71a940da0c99209b9ee"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p230-starport-routes-piloting.test.mjs.tap",
+      "bytes": 2943,
+      "sha256": "dc72976f69a82a44c6f459eb3a8a4845da36ab97cbb7f9be62787ac5b68e24de"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p231-starport-cloud-cars.test.mjs.tap",
+      "bytes": 1700,
+      "sha256": "675c79a11783970810288be998428c8e7a58a3ba39744a55d63afcaee6e9d0da"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p232-holopark-narrative-clock.test.mjs.tap",
+      "bytes": 2129,
+      "sha256": "269cdd49f442eefe803caa401e3a256af0173abe926bb1eadf9f64df117f57af"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p233-kashyyyk-medical-actions.test.mjs.tap",
+      "bytes": 1682,
+      "sha256": "e6cdd421338f362a4ee01999648d8d114860dc02245b349035b69a93d2058148"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p234-five-adventures-hybrid-safety.test.mjs.tap",
+      "bytes": 2072,
+      "sha256": "9a046310e92209a39f6668caf3e4a84c517828e388a2a9b5bf114292b323a66d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p235-longarm-newmeen-official.test.mjs.tap",
+      "bytes": 3611,
+      "sha256": "8d0c207f98e2494a55d1f43dc1c868bcab1e3c94c6d223b0e4e666e4ec9797fa"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p236-swe02-teemo-palace-source-gates.test.mjs.tap",
+      "bytes": 2619,
+      "sha256": "9ca0349f85188ed4d9c81a33467afa0816dcd95e8580679f3db565cce535d94d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p237-swe02-geonosis-dimmock-gantry.test.mjs.tap",
+      "bytes": 2552,
+      "sha256": "dbba072d1c4654605ae3e0b3963c38317b49e350c27f52bdfff44b9288ed2cf5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p238-swe02-krayt-fang-ship-source.test.mjs.tap",
+      "bytes": 2885,
+      "sha256": "e6e870d51a8d5324e82b6153e9602c2e89cff8f587a10dee2cc78037c83c018f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p239-swe02-thwheek-vehicle-combat.test.mjs.tap",
+      "bytes": 2997,
+      "sha256": "2b20d56f989af22fc6c68c1ef76beefe4c626840de22c2cf30b9a2b508bc23b9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p240-swe02-nabat-port-economy-medical.test.mjs.tap",
+      "bytes": 2685,
+      "sha256": "315314695aaf5e62f5f9537289874dc3eaeb332369614e45275122e8a1ead2a3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p241-swe02-nyn-newmeen-social.test.mjs.tap",
+      "bytes": 3075,
+      "sha256": "cdcb1e2d5074eeb05b2909df7d9508558a30fee468954d0a74b4b9191cad2ad6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p242-swe02-newmeen-fatalities-coercion-rescue.test.mjs.tap",
+      "bytes": 2938,
+      "sha256": "f901b7710fb67f14b9633a06e423f38009c61833308383a9d26ee3afaccd43c5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p243-swe02-escort-militia.test.mjs.tap",
+      "bytes": 3822,
+      "sha256": "208ee11c64bddd7474a8dace8fdb7de297165f64ad89bb57561288aead25b037"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-p244-swe02-militia-custody.test.mjs.tap",
+      "bytes": 1634,
+      "sha256": "d35e0ca255acdd46cc2c12e9241b5a46c877f28eafc52809755445f965572076"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-swe02-act2-contracts-gantry.work.test.mjs.tap",
+      "bytes": 2523,
+      "sha256": "56f9a2a67685996459351b9f5d34301ac17a7983612310590a592de27a82235e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-swe02-act3-complete-routes.work.test.mjs.tap",
+      "bytes": 2813,
+      "sha256": "dca7077d3d5cd547338d6232dba03ba64a1db4d9cdb8887a64b77cbe26586cf6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-swe02-act3-palace-gladiators-reinforcements.work.test.mjs.tap",
+      "bytes": 1730,
+      "sha256": "322f566b2b00d14de8a6b0149328658be333925c86293e002c8759705cc80ec8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/uae-v2-p127-regression.test.mjs.tap",
+      "bytes": 2242,
+      "sha256": "351bdc6da78a227e52caa468699e9e9640d28e8b234232327760de82c273d5b7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/ui-bridge-backup-json-r23.test.mjs.tap",
+      "bytes": 1764,
+      "sha256": "e6afaa6ee103de3c17f241254fe5447db46ea1e8d39207ac3d1401d3ce79a6bb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/ui-bridge-equipment-r32.test.mjs.tap",
+      "bytes": 709,
+      "sha256": "3a2c7a7bed52f602317f570598e8c4f7b7a3b38224364d2cc4d0a7dc9b868f57"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/ui-bridge-manual-creation-r33.test.mjs.tap",
+      "bytes": 960,
+      "sha256": "17b51e885f80e7be8812af623fa7f20938617710db081da891b48ea4e1c69007"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/ui-bridge-r22.test.mjs.tap",
+      "bytes": 1577,
+      "sha256": "56963755be1e6e2e720f354108936acf598a3a2d03c92ec4f6425d7c4942e98f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/ui-language.test.mjs.tap",
+      "bytes": 523,
+      "sha256": "2ce956745d59234ce0a984a343fa53362f6ba1bdb5db84020288d68308192348"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/universal-adventure-engine.test.mjs.tap",
+      "bytes": 947,
+      "sha256": "bc7e882b3fcaf7501e2b6763e1eefcc8cd48b09cde7a8001f5cbd6759c4b3e42"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/validation-capabilities-copy-p18.test.mjs.tap",
+      "bytes": 350,
+      "sha256": "5deb3bcb03ef89d49be8b906818763022172cf2d6c4b6cb856fa01a984432a5f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/vehicle-controller.test.mjs.tap",
+      "bytes": 894,
+      "sha256": "a13157c87515b95111e5a6ec26cbc5fac32de66091e040aedb5c68e189d6dc41"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/vehicle-talents-r15.test.mjs.tap",
+      "bytes": 823,
+      "sha256": "152cb00cb9ac5e175f9667aa5500a4b056c2bb1bbea2d029935bdf28ce82cbcf"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/vehicle-ui.test.mjs.tap",
+      "bytes": 543,
+      "sha256": "cabbe63c5a31b70ac08902c8091923cbfd33c79961808bcefdedf4b81a11e8a3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/vehicles.test.mjs.tap",
+      "bytes": 3575,
+      "sha256": "1d4aa5cdc8df5e7496e49baee195991eaf1cfc23700bd5cd53d95e860ba9a3e8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/verifier-async-suite-r16.test.mjs.tap",
+      "bytes": 394,
+      "sha256": "ed6d99fa55c8eb6b9f2319526e0b7d12ce5f7cd50e4f15daf5876e3e77f6f82f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/verifier-process-exit-r16.test.mjs.tap",
+      "bytes": 314,
+      "sha256": "fd57db5563ea4dc25f4fba996966d2e2d2181e4ba0bec09870ccf84d765ca3a5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/verifier-validation-dir-r17.test.mjs.tap",
+      "bytes": 501,
+      "sha256": "0cb15b4fe976ad8f5fbe265b74c8ad7d9861b5f7a1bf38d8d5e06546d34b11f4"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/wave4-official-adventures.test.mjs.tap",
+      "bytes": 1321,
+      "sha256": "8dfad5c69da52c18c71abd444f1075baa01fa24af3b8088f0cc693b8ae318444"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/weapons.test.mjs.tap",
+      "bytes": 883,
+      "sha256": "47f1465d0bae5996f23dba5381a7e2d3541bea2edce7f77a5eeed189f22e7ddb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/world-r15.test.mjs.tap",
+      "bytes": 1162,
+      "sha256": "36aee95f09290a8b6388e8749a1306f22b67ea0ea3944bdcd10919dadb55231d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP3/test-results/world.test.mjs.tap",
+      "bytes": 476,
+      "sha256": "7d214cfc2099e96cb7325295105451bdb393cdd66e6becc62a36320f5ca69fb1"
+    },
+    {
+      "path": "run_swe02_wip_regression.py",
+      "bytes": 2303,
+      "sha256": "c77f3850e5ed0c0ed04fada706e058b5e8411e1b0acdaab099e5b803b7182391"
+    },
+    {
+      "path": "tests/uae-swe02-act2-contracts-gantry.work.test.mjs",
+      "bytes": 9476,
+      "sha256": "924410225a92fbf0903a3af207971f71ff3b4c23b967a755f759e13e6be68234"
+    },
+    {
+      "path": "tests/uae-swe02-act3-complete-routes.work.test.mjs",
+      "bytes": 12300,
+      "sha256": "20b5093468dee3df3526e504520822918c4bcfea0c7bd52a3003b869bd2d434e"
+    },
+    {
+      "path": "tests/uae-swe02-act3-palace-gladiators-reinforcements.work.test.mjs",
+      "bytes": 9596,
+      "sha256": "1ddef22e36b6c2970b2ce318b0d31d07d006989188d37df0f15dcf2f7dddcc40"
+    },
+    {
+      "path": "validation/SWE02_FULL_BLOCK_WIP3_SOURCE_PROOFS.json",
+      "bytes": 2282,
+      "sha256": "2de6e581d94a5f1e47a3767e34cb827e5b22f0aea8db7fdd65933ca4537e35ad"
+    },
+    {
+      "path": "verify_swe02_wip_source.py",
+      "bytes": 1501,
+      "sha256": "927df44005b672f96384033a099c7f94969eee3c50276c0e36475f6b673417aa"
+    }
+  ],
+  "tests": {
+    "files": 372,
+    "pass": 3376,
+    "fail": 0,
+    "skipped": 0,
+    "stress": 6
+  },
+  "bundleModules": 131
+}

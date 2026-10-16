@@ -1,0 +1,15 @@
+PROGRESS 25 / 304 bad 0
+PROGRESS 50 / 304 bad 0
+PROGRESS 75 / 304 bad 0
+PROGRESS 100 / 304 bad 0
+PROGRESS 125 / 304 bad 0
+PROGRESS 150 / 304 bad 0
+FAIL_EARLY bundle-builder-p20.test.mjs TIMEOUT
+PROGRESS 175 / 304 bad 1
+PROGRESS 200 / 304 bad 1
+PROGRESS 225 / 304 bad 1
+PROGRESS 250 / 304 bad 1
+PROGRESS 275 / 304 bad 1
+NODE_SUITE_JSON={"files": 298, "tests": 2625, "pass": 2625, "fail": 1, "skipped": 0, "bad": 1, "seconds": 121.73}
+FAILED bundle-builder-p20.test.mjs TIMEOUT
+EXIT_CODE:1

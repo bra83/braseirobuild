@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: P78: início de jogo depende de estado explícito, nunca de texto de narração
+ok 1 - P78: início de jogo depende de estado explícito, nunca de texto de narração
+  ---
+  duration_ms: 4.974505
+  type: 'test'
+  ...
+# Subtest: P78: Novo mundo força seleção em SCREEN 00 e o overlay consome campaignSetup uma vez
+ok 2 - P78: Novo mundo força seleção em SCREEN 00 e o overlay consome campaignSetup uma vez
+  ---
+  duration_ms: 0.372482
+  type: 'test'
+  ...
+# Subtest: P78: reset preserva personagem, grupo, veículos e modo mas limpa sessão/mundo da campanha anterior
+ok 3 - P78: reset preserva personagem, grupo, veículos e modo mas limpa sessão/mundo da campanha anterior
+  ---
+  duration_ms: 141.207551
+  type: 'test'
+  ...
+# Subtest: P78: testes publicados mantêm resultado visível e animação não controla a mecânica
+ok 4 - P78: testes publicados mantêm resultado visível e animação não controla a mecânica
+  ---
+  duration_ms: 0.496971
+  type: 'test'
+  ...
+# Subtest: P78: teste sugerido mostra perícia, dificuldade e resultado antes de pedir consequência ao Mestre
+ok 5 - P78: teste sugerido mostra perícia, dificuldade e resultado antes de pedir consequência ao Mestre
+  ---
+  duration_ms: 0.272853
+  type: 'test'
+  ...
+# Subtest: P78: Mestre local não é rotulado como offline e Gemini configurado é reconhecido antes da primeira ação
+ok 6 - P78: Mestre local não é rotulado como offline e Gemini configurado é reconhecido antes da primeira ação
+  ---
+  duration_ms: 0.329097
+  type: 'test'
+  ...
+# Subtest: P78: alvos touch e textos críticos ficam legíveis em 415x915
+ok 7 - P78: alvos touch e textos críticos ficam legíveis em 415x915
+  ---
+  duration_ms: 0.347074
+  type: 'test'
+  ...
+# Subtest: P78: Android/shell/runtime permanecem em P78 ou posterior
+ok 8 - P78: Android/shell/runtime permanecem em P78 ou posterior
+  ---
+  duration_ms: 14.945419
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 380.47897

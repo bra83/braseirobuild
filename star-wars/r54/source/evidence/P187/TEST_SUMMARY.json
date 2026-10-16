@@ -1,0 +1,18 @@
+{
+  "checkpoint": "P187",
+  "regularFiles": 306,
+  "regularTests": 2764,
+  "regularPassed": 2764,
+  "stressFiles": 6,
+  "stressPassed": 6,
+  "totalFiles": 312,
+  "totalPassed": 2770,
+  "focalP187": 13,
+  "shards": 6,
+  "runMode": "per-file sharded regular, stress sequential",
+  "monolithicSuiteCertified": false,
+  "failuresResolved": [
+    "P74/P77 Android shell/runtime version mismatch corrected; both retested green"
+  ],
+  "androidCompiled": false
+}

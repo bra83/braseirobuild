@@ -1,0 +1,89 @@
+TAP version 13
+# Subtest: P239 SWE02 p.12: official Dunelizard profile and linked laser cannons
+ok 1 - P239 SWE02 p.12: official Dunelizard profile and linked laser cannons
+  ---
+  duration_ms: 5.42383
+  type: 'test'
+  ...
+# Subtest: P239 optimal navigation + slowed transponder: direct Nabat, no fighter
+ok 2 - P239 optimal navigation + slowed transponder: direct Nabat, no fighter
+  ---
+  duration_ms: 415.473608
+  type: 'test'
+  ...
+# Subtest: P239 failed route forces interception even after slowed tracker
+ok 3 - P239 failed route forces interception even after slowed tracker
+  ---
+  duration_ms: 256.747218
+  type: 'test'
+  ...
+# Subtest: P239 p.12: cannot start Thwheek without actual Krayt Fang
+ok 4 - P239 p.12: cannot start Thwheek without actual Krayt Fang
+  ---
+  duration_ms: 112.281994
+  type: 'test'
+  ...
+# Subtest: P239 real vehicle engine: Short-range fighter and player must maneuver into Bocajarro
+ok 5 - P239 real vehicle engine: Short-range fighter and player must maneuver into Bocajarro
+  ---
+  duration_ms: 170.155171
+  type: 'test'
+  ...
+# Subtest: P239 real hit + five hull trauma: pursuit remains open, withdrawal permits Nabat
+ok 6 - P239 real hit + five hull trauma: pursuit remains open, withdrawal permits Nabat
+  ---
+  duration_ms: 268.597488
+  type: 'test'
+  ...
+# Subtest: P239 p.12: no victory without actual hits and no duplicate start/resolve
+ok 7 - P239 p.12: no victory without actual hits and no duplicate start/resolve
+  ---
+  duration_ms: 132.785099
+  type: 'test'
+  ...
+# Subtest: P239 p.12: incoming attack uses fixed Agility 3, Gunnery 0 even with forged GM overrides
+ok 8 - P239 p.12: incoming attack uses fixed Agility 3, Gunnery 0 even with forged GM overrides
+  ---
+  duration_ms: 140.485428
+  type: 'test'
+  ...
+# Subtest: P239 p.12: target stay-on-target switches to evasive after first actual hit, persists next round
+ok 9 - P239 p.12: target stay-on-target switches to evasive after first actual hit, persists next round
+  ---
+  duration_ms: 161.929951
+  type: 'test'
+  ...
+# Subtest: P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience checks
+ok 10 - P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience checks
+  ---
+  duration_ms: 354.716803
+  type: 'test'
+  ...
+# Subtest: P239 p.12: three-person crew cannot be falsely certified by one PC
+ok 11 - P239 p.12: three-person crew cannot be falsely certified by one PC
+  ---
+  duration_ms: 251.308667
+  type: 'test'
+  ...
+# Subtest: P239 fail-closed: forged outcome or crew completion cannot survive adapter status
+ok 12 - P239 fail-closed: forged outcome or crew completion cannot survive adapter status
+  ---
+  duration_ms: 92.822136
+  type: 'test'
+  ...
+# Subtest: P239 bridge exposes authoritative vehicle result and crash methods
+ok 13 - P239 bridge exposes authoritative vehicle result and crash methods
+  ---
+  duration_ms: 0.341885
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2950.665558
+

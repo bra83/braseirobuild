@@ -1,0 +1,31 @@
+{
+  "checkpoint": "P207",
+  "base": "P206",
+  "module": "app/src/main/assets/vtt/js/adventure/jewelArendRevenge.mjs",
+  "exports": [
+    "AREND_HOLDINGS",
+    "replayJewelArendRevenge",
+    "validateJewelArendRevenge",
+    "investigateJewelArendHoldings",
+    "visitJewelArendHolding"
+  ],
+  "integration": [
+    "controller.mjs atomicAction WORLD_UPDATED",
+    "uiBridge.mjs API methods",
+    "jewelOfYavin.mjs status/advance validation",
+    "r46/final-runtime.js PT-BR panel",
+    "uiBridge.bundle.js offline transpiled",
+    "app/build.gradle.kts 1.0.207",
+    "r46-shell.html data-version 1.0.207"
+  ],
+  "receipts": [
+    "JEWEL_AREND_LEADS",
+    "JEWEL_AREND_VISIT"
+  ],
+  "focusTest": "tests/uae-p207-arend-sweet-revenge.test.mjs",
+  "limits": [
+    "Arrow-7 hull/armor/speed still absent from SWE09; no invention",
+    "No APK or CI",
+    "No full five-adventure certification"
+  ]
+}

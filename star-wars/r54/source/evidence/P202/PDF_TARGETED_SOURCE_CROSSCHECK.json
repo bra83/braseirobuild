@@ -1,0 +1,10 @@
+{
+  "checkpoint": "P202",
+  "sourceChecked": "Google Drive connector text reads, 2026-10-14, targeted only (NOT full editorial certification)",
+  "officialSources": [
+    {"title":"The Jewel of Yavin", "driveId":"1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K", "printedPage":90, "verified":"Explosive airspeeder inflicts 10 damage before soak, followed by falling damage; four Shen's Goons pursue at Medium range on Arrow-7; minion weapons, Lethal Blows 1, heavy clothing."},
+    {"title":"Edge of the Empire Core Rulebook", "driveId":"1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX", "table":"6-9 Falling Damage", "verified":"Short: 10 damage/10 strain; Medium: 30 damage/20 strain; soak mitigates damage not strain; Average Athletics or Coordination reduces damage by each success and strain by each advantage; Long/Extreme require incapacitation and critical injury handling."},
+    {"title":"NPC compendium card", "id":"shens_goons_90", "sourceCard":"JoY:87", "verified":"Shen's Goons characteristics 3/3/1/2/1/2, soak 4, wound threshold 5, minion group skills, Lethal Blows 1, blaster carbine and brass knuckles."}
+  ],
+  "notImplemented":["Long/Extreme automatic fall critical/incapacitation", "GM Destiny mitigation of explosion/fall", "full Arrow-7 vehicle pursuit and tactical maneuvers", "NPC companions blast/fall applied separately", "full five-adventure source certification"]
+}

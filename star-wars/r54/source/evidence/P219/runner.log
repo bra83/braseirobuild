@@ -1,0 +1,32 @@
+regular 40 / 338 3.1
+regular 80 / 338 6.2
+regular 120 / 338 9.1
+regular 160 / 338 11.7
+regular 200 / 338 14.0
+regular 240 / 338 18.0
+regular 280 / 338 23.2
+FAIL tests/uae-p218-lando-pardon.test.mjs 1 
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 7
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 847.236572
+
+regular 320 / 338 38.2
+stress stress-33-aftermath-r20.test.mjs 0
+stress stress-33-faction-plan-r19.test.mjs 0
+stress stress-33-sessions-r15.test.mjs 0
+stress stress-faction-plans-r19.test.mjs 0
+stress stress-factions-r18.test.mjs 0
+stress stress-persistent-adversary-r17.test.mjs 0
+FINAL {"checkpoint": "P219", "mode": "node --test each file independently, eight workers; stress sequential", "regularFiles": 338, "stressFiles": 6, "regularTests": 3095, "regularPassed": 3094, "stressTests": 6, "stressPassed": 6, "failedFiles": ["tests/uae-p218-lando-pardon.test.mjs"], "elapsedSeconds": 59.3, "totalFiles": 344, "totalTests": 3101, "totalPassed": 3100}
+FINAL RECHECK: tests/uae-p218-lando-pardon.test.mjs 8/8 PASS after correcting obsolete exact versionCode assertion.
+FINAL SUMMARY: 338 regular files / 3095 PASS, 6 stress / 6 PASS, TOTAL 3101/3101 in 344 individual files.

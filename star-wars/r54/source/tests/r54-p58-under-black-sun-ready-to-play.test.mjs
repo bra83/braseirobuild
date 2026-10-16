@@ -1,0 +1,8 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { GameController } from '../app/src/main/assets/vtt/js/core/controller.mjs';
+import { LocalStorageRepository } from '../app/src/main/assets/vtt/js/core/storage.mjs';
+class MemoryStorage { constructor(){this.m=new Map()} getItem(k){return this.m.has(k)?this.m.get(k):null} setItem(k,v){this.m.set(k,String(v))} removeItem(k){this.m.delete(k)} }
+test('P58: fluxo real inicia Sob um Sol Negro em EotE e abre a primeira cena jogável',()=>{const g=new GameController(new LocalStorageRepository(new MemoryStorage(),'p58'));g.loadStarterCharacter('cael');g.setCampaignMode('EOTE');g.initializeLivingSandbox({startingPoint:'Coruscant — Setor 943',regionLabel:'Coruscant'});const r=g.startPublishedAdventureSession('under-black-sun',{rng:()=>0.5});assert.equal(r.adventure.active,true);assert.equal(r.adventure.progress.currentNodeId,'hot-pursuit');assert.match(r.adventure.node.title,/Perseguição/i);assert.ok(r.adventure.node.checks.length>=2);assert.ok(r.adventure.node.choices.length>=2);});
+test('P58: entrada inicial não bloqueia criação de personagem e oferece quick start da aventura',()=>{const runtime=readFileSync(new URL('../app/src/main/assets/vtt/r46/final-runtime.js',import.meta.url),'utf8');assert.match(runtime,/\(!forceSetup&&sandboxReady\(\)\)\|\|!hasCharacter\(\)/);assert.match(runtime,/campaignSetup/);assert.match(runtime,/JOGAR SOB UM SOL NEGRO/);assert.match(runtime,/quickAdventureId='under-black-sun'/);assert.match(runtime,/BraseiroPublishedActionClient\.execute\('start',quickAdventureId/);assert.match(runtime,/Coruscant — Setor 943/);});

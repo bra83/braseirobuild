@@ -1,0 +1,161 @@
+TAP version 13
+# Subtest: P178 five distinct AoR source slots have actual consumers
+ok 1 - P178 five distinct AoR source slots have actual consumers
+  ---
+  duration_ms: 7.608798
+  type: 'test'
+  ...
+# Subtest: P178 MANO DE SANTO substitutes the live dice pool, once/session, survives three reopens
+ok 2 - P178 MANO DE SANTO substitutes the live dice pool, once/session, survives three reopens
+  ---
+  duration_ms: 40.814771
+  type: 'test'
+  ...
+# Subtest: P178 MANO DE SANTO refuses unowned talent and rolls back on failed save
+ok 3 - P178 MANO DE SANTO refuses unowned talent and rolls back on failed save
+  ---
+  duration_ms: 39.692934
+  type: 'test'
+  ...
+# Subtest: P178 INGENIOSO substitutes the live dice pool, once/session, survives three reopens
+ok 4 - P178 INGENIOSO substitutes the live dice pool, once/session, survives three reopens
+  ---
+  duration_ms: 19.55943
+  type: 'test'
+  ...
+# Subtest: P178 INGENIOSO refuses unowned talent and rolls back on failed save
+ok 5 - P178 INGENIOSO refuses unowned talent and rolls back on failed save
+  ---
+  duration_ms: 15.348854
+  type: 'test'
+  ...
+# Subtest: P178 SOLUCIÓN IMPROVISADA substitutes the live dice pool, once/session, survives three reopens
+ok 6 - P178 SOLUCIÓN IMPROVISADA substitutes the live dice pool, once/session, survives three reopens
+  ---
+  duration_ms: 19.085767
+  type: 'test'
+  ...
+# Subtest: P178 SOLUCIÓN IMPROVISADA refuses unowned talent and rolls back on failed save
+ok 7 - P178 SOLUCIÓN IMPROVISADA refuses unowned talent and rolls back on failed save
+  ---
+  duration_ms: 19.36003
+  type: 'test'
+  ...
+# Subtest: P178 rejects multiple characteristic substitutions without charging actions
+ok 8 - P178 rejects multiple characteristic substitutions without charging actions
+  ---
+  duration_ms: 2.462796
+  type: 'test'
+  ...
+# Subtest: P178 Unstoppable suppresses an actual critical total of 1, including immediate strain
+ok 9 - P178 Unstoppable suppresses an actual critical total of 1, including immediate strain
+  ---
+  duration_ms: 25.259246
+  type: 'test'
+  ...
+# Subtest: P178 Unstoppable does not suppress total above 1 or unowned
+ok 10 - P178 Unstoppable does not suppress total above 1 or unowned
+  ---
+  duration_ms: 2.906623
+  type: 'test'
+  ...
+# Subtest: P178 Crippling Blow changes real attack difficulty and wounds real target
+ok 11 - P178 Crippling Blow changes real attack difficulty and wounds real target
+  ---
+  duration_ms: 37.227674
+  type: 'test'
+  ...
+# Subtest: P178 Crippling Blow rejects unowned and phantom targets atomically
+ok 12 - P178 Crippling Blow rejects unowned and phantom targets atomically
+  ---
+  duration_ms: 10.438246
+  type: 'test'
+  ...
+# Subtest: P178 P177 idempotency cannot silently accept a different GM-approved fact
+ok 13 - P178 P177 idempotency cannot silently accept a different GM-approved fact
+  ---
+  duration_ms: 16.616842
+  type: 'test'
+  ...
+# Subtest: P178 offline bridge includes canonical consumers
+ok 14 - P178 offline bridge includes canonical consumers
+  ---
+  duration_ms: 47.736336
+  type: 'test'
+  ...
+# Subtest: P178 under-black-sun attribute use is persistent and adventure state unchanged after 3 reopens
+ok 15 - P178 under-black-sun attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 85.742661
+  type: 'test'
+  ...
+# Subtest: P178 beyond-the-rim attribute use is persistent and adventure state unchanged after 3 reopens
+ok 16 - P178 beyond-the-rim attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 42.64823
+  type: 'test'
+  ...
+# Subtest: P178 long-arm-of-the-hutt attribute use is persistent and adventure state unchanged after 3 reopens
+ok 17 - P178 long-arm-of-the-hutt attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 59.514066
+  type: 'test'
+  ...
+# Subtest: P178 jewel-of-yavin attribute use is persistent and adventure state unchanged after 3 reopens
+ok 18 - P178 jewel-of-yavin attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 54.655997
+  type: 'test'
+  ...
+# Subtest: P178 mask-of-the-pirate-queen attribute use is persistent and adventure state unchanged after 3 reopens
+ok 19 - P178 mask-of-the-pirate-queen attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 49.354199
+  type: 'test'
+  ...
+# Subtest: P178 Form on Me propagates real Gain the Advantage to a confirmed nearby allied ship
+ok 20 - P178 Form on Me propagates real Gain the Advantage to a confirmed nearby allied ship
+  ---
+  duration_ms: 21.404367
+  type: 'test'
+  ...
+# Subtest: P178 Form on Me rejects phantom, unconfirmed and unowned allied ships atomically
+ok 21 - P178 Form on Me rejects phantom, unconfirmed and unowned allied ships atomically
+  ---
+  duration_ms: 45.335403
+  type: 'test'
+  ...
+# Subtest: P178 GM confirms only registered formation allies and rolls back on storage failure
+ok 22 - P178 GM confirms only registered formation allies and rolls back on storage failure
+  ---
+  duration_ms: 47.728723
+  type: 'test'
+  ...
+# Subtest: P178 Crippling Blow inflicts actual NPC strain on movement and not on idle turns
+ok 23 - P178 Crippling Blow inflicts actual NPC strain on movement and not on idle turns
+  ---
+  duration_ms: 9.358921
+  type: 'test'
+  ...
+# Subtest: P178 forged critical movement and formation references rejected on reload
+ok 24 - P178 forged critical movement and formation references rejected on reload
+  ---
+  duration_ms: 12.390353
+  type: 'test'
+  ...
+# Subtest: P178 Unstoppable wound-threshold crossing does not fabricate criticalAdded
+ok 25 - P178 Unstoppable wound-threshold crossing does not fabricate criticalAdded
+  ---
+  duration_ms: 2.963449
+  type: 'test'
+  ...
+1..25
+# tests 25
+# suites 0
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1231.79356
+

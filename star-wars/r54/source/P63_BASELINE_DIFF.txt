@@ -1,0 +1,16 @@
+Only in /mnt/data/sw_p63_final/sw_p52_work: HANDOFF_STAR_WARS_EDGE_R54_P63_2026-09-23.md
+Only in /mnt/data/sw_p63_final/sw_p52_work: P63_ANDROID_BUILD.txt
+Only in /mnt/data/sw_p63_final/sw_p52_work: P63_BASELINE_DIFF.txt
+Only in /mnt/data/sw_p63_final/sw_p52_work: P63_BUNDLE.txt
+Only in /mnt/data/sw_p63_final/sw_p52_work: P63_BUNDLE_SYNTAX.txt
+Only in /mnt/data/sw_p63_final/sw_p52_work: P63_CHANGESET.txt
+Only in /mnt/data/sw_p63_final/sw_p52_work: P63_FOCAL.txt
+Only in /mnt/data/sw_p63_final/sw_p52_work: P63_INTEGRITY_REOPEN.txt
+Only in /mnt/data/sw_p63_final/sw_p52_work: P63_MODES_GATE.txt
+Only in /mnt/data/sw_p63_final/sw_p52_work: P63_REGRESSION_ALL_FILES.txt
+Only in /mnt/data/sw_p63_final/sw_p52_work: P63_REGRESSION_CANONICAL.txt
+Only in /mnt/data/sw_p63_final/sw_p52_work: P63_RUNTIME_SYNTAX.txt
+Files /mnt/data/sw_p62_verify/sw_p52_work/app/src/main/assets/vtt/js/adventure/underBlackSun.mjs and /mnt/data/sw_p63_final/sw_p52_work/app/src/main/assets/vtt/js/adventure/underBlackSun.mjs differ
+Files /mnt/data/sw_p62_verify/sw_p52_work/app/src/main/assets/vtt/js/core/controller.mjs and /mnt/data/sw_p63_final/sw_p52_work/app/src/main/assets/vtt/js/core/controller.mjs differ
+Files /mnt/data/sw_p62_verify/sw_p52_work/app/src/main/assets/vtt/js/core/uiBridge.bundle.js and /mnt/data/sw_p63_final/sw_p52_work/app/src/main/assets/vtt/js/core/uiBridge.bundle.js differ
+Only in /mnt/data/sw_p63_final/sw_p52_work/tests: r54-p63-under-black-sun-reopen-transition.test.mjs

@@ -1,0 +1,21 @@
+PROGRESS 40 / 368 elapsed 3
+PROGRESS 80 / 368 elapsed 6
+PROGRESS 120 / 368 elapsed 9
+PROGRESS 160 / 368 elapsed 12
+PROGRESS 200 / 368 elapsed 14
+PROGRESS 240 / 368 elapsed 20
+PROGRESS 280 / 368 elapsed 28
+PROGRESS 320 / 368 elapsed 45
+PROGRESS 360 / 368 elapsed 56
+{
+  "files": 368,
+  "regular_files": 362,
+  "stress_files": 6,
+  "regular_pass": 3334,
+  "stress_pass": 6,
+  "total_pass": 3340,
+  "total_fail": 0,
+  "total_skipped": 0,
+  "failed_files": [],
+  "elapsed_seconds": 59.26
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "assetId": "external.kainrath.beast.skekfish",
+    "title": "Skekfish",
+    "category": "creature",
+    "subtype": "beast",
+    "sourcePageUrl": "https://kainrath.wordpress.com/2021/08/21/skekfish/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2021/08/skekfish.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "beast",
+      "creature",
+      "skekfish",
+      "beast-direct-recovery"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.beast.nerf",
+    "title": "Nerf",
+    "category": "creature",
+    "subtype": "beast",
+    "sourcePageUrl": "https://kainrath.wordpress.com/2021/08/21/nerf/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2021/08/nerf.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "beast",
+      "creature",
+      "nerf",
+      "beast-direct-recovery"
+    ]
+  }
+]

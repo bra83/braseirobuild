@@ -1,0 +1,42 @@
+{
+  "checkpoint": "P210",
+  "implemented": [
+    "New source-backed jewelHoloParkEffects.mjs: four effects, one per landscape",
+    "Actual pending narrative Advantage/Triumph consumption and player Despair precondition",
+    "Real adversary staggered/disoriented via existing status engine",
+    "Real PC strain and lost maneuver via health and combat engines",
+    "Real ranged cover added to NPC attack setback dice pool with round expiry",
+    "JEWEL_HOLO_EFFECT receipts, replay, strict shape and duplicate rejection",
+    "Atomic controller transaction, Android bridge, PT-BR controls and offline bundle"
+  ],
+  "safety": [
+    "No fabricated roll",
+    "No symbol reuse for one attack",
+    "No change to absent characters",
+    "No automatic faction arrival",
+    "No invented elapsed time or reward",
+    "Legacy P209 saves accepted"
+  ],
+  "limits": [
+    "12 of 16 landscape effects still manual",
+    "Arend and Grayson factions not integrated",
+    "No APK/SDK/Gradle/adb/CI BRELGA/physical validation",
+    "No full adventure or 360 consumer certification"
+  ],
+  "version": {
+    "versionName": "1.0.210",
+    "versionCode": 10210,
+    "offlineBundleModules": 104
+  },
+  "tests": {
+    "regularPassed": 3032,
+    "stressPassed": 6,
+    "totalPassed": 3038,
+    "totalFiles": 335,
+    "focalPassed": 9
+  },
+  "javaKokoro": {
+    "unchanged": 8,
+    "total": 8
+  }
+}

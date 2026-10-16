@@ -1,0 +1,12 @@
+PROGRESS 25 / 302 bad 0
+PROGRESS 50 / 302 bad 0
+PROGRESS 75 / 302 bad 0
+PROGRESS 100 / 302 bad 0
+PROGRESS 125 / 302 bad 0
+PROGRESS 150 / 302 bad 0
+PROGRESS 175 / 302 bad 0
+PROGRESS 200 / 302 bad 0
+PROGRESS 225 / 302 bad 0
+PROGRESS 250 / 302 bad 0
+PROGRESS 275 / 302 bad 0
+NODE_SUITE_JSON={"files": 296, "tests": 2577, "pass": 2577, "fail": 0, "skipped": 0, "bad": 0, "seconds": 26.41}

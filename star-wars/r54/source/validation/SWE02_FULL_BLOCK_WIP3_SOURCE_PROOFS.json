@@ -1,0 +1,33 @@
+{
+  "scope": "SWE02 Act 3 Palace (partial, not a completed adventure)",
+  "base": "R54 P244 + cumulative WIP1 + WIP2",
+  "source": "https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf",
+  "editorialClosure": false,
+  "features": [
+    {
+      "id": "PALACE_GLADIATORS",
+      "printedPages": [21,43],
+      "sourceSemantics": "Four gladiators use the thug profile; 1000-credit bribe or opposed Coerce against Discipline; Charm ineffective.",
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02Act3PalaceWip.mjs:recruitSWE02Gladiators",
+      "encounter": "app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs:laoth-palace-gladiators",
+      "controller": "GameController.recruitSWE02Gladiators",
+      "bridge": "BraseiroUiBridge.recruitSWE02Gladiators",
+      "ui": "swe02GladiatorRecruit",
+      "tests": "tests/uae-swe02-act3-palace-gladiators-reinforcements.work.test.mjs",
+      "limits": "Alliance flag does not grant automatic NPC attacks; companion control remains with player."
+    },
+    {
+      "id": "TEEMO_THRONE_ALARM",
+      "printedPages": [44],
+      "sourceSemantics": "Teemo may press alarm as a maneuver; Gamorreans from barracks arrive at end of round four rounds later. Count not specified in PDF; GM must confirm count.",
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02Act3PalaceWip.mjs:queueSWE02ThroneAlarm,triggerSWE02ThroneAlarmOnNpcTurn,applySWE02ThroneReinforcementsAtRoundBoundary",
+      "controller": "GameController.queueSWE02ThroneAlarm; _resolveNpcTurn; finishPlayerInitiativeTurn; _processNpcTurnsUntilPlayer",
+      "bridge": "BraseiroUiBridge.queueSWE02ThroneAlarm",
+      "ui": "swe02ThroneAlarmQueue",
+      "tests": "tests/uae-swe02-act3-palace-gladiators-reinforcements.work.test.mjs",
+      "limits": "Count requires GM confirmation, and arrival is gated on the actual Teemo NPC maneuver and combat round progression."
+    }
+  ],
+  "unresolved": ["Complete all remaining palace rooms", "Act 1 unfinished branches", "Act 2 unfinished branches", "Full source-page semantic audit", "Other four adventures", "EotE/AoR semantic rules audit", "360 AoR consumers", "APK and Android real-device tests"],
+  "promoteCanonicalCheckpoint": false
+}

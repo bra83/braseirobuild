@@ -1,0 +1,2558 @@
+{
+  "wave": 36,
+  "sourceBook": "Starships and Speeders",
+  "sourceClosure": {
+    "physicalPages": 146,
+    "lastContentStatBlockPage": 145,
+    "page146": "BACK_COVER",
+    "visualBlocksWaves32_35": 96
+  },
+  "globalReconciliation": {
+    "existingActiveBefore": 25,
+    "exactOrModelMatches": 7,
+    "newSupplementalProfiles": 89,
+    "mechanicalFleetAfter": 114,
+    "dropped": 0,
+    "inventedStats": 0
+  },
+  "records": [
+    {
+      "name": "Fang Starfighter",
+      "pdfPage": 47,
+      "silhouette": 3,
+      "speed": 6,
+      "handling": 3,
+      "armor": 3,
+      "hull": 10,
+      "strain": 8,
+      "price": 175000,
+      "rarity": 8,
+      "hardPoints": 1,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Firespray System Patrol Craft",
+      "pdfPage": 48,
+      "silhouette": 4,
+      "speed": 4,
+      "handling": 0,
+      "armor": 4,
+      "hull": 15,
+      "strain": 12,
+      "price": 80000,
+      "rarity": 4,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "firespray"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "firespray",
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "G-1A Heavy Starfighter",
+      "pdfPage": 50,
+      "silhouette": 3,
+      "speed": 4,
+      "handling": -1,
+      "armor": 3,
+      "hull": 14,
+      "strain": 12,
+      "price": 150000,
+      "rarity": 7,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Mist Hunter",
+      "pdfPage": 51,
+      "silhouette": 3,
+      "speed": 4,
+      "handling": 0,
+      "armor": 4,
+      "hull": 18,
+      "strain": 11,
+      "price": 162900,
+      "rarity": 10,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Kihraxz Light Starfighter",
+      "pdfPage": 52,
+      "silhouette": 3,
+      "speed": 4,
+      "handling": 0,
+      "armor": 2,
+      "hull": 10,
+      "strain": 6,
+      "price": 65000,
+      "rarity": 6,
+      "hardPoints": 5,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "M12-L Kimogila Heavy Starfighter",
+      "pdfPage": 53,
+      "silhouette": 4,
+      "speed": 4,
+      "handling": -1,
+      "armor": 3,
+      "hull": 16,
+      "strain": 14,
+      "price": 150000,
+      "rarity": 5,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Kom'rk-class Gauntlet Fighter",
+      "pdfPage": 54,
+      "silhouette": 4,
+      "speed": 4,
+      "handling": 2,
+      "armor": 4,
+      "hull": 22,
+      "strain": 16,
+      "price": 190000,
+      "rarity": 9,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Lambda-class T-4a Long Range Shuttle",
+      "pdfPage": 55,
+      "silhouette": 4,
+      "speed": 3,
+      "handling": 0,
+      "armor": 4,
+      "hull": 25,
+      "strain": 15,
+      "price": 140000,
+      "rarity": 6,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "lambda_t4a"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "lambda_t4a",
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "StarViper-class Attack Platform",
+      "pdfPage": 59,
+      "silhouette": 3,
+      "speed": 4,
+      "handling": 1,
+      "armor": 2,
+      "hull": 14,
+      "strain": 7,
+      "price": 160000,
+      "rarity": 7,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "TIE Advanced x1",
+      "pdfPage": 61,
+      "silhouette": 3,
+      "speed": 6,
+      "handling": 3,
+      "armor": 3,
+      "hull": 8,
+      "strain": 10,
+      "price": 180000,
+      "rarity": 8,
+      "hardPoints": 1,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "TIE/ln Starfighter",
+      "pdfPage": 62,
+      "silhouette": 3,
+      "speed": 5,
+      "handling": 3,
+      "armor": 2,
+      "hull": 6,
+      "strain": 8,
+      "price": 50000,
+      "rarity": 4,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "tie_ln"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "TIE/ag Aggressor Starfighter",
+      "pdfPage": 62,
+      "silhouette": 3,
+      "speed": 4,
+      "handling": 1,
+      "armor": 3,
+      "hull": 10,
+      "strain": 8,
+      "price": 100000,
+      "rarity": 5,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "TIE/sa Tactical Bomber",
+      "pdfPage": 63,
+      "silhouette": 3,
+      "speed": 4,
+      "handling": 0,
+      "armor": 3,
+      "hull": 9,
+      "strain": 8,
+      "price": 110000,
+      "rarity": 5,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "TIE/rb Brute Heavy Starfighter",
+      "pdfPage": 64,
+      "silhouette": 3,
+      "speed": 4,
+      "handling": 0,
+      "armor": 3,
+      "hull": 14,
+      "strain": 8,
+      "price": 188000,
+      "rarity": 4,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "TIE/D Defender Multi-Role Starfighter",
+      "pdfPage": 65,
+      "silhouette": 3,
+      "speed": 6,
+      "handling": 2,
+      "armor": 3,
+      "hull": 10,
+      "strain": 10,
+      "price": 500000,
+      "rarity": 8,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "TIE/in Interceptor",
+      "pdfPage": 65,
+      "silhouette": 3,
+      "speed": 6,
+      "handling": 3,
+      "armor": 2,
+      "hull": 6,
+      "strain": 10,
+      "price": 75000,
+      "rarity": 5,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "TIE/mg Mining Guild Starfighter",
+      "pdfPage": 66,
+      "silhouette": 3,
+      "speed": 4,
+      "handling": 3,
+      "armor": 2,
+      "hull": 6,
+      "strain": 6,
+      "price": 40000,
+      "rarity": 6,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "TIE/ph Phantom Multi-Role Stealth Starfighter",
+      "pdfPage": 67,
+      "silhouette": 3,
+      "speed": 5,
+      "handling": 2,
+      "armor": 2,
+      "hull": 8,
+      "strain": 10,
+      "price": 565000,
+      "rarity": 9,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "TIE/ca Punisher Starfighter",
+      "pdfPage": 68,
+      "silhouette": 3,
+      "speed": 4,
+      "handling": -2,
+      "armor": 3,
+      "hull": 18,
+      "strain": 12,
+      "price": 225000,
+      "rarity": 7,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "TIE/rp Reaper Attack Lander",
+      "pdfPage": 68,
+      "silhouette": 3,
+      "speed": 4,
+      "handling": 1,
+      "armor": 3,
+      "hull": 18,
+      "strain": 10,
+      "price": 100000,
+      "rarity": 6,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "TIE/sk Striker Multi-Role Fighter",
+      "pdfPage": 69,
+      "silhouette": 3,
+      "speed": 6,
+      "handling": 3,
+      "armor": 2,
+      "hull": 7,
+      "strain": 9,
+      "price": 50000,
+      "rarity": 6,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "UT-60D U-Wing Troop Transport",
+      "pdfPage": 70,
+      "silhouette": 4,
+      "speed": 4,
+      "handling": -1,
+      "armor": 2,
+      "hull": 20,
+      "strain": 18,
+      "price": 65000,
+      "rarity": 6,
+      "hardPoints": 3,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "VT-49 Decimator",
+      "pdfPage": 71,
+      "silhouette": 4,
+      "speed": 3,
+      "handling": -3,
+      "armor": 4,
+      "hull": 30,
+      "strain": 20,
+      "price": 160000,
+      "rarity": 6,
+      "hardPoints": 1,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "vt49_decimator"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "vt49_decimator",
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "T-65B X-Wing Multi-Role Starfighter",
+      "pdfPage": 72,
+      "silhouette": 3,
+      "speed": 5,
+      "handling": 1,
+      "armor": 3,
+      "hull": 10,
+      "strain": 10,
+      "price": 120000,
+      "rarity": 5,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "BTL-A4/BTL-S3 Y-Wing Attack Starfighter",
+      "pdfPage": 73,
+      "silhouette": 3,
+      "speed": 4,
+      "handling": 0,
+      "armor": 3,
+      "hull": 12,
+      "strain": 10,
+      "price": 80000,
+      "rarity": 4,
+      "hardPoints": 1,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "ywing_btl"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Z-95-AF4 Headhunter",
+      "pdfPage": 74,
+      "silhouette": 3,
+      "speed": 4,
+      "handling": 1,
+      "armor": 3,
+      "hull": 9,
+      "strain": 8,
+      "price": 55000,
+      "rarity": 4,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "z95_af4"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "z95_af4",
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Zeta-class Heavy Cargo Shuttle",
+      "pdfPage": 75,
+      "silhouette": 4,
+      "speed": 2,
+      "handling": -3,
+      "armor": 4,
+      "hull": 35,
+      "strain": 20,
+      "price": 95000,
+      "rarity": 7,
+      "hardPoints": 1,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Action VI Bulk Transport",
+      "pdfPage": 77,
+      "silhouette": 5,
+      "speed": 2,
+      "handling": -3,
+      "armor": 1,
+      "hull": 40,
+      "strain": 20,
+      "price": 200000,
+      "rarity": 5,
+      "hardPoints": 6,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Ark Angel",
+      "pdfPage": 78,
+      "silhouette": 5,
+      "speed": 3,
+      "handling": -3,
+      "armor": 3,
+      "hull": 36,
+      "strain": 30,
+      "price": 1250000,
+      "rarity": 10,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 32,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Aurore-class Freighter",
+      "pdfPage": 79,
+      "silhouette": 5,
+      "speed": 2,
+      "handling": -3,
+      "armor": 2,
+      "hull": 50,
+      "strain": 36,
+      "price": 240000,
+      "rarity": 6,
+      "hardPoints": 3,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Barloz-class Medium Freighter",
+      "pdfPage": 80,
+      "silhouette": 4,
+      "speed": 3,
+      "handling": -2,
+      "armor": 2,
+      "hull": 26,
+      "strain": 12,
+      "price": 70000,
+      "rarity": 5,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "CEC Deep Space Recovery Vessel L-2783",
+      "pdfPage": 81,
+      "silhouette": 5,
+      "speed": 2,
+      "handling": -4,
+      "armor": 4,
+      "hull": 55,
+      "strain": 35,
+      "price": 6500000,
+      "rarity": 6,
+      "hardPoints": 7,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Eta-class Supply Barge",
+      "pdfPage": 82,
+      "silhouette": 6,
+      "speed": 2,
+      "handling": -3,
+      "armor": 2,
+      "hull": 35,
+      "strain": 28,
+      "price": 750000,
+      "rarity": 7,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Ghtroc 720 Light Freighter",
+      "pdfPage": 83,
+      "silhouette": 4,
+      "speed": 3,
+      "handling": -2,
+      "armor": 5,
+      "hull": 28,
+      "strain": 15,
+      "price": 112000,
+      "rarity": 8,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "GR-75 Medium Transport",
+      "pdfPage": 84,
+      "silhouette": 5,
+      "speed": 3,
+      "handling": -1,
+      "armor": 3,
+      "hull": 20,
+      "strain": 18,
+      "price": 180000,
+      "rarity": 4,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "GX1 Short Hauler",
+      "pdfPage": 85,
+      "silhouette": 4,
+      "speed": 2,
+      "handling": -2,
+      "armor": 2,
+      "hull": 20,
+      "strain": 15,
+      "price": 85000,
+      "rarity": 5,
+      "hardPoints": 5,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "gx1_short_hauler",
+        "conflicts": {
+          "hull": {
+            "existing": 24,
+            "sas": 20
+          }
+        }
+      }
+    },
+    {
+      "name": "HWK-290 Light Freighter",
+      "pdfPage": 86,
+      "silhouette": 3,
+      "speed": 4,
+      "handling": -1,
+      "armor": 2,
+      "hull": 18,
+      "strain": 18,
+      "price": 70000,
+      "rarity": 7,
+      "hardPoints": 5,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "JumpMaster 5000 Long Range Scout",
+      "pdfPage": 87,
+      "silhouette": 4,
+      "speed": 4,
+      "handling": 1,
+      "armor": 2,
+      "hull": 14,
+      "strain": 8,
+      "price": 55000,
+      "rarity": 5,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "jumpmaster_jm5000"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Punishing One",
+      "pdfPage": 88,
+      "silhouette": 4,
+      "speed": 4,
+      "handling": 2,
+      "armor": 3,
+      "hull": 14,
+      "strain": 8,
+      "price": 200000,
+      "rarity": 10,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Kalevalan Star Yacht",
+      "pdfPage": 89,
+      "silhouette": 5,
+      "speed": 2,
+      "handling": -4,
+      "armor": 4,
+      "hull": 38,
+      "strain": 24,
+      "price": 850000,
+      "rarity": 8,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Lancer-class Pursuit Craft",
+      "pdfPage": 90,
+      "silhouette": 4,
+      "speed": 5,
+      "handling": -2,
+      "armor": 3,
+      "hull": 20,
+      "strain": 10,
+      "price": 120000,
+      "rarity": 8,
+      "hardPoints": 5,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Minstrel-class Space Yacht",
+      "pdfPage": 91,
+      "silhouette": 5,
+      "speed": 3,
+      "handling": -1,
+      "armor": 6,
+      "hull": 45,
+      "strain": 28,
+      "price": 1750000,
+      "rarity": 7,
+      "hardPoints": 3,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "VCX-100 Light Freighter",
+      "pdfPage": 92,
+      "silhouette": 5,
+      "speed": 3,
+      "handling": -3,
+      "armor": 3,
+      "hull": 32,
+      "strain": 28,
+      "price": 150000,
+      "rarity": 8,
+      "hardPoints": 5,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "VCX-series Auxiliary Starfighter",
+      "pdfPage": 92,
+      "silhouette": 3,
+      "speed": 4,
+      "handling": 0,
+      "armor": 2,
+      "hull": 12,
+      "strain": 10,
+      "price": 22000,
+      "rarity": 6,
+      "hardPoints": 3,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Ghost",
+      "pdfPage": 93,
+      "silhouette": 5,
+      "speed": 3,
+      "handling": -2,
+      "armor": 5,
+      "hull": 32,
+      "strain": 30,
+      "price": 155000,
+      "rarity": 10,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Phantom II",
+      "pdfPage": 93,
+      "silhouette": 4,
+      "speed": 3,
+      "handling": 0,
+      "armor": 4,
+      "hull": 14,
+      "strain": 13,
+      "price": 114000,
+      "rarity": 7,
+      "hardPoints": 1,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Wayfarer-class Medium Freighter",
+      "pdfPage": 94,
+      "silhouette": 5,
+      "speed": 3,
+      "handling": -2,
+      "armor": 4,
+      "hull": 32,
+      "strain": 20,
+      "price": 120000,
+      "rarity": 5,
+      "hardPoints": 5,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "wayfarer"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Xiytiar-class Heavy Transport",
+      "pdfPage": 95,
+      "silhouette": 5,
+      "speed": 2,
+      "handling": -3,
+      "armor": 2,
+      "hull": 35,
+      "strain": 20,
+      "price": 200000,
+      "rarity": 5,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "YT-1000 Light Freighter",
+      "pdfPage": 96,
+      "silhouette": 4,
+      "speed": 3,
+      "handling": -1,
+      "armor": 2,
+      "hull": 20,
+      "strain": 12,
+      "price": 75000,
+      "rarity": 5,
+      "hardPoints": 5,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "YT-1210 Light Freighter",
+      "pdfPage": 97,
+      "silhouette": 4,
+      "speed": 4,
+      "handling": -1,
+      "armor": 2,
+      "hull": 20,
+      "strain": 12,
+      "price": 120000,
+      "rarity": 5,
+      "hardPoints": 3,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "YT-1300 Light Freighter",
+      "pdfPage": 98,
+      "silhouette": 4,
+      "speed": 3,
+      "handling": -1,
+      "armor": 2,
+      "hull": 22,
+      "strain": 15,
+      "price": 100000,
+      "rarity": 4,
+      "hardPoints": 6,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "yt1300",
+        "conflicts": {
+          "armor": {
+            "existing": 3,
+            "sas": 2
+          }
+        }
+      }
+    },
+    {
+      "name": "YT Dart",
+      "pdfPage": 98,
+      "silhouette": 3,
+      "speed": 2,
+      "handling": 0,
+      "armor": 2,
+      "hull": 10,
+      "strain": 8,
+      "price": 15000,
+      "rarity": 5,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 33,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Millennium Falcon (Lando Calrissian)",
+      "pdfPage": 100,
+      "silhouette": 4,
+      "speed": 4,
+      "handling": 1,
+      "armor": 2,
+      "hull": 26,
+      "strain": 22,
+      "price": 250000,
+      "rarity": 10,
+      "hardPoints": 6,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Millennium Falcon (Han Solo)",
+      "pdfPage": 100,
+      "silhouette": 4,
+      "speed": 5,
+      "handling": 1,
+      "armor": 5,
+      "hull": 36,
+      "strain": 15,
+      "price": 250000,
+      "rarity": 10,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "YT Dart (Falcon auxiliary)",
+      "pdfPage": 100,
+      "silhouette": 3,
+      "speed": 3,
+      "handling": 0,
+      "armor": 2,
+      "hull": 10,
+      "strain": 8,
+      "price": 15000,
+      "rarity": 5,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "YT-2400 Light Freighter",
+      "pdfPage": 101,
+      "silhouette": 4,
+      "speed": 3,
+      "handling": 0,
+      "armor": 4,
+      "hull": 25,
+      "strain": 18,
+      "price": 130000,
+      "rarity": 5,
+      "hardPoints": 5,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "YV-560 Light Freighter",
+      "pdfPage": 102,
+      "silhouette": 4,
+      "speed": 3,
+      "handling": 0,
+      "armor": 3,
+      "hull": 20,
+      "strain": 20,
+      "price": 140000,
+      "rarity": 7,
+      "hardPoints": 3,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "YV-666 Light Freighter",
+      "pdfPage": 103,
+      "silhouette": 4,
+      "speed": 3,
+      "handling": -2,
+      "armor": 3,
+      "hull": 30,
+      "strain": 12,
+      "price": 132000,
+      "rarity": 6,
+      "hardPoints": 6,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Hound's Tooth",
+      "pdfPage": 104,
+      "silhouette": 4,
+      "speed": 3,
+      "handling": -2,
+      "armor": 4,
+      "hull": 34,
+      "strain": 16,
+      "price": 475000,
+      "rarity": 10,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "YV-929 Light Freighter",
+      "pdfPage": 105,
+      "silhouette": 4,
+      "speed": 3,
+      "handling": -1,
+      "armor": 4,
+      "hull": 23,
+      "strain": 15,
+      "price": 380000,
+      "rarity": 6,
+      "hardPoints": 1,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Arquitens-class Light Cruiser",
+      "pdfPage": 107,
+      "silhouette": 6,
+      "speed": 3,
+      "handling": -2,
+      "armor": 5,
+      "hull": 60,
+      "strain": 45,
+      "price": 5000000,
+      "rarity": 5,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Assault Frigate Mark II",
+      "pdfPage": 108,
+      "silhouette": 7,
+      "speed": 3,
+      "handling": -1,
+      "armor": 5,
+      "hull": 84,
+      "strain": 42,
+      "price": 12500000,
+      "rarity": 6,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Braha'tok-class Gunship",
+      "pdfPage": 109,
+      "silhouette": 5,
+      "speed": 3,
+      "handling": -1,
+      "armor": 4,
+      "hull": 46,
+      "strain": 25,
+      "price": 1000000,
+      "rarity": 6,
+      "hardPoints": 3,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Cantwell-class Arrestor Cruiser",
+      "pdfPage": 110,
+      "silhouette": 7,
+      "speed": 2,
+      "handling": -2,
+      "armor": 4,
+      "hull": 66,
+      "strain": 40,
+      "price": 2400000,
+      "rarity": 8,
+      "hardPoints": 3,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "CR90 Corvette",
+      "pdfPage": 111,
+      "silhouette": 5,
+      "speed": 3,
+      "handling": -1,
+      "armor": 5,
+      "hull": 50,
+      "strain": 25,
+      "price": 1200000,
+      "rarity": 5,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "C-ROC Gozanti-class Light Cruiser",
+      "pdfPage": 112,
+      "silhouette": 5,
+      "speed": 3,
+      "handling": -3,
+      "armor": 4,
+      "hull": 55,
+      "strain": 40,
+      "price": 190000,
+      "rarity": 6,
+      "hardPoints": 6,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "DP20 Gunship",
+      "pdfPage": 113,
+      "silhouette": 5,
+      "speed": 3,
+      "handling": -1,
+      "armor": 5,
+      "hull": 50,
+      "strain": 25,
+      "price": 5200000,
+      "rarity": 6,
+      "hardPoints": 1,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Dreadnought-class Heavy Cruiser",
+      "pdfPage": 114,
+      "silhouette": 7,
+      "speed": 2,
+      "handling": -2,
+      "armor": 7,
+      "hull": 100,
+      "strain": 40,
+      "price": 7200000,
+      "rarity": 6,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "EF76 Nebulon-B Frigate",
+      "pdfPage": 115,
+      "silhouette": 6,
+      "speed": 3,
+      "handling": -1,
+      "armor": 6,
+      "hull": 71,
+      "strain": 40,
+      "price": 8500000,
+      "rarity": 7,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Gozanti-class Armed Transport",
+      "pdfPage": 116,
+      "silhouette": 5,
+      "speed": 2,
+      "handling": -3,
+      "armor": 5,
+      "hull": 50,
+      "strain": 36,
+      "price": 200000,
+      "rarity": 6,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "EXISTING_ACTIVE_MATCH",
+        "activeId": "gozanti",
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Hammerhead Corvette",
+      "pdfPage": 117,
+      "silhouette": 5,
+      "speed": 3,
+      "handling": -1,
+      "armor": 4,
+      "hull": 50,
+      "strain": 25,
+      "price": 1000000,
+      "rarity": 8,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Indulgent-class Luxury Starliner",
+      "pdfPage": 118,
+      "silhouette": 7,
+      "speed": 1,
+      "handling": -1,
+      "armor": 2,
+      "hull": 85,
+      "strain": 40,
+      "price": 25500000,
+      "rarity": 5,
+      "hardPoints": 1,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "wave": 34,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Marauder-class Assault Corvette",
+      "pdfPage": 119,
+      "silhouette": 5,
+      "speed": 3,
+      "handling": 0,
+      "armor": 5,
+      "hull": 65,
+      "strain": 35,
+      "price": 3000000,
+      "rarity": 5,
+      "hardPoints": 1,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "MC30c Frigate",
+      "pdfPage": 120,
+      "silhouette": 6,
+      "speed": 4,
+      "handling": 0,
+      "armor": 5,
+      "hull": 74,
+      "strain": 42,
+      "price": 9000000,
+      "rarity": 6,
+      "hardPoints": 3,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "MC40a Light Cruiser",
+      "pdfPage": 121,
+      "silhouette": 6,
+      "speed": 2,
+      "handling": -1,
+      "armor": 6,
+      "hull": 90,
+      "strain": 56,
+      "price": 15500000,
+      "rarity": 6,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Phoenix Home",
+      "pdfPage": 122,
+      "silhouette": 6,
+      "speed": 3,
+      "handling": 0,
+      "armor": 4,
+      "hull": 65,
+      "strain": 55,
+      "price": null,
+      "rarity": 9,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": "NOT_FOR_SALE",
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Quasar Fire-class Escort Carrier",
+      "pdfPage": 123,
+      "silhouette": 6,
+      "speed": 2,
+      "handling": -2,
+      "armor": 5,
+      "hull": 62,
+      "strain": 45,
+      "price": 1750000,
+      "rarity": 6,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Raider-class Corvette",
+      "pdfPage": 124,
+      "silhouette": 5,
+      "speed": 4,
+      "handling": -1,
+      "armor": 5,
+      "hull": 45,
+      "strain": 25,
+      "price": 5000000,
+      "rarity": 7,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Neutron Star-class Bulk Cruiser",
+      "pdfPage": 125,
+      "silhouette": 7,
+      "speed": 1,
+      "handling": -3,
+      "armor": 6,
+      "hull": 90,
+      "strain": 50,
+      "price": 2800000,
+      "rarity": 4,
+      "hardPoints": 6,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Assertor-class Dreadnought",
+      "pdfPage": 127,
+      "silhouette": 9,
+      "speed": 2,
+      "handling": -4,
+      "armor": 13,
+      "hull": 205,
+      "strain": 105,
+      "price": null,
+      "rarity": 10,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": "NOT_FOR_SALE",
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "DS-1 Death Star",
+      "pdfPage": 128,
+      "silhouette": 20,
+      "speed": 1,
+      "handling": -5,
+      "armor": 20,
+      "hull": 1000,
+      "strain": 800,
+      "price": null,
+      "rarity": 10,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": "PRICELESS_UNIQUE",
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "DS-2 Death Star (Under Construction)",
+      "pdfPage": 130,
+      "silhouette": 21,
+      "speed": 0,
+      "handling": 0,
+      "armor": 20,
+      "hull": 0,
+      "strain": 0,
+      "price": null,
+      "rarity": 10,
+      "hardPoints": 0,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": "PRICELESS_UNIQUE",
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Executor-class Star Dreadnought",
+      "pdfPage": 132,
+      "silhouette": 10,
+      "speed": 2,
+      "handling": -4,
+      "armor": 12,
+      "hull": 330,
+      "strain": 120,
+      "price": 350000000,
+      "rarity": 9,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Gladiator-class Star Destroyer",
+      "pdfPage": 133,
+      "silhouette": 7,
+      "speed": 3,
+      "handling": -2,
+      "armor": 7,
+      "hull": 90,
+      "strain": 35,
+      "price": 45000000,
+      "rarity": 7,
+      "hardPoints": 3,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Golan I Space Defense Platform",
+      "pdfPage": 134,
+      "silhouette": 8,
+      "speed": 0,
+      "handling": 0,
+      "armor": 5,
+      "hull": 300,
+      "strain": 150,
+      "price": 60000000,
+      "rarity": 9,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Harbor-class Mobile Space Dock",
+      "pdfPage": 135,
+      "silhouette": 7,
+      "speed": 2,
+      "handling": -3,
+      "armor": 6,
+      "hull": 100,
+      "strain": 75,
+      "price": 38000000,
+      "rarity": 9,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Imperial I-class Star Destroyer",
+      "pdfPage": 136,
+      "silhouette": 8,
+      "speed": 2,
+      "handling": -3,
+      "armor": 10,
+      "hull": 145,
+      "strain": 60,
+      "price": 150000000,
+      "rarity": 7,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Imperial II-class Star Destroyer",
+      "pdfPage": 137,
+      "silhouette": 8,
+      "speed": 2,
+      "handling": -3,
+      "armor": 10,
+      "hull": 155,
+      "strain": 50,
+      "price": 150000000,
+      "rarity": 7,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Interdictor-class Heavy Cruiser",
+      "pdfPage": 138,
+      "silhouette": 7,
+      "speed": 2,
+      "handling": -2,
+      "armor": 5,
+      "hull": 75,
+      "strain": 65,
+      "price": 100000000,
+      "rarity": 8,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "MC75 Star Cruiser",
+      "pdfPage": 139,
+      "silhouette": 8,
+      "speed": 3,
+      "handling": -2,
+      "armor": 8,
+      "hull": 130,
+      "strain": 80,
+      "price": 88000000,
+      "rarity": 8,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "MC80 Liberty Type Heavy Star Cruiser",
+      "pdfPage": 140,
+      "silhouette": 8,
+      "speed": 2,
+      "handling": -2,
+      "armor": 9,
+      "hull": 140,
+      "strain": 80,
+      "price": 104000000,
+      "rarity": 7,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "MC80a Home One Type Heavy Star Cruiser",
+      "pdfPage": 141,
+      "silhouette": 9,
+      "speed": 2,
+      "handling": -2,
+      "armor": 10,
+      "hull": 155,
+      "strain": 90,
+      "price": 112000000,
+      "rarity": 8,
+      "hardPoints": 4,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Onager-class Star Destroyer",
+      "pdfPage": 142,
+      "silhouette": 8,
+      "speed": 3,
+      "handling": -2,
+      "armor": 7,
+      "hull": 100,
+      "strain": 45,
+      "price": 76500000,
+      "rarity": 8,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Secutor-class Battlecarrier",
+      "pdfPage": 143,
+      "silhouette": 8,
+      "speed": 2,
+      "handling": -4,
+      "armor": 8,
+      "hull": 130,
+      "strain": 55,
+      "price": 200000000,
+      "rarity": 7,
+      "hardPoints": 2,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Starhawk-class Battleship",
+      "pdfPage": 144,
+      "silhouette": 9,
+      "speed": 2,
+      "handling": -3,
+      "armor": 10,
+      "hull": 175,
+      "strain": 65,
+      "price": 100000000,
+      "rarity": 8,
+      "hardPoints": 3,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    },
+    {
+      "name": "Victory II-class Star Destroyer",
+      "pdfPage": 145,
+      "silhouette": 8,
+      "speed": 1,
+      "handling": -3,
+      "armor": 9,
+      "hull": 120,
+      "strain": 50,
+      "price": 60000000,
+      "rarity": 6,
+      "hardPoints": 3,
+      "source": {
+        "book": "Starships and Speeders",
+        "authority": "PRIMARY_VISUAL_VALIDATED"
+      },
+      "dedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE"
+      },
+      "specialPrice": null,
+      "wave": 35,
+      "globalDedupe": {
+        "status": "NEW_SUPPLEMENTAL_PROFILE",
+        "activeId": null,
+        "conflicts": {}
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "checkpoint": "R54_P148",
+  "base": "R54_P147",
+  "version": "1.0.148",
+  "bundleModules": 79,
+  "changes": [
+    "published adventure semantic preflight (5 adventures)",
+    "atomic cascade rollback for commitAction and transaction",
+    "async/thenable transaction rejection",
+    "P148 audit CLI and 32 tests"
+  ],
+  "tests": {
+    "full": {
+      "files": 268,
+      "regular_files": 262,
+      "stress_files": 6,
+      "tests": 1752,
+      "pass": 1752,
+      "fail": 0,
+      "skipped": 0,
+      "bad": 0,
+      "seconds": 79.034
+    },
+    "new": 32,
+    "kokoro": 27,
+    "semanticAdventures": 5
+  },
+  "preservation": {
+    "javaFiles": 8,
+    "javaByteIdenticalToP147": true,
+    "onnxBundled": false
+  },
+  "limits": [
+    "AoR 224/360; 136 pending",
+    "No official PDF certification",
+    "Beyond the Rim combat not certified",
+    "No Android SDK or physical device tests"
+  ]
+}

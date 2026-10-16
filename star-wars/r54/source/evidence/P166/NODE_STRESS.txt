@@ -1,0 +1,6 @@
+stress-33-aftermath-r20.test.mjs.txt: PASS
+stress-33-faction-plan-r19.test.mjs.txt: PASS
+stress-33-sessions-r15.test.mjs.txt: PASS
+stress-faction-plans-r19.test.mjs.txt: PASS
+stress-factions-r18.test.mjs.txt: PASS
+stress-persistent-adversary-r17.test.mjs.txt: PASS

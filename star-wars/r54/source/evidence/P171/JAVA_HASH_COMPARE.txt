@@ -1,0 +1,3 @@
+P170 Java files: 8
+P171 Java changes: 0
+KOKORO_JAVA_IDENTICAL True

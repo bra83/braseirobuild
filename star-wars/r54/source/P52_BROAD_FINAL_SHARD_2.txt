@@ -1,0 +1,1270 @@
+TAP version 13
+# Subtest: finishCombat grava desfecho causal, resolve hook e cria aftermath uma única vez
+ok 1 - finishCombat grava desfecho causal, resolve hook e cria aftermath uma única vez
+  ---
+  duration_ms: 56.939746
+  type: 'test'
+  ...
+# Subtest: save/reopen preserva histórico do encontro e aftermath ativo
+ok 2 - save/reopen preserva histórico do encontro e aftermath ativo
+  ---
+  duration_ms: 64.405954
+  type: 'test'
+  ...
+# Subtest: Mestre fecha aftermath por operação estruturada e rollback protege estado inválido
+ok 3 - Mestre fecha aftermath por operação estruturada e rollback protege estado inválido
+  ---
+  duration_ms: 28.419295
+  type: 'test'
+  ...
+# Subtest: PNPC persistente incapacitado no combate também deixa de parecer ativo no mundo
+ok 4 - PNPC persistente incapacitado no combate também deixa de parecer ativo no mundo
+  ---
+  duration_ms: 18.231932
+  type: 'test'
+  ...
+# Subtest: personagem inicial entra no estado persistente e a perícia usa seus valores
+ok 5 - personagem inicial entra no estado persistente e a perícia usa seus valores
+  ---
+  duration_ms: 12.391222
+  type: 'test'
+  ...
+# Subtest: combate consome ação no ataque e segunda manobra por Tensão persiste na ficha
+ok 6 - combate consome ação no ataque e segunda manobra por Tensão persiste na ficha
+  ---
+  duration_ms: 7.01669
+  type: 'test'
+  ...
+# Subtest: dificuldade automática por alcance, Mirar e crítico são aplicados no ataque
+ok 7 - dificuldade automática por alcance, Mirar e crítico são aplicados no ataque
+  ---
+  duration_ms: 4.291543
+  type: 'test'
+  ...
+# Subtest: não rola uma segunda ação no mesmo turno nem permite agir incapacitado
+ok 8 - não rola uma segunda ação no mesmo turno nem permite agir incapacitado
+  ---
+  duration_ms: 4.399477
+  type: 'test'
+  ...
+# Subtest: consulta de regras e contexto do Mestre persistem sem narrar livremente
+ok 9 - consulta de regras e contexto do Mestre persistem sem narrar livremente
+  ---
+  duration_ms: 65.848317
+  type: 'test'
+  ...
+# Subtest: personagem personalizado EotE entra no mesmo estado persistente
+ok 10 - personagem personalizado EotE entra no mesmo estado persistente
+  ---
+  duration_ms: 1.972622
+  type: 'test'
+  ...
+# Subtest: Base, recursos e Obligation persistem ao reabrir a campanha
+ok 11 - Base, recursos e Obligation persistem ao reabrir a campanha
+  ---
+  duration_ms: 2.715172
+  type: 'test'
+  ...
+# Subtest: compra de talento de primeira linha persiste e desconta PE uma única vez
+ok 12 - compra de talento de primeira linha persiste e desconta PE uma única vez
+  ---
+  duration_ms: 3.393867
+  type: 'test'
+  ...
+# Subtest: compra genérica da árvore completa desbloqueia conexão e persiste linha inferior
+ok 13 - compra genérica da árvore completa desbloqueia conexão e persiste linha inferior
+  ---
+  duration_ms: 3.110987
+  type: 'test'
+  ...
+# Subtest: propor aquisição de arma consulta o Mestre sem descontar créditos
+ok 14 - propor aquisição de arma consulta o Mestre sem descontar créditos
+  ---
+  duration_ms: 171.877577
+  type: 'test'
+  ...
+# Subtest: tabela Core de Ferimentos Críticos cobre 01-05 até 151+ em 29 faixas
+ok 15 - tabela Core de Ferimentos Críticos cobre 01-05 até 151+ em 29 faixas
+  ---
+  duration_ms: 3.948417
+  type: 'test'
+  ...
+# Subtest: cada Ferimento Crítico anterior adiciona +10 à nova rolagem
+ok 16 - cada Ferimento Crítico anterior adiciona +10 à nova rolagem
+  ---
+  duration_ms: 2.956529
+  type: 'test'
+  ...
+# Subtest: Off-Balance afeta um único teste e Compromised dura até o fim do encontro
+ok 17 - Off-Balance afeta um único teste e Compromised dura até o fim do encontro
+  ---
+  duration_ms: 1.444859
+  type: 'test'
+  ...
+# Subtest: Stunned expira ao final do próximo turno e bloqueia apenas ações via modifier
+ok 18 - Stunned expira ao final do próximo turno e bloqueia apenas ações via modifier
+  ---
+  duration_ms: 1.62041
+  type: 'test'
+  ...
+# Subtest: Horrific Injury reduz característica apenas enquanto o crítico existir; Gruesome reduz permanentemente
+ok 19 - Horrific Injury reduz característica apenas enquanto o crítico existir; Gruesome reduz permanentemente
+  ---
+  duration_ms: 2.538727
+  type: 'test'
+  ...
+# Subtest: resultado 151+ registra Dead
+ok 20 - resultado 151+ registra Dead
+  ---
+  duration_ms: 2.72609
+  type: 'test'
+  ...
+# Subtest: conteúdo AoR reutilizado é marcado como referência cruzada, nunca autoridade EotE
+ok 21 - conteúdo AoR reutilizado é marcado como referência cruzada, nunca autoridade EotE
+  ---
+  duration_ms: 0.927478
+  type: 'test'
+  ...
+# Subtest: referências cruzadas AoR continuam bloqueadas; somente Duty/Contribution auditados entram como autoridade explícita
+ok 22 - referências cruzadas AoR continuam bloqueadas; somente Duty/Contribution auditados entram como autoridade explícita
+  ---
+  duration_ms: 1.106349
+  type: 'test'
+  ...
+# Subtest: entry documentation identifies EOTE_CORE + Obligation and current recovery path
+ok 23 - entry documentation identifies EOTE_CORE + Obligation and current recovery path
+  ---
+  duration_ms: 0.998584
+  type: 'test'
+  ...
+# Subtest: validation documentation reports the current full suite and six stress suites
+ok 24 - validation documentation reports the current full suite and six stress suites
+  ---
+  duration_ms: 0.319408
+  type: 'test'
+  ...
+# Subtest: criação AoR aceita somente Duty do catálogo canônico
+ok 25 - criação AoR aceita somente Duty do catálogo canônico
+  ---
+  duration_ms: 3.020111
+  type: 'test'
+  ...
+# Subtest: R34 catálogo econômico cobre 31 armas, 7 armaduras, 21 gear e veículos comprovados
+ok 26 - R34 catálogo econômico cobre 31 armas, 7 armaduras, 21 gear e veículos comprovados
+  ---
+  duration_ms: 4.024488
+  type: 'test'
+  ...
+# Subtest: R34 perfis veiculares sem raridade comprovada falham fechados
+ok 27 - R34 perfis veiculares sem raridade comprovada falham fechados
+  ---
+  duration_ms: 0.550409
+  type: 'test'
+  ...
+# Subtest: R34 disponibilidade genérica usa raridade da armadura
+ok 28 - R34 disponibilidade genérica usa raridade da armadura
+  ---
+  duration_ms: 0.336808
+  type: 'test'
+  ...
+# Subtest: R34 mercado local altera raridade efetiva
+ok 29 - R34 mercado local altera raridade efetiva
+  ---
+  duration_ms: 0.394192
+  type: 'test'
+  ...
+# Subtest: R34 pedido de compra guarda tipo, mercado e localização
+ok 30 - R34 pedido de compra guarda tipo, mercado e localização
+  ---
+  duration_ms: 105.747439
+  type: 'test'
+  ...
+# Subtest: R34 item desconhecido falha fechado
+ok 31 - R34 item desconhecido falha fechado
+  ---
+  duration_ms: 0.227343
+  type: 'test'
+  ...
+# Subtest: R34 recompensa de arma cria inventário e ownership
+ok 32 - R34 recompensa de arma cria inventário e ownership
+  ---
+  duration_ms: 79.010768
+  type: 'test'
+  ...
+# Subtest: R34 saque de armadura cria ownership sem equipar magicamente
+ok 33 - R34 saque de armadura cria ownership sem equipar magicamente
+  ---
+  duration_ms: 93.527075
+  type: 'test'
+  ...
+# Subtest: R34 gear catalogado persiste em gear + ownership
+ok 34 - R34 gear catalogado persiste em gear + ownership
+  ---
+  duration_ms: 79.355567
+  type: 'test'
+  ...
+# Subtest: R34 veículo adquirido separa profile availability ownership state e visual
+ok 35 - R34 veículo adquirido separa profile availability ownership state e visual
+  ---
+  duration_ms: 85.880937
+  type: 'test'
+  ...
+# Subtest: R34 compra aprovada desconta créditos e concede ativo
+ok 36 - R34 compra aprovada desconta créditos e concede ativo
+  ---
+  duration_ms: 77.644858
+  type: 'test'
+  ...
+# Subtest: R34 compra rejeitada não altera créditos/propriedade
+ok 37 - R34 compra rejeitada não altera créditos/propriedade
+  ---
+  duration_ms: 77.241292
+  type: 'test'
+  ...
+# Subtest: R34 compra sem créditos é bloqueada
+ok 38 - R34 compra sem créditos é bloqueada
+  ---
+  duration_ms: 78.371833
+  type: 'test'
+  ...
+# Subtest: R34 decisão econômica numérica exige evidência
+ok 39 - R34 decisão econômica numérica exige evidência
+  ---
+  duration_ms: 104.778631
+  type: 'test'
+  ...
+# Subtest: R34 perda remove arma do inventário e registry
+ok 40 - R34 perda remove arma do inventário e registry
+  ---
+  duration_ms: 111.293117
+  type: 'test'
+  ...
+# Subtest: R34 dano de item exige regra recuperada
+ok 41 - R34 dano de item exige regra recuperada
+  ---
+  duration_ms: 80.044505
+  type: 'test'
+  ...
+# Subtest: R34 dano e reparo pessoal persistem condição e custo
+ok 42 - R34 dano e reparo pessoal persistem condição e custo
+  ---
+  duration_ms: 76.548782
+  type: 'test'
+  ...
+# Subtest: R34 dano e reparo veicular alteram Hull Damage da unidade possuída
+ok 43 - R34 dano e reparo veicular alteram Hull Damage da unidade possuída
+  ---
+  duration_ms: 76.698726
+  type: 'test'
+  ...
+# Subtest: R34 venda adiciona créditos e remove ativo mecânico
+ok 44 - R34 venda adiciona créditos e remove ativo mecânico
+  ---
+  duration_ms: 76.219228
+  type: 'test'
+  ...
+# Subtest: R34 proposta aceita pedido estruturado de veículo
+ok 45 - R34 proposta aceita pedido estruturado de veículo
+  ---
+  duration_ms: 1.611602
+  type: 'test'
+  ...
+# Subtest: R34 proposta rejeita escrita econômica livre
+ok 46 - R34 proposta rejeita escrita econômica livre
+  ---
+  duration_ms: 0.16235
+  type: 'test'
+  ...
+# Subtest: R34 dano/reparo/venda estruturados exigem regra conhecida
+ok 47 - R34 dano/reparo/venda estruturados exigem regra conhecida
+  ---
+  duration_ms: 0.33784
+  type: 'test'
+  ...
+# Subtest: R34 contexto do Mestre inclui mercado, catálogo e ownership
+ok 48 - R34 contexto do Mestre inclui mercado, catálogo e ownership
+  ---
+  duration_ms: 104.974355
+  type: 'test'
+  ...
+# Subtest: R34 GameController abre pedido genérico usando mercado local
+ok 49 - R34 GameController abre pedido genérico usando mercado local
+  ---
+  duration_ms: 236.054773
+  type: 'test'
+  ...
+# Subtest: R34 proposta do Mestre pode conceder saque catalogado sem escrita livre
+ok 50 - R34 proposta do Mestre pode conceder saque catalogado sem escrita livre
+  ---
+  duration_ms: 83.908696
+  type: 'test'
+  ...
+# Subtest: R34 compatibilidade: proposeWeaponAcquisition continua funcional
+ok 51 - R34 compatibilidade: proposeWeaponAcquisition continua funcional
+  ---
+  duration_ms: 203.304931
+  type: 'test'
+  ...
+# Subtest: encontro converte iniciativa em posições e para na posição do jogador
+ok 52 - encontro converte iniciativa em posições e para na posição do jogador
+  ---
+  duration_ms: 8.754076
+  type: 'test'
+  ...
+# Subtest: ao encerrar posição PJ, motor executa posições PNPC e volta ao PJ no novo assalto
+ok 53 - ao encerrar posição PJ, motor executa posições PNPC e volta ao PJ no novo assalto
+  ---
+  duration_ms: 4.517761
+  type: 'test'
+  ...
+# Subtest: ataque do jogador pode atingir adversário do encontro e Adversário 1 melhora a dificuldade
+ok 54 - ataque do jogador pode atingir adversário do encontro e Adversário 1 melhora a dificuldade
+  ---
+  duration_ms: 4.305258
+  type: 'test'
+  ...
+# Subtest: EotE Core expõe exatamente 8 espécies, 6 carreiras e 18 especializações
+ok 55 - EotE Core expõe exatamente 8 espécies, 6 carreiras e 18 especializações
+  ---
+  duration_ms: 1.450651
+  type: 'test'
+  ...
+# Subtest: Obligation usa tabela oficial 2+ e política solo explícita; benefícios aumentam Obligation
+ok 56 - Obligation usa tabela oficial 2+ e política solo explícita; benefícios aumentam Obligation
+  ---
+  duration_ms: 1.567141
+  type: 'test'
+  ...
+# Subtest: Humano Contrabandista/Piloto é criado sem Duty e com Obligation
+ok 57 - Humano Contrabandista/Piloto é criado sem Duty e com Obligation
+  ---
+  duration_ms: 1.622675
+  type: 'test'
+  ...
+# Subtest: Droide recebe 6 perícias de carreira e 3 da especialização
+ok 58 - Droide recebe 6 perícias de carreira e 3 da especialização
+  ---
+  duration_ms: 0.551187
+  type: 'test'
+  ...
+# Subtest: Gand com pulmões recebe +10 PE e preview reflete variante
+ok 59 - Gand com pulmões recebe +10 PE e preview reflete variante
+  ---
+  duration_ms: 1.269235
+  type: 'test'
+  ...
+# Subtest: estado novo é schema 14 EOTE_CORE e usa group EotE
+ok 60 - estado novo é schema 14 EOTE_CORE e usa group EotE
+  ---
+  duration_ms: 5.257235
+  type: 'test'
+  ...
+# Subtest: migração AoR preserva Duty/Contribution somente em legacyAoR sem converter em Obligation
+ok 61 - migração AoR preserva Duty/Contribution somente em legacyAoR sem converter em Obligation
+  ---
+  duration_ms: 2.032922
+  type: 'test'
+  ...
+# Subtest: controller bloqueia mutação Duty/Contribution e oferece Obligation
+ok 62 - controller bloqueia mutação Duty/Contribution e oferece Obligation
+  ---
+  duration_ms: 2.955763
+  type: 'test'
+  ...
+# Subtest: Encumbrance threshold Core é 5 + Brawn e mochila soma +4
+ok 63 - Encumbrance threshold Core é 5 + Brawn e mochila soma +4
+  ---
+  duration_ms: 2.517777
+  type: 'test'
+  ...
+# Subtest: armadura vestida reduz Encumbrance em 3
+ok 64 - armadura vestida reduz Encumbrance em 3
+  ---
+  duration_ms: 2.106591
+  type: 'test'
+  ...
+# Subtest: cada ponto acima do threshold gera setback em Brawn/Agility e excesso >= Brawn remove manobra grátis
+ok 65 - cada ponto acima do threshold gera setback em Brawn/Agility e excesso >= Brawn remove manobra grátis
+  ---
+  duration_ms: 0.404941
+  type: 'test'
+  ...
+# Subtest: levantamento usa threshold efetivo e ajuda soma Brawn bruto
+ok 66 - levantamento usa threshold efetivo e ajuda soma Brawn bruto
+  ---
+  duration_ms: 0.806975
+  type: 'test'
+  ...
+# Subtest: condições genéricas aplicam staggered/immobilized/disoriented e acumulam duração
+ok 67 - condições genéricas aplicam staggered/immobilized/disoriented e acumulam duração
+  ---
+  duration_ms: 0.683154
+  type: 'test'
+  ...
+# Subtest: condições expiram por turno sem ficar negativas
+ok 68 - condições expiram por turno sem ficar negativas
+  ---
+  duration_ms: 0.500888
+  type: 'test'
+  ...
+# Subtest: Fear usa Discipline ou Cool e dificuldade 1..5
+ok 69 - Fear usa Discipline ou Cool e dificuldade 1..5
+  ---
+  duration_ms: 1.27565
+  type: 'test'
+  ...
+# Subtest: falha de Fear impõe setback e Despair aumenta dificuldade
+ok 70 - falha de Fear impõe setback e Despair aumenta dificuldade
+  ---
+  duration_ms: 0.340544
+  type: 'test'
+  ...
+# Subtest: três Threat podem virar staggered no primeiro turno
+ok 71 - três Threat podem virar staggered no primeiro turno
+  ---
+  duration_ms: 0.497581
+  type: 'test'
+  ...
+# Subtest: sucesso com Advantage prepara boost no primeiro check
+ok 72 - sucesso com Advantage prepara boost no primeiro check
+  ---
+  duration_ms: 0.672112
+  type: 'test'
+  ...
+# Subtest: Destiny inicial soma um Force die por jogador
+ok 73 - Destiny inicial soma um Force die por jogador
+  ---
+  duration_ms: 0.707825
+  type: 'test'
+  ...
+# Subtest: gastar Destiny vira o ponto para o lado oposto
+ok 74 - gastar Destiny vira o ponto para o lado oposto
+  ---
+  duration_ms: 0.170199
+  type: 'test'
+  ...
+# Subtest: upgrade de pool converte Ability em Proficiency e adiciona Ability quando necessário
+ok 75 - upgrade de pool converte Ability em Proficiency e adiciona Ability quando necessário
+  ---
+  duration_ms: 0.122971
+  type: 'test'
+  ...
+# Subtest: Obligation é d100 antes da sessão e identifica entrada por faixa cumulativa
+ok 76 - Obligation é d100 antes da sessão e identifica entrada por faixa cumulativa
+  ---
+  duration_ms: 0.340964
+  type: 'test'
+  ...
+# Subtest: doubles dobram penalidade de Obligation
+ok 77 - doubles dobram penalidade de Obligation
+  ---
+  duration_ms: 0.12809
+  type: 'test'
+  ...
+# Subtest: Obligation acima de 100 bloqueia progressão
+ok 78 - Obligation acima de 100 bloqueia progressão
+  ---
+  duration_ms: 0.150006
+  type: 'test'
+  ...
+# Subtest: startSession prepara Destiny e Obligation e aplica threshold efetivo sem destruir base
+ok 79 - startSession prepara Destiny e Obligation e aplica threshold efetivo sem destruir base
+  ---
+  duration_ms: 6.515542
+  type: 'test'
+  ...
+# Subtest: encerrar sessão remove penalidade temporária de Obligation
+ok 80 - encerrar sessão remove penalidade temporária de Obligation
+  ---
+  duration_ms: 3.233203
+  type: 'test'
+  ...
+# Subtest: Obligation >100 bloqueia treino, especialização, talento e Força pelo mesmo gate
+ok 81 - Obligation >100 bloqueia treino, especialização, talento e Força pelo mesmo gate
+  ---
+  duration_ms: 0.951084
+  type: 'test'
+  ...
+# Subtest: Fear no controller evita rerrolar a mesma fonte sem mudança significativa
+ok 82 - Fear no controller evita rerrolar a mesma fonte sem mudança significativa
+  ---
+  duration_ms: 5.904289
+  type: 'test'
+  ...
+# Subtest: disoriented do controller adiciona setback ao teste real
+ok 83 - disoriented do controller adiciona setback ao teste real
+  ---
+  duration_ms: 2.112789
+  type: 'test'
+  ...
+# Subtest: Encumbrance remove a manobra gratuita e cobra 2 Strain já na primeira
+ok 84 - Encumbrance remove a manobra gratuita e cobra 2 Strain já na primeira
+  ---
+  duration_ms: 1.274797
+  type: 'test'
+  ...
+# Subtest: Destiny gasto em skill check aprimora pool e vira a reserva
+ok 85 - Destiny gasto em skill check aprimora pool e vira a reserva
+  ---
+  duration_ms: 1.335801
+  type: 'test'
+  ...
+# Subtest: starter ships EotE Core ativos são Wayfarer, YT-1300 e Firespray
+ok 86 - starter ships EotE Core ativos são Wayfarer, YT-1300 e Firespray
+  ---
+  duration_ms: 1.920256
+  type: 'test'
+  ...
+# Subtest: Wayfarer reproduz perfil Core final + errata de Sensor Range Short
+ok 87 - Wayfarer reproduz perfil Core final + errata de Sensor Range Short
+  ---
+  duration_ms: 0.816356
+  type: 'test'
+  ...
+# Subtest: YT-1300 reproduz perfil Core final
+ok 88 - YT-1300 reproduz perfil Core final
+  ---
+  duration_ms: 0.295145
+  type: 'test'
+  ...
+# Subtest: Firespray reproduz perfil Core final
+ok 89 - Firespray reproduz perfil Core final
+  ---
+  duration_ms: 0.216665
+  type: 'test'
+  ...
+# Subtest: Tractor 2 acerta sem causar Hull Trauma e trava movimento com dificuldade 2
+ok 90 - Tractor 2 acerta sem causar Hull Trauma e trava movimento com dificuldade 2
+  ---
+  duration_ms: 2.13118
+  type: 'test'
+  ...
+# Subtest: teste de Pilotagem contra Tractor usa rating e libera a nave em sucesso
+ok 91 - teste de Pilotagem contra Tractor usa rating e libera a nave em sucesso
+  ---
+  duration_ms: 2.02918
+  type: 'test'
+  ...
+# Subtest: X-Wing legado continua referência AoR; TIE/ln e Lambda foram promovidos pelo próprio Core EotE no R35
+ok 92 - X-Wing legado continua referência AoR; TIE/ln e Lambda foram promovidos pelo próprio Core EotE no R35
+  ---
+  duration_ms: 0.222867
+  type: 'test'
+  ...
+# Subtest: Encumbrance base é 5 + Brawn
+ok 93 - Encumbrance base é 5 + Brawn
+  ---
+  duration_ms: 1.596227
+  type: 'test'
+  ...
+# Subtest: mochila +4 e cinto utilitário +1 aumentam o threshold
+ok 94 - mochila +4 e cinto utilitário +1 aumentam o threshold
+  ---
+  duration_ms: 0.316083
+  type: 'test'
+  ...
+# Subtest: armadura vestida reduz Encumbrance em 3, mínimo zero
+ok 95 - armadura vestida reduz Encumbrance em 3, mínimo zero
+  ---
+  duration_ms: 0.602125
+  type: 'test'
+  ...
+# Subtest: excesso gera um setback por ponto e carga grave usa Brawn
+ok 96 - excesso gera um setback por ponto e carga grave usa Brawn
+  ---
+  duration_ms: 0.411622
+  type: 'test'
+  ...
+# Subtest: levantamento usa threshold e Brawn bruto de ajudantes, limitado a Daunting
+ok 97 - levantamento usa threshold e Brawn bruto de ajudantes, limitado a Daunting
+  ---
+  duration_ms: 0.435778
+  type: 'test'
+  ...
+# Subtest: catálogo EotE expõe Encumbrance real sem apagar referência AoR histórica
+ok 98 - catálogo EotE expõe Encumbrance real sem apagar referência AoR histórica
+  ---
+  duration_ms: 0.642559
+  type: 'test'
+  ...
+# Subtest: status staggered, immobilized e disoriented produzem efeitos genéricos
+ok 99 - status staggered, immobilized e disoriented produzem efeitos genéricos
+  ---
+  duration_ms: 2.69155
+  type: 'test'
+  ...
+# Subtest: efeitos repetidos estendem duração e expiram por turno
+ok 100 - efeitos repetidos estendem duração e expiram por turno
+  ---
+  duration_ms: 0.482598
+  type: 'test'
+  ...
+# Subtest: efeitos de encontro expiram ao fim do encontro
+ok 101 - efeitos de encontro expiram ao fim do encontro
+  ---
+  duration_ms: 0.725926
+  type: 'test'
+  ...
+# Subtest: Destiny inicial rola um dado da Força por jogador e soma recursos
+ok 102 - Destiny inicial rola um dado da Força por jogador e soma recursos
+  ---
+  duration_ms: 0.758125
+  type: 'test'
+  ...
+# Subtest: gastar Destiny luminoso vira sombrio e vice-versa
+ok 103 - gastar Destiny luminoso vira sombrio e vice-versa
+  ---
+  duration_ms: 1.567643
+  type: 'test'
+  ...
+# Subtest: Destiny aprimora pools positivos e negativos
+ok 104 - Destiny aprimora pools positivos e negativos
+  ---
+  duration_ms: 0.183243
+  type: 'test'
+  ...
+# Subtest: Obligation usa d100 cumulativo e identifica membro
+ok 105 - Obligation usa d100 cumulativo e identifica membro
+  ---
+  duration_ms: 0.637113
+  type: 'test'
+  ...
+# Subtest: doubles dobram penalidades de Obligation
+ok 106 - doubles dobram penalidades de Obligation
+  ---
+  duration_ms: 0.438469
+  type: 'test'
+  ...
+# Subtest: Obligation acima de 100 marca progressão bloqueada
+ok 107 - Obligation acima de 100 marca progressão bloqueada
+  ---
+  duration_ms: 0.327988
+  type: 'test'
+  ...
+# Subtest: dificuldades de medo vão de Easy a Formidable
+ok 108 - dificuldades de medo vão de Easy a Formidable
+  ---
+  duration_ms: 0.150247
+  type: 'test'
+  ...
+# Subtest: medo usa Discipline normalmente e Cool quando preparado
+ok 109 - medo usa Discipline normalmente e Cool quando preparado
+  ---
+  duration_ms: 1.802416
+  type: 'test'
+  ...
+# Subtest: falha de medo aplica setback de encontro
+ok 110 - falha de medo aplica setback de encontro
+  ---
+  duration_ms: 0.698574
+  type: 'test'
+  ...
+# Subtest: startSession prepara Destiny e aplica Obligation; close restaura threshold
+ok 111 - startSession prepara Destiny e aplica Obligation; close restaura threshold
+  ---
+  duration_ms: 14.212418
+  type: 'test'
+  ...
+# Subtest: Obligation acima de 100 bloqueia gasto de PE no controller mas não concessão
+ok 112 - Obligation acima de 100 bloqueia gasto de PE no controller mas não concessão
+  ---
+  duration_ms: 6.687847
+  type: 'test'
+  ...
+# Subtest: Destiny no controller aprimora pool e vira o ponto para o lado oposto
+ok 113 - Destiny no controller aprimora pool e vira o ponto para o lado oposto
+  ---
+  duration_ms: 3.837616
+  type: 'test'
+  ...
+# Subtest: status genérico bloqueia ação e manobra no combate
+ok 114 - status genérico bloqueia ação e manobra no combate
+  ---
+  duration_ms: 2.547647
+  type: 'test'
+  ...
+# Subtest: carga grave remove manobra gratuita e permite pagar 2 Tensão
+ok 115 - carga grave remove manobra gratuita e permite pagar 2 Tensão
+  ---
+  duration_ms: 2.907583
+  type: 'test'
+  ...
+# Subtest: R35: catálogo veicular Core EotE possui 15 perfis ativos e nenhum AoR
+ok 116 - R35: catálogo veicular Core EotE possui 15 perfis ativos e nenhum AoR
+  ---
+  duration_ms: 2.372497
+  type: 'test'
+  ...
+# Subtest: R35: x34 reproduz perfil/custo/raridade Core
+ok 117 - R35: x34 reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.704524
+  type: 'test'
+  ...
+# Subtest: R35: digger_crawler reproduz perfil/custo/raridade Core
+ok 118 - R35: digger_crawler reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.352522
+  type: 'test'
+  ...
+# Subtest: R35: personnel_carrier reproduz perfil/custo/raridade Core
+ok 119 - R35: personnel_carrier reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.210876
+  type: 'test'
+  ...
+# Subtest: R35: at_pt reproduz perfil/custo/raridade Core
+ok 120 - R35: at_pt reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.426246
+  type: 'test'
+  ...
+# Subtest: R35: at_est reproduz perfil/custo/raridade Core
+ok 121 - R35: at_est reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.287994
+  type: 'test'
+  ...
+# Subtest: R35: cloakshape reproduz perfil/custo/raridade Core
+ok 122 - R35: cloakshape reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.358533
+  type: 'test'
+  ...
+# Subtest: R35: jumpmaster_jm5000 reproduz perfil/custo/raridade Core
+ok 123 - R35: jumpmaster_jm5000 reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.243199
+  type: 'test'
+  ...
+# Subtest: R35: firespray reproduz perfil/custo/raridade Core
+ok 124 - R35: firespray reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.485718
+  type: 'test'
+  ...
+# Subtest: R35: lambda_t4a reproduz perfil/custo/raridade Core
+ok 125 - R35: lambda_t4a reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.612859
+  type: 'test'
+  ...
+# Subtest: R35: tie_ln reproduz perfil/custo/raridade Core
+ok 126 - R35: tie_ln reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.332254
+  type: 'test'
+  ...
+# Subtest: R35: ywing_btl reproduz perfil/custo/raridade Core
+ok 127 - R35: ywing_btl reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.166157
+  type: 'test'
+  ...
+# Subtest: R35: z95_af4 reproduz perfil/custo/raridade Core
+ok 128 - R35: z95_af4 reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.090506
+  type: 'test'
+  ...
+# Subtest: R35: skipray_gat12h reproduz perfil/custo/raridade Core
+ok 129 - R35: skipray_gat12h reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.08497
+  type: 'test'
+  ...
+# Subtest: R35: wayfarer reproduz perfil/custo/raridade Core
+ok 130 - R35: wayfarer reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.064655
+  type: 'test'
+  ...
+# Subtest: R35: yt1300 reproduz perfil/custo/raridade Core
+ok 131 - R35: yt1300 reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.059375
+  type: 'test'
+  ...
+# Subtest: R35: perfis terrestres Core preservam capacidade e sensores comprovados
+ok 132 - R35: perfis terrestres Core preservam capacidade e sensores comprovados
+  ---
+  duration_ms: 0.167228
+  type: 'test'
+  ...
+# Subtest: R35: naves Core preservam hiperdrive/defesa/restrição e munição
+ok 133 - R35: naves Core preservam hiperdrive/defesa/restrição e munição
+  ---
+  duration_ms: 2.511561
+  type: 'test'
+  ...
+# Subtest: R35: os 15 veículos Core permanecem disponíveis na economia e X-Wing segue excluído
+ok 134 - R35: os 15 veículos Core permanecem disponíveis na economia e X-Wing segue excluído
+  ---
+  duration_ms: 2.69829
+  type: 'test'
+  ...
+# Subtest: R35: disponibilidade de veículo respeita raridade e restrição do Core
+ok 135 - R35: disponibilidade de veículo respeita raridade e restrição do Core
+  ---
+  duration_ms: 0.451467
+  type: 'test'
+  ...
+# Subtest: R35: X-Wing continua fail-closed na economia até fonte EotE própria
+ok 136 - R35: X-Wing continua fail-closed na economia até fonte EotE própria
+  ---
+  duration_ms: 0.773267
+  type: 'test'
+  ...
+# Subtest: Tabela 7-9 Core cobre 01-09 até 154+ sem lacunas
+ok 137 - Tabela 7-9 Core cobre 01-09 até 154+ sem lacunas
+  ---
+  duration_ms: 2.453489
+  type: 'test'
+  ...
+# Subtest: Mechanical Stress causa 1 system strain, não a sequência simplificada antiga
+ok 138 - Mechanical Stress causa 1 system strain, não a sequência simplificada antiga
+  ---
+  duration_ms: 3.929437
+  type: 'test'
+  ...
+# Subtest: cada Critical Hit não reparado soma +10 à próxima rolagem
+ok 139 - cada Critical Hit não reparado soma +10 à próxima rolagem
+  ---
+  duration_ms: 1.843284
+  type: 'test'
+  ...
+# Subtest: Critical Hit reparado continua no histórico mas deixa de somar +10
+ok 140 - Critical Hit reparado continua no histórico mas deixa de somar +10
+  ---
+  duration_ms: 0.843171
+  type: 'test'
+  ...
+# Subtest: Jostled devolve consequências de tripulação para integração do controller
+ok 141 - Jostled devolve consequências de tripulação para integração do controller
+  ---
+  duration_ms: 0.580679
+  type: 'test'
+  ...
+# Subtest: Losing Power to Shields reduz apenas a zona afetada e reparo restaura derivação
+ok 142 - Losing Power to Shields reduz apenas a zona afetada e reparo restaura derivação
+  ---
+  duration_ms: 0.813806
+  type: 'test'
+  ...
+# Subtest: Shields Failing sem Defesa usa fallback de 2 system strain
+ok 143 - Shields Failing sem Defesa usa fallback de 2 system strain
+  ---
+  duration_ms: 0.546957
+  type: 'test'
+  ...
+# Subtest: falha de hiperimpulsor bloqueia salto até reparo
+ok 144 - falha de hiperimpulsor bloqueia salto até reparo
+  ---
+  duration_ms: 0.482915
+  type: 'test'
+  ...
+# Subtest: Power Fluctuations bloqueia system strain voluntário e Punch It
+ok 145 - Power Fluctuations bloqueia system strain voluntário e Punch It
+  ---
+  duration_ms: 1.439378
+  type: 'test'
+  ...
+# Subtest: Engine Damaged reduz velocidade máxima efetiva sem corromper valor-base
+ok 146 - Engine Damaged reduz velocidade máxima efetiva sem corromper valor-base
+  ---
+  duration_ms: 0.824627
+  type: 'test'
+  ...
+# Subtest: Engines Down impede manobras mas preserva curso/velocidade atual
+ok 147 - Engines Down impede manobras mas preserva curso/velocidade atual
+  ---
+  duration_ms: 0.93553
+  type: 'test'
+  ...
+# Subtest: Destabilized reduz ambos thresholds efetivos à metade
+ok 148 - Destabilized reduz ambos thresholds efetivos à metade
+  ---
+  duration_ms: 0.345668
+  type: 'test'
+  ...
+# Subtest: Major Hull Breach em atmosfera vira Destabilized
+ok 149 - Major Hull Breach em atmosfera vira Destabilized
+  ---
+  duration_ms: 0.408792
+  type: 'test'
+  ...
+# Subtest: Component Hit expira mecanicamente mas segue contando +10 até reparo
+ok 150 - Component Hit expira mecanicamente mas segue contando +10 até reparo
+  ---
+  duration_ms: 0.926376
+  type: 'test'
+  ...
+# Subtest: Shield Overload só pode ser reparado após o encontro
+ok 151 - Shield Overload só pode ser reparado após o encontro
+  ---
+  duration_ms: 0.776009
+  type: 'test'
+  ...
+# Subtest: Breaking Up destrói ao atravessar o fim do assalto seguinte
+ok 152 - Breaking Up destrói ao atravessar o fim do assalto seguinte
+  ---
+  duration_ms: 0.44665
+  type: 'test'
+  ...
+# Subtest: Vaporized destrói imediatamente e não admite reparo
+ok 153 - Vaporized destrói imediatamente e não admite reparo
+  ---
+  duration_ms: 1.004927
+  type: 'test'
+  ...
+# Subtest: normalizador preserva saves antigos sem criticalState novo
+ok 154 - normalizador preserva saves antigos sem criticalState novo
+  ---
+  duration_ms: 0.779004
+  type: 'test'
+  ...
+# Subtest: FINAL Star Wars: motor compartilhado mantém EotE como default e só ativa AoR/Misto por escolha explícita
+ok 155 - FINAL Star Wars: motor compartilhado mantém EotE como default e só ativa AoR/Misto por escolha explícita
+  ---
+  duration_ms: 11.55663
+  type: 'test'
+  ...
+# Subtest: FINAL shell compartilhada mantém EotE padrão e só expõe origem AoR por escolha explícita
+ok 156 - FINAL shell compartilhada mantém EotE padrão e só expõe origem AoR por escolha explícita
+  ---
+  duration_ms: 2.881725
+  type: 'test'
+  ...
+# Subtest: FINAL: corpus mantém EotE dominante e permite somente o subconjunto AoR recuperado para Duty/Contribution
+ok 157 - FINAL: corpus mantém EotE dominante e permite somente o subconjunto AoR recuperado para Duty/Contribution
+  ---
+  duration_ms: 1.708753
+  type: 'test'
+  ...
+# Subtest: R36: Fly Casual adiciona exatamente 10 perfis EotE suplementares e catálogo ativo chega a 25
+ok 158 - R36: Fly Casual adiciona exatamente 10 perfis EotE suplementares e catálogo ativo chega a 25
+  ---
+  duration_ms: 2.379103
+  type: 'test'
+  ...
+# Subtest: R36: alpha_xg1_star_wing reproduz ficha/preço/raridade de Fly Casual
+ok 159 - R36: alpha_xg1_star_wing reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.672629
+  type: 'test'
+  ...
+# Subtest: R36: vt49_decimator reproduz ficha/preço/raridade de Fly Casual
+ok 160 - R36: vt49_decimator reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.191133
+  type: 'test'
+  ...
+# Subtest: R36: wud500 reproduz ficha/preço/raridade de Fly Casual
+ok 161 - R36: wud500 reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.192549
+  type: 'test'
+  ...
+# Subtest: R36: starlight reproduz ficha/preço/raridade de Fly Casual
+ok 162 - R36: starlight reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.167386
+  type: 'test'
+  ...
+# Subtest: R36: ykl37r_nova_courier reproduz ficha/preço/raridade de Fly Casual
+ok 163 - R36: ykl37r_nova_courier reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.173364
+  type: 'test'
+  ...
+# Subtest: R36: gx1_short_hauler reproduz ficha/preço/raridade de Fly Casual
+ok 164 - R36: gx1_short_hauler reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.300875
+  type: 'test'
+  ...
+# Subtest: R36: baudo_star_yacht reproduz ficha/preço/raridade de Fly Casual
+ok 165 - R36: baudo_star_yacht reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.121724
+  type: 'test'
+  ...
+# Subtest: R36: gozanti reproduz ficha/preço/raridade de Fly Casual
+ok 166 - R36: gozanti reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.305128
+  type: 'test'
+  ...
+# Subtest: R36: hwk1000 reproduz ficha/preço/raridade de Fly Casual
+ok 167 - R36: hwk1000 reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.554532
+  type: 'test'
+  ...
+# Subtest: R36: yt2000 reproduz ficha/preço/raridade de Fly Casual
+ok 168 - R36: yt2000 reproduz ficha/preço/raridade de Fly Casual
+  ---
+  duration_ms: 0.285065
+  type: 'test'
+  ...
+# Subtest: R36: hiperdrive, carga e armamento essencial dos cargueiros ficam preservados
+ok 169 - R36: hiperdrive, carga e armamento essencial dos cargueiros ficam preservados
+  ---
+  duration_ms: 0.121703
+  type: 'test'
+  ...
+# Subtest: R36: economia expõe 25 veículos EotE auditados e continua excluindo X-Wing de referência cruzada
+ok 170 - R36: economia expõe 25 veículos EotE auditados e continua excluindo X-Wing de referência cruzada
+  ---
+  duration_ms: 1.937434
+  type: 'test'
+  ...
+# Subtest: R36: restrição/raridade suplementar alimentam o mesmo motor de disponibilidade
+ok 171 - R36: restrição/raridade suplementar alimentam o mesmo motor de disponibilidade
+  ---
+  duration_ms: 0.85846
+  type: 'test'
+  ...
+# Subtest: dado da Força reproduz as 12 faces oficiais do Core
+ok 172 - dado da Força reproduz as 12 faces oficiais do Core
+  ---
+  duration_ms: 10.498482
+  type: 'test'
+  ...
+# Subtest: Exilado Sensível à Força é universal, custa como carreira e concede Force Rating 1 sem skills grátis
+ok 173 - Exilado Sensível à Força é universal, custa como carreira e concede Force Rating 1 sem skills grátis
+  ---
+  duration_ms: 13.955787
+  type: 'test'
+  ...
+# Subtest: Droide não pode adquirir Exilado Sensível à Força
+ok 174 - Droide não pode adquirir Exilado Sensível à Força
+  ---
+  duration_ms: 7.494787
+  type: 'test'
+  ...
+# Subtest: árvore universal do Exilado tem 20 nós e talentos de primeira linha acessíveis
+ok 175 - árvore universal do Exilado tem 20 nós e talentos de primeira linha acessíveis
+  ---
+  duration_ms: 3.628321
+  type: 'test'
+  ...
+# Subtest: Perspicácia torna Percepção e Disciplina perícias de carreira sem dar ranks
+ok 176 - Perspicácia torna Percepção e Disciplina perícias de carreira sem dar ranks
+  ---
+  duration_ms: 1.05837
+  type: 'test'
+  ...
+# Subtest: Sentidos e Reações sobrenaturais alimentam modificadores de perícia
+ok 177 - Sentidos e Reações sobrenaturais alimentam modificadores de perícia
+  ---
+  duration_ms: 2.864712
+  type: 'test'
+  ...
+# Subtest: rolagem usa Force Rating disponível e dados comprometidos reduzem a quantidade rolada
+ok 178 - rolagem usa Force Rating disponível e dados comprometidos reduzem a quantidade rolada
+  ---
+  duration_ms: 2.633673
+  type: 'test'
+  ...
+# Subtest: usuário luminoso pode converter resultados sombrios com um Destino e Tensão por ponto usado
+ok 179 - usuário luminoso pode converter resultados sombrios com um Destino e Tensão por ponto usado
+  ---
+  duration_ms: 1.485855
+  type: 'test'
+  ...
+# Subtest: sem Destino luminoso não é permitido usar resultados sombrios
+ok 180 - sem Destino luminoso não é permitido usar resultados sombrios
+  ---
+  duration_ms: 2.136723
+  type: 'test'
+  ...
+# Subtest: Sense, Influence e Move custam 10 PE e exigem Force Rating
+ok 181 - Sense, Influence e Move custam 10 PE e exigem Force Rating
+  ---
+  duration_ms: 1.757157
+  type: 'test'
+  ...
+# Subtest: aprimoramentos da Força respeitam conexões e custos da árvore
+ok 182 - aprimoramentos da Força respeitam conexões e custos da árvore
+  ---
+  duration_ms: 4.991477
+  type: 'test'
+  ...
+# Subtest: Influência básica causa 1 Tensão por ponto ou 2 com Strength
+ok 183 - Influência básica causa 1 Tensão por ponto ou 2 com Strength
+  ---
+  duration_ms: 1.960317
+  type: 'test'
+  ...
+# Subtest: regra especial de Influência separa emoções positivas/negativas por lado
+ok 184 - regra especial de Influência separa emoções positivas/negativas por lado
+  ---
+  duration_ms: 0.153173
+  type: 'test'
+  ...
+# Subtest: Mover com Control de arremesso calcula dano oficial por silhueta
+ok 185 - Mover com Control de arremesso calcula dano oficial por silhueta
+  ---
+  duration_ms: 0.796097
+  type: 'test'
+  ...
+# Subtest: árvore do Exilado respeita a malha oficial e não cria atalhos sob Insight/Forager
+ok 186 - árvore do Exilado respeita a malha oficial e não cria atalhos sob Insight/Forager
+  ---
+  duration_ms: 6.044295
+  type: 'test'
+  ...
+# Subtest: Sentir calcula alcance, magnitude e pensamentos sem confundir gasto de pontos
+ok 187 - Sentir calcula alcance, magnitude e pensamentos sem confundir gasto de pontos
+  ---
+  duration_ms: 0.948793
+  type: 'test'
+  ...
+# Subtest: Mover separa ativações de Strength, Range e Magnitude conforme o Core
+ok 188 - Mover separa ativações de Strength, Range e Magnitude conforme o Core
+  ---
+  duration_ms: 0.746969
+  type: 'test'
+  ...
+# Subtest: Sobrecarregar Emoções usa lados diferentes em Carisma versus Coerção/Enganação
+ok 189 - Sobrecarregar Emoções usa lados diferentes em Carisma versus Coerção/Enganação
+  ---
+  duration_ms: 3.197184
+  type: 'test'
+  ...
+# Subtest: controller persiste compra universal, poderes e consumo de Destino
+ok 190 - controller persiste compra universal, poderes e consumo de Destino
+  ---
+  duration_ms: 19.269812
+  type: 'test'
+  ...
+# Subtest: R37: catálogo pessoal inicial atinge 60 itens com Appraiser's Eye fundamentado em Fly Casual
+ok 191 - R37: catálogo pessoal inicial atinge 60 itens com Appraiser's Eye fundamentado em Fly Casual
+  ---
+  duration_ms: 1.226621
+  type: 'test'
+  ...
+# Subtest: segunda especialização dentro da carreira custa 20 PE; fora da carreira custa 30 PE
+ok 192 - segunda especialização dentro da carreira custa 20 PE; fora da carreira custa 30 PE
+  ---
+  duration_ms: 2.91478
+  type: 'test'
+  ...
+# Subtest: terceira especialização usa o total após a compra e mantém sobretaxa fora da carreira original
+ok 193 - terceira especialização usa o total após a compra e mantém sobretaxa fora da carreira original
+  ---
+  duration_ms: 1.122505
+  type: 'test'
+  ...
+# Subtest: compra adiciona especialização e perícias de carreira sem conceder ranks gratuitos
+ok 194 - compra adiciona especialização e perícias de carreira sem conceder ranks gratuitos
+  ---
+  duration_ms: 1.561035
+  type: 'test'
+  ...
+# Subtest: especialização já possuída não pode ser comprada novamente e PE insuficiente falha sem mutar
+ok 195 - especialização já possuída não pode ser comprada novamente e PE insuficiente falha sem mutar
+  ---
+  duration_ms: 1.511718
+  type: 'test'
+  ...
+# Subtest: árvore de talentos da especialização comprada fica acessível e a inicial continua intacta
+ok 196 - árvore de talentos da especialização comprada fica acessível e a inicial continua intacta
+  ---
+  duration_ms: 2.272141
+  type: 'test'
+  ...
+# Subtest: não é permitido acessar árvore de especialização que o personagem não possui
+ok 197 - não é permitido acessar árvore de especialização que o personagem não possui
+  ---
+  duration_ms: 0.84808
+  type: 'test'
+  ...
+# Subtest: controller compra e persiste especialização adicional com custo e career skills corretos
+ok 198 - controller compra e persiste especialização adicional com custo e career skills corretos
+  ---
+  duration_ms: 10.182669
+  type: 'test'
+  ...
+# Subtest: RAG fundamenta compra de especialização adicional no Core EotE real
+ok 199 - RAG fundamenta compra de especialização adicional no Core EotE real
+  ---
+  duration_ms: 64.08572
+  type: 'test'
+  ...
+# Subtest: Pantalla fornece catálogo auditado de 31 armas e 7 blindagens de referência
+ok 200 - Pantalla fornece catálogo auditado de 31 armas e 7 blindagens de referência
+  ---
+  duration_ms: 2.655177
+  type: 'test'
+  ...
+# Subtest: preços, raridade e restrição de exemplos centrais permanecem estáveis
+ok 201 - preços, raridade e restrição de exemplos centrais permanecem estáveis
+  ---
+  duration_ms: 1.207391
+  type: 'test'
+  ...
+# Subtest: armas corpo a corpo preservam dano por Fortaleza quando a tabela usa +N
+ok 202 - armas corpo a corpo preservam dano por Fortaleza quando a tabela usa +N
+  ---
+  duration_ms: 0.54898
+  type: 'test'
+  ...
+# Subtest: catálogo retorna cópia e não permite mutar a autoridade em memória
+ok 203 - catálogo retorna cópia e não permite mutar a autoridade em memória
+  ---
+  duration_ms: 1.16203
+  type: 'test'
+  ...
+# Subtest: Navegador mestre custa 2 Tensão e reduz Astrogation em 1, mínimo Fácil
+ok 204 - Navegador mestre custa 2 Tensão e reduz Astrogation em 1, mínimo Fácil
+  ---
+  duration_ms: 14.147134
+  type: 'test'
+  ...
+# Subtest: perfil EotE Core não oferece talento especialista genérico para Liderança
+ok 205 - perfil EotE Core não oferece talento especialista genérico para Liderança
+  ---
+  duration_ms: 1.623465
+  type: 'test'
+  ...
+# Subtest: interface PT-BR expõe Navegador mestre somente como opção explícita
+ok 206 - interface PT-BR expõe Navegador mestre somente como opção explícita
+  ---
+  duration_ms: 16.758852
+  type: 'test'
+  ...
+# Subtest: adversário não persistente pode carregar facção explícita validada
+ok 207 - adversário não persistente pode carregar facção explícita validada
+  ---
+  duration_ms: 51.899582
+  type: 'test'
+  ...
+# Subtest: PNPC persistente herda facção e tentativa de troca silenciosa é rejeitada
+ok 208 - PNPC persistente herda facção e tentativa de troca silenciosa é rejeitada
+  ---
+  duration_ms: 21.551648
+  type: 'test'
+  ...
+# Subtest: consequência de facção pode inferir afiliação dos adversários do encontro
+ok 209 - consequência de facção pode inferir afiliação dos adversários do encontro
+  ---
+  duration_ms: 21.225997
+  type: 'test'
+  ...
+# Subtest: combate só mostra nome da facção do adversário quando ela é conhecida pelo jogador
+ok 210 - combate só mostra nome da facção do adversário quando ela é conhecida pelo jogador
+  ---
+  duration_ms: 8.816293
+  type: 'test'
+  ...
+1..210
+# tests 210
+# suites 0
+# pass 210
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2391.053135

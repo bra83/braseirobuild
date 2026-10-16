@@ -1,0 +1,53 @@
+TAP version 13
+# Subtest: P211 official source: thranta Advantage and Christophsis shadow Advantage are two distinct published results
+ok 1 - P211 official source: thranta Advantage and Christophsis shadow Advantage are two distinct published results
+  ---
+  duration_ms: 1.63517
+  type: 'test'
+  ...
+# Subtest: P211 Alderaan consumes REAL Advantage, grants one ranged Boost for two rounds and no melee bonus
+ok 2 - P211 Alderaan consumes REAL Advantage, grants one ranged Boost for two rounds and no melee bonus
+  ---
+  duration_ms: 557.456119
+  type: 'test'
+  ...
+# Subtest: P211 Christophsis consumes REAL Advantage and gives the actual attacked NPC ranged defense 1 until next round
+ok 3 - P211 Christophsis consumes REAL Advantage and gives the actual attacked NPC ranged defense 1 until next round
+  ---
+  duration_ms: 469.685115
+  type: 'test'
+  ...
+# Subtest: P211 rejects invented symbols, wrong landscape, duplicate ID, mutated receipt and stacks atomically
+ok 4 - P211 rejects invented symbols, wrong landscape, duplicate ID, mutated receipt and stacks atomically
+  ---
+  duration_ms: 640.742185
+  type: 'test'
+  ...
+# Subtest: P211 actual attack controller consumes thranta Boost in the real narrative dice pool
+ok 5 - P211 actual attack controller consumes thranta Boost in the real narrative dice pool
+  ---
+  duration_ms: 957.334438
+  type: 'test'
+  ...
+# Subtest: P211 Android source and generated bundle expose both effects without altering Kokoro
+ok 6 - P211 Android source and generated bundle expose both effects without altering Kokoro
+  ---
+  duration_ms: 34.113928
+  type: 'test'
+  ...
+# Subtest: P211 Christophsis shadow adds one setback to the ACTUAL player ranged attack pool
+ok 7 - P211 Christophsis shadow adds one setback to the ACTUAL player ranged attack pool
+  ---
+  duration_ms: 270.100282
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3219.283833
+

@@ -1,0 +1,14 @@
+✔ Library Java callback name and payload envelope match the R46 consumer (6.8546ms)
+✔ Image cache Java callback name and data envelope match the R46 consumer (2.3761ms)
+✔ Gemini UI callback name and payload envelope match the R46 consumer (3.2602ms)
+✔ Gemini master callback name matches Motor Barbara native request hook (1.1034ms)
+✔ Gemini master callback preserves proposal object and model contract (0.8448ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1177.5541
+

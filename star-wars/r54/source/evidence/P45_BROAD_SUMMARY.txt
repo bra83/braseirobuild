@@ -1,0 +1,13 @@
+P45 BROAD NODE REGRESSION — 2026-09-22
+Baseline: R54 P44 do Google Drive; alterações incrementais P45.
+Arquivos de teste: 170
+Batch 1: 198/198 PASS
+Batch 2: 236/236 PASS
+Batch 3: 144/144 PASS
+Batch 4: 163/163 PASS
+Batch 5: 111/111 PASS
+TOTAL: 852/852 PASS, 0 FAIL
+
+Durante a primeira execução do Batch 2 apareceu 1 FAIL em eote-final-rag-guards.test.mjs. O guard exigia ausência física de símbolos AoR/Duty no bundle da shell, incompatível com a arquitetura compartilhada EOTE/AOR/MIXED já aprovada. A shell não foi alterada por P45. O contrato foi normalizado para verificar semanticamente: EOTE é default; origem AoR só é exposta por seleção explícita em MIXED; Obligation e Duty permanecem separados. Após a normalização, Batch 2 = 236/236 PASS.
+
+Este resultado é PASS global da suíte Node presente no checkpoint, não PASS Android/aparelho.

@@ -1,0 +1,48 @@
+{
+  "checkpoint": "P158",
+  "coverage": {
+    "careers": 6,
+    "specializations": 18,
+    "positions": 360,
+    "mechanicalPositions": 268,
+    "purchasePositions": 360
+  },
+  "javaPreserved": true,
+  "javaFiles": 8,
+  "talentsCorrect": true,
+  "adventures": [
+    {
+      "id": "under-black-sun",
+      "graph": true,
+      "semantics": true
+    },
+    {
+      "id": "beyond-the-rim",
+      "graph": true,
+      "semantics": true
+    },
+    {
+      "id": "long-arm-of-the-hutt",
+      "graph": true,
+      "semantics": true
+    },
+    {
+      "id": "jewel-of-yavin",
+      "graph": true,
+      "semantics": true
+    },
+    {
+      "id": "mask-of-the-pirate-queen",
+      "graph": true,
+      "semantics": true
+    }
+  ],
+  "androidVersion": true,
+  "shellVersion": true,
+  "bundleVersion": true,
+  "focal": true,
+  "regular": true,
+  "stress": true,
+  "tts": true,
+  "allPassed": true
+}

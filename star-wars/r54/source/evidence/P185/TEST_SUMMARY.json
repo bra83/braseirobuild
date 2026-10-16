@@ -1,0 +1,30 @@
+{
+  "checkpoint": "P185",
+  "base": "P184",
+  "regular": {
+    "shard": 0,
+    "shards": 1,
+    "files": 304,
+    "tests": 2739,
+    "passed": 2739,
+    "failed": 0,
+    "badFiles": []
+  },
+  "stress": {
+    "shard": 0,
+    "shards": 1,
+    "files": 6,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "badFiles": []
+  },
+  "totalTests": 2745,
+  "totalPassed": 2745,
+  "nodeSyntaxFiles": 120,
+  "jsonValidated": 22,
+  "xmlValidated": 2,
+  "javaSourcesUnchanged": 8,
+  "bundleModules": 86,
+  "suiteMode": "per-file runner; not monolithic"
+}

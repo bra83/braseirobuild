@@ -1,0 +1,18 @@
+{
+  "checkpoint": "P229",
+  "source": "SWE09 The Jewel of Yavin.pdf",
+  "googleDriveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "method": "Leitura direta do texto do PDF via conector Google Drive em 2026-10-15; cotejo direcionado, não certificação integral",
+  "printedPage": 94,
+  "section": "Flight over Fight — After the Battle",
+  "verifiedRules": [
+    "Tomar outra nave requer teste Difícil de Computadores.",
+    "Ausência de preparação pré-voo aumenta uma vez a dificuldade dos testes de Pilotagem Espacial durante a fuga.",
+    "A Guarda Alada começa com dois grupos de dois oficiais e um sargento; combate já integrado em P209 e não duplicado.",
+    "Acesso ao porto envolve câmeras e perseguição de três facções; o Mestre escolhe qual detecta primeiro os PJs."
+  ],
+  "implementedHere": ["Teste real de Computadores", "Recibo e validação", "Bloqueio de embarque na opção nave de terceiro", "Aumento de dificuldade no teste de perigo de Pilotagem Espacial"],
+  "notImplementedHere": ["Penalidade em todas as demais ações de Pilotagem Espacial", "Reforços e barreiras físicas completos", "Encontros adicionais sem presença confirmada", "Aquisição de nave automaticamente", "Bounty e Obrigações de alternativas não executadas"],
+  "fabricatedStats": false,
+  "fullAdventureCertified": false
+}

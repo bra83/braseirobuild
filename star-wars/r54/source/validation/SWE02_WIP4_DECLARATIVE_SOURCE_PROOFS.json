@@ -1,0 +1,78 @@
+{
+  "kind": "SWE02_WIP4_DECLARATIVE_PALACE_SOURCE_TO_EXECUTOR",
+  "officialSource": "https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf",
+  "verifiedPrintedPages": [
+    43,
+    44
+  ],
+  "operations": [
+    {
+      "page": 43,
+      "location": "workshop",
+      "resource": "toolkit x1, glow rod x2",
+      "executor": "GEAR",
+      "catalogProfile": "EOTE_CORE",
+      "usable": true
+    },
+    {
+      "page": 43,
+      "location": "workshop",
+      "resource": "repair kits x2, stimpacks x2, blaster carbines x3, vibro-axes x3",
+      "executor": "SEALED",
+      "catalogProfile": "EOTE_PRIMARY_NOT_CERTIFIED",
+      "usable": false
+    },
+    {
+      "page": 43,
+      "location": "workshop",
+      "resource": "B1 worklog",
+      "executor": "EVIDENCE",
+      "usable": false
+    },
+    {
+      "page": 43,
+      "location": "kitchen",
+      "resource": "ryll under stewed-food boxes",
+      "executor": "EVIDENCE",
+      "requires": "Percepção Difícil + confirmed adjudication",
+      "usable": false
+    },
+    {
+      "page": 43,
+      "location": "bar",
+      "resource": "cook droid, cover reference",
+      "executor": "OBSERVATION",
+      "usable": false
+    },
+    {
+      "page": 44,
+      "location": "reception corridor",
+      "resource": "Bith espionage witness",
+      "executor": "EVIDENCE",
+      "requires": "visited private interview",
+      "usable": false
+    },
+    {
+      "page": 44,
+      "location": "landing pad",
+      "resource": "fixed silhouette 3 laser cannon damage 4",
+      "executor": "EXPLICIT_BLOCKER",
+      "usable": false
+    }
+  ],
+  "testedPaths": [
+    "Controller transaction",
+    "Bridge exposure",
+    "UI control",
+    "3 reopens",
+    "duplicate action denied",
+    "forged proof denied",
+    "two independent proofs -> Anatta dossier"
+  ],
+  "unverified": [
+    "full combat effect of bar volatile fluids",
+    "vehicle weapon physical combat vs PC",
+    "all Act1/Act2/Act3 branches",
+    "full official EOTE item profiles"
+  ]
+}

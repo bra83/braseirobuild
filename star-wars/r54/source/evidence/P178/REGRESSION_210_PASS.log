@@ -1,0 +1,1270 @@
+TAP version 13
+# Subtest: P145 under-black-sun: início e escolha têm recibos causais e retry sem duplicação após reabrir
+ok 1 - P145 under-black-sun: início e escolha têm recibos causais e retry sem duplicação após reabrir
+  ---
+  duration_ms: 99.502795
+  type: 'test'
+  ...
+# Subtest: P145 under-black-sun: teste de perícia só adjudica uma vez, inclusive após reinício
+ok 2 - P145 under-black-sun: teste de perícia só adjudica uma vez, inclusive após reinício
+  ---
+  duration_ms: 67.70484
+  type: 'test'
+  ...
+# Subtest: P145 under-black-sun: falha na gravação reverte recibo, UAE, cena e recompensa
+ok 3 - P145 under-black-sun: falha na gravação reverte recibo, UAE, cena e recompensa
+  ---
+  duration_ms: 61.241662
+  type: 'test'
+  ...
+# Subtest: P145 beyond-the-rim: início e escolha têm recibos causais e retry sem duplicação após reabrir
+ok 4 - P145 beyond-the-rim: início e escolha têm recibos causais e retry sem duplicação após reabrir
+  ---
+  duration_ms: 65.184086
+  type: 'test'
+  ...
+# Subtest: P145 beyond-the-rim: teste de perícia só adjudica uma vez, inclusive após reinício
+ok 5 - P145 beyond-the-rim: teste de perícia só adjudica uma vez, inclusive após reinício
+  ---
+  duration_ms: 39.286324
+  type: 'test'
+  ...
+# Subtest: P145 beyond-the-rim: falha na gravação reverte recibo, UAE, cena e recompensa
+ok 6 - P145 beyond-the-rim: falha na gravação reverte recibo, UAE, cena e recompensa
+  ---
+  duration_ms: 51.771928
+  type: 'test'
+  ...
+# Subtest: P145 long-arm-of-the-hutt: início e escolha têm recibos causais e retry sem duplicação após reabrir
+ok 7 - P145 long-arm-of-the-hutt: início e escolha têm recibos causais e retry sem duplicação após reabrir
+  ---
+  duration_ms: 26.277783
+  type: 'test'
+  ...
+# Subtest: P145 long-arm-of-the-hutt: teste de perícia só adjudica uma vez, inclusive após reinício
+ok 8 - P145 long-arm-of-the-hutt: teste de perícia só adjudica uma vez, inclusive após reinício
+  ---
+  duration_ms: 7.733027
+  type: 'test'
+  ...
+# Subtest: P145 long-arm-of-the-hutt: falha na gravação reverte recibo, UAE, cena e recompensa
+ok 9 - P145 long-arm-of-the-hutt: falha na gravação reverte recibo, UAE, cena e recompensa
+  ---
+  duration_ms: 26.739244
+  type: 'test'
+  ...
+# Subtest: P145 jewel-of-yavin: início e escolha têm recibos causais e retry sem duplicação após reabrir
+ok 10 - P145 jewel-of-yavin: início e escolha têm recibos causais e retry sem duplicação após reabrir
+  ---
+  duration_ms: 27.113852
+  type: 'test'
+  ...
+# Subtest: P145 jewel-of-yavin: teste de perícia só adjudica uma vez, inclusive após reinício
+ok 11 - P145 jewel-of-yavin: teste de perícia só adjudica uma vez, inclusive após reinício
+  ---
+  duration_ms: 5.950504
+  type: 'test'
+  ...
+# Subtest: P145 jewel-of-yavin: falha na gravação reverte recibo, UAE, cena e recompensa
+ok 12 - P145 jewel-of-yavin: falha na gravação reverte recibo, UAE, cena e recompensa
+  ---
+  duration_ms: 26.379323
+  type: 'test'
+  ...
+# Subtest: P145 mask-of-the-pirate-queen: início e escolha têm recibos causais e retry sem duplicação após reabrir
+ok 13 - P145 mask-of-the-pirate-queen: início e escolha têm recibos causais e retry sem duplicação após reabrir
+  ---
+  duration_ms: 25.715573
+  type: 'test'
+  ...
+# Subtest: P145 mask-of-the-pirate-queen: teste de perícia só adjudica uma vez, inclusive após reinício
+ok 14 - P145 mask-of-the-pirate-queen: teste de perícia só adjudica uma vez, inclusive após reinício
+  ---
+  duration_ms: 9.173163
+  type: 'test'
+  ...
+# Subtest: P145 mask-of-the-pirate-queen: falha na gravação reverte recibo, UAE, cena e recompensa
+ok 15 - P145 mask-of-the-pirate-queen: falha na gravação reverte recibo, UAE, cena e recompensa
+  ---
+  duration_ms: 30.222893
+  type: 'test'
+  ...
+# Subtest: P145: encontro publicado e encerramento preservam causalidade e não recuperam Tensão duas vezes
+ok 16 - P145: encontro publicado e encerramento preservam causalidade e não recuperam Tensão duas vezes
+  ---
+  duration_ms: 71.078713
+  type: 'test'
+  ...
+# Subtest: P145: corrupção do livro de recibos impede novas ações e não altera armazenamento
+ok 17 - P145: corrupção do livro de recibos impede novas ações e não altera armazenamento
+  ---
+  duration_ms: 21.370061
+  type: 'test'
+  ...
+# Subtest: P145: idempotency key malformada ou reutilizada em outra operação é rejeitada
+ok 18 - P145: idempotency key malformada ou reutilizada em outra operação é rejeitada
+  ---
+  duration_ms: 19.671458
+  type: 'test'
+  ...
+# Subtest: P145: bridge Android expõe execução idempotente e reabertura não regrava storage
+ok 19 - P145: bridge Android expõe execução idempotente e reabertura não regrava storage
+  ---
+  duration_ms: 78.079831
+  type: 'test'
+  ...
+# Subtest: P145: importação de save adulterado é bloqueada antes da normalização do mundo
+ok 20 - P145: importação de save adulterado é bloqueada antes da normalização do mundo
+  ---
+  duration_ms: 28.191901
+  type: 'test'
+  ...
+# Subtest: P145 under-black-sun: três reaberturas mantêm a prova causal sem reexecutar ação
+ok 21 - P145 under-black-sun: três reaberturas mantêm a prova causal sem reexecutar ação
+  ---
+  duration_ms: 47.295501
+  type: 'test'
+  ...
+# Subtest: P145 beyond-the-rim: três reaberturas mantêm a prova causal sem reexecutar ação
+ok 22 - P145 beyond-the-rim: três reaberturas mantêm a prova causal sem reexecutar ação
+  ---
+  duration_ms: 55.619382
+  type: 'test'
+  ...
+# Subtest: P145 long-arm-of-the-hutt: três reaberturas mantêm a prova causal sem reexecutar ação
+ok 23 - P145 long-arm-of-the-hutt: três reaberturas mantêm a prova causal sem reexecutar ação
+  ---
+  duration_ms: 35.336703
+  type: 'test'
+  ...
+# Subtest: P145 jewel-of-yavin: três reaberturas mantêm a prova causal sem reexecutar ação
+ok 24 - P145 jewel-of-yavin: três reaberturas mantêm a prova causal sem reexecutar ação
+  ---
+  duration_ms: 29.013764
+  type: 'test'
+  ...
+# Subtest: P145 mask-of-the-pirate-queen: três reaberturas mantêm a prova causal sem reexecutar ação
+ok 25 - P145 mask-of-the-pirate-queen: três reaberturas mantêm a prova causal sem reexecutar ação
+  ---
+  duration_ms: 19.639832
+  type: 'test'
+  ...
+# Subtest: P145: recibos anteriores não podem ser reaplicados após reiniciar a mesma aventura
+ok 26 - P145: recibos anteriores não podem ser reaplicados após reiniciar a mesma aventura
+  ---
+  duration_ms: 44.32413
+  type: 'test'
+  ...
+# Subtest: P150: sete posições AoR têm consumidores reais; nomes não equivalentes permanecem bloqueados
+ok 27 - P150: sete posições AoR têm consumidores reais; nomes não equivalentes permanecem bloqueados
+  ---
+  duration_ms: 15.820359
+  type: 'test'
+  ...
+# Subtest: P150: programação defensiva normal concede um contratempo por rank apenas ao defender computador próprio
+ok 28 - P150: programação defensiva normal concede um contratempo por rank apenas ao defender computador próprio
+  ---
+  duration_ms: 4.461083
+  type: 'test'
+  ...
+# Subtest: P150: versão aprimorada SUBSTITUI contratempo por upgrades de dificuldade
+ok 29 - P150: versão aprimorada SUBSTITUI contratempo por upgrades de dificuldade
+  ---
+  duration_ms: 1.742587
+  type: 'test'
+  ...
+# Subtest: P150: invasão NPC gera pool correto e persiste, reabre sem rerrolar
+ok 30 - P150: invasão NPC gera pool correto e persiste, reabre sem rerrolar
+  ---
+  duration_ms: 8.974438
+  type: 'test'
+  ...
+# Subtest: P150: invasão aprimorada modifica dificuldade sem somar Contratempos
+ok 31 - P150: invasão aprimorada modifica dificuldade sem somar Contratempos
+  ---
+  duration_ms: 3.483849
+  type: 'test'
+  ...
+# Subtest: P150: adversário real usa Computadores, não os dados forjados do formulário
+ok 32 - P150: adversário real usa Computadores, não os dados forjados do formulário
+  ---
+  duration_ms: 7.040142
+  type: 'test'
+  ...
+# Subtest: P150: entradas inválidas e sistema não possuído não gravam dados
+ok 33 - P150: entradas inválidas e sistema não possuído não gravam dados
+  ---
+  duration_ms: 4.430837
+  type: 'test'
+  ...
+# Subtest: P150: erro de armazenamento reverte integralmente o histórico da invasão
+ok 34 - P150: erro de armazenamento reverte integralmente o histórico da invasão
+  ---
+  duration_ms: 5.474947
+  type: 'test'
+  ...
+# Subtest: P150: Escurridizo só reduz silhueta ao receber ataque; não altera nave nem acumula
+ok 35 - P150: Escurridizo só reduz silhueta ao receber ataque; não altera nave nem acumula
+  ---
+  duration_ms: 9.541806
+  type: 'test'
+  ...
+# Subtest: P150: UI, bridge e bundle offline contêm as rotas novas; Java Kokoro intocado
+ok 36 - P150: UI, bridge e bundle offline contêm as rotas novas; Java Kokoro intocado
+  ---
+  duration_ms: 24.762705
+  type: 'test'
+  ...
+# Subtest: P150 under-black-sun: prova do controlador é reservada; replay idempotente e 3 reaberturas
+ok 37 - P150 under-black-sun: prova do controlador é reservada; replay idempotente e 3 reaberturas
+  ---
+  duration_ms: 18.886058
+  type: 'test'
+  ...
+# Subtest: P150 under-black-sun: START do controlador registra prova válida e reabre sem escrita
+ok 38 - P150 under-black-sun: START do controlador registra prova válida e reabre sem escrita
+  ---
+  duration_ms: 45.633862
+  type: 'test'
+  ...
+# Subtest: P150 beyond-the-rim: prova do controlador é reservada; replay idempotente e 3 reaberturas
+ok 39 - P150 beyond-the-rim: prova do controlador é reservada; replay idempotente e 3 reaberturas
+  ---
+  duration_ms: 13.232309
+  type: 'test'
+  ...
+# Subtest: P150 beyond-the-rim: START do controlador registra prova válida e reabre sem escrita
+ok 40 - P150 beyond-the-rim: START do controlador registra prova válida e reabre sem escrita
+  ---
+  duration_ms: 35.331619
+  type: 'test'
+  ...
+# Subtest: P150 long-arm-of-the-hutt: prova do controlador é reservada; replay idempotente e 3 reaberturas
+ok 41 - P150 long-arm-of-the-hutt: prova do controlador é reservada; replay idempotente e 3 reaberturas
+  ---
+  duration_ms: 5.189905
+  type: 'test'
+  ...
+# Subtest: P150 long-arm-of-the-hutt: START do controlador registra prova válida e reabre sem escrita
+ok 42 - P150 long-arm-of-the-hutt: START do controlador registra prova válida e reabre sem escrita
+  ---
+  duration_ms: 14.773026
+  type: 'test'
+  ...
+# Subtest: P150 jewel-of-yavin: prova do controlador é reservada; replay idempotente e 3 reaberturas
+ok 43 - P150 jewel-of-yavin: prova do controlador é reservada; replay idempotente e 3 reaberturas
+  ---
+  duration_ms: 6.361122
+  type: 'test'
+  ...
+# Subtest: P150 jewel-of-yavin: START do controlador registra prova válida e reabre sem escrita
+ok 44 - P150 jewel-of-yavin: START do controlador registra prova válida e reabre sem escrita
+  ---
+  duration_ms: 18.57553
+  type: 'test'
+  ...
+# Subtest: P150 mask-of-the-pirate-queen: prova do controlador é reservada; replay idempotente e 3 reaberturas
+ok 45 - P150 mask-of-the-pirate-queen: prova do controlador é reservada; replay idempotente e 3 reaberturas
+  ---
+  duration_ms: 7.175404
+  type: 'test'
+  ...
+# Subtest: P150 mask-of-the-pirate-queen: START do controlador registra prova válida e reabre sem escrita
+ok 46 - P150 mask-of-the-pirate-queen: START do controlador registra prova válida e reabre sem escrita
+  ---
+  duration_ms: 15.32893
+  type: 'test'
+  ...
+# Subtest: P150: ataque NPC usa defesa Escurridizo da nave do jogador e persiste dano/rolagem
+ok 47 - P150: ataque NPC usa defesa Escurridizo da nave do jogador e persiste dano/rolagem
+  ---
+  duration_ms: 9.577363
+  type: 'test'
+  ...
+# Subtest: P150: talento veicular não é aplicado quando personagem não está pilotando
+ok 48 - P150: talento veicular não é aplicado quando personagem não está pilotando
+  ---
+  duration_ms: 5.133743
+  type: 'test'
+  ...
+# Subtest: P150: ataque NPC não consome ação do jogador e só ocorre uma vez por rodada
+ok 49 - P150: ataque NPC não consome ação do jogador e só ocorre uma vez por rodada
+  ---
+  duration_ms: 10.142592
+  type: 'test'
+  ...
+# Subtest: P150: ataque NPC inválido, fora de alcance e sem combate não alteram a campanha
+ok 50 - P150: ataque NPC inválido, fora de alcance e sem combate não alteram a campanha
+  ---
+  duration_ms: 5.129927
+  type: 'test'
+  ...
+# Subtest: P150: falha de armazenamento reverte ataque NPC, dano, munição e turno
+ok 51 - P150: falha de armazenamento reverte ataque NPC, dano, munição e turno
+  ---
+  duration_ms: 5.687261
+  type: 'test'
+  ...
+# Subtest: P150: crítico inimigo consome resultado real, permite escolha de componente e não duplica
+ok 52 - P150: crítico inimigo consome resultado real, permite escolha de componente e não duplica
+  ---
+  duration_ms: 11.189537
+  type: 'test'
+  ...
+# Subtest: P150: crítico inimigo pode ser dispensado sem rolar nem aplicar dano adicional
+ok 53 - P150: crítico inimigo pode ser dispensado sem rolar nem aplicar dano adicional
+  ---
+  duration_ms: 6.08226
+  type: 'test'
+  ...
+# Subtest: P150: interface expõe combate veicular inimigo, custos e escolha de crítico
+ok 54 - P150: interface expõe combate veicular inimigo, custos e escolha de crítico
+  ---
+  duration_ms: 57.076116
+  type: 'test'
+  ...
+# Subtest: P163: 8 AoR positions wired without source/display forgery
+ok 55 - P163: 8 AoR positions wired without source/display forgery
+  ---
+  duration_ms: 19.551985
+  type: 'test'
+  ...
+# Subtest: P163: Well Rounded chooses two distinct, permanent career skills with purchase provenance
+ok 56 - P163: Well Rounded chooses two distinct, permanent career skills with purchase provenance
+  ---
+  duration_ms: 6.655213
+  type: 'test'
+  ...
+# Subtest: P163: Bacta Specialist increases actual healing, not empty or unsupervised time
+ok 57 - P163: Bacta Specialist increases actual healing, not empty or unsupervised time
+  ---
+  duration_ms: 2.732571
+  type: 'test'
+  ...
+# Subtest: P163: Bacta recovery is explicit, persistent and rolled back on storage failure
+ok 58 - P163: Bacta recovery is explicit, persistent and rolled back on storage failure
+  ---
+  duration_ms: 9.423385
+  type: 'test'
+  ...
+# Subtest: P163: base Stim Application spends an action, boosts exactly one stat and costs 4 strain
+ok 59 - P163: base Stim Application spends an action, boosts exactly one stat and costs 4 strain
+  ---
+  duration_ms: 10.211615
+  type: 'test'
+  ...
+# Subtest: P163: Improved Stim raises difficulty and reduces strain to one
+ok 60 - P163: Improved Stim raises difficulty and reduces strain to one
+  ---
+  duration_ms: 1.842369
+  type: 'test'
+  ...
+# Subtest: P163: Supreme Stim spends actual Triumph and applies a different extra stat
+ok 61 - P163: Supreme Stim spends actual Triumph and applies a different extra stat
+  ---
+  duration_ms: 3.413786
+  type: 'test'
+  ...
+# Subtest: P163: Stim prevents repeat stat and equipment/alias forgery
+ok 62 - P163: Stim prevents repeat stat and equipment/alias forgery
+  ---
+  duration_ms: 3.494478
+  type: 'test'
+  ...
+# Subtest: P163: Stim failures never grant stat or strain, encounter end removes boosts
+ok 63 - P163: Stim failures never grant stat or strain, encounter end removes boosts
+  ---
+  duration_ms: 11.572544
+  type: 'test'
+  ...
+# Subtest: P163: Master Doctor applies real 2 strain and -1 Medicine difficulty
+ok 64 - P163: Master Doctor applies real 2 strain and -1 Medicine difficulty
+  ---
+  duration_ms: 7.175173
+  type: 'test'
+  ...
+# Subtest: P163: Master Doctor cannot be invoked by display label
+ok 65 - P163: Master Doctor cannot be invoked by display label
+  ---
+  duration_ms: 1.950507
+  type: 'test'
+  ...
+# Subtest: P163: AoR Full Stop gated by actual purchased node, costs speed in system strain
+ok 66 - P163: AoR Full Stop gated by actual purchased node, costs speed in system strain
+  ---
+  duration_ms: 10.32698
+  type: 'test'
+  ...
+# Subtest: P163: AoR Full Stop rejects unowned nodes before charging maneuver
+ok 67 - P163: AoR Full Stop rejects unowned nodes before charging maneuver
+  ---
+  duration_ms: 3.421142
+  type: 'test'
+  ...
+# Subtest: P163: successful Supreme application refuses invented Triumph
+ok 68 - P163: successful Supreme application refuses invented Triumph
+  ---
+  duration_ms: 1.514731
+  type: 'test'
+  ...
+# Subtest: P163: Stim atomicity restores character and action after storage failure
+ok 69 - P163: Stim atomicity restores character and action after storage failure
+  ---
+  duration_ms: 4.366706
+  type: 'test'
+  ...
+# Subtest: P163: Medicine atomicity restores health and strain after storage failure
+ok 70 - P163: Medicine atomicity restores health and strain after storage failure
+  ---
+  duration_ms: 4.046676
+  type: 'test'
+  ...
+# Subtest: P163: Well Rounded persists after three reopenings and cannot be purchased twice
+ok 71 - P163: Well Rounded persists after three reopenings and cannot be purchased twice
+  ---
+  duration_ms: 7.398955
+  type: 'test'
+  ...
+# Subtest: P163: Stim application does not consume access-only medical equipment
+ok 72 - P163: Stim application does not consume access-only medical equipment
+  ---
+  duration_ms: 1.451595
+  type: 'test'
+  ...
+# Subtest: P163: Master Doctor also powers contextual Medicine check without forged purchase
+ok 73 - P163: Master Doctor also powers contextual Medicine check without forged purchase
+  ---
+  duration_ms: 7.55053
+  type: 'test'
+  ...
+# Subtest: P163: Android bridge routes new medical actions and bundle contains new API
+ok 74 - P163: Android bridge routes new medical actions and bundle contains new API
+  ---
+  duration_ms: 22.846604
+  type: 'test'
+  ...
+# Subtest: P163: under-black-sun UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 75 - P163: under-black-sun UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 30.625121
+  type: 'test'
+  ...
+# Subtest: P163: beyond-the-rim UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 76 - P163: beyond-the-rim UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 15.707632
+  type: 'test'
+  ...
+# Subtest: P163: long-arm-of-the-hutt UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 77 - P163: long-arm-of-the-hutt UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 13.157242
+  type: 'test'
+  ...
+# Subtest: P163: jewel-of-yavin UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 78 - P163: jewel-of-yavin UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 11.72829
+  type: 'test'
+  ...
+# Subtest: P163: mask-of-the-pirate-queen UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 79 - P163: mask-of-the-pirate-queen UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 14.676413
+  type: 'test'
+  ...
+# Subtest: P167 two Familiar Suns AoR slots active; no unrelated slot or EotE display name grants use
+ok 80 - P167 two Familiar Suns AoR slots active; no unrelated slot or EotE display name grants use
+  ---
+  duration_ms: 17.403447
+  type: 'test'
+  ...
+# Subtest: P167 Hard planetary Knowledge check is once per session and never invents lore
+ok 81 - P167 Hard planetary Knowledge check is once per session and never invents lore
+  ---
+  duration_ms: 15.716964
+  type: 'test'
+  ...
+# Subtest: P167 repository write failure rolls back check, use ledger and session count
+ok 82 - P167 repository write failure rolls back check, use ledger and session count
+  ---
+  duration_ms: 11.188056
+  type: 'test'
+  ...
+# Subtest: P167 Android bridge and PT-BR control route to actual controller, not dummy UI
+ok 83 - P167 Android bridge and PT-BR control route to actual controller, not dummy UI
+  ---
+  duration_ms: 12.724171
+  type: 'test'
+  ...
+# Subtest: P167 two authentic AoR Mental Fortress slots, 304/360 mechanically active
+ok 84 - P167 two authentic AoR Mental Fortress slots, 304/360 mechanically active
+  ---
+  duration_ms: 19.959579
+  type: 'test'
+  ...
+# Subtest: P167 Mental Fortress only suppresses critical check modifiers on Intellect/Cunning, not incapacitation
+ok 85 - P167 Mental Fortress only suppresses critical check modifiers on Intellect/Cunning, not incapacitation
+  ---
+  duration_ms: 10.33536
+  type: 'test'
+  ...
+# Subtest: P167 Mental Fortress activation spends exactly one Destiny, persists, repeats blocked
+ok 86 - P167 Mental Fortress activation spends exactly one Destiny, persists, repeats blocked
+  ---
+  duration_ms: 28.709869
+  type: 'test'
+  ...
+# Subtest: P167 Mental Fortress rejects no talent, no combat, no Destiny and rolls back disk failure
+ok 87 - P167 Mental Fortress rejects no talent, no combat, no Destiny and rolls back disk failure
+  ---
+  duration_ms: 30.839661
+  type: 'test'
+  ...
+# Subtest: P167 Android bridge exposes mental defense and UI action
+ok 88 - P167 Android bridge exposes mental defense and UI action
+  ---
+  duration_ms: 38.59782
+  type: 'test'
+  ...
+# Subtest: P167 under-black-sun: objective prerequisites fail closed with complete transaction rollback
+ok 89 - P167 under-black-sun: objective prerequisites fail closed with complete transaction rollback
+  ---
+  duration_ms: 10.67435
+  type: 'test'
+  ...
+# Subtest: P167 under-black-sun: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+ok 90 - P167 under-black-sun: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+  ---
+  duration_ms: 26.796043
+  type: 'test'
+  ...
+# Subtest: P167 under-black-sun: authored resolution effect failure reverses consequence and all prior effects
+ok 91 - P167 under-black-sun: authored resolution effect failure reverses consequence and all prior effects
+  ---
+  duration_ms: 12.803825
+  type: 'test'
+  ...
+# Subtest: P167 under-black-sun: imported completed objective without prerequisite is rejected
+ok 92 - P167 under-black-sun: imported completed objective without prerequisite is rejected
+  ---
+  duration_ms: 3.664237
+  type: 'test'
+  ...
+# Subtest: P167 under-black-sun: forged consequence metadata cannot inject resolution effects
+ok 93 - P167 under-black-sun: forged consequence metadata cannot inject resolution effects
+  ---
+  duration_ms: 3.302065
+  type: 'test'
+  ...
+# Subtest: P167 beyond-the-rim: objective prerequisites fail closed with complete transaction rollback
+ok 94 - P167 beyond-the-rim: objective prerequisites fail closed with complete transaction rollback
+  ---
+  duration_ms: 2.140688
+  type: 'test'
+  ...
+# Subtest: P167 beyond-the-rim: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+ok 95 - P167 beyond-the-rim: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+  ---
+  duration_ms: 10.674253
+  type: 'test'
+  ...
+# Subtest: P167 beyond-the-rim: authored resolution effect failure reverses consequence and all prior effects
+ok 96 - P167 beyond-the-rim: authored resolution effect failure reverses consequence and all prior effects
+  ---
+  duration_ms: 4.49786
+  type: 'test'
+  ...
+# Subtest: P167 beyond-the-rim: imported completed objective without prerequisite is rejected
+ok 97 - P167 beyond-the-rim: imported completed objective without prerequisite is rejected
+  ---
+  duration_ms: 5.037231
+  type: 'test'
+  ...
+# Subtest: P167 beyond-the-rim: forged consequence metadata cannot inject resolution effects
+ok 98 - P167 beyond-the-rim: forged consequence metadata cannot inject resolution effects
+  ---
+  duration_ms: 5.296887
+  type: 'test'
+  ...
+# Subtest: P167 long-arm-of-the-hutt: objective prerequisites fail closed with complete transaction rollback
+ok 99 - P167 long-arm-of-the-hutt: objective prerequisites fail closed with complete transaction rollback
+  ---
+  duration_ms: 2.30367
+  type: 'test'
+  ...
+# Subtest: P167 long-arm-of-the-hutt: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+ok 100 - P167 long-arm-of-the-hutt: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+  ---
+  duration_ms: 10.492062
+  type: 'test'
+  ...
+# Subtest: P167 long-arm-of-the-hutt: authored resolution effect failure reverses consequence and all prior effects
+ok 101 - P167 long-arm-of-the-hutt: authored resolution effect failure reverses consequence and all prior effects
+  ---
+  duration_ms: 2.191646
+  type: 'test'
+  ...
+# Subtest: P167 long-arm-of-the-hutt: imported completed objective without prerequisite is rejected
+ok 102 - P167 long-arm-of-the-hutt: imported completed objective without prerequisite is rejected
+  ---
+  duration_ms: 1.484407
+  type: 'test'
+  ...
+# Subtest: P167 long-arm-of-the-hutt: forged consequence metadata cannot inject resolution effects
+ok 103 - P167 long-arm-of-the-hutt: forged consequence metadata cannot inject resolution effects
+  ---
+  duration_ms: 2.280263
+  type: 'test'
+  ...
+# Subtest: P167 jewel-of-yavin: objective prerequisites fail closed with complete transaction rollback
+ok 104 - P167 jewel-of-yavin: objective prerequisites fail closed with complete transaction rollback
+  ---
+  duration_ms: 0.854256
+  type: 'test'
+  ...
+# Subtest: P167 jewel-of-yavin: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+ok 105 - P167 jewel-of-yavin: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+  ---
+  duration_ms: 8.87972
+  type: 'test'
+  ...
+# Subtest: P167 jewel-of-yavin: authored resolution effect failure reverses consequence and all prior effects
+ok 106 - P167 jewel-of-yavin: authored resolution effect failure reverses consequence and all prior effects
+  ---
+  duration_ms: 3.554726
+  type: 'test'
+  ...
+# Subtest: P167 jewel-of-yavin: imported completed objective without prerequisite is rejected
+ok 107 - P167 jewel-of-yavin: imported completed objective without prerequisite is rejected
+  ---
+  duration_ms: 5.354629
+  type: 'test'
+  ...
+# Subtest: P167 jewel-of-yavin: forged consequence metadata cannot inject resolution effects
+ok 108 - P167 jewel-of-yavin: forged consequence metadata cannot inject resolution effects
+  ---
+  duration_ms: 1.612008
+  type: 'test'
+  ...
+# Subtest: P167 mask-of-the-pirate-queen: objective prerequisites fail closed with complete transaction rollback
+ok 109 - P167 mask-of-the-pirate-queen: objective prerequisites fail closed with complete transaction rollback
+  ---
+  duration_ms: 2.317006
+  type: 'test'
+  ...
+# Subtest: P167 mask-of-the-pirate-queen: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+ok 110 - P167 mask-of-the-pirate-queen: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+  ---
+  duration_ms: 8.866947
+  type: 'test'
+  ...
+# Subtest: P167 mask-of-the-pirate-queen: authored resolution effect failure reverses consequence and all prior effects
+ok 111 - P167 mask-of-the-pirate-queen: authored resolution effect failure reverses consequence and all prior effects
+  ---
+  duration_ms: 2.651946
+  type: 'test'
+  ...
+# Subtest: P167 mask-of-the-pirate-queen: imported completed objective without prerequisite is rejected
+ok 112 - P167 mask-of-the-pirate-queen: imported completed objective without prerequisite is rejected
+  ---
+  duration_ms: 0.892301
+  type: 'test'
+  ...
+# Subtest: P167 mask-of-the-pirate-queen: forged consequence metadata cannot inject resolution effects
+ok 113 - P167 mask-of-the-pirate-queen: forged consequence metadata cannot inject resolution effects
+  ---
+  duration_ms: 2.209221
+  type: 'test'
+  ...
+# Subtest: P167 preflight rejects missing, duplicate and cyclic objective dependencies
+ok 114 - P167 preflight rejects missing, duplicate and cyclic objective dependencies
+  ---
+  duration_ms: 1.146044
+  type: 'test'
+  ...
+# Subtest: P175 AoR command source purchase activation and no display-only privilege
+ok 115 - P175 AoR command source purchase activation and no display-only privilege
+  ---
+  duration_ms: 18.164037
+  type: 'test'
+  ...
+# Subtest: P175 Field Commander success: real Leadership check, ally strain, free maneuver, real cover setback
+ok 116 - P175 Field Commander success: real Leadership check, ally strain, free maneuver, real cover setback
+  ---
+  duration_ms: 22.214268
+  type: 'test'
+  ...
+# Subtest: P175 Field Commander: no invented free action without Improved and Triumph
+ok 117 - P175 Field Commander: no invented free action without Improved and Triumph
+  ---
+  duration_ms: 5.198493
+  type: 'test'
+  ...
+# Subtest: P175 Master Leader spends 2 strain and reduces only Leadership, once per round
+ok 118 - P175 Master Leader spends 2 strain and reduces only Leadership, once per round
+  ---
+  duration_ms: 10.801474
+  type: 'test'
+  ...
+# Subtest: P175 Coordinated Assault: maneuver grants one automatic Advantage to engaged companion combat check
+ok 119 - P175 Coordinated Assault: maneuver grants one automatic Advantage to engaged companion combat check
+  ---
+  duration_ms: 19.664187
+  type: 'test'
+  ...
+# Subtest: P175 command transaction rollback on storage failure
+ok 120 - P175 command transaction rollback on storage failure
+  ---
+  duration_ms: 12.474681
+  type: 'test'
+  ...
+# Subtest: P175 rejects tampered command history and unearned tokens after restore
+ok 121 - P175 rejects tampered command history and unearned tokens after restore
+  ---
+  duration_ms: 10.105288
+  type: 'test'
+  ...
+# Subtest: P175 Android bridge has real command actions and restore path
+ok 122 - P175 Android bridge has real command actions and restore path
+  ---
+  duration_ms: 11.839037
+  type: 'test'
+  ...
+# Subtest: P175 under-black-sun: command action and three saves preserve published UAE
+ok 123 - P175 under-black-sun: command action and three saves preserve published UAE
+  ---
+  duration_ms: 75.615839
+  type: 'test'
+  ...
+# Subtest: P175 beyond-the-rim: command action and three saves preserve published UAE
+ok 124 - P175 beyond-the-rim: command action and three saves preserve published UAE
+  ---
+  duration_ms: 32.384585
+  type: 'test'
+  ...
+# Subtest: P175 long-arm-of-the-hutt: command action and three saves preserve published UAE
+ok 125 - P175 long-arm-of-the-hutt: command action and three saves preserve published UAE
+  ---
+  duration_ms: 17.143308
+  type: 'test'
+  ...
+# Subtest: P175 jewel-of-yavin: command action and three saves preserve published UAE
+ok 126 - P175 jewel-of-yavin: command action and three saves preserve published UAE
+  ---
+  duration_ms: 18.60932
+  type: 'test'
+  ...
+# Subtest: P175 mask-of-the-pirate-queen: command action and three saves preserve published UAE
+ok 127 - P175 mask-of-the-pirate-queen: command action and three saves preserve published UAE
+  ---
+  duration_ms: 15.988586
+  type: 'test'
+  ...
+# Subtest: P175 Brilliant Evasion: real opposed Piloting, once per encounter, enemy fire blocked for Agility rounds
+ok 128 - P175 Brilliant Evasion: real opposed Piloting, once per encounter, enemy fire blocked for Agility rounds
+  ---
+  duration_ms: 35.871801
+  type: 'test'
+  ...
+# Subtest: P175 Brilliant Evasion: failure consumes action/attempt and save failure rolls back
+ok 129 - P175 Brilliant Evasion: failure consumes action/attempt and save failure rolls back
+  ---
+  duration_ms: 11.887191
+  type: 'test'
+  ...
+# Subtest: P175 Situational Awareness: real allied Perception/Vigilance Boost near owned vehicle only
+ok 130 - P175 Situational Awareness: real allied Perception/Vigilance Boost near owned vehicle only
+  ---
+  duration_ms: 6.584946
+  type: 'test'
+  ...
+# Subtest: P175 Clever Solution: one Cunning-based skill check per session, no display-only unlock, three restores
+ok 131 - P175 Clever Solution: one Cunning-based skill check per session, no display-only unlock, three restores
+  ---
+  duration_ms: 7.979919
+  type: 'test'
+  ...
+# Subtest: P175 no free Triumph reroll: failed Triumph spend still consumes Leadership action
+ok 132 - P175 no free Triumph reroll: failed Triumph spend still consumes Leadership action
+  ---
+  duration_ms: 8.581722
+  type: 'test'
+  ...
+# Subtest: P175 Brilliant Evasion: forged duration, foreign target, missing attempt rejected
+ok 133 - P175 Brilliant Evasion: forged duration, foreign target, missing attempt rejected
+  ---
+  duration_ms: 7.915308
+  type: 'test'
+  ...
+# Subtest: P175 offline Android bridge and PT-BR UI expose command, evasion and Cunning actions
+ok 134 - P175 offline Android bridge and PT-BR UI expose command, evasion and Cunning actions
+  ---
+  duration_ms: 16.575993
+  type: 'test'
+  ...
+# Subtest: P176 source-backed four new AoR slots; separate Skilled and Master Slicer
+ok 135 - P176 source-backed four new AoR slots; separate Skilled and Master Slicer
+  ---
+  duration_ms: 74.879671
+  type: 'test'
+  ...
+# Subtest: P176 Bought Info charges 150 credits, automatic one success, GM revelation pending, causal receipt
+ok 136 - P176 Bought Info charges 150 credits, automatic one success, GM revelation pending, causal receipt
+  ---
+  duration_ms: 10.322765
+  type: 'test'
+  ...
+# Subtest: P176 Bought Info rejects unowned talent, missing approval, invalid subject and insufficient funds
+ok 137 - P176 Bought Info rejects unowned talent, missing approval, invalid subject and insufficient funds
+  ---
+  duration_ms: 14.724902
+  type: 'test'
+  ...
+# Subtest: P176 Known Schematic Hard Education maneuver, one/session and no invented maps
+ok 138 - P176 Known Schematic Hard Education maneuver, one/session and no invented maps
+  ---
+  duration_ms: 9.703157
+  type: 'test'
+  ...
+# Subtest: P176 Known Schematic failure still consumes the single session use
+ok 139 - P176 Known Schematic failure still consumes the single session use
+  ---
+  duration_ms: 4.194372
+  type: 'test'
+  ...
+# Subtest: P176 Fire Control gives +1 target silhouette on actual ship gunnery and expires
+ok 140 - P176 Fire Control gives +1 target silhouette on actual ship gunnery and expires
+  ---
+  duration_ms: 24.640292
+  type: 'test'
+  ...
+# Subtest: P176 Fire Control second maneuver pays vehicle strain and cannot bypass action budget
+ok 141 - P176 Fire Control second maneuver pays vehicle strain and cannot bypass action budget
+  ---
+  duration_ms: 9.962046
+  type: 'test'
+  ...
+# Subtest: P176 Skilled Slicer Triumph grants only same-system Computers maneuver; Master Slicer separate
+ok 142 - P176 Skilled Slicer Triumph grants only same-system Computers maneuver; Master Slicer separate
+  ---
+  duration_ms: 19.689532
+  type: 'test'
+  ...
+# Subtest: P176 Skilled Slicer cannot activate from a display label or without Triumph
+ok 143 - P176 Skilled Slicer cannot activate from a display label or without Triumph
+  ---
+  duration_ms: 7.526719
+  type: 'test'
+  ...
+# Subtest: P176 rollback on repository failure covers credits, events, maneuvers, source receipts
+ok 144 - P176 rollback on repository failure covers credits, events, maneuvers, source receipts
+  ---
+  duration_ms: 14.927059
+  type: 'test'
+  ...
+# Subtest: P176 tampered receipts, missing causal events and forged fire control are rejected
+ok 145 - P176 tampered receipts, missing causal events and forged fire control are rejected
+  ---
+  duration_ms: 12.077782
+  type: 'test'
+  ...
+# Subtest: P176 Android bridge, UI and old P175 checkpoint migration are compatible
+ok 146 - P176 Android bridge, UI and old P175 checkpoint migration are compatible
+  ---
+  duration_ms: 24.590027
+  type: 'test'
+  ...
+# Subtest: P176 under-black-sun: Bought Info does not overwrite UAE, three reopenings
+ok 147 - P176 under-black-sun: Bought Info does not overwrite UAE, three reopenings
+  ---
+  duration_ms: 30.458694
+  type: 'test'
+  ...
+# Subtest: P176 beyond-the-rim: Bought Info does not overwrite UAE, three reopenings
+ok 148 - P176 beyond-the-rim: Bought Info does not overwrite UAE, three reopenings
+  ---
+  duration_ms: 21.531674
+  type: 'test'
+  ...
+# Subtest: P176 long-arm-of-the-hutt: Bought Info does not overwrite UAE, three reopenings
+ok 149 - P176 long-arm-of-the-hutt: Bought Info does not overwrite UAE, three reopenings
+  ---
+  duration_ms: 12.381631
+  type: 'test'
+  ...
+# Subtest: P176 jewel-of-yavin: Bought Info does not overwrite UAE, three reopenings
+ok 150 - P176 jewel-of-yavin: Bought Info does not overwrite UAE, three reopenings
+  ---
+  duration_ms: 11.450905
+  type: 'test'
+  ...
+# Subtest: P176 mask-of-the-pirate-queen: Bought Info does not overwrite UAE, three reopenings
+ok 151 - P176 mask-of-the-pirate-queen: Bought Info does not overwrite UAE, three reopenings
+  ---
+  duration_ms: 15.949792
+  type: 'test'
+  ...
+# Subtest: P176 Massive 2 raises actual critical cost by 2; Exhaust Port spends Destiny to ignore it
+ok 152 - P176 Massive 2 raises actual critical cost by 2; Exhaust Port spends Destiny to ignore it
+  ---
+  duration_ms: 13.381024
+  type: 'test'
+  ...
+# Subtest: P176 Massive without Exhaust Port increases critical cost and never consumes Destiny
+ok 153 - P176 Massive without Exhaust Port increases critical cost and never consumes Destiny
+  ---
+  duration_ms: 7.408681
+  type: 'test'
+  ...
+# Subtest: P176 Dead to Rights applies Agility-based vehicle damage only on hit and flips Destiny
+ok 154 - P176 Dead to Rights applies Agility-based vehicle damage only on hit and flips Destiny
+  ---
+  duration_ms: 13.342587
+  type: 'test'
+  ...
+# Subtest: P176 Exhaust Port and Dead to Rights reject unearned talents and insufficient Destiny atomically
+ok 155 - P176 Exhaust Port and Dead to Rights reject unearned talents and insufficient Destiny atomically
+  ---
+  duration_ms: 20.779115
+  type: 'test'
+  ...
+# Subtest: P176 Dead to Rights miss does not consume light Destiny
+ok 156 - P176 Dead to Rights miss does not consume light Destiny
+  ---
+  duration_ms: 6.638182
+  type: 'test'
+  ...
+# Subtest: P176 Fire Control expires on original ship even when active ship is switched
+ok 157 - P176 Fire Control expires on original ship even when active ship is switched
+  ---
+  duration_ms: 8.733407
+  type: 'test'
+  ...
+# Subtest: P177 seven source-backed positions have real consumers, no blanket alias
+ok 158 - P177 seven source-backed positions have real consumers, no blanket alias
+  ---
+  duration_ms: 2.583121
+  type: 'test'
+  ...
+# Subtest: P177 Careful Planning persists an approved fact without flipping Destiny, one/session
+ok 159 - P177 Careful Planning persists an approved fact without flipping Destiny, one/session
+  ---
+  duration_ms: 15.119095
+  type: 'test'
+  ...
+# Subtest: P177 Careful Planning rejects unowned, invalid fact, absent GM approval, and rollback
+ok 160 - P177 Careful Planning rejects unowned, invalid fact, absent GM approval, and rollback
+  ---
+  duration_ms: 11.920142
+  type: 'test'
+  ...
+# Subtest: P177 Contraption rolls Hard Mechanics, consumes owned parts and tools only on success
+ok 161 - P177 Contraption rolls Hard Mechanics, consumes owned parts and tools only on success
+  ---
+  duration_ms: 6.264636
+  type: 'test'
+  ...
+# Subtest: P177 Contraption fails closed for missing gear, noncombat, missing approval, duplicated ids
+ok 162 - P177 Contraption fails closed for missing gear, noncombat, missing approval, duplicated ids
+  ---
+  duration_ms: 13.108497
+  type: 'test'
+  ...
+# Subtest: P177 Incite Rebellion rolls Hard Coercion against real minion/rival, respects skill cap
+ok 163 - P177 Incite Rebellion rolls Hard Coercion against real minion/rival, respects skill cap
+  ---
+  duration_ms: 6.7978
+  type: 'test'
+  ...
+# Subtest: P177 Incite Rebellion rejects phantom/duplicate/over-cap targets, leaves state unchanged
+ok 164 - P177 Incite Rebellion rejects phantom/duplicate/over-cap targets, leaves state unchanged
+  ---
+  duration_ms: 15.941254
+  type: 'test'
+  ...
+# Subtest: P177 Hidden Storage uses owned gear capacity and no item duplication
+ok 165 - P177 Hidden Storage uses owned gear capacity and no item duplication
+  ---
+  duration_ms: 6.38791
+  type: 'test'
+  ...
+# Subtest: P177 Hidden Storage rejects nonexistent item/container, capacity overrun, cross-campaign replay
+ok 166 - P177 Hidden Storage rejects nonexistent item/container, capacity overrun, cross-campaign replay
+  ---
+  duration_ms: 8.839693
+  type: 'test'
+  ...
+# Subtest: P177 Greased Palms spends 50 credits, upgrades actual Negotiation roll and records causal receipt
+ok 167 - P177 Greased Palms spends 50 credits, upgrades actual Negotiation roll and records causal receipt
+  ---
+  duration_ms: 9.094276
+  type: 'test'
+  ...
+# Subtest: P177 Greased Palms refuses unearned rank, non-social skill, invalid credits, duplicate id
+ok 168 - P177 Greased Palms refuses unearned rank, non-social skill, invalid credits, duplicate id
+  ---
+  duration_ms: 12.538105
+  type: 'test'
+  ...
+# Subtest: P177 Stunning Blow replaces personal melee wounds with strain without ignoring soak
+ok 169 - P177 Stunning Blow replaces personal melee wounds with strain without ignoring soak
+  ---
+  duration_ms: 8.586826
+  type: 'test'
+  ...
+# Subtest: P177 Stunning Blow rejects unowned talent and nonmelee attack
+ok 170 - P177 Stunning Blow rejects unowned talent and nonmelee attack
+  ---
+  duration_ms: 2.578457
+  type: 'test'
+  ...
+# Subtest: P177 Improved Stunning Blow spends real pending Triumph only once, applies staggered
+ok 171 - P177 Improved Stunning Blow spends real pending Triumph only once, applies staggered
+  ---
+  duration_ms: 12.715437
+  type: 'test'
+  ...
+# Subtest: P177 Improved Stunning Blow fails closed without Triumph or target, no fabricated status
+ok 172 - P177 Improved Stunning Blow fails closed without Triumph or target, no fabricated status
+  ---
+  duration_ms: 6.91472
+  type: 'test'
+  ...
+# Subtest: P177 forged ledgers, missing events, duplicates, tampered credits are rejected
+ok 173 - P177 forged ledgers, missing events, duplicates, tampered credits are rejected
+  ---
+  duration_ms: 3.705494
+  type: 'test'
+  ...
+# Subtest: P177 P176 save migration, Android bridge, and panel are connected
+ok 174 - P177 P176 save migration, Android bridge, and panel are connected
+  ---
+  duration_ms: 43.534483
+  type: 'test'
+  ...
+# Subtest: P177 under-black-sun: approved Careful Planning leaves UAE untouched across three reopenings
+ok 175 - P177 under-black-sun: approved Careful Planning leaves UAE untouched across three reopenings
+  ---
+  duration_ms: 34.764824
+  type: 'test'
+  ...
+# Subtest: P177 beyond-the-rim: approved Careful Planning leaves UAE untouched across three reopenings
+ok 176 - P177 beyond-the-rim: approved Careful Planning leaves UAE untouched across three reopenings
+  ---
+  duration_ms: 15.383372
+  type: 'test'
+  ...
+# Subtest: P177 long-arm-of-the-hutt: approved Careful Planning leaves UAE untouched across three reopenings
+ok 177 - P177 long-arm-of-the-hutt: approved Careful Planning leaves UAE untouched across three reopenings
+  ---
+  duration_ms: 8.912434
+  type: 'test'
+  ...
+# Subtest: P177 jewel-of-yavin: approved Careful Planning leaves UAE untouched across three reopenings
+ok 178 - P177 jewel-of-yavin: approved Careful Planning leaves UAE untouched across three reopenings
+  ---
+  duration_ms: 8.992142
+  type: 'test'
+  ...
+# Subtest: P177 mask-of-the-pirate-queen: approved Careful Planning leaves UAE untouched across three reopenings
+ok 179 - P177 mask-of-the-pirate-queen: approved Careful Planning leaves UAE untouched across three reopenings
+  ---
+  duration_ms: 12.075378
+  type: 'test'
+  ...
+# Subtest: P177 Contraption temporary gear disappears when the encounter closes, ledger persists
+ok 180 - P177 Contraption temporary gear disappears when the encounter closes, ledger persists
+  ---
+  duration_ms: 9.802969
+  type: 'test'
+  ...
+# Subtest: P177 all four action families roll back on failed repository save
+ok 181 - P177 all four action families roll back on failed repository save
+  ---
+  duration_ms: 15.692555
+  type: 'test'
+  ...
+# Subtest: P177 Greased Palms rolls back credits, maneuvers and receipts on save failure
+ok 182 - P177 Greased Palms rolls back credits, maneuvers and receipts on save failure
+  ---
+  duration_ms: 5.034725
+  type: 'test'
+  ...
+# Subtest: P177 Stunning Blow does not ignore target soak or allow improvised critical spending
+ok 183 - P177 Stunning Blow does not ignore target soak or allow improvised critical spending
+  ---
+  duration_ms: 5.606701
+  type: 'test'
+  ...
+# Subtest: P177 Soft Spot AoR adds Cunning to real personal attack on hit, spends exactly one Destiny
+ok 184 - P177 Soft Spot AoR adds Cunning to real personal attack on hit, spends exactly one Destiny
+  ---
+  duration_ms: 5.215938
+  type: 'test'
+  ...
+# Subtest: P177 Soft Spot rejects unowned, conflicting Destiny options and rolls back on missing Destiny
+ok 185 - P177 Soft Spot rejects unowned, conflicting Destiny options and rolls back on missing Destiny
+  ---
+  duration_ms: 9.961387
+  type: 'test'
+  ...
+# Subtest: P178 five distinct AoR source slots have actual consumers
+ok 186 - P178 five distinct AoR source slots have actual consumers
+  ---
+  duration_ms: 4.144333
+  type: 'test'
+  ...
+# Subtest: P178 MANO DE SANTO substitutes the live dice pool, once/session, survives three reopens
+ok 187 - P178 MANO DE SANTO substitutes the live dice pool, once/session, survives three reopens
+  ---
+  duration_ms: 49.247567
+  type: 'test'
+  ...
+# Subtest: P178 MANO DE SANTO refuses unowned talent and rolls back on failed save
+ok 188 - P178 MANO DE SANTO refuses unowned talent and rolls back on failed save
+  ---
+  duration_ms: 14.423403
+  type: 'test'
+  ...
+# Subtest: P178 INGENIOSO substitutes the live dice pool, once/session, survives three reopens
+ok 189 - P178 INGENIOSO substitutes the live dice pool, once/session, survives three reopens
+  ---
+  duration_ms: 10.281118
+  type: 'test'
+  ...
+# Subtest: P178 INGENIOSO refuses unowned talent and rolls back on failed save
+ok 190 - P178 INGENIOSO refuses unowned talent and rolls back on failed save
+  ---
+  duration_ms: 18.310695
+  type: 'test'
+  ...
+# Subtest: P178 SOLUCIÓN IMPROVISADA substitutes the live dice pool, once/session, survives three reopens
+ok 191 - P178 SOLUCIÓN IMPROVISADA substitutes the live dice pool, once/session, survives three reopens
+  ---
+  duration_ms: 15.16305
+  type: 'test'
+  ...
+# Subtest: P178 SOLUCIÓN IMPROVISADA refuses unowned talent and rolls back on failed save
+ok 192 - P178 SOLUCIÓN IMPROVISADA refuses unowned talent and rolls back on failed save
+  ---
+  duration_ms: 11.050075
+  type: 'test'
+  ...
+# Subtest: P178 rejects multiple characteristic substitutions without charging actions
+ok 193 - P178 rejects multiple characteristic substitutions without charging actions
+  ---
+  duration_ms: 14.781511
+  type: 'test'
+  ...
+# Subtest: P178 Unstoppable suppresses an actual critical total of 1, including immediate strain
+ok 194 - P178 Unstoppable suppresses an actual critical total of 1, including immediate strain
+  ---
+  duration_ms: 6.646009
+  type: 'test'
+  ...
+# Subtest: P178 Unstoppable does not suppress total above 1 or unowned
+ok 195 - P178 Unstoppable does not suppress total above 1 or unowned
+  ---
+  duration_ms: 4.519902
+  type: 'test'
+  ...
+# Subtest: P178 Crippling Blow changes real attack difficulty and wounds real target
+ok 196 - P178 Crippling Blow changes real attack difficulty and wounds real target
+  ---
+  duration_ms: 11.273742
+  type: 'test'
+  ...
+# Subtest: P178 Crippling Blow rejects unowned and phantom targets atomically
+ok 197 - P178 Crippling Blow rejects unowned and phantom targets atomically
+  ---
+  duration_ms: 16.521413
+  type: 'test'
+  ...
+# Subtest: P178 P177 idempotency cannot silently accept a different GM-approved fact
+ok 198 - P178 P177 idempotency cannot silently accept a different GM-approved fact
+  ---
+  duration_ms: 7.02274
+  type: 'test'
+  ...
+# Subtest: P178 offline bridge includes canonical consumers
+ok 199 - P178 offline bridge includes canonical consumers
+  ---
+  duration_ms: 39.175841
+  type: 'test'
+  ...
+# Subtest: P178 under-black-sun attribute use is persistent and adventure state unchanged after 3 reopens
+ok 200 - P178 under-black-sun attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 63.681169
+  type: 'test'
+  ...
+# Subtest: P178 beyond-the-rim attribute use is persistent and adventure state unchanged after 3 reopens
+ok 201 - P178 beyond-the-rim attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 55.527987
+  type: 'test'
+  ...
+# Subtest: P178 long-arm-of-the-hutt attribute use is persistent and adventure state unchanged after 3 reopens
+ok 202 - P178 long-arm-of-the-hutt attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 23.740325
+  type: 'test'
+  ...
+# Subtest: P178 jewel-of-yavin attribute use is persistent and adventure state unchanged after 3 reopens
+ok 203 - P178 jewel-of-yavin attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 23.498627
+  type: 'test'
+  ...
+# Subtest: P178 mask-of-the-pirate-queen attribute use is persistent and adventure state unchanged after 3 reopens
+ok 204 - P178 mask-of-the-pirate-queen attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 20.191435
+  type: 'test'
+  ...
+# Subtest: P178 Form on Me propagates real Gain the Advantage to a confirmed nearby allied ship
+ok 205 - P178 Form on Me propagates real Gain the Advantage to a confirmed nearby allied ship
+  ---
+  duration_ms: 19.480675
+  type: 'test'
+  ...
+# Subtest: P178 Form on Me rejects phantom, unconfirmed and unowned allied ships atomically
+ok 206 - P178 Form on Me rejects phantom, unconfirmed and unowned allied ships atomically
+  ---
+  duration_ms: 34.078724
+  type: 'test'
+  ...
+# Subtest: P178 GM confirms only registered formation allies and rolls back on storage failure
+ok 207 - P178 GM confirms only registered formation allies and rolls back on storage failure
+  ---
+  duration_ms: 13.731286
+  type: 'test'
+  ...
+# Subtest: P178 Crippling Blow inflicts actual NPC strain on movement and not on idle turns
+ok 208 - P178 Crippling Blow inflicts actual NPC strain on movement and not on idle turns
+  ---
+  duration_ms: 5.356551
+  type: 'test'
+  ...
+# Subtest: P178 forged critical movement and formation references rejected on reload
+ok 209 - P178 forged critical movement and formation references rejected on reload
+  ---
+  duration_ms: 3.917255
+  type: 'test'
+  ...
+# Subtest: P178 Unstoppable wound-threshold crossing does not fabricate criticalAdded
+ok 210 - P178 Unstoppable wound-threshold crossing does not fabricate criticalAdded
+  ---
+  duration_ms: 6.370687
+  type: 'test'
+  ...
+1..210
+# tests 210
+# suites 0
+# pass 210
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3598.148131

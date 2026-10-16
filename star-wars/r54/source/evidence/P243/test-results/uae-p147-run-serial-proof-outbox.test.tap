@@ -1,0 +1,119 @@
+TAP version 13
+# Subtest: P147 under-black-sun: reinícios no mesmo milissegundo geram identidades distintas e prova causal
+ok 1 - P147 under-black-sun: reinícios no mesmo milissegundo geram identidades distintas e prova causal
+  ---
+  duration_ms: 162.477234
+  type: 'test'
+  ...
+# Subtest: P147 under-black-sun: recibo e journal adulterados não passam pela importação
+ok 2 - P147 under-black-sun: recibo e journal adulterados não passam pela importação
+  ---
+  duration_ms: 69.234094
+  type: 'test'
+  ...
+# Subtest: P147 under-black-sun: prova nova não exige reescrever eventos legados P146
+ok 3 - P147 under-black-sun: prova nova não exige reescrever eventos legados P146
+  ---
+  duration_ms: 24.323774
+  type: 'test'
+  ...
+# Subtest: P147 beyond-the-rim: reinícios no mesmo milissegundo geram identidades distintas e prova causal
+ok 4 - P147 beyond-the-rim: reinícios no mesmo milissegundo geram identidades distintas e prova causal
+  ---
+  duration_ms: 140.486108
+  type: 'test'
+  ...
+# Subtest: P147 beyond-the-rim: recibo e journal adulterados não passam pela importação
+ok 5 - P147 beyond-the-rim: recibo e journal adulterados não passam pela importação
+  ---
+  duration_ms: 67.740479
+  type: 'test'
+  ...
+# Subtest: P147 beyond-the-rim: prova nova não exige reescrever eventos legados P146
+ok 6 - P147 beyond-the-rim: prova nova não exige reescrever eventos legados P146
+  ---
+  duration_ms: 54.947527
+  type: 'test'
+  ...
+# Subtest: P147 long-arm-of-the-hutt: reinícios no mesmo milissegundo geram identidades distintas e prova causal
+ok 7 - P147 long-arm-of-the-hutt: reinícios no mesmo milissegundo geram identidades distintas e prova causal
+  ---
+  duration_ms: 127.91411
+  type: 'test'
+  ...
+# Subtest: P147 long-arm-of-the-hutt: recibo e journal adulterados não passam pela importação
+ok 8 - P147 long-arm-of-the-hutt: recibo e journal adulterados não passam pela importação
+  ---
+  duration_ms: 73.626463
+  type: 'test'
+  ...
+# Subtest: P147 long-arm-of-the-hutt: prova nova não exige reescrever eventos legados P146
+ok 9 - P147 long-arm-of-the-hutt: prova nova não exige reescrever eventos legados P146
+  ---
+  duration_ms: 38.92008
+  type: 'test'
+  ...
+# Subtest: P147 jewel-of-yavin: reinícios no mesmo milissegundo geram identidades distintas e prova causal
+ok 10 - P147 jewel-of-yavin: reinícios no mesmo milissegundo geram identidades distintas e prova causal
+  ---
+  duration_ms: 151.018864
+  type: 'test'
+  ...
+# Subtest: P147 jewel-of-yavin: recibo e journal adulterados não passam pela importação
+ok 11 - P147 jewel-of-yavin: recibo e journal adulterados não passam pela importação
+  ---
+  duration_ms: 53.325317
+  type: 'test'
+  ...
+# Subtest: P147 jewel-of-yavin: prova nova não exige reescrever eventos legados P146
+ok 12 - P147 jewel-of-yavin: prova nova não exige reescrever eventos legados P146
+  ---
+  duration_ms: 45.607138
+  type: 'test'
+  ...
+# Subtest: P147 mask-of-the-pirate-queen: reinícios no mesmo milissegundo geram identidades distintas e prova causal
+ok 13 - P147 mask-of-the-pirate-queen: reinícios no mesmo milissegundo geram identidades distintas e prova causal
+  ---
+  duration_ms: 109.918139
+  type: 'test'
+  ...
+# Subtest: P147 mask-of-the-pirate-queen: recibo e journal adulterados não passam pela importação
+ok 14 - P147 mask-of-the-pirate-queen: recibo e journal adulterados não passam pela importação
+  ---
+  duration_ms: 108.131681
+  type: 'test'
+  ...
+# Subtest: P147 mask-of-the-pirate-queen: prova nova não exige reescrever eventos legados P146
+ok 15 - P147 mask-of-the-pirate-queen: prova nova não exige reescrever eventos legados P146
+  ---
+  duration_ms: 30.586887
+  type: 'test'
+  ...
+# Subtest: P147: ACK perdido ao terminar combate publicado não pode cair no combate sandbox
+ok 16 - P147: ACK perdido ao terminar combate publicado não pode cair no combate sandbox
+  ---
+  duration_ms: 141.319011
+  type: 'test'
+  ...
+# Subtest: P147: ACK perdido em escolha também bloqueia finishCombat até a recuperação
+ok 17 - P147: ACK perdido em escolha também bloqueia finishCombat até a recuperação
+  ---
+  duration_ms: 92.746352
+  type: 'test'
+  ...
+# Subtest: P147: falha de disco em START não incrementa serial nem cria recibo órfão
+ok 18 - P147: falha de disco em START não incrementa serial nem cria recibo órfão
+  ---
+  duration_ms: 29.76414
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2007.269272
+

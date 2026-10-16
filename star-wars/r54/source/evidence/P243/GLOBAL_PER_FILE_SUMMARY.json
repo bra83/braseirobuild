@@ -1,0 +1,12 @@
+{
+  "files": 368,
+  "regular_files": 362,
+  "stress_files": 6,
+  "regular_pass": 3334,
+  "stress_pass": 6,
+  "total_pass": 3340,
+  "total_fail": 0,
+  "total_skipped": 0,
+  "failed_files": [],
+  "elapsed_seconds": 59.26
+}

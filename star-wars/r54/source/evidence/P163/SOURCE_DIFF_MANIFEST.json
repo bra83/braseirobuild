@@ -1,0 +1,38 @@
+{
+  "base": "P162",
+  "target": "P163",
+  "oldFileCount": 2205,
+  "newFileCountWithoutManifest": 2218,
+  "modifiedCount": 11,
+  "addedCountWithoutManifest": 13,
+  "deletedCount": 0,
+  "modified": [
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+    "app/src/main/assets/vtt/js/expansion/aorTalentRuntimeAliases.mjs",
+    "app/src/main/assets/vtt/js/rules/recovery.mjs",
+    "app/src/main/assets/vtt/js/rules/talents.mjs",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "tests/uae-p135-aor-mechanics-and-persistence.test.mjs",
+    "tests/uae-p162-sound-investments-smooth-talker-five-adventures.test.mjs"
+  ],
+  "added": [
+    "HANDOFF_STAR_WARS_EDGE_R54_P163_2026-10-12.md",
+    "evidence/P163/ANDROID_BUILD.txt",
+    "evidence/P163/AOR_PENDING_65_POSITIONS.json",
+    "evidence/P163/AUDIT.json",
+    "evidence/P163/AUDIT_RUN.txt",
+    "evidence/P163/JAVA_SYNTAX.txt",
+    "evidence/P163/KOKORO_TTS_REGRESSION.txt",
+    "evidence/P163/NODE_FOCAL.txt",
+    "evidence/P163/NODE_REGULAR.txt",
+    "evidence/P163/NODE_STRESS.txt",
+    "evidence/P163/NODE_STRESS_EXIT.txt",
+    "tests/uae-p163-aor-medical-fullstop-five-adventures.test.mjs",
+    "tools/audit-p163-release.mjs"
+  ],
+  "deleted": []
+}

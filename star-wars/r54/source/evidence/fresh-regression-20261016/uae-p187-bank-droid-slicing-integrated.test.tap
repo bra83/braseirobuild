@@ -1,0 +1,22 @@
+✔ P187 new sessions reject fabricated manual bank success (2411.1348ms)
+✔ P187 G-100 must be captured, disabled and then sliced; all stages use real dice (3807.7305ms)
+✔ P187 droid location and restraint change effective dice difficulty (1755.5107ms)
+✔ P187 failed acquisition does not invent droid or bank access (986.399ms)
+✔ P187 failed disabling activates alarm and upgrades next slicing check (855.8851ms)
+✔ P187 failed slicing retries upgrade pool, consume 30min and lock after four failures (1388.619ms)
+✔ P187 G-100 black box requires a real Daunting Mechanics check (1808.5264ms)
+✔ P187 forged faces, totals, phases and flags rejected during save validation (920.3687ms)
+✔ P187 duplicate action and malformed stage are atomic, no saves or partial state (876.7862ms)
+✔ P187 bank receipts and UAE persist over three controller reopenings (815.2765ms)
+✔ P187 legacy saves without bankContractVersion preserve manual check path (684.7203ms)
+✔ P187 bank flag without receipts and auction winner mismatch are rejected (956.6549ms)
+✔ P187 Android bridge exposes banking and bundled code (196.0358ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 19708.8375
+

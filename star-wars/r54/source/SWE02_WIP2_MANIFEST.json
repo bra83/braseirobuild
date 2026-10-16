@@ -1,0 +1,1582 @@
+{
+  "kind": "CUMULATIVE_WIP_NOT_CANONICAL",
+  "base": "P244",
+  "baseSha256": "6f3dca72ea55080b4ce7e6befeb5d4d84e51f63453ead6a5719495178a40d264",
+  "updated": "2026-10-16",
+  "changedFiles": 391,
+  "removedFiles": 0,
+  "files": [
+    {
+      "path": "ACT3_FOCAL_WORK.log",
+      "sha256": "c3a58ecc143afbd60d7ac85a897b88f739c8a0b563d482fef51acd2da3bcff72"
+    },
+    {
+      "path": "SWE02_FULL_BLOCK_WIP_MANIFEST.json",
+      "sha256": "99f9e0c6aee81f1535a5cbb19c5d2fb30e0c37dc85d9f9196ef4876bbb104645"
+    },
+    {
+      "path": "SWE02_FULL_BLOCK_WIP_STATUS.md",
+      "sha256": "e0a296139e2f8d368e14b8eb6c2b0a056c33308b4dc77a3e117a926204909990"
+    },
+    {
+      "path": "app/src/main/assets/vtt/index.html",
+      "sha256": "4636ad51ce0b36bba282d74fb889a5bb25e7a89d26d5a977ea7a4478648ab178"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs",
+      "sha256": "cff8ea1038e8d88b6132d81aa510b1dd75c5ef1c8bc65871ce4e5b1ba76f4058"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/adventure/swe02Act2Anatta.mjs",
+      "sha256": "9c79a8c99c2d6b252fc43c38b0d4881fe53d10163e9b04815209f66e2cee4536"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/adventure/swe02Act2ContractsWip.mjs",
+      "sha256": "17ff561a3c446cd87793cb0f7b174e36a4dc7db26932c5a2d0af19f6ea7dedec"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/adventure/swe02Act3Resolution.mjs",
+      "sha256": "1d2276d26a6483a6c07f345586c168e63a19a5ca280ea8fcfc1d3c1cdf6c45b3"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "sha256": "8e3cdc44cf4c6066639128534b8bd94428d316f690e7ffd3094de888414f50e3"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+      "sha256": "a22a3c558a808c7e4f6feba32d185b07915aae3c9d0bc635cc2e1e3e6f30ec14"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+      "sha256": "2624ad2f7dd024f8dbef4b1cda82ecb07d06e970df23dd88f27de4de4fac2a1e"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/rules/encounter.mjs",
+      "sha256": "3495b6fa81fb2a360776730ca388027bec56cff8da4ee500ffa414f70fe821b2"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/ui/app.mjs",
+      "sha256": "3f4b1fb65fa46bd244b42c910e37bbcc87fed825f80cf621ae2d3d16214d5791"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/bundle.log",
+      "sha256": "d7c74118310294c72e85618a68ba56a7e0e58f6dcf8b285d7944011457439484"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/regression_summary.json",
+      "sha256": "49874652bca76c99e376e9d90cdc817fa6f85570c479c1df551f19954e9de69e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/source_syntax_preservation.json",
+      "sha256": "7a83f75714a89e17c517e96ed67bea1789a1858cfdcfe375a4823e20cd6f6b07"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/acquisition-r13.test.tap",
+      "sha256": "b40ae0b3ea811b8009ad974cf62f2f3e2553491adf44b93f63eaff4e1ada20b2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/adversaries-r15.test.tap",
+      "sha256": "31526e98c26f92b87390b053d596e22efcdf2a8cdcbe3ea4151141c2e5538248"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/adversaries.test.tap",
+      "sha256": "e528997f77de52014ed90e35a4bdc6040b39a2b364dc931c1a2b8e644c2e412c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/adversary-guidance-r14.test.tap",
+      "sha256": "cfb1a7bfc940deb6f85ac64fa9b1609f05636b77342f6f3f30c777a2e6eead7f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/aftermath-r20.test.tap",
+      "sha256": "4989a1496757396ecab7f5507121fb1c3cf4d133de4af7ed612083cdd73449b9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/aftermath-ui-r20.test.tap",
+      "sha256": "f8a7c8ad7fa1cfc8addb2f97f006c04fa3c8a611f2209479741a434fd27821c7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/android-json-file-chooser-contract-r16.test.tap",
+      "sha256": "ca11ef48b1874abb74c23192f3fa8214860ac4932dc00b2cc3158aca4a213262"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/aor-duty-r37.test.tap",
+      "sha256": "64d84dd4e70cf4bf2fc166309000371f761b07bf801bcc852ff0cb9b998a8d9f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/armor-price-r28.test.tap",
+      "sha256": "e4bc7b09f371ebe3ecdd542c821f88b4625871fc94cc7ccf5ca94da0295be8d7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/attackDifficulty.test.tap",
+      "sha256": "6c70b074b6e92ed7dd47d386de7dfa486ff9e2de9003afa0415f0c6a41e1a57f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/availability-r26.test.tap",
+      "sha256": "e6db56674d6b75ad31b350d088cd97d6f0b73421e9fc6a6de23be0dc40091af5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/backup-restore-live-refresh-r15.test.tap",
+      "sha256": "f01a406f77f71a6f17a1228bdbe336e2c0f153ae0ff2e96975bd647f255852c6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/base-ui.test.tap",
+      "sha256": "025d2acadc437d35c126a8acab6fa7f7de0cbf324a04a6f6d9094d25b0031dd9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/bundle-builder-p20.test.tap",
+      "sha256": "7707d6e72ff8c57c3d42925490761115bc5630a219c17203d7212115fcb40695"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/causal-hook-reset-r21.test.tap",
+      "sha256": "43de511a74dbb7913725fe36c2161262f3dfe980cb88982633311ba294c9f25f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/causal-world-r16.test.tap",
+      "sha256": "9aea4b615b2d114f07d5d36aa14a7ab4edc7ab2da838ae189a2408bff5ceeb29"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/character-creation-ui.test.tap",
+      "sha256": "20e96fc2c3a883c3e90734cd82c0b0365e838e34d0e7c63974f3185b516feea6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/character-creation.test.tap",
+      "sha256": "c55c968bb0c6f9ac9b14b2b881b74f55306c2f4e41becc155e69c5135f6929d3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/character.test.tap",
+      "sha256": "c3ccfa0fd6169ed77b4750f6b703a7bbd36f3d3e3c9579ec215f3d7f32733084"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/combat.test.tap",
+      "sha256": "a4e6b746538cee3e5ea37555f5adc22b472108cbe2e6434366b6cb77227dc91e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/command-talents-controller-r17.test.tap",
+      "sha256": "812643f6f18da594120a130b1ac580b4cf272464a7c0b488f4bdcc51a1db97e8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/command-talents-r17.test.tap",
+      "sha256": "72f92ee075e4648fa385cf56fb15692d952e94646e33e472d0caad192f676fbe"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/context-aftermath-r20.test.tap",
+      "sha256": "a9bb68f34a585dd963eae34a6e5a57db67c7f67f2a01a8671d9518b8ecc4669a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/controller-aftermath-r20.test.tap",
+      "sha256": "28dd17a3e161891738cabab4fdf023d1095fc34e9f967aa74012e84a9c4810df"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/controller.test.tap",
+      "sha256": "be58f8763c90749498d0ed9daa26fa4c29b02b1b7b4894f82340eef628d3494c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/core-rules-closure.test.tap",
+      "sha256": "834a3a0fe72729f64979f70a584a59af9a7c7dc5bb0020a0f27ac7e557c35c0a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/critical.test.tap",
+      "sha256": "8a5292aaf39a53237e2ed318fb082d5d692788aed5eb0313f63038b44ae9e5b9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/cross-line-reference-guard.test.tap",
+      "sha256": "9e6f831e2e452a8370c8f902e9660b5abdf8c2c4269d150f28de39332c8ecbd5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/documentation-current-state.test.tap",
+      "sha256": "fae6f8fd43cb7201e6936150e5ee3bddefaaa0f5042bbf1b87064a9c4d8447e3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/duty-type-guard-r34.test.tap",
+      "sha256": "623253a20280402b7ae5773601ed0f0738f1f6bbf67b5d70992fc55795768971"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/economy-r34.test.tap",
+      "sha256": "2387e564e6e7abef2254ff22bb3d8b861b912abcde2e4da1ccf33b6a3e35ae44"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/encounter.test.tap",
+      "sha256": "2f3e2f1957feeffd1a27a57358a07c7e546a3ac25757496f2e19e9f017f96da2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-core-recovery.test.tap",
+      "sha256": "268a3eef863d4a649d03aef9fd6cace8c3fbf668171ece7abb2a2a4fd689ffa9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-core-session-load-fear-r30.test.tap",
+      "sha256": "82f4ee6b7f228e024da06ec2a597ec26839af777fdb1ba4cd77318b76e77d2a0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-core-starter-ships-r32.test.tap",
+      "sha256": "09351789fe9039cf8341d4f2ffd4d076ad6c08a98f7c7751b910087422ae2834"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-core-systemic-r30.test.tap",
+      "sha256": "10868037adc311180942bf13f5c71d8cecef19fc0039e9040fc8c40c64b63099"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-core-vehicle-catalog-r35.test.tap",
+      "sha256": "ba0ad64cb416593aa961f3d89951798642d024eb9e731bde441ae42e6329d5d5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-core-vehicle-criticals-r31.test.tap",
+      "sha256": "abb3157a820bf8c8103bd859a5fa4c04975c0d6d1565255a1cb6474793c85aaa"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-final-rag-guards.test.tap",
+      "sha256": "93476a6a39ffa6120d34bc80b9d111e15730b98046a5b2b613d4a66897eda023"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-fly-casual-vehicle-catalog-r36.test.tap",
+      "sha256": "34b8f7644d55acbbc4ef904d5ba4bf934a036a24cdb67e94916b2a8adbfc6957"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-force-core-r28.test.tap",
+      "sha256": "9b19a7fd61bba64994a246d59d2864869256136482117cc0aecf133ef9a47c70"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-personal-catalog-r37.test.tap",
+      "sha256": "ae6090ec42b1efcfea097fb70eb25afdd36df4ee0582f5a14693f4f12e2225b2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/eote-specialization-progression.test.tap",
+      "sha256": "84494e028c18832a53ff0506b46a4619fdb21bdf28fb71b0ebe8aa1273dd0502"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/equipment.test.tap",
+      "sha256": "b5aa08ad8516048b98bcbfb8dd3a86868f38b5e67ed07eede1e5b0c9e0738663"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/expert-talents-r16.test.tap",
+      "sha256": "db19eb0a478ca93cdee2d04f5351a34132b1cb03fa7598b516f019bf240434d9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/faction-adversaries-r19.test.tap",
+      "sha256": "a430ffa6953c7fbb5d9abae02f996d587e34cc22f0dd355988bd47b72bb8e546"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/faction-combat-ui-r19.test.tap",
+      "sha256": "c638907dc19ff8630f2aaf4183b814752884ef073a4838aacbb15cdbb1b04b63"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/faction-plan-ui-r19.test.tap",
+      "sha256": "9b212dd3d49c0d9dad6d08e44ea70d8bdd9f458e8e45ac1a702813ffa5a70144"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/faction-plans-r19.test.tap",
+      "sha256": "b735e4381522cab8c73e70509a23d365496fea30da74009b4314815c3c9a78e3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/faction-ui-r18.test.tap",
+      "sha256": "9bed3ddd470302da42343fef1318317eeb75f5afb9a8e865e0bc3510a9b6a26f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/factions-r18.test.tap",
+      "sha256": "69494b1854420453205b96b01996fe885e937d3faa7f8ba43f2495ccce81ff1f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/filebridge-mediastore-publish-r25.test.tap",
+      "sha256": "01f1ced8f33fe94212e6dffe06c75d137c2af833e0b85694cdea19accbf4696d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/final-android-completeness.test.tap",
+      "sha256": "2b14a09743a889b39b79fbc7da92755f0c89bebadd175f32b6873a77ad54c7b3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/force-move-scene-object.test.tap",
+      "sha256": "d257aa501b2b5d3310b27cc1954668e9e897a59a0d10ea8277669eb41adb4f4e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/gemini-host-r25.test.tap",
+      "sha256": "f76f1d475e04018a33be8b80d404dd5e02e21c016628ff997c2e12b117b89e63"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/gemini-image-picker-ui-thread-r19.test.tap",
+      "sha256": "3ff518f6e77b99d9d2671051c990e807b5fee8f93f110792532cad0887b357b5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/gemini-interactions-schema-r17.test.tap",
+      "sha256": "67530476219e49163495a00c63ffe1a932f960faa0371b89c26b27d4dd13b58e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/gemini-scene-image-clear-race-r22.test.tap",
+      "sha256": "72e82631bc8e8558ca38415f37db05dd16f7062be4e2cd4e3b1a5844d8020d5f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/general-gear-effects-r30.test.tap",
+      "sha256": "80b5fbc1821ec0a24a6688f986ac8d7b477ebe3576426737f5526154f2e737f0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/general-gear-r27.test.tap",
+      "sha256": "30366ca016e0d55f13b36ccc929092cf837c5ed80c47797058e1e0b82003100b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/general-gear-tools-r31.test.tap",
+      "sha256": "c675fd45c147acd45dbf5d2b0a0b62addd441ffc3c2c2f9895fff74637ab2bc3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/gradle-wrapper-bootstrap.test.tap",
+      "sha256": "7984d6394ddd000b31e1dddc46c85d68ed8a5e9d2c513fd50f6af5e502b9e6e4"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/health.test.tap",
+      "sha256": "cb5b43cc2827651f07bd1a637fc7da1422546fbd696a299e708e1244309293f6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-cache-clear-race-r21.test.tap",
+      "sha256": "e225f1a67fe248bd1f8c6b561f2501cff6a815f73d50beaa705e048ff24ca4ed"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r35.test.tap",
+      "sha256": "57c6b03d413591b03672e9343d4761d0049d456d17c420f6845d5c62dd1bba5a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r36.test.tap",
+      "sha256": "96dfab8470bdeea1955452ab97582717054d58ad65a7f9f0c0adf0d9ae9e8be8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r37.test.tap",
+      "sha256": "4c8b7ff055194579f19bf4b6c07a9b1a18de27748b80495012bf79097cdc92b5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r38.test.tap",
+      "sha256": "a32815974e9569940f9537729902eafd7b991bacc739bfe5df2c65154197d850"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r39.test.tap",
+      "sha256": "92aa6c1fe6b47e7af694243dce97546a1a0f762c5cf9a97bc17a2128d16e54ca"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r40.test.tap",
+      "sha256": "664f693c58d3bccdbb5d9ea9491a5c0e08f2ea0ece10d41a7aad6eaed72aeafb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r41.test.tap",
+      "sha256": "a875d1882af22bb5acaff6084d9617c87dea4dd74fb9da191d9bb4354bf446f8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r42.test.tap",
+      "sha256": "cf93328d3726ae956ef1b2a1def37cefebd42d7542be17b5e93384c59e9298f2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r43.test.tap",
+      "sha256": "cddc5a25918ff583b97671715e2e2e3c3e127f1761d84592aec6c7e3deaee397"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r44.test.tap",
+      "sha256": "877db775ac60ac7a894af94a9dce4423d01cb734d2ebdfa67cb3c6cfc9637dda"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r45.test.tap",
+      "sha256": "916fd5ae15798fda94ab414ad0b3ae893a6e04e03ed35e9b57f8faf965f24ad7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/image-library-r46.test.tap",
+      "sha256": "8ac38da0817cd4911b1246289c48b8f2242ee31b74e528d28a3990e4b94e5e30"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/initiative.test.tap",
+      "sha256": "eec1b46c16df90a3a5b35e20e8c96729a4804ee527e4f32cd9a73e833598b4f9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/json-import-size-guard-r16.test.tap",
+      "sha256": "8dcc3e6d658f94320d25c7d266e52217ad4513d5787ab93e55a5bfc674d8aa87"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/legacy-ui-dom-contract.test.tap",
+      "sha256": "32c07d50dbd3ad460a471277866cc1cc52a3be56997a1b88ee834cf5732a5ffa"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/legacy-ui-eote-guard.test.tap",
+      "sha256": "44e3d1d8a0dc3438a386d868fcc3a49d9c90150460a080a554a08f09835cba10"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/library-ui.test.tap",
+      "sha256": "5a5dcc8a0d958e4920cf567f46daca69c02aa2cdf440c17162595a5f282f8cd8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/library.test.tap",
+      "sha256": "033c6999e5ad2c94deaef3761f36b3e7098c4d307246b77d79f89b272f874630"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/living-world-depth-p9.test.tap",
+      "sha256": "5c49eb69f836c6de9b686d8da868756f3dc56fe8944e0ef491122e1228abbe43"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/map-provenance-p12.test.tap",
+      "sha256": "5169fc2588356a37005f833d11c7c68ed32eff5950163fe2c8415ad001f32b63"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/map-ui.test.tap",
+      "sha256": "24430d2d08e7b03b1d42ef99fc6261ba07bda54226140d9dd2ca96ea0f481e37"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/map-viewer-p13.test.tap",
+      "sha256": "49fccee029370282190927164287e0d8343d91341c83012b31651f6e9a72a3c9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-context.test.tap",
+      "sha256": "f3a7bfd59ec90a22c8c3f8bc7ef5483c2f8eac5b34a019aa7b668cd3b8c8d3e1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-encounter-r17.test.tap",
+      "sha256": "5071651279c27e9ca55b4dcbab859e550082e923ad95aeb5450e1d368159991e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-encounter-ui-r17.test.tap",
+      "sha256": "c61a175125bcbdcec462ce71fa699baaf3c75277bb8f8a1c1300c2ba17312675"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-faction-plans-r19.test.tap",
+      "sha256": "4e36fc17482224641f0d86efcba3dd7916638f20e18f9a3c7d10ae2dbbe1dd4a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-factions-r18.test.tap",
+      "sha256": "f0faefc111cd252dd1571cec5083a01771c1e8c441eb11c4beb053a8ffaaac8b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-long-narration-p20.test.tap",
+      "sha256": "c3dc66a381ec5cf317615d0958380b98bcbec1adaa431821a39cccdd70641f91"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-proposal.test.tap",
+      "sha256": "90741d58c8135d4e8cf8b2a3baad7be491c66ba3ee8ae6f51e8a32dabbde288f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-provider.test.tap",
+      "sha256": "7b96299a63a5b06334002bd561c3680001c21bddd04dadc382dc75358ee7e4b1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-world-ops-r15.test.tap",
+      "sha256": "3dd80b5a6627e99d52ea531fbcc79ac44cddef865f8190e30ab3829e6e5c8aca"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/master-world-r15.test.tap",
+      "sha256": "a4d642e7ed026445c3e6b45568b8d47cded9949ef7efe44d1dde8bfd6d5507a5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/medical-gear-r29.test.tap",
+      "sha256": "14b39b6bcdc3156105af440bb7bbc32dcbfcefe2fc7c91f658c6b607d785c3ac"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/mixed-campaign-sandbox-r33.test.tap",
+      "sha256": "1861e4e0b73e256d89dab3d33cc1efd645e243249eeb6819dc54fd0a3a8842ba"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/native-bridge-contract.test.tap",
+      "sha256": "2e2c8060ccca992ea3be1295fe3ef346a655c9bd0cde14b249daec5a9ef63d96"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/native-callback-contract.test.tap",
+      "sha256": "46149c64aeb967a2a88b1cadac2af4378b308137a9a801cf80e259e32dbe7b85"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/native-image-read-consistency-r23.test.tap",
+      "sha256": "c1de47de88187625a41c78c0db05e21943c9e07555430b5fe94e11c9e0bb98bb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/pdf-picker-ui-thread-r17.test.tap",
+      "sha256": "8e72657407d019a63cdd443e41fd0ebda6ce1fbb8c930724cbed3e8af89c783a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/pdf-policy-index-race-r20.test.tap",
+      "sha256": "ba70b12bb079c15abe72d85a5e808dddd3aa72ce9e135294ac45ec707818b0d1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/persistent-adversary-r17.test.tap",
+      "sha256": "c12ad9c2bc2e6bb993002f6b0cc6c7f579b16477b2b76e2e9490769a542faf2b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/progression.test.tap",
+      "sha256": "cf74f7c154187a4204b9be2c74fc3094801605f664c8a873ea2a9e014e002da9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r38-mobile-ux-fixes.test.tap",
+      "sha256": "09545451b650719a09f0e322db5266ec7cc2be17315db9c098d710c1a7e26f54"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r46-bridge-contract.test.tap",
+      "sha256": "e987977a02c4353139c6e5f9ca050ce453c4c982d161a1add0062deecf1a8a71"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r46-live-state-refresh.test.tap",
+      "sha256": "4fb6b9fcb77497ff4a9a0adfc4db615ec276184eb8aa6d8f242c0ec2c527828c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r46-runtime-asset-closure.test.tap",
+      "sha256": "a3efc1b0d3dfa3dcef133a765893b1d45d3983d0483229319d415c54aa62a3b5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r46-state-projection-eote.test.tap",
+      "sha256": "6fbb3b22690730bc893dc0d8d87d0ecb0426721933c129672d143fade33d779b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r47-android-shell-host.test.tap",
+      "sha256": "ff34eb33c18d88a8664179c838e21fb7358868d85f3e1726095dd485af15accc"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-device-p6-audit.test.tap",
+      "sha256": "7d6698fb9cf82a0b8d01b9b90654bb8dd40df2a09737565de3c6679bbb3d0b6b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p100-attachment-mods-guarded-stance.test.tap",
+      "sha256": "ba3f0158e3091465b755debda2a550d59af950e23145926680bd00dabc76a13c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p101-fear-encumbrance-gear-repair.test.tap",
+      "sha256": "5b583889de6a09334be1728ce181bcc70896bb8a1eac9ffb19fb0cf2cbd89f11"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p102-eote-core-vehicle-actions.test.tap",
+      "sha256": "3e432ecd78105f74304421d54c145e9c8c33f037af11fe1f29d2ce27177589f8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p103-vehicle-actions-damage-control.test.tap",
+      "sha256": "68086b5b96250c592359b83e951ddee52602dc1236650aa1cbd04858ba95c216"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p104-unified-personal-maneuvers.test.tap",
+      "sha256": "ac75aa42869598855e9e5a991abffbe881b289184be8b61c271563749bd27e9b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p105-force-actions-runtime.test.tap",
+      "sha256": "447f10024816ba247e032f04e9e41742fba483a4d2ace71aea82370b4b3ec5c6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p106-active-talents-runtime.test.tap",
+      "sha256": "0df429a85d159f41be4e63ea8349285d8a3b96c9596a9f28cc79685219dd007b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p107-core-combat-talents.test.tap",
+      "sha256": "f51faaf7839077473d685461c1df693829386422d67d8793c61638fad78c24c0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p108-assassin-combat-talents.test.tap",
+      "sha256": "3a6852d80c7e4cc0a4d3aa711a2676903d85d076db6bdb0ad538bc823295ccf9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p109-passive-core-talents.test.tap",
+      "sha256": "b842ad645f0c0ef178c135676c71778ae5207685f6e88f5933ab8608b9ca8571"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p110-active-skill-talents.test.tap",
+      "sha256": "335fb05ff5ae54b974f2ce74103eb36cbbcb882978f5bec2d74cb1dd82acf872"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p111-natural-rerolls.test.tap",
+      "sha256": "afcaf27217ae95ca89f7a1847258e20d63803231da9e575d4add2c0fac137f53"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p112-aor-alliance-rewards.test.tap",
+      "sha256": "fb8515e079d3f5b470e1d4bb656883d2ac783bd11de5a88c1197e72f0e114bb9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p113-environment-hazards.test.tap",
+      "sha256": "c29c8aecc65fb507e83574abe78b89cdf24673bb279664a935f580d9e38901d5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p21-device-regressions.test.tap",
+      "sha256": "7d92bf5f7e15000031fd24ad986553f5a9ceb6890d107ec4174ef0216df1115f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p33-mixed-creation-ui.test.tap",
+      "sha256": "6a90693836fd897e0ed927021336cdaffb2fce483c45e018fc49b4773491a932"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p33-under-black-sun.test.tap",
+      "sha256": "8fa10588d0d40ef49346b05d1b05a43e2d37cb640e067136a97bc312d0818b1c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p35-published-adventure-ui.test.tap",
+      "sha256": "6472253bcee646f0bc6d469905c54af0efb47492c1dd6c0854bb87e7a35cf9d5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p36-under-black-sun-systems.test.tap",
+      "sha256": "70b31298114d332a9ced3805ba48ee771e185bfb9b1fdaa6778da04c9f6b490e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p40-published-world-plans.test.tap",
+      "sha256": "8da181cd9f3fb15ccf40e8b88cc57f7f7bb8626ed6d0f774a5975316020d44fd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p41-under-black-sun-branches.test.tap",
+      "sha256": "95c1b51e1faee64855098efa586006f22910cc8d494b221c853c777c036ee275"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p42-under-black-sun-consequences-ui.test.tap",
+      "sha256": "1fdbf74ffd848e7378d3086fc1ab4e43c1c64790aac980233c9794fa59970565"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p43-player-safe-feedback.test.tap",
+      "sha256": "69977cfa95e387b2026f00cd33141fb19e077db502aede4e02269e2470fc0fe7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p45-known-clues-and-contracts.test.tap",
+      "sha256": "a7d868c1ca9ab2fd462ca22e56cb31bfeba406385ef14de17d5b839c067ea90d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p46-under-black-sun-completion.test.tap",
+      "sha256": "4fe26884352fa0ecdb76e8191758dfec9bfe3d8c3c3a3f2e5193c394b33c3332"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p47-under-black-sun-hardening.test.tap",
+      "sha256": "5a641b6924d55f94cd2eea0351b2bc7e93ae19d313fb26f52f650b8a50ff4494"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p49-under-black-sun-persistence.test.tap",
+      "sha256": "756a9716d458cec2bc2beffcc028dad18da496f412866206df2fc5f27bc05e88"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p50-under-black-sun-branch-persistence.test.tap",
+      "sha256": "cbb4a2f6f027ce3f99e47e9567c9e55785bfa1d9fc5d85eab2c2a8d224f10cf1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p51-persistence-performance-and-adventure-registry.test.tap",
+      "sha256": "6d6d0ca5a9c1b2bda2c49150b52f083eb665dfe012f599375d1a689760d98413"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p51-world-event-compaction.test.tap",
+      "sha256": "5d4d788965606b5c1c8ab519d782aed91709156479572ff145f886e826427265"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p52-beyond-the-rim-episode1.test.tap",
+      "sha256": "eb895639d71b5e43c3005a64a67868cc5c69b5263b458ab32c93c1c3195fe6c3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p53-beyond-the-rim-episode2.test.tap",
+      "sha256": "bddee7c25ba562622ae8b32f4092140bc44531112f9f994015a03507dc2d1226"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p54-beyond-the-rim-episode3.test.tap",
+      "sha256": "86a60543fe13566a5516eef5c249c36da5dfd6013eaea14e9d69493eacba1731"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p55-under-black-sun-scene-journal.test.tap",
+      "sha256": "a12a9cb178262b13571f9ff3596758accc0837571f92822c76962ac66c8ceeab"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p56-under-black-sun-timeline-ui.test.tap",
+      "sha256": "b083e24be4cc38038c7b94904ffa69ccd7d751c4c29ffdb88721f4506cba6cfc"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p57-under-black-sun-closure.test.tap",
+      "sha256": "697eb3686fa9f30c42028d74ed2955cbf8ba53f1318ae97b2c8a6ed1a5be4519"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p58-under-black-sun-ready-to-play.test.tap",
+      "sha256": "0873bac68628fbb46895a7166a793aa4d09ce3c49919a3cc8e4647a5eef9ccb1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p60-under-black-sun-tracker.test.tap",
+      "sha256": "64c22c09e8d31fac297caab124a9cc7ee5b4c8fe3904c0721d37b069c4e2ea9d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p61-under-black-sun-mobile-play-ui.test.tap",
+      "sha256": "23fb6c0b1099be3f2714e449f764efb3789b49dae214b2658a352210194c8ae1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p62-under-black-sun-state-integrity.test.tap",
+      "sha256": "c3178887b388a5ed4a12d8127219299fa747929a12b1bc82f9a342dee5fc2403"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p63-under-black-sun-reopen-transition.test.tap",
+      "sha256": "297e804e837dc7749fe232f28e8d2f010ce98ad333bfe9bdc4f2ead1f931e159"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p64-beyond-rim-persistence.test.tap",
+      "sha256": "16c5a1ae42993dce3988f15932c4533b56b7b539f54c2481f72e480074d8d7be"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p65-beyond-rim-controller-continuity.test.tap",
+      "sha256": "8ebbd49b270d7364608c8851b6413aa88c444711158827879c34d71761125ba5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p66-beyond-rim-epilogue-antispolier.test.tap",
+      "sha256": "9f3bebfe7074fcd81692c2d61b3186262840731ecc35cbd966c730734795cbaa"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p67-beyond-rim-epilogue-ui.test.tap",
+      "sha256": "79ec2c02973936b1b7821d294436e4250fd524de45ad964aabe5fd7ae98ffd5c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p68-beyond-rim-tracker-ui.test.tap",
+      "sha256": "c8c2be3b6e33811ea9bcaeb6d1abfa16a35ba4d1dff8611184b4e269d4230b16"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p69-beyond-rim-trail-ui.test.tap",
+      "sha256": "785096e63ccb5cd64ef5d7555e57f2cb6c4b47beb7e51e0a5429858f0903141a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p7-fastfix.test.tap",
+      "sha256": "db257e6d6482418f18a61a61f86c2383f9bd1b5ae23bdacceaa0769b99bcf8b6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p70-under-black-sun-graph-integrity.test.tap",
+      "sha256": "852d0de20c858a27a38e811a3633f224feab70b39293e767fab8bfe0784c0ab1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p71-beyond-rim-adjudication-antispolier.test.tap",
+      "sha256": "33939edf3dbc7e5d655dc3179769200b08716d0e87632b451d81efc96daf6612"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p72-beyond-rim-fail-forward.test.tap",
+      "sha256": "b184f341d4159b6ada414f50f15ec783748bead5a3a097c0f6c11a1425208a65"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p73-beyond-rim-mobile-fail-forward-ui.test.tap",
+      "sha256": "6603325a1d6b63fb2cd025eb60ba1951985026b144e84ac12b81e01803536d1c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p74-campaign-lifecycle-insets-version.test.tap",
+      "sha256": "3e146a07c23c725ae7cf7fed5a41de4a0d999ef0111c257fc3ca307fb9249bf7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p75-under-black-sun-ptbr-resume.test.tap",
+      "sha256": "c6145c505e237911e47d63b1eb13652c19210b5bf2c1660a86ed5b58a04b1e66"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p76-tts-kokoro-pipeline.test.tap",
+      "sha256": "8a4b2bb1e4a3657603b361ad2bbc7bfb0d73551d400f97ef94ae730b74e311c6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p77-android-build-fix.test.tap",
+      "sha256": "072903c99ac6f106bf03175a706dc3363c981d6f2d8906206ad0991627401cb8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p78-mobile-session-repair.test.tap",
+      "sha256": "6845ef72f6b2bb3a66f19231753e4b28410c3782a982b50919a1583cdbec0a27"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p79-performance-insets.test.tap",
+      "sha256": "9dacb076f15f31a9bbbecdcff398ce184ea1c1002f2dcb37067ce57f33c884d3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p8-semantic-closure.test.tap",
+      "sha256": "5622603bd24e48fc05b233b5d55195563d67b6f1e7d596084957bd394e91b98a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p80-under-black-sun-anti-spoiler-projection.test.tap",
+      "sha256": "97570e28bf06870af6933845ce7846164538e19df08139a52967fbc6eac191b8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p81-under-black-sun-narrative-consequences.test.tap",
+      "sha256": "fa2807c5a7538a414c7a855302b66a82e5cac87da25bac4974e0ffa965f375b6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p83-under-black-sun-narrative-effects-ui.test.tap",
+      "sha256": "b18be19cc8aef2e8400fefb1f423383338681d4315e3b5eca802abb0acea4b94"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p84-under-black-sun-immediate-roll-and-world.test.tap",
+      "sha256": "8301a74806ee9284f01ef9a9e2635c264fd76a485d04df9914fb2cd36f21cb97"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p85-under-black-sun-aftermath-anti-spoiler.test.tap",
+      "sha256": "e03265d4c9040ff5e7dbd3c2e1c445be28644a2f53eec5f4a311e63dbc2d99f2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p86-beyond-rim-world-aftermath.test.tap",
+      "sha256": "acfaa5b78a6bb3f0d5de7f988d55fceb45f879e92f2ad5250b69d83b3bc5037f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p88-beyond-rim-narrative-effects-antispolier.test.tap",
+      "sha256": "75f56cd1bd1a4dfb4176f33070238fa3a59d205ea15243a0350658361aafc4cd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p89-under-black-sun-aftermath-depth.test.tap",
+      "sha256": "48bed4b830c74e04bbd0aa8862d5844a8a242545624d428cc7603a08866acef4"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p90-under-black-sun-obligation-accumulation.test.tap",
+      "sha256": "726b5764ae3fe02e5b71b299afc1b10566eb82d8784bb9200eea5ab97d6a6009"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p91-android-share-kokoro-audit.test.tap",
+      "sha256": "41181b7f89167a0ad472b9b0a7e51a48bcc3d770f6b0500fe7f0d6098f170d75"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p92-cybernetics-engine-safe.test.tap",
+      "sha256": "aa67d9818ce90a7cf2f731d8337cd55b871a85775a5258b75ba5d8be379aeac3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p92-final-shell-mechanics-reachability.test.tap",
+      "sha256": "d7ffcfb24a72ed07fb168f758bedca1a2781797bf7eeef98db9b014e8737da6e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p92-p0-mechanics-runtime.test.tap",
+      "sha256": "f280f15eaeccb59ed5e6f4966817eb0683c74819f355eb8284dcb1b1d856247b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p93-wave2-mechanics.test.tap",
+      "sha256": "6db49e179307d84a0e0985fb85db9d700c85387834ce130edc95ba6021d92567"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p94-wave3-destiny-maneuvers.test.tap",
+      "sha256": "8a653d6a178d376b64a9648240cc35cc17cbe7cdfb141128985ea175c61f21f0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p95-check-types-social-vehicle.test.tap",
+      "sha256": "a4af1d404ddc7376dd0609a68ae1de20e66b2998a94295bfafd514870774d887"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p95-final-shell-reachability.test.tap",
+      "sha256": "b4e04280c38d676e06c5b92f880144f0a6bd0f0ae0cdeeac9103a0014f6fa1a8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p96-weapon-qualities-vehicle-critical.test.tap",
+      "sha256": "ef8694d14e76a48c5664371311c606bf1f43ce8b9bc67e3f4719d3f0683176d4"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p97-active-quality-spend.test.tap",
+      "sha256": "d988f56ce2bd5931fd607987026cde810d647467c1b87f4a08d3a0468d76c68f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p98-vehicle-guided-ion-tractor.test.tap",
+      "sha256": "266cdec30d03e45fe4f321427dd9da4d90bca1343e024e4d6e7c98fc1b8dae60"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p99-attachments-source-bound.test.tap",
+      "sha256": "9f7a06254437cd68352eecdc6f7e35356cfb3f3ae76eb3124f63fbe147719212"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-p99-knockdown-prone.test.tap",
+      "sha256": "00a2733986fe26e78c3dd9c66a4c9aab189fda2ab79b9a476a9cecaf99371933"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r54-visual-semantic-audit.test.tap",
+      "sha256": "2f11a0748e53022531d1f702d368b8919cc5873d4f57e7b304f904366d749427"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/r80-gemini-external-scene-npc-dice.test.tap",
+      "sha256": "f910d468a11e9bd11f2dd318f9a70cb0df84c9610d025441b2f2311f2a99b883"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/rag-benchmark.test.tap",
+      "sha256": "50d088477f7dbe9ad9aa38487a17bad56d917a4f58c13a11b6fded70c2b4bd1f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/rag-sync.test.tap",
+      "sha256": "aae741e4df54a31249b62d647c49531f97eda478e4219724f7a4257a170fe91c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/rag.test.tap",
+      "sha256": "a214f21a4377c3249be885e1328528951eab92159cbbe84e0124f222fa08a85f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/random-character-r24.test.tap",
+      "sha256": "8da19685b2b4e302604db29219ab368f4de8ce282698857aa6525d89079ad2ba"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/rebellion-group.test.tap",
+      "sha256": "6c0b46d5fb50926cec3a065465b7e55bd52084b518ec324227c495464cc30a7c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/recovery.test.tap",
+      "sha256": "607afa3addfd27106d2cc62462a5de05fc8e07f1157ab4b8ab0994ac382de083"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/rules.test.tap",
+      "sha256": "cbc9a5bd82a5d176c4efcbdc38704dc96f3635c33d1baa173461d56452ae9520"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/sandbox-ui-r33.test.tap",
+      "sha256": "7ff4f86438f1a143af77b71b8e5f381518cec2faac87a576359c64c60db9eb87"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/session-flow.test.tap",
+      "sha256": "fe32f3c4cc9f7715949c5c01aecc59c31af950500f9aa4e5cf3c7b5cdedcdb01"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/session-ui.test.tap",
+      "sha256": "8e7dedef25ae63a6892ab4b47b5a8fba5be9349a4b052d64bdf6f4926328988c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/settings.test.tap",
+      "sha256": "225c5b36692a6b0f2c12091b35e44dcf1b3cb4ac77f832c75ca12e38686fba5a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/snapshots.test.tap",
+      "sha256": "33d245ab7126c1319d8e8f2b77f14caacb4b7a42b14ab00eb64bf260af84c2f3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/source-authority.test.tap",
+      "sha256": "8d2b20c8ce7ce1e8bab34e269acb8428451c8b1d8a456de03e0c85a47bf43c61"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/starter.test.tap",
+      "sha256": "3bf0ebd776a490b3e7d309a08da256fab765da59c4b7870369228a34114a6281"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/state.test.tap",
+      "sha256": "810378d6ae2b4c8c0d2f91c65ecf9c11f8debccc1be23966e613592a698304e5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/stress-33-aftermath-r20.test.tap",
+      "sha256": "aec49c738aa7d9400867af162741a3b72f718e6f74f313a507f54b243117678e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/stress-33-faction-plan-r19.test.tap",
+      "sha256": "7880f01042086d58cc982543de49b84b39dea588e9e814e8f5281bbfbbb7d5a8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/stress-33-sessions-r15.test.tap",
+      "sha256": "524ddc794a67fb1f9c64bb1fbe8d9b04320f09449aca3861c67ac6ce4af5e724"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/stress-faction-plans-r19.test.tap",
+      "sha256": "5f835db4e5e7d5b4ae4364fa362624ad4fe8834f9cb07e46e4e545a98b3a3b3f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/stress-factions-r18.test.tap",
+      "sha256": "e67b10c3d8f3ccddb556c0dc281e476b9fe0e1e723f57e4b1190744f42634eb0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/stress-persistent-adversary-r17.test.tap",
+      "sha256": "73cd193c2cb0cc5b25a10ae484c5d0acab11a4207f7935513f6d03f90c4015d0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/talent-effects-r13.test.tap",
+      "sha256": "93afe00bbcb4456586281fd3191eec31c5df1c53f6ffda81fe9eff7694915142"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/talent-effects-r14.test.tap",
+      "sha256": "1457dfbfab76b742bb67c5a1c7e8e62a3337ab73668e76bb7396cb950ccec3b2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/talent-ui-r14.test.tap",
+      "sha256": "061f05549a9123a2d27a759d97dfb2c9225521b0036e130958ae4d341d8a68e7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/talents.test.tap",
+      "sha256": "b78029024d1bba1ed9903580e7ce7f0905bf33f1b570a8075dffba86b245df67"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/tts-bundle-status-p15.test.tap",
+      "sha256": "b28ee963336e779bb5d522134727e7b966d98765e5d12a8537e5aae72ae751a3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/tts-lifecycle-r24.test.tap",
+      "sha256": "1c0e2e734f1277d4028543d8e848e8e4ea162a0f61f93ccb87786ed9f77503c6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/tts-multiblock-p9.test.tap",
+      "sha256": "17881b2932649f3bfda95525a7a25eadd5d1fe4901c7d2bad19af5b422c9326a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/tts-provider-fallback-p17.test.tap",
+      "sha256": "8a92c08ae6026580f4737eddeb8f52fb863526084a6e296aae5b4cac5e89d895"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/tts-r15.test.tap",
+      "sha256": "fa014e5653def6e546c57a9fcb1008662779c8e8d6a80f123616df763a06434b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/tts-ui-status-p11.test.tap",
+      "sha256": "0eb9c15ba2b6dd8fd4f0b6798495d49d75a654640f665f8fbb78991d2a588c46"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p128-published-equipment-integration.test.tap",
+      "sha256": "94e97a92ee772eaff86e6d8f90f97f26b940167d70ce000624feb879b5db4767"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p129-recovery-integrity.test.tap",
+      "sha256": "aa87c091e8cb0db1245e8a9af758c536c259e909c3adebc098e031cd60e63906"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p130-aor-expansion-integrity.test.tap",
+      "sha256": "293d7a32307b66e6be43b3b529c6ddbd3a7823345b3b1a7a1eac93183a02a510"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p131-aor-multispec-and-checkpoint-gate.test.tap",
+      "sha256": "985a8439f3db4d44b3b56de66a6e369bafc72b3031e2804cb2f0d9c0e13a2105"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p132-aor-mechanics-and-integrity.test.tap",
+      "sha256": "300f354756abaa4ab911e3e1d6371f2a35663c3406233a8333aa05eaeb7f72e1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p133-transactional-adventure-integration.test.tap",
+      "sha256": "203c0044ab304504472bcbde64d9bc0604adb871cc34abf52a2943a8b69c151f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p134-persistence-guard-and-five-adventures.test.tap",
+      "sha256": "3d30f33f3da7e0b3cca46529a5b70d2e72c9cc6da7a6e9bbd7b4995d57e57270"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p135-aor-mechanics-and-persistence.test.tap",
+      "sha256": "fd2c71e3d0dfed5946ac127c35731539d0f3ee3ba2e6af3b1ee99d4840b33612"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p135-snapshot-and-condition-hardening.test.tap",
+      "sha256": "4aa20c39cec51e844ad2f3eb3c2ef3e8b64a43ccb897389616c968ad33a1c163"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p136-checkpoint-atomicity-and-aor.test.tap",
+      "sha256": "13cb553495b44481691f3d3cc572b06eaa9dfae7aa5dcec676c03dd0fcd4c043"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p137-aor-cross-system-mechanics.test.tap",
+      "sha256": "ddda595821888adbc515f23bf8a822b55e053f3e3d4fc324334b0abf7a44b7ed"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p138-idempotent-events-and-aor-time.test.tap",
+      "sha256": "fbb73fad46e8bece8e790f8619a3ecb66b31afb1a0e5eb2448b1c5f06eec023c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p139-explicit-task-clock-five-adventures.test.tap",
+      "sha256": "3753b71eec6644803401f28ad37b6e1a185f1ed6f6ab0502a986b831a83f9f05"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p140-task-ledger-journal-integrity.test.tap",
+      "sha256": "48dbe7872467ebf853878441ae748c19b76813828c1954ead274be9c2a667311"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p141-aor-tinkerer-inventory.test.tap",
+      "sha256": "ba38cf276b3d5c3782433a21af6ed67e8f14b1c12e916cf3a01fd5e493eded94"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p141-causal-integrity-five-adventures.test.tap",
+      "sha256": "bc491f65404dc3d8f3eeb11922e3885f6612106572ebe5e76594c16e5f145228"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p142-journal-provenance-five-adventures.test.tap",
+      "sha256": "002dbfb05af987bf06f8fdbe65756d15122cad0170f0b73b4dcd0ff58d1d3f87"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p143-atomic-action-receipts-five-adventures.test.tap",
+      "sha256": "802fd9620d6ea7522fccea134fd1c8e650c51ee5d3e81103608a303c398f974b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p144-integrated-atomic-adventures-aor.test.tap",
+      "sha256": "d51ab0964640e38f085e8659c3f6773d023348ac0567d2e07219b65206eb47a8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p145-durable-controller-receipts-five-adventures.test.tap",
+      "sha256": "3d9a451084c4041a3c28324b3a20136b0c76ee07cf63a5ff5d91a674f5223807"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p146-webview-outbox-causal-five-adventures.test.tap",
+      "sha256": "51502acf404a3323805e195dc294d1e2d5e5fed7deceeb9095140bcd72b4c9bb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p147-run-serial-proof-outbox.test.tap",
+      "sha256": "94f70b185bcf6af3a261dc65a4d72eae6085c9c058f166245b069dfc86119050"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p148-semantic-and-strict-transactions.test.tap",
+      "sha256": "ca1b86d971dc495136d89a2a1a6bb202aedaa8303810c1997fb77d599f58ea5f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p149-aor-combat-social-causality-five-adventures.test.tap",
+      "sha256": "e9bb03164c6361b39e2de47fcbac1d4b612a22d0abcadf38e7c7b1388ce3f89e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p150-defensive-slicing-tricky-target-five-adventures.test.tap",
+      "sha256": "af59acacfc748dbea55c139c6e0cf5153a025541307847663e591f29acbc0c92"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p151-integrated-context-talents.test.tap",
+      "sha256": "733da0eb42b1299ee2d5e09534d08e4e751dd236ccac63271d7b49fbb675a49d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p152-atomic-composite-recovery.test.tap",
+      "sha256": "23ce399b9e22297e32040f59847cb0193db76ffe67e6c4dde3f09c680c163963"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p153-trigger-context-recovery.test.tap",
+      "sha256": "4f0b6a355d5cbc7781b1a1169ed17e5f143295e173820e240e7515d9aed90145"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p154-aor-combat-talents-five-adventures.test.tap",
+      "sha256": "d39d7657a3541f7e4f80f9f7947335e2687648205a4e1906842e512603dd99a9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p155-beyond-rim-combat-integration.test.tap",
+      "sha256": "90fb52aebe676c30aa0e0d897811095941411731747733c9a6c1c11c9f440b97"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p155-utility-belt-destiny.test.tap",
+      "sha256": "ded321a341c54e61de63d472a642c0ce2b104f5508b6c271871b1b601c8d6724"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p156-imperial-clock-source-raid.test.tap",
+      "sha256": "0e85e7faae4ac3f65f4a383d5a8ef80255fd59efe4eb48117e39d229e16793aa"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p157-diplomat-commander-economy.test.tap",
+      "sha256": "5a1a6c70f6827d54219079cb7844075235b820bd640436e0e4c00e1023cd8d2e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p158-explosives-survival-five-adventures.test.tap",
+      "sha256": "91e2c31a3aa21a423830ee52b332197375e89b7e32a8e2b94e85dd45eb27536e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p159-natural-rerolls-checkpoint-causality.test.tap",
+      "sha256": "e499ba92bdaeb5ca50091cd0d02e7e6457fdebb639e097ee2245ec049d9613f0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p160-ammo-heroic-piloting-five-adventures.test.tap",
+      "sha256": "dc66ce1af4bd42ee93f750787f21a062eb3065dd3240474fb3528b0a78c73dc5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p161-aor-knowledge-market-boarding-steely-five-adventures.test.tap",
+      "sha256": "43728544c2a41176467006fcd52a8244c198fc5aa164e107d52bcb2765cc7681"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p162-sound-investments-smooth-talker-five-adventures.test.tap",
+      "sha256": "71cf4c39fbfc2a02f4c6265668bd94c304359789fd334a440dd7fae640fdb05b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p163-aor-medical-fullstop-five-adventures.test.tap",
+      "sha256": "9c6abf906fa577f9a117272fe537e188ce50adc4a13047a5170b3af791ea99df"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p164-companion-medical-integrated.test.tap",
+      "sha256": "29e9508c6c90fc601d03a3a5b35412e792a321ddc1277a23c9ce75d84b957933"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p165-aor-gunner-vehicle-five-adventures.test.tap",
+      "sha256": "48870a39968b2c3f3c18f5c850e1651b54375e9a5186b689f03b028f861aac6a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p166-gearhead-atomic-five-adventures.test.tap",
+      "sha256": "87928531f5a6c2af96bd024924e0ee4f6fa91060fc3b31cff18d683c1edc8234"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p167-familiar-suns-android.test.tap",
+      "sha256": "a55e1e8b50b8956850e43e0e53cdbecc663a9298eb5ed7b84a0508626b4bfcf3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p167-mental-fortress-destiny-critical.test.tap",
+      "sha256": "a78e5cafc9d3b718b3cdf984193c4029a878fff469d19d48c8b264c7472fd160"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p167-objective-dependencies-consequence-resolution-five-adventures.test.tap",
+      "sha256": "6200764e42baaba9c745dcc8ab80458eae5ad27eacc97354eb41ba608083dd9f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p168-five-adventure-security.test.tap",
+      "sha256": "4576874de1b6f4f21bc93de6e7d1b690e29e00c009835b89362790b041812a0f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p168-social-vehicle-integrated.test.tap",
+      "sha256": "8d86fc7a4a9a03bff925a67321379f94f357ecfc278295d72a8f60b19b9c01e5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p169-provenance-five-adventures.test.tap",
+      "sha256": "3f625ccb87783bf4f0b388548e095b3d12511a2175538d77af987ac165e13147"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p170-hardheaded-jury-five-adventures.test.tap",
+      "sha256": "20d401dfc5a5f325e2c157ed1ba580a484ded1b789ab22c7d04b4f7d730283dc"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p171-npc-companions-hardheaded-five-adventures.test.tap",
+      "sha256": "85c02f517119b2b78416feeaf3f910b1d9c66af2956e30a1246c400c546a9f54"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p172-consequence-security-five-adventures.test.tap",
+      "sha256": "98da88e9ccb5714feb6481c59168acb28b2d5370fc41da8c71f1d67305470629"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p172-master-merchant-economy.test.tap",
+      "sha256": "32fdf44acfe138800cabdc9d48b5ee65ebc376872735a6afb3b64373c78cfc6e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p173-merchant-receipts-five-adventures.test.tap",
+      "sha256": "256078af5ec79a0c1b36fc8f3e7d13edb35447db3a8ccd256fa826c5e35befed"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p174-mechanic-field-five-adventures.test.tap",
+      "sha256": "8c000afa598efed2fa80485d32afc5c56c2dd708da65e3202865b25fc31ddc48"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p175-command-leadership-five-adventures.test.tap",
+      "sha256": "69ac8f331b5900344e9402003ed79caa9a9baaa5812f6fe56dceecd7266cda1d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p176-intel-fire-slicer-five-adventures.test.tap",
+      "sha256": "e80fd058412a623a542305d48ac8aa97bc580ce5b55373e723395d828969ecae"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p177-social-engineering-combat-five-adventures.test.tap",
+      "sha256": "f9d449cd6a34d3660457cd2a4923ac2126e47c0b5b01866c06d20c6acf5c262f"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p178-aor-substitution-critical-crippling-adventures.test.tap",
+      "sha256": "e6edebc7aea6b95a7ad0aa63eec536c1df56871b115bcde9c7d7d70bc0eeca46"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p179-reactive-medicine-blast-five-adventures.test.tap",
+      "sha256": "252496f23c3103f10481d609c2ff90731e990cda35a21edd07db547630efd49d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p180-condition-effects-contract-five-adventures.test.tap",
+      "sha256": "1e0be5dd1b818fb71a67459c77251224a466708492a0bc917e7456b7617129b5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p181-mask-saleucami-source-migration.test.tap",
+      "sha256": "f39942da11c9fcc379f8ff523f24fa43e2ce9cc8c8378fe7fb9e21da5fa97deb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p182-sororinet-porel-contract-integrated.test.tap",
+      "sha256": "7edd810903481132aa24c633cd989dba72befebcf2645fbec3065f6e40e11c62"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p183-jewel-longarm-pdf-branches.test.tap",
+      "sha256": "b7e42db0813d37f0f41b0251bc522feac8979882753942b53b674fa87ed6cf8a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p184-jewel-race-auction-pdf.test.tap",
+      "sha256": "2982da1c1bfa2688ef450897b41b4a1a69484efee2a85fa67359d17dba000c54"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p185-race-auction-integrity-source.test.tap",
+      "sha256": "5144be4bfcb81f9126d20d4de94c4616ed66e50b7d7174bb02ef3affab7009ca"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p186-grand-prix-dice-vehicle-atomic.test.tap",
+      "sha256": "41080d0a5f3a27ac323ce64ec0008cc9e4875be2fff00710361d47ebf94a0214"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p187-bank-droid-slicing-integrated.test.tap",
+      "sha256": "ae0b759f318d4c2edbb86febcf221edec3013b0ebeca043bc08f825480ebb72b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p188-bank-preparation-spike-encryption-lobot.test.tap",
+      "sha256": "2c22217792fa68717b2a51cd1eedbee9889229759fe167866683a4c25c3a0cc5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p189-spike-time-ledger-world-clock.test.tap",
+      "sha256": "36f07754375be51780d9386c053be104a7b5c16ffbdb48213bd3906ae09d5e41"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p190-npc-slicer-hiring-and-bank-integrity.test.tap",
+      "sha256": "0ad3a133b5e447a1c4c7cd956303832a4363aab29f985d6ff574f031a76d993c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p191-bank-table-2-1-post-roll-backdoors-time.test.tap",
+      "sha256": "35b98dfeae5587ededf35b778b6435e31a56a0f8d762a9132b62e41fd8f808a5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p192-jewel-bank-table-completion.test.tap",
+      "sha256": "999133a41ccd50f9fd46344194ac07a2cafd7184fc592489f1847f32055a3bbb"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p193-jewel-wing-guard-arrival.test.tap",
+      "sha256": "b847e698ba218aa0700569c8dbee5f3092315306d0cb15553e59c1a634cd5d1e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p194-jewel-g100-black-box-evidence.test.tap",
+      "sha256": "f6a004a8d051bc828174bd3405489ed94ca85f3dea0157ef425468d7a2a93ca0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p195-jewel-live-g100-droid.test.tap",
+      "sha256": "f7832cfd11fe7ab600a8eaefaadb872ae356ab98be2132f61af7f0a781e2de74"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p196-jewel-g100-official-nobodys-fool-muscle-assist.test.tap",
+      "sha256": "ddfdf1a9369efe659f0c50123261115f53a86fb8b731ec8a089e961f7ed983a2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p197-wing-guard-tactics.test.tap",
+      "sha256": "58c944b4efc7c722d27fcdc78e7951e439b9fc65fb87a0aea4f983cb746c597d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p198-wing-guard-free-maneuver.test.tap",
+      "sha256": "f66a181429b242e0cb39929d252a84fabb07b9e4ba12d85b4eda00f5ec7b9fb1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p199-physical-bolt-and-slicer-tool-replacement.test.tap",
+      "sha256": "8a4b2e2844f12e9203080825c415c557951a826d17d38102691c401d19e701e6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p200-bank-ledger-settlement.test.tap",
+      "sha256": "26f817b7298123f4c30d88ee37f42b7a1c3e0e6df157a0e8371ba1ceca861fa6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p201-escape-bomb.test.tap",
+      "sha256": "2ab62d42e24295ca555d0b7700fc27cb58758f42a31d185b4b82aa26bd26628d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p202-jewel-impact-goons.test.tap",
+      "sha256": "1da5c78b982d3d5aedbe74586b2908a3dcfb3c47c24587fd4bb813ad7e0e5cf0"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p203-jewel-long-extreme-falls.test.tap",
+      "sha256": "a48adf67dc9a4e9ea1c26b279969f07a910da33a5cdb49cfa478a127f6c7c035"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p204-jewel-companion-impacts.test.tap",
+      "sha256": "40ce1a01050ef79b5de92c5e3b19230b7e014b24d13172d5287424ab105ff2ed"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p205-arrow7-personal-scale-turret.test.tap",
+      "sha256": "dc804c65fd21090cba75624ee0a7e3afa1ee04127af4e6be83e06490e6b6f796"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p206-arrow7-competitive-chase.test.tap",
+      "sha256": "18d77cb4f5f695ad367e5f9ea4c7f867eace78154af63739c9e491671f2a9753"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p207-arend-sweet-revenge.test.tap",
+      "sha256": "f408988234ec71bb24e0964f3301f0c11528bd020b3071b057eb1e1d7d3e0769"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p208-holopark-naboka.test.tap",
+      "sha256": "c6ba8d62ea249224fdd6853a384a988a0d398d63a6bce441e505ed0a06e20784"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p209-holopark-wing-guard.test.tap",
+      "sha256": "1102096c9d2bd6faba8ee5819a972d1e522371c75778c235bd5bc1f2e4f15cff"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p210-holopark-landscape-effects.test.tap",
+      "sha256": "0a76bff539688e5d3b1339f3b2a0d765e70f5d1311f671f37043d9871434f1ae"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p211-holopark-thranta-shadow.test.tap",
+      "sha256": "f42cf1cf7f43fcb5b64b042277acaf067d7e46d37b6873a198394775aa53c201"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p212-holopark-cover-nerfs.test.tap",
+      "sha256": "8f38ce2aebd37b9c31bbd1171b26b3f42f792cb6f4702e93db05be621f7bf3b4"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p213-holopark-npc-threats.test.tap",
+      "sha256": "593595d8384a379db9d9beb413ada3c85b6bdf5d0a48d5846ec4bcff7f57560c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p214-holopark-lost-weapons.test.tap",
+      "sha256": "9cdba2f35c401d2e3b5e6e914a77959c0a18ca15a1e9c65a57fae2e047401367"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p215-holopark-despair.test.tap",
+      "sha256": "54f88fc3d57d26bdab9745ccf02680ede35fd654d3895d4ea84e664f41da886d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p216-kashyyyk-vertigo.test.tap",
+      "sha256": "ac061b9dd96646c4f5e3deb4371a949cfbd9d214e75fab51069217565ef93187"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p217-holopark-factions.test.tap",
+      "sha256": "efdfa89820eaa90774b6a4b5237d8bebe7dc966da4f1c01e82145cc2e8558220"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p218-lando-pardon.test.tap",
+      "sha256": "46942f4d5d77b6c8531cd38dddd298dad4265e5c5cb8f734fb658e36d768c01e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p219-shen-aftermath.test.tap",
+      "sha256": "65123099419306668e07c45669a3bd55792efb8302fee4a94ce6d15afb0f874d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p220-arend-holdings-combat.test.tap",
+      "sha256": "7005ac45806d63c65f9f6a818236d12dcc808bc2ed7a325f410e70d4b3ce0bd1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p221-arend-patrols.test.tap",
+      "sha256": "83e1a5ac4e15eb54e90012c7796aefd94fd2673fb203f0f0df8eae8db4534c39"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p222-jewel-episode3-xp.test.tap",
+      "sha256": "778dcbf38e073e199175aaa6c7631c7d804de574b631018ad70edcb5c1e678d7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p223-storm-iv-patrol.test.tap",
+      "sha256": "088c91fe5ed3991d38471051969d9dd73fdf6b6804334f189596462f2c80fe7d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p224-bespin-departure.test.tap",
+      "sha256": "dc44848bfc2732f536e20919be1d0da947aae026ae9dd14c6a9696cdf3bb86b1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p225-residence-wing-response.test.tap",
+      "sha256": "aaa3775cf6a59e09ce8342bec4cf08e67d49a9335dac1c7eaf882002086d86ac"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p226-pursuit-travel.test.tap",
+      "sha256": "17b1f4b39bd7260ddeb1a1c208d315c7a2f3b15b191942064935ed6aa7f5aea7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p227-jewel-custody-transfers.test.tap",
+      "sha256": "5429f3d0fa54854ead5c8e3f007a3e4b64cd23fd1c4ad0b0252cda228ca29864"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p228-companion-jewel-boarding.test.tap",
+      "sha256": "a4fe3b40e9237b57b9a1dd82cead386b97f19e424de248a4a34a39205ad1f003"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p229-starport-ship-security.test.tap",
+      "sha256": "1823200697c5e15998b42b98dfa8f0d637e5251a701f0c0ffa675ea8a8ae5241"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p230-starport-routes-piloting.test.tap",
+      "sha256": "5d5ba475fd9f85533aa1ee1e478e5b733b9bb5ff145b3e0b452133c93b1868c7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p231-starport-cloud-cars.test.tap",
+      "sha256": "b3ac03cd584adceaaa5bf85489fb2caf28aedab8d6befd9149fd9a50612fdc6e"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p232-holopark-narrative-clock.test.tap",
+      "sha256": "6b35eceb6da7737defd6733a5bae44b96f1b004959b4cbf524c393b92fd7dfa9"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p233-kashyyyk-medical-actions.test.tap",
+      "sha256": "6f9516e92ffd09e7fceefe1bc26d6bb700476e5dc1570ce016e465c4f3b0f0e1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p234-five-adventures-hybrid-safety.test.tap",
+      "sha256": "69226d2706326c09d5ad2ae4a864805ceb753050aaffc2f24a72e43abc9721bf"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p235-longarm-newmeen-official.test.tap",
+      "sha256": "9d35aaabcd7b21d096ab2ebf2bd8ffe0f10f4813366653c450756164150ffdc2"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p236-swe02-teemo-palace-source-gates.test.tap",
+      "sha256": "d8e2c71e0b4c7bc9ca019892d7d96dee8c60a8497042cf76ec97030bfe0b6a8a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p237-swe02-geonosis-dimmock-gantry.test.tap",
+      "sha256": "d8289ef53f3ea01a1c2476e8b4c43d190f19b5eb239fbf9de1203acef0fd7504"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p238-swe02-krayt-fang-ship-source.test.tap",
+      "sha256": "f4a7ae2a24d336a4ce5cbe669703f5d9108b235d950307a405ecf4e5b1940c3c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p239-swe02-thwheek-vehicle-combat.test.tap",
+      "sha256": "264f5a2097f44fe54bf2ce36b8fb51c4adb2e25bbca0ca981495044286fef7fd"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p240-swe02-nabat-port-economy-medical.test.tap",
+      "sha256": "1a010fadc0c50cf84daa6118f739bf9cdf0003723467e2438eb8f33b3d14ad9a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p241-swe02-nyn-newmeen-social.test.tap",
+      "sha256": "6cc1297aeeea727919354c7dfd6a8a65f0d8895d4e8913c96ee479cfdff18e7c"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p242-swe02-newmeen-fatalities-coercion-rescue.test.tap",
+      "sha256": "c35eb89d2ec8d914d4801001493d2873bc6e0471b47c09897151c1516e403c13"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p243-swe02-escort-militia.test.tap",
+      "sha256": "629c4edff12dbc5a8b5b5ae2b12839c48e675123c9bd81a433a87c65d7cb9132"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-p244-swe02-militia-custody.test.tap",
+      "sha256": "094edba34684dc4fb79d5ae705dadaed03f0660d6fc1901fc1992c0f66a076b7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-swe02-act2-contracts-gantry.work.test.tap",
+      "sha256": "2e3abba753b42fe8d275adb1d7d32ee7a99fc337d0a0392c0b46f6754cf1f727"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-swe02-act3-complete-routes.work.test.tap",
+      "sha256": "7e423a6e157ad4cd8de091449f4c3d36473bd454fe6fabef3063ae03fdff1ded"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/uae-v2-p127-regression.test.tap",
+      "sha256": "18823e846a600b0e49dd786c5cc12233e9f0e42ce04a76703403ac07b65a0bf6"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/ui-bridge-backup-json-r23.test.tap",
+      "sha256": "a4356bb741cc430086d57af0a69cb988e5d3962f994acab95e3f8cc660a81f7b"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/ui-bridge-equipment-r32.test.tap",
+      "sha256": "01c84f1b70fb0d12b5f0b16c05f59ee17865a6bd55d18945b4fc46b13a70c3a7"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/ui-bridge-manual-creation-r33.test.tap",
+      "sha256": "8dc3b5bd3f949a892562f44bd891c3cbff966096fef0160c6f2638d6c8675f08"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/ui-bridge-r22.test.tap",
+      "sha256": "2657e79df149a16ff62b381ecb88f978d6782a8c85a39d7e1cf3bb753cd01108"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/ui-language.test.tap",
+      "sha256": "2fb5c60040eaada4854e709d9b127e77d7ababe4c3a986df748ca2e9733ea53a"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/universal-adventure-engine.test.tap",
+      "sha256": "b6c1b061d4a3d6734ef886d29b180e674b7bf9b3ac03956d62d1fd65ff1d4ba5"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/validation-capabilities-copy-p18.test.tap",
+      "sha256": "fe39e38dc5673c53701ead211b77d54018cd2fa18b25cf58f9ef468e388e4926"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/vehicle-controller.test.tap",
+      "sha256": "9e9b9b668661dc5db306b98dbc38fa47377a43a1eb1f1775b377f9019d5b2a8d"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/vehicle-talents-r15.test.tap",
+      "sha256": "7410a0f21ff02abbef3107bc23f45592ac5158f8f051e26edda33b3bd6bc30aa"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/vehicle-ui.test.tap",
+      "sha256": "4880e010c4778def677a5f260c5894975223b9bc3f72cb2ff18d2009b39b9e36"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/vehicles.test.tap",
+      "sha256": "7b2b159d7eba0dc829035d7dcea3706ada6a3530ce83d8e18bd149efb37a79dc"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/verifier-async-suite-r16.test.tap",
+      "sha256": "9d110ab35a579e5c548c6bc0628fad5a2b3a9dc3a60fb372a4866039848429e8"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/verifier-process-exit-r16.test.tap",
+      "sha256": "2ec2c0043269be7928bcc18247aa6b218019edb28acee46be0c6b30b72c0b843"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/verifier-validation-dir-r17.test.tap",
+      "sha256": "4f1b57ccb7a5e19b9480097f52f6c25c6278f978b060e6a0eac97476763b49d1"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/wave4-official-adventures.test.tap",
+      "sha256": "c4a2701e8d1fcdf959dc168313c2f45036b030d76cda3a41d2ae9715e93badfa"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/weapons.test.tap",
+      "sha256": "5d6d8649aa11d7743ce99b22874fd551f542942eb70e58a60e4817939581e1b3"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/world-r15.test.tap",
+      "sha256": "4e677ac30e54189f6b4e41bd775cf172df52863b5524f19ee07b308a127be646"
+    },
+    {
+      "path": "evidence/SWE02_FULL_BLOCK_WIP/test-results/world.test.tap",
+      "sha256": "38fadc815f6a67f06079a08ecd5f9f72dce8f644c6ecfc38082abf9b07dd3896"
+    },
+    {
+      "path": "run_swe02_wip_regression.py",
+      "sha256": "c77f3850e5ed0c0ed04fada706e058b5e8411e1b0acdaab099e5b803b7182391"
+    },
+    {
+      "path": "tests/uae-swe02-act2-contracts-gantry.work.test.mjs",
+      "sha256": "924410225a92fbf0903a3af207971f71ff3b4c23b967a755f759e13e6be68234"
+    },
+    {
+      "path": "tests/uae-swe02-act3-complete-routes.work.test.mjs",
+      "sha256": "20b5093468dee3df3526e504520822918c4bcfea0c7bd52a3003b869bd2d434e"
+    },
+    {
+      "path": "verify_swe02_wip_source.py",
+      "sha256": "927df44005b672f96384033a099c7f94969eee3c50276c0e36475f6b673417aa"
+    }
+  ],
+  "regression": {
+    "files": 371,
+    "pass": 3369,
+    "fail": 0,
+    "skip": 0
+  },
+  "apkBuilt": false,
+  "driveReadbackVerified": false
+}

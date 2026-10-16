@@ -1,0 +1,18 @@
+R54 P51 BROAD REGRESSION — SHARDED
+
+Shard 1: PASS 82 / FAIL 0 / duration_ms 4533.904573
+Shard 2: PASS 207 / FAIL 0 / duration_ms 2499.01935
+Shard 3: PASS 113 / FAIL 0 / duration_ms 1578.75254
+Shard 4: PASS 100 / FAIL 0 / duration_ms 1344.015967
+Shard 5: PASS 98 / FAIL 0 / duration_ms 1781.727257
+Shard 6 original: PASS 110 / FAIL 1 — stale architecture assertion expected direct adjudicateUnderBlackSunCheck call.
+Shard 6 rerun after contract update: PASS 111 / FAIL 0 / duration_ms 1805.723115
+Shard 7: PASS 85 / FAIL 0 / duration_ms 15661.770349
+Shard 8 rerun/confirmed: PASS 81 / FAIL 0 / duration_ms 5887.239338
+
+FINAL BROAD RESULT: PASS 877 / FAIL 0
+All 176 test files were covered across the eight shards.
+
+Notes:
+- The shard 6 failure was not masked: it was identified, traced to a source-inspection test tied to the old direct Under a Black Sun call, updated to assert the new registry/adapter contract, and rerun green.
+- The first outer shard loop hit its tool wall-clock ceiling while shard 8 was running. Its log already showed 81/81 PASS; shard 8 was rerun independently and confirmed 81/81 PASS.

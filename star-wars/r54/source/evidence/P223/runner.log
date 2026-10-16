@@ -1,0 +1,10 @@
+FILES 348
+PROGRESS 40 / 348 seconds 3.3
+PROGRESS 80 / 348 seconds 6.3
+PROGRESS 120 / 348 seconds 9.1
+PROGRESS 160 / 348 seconds 11.2
+PROGRESS 200 / 348 seconds 13.5
+PROGRESS 240 / 348 seconds 19.8
+PROGRESS 280 / 348 seconds 26.9
+PROGRESS 320 / 348 seconds 43.9
+SUMMARY {"checkpoint": "P223", "mode": "node --test each file separately, 6 workers", "regularFiles": 342, "stressFiles": 6, "regularTests": 3126, "regularPassed": 3126, "stressTests": 6, "stressPassed": 6, "failedFiles": [], "totalFiles": 348, "totalTests": 3132, "totalPassed": 3132, "elapsedSeconds": 50.49, "focalTests": 9}

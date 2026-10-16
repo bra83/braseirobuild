@@ -1,0 +1,5 @@
+NODE_SUITE_JSON={"files":267,"regular_files":267,"stress_files":0,"tests":1896,"pass":1896,"fail":0,"skipped":0,"bad":0,"seconds":20.601}
+# tests 1896
+# pass 1896
+# fail 0
+# skipped 0

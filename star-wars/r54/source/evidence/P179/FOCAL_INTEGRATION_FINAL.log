@@ -1,0 +1,418 @@
+TAP version 13
+# Subtest: P77: TtsBridge usa somente APIs públicas disponíveis para identificar engine
+ok 1 - P77: TtsBridge usa somente APIs públicas disponíveis para identificar engine
+  ---
+  duration_ms: 4.896726
+  type: 'test'
+  ...
+# Subtest: P77: Android e shell publicam a mesma versão e permanecem em 1.0.77 ou posterior
+ok 2 - P77: Android e shell publicam a mesma versão e permanecem em 1.0.77 ou posterior
+  ---
+  duration_ms: 150.160377
+  type: 'test'
+  ...
+# Subtest: P130 AoR: todas as 18 árvores de origem ficam navegáveis e a primeira linha desbloqueada
+ok 3 - P130 AoR: todas as 18 árvores de origem ficam navegáveis e a primeira linha desbloqueada
+  ---
+  duration_ms: 65.382257
+  type: 'test'
+  ...
+# Subtest: P130 AoR: compra real desconta PE, preserva fonte, posição e não modifica entrada
+ok 4 - P130 AoR: compra real desconta PE, preserva fonte, posição e não modifica entrada
+  ---
+  duration_ms: 10.965047
+  type: 'test'
+  ...
+# Subtest: P130 AoR: somente vizinhos de slots comprados são liberados, mesmo após JSON restore
+ok 5 - P130 AoR: somente vizinhos de slots comprados são liberados, mesmo após JSON restore
+  ---
+  duration_ms: 10.158146
+  type: 'test'
+  ...
+# Subtest: P130 AoR: bloqueia aquisição de outra especialização, árvore EotE e saldo insuficiente
+ok 6 - P130 AoR: bloqueia aquisição de outra especialização, árvore EotE e saldo insuficiente
+  ---
+  duration_ms: 3.650698
+  type: 'test'
+  ...
+# Subtest: P130 AoR: efeitos passivos já implementados são aplicados à ficha sem duplicação
+ok 7 - P130 AoR: efeitos passivos já implementados são aplicados à ficha sem duplicação
+  ---
+  duration_ms: 2.632671
+  type: 'test'
+  ...
+# Subtest: P130 AoR: compra no controlador persiste após reiniciar e passa pelo bridge Android
+ok 8 - P130 AoR: compra no controlador persiste após reiniciar e passa pelo bridge Android
+  ---
+  duration_ms: 26.736258
+  type: 'test'
+  ...
+# Subtest: P130 under-black-sun: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 9 - P130 under-black-sun: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 239.952931
+  type: 'test'
+  ...
+# Subtest: P130 beyond-the-rim: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 10 - P130 beyond-the-rim: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 22.687016
+  type: 'test'
+  ...
+# Subtest: P130 long-arm-of-the-hutt: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 11 - P130 long-arm-of-the-hutt: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 68.604646
+  type: 'test'
+  ...
+# Subtest: P130 jewel-of-yavin: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 12 - P130 jewel-of-yavin: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 15.910972
+  type: 'test'
+  ...
+# Subtest: P130 mask-of-the-pirate-queen: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 13 - P130 mask-of-the-pirate-queen: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 16.495774
+  type: 'test'
+  ...
+# Subtest: P130 UAE: objetivo histórico contraditório e consequência duplicada são rejeitados
+ok 14 - P130 UAE: objetivo histórico contraditório e consequência duplicada são rejeitados
+  ---
+  duration_ms: 22.711666
+  type: 'test'
+  ...
+# Subtest: P130 equipamentos: tentativa de mod falhada consome slot também na resolução de combate
+ok 15 - P130 equipamentos: tentativa de mod falhada consome slot também na resolução de combate
+  ---
+  duration_ms: 6.687471
+  type: 'test'
+  ...
+# Subtest: P130 AoR: catálogo distingue aquisição de efeito mecânico realmente implementado
+ok 16 - P130 AoR: catálogo distingue aquisição de efeito mecânico realmente implementado
+  ---
+  duration_ms: 5.049979
+  type: 'test'
+  ...
+# Subtest: P130 AoR: talento racial e compra do mesmo nome acumulam graus sem duplicação
+ok 17 - P130 AoR: talento racial e compra do mesmo nome acumulam graus sem duplicação
+  ---
+  duration_ms: 2.980351
+  type: 'test'
+  ...
+# Subtest: P178 five distinct AoR source slots have actual consumers
+ok 18 - P178 five distinct AoR source slots have actual consumers
+  ---
+  duration_ms: 13.627842
+  type: 'test'
+  ...
+# Subtest: P178 MANO DE SANTO substitutes the live dice pool, once/session, survives three reopens
+ok 19 - P178 MANO DE SANTO substitutes the live dice pool, once/session, survives three reopens
+  ---
+  duration_ms: 288.451829
+  type: 'test'
+  ...
+# Subtest: P178 MANO DE SANTO refuses unowned talent and rolls back on failed save
+ok 20 - P178 MANO DE SANTO refuses unowned talent and rolls back on failed save
+  ---
+  duration_ms: 78.793679
+  type: 'test'
+  ...
+# Subtest: P178 INGENIOSO substitutes the live dice pool, once/session, survives three reopens
+ok 21 - P178 INGENIOSO substitutes the live dice pool, once/session, survives three reopens
+  ---
+  duration_ms: 11.05859
+  type: 'test'
+  ...
+# Subtest: P178 INGENIOSO refuses unowned talent and rolls back on failed save
+ok 22 - P178 INGENIOSO refuses unowned talent and rolls back on failed save
+  ---
+  duration_ms: 15.347489
+  type: 'test'
+  ...
+# Subtest: P178 SOLUCIÓN IMPROVISADA substitutes the live dice pool, once/session, survives three reopens
+ok 23 - P178 SOLUCIÓN IMPROVISADA substitutes the live dice pool, once/session, survives three reopens
+  ---
+  duration_ms: 11.072037
+  type: 'test'
+  ...
+# Subtest: P178 SOLUCIÓN IMPROVISADA refuses unowned talent and rolls back on failed save
+ok 24 - P178 SOLUCIÓN IMPROVISADA refuses unowned talent and rolls back on failed save
+  ---
+  duration_ms: 10.951338
+  type: 'test'
+  ...
+# Subtest: P178 rejects multiple characteristic substitutions without charging actions
+ok 25 - P178 rejects multiple characteristic substitutions without charging actions
+  ---
+  duration_ms: 4.4934
+  type: 'test'
+  ...
+# Subtest: P178 Unstoppable suppresses an actual critical total of 1, including immediate strain
+ok 26 - P178 Unstoppable suppresses an actual critical total of 1, including immediate strain
+  ---
+  duration_ms: 209.373802
+  type: 'test'
+  ...
+# Subtest: P178 Unstoppable does not suppress total above 1 or unowned
+ok 27 - P178 Unstoppable does not suppress total above 1 or unowned
+  ---
+  duration_ms: 5.44846
+  type: 'test'
+  ...
+# Subtest: P178 Crippling Blow changes real attack difficulty and wounds real target
+ok 28 - P178 Crippling Blow changes real attack difficulty and wounds real target
+  ---
+  duration_ms: 16.712827
+  type: 'test'
+  ...
+# Subtest: P178 Crippling Blow rejects unowned and phantom targets atomically
+ok 29 - P178 Crippling Blow rejects unowned and phantom targets atomically
+  ---
+  duration_ms: 8.829277
+  type: 'test'
+  ...
+# Subtest: P178 P177 idempotency cannot silently accept a different GM-approved fact
+ok 30 - P178 P177 idempotency cannot silently accept a different GM-approved fact
+  ---
+  duration_ms: 7.574929
+  type: 'test'
+  ...
+# Subtest: P178 offline bridge includes canonical consumers
+ok 31 - P178 offline bridge includes canonical consumers
+  ---
+  duration_ms: 48.819363
+  type: 'test'
+  ...
+# Subtest: P178 under-black-sun attribute use is persistent and adventure state unchanged after 3 reopens
+ok 32 - P178 under-black-sun attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 102.886816
+  type: 'test'
+  ...
+# Subtest: P178 beyond-the-rim attribute use is persistent and adventure state unchanged after 3 reopens
+ok 33 - P178 beyond-the-rim attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 63.786763
+  type: 'test'
+  ...
+# Subtest: P178 long-arm-of-the-hutt attribute use is persistent and adventure state unchanged after 3 reopens
+ok 34 - P178 long-arm-of-the-hutt attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 13.996392
+  type: 'test'
+  ...
+# Subtest: P178 jewel-of-yavin attribute use is persistent and adventure state unchanged after 3 reopens
+ok 35 - P178 jewel-of-yavin attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 23.054319
+  type: 'test'
+  ...
+# Subtest: P178 mask-of-the-pirate-queen attribute use is persistent and adventure state unchanged after 3 reopens
+ok 36 - P178 mask-of-the-pirate-queen attribute use is persistent and adventure state unchanged after 3 reopens
+  ---
+  duration_ms: 167.193867
+  type: 'test'
+  ...
+# Subtest: P178 Form on Me propagates real Gain the Advantage to a confirmed nearby allied ship
+ok 37 - P178 Form on Me propagates real Gain the Advantage to a confirmed nearby allied ship
+  ---
+  duration_ms: 18.428873
+  type: 'test'
+  ...
+# Subtest: P178 Form on Me rejects phantom, unconfirmed and unowned allied ships atomically
+ok 38 - P178 Form on Me rejects phantom, unconfirmed and unowned allied ships atomically
+  ---
+  duration_ms: 25.507974
+  type: 'test'
+  ...
+# Subtest: P178 GM confirms only registered formation allies and rolls back on storage failure
+ok 39 - P178 GM confirms only registered formation allies and rolls back on storage failure
+  ---
+  duration_ms: 15.863674
+  type: 'test'
+  ...
+# Subtest: P178 Crippling Blow inflicts actual NPC strain on movement and not on idle turns
+ok 40 - P178 Crippling Blow inflicts actual NPC strain on movement and not on idle turns
+  ---
+  duration_ms: 7.828353
+  type: 'test'
+  ...
+# Subtest: P178 forged critical movement and formation references rejected on reload
+ok 41 - P178 forged critical movement and formation references rejected on reload
+  ---
+  duration_ms: 7.704824
+  type: 'test'
+  ...
+# Subtest: P178 Unstoppable wound-threshold crossing does not fabricate criticalAdded
+ok 42 - P178 Unstoppable wound-threshold crossing does not fabricate criticalAdded
+  ---
+  duration_ms: 8.4323
+  type: 'test'
+  ...
+# Subtest: P179 360 AoR source positions have executable consumers (not editorial certification)
+ok 43 - P179 360 AoR source positions have executable consumers (not editorial certification)
+  ---
+  duration_ms: 9.08061
+  type: 'test'
+  ...
+# Subtest: P179 Tactician Superviviente is Natural Outdoorsman, not Unmatched Courage
+ok 44 - P179 Tactician Superviviente is Natural Outdoorsman, not Unmatched Courage
+  ---
+  duration_ms: 87.592588
+  type: 'test'
+  ...
+# Subtest: P179 Medic blocks a real threshold critical with Hard Medicine, not the wound damage
+ok 45 - P179 Medic blocks a real threshold critical with Hard Medicine, not the wound damage
+  ---
+  duration_ms: 43.055267
+  type: 'test'
+  ...
+# Subtest: P179 Medic failed Medicine check consumes the session use and leaves the critical intact
+ok 46 - P179 Medic failed Medicine check consumes the session use and leaves the critical intact
+  ---
+  duration_ms: 16.147369
+  type: 'test'
+  ...
+# Subtest: P179 Medic does not consume once/session when no critical event occurs
+ok 47 - P179 Medic does not consume once/session when no critical event occurs
+  ---
+  duration_ms: 17.577325
+  type: 'test'
+  ...
+# Subtest: P179 Medic rejects self, unowned, repeated, unapproved, and invalid targets atomically
+ok 48 - P179 Medic rejects self, unowned, repeated, unapproved, and invalid targets atomically
+  ---
+  duration_ms: 186.73078
+  type: 'test'
+  ...
+# Subtest: P179 Medicine action rollback restores ally and medic on failed persistent save
+ok 49 - P179 Medicine action rollback restores ally and medic on failed persistent save
+  ---
+  duration_ms: 15.258703
+  type: 'test'
+  ...
+# Subtest: P179 prepared Medic reacts during actual NPC attack and persists once/session
+ok 50 - P179 prepared Medic reacts during actual NPC attack and persists once/session
+  ---
+  duration_ms: 29.268915
+  type: 'test'
+  ...
+# Subtest: P179 preparing Medic is atomic and validates real ally, ownership and GM approval
+ok 51 - P179 preparing Medic is atomic and validates real ally, ownership and GM approval
+  ---
+  duration_ms: 19.669599
+  type: 'test'
+  ...
+# Subtest: P179 NPC blast receipt is derived from a real grenade and real attack Advantage
+ok 52 - P179 NPC blast receipt is derived from a real grenade and real attack Advantage
+  ---
+  duration_ms: 26.530956
+  type: 'test'
+  ...
+# Subtest: P179 NPC blast requires actual Advantage and Blast quality, not a GM fabricated event
+ok 53 - P179 NPC blast requires actual Advantage and Blast quality, not a GM fabricated event
+  ---
+  duration_ms: 13.546628
+  type: 'test'
+  ...
+# Subtest: P179 Time to Go escapes NPC blast, spends exactly one light Destiny and saves companion via Improved
+ok 54 - P179 Time to Go escapes NPC blast, spends exactly one light Destiny and saves companion via Improved
+  ---
+  duration_ms: 127.339517
+  type: 'test'
+  ...
+# Subtest: P179 Blast with no Time to Go damages real player and companion with soak
+ok 55 - P179 Blast with no Time to Go damages real player and companion with soak
+  ---
+  duration_ms: 55.174463
+  type: 'test'
+  ...
+# Subtest: P179 Blast refuses phantom, duplicate, unsupported and unapproved escapes atomically
+ok 56 - P179 Blast refuses phantom, duplicate, unsupported and unapproved escapes atomically
+  ---
+  duration_ms: 44.045789
+  type: 'test'
+  ...
+# Subtest: P179 Blast rejects an unowned Time to Go and preserves Destiny
+ok 57 - P179 Blast rejects an unowned Time to Go and preserves Destiny
+  ---
+  duration_ms: 13.948819
+  type: 'test'
+  ...
+# Subtest: P179 Blast cannot be resolved without light Destiny, even when all targets would escape
+ok 58 - P179 Blast cannot be resolved without light Destiny, even when all targets would escape
+  ---
+  duration_ms: 54.386494
+  type: 'test'
+  ...
+# Subtest: P179 blast rollback restores spent Destiny, wounds and attack receipt
+ok 59 - P179 blast rollback restores spent Destiny, wounds and attack receipt
+  ---
+  duration_ms: 70.355235
+  type: 'test'
+  ...
+# Subtest: P179 forged pending blast and forged Medic preparation rejected by state validator
+ok 60 - P179 forged pending blast and forged Medic preparation rejected by state validator
+  ---
+  duration_ms: 19.774082
+  type: 'test'
+  ...
+# Subtest: P179 combat closure removes pending blast, prepared Medic and encounter-only escape receipts
+ok 61 - P179 combat closure removes pending blast, prepared Medic and encounter-only escape receipts
+  ---
+  duration_ms: 42.818069
+  type: 'test'
+  ...
+# Subtest: P179 rejects forged blast escape without a matching resolved attack
+ok 62 - P179 rejects forged blast escape without a matching resolved attack
+  ---
+  duration_ms: 8.080426
+  type: 'test'
+  ...
+# Subtest: P179 UI bundle and Android source include actual controller reaction bridge
+ok 63 - P179 UI bundle and Android source include actual controller reaction bridge
+  ---
+  duration_ms: 56.61137
+  type: 'test'
+  ...
+# Subtest: P179 under-black-sun: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 64 - P179 under-black-sun: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 76.974999
+  type: 'test'
+  ...
+# Subtest: P179 beyond-the-rim: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 65 - P179 beyond-the-rim: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 66.005837
+  type: 'test'
+  ...
+# Subtest: P179 long-arm-of-the-hutt: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 66 - P179 long-arm-of-the-hutt: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 38.417872
+  type: 'test'
+  ...
+# Subtest: P179 jewel-of-yavin: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 67 - P179 jewel-of-yavin: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 26.875479
+  type: 'test'
+  ...
+# Subtest: P179 mask-of-the-pirate-queen: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 68 - P179 mask-of-the-pirate-queen: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 38.97498
+  type: 'test'
+  ...
+1..68
+# tests 68
+# suites 0
+# pass 68
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3176.189868

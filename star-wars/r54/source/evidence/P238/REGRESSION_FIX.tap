@@ -1,0 +1,220 @@
+TAP version 13
+# Subtest: P74: Android version no longer reports 1.0.0
+ok 1 - P74: Android version no longer reports 1.0.0
+  ---
+  duration_ms: 1.199519
+  type: 'test'
+  ...
+# Subtest: P74: Android reads modern system bars and exports bottom safe inset
+ok 2 - P74: Android reads modern system bars and exports bottom safe inset
+  ---
+  duration_ms: 1.222052
+  type: 'test'
+  ...
+# Subtest: P74: campaign hub exposes restart, new world/selection and full reset
+ok 3 - P74: campaign hub exposes restart, new world/selection and full reset
+  ---
+  duration_ms: 2.003491
+  type: 'test'
+  ...
+# Subtest: P74: UI bridge exposes canonical full newCampaign without changing Duty/Obligation logic
+ok 4 - P74: UI bridge exposes canonical full newCampaign without changing Duty/Obligation logic
+  ---
+  duration_ms: 3.173074
+  type: 'test'
+  ...
+# Subtest: P77: TtsBridge usa somente APIs públicas disponíveis para identificar engine
+ok 5 - P77: TtsBridge usa somente APIs públicas disponíveis para identificar engine
+  ---
+  duration_ms: 1.040249
+  type: 'test'
+  ...
+# Subtest: P77: Android e shell publicam a mesma versão e permanecem em 1.0.77 ou posterior
+ok 6 - P77: Android e shell publicam a mesma versão e permanecem em 1.0.77 ou posterior
+  ---
+  duration_ms: 1.957512
+  type: 'test'
+  ...
+# Subtest: P128: cinco adaptadores geram UAE persistido, objetivos por episódio e transição real
+ok 7 - P128: cinco adaptadores geram UAE persistido, objetivos por episódio e transição real
+  ---
+  duration_ms: 71.622836
+  type: 'test'
+  ...
+# Subtest: P128: reinício e reabertura no controlador mantêm journal UAE e estado de personagem
+ok 8 - P128: reinício e reabertura no controlador mantêm journal UAE e estado de personagem
+  ---
+  duration_ms: 19.856578
+  type: 'test'
+  ...
+# Subtest: P128: migração de save legado sem UAE preserva cena e audita origem
+ok 9 - P128: migração de save legado sem UAE preserva cena e audita origem
+  ---
+  duration_ms: 2.085204
+  type: 'test'
+  ...
+# Subtest: P128: três aventuras por episódios concluem objetivos e arquivam sem duplicar eventos
+ok 10 - P128: três aventuras por episódios concluem objetivos e arquivam sem duplicar eventos
+  ---
+  duration_ms: 121.656333
+  type: 'test'
+  ...
+# Subtest: P128: teste da aventura gera evento canônico e preserva progressão de check
+ok 11 - P128: teste da aventura gera evento canônico e preserva progressão de check
+  ---
+  duration_ms: 3.416781
+  type: 'test'
+  ...
+# Subtest: P128: reimportação de snapshot com sequência lacunar não duplica IDs de eventos
+ok 12 - P128: reimportação de snapshot com sequência lacunar não duplica IDs de eventos
+  ---
+  duration_ms: 0.997023
+  type: 'test'
+  ...
+# Subtest: P128: falha ao resolver consequência não deixa marca de resolução nem evento órfão
+ok 13 - P128: falha ao resolver consequência não deixa marca de resolução nem evento órfão
+  ---
+  duration_ms: 2.059906
+  type: 'test'
+  ...
+# Subtest: P128: attachment ignora efeito e modificação forjados em snapshot persistido
+ok 14 - P128: attachment ignora efeito e modificação forjados em snapshot persistido
+  ---
+  duration_ms: 1.81758
+  type: 'test'
+  ...
+# Subtest: P128: qualidades graduadas combinam corretamente base + attachment + mods
+ok 15 - P128: qualidades graduadas combinam corretamente base + attachment + mods
+  ---
+  duration_ms: 0.588668
+  type: 'test'
+  ...
+# Subtest: P128: UI recebe objetivos visíveis sem flags, pistas secretas nem episódios futuros
+ok 16 - P128: UI recebe objetivos visíveis sem flags, pistas secretas nem episódios futuros
+  ---
+  duration_ms: 3.216921
+  type: 'test'
+  ...
+# Subtest: P128: painel Android exibe objetivos da UAE sem exibir estados internos
+ok 17 - P128: painel Android exibe objetivos da UAE sem exibir estados internos
+  ---
+  duration_ms: 7.34846
+  type: 'test'
+  ...
+# Subtest: P128: Sob um Sol Negro mantém UAE até desfecho e arquivamento com consequência
+ok 18 - P128: Sob um Sol Negro mantém UAE até desfecho e arquivamento com consequência
+  ---
+  duration_ms: 72.683626
+  type: 'test'
+  ...
+# Subtest: P128: Além da Orla preserva UAE e três episódios até arquivamento real
+ok 19 - P128: Além da Orla preserva UAE e três episódios até arquivamento real
+  ---
+  duration_ms: 164.28286
+  type: 'test'
+  ...
+# Subtest: P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery
+ok 20 - P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery
+  ---
+  duration_ms: 30.679546
+  type: 'test'
+  ...
+# Subtest: P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed
+ok 21 - P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed
+  ---
+  duration_ms: 14.853955
+  type: 'test'
+  ...
+# Subtest: P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters
+ok 22 - P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters
+  ---
+  duration_ms: 13.786236
+  type: 'test'
+  ...
+# Subtest: P238 p7-8: both noises upgrade one difficulty; one disabled restores pool
+ok 23 - P238 p7-8: both noises upgrade one difficulty; one disabled restores pool
+  ---
+  duration_ms: 4.774468
+  type: 'test'
+  ...
+# Subtest: P238 p8: transponder cannot be switched off in flight or removed before landing
+ok 24 - P238 p8: transponder cannot be switched off in flight or removed before landing
+  ---
+  duration_ms: 14.580013
+  type: 'test'
+  ...
+# Subtest: P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception
+ok 25 - P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception
+  ---
+  duration_ms: 5.238769
+  type: 'test'
+  ...
+# Subtest: P238 p9: jettison requires actual successful Perception and Computers
+ok 26 - P238 p9: jettison requires actual successful Perception and Computers
+  ---
+  duration_ms: 7.920953
+  type: 'test'
+  ...
+# Subtest: P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill
+ok 27 - P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill
+  ---
+  duration_ms: 2.659881
+  type: 'test'
+  ...
+# Subtest: P238: forged ship flags, forged Bura and forged intercept outcome fail closed
+ok 28 - P238: forged ship flags, forged Bura and forged intercept outcome fail closed
+  ---
+  duration_ms: 7.655773
+  type: 'test'
+  ...
+# Subtest: P238: legacy route remains loadable but is explicitly uncertified
+ok 29 - P238: legacy route remains loadable but is explicitly uncertified
+  ---
+  duration_ms: 3.802313
+  type: 'test'
+  ...
+# Subtest: P238 real controller: skill pool, roll receipt and three saved reopens
+ok 30 - P238 real controller: skill pool, roll receipt and three saved reopens
+  ---
+  duration_ms: 25.326685
+  type: 'test'
+  ...
+# Subtest: Wave 4: catálogo contém 5 aventuras oficiais publicadas
+ok 31 - Wave 4: catálogo contém 5 aventuras oficiais publicadas
+  ---
+  duration_ms: 1.029573
+  type: 'test'
+  ...
+# Subtest: Wave 4: todas as novas aventuras passam na validação do Universal Adventure Engine
+ok 32 - Wave 4: todas as novas aventuras passam na validação do Universal Adventure Engine
+  ---
+  duration_ms: 0.843492
+  type: 'test'
+  ...
+# Subtest: Wave 4: adapters das novas aventuras executam início e avanço de cenas sem erro
+ok 33 - Wave 4: adapters das novas aventuras executam início e avanço de cenas sem erro
+  ---
+  duration_ms: 35.478141
+  type: 'test'
+  ...
+# Subtest: Universal Adventure Engine: capacidades refletem implementação real, sem anunciar combate inexistente
+ok 34 - Universal Adventure Engine: capacidades refletem implementação real, sem anunciar combate inexistente
+  ---
+  duration_ms: 1.656958
+  type: 'test'
+  ...
+# Subtest: Universal Adventure Engine: fluxo completo de jogo até conclusão e arquivamento nas 5 aventuras
+ok 35 - Universal Adventure Engine: fluxo completo de jogo até conclusão e arquivamento nas 5 aventuras
+  ---
+  duration_ms: 321.99522
+  type: 'test'
+  ...
+1..35
+# tests 35
+# suites 0
+# pass 35
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 632.075567

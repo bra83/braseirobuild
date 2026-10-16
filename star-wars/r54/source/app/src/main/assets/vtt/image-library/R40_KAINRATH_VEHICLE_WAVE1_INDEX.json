@@ -1,0 +1,604 @@
+[
+  {
+    "assetId": "external.kainrath.vehicle.mandalorian-protectorate-starfighter",
+    "title": "Mandalorian Protectorate Starfighter",
+    "subtype": "starfighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2020/04/mandalorian-protectorate-starfighter.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "starfighter",
+      "mandalorian-protectorate-starfighter"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.belbullab-22-heavy-starfighter",
+    "title": "Belbullab-22 Heavy Starfighter",
+    "subtype": "starfighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2019/09/belbullab-22-heavy-starfighter.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "starfighter",
+      "belbullab-22-heavy-starfighter"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.tie-d-defender-multi-role-starfighter",
+    "title": "TIE/D “Defender” Multi-Role Starfighter",
+    "subtype": "starfighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2019/02/tie-defender.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "starfighter",
+      "tie-d-defender-multi-role-starfighter"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.hlaf-500-starfighter",
+    "title": "HLAF-500 Starfighter",
+    "subtype": "starfighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2019/02/hlaf-500.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "starfighter",
+      "hlaf-500-starfighter"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.arx-t3-suncutter-light-interceptor",
+    "title": "ARX-T3 “Suncutter” Light Interceptor",
+    "subtype": "starfighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2019/01/arx-t3-suncutter-light-interceptor.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "starfighter",
+      "arx-t3-suncutter-light-interceptor"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.tie-rp-reaper-attack-lander",
+    "title": "TIE/RP “Reaper” Attack Lander",
+    "subtype": "starfighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2018/08/tie-reaper.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "starfighter",
+      "tie-rp-reaper-attack-lander"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.ss-54-light-assault-gunship",
+    "title": "SS-54 Light Assault Gunship",
+    "subtype": "gunship",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2018/08/ss-54-light-assault-gunship.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "gunship",
+      "ss-54-light-assault-gunship"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.v-19-torrent-starfighter",
+    "title": "V-19 Torrent Starfighter",
+    "subtype": "starfighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/02/v-19-torrent.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "starfighter",
+      "v-19-torrent-starfighter"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.aggressor-assault-fighter",
+    "title": "Aggressor Assault Fighter",
+    "subtype": "starfighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/02/aggressor-assault-fighter.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "starfighter",
+      "aggressor-assault-fighter"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.tie-sa-tactical-bomber",
+    "title": "TIE/SA Tactical Bomber",
+    "subtype": "bomber",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/12/tie-bomber.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "bomber",
+      "tie-sa-tactical-bomber"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.tie-ag-aggressor-starfighter",
+    "title": "TIE/AG “Aggressor” Starfighter",
+    "subtype": "starfighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/12/tie-aggressor.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "starfighter",
+      "tie-ag-aggressor-starfighter"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.h-60-tempest-heavy-bomber",
+    "title": "H-60 Tempest Heavy Bomber",
+    "subtype": "bomber",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/h60-tempest-heavy-bomber.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "bomber",
+      "h-60-tempest-heavy-bomber"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.alpha-3-nimbus-v-wing-interceptor",
+    "title": "Alpha-3 Nimbus “V-Wing” Interceptor",
+    "subtype": "starfighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/vwing.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "starfighter",
+      "alpha-3-nimbus-v-wing-interceptor"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.e-7-e-wing-multi-role-starfighter",
+    "title": "E-7 E-Wing Multi-Role Starfighter",
+    "subtype": "starfighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/ewing.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "starfighter",
+      "e-7-e-wing-multi-role-starfighter"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.preybird-class-starfighter",
+    "title": "Preybird-Class Starfighter",
+    "subtype": "starfighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/starfighters-and-patrol-boats/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/preybird.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "starfighter",
+      "preybird-class-starfighter"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.sheathipede-class-shuttle",
+    "title": "Sheathipede-Class Shuttle",
+    "subtype": "shuttle",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2020/04/sheathipede-shuttle.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "shuttle",
+      "sheathipede-class-shuttle"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.nu-class-transport",
+    "title": "Nu-Class Transport",
+    "subtype": "transport",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2020/04/nu-class-transport.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "transport",
+      "nu-class-transport"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.droch-class-boarding-ship",
+    "title": "Droch-Class Boarding Ship",
+    "subtype": "transport",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2020/04/droch-class-boarding-ship.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "transport",
+      "droch-class-boarding-ship"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.c-9979-landing-craft",
+    "title": "C-9979 Landing Craft",
+    "subtype": "transport",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2020/04/c9979-landing-craft.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "transport",
+      "c-9979-landing-craft"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.ut-60d-u-wing-troop-transport",
+    "title": "UT-60D U-Wing Troop Transport",
+    "subtype": "transport",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2019/02/u-wing.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "transport",
+      "ut-60d-u-wing-troop-transport"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.mobquet-medium-transport",
+    "title": "Mobquet Medium Transport",
+    "subtype": "transport",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2019/02/mobquet-medium-transport.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "transport",
+      "mobquet-medium-transport"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.starlight-class-light-freighter",
+    "title": "Starlight-Class Light Freighter",
+    "subtype": "freighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2019/02/starlight-light-freighter.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "freighter",
+      "starlight-class-light-freighter"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.yt-1210-light-freighter",
+    "title": "YT-1210 Light Freighter",
+    "subtype": "freighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2018/07/yt-1210.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "freighter",
+      "yt-1210-light-freighter"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.the-nightflyer",
+    "title": "The Nightflyer",
+    "subtype": "freighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/12/the-nightflyer.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "freighter",
+      "the-nightflyer"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.the-venture-courier-class-yacht",
+    "title": "“The Venture” Courier-Class Yacht",
+    "subtype": "yacht",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/09/the-venture.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "yacht",
+      "the-venture-courier-class-yacht"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.yv-929-armed-transport",
+    "title": "YV-929 Armed Transport",
+    "subtype": "transport",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/07/yv-929-armed-transport.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "transport",
+      "yv-929-armed-transport"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.t-6-shuttle",
+    "title": "T-6 Shuttle",
+    "subtype": "shuttle",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/07/t-6-shuttle.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "shuttle",
+      "t-6-shuttle"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.yv-865-aurore-class-freighter",
+    "title": "YV-865 Aurore-Class Freighter",
+    "subtype": "freighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/05/yv-865.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "freighter",
+      "yv-865-aurore-class-freighter"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.yv-666-light-freighter",
+    "title": "YV-666 Light Freighter",
+    "subtype": "freighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/02/yv-666.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "freighter",
+      "yv-666-light-freighter"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.eta-class-shuttle",
+    "title": "ETA-Class Shuttle",
+    "subtype": "shuttle",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/02/eta-shuttle1.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "shuttle",
+      "eta-class-shuttle"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.gx1-short-hauler",
+    "title": "GX1 Short Hauler",
+    "subtype": "freighter",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/freighters-and-transports/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/08/gx1-short-hauler.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "freighter",
+      "gx1-short-hauler"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.modified-imperial-cr90-corvette",
+    "title": "Modified Imperial CR90 Corvette",
+    "subtype": "capital-ship",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/capital-ships/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2020/10/modified-imperial-cr90-corvette.png",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "capital-ship",
+      "modified-imperial-cr90-corvette"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.vindicator-class-heavy-cruiser",
+    "title": "Vindicator-Class Heavy Cruiser",
+    "subtype": "capital-ship",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/capital-ships/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/07/vindicator-class-heavy-cruiser.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "capital-ship",
+      "vindicator-class-heavy-cruiser"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.dreadnought-class-heavy-cruiser",
+    "title": "Dreadnought-Class Heavy Cruiser",
+    "subtype": "capital-ship",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/capital-ships/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/07/dreadnought-class-heavy-cruiser.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "capital-ship",
+      "dreadnought-class-heavy-cruiser"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.the-crucible-jedi-training-cruiser",
+    "title": "The Crucible – Jedi Training Cruiser",
+    "subtype": "capital-ship",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/capital-ships/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/07/the-crucible.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "capital-ship",
+      "the-crucible-jedi-training-cruiser"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.kaminoan-observation-ship",
+    "title": "Kaminoan Observation Ship",
+    "subtype": "capital-ship",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/capital-ships/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/07/kaminoan-observation-ship.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "capital-ship",
+      "kaminoan-observation-ship"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.lancer-class-frigate",
+    "title": "Lancer-Class Frigate",
+    "subtype": "capital-ship",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/capital-ships/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/07/lancer-class-frigate.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "capital-ship",
+      "lancer-class-frigate"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.consular-class-light-assault-cruiser",
+    "title": "Consular-Class Light Assault Cruiser",
+    "subtype": "capital-ship",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/capital-ships/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/07/consular-class-light-assault-cruiser.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "capital-ship",
+      "consular-class-light-assault-cruiser"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.vigil-class-corvette",
+    "title": "Vigil-Class Corvette",
+    "subtype": "capital-ship",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/capital-ships/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/07/vigil-class-corvette.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "capital-ship",
+      "vigil-class-corvette"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.ef76-nebulon-b-escort-frigate",
+    "title": "EF76 Nebulon-B Escort Frigate",
+    "subtype": "capital-ship",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/capital-ships/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/07/ef76-nebulon-b-escort-frigate.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "capital-ship",
+      "ef76-nebulon-b-escort-frigate"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.marauder-class-assault-corvette",
+    "title": "Marauder-Class Assault Corvette",
+    "subtype": "capital-ship",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/capital-ships/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/07/marauder-class-assault-corvette.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "capital-ship",
+      "marauder-class-assault-corvette"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.dp20-gunship",
+    "title": "DP20 Gunship",
+    "subtype": "capital-ship",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/capital-ships/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/07/dp20-gunship.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "capital-ship",
+      "dp20-gunship"
+    ]
+  },
+  {
+    "assetId": "external.kainrath.vehicle.cr90-corvette",
+    "title": "CR90 Corvette",
+    "subtype": "capital-ship",
+    "sourcePageUrl": "https://kainrath.wordpress.com/category/vehicles/capital-ships/",
+    "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/07/cr90-corvette.jpg",
+    "tags": [
+      "star-wars",
+      "kainrath",
+      "vehicle",
+      "capital-ship",
+      "cr90-corvette"
+    ]
+  }
+]

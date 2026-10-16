@@ -1,0 +1,25 @@
+{
+  "checkpoint": "P234",
+  "base": "P233",
+  "changedSources": [
+    "app/src/main/assets/vtt/js/adventure/hybridFiveAdventurePolicy.mjs",
+    "app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs",
+    "app/src/main/assets/vtt/js/library/nativeLibrary.mjs",
+    "app/src/main/assets/vtt/js/rag/sourceSearch.mjs",
+    "app/src/main/assets/vtt/js/master/context.mjs",
+    "app/src/main/assets/vtt/js/master/provider.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "tests/uae-p234-five-adventures-hybrid-safety.test.mjs"
+  ],
+  "tests": 3224,
+  "testsFailed": [],
+  "semanticCertified": false,
+  "apkBuilt": false,
+  "androidTested": false,
+  "officialPdfComparedInThisRun": false,
+  "note": "No invented source-to-book certification; P234 improves hybrid safety and scope only."
+}

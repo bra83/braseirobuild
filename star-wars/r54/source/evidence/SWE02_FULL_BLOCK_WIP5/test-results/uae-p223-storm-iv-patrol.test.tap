@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: P223 source-backed PDF Storm IV and Bespin pilot are exact, without invented solo minion skill
+ok 1 - P223 source-backed PDF Storm IV and Bespin pilot are exact, without invented solo minion skill
+  ---
+  duration_ms: 9.456035
+  type: 'test'
+  ...
+# Subtest: P223 cannot deploy before arrival or without a real player craft; no duplicate vehicles
+ok 2 - P223 cannot deploy before arrival or without a real player craft; no duplicate vehicles
+  ---
+  duration_ms: 1761.141205
+  type: 'test'
+  ...
+# Subtest: P223 deploys four physically distinct combat vehicles, keeps exact crew and survives 3 reopenings
+ok 3 - P223 deploys four physically distinct combat vehicles, keeps exact crew and survives 3 reopenings
+  ---
+  duration_ms: 1640.6196
+  type: 'test'
+  ...
+# Subtest: P223 real vehicle combat targets exactly one of four; no premature defeat or XP
+ok 4 - P223 real vehicle combat targets exactly one of four; no premature defeat or XP
+  ---
+  duration_ms: 1882.85295
+  type: 'test'
+  ...
+# Subtest: P223 real successful piloting evasion consumes one physical car, validates dice faces, no replay
+ok 5 - P223 real successful piloting evasion consumes one physical car, validates dice faces, no replay
+  ---
+  duration_ms: 844.446568
+  type: 'test'
+  ...
+# Subtest: P223 defeat requires real combat damage log AND hull damage greater than threshold
+ok 6 - P223 defeat requires real combat damage log AND hull damage greater than threshold
+  ---
+  duration_ms: 1273.179808
+  type: 'test'
+  ...
+# Subtest: P223 attack on a physical Storm IV uses the existing vehicle dice/damage runtime
+ok 7 - P223 attack on a physical Storm IV uses the existing vehicle dice/damage runtime
+  ---
+  duration_ms: 1475.020321
+  type: 'test'
+  ...
+# Subtest: P223 full patrol only clears after all four distinct vehicle outcomes
+ok 8 - P223 full patrol only clears after all four distinct vehicle outcomes
+  ---
+  duration_ms: 2235.299097
+  type: 'test'
+  ...
+# Subtest: P223 bridge, UI, state, source, version and offline bundle are wired
+ok 9 - P223 bridge, UI, state, source, version and offline bundle are wired
+  ---
+  duration_ms: 39.379432
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 12265.056644

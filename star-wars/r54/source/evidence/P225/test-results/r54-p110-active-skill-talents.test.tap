@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: P110: Mestre das Sombras sofre 2 Tensão e reduz dificuldade de Sigilo
+ok 1 - P110: Mestre das Sombras sofre 2 Tensão e reduz dificuldade de Sigilo
+  ---
+  duration_ms: 38.28631
+  type: 'test'
+  ...
+# Subtest: P110: Mestre das Sombras rejeita perícia fora de Sigilo/Atividade Criminal
+ok 2 - P110: Mestre das Sombras rejeita perícia fora de Sigilo/Atividade Criminal
+  ---
+  duration_ms: 3.762697
+  type: 'test'
+  ...
+# Subtest: P110: Médico Mestre reduz Medicina a no mínimo Fácil
+ok 3 - P110: Médico Mestre reduz Medicina a no mínimo Fácil
+  ---
+  duration_ms: 56.147577
+  type: 'test'
+  ...
+# Subtest: P110: Slicer Mestre reduz dificuldade de Computadores
+ok 4 - P110: Slicer Mestre reduz dificuldade de Computadores
+  ---
+  duration_ms: 8.537707
+  type: 'test'
+  ...
+# Subtest: P110: Intimidador sofre Tensão e faz downgrade real da dificuldade de Coerção
+ok 5 - P110: Intimidador sofre Tensão e faz downgrade real da dificuldade de Coerção
+  ---
+  duration_ms: 20.072314
+  type: 'test'
+  ...
+# Subtest: P110: Determinação não reduz custo voluntário dos talentos mestre
+ok 6 - P110: Determinação não reduz custo voluntário dos talentos mestre
+  ---
+  duration_ms: 9.375885
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1447.431615

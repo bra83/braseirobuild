@@ -1,0 +1,35 @@
+TAP version 13
+# Subtest: BUILD: launchers delegate only to the packaged GradleWrapperMain
+ok 1 - BUILD: launchers delegate only to the packaged GradleWrapperMain
+  ---
+  duration_ms: 1.44517
+  type: 'test'
+  ...
+# Subtest: BUILD: packaged wrapper executes a verified offline distribution and forwards arguments
+ok 2 - BUILD: packaged wrapper executes a verified offline distribution and forwards arguments
+  ---
+  duration_ms: 994.174138
+  type: 'test'
+  ...
+# Subtest: BUILD: packaged wrapper rejects a distribution with the wrong SHA-256
+ok 3 - BUILD: packaged wrapper rejects a distribution with the wrong SHA-256
+  ---
+  duration_ms: 904.866261
+  type: 'test'
+  ...
+# Subtest: BUILD: production wrapper uses the official Gradle distribution host with pinned SHA-256
+ok 4 - BUILD: production wrapper uses the official Gradle distribution host with pinned SHA-256
+  ---
+  duration_ms: 0.235817
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2601.278237
+

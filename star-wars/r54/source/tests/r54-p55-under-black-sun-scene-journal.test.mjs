@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createWorld } from '../app/src/main/assets/vtt/js/world/world.mjs';
+import { startUnderBlackSun, advanceUnderBlackSun, underBlackSunStatus } from '../app/src/main/assets/vtt/js/adventure/underBlackSun.mjs';
+const step=(w,id)=>advanceUnderBlackSun(w,id).world;
+const reopen=w=>JSON.parse(JSON.stringify(w));
+test('P55: journal de cenas nasce vazio e registra escolhas sem conteúdo futuro',()=>{let w=startUnderBlackSun(createWorld()).world;assert.deepEqual(underBlackSunStatus(w).sceneJournal,[]);w=step(w,'escape-clean');const s=underBlackSunStatus(w);assert.equal(s.sceneJournal.length,1);assert.equal(s.sceneJournal[0].fromNodeId,'hot-pursuit');assert.equal(s.sceneJournal[0].toNodeId,'chop-talk');assert.equal(s.sceneJournal[0].choiceLabel,'Assumir o controle e despistar os perseguidores');assert.doesNotMatch(JSON.stringify(s.sceneJournal),/Kaa.to|NovaCORE|Sector 943/i)});
+test('P55: journal persiste após reopen e conserva a rota tomada',()=>{let w=startUnderBlackSun(createWorld()).world;for(const id of ['escape-clean','begin-investigation','go-umbra','umbra-talk','umbra-social-clean'])w=step(w,id);w=reopen(w);const j=underBlackSunStatus(w).sceneJournal;assert.equal(j.length,5);assert.deepEqual(j.map(x=>x.choiceId),['escape-clean','begin-investigation','go-umbra','umbra-talk','umbra-social-clean']);assert.equal(j.at(-1).toNodeId,'investigation-hub')});
+test('P55: progresso legado sem sceneJournal migra sem quebrar status',()=>{let w=startUnderBlackSun(createWorld()).world;delete w.publishedAdventure.sceneJournal;const s=underBlackSunStatus(w);assert.deepEqual(s.sceneJournal,[]);assert.ok(Array.isArray(w.publishedAdventure.sceneJournal))});
+test('P55: journal público não expõe effects internos',()=>{let w=startUnderBlackSun(createWorld()).world;w=step(w,'escape-fight');const s=underBlackSunStatus(w);assert.equal(s.progress.flags.policeAttention,true);assert.equal('effects' in s.sceneJournal[0],false)});

@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: P224 does not grant Bespin escape XP from a story flag, ship selection or an epilogue alone
+ok 1 - P224 does not grant Bespin escape XP from a story flag, ship selection or an epilogue alone
+  ---
+  duration_ms: 596.899538
+  type: 'test'
+  ...
+# Subtest: P224 physical custody adds ONE real item and blocks duplicate, boarding needs security and real ship
+ok 2 - P224 physical custody adds ONE real item and blocks duplicate, boarding needs security and real ship
+  ---
+  duration_ms: 446.921681
+  type: 'test'
+  ...
+# Subtest: P224 actual successful astrogation advances persistent world clock and unlocks exactly 5 XP
+ok 3 - P224 actual successful astrogation advances persistent world clock and unlocks exactly 5 XP
+  ---
+  duration_ms: 394.154719
+  type: 'test'
+  ...
+# Subtest: P224 no exit without offworld destination and GM launch approval, atomic rollback
+ok 4 - P224 no exit without offworld destination and GM launch approval, atomic rollback
+  ---
+  duration_ms: 201.543616
+  type: 'test'
+  ...
+# Subtest: P224 rejects tampered receipts, item custody, invented jump faces, time and derived state
+ok 5 - P224 rejects tampered receipts, item custody, invented jump faces, time and derived state
+  ---
+  duration_ms: 486.964967
+  type: 'test'
+  ...
+# Subtest: P224 failed astrogation never creates escape proof or grants XP, but keeps the actual failed roll
+ok 6 - P224 failed astrogation never creates escape proof or grants XP, but keeps the actual failed roll
+  ---
+  duration_ms: 456.914027
+  type: 'test'
+  ...
+# Subtest: P224 Android UI, bridge, controller, bundle, save validator and source are wired
+ok 7 - P224 Android UI, bridge, controller, bundle, save validator and source are wired
+  ---
+  duration_ms: 39.470221
+  type: 'test'
+  ...
+# Subtest: P224 epilogue cannot claim a completed Bespin escape before the verified hyperjump
+ok 8 - P224 epilogue cannot claim a completed Bespin escape before the verified hyperjump
+  ---
+  duration_ms: 533.462827
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3697.182529
+

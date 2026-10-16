@@ -1,0 +1,25 @@
+{
+  "checkpoint": "P195",
+  "mode": "node --test one file per invocation; regular parallel 6; stress sequential; NOT monolithic",
+  "regularFiles": 314,
+  "stressFiles": 6,
+  "regularTests": 2869,
+  "regularPassed": 2869,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "elapsedSeconds": 160.8,
+  "syntax": {
+    "mjs": 127,
+    "json": 22,
+    "xml": 2,
+    "failures": []
+  },
+  "bundleModules": 93,
+  "androidVersion": "1.0.195",
+  "javaFilesByteIdentical": 8,
+  "newFocalTests": 14,
+  "totalFiles": 320,
+  "totalTests": 2875,
+  "totalPassed": 2875
+}

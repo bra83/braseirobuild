@@ -1,0 +1,12 @@
+R54 P18 — STRESS EXECUTADO INDIVIDUALMENTE
+Data: 2026-09-18
+Motivo: o runner agregado excedeu a janela do host; as suítes foram executadas isoladamente para não mascarar falhas nem converter timeout em PASS.
+
+PASS tests/stress-33-aftermath-r20.test.mjs — 1/1 — duration_ms 36079.312009
+PASS tests/stress-33-faction-plan-r19.test.mjs — 1/1 — duration_ms 4107.046322
+PASS tests/stress-33-sessions-r15.test.mjs — 1/1 — duration_ms 12580.86013
+PASS tests/stress-faction-plans-r19.test.mjs — 1/1 — duration_ms 1081.567942
+PASS tests/stress-factions-r18.test.mjs — 1/1 — duration_ms 1075.179161
+PASS tests/stress-persistent-adversary-r17.test.mjs — 1/1 — duration_ms 4281.16117
+
+RESULTADO: 6/6 PASS; 0 fail; 0 skipped.

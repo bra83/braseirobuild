@@ -1,0 +1,16 @@
+✔ P103 Controle de Danos separa Tensão e Casco e limita tentativa de Casco por encontro (100.2833ms)
+✔ P103 Reparo Manual exige permissão contextual e Kit, usa Atletismo e compartilha limite do Casco (26.7711ms)
+✔ P103 Escanear só revela níveis atuais quando 2 Vantagens são escolhidas e disponíveis (12.8393ms)
+✔ P103 Fatiar pode gastar Vantagens em Tensão e Triunfo para desativar arma por um assalto (15.3415ms)
+✔ P103 Disciplina de Fogo usa um Boost base + um por cada dois Êxitos adicionais (12.4848ms)
+✔ P103 Despistar Mísseis ganha upgrade adicional por cada dois Êxitos adicionais (14.0465ms)
+✔ P103 R46 expõe modos de Controle de Danos, Reparo Manual e gastos opcionais (94.5951ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2787.0173
+

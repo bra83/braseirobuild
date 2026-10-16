@@ -1,0 +1,6 @@
+JS_SYNTAX=PASS files=122
+JAVA_SYNTAX=PASS JAVA_SYNTAX_PASS files=8 unresolved_android_symbols=699
+JSON_PARSE=PASS files=79
+XML_PARSE=PASS files=2
+KOKORO_CODE_UNCHANGED=YES (no edits to TTS modules)
+FULL_VERIFY_SCRIPT=INCOMPLETE (separate complete Node regular/stress and TTS runs passed)

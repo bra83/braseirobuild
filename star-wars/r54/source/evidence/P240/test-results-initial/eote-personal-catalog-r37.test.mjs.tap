@@ -1,0 +1,17 @@
+TAP version 13
+# Subtest: R37: catálogo pessoal inclui os 2 itens oficiais SWE09/EotE (62 itens) com Appraiser's Eye fundamentado em Fly Casual
+ok 1 - R37: catálogo pessoal inclui os 2 itens oficiais SWE09/EotE (62 itens) com Appraiser's Eye fundamentado em Fly Casual
+  ---
+  duration_ms: 0.900243
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 358.354377
+

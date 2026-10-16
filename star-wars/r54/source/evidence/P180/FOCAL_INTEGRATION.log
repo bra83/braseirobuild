@@ -1,0 +1,688 @@
+TAP version 13
+# Subtest: P148 under-black-sun: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+ok 1 - P148 under-black-sun: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+  ---
+  duration_ms: 6.450563
+  type: 'test'
+  ...
+# Subtest: P148 under-black-sun: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+ok 2 - P148 under-black-sun: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+  ---
+  duration_ms: 7.734233
+  type: 'test'
+  ...
+# Subtest: P148 under-black-sun: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+ok 3 - P148 under-black-sun: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+  ---
+  duration_ms: 28.456648
+  type: 'test'
+  ...
+# Subtest: P148 under-black-sun: transação manual com cascata cíclica também reverte
+ok 4 - P148 under-black-sun: transação manual com cascata cíclica também reverte
+  ---
+  duration_ms: 4.069136
+  type: 'test'
+  ...
+# Subtest: P148 under-black-sun: callback async/thenable não pode contornar rollback
+ok 5 - P148 under-black-sun: callback async/thenable não pode contornar rollback
+  ---
+  duration_ms: 2.561322
+  type: 'test'
+  ...
+# Subtest: P148 under-black-sun: comando publicado Android salva, reabre e não reaplica no mesmo ID
+ok 6 - P148 under-black-sun: comando publicado Android salva, reabre e não reaplica no mesmo ID
+  ---
+  duration_ms: 82.888799
+  type: 'test'
+  ...
+# Subtest: P148 beyond-the-rim: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+ok 7 - P148 beyond-the-rim: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+  ---
+  duration_ms: 1.366303
+  type: 'test'
+  ...
+# Subtest: P148 beyond-the-rim: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+ok 8 - P148 beyond-the-rim: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+  ---
+  duration_ms: 3.057858
+  type: 'test'
+  ...
+# Subtest: P148 beyond-the-rim: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+ok 9 - P148 beyond-the-rim: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+  ---
+  duration_ms: 4.042513
+  type: 'test'
+  ...
+# Subtest: P148 beyond-the-rim: transação manual com cascata cíclica também reverte
+ok 10 - P148 beyond-the-rim: transação manual com cascata cíclica também reverte
+  ---
+  duration_ms: 3.874282
+  type: 'test'
+  ...
+# Subtest: P148 beyond-the-rim: callback async/thenable não pode contornar rollback
+ok 11 - P148 beyond-the-rim: callback async/thenable não pode contornar rollback
+  ---
+  duration_ms: 1.246468
+  type: 'test'
+  ...
+# Subtest: P148 beyond-the-rim: comando publicado Android salva, reabre e não reaplica no mesmo ID
+ok 12 - P148 beyond-the-rim: comando publicado Android salva, reabre e não reaplica no mesmo ID
+  ---
+  duration_ms: 50.479279
+  type: 'test'
+  ...
+# Subtest: P148 long-arm-of-the-hutt: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+ok 13 - P148 long-arm-of-the-hutt: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+  ---
+  duration_ms: 0.670097
+  type: 'test'
+  ...
+# Subtest: P148 long-arm-of-the-hutt: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+ok 14 - P148 long-arm-of-the-hutt: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+  ---
+  duration_ms: 1.013745
+  type: 'test'
+  ...
+# Subtest: P148 long-arm-of-the-hutt: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+ok 15 - P148 long-arm-of-the-hutt: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+  ---
+  duration_ms: 4.39059
+  type: 'test'
+  ...
+# Subtest: P148 long-arm-of-the-hutt: transação manual com cascata cíclica também reverte
+ok 16 - P148 long-arm-of-the-hutt: transação manual com cascata cíclica também reverte
+  ---
+  duration_ms: 2.176306
+  type: 'test'
+  ...
+# Subtest: P148 long-arm-of-the-hutt: callback async/thenable não pode contornar rollback
+ok 17 - P148 long-arm-of-the-hutt: callback async/thenable não pode contornar rollback
+  ---
+  duration_ms: 0.881308
+  type: 'test'
+  ...
+# Subtest: P148 long-arm-of-the-hutt: comando publicado Android salva, reabre e não reaplica no mesmo ID
+ok 18 - P148 long-arm-of-the-hutt: comando publicado Android salva, reabre e não reaplica no mesmo ID
+  ---
+  duration_ms: 32.199226
+  type: 'test'
+  ...
+# Subtest: P148 jewel-of-yavin: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+ok 19 - P148 jewel-of-yavin: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+  ---
+  duration_ms: 0.605849
+  type: 'test'
+  ...
+# Subtest: P148 jewel-of-yavin: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+ok 20 - P148 jewel-of-yavin: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+  ---
+  duration_ms: 0.851129
+  type: 'test'
+  ...
+# Subtest: P148 jewel-of-yavin: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+ok 21 - P148 jewel-of-yavin: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+  ---
+  duration_ms: 4.851226
+  type: 'test'
+  ...
+# Subtest: P148 jewel-of-yavin: transação manual com cascata cíclica também reverte
+ok 22 - P148 jewel-of-yavin: transação manual com cascata cíclica também reverte
+  ---
+  duration_ms: 1.623219
+  type: 'test'
+  ...
+# Subtest: P148 jewel-of-yavin: callback async/thenable não pode contornar rollback
+ok 23 - P148 jewel-of-yavin: callback async/thenable não pode contornar rollback
+  ---
+  duration_ms: 0.777925
+  type: 'test'
+  ...
+# Subtest: P148 jewel-of-yavin: comando publicado Android salva, reabre e não reaplica no mesmo ID
+ok 24 - P148 jewel-of-yavin: comando publicado Android salva, reabre e não reaplica no mesmo ID
+  ---
+  duration_ms: 33.701487
+  type: 'test'
+  ...
+# Subtest: P148 mask-of-the-pirate-queen: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+ok 25 - P148 mask-of-the-pirate-queen: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+  ---
+  duration_ms: 0.622071
+  type: 'test'
+  ...
+# Subtest: P148 mask-of-the-pirate-queen: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+ok 26 - P148 mask-of-the-pirate-queen: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+  ---
+  duration_ms: 1.125226
+  type: 'test'
+  ...
+# Subtest: P148 mask-of-the-pirate-queen: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+ok 27 - P148 mask-of-the-pirate-queen: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+  ---
+  duration_ms: 3.880284
+  type: 'test'
+  ...
+# Subtest: P148 mask-of-the-pirate-queen: transação manual com cascata cíclica também reverte
+ok 28 - P148 mask-of-the-pirate-queen: transação manual com cascata cíclica também reverte
+  ---
+  duration_ms: 1.752224
+  type: 'test'
+  ...
+# Subtest: P148 mask-of-the-pirate-queen: callback async/thenable não pode contornar rollback
+ok 29 - P148 mask-of-the-pirate-queen: callback async/thenable não pode contornar rollback
+  ---
+  duration_ms: 1.217628
+  type: 'test'
+  ...
+# Subtest: P148 mask-of-the-pirate-queen: comando publicado Android salva, reabre e não reaplica no mesmo ID
+ok 30 - P148 mask-of-the-pirate-queen: comando publicado Android salva, reabre e não reaplica no mesmo ID
+  ---
+  duration_ms: 27.967701
+  type: 'test'
+  ...
+# Subtest: P148: standalone legacy dispatch preserves the explicit cascade cap audit event
+ok 31 - P148: standalone legacy dispatch preserves the explicit cascade cap audit event
+  ---
+  duration_ms: 4.650726
+  type: 'test'
+  ...
+# Subtest: P148: unknown semantic condition fails closed rather than opening a branch
+ok 32 - P148: unknown semantic condition fails closed rather than opening a branch
+  ---
+  duration_ms: 2.606554
+  type: 'test'
+  ...
+# Subtest: P172 under-black-sun: authored string consequence rejects injected rewards without mutation
+ok 33 - P172 under-black-sun: authored string consequence rejects injected rewards without mutation
+  ---
+  duration_ms: 17.1333
+  type: 'test'
+  ...
+# Subtest: P172 under-black-sun: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+ok 34 - P172 under-black-sun: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+  ---
+  duration_ms: 31.928337
+  type: 'test'
+  ...
+# Subtest: P172 under-black-sun: rollback if a resolution action injects a script after legitimate events
+ok 35 - P172 under-black-sun: rollback if a resolution action injects a script after legitimate events
+  ---
+  duration_ms: 6.501495
+  type: 'test'
+  ...
+# Subtest: P172 under-black-sun: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+ok 36 - P172 under-black-sun: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+  ---
+  duration_ms: 2.380555
+  type: 'test'
+  ...
+# Subtest: P172 under-black-sun: source preflight blocks forged consequence metadata and reserved event emission
+ok 37 - P172 under-black-sun: source preflight blocks forged consequence metadata and reserved event emission
+  ---
+  duration_ms: 6.259408
+  type: 'test'
+  ...
+# Subtest: P172 beyond-the-rim: authored string consequence rejects injected rewards without mutation
+ok 38 - P172 beyond-the-rim: authored string consequence rejects injected rewards without mutation
+  ---
+  duration_ms: 3.78111
+  type: 'test'
+  ...
+# Subtest: P172 beyond-the-rim: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+ok 39 - P172 beyond-the-rim: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+  ---
+  duration_ms: 19.175986
+  type: 'test'
+  ...
+# Subtest: P172 beyond-the-rim: rollback if a resolution action injects a script after legitimate events
+ok 40 - P172 beyond-the-rim: rollback if a resolution action injects a script after legitimate events
+  ---
+  duration_ms: 6.634589
+  type: 'test'
+  ...
+# Subtest: P172 beyond-the-rim: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+ok 41 - P172 beyond-the-rim: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+  ---
+  duration_ms: 2.34542
+  type: 'test'
+  ...
+# Subtest: P172 beyond-the-rim: source preflight blocks forged consequence metadata and reserved event emission
+ok 42 - P172 beyond-the-rim: source preflight blocks forged consequence metadata and reserved event emission
+  ---
+  duration_ms: 6.904003
+  type: 'test'
+  ...
+# Subtest: P172 long-arm-of-the-hutt: authored string consequence rejects injected rewards without mutation
+ok 43 - P172 long-arm-of-the-hutt: authored string consequence rejects injected rewards without mutation
+  ---
+  duration_ms: 3.429409
+  type: 'test'
+  ...
+# Subtest: P172 long-arm-of-the-hutt: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+ok 44 - P172 long-arm-of-the-hutt: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+  ---
+  duration_ms: 26.633729
+  type: 'test'
+  ...
+# Subtest: P172 long-arm-of-the-hutt: rollback if a resolution action injects a script after legitimate events
+ok 45 - P172 long-arm-of-the-hutt: rollback if a resolution action injects a script after legitimate events
+  ---
+  duration_ms: 8.63862
+  type: 'test'
+  ...
+# Subtest: P172 long-arm-of-the-hutt: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+ok 46 - P172 long-arm-of-the-hutt: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+  ---
+  duration_ms: 1.670325
+  type: 'test'
+  ...
+# Subtest: P172 long-arm-of-the-hutt: source preflight blocks forged consequence metadata and reserved event emission
+ok 47 - P172 long-arm-of-the-hutt: source preflight blocks forged consequence metadata and reserved event emission
+  ---
+  duration_ms: 3.917089
+  type: 'test'
+  ...
+# Subtest: P172 jewel-of-yavin: authored string consequence rejects injected rewards without mutation
+ok 48 - P172 jewel-of-yavin: authored string consequence rejects injected rewards without mutation
+  ---
+  duration_ms: 3.240744
+  type: 'test'
+  ...
+# Subtest: P172 jewel-of-yavin: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+ok 49 - P172 jewel-of-yavin: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+  ---
+  duration_ms: 16.993433
+  type: 'test'
+  ...
+# Subtest: P172 jewel-of-yavin: rollback if a resolution action injects a script after legitimate events
+ok 50 - P172 jewel-of-yavin: rollback if a resolution action injects a script after legitimate events
+  ---
+  duration_ms: 4.463132
+  type: 'test'
+  ...
+# Subtest: P172 jewel-of-yavin: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+ok 51 - P172 jewel-of-yavin: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+  ---
+  duration_ms: 0.882167
+  type: 'test'
+  ...
+# Subtest: P172 jewel-of-yavin: source preflight blocks forged consequence metadata and reserved event emission
+ok 52 - P172 jewel-of-yavin: source preflight blocks forged consequence metadata and reserved event emission
+  ---
+  duration_ms: 2.094237
+  type: 'test'
+  ...
+# Subtest: P172 mask-of-the-pirate-queen: authored string consequence rejects injected rewards without mutation
+ok 53 - P172 mask-of-the-pirate-queen: authored string consequence rejects injected rewards without mutation
+  ---
+  duration_ms: 2.941979
+  type: 'test'
+  ...
+# Subtest: P172 mask-of-the-pirate-queen: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+ok 54 - P172 mask-of-the-pirate-queen: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+  ---
+  duration_ms: 14.691044
+  type: 'test'
+  ...
+# Subtest: P172 mask-of-the-pirate-queen: rollback if a resolution action injects a script after legitimate events
+ok 55 - P172 mask-of-the-pirate-queen: rollback if a resolution action injects a script after legitimate events
+  ---
+  duration_ms: 5.450082
+  type: 'test'
+  ...
+# Subtest: P172 mask-of-the-pirate-queen: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+ok 56 - P172 mask-of-the-pirate-queen: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+  ---
+  duration_ms: 0.744165
+  type: 'test'
+  ...
+# Subtest: P172 mask-of-the-pirate-queen: source preflight blocks forged consequence metadata and reserved event emission
+ok 57 - P172 mask-of-the-pirate-queen: source preflight blocks forged consequence metadata and reserved event emission
+  ---
+  duration_ms: 1.986754
+  type: 'test'
+  ...
+# Subtest: P179 360 AoR source positions have executable consumers (not editorial certification)
+ok 58 - P179 360 AoR source positions have executable consumers (not editorial certification)
+  ---
+  duration_ms: 2.551154
+  type: 'test'
+  ...
+# Subtest: P179 Tactician Superviviente is Natural Outdoorsman, not Unmatched Courage
+ok 59 - P179 Tactician Superviviente is Natural Outdoorsman, not Unmatched Courage
+  ---
+  duration_ms: 15.323985
+  type: 'test'
+  ...
+# Subtest: P179 Medic blocks a real threshold critical with Hard Medicine, not the wound damage
+ok 60 - P179 Medic blocks a real threshold critical with Hard Medicine, not the wound damage
+  ---
+  duration_ms: 8.871136
+  type: 'test'
+  ...
+# Subtest: P179 Medic failed Medicine check consumes the session use and leaves the critical intact
+ok 61 - P179 Medic failed Medicine check consumes the session use and leaves the critical intact
+  ---
+  duration_ms: 4.247521
+  type: 'test'
+  ...
+# Subtest: P179 Medic does not consume once/session when no critical event occurs
+ok 62 - P179 Medic does not consume once/session when no critical event occurs
+  ---
+  duration_ms: 5.997788
+  type: 'test'
+  ...
+# Subtest: P179 Medic rejects self, unowned, repeated, unapproved, and invalid targets atomically
+ok 63 - P179 Medic rejects self, unowned, repeated, unapproved, and invalid targets atomically
+  ---
+  duration_ms: 18.211563
+  type: 'test'
+  ...
+# Subtest: P179 Medicine action rollback restores ally and medic on failed persistent save
+ok 64 - P179 Medicine action rollback restores ally and medic on failed persistent save
+  ---
+  duration_ms: 6.596295
+  type: 'test'
+  ...
+# Subtest: P179 prepared Medic reacts during actual NPC attack and persists once/session
+ok 65 - P179 prepared Medic reacts during actual NPC attack and persists once/session
+  ---
+  duration_ms: 17.796329
+  type: 'test'
+  ...
+# Subtest: P179 preparing Medic is atomic and validates real ally, ownership and GM approval
+ok 66 - P179 preparing Medic is atomic and validates real ally, ownership and GM approval
+  ---
+  duration_ms: 8.772911
+  type: 'test'
+  ...
+# Subtest: P179 NPC blast receipt is derived from a real grenade and real attack Advantage
+ok 67 - P179 NPC blast receipt is derived from a real grenade and real attack Advantage
+  ---
+  duration_ms: 10.123717
+  type: 'test'
+  ...
+# Subtest: P179 NPC blast requires actual Advantage and Blast quality, not a GM fabricated event
+ok 68 - P179 NPC blast requires actual Advantage and Blast quality, not a GM fabricated event
+  ---
+  duration_ms: 3.058771
+  type: 'test'
+  ...
+# Subtest: P179 Time to Go escapes NPC blast, spends exactly one light Destiny and saves companion via Improved
+ok 69 - P179 Time to Go escapes NPC blast, spends exactly one light Destiny and saves companion via Improved
+  ---
+  duration_ms: 12.505941
+  type: 'test'
+  ...
+# Subtest: P179 Blast with no Time to Go damages real player and companion with soak
+ok 70 - P179 Blast with no Time to Go damages real player and companion with soak
+  ---
+  duration_ms: 9.465464
+  type: 'test'
+  ...
+# Subtest: P179 Blast refuses phantom, duplicate, unsupported and unapproved escapes atomically
+ok 71 - P179 Blast refuses phantom, duplicate, unsupported and unapproved escapes atomically
+  ---
+  duration_ms: 16.930473
+  type: 'test'
+  ...
+# Subtest: P179 Blast rejects an unowned Time to Go and preserves Destiny
+ok 72 - P179 Blast rejects an unowned Time to Go and preserves Destiny
+  ---
+  duration_ms: 18.638419
+  type: 'test'
+  ...
+# Subtest: P179 Blast cannot be resolved without light Destiny, even when all targets would escape
+ok 73 - P179 Blast cannot be resolved without light Destiny, even when all targets would escape
+  ---
+  duration_ms: 6.988321
+  type: 'test'
+  ...
+# Subtest: P179 blast rollback restores spent Destiny, wounds and attack receipt
+ok 74 - P179 blast rollback restores spent Destiny, wounds and attack receipt
+  ---
+  duration_ms: 7.551453
+  type: 'test'
+  ...
+# Subtest: P179 forged pending blast and forged Medic preparation rejected by state validator
+ok 75 - P179 forged pending blast and forged Medic preparation rejected by state validator
+  ---
+  duration_ms: 3.327475
+  type: 'test'
+  ...
+# Subtest: P179 combat closure removes pending blast, prepared Medic and encounter-only escape receipts
+ok 76 - P179 combat closure removes pending blast, prepared Medic and encounter-only escape receipts
+  ---
+  duration_ms: 9.887954
+  type: 'test'
+  ...
+# Subtest: P179 rejects forged blast escape without a matching resolved attack
+ok 77 - P179 rejects forged blast escape without a matching resolved attack
+  ---
+  duration_ms: 2.648336
+  type: 'test'
+  ...
+# Subtest: P179 UI bundle and Android source include actual controller reaction bridge
+ok 78 - P179 UI bundle and Android source include actual controller reaction bridge
+  ---
+  duration_ms: 12.266561
+  type: 'test'
+  ...
+# Subtest: P179 under-black-sun: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 79 - P179 under-black-sun: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 32.904398
+  type: 'test'
+  ...
+# Subtest: P179 beyond-the-rim: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 80 - P179 beyond-the-rim: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 20.582019
+  type: 'test'
+  ...
+# Subtest: P179 long-arm-of-the-hutt: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 81 - P179 long-arm-of-the-hutt: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 11.7764
+  type: 'test'
+  ...
+# Subtest: P179 jewel-of-yavin: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 82 - P179 jewel-of-yavin: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 20.877345
+  type: 'test'
+  ...
+# Subtest: P179 mask-of-the-pirate-queen: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 83 - P179 mask-of-the-pirate-queen: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 13.077268
+  type: 'test'
+  ...
+# Subtest: P180 under-black-sun: authored preflight bounds mirror runtime grammar
+ok 84 - P180 under-black-sun: authored preflight bounds mirror runtime grammar
+  ---
+  duration_ms: 14.592876
+  type: 'test'
+  ...
+# Subtest: P180 under-black-sun: source preflight rejects reserved events in BOTH effect syntaxes
+ok 85 - P180 under-black-sun: source preflight rejects reserved events in BOTH effect syntaxes
+  ---
+  duration_ms: 8.801515
+  type: 'test'
+  ...
+# Subtest: P180 under-black-sun: malformed runtime effect guard never grants reward
+ok 86 - P180 under-black-sun: malformed runtime effect guard never grants reward
+  ---
+  duration_ms: 11.280216
+  type: 'test'
+  ...
+# Subtest: P180 under-black-sun: trigger -> clock -> objective -> consequence -> 3 durable reopens
+ok 87 - P180 under-black-sun: trigger -> clock -> objective -> consequence -> 3 durable reopens
+  ---
+  duration_ms: 26.212536
+  type: 'test'
+  ...
+# Subtest: P180 under-black-sun: invalid mid-transaction command rolls back triggers and consequence
+ok 88 - P180 under-black-sun: invalid mid-transaction command rolls back triggers and consequence
+  ---
+  duration_ms: 5.548083
+  type: 'test'
+  ...
+# Subtest: P180 under-black-sun: invalid condition does not fire trigger or corrupt saved state
+ok 89 - P180 under-black-sun: invalid condition does not fire trigger or corrupt saved state
+  ---
+  duration_ms: 5.14004
+  type: 'test'
+  ...
+# Subtest: P180 beyond-the-rim: authored preflight bounds mirror runtime grammar
+ok 90 - P180 beyond-the-rim: authored preflight bounds mirror runtime grammar
+  ---
+  duration_ms: 5.954186
+  type: 'test'
+  ...
+# Subtest: P180 beyond-the-rim: source preflight rejects reserved events in BOTH effect syntaxes
+ok 91 - P180 beyond-the-rim: source preflight rejects reserved events in BOTH effect syntaxes
+  ---
+  duration_ms: 9.465613
+  type: 'test'
+  ...
+# Subtest: P180 beyond-the-rim: malformed runtime effect guard never grants reward
+ok 92 - P180 beyond-the-rim: malformed runtime effect guard never grants reward
+  ---
+  duration_ms: 3.771087
+  type: 'test'
+  ...
+# Subtest: P180 beyond-the-rim: trigger -> clock -> objective -> consequence -> 3 durable reopens
+ok 93 - P180 beyond-the-rim: trigger -> clock -> objective -> consequence -> 3 durable reopens
+  ---
+  duration_ms: 14.249159
+  type: 'test'
+  ...
+# Subtest: P180 beyond-the-rim: invalid mid-transaction command rolls back triggers and consequence
+ok 94 - P180 beyond-the-rim: invalid mid-transaction command rolls back triggers and consequence
+  ---
+  duration_ms: 3.771725
+  type: 'test'
+  ...
+# Subtest: P180 beyond-the-rim: invalid condition does not fire trigger or corrupt saved state
+ok 95 - P180 beyond-the-rim: invalid condition does not fire trigger or corrupt saved state
+  ---
+  duration_ms: 4.170631
+  type: 'test'
+  ...
+# Subtest: P180 long-arm-of-the-hutt: authored preflight bounds mirror runtime grammar
+ok 96 - P180 long-arm-of-the-hutt: authored preflight bounds mirror runtime grammar
+  ---
+  duration_ms: 1.703216
+  type: 'test'
+  ...
+# Subtest: P180 long-arm-of-the-hutt: source preflight rejects reserved events in BOTH effect syntaxes
+ok 97 - P180 long-arm-of-the-hutt: source preflight rejects reserved events in BOTH effect syntaxes
+  ---
+  duration_ms: 1.910504
+  type: 'test'
+  ...
+# Subtest: P180 long-arm-of-the-hutt: malformed runtime effect guard never grants reward
+ok 98 - P180 long-arm-of-the-hutt: malformed runtime effect guard never grants reward
+  ---
+  duration_ms: 1.80065
+  type: 'test'
+  ...
+# Subtest: P180 long-arm-of-the-hutt: trigger -> clock -> objective -> consequence -> 3 durable reopens
+ok 99 - P180 long-arm-of-the-hutt: trigger -> clock -> objective -> consequence -> 3 durable reopens
+  ---
+  duration_ms: 7.382167
+  type: 'test'
+  ...
+# Subtest: P180 long-arm-of-the-hutt: invalid mid-transaction command rolls back triggers and consequence
+ok 100 - P180 long-arm-of-the-hutt: invalid mid-transaction command rolls back triggers and consequence
+  ---
+  duration_ms: 2.546766
+  type: 'test'
+  ...
+# Subtest: P180 long-arm-of-the-hutt: invalid condition does not fire trigger or corrupt saved state
+ok 101 - P180 long-arm-of-the-hutt: invalid condition does not fire trigger or corrupt saved state
+  ---
+  duration_ms: 2.115459
+  type: 'test'
+  ...
+# Subtest: P180 jewel-of-yavin: authored preflight bounds mirror runtime grammar
+ok 102 - P180 jewel-of-yavin: authored preflight bounds mirror runtime grammar
+  ---
+  duration_ms: 2.28584
+  type: 'test'
+  ...
+# Subtest: P180 jewel-of-yavin: source preflight rejects reserved events in BOTH effect syntaxes
+ok 103 - P180 jewel-of-yavin: source preflight rejects reserved events in BOTH effect syntaxes
+  ---
+  duration_ms: 1.426342
+  type: 'test'
+  ...
+# Subtest: P180 jewel-of-yavin: malformed runtime effect guard never grants reward
+ok 104 - P180 jewel-of-yavin: malformed runtime effect guard never grants reward
+  ---
+  duration_ms: 0.812881
+  type: 'test'
+  ...
+# Subtest: P180 jewel-of-yavin: trigger -> clock -> objective -> consequence -> 3 durable reopens
+ok 105 - P180 jewel-of-yavin: trigger -> clock -> objective -> consequence -> 3 durable reopens
+  ---
+  duration_ms: 6.403811
+  type: 'test'
+  ...
+# Subtest: P180 jewel-of-yavin: invalid mid-transaction command rolls back triggers and consequence
+ok 106 - P180 jewel-of-yavin: invalid mid-transaction command rolls back triggers and consequence
+  ---
+  duration_ms: 2.142542
+  type: 'test'
+  ...
+# Subtest: P180 jewel-of-yavin: invalid condition does not fire trigger or corrupt saved state
+ok 107 - P180 jewel-of-yavin: invalid condition does not fire trigger or corrupt saved state
+  ---
+  duration_ms: 1.968465
+  type: 'test'
+  ...
+# Subtest: P180 mask-of-the-pirate-queen: authored preflight bounds mirror runtime grammar
+ok 108 - P180 mask-of-the-pirate-queen: authored preflight bounds mirror runtime grammar
+  ---
+  duration_ms: 1.918159
+  type: 'test'
+  ...
+# Subtest: P180 mask-of-the-pirate-queen: source preflight rejects reserved events in BOTH effect syntaxes
+ok 109 - P180 mask-of-the-pirate-queen: source preflight rejects reserved events in BOTH effect syntaxes
+  ---
+  duration_ms: 1.558449
+  type: 'test'
+  ...
+# Subtest: P180 mask-of-the-pirate-queen: malformed runtime effect guard never grants reward
+ok 110 - P180 mask-of-the-pirate-queen: malformed runtime effect guard never grants reward
+  ---
+  duration_ms: 0.870073
+  type: 'test'
+  ...
+# Subtest: P180 mask-of-the-pirate-queen: trigger -> clock -> objective -> consequence -> 3 durable reopens
+ok 111 - P180 mask-of-the-pirate-queen: trigger -> clock -> objective -> consequence -> 3 durable reopens
+  ---
+  duration_ms: 4.868747
+  type: 'test'
+  ...
+# Subtest: P180 mask-of-the-pirate-queen: invalid mid-transaction command rolls back triggers and consequence
+ok 112 - P180 mask-of-the-pirate-queen: invalid mid-transaction command rolls back triggers and consequence
+  ---
+  duration_ms: 1.269048
+  type: 'test'
+  ...
+# Subtest: P180 mask-of-the-pirate-queen: invalid condition does not fire trigger or corrupt saved state
+ok 113 - P180 mask-of-the-pirate-queen: invalid condition does not fire trigger or corrupt saved state
+  ---
+  duration_ms: 1.130853
+  type: 'test'
+  ...
+1..113
+# tests 113
+# suites 0
+# pass 113
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 634.709867

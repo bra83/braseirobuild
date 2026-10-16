@@ -1,0 +1,52 @@
+{
+  "checkpoint": "R54_P132",
+  "source": "R54_P131",
+  "sourceZipSha256": "102cef1165eadbb41796c0787d2246e1ed8f24797834b1f6e746e4c5bdad8f32",
+  "versionCode": 10132,
+  "versionName": "1.0.132",
+  "changedFiles": [
+    "HANDOFF_STAR_WARS_EDGE_R54_P132_2026-10-11.md",
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/adventure/adventureRuntime.mjs",
+    "app/src/main/assets/vtt/js/adventure/publishedAdventureUaeBridge.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/js/expansion/aorProgressionIntegration.mjs",
+    "app/src/main/assets/vtt/js/expansion/aorTalentRuntimeAliases.mjs",
+    "app/src/main/assets/vtt/js/rules/talents.mjs",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "tests/uae-p132-aor-mechanics-and-integrity.test.mjs",
+    "validation/LATEST_SOURCE_VALIDATION.txt",
+    "validation/P132_BUNDLE_BUILD.txt",
+    "validation/P132_FOCAL_SUITE.txt",
+    "validation/P132_NODE_SUITE.txt",
+    "validation/P132_SOURCE_GATE.txt",
+    "validation/P132_TTS_SUITE.txt"
+  ],
+  "newFiles": [
+    "HANDOFF_STAR_WARS_EDGE_R54_P132_2026-10-11.md",
+    "app/src/main/assets/vtt/js/expansion/aorTalentRuntimeAliases.mjs",
+    "tests/uae-p132-aor-mechanics-and-integrity.test.mjs",
+    "validation/P132_BUNDLE_BUILD.txt",
+    "validation/P132_FOCAL_SUITE.txt",
+    "validation/P132_NODE_SUITE.txt",
+    "validation/P132_SOURCE_GATE.txt",
+    "validation/P132_TTS_SUITE.txt"
+  ],
+  "removedFiles": [],
+  "suite": {
+    "tests": 1321,
+    "passed": 1321,
+    "failed": 0,
+    "stressFiles": 6
+  },
+  "tts": {
+    "tests": 27,
+    "passed": 27
+  },
+  "aorTalentPositions": {
+    "purchasable": 360,
+    "mechanicallyWired": 156,
+    "notYetWired": 204
+  },
+  "androidBuild": "not_run_no_sdk"
+}

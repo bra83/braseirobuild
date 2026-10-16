@@ -1,0 +1,42 @@
+{
+  "checkpoint": "P242",
+  "base": "P241",
+  "implementation_files": [
+    "app/src/main/assets/vtt/js/adventure/swe02NewMeenP242.mjs",
+    "app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+    "app/src/main/assets/vtt/js/ui/app.mjs",
+    "app/src/main/assets/vtt/index.html",
+    "app/src/main/assets/vtt/js/rules/encounter.mjs"
+  ],
+  "focal_test": "tests/uae-p242-swe02-newmeen-fatalities-coercion-rescue.test.mjs",
+  "focal_tests_pass": 13,
+  "regression": {
+    "files": 367,
+    "elapsed_seconds": 122.81,
+    "passed_files": 367,
+    "failed_files": 0,
+    "tests": 3324,
+    "pass": 3324,
+    "fail": 0,
+    "skip": 0,
+    "stress_files": 6,
+    "stress_pass": 6,
+    "failed": []
+  },
+  "syntax": {
+    "mjs": 555,
+    "jsRuntime": 2,
+    "json": 22,
+    "xml": 2,
+    "bundleModuleCount": 126
+  },
+  "javaKokoroIdentical": true,
+  "android": "SOURCE_ONLY_1.0.242",
+  "apk": false,
+  "github_push": false,
+  "ci": false,
+  "adb": false,
+  "physical_device": false
+}

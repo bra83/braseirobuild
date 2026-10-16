@@ -1,0 +1,88 @@
+TAP version 13
+# Subtest: P166: MANITAS AoR has exactly two purchased, mechanically active positions
+ok 1 - P166: MANITAS AoR has exactly two purchased, mechanically active positions
+  ---
+  duration_ms: 35.980642
+  type: 'test'
+  ...
+# Subtest: P166: Mechanics removes one setback per rank, never a different skill
+ok 2 - P166: Mechanics removes one setback per rank, never a different skill
+  ---
+  duration_ms: 220.27243
+  type: 'test'
+  ...
+# Subtest: P166: two ranks do not stack the once-only half-price Mod discount
+ok 3 - P166: two ranks do not stack the once-only half-price Mod discount
+  ---
+  duration_ms: 117.16403
+  type: 'test'
+  ...
+# Subtest: P166: failed Mod spends discounted credits and one attempt, never grants success
+ok 4 - P166: failed Mod spends discounted credits and one attempt, never grants success
+  ---
+  duration_ms: 47.665183
+  type: 'test'
+  ...
+# Subtest: P166: display labels, forged node ids and altered original names never grant discount
+ok 5 - P166: display labels, forged node ids and altered original names never grant discount
+  ---
+  duration_ms: 28.648341
+  type: 'test'
+  ...
+# Subtest: P166: mod save failure atomically rolls back credits, attempts, weapon and ledger
+ok 6 - P166: mod save failure atomically rolls back credits, attempts, weapon and ledger
+  ---
+  duration_ms: 107.249652
+  type: 'test'
+  ...
+# Subtest: P166: attachment install/remove each roll back all state on storage failure
+ok 7 - P166: attachment install/remove each roll back all state on storage failure
+  ---
+  duration_ms: 92.461684
+  type: 'test'
+  ...
+# Subtest: P166: Android bridge exposes the source-backed price and generated UI uses dynamic cost
+ok 8 - P166: Android bridge exposes the source-backed price and generated UI uses dynamic cost
+  ---
+  duration_ms: 69.945225
+  type: 'test'
+  ...
+# Subtest: P166: under-black-sun UAE transactional triggers, objectives, consequences and three restores
+ok 9 - P166: under-black-sun UAE transactional triggers, objectives, consequences and three restores
+  ---
+  duration_ms: 180.770031
+  type: 'test'
+  ...
+# Subtest: P166: beyond-the-rim UAE transactional triggers, objectives, consequences and three restores
+ok 10 - P166: beyond-the-rim UAE transactional triggers, objectives, consequences and three restores
+  ---
+  duration_ms: 109.372417
+  type: 'test'
+  ...
+# Subtest: P166: long-arm-of-the-hutt UAE transactional triggers, objectives, consequences and three restores
+ok 11 - P166: long-arm-of-the-hutt UAE transactional triggers, objectives, consequences and three restores
+  ---
+  duration_ms: 83.566708
+  type: 'test'
+  ...
+# Subtest: P166: jewel-of-yavin UAE transactional triggers, objectives, consequences and three restores
+ok 12 - P166: jewel-of-yavin UAE transactional triggers, objectives, consequences and three restores
+  ---
+  duration_ms: 62.936343
+  type: 'test'
+  ...
+# Subtest: P166: mask-of-the-pirate-queen UAE transactional triggers, objectives, consequences and three restores
+ok 13 - P166: mask-of-the-pirate-queen UAE transactional triggers, objectives, consequences and three restores
+  ---
+  duration_ms: 66.388078
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3391.209302

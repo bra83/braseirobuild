@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: P204 blast affects only GM-confirmed companion, not player or absent ally
+ok 1 - P204 blast affects only GM-confirmed companion, not player or absent ally
+  ---
+  duration_ms: 2215.663132
+  type: 'test'
+  ...
+# Subtest: P204 separate companions and blast/fall use independent receipts and health
+ok 2 - P204 separate companions and blast/fall use independent receipts and health
+  ---
+  duration_ms: 2568.285692
+  type: 'test'
+  ...
+# Subtest: P204 missing GM confirmation, wrong position, forged companion and duplicates roll back
+ok 3 - P204 missing GM confirmation, wrong position, forged companion and duplicates roll back
+  ---
+  duration_ms: 1962.20989
+  type: 'test'
+  ...
+# Subtest: P204 tampered companion impact and location are detected
+ok 4 - P204 tampered companion impact and location are detected
+  ---
+  duration_ms: 1761.93402
+  type: 'test'
+  ...
+# Subtest: P204 three reopenings preserve companion wounds and receipts
+ok 5 - P204 three reopenings preserve companion wounds and receipts
+  ---
+  duration_ms: 1699.286208
+  type: 'test'
+  ...
+# Subtest: P204 long fall gives companion official forced critical and preserves player health
+ok 6 - P204 long fall gives companion official forced critical and preserves player health
+  ---
+  duration_ms: 1577.836169
+  type: 'test'
+  ...
+# Subtest: P204 official adventure status rejects forged companion receipts
+ok 7 - P204 official adventure status rejects forged companion receipts
+  ---
+  duration_ms: 1270.344607
+  type: 'test'
+  ...
+# Subtest: P204 Android PTBR exposes independent companion controls and bridge bundle
+ok 8 - P204 Android PTBR exposes independent companion controls and bridge bundle
+  ---
+  duration_ms: 87.925608
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 14949.385549

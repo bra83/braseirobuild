@@ -1,0 +1,73 @@
+{
+  "checkpoint": "P161",
+  "coverage": {
+    "careers": 6,
+    "specializations": 18,
+    "positions": 360,
+    "mechanicalPositions": 283,
+    "purchasePositions": 360
+  },
+  "pending": 77,
+  "javaPreserved": true,
+  "javaFiles": 8,
+  "consumers": [
+    {
+      "name": "NERVIOS DE ACERO",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "SUBIR DE UN SALTO",
+      "expected": 3,
+      "actual": 3
+    },
+    {
+      "name": "CONOCIMIENTO ESPECIALIZADO",
+      "expected": 2,
+      "actual": 2
+    },
+    {
+      "name": "PROVEEDOR HABITUAL",
+      "expected": 2,
+      "actual": 2
+    }
+  ],
+  "adventures": [
+    {
+      "id": "under-black-sun",
+      "graph": true,
+      "semantics": true
+    },
+    {
+      "id": "beyond-the-rim",
+      "graph": true,
+      "semantics": true
+    },
+    {
+      "id": "long-arm-of-the-hutt",
+      "graph": true,
+      "semantics": true
+    },
+    {
+      "id": "jewel-of-yavin",
+      "graph": true,
+      "semantics": true
+    },
+    {
+      "id": "mask-of-the-pirate-queen",
+      "graph": true,
+      "semantics": true
+    }
+  ],
+  "version": true,
+  "uiIntegrated": true,
+  "checks": {
+    "focal": true,
+    "regular": true,
+    "stress": true,
+    "tts": true,
+    "java": true
+  },
+  "androidApkBuilt": false,
+  "allPassed": true
+}

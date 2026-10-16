@@ -1,0 +1,11 @@
+{
+  "checkpoint": "R54 P241",
+  "source": {"title": "The Long Arm of the Hutt", "productCode": "SWE02", "officialUrl": "https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf"},
+  "scope": ["Nabat: Nyn Kablo", "New Meen: nonviolent thug bribery"],
+  "implemented": [
+    {"printedPage": 13, "sourceClaim": "One critical injury treatment attempt per injury with physician dice pool 1 proficiency + 2 difficulty", "executor": "swe02SocialP241.mjs:nynCriticalCare", "controller": "treatSWE02NynCritical", "ui": "swe02NynCritical", "persistence": "socialReceipts + actual character criticalInjuries; three reopens tested", "test": "uae-p241-swe02-nyn-newmeen-social.test.mjs"},
+    {"printedPage": 14, "sourceClaim": "Nyn: Charm Average or Coerce Hard, one Advantage grenades, two Advantage padded armor, Triumph blaster rifle, two Threat defective", "executor": "swe02SocialP241.mjs:nynNegotiate", "controller": "negotiateSWE02Nyn", "ui": "swe02NynNegotiate", "persistence": "actual narrative dice, padded armor EotE Core equipment, pending weapon claims; three reopens", "test": "uae-p241-swe02-nyn-newmeen-social.test.mjs", "limit": "Grenade/rifle combat profiles remain blocked pending EotE Core primary certification; no fake weapons are added."},
+    {"printedPage": 23, "sourceClaim": "Bribe each thug for 400–500 credits with Negotiation opposed to one difficulty; Drombb cannot be bribed", "executor": "swe02SocialP241.mjs:bribeNewMeenThug + longArmOfTheHutt.mjs:longArmOfTheHuttEncounterSpec", "controller": "bribeSWE02NewMeenThug", "ui": "swe02NewMeenBribe", "persistence": "credits debited only on successful real roll, enemy minion group counts reduced, Drombb remains; three reopens", "test": "uae-p241-swe02-nyn-newmeen-social.test.mjs"}
+  ],
+  "notCertified": ["Nyn grenade and rifle combat profiles EotE Core", "Nyn defective gear use/discard on first encounter", "Nyn grenades individually distributed to all PCs", "New Meen surrender by Coercion based on actual deaths", "New Meen defeat/evacuation and rescue", "Fuel, cargo, full vehicle initiative", "Remaining SWE02 acts and four other adventures", "360 AoR consumers individually", "APK, CI, Android physical"]
+}

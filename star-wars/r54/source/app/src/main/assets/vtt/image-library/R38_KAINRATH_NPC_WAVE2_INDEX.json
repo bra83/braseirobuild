@@ -1,0 +1,292 @@
+{
+  "schemaVersion": 1,
+  "wave": "R38_NPC_PAGE3",
+  "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+  "count": 20,
+  "breakdown": {
+    "npcPortraits": 18,
+    "droids": 2
+  },
+  "entries": [
+    {
+      "assetId": "external.kainrath.npc.rav-naaran-fallen-jedi",
+      "title": "Rav Naaran – Fallen Jedi",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/05/rav-naaran.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "rav-naaran-fallen-jedi"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.malefax",
+      "title": "Malefax",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/05/malefax.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "malefax"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.r4-w9-astromech-droid",
+      "title": "R4-W9 Astromech Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/05/r4-w9.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "r4-w9-astromech-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.godon-netakka-bounty-hunter",
+      "title": "Godon Netakka – Bounty Hunter",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/05/godon-natakka.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "godon-netakka-bounty-hunter"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.isb-agent-ferlan",
+      "title": "ISB Agent Ferlan",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/isb-agent-ferlan.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "isb-agent-ferlan"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.sinasu-the-hutt",
+      "title": "Sinasu the Hutt",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/sinasu-the-hutt.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "sinasu-the-hutt"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.teemo-the-hutt",
+      "title": "Teemo the Hutt",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/teemo-the-hutt.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "teemo-the-hutt"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.orpa-and-wex-vio",
+      "title": "Orpa and Wex Vio",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/orpa-and-wex-vio.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "orpa-and-wex-vio"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.vrixxtt",
+      "title": "Vrixx’tt",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/vrixxtt1.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "vrixxtt"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.angu-drombb",
+      "title": "Angu Drombb",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/angu-drombb.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "angu-drombb"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.thwheek",
+      "title": "Thwheek",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/thwheek.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "thwheek"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.trex-trandoshan-slaver",
+      "title": "Trex – Trandoshan Slaver",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/trex1.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "trex-trandoshan-slaver"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.gut-guro",
+      "title": "Gut-Guro",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/gut-guro.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "gut-guro"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.whisper-base-sentries",
+      "title": "Whisper Base Sentries",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/whisper-base-sentries1.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "whisper-base-sentries"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.lieutenant-sarev",
+      "title": "Lieutenant Sarev",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/lietenant-sarev1.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "lieutenant-sarev"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.bx-2r-toor",
+      "title": "BX-2R “Toor”",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/bx2r-toor1.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "bx-2r-toor"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.overseer-brynn",
+      "title": "Overseer Brynn",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/overseer-brynn1.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "overseer-brynn"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.vorn-tel-ovis-shop-owner",
+      "title": "Vorn Tel-Ovis – Shop Owner",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/vorn-tel-ovis.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "vorn-tel-ovis-shop-owner"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.gamorrean-thugs",
+      "title": "Gamorrean Thugs",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/gamorrean-thugs-1.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "gamorrean-thugs"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.kaato-leechos-bounty-hunter",
+      "title": "Kaa’to Leechos – Bounty Hunter",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/3/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/kaato-leechos.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "kaato-leechos-bounty-hunter"
+      ]
+    }
+  ]
+}

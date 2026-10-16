@@ -1,0 +1,172 @@
+TAP version 13
+# Subtest: P76: catálogo Android lista motores/vozes e permite seleção persistente
+ok 1 - P76: catálogo Android lista motores/vozes e permite seleção persistente
+  ---
+  duration_ms: 3.029383
+  type: 'test'
+  ...
+# Subtest: P76: perfil neural usa 250-650 com alvo 450 e não divide cada sentença
+ok 2 - P76: perfil neural usa 250-650 com alvo 450 e não divide cada sentença
+  ---
+  duration_ms: 0.253212
+  type: 'test'
+  ...
+# Subtest: P76: Kokoro avança apenas por onDone sem flush/stop entre blocos
+ok 3 - P76: Kokoro avança apenas por onDone sem flush/stop entre blocos
+  ---
+  duration_ms: 0.228665
+  type: 'test'
+  ...
+# Subtest: P76: contrato Sherpa/Kokoro expõe parâmetros e prewarm/streaming
+ok 4 - P76: contrato Sherpa/Kokoro expõe parâmetros e prewarm/streaming
+  ---
+  duration_ms: 0.213242
+  type: 'test'
+  ...
+# Subtest: P76: velocidade Kokoro é aplicada uma única vez no parâmetro da engine
+ok 5 - P76: velocidade Kokoro é aplicada uma única vez no parâmetro da engine
+  ---
+  duration_ms: 0.119199
+  type: 'test'
+  ...
+# Subtest: P76: Samsung/Google continuam no fluxo Android padrão
+ok 6 - P76: Samsung/Google continuam no fluxo Android padrão
+  ---
+  duration_ms: 0.100421
+  type: 'test'
+  ...
+# Subtest: P91 audit: ILUSTRAÇÃO chama método que existe no bridge Android e registra destino persistente
+ok 7 - P91 audit: ILUSTRAÇÃO chama método que existe no bridge Android e registra destino persistente
+  ---
+  duration_ms: 1.564332
+  type: 'test'
+  ...
+# Subtest: P91 audit: Star Wars é destino image share e recebe retorno em Activity singleTop
+ok 8 - P91 audit: Star Wars é destino image share e recebe retorno em Activity singleTop
+  ---
+  duration_ms: 0.228115
+  type: 'test'
+  ...
+# Subtest: P91 audit: retorno compartilhado é roteado para cena ou NPC e destino sobrevive à recriação
+ok 9 - P91 audit: retorno compartilhado é roteado para cena ou NPC e destino sobrevive à recriação
+  ---
+  duration_ms: 0.191109
+  type: 'test'
+  ...
+# Subtest: P91 audit: TTS migra pacote legado/DB Next-gen para Sherpa instalado sem fabricar vozes
+ok 10 - P91 audit: TTS migra pacote legado/DB Next-gen para Sherpa instalado sem fabricar vozes
+  ---
+  duration_ms: 0.391151
+  type: 'test'
+  ...
+# Subtest: P91 audit: Sherpa aparece como Braseiro Kokoro PT-BR neural e mantém fluxo neural encadeado
+ok 11 - P91 audit: Sherpa aparece como Braseiro Kokoro PT-BR neural e mantém fluxo neural encadeado
+  ---
+  duration_ms: 0.228215
+  type: 'test'
+  ...
+# Subtest: P91 audit: wrapper Android não depende do host GitHub para obter Gradle
+ok 12 - P91 audit: wrapper Android não depende do host GitHub para obter Gradle
+  ---
+  duration_ms: 0.166812
+  type: 'test'
+  ...
+# Subtest: P15: bundle embarcado não contradiz TTS integrado
+ok 13 - P15: bundle embarcado não contradiz TTS integrado
+  ---
+  duration_ms: 1.971666
+  type: 'test'
+  ...
+# Subtest: onInit e shutdown compartilham lifecycleLock para impedir reativação tardia
+ok 14 - onInit e shutdown compartilham lifecycleLock para impedir reativação tardia
+  ---
+  duration_ms: 0.856373
+  type: 'test'
+  ...
+# Subtest: shutdown é idempotente e marca TTS fechado/indisponível antes de encerrar engine
+ok 15 - shutdown é idempotente e marca TTS fechado/indisponível antes de encerrar engine
+  ---
+  duration_ms: 0.784635
+  type: 'test'
+  ...
+# Subtest: speak recusa bridge fechado e UI runnable revalida lifecycle antes de tocar TTS
+ok 16 - speak recusa bridge fechado e UI runnable revalida lifecycle antes de tocar TTS
+  ---
+  duration_ms: 0.228736
+  type: 'test'
+  ...
+# Subtest: stop não agenda operação efetiva depois de shutdown
+ok 17 - stop não agenda operação efetiva depois de shutdown
+  ---
+  duration_ms: 0.229807
+  type: 'test'
+  ...
+# Subtest: Android TTS divide texto longo e usa QUEUE_ADD depois do primeiro bloco
+ok 18 - Android TTS divide texto longo e usa QUEUE_ADD depois do primeiro bloco
+  ---
+  duration_ms: 0.642129
+  type: 'test'
+  ...
+# Subtest: Gemini TTS tem executor dedicado, primeiro bloco curto e fila de reprodução
+ok 19 - Gemini TTS tem executor dedicado, primeiro bloco curto e fila de reprodução
+  ---
+  duration_ms: 0.202406
+  type: 'test'
+  ...
+# Subtest: fallback Web Speech narra vários blocos em sequência
+ok 20 - fallback Web Speech narra vários blocos em sequência
+  ---
+  duration_ms: 0.095243
+  type: 'test'
+  ...
+# Subtest: Gemini TTS failure falls through to Android/Web instead of silencing narration
+ok 21 - Gemini TTS failure falls through to Android/Web instead of silencing narration
+  ---
+  duration_ms: 0.771354
+  type: 'test'
+  ...
+# Subtest: Gemini TTS remains multiblock and Charon-selectable
+ok 22 - Gemini TTS remains multiblock and Charon-selectable
+  ---
+  duration_ms: 1.350699
+  type: 'test'
+  ...
+# Subtest: TTS lê exatamente a narração recebida, em PT-BR, e cancela fala anterior
+ok 23 - TTS lê exatamente a narração recebida, em PT-BR, e cancela fala anterior
+  ---
+  duration_ms: 0.930444
+  type: 'test'
+  ...
+# Subtest: TTS falha claramente quando a API de voz está indisponível e normaliza velocidade
+ok 24 - TTS falha claramente quando a API de voz está indisponível e normaliza velocidade
+  ---
+  duration_ms: 0.372472
+  type: 'test'
+  ...
+# Subtest: ajustes de TTS persistem no estado sem afetar configuração do Mestre
+ok 25 - ajustes de TTS persistem no estado sem afetar configuração do Mestre
+  ---
+  duration_ms: 4.110285
+  type: 'test'
+  ...
+# Subtest: interface oferece voz somente para a narração visível da Cena
+ok 26 - interface oferece voz somente para a narração visível da Cena
+  ---
+  duration_ms: 1.035302
+  type: 'test'
+  ...
+# Subtest: P11: tela de voz não contradiz integração TTS real
+ok 27 - P11: tela de voz não contradiz integração TTS real
+  ---
+  duration_ms: 1.480034
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 242.844945

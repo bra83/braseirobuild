@@ -1,0 +1,13 @@
+{
+  "checkpoint": "P205",
+  "feature": "SWE09 official Arrow-7 aft-mounted personal-scale turret during the four Shen goons combat encounter",
+  "module": "app/src/main/assets/vtt/js/adventure/jewelArrow7Turret.mjs",
+  "receipt": "JEWEL_ARROW7_TURRET",
+  "worldState": "publishedAdventure.operations.arrow7Turret",
+  "combatState": "combat.arrow7TurretOrder",
+  "controller": "GameController.queueJewelArrow7Turret; GameController._resolveNpcTurn",
+  "bridge": "uiBridge.queueJewelArrow7Turret",
+  "android": "PT-BR aft arc/gunner confirmation and queue action; Android 1.0.205 versionCode 10205; 100 offline engine modules",
+  "behavior": ["real encounter required", "GM confirms target in aft arc and live gunner", "target range equals current adversary combat range", "one queued shot per round, no duplicate receipts", "actual NPC initiative turn consumes the order", "Gunnery uses alive minion group skill rank", "damage 11 + successes, Pierce 1, critical threshold 3 and target soak via real combat engine", "personal scale explicitly, not planetary", "Auto-Fire quality available but no automatic additional hits", "world and combat persisted atomically", "three reopenings and tamper replay tests"],
+  "limits": ["no complete vehicle chase, movement or speed rules", "no invented hull/silhouette", "no invented time", "no automatic Auto-Fire activation", "no physical Android build or certification"]
+}

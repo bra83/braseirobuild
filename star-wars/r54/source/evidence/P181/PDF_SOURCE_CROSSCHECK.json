@@ -1,0 +1,83 @@
+{
+  "checkpoint": "P181",
+  "editoriallyCertified": false,
+  "kind": "partial PDF chapter/setting check",
+  "scope": "SWE13 Episode I-III and opening settings; other two PDFs newly recovered and chapter headings checked",
+  "notes": [
+    "Mask source first episode Saleucami and Episode II Worlport; P180 incorrectly reversed the order.",
+    "Mask P181 expands 5 to 23 nodes, seeds named NPCs/locations, and fixes two mutually exclusive reward outcomes.",
+    "The five books have NOT been checked scene-by-scene or for stat-block/rules equivalence.",
+    "Beyond the Rim and Jewel of Yavin PDFs were audited for TOC in P180, not re-read in P181."
+  ],
+  "sources": [
+    {
+      "adventureId": "under-black-sun",
+      "file": "Under a Black Sun.pdf",
+      "sha256": "b98c80962b3b721fcb8d32da19dbe31e14099839c9832a6061d5d2c25680548b",
+      "pdfPages": 40,
+      "sourceHeadings": [
+        {
+          "heading": "EPISODE I: NO EASY JOBS",
+          "present": true
+        },
+        {
+          "heading": "EPISODE II: CITY OF SPIRES AND STRIFE",
+          "present": true
+        },
+        {
+          "heading": "EPISODE III: ENDGAME",
+          "present": true
+        }
+      ],
+      "sourceHeadingsFound": true,
+      "codeNodes": 17,
+      "editoriallyCertified": false
+    },
+    {
+      "adventureId": "long-arm-of-the-hutt",
+      "file": "Long Arm of the Hutt.pdf",
+      "sha256": "18fb9880242743d11765eaca442168fc3441a3b0d17aa92bc769057734b45489",
+      "pdfPages": 46,
+      "sourceHeadings": [
+        {
+          "heading": "ACT 1",
+          "present": true
+        },
+        {
+          "heading": "ACT 2",
+          "present": true
+        },
+        {
+          "heading": "ACT 3",
+          "present": true
+        }
+      ],
+      "sourceHeadingsFound": true,
+      "codeNodes": 7,
+      "editoriallyCertified": false
+    },
+    {
+      "adventureId": "mask-of-the-pirate-queen",
+      "file": "mask of the pirate queen.pdf",
+      "sha256": "1eed9b0e63602b067f7f4004447bee9cf9717d76e40ede5b31adc0c8aa71428a",
+      "pdfPages": 98,
+      "sourceHeadings": [
+        {
+          "heading": "Episode I: Search on Saleucami",
+          "present": true
+        },
+        {
+          "heading": "Episode II: Going to Ground",
+          "present": true
+        },
+        {
+          "heading": "Episode III: Prepare for Boarders",
+          "present": true
+        }
+      ],
+      "sourceHeadingsFound": true,
+      "codeNodes": 23,
+      "editoriallyCertified": false
+    }
+  ]
+}

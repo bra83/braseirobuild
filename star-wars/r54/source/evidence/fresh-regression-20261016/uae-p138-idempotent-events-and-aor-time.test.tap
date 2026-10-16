@@ -1,0 +1,27 @@
+✔ P138 under-black-sun: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas (52.6697ms)
+✔ P138 beyond-the-rim: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas (57.5983ms)
+✔ P138 long-arm-of-the-hutt: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas (44.9573ms)
+✔ P138 jewel-of-yavin: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas (12.1823ms)
+✔ P138 mask-of-the-pirate-queen: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas (55.7883ms)
+✔ P138 idempotência: chave inválida ou comando divergente nunca altera checkpoint (71.6971ms)
+✔ P138 idempotência: checkpoint com duplicata ou chave malformada é rejeitado (79.1588ms)
+✔ P138 idempotência: trigger quebrado reverte chave e permite retry corrigido (8.6949ms)
+✔ P138 AoR cobertura real aumenta de 205 para 211 posições sem marcar outras como implementadas (88.1611ms)
+✔ P138 INVESTIGADOR: compra na árvore oficial, PE, ranking e persistência (155.4219ms)
+✔ P138 RASTREADOR EXPERTO: compra na árvore oficial, PE, ranking e persistência (60.4856ms)
+✔ P138 APTITUD TECNOLÓGICA: compra na árvore oficial, PE, ranking e persistência (6.7323ms)
+✔ P138 Investigador: somente perícias de conhecimento, remoção por nível e pesquisa em metade do tempo (105.8332ms)
+✔ P138 Rastreador: apenas Sobrevivência com contexto de rastreamento; nunca altera teste genérico (9.3988ms)
+✔ P138 Aptidão tecnológica: computadores 25% por nível, sem alterar outros testes (27.4232ms)
+✔ P138 duração inválida rejeitada antes de rolagem e commit do controlador (9.8669ms)
+✔ P138 tempo e contratempos somam níveis de Investigador e Rastreador sem duplicar metade do tempo (37.7425ms)
+✔ P138 Android oferece pesquisa, rastreamento e computadores somente a personagens com talentos AoR (96.4287ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4719.7125
+

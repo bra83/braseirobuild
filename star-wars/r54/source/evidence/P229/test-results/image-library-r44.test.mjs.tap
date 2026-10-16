@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: R44 manifest V3.7 baseline remains preserved after later visual promotions
+ok 1 - R44 manifest V3.7 baseline remains preserved after later visual promotions
+  ---
+  duration_ms: 1.114013
+  type: 'test'
+  ...
+# Subtest: R44 wave5 indexes exactly Skekfish and Nerf
+ok 2 - R44 wave5 indexes exactly Skekfish and Nerf
+  ---
+  duration_ms: 1.159722
+  type: 'test'
+  ...
+# Subtest: R44 direct media provenance is recorded without filename invention
+ok 3 - R44 direct media provenance is recorded without filename invention
+  ---
+  duration_ms: 0.319082
+  type: 'test'
+  ...
+# Subtest: R44 URLs obey secure raw Kainrath cache policy
+ok 4 - R44 URLs obey secure raw Kainrath cache policy
+  ---
+  duration_ms: 0.650302
+  type: 'test'
+  ...
+# Subtest: R44 beasts remain visual-only and mechanically unbound
+ok 5 - R44 beasts remain visual-only and mechanically unbound
+  ---
+  duration_ms: 0.173612
+  type: 'test'
+  ...
+# Subtest: R44 bridge exposes 17 creatures while preserving vehicles, droids and maps
+ok 6 - R44 bridge exposes 17 creatures while preserving vehicles, droids and maps
+  ---
+  duration_ms: 27.011916
+  type: 'test'
+  ...
+# Subtest: R44 direct-recovery beasts are searchable by id and title
+ok 7 - R44 direct-recovery beasts are searchable by id and title
+  ---
+  duration_ms: 2.788061
+  type: 'test'
+  ...
+# Subtest: R44 preserves R43 recovery set and older visual waves
+ok 8 - R44 preserves R43 recovery set and older visual waves
+  ---
+  duration_ms: 0.43708
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 293.085102

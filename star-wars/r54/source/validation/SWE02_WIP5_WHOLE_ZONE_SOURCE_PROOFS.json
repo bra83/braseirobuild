@@ -1,0 +1,41 @@
+{
+  "status": "WIP_NOT_EDITORIALLY_CERTIFIED",
+  "source": "SWE02 official free PDF, printed pp.42-45",
+  "family": "palace multi-zone source-authored operations",
+  "sharedExecutor": "app/src/main/assets/vtt/js/adventure/swe02PalaceOperations.mjs",
+  "locations": [
+    "palace-front-gate",
+    "palace-reception",
+    "palace-grand-hallway",
+    "palace-gladiator-cells",
+    "palace-workshop",
+    "palace-kitchen",
+    "palace-cantina-bar",
+    "palace-landing-pad",
+    "palace-spy-interview",
+    "palace-communications"
+  ],
+  "newOperations": 14,
+  "properties": [
+    "scene locked",
+    "source page in receipt",
+    "atomic controller commit",
+    "duplicate rejected",
+    "three save/reopen cycles",
+    "no invented money or weapons",
+    "safe refusal of unsupported attacks"
+  ],
+  "verifiedExecution": {
+    "files": 376,
+    "pass": 3393,
+    "fail": 0,
+    "skip": 0,
+    "stress": 6
+  },
+  "nonCertifications": [
+    "full combat cover +2 setback not hooked to attack targeting",
+    "explosion behind bar cannot fire without stun grenade executor",
+    "landing laser cannon vehicle rules still pending",
+    "not a completed SWE02 adventure"
+  ]
+}

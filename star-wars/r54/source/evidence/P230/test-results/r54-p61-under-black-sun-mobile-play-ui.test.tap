@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: P61: sessão renderiza tracker público com objetivo, investigação e pressão
+ok 1 - P61: sessão renderiza tracker público com objetivo, investigação e pressão
+  ---
+  duration_ms: 1.307609
+  type: 'test'
+  ...
+# Subtest: P61: superfície de sessão usa tracker anti-spoiler em vez de flags internas
+ok 2 - P61: superfície de sessão usa tracker anti-spoiler em vez de flags internas
+  ---
+  duration_ms: 0.288276
+  type: 'test'
+  ...
+# Subtest: P61: ações essenciais aparecem antes dos detalhes secundários
+ok 3 - P61: ações essenciais aparecem antes dos detalhes secundários
+  ---
+  duration_ms: 0.434929
+  type: 'test'
+  ...
+# Subtest: P61: layout 415x915 mantém alvos touch grandes e tracker compacto
+ok 4 - P61: layout 415x915 mantém alvos touch grandes e tracker compacto
+  ---
+  duration_ms: 0.25111
+  type: 'test'
+  ...
+# Subtest: P61: tracker pós-investigação continua sem revelar rota futura
+ok 5 - P61: tracker pós-investigação continua sem revelar rota futura
+  ---
+  duration_ms: 16.864072
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 109.891651
+

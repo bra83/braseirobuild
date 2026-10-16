@@ -1,0 +1,6 @@
+{
+  "ok": true,
+  "entry": "js/core/uiBridge.mjs",
+  "output": "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+  "modules": 83
+}

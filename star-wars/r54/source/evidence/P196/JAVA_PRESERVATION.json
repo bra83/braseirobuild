@@ -1,0 +1,39 @@
+{
+  "baseline": "P195",
+  "count": 8,
+  "identicalCount": 8,
+  "files": [
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/ExternalImageShareState.java",
+      "byteIdentical": true
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/FileBridge.java",
+      "byteIdentical": true
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java",
+      "byteIdentical": true
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java",
+      "byteIdentical": true
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/MainActivity.java",
+      "byteIdentical": true
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/NpcTokenBridge.java",
+      "byteIdentical": true
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java",
+      "byteIdentical": true
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/starwarsedge/TtsChunker.java",
+      "byteIdentical": true
+    }
+  ]
+}

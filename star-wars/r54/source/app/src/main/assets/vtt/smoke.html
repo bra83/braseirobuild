@@ -1,0 +1,15 @@
+<!doctype html><meta charset="utf-8"><body>RUNNING<script type="module">
+import { createCampaign } from './js/core/state.mjs';
+import { LocalStorageRepository } from './js/core/storage.mjs';
+const key='braseiro.smoke.persistence.v1'; const phase='braseiro.smoke.phase';
+const repo=new LocalStorageRepository(localStorage,key);
+if (!localStorage.getItem(phase)) {
+  const s=createCampaign('Smoke Persistência'); repo.save(s); localStorage.setItem(phase,s.campaignId); location.reload();
+} else {
+  const expected=localStorage.getItem(phase); const loaded=repo.load();
+  const ok=loaded?.campaignId===expected && loaded?.name==='Smoke Persistência';
+  document.body.textContent=ok?'BROWSER_SMOKE_PASS':'BROWSER_SMOKE_FAIL';
+  document.body.dataset.result=ok?'PASS':'FAIL';
+  repo.clear(); localStorage.removeItem(phase);
+}
+</script></body>

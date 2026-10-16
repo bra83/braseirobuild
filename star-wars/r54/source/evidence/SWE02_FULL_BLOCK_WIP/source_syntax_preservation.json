@@ -1,0 +1,14 @@
+{
+  "base": "P244",
+  "status": "PASS",
+  "counts": {
+    "mjs": 563,
+    "js_runtime": 0,
+    "json": 22,
+    "xml": 2,
+    "java": 8
+  },
+  "failures": [],
+  "apk_built": false,
+  "android_device_tested": false
+}

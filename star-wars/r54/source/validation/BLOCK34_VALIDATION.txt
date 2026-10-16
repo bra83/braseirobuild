@@ -1,0 +1,30 @@
+STAR WARS EDGE OF THE GALAXY — BLOCK34 VALIDATION
+UTC: 2026-09-14
+BASE: BLOCK33_FULL_REGRESSION_673_GREEN
+STATUS: BLOCK34_SANDBOX_ECONOMY_FULL_GREEN
+
+Focused R34:
+- economy-r34 + documentation + Gradle/source gates: PASS
+- R34 economy focused suite: 26/26 PASS
+
+Full verifier:
+- Node: 703/703 PASS, 0 fail
+- Stress: 6/6 PASS (includes 33-session suites)
+- JS/ESM syntax: 65 PASS
+- Java syntax/declaration gate: 5 PASS (Android symbols unresolved as expected without SDK)
+- JSON parse: 25 PASS
+- XML parse: 2 PASS
+- secrets: 0
+- APK/AAB: 0
+- Gradle Wrapper: PASS
+- Barbara bundle: 56 modules
+- RAG/matrix: 49 TESTADO
+
+Recovery integrity:
+- CORRIGIDO ZIP SHA256: 38bb5e5f6e1ae19d63033bd69a328506cd81ebc90d1b43d2d12700aea99113a2
+- baseline ZIP used only as structural copy-if-missing; later revisions overlaid
+- R46 415x915 frozen; source Templates restored to EotE/Obligation
+- no intermediate ZIP/APK/AAB generated
+
+External gate:
+- Android SDK/ADB/sdkmanager: BLOCKED_EXTERNAL

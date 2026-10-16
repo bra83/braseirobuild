@@ -1,0 +1,202 @@
+TAP version 13
+# Subtest: P60: tracker público começa em PT-BR sem spoiler futuro
+ok 1 - P60: tracker público começa em PT-BR sem spoiler futuro
+  ---
+  duration_ms: 9.376325
+  type: 'test'
+  ...
+# Subtest: P60: tracker acompanha investigação e gating sem revelar conteúdo não visitado
+ok 2 - P60: tracker acompanha investigação e gating sem revelar conteúdo não visitado
+  ---
+  duration_ms: 8.814513
+  type: 'test'
+  ...
+# Subtest: P60: tracker persiste após serialização e não altera flags de regras
+ok 3 - P60: tracker persiste após serialização e não altera flags de regras
+  ---
+  duration_ms: 1.930253
+  type: 'test'
+  ...
+# Subtest: P61: sessão renderiza tracker público com objetivo, investigação e pressão
+ok 4 - P61: sessão renderiza tracker público com objetivo, investigação e pressão
+  ---
+  duration_ms: 2.136508
+  type: 'test'
+  ...
+# Subtest: P61: superfície de sessão usa tracker anti-spoiler em vez de flags internas
+ok 5 - P61: superfície de sessão usa tracker anti-spoiler em vez de flags internas
+  ---
+  duration_ms: 0.808087
+  type: 'test'
+  ...
+# Subtest: P61: ações essenciais aparecem antes dos detalhes secundários
+ok 6 - P61: ações essenciais aparecem antes dos detalhes secundários
+  ---
+  duration_ms: 6.07512
+  type: 'test'
+  ...
+# Subtest: P61: layout 415x915 mantém alvos touch grandes e tracker compacto
+ok 7 - P61: layout 415x915 mantém alvos touch grandes e tracker compacto
+  ---
+  duration_ms: 0.48778
+  type: 'test'
+  ...
+# Subtest: P61: tracker pós-investigação continua sem revelar rota futura
+ok 8 - P61: tracker pós-investigação continua sem revelar rota futura
+  ---
+  duration_ms: 23.245415
+  type: 'test'
+  ...
+# Subtest: P62: encontro inexistente não pode contaminar o estado persistente
+ok 9 - P62: encontro inexistente não pode contaminar o estado persistente
+  ---
+  duration_ms: 12.556282
+  type: 'test'
+  ...
+# Subtest: P62: resultado de encontro de outra cena é rejeitado
+ok 10 - P62: resultado de encontro de outra cena é rejeitado
+  ---
+  duration_ms: 1.455259
+  type: 'test'
+  ...
+# Subtest: P62: confronto final válido ainda persiste e libera desfecho
+ok 11 - P62: confronto final válido ainda persiste e libera desfecho
+  ---
+  duration_ms: 14.355051
+  type: 'test'
+  ...
+# Subtest: P62: encontro já resolvido não pode ser reaberto e duplicado
+ok 12 - P62: encontro já resolvido não pode ser reaberto e duplicado
+  ---
+  duration_ms: 8.575487
+  type: 'test'
+  ...
+# Subtest: P63: save/reopen preserva encontro publicado ativo e impede avanço de cena concorrente
+ok 13 - P63: save/reopen preserva encontro publicado ativo e impede avanço de cena concorrente
+  ---
+  duration_ms: 845.624119
+  type: 'test'
+  ...
+# Subtest: P63: finishCombat valida contexto antes de salvar e não deixa estado parcial em divergência
+ok 14 - P63: finishCombat valida contexto antes de salvar e não deixa estado parcial em divergência
+  ---
+  duration_ms: 717.535512
+  type: 'test'
+  ...
+# Subtest: P63: combate retomado após reopen conclui uma vez, recompensa uma vez e transita ao mundo livre sem perder MIXED/Duty/Obligation
+ok 15 - P63: combate retomado após reopen conclui uma vez, recompensa uma vez e transita ao mundo livre sem perder MIXED/Duty/Obligation
+  ---
+  duration_ms: 846.690199
+  type: 'test'
+  ...
+# Subtest: P64 completion reports completed and persists aftermath without spoilers before completion
+ok 16 - P64 completion reports completed and persists aftermath without spoilers before completion
+  ---
+  duration_ms: 19.294912
+  type: 'test'
+  ...
+# Subtest: P64 aftermath application is idempotent
+ok 17 - P64 aftermath application is idempotent
+  ---
+  duration_ms: 7.365531
+  type: 'test'
+  ...
+# Subtest: P65: ações genéricas da UI seguem a aventura ativa em vez de cair em Sob um Sol Negro
+ok 18 - P65: ações genéricas da UI seguem a aventura ativa em vez de cair em Sob um Sol Negro
+  ---
+  duration_ms: 521.069598
+  type: 'test'
+  ...
+# Subtest: P65: save/reopen preserva Além da Orla, MIXED, Duty e Obligation
+ok 19 - P65: save/reopen preserva Além da Orla, MIXED, Duty e Obligation
+  ---
+  duration_ms: 297.910855
+  type: 'test'
+  ...
+# Subtest: P65: conclusão/reopen/continuação genérica arquiva Além da Orla sem recompensas indevidas
+ok 20 - P65: conclusão/reopen/continuação genérica arquiva Além da Orla sem recompensas indevidas
+  ---
+  duration_ms: 542.762572
+  type: 'test'
+  ...
+# Subtest: P66: epílogo permanece oculto enquanto Além da Orla está ativa
+ok 21 - P66: epílogo permanece oculto enquanto Além da Orla está ativa
+  ---
+  duration_ms: 15.003477
+  type: 'test'
+  ...
+# Subtest: P66: conclusão revela apenas consequências conquistadas em PT-BR
+ok 22 - P66: conclusão revela apenas consequências conquistadas em PT-BR
+  ---
+  duration_ms: 6.866178
+  type: 'test'
+  ...
+# Subtest: P66: epílogo não inventa rivalidade ou perseguição imperial não conquistadas
+ok 23 - P66: epílogo não inventa rivalidade ou perseguição imperial não conquistadas
+  ---
+  duration_ms: 1.429382
+  type: 'test'
+  ...
+# Subtest: P67: painel visual consome epílogo público sem acessar flags internas
+ok 24 - P67: painel visual consome epílogo público sem acessar flags internas
+  ---
+  duration_ms: 2.278309
+  type: 'test'
+  ...
+# Subtest: P67: aventura ativa não fornece linhas de epílogo para a UI
+ok 25 - P67: aventura ativa não fornece linhas de epílogo para a UI
+  ---
+  duration_ms: 10.940695
+  type: 'test'
+  ...
+# Subtest: P67: UI recebe somente resumos públicos em PT-BR depois da conclusão
+ok 26 - P67: UI recebe somente resumos públicos em PT-BR depois da conclusão
+  ---
+  duration_ms: 5.379864
+  type: 'test'
+  ...
+# Subtest: P68: Além da Orla expõe tracker próprio sem semântica de Sob um Sol Negro
+ok 27 - P68: Além da Orla expõe tracker próprio sem semântica de Sob um Sol Negro
+  ---
+  duration_ms: 12.194582
+  type: 'test'
+  ...
+# Subtest: P68: tracker acompanha episódios e conclusão sem spoiler futuro
+ok 28 - P68: tracker acompanha episódios e conclusão sem spoiler futuro
+  ---
+  duration_ms: 5.178112
+  type: 'test'
+  ...
+# Subtest: P68: runtime possui renderização dedicada 415-friendly para tracker de Além da Orla
+ok 29 - P68: runtime possui renderização dedicada 415-friendly para tracker de Além da Orla
+  ---
+  duration_ms: 0.325192
+  type: 'test'
+  ...
+# Subtest: P69: tracker publica somente caminho já percorrido
+ok 30 - P69: tracker publica somente caminho já percorrido
+  ---
+  duration_ms: 25.253762
+  type: 'test'
+  ...
+# Subtest: P69: histórico é limitado para não estourar mobile
+ok 31 - P69: histórico é limitado para não estourar mobile
+  ---
+  duration_ms: 2.127334
+  type: 'test'
+  ...
+# Subtest: P69: runtime renderiza trilha compacta e rotulada
+ok 32 - P69: runtime renderiza trilha compacta e rotulada
+  ---
+  duration_ms: 0.720681
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3249.737587

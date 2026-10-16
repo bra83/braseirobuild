@@ -1,0 +1,203 @@
+TAP version 13
+# Subtest: P148 under-black-sun: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+ok 1 - P148 under-black-sun: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+  ---
+  duration_ms: 4.22108
+  type: 'test'
+  ...
+# Subtest: P148 under-black-sun: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+ok 2 - P148 under-black-sun: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+  ---
+  duration_ms: 2.282914
+  type: 'test'
+  ...
+# Subtest: P148 under-black-sun: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+ok 3 - P148 under-black-sun: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+  ---
+  duration_ms: 13.208104
+  type: 'test'
+  ...
+# Subtest: P148 under-black-sun: transação manual com cascata cíclica também reverte
+ok 4 - P148 under-black-sun: transação manual com cascata cíclica também reverte
+  ---
+  duration_ms: 1.751781
+  type: 'test'
+  ...
+# Subtest: P148 under-black-sun: callback async/thenable não pode contornar rollback
+ok 5 - P148 under-black-sun: callback async/thenable não pode contornar rollback
+  ---
+  duration_ms: 0.847779
+  type: 'test'
+  ...
+# Subtest: P148 under-black-sun: comando publicado Android salva, reabre e não reaplica no mesmo ID
+ok 6 - P148 under-black-sun: comando publicado Android salva, reabre e não reaplica no mesmo ID
+  ---
+  duration_ms: 76.313824
+  type: 'test'
+  ...
+# Subtest: P148 beyond-the-rim: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+ok 7 - P148 beyond-the-rim: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+  ---
+  duration_ms: 1.141041
+  type: 'test'
+  ...
+# Subtest: P148 beyond-the-rim: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+ok 8 - P148 beyond-the-rim: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+  ---
+  duration_ms: 2.32757
+  type: 'test'
+  ...
+# Subtest: P148 beyond-the-rim: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+ok 9 - P148 beyond-the-rim: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+  ---
+  duration_ms: 6.064367
+  type: 'test'
+  ...
+# Subtest: P148 beyond-the-rim: transação manual com cascata cíclica também reverte
+ok 10 - P148 beyond-the-rim: transação manual com cascata cíclica também reverte
+  ---
+  duration_ms: 1.548192
+  type: 'test'
+  ...
+# Subtest: P148 beyond-the-rim: callback async/thenable não pode contornar rollback
+ok 11 - P148 beyond-the-rim: callback async/thenable não pode contornar rollback
+  ---
+  duration_ms: 10.538865
+  type: 'test'
+  ...
+# Subtest: P148 beyond-the-rim: comando publicado Android salva, reabre e não reaplica no mesmo ID
+ok 12 - P148 beyond-the-rim: comando publicado Android salva, reabre e não reaplica no mesmo ID
+  ---
+  duration_ms: 55.866037
+  type: 'test'
+  ...
+# Subtest: P148 long-arm-of-the-hutt: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+ok 13 - P148 long-arm-of-the-hutt: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+  ---
+  duration_ms: 0.555259
+  type: 'test'
+  ...
+# Subtest: P148 long-arm-of-the-hutt: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+ok 14 - P148 long-arm-of-the-hutt: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+  ---
+  duration_ms: 1.905999
+  type: 'test'
+  ...
+# Subtest: P148 long-arm-of-the-hutt: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+ok 15 - P148 long-arm-of-the-hutt: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+  ---
+  duration_ms: 16.364034
+  type: 'test'
+  ...
+# Subtest: P148 long-arm-of-the-hutt: transação manual com cascata cíclica também reverte
+ok 16 - P148 long-arm-of-the-hutt: transação manual com cascata cíclica também reverte
+  ---
+  duration_ms: 1.090026
+  type: 'test'
+  ...
+# Subtest: P148 long-arm-of-the-hutt: callback async/thenable não pode contornar rollback
+ok 17 - P148 long-arm-of-the-hutt: callback async/thenable não pode contornar rollback
+  ---
+  duration_ms: 0.803894
+  type: 'test'
+  ...
+# Subtest: P148 long-arm-of-the-hutt: comando publicado Android salva, reabre e não reaplica no mesmo ID
+ok 18 - P148 long-arm-of-the-hutt: comando publicado Android salva, reabre e não reaplica no mesmo ID
+  ---
+  duration_ms: 39.341378
+  type: 'test'
+  ...
+# Subtest: P148 jewel-of-yavin: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+ok 19 - P148 jewel-of-yavin: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+  ---
+  duration_ms: 0.378578
+  type: 'test'
+  ...
+# Subtest: P148 jewel-of-yavin: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+ok 20 - P148 jewel-of-yavin: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+  ---
+  duration_ms: 0.747271
+  type: 'test'
+  ...
+# Subtest: P148 jewel-of-yavin: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+ok 21 - P148 jewel-of-yavin: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+  ---
+  duration_ms: 2.712016
+  type: 'test'
+  ...
+# Subtest: P148 jewel-of-yavin: transação manual com cascata cíclica também reverte
+ok 22 - P148 jewel-of-yavin: transação manual com cascata cíclica também reverte
+  ---
+  duration_ms: 0.852727
+  type: 'test'
+  ...
+# Subtest: P148 jewel-of-yavin: callback async/thenable não pode contornar rollback
+ok 23 - P148 jewel-of-yavin: callback async/thenable não pode contornar rollback
+  ---
+  duration_ms: 0.4413
+  type: 'test'
+  ...
+# Subtest: P148 jewel-of-yavin: comando publicado Android salva, reabre e não reaplica no mesmo ID
+ok 24 - P148 jewel-of-yavin: comando publicado Android salva, reabre e não reaplica no mesmo ID
+  ---
+  duration_ms: 27.978683
+  type: 'test'
+  ...
+# Subtest: P148 mask-of-the-pirate-queen: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+ok 25 - P148 mask-of-the-pirate-queen: preflight semântico de todas as cenas, condições, objetivos e gatilhos
+  ---
+  duration_ms: 0.994936
+  type: 'test'
+  ...
+# Subtest: P148 mask-of-the-pirate-queen: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+ok 26 - P148 mask-of-the-pirate-queen: condição desconhecida, destino inválido e objetivo órfão rejeitados antes da execução
+  ---
+  duration_ms: 1.424309
+  type: 'test'
+  ...
+# Subtest: P148 mask-of-the-pirate-queen: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+ok 27 - P148 mask-of-the-pirate-queen: cascata cíclica não confirma meia ação, nem recibo ou recompensa
+  ---
+  duration_ms: 3.613039
+  type: 'test'
+  ...
+# Subtest: P148 mask-of-the-pirate-queen: transação manual com cascata cíclica também reverte
+ok 28 - P148 mask-of-the-pirate-queen: transação manual com cascata cíclica também reverte
+  ---
+  duration_ms: 1.223653
+  type: 'test'
+  ...
+# Subtest: P148 mask-of-the-pirate-queen: callback async/thenable não pode contornar rollback
+ok 29 - P148 mask-of-the-pirate-queen: callback async/thenable não pode contornar rollback
+  ---
+  duration_ms: 0.510353
+  type: 'test'
+  ...
+# Subtest: P148 mask-of-the-pirate-queen: comando publicado Android salva, reabre e não reaplica no mesmo ID
+ok 30 - P148 mask-of-the-pirate-queen: comando publicado Android salva, reabre e não reaplica no mesmo ID
+  ---
+  duration_ms: 32.193253
+  type: 'test'
+  ...
+# Subtest: P148: standalone legacy dispatch preserves the explicit cascade cap audit event
+ok 31 - P148: standalone legacy dispatch preserves the explicit cascade cap audit event
+  ---
+  duration_ms: 1.591194
+  type: 'test'
+  ...
+# Subtest: P148: unknown semantic condition fails closed rather than opening a branch
+ok 32 - P148: unknown semantic condition fails closed rather than opening a branch
+  ---
+  duration_ms: 0.742424
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 556.841632
+

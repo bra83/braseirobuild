@@ -1,0 +1,130 @@
+TAP version 13
+# Subtest: P175 AoR command source purchase activation and no display-only privilege
+ok 1 - P175 AoR command source purchase activation and no display-only privilege
+  ---
+  duration_ms: 118.824435
+  type: 'test'
+  ...
+# Subtest: P175 Field Commander success: real Leadership check, ally strain, free maneuver, real cover setback
+ok 2 - P175 Field Commander success: real Leadership check, ally strain, free maneuver, real cover setback
+  ---
+  duration_ms: 148.633467
+  type: 'test'
+  ...
+# Subtest: P175 Field Commander: no invented free action without Improved and Triumph
+ok 3 - P175 Field Commander: no invented free action without Improved and Triumph
+  ---
+  duration_ms: 44.680615
+  type: 'test'
+  ...
+# Subtest: P175 Master Leader spends 2 strain and reduces only Leadership, once per round
+ok 4 - P175 Master Leader spends 2 strain and reduces only Leadership, once per round
+  ---
+  duration_ms: 106.801734
+  type: 'test'
+  ...
+# Subtest: P175 Coordinated Assault: maneuver grants one automatic Advantage to engaged companion combat check
+ok 5 - P175 Coordinated Assault: maneuver grants one automatic Advantage to engaged companion combat check
+  ---
+  duration_ms: 90.65077
+  type: 'test'
+  ...
+# Subtest: P175 command transaction rollback on storage failure
+ok 6 - P175 command transaction rollback on storage failure
+  ---
+  duration_ms: 72.958943
+  type: 'test'
+  ...
+# Subtest: P175 rejects tampered command history and unearned tokens after restore
+ok 7 - P175 rejects tampered command history and unearned tokens after restore
+  ---
+  duration_ms: 55.761318
+  type: 'test'
+  ...
+# Subtest: P175 Android bridge has real command actions and restore path
+ok 8 - P175 Android bridge has real command actions and restore path
+  ---
+  duration_ms: 97.770036
+  type: 'test'
+  ...
+# Subtest: P175 under-black-sun: command action and three saves preserve published UAE
+ok 9 - P175 under-black-sun: command action and three saves preserve published UAE
+  ---
+  duration_ms: 301.630164
+  type: 'test'
+  ...
+# Subtest: P175 beyond-the-rim: command action and three saves preserve published UAE
+ok 10 - P175 beyond-the-rim: command action and three saves preserve published UAE
+  ---
+  duration_ms: 231.282568
+  type: 'test'
+  ...
+# Subtest: P175 long-arm-of-the-hutt: command action and three saves preserve published UAE
+ok 11 - P175 long-arm-of-the-hutt: command action and three saves preserve published UAE
+  ---
+  duration_ms: 152.092267
+  type: 'test'
+  ...
+# Subtest: P175 jewel-of-yavin: command action and three saves preserve published UAE
+ok 12 - P175 jewel-of-yavin: command action and three saves preserve published UAE
+  ---
+  duration_ms: 174.993277
+  type: 'test'
+  ...
+# Subtest: P175 mask-of-the-pirate-queen: command action and three saves preserve published UAE
+ok 13 - P175 mask-of-the-pirate-queen: command action and three saves preserve published UAE
+  ---
+  duration_ms: 141.476608
+  type: 'test'
+  ...
+# Subtest: P175 Brilliant Evasion: real opposed Piloting, once per encounter, enemy fire blocked for Agility rounds
+ok 14 - P175 Brilliant Evasion: real opposed Piloting, once per encounter, enemy fire blocked for Agility rounds
+  ---
+  duration_ms: 278.414769
+  type: 'test'
+  ...
+# Subtest: P175 Brilliant Evasion: failure consumes action/attempt and save failure rolls back
+ok 15 - P175 Brilliant Evasion: failure consumes action/attempt and save failure rolls back
+  ---
+  duration_ms: 97.909095
+  type: 'test'
+  ...
+# Subtest: P175 Situational Awareness: real allied Perception/Vigilance Boost near owned vehicle only
+ok 16 - P175 Situational Awareness: real allied Perception/Vigilance Boost near owned vehicle only
+  ---
+  duration_ms: 90.49266
+  type: 'test'
+  ...
+# Subtest: P175 Clever Solution: one Cunning-based skill check per session, no display-only unlock, three restores
+ok 17 - P175 Clever Solution: one Cunning-based skill check per session, no display-only unlock, three restores
+  ---
+  duration_ms: 67.534018
+  type: 'test'
+  ...
+# Subtest: P175 no free Triumph reroll: failed Triumph spend still consumes Leadership action
+ok 18 - P175 no free Triumph reroll: failed Triumph spend still consumes Leadership action
+  ---
+  duration_ms: 34.001129
+  type: 'test'
+  ...
+# Subtest: P175 Brilliant Evasion: forged duration, foreign target, missing attempt rejected
+ok 19 - P175 Brilliant Evasion: forged duration, foreign target, missing attempt rejected
+  ---
+  duration_ms: 94.903129
+  type: 'test'
+  ...
+# Subtest: P175 offline Android bridge and PT-BR UI expose command, evasion and Cunning actions
+ok 20 - P175 offline Android bridge and PT-BR UI expose command, evasion and Cunning actions
+  ---
+  duration_ms: 190.559371
+  type: 'test'
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4292.709834

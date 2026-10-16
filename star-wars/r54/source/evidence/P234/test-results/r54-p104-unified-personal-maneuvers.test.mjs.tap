@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: P104: Mirar e Cobertura usam o mesmo custo de manobra sob carga grave
+ok 1 - P104: Mirar e Cobertura usam o mesmo custo de manobra sob carga grave
+  ---
+  duration_ms: 64.346518
+  type: 'test'
+  ...
+# Subtest: P104: Postura Defensiva e Levantar-se usam o mesmo custo sob carga grave
+ok 2 - P104: Postura Defensiva e Levantar-se usam o mesmo custo sob carga grave
+  ---
+  duration_ms: 19.895484
+  type: 'test'
+  ...
+# Subtest: P104: sacar/trocar, Preparação e recarga usam o mesmo custo sob carga grave
+ok 3 - P104: sacar/trocar, Preparação e recarga usam o mesmo custo sob carga grave
+  ---
+  duration_ms: 21.088486
+  type: 'test'
+  ...
+# Subtest: P104: Stimpack em combate também respeita carga grave e orçamento de manobra
+ok 4 - P104: Stimpack em combate também respeita carga grave e orçamento de manobra
+  ---
+  duration_ms: 21.533123
+  type: 'test'
+  ...
+# Subtest: P104: trocar a ação paga a primeira manobra quando a carga remove a gratuita
+ok 5 - P104: trocar a ação paga a primeira manobra quando a carga remove a gratuita
+  ---
+  duration_ms: 4.432301
+  type: 'test'
+  ...
+# Subtest: P104: Ferimento Crítico sem manobra gratuita usa o mesmo resolvedor e pode ser pago com ação
+ok 6 - P104: Ferimento Crítico sem manobra gratuita usa o mesmo resolvedor e pode ser pago com ação
+  ---
+  duration_ms: 9.014305
+  type: 'test'
+  ...
+# Subtest: P104: controller não mantém caminhos paralelos de spendManeuver fora do resolvedor unificado
+ok 7 - P104: controller não mantém caminhos paralelos de spendManeuver fora do resolvedor unificado
+  ---
+  duration_ms: 15.973262
+  type: 'test'
+  ...
+# Subtest: P104: R46 propaga a escolha de pagamento para Mirar, Stimpack, Preparação e Recarga
+ok 8 - P104: R46 propaga a escolha de pagamento para Mirar, Stimpack, Preparação e Recarga
+  ---
+  duration_ms: 7.260745
+  type: 'test'
+  ...
+# Subtest: P104: Ficar caído é uma manobra real, persistente e usa o orçamento unificado
+ok 9 - P104: Ficar caído é uma manobra real, persistente e usa o orçamento unificado
+  ---
+  duration_ms: 8.764204
+  type: 'test'
+  ...
+# Subtest: P104: Mirar específico aplica 2 Setbacks com uma mira e 1 com duas miras consecutivas
+ok 10 - P104: Mirar específico aplica 2 Setbacks com uma mira e 1 com duas miras consecutivas
+  ---
+  duration_ms: 26.529278
+  type: 'test'
+  ...
+# Subtest: P104: qualquer outra manobra ou ação cancela Mirar antes do próximo ataque
+ok 11 - P104: qualquer outra manobra ou ação cancela Mirar antes do próximo ataque
+  ---
+  duration_ms: 30.635657
+  type: 'test'
+  ...
+# Subtest: P104: dano que ultrapassa soak cancela Mirar
+ok 12 - P104: dano que ultrapassa soak cancela Mirar
+  ---
+  duration_ms: 10.258277
+  type: 'test'
+  ...
+# Subtest: P104: bridge e R46 expõem Ficar Caído e os dois modos de Mirar
+ok 13 - P104: bridge e R46 expõem Ficar Caído e os dois modos de Mirar
+  ---
+  duration_ms: 6.960124
+  type: 'test'
+  ...
+# Subtest: P104: Médio↔Longo e Longo↔Extremo exigem duas manobras e só mudam a faixa na segunda
+ok 14 - P104: Médio↔Longo e Longo↔Extremo exigem duas manobras e só mudam a faixa na segunda
+  ---
+  duration_ms: 32.236606
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1243.260073

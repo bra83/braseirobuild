@@ -1,0 +1,15 @@
+{
+  "checkpoint": "P212",
+  "mode": "node --test per-file; regular parallel subprocesses, stress separate files; NOT monolithic",
+  "regularFiles": 331,
+  "stressFiles": 6,
+  "regularTests": 3047,
+  "regularPassed": 3047,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "totalFiles": 337,
+  "totalTests": 3053,
+  "totalPassed": 3053,
+  "focalTests": 8
+}

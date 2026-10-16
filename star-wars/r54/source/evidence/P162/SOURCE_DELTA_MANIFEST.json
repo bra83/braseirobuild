@@ -1,0 +1,36 @@
+{
+  "baseline": "P161",
+  "baselineSha256": "d98db98b1d370008601f5419059d298e1dab59cffc980237da0f7565e418ea5a",
+  "checkpoint": "P162",
+  "modified": [
+    "ESTADO_ATUAL.md",
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+    "app/src/main/assets/vtt/js/expansion/aorTalentRuntimeAliases.mjs",
+    "app/src/main/assets/vtt/js/rules/talents.mjs",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "tests/uae-p157-diplomat-commander-economy.test.mjs",
+    "tests/uae-p158-explosives-survival-five-adventures.test.mjs",
+    "tests/uae-p159-natural-rerolls-checkpoint-causality.test.mjs",
+    "tests/uae-p160-ammo-heroic-piloting-five-adventures.test.mjs",
+    "tests/uae-p161-aor-knowledge-market-boarding-steely-five-adventures.test.mjs"
+  ],
+  "added": [
+    "evidence/P162/ANDROID_BUILD.txt",
+    "evidence/P162/AOR_PENDING_73_POSITIONS.json",
+    "evidence/P162/AUDIT.json",
+    "evidence/P162/JAVA_SYNTAX.txt",
+    "evidence/P162/KOKORO_TTS_REGRESSION.txt",
+    "evidence/P162/NODE_FOCAL.txt",
+    "evidence/P162/NODE_REGULAR.txt",
+    "evidence/P162/NODE_STRESS.txt",
+    "tests/uae-p162-sound-investments-smooth-talker-five-adventures.test.mjs",
+    "tools/audit-p162-release.mjs"
+  ],
+  "removed": [],
+  "fileCount": 2203,
+  "scope": "Source ZIP; Android APK not built."
+}

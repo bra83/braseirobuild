@@ -1,0 +1,29 @@
+{
+  "base": "BRASEIRO_STAR_WARS_EDGE_R54_P163_SOURCE_CHECKPOINT.zip",
+  "baseSha256": "4bef4f090755878e6845fcead8082f269c91795fe376ff8b79334edceecdfd65",
+  "target": "R54 P164",
+  "removed": [],
+  "changed": {
+    "HANDOFF_STAR_WARS_EDGE_R54_P164_2026-10-12.md": "3469bb36bb59f6a1b5b3540c1efa757f672a334a5caf8109ed1ca05bf4c52a1b",
+    "app/build.gradle.kts": "644cafbf21c0f15f30418b8b2a49e3d5bfc92f48bb22cc3951bd91224f325e9f",
+    "app/src/main/assets/vtt/js/adventure/adventureRuntime.mjs": "5068ecd2d98c6fc15063cfa9b8404a04bba2a45fe74d4d2b6bb2c8df910e0b3a",
+    "app/src/main/assets/vtt/js/core/controller.mjs": "c79aedee39afa620caa504582e2f25b96b031bc35ba72cd9ef83450f09bcffb4",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js": "5f850f5605a0db909ba096682b42b5fa55b3b787f058458cfe6c9eae59f43fd6",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs": "d8043ea6750bb3cf2f30a5ddb22bdbd8fc0dd9c91e5cc04493095e32e86ede7a",
+    "app/src/main/assets/vtt/js/rules/fringeGroup.mjs": "ca67dd49f1a89d6e1cc310026bd08238d2a5e8c2f6c3e7b3c82a01bb6cd2d83c",
+    "app/src/main/assets/vtt/r46-shell.html": "e2516d00d7eecce30eb2900e0f2bbad140a611433727461568ba9f66dd6a01b2",
+    "app/src/main/assets/vtt/r46/final-runtime.js": "b1dd96e8c8672a56f00e585f1dbdbae11bd459dce281d27fcc1495ebe8f5ee5a",
+    "evidence/P164/ANDROID_BUILD.txt": "08bd1aa68e1de001745f72750d67687d5ad107286e834a6c44a2f4837e8a5c9d",
+    "evidence/P164/AOR_PENDING_65_POSITIONS.json": "ad5c49f7b1137373c9b0abdd3fb4e0f0a9a20a15f2781687cac9603dc8ef96fd",
+    "evidence/P164/AUDIT.json": "b97230e0737ccb4e7c319305541047d855890de6387136f63ea3f2189b0f2907",
+    "evidence/P164/BUNDLE_BUILD.txt": "c2ad64d61dad6e05de40b1280035908a7ae529382910def61483f2fe86abd0b9",
+    "evidence/P164/JAVA_SYNTAX.txt": "f6d8de2fc97ff92f95f7525bd70cfd1bf1714dff6a33e8adea30defd5b05cd07",
+    "evidence/P164/KOKORO_TTS_REGRESSION.txt": "1faeb8eae311042012547467bb4dce1a04d3002a30ce658deb139a7ba9444d1b",
+    "evidence/P164/NODE_FOCAL.txt": "db63ee377727566efc2b984a393cfc1976290f18ecb17ccb6b0386fb432da06c",
+    "evidence/P164/NODE_REGULAR.txt": "d11f93ffd304a620cca3cb30b56af058d3c41f3bd04d2d0499de433fadf99cf6",
+    "evidence/P164/NODE_STRESS.txt": "4b005fd29426ee3ccb1e841166005fae504a707fe4e6137765330214f6613394",
+    "evidence/P164/POSTBUNDLE_FOCAL.txt": "2e56b8241fddcf9f6bed69b8714bf9a7f5cbe75a98b37ce7018e2c41a9641999",
+    "tests/r54-p77-android-build-fix.test.mjs": "f39615ca6453c76731e53273d2b88d9310c36a94146e78749329e686ca49afd3",
+    "tests/uae-p164-companion-medical-integrated.test.mjs": "07d9fb726d04104cb62fe784fd55ac1ce094b5f1bb48fda742dfd582e37bed62"
+  }
+}

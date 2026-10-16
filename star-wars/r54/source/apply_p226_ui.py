@@ -1,0 +1,19 @@
+from pathlib import Path
+p=Path('app/src/main/assets/vtt/r46/final-runtime.js');t=p.read_text()
+needle=' const stormIv=status?.stormIvPatrol||null;'
+assert needle in t
+new=''' const p226Travel=status?.pursuitTravel||null;
+ const p226Visit=p226Travel?.lastVisit||null,p226Check=p226Travel?.lastCheck||null;
+ const p226TravelUi=adventureId==='jewel-of-yavin'&&status.active&&p226Visit?`<section class="final-published-action-zone"><div class="final-published-action-title">SWE09 PP.90–91 · PERSEGUIÇÃO ENTRE ENDEREÇOS</div><small>Visita física ${h(p226Visit.holdingId)} (${h(p226Visit.id)}). O teste Difícil de Engano/Furtividade/Conhecimento das Ruas é feito UMA vez por novo endereço. Falha: 1 grupo; duas Ameaças: 2; Desespero: 3. Sem rolagem retroativa ou teleporte. Diferente da patrulha de 15 minutos na residência.</small>${!p226Check?`<label>Perícia real <select data-p226-skill><option value="engano">Engano</option><option value="sigilo">Furtividade</option><option value="callejeo">Conhecimento das Ruas</option></select></label><label><input type="checkbox" data-p226-location> Mestre confirma chegada física ao endereço</label><button type="button" data-p226-roll>ROLAR TESTE DIFÍCIL DA PERSEGUIÇÃO</button>`:`<strong>Rolagem real: ${p226Check.success?'evasão bem-sucedida':`falha · ${p226Check.slots} grupo(s) possível(is)`}. Recibo ${h(p226Check.id)}.</strong>${p226Travel.nextSlot!==null?`<small>Grupo ${p226Travel.nextSlot}/${p226Check.slots}: selecione facção realmente presente, sem duplicar pessoal. Grupos são resolvidos sequencialmente, sem vitória automática.</small><label>Facção <select data-p226-faction><option value="wing_guard">Guarda Alada</option><option value="grayson_security">Segurança privada de Grayson</option><option value="arend_goons">Capangas de Arend (sem Aris automática)</option></select></label><label>Quantidade física <input type="number" min="1" max="8" value="2" data-p226-count></label><label>Alcance físico <select data-p226-range><option>Engajado</option><option>Curto</option><option selected>Médio</option><option>Longo</option><option>Extremo</option></select></label><label><input type="checkbox" data-p226-arrival> Mestre confirma chegada física</label><label><input type="checkbox" data-p226-distinct> Mestre confirma indivíduos distintos de encontros anteriores</label><label><input type="checkbox" data-p226-choice> Mestre confirma a facção escolhida</label><button type="button" data-p226-start>INICIAR COMBATE REAL DA FACÇÃO</button>`:'<small>Não há outro grupo autorizado nesta visita, ou os encontros previstos já foram registrados.</small>'}`}</section>`:'';
+'''
+t=t.replace(needle,new+needle,1)
+needle='${arendPatrolUi}${residenceWingUi}${stormIvUi}'
+assert needle in t
+t=t.replace(needle,'${arendPatrolUi}${residenceWingUi}${p226TravelUi}${stormIvUi}',1)
+needle=" p221Action('[data-p221-venture-alert]'"
+assert needle in t
+new=""" p221Action('[data-p226-roll]','resolveJewelPursuitTravelCheck',()=>({visitId:p226Visit?.id,skillKey:panel.querySelector('[data-p226-skill]')?.value,gmNewLocationConfirmed:Boolean(panel.querySelector('[data-p226-location]')?.checked)}),'Rolagem real de perseguição registrada; sem NPCs automáticos.');
+ p221Action('[data-p226-start]','beginJewelPursuitGroup',()=>({checkId:p226Check?.id,slot:p226Travel?.nextSlot,faction:panel.querySelector('[data-p226-faction]')?.value,count:Number(panel.querySelector('[data-p226-count]')?.value),range:panel.querySelector('[data-p226-range]')?.value,gmPhysicalArrivalConfirmed:Boolean(panel.querySelector('[data-p226-arrival]')?.checked),gmDistinctPersonnelConfirmed:Boolean(panel.querySelector('[data-p226-distinct]')?.checked),gmFactionChosenConfirmed:Boolean(panel.querySelector('[data-p226-choice]')?.checked)}),'Facção fisicamente confirmada: iniciativa e combate reais.');
+"""
+t=t.replace(needle,new+needle,1)
+p.write_text(t)

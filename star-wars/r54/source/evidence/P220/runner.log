@@ -1,0 +1,7 @@
+PROGRESS 50 / 345 4.7
+PROGRESS 100 / 345 7.7
+PROGRESS 150 / 345 10.7
+PROGRESS 200 / 345 13.6
+PROGRESS 250 / 345 22.7
+PROGRESS 300 / 345 32.7
+FINAL {"checkpoint": "P220", "mode": "node --test each test file separately, four nonmonolithic workers", "regularFiles": 339, "stressFiles": 6, "regularTests": 3104, "regularPassed": 3104, "stressTests": 6, "stressPassed": 6, "failedFiles": [], "totalFiles": 345, "totalTests": 3110, "totalPassed": 3110, "focalTests": 8, "elapsedSeconds": 47.0}

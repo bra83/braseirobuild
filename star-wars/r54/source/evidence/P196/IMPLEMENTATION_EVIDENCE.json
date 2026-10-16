@@ -1,0 +1,28 @@
+{
+  "checkpoint": "P196",
+  "changedModules": [
+    "app/src/main/assets/vtt/js/adventure/jewelBankingOperations.mjs",
+    "app/src/main/assets/vtt/js/adventure/jewelBankLiveDroid.mjs"
+  ],
+  "newMechanics": [
+    "G-100 Nobody’s Fool 3 real difficulty upgrades on new Charm checks",
+    "Hard Athletics/Brawl physical suppression dice with two real Boost on success"
+  ],
+  "antiFraud": [
+    "nested physical roll face and symbol replay",
+    "new versioned Charm receipt",
+    "no retroactive mutation of P195 receipts",
+    "rollback on invalid assist",
+    "three reopenings"
+  ],
+  "android": [
+    "new PT-BR Athletics/Brawl selection",
+    "source-backed Nobody’s Fool 3 UI",
+    "offline bundle regenerated"
+  ],
+  "limitations": [
+    "G-100 Cool rank not published",
+    "bolt still GM-confirmed, not inventory-backed",
+    "no APK/CI or Android device test"
+  ]
+}

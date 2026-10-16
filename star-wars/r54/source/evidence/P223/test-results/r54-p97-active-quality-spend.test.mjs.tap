@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: P97 identifica qualidades ativas source-bound sem confundir passivas
+ok 1 - P97 identifica qualidades ativas source-bound sem confundir passivas
+  ---
+  duration_ms: 8.770635
+  type: 'test'
+  ...
+# Subtest: P97 orçamento de Vantagens é único: qualidade gasta impede crítico com as mesmas Vantagens
+ok 2 - P97 orçamento de Vantagens é único: qualidade gasta impede crítico com as mesmas Vantagens
+  ---
+  duration_ms: 23.343495
+  type: 'test'
+  ...
+# Subtest: P97 Desorientação aplica Setback real ao próximo ataque do adversário e expira por turnos
+ok 3 - P97 Desorientação aplica Setback real ao próximo ataque do adversário e expira por turnos
+  ---
+  duration_ms: 7.945189
+  type: 'test'
+  ...
+# Subtest: P97 Atordoadora causa Tensão direta e rival converte em Ferimentos
+ok 4 - P97 Atordoadora causa Tensão direta e rival converte em Ferimentos
+  ---
+  duration_ms: 3.038305
+  type: 'test'
+  ...
+# Subtest: P97 Incendiária persiste e aplica dano base no início dos turnos do alvo
+ok 5 - P97 Incendiária persiste e aplica dano base no início dos turnos do alvo
+  ---
+  duration_ms: 3.746904
+  type: 'test'
+  ...
+# Subtest: P97 Hendedura/Sunder gasta 1 Vantagem por etapa e dano Moderate aumenta dificuldade da arma NPC
+ok 6 - P97 Hendedura/Sunder gasta 1 Vantagem por etapa e dano Moderate aumenta dificuldade da arma NPC
+  ---
+  duration_ms: 5.470676
+  type: 'test'
+  ...
+# Subtest: P97 Automática só aplica acerto adicional depois de gastar 2 Vantagens
+ok 7 - P97 Automática só aplica acerto adicional depois de gastar 2 Vantagens
+  ---
+  duration_ms: 4.809177
+  type: 'test'
+  ...
+# Subtest: P97 Explosão em acerto exige alvos Engajados explícitos e aplica dano só aos selecionados
+ok 8 - P97 Explosão em acerto exige alvos Engajados explícitos e aplica dano só aos selecionados
+  ---
+  duration_ms: 5.120737
+  type: 'test'
+  ...
+# Subtest: P97 Explosão em ataque que errou custa 3 Vantagens e atinge o alvo original
+ok 9 - P97 Explosão em ataque que errou custa 3 Vantagens e atinge o alvo original
+  ---
+  duration_ms: 3.422064
+  type: 'test'
+  ...
+# Subtest: P97 Concussiva deixa o alvo Atordoado e ele perde a próxima ação
+ok 10 - P97 Concussiva deixa o alvo Atordoado e ele perde a próxima ação
+  ---
+  duration_ms: 3.881196
+  type: 'test'
+  ...
+# Subtest: P97 Enredante aplica immobilized pelo rating sem inventar dano
+ok 11 - P97 Enredante aplica immobilized pelo rating sem inventar dano
+  ---
+  duration_ms: 2.808158
+  type: 'test'
+  ...
+# Subtest: P97 Vinculada respeita rating e orçamento compartilhado
+ok 12 - P97 Vinculada respeita rating e orçamento compartilhado
+  ---
+  duration_ms: 4.225066
+  type: 'test'
+  ...
+# Subtest: P97 Modo atordoante é incidental persistente, muda dano para Tensão e limita alcance a Curto
+ok 13 - P97 Modo atordoante é incidental persistente, muda dano para Tensão e limita alcance a Curto
+  ---
+  duration_ms: 11.255194
+  type: 'test'
+  ...
+# Subtest: P97 bridge e R46 expõem gasto explícito de qualidades e Modo atordoante
+ok 14 - P97 bridge e R46 expõem gasto explícito de qualidades e Modo atordoante
+  ---
+  duration_ms: 30.32516
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 417.083097

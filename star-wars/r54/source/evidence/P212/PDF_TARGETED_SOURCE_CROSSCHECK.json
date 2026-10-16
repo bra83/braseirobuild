@@ -1,0 +1,22 @@
+{
+  "checkpoint": "P212",
+  "source": "The Jewel of Yavin official PDF, Google Drive id 1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "pages": "printed 93\u201394",
+  "readMethod": "Google Drive connected PDF text fetch",
+  "targetedResults": [
+    {
+      "landscape": "Coruscant",
+      "published": "Triumph: character ducks behind a flickering building, increases ranged defense by 2 until move maneuver",
+      "implementation": "coruscant_building: real Triumph spend, ranged defense 2 in NPC dice pool, cleared by real movement"
+    },
+    {
+      "landscape": "Alderaan",
+      "published": "Triumph: nerf herd provides cover; Average Stealth check as maneuver to slip away unnoticed",
+      "implementation": "alderaan_nerfs: real Triumph spend, real maneuver, Average Stealth narrative dice, GM escape pending, no automatic disappearance"
+    }
+  ],
+  "scope": "Two targeted landscape effects only; not full adventure certification",
+  "totalLandscapeEffects": 16,
+  "implementedAfterP212": 8,
+  "pending": 8
+}

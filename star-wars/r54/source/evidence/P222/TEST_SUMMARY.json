@@ -1,0 +1,15 @@
+{
+  "checkpoint": "P222",
+  "mode": "node --test each test file separately, 5 parallel workers, cached per-file TAP",
+  "regularFiles": 341,
+  "stressFiles": 6,
+  "regularTests": 3117,
+  "regularPassed": 3117,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "totalFiles": 347,
+  "totalTests": 3123,
+  "totalPassed": 3123,
+  "focalTests": 6
+}

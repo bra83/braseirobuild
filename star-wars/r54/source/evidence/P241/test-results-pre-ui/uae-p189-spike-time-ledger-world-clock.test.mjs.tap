@@ -1,0 +1,83 @@
+TAP version 13
+# Subtest: P189 ten hours are committed to the canonical world task clock, not just an adventure receipt
+ok 1 - P189 ten hours are committed to the canonical world task clock, not just an adventure receipt
+  ---
+  duration_ms: 243.063568
+  type: 'test'
+  ...
+# Subtest: P189 failed crafting still costs 300 credits and ten hours
+ok 2 - P189 failed crafting still costs 300 credits and ten hours
+  ---
+  duration_ms: 142.236528
+  type: 'test'
+  ...
+# Subtest: P189 no double charge when the action ID is repeated; atomic state and saves unchanged
+ok 3 - P189 no double charge when the action ID is repeated; atomic state and saves unchanged
+  ---
+  duration_ms: 118.53692
+  type: 'test'
+  ...
+# Subtest: P189 rejected crafting with insufficient credits leaves clock and world unchanged
+ok 4 - P189 rejected crafting with insufficient credits leaves clock and world unchanged
+  ---
+  duration_ms: 104.442187
+  type: 'test'
+  ...
+# Subtest: P189 forged or missing task ledger cannot pass adventure status validation
+ok 5 - P189 forged or missing task ledger cannot pass adventure status validation
+  ---
+  duration_ms: 194.886567
+  type: 'test'
+  ...
+# Subtest: P189 three reopenings preserve world clock, credits and spike receipt
+ok 6 - P189 three reopenings preserve world clock, credits and spike receipt
+  ---
+  duration_ms: 135.361509
+  type: 'test'
+  ...
+# Subtest: P189 legacy P188 spike receipts remain valid without retroactively charging time
+ok 7 - P189 legacy P188 spike receipts remain valid without retroactively charging time
+  ---
+  duration_ms: 157.427805
+  type: 'test'
+  ...
+# Subtest: P189 spike crafting does not incorrectly advance abstract world ticks (separate event-turn clock)
+ok 8 - P189 spike crafting does not incorrectly advance abstract world ticks (separate event-turn clock)
+  ---
+  duration_ms: 130.498607
+  type: 'test'
+  ...
+# Subtest: P189 bank retry charges thirty minutes to canonical clock after a failed first slicing
+ok 9 - P189 bank retry charges thirty minutes to canonical clock after a failed first slicing
+  ---
+  duration_ms: 287.725134
+  type: 'test'
+  ...
+# Subtest: P189 retry receipt with removed time ledger or forged time key is rejected
+ok 10 - P189 retry receipt with removed time ledger or forged time key is rejected
+  ---
+  duration_ms: 302.673513
+  type: 'test'
+  ...
+# Subtest: P189 bank retry idempotency protects clock and saves
+ok 11 - P189 bank retry idempotency protects clock and saves
+  ---
+  duration_ms: 282.530483
+  type: 'test'
+  ...
+# Subtest: P189 failed bank retries retain thirty-minute charges after three reopenings
+ok 12 - P189 failed bank retries retain thirty-minute charges after three reopenings
+  ---
+  duration_ms: 298.748345
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2878.702973
+

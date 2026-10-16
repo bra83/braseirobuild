@@ -1,0 +1,280 @@
+TAP version 13
+# Subtest: P153 under-black-sun: trigger payload drives conditional effects, objectives, clocks and consequences atomically
+ok 1 - P153 under-black-sun: trigger payload drives conditional effects, objectives, clocks and consequences atomically
+  ---
+  duration_ms: 159.164568
+  type: 'test'
+  ...
+# Subtest: P153 under-black-sun: unmatched and direct effects cannot reuse stale event context
+ok 2 - P153 under-black-sun: unmatched and direct effects cannot reuse stale event context
+  ---
+  duration_ms: 21.127685
+  type: 'test'
+  ...
+# Subtest: P153 under-black-sun: malformed event and failed transaction roll back all ledgers
+ok 3 - P153 under-black-sun: malformed event and failed transaction roll back all ledgers
+  ---
+  duration_ms: 28.756007
+  type: 'test'
+  ...
+# Subtest: P153 under-black-sun: child events cannot counterfeit parent event context
+ok 4 - P153 under-black-sun: child events cannot counterfeit parent event context
+  ---
+  duration_ms: 35.23627
+  type: 'test'
+  ...
+# Subtest: P153 beyond-the-rim: trigger payload drives conditional effects, objectives, clocks and consequences atomically
+ok 5 - P153 beyond-the-rim: trigger payload drives conditional effects, objectives, clocks and consequences atomically
+  ---
+  duration_ms: 103.872143
+  type: 'test'
+  ...
+# Subtest: P153 beyond-the-rim: unmatched and direct effects cannot reuse stale event context
+ok 6 - P153 beyond-the-rim: unmatched and direct effects cannot reuse stale event context
+  ---
+  duration_ms: 20.658281
+  type: 'test'
+  ...
+# Subtest: P153 beyond-the-rim: malformed event and failed transaction roll back all ledgers
+ok 7 - P153 beyond-the-rim: malformed event and failed transaction roll back all ledgers
+  ---
+  duration_ms: 37.738203
+  type: 'test'
+  ...
+# Subtest: P153 beyond-the-rim: child events cannot counterfeit parent event context
+ok 8 - P153 beyond-the-rim: child events cannot counterfeit parent event context
+  ---
+  duration_ms: 260.378915
+  type: 'test'
+  ...
+# Subtest: P153 long-arm-of-the-hutt: trigger payload drives conditional effects, objectives, clocks and consequences atomically
+ok 9 - P153 long-arm-of-the-hutt: trigger payload drives conditional effects, objectives, clocks and consequences atomically
+  ---
+  duration_ms: 84.925266
+  type: 'test'
+  ...
+# Subtest: P153 long-arm-of-the-hutt: unmatched and direct effects cannot reuse stale event context
+ok 10 - P153 long-arm-of-the-hutt: unmatched and direct effects cannot reuse stale event context
+  ---
+  duration_ms: 16.634551
+  type: 'test'
+  ...
+# Subtest: P153 long-arm-of-the-hutt: malformed event and failed transaction roll back all ledgers
+ok 11 - P153 long-arm-of-the-hutt: malformed event and failed transaction roll back all ledgers
+  ---
+  duration_ms: 35.770409
+  type: 'test'
+  ...
+# Subtest: P153 long-arm-of-the-hutt: child events cannot counterfeit parent event context
+ok 12 - P153 long-arm-of-the-hutt: child events cannot counterfeit parent event context
+  ---
+  duration_ms: 34.568072
+  type: 'test'
+  ...
+# Subtest: P153 jewel-of-yavin: trigger payload drives conditional effects, objectives, clocks and consequences atomically
+ok 13 - P153 jewel-of-yavin: trigger payload drives conditional effects, objectives, clocks and consequences atomically
+  ---
+  duration_ms: 30.518511
+  type: 'test'
+  ...
+# Subtest: P153 jewel-of-yavin: unmatched and direct effects cannot reuse stale event context
+ok 14 - P153 jewel-of-yavin: unmatched and direct effects cannot reuse stale event context
+  ---
+  duration_ms: 11.991474
+  type: 'test'
+  ...
+# Subtest: P153 jewel-of-yavin: malformed event and failed transaction roll back all ledgers
+ok 15 - P153 jewel-of-yavin: malformed event and failed transaction roll back all ledgers
+  ---
+  duration_ms: 6.590627
+  type: 'test'
+  ...
+# Subtest: P153 jewel-of-yavin: child events cannot counterfeit parent event context
+ok 16 - P153 jewel-of-yavin: child events cannot counterfeit parent event context
+  ---
+  duration_ms: 4.211247
+  type: 'test'
+  ...
+# Subtest: P153 mask-of-the-pirate-queen: trigger payload drives conditional effects, objectives, clocks and consequences atomically
+ok 17 - P153 mask-of-the-pirate-queen: trigger payload drives conditional effects, objectives, clocks and consequences atomically
+  ---
+  duration_ms: 61.570312
+  type: 'test'
+  ...
+# Subtest: P153 mask-of-the-pirate-queen: unmatched and direct effects cannot reuse stale event context
+ok 18 - P153 mask-of-the-pirate-queen: unmatched and direct effects cannot reuse stale event context
+  ---
+  duration_ms: 7.056802
+  type: 'test'
+  ...
+# Subtest: P153 mask-of-the-pirate-queen: malformed event and failed transaction roll back all ledgers
+ok 19 - P153 mask-of-the-pirate-queen: malformed event and failed transaction roll back all ledgers
+  ---
+  duration_ms: 19.44415
+  type: 'test'
+  ...
+# Subtest: P153 mask-of-the-pirate-queen: child events cannot counterfeit parent event context
+ok 20 - P153 mask-of-the-pirate-queen: child events cannot counterfeit parent event context
+  ---
+  duration_ms: 14.029747
+  type: 'test'
+  ...
+# Subtest: P153 under-black-sun: fresh checkpoint rejects unjournaled completed objective
+ok 21 - P153 under-black-sun: fresh checkpoint rejects unjournaled completed objective
+  ---
+  duration_ms: 5.167311
+  type: 'test'
+  ...
+# Subtest: P153 under-black-sun: fresh checkpoint rejects unjournaled consequence resolution
+ok 22 - P153 under-black-sun: fresh checkpoint rejects unjournaled consequence resolution
+  ---
+  duration_ms: 37.119416
+  type: 'test'
+  ...
+# Subtest: P153 under-black-sun: audited consequence resolution and failed objectives survive reopens
+ok 23 - P153 under-black-sun: audited consequence resolution and failed objectives survive reopens
+  ---
+  duration_ms: 11.148625
+  type: 'test'
+  ...
+# Subtest: P153 beyond-the-rim: fresh checkpoint rejects unjournaled completed objective
+ok 24 - P153 beyond-the-rim: fresh checkpoint rejects unjournaled completed objective
+  ---
+  duration_ms: 11.232059
+  type: 'test'
+  ...
+# Subtest: P153 beyond-the-rim: fresh checkpoint rejects unjournaled consequence resolution
+ok 25 - P153 beyond-the-rim: fresh checkpoint rejects unjournaled consequence resolution
+  ---
+  duration_ms: 4.980989
+  type: 'test'
+  ...
+# Subtest: P153 beyond-the-rim: audited consequence resolution and failed objectives survive reopens
+ok 26 - P153 beyond-the-rim: audited consequence resolution and failed objectives survive reopens
+  ---
+  duration_ms: 26.963903
+  type: 'test'
+  ...
+# Subtest: P153 long-arm-of-the-hutt: fresh checkpoint rejects unjournaled completed objective
+ok 27 - P153 long-arm-of-the-hutt: fresh checkpoint rejects unjournaled completed objective
+  ---
+  duration_ms: 5.210021
+  type: 'test'
+  ...
+# Subtest: P153 long-arm-of-the-hutt: fresh checkpoint rejects unjournaled consequence resolution
+ok 28 - P153 long-arm-of-the-hutt: fresh checkpoint rejects unjournaled consequence resolution
+  ---
+  duration_ms: 16.627464
+  type: 'test'
+  ...
+# Subtest: P153 long-arm-of-the-hutt: audited consequence resolution and failed objectives survive reopens
+ok 29 - P153 long-arm-of-the-hutt: audited consequence resolution and failed objectives survive reopens
+  ---
+  duration_ms: 26.430279
+  type: 'test'
+  ...
+# Subtest: P153 jewel-of-yavin: fresh checkpoint rejects unjournaled completed objective
+ok 30 - P153 jewel-of-yavin: fresh checkpoint rejects unjournaled completed objective
+  ---
+  duration_ms: 16.625386
+  type: 'test'
+  ...
+# Subtest: P153 jewel-of-yavin: fresh checkpoint rejects unjournaled consequence resolution
+ok 31 - P153 jewel-of-yavin: fresh checkpoint rejects unjournaled consequence resolution
+  ---
+  duration_ms: 3.6497
+  type: 'test'
+  ...
+# Subtest: P153 jewel-of-yavin: audited consequence resolution and failed objectives survive reopens
+ok 32 - P153 jewel-of-yavin: audited consequence resolution and failed objectives survive reopens
+  ---
+  duration_ms: 9.67722
+  type: 'test'
+  ...
+# Subtest: P153 mask-of-the-pirate-queen: fresh checkpoint rejects unjournaled completed objective
+ok 33 - P153 mask-of-the-pirate-queen: fresh checkpoint rejects unjournaled completed objective
+  ---
+  duration_ms: 7.593412
+  type: 'test'
+  ...
+# Subtest: P153 mask-of-the-pirate-queen: fresh checkpoint rejects unjournaled consequence resolution
+ok 34 - P153 mask-of-the-pirate-queen: fresh checkpoint rejects unjournaled consequence resolution
+  ---
+  duration_ms: 15.250827
+  type: 'test'
+  ...
+# Subtest: P153 mask-of-the-pirate-queen: audited consequence resolution and failed objectives survive reopens
+ok 35 - P153 mask-of-the-pirate-queen: audited consequence resolution and failed objectives survive reopens
+  ---
+  duration_ms: 16.751032
+  type: 'test'
+  ...
+# Subtest: P153 under-black-sun: authored consequences with reserved persistence fields fail preflight
+ok 36 - P153 under-black-sun: authored consequences with reserved persistence fields fail preflight
+  ---
+  duration_ms: 28.022785
+  type: 'test'
+  ...
+# Subtest: P153 under-black-sun: valid authored consequence passes semantic preflight and survives JSON
+ok 37 - P153 under-black-sun: valid authored consequence passes semantic preflight and survives JSON
+  ---
+  duration_ms: 17.308265
+  type: 'test'
+  ...
+# Subtest: P153 beyond-the-rim: authored consequences with reserved persistence fields fail preflight
+ok 38 - P153 beyond-the-rim: authored consequences with reserved persistence fields fail preflight
+  ---
+  duration_ms: 18.378076
+  type: 'test'
+  ...
+# Subtest: P153 beyond-the-rim: valid authored consequence passes semantic preflight and survives JSON
+ok 39 - P153 beyond-the-rim: valid authored consequence passes semantic preflight and survives JSON
+  ---
+  duration_ms: 24.953751
+  type: 'test'
+  ...
+# Subtest: P153 long-arm-of-the-hutt: authored consequences with reserved persistence fields fail preflight
+ok 40 - P153 long-arm-of-the-hutt: authored consequences with reserved persistence fields fail preflight
+  ---
+  duration_ms: 10.225978
+  type: 'test'
+  ...
+# Subtest: P153 long-arm-of-the-hutt: valid authored consequence passes semantic preflight and survives JSON
+ok 41 - P153 long-arm-of-the-hutt: valid authored consequence passes semantic preflight and survives JSON
+  ---
+  duration_ms: 29.186419
+  type: 'test'
+  ...
+# Subtest: P153 jewel-of-yavin: authored consequences with reserved persistence fields fail preflight
+ok 42 - P153 jewel-of-yavin: authored consequences with reserved persistence fields fail preflight
+  ---
+  duration_ms: 1.016831
+  type: 'test'
+  ...
+# Subtest: P153 jewel-of-yavin: valid authored consequence passes semantic preflight and survives JSON
+ok 43 - P153 jewel-of-yavin: valid authored consequence passes semantic preflight and survives JSON
+  ---
+  duration_ms: 14.883175
+  type: 'test'
+  ...
+# Subtest: P153 mask-of-the-pirate-queen: authored consequences with reserved persistence fields fail preflight
+ok 44 - P153 mask-of-the-pirate-queen: authored consequences with reserved persistence fields fail preflight
+  ---
+  duration_ms: 4.303011
+  type: 'test'
+  ...
+# Subtest: P153 mask-of-the-pirate-queen: valid authored consequence passes semantic preflight and survives JSON
+ok 45 - P153 mask-of-the-pirate-queen: valid authored consequence passes semantic preflight and survives JSON
+  ---
+  duration_ms: 20.975115
+  type: 'test'
+  ...
+1..45
+# tests 45
+# suites 0
+# pass 45
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2618.136887

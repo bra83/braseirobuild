@@ -1,0 +1,32 @@
+{
+  "base": "P165",
+  "checkpoint": "P166",
+  "files_total": 2264,
+  "changed_files": [
+    "ESTADO_ATUAL.md",
+    "HANDOFF_STAR_WARS_EDGE_R54_P166_2026-10-12.md",
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/js/expansion/aorTalentRuntimeAliases.mjs",
+    "app/src/main/assets/vtt/js/rules/talents.mjs",
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "evidence/P166/ANDROID_GRADLE_ATTEMPT.txt",
+    "evidence/P166/AOR_PENDING_60_POSITIONS.json",
+    "evidence/P166/JAVA_SOURCE_HASHES.txt",
+    "evidence/P166/JAVA_SYNTAX.txt",
+    "evidence/P166/KOKORO_TTS_REGRESSION.txt",
+    "evidence/P166/NODE_FOCAL.txt",
+    "evidence/P166/NODE_REGULAR.txt",
+    "evidence/P166/NODE_STRESS.txt",
+    "evidence/P166/stress/stress-33-aftermath-r20.test.mjs.txt",
+    "evidence/P166/stress/stress-33-faction-plan-r19.test.mjs.txt",
+    "evidence/P166/stress/stress-33-sessions-r15.test.mjs.txt",
+    "evidence/P166/stress/stress-faction-plans-r19.test.mjs.txt",
+    "evidence/P166/stress/stress-factions-r18.test.mjs.txt",
+    "evidence/P166/stress/stress-persistent-adversary-r17.test.mjs.txt",
+    "tests/uae-p165-aor-gunner-vehicle-five-adventures.test.mjs",
+    "tests/uae-p166-gearhead-atomic-five-adventures.test.mjs"
+  ]
+}

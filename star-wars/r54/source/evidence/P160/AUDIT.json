@@ -1,0 +1,67 @@
+{
+  "checkpoint": "P160",
+  "coverage": {
+    "careers": 6,
+    "specializations": 18,
+    "positions": 360,
+    "mechanicalPositions": 275,
+    "purchasePositions": 360
+  },
+  "javaPreserved": true,
+  "javaFiles": 8,
+  "talentConsumers": [
+    {
+      "name": "MUNICIÓN DE RESERVA",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "PILOTO EXPERTO",
+      "expected": 2,
+      "actual": 2
+    },
+    {
+      "name": "MADERA DE HÉROE",
+      "expected": 2,
+      "actual": 2
+    }
+  ],
+  "adventures": [
+    {
+      "id": "under-black-sun",
+      "graph": true,
+      "semantics": true
+    },
+    {
+      "id": "beyond-the-rim",
+      "graph": true,
+      "semantics": true
+    },
+    {
+      "id": "long-arm-of-the-hutt",
+      "graph": true,
+      "semantics": true
+    },
+    {
+      "id": "jewel-of-yavin",
+      "graph": true,
+      "semantics": true
+    },
+    {
+      "id": "mask-of-the-pirate-queen",
+      "graph": true,
+      "semantics": true
+    }
+  ],
+  "version": true,
+  "uiIntegrated": true,
+  "checks": {
+    "focal": true,
+    "regular": true,
+    "stress": true,
+    "tts": true,
+    "java": true
+  },
+  "androidApkBuilt": false,
+  "allPassed": true
+}

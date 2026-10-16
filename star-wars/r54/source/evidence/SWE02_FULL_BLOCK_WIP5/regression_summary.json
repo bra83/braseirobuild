@@ -1,0 +1,13 @@
+{
+  "scope": "SWE02_WIP5_GLOBAL_PER_FILE",
+  "files": 376,
+  "regular_files": 370,
+  "stress_files": 6,
+  "regular_pass": 3387,
+  "stress_pass": 6,
+  "total_pass": 3393,
+  "total_fail": 0,
+  "total_skipped": 0,
+  "failed_files": [],
+  "method": "fresh node --test output per test file in evidence/SWE02_FULL_BLOCK_WIP5/test-results (375 from full run and one missing file rerun after process timeout)"
+}

@@ -1,0 +1,19 @@
+{
+  "checkpoint": "P219",
+  "mode": "node --test each file independently, eight workers; stress sequential",
+  "regularFiles": 338,
+  "stressFiles": 6,
+  "regularTests": 3095,
+  "regularPassed": 3095,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "elapsedSeconds": 59.3,
+  "totalFiles": 344,
+  "totalTests": 3101,
+  "totalPassed": 3101,
+  "rerunAfterVersionAssertionFix": [
+    "tests/uae-p218-lando-pardon.test.mjs"
+  ],
+  "finalResult": "PASS"
+}

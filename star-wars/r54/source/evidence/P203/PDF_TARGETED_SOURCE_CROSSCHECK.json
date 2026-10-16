@@ -1,0 +1,24 @@
+{
+  "checkpoint": "P203",
+  "method": "Google Drive connector readable text from official PDF (targeted only)",
+  "source": {
+    "title": "Edge of the Empire Core Rulebook.pdf",
+    "driveId": "1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX",
+    "printedPage": 215,
+    "table": "6-9 Falling Damage"
+  },
+  "verifiedRules": [
+    "Short 10 damage/10 strain; Medium 30 damage/20 strain",
+    "Long incapacitates, Critical Injury +50, 30 strain",
+    "Extreme incapacitates, Critical Injury +75 (or death at GM discretion), 40 strain",
+    "Average Athletics or Coordination roll; each net success reduces numeric damage; each net advantage reduces strain",
+    "Triumph may reduce the range band one step at GM discretion",
+    "Soak reduces damage, not strain"
+  ],
+  "scope": "targeted page 215 only, NOT complete EotE/AoR semantic certification",
+  "implementation": [
+    "app/src/main/assets/vtt/js/adventure/jewelEscapeImpact.mjs",
+    "app/src/main/assets/vtt/js/rules/environment.mjs",
+    "app/src/main/assets/vtt/r46/final-runtime.js"
+  ]
+}

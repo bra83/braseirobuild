@@ -1,0 +1,31 @@
+{
+  "checkpoint": "P199",
+  "method": "node --test --test-reporter=tap individually per file; six stress sequentially, not a monolithic suite",
+  "regularFiles": 318,
+  "regularTests": 2926,
+  "regularPassed": 2926,
+  "regularFailed": 0,
+  "stressFiles": 6,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "stressFailed": 0,
+  "totalFiles": 324,
+  "totalTests": 2932,
+  "totalPassed": 2932,
+  "totalFailed": 0,
+  "newFocusedTests": 20,
+  "monolithicSuiteClaim": false,
+  "apkBuilt": false,
+  "gradleExecuted": false,
+  "ciBrelgaExecuted": false,
+  "androidPhysicalValidation": false,
+  "logs": [
+    "/mnt/data/p199_regular_FINAL.log",
+    "/mnt/data/p199_final_stress-33-aftermath-r20.test.mjs.log",
+    "/mnt/data/p199_final_stress-33-faction-plan-r19.test.mjs.log",
+    "/mnt/data/p199_final_stress-33-sessions-r15.test.mjs.log",
+    "/mnt/data/p199_final_stress-faction-plans-r19.test.mjs.log",
+    "/mnt/data/p199_final_stress-factions-r18.test.mjs.log",
+    "/mnt/data/p199_final_stress-persistent-adversary-r17.test.mjs.log"
+  ]
+}

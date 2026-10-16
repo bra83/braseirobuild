@@ -1,0 +1,1 @@
+P175: APK NÃO COMPILADO. Gradle 8.13/Android SDK indisponíveis neste ambiente. Sem teste em aparelho.

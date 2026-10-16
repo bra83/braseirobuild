@@ -1,0 +1,14 @@
+P36 SOURCE GATES
+2026-09-22T15:57:23Z
+-- node --check app/src/main/assets/vtt/js/adventure/underBlackSun.mjs
+-- node --check app/src/main/assets/vtt/js/rules/adversaries.mjs
+-- node --check app/src/main/assets/vtt/js/expansion/adversaries.mjs
+-- node --check app/src/main/assets/vtt/js/core/controller.mjs
+-- node --check app/src/main/assets/vtt/js/core/uiBridge.mjs
+-- node --check app/src/main/assets/vtt/r46/final-runtime.js
+-- native bridge files
+FOUND app/src/main/java/com/braseiro/starwarsedge/MainActivity.java
+FOUND app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java
+FOUND app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java
+FOUND app/src/main/java/com/braseiro/starwarsedge/FileBridge.java
+FOUND app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java

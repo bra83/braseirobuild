@@ -1,0 +1,30 @@
+{
+  "checkpoint": "P200",
+  "mode": "node --test --test-reporter=tap, each test file individually; 12 parallel workers for regular tests and six stress tests sequentially",
+  "regularFiles": 319,
+  "stressFiles": 6,
+  "regularTests": 2937,
+  "regularPassed": 2937,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "elapsedSeconds": 51.8,
+  "totalFiles": 325,
+  "totalTests": 2943,
+  "totalPassed": 2943,
+  "method": "node --test --test-reporter=tap, each test file individually; 12 parallel workers for regular tests and six stress tests sequentially",
+  "regularFailed": 0,
+  "stressFailed": 0,
+  "totalFailed": 0,
+  "newFocusedTests": 11,
+  "monolithicSuiteClaim": false,
+  "apkBuilt": false,
+  "gradleExecuted": false,
+  "ciBrelgaExecuted": false,
+  "androidPhysicalValidation": false,
+  "initialFailedFilesBeforeFix": [
+    "tests/r54-p74-campaign-lifecycle-insets-version.test.mjs",
+    "tests/r54-p77-android-build-fix.test.mjs"
+  ],
+  "initialFailuresResolvedBy": "synchronized r46-shell.html data-version 1.0.200 with app/build.gradle.kts and reran every test file"
+}

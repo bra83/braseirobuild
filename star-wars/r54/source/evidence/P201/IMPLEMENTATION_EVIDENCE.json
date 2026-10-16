@@ -1,0 +1,21 @@
+{
+  "checkpoint": "P201",
+  "modules": [
+    "jewelEscapeBomb.mjs"
+  ],
+  "bridgeMethod": "resolveJewelEscapeBomb",
+  "controllerMethod": "resolveJewelEscapeBomb",
+  "ui": "r46/final-runtime.js",
+  "source": "SWE09 Episode III, Countdown to Disaster",
+  "diceReplay": "per-face dice verification, exact pool and symbol replay, receipt IDs, sequence",
+  "saveReopenings": 3,
+  "focalTests": 10,
+  "regularTests": 2947,
+  "stressTests": 6,
+  "testsPassed": 2953,
+  "offlineModules": 97,
+  "apkBuilt": false,
+  "ciRun": false,
+  "physicalAndroidHomologated": false,
+  "fullEditorialCertified": false
+}

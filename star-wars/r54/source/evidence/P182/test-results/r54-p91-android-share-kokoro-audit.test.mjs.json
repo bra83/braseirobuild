@@ -1,0 +1,11 @@
+{
+  "file": "r54-p91-android-share-kokoro-audit.test.mjs",
+  "okay": true,
+  "tests": 6,
+  "pass": 6,
+  "fail": 0,
+  "skipped": 0,
+  "exit": 0,
+  "seconds": 0.42,
+  "tail": ""
+}

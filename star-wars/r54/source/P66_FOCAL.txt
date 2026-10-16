@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: P64 completion reports completed and persists aftermath without spoilers before completion
+ok 1 - P64 completion reports completed and persists aftermath without spoilers before completion
+  ---
+  duration_ms: 5.712241
+  type: 'test'
+  ...
+# Subtest: P64 aftermath application is idempotent
+ok 2 - P64 aftermath application is idempotent
+  ---
+  duration_ms: 2.371178
+  type: 'test'
+  ...
+# Subtest: P65: ações genéricas da UI seguem a aventura ativa em vez de cair em Sob um Sol Negro
+ok 3 - P65: ações genéricas da UI seguem a aventura ativa em vez de cair em Sob um Sol Negro
+  ---
+  duration_ms: 128.367771
+  type: 'test'
+  ...
+# Subtest: P65: save/reopen preserva Além da Orla, MIXED, Duty e Obligation
+ok 4 - P65: save/reopen preserva Além da Orla, MIXED, Duty e Obligation
+  ---
+  duration_ms: 120.571401
+  type: 'test'
+  ...
+# Subtest: P65: conclusão/reopen/continuação genérica arquiva Além da Orla sem recompensas indevidas
+ok 5 - P65: conclusão/reopen/continuação genérica arquiva Além da Orla sem recompensas indevidas
+  ---
+  duration_ms: 137.268123
+  type: 'test'
+  ...
+# Subtest: P66: epílogo permanece oculto enquanto Além da Orla está ativa
+ok 6 - P66: epílogo permanece oculto enquanto Além da Orla está ativa
+  ---
+  duration_ms: 5.570036
+  type: 'test'
+  ...
+# Subtest: P66: conclusão revela apenas consequências conquistadas em PT-BR
+ok 7 - P66: conclusão revela apenas consequências conquistadas em PT-BR
+  ---
+  duration_ms: 2.284838
+  type: 'test'
+  ...
+# Subtest: P66: epílogo não inventa rivalidade ou perseguição imperial não conquistadas
+ok 8 - P66: epílogo não inventa rivalidade ou perseguição imperial não conquistadas
+  ---
+  duration_ms: 0.853037
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 501.226382

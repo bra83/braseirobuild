@@ -1,0 +1,18 @@
+{
+  "mjsChecked": 131,
+  "jsChecked": 2,
+  "syntaxErrors": 0,
+  "javaFilesInBaseline": 8,
+  "javaUnchanged": 8,
+  "allJavaUnchanged": true,
+  "javaPaths": [
+    "app/src/main/java/com/braseiro/starwarsedge/ExternalImageShareState.java",
+    "app/src/main/java/com/braseiro/starwarsedge/FileBridge.java",
+    "app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java",
+    "app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java",
+    "app/src/main/java/com/braseiro/starwarsedge/MainActivity.java",
+    "app/src/main/java/com/braseiro/starwarsedge/NpcTokenBridge.java",
+    "app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java",
+    "app/src/main/java/com/braseiro/starwarsedge/TtsChunker.java"
+  ]
+}

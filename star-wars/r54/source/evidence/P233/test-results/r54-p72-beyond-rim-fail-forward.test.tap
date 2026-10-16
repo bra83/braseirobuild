@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: P72 fail-forward cholganna-search
+ok 1 - P72 fail-forward cholganna-search
+  ---
+  duration_ms: 8.979393
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward crash-trail
+ok 2 - P72 fail-forward crash-trail
+  ---
+  duration_ms: 1.846802
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward imperial-contingency
+ok 3 - P72 fail-forward imperial-contingency
+  ---
+  duration_ms: 1.815114
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward raxus-arrival
+ok 4 - P72 fail-forward raxus-arrival
+  ---
+  duration_ms: 2.387658
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward dropoff-point
+ok 5 - P72 fail-forward dropoff-point
+  ---
+  duration_ms: 1.706986
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward imperial-interruption
+ok 6 - P72 fail-forward imperial-interruption
+  ---
+  duration_ms: 2.063812
+  type: 'test'
+  ...
+# Subtest: P72 fail-forward flying-junk
+ok 7 - P72 fail-forward flying-junk
+  ---
+  duration_ms: 2.158251
+  type: 'test'
+  ...
+# Subtest: P72 costly completion persists consequence without exposing future nodes
+ok 8 - P72 costly completion persists consequence without exposing future nodes
+  ---
+  duration_ms: 1.773364
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 135.682868
+

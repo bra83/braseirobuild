@@ -1,0 +1,13 @@
+{
+  "files": 367,
+  "elapsed_seconds": 122.81,
+  "passed_files": 367,
+  "failed_files": 0,
+  "tests": 3324,
+  "pass": 3324,
+  "fail": 0,
+  "skip": 0,
+  "stress_files": 6,
+  "stress_pass": 6,
+  "failed": []
+}

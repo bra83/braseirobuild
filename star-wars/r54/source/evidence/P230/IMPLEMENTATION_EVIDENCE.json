@@ -1,0 +1,12 @@
+{
+  "checkpoint": "P230",
+  "base": "P229",
+  "baseSha256": "313e800645d590532d549b6316d13c6d5b8f357ea17f691c9276b60d41f45a2e",
+  "newModule": "app/src/main/assets/vtt/js/adventure/jewelStarportRoutes.mjs",
+  "newTest": "tests/uae-p230-starport-routes-piloting.test.mjs",
+  "receiptKinds": ["JEWEL_STARPORT_ROUTE", "JEWEL_STARPORT_DESTRUCTION"],
+  "integration": ["controller.mjs", "uiBridge.mjs", "uiBridge.bundle.js", "state.mjs", "jewelOfYavin.mjs", "final-runtime.js", "vehicles.mjs", "jewelStarportSecurity.mjs"],
+  "safety": ["No NPC or vehicle spawned", "No unconfirmed obligation", "No invented time passage", "Rollback via atomicAction", "Three-reopen tests", "No automatic XP", "Legacy save default when no P230 receipts"],
+  "android": {"versionName": "1.0.230", "versionCode": 10230, "bundleModules": 117},
+  "excluded": ["Gradle", "adb", "APK", "CI BRELGA", "physical Android", "GitHub push", "full official adventure certification"]
+}

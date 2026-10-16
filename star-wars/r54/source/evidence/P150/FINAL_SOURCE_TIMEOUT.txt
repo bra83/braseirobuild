@@ -1,0 +1,1 @@
+LEGACY_SOURCE_GATE_NOT_CERTIFIED: tools/verify-final-source.mjs did not finish before the execution limit. This is not a PASS. The independent regular, stress, TTS, Java syntax and published adventure gates completed successfully.

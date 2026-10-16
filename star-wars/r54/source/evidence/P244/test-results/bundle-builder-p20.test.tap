@@ -1,0 +1,17 @@
+TAP version 13
+# Subtest: P20: builders da raiz e tools recompilam o mesmo bundle canônico
+ok 1 - P20: builders da raiz e tools recompilam o mesmo bundle canônico
+  ---
+  duration_ms: 17252.359932
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 17477.561013
+

@@ -1,0 +1,32 @@
+{
+  "checkpoint": "P191",
+  "mode": "per-file Node tests; six regular shards + six sequential stress tests; NOT a monolithic suite",
+  "regular": {
+    "files": 310,
+    "tests": 2818,
+    "passed": 2818,
+    "failed": 0,
+    "shards": 6
+  },
+  "stress": {
+    "files": 6,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0
+  },
+  "global": {
+    "files": 316,
+    "tests": 2824,
+    "passed": 2824,
+    "failed": 0
+  },
+  "focalP191": {
+    "file": "uae-p191-bank-table-2-1-post-roll-backdoors-time.test.mjs",
+    "tests": 14,
+    "passed": 14
+  },
+  "javaKokoroSourcesIdenticalToP190": 8,
+  "apkCompiled": false,
+  "androidPhysicalHomologation": false,
+  "monolithicSuiteRun": false
+}

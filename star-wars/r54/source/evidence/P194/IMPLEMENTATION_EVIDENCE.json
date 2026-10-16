@@ -1,0 +1,58 @@
+{
+  "checkpoint": "P194",
+  "baseline": "P193",
+  "baselineSha256": "4ab8e39b8401a0bbfd5022f51184f5ab146d6da9fa906e66fefd8407063ee45a",
+  "implementedFiles": [
+    "app/src/main/assets/vtt/js/adventure/jewelBankEvidence.mjs",
+    "app/src/main/assets/vtt/js/adventure/jewelBankingOperations.mjs",
+    "app/src/main/assets/vtt/js/adventure/jewelOfYavin.mjs",
+    "app/src/main/assets/vtt/js/adventure/jewelOfYavinOperations.mjs",
+    "app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "app/build.gradle.kts",
+    "tests/uae-p194-jewel-g100-black-box-evidence.test.mjs"
+  ],
+  "sourceFacts": [
+    "120 minutes min disassembly time",
+    "black box stolen or destroyed",
+    "Hard Streetwise to fence parts",
+    "dump at edge requires confirmed travel"
+  ],
+  "integrity": [
+    "receipt replay",
+    "narrative dice face validation",
+    "time ledger",
+    "rollback through controller atomicAction",
+    "three reopenings",
+    "legacy P193 no retroactive time"
+  ],
+  "legacyJavaByteIdentical": 8,
+  "javaPaths": [
+    "app/src/main/java/com/braseiro/starwarsedge/ExternalImageShareState.java",
+    "app/src/main/java/com/braseiro/starwarsedge/FileBridge.java",
+    "app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java",
+    "app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java",
+    "app/src/main/java/com/braseiro/starwarsedge/MainActivity.java",
+    "app/src/main/java/com/braseiro/starwarsedge/NpcTokenBridge.java",
+    "app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java",
+    "app/src/main/java/com/braseiro/starwarsedge/TtsChunker.java"
+  ],
+  "offlineBundleModules": 92,
+  "androidVersion": "1.0.194",
+  "newFocalTests": 9,
+  "testMode": "319 files individual, 313 regular parallel 6 and 6 stress sequential",
+  "testSummary": "evidence/P194/TEST_SUMMARY.json",
+  "unimplemented": [
+    "Wing Guard special maneuvers",
+    "restraining bolt inventory",
+    "electronic signature tools replacement",
+    "live droid Charm vs Cool",
+    "bank settlement and escape",
+    "five PDFs and 360 AoR/EotE semantic certification",
+    "APK/Gradle/CI/adb"
+  ]
+}

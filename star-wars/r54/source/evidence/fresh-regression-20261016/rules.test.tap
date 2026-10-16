@@ -1,0 +1,13 @@
+✔ reserva positiva usa o maior valor como total e o menor como upgrades (6.2792ms)
+✔ êxito/falha e vantagem/ameaça se cancelam em eixos independentes (1.5429ms)
+✔ triunfo conta como êxito e desespero conta como falha sem apagar o símbolo especial (0.5476ms)
+✔ rolagem aceita RNG injetado para testes determinísticos (1.3392ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1012.3019
+

@@ -1,0 +1,11 @@
+{
+  "file": "uae-p153-trigger-context-recovery.test.mjs",
+  "okay": true,
+  "tests": 45,
+  "pass": 45,
+  "fail": 0,
+  "skipped": 0,
+  "exit": 0,
+  "seconds": 1.39,
+  "tail": ""
+}

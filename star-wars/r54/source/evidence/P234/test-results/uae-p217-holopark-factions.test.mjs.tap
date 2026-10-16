@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: P217 SWE09 p78 Grayson security uses published NPC card, not generic Wing Guard
+ok 1 - P217 SWE09 p78 Grayson security uses published NPC card, not generic Wing Guard
+  ---
+  duration_ms: 31.401561
+  type: 'test'
+  ...
+# Subtest: P217 cannot teleport faction or invent count and cannot join ongoing Wing Guard
+ok 2 - P217 cannot teleport faction or invent count and cannot join ongoing Wing Guard
+  ---
+  duration_ms: 1283.977789
+  type: 'test'
+  ...
+# Subtest: P217 Arend group starts actual initiative atomically, is not old Arrow-7 goon group
+ok 3 - P217 Arend group starts actual initiative atomically, is not old Arrow-7 goon group
+  ---
+  duration_ms: 1076.990106
+  type: 'test'
+  ...
+# Subtest: P217 Grayson profile starts combat and persists across three reopenings
+ok 4 - P217 Grayson profile starts combat and persists across three reopenings
+  ---
+  duration_ms: 1218.826576
+  type: 'test'
+  ...
+# Subtest: P217 Grayson outcome recorded once and faction cannot respawn
+ok 5 - P217 Grayson outcome recorded once and faction cannot respawn
+  ---
+  duration_ms: 1473.24814
+  type: 'test'
+  ...
+# Subtest: P217 replay detects tampered faction count and identity
+ok 6 - P217 replay detects tampered faction count and identity
+  ---
+  duration_ms: 2056.725657
+  type: 'test'
+  ...
+# Subtest: P217 Android bridge and PT-BR UI wired to real controller
+ok 7 - P217 Android bridge and PT-BR UI wired to real controller
+  ---
+  duration_ms: 39.535141
+  type: 'test'
+  ...
+# Subtest: P217 preserves Holo-Park clock across distinct combat encounters without fictitious rounds
+ok 8 - P217 preserves Holo-Park clock across distinct combat encounters without fictitious rounds
+  ---
+  duration_ms: 843.5941
+  type: 'test'
+  ...
+# Subtest: P217 both source-backed factions can enter sequentially, never together or respawn
+ok 9 - P217 both source-backed factions can enter sequentially, never together or respawn
+  ---
+  duration_ms: 884.849743
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9597.877343

@@ -1,0 +1,18 @@
+{
+  "checkpoint":"P218",
+  "source":"SWE09 The Jewel of Yavin",
+  "googleDriveFileId":"1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "printedPage":90,
+  "section":"Extended Campaign: Going Respectable",
+  "readMethod":"Google Drive fetch readable PDF text, direct source read",
+  "factsVerified":{
+    "landoMayHearParty":true,
+    "canApproachBeforeOrAfterArendApprehended":true,
+    "jewelMayBeEvidenceButIsNotRequired":true,
+    "restorationOfCloudCityReputationMustBeAccepted":true,
+    "landoMayPardon":true,
+    "favorObligationPerPlayerCharacter":5
+  },
+  "nonClaims":["No guaranteed pardon without GM confirmation","No automatic jewel transfer","No automatic Arend capture","No automatic XP"],
+  "sourceStatus":"targeted direct PDF text read; not full adventure semantic certification"
+}

@@ -1,0 +1,7 @@
+# STAR WARS EOTG — verificação reproduzível
+timestamp=2026-10-11T16:53:50.604Z
+node_tests=PASS pass=1479 fail=0 skipped=0
+stress_33=PASS embedded_in_full_suite files=6
+js_syntax=PASS files=124
+java_syntax=JAVA_SYNTAX_PASS files=8 unresolved_android_symbols=699
+json_parse=PASS files=79

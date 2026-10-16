@@ -1,0 +1,11 @@
+{
+  "checkpoint": "P233",
+  "source": "SWE09 The Jewel of Yavin pp.93-94",
+  "sourceBasis": "Existing P216 Kashyyyk vertigo implementation and its earlier official PDF crosscheck; this run did not re-fetch the PDF.",
+  "mechanic": "NPC Despair => Difficult Discipline check; on failure 2 strain and downgrade next player action positive pool by one proficiency; no effect on NPCs",
+  "sourceConfidence": "Inherited implementation; no new PDF-page certification claimed",
+  "newApplications": [
+    "Medicine",
+    "Stim Application"
+  ]
+}

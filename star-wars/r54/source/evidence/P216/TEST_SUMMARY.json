@@ -1,0 +1,15 @@
+{
+  "checkpoint": "P216",
+  "mode": "node --test each file individually in four nonmonolithic shards; six stress separately sequential after final bundle",
+  "regularFiles": 335,
+  "stressFiles": 6,
+  "regularTests": 3069,
+  "regularPassed": 3069,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "totalFiles": 341,
+  "totalTests": 3075,
+  "totalPassed": 3075,
+  "focalTests": 5
+}

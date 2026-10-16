@@ -1,0 +1,19 @@
+{
+  "mjs": {
+    "checked": 135,
+    "failed": []
+  },
+  "js": {
+    "checked": 16,
+    "failed": []
+  },
+  "json": {
+    "checked": 22,
+    "failed": []
+  },
+  "xml": {
+    "checked": 2,
+    "failed": []
+  },
+  "allPass": true
+}

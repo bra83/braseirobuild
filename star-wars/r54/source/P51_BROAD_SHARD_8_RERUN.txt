@@ -1,0 +1,496 @@
+TAP version 13
+# Subtest: P15: bundle embarcado não contradiz TTS integrado
+ok 1 - P15: bundle embarcado não contradiz TTS integrado
+  ---
+  duration_ms: 6.99262
+  type: 'test'
+  ...
+# Subtest: onInit e shutdown compartilham lifecycleLock para impedir reativação tardia
+ok 2 - onInit e shutdown compartilham lifecycleLock para impedir reativação tardia
+  ---
+  duration_ms: 3.049415
+  type: 'test'
+  ...
+# Subtest: shutdown é idempotente e marca TTS fechado/indisponível antes de encerrar engine
+ok 3 - shutdown é idempotente e marca TTS fechado/indisponível antes de encerrar engine
+  ---
+  duration_ms: 1.280552
+  type: 'test'
+  ...
+# Subtest: speak recusa bridge fechado e UI runnable revalida lifecycle antes de tocar TTS
+ok 4 - speak recusa bridge fechado e UI runnable revalida lifecycle antes de tocar TTS
+  ---
+  duration_ms: 0.455923
+  type: 'test'
+  ...
+# Subtest: stop não agenda operação efetiva depois de shutdown
+ok 5 - stop não agenda operação efetiva depois de shutdown
+  ---
+  duration_ms: 0.735688
+  type: 'test'
+  ...
+# Subtest: Android TTS divide texto longo e usa QUEUE_ADD depois do primeiro bloco
+ok 6 - Android TTS divide texto longo e usa QUEUE_ADD depois do primeiro bloco
+  ---
+  duration_ms: 1.333464
+  type: 'test'
+  ...
+# Subtest: Gemini TTS tem executor dedicado, primeiro bloco curto e fila de reprodução
+ok 7 - Gemini TTS tem executor dedicado, primeiro bloco curto e fila de reprodução
+  ---
+  duration_ms: 1.400347
+  type: 'test'
+  ...
+# Subtest: fallback Web Speech narra vários blocos em sequência
+ok 8 - fallback Web Speech narra vários blocos em sequência
+  ---
+  duration_ms: 0.209094
+  type: 'test'
+  ...
+# Subtest: Gemini TTS failure falls through to Android/Web instead of silencing narration
+ok 9 - Gemini TTS failure falls through to Android/Web instead of silencing narration
+  ---
+  duration_ms: 2.063048
+  type: 'test'
+  ...
+# Subtest: Gemini TTS remains multiblock and Charon-selectable
+ok 10 - Gemini TTS remains multiblock and Charon-selectable
+  ---
+  duration_ms: 1.764615
+  type: 'test'
+  ...
+# Subtest: TTS lê exatamente a narração recebida, em PT-BR, e cancela fala anterior
+ok 11 - TTS lê exatamente a narração recebida, em PT-BR, e cancela fala anterior
+  ---
+  duration_ms: 1.905607
+  type: 'test'
+  ...
+# Subtest: TTS falha claramente quando a API de voz está indisponível e normaliza velocidade
+ok 12 - TTS falha claramente quando a API de voz está indisponível e normaliza velocidade
+  ---
+  duration_ms: 1.179081
+  type: 'test'
+  ...
+# Subtest: ajustes de TTS persistem no estado sem afetar configuração do Mestre
+ok 13 - ajustes de TTS persistem no estado sem afetar configuração do Mestre
+  ---
+  duration_ms: 12.479132
+  type: 'test'
+  ...
+# Subtest: interface oferece voz somente para a narração visível da Cena
+ok 14 - interface oferece voz somente para a narração visível da Cena
+  ---
+  duration_ms: 3.850205
+  type: 'test'
+  ...
+# Subtest: P11: tela de voz não contradiz integração TTS real
+ok 15 - P11: tela de voz não contradiz integração TTS real
+  ---
+  duration_ms: 12.086877
+  type: 'test'
+  ...
+# Subtest: export de ficha usa JSON canônico e nome .json sem criar estado
+ok 16 - export de ficha usa JSON canônico e nome .json sem criar estado
+  ---
+  duration_ms: 8.793194
+  type: 'test'
+  ...
+# Subtest: import de ficha inválida não altera campanha nem cria snapshot
+ok 17 - import de ficha inválida não altera campanha nem cria snapshot
+  ---
+  duration_ms: 2.447666
+  type: 'test'
+  ...
+# Subtest: import de ficha válida cria snapshot antes da mutação e persiste nova ficha
+ok 18 - import de ficha válida cria snapshot antes da mutação e persiste nova ficha
+  ---
+  duration_ms: 2.91498
+  type: 'test'
+  ...
+# Subtest: backup de campanha exporta JSON validado sem remover estado
+ok 19 - backup de campanha exporta JSON validado sem remover estado
+  ---
+  duration_ms: 1.018943
+  type: 'test'
+  ...
+# Subtest: backup corrompido é rejeitado sem sobrescrever campanha nem snapshot
+ok 20 - backup corrompido é rejeitado sem sobrescrever campanha nem snapshot
+  ---
+  duration_ms: 2.249202
+  type: 'test'
+  ...
+# Subtest: restore de backup válido preserva snapshot automático do estado anterior
+ok 21 - restore de backup válido preserva snapshot automático do estado anterior
+  ---
+  duration_ms: 0.95915
+  type: 'test'
+  ...
+# Subtest: snapshot manual pode restaurar exatamente o estado salvo
+ok 22 - snapshot manual pode restaurar exatamente o estado salvo
+  ---
+  duration_ms: 2.538082
+  type: 'test'
+  ...
+# Subtest: operações de backup/ficha sem campanha falham sem criar campanha padrão
+ok 23 - operações de backup/ficha sem campanha falham sem criar campanha padrão
+  ---
+  duration_ms: 0.156781
+  type: 'test'
+  ...
+# Subtest: bridge expõe somente o catálogo canônico do controller
+ok 24 - bridge expõe somente o catálogo canônico do controller
+  ---
+  duration_ms: 8.656972
+  type: 'test'
+  ...
+# Subtest: proposta pelo bridge cria pendingAcquisition sem compra direta
+ok 25 - proposta pelo bridge cria pendingAcquisition sem compra direta
+  ---
+  duration_ms: 191.360192
+  type: 'test'
+  ...
+# Subtest: bridge recusa aquisição desconhecida e segundo pedido concorrente
+ok 26 - bridge recusa aquisição desconhecida e segundo pedido concorrente
+  ---
+  duration_ms: 183.410224
+  type: 'test'
+  ...
+# Subtest: bridge expõe catálogo manual somente a partir das tabelas EotE Core canônicas
+ok 27 - bridge expõe catálogo manual somente a partir das tabelas EotE Core canônicas
+  ---
+  duration_ms: 5.956538
+  type: 'test'
+  ...
+# Subtest: preview manual é não-mutante e calcula orçamento canônico
+ok 28 - preview manual é não-mutante e calcula orçamento canônico
+  ---
+  duration_ms: 1.789295
+  type: 'test'
+  ...
+# Subtest: criação manual válida persiste ficha e usa snapshot somente ao substituir
+ok 29 - criação manual válida persiste ficha e usa snapshot somente ao substituir
+  ---
+  duration_ms: 4.322447
+  type: 'test'
+  ...
+# Subtest: entrada manual inválida não cria snapshot nem muta campanha
+ok 30 - entrada manual inválida não cria snapshot nem muta campanha
+  ---
+  duration_ms: 1.923876
+  type: 'test'
+  ...
+# Subtest: bridge construction is zero-mutation when no campaign exists
+ok 31 - bridge construction is zero-mutation when no campaign exists
+  ---
+  duration_ms: 2.44982
+  type: 'test'
+  ...
+# Subtest: player intent never creates a default campaign when storage is empty
+ok 32 - player intent never creates a default campaign when storage is empty
+  ---
+  duration_ms: 0.377146
+  type: 'test'
+  ...
+# Subtest: corrupt canonical state is reported and never overwritten
+ok 33 - corrupt canonical state is reported and never overwritten
+  ---
+  duration_ms: 0.270435
+  type: 'test'
+  ...
+# Subtest: local player intent delegates to the canonical GameController and persists it
+ok 34 - local player intent delegates to the canonical GameController and persists it
+  ---
+  duration_ms: 63.81589
+  type: 'test'
+  ...
+# Subtest: configured HTTP provider follows the canonical requestMasterTurn path
+ok 35 - configured HTTP provider follows the canonical requestMasterTurn path
+  ---
+  duration_ms: 22.563943
+  type: 'test'
+  ...
+# Subtest: global bridge installation is idempotent and does not create campaign state
+ok 36 - global bridge installation is idempotent and does not create campaign state
+  ---
+  duration_ms: 0.239824
+  type: 'test'
+  ...
+# Subtest: blank player intent is rejected before controller construction or mutation
+ok 37 - blank player intent is rejected before controller construction or mutation
+  ---
+  duration_ms: 0.50459
+  type: 'test'
+  ...
+# Subtest: interface principal declara português do Brasil e usa rótulos PT-BR
+ok 38 - interface principal declara português do Brasil e usa rótulos PT-BR
+  ---
+  duration_ms: 2.944209
+  type: 'test'
+  ...
+# Subtest: interface principal não expõe rótulos espanhóis conhecidos
+ok 39 - interface principal não expõe rótulos espanhóis conhecidos
+  ---
+  duration_ms: 0.46176
+  type: 'test'
+  ...
+# Subtest: P18: fonte e bundle não apresentam Gemini/TTS implementados como indisponíveis
+ok 40 - P18: fonte e bundle não apresentam Gemini/TTS implementados como indisponíveis
+  ---
+  duration_ms: 0.912569
+  type: 'test'
+  ...
+# Subtest: Ala-X entra no estado persistente e combate de veículos reabre intacto
+ok 41 - Ala-X entra no estado persistente e combate de veículos reabre intacto
+  ---
+  duration_ms: 11.239584
+  type: 'test'
+  ...
+# Subtest: segunda manobra exclusiva exige Tensão de sistemas ou ação
+ok 42 - segunda manobra exclusiva exige Tensão de sistemas ou ação
+  ---
+  duration_ms: 3.452458
+  type: 'test'
+  ...
+# Subtest: ataque veicular consome ação e aplica resultado ao alvo
+ok 43 - ataque veicular consome ação e aplica resultado ao alvo
+  ---
+  duration_ms: 2.879874
+  type: 'test'
+  ...
+# Subtest: controle de danos usa Mecânica do personagem e persiste
+ok 44 - controle de danos usa Mecânica do personagem e persiste
+  ---
+  duration_ms: 3.217628
+  type: 'test'
+  ...
+# Subtest: Parada brusca reduz Velocidade a 0 e causa Tensão de sistemas igual à Velocidade reduzida
+ok 45 - Parada brusca reduz Velocidade a 0 e causa Tensão de sistemas igual à Velocidade reduzida
+  ---
+  duration_ms: 1.826894
+  type: 'test'
+  ...
+# Subtest: Fogo controlado permanece bloqueado como legado Age of Rebellion no perfil EotE Core
+ok 46 - Fogo controlado permanece bloqueado como legado Age of Rebellion no perfil EotE Core
+  ---
+  duration_ms: 7.835599
+  type: 'test'
+  ...
+# Subtest: interface PT-BR mantém Parada em seco e oculta Fogo controlado legado
+ok 47 - interface PT-BR mantém Parada em seco e oculta Fogo controlado legado
+  ---
+  duration_ms: 1.256044
+  type: 'test'
+  ...
+# Subtest: interface possui aba Nave em PT-BR com combate, dano e viagem
+ok 48 - interface possui aba Nave em PT-BR com combate, dano e viagem
+  ---
+  duration_ms: 2.356691
+  type: 'test'
+  ...
+# Subtest: interface de nave usa o motor persistente e não duplica regra em HTML estático
+ok 49 - interface de nave usa o motor persistente e não duplica regra em HTML estático
+  ---
+  duration_ms: 0.424373
+  type: 'test'
+  ...
+# Subtest: perfil Ala-X reproduz os valores do livro inicial
+ok 50 - perfil Ala-X reproduz os valores do livro inicial
+  ---
+  duration_ms: 5.102424
+  type: 'test'
+  ...
+# Subtest: Blindagem reduz dano em escala de veículo e limiar só inutiliza ao superar
+ok 51 - Blindagem reduz dano em escala de veículo e limiar só inutiliza ao superar
+  ---
+  duration_ms: 7.587232
+  type: 'test'
+  ...
+# Subtest: Tensão de sistemas acima do limiar desliga velocidade, armas e defesa
+ok 52 - Tensão de sistemas acima do limiar desliga velocidade, armas e defesa
+  ---
+  duration_ms: 4.418941
+  type: 'test'
+  ...
+# Subtest: um dia completo sem nova tensão recupera 1 Tensão de sistemas
+ok 53 - um dia completo sem nova tensão recupera 1 Tensão de sistemas
+  ---
+  duration_ms: 0.277919
+  type: 'test'
+  ...
+# Subtest: Manejo positivo vira Impulso e negativo Contratempo
+ok 54 - Manejo positivo vira Impulso e negativo Contratempo
+  ---
+  duration_ms: 0.309015
+  type: 'test'
+  ...
+# Subtest: Acelerar/Frear altera exatamente 1 e respeita limites
+ok 55 - Acelerar/Frear altera exatamente 1 e respeita limites
+  ---
+  duration_ms: 10.725898
+  type: 'test'
+  ...
+# Subtest: Pisar a fundo vai à velocidade máxima e sofre tensão igual à diferença
+ok 56 - Pisar a fundo vai à velocidade máxima e sofre tensão igual à diferença
+  ---
+  duration_ms: 0.370463
+  type: 'test'
+  ...
+# Subtest: Avançar usa passos de alcance conforme velocidade
+ok 57 - Avançar usa passos de alcance conforme velocidade
+  ---
+  duration_ms: 0.192637
+  type: 'test'
+  ...
+# Subtest: dificuldade de Artilharia usa diferença de Silhueta
+ok 58 - dificuldade de Artilharia usa diferença de Silhueta
+  ---
+  duration_ms: 0.281231
+  type: 'test'
+  ...
+# Subtest: Enfilar usa diferença de Velocidade
+ok 59 - Enfilar usa diferença de Velocidade
+  ---
+  duration_ms: 0.440275
+  type: 'test'
+  ...
+# Subtest: perigo de pilotagem usa maior entre Velocidade e metade da Silhueta, com upgrades pelo menor
+ok 60 - perigo de pilotagem usa maior entre Velocidade e metade da Silhueta, com upgrades pelo menor
+  ---
+  duration_ms: 0.263211
+  type: 'test'
+  ...
+# Subtest: controle de danos usa gravidade acumulada e Êxitos reparam casco e sistemas
+ok 61 - controle de danos usa gravidade acumulada e Êxitos reparam casco e sistemas
+  ---
+  duration_ms: 4.712218
+  type: 'test'
+  ...
+# Subtest: Critical Hits de veículo usam a Table 7-9 EotE Core com d100 e +10 cumulativo
+ok 62 - Critical Hits de veículo usam a Table 7-9 EotE Core com d100 e +10 cumulativo
+  ---
+  duration_ms: 3.224493
+  type: 'test'
+  ...
+# Subtest: ataque de arma de nave usa Artilharia, Silhueta, Defesa e Blindagem
+ok 63 - ataque de arma de nave usa Artilharia, Silhueta, Defesa e Blindagem
+  ---
+  duration_ms: 6.512057
+  type: 'test'
+  ...
+# Subtest: Manobras evasivas aumentam a Dificuldade e Seguir o objetivo melhora Capacidade, sem dados extras indevidos
+ok 64 - Manobras evasivas aumentam a Dificuldade e Seguir o objetivo melhora Capacidade, sem dados extras indevidos
+  ---
+  duration_ms: 9.183717
+  type: 'test'
+  ...
+# Subtest: arma de veículo não pode atingir além do alcance indicado no perfil
+ok 65 - arma de veículo não pode atingir além do alcance indicado no perfil
+  ---
+  duration_ms: 4.42268
+  type: 'test'
+  ...
+# Subtest: Ajuste fino e Reparos sólidos ampliam controle de danos por grau do operador
+ok 66 - Ajuste fino e Reparos sólidos ampliam controle de danos por grau do operador
+  ---
+  duration_ms: 6.254584
+  type: 'test'
+  ...
+# Subtest: verificador executa a suíte completa pelo runner Python sem encadear node --test no processo Node pai
+ok 67 - verificador executa a suíte completa pelo runner Python sem encadear node --test no processo Node pai
+  ---
+  duration_ms: 0.908988
+  type: 'test'
+  ...
+# Subtest: verificador CLI encerra explicitamente após gravar relatório
+ok 68 - verificador CLI encerra explicitamente após gravar relatório
+  ---
+  duration_ms: 1.286131
+  type: 'test'
+  ...
+# Subtest: verificador cria validation/ antes de executar suíte ou gravar relatório
+ok 69 - verificador cria validation/ antes de executar suíte ou gravar relatório
+  ---
+  duration_ms: 1.441663
+  type: 'test'
+  ...
+# Subtest: relatório final usa o validationDir garantido
+ok 70 - relatório final usa o validationDir garantido
+  ---
+  duration_ms: 0.256878
+  type: 'test'
+  ...
+# Subtest: ataque bem-sucedido soma Êxitos líquidos ao dano da arma
+ok 71 - ataque bem-sucedido soma Êxitos líquidos ao dano da arma
+  ---
+  duration_ms: 9.37439
+  type: 'test'
+  ...
+# Subtest: Vantagens suficientes disponibilizam crítico e Explosão conforme a arma
+ok 72 - Vantagens suficientes disponibilizam crítico e Explosão conforme a arma
+  ---
+  duration_ms: 0.299226
+  type: 'test'
+  ...
+# Subtest: granada atordoante produz dano de Tensão
+ok 73 - granada atordoante produz dano de Tensão
+  ---
+  duration_ms: 0.212023
+  type: 'test'
+  ...
+# Subtest: Triunfo pode disponibilizar crítico mesmo sem Vantagens suficientes
+ok 74 - Triunfo pode disponibilizar crítico mesmo sem Vantagens suficientes
+  ---
+  duration_ms: 1.078485
+  type: 'test'
+  ...
+# Subtest: mundo v2 preserva objetivo, relação, fatos privados e locais
+ok 75 - mundo v2 preserva objetivo, relação, fatos privados e locais
+  ---
+  duration_ms: 13.482952
+  type: 'test'
+  ...
+# Subtest: agenda do mundo executa eventos vencidos por orçamento e sem duplicação
+ok 76 - agenda do mundo executa eventos vencidos por orçamento e sem duplicação
+  ---
+  duration_ms: 5.476945
+  type: 'test'
+  ...
+# Subtest: evento inválido falha isoladamente e não impede os demais
+ok 77 - evento inválido falha isoladamente e não impede os demais
+  ---
+  duration_ms: 18.780838
+  type: 'test'
+  ...
+# Subtest: orçamento limita processamento de centenas de eventos sem perder pendências
+ok 78 - orçamento limita processamento de centenas de eventos sem perder pendências
+  ---
+  duration_ms: 4516.611182
+  type: 'test'
+  ...
+# Subtest: normalização migra aliases antigos relationship/objective/knownFacts
+ok 79 - normalização migra aliases antigos relationship/objective/knownFacts
+  ---
+  duration_ms: 1.037635
+  type: 'test'
+  ...
+# Subtest: NPC mantém identidade estável ao mudar de local
+ok 80 - NPC mantém identidade estável ao mudar de local
+  ---
+  duration_ms: 11.298098
+  type: 'test'
+  ...
+# Subtest: fatos ocultos do NPC não atravessam a fronteira do jogador
+ok 81 - fatos ocultos do NPC não atravessam a fronteira do jogador
+  ---
+  duration_ms: 3.460495
+  type: 'test'
+  ...
+1..81
+# tests 81
+# suites 0
+# pass 81
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5887.239338

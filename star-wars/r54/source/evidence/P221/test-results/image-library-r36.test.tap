@@ -1,0 +1,82 @@
+TAP version 13
+# Subtest: R36 image library V2 has expected local/external/map counts
+ok 1 - R36 image library V2 has expected local/external/map counts
+  ---
+  duration_ms: 3.746391
+  type: 'test'
+  ...
+# Subtest: all 17 Kainrath maps use allowed HTTPS wp-content URLs
+ok 2 - all 17 Kainrath maps use allowed HTTPS wp-content URLs
+  ---
+  duration_ms: 2.566431
+  type: 'test'
+  ...
+# Subtest: external maps are reference/cache assets and never masquerade as packaged mechanics
+ok 3 - external maps are reference/cache assets and never masquerade as packaged mechanics
+  ---
+  duration_ms: 0.197281
+  type: 'test'
+  ...
+# Subtest: map catalog covers useful map kinds without inferring campaign state
+ok 4 - map catalog covers useful map kinds without inferring campaign state
+  ---
+  duration_ms: 0.168137
+  type: 'test'
+  ...
+# Subtest: Kainrath source index contains the complete Maps batch
+ok 5 - Kainrath source index contains the complete Maps batch
+  ---
+  duration_ms: 0.231876
+  type: 'test'
+  ...
+# Subtest: game bridge exposes map catalog and runtime descriptors without campaign
+ok 6 - game bridge exposes map catalog and runtime descriptors without campaign
+  ---
+  duration_ms: 3.437409
+  type: 'test'
+  ...
+# Subtest: native image cache is constrained by host path size MIME and redirect guards
+ok 7 - native image cache is constrained by host path size MIME and redirect guards
+  ---
+  duration_ms: 0.957932
+  type: 'test'
+  ...
+# Subtest: native cache is private and served through braseiro.local rather than exposing file paths
+ok 8 - native cache is private and served through braseiro.local rather than exposing file paths
+  ---
+  duration_ms: 0.278968
+  type: 'test'
+  ...
+# Subtest: MainActivity installs BraseiroImages and preserves scene image interceptor order
+ok 9 - MainActivity installs BraseiroImages and preserves scene image interceptor order
+  ---
+  duration_ms: 0.522771
+  type: 'test'
+  ...
+# Subtest: real static Android MAPA surface exposes search selection cache and provenance controls
+ok 10 - real static Android MAPA surface exposes search selection cache and provenance controls
+  ---
+  duration_ms: 1.06924
+  type: 'test'
+  ...
+# Subtest: external URL validator rejects arbitrary hosts and non-HTTPS schemes
+ok 11 - external URL validator rejects arbitrary hosts and non-HTTPS schemes
+  ---
+  duration_ms: 0.302335
+  type: 'test'
+  ...
+# Subtest: map search is deterministic and bounded
+ok 12 - map search is deterministic and bounded
+  ---
+  duration_ms: 3.448061
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 360.239119

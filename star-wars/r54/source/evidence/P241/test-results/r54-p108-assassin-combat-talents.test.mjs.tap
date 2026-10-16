@@ -1,0 +1,53 @@
+TAP version 13
+# Subtest: P108: Esquiva sofre Tensão e aprimora exatamente o próximo ataque recebido
+ok 1 - P108: Esquiva sofre Tensão e aprimora exatamente o próximo ataque recebido
+  ---
+  duration_ms: 12.88158
+  type: 'test'
+  ...
+# Subtest: P108: Mira Precisa paga manobra/Tensão e reduz defesa do alvo no próximo ataque
+ok 2 - P108: Mira Precisa paga manobra/Tensão e reduz defesa do alvo no próximo ataque
+  ---
+  duration_ms: 7.220126
+  type: 'test'
+  ...
+# Subtest: P108: Tiro de Precisão estende alcance e aprimora dificuldade por banda
+ok 3 - P108: Tiro de Precisão estende alcance e aprimora dificuldade por banda
+  ---
+  duration_ms: 4.697634
+  type: 'test'
+  ...
+# Subtest: P108: Golpe Direcionado só gasta Destiny após acerto e soma Agilidade
+ok 4 - P108: Golpe Direcionado só gasta Destiny após acerto e soma Agilidade
+  ---
+  duration_ms: 5.496655
+  type: 'test'
+  ...
+# Subtest: P108: Anatomia só gasta Destiny após acerto e soma Intelecto
+ok 5 - P108: Anatomia só gasta Destiny após acerto e soma Intelecto
+  ---
+  duration_ms: 6.264119
+  type: 'test'
+  ...
+# Subtest: P108: Precisão Letal usa a perícia escolhida na compra e soma ranks ao dano
+ok 6 - P108: Precisão Letal usa a perícia escolhida na compra e soma ranks ao dano
+  ---
+  duration_ms: 3.586263
+  type: 'test'
+  ...
+# Subtest: P108: bridge expõe todas as novas ações e R46 contém bloco P108
+ok 7 - P108: bridge expõe todas as novas ações e R46 contém bloco P108
+  ---
+  duration_ms: 2.491697
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 463.743342
+

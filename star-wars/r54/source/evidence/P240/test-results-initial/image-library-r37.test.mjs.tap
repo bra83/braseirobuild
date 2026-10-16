@@ -1,0 +1,65 @@
+TAP version 13
+# Subtest: R37 image library V3 adds 44 visual entities without losing R36 assets
+ok 1 - R37 image library V3 adds 44 visual entities without losing R36 assets
+  ---
+  duration_ms: 1.218642
+  type: 'test'
+  ...
+# Subtest: R37 Kainrath visual entity index is complete and unique
+ok 2 - R37 Kainrath visual entity index is complete and unique
+  ---
+  duration_ms: 0.375025
+  type: 'test'
+  ...
+# Subtest: all R37 visual entities are visual-only and use allowed cache URLs
+ok 3 - all R37 visual entities are visual-only and use allowed cache URLs
+  ---
+  duration_ms: 1.726458
+  type: 'test'
+  ...
+# Subtest: R37 categories contain exactly 16 NPC portraits 20 droids and 8 beasts
+ok 4 - R37 categories contain exactly 16 NPC portraits 20 droids and 8 beasts
+  ---
+  duration_ms: 0.365467
+  type: 'test'
+  ...
+# Subtest: R37 visual entity bridge searches all/npc/droid/beast without campaign state
+ok 5 - R37 visual entity bridge searches all/npc/droid/beast without campaign state
+  ---
+  duration_ms: 103.223353
+  type: 'test'
+  ...
+# Subtest: R37 visual entity bridge rejects invalid kind without mutation
+ok 6 - R37 visual entity bridge rejects invalid kind without mutation
+  ---
+  duration_ms: 14.917985
+  type: 'test'
+  ...
+# Subtest: named searches resolve real visual references without mechanical inference
+ok 7 - named searches resolve real visual references without mechanical inference
+  ---
+  duration_ms: 14.005118
+  type: 'test'
+  ...
+# Subtest: R37 visual entities do not pollute the 18-map catalog
+ok 8 - R37 visual entities do not pollute the 18-map catalog
+  ---
+  duration_ms: 77.421431
+  type: 'test'
+  ...
+# Subtest: real static Android AJUSTES exposes visual entity search preview cache and provenance
+ok 9 - real static Android AJUSTES exposes visual entity search preview cache and provenance
+  ---
+  duration_ms: 34.027994
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2469.623476
+

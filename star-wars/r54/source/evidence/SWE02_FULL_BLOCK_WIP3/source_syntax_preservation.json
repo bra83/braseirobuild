@@ -1,0 +1,42 @@
+{
+  "mjs": 565,
+  "jsRuntime": 2,
+  "jsonData": 22,
+  "xml": 2,
+  "javaChecks": [
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java",
+      "same": true
+    },
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/TtsChunker.java",
+      "same": true
+    },
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/NpcTokenBridge.java",
+      "same": true
+    },
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/FileBridge.java",
+      "same": true
+    },
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java",
+      "same": true
+    },
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/MainActivity.java",
+      "same": true
+    },
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/ExternalImageShareState.java",
+      "same": true
+    },
+    {
+      "file": "app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java",
+      "same": true
+    }
+  ],
+  "bundleModules": 131,
+  "errors": []
+}

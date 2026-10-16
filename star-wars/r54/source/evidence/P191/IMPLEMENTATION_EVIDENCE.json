@@ -1,0 +1,19 @@
+{
+  "checkpoint": "P191",
+  "baseline": "P190",
+  "scope": "The Jewel of Yavin SWE09 Table 2-1 partial real implementation",
+  "changes": [
+    "New jewelBankSlicingSpends.mjs: after-roll symbol allocation, strict cost verification and deterministic replay",
+    "Jewel banking roll pools consume saved backdoor boosts/upgrades exactly on next attempt",
+    "15-minute Threat option advances canonical task-time ledger and is checked on save restore",
+    "Published adventure adapter, GameController atomicAction, WebView bridge and PT-BR bank UI wired",
+    "Forged or duplicate spends, extra fields, incorrect faces, forged time and altered pending pool rejected",
+    "P190 legacy save compatibility and three controller reopen tests"
+  ],
+  "boundaries": [
+    "Only three Table 2-1 outcome types automated; other options remain pending",
+    "No credits paid or bank settlement implemented",
+    "No claim of monolithic Node suite or Android APK",
+    "Kokoro Java source not modified"
+  ]
+}

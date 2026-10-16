@@ -1,0 +1,53 @@
+TAP version 13
+# Subtest: bridge construction is zero-mutation when no campaign exists
+ok 1 - bridge construction is zero-mutation when no campaign exists
+  ---
+  duration_ms: 1.485543
+  type: 'test'
+  ...
+# Subtest: player intent never creates a default campaign when storage is empty
+ok 2 - player intent never creates a default campaign when storage is empty
+  ---
+  duration_ms: 0.709681
+  type: 'test'
+  ...
+# Subtest: corrupt canonical state is reported and never overwritten
+ok 3 - corrupt canonical state is reported and never overwritten
+  ---
+  duration_ms: 0.596106
+  type: 'test'
+  ...
+# Subtest: local player intent delegates to the canonical GameController and persists it
+ok 4 - local player intent delegates to the canonical GameController and persists it
+  ---
+  duration_ms: 33.085103
+  type: 'test'
+  ...
+# Subtest: configured HTTP provider follows the canonical requestMasterTurn path
+ok 5 - configured HTTP provider follows the canonical requestMasterTurn path
+  ---
+  duration_ms: 46.454812
+  type: 'test'
+  ...
+# Subtest: global bridge installation is idempotent and does not create campaign state
+ok 6 - global bridge installation is idempotent and does not create campaign state
+  ---
+  duration_ms: 0.362647
+  type: 'test'
+  ...
+# Subtest: blank player intent is rejected before controller construction or mutation
+ok 7 - blank player intent is rejected before controller construction or mutation
+  ---
+  duration_ms: 0.924275
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 761.329425
+

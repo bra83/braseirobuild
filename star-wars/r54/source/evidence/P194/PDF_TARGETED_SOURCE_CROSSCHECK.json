@@ -1,0 +1,43 @@
+{
+  "checkpoint": "P194",
+  "sourceTitle": "The Jewel of Yavin",
+  "sourceProductCode": "SWE09",
+  "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "section": "LEAVE NO TRACE, after Banking on a Break",
+  "verification": "TARGETED_TEXT_CROSSCHECK_ONLY",
+  "sourceRulesConfirmed": [
+    {
+      "topic": "G-100 black box extraction",
+      "source": "Daunting Mechanics; two or more hours of work",
+      "implemented": "Hardcoded minimum 120 minutes via world task-time ledger, success/failure charged; Daunting difficulty=4; legacy P193 saves exempt retroactively"
+    },
+    {
+      "topic": "black box custody",
+      "source": "Once dismantled, black box can be stolen or destroyed; stolen box is incriminating evidence",
+      "implemented": "explicit destroy_box or take_box, with risk flag for stolen box, no invented money"
+    },
+    {
+      "topic": "parts disposal by fences",
+      "source": "Hard Streetwise check to distribute components across fences",
+      "implemented": "Hard difficulty=3; real Streetwise (callejeo) narrative roll, receipt/faces verified; no sale proceeds invented"
+    },
+    {
+      "topic": "parts disposal at edge",
+      "source": "Trip to Cloud City edges to dump parts",
+      "implemented": "explicit GM-confirmed arrival required; travel time not fabricated or auto-applied"
+    },
+    {
+      "topic": "droid alive alternative",
+      "source": "Average Charm vs Cool; promise of berth; droid kept intact",
+      "implemented": "NOT implemented; must remain separate from disassembly branch"
+    }
+  ],
+  "unverifiedOrPending": [
+    "Full scene-by-scene editorial certification",
+    "restraining bolt inventory binding",
+    "tool replacement for electronic signature",
+    "droid alive and direct Charm vs Cool branch",
+    "bank liquidation and pursuit",
+    "five adventure PDFs and EotE/AoR expansions"
+  ]
+}

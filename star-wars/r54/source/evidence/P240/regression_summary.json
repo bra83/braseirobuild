@@ -1,0 +1,12 @@
+{
+  "files": 365,
+  "elapsed_seconds": 123.02,
+  "passed_files": 365,
+  "failed_files": 0,
+  "tests": 3297,
+  "pass": 3297,
+  "fail": 0,
+  "skip": 0,
+  "unknown": 0,
+  "failed": []
+}

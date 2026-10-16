@@ -1,0 +1,808 @@
+TAP version 13
+# Subtest: Cena mostra somente planos explicitamente públicos e não lê objetivo/recursos privados
+ok 1 - Cena mostra somente planos explicitamente públicos e não lê objetivo/recursos privados
+  ---
+  duration_ms: 10.177195
+  type: 'test'
+  ...
+# Subtest: plano de facção usa etapas textuais explícitas e não avança sozinho
+ok 2 - plano de facção usa etapas textuais explícitas e não avança sozinho
+  ---
+  duration_ms: 8.161449
+  type: 'test'
+  ...
+# Subtest: avanço explícito conclui uma etapa por vez e encerra o plano no final
+ok 3 - avanço explícito conclui uma etapa por vez e encerra o plano no final
+  ---
+  duration_ms: 1.699445
+  type: 'test'
+  ...
+# Subtest: evento de avanço de plano gera consequência causal deduplicada no local da etapa ativa
+ok 4 - evento de avanço de plano gera consequência causal deduplicada no local da etapa ativa
+  ---
+  duration_ms: 3.933674
+  type: 'test'
+  ...
+# Subtest: plano rejeita etapa ligada a local inexistente
+ok 5 - plano rejeita etapa ligada a local inexistente
+  ---
+  duration_ms: 0.446213
+  type: 'test'
+  ...
+# Subtest: plano ativo não volta silenciosamente a planejado e aborto encerra etapas restantes
+ok 6 - plano ativo não volta silenciosamente a planejado e aborto encerra etapas restantes
+  ---
+  duration_ms: 0.789855
+  type: 'test'
+  ...
+# Subtest: Cena mostra Forças em jogo em PT-BR sem expor objetivo ou recursos privados
+ok 7 - Cena mostra Forças em jogo em PT-BR sem expor objetivo ou recursos privados
+  ---
+  duration_ms: 6.579909
+  type: 'test'
+  ...
+# Subtest: facções têm ID estável, objetivo, recursos textuais e fatos com visibilidade separada
+ok 8 - facções têm ID estável, objetivo, recursos textuais e fatos com visibilidade separada
+  ---
+  duration_ms: 4.337099
+  type: 'test'
+  ...
+# Subtest: relações entre facções exigem IDs existentes e não aceitam autorrelação
+ok 9 - relações entre facções exigem IDs existentes e não aceitam autorrelação
+  ---
+  duration_ms: 1.251373
+  type: 'test'
+  ...
+# Subtest: PNPC mantém afiliação estável e afiliação inválida é rejeitada
+ok 10 - PNPC mantém afiliação estável e afiliação inválida é rejeitada
+  ---
+  duration_ms: 2.179389
+  type: 'test'
+  ...
+# Subtest: evento de facção altera o mundo e gera consequência causal no local informado
+ok 11 - evento de facção altera o mundo e gera consequência causal no local informado
+  ---
+  duration_ms: 2.149936
+  type: 'test'
+  ...
+# Subtest: evento de facção com local inexistente falha isoladamente sem alterar a facção
+ok 12 - evento de facção com local inexistente falha isoladamente sem alterar a facção
+  ---
+  duration_ms: 0.425114
+  type: 'test'
+  ...
+# Subtest: recursos de facção não duplicam e remoção inexistente falha claramente
+ok 13 - recursos de facção não duplicam e remoção inexistente falha claramente
+  ---
+  duration_ms: 0.352407
+  type: 'test'
+  ...
+# Subtest: resumo do Mestre contém facções completas, mas normalização remove relações e afiliações órfãs
+ok 14 - resumo do Mestre contém facções completas, mas normalização remove relações e afiliações órfãs
+  ---
+  duration_ms: 0.758681
+  type: 'test'
+  ...
+# Subtest: mudanças de facção persistem por sequência de eventos sem criar números de economia ou relógios próprios
+ok 15 - mudanças de facção persistem por sequência de eventos sem criar números de economia ou relógios próprios
+  ---
+  duration_ms: 9.336301
+  type: 'test'
+  ...
+# Subtest: MediaStore cria JSON como pendente antes de escrever
+ok 16 - MediaStore cria JSON como pendente antes de escrever
+  ---
+  duration_ms: 0.907696
+  type: 'test'
+  ...
+# Subtest: publicação exige exatamente uma linha atualizada antes de retornar sucesso
+ok 17 - publicação exige exatamente uma linha atualizada antes de retornar sucesso
+  ---
+  duration_ms: 0.189235
+  type: 'test'
+  ...
+# Subtest: falha de escrita ou publicação remove o item pendente do MediaStore
+ok 18 - falha de escrita ou publicação remove o item pendente do MediaStore
+  ---
+  duration_ms: 0.179655
+  type: 'test'
+  ...
+# Subtest: FINAL: Android Studio project has deterministic Gradle launcher and compatible pins
+ok 19 - FINAL: Android Studio project has deterministic Gradle launcher and compatible pins
+  ---
+  duration_ms: 3.799129
+  type: 'test'
+  ...
+# Subtest: FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency
+ok 20 - FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency
+  ---
+  duration_ms: 1.129574
+  type: 'test'
+  ...
+# Subtest: FINAL: WebView exposes only required bridges and blocks universal file access
+ok 21 - FINAL: WebView exposes only required bridges and blocks universal file access
+  ---
+  duration_ms: 1.234342
+  type: 'test'
+  ...
+# Subtest: FINAL: native PT-BR TTS exists and has bounded visible-text contract
+ok 22 - FINAL: native PT-BR TTS exists and has bounded visible-text contract
+  ---
+  duration_ms: 1.284078
+  type: 'test'
+  ...
+# Subtest: FINAL: JSON export/import is Android-capable
+ok 23 - FINAL: JSON export/import is Android-capable
+  ---
+  duration_ms: 1.659904
+  type: 'test'
+  ...
+# Subtest: FINAL: accessibility settings are functional and persistent
+ok 24 - FINAL: accessibility settings are functional and persistent
+  ---
+  duration_ms: 0.89517
+  type: 'test'
+  ...
+# Subtest: FINAL: canonical engine bundle is synchronized with live scene bridge
+ok 25 - FINAL: canonical engine bundle is synchronized with live scene bridge
+  ---
+  duration_ms: 12.265622
+  type: 'test'
+  ...
+# Subtest: FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks
+ok 26 - FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks
+  ---
+  duration_ms: 1.425177
+  type: 'test'
+  ...
+# Subtest: FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs
+ok 27 - FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs
+  ---
+  duration_ms: 0.712004
+  type: 'test'
+  ...
+# Subtest: FINAL: Android host disables WebView debugging and supports system back navigation
+ok 28 - FINAL: Android host disables WebView debugging and supports system back navigation
+  ---
+  duration_ms: 0.607359
+  type: 'test'
+  ...
+# Subtest: FINAL: shell script order installs engine before React shell and final runtime
+ok 29 - FINAL: shell script order installs engine before React shell and final runtime
+  ---
+  duration_ms: 0.189978
+  type: 'test'
+  ...
+# Subtest: FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts
+ok 30 - FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts
+  ---
+  duration_ms: 0.421942
+  type: 'test'
+  ...
+# Subtest: host injeta BraseiroGemini sem substituir BraseiroLibrary
+ok 31 - host injeta BraseiroGemini sem substituir BraseiroLibrary
+  ---
+  duration_ms: 1.425903
+  type: 'test'
+  ...
+# Subtest: chave Gemini fica fora do estado e protegida por AndroidKeyStore/no-backup
+ok 32 - chave Gemini fica fora do estado e protegida por AndroidKeyStore/no-backup
+  ---
+  duration_ms: 0.510389
+  type: 'test'
+  ...
+# Subtest: host usa endpoint/modelo oficial atual e nunca envia chave no corpo JSON
+ok 33 - host usa endpoint/modelo oficial atual e nunca envia chave no corpo JSON
+  ---
+  duration_ms: 0.414513
+  type: 'test'
+  ...
+# Subtest: geração é explícita, assíncrona e limitada a prompt/sceneKey
+ok 34 - geração é explícita, assíncrona e limitada a prompt/sceneKey
+  ---
+  duration_ms: 0.242599
+  type: 'test'
+  ...
+# Subtest: imagem gerada usa 16:9 e 1K
+ok 35 - imagem gerada usa 16:9 e 1K
+  ---
+  duration_ms: 0.240147
+  type: 'test'
+  ...
+# Subtest: host aceita fallback de importação manual com cópia privada
+ok 36 - host aceita fallback de importação manual com cópia privada
+  ---
+  duration_ms: 0.312851
+  type: 'test'
+  ...
+# Subtest: imagem só é servida pela URL local interceptada
+ok 37 - imagem só é servida pela URL local interceptada
+  ---
+  duration_ms: 0.186649
+  type: 'test'
+  ...
+# Subtest: eventos nativos não incluem chave nem prompt
+ok 38 - eventos nativos não incluem chave nem prompt
+  ---
+  duration_ms: 0.608481
+  type: 'test'
+  ...
+# Subtest: seletor de imagem captura falha de startActivityForResult dentro da UI thread
+ok 39 - seletor de imagem captura falha de startActivityForResult dentro da UI thread
+  ---
+  duration_ms: 1.262029
+  type: 'test'
+  ...
+# Subtest: falha assíncrona do picker limpa a cena pendente e informa mensagem segura
+ok 40 - falha assíncrona do picker limpa a cena pendente e informa mensagem segura
+  ---
+  duration_ms: 0.347854
+  type: 'test'
+  ...
+# Subtest: Gemini Interactions schema usa apenas limites estruturais suportados e não envia maxLength
+ok 41 - Gemini Interactions schema usa apenas limites estruturais suportados e não envia maxLength
+  ---
+  duration_ms: 1.090486
+  type: 'test'
+  ...
+# Subtest: limites textuais removidos do schema remoto continuam obrigatórios no Motor Barbara
+ok 42 - limites textuais removidos do schema remoto continuam obrigatórios no Motor Barbara
+  ---
+  duration_ms: 1.531618
+  type: 'test'
+  ...
+# Subtest: quantidade máxima de ações sugeridas continua protegida local e remotamente
+ok 43 - quantidade máxima de ações sugeridas continua protegida local e remotamente
+  ---
+  duration_ms: 0.303918
+  type: 'test'
+  ...
+# Subtest: geração e importação capturam uma geração de imagem antes do trabalho assíncrono
+ok 44 - geração e importação capturam uma geração de imagem antes do trabalho assíncrono
+  ---
+  duration_ms: 1.350765
+  type: 'test'
+  ...
+# Subtest: limpar imagem invalida trabalho anterior e remove temporário sob o mesmo lock
+ok 45 - limpar imagem invalida trabalho anterior e remove temporário sob o mesmo lock
+  ---
+  duration_ms: 0.224158
+  type: 'test'
+  ...
+# Subtest: commit só persiste geração atual e ordena evento de sucesso dentro do lock
+ok 46 - commit só persiste geração atual e ordena evento de sucesso dentro do lock
+  ---
+  duration_ms: 0.148472
+  type: 'test'
+  ...
+# Subtest: erros tardios de geração/importação invalidados não chegam à UI
+ok 47 - erros tardios de geração/importação invalidados não chegam à UI
+  ---
+  duration_ms: 0.295469
+  type: 'test'
+  ...
+# Subtest: eletrobinóculos removem no máximo 1 Complicação causada por alcance ou iluminação
+ok 48 - eletrobinóculos removem no máximo 1 Complicação causada por alcance ou iluminação
+  ---
+  duration_ms: 1.785582
+  type: 'test'
+  ...
+# Subtest: macrobinóculos só removem Complicação explicitamente atribuída ao longo alcance
+ok 49 - macrobinóculos só removem Complicação explicitamente atribuída ao longo alcance
+  ---
+  duration_ms: 0.286167
+  type: 'test'
+  ...
+# Subtest: óptica nunca remove Complicação sem causa declarada nem aceita causas acima do total
+ok 50 - óptica nunca remove Complicação sem causa declarada nem aceita causas acima do total
+  ---
+  duration_ms: 0.426924
+  type: 'test'
+  ...
+# Subtest: algemas usam teste Difícil de Atletismo ou Coordenação para escapar
+ok 51 - algemas usam teste Difícil de Atletismo ou Coordenação para escapar
+  ---
+  duration_ms: 0.22117
+  type: 'test'
+  ...
+# Subtest: dispositivo de retenção de droide usa Disciplina Difícil e nova tentativa depende do Mestre
+ok 52 - dispositivo de retenção de droide usa Disciplina Difícil e nova tentativa depende do Mestre
+  ---
+  duration_ms: 0.134199
+  type: 'test'
+  ...
+# Subtest: GameController aplica alívio óptico só aos setbacks ambientais declarados
+ok 53 - GameController aplica alívio óptico só aos setbacks ambientais declarados
+  ---
+  duration_ms: 9.306547
+  type: 'test'
+  ...
+# Subtest: Tabla 5-3 da Caja de Inicio fornece exatamente 21 itens gerais com preço
+ok 54 - Tabla 5-3 da Caja de Inicio fornece exatamente 21 itens gerais com preço
+  ---
+  duration_ms: 4.397664
+  type: 'test'
+  ...
+# Subtest: Tabela 5-3 não autoriza inventar raridade nem restrição
+ok 55 - Tabela 5-3 não autoriza inventar raridade nem restrição
+  ---
+  duration_ms: 0.374256
+  type: 'test'
+  ...
+# Subtest: referência geral entra no catálogo como cópia e preserva autoridade imutável
+ok 56 - referência geral entra no catálogo como cópia e preserva autoridade imutável
+  ---
+  duration_ms: 3.059659
+  type: 'test'
+  ...
+# Subtest: kit de ferramentas remove somente a parcela explicitamente atribuída à falta de ferramentas
+ok 57 - kit de ferramentas remove somente a parcela explicitamente atribuída à falta de ferramentas
+  ---
+  duration_ms: 2.889725
+  type: 'test'
+  ...
+# Subtest: GameController aplica kit de ferramentas apenas a Mecânica
+ok 58 - GameController aplica kit de ferramentas apenas a Mecânica
+  ---
+  duration_ms: 11.664855
+  type: 'test'
+  ...
+# Subtest: remendo de reparo de emergência fica registrado como ação para droide, equivalente ao injetor, sem fingir consumo
+ok 59 - remendo de reparo de emergência fica registrado como ação para droide, equivalente ao injetor, sem fingir consumo
+  ---
+  duration_ms: 0.273447
+  type: 'test'
+  ...
+# Subtest: recarga adicional fica registrada como manobra após Desespero de munição, sem inventar rastreamento de munição
+ok 60 - recarga adicional fica registrada como manobra após Desespero de munição, sem inventar rastreamento de munição
+  ---
+  duration_ms: 0.143996
+  type: 'test'
+  ...
+# Subtest: BUILD: launchers delegate only to the packaged GradleWrapperMain
+ok 61 - BUILD: launchers delegate only to the packaged GradleWrapperMain
+  ---
+  duration_ms: 1.771714
+  type: 'test'
+  ...
+# Subtest: BUILD: packaged wrapper executes a verified offline distribution and forwards arguments
+ok 62 - BUILD: packaged wrapper executes a verified offline distribution and forwards arguments
+  ---
+  duration_ms: 313.456578
+  type: 'test'
+  ...
+# Subtest: BUILD: packaged wrapper rejects a distribution with the wrong SHA-256
+ok 63 - BUILD: packaged wrapper rejects a distribution with the wrong SHA-256
+  ---
+  duration_ms: 342.621304
+  type: 'test'
+  ...
+# Subtest: Proteção reduz dano e Perfuração reduz a Proteção efetiva
+ok 64 - Proteção reduz dano e Perfuração reduz a Proteção efetiva
+  ---
+  duration_ms: 2.126107
+  type: 'test'
+  ...
+# Subtest: ultrapassar o limiar de Ferimentos causa inconsciência e registra crítico
+ok 65 - ultrapassar o limiar de Ferimentos causa inconsciência e registra crítico
+  ---
+  duration_ms: 0.970658
+  type: 'test'
+  ...
+# Subtest: ultrapassar o limiar de Tensão causa inconsciência
+ok 66 - ultrapassar o limiar de Tensão causa inconsciência
+  ---
+  duration_ms: 0.369697
+  type: 'test'
+  ...
+# Subtest: primeiro stimpack do dia cura 5 Ferimentos e é consumido
+ok 67 - primeiro stimpack do dia cura 5 Ferimentos e é consumido
+  ---
+  duration_ms: 1.096897
+  type: 'test'
+  ...
+# Subtest: stimpacks seguintes curam 4, 3, 2, 1 e o sexto não cura no mesmo dia
+ok 68 - stimpacks seguintes curam 4, 3, 2, 1 e o sexto não cura no mesmo dia
+  ---
+  duration_ms: 4.030668
+  type: 'test'
+  ...
+# Subtest: download de cache captura uma geração antes de entrar no executor
+ok 69 - download de cache captura uma geração antes de entrar no executor
+  ---
+  duration_ms: 1.059198
+  type: 'test'
+  ...
+# Subtest: clear invalida a geração e remove imagem metadata e temporário sob o mesmo lock de commit
+ok 70 - clear invalida a geração e remove imagem metadata e temporário sob o mesmo lock de commit
+  ---
+  duration_ms: 0.177536
+  type: 'test'
+  ...
+# Subtest: fetch só confirma arquivos se sua geração continuar atual dentro do lock de commit
+ok 71 - fetch só confirma arquivos se sua geração continuar atual dentro do lock de commit
+  ---
+  duration_ms: 1.703279
+  type: 'test'
+  ...
+# Subtest: fetch invalidado não publica erro tardio depois de clear ou requisição mais nova
+ok 72 - fetch invalidado não publica erro tardio depois de clear ou requisição mais nova
+  ---
+  duration_ms: 0.281117
+  type: 'test'
+  ...
+# Subtest: image library manifest is valid and unique
+ok 73 - image library manifest is valid and unique
+  ---
+  duration_ms: 3.107905
+  type: 'test'
+  ...
+# Subtest: all local runtime asset paths exist
+ok 74 - all local runtime asset paths exist
+  ---
+  duration_ms: 1.034139
+  type: 'test'
+  ...
+# Subtest: local token library has 143 individual tokens
+ok 75 - local token library has 143 individual tokens
+  ---
+  duration_ms: 0.690592
+  type: 'test'
+  ...
+# Subtest: search is category/tag based and does not invent mechanical binding
+ok 76 - search is category/tag based and does not invent mechanical binding
+  ---
+  duration_ms: 11.030594
+  type: 'test'
+  ...
+# Subtest: equipment images remain visual-only until mechanical mapping is validated
+ok 77 - equipment images remain visual-only until mechanical mapping is validated
+  ---
+  duration_ms: 0.219086
+  type: 'test'
+  ...
+# Subtest: Kainrath is an external indexed source, not silently copied into local runtime assets
+ok 78 - Kainrath is an external indexed source, not silently copied into local runtime assets
+  ---
+  duration_ms: 2.172373
+  type: 'test'
+  ...
+# Subtest: BraseiroGameBridge exposes image library without requiring a campaign
+ok 79 - BraseiroGameBridge exposes image library without requiring a campaign
+  ---
+  duration_ms: 4.472309
+  type: 'test'
+  ...
+# Subtest: image bridge rejects unknown asset IDs without mutating state
+ok 80 - image bridge rejects unknown asset IDs without mutating state
+  ---
+  duration_ms: 0.17691
+  type: 'test'
+  ...
+# Subtest: R36 image library V2 has expected local/external/map counts
+ok 81 - R36 image library V2 has expected local/external/map counts
+  ---
+  duration_ms: 0.957412
+  type: 'test'
+  ...
+# Subtest: all 17 Kainrath maps use allowed HTTPS wp-content URLs
+ok 82 - all 17 Kainrath maps use allowed HTTPS wp-content URLs
+  ---
+  duration_ms: 0.665659
+  type: 'test'
+  ...
+# Subtest: external maps are reference/cache assets and never masquerade as packaged mechanics
+ok 83 - external maps are reference/cache assets and never masquerade as packaged mechanics
+  ---
+  duration_ms: 0.334666
+  type: 'test'
+  ...
+# Subtest: map catalog covers useful map kinds without inferring campaign state
+ok 84 - map catalog covers useful map kinds without inferring campaign state
+  ---
+  duration_ms: 0.170366
+  type: 'test'
+  ...
+# Subtest: Kainrath source index contains the complete Maps batch
+ok 85 - Kainrath source index contains the complete Maps batch
+  ---
+  duration_ms: 0.186377
+  type: 'test'
+  ...
+# Subtest: game bridge exposes map catalog and runtime descriptors without campaign
+ok 86 - game bridge exposes map catalog and runtime descriptors without campaign
+  ---
+  duration_ms: 2.927792
+  type: 'test'
+  ...
+# Subtest: native image cache is constrained by host path size MIME and redirect guards
+ok 87 - native image cache is constrained by host path size MIME and redirect guards
+  ---
+  duration_ms: 0.569547
+  type: 'test'
+  ...
+# Subtest: native cache is private and served through braseiro.local rather than exposing file paths
+ok 88 - native cache is private and served through braseiro.local rather than exposing file paths
+  ---
+  duration_ms: 0.165589
+  type: 'test'
+  ...
+# Subtest: MainActivity installs BraseiroImages and preserves scene image interceptor order
+ok 89 - MainActivity installs BraseiroImages and preserves scene image interceptor order
+  ---
+  duration_ms: 0.357911
+  type: 'test'
+  ...
+# Subtest: real static Android MAPA surface exposes search selection cache and provenance controls
+ok 90 - real static Android MAPA surface exposes search selection cache and provenance controls
+  ---
+  duration_ms: 0.598594
+  type: 'test'
+  ...
+# Subtest: external URL validator rejects arbitrary hosts and non-HTTPS schemes
+ok 91 - external URL validator rejects arbitrary hosts and non-HTTPS schemes
+  ---
+  duration_ms: 0.208685
+  type: 'test'
+  ...
+# Subtest: map search is deterministic and bounded
+ok 92 - map search is deterministic and bounded
+  ---
+  duration_ms: 0.698801
+  type: 'test'
+  ...
+# Subtest: R37 image library V3 adds 44 visual entities without losing R36 assets
+ok 93 - R37 image library V3 adds 44 visual entities without losing R36 assets
+  ---
+  duration_ms: 1.229804
+  type: 'test'
+  ...
+# Subtest: R37 Kainrath visual entity index is complete and unique
+ok 94 - R37 Kainrath visual entity index is complete and unique
+  ---
+  duration_ms: 0.244902
+  type: 'test'
+  ...
+# Subtest: all R37 visual entities are visual-only and use allowed cache URLs
+ok 95 - all R37 visual entities are visual-only and use allowed cache URLs
+  ---
+  duration_ms: 0.919703
+  type: 'test'
+  ...
+# Subtest: R37 categories contain exactly 16 NPC portraits 20 droids and 8 beasts
+ok 96 - R37 categories contain exactly 16 NPC portraits 20 droids and 8 beasts
+  ---
+  duration_ms: 0.230945
+  type: 'test'
+  ...
+# Subtest: R37 visual entity bridge searches all/npc/droid/beast without campaign state
+ok 97 - R37 visual entity bridge searches all/npc/droid/beast without campaign state
+  ---
+  duration_ms: 24.10524
+  type: 'test'
+  ...
+# Subtest: R37 visual entity bridge rejects invalid kind without mutation
+ok 98 - R37 visual entity bridge rejects invalid kind without mutation
+  ---
+  duration_ms: 2.241996
+  type: 'test'
+  ...
+# Subtest: named searches resolve real visual references without mechanical inference
+ok 99 - named searches resolve real visual references without mechanical inference
+  ---
+  duration_ms: 1.806337
+  type: 'test'
+  ...
+# Subtest: R37 visual entities do not pollute the 18-map catalog
+ok 100 - R37 visual entities do not pollute the 18-map catalog
+  ---
+  duration_ms: 2.814485
+  type: 'test'
+  ...
+# Subtest: real static Android AJUSTES exposes visual entity search preview cache and provenance
+ok 101 - real static Android AJUSTES exposes visual entity search preview cache and provenance
+  ---
+  duration_ms: 1.912044
+  type: 'test'
+  ...
+# Subtest: R38 manifest grows exactly to 229 assets with unique IDs
+ok 102 - R38 manifest grows exactly to 229 assets with unique IDs
+  ---
+  duration_ms: 0.873838
+  type: 'test'
+  ...
+# Subtest: R38 wave adds exactly 20 entries from Enemies and NPCs page 3
+ok 103 - R38 wave adds exactly 20 entries from Enemies and NPCs page 3
+  ---
+  duration_ms: 0.206137
+  type: 'test'
+  ...
+# Subtest: R38 totals preserve R37 categories and add 18 NPCs plus 2 droids
+ok 104 - R38 totals preserve R37 categories and add 18 NPCs plus 2 droids
+  ---
+  duration_ms: 0.106764
+  type: 'test'
+  ...
+# Subtest: all R38 wave URLs pass the same Kainrath external-image security policy
+ok 105 - all R38 wave URLs pass the same Kainrath external-image security policy
+  ---
+  duration_ms: 0.639552
+  type: 'test'
+  ...
+# Subtest: R38 wave remains visual-only with no mechanical inference
+ok 106 - R38 wave remains visual-only with no mechanical inference
+  ---
+  duration_ms: 0.190787
+  type: 'test'
+  ...
+# Subtest: R38 source metadata records the second NPC wave without overwriting R37 entries
+ok 107 - R38 source metadata records the second NPC wave without overwriting R37 entries
+  ---
+  duration_ms: 0.094026
+  type: 'test'
+  ...
+# Subtest: visual entity bridge automatically exposes expanded R38 totals without API changes
+ok 108 - visual entity bridge automatically exposes expanded R38 totals without API changes
+  ---
+  duration_ms: 17.961945
+  type: 'test'
+  ...
+# Subtest: R38 expansion does not alter the 18-map catalog
+ok 109 - R38 expansion does not alter the 18-map catalog
+  ---
+  duration_ms: 3.099922
+  type: 'test'
+  ...
+# Subtest: R39 baseline remains present in current additive image-library manifest
+ok 110 - R39 baseline remains present in current additive image-library manifest
+  ---
+  duration_ms: 2.219938
+  type: 'test'
+  ...
+# Subtest: R39 visual wave3 contains exactly 10 confirmed assets
+ok 111 - R39 visual wave3 contains exactly 10 confirmed assets
+  ---
+  duration_ms: 4.396041
+  type: 'test'
+  ...
+# Subtest: R39 totals add 3 NPC portraits and 7 beasts without changing maps or droids
+ok 112 - R39 totals add 3 NPC portraits and 7 beasts without changing maps or droids
+  ---
+  duration_ms: 0.206647
+  type: 'test'
+  ...
+# Subtest: R39 direct URLs obey the existing Kainrath whitelist and cache contract
+ok 113 - R39 direct URLs obey the existing Kainrath whitelist and cache contract
+  ---
+  duration_ms: 1.333644
+  type: 'test'
+  ...
+# Subtest: R39 assets remain visual-only and cannot infer mechanics
+ok 114 - R39 assets remain visual-only and cannot infer mechanics
+  ---
+  duration_ms: 0.532137
+  type: 'test'
+  ...
+# Subtest: R39 source metadata keeps prior waves and records wave3 separately
+ok 115 - R39 source metadata keeps prior waves and records wave3 separately
+  ---
+  duration_ms: 0.211497
+  type: 'test'
+  ...
+# Subtest: generic visual bridge automatically exposes R39 expanded totals
+ok 116 - generic visual bridge automatically exposes R39 expanded totals
+  ---
+  duration_ms: 31.533359
+  type: 'test'
+  ...
+# Subtest: R39 visual expansion leaves map catalog exactly unchanged
+ok 117 - R39 visual expansion leaves map catalog exactly unchanged
+  ---
+  duration_ms: 3.515933
+  type: 'test'
+  ...
+# Subtest: R40 manifest V3.3 has 282 unique assets
+ok 118 - R40 manifest V3.3 has 282 unique assets
+  ---
+  duration_ms: 1.533137
+  type: 'test'
+  ...
+# Subtest: R40 vehicle wave contains exactly 43 Kainrath vehicles/ships
+ok 119 - R40 vehicle wave contains exactly 43 Kainrath vehicles/ships
+  ---
+  duration_ms: 0.212271
+  type: 'test'
+  ...
+# Subtest: R40 vehicle URLs obey the existing Kainrath whitelist and cache contract
+ok 120 - R40 vehicle URLs obey the existing Kainrath whitelist and cache contract
+  ---
+  duration_ms: 2.15109
+  type: 'test'
+  ...
+# Subtest: R40 vehicle assets remain visual-only and cannot infer mechanics
+ok 121 - R40 vehicle assets remain visual-only and cannot infer mechanics
+  ---
+  duration_ms: 1.491265
+  type: 'test'
+  ...
+# Subtest: R40 source metadata records vehicle wave separately without mutating prior visual waves
+ok 122 - R40 source metadata records vehicle wave separately without mutating prior visual waves
+  ---
+  duration_ms: 1.552519
+  type: 'test'
+  ...
+# Subtest: R40 generic visual bridge exposes vehicles and keeps prior visual categories
+ok 123 - R40 generic visual bridge exposes vehicles and keeps prior visual categories
+  ---
+  duration_ms: 30.149325
+  type: 'test'
+  ...
+# Subtest: R40 searchImageLibrary can query vehicle subtype without touching map catalog
+ok 124 - R40 searchImageLibrary can query vehicle subtype without touching map catalog
+  ---
+  duration_ms: 18.386839
+  type: 'test'
+  ...
+# Subtest: R40 Android visual library exposes Veículos/Naves filter without mechanical binding language regression
+ok 125 - R40 Android visual library exposes Veículos/Naves filter without mechanical binding language regression
+  ---
+  duration_ms: 1.598196
+  type: 'test'
+  ...
+# Subtest: R41 manifest V3.4 has 329 unique assets
+ok 126 - R41 manifest V3.4 has 329 unique assets
+  ---
+  duration_ms: 1.001946
+  type: 'test'
+  ...
+# Subtest: R41 vehicle wave2 adds exactly 47 direct-URL assets
+ok 127 - R41 vehicle wave2 adds exactly 47 direct-URL assets
+  ---
+  duration_ms: 0.302876
+  type: 'test'
+  ...
+# Subtest: R41 wave2 grouping is 28 freighter/transport page assets + 12 landspeeders + 7 airspeeders
+ok 128 - R41 wave2 grouping is 28 freighter/transport page assets + 12 landspeeders + 7 airspeeders
+  ---
+  duration_ms: 1.078888
+  type: 'test'
+  ...
+# Subtest: R41 URLs obey secure Kainrath cache policy
+ok 129 - R41 URLs obey secure Kainrath cache policy
+  ---
+  duration_ms: 1.414311
+  type: 'test'
+  ...
+# Subtest: R41 vehicle images remain visual-only
+ok 130 - R41 vehicle images remain visual-only
+  ---
+  duration_ms: 1.904258
+  type: 'test'
+  ...
+# Subtest: R41 bridge exposes all 90 vehicles while preserving maps and old visual entities
+ok 131 - R41 bridge exposes all 90 vehicles while preserving maps and old visual entities
+  ---
+  duration_ms: 20.040173
+  type: 'test'
+  ...
+# Subtest: R41 category searches expose surface subtypes without mechanics
+ok 132 - R41 category searches expose surface subtypes without mechanics
+  ---
+  duration_ms: 3.642253
+  type: 'test'
+  ...
+# Subtest: R41 previous R40 vehicle wave remains present and unchanged
+ok 133 - R41 previous R40 vehicle wave remains present and unchanged
+  ---
+  duration_ms: 0.394764
+  type: 'test'
+  ...
+1..133
+# tests 133
+# suites 0
+# pass 133
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1361.419365

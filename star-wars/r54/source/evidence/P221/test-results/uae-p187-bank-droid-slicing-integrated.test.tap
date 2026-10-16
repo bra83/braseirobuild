@@ -1,0 +1,88 @@
+TAP version 13
+# Subtest: P187 new sessions reject fabricated manual bank success
+ok 1 - P187 new sessions reject fabricated manual bank success
+  ---
+  duration_ms: 199.781243
+  type: 'test'
+  ...
+# Subtest: P187 G-100 must be captured, disabled and then sliced; all stages use real dice
+ok 2 - P187 G-100 must be captured, disabled and then sliced; all stages use real dice
+  ---
+  duration_ms: 236.042621
+  type: 'test'
+  ...
+# Subtest: P187 droid location and restraint change effective dice difficulty
+ok 3 - P187 droid location and restraint change effective dice difficulty
+  ---
+  duration_ms: 184.070388
+  type: 'test'
+  ...
+# Subtest: P187 failed acquisition does not invent droid or bank access
+ok 4 - P187 failed acquisition does not invent droid or bank access
+  ---
+  duration_ms: 210.329624
+  type: 'test'
+  ...
+# Subtest: P187 failed disabling activates alarm and upgrades next slicing check
+ok 5 - P187 failed disabling activates alarm and upgrades next slicing check
+  ---
+  duration_ms: 292.149
+  type: 'test'
+  ...
+# Subtest: P187 failed slicing retries upgrade pool, consume 30min and lock after four failures
+ok 6 - P187 failed slicing retries upgrade pool, consume 30min and lock after four failures
+  ---
+  duration_ms: 333.739475
+  type: 'test'
+  ...
+# Subtest: P187 G-100 black box requires a real Daunting Mechanics check
+ok 7 - P187 G-100 black box requires a real Daunting Mechanics check
+  ---
+  duration_ms: 266.231537
+  type: 'test'
+  ...
+# Subtest: P187 forged faces, totals, phases and flags rejected during save validation
+ok 8 - P187 forged faces, totals, phases and flags rejected during save validation
+  ---
+  duration_ms: 173.263521
+  type: 'test'
+  ...
+# Subtest: P187 duplicate action and malformed stage are atomic, no saves or partial state
+ok 9 - P187 duplicate action and malformed stage are atomic, no saves or partial state
+  ---
+  duration_ms: 191.180191
+  type: 'test'
+  ...
+# Subtest: P187 bank receipts and UAE persist over three controller reopenings
+ok 10 - P187 bank receipts and UAE persist over three controller reopenings
+  ---
+  duration_ms: 204.071833
+  type: 'test'
+  ...
+# Subtest: P187 legacy saves without bankContractVersion preserve manual check path
+ok 11 - P187 legacy saves without bankContractVersion preserve manual check path
+  ---
+  duration_ms: 264.290746
+  type: 'test'
+  ...
+# Subtest: P187 bank flag without receipts and auction winner mismatch are rejected
+ok 12 - P187 bank flag without receipts and auction winner mismatch are rejected
+  ---
+  duration_ms: 295.536761
+  type: 'test'
+  ...
+# Subtest: P187 Android bridge exposes banking and bundled code
+ok 13 - P187 Android bridge exposes banking and bundled code
+  ---
+  duration_ms: 50.221252
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3123.855503

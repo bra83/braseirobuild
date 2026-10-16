@@ -1,0 +1,149 @@
+TAP version 13
+# Subtest: P155: registry advertises actual combat for all five, without claiming PDF certification
+ok 1 - P155: registry advertises actual combat for all five, without claiming PDF certification
+  ---
+  duration_ms: 42.858122
+  type: 'test'
+  ...
+# Subtest: P155: droid-delivery exposes scene-locked, runnable btr-yiyar-hangar
+ok 2 - P155: droid-delivery exposes scene-locked, runnable btr-yiyar-hangar
+  ---
+  duration_ms: 127.806951
+  type: 'test'
+  ...
+# Subtest: P155: droid-delivery persists victory, blocks replay and allows same scene to be inspected
+ok 3 - P155: droid-delivery persists victory, blocks replay and allows same scene to be inspected
+  ---
+  duration_ms: 9.481863
+  type: 'test'
+  ...
+# Subtest: P155: droid-delivery rejects invalid outcome and premature settlement without mutating source
+ok 4 - P155: droid-delivery rejects invalid outcome and premature settlement without mutating source
+  ---
+  duration_ms: 5.958583
+  type: 'test'
+  ...
+# Subtest: P155: rival-convergence exposes scene-locked, runnable btr-yiyar-jungle
+ok 5 - P155: rival-convergence exposes scene-locked, runnable btr-yiyar-jungle
+  ---
+  duration_ms: 6.109393
+  type: 'test'
+  ...
+# Subtest: P155: rival-convergence persists victory, blocks replay and allows same scene to be inspected
+ok 6 - P155: rival-convergence persists victory, blocks replay and allows same scene to be inspected
+  ---
+  duration_ms: 16.76691
+  type: 'test'
+  ...
+# Subtest: P155: rival-convergence rejects invalid outcome and premature settlement without mutating source
+ok 7 - P155: rival-convergence rejects invalid outcome and premature settlement without mutating source
+  ---
+  duration_ms: 40.871232
+  type: 'test'
+  ...
+# Subtest: P155: imperial-interruption exposes scene-locked, runnable btr-imperial-interception
+ok 8 - P155: imperial-interruption exposes scene-locked, runnable btr-imperial-interception
+  ---
+  duration_ms: 34.102157
+  type: 'test'
+  ...
+# Subtest: P155: imperial-interruption persists victory, blocks replay and allows same scene to be inspected
+ok 9 - P155: imperial-interruption persists victory, blocks replay and allows same scene to be inspected
+  ---
+  duration_ms: 17.069721
+  type: 'test'
+  ...
+# Subtest: P155: imperial-interruption rejects invalid outcome and premature settlement without mutating source
+ok 10 - P155: imperial-interruption rejects invalid outcome and premature settlement without mutating source
+  ---
+  duration_ms: 24.310525
+  type: 'test'
+  ...
+# Subtest: P155: hangar adversaries_defeated maps only real combat outcomes to droid custody
+ok 11 - P155: hangar adversaries_defeated maps only real combat outcomes to droid custody
+  ---
+  duration_ms: 54.763071
+  type: 'test'
+  ...
+# Subtest: P155: hangar player_incapacitated maps only real combat outcomes to droid custody
+ok 12 - P155: hangar player_incapacitated maps only real combat outcomes to droid custody
+  ---
+  duration_ms: 6.562398
+  type: 'test'
+  ...
+# Subtest: P155: hangar retreat maps only real combat outcomes to droid custody
+ok 13 - P155: hangar retreat maps only real combat outcomes to droid custody
+  ---
+  duration_ms: 17.605504
+  type: 'test'
+  ...
+# Subtest: P155: hangar ended maps only real combat outcomes to droid custody
+ok 14 - P155: hangar ended maps only real combat outcomes to droid custody
+  ---
+  duration_ms: 19.332527
+  type: 'test'
+  ...
+# Subtest: P155: imperial victory reduces exposure and defeat raises it, neutral ending preserves it
+ok 15 - P155: imperial victory reduces exposure and defeat raises it, neutral ending preserves it
+  ---
+  duration_ms: 56.320081
+  type: 'test'
+  ...
+# Subtest: P155: real GameController Android combat starts, finishes and persists Yiyar outcome
+ok 16 - P155: real GameController Android combat starts, finishes and persists Yiyar outcome
+  ---
+  duration_ms: 435.700475
+  type: 'test'
+  ...
+# Subtest: P155: repository failure rolls back combat start and UAE encounter journal
+ok 17 - P155: repository failure rolls back combat start and UAE encounter journal
+  ---
+  duration_ms: 289.997535
+  type: 'test'
+  ...
+# Subtest: P155: repository failure rolls back combat finish, history, NPCs and flags
+ok 18 - P155: repository failure rolls back combat finish, history, NPCs and flags
+  ---
+  duration_ms: 211.99811
+  type: 'test'
+  ...
+# Subtest: P155: under-black-sun retains UAE start, choice and 3 reloads
+ok 19 - P155: under-black-sun retains UAE start, choice and 3 reloads
+  ---
+  duration_ms: 99.053817
+  type: 'test'
+  ...
+# Subtest: P155: beyond-the-rim retains UAE start, choice and 3 reloads
+ok 20 - P155: beyond-the-rim retains UAE start, choice and 3 reloads
+  ---
+  duration_ms: 198.622081
+  type: 'test'
+  ...
+# Subtest: P155: long-arm-of-the-hutt retains UAE start, choice and 3 reloads
+ok 21 - P155: long-arm-of-the-hutt retains UAE start, choice and 3 reloads
+  ---
+  duration_ms: 164.195807
+  type: 'test'
+  ...
+# Subtest: P155: jewel-of-yavin retains UAE start, choice and 3 reloads
+ok 22 - P155: jewel-of-yavin retains UAE start, choice and 3 reloads
+  ---
+  duration_ms: 235.7326
+  type: 'test'
+  ...
+# Subtest: P155: mask-of-the-pirate-queen retains UAE start, choice and 3 reloads
+ok 23 - P155: mask-of-the-pirate-queen retains UAE start, choice and 3 reloads
+  ---
+  duration_ms: 352.356216
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3743.405503
+

@@ -1,0 +1,35 @@
+TAP version 13
+# Subtest: P74: Android version no longer reports 1.0.0
+ok 1 - P74: Android version no longer reports 1.0.0
+  ---
+  duration_ms: 2.123262
+  type: 'test'
+  ...
+# Subtest: P74: Android reads modern system bars and exports bottom safe inset
+ok 2 - P74: Android reads modern system bars and exports bottom safe inset
+  ---
+  duration_ms: 7.799291
+  type: 'test'
+  ...
+# Subtest: P74: campaign hub exposes restart, new world/selection and full reset
+ok 3 - P74: campaign hub exposes restart, new world/selection and full reset
+  ---
+  duration_ms: 4.157881
+  type: 'test'
+  ...
+# Subtest: P74: UI bridge exposes canonical full newCampaign without changing Duty/Obligation logic
+ok 4 - P74: UI bridge exposes canonical full newCampaign without changing Duty/Obligation logic
+  ---
+  duration_ms: 25.713308
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 231.565839
+

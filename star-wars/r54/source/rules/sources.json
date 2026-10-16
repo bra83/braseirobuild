@@ -1,0 +1,84 @@
+{
+  "requestedProjectName": "Star Wars - Edge of the galaxy",
+  "identifiedRulesFamily": "Star Wars Roleplaying Game (Fantasy Flight Games / Edge Entertainment)",
+  "primaryCurrentSource": {
+    "title": "La Era de la Rebelión - Libro de reglas.pdf",
+    "driveId": "1VBlQGiO7WfKLq0bgR2dvPxXgpkbgF1sX",
+    "role": "starter rules / readable visual source; R27 audita Tabla 5-3 (PDF p. 36) e R28 audita Tabla 5-2 (PDF p. 35), sempre sem preencher campos ausentes"
+  },
+  "coreCandidate": {
+    "title": "Star Wars - Age of Rebellion - Core Rulebook.pdf",
+    "driveId": "1w2M6f7R_dzaaHk6Q6R8Y7TIqAYM2MJIq",
+    "role": "full core; arquivo bruto excede o limite do conector. Procedimento de raridade/disponibilidade (p. 164-165) auditado por referência textual acessível e implementado no R26; catálogo restante continua pendente."
+  },
+  "supplementsPending": [
+    "SWFFG - Allies and Adversaries.pdf",
+    "Star Wars - Dawn of Rebellion.pdf",
+    "SWFFG - Rise of the Seperatists.pdf",
+    "SWFFG - Collapse of the Republic.pdf",
+    "Age of Rebellion career/adventure folders"
+  ],
+  "starterCharacters": [
+    {
+      "title": "Zal.pdf",
+      "driveId": "1qxEyDuWEyotzTKJ1LlvRyr5LNtaqtt0X"
+    },
+    {
+      "title": "Vendri.pdf",
+      "driveId": "1iq0awaUZB5d2Lmdyou7QJNq0z_VbOmFu"
+    },
+    {
+      "title": "Tendaar.pdf",
+      "driveId": "1pNz_kAUwLd_wkmMJwqarAq9vt-035LJx"
+    },
+    {
+      "title": "Jin-Rio.pdf",
+      "driveId": "1TLfJBOldhLgQjkPMM33b3yfO8tO6fPAy"
+    },
+    {
+      "title": "Cael.pdf",
+      "driveId": "1vsZctT-PHWDCzOETNGwPn-4tQxiAiLp-"
+    },
+    {
+      "title": "Arkhan.pdf",
+      "driveId": "1DorUqrLFr1ypKn3r8W1Yo1LPxGEV8_kE"
+    }
+  ],
+  "groupSheet": {
+    "title": "Hoja de Base de operaciones.pdf",
+    "driveId": "1WQaDDND_A5S8QiteA0BuFcdQ1Vbs68hJ",
+    "role": "folha oficial de grupo/base de operações"
+  },
+  "talentTreePacks": [
+    {
+      "career": "Ás",
+      "title": "Talentos_As.pdf",
+      "driveId": "1ZkebJqgKvUNjqqG7oRxKQznvJlBz8s2I"
+    },
+    {
+      "career": "Comandante",
+      "title": "talentos_comandante.pdf",
+      "driveId": "1Qd2CqRLqrfiDkuLGGUil_KOlwC4KXIrX"
+    },
+    {
+      "career": "Diplomata",
+      "title": "talentos_diplomatico.pdf",
+      "driveId": "1Km5_d1SpG57f0uzTFNcvOKUWvbD0Q49k"
+    },
+    {
+      "career": "Engenheiro",
+      "title": "talentos_Ingeniero.pdf",
+      "driveId": "1_CUx9pcvty-WgqYB8ObAUWdyDpM9HNU8"
+    },
+    {
+      "career": "Soldado",
+      "title": "talentos_Soldado.pdf",
+      "driveId": "12hsAgyV5kLXbn8rmcdEf4DPnxj1GD8ms"
+    },
+    {
+      "career": "Espião",
+      "title": "talentos_Espia.pdf",
+      "driveId": "1KBqZmHdeC0SEnpDcT5Igy71OZtpYzZow"
+    }
+  ]
+}

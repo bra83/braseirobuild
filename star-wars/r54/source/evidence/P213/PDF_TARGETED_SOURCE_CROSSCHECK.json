@@ -1,0 +1,12 @@
+{
+  "checkpoint": "P213",
+  "source": "SWE09 The Jewel of Yavin",
+  "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "printedPages": [93, 94],
+  "readMethod": "Google Drive connector fetch; targeted official PDF text",
+  "verifiedEffects": [
+    {"id":"christophsis_spotlight","trigger":"Threat from enemy attack","consequence":"one setback on combat checks targeting PC until end of next PC turn","implemented":true},
+    {"id":"coruscant_transport","trigger":"Threat from enemy attack","consequence":"one setback on combat checks made by PC and physically present allies until each moves via maneuver","implemented":true}
+  ],
+  "notClaimed": ["complete PDF semantic certification", "all Holo-Park landscape effects", "physical Android test", "APK build"]
+}

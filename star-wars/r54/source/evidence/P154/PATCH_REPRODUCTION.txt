@@ -1,0 +1,14 @@
+patching file app/build.gradle.kts
+patching file app/src/main/assets/vtt/js/core/controller.mjs
+patching file app/src/main/assets/vtt/js/core/uiBridge.bundle.js
+patching file app/src/main/assets/vtt/js/core/uiBridge.mjs
+patching file app/src/main/assets/vtt/js/expansion/aorTalentRuntimeAliases.mjs
+patching file app/src/main/assets/vtt/js/rules/talents.mjs
+patching file app/src/main/assets/vtt/r46-shell.html
+patching file app/src/main/assets/vtt/r46/final-runtime.js
+patching file tests/uae-p151-integrated-context-talents.test.mjs
+patching file HANDOFF_STAR_WARS_EDGE_R54_P154_2026-10-12.md
+patching file tests/uae-p154-aor-combat-talents-five-adventures.test.mjs
+patching file tools/audit-p154-release.mjs
+
+PATCH_REPRODUCTION_HASH_MATCH 12/12

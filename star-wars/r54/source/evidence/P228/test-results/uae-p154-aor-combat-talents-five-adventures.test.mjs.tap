@@ -1,0 +1,118 @@
+TAP version 13
+# Subtest: P154: 5 AoR source slots have real consumers and other incomplete slots remain fail-closed
+ok 1 - P154: 5 AoR source slots have real consumers and other incomplete slots remain fail-closed
+  ---
+  duration_ms: 44.526624
+  type: 'test'
+  ...
+# Subtest: P154: Powerful Blast ranks are contextual; only activated Blast gets bonus
+ok 2 - P154: Powerful Blast ranks are contextual; only activated Blast gets bonus
+  ---
+  duration_ms: 57.19235
+  type: 'test'
+  ...
+# Subtest: P154: Blast hit gets two bonus damage, once, with persisted shared Advantage
+ok 3 - P154: Blast hit gets two bonus damage, once, with persisted shared Advantage
+  ---
+  duration_ms: 46.452771
+  type: 'test'
+  ...
+# Subtest: P154: Blast miss gets two bonus damage, once, with persisted shared Advantage
+ok 4 - P154: Blast miss gets two bonus damage, once, with persisted shared Advantage
+  ---
+  duration_ms: 15.229867
+  type: 'test'
+  ...
+# Subtest: P154: Blast bonus is not applied to unrelated weapon qualities or characters without talent
+ok 5 - P154: Blast bonus is not applied to unrelated weapon qualities or characters without talent
+  ---
+  duration_ms: 31.954366
+  type: 'test'
+  ...
+# Subtest: P154: Blast activation is atomic when repository rejects a write
+ok 6 - P154: Blast activation is atomic when repository rejects a write
+  ---
+  duration_ms: 7.363858
+  type: 'test'
+  ...
+# Subtest: P154: Strong Arm only extends thrown personal ranged weapons by one band
+ok 7 - P154: Strong Arm only extends thrown personal ranged weapons by one band
+  ---
+  duration_ms: 2.8849
+  type: 'test'
+  ...
+# Subtest: P154: Strong Arm is used in actual attack range validation and survives reopening
+ok 8 - P154: Strong Arm is used in actual attack range validation and survives reopening
+  ---
+  duration_ms: 28.948669
+  type: 'test'
+  ...
+# Subtest: P154: Knockdown talent requires melee hit and exactly one Triumph
+ok 9 - P154: Knockdown talent requires melee hit and exactly one Triumph
+  ---
+  duration_ms: 1.942656
+  type: 'test'
+  ...
+# Subtest: P154: Knockdown consumes Triumph and persists prone without spending Advantage
+ok 10 - P154: Knockdown consumes Triumph and persists prone without spending Advantage
+  ---
+  duration_ms: 10.25173
+  type: 'test'
+  ...
+# Subtest: P154: Knockdown rejects missing talent, miss, ranged hit and empty Triumph without writes
+ok 11 - P154: Knockdown rejects missing talent, miss, ranged hit and empty Triumph without writes
+  ---
+  duration_ms: 49.446989
+  type: 'test'
+  ...
+# Subtest: P154: Knockdown rolls back on storage failure, including status and Triumph
+ok 12 - P154: Knockdown rolls back on storage failure, including status and Triumph
+  ---
+  duration_ms: 6.00408
+  type: 'test'
+  ...
+# Subtest: P154: bridge and Android combat UI expose the actual Knockdown action
+ok 13 - P154: bridge and Android combat UI expose the actual Knockdown action
+  ---
+  duration_ms: 26.784072
+  type: 'test'
+  ...
+# Subtest: P154: under-black-sun start/choice + 3 reopens keep UAE graph valid
+ok 14 - P154: under-black-sun start/choice + 3 reopens keep UAE graph valid
+  ---
+  duration_ms: 127.872025
+  type: 'test'
+  ...
+# Subtest: P154: beyond-the-rim start/choice + 3 reopens keep UAE graph valid
+ok 15 - P154: beyond-the-rim start/choice + 3 reopens keep UAE graph valid
+  ---
+  duration_ms: 102.95482
+  type: 'test'
+  ...
+# Subtest: P154: long-arm-of-the-hutt start/choice + 3 reopens keep UAE graph valid
+ok 16 - P154: long-arm-of-the-hutt start/choice + 3 reopens keep UAE graph valid
+  ---
+  duration_ms: 66.380687
+  type: 'test'
+  ...
+# Subtest: P154: jewel-of-yavin start/choice + 3 reopens keep UAE graph valid
+ok 17 - P154: jewel-of-yavin start/choice + 3 reopens keep UAE graph valid
+  ---
+  duration_ms: 89.219854
+  type: 'test'
+  ...
+# Subtest: P154: mask-of-the-pirate-queen start/choice + 3 reopens keep UAE graph valid
+ok 18 - P154: mask-of-the-pirate-queen start/choice + 3 reopens keep UAE graph valid
+  ---
+  duration_ms: 98.807586
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1621.277104

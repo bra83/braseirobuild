@@ -1,0 +1,5 @@
+58de03ce58217299e6253d81f9987622d51d7b912d9c42dadca4d6e2cb07faf6  app/src/main/java/com/braseiro/starwarsedge/MainActivity.java
+1da72b631c59fc1e7e29ee47d272a2e1f73132454372cb7f9fd2dca6edbfbbda  app/src/main/assets/vtt/r54-dom-scheduler.js
+fd82c6d49cf5f3280dccc6d1aebbe0bec46030bd6a177ab4b1d9e31cfaf14e3f  app/src/main/assets/vtt/assets/maps/galaxy_map_mobile.webp
+74c8b9db60c028fa057945d37d22e5324cc8ea2e9ad0bfb1ba6e8ab789418bcd  app/src/main/assets/vtt/r46/final-runtime.js
+fb1c2df9edb1c946be8ba67bf55559eb81e0d03ad431d7a67fed82bc6798899c  app/src/main/assets/vtt/js/core/uiBridge.bundle.js

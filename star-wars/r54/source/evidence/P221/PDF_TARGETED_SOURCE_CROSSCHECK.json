@@ -1,0 +1,11 @@
+{
+  "source": "SWE09 The Jewel of Yavin, PDF oficial do Google Drive",
+  "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "printedPages": [90, 91],
+  "verifiedFromDirectPdfText": true,
+  "rules": [
+    {"scene":"Shen's Residence", "publishedRule":"Enquanto os personagens permanecem ao ar livre no bairro, uma nova verificação para evitar a Guarda Alada é exigida a cada 15 minutos; reutiliza o teste Difícil de Engano, Furtividade ou Conhecimento das Ruas descrito anteriormente.","implementation":"Exposição iniciada somente com presença física confirmada; prazo derivado exclusivamente de world.clock.elapsedMinutes auditado; verificação de dificuldade 3 rolada pelo motor de dados, recibos por intervalo; sem teleporte automático."},
+    {"scene":"Shen's Yacht, The Venture", "publishedRule":"Se Arend estiver escondido no iate e os PJs atacarem, reativa os transponders e alerta a Guarda Alada. Dois voos de dois cloud cars chegam em até dez minutos após início das hostilidades contra a tripulação.","implementation":"Alerta requer confronto real já iniciado, confirmação GM da hostilidade e transponder; relógio persistente define janela de 10 minutos; chegada de 2x2 veículos requer confirmação física, sem instanciar ficha/combate de veículos não verificados."}
+  ],
+  "limitations": ["Sem tempo passivo: somente minutos contabilizados no livro de tarefas movimentam os prazos.","Falha da patrulha não cria NPC automaticamente; quantidade e confronto exigem adjudicação e presença.","Quatro cloud cars registrados como chegada narrativa confirmada, não como veículos em combate; fichas e movimento ainda pendentes.","Atraso além do prazo oficial é sinalizado como pendência GM, não resolvido por teleporte retroativo."]
+}

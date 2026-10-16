@@ -1,0 +1,6 @@
+R54 P149 — canonical Node regression summary
+Regular: 263 test files, 1775 tests, 1775 passed, 0 failed.
+Stress: 6 test files, 6 tests, 6 passed, 0 failed.
+TOTAL: 269 test files, 1781 tests, 1781 passed, 0 failed.
+Kokoro/TTS focal: 27 tests, 27 passed, 0 failed (source/code only).
+Details: NODE_REGULAR.txt, NODE_STRESS.txt, KOKORO_TTS_REGRESSION.txt.

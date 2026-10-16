@@ -1,0 +1,267 @@
+{
+  "run": "R45",
+  "manifestVersion": "3.8.0",
+  "newAssets": [
+    {
+      "assetId": "external.kainrath.vehicle.arunskin-32-cargo-skiff",
+      "title": "Arunskin 32 Cargo Skiff",
+      "category": "vehicle",
+      "subtype": "landspeeder",
+      "sourceType": "external_reference",
+      "sourceName": "Kainrath — STAR WARS Roleplaying",
+      "sourceRef": "external.kainrath.wordpress",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2023/01/08/arunskin-32-cargo-skiff/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2023/01/arunskin.png",
+      "remoteReady": true,
+      "offlineReady": false,
+      "cachePolicy": "explicit_on_demand",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "vehicle",
+        "landspeeder",
+        "arunskin-32-cargo-skiff",
+        "direct-media-recovery"
+      ],
+      "usage": "visual_reference",
+      "mechanicalBinding": null,
+      "indexWave": "R45_VEHICLE_WAVE5"
+    },
+    {
+      "assetId": "external.kainrath.vehicle.xp-291-skimmer",
+      "title": "XP-291 Skimmer",
+      "category": "vehicle",
+      "subtype": "landspeeder",
+      "sourceType": "external_reference",
+      "sourceName": "Kainrath — STAR WARS Roleplaying",
+      "sourceRef": "external.kainrath.wordpress",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2023/01/08/xp-291-skimmer/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2023/01/skimmer.png",
+      "remoteReady": true,
+      "offlineReady": false,
+      "cachePolicy": "explicit_on_demand",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "vehicle",
+        "landspeeder",
+        "xp-291-skimmer",
+        "direct-media-recovery"
+      ],
+      "usage": "visual_reference",
+      "mechanicalBinding": null,
+      "indexWave": "R45_VEHICLE_WAVE5"
+    },
+    {
+      "assetId": "external.kainrath.vehicle.starhawk-speeder-bike",
+      "title": "Starhawk Speeder Bike",
+      "category": "vehicle",
+      "subtype": "speeder-bike",
+      "sourceType": "external_reference",
+      "sourceName": "Kainrath — STAR WARS Roleplaying",
+      "sourceRef": "external.kainrath.wordpress",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2023/01/08/starhawk-speeder-bike/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2023/01/starhawk-speeder-bike.png",
+      "remoteReady": true,
+      "offlineReady": false,
+      "cachePolicy": "explicit_on_demand",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "vehicle",
+        "speeder-bike",
+        "starhawk-speeder-bike",
+        "direct-media-recovery"
+      ],
+      "usage": "visual_reference",
+      "mechanicalBinding": null,
+      "indexWave": "R45_VEHICLE_WAVE5"
+    },
+    {
+      "assetId": "external.kainrath.vehicle.85-xs-odyssey-heavy-speeder-bike",
+      "title": "85-XS Odyssey Heavy Speeder Bike",
+      "category": "vehicle",
+      "subtype": "speeder-bike",
+      "sourceType": "external_reference",
+      "sourceName": "Kainrath — STAR WARS Roleplaying",
+      "sourceRef": "external.kainrath.wordpress",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2021/08/31/85-xs-odyssey-heavy-speeder-bike/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2021/08/odyssey-heavy-speeder-bike.png",
+      "remoteReady": true,
+      "offlineReady": false,
+      "cachePolicy": "explicit_on_demand",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "vehicle",
+        "speeder-bike",
+        "85-xs-odyssey-heavy-speeder-bike",
+        "direct-media-recovery"
+      ],
+      "usage": "visual_reference",
+      "mechanicalBinding": null,
+      "indexWave": "R45_VEHICLE_WAVE5"
+    },
+    {
+      "assetId": "external.kainrath.vehicle.ubrikkian-9000-z001-landspeeder",
+      "title": "Ubrikkian 9000 Z001 Landspeeder",
+      "category": "vehicle",
+      "subtype": "landspeeder",
+      "sourceType": "external_reference",
+      "sourceName": "Kainrath — STAR WARS Roleplaying",
+      "sourceRef": "external.kainrath.wordpress",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2021/08/19/ubrikkian-9000-z001-landspeeder/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2021/08/ubrikkian-9000.png",
+      "remoteReady": true,
+      "offlineReady": false,
+      "cachePolicy": "explicit_on_demand",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "vehicle",
+        "landspeeder",
+        "ubrikkian-9000-z001-landspeeder",
+        "direct-media-recovery"
+      ],
+      "usage": "visual_reference",
+      "mechanicalBinding": null,
+      "indexWave": "R45_VEHICLE_WAVE5"
+    },
+    {
+      "assetId": "external.kainrath.vehicle.00-3-kravaan-medium-freighter",
+      "title": "00-3 Kravaan Medium Freighter",
+      "category": "vehicle",
+      "subtype": "freighter",
+      "sourceType": "external_reference",
+      "sourceName": "Kainrath — STAR WARS Roleplaying",
+      "sourceRef": "external.kainrath.wordpress",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2022/11/04/00-3-kravaan-medium-freighter/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2022/11/kravaan.png",
+      "remoteReady": true,
+      "offlineReady": false,
+      "cachePolicy": "explicit_on_demand",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "vehicle",
+        "freighter",
+        "00-3-kravaan-medium-freighter",
+        "direct-media-recovery"
+      ],
+      "usage": "visual_reference",
+      "mechanicalBinding": null,
+      "indexWave": "R45_VEHICLE_WAVE5"
+    },
+    {
+      "assetId": "external.kainrath.vehicle.431-hauler-cargo-tug",
+      "title": "431 Hauler Cargo Tug",
+      "category": "vehicle",
+      "subtype": "freighter",
+      "sourceType": "external_reference",
+      "sourceName": "Kainrath — STAR WARS Roleplaying",
+      "sourceRef": "external.kainrath.wordpress",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2022/11/04/431-hauler-cargo-tug/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2022/11/cargo-tug.png",
+      "remoteReady": true,
+      "offlineReady": false,
+      "cachePolicy": "explicit_on_demand",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "vehicle",
+        "freighter",
+        "431-hauler-cargo-tug",
+        "direct-media-recovery"
+      ],
+      "usage": "visual_reference",
+      "mechanicalBinding": null,
+      "indexWave": "R45_VEHICLE_WAVE5"
+    }
+  ],
+  "provenanceEvidence": {
+    "Arunskin 32 Cargo Skiff": {
+      "sourcePageUrl": "https://kainrath.wordpress.com/2023/01/08/arunskin-32-cargo-skiff/",
+      "observedImageUrl": "https://kainrath.wordpress.com/wp-content/uploads/2023/01/arunskin.png",
+      "canonicalRemoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2023/01/arunskin.png",
+      "evidence": "Kainrath image-post media link exposed the direct wp-content/uploads URL; resize query removed only when present to canonicalize raw media."
+    },
+    "XP-291 Skimmer": {
+      "sourcePageUrl": "https://kainrath.wordpress.com/2023/01/08/xp-291-skimmer/",
+      "observedImageUrl": "https://kainrath.wordpress.com/wp-content/uploads/2023/01/skimmer.png",
+      "canonicalRemoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2023/01/skimmer.png",
+      "evidence": "Kainrath image-post media link exposed the direct wp-content/uploads URL; resize query removed only when present to canonicalize raw media."
+    },
+    "Starhawk Speeder Bike": {
+      "sourcePageUrl": "https://kainrath.wordpress.com/2023/01/08/starhawk-speeder-bike/",
+      "observedImageUrl": "https://kainrath.wordpress.com/wp-content/uploads/2023/01/starhawk-speeder-bike.png",
+      "canonicalRemoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2023/01/starhawk-speeder-bike.png",
+      "evidence": "Kainrath image-post media link exposed the direct wp-content/uploads URL; resize query removed only when present to canonicalize raw media."
+    },
+    "85-XS Odyssey Heavy Speeder Bike": {
+      "sourcePageUrl": "https://kainrath.wordpress.com/2021/08/31/85-xs-odyssey-heavy-speeder-bike/",
+      "observedImageUrl": "https://kainrath.wordpress.com/wp-content/uploads/2021/08/odyssey-heavy-speeder-bike.png?w=731",
+      "canonicalRemoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2021/08/odyssey-heavy-speeder-bike.png",
+      "evidence": "Kainrath image-post media link exposed the direct wp-content/uploads URL; resize query removed only when present to canonicalize raw media."
+    },
+    "Ubrikkian 9000 Z001 Landspeeder": {
+      "sourcePageUrl": "https://kainrath.wordpress.com/2021/08/19/ubrikkian-9000-z001-landspeeder/",
+      "observedImageUrl": "https://kainrath.wordpress.com/wp-content/uploads/2021/08/ubrikkian-9000.png",
+      "canonicalRemoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2021/08/ubrikkian-9000.png",
+      "evidence": "Kainrath image-post media link exposed the direct wp-content/uploads URL; resize query removed only when present to canonicalize raw media."
+    },
+    "00-3 Kravaan Medium Freighter": {
+      "sourcePageUrl": "https://kainrath.wordpress.com/2022/11/04/00-3-kravaan-medium-freighter/",
+      "observedImageUrl": "https://kainrath.wordpress.com/wp-content/uploads/2022/11/kravaan.png?w=731",
+      "canonicalRemoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2022/11/kravaan.png",
+      "evidence": "Kainrath image-post media link exposed the direct wp-content/uploads URL; resize query removed only when present to canonicalize raw media."
+    },
+    "431 Hauler Cargo Tug": {
+      "sourcePageUrl": "https://kainrath.wordpress.com/2022/11/04/431-hauler-cargo-tug/",
+      "observedImageUrl": "https://kainrath.wordpress.com/wp-content/uploads/2022/11/cargo-tug.png?w=731",
+      "canonicalRemoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2022/11/cargo-tug.png",
+      "evidence": "Kainrath image-post media link exposed the direct wp-content/uploads URL; resize query removed only when present to canonicalize raw media."
+    }
+  },
+  "blockedByDirectMediaProvenance": {
+    "vehicles": [
+      "Gymsnor-4 Light Freighter",
+      "G9 Rigger Light Freighter",
+      "Seltiss-2 Caravel",
+      "CSS-1 Corellian Star Shuttle",
+      "CEC HWK-1000 Light Freighter",
+      "HT-2200 Medium Freighter",
+      "SoroSuub Luxury 3000 Space Yacht",
+      "YT-2400 Light Freighter",
+      "YT-1300 Light Freighter",
+      "Starwind Pleasure Yacht",
+      "Ghtroc 720 Light Freighter",
+      "ILH-KK Citadel-Class Light Freighter",
+      "Storm IV Cloud Car",
+      "T-16 Skyhopper",
+      "T-47 Airspeeder",
+      "Wheeled/tracked category: direct media URLs not yet observed",
+      "Void-Spider TX-3 Air Taxi",
+      "A-1 Deluxe Floater",
+      "XP-38A Landspeeder",
+      "Scavenger Tug",
+      "GS-100 Salvage Ship"
+    ],
+    "beasts_page1_without_direct_media_url_observed": [
+      "Cybernetically-Enhanced Nexu",
+      "Sand Panther",
+      "Sacorrian Grey Bear",
+      "Spooked Ronto",
+      "Kowakian Monkey-Lizard",
+      "Spade-Headed Smooka",
+      "Lurking Scrange",
+      "Lesser Bogwing",
+      "Gigantic Dragonsnake",
+      "Flying Leaf-Tail",
+      "Kaadu"
+    ],
+    "droids_missing_known_page_with_direct_media_not_observed": [
+      "Antiquated Battle Droid"
+    ]
+  },
+  "policy": "No remote filename or mechanics inferred. Only direct URLs actually observed are indexed."
+}

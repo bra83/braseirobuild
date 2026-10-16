@@ -1,0 +1,35 @@
+✔ R34 catálogo econômico cobre 31 armas, 7 armaduras, 21 gear e veículos comprovados (17.4493ms)
+✔ R34 perfis veiculares sem raridade comprovada falham fechados (5.8169ms)
+✔ R34 disponibilidade genérica usa raridade da armadura (1.4788ms)
+✔ R34 mercado local altera raridade efetiva (0.7491ms)
+✔ R34 pedido de compra guarda tipo, mercado e localização (1182.2404ms)
+✔ R34 item desconhecido falha fechado (2.1139ms)
+✔ R34 recompensa de arma cria inventário e ownership (1122.3256ms)
+✔ R34 saque de armadura cria ownership sem equipar magicamente (746.0083ms)
+✔ R34 gear catalogado persiste em gear + ownership (587.2032ms)
+✔ R34 veículo adquirido separa profile availability ownership state e visual (515.4229ms)
+✔ R34 compra aprovada desconta créditos e concede ativo (542.3115ms)
+✔ R34 compra rejeitada não altera créditos/propriedade (626.6232ms)
+✔ R34 compra sem créditos é bloqueada (672.2101ms)
+✔ R34 decisão econômica numérica exige evidência (752.0294ms)
+✔ R34 perda remove arma do inventário e registry (564.4265ms)
+✔ R34 dano de item exige regra recuperada (606.4047ms)
+✔ R34 dano e reparo pessoal persistem condição e custo (491.6512ms)
+✔ R34 dano e reparo veicular alteram Hull Damage da unidade possuída (428.7634ms)
+✔ R34 venda adiciona créditos e remove ativo mecânico (495.0998ms)
+✔ R34 proposta aceita pedido estruturado de veículo (5.9622ms)
+✔ R34 proposta rejeita escrita econômica livre (0.5562ms)
+✔ R34 dano/reparo/venda estruturados exigem regra conhecida (1.0576ms)
+✔ R34 contexto do Mestre inclui mercado, catálogo e ownership (525.9063ms)
+✔ R34 GameController abre pedido genérico usando mercado local (1296.7576ms)
+✔ R34 proposta do Mestre pode conceder saque catalogado sem escrita livre (536.3323ms)
+✔ R34 compatibilidade: proposeWeaponAcquisition continua funcional (1202.4525ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16190.3019
+

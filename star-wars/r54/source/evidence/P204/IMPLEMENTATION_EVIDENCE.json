@@ -1,0 +1,10 @@
+{
+  "checkpoint":"P204",
+  "feature":"Individual player/companion airspeeder blast and falling consequences",
+  "newModule":"app/src/main/assets/vtt/js/adventure/jewelCompanionImpact.mjs",
+  "receipts":"JEWEL_COMPANION_IMPACT",
+  "state":"publishedAdventure.operations.escapeCompanionImpact",
+  "behavior":["Only actual roster members can be targeted","GM must confirm target presence and exact context per event","Player damage state remains separate","Companions not selected receive no automatic damage","One blast and one fall per companion; independent across companions","Existing P203 health and narrative-dice replay reused","Legacy player receipts untouched","Controller GROUP_UPDATED and WORLD_UPDATED in one atomic action","Adventure status verifies companion receipt replay","Android PT-BR companion selector and independent fall controls"],
+  "limits":["GM-reported position, not automatic spatial tracking","No blanket injury for all party members","No Destiny-point automation","No Arrow-7 vehicle pursuit","No APK or Android physical validation"],
+  "testSummary":"evidence/P204/TEST_SUMMARY.json"
+}

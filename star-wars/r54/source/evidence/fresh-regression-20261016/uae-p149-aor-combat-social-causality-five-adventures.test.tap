@@ -1,0 +1,38 @@
+✔ P149: 5 source-backed AoR slots have active consumers; all others stay fail-closed (188.8509ms)
+✔ P149: Nobody's Fool upgrades only incoming social checks, never outgoing or unrelated skills (8.9641ms)
+✔ P149: incoming social check uses NPC positive dice and player negative pool; saved/reopened (61.2132ms)
+✔ P149: incoming social rejects forged skill/defense/NPC and does not persist invalid requests (10.3026ms)
+✔ P149: incoming social storage failure is atomic (8.7178ms)
+✔ P149: Disorient option is contextual, rank-bound and rejects invalid budgets (2.7151ms)
+✔ P149: Disorient consumes the same advantage budget, persists status and prevents double activation (69.5076ms)
+✔ P149: Disorient expires on real NPC turns (57.2664ms)
+✔ P149: Disorient rejects miss, low advantage, missing talent and incapacitated target (201.5719ms)
+✔ P149: Disorient storage failure rolls back target, advantage and log (12.3972ms)
+✔ P149 under-black-sun: duplicate/overlapping UAE action receipts rejected on import (67.302ms)
+✔ P149 under-black-sun: two durable commands, three reopens and no double rewards (60.4583ms)
+✔ P149 under-black-sun: authored check schema invalid fails preflight (33.2151ms)
+✔ P149 beyond-the-rim: duplicate/overlapping UAE action receipts rejected on import (9.6925ms)
+✔ P149 beyond-the-rim: two durable commands, three reopens and no double rewards (64.8108ms)
+✔ P149 beyond-the-rim: authored check schema invalid fails preflight (1.3834ms)
+✔ P149 long-arm-of-the-hutt: duplicate/overlapping UAE action receipts rejected on import (42.2052ms)
+✔ P149 long-arm-of-the-hutt: two durable commands, three reopens and no double rewards (39.3386ms)
+✔ P149 long-arm-of-the-hutt: authored check schema invalid fails preflight (6.8417ms)
+✔ P149 jewel-of-yavin: duplicate/overlapping UAE action receipts rejected on import (8.5923ms)
+✔ P149 jewel-of-yavin: two durable commands, three reopens and no double rewards (123.4044ms)
+✔ P149 jewel-of-yavin: authored check schema invalid fails preflight (0.9423ms)
+✔ P149 mask-of-the-pirate-queen: duplicate/overlapping UAE action receipts rejected on import (9.3187ms)
+✔ P149 mask-of-the-pirate-queen: two durable commands, three reopens and no double rewards (47.5156ms)
+✔ P149 mask-of-the-pirate-queen: authored check schema invalid fails preflight (1.5667ms)
+✔ P149: Android bridge and TypeScript contract expose both new mechanical actions (21.2434ms)
+✔ P149: R46 combat and social panels expose real buttons wired to bridge actions (7.1731ms)
+✔ P149: Android bridge actually invokes incoming social talent and persists result (134.1219ms)
+✔ P149: Android bridge actually activates Disorient on pending attack and survives reopening (15.2788ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4585.5884
+

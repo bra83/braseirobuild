@@ -1,0 +1,126 @@
+{
+  "productCode": "SWE02",
+  "officialPdf": "https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf",
+  "checkpoint": "P238",
+  "sourceChecks": [
+    {
+      "key": "course",
+      "printedPage": 8,
+      "semantic": "Astrogação Fácil; falha mantém rota mas não ótima",
+      "flags": "shipCoursePlotted/shipCourseNonOptimal",
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
+      "controller": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "test": "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
+      "status": "IMPLEMENTED_AND_TESTED_WITH_DOCUMENTED_LIMITS"
+    },
+    {
+      "key": "klaxon",
+      "printedPage": 8,
+      "semantic": "Computadores Fácil, desliga alarme",
+      "flags": "shipKlaxonOff",
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
+      "controller": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "test": "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
+      "status": "IMPLEMENTED_AND_TESTED_WITH_DOCUMENTED_LIMITS"
+    },
+    {
+      "key": "music",
+      "printedPage": 8,
+      "semantic": "Computadores Média, desliga música",
+      "flags": "shipMusicOff",
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
+      "controller": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "test": "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
+      "status": "IMPLEMENTED_AND_TESTED_WITH_DOCUMENTED_LIMITS"
+    },
+    {
+      "key": "translate",
+      "printedPage": 8,
+      "semantic": "Computadores Fácil, traduz interface",
+      "flags": "shipTrandoshanTranslated",
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
+      "controller": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "test": "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
+      "status": "IMPLEMENTED_AND_TESTED_WITH_DOCUMENTED_LIMITS"
+    },
+    {
+      "key": "locateTracker",
+      "printedPage": 8,
+      "semantic": "Computadores Difícil, localiza transponder",
+      "flags": "shipTrackerLocated",
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
+      "controller": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "test": "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
+      "status": "IMPLEMENTED_AND_TESTED_WITH_DOCUMENTED_LIMITS"
+    },
+    {
+      "key": "slowTracker",
+      "printedPage": 8,
+      "semantic": "Computadores Fácil, sinal uma vez/hora",
+      "flags": "shipTrackerSlowed",
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
+      "controller": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "test": "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
+      "status": "IMPLEMENTED_AND_TESTED_WITH_DOCUMENTED_LIMITS"
+    },
+    {
+      "key": "findPelts",
+      "printedPage": 9,
+      "semantic": "Percepção Média, encontra seis peles",
+      "flags": "shipPeltsFound",
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
+      "controller": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "test": "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
+      "status": "IMPLEMENTED_AND_TESTED_WITH_DOCUMENTED_LIMITS"
+    },
+    {
+      "key": "jettisonPelts",
+      "printedPage": 9,
+      "semantic": "Computadores Fácil, ejeção após descoberta",
+      "flags": "shipPeltsJettisoned",
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
+      "controller": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "test": "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
+      "status": "IMPLEMENTED_AND_TESTED_WITH_DOCUMENTED_LIMITS"
+    },
+    {
+      "key": "removeTracker",
+      "printedPage": 8,
+      "semantic": "Mecânica Média no solo",
+      "flags": "shipTrackerRemoved",
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
+      "controller": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "test": "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
+      "status": "IMPLEMENTED_AND_TESTED_WITH_DOCUMENTED_LIMITS"
+    },
+    {
+      "key": "identifyChitin",
+      "printedPage": 9,
+      "semantic": "Conhecimento Difícil",
+      "flags": "shipChitinIdentified",
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
+      "controller": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "test": "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
+      "status": "IMPLEMENTED_AND_TESTED_WITH_DOCUMENTED_LIMITS"
+    },
+    {
+      "key": "inspectDroidParts",
+      "printedPage": 11,
+      "semantic": "Mecânica Difícil, peças de astromecânico",
+      "flags": "shipDroidPartsIdentified",
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02KraytFangP238.mjs",
+      "controller": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "test": "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs",
+      "status": "IMPLEMENTED_AND_TESTED_WITH_DOCUMENTED_LIMITS"
+    }
+  ],
+  "unresolved": [
+    "Thwheek space combat",
+    "Hull damage on Threat",
+    "Global odor beyond ship checks",
+    "Actual fuel/time/inventory transfer",
+    "Chitin symbol result grades",
+    "Item loot and selling",
+    "Editorial certification of entire SWE02"
+  ]
+}

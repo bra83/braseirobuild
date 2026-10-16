@@ -1,0 +1,35 @@
+TAP version 13
+# Subtest: P167 two Familiar Suns AoR slots active; no unrelated slot or EotE display name grants use
+ok 1 - P167 two Familiar Suns AoR slots active; no unrelated slot or EotE display name grants use
+  ---
+  duration_ms: 26.763622
+  type: 'test'
+  ...
+# Subtest: P167 Hard planetary Knowledge check is once per session and never invents lore
+ok 2 - P167 Hard planetary Knowledge check is once per session and never invents lore
+  ---
+  duration_ms: 12.258236
+  type: 'test'
+  ...
+# Subtest: P167 repository write failure rolls back check, use ledger and session count
+ok 3 - P167 repository write failure rolls back check, use ledger and session count
+  ---
+  duration_ms: 7.256139
+  type: 'test'
+  ...
+# Subtest: P167 Android bridge and PT-BR control route to actual controller, not dummy UI
+ok 4 - P167 Android bridge and PT-BR control route to actual controller, not dummy UI
+  ---
+  duration_ms: 6.465435
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 263.583082
+

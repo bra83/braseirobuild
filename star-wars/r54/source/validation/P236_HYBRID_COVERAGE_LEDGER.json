@@ -1,0 +1,157 @@
+{
+  "checkpoint": "P236",
+  "kind": "IMPLEMENTATION_INVENTORY_NOT_OFFICIAL_CERTIFICATION",
+  "hybrid": {
+    "mechanics": "deterministic executors",
+    "ruleLookup": "RAG with source and reference",
+    "narration": "Gemini proposal validated by local controller; offline fallback"
+  },
+  "officialPdfComparisonComplete": false,
+  "androidCompilationPerformed": false,
+  "adventures": [
+    {
+      "id": "under-black-sun",
+      "title": "Sob um Sol Negro",
+      "sourceCode": "SWEP01",
+      "campaignModes": [
+        "EOTE",
+        "MIXED"
+      ],
+      "nodes": 17,
+      "reachableNodes": 17,
+      "unreachableNodeIds": [],
+      "episodesDeclared": [
+        1,
+        2,
+        3
+      ],
+      "choices": 37,
+      "authoredChecks": 32,
+      "terminalNodes": [
+        "epilogue"
+      ],
+      "graphValidated": true,
+      "sourceToScenePdfCertified": false,
+      "allOfficialEncounterStatsCertified": false,
+      "completePlaythroughOnAndroid": false
+    },
+    {
+      "id": "beyond-the-rim",
+      "title": "Além da Orla",
+      "sourceCode": "SWE05",
+      "campaignModes": [
+        "EOTE",
+        "MIXED"
+      ],
+      "nodes": 26,
+      "reachableNodes": 26,
+      "unreachableNodeIds": [],
+      "episodesDeclared": [
+        1,
+        2,
+        3
+      ],
+      "choices": 37,
+      "authoredChecks": 46,
+      "terminalNodes": [
+        "adventure-complete"
+      ],
+      "graphValidated": true,
+      "sourceToScenePdfCertified": false,
+      "allOfficialEncounterStatsCertified": false,
+      "completePlaythroughOnAndroid": false
+    },
+    {
+      "id": "long-arm-of-the-hutt",
+      "title": "O Longo Braço do Hutt",
+      "sourceCode": "SWE02",
+      "campaignModes": [
+        "EOTE",
+        "MIXED"
+      ],
+      "nodes": 27,
+      "reachableNodes": 27,
+      "unreachableNodeIds": [],
+      "episodesDeclared": [
+        1,
+        2,
+        3
+      ],
+      "choices": 46,
+      "authoredChecks": 27,
+      "terminalNodes": [
+        "laoth-retreat",
+        "laoth-epilogue"
+      ],
+      "graphValidated": true,
+      "sourceToScenePdfCertified": false,
+      "allOfficialEncounterStatsCertified": false,
+      "completePlaythroughOnAndroid": false
+    },
+    {
+      "id": "jewel-of-yavin",
+      "title": "A Joia de Yavin",
+      "sourceCode": "SWE09",
+      "campaignModes": [
+        "EOTE",
+        "MIXED"
+      ],
+      "nodes": 15,
+      "reachableNodes": 15,
+      "unreachableNodeIds": [],
+      "episodesDeclared": [
+        1,
+        2,
+        3
+      ],
+      "choices": 16,
+      "authoredChecks": 17,
+      "terminalNodes": [
+        "escape-without-jewel",
+        "jewel-epilogue"
+      ],
+      "graphValidated": true,
+      "sourceToScenePdfCertified": false,
+      "allOfficialEncounterStatsCertified": false,
+      "completePlaythroughOnAndroid": false
+    },
+    {
+      "id": "mask-of-the-pirate-queen",
+      "title": "A Máscara da Rainha Pirata",
+      "sourceCode": "SWE13",
+      "campaignModes": [
+        "EOTE",
+        "MIXED"
+      ],
+      "nodes": 27,
+      "reachableNodes": 27,
+      "unreachableNodeIds": [],
+      "episodesDeclared": [
+        1,
+        2,
+        3
+      ],
+      "choices": 35,
+      "authoredChecks": 27,
+      "terminalNodes": [
+        "mpq-epilogue"
+      ],
+      "graphValidated": true,
+      "sourceToScenePdfCertified": false,
+      "allOfficialEncounterStatsCertified": false,
+      "completePlaythroughOnAndroid": false
+    }
+  ],
+  "rules": {
+    "auditedCorpusEntries": 54,
+    "entriesMarkedTestado": 54,
+    "externalPdfCoverageNotProven": true,
+    "eoteAoRExpansionSemanticCertification": false
+  },
+  "total": {
+    "modules": 5,
+    "nodes": 112,
+    "graphUnreachable": 0,
+    "checks": 149
+  }
+}

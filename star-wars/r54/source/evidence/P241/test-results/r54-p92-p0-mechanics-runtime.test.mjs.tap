@@ -1,0 +1,47 @@
+TAP version 13
+# Subtest: P92: Precisa/Accurate entra no pool real antes da rolagem
+ok 1 - P92: Precisa/Accurate entra no pool real antes da rolagem
+  ---
+  duration_ms: 14.872693
+  type: 'test'
+  ...
+# Subtest: P92: Automática aumenta a dificuldade real e resolve acertos extras por Vantagem
+ok 2 - P92: Automática aumenta a dificuldade real e resolve acertos extras por Vantagem
+  ---
+  duration_ms: 9.810682
+  type: 'test'
+  ...
+# Subtest: P92: Brecha é convertida em 10 pontos de Soak ignorado no dano real
+ok 3 - P92: Brecha é convertida em 10 pontos de Soak ignorado no dano real
+  ---
+  duration_ms: 7.174268
+  type: 'test'
+  ...
+# Subtest: P92: Viciosa/Letal chega ao crítico ativado como modificador d100
+ok 4 - P92: Viciosa/Letal chega ao crítico ativado como modificador d100
+  ---
+  duration_ms: 2.151985
+  type: 'test'
+  ...
+# Subtest: P92: equipar arma/armadura altera estado e sobrevive a reabertura
+ok 5 - P92: equipar arma/armadura altera estado e sobrevive a reabertura
+  ---
+  duration_ms: 6.825494
+  type: 'test'
+  ...
+# Subtest: P92: salto hiperespacial usa nave + Astronavegação e persiste resultado
+ok 6 - P92: salto hiperespacial usa nave + Astronavegação e persiste resultado
+  ---
+  duration_ms: 4.138383
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 348.202695
+

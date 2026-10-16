@@ -1,0 +1,16 @@
+{
+  "document": "SWE09 The Jewel of Yavin",
+  "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "access": "Google Drive fetch direct PDF text",
+  "checked": "2026-10-14",
+  "target": "printed page 13 Wing Guard Sergeant Tactical Direction",
+  "sourceFact": "Sargento pode gastar manobra para dar a um grupo minion de oficiais a Médio uma manobra livre IMEDIATA ou um Reforço ao próximo teste.",
+  "implementation": "free_maneuver: immediate one-band movement (Engajado/Curto/Médio), explicit GM path confirmation, real NPC range update; Boost remains unchanged.",
+  "limitations": [
+    "A manobra livre só está automatizada para deslocamento de uma faixa entre Engajado/Curto/Médio.",
+    "Distâncias Longo/Extremo exigem duas manobras e não são executadas por esta opção.",
+    "Outras ações de manobra livre (sacar equipamento, mirar etc.) ainda não automatizadas.",
+    "Distância entre NPCs e percurso dependem de confirmação explícita do Mestre."
+  ],
+  "fullAdventureCertification": false
+}

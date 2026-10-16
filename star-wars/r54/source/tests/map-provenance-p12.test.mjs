@@ -1,0 +1,4 @@
+import test from 'node:test'; import assert from 'node:assert/strict'; import fs from 'node:fs';
+const p='app/src/main/assets/vtt/image-library/local/r54/p6-visual-index.json'; const idx=JSON.parse(fs.readFileSync(p,'utf8'));
+test('P12 não chama esquema gerado de mapa real/dedicado',()=>{for(const [k,x] of Object.entries(idx.locations)){if(x.provenance==='generated_from_location_profile'){assert.equal(x.strategy,'generated_play_map',k);assert.equal(x.mapStatus,'esquema_local_jogavel_gerado',k);} } assert.equal(idx.locationMapPolicy.dedicatedSourceMaps,1);});
+test('P12 mantém Shantipole como único mapa dedicado confirmado',()=>{const dedicated=Object.entries(idx.locations).filter(([,x])=>x.strategy==='local_map'&&x.mapStatus==='map_local_integrado_dedicado');assert.deepEqual(dedicated.map(([k])=>k),['shantipole']);});

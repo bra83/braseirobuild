@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#070a0d" />
+  <title>Braseiro - Star Wars</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">BRASEIRO VTT</div>
+        <h1>EDGE OF THE GALAXY</h1>
+      </div>
+      <button id="newCampaign" class="icon-btn" aria-label="Criar nova campanha">＋</button>
+    </header>
+
+    <nav class="tabs" aria-label="Navegação principal">
+      <button class="tab active" data-view="sceneView">Cena</button>
+      <button class="tab" data-view="characterView">Personagem</button>
+      <button class="tab" data-view="combatView">Combate</button>
+      <button class="tab" data-view="vehicleView">Nave</button>
+      <button class="tab" data-view="mapView">Mapa</button>
+      <button class="tab" data-view="baseView">Base</button>
+      <button class="tab" data-view="libraryView">Biblioteca</button>
+      <button class="tab" data-view="settingsView">Ajustes</button>
+    </nav>
+
+    <section id="sceneView" class="view active">
+      <section class="scene-card">
+        <div class="scene-kicker">CENA ATUAL</div>
+        <h2 id="sceneTitle">Abertura</h2>
+        <p id="narration">Carregando estado...</p>
+        <div class="button-row narration-tts">
+          <button id="ttsPlayNarration" class="secondary">Ouvir narração</button>
+          <button id="ttsStopNarration" class="secondary">Parar voz</button>
+        </div>
+        <p id="ttsFeedback" class="feedback"></p>
+        <div class="status-line"><span class="dot"></span><span id="masterStatus">Mestre: regras locais ativas; IA ainda não conectada</span></div>
+      </section>
+
+      <section class="session-panel">
+        <div class="session-panel-head"><strong id="sessionStatus">Nenhuma sessão iniciada</strong><span id="sessionHistoryCount">0 sessões encerradas</span></div>
+        <div class="button-row">
+          <button id="startSession" class="primary">Iniciar sessão</button>
+          <button id="closeSession" class="secondary" hidden>Encerrar sessão</button>
+        </div>
+        <p id="sessionFeedback" class="feedback"></p>
+        <p class="microcopy">O fluxo organiza abertura, cena, decisão, resolução, conflito, recuperação e encerramento. Isso é uma política do VTT; não substitui regras do livro.</p>
+      </section>
+
+      <section class="action-panel">
+        <div id="masterPrompt" class="master-prompt" hidden></div>
+        <div id="suggestedCheckCard" class="suggested-check" hidden>
+          <div><strong>Teste sugerido pelo Mestre</strong><span id="suggestedCheckText"></span></div>
+          <button id="resolveSuggestedCheck" class="secondary">Resolver este teste</button>
+        </div>
+        <label for="playerIntent">O que você faz?</label>
+        <div class="input-row">
+          <textarea id="playerIntent" rows="2" maxlength="800" placeholder="Descreva sua ação..."></textarea>
+          <button id="sendIntent" class="primary">Enviar</button>
+        </div>
+        <p id="intentFeedback" class="feedback"></p>
+      </section>
+
+      <details class="rules-panel" id="knownFactionsPanel">
+        <summary>Forças em jogo</summary>
+        <p class="microcopy">Mostra somente facções já conhecidas pelo jogador e fatos públicos. Objetivos, recursos e fatos privados continuam restritos ao Mestre.</p>
+        <div id="knownFactions" class="rule-results"><div class="result empty">Nenhuma facção conhecida ainda.</div></div>
+      </details>
+
+      <details class="rules-panel" id="knownAftermathsPanel">
+        <summary>Consequências duradouras</summary>
+        <p class="microcopy">Registra desfechos persistentes de conflitos causais já vividos. Mudanças políticas, reputação e recursos só ocorrem quando o Mestre aplica operações estruturadas.</p>
+        <div id="knownAftermaths" class="rule-results"><div class="result empty">Nenhuma consequência duradoura conhecida.</div></div>
+      </details>
+
+      <details class="rules-panel">
+        <summary>Consultar regras verificadas</summary>
+        <p class="microcopy">Busca local no índice auditado do projeto. Se a regra ainda não foi verificada, o VTT informa a lacuna em vez de completar por memória.</p>
+        <div class="input-row rules-query-row">
+          <input id="ruleQuery" type="search" maxlength="160" placeholder="Ex.: como funciona uma segunda manobra?">
+          <button id="consultRules" class="secondary">Consultar</button>
+        </div>
+        <div id="ruleQueryStatus" class="feedback"></div>
+        <div id="ruleResults" class="rule-results"><div class="result empty">Nenhuma consulta nesta sessão.</div></div>
+      </details>
+
+      <details class="check-panel" open>
+        <summary>Resolver uma ação</summary>
+        <p id="checkHint" class="microcopy">Carregue um personagem para usar suas perícias automaticamente.</p>
+        <div class="grid check-grid">
+          <label class="wide">Perícia
+            <select id="skillSelect"><option value="">Sem personagem carregado</option></select>
+          </label>
+          <label>Dificuldade<input id="difficulty" type="number" min="0" max="5" value="2"></label>
+          <label>Desafio<input id="challenge" type="number" min="0" max="5" value="0"></label>
+          <label>Impulso<input id="boost" type="number" min="0" max="6" value="0"></label>
+          <label>Contratempo<input id="setback" type="number" min="0" max="6" value="0"></label>
+        </div>
+        <label id="expertTalentRow" class="creator-skill-option" hidden><input id="useExpertTalent" type="checkbox"> <span id="expertTalentLabel">Usar talento especialista</span></label>
+        <button id="rollCheck" class="secondary">Resolver teste</button>
+        <div id="rollResult" class="result empty">Nenhum teste nesta sessão.</div>
+      </details>
+    </section>
+
+    <section id="characterView" class="view">
+      <section class="character-card">
+        <div class="scene-kicker">PERSONAGEM</div>
+        <div id="noCharacter" class="empty-state">
+          <h2>Nenhuma ficha carregada</h2>
+          <p>Para testar ou começar rapidamente, use uma fixture local EotE. Ela não é personagem oficial nem fonte de regra.</p>
+          <label class="starter-label" for="starterCharacter">Fixture local EotE</label>
+          <select id="starterCharacter" class="starter-select">
+            <option value="zal">Zal — Piloto</option>
+            <option value="vendri">Vendri — Batedor</option>
+            <option value="tendaar">Tendaar — Mecânico</option>
+            <option value="jin-rio">Jin-Rio — Político</option>
+            <option value="cael">Cael — Soldado Mercenário</option>
+            <option value="arkhan">Arkhan — Soldado Mercenário</option>
+          </select>
+          <button id="loadStarter" class="primary full">Usar personagem</button>
+          <p class="microcopy">Ou use o criador personalizado auditado abaixo.</p>
+        </div>
+        <div id="characterData" hidden>
+          <div class="character-head">
+            <div><h2 id="characterName">Personagem</h2><p id="characterMeta"></p></div>
+            <div class="xp-badge"><strong id="xpAvailable">0</strong><span>PE livres</span></div>
+          </div>
+          <div id="characteristics" class="stats-grid"></div>
+          <div class="health-grid">
+            <div><span>Proteção</span><strong id="soakValue">0</strong></div>
+            <div><span>Ferimentos</span><strong id="woundsValue">0/0</strong></div>
+            <div><span>Tensão</span><strong id="strainValue">0/0</strong></div>
+            <div><span>Estado</span><strong id="healthStatusValue" class="small-value">—</strong></div>
+            <div><span>Créditos</span><strong id="creditsValue">0</strong></div>
+            <div><span>Críticos</span><strong id="criticalsValue">0</strong></div>
+          </div>
+          <details class="sheet-details" open>
+            <summary>Perícias treinadas</summary>
+            <div id="trainedSkills" class="skill-list"></div>
+          </details>
+          <details class="sheet-details">
+            <summary>Armas e equipamento</summary>
+            <div id="gearList" class="gear-list"></div>
+          </details>
+          <details class="sheet-details">
+            <summary>Catálogo auditado de armas e blindagens</summary>
+            <p class="microcopy">Perfis da Pantalla oficial. Preço, raridade e restrição de armas são referência para o Mestre; propor uma aquisição não desconta créditos nem adiciona item antes da resolução de disponibilidade.</p>
+            <div id="catalogWeapons" class="equipment-catalog"></div>
+            <h4 class="subhead">Blindagens — referência de Defesa/Proteção</h4>
+            <div id="catalogArmor" class="equipment-catalog compact"></div>
+            <p id="equipmentCatalogFeedback" class="feedback"></p>
+          </details>
+          <details class="sheet-details" open>
+            <summary>Progressão por PE</summary>
+            <p class="microcopy">O custo usa automaticamente a lista de perícias profissionais da ficha. Cada grau é comprado separadamente e o máximo é 5.</p>
+            <label class="starter-label" for="progressSkill">Perícia</label>
+            <select id="progressSkill" class="starter-select"><option value="">Sem personagem</option></select>
+            <p id="progressCost" class="rule-summary">Carregue uma ficha para usar PE.</p>
+            <button id="trainSkill" class="secondary">Comprar próximo grau</button>
+            <p id="progressFeedback" class="feedback"></p>
+          </details>
+          <details class="sheet-details" open>
+            <summary>Talentos da especialização</summary>
+            <p class="microcopy">O VTT segue a árvore completa da especialização inicial: talentos da primeira linha começam disponíveis; as linhas seguintes só são liberadas pelas conexões oficiais. O custo é o indicado pela linha da árvore.</p>
+            <div id="talentOptions" class="talent-list"></div>
+            <p id="talentFeedback" class="feedback"></p>
+          </details>
+          <div class="source-note" id="sourceNote"></div>
+        </div>
+        <details class="sheet-details creator-panel" open>
+          <summary>Criar personagem personalizado</summary>
+          <p class="microcopy">Fluxo do livro básico: espécie → carreira/especialização → perícias gratuitas → Obligation → gasto opcional de PE em Características → atributos derivados. PE e créditos não gastos são preservados.</p>
+          <div class="creator-grid">
+            <label class="wide">Nome<input id="customName" type="text" maxlength="80" placeholder="Nome do personagem"></label>
+            <label>Espécie<select id="customSpecies"></select></label>
+            <label>Carreira<select id="customCareer"></select></label>
+            <label class="wide">Especialização<select id="customSpecialization"></select></label>
+          </div>
+          <div class="source-note">Modo solo: o livro básico não traz valor de Obligation para 1 personagem. O VTT usa <strong>20</strong> como política local editável, claramente separada da regra oficial.</div>
+          <div class="creator-grid">
+            <label>Obligation inicial<input id="customObligation" type="number" min="0" max="100" value="20"></label>
+            <label>Tipo de Obligation<select id="customObligationType"></select></label>
+            <label id="speciesVariantWrap" class="wide" hidden>Fisiologia do Gand<select id="customSpeciesVariant"><option value="lungs">Com pulmões (+10 PE; requer amônia)</option><option value="lungless">Sem pulmões (não respira)</option></select></label>
+          </div>
+          <div class="creator-options">
+            <label><input id="obligationXp5" type="checkbox"> +5 Obligation → +5 PE iniciais</label>
+            <label><input id="obligationXp10" type="checkbox"> +10 Obligation → +10 PE iniciais</label>
+            <label><input id="obligationCredits" type="checkbox"> +5 Obligation → +1.000 créditos</label>
+            <label><input id="obligationCredits2500" type="checkbox"> +10 Obligation → +2.500 créditos</label>
+          </div>
+          <h3 class="creator-subtitle">Características</h3>
+          <p class="microcopy">Só podem ser aumentadas com PE durante a criação. Cada aumento custa 10 × o novo valor; máximo 5.</p>
+          <div id="customCharacteristics" class="stats-grid creator-characteristics"></div>
+          <h3 class="creator-subtitle">Perícias gratuitas</h3>
+          <p id="careerFreeHint" class="microcopy"></p>
+          <div id="careerFreeSkills" class="creator-skill-grid"></div>
+          <p id="specializationFreeHint" class="microcopy"></p>
+          <div id="specializationFreeSkills" class="creator-skill-grid"></div>
+          <div id="speciesChoiceWrap" hidden>
+            <p id="speciesChoiceHint" class="microcopy"></p>
+            <div id="speciesChoiceSkills" class="creator-skill-grid"></div>
+          </div>
+          <label class="wide creator-text">Motivação<textarea id="customMotivation" rows="2" maxlength="500" required placeholder="O que move seu personagem na Orla Exterior?"></textarea></label>
+          <label class="wide creator-text">Antecedentes<textarea id="customBackground" rows="3" maxlength="1200" placeholder="Origem, vínculos e detalhes do personagem"></textarea></label>
+          <div id="customCreationPreview" class="rule-summary">Escolha espécie, carreira e especialização.</div>
+          <button id="createCustomCharacter" class="primary full">Criar e usar personagem</button>
+          <p id="customCreationFeedback" class="feedback"></p>
+        </details>
+
+        <details class="sheet-details json-panel">
+          <summary>Importar ou exportar ficha JSON</summary>
+          <textarea id="characterJson" rows="6" placeholder="Cole aqui uma ficha JSON válida ou exporte a ficha atual."></textarea>
+          <div class="button-row">
+            <button id="importCharacter" class="secondary">Importar</button>
+            <button id="exportCharacter" class="secondary">Exportar</button>
+          </div>
+          <p id="characterJsonFeedback" class="feedback"></p>
+        </details>
+      </section>
+    </section>
+
+    <section id="combatView" class="view">
+      <section class="combat-card">
+        <div class="scene-kicker">COMBATE</div>
+        <div id="combatNoCharacter" class="empty-state">
+          <h2>Carregue um personagem</h2>
+          <p>O turno, ataques, dano e recuperação usam diretamente a ficha ativa.</p>
+        </div>
+        <div id="combatData" hidden>
+          <div class="combat-head">
+            <div><h2 id="combatCharacterName">Personagem</h2><p id="combatHealthLine"></p></div>
+            <div class="round-badge"><strong id="combatRound">—</strong><span>rodada</span></div>
+          </div>
+
+          <div class="turn-grid">
+            <div><span>Ação</span><strong id="combatActionState">Disponível</strong></div>
+            <div><span>Manobras</span><strong id="combatManeuverState">0/2</strong></div>
+          </div>
+          <label class="starter-label" for="quickReactionStrain">Reação rápida antes da iniciativa</label>
+          <input id="quickReactionStrain" type="number" min="0" max="0" value="0">
+          <p id="quickReactionHelp" class="microcopy">Sem Reação rápida adquirida.</p>
+          <button id="startEncounter" class="primary full">Iniciar encontro imperial de teste</button>
+          <p id="encounterFeedback" class="feedback"></p>
+          <div id="masterEncounterCard" class="suggested-check" hidden>
+            <div><strong>Encontro preparado pelo Mestre</strong><span id="masterEncounterText"></span></div>
+            <button id="startPendingEncounter" class="secondary">Entrar no encontro</button>
+          </div>
+          <p id="combatCause" class="microcopy" hidden></p>
+          <div class="button-row three">
+            <button id="startCombat" class="secondary">Combate livre</button>
+            <button id="nextTurn" class="secondary">Encerrar turno</button>
+            <button id="endCombat" class="secondary">Encerrar combate</button>
+          </div>
+
+          <section id="initiativePanel" class="encounter-panel" hidden>
+            <div class="initiative-head"><strong id="initiativeStatus">Iniciativa</strong><span id="initiativeSlots"></span></div>
+            <div id="adversaryList" class="adversary-list"></div>
+            <div id="npcTurnLog" class="npc-log"></div>
+          </section>
+
+          <details class="sheet-details" open>
+            <summary>Manobras</summary>
+            <p class="microcopy">A primeira manobra é normal. A segunda exige sofrer 2 de Tensão ou trocar a ação. O limite é 2 por turno.</p>
+            <div class="button-stack">
+              <button id="normalManeuver" class="secondary">Fazer manobra</button>
+              <button id="strainManeuver" class="secondary">2ª manobra · sofrer 2 de Tensão</button>
+              <button id="actionManeuver" class="secondary">2ª manobra · trocar a ação</button>
+            </div>
+            <div class="rule-tool">
+              <label class="starter-label" for="aimManeuverMethod">Mirar usa uma manobra</label>
+              <select id="aimManeuverMethod" class="starter-select">
+                <option value="normal">Usar a manobra disponível</option>
+                <option value="strain">Se for a 2ª: sofrer 2 de Tensão</option>
+                <option value="action">Se for a 2ª: trocar a ação</option>
+              </select>
+              <button id="aimButton" class="secondary">Mirar · +1 Impulso no próximo ataque</button>
+              <p id="aimStatus" class="microcopy"></p>
+            </div>
+            <p id="maneuverFeedback" class="feedback"></p>
+          </details>
+
+          <details class="sheet-details" open>
+            <summary>Ataque</summary>
+            <div class="grid check-grid">
+              <label class="wide">Arma<select id="weaponSelect"></select></label>
+              <label id="targetAdversaryWrap" class="wide" hidden>Alvo<select id="targetAdversary"></select></label>
+              <label class="wide">Distância do alvo<select id="targetRange"></select></label>
+            </div>
+            <p id="attackDifficultyText" class="rule-summary">Dificuldade calculada automaticamente.</p>
+            <details class="sub-details">
+              <summary>Ajustes situacionais do Mestre</summary>
+              <p class="microcopy">Controles temporários para testes locais; quando o Mestre de IA estiver conectado, ele aplicará estes ajustes.</p>
+              <div class="grid check-grid">
+                <label>Desafio<input id="attackChallenge" type="number" min="0" max="5" value="0"></label>
+                <label>Impulso<input id="attackBoost" type="number" min="0" max="6" value="0"></label>
+                <label>Contratempo<input id="attackSetback" type="number" min="0" max="6" value="0"></label>
+              </div>
+            </details>
+            <button id="attackButton" class="primary full">Atacar</button>
+            <div id="attackResult" class="result empty">Nenhum ataque resolvido.</div>
+            <button id="activateCritical" class="secondary" hidden>Ativar Ferimento Crítico</button>
+          </details>
+
+          <details class="sheet-details">
+            <summary>Estado e dano recebido</summary>
+            <p class="microcopy">Ferramenta local para o motor aplicar consequências enquanto o Mestre por IA ainda não está conectado.</p>
+            <div class="grid check-grid">
+              <label>Dano<input id="incomingDamage" type="number" min="0" max="99" value="0"></label>
+              <label>Perfuração<input id="incomingPierce" type="number" min="0" max="20" value="0"></label>
+              <label class="wide">Tipo<select id="incomingDamageType"><option value="wounds">Ferimentos</option><option value="strain">Tensão</option></select></label>
+            </div>
+            <button id="applyDamage" class="secondary">Aplicar dano</button>
+            <p id="damageFeedback" class="feedback"></p>
+          </details>
+
+          <details class="sheet-details">
+            <summary>Recuperação</summary>
+            <p id="stimpackCount" class="microcopy">Injetores disponíveis: 0</p>
+            <label class="starter-label" for="stimpackManeuverMethod">Se for a segunda manobra do turno</label>
+            <select id="stimpackManeuverMethod" class="starter-select">
+              <option value="normal">Usar a manobra disponível</option>
+              <option value="strain">Sofrer 2 de Tensão</option>
+              <option value="action">Trocar a ação pela manobra</option>
+            </select>
+            <button id="useStimpack" class="secondary">Usar injetor · cura decrescente 5→1</button>
+            <p id="stimpackFeedback" class="feedback"></p>
+            <div class="recovery-divider"></div>
+            <label class="starter-label" for="medicineSupplies">Tratamento com Medicina</label>
+            <select id="medicineSupplies" class="starter-select">
+              <option value="yes">Com suprimentos médicos</option>
+              <option value="no">Sem suprimentos médicos · +1 dificuldade</option>
+            </select>
+            <button id="medicineButton" class="secondary">Fazer teste de Medicina</button>
+            <p id="medicineFeedback" class="feedback"></p>
+            <div class="recovery-divider"></div>
+            <button id="restNightButton" class="secondary">Descansar uma noite completa</button>
+            <p id="restFeedback" class="feedback"></p>
+          </details>
+        </div>
+      </section>
+    </section>
+
+    <section id="vehicleView" class="view">
+      <section class="vehicle-card">
+        <div class="scene-kicker">NAVE / VEÍCULO</div>
+        <div class="grid vehicle-picker">
+          <label class="wide">Perfil verificado<select id="vehicleProfileSelect"></select></label>
+        </div>
+        <button id="loadVehicle" class="primary full">Adicionar e usar nave</button>
+        <p id="vehicleFeedback" class="feedback"></p>
+
+        <div id="vehicleNoActive" class="empty-state">
+          <h2>Nenhuma nave ativa</h2>
+          <p>Escolha um perfil verificado para ligar combate, viagem e dano à campanha.</p>
+        </div>
+        <div id="swe02NewMeenEscort" hidden>
+              <p>SWE02 pp.20–21 · 20 adultos e algumas crianças; escolta não significa libertar New Meen.</p>
+              <button id="swe02EscortPrepare">Organizar a retirada</button>
+              <label>Ticks aprovados pelo Mestre (o PDF não define duração)<input id="swe02EscortTicks" type="number" min="1" max="96" value="1" /></label>
+              <button id="swe02EscortDepart">Partir com os civis</button>
+              <button id="swe02EscortArrive">Completar percurso até Nabat</button>
+              <button id="swe02EscortAbandon">Abandonar escolta sem recompensa</button>
+              <p id="swe02EscortFeedback" class="feedback"></p>
+            </div><div id="swe02NewMeenMilitia" hidden>
+              <p>SWE02 p.21 · emprestar arma blaster real a um mineiro. Apoio abstrato opcional: um Ferimento por aliado; um aliado eliminado por rodada.</p>
+              <select id="swe02MilitiaWeapon"><option value="">Arma do inventário</option></select>
+              <button id="swe02MilitiaArm">Emprestar arma e armar mineiro</button>
+              <select id="swe02MilitiaTarget"><option value="">Grupo inimigo ativo</option></select>
+              <button id="swe02MilitiaRound">Aprovar apoio abstrato nesta rodada</button>
+              <label>Arma emprestada ainda com aliado ativo<select id="swe02MilitiaReturnLoan"><option value="">Escolher empréstimo</option></select></label>
+              <button id="swe02MilitiaReturn">Receber arma de volta (após combate)</button>
+              <p id="swe02MilitiaFeedback" class="feedback"></p>
+            </div>
+        <div id="swe02Act2Contracts" hidden>
+          <h3>SWE02 — Piddock e irmãos Vio · p.33</h3>
+          <p>Piddock atende quatro perguntas, dá uma última resposta e encerra se não houver interesse comercial. Contratar os Vio permite evitar a audiência e AA7, mediante pagamento real por passageiro.</p>
+          <label>Pergunta ao duque<input id="swe02PiddockQuestion" maxlength="100" placeholder="Assunto da pergunta"></label>
+          <button id="swe02PiddockAsk">Fazer pergunta</button>
+          <button id="swe02PiddockTrade">Manifestar interesse em armas</button>
+          <label>Oferta de passagem<select id="swe02VioOffer"><option value="WEX">Wex: 500 créditos por PJ</option><option value="ORPA">Orpa: 1.000 créditos por PJ</option><option value="NEGOTIATE">Negociar: Média, 250 por PJ se passar; senão 500</option></select></label>
+          <button id="swe02VioHire">Contratar Vio (pagamento e rota reais)</button>
+        </div>
+          <div id="swe02PiddockArmsPanel" hidden>
+            <label>Arma de Piddock<select id="swe02PiddockWeapon"></select></label>
+            <label>Quantidade (1–8)<input id="swe02PiddockQuantity" type="number" min="1" max="8" value="1"></label>
+            <label><input id="swe02PiddockHaggle" type="checkbox">Negociar desconto (oposta, 1 dificuldade + 1 desafio)</label>
+            <button id="swe02PiddockAgree">Acordo verbal — sem pagamento</button>
+            <button id="swe02PiddockDeliver">Pagar ao agente e receber armas</button>
+          </div>
+          <p id="swe02ContractsFeedback" class="feedback"></p>
+        <div id="swe02Act2Gantry" hidden>
+          <h3>SWE02 — Vrixx’tt no Gantry AA7 · p.37</h3>
+          <p>Sem Charme ou Coerção. 500 créditos compram sete dias; 1.000 também permitem um tiro real contra um soldado remanescente. Consome sua ação de combate.</p>
+          <label>Pagamento<select id="swe02VrixxttCredits"><option value="500">500 créditos</option><option value="1000">1.000 créditos + tiro</option></select></label>
+          <label>Alvo do tiro<select id="swe02VrixxttTarget"><option value="">Nenhum soldado</option></select></label>
+          <button id="swe02VrixxttBribe">Pagar Vrixx’tt</button>
+          <p id="swe02GantryFeedback" class="feedback"></p>
+        </div>
+        <div id="swe02Act2AnattaActions" hidden>
+          <h3>SWE02 — Anatta, corretor de informações</h3>
+          <p>Fonte oficial pp.34–35. Preços fixos, sem barganha e sem informações gratuitas.</p>
+          <select id="swe02AnattaTopic"><option value="">Selecione a informação</option></select>
+          <button id="swe02AnattaBuy">Comprar informação com créditos reais</button>
+          <p id="swe02AnattaFeedback" class="feedback"></p>
+        </div>
+        <div id="swe02PalaceDeclarative" hidden>
+          <h3>SWE02 — Operações oficiais no palácio (pp.43–44)</h3>
+          <p>Itens somente com ficha EotE validada ficam utilizáveis. Outros são lacrados, sem efeito mecânico até certificação. Não há créditos ou vitórias automáticos.</p>
+          <select id="swe02PalaceOperationSelect"><option value="">Selecione a operação da sala</option></select>
+          <button id="swe02PalaceOperationCommit">Executar operação determinística</button>
+          <p id="swe02PalaceOperationFeedback" class="feedback"></p>
+        </div>
+        <div id="swe02Act3Actions" hidden>
+          <h3>SWE02 — Ato 3 · provas, Anatta, Teemo e Jabba</h3>
+          <p>Fontes oficiais pp.34, 44–46. Exige duas provas concretas distintas do palácio; nenhuma vitória, crédito ou morte por narrativa.</p>
+          <div class="form-row"><label>Gladiadores (p.43)
+            <select id="swe02GladiatorMethod"><option value="BRIBE">Subornar quatro gladiadores (1.000 créditos)</option><option value="COERCE">Coerção oposta à Disciplina</option></select>
+          </label><button id="swe02GladiatorRecruit">Negociar nas celas</button></div>
+          <label>Reforços do quartel: quantidade confirmada pelo Mestre <input id="swe02ThroneReinforcementCount" type="number" min="1" max="12" value="4"></label>
+          <button id="swe02ThroneAlarmQueue">Autorizar Teemo a apertar o alarme em seu turno (4 rodadas)</button>
+          <button id="swe02Act3Dossier">Preparar dossiê para Anatta (2 provas)</button>
+          <label>Desfecho comprovado
+            <select id="swe02Act3Method"><option value="BLACKMAIL">Chantagear Teemo pessoalmente</option><option value="JABBA">Entregar provas a Anatta / Jabba</option></select>
+          </label>
+          <button id="swe02Act3Resolve">Resolver alternativa sem combate</button>
+          <button id="swe02Act3Strongbox">Recolher cofre do trono (10.000 créditos após vitória real)</button>
+          <button id="swe02Act3Chandelier">Atirar no lustre com o blaster selecionado (Percepção Média prévia, dificuldade melhorada 2×)</button>
+          <p id="swe02Act3Feedback" class="feedback"></p>
+        </div>
+        <div id="vehicleData" hidden>
+          <div class="vehicle-head"><div><h2 id="vehicleName">Nave</h2><p id="vehicleMeta"></p></div><div class="round-badge"><strong id="vehicleSpeed">0</strong><span>velocidade</span></div></div>
+          <div class="vehicle-stats">
+            <div><span>Silhueta</span><strong id="vehicleSilhouette">—</strong></div>
+            <div><span>Manejo</span><strong id="vehicleHandling">—</strong></div>
+            <div><span>Blindagem</span><strong id="vehicleArmor">—</strong></div>
+            <div><span>Casco</span><strong id="vehicleHull">—</strong></div>
+            <div><span>Sistemas</span><strong id="vehicleStrain">—</strong></div>
+            <div><span>Defesa</span><strong id="vehicleDefense">—</strong></div>
+          </div>
+          <p id="vehicleStatus" class="rule-summary"></p>
+
+          <details class="sheet-details" open>
+            <summary>Combate e manobras</summary>
+            <p id="vehicleCombatLine" class="microcopy">Fora de combate.</p>
+            <div class="button-row three"><button id="startVehicleCombat" class="secondary">Iniciar vs TIE</button><button id="nextVehicleRound" class="secondary">Próximo assalto</button><button id="endVehicleCombat" class="secondary">Encerrar</button></div>
+            <label class="starter-label" for="vehicleManeuverMethod">Se for a segunda manobra exclusiva</label>
+            <select id="vehicleManeuverMethod" class="starter-select"><option value="normal">Usar a 1ª manobra</option><option value="strain">2ª · +2 Tensão de sistemas</option><option value="action">2ª · trocar a ação</option></select>
+            <div class="vehicle-maneuvers">
+              <button data-vehicle-maneuver="accelerate" class="secondary">Acelerar +1</button><button data-vehicle-maneuver="brake" class="secondary">Frear -1</button>
+              <button data-vehicle-maneuver="advance" data-direction="closer" class="secondary">Avançar / aproximar</button><button data-vehicle-maneuver="advance" data-direction="farther" class="secondary">Avançar / afastar</button>
+              <button data-vehicle-maneuver="evasive" class="secondary">Manobras evasivas</button><button data-vehicle-maneuver="stay_on_target" class="secondary">Seguir o objetivo</button>
+              <button data-vehicle-maneuver="punch_it" class="secondary">Pisar a fundo</button><button data-vehicle-maneuver="stop_short" class="secondary">Parada em seco</button>
+              <button id="fullThrottleAction" class="secondary">Aceleração máxima · ação</button><button id="fullThrottleManeuver" class="secondary">Aceleração máxima aprimorada · manobra</button><button id="controlledFireAction" class="secondary" hidden disabled>Fogo controlado · legado AoR</button>
+            </div>
+            <p id="vehicleManeuverFeedback" class="feedback"></p><div id="swe02NabatActions" hidden>
+              <p>SWE02 · Nabat · fonte oficial pp.13–14</p>
+              <button id="swe02NabatWatch">Pedir aviso do espaçoporto</button>
+              <button id="swe02NabatAlert">Receber aviso noturno</button>
+              <button id="swe02NabatRepair">Reparar casco da Krayt Fang (contatos de B’ura)</button>
+              <button id="swe02NabatCare">Atendimento no abrigo de Nyn</button>
+              <select id="swe02NynCriticalId"><option value="">Selecione um Ferimento Crítico</option></select>
+              <button id="swe02NynCritical">Médico de Nyn: tentar curar crítico (1 vez)</button>
+              <select id="swe02NynMethod"><option value="charm">Charme · Médio</option><option value="coerce">Coerção · Difícil</option></select>
+              <button id="swe02NynNegotiate">Negociar suprimentos com Nyn</button>
+              <select id="swe02NabatItem"><option value="">Selecione um item do catálogo</option></select>
+              <input id="swe02NabatQuantity" type="number" min="1" max="10" value="1" />
+              <button id="swe02NabatBuy">Comprar em Nabat</button>
+              <p id="swe02NabatFeedback" class="feedback"></p>
+              <p>Granadas e fuzil de Nyn: concessões registradas, sem perfil de combate EotE certificado.</p>
+            </div><div id="swe02NewMeenSocial" hidden>
+              <p>SWE02 · New Meen · suborno de capanga (p.23)</p>
+              <input id="swe02NewMeenCredits" type="number" min="400" max="500" value="500" />
+              <button id="swe02NewMeenBribe">Negociar saída de um capanga (400–500 créditos)</button>
+              <p>SWE02 p.23 · mortes confirmadas pelo Mestre, limitadas a baixas reais do combate (incapacitação não é morte automática).</p>
+              <select id="swe02NewMeenGroup"><option value="">Grupo de capangas em combate</option></select>
+              <input id="swe02NewMeenDeaths" type="number" min="1" max="12" value="1" />
+              <button id="swe02NewMeenConfirmDeaths">Confirmar mortes efetivas deste grupo</button>
+              <button id="swe02NewMeenCoerce">Coagir capangas sobreviventes (consome ação)</button>
+              <select id="swe02DrombbSafeMethod"><option value="key">Chave de Drombb após derrota</option><option value="skulduggery">Atividade Criminal · Difícil</option></select>
+              <button id="swe02DrombbSafeOpen">Abrir cofre da cantina (2.000 créditos oficiais)</button>
+              <p id="swe02NewMeenFeedback" class="feedback"></p>
+            </div><div id="swe02VehicleActions" hidden><p>SWE02 · Interceptação Thwheek · fonte p.12</p><button id="swe02Resolve">Resolver confronto</button><button id="swe02Pursue">Perseguir</button><button id="swe02Linked">Vinculada (2 Vant.)</button><button id="swe02CrashPilot">Pilotagem Difícil</button><button id="swe02CrashCrew">Aguante Difícil</button></div>
+            <label class="starter-label" for="vehicleWeaponSelect">Arma da nave</label><select id="vehicleWeaponSelect" class="starter-select"></select>
+            <button id="vehicleAttack" class="primary full">Atacar nave inimiga</button>
+            <div id="vehicleAttackResult" class="result empty">Nenhum ataque veicular resolvido.</div>
+          </details>
+
+          <details class="sheet-details">
+            <summary>Dano, reparos e pilotagem</summary>
+            <div class="grid"><label>Dano<input id="vehicleIncomingDamage" type="number" min="0" max="99" value="0"></label><label>Brecha<input id="vehicleIncomingBreach" type="number" min="0" max="20" value="0"></label></div>
+            <button id="applyVehicleDamage" class="secondary">Aplicar dano ao casco</button>
+            <div class="grid"><label class="wide">Tensão de sistemas<input id="vehicleIncomingStrain" type="number" min="0" max="99" value="0"></label></div>
+            <button id="applyVehicleStrain" class="secondary">Aplicar Tensão de sistemas</button>
+            <div class="button-stack vehicle-repair-actions"><button id="vehicleDamageControl" class="secondary">Controle de danos · Mecânica</button><button id="vehicleCritical" class="secondary">Aplicar impacto crítico</button><button id="vehicleHazardCheck" class="secondary">Teste de Pilotagem por perigo</button><button id="vehicleRestDay" class="secondary">Passar 1 dia sem nova Tensão</button></div>
+            <p id="vehicleRepairFeedback" class="feedback"></p>
+          </details>
+
+          <details class="sheet-details">
+            <summary>Viagem interestelar</summary>
+            <p class="microcopy">Em condições ideais, traçar uma rota hiperespacial usa Astronavegação Fácil. A nave precisa de hiperimpulsor e de computador de navegação ou suporte astromecânico adequado.</p>
+            <button id="vehicleAstrogation" class="secondary">Calcular rota hiperespacial</button>
+            <p id="vehicleTravelFeedback" class="feedback"></p>
+          </details>
+        </div>
+      </section>
+    </section>
+
+    <section id="mapView" class="view">
+      <section class="map-card">
+        <div class="scene-kicker">MAPA GALÁCTICO</div>
+        <h2 class="settings-title">Galáxia conhecida</h2>
+        <p class="map-intro">Use o mapa como referência de navegação. Arrastar ou ampliar não move o grupo: uma viagem só entra no estado depois de passar pelo Mestre e pelo motor.</p>
+        <div class="map-toolbar" aria-label="Controles do mapa">
+          <button id="mapZoomOut" class="secondary" type="button">−</button>
+          <button id="mapReset" class="secondary" type="button">Ajustar</button>
+          <button id="mapZoomIn" class="secondary" type="button">＋</button>
+        </div>
+        <div id="galaxyMapViewport" class="map-viewport" aria-label="Mapa galáctico com zoom e arraste">
+          <img id="galaxyMapImage" src="assets/maps/galaxy_map.jpg" alt="Mapa galáctico de referência" draggable="false">
+        </div>
+        <p class="source-note">A imagem exibida vem da biblioteca visual canônica. Selecionar ou guardar um mapa não altera localização, tempo, recursos ou conhecimento do grupo.</p>
+        <details class="sheet-details map-library-panel" open>
+          <summary>Biblioteca de mapas</summary>
+          <label class="starter-label" for="imageMapSearch">Buscar mapa</label>
+          <input id="imageMapSearch" class="settings-input" type="search" maxlength="120" placeholder="Tatooine, Mos Shuuta, Hoth, cantina...">
+          <div class="map-library-selected">
+            <div><strong id="imageMapSelectedTitle">Mapa galáctico</strong><small id="imageMapSelectedMeta">empacotado</small></div>
+            <a id="imageMapSource" class="secondary compact-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Origem</a>
+          </div>
+          <div id="imageMapCatalog" class="map-library-list" aria-label="Catálogo visual de mapas"></div>
+          <div class="button-row map-library-actions">
+            <button id="imageMapCache" class="secondary" type="button" hidden>Guardar offline</button>
+            <button id="imageMapClearCache" class="secondary" type="button" hidden>Remover cache</button>
+            <button id="imageMapRefresh" class="secondary" type="button">Atualizar</button>
+          </div>
+          <p id="imageMapLibraryFeedback" class="feedback">A biblioteca visual não cria fatos ou regras de jogo.</p>
+        </details>
+        <details class="sheet-details" open>
+          <summary>Planejar viagem</summary>
+          <label class="starter-label" for="mapDestination">Destino pretendido</label>
+          <input id="mapDestination" class="settings-input" type="text" maxlength="120" placeholder="Ex.: Chandrila, Mon Cala, sistema próximo...">
+          <div class="button-row">
+            <button id="mapPlotCourse" class="secondary" type="button">Calcular rota</button>
+            <button id="mapProposeTravel" class="primary full" type="button">Propor ao Mestre</button>
+          </div>
+          <p id="mapTravelFeedback" class="feedback"></p>
+          <p class="microcopy">“Calcular rota” usa Astronavegação com a nave ativa quando aplicável. “Propor ao Mestre” registra a intenção; não teleporta o personagem nem decide a viagem sozinho.</p>
+        </details>
+      </section>
+    </section>
+
+    <section id="baseView" class="view">
+      <section class="character-card">
+        <div class="scene-kicker">GRUPO</div>
+        <h2>Base de Operações</h2>
+        <p class="microcopy">Estrutura local do grupo de Orla: base/refúgio, Obligation, recursos, contatos e reserva de Destino. Dados AoR antigos são preservados somente como legado de migração e não viram Obligation automaticamente.</p>
+        <div class="creator-grid">
+          <label class="wide">Nome da base<input id="groupBaseName" type="text" maxlength="120"></label>
+          <label class="wide">Localização<input id="groupBaseLocation" type="text" maxlength="240"></label>
+          <label class="wide">Descrição<textarea id="groupBaseDescription" rows="3" maxlength="2000"></textarea></label>
+        </div>
+        <button id="saveGroupBase" class="primary full">Salvar base</button>
+        <p id="groupBaseFeedback" class="feedback"></p>
+
+        <details class="sheet-details" open>
+          <summary>Obligation do grupo</summary>
+          <div class="health-grid">
+            <div><span>Obligation registrada</span><strong id="groupObligationTotal">0</strong></div>
+          </div>
+          <div id="groupObligationEntries" class="gear-list"></div>
+          <div class="creator-grid">
+            <label>Valor<input id="groupObligationValue" type="number" min="0" max="1000" value="0"></label>
+            <label>Jogador/personagem<input id="groupObligationMember" type="text" maxlength="120"></label>
+            <label class="wide">Tipo de Obligation<input id="groupObligationType" type="text" maxlength="160"></label>
+            <label class="wide">Descrição<input id="groupObligationDescription" type="text" maxlength="600"></label>
+          </div>
+          <button id="addGroupObligation" class="secondary">Adicionar Obligation ao grupo</button>
+          <p id="groupObligationFeedback" class="feedback"></p>
+        </details>
+
+        <details class="sheet-details" open>
+          <summary>Recursos, Pertences e Contatos</summary>
+          <label class="wide creator-text">Recursos do grupo<textarea id="groupResources" rows="4" placeholder="Um item por linha"></textarea></label>
+          <label class="wide creator-text">Pertences do grupo<textarea id="groupBelongings" rows="4" placeholder="Um item por linha"></textarea></label>
+          <label class="wide creator-text">Contatos do grupo<textarea id="groupContacts" rows="4" placeholder="Um contato por linha"></textarea></label>
+          <button id="saveGroupLists" class="secondary">Salvar listas</button>
+          <p id="groupListsFeedback" class="feedback"></p>
+        </details>
+
+        <details class="sheet-details">
+          <summary>Reserva de Destino</summary>
+          <div class="creator-grid">
+            <label>Lado Luminoso<input id="groupDestinyLight" type="number" min="0" max="20" value="0"></label>
+            <label>Lado Sombrio<input id="groupDestinyDark" type="number" min="0" max="20" value="0"></label>
+          </div>
+          <button id="saveGroupDestiny" class="secondary">Salvar reserva</button>
+          <p id="groupDestinyFeedback" class="feedback"></p>
+        </details>
+      </section>
+    </section>
+
+    <section id="libraryView" class="view">
+      <section class="library-card">
+        <div class="scene-kicker">BIBLIOTECA</div>
+        <h2 class="settings-title">Manuais e complementos</h2>
+        <p class="library-intro">Importe PDFs para anexá-los ao VTT e indexar o texto para consulta offline do Mestre. O arquivo original é copiado para o armazenamento privado do aplicativo e não é enviado para serviços externos.</p>
+        <button id="importLibraryPdf" class="primary full">Importar PDF</button>
+        <p id="libraryImportFeedback" class="feedback"></p>
+        <div id="libraryEnvironmentStatus" class="source-note"></div>
+        <div class="source-note">Autoridade do RAG: mecânicas já testadas/implementadas pelo motor prevalecem. Entre PDFs ativos: Errata → Livro básico → Complemento → Aventura/Cenário → Referência. A classificação organiza a consulta; não transforma um PDF em regra codificada.</div>
+
+        <div class="library-stats">
+          <div><strong id="libraryDocumentCount">0</strong><span>PDFs</span></div>
+          <div><strong id="libraryIndexedCount">0</strong><span>indexados</span></div>
+        </div>
+
+        <div id="libraryDocuments" class="library-list">
+          <div class="result empty">Nenhum PDF importado.</div>
+        </div>
+
+        <details class="sheet-details" open>
+          <summary>Buscar na Biblioteca</summary>
+          <p class="microcopy">A busca usa somente o índice local dos PDFs já importados. Os resultados também entram no contexto do Mestre/RAG.</p>
+          <div class="input-row rules-query-row">
+            <input id="libraryQuery" type="search" maxlength="180" placeholder="Ex.: regras de talentos ou veículos">
+            <button id="searchLibrary" class="secondary">Buscar</button>
+          </div>
+          <p id="librarySearchFeedback" class="feedback"></p>
+          <div id="librarySearchResults" class="rule-results"><div class="result empty">Nenhuma busca nesta sessão.</div></div>
+        </details>
+      </section>
+    </section>
+
+    <section id="settingsView" class="view">
+      <section class="character-card">
+        <div class="scene-kicker">AJUSTES</div>
+        <h2 class="settings-title">Mestre do jogo</h2>
+        <p class="microcopy">O modo local prepara contexto e consulta regras sem narrar livremente. O modo remoto usa um endpoint HTTPS seu; nenhuma chave secreta é armazenada no VTT.</p>
+        <label class="starter-label" for="masterProviderMode">Modo do Mestre</label>
+        <select id="masterProviderMode" class="starter-select">
+          <option value="none">Local · contexto e regras verificadas</option>
+          <option value="http">Remoto · endpoint HTTPS</option>
+        </select>
+        <div id="masterEndpointWrap" hidden>
+          <label class="starter-label" for="masterEndpoint">Endpoint HTTPS</label>
+          <input id="masterEndpoint" class="settings-input" type="url" inputmode="url" autocomplete="off" placeholder="https://seu-endpoint.example/master">
+          <p class="microcopy">Use um backend/proxy que guarde a chave do provedor fora do aplicativo. O VTT não solicita nem salva chave de API.</p>
+        </div>
+        <h3 class="settings-title">Voz da narração</h3>
+        <label class="creator-skill-option"><input id="ttsEnabled" type="checkbox"> Ativar leitura em voz alta da narração</label>
+        <label class="starter-label" for="ttsRate">Velocidade da voz</label>
+        <select id="ttsRate" class="starter-select">
+          <option value="0.8">Mais lenta</option><option value="1">Normal</option><option value="1.2">Mais rápida</option>
+        </select>
+        <p class="microcopy">O TTS lê somente a narração visível da cena. Ficha, regras, menus e conteúdo privado do Mestre não são enviados à voz.</p>
+        <button id="saveMasterSettings" class="primary full">Salvar ajustes</button>
+        <p id="masterSettingsFeedback" class="feedback"></p>
+        <div class="source-note">Falhas de rede, timeout ou resposta inválida não substituem o último estado válido da campanha.</div>
+
+        <h3 class="settings-title">Biblioteca visual</h3>
+        <p class="microcopy">Retratos de NPCs, droides, criaturas e veículos/naves indexados com origem. Estas imagens não criam ficha, estatística, espécie, facção, habilidade ou regra automaticamente.</p>
+        <div class="map-library-panel">
+          <div class="visual-library-filter-row">
+            <input id="imageVisualSearch" class="settings-input" type="search" maxlength="120" placeholder="Cratala, 2-1B, Krayt...">
+            <select id="imageVisualKind" class="starter-select"><option value="all">Todos</option><option value="npc">NPCs</option><option value="droid">Droides</option><option value="beast">Criaturas</option><option value="vehicle">Veículos / Naves</option></select>
+          </div>
+          <div class="map-library-selected">
+            <div><strong id="imageVisualSelectedTitle">Nenhuma referência selecionada</strong><small id="imageVisualSelectedMeta">visual apenas</small></div>
+            <a id="imageVisualSource" class="secondary compact-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Origem</a>
+          </div>
+          <div class="visual-library-preview"><img id="imageVisualPreview" alt="" hidden></div>
+          <div id="imageVisualCatalog" class="map-library-list" aria-label="Catálogo visual de NPCs, droides, criaturas e veículos/naves"></div>
+          <div class="map-library-actions button-row">
+            <button id="imageVisualCache" class="secondary" type="button" hidden>Guardar offline</button>
+            <button id="imageVisualClearCache" class="secondary" type="button" hidden>Remover cache</button>
+            <button id="imageVisualRefresh" class="secondary" type="button">Atualizar</button>
+          </div>
+          <p id="imageVisualFeedback" class="feedback">Referência visual apenas; vínculo mecânico exige validação explícita.</p>
+        </div>
+      </section>
+    </section>
+
+    <section class="continuity">
+      <span id="campaignName">Campanha</span>
+      <span id="eventCount">0 eventos</span>
+    </section>
+  </main>
+  <script type="module" src="js/ui/app.mjs"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "base": "P166",
+  "new": "P167",
+  "base_sha256": "a007d5f093f4387d3f0fbbc9ffd2844e1831e9dc54b5008e83d87170efa5ce87",
+  "base_files": 2265,
+  "current_files_pre_manifest": 2280,
+  "modified_or_added_files_pre_manifest": 29,
+  "added_files_pre_manifest": 15,
+  "deleted_files": [],
+  "source_java_unchanged": true,
+  "regular_tests": 2320,
+  "focal_tests": 35,
+  "stress_suites": 6,
+  "tts_checks": 27,
+  "android_build": "BLOCKED_GRADLE_DISTRIBUTION",
+  "editorial_pdf_certification": "PENDING"
+}

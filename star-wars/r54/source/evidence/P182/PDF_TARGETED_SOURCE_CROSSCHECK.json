@@ -1,0 +1,74 @@
+{
+  "checkpoint": "P182",
+  "date": "2026-10-13",
+  "source": {
+    "name": "mask of the pirate queen.pdf",
+    "sha256": "1eed9b0e63602b067f7f4004447bee9cf9717d76e40ede5b31adc0c8aa71428a",
+    "pages": 98,
+    "officialBook": "SWE13 Mask of the Pirate Queen",
+    "includedInZip": false
+  },
+  "scope": "Source-checked targeted correction; NOT editorial certification of all SWE13 pages, other four adventures or EotE/AoR",
+  "verifiedSections": [
+    {
+      "topic": "Contract retainer",
+      "bookPages": "17-18",
+      "rule": "500 credits per PC upon accepting meeting; subtract from final pay",
+      "code": "controller.mjs; publishedAdventureRegistry.mjs"
+    },
+    {
+      "topic": "Contract bounty",
+      "bookPages": "18-19",
+      "rule": "10,000 credits per PC; GM discretion for bonuses; no sourced Obligation reduction",
+      "code": "publishedAdventureRegistry.mjs"
+    },
+    {
+      "topic": "Third lead SororiNet",
+      "bookPages": "25-28",
+      "rule": "Public gateway, protected secondary node, restricted final data, coordinates; intrusion detection by Lathe",
+      "code": "maskOfThePirateQueen.mjs"
+    },
+    {
+      "topic": "Bridge confrontation",
+      "bookPages": "89-91",
+      "rule": "Two groups of three bridge guards; Noira nemesis; parley or combat resolution",
+      "code": "adversaries.mjs; maskOfThePirateQueen.mjs"
+    },
+    {
+      "topic": "Porel and Venlana",
+      "bookPages": "93-95",
+      "rule": "Venlana is the mole; Porel loyal; 1,000 credit bonus if siding with Porel; Venlana offers doubled contract for siding against Porel",
+      "code": "maskOfThePirateQueen.mjs; publishedAdventureRegistry.mjs"
+    }
+  ],
+  "integration": {
+    "nodes": 27,
+    "newNodes": 4,
+    "newNpcIds": [
+      "mpq.npc.porel_vakra",
+      "mpq.npc.lathe"
+    ],
+    "newLocationIds": [
+      "mpq.loc.sororinet_node"
+    ],
+    "sourceLinkedProfiles": [
+      "mpq_bridge_guard",
+      "mpq_noira",
+      "mpq_porel"
+    ],
+    "retainerControllerAtomic": true,
+    "outcomeBranches": [
+      "porel",
+      "venlana",
+      "independent",
+      "alliance"
+    ],
+    "reopenTests": 3
+  },
+  "limits": [
+    "NPC profile mechanics and abilities not fully certified against every original stat line",
+    "Other adventures remain editorially partial",
+    "AoR 360/360 consumer declarations not semantically certified",
+    "Android APK not built or tested on device"
+  ]
+}

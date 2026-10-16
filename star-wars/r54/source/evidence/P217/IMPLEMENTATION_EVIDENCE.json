@@ -1,0 +1,28 @@
+{
+  "checkpoint": "P217",
+  "features": [
+    "Grayson private guard p78 actual profile including 1 ranged/melee defense",
+    "Arend and Grayson GM-confirmed physically present and distinct",
+    "non-simultaneous real combat with initiative and existing outcome ledger",
+    "one atomic transaction per faction arrival and combat start",
+    "receipt replay and tamper rejection",
+    "Holo-Park round offset maintained across encounter reset",
+    "three reopens, no duplicates, PT-BR UI, offline bridge"
+  ],
+  "android": {
+    "versionName": "1.0.217",
+    "versionCode": 10217
+  },
+  "javaKokoroPreserved": true,
+  "offlineModules": 105,
+  "notClaimed": [
+    "APK",
+    "Gradle",
+    "adb",
+    "CI BRELGA",
+    "physical Android certification",
+    "five adventures complete",
+    "360 semantic consumers certified",
+    "Arend/Aris/Lando final outcomes"
+  ]
+}

@@ -1,0 +1,3 @@
+app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:46:final class GeminiBridge {
+app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java:16:public final class TtsBridge implements TextToSpeech.OnInitListener {
+app/src/main/java/com/braseiro/starwarsedge/FileBridge.java:19:public final class FileBridge {

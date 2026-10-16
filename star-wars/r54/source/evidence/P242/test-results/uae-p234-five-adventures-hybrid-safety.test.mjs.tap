@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: P234 canonical registry contains exactly five published adventures and rejects a sixth
+ok 1 - P234 canonical registry contains exactly five published adventures and rejects a sixth
+  ---
+  duration_ms: 19.548747
+  type: 'test'
+  ...
+# Subtest: P234 all five source aliases are recognized, foreign adventures remain excluded
+ok 2 - P234 all five source aliases are recognized, foreign adventures remain excluded
+  ---
+  duration_ms: 1.453812
+  type: 'test'
+  ...
+# Subtest: P234 native Android RAG and merged source path both exclude noncanonical adventure PDF
+ok 3 - P234 native Android RAG and merged source path both exclude noncanonical adventure PDF
+  ---
+  duration_ms: 33.965304
+  type: 'test'
+  ...
+# Subtest: P234 hybrid routing never authorizes mechanical state changes by RAG/Gemini
+ok 4 - P234 hybrid routing never authorizes mechanical state changes by RAG/Gemini
+  ---
+  duration_ms: 0.448923
+  type: 'test'
+  ...
+# Subtest: P234 Master context and provider prompt express correct hybrid authority and five-adventure boundary
+ok 5 - P234 Master context and provider prompt express correct hybrid authority and five-adventure boundary
+  ---
+  duration_ms: 114.805489
+  type: 'test'
+  ...
+# Subtest: P234 offline app continues to register player intents without fabricated narration or dice
+ok 6 - P234 offline app continues to register player intents without fabricated narration or dice
+  ---
+  duration_ms: 79.926444
+  type: 'test'
+  ...
+# Subtest: P234 native Gemini failure falls back to local and never accepts fabricated rule IDs
+ok 7 - P234 native Gemini failure falls back to local and never accepts fabricated rule IDs
+  ---
+  duration_ms: 66.373212
+  type: 'test'
+  ...
+# Subtest: P234 offline Android bundle includes the safeguards and Java/Kokoro files were not modified
+ok 8 - P234 offline Android bundle includes the safeguards and Java/Kokoro files were not modified
+  ---
+  duration_ms: 99.034354
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1882.764775

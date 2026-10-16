@@ -1,0 +1,14 @@
+{
+  "checkpoint": "P170",
+  "source": "P169",
+  "androidVersion": "1.0.170",
+  "regular": {"files": 288, "tests": 2413, "passed": 2413, "failed": 0},
+  "stress": {"tests": 6, "passed": 6, "failed": 0},
+  "kokoroTts": {"tests": 27, "passed": 27, "failed": 0, "javaFilesUnchanged": 8},
+  "javaSyntax": {"files": 8, "passed": true},
+  "fiveAdventuresAudit": {"exitCode": 0},
+  "globalSourceVerifier": {"status": "TIMEOUT_NOT_CERTIFIED"},
+  "androidBuild": {"status": "BLOCKED", "reason": "Gradle 8.13 unavailable, UnknownHostException downloads.gradle.org"},
+  "aor": {"mechanicallyActive": 322, "positions": 360, "pending": 38},
+  "semanticCompleteness": "NOT_CERTIFIED"
+}

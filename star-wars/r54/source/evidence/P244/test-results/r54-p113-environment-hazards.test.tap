@@ -1,0 +1,71 @@
+TAP version 13
+# Subtest: P113: gravidade e ocultação modificam pools canônicos
+ok 1 - P113: gravidade e ocultação modificam pools canônicos
+  ---
+  duration_ms: 4.021429
+  type: 'test'
+  ...
+# Subtest: P113: terreno difícil dobra manobras reais de faixa
+ok 2 - P113: terreno difícil dobra manobras reais de faixa
+  ---
+  duration_ms: 23.868184
+  type: 'test'
+  ...
+# Subtest: P113: terreno intransponível bloqueia até Atletismo/Coordenação bem-sucedido
+ok 3 - P113: terreno intransponível bloqueia até Atletismo/Coordenação bem-sucedido
+  ---
+  duration_ms: 13.774816
+  type: 'test'
+  ...
+# Subtest: P113: submersão respeita Brawn antes de iniciar sufocamento
+ok 4 - P113: submersão respeita Brawn antes de iniciar sufocamento
+  ---
+  duration_ms: 1.051313
+  type: 'test'
+  ...
+# Subtest: P113: vácuo causa 3 Ferimentos por rodada e também entra em sufocamento após Brawn
+ok 5 - P113: vácuo causa 3 Ferimentos por rodada e também entra em sufocamento após Brawn
+  ---
+  duration_ms: 3.55052
+  type: 'test'
+  ...
+# Subtest: P113: fogo/ácido/atmosfera corrosiva aplicam Ferimentos diretos por rating
+ok 6 - P113: fogo/ácido/atmosfera corrosiva aplicam Ferimentos diretos por rating
+  ---
+  duration_ms: 2.131424
+  type: 'test'
+  ...
+# Subtest: P113: sufocamento gera crítico em turno subsequente quando já incapacitado por Tensão
+ok 7 - P113: sufocamento gera crítico em turno subsequente quando já incapacitado por Tensão
+  ---
+  duration_ms: 1.250538
+  type: 'test'
+  ...
+# Subtest: P113: queda curta usa soak e sucessos/vantagens para reduzir dano e Tensão
+ok 8 - P113: queda curta usa soak e sucessos/vantagens para reduzir dano e Tensão
+  ---
+  duration_ms: 1.960404
+  type: 'test'
+  ...
+# Subtest: P113: queda longa incapacita e aplica Ferimento Crítico com +50
+ok 9 - P113: queda longa incapacita e aplica Ferimento Crítico com +50
+  ---
+  duration_ms: 1.529816
+  type: 'test'
+  ...
+# Subtest: P113: controller injeta ocultação em teste real e persiste ambiente
+ok 10 - P113: controller injeta ocultação em teste real e persiste ambiente
+  ---
+  duration_ms: 4.126213
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 627.090751
+

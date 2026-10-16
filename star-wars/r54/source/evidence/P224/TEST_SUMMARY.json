@@ -1,0 +1,16 @@
+{
+  "checkpoint": "P224",
+  "mode": "node --test each test file separately, six workers; resume previous TAP logs",
+  "regularFiles": 343,
+  "stressFiles": 6,
+  "regularTests": 3134,
+  "regularPassed": 3134,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "totalFiles": 349,
+  "totalTests": 3140,
+  "totalPassed": 3140,
+  "focalTests": 8,
+  "elapsedSeconds": 3.7
+}

@@ -1,0 +1,286 @@
+TAP version 13
+# Subtest: P128: cinco adaptadores geram UAE persistido, objetivos por episódio e transição real
+ok 1 - P128: cinco adaptadores geram UAE persistido, objetivos por episódio e transição real
+  ---
+  duration_ms: 24.960904
+  type: 'test'
+  ...
+# Subtest: P128: reinício e reabertura no controlador mantêm journal UAE e estado de personagem
+ok 2 - P128: reinício e reabertura no controlador mantêm journal UAE e estado de personagem
+  ---
+  duration_ms: 11.393208
+  type: 'test'
+  ...
+# Subtest: P128: migração de save legado sem UAE preserva cena e audita origem
+ok 3 - P128: migração de save legado sem UAE preserva cena e audita origem
+  ---
+  duration_ms: 0.715236
+  type: 'test'
+  ...
+# Subtest: P128: três aventuras por episódios concluem objetivos e arquivam sem duplicar eventos
+ok 4 - P128: três aventuras por episódios concluem objetivos e arquivam sem duplicar eventos
+  ---
+  duration_ms: 14.722689
+  type: 'test'
+  ...
+# Subtest: P128: teste da aventura gera evento canônico e preserva progressão de check
+ok 5 - P128: teste da aventura gera evento canônico e preserva progressão de check
+  ---
+  duration_ms: 1.244667
+  type: 'test'
+  ...
+# Subtest: P128: reimportação de snapshot com sequência lacunar não duplica IDs de eventos
+ok 6 - P128: reimportação de snapshot com sequência lacunar não duplica IDs de eventos
+  ---
+  duration_ms: 0.420941
+  type: 'test'
+  ...
+# Subtest: P128: falha ao resolver consequência não deixa marca de resolução nem evento órfão
+ok 7 - P128: falha ao resolver consequência não deixa marca de resolução nem evento órfão
+  ---
+  duration_ms: 0.950122
+  type: 'test'
+  ...
+# Subtest: P128: attachment ignora efeito e modificação forjados em snapshot persistido
+ok 8 - P128: attachment ignora efeito e modificação forjados em snapshot persistido
+  ---
+  duration_ms: 1.745655
+  type: 'test'
+  ...
+# Subtest: P128: qualidades graduadas combinam corretamente base + attachment + mods
+ok 9 - P128: qualidades graduadas combinam corretamente base + attachment + mods
+  ---
+  duration_ms: 0.581187
+  type: 'test'
+  ...
+# Subtest: P128: UI recebe objetivos visíveis sem flags, pistas secretas nem episódios futuros
+ok 10 - P128: UI recebe objetivos visíveis sem flags, pistas secretas nem episódios futuros
+  ---
+  duration_ms: 2.124685
+  type: 'test'
+  ...
+# Subtest: P128: painel Android exibe objetivos da UAE sem exibir estados internos
+ok 11 - P128: painel Android exibe objetivos da UAE sem exibir estados internos
+  ---
+  duration_ms: 9.732468
+  type: 'test'
+  ...
+# Subtest: P128: Sob um Sol Negro mantém UAE até desfecho e arquivamento com consequência
+ok 12 - P128: Sob um Sol Negro mantém UAE até desfecho e arquivamento com consequência
+  ---
+  duration_ms: 25.077386
+  type: 'test'
+  ...
+# Subtest: P128: Além da Orla preserva UAE e três episódios até arquivamento real
+ok 13 - P128: Além da Orla preserva UAE e três episódios até arquivamento real
+  ---
+  duration_ms: 95.992233
+  type: 'test'
+  ...
+# Subtest: P129 under-black-sun: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+ok 14 - P129 under-black-sun: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+  ---
+  duration_ms: 11.640432
+  type: 'test'
+  ...
+# Subtest: P129 beyond-the-rim: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+ok 15 - P129 beyond-the-rim: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+  ---
+  duration_ms: 6.281137
+  type: 'test'
+  ...
+# Subtest: P129 long-arm-of-the-hutt: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+ok 16 - P129 long-arm-of-the-hutt: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+  ---
+  duration_ms: 2.444987
+  type: 'test'
+  ...
+# Subtest: P129 jewel-of-yavin: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+ok 17 - P129 jewel-of-yavin: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+  ---
+  duration_ms: 1.821527
+  type: 'test'
+  ...
+# Subtest: P129 mask-of-the-pirate-queen: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+ok 18 - P129 mask-of-the-pirate-queen: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+  ---
+  duration_ms: 1.720418
+  type: 'test'
+  ...
+# Subtest: P129: save legado avançado recebe projeção de objetivos sem mutação nem novo turno
+ok 19 - P129: save legado avançado recebe projeção de objetivos sem mutação nem novo turno
+  ---
+  duration_ms: 1.518961
+  type: 'test'
+  ...
+# Subtest: P129: migração recupera episódios percorridos, sem inventar cenas ou recompensas
+ok 20 - P129: migração recupera episódios percorridos, sem inventar cenas ou recompensas
+  ---
+  duration_ms: 2.72486
+  type: 'test'
+  ...
+# Subtest: P129: save legado encerrado e arquivado recupera final e histórico uma vez
+ok 21 - P129: save legado encerrado e arquivado recupera final e histórico uma vez
+  ---
+  duration_ms: 1.668151
+  type: 'test'
+  ...
+# Subtest: P129: alteração externa de cena recupera marcos sem repetir início nem prêmio
+ok 22 - P129: alteração externa de cena recupera marcos sem repetir início nem prêmio
+  ---
+  duration_ms: 1.597517
+  type: 'test'
+  ...
+# Subtest: P129: flags apagadas no legado não reaparecem após restauração UAE
+ok 23 - P129: flags apagadas no legado não reaparecem após restauração UAE
+  ---
+  duration_ms: 1.068857
+  type: 'test'
+  ...
+# Subtest: P129: journal duplicado é rejeitado sem mutar save ou conceder recompensa
+ok 24 - P129: journal duplicado é rejeitado sem mutar save ou conceder recompensa
+  ---
+  duration_ms: 1.126171
+  type: 'test'
+  ...
+# Subtest: P129: validador rejeita divergência de cena, sequência e objetivo inválido
+ok 25 - P129: validador rejeita divergência de cena, sequência e objetivo inválido
+  ---
+  duration_ms: 1.305065
+  type: 'test'
+  ...
+# Subtest: P129: catálogo não anuncia combate para Além da Orla enquanto não houver encontro implementado
+ok 26 - P129: catálogo não anuncia combate para Além da Orla enquanto não houver encontro implementado
+  ---
+  duration_ms: 0.485546
+  type: 'test'
+  ...
+# Subtest: P129: attachment incompatível injetado no save não altera arma nem mods
+ok 27 - P129: attachment incompatível injetado no save não altera arma nem mods
+  ---
+  duration_ms: 0.874199
+  type: 'test'
+  ...
+# Subtest: P129: hard points vêm da arma e catálogo, nunca do custo forjado no save
+ok 28 - P129: hard points vêm da arma e catálogo, nunca do custo forjado no save
+  ---
+  duration_ms: 1.424131
+  type: 'test'
+  ...
+# Subtest: P129: duplicar ID de ativo não duplica attachment nem efeitos
+ok 29 - P129: duplicar ID de ativo não duplica attachment nem efeitos
+  ---
+  duration_ms: 0.464295
+  type: 'test'
+  ...
+# Subtest: P129: armas legadas sem capacidade declarada preservam attachments válidos
+ok 30 - P129: armas legadas sem capacidade declarada preservam attachments válidos
+  ---
+  duration_ms: 0.515881
+  type: 'test'
+  ...
+# Subtest: P129: mods de attachment desativado não entram na resolução de ataque
+ok 31 - P129: mods de attachment desativado não entram na resolução de ataque
+  ---
+  duration_ms: 0.19655
+  type: 'test'
+  ...
+# Subtest: P130 AoR: todas as 18 árvores de origem ficam navegáveis e a primeira linha desbloqueada
+ok 32 - P130 AoR: todas as 18 árvores de origem ficam navegáveis e a primeira linha desbloqueada
+  ---
+  duration_ms: 6.288477
+  type: 'test'
+  ...
+# Subtest: P130 AoR: compra real desconta PE, preserva fonte, posição e não modifica entrada
+ok 33 - P130 AoR: compra real desconta PE, preserva fonte, posição e não modifica entrada
+  ---
+  duration_ms: 1.581253
+  type: 'test'
+  ...
+# Subtest: P130 AoR: somente vizinhos de slots comprados são liberados, mesmo após JSON restore
+ok 34 - P130 AoR: somente vizinhos de slots comprados são liberados, mesmo após JSON restore
+  ---
+  duration_ms: 1.093794
+  type: 'test'
+  ...
+# Subtest: P130 AoR: bloqueia aquisição de outra especialização, árvore EotE e saldo insuficiente
+ok 35 - P130 AoR: bloqueia aquisição de outra especialização, árvore EotE e saldo insuficiente
+  ---
+  duration_ms: 0.845898
+  type: 'test'
+  ...
+# Subtest: P130 AoR: efeitos passivos já implementados são aplicados à ficha sem duplicação
+ok 36 - P130 AoR: efeitos passivos já implementados são aplicados à ficha sem duplicação
+  ---
+  duration_ms: 0.512516
+  type: 'test'
+  ...
+# Subtest: P130 AoR: compra no controlador persiste após reiniciar e passa pelo bridge Android
+ok 37 - P130 AoR: compra no controlador persiste após reiniciar e passa pelo bridge Android
+  ---
+  duration_ms: 7.307189
+  type: 'test'
+  ...
+# Subtest: P130 under-black-sun: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 38 - P130 under-black-sun: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 6.293434
+  type: 'test'
+  ...
+# Subtest: P130 beyond-the-rim: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 39 - P130 beyond-the-rim: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 5.533353
+  type: 'test'
+  ...
+# Subtest: P130 long-arm-of-the-hutt: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 40 - P130 long-arm-of-the-hutt: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 1.405624
+  type: 'test'
+  ...
+# Subtest: P130 jewel-of-yavin: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 41 - P130 jewel-of-yavin: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 1.367958
+  type: 'test'
+  ...
+# Subtest: P130 mask-of-the-pirate-queen: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 42 - P130 mask-of-the-pirate-queen: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 2.184913
+  type: 'test'
+  ...
+# Subtest: P130 UAE: objetivo histórico contraditório e consequência duplicada são rejeitados
+ok 43 - P130 UAE: objetivo histórico contraditório e consequência duplicada são rejeitados
+  ---
+  duration_ms: 1.838933
+  type: 'test'
+  ...
+# Subtest: P130 equipamentos: tentativa de mod falhada consome slot também na resolução de combate
+ok 44 - P130 equipamentos: tentativa de mod falhada consome slot também na resolução de combate
+  ---
+  duration_ms: 2.448031
+  type: 'test'
+  ...
+# Subtest: P130 AoR: catálogo distingue aquisição de efeito mecânico realmente implementado
+ok 45 - P130 AoR: catálogo distingue aquisição de efeito mecânico realmente implementado
+  ---
+  duration_ms: 1.840686
+  type: 'test'
+  ...
+# Subtest: P130 AoR: talento racial e compra do mesmo nome acumulam graus sem duplicação
+ok 46 - P130 AoR: talento racial e compra do mesmo nome acumulam graus sem duplicação
+  ---
+  duration_ms: 0.808322
+  type: 'test'
+  ...
+1..46
+# tests 46
+# suites 0
+# pass 46
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 294.238892

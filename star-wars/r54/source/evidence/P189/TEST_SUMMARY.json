@@ -1,0 +1,39 @@
+{
+  "checkpoint": "P189",
+  "base": "P188",
+  "regular": {
+    "shard": 0,
+    "shards": 1,
+    "files": 308,
+    "tests": 2788,
+    "passed": 2788,
+    "failed": 0,
+    "badFiles": []
+  },
+  "stress": {
+    "shard": 0,
+    "shards": 1,
+    "files": 6,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "badFiles": []
+  },
+  "totalFiles": 314,
+  "totalTests": 2794,
+  "totalPassed": 2794,
+  "allFilesPassed": true,
+  "runner": "tools/run-node-suite-p189.py",
+  "execution": "Node --test separately per file, not monolithic",
+  "newFocusedTests": 12,
+  "javaKokoroUnchanged": 8,
+  "androidVersion": "1.0.189",
+  "bundleModules": 89,
+  "limits": [
+    "No APK, SDK/Gradle/adb or CI run",
+    "No five-adventure full editorial certification",
+    "No AoR/EotE semantic certification",
+    "Restraining bolt still GM-confirmed without inventory ownership",
+    "Elapsed task minutes updated, abstract world event tick unchanged"
+  ]
+}

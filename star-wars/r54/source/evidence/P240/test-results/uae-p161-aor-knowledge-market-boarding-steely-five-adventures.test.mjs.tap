@@ -1,0 +1,269 @@
+TAP version 13
+# Subtest: P161: exactly eight newly consumed AoR slots; all 360 source positions still purchasable
+ok 1 - P161: exactly eight newly consumed AoR slots; all 360 source positions still purchasable
+  ---
+  duration_ms: 31.643207
+  type: 'test'
+  ...
+# Subtest: P161: translated display-only talents and forged source IDs do not activate powers
+ok 2 - P161: translated display-only talents and forged source IDs do not activate powers
+  ---
+  duration_ms: 16.991322
+  type: 'test'
+  ...
+# Subtest: P161: Steely Nerves check protection characteristic presencia
+ok 3 - P161: Steely Nerves check protection characteristic presencia
+  ---
+  duration_ms: 26.575189
+  type: 'test'
+  ...
+# Subtest: P161: Steely Nerves check protection characteristic voluntad
+ok 4 - P161: Steely Nerves check protection characteristic voluntad
+  ---
+  duration_ms: 2.132805
+  type: 'test'
+  ...
+# Subtest: P161: Steely Nerves check protection characteristic fortaleza
+ok 5 - P161: Steely Nerves check protection characteristic fortaleza
+  ---
+  duration_ms: 6.093986
+  type: 'test'
+  ...
+# Subtest: P161: Steely Nerves check protection characteristic agilidad
+ok 6 - P161: Steely Nerves check protection characteristic agilidad
+  ---
+  duration_ms: 4.757882
+  type: 'test'
+  ...
+# Subtest: P161: Steely Nerves check protection characteristic intelecto
+ok 7 - P161: Steely Nerves check protection characteristic intelecto
+  ---
+  duration_ms: 1.886313
+  type: 'test'
+  ...
+# Subtest: P161: Steely Nerves Destiny, replay, expiry and new encounter
+ok 8 - P161: Steely Nerves Destiny, replay, expiry and new encounter
+  ---
+  duration_ms: 20.865282
+  type: 'test'
+  ...
+# Subtest: P161: Steely Nerves rejected without source, encounter, Destiny and on storage failure
+ok 9 - P161: Steely Nerves rejected without source, encounter, Destiny and on storage failure
+  ---
+  duration_ms: 20.320739
+  type: 'test'
+  ...
+# Subtest: P161: boarding selected vehicle as incidental, no duplicate same round, persistent after three restores
+ok 10 - P161: boarding selected vehicle as incidental, no duplicate same round, persistent after three restores
+  ---
+  duration_ms: 45.612061
+  type: 'test'
+  ...
+# Subtest: P161: boarding without purchased talent consumes maneuver, station and vehicle validation
+ok 11 - P161: boarding without purchased talent consumes maneuver, station and vehicle validation
+  ---
+  duration_ms: 26.441768
+  type: 'test'
+  ...
+# Subtest: P161: boarding rollback does not spend maneuver or change vehicle station
+ok 12 - P161: boarding rollback does not spend maneuver or change vehicle station
+  ---
+  duration_ms: 24.741443
+  type: 'test'
+  ...
+# Subtest: P161: Knowledge Specialization chooses and preserves bajos_fondos
+ok 13 - P161: Knowledge Specialization chooses and preserves bajos_fondos
+  ---
+  duration_ms: 17.955202
+  type: 'test'
+  ...
+# Subtest: P161: Knowledge Specialization chooses and preserves borde_exterior
+ok 14 - P161: Knowledge Specialization chooses and preserves borde_exterior
+  ---
+  duration_ms: 2.285568
+  type: 'test'
+  ...
+# Subtest: P161: Knowledge Specialization chooses and preserves educacion
+ok 15 - P161: Knowledge Specialization chooses and preserves educacion
+  ---
+  duration_ms: 1.805294
+  type: 'test'
+  ...
+# Subtest: P161: Knowledge Specialization chooses and preserves estrategia_militar
+ok 16 - P161: Knowledge Specialization chooses and preserves estrategia_militar
+  ---
+  duration_ms: 26.385609
+  type: 'test'
+  ...
+# Subtest: P161: Knowledge Specialization chooses and preserves mundos_del_nucleo
+ok 17 - P161: Knowledge Specialization chooses and preserves mundos_del_nucleo
+  ---
+  duration_ms: 1.87653
+  type: 'test'
+  ...
+# Subtest: P161: Knowledge Specialization chooses and preserves saber_arcaico
+ok 18 - P161: Knowledge Specialization chooses and preserves saber_arcaico
+  ---
+  duration_ms: 2.281903
+  type: 'test'
+  ...
+# Subtest: P161: Knowledge Specialization chooses and preserves xenologia
+ok 19 - P161: Knowledge Specialization chooses and preserves xenologia
+  ---
+  duration_ms: 1.776865
+  type: 'test'
+  ...
+# Subtest: P161: purchase requires actual Knowledge skill choice and stores it on node
+ok 20 - P161: purchase requires actual Knowledge skill choice and stores it on node
+  ---
+  duration_ms: 12.214069
+  type: 'test'
+  ...
+# Subtest: P161: triumph spend grants source-ranked success and records spent triumph
+ok 21 - P161: triumph spend grants source-ranked success and records spent triumph
+  ---
+  duration_ms: 24.442054
+  type: 'test'
+  ...
+# Subtest: P161: invalid Knowledge spend, no triumph and forged purchase roll back
+ok 22 - P161: invalid Knowledge spend, no triumph and forged purchase roll back
+  ---
+  duration_ms: 9.340928
+  type: 'test'
+  ...
+# Subtest: P161: Know Somebody legal item reduces rarity and never modifies catalog
+ok 23 - P161: Know Somebody legal item reduces rarity and never modifies catalog
+  ---
+  duration_ms: 599.690466
+  type: 'test'
+  ...
+# Subtest: P161: Know Somebody market modifier changes preserve source rank and ledger
+ok 24 - P161: Know Somebody market modifier changes preserve source rank and ledger
+  ---
+  duration_ms: 766.270664
+  type: 'test'
+  ...
+# Subtest: P161: Know Somebody unauthorized and restricted purchases do not write
+ok 25 - P161: Know Somebody unauthorized and restricted purchases do not write
+  ---
+  duration_ms: 8.227779
+  type: 'test'
+  ...
+# Subtest: P161: Know Somebody one use per session survives refusal and storage failure
+ok 26 - P161: Know Somebody one use per session survives refusal and storage failure
+  ---
+  duration_ms: 1226.851185
+  type: 'test'
+  ...
+# Subtest: P161: under-black-sun UAE objectives/clocks/consequences, rollback and three reopens
+ok 27 - P161: under-black-sun UAE objectives/clocks/consequences, rollback and three reopens
+  ---
+  duration_ms: 62.17741
+  type: 'test'
+  ...
+# Subtest: P161: beyond-the-rim UAE objectives/clocks/consequences, rollback and three reopens
+ok 28 - P161: beyond-the-rim UAE objectives/clocks/consequences, rollback and three reopens
+  ---
+  duration_ms: 86.703423
+  type: 'test'
+  ...
+# Subtest: P161: long-arm-of-the-hutt UAE objectives/clocks/consequences, rollback and three reopens
+ok 29 - P161: long-arm-of-the-hutt UAE objectives/clocks/consequences, rollback and three reopens
+  ---
+  duration_ms: 27.822063
+  type: 'test'
+  ...
+# Subtest: P161: jewel-of-yavin UAE objectives/clocks/consequences, rollback and three reopens
+ok 30 - P161: jewel-of-yavin UAE objectives/clocks/consequences, rollback and three reopens
+  ---
+  duration_ms: 28.734376
+  type: 'test'
+  ...
+# Subtest: P161: mask-of-the-pirate-queen UAE objectives/clocks/consequences, rollback and three reopens
+ok 31 - P161: mask-of-the-pirate-queen UAE objectives/clocks/consequences, rollback and three reopens
+  ---
+  duration_ms: 60.977525
+  type: 'test'
+  ...
+# Subtest: P161: Android bridge exposes steely, boarding, market; bundle and PT-BR UI integrated
+ok 32 - P161: Android bridge exposes steely, boarding, market; bundle and PT-BR UI integrated
+  ---
+  duration_ms: 127.108848
+  type: 'test'
+  ...
+# Subtest: P161: purchased legacy Knowledge node can be bound once to educacion without XP
+ok 33 - P161: purchased legacy Knowledge node can be bound once to educacion without XP
+  ---
+  duration_ms: 7.09979
+  type: 'test'
+  ...
+# Subtest: P161: purchased legacy Knowledge node can be bound once to xenologia without XP
+ok 34 - P161: purchased legacy Knowledge node can be bound once to xenologia without XP
+  ---
+  duration_ms: 4.42004
+  type: 'test'
+  ...
+# Subtest: P161: purchased legacy Knowledge node can be bound once to borde_exterior without XP
+ok 35 - P161: purchased legacy Knowledge node can be bound once to borde_exterior without XP
+  ---
+  duration_ms: 6.29923
+  type: 'test'
+  ...
+# Subtest: P161: binding rejects nonexistent, forged, wrong skill and storage failure atomically
+ok 36 - P161: binding rejects nonexistent, forged, wrong skill and storage failure atomically
+  ---
+  duration_ms: 3.08631
+  type: 'test'
+  ...
+# Subtest: P161: bridge supports binding and rejects repeated assignment
+ok 37 - P161: bridge supports binding and rejects repeated assignment
+  ---
+  duration_ms: 2.955751
+  type: 'test'
+  ...
+# Subtest: P161: Know Somebody rejects restricted catalog asset before any mutation
+ok 38 - P161: Know Somebody rejects restricted catalog asset before any mutation
+  ---
+  duration_ms: 23.321992
+  type: 'test'
+  ...
+# Subtest: P161: Know Somebody cannot be used twice in same session even after pending cleared
+ok 39 - P161: Know Somebody cannot be used twice in same session even after pending cleared
+  ---
+  duration_ms: 562.912505
+  type: 'test'
+  ...
+# Subtest: P161: market quote cannot fabricate a Know Somebody receipt after reload
+ok 40 - P161: market quote cannot fabricate a Know Somebody receipt after reload
+  ---
+  duration_ms: 713.791661
+  type: 'test'
+  ...
+# Subtest: P161: invalid Know Somebody boolean does not coerce truthy text
+ok 41 - P161: invalid Know Somebody boolean does not coerce truthy text
+  ---
+  duration_ms: 8.84928
+  type: 'test'
+  ...
+# Subtest: P161: Steely Nerves never removes actual injury or unconscious condition
+ok 42 - P161: Steely Nerves never removes actual injury or unconscious condition
+  ---
+  duration_ms: 2.002393
+  type: 'test'
+  ...
+# Subtest: P161: no-triumph roll is valid and persists ordinary failure without fabricated bonus
+ok 43 - P161: no-triumph roll is valid and persists ordinary failure without fabricated bonus
+  ---
+  duration_ms: 12.938509
+  type: 'test'
+  ...
+1..43
+# tests 43
+# suites 0
+# pass 43
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5705.117665
+

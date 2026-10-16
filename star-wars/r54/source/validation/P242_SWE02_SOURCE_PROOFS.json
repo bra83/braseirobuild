@@ -1,0 +1,13 @@
+{
+  "checkpoint": "R54 P242",
+  "base": "R54 P241",
+  "official_source": "https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf",
+  "scope": "SWE02 New Meen p.20-23 only; other adventure content remains incomplete",
+  "proofs": [
+    {"feature":"fatalities_are_not_incapacitations","printed_pages":[23],"executor":"adventure/swe02NewMeenP242.mjs#adjudicateNewMeenDeaths","controller":"GameController.adjudicateSWE02NewMeenDeaths","ui":"swe02NewMeenConfirmDeaths","semantics":"explicit GM fatality adjudication only up to minion casualties computed from actual combat wounds; never automatically label incapacitated as killed","tests":"uae-p242-swe02-newmeen-fatalities-coercion-rescue.test.mjs","status":"IMPLEMENTED_TESTED_NOT_FULL_EDITORIAL_CERTIFICATION"},
+    {"feature":"coercion_casualty_thresholds","printed_pages":[23],"executor":"adventure/swe02NewMeenP242.mjs#coerceNewMeenThugs","controller":"GameController.coerceSWE02NewMeenThugs","ui":"swe02NewMeenCoerce","semantics":"1-4 deaths Hard (3), 5-8 Average (2), 9+ Easy (1), no attempt at 0; real dice, player action spent, survivors surrender only after success; Drombb remains hostile","tests":"uae-p242-swe02-newmeen-fatalities-coercion-rescue.test.mjs","status":"IMPLEMENTED_TESTED_NOT_FULL_EDITORIAL_CERTIFICATION"},
+    {"feature":"defeat_and_ota_rescue","printed_pages":[21,23],"executor":"adventure/longArmOfTheHutt.mjs#recordLongArmOfTheHuttEncounterOutcome","controller":"GameController.finishCombat","ui":"published adventure choices","semantics":"requires actual player unconscious state; defeat sets LOST and B'ura/Ota rescue branch, not SECURED","tests":"uae-p242-swe02-newmeen-fatalities-coercion-rescue.test.mjs","status":"IMPLEMENTED_TESTED_NOT_FULL_EDITORIAL_CERTIFICATION"},
+    {"feature":"cantina_safe_2000_credits","printed_pages":[23],"executor":"adventure/swe02NewMeenP242.mjs#openDrombbSafe","controller":"GameController.openSWE02DrombbSafe","ui":"swe02DrombbSafeOpen","semantics":"only after verified defeat of Drombb, one use; key without check or Hard Skulduggery (atividade criminal); 2000 credits added only on successful opening","tests":"uae-p242-swe02-newmeen-fatalities-coercion-rescue.test.mjs","status":"IMPLEMENTED_TESTED_NOT_FULL_EDITORIAL_CERTIFICATION"}
+  ],
+  "still_open": ["New Meen armed Twi'lek allies and weapon handoff","Evacuation escort arrival and hazards","Nyn EotE weapons/grenades and defective first use","Krayt Fang Beginner loadout and full vehicle initiative","SWE02 acts 2 and 3 full page-by-page certification","Other four adventures","EotE/AoR expansions and 360 AoR consumer semantic certification","APK and Android physical validation last"]
+}

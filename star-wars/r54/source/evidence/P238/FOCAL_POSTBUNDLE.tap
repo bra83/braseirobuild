@@ -1,0 +1,154 @@
+TAP version 13
+# Subtest: P20: builders da raiz e tools recompilam o mesmo bundle canônico
+ok 1 - P20: builders da raiz e tools recompilam o mesmo bundle canônico
+  ---
+  duration_ms: 5034.463188
+  type: 'test'
+  ...
+# Subtest: P237 p37: official separate soldier and Vrixx’tt profiles
+ok 2 - P237 p37: official separate soldier and Vrixx’tt profiles
+  ---
+  duration_ms: 1.723347
+  type: 'test'
+  ...
+# Subtest: P237 p34: Piddock Kubaz clue no roll, B1 clue requires Hard Charm
+ok 3 - P237 p34: Piddock Kubaz clue no roll, B1 clue requires Hard Charm
+  ---
+  duration_ms: 40.514629
+  type: 'test'
+  ...
+# Subtest: P237 pp7,30: Sivor shell needs explicit collection and identification
+ok 4 - P237 pp7,30: Sivor shell needs explicit collection and identification
+  ---
+  duration_ms: 29.474835
+  type: 'test'
+  ...
+# Subtest: P237 p23: Drombb messages require victory and Hard Computers
+ok 5 - P237 p23: Drombb messages require victory and Hard Computers
+  ---
+  duration_ms: 19.729569
+  type: 'test'
+  ...
+# Subtest: P237 p36: zero points means five Geonosians and one Gand
+ok 6 - P237 p36: zero points means five Geonosians and one Gand
+  ---
+  duration_ms: 14.521632
+  type: 'test'
+  ...
+# Subtest: P237 p36: three points means three Geonosians
+ok 7 - P237 p36: three points means three Geonosians
+  ---
+  duration_ms: 17.312548
+  type: 'test'
+  ...
+# Subtest: P237 p36: six-plus removes soldiers, not Vrixx’tt
+ok 8 - P237 p36: six-plus removes soldiers, not Vrixx’tt
+  ---
+  duration_ms: 99.251692
+  type: 'test'
+  ...
+# Subtest: P237 p36: failed Daunting Coerce, rude and Imperial loyalty apply penalties
+ok 9 - P237 p36: failed Daunting Coerce, rude and Imperial loyalty apply penalties
+  ---
+  duration_ms: 46.849705
+  type: 'test'
+  ...
+# Subtest: P237: forged negotiation points, facts and statements fail closed
+ok 10 - P237: forged negotiation points, facts and statements fail closed
+  ---
+  duration_ms: 14.225165
+  type: 'test'
+  ...
+# Subtest: P237 p37: boarding requires resolved combat, no false victory or unverified bribe
+ok 11 - P237 p37: boarding requires resolved combat, no false victory or unverified bribe
+  ---
+  duration_ms: 34.72855
+  type: 'test'
+  ...
+# Subtest: P237 p37: Vio rescue from player incapacitation does not claim enemy defeat
+ok 12 - P237 p37: Vio rescue from player incapacitation does not claim enemy defeat
+  ---
+  duration_ms: 12.3601
+  type: 'test'
+  ...
+# Subtest: P237 controller: real dice, persistence and gantry encounter across three reopens
+ok 13 - P237 controller: real dice, persistence and gantry encounter across three reopens
+  ---
+  duration_ms: 53.538805
+  type: 'test'
+  ...
+# Subtest: P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery
+ok 14 - P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery
+  ---
+  duration_ms: 31.065231
+  type: 'test'
+  ...
+# Subtest: P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed
+ok 15 - P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed
+  ---
+  duration_ms: 12.604152
+  type: 'test'
+  ...
+# Subtest: P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters
+ok 16 - P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters
+  ---
+  duration_ms: 13.416627
+  type: 'test'
+  ...
+# Subtest: P238 p7-8: both noises upgrade one difficulty; one disabled restores pool
+ok 17 - P238 p7-8: both noises upgrade one difficulty; one disabled restores pool
+  ---
+  duration_ms: 6.123918
+  type: 'test'
+  ...
+# Subtest: P238 p8: transponder cannot be switched off in flight or removed before landing
+ok 18 - P238 p8: transponder cannot be switched off in flight or removed before landing
+  ---
+  duration_ms: 17.256704
+  type: 'test'
+  ...
+# Subtest: P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception
+ok 19 - P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception
+  ---
+  duration_ms: 5.378174
+  type: 'test'
+  ...
+# Subtest: P238 p9: jettison requires actual successful Perception and Computers
+ok 20 - P238 p9: jettison requires actual successful Perception and Computers
+  ---
+  duration_ms: 7.224437
+  type: 'test'
+  ...
+# Subtest: P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill
+ok 21 - P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill
+  ---
+  duration_ms: 2.250912
+  type: 'test'
+  ...
+# Subtest: P238: forged ship flags, forged Bura and forged intercept outcome fail closed
+ok 22 - P238: forged ship flags, forged Bura and forged intercept outcome fail closed
+  ---
+  duration_ms: 11.174588
+  type: 'test'
+  ...
+# Subtest: P238: legacy route remains loadable but is explicitly uncertified
+ok 23 - P238: legacy route remains loadable but is explicitly uncertified
+  ---
+  duration_ms: 5.732077
+  type: 'test'
+  ...
+# Subtest: P238 real controller: skill pool, roll receipt and three saved reopens
+ok 24 - P238 real controller: skill pool, roll receipt and three saved reopens
+  ---
+  duration_ms: 32.284027
+  type: 'test'
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5124.859596

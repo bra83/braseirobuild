@@ -1,0 +1,13 @@
+✔ Universal Adventure Engine: validação de módulo e estado inicial (13.4281ms)
+✔ Universal Adventure Engine: transição de nós e avaliação de condições (18.4671ms)
+✔ Universal Adventure Engine: gestão de clocks persistentes e pistas (5.6174ms)
+✔ Universal Adventure Engine: integridade de contexto para AI GM (4.1262ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 843.0645
+

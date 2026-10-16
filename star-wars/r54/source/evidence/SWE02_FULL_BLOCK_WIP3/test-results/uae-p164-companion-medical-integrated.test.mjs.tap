@@ -1,0 +1,221 @@
+TAP version 13
+# Subtest: P164: player-authored companion has explicit non-official provenance and persisted health
+ok 1 - P164: player-authored companion has explicit non-official provenance and persisted health
+  ---
+  duration_ms: 7.6552
+  type: 'test'
+  ...
+# Subtest: P164: companion roster bounds, name, thresholds, ID and duplicate validation
+ok 2 - P164: companion roster bounds, name, thresholds, ID and duplicate validation
+  ---
+  duration_ms: 10.502099
+  type: 'test'
+  ...
+# Subtest: P164: damage to a companion is real, saved, never applied to player
+ok 3 - P164: damage to a companion is real, saved, never applied to player
+  ---
+  duration_ms: 3.085122
+  type: 'test'
+  ...
+# Subtest: P164: foreign, null and unsafe target IDs cannot heal arbitrary actors
+ok 4 - P164: foreign, null and unsafe target IDs cannot heal arbitrary actors
+  ---
+  duration_ms: 1.235681
+  type: 'test'
+  ...
+# Subtest: P164: actual Medicine dice heal companion, self treatment penalties do not apply
+ok 5 - P164: actual Medicine dice heal companion, self treatment penalties do not apply
+  ---
+  duration_ms: 5.026641
+  type: 'test'
+  ...
+# Subtest: P164: Master Doctor costs healer strain, not patient strain
+ok 6 - P164: Master Doctor costs healer strain, not patient strain
+  ---
+  duration_ms: 3.357597
+  type: 'test'
+  ...
+# Subtest: P164: Medicine action on companion consumes combat action and prevents repeat
+ok 7 - P164: Medicine action on companion consumes combat action and prevents repeat
+  ---
+  duration_ms: 4.734952
+  type: 'test'
+  ...
+# Subtest: P164: Stim Application boosts companion only, then expires on encounter closure
+ok 8 - P164: Stim Application boosts companion only, then expires on encounter closure
+  ---
+  duration_ms: 6.012376
+  type: 'test'
+  ...
+# Subtest: P164: failed stim check changes neither patient nor healer, but spends action
+ok 9 - P164: failed stim check changes neither patient nor healer, but spends action
+  ---
+  duration_ms: 2.77495
+  type: 'test'
+  ...
+# Subtest: P164: companion Bacta heals target with source-backed player supervision
+ok 10 - P164: companion Bacta heals target with source-backed player supervision
+  ---
+  duration_ms: 2.755901
+  type: 'test'
+  ...
+# Subtest: P164: Bacta requires explicit facility and is prohibited during combat
+ok 11 - P164: Bacta requires explicit facility and is prohibited during combat
+  ---
+  duration_ms: 1.841744
+  type: 'test'
+  ...
+# Subtest: P164: companion registration and medical actions are rollback-safe
+ok 12 - P164: companion registration and medical actions are rollback-safe
+  ---
+  duration_ms: 4.497374
+  type: 'test'
+  ...
+# Subtest: P164: failed companion stim rolls back both action and target
+ok 13 - P164: failed companion stim rolls back both action and target
+  ---
+  duration_ms: 2.544152
+  type: 'test'
+  ...
+# Subtest: P164: removal is durable and forbidden during active encounter
+ok 14 - P164: removal is durable and forbidden during active encounter
+  ---
+  duration_ms: 3.396416
+  type: 'test'
+  ...
+# Subtest: P164: bridge and offline UI expose companions and target-aware treatment
+ok 15 - P164: bridge and offline UI expose companions and target-aware treatment
+  ---
+  duration_ms: 13.672985
+  type: 'test'
+  ...
+# Subtest: P164: under-black-sun adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+ok 16 - P164: under-black-sun adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+  ---
+  duration_ms: 17.442813
+  type: 'test'
+  ...
+# Subtest: P164: beyond-the-rim adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+ok 17 - P164: beyond-the-rim adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+  ---
+  duration_ms: 10.850974
+  type: 'test'
+  ...
+# Subtest: P164: long-arm-of-the-hutt adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+ok 18 - P164: long-arm-of-the-hutt adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+  ---
+  duration_ms: 7.857626
+  type: 'test'
+  ...
+# Subtest: P164: jewel-of-yavin adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+ok 19 - P164: jewel-of-yavin adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+  ---
+  duration_ms: 5.865825
+  type: 'test'
+  ...
+# Subtest: P164: mask-of-the-pirate-queen adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+ok 20 - P164: mask-of-the-pirate-queen adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+  ---
+  duration_ms: 6.370415
+  type: 'test'
+  ...
+# Subtest: P164: imported roster with wrong shape is rejected, never silently erased
+ok 21 - P164: imported roster with wrong shape is rejected, never silently erased
+  ---
+  duration_ms: 1.379207
+  type: 'test'
+  ...
+# Subtest: P164: companion treatment cannot forge a medical kit or use equipment not owned
+ok 22 - P164: companion treatment cannot forge a medical kit or use equipment not owned
+  ---
+  duration_ms: 3.14662
+  type: 'test'
+  ...
+# Subtest: P164: failed encounter close cannot strip companion buffs from persisted state
+ok 23 - P164: failed encounter close cannot strip companion buffs from persisted state
+  ---
+  duration_ms: 3.023725
+  type: 'test'
+  ...
+# Subtest: P164: custom companions are independent from published adventure mode EotE/AoR
+ok 24 - P164: custom companions are independent from published adventure mode EotE/AoR
+  ---
+  duration_ms: 6.172397
+  type: 'test'
+  ...
+# Subtest: P164: UAE predicate engine rejects pathological recursion and object coercion
+ok 25 - P164: UAE predicate engine rejects pathological recursion and object coercion
+  ---
+  duration_ms: 1.425728
+  type: 'test'
+  ...
+# Subtest: P164: under-black-sun trigger payload provenance cannot be forged by JS object stringification
+ok 26 - P164: under-black-sun trigger payload provenance cannot be forged by JS object stringification
+  ---
+  duration_ms: 4.133666
+  type: 'test'
+  ...
+# Subtest: P164: beyond-the-rim trigger payload provenance cannot be forged by JS object stringification
+ok 27 - P164: beyond-the-rim trigger payload provenance cannot be forged by JS object stringification
+  ---
+  duration_ms: 4.025192
+  type: 'test'
+  ...
+# Subtest: P164: long-arm-of-the-hutt trigger payload provenance cannot be forged by JS object stringification
+ok 28 - P164: long-arm-of-the-hutt trigger payload provenance cannot be forged by JS object stringification
+  ---
+  duration_ms: 5.600806
+  type: 'test'
+  ...
+# Subtest: P164: jewel-of-yavin trigger payload provenance cannot be forged by JS object stringification
+ok 29 - P164: jewel-of-yavin trigger payload provenance cannot be forged by JS object stringification
+  ---
+  duration_ms: 3.178958
+  type: 'test'
+  ...
+# Subtest: P164: mask-of-the-pirate-queen trigger payload provenance cannot be forged by JS object stringification
+ok 30 - P164: mask-of-the-pirate-queen trigger payload provenance cannot be forged by JS object stringification
+  ---
+  duration_ms: 4.067316
+  type: 'test'
+  ...
+# Subtest: P164: under-black-sun controller keeps published UAE checkpoint intact while treating companion
+ok 31 - P164: under-black-sun controller keeps published UAE checkpoint intact while treating companion
+  ---
+  duration_ms: 21.060181
+  type: 'test'
+  ...
+# Subtest: P164: beyond-the-rim controller keeps published UAE checkpoint intact while treating companion
+ok 32 - P164: beyond-the-rim controller keeps published UAE checkpoint intact while treating companion
+  ---
+  duration_ms: 15.604123
+  type: 'test'
+  ...
+# Subtest: P164: long-arm-of-the-hutt controller keeps published UAE checkpoint intact while treating companion
+ok 33 - P164: long-arm-of-the-hutt controller keeps published UAE checkpoint intact while treating companion
+  ---
+  duration_ms: 10.433415
+  type: 'test'
+  ...
+# Subtest: P164: jewel-of-yavin controller keeps published UAE checkpoint intact while treating companion
+ok 34 - P164: jewel-of-yavin controller keeps published UAE checkpoint intact while treating companion
+  ---
+  duration_ms: 11.966935
+  type: 'test'
+  ...
+# Subtest: P164: mask-of-the-pirate-queen controller keeps published UAE checkpoint intact while treating companion
+ok 35 - P164: mask-of-the-pirate-queen controller keeps published UAE checkpoint intact while treating companion
+  ---
+  duration_ms: 10.028575
+  type: 'test'
+  ...
+1..35
+# tests 35
+# suites 0
+# pass 35
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 398.596096
+

@@ -1,0 +1,9 @@
+R54 P46 — resumo de validação
+FOCAL: 53/53 PASS
+REGULAR BROAD: 165 files, 852/852 PASS, 0 FAIL
+STRESS: 5 PASS; stress-33-aftermath-r20 TIMEOUT 12s
+BASELINE P45 SAME STRESS: TIMEOUT 12s
+JAVA: JAVA_SYNTAX_PASS
+UI BRIDGE: 59 modules
+ANDROID: NOT PASS — Gradle wrapper blocked by UnknownHostException services.gradle.org; no local Gradle distribution
+MISSION: Sob um Sol Negro complete path implemented through epilogue and continue-to-sandbox

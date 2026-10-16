@@ -1,0 +1,34 @@
+TAP version 13
+# Subtest: P7: catálogo pessoal core inteiro tem binding exato e arquivo local
+ok 1 - P7: catálogo pessoal core inteiro tem binding exato e arquivo local
+  ---
+  duration_ms: 19.494822
+  type: 'test'
+  ...
+# Subtest: P12: 82 locais têm visual de localização honesto e zero path quebrado
+ok 2 - P12: 82 locais têm visual de localização honesto e zero path quebrado
+  ---
+  duration_ms: 9.338829
+  type: 'test'
+  ...
+# Subtest: P7: seed não fixa Voss e remove texto técnico RAG
+ok 3 - P7: seed não fixa Voss e remove texto técnico RAG
+  ---
+  duration_ms: 0.707799
+  type: 'test'
+  ...
+# Subtest: P7: renderer visual não usa scoring fuzzy
+ok 4 - P7: renderer visual não usa scoring fuzzy
+  ---
+  duration_ms: 0.388026
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 112.796062

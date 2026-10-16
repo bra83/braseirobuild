@@ -1,0 +1,3 @@
+root/tools bundle byte-identical: PASS
+final-runtime.js syntax: PASS
+uiBridge.bundle.js syntax: PASS

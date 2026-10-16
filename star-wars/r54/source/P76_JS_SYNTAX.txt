@@ -1,0 +1,2 @@
+final-runtime.js: node --check PASS
+uiBridge.bundle.js: node --check PASS

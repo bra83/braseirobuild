@@ -1,0 +1,25 @@
+{
+  "checkpoint": "P195",
+  "source": "SWE09 The Jewel of Yavin.pdf",
+  "googleDriveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "section": "Leave No Trace (printed page around 71; PDF near page 72)",
+  "method": "Google Drive connector fetched source PDF extracted text; targeted comparison of the G-100 live-droid passage, not full page-by-page certification",
+  "verified": [
+    "Keeping the remote banking droid intact prevents black-box extraction",
+    "Persuading it to cooperate calls for at least Average Charm versus Cool",
+    "A berth on the crew's ship is a likely requirement",
+    "Disassembly is an alternative, not a simultaneous outcome"
+  ],
+  "implemented": [
+    "Real Charm narrative dice with Average (two difficulty dice) baseline",
+    "GM confirmation of a berth on the crew ship required before the roll",
+    "Success preserves the G-100 intact and blocks disassembly or black-box extraction",
+    "Failure retains the option to dismantle, provided no dismantling has already been attempted",
+    "Receipt face replay, idempotency, rollback, three save reopenings and Android UI"
+  ],
+  "limits": [
+    "The extracted G-100 stat block specifies Discipline 2 but no explicit Cool rank; the baseline does not fabricate a Cool rank or Willpower-based opposed pool",
+    "No automatic berth inventory, physical transport, clock duration, financial reward or droid companion character sheet",
+    "Only this section was crosschecked; no five-adventure semantic certification"
+  ]
+}

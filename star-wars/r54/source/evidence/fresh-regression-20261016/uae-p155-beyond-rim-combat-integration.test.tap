@@ -1,0 +1,32 @@
+✔ P155: registry advertises actual combat for all five, without claiming PDF certification (62.6113ms)
+✔ P155: droid-delivery exposes scene-locked, runnable btr-yiyar-hangar (69.7393ms)
+✔ P155: droid-delivery persists victory, blocks replay and allows same scene to be inspected (28.7761ms)
+✔ P155: droid-delivery rejects invalid outcome and premature settlement without mutating source (91.2472ms)
+✔ P155: rival-convergence exposes scene-locked, runnable btr-yiyar-jungle (68.8289ms)
+✔ P155: rival-convergence persists victory, blocks replay and allows same scene to be inspected (31.0348ms)
+✔ P155: rival-convergence rejects invalid outcome and premature settlement without mutating source (14.8983ms)
+✔ P155: imperial-interruption exposes scene-locked, runnable btr-imperial-interception (14.6421ms)
+✔ P155: imperial-interruption persists victory, blocks replay and allows same scene to be inspected (24.2754ms)
+✔ P155: imperial-interruption rejects invalid outcome and premature settlement without mutating source (14.0749ms)
+✔ P155: hangar adversaries_defeated maps only real combat outcomes to droid custody (15.3074ms)
+✔ P155: hangar player_incapacitated maps only real combat outcomes to droid custody (12.8306ms)
+✔ P155: hangar retreat maps only real combat outcomes to droid custody (47.4947ms)
+✔ P155: hangar ended maps only real combat outcomes to droid custody (11.9268ms)
+✔ P155: imperial victory reduces exposure and defeat raises it, neutral ending preserves it (161.9364ms)
+✔ P155: real GameController Android combat starts, finishes and persists Yiyar outcome (1340.969ms)
+✔ P155: repository failure rolls back combat start and UAE encounter journal (594.6167ms)
+✔ P155: repository failure rolls back combat finish, history, NPCs and flags (442.002ms)
+✔ P155: under-black-sun retains UAE start, choice and 3 reloads (483.2962ms)
+✔ P155: beyond-the-rim retains UAE start, choice and 3 reloads (310.3565ms)
+✔ P155: long-arm-of-the-hutt retains UAE start, choice and 3 reloads (343.8731ms)
+✔ P155: jewel-of-yavin retains UAE start, choice and 3 reloads (319.1679ms)
+✔ P155: mask-of-the-pirate-queen retains UAE start, choice and 3 reloads (167.2645ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7335.5428
+

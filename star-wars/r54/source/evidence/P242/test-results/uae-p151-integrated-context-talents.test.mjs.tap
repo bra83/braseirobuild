@@ -1,0 +1,112 @@
+TAP version 13
+# Subtest: P151: 11 P151 source slots remain active after P154
+ok 1 - P151: 11 P151 source slots remain active after P154
+  ---
+  duration_ms: 127.959251
+  type: 'test'
+  ...
+# Subtest: P151: Shortcut and Inventor apply only on explicitly selected tasks
+ok 2 - P151: Shortcut and Inventor apply only on explicitly selected tasks
+  ---
+  duration_ms: 5.87189
+  type: 'test'
+  ...
+# Subtest: P151: All-Terrain Driver cancels only terrain setback, not other penalties
+ok 3 - P151: All-Terrain Driver cancels only terrain setback, not other penalties
+  ---
+  duration_ms: 3.062102
+  type: 'test'
+  ...
+# Subtest: P151: Scholar only downgrades institutional social checks, Natural Driver rerolls planetary piloting
+ok 4 - P151: Scholar only downgrades institutional social checks, Natural Driver rerolls planetary piloting
+  ---
+  duration_ms: 65.005898
+  type: 'test'
+  ...
+# Subtest: P151: contextual skill checks persist only one transaction and work after reopening
+ok 5 - P151: contextual skill checks persist only one transaction and work after reopening
+  ---
+  duration_ms: 156.839708
+  type: 'test'
+  ...
+# Subtest: P151: Respected Scholar downgrades only red dice and never deletes purple dice
+ok 6 - P151: Respected Scholar downgrades only red dice and never deletes purple dice
+  ---
+  duration_ms: 44.952485
+  type: 'test'
+  ...
+# Subtest: P151: directed droid uses NPC stats and 2 boosts, not owner skill
+ok 7 - P151: directed droid uses NPC stats and 2 boosts, not owner skill
+  ---
+  duration_ms: 16.862905
+  type: 'test'
+  ...
+# Subtest: P151: invalid droid or invalid contextual parameters cannot write partial state
+ok 8 - P151: invalid droid or invalid contextual parameters cannot write partial state
+  ---
+  duration_ms: 49.377775
+  type: 'test'
+  ...
+# Subtest: P151: repository failure rolls back skill, droid and character strain changes
+ok 9 - P151: repository failure rolls back skill, droid and character strain changes
+  ---
+  duration_ms: 66.984024
+  type: 'test'
+  ...
+# Subtest: P151: Expert Astrogator spends 2 strain, reduces difficulty, persists and rolls back on save error
+ok 10 - P151: Expert Astrogator spends 2 strain, reduces difficulty, persists and rolls back on save error
+  ---
+  duration_ms: 148.833371
+  type: 'test'
+  ...
+# Subtest: P151: Android bridge, UI and version contain all contextual mechanics
+ok 11 - P151: Android bridge, UI and version contain all contextual mechanics
+  ---
+  duration_ms: 460.619303
+  type: 'test'
+  ...
+# Subtest: P151 under-black-sun: contextual skill + droid roll survive three published-adventure reopens
+ok 12 - P151 under-black-sun: contextual skill + droid roll survive three published-adventure reopens
+  ---
+  duration_ms: 703.11091
+  type: 'test'
+  ...
+# Subtest: P151 beyond-the-rim: contextual skill + droid roll survive three published-adventure reopens
+ok 13 - P151 beyond-the-rim: contextual skill + droid roll survive three published-adventure reopens
+  ---
+  duration_ms: 448.382019
+  type: 'test'
+  ...
+# Subtest: P151 long-arm-of-the-hutt: contextual skill + droid roll survive three published-adventure reopens
+ok 14 - P151 long-arm-of-the-hutt: contextual skill + droid roll survive three published-adventure reopens
+  ---
+  duration_ms: 333.150389
+  type: 'test'
+  ...
+# Subtest: P151 jewel-of-yavin: contextual skill + droid roll survive three published-adventure reopens
+ok 15 - P151 jewel-of-yavin: contextual skill + droid roll survive three published-adventure reopens
+  ---
+  duration_ms: 270.425228
+  type: 'test'
+  ...
+# Subtest: P151 mask-of-the-pirate-queen: contextual skill + droid roll survive three published-adventure reopens
+ok 16 - P151 mask-of-the-pirate-queen: contextual skill + droid roll survive three published-adventure reopens
+  ---
+  duration_ms: 197.123684
+  type: 'test'
+  ...
+# Subtest: P151: atomic skill check restores spent destiny on storage failure
+ok 17 - P151: atomic skill check restores spent destiny on storage failure
+  ---
+  duration_ms: 11.014458
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5095.070687

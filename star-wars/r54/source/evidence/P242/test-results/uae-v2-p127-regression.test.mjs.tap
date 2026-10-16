@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: P127 UAE: cadeia evento → trigger → objetivo → consequência em transição atômica
+ok 1 - P127 UAE: cadeia evento → trigger → objetivo → consequência em transição atômica
+  ---
+  duration_ms: 18.408292
+  type: 'test'
+  ...
+# Subtest: P127 UAE: snapshot JSON restaura efeitos sem reaplicar gatilhos e sem reabrir objetivo
+ok 2 - P127 UAE: snapshot JSON restaura efeitos sem reaplicar gatilhos e sem reabrir objetivo
+  ---
+  duration_ms: 14.233534
+  type: 'test'
+  ...
+# Subtest: P127 UAE: escolha inválida e erro no efeito não deixam mutações parciais
+ok 3 - P127 UAE: escolha inválida e erro no efeito não deixam mutações parciais
+  ---
+  duration_ms: 2.044539
+  type: 'test'
+  ...
+# Subtest: P127 UAE: desconhecido não libera escolhas e lógica all/any não permite bypass
+ok 4 - P127 UAE: desconhecido não libera escolhas e lógica all/any não permite bypass
+  ---
+  duration_ms: 2.573008
+  type: 'test'
+  ...
+# Subtest: P127 UAE: relógio concluído dispara uma única vez e resolve consequência
+ok 5 - P127 UAE: relógio concluído dispara uma única vez e resolve consequência
+  ---
+  duration_ms: 10.460373
+  type: 'test'
+  ...
+# Subtest: P127 UAE: ciclo de gatilhos termina com limite auditável sem travamento
+ok 6 - P127 UAE: ciclo de gatilhos termina com limite auditável sem travamento
+  ---
+  duration_ms: 5.474204
+  type: 'test'
+  ...
+# Subtest: P127 UAE: validação rejeita links quebrados, IDs duplicados e gatilhos malformados
+ok 7 - P127 UAE: validação rejeita links quebrados, IDs duplicados e gatilhos malformados
+  ---
+  duration_ms: 31.082178
+  type: 'test'
+  ...
+# Subtest: P127 UAE: migração é idempotente, impede cruzamento de aventura e snapshot futuro
+ok 8 - P127 UAE: migração é idempotente, impede cruzamento de aventura e snapshot futuro
+  ---
+  duration_ms: 1.378755
+  type: 'test'
+  ...
+# Subtest: P127 UAE: as cinco aventuras publicadas preservam grafo íntegro, adaptadores e restauração
+ok 9 - P127 UAE: as cinco aventuras publicadas preservam grafo íntegro, adaptadores e restauração
+  ---
+  duration_ms: 35.211236
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1098.630245

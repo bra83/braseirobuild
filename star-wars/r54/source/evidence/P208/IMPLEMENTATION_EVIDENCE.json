@@ -1,0 +1,29 @@
+{
+  "checkpoint": "P208",
+  "base": "P207",
+  "modules": [
+    "app/src/main/assets/vtt/js/adventure/jewelHoloPark.mjs",
+    "app/src/main/assets/vtt/js/adventure/jewelBankingOperations.mjs"
+  ],
+  "integration": [
+    "jewelOfYavin.mjs status and validation",
+    "controller.mjs atomicAction WORLD_UPDATED",
+    "uiBridge.mjs methods",
+    "r46/final-runtime.js Android PT-BR controls",
+    "uiBridge.bundle.js offline generated",
+    "app/build.gradle.kts 1.0.208",
+    "r46-shell.html data-version 1.0.208"
+  ],
+  "receipts": [
+    "BANK_STEP slicerPolicyVersion 2",
+    "JEWEL_HOLO_ENTER",
+    "JEWEL_HOLO_ROUND",
+    "JEWEL_HOLO_END"
+  ],
+  "focusTest": "tests/uae-p208-holopark-naboka.test.mjs",
+  "limits": [
+    "Holo-Park is source-backed scene/round tracker, not a full three-faction combat implementation",
+    "No fabricated Holo-Park distance changes or automatic XP",
+    "No Android APK/CI/physical homologation"
+  ]
+}

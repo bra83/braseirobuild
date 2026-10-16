@@ -1,0 +1,16 @@
+{
+  "checkpoint": "P218",
+  "mode": "node --test each test file separately, four nonmonolithic workers",
+  "regularFiles": 337,
+  "stressFiles": 6,
+  "regularTests": 3086,
+  "regularPassed": 3086,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "totalFiles": 343,
+  "totalTests": 3092,
+  "totalPassed": 3092,
+  "focalTests": 8,
+  "elapsedSeconds": 46.44
+}

@@ -1,0 +1,61 @@
+{
+  "base_checkpoint": "P176",
+  "new_checkpoint": "P177",
+  "files": 2413,
+  "added": [
+    "app/src/main/assets/vtt/js/rules/aorP177Actions.mjs",
+    "evidence/P177/AOR_COVERAGE_AND_PENDING.json",
+    "evidence/P177/FOCAL_28_PASS.tap",
+    "evidence/P177/KOKORO_TTS_JAVA_SHA256.json",
+    "evidence/P177/NODE_REGULAR_2577_PASS.log",
+    "evidence/P177/NODE_STRESS_6_PASS.log",
+    "evidence/P177/P177_DELTA_MANIFEST.json",
+    "evidence/P177/P177_IMPLEMENTATION_SUMMARY.md",
+    "tests/uae-p177-social-engineering-combat-five-adventures.test.mjs",
+    "tools/run-node-suite-p177.py"
+  ],
+  "modified": [
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/events.mjs",
+    "app/src/main/assets/vtt/js/core/state.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+    "app/src/main/assets/vtt/js/expansion/aorTalentRuntimeAliases.mjs",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "tests/uae-p175-command-leadership-five-adventures.test.mjs",
+    "tests/uae-p176-intel-fire-slicer-five-adventures.test.mjs",
+    "validation/LATEST_SOURCE_VALIDATION.txt"
+  ],
+  "deleted": [],
+  "unchanged_count": 2391,
+  "test_results": {
+    "regular": 2577,
+    "stress": 6,
+    "total": 2583,
+    "fail": 0
+  },
+  "coverage": {
+    "coverage": {
+      "careers": 6,
+      "specializations": 18,
+      "positions": 360,
+      "mechanicalPositions": 350,
+      "purchasePositions": 360
+    },
+    "pending": [
+      "FORMACIÓN DE COMBATE",
+      "SUPERVIVIENTE",
+      "MANO DE SANTO",
+      "CUERPO A TIERRA",
+      "CUERPO A TIERRA MEJORADO",
+      "INGENIOSO",
+      "IMPARABLE",
+      "NO ES PARA TANTO",
+      "GOLPE INCAPACITANTE",
+      "SOLUCIÓN IMPROVISADA"
+    ]
+  },
+  "audio_java_sha256_unchanged": true
+}

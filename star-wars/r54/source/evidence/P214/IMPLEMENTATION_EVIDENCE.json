@@ -1,0 +1,33 @@
+{
+  "checkpoint": "P214",
+  "modules": [
+    "app/src/main/assets/vtt/js/adventure/jewelHoloParkEffects.mjs",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/r46/final-runtime.js"
+  ],
+  "newEffects": [
+    "alderaan_lost_weapon",
+    "kashyyyk_lost_weapon"
+  ],
+  "behavior": [
+    "NPC Threat reserved only from a real recorded roll",
+    "weapon selection requires GM confirmation and an existing character weapon",
+    "dropped weapon blocked in resolveWeaponAttack",
+    "recover by next-round maneuver or immediate one strain",
+    "fallback consumes unused reserved Threat as actual adversary strain or minion/rival wounds",
+    "duplicate attempts rejected with atomic rollback",
+    "save/reload repeated three times"
+  ],
+  "tests": "tests/uae-p214-holopark-lost-weapons.test.mjs",
+  "focalPassed": 4,
+  "globalPassed": 3066,
+  "globalTotal": 3066,
+  "bundleModules": 104,
+  "limits": [
+    "four published Holo-Park effects remain manual",
+    "fallback uses persistent combat log but not a new operations receipt",
+    "no APK or physical Android verification"
+  ]
+}

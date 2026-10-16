@@ -1,0 +1,21 @@
+{
+  "coverage": {
+    "careers": 6,
+    "specializations": 18,
+    "positions": 360,
+    "mechanicalPositions": 350,
+    "purchasePositions": 360
+  },
+  "pending": [
+    "FORMACIÓN DE COMBATE",
+    "SUPERVIVIENTE",
+    "MANO DE SANTO",
+    "CUERPO A TIERRA",
+    "CUERPO A TIERRA MEJORADO",
+    "INGENIOSO",
+    "IMPARABLE",
+    "NO ES PARA TANTO",
+    "GOLPE INCAPACITANTE",
+    "SOLUCIÓN IMPROVISADA"
+  ]
+}

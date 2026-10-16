@@ -1,0 +1,11 @@
+metric,value
+version,1.0.112
+versionCode,10112
+families,55
+playable,32
+playable_pct,58.2
+deterministic_engine,35
+deterministic_pct,63.6
+global_tests_pass,1215
+fail,0
+bundle_modules,64

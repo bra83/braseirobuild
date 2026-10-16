@@ -1,0 +1,190 @@
+TAP version 13
+# Subtest: P20: builders da raiz e tools recompilam o mesmo bundle canônico
+ok 1 - P20: builders da raiz e tools recompilam o mesmo bundle canônico
+  ---
+  duration_ms: 6071.813835
+  type: 'test'
+  ...
+# Subtest: FINAL: Android Studio project has deterministic Gradle launcher and compatible pins
+ok 2 - FINAL: Android Studio project has deterministic Gradle launcher and compatible pins
+  ---
+  duration_ms: 9.502155
+  type: 'test'
+  ...
+# Subtest: FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency
+ok 3 - FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency
+  ---
+  duration_ms: 1.082862
+  type: 'test'
+  ...
+# Subtest: FINAL: WebView exposes only required bridges and blocks universal file access
+ok 4 - FINAL: WebView exposes only required bridges and blocks universal file access
+  ---
+  duration_ms: 1.138507
+  type: 'test'
+  ...
+# Subtest: FINAL: native PT-BR TTS exists and has bounded visible-text contract
+ok 5 - FINAL: native PT-BR TTS exists and has bounded visible-text contract
+  ---
+  duration_ms: 4.430273
+  type: 'test'
+  ...
+# Subtest: FINAL: JSON export/import is Android-capable
+ok 6 - FINAL: JSON export/import is Android-capable
+  ---
+  duration_ms: 8.048481
+  type: 'test'
+  ...
+# Subtest: FINAL: accessibility settings are functional and persistent
+ok 7 - FINAL: accessibility settings are functional and persistent
+  ---
+  duration_ms: 4.037273
+  type: 'test'
+  ...
+# Subtest: FINAL: canonical engine bundle is synchronized with live scene bridge
+ok 8 - FINAL: canonical engine bundle is synchronized with live scene bridge
+  ---
+  duration_ms: 44.74753
+  type: 'test'
+  ...
+# Subtest: FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks
+ok 9 - FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks
+  ---
+  duration_ms: 5.473272
+  type: 'test'
+  ...
+# Subtest: FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs
+ok 10 - FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs
+  ---
+  duration_ms: 1.324877
+  type: 'test'
+  ...
+# Subtest: FINAL: Android host disables WebView debugging and supports system back navigation
+ok 11 - FINAL: Android host disables WebView debugging and supports system back navigation
+  ---
+  duration_ms: 1.252809
+  type: 'test'
+  ...
+# Subtest: FINAL: shell script order installs engine before React shell and final runtime
+ok 12 - FINAL: shell script order installs engine before React shell and final runtime
+  ---
+  duration_ms: 0.430846
+  type: 'test'
+  ...
+# Subtest: FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts
+ok 13 - FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts
+  ---
+  duration_ms: 0.87221
+  type: 'test'
+  ...
+# Subtest: P74: Android version no longer reports 1.0.0
+ok 14 - P74: Android version no longer reports 1.0.0
+  ---
+  duration_ms: 3.349972
+  type: 'test'
+  ...
+# Subtest: P74: Android reads modern system bars and exports bottom safe inset
+ok 15 - P74: Android reads modern system bars and exports bottom safe inset
+  ---
+  duration_ms: 8.064317
+  type: 'test'
+  ...
+# Subtest: P74: campaign hub exposes restart, new world/selection and full reset
+ok 16 - P74: campaign hub exposes restart, new world/selection and full reset
+  ---
+  duration_ms: 10.005084
+  type: 'test'
+  ...
+# Subtest: P74: UI bridge exposes canonical full newCampaign without changing Duty/Obligation logic
+ok 17 - P74: UI bridge exposes canonical full newCampaign without changing Duty/Obligation logic
+  ---
+  duration_ms: 3.808239
+  type: 'test'
+  ...
+# Subtest: P77: TtsBridge usa somente APIs públicas disponíveis para identificar engine
+ok 18 - P77: TtsBridge usa somente APIs públicas disponíveis para identificar engine
+  ---
+  duration_ms: 2.858265
+  type: 'test'
+  ...
+# Subtest: P77: Android e shell publicam a mesma versão e permanecem em 1.0.77 ou posterior
+ok 19 - P77: Android e shell publicam a mesma versão e permanecem em 1.0.77 ou posterior
+  ---
+  duration_ms: 5.230215
+  type: 'test'
+  ...
+# Subtest: P78: início de jogo depende de estado explícito, nunca de texto de narração
+ok 20 - P78: início de jogo depende de estado explícito, nunca de texto de narração
+  ---
+  duration_ms: 3.200857
+  type: 'test'
+  ...
+# Subtest: P78: Novo mundo força seleção em SCREEN 00 e o overlay consome campaignSetup uma vez
+ok 21 - P78: Novo mundo força seleção em SCREEN 00 e o overlay consome campaignSetup uma vez
+  ---
+  duration_ms: 1.604804
+  type: 'test'
+  ...
+# Subtest: P78: reset preserva personagem, grupo, veículos e modo mas limpa sessão/mundo da campanha anterior
+ok 22 - P78: reset preserva personagem, grupo, veículos e modo mas limpa sessão/mundo da campanha anterior
+  ---
+  duration_ms: 407.840445
+  type: 'test'
+  ...
+# Subtest: P78: testes publicados mantêm resultado visível e animação não controla a mecânica
+ok 23 - P78: testes publicados mantêm resultado visível e animação não controla a mecânica
+  ---
+  duration_ms: 0.6438
+  type: 'test'
+  ...
+# Subtest: P78: teste sugerido mostra perícia, dificuldade e resultado antes de pedir consequência ao Mestre
+ok 24 - P78: teste sugerido mostra perícia, dificuldade e resultado antes de pedir consequência ao Mestre
+  ---
+  duration_ms: 0.363841
+  type: 'test'
+  ...
+# Subtest: P78: Mestre local não é rotulado como offline e Gemini configurado é reconhecido antes da primeira ação
+ok 25 - P78: Mestre local não é rotulado como offline e Gemini configurado é reconhecido antes da primeira ação
+  ---
+  duration_ms: 0.337345
+  type: 'test'
+  ...
+# Subtest: P78: alvos touch e textos críticos ficam legíveis em 415x915
+ok 26 - P78: alvos touch e textos críticos ficam legíveis em 415x915
+  ---
+  duration_ms: 0.804399
+  type: 'test'
+  ...
+# Subtest: P78: Android/shell/runtime permanecem em P78 ou posterior
+ok 27 - P78: Android/shell/runtime permanecem em P78 ou posterior
+  ---
+  duration_ms: 33.252027
+  type: 'test'
+  ...
+# Subtest: P84: resultado imediato usa narrativeEffects da adjudicação e render dedicado
+ok 28 - P84: resultado imediato usa narrativeEffects da adjudicação e render dedicado
+  ---
+  duration_ms: 1.670958
+  type: 'test'
+  ...
+# Subtest: P84: projeção do último teste casa por checkId antes de mostrar efeitos
+ok 29 - P84: projeção do último teste casa por checkId antes de mostrar efeitos
+  ---
+  duration_ms: 0.412677
+  type: 'test'
+  ...
+# Subtest: P84: adjudicação pública continua sem flags ocultas
+ok 30 - P84: adjudicação pública continua sem flags ocultas
+  ---
+  duration_ms: 14.241386
+  type: 'test'
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6338.024877

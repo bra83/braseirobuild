@@ -1,0 +1,9 @@
+{
+  "shard": 0,
+  "shards": 1,
+  "files": 6,
+  "tests": 6,
+  "passed": 6,
+  "failed": 0,
+  "badFiles": []
+}

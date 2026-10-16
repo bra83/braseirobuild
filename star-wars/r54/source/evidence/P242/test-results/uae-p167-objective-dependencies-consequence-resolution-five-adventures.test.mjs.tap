@@ -1,0 +1,166 @@
+TAP version 13
+# Subtest: P167 under-black-sun: objective prerequisites fail closed with complete transaction rollback
+ok 1 - P167 under-black-sun: objective prerequisites fail closed with complete transaction rollback
+  ---
+  duration_ms: 85.315198
+  type: 'test'
+  ...
+# Subtest: P167 under-black-sun: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+ok 2 - P167 under-black-sun: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+  ---
+  duration_ms: 180.363867
+  type: 'test'
+  ...
+# Subtest: P167 under-black-sun: authored resolution effect failure reverses consequence and all prior effects
+ok 3 - P167 under-black-sun: authored resolution effect failure reverses consequence and all prior effects
+  ---
+  duration_ms: 41.118269
+  type: 'test'
+  ...
+# Subtest: P167 under-black-sun: imported completed objective without prerequisite is rejected
+ok 4 - P167 under-black-sun: imported completed objective without prerequisite is rejected
+  ---
+  duration_ms: 12.347749
+  type: 'test'
+  ...
+# Subtest: P167 under-black-sun: forged consequence metadata cannot inject resolution effects
+ok 5 - P167 under-black-sun: forged consequence metadata cannot inject resolution effects
+  ---
+  duration_ms: 40.285616
+  type: 'test'
+  ...
+# Subtest: P167 beyond-the-rim: objective prerequisites fail closed with complete transaction rollback
+ok 6 - P167 beyond-the-rim: objective prerequisites fail closed with complete transaction rollback
+  ---
+  duration_ms: 12.587487
+  type: 'test'
+  ...
+# Subtest: P167 beyond-the-rim: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+ok 7 - P167 beyond-the-rim: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+  ---
+  duration_ms: 104.382465
+  type: 'test'
+  ...
+# Subtest: P167 beyond-the-rim: authored resolution effect failure reverses consequence and all prior effects
+ok 8 - P167 beyond-the-rim: authored resolution effect failure reverses consequence and all prior effects
+  ---
+  duration_ms: 13.496513
+  type: 'test'
+  ...
+# Subtest: P167 beyond-the-rim: imported completed objective without prerequisite is rejected
+ok 9 - P167 beyond-the-rim: imported completed objective without prerequisite is rejected
+  ---
+  duration_ms: 11.575308
+  type: 'test'
+  ...
+# Subtest: P167 beyond-the-rim: forged consequence metadata cannot inject resolution effects
+ok 10 - P167 beyond-the-rim: forged consequence metadata cannot inject resolution effects
+  ---
+  duration_ms: 24.365597
+  type: 'test'
+  ...
+# Subtest: P167 long-arm-of-the-hutt: objective prerequisites fail closed with complete transaction rollback
+ok 11 - P167 long-arm-of-the-hutt: objective prerequisites fail closed with complete transaction rollback
+  ---
+  duration_ms: 2.724799
+  type: 'test'
+  ...
+# Subtest: P167 long-arm-of-the-hutt: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+ok 12 - P167 long-arm-of-the-hutt: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+  ---
+  duration_ms: 79.52795
+  type: 'test'
+  ...
+# Subtest: P167 long-arm-of-the-hutt: authored resolution effect failure reverses consequence and all prior effects
+ok 13 - P167 long-arm-of-the-hutt: authored resolution effect failure reverses consequence and all prior effects
+  ---
+  duration_ms: 20.885372
+  type: 'test'
+  ...
+# Subtest: P167 long-arm-of-the-hutt: imported completed objective without prerequisite is rejected
+ok 14 - P167 long-arm-of-the-hutt: imported completed objective without prerequisite is rejected
+  ---
+  duration_ms: 49.736327
+  type: 'test'
+  ...
+# Subtest: P167 long-arm-of-the-hutt: forged consequence metadata cannot inject resolution effects
+ok 15 - P167 long-arm-of-the-hutt: forged consequence metadata cannot inject resolution effects
+  ---
+  duration_ms: 25.273183
+  type: 'test'
+  ...
+# Subtest: P167 jewel-of-yavin: objective prerequisites fail closed with complete transaction rollback
+ok 16 - P167 jewel-of-yavin: objective prerequisites fail closed with complete transaction rollback
+  ---
+  duration_ms: 6.158943
+  type: 'test'
+  ...
+# Subtest: P167 jewel-of-yavin: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+ok 17 - P167 jewel-of-yavin: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+  ---
+  duration_ms: 84.573871
+  type: 'test'
+  ...
+# Subtest: P167 jewel-of-yavin: authored resolution effect failure reverses consequence and all prior effects
+ok 18 - P167 jewel-of-yavin: authored resolution effect failure reverses consequence and all prior effects
+  ---
+  duration_ms: 13.95445
+  type: 'test'
+  ...
+# Subtest: P167 jewel-of-yavin: imported completed objective without prerequisite is rejected
+ok 19 - P167 jewel-of-yavin: imported completed objective without prerequisite is rejected
+  ---
+  duration_ms: 1.670404
+  type: 'test'
+  ...
+# Subtest: P167 jewel-of-yavin: forged consequence metadata cannot inject resolution effects
+ok 20 - P167 jewel-of-yavin: forged consequence metadata cannot inject resolution effects
+  ---
+  duration_ms: 40.332162
+  type: 'test'
+  ...
+# Subtest: P167 mask-of-the-pirate-queen: objective prerequisites fail closed with complete transaction rollback
+ok 21 - P167 mask-of-the-pirate-queen: objective prerequisites fail closed with complete transaction rollback
+  ---
+  duration_ms: 2.473082
+  type: 'test'
+  ...
+# Subtest: P167 mask-of-the-pirate-queen: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+ok 22 - P167 mask-of-the-pirate-queen: trigger -> consequence -> resolution -> objective -> clock persists across 3 reopens
+  ---
+  duration_ms: 66.299265
+  type: 'test'
+  ...
+# Subtest: P167 mask-of-the-pirate-queen: authored resolution effect failure reverses consequence and all prior effects
+ok 23 - P167 mask-of-the-pirate-queen: authored resolution effect failure reverses consequence and all prior effects
+  ---
+  duration_ms: 56.38905
+  type: 'test'
+  ...
+# Subtest: P167 mask-of-the-pirate-queen: imported completed objective without prerequisite is rejected
+ok 24 - P167 mask-of-the-pirate-queen: imported completed objective without prerequisite is rejected
+  ---
+  duration_ms: 14.950746
+  type: 'test'
+  ...
+# Subtest: P167 mask-of-the-pirate-queen: forged consequence metadata cannot inject resolution effects
+ok 25 - P167 mask-of-the-pirate-queen: forged consequence metadata cannot inject resolution effects
+  ---
+  duration_ms: 20.742951
+  type: 'test'
+  ...
+# Subtest: P167 preflight rejects missing, duplicate and cyclic objective dependencies
+ok 26 - P167 preflight rejects missing, duplicate and cyclic objective dependencies
+  ---
+  duration_ms: 15.011173
+  type: 'test'
+  ...
+1..26
+# tests 26
+# suites 0
+# pass 26
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2443.976747

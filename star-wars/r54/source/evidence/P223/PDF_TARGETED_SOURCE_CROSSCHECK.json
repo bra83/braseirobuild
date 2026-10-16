@@ -1,0 +1,61 @@
+{
+  "checkpoint": "P223",
+  "source": "SWE09 The Jewel of Yavin, PDF oficial Google Drive",
+  "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "printedPages": [
+    90,
+    91,
+    95
+  ],
+  "pdfPageRendered": 96,
+  "readMethod": "PDF text + rendered official vehicle/pilot stat blocks visually verified",
+  "StormIV": {
+    "silhouette": 2,
+    "speedMax": 4,
+    "handling": 1,
+    "defense": 0,
+    "armor": 2,
+    "hullThreshold": 5,
+    "systemStrainThreshold": 7,
+    "weaponDamage": 4,
+    "weaponCrit": 4,
+    "linked": 1,
+    "crew": 2
+  },
+  "BespinPilot": {
+    "brawn": 2,
+    "agility": 3,
+    "intellect": 2,
+    "cunning": 2,
+    "willpower": 2,
+    "presence": 2,
+    "soak": 2,
+    "wounds": 12,
+    "skillsGroupOnly": [
+      "Cool",
+      "Gunnery",
+      "Piloting Planetary"
+    ]
+  },
+  "sourceBackedPatrol": {
+    "twoFlights": 2,
+    "vehiclesPerFlight": 2,
+    "arrivalWithinMinutes": 10
+  },
+  "implemented": [
+    "4 individual vehicle runtime instances",
+    "player vehicle required",
+    "GM-confirmed physical arrival and range",
+    "vehicle combat per target",
+    "real player vehicle attack and NPC gunner skill",
+    "successful real piloting roll or damage disables each vehicle",
+    "four independent outcome receipts",
+    "5 XP gated by patrol cleared receipt"
+  ],
+  "limitations": [
+    "GM-selected evasion difficulty; official book gives no fixed difficulty for this specific maneuver",
+    "vehicle damage receipts crosscheck hull and attack logs but no cryptographic signatures",
+    "Bespin escape with Jewel 5 XP still pending",
+    "Android real-device and APK not tested"
+  ]
+}

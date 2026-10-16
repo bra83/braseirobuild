@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: P41 Umbra oferece rota social sem combate e persiste abordagem
+ok 1 - P41 Umbra oferece rota social sem combate e persiste abordagem
+  ---
+  duration_ms: 33.6782
+  type: 'test'
+  ...
+# Subtest: P41 Spyder oferece infiltração por sabacc e pode manter Black Sun fora
+ok 2 - P41 Spyder oferece infiltração por sabacc e pode manter Black Sun fora
+  ---
+  duration_ms: 1.1219
+  type: 'test'
+  ...
+# Subtest: P41 Zelcomm oferece engenharia social sem roubo/Obligation
+ok 3 - P41 Zelcomm oferece engenharia social sem roubo/Obligation
+  ---
+  duration_ms: 1.407803
+  type: 'test'
+  ...
+# Subtest: P41 status do jogador filtra consequências ocultas
+ok 4 - P41 status do jogador filtra consequências ocultas
+  ---
+  duration_ms: 3.845227
+  type: 'test'
+  ...
+# Subtest: P41 mantém campanha publicada EOTE/MIXED
+ok 5 - P41 mantém campanha publicada EOTE/MIXED
+  ---
+  duration_ms: 0.141795
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 201.814106
+

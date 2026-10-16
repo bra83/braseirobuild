@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: perícia profissional custa novo grau multiplicado por 5
+ok 1 - perícia profissional custa novo grau multiplicado por 5
+  ---
+  duration_ms: 1.146274
+  type: 'test'
+  ...
+# Subtest: perícia não profissional acrescenta 5 PE por grau adquirido
+ok 2 - perícia não profissional acrescenta 5 PE por grau adquirido
+  ---
+  duration_ms: 0.317708
+  type: 'test'
+  ...
+# Subtest: progressão é sequencial, respeita grau máximo 5 e desconta PE uma vez
+ok 3 - progressão é sequencial, respeita grau máximo 5 e desconta PE uma vez
+  ---
+  duration_ms: 1.580585
+  type: 'test'
+  ...
+# Subtest: personagem inicial usa automaticamente suas perícias profissionais auditadas
+ok 4 - personagem inicial usa automaticamente suas perícias profissionais auditadas
+  ---
+  duration_ms: 0.719086
+  type: 'test'
+  ...
+# Subtest: concessão de PE aumenta total e saldo sem alterar a ficha original
+ok 5 - concessão de PE aumenta total e saldo sem alterar a ficha original
+  ---
+  duration_ms: 0.564732
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 134.360835

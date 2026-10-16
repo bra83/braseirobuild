@@ -1,0 +1,7 @@
+STRESS stress-33-aftermath-r20.test.mjs True
+STRESS stress-33-faction-plan-r19.test.mjs True
+STRESS stress-33-sessions-r15.test.mjs True
+STRESS stress-faction-plans-r19.test.mjs True
+STRESS stress-factions-r18.test.mjs True
+STRESS stress-persistent-adversary-r17.test.mjs True
+NODE_SUITE_JSON={"files": 6, "tests": 6, "pass": 6, "fail": 0, "skipped": 0, "bad": 0, "seconds": 15.58}

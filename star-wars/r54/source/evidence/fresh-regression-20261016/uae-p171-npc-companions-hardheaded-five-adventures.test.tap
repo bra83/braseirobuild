@@ -1,0 +1,27 @@
+✔ P171: targeting requires a real initiative encounter and a real conscious companion (172.7839ms)
+✔ P171: real NPC slot targets companion; damage, log, UI and SQLite-style save are atomic (554.9836ms)
+✔ P171: GM targeting honors Body Guard purchased rank and expires at following player turn (162.7037ms)
+✔ P171: companion ranged defense adds setback to the NPC initiative pool (92.2632ms)
+✔ P171: source-backed Body Guard cannot be forged via a copied display label (60.7156ms)
+✔ P171: GM target automatically clears when companion falls incapacitated (45.9235ms)
+✔ P171: no display-name spoofing creates recovery opportunity (46.5331ms)
+✔ P171: improved Hard Headed grants one next-player-slot window and clears on success (37.673ms)
+✔ P171: recovery cannot be used before the following slot or twice (115.258ms)
+✔ P171: failed recovery resolves encounter defeat and survives 3 restores (105.2496ms)
+✔ P171: recovery check is transactional and does not consume action on failed disk write (28.2989ms)
+✔ P171: reject forged NPC target and invalid recovery marker in imported checkpoints (22.2838ms)
+✔ P171: bridge, shell, canonical bundle and Android 1.0.171 expose real GM target selection (47.8606ms)
+✔ P171 published adventure under-black-sun: GM target, NPC slot, save and three restores (420.1986ms)
+✔ P171 published adventure beyond-the-rim: GM target, NPC slot, save and three restores (694.7156ms)
+✔ P171 published adventure long-arm-of-the-hutt: GM target, NPC slot, save and three restores (334.2958ms)
+✔ P171 published adventure jewel-of-yavin: GM target, NPC slot, save and three restores (390.7736ms)
+✔ P171 published adventure mask-of-the-pirate-queen: GM target, NPC slot, save and three restores (683.1383ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8009.3144
+

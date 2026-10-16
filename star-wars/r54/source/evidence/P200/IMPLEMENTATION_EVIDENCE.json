@@ -1,0 +1,44 @@
+{
+  "checkpoint": "P200",
+  "newModule": "app/src/main/assets/vtt/js/adventure/jewelBankSettlement.mjs",
+  "newReceiptKind": "BANK_SETTLEMENT",
+  "newOperationsState": "publishedAdventure.operations.bankSettlement",
+  "statusOptions": [
+    "POSTED",
+    "NO_FUNDS",
+    "FAILED"
+  ],
+  "noWalletCredit": true,
+  "sourceOfWinningAmount": "operations.auction.highBidCredits + final AUCTION_ROUND receipt",
+  "sourceOfBonus": "replayJewelSlicingSpends(receipts).additionalBidderIds × 10000 only if slicing succeeded",
+  "transactionLedger": "separate entries per winning bid and each additional bidder",
+  "integrated": [
+    "adventure validator",
+    "published adventure registry",
+    "GameController.atomicAction",
+    "uiBridge.mjs",
+    "generated offline bundle",
+    "Android PT-BR bank UI",
+    "Android 1.0.200 + shell"
+  ],
+  "replaySecurity": [
+    "one settlement only",
+    "strict receipt fields",
+    "recompute from auction + slicing + symbol spends",
+    "GM confirmation and valid destination account",
+    "reject after-the-fact slicing, spending or auction changes",
+    "no backdating legacy saves",
+    "rollback on invalid requests",
+    "3 reopens"
+  ],
+  "remaining": [
+    "Arend betrayal",
+    "Naboka risk",
+    "escape/pursuit",
+    "museum end-to-end",
+    "SWE02 New Meen/Geonosis/Teemo",
+    "five adventures scene-by-scene",
+    "360 EotE/AoR/expansion semantic validations",
+    "APK/Gradle/CI/physical Android"
+  ]
+}

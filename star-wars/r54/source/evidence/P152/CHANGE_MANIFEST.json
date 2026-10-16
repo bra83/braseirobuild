@@ -1,0 +1,49 @@
+{
+  "checkpoint": "R54_P152",
+  "base": "R54_P151",
+  "baseSha256": "685a03952df6c48496b2a45f0f3073ab70140602624646828c7e7e2c6567fccc",
+  "codePatchReproduces": true,
+  "changedSourceFiles": [
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "tests/uae-p150-defensive-slicing-tricky-target-five-adventures.test.mjs",
+    "tests/uae-p151-integrated-context-talents.test.mjs",
+    "tests/uae-p152-atomic-composite-recovery.test.mjs",
+    "tools/audit-p152-release.mjs"
+  ],
+  "allChangedFiles": [
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "evidence/P152/JAVA_SYNTAX.txt",
+    "evidence/P152/KOKORO_TTS_REGRESSION.txt",
+    "evidence/P152/NODE_REGULAR.txt",
+    "evidence/P152/NODE_STRESS.txt",
+    "evidence/P152/P152_FOCAL_TESTS.txt",
+    "evidence/P152/RELEASE_AUDIT.json",
+    "tests/uae-p150-defensive-slicing-tricky-target-five-adventures.test.mjs",
+    "tests/uae-p151-integrated-context-talents.test.mjs",
+    "tests/uae-p152-atomic-composite-recovery.test.mjs",
+    "tools/audit-p152-release.mjs"
+  ],
+  "removedFiles": [],
+  "sha256ChangedFiles": {
+    "app/build.gradle.kts": "e193d2f7f512faf92de26dffe7d67870facda9970444ba80f502def3029d0d67",
+    "app/src/main/assets/vtt/js/core/controller.mjs": "ccf001b5562a0245d86a17e7eac44b47894e236e79b751c7f2911c7cc0d830c3",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js": "99ad0f7f8d27551ce9e63179a956a937eac918c6dd3039c4f487373cebf2c204",
+    "app/src/main/assets/vtt/r46-shell.html": "ef202bf3eac9c86204155c096d2b995d82afc17159e95075fec20dc54eb53b0b",
+    "evidence/P152/JAVA_SYNTAX.txt": "f6d8de2fc97ff92f95f7525bd70cfd1bf1714dff6a33e8adea30defd5b05cd07",
+    "evidence/P152/KOKORO_TTS_REGRESSION.txt": "0c3d6b096e37e4f59cd29c941861589564f5cb11de62b3db18d54732712f7ed0",
+    "evidence/P152/NODE_REGULAR.txt": "8fa2dce68902000fe3c64d250ffacb097bbcb59b3bd2e735f29a95661319415c",
+    "evidence/P152/NODE_STRESS.txt": "0122364a09b5aebc76cfc48b95c29eccb401cc33c005f84abfbe748f70b190f4",
+    "evidence/P152/P152_FOCAL_TESTS.txt": "189a05c3f56016f0d660622ae10c2355588b61f663f10e0d1e2ed6c868fc7b80",
+    "evidence/P152/RELEASE_AUDIT.json": "7b8055c49a41ac53b823899cf0060c524fa6444d01cd359412f6fbb6bdb8454a",
+    "tests/uae-p150-defensive-slicing-tricky-target-five-adventures.test.mjs": "0e3b92866dd7bc515ec02fa7df128190ab4f7615a46d98e80572817aaf77eb5b",
+    "tests/uae-p151-integrated-context-talents.test.mjs": "98522fc9e12bb817c31f5147c58ddf85401bb3d7766a271bb218c66f7652f738",
+    "tests/uae-p152-atomic-composite-recovery.test.mjs": "93f5407a31e84069a4abdd93e7dd10b7f6ce2a4e9c2c36646128aef230103a34",
+    "tools/audit-p152-release.mjs": "23c6b25654a139547d9a1a838521f88403b04bb87d52958d7596e09ec0ba92f9"
+  }
+}

@@ -1,0 +1,28 @@
+TAP version 13
+# Subtest: backup -> mutação -> import restaura estado e emite refresh na mesma WebView
+ok 1 - backup -> mutação -> import restaura estado e emite refresh na mesma WebView
+  ---
+  duration_ms: 17.631523
+  type: 'test'
+  ...
+# Subtest: clear remove campanha e emite refresh de clear
+ok 2 - clear remove campanha e emite refresh de clear
+  ---
+  duration_ms: 2.598189
+  type: 'test'
+  ...
+# Subtest: uiBridge mantém import de backup e restore de snapshot passando por repository.save
+ok 3 - uiBridge mantém import de backup e restore de snapshot passando por repository.save
+  ---
+  duration_ms: 1.2781
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 213.656882

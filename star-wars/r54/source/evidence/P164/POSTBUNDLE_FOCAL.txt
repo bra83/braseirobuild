@@ -1,0 +1,340 @@
+TAP version 13
+# Subtest: P163: 8 AoR positions wired without source/display forgery
+ok 1 - P163: 8 AoR positions wired without source/display forgery
+  ---
+  duration_ms: 7.602059
+  type: 'test'
+  ...
+# Subtest: P163: Well Rounded chooses two distinct, permanent career skills with purchase provenance
+ok 2 - P163: Well Rounded chooses two distinct, permanent career skills with purchase provenance
+  ---
+  duration_ms: 2.747992
+  type: 'test'
+  ...
+# Subtest: P163: Bacta Specialist increases actual healing, not empty or unsupervised time
+ok 3 - P163: Bacta Specialist increases actual healing, not empty or unsupervised time
+  ---
+  duration_ms: 1.561547
+  type: 'test'
+  ...
+# Subtest: P163: Bacta recovery is explicit, persistent and rolled back on storage failure
+ok 4 - P163: Bacta recovery is explicit, persistent and rolled back on storage failure
+  ---
+  duration_ms: 4.723741
+  type: 'test'
+  ...
+# Subtest: P163: base Stim Application spends an action, boosts exactly one stat and costs 4 strain
+ok 5 - P163: base Stim Application spends an action, boosts exactly one stat and costs 4 strain
+  ---
+  duration_ms: 4.331512
+  type: 'test'
+  ...
+# Subtest: P163: Improved Stim raises difficulty and reduces strain to one
+ok 6 - P163: Improved Stim raises difficulty and reduces strain to one
+  ---
+  duration_ms: 1.102718
+  type: 'test'
+  ...
+# Subtest: P163: Supreme Stim spends actual Triumph and applies a different extra stat
+ok 7 - P163: Supreme Stim spends actual Triumph and applies a different extra stat
+  ---
+  duration_ms: 0.972512
+  type: 'test'
+  ...
+# Subtest: P163: Stim prevents repeat stat and equipment/alias forgery
+ok 8 - P163: Stim prevents repeat stat and equipment/alias forgery
+  ---
+  duration_ms: 1.423751
+  type: 'test'
+  ...
+# Subtest: P163: Stim failures never grant stat or strain, encounter end removes boosts
+ok 9 - P163: Stim failures never grant stat or strain, encounter end removes boosts
+  ---
+  duration_ms: 5.277394
+  type: 'test'
+  ...
+# Subtest: P163: Master Doctor applies real 2 strain and -1 Medicine difficulty
+ok 10 - P163: Master Doctor applies real 2 strain and -1 Medicine difficulty
+  ---
+  duration_ms: 3.434753
+  type: 'test'
+  ...
+# Subtest: P163: Master Doctor cannot be invoked by display label
+ok 11 - P163: Master Doctor cannot be invoked by display label
+  ---
+  duration_ms: 1.102988
+  type: 'test'
+  ...
+# Subtest: P163: AoR Full Stop gated by actual purchased node, costs speed in system strain
+ok 12 - P163: AoR Full Stop gated by actual purchased node, costs speed in system strain
+  ---
+  duration_ms: 4.238191
+  type: 'test'
+  ...
+# Subtest: P163: AoR Full Stop rejects unowned nodes before charging maneuver
+ok 13 - P163: AoR Full Stop rejects unowned nodes before charging maneuver
+  ---
+  duration_ms: 2.410754
+  type: 'test'
+  ...
+# Subtest: P163: successful Supreme application refuses invented Triumph
+ok 14 - P163: successful Supreme application refuses invented Triumph
+  ---
+  duration_ms: 0.741625
+  type: 'test'
+  ...
+# Subtest: P163: Stim atomicity restores character and action after storage failure
+ok 15 - P163: Stim atomicity restores character and action after storage failure
+  ---
+  duration_ms: 1.819184
+  type: 'test'
+  ...
+# Subtest: P163: Medicine atomicity restores health and strain after storage failure
+ok 16 - P163: Medicine atomicity restores health and strain after storage failure
+  ---
+  duration_ms: 1.761117
+  type: 'test'
+  ...
+# Subtest: P163: Well Rounded persists after three reopenings and cannot be purchased twice
+ok 17 - P163: Well Rounded persists after three reopenings and cannot be purchased twice
+  ---
+  duration_ms: 2.346618
+  type: 'test'
+  ...
+# Subtest: P163: Stim application does not consume access-only medical equipment
+ok 18 - P163: Stim application does not consume access-only medical equipment
+  ---
+  duration_ms: 0.699051
+  type: 'test'
+  ...
+# Subtest: P163: Master Doctor also powers contextual Medicine check without forged purchase
+ok 19 - P163: Master Doctor also powers contextual Medicine check without forged purchase
+  ---
+  duration_ms: 3.336456
+  type: 'test'
+  ...
+# Subtest: P163: Android bridge routes new medical actions and bundle contains new API
+ok 20 - P163: Android bridge routes new medical actions and bundle contains new API
+  ---
+  duration_ms: 10.373254
+  type: 'test'
+  ...
+# Subtest: P163: under-black-sun UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 21 - P163: under-black-sun UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 13.242609
+  type: 'test'
+  ...
+# Subtest: P163: beyond-the-rim UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 22 - P163: beyond-the-rim UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 6.338759
+  type: 'test'
+  ...
+# Subtest: P163: long-arm-of-the-hutt UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 23 - P163: long-arm-of-the-hutt UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 4.924273
+  type: 'test'
+  ...
+# Subtest: P163: jewel-of-yavin UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 24 - P163: jewel-of-yavin UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 3.828886
+  type: 'test'
+  ...
+# Subtest: P163: mask-of-the-pirate-queen UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 25 - P163: mask-of-the-pirate-queen UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 4.538813
+  type: 'test'
+  ...
+# Subtest: P164: player-authored companion has explicit non-official provenance and persisted health
+ok 26 - P164: player-authored companion has explicit non-official provenance and persisted health
+  ---
+  duration_ms: 7.319374
+  type: 'test'
+  ...
+# Subtest: P164: companion roster bounds, name, thresholds, ID and duplicate validation
+ok 27 - P164: companion roster bounds, name, thresholds, ID and duplicate validation
+  ---
+  duration_ms: 13.92906
+  type: 'test'
+  ...
+# Subtest: P164: damage to a companion is real, saved, never applied to player
+ok 28 - P164: damage to a companion is real, saved, never applied to player
+  ---
+  duration_ms: 4.898123
+  type: 'test'
+  ...
+# Subtest: P164: foreign, null and unsafe target IDs cannot heal arbitrary actors
+ok 29 - P164: foreign, null and unsafe target IDs cannot heal arbitrary actors
+  ---
+  duration_ms: 1.148908
+  type: 'test'
+  ...
+# Subtest: P164: actual Medicine dice heal companion, self treatment penalties do not apply
+ok 30 - P164: actual Medicine dice heal companion, self treatment penalties do not apply
+  ---
+  duration_ms: 4.496109
+  type: 'test'
+  ...
+# Subtest: P164: Master Doctor costs healer strain, not patient strain
+ok 31 - P164: Master Doctor costs healer strain, not patient strain
+  ---
+  duration_ms: 3.822867
+  type: 'test'
+  ...
+# Subtest: P164: Medicine action on companion consumes combat action and prevents repeat
+ok 32 - P164: Medicine action on companion consumes combat action and prevents repeat
+  ---
+  duration_ms: 7.172363
+  type: 'test'
+  ...
+# Subtest: P164: Stim Application boosts companion only, then expires on encounter closure
+ok 33 - P164: Stim Application boosts companion only, then expires on encounter closure
+  ---
+  duration_ms: 8.152926
+  type: 'test'
+  ...
+# Subtest: P164: failed stim check changes neither patient nor healer, but spends action
+ok 34 - P164: failed stim check changes neither patient nor healer, but spends action
+  ---
+  duration_ms: 4.407596
+  type: 'test'
+  ...
+# Subtest: P164: companion Bacta heals target with source-backed player supervision
+ok 35 - P164: companion Bacta heals target with source-backed player supervision
+  ---
+  duration_ms: 3.64492
+  type: 'test'
+  ...
+# Subtest: P164: Bacta requires explicit facility and is prohibited during combat
+ok 36 - P164: Bacta requires explicit facility and is prohibited during combat
+  ---
+  duration_ms: 1.864904
+  type: 'test'
+  ...
+# Subtest: P164: companion registration and medical actions are rollback-safe
+ok 37 - P164: companion registration and medical actions are rollback-safe
+  ---
+  duration_ms: 4.135357
+  type: 'test'
+  ...
+# Subtest: P164: failed companion stim rolls back both action and target
+ok 38 - P164: failed companion stim rolls back both action and target
+  ---
+  duration_ms: 3.417308
+  type: 'test'
+  ...
+# Subtest: P164: removal is durable and forbidden during active encounter
+ok 39 - P164: removal is durable and forbidden during active encounter
+  ---
+  duration_ms: 3.994245
+  type: 'test'
+  ...
+# Subtest: P164: bridge and offline UI expose companions and target-aware treatment
+ok 40 - P164: bridge and offline UI expose companions and target-aware treatment
+  ---
+  duration_ms: 12.440702
+  type: 'test'
+  ...
+# Subtest: P164: under-black-sun adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+ok 41 - P164: under-black-sun adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+  ---
+  duration_ms: 19.677022
+  type: 'test'
+  ...
+# Subtest: P164: beyond-the-rim adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+ok 42 - P164: beyond-the-rim adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+  ---
+  duration_ms: 10.375377
+  type: 'test'
+  ...
+# Subtest: P164: long-arm-of-the-hutt adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+ok 43 - P164: long-arm-of-the-hutt adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+  ---
+  duration_ms: 9.092299
+  type: 'test'
+  ...
+# Subtest: P164: jewel-of-yavin adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+ok 44 - P164: jewel-of-yavin adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+  ---
+  duration_ms: 7.576721
+  type: 'test'
+  ...
+# Subtest: P164: mask-of-the-pirate-queen adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+ok 45 - P164: mask-of-the-pirate-queen adventure trigger/clock/objective/consequence and companion health survive 3 reloads
+  ---
+  duration_ms: 6.782286
+  type: 'test'
+  ...
+# Subtest: P164: imported roster with wrong shape is rejected, never silently erased
+ok 46 - P164: imported roster with wrong shape is rejected, never silently erased
+  ---
+  duration_ms: 1.884483
+  type: 'test'
+  ...
+# Subtest: P164: companion treatment cannot forge a medical kit or use equipment not owned
+ok 47 - P164: companion treatment cannot forge a medical kit or use equipment not owned
+  ---
+  duration_ms: 3.35909
+  type: 'test'
+  ...
+# Subtest: P164: failed encounter close cannot strip companion buffs from persisted state
+ok 48 - P164: failed encounter close cannot strip companion buffs from persisted state
+  ---
+  duration_ms: 5.583755
+  type: 'test'
+  ...
+# Subtest: P164: custom companions are independent from published adventure mode EotE/AoR
+ok 49 - P164: custom companions are independent from published adventure mode EotE/AoR
+  ---
+  duration_ms: 5.663725
+  type: 'test'
+  ...
+# Subtest: P164: UAE predicate engine rejects pathological recursion and object coercion
+ok 50 - P164: UAE predicate engine rejects pathological recursion and object coercion
+  ---
+  duration_ms: 1.370149
+  type: 'test'
+  ...
+# Subtest: P164: under-black-sun trigger payload provenance cannot be forged by JS object stringification
+ok 51 - P164: under-black-sun trigger payload provenance cannot be forged by JS object stringification
+  ---
+  duration_ms: 3.745811
+  type: 'test'
+  ...
+# Subtest: P164: beyond-the-rim trigger payload provenance cannot be forged by JS object stringification
+ok 52 - P164: beyond-the-rim trigger payload provenance cannot be forged by JS object stringification
+  ---
+  duration_ms: 2.928453
+  type: 'test'
+  ...
+# Subtest: P164: long-arm-of-the-hutt trigger payload provenance cannot be forged by JS object stringification
+ok 53 - P164: long-arm-of-the-hutt trigger payload provenance cannot be forged by JS object stringification
+  ---
+  duration_ms: 1.75586
+  type: 'test'
+  ...
+# Subtest: P164: jewel-of-yavin trigger payload provenance cannot be forged by JS object stringification
+ok 54 - P164: jewel-of-yavin trigger payload provenance cannot be forged by JS object stringification
+  ---
+  duration_ms: 1.738985
+  type: 'test'
+  ...
+# Subtest: P164: mask-of-the-pirate-queen trigger payload provenance cannot be forged by JS object stringification
+ok 55 - P164: mask-of-the-pirate-queen trigger payload provenance cannot be forged by JS object stringification
+  ---
+  duration_ms: 1.608038
+  type: 'test'
+  ...
+1..55
+# tests 55
+# suites 0
+# pass 55
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 312.34695

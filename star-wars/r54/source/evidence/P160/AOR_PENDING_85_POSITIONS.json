@@ -1,0 +1,856 @@
+{
+  "count": 85,
+  "note": "Unimplemented mechanics only; every talent tree remains purchasable. No unsupported talent effect enabled.",
+  "positions": [
+    {
+      "career": "ace",
+      "specialization": "gunner",
+      "nodeId": "ace:gunner:r1c3",
+      "originalName": "ABRUMAR DEFENSAS",
+      "name": "Sobrecarregar defesas",
+      "printedPage": 67,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "ace",
+      "specialization": "gunner",
+      "nodeId": "ace:gunner:r1c4",
+      "originalName": "DISPARO DEBILITANTE",
+      "name": "Disparo debilitante",
+      "printedPage": 67,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "ace",
+      "specialization": "gunner",
+      "nodeId": "ace:gunner:r3c3",
+      "originalName": "MEJORAS CASERAS",
+      "name": "Melhorias caseiras",
+      "printedPage": 67,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "ace",
+      "specialization": "gunner",
+      "nodeId": "ace:gunner:r3c4",
+      "originalName": "ABRUMAR DEFENSAS",
+      "name": "Sobrecarregar defesas",
+      "printedPage": 67,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "ace",
+      "specialization": "gunner",
+      "nodeId": "ace:gunner:r4c4",
+      "originalName": "SALIDA TÉRMICA",
+      "name": "Saída térmica",
+      "printedPage": 67,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "ace",
+      "specialization": "gunner",
+      "nodeId": "ace:gunner:r5c2",
+      "originalName": "MEJORAS CASERAS",
+      "name": "Melhorias caseiras",
+      "printedPage": 67,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "ace",
+      "specialization": "driver",
+      "nodeId": "ace:driver:r5c2",
+      "originalName": "PARADA EN SECO",
+      "name": "Parada brusca",
+      "printedPage": 68,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "ace",
+      "specialization": "pilot",
+      "nodeId": "ace:pilot:r1c4",
+      "originalName": "SUBIR DE UN SALTO",
+      "name": "Embarque rápido",
+      "printedPage": 69,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "ace",
+      "specialization": "pilot",
+      "nodeId": "ace:pilot:r2c2",
+      "originalName": "IMPACTO DIRECTO",
+      "name": "Impacto direto",
+      "printedPage": 69,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "ace",
+      "specialization": "pilot",
+      "nodeId": "ace:pilot:r3c2",
+      "originalName": "IMPACTO DIRECTO MEJORADO",
+      "name": "Impacto direto aprimorado",
+      "printedPage": 69,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "ace",
+      "specialization": "pilot",
+      "nodeId": "ace:pilot:r5c4",
+      "originalName": "EVASIÓN IMPECABLE",
+      "name": "Evasão impecável",
+      "printedPage": 69,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "commodore",
+      "nodeId": "commander:commodore:r2c1",
+      "originalName": "DISEÑO FAMILIAR",
+      "name": "Projeto familiar",
+      "printedPage": 73,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "commodore",
+      "nodeId": "commander:commodore:r2c4",
+      "originalName": "SOLES FAMILIARES",
+      "name": "Sóis familiares",
+      "printedPage": 73,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "commodore",
+      "nodeId": "commander:commodore:r4c1",
+      "originalName": "DE UNA PIEZA",
+      "name": "De uma peça só",
+      "printedPage": 73,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "commodore",
+      "nodeId": "commander:commodore:r5c2",
+      "originalName": "FUEGO CONTROLADO",
+      "name": "Fogo controlado",
+      "printedPage": 73,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "squadron_leader",
+      "nodeId": "commander:squadron_leader:r1c3",
+      "originalName": "SUBIR DE UN SALTO",
+      "name": "Embarque rápido",
+      "printedPage": 74,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "squadron_leader",
+      "nodeId": "commander:squadron_leader:r2c1",
+      "originalName": "COORDINACIÓN TÁCTICA",
+      "name": "Coordenação tática",
+      "printedPage": 74,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "squadron_leader",
+      "nodeId": "commander:squadron_leader:r2c4",
+      "originalName": "CONOCIMIENTO DEL ENTORNO",
+      "name": "Conhecimento do ambiente",
+      "printedPage": 74,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "squadron_leader",
+      "nodeId": "commander:squadron_leader:r3c3",
+      "originalName": "PARADA EN SECO",
+      "name": "Parada brusca",
+      "printedPage": 74,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "squadron_leader",
+      "nodeId": "commander:squadron_leader:r4c1",
+      "originalName": "COORDINACIÓN TÁCTICA MEJORADA",
+      "name": "Coordenação tática aprimorada",
+      "printedPage": 74,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "squadron_leader",
+      "nodeId": "commander:squadron_leader:r4c3",
+      "originalName": "FORMACIÓN DE COMBATE",
+      "name": "Formação de combate",
+      "printedPage": 74,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "squadron_leader",
+      "nodeId": "commander:squadron_leader:r5c1",
+      "originalName": "LÍDER EXPERTO",
+      "name": "Líder especialista",
+      "printedPage": 74,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "squadron_leader",
+      "nodeId": "commander:squadron_leader:r5c4",
+      "originalName": "EVASIÓN IMPECABLE",
+      "name": "Evasão impecável",
+      "printedPage": 74,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "tactician",
+      "nodeId": "commander:tactician:r3c1",
+      "originalName": "SUPERVIVIENTE",
+      "name": "Sobrevivente",
+      "printedPage": 75,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "tactician",
+      "nodeId": "commander:tactician:r3c3",
+      "originalName": "GUARDAESPALDAS",
+      "name": "Guarda-costas",
+      "printedPage": 75,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "tactician",
+      "nodeId": "commander:tactician:r3c4",
+      "originalName": "GUARDAESPALDAS",
+      "name": "Guarda-costas",
+      "printedPage": 75,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "tactician",
+      "nodeId": "commander:tactician:r4c3",
+      "originalName": "COORDINACIÓN TÁCTICA",
+      "name": "Coordenação tática",
+      "printedPage": 75,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "tactician",
+      "nodeId": "commander:tactician:r5c1",
+      "originalName": "ATAQUE COORDINADO",
+      "name": "Ataque coordenado",
+      "printedPage": 75,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "commander",
+      "specialization": "tactician",
+      "nodeId": "commander:tactician:r5c3",
+      "originalName": "COORDINACIÓN TÁCTICA MEJORADA",
+      "name": "Coordenação tática aprimorada",
+      "printedPage": 75,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "ambassador",
+      "nodeId": "diplomat:ambassador:r3c2",
+      "originalName": "RETÓRICA INSPIRADORA",
+      "name": "Retórica inspiradora",
+      "printedPage": 79,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "ambassador",
+      "nodeId": "diplomat:ambassador:r3c3",
+      "originalName": "NERVIOS DE ACERO",
+      "name": "Nervos de aço",
+      "printedPage": 79,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "ambassador",
+      "nodeId": "diplomat:ambassador:r4c1",
+      "originalName": "RETÓRICA INSPIRADORA MEJORADA",
+      "name": "Retórica inspiradora aprimorada",
+      "printedPage": 79,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "ambassador",
+      "nodeId": "diplomat:ambassador:r4c2",
+      "originalName": "PRESENCIA IMPONENTE",
+      "name": "Presença imponente",
+      "printedPage": 79,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "ambassador",
+      "nodeId": "diplomat:ambassador:r4c3",
+      "originalName": "MANO DE SANTO",
+      "name": "Mão santa",
+      "printedPage": 79,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "ambassador",
+      "nodeId": "diplomat:ambassador:r5c1",
+      "originalName": "RETÓRICA INSPIRADORA SUPREMA",
+      "name": "Retórica inspiradora suprema",
+      "printedPage": 79,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "agitator",
+      "nodeId": "diplomat:agitator:r3c3",
+      "originalName": "LENGUA AFILADA",
+      "name": "Língua afiada",
+      "printedPage": 80,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "agitator",
+      "nodeId": "diplomat:agitator:r4c3",
+      "originalName": "LENGUA AFILADA MEJORADA",
+      "name": "Língua afiada aprimorada",
+      "printedPage": 80,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "agitator",
+      "nodeId": "diplomat:agitator:r5c3",
+      "originalName": "LENGUA AFILADA SUPREMA",
+      "name": "Língua afiada suprema",
+      "printedPage": 80,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "agitator",
+      "nodeId": "diplomat:agitator:r5c4",
+      "originalName": "INCITAR A LA REBELIÓN",
+      "name": "Incitar à rebelião",
+      "printedPage": 80,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "quartermaster",
+      "nodeId": "diplomat:quartermaster:r1c1",
+      "originalName": "PROVEEDOR HABITUAL",
+      "name": "Fornecedor habitual",
+      "printedPage": 81,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "quartermaster",
+      "nodeId": "diplomat:quartermaster:r1c2",
+      "originalName": "LABIA",
+      "name": "Lábia",
+      "printedPage": 81,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "quartermaster",
+      "nodeId": "diplomat:quartermaster:r2c1",
+      "originalName": "LABIA",
+      "name": "Lábia",
+      "printedPage": 81,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "quartermaster",
+      "nodeId": "diplomat:quartermaster:r2c2",
+      "originalName": "UNTAR MANOS",
+      "name": "Subornar",
+      "printedPage": 81,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "quartermaster",
+      "nodeId": "diplomat:quartermaster:r2c3",
+      "originalName": "MERCADER EXPERTO",
+      "name": "Mercador especialista",
+      "printedPage": 81,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "quartermaster",
+      "nodeId": "diplomat:quartermaster:r3c3",
+      "originalName": "COMPRAR INFORMACIÓN",
+      "name": "Comprar informação",
+      "printedPage": 81,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "quartermaster",
+      "nodeId": "diplomat:quartermaster:r4c1",
+      "originalName": "PROVEEDOR HABITUAL",
+      "name": "Fornecedor habitual",
+      "printedPage": 81,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "quartermaster",
+      "nodeId": "diplomat:quartermaster:r4c2",
+      "originalName": "INVERSIONES RENTABLES",
+      "name": "Investimentos rentáveis",
+      "printedPage": 81,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "diplomat",
+      "specialization": "quartermaster",
+      "nodeId": "diplomat:quartermaster:r4c3",
+      "originalName": "INVERSIONES RENTABLES",
+      "name": "Investimentos rentáveis",
+      "printedPage": 81,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "mechanic",
+      "nodeId": "engineer:mechanic:r2c1",
+      "originalName": "SISTEMAS REDUNDANTES",
+      "name": "Sistemas redundantes",
+      "printedPage": 85,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "mechanic",
+      "nodeId": "engineer:mechanic:r3c3",
+      "originalName": "PIEZA DEFECTUOSA",
+      "name": "Peça defeituosa",
+      "printedPage": 85,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "mechanic",
+      "nodeId": "engineer:mechanic:r4c1",
+      "originalName": "ARTILUGIO",
+      "name": "Engenhoca",
+      "printedPage": 85,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "mechanic",
+      "nodeId": "engineer:mechanic:r4c4",
+      "originalName": "TENACIDAD",
+      "name": "Tenacidade",
+      "printedPage": 85,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "mechanic",
+      "nodeId": "engineer:mechanic:r5c2",
+      "originalName": "DE UNA PIEZA",
+      "name": "De uma peça só",
+      "printedPage": 85,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "mechanic",
+      "nodeId": "engineer:mechanic:r5c4",
+      "originalName": "TENACIDAD MEJORADA",
+      "name": "Tenacidade aprimorada",
+      "printedPage": 85,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "saboteur",
+      "nodeId": "engineer:saboteur:r3c1",
+      "originalName": "CUERPO A TIERRA",
+      "name": "Jogar-se ao chão",
+      "printedPage": 86,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "saboteur",
+      "nodeId": "engineer:saboteur:r3c4",
+      "originalName": "TENACIDAD",
+      "name": "Tenacidade",
+      "printedPage": 86,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "saboteur",
+      "nodeId": "engineer:saboteur:r4c1",
+      "originalName": "CUERPO A TIERRA MEJORADO",
+      "name": "Jogar-se ao chão aprimorado",
+      "printedPage": 86,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "saboteur",
+      "nodeId": "engineer:saboteur:r5c4",
+      "originalName": "TENACIDAD MEJORADA",
+      "name": "Tenacidade aprimorada",
+      "printedPage": 86,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "scientist",
+      "nodeId": "engineer:scientist:r1c1",
+      "originalName": "CONOCIMIENTO ESPECIALIZADO",
+      "name": "Conhecimento especializado",
+      "printedPage": 87,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "scientist",
+      "nodeId": "engineer:scientist:r2c2",
+      "originalName": "CONOCIMIENTO ESPECIALIZADO",
+      "name": "Conhecimento especializado",
+      "printedPage": 87,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "scientist",
+      "nodeId": "engineer:scientist:r2c3",
+      "originalName": "COMPARTIMENTO OCULTO",
+      "name": "Compartimento oculto",
+      "printedPage": 87,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "scientist",
+      "nodeId": "engineer:scientist:r2c4",
+      "originalName": "MANITAS",
+      "name": "Faz-tudo",
+      "printedPage": 87,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "scientist",
+      "nodeId": "engineer:scientist:r3c2",
+      "originalName": "FORTALEZA MENTAL",
+      "name": "Fortaleza mental",
+      "printedPage": 87,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "scientist",
+      "nodeId": "engineer:scientist:r4c2",
+      "originalName": "INGENIOSO",
+      "name": "Engenhoso",
+      "printedPage": 87,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "scientist",
+      "nodeId": "engineer:scientist:r4c4",
+      "originalName": "MANITAS",
+      "name": "Faz-tudo",
+      "printedPage": 87,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "engineer",
+      "specialization": "scientist",
+      "nodeId": "engineer:scientist:r5c2",
+      "originalName": "METICULOSO",
+      "name": "Meticuloso",
+      "printedPage": 87,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "soldier",
+      "specialization": "commando",
+      "nodeId": "soldier:commando:r5c3",
+      "originalName": "IMPARABLE",
+      "name": "Imparável",
+      "printedPage": 91,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "soldier",
+      "specialization": "medic",
+      "nodeId": "soldier:medic:r2c4",
+      "originalName": "ESPECIALISTA EN BACTA",
+      "name": "Especialista em bacta",
+      "printedPage": 92,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "soldier",
+      "specialization": "medic",
+      "nodeId": "soldier:medic:r3c1",
+      "originalName": "POLIFACÉTICO",
+      "name": "Versátil",
+      "printedPage": 92,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "soldier",
+      "specialization": "medic",
+      "nodeId": "soldier:medic:r3c3",
+      "originalName": "APLICACIÓN DE ESTIMULANTES",
+      "name": "Aplicação de estimulantes",
+      "printedPage": 92,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "soldier",
+      "specialization": "medic",
+      "nodeId": "soldier:medic:r3c4",
+      "originalName": "MÉDICO EXPERTO",
+      "name": "Médico especialista",
+      "printedPage": 92,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "soldier",
+      "specialization": "medic",
+      "nodeId": "soldier:medic:r4c3",
+      "originalName": "APLICACIÓN DE ESTIMULANTES MEJORADA",
+      "name": "Aplicação de estimulantes aprimorada",
+      "printedPage": 92,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "soldier",
+      "specialization": "medic",
+      "nodeId": "soldier:medic:r5c3",
+      "originalName": "NO ES PARA TANTO",
+      "name": "Não é tão grave",
+      "printedPage": 92,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "soldier",
+      "specialization": "medic",
+      "nodeId": "soldier:medic:r5c4",
+      "originalName": "APLICACIÓN DE ESTIMULANTES SUPREMA",
+      "name": "Aplicação de estimulantes suprema",
+      "printedPage": 92,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "soldier",
+      "specialization": "sharpshooter",
+      "nodeId": "soldier:sharpshooter:r4c4",
+      "originalName": "GOLPE INCAPACITANTE",
+      "name": "Golpe incapacitante",
+      "printedPage": 93,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "soldier",
+      "specialization": "sharpshooter",
+      "nodeId": "soldier:sharpshooter:r5c1",
+      "originalName": "SOLUCIÓN IMPROVISADA",
+      "name": "Solução improvisada",
+      "printedPage": 93,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "spy",
+      "specialization": "infiltrator",
+      "nodeId": "spy:infiltrator:r2c1",
+      "originalName": "GOLPE CONMOCIONADOR",
+      "name": "Golpe atordoante",
+      "printedPage": 97,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "spy",
+      "specialization": "infiltrator",
+      "nodeId": "spy:infiltrator:r2c3",
+      "originalName": "PUNTO DÉBIL",
+      "name": "Ponto fraco",
+      "printedPage": 97,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "spy",
+      "specialization": "infiltrator",
+      "nodeId": "spy:infiltrator:r4c3",
+      "originalName": "GOLPE CONMOCIONADOR MEJORADO",
+      "name": "Golpe atordoante aprimorado",
+      "printedPage": 97,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "spy",
+      "specialization": "infiltrator",
+      "nodeId": "spy:infiltrator:r5c2",
+      "originalName": "SOLUCIÓN INGENIOSA",
+      "name": "Solução engenhosa",
+      "printedPage": 97,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "spy",
+      "specialization": "infiltrator",
+      "nodeId": "spy:infiltrator:r5c3",
+      "originalName": "SOMBRA FURTIVA",
+      "name": "Sombra furtiva",
+      "printedPage": 97,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "spy",
+      "specialization": "scout",
+      "nodeId": "spy:scout:r2c3",
+      "originalName": "SUBIR DE UN SALTO",
+      "name": "Embarque rápido",
+      "printedPage": 98,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "spy",
+      "specialization": "scout",
+      "nodeId": "spy:scout:r3c3",
+      "originalName": "SOLES FAMILIARES",
+      "name": "Sóis familiares",
+      "printedPage": 98,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "spy",
+      "specialization": "slicer",
+      "nodeId": "spy:slicer:r5c2",
+      "originalName": "PIRATA INFORMÁTICO EXPERTO",
+      "name": "Hacker especialista",
+      "printedPage": 99,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    },
+    {
+      "career": "spy",
+      "specialization": "slicer",
+      "nodeId": "spy:slicer:r5c3",
+      "originalName": "FORTALEZA MENTAL",
+      "name": "Fortaleza mental",
+      "printedPage": 99,
+      "source": "Star Wars - Age of Rebellion - Core Rulebook",
+      "mechanicallyActive": false
+    }
+  ]
+}

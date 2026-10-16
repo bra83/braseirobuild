@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: P8 exact visual coverage closes full active equipment catalog
+ok 1 - P8 exact visual coverage closes full active equipment catalog
+  ---
+  duration_ms: 5.735153
+  type: 'test'
+  ...
+# Subtest: P8 exact visual coverage closes active vehicle catalog
+ok 2 - P8 exact visual coverage closes active vehicle catalog
+  ---
+  duration_ms: 0.857744
+  type: 'test'
+  ...
+# Subtest: P8 known adversaries have deterministic exact identity visuals
+ok 3 - P8 known adversaries have deterministic exact identity visuals
+  ---
+  duration_ms: 0.232781
+  type: 'test'
+  ...
+# Subtest: P12 all 82 catalog worlds have honest playable location visuals
+ok 4 - P12 all 82 catalog worlds have honest playable location visuals
+  ---
+  duration_ms: 0.642209
+  type: 'test'
+  ...
+# Subtest: P8 no fuzzy visual resolver and no rejected technical RAG copy
+ok 5 - P8 no fuzzy visual resolver and no rejected technical RAG copy
+  ---
+  duration_ms: 0.352993
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 110.463079
+

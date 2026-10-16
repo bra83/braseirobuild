@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: P219: Arend outcome only after real search, four-goon resolution and physical confrontation
+ok 1 - P219: Arend outcome only after real search, four-goon resolution and physical confrontation
+  ---
+  duration_ms: 574.615385
+  type: 'test'
+  ...
+# Subtest: P219: incarcerated Arend creates durable campaign consequence without XP, credits or travel
+ok 2 - P219: incarcerated Arend creates durable campaign consequence without XP, credits or travel
+  ---
+  duration_ms: 400.18171
+  type: 'test'
+  ...
+# Subtest: P219: all three official Arend fates distinct and require matching GM evidence
+ok 3 - P219: all three official Arend fates distinct and require matching GM evidence
+  ---
+  duration_ms: 1599.67753
+  type: 'test'
+  ...
+# Subtest: P219: Aris alliance requires genuine meeting, both consents and no hostility
+ok 4 - P219: Aris alliance requires genuine meeting, both consents and no hostility
+  ---
+  duration_ms: 358.391586
+  type: 'test'
+  ...
+# Subtest: P219: Arend and Aris outcomes coexist with Lando favor and no invented reward
+ok 5 - P219: Arend and Aris outcomes coexist with Lando favor and no invented reward
+  ---
+  duration_ms: 470.90393
+  type: 'test'
+  ...
+# Subtest: P219: tampered receipts and derived state rejected
+ok 6 - P219: tampered receipts and derived state rejected
+  ---
+  duration_ms: 386.575325
+  type: 'test'
+  ...
+# Subtest: P219: combat prevents outcomes and transaction rolls back
+ok 7 - P219: combat prevents outcomes and transaction rolls back
+  ---
+  duration_ms: 409.864832
+  type: 'test'
+  ...
+# Subtest: P219: Lando P218 receipt is now allowed in global operations validation
+ok 8 - P219: Lando P218 receipt is now allowed in global operations validation
+  ---
+  duration_ms: 320.773378
+  type: 'test'
+  ...
+# Subtest: P219: Android UI, bridge, offline bundle and version actually connected
+ok 9 - P219: Android UI, bridge, offline bundle and version actually connected
+  ---
+  duration_ms: 97.4829
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5408.670025

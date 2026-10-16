@@ -1,0 +1,47 @@
+{
+  "base": "P170",
+  "checkpoint": "P171",
+  "baselineSha256": "5f35ed7c42b042cd7ab00f4fb31eb2001b0c1b64b90482781c50cff4e27f3fc8",
+  "sourceFiles": 2329,
+  "changedFilesBeforeAudit": [
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/state.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+    "app/src/main/assets/vtt/js/rules/combat.mjs",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "evidence/P171/ANDROID_GRADLE_ATTEMPT.txt",
+    "evidence/P171/AOR_PENDING_38_POSITIONS.json",
+    "evidence/P171/FIVE_ADVENTURES_AUDIT.txt",
+    "evidence/P171/JAVA_HASH_COMPARE.txt",
+    "evidence/P171/JAVA_SHA256.txt",
+    "evidence/P171/JAVA_SYNTAX.txt",
+    "evidence/P171/KOKORO_TTS_REGRESSION.txt",
+    "evidence/P171/NODE_REGULAR.txt",
+    "evidence/P171/NODE_STRESS.txt",
+    "tests/uae-p170-hardheaded-jury-five-adventures.test.mjs",
+    "tests/uae-p171-npc-companions-hardheaded-five-adventures.test.mjs"
+  ],
+  "deletedFiles": [],
+  "aorMechanicalPositions": 322,
+  "aorTotalPositions": 360,
+  "aorPendingPositions": 38,
+  "testRegular": {
+    "pass": 2431,
+    "total": 2431
+  },
+  "testStress": {
+    "pass": 6,
+    "total": 6
+  },
+  "testTts": {
+    "pass": 27,
+    "total": 27
+  },
+  "javaSyntax": "PASS",
+  "javaUnchanged": true,
+  "fiveAdventuresAudit": "STRUCTURAL_AND_SEMANTIC_ONLY; PASS; NOT PDF CERTIFIED",
+  "androidBuild": "BLOCKED: Gradle 8.13 unavailable / UnknownHostException"
+}

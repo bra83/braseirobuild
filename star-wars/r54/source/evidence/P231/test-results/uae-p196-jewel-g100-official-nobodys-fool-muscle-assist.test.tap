@@ -1,0 +1,77 @@
+TAP version 13
+# Subtest: P196 source: printed G-100 Nobody’s Fool 3 upgrades Average Charm three times
+ok 1 - P196 source: printed G-100 Nobody’s Fool 3 upgrades Average Charm three times
+  ---
+  duration_ms: 248.225341
+  type: 'test'
+  ...
+# Subtest: P196 versioned receipt rejects deletion/downgrade of Nobody’s Fool
+ok 2 - P196 versioned receipt rejects deletion/downgrade of Nobody’s Fool
+  ---
+  duration_ms: 194.490752
+  type: 'test'
+  ...
+# Subtest: P196 preserves P195 legacy unversioned Charm receipt without retroactive reroll
+ok 3 - P196 preserves P195 legacy unversioned Charm receipt without retroactive reroll
+  ---
+  duration_ms: 245.895245
+  type: 'test'
+  ...
+# Subtest: P196 Hard Athletics assist rolls actual dice and applies two Boost to Computers
+ok 4 - P196 Hard Athletics assist rolls actual dice and applies two Boost to Computers
+  ---
+  duration_ms: 186.70578
+  type: 'test'
+  ...
+# Subtest: P196 Hard Brawl assist uses Strength skill and same source-backed bonus
+ok 5 - P196 Hard Brawl assist uses Strength skill and same source-backed bonus
+  ---
+  duration_ms: 136.56043
+  type: 'test'
+  ...
+# Subtest: P196 failed physical assist adds no fictitious Boost
+ok 6 - P196 failed physical assist adds no fictitious Boost
+  ---
+  duration_ms: 145.326442
+  type: 'test'
+  ...
+# Subtest: P196 no optional assist retains P195 disable pool
+ok 7 - P196 no optional assist retains P195 disable pool
+  ---
+  duration_ms: 116.574173
+  type: 'test'
+  ...
+# Subtest: P196 forged physical faces, skill and outcome are rejected by replay
+ok 8 - P196 forged physical faces, skill and outcome are rejected by replay
+  ---
+  duration_ms: 111.947276
+  type: 'test'
+  ...
+# Subtest: P196 invalid assist choices rollback without saving
+ok 9 - P196 invalid assist choices rollback without saving
+  ---
+  duration_ms: 128.1599
+  type: 'test'
+  ...
+# Subtest: P196 three save reopenings preserve both source-backed mechanics
+ok 10 - P196 three save reopenings preserve both source-backed mechanics
+  ---
+  duration_ms: 188.362224
+  type: 'test'
+  ...
+# Subtest: P196 Android UI offers both physical skills and documents Nobody’s Fool 3
+ok 11 - P196 Android UI offers both physical skills and documents Nobody’s Fool 3
+  ---
+  duration_ms: 2.596548
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1980.893608
+

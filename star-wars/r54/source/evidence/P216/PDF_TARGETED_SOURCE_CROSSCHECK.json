@@ -1,0 +1,29 @@
+{
+  "checkpoint": "P216",
+  "source": "SWE09 The Jewel of Yavin.pdf",
+  "googleDriveId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "printedPages": [
+    93,
+    94
+  ],
+  "method": "Google Drive fetch textual extraction, directly examined Kashyyyk landscape paragraph at tail of page 94",
+  "findings": [
+    {
+      "id": "kashyyyk_insect",
+      "publishedTrigger": "Triumph (per P215 handoff glyph crosswalk)",
+      "publishedEffect": "Dragonfly-like hologram adds two Boost dice to the character combat check",
+      "implemented": "Optional GM-confirmed pre-roll choice; actual original Triumph required; two real Boost dice appended to SAME check before hit and damage; spent Triumph not available again."
+    },
+    {
+      "id": "kashyyyk_vertigo",
+      "publishedTrigger": "NPC Despair (per P215 handoff glyph crosswalk)",
+      "publishedEffect": "Hard Discipline check; failure 2 strain and downgrade the pool of next action once",
+      "implemented": "NPC Despair face-verified and reserved; player Discipline difficulty 3; 2 actual strain on failure; one proficiency converted to ability on next real attack or action skill check."
+    }
+  ],
+  "limitations": [
+    "Glyphs from PDF extracted imperfectly; symbol trigger is corroborated by canonical P215 handoff.",
+    "Other player actions beyond attack and skill action are not yet uniformly routed through downgrade consumer; targeted integration is proven, global semantic certification is pending."
+  ],
+  "pdfTextVerified": true
+}

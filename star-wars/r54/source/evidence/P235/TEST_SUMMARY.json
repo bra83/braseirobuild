@@ -1,0 +1,16 @@
+{
+  "checkpoint": "P235",
+  "mode": "Each test file individually; regular 7 parallel workers, stress sequential; NOT a monolithic suite",
+  "regularFiles": 354,
+  "regularTests": 3232,
+  "regularPassed": 3232,
+  "stressFiles": 6,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "totalFiles": 360,
+  "totalTests": 3238,
+  "totalPassed": 3238,
+  "totalSkipped": 0,
+  "failedFiles": [],
+  "elapsedSeconds": 153.29
+}

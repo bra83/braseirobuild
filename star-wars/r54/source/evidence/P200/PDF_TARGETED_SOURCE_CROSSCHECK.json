@@ -1,0 +1,27 @@
+{
+  "checkpoint": "P200",
+  "source": "The Jewel of Yavin (SWE09)",
+  "sourceDriveId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "retrievedFrom": "connected Google Drive PDF parsed text, 2026-10-14",
+  "scope": "targeted verification, NOT complete adventure certification",
+  "printedPages": [
+    68,
+    69,
+    70,
+    73,
+    90
+  ],
+  "verifiedFacts": [
+    "winning auction bid is diverted to Arend Shen account or another account chosen by the PCs after successful G-100 slicing",
+    "additional bidder access from Table 2-1 yields 10000 credits per eligible bidder only after a successful roll and paid symbols",
+    "Pos Podura has insufficient funds; bank winner funds must not be invented",
+    "four failed G-100 slicing attempts cause lockout; a failed transfer cannot pay credits",
+    "Arend plans betrayal in Episode III; successful bank diversion does not mean he paid PCs"
+  ],
+  "implementationLimits": [
+    "in-world bank account ledger, no character wallet payout",
+    "no external financial API, physical cash withdrawal or GM-confirmed receipt from a real bank",
+    "account label supplied by GM; authenticity of GM cannot be cryptographically verified",
+    "bank settlement does not complete Arend betrayal or pursuit"
+  ]
+}

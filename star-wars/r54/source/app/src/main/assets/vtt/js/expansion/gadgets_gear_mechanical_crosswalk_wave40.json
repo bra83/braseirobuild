@@ -1,0 +1,1403 @@
+{
+  "wave": 40,
+  "source": {
+    "book": "Gadgets and Gear",
+    "authority": "PRIMARY_PAGE_TEXT_PLUS_VISUAL_HEADER"
+  },
+  "validatedRecords": [
+    {
+      "name": "Blaster Suppressor",
+      "pdfPage": 83,
+      "hardPoints": 1,
+      "price": 750,
+      "rarity": 5,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 83
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Adds difficulty to Perception or Vigilance checks made to locate a concealed shooter firing the silenced blaster.",
+      "compatibility": "blaster pistols",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Bowcaster Accelerator Enhancement",
+      "pdfPage": 83,
+      "hardPoints": 1,
+      "price": 250,
+      "rarity": 4,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 83
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Increases weapon damage by 1.",
+      "compatibility": "Wookiee bowcasters",
+      "modOptions": [
+        "1 Item Quality (Auto-fire) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Enhanced XCiter",
+      "pdfPage": 85,
+      "hardPoints": 2,
+      "price": 1500,
+      "rarity": 6,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 85
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Decrease critical rating by 1 to minimum 1; GM may spend source-listed negative symbols on a combat check to cause the blaster to explode, destroying it and inflicting an automatic Critical Injury on the wielder.",
+      "compatibility": "any blaster",
+      "modOptions": [
+        "3 Item Quality (Pierce +1) Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Filed Front Sight",
+      "pdfPage": 85,
+      "hardPoints": 1,
+      "price": 25,
+      "rarity": 0,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 85
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Innate Talent (Quick Draw); increases difficulty of combat checks beyond Short range by 1.",
+      "compatibility": "pistol-sized weapons",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Forearm Grip",
+      "pdfPage": 85,
+      "hardPoints": 1,
+      "price": 250,
+      "rarity": 2,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 85
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Decreases the additional difficulty of making Ranged (Heavy) checks with the weapon while engaged at an additional target.",
+      "compatibility": "rifle and carbine-sized weapons, not heavy rifles",
+      "modOptions": [
+        "1 Innate Talent (Point Blank rank +1) Mod",
+        "1 Item Quality (Accurate +1) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Galven Pattern Resequencing",
+      "pdfPage": 85,
+      "hardPoints": 2,
+      "price": 1000,
+      "rarity": 5,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 85
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Increases weapon damage by 1; adds the source-listed automatic negative symbols to combat checks with the weapon.",
+      "compatibility": "blaster pistols and heavy blaster pistols",
+      "modOptions": [
+        "3 Damage +1 Mods",
+        "3 Item Quality (Pierce +1) Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Marked-Target Firing Lock",
+      "pdfPage": 87,
+      "hardPoints": 1,
+      "price": 900,
+      "rarity": 4,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 87
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "While aiming, designate one target; weapon cannot fire at another until disengaged; checks against designated target cancel one additional source-listed negative result after normal cancellation.",
+      "compatibility": "ranged weapon without Blast or Auto-fire",
+      "modOptions": [
+        "2 Skill (Perception) Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Multi-Optic Sight",
+      "pdfPage": 87,
+      "hardPoints": 1,
+      "price": 2000,
+      "rarity": 3,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 87
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Removes source-listed setback dice from checks due to smoke, darkness, or other vision-obscuring environmental conditions.",
+      "compatibility": "any ranged weapon",
+      "modOptions": [
+        "2 Skill (Perception) Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Optimized Energy Cell",
+      "pdfPage": 87,
+      "hardPoints": 1,
+      "price": 100,
+      "rarity": 5,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 87
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Requires an additional source-listed negative result for the GM to make the weapon run out of ammunition.",
+      "compatibility": "any energy weapon",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Rapid-Recharge XCiter",
+      "pdfPage": 89,
+      "hardPoints": 1,
+      "price": 750,
+      "rarity": 7,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 89
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Weapon gains Auto-fire and Inaccurate 3.",
+      "compatibility": "any blaster",
+      "modOptions": [
+        "2 Decrease Inaccurate quality by 1 Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Removed Safety Features",
+      "pdfPage": 89,
+      "hardPoints": 0,
+      "price": 250,
+      "rarity": 2,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 89
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Adds source-listed positive die to first combat check in encounter; GM may spend source-listed negative symbols to cause a misfire, run out of ammunition, and inflict 4 strain on wielder.",
+      "compatibility": "Ranged (Light) or Ranged (Heavy) weapon with removable safety elements",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Rocket Guidance System",
+      "pdfPage": 89,
+      "hardPoints": 1,
+      "price": 50,
+      "rarity": 4,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 89
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Grants Guided 2.",
+      "compatibility": "any micro-rocket",
+      "modOptions": [
+        "3 Item Quality (Guided +1) Mods",
+        "1 Item Quality (Accurate +1) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Scanner-Proof Hardware",
+      "pdfPage": 89,
+      "hardPoints": 2,
+      "price": 1000,
+      "rarity": 6,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 89
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Weapon cannot be detected by standard weapon-detecting technologies; physical searches still work; source-listed negative symbols may render it inoperable until major repair.",
+      "compatibility": "any weapon",
+      "modOptions": [
+        "1 Reduce weapon encumbrance by 1 Mod",
+        "1 Remove Hard Point Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Secondary Ion Blaster",
+      "pdfPage": 89,
+      "hardPoints": 2,
+      "price": 400,
+      "rarity": 6,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 89
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Adds selectable Ranged (Heavy) ion-blaster profile: Damage 10, Critical 5, Short, Disorient 5, Ion; adds Cumbersome +1 and encumbrance +1.",
+      "compatibility": "Ranged (Heavy) weapon",
+      "modOptions": [
+        "2 Increase ion blaster damage by +1 Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Shortened Barrel",
+      "pdfPage": 91,
+      "hardPoints": 1,
+      "price": 250,
+      "rarity": 4,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 91
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Reduces difficulty to conceal by one; reduces range one band to minimum Short; if already Short, adds source-listed negative die to attack checks.",
+      "compatibility": "Ranged (Light) pistols",
+      "modOptions": [
+        "1 Innate Talent (Quick Draw) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Slugthrower Suppressor",
+      "pdfPage": 91,
+      "hardPoints": 1,
+      "price": 100,
+      "rarity": 4,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 91
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Adds difficulty to Perception or Vigilance checks made to locate a concealed shooter firing the silenced slugthrower.",
+      "compatibility": "Ranged (Light) and Ranged (Heavy) slugthrowers",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Sonic Scope",
+      "pdfPage": 91,
+      "hardPoints": 1,
+      "price": 1500,
+      "rarity": 8,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 91
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Allows observing and targeting enemies completely hidden by solid objects the weapon can penetrate, subject to GM defense/soak adjudication.",
+      "compatibility": "Ranged (Heavy) weapon",
+      "modOptions": [
+        "1 Skill (Perception) Mod",
+        "1 Skill (Vigilance) Mod",
+        "1 Innate Talent (True Aim rank +1) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Spread Barrel",
+      "pdfPage": 91,
+      "hardPoints": 2,
+      "price": 1725,
+      "rarity": 4,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 91
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Grants Blast 4; reduces range one band to minimum Engaged.",
+      "compatibility": "blaster rifles and blaster carbines",
+      "modOptions": [
+        "2 Item Quality (Blast +1) Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Staged Rocket Booster",
+      "pdfPage": 91,
+      "hardPoints": 1,
+      "price": 250,
+      "rarity": 2,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 91
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Increases weapon range by one band; adds Inaccurate 2.",
+      "compatibility": "any micro-rocket",
+      "modOptions": [
+        "1 Increase range one additional band Mod",
+        "2 Reduce Inaccurate by 1 Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Under-Barrel Grenade Launcher",
+      "pdfPage": 93,
+      "hardPoints": 2,
+      "price": 2000,
+      "rarity": 5,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 93
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Fires grenades using their profile with Ranged (Heavy) at Medium; adds Cumbersome +1 and encumbrance +2; Limited Ammo 1.",
+      "compatibility": "rifle-sized Ranged (Heavy) weapons",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Under-Barrel Micro-Rocket Rack",
+      "pdfPage": 93,
+      "hardPoints": 1,
+      "price": 1200,
+      "rarity": 6,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 93
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Fires one loaded micro-rocket; adds Cumbersome +1 and encumbrance +3; Limited Ammo 1 and must reload a new micro-rocket.",
+      "compatibility": "any ranged weapon",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Underslung Scattergun",
+      "pdfPage": 93,
+      "hardPoints": 3,
+      "price": 750,
+      "rarity": 5,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 93
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Adds selectable Ranged (Heavy) profile: Damage 6, Critical 5, Short, Blast 5, Knockdown, Limited Ammo 1; adds Cumbersome +1.",
+      "compatibility": "pistol-sized Ranged (Light) and rifle-sized Ranged (Heavy) weapons",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Vibro-Bayonet",
+      "pdfPage": 93,
+      "hardPoints": 1,
+      "price": 300,
+      "rarity": 3,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 93
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "effect": "Allows melee profile: Damage +1, Critical 2, Engaged, Inaccurate 1, Pierce 2, Vicious 1.",
+      "compatibility": "Ranged (Heavy) weapon capable of mounting a bayonet",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Blade Drain",
+      "pdfPage": 95,
+      "hardPoints": 2,
+      "price": 4000,
+      "rarity": 9,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 95
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "On successful targeted lightsaber combat checks, may spend the source-listed symbol to reduce target lightsaber damage by 1 for the encounter; specified negative result can collapse wielder blade until next turn.",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Curved Hilt",
+      "pdfPage": 95,
+      "hardPoints": 1,
+      "price": 1000,
+      "rarity": 6,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 95
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "Adds the source-listed automatic positive result to successful Lightsaber combat checks when engaged with a single opponent.",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Cyclic Crystal Array",
+      "pdfPage": 95,
+      "hardPoints": 2,
+      "price": 1500,
+      "rarity": 8,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 95
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "Allows a second lightsaber crystal at no additional hard-point cost; choose active crystal on ignition and switch active crystal as a maneuver while unignited.",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Pistol Hilt",
+      "pdfPage": 97,
+      "hardPoints": 2,
+      "price": 750,
+      "rarity": 5,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 97
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "When unignited, may fire as Ranged (Light): Damage 6, Critical 3, Short, Stun Damage.",
+      "modOptions": [
+        "2 Item Quality (Stun +1) Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Pommel Cap",
+      "pdfPage": 97,
+      "hardPoints": 1,
+      "price": 3000,
+      "rarity": 2,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 97
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers or Melee weapons with a hilt",
+      "effect": "Gains Stun 2; one encumbrance-0 item may be stored with GM approval.",
+      "modOptions": [
+        "1 Item Quality (Defensive +1) Mod",
+        "1 Item Quality (Deflection +1) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Reflex Grip",
+      "pdfPage": 97,
+      "hardPoints": 2,
+      "price": 4000,
+      "rarity": 8,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 97
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "Using Parry or Reflect suffers 1 additional strain but counts ranks in Parry and Reflect as 1 higher.",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Shien Reverse Grip Customization",
+      "pdfPage": 97,
+      "hardPoints": 1,
+      "price": 100,
+      "rarity": 6,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 97
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "Adds source-listed positive die to Lightsaber (Cunning) checks and source-listed negative die to all other Lightsaber checks.",
+      "modOptions": [
+        "1 Damage +1 Mod",
+        "1 Decrease Unwieldy rating by 1 to minimum 1 Mod",
+        "2 Item Quality (Disorient +1) Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Corrupted Crystal",
+      "pdfPage": 99,
+      "hardPoints": 2,
+      "price": null,
+      "rarity": 9,
+      "priceStatus": "NOT_FOR_SALE_OR_SOURCE_SPECIAL",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 99
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "Sets base damage 6, critical 2; grants Breach 1, Sunder, Vicious 2; adds dark-side Force result to Force power checks until reclaimed at Morality 70+, after which extra result and Vicious are lost.",
+      "modOptions": [
+        "1 Decrease critical rating by 1 to minimum 1 Mod",
+        "2 Item Quality (Vicious +1) Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Cracked Crystal",
+      "pdfPage": 99,
+      "hardPoints": 2,
+      "price": null,
+      "rarity": 10,
+      "priceStatus": "NOT_FOR_SALE_OR_SOURCE_SPECIAL",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 99
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "Sets base damage 7, critical 3; grants Breach 2, Sunder, Vicious 1; source-listed negative result may shatter crystal.",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Dantari Crystal",
+      "pdfPage": 99,
+      "hardPoints": 2,
+      "price": 12000,
+      "rarity": 8,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 99
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "Sets base damage 7, critical 2; grants Breach 1 and Sunder; during Force power check as part of combat check may spend source-listed Force result to recover 2 strain.",
+      "modOptions": [
+        "1 Damage +1 Mod",
+        "1 Decrease critical rating by 1 to minimum 1 Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Dragite Gem",
+      "pdfPage": 99,
+      "hardPoints": 2,
+      "price": 14000,
+      "rarity": 7,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 99
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "Sets damage 7, critical 3; grants Breach 1, Disorient 1, Sunder.",
+      "modOptions": [
+        "1 Damage +1 Mod",
+        "2 Item Quality (Concussive +1) Mods",
+        "1 Item Quality (Disorient +1) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Lorrdian Gemstone",
+      "pdfPage": 101,
+      "hardPoints": 2,
+      "price": 9600,
+      "rarity": 8,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 101
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "Sets damage 7, critical 2; grants Breach 1, Defensive 1, Sunder.",
+      "modOptions": [
+        "1 Item Quality (Defensive +1) Mod",
+        "2 Item Quality (Deflection +1) Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Mephite Crystal",
+      "pdfPage": 101,
+      "hardPoints": 2,
+      "price": 10000,
+      "rarity": 10,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 101
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "Sets damage 8, critical 2; grants Breach 1 and Sunder; Force-sensitive characters sensing surroundings automatically detect the equipped lightsaber within the source-defined range.",
+      "modOptions": [
+        "3 Damage +1 Mods",
+        "1 Decrease critical rating by 1 to minimum 1 Mod",
+        "1 Item Quality (Vicious +1) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Sorlan Crystal",
+      "pdfPage": 103,
+      "hardPoints": 4,
+      "price": 16000,
+      "rarity": 4,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 103
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "Sets base damage 6, critical 5; grants Breach 1 and Sunder; when Parry is used, adds the source-listed die to the next combat check against attacker before end of next round.",
+      "modOptions": [
+        "5 Damage +1 Mods",
+        "1 Innate Talent (Parry) Mod",
+        "1 Item Quality (Vicious +1) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Unstable Kyber Crystal",
+      "pdfPage": 103,
+      "hardPoints": 2,
+      "price": 16000,
+      "rarity": 10,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 103
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "Sets base damage 6, critical 2; grants Breach 1 and Sunder; may spend a maneuver to temporarily increase Force rating by 1 until extra Force result fuels a Force talent/power, with source-defined failure risk.",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Varpeline Crystal",
+      "pdfPage": 103,
+      "hardPoints": 2,
+      "price": 14000,
+      "rarity": 9,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 103
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "Sets base damage 8, critical 5; grants Breach 1, Vicious 1, Sunder; source-defined extra spend on Critical Injury can inflict Maimed instead.",
+      "modOptions": [
+        "1 Damage +1 Mod",
+        "2 Item Quality (Vicious +1) Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Armor Insert",
+      "pdfPage": 105,
+      "hardPoints": 0,
+      "price": 450,
+      "rarity": 3,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 105
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "clothing or armor with defense 0 and soak 1 or less",
+      "effect": "Turns clothing into armored clothing; noticing inserts requires Average Perception.",
+      "modOptions": [
+        "1 Increase soak +1 Mod",
+        "1 Increase defense +1 Mod",
+        "1 Increase notice difficulty to Hard Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Armor Spikes",
+      "pdfPage": 105,
+      "hardPoints": 3,
+      "price": 500,
+      "rarity": 2,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 105
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "armor covering arms or legs",
+      "effect": "Encumbrance +2; after suffering Melee/Brawl/Lightsaber hit, source-defined spend may automatically inflict one hit for 6 damage on attacker.",
+      "modOptions": [
+        "3 Increase damage +1 Mods",
+        "5 Reduce Critical rating +1 Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Biofeedback System",
+      "pdfPage": 105,
+      "hardPoints": 2,
+      "price": 1100,
+      "rarity": 5,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 105
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "full-body armor",
+      "effect": "Increases wearer's strain threshold by 4 while wearing armor.",
+      "modOptions": [
+        "1 Innate Talent (Rapid Recovery) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Boot Blade",
+      "pdfPage": 105,
+      "hardPoints": 0,
+      "price": 100,
+      "rarity": 5,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 105
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "armor including boots, shoes, or footwear",
+      "effect": "Provides retractable Melee blade: Damage +1, Critical 3, Engaged.",
+      "modOptions": [
+        "1 Reduce critical rating by 1 to minimum 1 Mod",
+        "2 Item Quality (Pierce +1) Mods",
+        "1 Item Quality (Vicious +1) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Cortosis Weave",
+      "pdfPage": 105,
+      "hardPoints": 2,
+      "price": 10000,
+      "rarity": 8,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 105
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "armor",
+      "effect": "Armor gains Cortosis quality.",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Integrated Holsters",
+      "pdfPage": 107,
+      "hardPoints": 2,
+      "price": 1300,
+      "rarity": 4,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 107
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "armor",
+      "effect": "Encumbrance threshold +4; holster up to two encumbrance-5-or-lower weapons without counting them toward encumbrance.",
+      "modOptions": [
+        "2 Add setback to others' Perception checks to find stored weapons Mods",
+        "3 Holster one additional encumbrance-3-or-lower weapon Mods",
+        "1 Innate Talent (Quick Draw) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Ion Shielding",
+      "pdfPage": 107,
+      "hardPoints": 1,
+      "price": 2000,
+      "rarity": 7,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 107
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "armor with soak 2 or higher",
+      "effect": "Increases armor soak by +3 against weapons with Ion quality.",
+      "modOptions": [
+        "1 Increase ranged and melee defense by 1 Mod",
+        "1 Ignore ranged and melee defense by 1 Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Kiirium Coating",
+      "pdfPage": 107,
+      "hardPoints": 2,
+      "price": 2500,
+      "rarity": 7,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 107
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "armor with solid surface plates, GM discretion",
+      "effect": "Adds +1 soak against blaster and flame attacks.",
+      "modOptions": [
+        "2 Decrease difficulty of Resilience checks to resist fire effects by 1 Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Quick Shed",
+      "pdfPage": 109,
+      "hardPoints": 1,
+      "price": 650,
+      "rarity": 4,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 109
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "armor encumbrance 3 or higher",
+      "effect": "As a maneuver, wearer may shed armor; removed armor must be properly reassembled before reuse, using source-defined Mechanics check.",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Radiation Shielding",
+      "pdfPage": 109,
+      "hardPoints": 1,
+      "price": 500,
+      "rarity": 3,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 109
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "armor with hard plates that can be fully sealed, GM discretion",
+      "effect": "Adds two source-listed dice to Resilience checks to resist radiation.",
+      "modOptions": [
+        "2 Increase armor soak by +1 against damage caused by radiation Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Reflec Adaptive Skin",
+      "pdfPage": 109,
+      "hardPoints": 2,
+      "price": 3500,
+      "rarity": 7,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 109
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "any armor",
+      "effect": "Upgrades ability of all Stealth checks once while wearing the armor.",
+      "modOptions": [
+        "2 Add source-listed dice to Stealth checks while wearing coated armor Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Reflec Shadowskin",
+      "pdfPage": 109,
+      "hardPoints": 1,
+      "price": 1200,
+      "rarity": 6,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 109
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "armor with soak 2 or lower",
+      "effect": "Adds source-listed automatic result to Stealth checks.",
+      "modOptions": [
+        "1 Innate Talent (Skilled) Mod",
+        "2 Add source-listed dice to Stealth checks Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Reinforced Gauntlets",
+      "pdfPage": 109,
+      "hardPoints": 2,
+      "price": 250,
+      "rarity": 2,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 109
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "armor with soak 2 or higher",
+      "effect": "Gauntlets become Brawl weapon: Damage +1, Critical 4, Engaged, Disorient 3.",
+      "modOptions": [
+        "1 Innate Talent (Durable) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Repulsor-Assisted Lifting",
+      "pdfPage": 109,
+      "hardPoints": 2,
+      "price": 1000,
+      "rarity": 3,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 109
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "laminate armor and other full-body hard armor suits",
+      "effect": "Adds +5 to Brawn for determining encumbrance threshold.",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Strength Enhancing System",
+      "pdfPage": 111,
+      "hardPoints": 2,
+      "price": 5500,
+      "rarity": 4,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 111
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "full-coverage armor with hard plates, GM discretion",
+      "effect": "Increases wearer's Brawn by 1 while wearing armor; does not increase soak or wound threshold.",
+      "modOptions": [
+        "2 Skill (Athletics +1) Mods",
+        "2 Innate Talent (Brace) Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Stun Matrix",
+      "pdfPage": 111,
+      "hardPoints": 3,
+      "price": 1750,
+      "rarity": 5,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 111
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "armor that can logically benefit from a stun matrix",
+      "effect": "After Melee/Brawl/Lightsaber hit, source-defined spend may Disorient attacker for two rounds.",
+      "modOptions": [
+        "1 source-defined spend may Immobilize attacker for 1 round Mod",
+        "1 source-defined spend may Stagger attacker for 1 round Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Superior Armor Customization",
+      "pdfPage": 111,
+      "hardPoints": 1,
+      "price": 5000,
+      "rarity": 6,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 111
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "armor",
+      "effect": "Grants Superior quality: soak +1 and encumbrance -1.",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Threat Monitor",
+      "pdfPage": 111,
+      "hardPoints": 1,
+      "price": 750,
+      "rarity": 5,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 111
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "armor",
+      "effect": "Adds source-listed automatic result to wearer's Initiative checks.",
+      "modOptions": [
+        "1 Innate Talent (Quick Strike) Mod",
+        "2 Add source-listed automatic results to Initiative checks Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "VX Hands-Free Weapon System",
+      "pdfPage": 111,
+      "hardPoints": 2,
+      "price": 1000,
+      "rarity": 6,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 111
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "armor; mounted Ranged (Light)/(Heavy) weapon encumbrance 4 or less, GM discretion",
+      "effect": "Mounts one weapon on armor, allowing aim and fire without using hands or arms; weapon itself requires 1 hard point to be modified for mounting.",
+      "modOptions": [],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Bowcaster Automatic Re-Cocker",
+      "pdfPage": 83,
+      "hardPoints": 3,
+      "price": null,
+      "rarity": 3,
+      "priceStatus": "NOT_FOR_SALE_OR_SOURCE_SPECIAL",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 83
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "Wookiee bowcasters; not purchasable, must be built by owner/weaponsmith",
+      "effect": "Removes reloading maneuver requirement from bowcaster.",
+      "modOptions": [
+        "1 Item Quality (Auto-fire) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Gene-Lock",
+      "pdfPage": 85,
+      "hardPoints": 1,
+      "price": 500,
+      "rarity": 7,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 85
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "any handheld weapon",
+      "effect": "Weapon functions only in hands of its authorized owner.",
+      "modOptions": [
+        "1 Self Destruct Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Ordnance Impeller",
+      "pdfPage": 87,
+      "hardPoints": 1,
+      "price": 500,
+      "rarity": 4,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 87
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "grenade or explosive device",
+      "effect": "Makes explosive remotely mobile; base profile uses Speed 1, Handling -1, and the source-defined remote-control operation; attachment is controlled at range.",
+      "modOptions": [
+        "1 Add ten-meter maximum altitude Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Damping Emitter",
+      "pdfPage": 95,
+      "hardPoints": 1,
+      "price": 2000,
+      "rarity": 7,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 95
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "As a maneuver, wielder may set lightsaber to deal Stun Damage; while damped, damage decreases by two and Breach is lost; returning to normal is another maneuver.",
+      "modOptions": [
+        "2 Item Quality (Stun Damage +1) Mods"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    },
+    {
+      "name": "Stun Blaster Attachment",
+      "pdfPage": 97,
+      "hardPoints": 3,
+      "price": 750,
+      "rarity": 5,
+      "priceStatus": "SOURCE_VALUE",
+      "source": {
+        "book": "Gadgets and Gear",
+        "authority": "PRIMARY_VISUAL_VALIDATED",
+        "physicalPdfPage": 97
+      },
+      "mechanicalStatus": "PRIMARY_PAGE_MECHANICS_VALIDATED_PENDING_MASTER",
+      "mechanicallyActivatable": false,
+      "compatibility": "lightsabers",
+      "effect": "Enables the lightsaber hilt to fire a short-range stun-blaster profile while blade is not in use; switching weapon mode requires a maneuver. Exact profile is retained from the primary continuation page.",
+      "modOptions": [
+        "1 Damage +1 Mod",
+        "1 Decrease Unwieldy rating by 1 to minimum 1 Mod",
+        "1 Item Quality (Disorient +1) Mod"
+      ],
+      "requiresMasterApproval": true,
+      "requiresControllerCommit": true
+    }
+  ],
+  "unresolvedVisualHeaders": [],
+  "legacyEffectQueue": {
+    "records": 38,
+    "policy": "RETAINED_NOT_FORCE_MATCHED_BECAUSE_MULTI_COLUMN_EXTRACTION_CAN_MIX_NEIGHBOR_EFFECTS"
+  },
+  "coverage": {
+    "visualHeaders": 63,
+    "mechanicsValidated": 63,
+    "newlyValidated": 5,
+    "remainingHeaders": 0,
+    "legacyEffectsRetained": 38,
+    "dropped": 0,
+    "inventedStats": 0
+  }
+}

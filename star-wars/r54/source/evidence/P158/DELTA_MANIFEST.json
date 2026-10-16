@@ -1,0 +1,68 @@
+{
+  "baseline": "P157",
+  "release": "P158",
+  "modified": {
+    "app/build.gradle.kts": {
+      "sha256": "7eaf9df43dd272be14a28725933e97c6c3fc0379298b09cd166d7f92c0de10b8"
+    },
+    "app/src/main/assets/vtt/js/core/controller.mjs": {
+      "sha256": "748dd9bc916f71e0acc9c2564c90de88341d94b720cbf61e2d223e474afe644f"
+    },
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js": {
+      "sha256": "8842a1ac0d4bda83d31938f8dff1788dcbd3771de7efe9578a472c2fa482e608"
+    },
+    "app/src/main/assets/vtt/js/expansion/aorTalentRuntimeAliases.mjs": {
+      "sha256": "fd900b5e19f1650efe59aea7245982325798261f1c096face805834015d88751"
+    },
+    "app/src/main/assets/vtt/js/rules/talents.mjs": {
+      "sha256": "423e26d8643d20e01d490c4408dea04a79517ae3946ca7e454823d524126837d"
+    },
+    "app/src/main/assets/vtt/r46-shell.html": {
+      "sha256": "45b5af73bf8aad0162adb2451fbd691415015adc28a339d555587be3172f0f04"
+    },
+    "app/src/main/assets/vtt/r46/final-runtime.js": {
+      "sha256": "a06490d948fe4a29d68bc8c888ea156098dd868b64ecf0e0d5a4accb5d0e304a"
+    },
+    "tests/uae-p157-diplomat-commander-economy.test.mjs": {
+      "sha256": "2bef10bb9f797120ef4a7aa3584bc2c0e1e270ea850e3d9d589f2eab08e83aca"
+    }
+  },
+  "added": {
+    "HANDOFF_STAR_WARS_EDGE_R54_P158_2026-10-12.md": {
+      "sha256": "081ec8f7826d9490ad84d48e7ec7ab9460f25a0454307c705609b4573636ca69"
+    },
+    "evidence/P158/ANDROID_BUILD.txt": {
+      "sha256": "08bd1aa68e1de001745f72750d67687d5ad107286e834a6c44a2f4837e8a5c9d"
+    },
+    "evidence/P158/AOR_SOURCE_CROSSWALK.md": {
+      "sha256": "d0473b3d4e1610a098bcc3e4c2e5680cb6286fad4f0c8893053377030e45df87"
+    },
+    "evidence/P158/AUDIT.txt": {
+      "sha256": "010bcd0d4874b4ca6afff6ffee57e1d7e9ff006c31c9b6cc467d54b3547ce819"
+    },
+    "evidence/P158/JAVA_P157_SHA256.json": {
+      "sha256": "7b9805049f5bcd5dc6f998d2ac8dd2f72fd31db0cf1a21526a7d96028a9625ec"
+    },
+    "evidence/P158/JAVA_SYNTAX.txt": {
+      "sha256": "f6d8de2fc97ff92f95f7525bd70cfd1bf1714dff6a33e8adea30defd5b05cd07"
+    },
+    "evidence/P158/KOKORO_TTS_REGRESSION.txt": {
+      "sha256": "bb93602855d57dfac11777eed66cdd1f9ea0d16c85619e5d377b3fff28af7248"
+    },
+    "evidence/P158/NODE_FOCAL.txt": {
+      "sha256": "0752652108a929110a478475c26d2757a31bce4a578d32c83a518c7318badc47"
+    },
+    "evidence/P158/NODE_REGULAR.txt": {
+      "sha256": "93ceeaf73d6073f8de83b1ecc448ca551acf417a2357b767edc6f287a642d495"
+    },
+    "evidence/P158/NODE_STRESS.txt": {
+      "sha256": "9c61b850dff3cce3a675341a9bf8db4e6904342c6c16b70d14223f59c3fada7c"
+    },
+    "tests/uae-p158-explosives-survival-five-adventures.test.mjs": {
+      "sha256": "613ca5db082d0ac4fbf3c7477933b35134603050c343aa4f012774dbc96df77f"
+    },
+    "tools/audit-p158-release.mjs": {
+      "sha256": "cf3c512a6707cbc0b143c7c2678ddbc99369f5524773c4e7f5143aec22ceb0d8"
+    }
+  }
+}

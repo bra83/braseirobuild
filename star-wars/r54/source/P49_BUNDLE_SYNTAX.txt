@@ -1,0 +1,1 @@
+PASS: node --check app/src/main/assets/vtt/js/core/uiBridge.bundle.js

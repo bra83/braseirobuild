@@ -1,0 +1,16 @@
+{
+  "checkpoint": "P233",
+  "mode": "node --test per file; four regular workers, six stress sequential; no monolithic suite",
+  "regularFiles": 352,
+  "regularTests": 3210,
+  "regularPassed": 3210,
+  "stressFiles": 6,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "totalFiles": 358,
+  "totalTests": 3216,
+  "totalPassed": 3216,
+  "totalSkipped": 0,
+  "failedFiles": [],
+  "elapsedSecondsThisResume": 1.51
+}

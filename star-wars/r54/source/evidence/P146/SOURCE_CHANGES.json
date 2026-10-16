@@ -1,0 +1,62 @@
+[
+  {
+    "path": "app/build.gradle.kts",
+    "change": "modified",
+    "sha256": "0a42ad3432a7e706ca5dc9e59ff9b70a74de8ee72f5530588ca76bcfdf917cb5"
+  },
+  {
+    "path": "app/src/main/assets/vtt/js/adventure/publishedActionReceipts.mjs",
+    "change": "modified",
+    "sha256": "f91b9bfed34f47a49791de662b53b5fb3639ee03a1e8bcc57a91e6a53eafa2aa"
+  },
+  {
+    "path": "app/src/main/assets/vtt/js/adventure/publishedAdventureUaeBridge.mjs",
+    "change": "modified",
+    "sha256": "08e8f75ec06da3d569d4f14d71701f8c643f37961f471db16a899eae9f98dce2"
+  },
+  {
+    "path": "app/src/main/assets/vtt/js/core/state.mjs",
+    "change": "modified",
+    "sha256": "4db9f50b45eb7d188e95ffcc9b3c790fb7a7546f1d5e5fbe017bad4f7e8df8d4"
+  },
+  {
+    "path": "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "change": "modified",
+    "sha256": "f09772c4ac9e9464e7e565f9b2c549b41f95ba238cd4de6d868b57396e74d7be"
+  },
+  {
+    "path": "app/src/main/assets/vtt/r46/final-runtime.js",
+    "change": "modified",
+    "sha256": "4073f144c1820b4921b450c2afc130f2cbbeaca346e0f3ccadcf1e49a3d0ef64"
+  },
+  {
+    "path": "app/src/main/assets/vtt/r46/published-command-client.js",
+    "change": "added",
+    "sha256": "4e3cad17d0de4afbb7716913fe8b39082b51d94ed06cf09b4d614d0d1fdd222d"
+  },
+  {
+    "path": "app/src/main/assets/vtt/r46-shell.html",
+    "change": "modified",
+    "sha256": "37540add1e335135862664986589bdc77653be570455e002c627376b38f2b43b"
+  },
+  {
+    "path": "tests/r54-p35-published-adventure-ui.test.mjs",
+    "change": "modified",
+    "sha256": "5d06c9d5b881c8d5c9bc4605d9253000508ddd825fc213c2eda68ae4c61010c8"
+  },
+  {
+    "path": "tests/r54-p36-under-black-sun-systems.test.mjs",
+    "change": "modified",
+    "sha256": "b35b078212a59ea422b71e5942879291d769007b2b8527b7177a4a8b49fc5436"
+  },
+  {
+    "path": "tests/r54-p58-under-black-sun-ready-to-play.test.mjs",
+    "change": "modified",
+    "sha256": "fa0ceedc2b447c9fdd2384b8f8b8b39e6ebcc8407b173ed9111dfe7c7861e369"
+  },
+  {
+    "path": "tests/uae-p146-webview-outbox-causal-five-adventures.test.mjs",
+    "change": "added",
+    "sha256": "16ceeb5dccf5330223d9ab2f56c5fc5c9955b8e53084fbb1ebe6803ef71684cd"
+  }
+]

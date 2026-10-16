@@ -1,0 +1,29 @@
+TAP version 13
+# Subtest: P89 Desespero no Spyder vira dívida persistente e plano de mundo vivo após epílogo
+ok 1 - P89 Desespero no Spyder vira dívida persistente e plano de mundo vivo após epílogo
+  ---
+  duration_ms: 18.356052
+  type: 'test'
+  ...
+# Subtest: P89 rastro eletrônico da Black Sun permanece secreto como plano, sem vazar no resumo público
+ok 2 - P89 rastro eletrônico da Black Sun permanece secreto como plano, sem vazar no resumo público
+  ---
+  duration_ms: 8.288112
+  type: 'test'
+  ...
+# Subtest: P89 NovaCORE crítica gera aftermath persistente e resumo público somente depois do epílogo
+ok 3 - P89 NovaCORE crítica gera aftermath persistente e resumo público somente depois do epílogo
+  ---
+  duration_ms: 7.672253
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 366.43252
+

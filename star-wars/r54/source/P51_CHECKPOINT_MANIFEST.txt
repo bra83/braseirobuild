@@ -1,0 +1,23 @@
+BRASEIRO STAR WARS EDGE OF THE GALAXY — R54 P51
+Baseline: R54 P50
+Date: 2026-09-22 (America/Sao_Paulo project date)
+
+Primary changed/added implementation files:
+- app/src/main/assets/vtt/js/core/events.mjs
+- app/src/main/assets/vtt/js/core/state.mjs
+- app/src/main/assets/vtt/js/adventure/underBlackSun.mjs
+- app/src/main/assets/vtt/js/adventure/publishedAdventureRegistry.mjs
+- app/src/main/assets/vtt/js/core/controller.mjs
+- app/src/main/assets/vtt/js/core/uiBridge.bundle.js
+- tests/r54-p51-persistence-performance-and-adventure-registry.test.mjs
+- tests/r54-p33-under-black-sun.test.mjs (architecture assertion updated for adapter contract)
+- tests/final-android-completeness.test.mjs (bundle module count 60)
+
+Evidence:
+- P51_FOCAL.txt -> 71/71 PASS
+- P51_BROAD_SUMMARY.txt -> 877/877 PASS across 176 test files
+- P51_BRIDGE.txt -> 60 modules
+- P51_SYNTAX.txt -> syntax gates PASS
+- P51_ANDROID_STATUS.txt -> native build not run / not declared PASS
+
+No GitHub used for corrections.

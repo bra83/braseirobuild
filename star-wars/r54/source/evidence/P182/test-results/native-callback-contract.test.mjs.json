@@ -1,0 +1,11 @@
+{
+  "file": "native-callback-contract.test.mjs",
+  "okay": true,
+  "tests": 5,
+  "pass": 5,
+  "fail": 0,
+  "skipped": 0,
+  "exit": 0,
+  "seconds": 1.19,
+  "tail": ""
+}

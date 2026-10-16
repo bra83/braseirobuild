@@ -1,0 +1,2760 @@
+TAP version 13
+# Subtest: P21 reiniciar sandbox preserva personagem, grupo, nave e ajustes, mas limpa mundo/sessão
+ok 1 - P21 reiniciar sandbox preserva personagem, grupo, nave e ajustes, mas limpa mundo/sessão
+  ---
+  duration_ms: 167.928865
+  type: 'test'
+  ...
+# Subtest: P21 botão REINICIAR usa reset seguro e não apaga estado/personagem/foto diretamente
+ok 2 - P21 botão REINICIAR usa reset seguro e não apaga estado/personagem/foto diretamente
+  ---
+  duration_ms: 18.003631
+  type: 'test'
+  ...
+# Subtest: P21 status Gemini nativo é adaptado para Result ok/data esperado pela shell
+ok 3 - P21 status Gemini nativo é adaptado para Result ok/data esperado pela shell
+  ---
+  duration_ms: 2.140311
+  type: 'test'
+  ...
+# Subtest: P21 TTS cai para Web Speech quando o bridge Android existe mas responde indisponível
+ok 4 - P21 TTS cai para Web Speech quando o bridge Android existe mas responde indisponível
+  ---
+  duration_ms: 3.611815
+  type: 'test'
+  ...
+# Subtest: P21 seletor oferece 82 mapas locais offline válidos sem adulterar o manifesto V3.8 congelado
+ok 5 - P21 seletor oferece 82 mapas locais offline válidos sem adulterar o manifesto V3.8 congelado
+  ---
+  duration_ms: 9.689282
+  type: 'test'
+  ...
+# Subtest: P21 bridge mantém catálogo congelado por padrão e entrega os 82 mapas locais ao seletor P21
+ok 6 - P21 bridge mantém catálogo congelado por padrão e entrega os 82 mapas locais ao seletor P21
+  ---
+  duration_ms: 9.878927
+  type: 'test'
+  ...
+# Subtest: P21 fonte e bundle da shell solicitam mapas jogáveis e mantêm auto-cache de externos
+ok 7 - P21 fonte e bundle da shell solicitam mapas jogáveis e mantêm auto-cache de externos
+  ---
+  duration_ms: 2.875097
+  type: 'test'
+  ...
+# Subtest: P21 Android TTS aceita pt-BR e recua para português genérico antes de declarar indisponível
+ok 8 - P21 Android TTS aceita pt-BR e recua para português genérico antes de declarar indisponível
+  ---
+  duration_ms: 1.118773
+  type: 'test'
+  ...
+# Subtest: P21 Android não tenta exibir mapa externo remoto antes do cache e seleção dispara cache
+ok 9 - P21 Android não tenta exibir mapa externo remoto antes do cache e seleção dispara cache
+  ---
+  duration_ms: 4.690963
+  type: 'test'
+  ...
+# Subtest: P33 MIXED: bridge escolhe origem EotE/AoR sem converter Obligation em Duty
+ok 10 - P33 MIXED: bridge escolhe origem EotE/AoR sem converter Obligation em Duty
+  ---
+  duration_ms: 2.611438
+  type: 'test'
+  ...
+# Subtest: P33 MIXED: shell permite escolher origem da ficha e rotula vínculo corretamente
+ok 11 - P33 MIXED: shell permite escolher origem da ficha e rotula vínculo corretamente
+  ---
+  duration_ms: 2.118742
+  type: 'test'
+  ...
+# Subtest: P33 MIXED: fontes editáveis acompanham o bundle entregue
+ok 12 - P33 MIXED: fontes editáveis acompanham o bundle entregue
+  ---
+  duration_ms: 1.142585
+  type: 'test'
+  ...
+# Subtest: P33: catálogo preserva EotE/MIXED e não oferece aventura EotE pura em AoR
+ok 13 - P33: catálogo preserva EotE/MIXED e não oferece aventura EotE pura em AoR
+  ---
+  duration_ms: 2.856679
+  type: 'test'
+  ...
+# Subtest: P33: início é PT-BR, persistente e não revela nós futuros ao jogador
+ok 14 - P33: início é PT-BR, persistente e não revela nós futuros ao jogador
+  ---
+  duration_ms: 6.628197
+  type: 'test'
+  ...
+# Subtest: P33: Episódio II aceita investigação em qualquer ordem e só libera desfecho após 2 linhas
+ok 15 - P33: Episódio II aceita investigação em qualquer ordem e só libera desfecho após 2 linhas
+  ---
+  duration_ms: 4.421025
+  type: 'test'
+  ...
+# Subtest: P33: flags de consequências persistem até o Episódio III e epílogo
+ok 16 - P33: flags de consequências persistem até o Episódio III e epílogo
+  ---
+  duration_ms: 10.667807
+  type: 'test'
+  ...
+# Subtest: P33: recompensa fica registrada e não reseta ao reiniciar a aventura na mesma campanha
+ok 17 - P33: recompensa fica registrada e não reseta ao reiniciar a aventura na mesma campanha
+  ---
+  duration_ms: 1.277394
+  type: 'test'
+  ...
+# Subtest: P33: UI oferece aventura publicada separada do mundo livre e bridge expõe contrato
+ok 18 - P33: UI oferece aventura publicada separada do mundo livre e bridge expõe contrato
+  ---
+  duration_ms: 2.315949
+  type: 'test'
+  ...
+# Subtest: P34: checks da aventura expõem pool mecânico sem revelar destinos
+ok 19 - P34: checks da aventura expõem pool mecânico sem revelar destinos
+  ---
+  duration_ms: 0.889956
+  type: 'test'
+  ...
+# Subtest: P34: Advantage/Threat/Triumph/Despair alimentam consequência persistente e relógio de alerta
+ok 20 - P34: Advantage/Threat/Triumph/Despair alimentam consequência persistente e relógio de alerta
+  ---
+  duration_ms: 2.610803
+  type: 'test'
+  ...
+# Subtest: P34: controller e bridge ligam teste publicado ao resolvedor narrativo real
+not ok 21 - P34: controller e bridge ligam teste publicado ao resolvedor narrativo real
+  ---
+  duration_ms: 4.290021
+  type: 'test'
+  location: '/mnt/data/sw_p50/sw_p47/tests/r54-p33-under-black-sun.test.mjs:124:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /adjudicateUnderBlackSunCheck/. Input:
+    
+    'import * as state_mjs_1 from "./state.mjs";\n' +
+      'import * as events_mjs_1 from "./events.mjs";\n' +
+      'import * as ids_mjs_1 from "./ids.mjs";\n' +
+      'import * as narrativeDice_mjs_1 from "../rules/narrativeDice.mjs";\n' +
+      'import * as starterPresets_mjs_1 from "../rules/starterPresets.mjs";\n' +
+      'import * as character_mjs_1 from "../rules/character.mjs";\n' +
+      'import * as combat_mjs_1 from "../rules/combat.mjs";\n' +
+      'import * as health_mjs_1 from "../rules/health.mjs";\n' +
+      'import * as weapons_mjs_1 from "../rules/weapons.mjs";\n' +
+      'import * as attackDifficulty_mjs_1 from "../rules/attackDifficulty.mjs";\n' +
+      'import * as recovery_mjs_1 from "../rules/recovery.mjs";\n' +
+      'import * as generalGearEffects_mjs_1 from "../rules/generalGearEffects.mjs";\n' +
+      'import * as critical_mjs_1 from "../rules/critical.mjs";\n' +
+      'import * as initiative_mjs_1 from "../rules/initiative.mjs";\n' +
+      'import * as adversaries_mjs_1 from "../rules/adversaries.mjs";\n' +
+      'import * as encounter_mjs_1 from "../rules/encounter.mjs";\n' +
+      'import * as localMaster_mjs_1 from "../master/localMaster.mjs";\n' +
+      'import * as proposal_mjs_1 from "../master/proposal.mjs";\n' +
+      'import * as provider_mjs_1 from "../master/provider.mjs";\n' +
+      'import * as sessionFlow_mjs_1 from "../master/sessionFlow.mjs";\n' +
+      'import * as progression_mjs_1 from "../rules/progression.mjs";\n' +
+      'import * as eoteCharacterCreation_mjs_1 from "../rules/eoteCharacterCreation.mjs";\n' +
+      'import * as characterCreation_mjs_1 from "../rules/characterCreation.mjs";\n' +
+      'import * as vehicles_mjs_1 from "../rules/vehicles.mjs";\n' +
+      'import * as fringeGroup_mjs_1 from "../rules/fringeGroup.mjs";\n' +
+      'import * as talents_mjs_1 from "../rules/talents.mjs";\n' +
+      'import * as force_mjs_1 from "../rules/force.mjs";\n' +
+      'import * as acquisition_mjs_1 from "../rules/acquisition.mjs";\n' +
+      'import * as economy_mjs_1 from "../rules/economy.mjs";\n' +
+      'import * as equipmentCatalog_mjs_1 from "../rules/equipmentCatalog.mjs";\n' +
+      'import * as encumbrance_mjs_1 from "../rules/encumbrance.mjs";\n' +
+      'import * as statusEffects_mjs_1 from "../rules/statusEffects.mjs";\n' +
+      'import * as destiny_mjs_1 from "../rules/destiny.mjs";\n' +
+      'import * as obligation_mjs_1 from "../rules/obligation.mjs";\n' +
+      'import * as duty_mjs_1 from "../rules/duty.mjs";\n' +
+      'import * as fear_mjs_1 from "../rules/fear.mjs";\n' +
+      'import * as sceneLibrary_mjs_1 from "../library/sceneLibrary.mjs";\n' +
+      'import * as world_mjs_1 from "../world/world.mjs";\n' +
+      'import * as sandbox_mjs_1 from "../world/sandbox.mjs";\n' +
+      'import * as publishedAdventureRegistry_mjs_1 from "../adventure/publishedAdventureRegistry.mjs";\n' +
+      'function requireCharacter(character) {\n' +
+      '    if (!character)\n' +
+      "        throw new Error('Carregue um personagem antes desta ação.');\n" +
+      '    return character;\n' +
+      '}\n' +
+      'function assertCanAct(character) {\n' +
+      '    requireCharacter(character);\n' +
+      '    if (health_mjs_1.getHealthStatus(character).unconscious)\n' +
+      "        throw new Error('O personagem está incapacitado e não pode agir agora.');\n" +
+      '}\n' +
+      'function criticalActionState(character) {\n' +
+      '    return critical_mjs_1.criticalCheckModifiers(character, { consume: false });\n' +
+      '}\n' +
+      'function assertCanPerformAction(character) {\n' +
+      '    assertCanAct(character);\n' +
+      '    const critical = criticalActionState(character);\n' +
+      '    const status = statusEffects_mjs_1.statusModifiers(character);\n' +
+      '    if (critical.cannotAct || status.cannotAct)\n' +
+      "        throw new Error('O personagem está staggered e não pode realizar ações agora.');\n" +
+      '    return critical;\n' +
+      '}\n' +
+      "function campaignMode(state) { return ['EOTE','AOR','MIXED'].includes(state?.campaignMode) ? state.campaignMode : 'EOTE'; }\n" +
+      "function modeAllowsObligation(state) { return campaignMode(state) === 'EOTE' || campaignMode(state) === 'MIXED'; }\n" +
+      "function modeAllowsDuty(state) { return campaignMode(state) === 'AOR' || campaignMode(state) === 'MIXED'; }\n" +
+      'function assertProgressionAllowed(state) {\n' +
+      '    const character = requireCharacter(state.player.character);\n' +
+      '    if (modeAllowsObligation(state) && obligation_mjs_1.obligationTotal(state.group, character) > 100)\n' +
+      "        throw new Error('Obligation acima de 100 impede gastar PE até o grupo reduzir a pressão.');\n" +
+      '    return character;\n' +
+      '}\n' +
+      'function applyActionCriticalStrain(character, critical) {\n' +
+      '    const cost = Math.max(0, Number(critical?.strainPerAction ?? 0));\n' +
+      '    return cost > 0 ? health_mjs_1.sufferStrain(character, cost).character : character;\n' +
+      '}\n' +
+      'function assertCriticalManeuverAllowed(character, combat, method) {\n' +
+      '    const critical = criticalActionState(character);\n' +
+      '    const used = Number(combat?.playerTurn?.maneuversUsed ?? 0);\n' +
+      '    if (critical.maxManeuvers !== null && used >= critical.maxManeuvers)\n' +
+      "        throw new Error('O Ferimento Crítico limita o personagem a uma manobra neste turno.');\n" +
+      "    if (critical.noFreeManeuver && used === 0 && method === 'normal')\n" +
+      "        throw new Error('O Ferimento Crítico remove a manobra gratuita; use a ação ou sofra Tensão quando permitido.');\n" +
+      "    if (critical.cannotVoluntarilySufferStrain && method === 'strain')\n" +
+      "        throw new Error('O Ferimento Crítico impede sofrer Tensão voluntariamente para obter manobra adicional.');\n" +
+      '    return critical;\n' +
+      '}\n' +
+      'function assertPlayerInitiativeTurn(combat) {\n' +
+      '    if (!combat?.active || !combat.encounter?.slots?.length)\n' +
+      '        return;\n' +
+      '    const slot = encounter_mjs_1.currentSlot(combat);\n' +
+      "    if (!slot || slot.side !== 'player' || !combat.encounter.waitingForPlayer) {\n" +
+      "        throw new Error('Ainda não é a posição de iniciativa do jogador.');\n" +
+      '    }\n' +
+      '}\n' +
+      'function applyMasterWorldOperations(world, operations = []) {\n' +
+      '    let next = structuredClone(world);\n' +
+      '    const applied = [];\n' +
+      '    for (const op of operations) {\n' +
+      "        if (op.type === 'create_location') {\n" +
+      '            const location = world_mjs_1.createLocation(op);\n' +
+      '            next = world_mjs_1.upsertLocation(next, location);\n' +
+      '            applied.push({ type: op.type, id: location.id });\n' +
+      '        }\n' +
+      "        else if (op.type === 'create_faction') {\n" +
+      '            const faction = world_mjs_1.createFaction(op);\n' +
+      '            next = world_mjs_1.upsertFaction(next, faction);\n' +
+      '            applied.push({ type: op.type, id: faction.id });\n' +
+      '        }\n' +
+      "        else if (op.type === 'create_npc') {\n" +
+      '            if (op.locationId && !next.locations?.[op.locationId])\n' +
+      '                throw new Error(`Local não encontrado para novo PNPC: ${op.locationId}`);\n' +
+      '            if (op.factionId && !next.factions?.[op.factionId])\n' +
+      '                throw new Error(`Facção não encontrada para novo PNPC: ${op.factionId}`);\n' +
+      '            const npc = world_mjs_1.createNpc(op);\n' +
+      '            next = world_mjs_1.upsertNpc(next, npc);\n' +
+      '            applied.push({ type: op.type, id: npc.id });\n' +
+      '        }\n' +
+      "        else if (op.type === 'move_npc') {\n" +
+      '            if (op.locationId && !next.locations?.[op.locationId])\n' +
+      '                throw new Error(`Local não encontrado: ${op.locationId}`);\n' +
+      '            next = world_mjs_1.moveNpc(next, op.npcId, op.locationId);\n' +
+      '            applied.push({ type: op.type, id: op.npcId });\n' +
+      '        }\n' +
+      "        else if (op.type === 'set_npc_faction') {\n" +
+      '            if (op.factionId && !next.factions?.[op.factionId])\n' +
+      '                throw new Error(`Facção não encontrada: ${op.factionId}`);\n' +
+      '            next = world_mjs_1.setNpcFaction(next, op.npcId, op.factionId);\n' +
+      '            applied.push({ type: op.type, id: op.npcId });\n' +
+      '        }\n' +
+      "        else if (op.type === 'set_npc_goal') {\n" +
+      '            next = world_mjs_1.setNpcGoal(next, op.npcId, op.goal);\n' +
+      '            applied.push({ type: op.type, id: op.npcId });\n' +
+      '        }\n' +
+      "        else if (op.type === 'set_npc_relation') {\n" +
+      '            next = world_mjs_1.setNpcRelation(next, op.npcId, op.relation);\n' +
+      '            applied.push({ type: op.type, id: op.npcId });\n' +
+      '        }\n' +
+      "        else if (op.type === 'set_npc_status') {\n" +
+      '            next = world_mjs_1.setNpcStatus(next, op.npcId, op.status);\n' +
+      '            applied.push({ type: op.type, id: op.npcId });\n' +
+      '        }\n' +
+      "        else if (op.type === 'set_npc_visibility') {\n" +
+      '            next = world_mjs_1.setNpcVisibility(next, op.npcId, op.knownToPlayer);\n' +
+      '            applied.push({ type: op.type, id: op.npcId });\n' +
+      '        }\n' +
+      "        else if (op.type === 'record_npc_fact') {\n" +
+      '            next = world_mjs_1.recordNpcFact(next, op.npcId, { text: op.text, knownToPlayer: op.knownToPlayer });\n' +
+      '            applied.push({ type: op.type, id: op.npcId });\n' +
+      '        }\n' +
+      "        else if (op.type === 'set_faction_objective') {\n" +
+      '            next = world_mjs_1.setFactionObjective(next, op.factionId, op.objective);\n' +
+      '            applied.push({ type: op.type, id: op.factionId });\n' +
+      '        }\n' +
+      "        else if (op.type === 'set_faction_status') {\n" +
+      '            next = world_mjs_1.setFactionStatus(next, op.factionId, op.status);\n' +
+      '            applied.push({ type: op.type, id: op.factionId });\n' +
+      '        }\n' +
+      "        else if (op.type === 'add_faction_resource') {\n" +
+      '            next = world_mjs_1.addFactionResource(next, op.factionId, op.resource);\n' +
+      '            applied.push({ type: op.type, id: op.factionId });\n' +
+      '        }\n' +
+      "        else if (op.type === 'remove_faction_resource') {\n" +
+      '            next = world_mjs_1.removeFactionResource(next, op.factionId, op.resource);\n' +
+      '            applied.push({ type: op.type, id: op.factionId });\n' +
+      '        }\n' +
+      "        else if (op.type === 'set_faction_relation') {\n" +
+      '            next = world_mjs_1.setFactionRelation(next, op.factionId, op.targetFactionId, op.relation);\n' +
+      '            applied.push({ type: op.type, id: op.factionId });\n' +
+      '        }\n' +
+      "        else if (op.type === 'record_faction_fact') {\n" +
+      '            next = world_mjs_1.recordFactionFact(next, op.factionId, { text: op.text, knownToPlayer: op.knownToPlayer });\n' +
+      '            applied.push({ type: op.type, id: op.factionId });\n' +
+      '        }\n' +
+      "        else if (op.type === 'create_faction_plan') {\n" +
+      '            const result = world_mjs_1.createFactionPlan(next, op.factionId, { title: op.title, objective: op.objective, steps: op.steps, knownToPlayer: op.knownToPlayer });\n' +
+      '            next = result.world;\n' +
+      '            applied.push({ type: op.type, id: result.plan.id, factionId: op.factionId });\n' +
+      '        }\n' +
+      "        else if (op.type === 'set_faction_plan_status') {\n" +
+      '            next = world_mjs_1.setFactionPlanStatus(next, op.factionId, op.planId, op.status);\n' +
+      '            applied.push({ type: op.type, id: op.pla'... 121657 more characters
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    import * as state_mjs_1 from "./state.mjs";
+    import * as events_mjs_1 from "./events.mjs";
+    import * as ids_mjs_1 from "./ids.mjs";
+    import * as narrativeDice_mjs_1 from "../rules/narrativeDice.mjs";
+    import * as starterPresets_mjs_1 from "../rules/starterPresets.mjs";
+    import * as character_mjs_1 from "../rules/character.mjs";
+    import * as combat_mjs_1 from "../rules/combat.mjs";
+    import * as health_mjs_1 from "../rules/health.mjs";
+    import * as weapons_mjs_1 from "../rules/weapons.mjs";
+    import * as attackDifficulty_mjs_1 from "../rules/attackDifficulty.mjs";
+    import * as recovery_mjs_1 from "../rules/recovery.mjs";
+    import * as generalGearEffects_mjs_1 from "../rules/generalGearEffects.mjs";
+    import * as critical_mjs_1 from "../rules/critical.mjs";
+    import * as initiative_mjs_1 from "../rules/initiative.mjs";
+    import * as adversaries_mjs_1 from "../rules/adversaries.mjs";
+    import * as encounter_mjs_1 from "../rules/encounter.mjs";
+    import * as localMaster_mjs_1 from "../master/localMaster.mjs";
+    import * as proposal_mjs_1 from "../master/proposal.mjs";
+    import * as provider_mjs_1 from "../master/provider.mjs";
+    import * as sessionFlow_mjs_1 from "../master/sessionFlow.mjs";
+    import * as progression_mjs_1 from "../rules/progression.mjs";
+    import * as eoteCharacterCreation_mjs_1 from "../rules/eoteCharacterCreation.mjs";
+    import * as characterCreation_mjs_1 from "../rules/characterCreation.mjs";
+    import * as vehicles_mjs_1 from "../rules/vehicles.mjs";
+    import * as fringeGroup_mjs_1 from "../rules/fringeGroup.mjs";
+    import * as talents_mjs_1 from "../rules/talents.mjs";
+    import * as force_mjs_1 from "../rules/force.mjs";
+    import * as acquisition_mjs_1 from "../rules/acquisition.mjs";
+    import * as economy_mjs_1 from "../rules/economy.mjs";
+    import * as equipmentCatalog_mjs_1 from "../rules/equipmentCatalog.mjs";
+    import * as encumbrance_mjs_1 from "../rules/encumbrance.mjs";
+    import * as statusEffects_mjs_1 from "../rules/statusEffects.mjs";
+    import * as destiny_mjs_1 from "../rules/destiny.mjs";
+    import * as obligation_mjs_1 from "../rules/obligation.mjs";
+    import * as duty_mjs_1 from "../rules/duty.mjs";
+    import * as fear_mjs_1 from "../rules/fear.mjs";
+    import * as sceneLibrary_mjs_1 from "../library/sceneLibrary.mjs";
+    import * as world_mjs_1 from "../world/world.mjs";
+    import * as sandbox_mjs_1 from "../world/sandbox.mjs";
+    import * as publishedAdventureRegistry_mjs_1 from "../adventure/publishedAdventureRegistry.mjs";
+    function requireCharacter(character) {
+        if (!character)
+            throw new Error('Carregue um personagem antes desta ação.');
+        return character;
+    }
+    function assertCanAct(character) {
+        requireCharacter(character);
+        if (health_mjs_1.getHealthStatus(character).unconscious)
+            throw new Error('O personagem está incapacitado e não pode agir agora.');
+    }
+    function criticalActionState(character) {
+        return critical_mjs_1.criticalCheckModifiers(character, { consume: false });
+    }
+    function assertCanPerformAction(character) {
+        assertCanAct(character);
+        const critical = criticalActionState(character);
+        const status = statusEffects_mjs_1.statusModifiers(character);
+        if (critical.cannotAct || status.cannotAct)
+            throw new Error('O personagem está staggered e não pode realizar ações agora.');
+        return critical;
+    }
+    function campaignMode(state) { return ['EOTE','AOR','MIXED'].includes(state?.campaignMode) ? state.campaignMode : 'EOTE'; }
+    function modeAllowsObligation(state) { return campaignMode(state) === 'EOTE' || campaignMode(state) === 'MIXED'; }
+    function modeAllowsDuty(state) { return campaignMode(state) === 'AOR' || campaignMode(state) === 'MIXED'; }
+    function assertProgressionAllowed(state) {
+        const character = requireCharacter(state.player.character);
+        if (modeAllowsObligation(state) && obligation_mjs_1.obligationTotal(state.group, character) > 100)
+            throw new Error('Obligation acima de 100 impede gastar PE até o grupo reduzir a pressão.');
+        return character;
+    }
+    function applyActionCriticalStrain(character, critical) {
+        const cost = Math.max(0, Number(critical?.strainPerAction ?? 0));
+        return cost > 0 ? health_mjs_1.sufferStrain(character, cost).character : character;
+    }
+    function assertCriticalManeuverAllowed(character, combat, method) {
+        const critical = criticalActionState(character);
+        const used = Number(combat?.playerTurn?.maneuversUsed ?? 0);
+        if (critical.maxManeuvers !== null && used >= critical.maxManeuvers)
+            throw new Error('O Ferimento Crítico limita o personagem a uma manobra neste turno.');
+        if (critical.noFreeManeuver && used === 0 && method === 'normal')
+            throw new Error('O Ferimento Crítico remove a manobra gratuita; use a ação ou sofra Tensão quando permitido.');
+        if (critical.cannotVoluntarilySufferStrain && method === 'strain')
+            throw new Error('O Ferimento Crítico impede sofrer Tensão voluntariamente para obter manobra adicional.');
+        return critical;
+    }
+    function assertPlayerInitiativeTurn(combat) {
+        if (!combat?.active || !combat.encounter?.slots?.length)
+            return;
+        const slot = encounter_mjs_1.currentSlot(combat);
+        if (!slot || slot.side !== 'player' || !combat.encounter.waitingForPlayer) {
+            throw new Error('Ainda não é a posição de iniciativa do jogador.');
+        }
+    }
+    function applyMasterWorldOperations(world, operations = []) {
+        let next = structuredClone(world);
+        const applied = [];
+        for (const op of operations) {
+            if (op.type === 'create_location') {
+                const location = world_mjs_1.createLocation(op);
+                next = world_mjs_1.upsertLocation(next, location);
+                applied.push({ type: op.type, id: location.id });
+            }
+            else if (op.type === 'create_faction') {
+                const faction = world_mjs_1.createFaction(op);
+                next = world_mjs_1.upsertFaction(next, faction);
+                applied.push({ type: op.type, id: faction.id });
+            }
+            else if (op.type === 'create_npc') {
+                if (op.locationId && !next.locations?.[op.locationId])
+                    throw new Error(`Local não encontrado para novo PNPC: ${op.locationId}`);
+                if (op.factionId && !next.factions?.[op.factionId])
+                    throw new Error(`Facção não encontrada para novo PNPC: ${op.factionId}`);
+                const npc = world_mjs_1.createNpc(op);
+                next = world_mjs_1.upsertNpc(next, npc);
+                applied.push({ type: op.type, id: npc.id });
+            }
+            else if (op.type === 'move_npc') {
+                if (op.locationId && !next.locations?.[op.locationId])
+                    throw new Error(`Local não encontrado: ${op.locationId}`);
+                next = world_mjs_1.moveNpc(next, op.npcId, op.locationId);
+                applied.push({ type: op.type, id: op.npcId });
+            }
+            else if (op.type === 'set_npc_faction') {
+                if (op.factionId && !next.factions?.[op.factionId])
+                    throw new Error(`Facção não encontrada: ${op.factionId}`);
+                next = world_mjs_1.setNpcFaction(next, op.npcId, op.factionId);
+                applied.push({ type: op.type, id: op.npcId });
+            }
+            else if (op.type === 'set_npc_goal') {
+                next = world_mjs_1.setNpcGoal(next, op.npcId, op.goal);
+                applied.push({ type: op.type, id: op.npcId });
+            }
+            else if (op.type === 'set_npc_relation') {
+                next = world_mjs_1.setNpcRelation(next, op.npcId, op.relation);
+                applied.push({ type: op.type, id: op.npcId });
+            }
+            else if (op.type === 'set_npc_status') {
+                next = world_mjs_1.setNpcStatus(next, op.npcId, op.status);
+                applied.push({ type: op.type, id: op.npcId });
+            }
+            else if (op.type === 'set_npc_visibility') {
+                next = world_mjs_1.setNpcVisibility(next, op.npcId, op.knownToPlayer);
+                applied.push({ type: op.type, id: op.npcId });
+            }
+            else if (op.type === 'record_npc_fact') {
+                next = world_mjs_1.recordNpcFact(next, op.npcId, { text: op.text, knownToPlayer: op.knownToPlayer });
+                applied.push({ type: op.type, id: op.npcId });
+            }
+            else if (op.type === 'set_faction_objective') {
+                next = world_mjs_1.setFactionObjective(next, op.factionId, op.objective);
+                applied.push({ type: op.type, id: op.factionId });
+            }
+            else if (op.type === 'set_faction_status') {
+                next = world_mjs_1.setFactionStatus(next, op.factionId, op.status);
+                applied.push({ type: op.type, id: op.factionId });
+            }
+            else if (op.type === 'add_faction_resource') {
+                next = world_mjs_1.addFactionResource(next, op.factionId, op.resource);
+                applied.push({ type: op.type, id: op.factionId });
+            }
+            else if (op.type === 'remove_faction_resource') {
+                next = world_mjs_1.removeFactionResource(next, op.factionId, op.resource);
+                applied.push({ type: op.type, id: op.factionId });
+            }
+            else if (op.type === 'set_faction_relation') {
+                next = world_mjs_1.setFactionRelation(next, op.factionId, op.targetFactionId, op.relation);
+                applied.push({ type: op.type, id: op.factionId });
+            }
+            else if (op.type === 'record_faction_fact') {
+                next = world_mjs_1.recordFactionFact(next, op.factionId, { text: op.text, knownToPlayer: op.knownToPlayer });
+                applied.push({ type: op.type, id: op.factionId });
+            }
+            else if (op.type === 'create_faction_plan') {
+                const result = world_mjs_1.createFactionPlan(next, op.factionId, { title: op.title, objective: op.objective, steps: op.steps, knownToPlayer: op.knownToPlayer });
+                next = result.world;
+                applied.push({ type: op.type, id: result.plan.id, factionId: op.factionId });
+            }
+            else if (op.type === 'set_faction_plan_status') {
+                next = world_mjs_1.setFactionPlanStatus(next, op.factionId, op.planId, op.status);
+                applied.push({ type: op.type, id: op.planId, factionId: op.factionId });
+            }
+            else if (op.type === 'advance_faction_plan') {
+                const result = world_mjs_1.advanceFactionPlan(next, op.factionId, op.planId);
+                next = result.world;
+                applied.push({ type: op.type, id: op.planId, factionId: op.factionId });
+            }
+            else if (op.type === 'schedule_event') {
+                const scheduled = world_mjs_1.scheduleWorldEvent(next, { type: op.eventType, dueTick: op.dueTick, payload: op.payload, dedupeKey: op.dedupeKey });
+                next = scheduled.world;
+                applied.push({ type: op.type, id: scheduled.event.id, created: scheduled.created });
+            }
+            else if (op.type === 'resolve_hook') {
+                next = world_mjs_1.resolveWorldHook(next, op.hookId, { resolution: op.resolution, dismiss: op.dismiss });
+                applied.push({ type: op.type, id: op.hookId });
+            }
+            else if (op.type === 'close_aftermath') {
+                next = world_mjs_1.closeWorldAftermath(next, op.aftermathId, { resolution: op.resolution });
+                applied.push({ type: op.type, id: op.aftermathId });
+            }
+            else if (op.type === 'create_opportunity') {
+                const result = sandbox_mjs_1.createOpportunity(next, op);
+                next = result.world;
+                applied.push({ type: op.type, id: result.opportunity.id });
+            }
+            else if (op.type === 'set_opportunity_status') {
+                const result = sandbox_mjs_1.setOpportunityStatus(next, op.opportunityId, op.status, { resolution: op.resolution });
+                next = result.world;
+                applied.push({ type: op.type, id: op.opportunityId, status: result.opportunity.status });
+            }
+            else if (op.type === 'advance_clock') {
+                const result = sandbox_mjs_1.advanceWorldClock(next, op.clockId, { steps: op.steps });
+                next = result.world;
+                applied.push({ type: op.type, id: op.clockId, progress: result.clock.progress });
+            }
+            else if (op.type === 'set_market') {
+                next = sandbox_mjs_1.setMarketProfile(next, op.locationId, { rarityModifier: op.rarityModifier, restrictedAccess: op.restrictedAccess, tags: op.tags, notes: op.notes });
+                applied.push({ type: op.type, id: op.locationId });
+            }
+            else
+                throw new Error(`Operação de mundo não suportada: ${op.type}`);
+        }
+        return { world: next, applied };
+    }
+    function initiativeSkillKey(value) {
+        if (!['frialdad', 'alerta'].includes(value))
+            throw new Error('A iniciativa deve usar Frieza ou Alerta.');
+        return value;
+    }
+    function difficultyWithUpgrades(difficulty, challenge, upgrades) {
+        let d = Math.max(0, Number(difficulty) || 0);
+        let c = Math.max(0, Number(challenge) || 0);
+        let n = Math.max(0, Number(upgrades) || 0);
+        while (n-- > 0) {
+            if (d > 0) {
+                d -= 1;
+                c += 1;
+            }
+            else
+                d += 1;
+        }
+        return { difficulty: d, challenge: c };
+    }
+    function defenseSetback(character, weapon) {
+        const melee = weapon?.skill === 'pelea' || weapon?.skill === 'armas_cuerpo_a_cuerpo';
+        return Number(character?.derived?.defense?.[melee ? 'melee' : 'ranged'] ?? 0);
+    }
+    function chooseNpcWeapon(adversary) {
+        for (const weapon of adversary.weapons ?? []) {
+            try {
+                attackDifficulty_mjs_1.attackDifficultyForWeapon(weapon, adversary.range);
+                return weapon;
+            }
+            catch { }
+        }
+        return null;
+    }
+    function clone(value) { return structuredClone(value); }
+    function applyEconomicProposal(state, proposal) {
+        let next = structuredClone(state);
+        if (proposal.acquisitionRequest) {
+            if (next.master?.pendingAcquisition)
+                throw new Error('Já existe uma aquisição aguardando resolução.');
+            const market = sandbox_mjs_1.marketProfile(next.world, next.scene?.locationId ?? null);
+            const pending = economy_mjs_1.createPendingAcquisition(proposal.acquisitionRequest.kind, proposal.acquisitionRequest.itemId, requireCharacter(next.player?.character), {
+                requestId: ids_mjs_1.newId('acq'), locationId: next.scene?.locationId ?? null, market
+            });
+            next = events_mjs_1.applyEvent(next, { id: ids_mjs_1.newId('acqreq'), type: 'EQUIPMENT_ACQUISITION_PENDING', at: new Date().toISOString(), payload: { pending } });
+        }
+        if (proposal.acquisitionDecision) {
+            const resolved = economy_mjs_1.resolvePendingAcquisition(next, next.master?.pendingAcquisition, { ...proposal.acquisitionDecision, sourceRuleIds: proposal.sourceRuleIds });
+            next = resolved.state;
+            next.master = { ...(next.master ?? {}), pendingAcquisition: null, acquisitionHistory: [...(next.master?.acquisitionHistory ?? []), structuredClone(resolved.record)] };
+            next = events_mjs_1.applyEvent(next, { id: ids_mjs_1.newId('acq'), type: 'ECONOMY_TRANSACTION', at: new Date().toISOString(), payload: { record: resolved.record } });
+        }
+        for (const op of proposal.economyOperations ?? []) {
+            let result;
+            if (op.type === 'grant_asset') result = economy_mjs_1.grantCatalogAsset(next, { ...op, locationId: next.scene?.locationId ?? null, sourceRuleIds: proposal.sourceRuleIds });
+            else if (op.type === 'lose_asset') result = economy_mjs_1.loseOwnedAsset(next, op.assetId, { ...op, sourceRuleIds: proposal.sourceRuleIds });
+            else if (op.type === 'damage_asset') result = economy_mjs_1.damageOwnedAsset(next, op.assetId, { ...op, sourceRuleIds: proposal.sourceRuleIds });
+            else if (op.type === 'repair_asset') result = economy_mjs_1.repairOwnedAsset(next, op.assetId, { ...op, sourceRuleIds: proposal.sourceRuleIds });
+            else if (op.type === 'sell_asset') result = economy_mjs_1.sellOwnedAsset(next, op.assetId, { ...op, sourceRuleIds: proposal.sourceRuleIds });
+            else throw new Error(`Operação econômica não suportada: ${op.type}`);
+            next = result.state;
+            next.master = { ...(next.master ?? {}), acquisitionHistory: [...(next.master?.acquisitionHistory ?? []), structuredClone(result.record)] };
+            next = events_mjs_1.applyEvent(next, { id: ids_mjs_1.newId('econ'), type: 'ECONOMY_TRANSACTION', at: new Date().toISOString(), payload: { record: result.record } });
+        }
+        return next;
+    }
+    function validateEncounterDirectiveAgainstState(state, directive) {
+        if (!directive)
+            return null;
+        if (state.combat?.active)
+            throw new Error('Não é possível preparar outro encontro durante um combate ativo.');
+        if (directive.sourceHookId) {
+            const hook = state.world?.hooks?.find(h => h.id === directive.sourceHookId);
+            if (!hook || hook.status !== 'pending')
+                throw new Error('A consequência causal indicada não está mais pendente.');
+            if (hook.locationId && state.scene?.locationId && hook.locationId !== state.scene.locationId)
+                throw new Error('A consequência causal indicada pertence a outro local da cena.');
+        }
+        const seen = new Set();
+        for (const spec of directive.adversaries ?? []) {
+            if (spec.factionId && !state.world?.factions?.[spec.factionId])
+                throw new Error(`Facção do adversário não encontrada: ${spec.factionId}`);
+            if (!spec.worldNpcId)
+                continue;
+            if (seen.has(spec.worldNpcId))
+                throw new Error('O mesmo PNPC persistente não pode ocupar dois grupos no encontro.');
+            seen.add(spec.worldNpcId);
+            const npc = state.world?.npcs?.[spec.worldNpcId];
+            if (!npc)
+                throw new Error(`PNPC persistente não encontrado: ${spec.worldNpcId}`);
+            if (npc.combatState?.profileKey && npc.combatState.profileKey !== spec.profileKey)
+                throw new Error('O perfil de combate do PNPC persistente não pode mudar silenciosamente.');
+            if (npc.combatState?.status === 'incapacitated')
+                throw new Error(`${npc.name} está incapacitado e não pode iniciar outro encontro.`);
+            if (spec.factionId && npc.factionId && spec.factionId !== npc.factionId)
+                throw new Error('A facção do PNPC persistente não pode mudar silenciosamente no encontro.');
+        }
+        return directive;
+    }
+    export class GameController {
+        constructor(repository) {
+            this.repository = repository;
+            this.state = repository.load() ?? state_mjs_1.createCampaign('Rebelião - campanha local');
+            repository.save(this.state);
+        }
+        commit(type, payload) {
+            this.state = events_mjs_1.applyEvent(this.state, {
+                id: ids_mjs_1.newId('evt'), type, at: new Date().toISOString(), payload
+            });
+            this.repository.save(this.state);
+            return this.state;
+        }
+        newCampaign(name) {
+            this.state = state_mjs_1.createCampaign(name?.trim() || 'Nova campanha');
+            this.repository.save(this.state);
+            return this.state;
+        }
+        restartSandboxPreservingParty() {
+            const previous = this.state;
+            const next = state_mjs_1.createCampaign(previous?.name?.trim() || 'Nova campanha');
+            next.campaignMode = previous?.campaignMode ?? next.campaignMode;
+            next.player = structuredClone(previous?.player ?? next.player);
+            next.group = structuredClone(previous?.group ?? next.group);
+            next.vehicles = structuredClone(previous?.vehicles ?? next.vehicles);
+            next.settings = structuredClone(previous?.settings ?? next.settings);
+            this.state = next;
+            this.repository.save(this.state);
+            return {
+                state: this.state,
+                preserved: {
+                    character: Boolean(this.state.player?.character),
+                    group: true,
+                    vehicles: true,
+                    settings: true,
+                    campaignMode: this.state.campaignMode
+                }
+            };
+        }
+        setCampaignMode(mode = 'EOTE') {
+            const value = String(mode ?? '').trim().toUpperCase();
+            if (!['EOTE','AOR','MIXED'].includes(value)) throw new Error('Modo de campanha deve ser EOTE, AOR ou MIXED.');
+            this.commit('CAMPAIGN_MODE_UPDATED', { campaignMode: value });
+            return { campaignMode: this.state.campaignMode, obligationActive: modeAllowsObligation(this.state), dutyActive: modeAllowsDuty(this.state) };
+        }
+        campaignModeSummary() {
+            return { campaignMode: campaignMode(this.state), rulesProfile: this.state.rulesProfile, obligationActive: modeAllowsObligation(this.state), dutyActive: modeAllowsDuty(this.state) };
+        }
+        startSession({ playerCount = 1, destinyPlayerCount = null, rng = Math.random, obligationRoll = null, dutyRoll = null } = {}) {
+            let character = requireCharacter(this.state.player.character);
+            if (this.state.combat?.active)
+                throw new Error('Encerre o combate antes de iniciar uma nova sessão.');
+            const mode = campaignMode(this.state);
+            const obligation = modeAllowsObligation(this.state) ? obligation_mjs_1.obligationCheck(this.state.group, character, { rng, roll: obligationRoll }) : { roll:null,total:0,triggered:false,doubles:false,selected:null,groupPenalty:0,characterPenalty:0,progressionBlocked:false,entries:[] };
+            const duty = modeAllowsDuty(this.state) ? duty_mjs_1.dutyCheck(this.state.group, character, { rng, roll: dutyRoll }) : { roll:null,total:0,triggered:false,doubles:false,selected:null,groupWoundThresholdBonus:0,characterWoundThresholdBonus:0,entries:[] };
+            const destinyPool = destiny_mjs_1.prepareDestinyPool(destinyPlayerCount ?? playerCount, { rng });
+            const group = destiny_mjs_1.setPreparedDestiny(this.state.group, destinyPool);
+            const obligationApplied = obligation_mjs_1.applyObligationPenalty(character, obligation);
+            character = obligationApplied.character;
+            const dutyApplied = duty_mjs_1.applyDutyBonus(character, duty);
+            character = dutyApplied.character;
+            this.commit('GROUP_UPDATED', { group });
+            this.commit('CHARACTER_UPDATED', { character });
+            const at = new Date().toISOString();
+            let session = sessionFlow_mjs_1.startSessionRuntime(this.state.session, { at });
+            const obligationSession = { ...structuredClone(obligation), priorThreshold: obligationApplied.priorThreshold, appliedThreshold: obligationApplied.appliedThreshold };
+            const dutySession = { ...structuredClone(duty), baseThreshold: dutyApplied.baseThreshold, effectiveThreshold: dutyApplied.effectiveThreshold };
+            session = { ...session, campaignRules: { mode, destiny: structuredClone(destinyPool), obligation: obligationSession, duty: dutySession }, eoteRules: { destiny: structuredClone(destinyPool), obligation: obligationSession } };
+            const sessionId = this.state.session?.status === 'encerrada' ? ids_mjs_1.newId('sess') : this.state.sessionId;
+            this.commit('SESSION_STARTED', { session, sessionId, scene: { title: session.number === 1 ? 'Abertura' : `Sessão ${session.number}`, narration: this.state.settings?.masterProvider === 'http' ? 'O Mestre está pronto para conduzir a sessão.' : 'A campanha começa agora. O mundo está em movimento, e você decide qual fio puxar primeiro.' } });
+            return { session: this.state.session, character, destiny: destinyPool, obligation, duty, campaignMode: mode };
+        }
+        _setSessionPhase(phase) {
+            if (this.state.session?.status !== 'ativa')
+                return this.state.session;
+            const session = sessionFlow_mjs_1.setSessionPhase(this.state.session, phase);
+            this.commit('SESSION_PHASE', { session });
+            return session;
+        }
+        closeSession({ summary = null, xpAward = 0 } = {}) {
+            if (this.state.combat?.active)
+                throw new Error('Encerre o combate antes de encerrar a sessão.');
+            const character = requireCharacter(this.state.player.character);
+            if (this.state.session?.status !== 'ativa')
+                throw new Error('Não há sessão ativa para encerrar.');
+            let nextCharacter = obligation_mjs_1.restoreObligationPenalty(character, this.state.session?.campaignRules?.obligation ?? this.state.session?.eoteRules?.obligation);
+            nextCharacter = duty_mjs_1.restoreDutyBonus(nextCharacter);
+            if (Number(xpAward) > 0)
+                nextCharacter = progression_mjs_1.grantExperience(nextCharacter, Number(xpAward), { reason: 'Experiência concedida no encerramento da sessão' }).character;
+            const text = String(summary ?? '').trim() || sessionFlow_mjs_1.buildDeterministicSessionSummary({ ...this.state, player: { ...this.state.player, character: nextCharacter } });
+            const session = sessionFlow_mjs_1.closeSessionRuntime(this.state.session, { summary: text, xpAwarded: Number(xpAward) || 0 });
+            const historyEntry = { sessionId: this.state.sessionId, number: session.number, startedAt: session.startedAt, endedAt: session.endedAt, summary: session.summary, xpAwarded: session.xpAwarded, checksResolved: session.checksResolved, combatEncounters: session.combatEncounters };
+            this.commit('SESSION_CLOSED', { session, historyEntry, character: nextCharacter });
+            return { session, historyEntry, character: nextCharacter };
+        }
+        grantXp(amount, { reason = 'Experiência concedida pelo Mestre' } = {}) {
+            const result = progression_mjs_1.grantExperience(requireCharacter(this.state.player.character), Number(amount), { reason });
+            this.commit('XP_GRANTED', { character: result.character, amount: result.amount, reason: result.reason });
+            return result;
+        }
+        skillProgressionCost(skillKey) {
+            return progression_mjs_1.skillRankCostForCharacter(requireCharacter(this.state.player.character), skillKey);
+        }
+        trainSkill(skillKey) {
+            assertProgressionAllowed(this.state);
+            const result = progression_mjs_1.spendXpOnSkillForCharacter(requireCharacter(this.state.player.character), skillKey);
+            this.commit('CHARACTER_UPDATED', { character: result.character });
+            return result;
+        }
+        ownedSpecializations() {
+            return progression_mjs_1.ownedSpecializationRefs(requireCharacter(this.state.player.character));
+        }
+        specializationPurchaseCost(careerKey, specializationKey) {
+            return progression_mjs_1.specializationPurchaseCost(requireCharacter(this.state.player.character), careerKey, specializationKey);
+        }
+        buySpecialization(careerKey, specializationKey) {
+            assertProgressionAllowed(this.state);
+            const result = progression_mjs_1.purchaseSpecialization(requireCharacter(this.state.player.character), careerKey, specializationKey);
+            this.commit('CHARACTER_UPDATED', { character: result.character });
+            return result;
+        }
+        forceStatus() {
+            const character = requireCharacter(this.state.player.character);
+            return { force: force_mjs_1.normalizeForceState(character), availableRating: force_mjs_1.availableForceRating(character), sensitive: force_mjs_1.isForceSensitive(character), powers: Object.fromEntries(Object.keys(force_mjs_1.FORCE_POWER_TREES).map(key => [key, force_mjs_1.forcePowerCapabilities(character, key)])) };
+        }
+        forceCatalog() {
+            return structuredClone(force_mjs_1.FORCE_POWER_TREES);
+        }
+        buyForcePower(powerKey) {
+            assertProgressionAllowed(this.state);
+            const result = force_mjs_1.purchaseForcePower(requireCharacter(this.state.player.character), String(powerKey));
+            this.commit('CHARACTER_UPDATED', { character: result.character });
+            return result;
+        }
+        buyForceUpgrade(powerKey, upgradeId) {
+            assertProgressionAllowed(this.state);
+            const result = force_mjs_1.purchaseForceUpgrade(requireCharacter(this.state.player.character), String(powerKey), String(upgradeId));
+            this.commit('CHARACTER_UPDATED', { character: result.character });
+            return result;
+        }
+        rollForcePowerCheck({ useOppositePoints = 0 } = {}) {
+            const character = requireCharacter(this.state.player.character);
+            const roll = force_mjs_1.rollForceDice(character);
+            const resolved = force_mjs_1.resolveForceResources(character, this.state.group, roll, { useOppositePoints });
+            this.commit('CHARACTER_UPDATED', { character: resolved.character });
+            this.commit('GROUP_UPDATED', { group: resolved.group });
+            return { roll, ...resolved };
+        }
+        commitForce(effectId, count = 1) {
+            const result = force_mjs_1.commitForceDice(requireCharacter(this.state.player.character), { effectId, count });
+            this.commit('CHARACTER_UPDATED', { character: result.character });
+            return result;
+        }
+        releaseForce(effectId) {
+            const result = force_mjs_1.releaseForceDice(requireCharacter(this.state.player.character), effectId);
+            this.commit('CHARACTER_UPDATED', { character: result.character });
+            return result;
+        }
+        submitIntent(text) {
+            if (!text?.trim())
+                throw new Error('Digite uma ação.');
+            const intent = text.trim();
+            this.state = events_mjs_1.applyEvent(this.state, {
+                id: ids_mjs_1.newId('act'), type: 'PLAYER_INTENT', at: new Date().toISOString(), payload: { text: intent }
+            });
+            const prepared = localMaster_mjs_1.prepareLocalMasterTurn(this.state, intent);
+            this.state = events_mjs_1.applyEvent(this.state, {
+                id: ids_mjs_1.newId('ctx'), type: 'MASTER_CONTEXT_PREPARED', at: new Date().toISOString(), payload: { ...prepared.digest, provider: prepared.provider }
+            });
+            this.repository.save(this.state);
+            this.lastMasterContext = prepared.context;
+            if (this.state.session?.status === 'ativa')
+                this._setSessionPhase('resolucao');
+            return { state: this.state, master: prepared };
+        }
+        consultRules(query, { limit = 5 } = {}) {
+            const result = localMaster_mjs_1.consultRulesLocal(this.state, query, { limit });
+            this.state = events_mjs_1.applyEvent(this.state, {
+                id: ids_mjs_1.newId('rag'), type: 'MASTER_RULE_QUERY', at: new Date().toISOString(), payload: { query: result.query, authority: result.retrieval?.authority ?? null, results: result.results.map(r => ({ id: r.id, title: r.title, status: r.status, summary: r.summary, source: r.source, page: r.page, official: r.official, sourceKind: r.sourceKind, documentId: r.documentId, authorityType: r.authorityType, authorityWeight: r.authorityWeight })) }
+            });
+            this.repository.save(this.state);
+            return result;
+        }
+        prepareMasterContext(intentText) {
+            const prepared = localMaster_mjs_1.prepareLocalMasterTurn(this.state, intentText);
+            this.lastMasterContext = prepared.context;
+            return prepared;
+        }
+        applyMasterProposal(rawProposal) {
+            const before = structuredClone(this.state);
+            try {
+                const knownRuleIds = this.lastMasterContext?.rules?.map(r => r.id) ?? this.state.master.lastContext?.ruleIds ?? [];
+                const proposal = proposal_mjs_1.validateMasterProposal(rawProposal, { knownRuleIds, pendingAcquisition: this.state.master?.pendingAcquisition });
+                let next = proposal_mjs_1.applyValidatedNarrativeProposal(this.state, proposal);
+                if (proposal.worldOperations?.length) {
+                    const worldResult = applyMasterWorldOperations(next.world, proposal.worldOperations);
+                    next = events_mjs_1.applyEvent(next, { id: ids_mjs_1.newId('worldmaster'), type: 'WORLD_UPDATED', at: new Date().toISOString(), payload: { world: worldResult.world } });
+                }
+                if (proposal.sceneLocationId) {
+                    if (!next.world?.locations?.[proposal.sceneLocationId])
+                        throw new Error(`Local da cena não encontrado: ${proposal.sceneLocationId}`);
+                    next.scene.locationId = proposal.sceneLocationId;
+                }
+                next = sceneLibrary_mjs_1.applyAutomaticSceneVisual(next).state;
+                validateEncounterDirectiveAgainstState(next, proposal.encounterDirective);
+                next = applyEconomicProposal(next, proposal);
+                this.state = next;
+                this.repository.save(this.state);
+                if (this.state.session?.status === 'ativa')
+                    this._setSessionPhase(sessionFlow_mjs_1.phaseAfterMasterProposal(proposal));
+                return proposal;
+            }
+            catch (error) {
+                this.state = before;
+                throw error;
+            }
+        }
+        getOfflineMasterStatus(intentText = '') {
+            const prepared = localMaster_mjs_1.prepareLocalMasterTurn(this.state, intentText || 'estado atual');
+            return provider_mjs_1.offlineMasterStatus(prepared.context);
+        }
+        configureTts({ enabled = false, rate = 1 } = {}) {
+            const n = Number(rate);
+            if (!Number.isFinite(n) || n < 0.6 || n > 1.4)
+                throw new Error('Velocidade de TTS inválida.');
+            const next = structuredClone(this.state);
+            next.settings = next.settings ?? {};
+            next.settings.ttsEnabled = Boolean(enabled);
+            next.settings.ttsRate = n;
+            this.state = next;
+            this.repository.save(this.state);
+            return structuredClone(this.state.settings);
+        }
+        configureMasterProvider({ mode = 'none', endpoint = null } = {}) {
+            if (!['none', 'http'].includes(mode))
+                throw new Error('Modo do Mestre inválido.');
+            const next = structuredClone(this.state);
+            next.settings = next.settings ?? {};
+            next.settings.masterProvider = mode;
+            next.settings.masterEndpoint = mode === 'http' ? String(endpoint ?? '').trim() || null : null;
+            if (mode === 'http' && !next.settings.masterEndpoint)
+                throw new Error('Informe o endpoint HTTPS do Mestre.');
+            this.state = next;
+            this.repository.save(this.state);
+            return structuredClone(this.state.settings);
+        }
+        async requestMasterTurn({ intentText, endpoint, fetchImpl = globalThis.fetch, timeoutMs = 15000, signal = null } = {}) {
+            if (!String(intentText ?? '').trim())
+                throw new Error('Digite uma ação.');
+            const before = structuredClone(this.state);
+            const prepared = localMaster_mjs_1.prepareLocalMasterTurn(before, intentText.trim());
+            try {
+                const remote = await provider_mjs_1.requestHttpMasterProposal({ endpoint, context: prepared.context, fetchImpl, timeoutMs, signal });
+                const knownRuleIds = prepared.context.rules.map(r => r.id);
+                const proposal = proposal_mjs_1.validateMasterProposal(remote.proposal, { knownRuleIds, pendingAcquisition: before.master?.pendingAcquisition });
+                let next = events_mjs_1.applyEvent(before, { id: ids_mjs_1.newId('act'), type: 'PLAYER_INTENT', at: new Date().toISOString(), payload: { text: intentText.trim() } });
+                next = proposal_mjs_1.applyValidatedNarrativeProposal(next, proposal);
+                if (proposal.worldOperations?.length) {
+                    const worldResult = applyMasterWorldOperations(next.world, proposal.worldOperations);
+                    next = events_mjs_1.applyEvent(next, { id: ids_mjs_1.newId('worldmaster'), type: 'WORLD_UPDATED', at: new Date().toISOString(), payload: { world: worldResult.world } });
+                }
+                if (proposal.sceneLocationId) {
+                    if (!next.world?.locations?.[proposal.sceneLocationId])
+                        throw new Error(`Local da cena não encontrado: ${proposal.sceneLocationId}`);
+                    next.scene.locationId = proposal.sceneLocationId;
+                }
+                next = sceneLibrary_mjs_1.applyAutomaticSceneVisual(next).state;
+                validateEncounterDirectiveAgainstState(next, proposal.encounterDirective);
+                next = applyEconomicProposal(next, proposal);
+                next = events_mjs_1.applyEvent(next, { id: ids_mjs_1.newId('master'), type: 'MASTER_RESPONSE_ACCEPTED', at: new Date().toISOString(), payload: { provider: 'http', sourceRuleIds: proposal.sourceRuleIds } });
+                if (next.session?.status === 'ativa')
+                    next = events_mjs_1.applyEvent(next, { id: ids_mjs_1.newId('phase'), type: 'SESSION_PHASE', at: new Date().toISOString(), payload: { session: sessionFlow_mjs_1.setSessionPhase(next.session, sessionFlow_mjs_1.phaseAfterMasterProposal(proposal)) } });
+                this.state = next;
+                this.repository.save(this.state);
+                this.lastMasterContext = prepared.context;
+                return { proposal, context: prepared.context, meta: remote.meta };
+            }
+            catch (error) {
+                this.state = before;
+                throw error;
+            }
+        }
+        setCharacter(character) {
+            character_mjs_1.validateCharacter(character);
+            this.state = clone(this.state);
+            this.state.player.character = clone(character);
+            this.state.updatedAt = new Date().toISOString();
+            this.repository.save(this.state);
+            return this.state.player.character;
+        }
+        importCharacter(text) {
+            const character = character_mjs_1.importCharacterJson(text);
+            return this.setCharacter(character);
+        }
+        exportCharacter() {
+            if (!this.state.player.character)
+                throw new Error('Nenhuma ficha carregada.');
+            return character_mjs_1.exportCharacterJson(this.state.player.character);
+        }
+        loadStarterCharacter(name = 'zal') {
+            const factory = starterPresets_mjs_1.STARTER_PRESETS[name];
+            if (!factory)
+                throw new Error('Personagem inicial não disponível.');
+            return this.setCharacter(factory());
+        }
+        createCustomCharacter(options = {}) {
+            if (campaignMode(this.state) === 'AOR') throw new Error('Campanha AoR exige criação AoR; altere para MIXED para usar personagem EotE.');
+            return this.setCharacter(eoteCharacterCreation_mjs_1.createEoteCoreCharacter(options));
+        }
+        aorCreationCatalog() {
+            return { profile:'AOR_CORE', species:structuredClone(characterCreation_mjs_1.AOR_SPECIES), careers:structuredClone(characterCreation_mjs_1.AOR_CAREERS), dutyTypes:[...characterCreation_mjs_1.DUTY_TYPES_PT_BR] };
+        }
+        aorCreationPreview(options = {}) { return characterCreation_mjs_1.creationPreview(options); }
+        createAorCharacter(options = {}) {
+            if (!modeAllowsDuty(this.state)) throw new Error('Ative campanha AOR ou MIXED antes de criar personagem AoR.');
+            const character = characterCreation_mjs_1.createAorCoreCharacter(options);
+            this.setCharacter(character);
+            const first = character.duties?.[0];
+            if (first && !(this.state.group.dutyEntries ?? []).some(e => String(e.member ?? '').toLocaleLowerCase('pt-BR') === String(character.name).toLocaleLowerCase('pt-BR') && String(e.type ?? '') === String(first.type ?? ''))) {
+                const group = fringeGroup_mjs_1.addDutyEntry(this.state.group, { value:first.value, member:character.name, type:first.type, description:first.description ?? '' });
+                this.commit('GROUP_UPDATED', { group });
+            }
+            return this.state.player.character;
+        }
+        buildRandomCharacter(options = {}) {
+            return eoteCharacterCreation_mjs_1.createRandomEoteCoreCharacter(options);
+        }
+        createRandomCharacter(options = {}) {
+            return this.setCharacter(this.buildRandomCharacter(options));
+        }
+        talentTree(selector = {}) { return talents_mjs_1.treeForCharacter(this.state.player.character, selector); }
+        eligibleTalents(selector = {}) { return talents_mjs_1.eligibleTalents(requireCharacter(this.state.player.character), selector); }
+        availableTalents(selector = {}) { return talents_mjs_1.eligibleTalents(this.state.player.character, selector); }
+        buyTalent(nodeId, options = {}) {
+            assertProgressionAllowed(this.state);
+            const result = talents_mjs_1.purchaseTalent(requireCharacter(this.state.player.character), nodeId, options);
+            this.commit('CHARACTER_UPDATED', { character: result.character });
+            return result;
+        }
+        // Compatibilidade com R11.
+        availableFirstRowTalents() { return talents_mjs_1.eligibleFirstRowTalents(this.state.player.character); }
+        buyFirstRowTalent(nodeId, options = {}) {
+            assertProgressionAllowed(this.state);
+            const result = talents_mjs_1.purchaseFirstRowTalent(requireCharacter(this.state.player.character), nodeId, options);
+            this.commit('CHARACTER_UPDATED', { character: result.character });
+            return result;
+        }
+        talentRanks() { return talents_mjs_1.talentRanks(this.state.player.character); }
+        talentRank(originalName) { return talents_mjs_1.talentRankByOriginal(this.state.player.character, originalName); }
+        equipmentCatalog() { return equipmentCatalog_mjs_1.equipmentCatalog(); }
+        economyCatalog() { return economy_mjs_1.genericEconomyCatalog(); }
+        economySummary() { return economy_mjs_1.economySummary(this.state, { market: sandbox_mjs_1.marketProfile(this.state.world, this.state.scene?.locationId ?? null) }); }
+        acquisitionAvailability(kind, itemId, { rarityModifier = undefined } = {}) {
+            const market = sandbox_mjs_1.marketProfile(this.state.world, this.state.scene?.locationId ?? null);
+            const modifier = rarityModifier === undefined ? market?.rarityModifier ?? null : rarityModifier;
+            return economy_mjs_1.assetAvailability(kind, itemId, { rarityModifier: modifier });
+        }
+        setPendingAcquisitionRarityModifier(rarityModifier) {
+            const pending = economy_mjs_1.setPendingAcquisitionRarityModifier(this.state.master?.pendingAcquisition, rarityModifier);
+            this.commit('EQUIPMENT_ACQUISITION_PENDING', { pending });
+            return structuredClone(this.state.master.pendingAcquisition);
+        }
+        proposeAcquisition(kind, itemId) {
+            const character = requireCharacter(this.state.player.character);
+            if (this.state.master?.pendingAcquisition) throw new Error('Já existe uma aquisição aguardando decisão do Mestre.');
+            const market = sandbox_mjs_1.marketProfile(this.state.world, this.state.scene?.locationId ?? null);
+            const pending = economy_mjs_1.createPendingAcquisition(kind, itemId, character, { requestId: ids_mjs_1.newId('acq'), locationId: this.state.scene?.locationId ?? null, market });
+            this.commit('EQUIPMENT_ACQUISITION_PENDING', { pending });
+            const skillLabel = pending.availability.skillKey === 'callejeo' ? 'Vida nas ruas' : 'Negociação';
+            const result = this.submitIntent(`Quero adquirir ${pending.itemName} por ${pending.listedPrice} créditos. O mercado local aplica modificador de raridade ${pending.availability.rarityModifier ?? 'ainda não definido'}; use ${skillLabel} e as regras de disponibilidade recuperadas. Não altere créditos nem propriedade sem decisão estruturada.`);
+            return { ...result, pendingAcquisition: structuredClone(this.state.master.pendingAcquisition) };
+        }
+        weaponAcquisitionAvailability(itemId, { rarityModifier = null } = {}) {
+            return this.acquisitionAvailability('weapon', itemId, { rarityModifier });
+        }
+        setPendingWeaponAcquisitionRarityModifier(rarityModifier) {
+            return this.setPendingAcquisitionRarityModifier(rarityModifier);
+        }
+        proposeWeaponAcquisition(itemId) { return this.proposeAcquisition('weapon', itemId); }
+        groupSummary() { const obligationTotal=obligation_mjs_1.obligationTotal(this.state.group, this.state.player.character); const dutyTotal=duty_mjs_1.dutyTotal(this.state.group, this.state.player.character); return { group: structuredClone(this.state.group), campaignMode:campaignMode(this.state), obligationTotal, dutyTotal, contributionRank:Number(this.state.group?.contributionRank??0), contributionMilestoneReady:duty_mjs_1.contributionMilestoneReady(this.state.group,this.state.player.character), progressionBlocked:modeAllowsObligation(this.state)&&obligationTotal>100 }; }
+        encumbranceStatus() { return encumbrance_mjs_1.encumbranceStatus(requireCharacter(this.state.player.character)); }
+        liftingDifficulty(objectEncumbrance, options = {}) { return encumbrance_mjs_1.liftingDifficulty(requireCharacter(this.state.player.character), objectEncumbrance, options); }
+        statusSummary() { return statusEffects_mjs_1.statusModifiers(requireCharacter(this.state.player.character)); }
+        applyStatus(payload = {}) { const character = statusEffects_mjs_1.applyStatusEffect(requireCharacter(this.state.player.character), payload); this.commit('CHARACTER_UPDATED', { character }); return character.statusEffects; }
+        applyPlayerCondition(type, rounds = 1) { const character = statusEffects_mjs_1.applyStatusEffect(requireCharacter(this.state.player.character), { type, duration: 'rounds', rounds }); this.commit('CHARACTER_UPDATED', { character }); return statusEffects_mjs_1.statusModifiers(character); }
+        spendDestiny(side) { const group = destiny_mjs_1.flipDestiny(this.state.group, side); this.commit('GROUP_UPDATED', { group }); return structuredClone(group.destiny); }
+        resolveFearCheck(options = {}) { const result = fear_mjs_1.resolveFear(requireCharacter(this.state.player.character), options); this.commit('CHARACTER_UPDATED', { character: result.character }); return result; }
+        updateGroupBase(payload = {}) { const group = fringeGroup_mjs_1.updateBase(this.state.group, payload); this.commit('GROUP_UPDATED', { group }); return group; }
+        updateGroupShip(payload = {}) { const group = fringeGroup_mjs_1.updateShip(this.state.group, payload); this.commit('GROUP_UPDATED', { group }); return group; }
+        setGroupDestiny(payload) { const group = fringeGroup_mjs_1.setDestinyReserve(this.state.group, payload); this.commit('GROUP_UPDATED', { group }); return group; }
+        setGroupList(key, items) { const group = fringeGroup_mjs_1.setTextList(this.state.group, key, items); this.commit('GROUP_UPDATED', { group }); return group; }
+        addGroupObligation(entry) { if(!modeAllowsObligation(this.state)) throw new Error('Obligation só está ativa em campanha EOTE ou MIXED.'); const group = fringeGroup_mjs_1.addObligationEntry(this.state.group, entry); this.commit('GROUP_UPDATED', { group }); return group; }
+        removeGroupObligation(id) { if(!modeAllowsObligation(this.state)) throw new Error('Obligation só está ativa em campanha EOTE ou MIXED.'); const group = fringeGroup_mjs_1.removeObligationEntry(this.state.group, id); this.commit('GROUP_UPDATED', { group }); return group; }
+        rebelGroupSummary() { return this.groupSummary(); }
+        updateRebelBase(payload = {}) { return this.updateGroupBase(payload); }
+        addGroupDuty(entry) { if(!modeAllowsDuty(this.state)) throw new Error('Duty é legado Age of Rebellion no modo EOTE; ative campanha AOR ou MIXED.'); const group=fringeGroup_mjs_1.addDutyEntry(this.state.group,entry); this.commit('GROUP_UPDATED',{group}); return group; }
+        removeGroupDuty(id) { if(!modeAllowsDuty(this.state)) throw new Error('Duty é legado Age of Rebellion no modo EOTE; ative campanha AOR ou MIXED.'); const group=fringeGroup_mjs_1.removeDutyEntry(this.state.group,id); this.commit('GROUP_UPDATED',{group}); return group; }
+        setGroupContributionRank(rank) { if(!modeAllowsDuty(this.state)) throw new Error('Contribution Rank é legado Age of Rebellion no modo EOTE; ative campanha AOR ou MIXED.'); const group=fringeGroup_mjs_1.setContributionRank(this.state.group,rank); this.commit('GROUP_UPDATED',{group}); return group; }
+        addDutyProgress(entryId, amount) { if(!modeAllowsDuty(this.state)) throw new Error('Duty é legado Age of Rebellion no modo EOTE; ative campanha AOR ou MIXED.'); const result=duty_mjs_1.addDutyProgress(this.state.group,entryId,amount); this.commit('GROUP_UPDATED',{group:result.group}); return {...result,milestoneReady:duty_mjs_1.contributionMilestoneReady(result.group)}; }
+        resolveContributionMilestone() { if(!modeAllowsDuty(this.state)) throw new Error('Contribution Rank é legado Age of Rebellion no modo EOTE; ative campanha AOR ou MIXED.'); const result=duty_mjs_1.resolveContributionMilestone(this.state.group); this.commit('GROUP_UPDATED',{group:result.group}); return result; }
+        worldSummary() { return world_mjs_1.masterWorldSummary(this.state.world); }
+        causalEncounterCandidates(locationId = this.state.scene?.locationId) { return world_mjs_1.causalEncounterCandidates(this.state.world, locationId, { limit: 12 }); }
+        activeWorldAftermaths({ limit = 50, knownOnly = false } = {}) { return world_mjs_1.activeWorldAftermaths(this.state.world, { limit, knownOnly }); }
+        closeWorldAftermath(aftermathId, { resolution = '' } = {}) { const world = world_mjs_1.closeWorldAftermath(this.state.world, aftermathId, { resolution }); this.commit('WORLD_UPDATED', { world }); return world.aftermaths.find(a => a.id === aftermathId) ?? null; }
+        addWorldFaction(payload = {}) { const faction = world_mjs_1.createFaction(payload); const world = world_mjs_1.upsertFaction(this.state.world, faction); this.commit('WORLD_UPDATED', { world }); return faction; }
+        setWorldFactionObjective(factionId, objective) { const world = world_mjs_1.setFactionObjective(this.state.world, factionId, objective); this.commit('WORLD_UPDATED', { world }); return world.factions[factionId]; }
+        setWorldFactionStatus(factionId, status) { const world = world_mjs_1.setFactionStatus(this.state.world, factionId, status); this.commit('WORLD_UPDATED', { world }); return world.factions[factionId]; }
+        addWorldFactionResource(factionId, resource) { const world = world_mjs_1.addFactionResource(this.state.world, factionId, resource); this.commit('WORLD_UPDATED', { world }); return world.factions[factionId]; }
+        removeWorldFactionResource(factionId, resource) { const world = world_mjs_1.removeFactionResource(this.state.world, factionId, resource); this.commit('WORLD_UPDATED', { world }); return world.factions[factionId]; }
+        setWorldFactionRelation(factionId, targetFactionId, relation) { const world = world_mjs_1.setFactionRelation(this.state.world, factionId, targetFactionId, relation); this.commit('WORLD_UPDATED', { world }); return world.factions[factionId]; }
+        addWorldFactionFact(factionId, payload = {}) { const world = world_mjs_1.recordFactionFact(this.state.world, factionId, payload); this.commit('WORLD_UPDATED', { world }); return world.factions[factionId]; }
+        addWorldFactionPlan(factionId, payload = {}) { const result = world_mjs_1.createFactionPlan(this.state.world, factionId, payload); this.commit('WORLD_UPDATED', { world: result.world }); return result.plan; }
+        setWorldFactionPlanStatus(factionId, planId, status) { const world = world_mjs_1.setFactionPlanStatus(this.state.world, factionId, planId, status); this.commit('WORLD_UPDATED', { world }); return world.factions[factionId].plans.find(p => p.id === planId); }
+        advanceWorldFactionPlan(factionId, planId) { const result = world_mjs_1.advanceFactionPlan(this.state.world, factionId, planId); this.commit('WORLD_UPDATED', { world: result.world }); return result; }
+        addWorldLocation(payload = {}) {
+            const location = world_mjs_1.createLocation(payload);
+            const world = world_mjs_1.upsertLocation(this.state.world, location);
+            this.commit('WORLD_UPDATED', { world });
+            return location;
+        }
+        addWorldNpc(payload = {}) {
+            const npc = world_mjs_1.createNpc(payload);
+            const world = world_mjs_1.upsertNpc(this.state.world, npc);
+            this.commit('WORLD_UPDATED', { world });
+            return npc;
+        }
+        moveWorldNpc(npcId, locationId) { const world = world_mjs_1.moveNpc(this.state.world, npcId, locationId); this.commit('WORLD_UPDATED', { world }); return world.npcs[npcId]; }
+        setWorldNpcFaction(npcId, factionId = null) { const world = world_mjs_1.setNpcFaction(this.state.world, npcId, factionId); this.commit('WORLD_UPDATED', { world }); return world.npcs[npcId]; }
+        setWorldNpcGoal(npcId, goal) { const world = world_mjs_1.setNpcGoal(this.state.world, npcId, goal); this.commit('WORLD_UPDATED', { world }); return world.npcs[npcId]; }
+        setWorldNpcRelation(npcId, relation) { const world = world_mjs_1.setNpcRelation(this.state.world, npcId, relation); this.commit('WORLD_UPDATED', { world }); return world.npcs[npcId]; }
+        setWorldNpcStatus(npcId, status) { const world = world_mjs_1.setNpcStatus(this.state.world, npcId, status); this.commit('WORLD_UPDATED', { world }); return world.npcs[npcId]; }
+        addWorldNpcFact(npcId, payload = {}) { const world = world_mjs_1.recordNpcFact(this.state.world, npcId, payload); this.commit('WORLD_UPDATED', { world }); return world.npcs[npcId]; }
+        scheduleWorldEvent(payload = {}) { const result = world_mjs_1.scheduleWorldEvent(this.state.world, payload); if (result.created)
+            this.commit('WORLD_UPDATED', { world: result.world }); return result; }
+        cancelWorldEvent(eventId) { const world = world_mjs_1.cancelWorldEvent(this.state.world, eventId); this.commit('WORLD_UPDATED', { world }); return world; }
+        resolveWorldHook(hookId, payload = {}) { const world = world_mjs_1.resolveWorldHook(this.state.world, hookId, payload); this.commit('WORLD_UPDATED', { world }); return world.hooks.find(h => h.id === hookId); }
+        advanceWorldTime({ ticks = 1, maxEvents = 50 } = {}) { const result = sandbox_mjs_1.advanceLivingWorld(this.state.world, { ticks, maxEvents }); this.commit('WORLD_UPDATED', { world: result.world }); return result; }
+        initializeLivingSandbox({ startingPoint = 'Porto de Fronteira', regionLabel = 'Região de Fronteira', startMapPoint = null } = {}) {
+            if (startMapPoint !== null && (!Number.isFinite(startMapPoint.x) || !Number.isFinite(startMapPoint.y) || startMapPoint.x < 0 || startMapPoint.x > 100 || startMapPoint.y < 0 || startMapPoint.y > 100)) throw new Error('Ponto do mapa inválido.');
+            const result = sandbox_mjs_1.seedLivingRegion(this.state.world, { startingPoint, regionLabel });
+            if (result.created) {
+                result.world.sandbox.startLocationId = result.startLocationId;
+                if (startMapPoint !== null) result.world.sandbox.startMapPoint = { x: startMapPoint.x, y: startMapPoint.y, mapId: 'local.map.galaxy', source: 'player_selected' };
+            }
+            if (result.created) {
+                this.commit('WORLD_UPDATED', { world: result.world });
+                const opening = sandbox_mjs_1.sandboxOpening(result.world, { locationId: result.startLocationId, limit: 6 });
+                this.commit('SCENE_UPDATED', { scene: { locationId: result.startLocationId, title: String(startingPoint || 'Ponto inicial'), narration: '', visibleNpcIds: [] } });
+            }
+            return { ...result, opening: sandbox_mjs_1.sandboxOpening(this.state.world, { locationId: result.startLocationId }), summary: sandbox_mjs_1.sandboxSummary(this.state.world) };
+        }
+        livingSandboxStatus() { return sandbox_mjs_1.sandboxSummary(this.state.world); }
+        sandboxOpening({ locationId = null, limit = 6 } = {}) { return sandbox_mjs_1.sandboxOpening(this.state.world, { locationId: locationId ?? this.state.scene?.locationId ?? null, limit }); }
+        startSandboxSession({ rng = Math.random } = {}) {
+            // R54_BARBARA_OPENING_MASTER: bootstrap sandbox/session only; Barbara owns first narration.
+            if (!this.state.player?.character)
+                throw new Error('Crie, gere ou importe um personagem antes de iniciar o sandbox.');
+            const opening = sandbox_mjs_1.sandboxOpening(this.state.world, { locationId: this.state.scene?.locationId ?? this.state.world?.sandbox?.startLocationId ?? null, limit: 6 });
+            if (!opening?.ready || !opening.location)
+                throw new Error('Crie o mundo vivo e escolha o ponto inicial antes de iniciar o sandbox.');
+            let session = this.state.session;
+            if (session?.status !== 'ativa') {
+                const started = this.startSession({ playerCount: 1, rng });
+                session = started.session;
+            }
+            this.commit('SCENE_UPDATED', { scene: { visibleNpcIds: [] } });
+            const previousOpening = this.state.master?.openingRequest ?? null;
+            const pick = (items, { knownFirst = false, previousId = null } = {}) => {
+                let pool = (items ?? []).filter(Boolean);
+                if (knownFirst) {
+                    const known = pool.filter(item => item?.knownToPlayer);
+                    if (known.length) pool = known;
+                }
+                if (pool.length > 1 && previousId) {
+                    const alternatives = pool.filter(item => item?.id !== previousId);
+                    if (alternatives.length) pool = alternatives;
+                }
+                if (!pool.length) return null;
+                const roll = Number(rng());
+                const unit = Number.isFinite(roll) ? Math.abs(roll % 1) : 0;
+                return pool[Math.min(pool.length - 1, Math.floor(unit * pool.length))] ?? pool[0];
+            };
+            const knownOpportunity = pick(opening.opportunities, { knownFirst: true, previousId: previousOpening?.opportunityId ?? null });
+            const knownNpc = pick(opening.npcs, { knownFirst: true, previousId: previousOpening?.npcId ?? null });
+            const knownFaction = pick(opening.factions, { knownFirst: true, previousId: previousOpening?.factionId ?? null });
+            const openingAngles = ['movimento imediato no local', 'mudança ambiental que exige atenção', 'interação social já em andamento', 'oportunidade percebida durante a chegada', 'contratempo cotidiano com consequências', 'detalhe sensorial que evolui para uma escolha'];
+            let anglePool = openingAngles;
+            if (openingAngles.length > 1 && previousOpening?.openingAngle) anglePool = openingAngles.filter(value => value !== previousOpening.openingAngle);
+            const angleRoll = Number(rng());
+            const angleUnit = Number.isFinite(angleRoll) ? Math.abs(angleRoll % 1) : 0;
+            const openingAngle = anglePool[Math.min(anglePool.length - 1, Math.floor(angleUnit * anglePool.length))] ?? openingAngles[0];
+            const locationName = String(opening.location.name ?? this.state.scene?.title ?? 'Ponto inicial');
+            const suggestions = [];
+            if (knownOpportunity?.title) suggestions.push(`Investigar: ${knownOpportunity.title}`);
+            if (knownNpc?.name) suggestions.push(`Conversar com ${knownNpc.name}`);
+            suggestions.push('Observar o local antes de agir');
+            if (opening.market) suggestions.push('Consultar o mercado local');
+            suggestions.push('Procurar rumores e oportunidades');
+            suggestions.push('Ignorar a situação e seguir adiante');
+            this.commit('MASTER_OPENING_PREPARED', { suggestedActions: suggestions.slice(0, 6), request: { locationName, opportunity: knownOpportunity?.title ?? null, opportunityId: knownOpportunity?.id ?? null, npc: knownNpc?.name ?? null, npcId: knownNpc?.id ?? null, faction: knownFaction?.name ?? null, factionId: knownFaction?.id ?? null, openingAngle } });
+            return {
+                opening,
+                proposal: null,
+                awaitingMaster: true,
+                masterOpeningRequest: {
+                    kind: 'sandbox_opening',
+                    locationName,
+                    sceneLocationId: opening.location.id,
+                    opportunity: knownOpportunity ? { id: knownOpportunity.id ?? null, title: knownOpportunity.title ?? '', summary: knownOpportunity.summary ?? '' } : null,
+                    npc: knownNpc ? { id: knownNpc.id ?? null, name: knownNpc.name ?? '', species: knownNpc.species ?? '', sex: knownNpc.sex ?? '', gender: knownNpc.gender ?? '', origin: knownNpc.origin ?? '', career: knownNpc.career ?? '', specialization: knownNpc.specialization ?? '', occupation: knownNpc.occupation ?? '', ageYears: knownNpc.ageYears ?? null, appearance: knownNpc.appearance ?? '' } : null,
+                    faction: knownFaction ? { id: knownFaction.id ?? null, name: knownFaction.name ?? '' } : null,
+                    openingAngle,
+                    suggestedActions: suggestions.slice(0, 6)
+                },
+                session: structuredClone(session),
+                state: structuredClone(this.state)
+            };
+        }
+        publishedAdventureCatalog() {
+            return publishedAdventureRegistry_mjs_1.publishedAdventureCatalog();
+        }
+        publishedAdventureStatus(adventureId = 'under-black-sun') {
+            const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(adventureId);
+            return adapter.status(this.state.world);
+        }
+        startPublishedAdventureSession(adventureId = 'under-black-sun', { rng = Math.random } = {}) {
+            const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(adventureId);
+            const mode = campaignMode(this.state);
+            if (!adapter.meta.campaignModes.includes(mode)) throw new Error(adapter.modeError || `A aventura ${adapter.meta.title} não suporta o modo ${mode}.`);
+            requireCharacter(this.state.player?.character);
+            let session = this.state.session;
+            if (session?.status !== 'ativa') session = this.startSession({ playerCount: 1, rng }).session;
+            const started = adapter.start(this.state.world);
+            this.commit('WORLD_UPDATED', { world: started.world });
+            const scene = adapter.currentScene(this.state.world);
+            if (scene) this.commit('SCENE_UPDATED', { scene });
+            const request = adapter.masterRequest(this.state.world);
+            if (request) this.commit('MASTER_OPENING_PREPARED', { suggestedActions: request.suggestedActions, request });
+            return { adventure: adapter.status(this.state.world), session: structuredClone(session), state: structuredClone(this.state) };
+        }
+        advancePublishedAdventure(choiceId, { adventureId = 'under-black-sun' } = {}) {
+            const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(adventureId);
+            const result = adapter.advance(this.state.world, String(choiceId ?? ''));
+            this.commit('WORLD_UPDATED', { world: result.world });
+            const scene = adapter.currentScene(this.state.world);
+            if (scene) this.commit('SCENE_UPDATED', { scene });
+            const request = adapter.masterRequest(this.state.world);
+            if (request) this.commit('MASTER_OPENING_PREPARED', { suggestedActions: request.suggestedActions, request });
+            let rewards = null;
+            if (result.completed && !this.state.world?.publishedAdventure?.rewardsApplied) {
+                const policy = adapter.rewardPolicy ?? {};
+                const creditReward = Math.max(0, Number(policy.credits) || 0);
+                const character = structuredClone(requireCharacter(this.state.player?.character));
+                character.credits = Math.max(0, Number(character.credits) || 0) + creditReward;
+                this.commit('CHARACTER_UPDATED', { character });
+                let obligationReduced = 0;
+                let obligationAdded = 0;
+                if (modeAllowsObligation(this.state)) {
+                    const group = structuredClone(this.state.group);
+                    const entries = Array.isArray(group?.obligationEntries) ? group.obligationEntries : [];
+                    const characterName = String(character.name ?? '').trim().toLocaleLowerCase('pt-BR');
+                    let entry = entries.find(e => characterName && String(e?.member ?? '').trim().toLocaleLowerCase('pt-BR') === characterName && Number(e?.value) > 0);
+                    if (!entry) entry = entries.filter(e => Number(e?.value) > 0).sort((a,b) => Number(b.value)-Number(a.value))[0] ?? null;
+                    const pendingFlag = String(policy.pendingObligationFlag ?? 'obligationPendingDelta');
+                    const pending = Math.max(0, Number(this.state.world?.publishedAdventure?.flags?.[pendingFlag]) || 0);
+                    if (pending > 0) {
+                        if (!entry) { entry = { id: `pubadv_${Date.now()}`, member: character.name ?? '', type: policy.obligationType || 'Dívida', description: policy.obligationDescription || `Consequência de ${adapter.meta.title}.`, value: 0 }; entries.push(entry); }
+                        entry.value = Math.max(0, Number(entry.value) || 0) + pending; obligationAdded = pending;
+                    }
+                    const reductionCap = Math.max(0, Number(policy.obligationReduction) || 0);
+                    if (entry && reductionCap > 0) { obligationReduced = Math.min(reductionCap, Math.max(0, Number(entry.value) || 0)); entry.value = Math.max(0, Number(entry.value) - obligationReduced); }
+                    group.obligationEntries = entries; this.commit('GROUP_UPDATED', { group });
+                }
+                const reductionCap = Math.max(0, Number(policy.obligationReduction) || 0);
+                const note = obligationReduced < reductionCap && modeAllowsObligation(this.state) ? 'A redução restante de Obligation não foi aplicada porque não havia valor suficiente em uma entrada ativa.' : null;
+                const world = adapter.markRewardsApplied(this.state.world, { credits: creditReward, obligationAdded, obligationReduced, note });
+                this.commit('WORLD_UPDATED', { world });
+                rewards = { credits: creditReward, obligationAdded, obligationReduced, note };
+            }
+            return { adventure: adapter.status(this.state.world), rewards, state: structuredClone(this.state) };
+        }
+        resolvePublishedAdventureCheck(checkIndex = 0, { adventureId = 'under-black-sun', useLightDestiny = false, useDarkDestiny = false, rng = Math.random } = {}) {
+            const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(adventureId);
+            const specs = adapter.currentChecks(this.state.world);
+            const requestedIndex = Number(checkIndex);
+            const spec = specs.find(x => x.index === requestedIndex) || specs[requestedIndex];
+            if (!spec) throw new Error('Teste da aventura indisponível neste ponto.');
+            if (!spec.skillKey) throw new Error('A perícia deste teste ainda exige adjudicação manual do Mestre.');
+            const check = this.resolveSkillCheck({ skillKey: spec.skillKey, difficulty: spec.pool.difficulty, challenge: spec.pool.challenge, setback: spec.pool.setback, useLightDestiny, useDarkDestiny, rng });
+            const adjudicated = adapter.adjudicateCheck(this.state.world, { checkIndex: spec.index, result: check });
+            this.commit('WORLD_UPDATED', { world: adjudicated.world });
+            const characterEffects = { creditsDelta: 0, strainDelta: 0 };
+            const creditsDelta = Number(adjudicated.adjudication?.creditDelta ?? 0);
+            const strainDelta = Math.max(0, Number(adjudicated.adjudication?.playerStrainDelta ?? 0));
+            if (creditsDelta || strainDelta) {
+                let character = structuredClone(requireCharacter(this.state.player?.character));
+                if (creditsDelta) {
+                    character.credits = Math.max(0, (Number(character.credits) || 0) + creditsDelta);
+                    characterEffects.creditsDelta = creditsDelta;
+                }
+                if (strainDelta) {
+                    const strained = health_mjs_1.sufferStrain(character, strainDelta);
+                    character = strained.character;
+                    characterEffects.strainDelta = strainDelta;
+                }
+                this.commit('CHARACTER_UPDATED', { character });
+            }
+            const request = adapter.masterRequest(this.state.world);
+            if (request) this.commit('MASTER_OPENING_PREPARED', { suggestedActions: request.suggestedActions, request });
+            return { check, adjudication: adjudicated.adjudication, characterEffects, adventure: adapter.status(this.state.world), state: structuredClone(this.state) };
+        }
+        beginPublishedAdventureEncounter(encounterId = null, { adventureId = 'under-black-sun', rng = Math.random, playerQuickReactionStrain = 0 } = {}) {
+            const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(adventureId);
+            if (this.state.combat?.active) throw new Error('Já existe um combate ativo. Encerre-o antes de iniciar outro encontro.');
+            const spec = adapter.encounterSpec(this.state.world, encounterId);
+            const adversaries = spec.adversaries.map(entry => {
+                const npc = entry.worldNpcId ? this.state.world?.npcs?.[entry.worldNpcId] : null;
+                const adversary = adversaries_mjs_1.createAdversary(entry.profileKey, { count: entry.count, range: entry.range, name: entry.name || npc?.name || null });
+                adversary.factionId = npc?.factionId ?? entry.factionId ?? null;
+                adversary.worldNpcId = npc?.id ?? null;
+                if (npc) {
+                    adversary.id = npc.id;
+                    const persisted = npc.combatState;
+                    if (persisted) {
+                        if (persisted.wounds) adversary.wounds = { ...adversary.wounds, ...clone(persisted.wounds) };
+                        if (adversary.strain && persisted.strain) adversary.strain = { ...adversary.strain, ...clone(persisted.strain) };
+                        adversary.criticalInjuries = clone(persisted.criticalInjuries ?? []);
+                        adversary.status = persisted.status ?? adversary.status;
+                    } else if (Number(entry.preWounds) > 0 && adversary.wounds) {
+                        adversary.wounds.current = Math.min(Number(adversary.wounds.threshold) || 0, Math.max(0, Number(adversary.wounds.current) || 0) + Number(entry.preWounds));
+                    }
+                }
+                return adversary;
+            });
+            const started = this.beginEncounter({ adversaries, rng, playerInitiativeSkill: spec.playerInitiativeSkill, npcInitiativeSkill: spec.npcInitiativeSkill, playerQuickReactionStrain });
+            const marked = adapter.markEncounterActive(this.state.world, spec.id);
+            this.commit('WORLD_UPDATED', { world: marked });
+            const next = clone(this.state);
+            next.combat.publishedAdventureContext = { adventureId: adapter.id, encounterId: spec.id, label: spec.label, nodeId: next.world?.publishedAdventure?.currentNodeId ?? null };
+            next.combat.log = [...(next.combat.log ?? []), { type: 'ENCONTRO_AVENTURA_PUBLICADA', round: next.combat.round, encounterId: spec.id, summary: spec.label }];
+            this.state = next;
+            this.repository.save(this.state);
+            return { ...started, encounter: spec, adventure: adapter.status(this.state.world), state: structuredClone(this.state) };
+        }
+        restartPublishedAdventure(adventureId = 'under-black-sun', options = {}) {
+            return this.startPublishedAdventureSession(adventureId, options);
+        }
+        continuePublishedAdventureToSandbox({ adventureId = 'under-black-sun', rng = Math.random } = {}) {
+            const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(adventureId);
+            const status = adapter.status(this.state.world);
+            if (!status.completed) throw new Error(`Conclua ${adapter.meta.title} antes de continuar no mundo livre.`);
+            const continuation = adapter.continuation ?? {};
+            if (!this.state.world?.sandbox?.initialized) this.initializeLivingSandbox({ startingPoint: continuation.startingPoint || 'Ponto de continuidade', regionLabel: continuation.regionLabel || 'Região atual' });
+            const archived = adapter.archive(this.state.world);
+            this.commit('WORLD_UPDATED', { world: archived });
+            const startLocationId = this.state.world?.sandbox?.startLocationId ?? null;
+            if (startLocationId) {
+                const location = this.state.world.locations?.[startLocationId];
+                this.commit('SCENE_UPDATED', { scene: { locationId: startLocationId, title: location?.name ?? continuation.regionLabel ?? 'Mundo livre', narration: '', visibleNpcIds: [] } });
+            }
+            const sandbox = this.startSandboxSession({ rng });
+            return { ...sandbox, continued: true, adventure: adapter.status(this.state.world), state: structuredClone(this.state) };
+        }
+        // Compatibilidade para bridges antigas; o fluxo canônico do mundo livre continua startSandboxSession.
+        startLivingAdventure(options = {}) { return this.startSandboxSession(options); }
+        activeWorldOpportunities({ locationId = null, knownOnly = false, limit = 50 } = {}) { return sandbox_mjs_1.activeOpportunities(this.state.world, { locationId, knownOnly, limit }); }
+        createWorldOpportunity(payload = {}) { const result = sandbox_mjs_1.createOpportunity(this.state.world, payload); this.commit('WORLD_UPDATED', { world: result.world }); return result.opportunity; }
+        setWorldOpportunityStatus(opportunityId, status, payload = {}) { const result = sandbox_mjs_1.setOpportunityStatus(this.state.world, opportunityId, status, payload); this.commit('WORLD_UPDATED', { world: result.world }); return result.opportunity; }
+        advanceWorldClock(clockId, payload = {}) { const result = sandbox_mjs_1.advanceWorldClock(this.state.world, clockId, payload); this.commit('WORLD_UPDATED', { world: result.world }); return result.clock; }
+        currentMarketProfile(locationId = null) { return sandbox_mjs_1.marketProfile(this.state.world, locationId ?? this.state.scene?.locationId ?? null); }
+        travelToLocation(toLocationId, { maxEvents = 50 } = {}) {
+            const fromLocationId = this.state.scene?.locationId ?? this.state.world?.sandbox?.startLocationId ?? null;
+            if (!fromLocationId) throw new Error('Defina um local inicial antes de viajar.');
+            if (fromLocationId === toLocationId) return { fromLocationId, toLocationId, ticks: 0, world: this.state.world, scene: this.state.scene };
+            const route = sandbox_mjs_1.routeBetween(this.state.world, fromLocationId, toLocationId);
+            if (!route) throw new Error('Não há rota conhecida entre os locais selecionados.');
+            const result = sandbox_mjs_1.advanceLivingWorld(this.state.world, { ticks: route.ticks, maxEvents });
+            this.commit('WORLD_UPDATED', { world: result.world });
+            const location = this.state.world.locations?.[toLocationId];
+            const destinationOpening = sandbox_mjs_1.sandboxOpening(this.state.world, { locationId: toLocationId, limit: 6 });
+            this.commit('SCENE_UPDATED', { scene: { locationId: toLocationId, title: location?.name ?? this.state.scene?.title ?? '', narration: '', visibleNpcIds: [] } });
+            return { ...result, route, fromLocationId, toLocationId, scene: this.state.scene };
+        }
+        beginPendingMasterEncounter({ rng = Math.random, playerQuickReactionStrain = 0 } = {}) {
+            const directive = this.state.master?.pendingEncounter;
+            if (!directive)
+                throw new Error('O Mestre não preparou nenhum encontro.');
+            validateEncounterDirectiveAgainstState(this.state, directive);
+            const sourceHook = directive.sourceHookId ? this.state.world.hooks.find(h => h.id === directive.sourceHookId) : null;
+            const adversaries = directive.adversaries.map(spec => {
+                const npc = spec.worldNpcId ? this.state.world.npcs[spec.worldNpcId] : null;
+                const adversary = adversaries_mjs_1.createAdversary(spec.profileKey, { count: spec.count, range: spec.range, name: spec.name || npc?.name || null });
+                adversary.factionId = npc?.factionId ?? spec.factionId ?? sourceHook?.factionId ?? null;
+                adversary.worldNpcId = npc?.id ?? null;
+                if (npc) {
+                    adversary.id = npc.id;
+                    const persisted = npc.combatState;
+                    if (persisted) {
+                        if (persisted.wounds)
+                            adversary.wounds = { ...adversary.wounds, ...clone(persisted.wounds) };
+                        if (adversary.strain && persisted.strain)
+                            adversary.strain = { ...adversary.strain, ...clone(persisted.strain) };
+                        adversary.criticalInjuries = clone(persisted.criticalInjuries ?? []);
+                        adversary.status = persisted.status ?? adversary.status;
+                    }
+                }
+                return adversary;
+            });
+            const started = this.beginEncounter({ adversaries, rng, playerInitiativeSkill: directive.playerInitiativeSkill, npcInitiativeSkill: directive.npcInitiativeSkill, playerQuickReactionStrain });
+            const next = clone(this.state);
+            next.master.pendingEncounter = null;
+            if (sourceHook) {
+                next.combat.causalHookId = sourceHook.id;
+                next.combat.causalHookSummary = sourceHook.summary;
+                next.combat.log = [...(next.combat.log ?? []), { type: 'ENCONTRO_CAUSAL_INICIADO', round: next.combat.round, hookId: sourceHook.id, summary: sourceHook.summary }];
+            }
+            this.state = next;
+            this.repository.save(this.state);
+            return { ...started, sourceHookId: sourceHook?.id ?? null };
+        }
+        beginCombat() {
+            const combat = combat_mjs_1.startCombat(this.state.combat);
+            this.commit('COMBAT_UPDATED', { combat });
+            if (this.state.session?.status === 'ativa')
+                this.commit('SESSION_COMBAT_STARTED', { session: sessionFlow_mjs_1.noteSessionCombatStarted(this.state.session) });
+            return combat;
+        }
+        beginPresetEncounter({ rng = Math.random, playerInitiativeSkill = 'alerta', npcInitiativeSkill = 'alerta', playerQuickReactionStrain = 0 } = {}) {
+            const adversaries = [
+                adversaries_mjs_1.createAdversary('imperial_soldier', { count: 3, range: 'Médio' }),
+                adversaries_mjs_1.createAdversary('imperial_officer', { range: 'Médio' })
+            ];
+            return this.beginEncounter({ adversaries, rng, playerInitiativeSkill, npcInitiativeSkill, playerQuickReactionStrain });
+        }
+        beginEncounter({ adversaries, rng = Math.random, playerInitiativeSkill = 'alerta', npcInitiativeSkill = 'alerta', playerQuickReactionStrain = 0 } = {}) {
+            let character = this.state.player.character;
+            assertCanAct(character);
+            if (!Array.isArray(adversaries) || !adversaries.length)
+                throw new Error('O encontro precisa de adversários.');
+            playerInitiativeSkill = initiativeSkillKey(playerInitiativeSkill);
+            npcInitiativeSkill = initiativeSkillKey(npcInitiativeSkill);
+            let combat = combat_mjs_1.startCombat(this.state.combat);
+            const quickReaction = initiative_mjs_1.preparePlayerInitiative(character, { quickReactionStrain: playerQuickReactionStrain });
+            character = quickReaction.character;
+            assertCanAct(character);
+            const playerCharacteristic = character_mjs_1.SKILLS[playerInitiativeSkill];
+            const playerPool = narrativeDice_mjs_1.buildPositivePool(character.characteristics[playerCharacteristic], character.skills[playerInitiativeSkill] ?? 0);
+            const playerCheck = narrativeDice_mjs_1.rollPool({ ...playerPool, boost: quickReaction.boost }, rng);
+            const entries = [initiative_mjs_1.initiativeEntry({ id: 'player', side: 'player', check: playerCheck, label: character.name })];
+            for (const adversary of adversaries) {
+                const pool = narrativeDice_mjs_1.buildPositivePool(adversaries_mjs_1.adversaryCharacteristicForSkill(adversary, npcInitiativeSkill), adversaries_mjs_1.adversarySkillRank(adversary, npcInitiativeSkill));
+                const check = narrativeDice_mjs_1.rollPool(pool, rng);
+                entries.push(initiative_mjs_1.initiativeEntry({ id: adversary.id, side: 'npc', check, label: adversary.name }));
+            }
+            combat = encounter_mjs_1.setupEncounter(combat, { entries, adversaries, playerActorId: 'player' });
+            const progressed = this._processNpcTurnsUntilPlayer(combat, character, rng);
+            combat = progressed.combat;
+            character = progressed.character;
+            this.commit('COMBAT_ACTION', { combat, character, check: playerCheck });
+            if (this.state.session?.status === 'ativa')
+                this.commit('SESSION_COMBAT_STARTED', { session: sessionFlow_mjs_1.noteSessionCombatStarted(this.state.session) });
+            return { combat, character, playerCheck, entries, npcTurns: progressed.npcTurns, quickReaction: quickReaction.quickReaction };
+        }
+        _processNpcTurnsUntilPlayer(combat, character, rng = Math.random) {
+            let nextCombat = clone(combat);
+            let nextCharacter = clone(character);
+            const npcTurns = [];
+            let guard = 0;
+            while (nextCombat.active && guard++ < 30) {
+                if (encounter_mjs_1.encounterOver(nextCombat, health_mjs_1.getHealthStatus(nextCharacter).unconscious)) {
+                    nextCombat.encounter = nextCombat.encounter ?? {};
+                    nextCombat.encounter.waitingForPlayer = false;
+                    nextCombat.encounter.outcome = health_mjs_1.getHealthStatus(nextCharacter).unconscious ? 'player_incapacitated' : 'adversaries_defeated';
+                    break;
+                }
+                const slot = encounter_mjs_1.currentSlot(nextCombat);
+                if (!slot)
+                    break;
+                if (slot.side === 'player') {
+                    nextCombat = encounter_mjs_1.assignCurrentSlot(nextCombat, 'player');
+                    break;
+                }
+                const available = encounter_mjs_1.availableActorsForCurrentSlot(nextCombat);
+                if (!available.length) {
+                    nextCombat = encounter_mjs_1.skipCurrentSlot(nextCombat, { summary: 'Nenhum adversário ativo disponível para esta posição.' });
+                    continue;
+                }
+                const actorId = available[0];
+                nextCombat = encounter_mjs_1.assignCurrentSlot(nextCombat, actorId);
+                const resolved = this._resolveNpcTurn(nextCombat, nextCharacter, actorId, rng);
+                nextCombat = resolved.combat;
+                nextCharacter = resolved.character;
+                npcTurns.push(resolved.summary);
+                nextCombat = encounter_mjs_1.completeCurrentSlot(nextCombat, actorId, { summary: resolved.summary.text });
+            }
+            if (guard >= 30)
+                throw new Error('Proteção de loop da iniciativa acionada.');
+            return { combat: nextCombat, character: nextCharacter, npcTurns };
+        }
+        _resolveNpcTurn(combat, character, adversaryId, rng = Math.random) {
+            const adversary = combat.adversaries.find(a => a.id === adversaryId);
+            if (!adversary)
+                throw new Error('Adversário não encontrado no encontro.');
+            if (adversaries_mjs_1.adversaryHealthStatus(adversary).incapacitated) {
+                return { combat, character, summary: { actorId: adversaryId, text: `${adversary.name} está incapacitado e não age.` } };
+            }
+            const weapon = chooseNpcWeapon(adversary);
+            if (!weapon) {
+                return { combat, character, summary: { actorId: adversaryId, text: `${adversary.name} não possui ataque utilizável nesta distância.` } };
+            }
+            const characteristic = adversaries_mjs_1.adversaryCharacteristicForSkill(adversary, weapon.skill);
+            const skill = adversaries_mjs_1.adversarySkillRank(adversary, weapon.skill);
+            const positive = narrativeDice_mjs_1.buildPositivePool(characteristic, skill);
+            const difficulty = attackDifficulty_mjs_1.attackDifficultyForWeapon(weapon, adversary.range);
+            const pendingBoost = Number(combat.pendingNpcBoost ?? 0);
+            const check = narrativeDice_mjs_1.rollPool({
+                ...positive,
+                difficulty,
+                challenge: 0,
+                boost: pendingBoost,
+                setback: defenseSetback(character, weapon)
+            }, rng);
+            let attack = weapons_mjs_1.resolveWeaponHit(weapon, check);
+            attack = { ...attack, targetRange: adversary.range, difficulty, attackerId: adversary.id, attackerName: adversary.name };
+            let nextCombat = clone(combat);
+            let nextCharacter = clone(character);
+            nextCombat.pendingNpcBoost = 0;
+            let damageResult = null;
+            let criticalResult = null;
+            let targetText = 'falhou o ataque';
+            if (attack.hit) {
+                damageResult = health_mjs_1.applyDamage(nextCharacter, { damage: attack.damage, pierce: attack.pierce, damageType: attack.damageType, reason: `Ataque de ${adversary.name}`, criticalRng: rng });
+                nextCharacter = damageResult.character;
+                targetText = `acertou e causou ${damageResult.suffered} ${damageResult.damageType === 'strain' ? 'de Tensão' : 'Ferimento(s)'}`;
+                if (damageResult.suffered > 0 && attack.criticalAvailable) {
+                    criticalResult = critical_mjs_1.addStarterCritical(nextCharacter, `Crítico de ${adversary.name}`, { rng });
+                    nextCharacter = criticalResult.character;
+                    if (criticalResult.added)
+                        targetText += ' + 1 Ferimento Crítico';
+                }
+            }
+            let updatedAdversary = adversary;
+            const threatCost = Math.max(0, -Number(check.netAdvantage || 0)) + Math.max(0, Number(check.despair || 0));
+            if (threatCost > 0) {
+                const consequence = adversaries_mjs_1.sufferAdversaryStrain(updatedAdversary, threatCost);
+                updatedAdversary = consequence.adversary;
+                targetText += consequence.convertedToWounds ? `; ${adversary.name} sofreu ${threatCost} Ferimento(s) por Ameaça/Desespero` : `; sofreu ${threatCost} de Tensão por Ameaça/Desespero`;
+            }
+            else if (Number(check.netAdvantage || 0) > 0 && !criticalResult?.added) {
+                nextCombat.pendingNpcBoost = 1;
+                targetText += '; 1 Impulso preparado para o próximo aliado';
+            }
+            nextCombat = encounter_mjs_1.updateAdversaryInCombat(nextCombat, updatedAdversary);
+            nextCombat.lastNpcAttack = clone(attack);
+            nextCombat.log.push({ type: 'TURNO_NPC', round: nextCombat.round, actorId: adversary.id, weapon: weapon.name, check: clone(check), summary: targetText });
+            return {
+                combat: nextCombat,
+                character: nextCharacter,
+                attack,
+                damageResult,
+                criticalResult,
+                summary: { actorId: adversary.id, text: `${adversary.name}: ${targetText}.` }
+            };
+        }
+        advancePlayerTurn({ rng = Math.random } = {}) {
+            if (this.state.combat?.encounter?.slots?.length)
+                return this.finishPlayerInitiativeTurn({ rng });
+            const combat = combat_mjs_1.nextPlayerTurn(this.state.combat);
+            let character = this.state.player.character ? critical_mjs_1.expirePlayerTurnCriticalEffects(this.state.player.character) : null;
+            if (character) character = statusEffects_mjs_1.expireStatusTurn(character);
+            this.commit('COMBAT_ACTION', { combat, character });
+            return combat;
+        }
+        finishPlayerInitiativeTurn({ rng = Math.random } = {}) {
+            let combat = this.state.combat;
+            let character = this.state.player.character;
+            const slot = encounter_mjs_1.currentSlot(combat);
+            if (!slot || slot.side !== 'player' || !combat.encounter?.waitingForPlayer)
+                throw new Error('Não há turno do jogador aguardando encerramento.');
+            combat = encounter_mjs_1.completeCurrentSlot(combat, 'player', { summary: 'Turno do jogador concluído.' });
+            character = critical_mjs_1.expirePlayerTurnCriticalEffects(character);
+            character = statusEffects_mjs_1.expireStatusTurn(character);
+            const progressed = this._processNpcTurnsUntilPlayer(combat, character, rng);
+            combat = progressed.combat;
+            character = progressed.character;
+            this.commit('COMBAT_ACTION', { combat, character });
+            return { combat, character, npcTurns: progressed.npcTurns };
+        }
+        finishCombat({ rng = Math.random, strainSkill = 'frialdad' } = {}) {
+            const preCombat = clone(this.state.combat);
+            const causalHookId = preCombat?.causalHookId ?? null;
+            const causalOutcome = preCombat?.encounter?.outcome ?? null;
+            const publishedAdventureContext = preCombat?.publishedAdventureContext ?? null;
+            const persistentAdversaries = clone(preCombat?.adversaries ?? []).filter(a => this.state.world?.npcs?.[a.id]);
+            const encounterAdversaries = clone(preCombat?.adversaries ?? []).map(a => ({ id: a.id, name: a.name, profileKey: a.profileKey ?? null, worldNpcId: a.worldNpcId ?? null, factionId: a.factionId ?? null, status: a.status ?? 'active', wounds: Number(a.wounds?.current ?? 0), strain: Number(a.strain?.current ?? 0), criticalCount: a.criticalInjuries?.length ?? 0 }));
+            let combat = combat_mjs_1.endCombat(preCombat);
+            let character = this.state.player.character;
+            let recovery = null;
+            if (character) {
+                character = critical_mjs_1.expireEncounterCriticalEffects(character);
+                character = statusEffects_mjs_1.expireStatusEncounter(character);
+                recovery = recovery_mjs_1.recoverAfterEncounter(character, { skillKey: strainSkill, rng });
+                character = recovery.character;
+            }
+            this.commit('COMBAT_ACTION', { combat, character });
+            if (persistentAdversaries.length) {
+                let world = clone(this.state.world);
+                for (const a of persistentAdversaries) {
+                    world = world_mjs_1.setNpcCombatState(world, a.id, { profileKey: a.profileKey, kind: a.kind, wounds: a.wounds, strain: a.strain, criticalInjuries: a.criticalInjuries, status: a.status });
+                    if (a.status === 'incapacitated')
+                        world = world_mjs_1.setNpcStatus(world, a.id, 'incapacitado');
+                }
+                this.commit('WORLD_UPDATED', { world });
+            }
+            let resolvedWorldHook = null;
+            let encounterRecord = null;
+            let aftermath = null;
+            if (causalOutcome) {
+                const resolution = causalOutcome === 'adversaries_defeated' ? 'Conflito encerrado: adversários derrotados.' : causalOutcome === 'player_incapacitated' ? 'Conflito encerrado: jogador incapacitado.' : `Conflito encerrado: ${causalOutcome}.`;
+                const recorded = world_mjs_1.recordEncounterOutcome(this.state.world, { hookId: causalHookId, outcome: causalOutcome, summary: resolution, rounds: Number(preCombat.round ?? 0), adversaries: encounterAdversaries });
+                let world = recorded.world;
+                encounterRecord = recorded.encounter;
+                aftermath = recorded.aftermath;
+                if (causalHookId) {
+                    world = world_mjs_1.resolveWorldHook(world, causalHookId, { resolution });
+                    resolvedWorldHook = world.hooks.find(h => h.id === causalHookId) ?? null;
+                }
+                this.commit('WORLD_UPDATED', { world });
+            }
+            let publishedAdventureOutcome = null;
+            if (publishedAdventureContext?.adventureId) {
+                const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(publishedAdventureContext.adventureId);
+                const published = adapter.recordEncounterOutcome(this.state.world, { encounterId: publishedAdventureContext.encounterId, outcome: causalOutcome ?? 'ended', adversaries: encounterAdversaries });
+                this.commit('WORLD_UPDATED', { world: published.world });
+                publishedAdventureOutcome = published.record;
+            }
+            if (this.state.session?.status === 'ativa')
+                this.commit('SESSION_COMBAT_ENDED', { session: sessionFlow_mjs_1.noteSessionCombatEnded(this.state.session) });
+            return { combat, recovery, resolvedWorldHook, causalOutcome, encounterRecord, aftermath, publishedAdventureOutcome };
+        }
+        useAction(label = 'Ação') {
+            let character = this.state.player.character;
+            const critical = assertCanPerformAction(character);
+            assertPlayerInitiativeTurn(this.state.combat);
+            const combat = combat_mjs_1.spendAction(this.state.combat, label);
+            character = applyActionCriticalStrain(character, critical);
+            this.commit('COMBAT_ACTION', { combat, character });
+            return combat;
+        }
+        useManeuver({ method = 'normal', label = 'Manobra' } = {}) {
+            let character = this.state.player.character;
+            assertCanAct(character);
+            assertPlayerInitiativeTurn(this.state.combat);
+            const status = statusEffects_mjs_1.statusModifiers(character);
+            if (status.cannotManeuver) throw new Error('O personagem está immobilized e não pode realizar manobras agora.');
+            const critical = assertCriticalManeuverAllowed(character, this.state.combat, method);
+            const burden = encumbrance_mjs_1.encumbranceStatus(character);
+            const used = Number(this.state.combat?.playerTurn?.maneuversUsed ?? 0);
+            if (burden.severelyEncumbered && used === 0 && method === 'normal') throw new Error('A carga elimina a manobra gratuita; use a ação ou sofra 2 de Tensão.');
+            let movement = combat_mjs_1.spendManeuver(this.state.combat, { method: used === 0 ? 'normal' : method, label });
+            let strainCost = movement.strainCost;
+            if (burden.severelyEncumbered && used === 0) {
+                if (method === 'strain') strainCost += 2;
+                else if (method === 'action') { if (movement.combat.playerTurn.actionUsed) throw new Error('A ação já foi usada.'); movement.combat.playerTurn.actionUsed = true; }
+            }
+            if (strainCost > 0) character = health_mjs_1.sufferStrain(character, strainCost).character;
+            this.commit('COMBAT_ACTION', { combat: movement.combat, character });
+            return { combat: movement.combat, character, strainCost, encumbrance: burden, critical };
+        }
+        resolveSuggestedMasterCheck({ rng = Math.random } = {}) {
+            const suggested = this.state.master?.suggestedCheck;
+            if (!suggested)
+                throw new Error('O Mestre não sugeriu nenhum teste agora.');
+            const check = this.resolveSkillCheck({ ...suggested, rng });
+            const next = structuredClone(this.state);
+            next.master.suggestedCheck = null;
+            this.state = next;
+            this.repository.save(this.state);
+            return check;
+        }
+        resolveSkillCheck({ skillKey, difficulty = 2, challenge = 0, boost = 0, setback = 0, gearAssist = null, useExpertTalent = false, useLightDestiny = false, usePlayerDestiny = false, useDarkDestiny = false, rng = Math.random }) {
+            let character = this.state.player.character;
+            useLightDestiny = Boolean(useLightDestiny || usePlayerDestiny);
+            let actionCritical = assertCanPerformAction(character);
+            assertPlayerInitiativeTurn(this.state.combat);
+            const characteristicKey = character_mjs_1.SKILLS[skillKey];
+            if (!characteristicKey || !(skillKey in character.skills))
+                throw new Error('Perícia não disponível nesta ficha.');
+            const status = statusEffects_mjs_1.statusModifiers(character, { consumeNextCheck: true });
+            character = status.character;
+            let combat = this.state.combat;
+            if (combat.active)
+                combat = combat_mjs_1.spendAction(combat, `Usar ${skillKey}`);
+            const expert = talents_mjs_1.expertSkillTalentSpec(character, skillKey);
+            let effectiveDifficulty = Number(difficulty);
+            let expertTalent = null;
+            if (useExpertTalent) {
+                if (actionCritical.cannotVoluntarilySufferStrain)
+                    throw new Error('O Ferimento Crítico impede sofrer Tensão voluntariamente para usar este talento.');
+                if (!expert.available)
+                    throw new Error('Esta perícia não possui um talento especialista disponível na ficha.');
+                if (combat.active && combat.playerTurn?.expertSkillTalentUsed)
+                    throw new Error('O talento especialista desta rodada já foi usado.');
+                character = health_mjs_1.sufferStrain(character, expert.strainCost).character;
+                assertCanAct(character);
+                effectiveDifficulty = Math.max(expert.minDifficulty, effectiveDifficulty - expert.difficultyReduction);
+                if (combat.active)
+                    combat.playerTurn.expertSkillTalentUsed = true;
+                expertTalent = { ...expert, used: true, effectiveDifficulty };
+            }
+            const critical = critical_mjs_1.criticalCheckModifiers(character, { skillKey, characteristicKey, consume: true });
+            character = critical.character;
+            const effectiveCharacteristic = Math.max(0, Number(character.characteristics[characteristicKey] ?? 0) - Number(critical.characteristicPenalty ?? 0));
+            let positive = narrativeDice_mjs_1.buildPositivePool(effectiveCharacteristic, character.skills[skillKey]);
+            if (useLightDestiny) { positive = destiny_mjs_1.upgradePositivePool(positive, 1); const group = destiny_mjs_1.flipDestiny(this.state.group, 'light'); this.commit('GROUP_UPDATED', { group }); }
+            effectiveDifficulty += Number(critical.difficultyIncrease ?? 0) + Number(status.difficultyIncrease ?? 0);
+            let criticalDifficulty = difficultyWithUpgrades(effectiveDifficulty, Number(challenge), Number(critical.difficultyUpgrades ?? 0));
+            if (useDarkDestiny) { criticalDifficulty = destiny_mjs_1.upgradeNegativePool(criticalDifficulty, 1); const group = destiny_mjs_1.flipDestiny(this.state.group, 'dark'); this.commit('GROUP_UPDATED', { group }); }
+            const baseSetback = Number(setback);
+            let gearModifier = null;
+            if (gearAssist) {
+                if (gearAssist.itemId === 'tool_kit') {
+                    if (skillKey !== 'mecanica')
+                        throw new Error('Kit de ferramentas só pode aliviar a penalização auditada de Mecânica.');
+                    gearModifier = generalGearEffects_mjs_1.mechanicsToolSetbackRelief(gearAssist.itemId, { setback: baseSetback, missingToolsSetback: gearAssist.missingToolsSetback ?? 0 });
+                }
+                else {
+                    gearModifier = generalGearEffects_mjs_1.opticalSetbackRelief(gearAssist.itemId, { setback: baseSetback, longRangeSetback: gearAssist.longRangeSetback ?? 0, poorLightingSetback: gearAssist.poorLightingSetback ?? 0 });
+                }
+            }
+            const environmentalSetback = gearModifier ? gearModifier.remainingSetback : baseSetback;
+            const burdenSetback = encumbrance_mjs_1.encumbranceSetback(character, characteristicKey);
+            const talentModifiers = talents_mjs_1.talentSkillPoolModifiers(character, skillKey, { boost: Number(boost) + Number(status.boost ?? 0), setback: environmentalSetback + critical.setback + Number(status.setback ?? 0) + burdenSetback });
+            const check = {
+                ...narrativeDice_mjs_1.rollPool({
+                    ...positive,
+                    difficulty: criticalDifficulty.difficulty,
+                    challenge: criticalDifficulty.challenge,
+                    boost: critical.removeBoost ? 0 : talentModifiers.boost,
+                    setback: talentModifiers.setback
+                }, rng),
+                talentModifiers,
+                gearModifier,
+                expertTalent
+            };
+            character = applyActionCriticalStrain(character, critical);
+            this.commit('COMBAT_ACTION', { combat, character, check });
+            if (this.state.session?.status === 'ativa')
+                this.commit('SESSION_CHECK_RESOLVED', { session: sessionFlow_mjs_1.noteSessionCheck(this.state.session) });
+            return check;
+        }
+        resolveCheck({ characteristic, skill, difficulty = 2, challenge = 0, boost = 0, setback = 0, rng = Math.random }) {
+            const positive = narrativeDice_mjs_1.buildPositivePool(characteristic, skill);
+            const result = narrativeDice_mjs_1.rollPool({ ...positive, difficulty: Number(difficulty), challenge: Number(challenge), boost: Number(boost), setback: Number(setback) }, rng);
+            this.commit('CHECK_RESOLVED', result);
+            if (this.state.session?.status === 'ativa')
+                this.commit('SESSION_CHECK_RESOLVED', { session: sessionFlow_mjs_1.noteSessionCheck(this.state.session) });
+            return result;
+        }
+        resolveWeaponAttack({ weaponIndex = 0, targetAdversaryId = null, targetRange = null, difficulty = 2, challenge = 0, boost = 0, setback = 0, useLightDestiny = false, useDarkDestiny = false, rng = Math.random }) {
+            let character = this.state.player.character;
+            assertCanPerformAction(character);
+            assertPlayerInitiativeTurn(this.state.combat);
+            const weapon = character.weapons?.[Number(weaponIndex)];
+            if (!weapon)
+                throw new Error('Arma inválida.');
+            const characteristicKey = character_mjs_1.SKILLS[weapon.skill];
+            if (!characteristicKey)
+                throw new Error('A perícia desta arma ainda não está mapeada.');
+            const status = statusEffects_mjs_1.statusModifiers(character, { consumeNextCheck: true });
+            character = status.character;
+            let combat = this.state.combat;
+            if (combat.active)
+                combat = combat_mjs_1.spendAction(combat, `Ataque: ${weapon.name}`);
+            const critical = critical_mjs_1.criticalCheckModifiers(character, { skillKey: weapon.skill, characteristicKey, consume: true });
+            character = critical.character;
+            const effectiveCharacteristic = Math.max(0, Number(character.characteristics[characteristicKey] ?? 0) - Number(critical.characteristicPenalty ?? 0));
+            let positive = narrativeDice_mjs_1.buildPositivePool(effectiveCharacteristic, character.skills[weapon.skill] ?? 0);
+            if (useLightDestiny) { positive = destiny_mjs_1.upgradePositivePool(positive, 1); const group = destiny_mjs_1.flipDestiny(this.state.group, 'light'); this.commit('GROUP_UPDATED', { group }); }
+            const targetAdversary = targetAdversaryId ? combat.adversaries?.find(a => a.id === targetAdversaryId) : null;
+            if (targetAdversaryId && !targetAdversary)
+                throw new Error('Alvo do encontro não encontrado.');
+            if (targetAdversary && adversaries_mjs_1.adversaryHealthStatus(targetAdversary).incapacitated)
+                throw new Error('Esse adversário já está incapacitado.');
+            const resolvedRange = targetAdversary ? targetAdversary.range : targetRange;
+            const automaticDifficulty = resolvedRange ? attackDifficulty_mjs_1.attackDifficultyForWeapon(weapon, resolvedRange) : Number(difficulty);
+            const upgrades = targetAdversary ? adversaries_mjs_1.upgradeDifficultyForAdversaryTalent(targetAdversary) : 0;
+            let upgraded = difficultyWithUpgrades(automaticDifficulty + Number(critical.difficultyIncrease ?? 0) + Number(status.difficultyIncrease ?? 0), Number(challenge), upgrades + Number(critical.difficultyUpgrades ?? 0));
+            if (useDarkDestiny) { upgraded = destiny_mjs_1.upgradeNegativePool(upgraded, 1); const group = destiny_mjs_1.flipDestiny(this.state.group, 'dark'); this.commit('GROUP_UPDATED', { group }); }
+            const quickStrike = targetAdversary ? talents_mjs_1.quickStrikeBoost(character, { targetActorId: targetAdversary.id, actedActorIds: combat.encounter?.actedActorIds ?? [] }) : { rank: 0, boost: 0, applies: false };
+            const totalBoost = Number(boost) + Number(status.boost ?? 0) + Number(combat.pendingAttackBoost ?? 0) + Number(quickStrike.boost ?? 0);
+            const check = { ...narrativeDice_mjs_1.rollPool({
+                    ...positive,
+                    difficulty: upgraded.difficulty,
+                    challenge: upgraded.challenge,
+                    boost: critical.removeBoost ? 0 : totalBoost,
+                    setback: Number(setback) + critical.setback + Number(status.setback ?? 0) + encumbrance_mjs_1.encumbranceSetback(character, characteristicKey)
+                }, rng), quickStrike };
+            let attack = { ...weapons_mjs_1.resolveWeaponHit(weapon, check), targetRange: resolvedRange, difficulty: upgraded.difficulty, challenge: upgraded.challenge, quickStrikeBoost: quickStrike.boost };
+            const talentDamageBonus = attack.hit ? talents_mjs_1.talentCloseRangeDamageBonus(character, { weapon, targetRange: resolvedRange }) : 0;
+            if (talentDamageBonus > 0)
+                attack = { ...attack, damage: attack.damage + talentDamageBonus, talentDamageBonus };
+            else
+                attack = { ...attack, talentDamageBonus: 0 };
+            combat = clone(combat);
+            combat.pendingAttackBoost = 0;
+            combat.pendingPlayerCritical = null;
+            let targetDamage = null;
+            if (targetAdversary && attack.hit) {
+                targetDamage = adversaries_mjs_1.applyAdversaryDamage(targetAdversary, { damage: attack.damage, pierce: attack.pierce, damageType: attack.damageType });
+                combat = encounter_mjs_1.updateAdversaryInCombat(combat, targetDamage.adversary);
+                if (targetDamage.suffered > 0 && attack.criticalAvailable && !targetDamage.status.incapacitated) {
+                    combat.pendingPlayerCritical = { adversaryId: targetAdversary.id, weapon: weapon.name, cost: attack.criticalCost, byTriumph: Boolean(attack.criticalByTriumph) };
+                }
+                attack = { ...attack, targetAdversaryId: targetAdversary.id, targetName: targetAdversary.name, targetDamage };
+            }
+            character = applyActionCriticalStrain(character, critical);
+            this.commit('COMBAT_ACTION', { combat, character, check, attack });
+            return attack;
+        }
+        activatePendingPlayerCritical() {
+            let combat = clone(this.state.combat);
+            const pending = combat.pendingPlayerCritical;
+            if (!pending)
+                throw new Error('Não há Ferimento Crítico disponível para ativar.');
+            const target = combat.adversaries.find(a => a.id === pending.adversaryId);
+            if (!target)
+                throw new Error('O alvo do crítico não está mais no encontro.');
+            const result = adversaries_mjs_1.applyAdversaryCritical(target, `Crítico ativado por ${this.state.player.character?.name ?? 'PJ'}`);
+            combat = encounter_mjs_1.updateAdversaryInCombat(combat, result.adversary);
+            combat.pendingPlayerCritical = null;
+            combat.log.push({ type: 'CRITICO_ATIVADO', round: combat.round, targetId: target.id, woundsAdded: result.woundsAdded });
+            this.commit('COMBAT_UPDATED', { combat });
+            return result;
+        }
+        applyPlayerDamage({ damage, pierce = 0, damageType = 'wounds', reason = 'Dano recebido', criticalRng = Math.random }) {
+            const character = this.state.player.character;
+            const result = health_mjs_1.applyDamage(character, { damage: Number(damage), pierce: Number(pierce), damageType, reason, criticalRng });
+            this.commit('CHARACTER_UPDATED', { character: result.character });
+            return result;
+        }
+        sufferPlayerStrain(amount) {
+            const result = health_mjs_1.sufferStrain(this.state.player.character, Number(amount));
+            this.commit('CHARACTER_UPDATED', { character: result.character });
+            return result;
+        }
+        usePlayerStimpack({ maneuverMethod = 'normal' } = {}) {
+            let character = this.state.player.character;
+            let combat = this.state.combat;
+            assertCanAct(character);
+            assertPlayerInitiativeTurn(combat);
+            if (combat.active) {
+                assertCriticalManeuverAllowed(character, combat, maneuverMethod);
+                const movement = combat_mjs_1.spendManeuver(combat, { method: maneuverMethod, label: 'Usar injetor de estimulantes' });
+                combat = movement.combat;
+                if (movement.strainCost > 0)
+                    character = health_mjs_1.sufferStrain(character, movement.strainCost).character;
+            }
+            const result = health_mjs_1.useStimpack(character);
+            character = result.character;
+            this.commit('COMBAT_ACTION', { combat, character });
+            return { ...result, combat };
+        }
+        aim({ maneuverMethod = 'normal' } = {}) {
+            let character = this.state.player.character;
+            assertCanAct(character);
+            assertPlayerInitiativeTurn(this.state.combat);
+            assertCriticalManeuverAllowed(character, this.state.combat, maneuverMethod);
+            const movement = combat_mjs_1.spendManeuver(this.state.combat, { method: maneuverMethod, label: 'Mirar' });
+            let combat = movement.combat;
+            if (movement.strainCost > 0)
+                character = health_mjs_1.sufferStrain(character, movement.strainCost).character;
+            combat.pendingAttackBoost = Number(combat.pendingAttackBoost ?? 0) + 1;
+            this.commit('COMBAT_ACTION', { combat, character });
+            return { combat, character, strainCost: movement.strainCost };
+        }
+        useMedicine({ medicalSupplies = true, medicalItemId = null, rng = Math.random } = {}) {
+            let character = this.state.player.character;
+            assertCanPerformAction(character);
+            assertPlayerInitiativeTurn(this.state.combat);
+            if (this.state.combat.active && this.state.combat.medicineUsed)
+                throw new Error('A tentativa de Medicina deste encontro já foi usada.');
+            let combat = this.state.combat.active ? combat_mjs_1.spendAction(this.state.combat, 'Medicina') : clone(this.state.combat);
+            const medSkillKey = character?.creation?.speciesKey === 'droid' ? 'mecanica' : 'medicina';
+            const medCharacteristic = character_mjs_1.SKILLS[medSkillKey];
+            const critical = critical_mjs_1.criticalCheckModifiers(character, { skillKey: medSkillKey, characteristicKey: medCharacteristic, consume: true });
+            character = critical.character;
+            const result = recovery_mjs_1.resolveMedicineCheck(character, character, { medicalSupplies, medicalItemId, setback: critical.setback, difficultyIncrease: critical.difficultyIncrease, difficultyUpgrades: critical.difficultyUpgrades, characteristicPenalty: critical.characteristicPenalty, removeBoost: critical.removeBoost, rng });
+            if (this.state.combat.active)
+                combat.medicineUsed = true;
+            result.character = applyActionCriticalStrain(result.character, critical);
+            this.commit('COMBAT_ACTION', { combat, character: result.character, check: result.check });
+            return result;
+        }
+        applyPlayerCritical(reason = 'Ferimento crítico', options = {}) {
+            const character = requireCharacter(this.state.player.character);
+            const result = critical_mjs_1.addStarterCritical(character, reason, options);
+            if (result.added)
+                this.commit('CHARACTER_UPDATED', { character: result.character });
+            return result;
+        }
+        restFullNight() {
+            if (this.state.combat.active)
+                throw new Error('Encerre o encontro antes de descansar uma noite completa.');
+            const result = recovery_mjs_1.restFullNight(this.state.player.character);
+            this.commit('CHARACTER_UPDATED', { character: result.character });
+            return result;
+        }
+        healthStatus() {
+            if (!this.state.player.character)
+                return null;
+            return health_mjs_1.getHealthStatus(this.state.player.character);
+        }
+        vehicleProfiles() {
+            return vehicles_mjs_1.STARTER_VEHICLE_PROFILES;
+        }
+        activeVehicle() {
+            const id = this.state.vehicles?.activeVehicleId;
+            return id ? this.state.vehicles.vehicles?.[id] ?? null : null;
+        }
+        addVehicle(profileKey, { setActive = true, id = null, name = null } = {}) {
+            const vehicles = clone(this.state.vehicles);
+            const vehicle = vehicles_mjs_1.createVehicleFromProfile(profileKey, { id: id ?? `veh_${profileKey}`, name });
+            vehicles.vehicles[vehicle.id] = vehicle;
+            if (setActive)
+                vehicles.activeVehicleId = vehicle.id;
+            this.commit('VEHICLES_UPDATED', { vehicles });
+            return vehicle;
+        }
+        selectVehicle(vehicleId) {
+            const vehicles = clone(this.state.vehicles);
+            if (!vehicles.vehicles?.[vehicleId])
+                throw new Error('Nave/veículo não encontrado.');
+            vehicles.activeVehicleId = vehicleId;
+            this.commit('VEHICLES_UPDATED', { vehicles });
+            return vehicles.vehicles[vehicleId];
+        }
+        beginVehicleCombat({ targetProfileKey = 'tie_ln', range = 'Curto' } = {}) {
+            const active = this.activeVehicle();
+            if (!active)
+                throw new Error('Selecione uma nave/veículo antes de iniciar o encontro.');
+            const vehicles = clone(this.state.vehicles);
+            const target = vehicles_mjs_1.createVehicleFromProfile(targetProfileKey, { id: `target_${targetProfileKey}` });
+            vehicles.vehicles[target.id] = target;
+            vehicles.combat = { ...vehicles.combat, active: true, round: 1, targetVehicleId: target.id, range, actionUsed: false, maneuversUsed: 0, lastAttack: null, log: [...(vehicles.combat.log ?? []), { type: 'INICIO_COMBATE_VEICULO', round: 1, targetId: target.id }] };
+            this.commit('VEHICLES_UPDATED', { vehicles });
+            return vehicles.combat;
+        }
+        endVehicleCombat() {
+            const vehicles = clone(this.state.vehicles);
+            vehicles.combat = { ...vehicles.combat, active: false, round: 0, targetVehicleId: null, actionUsed: false, maneuversUsed: 0, lastAttack: null };
+            for (const v of Object.values(vehicles.vehicles ?? {}))
+                if (v?.roundEffects) {
+                    const base = vehicles_mjs_1.STARTER_VEHICLE_PROFILES[v.key]?.speedMax;
+                    if (Number.isFinite(base)) {
+                        v.speedMax = base;
+                        v.speed = Math.min(v.speed, v.speedMax);
+                    }
+                    v.roundEffects = { evasive: false, stayOnTarget: false, enfiladeTargetId: null, controlledFire: false };
+                }
+            this.commit('VEHICLES_UPDATED', { vehicles });
+            return vehicles.combat;
+        }
+        nextVehicleRound() {
+            const vehicles = clone(this.state.vehicles);
+            if (!vehicles.combat.active)
+                throw new Error('Não há combate de naves/veículos ativo.');
+            vehicles.combat.round = Math.max(1, Number(vehicles.combat.round || 1) + 1);
+            vehicles.combat.actionUsed = false;
+            vehicles.combat.maneuversUsed = 0;
+            let active = vehicles.vehicles[vehicles.activeVehicleId];
+            if (active) {
+                const expired = vehicles_mjs_1.expireFullThrottle(active, vehicles.combat.round);
+                active = vehicles_mjs_1.expireVehicleCriticalRound(expired.vehicle, vehicles.combat.round);
+                const ft = active.roundEffects?.fullThrottle ?? null;
+                active.roundEffects = { evasive: false, stayOnTarget: false, enfiladeTargetId: null, controlledFire: false, ...(ft ? { fullThrottle: ft } : {}) };
+                vehicles.vehicles[active.id] = active;
+            }
+            let target = vehicles.vehicles[vehicles.combat.targetVehicleId];
+            if (target) {
+                const expired = vehicles_mjs_1.expireFullThrottle(target, vehicles.combat.round);
+                target = vehicles_mjs_1.expireVehicleCriticalRound(expired.vehicle, vehicles.combat.round);
+                const ft = target.roundEffects?.fullThrottle ?? null;
+                target.roundEffects = { evasive: false, stayOnTarget: false, enfiladeTargetId: null, controlledFire: false, ...(ft ? { fullThrottle: ft } : {}) };
+                vehicles.vehicles[target.id] = target;
+            }
+            this.commit('VEHICLES_UPDATED', { vehicles });
+            return vehicles.combat;
+        }
+        useVehiclePilotManeuver(kind, { method = 'normal', direction = 'closer' } = {}) {
+            const vehicles = clone(this.state.vehicles);
+            const active = vehicles.vehicles?.[vehicles.activeVehicleId];
+            if (!active)
+                throw new Error('Nenhuma nave/veículo ativo.');
+            const criticalStatus = vehicles_mjs_1.vehicleStatus(active, { currentRound: vehicles.combat.round });
+            if (criticalStatus.destroyed)
+                throw new Error('A nave/veículo foi destruída.');
+            if (criticalStatus.noManeuvers)
+                throw new Error('Um Critical Hit impede manobras da nave/veículo até ser resolvido ou reparado.');
+            if (criticalStatus.tractorLocked && ['accelerate','brake','advance','punch_it','stop_short'].includes(kind))
+                throw new Error(`Raio trator ativo: faça um teste de Pilotagem dificuldade ${criticalStatus.tractorDifficulty} antes de mover a nave/veículo.`);
+            if (vehicles.combat.active) {
+                const used = Number(vehicles.combat.maneuversUsed ?? 0);
+                if (used >= 2)
+                    throw new Error('A nave/veículo já recebeu 2 manobras exclusivas de piloto neste assalto.');
+                if (used === 1) {
+                    if (method === 'strain') {
+                        if (!vehicles_mjs_1.canVoluntarilyInflictVehicleStrain(active))
+                            throw new Error('Power Fluctuations impede sofrer Tensão de sistemas voluntariamente.');
+                        active.systemStrain += 2;
+                    }
+                    else if (method === 'action') {
+                        if (vehicles.combat.actionUsed)
+                            throw new Error('A ação deste assalto já foi usada.');
+                        vehicles.combat.actionUsed = true;
+                    }
+                    else
+                        throw new Error('A segunda manobra exige 2 de Tensão de sistemas ou trocar a ação.');
+                }
+                vehicles.combat.maneuversUsed = used + 1;
+            }
+            let result = null;
+            if (kind === 'accelerate')
+                result = vehicles_mjs_1.accelerateOrBrake(active, 1);
+            else if (kind === 'brake')
+                result = vehicles_mjs_1.accelerateOrBrake(active, -1);
+            else if (kind === 'advance') {
+                vehicles.combat.range = vehicles_mjs_1.movePlanetaryRange(vehicles.combat.range, { direction, speed: active.speed });
+                result = active;
+            }
+            else if (kind === 'evasive')
+                result = vehicles_mjs_1.setEvasiveManeuvers(active, true);
+            else if (kind === 'stay_on_target')
+                result = vehicles_mjs_1.setStayOnTarget(active, true);
+            else if (kind === 'punch_it') {
+                const r = vehicles_mjs_1.punchIt(active);
+                result = r.vehicle;
+            }
+            else if (kind === 'stop_short') {
+                const r = vehicles_mjs_1.stopShort(active);
+                result = r.vehicle;
+            }
+            else
+                throw new Error('Manobra de nave/veículo desconhecida.');
+            vehicles.vehicles[active.id] = result;
+            vehicles.combat.log = [...(vehicles.combat.log ?? []), { type: 'MANOBRA_VEICULO', round: vehicles.combat.round, kind, vehicleId: active.id }];
+            this.commit('VEHICLES_UPDATED', { vehicles });
+            return { vehicle: result, combat: vehicles.combat, status: vehicles_mjs_1.vehicleStatus(result) };
+        }
+        useFullThrottle({ asManeuver = false, secondManeuverMethod = 'normal', skillKey = 'pilotar_vehiculo_espacial', rng = Math.random } = {}) {
+            let character = requireCharacter(this.state.player.character);
+            const vehicles = clone(this.state.vehicles);
+            const active = vehicles.vehicles?.[vehicles.activeVehicleId];
+            if (!active)
+                throw new Error('Nenhuma nave/veículo ativo.');
+            const criticalStatus = vehicles_mjs_1.vehicleStatus(active, { currentRound: vehicles.combat.round });
+            if (criticalStatus.destroyed || criticalStatus.noManeuvers)
+                throw new Error('Um Critical Hit impede esta manobra/ação de pilotagem.');
+            if (!vehicles.combat.active)
+                throw new Error('Aceleração máxima usa assaltos e exige um encontro de nave/veículo ativo.');
+            if (asManeuver) {
+                const used = Number(vehicles.combat.maneuversUsed ?? 0);
+                if (used >= 2)
+                    throw new Error('A nave/veículo já recebeu 2 manobras exclusivas de piloto neste assalto.');
+                if (used === 1) {
+                    if (secondManeuverMethod === 'strain') {
+                        if (!vehicles_mjs_1.canVoluntarilyInflictVehicleStrain(active))
+                            throw new Error('Power Fluctuations impede sofrer Tensão de sistemas voluntariamente.');
+                        active.systemStrain += 2;
+                    }
+                    else if (secondManeuverMethod === 'action') {
+                        if (vehicles.combat.actionUsed)
+                            throw new Error('A ação deste assalto já foi usada.');
+                        vehicles.combat.actionUsed = true;
+                    }
+                    else
+                        throw new Error('A segunda manobra exige 2 de Tensão de sistemas ou trocar a ação.');
+                }
+                vehicles.combat.maneuversUsed = used + 1;
+            }
+            else {
+                if (vehicles.combat.actionUsed)
+                    throw new Error('A ação deste assalto já foi usada.');
+                vehicles.combat.actionUsed = true;
+            }
+            const result = vehicles_mjs_1.attemptFullThrottle(active, character, { skillKey, asManeuver, currentRound: vehicles.combat.round, rng });
+            if (result.personalStrainCost > 0)
+                character = health_mjs_1.sufferStrain(character, result.personalStrainCost).character;
+            vehicles.vehicles[active.id] = result.vehicle;
+            vehicles.combat.log = [...(vehicles.combat.log ?? []), { type: 'ACELERACAO_MAXIMA', round: vehicles.combat.round, vehicleId: active.id, success: result.check.success, bonus: result.bonus, asManeuver }];
+            this.commit('VEHICLES_UPDATED', { vehicles });
+            if (result.personalStrainCost > 0)
+                this.commit('CHARACTER_UPDATED', { character });
+            return { ...result, character, combat: vehicles.combat };
+        }
+        useControlledFire() {
+            throw new Error('Fogo controlado pertence ao legado Age of Rebellion e não faz parte das 18 especializações EotE Core ativas.');
+        }
+        resolveVehicleAttack({ weaponIndex = 0, facing = 'proa', rng = Math.random } = {}) {
+            const character = requireCharacter(this.state.player.character);
+            const vehicles = clone(this.state.vehicles);
+            if (!vehicles.combat.active)
+                throw new Error('Inicie um combate de naves/veículos.');
+            if (vehicles.combat.actionUsed)
+                throw new Error('A ação deste assalto já foi usada.');
+            const attacker = vehicles.vehicles?.[vehicles.activeVehicleId], target = vehicles.vehicles?.[vehicles.combat.targetVehicleId];
+            if (!attacker || !target)
+                throw new Error('Atacante ou alvo de veículo ausente.');
+            const attack = vehicles_mjs_1.resolveVehicleWeaponAttack({ character, attacker, target, facing, weaponIndex, targetRange: vehicles.combat.range, rng });
+            vehicles.combat.actionUsed = true;
+            vehicles.combat.lastAttack = attack;
+            if (attack.targetDamage)
+                vehicles.vehicles[target.id] = attack.targetDamage.vehicle;
+            else if (attack.targetEffect?.vehicle)
+                vehicles.vehicles[target.id] = attack.targetEffect.vehicle;
+            vehicles.combat.log = [...(vehicles.combat.log ?? []), { type: 'ATAQUE_VEICULO', round: vehicles.combat.round, attackerId: attacker.id, targetId: target.id, hit: attack.hit, damage: attack.targetDamage?.suffered ?? 0, specialEffect: attack.targetEffect?.type ?? null }];
+            this.commit('VEHICLES_UPDATED', { vehicles });
+            return attack;
+        }
+        applyVehicleDamage({ damage = 0, breach = 0, target = 'active' } = {}) {
+            const vehicles = clone(this.state.vehicles);
+            const id = target === 'target' ? vehicles.combat.targetVehicleId : vehicles.activeVehicleId;
+            const vehicle = vehicles.vehicles?.[id];
+            if (!vehicle)
+                throw new Error('Nave/veículo não encontrado.');
+            const result = vehicles_mjs_1.applyVehicleScaleDamage(vehicle, { damage, breach });
+            vehicles.vehicles[id] = result.vehicle;
+            this.commit('VEHICLES_UPDATED', { vehicles });
+            return result;
+        }
+        applyVehicleStrain(amount) {
+            const vehicles = clone(this.state.vehicles);
+            const id = vehicles.activeVehicleId;
+            const vehicle = vehicles.vehicles?.[id];
+            if (!vehicle)
+                throw new Error('Nave/veículo não encontrado.');
+            const result = vehicles_mjs_1.applyVehicleSystemStrain(vehicle, amount);
+            vehicles.vehicles[id] = result.vehicle;
+            this.commit('VEHICLES_UPDATED', { vehicles });
+            return result;
+        }
+        vehicleDamageControl({ boost = 0, setback = 0, rng = Math.random } = {}) {
+            const character = requireCharacter(this.state.player.character);
+            const vehicles = clone(this.state.vehicles);
+            const vehicle = vehicles.vehicles?.[vehicles.activeVehicleId];
+            if (!vehicle)
+                throw new Error('Nave/veículo não encontrado.');
+            if (vehicles.combat.active && vehicles.combat.actionUsed)
+                throw new Error('A ação deste assalto já foi usada.');
+            const diff = vehicles_mjs_1.damageControlDifficulty(vehicle);
+            const positive = narrativeDice_mjs_1.buildPositivePool(character.characteristics.intelecto, character.skills.mecanica ?? 0);
+            const talentModifiers = talents_mjs_1.talentSkillPoolModifiers(character, 'mecanica', { boost, setback });
+            const check = { ...narrativeDice_mjs_1.rollPool({ ...positive, difficulty: diff, challenge: 0, boost: talentModifiers.boost, setback: talentModifiers.setback }, rng), talentModifiers };
+            let repaired = { vehicle, systemStrainRecovered: 0, hullRecovered: 0 };
+            if (check.netSuccess > 0)
+                repaired = vehicles_mjs_1.applyDamageControl(vehicle, { successes: check.netSuccess, operator: character });
+            vehicles.vehicles[vehicle.id] = repaired.vehicle;
+            if (vehicles.combat.active)
+                vehicles.combat.actionUsed = true;
+            this.commit('VEHICLES_UPDATED', { vehicles });
+            return { check, difficulty: diff, ...repaired };
+        }
+        applyActiveVehicleCritical({ roll = null, rng = Math.random, modifier = 0, component = null, defenseZone = 'proa', inAtmosphere = false } = {}) {
+            const vehicles = clone(this.state.vehicles);
+            const vehicle = vehicles.vehicles?.[vehicles.activeVehicleId];
+            if (!vehicle)
+                throw new Error('Nave/veículo não encontrado.');
+            const result = vehicles_mjs_1.applyVehicleCritical(vehicle, { roll, rng, modifier, component, defenseZone, inAtmosphere, currentRound: vehicles.combat.round });
+            vehicles.vehicles[vehicle.id] = result.vehicle;
+            let character = this.state.player.character;
+            if (character && Number(result.hit?.crewStrain ?? 0) > 0)
+                character = health_mjs_1.sufferStrain(character, Number(result.hit.crewStrain)).character;
+            if (character && Number(result.hit?.crewDisorientedRounds ?? 0) > 0)
+                character = statusEffects_mjs_1.applyStatusEffect(character, { type: 'disoriented', duration: 'rounds', rounds: Number(result.hit.crewDisorientedRounds), sourceId: `vehicle-critical:${result.hit.number}` });
+            this.commit('VEHICLES_UPDATED', { vehicles });
+            if (character && character !== this.state.player.character)
+                this.commit('CHARACTER_UPDATED', { character });
+            return { ...result, character };
+        }
+        repairActiveVehicleCritical(index, { encounterEnded = !this.state.vehicles?.combat?.active } = {}) {
+            const vehicles = clone(this.state.vehicles);
+            const vehicle = vehicles.vehicles?.[vehicles.activeVehicleId];
+            if (!vehicle)
+                throw new Error('Nave/veículo não encontrado.');
+            const repaired = vehicles_mjs_1.repairVehicleCritical(vehicle, index, { encounterEnded });
+            vehicles.vehicles[vehicle.id] = repaired;
+            this.commit('VEHICLES_UPDATED', { vehicles });
+            return { vehicle: repaired, status: vehicles_mjs_1.vehicleStatus(repaired, { currentRound: vehicles.combat.round }) };
+        }
+        restVehicleFullDay({ sufferedNewStrain = false } = {}) {
+            const vehicles = clone(this.state.vehicles);
+            const vehicle = vehicles.vehicles?.[vehicles.activeVehicleId];
+            if (!vehicle)
+                throw new Error('Nave/veículo não encontrado.');
+            const result = vehicles_mjs_1.recoverVehicleSystemsAfterFullDay(vehicle, { sufferedNewStrain });
+            vehicles.vehicles[vehicle.id] = result.vehicle;
+            this.commit('VEHICLES_UPDATED', { vehicles });
+            return result;
+        }
+        vehiclePilotingHazardCheck({ boost = 0, setback = 0, rng = Math.random } = {}) {
+            const character = requireCharacter(this.state.player.character);
+            const vehicle = this.activeVehicle();
+            if (!vehicle)
+                throw new Error('Nave/veículo não encontrado.');
+            const { difficulty, upgrades } = vehicles_mjs_1.pilotingHazardDifficulty(vehicle);
+            const pool = vehicles_mjs_1.handlingPoolModifier(vehicle);
+            const upgraded = difficultyWithUpgrades(difficulty, 0, upgrades);
+            const positive = narrativeDice_mjs_1.buildPositivePool(character.characteristics.agilidad, character.skills.pilotar_vehiculo_espacial ?? 0);
+            const talentModifiers = talents_mjs_1.talentSkillPoolModifiers(character, 'pilotar_vehiculo_espacial', { boost: Number(boost) + pool.boost, setback: Number(setback) + pool.setback });
+            const criticalStatus = vehicles_mjs_1.vehicleStatus(vehicle, { currentRound: this.state.vehicles?.combat?.round ?? 0 });
+            const recoveryDifficulty = criticalStatus.noManeuvers && Number(vehicles_mjs_1.vehicleCriticalModifiers(vehicle, { currentRound: this.state.vehicles?.combat?.round ?? 0 }).pilotRecoveryDifficulty ?? 0) > 0
+                ? Number(vehicles_mjs_1.vehicleCriticalModifiers(vehicle, { currentRound: this.state.vehicles?.combat?.round ?? 0 }).pilotRecoveryDifficulty)
+                : difficulty;
+            const recoveryUpgraded = difficultyWithUpgrades(recoveryDifficulty, 0, upgrades);
+            const check = { ...narrativeDice_mjs_1.rollPool({ ...positive, ...recoveryUpgraded, boost: talentModifiers.boost, setback: talentModifiers.setback }, rng), talentModifiers };
+            this.commit('CHECK_RESOLVED', check);
+            if (check.success && criticalStatus.noManeuvers) {
+                const vehicles = clone(this.state.vehicles);
+                const recovered = vehicles_mjs_1.clearKnockedOffCourse(vehicles.vehicles[vehicle.id]);
+                vehicles.vehicles[vehicle.id] = recovered;
+                this.commit('VEHICLES_UPDATED', { vehicles });
+            }
+            return { check, difficulty: recoveryDifficulty, upgrades, talentModifiers };
+        }
+        attemptTractorEscape({ boost = 0, setback = 0, rng = Math.random } = {}) {
+            const character = requireCharacter(this.state.player.character);
+            const vehicles = clone(this.state.vehicles);
+            const vehicle = vehicles.vehicles?.[vehicles.activeVehicleId];
+            if (!vehicle)
+                throw new Error('Nave/veículo não encontrado.');
+            const result = vehicles_mjs_1.tractorEscapeCheck(vehicle, character, { rng, boost, setback });
+            if (!result.skipped) {
+                vehicles.vehicles[vehicle.id] = result.vehicle;
+                this.commit('VEHICLES_UPDATED', { vehicles });
+                this.commit('CHECK_RESOLVED', result.check);
+            }
+            return result;
+        }
+        plotHyperspaceCourse({ difficulty = 1, boost = 0, setback = 0, rng = Math.random } = {}) {
+            const character = requireCharacter(this.state.player.character);
+            const vehicle = this.activeVehicle();
+            if (!vehicle)
+                throw new Error('Nave/veículo não encontrado.');
+            if (!vehicle.hyperdrive)
+                throw new Error('Esta nave/veículo não possui hiperimpulsor.');
+            const criticalStatus = vehicles_mjs_1.vehicleStatus(vehicle, { currentRound: this.state.vehicles?.combat?.round ?? 0 });
+            if (criticalStatus.hyperspaceDisabled)
+                throw new Error('Critical Hit: hiperimpulsor/computador de navegação inoperante até reparo.');
+            if (!vehicle.navComputer && !vehicle.astromechPort)
+                throw new Error('A nave não possui computador de navegação nem suporte astromecânico para calcular a rota.');
+            const positive = narrativeDice_mjs_1.buildPositivePool(character.characteristics.intelecto, character.skills.astronavegacion ?? 0);
+            const talentModifiers = talents_mjs_1.talentSkillPoolModifiers(character, 'astronavegacion', { boost, setback });
+            const check = { ...narrativeDice_mjs_1.rollPool({ ...positive, difficulty: Number(difficulty), challenge: 0, boost: talentModifiers.boost, setback: talentModifiers.setback }, rng), talentModifiers };
+            this.commit('CHECK_RESOLVED', check);
+            const timeMultiplier = talents_mjs_1.galacticCartographerTimeMultiplier(character);
+            return { check, difficulty: Number(difficulty), vehicleId: vehicle.id, talentModifiers, timeMultiplier };
+        }
+        adversaryProfiles() {
+            return adversaries_mjs_1.ADVERSARY_PROFILES;
+        }
+        adHocNpc(payload = {}) { return adversaries_mjs_1.createAdHocRival(payload); }
+        allyNpcControlModes() { return structuredClone(adversaries_mjs_1.ALLY_NPC_CONTROL_MODES); }
+    }
+    
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///mnt/data/sw_p50/sw_p47/tests/r54-p33-under-black-sun.test.mjs:129:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: UI publicada oferece ROLAR por check
+ok 22 - UI publicada oferece ROLAR por check
+  ---
+  duration_ms: 0.956509
+  type: 'test'
+  ...
+# Subtest: resultado narrativo mostra sucesso, vantagem, momentum e alerta
+ok 23 - resultado narrativo mostra sucesso, vantagem, momentum e alerta
+  ---
+  duration_ms: 1.245959
+  type: 'test'
+  ...
+# Subtest: check resolvido tem estado visual
+ok 24 - check resolvido tem estado visual
+  ---
+  duration_ms: 0.333734
+  type: 'test'
+  ...
+# Subtest: P36: save P35 sem systems migra sem resetar nó, flags ou histórico
+ok 25 - P36: save P35 sem systems migra sem resetar nó, flags ou histórico
+  ---
+  duration_ms: 6.278019
+  type: 'test'
+  ...
+# Subtest: P36: perseguição usa consequência narrativa persistente e superfície anti-spoiler
+ok 26 - P36: perseguição usa consequência narrativa persistente e superfície anti-spoiler
+  ---
+  duration_ms: 4.1368
+  type: 'test'
+  ...
+# Subtest: P36: sabacc acumula rodadas e créditos de modo persistente
+ok 27 - P36: sabacc acumula rodadas e créditos de modo persistente
+  ---
+  duration_ms: 4.675843
+  type: 'test'
+  ...
+# Subtest: P36: Zelcomm entra em lockdown e NovaCORE pode escalar risco + Tensão
+ok 28 - P36: Zelcomm entra em lockdown e NovaCORE pode escalar risco + Tensão
+  ---
+  duration_ms: 6.07602
+  type: 'test'
+  ...
+# Subtest: P36: perfis Black Sun e Kaa’to existem na autoridade de combate usada pelo controller
+ok 29 - P36: perfis Black Sun e Kaa’to existem na autoridade de combate usada pelo controller
+  ---
+  duration_ms: 3.379071
+  type: 'test'
+  ...
+# Subtest: P36: controller inicia encontro publicado e grava desfecho persistente
+ok 30 - P36: controller inicia encontro publicado e grava desfecho persistente
+  ---
+  duration_ms: 35.935384
+  type: 'test'
+  ...
+# Subtest: P36: Kaa’to usa NPC do mundo, persiste incapacitação e não reaparece íntegro
+ok 31 - P36: Kaa’to usa NPC do mundo, persiste incapacitação e não reaparece íntegro
+  ---
+  duration_ms: 67.151954
+  type: 'test'
+  ...
+# Subtest: P36: consequência de sabacc atinge créditos reais do personagem pelo controller
+ok 32 - P36: consequência de sabacc atinge créditos reais do personagem pelo controller
+  ---
+  duration_ms: 22.927851
+  type: 'test'
+  ...
+# Subtest: P36: mantém gate EotE/MIXED e não converte Duty/Obligation entre linhas
+ok 33 - P36: mantém gate EotE/MIXED e não converte Duty/Obligation entre linhas
+  ---
+  duration_ms: 5.776439
+  type: 'test'
+  ...
+# Subtest: P36: runtime e bridge expõem sistemas/encontro sem revelar especificação futura
+ok 34 - P36: runtime e bridge expõem sistemas/encontro sem revelar especificação futura
+  ---
+  duration_ms: 2.129821
+  type: 'test'
+  ...
+# Subtest: P37: epílogo persiste destino de Kaa’to e consequências de facções sem spoiler antecipado
+ok 35 - P37: epílogo persiste destino de Kaa’to e consequências de facções sem spoiler antecipado
+  ---
+  duration_ms: 5.569257
+  type: 'test'
+  ...
+# Subtest: P37: roubo Zelcomm adiciona Obligation antes da recompensa e mantém Duty separado
+ok 36 - P37: roubo Zelcomm adiciona Obligation antes da recompensa e mantém Duty separado
+  ---
+  duration_ms: 53.53529
+  type: 'test'
+  ...
+# Subtest: P39: epílogo integra consequências ao Mundo Vivo somente após o desfecho
+ok 37 - P39: epílogo integra consequências ao Mundo Vivo somente após o desfecho
+  ---
+  duration_ms: 4.466915
+  type: 'test'
+  ...
+# Subtest: P39: Kaa’to morto sincroniza estado profundo e não cria plano de retorno
+ok 38 - P39: Kaa’to morto sincroniza estado profundo e não cria plano de retorno
+  ---
+  duration_ms: 3.927441
+  type: 'test'
+  ...
+# Subtest: P40: planos só existem após epílogo e avançam pelo relógio
+ok 39 - P40: planos só existem após epílogo e avançam pelo relógio
+  ---
+  duration_ms: 24.87843
+  type: 'test'
+  ...
+# Subtest: P40: Pykes resolvem consequência e alteram influência persistentemente
+ok 40 - P40: Pykes resolvem consequência e alteram influência persistentemente
+  ---
+  duration_ms: 13.167915
+  type: 'test'
+  ...
+# Subtest: P40: retaliação Zelcomm cria consequência jogável conhecida
+ok 41 - P40: retaliação Zelcomm cria consequência jogável conhecida
+  ---
+  duration_ms: 10.173133
+  type: 'test'
+  ...
+# Subtest: P40: retorno de Kaa’to resolve sem vazar ao jogador antes de entrar em cena
+ok 42 - P40: retorno de Kaa’to resolve sem vazar ao jogador antes de entrar em cena
+  ---
+  duration_ms: 9.504202
+  type: 'test'
+  ...
+# Subtest: P40: Kaa’to morto continua sem plano de retorno
+ok 43 - P40: Kaa’to morto continua sem plano de retorno
+  ---
+  duration_ms: 9.488259
+  type: 'test'
+  ...
+# Subtest: P41 Umbra oferece rota social sem combate e persiste abordagem
+ok 44 - P41 Umbra oferece rota social sem combate e persiste abordagem
+  ---
+  duration_ms: 7.329705
+  type: 'test'
+  ...
+# Subtest: P41 Spyder oferece infiltração por sabacc e pode manter Black Sun fora
+ok 45 - P41 Spyder oferece infiltração por sabacc e pode manter Black Sun fora
+  ---
+  duration_ms: 2.2684
+  type: 'test'
+  ...
+# Subtest: P41 Zelcomm oferece engenharia social sem roubo/Obligation
+ok 46 - P41 Zelcomm oferece engenharia social sem roubo/Obligation
+  ---
+  duration_ms: 2.684413
+  type: 'test'
+  ...
+# Subtest: P41 status do jogador filtra consequências ocultas
+ok 47 - P41 status do jogador filtra consequências ocultas
+  ---
+  duration_ms: 3.113872
+  type: 'test'
+  ...
+# Subtest: P41 mantém campanha publicada EOTE/MIXED
+ok 48 - P41 mantém campanha publicada EOTE/MIXED
+  ---
+  duration_ms: 0.340139
+  type: 'test'
+  ...
+# Subtest: P42 NPC só é revelado quando entra em cena e card não contém fatos futuros
+ok 49 - P42 NPC só é revelado quando entra em cena e card não contém fatos futuros
+  ---
+  duration_ms: 8.669038
+  type: 'test'
+  ...
+# Subtest: P42 solução discreta no Umbra vira memória/relação persistente
+ok 50 - P42 solução discreta no Umbra vira memória/relação persistente
+  ---
+  duration_ms: 9.831864
+  type: 'test'
+  ...
+# Subtest: P42 Spyder discreto preserva relação de Fenn
+ok 51 - P42 Spyder discreto preserva relação de Fenn
+  ---
+  duration_ms: 5.407484
+  type: 'test'
+  ...
+# Subtest: P42 Zelcomm social melhora relação sem armas/Obligation
+ok 52 - P42 Zelcomm social melhora relação sem armas/Obligation
+  ---
+  duration_ms: 5.807239
+  type: 'test'
+  ...
+# Subtest: P43 feedback de teste persiste apenas como efeito player-safe de cena visitada
+ok 53 - P43 feedback de teste persiste apenas como efeito player-safe de cena visitada
+  ---
+  duration_ms: 9.18987
+  type: 'test'
+  ...
+# Subtest: P43 cards só incluem NPC conhecido/presente e portraitAsset é sanitizado
+ok 54 - P43 cards só incluem NPC conhecido/presente e portraitAsset é sanitizado
+  ---
+  duration_ms: 2.349099
+  type: 'test'
+  ...
+# Subtest: P43 preserva EOTE/MIXED e não habilita AOR puro
+ok 55 - P43 preserva EOTE/MIXED e não habilita AOR puro
+  ---
+  duration_ms: 0.81528
+  type: 'test'
+  ...
+# Subtest: P44 feedback contextual revela apenas efeito mecânico já ocorrido
+ok 56 - P44 feedback contextual revela apenas efeito mecânico já ocorrido
+  ---
+  duration_ms: 0.678168
+  type: 'test'
+  ...
+# Subtest: P45 pistas começam vazias e não antecipam investigação futura
+ok 57 - P45 pistas começam vazias e não antecipam investigação futura
+  ---
+  duration_ms: 12.2332
+  type: 'test'
+  ...
+# Subtest: P45 hub expõe somente alvo já conhecido
+ok 58 - P45 hub expõe somente alvo já conhecido
+  ---
+  duration_ms: 8.942053
+  type: 'test'
+  ...
+# Subtest: P45 pista Umbra persiste ao voltar ao hub sem vazar outras rotas
+ok 59 - P45 pista Umbra persiste ao voltar ao hub sem vazar outras rotas
+  ---
+  duration_ms: 1.535089
+  type: 'test'
+  ...
+# Subtest: P45 Zelcomm libera Sector 943 apenas após a rota correspondente
+ok 60 - P45 Zelcomm libera Sector 943 apenas após a rota correspondente
+  ---
+  duration_ms: 2.205643
+  type: 'test'
+  ...
+# Subtest: P45 convergência NovaCORE só aparece quando o endgame foi alcançado
+ok 61 - P45 convergência NovaCORE só aparece quando o endgame foi alcançado
+  ---
+  duration_ms: 6.224327
+  type: 'test'
+  ...
+# Subtest: P45 rota spyder-sabacc usa subsistema real e o exibe na cena
+ok 62 - P45 rota spyder-sabacc usa subsistema real e o exibe na cena
+  ---
+  duration_ms: 8.813288
+  type: 'test'
+  ...
+# Subtest: P45 UI possui superfície explícita de pistas conhecidas
+ok 63 - P45 UI possui superfície explícita de pistas conhecidas
+  ---
+  duration_ms: 4.670219
+  type: 'test'
+  ...
+# Subtest: P46: grafo publicado não tem destinos quebrados e só o epílogo é terminal
+ok 64 - P46: grafo publicado não tem destinos quebrados e só o epílogo é terminal
+  ---
+  duration_ms: 1.850372
+  type: 'test'
+  ...
+# Subtest: P46: rota NovaCORE muda a apresentação sem revelar rota não escolhida
+ok 65 - P46: rota NovaCORE muda a apresentação sem revelar rota não escolhida
+  ---
+  duration_ms: 17.989604
+  type: 'test'
+  ...
+# Subtest: P46: negociação final permite concluir sem combate somente após teste bem-sucedido
+ok 66 - P46: negociação final permite concluir sem combate somente após teste bem-sucedido
+  ---
+  duration_ms: 19.595786
+  type: 'test'
+  ...
+# Subtest: P46: combate final não permite escolher destino antes do encontro e preparação altera abertura
+ok 67 - P46: combate final não permite escolher destino antes do encontro e preparação altera abertura
+  ---
+  duration_ms: 6.20084
+  type: 'test'
+  ...
+# Subtest: P46: playthrough controller fecha missão, persiste recompensa e continua no sandbox sem apagar MIXED/Duty
+ok 68 - P46: playthrough controller fecha missão, persiste recompensa e continua no sandbox sem apagar MIXED/Duty
+  ---
+  duration_ms: 540.337894
+  type: 'test'
+  ...
+# Subtest: P46: UI diferencia bloqueio ativo de missão concluída e oferece continuar no mundo livre
+ok 69 - P46: UI diferencia bloqueio ativo de missão concluída e oferece continuar no mundo livre
+  ---
+  duration_ms: 1.394798
+  type: 'test'
+  ...
+# Subtest: P47: ações sugeridas ao Mestre respeitam gating e não vazam opções futuras
+ok 70 - P47: ações sugeridas ao Mestre respeitam gating e não vazam opções futuras
+  ---
+  duration_ms: 10.955672
+  type: 'test'
+  ...
+# Subtest: P47: rota escritórios só oferece testes coerentes e preserva índices canônicos
+ok 71 - P47: rota escritórios só oferece testes coerentes e preserva índices canônicos
+  ---
+  duration_ms: 12.363033
+  type: 'test'
+  ...
+# Subtest: P47: rota refinaria remove teste de Computadores e mantém Frieza no índice original
+ok 72 - P47: rota refinaria remove teste de Computadores e mantém Frieza no índice original
+  ---
+  duration_ms: 11.774781
+  type: 'test'
+  ...
+# Subtest: P49: save/reopen preserva rota NovaCORE e projeção dinâmica sem spoiler
+ok 73 - P49: save/reopen preserva rota NovaCORE e projeção dinâmica sem spoiler
+  ---
+  duration_ms: 7.914821
+  type: 'test'
+  ...
+# Subtest: P49: save/reopen preserva investigação, flags e nó atual
+ok 74 - P49: save/reopen preserva investigação, flags e nó atual
+  ---
+  duration_ms: 2.940847
+  type: 'test'
+  ...
+# Subtest: P49: desfechos do showdown continuam mutuamente exclusivos após reopen
+ok 75 - P49: desfechos do showdown continuam mutuamente exclusivos após reopen
+  ---
+  duration_ms: 3.771018
+  type: 'test'
+  ...
+# Subtest: P49: consequência de epílogo não duplica ao reabrir estado concluído
+ok 76 - P49: consequência de epílogo não duplica ao reabrir estado concluído
+  ---
+  duration_ms: 6.957432
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva rota social Umbra e não revela pistas futuras
+ok 77 - P50: reopen preserva rota social Umbra e não revela pistas futuras
+  ---
+  duration_ms: 10.786079
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva sabacc discreto no Spyder e não inventa Black Sun hostil
+ok 78 - P50: reopen preserva sabacc discreto no Spyder e não inventa Black Sun hostil
+  ---
+  duration_ms: 3.032579
+  type: 'test'
+  ...
+# Subtest: P50: reopen preserva solução social Zelcomm sem armas nem Obligation
+ok 79 - P50: reopen preserva solução social Zelcomm sem armas nem Obligation
+  ---
+  duration_ms: 3.222056
+  type: 'test'
+  ...
+# Subtest: P50: negociação com Kaa’to persiste após reopen e mantém rendição desbloqueada
+ok 80 - P50: negociação com Kaa’to persiste após reopen e mantém rendição desbloqueada
+  ---
+  duration_ms: 5.985661
+  type: 'test'
+  ...
+# Subtest: P51 WORLD_UPDATED mantém estado completo mas histórico de eventos guarda somente resumo compacto e idempotente
+ok 81 - P51 WORLD_UPDATED mantém estado completo mas histórico de eventos guarda somente resumo compacto e idempotente
+  ---
+  duration_ms: 11.262186
+  type: 'test'
+  ...
+# Subtest: P51 migrateState compacta snapshot WORLD_UPDATED legado sem alterar o mundo atual
+ok 82 - P51 migrateState compacta snapshot WORLD_UPDATED legado sem alterar o mundo atual
+  ---
+  duration_ms: 1.114719
+  type: 'test'
+  ...
+# Subtest: P51 Desespero em negociação final fracassada encerra a via diplomática, persiste e não oferece rendição
+ok 83 - P51 Desespero em negociação final fracassada encerra a via diplomática, persiste e não oferece rendição
+  ---
+  duration_ms: 12.173234
+  type: 'test'
+  ...
+# Subtest: P51 Threat + Despair em NovaCORE produz risco crítico persistente e consequência mecânica explícita
+ok 84 - P51 Threat + Despair em NovaCORE produz risco crítico persistente e consequência mecânica explícita
+  ---
+  duration_ms: 4.67556
+  type: 'test'
+  ...
+# Subtest: P51 registry mantém Sob um Sol Negro funcional e expõe contrato genérico para próximas aventuras
+ok 85 - P51 registry mantém Sob um Sol Negro funcional e expõe contrato genérico para próximas aventuras
+  ---
+  duration_ms: 2.013878
+  type: 'test'
+  ...
+# Subtest: WORLD_UPDATED persiste mundo autoritativo sem duplicar snapshots integrais no event log
+ok 86 - WORLD_UPDATED persiste mundo autoritativo sem duplicar snapshots integrais no event log
+  ---
+  duration_ms: 47.556587
+  type: 'test'
+  ...
+# Subtest: P51: Despair na Zelcomm persiste alerta/lockdown sem revelar futuro
+ok 87 - P51: Despair na Zelcomm persiste alerta/lockdown sem revelar futuro
+  ---
+  duration_ms: 8.683349
+  type: 'test'
+  ...
+# Subtest: P51: Despair na NovaCORE persiste risco crítico e strain mecânico
+ok 88 - P51: Despair na NovaCORE persiste risco crítico e strain mecânico
+  ---
+  duration_ms: 3.028093
+  type: 'test'
+  ...
+# Subtest: P7: catálogo pessoal core inteiro tem binding exato e arquivo local
+ok 89 - P7: catálogo pessoal core inteiro tem binding exato e arquivo local
+  ---
+  duration_ms: 32.107717
+  type: 'test'
+  ...
+# Subtest: P12: 82 locais têm visual de localização honesto e zero path quebrado
+ok 90 - P12: 82 locais têm visual de localização honesto e zero path quebrado
+  ---
+  duration_ms: 4.715599
+  type: 'test'
+  ...
+# Subtest: P7: seed não fixa Voss e remove texto técnico RAG
+ok 91 - P7: seed não fixa Voss e remove texto técnico RAG
+  ---
+  duration_ms: 0.751252
+  type: 'test'
+  ...
+# Subtest: P7: renderer visual não usa scoring fuzzy
+ok 92 - P7: renderer visual não usa scoring fuzzy
+  ---
+  duration_ms: 1.028864
+  type: 'test'
+  ...
+# Subtest: P8 exact visual coverage closes full active equipment catalog
+ok 93 - P8 exact visual coverage closes full active equipment catalog
+  ---
+  duration_ms: 7.941224
+  type: 'test'
+  ...
+# Subtest: P8 exact visual coverage closes active vehicle catalog
+ok 94 - P8 exact visual coverage closes active vehicle catalog
+  ---
+  duration_ms: 0.896722
+  type: 'test'
+  ...
+# Subtest: P8 known adversaries have deterministic exact identity visuals
+ok 95 - P8 known adversaries have deterministic exact identity visuals
+  ---
+  duration_ms: 0.340163
+  type: 'test'
+  ...
+# Subtest: P12 all 82 catalog worlds have honest playable location visuals
+ok 96 - P12 all 82 catalog worlds have honest playable location visuals
+  ---
+  duration_ms: 2.808872
+  type: 'test'
+  ...
+# Subtest: P8 no fuzzy visual resolver and no rejected technical RAG copy
+ok 97 - P8 no fuzzy visual resolver and no rejected technical RAG copy
+  ---
+  duration_ms: 0.803816
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: locais distinguem mapa dedicado de esquema gerado
+ok 98 - auditoria visual independente: locais distinguem mapa dedicado de esquema gerado
+  ---
+  duration_ms: 16.804048
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: bindings de itens usam o objeto certo e todos os paths existem
+ok 99 - auditoria visual independente: bindings de itens usam o objeto certo e todos os paths existem
+  ---
+  duration_ms: 5.015755
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: índice P6 e UI não contêm fallback genérico para entidades
+ok 100 - auditoria visual independente: índice P6 e UI não contêm fallback genérico para entidades
+  ---
+  duration_ms: 5.753419
+  type: 'test'
+  ...
+# Subtest: auditoria visual independente: todos os caminhos do índice P6 que representam imagens são resolvíveis
+ok 101 - auditoria visual independente: todos os caminhos do índice P6 que representam imagens são resolvíveis
+  ---
+  duration_ms: 18.51092
+  type: 'test'
+  ...
+# Subtest: benchmark RAG EotE recupera a entrada esperada em primeiro lugar
+ok 102 - benchmark RAG EotE recupera a entrada esperada em primeiro lugar
+  ---
+  duration_ms: 402.991276
+  type: 'test'
+  ...
+# Subtest: corpus RAG permanece sincronizado com a matriz de regras
+ok 103 - corpus RAG permanece sincronizado com a matriz de regras
+  ---
+  duration_ms: 3.727493
+  type: 'test'
+  ...
+# Subtest: RAG lexical encontra Obligation inicial EotE e preserva autoridade
+ok 104 - RAG lexical encontra Obligation inicial EotE e preserva autoridade
+  ---
+  duration_ms: 115.269719
+  type: 'test'
+  ...
+# Subtest: RAG lexical encontra estrutura EotE 8/6/18
+ok 105 - RAG lexical encontra estrutura EotE 8/6/18
+  ---
+  duration_ms: 58.636884
+  type: 'test'
+  ...
+# Subtest: RAG EotE apresenta raridade/disponibilidade auditada pelo Core e sem AoR
+ok 106 - RAG EotE apresenta raridade/disponibilidade auditada pelo Core e sem AoR
+  ---
+  duration_ms: 20.168601
+  type: 'test'
+  ...
+# Subtest: dado da Força é autoridade mecânica EotE Core auditada no RAG
+ok 107 - dado da Força é autoridade mecânica EotE Core auditada no RAG
+  ---
+  duration_ms: 20.425959
+  type: 'test'
+  ...
+# Subtest: compra de especialização adicional é autoridade mecânica EotE Core auditada no RAG
+ok 108 - compra de especialização adicional é autoridade mecânica EotE Core auditada no RAG
+  ---
+  duration_ms: 11.926254
+  type: 'test'
+  ...
+# Subtest: corpus ativo mantém AoR restrito ao subconjunto Duty/Contribution explicitamente auditado
+ok 109 - corpus ativo mantém AoR restrito ao subconjunto Duty/Contribution explicitamente auditado
+  ---
+  duration_ms: 0.834226
+  type: 'test'
+  ...
+# Subtest: políticas operacionais do VTT permanecem explicitamente não oficiais
+ok 110 - políticas operacionais do VTT permanecem explicitamente não oficiais
+  ---
+  duration_ms: 21.111434
+  type: 'test'
+  ...
+# Subtest: RAG encontra os três poderes da Força do Core EotE
+ok 111 - RAG encontra os três poderes da Força do Core EotE
+  ---
+  duration_ms: 55.055604
+  type: 'test'
+  ...
+1..111
+# tests 111
+# suites 0
+# pass 110
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1882.97526

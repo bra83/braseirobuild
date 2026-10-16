@@ -1,0 +1,83 @@
+TAP version 13
+# Subtest: P240 p.13: market uses only primary EotE Core entries priced <= 500
+ok 1 - P240 p.13: market uses only primary EotE Core entries priced <= 500
+  ---
+  duration_ms: 2.218874
+  type: 'test'
+  ...
+# Subtest: P240 p.13: real purchase debits wallet and adds catalog gear atomically
+ok 2 - P240 p.13: real purchase debits wallet and adds catalog gear atomically
+  ---
+  duration_ms: 327.943439
+  type: 'test'
+  ...
+# Subtest: P240 market rejects forged price, non-EotE source, 501+ item and bad quantities
+ok 3 - P240 market rejects forged price, non-EotE source, 501+ item and bad quantities
+  ---
+  duration_ms: 238.803664
+  type: 'test'
+  ...
+# Subtest: P240 purchase insufficient credits: rollback of character, receipts and save
+ok 4 - P240 purchase insufficient credits: rollback of character, receipts and save
+  ---
+  duration_ms: 265.97485
+  type: 'test'
+  ...
+# Subtest: P240 p.13: Bura contact pays actual hull repairs, never creates a new ship
+ok 5 - P240 p.13: Bura contact pays actual hull repairs, never creates a new ship
+  ---
+  duration_ms: 152.60956
+  type: 'test'
+  ...
+# Subtest: P240 p.13: no ship repair if Bura not found, or ship name forged
+ok 6 - P240 p.13: no ship repair if Bura not found, or ship name forged
+  ---
+  duration_ms: 91.281628
+  type: 'test'
+  ...
+# Subtest: P240 p.13–14: port watch must be requested, alert only after Nyn meeting
+ok 7 - P240 p.13–14: port watch must be requested, alert only after Nyn meeting
+  ---
+  duration_ms: 115.631174
+  type: 'test'
+  ...
+# Subtest: P240 p.13–14: watch at arrival, alert in Nyn safehouse, no automatic knowledge
+ok 8 - P240 p.13–14: watch at arrival, alert in Nyn safehouse, no automatic knowledge
+  ---
+  duration_ms: 181.618519
+  type: 'test'
+  ...
+# Subtest: P240 p.13: Nyn shelter heals real wounds and strain, never erases critical injuries
+ok 9 - P240 p.13: Nyn shelter heals real wounds and strain, never erases critical injuries
+  ---
+  duration_ms: 193.864578
+  type: 'test'
+  ...
+# Subtest: P240 anti-forgery: missing or modified receipt fails adapter status
+ok 10 - P240 anti-forgery: missing or modified receipt fails adapter status
+  ---
+  duration_ms: 104.96699
+  type: 'test'
+  ...
+# Subtest: P240 no mutation outside Nabat; failed actions do not save
+ok 11 - P240 no mutation outside Nabat; failed actions do not save
+  ---
+  duration_ms: 81.634323
+  type: 'test'
+  ...
+# Subtest: P240 Android bridge and UI source expose port operations
+ok 12 - P240 Android bridge and UI source expose port operations
+  ---
+  duration_ms: 1.023221
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2306.056488
+

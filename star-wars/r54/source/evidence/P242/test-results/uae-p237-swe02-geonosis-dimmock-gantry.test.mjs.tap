@@ -1,0 +1,82 @@
+TAP version 13
+# Subtest: P237 p37: official separate soldier and Vrixx’tt profiles
+ok 1 - P237 p37: official separate soldier and Vrixx’tt profiles
+  ---
+  duration_ms: 85.423518
+  type: 'test'
+  ...
+# Subtest: P237 p34: Piddock Kubaz clue no roll, B1 clue requires Hard Charm
+ok 2 - P237 p34: Piddock Kubaz clue no roll, B1 clue requires Hard Charm
+  ---
+  duration_ms: 3851.92387
+  type: 'test'
+  ...
+# Subtest: P237 pp7,30: Sivor shell needs explicit collection and identification
+ok 3 - P237 pp7,30: Sivor shell needs explicit collection and identification
+  ---
+  duration_ms: 271.081749
+  type: 'test'
+  ...
+# Subtest: P237 p23: Drombb messages require victory and Hard Computers
+ok 4 - P237 p23: Drombb messages require victory and Hard Computers
+  ---
+  duration_ms: 263.723939
+  type: 'test'
+  ...
+# Subtest: P237 p36: zero points means five Geonosians and one Gand
+ok 5 - P237 p36: zero points means five Geonosians and one Gand
+  ---
+  duration_ms: 205.588973
+  type: 'test'
+  ...
+# Subtest: P237 p36: three points means three Geonosians
+ok 6 - P237 p36: three points means three Geonosians
+  ---
+  duration_ms: 411.990515
+  type: 'test'
+  ...
+# Subtest: P237 p36: six-plus removes soldiers, not Vrixx’tt
+ok 7 - P237 p36: six-plus removes soldiers, not Vrixx’tt
+  ---
+  duration_ms: 1000.74402
+  type: 'test'
+  ...
+# Subtest: P237 p36: failed Daunting Coerce, rude and Imperial loyalty apply penalties
+ok 8 - P237 p36: failed Daunting Coerce, rude and Imperial loyalty apply penalties
+  ---
+  duration_ms: 246.873268
+  type: 'test'
+  ...
+# Subtest: P237: forged negotiation points, facts and statements fail closed
+ok 9 - P237: forged negotiation points, facts and statements fail closed
+  ---
+  duration_ms: 158.845208
+  type: 'test'
+  ...
+# Subtest: P237 p37: boarding requires resolved combat, no false victory or unverified bribe
+ok 10 - P237 p37: boarding requires resolved combat, no false victory or unverified bribe
+  ---
+  duration_ms: 368.483015
+  type: 'test'
+  ...
+# Subtest: P237 p37: Vio rescue from player incapacitation does not claim enemy defeat
+ok 11 - P237 p37: Vio rescue from player incapacitation does not claim enemy defeat
+  ---
+  duration_ms: 158.021942
+  type: 'test'
+  ...
+# Subtest: P237 controller: real dice, persistence and gantry encounter across three reopens
+ok 12 - P237 controller: real dice, persistence and gantry encounter across three reopens
+  ---
+  duration_ms: 764.984263
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9218.798351

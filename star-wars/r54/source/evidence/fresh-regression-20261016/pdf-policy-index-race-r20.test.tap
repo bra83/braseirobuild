@@ -1,0 +1,12 @@
+✔ política da Biblioteca e gravações do indexador usam o mesmo lock de metadados (7.8501ms)
+✔ indexação periódica, conclusão e falha preservam a política mais recente (0.7317ms)
+✔ remoção e acesso a metadata são serializados para impedir documento fantasma durante indexação (0.6592ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1514.7194
+

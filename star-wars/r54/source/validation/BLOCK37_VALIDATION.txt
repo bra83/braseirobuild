@@ -1,0 +1,20 @@
+# STAR WARS EOTG — BLOCK37 FINAL validation
+timestamp=2026-09-14T05:57:56.125242+00:00
+node_regular=PASS pass=736 fail=0 files=139
+stress_33=PASS pass=6 fail=0 files=6 sessions_each=33
+node_total=PASS pass=742 fail=0
+r37_duty_flycasual_catalog_focus=PASS
+bundle_sync=PASS modules=56 personal_catalog=60 vehicle_catalog=25
+js_syntax=PASS files=218
+java_syntax=JAVA_SYNTAX_PASS files=5 unresolved_android_symbols=396
+json_parse=PASS files=27
+xml_parse=PASS files=2
+secret_scan=PASS hits=0
+apk_aab_count=0
+personal_catalog=60 weapons=31 armor=7 gear=22
+vehicle_catalog=25
+rag_tested=54
+barbara_modules=56
+gradle_wrapper_jar_sha256=14013df926465d9e70158430a0b560b1aa83da0f98732da7882015e6bdff9c88
+android_gate=BLOCKED_EXTERNAL sdk=missing adb=missing sdkmanager=missing
+status=FINAL_SOURCE_READY

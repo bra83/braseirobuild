@@ -1,0 +1,16 @@
+{
+  "checkpoint":"R54 P244",
+  "base":"R54 P243",
+  "official_source":{"product":"SWE02","title":"The Long Arm of the Hutt","printed_page":21,"url":"https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf"},
+  "source_fact":"The PCs may lend spare weapons to Twi'lek miners; armed Twi'leks may assist as a minion group, with optional abstract combat and GM discretion.",
+  "implementation_policy_not_direct_official_rule":"Return surviving allies' original borrowed weapons only after player action; never invent automatic battlefield recovery for eliminated allies.",
+  "executor":"app/src/main/assets/vtt/js/adventure/swe02EvacuationP243.mjs:returnNewMeenMilitiaWeapon",
+  "controller":"app/src/main/assets/vtt/js/core/controller.mjs:returnSWE02NewMeenMilitiaWeapon",
+  "ui_bridge":"app/src/main/assets/vtt/js/core/uiBridge.mjs:returnSWE02NewMeenMilitiaWeapon",
+  "ui":"app/src/main/assets/vtt/js/ui/app.mjs:swe02MilitiaReturn",
+  "tests":"tests/uae-p244-swe02-militia-custody.test.mjs",
+  "persisted_state":"publishedAdventure.newMeenMilitia.loanedWeapons[].status / returned / newMeenEscortLog",
+  "reopens_tested":3,
+  "editorial_certification":"PARTIAL",
+  "remaining":["Escort road harassment with actual encounters","Full Twi'lek NPC initiative","Recover lost weapons only with independent verified adjudication","Nyn primary EotE weapon profiles","Krayt Fang Beginner and vehicle initiative","Acts 2 and 3 and all endings","Other four adventures","EotE/AoR/expansion semantic certification and 360 AoR consumers"]
+}

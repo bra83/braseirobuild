@@ -1,0 +1,774 @@
+TAP version 13
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/mnt/data/sw_p53/app/src/main/assets/vtt/js/rag/rulesCorpus.mjs' imported from /mnt/data/sw_p53/sw_p52_work/eote-final-rag-guards.test.mjs
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:860:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:984:11)
+#     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:704:25)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:137:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///mnt/data/sw_p53/app/src/main/assets/vtt/js/rag/rulesCorpus.mjs'
+# }
+# Node.js v22.16.0
+# Subtest: eote-final-rag-guards.test.mjs
+not ok 1 - eote-final-rag-guards.test.mjs
+  ---
+  duration_ms: 78.855331
+  type: 'test'
+  location: '/mnt/data/sw_p53/sw_p52_work/eote-final-rag-guards.test.mjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: FINAL: Android Studio project has deterministic Gradle launcher and compatible pins
+not ok 2 - FINAL: Android Studio project has deterministic Gradle launcher and compatible pins
+  ---
+  duration_ms: 4.359109
+  type: 'test'
+  location: '/mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:7:1'
+  failureType: 'testCodeFailure'
+  error: "ENOENT: no such file or directory, open '/mnt/data/sw_p53/build.gradle.kts'"
+  code: 'ENOENT'
+  stack: |-
+    readFileSync (node:fs:442:20)
+    read (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:5:21)
+    TestContext.<anonymous> (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:8:16)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency
+not ok 3 - FINAL: R46 shell bootstrap is fully offline classic JS, no file-module CORS dependency
+  ---
+  duration_ms: 0.360388
+  type: 'test'
+  location: '/mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:22:1'
+  failureType: 'testCodeFailure'
+  error: "ENOENT: no such file or directory, open '/mnt/data/sw_p53/app/src/main/assets/vtt/r46-shell.html'"
+  code: 'ENOENT'
+  stack: |-
+    readFileSync (node:fs:442:20)
+    read (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:5:21)
+    TestContext.<anonymous> (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:23:16)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: FINAL: WebView exposes only required bridges and blocks universal file access
+not ok 4 - FINAL: WebView exposes only required bridges and blocks universal file access
+  ---
+  duration_ms: 2.966638
+  type: 'test'
+  location: '/mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:31:1'
+  failureType: 'testCodeFailure'
+  error: "ENOENT: no such file or directory, open '/mnt/data/sw_p53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java'"
+  code: 'ENOENT'
+  stack: |-
+    readFileSync (node:fs:442:20)
+    read (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:5:21)
+    TestContext.<anonymous> (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:32:16)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: FINAL: native PT-BR TTS exists and has bounded visible-text contract
+not ok 5 - FINAL: native PT-BR TTS exists and has bounded visible-text contract
+  ---
+  duration_ms: 0.563336
+  type: 'test'
+  location: '/mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:45:1'
+  failureType: 'testCodeFailure'
+  error: "ENOENT: no such file or directory, open '/mnt/data/sw_p53/app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java'"
+  code: 'ENOENT'
+  stack: |-
+    readFileSync (node:fs:442:20)
+    read (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:5:21)
+    TestContext.<anonymous> (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:46:15)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: FINAL: JSON export/import is Android-capable
+not ok 6 - FINAL: JSON export/import is Android-capable
+  ---
+  duration_ms: 0.49742
+  type: 'test'
+  location: '/mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:57:1'
+  failureType: 'testCodeFailure'
+  error: "ENOENT: no such file or directory, open '/mnt/data/sw_p53/app/src/main/java/com/braseiro/starwarsedge/FileBridge.java'"
+  code: 'ENOENT'
+  stack: |-
+    readFileSync (node:fs:442:20)
+    read (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:5:21)
+    TestContext.<anonymous> (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:58:17)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: FINAL: accessibility settings are functional and persistent
+not ok 7 - FINAL: accessibility settings are functional and persistent
+  ---
+  duration_ms: 0.437031
+  type: 'test'
+  location: '/mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:69:1'
+  failureType: 'testCodeFailure'
+  error: "ENOENT: no such file or directory, open '/mnt/data/sw_p53/app/src/main/assets/vtt/r46/final-runtime.js'"
+  code: 'ENOENT'
+  stack: |-
+    readFileSync (node:fs:442:20)
+    read (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:5:21)
+    TestContext.<anonymous> (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:70:19)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: FINAL: canonical engine bundle is synchronized with live scene bridge
+not ok 8 - FINAL: canonical engine bundle is synchronized with live scene bridge
+  ---
+  duration_ms: 1.084006
+  type: 'test'
+  location: '/mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:82:1'
+  failureType: 'testCodeFailure'
+  error: "ENOENT: no such file or directory, open '/mnt/data/sw_p53/app/src/main/assets/vtt/js/core/uiBridge.mjs'"
+  code: 'ENOENT'
+  stack: |-
+    readFileSync (node:fs:442:20)
+    read (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:5:21)
+    TestContext.<anonymous> (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:83:18)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks
+not ok 9 - FINAL: approved CENA shell is bound to real player-visible engine data and suggested checks
+  ---
+  duration_ms: 0.518794
+  type: 'test'
+  location: '/mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:99:1'
+  failureType: 'testCodeFailure'
+  error: "ENOENT: no such file or directory, open '/mnt/data/sw_p53/app/src/main/assets/vtt/r46/final-runtime.js'"
+  code: 'ENOENT'
+  stack: |-
+    readFileSync (node:fs:442:20)
+    read (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:5:21)
+    TestContext.<anonymous> (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:100:19)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs
+not ok 10 - FINAL: Gemini master uses current models, Interactions structured output and no deprecated sampling knobs
+  ---
+  duration_ms: 0.779486
+  type: 'test'
+  location: '/mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:111:1'
+  failureType: 'testCodeFailure'
+  error: "ENOENT: no such file or directory, open '/mnt/data/sw_p53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java'"
+  code: 'ENOENT'
+  stack: |-
+    readFileSync (node:fs:442:20)
+    read (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:5:21)
+    TestContext.<anonymous> (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:112:18)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: FINAL: Android host disables WebView debugging and supports system back navigation
+not ok 11 - FINAL: Android host disables WebView debugging and supports system back navigation
+  ---
+  duration_ms: 0.657514
+  type: 'test'
+  location: '/mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:122:1'
+  failureType: 'testCodeFailure'
+  error: "ENOENT: no such file or directory, open '/mnt/data/sw_p53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java'"
+  code: 'ENOENT'
+  stack: |-
+    readFileSync (node:fs:442:20)
+    read (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:5:21)
+    TestContext.<anonymous> (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:123:16)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: FINAL: shell script order installs engine before React shell and final runtime
+not ok 12 - FINAL: shell script order installs engine before React shell and final runtime
+  ---
+  duration_ms: 0.342732
+  type: 'test'
+  location: '/mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:131:1'
+  failureType: 'testCodeFailure'
+  error: "ENOENT: no such file or directory, open '/mnt/data/sw_p53/app/src/main/assets/vtt/r46-shell.html'"
+  code: 'ENOENT'
+  stack: |-
+    readFileSync (node:fs:442:20)
+    read (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:5:21)
+    TestContext.<anonymous> (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:132:16)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts
+not ok 13 - FINAL: first boot explicitly initializes the canonical campaign before the React shell mounts
+  ---
+  duration_ms: 0.409051
+  type: 'test'
+  location: '/mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:139:1'
+  failureType: 'testCodeFailure'
+  error: "ENOENT: no such file or directory, open '/mnt/data/sw_p53/app/src/main/assets/vtt/r46-shell.html'"
+  code: 'ENOENT'
+  stack: |-
+    readFileSync (node:fs:442:20)
+    read (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:5:21)
+    TestContext.<anonymous> (file:///mnt/data/sw_p53/sw_p52_work/final-android-completeness.test.mjs:140:16)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: pedido de aquisição fica pendente e persiste sem gastar créditos
+ok 14 - pedido de aquisição fica pendente e persiste sem gastar créditos
+  ---
+  duration_ms: 227.902045
+  type: 'test'
+  ...
+# Subtest: não permite abrir um segundo pedido enquanto o Mestre não resolver o primeiro
+ok 15 - não permite abrir um segundo pedido enquanto o Mestre não resolver o primeiro
+  ---
+  duration_ms: 219.745177
+  type: 'test'
+  ...
+# Subtest: decisão do Mestre sem regra recuperada não pode concluir aquisição
+ok 16 - decisão do Mestre sem regra recuperada não pode concluir aquisição
+  ---
+  duration_ms: 454.097604
+  type: 'test'
+  ...
+# Subtest: decisão estruturada e ancorada conclui a compra exatamente uma vez
+ok 17 - decisão estruturada e ancorada conclui a compra exatamente uma vez
+  ---
+  duration_ms: 313.682658
+  type: 'test'
+  ...
+# Subtest: créditos insuficientes revertem toda a proposta e preservam o pedido
+ok 18 - créditos insuficientes revertem toda a proposta e preservam o pedido
+  ---
+  duration_ms: 905.369937
+  type: 'test'
+  ...
+# Subtest: rejeição do Mestre encerra o pedido sem alterar créditos ou inventário
+ok 19 - rejeição do Mestre encerra o pedido sem alterar créditos ou inventário
+  ---
+  duration_ms: 1145.605606
+  type: 'test'
+  ...
+# Subtest: conversão do catálogo calcula dano por Fortaleza e propriedades já suportadas
+ok 20 - conversão do catálogo calcula dano por Fortaleza e propriedades já suportadas
+  ---
+  duration_ms: 1.244846
+  type: 'test'
+  ...
+# Subtest: soldados de assalto da aventura usam grupo de lacaios com Proteção 5 e perícia por tamanho
+ok 21 - soldados de assalto da aventura usam grupo de lacaios com Proteção 5 e perícia por tamanho
+  ---
+  duration_ms: 4.681527
+  type: 'test'
+  ...
+# Subtest: oficial de aduana da aventura é rival com Percepção 3 e limiar 12
+ok 22 - oficial de aduana da aventura é rival com Percepção 3 e limiar 12
+  ---
+  duration_ms: 0.334634
+  type: 'test'
+  ...
+# Subtest: Son Barab é antagonista com Tensão, Adversário 1 e Golpes letais 2 registrados
+ok 23 - Son Barab é antagonista com Tensão, Adversário 1 e Golpes letais 2 registrados
+  ---
+  duration_ms: 0.348281
+  type: 'test'
+  ...
+# Subtest: grupo de lacaios ganha um grau de perícia por membro além do primeiro
+ok 24 - grupo de lacaios ganha um grau de perícia por membro além do primeiro
+  ---
+  duration_ms: 3.16358
+  type: 'test'
+  ...
+# Subtest: Ferimentos reduzem o grupo e sua perícia automaticamente
+ok 25 - Ferimentos reduzem o grupo e sua perícia automaticamente
+  ---
+  duration_ms: 0.546948
+  type: 'test'
+  ...
+# Subtest: lacaios e rivais convertem Tensão em Ferimentos
+ok 26 - lacaios e rivais convertem Tensão em Ferimentos
+  ---
+  duration_ms: 0.635002
+  type: 'test'
+  ...
+# Subtest: crítico em grupo de lacaios elimina exatamente um membro ainda ativo
+ok 27 - crítico em grupo de lacaios elimina exatamente um membro ainda ativo
+  ---
+  duration_ms: 0.29558
+  type: 'test'
+  ...
+# Subtest: oficial imperial é rival com Adversário 1 e limiar 15
+ok 28 - oficial imperial é rival com Adversário 1 e limiar 15
+  ---
+  duration_ms: 0.247814
+  type: 'test'
+  ...
+# Subtest: fallback de PNPC usa exatamente Características 2, Ferimentos 8 e grau 1 nas perícias escolhidas
+ok 29 - fallback de PNPC usa exatamente Características 2, Ferimentos 8 e grau 1 nas perícias escolhidas
+  ---
+  duration_ms: 6.133589
+  type: 'test'
+  ...
+# Subtest: fallback rejeita perícia inventada
+ok 30 - fallback rejeita perícia inventada
+  ---
+  duration_ms: 0.420175
+  type: 'test'
+  ...
+# Subtest: modos de controle de aliados preservam as três opções documentadas
+ok 31 - modos de controle de aliados preservam as três opções documentadas
+  ---
+  duration_ms: 0.172256
+  type: 'test'
+  ...
+# Subtest: encontro causal cria histórico persistente e consequência duradoura ligada a facção/plano/local
+ok 32 - encontro causal cria histórico persistente e consequência duradoura ligada a facção/plano/local
+  ---
+  duration_ms: 6.696699
+  type: 'test'
+  ...
+# Subtest: mesmo hook não duplica histórico/aftermath e consequência pode ser encerrada sem apagar histórico
+ok 33 - mesmo hook não duplica histórico/aftermath e consequência pode ser encerrada sem apagar histórico
+  ---
+  duration_ms: 3.812324
+  type: 'test'
+  ...
+# Subtest: migração de mundo anterior recebe coleções de histórico sem inventar registros
+ok 34 - migração de mundo anterior recebe coleções de histórico sem inventar registros
+  ---
+  duration_ms: 0.952013
+  type: 'test'
+  ...
+# Subtest: Cena possui painel PT-BR de consequências duradouras e filtra apenas conhecidas/ativas
+ok 35 - Cena possui painel PT-BR de consequências duradouras e filtra apenas conhecidas/ativas
+  ---
+  duration_ms: 17.935325
+  type: 'test'
+  ...
+# Subtest: R54 usa file picker apenas para imports JSON conhecidos
+ok 36 - R54 usa file picker apenas para imports JSON conhecidos
+  ---
+  duration_ms: 7.892246
+  type: 'test'
+  ...
+# Subtest: Android abre ACTION_OPEN_DOCUMENT restrito a JSON/texto compatível
+ok 37 - Android abre ACTION_OPEN_DOCUMENT restrito a JSON/texto compatível
+  ---
+  duration_ms: 0.246853
+  type: 'test'
+  ...
+# Subtest: resultado do picker JSON volta ao input WebView pelo FileChooserParams.parseResult
+ok 38 - resultado do picker JSON volta ao input WebView pelo FileChooserParams.parseResult
+  ---
+  duration_ms: 0.36634
+  type: 'test'
+  ...
+# Subtest: shell lê conteúdo do arquivo antes de chamar os imports do Motor Barbara
+ok 39 - shell lê conteúdo do arquivo antes de chamar os imports do Motor Barbara
+  ---
+  duration_ms: 0.347145
+  type: 'test'
+  ...
+# Subtest: R37: Duty de criação recupera autoridade AoR sem transformar política solo em oficial
+ok 40 - R37: Duty de criação recupera autoridade AoR sem transformar política solo em oficial
+  ---
+  duration_ms: 3.21085
+  type: 'test'
+  ...
+# Subtest: R37: RAG distingue regra AoR recuperada de runtime local guardado
+ok 41 - R37: RAG distingue regra AoR recuperada de runtime local guardado
+  ---
+  duration_ms: 0.615502
+  type: 'test'
+  ...
+# Subtest: R37: runtime Duty testado permanece separado da autoridade editorial
+ok 42 - R37: runtime Duty testado permanece separado da autoridade editorial
+  ---
+  duration_ms: 0.816729
+  type: 'test'
+  ...
+# Subtest: Tabla 5-2 da Caja de Inicio prova preços de quatro blindagens sobrepostas
+ok 43 - Tabla 5-2 da Caja de Inicio prova preços de quatro blindagens sobrepostas
+  ---
+  duration_ms: 0.977565
+  type: 'test'
+  ...
+# Subtest: preço da Caja de Inicio não substitui a fonte de Defesa/Proteção da Pantalla
+ok 44 - preço da Caja de Inicio não substitui a fonte de Defesa/Proteção da Pantalla
+  ---
+  duration_ms: 0.210551
+  type: 'test'
+  ...
+# Subtest: blindagens sem preço comprovado nesta tabela permanecem sem preço
+ok 45 - blindagens sem preço comprovado nesta tabela permanecem sem preço
+  ---
+  duration_ms: 0.756282
+  type: 'test'
+  ...
+# Subtest: ataque à distância calcula dificuldade pela faixa
+ok 46 - ataque à distância calcula dificuldade pela faixa
+  ---
+  duration_ms: 2.682656
+  type: 'test'
+  ...
+# Subtest: Interação modifica armas à distância e corpo a corpo usa dificuldade 2
+ok 47 - Interação modifica armas à distância e corpo a corpo usa dificuldade 2
+  ---
+  duration_ms: 0.656633
+  type: 'test'
+  ...
+# Subtest: não permite atacar além do alcance da arma
+ok 48 - não permite atacar além do alcance da arma
+  ---
+  duration_ms: 0.278452
+  type: 'test'
+  ...
+# Subtest: tabela de raridade converte 0-10 para as dificuldades oficiais
+ok 49 - tabela de raridade converte 0-10 para as dificuldades oficiais
+  ---
+  duration_ms: 4.710287
+  type: 'test'
+  ...
+# Subtest: raridade acima de 10 mantém Formidável e melhora a dificuldade uma vez por ponto
+ok 50 - raridade acima de 10 mantém Formidável e melhora a dificuldade uma vez por ponto
+  ---
+  duration_ms: 2.267459
+  type: 'test'
+  ...
+# Subtest: modificador explícito altera raridade, nunca preço
+ok 51 - modificador explícito altera raridade, nunca preço
+  ---
+  duration_ms: 0.241315
+  type: 'test'
+  ...
+# Subtest: item legal usa Negociação e permite alternativa de Conhecimento a critério do Mestre
+ok 52 - item legal usa Negociação e permite alternativa de Conhecimento a critério do Mestre
+  ---
+  duration_ms: 0.107904
+  type: 'test'
+  ...
+# Subtest: item restrito usa Vida nas ruas e preserva ajuste de lei como decisão do Mestre
+ok 53 - item restrito usa Vida nas ruas e preserva ajuste de lei como decisão do Mestre
+  ---
+  duration_ms: 7.844975
+  type: 'test'
+  ...
+# Subtest: sem perfil local o motor não inventa modificador nem raridade efetiva
+ok 54 - sem perfil local o motor não inventa modificador nem raridade efetiva
+  ---
+  duration_ms: 0.1325
+  type: 'test'
+  ...
+# Subtest: referência de circunstâncias oficiais é consultável mas não aplicada automaticamente
+ok 55 - referência de circunstâncias oficiais é consultável mas não aplicada automaticamente
+  ---
+  duration_ms: 0.140523
+  type: 'test'
+  ...
+# Subtest: pedido de aquisição nasce sem classificação inventada de planeta
+ok 56 - pedido de aquisição nasce sem classificação inventada de planeta
+  ---
+  duration_ms: 0.467435
+  type: 'test'
+  ...
+# Subtest: modificador do local só entra por ação explícita e não muda os demais dados do pedido
+ok 57 - modificador do local só entra por ação explícita e não muda os demais dados do pedido
+  ---
+  duration_ms: 11.625148
+  type: 'test'
+  ...
+# Subtest: controller expõe cálculo auditado e persiste apenas modificador explicitamente definido
+ok 58 - controller expõe cálculo auditado e persiste apenas modificador explicitamente definido
+  ---
+  duration_ms: 404.326561
+  type: 'test'
+  ...
+# Subtest: RAG EotE fundamenta raridade/disponibilidade no Core real sem autoridade AoR
+ok 59 - RAG EotE fundamenta raridade/disponibilidade no Core real sem autoridade AoR
+  ---
+  duration_ms: 39.438836
+  type: 'test'
+  ...
+# Subtest: backup -> mutação -> import restaura estado e emite refresh na mesma WebView
+ok 60 - backup -> mutação -> import restaura estado e emite refresh na mesma WebView
+  ---
+  duration_ms: 25.315119
+  type: 'test'
+  ...
+# Subtest: clear remove campanha e emite refresh de clear
+ok 61 - clear remove campanha e emite refresh de clear
+  ---
+  duration_ms: 0.568366
+  type: 'test'
+  ...
+# Subtest: uiBridge mantém import de backup e restore de snapshot passando por repository.save
+ok 62 - uiBridge mantém import de backup e restore de snapshot passando por repository.save
+  ---
+  duration_ms: 1.351813
+  type: 'test'
+  ...
+# Subtest: interface PT-BR inclui aba Base e grupo de Orla com Obligation
+ok 63 - interface PT-BR inclui aba Base e grupo de Orla com Obligation
+  ---
+  duration_ms: 2.669592
+  type: 'test'
+  ...
+# Subtest: interface expõe árvore completa de talentos com desbloqueio por conexão
+ok 64 - interface expõe árvore completa de talentos com desbloqueio por conexão
+  ---
+  duration_ms: 1.135333
+  type: 'test'
+  ...
+# Subtest: interface expõe catálogo auditado sem compra automática
+ok 65 - interface expõe catálogo auditado sem compra automática
+  ---
+  duration_ms: 0.386411
+  type: 'test'
+  ...
+# Subtest: P20: builders da raiz e tools recompilam o mesmo bundle canônico
+ok 66 - P20: builders da raiz e tools recompilam o mesmo bundle canônico
+  ---
+  duration_ms: 6335.671143
+  type: 'test'
+  ...
+# Subtest: metadado causal não vaza para um combate posterior não causal
+ok 67 - metadado causal não vaza para um combate posterior não causal
+  ---
+  duration_ms: 123.968675
+  type: 'test'
+  ...
+# Subtest: evento concluído gera consequência causal persistente no local do PNPC
+ok 68 - evento concluído gera consequência causal persistente no local do PNPC
+  ---
+  duration_ms: 68.69804
+  type: 'test'
+  ...
+# Subtest: consequência causal pode ser resolvida uma única vez e some dos candidatos
+ok 69 - consequência causal pode ser resolvida uma única vez e some dos candidatos
+  ---
+  duration_ms: 3.963142
+  type: 'test'
+  ...
+# Subtest: Mestre move a cena apenas para local existente e recebe consequências causais no contexto
+ok 70 - Mestre move a cena apenas para local existente e recebe consequências causais no contexto
+  ---
+  duration_ms: 120.603572
+  type: 'test'
+  ...
+# Subtest: Mestre pode narrar e resolver a consequência no mesmo fluxo transacional
+ok 71 - Mestre pode narrar e resolver a consequência no mesmo fluxo transacional
+  ---
+  duration_ms: 90.401851
+  type: 'test'
+  ...
+# Subtest: criador personalizado EotE aparece em PT-BR com etapas mecânicas essenciais
+ok 72 - criador personalizado EotE aparece em PT-BR com etapas mecânicas essenciais
+  ---
+  duration_ms: 3.321119
+  type: 'test'
+  ...
+# Subtest: interface envia os quatro benefícios de Obligation e usa o criador EotE do motor
+ok 73 - interface envia os quatro benefícios de Obligation e usa o criador EotE do motor
+  ---
+  duration_ms: 0.641966
+  type: 'test'
+  ...
+# Subtest: tabela oficial de Duty e política solo ficam distinguidas
+ok 74 - tabela oficial de Duty e política solo ficam distinguidas
+  ---
+  duration_ms: 5.856089
+  type: 'test'
+  ...
+# Subtest: reduções de Duty cobrem as quatro opções e não permitem gasto maior que o Duty inicial
+ok 75 - reduções de Duty cobrem as quatro opções e não permitem gasto maior que o Duty inicial
+  ---
+  duration_ms: 3.281607
+  type: 'test'
+  ...
+# Subtest: custo de Característica é sequencial e respeita o máximo 5
+ok 76 - custo de Característica é sequencial e respeita o máximo 5
+  ---
+  duration_ms: 0.500875
+  type: 'test'
+  ...
+# Subtest: Humano personalizado gera ficha válida com sobreposição carreira/especialização até grau 2
+ok 77 - Humano personalizado gera ficha válida com sobreposição carreira/especialização até grau 2
+  ---
+  duration_ms: 1.257857
+  type: 'test'
+  ...
+# Subtest: Humano não pode usar como bônus racial uma perícia profissional
+ok 78 - Humano não pode usar como bônus racial uma perícia profissional
+  ---
+  duration_ms: 2.439845
+  type: 'test'
+  ...
+# Subtest: Droide recebe treinamento ampliado, Resistente e Proteção derivada
+ok 79 - Droide recebe treinamento ampliado, Resistente e Proteção derivada
+  ---
+  duration_ms: 6.928818
+  type: 'test'
+  ...
+# Subtest: bônus racial e escolhas gratuitas nunca ultrapassam grau 2 durante a criação
+ok 80 - bônus racial e escolhas gratuitas nunca ultrapassam grau 2 durante a criação
+  ---
+  duration_ms: 0.332835
+  type: 'test'
+  ...
+# Subtest: Motivação é obrigatória e PE insuficientes impedem criação
+ok 81 - Motivação é obrigatória e PE insuficientes impedem criação
+  ---
+  duration_ms: 0.835567
+  type: 'test'
+  ...
+# Subtest: prévia soma bônus de Duty, créditos e PE de Características sem alterar estado
+ok 82 - prévia soma bônus de Duty, créditos e PE de Características sem alterar estado
+  ---
+  duration_ms: 0.877665
+  type: 'test'
+  ...
+# Subtest: dados do núcleo AoR mantêm oito espécies, seis carreiras e três especializações por carreira
+ok 83 - dados do núcleo AoR mantêm oito espécies, seis carreiras e três especializações por carreira
+  ---
+  duration_ms: 0.664161
+  type: 'test'
+  ...
+# Subtest: ficha estrutural vazia respeita seis características e habilidades conhecidas
+ok 84 - ficha estrutural vazia respeita seis características e habilidades conhecidas
+  ---
+  duration_ms: 3.618534
+  type: 'test'
+  ...
+# Subtest: importação rejeita característica fora da faixa 1-6 sem substituir ficha válida
+ok 85 - importação rejeita característica fora da faixa 1-6 sem substituir ficha válida
+  ---
+  duration_ms: 4.015376
+  type: 'test'
+  ...
+# Subtest: ficha JSON faz ida e volta
+ok 86 - ficha JSON faz ida e volta
+  ---
+  duration_ms: 0.260535
+  type: 'test'
+  ...
+# Subtest: turno permite 1 ação e 1 manobra normal
+ok 87 - turno permite 1 ação e 1 manobra normal
+  ---
+  duration_ms: 5.988176
+  type: 'test'
+  ...
+# Subtest: segunda manobra exige Tensão ou troca da ação e nunca passa de 2
+ok 88 - segunda manobra exige Tensão ou troca da ação e nunca passa de 2
+  ---
+  duration_ms: 18.479978
+  type: 'test'
+  ...
+# Subtest: ação pode ser trocada pela segunda manobra e o turno seguinte reinicia recursos
+ok 89 - ação pode ser trocada pela segunda manobra e o turno seguinte reinicia recursos
+  ---
+  duration_ms: 0.427704
+  type: 'test'
+  ...
+# Subtest: Ataque rápido entra automaticamente no pool contra alvo que ainda não agiu
+ok 90 - Ataque rápido entra automaticamente no pool contra alvo que ainda não agiu
+  ---
+  duration_ms: 19.737644
+  type: 'test'
+  ...
+# Subtest: Ataque rápido não concede Impulso depois que o alvo já agiu
+ok 91 - Ataque rápido não concede Impulso depois que o alvo já agiu
+  ---
+  duration_ms: 7.181688
+  type: 'test'
+  ...
+# Subtest: Mando acrescenta Impulso automaticamente a teste de Liderança
+ok 92 - Mando acrescenta Impulso automaticamente a teste de Liderança
+  ---
+  duration_ms: 3.029943
+  type: 'test'
+  ...
+# Subtest: Comando adiciona 1 Impulso por grau somente a Liderança
+ok 93 - Comando adiciona 1 Impulso por grau somente a Liderança
+  ---
+  duration_ms: 4.168728
+  type: 'test'
+  ...
+# Subtest: Ataque rápido adiciona Impulso igual ao grau contra alvo que ainda não agiu
+ok 94 - Ataque rápido adiciona Impulso igual ao grau contra alvo que ainda não agiu
+  ---
+  duration_ms: 5.063114
+  type: 'test'
+  ...
+# Subtest: Ataque rápido não se aplica sem alvo de iniciativa conhecido
+ok 95 - Ataque rápido não se aplica sem alvo de iniciativa conhecido
+  ---
+  duration_ms: 0.19629
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre inclui aftermaths e encontros recentes sem depender da narração
+ok 96 - contexto do Mestre inclui aftermaths e encontros recentes sem depender da narração
+  ---
+  duration_ms: 74.459135
+  type: 'test'
+  ...
+1..96
+# tests 96
+# suites 0
+# pass 83
+# fail 13
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7388.925585

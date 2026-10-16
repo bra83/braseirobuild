@@ -1,0 +1,29 @@
+{
+  "checkpoint": "P190",
+  "method": "node --test --test-reporter=tap executed individually for each test file; regular 4 workers, stress sequential",
+  "regular": {
+    "shard": 0,
+    "shards": 1,
+    "files": 309,
+    "tests": 2804,
+    "passed": 2804,
+    "failed": 0,
+    "badFiles": []
+  },
+  "stress": {
+    "shard": 0,
+    "shards": 1,
+    "files": 6,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "badFiles": []
+  },
+  "totalFiles": 315,
+  "totalTests": 2810,
+  "passed": 2810,
+  "failed": 0,
+  "monolithicSuiteCertified": false,
+  "newFocalTests": 16,
+  "note": "First P190 regular pass had two failures: obsolete version literal in P187 test and bundle module-count regex limited to 89. Both corrected, tests rerun; final result per-file 2810/2810."
+}

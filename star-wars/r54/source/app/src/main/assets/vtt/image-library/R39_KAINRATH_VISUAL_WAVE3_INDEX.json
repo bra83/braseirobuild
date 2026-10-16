@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "wave": "R39_VISUAL_WAVE3",
+  "indexedAt": "2026-09-08",
+  "count": 10,
+  "breakdown": {
+    "npcPortraits": 3,
+    "droids": 0,
+    "beasts": 7
+  },
+  "policy": "Only direct Kainrath wp-content URLs confirmed from cached post/image links are included; mechanicalBinding remains null.",
+  "entries": [
+    {
+      "assetId": "external.kainrath.npc.kaltho-the-hutt-crime-lord",
+      "title": "Kaltho the Hutt – Crime Lord",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/2/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/09/kaltho-the-hutt.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "kaltho-the-hutt-crime-lord"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.sianna-sekko",
+      "title": "Sianna Sekko",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/2/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/05/sianna-sekko.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "sianna-sekko"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.imperial-navy-officer",
+      "title": "Imperial Navy Officer",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2020/10/08/imperial-navy-officer/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2020/10/imperial-navy-officer.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "imperial-navy-officer"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.nexu",
+      "title": "Nexu",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2018/08/09/nexu/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2018/08/nexu.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "creature",
+        "nexu"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.fefze-beetle",
+      "title": "Fefze Beetle",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2018/07/21/fefze-beetle/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2018/07/fefze-beetle.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "creature",
+        "fefze-beetle"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.tunnel-worm",
+      "title": "Tunnel Worm",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2017/11/11/tunnel-worm/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/11/tunnel-worm.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "creature",
+        "tunnel-worm"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.great-ibbot",
+      "title": "Great Ibbot",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2017/11/11/great-ibbot/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/11/great-ibbot.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "creature",
+        "great-ibbot"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.wrix",
+      "title": "Wrix",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2017/11/09/wrix/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/11/wrix.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "creature",
+        "wrix"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.doranenok",
+      "title": "Doran’enok",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2017/09/10/doranenok/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/09/doranenok.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "creature",
+        "doranenok"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.soaring-accipiptero",
+      "title": "Soaring Accipiptero",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2016/11/10/soaring-accipiptero/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/11/soaring-accipiptero.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "creature",
+        "soaring-accipiptero"
+      ]
+    }
+  ]
+}

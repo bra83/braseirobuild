@@ -1,0 +1,209 @@
+TAP version 13
+# Subtest: P146 under-black-sun: escolha real, reabertura, recibo e prova causal íntegros
+ok 1 - P146 under-black-sun: escolha real, reabertura, recibo e prova causal íntegros
+  ---
+  duration_ms: 77.251592
+  type: 'test'
+  ...
+# Subtest: P146 under-black-sun: ACK perdido após commit não duplica escolha nem recompensa
+ok 2 - P146 under-black-sun: ACK perdido após commit não duplica escolha nem recompensa
+  ---
+  duration_ms: 23.79476
+  type: 'test'
+  ...
+# Subtest: P146 under-black-sun: adulteração do journal não atravessa validação/importação
+ok 3 - P146 under-black-sun: adulteração do journal não atravessa validação/importação
+  ---
+  duration_ms: 26.598745
+  type: 'test'
+  ...
+# Subtest: P146 beyond-the-rim: escolha real, reabertura, recibo e prova causal íntegros
+ok 4 - P146 beyond-the-rim: escolha real, reabertura, recibo e prova causal íntegros
+  ---
+  duration_ms: 43.903836
+  type: 'test'
+  ...
+# Subtest: P146 beyond-the-rim: ACK perdido após commit não duplica escolha nem recompensa
+ok 5 - P146 beyond-the-rim: ACK perdido após commit não duplica escolha nem recompensa
+  ---
+  duration_ms: 54.54817
+  type: 'test'
+  ...
+# Subtest: P146 beyond-the-rim: adulteração do journal não atravessa validação/importação
+ok 6 - P146 beyond-the-rim: adulteração do journal não atravessa validação/importação
+  ---
+  duration_ms: 17.509199
+  type: 'test'
+  ...
+# Subtest: P146 long-arm-of-the-hutt: escolha real, reabertura, recibo e prova causal íntegros
+ok 7 - P146 long-arm-of-the-hutt: escolha real, reabertura, recibo e prova causal íntegros
+  ---
+  duration_ms: 30.401678
+  type: 'test'
+  ...
+# Subtest: P146 long-arm-of-the-hutt: ACK perdido após commit não duplica escolha nem recompensa
+ok 8 - P146 long-arm-of-the-hutt: ACK perdido após commit não duplica escolha nem recompensa
+  ---
+  duration_ms: 25.615791
+  type: 'test'
+  ...
+# Subtest: P146 long-arm-of-the-hutt: adulteração do journal não atravessa validação/importação
+ok 9 - P146 long-arm-of-the-hutt: adulteração do journal não atravessa validação/importação
+  ---
+  duration_ms: 10.3769
+  type: 'test'
+  ...
+# Subtest: P146 jewel-of-yavin: escolha real, reabertura, recibo e prova causal íntegros
+ok 10 - P146 jewel-of-yavin: escolha real, reabertura, recibo e prova causal íntegros
+  ---
+  duration_ms: 44.656973
+  type: 'test'
+  ...
+# Subtest: P146 jewel-of-yavin: ACK perdido após commit não duplica escolha nem recompensa
+ok 11 - P146 jewel-of-yavin: ACK perdido após commit não duplica escolha nem recompensa
+  ---
+  duration_ms: 24.54952
+  type: 'test'
+  ...
+# Subtest: P146 jewel-of-yavin: adulteração do journal não atravessa validação/importação
+ok 12 - P146 jewel-of-yavin: adulteração do journal não atravessa validação/importação
+  ---
+  duration_ms: 10.099291
+  type: 'test'
+  ...
+# Subtest: P146 mask-of-the-pirate-queen: escolha real, reabertura, recibo e prova causal íntegros
+ok 13 - P146 mask-of-the-pirate-queen: escolha real, reabertura, recibo e prova causal íntegros
+  ---
+  duration_ms: 24.17144
+  type: 'test'
+  ...
+# Subtest: P146 mask-of-the-pirate-queen: ACK perdido após commit não duplica escolha nem recompensa
+ok 14 - P146 mask-of-the-pirate-queen: ACK perdido após commit não duplica escolha nem recompensa
+  ---
+  duration_ms: 28.176667
+  type: 'test'
+  ...
+# Subtest: P146 mask-of-the-pirate-queen: adulteração do journal não atravessa validação/importação
+ok 15 - P146 mask-of-the-pirate-queen: adulteração do journal não atravessa validação/importação
+  ---
+  duration_ms: 14.326754
+  type: 'test'
+  ...
+# Subtest: P146: comando pendente de outra campanha é preservado e bloqueia mutações
+ok 16 - P146: comando pendente de outra campanha é preservado e bloqueia mutações
+  ---
+  duration_ms: 16.275947
+  type: 'test'
+  ...
+# Subtest: P146: falha ao gravar outbox impede qualquer efeito no mundo
+ok 17 - P146: falha ao gravar outbox impede qualquer efeito no mundo
+  ---
+  duration_ms: 1.076115
+  type: 'test'
+  ...
+# Subtest: P146: falha determinística de gravação reverte estado e libera retry seguro
+ok 18 - P146: falha determinística de gravação reverte estado e libera retry seguro
+  ---
+  duration_ms: 19.318752
+  type: 'test'
+  ...
+# Subtest: P146: recusa de outro comando recupera o pendente antes de qualquer nova ação
+ok 19 - P146: recusa de outro comando recupera o pendente antes de qualquer nova ação
+  ---
+  duration_ms: 8.857345
+  type: 'test'
+  ...
+# Subtest: P146: combate publicado usa outbox; combate sandbox preserva rota legada
+ok 20 - P146: combate publicado usa outbox; combate sandbox preserva rota legada
+  ---
+  duration_ms: 77.295674
+  type: 'test'
+  ...
+# Subtest: P146: shell loads outbox before UI and routes all five published operations
+ok 21 - P146: shell loads outbox before UI and routes all five published operations
+  ---
+  duration_ms: 1.208945
+  type: 'test'
+  ...
+# Subtest: P146 under-black-sun: remoção de evento causal da execução atual bloqueia checkpoint
+ok 22 - P146 under-black-sun: remoção de evento causal da execução atual bloqueia checkpoint
+  ---
+  duration_ms: 17.076676
+  type: 'test'
+  ...
+# Subtest: P146 under-black-sun: recibo antigo não contamina nova execução da aventura
+ok 23 - P146 under-black-sun: recibo antigo não contamina nova execução da aventura
+  ---
+  duration_ms: 23.09272
+  type: 'test'
+  ...
+# Subtest: P146 beyond-the-rim: remoção de evento causal da execução atual bloqueia checkpoint
+ok 24 - P146 beyond-the-rim: remoção de evento causal da execução atual bloqueia checkpoint
+  ---
+  duration_ms: 11.031578
+  type: 'test'
+  ...
+# Subtest: P146 beyond-the-rim: recibo antigo não contamina nova execução da aventura
+ok 25 - P146 beyond-the-rim: recibo antigo não contamina nova execução da aventura
+  ---
+  duration_ms: 19.940201
+  type: 'test'
+  ...
+# Subtest: P146 long-arm-of-the-hutt: remoção de evento causal da execução atual bloqueia checkpoint
+ok 26 - P146 long-arm-of-the-hutt: remoção de evento causal da execução atual bloqueia checkpoint
+  ---
+  duration_ms: 14.149146
+  type: 'test'
+  ...
+# Subtest: P146 long-arm-of-the-hutt: recibo antigo não contamina nova execução da aventura
+ok 27 - P146 long-arm-of-the-hutt: recibo antigo não contamina nova execução da aventura
+  ---
+  duration_ms: 16.110758
+  type: 'test'
+  ...
+# Subtest: P146 jewel-of-yavin: remoção de evento causal da execução atual bloqueia checkpoint
+ok 28 - P146 jewel-of-yavin: remoção de evento causal da execução atual bloqueia checkpoint
+  ---
+  duration_ms: 6.850945
+  type: 'test'
+  ...
+# Subtest: P146 jewel-of-yavin: recibo antigo não contamina nova execução da aventura
+ok 29 - P146 jewel-of-yavin: recibo antigo não contamina nova execução da aventura
+  ---
+  duration_ms: 16.501758
+  type: 'test'
+  ...
+# Subtest: P146 mask-of-the-pirate-queen: remoção de evento causal da execução atual bloqueia checkpoint
+ok 30 - P146 mask-of-the-pirate-queen: remoção de evento causal da execução atual bloqueia checkpoint
+  ---
+  duration_ms: 19.822232
+  type: 'test'
+  ...
+# Subtest: P146 mask-of-the-pirate-queen: recibo antigo não contamina nova execução da aventura
+ok 31 - P146 mask-of-the-pirate-queen: recibo antigo não contamina nova execução da aventura
+  ---
+  duration_ms: 24.610513
+  type: 'test'
+  ...
+# Subtest: P146: evento UAE de comando sem recibo correspondente é rejeitado
+ok 32 - P146: evento UAE de comando sem recibo correspondente é rejeitado
+  ---
+  duration_ms: 10.108825
+  type: 'test'
+  ...
+# Subtest: P146: outbox corrompido não é apagado nem executado silenciosamente
+ok 33 - P146: outbox corrompido não é apagado nem executado silenciosamente
+  ---
+  duration_ms: 2.513796
+  type: 'test'
+  ...
+1..33
+# tests 33
+# suites 0
+# pass 33
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1022.881011
+

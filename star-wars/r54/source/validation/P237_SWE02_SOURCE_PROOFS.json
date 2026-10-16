@@ -1,0 +1,26 @@
+{
+  "checkpoint": "P237",
+  "scope": "SWE02 Geonosis: Piddock, Dimmock and gantry AA7 (NOT whole adventure)",
+  "officialSource": "https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf",
+  "sourcePrintedPagesCompared": [7, 23, 30, 34, 36, 37],
+  "sourceToExecutor": [
+    {"page":7,"semantic":"carapace fragments in cargo hold; explicit recovery","executor":"longArmOfTheHutt.advance + swe02GeonosisP237.FACTS","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs"},
+    {"page":23,"semantic":"Drombb messages require Hard Computers, accessible only after defeated Drombb","executor":"currentLongArmOfTheHuttChecks/adjudicate + geonosisEvidence ledger","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs"},
+    {"page":30,"semantic":"Piddock can identify recovered carapace","executor":"piddock-identify-shell + ledger","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs"},
+    {"page":34,"semantic":"Piddock reveals Kubaz and Hard Charm reveals B1 interest","executor":"piddock-party official checks + source receipts","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs"},
+    {"page":36,"semantic":"Dimmock: Average Charm +1, anti-Empire +1, four facts +1 each, carapace +1, communications +1; rude -1, failed Daunting Coerce -2, Empire loyal -1; bands 0-2=5, 3-5=3, >=6=0","executor":"swe02GeonosisP237.scoreDimmock/guardCount/validateGeonosis; GameController.resolvePublishedAdventureCheck","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs","stateReopens":3},
+    {"page":37,"semantic":"Geonosian Soldier and Vrixx'tt official separate profiles; Gand always present; boarding requires encounter proof; Vio rescue does not count as victory","executor":"adversaries + longArmOfTheHutt.encounterSpec/recordEncounterOutcome + GameController.beginPublishedAdventureEncounter","test":"uae-p237-swe02-geonosis-dimmock-gantry.test.mjs","stateReopens":3}
+  ],
+  "notCertified": [
+    "Entire SWE02 adventure (Acts 1-3) editorial page-by-page",
+    "Piddock complete NPC party etiquette and four-plus-one question limit",
+    "Anatta paid intelligence, Jabba alternative and real credit transactions",
+    "Geonosis Vrixx'tt bribes (500/1000 credits), cargo-cover setback integration and round-based behavior",
+    "Empire collaboration clue only from earlier verified adventure; not automatically minted",
+    "Lucky Guess ship sheet, pilots and passage price real economy integration",
+    "Palace of Teemo chandelier, alarm timer, gladiators, escape and final reward adjudication",
+    "Four other adventures, EotE/AoR all selected expansions and 360 AoR consumers",
+    "Android APK and real Galaxy A57/S23 tests"
+  ],
+  "claims":{"SWE02Complete":false,"fiveAdventuresComplete":false,"allRulesCertified":false,"apkBuilt":false,"androidRealTested":false}
+}

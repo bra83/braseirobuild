@@ -1,0 +1,16 @@
+{
+  "checkpoint": "P222",
+  "source": "SWE09 The Jewel of Yavin, PDF oficial no Google Drive",
+  "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "printedPages": [95],
+  "directPdfTextRead": true,
+  "section": "Episode III XP Rewards",
+  "officialMilestones": [
+    {"key": "HOLO_PARK_ESCAPE", "xp": 10, "implemented": true, "proof": "JEWEL_HOLO_END, outcome ESCAPED"},
+    {"key": "ARIS_ALLIANCE", "xp": 5, "implemented": true, "proof": "JEWEL_ARIS_ALLIANCE validado"},
+    {"key": "AREND_DEFEATED", "xp": 15, "implemented": true, "proof": "JEWEL_AREND_OUTCOME DEAD/INCARCERATED + encontro Arend vencido"},
+    {"key": "CLOUD_CARS_DEFEATED_OR_EVADED", "xp": 5, "implemented": false, "reason": "Sem resolução verificada de combate veicular/evasão; chegada narrativa não comprova vitória."},
+    {"key": "ESCAPED_BESPIN_WITH_JEWEL", "xp": 5, "implemented": false, "reason": "Sem comprovante de fuga planetária com posse da joia."}
+  ],
+  "limitations": ["Premiação opera na ficha do jogador ativo (player-slot caso o personagem não possua ID); não premia automaticamente companheiros nem fichas não carregadas.", "O registro do destino de Arend sem encontro vencido não libera XP.", "Nenhum XP é concedido ao preparar encontros ou antes da confirmação GM."]
+}

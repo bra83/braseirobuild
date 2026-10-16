@@ -1,0 +1,26 @@
+{
+  "checkpoint": "P211",
+  "sourceCheckpoint": "P210",
+  "newModuleCount": 0,
+  "newEffects": 2,
+  "totalEffectsImplemented": 6,
+  "publishedEffects": 16,
+  "files": [
+    "app/src/main/assets/vtt/js/adventure/jewelHoloParkEffects.mjs",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "tests/uae-p211-holopark-thranta-shadow.test.mjs"
+  ],
+  "atomicReceipts": "JEWEL_HOLO_EFFECT v1 with additional result-kind validations",
+  "security": "real pending spend, explicit GM boarding, duplicate prevention, replay tamper rejection, rollback, three reloads",
+  "knownLimitations": [
+    "10 of 16 published landscape effects remain manual",
+    "Arend/Grayson factions not yet integrated",
+    "Holo-Park narrative 2-minute mode not integrated",
+    "Arend/Aris/Lando outcomes pending",
+    "Arrow-7 advanced stats not fabricated",
+    "SWE02 and five adventures/360 consumers not certified",
+    "No Gradle/SDK/adb/APK/CI/physical device"
+  ]
+}

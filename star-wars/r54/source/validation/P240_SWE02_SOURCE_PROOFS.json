@@ -1,0 +1,60 @@
+{
+  "checkpoint": "R54_P240",
+  "base": "R54_P239",
+  "adventure": "SWE02 Long Arm of the Hutt",
+  "source": "https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf",
+  "implementation": [
+    {
+      "feature": "Nabat market limited to <=500 credits",
+      "printedPage": 13,
+      "executor": "app/src/main/assets/vtt/js/adventure/swe02NabatP240.mjs:nabatPurchase",
+      "controller": "GameController.purchaseSWE02NabatItem",
+      "bridge": "BraseiroUiBridge.purchaseSWE02NabatItem",
+      "ui": "swe02NabatBuy",
+      "persistence": "CHARACTER_UPDATED + WORLD_UPDATED atomicAction",
+      "tests": "tests/uae-p240-swe02-nabat-port-economy-medical.test.mjs",
+      "limitations": "Catalog intentionally restricts purchases to individually sourced EotE Core entries. Weapons currently use an AoR reference source and remain excluded until EotE crosswalk is verified."
+    },
+    {
+      "feature": "B'ura B'an pays for Krayt Fang hull repairs",
+      "printedPage": 13,
+      "executor": "swe02NabatP240.mjs:nabatShipRepair",
+      "controller": "GameController.repairSWE02KraytFangAtNabat",
+      "bridge": "BraseiroUiBridge.repairSWE02KraytFangAtNabat",
+      "ui": "swe02NabatRepair",
+      "persistence": "VEHICLES_UPDATED + WORLD_UPDATED atomicAction",
+      "tests": "tests/uae-p240-swe02-nabat-port-economy-medical.test.mjs",
+      "limitations": "Only actual hull trauma is repaired. System strain, ship critical injuries, fuel and component costs are not silently modified."
+    },
+    {
+      "feature": "Optional player-requested spaceport warning; human and Gand visitors",
+      "printedPages": [13,14],
+      "executor": "swe02NabatP240.mjs:requestNabatSpaceportWatch/deliverNabatNightAlert",
+      "controller": "GameController.requestSWE02SpaceportWatch/receiveSWE02SpaceportAlert",
+      "bridge": "BraseiroUiBridge",
+      "ui": "swe02NabatWatch/swe02NabatAlert",
+      "persistence": "WORLD_UPDATED atomicAction, unique receipts",
+      "tests": "tests/uae-p240-swe02-nabat-port-economy-medical.test.mjs",
+      "limitations": "The alert is not automatic; it requires the player request and a later explicit delivery."
+    },
+    {
+      "feature": "Nyn safehouse heals normal wounds and strain",
+      "printedPage": 13,
+      "executor": "swe02NabatP240.mjs:nabatSafehouseCare",
+      "controller": "GameController.treatSWE02NabatWounds",
+      "bridge": "BraseiroUiBridge.treatSWE02NabatWounds",
+      "ui": "swe02NabatCare",
+      "persistence": "CHARACTER_UPDATED + WORLD_UPDATED atomicAction",
+      "tests": "tests/uae-p240-swe02-nabat-port-economy-medical.test.mjs",
+      "limitations": "Official physician's critical injury check is not implemented and critical injuries remain unchanged."
+    }
+  ],
+  "still_not_certified": [
+    "SWE02 Nyn equipment negotiations, advantages/triumph, defective items and critical injury treatment",
+    "SWE02 full New Meen nonviolent surrender and bribes with real casualty proof/debits",
+    "SWE02 spaceport fuel/ship criticals, Krayt Fang beginner loadout, complete initiative",
+    "SWE02 all Act 2 and Act 3 branches/rewards/endings",
+    "Full official PDF coverage of remaining four adventures",
+    "EotE/AoR/selected expansions including 360 AoR consumers"
+  ]
+}

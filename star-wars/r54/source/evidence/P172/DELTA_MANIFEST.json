@@ -1,0 +1,41 @@
+{
+  "checkpoint": "P172",
+  "base": "P171",
+  "changed": [
+    "ESTADO_ATUAL.md",
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/adventure/adventureRuntime.mjs",
+    "app/src/main/assets/vtt/js/adventure/adventureSemanticGate.mjs",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/js/expansion/aorTalentRuntimeAliases.mjs",
+    "app/src/main/assets/vtt/js/rules/economy.mjs",
+    "app/src/main/assets/vtt/js/rules/talents.mjs",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "tests/uae-p170-hardheaded-jury-five-adventures.test.mjs",
+    "tests/uae-p171-npc-companions-hardheaded-five-adventures.test.mjs",
+    "tests/uae-v2-p127-regression.test.mjs",
+    "validation/LATEST_SOURCE_VALIDATION.txt"
+  ],
+  "added": [
+    "HANDOFF_STAR_WARS_EDGE_R54_P172_2026-10-13.md",
+    "evidence/P172/ANDROID_GRADLE_ATTEMPT.txt",
+    "evidence/P172/AOR_PENDING_37_POSITIONS.json",
+    "evidence/P172/BUNDLE_BUILD.txt",
+    "evidence/P172/DELTA_MANIFEST.json",
+    "evidence/P172/FIVE_ADVENTURES_AUDIT.txt",
+    "evidence/P172/JAVA_HASH_COMPARE.txt",
+    "evidence/P172/JAVA_SYNTAX.txt",
+    "evidence/P172/KOKORO_TTS_REGRESSION.txt",
+    "evidence/P172/MASTER_MERCHANT.txt",
+    "evidence/P172/NODE_REGULAR.txt",
+    "evidence/P172/NODE_STRESS.txt",
+    "evidence/P172/UAE_FOCAL.txt",
+    "evidence/P172/VERIFY_FINAL_SOURCE.txt",
+    "tests/uae-p172-consequence-security-five-adventures.test.mjs",
+    "tests/uae-p172-master-merchant-economy.test.mjs"
+  ],
+  "deleted": [],
+  "totalFiles": 2346
+}

@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: P15: bundle embarcado não contradiz TTS integrado
+ok 1 - P15: bundle embarcado não contradiz TTS integrado
+  ---
+  duration_ms: 1.609891
+  type: 'test'
+  ...
+# Subtest: Android TTS divide texto longo e usa QUEUE_ADD depois do primeiro bloco
+ok 2 - Android TTS divide texto longo e usa QUEUE_ADD depois do primeiro bloco
+  ---
+  duration_ms: 0.660564
+  type: 'test'
+  ...
+# Subtest: Gemini TTS tem executor dedicado, primeiro bloco curto e fila de reprodução
+ok 3 - Gemini TTS tem executor dedicado, primeiro bloco curto e fila de reprodução
+  ---
+  duration_ms: 0.188914
+  type: 'test'
+  ...
+# Subtest: fallback Web Speech narra vários blocos em sequência
+ok 4 - fallback Web Speech narra vários blocos em sequência
+  ---
+  duration_ms: 0.137107
+  type: 'test'
+  ...
+# Subtest: P11: tela de voz não contradiz integração TTS real
+ok 5 - P11: tela de voz não contradiz integração TTS real
+  ---
+  duration_ms: 1.038842
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 58.458089

@@ -1,0 +1,16 @@
+{
+  "document": "SWE09 The Jewel of Yavin",
+  "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "sourceRead": "Google Drive connector fetch of official PDF text, targeted pp.93–94",
+  "page93Christophsis": "NPC Despair: opponent dives for cover behind ornamental fountain, defense 2 until movement",
+  "page94Coruscant": "NPC Despair: target disappears into holographic crowd; opposed Stealth vs player Perception as incidental; on success cannot see target",
+  "implemented": [
+    "christophsis_fountain",
+    "coruscant_vanish"
+  ],
+  "notImplemented": [
+    "kashyyyk_insect",
+    "kashyyyk_vertigo"
+  ],
+  "notClaimed": "No full PDF certification or complete adventure audit"
+}

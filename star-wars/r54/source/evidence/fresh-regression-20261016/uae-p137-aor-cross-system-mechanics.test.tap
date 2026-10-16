@@ -1,0 +1,25 @@
+✔ P137 six AoR talent families remain active with at least 205/360 source-backed positions (156.3896ms)
+✔ P137 REPARACIÓN EFICAZ bought through actual tree: rank, XP, immutability and JSON persistence (189.3762ms)
+✔ P137 ROBUSTO bought through actual tree: rank, XP, immutability and JSON persistence (7.6888ms)
+✔ P137 CONFIANZA bought through actual tree: rank, XP, immutability and JSON persistence (3.9296ms)
+✔ P137 DISPARO CERTERO bought through actual tree: rank, XP, immutability and JSON persistence (7.5173ms)
+✔ P137 ELUDIR SEGURIDAD bought through actual tree: rank, XP, immutability and JSON persistence (104.5232ms)
+✔ P137 ESPECIALISTA EN ESTIMULANTES bought through actual tree: rank, XP, immutability and JSON persistence (7.8559ms)
+✔ P137 ranked SOLREP repairs hull, never system strain, and persists vehicle result (42.217ms)
+✔ P137 ROBUSTO lowers incoming critical result 10 per rank, minimum 1, without mutating input (11.4701ms)
+✔ P137 CONFIANZA reduces Discipline fear, never Cool, never below difficulty 1 (20.4309ms)
+✔ P137 BYP removes setback only for security bypass Computers/Skulduggery checks (172.2944ms)
+✔ P137 STIMSPEC increases healing and retains daily diminishing returns and item consumption (10.8564ms)
+✔ P137 TRUEAIM consumes one real maneuver and upgrades ranged pool; once per round and persistent (55.2716ms)
+✔ P137 TRUEAIM rejects unowned talent and melee attacks without committing illegal effects (35.2212ms)
+✔ P137 five adventures still restore canonical UAE state with new AoR rules loaded (478.0977ms)
+✔ P137 Android UI offers true aim and keeps Kokoro untouched (9.774ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5466.2933
+

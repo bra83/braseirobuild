@@ -1,0 +1,154 @@
+TAP version 13
+# Subtest: P162: 360 positions preserved, four new source-backed positions active
+ok 1 - P162: 360 positions preserved, four new source-backed positions active
+  ---
+  duration_ms: 8.422049
+  type: 'test'
+  ...
+# Subtest: P162: Sound Investments 2 ranks credits and session receipt are atomic
+ok 2 - P162: Sound Investments 2 ranks credits and session receipt are atomic
+  ---
+  duration_ms: 28.430195
+  type: 'test'
+  ...
+# Subtest: P162: Sound Investments 0 and 1 rank grant exact amounts
+ok 3 - P162: Sound Investments 0 and 1 rank grant exact amounts
+  ---
+  duration_ms: 13.254536
+  type: 'test'
+  ...
+# Subtest: P162: Sound Investments cannot activate via display-only names or forged node
+ok 4 - P162: Sound Investments cannot activate via display-only names or forged node
+  ---
+  duration_ms: 2.981785
+  type: 'test'
+  ...
+# Subtest: P162: session start failure restores Destiny, income, character, session and repository
+ok 5 - P162: session start failure restores Destiny, income, character, session and repository
+  ---
+  duration_ms: 3.646419
+  type: 'test'
+  ...
+# Subtest: P162: session start failure due to already active session is rollback safe
+ok 6 - P162: session start failure due to already active session is rollback safe
+  ---
+  duration_ms: 4.007433
+  type: 'test'
+  ...
+# Subtest: P162: credit overflow is rejected before commit
+ok 7 - P162: credit overflow is rejected before commit
+  ---
+  duration_ms: 1.934119
+  type: 'test'
+  ...
+# Subtest: P162: Lábia ranks are bound only to carisma
+ok 8 - P162: Lábia ranks are bound only to carisma
+  ---
+  duration_ms: 3.491075
+  type: 'test'
+  ...
+# Subtest: P162: Lábia ranks are bound only to coaccion
+ok 9 - P162: Lábia ranks are bound only to coaccion
+  ---
+  duration_ms: 2.089515
+  type: 'test'
+  ...
+# Subtest: P162: Lábia ranks are bound only to engano
+ok 10 - P162: Lábia ranks are bound only to engano
+  ---
+  duration_ms: 2.109815
+  type: 'test'
+  ...
+# Subtest: P162: Lábia ranks are bound only to negociacion
+ok 11 - P162: Lábia ranks are bound only to negociacion
+  ---
+  duration_ms: 2.277472
+  type: 'test'
+  ...
+# Subtest: P162: Lábia spends one real Triumph and adds ranked successes
+ok 12 - P162: Lábia spends one real Triumph and adds ranked successes
+  ---
+  duration_ms: 10.138292
+  type: 'test'
+  ...
+# Subtest: P162: Lábia never invents Triumph when check fails
+ok 13 - P162: Lábia never invents Triumph when check fails
+  ---
+  duration_ms: 6.063092
+  type: 'test'
+  ...
+# Subtest: P162: Lábia cannot be spent on an unpurchased skill or with fake boolean
+ok 14 - P162: Lábia cannot be spent on an unpurchased skill or with fake boolean
+  ---
+  duration_ms: 5.664718
+  type: 'test'
+  ...
+# Subtest: P162: Lábia cannot be forged by translated labels and wrong original ID
+ok 15 - P162: Lábia cannot be forged by translated labels and wrong original ID
+  ---
+  duration_ms: 3.432579
+  type: 'test'
+  ...
+# Subtest: P162: legacy Lábia node can be bound once without XP
+ok 16 - P162: legacy Lábia node can be bound once without XP
+  ---
+  duration_ms: 4.375702
+  type: 'test'
+  ...
+# Subtest: P162: binding rejects foreign nodes, invalid skills and storage failures atomically
+ok 17 - P162: binding rejects foreign nodes, invalid skills and storage failures atomically
+  ---
+  duration_ms: 3.037091
+  type: 'test'
+  ...
+# Subtest: P162: purchase of Lábia demands selected social skill
+ok 18 - P162: purchase of Lábia demands selected social skill
+  ---
+  duration_ms: 2.619997
+  type: 'test'
+  ...
+# Subtest: P162: under-black-sun UAE objectives, triggers, consequences, replay and three reopenings
+ok 19 - P162: under-black-sun UAE objectives, triggers, consequences, replay and three reopenings
+  ---
+  duration_ms: 30.99163
+  type: 'test'
+  ...
+# Subtest: P162: beyond-the-rim UAE objectives, triggers, consequences, replay and three reopenings
+ok 20 - P162: beyond-the-rim UAE objectives, triggers, consequences, replay and three reopenings
+  ---
+  duration_ms: 14.627692
+  type: 'test'
+  ...
+# Subtest: P162: long-arm-of-the-hutt UAE objectives, triggers, consequences, replay and three reopenings
+ok 21 - P162: long-arm-of-the-hutt UAE objectives, triggers, consequences, replay and three reopenings
+  ---
+  duration_ms: 12.041991
+  type: 'test'
+  ...
+# Subtest: P162: jewel-of-yavin UAE objectives, triggers, consequences, replay and three reopenings
+ok 22 - P162: jewel-of-yavin UAE objectives, triggers, consequences, replay and three reopenings
+  ---
+  duration_ms: 11.397409
+  type: 'test'
+  ...
+# Subtest: P162: mask-of-the-pirate-queen UAE objectives, triggers, consequences, replay and three reopenings
+ok 23 - P162: mask-of-the-pirate-queen UAE objectives, triggers, consequences, replay and three reopenings
+  ---
+  duration_ms: 10.681249
+  type: 'test'
+  ...
+# Subtest: P162: Android bridge binds Lábia, rolls, and offline bundle exposes methods
+ok 24 - P162: Android bridge binds Lábia, rolls, and offline bundle exposes methods
+  ---
+  duration_ms: 29.662514
+  type: 'test'
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 543.471239

@@ -1,0 +1,696 @@
+{
+  "schemaVersion": 1,
+  "sourceRef": "external.kainrath.wordpress",
+  "count": 44,
+  "counts": {
+    "droids": 20,
+    "npcs": 16,
+    "beasts": 8
+  },
+  "entries": [
+    {
+      "assetId": "external.kainrath.droid.sr-series-scout-observation-droid",
+      "title": "SR-Series Scout/Observation Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2019/10/03/sr-series-scout-observation-droid/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2019/10/sr-series-scoutobservation-droid-1.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "sr-series-scout-observation-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.b1-series-battle-droid-modified",
+      "title": "B1 Series Battle Droid (Modified)",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/droids/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2018/08/b1-series-battle-droid-modified.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "b1-series-battle-droid-modified"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.hologlide-j57-cam-droid",
+      "title": "Hologlide J57 Cam Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2018/07/22/hologlide-j57-cam-droid/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2018/07/j57-cam-droid.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "hologlide-j57-cam-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.arak-series-probe-droid",
+      "title": "Arak-Series Probe Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2017/12/01/arak-series-probe-droid/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/12/arak-series-probe-droid.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "arak-series-probe-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.nr-5-maintenance-droid",
+      "title": "NR-5 Maintenance Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2017/11/25/nr-5-maintenance-droid/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/11/nr-5-maintenance-droid.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "nr-5-maintenance-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.it-0-interrogation-droid",
+      "title": "IT-0 Interrogation Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2017/11/25/it-0-interrogation-droid/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/11/it-0-interrogation-droid.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "it-0-interrogation-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.viper-probe-droid",
+      "title": "Viper Probe Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/droids/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/05/viper-probe-droid.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "viper-probe-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.2-1b-surgical-droid",
+      "title": "2-1B Surgical Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/droids/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/02/2-1b-surgical-droid.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "2-1b-surgical-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.gyrowheel-1-42-08-series-recycling-droid",
+      "title": "Gyrowheel 1.42.08-Series Recycling Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/droids/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/02/recycling-droid.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "gyrowheel-1-42-08-series-recycling-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.jn-66-analysis-droid",
+      "title": "JN-66 Analysis Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2017/02/12/jn-66-analysis-droid/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/02/jn66-analysis-droid.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "jn-66-analysis-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.all-terrain-exploration-droid",
+      "title": "All-Terrain Exploration Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/droids/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/12/ated.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "all-terrain-exploration-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.dum-series-pit-droid",
+      "title": "DUM-Series Pit Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2016/10/25/dum-series-pit-droid/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/10/dum-series-pit-droid1.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "dum-series-pit-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.gv-3-series-guardian-droid",
+      "title": "GV/3-Series Guardian Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2016/06/16/gv3-series-guardian-droid/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/06/gv3series-guardian-droid.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "gv-3-series-guardian-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.r5-series-astromech-droid",
+      "title": "R5-Series Astromech Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2016/03/17/r-5-series-astromech-droid/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/03/r5-series-astromech-droid2.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "r5-series-astromech-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.cz-series-communications-business-droid",
+      "title": "CZ-Series Communications/Business Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2016/01/20/cz-series-communicationsbusiness-droid/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/cz-series.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "cz-series-communications-business-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.5yq-series-protocol-droid",
+      "title": "5YQ-Series Protocol Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2016/01/20/5yq-series-protocol-droid/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/5yq-series-protocol-droid.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "5yq-series-protocol-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.dz-70-fugitive-tracker-droid",
+      "title": "DZ-70 Fugitive Tracker Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2016/01/16/dz-70-fugitive-tracker-droid/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/dz70-fugative-tracker.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "dz-70-fugitive-tracker-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.87-rm-scout-collector-droid",
+      "title": "87-RM Scout Collector Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2016/01/16/87-rm-scout-collector-droid/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/scout-collector.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "87-rm-scout-collector-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.r7-series-astromech-droid",
+      "title": "R7-Series Astromech Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2016/01/14/r7-series-astromech-droid/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/r7-astromech.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "r7-series-astromech-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.droid.astromech-droid",
+      "title": "Astromech Droid",
+      "category": "droid",
+      "subtype": "reference",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/droids/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/astromech.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "droid",
+        "droid",
+        "astromech-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.felucian",
+      "title": "Felucian",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2019/09/felucian.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "felucian"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.vie-na-fane-weequay-jailor",
+      "title": "Vie-Na Fane – Weequay Jailor",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2019/01/vie-na-fane.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "vie-na-fane-weequay-jailor"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.lowhhrick-wookiee-gladiator",
+      "title": "LOWHHRICK – Wookiee Gladiator",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2019/01/Lowhhrick.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "lowhhrick-wookiee-gladiator"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.black-gank-bounty-hunter",
+      "title": "BLACK – Gank Bounty Hunter",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2019/01/Black.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "black-gank-bounty-hunter"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.cratala",
+      "title": "Cratala",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/2018/08/11/cratala/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2018/08/cratala.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "cratala"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.captain-rel-harsol",
+      "title": "Captain Rel Harsol",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2018/08/captain-rel-harsol.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "captain-rel-harsol"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.yiyar-clan-members",
+      "title": "Yiyar Clan Members",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2018/08/yiyar-clan-members.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "yiyar-clan-members"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.gormo-vosadii-grasso",
+      "title": "Gormo Vosadii Grasso",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2018/07/gormo-the-hutt.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "gormo-vosadii-grasso"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.deep-dark-scout-trooper",
+      "title": "Deep Dark Scout Trooper",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/12/deep-dark-scout-trooper.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "deep-dark-scout-trooper"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.it-3po-eyetee-three",
+      "title": "IT-3PO (eyetee-three)",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/12/it-3po.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "it-3po-eyetee-three"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.spaceport-security-droid",
+      "title": "Spaceport Security Droid",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2017/11/spaceport-security-droids.png",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "spaceport-security-droid"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.laromx-clan-scorned",
+      "title": "Lar’omx Clan-Scorned",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/4/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/laromx-clan-scorned.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "laromx-clan-scorned"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.zelcomm-enforcer",
+      "title": "Zelcomm Enforcer",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/4/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/zelcomm-enforcer.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "zelcomm-enforcer"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.black-sun-lackey",
+      "title": "Black Sun Lackey",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/4/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/black-sun-lackey.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "black-sun-lackey"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.verannis-black-sun-underboss",
+      "title": "Verannis – Black Sun Underboss",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/4/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/verannis.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "verannis-black-sun-underboss"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.npc.coruscant-underworld-police",
+      "title": "Coruscant Underworld Police",
+      "category": "portrait",
+      "subtype": "npc",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/enemies-and-npcs/page/4/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/coruscant-underworld-police1.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "npc",
+        "npc",
+        "character",
+        "coruscant-underworld-police"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.gualaar",
+      "title": "Gualaar",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/beasts/page/2/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/11/gualaar.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "beast",
+        "creature",
+        "gualaar"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.spintiri-icewolves",
+      "title": "Spintiri Icewolves",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/beasts/page/2/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/spintiri-icewolves.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "beast",
+        "creature",
+        "spintiri-icewolves"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.boma",
+      "title": "Boma",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/beasts/page/2/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/boma.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "beast",
+        "creature",
+        "boma"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.cannok",
+      "title": "Cannok",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/beasts/page/2/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/cannok.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "beast",
+        "creature",
+        "cannok"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.juvenile-krayt-dragon",
+      "title": "Juvenile Krayt Dragon",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/beasts/page/2/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/02/juvenile-krayt-dragon.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "beast",
+        "creature",
+        "juvenile-krayt-dragon"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.corrupted-icewolf",
+      "title": "Corrupted Icewolf",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/beasts/page/2/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/corrupted-icewolf.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "beast",
+        "creature",
+        "corrupted-icewolf"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.duracrete-slug",
+      "title": "Duracrete Slug",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/beasts/page/2/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2016/01/duracrete-slug.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "beast",
+        "creature",
+        "duracrete-slug"
+      ]
+    },
+    {
+      "assetId": "external.kainrath.beast.beast-mounts",
+      "title": "Beast Mounts",
+      "category": "creature",
+      "subtype": "beast",
+      "sourcePageUrl": "https://kainrath.wordpress.com/category/beasts/page/2/",
+      "remoteUrl": "https://kainrath.wordpress.com/wp-content/uploads/2015/04/beasts.jpg",
+      "tags": [
+        "star-wars",
+        "kainrath",
+        "beast",
+        "beast",
+        "creature",
+        "beast-mounts"
+      ]
+    }
+  ]
+}

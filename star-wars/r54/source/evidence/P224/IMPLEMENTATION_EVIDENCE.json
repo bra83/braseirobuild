@@ -1,0 +1,35 @@
+{
+  "source": "SWE09 The Jewel of Yavin, pp.92–95, Flight over Fight / Episode III XP, PDF Google Drive id 1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "baseline": "P223",
+  "implemented": [
+    "One physical Jewel of Yavin story item in actual PC gear only after vault flag, check and GM confirmation",
+    "Custody and ship boarding require GM security clearance, ship with hyperdrive, physical jewel",
+    "Escape invokes existing real astrogation dice and advances persistent living-world ticks only on successful jump",
+    "Failed jump persists actual roll and consequences but does not unlock escape or XP",
+    "Receipts JEWEL_BESPIN_CUSTODY/BOARD/ESCAPE with replay of chronological order, dice faces and proof",
+    "Epilogue cannot be reached merely by selecting the hangar; proof-gated flag",
+    "Episode III BESPIN_ESCAPE +5 XP via actual XP_GRANTED and GM approval, one per active PC",
+    "Controller, bridge, Android UI PTBR, offline bundle, save validators and three reopens"
+  ],
+  "notCertified": [
+    "Starport security encounters are GM-adjudicated, not automatically simulated",
+    "Physical item transfers between characters not implemented; active PC custody only",
+    "Hyperspace jump advances living-world ticks, not taskTimeLedger elapsedMinutes; no invented flight minutes",
+    "Receipt replay is not cryptographic signing",
+    "Full five adventures scene-by-scene and 360 consumers semantic coverage",
+    "Gradle/Android SDK/adb/APK/CI BRELGA/physical Android"
+  ],
+  "testSummary": "evidence/P224/TEST_SUMMARY.json",
+  "regression": {
+    "files": 349,
+    "tests": 3140,
+    "passed": 3140,
+    "stress": 6
+  },
+  "android": {
+    "versionName": "1.0.224",
+    "versionCode": 10224,
+    "offlineModules": 112,
+    "javaKokoroIdentical": 8
+  }
+}

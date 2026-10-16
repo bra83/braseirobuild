@@ -1,0 +1,11 @@
+{
+  "file": "r54-p21-device-regressions.test.mjs",
+  "okay": true,
+  "tests": 9,
+  "pass": 9,
+  "fail": 0,
+  "skipped": 0,
+  "exit": 0,
+  "seconds": 1.47,
+  "tail": ""
+}

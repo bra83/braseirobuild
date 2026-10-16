@@ -1,0 +1,167 @@
+TAP version 13
+# Subtest: P170 AoR coverage: 2 Jury, 2 Hard Headed and 2 Improved slots
+ok 1 - P170 AoR coverage: 2 Jury, 2 Hard Headed and 2 Improved slots
+  ---
+  duration_ms: 1.930487
+  type: 'test'
+  ...
+# Subtest: P170 source-backed slots: display-only names and forged original do not confer mechanics
+ok 2 - P170 source-backed slots: display-only names and forged original do not confer mechanics
+  ---
+  duration_ms: 7.457432
+  type: 'test'
+  ...
+# Subtest: P170 Hard Headed rank 2: difficulty 3, stagger/disoriented removed, failure spends check
+ok 3 - P170 Hard Headed rank 2: difficulty 3, stagger/disoriented removed, failure spends check
+  ---
+  duration_ms: 4.610144
+  type: 'test'
+  ...
+# Subtest: P170 Hard Headed improved: incapacitation due strain only, threshold-1 on success
+ok 4 - P170 Hard Headed improved: incapacitation due strain only, threshold-1 on success
+  ---
+  duration_ms: 3.471138
+  type: 'test'
+  ...
+# Subtest: P170 Hard Headed: rollback on save failure and forbidden unrelated critical incapacity
+ok 5 - P170 Hard Headed: rollback on save failure and forbidden unrelated critical incapacity
+  ---
+  duration_ms: 3.69832
+  type: 'test'
+  ...
+# Subtest: P170 Jury Rigged: permanent unique owned weapon assignment, damage and critical
+ok 6 - P170 Jury Rigged: permanent unique owned weapon assignment, damage and critical
+  ---
+  duration_ms: 3.01371
+  type: 'test'
+  ...
+# Subtest: P170 Jury Rigged: invalid item/slot, stale purchase and rollback
+ok 7 - P170 Jury Rigged: invalid item/slot, stale purchase and rollback
+  ---
+  duration_ms: 3.138957
+  type: 'test'
+  ...
+# Subtest: P170 Jury Rigged is consumed by real weapon attack and cannot clone instance IDs
+ok 8 - P170 Jury Rigged is consumed by real weapon attack and cannot clone instance IDs
+  ---
+  duration_ms: 7.339194
+  type: 'test'
+  ...
+# Subtest: P170 Android bridge and UI expose only source-backed owned slots and real actions
+ok 9 - P170 Android bridge and UI expose only source-backed owned slots and real actions
+  ---
+  duration_ms: 5.13231
+  type: 'test'
+  ...
+# Subtest: P170 Body Guard: maneuver, voluntary strain, live companion attack upgrades, expiration
+ok 10 - P170 Body Guard: maneuver, voluntary strain, live companion attack upgrades, expiration
+  ---
+  duration_ms: 10.341446
+  type: 'test'
+  ...
+# Subtest: P170 Body Guard: rejects forged display rank, absent ally and rolls back failed save
+ok 11 - P170 Body Guard: rejects forged display rank, absent ally and rolls back failed save
+  ---
+  duration_ms: 8.26565
+  type: 'test'
+  ...
+# Subtest: P170 under-black-sun: AoR gear + conditions survive published adventure and three restores
+ok 12 - P170 under-black-sun: AoR gear + conditions survive published adventure and three restores
+  ---
+  duration_ms: 43.480951
+  type: 'test'
+  ...
+# Subtest: P170 under-black-sun: malformed predicates and forged consequence metadata fail closed
+ok 13 - P170 under-black-sun: malformed predicates and forged consequence metadata fail closed
+  ---
+  duration_ms: 2.068145
+  type: 'test'
+  ...
+# Subtest: P170 under-black-sun: UAE objective, consequence and clock transaction with rollback
+ok 14 - P170 under-black-sun: UAE objective, consequence and clock transaction with rollback
+  ---
+  duration_ms: 8.048764
+  type: 'test'
+  ...
+# Subtest: P170 beyond-the-rim: AoR gear + conditions survive published adventure and three restores
+ok 15 - P170 beyond-the-rim: AoR gear + conditions survive published adventure and three restores
+  ---
+  duration_ms: 18.343569
+  type: 'test'
+  ...
+# Subtest: P170 beyond-the-rim: malformed predicates and forged consequence metadata fail closed
+ok 16 - P170 beyond-the-rim: malformed predicates and forged consequence metadata fail closed
+  ---
+  duration_ms: 1.069541
+  type: 'test'
+  ...
+# Subtest: P170 beyond-the-rim: UAE objective, consequence and clock transaction with rollback
+ok 17 - P170 beyond-the-rim: UAE objective, consequence and clock transaction with rollback
+  ---
+  duration_ms: 4.95223
+  type: 'test'
+  ...
+# Subtest: P170 long-arm-of-the-hutt: AoR gear + conditions survive published adventure and three restores
+ok 18 - P170 long-arm-of-the-hutt: AoR gear + conditions survive published adventure and three restores
+  ---
+  duration_ms: 16.500563
+  type: 'test'
+  ...
+# Subtest: P170 long-arm-of-the-hutt: malformed predicates and forged consequence metadata fail closed
+ok 19 - P170 long-arm-of-the-hutt: malformed predicates and forged consequence metadata fail closed
+  ---
+  duration_ms: 1.056552
+  type: 'test'
+  ...
+# Subtest: P170 long-arm-of-the-hutt: UAE objective, consequence and clock transaction with rollback
+ok 20 - P170 long-arm-of-the-hutt: UAE objective, consequence and clock transaction with rollback
+  ---
+  duration_ms: 5.669409
+  type: 'test'
+  ...
+# Subtest: P170 jewel-of-yavin: AoR gear + conditions survive published adventure and three restores
+ok 21 - P170 jewel-of-yavin: AoR gear + conditions survive published adventure and three restores
+  ---
+  duration_ms: 24.791401
+  type: 'test'
+  ...
+# Subtest: P170 jewel-of-yavin: malformed predicates and forged consequence metadata fail closed
+ok 22 - P170 jewel-of-yavin: malformed predicates and forged consequence metadata fail closed
+  ---
+  duration_ms: 0.92936
+  type: 'test'
+  ...
+# Subtest: P170 jewel-of-yavin: UAE objective, consequence and clock transaction with rollback
+ok 23 - P170 jewel-of-yavin: UAE objective, consequence and clock transaction with rollback
+  ---
+  duration_ms: 3.486652
+  type: 'test'
+  ...
+# Subtest: P170 mask-of-the-pirate-queen: AoR gear + conditions survive published adventure and three restores
+ok 24 - P170 mask-of-the-pirate-queen: AoR gear + conditions survive published adventure and three restores
+  ---
+  duration_ms: 15.566858
+  type: 'test'
+  ...
+# Subtest: P170 mask-of-the-pirate-queen: malformed predicates and forged consequence metadata fail closed
+ok 25 - P170 mask-of-the-pirate-queen: malformed predicates and forged consequence metadata fail closed
+  ---
+  duration_ms: 0.948149
+  type: 'test'
+  ...
+# Subtest: P170 mask-of-the-pirate-queen: UAE objective, consequence and clock transaction with rollback
+ok 26 - P170 mask-of-the-pirate-queen: UAE objective, consequence and clock transaction with rollback
+  ---
+  duration_ms: 3.948908
+  type: 'test'
+  ...
+1..26
+# tests 26
+# suites 0
+# pass 26
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 408.712227
+

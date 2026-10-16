@@ -1,0 +1,44 @@
+{
+  "checkpoint": "P212",
+  "base": "P211",
+  "changes": [
+    "Coruscant building: Triumph consumed; ranged defense 2 modifies real NPC ranged attack pool; removed upon player movement",
+    "Alderaan nerf herd: Triumph consumed; real maneuver and Average Stealth check with full dice faces replay; escape pending GM, no teleport",
+    "PT-BR Android UI options and GM confirmation for herd and maneuver",
+    "SWE09 Holo-Park receipt validation includes new source-backed result shapes",
+    "Historical P211 test now allows versionCode >= 10211",
+    "Android version 1.0.212, bundle rebuilt"
+  ],
+  "newTestFile": "tests/uae-p212-holopark-cover-nerfs.test.mjs",
+  "focalTests": 8,
+  "tests": {
+    "checkpoint": "P212",
+    "mode": "node --test per-file; regular parallel subprocesses, stress separate files; NOT monolithic",
+    "regularFiles": 331,
+    "stressFiles": 6,
+    "regularTests": 3047,
+    "regularPassed": 3047,
+    "stressTests": 6,
+    "stressPassed": 6,
+    "failedFiles": [],
+    "totalFiles": 337,
+    "totalTests": 3053,
+    "totalPassed": 3053,
+    "focalTests": 8
+  },
+  "preservation": {
+    "javaKokoroUnchanged": 8,
+    "legacySaves": "P211 receipts and absent P212 state remain supported"
+  },
+  "notDone": [
+    "APK",
+    "Gradle",
+    "adb",
+    "CI BRELGA",
+    "physical Android homologation",
+    "GitHub push",
+    "full PDF semantic certification",
+    "remaining 8 Holo-Park effects",
+    "Arend/Grayson encounters"
+  ]
+}

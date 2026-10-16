@@ -1,0 +1,39 @@
+{
+  "scope": "targeted only, not complete adventure PDF certification",
+  "document": "The Jewel of Yavin",
+  "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "pages": [
+    {
+      "printedPages": [
+        12,
+        13
+      ],
+      "section": "The Bespin Wing Guard",
+      "verified": [
+        "Wing Guard officer minion: Agility 3, Soak 3, Wounds 5, group skills Discipline/Melee/Piloting (Planetary)/Ranged (Light)/Vigilance; Relby-K23 Damage 6 Critical 3 Pierce 2; stun club Damage 5 Critical 2 Disorient 2; Covering Fire ability",
+        "Wing Guard sergeant rival: Soak 3, Wounds 12, Leadership 2, Ranged (Light) 2, Tactical Direction ability",
+        "The standard patrol is four officers plus one sergeant; not used for Table 2-1 bank team"
+      ]
+    },
+    {
+      "printedPage": 69,
+      "pdfPage": 70,
+      "section": "Table 2-1 Spending symbols during slicing check",
+      "verified": [
+        "A dispatched Wing Guard team equals number of PCs",
+        "Investigation reaches original slicing scene within four hours",
+        "If PCs left, patrol investigates from that scene",
+        "Duplicate results dispatch more teams OR accelerate arrival by one hour",
+        "Electronic signature upgrades all subsequent Cloud City slicing checks until tools are fully replaced"
+      ]
+    }
+  ],
+  "compendiumEvidence": [
+    "NPC card Wing Guard Officer key wing_guard_officer_121, JoY:12",
+    "NPC card Wing Guard Sergeant key wing_guard_sergeant_405, JoY:13"
+  ],
+  "unimplementedSourceEffects": [
+    "Covering Fire and Tactical Direction combat maneuvers require adjudication",
+    "Tools replacement/removal of electronic signature not implemented"
+  ]
+}

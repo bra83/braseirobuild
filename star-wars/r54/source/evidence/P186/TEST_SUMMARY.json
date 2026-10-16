@@ -1,0 +1,33 @@
+{
+  "checkpoint": "P186",
+  "base": "P185",
+  "regular": {
+    "shard": 0,
+    "shards": 1,
+    "files": 305,
+    "tests": 2751,
+    "passed": 2751,
+    "failed": 0,
+    "badFiles": []
+  },
+  "stress": {
+    "shard": 0,
+    "shards": 1,
+    "files": 6,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "badFiles": []
+  },
+  "totalTests": 2757,
+  "totalPassed": 2757,
+  "testFiles": 311,
+  "focalP186": 12,
+  "nodeSyntaxFiles": 121,
+  "jsonValidated": 22,
+  "xmlValidated": 2,
+  "javaSourcesUnchanged": 8,
+  "bundleModules": 87,
+  "suiteMode": "per-file runner, not monolithic",
+  "androidVersion": "1.0.186"
+}

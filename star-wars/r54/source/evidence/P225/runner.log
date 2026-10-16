@@ -1,0 +1,24 @@
+FILES 40 FAILURES 0
+FILES 80 FAILURES 0
+FILES 120 FAILURES 0
+FILES 160 FAILURES 0
+FILES 200 FAILURES 0
+FILES 240 FAILURES 0
+FILES 280 FAILURES 0
+FILES 320 FAILURES 0
+{
+  "checkpoint": "P225",
+  "mode": "node --test each test file separately, six nonmonolithic workers",
+  "regularFiles": 344,
+  "stressFiles": 6,
+  "regularTests": 3141,
+  "regularPassed": 3141,
+  "stressTests": 6,
+  "stressPassed": 6,
+  "failedFiles": [],
+  "totalFiles": 350,
+  "totalTests": 3147,
+  "totalPassed": 3147,
+  "focalTests": 6,
+  "elapsedSeconds": 220.5
+}

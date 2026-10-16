@@ -1,0 +1,34 @@
+TAP version 13
+# Subtest: P54 implementa os três episódios sem fronteira pendente
+ok 1 - P54 implementa os três episódios sem fronteira pendente
+  ---
+  duration_ms: 21.90262
+  type: 'test'
+  ...
+# Subtest: P54 aproximação de Raxus exige teste real
+ok 2 - P54 aproximação de Raxus exige teste real
+  ---
+  duration_ms: 13.994657
+  type: 'test'
+  ...
+# Subtest: P54 fecha Raxus com consequências persistentes e estado completed
+ok 3 - P54 fecha Raxus com consequências persistentes e estado completed
+  ---
+  duration_ms: 15.111654
+  type: 'test'
+  ...
+# Subtest: P54 anti-spoiler: Raxus não aparece antes da saída de Cholganna
+ok 4 - P54 anti-spoiler: Raxus não aparece antes da saída de Cholganna
+  ---
+  duration_ms: 0.564353
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 193.39493

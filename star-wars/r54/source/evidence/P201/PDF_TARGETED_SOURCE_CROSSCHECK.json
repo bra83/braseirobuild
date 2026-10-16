@@ -1,0 +1,20 @@
+{
+  "source": "SWE09 The Jewel of Yavin, Episode III Countdown to Disaster",
+  "driveId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "sourceChecked": "direct Google Drive text fetch on 2026-10-14; section DETONATION DETECTION and aftermath; targeted not full editorial certification",
+  "mechanics": {
+    "detection": "Mechanics/Computers Average (2), Perception Hard (3)",
+    "disarm": "Mechanics/Cool Hard (3)",
+    "steering": "Piloting Planetary Average (2)",
+    "jump": "Athletics/Coordination Easy (1) near platform, Average (2) otherwise",
+    "jewelGrip": "Coordination Hard (3) when not secured",
+    "deadline": "30 seconds after boarding (narrative deadline, no invented action durations)",
+    "blast": "10 damage before soak, plus falling damage pending official adjudication"
+  },
+  "notImplemented": [
+    "actual real-time 30-second clock countdown",
+    "automatic wound/fall application",
+    "Arend goon chase encounter",
+    "full five-adventure source certification"
+  ]
+}

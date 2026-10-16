@@ -1,0 +1,856 @@
+{
+  "checkpoint": "P154",
+  "coverage": {
+    "careers": 6,
+    "specializations": 18,
+    "positions": 360,
+    "mechanicalPositions": 252,
+    "purchasePositions": 360
+  },
+  "pendingPositions": 108,
+  "byTalent": [
+    {
+      "originalName": "SUBIR DE UN SALTO",
+      "positions": 3,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.69",
+        "Star Wars - Age of Rebellion - Core Rulebook p.74",
+        "Star Wars - Age of Rebellion - Core Rulebook p.98"
+      ],
+      "careerSpecializations": [
+        "ace/pilot",
+        "commander/squadron_leader",
+        "spy/scout"
+      ]
+    },
+    {
+      "originalName": "ABRUMAR DEFENSAS",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.67"
+      ],
+      "careerSpecializations": [
+        "ace/gunner",
+        "ace/gunner"
+      ]
+    },
+    {
+      "originalName": "ACLIMATACIÓN",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.92",
+        "Star Wars - Age of Rebellion - Core Rulebook p.98"
+      ],
+      "careerSpecializations": [
+        "soldier/medic",
+        "spy/scout"
+      ]
+    },
+    {
+      "originalName": "CHANCHULLERO",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.81"
+      ],
+      "careerSpecializations": [
+        "diplomat/quartermaster",
+        "diplomat/quartermaster"
+      ]
+    },
+    {
+      "originalName": "CINTURÓN DE ACCESORIOS",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.87",
+        "Star Wars - Age of Rebellion - Core Rulebook p.98"
+      ],
+      "careerSpecializations": [
+        "engineer/scientist",
+        "spy/scout"
+      ]
+    },
+    {
+      "originalName": "CONOCIMIENTO ESPECIALIZADO",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.87"
+      ],
+      "careerSpecializations": [
+        "engineer/scientist",
+        "engineer/scientist"
+      ]
+    },
+    {
+      "originalName": "COORDINACIÓN TÁCTICA",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.74",
+        "Star Wars - Age of Rebellion - Core Rulebook p.75"
+      ],
+      "careerSpecializations": [
+        "commander/squadron_leader",
+        "commander/tactician"
+      ]
+    },
+    {
+      "originalName": "COORDINACIÓN TÁCTICA MEJORADA",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.74",
+        "Star Wars - Age of Rebellion - Core Rulebook p.75"
+      ],
+      "careerSpecializations": [
+        "commander/squadron_leader",
+        "commander/tactician"
+      ]
+    },
+    {
+      "originalName": "DE UNA PIEZA",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.73",
+        "Star Wars - Age of Rebellion - Core Rulebook p.85"
+      ],
+      "careerSpecializations": [
+        "commander/commodore",
+        "engineer/mechanic"
+      ]
+    },
+    {
+      "originalName": "DETONACIÓN SELECTIVA",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.86"
+      ],
+      "careerSpecializations": [
+        "engineer/saboteur",
+        "engineer/saboteur"
+      ]
+    },
+    {
+      "originalName": "DON DE GENTES",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.79"
+      ],
+      "careerSpecializations": [
+        "diplomat/ambassador",
+        "diplomat/ambassador"
+      ]
+    },
+    {
+      "originalName": "EVASIÓN IMPECABLE",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.69",
+        "Star Wars - Age of Rebellion - Core Rulebook p.74"
+      ],
+      "careerSpecializations": [
+        "ace/pilot",
+        "commander/squadron_leader"
+      ]
+    },
+    {
+      "originalName": "FINTA",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.75"
+      ],
+      "careerSpecializations": [
+        "commander/tactician",
+        "commander/tactician"
+      ]
+    },
+    {
+      "originalName": "FORTALEZA MENTAL",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.87",
+        "Star Wars - Age of Rebellion - Core Rulebook p.99"
+      ],
+      "careerSpecializations": [
+        "engineer/scientist",
+        "spy/slicer"
+      ]
+    },
+    {
+      "originalName": "GUARDAESPALDAS",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.75"
+      ],
+      "careerSpecializations": [
+        "commander/tactician",
+        "commander/tactician"
+      ]
+    },
+    {
+      "originalName": "INDISTINGUIBLE",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.79"
+      ],
+      "careerSpecializations": [
+        "diplomat/ambassador",
+        "diplomat/ambassador"
+      ]
+    },
+    {
+      "originalName": "INVERSIONES RENTABLES",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.81"
+      ],
+      "careerSpecializations": [
+        "diplomat/quartermaster",
+        "diplomat/quartermaster"
+      ]
+    },
+    {
+      "originalName": "LABIA",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.81"
+      ],
+      "careerSpecializations": [
+        "diplomat/quartermaster",
+        "diplomat/quartermaster"
+      ]
+    },
+    {
+      "originalName": "MADERA DE HÉROE",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.67",
+        "Star Wars - Age of Rebellion - Core Rulebook p.91"
+      ],
+      "careerSpecializations": [
+        "ace/gunner",
+        "soldier/commando"
+      ]
+    },
+    {
+      "originalName": "MANITAS",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.87"
+      ],
+      "careerSpecializations": [
+        "engineer/scientist",
+        "engineer/scientist"
+      ]
+    },
+    {
+      "originalName": "MEJORAS CASERAS",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.67"
+      ],
+      "careerSpecializations": [
+        "ace/gunner",
+        "ace/gunner"
+      ]
+    },
+    {
+      "originalName": "PARADA EN SECO",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.68",
+        "Star Wars - Age of Rebellion - Core Rulebook p.74"
+      ],
+      "careerSpecializations": [
+        "ace/driver",
+        "commander/squadron_leader"
+      ]
+    },
+    {
+      "originalName": "PILOTO EXPERTO",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.68",
+        "Star Wars - Age of Rebellion - Core Rulebook p.69"
+      ],
+      "careerSpecializations": [
+        "ace/driver",
+        "ace/pilot"
+      ]
+    },
+    {
+      "originalName": "PROVEEDOR HABITUAL",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.81"
+      ],
+      "careerSpecializations": [
+        "diplomat/quartermaster",
+        "diplomat/quartermaster"
+      ]
+    },
+    {
+      "originalName": "SOLES FAMILIARES",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.73",
+        "Star Wars - Age of Rebellion - Core Rulebook p.98"
+      ],
+      "careerSpecializations": [
+        "commander/commodore",
+        "spy/scout"
+      ]
+    },
+    {
+      "originalName": "TENACIDAD",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.85",
+        "Star Wars - Age of Rebellion - Core Rulebook p.86"
+      ],
+      "careerSpecializations": [
+        "engineer/mechanic",
+        "engineer/saboteur"
+      ]
+    },
+    {
+      "originalName": "TENACIDAD MEJORADA",
+      "positions": 2,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.85",
+        "Star Wars - Age of Rebellion - Core Rulebook p.86"
+      ],
+      "careerSpecializations": [
+        "engineer/mechanic",
+        "engineer/saboteur"
+      ]
+    },
+    {
+      "originalName": "APLICACIÓN DE ESTIMULANTES",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.92"
+      ],
+      "careerSpecializations": [
+        "soldier/medic"
+      ]
+    },
+    {
+      "originalName": "APLICACIÓN DE ESTIMULANTES MEJORADA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.92"
+      ],
+      "careerSpecializations": [
+        "soldier/medic"
+      ]
+    },
+    {
+      "originalName": "APLICACIÓN DE ESTIMULANTES SUPREMA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.92"
+      ],
+      "careerSpecializations": [
+        "soldier/medic"
+      ]
+    },
+    {
+      "originalName": "ARTILUGIO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.85"
+      ],
+      "careerSpecializations": [
+        "engineer/mechanic"
+      ]
+    },
+    {
+      "originalName": "ATAQUE COORDINADO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.75"
+      ],
+      "careerSpecializations": [
+        "commander/tactician"
+      ]
+    },
+    {
+      "originalName": "COMPARTIMENTO OCULTO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.87"
+      ],
+      "careerSpecializations": [
+        "engineer/scientist"
+      ]
+    },
+    {
+      "originalName": "COMPRAR INFORMACIÓN",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.81"
+      ],
+      "careerSpecializations": [
+        "diplomat/quartermaster"
+      ]
+    },
+    {
+      "originalName": "CONOCIMIENTO DEL ENTORNO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.74"
+      ],
+      "careerSpecializations": [
+        "commander/squadron_leader"
+      ]
+    },
+    {
+      "originalName": "CUERPO A TIERRA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.86"
+      ],
+      "careerSpecializations": [
+        "engineer/saboteur"
+      ]
+    },
+    {
+      "originalName": "CUERPO A TIERRA MEJORADO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.86"
+      ],
+      "careerSpecializations": [
+        "engineer/saboteur"
+      ]
+    },
+    {
+      "originalName": "DISEÑO FAMILIAR",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.73"
+      ],
+      "careerSpecializations": [
+        "commander/commodore"
+      ]
+    },
+    {
+      "originalName": "DISPARO DEBILITANTE",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.67"
+      ],
+      "careerSpecializations": [
+        "ace/gunner"
+      ]
+    },
+    {
+      "originalName": "EMBAUCADOR NATO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.79"
+      ],
+      "careerSpecializations": [
+        "diplomat/ambassador"
+      ]
+    },
+    {
+      "originalName": "ESPECIALISTA EN BACTA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.92"
+      ],
+      "careerSpecializations": [
+        "soldier/medic"
+      ]
+    },
+    {
+      "originalName": "FORMACIÓN DE COMBATE",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.74"
+      ],
+      "careerSpecializations": [
+        "commander/squadron_leader"
+      ]
+    },
+    {
+      "originalName": "FUEGO CONTROLADO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.73"
+      ],
+      "careerSpecializations": [
+        "commander/commodore"
+      ]
+    },
+    {
+      "originalName": "GOLPE CONMOCIONADOR",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.97"
+      ],
+      "careerSpecializations": [
+        "spy/infiltrator"
+      ]
+    },
+    {
+      "originalName": "GOLPE CONMOCIONADOR MEJORADO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.97"
+      ],
+      "careerSpecializations": [
+        "spy/infiltrator"
+      ]
+    },
+    {
+      "originalName": "GOLPE INCAPACITANTE",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.93"
+      ],
+      "careerSpecializations": [
+        "soldier/sharpshooter"
+      ]
+    },
+    {
+      "originalName": "GRANADERO EXPERTO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.86"
+      ],
+      "careerSpecializations": [
+        "engineer/saboteur"
+      ]
+    },
+    {
+      "originalName": "IMPACTO DIRECTO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.69"
+      ],
+      "careerSpecializations": [
+        "ace/pilot"
+      ]
+    },
+    {
+      "originalName": "IMPACTO DIRECTO MEJORADO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.69"
+      ],
+      "careerSpecializations": [
+        "ace/pilot"
+      ]
+    },
+    {
+      "originalName": "IMPARABLE",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.91"
+      ],
+      "careerSpecializations": [
+        "soldier/commando"
+      ]
+    },
+    {
+      "originalName": "INCITAR A LA REBELIÓN",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.80"
+      ],
+      "careerSpecializations": [
+        "diplomat/agitator"
+      ]
+    },
+    {
+      "originalName": "INGENIOSO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.87"
+      ],
+      "careerSpecializations": [
+        "engineer/scientist"
+      ]
+    },
+    {
+      "originalName": "LENGUA AFILADA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.80"
+      ],
+      "careerSpecializations": [
+        "diplomat/agitator"
+      ]
+    },
+    {
+      "originalName": "LENGUA AFILADA MEJORADA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.80"
+      ],
+      "careerSpecializations": [
+        "diplomat/agitator"
+      ]
+    },
+    {
+      "originalName": "LENGUA AFILADA SUPREMA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.80"
+      ],
+      "careerSpecializations": [
+        "diplomat/agitator"
+      ]
+    },
+    {
+      "originalName": "LÍDER EXPERTO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.74"
+      ],
+      "careerSpecializations": [
+        "commander/squadron_leader"
+      ]
+    },
+    {
+      "originalName": "LÍDER NATO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.75"
+      ],
+      "careerSpecializations": [
+        "commander/tactician"
+      ]
+    },
+    {
+      "originalName": "MANO DE SANTO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.79"
+      ],
+      "careerSpecializations": [
+        "diplomat/ambassador"
+      ]
+    },
+    {
+      "originalName": "MÉDICO EXPERTO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.92"
+      ],
+      "careerSpecializations": [
+        "soldier/medic"
+      ]
+    },
+    {
+      "originalName": "MERCADER EXPERTO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.81"
+      ],
+      "careerSpecializations": [
+        "diplomat/quartermaster"
+      ]
+    },
+    {
+      "originalName": "METICULOSO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.87"
+      ],
+      "careerSpecializations": [
+        "engineer/scientist"
+      ]
+    },
+    {
+      "originalName": "MUNICIÓN DE RESERVA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.67"
+      ],
+      "careerSpecializations": [
+        "ace/gunner"
+      ]
+    },
+    {
+      "originalName": "NERVIOS DE ACERO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.79"
+      ],
+      "careerSpecializations": [
+        "diplomat/ambassador"
+      ]
+    },
+    {
+      "originalName": "NO ES PARA TANTO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.92"
+      ],
+      "careerSpecializations": [
+        "soldier/medic"
+      ]
+    },
+    {
+      "originalName": "PIEZA DEFECTUOSA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.85"
+      ],
+      "careerSpecializations": [
+        "engineer/mechanic"
+      ]
+    },
+    {
+      "originalName": "PIRATA INFORMÁTICO EXPERTO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.99"
+      ],
+      "careerSpecializations": [
+        "spy/slicer"
+      ]
+    },
+    {
+      "originalName": "POLIFACÉTICO",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.92"
+      ],
+      "careerSpecializations": [
+        "soldier/medic"
+      ]
+    },
+    {
+      "originalName": "PRESENCIA IMPONENTE",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.79"
+      ],
+      "careerSpecializations": [
+        "diplomat/ambassador"
+      ]
+    },
+    {
+      "originalName": "PUNTO DÉBIL",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.97"
+      ],
+      "careerSpecializations": [
+        "spy/infiltrator"
+      ]
+    },
+    {
+      "originalName": "RESISTENCIA A VENENOS",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.91"
+      ],
+      "careerSpecializations": [
+        "soldier/commando"
+      ]
+    },
+    {
+      "originalName": "RETÓRICA INSPIRADORA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.79"
+      ],
+      "careerSpecializations": [
+        "diplomat/ambassador"
+      ]
+    },
+    {
+      "originalName": "RETÓRICA INSPIRADORA MEJORADA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.79"
+      ],
+      "careerSpecializations": [
+        "diplomat/ambassador"
+      ]
+    },
+    {
+      "originalName": "RETÓRICA INSPIRADORA SUPREMA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.79"
+      ],
+      "careerSpecializations": [
+        "diplomat/ambassador"
+      ]
+    },
+    {
+      "originalName": "SALIDA TÉRMICA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.67"
+      ],
+      "careerSpecializations": [
+        "ace/gunner"
+      ]
+    },
+    {
+      "originalName": "SISTEMAS REDUNDANTES",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.85"
+      ],
+      "careerSpecializations": [
+        "engineer/mechanic"
+      ]
+    },
+    {
+      "originalName": "SOLUCIÓN IMPROVISADA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.93"
+      ],
+      "careerSpecializations": [
+        "soldier/sharpshooter"
+      ]
+    },
+    {
+      "originalName": "SOLUCIÓN INGENIOSA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.97"
+      ],
+      "careerSpecializations": [
+        "spy/infiltrator"
+      ]
+    },
+    {
+      "originalName": "SOMBRA FURTIVA",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.97"
+      ],
+      "careerSpecializations": [
+        "spy/infiltrator"
+      ]
+    },
+    {
+      "originalName": "SUPERVIVIENTE",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.75"
+      ],
+      "careerSpecializations": [
+        "commander/tactician"
+      ]
+    },
+    {
+      "originalName": "UNTAR MANOS",
+      "positions": 1,
+      "sources": [
+        "Star Wars - Age of Rebellion - Core Rulebook p.81"
+      ],
+      "careerSpecializations": [
+        "diplomat/quartermaster"
+      ]
+    }
+  ]
+}

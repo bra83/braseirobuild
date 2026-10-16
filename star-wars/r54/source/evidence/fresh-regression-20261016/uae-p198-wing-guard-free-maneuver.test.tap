@@ -1,0 +1,22 @@
+✔ P198 queues a single free maneuver, moves immediately on sergeant initiative (19.5971ms)
+✔ P198 withdraw from Engaged to Short and Short to Medium are one-band movements (4.1736ms)
+✔ P198 rejects teleport across Medium/Long, Extreme and out-of-range one-maneuver moves (3.7421ms)
+✔ P198 refuses free maneuver without GM path confirmation, invalid direction, or spoofed mode (2.0955ms)
+✔ P198 refuses a second pending grant, a duplicate sergeant order, and forged target identity (3.5207ms)
+✔ P198 cancels if target changes range after queue but before sergeant acts (1.3708ms)
+✔ P198 rejects forged stale-range grant on manual replay (3.0196ms)
+✔ P198 persistence: queued order and granted maneuver survive three save/reopen cycles (3.5796ms)
+✔ P198 real NPC turn consumes free movement before range-dependent attack roll (33.4919ms)
+✔ P198 does not move an incapacitated target and cancels its one-time grant (39.2205ms)
+✔ P198 Android bridge/UI exposes free-maneuver direction and explicit path confirmation (16.8333ms)
+✔ P198 sergeant real NPC initiative triggers immediate minion movement without consuming minion slot (12.6732ms)
+✔ P198 minion may still use its regular NPC action after immediate free maneuver (8.5269ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2505.3017
+

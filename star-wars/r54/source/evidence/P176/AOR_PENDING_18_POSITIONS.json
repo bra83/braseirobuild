@@ -1,0 +1,43 @@
+{
+  "coverage": {
+    "careers": 6,
+    "specializations": 18,
+    "positions": 360,
+    "mechanicalPositions": 342,
+    "purchasePositions": 360,
+    "remainingPositions": 18,
+    "sourceCertification": "PENDING"
+  },
+  "pending": [
+    "ARTILUGIO",
+    "COMPARTIMENTO OCULTO",
+    "CUERPO A TIERRA",
+    "CUERPO A TIERRA MEJORADO",
+    "FORMACIÓN DE COMBATE",
+    "GOLPE CONMOCIONADOR",
+    "GOLPE CONMOCIONADOR MEJORADO",
+    "GOLPE INCAPACITANTE",
+    "IMPARABLE",
+    "INCITAR A LA REBELIÓN",
+    "INGENIOSO",
+    "MANO DE SANTO",
+    "METICULOSO",
+    "NO ES PARA TANTO",
+    "PUNTO DÉBIL",
+    "SOLUCIÓN IMPROVISADA",
+    "SUPERVIVIENTE",
+    "UNTAR MANOS"
+  ],
+  "implementedInP176": [
+    "FUEGO CONTROLADO",
+    "DISEÑO FAMILIAR",
+    "COMPRAR INFORMACIÓN",
+    "PIRATA INFORMÁTICO EXPERTO",
+    "SALIDA TÉRMICA",
+    "IMPACTO DIRECTO",
+    "IMPACTO DIRECTO MEJORADO"
+  ],
+  "correctedExisting": [
+    "PIRATA INFORMÁTICO CONSUMADO (Skilled Slicer, não Master Slicer)"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "checkpoint": "P189",
+  "files": [
+    "app/src/main/assets/vtt/js/adventure/jewelBankPreparations.mjs",
+    "app/src/main/assets/vtt/js/adventure/jewelBankingOperations.mjs",
+    "app/src/main/assets/vtt/js/adventure/jewelOfYavinOperations.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "tests/uae-p189-spike-time-ledger-world-clock.test.mjs"
+  ],
+  "realChanges": [
+    "600 elapsed task minutes for computer spike crafting, successful or failed, with canonical taskTimeApplications receipt",
+    "30 elapsed task minutes for each retry after first failed bank slicing, linked to BANK_STEP receipt",
+    "Causal replay and world ledger cross-validation for new receipts; forged, removed or changed time record rejected",
+    "P188 receipts without timeCheckId remain valid without retroactive charging",
+    "World clock tick remains independent from elapsed task minutes; credits and time rollback atomically"
+  ],
+  "sourceBasis": "Existing P188 PDF-directed SWE09 bank preparation 10h and P187 slicing retries 30m; no new PDF full certification",
+  "focalTests": 12,
+  "testsFile": "evidence/P189/TEST_SUMMARY.json"
+}

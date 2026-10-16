@@ -1,0 +1,23 @@
+{
+  "checkpoint": "P199",
+  "baseSha256": "f08e2852483f1e055a4da3e13f2901b5354df1dd96e997ac07e47810aa6460a2",
+  "implementation": [
+    "Official EotE physical restraining_bolt catalog item: 35 credits, 0 encumbrance, rarity 0",
+    "Official slicer_gear catalog item: 500 credits, 2 encumbrance, rarity 4",
+    "Atomic GM-approved bolt purchase with debit, inventory, anti-tamper receipt",
+    "Bolt capture requires actual owned bolt and real welder/GM confirmation, applies published G-100 downgrade, moves bolt out of inventory on success",
+    "New bank equipment contract version protects new captures, old P198 unversioned saves remain replayable",
+    "After captured signature, GM-approved replacement purchases fresh slicer gear for 500 credits, removes old kit if present, stops future slicing difficulty upgrade without deleting historical evidence",
+    "Atomic rollback, receipt replay, duplicate prevention, three reopenings, Android PTBR UI, bridge and 95-module offline bundle"
+  ],
+  "tests": "evidence/P199/TEST_SUMMARY.json",
+  "source": "evidence/P199/PDF_TARGETED_SOURCE_CROSSCHECK.json",
+  "limits": [
+    "No automatic full Cloud City tool market availability, requires GM approval",
+    "Historical signature remains incriminating evidence; replacing gear only removes future difficulty upgrade",
+    "Restraining bolt requires separately owned item, tool kit alone is not automatically an independent bolt",
+    "No generic crafting or physical weld time charged (book only says a few seconds)",
+    "No APK/SDK/Gradle/adb/CI BRELGA/physical Android certification",
+    "No full SWE09 bank settlement, Naboka betrayal or escape"
+  ]
+}

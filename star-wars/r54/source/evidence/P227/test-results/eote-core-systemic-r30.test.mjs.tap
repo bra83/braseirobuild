@@ -1,0 +1,148 @@
+TAP version 13
+# Subtest: Encumbrance base é 5 + Brawn
+ok 1 - Encumbrance base é 5 + Brawn
+  ---
+  duration_ms: 2.114202
+  type: 'test'
+  ...
+# Subtest: mochila +4 e cinto utilitário +1 aumentam o threshold
+ok 2 - mochila +4 e cinto utilitário +1 aumentam o threshold
+  ---
+  duration_ms: 0.470861
+  type: 'test'
+  ...
+# Subtest: armadura vestida reduz Encumbrance em 3, mínimo zero
+ok 3 - armadura vestida reduz Encumbrance em 3, mínimo zero
+  ---
+  duration_ms: 0.47653
+  type: 'test'
+  ...
+# Subtest: excesso gera um setback por ponto e carga grave usa Brawn
+ok 4 - excesso gera um setback por ponto e carga grave usa Brawn
+  ---
+  duration_ms: 1.004126
+  type: 'test'
+  ...
+# Subtest: levantamento usa threshold e Brawn bruto de ajudantes, limitado a Daunting
+ok 5 - levantamento usa threshold e Brawn bruto de ajudantes, limitado a Daunting
+  ---
+  duration_ms: 0.632675
+  type: 'test'
+  ...
+# Subtest: catálogo EotE expõe Encumbrance real sem apagar referência AoR histórica
+ok 6 - catálogo EotE expõe Encumbrance real sem apagar referência AoR histórica
+  ---
+  duration_ms: 1.538523
+  type: 'test'
+  ...
+# Subtest: status staggered, immobilized e disoriented produzem efeitos genéricos
+ok 7 - status staggered, immobilized e disoriented produzem efeitos genéricos
+  ---
+  duration_ms: 1.08602
+  type: 'test'
+  ...
+# Subtest: efeitos repetidos estendem duração e expiram por turno
+ok 8 - efeitos repetidos estendem duração e expiram por turno
+  ---
+  duration_ms: 0.740989
+  type: 'test'
+  ...
+# Subtest: efeitos de encontro expiram ao fim do encontro
+ok 9 - efeitos de encontro expiram ao fim do encontro
+  ---
+  duration_ms: 0.846268
+  type: 'test'
+  ...
+# Subtest: Destiny inicial rola um dado da Força por jogador e soma recursos
+ok 10 - Destiny inicial rola um dado da Força por jogador e soma recursos
+  ---
+  duration_ms: 0.884155
+  type: 'test'
+  ...
+# Subtest: gastar Destiny luminoso vira sombrio e vice-versa
+ok 11 - gastar Destiny luminoso vira sombrio e vice-versa
+  ---
+  duration_ms: 1.545744
+  type: 'test'
+  ...
+# Subtest: Destiny aprimora pools positivos e negativos
+ok 12 - Destiny aprimora pools positivos e negativos
+  ---
+  duration_ms: 0.267284
+  type: 'test'
+  ...
+# Subtest: Obligation usa d100 cumulativo e identifica membro
+ok 13 - Obligation usa d100 cumulativo e identifica membro
+  ---
+  duration_ms: 0.756842
+  type: 'test'
+  ...
+# Subtest: doubles dobram penalidades de Obligation
+ok 14 - doubles dobram penalidades de Obligation
+  ---
+  duration_ms: 0.274985
+  type: 'test'
+  ...
+# Subtest: Obligation acima de 100 marca progressão bloqueada
+ok 15 - Obligation acima de 100 marca progressão bloqueada
+  ---
+  duration_ms: 0.349969
+  type: 'test'
+  ...
+# Subtest: dificuldades de medo vão de Easy a Formidable
+ok 16 - dificuldades de medo vão de Easy a Formidable
+  ---
+  duration_ms: 0.19852
+  type: 'test'
+  ...
+# Subtest: medo usa Discipline normalmente e Cool quando preparado
+ok 17 - medo usa Discipline normalmente e Cool quando preparado
+  ---
+  duration_ms: 1.49014
+  type: 'test'
+  ...
+# Subtest: falha de medo aplica setback de encontro
+ok 18 - falha de medo aplica setback de encontro
+  ---
+  duration_ms: 3.838066
+  type: 'test'
+  ...
+# Subtest: startSession prepara Destiny e aplica Obligation; close restaura threshold
+ok 19 - startSession prepara Destiny e aplica Obligation; close restaura threshold
+  ---
+  duration_ms: 24.596489
+  type: 'test'
+  ...
+# Subtest: Obligation acima de 100 bloqueia gasto de PE no controller mas não concessão
+ok 20 - Obligation acima de 100 bloqueia gasto de PE no controller mas não concessão
+  ---
+  duration_ms: 4.873458
+  type: 'test'
+  ...
+# Subtest: Destiny no controller aprimora pool e vira o ponto para o lado oposto
+ok 21 - Destiny no controller aprimora pool e vira o ponto para o lado oposto
+  ---
+  duration_ms: 7.939969
+  type: 'test'
+  ...
+# Subtest: status genérico bloqueia ação e manobra no combate
+ok 22 - status genérico bloqueia ação e manobra no combate
+  ---
+  duration_ms: 5.977646
+  type: 'test'
+  ...
+# Subtest: carga grave remove manobra gratuita e permite pagar 2 Tensão
+ok 23 - carga grave remove manobra gratuita e permite pagar 2 Tensão
+  ---
+  duration_ms: 8.249927
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 365.422106

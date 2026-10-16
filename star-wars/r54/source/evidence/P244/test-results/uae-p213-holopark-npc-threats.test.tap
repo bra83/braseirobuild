@@ -1,0 +1,65 @@
+TAP version 13
+# Subtest: P213 official PDF NPC Threat effects have separate landscapes and do not fake PC Advantage
+ok 1 - P213 official PDF NPC Threat effects have separate landscapes and do not fake PC Advantage
+  ---
+  duration_ms: 2.960297
+  type: 'test'
+  ...
+# Subtest: P213 actual NPC Threat is RESERVED and cannot also cause generic NPC strain
+ok 2 - P213 actual NPC Threat is RESERVED and cannot also cause generic NPC strain
+  ---
+  duration_ms: 298.763237
+  type: 'test'
+  ...
+# Subtest: P213 Christophsis spotlight applies REAL setback to NPC attacks against PC, then expires
+ok 3 - P213 Christophsis spotlight applies REAL setback to NPC attacks against PC, then expires
+  ---
+  duration_ms: 334.432356
+  type: 'test'
+  ...
+# Subtest: P213 Coruscant transport adds one setback to actual player ranged combat pool, clears on real movement
+ok 4 - P213 Coruscant transport adds one setback to actual player ranged combat pool, clears on real movement
+  ---
+  duration_ms: 285.188995
+  type: 'test'
+  ...
+# Subtest: P213 NPC Threat cannot be forged, reused, or transferred between landscapes
+ok 5 - P213 NPC Threat cannot be forged, reused, or transferred between landscapes
+  ---
+  duration_ms: 360.242401
+  type: 'test'
+  ...
+# Subtest: P213 Coruscant companion targets must be real group members, and only their actual combat skill gets setback
+ok 6 - P213 Coruscant companion targets must be real group members, and only their actual combat skill gets setback
+  ---
+  duration_ms: 218.933574
+  type: 'test'
+  ...
+# Subtest: P213 Android UI, controller, bridge and offline build contain both NPC Threat effects
+ok 7 - P213 Android UI, controller, bridge and offline build contain both NPC Threat effects
+  ---
+  duration_ms: 10.204996
+  type: 'test'
+  ...
+# Subtest: P213 actual player attack consumes Coruscant transport setback die, not just a UI flag
+ok 8 - P213 actual player attack consumes Coruscant transport setback die, not just a UI flag
+  ---
+  duration_ms: 516.897267
+  type: 'test'
+  ...
+# Subtest: P213 companion transport is individual: real combat skill setback and GM movement clears only selected companion
+ok 9 - P213 companion transport is individual: real combat skill setback and GM movement clears only selected companion
+  ---
+  duration_ms: 345.922845
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2684.761478
+

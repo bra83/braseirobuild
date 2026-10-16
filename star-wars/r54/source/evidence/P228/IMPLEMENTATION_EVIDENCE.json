@@ -1,0 +1,46 @@
+{
+  "checkpoint": "P228",
+  "base": "P227",
+  "implemented": [
+    "Physical companion carrier boarding with separate GM confirmation of player, companion presence and companion boarding",
+    "Receipt-backed carrier identity and item validation",
+    "Real astrogation escape preserving companion carrier and world clock",
+    "Android PT-BR UI, controller group plumbing and offline bundle",
+    "Legacy P224/P227 save and receipt compatibility"
+  ],
+  "sourceScope": "Technical passenger/custody implementation extending SWE09 pp.92-95 previously checked at P224; no new full-book certification",
+  "tests": {
+    "checkpoint": "P228",
+    "mode": "each test file separately in node --test; no monolithic suite",
+    "regularFiles": 347,
+    "regularTests": 3167,
+    "regularPassed": 3167,
+    "stressFiles": 6,
+    "stressTests": 6,
+    "stressPassed": 6,
+    "totalFiles": 353,
+    "totalTests": 3173,
+    "totalPassed": 3173,
+    "totalSkipped": 0,
+    "failedFiles": []
+  },
+  "syntax": {
+    "mjs": 528,
+    "jsRuntime": 2,
+    "json": 22,
+    "xml": 2,
+    "bundleModuleCount": 115
+  },
+  "javaKokoroIdentical": true,
+  "notCertified": [
+    "official port security encounter implementation",
+    "full SWE09 source comparison",
+    "APK",
+    "Gradle",
+    "adb",
+    "GitHub CI BRELGA",
+    "Android physical test",
+    "five-adventure scene parity",
+    "360 semantic consumers"
+  ]
+}

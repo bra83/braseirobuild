@@ -1,0 +1,38 @@
+{
+  "checkpoint": "R54 P243",
+  "base": "R54 P242",
+  "official_source": "https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf",
+  "scope": "SWE02 New Meen pp.20-21; not an editorial certification of the complete adventure",
+  "proofs": [
+    {
+      "feature": "evacuation_route_and_bura_favor",
+      "printed_pages": [20,21],
+      "executor": "adventure/swe02EvacuationP243.mjs#prepareNewMeenEscort,departNewMeenEscort,arriveNewMeenEscort,abandonNewMeenEscort",
+      "controller": "GameController.prepareSWE02NewMeenEscort,departSWE02NewMeenEscort,arriveSWE02NewMeenEscort,abandonSWE02NewMeenEscort",
+      "ui": "swe02NewMeenEscort",
+      "semantics": "20 adults and unspecified children; GM-approved nonofficial tick duration; actual living world clock advances; no liberated mine, no fabricated XP/credits; explicit abandoned legacy path; Bura favor only on verified arrival",
+      "test": "uae-p243-swe02-escort-militia.test.mjs",
+      "status": "IMPLEMENTED_TESTED_PARTIAL_SCENARIO_COVERAGE"
+    },
+    {
+      "feature": "armed_twilek_militia_optional_abstract_combat",
+      "printed_pages": [21],
+      "executor": "adventure/swe02EvacuationP243.mjs#armNewMeenMilitia,applyNewMeenMilitiaAbstractRound",
+      "controller": "GameController.armSWE02NewMeenMilitia,applySWE02NewMeenMilitiaRound",
+      "ui": "swe02NewMeenMilitia",
+      "semantics": "one real blaster loan debited from inventory per armed adult; player-approved optional abstract combat, 1 wound per ally and 1 allied loss per round, no double actions or attacks on Drombb; no dice fabricated",
+      "test": "uae-p243-swe02-escort-militia.test.mjs",
+      "status": "IMPLEMENTED_TESTED_OPTIONAL_OFFICIAL_METHOD_NOT_FULL_NPC_INITIATIVE"
+    }
+  ],
+  "still_open": [
+    "Escort harassment encounters and genuine alternative resolutions",
+    "Armed Twi'lek full minion initiative and equipment return",
+    "Nyn EotE weapons/grenades and defective first use",
+    "Krayt Fang Beginner profile, fuel/cargo, full vehicle initiative",
+    "SWE02 acts 2 and 3 and endings full source-page audit",
+    "Other four adventures full source-to-executor certification",
+    "EotE/AoR expansions and 360 AoR consumers semantic certification",
+    "APK and physical Android certification LAST"
+  ]
+}

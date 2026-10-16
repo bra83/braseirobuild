@@ -1,0 +1,8 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createWorld } from '../app/src/main/assets/vtt/js/world/world.mjs';
+import { startUnderBlackSun, advanceUnderBlackSun, underBlackSunStatus } from '../app/src/main/assets/vtt/js/adventure/underBlackSun.mjs';
+const step=(w,id)=>advanceUnderBlackSun(w,id).world;
+test('P60: tracker público começa em PT-BR sem spoiler futuro',()=>{const w=startUnderBlackSun(createWorld()).world;const s=underBlackSunStatus(w);assert.equal(s.tracker.episode,1);assert.match(s.tracker.objective,/perseguição/i);assert.deepEqual(s.tracker.investigation,{found:0,total:3,ready:false});assert.equal(s.tracker.pressure.kaatoAlerted,false);assert.doesNotMatch(JSON.stringify(s.tracker),/NovaCORE|esconderijo|rendição/i)});
+test('P60: tracker acompanha investigação e gating sem revelar conteúdo não visitado',()=>{let w=startUnderBlackSun(createWorld()).world;for(const id of ['escape-clean','begin-investigation','go-umbra','umbra-talk','umbra-social-clean','go-spyder','spyder-return'])w=step(w,id);const t=underBlackSunStatus(w).tracker;assert.equal(t.investigation.found,2);assert.equal(t.investigation.ready,true);assert.equal(t.milestones.investigationOpened,true);assert.equal(t.milestones.endgameReached,false);assert.match(t.objective,/pistas/i)});
+test('P60: tracker persiste após serialização e não altera flags de regras',()=>{let w=startUnderBlackSun(createWorld()).world;w=step(w,'escape-fight');const before=JSON.stringify(w.publishedAdventure.flags);w=JSON.parse(JSON.stringify(w));const t=underBlackSunStatus(w).tracker;assert.equal(t.milestones.escaped,true);assert.equal(JSON.stringify(w.publishedAdventure.flags),before)});

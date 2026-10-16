@@ -1,0 +1,26 @@
+{
+  "checkpoint": "P233",
+  "base": "P232",
+  "source": "SWE09 The Jewel of Yavin pp.93-94, established P216 Kashyyyk vertigo rule",
+  "scope": [
+    "player Medicine check",
+    "player Stim Application talent check"
+  ],
+  "changes": [
+    "rules/recovery.mjs domain rolls with true pool downgrade",
+    "jewelHoloParkEffects.mjs original/modified pools and actual faces, validator",
+    "controller.mjs atomic consumption on player actions",
+    "state.mjs save validation",
+    "Android PT-BR status and version, offline bridge"
+  ],
+  "notImplemented": [
+    "all remaining special player roll pathways",
+    "new enemies",
+    "additional Storm IV reinforcements",
+    "Arrow-7 advanced without official stat block"
+  ],
+  "xpAwarded": 0,
+  "gmFabrication": false,
+  "testSummary": "evidence/P233/TEST_SUMMARY.json",
+  "javaPreserved": true
+}

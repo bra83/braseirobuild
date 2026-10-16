@@ -1,0 +1,58 @@
+{
+  "summary": {
+    "stressFiles": 6,
+    "stressTests": 6,
+    "stressPassed": 6,
+    "failed": []
+  },
+  "files": [
+    {
+      "file": "stress-33-aftermath-r20.test.mjs",
+      "exit": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "seconds": 15.15
+    },
+    {
+      "file": "stress-33-faction-plan-r19.test.mjs",
+      "exit": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "seconds": 1.35
+    },
+    {
+      "file": "stress-33-sessions-r15.test.mjs",
+      "exit": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "seconds": 4.62
+    },
+    {
+      "file": "stress-faction-plans-r19.test.mjs",
+      "exit": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "seconds": 2.48
+    },
+    {
+      "file": "stress-factions-r18.test.mjs",
+      "exit": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "seconds": 1.86
+    },
+    {
+      "file": "stress-persistent-adversary-r17.test.mjs",
+      "exit": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "seconds": 6.1
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "checkpoint": "P232",
+  "source": "SWE09 The Jewel of Yavin printed p.92",
+  "newModule": "app/src/main/assets/vtt/js/adventure/jewelHoloNarrativeClock.mjs",
+  "receipts": ["JEWEL_HOLO_NARRATIVE_START", "JEWEL_HOLO_NARRATIVE_SHIFT", "JEWEL_HOLO_NARRATIVE_END"],
+  "clock": "world.clock.elapsedMinutes, validated by taskTimeLedger; no time tick inside Holo-Park module",
+  "changes": ["controller", "bridge", "Android PT-BR UI", "offline bundle", "save validator", "published adventure status", "receipt whitelist", "version/shell"],
+  "focalTests": 8,
+  "oldSaves": "No mandatory fields added to existing receipts; null narrative state accepted",
+  "excluded": ["no new pursuers", "no automatic XP", "no fictitious travel", "no passive clock", "no Android APK"]
+}

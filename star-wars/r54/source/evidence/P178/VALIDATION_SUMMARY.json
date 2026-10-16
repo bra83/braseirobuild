@@ -1,0 +1,29 @@
+{
+  "version": "P178",
+  "androidVersion": "1.0.178",
+  "parent": "P177",
+  "aoRConsumerPositions": 356,
+  "aoRTotalPositions": 360,
+  "aoRPending": [
+    "SUPERVIVIENTE",
+    "CUERPO A TIERRA",
+    "CUERPO A TIERRA MEJORADO",
+    "NO ES PARA TANTO"
+  ],
+  "targetedRegression": {
+    "pass": 210,
+    "tests": 210
+  },
+  "stress": {
+    "pass": 6,
+    "tests": 6
+  },
+  "fullSuite": "INCOMPLETE: stopped after 1120 successful tests due to execution time; no full-pass claim",
+  "jsSyntaxFiles": 120,
+  "jsonFiles": 158,
+  "xmlFiles": 2,
+  "javaSourcesByteIdenticalToP177": 8,
+  "androidAPK": "NOT BUILT: Gradle/Android SDK/adb unavailable",
+  "pdfCertification": "NOT COMPLETE",
+  "fiveAdventures": "UAE state preserved after three reopenings in P178 focal tests; editorial PDF comparison pending"
+}

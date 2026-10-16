@@ -1,0 +1,17 @@
+{
+  "mjs": 151,
+  "js": 1,
+  "json": 22,
+  "xml": 2,
+  "syntax_failures": [],
+  "badjson": [],
+  "badxml": [],
+  "java_unchanged": 8,
+  "java_changed": [],
+  "allMjsChecked": 532,
+  "allMjsFailures": [],
+  "runtimeJsChecked": 2,
+  "runtimeJsFailures": [],
+  "jsonChecked": 22,
+  "xmlChecked": 2
+}

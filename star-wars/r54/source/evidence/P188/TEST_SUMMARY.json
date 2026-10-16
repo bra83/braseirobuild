@@ -1,0 +1,32 @@
+{
+  "checkpoint": "P188",
+  "regular": {
+    "shard": 0,
+    "shards": 1,
+    "files": 307,
+    "tests": 2776,
+    "passed": 2776,
+    "failed": 0,
+    "badFiles": []
+  },
+  "stress": {
+    "shard": 0,
+    "shards": 1,
+    "files": 6,
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "badFiles": []
+  },
+  "totalTests": 2782,
+  "totalPassed": 2782,
+  "testFiles": 313,
+  "focalP188": 12,
+  "bundleModules": 89,
+  "androidVersion": "1.0.188",
+  "testMethod": "per-file node --test, not monolithic certification",
+  "kokoroJavaIdenticalToP187": 8,
+  "sourceScope": "SWE09 pp.39–41,68–72 directed, not full editorial certification",
+  "apkCompiled": false,
+  "gradleAndroidSdkAdbVerified": false
+}

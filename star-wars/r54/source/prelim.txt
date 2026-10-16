@@ -1,0 +1,148 @@
+TAP version 13
+# Subtest: segunda especialização dentro da carreira custa 20 PE; fora da carreira custa 30 PE
+ok 1 - segunda especialização dentro da carreira custa 20 PE; fora da carreira custa 30 PE
+  ---
+  duration_ms: 1.765374
+  type: 'test'
+  ...
+# Subtest: terceira especialização usa o total após a compra e mantém sobretaxa fora da carreira original
+ok 2 - terceira especialização usa o total após a compra e mantém sobretaxa fora da carreira original
+  ---
+  duration_ms: 0.808362
+  type: 'test'
+  ...
+# Subtest: compra adiciona especialização e perícias de carreira sem conceder ranks gratuitos
+ok 3 - compra adiciona especialização e perícias de carreira sem conceder ranks gratuitos
+  ---
+  duration_ms: 0.867339
+  type: 'test'
+  ...
+# Subtest: especialização já possuída não pode ser comprada novamente e PE insuficiente falha sem mutar
+ok 4 - especialização já possuída não pode ser comprada novamente e PE insuficiente falha sem mutar
+  ---
+  duration_ms: 2.12819
+  type: 'test'
+  ...
+# Subtest: árvore de talentos da especialização comprada fica acessível e a inicial continua intacta
+ok 5 - árvore de talentos da especialização comprada fica acessível e a inicial continua intacta
+  ---
+  duration_ms: 1.258637
+  type: 'test'
+  ...
+# Subtest: não é permitido acessar árvore de especialização que o personagem não possui
+ok 6 - não é permitido acessar árvore de especialização que o personagem não possui
+  ---
+  duration_ms: 0.333071
+  type: 'test'
+  ...
+# Subtest: controller compra e persiste especialização adicional com custo e career skills corretos
+ok 7 - controller compra e persiste especialização adicional com custo e career skills corretos
+  ---
+  duration_ms: 6.991636
+  type: 'test'
+  ...
+# Subtest: RAG fundamenta compra de especialização adicional no Core EotE real
+ok 8 - RAG fundamenta compra de especialização adicional no Core EotE real
+  ---
+  duration_ms: 47.008099
+  type: 'test'
+  ...
+# Subtest: P130 AoR: todas as 18 árvores de origem ficam navegáveis e a primeira linha desbloqueada
+ok 9 - P130 AoR: todas as 18 árvores de origem ficam navegáveis e a primeira linha desbloqueada
+  ---
+  duration_ms: 6.311453
+  type: 'test'
+  ...
+# Subtest: P130 AoR: compra real desconta PE, preserva fonte, posição e não modifica entrada
+ok 10 - P130 AoR: compra real desconta PE, preserva fonte, posição e não modifica entrada
+  ---
+  duration_ms: 1.545009
+  type: 'test'
+  ...
+# Subtest: P130 AoR: somente vizinhos de slots comprados são liberados, mesmo após JSON restore
+ok 11 - P130 AoR: somente vizinhos de slots comprados são liberados, mesmo após JSON restore
+  ---
+  duration_ms: 1.255543
+  type: 'test'
+  ...
+# Subtest: P130 AoR: bloqueia aquisição de outra especialização, árvore EotE e saldo insuficiente
+ok 12 - P130 AoR: bloqueia aquisição de outra especialização, árvore EotE e saldo insuficiente
+  ---
+  duration_ms: 0.648217
+  type: 'test'
+  ...
+# Subtest: P130 AoR: efeitos passivos já implementados são aplicados à ficha sem duplicação
+ok 13 - P130 AoR: efeitos passivos já implementados são aplicados à ficha sem duplicação
+  ---
+  duration_ms: 0.525405
+  type: 'test'
+  ...
+# Subtest: P130 AoR: compra no controlador persiste após reiniciar e passa pelo bridge Android
+ok 14 - P130 AoR: compra no controlador persiste após reiniciar e passa pelo bridge Android
+  ---
+  duration_ms: 6.508232
+  type: 'test'
+  ...
+# Subtest: P130 under-black-sun: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 15 - P130 under-black-sun: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 6.346855
+  type: 'test'
+  ...
+# Subtest: P130 beyond-the-rim: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 16 - P130 beyond-the-rim: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 4.733594
+  type: 'test'
+  ...
+# Subtest: P130 long-arm-of-the-hutt: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 17 - P130 long-arm-of-the-hutt: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 1.688341
+  type: 'test'
+  ...
+# Subtest: P130 jewel-of-yavin: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 18 - P130 jewel-of-yavin: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 1.969316
+  type: 'test'
+  ...
+# Subtest: P130 mask-of-the-pirate-queen: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 19 - P130 mask-of-the-pirate-queen: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 1.918931
+  type: 'test'
+  ...
+# Subtest: P130 UAE: objetivo histórico contraditório e consequência duplicada são rejeitados
+ok 20 - P130 UAE: objetivo histórico contraditório e consequência duplicada são rejeitados
+  ---
+  duration_ms: 2.029935
+  type: 'test'
+  ...
+# Subtest: P130 equipamentos: tentativa de mod falhada consome slot também na resolução de combate
+ok 21 - P130 equipamentos: tentativa de mod falhada consome slot também na resolução de combate
+  ---
+  duration_ms: 1.593221
+  type: 'test'
+  ...
+# Subtest: P130 AoR: catálogo distingue aquisição de efeito mecânico realmente implementado
+ok 22 - P130 AoR: catálogo distingue aquisição de efeito mecânico realmente implementado
+  ---
+  duration_ms: 1.015759
+  type: 'test'
+  ...
+# Subtest: P130 AoR: talento racial e compra do mesmo nome acumulam graus sem duplicação
+ok 23 - P130 AoR: talento racial e compra do mesmo nome acumulam graus sem duplicação
+  ---
+  duration_ms: 0.652103
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 187.436374

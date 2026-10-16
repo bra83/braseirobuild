@@ -1,0 +1,23 @@
+{
+  "checkpoint": "P142",
+  "base": "P141",
+  "adventures": [
+    "under-black-sun",
+    "long-arm-of-the-hutt",
+    "beyond-the-rim",
+    "jewel-of-yavin",
+    "mask-of-the-pirate-queen"
+  ],
+  "checks": [
+    "causeEventId",
+    "rollback",
+    "clock-causality",
+    "source-guard",
+    "three-reopens",
+    "adapter-transition"
+  ],
+  "newTests": 32,
+  "passed": 32,
+  "pdfCertified": false,
+  "androidBuilt": false
+}

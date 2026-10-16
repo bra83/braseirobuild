@@ -1,0 +1,28 @@
+P63 CHANGESET — STAR WARS EDGE R54 — 2026-09-23
+Baseline: authentic P62 source checkpoint from Google Drive root.
+
+SOURCE CHANGES
+1. app/src/main/assets/vtt/js/adventure/underBlackSun.mjs
+   - preserve P62 current-scene validation/error contract;
+   - reject duplicate resolution when current encounter is already resolved;
+   - reject outcome conflicting with another active published encounter.
+2. app/src/main/assets/vtt/js/core/controller.mjs
+   - block published-adventure scene advancement while its combat is active;
+   - prevalidate published encounter/adventure/node before endCombat mutation/save;
+   - make completed-adventure -> sandbox continuation retry-safe/idempotent;
+   - validate sandbox start location before archiving;
+   - archive only after successful sandbox session start.
+3. tests/r54-p63-under-black-sun-reopen-transition.test.mjs
+   - save/reopen active combat + advance lock;
+   - no partial persisted finish on divergent scene state;
+   - reopen -> complete -> reward once -> sandbox, preserving MIXED/Duty/Obligation.
+4. Rebuilt app/src/main/assets/vtt/js/core/uiBridge.bundle.js (61 modules).
+
+EVIDENCE
+- P63_INTEGRITY_REOPEN: 7/7 PASS
+- P63_FOCAL: 98/98 PASS
+- P63_MODES_GATE: 106/106 PASS
+- P63_REGRESSION_CANONICAL: 922/922 PASS
+- P63_REGRESSION_ALL_FILES: 922/935 PASS; 13 FAIL from two legacy root-level suites resolving ../app and ../build.gradle.kts outside actual project root. Kept as separate FAIL evidence.
+- Bundle: 61 modules; syntax checks PASS.
+- Android assembleDebug --offline: FAIL before compilation, Gradle wrapper UnknownHostException github.com. Android/APK is NOT PASS.

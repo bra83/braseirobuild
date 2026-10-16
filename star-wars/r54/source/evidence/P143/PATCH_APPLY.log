@@ -1,0 +1,5 @@
+patching file app/build.gradle.kts
+patching file app/src/main/assets/vtt/r46-shell.html
+patching file app/src/main/assets/vtt/js/adventure/adventureRuntime.mjs
+patching file app/src/main/assets/vtt/js/adventure/uaeJournalCausality.mjs
+patching file tests/uae-p143-atomic-action-receipts-five-adventures.test.mjs

@@ -1,0 +1,18 @@
+# STAR WARS EOTG — BLOCK35 validation
+timestamp=2026-09-14T04:45:31.770284+00:00
+node_tests=PASS pass=724 fail=0
+stress_33=PASS files=6
+r35_catalog_focus=PASS pass=21 fail=0
+js_syntax=PASS files=65
+java_syntax=JAVA_SYNTAX_PASS files=5 unresolved_android_symbols=396
+json_parse=PASS files=26
+xml_parse=PASS files=2
+secret_scan=PASS hits=0
+apk_aab_count=0
+gradle_wrapper=PASS jar_sha256=14013df926465d9e70158430a0b560b1aa83da0f98732da7882015e6bdff9c88
+gradle_distribution=https://services.gradle.org/distributions/gradle-8.13-bin.zip
+gradle_distribution_sha256=20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78
+core_eote_vehicle_profiles=15
+rag_tested=50
+barbara_modules=56
+android_gate=BLOCKED_EXTERNAL sdk=missing adb=missing sdkmanager=missing

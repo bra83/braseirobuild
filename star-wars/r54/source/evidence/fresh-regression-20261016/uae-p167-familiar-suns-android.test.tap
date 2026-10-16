@@ -1,0 +1,13 @@
+✔ P167 two Familiar Suns AoR slots active; no unrelated slot or EotE display name grants use (63.4928ms)
+✔ P167 Hard planetary Knowledge check is once per session and never invents lore (119.0225ms)
+✔ P167 repository write failure rolls back check, use ledger and session count (192.3344ms)
+✔ P167 Android bridge and PT-BR control route to actual controller, not dummy UI (39.2423ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4584.8485
+

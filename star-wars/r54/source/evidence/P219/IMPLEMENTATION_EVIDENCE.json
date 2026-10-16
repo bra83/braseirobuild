@@ -1,0 +1,6 @@
+{
+ "checkpoint":"P219","base":"P218","type":"actual source and state changes",
+ "code":["app/src/main/assets/vtt/js/adventure/jewelShenAftermath.mjs","app/src/main/assets/vtt/js/adventure/jewelOfYavin.mjs","app/src/main/assets/vtt/js/adventure/jewelOfYavinOperations.mjs","app/src/main/assets/vtt/js/core/controller.mjs","app/src/main/assets/vtt/js/core/uiBridge.mjs","app/src/main/assets/vtt/js/core/state.mjs","app/src/main/assets/vtt/r46/final-runtime.js","app/src/main/assets/vtt/js/core/uiBridge.bundle.js"],
+ "state":"Two specialized receipt types with replay, GM gating, persistence, rollback, status and Android UI; no XP or fabricated encounters",
+ "test":"tests/uae-p219-shen-aftermath.test.mjs"
+}

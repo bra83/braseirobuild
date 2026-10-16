@@ -1,0 +1,352 @@
+TAP version 13
+# Subtest: P154: 5 AoR source slots have real consumers and other incomplete slots remain fail-closed
+ok 1 - P154: 5 AoR source slots have real consumers and other incomplete slots remain fail-closed
+  ---
+  duration_ms: 10.061463
+  type: 'test'
+  ...
+# Subtest: P154: Powerful Blast ranks are contextual; only activated Blast gets bonus
+ok 2 - P154: Powerful Blast ranks are contextual; only activated Blast gets bonus
+  ---
+  duration_ms: 1.466988
+  type: 'test'
+  ...
+# Subtest: P154: Blast hit gets two bonus damage, once, with persisted shared Advantage
+ok 3 - P154: Blast hit gets two bonus damage, once, with persisted shared Advantage
+  ---
+  duration_ms: 7.386982
+  type: 'test'
+  ...
+# Subtest: P154: Blast miss gets two bonus damage, once, with persisted shared Advantage
+ok 4 - P154: Blast miss gets two bonus damage, once, with persisted shared Advantage
+  ---
+  duration_ms: 5.069234
+  type: 'test'
+  ...
+# Subtest: P154: Blast bonus is not applied to unrelated weapon qualities or characters without talent
+ok 5 - P154: Blast bonus is not applied to unrelated weapon qualities or characters without talent
+  ---
+  duration_ms: 3.061468
+  type: 'test'
+  ...
+# Subtest: P154: Blast activation is atomic when repository rejects a write
+ok 6 - P154: Blast activation is atomic when repository rejects a write
+  ---
+  duration_ms: 5.391544
+  type: 'test'
+  ...
+# Subtest: P154: Strong Arm only extends thrown personal ranged weapons by one band
+ok 7 - P154: Strong Arm only extends thrown personal ranged weapons by one band
+  ---
+  duration_ms: 1.47455
+  type: 'test'
+  ...
+# Subtest: P154: Strong Arm is used in actual attack range validation and survives reopening
+ok 8 - P154: Strong Arm is used in actual attack range validation and survives reopening
+  ---
+  duration_ms: 11.885534
+  type: 'test'
+  ...
+# Subtest: P154: Knockdown talent requires melee hit and exactly one Triumph
+ok 9 - P154: Knockdown talent requires melee hit and exactly one Triumph
+  ---
+  duration_ms: 1.438887
+  type: 'test'
+  ...
+# Subtest: P154: Knockdown consumes Triumph and persists prone without spending Advantage
+ok 10 - P154: Knockdown consumes Triumph and persists prone without spending Advantage
+  ---
+  duration_ms: 3.154166
+  type: 'test'
+  ...
+# Subtest: P154: Knockdown rejects missing talent, miss, ranged hit and empty Triumph without writes
+ok 11 - P154: Knockdown rejects missing talent, miss, ranged hit and empty Triumph without writes
+  ---
+  duration_ms: 8.917651
+  type: 'test'
+  ...
+# Subtest: P154: Knockdown rolls back on storage failure, including status and Triumph
+ok 12 - P154: Knockdown rolls back on storage failure, including status and Triumph
+  ---
+  duration_ms: 4.138053
+  type: 'test'
+  ...
+# Subtest: P154: bridge and Android combat UI expose the actual Knockdown action
+ok 13 - P154: bridge and Android combat UI expose the actual Knockdown action
+  ---
+  duration_ms: 10.284435
+  type: 'test'
+  ...
+# Subtest: P154: under-black-sun start/choice + 3 reopens keep UAE graph valid
+ok 14 - P154: under-black-sun start/choice + 3 reopens keep UAE graph valid
+  ---
+  duration_ms: 55.988601
+  type: 'test'
+  ...
+# Subtest: P154: beyond-the-rim start/choice + 3 reopens keep UAE graph valid
+ok 15 - P154: beyond-the-rim start/choice + 3 reopens keep UAE graph valid
+  ---
+  duration_ms: 43.350623
+  type: 'test'
+  ...
+# Subtest: P154: long-arm-of-the-hutt start/choice + 3 reopens keep UAE graph valid
+ok 16 - P154: long-arm-of-the-hutt start/choice + 3 reopens keep UAE graph valid
+  ---
+  duration_ms: 22.401024
+  type: 'test'
+  ...
+# Subtest: P154: jewel-of-yavin start/choice + 3 reopens keep UAE graph valid
+ok 17 - P154: jewel-of-yavin start/choice + 3 reopens keep UAE graph valid
+  ---
+  duration_ms: 20.593758
+  type: 'test'
+  ...
+# Subtest: P154: mask-of-the-pirate-queen start/choice + 3 reopens keep UAE graph valid
+ok 18 - P154: mask-of-the-pirate-queen start/choice + 3 reopens keep UAE graph valid
+  ---
+  duration_ms: 15.89732
+  type: 'test'
+  ...
+# Subtest: P155: registry advertises actual combat for all five, without claiming PDF certification
+ok 19 - P155: registry advertises actual combat for all five, without claiming PDF certification
+  ---
+  duration_ms: 5.180865
+  type: 'test'
+  ...
+# Subtest: P155: droid-delivery exposes scene-locked, runnable btr-yiyar-hangar
+ok 20 - P155: droid-delivery exposes scene-locked, runnable btr-yiyar-hangar
+  ---
+  duration_ms: 7.415755
+  type: 'test'
+  ...
+# Subtest: P155: droid-delivery persists victory, blocks replay and allows same scene to be inspected
+ok 21 - P155: droid-delivery persists victory, blocks replay and allows same scene to be inspected
+  ---
+  duration_ms: 5.352396
+  type: 'test'
+  ...
+# Subtest: P155: droid-delivery rejects invalid outcome and premature settlement without mutating source
+ok 22 - P155: droid-delivery rejects invalid outcome and premature settlement without mutating source
+  ---
+  duration_ms: 3.424359
+  type: 'test'
+  ...
+# Subtest: P155: rival-convergence exposes scene-locked, runnable btr-yiyar-jungle
+ok 23 - P155: rival-convergence exposes scene-locked, runnable btr-yiyar-jungle
+  ---
+  duration_ms: 2.71415
+  type: 'test'
+  ...
+# Subtest: P155: rival-convergence persists victory, blocks replay and allows same scene to be inspected
+ok 24 - P155: rival-convergence persists victory, blocks replay and allows same scene to be inspected
+  ---
+  duration_ms: 2.047626
+  type: 'test'
+  ...
+# Subtest: P155: rival-convergence rejects invalid outcome and premature settlement without mutating source
+ok 25 - P155: rival-convergence rejects invalid outcome and premature settlement without mutating source
+  ---
+  duration_ms: 1.92326
+  type: 'test'
+  ...
+# Subtest: P155: imperial-interruption exposes scene-locked, runnable btr-imperial-interception
+ok 26 - P155: imperial-interruption exposes scene-locked, runnable btr-imperial-interception
+  ---
+  duration_ms: 2.023349
+  type: 'test'
+  ...
+# Subtest: P155: imperial-interruption persists victory, blocks replay and allows same scene to be inspected
+ok 27 - P155: imperial-interruption persists victory, blocks replay and allows same scene to be inspected
+  ---
+  duration_ms: 2.348464
+  type: 'test'
+  ...
+# Subtest: P155: imperial-interruption rejects invalid outcome and premature settlement without mutating source
+ok 28 - P155: imperial-interruption rejects invalid outcome and premature settlement without mutating source
+  ---
+  duration_ms: 2.513601
+  type: 'test'
+  ...
+# Subtest: P155: hangar adversaries_defeated maps only real combat outcomes to droid custody
+ok 29 - P155: hangar adversaries_defeated maps only real combat outcomes to droid custody
+  ---
+  duration_ms: 1.680999
+  type: 'test'
+  ...
+# Subtest: P155: hangar player_incapacitated maps only real combat outcomes to droid custody
+ok 30 - P155: hangar player_incapacitated maps only real combat outcomes to droid custody
+  ---
+  duration_ms: 1.372398
+  type: 'test'
+  ...
+# Subtest: P155: hangar retreat maps only real combat outcomes to droid custody
+ok 31 - P155: hangar retreat maps only real combat outcomes to droid custody
+  ---
+  duration_ms: 1.349403
+  type: 'test'
+  ...
+# Subtest: P155: hangar ended maps only real combat outcomes to droid custody
+ok 32 - P155: hangar ended maps only real combat outcomes to droid custody
+  ---
+  duration_ms: 2.192201
+  type: 'test'
+  ...
+# Subtest: P155: imperial victory reduces exposure and defeat raises it, neutral ending preserves it
+ok 33 - P155: imperial victory reduces exposure and defeat raises it, neutral ending preserves it
+  ---
+  duration_ms: 4.889636
+  type: 'test'
+  ...
+# Subtest: P155: real GameController Android combat starts, finishes and persists Yiyar outcome
+ok 34 - P155: real GameController Android combat starts, finishes and persists Yiyar outcome
+  ---
+  duration_ms: 90.125034
+  type: 'test'
+  ...
+# Subtest: P155: repository failure rolls back combat start and UAE encounter journal
+ok 35 - P155: repository failure rolls back combat start and UAE encounter journal
+  ---
+  duration_ms: 58.653095
+  type: 'test'
+  ...
+# Subtest: P155: repository failure rolls back combat finish, history, NPCs and flags
+ok 36 - P155: repository failure rolls back combat finish, history, NPCs and flags
+  ---
+  duration_ms: 54.005622
+  type: 'test'
+  ...
+# Subtest: P155: under-black-sun retains UAE start, choice and 3 reloads
+ok 37 - P155: under-black-sun retains UAE start, choice and 3 reloads
+  ---
+  duration_ms: 24.50879
+  type: 'test'
+  ...
+# Subtest: P155: beyond-the-rim retains UAE start, choice and 3 reloads
+ok 38 - P155: beyond-the-rim retains UAE start, choice and 3 reloads
+  ---
+  duration_ms: 22.013506
+  type: 'test'
+  ...
+# Subtest: P155: long-arm-of-the-hutt retains UAE start, choice and 3 reloads
+ok 39 - P155: long-arm-of-the-hutt retains UAE start, choice and 3 reloads
+  ---
+  duration_ms: 13.481315
+  type: 'test'
+  ...
+# Subtest: P155: jewel-of-yavin retains UAE start, choice and 3 reloads
+ok 40 - P155: jewel-of-yavin retains UAE start, choice and 3 reloads
+  ---
+  duration_ms: 13.538451
+  type: 'test'
+  ...
+# Subtest: P155: mask-of-the-pirate-queen retains UAE start, choice and 3 reloads
+ok 41 - P155: mask-of-the-pirate-queen retains UAE start, choice and 3 reloads
+  ---
+  duration_ms: 11.853467
+  type: 'test'
+  ...
+# Subtest: P155: both source-backed AoR Utility Belt slots have actual controller and UI consumer
+ok 42 - P155: both source-backed AoR Utility Belt slots have actual controller and UI consumer
+  ---
+  duration_ms: 8.78623
+  type: 'test'
+  ...
+# Subtest: P155: catalog filters rarity, encumbrance, restricted items and non-single-use weapons
+ok 43 - P155: catalog filters rarity, encumbrance, restricted items and non-single-use weapons
+  ---
+  duration_ms: 1.686155
+  type: 'test'
+  ...
+# Subtest: P155: glow_rod consumes exactly one light Destiny, adds gear, reopens and replays without writes
+ok 44 - P155: glow_rod consumes exactly one light Destiny, adds gear, reopens and replays without writes
+  ---
+  duration_ms: 4.367526
+  type: 'test'
+  ...
+# Subtest: P155: stun_grenade consumes exactly one light Destiny, adds weapon, reopens and replays without writes
+ok 45 - P155: stun_grenade consumes exactly one light Destiny, adds weapon, reopens and replays without writes
+  ---
+  duration_ms: 2.1915
+  type: 'test'
+  ...
+# Subtest: P155: rejects unauthorized heavy_blaster_pistol with light=2, rank=1 without mutations
+ok 46 - P155: rejects unauthorized heavy_blaster_pistol with light=2, rank=1 without mutations
+  ---
+  duration_ms: 1.455522
+  type: 'test'
+  ...
+# Subtest: P155: rejects unauthorized medpac with light=2, rank=1 without mutations
+ok 47 - P155: rejects unauthorized medpac with light=2, rank=1 without mutations
+  ---
+  duration_ms: 1.468321
+  type: 'test'
+  ...
+# Subtest: P155: rejects unauthorized tool_kit with light=2, rank=1 without mutations
+ok 48 - P155: rejects unauthorized tool_kit with light=2, rank=1 without mutations
+  ---
+  duration_ms: 2.11798
+  type: 'test'
+  ...
+# Subtest: P155: rejects unauthorized blaster_pistol with light=2, rank=1 without mutations
+ok 49 - P155: rejects unauthorized blaster_pistol with light=2, rank=1 without mutations
+  ---
+  duration_ms: 1.659687
+  type: 'test'
+  ...
+# Subtest: P155: rejects unauthorized unknown with light=2, rank=1 without mutations
+ok 50 - P155: rejects unauthorized unknown with light=2, rank=1 without mutations
+  ---
+  duration_ms: 1.345257
+  type: 'test'
+  ...
+# Subtest: P155: rejects unauthorized glow_rod with light=0, rank=1 without mutations
+ok 51 - P155: rejects unauthorized glow_rod with light=0, rank=1 without mutations
+  ---
+  duration_ms: 1.441141
+  type: 'test'
+  ...
+# Subtest: P155: rejects unauthorized glow_rod with light=2, rank=0 without mutations
+ok 52 - P155: rejects unauthorized glow_rod with light=2, rank=0 without mutations
+  ---
+  duration_ms: 1.598865
+  type: 'test'
+  ...
+# Subtest: P155: invalid and missing action IDs fail closed
+ok 53 - P155: invalid and missing action IDs fail closed
+  ---
+  duration_ms: 0.856268
+  type: 'test'
+  ...
+# Subtest: P155: two legitimate activations spend two points, produce two independently owned assets
+ok 54 - P155: two legitimate activations spend two points, produce two independently owned assets
+  ---
+  duration_ms: 2.495794
+  type: 'test'
+  ...
+# Subtest: P155: failing storage rolls back both inventory and Destiny
+ok 55 - P155: failing storage rolls back both inventory and Destiny
+  ---
+  duration_ms: 2.207713
+  type: 'test'
+  ...
+# Subtest: P155: unsupported foreign talent label cannot authorize Utility Belt
+ok 56 - P155: unsupported foreign talent label cannot authorize Utility Belt
+  ---
+  duration_ms: 2.081506
+  type: 'test'
+  ...
+# Subtest: P155: tampered duplicate or malformed Utility Belt receipts cannot authorize a replay
+ok 57 - P155: tampered duplicate or malformed Utility Belt receipts cannot authorize a replay
+  ---
+  duration_ms: 4.412384
+  type: 'test'
+  ...
+1..57
+# tests 57
+# suites 0
+# pass 57
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 491.980399

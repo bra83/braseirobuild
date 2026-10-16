@@ -1,0 +1,12 @@
+P36 FINAL SOURCE GATES
+2026-09-22T15:59:36Z
+-- node --check app/src/main/assets/vtt/js/adventure/underBlackSun.mjs
+-- node --check app/src/main/assets/vtt/js/rules/adversaries.mjs
+-- node --check app/src/main/assets/vtt/js/expansion/adversaries.mjs
+-- node --check app/src/main/assets/vtt/js/core/controller.mjs
+-- node --check app/src/main/assets/vtt/js/core/uiBridge.mjs
+-- node --check app/src/main/assets/vtt/js/core/uiBridge.bundle.js
+-- node --check app/src/main/assets/vtt/r46/final-runtime.js
+-- PUBLISHED profile smoke
+black_sun_enforcer minion Agente da Black Sun x3 15
+kaato_leeachos nemesis Kaa’to Leeachos 15

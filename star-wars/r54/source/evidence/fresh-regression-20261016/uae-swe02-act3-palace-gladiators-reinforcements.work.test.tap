@@ -1,0 +1,16 @@
+✔ p.43: four gladiators, real bribe, once, no charm, no fake alliance (244.055ms)
+✔ p.43: opposed Coercion dice, failed check does not mint allies; receipt anti-fraud (205.8145ms)
+✔ p.43: gladiator combat is real and separate from Teemo; cannot fake victory (181.7242ms)
+✔ p.43: controller/bridge/UI: credits atomic, rollback and 3 reopenings (297.4321ms)
+✔ p.44: GM confirms count; Teemo must spend maneuver on actual NPC turn; no premature arrival (10.4152ms)
+✔ p.44: no alarm from incapacitated Teemo; no reinforcements without alarm (5.155ms)
+✔ p.44: controller commits real Teemo NPC maneuver, initiative countdown and three persisted reopens (262.2229ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4084.1609
+

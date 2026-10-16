@@ -1,0 +1,10 @@
+{
+  "checkpoint": "P204",
+  "directPdfReadThisRun": false,
+  "inheritedSourceEvidence": [
+    {"product":"SWE09 The Jewel of Yavin","driveFileId":"1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K","section":"Episode III, Countdown to Disaster / bomb","basis":"P201-P202 source crosscheck; reuse existing bomb and damage engine"},
+    {"product":"Edge of the Empire Core Rulebook","driveFileId":"1UO3Z35J2Dmkfvx1OLyPD3rzJon013EoX","printedPage":215,"section":"Table 6-9 Falling Damage","basis":"P202-P203 source crosscheck; reuse existing fall engine without new rule values"}
+  ],
+  "newMechanics":"Only per-companion target selection, explicit GM presence and position confirmation, independent receipts, replay, persistence, Android UI; no new book mechanic asserted.",
+  "scope":"Directed inherited crosscheck, NOT integral PDF comparison or semantic certification"
+}

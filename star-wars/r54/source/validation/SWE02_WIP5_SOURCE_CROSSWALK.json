@@ -1,0 +1,15 @@
+{
+  "scope":"TARGETED_SOURCE_TO_EXECUTOR_CROSSWALK_ONLY",
+  "canonicalBase":"P244",
+  "adventure":"SWE02 Long Arm of the Hutt",
+  "officialSource":"https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf",
+  "pdfPages":46,
+  "all46PagesSemanticallyCertified":false,
+  "claims":[
+    {"printedPage":33,"fact":"Piddock three weapons cost 1100/1300/1500 credits; opposed Negotiation difficulty+challenge; success gives 10% discount; verbal agreement, agent delivery at freighter, no payment at party","executor":"swe02Act2ContractsWip.mjs agreeSWE02PiddockArms/deliverSWE02PiddockArms","ui":"swe02PiddockArmsPanel","test":"uae-swe02-piddock-arms-handoff.work.test.mjs","status":"TARGETED_TESTED"},
+    {"printedPage":37,"fact":"Geonosian heavy pistol damage 7 critical 2 medium stun; Geonosian rifle damage 9 critical 2 long stun","executor":"swe02Act2ContractsWip.mjs PIDDOCK_WEAPONS","test":"uae-swe02-piddock-arms-handoff.work.test.mjs","status":"TARGETED_TESTED"},
+    {"printedPage":40,"fact":"Electrogate active and unguarded; Hard Computers disables it and alerts four Gamorreans from Barracks, preventing those four from answering Teemo's later alarm","executor":"swe02PalaceOperations.mjs CHECK mode + controller.mjs queueSWE02ThroneAlarm","ui":"swe02PalaceDeclarative","test":"uae-swe02-mos-shuuta-electrogate.work.test.mjs","status":"TARGETED_TESTED"},
+    {"printedPages":[44,45,46],"fact":"Nonviolent Teemo deal/Jabba outcome must not claim death","executor":"longArmOfTheHutt.mjs playerNode narration and swe02Act3Consequences","test":"uae-swe02-act3-complete-routes.work.test.mjs","status":"TARGETED_REGRESSION_TESTED"}
+  ],
+  "limitations":["The four alerted Gamorreans are not yet independently simulated in gate combat.","Carbine uses standard blaster-carbine profile under p.33's otherwise-normal clause; complete EotE core profile cross-check remains open.","No full 46-page semantic audit.","No APK/CI/ADB/Android physical test."]
+}

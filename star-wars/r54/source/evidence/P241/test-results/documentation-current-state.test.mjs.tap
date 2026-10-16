@@ -1,0 +1,23 @@
+TAP version 13
+# Subtest: entry documentation identifies EOTE_CORE + Obligation and current recovery path
+ok 1 - entry documentation identifies EOTE_CORE + Obligation and current recovery path
+  ---
+  duration_ms: 0.756177
+  type: 'test'
+  ...
+# Subtest: validation documentation reports the current full suite and six stress suites
+ok 2 - validation documentation reports the current full suite and six stress suites
+  ---
+  duration_ms: 0.248463
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 215.697121
+

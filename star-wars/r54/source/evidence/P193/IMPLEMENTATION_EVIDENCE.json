@@ -1,0 +1,62 @@
+{
+  "checkpoint": "P193",
+  "baselineSha256": "7a3eed41c69f5003e5fb12db8a41c6e96442723a38231829a28ac9bf57e9bfb8",
+  "implemented": [
+    {
+      "file": "app/src/main/assets/vtt/js/rules/adversaries.mjs",
+      "features": [
+        "SWE09 Wing Guard Officer minion and Sergeant rival profiles; combat damage, Pierce, Disorient, source"
+      ]
+    },
+    {
+      "file": "app/src/main/assets/vtt/js/adventure/jewelOfYavin.mjs",
+      "features": [
+        "ETA-driven bank Wing Guard encounter discovery",
+        "combat specs use officer count from receipt, no phantom sergeant",
+        "started/resolved encounter lifecycle, duplicate protection, provenance checks",
+        "investigation state if group departed",
+        "status and scene gating"
+      ]
+    },
+    {
+      "file": "app/src/main/assets/vtt/js/core/controller.mjs",
+      "features": [
+        "finishCombat supports canonical ACTIVE status",
+        "captured signature upgrades declared Cloud City slicing checks in generic dice engine",
+        "no indiscriminate upgrade for unrelated Computers checks"
+      ]
+    },
+    {
+      "file": "app/src/main/assets/vtt/r46/final-runtime.js",
+      "features": [
+        "Wing Guard status, ETA, investigation and encounter button",
+        "version diagnostics"
+      ]
+    },
+    {
+      "file": "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+      "features": [
+        "rebuilt offline bundle from modified source, 91 modules"
+      ]
+    },
+    {
+      "file": "tests/uae-p193-jewel-wing-guard-arrival.test.mjs",
+      "features": [
+        "14 new source-focused tests",
+        "real controller combat start/finish",
+        "three reopenings",
+        "forgery/duplicate/pre-arrival defenses",
+        "generic slicing signature upgrade"
+      ]
+    }
+  ],
+  "notImplemented": [
+    "automatic initiative when ETA passes (encounter becomes ready in UI)",
+    "Wing Guard special maneuver effects",
+    "automatic signature removal by owned replacement tools",
+    "other non-identified Cloud City slicing paths",
+    "bank liquidation and betrayal/escape",
+    "full five-adventure and 360-talent semantic certification",
+    "APK/CI/Android device validation"
+  ]
+}

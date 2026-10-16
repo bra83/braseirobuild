@@ -1,0 +1,552 @@
+{
+  "checkpoint": "P148",
+  "gate": "STRUCTURAL_AND_SEMANTIC_ONLY",
+  "certifiedAgainstOfficialPdfs": false,
+  "allPassed": true,
+  "adventures": [
+    {
+      "id": "under-black-sun",
+      "structural": {
+        "adventureId": "under-black-sun",
+        "nodes": 17,
+        "choices": 37,
+        "endings": 1,
+        "episodes": [
+          1,
+          2,
+          3
+        ],
+        "structurallyReachable": true
+      },
+      "semantic": {
+        "adventureId": "under-black-sun",
+        "nodes": 17,
+        "choices": 37,
+        "checks": 32,
+        "conditions": 30,
+        "effects": 81,
+        "triggers": 23
+      },
+      "capabilities": {
+        "checks": true,
+        "encounters": true,
+        "rewards": true,
+        "archive": true
+      },
+      "caveat": null
+    },
+    {
+      "id": "beyond-the-rim",
+      "structural": {
+        "adventureId": "beyond-the-rim",
+        "nodes": 26,
+        "choices": 37,
+        "endings": 1,
+        "episodes": [
+          1,
+          2,
+          3
+        ],
+        "structurallyReachable": true
+      },
+      "semantic": {
+        "adventureId": "beyond-the-rim",
+        "nodes": 26,
+        "choices": 37,
+        "checks": 46,
+        "conditions": 42,
+        "effects": 42,
+        "triggers": 22
+      },
+      "capabilities": {
+        "checks": true,
+        "encounters": false,
+        "rewards": true,
+        "archive": true
+      },
+      "caveat": "Official combat encounter absent; no combat fabricated."
+    },
+    {
+      "id": "long-arm-of-the-hutt",
+      "structural": {
+        "adventureId": "long-arm-of-the-hutt",
+        "nodes": 7,
+        "choices": 6,
+        "endings": 1,
+        "episodes": [
+          1,
+          2,
+          3
+        ],
+        "structurallyReachable": true
+      },
+      "semantic": {
+        "adventureId": "long-arm-of-the-hutt",
+        "nodes": 7,
+        "choices": 6,
+        "checks": 12,
+        "conditions": 8,
+        "effects": 13,
+        "triggers": 9
+      },
+      "capabilities": {
+        "checks": true,
+        "encounters": true,
+        "rewards": true,
+        "archive": true
+      },
+      "caveat": null
+    },
+    {
+      "id": "jewel-of-yavin",
+      "structural": {
+        "adventureId": "jewel-of-yavin",
+        "nodes": 5,
+        "choices": 4,
+        "endings": 1,
+        "episodes": [
+          1,
+          2,
+          3
+        ],
+        "structurallyReachable": true
+      },
+      "semantic": {
+        "adventureId": "jewel-of-yavin",
+        "nodes": 5,
+        "choices": 4,
+        "checks": 8,
+        "conditions": 4,
+        "effects": 9,
+        "triggers": 5
+      },
+      "capabilities": {
+        "checks": true,
+        "encounters": true,
+        "rewards": true,
+        "archive": true
+      },
+      "caveat": null
+    },
+    {
+      "id": "mask-of-the-pirate-queen",
+      "structural": {
+        "adventureId": "mask-of-the-pirate-queen",
+        "nodes": 5,
+        "choices": 4,
+        "endings": 1,
+        "episodes": [
+          1,
+          2,
+          3
+        ],
+        "structurallyReachable": true
+      },
+      "semantic": {
+        "adventureId": "mask-of-the-pirate-queen",
+        "nodes": 5,
+        "choices": 4,
+        "checks": 8,
+        "conditions": 5,
+        "effects": 10,
+        "triggers": 6
+      },
+      "capabilities": {
+        "checks": true,
+        "encounters": true,
+        "rewards": true,
+        "archive": true
+      },
+      "caveat": null
+    }
+  ],
+  "aor": {
+    "careers": 6,
+    "specializations": 18,
+    "positions": 360,
+    "mechanicalPositions": 224,
+    "purchasePositions": 360,
+    "pendingByTalent": [
+      [
+        "ESCURRIDIZO",
+        3
+      ],
+      [
+        "SUBIR DE UN SALTO",
+        3
+      ],
+      [
+        "NI UN PELO DE TONTO",
+        3
+      ],
+      [
+        "PROGRAMACIÓN DEFENSIVA",
+        3
+      ],
+      [
+        "ABRUMAR DEFENSAS",
+        2
+      ],
+      [
+        "MEJORAS CASERAS",
+        2
+      ],
+      [
+        "MADERA DE HÉROE",
+        2
+      ],
+      [
+        "PARADA EN SECO",
+        2
+      ],
+      [
+        "PILOTO EXPERTO",
+        2
+      ],
+      [
+        "EVASIÓN IMPECABLE",
+        2
+      ],
+      [
+        "SOLES FAMILIARES",
+        2
+      ],
+      [
+        "DE UNA PIEZA",
+        2
+      ],
+      [
+        "COORDINACIÓN TÁCTICA",
+        2
+      ],
+      [
+        "COORDINACIÓN TÁCTICA MEJORADA",
+        2
+      ],
+      [
+        "FINTA",
+        2
+      ],
+      [
+        "GUARDAESPALDAS",
+        2
+      ],
+      [
+        "INDISTINGUIBLE",
+        2
+      ],
+      [
+        "DON DE GENTES",
+        2
+      ],
+      [
+        "PROVEEDOR HABITUAL",
+        2
+      ],
+      [
+        "LABIA",
+        2
+      ],
+      [
+        "CHANCHULLERO",
+        2
+      ],
+      [
+        "INVERSIONES RENTABLES",
+        2
+      ],
+      [
+        "TENACIDAD",
+        2
+      ],
+      [
+        "TENACIDAD MEJORADA",
+        2
+      ],
+      [
+        "EXPLOSIÓN POTENTE",
+        2
+      ],
+      [
+        "DETONACIÓN SELECTIVA",
+        2
+      ],
+      [
+        "CONOCIMIENTO ESPECIALIZADO",
+        2
+      ],
+      [
+        "ERUDITO RESPETADO",
+        2
+      ],
+      [
+        "HABLAR BINARIO",
+        2
+      ],
+      [
+        "MANITAS",
+        2
+      ],
+      [
+        "FORTALEZA MENTAL",
+        2
+      ],
+      [
+        "INVENTOR",
+        2
+      ],
+      [
+        "CINTURÓN DE ACCESORIOS",
+        2
+      ],
+      [
+        "DERRIBO",
+        2
+      ],
+      [
+        "ACLIMATACIÓN",
+        2
+      ],
+      [
+        "ATAJO",
+        2
+      ],
+      [
+        "DESORIENTAR",
+        2
+      ],
+      [
+        "DISPARO DEBILITANTE",
+        1
+      ],
+      [
+        "MUNICIÓN DE RESERVA",
+        1
+      ],
+      [
+        "SALIDA TÉRMICA",
+        1
+      ],
+      [
+        "CONDUCTOR TODOTERRENO",
+        1
+      ],
+      [
+        "CONDUCTOR NATO",
+        1
+      ],
+      [
+        "IMPACTO DIRECTO",
+        1
+      ],
+      [
+        "IMPACTO DIRECTO MEJORADO",
+        1
+      ],
+      [
+        "DISEÑO FAMILIAR",
+        1
+      ],
+      [
+        "ASTRONAVEGANTE EXPERTO",
+        1
+      ],
+      [
+        "FUEGO CONTROLADO",
+        1
+      ],
+      [
+        "CONOCIMIENTO DEL ENTORNO",
+        1
+      ],
+      [
+        "FORMACIÓN DE COMBATE",
+        1
+      ],
+      [
+        "LÍDER EXPERTO",
+        1
+      ],
+      [
+        "SUPERVIVIENTE",
+        1
+      ],
+      [
+        "ATAQUE COORDINADO",
+        1
+      ],
+      [
+        "LÍDER NATO",
+        1
+      ],
+      [
+        "RETÓRICA INSPIRADORA",
+        1
+      ],
+      [
+        "NERVIOS DE ACERO",
+        1
+      ],
+      [
+        "RETÓRICA INSPIRADORA MEJORADA",
+        1
+      ],
+      [
+        "PRESENCIA IMPONENTE",
+        1
+      ],
+      [
+        "MANO DE SANTO",
+        1
+      ],
+      [
+        "RETÓRICA INSPIRADORA SUPREMA",
+        1
+      ],
+      [
+        "EMBAUCADOR NATO",
+        1
+      ],
+      [
+        "LENGUA AFILADA",
+        1
+      ],
+      [
+        "LENGUA AFILADA MEJORADA",
+        1
+      ],
+      [
+        "LENGUA AFILADA SUPREMA",
+        1
+      ],
+      [
+        "INCITAR A LA REBELIÓN",
+        1
+      ],
+      [
+        "UNTAR MANOS",
+        1
+      ],
+      [
+        "MERCADER EXPERTO",
+        1
+      ],
+      [
+        "COMPRAR INFORMACIÓN",
+        1
+      ],
+      [
+        "SISTEMAS REDUNDANTES",
+        1
+      ],
+      [
+        "PIEZA DEFECTUOSA",
+        1
+      ],
+      [
+        "ARTILUGIO",
+        1
+      ],
+      [
+        "CUERPO A TIERRA",
+        1
+      ],
+      [
+        "CUERPO A TIERRA MEJORADO",
+        1
+      ],
+      [
+        "GRANADERO EXPERTO",
+        1
+      ],
+      [
+        "COMPARTIMENTO OCULTO",
+        1
+      ],
+      [
+        "INGENIOSO",
+        1
+      ],
+      [
+        "METICULOSO",
+        1
+      ],
+      [
+        "BRAZO FUERTE",
+        1
+      ],
+      [
+        "RESISTENCIA A VENENOS",
+        1
+      ],
+      [
+        "IMPARABLE",
+        1
+      ],
+      [
+        "ESPECIALISTA EN BACTA",
+        1
+      ],
+      [
+        "POLIFACÉTICO",
+        1
+      ],
+      [
+        "APLICACIÓN DE ESTIMULANTES",
+        1
+      ],
+      [
+        "MÉDICO EXPERTO",
+        1
+      ],
+      [
+        "APLICACIÓN DE ESTIMULANTES MEJORADA",
+        1
+      ],
+      [
+        "NO ES PARA TANTO",
+        1
+      ],
+      [
+        "APLICACIÓN DE ESTIMULANTES SUPREMA",
+        1
+      ],
+      [
+        "GOLPE INCAPACITANTE",
+        1
+      ],
+      [
+        "SOLUCIÓN IMPROVISADA",
+        1
+      ],
+      [
+        "GOLPE CONMOCIONADOR",
+        1
+      ],
+      [
+        "PUNTO DÉBIL",
+        1
+      ],
+      [
+        "GOLPE CONMOCIONADOR MEJORADO",
+        1
+      ],
+      [
+        "SOLUCIÓN INGENIOSA",
+        1
+      ],
+      [
+        "SOMBRA FURTIVA",
+        1
+      ],
+      [
+        "PROGRAMACIÓN DEFENSIVA MEJORADA",
+        1
+      ],
+      [
+        "PIRATA INFORMÁTICO EXPERTO",
+        1
+      ]
+    ]
+  }
+}

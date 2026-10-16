@@ -1,0 +1,113 @@
+TAP version 13
+# Subtest: P183 source: Jewel SWE09 opens with Aris in Port Town, not at the museum
+ok 1 - P183 source: Jewel SWE09 opens with Aris in Port Town, not at the museum
+  ---
+  duration_ms: 0.984907
+  type: 'test'
+  ...
+# Subtest: P183 source: the Grand Prix precedes the auction and central bank slice
+ok 2 - P183 source: the Grand Prix precedes the auction and central bank slice
+  ---
+  duration_ms: 57.277387
+  type: 'test'
+  ...
+# Subtest: P183: bank transfer cannot be claimed by clicking without a successful roll
+ok 3 - P183: bank transfer cannot be claimed by clicking without a successful roll
+  ---
+  duration_ms: 19.533458
+  type: 'test'
+  ...
+# Subtest: P183: failed bank slice increments alarm, but does not divert credits
+ok 4 - P183: failed bank slice increments alarm, but does not divert credits
+  ---
+  duration_ms: 19.123289
+  type: 'test'
+  ...
+# Subtest: P183: successful bank slice authorizes one explicit diversion flag
+ok 5 - P183: successful bank slice authorizes one explicit diversion flag
+  ---
+  duration_ms: 28.326457
+  type: 'test'
+  ...
+# Subtest: P183: the vault cannot yield the jewel without an adjudicated successful check
+ok 6 - P183: the vault cannot yield the jewel without an adjudicated successful check
+  ---
+  duration_ms: 34.892983
+  type: 'test'
+  ...
+# Subtest: P183: successful vault check unlocks acquisition; final state survives three reopens
+ok 7 - P183: successful vault check unlocks acquisition; final state survives three reopens
+  ---
+  duration_ms: 70.474096
+  type: 'test'
+  ...
+# Subtest: P183: withdrawing from the vault completes without inventing the jewel
+ok 8 - P183: withdrawing from the vault completes without inventing the jewel
+  ---
+  duration_ms: 34.774144
+  type: 'test'
+  ...
+# Subtest: P183: malformed check result is rejected without mutation
+ok 9 - P183: malformed check result is rejected without mutation
+  ---
+  duration_ms: 23.459688
+  type: 'test'
+  ...
+# Subtest: P183: Long Arm contains source-based New Meen, Ota, Piddock and Dimmock route
+ok 10 - P183: Long Arm contains source-based New Meen, Ota, Piddock and Dimmock route
+  ---
+  duration_ms: 18.689944
+  type: 'test'
+  ...
+# Subtest: P183: Long Arm investigation path persists into Geonosis, and retains legacy choices
+ok 11 - P183: Long Arm investigation path persists into Geonosis, and retains legacy choices
+  ---
+  duration_ms: 37.282943
+  type: 'test'
+  ...
+# Subtest: P183: published reward policies do not fabricate fixed credits or Obligation
+ok 12 - P183: published reward policies do not fabricate fixed credits or Obligation
+  ---
+  duration_ms: 0.234745
+  type: 'test'
+  ...
+# Subtest: P183: forged Long Arm encounter cannot defeat Teemo or skip the scene
+ok 13 - P183: forged Long Arm encounter cannot defeat Teemo or skip the scene
+  ---
+  duration_ms: 22.308128
+  type: 'test'
+  ...
+# Subtest: P183: Long Arm can retreat without claiming Teemo defeated
+ok 14 - P183: Long Arm can retreat without claiming Teemo defeated
+  ---
+  duration_ms: 41.351637
+  type: 'test'
+  ...
+# Subtest: P183: Teemo defeat needs active encounter, valid outcome and cannot be duplicated
+ok 15 - P183: Teemo defeat needs active encounter, valid outcome and cannot be duplicated
+  ---
+  duration_ms: 39.460641
+  type: 'test'
+  ...
+# Subtest: P183: Jewel security encounter requires actual start and cannot be repeated
+ok 16 - P183: Jewel security encounter requires actual start and cannot be repeated
+  ---
+  duration_ms: 22.480769
+  type: 'test'
+  ...
+# Subtest: P183: P182 Jewel save at original Bespin node migrates without losing progress
+ok 17 - P183: P182 Jewel save at original Bespin node migrates without losing progress
+  ---
+  duration_ms: 5.725056
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 710.670581
+

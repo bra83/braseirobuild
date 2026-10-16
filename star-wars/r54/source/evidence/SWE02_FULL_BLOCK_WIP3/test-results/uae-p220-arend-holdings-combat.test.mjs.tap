@@ -1,0 +1,65 @@
+TAP version 13
+# Subtest: P220: exact official Arend, K4 and yacht crew profiles with real defenses
+ok 1 - P220: exact official Arend, K4 and yacht crew profiles with real defenses
+  ---
+  duration_ms: 2.502861
+  type: 'test'
+  ...
+# Subtest: P220: cannot conjure Arend at wrong property, without confirmation or before search
+ok 2 - P220: cannot conjure Arend at wrong property, without confirmation or before search
+  ---
+  duration_ms: 200.339823
+  type: 'test'
+  ...
+# Subtest: P220: residence starts actual initiative with three independent K4 rivals and six distinct goons
+ok 3 - P220: residence starts actual initiative with three independent K4 rivals and six distinct goons
+  ---
+  duration_ms: 167.092716
+  type: 'test'
+  ...
+# Subtest: P220: four published security complements and no fabricated extra combatants
+ok 4 - P220: four published security complements and no fabricated extra combatants
+  ---
+  duration_ms: 555.58951
+  type: 'test'
+  ...
+# Subtest: P220: residence sitting room has six goons in its own encounter, never at entrance
+ok 5 - P220: residence sitting room has six goons in its own encounter, never at entrance
+  ---
+  duration_ms: 123.186892
+  type: 'test'
+  ...
+# Subtest: P220: Arend nemesis cannot be teleported past guards without GM-confirmed bypass
+ok 6 - P220: Arend nemesis cannot be teleported past guards without GM-confirmed bypass
+  ---
+  duration_ms: 126.485261
+  type: 'test'
+  ...
+# Subtest: P220: active guard fight prevents Arend encounter; no automatic outcome, XP, credits or NPC teleport
+ok 7 - P220: active guard fight prevents Arend encounter; no automatic outcome, XP, credits or NPC teleport
+  ---
+  duration_ms: 128.114165
+  type: 'test'
+  ...
+# Subtest: P220: receipt tampering and derived state tampering rejected after reopening
+ok 8 - P220: receipt tampering and derived state tampering rejected after reopening
+  ---
+  duration_ms: 124.683877
+  type: 'test'
+  ...
+# Subtest: P220: no P219 receipt, save or Kokoro regression; UI, bridge, bundle and Android version wired
+ok 9 - P220: no P219 receipt, save or Kokoro regression; UI, bridge, bundle and Android version wired
+  ---
+  duration_ms: 13.350132
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1606.420302
+

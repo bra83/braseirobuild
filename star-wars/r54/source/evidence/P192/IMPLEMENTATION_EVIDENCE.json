@@ -1,0 +1,21 @@
+{
+  "checkpoint":"P192",
+  "baseline":"P191",
+  "filesChanged":[
+    "app/src/main/assets/vtt/js/adventure/jewelBankSlicingSpends.mjs",
+    "app/src/main/assets/vtt/js/adventure/jewelBankingOperations.mjs",
+    "app/src/main/assets/vtt/js/adventure/jewelOfYavin.mjs",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/r46-shell.html"
+  ],
+  "newTestFile":"tests/uae-p192-jewel-bank-table-completion.test.mjs",
+  "newTestCases":14,
+  "sourceEvidence":"evidence/P192/PDF_TARGETED_SOURCE_CROSSCHECK.json",
+  "javaKokoroSourcesIdenticalToP191":8,
+  "androidVersion":"1.0.192",
+  "offlineBundleModules":91,
+  "notClaimed":["complete source certification", "complete Cloud City signature integration", "Wing Guard combat spawn", "bank payout", "APK", "GitHub CI", "physical Android homologation"]
+}

@@ -1,0 +1,13 @@
+{
+  "checkpoint": "P180",
+  "execution": "resumable per-file Node --test, 6 sequential shards, 4 workers per shard; stress sequential",
+  "regularFiles": 299,
+  "stressFiles": 6,
+  "testFiles": 305,
+  "tests": 2664,
+  "passed": 2664,
+  "failed": 0,
+  "allPassed": true,
+  "globalMonolithicPassed": false,
+  "focalIntegration": 113
+}

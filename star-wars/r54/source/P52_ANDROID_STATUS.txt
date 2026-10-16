@@ -1,0 +1,8 @@
+P52 ANDROID BUILD STATUS
+status=BLOCKED_BY_INFRASTRUCTURE
+command=./gradlew assembleDebug --no-daemon
+native_java_gradle_changes=no
+reason=Gradle wrapper could not resolve/download from services.gradle.org
+exception=java.net.UnknownHostException: services.gradle.org
+apk_pass=NOT_DECLARED
+source_and_js_gates=PASS (see P52_FOCAL_FINAL.txt, P52_BROAD_FINAL_SUMMARY.txt, P52_SYNTAX_FINAL.txt)

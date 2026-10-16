@@ -1,0 +1,40 @@
+{
+  "project": "Braseiro Star Wars VTT",
+  "baseline": "R54 P133",
+  "checkpoint": "R54 P134",
+  "androidVersionCode": 10134,
+  "androidVersionName": "1.0.134",
+  "modifiedOrAddedFiles": {
+    "app/build.gradle.kts": "9d8011dee34bfdeb6133b4e0c2dc6381975e9fb8fd3ccd0b6fa04ede932f31b9",
+    "app/src/main/assets/vtt/js/adventure/adventureRuntime.mjs": "8d0c7d9d7d9eaa133199bb2ffa0ede275e9581b681f75ab8b7f1e6ad9d8f87b3",
+    "app/src/main/assets/vtt/js/adventure/beyondTheRim.mjs": "7d6b09fd960f9130ec4d9c037618490462f2fbc0f025169c0f791ab372a51022",
+    "app/src/main/assets/vtt/js/adventure/publishedAdventureUaeBridge.mjs": "c2865de631de66d1d1441ef34a2ba0b2bcabe726c34a899721ad9ac69b408702",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js": "7b145f7bab762ccfcccf665030170d96666db6a01e85c953b3715359135da3fd",
+    "app/src/main/assets/vtt/r46-shell.html": "aafa44f308ff230cd02a09d95395a3696996a3b787a0fbbcd0b983843709544b",
+    "tests/uae-p134-persistence-guard-and-five-adventures.test.mjs": "998679200365f5ffbc8ae6ef52f554175191e6b383e4981c585f032e7604634b",
+    "validation/P134_BUNDLE_BUILD.txt": "fcfa487842093fa681b1efcc9f6331788b2c0d568c10b496b9c00b2603a2c8cd",
+    "validation/P134_REGULAR_SUITE.txt": "6ae1f2ddb0791aab44cb1cb2fd8a1ae733696de11c92d260a73ce4727724e084",
+    "validation/P134_SOURCE_CHECKS.txt": "05c16b0b45c40c85773c4584510986a46642252a19147b07b0486f47a7f220b4",
+    "validation/P134_STRESS_SUITE.txt": "704ed12472e0a1749e04eb3e4f96286924c77fae8c65cbe514ed7043788c557a",
+    "validation/P134_TTS_SUITE.txt": "adb49826fbd4fa8c9173c21496f8e83e2f62a664bc72938c59b0eb1b0bec2bbf"
+  },
+  "tests": {
+    "regular": {
+      "pass": 1354,
+      "fail": 0
+    },
+    "stress": {
+      "pass": 6,
+      "fail": 0
+    },
+    "kokoroTts": {
+      "pass": 27,
+      "fail": 0
+    }
+  },
+  "limitations": [
+    "No Android APK build performed",
+    "No primary PDF coverage certification",
+    "Beyond the Rim authored combat remains unavailable"
+  ]
+}

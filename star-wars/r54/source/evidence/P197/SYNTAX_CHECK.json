@@ -1,0 +1,11 @@
+{
+  "checkpoint": "P197",
+  "mjs": 128,
+  "json": 22,
+  "xml": 2,
+  "javascriptChecked": [
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js"
+  ],
+  "failures": []
+}

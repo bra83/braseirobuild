@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: P109: Determinação reduz Tensão involuntária por rank, mínimo 1
+ok 1 - P109: Determinação reduz Tensão involuntária por rank, mínimo 1
+  ---
+  duration_ms: 1.832245
+  type: 'test'
+  ...
+# Subtest: P109: Determinação não reduz Tensão voluntária
+ok 2 - P109: Determinação não reduz Tensão voluntária
+  ---
+  duration_ms: 0.38521
+  type: 'test'
+  ...
+# Subtest: P109: custo voluntário de Ataque Frenético ignora Determinação
+ok 3 - P109: custo voluntário de Ataque Frenético ignora Determinação
+  ---
+  duration_ms: 12.26298
+  type: 'test'
+  ...
+# Subtest: P109: Armeiro soma +1 soak somente com armadura vestida
+ok 4 - P109: Armeiro soma +1 soak somente com armadura vestida
+  ---
+  duration_ms: 5.45295
+  type: 'test'
+  ...
+# Subtest: P109: Armeiro aprimorado soma +1 Defesa quando armadura tem soak 2+
+ok 5 - P109: Armeiro aprimorado soma +1 Defesa quando armadura tem soak 2+
+  ---
+  duration_ms: 2.258256
+  type: 'test'
+  ...
+# Subtest: P109: Recuperação rápida continua somando +1 Tensão recuperada por rank após encontro
+ok 6 - P109: Recuperação rápida continua somando +1 Tensão recuperada por rank após encontro
+  ---
+  duration_ms: 0.914746
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 210.232907

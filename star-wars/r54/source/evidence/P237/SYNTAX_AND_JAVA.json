@@ -1,0 +1,10 @@
+{
+  "checkpoint": "P237",
+  "javascriptSyntaxFiles": 570,
+  "jsonFiles": 22,
+  "xmlFiles": 2,
+  "javaBaselineFiles": 8,
+  "javaByteIdentical": 8,
+  "errors": [],
+  "passed": true
+}

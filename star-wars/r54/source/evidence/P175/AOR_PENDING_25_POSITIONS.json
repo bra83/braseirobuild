@@ -1,0 +1,37 @@
+{
+  "coverage": {
+    "careers": 6,
+    "specializations": 18,
+    "positions": 360,
+    "mechanicalPositions": 335,
+    "remainingPositions": 25,
+    "sourceCertification": "PENDING"
+  },
+  "pending": [
+    "SALIDA TÉRMICA",
+    "IMPACTO DIRECTO",
+    "IMPACTO DIRECTO MEJORADO",
+    "DISEÑO FAMILIAR",
+    "FUEGO CONTROLADO",
+    "FORMACIÓN DE COMBATE",
+    "SUPERVIVIENTE",
+    "MANO DE SANTO",
+    "INCITAR A LA REBELIÓN",
+    "UNTAR MANOS",
+    "COMPRAR INFORMACIÓN",
+    "ARTILUGIO",
+    "CUERPO A TIERRA",
+    "CUERPO A TIERRA MEJORADO",
+    "COMPARTIMENTO OCULTO",
+    "INGENIOSO",
+    "METICULOSO",
+    "IMPARABLE",
+    "NO ES PARA TANTO",
+    "GOLPE INCAPACITANTE",
+    "SOLUCIÓN IMPROVISADA",
+    "GOLPE CONMOCIONADOR",
+    "PUNTO DÉBIL",
+    "GOLPE CONMOCIONADOR MEJORADO",
+    "PIRATA INFORMÁTICO EXPERTO"
+  ]
+}

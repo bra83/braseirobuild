@@ -1,0 +1,17 @@
+{
+  "checkpoint": "P197",
+  "source": {
+    "title": "The Jewel of Yavin.pdf",
+    "driveId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+    "mimeType": "application/pdf",
+    "sizeBytes": 46338415,
+    "metadataVerifiedAt": "2026-10-14",
+    "previouslyCrossCheckedPages": [12, 13],
+    "crosscheckScope": "Reutilização do cotejo direcionado do checkpoint P193 para os perfis Wing Guard. Metadados do arquivo Drive verificados em P197; NÃO foi feita nova certificação editorial integral."
+  },
+  "mechanics": [
+    {"name":"Covering Fire", "sourcePrintedPage":12, "status":"IMPLEMENTED_WITH_GM_CONFIRMED_RANGE", "details":"Até dois aliados confirmados em Curto recebem +1 defesa contra ataques à distância até o fim da rodada seguinte; sem empilhamento."},
+    {"name":"Tactical Direction", "sourcePrintedPage":13, "status":"PARTIALLY_IMPLEMENTED", "details":"Sargento concede um dado de Reforço no próximo ataque do grupo minion aliado em Médio; opção alternativa de manobra livre permanece pendente."}
+  ],
+  "notCertified": ["Resto do PDF SWE09", "Cinco aventuras completas", "360 consumidores AoR/EotE/expansões"]
+}

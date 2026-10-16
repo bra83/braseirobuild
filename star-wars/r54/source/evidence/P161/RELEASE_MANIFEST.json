@@ -1,0 +1,40 @@
+{
+  "baseSha256": "696b8a581a5e532c4cba9268d11da3f01ef847371d13922b315b41d38e283e52",
+  "checkpoint": "P161",
+  "fileCount": 2193,
+  "changed": [
+    "app/build.gradle.kts",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/js/core/events.mjs",
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/js/core/uiBridge.mjs",
+    "app/src/main/assets/vtt/js/expansion/aorTalentRuntimeAliases.mjs",
+    "app/src/main/assets/vtt/js/rules/critical.mjs",
+    "app/src/main/assets/vtt/js/rules/talents.mjs",
+    "app/src/main/assets/vtt/r46-shell.html",
+    "app/src/main/assets/vtt/r46/final-runtime.js",
+    "tests/uae-p137-aor-cross-system-mechanics.test.mjs",
+    "tests/uae-p149-aor-combat-social-causality-five-adventures.test.mjs",
+    "tests/uae-p150-defensive-slicing-tricky-target-five-adventures.test.mjs",
+    "tests/uae-p157-diplomat-commander-economy.test.mjs",
+    "tests/uae-p160-ammo-heroic-piloting-five-adventures.test.mjs"
+  ],
+  "new": [
+    "HANDOFF_STAR_WARS_EDGE_R54_P161_2026-10-12.md",
+    "evidence/P161/ANDROID_BUILD.txt",
+    "evidence/P161/AOR_PENDING_77_POSITIONS.json",
+    "evidence/P161/AUDIT.json",
+    "evidence/P161/JAVA_BASELINE_SHA256.json",
+    "evidence/P161/JAVA_SYNTAX.txt",
+    "evidence/P161/KOKORO_TTS_REGRESSION.txt",
+    "evidence/P161/NODE_FOCAL.txt",
+    "evidence/P161/NODE_REGULAR.txt",
+    "evidence/P161/NODE_STRESS.txt",
+    "evidence/P161/PATCH_REPLAY.txt",
+    "evidence/P161/RELEASE_MANIFEST.json",
+    "tests/uae-p161-aor-knowledge-market-boarding-steely-five-adventures.test.mjs",
+    "tools/audit-p161-release.mjs"
+  ],
+  "removed": [],
+  "checkpointSha256": "see adjacent .zip.sha256 file (not embedded to avoid a circular hash)"
+}

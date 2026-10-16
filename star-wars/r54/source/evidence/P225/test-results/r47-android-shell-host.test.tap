@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: R47 Android inicia pela shell visual R46 sem remover as pontes nativas
+ok 1 - R47 Android inicia pela shell visual R46 sem remover as pontes nativas
+  ---
+  duration_ms: 51.397892
+  type: 'test'
+  ...
+# Subtest: host offline instala BraseiroGameBridge antes de montar o bundle React
+ok 2 - host offline instala BraseiroGameBridge antes de montar o bundle React
+  ---
+  duration_ms: 7.998102
+  type: 'test'
+  ...
+# Subtest: bundle offline da shell e CSS estão presentes e sintaticamente fechados
+ok 3 - bundle offline da shell e CSS estão presentes e sintaticamente fechados
+  ---
+  duration_ms: 28.775234
+  type: 'test'
+  ...
+# Subtest: rotas e domínio principal continuam na arquitetura R46
+ok 4 - rotas e domínio principal continuam na arquitetura R46
+  ---
+  duration_ms: 30.801953
+  type: 'test'
+  ...
+# Subtest: CSS Android mantém viewport 415×915 e não referencia assets inexistentes
+ok 5 - CSS Android mantém viewport 415×915 e não referencia assets inexistentes
+  ---
+  duration_ms: 0.911175
+  type: 'test'
+  ...
+# Subtest: apenas ícones canônicos materializados são usados no host
+ok 6 - apenas ícones canônicos materializados são usados no host
+  ---
+  duration_ms: 4.235909
+  type: 'test'
+  ...
+# Subtest: mapeamento de ícones não pede items.png ou records.png ausentes
+ok 7 - mapeamento de ícones não pede items.png ou records.png ausentes
+  ---
+  duration_ms: 17.188947
+  type: 'test'
+  ...
+# Subtest: entrada legada permanece no pacote apenas como fallback não carregado
+ok 8 - entrada legada permanece no pacote apenas como fallback não carregado
+  ---
+  duration_ms: 0.336636
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 712.266353

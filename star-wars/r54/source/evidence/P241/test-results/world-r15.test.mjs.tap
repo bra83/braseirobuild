@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: mundo v2 preserva objetivo, relação, fatos privados e locais
+ok 1 - mundo v2 preserva objetivo, relação, fatos privados e locais
+  ---
+  duration_ms: 6.308621
+  type: 'test'
+  ...
+# Subtest: agenda do mundo executa eventos vencidos por orçamento e sem duplicação
+ok 2 - agenda do mundo executa eventos vencidos por orçamento e sem duplicação
+  ---
+  duration_ms: 2.710987
+  type: 'test'
+  ...
+# Subtest: evento inválido falha isoladamente e não impede os demais
+ok 3 - evento inválido falha isoladamente e não impede os demais
+  ---
+  duration_ms: 7.935202
+  type: 'test'
+  ...
+# Subtest: orçamento limita processamento de centenas de eventos sem perder pendências
+ok 4 - orçamento limita processamento de centenas de eventos sem perder pendências
+  ---
+  duration_ms: 2683.737769
+  type: 'test'
+  ...
+# Subtest: normalização migra aliases antigos relationship/objective/knownFacts
+ok 5 - normalização migra aliases antigos relationship/objective/knownFacts
+  ---
+  duration_ms: 0.534283
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2804.758887
+

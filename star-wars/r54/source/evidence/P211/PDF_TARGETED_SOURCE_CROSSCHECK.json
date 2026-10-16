@@ -1,0 +1,31 @@
+{
+  "pdf": "The Jewel of Yavin (official)",
+  "driveId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "pagesPrinted": [
+    93,
+    94
+  ],
+  "section": "Grand Galaxy Holo-Park",
+  "directlyRead": true,
+  "coverage": "targeted only; NOT full adventure or all 16 landscape effects",
+  "newEffects": [
+    {
+      "id": "alderaan_thranta",
+      "publishedSymbol": "Advantage",
+      "effect": "Board holographic thranta if GM confirms; one Boost on ranged attacks in each of next two combat rounds.",
+      "code": "jewelHoloParkEffects.mjs + controller.resolveWeaponAttack",
+      "validated": true
+    },
+    {
+      "id": "christophsis_shadow",
+      "publishedSymbol": "Advantage",
+      "effect": "Opponent just attacked gains ranged defense 1 from crystal-spire shadow through next combat round.",
+      "code": "jewelHoloParkEffects.mjs + controller.targetDefenseSetback",
+      "validated": true
+    }
+  ],
+  "existingEffects": 4,
+  "totalEffectsImplemented": 6,
+  "totalPublishedEffects": 16,
+  "editorialCertifications": "NOT CLAIMED"
+}

@@ -1,0 +1,80 @@
+{
+  "checkpoint": "P235",
+  "adventure": "long-arm-of-the-hutt",
+  "source": {
+    "title": "The Long Arm of the Hutt",
+    "publisher": "Fantasy Flight Games",
+    "product": "SWE02",
+    "official_free_pdf_url": "https://images-cdn.fantasyflightgames.com/filer_public/80/93/80935c12-24ac-442b-b423-687d4e28ae89/long_arm_of_the_hutt_lr.pdf"
+  },
+  "coverageIsNotComplete": true,
+  "implementedItems": [
+    {
+      "section": "New Meen night raid",
+      "printedPages": [
+        19,
+        20,
+        21
+      ],
+      "code": [
+        "app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs",
+        "app/src/main/assets/vtt/js/core/controller.mjs",
+        "app/src/main/assets/vtt/js/rules/environment.mjs"
+      ],
+      "proof": "tests/uae-p235-longarm-newmeen-official.test.mjs",
+      "status": "IMPLEMENTED_TESTED_NOT_INTEGRALLY_CERTIFIED",
+      "details": "one minion group, GM-confirms encounter, night +1 setback via real pool, no auto XP, combat closes and restores environment"
+    },
+    {
+      "section": "Drombb compound fight",
+      "printedPages": [
+        19,
+        20,
+        21,
+        22
+      ],
+      "code": [
+        "app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs",
+        "app/src/main/assets/vtt/js/rules/adversaries.mjs"
+      ],
+      "proof": "tests/uae-p235-longarm-newmeen-official.test.mjs",
+      "status": "IMPLEMENTED_TESTED_NOT_INTEGRALLY_CERTIFIED",
+      "details": "three minion groups of 2,3,4 by party size, prior defeated raiders are not respawned, official profile stats, combat receipts, 3 save reopens; no invented solo group"
+    },
+    {
+      "section": "New Meen unresolved / evacuation / secured routes",
+      "printedPages": [
+        19,
+        20,
+        21,
+        22
+      ],
+      "code": [
+        "app/src/main/assets/vtt/js/adventure/longArmOfTheHutt.mjs"
+      ],
+      "proof": "tests/uae-p235-longarm-newmeen-official.test.mjs",
+      "status": "IMPLEMENTED_TESTED_NOT_INTEGRALLY_CERTIFIED",
+      "details": "explicit choices; abandoning does not mark rescued, victory requires real combat proof, no automatic XP"
+    }
+  ],
+  "pendingCriticalItems": [
+    "SWE02 complete scene-by-scene source reconciliation for Ryloth and Nabat, including NPC dialogues, maps and all options",
+    "SWE02 printed page 22 official Coercion surrender difficulty according to enemies killed; source-driven pool and receipt",
+    "SWE02 New Meen encounters all remaining tactics/social alternatives and rewards without scripted invented victory",
+    "SWE02 Geonosis published encounters, social stakes, ship travel, evidence, droid/faction stats, skill pools and consequences",
+    "SWE02 Tatooine/Teemo published encounters, court outcomes, evidence and rewards, save replay",
+    "Other four adventures complete official page-to-code-to-test certification",
+    "360 AoR declared consumer positions plus EotE/expansion rule families semantic certification",
+    "Integrated five adventures journey with 3 reopens and long-running world clocks",
+    "LAST GATES ONLY: Android Gradle/APK/CI BRELGA and physical A57/S23 TTS QA"
+  ],
+  "claimsNotAllowed": [
+    "all five adventures completed",
+    "all SWE02 mechanics completed",
+    "full book rules certified",
+    "APK built",
+    "Android approved",
+    "LLM never fails"
+  ],
+  "userGoal": "Finish everything, without dropping any system or mechanic; hybrid code/RAG/Gemini; no incomplete gameplay; APK and homologation LAST."
+}

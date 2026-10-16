@@ -1,0 +1,1840 @@
+{
+  "weapons": {
+    "blaster_de_bolso": {
+      "file": "weapons/blaster_de_bolso.webp",
+      "aliases": [
+        "Blaster de bolso",
+        "Pocket blaster"
+      ]
+    },
+    "pistola_blaster": {
+      "file": "weapons/pistola_blaster.webp",
+      "aliases": [
+        "Pistola blaster",
+        "Pistola blaster leve",
+        "Light blaster pistol"
+      ]
+    },
+    "pistola_blaster_pesada": {
+      "file": "weapons/pistola_blaster_pesada.webp",
+      "aliases": [
+        "Pistola blaster pesada",
+        "Heavy blaster pistol"
+      ]
+    },
+    "carabina_blaster": {
+      "file": "weapons/carabina_blaster.webp",
+      "aliases": [
+        "Carabina blaster",
+        "Blaster carbine"
+      ]
+    },
+    "fuzil_blaster": {
+      "file": "weapons/fuzil_blaster.webp",
+      "aliases": [
+        "Fuzil blaster",
+        "Rifle blaster",
+        "Blaster rifle"
+      ]
+    },
+    "fuzil_blaster_pesado": {
+      "file": "weapons/fuzil_blaster_pesado.webp",
+      "aliases": [
+        "Fuzil blaster pesado",
+        "Heavy blaster rifle"
+      ]
+    },
+    "blaster_repeticao_leve": {
+      "file": "weapons/blaster_repeticao_leve.webp",
+      "aliases": [
+        "Blaster de repetição leve",
+        "Light repeating blaster"
+      ]
+    },
+    "blaster_repeticao_pesado": {
+      "file": "weapons/blaster_repeticao_pesado.webp",
+      "aliases": [
+        "Blaster de repetição pesado",
+        "Heavy repeating blaster"
+      ]
+    },
+    "blaster_ionizador": {
+      "file": "weapons/blaster_ionizador.webp",
+      "aliases": [
+        "Blaster ionizador",
+        "Ion blaster"
+      ]
+    },
+    "pistola_disruptora": {
+      "file": "weapons/pistola_disruptora.webp",
+      "aliases": [
+        "Pistola disruptora",
+        "Disruptor pistol"
+      ]
+    },
+    "fuzil_disruptor": {
+      "file": "weapons/fuzil_disruptor.webp",
+      "aliases": [
+        "Fuzil disruptor",
+        "Disruptor rifle"
+      ]
+    },
+    "pistola_projeteis_solidos": {
+      "file": "weapons/pistola_projeteis_solidos.webp",
+      "aliases": [
+        "Pistola de projéteis sólidos",
+        "Slugthrower pistol"
+      ]
+    },
+    "fuzil_projeteis_solidos": {
+      "file": "weapons/fuzil_projeteis_solidos.webp",
+      "aliases": [
+        "Fuzil de projéteis sólidos",
+        "Slugthrower rifle"
+      ]
+    },
+    "lanca_chamas": {
+      "file": "weapons/lanca_chamas.webp",
+      "aliases": [
+        "Lança-chamas",
+        "Flamethrower"
+      ]
+    },
+    "lanca_misseis": {
+      "file": "weapons/lanca_misseis.webp",
+      "aliases": [
+        "Lança-mísseis",
+        "Missile tube",
+        "Missile launcher"
+      ]
+    },
+    "granada_atordoante": {
+      "file": "weapons/granada_atordoante.webp",
+      "aliases": [
+        "Granada atordoante",
+        "Stun grenade"
+      ]
+    },
+    "mina_antipessoal": {
+      "file": "weapons/mina_antipessoal.webp",
+      "aliases": [
+        "Mina antipessoal"
+      ]
+    },
+    "mina_antiveiculo": {
+      "file": "weapons/mina_antiveiculo.webp",
+      "aliases": [
+        "Mina antiveículo"
+      ]
+    },
+    "luvas_choque": {
+      "file": "weapons/luvas_choque.webp",
+      "aliases": [
+        "Luvas de choque",
+        "Shock gloves"
+      ]
+    },
+    "soqueiras": {
+      "file": "weapons/soqueiras.webp",
+      "aliases": [
+        "Soqueiras"
+      ]
+    },
+    "pique_forca": {
+      "file": "weapons/pique_forca.webp",
+      "aliases": [
+        "Pique de força",
+        "Force pike"
+      ]
+    },
+    "cassetete": {
+      "file": "weapons/cassetete.webp",
+      "aliases": [
+        "Cassetete",
+        "Bastão"
+      ]
+    },
+    "vibrofaca": {
+      "file": "weapons/vibrofaca.webp",
+      "aliases": [
+        "Vibrofaca",
+        "Vibroknife"
+      ]
+    },
+    "vibroespada": {
+      "file": "weapons/vibroespada.webp",
+      "aliases": [
+        "Vibroespada",
+        "Vibrosword"
+      ]
+    },
+    "vibromachado": {
+      "file": "weapons/vibromachado.webp",
+      "aliases": [
+        "Vibromachado",
+        "Vibro-axe"
+      ]
+    },
+    "granada_fragmentacao": {
+      "file": "weapons/granada_fragmentacao.webp",
+      "aliases": [
+        "Granada de fragmentação",
+        "Frag grenade"
+      ]
+    },
+    "granada_perfurante": {
+      "file": "weapons/granada_perfurante.webp",
+      "aliases": [
+        "Granada perfurante"
+      ]
+    },
+    "detonador_termico": {
+      "file": "weapons/detonador_termico.webp",
+      "aliases": [
+        "Detonador térmico",
+        "Thermal detonator"
+      ]
+    },
+    "granada_fumaca": {
+      "file": "weapons/granada_fumaca.webp",
+      "aliases": [
+        "Granada de fumaça",
+        "Smoke grenade"
+      ]
+    },
+    "granada_luz": {
+      "file": "weapons/granada_luz.webp",
+      "aliases": [
+        "Granada de luz",
+        "Flash grenade"
+      ]
+    },
+    "granada_gas": {
+      "file": "weapons/granada_gas.webp",
+      "aliases": [
+        "Granada de gás",
+        "Gas grenade"
+      ]
+    },
+    "mina_direcional": {
+      "file": "weapons/mina_direcional.webp",
+      "aliases": [
+        "Mina direcional"
+      ]
+    },
+    "pistola_blaster_leve": {
+      "file": "weapons/pistola_blaster_leve.webp",
+      "aliases": [
+        "Pistola blaster leve"
+      ]
+    },
+    "faca_combate": {
+      "file": "weapons/faca_combate.webp",
+      "aliases": [
+        "Faca de combate"
+      ]
+    },
+    "sabre_luz": {
+      "file": "weapons/sabre_luz.webp",
+      "aliases": [
+        "Sabre de luz"
+      ]
+    },
+    "compendium_holdout_blaster": {
+      "file": "catalog/weapons/compendium_holdout_blaster.webp",
+      "aliases": [
+        "Holdout Blaster"
+      ]
+    },
+    "compendium_holdout_blaster_boonta_blaster": {
+      "file": "catalog/weapons/compendium_holdout_blaster_boonta_blaster.webp",
+      "aliases": [
+        "Holdout Blaster (Boonta Blaster)"
+      ]
+    },
+    "compendium_holdout_blaster_czerka_411": {
+      "file": "catalog/weapons/compendium_holdout_blaster_czerka_411.webp",
+      "aliases": [
+        "Holdout Blaster (Czerka 411)"
+      ]
+    },
+    "compendium_holdout_blaster_czerka_a95_stingbeam": {
+      "file": "catalog/weapons/compendium_holdout_blaster_czerka_a95_stingbeam.webp",
+      "aliases": [
+        "Holdout Blaster (Czerka A95 Stingbeam)"
+      ]
+    },
+    "compendium_holdout_blaster_fed_dub_spukami_pocket_blaster": {
+      "file": "catalog/weapons/compendium_holdout_blaster_fed_dub_spukami_pocket_blaster.webp",
+      "aliases": [
+        "Holdout Blaster (Fed-Dub Spukami Pocket Blaster)"
+      ]
+    },
+    "compendium_holdout_blaster_gee_tech_12_defender": {
+      "file": "catalog/weapons/compendium_holdout_blaster_gee_tech_12_defender.webp",
+      "aliases": [
+        "Holdout Blaster (Gee-Tech 12 Defender)"
+      ]
+    },
+    "compendium_holdout_blaster_merr_sonn_model_q4_quickfire": {
+      "file": "catalog/weapons/compendium_holdout_blaster_merr_sonn_model_q4_quickfire.webp",
+      "aliases": [
+        "Holdout Blaster (Merr-Sonn Model Q4 Quickfire)"
+      ]
+    },
+    "compendium_holdout_blaster_military_holdout_blaster": {
+      "file": "catalog/weapons/compendium_holdout_blaster_military_holdout_blaster.webp",
+      "aliases": [
+        "Holdout Blaster (Military Holdout Blaster)"
+      ]
+    },
+    "compendium_holdout_blaster_variable_holdout": {
+      "file": "catalog/weapons/compendium_holdout_blaster_variable_holdout.webp",
+      "aliases": [
+        "Holdout Blaster (Variable Holdout)"
+      ]
+    },
+    "compendium_light_blaster_pistol_cdef_blaster": {
+      "file": "catalog/weapons/compendium_light_blaster_pistol_cdef_blaster.webp",
+      "aliases": [
+        "Light Blaster Pistol (CDEF Blaster)"
+      ]
+    },
+    "compendium_light_blaster_pistol_coronet_arms_hl_27": {
+      "file": "catalog/weapons/compendium_light_blaster_pistol_coronet_arms_hl_27.webp",
+      "aliases": [
+        "Light Blaster Pistol (Coronet Arms HL-27)"
+      ]
+    },
+    "compendium_light_blaster_pistol_liquidsilver_l7": {
+      "file": "catalog/weapons/compendium_light_blaster_pistol_liquidsilver_l7.webp",
+      "aliases": [
+        "Light Blaster Pistol (Liquidsilver L7)"
+      ]
+    },
+    "compendium_light_blaster_pistol_talus_xl_2_flashfire": {
+      "file": "catalog/weapons/compendium_light_blaster_pistol_talus_xl_2_flashfire.webp",
+      "aliases": [
+        "Light Blaster Pistol (Talus XL-2 Flashfire)"
+      ]
+    },
+    "compendium_blaster_pistol": {
+      "file": "catalog/weapons/compendium_blaster_pistol.webp",
+      "aliases": [
+        "Blaster Pistol"
+      ]
+    },
+    "compendium_blaster_pistol_blastech_dl_19c": {
+      "file": "catalog/weapons/compendium_blaster_pistol_blastech_dl_19c.webp",
+      "aliases": [
+        "Blaster Pistol (BlasTech DL-19C)"
+      ]
+    },
+    "compendium_blaster_pistol_coronet_arms_dueling_pistol": {
+      "file": "catalog/weapons/compendium_blaster_pistol_coronet_arms_dueling_pistol.webp",
+      "aliases": [
+        "Blaster Pistol (Coronet Arms Dueling Pistol)"
+      ]
+    },
+    "compendium_blaster_pistol_coronet_arms_h_7_equalizer": {
+      "file": "catalog/weapons/compendium_blaster_pistol_coronet_arms_h_7_equalizer.webp",
+      "aliases": [
+        "Blaster Pistol (Coronet Arms H-7 Equalizer)"
+      ]
+    },
+    "compendium_blaster_pistol_ddc_defender": {
+      "file": "catalog/weapons/compendium_blaster_pistol_ddc_defender.webp",
+      "aliases": [
+        "Blaster Pistol (DDC Defender)"
+      ]
+    },
+    "compendium_blaster_pistol_greff_timms_ata_pulse_wave": {
+      "file": "catalog/weapons/compendium_blaster_pistol_greff_timms_ata_pulse_wave.webp",
+      "aliases": [
+        "Blaster Pistol (Greff-Timms ATA Pulse-Wave)"
+      ]
+    },
+    "compendium_blaster_pistol_merr_sonn_dr_45_dragoon": {
+      "file": "catalog/weapons/compendium_blaster_pistol_merr_sonn_dr_45_dragoon.webp",
+      "aliases": [
+        "Blaster Pistol (Merr-Sonn DR-45 Dragoon)"
+      ]
+    },
+    "compendium_blaster_pistol_merr_sonn_model_44": {
+      "file": "catalog/weapons/compendium_blaster_pistol_merr_sonn_model_44.webp",
+      "aliases": [
+        "Blaster Pistol (Merr-Sonn Model 44)"
+      ]
+    },
+    "compendium_blaster_pistol_merr_sonn_model_53_quicktrigger": {
+      "file": "catalog/weapons/compendium_blaster_pistol_merr_sonn_model_53_quicktrigger.webp",
+      "aliases": [
+        "Blaster Pistol (Merr-Sonn Model 53 Quicktrigger)"
+      ]
+    },
+    "compendium_blaster_pistol_merr_sonn_model_80": {
+      "file": "catalog/weapons/compendium_blaster_pistol_merr_sonn_model_80.webp",
+      "aliases": [
+        "Blaster Pistol (Merr-Sonn Model 80)"
+      ]
+    },
+    "compendium_blaster_pistol_merr_sonn_ir_5_intimidator": {
+      "file": "catalog/weapons/compendium_blaster_pistol_merr_sonn_ir_5_intimidator.webp",
+      "aliases": [
+        "Blaster Pistol (Merr-Sonn IR-5 Intimidator)"
+      ]
+    },
+    "compendium_blaster_pistol_raider_arms_model_1_nova_viper": {
+      "file": "catalog/weapons/compendium_blaster_pistol_raider_arms_model_1_nova_viper.webp",
+      "aliases": [
+        "Blaster Pistol (Raider Arms Model-1 Nova Viper)"
+      ]
+    },
+    "compendium_blaster_pistol_sorosuub_elg_3a_diplomat_s_blaster": {
+      "file": "catalog/weapons/compendium_blaster_pistol_sorosuub_elg_3a_diplomat_s_blaster.webp",
+      "aliases": [
+        "Blaster Pistol (SoroSuub ELG-3A Diplomat's Blaster)"
+      ]
+    },
+    "compendium_blaster_pistol_sorosuub_x_30_lancer": {
+      "file": "catalog/weapons/compendium_blaster_pistol_sorosuub_x_30_lancer.webp",
+      "aliases": [
+        "Blaster Pistol (Sorosuub X-30 Lancer)"
+      ]
+    },
+    "compendium_light_repeating_blaster_pistol_blastech_se_14r": {
+      "file": "catalog/weapons/compendium_light_repeating_blaster_pistol_blastech_se_14r.webp",
+      "aliases": [
+        "Light Repeating Blaster Pistol (BlasTech SE-14r)"
+      ]
+    },
+    "compendium_heavy_blaster_pistol_blastech_dl_7h": {
+      "file": "catalog/weapons/compendium_heavy_blaster_pistol_blastech_dl_7h.webp",
+      "aliases": [
+        "Heavy Blaster Pistol (BlasTech DL-7H)"
+      ]
+    },
+    "compendium_heavy_blaster_pistol_blastech_hh_50": {
+      "file": "catalog/weapons/compendium_heavy_blaster_pistol_blastech_hh_50.webp",
+      "aliases": [
+        "Heavy Blaster Pistol (BlasTech HH-50)"
+      ]
+    },
+    "compendium_heavy_blaster_pistol_corellian_arms_cr_2": {
+      "file": "catalog/weapons/compendium_heavy_blaster_pistol_corellian_arms_cr_2.webp",
+      "aliases": [
+        "Heavy Blaster Pistol (Corellian Arms CR-2)"
+      ]
+    },
+    "compendium_heavy_blaster_pistol_czerka_c_10_dragoneye_reaper": {
+      "file": "catalog/weapons/compendium_heavy_blaster_pistol_czerka_c_10_dragoneye_reaper.webp",
+      "aliases": [
+        "Heavy Blaster Pistol (Czerka C-10 Dragoneye Reaper)"
+      ]
+    },
+    "compendium_heavy_blaster_pistol_sorosuub_renegade": {
+      "file": "catalog/weapons/compendium_heavy_blaster_pistol_sorosuub_renegade.webp",
+      "aliases": [
+        "Heavy Blaster Pistol (SoroSuub Renegade)"
+      ]
+    },
+    "compendium_blaster_carbine_arakyd_acp_repeater": {
+      "file": "catalog/weapons/compendium_blaster_carbine_arakyd_acp_repeater.webp",
+      "aliases": [
+        "Blaster Carbine (Arakyd ACP Repeater)"
+      ]
+    },
+    "compendium_blaster_carbine_baktoid_e5": {
+      "file": "catalog/weapons/compendium_blaster_carbine_baktoid_e5.webp",
+      "aliases": [
+        "Blaster Carbine (Baktoid E5)"
+      ]
+    },
+    "compendium_blaster_carbine_bola_carbine": {
+      "file": "catalog/weapons/compendium_blaster_carbine_bola_carbine.webp",
+      "aliases": [
+        "Blaster Carbine (Bola Carbine)"
+      ]
+    },
+    "compendium_blaster_carbine_corellian_arms_skz_sporting_blaster": {
+      "file": "catalog/weapons/compendium_blaster_carbine_corellian_arms_skz_sporting_blaster.webp",
+      "aliases": [
+        "Blaster Carbine (Corellian Arms SKZ Sporting Blaster)"
+      ]
+    },
+    "compendium_blaster_carbine_sorosuub_ok_98": {
+      "file": "catalog/weapons/compendium_blaster_carbine_sorosuub_ok_98.webp",
+      "aliases": [
+        "Blaster Carbine (SoroSuub OK-98)"
+      ]
+    },
+    "compendium_blaster_rifle_blastech_m_300_hunting_blaster": {
+      "file": "catalog/weapons/compendium_blaster_rifle_blastech_m_300_hunting_blaster.webp",
+      "aliases": [
+        "Blaster Rifle (BlasTech M-300 Hunting Blaster)"
+      ]
+    },
+    "compendium_blaster_rifle_corellian_arms_cr_8_takedown_rifle": {
+      "file": "catalog/weapons/compendium_blaster_rifle_corellian_arms_cr_8_takedown_rifle.webp",
+      "aliases": [
+        "Blaster Rifle (Corellian Arms CR-8 Takedown Rifle)"
+      ]
+    },
+    "compendium_blaster_rifle_ddc_mr6_modular_rifle": {
+      "file": "catalog/weapons/compendium_blaster_rifle_ddc_mr6_modular_rifle.webp",
+      "aliases": [
+        "Blaster Rifle (DDC-MR6 Modular Rifle)"
+      ]
+    },
+    "compendium_blaster_rifle_herloss_hbt_4_hunting_blaster": {
+      "file": "catalog/weapons/compendium_blaster_rifle_herloss_hbt_4_hunting_blaster.webp",
+      "aliases": [
+        "Blaster Rifle (Herloss Hbt-4 Hunting Blaster)"
+      ]
+    },
+    "compendium_blaster_rifle_mon_calamari_spear_blaster": {
+      "file": "catalog/weapons/compendium_blaster_rifle_mon_calamari_spear_blaster.webp",
+      "aliases": [
+        "Blaster Rifle (Mon Calamari Spear Blaster)"
+      ]
+    },
+    "compendium_blaster_rifle_weequay_blaster_lance": {
+      "file": "catalog/weapons/compendium_blaster_rifle_weequay_blaster_lance.webp",
+      "aliases": [
+        "Blaster Rifle (Weequay Blaster Lance)"
+      ]
+    },
+    "compendium_sniper_rifle_blastech_e_11s": {
+      "file": "catalog/weapons/compendium_sniper_rifle_blastech_e_11s.webp",
+      "aliases": [
+        "Sniper Rifle (BlasTech E-11s)"
+      ]
+    },
+    "compendium_stun_rifle_blastech_lbr_9": {
+      "file": "catalog/weapons/compendium_stun_rifle_blastech_lbr_9.webp",
+      "aliases": [
+        "Stun Rifle (BlasTech LBR-9)"
+      ]
+    },
+    "compendium_heavy_blaster_rifle_blastech_dh_x": {
+      "file": "catalog/weapons/compendium_heavy_blaster_rifle_blastech_dh_x.webp",
+      "aliases": [
+        "Heavy Blaster Rifle (BlasTech DH-X)"
+      ]
+    },
+    "compendium_repeating_blaster_sorosuub_vx_sidewinder": {
+      "file": "catalog/weapons/compendium_repeating_blaster_sorosuub_vx_sidewinder.webp",
+      "aliases": [
+        "Repeating Blaster (SoroSuub VX Sidewinder)"
+      ]
+    },
+    "compendium_heavy_repeating_blaster_sorosuub_hob": {
+      "file": "catalog/weapons/compendium_heavy_repeating_blaster_sorosuub_hob.webp",
+      "aliases": [
+        "Heavy Repeating Blaster (SoroSuub HOB)"
+      ]
+    },
+    "compendium_accelerated_charged_particle_acp_array_gun": {
+      "file": "catalog/weapons/compendium_accelerated_charged_particle_acp_array_gun.webp",
+      "aliases": [
+        "Accelerated Charged Particle (ACP) Array Gun"
+      ]
+    },
+    "compendium_acid_projector_tenloss_l70": {
+      "file": "catalog/weapons/compendium_acid_projector_tenloss_l70.webp",
+      "aliases": [
+        "Acid Projector (Tenloss L70)"
+      ]
+    },
+    "compendium_bowcaster": {
+      "file": "catalog/weapons/compendium_bowcaster.webp",
+      "aliases": [
+        "Bowcaster"
+      ]
+    },
+    "compendium_compound_bow_w_broadhead_arrows_corellian_model": {
+      "file": "catalog/weapons/compendium_compound_bow_w_broadhead_arrows_corellian_model.webp",
+      "aliases": [
+        "Compound Bow w/Broadhead Arrows (Corellian Model)"
+      ]
+    },
+    "compendium_compound_bow_w_broadhead_arrows_field_sports_fs19": {
+      "file": "catalog/weapons/compendium_compound_bow_w_broadhead_arrows_field_sports_fs19.webp",
+      "aliases": [
+        "Compound Bow w/Broadhead Arrows (Field Sports FS19)"
+      ]
+    },
+    "compendium_explosive_tipped_arrows": {
+      "file": "catalog/weapons/compendium_explosive_tipped_arrows.webp",
+      "aliases": [
+        "Explosive Tipped Arrows"
+      ]
+    },
+    "compendium_incendiary_arrows": {
+      "file": "catalog/weapons/compendium_incendiary_arrows.webp",
+      "aliases": [
+        "Incendiary Arrows"
+      ]
+    },
+    "compendium_net_arrows": {
+      "file": "catalog/weapons/compendium_net_arrows.webp",
+      "aliases": [
+        "Net Arrows"
+      ]
+    },
+    "compendium_stun_arrows": {
+      "file": "catalog/weapons/compendium_stun_arrows.webp",
+      "aliases": [
+        "Stun Arrows"
+      ]
+    },
+    "compendium_cryoban_projector": {
+      "file": "catalog/weapons/compendium_cryoban_projector.webp",
+      "aliases": [
+        "CryoBan Projector"
+      ]
+    },
+    "compendium_dart_gun_prax_arms_stealth_2vx_palm_shooter": {
+      "file": "catalog/weapons/compendium_dart_gun_prax_arms_stealth_2vx_palm_shooter.webp",
+      "aliases": [
+        "Dart Gun (Prax Arms Stealth-2VX Palm Shooter)"
+      ]
+    },
+    "compendium_flame_projector": {
+      "file": "catalog/weapons/compendium_flame_projector.webp",
+      "aliases": [
+        "Flame Projector"
+      ]
+    },
+    "compendium_flame_projector_czerka_cz_28_flamestrike": {
+      "file": "catalog/weapons/compendium_flame_projector_czerka_cz_28_flamestrike.webp",
+      "aliases": [
+        "Flame Projector (Czerka CZ-28 Flamestrike)"
+      ]
+    },
+    "compendium_flechette_launcher_golan_arms_fc_1_w_anti_infantry_rounds": {
+      "file": "catalog/weapons/compendium_flechette_launcher_golan_arms_fc_1_w_anti_infantry_rounds.webp",
+      "aliases": [
+        "Flechette Launcher (Golan Arms FC-1 w/Anti-Infantry Rounds)"
+      ]
+    },
+    "compendium_flechette_launcher_golan_arms_fc_1_w_anti_vehicle_rounds": {
+      "file": "catalog/weapons/compendium_flechette_launcher_golan_arms_fc_1_w_anti_vehicle_rounds.webp",
+      "aliases": [
+        "Flechette Launcher (Golan Arms FC-1 w/Anti-Vehicle Rounds)"
+      ]
+    },
+    "compendium_flechette_rifle_salus_df_d1_duo_flechette_rifle": {
+      "file": "catalog/weapons/compendium_flechette_rifle_salus_df_d1_duo_flechette_rifle.webp",
+      "aliases": [
+        "Flechette Rifle (Salus DF-D1 Duo-Flechette Rifle)"
+      ]
+    },
+    "compendium_flechette_pistol_malaxan_fwg_5": {
+      "file": "catalog/weapons/compendium_flechette_pistol_malaxan_fwg_5.webp",
+      "aliases": [
+        "Flechette Pistol (Malaxan FWG-5)"
+      ]
+    },
+    "compendium_grenade_launcher_malaxan_z50": {
+      "file": "catalog/weapons/compendium_grenade_launcher_malaxan_z50.webp",
+      "aliases": [
+        "Grenade Launcher (Malaxan Z50)"
+      ]
+    },
+    "compendium_harpoon_gun_styanax_lance": {
+      "file": "catalog/weapons/compendium_harpoon_gun_styanax_lance.webp",
+      "aliases": [
+        "Harpoon Gun (Styanax Lance)"
+      ]
+    },
+    "compendium_ionization_blaster": {
+      "file": "catalog/weapons/compendium_ionization_blaster.webp",
+      "aliases": [
+        "Ionization Blaster"
+      ]
+    },
+    "compendium_ionization_blaster_droid_disruptor": {
+      "file": "catalog/weapons/compendium_ionization_blaster_droid_disruptor.webp",
+      "aliases": [
+        "Ionization Blaster (Droid Disruptor)"
+      ]
+    },
+    "compendium_ionization_blaster_felebreck_droid_disabler": {
+      "file": "catalog/weapons/compendium_ionization_blaster_felebreck_droid_disabler.webp",
+      "aliases": [
+        "Ionization Blaster (Felebreck Droid Disabler)"
+      ]
+    },
+    "compendium_ion_thruster_gun": {
+      "file": "catalog/weapons/compendium_ion_thruster_gun.webp",
+      "aliases": [
+        "Ion Thruster Gun"
+      ]
+    },
+    "compendium_concussion_missile": {
+      "file": "catalog/weapons/compendium_concussion_missile.webp",
+      "aliases": [
+        "Concussion Missile"
+      ]
+    },
+    "compendium_fragmentation_missile": {
+      "file": "catalog/weapons/compendium_fragmentation_missile.webp",
+      "aliases": [
+        "Fragmentation Missile"
+      ]
+    },
+    "compendium_plasma_missile": {
+      "file": "catalog/weapons/compendium_plasma_missile.webp",
+      "aliases": [
+        "Plasma Missile"
+      ]
+    },
+    "compendium_incendiary_missile": {
+      "file": "catalog/weapons/compendium_incendiary_missile.webp",
+      "aliases": [
+        "Incendiary Missile"
+      ]
+    },
+    "compendium_mon_calamari_battle_baton": {
+      "file": "catalog/weapons/compendium_mon_calamari_battle_baton.webp",
+      "aliases": [
+        "Mon Calamari Battle Baton"
+      ]
+    },
+    "compendium_mon_calamari_mini_torpedo_launcher_w_ant_personnel_torpedoes": {
+      "file": "catalog/weapons/compendium_mon_calamari_mini_torpedo_launcher_w_ant_personnel_torpedoes.webp",
+      "aliases": [
+        "Mon Calamari Mini-Torpedo Launcher (w/ Ant-Personnel Torpedoes)"
+      ]
+    },
+    "compendium_armor_piercing_mini_torpedo": {
+      "file": "catalog/weapons/compendium_armor_piercing_mini_torpedo.webp",
+      "aliases": [
+        "Armor Piercing Mini-Torpedo"
+      ]
+    },
+    "compendium_ink_mini_torpedo": {
+      "file": "catalog/weapons/compendium_ink_mini_torpedo.webp",
+      "aliases": [
+        "Ink Mini-Torpedo"
+      ]
+    },
+    "compendium_ion_mini_torpedo": {
+      "file": "catalog/weapons/compendium_ion_mini_torpedo.webp",
+      "aliases": [
+        "Ion Mini-Torpedo"
+      ]
+    },
+    "compendium_net_mini_torpedo": {
+      "file": "catalog/weapons/compendium_net_mini_torpedo.webp",
+      "aliases": [
+        "Net Mini-Torpedo"
+      ]
+    },
+    "compendium_stun_mini_torpedo": {
+      "file": "catalog/weapons/compendium_stun_mini_torpedo.webp",
+      "aliases": [
+        "Stun Mini-Torpedo"
+      ]
+    },
+    "compendium_multi_goo_gun": {
+      "file": "catalog/weapons/compendium_multi_goo_gun.webp",
+      "aliases": [
+        "Multi-Goo Gun"
+      ]
+    },
+    "compendium_net_gun": {
+      "file": "catalog/weapons/compendium_net_gun.webp",
+      "aliases": [
+        "Net Gun"
+      ]
+    },
+    "compendium_net_gun_palandrix_ao14_aranea": {
+      "file": "catalog/weapons/compendium_net_gun_palandrix_ao14_aranea.webp",
+      "aliases": [
+        "Net Gun (Palandrix AO14 Aranea)"
+      ]
+    },
+    "compendium_nightsister_energy_bow": {
+      "file": "catalog/weapons/compendium_nightsister_energy_bow.webp",
+      "aliases": [
+        "Nightsister Energy Bow"
+      ]
+    },
+    "compendium_pulse_rifle_corondexx_ves_700": {
+      "file": "catalog/weapons/compendium_pulse_rifle_corondexx_ves_700.webp",
+      "aliases": [
+        "Pulse Rifle (Corondexx VES-700)"
+      ]
+    },
+    "compendium_repulsor_gun": {
+      "file": "catalog/weapons/compendium_repulsor_gun.webp",
+      "aliases": [
+        "Repulsor Gun"
+      ]
+    },
+    "compendium_repulsor_rifle_saktek_d_29": {
+      "file": "catalog/weapons/compendium_repulsor_rifle_saktek_d_29.webp",
+      "aliases": [
+        "Repulsor Rifle (SakTek D-29)"
+      ]
+    },
+    "compendium_riot_rifle_merr_sonn_r_88_suppressor": {
+      "file": "catalog/weapons/compendium_riot_rifle_merr_sonn_r_88_suppressor.webp",
+      "aliases": [
+        "Riot Rifle (Merr-Sonn R-88 Suppressor)"
+      ]
+    },
+    "compendium_rivet_gun": {
+      "file": "catalog/weapons/compendium_rivet_gun.webp",
+      "aliases": [
+        "Rivet Gun"
+      ]
+    },
+    "compendium_slugthrower_pistol_kelvarek_kd_30_dissuader": {
+      "file": "catalog/weapons/compendium_slugthrower_pistol_kelvarek_kd_30_dissuader.webp",
+      "aliases": [
+        "Slugthrower Pistol (Kelvarek KD-30 Dissuader)"
+      ]
+    },
+    "compendium_slugthrower_pistol_talus_asp_9_vrelt_autopistol": {
+      "file": "catalog/weapons/compendium_slugthrower_pistol_talus_asp_9_vrelt_autopistol.webp",
+      "aliases": [
+        "Slugthrower Pistol (Talus ASP-9 Vrelt Autopistol)"
+      ]
+    },
+    "compendium_slugthrower_pistol_xet_model_c_fiver": {
+      "file": "catalog/weapons/compendium_slugthrower_pistol_xet_model_c_fiver.webp",
+      "aliases": [
+        "Slugthrower Pistol (Xet Model C Fiver)"
+      ]
+    },
+    "compendium_slugthrower_rifle_adostic_arms_8_gauge_scatter_gun": {
+      "file": "catalog/weapons/compendium_slugthrower_rifle_adostic_arms_8_gauge_scatter_gun.webp",
+      "aliases": [
+        "Slugthrower Rifle (Adostic Arms 8-Gauge Scatter Gun)"
+      ]
+    },
+    "compendium_slugthrower_rifle_coronet_arms_mark_v_sand_panther_hunting_rifle": {
+      "file": "catalog/weapons/compendium_slugthrower_rifle_coronet_arms_mark_v_sand_panther_hunting_rifle.webp",
+      "aliases": [
+        "Slugthrower Rifle (Coronet Arms Mark V Sand Panther Hunting Rifle)"
+      ]
+    },
+    "compendium_slugthrower_rifle_czerka_ks_23_hammer": {
+      "file": "catalog/weapons/compendium_slugthrower_rifle_czerka_ks_23_hammer.webp",
+      "aliases": [
+        "Slugthrower Rifle (Czerka KS-23 Hammer)"
+      ]
+    },
+    "compendium_slugthrower_rifle_czerka_model_38_sharpshooter": {
+      "file": "catalog/weapons/compendium_slugthrower_rifle_czerka_model_38_sharpshooter.webp",
+      "aliases": [
+        "Slugthrower Rifle (Czerka Model 38 Sharpshooter)"
+      ]
+    },
+    "compendium_slugthrower_rifle_czerka_model_57_homesteader": {
+      "file": "catalog/weapons/compendium_slugthrower_rifle_czerka_model_57_homesteader.webp",
+      "aliases": [
+        "Slugthrower Rifle (Czerka Model 57 Homesteader)"
+      ]
+    },
+    "compendium_slugthrower_rifle_field_sports_model_77_air_rifle": {
+      "file": "catalog/weapons/compendium_slugthrower_rifle_field_sports_model_77_air_rifle.webp",
+      "aliases": [
+        "Slugthrower Rifle (Field Sports Model 77 Air Rifle)"
+      ]
+    },
+    "compendium_slugthrower_rifle_selonian_shard_shooter": {
+      "file": "catalog/weapons/compendium_slugthrower_rifle_selonian_shard_shooter.webp",
+      "aliases": [
+        "Slugthrower Rifle (Selonian Shard Shooter)"
+      ]
+    },
+    "compendium_slugthrower_rifle_vodran_hunting_rifle": {
+      "file": "catalog/weapons/compendium_slugthrower_rifle_vodran_hunting_rifle.webp",
+      "aliases": [
+        "Slugthrower Rifle (Vodran Hunting Rifle)"
+      ]
+    },
+    "compendium_slugthrower_assault_carbine": {
+      "file": "catalog/weapons/compendium_slugthrower_assault_carbine.webp",
+      "aliases": [
+        "Slugthrower Assault Carbine"
+      ]
+    },
+    "compendium_sonic_rifle_telex_delcor_swe_2": {
+      "file": "catalog/weapons/compendium_sonic_rifle_telex_delcor_swe_2.webp",
+      "aliases": [
+        "Sonic Rifle (Telex-Delcor SWE/2)"
+      ]
+    },
+    "compendium_static_pistol_sorosuub_ssb_1": {
+      "file": "catalog/weapons/compendium_static_pistol_sorosuub_ssb_1.webp",
+      "aliases": [
+        "Static Pistol (SoroSuub SSB-1)"
+      ]
+    },
+    "compendium_stokhli_spray_stick": {
+      "file": "catalog/weapons/compendium_stokhli_spray_stick.webp",
+      "aliases": [
+        "Stokhli Spray Stick"
+      ]
+    },
+    "compendium_tangle_gun": {
+      "file": "catalog/weapons/compendium_tangle_gun.webp",
+      "aliases": [
+        "Tangle Gun"
+      ]
+    },
+    "compendium_verpine_shatter_gun_pistol": {
+      "file": "catalog/weapons/compendium_verpine_shatter_gun_pistol.webp",
+      "aliases": [
+        "Verpine Shatter Gun (Pistol)"
+      ]
+    },
+    "compendium_verpine_shatter_gun_rifle": {
+      "file": "catalog/weapons/compendium_verpine_shatter_gun_rifle.webp",
+      "aliases": [
+        "Verpine Shatter Gun (Rifle)"
+      ]
+    },
+    "compendium_verpine_shatter_gun_heavy_rifle": {
+      "file": "catalog/weapons/compendium_verpine_shatter_gun_heavy_rifle.webp",
+      "aliases": [
+        "Verpine Shatter Gun (Heavy Rifle)"
+      ]
+    },
+    "compendium_bola_net": {
+      "file": "catalog/weapons/compendium_bola_net.webp",
+      "aliases": [
+        "Bola / Net"
+      ]
+    },
+    "compendium_throwing_dagger_ascian": {
+      "file": "catalog/weapons/compendium_throwing_dagger_ascian.webp",
+      "aliases": [
+        "Throwing Dagger (Ascian)"
+      ]
+    },
+    "compendium_armor_piercing_grenade": {
+      "file": "catalog/weapons/compendium_armor_piercing_grenade.webp",
+      "aliases": [
+        "Armor-Piercing Grenade"
+      ]
+    },
+    "compendium_concussion_grenade": {
+      "file": "catalog/weapons/compendium_concussion_grenade.webp",
+      "aliases": [
+        "Concussion Grenade"
+      ]
+    },
+    "compendium_data_purge_grenade": {
+      "file": "catalog/weapons/compendium_data_purge_grenade.webp",
+      "aliases": [
+        "Data-Purge Grenade"
+      ]
+    },
+    "compendium_glop_grenade": {
+      "file": "catalog/weapons/compendium_glop_grenade.webp",
+      "aliases": [
+        "Glop Grenade"
+      ]
+    },
+    "compendium_heavy_frag_grenade": {
+      "file": "catalog/weapons/compendium_heavy_frag_grenade.webp",
+      "aliases": [
+        "Heavy Frag Grenade"
+      ]
+    },
+    "compendium_inferno_grenade": {
+      "file": "catalog/weapons/compendium_inferno_grenade.webp",
+      "aliases": [
+        "Inferno Grenade"
+      ]
+    },
+    "compendium_ion_grenade": {
+      "file": "catalog/weapons/compendium_ion_grenade.webp",
+      "aliases": [
+        "Ion Grenade"
+      ]
+    },
+    "compendium_knockout_grenade": {
+      "file": "catalog/weapons/compendium_knockout_grenade.webp",
+      "aliases": [
+        "Knockout Grenade"
+      ]
+    },
+    "compendium_mercy_grenade": {
+      "file": "catalog/weapons/compendium_mercy_grenade.webp",
+      "aliases": [
+        "Mercy Grenade"
+      ]
+    },
+    "compendium_noise_grenade": {
+      "file": "catalog/weapons/compendium_noise_grenade.webp",
+      "aliases": [
+        "Noise Grenade"
+      ]
+    },
+    "compendium_plasma_grenade": {
+      "file": "catalog/weapons/compendium_plasma_grenade.webp",
+      "aliases": [
+        "Plasma Grenade"
+      ]
+    },
+    "compendium_poison_gas_grenade": {
+      "file": "catalog/weapons/compendium_poison_gas_grenade.webp",
+      "aliases": [
+        "Poison Gas Grenade"
+      ]
+    },
+    "compendium_stun_grenade_spore_b": {
+      "file": "catalog/weapons/compendium_stun_grenade_spore_b.webp",
+      "aliases": [
+        "Stun Grenade (Spore/B)"
+      ]
+    },
+    "compendium_anti_personnel_mine": {
+      "file": "catalog/weapons/compendium_anti_personnel_mine.webp",
+      "aliases": [
+        "Anti-Personnel Mine"
+      ]
+    },
+    "compendium_anti_vehicle_mine": {
+      "file": "catalog/weapons/compendium_anti_vehicle_mine.webp",
+      "aliases": [
+        "Anti-Vehicle Mine"
+      ]
+    },
+    "compendium_knockout_mine": {
+      "file": "catalog/weapons/compendium_knockout_mine.webp",
+      "aliases": [
+        "Knockout Mine"
+      ]
+    },
+    "compendium_blast_knuckles": {
+      "file": "catalog/weapons/compendium_blast_knuckles.webp",
+      "aliases": [
+        "Blast Knuckles"
+      ]
+    },
+    "compendium_brass_knuckles": {
+      "file": "catalog/weapons/compendium_brass_knuckles.webp",
+      "aliases": [
+        "Brass Knuckles"
+      ]
+    },
+    "compendium_cortosis_gauntlets_refined": {
+      "file": "catalog/weapons/compendium_cortosis_gauntlets_refined.webp",
+      "aliases": [
+        "Cortosis Gauntlets (Refined)"
+      ]
+    },
+    "compendium_needle_gloves": {
+      "file": "catalog/weapons/compendium_needle_gloves.webp",
+      "aliases": [
+        "Needle Gloves"
+      ]
+    },
+    "compendium_shock_boots": {
+      "file": "catalog/weapons/compendium_shock_boots.webp",
+      "aliases": [
+        "Shock Boots"
+      ]
+    },
+    "compendium_shock_gloves_backhand": {
+      "file": "catalog/weapons/compendium_shock_gloves_backhand.webp",
+      "aliases": [
+        "Shock Gloves (Backhand)"
+      ]
+    },
+    "compendium_stun_cloak": {
+      "file": "catalog/weapons/compendium_stun_cloak.webp",
+      "aliases": [
+        "Stun Cloak"
+      ]
+    },
+    "compendium_vamblade": {
+      "file": "catalog/weapons/compendium_vamblade.webp",
+      "aliases": [
+        "Vamblade"
+      ]
+    },
+    "compendium_vibroknucklers": {
+      "file": "catalog/weapons/compendium_vibroknucklers.webp",
+      "aliases": [
+        "Vibroknucklers"
+      ]
+    },
+    "compendium_ancient_sword": {
+      "file": "catalog/weapons/compendium_ancient_sword.webp",
+      "aliases": [
+        "Ancient Sword"
+      ]
+    },
+    "compendium_arg_garok": {
+      "file": "catalog/weapons/compendium_arg_garok.webp",
+      "aliases": [
+        "Arg'garok"
+      ]
+    },
+    "compendium_beam_drill_corellia_mining_j_7b": {
+      "file": "catalog/weapons/compendium_beam_drill_corellia_mining_j_7b.webp",
+      "aliases": [
+        "Beam Drill (Corellia Mining J-7b)"
+      ]
+    },
+    "compendium_blade_breaker": {
+      "file": "catalog/weapons/compendium_blade_breaker.webp",
+      "aliases": [
+        "Blade-Breaker"
+      ]
+    },
+    "compendium_ceremonial_blade": {
+      "file": "catalog/weapons/compendium_ceremonial_blade.webp",
+      "aliases": [
+        "Ceremonial Blade"
+      ]
+    },
+    "compendium_combat_knife": {
+      "file": "catalog/weapons/compendium_combat_knife.webp",
+      "aliases": [
+        "Combat Knife"
+      ]
+    },
+    "compendium_corellian_cutlass": {
+      "file": "catalog/weapons/compendium_corellian_cutlass.webp",
+      "aliases": [
+        "Corellian Cutlass"
+      ]
+    },
+    "compendium_cortosis_shield": {
+      "file": "catalog/weapons/compendium_cortosis_shield.webp",
+      "aliases": [
+        "Cortosis Shield"
+      ]
+    },
+    "compendium_cortosis_staff_refined": {
+      "file": "catalog/weapons/compendium_cortosis_staff_refined.webp",
+      "aliases": [
+        "Cortosis Staff (Refined)"
+      ]
+    },
+    "compendium_cortosis_staff_morgukai": {
+      "file": "catalog/weapons/compendium_cortosis_staff_morgukai.webp",
+      "aliases": [
+        "Cortosis Staff (Morgukai)"
+      ]
+    },
+    "compendium_cortosis_sword": {
+      "file": "catalog/weapons/compendium_cortosis_sword.webp",
+      "aliases": [
+        "Cortosis Sword"
+      ]
+    },
+    "compendium_drall_flashstick": {
+      "file": "catalog/weapons/compendium_drall_flashstick.webp",
+      "aliases": [
+        "Drall Flashstick"
+      ]
+    },
+    "compendium_electromag_pulse_disruptor": {
+      "file": "catalog/weapons/compendium_electromag_pulse_disruptor.webp",
+      "aliases": [
+        "Electromag-Pulse Disruptor"
+      ]
+    },
+    "compendium_electrostaff": {
+      "file": "catalog/weapons/compendium_electrostaff.webp",
+      "aliases": [
+        "Electrostaff"
+      ]
+    },
+    "compendium_explorer_s_knife": {
+      "file": "catalog/weapons/compendium_explorer_s_knife.webp",
+      "aliases": [
+        "Explorer's Knife"
+      ]
+    },
+    "compendium_gaffi_stick": {
+      "file": "catalog/weapons/compendium_gaffi_stick.webp",
+      "aliases": [
+        "Gaffi Stick"
+      ]
+    },
+    "compendium_hand_grinder": {
+      "file": "catalog/weapons/compendium_hand_grinder.webp",
+      "aliases": [
+        "Hand Grinder"
+      ]
+    },
+    "compendium_longeing_whip": {
+      "file": "catalog/weapons/compendium_longeing_whip.webp",
+      "aliases": [
+        "Longeing Whip"
+      ]
+    },
+    "compendium_molecular_stiletto": {
+      "file": "catalog/weapons/compendium_molecular_stiletto.webp",
+      "aliases": [
+        "Molecular Stiletto"
+      ]
+    },
+    "compendium_mon_calamari_coral_pike": {
+      "file": "catalog/weapons/compendium_mon_calamari_coral_pike.webp",
+      "aliases": [
+        "Mon Calamari Coral Pike"
+      ]
+    },
+    "compendium_mon_calamari_energy_lance": {
+      "file": "catalog/weapons/compendium_mon_calamari_energy_lance.webp",
+      "aliases": [
+        "Mon Calamari Energy Lance"
+      ]
+    },
+    "compendium_nanodagger": {
+      "file": "catalog/weapons/compendium_nanodagger.webp",
+      "aliases": [
+        "NanoDagger"
+      ]
+    },
+    "compendium_neuronic_whip": {
+      "file": "catalog/weapons/compendium_neuronic_whip.webp",
+      "aliases": [
+        "Neuronic Whip"
+      ]
+    },
+    "compendium_poleaxe": {
+      "file": "catalog/weapons/compendium_poleaxe.webp",
+      "aliases": [
+        "Poleaxe"
+      ]
+    },
+    "compendium_pulse_drill": {
+      "file": "catalog/weapons/compendium_pulse_drill.webp",
+      "aliases": [
+        "Pulse Drill"
+      ]
+    },
+    "compendium_punch_dagger": {
+      "file": "catalog/weapons/compendium_punch_dagger.webp",
+      "aliases": [
+        "Punch Dagger"
+      ]
+    },
+    "compendium_riot_shield": {
+      "file": "catalog/weapons/compendium_riot_shield.webp",
+      "aliases": [
+        "Riot Shield"
+      ]
+    },
+    "compendium_riot_shield_w_rifle_slot": {
+      "file": "catalog/weapons/compendium_riot_shield_w_rifle_slot.webp",
+      "aliases": [
+        "Riot Shield w/ Rifle Slot"
+      ]
+    },
+    "compendium_ryyk_blade": {
+      "file": "catalog/weapons/compendium_ryyk_blade.webp",
+      "aliases": [
+        "Ryyk Blade"
+      ]
+    },
+    "compendium_selonian_glaive": {
+      "file": "catalog/weapons/compendium_selonian_glaive.webp",
+      "aliases": [
+        "Selonian Glaive"
+      ]
+    },
+    "compendium_shock_prod": {
+      "file": "catalog/weapons/compendium_shock_prod.webp",
+      "aliases": [
+        "Shock Prod"
+      ]
+    },
+    "compendium_shock_prod_sorosuub_persuader": {
+      "file": "catalog/weapons/compendium_shock_prod_sorosuub_persuader.webp",
+      "aliases": [
+        "Shock Prod (SoroSuub Persuader)"
+      ]
+    },
+    "compendium_staff_of_office": {
+      "file": "catalog/weapons/compendium_staff_of_office.webp",
+      "aliases": [
+        "Staff of Office"
+      ]
+    },
+    "compendium_stun_baton": {
+      "file": "catalog/weapons/compendium_stun_baton.webp",
+      "aliases": [
+        "Stun Baton"
+      ]
+    },
+    "compendium_stun_master": {
+      "file": "catalog/weapons/compendium_stun_master.webp",
+      "aliases": [
+        "Stun Master"
+      ]
+    },
+    "compendium_sword_cane": {
+      "file": "catalog/weapons/compendium_sword_cane.webp",
+      "aliases": [
+        "Sword Cane"
+      ]
+    },
+    "compendium_therm_ax": {
+      "file": "catalog/weapons/compendium_therm_ax.webp",
+      "aliases": [
+        "Therm-Ax"
+      ]
+    },
+    "compendium_truncheon": {
+      "file": "catalog/weapons/compendium_truncheon.webp",
+      "aliases": [
+        "Truncheon"
+      ]
+    },
+    "compendium_tuskbeast_pike": {
+      "file": "catalog/weapons/compendium_tuskbeast_pike.webp",
+      "aliases": [
+        "Tuskbeast Pike"
+      ]
+    },
+    "compendium_vibro_ax": {
+      "file": "catalog/weapons/compendium_vibro_ax.webp",
+      "aliases": [
+        "Vibro-Ax"
+      ]
+    },
+    "compendium_vibro_glaive_beastmaster_s": {
+      "file": "catalog/weapons/compendium_vibro_glaive_beastmaster_s.webp",
+      "aliases": [
+        "Vibro-Glaive (Beastmaster's)"
+      ]
+    },
+    "compendium_vibro_greatsword": {
+      "file": "catalog/weapons/compendium_vibro_greatsword.webp",
+      "aliases": [
+        "Vibro-Greatsword"
+      ]
+    },
+    "compendium_vibroknife_stealth": {
+      "file": "catalog/weapons/compendium_vibroknife_stealth.webp",
+      "aliases": [
+        "Vibroknife (Stealth)"
+      ]
+    },
+    "compendium_vibro_machete": {
+      "file": "catalog/weapons/compendium_vibro_machete.webp",
+      "aliases": [
+        "Vibro-Machete"
+      ]
+    },
+    "compendium_vibrorapier": {
+      "file": "catalog/weapons/compendium_vibrorapier.webp",
+      "aliases": [
+        "Vibrorapier"
+      ]
+    },
+    "compendium_vibrosaw": {
+      "file": "catalog/weapons/compendium_vibrosaw.webp",
+      "aliases": [
+        "Vibrosaw"
+      ]
+    },
+    "compendium_vibrospear": {
+      "file": "catalog/weapons/compendium_vibrospear.webp",
+      "aliases": [
+        "Vibrospear"
+      ]
+    },
+    "compendium_vibrospear_merr_sonn_model_14_stalker": {
+      "file": "catalog/weapons/compendium_vibrospear_merr_sonn_model_14_stalker.webp",
+      "aliases": [
+        "Vibrospear (Merr-Sonn Model 14 Stalker)"
+      ]
+    },
+    "compendium_welding_rod": {
+      "file": "catalog/weapons/compendium_welding_rod.webp",
+      "aliases": [
+        "Welding Rod"
+      ]
+    },
+    "compendium_lightsaber_fully_upgraded_ilum_crystal": {
+      "file": "catalog/weapons/compendium_lightsaber_fully_upgraded_ilum_crystal.webp",
+      "aliases": [
+        "Lightsaber (Fully Upgraded Ilum Crystal)"
+      ]
+    },
+    "compendium_basic_lightsaber": {
+      "file": "catalog/weapons/compendium_basic_lightsaber.webp",
+      "aliases": [
+        "Basic Lightsaber"
+      ]
+    },
+    "compendium_double_bladed_lightsaber": {
+      "file": "catalog/weapons/compendium_double_bladed_lightsaber.webp",
+      "aliases": [
+        "Double-Bladed Lightsaber"
+      ]
+    },
+    "compendium_lightsaber_pike": {
+      "file": "catalog/weapons/compendium_lightsaber_pike.webp",
+      "aliases": [
+        "Lightsaber Pike"
+      ]
+    },
+    "compendium_shoto_short_lightsaber": {
+      "file": "catalog/weapons/compendium_shoto_short_lightsaber.webp",
+      "aliases": [
+        "Shoto (Short Lightsaber)"
+      ]
+    },
+    "compendium_training_lightsaber": {
+      "file": "catalog/weapons/compendium_training_lightsaber.webp",
+      "aliases": [
+        "Training Lightsaber"
+      ]
+    }
+  },
+  "equipment": {
+    "roupa_grossa": {
+      "file": "equipment/roupa_grossa.webp",
+      "aliases": [
+        "Roupa grossa",
+        "Heavy clothing"
+      ]
+    },
+    "armadura_leve": {
+      "file": "equipment/armadura_leve.webp",
+      "aliases": [
+        "Armadura leve",
+        "Light armor",
+        "Padded armor",
+        "Armadura acolchoada"
+      ]
+    },
+    "armadura_pesada": {
+      "file": "equipment/armadura_pesada.webp",
+      "aliases": [
+        "Armadura pesada",
+        "Heavy battle armor",
+        "Heavy armor",
+        "Armadura pesada de combate"
+      ]
+    },
+    "traje_ambiente_hostil": {
+      "file": "equipment/traje_ambiente_hostil.webp",
+      "aliases": [
+        "Traje para ambientes hostis",
+        "Traje ambiental",
+        "Environment gear",
+        "Spacesuit",
+        "Traje espacial",
+        "Equipamento para ambientes adversos"
+      ]
+    },
+    "escudo_defletor_pessoal": {
+      "file": "equipment/escudo_defletor_pessoal.webp",
+      "aliases": [
+        "Escudo defletor pessoal",
+        "Personal deflector shield"
+      ]
+    },
+    "roupa_blindada": {
+      "file": "equipment/roupa_blindada.webp",
+      "aliases": [
+        "Roupa blindada",
+        "Armored clothing"
+      ]
+    },
+    "casaco_pesado": {
+      "file": "equipment/casaco_pesado.webp",
+      "aliases": [
+        "Casaco pesado"
+      ]
+    },
+    "glow_rod": {
+      "file": "equipment/glow_rod.webp",
+      "aliases": [
+        "Glow rod",
+        "Bastão luminoso"
+      ]
+    },
+    "eletroculos": {
+      "file": "equipment/eletroculos.webp",
+      "aliases": [
+        "Electrobinóculos",
+        "Electrogoggles",
+        "Óculos de visão",
+        "Eletrobinóculos"
+      ]
+    },
+    "kit_disfarce": {
+      "file": "equipment/kit_disfarce.webp",
+      "aliases": [
+        "Kit de disfarce"
+      ]
+    },
+    "scanner_portatil": {
+      "file": "equipment/scanner_portatil.webp",
+      "aliases": [
+        "Scanner portátil",
+        "Scanner",
+        "Scanner manual"
+      ]
+    },
+    "scanner_longo_alcance": {
+      "file": "equipment/scanner_longo_alcance.webp",
+      "aliases": [
+        "Scanner de longo alcance"
+      ]
+    },
+    "comlink_longo_alcance": {
+      "file": "equipment/comlink_longo_alcance.webp",
+      "aliases": [
+        "Comlink de longo alcance",
+        "Comunicador de longo alcance"
+      ]
+    },
+    "mascara_respiratoria": {
+      "file": "equipment/mascara_respiratoria.webp",
+      "aliases": [
+        "Máscara respiratória",
+        "Respirador"
+      ]
+    },
+    "injetor_medico": {
+      "file": "equipment/injetor_medico.webp",
+      "aliases": [
+        "Injetor médico",
+        "Injetor de estimulante",
+        "Stimpack",
+        "Injetor de estimulantes"
+      ]
+    },
+    "holoprojetor": {
+      "file": "equipment/holoprojetor.webp",
+      "aliases": [
+        "Holoprojetor",
+        "Holocom"
+      ]
+    },
+    "modulo_dados": {
+      "file": "equipment/modulo_dados.webp",
+      "aliases": [
+        "Módulo de dados",
+        "Data pad",
+        "Datapad"
+      ]
+    },
+    "kit_ferramentas": {
+      "file": "equipment/kit_ferramentas.webp",
+      "aliases": [
+        "Kit de ferramentas",
+        "Toolkit",
+        "Tool kit"
+      ]
+    },
+    "medpac": {
+      "file": "equipment/medpac.webp",
+      "aliases": [
+        "Medpac",
+        "Medpack",
+        "Kit médico",
+        "Medpac de emergência"
+      ]
+    },
+    "respirador_portatil": {
+      "file": "equipment/respirador_portatil.webp",
+      "aliases": [
+        "Respirador portátil",
+        "Tanque de ar"
+      ]
+    },
+    "cinto_utilitario": {
+      "file": "equipment/cinto_utilitario.webp",
+      "aliases": [
+        "Cinto utilitário",
+        "Utility belt"
+      ]
+    },
+    "kit_reparo": {
+      "file": "equipment/kit_reparo.webp",
+      "aliases": [
+        "Kit de reparo",
+        "Repair kit"
+      ]
+    },
+    "power_pack_or_ammo_reload": {
+      "path": "image-library/local/final/equipment/power_pack_reload.webp",
+      "aliases": [
+        "Recarga adicional",
+        "Power pack or ammo reload"
+      ]
+    },
+    "comunicador": {
+      "file": "equipment/comunicador.webp",
+      "aliases": [
+        "Comunicador"
+      ]
+    },
+    "scanner_geral": {
+      "file": "equipment/scanner_geral.webp",
+      "aliases": [
+        "Scanner geral"
+      ]
+    },
+    "macrobinoculos": {
+      "file": "equipment/macrobinoculos.webp",
+      "aliases": [
+        "Macrobinóculos"
+      ]
+    },
+    "mochila": {
+      "file": "equipment/mochila.webp",
+      "aliases": [
+        "Mochila"
+      ]
+    },
+    "equipamento_escalada": {
+      "file": "equipment/equipamento_escalada.webp",
+      "aliases": [
+        "Equipamento de escalada"
+      ]
+    },
+    "lanterna_fusao": {
+      "file": "equipment/lanterna_fusao.webp",
+      "aliases": [
+        "Lanterna de fusão"
+      ]
+    },
+    "armadura_laminada": {
+      "file": "equipment/armadura_laminada.webp",
+      "aliases": [
+        "Armadura laminada"
+      ]
+    },
+    "remendo_reparo_emergencia": {
+      "file": "equipment/remendo_reparo_emergencia.webp",
+      "aliases": [
+        "Remendo de reparo de emergência"
+      ]
+    },
+    "racoes": {
+      "file": "equipment/racoes.webp",
+      "aliases": [
+        "Rações"
+      ]
+    },
+    "olho_avaliador": {
+      "file": "equipment/olho_avaliador.webp",
+      "aliases": [
+        "Olho do Avaliador"
+      ]
+    }
+  },
+  "portraits": {
+    "twilek_female": {
+      "file": "portraits/twilek_female_blue.webp",
+      "species": [
+        "twi'lek",
+        "twilek",
+        "twi lek"
+      ]
+    }
+  },
+  "maps": {
+    "shantipole": {
+      "file": "maps/shantipole_base.webp",
+      "title": "Base Rebelde Shantipole",
+      "tags": [
+        "shantipole",
+        "roche",
+        "base rebelde",
+        "asteroide"
+      ]
+    }
+  },
+  "startCount": 82,
+  "vehicles": {
+    "digger_crawler": {
+      "path": "image-library/local/final/vehicles/digger_crawler.png",
+      "aliases": [
+        "Digger Crawler da Corellian Mining",
+        "Digger Crawler"
+      ]
+    },
+    "at_est": {
+      "path": "image-library/local/final/vehicles/at_est.png",
+      "aliases": [
+        "AT-EST Exploration and Survey Walker",
+        "AT-EST"
+      ]
+    },
+    "cloakshape": {
+      "path": "image-library/local/final/vehicles/cloakshape.png",
+      "aliases": [
+        "Caça estelar CloakShape",
+        "CloakShape"
+      ]
+    },
+    "jumpmaster_jm5000": {
+      "path": "image-library/local/final/vehicles/jumpmaster_jm5000.png",
+      "aliases": [
+        "Batedor de longo alcance JM-5000 JumpMaster",
+        "JumpMaster JM-5000"
+      ]
+    },
+    "firespray": {
+      "path": "image-library/local/final/vehicles/firespray.png",
+      "aliases": [
+        "Nave de patrulha Firespray",
+        "Firespray"
+      ]
+    },
+    "skipray_gat12h": {
+      "path": "image-library/local/final/vehicles/skipray_gat12h.png",
+      "aliases": [
+        "GAT-12h Skipray Blastboat",
+        "Skipray GAT-12h"
+      ]
+    },
+    "alpha_xg1_star_wing": {
+      "path": "image-library/local/final/vehicles/alpha_xg1_star_wing.png",
+      "aliases": [
+        "Canhoneira de assalto Alpha-class XG-1 Star Wing",
+        "Alpha-class XG-1 Star Wing"
+      ]
+    },
+    "vt49_decimator": {
+      "path": "image-library/local/final/vehicles/vt49_decimator.png",
+      "aliases": [
+        "Nave de assalto VT-49 Decimator",
+        "VT-49 Decimator"
+      ]
+    },
+    "wud500": {
+      "path": "image-library/local/final/vehicles/wud500.png",
+      "aliases": [
+        "Iate estelar CEC WUD-500",
+        "CEC WUD-500"
+      ]
+    },
+    "tie_ln": {
+      "file": "vehicles/tie_ln.webp",
+      "aliases": [
+        "Caça TIE/ln",
+        "TIE/ln",
+        "TIE Fighter"
+      ]
+    },
+    "ywing_btl": {
+      "file": "catalog/vehicles/ywing_btl.webp",
+      "aliases": [
+        "Caça de ataque BTL-A4/BTL-S3 Y-Wing",
+        "Y-Wing BTL"
+      ]
+    },
+    "yt1300": {
+      "file": "vehicles/yt1300.webp",
+      "aliases": [
+        "Cargueiro leve YT-1300",
+        "YT-1300"
+      ]
+    },
+    "x34": {
+      "file": "catalog/vehicles/x34.webp",
+      "aliases": [
+        "Landspeeder X-34",
+        "X-34"
+      ]
+    },
+    "personnel_carrier": {
+      "file": "catalog/vehicles/personnel_carrier.webp",
+      "aliases": [
+        "Transportador de pessoal",
+        "Personnel Carrier"
+      ]
+    },
+    "at_pt": {
+      "file": "catalog/vehicles/at_pt.webp",
+      "aliases": [
+        "All Terrain Personal Transport AT-PT",
+        "AT-PT"
+      ]
+    },
+    "lambda_t4a": {
+      "file": "catalog/vehicles/lambda_t4a.webp",
+      "aliases": [
+        "Lançadeira de longo alcance T-4A classe Lambda",
+        "Lançadeira Lambda"
+      ]
+    },
+    "z95_af4": {
+      "file": "catalog/vehicles/z95_af4.webp",
+      "aliases": [
+        "Caça estelar Z-95-AF4 Headhunter",
+        "Z-95-AF4"
+      ]
+    },
+    "wayfarer": {
+      "file": "catalog/vehicles/wayfarer.webp",
+      "aliases": [
+        "Cargueiro médio classe Wayfarer",
+        "Wayfarer"
+      ]
+    },
+    "starlight": {
+      "file": "catalog/vehicles/starlight.webp",
+      "aliases": [
+        "Cargueiro leve classe Starlight",
+        "Starlight"
+      ]
+    },
+    "ykl37r_nova_courier": {
+      "file": "catalog/vehicles/ykl37r_nova_courier.webp",
+      "aliases": [
+        "Cargueiro YKL-37R Nova Courier",
+        "YKL-37R Nova Courier"
+      ]
+    },
+    "gx1_short_hauler": {
+      "file": "catalog/vehicles/gx1_short_hauler.webp",
+      "aliases": [
+        "Cargueiro GX1 Short Hauler",
+        "GX1 Short Hauler"
+      ]
+    },
+    "baudo_star_yacht": {
+      "file": "catalog/vehicles/baudo_star_yacht.webp",
+      "aliases": [
+        "Iate estelar classe Baudo",
+        "Baudo-class"
+      ]
+    },
+    "gozanti": {
+      "file": "catalog/vehicles/gozanti.webp",
+      "aliases": [
+        "Transporte armado classe Gozanti",
+        "Gozanti"
+      ]
+    },
+    "hwk1000": {
+      "file": "catalog/vehicles/hwk1000.webp",
+      "aliases": [
+        "Cargueiro leve CEC HWK-1000",
+        "HWK-1000"
+      ]
+    },
+    "yt2000": {
+      "file": "catalog/vehicles/yt2000.webp",
+      "aliases": [
+        "Cargueiro leve YT-2000",
+        "YT-2000"
+      ]
+    }
+  }
+}

@@ -1,0 +1,172 @@
+{
+  "project": "STAR WARS — EDGE OF THE GALAXY",
+  "revision": "R37 FINAL SOURCE",
+  "createdAt": "2026-09-14T05:57:56.125242+00:00",
+  "status": "FINAL_SOURCE_READY",
+  "visual": "R46 415x915 frozen",
+  "campaignModes": [
+    "EOTE",
+    "AOR",
+    "MIXED"
+  ],
+  "defaultCampaignMode": "EOTE",
+  "tests": {
+    "total": 742,
+    "pass": 742,
+    "fail": 0,
+    "regular": 736,
+    "stressFiles": 6,
+    "stressSessionsEach": 33
+  },
+  "catalog": {
+    "personal": 60,
+    "weapons": 31,
+    "armor": 7,
+    "gear": 22,
+    "vehicles": 25
+  },
+  "rag": {
+    "tested": 54,
+    "officialAoRIds": [
+      "SW-AOR-CHAR-DUTY-002",
+      "SW-AOR-BASE-DUTY-CONTRIBUTION-001"
+    ]
+  },
+  "barbaraModules": 56,
+  "staticGates": {
+    "jsEsm": 218,
+    "java": 5,
+    "json": 27,
+    "xml": 2,
+    "secretHits": 0,
+    "apkAab": 0
+  },
+  "androidGate": "BLOCKED_EXTERNAL: SDK/ADB/sdkmanager unavailable in generation host",
+  "files": [
+    {
+      "path": "app/src/main/assets/vtt/js/rules/vehicles.mjs",
+      "size": 61975,
+      "sha256": "1358a6a8e25d1f25c677ce9af5aab53a55bb8248eab8c0a11ea6297ceedd76b9"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/rules/equipmentCatalog.mjs",
+      "size": 14410,
+      "sha256": "433afdea301a2a7736ce359747850f471ff6fb06a44bf16ff3dd86ef00adf5cf"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/rag/rulesCorpus.mjs",
+      "size": 53351,
+      "sha256": "7369dd4f0b58168d0254801dbc89db018c3a82bd108b33712daee4aa193505b2"
+    },
+    {
+      "path": "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+      "size": 1047861,
+      "sha256": "7987ad6468002652495426029cf0c00c4d3c8ee3d2b9174c427206304947164f"
+    },
+    {
+      "path": "rules/rules_matrix.json",
+      "size": 55226,
+      "sha256": "8b3a50cc0fd0536e32075f32d36cfa71569ff15ed95ed4faac6a6e86712470a9"
+    },
+    {
+      "path": "rules/rag_manifest.json",
+      "size": 206,
+      "sha256": "bc2ec3dc9e56b18376fee351677458e0c24aa7e1b488687b0025b59b75fc0527"
+    },
+    {
+      "path": "tests/eote-fly-casual-vehicle-catalog-r36.test.mjs",
+      "size": 4724,
+      "sha256": "f6d1a93573e71ae86a74276588a1f556d47a1029640dcfc346dd8a3758fd67b5"
+    },
+    {
+      "path": "tests/aor-duty-r37.test.mjs",
+      "size": 2036,
+      "sha256": "061980fbf8cb547e274e22d8f7707a05a05e863db4abe920069aa14463930740"
+    },
+    {
+      "path": "tests/eote-personal-catalog-r37.test.mjs",
+      "size": 977,
+      "sha256": "f8ac4b5a3c5760369803d1179a6dec9dac14c224ae6d076d07126a98f32974e9"
+    },
+    {
+      "path": "tests/eote-final-rag-guards.test.mjs",
+      "size": 2379,
+      "sha256": "c88b5b38679966c673239a0b8ce6be860cbf1b87f0e3d9e06b41b1c0fff8a7f3"
+    },
+    {
+      "path": "tests/cross-line-reference-guard.test.mjs",
+      "size": 2102,
+      "sha256": "ffbe0ce6c4b9dadc70d90429d9fdbdb7f8255539009ab7904449fa72fab81f3d"
+    },
+    {
+      "path": "tests/rag.test.mjs",
+      "size": 3722,
+      "sha256": "428e762f8893b1df55a3fae1a39373e5f70daa9ccda25e5ad7aca7e6b310786c"
+    },
+    {
+      "path": "tests/economy-r34.test.mjs",
+      "size": 9684,
+      "sha256": "3cea1e31e2f1628c62a73908f84646f84898dafe794e8ab2f1e026e83ebfe7b2"
+    },
+    {
+      "path": "tests/general-gear-r27.test.mjs",
+      "size": 1932,
+      "sha256": "2d2b08cadf3d6dd7fcb34249269d8478e8943f8f08b4e8305c32bdfd7dc1a951"
+    },
+    {
+      "path": "tests/documentation-current-state.test.mjs",
+      "size": 1060,
+      "sha256": "ff9586ee06cf4e529acefa040ab15979c56e12e0e7268cd9c097e0ceb2065428"
+    },
+    {
+      "path": "tests/verifier-async-suite-r16.test.mjs",
+      "size": 851,
+      "sha256": "2d2a028dcfd9d66507c6d89051e5b9840cbbbcd7c9ea5913e6a743879b3664eb"
+    },
+    {
+      "path": "tests/verifier-validation-dir-r17.test.mjs",
+      "size": 845,
+      "sha256": "51e0746c98d1965d1ff53c9cc7cc08b7aff12855a06f51931e3473e6f2ad5221"
+    },
+    {
+      "path": "tools/run-node-suite.py",
+      "size": 2456,
+      "sha256": "a24330332f1a55131a000909c8ef2bdddeb1ee8ed866fd7d9dae5c0cacc66024"
+    },
+    {
+      "path": "tools/verify-final-source.mjs",
+      "size": 11763,
+      "sha256": "e009908f2b1ce048015a92d531b0fc5d55fc3ad6803ba3299b3528ae849727b9"
+    },
+    {
+      "path": "README.md",
+      "size": 3504,
+      "sha256": "20d47dea6c1c8edf18881b3fc69abec016c672a8658b25bb2d3efba7e451d58a"
+    },
+    {
+      "path": "LEIA_PRIMEIRO.md",
+      "size": 1302,
+      "sha256": "a444e0399da1d321500aea96af23fe849b5fb0cf6a87457c2acf55d415f56bf5"
+    },
+    {
+      "path": "FINAL_1.0.0_VALIDATION.md",
+      "size": 13886,
+      "sha256": "252acb5fa63d161b7c61dc79211cc21edfd0f249ecd12e37c3b8261a956077ab"
+    },
+    {
+      "path": "RETOMADA_ATUAL.md",
+      "size": 59388,
+      "sha256": "d318b4df0f5f0166abccfd0d93239c952089b6c46b69068ed620c8389f38cb18"
+    },
+    {
+      "path": "validation/BLOCK37_VALIDATION.txt",
+      "size": 794,
+      "sha256": "4da4de03bb31edafc8ac812eaf89cd4b32ab6c60d4e07eccd1988ab0c0c56353"
+    },
+    {
+      "path": "validation/LATEST_SOURCE_VALIDATION.txt",
+      "size": 794,
+      "sha256": "4da4de03bb31edafc8ac812eaf89cd4b32ab6c60d4e07eccd1988ab0c0c56353"
+    }
+  ]
+}

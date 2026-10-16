@@ -1,0 +1,740 @@
+[
+  {
+    "key": "coruscant",
+    "name": "Coruscant",
+    "region": "Core Worlds",
+    "grid": "L10",
+    "x": 53.4,
+    "y": 51.2,
+    "description": "ecumenopolis"
+  },
+  {
+    "key": "alderaan",
+    "name": "Alderaan",
+    "region": "Core Worlds",
+    "grid": "M10",
+    "x": 57.8,
+    "y": 54.7,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "corellia",
+    "name": "Corellia",
+    "region": "Core Worlds",
+    "grid": "N10",
+    "x": 61.7,
+    "y": 50.4,
+    "description": "Forests, hills, plains"
+  },
+  {
+    "key": "kashyyyk",
+    "name": "Kashyyyk",
+    "region": "Mid Rim",
+    "grid": "Q10",
+    "x": 71.1,
+    "y": 46.7,
+    "description": "Mid Rim"
+  },
+  {
+    "key": "naboo",
+    "name": "Naboo",
+    "region": "Mid Rim",
+    "grid": "R16",
+    "x": 76.5,
+    "y": 77.1,
+    "description": "Mid Rim"
+  },
+  {
+    "key": "tatooine",
+    "name": "Tatooine",
+    "region": "Outer Rim",
+    "grid": "R16",
+    "x": 73.2,
+    "y": 78.4,
+    "description": "desert"
+  },
+  {
+    "key": "hoth",
+    "name": "Hoth",
+    "region": "Outer Rim",
+    "grid": "J18",
+    "x": 43.6,
+    "y": 83.9,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "bespin",
+    "name": "Bespin",
+    "region": "Outer Rim",
+    "grid": "J4",
+    "x": 45.1,
+    "y": 17.8,
+    "description": "gas clouds"
+  },
+  {
+    "key": "dagobah",
+    "name": "Dagobah",
+    "region": "Outer Rim",
+    "grid": "M18",
+    "x": 59.0,
+    "y": 87.8,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "mustafar",
+    "name": "Mustafar",
+    "region": "Outer Rim",
+    "grid": "K19",
+    "x": 51.0,
+    "y": 91.1,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "endor",
+    "name": "Endor",
+    "region": "Outer Rim",
+    "grid": "H16",
+    "x": 37.7,
+    "y": 75.6,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "geonosis",
+    "name": "Geonosis",
+    "region": "Outer Rim",
+    "grid": "R17",
+    "x": 78.1,
+    "y": 82.2,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "dantooine",
+    "name": "Dantooine",
+    "region": "Outer Rim",
+    "grid": "K4",
+    "x": 48.2,
+    "y": 16.2,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "mandalore",
+    "name": "Mandalore",
+    "region": "Outer Rim",
+    "grid": "P7",
+    "x": 66.8,
+    "y": 35.5,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "kessel",
+    "name": "Kessel",
+    "region": "Outer Rim",
+    "grid": "S10",
+    "x": 82.5,
+    "y": 48.6,
+    "description": "alkali flats, mountains, caves"
+  },
+  {
+    "key": "jakku",
+    "name": "Jakku",
+    "region": "Unknown Regions",
+    "grid": "G13",
+    "x": 31.3,
+    "y": 61.5,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "ahch_to",
+    "name": "Ahch-To",
+    "region": "Unknown Regions",
+    "grid": "F14",
+    "x": 29.2,
+    "y": 66.2,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "rakata_prime",
+    "name": "Rakata Prime",
+    "region": "Unknown Regions",
+    "grid": "G11",
+    "x": 29.8,
+    "y": 49.6,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "mon_calamari",
+    "name": "Mon Calamari",
+    "region": "Outer Rim",
+    "grid": "V6",
+    "x": 94.7,
+    "y": 29.4,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "ryloth",
+    "name": "Ryloth",
+    "region": "Outer Rim",
+    "grid": "R17",
+    "x": 77.1,
+    "y": 84.4,
+    "description": "caves, deserts, mountains, plains"
+  },
+  {
+    "key": "montross",
+    "name": "Montross",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 43.5,
+    "y": 9.6,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "sernpidal",
+    "name": "Sernpidal",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 52.7,
+    "y": 8.1,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "birgis",
+    "name": "Birgis",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 54.9,
+    "y": 10.6,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "maltha_obex",
+    "name": "Maltha Obex",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 59.9,
+    "y": 12.4,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "kalee",
+    "name": "Kalee",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 39.9,
+    "y": 14.5,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "bimmiel",
+    "name": "Bimmiel",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 56.6,
+    "y": 14.8,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "kadavo",
+    "name": "Kadavo",
+    "region": "Corporate Sector",
+    "grid": null,
+    "x": 83.1,
+    "y": 15.4,
+    "description": "Corporate Sector"
+  },
+  {
+    "key": "naraka",
+    "name": "Naraka",
+    "region": "Corporate Sector",
+    "grid": null,
+    "x": 74.6,
+    "y": 16.1,
+    "description": "Corporate Sector"
+  },
+  {
+    "key": "rekkiad",
+    "name": "Rekkiad",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 85.2,
+    "y": 16.3,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "valce",
+    "name": "Valce",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 40.4,
+    "y": 16.7,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "akuria",
+    "name": "Akuria",
+    "region": "Mid Rim",
+    "grid": null,
+    "x": 55.0,
+    "y": 18.3,
+    "description": "Mid Rim"
+  },
+  {
+    "key": "ord_radama",
+    "name": "Ord Radama",
+    "region": "Mid Rim",
+    "grid": null,
+    "x": 72.3,
+    "y": 18.3,
+    "description": "Mid Rim"
+  },
+  {
+    "key": "dromund_kaas",
+    "name": "Dromund Kaas",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 78.2,
+    "y": 18.2,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "karkaris",
+    "name": "Karkaris",
+    "region": "Corporate Sector",
+    "grid": null,
+    "x": 83.5,
+    "y": 18.4,
+    "description": "Corporate Sector"
+  },
+  {
+    "key": "toofa",
+    "name": "Toofa",
+    "region": "Corporate Sector",
+    "grid": null,
+    "x": 82.8,
+    "y": 19.4,
+    "description": "Corporate Sector"
+  },
+  {
+    "key": "phaeda",
+    "name": "Phaeda",
+    "region": "Mid Rim",
+    "grid": null,
+    "x": 51.7,
+    "y": 24.1,
+    "description": "Mid Rim"
+  },
+  {
+    "key": "raydonia",
+    "name": "Raydonia",
+    "region": "Mid Rim",
+    "grid": null,
+    "x": 65.0,
+    "y": 23.9,
+    "description": "Mid Rim"
+  },
+  {
+    "key": "munto_codru",
+    "name": "Munto Codru",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 88.8,
+    "y": 24.1,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "ossus",
+    "name": "Ossus",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 79.6,
+    "y": 26.4,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "lothal",
+    "name": "Lothal",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 67.0,
+    "y": 28.0,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "parnassos",
+    "name": "Parnassos",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 36.0,
+    "y": 28.0,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "bogano",
+    "name": "Bogano",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 79.0,
+    "y": 31.0,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "garel",
+    "name": "Garel",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 72.0,
+    "y": 31.0,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "paatus",
+    "name": "Paatus",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 25.0,
+    "y": 31.0,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "crustai",
+    "name": "Crustai",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 34.0,
+    "y": 33.0,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "exegol",
+    "name": "Exegol",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 24.0,
+    "y": 34.0,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "karthon",
+    "name": "Karthon",
+    "region": "Mid Rim",
+    "grid": null,
+    "x": 69.0,
+    "y": 34.0,
+    "description": "Mid Rim"
+  },
+  {
+    "key": "toongl",
+    "name": "Toongl",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 85.0,
+    "y": 35.0,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "targonn",
+    "name": "Targonn",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 91.0,
+    "y": 35.0,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "avidich",
+    "name": "Avidich",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 20.0,
+    "y": 38.0,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "naporar",
+    "name": "Naporar",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 27.0,
+    "y": 38.0,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "brask_oto",
+    "name": "Brask Oto",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 32.0,
+    "y": 38.0,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "schesa",
+    "name": "Schesa",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 27.0,
+    "y": 42.0,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "gand",
+    "name": "Gand",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 83.0,
+    "y": 42.0,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "centrality",
+    "name": "Centrality",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 91.0,
+    "y": 42.0,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "csilla",
+    "name": "Csilla",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 23.0,
+    "y": 45.0,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "jamiron",
+    "name": "Jamiron",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 27.0,
+    "y": 45.0,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "shantipole",
+    "name": "Shantipole",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 80.0,
+    "y": 45.0,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "renatasia",
+    "name": "Renatasia",
+    "region": "Outer Rim",
+    "grid": null,
+    "x": 90.0,
+    "y": 45.0,
+    "description": "Outer Rim"
+  },
+  {
+    "key": "kinoss",
+    "name": "Kinoss",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 22.0,
+    "y": 48.0,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "pesfari",
+    "name": "Pesfari",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 31.0,
+    "y": 48.0,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "jetha",
+    "name": "Jetha",
+    "region": "Mid Rim",
+    "grid": null,
+    "x": 43.0,
+    "y": 50.0,
+    "description": "Mid Rim"
+  },
+  {
+    "key": "vakkar",
+    "name": "Vakkar",
+    "region": "Mid Rim",
+    "grid": null,
+    "x": 46.0,
+    "y": 50.0,
+    "description": "Mid Rim"
+  },
+  {
+    "key": "borleias",
+    "name": "Borleias",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 57.0,
+    "y": 51.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "castell",
+    "name": "Castell",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 66.0,
+    "y": 53.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "corulag",
+    "name": "Corulag",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 71.0,
+    "y": 53.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "caamas",
+    "name": "Caamas",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 76.0,
+    "y": 53.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "bardram_scott",
+    "name": "Bardram Scott",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 60.0,
+    "y": 57.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "nikardun",
+    "name": "Nikardun",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 29.0,
+    "y": 58.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "zakuul",
+    "name": "Zakuul",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 39.0,
+    "y": 57.0,
+    "description": "Unknown Regions"
+  },
+  {
+    "key": "wortan",
+    "name": "Wortan",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 43.0,
+    "y": 60.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "aargau",
+    "name": "Aargau",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 51.0,
+    "y": 59.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "kattada",
+    "name": "Kattada",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 66.0,
+    "y": 59.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "fedalle",
+    "name": "Fedalle",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 59.0,
+    "y": 62.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "vulpter",
+    "name": "Vulpter",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 48.0,
+    "y": 62.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "balmorra",
+    "name": "Balmorra",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 62.0,
+    "y": 63.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "tython",
+    "name": "Tython",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 49.0,
+    "y": 65.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "sarapin",
+    "name": "Sarapin",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 53.0,
+    "y": 65.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "gatalenta",
+    "name": "Gatalenta",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 57.0,
+    "y": 65.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "humbarine",
+    "name": "Humbarine",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 56.0,
+    "y": 68.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "commenor",
+    "name": "Commenor",
+    "region": "Core Worlds",
+    "grid": null,
+    "x": 67.0,
+    "y": 68.0,
+    "description": "Core Worlds"
+  },
+  {
+    "key": "rapacc",
+    "name": "Rapacc",
+    "region": "Unknown Regions",
+    "grid": null,
+    "x": 26.0,
+    "y": 69.0,
+    "description": "Unknown Regions"
+  }
+]

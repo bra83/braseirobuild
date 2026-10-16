@@ -1,0 +1,35 @@
+TAP version 13
+# Subtest: imagem principal é aberta sob o mesmo lock usado por clear/commit
+ok 1 - imagem principal é aberta sob o mesmo lock usado por clear/commit
+  ---
+  duration_ms: 0.780998
+  type: 'test'
+  ...
+# Subtest: status da imagem principal usa sceneImageCommitLock
+ok 2 - status da imagem principal usa sceneImageCommitLock
+  ---
+  duration_ms: 0.186611
+  type: 'test'
+  ...
+# Subtest: imagem do cache é aberta sob cacheCommitLock
+ok 3 - imagem do cache é aberta sob cacheCommitLock
+  ---
+  duration_ms: 0.105559
+  type: 'test'
+  ...
+# Subtest: status do cache usa cacheCommitLock sem perder validação do assetId
+ok 4 - status do cache usa cacheCommitLock sem perder validação do assetId
+  ---
+  duration_ms: 0.148554
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 168.84102
+

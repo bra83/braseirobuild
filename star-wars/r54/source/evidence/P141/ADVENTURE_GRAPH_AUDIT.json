@@ -1,0 +1,62 @@
+[
+  {
+    "adventureId": "under-black-sun",
+    "nodes": 17,
+    "choices": 37,
+    "endings": 1,
+    "episodes": [
+      1,
+      2,
+      3
+    ],
+    "structurallyReachable": true
+  },
+  {
+    "adventureId": "beyond-the-rim",
+    "nodes": 26,
+    "choices": 37,
+    "endings": 1,
+    "episodes": [
+      1,
+      2,
+      3
+    ],
+    "structurallyReachable": true
+  },
+  {
+    "adventureId": "long-arm-of-the-hutt",
+    "nodes": 7,
+    "choices": 6,
+    "endings": 1,
+    "episodes": [
+      1,
+      2,
+      3
+    ],
+    "structurallyReachable": true
+  },
+  {
+    "adventureId": "jewel-of-yavin",
+    "nodes": 5,
+    "choices": 4,
+    "endings": 1,
+    "episodes": [
+      1,
+      2,
+      3
+    ],
+    "structurallyReachable": true
+  },
+  {
+    "adventureId": "mask-of-the-pirate-queen",
+    "nodes": 5,
+    "choices": 4,
+    "endings": 1,
+    "episodes": [
+      1,
+      2,
+      3
+    ],
+    "structurallyReachable": true
+  }
+]

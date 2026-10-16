@@ -1,0 +1,232 @@
+TAP version 13
+# Subtest: P102 Ganhar a Vantagem usa dificuldade por velocidade, consome ação, persiste zona e ignora Evasivas
+ok 1 - P102 Ganhar a Vantagem usa dificuldade por velocidade, consome ação, persiste zona e ignora Evasivas
+  ---
+  duration_ms: 31.46235
+  type: 'test'
+  ...
+# Subtest: P102 Copiloto sobrevive à troca de assalto e rebaixa o próximo teste de Pilotagem
+ok 2 - P102 Copiloto sobrevive à troca de assalto e rebaixa o próximo teste de Pilotagem
+  ---
+  duration_ms: 10.545018
+  type: 'test'
+  ...
+# Subtest: P102 Traçar Curso reduz apenas Setback externo do próximo perigo e é consumido
+ok 3 - P102 Traçar Curso reduz apenas Setback externo do próximo perigo e é consumido
+  ---
+  duration_ms: 12.039978
+  type: 'test'
+  ...
+# Subtest: P102 Reforçar Escudos sofre 1 Tensão e aumenta somente a zona escolhida durante a duração
+ok 4 - P102 Reforçar Escudos sofre 1 Tensão e aumenta somente a zona escolhida durante a duração
+  ---
+  duration_ms: 7.443122
+  type: 'test'
+  ...
+# Subtest: P102 Disciplina de Fogo concede Boost ao próximo disparo real e consome a carga
+ok 5 - P102 Disciplina de Fogo concede Boost ao próximo disparo real e consome a carga
+  ---
+  duration_ms: 5.332493
+  type: 'test'
+  ...
+# Subtest: P102 Escanear revela armamento/modificações e limiares, sem revelar níveis atuais de graça
+ok 6 - P102 Escanear revela armamento/modificações e limiares, sem revelar níveis atuais de graça
+  ---
+  duration_ms: 4.520146
+  type: 'test'
+  ...
+# Subtest: P102 Fatiar Sistemas reduz defesa da zona por um round por êxito
+ok 7 - P102 Fatiar Sistemas reduz defesa da zona por um round por êxito
+  ---
+  duration_ms: 8.888394
+  type: 'test'
+  ...
+# Subtest: P102 Despistar Mísseis melhora a dificuldade contra arma Guiada no assalto atual
+ok 8 - P102 Despistar Mísseis melhora a dificuldade contra arma Guiada no assalto atual
+  ---
+  duration_ms: 4.22039
+  type: 'test'
+  ...
+# Subtest: P102 bridge, contratos e R46 expõem ações sem mutação bruta
+ok 9 - P102 bridge, contratos e R46 expõem ações sem mutação bruta
+  ---
+  duration_ms: 2.756847
+  type: 'test'
+  ...
+# Subtest: P103 Controle de Danos separa Tensão e Casco e limita tentativa de Casco por encontro
+ok 10 - P103 Controle de Danos separa Tensão e Casco e limita tentativa de Casco por encontro
+  ---
+  duration_ms: 13.890292
+  type: 'test'
+  ...
+# Subtest: P103 Reparo Manual exige permissão contextual e Kit, usa Atletismo e compartilha limite do Casco
+ok 11 - P103 Reparo Manual exige permissão contextual e Kit, usa Atletismo e compartilha limite do Casco
+  ---
+  duration_ms: 4.933966
+  type: 'test'
+  ...
+# Subtest: P103 Escanear só revela níveis atuais quando 2 Vantagens são escolhidas e disponíveis
+ok 12 - P103 Escanear só revela níveis atuais quando 2 Vantagens são escolhidas e disponíveis
+  ---
+  duration_ms: 2.744005
+  type: 'test'
+  ...
+# Subtest: P103 Fatiar pode gastar Vantagens em Tensão e Triunfo para desativar arma por um assalto
+ok 13 - P103 Fatiar pode gastar Vantagens em Tensão e Triunfo para desativar arma por um assalto
+  ---
+  duration_ms: 3.990325
+  type: 'test'
+  ...
+# Subtest: P103 Disciplina de Fogo usa um Boost base + um por cada dois Êxitos adicionais
+ok 14 - P103 Disciplina de Fogo usa um Boost base + um por cada dois Êxitos adicionais
+  ---
+  duration_ms: 2.109102
+  type: 'test'
+  ...
+# Subtest: P103 Despistar Mísseis ganha upgrade adicional por cada dois Êxitos adicionais
+ok 15 - P103 Despistar Mísseis ganha upgrade adicional por cada dois Êxitos adicionais
+  ---
+  duration_ms: 2.073535
+  type: 'test'
+  ...
+# Subtest: P103 R46 expõe modos de Controle de Danos, Reparo Manual e gastos opcionais
+ok 16 - P103 R46 expõe modos de Controle de Danos, Reparo Manual e gastos opcionais
+  ---
+  duration_ms: 1.72214
+  type: 'test'
+  ...
+# Subtest: Ala-X entra no estado persistente e combate de veículos reabre intacto
+ok 17 - Ala-X entra no estado persistente e combate de veículos reabre intacto
+  ---
+  duration_ms: 21.58558
+  type: 'test'
+  ...
+# Subtest: segunda manobra exclusiva exige Tensão de sistemas ou ação
+ok 18 - segunda manobra exclusiva exige Tensão de sistemas ou ação
+  ---
+  duration_ms: 5.510603
+  type: 'test'
+  ...
+# Subtest: ataque veicular consome ação e aplica resultado ao alvo
+ok 19 - ataque veicular consome ação e aplica resultado ao alvo
+  ---
+  duration_ms: 5.318156
+  type: 'test'
+  ...
+# Subtest: controle de danos usa Mecânica do personagem e persiste
+ok 20 - controle de danos usa Mecânica do personagem e persiste
+  ---
+  duration_ms: 6.240759
+  type: 'test'
+  ...
+# Subtest: perfil Ala-X reproduz os valores do livro inicial
+ok 21 - perfil Ala-X reproduz os valores do livro inicial
+  ---
+  duration_ms: 1.638628
+  type: 'test'
+  ...
+# Subtest: Blindagem reduz dano em escala de veículo e limiar só inutiliza ao superar
+ok 22 - Blindagem reduz dano em escala de veículo e limiar só inutiliza ao superar
+  ---
+  duration_ms: 1.156206
+  type: 'test'
+  ...
+# Subtest: Tensão de sistemas acima do limiar desliga velocidade, armas e defesa
+ok 23 - Tensão de sistemas acima do limiar desliga velocidade, armas e defesa
+  ---
+  duration_ms: 0.57466
+  type: 'test'
+  ...
+# Subtest: um dia completo sem nova tensão recupera 1 Tensão de sistemas
+ok 24 - um dia completo sem nova tensão recupera 1 Tensão de sistemas
+  ---
+  duration_ms: 0.957788
+  type: 'test'
+  ...
+# Subtest: Manejo positivo vira Impulso e negativo Contratempo
+ok 25 - Manejo positivo vira Impulso e negativo Contratempo
+  ---
+  duration_ms: 0.311779
+  type: 'test'
+  ...
+# Subtest: Acelerar/Frear altera exatamente 1 e respeita limites
+ok 26 - Acelerar/Frear altera exatamente 1 e respeita limites
+  ---
+  duration_ms: 0.473893
+  type: 'test'
+  ...
+# Subtest: Pisar a fundo vai à velocidade máxima e sofre tensão igual à diferença
+ok 27 - Pisar a fundo vai à velocidade máxima e sofre tensão igual à diferença
+  ---
+  duration_ms: 0.387686
+  type: 'test'
+  ...
+# Subtest: Avançar usa passos de alcance conforme velocidade
+ok 28 - Avançar usa passos de alcance conforme velocidade
+  ---
+  duration_ms: 0.228822
+  type: 'test'
+  ...
+# Subtest: dificuldade de Artilharia usa diferença de Silhueta
+ok 29 - dificuldade de Artilharia usa diferença de Silhueta
+  ---
+  duration_ms: 0.277367
+  type: 'test'
+  ...
+# Subtest: Enfilar usa diferença de Velocidade
+ok 30 - Enfilar usa diferença de Velocidade
+  ---
+  duration_ms: 0.361317
+  type: 'test'
+  ...
+# Subtest: perigo de pilotagem usa maior entre Velocidade e metade da Silhueta, com upgrades pelo menor
+ok 31 - perigo de pilotagem usa maior entre Velocidade e metade da Silhueta, com upgrades pelo menor
+  ---
+  duration_ms: 0.245719
+  type: 'test'
+  ...
+# Subtest: controle de danos calcula dificuldade e repara um tipo por vez
+ok 32 - controle de danos calcula dificuldade e repara um tipo por vez
+  ---
+  duration_ms: 0.379913
+  type: 'test'
+  ...
+# Subtest: Critical Hits de veículo usam a Table 7-9 EotE Core com d100 e +10 cumulativo
+ok 33 - Critical Hits de veículo usam a Table 7-9 EotE Core com d100 e +10 cumulativo
+  ---
+  duration_ms: 0.634912
+  type: 'test'
+  ...
+# Subtest: ataque de arma de nave usa Artilharia, Silhueta, Defesa e Blindagem
+ok 34 - ataque de arma de nave usa Artilharia, Silhueta, Defesa e Blindagem
+  ---
+  duration_ms: 1.23636
+  type: 'test'
+  ...
+# Subtest: Manobras evasivas aumentam a Dificuldade e Seguir o objetivo melhora Capacidade, sem dados extras indevidos
+ok 35 - Manobras evasivas aumentam a Dificuldade e Seguir o objetivo melhora Capacidade, sem dados extras indevidos
+  ---
+  duration_ms: 0.383068
+  type: 'test'
+  ...
+# Subtest: arma de veículo não pode atingir além do alcance indicado no perfil
+ok 36 - arma de veículo não pode atingir além do alcance indicado no perfil
+  ---
+  duration_ms: 0.827227
+  type: 'test'
+  ...
+# Subtest: Ajuste fino e Reparos sólidos ampliam somente o tipo correspondente
+ok 37 - Ajuste fino e Reparos sólidos ampliam somente o tipo correspondente
+  ---
+  duration_ms: 0.37997
+  type: 'test'
+  ...
+1..37
+# tests 37
+# suites 0
+# pass 37
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 264.428506

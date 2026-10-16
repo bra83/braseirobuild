@@ -1,0 +1,17 @@
+✔ R45 manifest V3.8 has 369 unique assets and 127 vehicles (2.8017ms)
+✔ R45 vehicle wave5 indexes exactly the 7 direct-proven recovery entries (2.9476ms)
+✔ R45 direct-media provenance records the exact observed Kainrath links (1.3391ms)
+✔ R45 URLs obey secure Kainrath cache policy (1.7303ms)
+✔ R45 recovered vehicles remain visual-only and mechanically unbound (1.2055ms)
+✔ R45 bridge exposes 127 vehicles while preserving other visual categories (154.5693ms)
+✔ R45 recovered landspeeders and freighters are searchable without campaign mutation (70.748ms)
+✔ R45 preserves R44 beast recovery and leaves unproven media blocked (2.5156ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3916.9439
+

@@ -1,0 +1,12 @@
+P142 source: P141
+Regular 1586/1586 PASS (256 files)
+Stress 6/6 PASS (6 files)
+Total 1592/1592 PASS
+New P142 tests 32/32 PASS
+Kokoro/TTS 27/27 PASS
+Java syntax gate 8 files PASS (Android symbols unresolved without SDK)
+JS changed source and bundle syntax PASS
+JSON 65 PASS, XML 2 PASS
+Android APK not compiled; no device validation
+AoR mechanical coverage unchanged: 215/360, pending 145
+Five adventures: structural/runtime validation; PDF comparison pending

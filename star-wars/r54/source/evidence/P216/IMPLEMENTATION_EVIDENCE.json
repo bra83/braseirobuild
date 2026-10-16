@@ -1,0 +1,36 @@
+{
+  "checkpoint": "P216",
+  "baselineP215Sha256": "fbffef090496f4d80f3268484cce97d9a8df37acbcaad7f1fcde5fc25bf7bc8c",
+  "modifiedRuntimeModules": [
+    "app/src/main/assets/vtt/js/adventure/jewelHoloParkEffects.mjs",
+    "app/src/main/assets/vtt/js/core/controller.mjs",
+    "app/src/main/assets/vtt/r46/final-runtime.js"
+  ],
+  "features": [
+    {
+      "id": "kashyyyk_insect",
+      "mechanics": "same-check two Boost dice, pre-roll GM opt-in, real Triumph required, before hit/damage, single-spend, receipt and replay"
+    },
+    {
+      "id": "kashyyyk_vertigo",
+      "mechanics": "real NPC Despair, Hard Discipline check, 2 strain on failure, one proficiency downgraded next player attack or skill action, receipt and replay"
+    }
+  ],
+  "tests": "tests/uae-p216-kashyyyk-vertigo.test.mjs",
+  "focalTests": 5,
+  "rollbacks": true,
+  "threeReopens": true,
+  "legacyP215TestsPassed": true,
+  "androidVersion": "1.0.216",
+  "versionCode": 10216,
+  "offlineModules": 104,
+  "javaKokoroPreserved": 8,
+  "androidApkBuilt": false,
+  "githubCiRun": false,
+  "androidDeviceHomologated": false,
+  "knownLimitations": [
+    "No APK/Gradle/adb/physical Android",
+    "Full end-to-end validation of every action kind under vertigo not yet performed",
+    "Arend/Grayson encounters, Arend/Aris/Lando endings, SWE02 and 360 consumers pending"
+  ]
+}

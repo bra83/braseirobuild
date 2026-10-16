@@ -1,0 +1,23 @@
+{
+  "document": "SWE09 The Jewel of Yavin",
+  "driveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "sourceRead": "Google Drive connector official PDF extracted text, targeted pp.78,92–94",
+  "publishedFacts": [
+    "Grayson security employs two teams of six guards, exact Holo-Park detachment size is not specified",
+    "Private Security Guard minion profile printed p78 and user NPC card JoY:78",
+    "Arend goons profile printed p90 and user NPC card JoY:87",
+    "All three groups monitor the starport; Wing Guard default first; other two do not directly obstruct Wing Guard"
+  ],
+  "implemented": [
+    "source-backed Grayson security profile",
+    "Arend and Grayson optional GM-confirmed encounters after Wing Guard",
+    "physical presence, distinct-personnel, distance and count GM confirmation",
+    "real initiative, combat and outcome persistence",
+    "Holo-Park round offset between combats"
+  ],
+  "notClaimed": [
+    "exact Arend/Grayson group size at Holo-Park is official",
+    "named Burr Naxis/Gantel Dro present by default",
+    "full source certification of SWE09"
+  ]
+}

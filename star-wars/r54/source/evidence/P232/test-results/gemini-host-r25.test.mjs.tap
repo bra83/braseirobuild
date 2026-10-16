@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: host injeta BraseiroGemini sem substituir BraseiroLibrary
+ok 1 - host injeta BraseiroGemini sem substituir BraseiroLibrary
+  ---
+  duration_ms: 0.868179
+  type: 'test'
+  ...
+# Subtest: chave Gemini fica fora do estado e protegida por AndroidKeyStore/no-backup
+ok 2 - chave Gemini fica fora do estado e protegida por AndroidKeyStore/no-backup
+  ---
+  duration_ms: 0.362819
+  type: 'test'
+  ...
+# Subtest: host usa endpoint/modelo oficial atual e nunca envia chave no corpo JSON
+ok 3 - host usa endpoint/modelo oficial atual e nunca envia chave no corpo JSON
+  ---
+  duration_ms: 0.210773
+  type: 'test'
+  ...
+# Subtest: geração é explícita, assíncrona e limitada a prompt/sceneKey
+ok 4 - geração é explícita, assíncrona e limitada a prompt/sceneKey
+  ---
+  duration_ms: 0.156974
+  type: 'test'
+  ...
+# Subtest: imagem gerada usa 16:9 e 1K
+ok 5 - imagem gerada usa 16:9 e 1K
+  ---
+  duration_ms: 0.129122
+  type: 'test'
+  ...
+# Subtest: host aceita fallback de importação manual com cópia privada
+ok 6 - host aceita fallback de importação manual com cópia privada
+  ---
+  duration_ms: 0.327406
+  type: 'test'
+  ...
+# Subtest: imagem só é servida pela URL local interceptada
+ok 7 - imagem só é servida pela URL local interceptada
+  ---
+  duration_ms: 0.111255
+  type: 'test'
+  ...
+# Subtest: eventos nativos não incluem chave nem prompt
+ok 8 - eventos nativos não incluem chave nem prompt
+  ---
+  duration_ms: 3.089367
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 179.12895
+

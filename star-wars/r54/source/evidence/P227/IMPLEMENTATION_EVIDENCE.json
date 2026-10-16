@@ -1,0 +1,10 @@
+{
+  "checkpoint": "P227",
+  "base": "P226",
+  "feature": "physical custody transfers of unique Jewel of Yavin among active PC and real persistent companions",
+  "sourceScope": "SWE09 pp92-95 physical Jewel as established in P224; transfer is local inventory integrity, not a claimed published XP rule",
+  "receipt": "JEWEL_CUSTODY_TRANSFER",
+  "files": ["app/src/main/assets/vtt/js/adventure/jewelCustodyTransfers.mjs", "app/src/main/assets/vtt/js/adventure/jewelBespinDeparture.mjs", "app/src/main/assets/vtt/js/core/controller.mjs", "app/src/main/assets/vtt/js/core/uiBridge.mjs", "app/src/main/assets/vtt/js/core/state.mjs", "app/src/main/assets/vtt/r46/final-runtime.js"],
+  "limits": ["Boarding requires Jewel returned to active PC", "No automatic GM adjudication", "No APK, CI or physical Android validation", "No full SWE09 or 360-consumer certification"],
+  "tests": "evidence/P227/TEST_SUMMARY.json"
+}

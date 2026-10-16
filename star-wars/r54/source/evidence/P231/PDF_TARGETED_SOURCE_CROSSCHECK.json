@@ -1,0 +1,20 @@
+{
+  "checkpoint": "P231",
+  "source": "SWE09 The Jewel of Yavin.pdf",
+  "googleDriveFileId": "1z6Kh-0tqRxegzB_U7GL_WxicUQKIOU6K",
+  "printedPage": 94,
+  "section": "Flight over Fight — Escape to the Clouds",
+  "access": "Google Drive connector fetch; source text inspected during this run",
+  "verified": [
+    "Once airborne, at least twelve Wing Guard cloud cars pursue",
+    "They engage the PCs ship in squadrons of four at a time",
+    "Storm IV cloud car and Bespin Defense Force pilot stat blocks are adjacent to the section",
+    "Vehicle and minion combat rules are referenced to Edge of the Empire Core Rulebook p.238"
+  ],
+  "implementationLimits": [
+    "Exactly twelve vehicles are modeled as the published minimum; additional reinforcements are not simulated",
+    "Airborne state, arrivals, positions and pilots require GM physical confirmation; no movement or arrival is inferred",
+    "No automatic XP, enemy defeat, damage, or extra NPC attacks",
+    "Pilot rank is zero when minion is alone; group skills are not assigned a fabricated rank"
+  ]
+}

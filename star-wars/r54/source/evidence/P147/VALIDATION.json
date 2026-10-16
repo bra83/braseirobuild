@@ -1,0 +1,31 @@
+{
+  "checkpoint": "R54_P147",
+  "base": "R54_P146",
+  "appVersion": "1.0.147",
+  "sourceCheckpoint": "BRASEIRO_STAR_WARS_EDGE_R54_P146_SOURCE_CHECKPOINT.zip",
+  "changes": [
+    "monotonic run serial for five published adventures (prevents same-millisecond collision)",
+    "P147 request/receipt/UAE event proofVersion=2 cross-ledger verification",
+    "WebView finishCombat pending-command recovery before sandbox fallback",
+    "18 new regression/integration tests for five adventures, imports, crash/ACK, rollback"
+  ],
+  "tests": {
+    "files": 267,
+    "pass": 1720,
+    "fail": 0,
+    "stress": 6,
+    "new": 18,
+    "kokoro": 27
+  },
+  "preservation": {
+    "javaFiles": 8,
+    "javaByteIdenticalToP146": true,
+    "kokoroModelsBundled": false
+  },
+  "limits": [
+    "AoR 224/360 mechanically active; 136 remain",
+    "5 adventures not certified against original PDF",
+    "Beyond the Rim combat not certified",
+    "Android SDK not installed; APK not compiled or device tested"
+  ]
+}

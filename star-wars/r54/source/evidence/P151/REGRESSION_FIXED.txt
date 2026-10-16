@@ -1,0 +1,568 @@
+TAP version 13
+# Subtest: P137 six AoR talent families remain active with at least 205/360 source-backed positions
+ok 1 - P137 six AoR talent families remain active with at least 205/360 source-backed positions
+  ---
+  duration_ms: 64.902027
+  type: 'test'
+  ...
+# Subtest: P137 REPARACIÓN EFICAZ bought through actual tree: rank, XP, immutability and JSON persistence
+ok 2 - P137 REPARACIÓN EFICAZ bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 77.465133
+  type: 'test'
+  ...
+# Subtest: P137 ROBUSTO bought through actual tree: rank, XP, immutability and JSON persistence
+ok 3 - P137 ROBUSTO bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 22.699272
+  type: 'test'
+  ...
+# Subtest: P137 CONFIANZA bought through actual tree: rank, XP, immutability and JSON persistence
+ok 4 - P137 CONFIANZA bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 16.527374
+  type: 'test'
+  ...
+# Subtest: P137 DISPARO CERTERO bought through actual tree: rank, XP, immutability and JSON persistence
+ok 5 - P137 DISPARO CERTERO bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 73.886604
+  type: 'test'
+  ...
+# Subtest: P137 ELUDIR SEGURIDAD bought through actual tree: rank, XP, immutability and JSON persistence
+ok 6 - P137 ELUDIR SEGURIDAD bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 24.781387
+  type: 'test'
+  ...
+# Subtest: P137 ESPECIALISTA EN ESTIMULANTES bought through actual tree: rank, XP, immutability and JSON persistence
+ok 7 - P137 ESPECIALISTA EN ESTIMULANTES bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 14.582039
+  type: 'test'
+  ...
+# Subtest: P137 ranked SOLREP repairs hull, never system strain, and persists vehicle result
+ok 8 - P137 ranked SOLREP repairs hull, never system strain, and persists vehicle result
+  ---
+  duration_ms: 68.08826
+  type: 'test'
+  ...
+# Subtest: P137 ROBUSTO lowers incoming critical result 10 per rank, minimum 1, without mutating input
+ok 9 - P137 ROBUSTO lowers incoming critical result 10 per rank, minimum 1, without mutating input
+  ---
+  duration_ms: 26.867576
+  type: 'test'
+  ...
+# Subtest: P137 CONFIANZA reduces Discipline fear, never Cool, never below difficulty 1
+ok 10 - P137 CONFIANZA reduces Discipline fear, never Cool, never below difficulty 1
+  ---
+  duration_ms: 62.351477
+  type: 'test'
+  ...
+# Subtest: P137 BYP removes setback only for security bypass Computers/Skulduggery checks
+ok 11 - P137 BYP removes setback only for security bypass Computers/Skulduggery checks
+  ---
+  duration_ms: 308.67659
+  type: 'test'
+  ...
+# Subtest: P137 STIMSPEC increases healing and retains daily diminishing returns and item consumption
+ok 12 - P137 STIMSPEC increases healing and retains daily diminishing returns and item consumption
+  ---
+  duration_ms: 73.893212
+  type: 'test'
+  ...
+# Subtest: P137 TRUEAIM consumes one real maneuver and upgrades ranged pool; once per round and persistent
+ok 13 - P137 TRUEAIM consumes one real maneuver and upgrades ranged pool; once per round and persistent
+  ---
+  duration_ms: 102.6241
+  type: 'test'
+  ...
+# Subtest: P137 TRUEAIM rejects unowned talent and melee attacks without committing illegal effects
+ok 14 - P137 TRUEAIM rejects unowned talent and melee attacks without committing illegal effects
+  ---
+  duration_ms: 42.300349
+  type: 'test'
+  ...
+# Subtest: P137 five adventures still restore canonical UAE state with new AoR rules loaded
+ok 15 - P137 five adventures still restore canonical UAE state with new AoR rules loaded
+  ---
+  duration_ms: 232.139916
+  type: 'test'
+  ...
+# Subtest: P137 Android UI offers true aim and keeps Kokoro untouched
+ok 16 - P137 Android UI offers true aim and keeps Kokoro untouched
+  ---
+  duration_ms: 16.202681
+  type: 'test'
+  ...
+# Subtest: P144 under-black-sun: início transacional único, falha de armazenamento sem meia sessão
+ok 17 - P144 under-black-sun: início transacional único, falha de armazenamento sem meia sessão
+  ---
+  duration_ms: 560.939298
+  type: 'test'
+  ...
+# Subtest: P144 under-black-sun: escolha transacional não deixa cena/UAE parcial em falha de save
+ok 18 - P144 under-black-sun: escolha transacional não deixa cena/UAE parcial em falha de save
+  ---
+  duration_ms: 251.703804
+  type: 'test'
+  ...
+# Subtest: P144 beyond-the-rim: início transacional único, falha de armazenamento sem meia sessão
+ok 19 - P144 beyond-the-rim: início transacional único, falha de armazenamento sem meia sessão
+  ---
+  duration_ms: 103.047021
+  type: 'test'
+  ...
+# Subtest: P144 beyond-the-rim: escolha transacional não deixa cena/UAE parcial em falha de save
+ok 20 - P144 beyond-the-rim: escolha transacional não deixa cena/UAE parcial em falha de save
+  ---
+  duration_ms: 162.20594
+  type: 'test'
+  ...
+# Subtest: P144 long-arm-of-the-hutt: início transacional único, falha de armazenamento sem meia sessão
+ok 21 - P144 long-arm-of-the-hutt: início transacional único, falha de armazenamento sem meia sessão
+  ---
+  duration_ms: 59.009462
+  type: 'test'
+  ...
+# Subtest: P144 long-arm-of-the-hutt: escolha transacional não deixa cena/UAE parcial em falha de save
+ok 22 - P144 long-arm-of-the-hutt: escolha transacional não deixa cena/UAE parcial em falha de save
+  ---
+  duration_ms: 80.05168
+  type: 'test'
+  ...
+# Subtest: P144 jewel-of-yavin: início transacional único, falha de armazenamento sem meia sessão
+ok 23 - P144 jewel-of-yavin: início transacional único, falha de armazenamento sem meia sessão
+  ---
+  duration_ms: 73.705789
+  type: 'test'
+  ...
+# Subtest: P144 jewel-of-yavin: escolha transacional não deixa cena/UAE parcial em falha de save
+ok 24 - P144 jewel-of-yavin: escolha transacional não deixa cena/UAE parcial em falha de save
+  ---
+  duration_ms: 55.040833
+  type: 'test'
+  ...
+# Subtest: P144 mask-of-the-pirate-queen: início transacional único, falha de armazenamento sem meia sessão
+ok 25 - P144 mask-of-the-pirate-queen: início transacional único, falha de armazenamento sem meia sessão
+  ---
+  duration_ms: 53.969567
+  type: 'test'
+  ...
+# Subtest: P144 mask-of-the-pirate-queen: escolha transacional não deixa cena/UAE parcial em falha de save
+ok 26 - P144 mask-of-the-pirate-queen: escolha transacional não deixa cena/UAE parcial em falha de save
+  ---
+  duration_ms: 52.784142
+  type: 'test'
+  ...
+# Subtest: P144: 9 posições AoR executáveis novas, sem conceder efeitos a outras posições
+ok 27 - P144: 9 posições AoR executáveis novas, sem conceder efeitos a outras posições
+  ---
+  duration_ms: 9.944902
+  type: 'test'
+  ...
+# Subtest: P144: Dotes de comando + Observador removem somente revés nas perícias permitidas
+ok 28 - P144: Dotes de comando + Observador removem somente revés nas perícias permitidas
+  ---
+  duration_ms: 5.501212
+  type: 'test'
+  ...
+# Subtest: P144: Decifrador só reduz dificuldade e revés de código explicitamente declarado
+ok 29 - P144: Decifrador só reduz dificuldade e revés de código explicitamente declarado
+  ---
+  duration_ms: 2.06142
+  type: 'test'
+  ...
+# Subtest: P144: Mateiro reduz revés e tempo apenas em deslocamento ambiental
+ok 30 - P144: Mateiro reduz revés e tempo apenas em deslocamento ambiental
+  ---
+  duration_ms: 1.394676
+  type: 'test'
+  ...
+# Subtest: P144: Observador reduz tempo de busca; Cinturão de acessórios continua pendente
+ok 31 - P144: Observador reduz tempo de busca; Cinturão de acessórios continua pendente
+  ---
+  duration_ms: 1.143898
+  type: 'test'
+  ...
+# Subtest: P144: controlador real persiste modificadores AoR e tempo sem alterar a ficha
+ok 32 - P144: controlador real persiste modificadores AoR e tempo sem alterar a ficha
+  ---
+  duration_ms: 19.628175
+  type: 'test'
+  ...
+# Subtest: P144 under-black-sun: teste de perícia da aventura persiste junto com UAE ou reverte tudo
+ok 33 - P144 under-black-sun: teste de perícia da aventura persiste junto com UAE ou reverte tudo
+  ---
+  duration_ms: 422.95245
+  type: 'test'
+  ...
+# Subtest: P144 beyond-the-rim: teste de perícia da aventura persiste junto com UAE ou reverte tudo
+ok 34 - P144 beyond-the-rim: teste de perícia da aventura persiste junto com UAE ou reverte tudo
+  ---
+  duration_ms: 119.125954
+  type: 'test'
+  ...
+# Subtest: P144: início e encerramento de combate publicado não criam combate órfão se armazenamento falhar
+ok 35 - P144: início e encerramento de combate publicado não criam combate órfão se armazenamento falhar
+  ---
+  duration_ms: 68.423943
+  type: 'test'
+  ...
+# Subtest: P144: compra real de Dotes de comando, Mateiro e Decifrador conecta a árvore ao motor
+ok 36 - P144: compra real de Dotes de comando, Mateiro e Decifrador conecta a árvore ao motor
+  ---
+  duration_ms: 5.938023
+  type: 'test'
+  ...
+# Subtest: P149: 5 source-backed AoR slots have active consumers; all others stay fail-closed
+ok 37 - P149: 5 source-backed AoR slots have active consumers; all others stay fail-closed
+  ---
+  duration_ms: 42.026307
+  type: 'test'
+  ...
+# Subtest: P149: Nobody's Fool upgrades only incoming social checks, never outgoing or unrelated skills
+ok 38 - P149: Nobody's Fool upgrades only incoming social checks, never outgoing or unrelated skills
+  ---
+  duration_ms: 21.810663
+  type: 'test'
+  ...
+# Subtest: P149: incoming social check uses NPC positive dice and player negative pool; saved/reopened
+ok 39 - P149: incoming social check uses NPC positive dice and player negative pool; saved/reopened
+  ---
+  duration_ms: 57.568895
+  type: 'test'
+  ...
+# Subtest: P149: incoming social rejects forged skill/defense/NPC and does not persist invalid requests
+ok 40 - P149: incoming social rejects forged skill/defense/NPC and does not persist invalid requests
+  ---
+  duration_ms: 12.758866
+  type: 'test'
+  ...
+# Subtest: P149: incoming social storage failure is atomic
+ok 41 - P149: incoming social storage failure is atomic
+  ---
+  duration_ms: 36.193644
+  type: 'test'
+  ...
+# Subtest: P149: Disorient option is contextual, rank-bound and rejects invalid budgets
+ok 42 - P149: Disorient option is contextual, rank-bound and rejects invalid budgets
+  ---
+  duration_ms: 7.096207
+  type: 'test'
+  ...
+# Subtest: P149: Disorient consumes the same advantage budget, persists status and prevents double activation
+ok 43 - P149: Disorient consumes the same advantage budget, persists status and prevents double activation
+  ---
+  duration_ms: 30.843491
+  type: 'test'
+  ...
+# Subtest: P149: Disorient expires on real NPC turns
+ok 44 - P149: Disorient expires on real NPC turns
+  ---
+  duration_ms: 26.79294
+  type: 'test'
+  ...
+# Subtest: P149: Disorient rejects miss, low advantage, missing talent and incapacitated target
+ok 45 - P149: Disorient rejects miss, low advantage, missing talent and incapacitated target
+  ---
+  duration_ms: 67.580158
+  type: 'test'
+  ...
+# Subtest: P149: Disorient storage failure rolls back target, advantage and log
+ok 46 - P149: Disorient storage failure rolls back target, advantage and log
+  ---
+  duration_ms: 39.827238
+  type: 'test'
+  ...
+# Subtest: P149 under-black-sun: duplicate/overlapping UAE action receipts rejected on import
+ok 47 - P149 under-black-sun: duplicate/overlapping UAE action receipts rejected on import
+  ---
+  duration_ms: 32.687461
+  type: 'test'
+  ...
+# Subtest: P149 under-black-sun: two durable commands, three reopens and no double rewards
+ok 48 - P149 under-black-sun: two durable commands, three reopens and no double rewards
+  ---
+  duration_ms: 31.27151
+  type: 'test'
+  ...
+# Subtest: P149 under-black-sun: authored check schema invalid fails preflight
+ok 49 - P149 under-black-sun: authored check schema invalid fails preflight
+  ---
+  duration_ms: 2.195259
+  type: 'test'
+  ...
+# Subtest: P149 beyond-the-rim: duplicate/overlapping UAE action receipts rejected on import
+ok 50 - P149 beyond-the-rim: duplicate/overlapping UAE action receipts rejected on import
+  ---
+  duration_ms: 15.775994
+  type: 'test'
+  ...
+# Subtest: P149 beyond-the-rim: two durable commands, three reopens and no double rewards
+ok 51 - P149 beyond-the-rim: two durable commands, three reopens and no double rewards
+  ---
+  duration_ms: 13.66383
+  type: 'test'
+  ...
+# Subtest: P149 beyond-the-rim: authored check schema invalid fails preflight
+ok 52 - P149 beyond-the-rim: authored check schema invalid fails preflight
+  ---
+  duration_ms: 2.670806
+  type: 'test'
+  ...
+# Subtest: P149 long-arm-of-the-hutt: duplicate/overlapping UAE action receipts rejected on import
+ok 53 - P149 long-arm-of-the-hutt: duplicate/overlapping UAE action receipts rejected on import
+  ---
+  duration_ms: 10.252533
+  type: 'test'
+  ...
+# Subtest: P149 long-arm-of-the-hutt: two durable commands, three reopens and no double rewards
+ok 54 - P149 long-arm-of-the-hutt: two durable commands, three reopens and no double rewards
+  ---
+  duration_ms: 32.879383
+  type: 'test'
+  ...
+# Subtest: P149 long-arm-of-the-hutt: authored check schema invalid fails preflight
+ok 55 - P149 long-arm-of-the-hutt: authored check schema invalid fails preflight
+  ---
+  duration_ms: 2.488488
+  type: 'test'
+  ...
+# Subtest: P149 jewel-of-yavin: duplicate/overlapping UAE action receipts rejected on import
+ok 56 - P149 jewel-of-yavin: duplicate/overlapping UAE action receipts rejected on import
+  ---
+  duration_ms: 26.469154
+  type: 'test'
+  ...
+# Subtest: P149 jewel-of-yavin: two durable commands, three reopens and no double rewards
+ok 57 - P149 jewel-of-yavin: two durable commands, three reopens and no double rewards
+  ---
+  duration_ms: 11.622858
+  type: 'test'
+  ...
+# Subtest: P149 jewel-of-yavin: authored check schema invalid fails preflight
+ok 58 - P149 jewel-of-yavin: authored check schema invalid fails preflight
+  ---
+  duration_ms: 0.865824
+  type: 'test'
+  ...
+# Subtest: P149 mask-of-the-pirate-queen: duplicate/overlapping UAE action receipts rejected on import
+ok 59 - P149 mask-of-the-pirate-queen: duplicate/overlapping UAE action receipts rejected on import
+  ---
+  duration_ms: 5.292678
+  type: 'test'
+  ...
+# Subtest: P149 mask-of-the-pirate-queen: two durable commands, three reopens and no double rewards
+ok 60 - P149 mask-of-the-pirate-queen: two durable commands, three reopens and no double rewards
+  ---
+  duration_ms: 10.648452
+  type: 'test'
+  ...
+# Subtest: P149 mask-of-the-pirate-queen: authored check schema invalid fails preflight
+ok 61 - P149 mask-of-the-pirate-queen: authored check schema invalid fails preflight
+  ---
+  duration_ms: 0.609442
+  type: 'test'
+  ...
+# Subtest: P149: Android bridge and TypeScript contract expose both new mechanical actions
+ok 62 - P149: Android bridge and TypeScript contract expose both new mechanical actions
+  ---
+  duration_ms: 5.285164
+  type: 'test'
+  ...
+# Subtest: P149: R46 combat and social panels expose real buttons wired to bridge actions
+ok 63 - P149: R46 combat and social panels expose real buttons wired to bridge actions
+  ---
+  duration_ms: 22.085905
+  type: 'test'
+  ...
+# Subtest: P149: Android bridge actually invokes incoming social talent and persists result
+ok 64 - P149: Android bridge actually invokes incoming social talent and persists result
+  ---
+  duration_ms: 155.721284
+  type: 'test'
+  ...
+# Subtest: P149: Android bridge actually activates Disorient on pending attack and survives reopening
+ok 65 - P149: Android bridge actually activates Disorient on pending attack and survives reopening
+  ---
+  duration_ms: 28.287323
+  type: 'test'
+  ...
+# Subtest: P150: sete posições AoR têm consumidores reais; nomes não equivalentes permanecem bloqueados
+ok 66 - P150: sete posições AoR têm consumidores reais; nomes não equivalentes permanecem bloqueados
+  ---
+  duration_ms: 15.587507
+  type: 'test'
+  ...
+# Subtest: P150: programação defensiva normal concede um contratempo por rank apenas ao defender computador próprio
+ok 67 - P150: programação defensiva normal concede um contratempo por rank apenas ao defender computador próprio
+  ---
+  duration_ms: 15.104473
+  type: 'test'
+  ...
+# Subtest: P150: versão aprimorada SUBSTITUI contratempo por upgrades de dificuldade
+ok 68 - P150: versão aprimorada SUBSTITUI contratempo por upgrades de dificuldade
+  ---
+  duration_ms: 1.551874
+  type: 'test'
+  ...
+# Subtest: P150: invasão NPC gera pool correto e persiste, reabre sem rerrolar
+ok 69 - P150: invasão NPC gera pool correto e persiste, reabre sem rerrolar
+  ---
+  duration_ms: 9.902633
+  type: 'test'
+  ...
+# Subtest: P150: invasão aprimorada modifica dificuldade sem somar Contratempos
+ok 70 - P150: invasão aprimorada modifica dificuldade sem somar Contratempos
+  ---
+  duration_ms: 3.106142
+  type: 'test'
+  ...
+# Subtest: P150: adversário real usa Computadores, não os dados forjados do formulário
+ok 71 - P150: adversário real usa Computadores, não os dados forjados do formulário
+  ---
+  duration_ms: 6.44582
+  type: 'test'
+  ...
+# Subtest: P150: entradas inválidas e sistema não possuído não gravam dados
+ok 72 - P150: entradas inválidas e sistema não possuído não gravam dados
+  ---
+  duration_ms: 2.668657
+  type: 'test'
+  ...
+# Subtest: P150: erro de armazenamento reverte integralmente o histórico da invasão
+ok 73 - P150: erro de armazenamento reverte integralmente o histórico da invasão
+  ---
+  duration_ms: 2.586886
+  type: 'test'
+  ...
+# Subtest: P150: Escurridizo só reduz silhueta ao receber ataque; não altera nave nem acumula
+ok 74 - P150: Escurridizo só reduz silhueta ao receber ataque; não altera nave nem acumula
+  ---
+  duration_ms: 4.762976
+  type: 'test'
+  ...
+# Subtest: P150: UI, bridge e bundle offline contêm as rotas novas; Java Kokoro intocado
+ok 75 - P150: UI, bridge e bundle offline contêm as rotas novas; Java Kokoro intocado
+  ---
+  duration_ms: 35.330628
+  type: 'test'
+  ...
+# Subtest: P150 under-black-sun: prova do controlador é reservada; replay idempotente e 3 reaberturas
+ok 76 - P150 under-black-sun: prova do controlador é reservada; replay idempotente e 3 reaberturas
+  ---
+  duration_ms: 15.738569
+  type: 'test'
+  ...
+# Subtest: P150 under-black-sun: START do controlador registra prova válida e reabre sem escrita
+ok 77 - P150 under-black-sun: START do controlador registra prova válida e reabre sem escrita
+  ---
+  duration_ms: 36.545829
+  type: 'test'
+  ...
+# Subtest: P150 beyond-the-rim: prova do controlador é reservada; replay idempotente e 3 reaberturas
+ok 78 - P150 beyond-the-rim: prova do controlador é reservada; replay idempotente e 3 reaberturas
+  ---
+  duration_ms: 7.399922
+  type: 'test'
+  ...
+# Subtest: P150 beyond-the-rim: START do controlador registra prova válida e reabre sem escrita
+ok 79 - P150 beyond-the-rim: START do controlador registra prova válida e reabre sem escrita
+  ---
+  duration_ms: 26.633617
+  type: 'test'
+  ...
+# Subtest: P150 long-arm-of-the-hutt: prova do controlador é reservada; replay idempotente e 3 reaberturas
+ok 80 - P150 long-arm-of-the-hutt: prova do controlador é reservada; replay idempotente e 3 reaberturas
+  ---
+  duration_ms: 6.054259
+  type: 'test'
+  ...
+# Subtest: P150 long-arm-of-the-hutt: START do controlador registra prova válida e reabre sem escrita
+ok 81 - P150 long-arm-of-the-hutt: START do controlador registra prova válida e reabre sem escrita
+  ---
+  duration_ms: 11.994591
+  type: 'test'
+  ...
+# Subtest: P150 jewel-of-yavin: prova do controlador é reservada; replay idempotente e 3 reaberturas
+ok 82 - P150 jewel-of-yavin: prova do controlador é reservada; replay idempotente e 3 reaberturas
+  ---
+  duration_ms: 5.372696
+  type: 'test'
+  ...
+# Subtest: P150 jewel-of-yavin: START do controlador registra prova válida e reabre sem escrita
+ok 83 - P150 jewel-of-yavin: START do controlador registra prova válida e reabre sem escrita
+  ---
+  duration_ms: 27.883537
+  type: 'test'
+  ...
+# Subtest: P150 mask-of-the-pirate-queen: prova do controlador é reservada; replay idempotente e 3 reaberturas
+ok 84 - P150 mask-of-the-pirate-queen: prova do controlador é reservada; replay idempotente e 3 reaberturas
+  ---
+  duration_ms: 12.107104
+  type: 'test'
+  ...
+# Subtest: P150 mask-of-the-pirate-queen: START do controlador registra prova válida e reabre sem escrita
+ok 85 - P150 mask-of-the-pirate-queen: START do controlador registra prova válida e reabre sem escrita
+  ---
+  duration_ms: 19.74806
+  type: 'test'
+  ...
+# Subtest: P150: ataque NPC usa defesa Escurridizo da nave do jogador e persiste dano/rolagem
+ok 86 - P150: ataque NPC usa defesa Escurridizo da nave do jogador e persiste dano/rolagem
+  ---
+  duration_ms: 11.206885
+  type: 'test'
+  ...
+# Subtest: P150: talento veicular não é aplicado quando personagem não está pilotando
+ok 87 - P150: talento veicular não é aplicado quando personagem não está pilotando
+  ---
+  duration_ms: 23.541996
+  type: 'test'
+  ...
+# Subtest: P150: ataque NPC não consome ação do jogador e só ocorre uma vez por rodada
+ok 88 - P150: ataque NPC não consome ação do jogador e só ocorre uma vez por rodada
+  ---
+  duration_ms: 54.246904
+  type: 'test'
+  ...
+# Subtest: P150: ataque NPC inválido, fora de alcance e sem combate não alteram a campanha
+ok 89 - P150: ataque NPC inválido, fora de alcance e sem combate não alteram a campanha
+  ---
+  duration_ms: 27.088937
+  type: 'test'
+  ...
+# Subtest: P150: falha de armazenamento reverte ataque NPC, dano, munição e turno
+ok 90 - P150: falha de armazenamento reverte ataque NPC, dano, munição e turno
+  ---
+  duration_ms: 20.492173
+  type: 'test'
+  ...
+# Subtest: P150: crítico inimigo consome resultado real, permite escolha de componente e não duplica
+ok 91 - P150: crítico inimigo consome resultado real, permite escolha de componente e não duplica
+  ---
+  duration_ms: 27.214854
+  type: 'test'
+  ...
+# Subtest: P150: crítico inimigo pode ser dispensado sem rolar nem aplicar dano adicional
+ok 92 - P150: crítico inimigo pode ser dispensado sem rolar nem aplicar dano adicional
+  ---
+  duration_ms: 56.591956
+  type: 'test'
+  ...
+# Subtest: P150: interface expõe combate veicular inimigo, custos e escolha de crítico
+ok 93 - P150: interface expõe combate veicular inimigo, custos e escolha de crítico
+  ---
+  duration_ms: 395.610972
+  type: 'test'
+  ...
+1..93
+# tests 93
+# suites 0
+# pass 93
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3574.819014

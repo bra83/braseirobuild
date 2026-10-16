@@ -1,0 +1,119 @@
+TAP version 13
+# Subtest: P171: targeting requires a real initiative encounter and a real conscious companion
+ok 1 - P171: targeting requires a real initiative encounter and a real conscious companion
+  ---
+  duration_ms: 18.18813
+  type: 'test'
+  ...
+# Subtest: P171: real NPC slot targets companion; damage, log, UI and SQLite-style save are atomic
+ok 2 - P171: real NPC slot targets companion; damage, log, UI and SQLite-style save are atomic
+  ---
+  duration_ms: 26.778077
+  type: 'test'
+  ...
+# Subtest: P171: GM targeting honors Body Guard purchased rank and expires at following player turn
+ok 3 - P171: GM targeting honors Body Guard purchased rank and expires at following player turn
+  ---
+  duration_ms: 14.002676
+  type: 'test'
+  ...
+# Subtest: P171: companion ranged defense adds setback to the NPC initiative pool
+ok 4 - P171: companion ranged defense adds setback to the NPC initiative pool
+  ---
+  duration_ms: 31.90769
+  type: 'test'
+  ...
+# Subtest: P171: source-backed Body Guard cannot be forged via a copied display label
+ok 5 - P171: source-backed Body Guard cannot be forged via a copied display label
+  ---
+  duration_ms: 11.509898
+  type: 'test'
+  ...
+# Subtest: P171: GM target automatically clears when companion falls incapacitated
+ok 6 - P171: GM target automatically clears when companion falls incapacitated
+  ---
+  duration_ms: 10.485698
+  type: 'test'
+  ...
+# Subtest: P171: no display-name spoofing creates recovery opportunity
+ok 7 - P171: no display-name spoofing creates recovery opportunity
+  ---
+  duration_ms: 3.390339
+  type: 'test'
+  ...
+# Subtest: P171: improved Hard Headed grants one next-player-slot window and clears on success
+ok 8 - P171: improved Hard Headed grants one next-player-slot window and clears on success
+  ---
+  duration_ms: 12.125553
+  type: 'test'
+  ...
+# Subtest: P171: recovery cannot be used before the following slot or twice
+ok 9 - P171: recovery cannot be used before the following slot or twice
+  ---
+  duration_ms: 14.292261
+  type: 'test'
+  ...
+# Subtest: P171: failed recovery resolves encounter defeat and survives 3 restores
+ok 10 - P171: failed recovery resolves encounter defeat and survives 3 restores
+  ---
+  duration_ms: 10.804928
+  type: 'test'
+  ...
+# Subtest: P171: recovery check is transactional and does not consume action on failed disk write
+ok 11 - P171: recovery check is transactional and does not consume action on failed disk write
+  ---
+  duration_ms: 7.171304
+  type: 'test'
+  ...
+# Subtest: P171: reject forged NPC target and invalid recovery marker in imported checkpoints
+ok 12 - P171: reject forged NPC target and invalid recovery marker in imported checkpoints
+  ---
+  duration_ms: 3.098139
+  type: 'test'
+  ...
+# Subtest: P171: bridge, shell, canonical bundle and Android 1.0.171 expose real GM target selection
+ok 13 - P171: bridge, shell, canonical bundle and Android 1.0.171 expose real GM target selection
+  ---
+  duration_ms: 17.713096
+  type: 'test'
+  ...
+# Subtest: P171 published adventure under-black-sun: GM target, NPC slot, save and three restores
+ok 14 - P171 published adventure under-black-sun: GM target, NPC slot, save and three restores
+  ---
+  duration_ms: 49.895078
+  type: 'test'
+  ...
+# Subtest: P171 published adventure beyond-the-rim: GM target, NPC slot, save and three restores
+ok 15 - P171 published adventure beyond-the-rim: GM target, NPC slot, save and three restores
+  ---
+  duration_ms: 58.40433
+  type: 'test'
+  ...
+# Subtest: P171 published adventure long-arm-of-the-hutt: GM target, NPC slot, save and three restores
+ok 16 - P171 published adventure long-arm-of-the-hutt: GM target, NPC slot, save and three restores
+  ---
+  duration_ms: 27.841501
+  type: 'test'
+  ...
+# Subtest: P171 published adventure jewel-of-yavin: GM target, NPC slot, save and three restores
+ok 17 - P171 published adventure jewel-of-yavin: GM target, NPC slot, save and three restores
+  ---
+  duration_ms: 56.574724
+  type: 'test'
+  ...
+# Subtest: P171 published adventure mask-of-the-pirate-queen: GM target, NPC slot, save and three restores
+ok 18 - P171 published adventure mask-of-the-pirate-queen: GM target, NPC slot, save and three restores
+  ---
+  duration_ms: 51.532878
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 851.688142
+

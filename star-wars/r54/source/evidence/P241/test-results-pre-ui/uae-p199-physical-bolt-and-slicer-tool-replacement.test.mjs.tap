@@ -1,0 +1,131 @@
+TAP version 13
+# Subtest: P199 source-backed Core Table 5-8: bolt 35/0/0 and slicer gear 500/2/4 are separate from restraining_device
+ok 1 - P199 source-backed Core Table 5-8: bolt 35/0/0 and slicer gear 500/2/4 are separate from restraining_device
+  ---
+  duration_ms: 8.338248
+  type: 'test'
+  ...
+# Subtest: P199 bolt cannot be claimed from a missing inventory item, even with GM checkbox
+ok 2 - P199 bolt cannot be claimed from a missing inventory item, even with GM checkbox
+  ---
+  duration_ms: 538.484319
+  type: 'test'
+  ...
+# Subtest: P199 restraining_device alone does not authorize a physical bolt
+ok 3 - P199 restraining_device alone does not authorize a physical bolt
+  ---
+  duration_ms: 340.357898
+  type: 'test'
+  ...
+# Subtest: P199 buying bolt debits 35 real credits, records receipt, and adds one owned physical item
+ok 4 - P199 buying bolt debits 35 real credits, records receipt, and adds one owned physical item
+  ---
+  duration_ms: 341.913764
+  type: 'test'
+  ...
+# Subtest: P199 cannot buy without GM approval or sufficient credits; both rollback
+ok 5 - P199 cannot buy without GM approval or sufficient credits; both rollback
+  ---
+  duration_ms: 390.254505
+  type: 'test'
+  ...
+# Subtest: P199 official EotE Core requires spot-welder or owned toolkit to install bolt
+ok 6 - P199 official EotE Core requires spot-welder or owned toolkit to install bolt
+  ---
+  duration_ms: 133.476361
+  type: 'test'
+  ...
+# Subtest: P199 bolt attaches only after real successful capture, physically leaves inventory and downgrades G-100
+ok 7 - P199 bolt attaches only after real successful capture, physically leaves inventory and downgrades G-100
+  ---
+  duration_ms: 146.623678
+  type: 'test'
+  ...
+# Subtest: P199 failed capture retains physical bolt and records failed dice, not fictional attachment
+ok 8 - P199 failed capture retains physical bolt and records failed dice, not fictional attachment
+  ---
+  duration_ms: 261.268186
+  type: 'test'
+  ...
+# Subtest: P199 no-bolt capture retains upgraded negative pool and never removes gear
+ok 9 - P199 no-bolt capture retains upgraded negative pool and never removes gear
+  ---
+  duration_ms: 179.356697
+  type: 'test'
+  ...
+# Subtest: P199 bolt purchase/action idempotence prevents duplicate charges or forged item
+ok 10 - P199 bolt purchase/action idempotence prevents duplicate charges or forged item
+  ---
+  duration_ms: 270.65465
+  type: 'test'
+  ...
+# Subtest: P199 bank contract rejects forged physical bolt receipts, actor and state
+ok 11 - P199 bank contract rejects forged physical bolt receipts, actor and state
+  ---
+  duration_ms: 342.755394
+  type: 'test'
+  ...
+# Subtest: P199 captured signature remains a historical fact after purchasing fresh 500-credit slicer gear
+ok 12 - P199 captured signature remains a historical fact after purchasing fresh 500-credit slicer gear
+  ---
+  duration_ms: 236.561364
+  type: 'test'
+  ...
+# Subtest: P199 subsequent G-100 slicing no longer suffers captured-signature upgrade after replacement
+ok 13 - P199 subsequent G-100 slicing no longer suffers captured-signature upgrade after replacement
+  ---
+  duration_ms: 567.810213
+  type: 'test'
+  ...
+# Subtest: P199 signature penalty stops on generic Cloud City slicing after physical kit replacement, not on unrelated Computers
+ok 14 - P199 signature penalty stops on generic Cloud City slicing after physical kit replacement, not on unrelated Computers
+  ---
+  duration_ms: 578.381676
+  type: 'test'
+  ...
+# Subtest: P199 no signature cannot trigger tool purchase; no GM approval/insufficient funds cannot spend
+ok 15 - P199 no signature cannot trigger tool purchase; no GM approval/insufficient funds cannot spend
+  ---
+  duration_ms: 424.581176
+  type: 'test'
+  ...
+# Subtest: P199 tool replacement removes one compromised owned kit before inserting fresh kit
+ok 16 - P199 tool replacement removes one compromised owned kit before inserting fresh kit
+  ---
+  duration_ms: 492.270227
+  type: 'test'
+  ...
+# Subtest: P199 replay rejects altered cost, fake clearance, signature missing, and repeated tool replacement
+ok 17 - P199 replay rejects altered cost, fake clearance, signature missing, and repeated tool replacement
+  ---
+  duration_ms: 565.950641
+  type: 'test'
+  ...
+# Subtest: P199 three reopenings retain credits, bolt attachment, signed tool replacement and dice history
+ok 18 - P199 three reopenings retain credits, bolt attachment, signed tool replacement and dice history
+  ---
+  duration_ms: 440.829917
+  type: 'test'
+  ...
+# Subtest: P199 P198 legacy bolt receipt without inventory fields is still replayable when contract absent
+ok 19 - P199 P198 legacy bolt receipt without inventory fields is still replayable when contract absent
+  ---
+  duration_ms: 374.753061
+  type: 'test'
+  ...
+# Subtest: P199 UI/bridge provides explicit GM purchase, inventory count and replacement buttons
+ok 20 - P199 UI/bridge provides explicit GM purchase, inventory count and replacement buttons
+  ---
+  duration_ms: 106.929301
+  type: 'test'
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7409.329816
+

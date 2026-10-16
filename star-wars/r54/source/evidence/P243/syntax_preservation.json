@@ -1,0 +1,17 @@
+{
+  "mjs_checked": 557,
+  "mjs_failed": [],
+  "json_checked": 4221,
+  "json_failed": [],
+  "xml_checked": 2,
+  "xml_failed": [],
+  "runtime_js_checked": [
+    "app/src/main/assets/vtt/js/core/uiBridge.bundle.js",
+    "app/src/main/assets/vtt/r46/final-runtime.js"
+  ],
+  "runtime_js_failed": [],
+  "java_checked": 8,
+  "java_byte_identical_to_P242": true,
+  "apk_built": false,
+  "ui_bridge_modules": 127
+}

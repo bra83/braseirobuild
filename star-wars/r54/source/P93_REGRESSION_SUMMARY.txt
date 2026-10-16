@@ -1,0 +1,12 @@
+P93 REGRESSÃO FINAL — árvore final
+chunk 1: 269/269 PASS, 0 FAIL
+chunk 2: 242/242 PASS, 0 FAIL
+chunk 3: 257/257 PASS, 0 FAIL
+chunk 4: 272/272 PASS, 0 FAIL
+TOTAL NÃO-STRESS: 1040/1040 PASS, 0 FAIL
+STRESS: 6/6 PASS, 0 FAIL
+TOTAL GLOBAL: 1046/1046 PASS, 0 FAIL
+FOCAL P92+P93: 21/21 PASS, 0 FAIL
+Sob um Sol Negro: 106/106 PASS, 0 FAIL
+Além da Orla: 57/57 PASS, 0 FAIL
+Android/Gradle: NÃO EXECUTADO por instrução explícita do usuário; compilar somente no fechamento final.

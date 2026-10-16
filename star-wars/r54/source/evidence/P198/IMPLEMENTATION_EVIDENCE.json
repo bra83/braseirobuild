@@ -1,0 +1,21 @@
+{
+  "checkpoint": "P198",
+  "changes": [
+    "Tactical Direction free_maneuver now moves a minion group IMMEDIATELY on sergeant initiative per PDF p13",
+    "Single-band range movement validated and written to adversary.range, changing subsequent combat range checks",
+    "No teleport across Medium/Long/Extreme, GM confirms path and NPC-to-NPC distance",
+    "One maneuver per sergeant per round, no duplicate order/grant, invalid receipts and stale positions rejected",
+    "Cancels queued maneuvers when source is incapacitated or staggered",
+    "Android PT-BR mode/direction/path confirmation and runtime bridge",
+    "Version 1.0.198, bundle offline 94 modules, 8 Java/Kokoro files unchanged",
+    "13 new focused tests, 317 regular test files and 6 stress files green"
+  ],
+  "knownPending": [
+    "restraining bolt real inventory item",
+    "slicer gear replacement with source-verified inventory",
+    "bank settlement and escape",
+    "SWE02 New Meen Geonosis Teemo",
+    "five adventures and 360 AoR/EotE/expansion consumers not semantically certified",
+    "APK/Gradle/physical Android not verified"
+  ]
+}
