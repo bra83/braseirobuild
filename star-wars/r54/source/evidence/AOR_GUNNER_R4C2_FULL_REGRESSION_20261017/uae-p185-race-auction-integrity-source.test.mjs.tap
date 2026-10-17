@@ -1,0 +1,197 @@
+TAP version 13
+# Subtest: P185 replay rejects forged auction bidValue
+ok 1 - P185 replay rejects forged auction bidValue
+  ---
+  duration_ms: 413.6474
+  type: 'test'
+  ...
+# Subtest: P185 replay rejects forged auction active
+ok 2 - P185 replay rejects forged auction active
+  ---
+  duration_ms: 185.1165
+  type: 'test'
+  ...
+# Subtest: P185 replay rejects forged auction base
+ok 3 - P185 replay rejects forged auction base
+  ---
+  duration_ms: 175.3564
+  type: 'test'
+  ...
+# Subtest: P185 replay rejects forged auction name
+ok 4 - P185 replay rejects forged auction name
+  ---
+  duration_ms: 124.7245
+  type: 'test'
+  ...
+# Subtest: P185 replay rejects auction winner changed without changing credit total
+ok 5 - P185 replay rejects auction winner changed without changing credit total
+  ---
+  duration_ms: 149.8295
+  type: 'test'
+  ...
+# Subtest: P185 replay rejects auction round order and remaining bidders forged
+ok 6 - P185 replay rejects auction round order and remaining bidders forged
+  ---
+  duration_ms: 57.8998
+  type: 'test'
+  ...
+# Subtest: P185 replay rejects auction completed flag forged
+ok 7 - P185 replay rejects auction completed flag forged
+  ---
+  duration_ms: 119.3177
+  type: 'test'
+  ...
+# Subtest: P185 replay rejects auction receipt amount forged in both receipt and history
+ok 8 - P185 replay rejects auction receipt amount forged in both receipt and history
+  ---
+  duration_ms: 59.046
+  type: 'test'
+  ...
+# Subtest: P185 replay rejects bidder influence moved to wrong round
+ok 9 - P185 replay rejects bidder influence moved to wrong round
+  ---
+  duration_ms: 133.5804
+  type: 'test'
+  ...
+# Subtest: P185 replay rejects influence pending without receipt
+ok 10 - P185 replay rejects influence pending without receipt
+  ---
+  duration_ms: 99.9047
+  type: 'test'
+  ...
+# Subtest: P185 failed influence does not auto-award triumph bonus
+ok 11 - P185 failed influence does not auto-award triumph bonus
+  ---
+  duration_ms: 138.0893
+  type: 'test'
+  ...
+# Subtest: P185 started auction cannot be skipped by advancing to bank
+ok 12 - P185 started auction cannot be skipped by advancing to bank
+  ---
+  duration_ms: 64.2004
+  type: 'test'
+  ...
+# Subtest: P185 legacy auction scene can advance without creating phantom bids
+ok 13 - P185 legacy auction scene can advance without creating phantom bids
+  ---
+  duration_ms: 60.5077
+  type: 'test'
+  ...
+# Subtest: P185 started Grand Prix cannot skip seven legs
+ok 14 - P185 started Grand Prix cannot skip seven legs
+  ---
+  duration_ms: 57.8137
+  type: 'test'
+  ...
+# Subtest: P185 completed Grand Prix requires classified place to advance
+ok 15 - P185 completed Grand Prix requires classified place to advance
+  ---
+  duration_ms: 146.349
+  type: 'test'
+  ...
+# Subtest: P185 legacy Grand Prix without operation remains playable
+ok 16 - P185 legacy Grand Prix without operation remains playable
+  ---
+  duration_ms: 35.9984
+  type: 'test'
+  ...
+# Subtest: P185 source hazard leg 4 has two setbacks and tibannuck
+ok 17 - P185 source hazard leg 4 has two setbacks and tibannuck
+  ---
+  duration_ms: 2.5391
+  type: 'test'
+  ...
+# Subtest: P185 source hazard leg 5 has one setback and beldon
+ok 18 - P185 source hazard leg 5 has one setback and beldon
+  ---
+  duration_ms: 0.2792
+  type: 'test'
+  ...
+# Subtest: P185 missed buoy requires next-check setback and survives three reopens
+ok 19 - P185 missed buoy requires next-check setback and survives three reopens
+  ---
+  duration_ms: 49.4595
+  type: 'test'
+  ...
+# Subtest: P185 tibannuck threat causes one system strain
+ok 20 - P185 tibannuck threat causes one system strain
+  ---
+  duration_ms: 99.2796
+  type: 'test'
+  ...
+# Subtest: P185 tibannuck despair records critical modifier minus twenty
+ok 21 - P185 tibannuck despair records critical modifier minus twenty
+  ---
+  duration_ms: 121.4745
+  type: 'test'
+  ...
+# Subtest: P185 beldon three threats records critical without modifier
+ok 22 - P185 beldon three threats records critical without modifier
+  ---
+  duration_ms: 116.7228
+  type: 'test'
+  ...
+# Subtest: P185 critical hazard without critical collision receipt is rejected
+ok 23 - P185 critical hazard without critical collision receipt is rejected
+  ---
+  duration_ms: 88.8
+  type: 'test'
+  ...
+# Subtest: P185 hazard cannot be forged for safe leg
+ok 24 - P185 hazard cannot be forged for safe leg
+  ---
+  duration_ms: 55.4584
+  type: 'test'
+  ...
+# Subtest: P185 forged hazard strain fails replay even if total changed
+ok 25 - P185 forged hazard strain fails replay even if total changed
+  ---
+  duration_ms: 58.7275
+  type: 'test'
+  ...
+# Subtest: P185 forged missed buoy next setback fails replay
+ok 26 - P185 forged missed buoy next setback fails replay
+  ---
+  duration_ms: 85.7141
+  type: 'test'
+  ...
+# Subtest: P185 forged race victory flag fails replay
+ok 27 - P185 forged race victory flag fails replay
+  ---
+  duration_ms: 99.069
+  type: 'test'
+  ...
+# Subtest: P185 corrupted save rejects scene advance without mutating original
+ok 28 - P185 corrupted save rejects scene advance without mutating original
+  ---
+  duration_ms: 73.6705
+  type: 'test'
+  ...
+# Subtest: P185 original P184 auction and race saves without hazard fields remain valid
+ok 29 - P185 original P184 auction and race saves without hazard fields remain valid
+  ---
+  duration_ms: 114.1524
+  type: 'test'
+  ...
+# Subtest: P185 new bidder receipt stores verifiable successes and triumphs
+ok 30 - P185 new bidder receipt stores verifiable successes and triumphs
+  ---
+  duration_ms: 87.6579
+  type: 'test'
+  ...
+# Subtest: P185 Android published status exposes terrain and missed buoy setback guidance
+ok 31 - P185 Android published status exposes terrain and missed buoy setback guidance
+  ---
+  duration_ms: 46.5449
+  type: 'test'
+  ...
+1..31
+# tests 31
+# suites 0
+# pass 31
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4574.6481
+

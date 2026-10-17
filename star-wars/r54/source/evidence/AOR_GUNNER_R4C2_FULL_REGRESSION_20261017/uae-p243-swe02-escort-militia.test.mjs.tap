@@ -1,0 +1,107 @@
+TAP version 13
+# Subtest: P243 PDF p20: prepare tracks exactly 20 adults and unspecified children without false victory
+ok 1 - P243 PDF p20: prepare tracks exactly 20 adults and unspecified children without false victory
+  ---
+  duration_ms: 523.3317
+  type: 'test'
+  ...
+# Subtest: P243 PDF p20: approved travel ticks advance living world and record Bura favor but not liberation
+ok 2 - P243 PDF p20: approved travel ticks advance living world and record Bura favor but not liberation
+  ---
+  duration_ms: 467.3375
+  type: 'test'
+  ...
+# Subtest: P243 elapsed world time counts toward escort and is not charged twice
+ok 3 - P243 elapsed world time counts toward escort and is not charged twice
+  ---
+  duration_ms: 354.9574
+  type: 'test'
+  ...
+# Subtest: P243 cannot depart without assembly, arrive without departure or duplicate arrival
+ok 4 - P243 cannot depart without assembly, arrive without departure or duplicate arrival
+  ---
+  duration_ms: 312.3131
+  type: 'test'
+  ...
+# Subtest: P243 invalid GM ticks fail closed without advancing clock or saving
+ok 5 - P243 invalid GM ticks fail closed without advancing clock or saving
+  ---
+  duration_ms: 355.0939
+  type: 'test'
+  ...
+# Subtest: P243 abandon has no Bura favor, no liberated settlement and survives three reopens
+ok 6 - P243 abandon has no Bura favor, no liberated settlement and survives three reopens
+  ---
+  duration_ms: 401.3795
+  type: 'test'
+  ...
+# Subtest: P243 legacy direct Ota departure is explicitly abandonment, never credited escort
+ok 7 - P243 legacy direct Ota departure is explicitly abandonment, never credited escort
+  ---
+  duration_ms: 366.2541
+  type: 'test'
+  ...
+# Subtest: P243 tampered escort arrival, duration, or adults rejected by adapter status
+ok 8 - P243 tampered escort arrival, duration, or adults rejected by adapter status
+  ---
+  duration_ms: 224.2698
+  type: 'test'
+  ...
+# Subtest: P243 militia takes a real blaster weapon out of inventory and tracks one adult
+ok 9 - P243 militia takes a real blaster weapon out of inventory and tracks one adult
+  ---
+  duration_ms: 265.0773
+  type: 'test'
+  ...
+# Subtest: P243 rejects grenade, nonexistent weapon, wrong scene and no double spend
+ok 10 - P243 rejects grenade, nonexistent weapon, wrong scene and no double spend
+  ---
+  duration_ms: 221.3832
+  type: 'test'
+  ...
+# Subtest: P243 official optional abstract combat: one wound per armed ally and one allied loss, once per round
+ok 11 - P243 official optional abstract combat: one wound per armed ally and one allied loss, once per round
+  ---
+  duration_ms: 332.7004
+  type: 'test'
+  ...
+# Subtest: P243 militia never wounds Drombb, cannot attack outside combat and cannot act twice
+ok 12 - P243 militia never wounds Drombb, cannot attack outside combat and cannot act twice
+  ---
+  duration_ms: 290.8926
+  type: 'test'
+  ...
+# Subtest: P243 invalid militia receipts and casualties rejected by adapter status
+ok 13 - P243 invalid militia receipts and casualties rejected by adapter status
+  ---
+  duration_ms: 203.6246
+  type: 'test'
+  ...
+# Subtest: P243 bridge and offline Android UI expose escort and militia actions
+ok 14 - P243 bridge and offline Android UI expose escort and militia actions
+  ---
+  duration_ms: 4.5537
+  type: 'test'
+  ...
+# Subtest: P243 optional militia round cannot be duplicated or applied after combat outcome
+ok 15 - P243 optional militia round cannot be duplicated or applied after combat outcome
+  ---
+  duration_ms: 402.8972
+  type: 'test'
+  ...
+# Subtest: P243 New Meen escort and militia panels remain visible without a vehicle
+ok 16 - P243 New Meen escort and militia panels remain visible without a vehicle
+  ---
+  duration_ms: 10.7055
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6268.7618
+

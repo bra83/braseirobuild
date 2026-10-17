@@ -1,0 +1,83 @@
+TAP version 13
+# Subtest: Old Lylek foot approach is available without a Perception declaration; hunter loot, warning and optional verified lylek attack survive three reopenings
+ok 1 - Old Lylek foot approach is available without a Perception declaration; hunter loot, warning and optional verified lylek attack survive three reopenings
+  ---
+  duration_ms: 1740.426
+  type: 'test'
+  ...
+# Subtest: lylek submission requires an explicit GM confirmation and preserves source absence of a numeric threshold
+ok 2 - lylek submission requires an explicit GM confirmation and preserves source absence of a numeric threshold
+  ---
+  duration_ms: 1194.7334
+  type: 'test'
+  ...
+# Subtest: failed fast-route Pilot checks apply party-wide strain by stable PC ID and persist after reopen
+ok 3 - failed fast-route Pilot checks apply party-wide strain by stable PC ID and persist after reopen
+  ---
+  duration_ms: 943.5128
+  type: 'test'
+  ...
+# Subtest: crash checks resolve once for each onboard PC, apply failure damage to the matching sheet, and exclude companions
+ok 4 - crash checks resolve once for each onboard PC, apply failure damage to the matching sheet, and exclude companions
+  ---
+  duration_ms: 983.1532
+  type: 'test'
+  ...
+# Subtest: schema 14 singleton migration to schema 15 creates one stable PC ID and mirrors active-sheet updates without importing companions
+ok 5 - schema 14 singleton migration to schema 15 creates one stable PC ID and mirrors active-sheet updates without importing companions
+  ---
+  duration_ms: 529.4467
+  type: 'test'
+  ...
+# Subtest: retreat or incapacitation settles the hunter branch while preserving the lylek trigger and its p.18 loot rule
+ok 6 - retreat or incapacitation settles the hunter branch while preserving the lylek trigger and its p.18 loot rule
+  ---
+  duration_ms: 1524.3879
+  type: 'test'
+  ...
+# Subtest: p.17 rock cover adds two setback to ranged checks and hunters begin with stun/capture intent, then switch to lethal after a hunter falls
+ok 7 - p.17 rock cover adds two setback to ranged checks and hunters begin with stun/capture intent, then switch to lethal after a hunter falls
+  ---
+  duration_ms: 2587.5326
+  type: 'test'
+  ...
+# Subtest: p.16 eastern cave flank is a persisted position choice; frontal fighting retreat uses the dotted path and persists the escaped outcome
+ok 8 - p.16 eastern cave flank is a persisted position choice; frontal fighting retreat uses the dotted path and persists the escaped outcome
+  ---
+  duration_ms: 1537.8098
+  type: 'test'
+  ...
+# Subtest: p.17 repair Advantage leaves reduction amount to GM and persists an explicit chosen reduction
+ok 9 - p.17 repair Advantage leaves reduction amount to GM and persists an explicit chosen reduction
+  ---
+  duration_ms: 1585.8263
+  type: 'test'
+  ...
+# Subtest: any player Advantage automatically kills one hunter for prey when GM selected the beast branch, with persisted one-time receipt
+ok 10 - any player Advantage automatically kills one hunter for prey when GM selected the beast branch, with persisted one-time receipt
+  ---
+  duration_ms: 656.6427
+  type: 'test'
+  ...
+# Subtest: New Meen conditional developer details require a PC question and persist with their printed pp.18–19 source
+ok 11 - New Meen conditional developer details require a PC question and persist with their printed pp.18–19 source
+  ---
+  duration_ms: 763.1258
+  type: 'test'
+  ...
+# Subtest: printed p.16 map exposes source-named zones and persists only explicit PC/hunter locations across three reopenings
+ok 12 - printed p.16 map exposes source-named zones and persists only explicit PC/hunter locations across three reopenings
+  ---
+  duration_ms: 989.3237
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16647.8626
+

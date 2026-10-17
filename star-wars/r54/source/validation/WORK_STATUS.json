@@ -13,16 +13,16 @@
   "rules_status": "PENDENTE",
   "aor_360": {
     "positions": 360,
-    "certified": 9,
-    "pending": 351,
+    "certified": 10,
+    "pending": 350,
     "ledger": "validation/AOR_360_INDIVIDUAL_PROOFS.jsonl",
-    "individual_proofs_certified": 9,
-    "individual_proofs_pending": 351,
-    "static_exact_node_id_test_mentions": 10,
+    "individual_proofs_certified": 10,
+    "individual_proofs_pending": 350,
+    "static_exact_node_id_test_mentions": 11,
     "static_broader_name_key_test_mentions": 290,
     "ledger_includes_static_references": true,
     "static_references_are_certification": false,
-    "individually_source_audited": 31,
+    "individually_source_audited": 32,
     "first_tree_audit": "audits/AOR_ACE_GUNNER_INDIVIDUAL_AUDIT.md",
     "first_tree_rows": 20,
     "first_tree_rows_status": "PENDENTE",
@@ -107,6 +107,28 @@
       "test": "tests/uae-aor-individual-position-proofs.test.mjs",
       "evidence": "evidence/AOR_ACE_GUNNER_R2C3_20261017/",
       "regression": "evidence/AOR_GUNNER_R2C3_FULL_REGRESSION_20261017/summary.json"
+    },
+    "r4c2_proof": {
+      "position": "ace:gunner:r4c2",
+      "status": "CERTIFICADO",
+      "source": "AoR Core Rulebook printed p.68",
+      "test": "tests/uae-aor-individual-position-proofs.test.mjs",
+      "evidence": "evidence/AOR_ACE_GUNNER_R4C2_20261017/",
+      "regression": "evidence/AOR_GUNNER_R4C2_FULL_REGRESSION_20261017/summary.json"
+    },
+    "aor_gunner_r4c2_full_regression": {
+      "state": "PASS",
+      "files": 383,
+      "regular_files": 377,
+      "stress_files": 6,
+      "tests": 3477,
+      "pass": 3475,
+      "fail": 0,
+      "skip": 2,
+      "evidence": "evidence/AOR_GUNNER_R4C2_FULL_REGRESSION_20261017/",
+      "summary": "evidence/AOR_GUNNER_R4C2_FULL_REGRESSION_20261017/summary.json",
+      "exact_position_tap": "evidence/AOR_GUNNER_R4C2_FULL_REGRESSION_20261017/uae-aor-individual-position-proofs.test.mjs.tap",
+      "skip_reason": "JDK jar executable unavailable for two offline Gradle-wrapper packaging checks."
     }
   },
   "drive_inventory": {
@@ -169,7 +191,7 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Continue source-to-semantic coverage for the five authorized adventures and selected EotE/AoR rules corpus, and individually prove the remaining 351 AoR positions. Keep R2C2 pending until vehicle-action consumer scope is resolved. Preserve cited RAG retrieval and deterministic code authority; do not create P245 or run Android release gates until all global certification criteria pass.",
+  "next_action": "Continue source-to-semantic coverage for the five authorized adventures and selected EotE/AoR rules corpus, and individually prove the remaining 350 AoR positions. Keep R2C2 pending until vehicle-action consumer scope is resolved. Preserve cited RAG retrieval and deterministic code authority; do not create P245 or run Android release gates until all global certification criteria pass.",
   "swe02_krayt_fang_pp06_11": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
     "source": "Long Arm of the Hutt printed pp.6–11 / PDF pp.6–11",

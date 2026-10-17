@@ -19,6 +19,7 @@ const TOUGHENED_RANK2_POSITION='ace:gunner:r4c1';
 const OVERWHELM_POSITION='ace:gunner:r1c3';
 const DEBILITATING_POSITION='ace:gunner:r1c4';
 const SPARE_CLIP_POSITION='ace:gunner:r2c3';
+const ENDURING_RANK2_POSITION='ace:gunner:r4c2';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
  careerFreeSkills:['astronavegacion','frialdad','mecanica','percepcion'],
@@ -454,4 +455,53 @@ test('AoR p.68 Ace/Gunner R2C3 Spare Clip buys exact node, prevents Despair ammo
  assert.equal(limitedReload.state.player.character.weapons[0].runtimeState.limitedAmmoRemaining,1);
  assert.equal(limitedReload.state.player.character.weapons[0].runtimeState.outOfAmmo,undefined);
  assert.equal(bridge.buyTalent(SPARE_CLIP_POSITION).ok,false,'the exact node cannot be purchased twice');
+});
+
+test('AoR p.68 Ace/Gunner R4C2 Enduring rank 2 buys exact node, stacks soak and survives three reloads',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');setup.createAorCharacter({...characterOptions,name:'Talla Rinn'});
+ const before=clone(setup.state.player.character),bridge=new BraseiroUiBridge({repository:repo});
+ for(const id of [DURABLE_POSITION,TOUGHENED_POSITION,'ace:gunner:r2c2',ENDURING_POSITION,DURABLE_RANK2_POSITION,TOUGHENED_RANK2_POSITION]){
+  const prerequisite=bridge.buyTalent(id);assert.equal(prerequisite.ok,true,`exact path prerequisite ${id} is acquired`);
+ }
+ const candidate=new GameController(repo).eligibleTalents().find(n=>n.id===ENDURING_RANK2_POSITION);
+ assert.ok(candidate);assert.equal(candidate.available,true);assert.equal(candidate.originalName,'RESISTENTE');
+ assert.equal(candidate.name,'Resistente');assert.equal(candidate.cost,20);
+ assert.equal(candidate.source.printedPage,68);assert.equal(candidate.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+ const treeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(n=>n.id===ENDURING_RANK2_POSITION);
+ assert.ok(treeNode);assert.equal(treeNode.originalName,'RESISTENTE');assert.equal(treeNode.source.printedPage,68);
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ assert.ok(html.includes('id="talentOptions"'));
+ assert.match(ui,/data-talent-id="\$\{escapeHtml\(t\.id\)\}"/);
+ assert.match(ui,/game\.buyTalent\(button\.dataset\.talentId/);
+ const beforeRank2=new GameController(repo).state.player.character.derived.soak;
+ const purchase=bridge.buyTalent(ENDURING_RANK2_POSITION);
+ assert.equal(purchase.ok,true);assert.equal(purchase.data.talent.id,ENDURING_RANK2_POSITION);
+ assert.deepEqual(purchase.data.effect,{applied:true,label:'+1 de Proteção'});
+ assert.equal(purchase.data.character.derived.soak,beforeRank2+1);
+ assert.equal(purchase.data.character.derived.soak,before.derived.soak+2);
+ assert.equal(purchase.data.character.xp.available,before.xp.available-95);
+ const receipt=purchase.data.character.talentPurchases.find(p=>p.nodeId===ENDURING_RANK2_POSITION);
+ assert.equal(receipt.originalName,'RESISTENTE');assert.equal(receipt.source.printedPage,68);
+ assert.equal(receipt.specializationKey,'gunner');assert.equal(receipt.cost,20);
+
+ const damageGame=new GameController(repo),damage=damageGame.applyPlayerDamage({damage:5,reason:'prova rank 2 de Resistente'});
+ assert.equal(damage.effectiveSoak,before.derived.soak+2);
+ assert.equal(damage.suffered,Math.max(0,5-(before.derived.soak+2)));
+ const saved=clone(repo.state);
+ for(let reopen=1;reopen<=3;reopen++){
+  const restoredRepo=new RepoWithState(saved),restored=new GameController(restoredRepo);
+  const character=restored.state.player.character;
+  for(const id of [ENDURING_POSITION,ENDURING_RANK2_POSITION]){
+   const owned=character.talentPurchases.find(p=>p.nodeId===id);
+   assert.ok(owned,`exact rank node ${id} survives reopen ${reopen}`);
+   assert.equal(owned.source.printedPage,68);assert.equal(owned.specializationKey,'gunner');
+  }
+  assert.equal(character.derived.soak,before.derived.soak+2);
+  const reopenedDamage=restored.applyPlayerDamage({damage:5,reason:`reopen rank 2 ${reopen}`});
+  assert.equal(reopenedDamage.effectiveSoak,before.derived.soak+2);
+  assert.equal(reopenedDamage.suffered,Math.max(0,5-(before.derived.soak+2)));
+ }
+ assert.equal(bridge.buyTalent(ENDURING_RANK2_POSITION).ok,false,'the exact rank node cannot be purchased twice');
 });
