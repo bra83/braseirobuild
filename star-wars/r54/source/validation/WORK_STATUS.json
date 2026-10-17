@@ -488,7 +488,22 @@
       "Living T’rex competing with mandatory Gand for a one-hunter solo/unknown-size party remains unresolved by the source combination.",
       "Full pp.15–18 page certification and other SWE02 Act 1 details remain outstanding."
     ],
-    "evidence_report": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/RESULTS.md"
+    "evidence_report": "evidence/SWE02_OLD_LYLEK_P15_18_BLOCK/RESULTS.md",
+    "p15_pilot_strain_proof": {
+      "position": "SWE02 printed p.15 fast-route Pilot failure strain",
+      "status": "CERTIFICADO",
+      "source": "The Long Arm of the Hutt printed p.15; Drive ID 1Lm26krELYpWU0Rx0WgPj__g72YU_F2lC; PDF SHA-256 18FB9880242743D11765EACA442168FC3441A3B0D17AA92BC769057734B45489",
+      "test": "tests/swe02-old-lylek-encounter.test.mjs",
+      "test_id": "failed fast-route Pilot checks apply party-wide strain by stable PC ID and persist after reopen",
+      "result": {
+        "tests": 12,
+        "pass": 12,
+        "fail": 0,
+        "skip": 0
+      },
+      "evidence": "evidence/SWE02_OLD_LYLEK_P15_PILOT_STRAIN_20261017/",
+      "scope": "Each failed fast-route Pilot check applies one Strain to every onboard PC by stable roster ID and persists after three fresh reloads. This micro-proof does not certify p.15, pp.15-18, Act 1, or SWE02."
+    }
   },
   "trex_carryover": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
