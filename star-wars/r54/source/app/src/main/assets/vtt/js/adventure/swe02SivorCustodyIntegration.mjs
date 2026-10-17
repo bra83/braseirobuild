@@ -54,8 +54,10 @@ export function validateSWE02SivorPhysicalProof(p) {
    c.origin!=='KRAYT_FANG_HOLD3'||c.holder!=='PARTY'||c.physical!==true||
    c.collectedAtNode!=='krayt-fang-logs'||c.source?.productCode!=='SWE02'||
    c.source?.printedPage!==9||c.source?.authority!=='OFFICIAL_PDF_TEXT_VERIFIED'||
-   typeof c.knowledgeReceiptVerified!=='boolean'||c.transfers!==0||
-   !p.flags?.shipMarkedChitinKept||!p.shipChitinKnowledge||!evidence(p,'sivor-shell','shell')))
+   typeof c.knowledgeReceiptVerified!=='boolean'||
+   c.knowledgeReceiptVerified!==Boolean(p.shipChitinKnowledge?.checkReceipt?.checkIndex===9&&p.shipChitinKnowledge?.checkReceipt?.success===true)||
+   c.transfers!==0||!p.flags?.shipMarkedChitinKept||
+   !p.shipChitinKnowledge||!evidence(p,'sivor-shell','shell')))
   throw Error('SWE02: custódia física de Sivor sem origem verificável.');
  if(i&&(!c||i.type!=='SIVOR_SHELL_POSITIVE_IDENTIFICATION'||
    i.assetId!==SIVOR_SHELL_ID||i.witness!=='PIDDOCK'||
@@ -68,7 +70,7 @@ export function validateSWE02SivorPhysicalProof(p) {
  return true;
 }
 export function requireSWE02SivorProofForDimmock(p) {
- if(!p?.sivorShellCustody||!p?.sivorShellIdentification) {
+ if(!p?.sivorShellCustody||!p?.sivorShellIdentification||p.sivorShellCustody.knowledgeReceiptVerified!==true) {
   throw Error('SWE02: save legado não certifica a identificação física de Sivor para Dimmock.');
  }
  validateSWE02SivorPhysicalProof(p);
