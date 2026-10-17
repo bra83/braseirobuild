@@ -1,0 +1,77 @@
+TAP version 13
+# Subtest: P208 Naboka refuses any additional hired NPC slice after a first real failure; player can retry
+ok 1 - P208 Naboka refuses any additional hired NPC slice after a first real failure; player can retry
+  ---
+  duration_ms: 1490.5727
+  type: 'test'
+  ...
+# Subtest: P208 slicer policy receipt and anchor cannot be forged independently
+ok 2 - P208 slicer policy receipt and anchor cannot be forged independently
+  ---
+  duration_ms: 908.0209
+  type: 'test'
+  ...
+# Subtest: P208 old P207 receipt format without slicer policy still replays
+ok 3 - P208 old P207 receipt format without slicer policy still replays
+  ---
+  duration_ms: 858.4986
+  type: 'test'
+  ...
+# Subtest: P208 Naboka refusal persists across three real repository reopenings
+ok 4 - P208 Naboka refusal persists across three real repository reopenings
+  ---
+  duration_ms: 1033.5914
+  type: 'test'
+  ...
+# Subtest: P208 Holo-Park cannot begin without real combat, physical arrival and confirmed factions
+ok 5 - P208 Holo-Park cannot begin without real combat, physical arrival and confirmed factions
+  ---
+  duration_ms: 815.0947
+  type: 'test'
+  ...
+# Subtest: P208 Table 3-1 d100 official ranges and printed overlap at 47 requires GM
+ok 6 - P208 Table 3-1 d100 official ranges and printed overlap at 47 requires GM
+  ---
+  duration_ms: 6983.4973
+  type: 'test'
+  ...
+# Subtest: P208 Holo-Park changes scene only every two ACTUAL combat rounds
+ok 7 - P208 Holo-Park changes scene only every two ACTUAL combat rounds
+  ---
+  duration_ms: 680.2527
+  type: 'test'
+  ...
+# Subtest: P208 Long range or dispersed pursuers requires a separate GM outcome receipt
+ok 8 - P208 Long range or dispersed pursuers requires a separate GM outcome receipt
+  ---
+  duration_ms: 575.2022
+  type: 'test'
+  ...
+# Subtest: P208 tenth round ends chase but NEVER fabricates escape or XP
+ok 9 - P208 tenth round ends chase but NEVER fabricates escape or XP
+  ---
+  duration_ms: 595.7723
+  type: 'test'
+  ...
+# Subtest: P208 Holo-Park replay rejects forged landscapes, rounds, range, GM confirmations and endings
+ok 10 - P208 Holo-Park replay rejects forged landscapes, rounds, range, GM confirmations and endings
+  ---
+  duration_ms: 590.3345
+  type: 'test'
+  ...
+# Subtest: P208 Holo-Park controller atomic saves, bridge, PT-BR controls, and three reopenings
+ok 11 - P208 Holo-Park controller atomic saves, bridge, PT-BR controls, and three reopenings
+  ---
+  duration_ms: 695.5889
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 17009.6268
+

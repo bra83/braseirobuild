@@ -1,0 +1,35 @@
+TAP version 13
+# Subtest: P56: painel publicado renderiza timeline compacta a partir do sceneJournal público
+ok 1 - P56: painel publicado renderiza timeline compacta a partir do sceneJournal público
+  ---
+  duration_ms: 2.5521
+  type: 'test'
+  ...
+# Subtest: P56: timeline mostra somente choiceLabel e destino já projetados, sem effects internos
+ok 2 - P56: timeline mostra somente choiceLabel e destino já projetados, sem effects internos
+  ---
+  duration_ms: 0.7722
+  type: 'test'
+  ...
+# Subtest: P56: timeline mobile tem truncamento e tipografia compacta
+ok 3 - P56: timeline mobile tem truncamento e tipografia compacta
+  ---
+  duration_ms: 0.6731
+  type: 'test'
+  ...
+# Subtest: P56: journal fornece títulos somente das cenas visitadas para a timeline
+ok 4 - P56: journal fornece títulos somente das cenas visitadas para a timeline
+  ---
+  duration_ms: 17.9932
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 740.2897
+

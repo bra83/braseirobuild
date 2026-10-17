@@ -1,0 +1,65 @@
+TAP version 13
+# Subtest: P100: primeira modificação custa 100 créditos, exige Mecânica Difícil e altera o attachment instalado
+ok 1 - P100: primeira modificação custa 100 créditos, exige Mecânica Difícil e altera o attachment instalado
+  ---
+  duration_ms: 92.6308
+  type: 'test'
+  ...
+# Subtest: P100: segunda modificação fica mais difícil, consome o último slot e reduz Imprecisa novamente
+ok 2 - P100: segunda modificação fica mais difícil, consome o último slot e reduz Imprecisa novamente
+  ---
+  duration_ms: 76.248
+  type: 'test'
+  ...
+# Subtest: P100: falha de Mod custa créditos, consome uma opção e não concede o efeito
+ok 3 - P100: falha de Mod custa créditos, consome uma opção e não concede o efeito
+  ---
+  duration_ms: 81.5624
+  type: 'test'
+  ...
+# Subtest: P100: Mod é bloqueado sem kit de ferramentas, com créditos insuficientes e durante combate
+ok 4 - P100: Mod é bloqueado sem kit de ferramentas, com créditos insuficientes e durante combate
+  ---
+  duration_ms: 103.8623
+  type: 'test'
+  ...
+# Subtest: P100: Mods instalados chegam ao resolveWeaponAttack real
+ok 5 - P100: Mods instalados chegam ao resolveWeaponAttack real
+  ---
+  duration_ms: 174.3712
+  type: 'test'
+  ...
+# Subtest: P100: Mods pertencem ao attachment e sobrevivem remoção, reopen e reinstalação
+ok 6 - P100: Mods pertencem ao attachment e sobrevivem remoção, reopen e reinstalação
+  ---
+  duration_ms: 76.207
+  type: 'test'
+  ...
+# Subtest: P100: Postura Defensiva consome manobra e adiciona Setback aos próprios testes de combate
+ok 7 - P100: Postura Defensiva consome manobra e adiciona Setback aos próprios testes de combate
+  ---
+  duration_ms: 54.9278
+  type: 'test'
+  ...
+# Subtest: P100: Postura Defensiva adiciona Setback a ataque melee contra o jogador, mas não a ranged
+ok 8 - P100: Postura Defensiva adiciona Setback a ataque melee contra o jogador, mas não a ranged
+  ---
+  duration_ms: 30.266
+  type: 'test'
+  ...
+# Subtest: P100: bridge/contratos/R46 expõem Mods e Postura Defensiva sem mutação bruta
+ok 9 - P100: bridge/contratos/R46 expõem Mods e Postura Defensiva sem mutação bruta
+  ---
+  duration_ms: 17.9995
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2334.4531
+

@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: R41 manifest V3.4 has 329 unique assets
+ok 1 - R41 manifest V3.4 has 329 unique assets
+  ---
+  duration_ms: 3.614
+  type: 'test'
+  ...
+# Subtest: R41 vehicle wave2 adds exactly 47 direct-URL assets
+ok 2 - R41 vehicle wave2 adds exactly 47 direct-URL assets
+  ---
+  duration_ms: 0.458
+  type: 'test'
+  ...
+# Subtest: R41 wave2 grouping is 28 freighter/transport page assets + 12 landspeeders + 7 airspeeders
+ok 3 - R41 wave2 grouping is 28 freighter/transport page assets + 12 landspeeders + 7 airspeeders
+  ---
+  duration_ms: 2.5703
+  type: 'test'
+  ...
+# Subtest: R41 URLs obey secure Kainrath cache policy
+ok 4 - R41 URLs obey secure Kainrath cache policy
+  ---
+  duration_ms: 2.4826
+  type: 'test'
+  ...
+# Subtest: R41 vehicle images remain visual-only
+ok 5 - R41 vehicle images remain visual-only
+  ---
+  duration_ms: 0.5963
+  type: 'test'
+  ...
+# Subtest: R41 bridge exposes all 90 vehicles while preserving maps and old visual entities
+ok 6 - R41 bridge exposes all 90 vehicles while preserving maps and old visual entities
+  ---
+  duration_ms: 92.0693
+  type: 'test'
+  ...
+# Subtest: R41 category searches expose surface subtypes without mechanics
+ok 7 - R41 category searches expose surface subtypes without mechanics
+  ---
+  duration_ms: 13.5062
+  type: 'test'
+  ...
+# Subtest: R41 previous R40 vehicle wave remains present and unchanged
+ok 8 - R41 previous R40 vehicle wave remains present and unchanged
+  ---
+  duration_ms: 13.528
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1419.0625
+

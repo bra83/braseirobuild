@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: P228 actual companion carries sole Jewel aboard existing ship; PJ also confirmed boarded
+ok 1 - P228 actual companion carries sole Jewel aboard existing ship; PJ also confirmed boarded
+  ---
+  duration_ms: 1325.5383
+  type: 'test'
+  ...
+# Subtest: P228 refuses unconfirmed companion presence, individual boarding, wrong carrier or phantom
+ok 2 - P228 refuses unconfirmed companion presence, individual boarding, wrong carrier or phantom
+  ---
+  duration_ms: 878.9356
+  type: 'test'
+  ...
+# Subtest: P228 real hyperjump succeeds with confirmed companion aboard, no duplicate Jewel or premature XP
+ok 3 - P228 real hyperjump succeeds with confirmed companion aboard, no duplicate Jewel or premature XP
+  ---
+  duration_ms: 904.1831
+  type: 'test'
+  ...
+# Subtest: P228 before escape, cannot delete the companion or the physical Jewel without detection
+ok 4 - P228 before escape, cannot delete the companion or the physical Jewel without detection
+  ---
+  duration_ms: 965.4484
+  type: 'test'
+  ...
+# Subtest: P228 tampered receipt companion confirmation, ID or inventory is rejected
+ok 5 - P228 tampered receipt companion confirmation, ID or inventory is rejected
+  ---
+  duration_ms: 921.5069
+  type: 'test'
+  ...
+# Subtest: P228 three persisted reopens preserve companion board and real inventories
+ok 6 - P228 three persisted reopens preserve companion board and real inventories
+  ---
+  duration_ms: 888.9521
+  type: 'test'
+  ...
+# Subtest: P228 legacy PJ-only boarding remains valid; companion flags cannot be faked
+ok 7 - P228 legacy PJ-only boarding remains valid; companion flags cannot be faked
+  ---
+  duration_ms: 694.6171
+  type: 'test'
+  ...
+# Subtest: P228 UI, controller, bundle, version and receipt fields are wired
+ok 8 - P228 UI, controller, bundle, version and receipt fields are wired
+  ---
+  duration_ms: 530.6429
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8735.948
+

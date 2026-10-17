@@ -1,0 +1,47 @@
+TAP version 13
+# Subtest: P76: catálogo Android lista motores/vozes e permite seleção persistente
+ok 1 - P76: catálogo Android lista motores/vozes e permite seleção persistente
+  ---
+  duration_ms: 5.7252
+  type: 'test'
+  ...
+# Subtest: P76: perfil neural usa 250-650 com alvo 450 e não divide cada sentença
+ok 2 - P76: perfil neural usa 250-650 com alvo 450 e não divide cada sentença
+  ---
+  duration_ms: 1.6336
+  type: 'test'
+  ...
+# Subtest: P76: Kokoro avança apenas por onDone sem flush/stop entre blocos
+ok 3 - P76: Kokoro avança apenas por onDone sem flush/stop entre blocos
+  ---
+  duration_ms: 2.7778
+  type: 'test'
+  ...
+# Subtest: P76: contrato Sherpa/Kokoro expõe parâmetros e prewarm/streaming
+ok 4 - P76: contrato Sherpa/Kokoro expõe parâmetros e prewarm/streaming
+  ---
+  duration_ms: 0.965
+  type: 'test'
+  ...
+# Subtest: P76: velocidade Kokoro é aplicada uma única vez no parâmetro da engine
+ok 5 - P76: velocidade Kokoro é aplicada uma única vez no parâmetro da engine
+  ---
+  duration_ms: 1.4583
+  type: 'test'
+  ...
+# Subtest: P76: Samsung/Google continuam no fluxo Android padrão
+ok 6 - P76: Samsung/Google continuam no fluxo Android padrão
+  ---
+  duration_ms: 0.5729
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 858.6137
+

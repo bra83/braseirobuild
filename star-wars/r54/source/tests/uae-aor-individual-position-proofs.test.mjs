@@ -11,6 +11,8 @@ const POSITION='ace:gunner:r1c2';
 const DURABLE_POSITION='ace:gunner:r1c1';
 const TOUGHENED_POSITION='ace:gunner:r2c1';
 const ENDURING_POSITION='ace:gunner:r3c2';
+const DURABLE_RANK2_POSITION='ace:gunner:r3c1';
+const TOUGHENED_RANK2_POSITION='ace:gunner:r4c1';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
  careerFreeSkills:['astronavegacion','frialdad','mecanica','percepcion'],
@@ -205,3 +207,73 @@ test('AoR p.68 Ace/Gunner R3C2 Enduring buys exact node, raises live soak and su
  assert.equal(repo.saves,savedWrites,'reopen evidence uses independent restored controllers');
  assert.equal(bridge.buyTalent(ENDURING_POSITION).ok,false,'the exact node cannot be purchased twice');
 });
+
+test('AoR p.68 Ace/Gunner R3C1 Durable rank 2 and R4C1 Toughened rank 2 preserve exact IDs and cumulative effects',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');setup.createAorCharacter({...characterOptions,name:'Rell Tannis'});
+ const before=clone(setup.state.player.character),bridge=new BraseiroUiBridge({repository:repo});
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ assert.ok(html.includes('id="talentOptions"'));
+ assert.match(ui,/data-talent-id="\$\{escapeHtml\(t\.id\)\}"/);
+ assert.match(ui,/game\.buyTalent\(button\.dataset\.talentId/);
+ for(const id of [DURABLE_POSITION,TOUGHENED_POSITION,'ace:gunner:r2c2',ENDURING_POSITION]){
+  const prerequisite=bridge.buyTalent(id);assert.equal(prerequisite.ok,true,`exact path prerequisite ${id} is acquired`);
+ }
+ const rank2Durable=new GameController(repo).eligibleTalents().find(n=>n.id===DURABLE_RANK2_POSITION);
+ assert.ok(rank2Durable);assert.equal(rank2Durable.available,true);assert.equal(rank2Durable.originalName,'ROBUSTO');
+ assert.equal(rank2Durable.cost,15);assert.equal(rank2Durable.source.printedPage,68);
+ const durableTreeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(n=>n.id===DURABLE_RANK2_POSITION);
+ assert.ok(durableTreeNode);assert.equal(durableTreeNode.originalName,'ROBUSTO');
+ const durableResult=bridge.buyTalent(DURABLE_RANK2_POSITION);
+ assert.equal(durableResult.ok,true);assert.equal(durableResult.data.talent.id,DURABLE_RANK2_POSITION);
+ assert.deepEqual(durableResult.data.effect,{applied:false,label:null});
+ assert.equal(durableResult.data.character.xp.available,before.xp.available-55);
+ const durableReceipt=durableResult.data.character.talentPurchases.find(p=>p.nodeId===DURABLE_RANK2_POSITION);
+ assert.equal(durableReceipt.source.printedPage,68);assert.equal(durableReceipt.specializationKey,'gunner');
+
+ const criticalGame=new GameController(repo),critical=criticalGame.applyPlayerCritical('prova rank 2',{roll:50});
+ assert.equal(critical.injury.durableModifier,-20);assert.equal(critical.total,30);
+ const floorGame=new GameController(new RepoWithState(createCampaignWithCharacter(repo.state)));
+ const floor=floorGame.applyPlayerCritical('piso rank 2',{roll:1});
+ assert.equal(floor.total,1,'two Durable ranks still cannot reduce the critical result below 1');
+
+ const toughenedCandidate=new GameController(repo).eligibleTalents().find(n=>n.id===TOUGHENED_RANK2_POSITION);
+ assert.ok(toughenedCandidate);assert.equal(toughenedCandidate.available,true);
+ assert.equal(toughenedCandidate.originalName,'ENDURECIDO');assert.equal(toughenedCandidate.cost,20);
+ assert.equal(toughenedCandidate.source.printedPage,68);
+ const toughenedTreeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(n=>n.id===TOUGHENED_RANK2_POSITION);
+ assert.ok(toughenedTreeNode);assert.equal(toughenedTreeNode.originalName,'ENDURECIDO');
+ const toughenedResult=bridge.buyTalent(TOUGHENED_RANK2_POSITION);
+ assert.equal(toughenedResult.ok,true);assert.equal(toughenedResult.data.talent.id,TOUGHENED_RANK2_POSITION);
+ assert.deepEqual(toughenedResult.data.effect,{applied:true,label:'+2 no limiar de Ferimentos'});
+ const toughenedReceipt=toughenedResult.data.character.talentPurchases.find(p=>p.nodeId===TOUGHENED_RANK2_POSITION);
+ assert.equal(toughenedReceipt.source.printedPage,68);assert.equal(toughenedReceipt.specializationKey,'gunner');
+ assert.equal(toughenedReceipt.cost,20);
+ const threshold=before.derived.wounds.threshold+4;
+ assert.equal(toughenedResult.data.character.derived.wounds.threshold,threshold);
+ assert.equal(toughenedResult.data.character.xp.available,before.xp.available-75);
+ const atBoundary=clone(toughenedResult.data.character);atBoundary.derived.wounds.current=threshold;
+ assert.equal(getHealthStatus(atBoundary).woundIncapacitated,false);
+ const pastBoundary=clone(toughenedResult.data.character);pastBoundary.derived.wounds.current=threshold+1;
+ assert.equal(getHealthStatus(pastBoundary).woundIncapacitated,true);
+
+ const savedState=clone(repo.state);
+ for(let reopen=1;reopen<=3;reopen++){
+  const reopened=new GameController(new RepoWithState(savedState)),character=reopened.state.player.character;
+  for(const id of [DURABLE_RANK2_POSITION,TOUGHENED_RANK2_POSITION]){
+   const receipt=character.talentPurchases.find(p=>p.nodeId===id);
+   assert.ok(receipt,`exact node ${id} survives reopen ${reopen}`);
+   assert.equal(receipt.source.printedPage,68);assert.equal(receipt.specializationKey,'gunner');
+  }
+  assert.equal(character.derived.wounds.threshold,threshold);
+  assert.equal(reopened.healthStatus().effectiveWoundThreshold,threshold);
+  const reopenedCritical=reopened.applyPlayerCritical(`reopen rank 2 ${reopen}`,{roll:50});
+  assert.equal(reopenedCritical.injury.durableModifier,-20);
+  assert.equal(reopenedCritical.total,40,'the saved prior injury modifier is combined with both Durable ranks');
+ }
+ assert.equal(bridge.buyTalent(DURABLE_RANK2_POSITION).ok,false);
+ assert.equal(bridge.buyTalent(TOUGHENED_RANK2_POSITION).ok,false);
+});
+
+function createCampaignWithCharacter(state){return clone(state);}

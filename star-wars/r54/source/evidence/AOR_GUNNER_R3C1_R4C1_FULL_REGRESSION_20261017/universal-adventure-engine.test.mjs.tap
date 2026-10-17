@@ -1,0 +1,35 @@
+TAP version 13
+# Subtest: Universal Adventure Engine: validação de módulo e estado inicial
+ok 1 - Universal Adventure Engine: validação de módulo e estado inicial
+  ---
+  duration_ms: 8.6287
+  type: 'test'
+  ...
+# Subtest: Universal Adventure Engine: transição de nós e avaliação de condições
+ok 2 - Universal Adventure Engine: transição de nós e avaliação de condições
+  ---
+  duration_ms: 15.0059
+  type: 'test'
+  ...
+# Subtest: Universal Adventure Engine: gestão de clocks persistentes e pistas
+ok 3 - Universal Adventure Engine: gestão de clocks persistentes e pistas
+  ---
+  duration_ms: 5.9719
+  type: 'test'
+  ...
+# Subtest: Universal Adventure Engine: integridade de contexto para AI GM
+ok 4 - Universal Adventure Engine: integridade de contexto para AI GM
+  ---
+  duration_ms: 3.2718
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 794.1553
+
