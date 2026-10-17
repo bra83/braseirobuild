@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: P181: official chapter sequence Saleucami -> Worlport -> Renegade’s Blood
+ok 1 - P181: official chapter sequence Saleucami -> Worlport -> Renegade’s Blood
+  ---
+  duration_ms: 576.5925
+  type: 'test'
+  ...
+# Subtest: P181: two Vandin alternatives and the Noira alliance are playable
+ok 2 - P181: two Vandin alternatives and the Noira alliance are playable
+  ---
+  duration_ms: 321.6219
+  type: 'test'
+  ...
+# Subtest: P181: actual NPC encounter only in authored scene, replay guarded, outcomes persistent
+ok 3 - P181: actual NPC encounter only in authored scene, replay guarded, outcomes persistent
+  ---
+  duration_ms: 151.7442
+  type: 'test'
+  ...
+# Subtest: P181: check failure raises persistent alert, success never fabricates a win
+ok 4 - P181: check failure raises persistent alert, success never fabricates a win
+  ---
+  duration_ms: 106.7728
+  type: 'test'
+  ...
+# Subtest: P181: v1 Ord Mantell start migrates to Saleucami without changing event receipts
+ok 5 - P181: v1 Ord Mantell start migrates to Saleucami without changing event receipts
+  ---
+  duration_ms: 144.0514
+  type: 'test'
+  ...
+# Subtest: P181: controller credits only the Consortium contract outcome, not an alliance
+ok 6 - P181: controller credits only the Consortium contract outcome, not an alliance
+  ---
+  duration_ms: 2484.2485
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5191.168

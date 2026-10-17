@@ -28270,26 +28270,58 @@ class GameController {
     }
     aorBraceStatus() {
         const character = this.state.player?.character, rank = character ? talents_mjs_1.sourceBackedTalentRank(character, 'BRACE') : 0;
-        const pending = this.state.combat?.aorBracePrepared ?? null;
-        return { rank, combatActive: Boolean(this.state.combat?.active), prepared: Boolean(pending), pending: clone(pending), source: { productCode: 'AOR', printedPage: 68 } };
+        const vehicleCombat = this.state.vehicles?.combat;
+        const pending = this.state.combat?.aorBracePrepared ?? vehicleCombat?.aorBracePrepared ?? null;
+        return { rank, combatActive: Boolean(this.state.combat?.active || vehicleCombat?.active), vehicleCombatActive: Boolean(vehicleCombat?.active), prepared: Boolean(pending), pending: clone(pending), source: { productCode: 'AOR', printedPage: 68 } };
     }
     prepareAoRBrace({ maneuverMethod = 'normal' } = {}) {
         let character = requireCharacter(this.state.player?.character), combat = this.state.combat;
         const option = talents_mjs_1.braceEnvironmentalSetbackRelief(character, { maneuverPrepared: true, environmentalSetback: 0 });
         if (!option.available || option.rank < 1)
             throw new Error('Brace (Firmeza) não foi adquirido com fonte AoR ativa.');
-        if (!combat?.active)
+        if (!combat?.active && !this.state.vehicles?.combat?.active)
             throw new Error('Brace exige encontro ativo.');
-        if (combat.aorBracePrepared)
+        if (combat?.aorBracePrepared || this.state.vehicles?.combat?.aorBracePrepared)
             throw new Error('Brace já está preparado para a próxima ação.');
         const characterId = this.state.player?.roster?.activeCharacterId ?? character.id;
         if (!characterId)
             throw new Error('Brace exige a identidade persistente da ficha ativa.');
-        const spent = spendPlayerManeuver(character, combat, { method: maneuverMethod, label: 'Brace' });
-        combat = { ...spent.combat, aorBracePrepared: { characterId, rank: option.rank, preparedAtRound: Number(spent.combat.round ?? 0),
-                source: { productCode: 'AOR', printedPage: 68, nodeIds: (character.talentPurchases ?? []).filter(x => String(x.nodeId ?? '').startsWith('ace:gunner:') && String(x.source?.book ?? '').includes('Age of Rebellion') && x?.source?.printedPage === 68 && String(x.originalName ?? x.name ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase() === 'FIRMEZA').map(x => x.nodeId).filter(Boolean) } } };
-        this.commit('COMBAT_ACTION', { combat, character: spent.character });
-        return { combat: clone(combat), character: clone(spent.character), ...option, source: clone(combat.aorBracePrepared.source) };
+        const source = { productCode: 'AOR', printedPage: 68, nodeIds: (character.talentPurchases ?? []).filter(x => String(x.nodeId ?? '').startsWith('ace:gunner:') && String(x.source?.book ?? '').includes('Age of Rebellion') && x?.source?.printedPage === 68 && String(x.originalName ?? x.name ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase() === 'FIRMEZA').map(x => x.nodeId).filter(Boolean) };
+        if (combat?.active) {
+            const spent = spendPlayerManeuver(character, combat, { method: maneuverMethod, label: 'Brace' });
+            combat = { ...spent.combat, aorBracePrepared: { characterId, rank: option.rank, preparedAtRound: Number(spent.combat.round ?? 0), source } };
+            this.commit('COMBAT_ACTION', { combat, character: spent.character });
+            return { combat: clone(combat), character: clone(spent.character), ...option, source: clone(combat.aorBracePrepared.source) };
+        }
+        this._assertSWE02VehicleTurn('player');
+        const vehicles = clone(this.state.vehicles), vehicleCombat = vehicles.combat, active = vehicles.vehicles?.[vehicles.activeVehicleId];
+        if (!vehicleCombat?.active || !active)
+            throw new Error('Brace exige combate veicular e nave ativa.');
+        const vehicleStatus = vehicles_mjs_1.vehicleStatus(active, { currentRound: vehicleCombat.round });
+        if (vehicleStatus.destroyed || vehicleStatus.noManeuvers)
+            throw new Error('O estado do veículo impede gastar uma manobra de Brace.');
+        const used = Number(vehicleCombat.maneuversUsed ?? 0);
+        if (used >= 2)
+            throw new Error('A nave/veículo já recebeu 2 manobras neste assalto.');
+        if (used === 1) {
+            if (maneuverMethod === 'strain') {
+                if (!vehicles_mjs_1.canVoluntarilyInflictVehicleStrain(active))
+                    throw new Error('Não é possível sofrer Tensão de sistemas voluntariamente.');
+                active.systemStrain += 2;
+            }
+            else if (maneuverMethod === 'action') {
+                if (vehicleCombat.actionUsed)
+                    throw new Error('A ação deste assalto já foi usada.');
+                vehicleCombat.actionUsed = true;
+            }
+            else
+                throw new Error('A segunda manobra veicular exige 2 de Tensão de sistemas ou trocar a ação.');
+        }
+        vehicleCombat.maneuversUsed = used + 1;
+        vehicleCombat.aorBracePrepared = { characterId, rank: option.rank, preparedAtRound: Number(vehicleCombat.round ?? 0), source };
+        vehicles.vehicles[active.id] = active;
+        this.commit('VEHICLES_UPDATED', { vehicles });
+        return { combat: clone(vehicleCombat), vehicle: clone(active), character: clone(character), ...option, source: clone(source) };
     }
     aim({ maneuverMethod = 'normal', mode = 'boost', targetDetail = '' } = {}) {
         let character = this.state.player.character;
@@ -30153,11 +30185,14 @@ class GameController {
             return { declined: true };
         });
     }
-    resolveVehicleAttack({ weaponIndex = 0, facing = 'proa', useExhaustPort = false, useDeadToRights = false, rng = Math.random } = {}) {
+    resolveVehicleAttack({ weaponIndex = 0, facing = 'proa', useExhaustPort = false, useDeadToRights = false, braceEnvironmentalSetback = 0, rng = Math.random } = {}) {
         return this.atomicAction(() => {
             this._assertSWE02VehicleTurn('player');
             const character = requireCharacter(this.state.player.character);
             const vehicles = clone(this.state.vehicles);
+            const declaredBraceEnvironment = Number(braceEnvironmentalSetback);
+            if (!Number.isSafeInteger(declaredBraceEnvironment) || declaredBraceEnvironment < 0 || declaredBraceEnvironment > 20)
+                throw new Error('Brace exige um número válido de Setbacks ambientais veiculares.');
             if (!vehicles.combat.active)
                 throw new Error('Inicie um combate de naves/veículos.');
             if (vehicles.combat.actionUsed)
@@ -30203,7 +30238,16 @@ class GameController {
             const effectiveFacing = formationStillValid && String(temp.gainAdvantage?.targetVehicleId ?? '') === String(target.id) ? String(temp.gainAdvantage?.zone ?? facing) : facing;
             const fireDiscipline = Math.max(0, Number(attacker.roundEffects?.fireDiscipline?.remainingAttacks ?? 0));
             const fireDisciplineStrain = Boolean(attacker.roundEffects?.fireDiscipline?.systemStrainOnHit);
-            const attack = vehicles_mjs_1.resolveVehicleWeaponAttack({ character, attacker, target, facing: effectiveFacing, weaponIndex, targetRange: vehicles.combat.range, rng, currentRound: vehicles.combat.round, extraBoost: fireDiscipline > 0 ? 1 : 0, ignoreMassive: useExhaustPort, deadToRightsBonus, allVehicles: vehicles.vehicles });
+            const vehicleBracePending = clone(vehicles.combat.aorBracePrepared ?? null);
+            const personalBracePending = vehicleBracePending ? null : clone(this.state.combat?.aorBracePrepared ?? null);
+            const bracePending = vehicleBracePending ?? personalBracePending;
+            const activeCharacterId = this.state.player?.roster?.activeCharacterId ?? character.id ?? null;
+            if (bracePending && bracePending.characterId !== activeCharacterId)
+                throw new Error('Brace foi preparado por outra ficha; encerre ou limpe essa preparação antes de agir.');
+            const braceResult = bracePending ? talents_mjs_1.braceEnvironmentalSetbackRelief(character, { maneuverPrepared: true, environmentalSetback: declaredBraceEnvironment }) : null;
+            const braceRemoved = Number(braceResult?.removedSetback ?? 0);
+            const attack = vehicles_mjs_1.resolveVehicleWeaponAttack({ character, attacker, target, facing: effectiveFacing, weaponIndex, targetRange: vehicles.combat.range, rng, currentRound: vehicles.combat.round, extraBoost: fireDiscipline > 0 ? 1 : 0, extraSetback: Math.max(0, declaredBraceEnvironment - braceRemoved), ignoreMassive: useExhaustPort, deadToRightsBonus, allVehicles: vehicles.vehicles });
+            attack.aorBrace = bracePending ? { rank: braceResult.rank, environmentalSetback: declaredBraceEnvironment, removedSetback: braceRemoved, source: clone(bracePending.source) } : null;
             if (useExhaustPort || (useDeadToRights && attack.hit)) {
                 let group = clone(this.state.group);
                 if (useExhaustPort)
@@ -30264,7 +30308,14 @@ class GameController {
             }
             vehicles.combat.log = [...(vehicles.combat.log ?? []), { type: 'ATAQUE_VEICULO', round: vehicles.combat.round, attackerId: attacker.id, targetId: target.id, hit: attack.hit, damage: attack.targetDamage?.suffered ?? 0, damageType: attack.ion ? 'systemStrain' : 'hull', specialEffect: attack.targetEffect?.type ?? null }];
             this._recordSWE02VehicleAction(vehicles, 'attack');
+            if (vehicleBracePending)
+                delete vehicles.combat.aorBracePrepared;
             this.commit('VEHICLES_UPDATED', { vehicles });
+            if (personalBracePending) {
+                const combat = clone(this.state.combat);
+                delete combat.aorBracePrepared;
+                this.commit('COMBAT_UPDATED', { combat });
+            }
             return { ...attack, pendingSpend: clone(vehicles.combat.pendingVehicleSpend) };
         });
     }

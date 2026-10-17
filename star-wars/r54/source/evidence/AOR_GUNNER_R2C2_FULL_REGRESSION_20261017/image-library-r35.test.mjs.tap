@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: image library manifest is valid and unique
+ok 1 - image library manifest is valid and unique
+  ---
+  duration_ms: 10.1166
+  type: 'test'
+  ...
+# Subtest: all local runtime asset paths exist
+ok 2 - all local runtime asset paths exist
+  ---
+  duration_ms: 694.2623
+  type: 'test'
+  ...
+# Subtest: local token library has 143 individual tokens
+ok 3 - local token library has 143 individual tokens
+  ---
+  duration_ms: 1.9018
+  type: 'test'
+  ...
+# Subtest: search is category/tag based and does not invent mechanical binding
+ok 4 - search is category/tag based and does not invent mechanical binding
+  ---
+  duration_ms: 40.9718
+  type: 'test'
+  ...
+# Subtest: equipment images remain visual-only until mechanical mapping is validated
+ok 5 - equipment images remain visual-only until mechanical mapping is validated
+  ---
+  duration_ms: 0.8994
+  type: 'test'
+  ...
+# Subtest: Kainrath is an external indexed source, not silently copied into local runtime assets
+ok 6 - Kainrath is an external indexed source, not silently copied into local runtime assets
+  ---
+  duration_ms: 25.4042
+  type: 'test'
+  ...
+# Subtest: BraseiroGameBridge exposes image library without requiring a campaign
+ok 7 - BraseiroGameBridge exposes image library without requiring a campaign
+  ---
+  duration_ms: 28.9067
+  type: 'test'
+  ...
+# Subtest: image bridge rejects unknown asset IDs without mutating state
+ok 8 - image bridge rejects unknown asset IDs without mutating state
+  ---
+  duration_ms: 0.7545
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2487.001

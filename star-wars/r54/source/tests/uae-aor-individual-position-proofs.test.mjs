@@ -29,6 +29,7 @@ const TRUE_AIM_POSITION='ace:gunner:r2c4';
 const OVERWHELM_RANK2_POSITION='ace:gunner:r3c4';
 const DEDICATION_POSITION='ace:gunner:r5c3';
 const TRUE_AIM_RANK2_POSITION='ace:gunner:r5c4';
+const BRACE_POSITION='ace:gunner:r2c2';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
  careerFreeSkills:['astronavegacion','frialdad','mecanica','percepcion'],
@@ -584,7 +585,7 @@ test('AoR p.68 Ace/Gunner R4C4 Exhaust Port buys exact node, ignores Massive on 
  assert.ok(html.includes('id="talentOptions"'));assert.match(ui,/data-talent-id="\$\{escapeHtml\(t\.id\)\}"/);
  assert.match(ui,/game\.buyTalent\(button\.dataset\.talentId/);
  assert.match(html,/id="exhaustPortLabel"[^>]*hidden><input id="useExhaustPort" type="checkbox"/);
- assert.match(ui,/resolveVehicleAttack\(\{weaponIndex:Number\(\$\('vehicleWeaponSelect'\)\.value\),useExhaustPort:\$\('useExhaustPort'\)\.checked\}/);
+ assert.match(ui,/resolveVehicleAttack\(\{weaponIndex:Number\(\$\('vehicleWeaponSelect'\)\.value\),useExhaustPort:\$\('useExhaustPort'\)\.checked,braceEnvironmentalSetback:Number\(\$\('vehicleBraceEnvironmentalSetback'\)\.value\)\}/);
  assert.match(ui,/game\.talentRank\('EXHAUST_PORT'\)/);
  const purchase=bridge.buyTalent(EXHAUST_PORT_POSITION);
  assert.equal(purchase.ok,true);assert.equal(purchase.data.talent.id,EXHAUST_PORT_POSITION);
@@ -995,4 +996,66 @@ test('AoR p.68 Ace/Gunner R5C4 True Aim rank 2 buys exact node, upgrades twice a
   assert.equal(restored.state.combat.pendingAim,undefined);assert.equal(restored.state.combat.playerTurn.trueAimUsed,true);
  }
  assert.equal(bridge.buyTalent(TRUE_AIM_RANK2_POSITION).ok,false,'the exact rank-2 node cannot be purchased twice');
+});
+
+test('AoR p.68 Ace/Gunner R2C2 Brace buys exact node, removes environmental setback from vehicle attack and survives three reloads',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');setup.createAorCharacter({...characterOptions,name:'Veya Sol'});
+ const character=clone(setup.state.player.character);character.skills.artilleria=1;setup.setCharacter(character);
+ const bridge=new BraseiroUiBridge({repository:repo});
+ for(const id of [DURABLE_POSITION,TOUGHENED_POSITION,BRACE_POSITION]){
+  const result=bridge.buyTalent(id);assert.equal(result.ok,true,`exact path prerequisite ${id} is purchased`);
+ }
+ assert.equal(new GameController(repo).aorBraceStatus().rank,1,JSON.stringify(repo.state.player.character.talentPurchases.map(entry=>({nodeId:entry.nodeId,name:entry.originalName,source:entry.source}))));
+ const candidate=new GameController(repo).eligibleTalents().find(node=>node.id===BRACE_POSITION);
+ assert.ok(candidate);assert.equal(candidate.available,false);assert.equal(candidate.purchased,true);
+ assert.equal(candidate.originalName,'FIRMEZA');assert.equal(candidate.cost,10);assert.equal(candidate.source.printedPage,68);
+ const receipt=repo.state.player.character.talentPurchases.find(entry=>entry.nodeId===BRACE_POSITION);
+ assert.ok(receipt);assert.equal(receipt.source.book,'Star Wars - Age of Rebellion - Core Rulebook');assert.equal(receipt.specializationKey,'gunner');
+ const vehicleSetup=new GameController(repo);
+ vehicleSetup.addVehicle('xwing_t65b');vehicleSetup.beginVehicleCombat({targetProfileKey:'tie_ln',range:'Bocajarro'});
+ vehicleSetup.useVehiclePilotManeuver('accelerate',{method:'normal'});
+ assert.equal(new GameController(repo).aorBraceStatus().rank,1,JSON.stringify(repo.state.player.character.talentPurchases.map(entry=>({nodeId:entry.nodeId,name:entry.originalName,source:entry.source}))));
+ const vehicleBefore=clone(repo.state.vehicles.vehicles[repo.state.vehicles.activeVehicleId]);
+ const prepared=bridge.prepareAoRBrace({maneuverMethod:'strain'});
+ assert.equal(prepared.ok,true,JSON.stringify(prepared));assert.equal(prepared.data.rank,1);
+ assert.equal(prepared.data.combat.maneuversUsed,2);assert.equal(prepared.data.combat.aorBracePrepared.rank,1);
+ assert.deepEqual(prepared.data.source,{productCode:'AOR',printedPage:68,nodeIds:[BRACE_POSITION]});
+ assert.equal(prepared.data.vehicle.systemStrain,vehicleBefore.systemStrain+2,'the second vehicle maneuver pays 2 system strain');
+ assert.equal(bridge.aorBraceStatus().data.vehicleCombatActive,true);assert.equal(bridge.aorBraceStatus().data.prepared,true);
+ const preparedState=clone(repo.state);
+ for(let reopen=1;reopen<=3;reopen++){
+  const restored=new GameController(new RepoWithState(preparedState));assert.equal(validateState(restored.state),true);
+  const pending=restored.state.vehicles.combat.aorBracePrepared;
+  assert.equal(pending.rank,1);assert.deepEqual(pending.source.nodeIds,[BRACE_POSITION]);
+  assert.equal(restored.state.vehicles.combat.maneuversUsed,2);
+  assert.equal(restored.state.vehicles.vehicles[restored.state.vehicles.activeVehicleId].systemStrain,vehicleBefore.systemStrain+2);
+ }
+ const baselineRepo=new RepoWithState(preparedState);delete baselineRepo.state.vehicles.combat.aorBracePrepared;
+ const baseline=new GameController(baselineRepo).resolveVehicleAttack({braceEnvironmentalSetback:2,rng:()=>.4});
+ const rejected=bridge.resolveVehicleAttack({braceEnvironmentalSetback:1.5,rng:()=>.4});
+ assert.equal(rejected.ok,false);assert.equal(repo.state.vehicles.combat.actionUsed,false);
+ assert.ok(repo.state.vehicles.combat.aorBracePrepared,'invalid setback input preserves Brace for the next action');
+ const resolved=bridge.resolveVehicleAttack({braceEnvironmentalSetback:2,rng:()=>.4});
+ assert.equal(resolved.ok,true,JSON.stringify(resolved));
+ const attack=resolved.data;assert.deepEqual(attack.aorBrace,{rank:1,environmentalSetback:2,removedSetback:1,source:prepared.data.source});
+ assert.equal(attack.check.pool.setback,baseline.check.pool.setback-1,'Brace removes one declared environmental Setback and leaves other setbacks intact');
+ assert.equal(repo.state.vehicles.combat.aorBracePrepared,undefined);assert.equal(repo.state.vehicles.combat.actionUsed,true);
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ const android=fs.readFileSync(new URL('../app/src/main/assets/vtt/r46/final-runtime.js',import.meta.url),'utf8');
+ const controller=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/core/controller.mjs',import.meta.url),'utf8');
+ assert.ok(html.includes('id="braceButton"'));assert.ok(html.includes('id="vehicleBraceEnvironmentalSetback"'));
+ assert.ok(ui.includes('game.prepareAoRBrace({maneuverMethod:$(\'braceManeuverMethod\').value})'));
+ assert.ok(ui.includes('braceEnvironmentalSetback:Number($(\'vehicleBraceEnvironmentalSetback\').value)'));
+ assert.ok(android.includes("call('prepareAoRBrace',{maneuverMethod:p.querySelector('[data-p98-brace-method]')?.value||'normal'})"));
+ assert.ok(android.includes("braceEnvironmentalSetback:Number(p.querySelector('[data-p98-brace-environment]')?.value||0)"));
+ assert.ok(controller.includes('extraSetback:Math.max(0,declaredBraceEnvironment-braceRemoved)'));
+ const after=clone(repo.state);
+ for(let reopen=1;reopen<=3;reopen++){
+  const restored=new GameController(new RepoWithState(after));assert.equal(validateState(restored.state),true);
+  assert.equal(restored.state.vehicles.combat.aorBracePrepared,undefined,`consumed R2C2 Brace remains cleared after reopen ${reopen}`);
+  assert.ok(restored.state.vehicles.combat.lastAttack.aorBrace);assert.equal(restored.state.vehicles.combat.actionUsed,true);
+ }
+ assert.equal(bridge.buyTalent(BRACE_POSITION).ok,false,'the exact R2C2 node cannot be purchased twice');
 });

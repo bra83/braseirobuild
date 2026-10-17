@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: P21 reiniciar sandbox preserva personagem, grupo, nave e ajustes, mas limpa mundo/sessão
+ok 1 - P21 reiniciar sandbox preserva personagem, grupo, nave e ajustes, mas limpa mundo/sessão
+  ---
+  duration_ms: 584.8714
+  type: 'test'
+  ...
+# Subtest: P21 botão REINICIAR usa reset seguro e não apaga estado/personagem/foto diretamente
+ok 2 - P21 botão REINICIAR usa reset seguro e não apaga estado/personagem/foto diretamente
+  ---
+  duration_ms: 31.1293
+  type: 'test'
+  ...
+# Subtest: P21 status Gemini nativo é adaptado para Result ok/data esperado pela shell
+ok 3 - P21 status Gemini nativo é adaptado para Result ok/data esperado pela shell
+  ---
+  duration_ms: 28.8973
+  type: 'test'
+  ...
+# Subtest: P21 TTS cai para Web Speech quando o bridge Android existe mas responde indisponível
+ok 4 - P21 TTS cai para Web Speech quando o bridge Android existe mas responde indisponível
+  ---
+  duration_ms: 55.95
+  type: 'test'
+  ...
+# Subtest: P21 seletor oferece 82 mapas locais offline válidos sem adulterar o manifesto V3.8 congelado
+ok 5 - P21 seletor oferece 82 mapas locais offline válidos sem adulterar o manifesto V3.8 congelado
+  ---
+  duration_ms: 944.0393
+  type: 'test'
+  ...
+# Subtest: P21 bridge mantém catálogo congelado por padrão e entrega os 82 mapas locais ao seletor P21
+ok 6 - P21 bridge mantém catálogo congelado por padrão e entrega os 82 mapas locais ao seletor P21
+  ---
+  duration_ms: 29.7695
+  type: 'test'
+  ...
+# Subtest: P21 fonte e bundle da shell solicitam mapas jogáveis e mantêm auto-cache de externos
+ok 7 - P21 fonte e bundle da shell solicitam mapas jogáveis e mantêm auto-cache de externos
+  ---
+  duration_ms: 28.9601
+  type: 'test'
+  ...
+# Subtest: P21 Android TTS aceita pt-BR e recua para português genérico antes de declarar indisponível
+ok 8 - P21 Android TTS aceita pt-BR e recua para português genérico antes de declarar indisponível
+  ---
+  duration_ms: 10.4822
+  type: 'test'
+  ...
+# Subtest: P21 Android não tenta exibir mapa externo remoto antes do cache e seleção dispara cache
+ok 9 - P21 Android não tenta exibir mapa externo remoto antes do cache e seleção dispara cache
+  ---
+  duration_ms: 34.3755
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3049.699

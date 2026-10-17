@@ -826,8 +826,16 @@ function renderCombat(character, combat) {
   $('trueAimControl').hidden=trueAimRank<1;
   $('trueAimButton').disabled=!combat.active||!ready||health.unconscious||trueAimRank<1||trueAimUsed||!selectedAimWeapon||trueAimMelee||combat.playerTurn.maneuversUsed>=2;
   $('trueAimStatus').textContent=trueAimRank<1?'Mira Verdadeira não adquirida.':trueAimUsed?'Mira Verdadeira já foi usada nesta rodada.':trueAimMelee?'Mira Verdadeira exige arma de ataque à distância.':`Disponível: ${trueAimRank} aprimoramento(s) de habilidade no próximo ataque à distância.`;
-  const braceRank=game.talentRank('FIRMEZA'),bracePending=combat.aorBracePrepared;
-  $('braceButton').disabled=!combat.active||!ready||health.unconscious||braceRank<1||Boolean(bracePending)||combat.playerTurn.maneuversUsed>=2;
+  const vehicleCombat=game.state.vehicles?.combat??{},vehicleBraceOnly=Boolean(vehicleCombat.active&&!combat.active);
+  const vehicleSlot=vehicleCombat.swe02Initiative?.slots?.[vehicleCombat.swe02Initiative.index];
+  const activeCharacterId=game.state.player?.roster?.activeCharacterId;
+  const vehicleBraceReady=Boolean(vehicleCombat.active&&(!vehicleCombat.swe02Initiative||vehicleSlot?.side==='player'&&vehicleSlot.actorId===activeCharacterId));
+  const braceRank=game.talentRank('FIRMEZA'),bracePending=combat.aorBracePrepared??vehicleCombat.aorBracePrepared;
+  const braceManeuversUsed=vehicleBraceOnly?Number(vehicleCombat.maneuversUsed??0):Number(combat.playerTurn?.maneuversUsed??0);
+  const braceTurnReady=combat.active?ready:vehicleBraceReady;
+  $('braceButton').disabled=!(combat.active||vehicleCombat.active)||!braceTurnReady||health.unconscious||braceRank<1||Boolean(bracePending)||braceManeuversUsed>=2;
+  const braceSecondManeuver=$('braceManeuverMethod').querySelector('option[value="strain"]');
+  if(braceSecondManeuver)braceSecondManeuver.textContent=vehicleBraceOnly?'Se for a 2ª manobra veicular: sofrer 2 de Tensão de sistemas':'Se for a 2ª: sofrer 2 de Tensão';
   $('braceStatus').textContent=bracePending?`Brace preparado: ${bracePending.rank} graduação(ões); informe somente os contratempos ambientais no próximo teste ou ataque.`:
     braceRank>0?`Brace disponível · ${braceRank} graduação(ões); reduz contratempos ambientais até o limite de graduação.`:'Brace não adquirido.';
   const heroicFortitudeRank=game.talentRank('HERFORT'),heroicFortitudeActive=Boolean(character.combatEffects?.heroicFortitude),lightDestiny=Number(game.state.group?.destiny?.light??0);
@@ -1610,7 +1618,7 @@ $('swe02NabatBuy').addEventListener('click',()=>{try{
  const result=game.purchaseSWE02NabatItem({itemId:$('swe02NabatItem').value,quantity:Number($('swe02NabatQuantity').value)});
  showFeedback('swe02NabatFeedback',`Compra registrada: ${result.item.name} · ${result.receipt.cost} créditos.`);render();
 }catch(e){showFeedback('swe02NabatFeedback',e.message);}});
-$('vehicleAttack').addEventListener('click',()=>{ try{ const attack=game.resolveVehicleAttack({weaponIndex:Number($('vehicleWeaponSelect').value),useExhaustPort:$('useExhaustPort').checked}); $('useExhaustPort').checked=false; renderVehicleAttack(attack); render(); }catch(e){const el=$('vehicleAttackResult');el.className='result fail';el.textContent=e.message;} });
+$('vehicleAttack').addEventListener('click',()=>{ try{ const attack=game.resolveVehicleAttack({weaponIndex:Number($('vehicleWeaponSelect').value),useExhaustPort:$('useExhaustPort').checked,braceEnvironmentalSetback:Number($('vehicleBraceEnvironmentalSetback').value)}); $('useExhaustPort').checked=false;$('vehicleBraceEnvironmentalSetback').value='0'; renderVehicleAttack(attack); render(); }catch(e){const el=$('vehicleAttackResult');el.className='result fail';el.textContent=e.message;} });
 $('applyVehicleDamage').addEventListener('click',()=>{ try{ const r=game.applyVehicleDamage({damage:Number($('vehicleIncomingDamage').value),breach:Number($('vehicleIncomingBreach').value)}); showFeedback('vehicleRepairFeedback',`Casco sofreu ${r.suffered}. Estado: ${r.status.label}.`); render(); }catch(e){showFeedback('vehicleRepairFeedback',e.message);} });
 $('applyVehicleStrain').addEventListener('click',()=>{ try{ const r=game.applyVehicleStrain(Number($('vehicleIncomingStrain').value)); showFeedback('vehicleRepairFeedback',`+${r.suffered} de Tensão de sistemas. Estado: ${r.status.label}.`); render(); }catch(e){showFeedback('vehicleRepairFeedback',e.message);} });
 $('vehicleDamageControl').addEventListener('click',()=>{ try{ const r=game.vehicleDamageControl(); showFeedback('vehicleRepairFeedback',r.check.success?`Controle de danos: ${r.systemStrainRecovered} Tensão e ${r.hullRecovered} Casco recuperados.`:`Falha no controle de danos. Dificuldade ${r.difficulty}.`); render(); }catch(e){showFeedback('vehicleRepairFeedback',e.message);} });

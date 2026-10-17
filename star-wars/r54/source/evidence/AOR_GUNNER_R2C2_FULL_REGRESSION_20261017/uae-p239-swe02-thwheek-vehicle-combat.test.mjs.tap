@@ -1,0 +1,148 @@
+TAP version 13
+# Subtest: P239 SWE02 p.12: official Dunelizard profile and linked laser cannons
+ok 1 - P239 SWE02 p.12: official Dunelizard profile and linked laser cannons
+  ---
+  duration_ms: 4.4733
+  type: 'test'
+  ...
+# Subtest: P239 optimal navigation + slowed transponder: direct Nabat, no fighter
+ok 2 - P239 optimal navigation + slowed transponder: direct Nabat, no fighter
+  ---
+  duration_ms: 529.8908
+  type: 'test'
+  ...
+# Subtest: P239 SWE02 p.11 six-hour transit advances one persisted living-world tick exactly once
+ok 3 - P239 SWE02 p.11 six-hour transit advances one persisted living-world tick exactly once
+  ---
+  duration_ms: 203.9039
+  type: 'test'
+  ...
+# Subtest: P239 SWE02 p.8 failed route records unquantified extra transit time for GM adjudication
+ok 4 - P239 SWE02 p.8 failed route records unquantified extra transit time for GM adjudication
+  ---
+  duration_ms: 183.0369
+  type: 'test'
+  ...
+# Subtest: P239 SWE02 normal route rejects extra transit time adjudication
+ok 5 - P239 SWE02 normal route rejects extra transit time adjudication
+  ---
+  duration_ms: 228.4062
+  type: 'test'
+  ...
+# Subtest: P239 failed route forces interception even after slowed tracker
+ok 6 - P239 failed route forces interception even after slowed tracker
+  ---
+  duration_ms: 418.4053
+  type: 'test'
+  ...
+# Subtest: P239 p.12: cannot start Thwheek without actual Krayt Fang
+ok 7 - P239 p.12: cannot start Thwheek without actual Krayt Fang
+  ---
+  duration_ms: 216.8951
+  type: 'test'
+  ...
+# Subtest: P239 real vehicle engine: Short-range fighter and player must maneuver into Bocajarro
+ok 8 - P239 real vehicle engine: Short-range fighter and player must maneuver into Bocajarro
+  ---
+  duration_ms: 291.4058
+  type: 'test'
+  ...
+# Subtest: P239 p.12: each PC Cool slot selects its owner and receipts its vehicle actions
+ok 9 - P239 p.12: each PC Cool slot selects its owner and receipts its vehicle actions
+  ---
+  duration_ms: 438.4832
+  type: 'test'
+  ...
+# Subtest: P239 p.12: PCs who did not see Thwheek emerge roll Vigilance; the others roll Cool
+ok 10 - P239 p.12: PCs who did not see Thwheek emerge roll Vigilance; the others roll Cool
+  ---
+  duration_ms: 304.9453
+  type: 'test'
+  ...
+# Subtest: P239 p.12: unaware PC selection rejects unknown or duplicated roster IDs
+ok 11 - P239 p.12: unaware PC selection rejects unknown or duplicated roster IDs
+  ---
+  duration_ms: 336.3177
+  type: 'test'
+  ...
+# Subtest: P239 p.12: initiative blocks bypassing Thwheek and manual round advancement
+ok 12 - P239 p.12: initiative blocks bypassing Thwheek and manual round advancement
+  ---
+  duration_ms: 310.1878
+  type: 'test'
+  ...
+# Subtest: P239 legacy active Thwheek saves without initiative remain loadable and use their old round flow
+ok 13 - P239 legacy active Thwheek saves without initiative remain loadable and use their old round flow
+  ---
+  duration_ms: 429.1213
+  type: 'test'
+  ...
+# Subtest: P239 real hit + five hull trauma: pursuit remains open, withdrawal permits Nabat
+ok 14 - P239 real hit + five hull trauma: pursuit remains open, withdrawal permits Nabat
+  ---
+  duration_ms: 452.1437
+  type: 'test'
+  ...
+# Subtest: P239 p.12: no victory without actual hits and no duplicate start/resolve
+ok 15 - P239 p.12: no victory without actual hits and no duplicate start/resolve
+  ---
+  duration_ms: 284.052
+  type: 'test'
+  ...
+# Subtest: P239 p.12: incoming attack uses fixed Agility 3, Gunnery 0 even with forged GM overrides
+ok 16 - P239 p.12: incoming attack uses fixed Agility 3, Gunnery 0 even with forged GM overrides
+  ---
+  duration_ms: 299.0777
+  type: 'test'
+  ...
+# Subtest: P239 p.12: target stay-on-target switches to evasive after first actual hit, persists next round
+ok 17 - P239 p.12: target stay-on-target switches to evasive after first actual hit, persists next round
+  ---
+  duration_ms: 394.774
+  type: 'test'
+  ...
+# Subtest: P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience checks
+ok 18 - P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience checks
+  ---
+  duration_ms: 1267.0928
+  type: 'test'
+  ...
+# Subtest: P239 p.12: three-person crew cannot be falsely certified by one PC
+ok 19 - P239 p.12: three-person crew cannot be falsely certified by one PC
+  ---
+  duration_ms: 2721.9621
+  type: 'test'
+  ...
+# Subtest: P239 p.12: crash Resilience is recorded once per stable PC ID, including duplicate names
+ok 20 - P239 p.12: crash Resilience is recorded once per stable PC ID, including duplicate names
+  ---
+  duration_ms: 1933.6264
+  type: 'test'
+  ...
+# Subtest: P239 p.12: successful Pilot soft landing upgrades one crew Resilience die
+ok 21 - P239 p.12: successful Pilot soft landing upgrades one crew Resilience die
+  ---
+  duration_ms: 1004.3932
+  type: 'test'
+  ...
+# Subtest: P239 fail-closed: forged outcome or crew completion cannot survive adapter status
+ok 22 - P239 fail-closed: forged outcome or crew completion cannot survive adapter status
+  ---
+  duration_ms: 342.8843
+  type: 'test'
+  ...
+# Subtest: P239 bridge exposes authoritative vehicle result and crash methods
+ok 23 - P239 bridge exposes authoritative vehicle result and crash methods
+  ---
+  duration_ms: 1.7108
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 14557.3175

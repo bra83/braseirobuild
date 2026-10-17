@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: T’rex p.24 profile matches the official Adventure Book block
+ok 1 - T’rex p.24 profile matches the official Adventure Book block
+  ---
+  duration_ms: 9.8215
+  type: 'test'
+  ...
+# Subtest: T’rex carryover is explicit, persists on reopen, and replaces one existing hunter slot with only the correct starting wounds
+ok 2 - T’rex carryover is explicit, persists on reopen, and replaces one existing hunter slot with only the correct starting wounds
+  ---
+  duration_ms: 4961.2506
+  type: 'test'
+  ...
+# Subtest: living T’rex stays pending for a solo or unknown-size party rather than removing the required Gand or adding an extra hunter
+ok 3 - living T’rex stays pending for a solo or unknown-size party rather than removing the required Gand or adding an extra hunter
+  ---
+  duration_ms: 576.3127
+  type: 'test'
+  ...
+# Subtest: invalid and duplicate history selections do not rewrite the source history
+ok 4 - invalid and duplicate history selections do not rewrite the source history
+  ---
+  duration_ms: 592.952
+  type: 'test'
+  ...
+# Subtest: Android UI bridge exposes explicit T’rex history persistence
+ok 5 - Android UI bridge exposes explicit T’rex history persistence
+  ---
+  duration_ms: 32.5732
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7727.9083
