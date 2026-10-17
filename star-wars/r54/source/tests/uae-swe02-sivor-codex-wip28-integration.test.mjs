@@ -7,7 +7,7 @@ const fixture=()=>({
  id:'long-arm-of-the-hutt',currentNodeId:'krayt-fang-logs',status:'ACTIVE',
  flags:{shipMarkedChitinKept:true},shipChitinKnowledge:{
   source:{productCode:'SWE02',printedPage:9},
-  checkReceipt:{checkIndex:9,success:true,skillKey:'xenologia'}
+  checkReceipt:{checkIndex:9,netSuccess:1,netAdvantage:0,triumph:false,skillKey:'xenologia'}
  },geonosisEvidence:[],geonosisArguments:[],checkHistory:[]
 });
 
