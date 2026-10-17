@@ -1237,6 +1237,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             editor.remove("dnd_faerun_image_before_strixhaven_v1")
                 .remove("dnd_faerun_image_fingerprint_before_strixhaven_v1").apply();
             StrixhavenAdventureProfile p=strixhavenProfile();p.exitToFaerun();
+            if(!aiBusy){aiRequestGeneration++;aiPipelineGeneration++;}
+            sceneImageDecodeGeneration++;
             loadStoryState();
             screenCache.clear();screenCacheTime.clear();applyTheme();buildShell();showCampaign();
             ensureBundledMapForProfileAsync(WORLD_DND);
@@ -1248,6 +1250,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
     private void clearTravelSceneDisplay(String destination){
         cancelNarrationAudio();
+        if(!aiBusy){aiRequestGeneration++;aiPipelineGeneration++;}
+        sceneImageDecodeGeneration++;
         currentSceneCastPreview=new JSONArray();
         currentOptions=new JSONArray();
         pendingTest=new JSONObject();
@@ -6318,7 +6322,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private static boolean isReservedSceneIdentity(String value){
         String n=normalizeForNameMatch(value);
         if(n.length()==0)return true;
-        String[] reserved={"voce","voces","eu","nos","ele","ela","eles","elas","jogador","jogadora","jogadores","jogadoras","o jogador","a jogadora","grupo","o grupo","grupo de aventureiros","companhia","a companhia","heroi","herois","aventureiro","aventureiros","player","players","party","the party","narrador","narradora","mestre do jogo","game master","gm"};
+        String[] reserved={"voce","voces","eu","nos","ele","ela","eles","elas","jogador","jogadora","jogadores","jogadoras","o jogador","a jogadora","grupo","o grupo","grupo de aventureiros","companhia","a companhia","heroi","herois","aventureiro","aventureiros","player","players","party","the party","narrador","narradora","mestre do jogo","game master","gm","biblioplex","strixhaven","faerun","arcavios","campus","universidade"};
         for(String alias:reserved)if(n.equals(alias))return true;
         return false;
     }
@@ -6895,9 +6899,14 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                         public void onError(final String error){ui.post(new Runnable(){public void run(){
                             if(requestId!=aiRequestGeneration)return;
                             prefs.edit().putString("gemini_connection_state","offline").putString("gemini_last_error",error==null?"erro desconhecido":error).apply();
-                            // No automatic acceptance of partial streaming and NO offline fallback.
-                            // Partial output is not a validated scene and must never be committed.
                             if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(pendingAiInputChars,streamingNarration.length());
+                            if(streamingNarration!=null&&streamingNarration.trim().length()>=160){
+                                String salvaged=PortugueseNarrationSanitizer.sanitize(completeNarrationSafely(streamingNarration));
+                                JSONObject salvagedEnvelope=new JSONObject();
+                                try{salvagedEnvelope.put("narration",salvaged);salvagedEnvelope.put("stream_salvaged",true);}catch(Exception ignored){}
+                                acceptOrRepairNarration(mode,userText,salvagedEnvelope.toString(),sys,key,model,requestId,1);
+                                return;
+                            }
                             markGeminiRequestFailed(mode,userText,inputChannel,"Falha da API Gemini: "+(error==null?"sem detalhes":error));
                         }});}
                     });
@@ -6957,7 +6966,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             final String repairOccasion=storyPresentationOccasion(originalUserText);
             final boolean fullPresentationRepair=isFullStoryPresentation(repairOccasion);
             final int repairMinLength=nonAdvancingRepair?8:240;
-            final int maxRepairAttempts=fullPresentationRepair?2:1;
+            final int maxRepairAttempts=1;
             if(draft.length()<repairMinLength){
                 if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(pendingAiInputChars,raw==null?0:raw.length());
                 aiBusy=false;streamingNarration="";
@@ -6984,18 +6993,22 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             }
             if(hasInternalNarrationLeak(draft)){aiBusy=false;streamingNarration="";markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),"A resposta continha instruções internas e foi bloqueada. Nada foi aplicado.");return;}
             if(fullPresentationRepair){
-                // RUN108: uma cena remota válida nunca é substituída pelo Mestre offline
-                // apenas por ficar abaixo do alvo editorial de extensão/onboarding.
-                // A validação fechada continua podendo bloquear TODAS as consequências
-                // estruturadas e o ledger de descoberta; somente a prosa remota é preservada.
+                String completed=draft;
                 try{
-                    envelope.put("narration",draft);
+                    completed=OfflineMasterEngine.completePresentationWithBarbara(draft,repairOccasion,activeMasterPlan,db.getSceneState());
+                }catch(Exception failure){
+                    AppLog.w("NarrativeDirector","Falha ao completar apresentação com Motor Bárbara.",failure);
+                }
+                try{
+                    envelope.put("narration",completed);
                     envelope.put("presentation_quality_unmet",problem);
                     envelope.put("remote_narration_preserved",true);
+                    envelope.put("barbara_completed",true);
                 }catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao marcar apresentação remota preservada.",ignored);}
                 aiBusy=false;streamingNarration="";
+                if(masterOrchestrator!=null)masterOrchestrator.cacheResponse(activeMasterPlan,pendingAiModel,mode,envelope.toString());
                 handleAiResponse(envelope.toString(),originalUserText);
-                setStatus("Cena remota preservada. A apresentação ficou abaixo do alvo de contexto; o Mestre local offline não substituiu o texto e nenhuma consequência reprovada pela validação foi aplicada.");
+                setStatus("Cena pronta • completada com o Motor Bárbara • "+textModelStatus());
                 return;
             }
             try{envelope.put("narration",draft);envelope.put("quality_recovered_locally",problem);}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}

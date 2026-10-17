@@ -116,4 +116,31 @@ public class StrixhavenSceneBoundaryRobolectricTest {
         assertTrue(label.contains("pátio da Academia"));
         assertFalse(label.contains("Biblioplex"));
     }
+
+    @Test public void biblioplexAndCampusNamesAreNotExtractedAsNpcs() {
+        String narration = "Ao entrar no Biblioplex em Strixhaven, a companhia percebe os arcos de pedra. O Biblioplex guarda séculos de estudo. Faerûn e Arcavios são mundos distintos, e o campus vibra com atividade.";
+        JSONArray npcs = NarratedNpcExtractor.extract(narration, 10);
+        for (int i = 0; i < npcs.length(); i++) {
+            String name = npcs.optJSONObject(i).optString("name", "");
+            assertFalse("Lugar não pode ser extraído como NPC: " + name,
+                "Biblioplex".equalsIgnoreCase(name) ||
+                "Strixhaven".equalsIgnoreCase(name) ||
+                "Faerûn".equalsIgnoreCase(name) ||
+                "Arcavios".equalsIgnoreCase(name) ||
+                "Campus".equalsIgnoreCase(name));
+        }
+    }
+
+    @Test public void barbaraCompletesPresentationSafely() throws Exception {
+        String draft = "Você chegou ao Biblioplex e observa os salões.";
+        JSONObject scene = new JSONObject().put("location", "Strixhaven • Biblioplex")
+                .put("region", "Arcavios").put("geography", "campus plano e cercado de torres");
+        String problemBefore = WorldOnboardingNarrativeGuard.problem(draft, "first_arrival", null);
+        assertFalse(problemBefore.isEmpty());
+
+        String completed = OfflineMasterEngine.completePresentationWithBarbara(draft, "first_arrival", null, scene);
+        assertTrue(completed.contains(draft));
+        String problemAfter = WorldOnboardingNarrativeGuard.problem(completed, "first_arrival", null);
+        assertEquals("", problemAfter);
+    }
 }

@@ -104,6 +104,30 @@ public final class OfflineMasterEngine {
         return out;
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
+    public static String completePresentationWithBarbara(String existingNarration,String occasion,MasterOrchestrator.Plan plan,JSONObject sceneState){
+        String occ=occasion==null||occasion.trim().length()==0?(plan!=null&&plan.barbaraStoryOccasion!=null&&plan.barbaraStoryOccasion.trim().length()>0?plan.barbaraStoryOccasion.trim():"first_arrival"):occasion.trim();
+        String draft=existingNarration==null?"":existingNarration.trim();
+        if(WorldOnboardingNarrativeGuard.problem(draft,occ,null).length()==0)return draft;
+        String loc=sceneState==null?"":sceneState.optString("location","");
+        String reg=sceneState==null?"":sceneState.optString("region","");
+        String geo=sceneState==null?"":sceneState.optString("geography","");
+        String poi=sceneState==null?"":sceneState.optString("poi","");
+        String weather=sceneState==null?"":sceneState.optString("weather_description","");
+        String danger=sceneState==null?"":sceneState.optString("danger_description","");
+        String obj=sceneState==null?"":sceneState.optString("objective","");
+        String actor="A companhia";
+        String npc="";
+        if(sceneState!=null){
+            JSONArray npcs=sceneState.optJSONArray("present_npcs");
+            if(npcs!=null&&npcs.length()>0&&npcs.optJSONObject(0)!=null)npc=npcs.optJSONObject(0).optString("name","");
+        }
+        String supplement="campaign_opening".equals(occ)
+            ?buildOpeningNarration(loc.length()>0?loc:"esta região","",reg,"",weather,danger,obj,actor,npc)
+            :buildDiscoveryNarration(occ,loc,reg,geo,poi,weather,danger,obj,actor,npc);
+        String combined=draft.length()>0?(draft+"\n\n"+supplement):supplement;
+        return ensurePresentationMinimum(combined,occ,loc,geo,weather,obj);
+    }
+
     private static String buildDiscoveryNarration(String occasion,String location,String region,String geography,String poi,String weather,String danger,String objective,String actor,String npc){
         String place=location.length()>0?location:"esta região",geo=geography.length()>0?geography:"o terreno ao redor",climate=weather.length()>0?weather:"o tempo atual";
         StringBuilder out=new StringBuilder();

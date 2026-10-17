@@ -43,7 +43,8 @@ public final class ShareReceiverActivity extends Activity {
             return;
         }
         final Uri source = sourceFrom(incoming);
-        if (source == null) {
+        final Uri clipSource = clipSourceFrom(incoming);
+        if (source == null && clipSource == null) {
             launchMain("", "O aplicativo de origem não forneceu a imagem.");
             return;
         }
@@ -52,14 +53,28 @@ public final class ShareReceiverActivity extends Activity {
             @Override public void run() {
                 String token = "";
                 String error = "";
+                Uri targetSource = source != null ? source : clipSource;
                 try {
                     Uri durable = ImageStorageManager.importImage(
-                            ShareReceiverActivity.this, source,
+                            ShareReceiverActivity.this, targetSource,
                             "scene_images", "shared_scene", 12);
                     token = PendingImageImportStore.enqueue(ShareReceiverActivity.this, durable);
                 } catch (Exception failure) {
-                    AppLog.e("ImageImport", "A imagem compartilhada foi rejeitada.", failure);
-                    error = failure.getMessage() == null ? "A imagem recebida é inválida." : failure.getMessage();
+                    if (clipSource != null && !clipSource.equals(targetSource)) {
+                        try {
+                            Uri durable = ImageStorageManager.importImage(
+                                    ShareReceiverActivity.this, clipSource,
+                                    "scene_images", "shared_scene", 12);
+                            token = PendingImageImportStore.enqueue(ShareReceiverActivity.this, durable);
+                            failure = null;
+                        } catch (Exception secondaryFailure) {
+                            failure = secondaryFailure;
+                        }
+                    }
+                    if (failure != null) {
+                        AppLog.e("ImageImport", "A imagem compartilhada foi rejeitada.", failure);
+                        error = failure.getMessage() == null ? "A imagem recebida é inválida." : failure.getMessage();
+                    }
                 }
                 final String readyToken = token;
                 final String readyError = error;
@@ -71,16 +86,17 @@ public final class ShareReceiverActivity extends Activity {
     }
 
     private Uri sourceFrom(Intent incoming) {
-        Uri source = null;
+        if (incoming == null) return null;
         if (android.os.Build.VERSION.SDK_INT >= 33) {
-            source = incoming.getParcelableExtra(Intent.EXTRA_STREAM, Uri.class);
+            return incoming.getParcelableExtra(Intent.EXTRA_STREAM, Uri.class);
         } else {
-            source = (Uri) incoming.getParcelableExtra(Intent.EXTRA_STREAM);
+            return (Uri) incoming.getParcelableExtra(Intent.EXTRA_STREAM);
         }
-        if (source == null && incoming.getClipData() != null && incoming.getClipData().getItemCount() > 0) {
-            source = incoming.getClipData().getItemAt(0).getUri();
-        }
-        return source;
+    }
+
+    private Uri clipSourceFrom(Intent incoming) {
+        if (incoming == null || incoming.getClipData() == null || incoming.getClipData().getItemCount() <= 0) return null;
+        return incoming.getClipData().getItemAt(0).getUri();
     }
 
     private void launchMain(String token, String error) {

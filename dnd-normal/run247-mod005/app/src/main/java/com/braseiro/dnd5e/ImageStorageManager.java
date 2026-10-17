@@ -29,10 +29,14 @@ public final class ImageStorageManager {
     public static Uri importImage(Context context, Uri source, String folder, String baseName, int keepNewest) throws Exception {
         if (context == null || source == null) throw new Exception("Imagem ausente.");
         Context app = context.getApplicationContext();
-        ContentResolver resolver = app.getContentResolver();
-        String mime = resolver.getType(source);
+        ContentResolver resolver = context.getContentResolver();
+        String mime = null;
+        try { mime = resolver.getType(source); } catch (Exception ignored) {}
+        if (mime == null || mime.trim().length() == 0) {
+            try { mime = app.getContentResolver().getType(source); } catch (Exception ignored) {}
+        }
         if (mime == null || mime.trim().length() == 0) mime = mimeFromUri(source);
-        try (InputStream input = open(app, source)) {
+        try (InputStream input = open(context, source)) {
             return store(app, input, mime, folder, baseName, keepNewest);
         }
     }
@@ -50,7 +54,7 @@ public final class ImageStorageManager {
         String normalizedMime = normalizeMimeOrDetect(input, mime);
         String extension = extensionForMime(normalizedMime);
         File directory = new File(app.getFilesDir(), safe(folder));
-        if (!directory.exists() && !directory.mkdirs()) throw new Exception("Não foi possível preparar a pasta de imagens.");
+        if (!directory.exists() && !directory.mkdirs() && !directory.exists()) throw new Exception("Não foi possível preparar a pasta de imagens.");
         String stem = safe(baseName) + "_" + System.currentTimeMillis();
         File temporary = new File(directory, stem + ".tmp");
         File target = new File(directory, stem + "." + extension);
@@ -129,11 +133,42 @@ public final class ImageStorageManager {
         if ("file".equalsIgnoreCase(uri.getScheme())) {
             String path = uri.getPath();
             if (path == null) throw new Exception("Caminho da imagem inválido.");
-            return new BufferedInputStream(new FileInputStream(new File(path)));
+            File f = new File(path);
+            for (int i = 0; i < 3; i++) {
+                if (f.exists() && f.canRead()) break;
+                try { Thread.sleep(120L); } catch (InterruptedException ignored) {}
+            }
+            return new BufferedInputStream(new FileInputStream(f));
         }
-        InputStream input = context.getContentResolver().openInputStream(uri);
-        if (input == null) throw new Exception("Imagem indisponível.");
-        return new BufferedInputStream(input);
+        Exception lastError = null;
+        for (int attempt = 0; attempt < 3; attempt++) {
+            try {
+                InputStream input = context.getContentResolver().openInputStream(uri);
+                if (input != null) return new BufferedInputStream(input);
+            } catch (Exception ex) {
+                lastError = ex;
+            }
+            if (context.getApplicationContext() != null && context.getApplicationContext() != context) {
+                try {
+                    InputStream input = context.getApplicationContext().getContentResolver().openInputStream(uri);
+                    if (input != null) return new BufferedInputStream(input);
+                } catch (Exception ex) {
+                    lastError = ex;
+                }
+            }
+            try {
+                android.content.res.AssetFileDescriptor afd = context.getContentResolver().openAssetFileDescriptor(uri, "r");
+                if (afd != null) {
+                    InputStream stream = afd.createInputStream();
+                    if (stream != null) return new BufferedInputStream(stream);
+                }
+            } catch (Exception ex) {
+                lastError = ex;
+            }
+            try { Thread.sleep(120L); } catch (InterruptedException ignored) {}
+        }
+        if (lastError != null) throw lastError;
+        throw new Exception("Imagem indisponível.");
     }
 
     private static String normalizeMimeOrDetect(InputStream input, String mime) throws Exception {
@@ -218,7 +253,10 @@ public final class ImageStorageManager {
         int kept = 0;
         for (File file : files) {
             if (!file.isFile() || file.getName().endsWith(".tmp")) {
-                if (file.isFile() && !file.delete()) AppLog.w("ImageStorage", "Falha ao limpar temporário antigo.");
+                if (file.isFile()) {
+                    long age = System.currentTimeMillis() - file.lastModified();
+                    if (age > 60_000L && !file.delete()) AppLog.w("ImageStorage", "Falha ao limpar temporário antigo.");
+                }
                 continue;
             }
             if (file.equals(protectedFile)) { kept++; continue; }
