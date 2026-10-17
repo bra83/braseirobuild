@@ -1,0 +1,178 @@
+TAP version 13
+# Subtest: P177 seven source-backed positions have real consumers, no blanket alias
+ok 1 - P177 seven source-backed positions have real consumers, no blanket alias
+  ---
+  duration_ms: 22.0462
+  type: 'test'
+  ...
+# Subtest: P177 Careful Planning persists an approved fact without flipping Destiny, one/session
+ok 2 - P177 Careful Planning persists an approved fact without flipping Destiny, one/session
+  ---
+  duration_ms: 79.2606
+  type: 'test'
+  ...
+# Subtest: P177 Careful Planning rejects unowned, invalid fact, absent GM approval, and rollback
+ok 3 - P177 Careful Planning rejects unowned, invalid fact, absent GM approval, and rollback
+  ---
+  duration_ms: 78.5141
+  type: 'test'
+  ...
+# Subtest: P177 Contraption rolls Hard Mechanics, consumes owned parts and tools only on success
+ok 4 - P177 Contraption rolls Hard Mechanics, consumes owned parts and tools only on success
+  ---
+  duration_ms: 55.8991
+  type: 'test'
+  ...
+# Subtest: P177 Contraption fails closed for missing gear, noncombat, missing approval, duplicated ids
+ok 5 - P177 Contraption fails closed for missing gear, noncombat, missing approval, duplicated ids
+  ---
+  duration_ms: 61.8351
+  type: 'test'
+  ...
+# Subtest: P177 Incite Rebellion rolls Hard Coercion against real minion/rival, respects skill cap
+ok 6 - P177 Incite Rebellion rolls Hard Coercion against real minion/rival, respects skill cap
+  ---
+  duration_ms: 35.2034
+  type: 'test'
+  ...
+# Subtest: P177 Incite Rebellion rejects phantom/duplicate/over-cap targets, leaves state unchanged
+ok 7 - P177 Incite Rebellion rejects phantom/duplicate/over-cap targets, leaves state unchanged
+  ---
+  duration_ms: 48.6182
+  type: 'test'
+  ...
+# Subtest: P177 Hidden Storage uses owned gear capacity and no item duplication
+ok 8 - P177 Hidden Storage uses owned gear capacity and no item duplication
+  ---
+  duration_ms: 15.1648
+  type: 'test'
+  ...
+# Subtest: P177 Hidden Storage rejects nonexistent item/container, capacity overrun, cross-campaign replay
+ok 9 - P177 Hidden Storage rejects nonexistent item/container, capacity overrun, cross-campaign replay
+  ---
+  duration_ms: 41.9875
+  type: 'test'
+  ...
+# Subtest: P177 Greased Palms spends 50 credits, upgrades actual Negotiation roll and records causal receipt
+ok 10 - P177 Greased Palms spends 50 credits, upgrades actual Negotiation roll and records causal receipt
+  ---
+  duration_ms: 44.7366
+  type: 'test'
+  ...
+# Subtest: P177 Greased Palms refuses unearned rank, non-social skill, invalid credits, duplicate id
+ok 11 - P177 Greased Palms refuses unearned rank, non-social skill, invalid credits, duplicate id
+  ---
+  duration_ms: 61.6096
+  type: 'test'
+  ...
+# Subtest: P177 Stunning Blow replaces personal melee wounds with strain without ignoring soak
+ok 12 - P177 Stunning Blow replaces personal melee wounds with strain without ignoring soak
+  ---
+  duration_ms: 50.3012
+  type: 'test'
+  ...
+# Subtest: P177 Stunning Blow rejects unowned talent and nonmelee attack
+ok 13 - P177 Stunning Blow rejects unowned talent and nonmelee attack
+  ---
+  duration_ms: 19.5511
+  type: 'test'
+  ...
+# Subtest: P177 Improved Stunning Blow spends real pending Triumph only once, applies staggered
+ok 14 - P177 Improved Stunning Blow spends real pending Triumph only once, applies staggered
+  ---
+  duration_ms: 35.5244
+  type: 'test'
+  ...
+# Subtest: P177 Improved Stunning Blow fails closed without Triumph or target, no fabricated status
+ok 15 - P177 Improved Stunning Blow fails closed without Triumph or target, no fabricated status
+  ---
+  duration_ms: 30.9906
+  type: 'test'
+  ...
+# Subtest: P177 forged ledgers, missing events, duplicates, tampered credits are rejected
+ok 16 - P177 forged ledgers, missing events, duplicates, tampered credits are rejected
+  ---
+  duration_ms: 23.3452
+  type: 'test'
+  ...
+# Subtest: P177 P176 save migration, Android bridge, and panel are connected
+ok 17 - P177 P176 save migration, Android bridge, and panel are connected
+  ---
+  duration_ms: 66.1013
+  type: 'test'
+  ...
+# Subtest: P177 under-black-sun: approved Careful Planning leaves UAE untouched across three reopenings
+ok 18 - P177 under-black-sun: approved Careful Planning leaves UAE untouched across three reopenings
+  ---
+  duration_ms: 143.2817
+  type: 'test'
+  ...
+# Subtest: P177 beyond-the-rim: approved Careful Planning leaves UAE untouched across three reopenings
+ok 19 - P177 beyond-the-rim: approved Careful Planning leaves UAE untouched across three reopenings
+  ---
+  duration_ms: 95.7633
+  type: 'test'
+  ...
+# Subtest: P177 long-arm-of-the-hutt: approved Careful Planning leaves UAE untouched across three reopenings
+ok 20 - P177 long-arm-of-the-hutt: approved Careful Planning leaves UAE untouched across three reopenings
+  ---
+  duration_ms: 83.6845
+  type: 'test'
+  ...
+# Subtest: P177 jewel-of-yavin: approved Careful Planning leaves UAE untouched across three reopenings
+ok 21 - P177 jewel-of-yavin: approved Careful Planning leaves UAE untouched across three reopenings
+  ---
+  duration_ms: 101.9661
+  type: 'test'
+  ...
+# Subtest: P177 mask-of-the-pirate-queen: approved Careful Planning leaves UAE untouched across three reopenings
+ok 22 - P177 mask-of-the-pirate-queen: approved Careful Planning leaves UAE untouched across three reopenings
+  ---
+  duration_ms: 82.0869
+  type: 'test'
+  ...
+# Subtest: P177 Contraption temporary gear disappears when the encounter closes, ledger persists
+ok 23 - P177 Contraption temporary gear disappears when the encounter closes, ledger persists
+  ---
+  duration_ms: 51.0698
+  type: 'test'
+  ...
+# Subtest: P177 all four action families roll back on failed repository save
+ok 24 - P177 all four action families roll back on failed repository save
+  ---
+  duration_ms: 81.1524
+  type: 'test'
+  ...
+# Subtest: P177 Greased Palms rolls back credits, maneuvers and receipts on save failure
+ok 25 - P177 Greased Palms rolls back credits, maneuvers and receipts on save failure
+  ---
+  duration_ms: 49.33
+  type: 'test'
+  ...
+# Subtest: P177 Stunning Blow does not ignore target soak or allow improvised critical spending
+ok 26 - P177 Stunning Blow does not ignore target soak or allow improvised critical spending
+  ---
+  duration_ms: 37.7069
+  type: 'test'
+  ...
+# Subtest: P177 Soft Spot AoR adds Cunning to real personal attack on hit, spends exactly one Destiny
+ok 27 - P177 Soft Spot AoR adds Cunning to real personal attack on hit, spends exactly one Destiny
+  ---
+  duration_ms: 25.9087
+  type: 'test'
+  ...
+# Subtest: P177 Soft Spot rejects unowned, conflicting Destiny options and rolls back on missing Destiny
+ok 28 - P177 Soft Spot rejects unowned, conflicting Destiny options and rolls back on missing Destiny
+  ---
+  duration_ms: 54.3813
+  type: 'test'
+  ...
+1..28
+# tests 28
+# suites 0
+# pass 28
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3061.6389

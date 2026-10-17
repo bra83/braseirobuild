@@ -13,16 +13,16 @@
   "rules_status": "PENDENTE",
   "aor_360": {
     "positions": 360,
-    "certified": 17,
-    "pending": 343,
+    "certified": 18,
+    "pending": 342,
     "ledger": "validation/AOR_360_INDIVIDUAL_PROOFS.jsonl",
-    "individual_proofs_certified": 17,
-    "individual_proofs_pending": 343,
-    "static_exact_node_id_test_mentions": 18,
+    "individual_proofs_certified": 18,
+    "individual_proofs_pending": 342,
+    "static_exact_node_id_test_mentions": 19,
     "static_broader_name_key_test_mentions": 290,
     "ledger_includes_static_references": true,
     "static_references_are_certification": false,
-    "individually_source_audited": 39,
+    "individually_source_audited": 40,
     "first_tree_audit": "audits/AOR_ACE_GUNNER_INDIVIDUAL_AUDIT.md",
     "first_tree_rows": 20,
     "first_tree_rows_status": "PENDENTE",
@@ -286,6 +286,30 @@
       "summary": "evidence/AOR_GUNNER_R3C4_FULL_REGRESSION_20261017/summary.json",
       "skip_reason": "JDK jar executable unavailable for two offline Gradle-wrapper packaging checks.",
       "runner_environment": "Per-file TAP runner, 8 workers; NODE_PATH points to work/build-deps5/node_modules; UTF-8 TAP summaries preserve skip count."
+    },
+    "r5c3_proof": {
+      "position": "ace:gunner:r5c3",
+      "status": "CERTIFICADO",
+      "source": "AoR Core Rulebook printed p.68",
+      "test": "tests/uae-aor-individual-position-proofs.test.mjs",
+      "test_id": "AoR p.68 Ace/Gunner R5C3 Dedication buys exact node, applies chosen characteristic and survives three reloads",
+      "evidence": "evidence/AOR_ACE_GUNNER_R5C3_20261017/",
+      "regression": "evidence/AOR_GUNNER_R5C3_FULL_REGRESSION_20261017/summary.json"
+    },
+    "aor_gunner_r5c3_full_regression": {
+      "state": "PASS_FULL_REGRESSION_AFTER_AOR_ACE_GUNNER_R5C3",
+      "files": 383,
+      "regular_files": 377,
+      "stress_files": 6,
+      "tests": 3485,
+      "pass": 3483,
+      "fail": 0,
+      "skip": 2,
+      "files_without_complete_summary": [],
+      "evidence": "evidence/AOR_GUNNER_R5C3_FULL_REGRESSION_20261017/",
+      "summary": "evidence/AOR_GUNNER_R5C3_FULL_REGRESSION_20261017/summary.json",
+      "skip_reason": "JDK jar executable unavailable for two offline Gradle-wrapper packaging checks.",
+      "runner_environment": "Per-file TAP runner, 8 workers; NODE_PATH points to work/build-deps5/node_modules; UTF-8 TAP summaries preserve skip count."
     }
   },
   "drive_inventory": {
@@ -340,7 +364,7 @@
     "supersedes": "evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_FINAL_20261016/"
   },
   "blockers": [
-    "All 360 AoR positions lack individual source-to-effect, UI, persistence, and test evidence.",
+    "342 AoR positions still lack individual source-to-effect, UI, persistence, and test evidence.",
     "500 Drive inventory items remain metadata-only and unreviewed.",
     "The master handoff’s final selected-supplement boundary is unresolved; 19 rulebook/supplement-type entries are listed, with seven additional entries beyond the 12 initial core/supplement roles.",
     "EotE/AoR rules family certification remains outstanding.",
@@ -348,7 +372,7 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Continue source-to-semantic coverage for the five authorized adventures and selected EotE/AoR rules corpus, and individually prove the remaining 343 AoR positions. Keep R2C2 pending until vehicle-action consumer scope is resolved. Preserve cited RAG retrieval and deterministic code authority; do not create P245 or run Android release gates until all global certification criteria pass.",
+  "next_action": "Continue source-to-semantic coverage for the five authorized adventures and selected EotE/AoR rules corpus, and individually prove the remaining 342 AoR positions. Keep R2C2 pending until vehicle-action consumer scope is resolved. Preserve cited RAG retrieval and deterministic code authority; do not create P245 or run Android release gates until all global certification criteria pass.",
   "swe02_krayt_fang_pp06_11": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
     "source": "Long Arm of the Hutt printed pp.6–11 / PDF pp.6–11",

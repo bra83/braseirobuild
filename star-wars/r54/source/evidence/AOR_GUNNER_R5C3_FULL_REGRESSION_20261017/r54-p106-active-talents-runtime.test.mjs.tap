@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: P106: Foco Intenso custa manobra +1 Tensão e aprimora a habilidade do próximo teste
+ok 1 - P106: Foco Intenso custa manobra +1 Tensão e aprimora a habilidade do próximo teste
+  ---
+  duration_ms: 52.4982
+  type: 'test'
+  ...
+# Subtest: P106: Sentir o Perigo remove até 2 Setbacks e Toque do Destino adiciona 2 Boost, ambos 1x por sessão
+ok 2 - P106: Sentir o Perigo remove até 2 Setbacks e Toque do Destino adiciona 2 Boost, ambos 1x por sessão
+  ---
+  duration_ms: 25.5735
+  type: 'test'
+  ...
+# Subtest: P106: nova sessão limpa os usos únicos de Sentir o Perigo e Toque do Destino
+ok 3 - P106: nova sessão limpa os usos únicos de Sentir o Perigo e Toque do Destino
+  ---
+  duration_ms: 27.4106
+  type: 'test'
+  ...
+# Subtest: P106: Levantar Rápido remove prone como incidental sem gastar manobra
+ok 4 - P106: Levantar Rápido remove prone como incidental sem gastar manobra
+  ---
+  duration_ms: 10.3164
+  type: 'test'
+  ...
+# Subtest: P106: Equilíbrio acrescenta recuperação real de Tensão ao encerrar encontro
+ok 5 - P106: Equilíbrio acrescenta recuperação real de Tensão ao encerrar encontro
+  ---
+  duration_ms: 17.0655
+  type: 'test'
+  ...
+# Subtest: P106: bridge expõe teste simples e estado dos talentos ativos
+ok 6 - P106: bridge expõe teste simples e estado dos talentos ativos
+  ---
+  duration_ms: 2.8526
+  type: 'test'
+  ...
+# Subtest: P106: R46 expõe talentos ativos sem inventar aquisição
+ok 7 - P106: R46 expõe talentos ativos sem inventar aquisição
+  ---
+  duration_ms: 6.0766
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1628.2674

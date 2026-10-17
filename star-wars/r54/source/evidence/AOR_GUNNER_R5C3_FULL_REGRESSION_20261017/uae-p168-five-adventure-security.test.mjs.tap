@@ -1,0 +1,130 @@
+TAP version 13
+# Subtest: P168 under-black-sun: imported objective completed without prerequisite rejected even when journal predates causal audit
+ok 1 - P168 under-black-sun: imported objective completed without prerequisite rejected even when journal predates causal audit
+  ---
+  duration_ms: 35.307
+  type: 'test'
+  ...
+# Subtest: P168 under-black-sun: published resolution rejects injected effects and rolls back all state
+ok 2 - P168 under-black-sun: published resolution rejects injected effects and rolls back all state
+  ---
+  duration_ms: 63.0258
+  type: 'test'
+  ...
+# Subtest: P168 under-black-sun: full trigger -> consequence -> objectives -> clock -> triple restore and replay
+ok 3 - P168 under-black-sun: full trigger -> consequence -> objectives -> clock -> triple restore and replay
+  ---
+  duration_ms: 95.2783
+  type: 'test'
+  ...
+# Subtest: P168 under-black-sun: source collision with same consequence ID but different effects rejected at preflight
+ok 4 - P168 under-black-sun: source collision with same consequence ID but different effects rejected at preflight
+  ---
+  duration_ms: 55.2755
+  type: 'test'
+  ...
+# Subtest: P168 beyond-the-rim: imported objective completed without prerequisite rejected even when journal predates causal audit
+ok 5 - P168 beyond-the-rim: imported objective completed without prerequisite rejected even when journal predates causal audit
+  ---
+  duration_ms: 11.5321
+  type: 'test'
+  ...
+# Subtest: P168 beyond-the-rim: published resolution rejects injected effects and rolls back all state
+ok 6 - P168 beyond-the-rim: published resolution rejects injected effects and rolls back all state
+  ---
+  duration_ms: 13.4262
+  type: 'test'
+  ...
+# Subtest: P168 beyond-the-rim: full trigger -> consequence -> objectives -> clock -> triple restore and replay
+ok 7 - P168 beyond-the-rim: full trigger -> consequence -> objectives -> clock -> triple restore and replay
+  ---
+  duration_ms: 42.4765
+  type: 'test'
+  ...
+# Subtest: P168 beyond-the-rim: source collision with same consequence ID but different effects rejected at preflight
+ok 8 - P168 beyond-the-rim: source collision with same consequence ID but different effects rejected at preflight
+  ---
+  duration_ms: 3.2149
+  type: 'test'
+  ...
+# Subtest: P168 long-arm-of-the-hutt: imported objective completed without prerequisite rejected even when journal predates causal audit
+ok 9 - P168 long-arm-of-the-hutt: imported objective completed without prerequisite rejected even when journal predates causal audit
+  ---
+  duration_ms: 13.8706
+  type: 'test'
+  ...
+# Subtest: P168 long-arm-of-the-hutt: published resolution rejects injected effects and rolls back all state
+ok 10 - P168 long-arm-of-the-hutt: published resolution rejects injected effects and rolls back all state
+  ---
+  duration_ms: 13.4304
+  type: 'test'
+  ...
+# Subtest: P168 long-arm-of-the-hutt: full trigger -> consequence -> objectives -> clock -> triple restore and replay
+ok 11 - P168 long-arm-of-the-hutt: full trigger -> consequence -> objectives -> clock -> triple restore and replay
+  ---
+  duration_ms: 57.2253
+  type: 'test'
+  ...
+# Subtest: P168 long-arm-of-the-hutt: source collision with same consequence ID but different effects rejected at preflight
+ok 12 - P168 long-arm-of-the-hutt: source collision with same consequence ID but different effects rejected at preflight
+  ---
+  duration_ms: 3.5572
+  type: 'test'
+  ...
+# Subtest: P168 jewel-of-yavin: imported objective completed without prerequisite rejected even when journal predates causal audit
+ok 13 - P168 jewel-of-yavin: imported objective completed without prerequisite rejected even when journal predates causal audit
+  ---
+  duration_ms: 10.3761
+  type: 'test'
+  ...
+# Subtest: P168 jewel-of-yavin: published resolution rejects injected effects and rolls back all state
+ok 14 - P168 jewel-of-yavin: published resolution rejects injected effects and rolls back all state
+  ---
+  duration_ms: 8.5161
+  type: 'test'
+  ...
+# Subtest: P168 jewel-of-yavin: full trigger -> consequence -> objectives -> clock -> triple restore and replay
+ok 15 - P168 jewel-of-yavin: full trigger -> consequence -> objectives -> clock -> triple restore and replay
+  ---
+  duration_ms: 21.4593
+  type: 'test'
+  ...
+# Subtest: P168 jewel-of-yavin: source collision with same consequence ID but different effects rejected at preflight
+ok 16 - P168 jewel-of-yavin: source collision with same consequence ID but different effects rejected at preflight
+  ---
+  duration_ms: 1.2004
+  type: 'test'
+  ...
+# Subtest: P168 mask-of-the-pirate-queen: imported objective completed without prerequisite rejected even when journal predates causal audit
+ok 17 - P168 mask-of-the-pirate-queen: imported objective completed without prerequisite rejected even when journal predates causal audit
+  ---
+  duration_ms: 5.6483
+  type: 'test'
+  ...
+# Subtest: P168 mask-of-the-pirate-queen: published resolution rejects injected effects and rolls back all state
+ok 18 - P168 mask-of-the-pirate-queen: published resolution rejects injected effects and rolls back all state
+  ---
+  duration_ms: 9.5177
+  type: 'test'
+  ...
+# Subtest: P168 mask-of-the-pirate-queen: full trigger -> consequence -> objectives -> clock -> triple restore and replay
+ok 19 - P168 mask-of-the-pirate-queen: full trigger -> consequence -> objectives -> clock -> triple restore and replay
+  ---
+  duration_ms: 42.8177
+  type: 'test'
+  ...
+# Subtest: P168 mask-of-the-pirate-queen: source collision with same consequence ID but different effects rejected at preflight
+ok 20 - P168 mask-of-the-pirate-queen: source collision with same consequence ID but different effects rejected at preflight
+  ---
+  duration_ms: 8.6482
+  type: 'test'
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1634.6419

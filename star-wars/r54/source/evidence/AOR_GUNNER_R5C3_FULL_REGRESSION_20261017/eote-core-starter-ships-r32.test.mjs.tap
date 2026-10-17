@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: starter ships EotE Core ativos são Wayfarer, YT-1300 e Firespray
+ok 1 - starter ships EotE Core ativos são Wayfarer, YT-1300 e Firespray
+  ---
+  duration_ms: 6.402
+  type: 'test'
+  ...
+# Subtest: Wayfarer reproduz perfil Core final + errata de Sensor Range Short
+ok 2 - Wayfarer reproduz perfil Core final + errata de Sensor Range Short
+  ---
+  duration_ms: 2.4668
+  type: 'test'
+  ...
+# Subtest: YT-1300 reproduz perfil Core final
+ok 3 - YT-1300 reproduz perfil Core final
+  ---
+  duration_ms: 0.9172
+  type: 'test'
+  ...
+# Subtest: Firespray reproduz perfil Core final
+ok 4 - Firespray reproduz perfil Core final
+  ---
+  duration_ms: 1.3627
+  type: 'test'
+  ...
+# Subtest: Tractor 2 acerta sem causar Hull Trauma e trava movimento com dificuldade 2
+ok 5 - Tractor 2 acerta sem causar Hull Trauma e trava movimento com dificuldade 2
+  ---
+  duration_ms: 5.8921
+  type: 'test'
+  ...
+# Subtest: teste de Pilotagem contra Tractor usa rating e libera a nave em sucesso
+ok 6 - teste de Pilotagem contra Tractor usa rating e libera a nave em sucesso
+  ---
+  duration_ms: 2.892
+  type: 'test'
+  ...
+# Subtest: X-Wing legado continua referência AoR; TIE/ln e Lambda foram promovidos pelo próprio Core EotE no R35
+ok 7 - X-Wing legado continua referência AoR; TIE/ln e Lambda foram promovidos pelo próprio Core EotE no R35
+  ---
+  duration_ms: 0.6249
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 659.9834

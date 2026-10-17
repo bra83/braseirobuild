@@ -1,0 +1,112 @@
+TAP version 13
+# Subtest: AoR p.68 Ace/Gunner R1C2 Grit buys exact node, adds strain threshold and survives three reloads
+ok 1 - AoR p.68 Ace/Gunner R1C2 Grit buys exact node, adds strain threshold and survives three reloads
+  ---
+  duration_ms: 141.5566
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R1C1 Durable buys exact node, reduces critical result and survives three reloads
+ok 2 - AoR p.68 Ace/Gunner R1C1 Durable buys exact node, reduces critical result and survives three reloads
+  ---
+  duration_ms: 104.0127
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R2C1 Toughened buys exact node, raises wound boundary and survives three reloads
+ok 3 - AoR p.68 Ace/Gunner R2C1 Toughened buys exact node, raises wound boundary and survives three reloads
+  ---
+  duration_ms: 34.0544
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R3C2 Enduring buys exact node, raises live soak and survives three reloads
+ok 4 - AoR p.68 Ace/Gunner R3C2 Enduring buys exact node, raises live soak and survives three reloads
+  ---
+  duration_ms: 86.05
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R3C1 Durable rank 2 and R4C1 Toughened rank 2 preserve exact IDs and cumulative effects
+ok 5 - AoR p.68 Ace/Gunner R3C1 Durable rank 2 and R4C1 Toughened rank 2 preserve exact IDs and cumulative effects
+  ---
+  duration_ms: 126.9178
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R1C3 Overwhelm buys exact node, spends Advantage on a failed vehicle attack and survives three reloads
+ok 6 - AoR p.68 Ace/Gunner R1C3 Overwhelm buys exact node, spends Advantage on a failed vehicle attack and survives three reloads
+  ---
+  duration_ms: 135.5163
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R1C4 Debilitating Shot buys exact node, spends Advantage on a hit and persists speed reduction
+ok 7 - AoR p.68 Ace/Gunner R1C4 Debilitating Shot buys exact node, spends Advantage on a hit and persists speed reduction
+  ---
+  duration_ms: 116.989
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R2C3 Spare Clip buys exact node, prevents Despair ammo loss, preserves Limited Ammo exception and survives three reloads
+ok 8 - AoR p.68 Ace/Gunner R2C3 Spare Clip buys exact node, prevents Despair ammo loss, preserves Limited Ammo exception and survives three reloads
+  ---
+  duration_ms: 135.0435
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R4C2 Enduring rank 2 buys exact node, stacks soak and survives three reloads
+ok 9 - AoR p.68 Ace/Gunner R4C2 Enduring rank 2 buys exact node, stacks soak and survives three reloads
+  ---
+  duration_ms: 97.1984
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R4C3 Brace rank 2 buys exact node, removes two environmental setbacks and survives three reloads
+ok 10 - AoR p.68 Ace/Gunner R4C3 Brace rank 2 buys exact node, removes two environmental setbacks and survives three reloads
+  ---
+  duration_ms: 286.6857
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R4C4 Exhaust Port buys exact node, ignores Massive on vehicle attack and survives three reloads
+ok 11 - AoR p.68 Ace/Gunner R4C4 Exhaust Port buys exact node, ignores Massive on vehicle attack and survives three reloads
+  ---
+  duration_ms: 211.5706
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R5C1 Heroic Fortitude buys exact node, shields Brawn check and survives three reloads
+ok 12 - AoR p.68 Ace/Gunner R5C1 Heroic Fortitude buys exact node, shields Brawn check and survives three reloads
+  ---
+  duration_ms: 169.2702
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R5C2 Jury Rigged rank 2 buys exact node, improves a weapon and survives three reloads
+ok 13 - AoR p.68 Ace/Gunner R5C2 Jury Rigged rank 2 buys exact node, improves a weapon and survives three reloads
+  ---
+  duration_ms: 229.523
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R3C3 Jury Rigged buys exact node, improves an owned weapon and survives three reloads
+ok 14 - AoR p.68 Ace/Gunner R3C3 Jury Rigged buys exact node, improves an owned weapon and survives three reloads
+  ---
+  duration_ms: 155.6991
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R2C4 True Aim buys exact node, upgrades a ranged attack and survives three reloads
+ok 15 - AoR p.68 Ace/Gunner R2C4 True Aim buys exact node, upgrades a ranged attack and survives three reloads
+  ---
+  duration_ms: 107.851
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R3C4 Overwhelm rank 2 buys exact node, spends four Advantage and survives three reloads
+ok 16 - AoR p.68 Ace/Gunner R3C4 Overwhelm rank 2 buys exact node, spends four Advantage and survives three reloads
+  ---
+  duration_ms: 220.1012
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R5C3 Dedication buys exact node, applies chosen characteristic and survives three reloads
+ok 17 - AoR p.68 Ace/Gunner R5C3 Dedication buys exact node, applies chosen characteristic and survives three reloads
+  ---
+  duration_ms: 280.3474
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4240.6998

@@ -1,0 +1,112 @@
+TAP version 13
+# Subtest: P135 catálogo AoR mantém todas as 360 posições e habilita somente efeitos conectados
+ok 1 - P135 catálogo AoR mantém todas as 360 posições e habilita somente efeitos conectados
+  ---
+  duration_ms: 11.2648
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR CONCENTRACIÓN INTENSA: efeito no motor, PE e restauração JSON
+ok 2 - P135 compra AoR CONCENTRACIÓN INTENSA: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 41.7487
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR LECCIONES DE ANATOMÍA: efeito no motor, PE e restauração JSON
+ok 3 - P135 compra AoR LECCIONES DE ANATOMÍA: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 10.5193
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR FUERZA SALVAJE: efeito no motor, PE e restauração JSON
+ok 4 - P135 compra AoR FUERZA SALVAJE: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 11.185
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR ATAQUE FURIOSO: efeito no motor, PE e restauração JSON
+ok 5 - P135 compra AoR ATAQUE FURIOSO: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 5.4868
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR GOLPE DIRIGIDO: efeito no motor, PE e restauração JSON
+ok 6 - P135 compra AoR GOLPE DIRIGIDO: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 10.1626
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR DISPARO DE PRECISIÓN: efeito no motor, PE e restauração JSON
+ok 7 - P135 compra AoR DISPARO DE PRECISIÓN: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 12.7103
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR DOMINIO DE BLINDAJES: efeito no motor, PE e restauração JSON
+ok 8 - P135 compra AoR DOMINIO DE BLINDAJES: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 10.4164
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR DOMINIO DE BLINDAJES MEJORADO: efeito no motor, PE e restauração JSON
+ok 9 - P135 compra AoR DOMINIO DE BLINDAJES MEJORADO: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 13.5173
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR ACECHADOR: efeito no motor, PE e restauração JSON
+ok 10 - P135 compra AoR ACECHADOR: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 4.6911
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR ENTRENAMIENTO FÍSICO: efeito no motor, PE e restauração JSON
+ok 11 - P135 compra AoR ENTRENAMIENTO FÍSICO: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 3.0695
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR DELINCUENTE NATO: efeito no motor, PE e restauração JSON
+ok 12 - P135 compra AoR DELINCUENTE NATO: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 17.4656
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR ERUDITO NATO: efeito no motor, PE e restauração JSON
+ok 13 - P135 compra AoR ERUDITO NATO: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 6.3528
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR MATÓN NATO: efeito no motor, PE e restauração JSON
+ok 14 - P135 compra AoR MATÓN NATO: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 10.7023
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR CHAPUCERO NATO: efeito no motor, PE e restauração JSON
+ok 15 - P135 compra AoR CHAPUCERO NATO: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 7.7824
+  type: 'test'
+  ...
+# Subtest: P135 compra AoR PIRATA INFORMÁTICO CONSUMADO: efeito no motor, PE e restauração JSON
+ok 16 - P135 compra AoR PIRATA INFORMÁTICO CONSUMADO: efeito no motor, PE e restauração JSON
+  ---
+  duration_ms: 6.4923
+  type: 'test'
+  ...
+# Subtest: P135 talentos AoR não adquiridos não alteram testes nem combate
+ok 17 - P135 talentos AoR não adquiridos não alteram testes nem combate
+  ---
+  duration_ms: 4.0103
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1273.3144

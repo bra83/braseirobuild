@@ -1,0 +1,10 @@
+# AoR Ace/Gunner R5C3 source review
+
+- Position: `ace:gunner:r5c3`, DEDICACIÓN (Dedicação), printed page 68 of *Star Wars: Age of Rebellion Core Rulebook*.
+- Source: official AoR Core Rulebook PDF, Google Drive ID `1w2M6f7R_dzaaHk6Q6R8Y7TIqAYM2MJIq`; SHA-256 `25087E5B43C289EF556A365EEC1177123055DFB75C3ECF03481CD66044CACE50`. The Ace: Gunner tree is printed p.68 (physical PDF p.69).
+- Source semantics: Dedication increases one selected characteristic by 1, to a maximum of 6. The R5C3 slot costs 25 XP. The selected characteristic is attached to this purchased slot, so R5C3 receives its own exact purchase receipt and choice.
+- Deterministic consumer: `rules/talents.mjs:97-107` requires a valid characteristic, rejects an increase from 6 or higher, increments the selected characteristic and updates derived soak/wound threshold for Brawn (`fortaleza`) or strain threshold for Willpower (`voluntad`). `rules/talents.mjs:167-184` records the exact node ID, source, cost, and characteristic choice. `core/controller.mjs:1302-1305` applies the purchase and commits the character update.
+- UI and bridge: `index.html#talentOptions` hosts the purchase control; `ui/app.mjs:656` renders the characteristic selector and `ui/app.mjs:1672` sends its selected key with `buyTalent`; `core/uiBridge.mjs:965-968` forwards the exact node and options to the controller.
+- Exact consumer test: `tests/uae-aor-individual-position-proofs.test.mjs`, `AoR p.68 Ace/Gunner R5C3 Dedication buys exact node, applies chosen characteristic and survives three reloads`. The test follows the connected R5C1/R5C2 path, buys R5C3 for 25 XP, raises Brawn from 5 to 6, verifies derived soak and wound threshold, verifies a capped value of 6 rejects without spending XP or acquiring the node, and repeats the persisted receipt/effect checks after three fresh repository/controller loads.
+- Full per-file regression evidence: `evidence/AOR_GUNNER_R5C3_FULL_REGRESSION_20261017/summary.json`, raw TAP logs for every test file including all six stress files.
+- Scope: this review certifies only R5C3. Other AoR positions retain their own statuses; static graph presence does not certify them.

@@ -27,6 +27,7 @@ const JURY_RIGGED_POSITION='ace:gunner:r3c3';
 const JURY_RIGGED_RANK2_POSITION='ace:gunner:r5c2';
 const TRUE_AIM_POSITION='ace:gunner:r2c4';
 const OVERWHELM_RANK2_POSITION='ace:gunner:r3c4';
+const DEDICATION_POSITION='ace:gunner:r5c3';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
  careerFreeSkills:['astronavegacion','frialdad','mecanica','percepcion'],
@@ -887,4 +888,60 @@ test('AoR p.68 Ace/Gunner R3C4 Overwhelm rank 2 buys exact node, spends four Adv
   assert.equal(restoredBridge.activatePendingVehicleQuality({qualityKey:'aor_overwhelm'}).ok,false,'both exact R3C4 ranks are spent');
  }
  assert.equal(bridge.buyTalent(OVERWHELM_RANK2_POSITION).ok,false,'the exact node cannot be purchased twice');
+});
+
+test('AoR p.68 Ace/Gunner R5C3 Dedication buys exact node, applies chosen characteristic and survives three reloads',()=>{
+ const makeSetup=(fortaleza)=>{
+  const repo=new Repo(),setup=new GameController(repo);
+  setup.setCampaignMode('AOR');setup.createAorCharacter({...characterOptions,name:'Mira Talen'});
+  const character=clone(setup.state.player.character);character.characteristics.fortaleza=fortaleza;character.xp.available+=200;setup.setCharacter(character);
+  const bridge=new BraseiroUiBridge({repository:repo});
+  for(const id of [DURABLE_POSITION,TOUGHENED_POSITION,'ace:gunner:r2c2',ENDURING_POSITION,DURABLE_RANK2_POSITION,TOUGHENED_RANK2_POSITION,HEROIC_FORTITUDE_POSITION,JURY_RIGGED_RANK2_POSITION]){
+   const result=bridge.buyTalent(id);assert.equal(result.ok,true,`exact connected prerequisite ${id} is acquired`);
+  }
+  return {repo,bridge};
+ };
+ const {repo,bridge}=makeSetup(5),before=clone(repo.state.player.character);
+ const candidate=new GameController(repo).eligibleTalents().find(node=>node.id===DEDICATION_POSITION);
+ assert.ok(candidate);assert.equal(candidate.available,true);assert.equal(candidate.originalName,'DEDICACIÓN');
+ assert.equal(candidate.name,'Dedicação');assert.equal(candidate.cost,25);assert.equal(candidate.needsChoice,true);assert.equal(candidate.choiceType,'characteristic');
+ const node=AOR_TALENT_TREES.ace.gunner.nodes.find(item=>item.id===DEDICATION_POSITION);
+ assert.ok(node);assert.equal(node.originalName,'DEDICACIÓN');assert.equal(node.cost,25);assert.equal(node.source.printedPage,68);
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ const bridgeSource=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/core/uiBridge.mjs',import.meta.url),'utf8');
+ const controller=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/core/controller.mjs',import.meta.url),'utf8');
+ const rules=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/rules/talents.mjs',import.meta.url),'utf8');
+ assert.ok(html.includes('id="talentOptions"'));assert.ok(ui.includes('class="talent-characteristic"'));
+ assert.ok(ui.includes('game.buyTalent(button.dataset.talentId,{characteristicKey})'));
+ assert.ok(bridgeSource.includes('controllerResult.data.buyTalent(String(nodeId ?? \'\'), options ?? {})'));
+ assert.ok(controller.includes('purchaseTalent(requireCharacter(this.state.player.character), nodeId, options)'));
+ assert.match(rules,/if\(Number\(c\.characteristics\?\.\[characteristicKey\]\?\?0\)>=6\) throw new Error\('Dedicação não pode elevar uma Característica acima de 6\.'\)/);
+ const acquired=bridge.buyTalent(DEDICATION_POSITION,{characteristicKey:'fortaleza'});
+ assert.equal(acquired.ok,true);assert.equal(acquired.data.talent.id,DEDICATION_POSITION);
+ assert.equal(acquired.data.character.xp.available,before.xp.available-25);
+ const receipt=acquired.data.character.talentPurchases.find(purchase=>purchase.nodeId===DEDICATION_POSITION);
+ assert.ok(receipt);assert.equal(receipt.originalName,'DEDICACIÓN');assert.equal(receipt.source.printedPage,68);
+ assert.equal(receipt.specializationKey,'gunner');assert.equal(receipt.cost,25);assert.equal(receipt.choice,'fortaleza');
+ assert.equal(acquired.data.character.characteristics.fortaleza,6);
+ assert.equal(acquired.data.character.derived.soak,before.derived.soak+1);
+ assert.equal(acquired.data.character.derived.wounds.threshold,before.derived.wounds.threshold+1);
+ const saved=clone(repo.state);
+ for(let reopen=1;reopen<=3;reopen++){
+  const restoredRepo=new RepoWithState(saved),restored=new GameController(restoredRepo),restoredBridge=new BraseiroUiBridge({repository:restoredRepo});
+  assert.equal(validateState(restored.state),true);
+  const restoredCharacter=restored.state.player.character,owned=restoredCharacter.talentPurchases.find(purchase=>purchase.nodeId===DEDICATION_POSITION);
+  assert.ok(owned,`exact R5C3 source receipt survives reopen ${reopen}`);
+  assert.equal(owned.source.printedPage,68);assert.equal(owned.specializationKey,'gunner');assert.equal(owned.choice,'fortaleza');
+  assert.equal(restoredCharacter.characteristics.fortaleza,6);
+  assert.equal(restoredCharacter.derived.soak,before.derived.soak+1);
+  assert.equal(restoredCharacter.derived.wounds.threshold,before.derived.wounds.threshold+1);
+  assert.equal(restoredBridge.buyTalent(DEDICATION_POSITION,{characteristicKey:'agilidad'}).ok,false,'the exact R5C3 node cannot be purchased twice');
+ }
+ const capped=makeSetup(6),cappedBefore=clone(capped.repo.state.player.character);
+ const rejected=capped.bridge.buyTalent(DEDICATION_POSITION,{characteristicKey:'fortaleza'});
+ assert.equal(rejected.ok,false,'Dedication cannot raise a characteristic that is already 6');
+ assert.match(rejected.message,/acima de 6/);
+ assert.equal(capped.repo.state.player.character.xp.available,cappedBefore.xp.available);
+ assert.equal(capped.repo.state.player.character.talentPurchases.some(purchase=>purchase.nodeId===DEDICATION_POSITION),false);
 });
