@@ -1,4 +1,5 @@
-// SWE02 official printed pp.7, 23, 30, 34, 36-37. Deterministic only.
+// SWE02 official printed pp.7, 9–10, 23, 30, 34, 36–37. Deterministic only.
+import {recordSWE02SivorPhysicalCollection,recordSWE02SivorPiddockIdentification,validateSWE02SivorPhysicalProof,requireSWE02SivorProofForDimmock} from './swe02SivorCustodyIntegration.mjs';
 export const FACTS=Object.freeze({
  'sivor-shell':['shell','krayt-fang-logs',10],
  'drombb-messages':['messages','drombb-cantina',23],
@@ -25,6 +26,7 @@ export function scoreDimmock(p){
 }
 export function validateGeonosis(p){
  if(!p)return true;
+ validateSWE02SivorPhysicalProof(p);
  const evidence=p.geonosisEvidence||[],argumentsUsed=p.geonosisArguments||[];
  const h=p.checkHistory||[];
  for(const [flag,node] of [['geoPiddockCharmPassed','piddock-party'],['geoDrombbCheckPassed','drombb-cantina']])
@@ -65,11 +67,14 @@ export function recordGeonosisChoice(p,choiceId,nodeId){
   if(p.geonosisEvidence.some(x=>x.key===fact[0]))throw Error('SWE02 Geonosis: prova já registrada.');
   p.geonosisEvidence.push({choiceId,key:fact[0],nodeId,page:fact[2]});
   p.flags[`geo_${fact[0]}`]=true;
+  if(choiceId==='sivor-shell')recordSWE02SivorPhysicalCollection(p);
+  if(choiceId==='piddock-identify-shell')recordSWE02SivorPiddockIdentification(p);
  }
  if(arg){
   p.geonosisArguments=p.geonosisArguments||[];
   if(nodeId!=='dimmock-official-audience'||p.geonosisArguments.some(x=>x.key===arg[0]))throw Error('SWE02 Dimmock: argumento duplicado.');
   if(arg[2]&&!p.geonosisEvidence?.some(x=>x.key===arg[2]))throw Error('SWE02 Dimmock: prova não adquirida.');
+  if(choiceId==='dimmock-shell')requireSWE02SivorProofForDimmock(p);
   if(arg[0]==='antiEmpire'&&p.geonosisArguments.some(x=>x.key==='loyalEmpire')||arg[0]==='loyalEmpire'&&p.geonosisArguments.some(x=>x.key==='antiEmpire'))throw Error('SWE02 Dimmock: declarações contraditórias.');
   p.geonosisArguments.push({choiceId,key:arg[0],nodeId,page:36});
  }
