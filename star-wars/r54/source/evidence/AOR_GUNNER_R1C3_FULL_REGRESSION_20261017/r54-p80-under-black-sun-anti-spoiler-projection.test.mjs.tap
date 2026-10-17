@@ -1,0 +1,35 @@
+TAP version 13
+# Subtest: P80: projeção pública não expõe flags arbitrárias/secretas mesmo se save antigo estiver contaminado
+ok 1 - P80: projeção pública não expõe flags arbitrárias/secretas mesmo se save antigo estiver contaminado
+  ---
+  duration_ms: 15.0163
+  type: 'test'
+  ...
+# Subtest: P80: start/advance retornam snapshot público e não o progresso mestre bruto
+ok 2 - P80: start/advance retornam snapshot público e não o progresso mestre bruto
+  ---
+  duration_ms: 3.4163
+  type: 'test'
+  ...
+# Subtest: P80: rotas futuras permanecem invisíveis até serem descobertas
+ok 3 - P80: rotas futuras permanecem invisíveis até serem descobertas
+  ---
+  duration_ms: 6.2207
+  type: 'test'
+  ...
+# Subtest: P80: save/reopen mantém estado e a projeção anti-spoiler
+ok 4 - P80: save/reopen mantém estado e a projeção anti-spoiler
+  ---
+  duration_ms: 6.4473
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 722.3414
+

@@ -6,6 +6,7 @@ import {GameController} from '../app/src/main/assets/vtt/js/core/controller.mjs'
 import {BraseiroUiBridge} from '../app/src/main/assets/vtt/js/core/uiBridge.mjs';
 import {AOR_TALENT_TREES} from '../app/src/main/assets/vtt/js/expansion/aorTalentTreesData.mjs';
 import {getHealthStatus} from '../app/src/main/assets/vtt/js/rules/health.mjs';
+import {vehicleStatus} from '../app/src/main/assets/vtt/js/rules/vehicles.mjs';
 
 const POSITION='ace:gunner:r1c2';
 const DURABLE_POSITION='ace:gunner:r1c1';
@@ -13,6 +14,7 @@ const TOUGHENED_POSITION='ace:gunner:r2c1';
 const ENDURING_POSITION='ace:gunner:r3c2';
 const DURABLE_RANK2_POSITION='ace:gunner:r3c1';
 const TOUGHENED_RANK2_POSITION='ace:gunner:r4c1';
+const OVERWHELM_POSITION='ace:gunner:r1c3';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
  careerFreeSkills:['astronavegacion','frialdad','mecanica','percepcion'],
@@ -277,3 +279,51 @@ test('AoR p.68 Ace/Gunner R3C1 Durable rank 2 and R4C1 Toughened rank 2 preserve
 });
 
 function createCampaignWithCharacter(state){return clone(state);}
+
+test('AoR p.68 Ace/Gunner R1C3 Overwhelm buys exact node, spends Advantage on a failed vehicle attack and survives three reloads',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');
+ setup.createAorCharacter({...characterOptions,name:'Sera Tonn',specializationFreeSkills:['artilleria','disciplina']});
+ const before=clone(setup.state.player.character),bridge=new BraseiroUiBridge({repository:repo});
+ const candidate=setup.eligibleTalents().find(n=>n.id===OVERWHELM_POSITION);
+ assert.ok(candidate);assert.equal(candidate.available,true);assert.equal(candidate.originalName,'ABRUMAR DEFENSAS');
+ assert.equal(candidate.name,'Sobrecarregar defesas');assert.equal(candidate.cost,5);
+ assert.equal(candidate.source.printedPage,68);assert.equal(candidate.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+ const treeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(n=>n.id===OVERWHELM_POSITION);
+ assert.ok(treeNode);assert.equal(treeNode.originalName,'ABRUMAR DEFENSAS');assert.equal(treeNode.source.printedPage,68);
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ assert.ok(html.includes('id="talentOptions"'));
+ assert.match(ui,/data-talent-id="\$\{escapeHtml\(t\.id\)\}"/);
+ assert.match(ui,/game\.buyTalent\(button\.dataset\.talentId/);
+ const purchased=bridge.buyTalent(OVERWHELM_POSITION);
+ assert.equal(purchased.ok,true);assert.equal(purchased.data.talent.id,OVERWHELM_POSITION);
+ assert.deepEqual(purchased.data.effect,{applied:false,label:null});
+ assert.equal(purchased.data.character.xp.available,before.xp.available-5);
+ const receipt=purchased.data.character.talentPurchases.find(p=>p.nodeId===OVERWHELM_POSITION);
+ assert.equal(receipt.originalName,'ABRUMAR DEFENSAS');assert.equal(receipt.source.printedPage,68);
+ assert.equal(receipt.specializationKey,'gunner');assert.equal(receipt.cost,5);
+
+ const saved=clone(repo.state);
+ for(let reopen=1;reopen<=3;reopen++){
+  const restored=new RepoWithState(saved),game=new GameController(restored);
+  const character=game.state.player.character,owned=character.talentPurchases.find(p=>p.nodeId===OVERWHELM_POSITION);
+  assert.ok(owned,`exact source node survives reopen ${reopen}`);
+  assert.equal(owned.source.printedPage,68);assert.equal(owned.specializationKey,'gunner');
+  assert.equal(game.eligibleTalents().find(n=>n.id===OVERWHELM_POSITION).purchased,true);
+  game.addVehicle('xwing_t65b');
+  game.beginVehicleCombat({targetProfileKey:'vt49_decimator',range:'Bocajarro'});
+  let i=0;const rng=()=>[.75,.75,.125,.125,0,0][i++%6];
+  const attack=game.resolveVehicleAttack({rng});
+  assert.equal(attack.hit,false);assert.ok(attack.check.netAdvantage>=2);
+  assert.ok(attack.pendingSpend.qualities.some(q=>q.key==='aor_overwhelm'&&q.rank===1));
+  const targetId=game.state.vehicles.combat.targetVehicleId;
+  const beforeZone=vehicleStatus(game.state.vehicles.vehicles[targetId],{currentRound:1}).defense.proa;
+  const activation=game.activatePendingVehicleQuality({qualityKey:'aor_overwhelm'});
+  assert.equal(activation.effect.zone,'proa');assert.equal(activation.effect.defenseAfter,beforeZone-1);
+  assert.equal(activation.remainingAdvantage,attack.check.netAdvantage-2);
+  assert.equal(vehicleStatus(game.state.vehicles.vehicles[targetId],{currentRound:1}).defense.proa,beforeZone-1);
+  assert.equal(new GameController(restored).state.vehicles.vehicles[targetId].roundEffects.aorOverwhelmedDefense.proa,beforeZone-1);
+ }
+ assert.equal(bridge.buyTalent(OVERWHELM_POSITION).ok,false,'the exact node cannot be purchased twice');
+});

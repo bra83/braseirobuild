@@ -1,0 +1,89 @@
+TAP version 13
+# Subtest: P198 queues a single free maneuver, moves immediately on sergeant initiative
+ok 1 - P198 queues a single free maneuver, moves immediately on sergeant initiative
+  ---
+  duration_ms: 47.0374
+  type: 'test'
+  ...
+# Subtest: P198 withdraw from Engaged to Short and Short to Medium are one-band movements
+ok 2 - P198 withdraw from Engaged to Short and Short to Medium are one-band movements
+  ---
+  duration_ms: 7.3193
+  type: 'test'
+  ...
+# Subtest: P198 rejects teleport across Medium/Long, Extreme and out-of-range one-maneuver moves
+ok 3 - P198 rejects teleport across Medium/Long, Extreme and out-of-range one-maneuver moves
+  ---
+  duration_ms: 3.7213
+  type: 'test'
+  ...
+# Subtest: P198 refuses free maneuver without GM path confirmation, invalid direction, or spoofed mode
+ok 4 - P198 refuses free maneuver without GM path confirmation, invalid direction, or spoofed mode
+  ---
+  duration_ms: 19.897
+  type: 'test'
+  ...
+# Subtest: P198 refuses a second pending grant, a duplicate sergeant order, and forged target identity
+ok 5 - P198 refuses a second pending grant, a duplicate sergeant order, and forged target identity
+  ---
+  duration_ms: 11.1471
+  type: 'test'
+  ...
+# Subtest: P198 cancels if target changes range after queue but before sergeant acts
+ok 6 - P198 cancels if target changes range after queue but before sergeant acts
+  ---
+  duration_ms: 9.1147
+  type: 'test'
+  ...
+# Subtest: P198 rejects forged stale-range grant on manual replay
+ok 7 - P198 rejects forged stale-range grant on manual replay
+  ---
+  duration_ms: 2.7356
+  type: 'test'
+  ...
+# Subtest: P198 persistence: queued order and granted maneuver survive three save/reopen cycles
+ok 8 - P198 persistence: queued order and granted maneuver survive three save/reopen cycles
+  ---
+  duration_ms: 3.3431
+  type: 'test'
+  ...
+# Subtest: P198 real NPC turn consumes free movement before range-dependent attack roll
+ok 9 - P198 real NPC turn consumes free movement before range-dependent attack roll
+  ---
+  duration_ms: 29.2264
+  type: 'test'
+  ...
+# Subtest: P198 does not move an incapacitated target and cancels its one-time grant
+ok 10 - P198 does not move an incapacitated target and cancels its one-time grant
+  ---
+  duration_ms: 1.7866
+  type: 'test'
+  ...
+# Subtest: P198 Android bridge/UI exposes free-maneuver direction and explicit path confirmation
+ok 11 - P198 Android bridge/UI exposes free-maneuver direction and explicit path confirmation
+  ---
+  duration_ms: 8.5119
+  type: 'test'
+  ...
+# Subtest: P198 sergeant real NPC initiative triggers immediate minion movement without consuming minion slot
+ok 12 - P198 sergeant real NPC initiative triggers immediate minion movement without consuming minion slot
+  ---
+  duration_ms: 16.8767
+  type: 'test'
+  ...
+# Subtest: P198 minion may still use its regular NPC action after immediate free maneuver
+ok 13 - P198 minion may still use its regular NPC action after immediate free maneuver
+  ---
+  duration_ms: 8.1348
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2130.4871
+

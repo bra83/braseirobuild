@@ -1,0 +1,47 @@
+TAP version 13
+# Subtest: AoR source FIRMEZA positions are Brace, not immediate Grit
+ok 1 - AoR source FIRMEZA positions are Brace, not immediate Grit
+  ---
+  duration_ms: 6.9913
+  type: 'test'
+  ...
+# Subtest: buying Gunner Brace preserves p.68 node provenance without granting Grit threshold
+ok 2 - buying Gunner Brace preserves p.68 node provenance without granting Grit threshold
+  ---
+  duration_ms: 10.5856
+  type: 'test'
+  ...
+# Subtest: AoR Brace relief is activated, rank-limited, and applies only to environmental setback
+ok 3 - AoR Brace relief is activated, rank-limited, and applies only to environmental setback
+  ---
+  duration_ms: 2.0268
+  type: 'test'
+  ...
+# Subtest: p.68 Gunner Brace maneuver persists, affects the next skill action only, and is wired to bridge/UI
+ok 4 - p.68 Gunner Brace maneuver persists, affects the next skill action only, and is wired to bridge/UI
+  ---
+  duration_ms: 142.6643
+  type: 'test'
+  ...
+# Subtest: p.68 Gunner Brace is consumed by the next weapon attack and cannot remove non-environmental setback
+ok 5 - p.68 Gunner Brace is consumed by the next weapon attack and cannot remove non-environmental setback
+  ---
+  duration_ms: 92.5789
+  type: 'test'
+  ...
+# Subtest: p.68 Gunner Brace expires after the next action when no environmental setback applies
+ok 6 - p.68 Gunner Brace expires after the next action when no environmental setback applies
+  ---
+  duration_ms: 21.3272
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1972.4376
+

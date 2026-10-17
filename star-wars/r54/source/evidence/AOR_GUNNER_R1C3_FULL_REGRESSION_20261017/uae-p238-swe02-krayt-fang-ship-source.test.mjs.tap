@@ -1,0 +1,101 @@
+TAP version 13
+# Subtest: P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery
+ok 1 - P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery
+  ---
+  duration_ms: 217.0157
+  type: 'test'
+  ...
+# Subtest: P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed
+ok 2 - P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed
+  ---
+  duration_ms: 83.8152
+  type: 'test'
+  ...
+# Subtest: P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters
+ok 3 - P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters
+  ---
+  duration_ms: 87.7269
+  type: 'test'
+  ...
+# Subtest: P238 p7-8: both noises upgrade one difficulty; one disabled restores pool
+ok 4 - P238 p7-8: both noises upgrade one difficulty; one disabled restores pool
+  ---
+  duration_ms: 26.9431
+  type: 'test'
+  ...
+# Subtest: P238 p8: transponder cannot be switched off in flight or removed before landing
+ok 5 - P238 p8: transponder cannot be switched off in flight or removed before landing
+  ---
+  duration_ms: 119.9429
+  type: 'test'
+  ...
+# Subtest: P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception
+ok 6 - P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception
+  ---
+  duration_ms: 50.9807
+  type: 'test'
+  ...
+# Subtest: P238 p9: jettison requires actual successful Perception and Computers
+ok 7 - P238 p9: jettison requires actual successful Perception and Computers
+  ---
+  duration_ms: 58.6805
+  type: 'test'
+  ...
+# Subtest: P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill
+ok 8 - P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill
+  ---
+  duration_ms: 14.6286
+  type: 'test'
+  ...
+# Subtest: P238: forged ship flags, forged Bura and forged intercept outcome fail closed
+ok 9 - P238: forged ship flags, forged Bura and forged intercept outcome fail closed
+  ---
+  duration_ms: 44.7852
+  type: 'test'
+  ...
+# Subtest: P238: legacy route remains loadable but is explicitly uncertified
+ok 10 - P238: legacy route remains loadable but is explicitly uncertified
+  ---
+  duration_ms: 20.1129
+  type: 'test'
+  ...
+# Subtest: P238 real controller: skill pool, roll receipt and three saved reopens
+ok 11 - P238 real controller: skill pool, roll receipt and three saved reopens
+  ---
+  duration_ms: 181.9281
+  type: 'test'
+  ...
+# Subtest: P238 real controller: GM selects an EotE Knowledge specialty and the roll receipt survives reopen
+ok 12 - P238 real controller: GM selects an EotE Knowledge specialty and the roll receipt survives reopen
+  ---
+  duration_ms: 136.1893
+  type: 'test'
+  ...
+# Subtest: P238 real controller: observations, cargo, Bura conversation and six-hour transit survive three reopens
+ok 13 - P238 real controller: observations, cargo, Bura conversation and six-hour transit survive three reopens
+  ---
+  duration_ms: 254.4906
+  type: 'test'
+  ...
+# Subtest: P238 controller: cargo transfers enter the selected roster PC inventory and survive reopen exactly once
+ok 14 - P238 controller: cargo transfers enter the selected roster PC inventory and survive reopen exactly once
+  ---
+  duration_ms: 154.5058
+  type: 'test'
+  ...
+# Subtest: P238: changing a successful slow tracker to false cannot conceal skipped interception
+ok 15 - P238: changing a successful slow tracker to false cannot conceal skipped interception
+  ---
+  duration_ms: 194.8383
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3118.0824
+

@@ -1,0 +1,35 @@
+TAP version 13
+# Subtest: P90: dívida do Spyder e saque da Zelcomm acumulam Obligation em vez de sobrescrever
+ok 1 - P90: dívida do Spyder e saque da Zelcomm acumulam Obligation em vez de sobrescrever
+  ---
+  duration_ms: 75.0663
+  type: 'test'
+  ...
+# Subtest: P90: save/reopen preserva total e origem de Obligation acumulada
+ok 2 - P90: save/reopen preserva total e origem de Obligation acumulada
+  ---
+  duration_ms: 7.7854
+  type: 'test'
+  ...
+# Subtest: P90: save legado sem ledger migra saldo anterior para legacy antes de somar nova origem
+ok 3 - P90: save legado sem ledger migra saldo anterior para legacy antes de somar nova origem
+  ---
+  duration_ms: 5.0018
+  type: 'test'
+  ...
+# Subtest: P90: epílogo persiste total e ledger de Obligation
+ok 4 - P90: epílogo persiste total e ledger de Obligation
+  ---
+  duration_ms: 24.9288
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1345.3369
+

@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: grupo de lacaios ganha um grau de perícia por membro além do primeiro
+ok 1 - grupo de lacaios ganha um grau de perícia por membro além do primeiro
+  ---
+  duration_ms: 13.2105
+  type: 'test'
+  ...
+# Subtest: Ferimentos reduzem o grupo e sua perícia automaticamente
+ok 2 - Ferimentos reduzem o grupo e sua perícia automaticamente
+  ---
+  duration_ms: 1.698
+  type: 'test'
+  ...
+# Subtest: lacaios e rivais convertem Tensão em Ferimentos
+ok 3 - lacaios e rivais convertem Tensão em Ferimentos
+  ---
+  duration_ms: 1.1803
+  type: 'test'
+  ...
+# Subtest: crítico em grupo de lacaios elimina exatamente um membro ainda ativo
+ok 4 - crítico em grupo de lacaios elimina exatamente um membro ainda ativo
+  ---
+  duration_ms: 2.9356
+  type: 'test'
+  ...
+# Subtest: oficial imperial é rival com Adversário 1 e limiar 15
+ok 5 - oficial imperial é rival com Adversário 1 e limiar 15
+  ---
+  duration_ms: 0.737
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 819.6917
+
