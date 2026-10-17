@@ -1,0 +1,28 @@
+name: Star Wars SWE02 Sivor integration (no APK)
+on:
+  push:
+    branches:
+      - integration/starwars-codex-wip28-sivor-20261017
+  workflow_dispatch:
+jobs:
+  targeted-node-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source syntax
+        run: |
+          cd star-wars/r54/source
+          node --check app/src/main/assets/vtt/js/adventure/swe02SivorCustodyIntegration.mjs
+          node --check app/src/main/assets/vtt/js/adventure/swe02GeonosisP237.mjs
+          node --check tests/uae-swe02-sivor-codex-wip28-integration.test.mjs
+      - name: Codex and WIP28 focused tests
+        run: |
+          cd star-wars/r54/source
+          node --test --test-reporter=tap tests/uae-swe02-sivor-codex-wip28-integration.test.mjs
+      - name: Existing Geonosis tests
+        run: |
+          cd star-wars/r54/source
+          node --test --test-reporter=tap tests/uae-p237-swe02-geonosis-dimmock-gantry.test.mjs
