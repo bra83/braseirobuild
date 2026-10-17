@@ -1,12 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {createCampaign} from '../app/src/main/assets/vtt/js/core/state.mjs';
+import {createCampaign,validateState} from '../app/src/main/assets/vtt/js/core/state.mjs';
 import {GameController} from '../app/src/main/assets/vtt/js/core/controller.mjs';
 import {BraseiroUiBridge} from '../app/src/main/assets/vtt/js/core/uiBridge.mjs';
 import {AOR_TALENT_TREES} from '../app/src/main/assets/vtt/js/expansion/aorTalentTreesData.mjs';
 import {getHealthStatus} from '../app/src/main/assets/vtt/js/rules/health.mjs';
 import {vehicleStatus} from '../app/src/main/assets/vtt/js/rules/vehicles.mjs';
+import {weaponCatalogEntry} from '../app/src/main/assets/vtt/js/rules/equipmentCatalog.mjs';
+import {weaponQualityRank} from '../app/src/main/assets/vtt/js/rules/weapons.mjs';
 
 const POSITION='ace:gunner:r1c2';
 const DURABLE_POSITION='ace:gunner:r1c1';
@@ -16,6 +18,7 @@ const DURABLE_RANK2_POSITION='ace:gunner:r3c1';
 const TOUGHENED_RANK2_POSITION='ace:gunner:r4c1';
 const OVERWHELM_POSITION='ace:gunner:r1c3';
 const DEBILITATING_POSITION='ace:gunner:r1c4';
+const SPARE_CLIP_POSITION='ace:gunner:r2c3';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
  careerFreeSkills:['astronavegacion','frialdad','mecanica','percepcion'],
@@ -378,4 +381,77 @@ test('AoR p.68 Ace/Gunner R1C4 Debilitating Shot buys exact node, spends Advanta
   assert.equal(vehicleStatus(restoredStatus,{currentRound:3}).effectiveSpeedMax,5);
  }
  assert.equal(bridge.buyTalent(DEBILITATING_POSITION).ok,false,'the exact node cannot be purchased twice');
+});
+
+test('AoR p.68 Ace/Gunner R2C3 Spare Clip buys exact node, prevents Despair ammo loss, preserves Limited Ammo exception and survives three reloads',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');
+ setup.createAorCharacter({...characterOptions,name:'Mira Sol',specializationFreeSkills:['artilleria','disciplina']});
+ const before=clone(setup.state.player.character),weapon=weaponCatalogEntry('blaster_pistol');
+ assert.ok(weapon);assert.equal(weaponQualityRank(weapon,'limitedAmmo'),0);
+ const equipped={...clone(weapon),sourceCatalogId:weapon.id,ownedAssetId:'uae-r2c3-blaster',active:true,equipped:true,runtimeState:{}};
+ const armed=clone(setup.state.player.character);armed.weapons=[equipped];setup.setCharacter(armed);
+ const bridge=new BraseiroUiBridge({repository:repo});
+ const prerequisite=bridge.buyTalent(OVERWHELM_POSITION);
+ assert.equal(prerequisite.ok,true,'the adjacent exact R1C3 prerequisite is purchased first');
+ const candidate=new GameController(repo).eligibleTalents().find(n=>n.id===SPARE_CLIP_POSITION);
+ assert.ok(candidate);assert.equal(candidate.available,true);assert.equal(candidate.originalName,'MUNICIÓN DE RESERVA');
+ assert.equal(candidate.name,'Munição reserva');assert.equal(candidate.cost,10);
+ assert.equal(candidate.source.printedPage,68);assert.equal(candidate.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+ const treeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(n=>n.id===SPARE_CLIP_POSITION);
+ assert.ok(treeNode);assert.equal(treeNode.originalName,'MUNICIÓN DE RESERVA');assert.equal(treeNode.source.printedPage,68);
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ const runtime=fs.readFileSync(new URL('../app/src/main/assets/vtt/r46/final-runtime.js',import.meta.url),'utf8');
+ assert.ok(html.includes('id="talentOptions"'));
+ assert.match(ui,/data-talent-id="\$\{escapeHtml\(t\.id\)\}"/);
+ assert.match(ui,/game\.buyTalent\(button\.dataset\.talentId/);
+ assert.ok(runtime.includes('data-p160-despair'));
+ assert.match(runtime,/call\('adjudicateAttackDespairAmmoLoss',\{weaponIndex:weapon\(\)\}\)/);
+ const purchased=bridge.buyTalent(SPARE_CLIP_POSITION);
+ assert.equal(purchased.ok,true);assert.equal(purchased.data.talent.id,SPARE_CLIP_POSITION);
+ assert.deepEqual(purchased.data.effect,{applied:false,label:null});
+ assert.equal(purchased.data.character.xp.available,before.xp.available-15);
+ const receipt=purchased.data.character.talentPurchases.find(p=>p.nodeId===SPARE_CLIP_POSITION);
+ assert.equal(receipt.originalName,'MUNICIÓN DE RESERVA');assert.equal(receipt.source.printedPage,68);
+ assert.equal(receipt.specializationKey,'gunner');assert.equal(receipt.cost,10);
+ const purchasedState=clone(repo.state);
+
+ const ordinaryRepo=new RepoWithState(purchasedState),ordinary=new GameController(ordinaryRepo);
+ ordinary.beginCombat();
+ const ordinaryAttack=ordinary.resolveWeaponAttack({weaponIndex:0,challenge:1,difficulty:0,rng:()=>0.999});
+ assert.ok(ordinaryAttack.check.despair>=1);assert.equal(ordinaryAttack.attackId,ordinary.state.combat.lastAttack.attackId);
+ const ammoBridge=new BraseiroUiBridge({repository:ordinaryRepo});
+ const adjudication=ammoBridge.adjudicateAttackDespairAmmoLoss({weaponIndex:0});
+ assert.equal(adjudication.ok,true);
+ const prevention=adjudication.data;
+ assert.equal(prevention.prevented,true);assert.equal(prevention.ammoLost,false);
+ const adjudicatedState=new GameController(ordinaryRepo).state;
+ assert.equal(adjudicatedState.player.character.weapons[0].runtimeState?.outOfAmmo,undefined);
+ assert.equal(adjudicatedState.combat.ammoDespairAppliedAttackId,ordinaryAttack.attackId);
+ const postAdjudication=clone(ordinaryRepo.state);
+ for(let reopen=1;reopen<=3;reopen++){
+  const restored=new GameController(new RepoWithState(postAdjudication));
+  assert.equal(validateState(restored.state),true);
+  const owned=restored.state.player.character.talentPurchases.find(p=>p.nodeId===SPARE_CLIP_POSITION);
+  assert.ok(owned,`exact source node survives reopen ${reopen}`);
+  assert.equal(owned.source.printedPage,68);
+  assert.equal(restored.state.player.character.weapons[0].runtimeState?.outOfAmmo,undefined);
+  assert.throws(()=>restored.adjudicateAttackDespairAmmoLoss({weaponIndex:0}),/já foi adjudicado/);
+ }
+
+ const limitedRepo=new RepoWithState(purchasedState),limited=new GameController(limitedRepo);
+ const limitedCharacter=clone(limited.state.player.character);
+ limitedCharacter.weapons[0].qualities=['Munição limitada 2'];limited.setCharacter(limitedCharacter);
+ limited.beginCombat();
+ const limitedAttack=limited.resolveWeaponAttack({weaponIndex:0,challenge:1,difficulty:0,rng:()=>0.999});
+ assert.ok(limitedAttack.check.despair>=1);
+ assert.equal(limited.state.player.character.weapons[0].runtimeState.limitedAmmoRemaining,1);
+ assert.throws(()=>limited.adjudicateAttackDespairAmmoLoss({weaponIndex:0}),/Munição Limitada/);
+ assert.equal(limited.state.player.character.weapons[0].runtimeState.outOfAmmo,undefined);
+ const limitedReload=new GameController(limitedRepo);
+ assert.equal(validateState(limitedReload.state),true);
+ assert.equal(limitedReload.state.player.character.weapons[0].runtimeState.limitedAmmoRemaining,1);
+ assert.equal(limitedReload.state.player.character.weapons[0].runtimeState.outOfAmmo,undefined);
+ assert.equal(bridge.buyTalent(SPARE_CLIP_POSITION).ok,false,'the exact node cannot be purchased twice');
 });

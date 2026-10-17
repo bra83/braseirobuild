@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: AoR p.68 Ace/Gunner R1C2 Grit buys exact node, adds strain threshold and survives three reloads
+ok 1 - AoR p.68 Ace/Gunner R1C2 Grit buys exact node, adds strain threshold and survives three reloads
+  ---
+  duration_ms: 73.2795
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R1C1 Durable buys exact node, reduces critical result and survives three reloads
+ok 2 - AoR p.68 Ace/Gunner R1C1 Durable buys exact node, reduces critical result and survives three reloads
+  ---
+  duration_ms: 47.5156
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R2C1 Toughened buys exact node, raises wound boundary and survives three reloads
+ok 3 - AoR p.68 Ace/Gunner R2C1 Toughened buys exact node, raises wound boundary and survives three reloads
+  ---
+  duration_ms: 28.4478
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R3C2 Enduring buys exact node, raises live soak and survives three reloads
+ok 4 - AoR p.68 Ace/Gunner R3C2 Enduring buys exact node, raises live soak and survives three reloads
+  ---
+  duration_ms: 72.403
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R3C1 Durable rank 2 and R4C1 Toughened rank 2 preserve exact IDs and cumulative effects
+ok 5 - AoR p.68 Ace/Gunner R3C1 Durable rank 2 and R4C1 Toughened rank 2 preserve exact IDs and cumulative effects
+  ---
+  duration_ms: 137.6112
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R1C3 Overwhelm buys exact node, spends Advantage on a failed vehicle attack and survives three reloads
+ok 6 - AoR p.68 Ace/Gunner R1C3 Overwhelm buys exact node, spends Advantage on a failed vehicle attack and survives three reloads
+  ---
+  duration_ms: 108.16
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R1C4 Debilitating Shot buys exact node, spends Advantage on a hit and persists speed reduction
+ok 7 - AoR p.68 Ace/Gunner R1C4 Debilitating Shot buys exact node, spends Advantage on a hit and persists speed reduction
+  ---
+  duration_ms: 98.0946
+  type: 'test'
+  ...
+# Subtest: AoR p.68 Ace/Gunner R2C3 Spare Clip buys exact node, prevents Despair ammo loss, preserves Limited Ammo exception and survives three reloads
+ok 8 - AoR p.68 Ace/Gunner R2C3 Spare Clip buys exact node, prevents Despair ammo loss, preserves Limited Ammo exception and survives three reloads
+  ---
+  duration_ms: 149.823
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2669.4727
+
