@@ -1,0 +1,131 @@
+TAP version 13
+# Subtest: P144 under-black-sun: início transacional único, falha de armazenamento sem meia sessão
+ok 1 - P144 under-black-sun: início transacional único, falha de armazenamento sem meia sessão
+  ---
+  duration_ms: 145.5849
+  type: 'test'
+  ...
+# Subtest: P144 under-black-sun: escolha transacional não deixa cena/UAE parcial em falha de save
+ok 2 - P144 under-black-sun: escolha transacional não deixa cena/UAE parcial em falha de save
+  ---
+  duration_ms: 95.5102
+  type: 'test'
+  ...
+# Subtest: P144 beyond-the-rim: início transacional único, falha de armazenamento sem meia sessão
+ok 3 - P144 beyond-the-rim: início transacional único, falha de armazenamento sem meia sessão
+  ---
+  duration_ms: 76.4622
+  type: 'test'
+  ...
+# Subtest: P144 beyond-the-rim: escolha transacional não deixa cena/UAE parcial em falha de save
+ok 4 - P144 beyond-the-rim: escolha transacional não deixa cena/UAE parcial em falha de save
+  ---
+  duration_ms: 89.377
+  type: 'test'
+  ...
+# Subtest: P144 long-arm-of-the-hutt: início transacional único, falha de armazenamento sem meia sessão
+ok 5 - P144 long-arm-of-the-hutt: início transacional único, falha de armazenamento sem meia sessão
+  ---
+  duration_ms: 86.0479
+  type: 'test'
+  ...
+# Subtest: P144 long-arm-of-the-hutt: escolha transacional não deixa cena/UAE parcial em falha de save
+ok 6 - P144 long-arm-of-the-hutt: escolha transacional não deixa cena/UAE parcial em falha de save
+  ---
+  duration_ms: 90.3231
+  type: 'test'
+  ...
+# Subtest: P144 jewel-of-yavin: início transacional único, falha de armazenamento sem meia sessão
+ok 7 - P144 jewel-of-yavin: início transacional único, falha de armazenamento sem meia sessão
+  ---
+  duration_ms: 58.4793
+  type: 'test'
+  ...
+# Subtest: P144 jewel-of-yavin: escolha transacional não deixa cena/UAE parcial em falha de save
+ok 8 - P144 jewel-of-yavin: escolha transacional não deixa cena/UAE parcial em falha de save
+  ---
+  duration_ms: 81.6375
+  type: 'test'
+  ...
+# Subtest: P144 mask-of-the-pirate-queen: início transacional único, falha de armazenamento sem meia sessão
+ok 9 - P144 mask-of-the-pirate-queen: início transacional único, falha de armazenamento sem meia sessão
+  ---
+  duration_ms: 49.6466
+  type: 'test'
+  ...
+# Subtest: P144 mask-of-the-pirate-queen: escolha transacional não deixa cena/UAE parcial em falha de save
+ok 10 - P144 mask-of-the-pirate-queen: escolha transacional não deixa cena/UAE parcial em falha de save
+  ---
+  duration_ms: 90.3399
+  type: 'test'
+  ...
+# Subtest: P144: 9 posições AoR executáveis novas, sem conceder efeitos a outras posições
+ok 11 - P144: 9 posições AoR executáveis novas, sem conceder efeitos a outras posições
+  ---
+  duration_ms: 28.2678
+  type: 'test'
+  ...
+# Subtest: P144: Dotes de comando + Observador removem somente revés nas perícias permitidas
+ok 12 - P144: Dotes de comando + Observador removem somente revés nas perícias permitidas
+  ---
+  duration_ms: 4.8719
+  type: 'test'
+  ...
+# Subtest: P144: Decifrador só reduz dificuldade e revés de código explicitamente declarado
+ok 13 - P144: Decifrador só reduz dificuldade e revés de código explicitamente declarado
+  ---
+  duration_ms: 1.8118
+  type: 'test'
+  ...
+# Subtest: P144: Mateiro reduz revés e tempo apenas em deslocamento ambiental
+ok 14 - P144: Mateiro reduz revés e tempo apenas em deslocamento ambiental
+  ---
+  duration_ms: 1.6697
+  type: 'test'
+  ...
+# Subtest: P144: Observador reduz tempo de busca; Cinturão de acessórios continua pendente
+ok 15 - P144: Observador reduz tempo de busca; Cinturão de acessórios continua pendente
+  ---
+  duration_ms: 1.006
+  type: 'test'
+  ...
+# Subtest: P144: controlador real persiste modificadores AoR e tempo sem alterar a ficha
+ok 16 - P144: controlador real persiste modificadores AoR e tempo sem alterar a ficha
+  ---
+  duration_ms: 28.8891
+  type: 'test'
+  ...
+# Subtest: P144 under-black-sun: teste de perícia da aventura persiste junto com UAE ou reverte tudo
+ok 17 - P144 under-black-sun: teste de perícia da aventura persiste junto com UAE ou reverte tudo
+  ---
+  duration_ms: 107.6494
+  type: 'test'
+  ...
+# Subtest: P144 beyond-the-rim: teste de perícia da aventura persiste junto com UAE ou reverte tudo
+ok 18 - P144 beyond-the-rim: teste de perícia da aventura persiste junto com UAE ou reverte tudo
+  ---
+  duration_ms: 102.4845
+  type: 'test'
+  ...
+# Subtest: P144: início e encerramento de combate publicado não criam combate órfão se armazenamento falhar
+ok 19 - P144: início e encerramento de combate publicado não criam combate órfão se armazenamento falhar
+  ---
+  duration_ms: 153.9809
+  type: 'test'
+  ...
+# Subtest: P144: compra real de Dotes de comando, Mateiro e Decifrador conecta a árvore ao motor
+ok 20 - P144: compra real de Dotes de comando, Mateiro e Decifrador conecta a árvore ao motor
+  ---
+  duration_ms: 9.2207
+  type: 'test'
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2693.0125
+

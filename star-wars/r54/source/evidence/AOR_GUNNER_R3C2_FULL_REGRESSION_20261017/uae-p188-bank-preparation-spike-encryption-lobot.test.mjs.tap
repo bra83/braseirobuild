@@ -1,0 +1,83 @@
+TAP version 13
+# Subtest: P188 preparation rejects unapproved samples and Lobot outcomes
+ok 1 - P188 preparation rejects unapproved samples and Lobot outcomes
+  ---
+  duration_ms: 829.1436
+  type: 'test'
+  ...
+# Subtest: P188 full encryption and neutralized Lobot change real opposed pool
+ok 2 - P188 full encryption and neutralized Lobot change real opposed pool
+  ---
+  duration_ms: 761.5701
+  type: 'test'
+  ...
+# Subtest: P188 basic sample and Bea alert add actual setbacks, distraction downgrades
+ok 3 - P188 basic sample and Bea alert add actual setbacks, distraction downgrades
+  ---
+  duration_ms: 629.6349
+  type: 'test'
+  ...
+# Subtest: P188 no sample carries three setbacks once prep contract opted in
+ok 4 - P188 no sample carries three setbacks once prep contract opted in
+  ---
+  duration_ms: 613.6022
+  type: 'test'
+  ...
+# Subtest: P188 spike consumes 300 credits and rolls Hard Computers, never grants bonus on failed check
+ok 5 - P188 spike consumes 300 credits and rolls Hard Computers, never grants bonus on failed check
+  ---
+  duration_ms: 567.2125
+  type: 'test'
+  ...
+# Subtest: P188 spike roll replay rejects face, cost and boost forgery
+ok 6 - P188 spike roll replay rejects face, cost and boost forgery
+  ---
+  duration_ms: 555.5607
+  type: 'test'
+  ...
+# Subtest: P188 duplicate preparation, post-slice retroactivity and invalid step roll back
+ok 7 - P188 duplicate preparation, post-slice retroactivity and invalid step roll back
+  ---
+  duration_ms: 643.0305
+  type: 'test'
+  ...
+# Subtest: P188 preparation, real bank evidence and character credits persist over three reopenings
+ok 8 - P188 preparation, real bank evidence and character credits persist over three reopenings
+  ---
+  duration_ms: 733.2377
+  type: 'test'
+  ...
+# Subtest: P188 successful spike applies real boost dice only to first slicing attempt
+ok 9 - P188 successful spike applies real boost dice only to first slicing attempt
+  ---
+  duration_ms: 712.304
+  type: 'test'
+  ...
+# Subtest: P188 basic encryption can be upgraded to full without losing causal receipts
+ok 10 - P188 basic encryption can be upgraded to full without losing causal receipts
+  ---
+  duration_ms: 719.2606
+  type: 'test'
+  ...
+# Subtest: P188 Android bridge exposes preparation action
+ok 11 - P188 Android bridge exposes preparation action
+  ---
+  duration_ms: 36.6728
+  type: 'test'
+  ...
+# Subtest: P188 Android scene offers explicit GM confirmation and bank controls
+ok 12 - P188 Android scene offers explicit GM confirmation and bank controls
+  ---
+  duration_ms: 6.951
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8098.2808
+

@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: P111: catálogo Nato reconhece as 13 famílias EotE Core nas perícias corretas
+ok 1 - P111: catálogo Nato reconhece as 13 famílias EotE Core nas perícias corretas
+  ---
+  duration_ms: 5.7868
+  type: 'test'
+  ...
+# Subtest: P111: rerrolagem Nato usa o mesmo pool e preserva o primeiro resultado como evidência
+ok 2 - P111: rerrolagem Nato usa o mesmo pool e preserva o primeiro resultado como evidência
+  ---
+  duration_ms: 46.5479
+  type: 'test'
+  ...
+# Subtest: P111: talento Nato é limitado a uma vez por sessão
+ok 3 - P111: talento Nato é limitado a uma vez por sessão
+  ---
+  duration_ms: 21.8253
+  type: 'test'
+  ...
+# Subtest: P111: nova sessão limpa o uso Nato
+ok 4 - P111: nova sessão limpa o uso Nato
+  ---
+  duration_ms: 36.1491
+  type: 'test'
+  ...
+# Subtest: P111: rerrolagem Nato é rejeitada quando a perícia não pertence ao talento adquirido
+ok 5 - P111: rerrolagem Nato é rejeitada quando a perícia não pertence ao talento adquirido
+  ---
+  duration_ms: 6.6476
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1283.4232
+

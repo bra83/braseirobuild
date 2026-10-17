@@ -1,0 +1,29 @@
+TAP version 13
+# Subtest: p.33: três armas oficiais, preços fixos e críticos reduzidos, sem entregar na festa
+ok 1 - p.33: três armas oficiais, preços fixos e críticos reduzidos, sem entregar na festa
+  ---
+  duration_ms: 269.7043
+  type: 'test'
+  ...
+# Subtest: p.33: rolagem oposta com desafio real concede exatamente 10% somente se houver sucesso
+ok 2 - p.33: rolagem oposta com desafio real concede exatamente 10% somente se houver sucesso
+  ---
+  duration_ms: 42.6288
+  type: 'test'
+  ...
+# Subtest: Controller + UI + Bridge: rollback insuficiência, recibos reais, três reaberturas
+ok 3 - Controller + UI + Bridge: rollback insuficiência, recibos reais, três reaberturas
+  ---
+  duration_ms: 214.703
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1950.2865
+

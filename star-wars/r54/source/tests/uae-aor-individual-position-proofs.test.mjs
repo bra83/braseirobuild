@@ -10,6 +10,7 @@ import {getHealthStatus} from '../app/src/main/assets/vtt/js/rules/health.mjs';
 const POSITION='ace:gunner:r1c2';
 const DURABLE_POSITION='ace:gunner:r1c1';
 const TOUGHENED_POSITION='ace:gunner:r2c1';
+const ENDURING_POSITION='ace:gunner:r3c2';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
  careerFreeSkills:['astronavegacion','frialdad','mecanica','percepcion'],
@@ -157,4 +158,50 @@ test('AoR p.68 Ace/Gunner R2C1 Toughened buys exact node, raises wound boundary 
  }
  assert.equal(repo.saves,saved,'reopens are read-only');
  assert.equal(bridge.buyTalent(TOUGHENED_POSITION).ok,false,'the exact node cannot be purchased twice');
+});
+
+test('AoR p.68 Ace/Gunner R3C2 Enduring buys exact node, raises live soak and survives three reloads',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');setup.createAorCharacter({...characterOptions,name:'Jora Kinn'});
+ const before=clone(setup.state.player.character),bridge=new BraseiroUiBridge({repository:repo});
+ for(const id of [DURABLE_POSITION,TOUGHENED_POSITION,'ace:gunner:r2c2']){
+  const prerequisite=bridge.buyTalent(id);assert.equal(prerequisite.ok,true,`exact path prerequisite ${id} is acquired`);
+ }
+ const candidate=new GameController(repo).eligibleTalents().find(n=>n.id===ENDURING_POSITION);
+ assert.ok(candidate);assert.equal(candidate.originalName,'RESISTENTE');assert.equal(candidate.name,'Resistente');
+ assert.equal(candidate.available,true);assert.equal(candidate.cost,15);assert.equal(candidate.source.printedPage,68);
+ assert.equal(candidate.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+ const treeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(n=>n.id===ENDURING_POSITION);
+ assert.ok(treeNode);assert.equal(treeNode.originalName,'RESISTENTE');assert.equal(treeNode.source.printedPage,68);
+
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ assert.ok(html.includes('id="talentOptions"'));
+ assert.match(ui,/data-talent-id="\$\{escapeHtml\(t\.id\)\}"/);
+ assert.match(ui,/game\.buyTalent\(button\.dataset\.talentId/);
+
+ const result=bridge.buyTalent(ENDURING_POSITION);
+ assert.equal(result.ok,true);assert.equal(result.data.talent.id,ENDURING_POSITION);
+ assert.deepEqual(result.data.effect,{applied:true,label:'+1 de Proteção'});
+ const receipt=result.data.character.talentPurchases.find(p=>p.nodeId===ENDURING_POSITION);
+ assert.equal(receipt.originalName,'RESISTENTE');assert.equal(receipt.source.printedPage,68);
+ assert.equal(receipt.specializationKey,'gunner');assert.equal(receipt.cost,15);
+ const soak=result.data.character.derived.soak;
+ assert.equal(soak,before.derived.soak+1);
+ assert.equal(result.data.character.xp.available,before.xp.available-40);
+
+ const game=new GameController(repo),damage=game.applyPlayerDamage({damage:5,reason:'prova R3C2'});
+ assert.equal(damage.effectiveSoak,soak);assert.equal(damage.suffered,Math.max(0,5-soak));
+ const savedState=clone(repo.state),savedWrites=repo.saves;
+ for(let reopen=1;reopen<=3;reopen++){
+  const reopenedRepo=new RepoWithState(savedState),reopened=new GameController(reopenedRepo);
+  const character=reopened.state.player.character,owned=character.talentPurchases.find(p=>p.nodeId===ENDURING_POSITION);
+  assert.ok(owned,`exact source node survives reopen ${reopen}`);
+  assert.equal(owned.source.printedPage,68);assert.equal(owned.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+  assert.equal(character.derived.soak,soak);
+  const reopenedDamage=reopened.applyPlayerDamage({damage:5,reason:`reopen ${reopen}`});
+  assert.equal(reopenedDamage.effectiveSoak,soak);assert.equal(reopenedDamage.suffered,Math.max(0,5-soak));
+ }
+ assert.equal(repo.saves,savedWrites,'reopen evidence uses independent restored controllers');
+ assert.equal(bridge.buyTalent(ENDURING_POSITION).ok,false,'the exact node cannot be purchased twice');
 });
