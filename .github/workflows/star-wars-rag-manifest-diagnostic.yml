@@ -1,0 +1,20 @@
+name: Star Wars RAG manifest diagnostic (no APK)
+on:
+  push:
+    branches:
+      - integration/starwars-codex-wip28-sivor-20261017
+  workflow_dispatch:
+jobs:
+  rag-source-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check manifest, matrix and generated runtime
+        run: |
+          cd star-wars/r54/source
+          sha256sum rules/rules_matrix.json
+          cat rules/rag_manifest.json
+          node --test --test-reporter=tap tests/rag-sync.test.mjs

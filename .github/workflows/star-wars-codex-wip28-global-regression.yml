@@ -1,0 +1,37 @@
+name: Star Wars Codex-WIP28 full Node regression (no APK)
+on:
+  push:
+    branches:
+      - integration/starwars-codex-wip28-sivor-20261017
+  workflow_dispatch:
+jobs:
+  all-node-tests-per-file:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install test-only TypeScript dependency
+        run: |
+          npm install --prefix "$RUNNER_TEMP/starwars-test-deps" --no-audit --no-fund --ignore-scripts typescript@5.9.3
+          echo "NODE_PATH=$RUNNER_TEMP/starwars-test-deps/node_modules" >> "$GITHUB_ENV"
+      - name: Run every Node test file separately, including six stress files
+        run: |
+          cd star-wars/r54/source
+          python tools/run-swe02-mega-perfile.py evidence/CODEX_WIP28_SIVOR_INTEGRATION_CI
+      - name: Preserve summary and TAP files, even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: starwars-codex-wip28-integration-global-tap
+          path: star-wars/r54/source/evidence/CODEX_WIP28_SIVOR_INTEGRATION_CI/
+          if-no-files-found: warn
