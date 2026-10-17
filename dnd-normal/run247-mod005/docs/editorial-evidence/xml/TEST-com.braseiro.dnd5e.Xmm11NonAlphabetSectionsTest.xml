@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-17T02:14:21" hostname="BRELGA" time="0.047">
+  <properties/>
+  <testcase name="testXmm_sec_0_0" classname="com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest" time="0.008"/>
+  <testcase name="testXmm_sec_0_1" classname="com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest" time="0.0"/>
+  <testcase name="testXmm_sec_0_2" classname="com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest" time="0.0"/>
+  <testcase name="testXmm_sec_0_3" classname="com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest" time="0.0"/>
+  <testcase name="testXmm_sec_2_0" classname="com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest" time="0.03"/>
+  <testcase name="testXmm_sec_3_0" classname="com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest" time="0.002"/>
+  <testcase name="testXmm_sec_3_1" classname="com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest" time="0.003"/>
+  <testcase name="testXmm_sec_3_2" classname="com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest" time="0.001"/>
+  <testcase name="testXmm_sec_3_3" classname="com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest" time="0.001"/>
+  <testcase name="testXmm_sec_3_4" classname="com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest" time="0.001"/>
+  <testcase name="testXmm_sec_4_0" classname="com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest" time="0.001"/>
+  <testcase name="androidGatewayExposesBookListsAndConversions" classname="com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,18 @@
+{
+  "book_id": "XMM",
+  "chapter_id": "ch_1",
+  "section_id": "sec_1_14",
+  "source_url": "https://github.com/5etools-mirror-3/5etools-src/blob/8c026b807fac21862a309379a0c3228a0683198b/data/book/book-xmm.json",
+  "source_sha256": "49d82afde2ce1a803b0167ffd82db2964269e7f448872b54441912fd77a16561",
+  "source_git_blob_sha1": "a21801793df3515d07ef9a56d9febefea1c6f8f7",
+  "source_version": "Monster Manual (2025/XMM); pinned 5etools mirror commit 8c026b807fac21862a309379a0c3228a0683198b",
+  "rights_basis": "MECHANICS_INTERPRETATION_ONLY_NO_SOURCE_PROSE_REPUBLISHED_RIGHTS_TO_VERBATIM_SOURCE_NOT_CLAIMED",
+  "source_text_rights_for_republication_asserted": false,
+  "expected_game_behavior": "Catalogo e perfis executaveis dos monstros da letra O no bestiario compilado 2024/2025",
+  "observed_game_behavior": "Xmm25AlphabetSectionRuntimeTest#testXmm_sec_1_14 validou registro, CA, PV, atributos e acoes dos monstros com inicial O",
+  "runtime_method": "catalog",
+  "runtime_class": "com.braseiro.dnd5e.Xmm2025CompiledBestiaryEngine",
+  "test_xml": "docs/editorial-evidence/xml/TEST-com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest.xml",
+  "section_source_pointer": "/bookData/0/data/1/entries/15",
+  "caveat": "Proof covers XMM local advisory adjudication and source-derived statements, not automatic application in unrelated game engines; no claim of a licence to republish source prose."
+}
