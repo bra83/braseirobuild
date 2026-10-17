@@ -213,6 +213,14 @@ public final class KingmakerStructureSemantics {
   }
   if(count(rows,"thieves_guild")>0&&"create_forgeries".equals(activity))best=Math.max(best,1);
   if(("earn_income".equals(activity)||"repair".equals(activity))&&guildFocusCount(rows,focus)>0)best=Math.max(best,1);
+  // Kingmaker pp.550-551: Smithy and Specialized Artisan confer PC-facing
+  // Crafting item bonuses only when the specific material/good matches.
+  // The activity and specialty are explicit so unrelated checks never qualify.
+  if("crafting".equals(skill)&&("craft".equals(activity)||"crafting".equals(activity))){
+   String craftKind=focus(focus).replace('_',' ').replace('-',' ');
+   if(count(rows,"smithy")>0&&Arrays.asList("metal","metalwork","metalworking","metalurgia","ferraria","forja").contains(craftKind))best=Math.max(best,1);
+   if(count(rows,"specialized_artisan")>0&&Arrays.asList("jewelry","jewellery","joias","joalheria","glassware","vidraria","clockwork","relojoaria","specialized goods","bens especializados").contains(craftKind))best=Math.max(best,1);
+  }
   if("crafting".equals(skill)&&tradeFocusCount(rows,"trade_shop",focus)>0)best=Math.max(best,1);
   return best;
  }
