@@ -104,3 +104,18 @@ def test_residential_lots_propagate_to_built_structure_effects():
     for key in ("houses","inn","garrison","noble_villa","marketplace"):
         assert mod.official_semantics()[key]["traits"]
 
+
+
+def test_official_pdf_effects_full_clauses_not_truncated_or_spliced():
+    """Regression: four PDF-extraction errors, verified directly against pp. 547, 551-552."""
+    effects={row["official_name"]:row["effects_rule"] for row in DATA["structures"]}
+    expected={
+        "LIBRARY": "While in a settlement with a library, you gain a +1 item bonus to Lore checks made to Recall Knowledge while Investigating, as well as to Researching checks (Gamemastery Guide 154), and to Decipher Writing checks.",
+        "SMITHY": "While in a settlement with a smithy, you gain a +1 item bonus to Craft checks made to work with metal.",
+        "TRADE SHOP": "When you build a trade shop, indicate the kind of shop it is, such as a bakery, carpenter, tailor, and so on. While in a settlement with a trade shop, you gain a +1 item bonus to all associated Crafting checks.",
+        "PIER": "A pier must be built in a lot next to a Water border.",
+    }
+    for name, clause in expected.items():
+        assert effects[name]==clause, f"PDF extraction damaged {name}: {effects[name]!r}"
+    assert "RUBBLE STRUCTURE" not in effects["PIER"]
+    assert "Construction" not in effects["PIER"]
