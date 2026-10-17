@@ -20,6 +20,7 @@ const OVERWHELM_POSITION='ace:gunner:r1c3';
 const DEBILITATING_POSITION='ace:gunner:r1c4';
 const SPARE_CLIP_POSITION='ace:gunner:r2c3';
 const ENDURING_RANK2_POSITION='ace:gunner:r4c2';
+const EXHAUST_PORT_POSITION='ace:gunner:r4c4';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
  careerFreeSkills:['astronavegacion','frialdad','mecanica','percepcion'],
@@ -554,4 +555,55 @@ test('AoR p.68 Ace/Gunner R4C3 Brace rank 2 buys exact node, removes two environ
  assert.equal(action.state.combat.aorBracePrepared,undefined,'Brace is consumed by that next action');
  for(let reopen=1;reopen<=3;reopen++)assert.equal(new GameController(new RepoWithState(repo.state)).state.combat.aorBracePrepared,undefined,`consumed preparation remains cleared after reopen ${reopen}`);
  assert.equal(bridge.buyTalent(targetId).ok,false,'the exact rank-2 node cannot be purchased twice');
+});
+
+
+test('AoR p.68 Ace/Gunner R4C4 Exhaust Port buys exact node, ignores Massive on vehicle attack and survives three reloads',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');setup.createAorCharacter({...characterOptions,name:'Kira Neth'});
+ const before=clone(setup.state.player.character),bridge=new BraseiroUiBridge({repository:repo});
+ for(const id of ['ace:gunner:r1c4','ace:gunner:r2c4','ace:gunner:r3c4']){
+  const prerequisite=bridge.buyTalent(id);assert.equal(prerequisite.ok,true,`exact path prerequisite ${id} is acquired`);
+ }
+ const candidate=new GameController(repo).eligibleTalents().find(n=>n.id===EXHAUST_PORT_POSITION);
+ assert.ok(candidate);assert.equal(candidate.available,true);assert.equal(candidate.originalName,'SALIDA TÉRMICA');
+ assert.equal(candidate.name,'Saída térmica');assert.equal(candidate.cost,20);
+ assert.equal(candidate.source.printedPage,68);assert.equal(candidate.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+ const treeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(n=>n.id===EXHAUST_PORT_POSITION);
+ assert.ok(treeNode);assert.equal(treeNode.originalName,'SALIDA TÉRMICA');assert.equal(treeNode.cost,20);assert.equal(treeNode.source.printedPage,68);
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ assert.ok(html.includes('id="talentOptions"'));assert.match(ui,/data-talent-id="\$\{escapeHtml\(t\.id\)\}"/);
+ assert.match(ui,/game\.buyTalent\(button\.dataset\.talentId/);
+ assert.match(html,/id="exhaustPortLabel"[^>]*hidden><input id="useExhaustPort" type="checkbox"/);
+ assert.match(ui,/resolveVehicleAttack\(\{weaponIndex:Number\(\$\('vehicleWeaponSelect'\)\.value\),useExhaustPort:\$\('useExhaustPort'\)\.checked\}/);
+ assert.match(ui,/game\.talentRank\('EXHAUST_PORT'\)/);
+ const purchase=bridge.buyTalent(EXHAUST_PORT_POSITION);
+ assert.equal(purchase.ok,true);assert.equal(purchase.data.talent.id,EXHAUST_PORT_POSITION);
+ assert.equal(purchase.data.character.xp.available,before.xp.available-50);
+ const receipt=purchase.data.character.talentPurchases.find(entry=>entry.nodeId===EXHAUST_PORT_POSITION);
+ assert.ok(receipt);assert.equal(receipt.originalName,'SALIDA TÉRMICA');assert.equal(receipt.source.printedPage,68);
+ assert.equal(receipt.source.book,'Star Wars - Age of Rebellion - Core Rulebook');assert.equal(receipt.specializationKey,'gunner');assert.equal(receipt.cost,20);
+ const setupAfterPurchase=new GameController(repo);setupAfterPurchase.startSession({rng:()=>0.4});
+ setupAfterPurchase.addVehicle('xwing_t65b');setupAfterPurchase.setGroupDestiny({light:3,dark:0});
+ setupAfterPurchase.beginVehicleCombat({targetProfileKey:'tie_ln',range:'Bocajarro'});
+ const vehicles=clone(setupAfterPurchase.state.vehicles),targetId=vehicles.combat.targetVehicleId;
+ vehicles.vehicles[targetId].massive=2;setupAfterPurchase.commit('VEHICLES_UPDATED',{vehicles});
+ const ready=clone(new GameController(repo).state);
+ for(let reopen=1;reopen<=3;reopen++){
+  const restored=new GameController(new RepoWithState(ready));
+  assert.equal(validateState(restored.state),true);assert.ok(restored.state.player.character.talentPurchases.some(entry=>entry.nodeId===EXHAUST_PORT_POSITION));
+  assert.equal(restored.state.vehicles.combat.active,true);assert.equal(restored.state.vehicles.vehicles[targetId].massive,2);
+  assert.equal(restored.state.group.destiny.light,3);
+ }
+ const attackBridge=new BraseiroUiBridge({repository:repo}),resolved=attackBridge.resolveVehicleAttack({weaponIndex:0,useExhaustPort:true,rng:()=>0.4});
+ assert.equal(resolved.ok,true,JSON.stringify(resolved));const attack=resolved.data;
+ assert.equal(attack.massiveRating,2);assert.equal(attack.massiveIgnored,2);assert.equal(attack.criticalCost,Number(attack.weapon.crit));
+ assert.equal(attack.exhaustPortUsed,true);assert.equal(new GameController(repo).state.group.destiny.light,2);
+ for(let reopen=1;reopen<=3;reopen++){
+  const restored=new GameController(new RepoWithState(repo.state));assert.equal(validateState(restored.state),true);
+  assert.ok(restored.state.player.character.talentPurchases.some(entry=>entry.nodeId===EXHAUST_PORT_POSITION));
+  assert.equal(restored.state.group.destiny.light,2);assert.equal(restored.state.vehicles.combat.lastAttack.massiveIgnored,2);
+ }
+ assert.equal(bridge.buyTalent(EXHAUST_PORT_POSITION).ok,false,'the exact node cannot be purchased twice');
 });

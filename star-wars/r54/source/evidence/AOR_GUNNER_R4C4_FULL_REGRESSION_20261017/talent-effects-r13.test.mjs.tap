@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: Perseguidor e Comando acrescentam Impulso apenas às perícias previstas
+ok 1 - Perseguidor e Comando acrescentam Impulso apenas às perícias previstas
+  ---
+  duration_ms: 7.0591
+  type: 'test'
+  ...
+# Subtest: talentos EotE de perícia removem Contratempo sem tornar a reserva negativa
+ok 2 - talentos EotE de perícia removem Contratempo sem tornar a reserva negativa
+  ---
+  duration_ms: 1.4561
+  type: 'test'
+  ...
+# Subtest: À queima-roupa soma dano por grau só com armas à distância leves/pesadas em curto/interação
+ok 3 - À queima-roupa soma dano por grau só com armas à distância leves/pesadas em curto/interação
+  ---
+  duration_ms: 1.1827
+  type: 'test'
+  ...
+# Subtest: resolveSkillCheck aplica Perseguidor à reserva real
+ok 4 - resolveSkillCheck aplica Perseguidor à reserva real
+  ---
+  duration_ms: 43.624
+  type: 'test'
+  ...
+# Subtest: ataque real aplica À queima-roupa e não aplica fora do alcance permitido
+ok 5 - ataque real aplica À queima-roupa e não aplica fora do alcance permitido
+  ---
+  duration_ms: 31.919
+  type: 'test'
+  ...
+# Subtest: Piloto consumado e Cartógrafo galáctico removem Contratempo nos testes veiculares correspondentes
+ok 6 - Piloto consumado e Cartógrafo galáctico removem Contratempo nos testes veiculares correspondentes
+  ---
+  duration_ms: 14.8796
+  type: 'test'
+  ...
+# Subtest: Firmeza adquirida pela árvore aumenta o limiar de Tensão exatamente em 1
+ok 7 - Firmeza adquirida pela árvore aumenta o limiar de Tensão exatamente em 1
+  ---
+  duration_ms: 5.1473
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2541.3159

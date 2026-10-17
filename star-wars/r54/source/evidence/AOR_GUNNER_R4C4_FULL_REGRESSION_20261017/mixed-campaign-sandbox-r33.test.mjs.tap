@@ -1,0 +1,76 @@
+TAP version 13
+# Subtest: modo padrão continua EOTE e bloqueia Duty legado sem regredir guard
+ok 1 - modo padrão continua EOTE e bloqueia Duty legado sem regredir guard
+  ---
+  duration_ms: 30.8803
+  type: 'test'
+  ...
+# Subtest: modo MIXED mantém Obligation e Duty simultaneamente
+ok 2 - modo MIXED mantém Obligation e Duty simultaneamente
+  ---
+  duration_ms: 26.5275
+  type: 'test'
+  ...
+# Subtest: Duty d100 usa faixa cumulativa e doubles dobram bônus de sessão
+ok 3 - Duty d100 usa faixa cumulativa e doubles dobram bônus de sessão
+  ---
+  duration_ms: 0.6348
+  type: 'test'
+  ...
+# Subtest: criação AoR fica disponível em AOR/MIXED e Duty entra no grupo
+ok 4 - criação AoR fica disponível em AOR/MIXED e Duty entra no grupo
+  ---
+  duration_ms: 8.2541
+  type: 'test'
+  ...
+# Subtest: Contribution Rank sobe somente com Duty total >=100 e zera Duty corrente
+ok 5 - Contribution Rank sobe somente com Duty total >=100 e zera Duty corrente
+  ---
+  duration_ms: 8.4915
+  type: 'test'
+  ...
+# Subtest: seed de mundo vivo cria 6 facções, 36 NPCs, 12 locais, clocks e oportunidades sem roteiro obrigatório
+ok 6 - seed de mundo vivo cria 6 facções, 36 NPCs, 12 locais, clocks e oportunidades sem roteiro obrigatório
+  ---
+  duration_ms: 538.0235
+  type: 'test'
+  ...
+# Subtest: seed é idempotente e não duplica o mundo ao reabrir campanha
+ok 7 - seed é idempotente e não duplica o mundo ao reabrir campanha
+  ---
+  duration_ms: 491.6757
+  type: 'test'
+  ...
+# Subtest: tempo fora da cena move planos, clocks e transforma consequências em oportunidades
+ok 8 - tempo fora da cena move planos, clocks e transforma consequências em oportunidades
+  ---
+  duration_ms: 676.9806
+  type: 'test'
+  ...
+# Subtest: controller inicializa sandbox, persiste local e viagem avança o mundo
+ok 9 - controller inicializa sandbox, persiste local e viagem avança o mundo
+  ---
+  duration_ms: 573.7758
+  type: 'test'
+  ...
+# Subtest: contexto do Mestre inclui modo, mundo vivo e abertura estruturada separada da narração
+ok 10 - contexto do Mestre inclui modo, mundo vivo e abertura estruturada separada da narração
+  ---
+  duration_ms: 698.6041
+  type: 'test'
+  ...
+# Subtest: Mestre pode operar oportunidades/clocks/mercado apenas por operações estruturadas
+ok 11 - Mestre pode operar oportunidades/clocks/mercado apenas por operações estruturadas
+  ---
+  duration_ms: 752.6402
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5770.4675

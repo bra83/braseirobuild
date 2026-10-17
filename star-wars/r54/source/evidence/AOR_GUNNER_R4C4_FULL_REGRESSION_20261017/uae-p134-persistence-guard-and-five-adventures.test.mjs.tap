@@ -1,0 +1,154 @@
+TAP version 13
+# Subtest: P134 rollback de NaN em evento
+ok 1 - P134 rollback de NaN em evento
+  ---
+  duration_ms: 98.1893
+  type: 'test'
+  ...
+# Subtest: P134 rollback de Infinity em evento
+ok 2 - P134 rollback de Infinity em evento
+  ---
+  duration_ms: 17.2587
+  type: 'test'
+  ...
+# Subtest: P134 rollback de BigInt em evento
+ok 3 - P134 rollback de BigInt em evento
+  ---
+  duration_ms: 10.0454
+  type: 'test'
+  ...
+# Subtest: P134 rollback de Map em evento
+ok 4 - P134 rollback de Map em evento
+  ---
+  duration_ms: 38.9138
+  type: 'test'
+  ...
+# Subtest: P134 rollback de undefined em evento
+ok 5 - P134 rollback de undefined em evento
+  ---
+  duration_ms: 4.2285
+  type: 'test'
+  ...
+# Subtest: P134 rollback de chave perigosa em evento
+ok 6 - P134 rollback de chave perigosa em evento
+  ---
+  duration_ms: 30.0997
+  type: 'test'
+  ...
+# Subtest: P134 rollback de ciclo em evento
+ok 7 - P134 rollback de ciclo em evento
+  ---
+  duration_ms: 6.1427
+  type: 'test'
+  ...
+# Subtest: P134 rollback de flag não persistível
+ok 8 - P134 rollback de flag não persistível
+  ---
+  duration_ms: 7.2428
+  type: 'test'
+  ...
+# Subtest: P134 rollback de efeito desconhecido
+ok 9 - P134 rollback de efeito desconhecido
+  ---
+  duration_ms: 9.2416
+  type: 'test'
+  ...
+# Subtest: P134 rollback de segredo sem ID
+ok 10 - P134 rollback de segredo sem ID
+  ---
+  duration_ms: 20.3007
+  type: 'test'
+  ...
+# Subtest: P134 rollback de pista sem ID
+ok 11 - P134 rollback de pista sem ID
+  ---
+  duration_ms: 3.8197
+  type: 'test'
+  ...
+# Subtest: P134 condição nunca lê propriedades herdadas de flags, contadores, objetivos ou payload
+ok 12 - P134 condição nunca lê propriedades herdadas de flags, contadores, objetivos ou payload
+  ---
+  duration_ms: 10.8562
+  type: 'test'
+  ...
+# Subtest: P134 pistas e segredos opcionais geram snapshots JSON recuperáveis
+ok 13 - P134 pistas e segredos opcionais geram snapshots JSON recuperáveis
+  ---
+  duration_ms: 10.5798
+  type: 'test'
+  ...
+# Subtest: P134 under-black-sun: save, projeção e restauração sem vazamento
+ok 14 - P134 under-black-sun: save, projeção e restauração sem vazamento
+  ---
+  duration_ms: 69.5194
+  type: 'test'
+  ...
+# Subtest: P134 under-black-sun: recusa snapshot corrompido antes da migração
+ok 15 - P134 under-black-sun: recusa snapshot corrompido antes da migração
+  ---
+  duration_ms: 79.593
+  type: 'test'
+  ...
+# Subtest: P134 beyond-the-rim: save, projeção e restauração sem vazamento
+ok 16 - P134 beyond-the-rim: save, projeção e restauração sem vazamento
+  ---
+  duration_ms: 40.2543
+  type: 'test'
+  ...
+# Subtest: P134 beyond-the-rim: recusa snapshot corrompido antes da migração
+ok 17 - P134 beyond-the-rim: recusa snapshot corrompido antes da migração
+  ---
+  duration_ms: 37.7013
+  type: 'test'
+  ...
+# Subtest: P134 long-arm-of-the-hutt: save, projeção e restauração sem vazamento
+ok 18 - P134 long-arm-of-the-hutt: save, projeção e restauração sem vazamento
+  ---
+  duration_ms: 38.4168
+  type: 'test'
+  ...
+# Subtest: P134 long-arm-of-the-hutt: recusa snapshot corrompido antes da migração
+ok 19 - P134 long-arm-of-the-hutt: recusa snapshot corrompido antes da migração
+  ---
+  duration_ms: 38.413
+  type: 'test'
+  ...
+# Subtest: P134 jewel-of-yavin: save, projeção e restauração sem vazamento
+ok 20 - P134 jewel-of-yavin: save, projeção e restauração sem vazamento
+  ---
+  duration_ms: 19.7728
+  type: 'test'
+  ...
+# Subtest: P134 jewel-of-yavin: recusa snapshot corrompido antes da migração
+ok 21 - P134 jewel-of-yavin: recusa snapshot corrompido antes da migração
+  ---
+  duration_ms: 17.7067
+  type: 'test'
+  ...
+# Subtest: P134 mask-of-the-pirate-queen: save, projeção e restauração sem vazamento
+ok 22 - P134 mask-of-the-pirate-queen: save, projeção e restauração sem vazamento
+  ---
+  duration_ms: 22.2548
+  type: 'test'
+  ...
+# Subtest: P134 mask-of-the-pirate-queen: recusa snapshot corrompido antes da migração
+ok 23 - P134 mask-of-the-pirate-queen: recusa snapshot corrompido antes da migração
+  ---
+  duration_ms: 20.4847
+  type: 'test'
+  ...
+# Subtest: P134 Além da Orla não confirma combate que não existe
+ok 24 - P134 Além da Orla não confirma combate que não existe
+  ---
+  duration_ms: 9.8428
+  type: 'test'
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2790.2974

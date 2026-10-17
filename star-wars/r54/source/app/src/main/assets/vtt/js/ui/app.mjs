@@ -1124,6 +1124,11 @@ function renderVehicle(state){
   $('fullThrottleManeuver').disabled=!combat.active || combat.maneuversUsed>=2 || !hasImprovedFullThrottle || (swe02Turn&&!playerInitiativeTurn);
   $('controlledFireAction').hidden=true; $('controlledFireAction').disabled=true;
   const weapons=$('vehicleWeaponSelect'); const prev=weapons.value; weapons.innerHTML=''; const combatRangeIndex=PLANETARY_RANGE_BANDS.indexOf(combat.range); let firstInRange=null; for(const [i,w] of vehicle.weapons.entries()){const o=document.createElement('option');o.value=i; const maxRangeIndex=PLANETARY_RANGE_BANDS.indexOf(w.range); const inRange=!combat.active || combatRangeIndex<=maxRangeIndex; o.textContent=`${w.name} · dano ${w.damage} · alcance ${w.range}${inRange?'':' · FORA DE ALCANCE'}`; o.disabled=!inRange; if(inRange&&firstInRange===null)firstInRange=String(i); weapons.append(o);} if([...weapons.options].some(o=>o.value===prev&&!o.disabled))weapons.value=prev; else if(firstInRange!==null)weapons.value=firstInRange; $('vehicleAttack').disabled=!combat.active || combat.actionUsed || !status.weaponsOnline || firstInRange===null || (swe02Turn&&initiativeSlot?.side!=='player');
+  const exhaustPortRank=game.talentRank('EXHAUST_PORT'),target=state.vehicles?.vehicles?.[combat.targetVehicleId],massiveRating=Number(target?.massive??0),lightDestiny=Number(state.group?.destiny?.light??0);
+  $('exhaustPortLabel').hidden=exhaustPortRank<1;
+  $('useExhaustPort').disabled=!combat.active||combat.actionUsed||!status.weaponsOnline||firstInRange===null||massiveRating<1||lightDestiny<1||(swe02Turn&&!playerInitiativeTurn);
+  $('useExhaustPort').title=massiveRating<1?'O alvo deste encontro não tem a regra Massive.':lightDestiny<1?'Não há Destino luminoso disponível.':'Ignora Massive neste ataque e gasta 1 ponto de Destino luminoso.';
+  if(!combat.active||exhaustPortRank<1||massiveRating<1)$('useExhaustPort').checked=false;
 }
 
 function renderVehicleAttack(attack){
@@ -1586,7 +1591,7 @@ $('swe02NabatBuy').addEventListener('click',()=>{try{
  const result=game.purchaseSWE02NabatItem({itemId:$('swe02NabatItem').value,quantity:Number($('swe02NabatQuantity').value)});
  showFeedback('swe02NabatFeedback',`Compra registrada: ${result.item.name} · ${result.receipt.cost} créditos.`);render();
 }catch(e){showFeedback('swe02NabatFeedback',e.message);}});
-$('vehicleAttack').addEventListener('click',()=>{ try{ const attack=game.resolveVehicleAttack({weaponIndex:Number($('vehicleWeaponSelect').value)}); renderVehicleAttack(attack); render(); }catch(e){const el=$('vehicleAttackResult');el.className='result fail';el.textContent=e.message;} });
+$('vehicleAttack').addEventListener('click',()=>{ try{ const attack=game.resolveVehicleAttack({weaponIndex:Number($('vehicleWeaponSelect').value),useExhaustPort:$('useExhaustPort').checked}); $('useExhaustPort').checked=false; renderVehicleAttack(attack); render(); }catch(e){const el=$('vehicleAttackResult');el.className='result fail';el.textContent=e.message;} });
 $('applyVehicleDamage').addEventListener('click',()=>{ try{ const r=game.applyVehicleDamage({damage:Number($('vehicleIncomingDamage').value),breach:Number($('vehicleIncomingBreach').value)}); showFeedback('vehicleRepairFeedback',`Casco sofreu ${r.suffered}. Estado: ${r.status.label}.`); render(); }catch(e){showFeedback('vehicleRepairFeedback',e.message);} });
 $('applyVehicleStrain').addEventListener('click',()=>{ try{ const r=game.applyVehicleStrain(Number($('vehicleIncomingStrain').value)); showFeedback('vehicleRepairFeedback',`+${r.suffered} de Tensão de sistemas. Estado: ${r.status.label}.`); render(); }catch(e){showFeedback('vehicleRepairFeedback',e.message);} });
 $('vehicleDamageControl').addEventListener('click',()=>{ try{ const r=game.vehicleDamageControl(); showFeedback('vehicleRepairFeedback',r.check.success?`Controle de danos: ${r.systemStrainRecovered} Tensão e ${r.hullRecovered} Casco recuperados.`:`Falha no controle de danos. Dificuldade ${r.difficulty}.`); render(); }catch(e){showFeedback('vehicleRepairFeedback',e.message);} });

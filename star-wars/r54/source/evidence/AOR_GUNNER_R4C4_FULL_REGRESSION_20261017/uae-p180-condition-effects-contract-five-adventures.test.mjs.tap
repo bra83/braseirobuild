@@ -1,0 +1,190 @@
+TAP version 13
+# Subtest: P180 under-black-sun: authored preflight bounds mirror runtime grammar
+ok 1 - P180 under-black-sun: authored preflight bounds mirror runtime grammar
+  ---
+  duration_ms: 72.7477
+  type: 'test'
+  ...
+# Subtest: P180 under-black-sun: source preflight rejects reserved events in BOTH effect syntaxes
+ok 2 - P180 under-black-sun: source preflight rejects reserved events in BOTH effect syntaxes
+  ---
+  duration_ms: 60.5518
+  type: 'test'
+  ...
+# Subtest: P180 under-black-sun: malformed runtime effect guard never grants reward
+ok 3 - P180 under-black-sun: malformed runtime effect guard never grants reward
+  ---
+  duration_ms: 80.4837
+  type: 'test'
+  ...
+# Subtest: P180 under-black-sun: trigger -> clock -> objective -> consequence -> 3 durable reopens
+ok 4 - P180 under-black-sun: trigger -> clock -> objective -> consequence -> 3 durable reopens
+  ---
+  duration_ms: 132.3847
+  type: 'test'
+  ...
+# Subtest: P180 under-black-sun: invalid mid-transaction command rolls back triggers and consequence
+ok 5 - P180 under-black-sun: invalid mid-transaction command rolls back triggers and consequence
+  ---
+  duration_ms: 12.2886
+  type: 'test'
+  ...
+# Subtest: P180 under-black-sun: invalid condition does not fire trigger or corrupt saved state
+ok 6 - P180 under-black-sun: invalid condition does not fire trigger or corrupt saved state
+  ---
+  duration_ms: 14.3804
+  type: 'test'
+  ...
+# Subtest: P180 beyond-the-rim: authored preflight bounds mirror runtime grammar
+ok 7 - P180 beyond-the-rim: authored preflight bounds mirror runtime grammar
+  ---
+  duration_ms: 13.1714
+  type: 'test'
+  ...
+# Subtest: P180 beyond-the-rim: source preflight rejects reserved events in BOTH effect syntaxes
+ok 8 - P180 beyond-the-rim: source preflight rejects reserved events in BOTH effect syntaxes
+  ---
+  duration_ms: 13.9737
+  type: 'test'
+  ...
+# Subtest: P180 beyond-the-rim: malformed runtime effect guard never grants reward
+ok 9 - P180 beyond-the-rim: malformed runtime effect guard never grants reward
+  ---
+  duration_ms: 6.8856
+  type: 'test'
+  ...
+# Subtest: P180 beyond-the-rim: trigger -> clock -> objective -> consequence -> 3 durable reopens
+ok 10 - P180 beyond-the-rim: trigger -> clock -> objective -> consequence -> 3 durable reopens
+  ---
+  duration_ms: 43.1478
+  type: 'test'
+  ...
+# Subtest: P180 beyond-the-rim: invalid mid-transaction command rolls back triggers and consequence
+ok 11 - P180 beyond-the-rim: invalid mid-transaction command rolls back triggers and consequence
+  ---
+  duration_ms: 12.5158
+  type: 'test'
+  ...
+# Subtest: P180 beyond-the-rim: invalid condition does not fire trigger or corrupt saved state
+ok 12 - P180 beyond-the-rim: invalid condition does not fire trigger or corrupt saved state
+  ---
+  duration_ms: 9.3875
+  type: 'test'
+  ...
+# Subtest: P180 long-arm-of-the-hutt: authored preflight bounds mirror runtime grammar
+ok 13 - P180 long-arm-of-the-hutt: authored preflight bounds mirror runtime grammar
+  ---
+  duration_ms: 24.1928
+  type: 'test'
+  ...
+# Subtest: P180 long-arm-of-the-hutt: source preflight rejects reserved events in BOTH effect syntaxes
+ok 14 - P180 long-arm-of-the-hutt: source preflight rejects reserved events in BOTH effect syntaxes
+  ---
+  duration_ms: 45.8075
+  type: 'test'
+  ...
+# Subtest: P180 long-arm-of-the-hutt: malformed runtime effect guard never grants reward
+ok 15 - P180 long-arm-of-the-hutt: malformed runtime effect guard never grants reward
+  ---
+  duration_ms: 6.6139
+  type: 'test'
+  ...
+# Subtest: P180 long-arm-of-the-hutt: trigger -> clock -> objective -> consequence -> 3 durable reopens
+ok 16 - P180 long-arm-of-the-hutt: trigger -> clock -> objective -> consequence -> 3 durable reopens
+  ---
+  duration_ms: 32.692
+  type: 'test'
+  ...
+# Subtest: P180 long-arm-of-the-hutt: invalid mid-transaction command rolls back triggers and consequence
+ok 17 - P180 long-arm-of-the-hutt: invalid mid-transaction command rolls back triggers and consequence
+  ---
+  duration_ms: 9.0712
+  type: 'test'
+  ...
+# Subtest: P180 long-arm-of-the-hutt: invalid condition does not fire trigger or corrupt saved state
+ok 18 - P180 long-arm-of-the-hutt: invalid condition does not fire trigger or corrupt saved state
+  ---
+  duration_ms: 98.2298
+  type: 'test'
+  ...
+# Subtest: P180 jewel-of-yavin: authored preflight bounds mirror runtime grammar
+ok 19 - P180 jewel-of-yavin: authored preflight bounds mirror runtime grammar
+  ---
+  duration_ms: 17.1422
+  type: 'test'
+  ...
+# Subtest: P180 jewel-of-yavin: source preflight rejects reserved events in BOTH effect syntaxes
+ok 20 - P180 jewel-of-yavin: source preflight rejects reserved events in BOTH effect syntaxes
+  ---
+  duration_ms: 25.0304
+  type: 'test'
+  ...
+# Subtest: P180 jewel-of-yavin: malformed runtime effect guard never grants reward
+ok 21 - P180 jewel-of-yavin: malformed runtime effect guard never grants reward
+  ---
+  duration_ms: 3.4986
+  type: 'test'
+  ...
+# Subtest: P180 jewel-of-yavin: trigger -> clock -> objective -> consequence -> 3 durable reopens
+ok 22 - P180 jewel-of-yavin: trigger -> clock -> objective -> consequence -> 3 durable reopens
+  ---
+  duration_ms: 32.795
+  type: 'test'
+  ...
+# Subtest: P180 jewel-of-yavin: invalid mid-transaction command rolls back triggers and consequence
+ok 23 - P180 jewel-of-yavin: invalid mid-transaction command rolls back triggers and consequence
+  ---
+  duration_ms: 8.7723
+  type: 'test'
+  ...
+# Subtest: P180 jewel-of-yavin: invalid condition does not fire trigger or corrupt saved state
+ok 24 - P180 jewel-of-yavin: invalid condition does not fire trigger or corrupt saved state
+  ---
+  duration_ms: 8.7838
+  type: 'test'
+  ...
+# Subtest: P180 mask-of-the-pirate-queen: authored preflight bounds mirror runtime grammar
+ok 25 - P180 mask-of-the-pirate-queen: authored preflight bounds mirror runtime grammar
+  ---
+  duration_ms: 50.3921
+  type: 'test'
+  ...
+# Subtest: P180 mask-of-the-pirate-queen: source preflight rejects reserved events in BOTH effect syntaxes
+ok 26 - P180 mask-of-the-pirate-queen: source preflight rejects reserved events in BOTH effect syntaxes
+  ---
+  duration_ms: 29.4552
+  type: 'test'
+  ...
+# Subtest: P180 mask-of-the-pirate-queen: malformed runtime effect guard never grants reward
+ok 27 - P180 mask-of-the-pirate-queen: malformed runtime effect guard never grants reward
+  ---
+  duration_ms: 4.3274
+  type: 'test'
+  ...
+# Subtest: P180 mask-of-the-pirate-queen: trigger -> clock -> objective -> consequence -> 3 durable reopens
+ok 28 - P180 mask-of-the-pirate-queen: trigger -> clock -> objective -> consequence -> 3 durable reopens
+  ---
+  duration_ms: 26.9393
+  type: 'test'
+  ...
+# Subtest: P180 mask-of-the-pirate-queen: invalid mid-transaction command rolls back triggers and consequence
+ok 29 - P180 mask-of-the-pirate-queen: invalid mid-transaction command rolls back triggers and consequence
+  ---
+  duration_ms: 6.9411
+  type: 'test'
+  ...
+# Subtest: P180 mask-of-the-pirate-queen: invalid condition does not fire trigger or corrupt saved state
+ok 30 - P180 mask-of-the-pirate-queen: invalid condition does not fire trigger or corrupt saved state
+  ---
+  duration_ms: 10.9187
+  type: 'test'
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2926.8479

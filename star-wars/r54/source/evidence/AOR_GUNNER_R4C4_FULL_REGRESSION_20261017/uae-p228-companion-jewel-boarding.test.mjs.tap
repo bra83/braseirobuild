@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: P228 actual companion carries sole Jewel aboard existing ship; PJ also confirmed boarded
+ok 1 - P228 actual companion carries sole Jewel aboard existing ship; PJ also confirmed boarded
+  ---
+  duration_ms: 1175.0273
+  type: 'test'
+  ...
+# Subtest: P228 refuses unconfirmed companion presence, individual boarding, wrong carrier or phantom
+ok 2 - P228 refuses unconfirmed companion presence, individual boarding, wrong carrier or phantom
+  ---
+  duration_ms: 1416.7264
+  type: 'test'
+  ...
+# Subtest: P228 real hyperjump succeeds with confirmed companion aboard, no duplicate Jewel or premature XP
+ok 3 - P228 real hyperjump succeeds with confirmed companion aboard, no duplicate Jewel or premature XP
+  ---
+  duration_ms: 1764.1905
+  type: 'test'
+  ...
+# Subtest: P228 before escape, cannot delete the companion or the physical Jewel without detection
+ok 4 - P228 before escape, cannot delete the companion or the physical Jewel without detection
+  ---
+  duration_ms: 745.9159
+  type: 'test'
+  ...
+# Subtest: P228 tampered receipt companion confirmation, ID or inventory is rejected
+ok 5 - P228 tampered receipt companion confirmation, ID or inventory is rejected
+  ---
+  duration_ms: 805.0628
+  type: 'test'
+  ...
+# Subtest: P228 three persisted reopens preserve companion board and real inventories
+ok 6 - P228 three persisted reopens preserve companion board and real inventories
+  ---
+  duration_ms: 893.2341
+  type: 'test'
+  ...
+# Subtest: P228 legacy PJ-only boarding remains valid; companion flags cannot be faked
+ok 7 - P228 legacy PJ-only boarding remains valid; companion flags cannot be faked
+  ---
+  duration_ms: 812.4149
+  type: 'test'
+  ...
+# Subtest: P228 UI, controller, bundle, version and receipt fields are wired
+ok 8 - P228 UI, controller, bundle, version and receipt fields are wired
+  ---
+  duration_ms: 291.8533
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9838.502
