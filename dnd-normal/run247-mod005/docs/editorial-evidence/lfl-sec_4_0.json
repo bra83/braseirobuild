@@ -1,0 +1,18 @@
+{
+  "book_id": "LFL",
+  "chapter_id": "ch_4",
+  "section_id": "sec_4_0",
+  "source_url": "https://github.com/5etools-mirror-3/5etools-src/blob/8c026b807fac21862a309379a0c3228a0683198b/data/book/book-lfl.json",
+  "source_sha256": "7ae45fbf7b6730e7da268087aa9a6221c6f7eb968e04a49e3424f59df81e9298",
+  "source_git_blob_sha1": "799b75332bf69df02ce6ed2e4d5ea0e7f7bfa9e0",
+  "source_version": "Lorwyn: First Light; pinned 5etools mirror commit 8c026b807fac21862a309379a0c3228a0683198b",
+  "rights_basis": "MECHANICS_INTERPRETATION_ONLY_NO_SOURCE_PROSE_REPUBLISHED_RIGHTS_TO_VERBATIM_SOURCE_NOT_CLAIMED",
+  "source_text_rights_for_republication_asserted": false,
+  "expected_game_behavior": "Sete locais mapeados do complexo Aeghith (A1 a A7) com salas e pontos de encontro",
+  "observed_game_behavior": "Lfl20SectionRuntimeTest#testLfl_sec_4_0 comprovou as 7 areas e identificadores do Aeghith",
+  "runtime_method": "aeghithLocations",
+  "runtime_class": "com.braseiro.dnd5e.adventure.LorwynAdventureModuleCatalog",
+  "test_xml": "docs/editorial-evidence/xml/TEST-com.braseiro.dnd5e.Lfl20SectionRuntimeTest.xml",
+  "section_source_pointer": "/bookData/0/data/4/entries/2",
+  "caveat": "Proof covers LFL local advisory adjudication and source-derived statements, not automatic application in unrelated game engines; no claim of a licence to republish source prose."
+}

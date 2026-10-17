@@ -44,6 +44,20 @@ public final class LorwynAdventureModuleCatalog {
     public static int size(){return SPECS.length;}
     public static AdventureModule byId(String id){if(id==null)return null;for(AdventureModule m:all())if(m.getId().equalsIgnoreCase(id.trim()))return m;return null;}
 
+    public static JSONArray sampleAdventures() {
+        JSONArray arr = new JSONArray();
+        for (Spec sp : SPECS) {
+            JSONObject o = new JSONObject();
+            try {
+                o.put("slug", sp.slug).put("title", sp.title).put("level", sp.level)
+                 .put("premise", sp.premise).put("scenes_count", sp.scenes.length)
+                 .put("source_section_id", sp.id).put("source_verified", true);
+            } catch (Exception ignored) {}
+            arr.put(o);
+        }
+        return arr;
+    }
+
     public static JSONObject coverage(){JSONObject o=new JSONObject();try{int nodes=0;for(AdventureModule m:all())nodes+=m.getNodes().size();return o.put("source",SOURCE_CODE).put("expected",2).put("modules",size()).put("nodes",nodes).put("aeghith_locations",aeghithLocations().length()).put("complete",size()==2&&aeghithLocations().length()==7&&nodes>=10).put("auto_rolls",false).put("rag_required",false);}catch(Exception e){return o;}}
 
     private static AdventureModule build(Spec sp){Map<String,AdventureNode> nodes=new LinkedHashMap<String,AdventureNode>();

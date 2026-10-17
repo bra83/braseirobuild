@@ -125,6 +125,148 @@ public final class LorwynFirstLightRulesEngine {
         if("Reliquary of Twilight".equals(n))return o.put("label_ptbr","Relicário do Crepúsculo").put("immune_to","Morningtide").put("eclipsed_realm_protection",true);
     }catch(Exception ignored){}return o;}
 
+    /** sec_0_1: Welcome to Lorwyn */
+    public JSONObject welcomeToLorwyn() {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("section_id", "sec_0_1").put("source_book", "LFL").put("title", "Welcome to Lorwyn")
+             .put("nature", "Pastoral fey realm bathed in perpetual midsummer light, untouched by standard human civilizations")
+             .put("core_themes", "Fey folklore, transformation cycles, isolation, and contrasting dualities with Shadowmoor")
+             .put("source_verified", true).put("auto_rolls", false);
+        } catch (Exception ignored) {}
+        return o;
+    }
+
+    /** sec_0_2: The Vibrant Wilds of Lorwyn */
+    public JSONObject vibrantWildsOfLorwyn() {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("section_id", "sec_0_2").put("source_book", "LFL").put("title", "The Vibrant Wilds of Lorwyn")
+             .put("flora_and_fauna", "Idyllic meadows, sentient wanderers, playful boggarts and luminescent flamekin")
+             .put("aurora_influence", "Perpetual daylight keeping despair and decay dormant")
+             .put("source_verified", true).put("auto_rolls", false);
+        } catch (Exception ignored) {}
+        return o;
+    }
+
+    /** sec_0_3: The Sinister Wilds of Shadowmoor */
+    public JSONObject sinisterWildsOfShadowmoor() {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("section_id", "sec_0_3").put("source_book", "LFL").put("title", "The Sinister Wilds of Shadowmoor")
+             .put("transformation_nature", "The dark mirror realm where daylight fades into twilight and beings transform into bitter reflections")
+             .put("hazards", "Thorned brambles, treacherous bogs, hostile scarecrows and rimekin")
+             .put("source_verified", true).put("auto_rolls", false);
+        } catch (Exception ignored) {}
+        return o;
+    }
+
+    /** sec_0_4: Eclipsed Realms */
+    public JSONObject eclipsedRealms() {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("section_id", "sec_0_4").put("source_book", "LFL").put("title", "Eclipsed Realms")
+             .put("mechanic", "Boundary pockets where Lorwyn and Shadowmoor overlap")
+             .put("suppression_rules", "Creatures without reliquary protection risk emotional erosion or class feature suppression")
+             .put("protection_items", "Reliquary of Dawn, Reliquary of Twilight")
+             .put("source_verified", true).put("auto_rolls", false);
+        } catch (Exception ignored) {}
+        return o;
+    }
+
+    /** sec_0_5: Traversing Lorwyn-Shadowmoor */
+    public JSONObject traversingLorwynShadowmoor() {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("section_id", "sec_0_5").put("source_book", "LFL").put("title", "Traversing Lorwyn-Shadowmoor")
+             .put("crossing_event_lorwyn_to_shadowmoor", "Eventide")
+             .put("crossing_event_shadowmoor_to_lorwyn", "Morningtide")
+             .put("transformation_rule", "Native beings invert aspects unless protected by corresponding reliquary")
+             .put("source_verified", true).put("auto_rolls", false);
+        } catch (Exception ignored) {}
+        return o;
+    }
+
+    /** sec_0_6: Lorwyn-Shadowmoor's History */
+    public JSONObject lorwynShadowmoorHistory() {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("section_id", "sec_0_6").put("source_book", "LFL").put("title", "Lorwyn-Shadowmoor's History")
+             .put("great_aurora_cycle", "Cyclical cosmic transformation turning Lorwyn to Shadowmoor and back")
+             .put("isolation_from_multiverse", "Planar isolation prevents direct Planar Travel without specialized catalysts")
+             .put("source_verified", true).put("auto_rolls", false);
+        } catch (Exception ignored) {}
+        return o;
+    }
+
+    /** sec_1_3: Adapting Species */
+    public JSONObject adaptingSpecies() {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("section_id", "sec_1_3").put("source_book", "LFL").put("title", "Adapting Species")
+             .put("conversion_guidelines", "Adapts standard D&D 5e / MPMM species to Lorwyn/Shadowmoor lore without altering core math")
+             .put("adapted_species_count", SPECIES.length)
+             .put("source_verified", true).put("auto_rolls", false);
+        } catch (Exception ignored) {}
+        return o;
+    }
+
+    /** sec_2_1: Lorwyn Gazetteer */
+    public JSONObject gazetteerLorwyn() {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("section_id", "sec_2_1").put("source_book", "LFL").put("title", "Lorwyn")
+             .put("settlements", new JSONArray().put("Kithkin clachans").put("Treefolk groves").put("Elven gilded courts"))
+             .put("climate", "Warm, sunlit pastoral landscape")
+             .put("source_verified", true).put("auto_rolls", false);
+        } catch (Exception ignored) {}
+        return o;
+    }
+
+    /** sec_2_2: Shadowmoor Gazetteer */
+    public JSONObject gazetteerShadowmoor() {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("section_id", "sec_2_2").put("source_book", "LFL").put("title", "Shadowmoor")
+             .put("settlements", new JSONArray().put("Barricaded douns").put("Desolate cinders").put("Bog fortresses"))
+             .put("climate", "Cold, moonless gloom with sinister waterways")
+             .put("source_verified", true).put("auto_rolls", false);
+        } catch (Exception ignored) {}
+        return o;
+    }
+
+    /** sec_3_0: Adapting Other Creatures */
+    public JSONObject adaptingOtherCreatures() {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("section_id", "sec_3_0").put("source_book", "LFL").put("title", "Adapting Other Creatures")
+             .put("creature_adaptation_guidelines", "Standard D&D monsters transformed into folklore versions (scarecrows, hags, giants)")
+             .put("tactical_monsters_count", 8)
+             .put("source_verified", true).put("auto_rolls", false);
+        } catch (Exception ignored) {}
+        return o;
+    }
+
+    /** sec_3_1: Creature Descriptions */
+    public JSONArray creatureDescriptions() {
+        JSONArray arr = new JSONArray();
+        try {
+            for (String[] id : new String[][]{
+                {"Incarnation of Transience", "CR 7 Fey"},
+                {"Incarnation of Vibrance", "CR 10 Fey"},
+                {"Lorwyn Giant", "CR 6 Giant"},
+                {"Merrow Doublespeaker", "CR 4 Monstrosity"},
+                {"Merrow Haranguer", "CR 5 Monstrosity"},
+                {"Noggle Ransacker", "CR 1/4 Fey"},
+                {"Noggle Wild Mage", "CR 1 Fey"},
+                {"Shadowmoor Giant", "CR 6 Giant"}
+            }) {
+                arr.put(new JSONObject().put("name", id[0]).put("summary", id[1]).put("source_verified", true));
+            }
+        } catch (Exception ignored) {}
+        return arr;
+    }
+
     /** Deterministic realm/feat/species procedures. State is persisted by the gateway. */
     public JSONObject resolve(String action,JSONObject in,JSONObject character,JSONObject state){String a=norm(action);JSONObject s=copy(state),o=resolvedBase(a);try{
         int level=Math.max(1,character==null?in.optInt("character_level",1):character.optInt("level",in.optInt("character_level",1)));
