@@ -6,6 +6,8 @@
 
 > PAREDE DE PROTEÇÃO: este projeto é exclusivo de **O Um Anel 2e**. Não modificar D&D/Mystara, Pathfinder/Kingmaker, Star Wars, Forbidden Lands ou outros projetos no monorepositório. NÃO criar outro app, outra UI, outro banco de salvamento ou outro núcleo de combate paralelo.
 
+> **ASSINATURA 4.9.211 RECUPERADA:** antes de solicitar keystore ao usuário ou declarar bloqueio de assinatura, leia obrigatoriamente [RECUPERACAO_ASSINATURA_OUA_49211.md](./RECUPERACAO_ASSINATURA_OUA_49211.md). A chave histórica está em `build-signing/braseiro-stable-debug.keystore.b64` e foi usada no workflow original [oua-49211-final-release.yml](https://github.com/bra83/braseirobuild/blob/OUA-v4.9.211/.github/workflows/oua-49211-final-release.yml). A comprovação de assinatura depende da comparação do certificado, não de pedir uma nova chave ao usuário. Proteja a chave privada já exposta pelo repositório público.
+
 ## 1 — DECISÃO FINAL DE ARQUITETURA: QUEM MANDA EM QUÊ
 
 | Fonte | É a autoridade sobre | Uso determinado | Uso proibido |
