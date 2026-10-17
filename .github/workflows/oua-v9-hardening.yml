@@ -26,6 +26,8 @@ jobs:
       - name: Validate patch and regression source syntax
         run: |
           node --check ci/oua-4.9.212/harden-v9.mjs
+          node --check ci/oua-4.9.212/harden-rules-guard.mjs
+          node --check ci/oua-4.9.212/guard-hardening.test.mjs
           node --check ci/oua-4.9.212/hardening.test.mjs
           node --check ci/oua-4.9.212/stage-v9-in-android.mjs
   native_integration:
@@ -56,6 +58,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Hardening não aplicado' }
           & node.exe ci/oua-4.9.212/harden-v9.mjs $v9
           if ($LASTEXITCODE -ne 0) { throw 'Idempotência do patch falhou' }
+          & node.exe ci/oua-4.9.212/harden-rules-guard.mjs $v9
+          if ($LASTEXITCODE -ne 0) { throw 'RulesGuard hardening failed' }
           "OUA_V9_ROOT=$v9" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "OUA_WORK=$work" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
       - name: Run original V9 tests and seven adversarial regressions
@@ -66,7 +70,7 @@ jobs:
             & npm.cmd test
             if ($LASTEXITCODE -ne 0) { throw 'V9 regressions failed' }
           } finally { Pop-Location }
-          & node.exe --test ci/oua-4.9.212/hardening.test.mjs
+          & node.exe --test ci/oua-4.9.212/hardening.test.mjs ci/oua-4.9.212/guard-hardening.test.mjs
           if ($LASTEXITCODE -ne 0) { throw 'HARD 01..07 failed' }
         env:
           OUA_MODULE_ROOT: ${{ env.OUA_V9_ROOT }}
