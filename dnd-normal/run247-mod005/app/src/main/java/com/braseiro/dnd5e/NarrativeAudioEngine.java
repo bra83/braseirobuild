@@ -534,7 +534,11 @@ public final class NarrativeAudioEngine {
     private static String safe(String value){return value==null?"":value;}
     private static String fold(String value){String n=Normalizer.normalize(safe(value).toLowerCase(new Locale("pt","BR")),Normalizer.Form.NFD).replaceAll("\\p{M}","");return n.replace('’','\'').replaceAll("\\s+"," ");}
     private static String join(List<String> values,String separator){StringBuilder b=new StringBuilder();for(String value:values){if(value==null||value.length()==0)continue;if(b.length()>0)b.append(separator);b.append(value);}return b.length()==0?"nenhuma faixa compatível":b.toString();}
-    private void say(String text){if(status!=null)status.onStatus(text);}
+    private final AudioStatusGate footerStatusGate = new AudioStatusGate();
+    private void say(String text){
+        if(status!=null && footerStatusGate.allow(text,android.os.SystemClock.elapsedRealtime()))
+            status.onStatus(text);
+    }
 
     private static final class PreparedScene{final ScenePlan plan;final JSONObject ambience,climate,music;final int cueCount;PreparedScene(ScenePlan p,JSONObject a,JSONObject c,JSONObject m,int cues){plan=p;ambience=a;climate=c;music=m;cueCount=cues;}}
     private static final class ScenePlan{final String environment,weather,location,timeOfDay,mood,soundscapeHints;final int transitionMs;final ArrayList<ExplicitCue> explicitCues;ScenePlan(String e,String w,String l,String t,String m,String hints,int transition,ArrayList<ExplicitCue> cues){environment=e;weather=w;location=l;timeOfDay=t;mood=m;soundscapeHints=hints==null?"":hints;transitionMs=transition;explicitCues=cues;}}
