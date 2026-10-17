@@ -2,169 +2,169 @@ TAP version 13
 # Subtest: P150: sete posições AoR têm consumidores reais; nomes não equivalentes permanecem bloqueados
 ok 1 - P150: sete posições AoR têm consumidores reais; nomes não equivalentes permanecem bloqueados
   ---
-  duration_ms: 53.5273
+  duration_ms: 80.2245
   type: 'test'
   ...
 # Subtest: P150: programação defensiva normal concede um contratempo por rank apenas ao defender computador próprio
 ok 2 - P150: programação defensiva normal concede um contratempo por rank apenas ao defender computador próprio
   ---
-  duration_ms: 9.7784
+  duration_ms: 18.192
   type: 'test'
   ...
 # Subtest: P150: versão aprimorada SUBSTITUI contratempo por upgrades de dificuldade
 ok 3 - P150: versão aprimorada SUBSTITUI contratempo por upgrades de dificuldade
   ---
-  duration_ms: 3.2504
+  duration_ms: 4.2798
   type: 'test'
   ...
 # Subtest: P150: invasão NPC gera pool correto e persiste, reabre sem rerrolar
 ok 4 - P150: invasão NPC gera pool correto e persiste, reabre sem rerrolar
   ---
-  duration_ms: 19.5986
+  duration_ms: 20.244
   type: 'test'
   ...
 # Subtest: P150: invasão aprimorada modifica dificuldade sem somar Contratempos
 ok 5 - P150: invasão aprimorada modifica dificuldade sem somar Contratempos
   ---
-  duration_ms: 8.2494
+  duration_ms: 7.7205
   type: 'test'
   ...
 # Subtest: P150: adversário real usa Computadores, não os dados forjados do formulário
 ok 6 - P150: adversário real usa Computadores, não os dados forjados do formulário
   ---
-  duration_ms: 9.1225
+  duration_ms: 8.5673
   type: 'test'
   ...
 # Subtest: P150: entradas inválidas e sistema não possuído não gravam dados
 ok 7 - P150: entradas inválidas e sistema não possuído não gravam dados
   ---
-  duration_ms: 15.2012
+  duration_ms: 9.159
   type: 'test'
   ...
 # Subtest: P150: erro de armazenamento reverte integralmente o histórico da invasão
 ok 8 - P150: erro de armazenamento reverte integralmente o histórico da invasão
   ---
-  duration_ms: 10.3025
+  duration_ms: 12.0757
   type: 'test'
   ...
 # Subtest: P150: Escurridizo só reduz silhueta ao receber ataque; não altera nave nem acumula
 ok 9 - P150: Escurridizo só reduz silhueta ao receber ataque; não altera nave nem acumula
   ---
-  duration_ms: 15.1529
+  duration_ms: 11.5275
   type: 'test'
   ...
 # Subtest: P150: UI, bridge e bundle offline contêm as rotas novas; Java Kokoro intocado
 ok 10 - P150: UI, bridge e bundle offline contêm as rotas novas; Java Kokoro intocado
   ---
-  duration_ms: 95.7706
+  duration_ms: 89.196
   type: 'test'
   ...
 # Subtest: P150 under-black-sun: prova do controlador é reservada; replay idempotente e 3 reaberturas
 ok 11 - P150 under-black-sun: prova do controlador é reservada; replay idempotente e 3 reaberturas
   ---
-  duration_ms: 83.2992
+  duration_ms: 70.3203
   type: 'test'
   ...
 # Subtest: P150 under-black-sun: START do controlador registra prova válida e reabre sem escrita
 ok 12 - P150 under-black-sun: START do controlador registra prova válida e reabre sem escrita
   ---
-  duration_ms: 125.1233
+  duration_ms: 93.3234
   type: 'test'
   ...
 # Subtest: P150 beyond-the-rim: prova do controlador é reservada; replay idempotente e 3 reaberturas
 ok 13 - P150 beyond-the-rim: prova do controlador é reservada; replay idempotente e 3 reaberturas
   ---
-  duration_ms: 16.1037
+  duration_ms: 40.3472
   type: 'test'
   ...
 # Subtest: P150 beyond-the-rim: START do controlador registra prova válida e reabre sem escrita
 ok 14 - P150 beyond-the-rim: START do controlador registra prova válida e reabre sem escrita
   ---
-  duration_ms: 87.7918
+  duration_ms: 55.8154
   type: 'test'
   ...
 # Subtest: P150 long-arm-of-the-hutt: prova do controlador é reservada; replay idempotente e 3 reaberturas
 ok 15 - P150 long-arm-of-the-hutt: prova do controlador é reservada; replay idempotente e 3 reaberturas
   ---
-  duration_ms: 14.769
+  duration_ms: 18.8313
   type: 'test'
   ...
 # Subtest: P150 long-arm-of-the-hutt: START do controlador registra prova válida e reabre sem escrita
 ok 16 - P150 long-arm-of-the-hutt: START do controlador registra prova válida e reabre sem escrita
   ---
-  duration_ms: 80.4674
+  duration_ms: 186.4614
   type: 'test'
   ...
 # Subtest: P150 jewel-of-yavin: prova do controlador é reservada; replay idempotente e 3 reaberturas
 ok 17 - P150 jewel-of-yavin: prova do controlador é reservada; replay idempotente e 3 reaberturas
   ---
-  duration_ms: 8.982
+  duration_ms: 9.1308
   type: 'test'
   ...
 # Subtest: P150 jewel-of-yavin: START do controlador registra prova válida e reabre sem escrita
 ok 18 - P150 jewel-of-yavin: START do controlador registra prova válida e reabre sem escrita
   ---
-  duration_ms: 60.8025
+  duration_ms: 81.6241
   type: 'test'
   ...
 # Subtest: P150 mask-of-the-pirate-queen: prova do controlador é reservada; replay idempotente e 3 reaberturas
 ok 19 - P150 mask-of-the-pirate-queen: prova do controlador é reservada; replay idempotente e 3 reaberturas
   ---
-  duration_ms: 13.239
+  duration_ms: 22.7674
   type: 'test'
   ...
 # Subtest: P150 mask-of-the-pirate-queen: START do controlador registra prova válida e reabre sem escrita
 ok 20 - P150 mask-of-the-pirate-queen: START do controlador registra prova válida e reabre sem escrita
   ---
-  duration_ms: 64.9252
+  duration_ms: 67.1897
   type: 'test'
   ...
 # Subtest: P150: ataque NPC usa defesa Escurridizo da nave do jogador e persiste dano/rolagem
 ok 21 - P150: ataque NPC usa defesa Escurridizo da nave do jogador e persiste dano/rolagem
   ---
-  duration_ms: 19.5181
+  duration_ms: 23.7238
   type: 'test'
   ...
 # Subtest: P150: talento veicular não é aplicado quando personagem não está pilotando
 ok 22 - P150: talento veicular não é aplicado quando personagem não está pilotando
   ---
-  duration_ms: 12.6377
+  duration_ms: 12.4606
   type: 'test'
   ...
 # Subtest: P150: ataque NPC não consome ação do jogador e só ocorre uma vez por rodada
 ok 23 - P150: ataque NPC não consome ação do jogador e só ocorre uma vez por rodada
   ---
-  duration_ms: 25.6955
+  duration_ms: 102.1967
   type: 'test'
   ...
 # Subtest: P150: ataque NPC inválido, fora de alcance e sem combate não alteram a campanha
 ok 24 - P150: ataque NPC inválido, fora de alcance e sem combate não alteram a campanha
   ---
-  duration_ms: 17.5821
+  duration_ms: 17.3273
   type: 'test'
   ...
 # Subtest: P150: falha de armazenamento reverte ataque NPC, dano, munição e turno
 ok 25 - P150: falha de armazenamento reverte ataque NPC, dano, munição e turno
   ---
-  duration_ms: 15.7126
+  duration_ms: 13.8571
   type: 'test'
   ...
 # Subtest: P150: crítico inimigo consome resultado real, permite escolha de componente e não duplica
 ok 26 - P150: crítico inimigo consome resultado real, permite escolha de componente e não duplica
   ---
-  duration_ms: 34.8638
+  duration_ms: 27.6952
   type: 'test'
   ...
 # Subtest: P150: crítico inimigo pode ser dispensado sem rolar nem aplicar dano adicional
 ok 27 - P150: crítico inimigo pode ser dispensado sem rolar nem aplicar dano adicional
   ---
-  duration_ms: 28.3002
+  duration_ms: 15.5095
   type: 'test'
   ...
 # Subtest: P150: interface expõe combate veicular inimigo, custos e escolha de crítico
 ok 28 - P150: interface expõe combate veicular inimigo, custos e escolha de crítico
   ---
-  duration_ms: 159.9599
+  duration_ms: 263.6064
   type: 'test'
   ...
 1..28
@@ -175,5 +175,5 @@ ok 28 - P150: interface expõe combate veicular inimigo, custos e escolha de cr�
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2343.0371
+# duration_ms 3250.6674
 

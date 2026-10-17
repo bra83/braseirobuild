@@ -2,49 +2,49 @@ TAP version 13
 # Subtest: P232 refuses narrative park without real scene, GM confirmation or outside structured combat
 ok 1 - P232 refuses narrative park without real scene, GM confirmation or outside structured combat
   ---
-  duration_ms: 904.8525
+  duration_ms: 1134.4904
   type: 'test'
   ...
 # Subtest: P232 two minutes come ONLY from audited task-time receipts, no passive time
 ok 2 - P232 two minutes come ONLY from audited task-time receipts, no passive time
   ---
-  duration_ms: 833.5207
+  duration_ms: 811.4218
   type: 'test'
   ...
 # Subtest: P232 overdue 6-minute clock produces three ordered landscape events without skipping or clock ticks
 ok 3 - P232 overdue 6-minute clock produces three ordered landscape events without skipping or clock ticks
   ---
-  duration_ms: 682.6421
+  duration_ms: 837.1395
   type: 'test'
   ...
 # Subtest: P232 printed d100=47 overlap requires explicit GM choice and receipts survive three reopenings
 ok 4 - P232 printed d100=47 overlap requires explicit GM choice and receipts survive three reopenings
   ---
-  duration_ms: 628.2575
+  duration_ms: 665.3304
   type: 'test'
   ...
 # Subtest: P232 tampered receipt, clock, chronology or derived landscape rejected
 ok 5 - P232 tampered receipt, clock, chronology or derived landscape rejected
   ---
-  duration_ms: 715.7698
+  duration_ms: 752.0227
   type: 'test'
   ...
 # Subtest: P232 physical exit ends narrative mode without escape, XP, NPC or encounter fabrication
 ok 6 - P232 physical exit ends narrative mode without escape, XP, NPC or encounter fabrication
   ---
-  duration_ms: 719.1656
+  duration_ms: 651.1149
   type: 'test'
   ...
 # Subtest: P232 Android PT-BR UI, controller, bridge, offline bundle, save validation and version wired
 ok 7 - P232 Android PT-BR UI, controller, bridge, offline bundle, save validation and version wired
   ---
-  duration_ms: 58.9054
+  duration_ms: 77.8295
   type: 'test'
   ...
 # Subtest: P232 published adventure status replays narrative receipts and keeps older P229-P231 receipt kinds valid
 ok 8 - P232 published adventure status replays narrative receipts and keeps older P229-P231 receipt kinds valid
   ---
-  duration_ms: 658.6211
+  duration_ms: 693.9577
   type: 'test'
   ...
 1..8
@@ -55,5 +55,5 @@ ok 8 - P232 published adventure status replays narrative receipts and keeps olde
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 6560.2145
+# duration_ms 7565.9363
 

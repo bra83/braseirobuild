@@ -2,7 +2,7 @@ TAP version 13
 # Subtest: 33 sessões simuladas reencontram o mesmo PNPC com o mesmo estado de combate
 ok 1 - 33 sessões simuladas reencontram o mesmo PNPC com o mesmo estado de combate
   ---
-  duration_ms: 19841.1311
+  duration_ms: 19284.6646
   type: 'test'
   ...
 1..1
@@ -13,5 +13,5 @@ ok 1 - 33 sessões simuladas reencontram o mesmo PNPC com o mesmo estado de comb
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 21337.3779
+# duration_ms 20714.0221
 

@@ -2,55 +2,55 @@ TAP version 13
 # Subtest: P205 official Arrow-7 aft blaster is personal-scale, not planetary or a forward gun
 ok 1 - P205 official Arrow-7 aft blaster is personal-scale, not planetary or a forward gun
   ---
-  duration_ms: 2.9519
+  duration_ms: 2.9688
   type: 'test'
   ...
 # Subtest: P205 requires real encounter, GM arc, gunner, and current combat range
 ok 2 - P205 requires real encounter, GM arc, gunner, and current combat range
   ---
-  duration_ms: 1720.8747
+  duration_ms: 2805.133
   type: 'test'
   ...
 # Subtest: P205 queue creates real WORLD_UPDATED and COMBAT_ACTION persistent state
 ok 3 - P205 queue creates real WORLD_UPDATED and COMBAT_ACTION persistent state
   ---
-  duration_ms: 879.002
+  duration_ms: 1031.8194
   type: 'test'
   ...
 # Subtest: P205 one turret per round, no duplicate IDs, atomic rollback
 ok 4 - P205 one turret per round, no duplicate IDs, atomic rollback
   ---
-  duration_ms: 957.7388
+  duration_ms: 1196.7582
   type: 'test'
   ...
 # Subtest: P205 actual NPC turn uses Gunnery group skill and personal damage with Pierce 1
 ok 5 - P205 actual NPC turn uses Gunnery group skill and personal damage with Pierce 1
   ---
-  duration_ms: 874.7409
+  duration_ms: 981.1897
   type: 'test'
   ...
 # Subtest: P205 normal carbine remains selected when no Arrow-7 gunner order exists
 ok 6 - P205 normal carbine remains selected when no Arrow-7 gunner order exists
   ---
-  duration_ms: 846.4329
+  duration_ms: 995.8306
   type: 'test'
   ...
 # Subtest: P205 replay detects modified damage, arc, target range and duplicate round
 ok 7 - P205 replay detects modified damage, arc, target range and duplicate round
   ---
-  duration_ms: 928.6312
+  duration_ms: 1145.47
   type: 'test'
   ...
 # Subtest: P205 Android PT-BR UI, bridge and bundle include turret controls
 ok 8 - P205 Android PT-BR UI, bridge and bundle include turret controls
   ---
-  duration_ms: 56.2695
+  duration_ms: 78.2834
   type: 'test'
   ...
 # Subtest: P205 real initiative advance consumes queued Arrow-7 order and persists NPC attack
 ok 9 - P205 real initiative advance consumes queued Arrow-7 order and persists NPC attack
   ---
-  duration_ms: 939.1189
+  duration_ms: 1098.0425
   type: 'test'
   ...
 1..9
@@ -61,5 +61,5 @@ ok 9 - P205 real initiative advance consumes queued Arrow-7 order and persists N
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 8631.8908
+# duration_ms 11675.1232
 

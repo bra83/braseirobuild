@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: P50: reopen preserva rota social Umbra e não revela pistas futuras
 ok 1 - P50: reopen preserva rota social Umbra e não revela pistas futuras
   ---
-  duration_ms: 27.5841
+  duration_ms: 37.146
   type: 'test'
   ...
 # Subtest: P50: reopen preserva sabacc discreto no Spyder e não inventa Black Sun hostil
 ok 2 - P50: reopen preserva sabacc discreto no Spyder e não inventa Black Sun hostil
   ---
-  duration_ms: 5.6879
+  duration_ms: 5.5621
   type: 'test'
   ...
 # Subtest: P50: reopen preserva solução social Zelcomm sem armas nem Obligation
 ok 3 - P50: reopen preserva solução social Zelcomm sem armas nem Obligation
   ---
-  duration_ms: 4.9817
+  duration_ms: 4.8363
   type: 'test'
   ...
 # Subtest: P50: negociação com Kaa’to persiste após reopen e mantém rendição desbloqueada
 ok 4 - P50: negociação com Kaa’to persiste após reopen e mantém rendição desbloqueada
   ---
-  duration_ms: 17.1246
+  duration_ms: 19.0661
   type: 'test'
   ...
 1..4
@@ -31,5 +31,5 @@ ok 4 - P50: negociação com Kaa’to persiste após reopen e mantém rendição
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 557.0071
+# duration_ms 560.5621
 

@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: P85: planos pós-epílogo recebem createdDay estável
 ok 1 - P85: planos pós-epílogo recebem createdDay estável
   ---
-  duration_ms: 24.5848
+  duration_ms: 37.708
   type: 'test'
   ...
 # Subtest: P85: retorno latente de Kaa’to não vaza evento público ao ativar
 ok 2 - P85: retorno latente de Kaa’to não vaza evento público ao ativar
   ---
-  duration_ms: 13.1209
+  duration_ms: 44.3861
   type: 'test'
   ...
 # Subtest: P85: Zelcomm continua podendo produzir consequência conhecida depois do epílogo
 ok 3 - P85: Zelcomm continua podendo produzir consequência conhecida depois do epílogo
   ---
-  duration_ms: 46.1202
+  duration_ms: 59.0039
   type: 'test'
   ...
 # Subtest: P85: retorno de Kaa’to só vira consequência pendente oculta quando realmente resolve
 ok 4 - P85: retorno de Kaa’to só vira consequência pendente oculta quando realmente resolve
   ---
-  duration_ms: 55.2913
+  duration_ms: 46.2845
   type: 'test'
   ...
 1..4
@@ -31,5 +31,5 @@ ok 4 - P85: retorno de Kaa’to só vira consequência pendente oculta quando re
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 574.8579
+# duration_ms 756.6122
 

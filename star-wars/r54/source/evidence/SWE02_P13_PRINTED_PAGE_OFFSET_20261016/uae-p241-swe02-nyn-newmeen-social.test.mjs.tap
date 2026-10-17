@@ -2,109 +2,109 @@ TAP version 13
 # Subtest: P241 p13: official physician uses 1 proficiency 2 difficulty, heals one actual critical
 ok 1 - P241 p13: official physician uses 1 proficiency 2 difficulty, heals one actual critical
   ---
-  duration_ms: 1509.4882
+  duration_ms: 847.2109
   type: 'test'
   ...
 # Subtest: P241 physician failure consumes only attempt; never erases injury
 ok 2 - P241 physician failure consumes only attempt; never erases injury
   ---
-  duration_ms: 529.0233
+  duration_ms: 647.1115
   type: 'test'
   ...
 # Subtest: P241 p13: Nyn can treat a non-active roster PC after that PC received shelter care
 ok 3 - P241 p13: Nyn can treat a non-active roster PC after that PC received shelter care
   ---
-  duration_ms: 586.8798
+  duration_ms: 584.8695
   type: 'test'
   ...
 # Subtest: P241 physician blocks unhealable/dead injuries and care-before-critical
 ok 4 - P241 physician blocks unhealable/dead injuries and care-before-critical
   ---
-  duration_ms: 415.2267
+  duration_ms: 436.7379
   type: 'test'
   ...
 # Subtest: P241 p14: negotiation records claims; party PCs receive sourced EotE profiles individually
 ok 5 - P241 p14: negotiation records claims; party PCs receive sourced EotE profiles individually
   ---
-  duration_ms: 543.0622
+  duration_ms: 532.3368
   type: 'test'
   ...
 # Subtest: P241 p14: Coerce Hard failure gives no gear, no retries
 ok 6 - P241 p14: Coerce Hard failure gives no gear, no retries
   ---
-  duration_ms: 448.3922
+  duration_ms: 482.6117
   type: 'test'
   ...
 # Subtest: P241 p14: Triumph with two Threat grants defective rifle and preserves defect marker
 ok 7 - P241 p14: Triumph with two Threat grants defective rifle and preserves defect marker
   ---
-  duration_ms: 480.268
+  duration_ms: 546.8807
   type: 'test'
   ...
 # Subtest: P241 p14: first combat use removes defective Nyn rifle at encounter closure
 ok 8 - P241 p14: first combat use removes defective Nyn rifle at encounter closure
   ---
-  duration_ms: 560.555
+  duration_ms: 610.2391
   type: 'test'
   ...
 # Subtest: P241 p14: unused Nyn award survives an encounter
 ok 9 - P241 p14: unused Nyn award survives an encounter
   ---
-  duration_ms: 517.9463
+  duration_ms: 554.0062
   type: 'test'
   ...
 # Subtest: P241 Nyn invalid method and wrong scene rollback without save
 ok 10 - P241 Nyn invalid method and wrong scene rollback without save
   ---
-  duration_ms: 485.0315
+  duration_ms: 529.9029
   type: 'test'
   ...
 # Subtest: P241 social receipt rejects tampered dice face or Nyn reward
 ok 11 - P241 social receipt rejects tampered dice face or Nyn reward
   ---
-  duration_ms: 479.3481
+  duration_ms: 435.6606
   type: 'test'
   ...
 # Subtest: P241 p23: 400-500 credits bribe uses actual opposed Negotiation and debit
 ok 12 - P241 p23: 400-500 credits bribe uses actual opposed Negotiation and debit
   ---
-  duration_ms: 336.8128
+  duration_ms: 277.0822
   type: 'test'
   ...
 # Subtest: P241 failed bribe does not debit and cannot be converted into victory
 ok 13 - P241 failed bribe does not debit and cannot be converted into victory
   ---
-  duration_ms: 239.9473
+  duration_ms: 328.0828
   type: 'test'
   ...
 # Subtest: P241 invalid bribe, Drombb cannot be bribed and no overspending
 ok 14 - P241 invalid bribe, Drombb cannot be bribed and no overspending
   ---
-  duration_ms: 210.15
+  duration_ms: 243.7441
   type: 'test'
   ...
 # Subtest: P241 all minions bribed still leaves Drombb as live adversary
 ok 15 - P241 all minions bribed still leaves Drombb as live adversary
   ---
-  duration_ms: 343.1265
+  duration_ms: 379.8119
   type: 'test'
   ...
 # Subtest: P241 New Meen cannot bribe during live encounter or from wrong scene
 ok 16 - P241 New Meen cannot bribe during live encounter or from wrong scene
   ---
-  duration_ms: 253.5396
+  duration_ms: 302.8804
   type: 'test'
   ...
 # Subtest: P241 New Meen receipt rejects fake credit debit, forged dice, or unconfirmed party
 ok 17 - P241 New Meen receipt rejects fake credit debit, forged dice, or unconfirmed party
   ---
-  duration_ms: 218.877
+  duration_ms: 219.6578
   type: 'test'
   ...
 # Subtest: P241 Android offline bridge and UI expose social, party care, and gear distribution operations
 ok 18 - P241 Android offline bridge and UI expose social, party care, and gear distribution operations
   ---
-  duration_ms: 4.7806
+  duration_ms: 4.9763
   type: 'test'
   ...
 1..18
@@ -115,5 +115,5 @@ ok 18 - P241 Android offline bridge and UI expose social, party care, and gear d
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 9586.4237
+# duration_ms 9530.1424
 

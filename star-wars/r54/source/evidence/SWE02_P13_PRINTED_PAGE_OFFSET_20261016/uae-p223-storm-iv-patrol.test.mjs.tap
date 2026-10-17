@@ -2,55 +2,55 @@ TAP version 13
 # Subtest: P223 source-backed PDF Storm IV and Bespin pilot are exact, without invented solo minion skill
 ok 1 - P223 source-backed PDF Storm IV and Bespin pilot are exact, without invented solo minion skill
   ---
-  duration_ms: 28.1902
+  duration_ms: 5.35
   type: 'test'
   ...
 # Subtest: P223 cannot deploy before arrival or without a real player craft; no duplicate vehicles
 ok 2 - P223 cannot deploy before arrival or without a real player craft; no duplicate vehicles
   ---
-  duration_ms: 1592.4005
+  duration_ms: 1654.5088
   type: 'test'
   ...
 # Subtest: P223 deploys four physically distinct combat vehicles, keeps exact crew and survives 3 reopenings
 ok 3 - P223 deploys four physically distinct combat vehicles, keeps exact crew and survives 3 reopenings
   ---
-  duration_ms: 1087.7562
+  duration_ms: 1527.5349
   type: 'test'
   ...
 # Subtest: P223 real vehicle combat targets exactly one of four; no premature defeat or XP
 ok 4 - P223 real vehicle combat targets exactly one of four; no premature defeat or XP
   ---
-  duration_ms: 1024.8395
+  duration_ms: 1749.5934
   type: 'test'
   ...
 # Subtest: P223 real successful piloting evasion consumes one physical car, validates dice faces, no replay
 ok 5 - P223 real successful piloting evasion consumes one physical car, validates dice faces, no replay
   ---
-  duration_ms: 1280.2605
+  duration_ms: 1910.6267
   type: 'test'
   ...
 # Subtest: P223 defeat requires real combat damage log AND hull damage greater than threshold
 ok 6 - P223 defeat requires real combat damage log AND hull damage greater than threshold
   ---
-  duration_ms: 1061.0742
+  duration_ms: 2042.2953
   type: 'test'
   ...
 # Subtest: P223 attack on a physical Storm IV uses the existing vehicle dice/damage runtime
 ok 7 - P223 attack on a physical Storm IV uses the existing vehicle dice/damage runtime
   ---
-  duration_ms: 1012.9346
+  duration_ms: 1060.3333
   type: 'test'
   ...
 # Subtest: P223 full patrol only clears after all four distinct vehicle outcomes
 ok 8 - P223 full patrol only clears after all four distinct vehicle outcomes
   ---
-  duration_ms: 1757.5988
+  duration_ms: 1834.1615
   type: 'test'
   ...
 # Subtest: P223 bridge, UI, state, source, version and offline bundle are wired
 ok 9 - P223 bridge, UI, state, source, version and offline bundle are wired
   ---
-  duration_ms: 96.0917
+  duration_ms: 77.8581
   type: 'test'
   ...
 1..9
@@ -61,5 +61,5 @@ ok 9 - P223 bridge, UI, state, source, version and offline bundle are wired
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 10436.0957
+# duration_ms 14049.0144
 

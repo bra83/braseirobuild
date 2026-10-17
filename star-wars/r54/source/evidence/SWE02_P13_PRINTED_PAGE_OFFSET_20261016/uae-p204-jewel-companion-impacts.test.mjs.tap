@@ -2,49 +2,49 @@ TAP version 13
 # Subtest: P204 blast affects only GM-confirmed companion, not player or absent ally
 ok 1 - P204 blast affects only GM-confirmed companion, not player or absent ally
   ---
-  duration_ms: 1109.198
+  duration_ms: 1681.7201
   type: 'test'
   ...
 # Subtest: P204 separate companions and blast/fall use independent receipts and health
 ok 2 - P204 separate companions and blast/fall use independent receipts and health
   ---
-  duration_ms: 1000.3551
+  duration_ms: 1338.1007
   type: 'test'
   ...
 # Subtest: P204 missing GM confirmation, wrong position, forged companion and duplicates roll back
 ok 3 - P204 missing GM confirmation, wrong position, forged companion and duplicates roll back
   ---
-  duration_ms: 736.2997
+  duration_ms: 967.6013
   type: 'test'
   ...
 # Subtest: P204 tampered companion impact and location are detected
 ok 4 - P204 tampered companion impact and location are detected
   ---
-  duration_ms: 666.6141
+  duration_ms: 925.4163
   type: 'test'
   ...
 # Subtest: P204 three reopenings preserve companion wounds and receipts
 ok 5 - P204 three reopenings preserve companion wounds and receipts
   ---
-  duration_ms: 663.2056
+  duration_ms: 702.9661
   type: 'test'
   ...
 # Subtest: P204 long fall gives companion official forced critical and preserves player health
 ok 6 - P204 long fall gives companion official forced critical and preserves player health
   ---
-  duration_ms: 728.4045
+  duration_ms: 890.3339
   type: 'test'
   ...
 # Subtest: P204 official adventure status rejects forged companion receipts
 ok 7 - P204 official adventure status rejects forged companion receipts
   ---
-  duration_ms: 690.1962
+  duration_ms: 744.7142
   type: 'test'
   ...
 # Subtest: P204 Android PTBR exposes independent companion controls and bridge bundle
 ok 8 - P204 Android PTBR exposes independent companion controls and bridge bundle
   ---
-  duration_ms: 43.0258
+  duration_ms: 38.3942
   type: 'test'
   ...
 1..8
@@ -55,5 +55,5 @@ ok 8 - P204 Android PTBR exposes independent companion controls and bridge bundl
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 6915.4161
+# duration_ms 9874.0898
 

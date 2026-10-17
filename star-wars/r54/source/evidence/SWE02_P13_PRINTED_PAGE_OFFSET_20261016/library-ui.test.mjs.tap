@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: interface possui aba Biblioteca e fluxo de importação em PT-BR
 ok 1 - interface possui aba Biblioteca e fluxo de importação em PT-BR
   ---
-  duration_ms: 3.2291
+  duration_ms: 3.1403
   type: 'test'
   ...
 # Subtest: interface diferencia PDF indexado de PDF anexado sem texto extraível
 ok 2 - interface diferencia PDF indexado de PDF anexado sem texto extraível
   ---
-  duration_ms: 0.8782
+  duration_ms: 1.0863
   type: 'test'
   ...
 # Subtest: Biblioteca expõe autoridade e ativação da fonte em PT-BR
 ok 3 - Biblioteca expõe autoridade e ativação da fonte em PT-BR
   ---
-  duration_ms: 3.5407
+  duration_ms: 7.4116
   type: 'test'
   ...
 # Subtest: Biblioteca oferece reindexação sem exigir nova importação
 ok 4 - Biblioteca oferece reindexação sem exigir nova importação
   ---
-  duration_ms: 4.2351
+  duration_ms: 3.9791
   type: 'test'
   ...
 1..4
@@ -31,5 +31,5 @@ ok 4 - Biblioteca oferece reindexação sem exigir nova importação
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 550.4644
+# duration_ms 728.8463
 

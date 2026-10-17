@@ -2,85 +2,85 @@ TAP version 13
 # Subtest: SWE02 print pp21-22: Drombb thug official minion stats, group skills and weapons
 ok 1 - SWE02 print pp21-22: Drombb thug official minion stats, group skills and weapons
   ---
-  duration_ms: 5.5197
+  duration_ms: 12.5927
   type: 'test'
   ...
 # Subtest: SWE02 p22: Angu Drombb official rival stats; no improvised nemesis
 ok 2 - SWE02 p22: Angu Drombb official rival stats; no improvised nemesis
   ---
-  duration_ms: 1.9278
+  duration_ms: 0.4385
   type: 'test'
   ...
 # Subtest: SWE02 New Meen remains player choice; skipping never means community saved
 ok 3 - SWE02 New Meen remains player choice; skipping never means community saved
   ---
-  duration_ms: 372.9317
+  duration_ms: 358.9945
   type: 'test'
   ...
 # Subtest: SWE02 p19: party size 2, 3 and 4+ creates three groups of 2,3,4; no invented solo difficulty
 ok 4 - SWE02 p19: party size 2, 3 and 4+ creates three groups of 2,3,4; no invented solo difficulty
   ---
-  duration_ms: 1187.5561
+  duration_ms: 1276.1266
   type: 'test'
   ...
 # Subtest: SWE02 p20: night raid has one group and officially requires one setback for each action
 ok 5 - SWE02 p20: night raid has one group and officially requires one setback for each action
   ---
-  duration_ms: 161.9573
+  duration_ms: 195.3015
   type: 'test'
   ...
 # Subtest: SWE02 cannot leave an active New Meen combat by clicking another node
 ok 6 - SWE02 cannot leave an active New Meen combat by clicking another node
   ---
-  duration_ms: 198.235
+  duration_ms: 281.9288
   type: 'test'
   ...
 # Subtest: SWE02 New Meen combat rejects forged groups, ids, and victory without enemy defeat; atomic rollback
 ok 7 - SWE02 New Meen combat rejects forged groups, ids, and victory without enemy defeat; atomic rollback
   ---
-  duration_ms: 222.6778
+  duration_ms: 301.6635
   type: 'test'
   ...
 # Subtest: SWE02 p21: resolved night group not recreated in Drombb cantina; sequential combat only
 ok 8 - SWE02 p21: resolved night group not recreated in Drombb cantina; sequential combat only
   ---
-  duration_ms: 277.5103
+  duration_ms: 330.3693
   type: 'test'
   ...
 # Subtest: SWE02 New Meen full sequence: victory requires actual Drombb defeat with proof and 3 save reopens
 ok 9 - SWE02 New Meen full sequence: victory requires actual Drombb defeat with proof and 3 save reopens
   ---
-  duration_ms: 318.1101
+  duration_ms: 287.4256
   type: 'test'
   ...
 # Subtest: SWE02 New Meen escape and evacuation persist without victory or experience
 ok 10 - SWE02 New Meen escape and evacuation persist without victory or experience
   ---
-  duration_ms: 173.7266
+  duration_ms: 225.9586
   type: 'test'
   ...
 # Subtest: SWE02 tampered victory flag without corresponding combat receipt fails closed on restore/status/advance
 ok 11 - SWE02 tampered victory flag without corresponding combat receipt fails closed on restore/status/advance
   ---
-  duration_ms: 202.4652
+  duration_ms: 236.0518
   type: 'test'
   ...
 # Subtest: SWE02 cannot invent combat by calling encounter without scene context
 ok 12 - SWE02 cannot invent combat by calling encounter without scene context
   ---
-  duration_ms: 178.4925
+  duration_ms: 268.7412
   type: 'test'
   ...
 # Subtest: P235 actual Android controller starts New Meen raid with EotE session playerCount, official profile, persisted encounter
 ok 13 - P235 actual Android controller starts New Meen raid with EotE session playerCount, official profile, persisted encounter
   ---
-  duration_ms: 735.1184
+  duration_ms: 1050.1882
   type: 'test'
   ...
 # Subtest: P235 closing official night combat restores prior environment and does not automatically grant credits, PE or save New Meen
 ok 14 - P235 closing official night combat restores prior environment and does not automatically grant credits, PE or save New Meen
   ---
-  duration_ms: 855.4102
+  duration_ms: 756.8282
   type: 'test'
   ...
 1..14
@@ -91,5 +91,5 @@ ok 14 - P235 closing official night combat restores prior environment and does n
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 7245.2883
+# duration_ms 7013.5233
 

@@ -2,109 +2,109 @@ TAP version 13
 # Subtest: P138 under-black-sun: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas
 ok 1 - P138 under-black-sun: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas
   ---
-  duration_ms: 67.3955
+  duration_ms: 51.1172
   type: 'test'
   ...
 # Subtest: P138 beyond-the-rim: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas
 ok 2 - P138 beyond-the-rim: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas
   ---
-  duration_ms: 21.5038
+  duration_ms: 48.2763
   type: 'test'
   ...
 # Subtest: P138 long-arm-of-the-hutt: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas
 ok 3 - P138 long-arm-of-the-hutt: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas
   ---
-  duration_ms: 24.8972
+  duration_ms: 23.5816
   type: 'test'
   ...
 # Subtest: P138 jewel-of-yavin: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas
 ok 4 - P138 jewel-of-yavin: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas
   ---
-  duration_ms: 20.56
+  duration_ms: 21.6794
   type: 'test'
   ...
 # Subtest: P138 mask-of-the-pirate-queen: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas
 ok 5 - P138 mask-of-the-pirate-queen: comando único preserva flags, contadores, journal e objetivos após 3 reaberturas
   ---
-  duration_ms: 24.807
+  duration_ms: 20.5264
   type: 'test'
   ...
 # Subtest: P138 idempotência: chave inválida ou comando divergente nunca altera checkpoint
 ok 6 - P138 idempotência: chave inválida ou comando divergente nunca altera checkpoint
   ---
-  duration_ms: 6.1975
+  duration_ms: 32.243
   type: 'test'
   ...
 # Subtest: P138 idempotência: checkpoint com duplicata ou chave malformada é rejeitado
 ok 7 - P138 idempotência: checkpoint com duplicata ou chave malformada é rejeitado
   ---
-  duration_ms: 9.3065
+  duration_ms: 58.5231
   type: 'test'
   ...
 # Subtest: P138 idempotência: trigger quebrado reverte chave e permite retry corrigido
 ok 8 - P138 idempotência: trigger quebrado reverte chave e permite retry corrigido
   ---
-  duration_ms: 4.5678
+  duration_ms: 5.0715
   type: 'test'
   ...
 # Subtest: P138 AoR cobertura real aumenta de 205 para 211 posições sem marcar outras como implementadas
 ok 9 - P138 AoR cobertura real aumenta de 205 para 211 posições sem marcar outras como implementadas
   ---
-  duration_ms: 10.1603
+  duration_ms: 20.6463
   type: 'test'
   ...
 # Subtest: P138 INVESTIGADOR: compra na árvore oficial, PE, ranking e persistência
 ok 10 - P138 INVESTIGADOR: compra na árvore oficial, PE, ranking e persistência
   ---
-  duration_ms: 11.6531
+  duration_ms: 73.1302
   type: 'test'
   ...
 # Subtest: P138 RASTREADOR EXPERTO: compra na árvore oficial, PE, ranking e persistência
 ok 11 - P138 RASTREADOR EXPERTO: compra na árvore oficial, PE, ranking e persistência
   ---
-  duration_ms: 3.43
+  duration_ms: 3.9382
   type: 'test'
   ...
 # Subtest: P138 APTITUD TECNOLÓGICA: compra na árvore oficial, PE, ranking e persistência
 ok 12 - P138 APTITUD TECNOLÓGICA: compra na árvore oficial, PE, ranking e persistência
   ---
-  duration_ms: 4.2928
+  duration_ms: 3.321
   type: 'test'
   ...
 # Subtest: P138 Investigador: somente perícias de conhecimento, remoção por nível e pesquisa em metade do tempo
 ok 13 - P138 Investigador: somente perícias de conhecimento, remoção por nível e pesquisa em metade do tempo
   ---
-  duration_ms: 36.9328
+  duration_ms: 48.44
   type: 'test'
   ...
 # Subtest: P138 Rastreador: apenas Sobrevivência com contexto de rastreamento; nunca altera teste genérico
 ok 14 - P138 Rastreador: apenas Sobrevivência com contexto de rastreamento; nunca altera teste genérico
   ---
-  duration_ms: 18.9638
+  duration_ms: 32.0128
   type: 'test'
   ...
 # Subtest: P138 Aptidão tecnológica: computadores 25% por nível, sem alterar outros testes
 ok 15 - P138 Aptidão tecnológica: computadores 25% por nível, sem alterar outros testes
   ---
-  duration_ms: 29.4836
+  duration_ms: 39.1271
   type: 'test'
   ...
 # Subtest: P138 duração inválida rejeitada antes de rolagem e commit do controlador
 ok 16 - P138 duração inválida rejeitada antes de rolagem e commit do controlador
   ---
-  duration_ms: 18.9141
+  duration_ms: 17.4849
   type: 'test'
   ...
 # Subtest: P138 tempo e contratempos somam níveis de Investigador e Rastreador sem duplicar metade do tempo
 ok 17 - P138 tempo e contratempos somam níveis de Investigador e Rastreador sem duplicar metade do tempo
   ---
-  duration_ms: 17.9182
+  duration_ms: 38.0094
   type: 'test'
   ...
 # Subtest: P138 Android oferece pesquisa, rastreamento e computadores somente a personagens com talentos AoR
 ok 18 - P138 Android oferece pesquisa, rastreamento e computadores somente a personagens com talentos AoR
   ---
-  duration_ms: 8.5721
+  duration_ms: 16.7257
   type: 'test'
   ...
 1..18
@@ -115,5 +115,5 @@ ok 18 - P138 Android oferece pesquisa, rastreamento e computadores somente a per
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1449.6709
+# duration_ms 2211.624
 

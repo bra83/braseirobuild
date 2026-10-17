@@ -2,73 +2,73 @@ TAP version 13
 # Subtest: P186 real narrative dice are rolled with real pilot and persisted in the receipt
 ok 1 - P186 real narrative dice are rolled with real pilot and persisted in the receipt
   ---
-  duration_ms: 434.2511
+  duration_ms: 632.1384
   type: 'test'
   ...
 # Subtest: P186 missed buoy actually increases the next rolled pool and survives three reopenings
 ok 2 - P186 missed buoy actually increases the next rolled pool and survives three reopenings
   ---
-  duration_ms: 335.3694
+  duration_ms: 383.8594
   type: 'test'
   ...
 # Subtest: P186 tibannuck setbacks are rolled, system strain is applied to the real vehicle
 ok 3 - P186 tibannuck setbacks are rolled, system strain is applied to the real vehicle
   ---
-  duration_ms: 365.5792
+  duration_ms: 395.1018
   type: 'test'
   ...
 # Subtest: P186 real challenge despair produces actual EotE vehicle critical with -20 modifier
 ok 4 - P186 real challenge despair produces actual EotE vehicle critical with -20 modifier
   ---
-  duration_ms: 317.1774
+  duration_ms: 425.5287
   type: 'test'
   ...
 # Subtest: P186 beldon 3+ net threats creates a real vehicle critical
 ok 5 - P186 beldon 3+ net threats creates a real vehicle critical
   ---
-  duration_ms: 359.3075
+  duration_ms: 439.5655
   type: 'test'
   ...
 # Subtest: P186 duplicate and invalid requests roll back both world and vehicle without save
 ok 6 - P186 duplicate and invalid requests roll back both world and vehicle without save
   ---
-  duration_ms: 174.0073
+  duration_ms: 329.8365
   type: 'test'
   ...
 # Subtest: P186 forged die face and net successes rejected before advancing
 ok 7 - P186 forged die face and net successes rejected before advancing
   ---
-  duration_ms: 212.8237
+  duration_ms: 194.4512
   type: 'test'
   ...
 # Subtest: P186 no active vehicle cannot invent a race result or persist a receipt
 ok 8 - P186 no active vehicle cannot invent a race result or persist a receipt
   ---
-  duration_ms: 131.7934
+  duration_ms: 188.9278
   type: 'test'
   ...
 # Subtest: P186 Android bridge and offline bundle expose real roll without changing legacy adjudication
 ok 9 - P186 Android bridge and offline bundle expose real roll without changing legacy adjudication
   ---
-  duration_ms: 99.5748
+  duration_ms: 86.3305
   type: 'test'
   ...
 # Subtest: P186 actual critical and system strain persist together after three controller reopens
 ok 10 - P186 actual critical and system strain persist together after three controller reopens
   ---
-  duration_ms: 317.6882
+  duration_ms: 443.1351
   type: 'test'
   ...
 # Subtest: P186 forged difficulty upgrades or extra dice are rejected on replay
 ok 11 - P186 forged difficulty upgrades or extra dice are rejected on replay
   ---
-  duration_ms: 153.9525
+  duration_ms: 209.0308
   type: 'test'
   ...
 # Subtest: P186 duplicate action through existing Android operation path cannot roll twice
 ok 12 - P186 duplicate action through existing Android operation path cannot roll twice
   ---
-  duration_ms: 222.6611
+  duration_ms: 276.1374
   type: 'test'
   ...
 1..12
@@ -79,5 +79,5 @@ ok 12 - P186 duplicate action through existing Android operation path cannot rol
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 4483.1046
+# duration_ms 6515.7586
 

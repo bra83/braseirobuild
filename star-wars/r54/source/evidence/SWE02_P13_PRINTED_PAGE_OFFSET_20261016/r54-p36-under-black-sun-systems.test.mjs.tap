@@ -2,85 +2,85 @@ TAP version 13
 # Subtest: P36: save P35 sem systems migra sem resetar nó, flags ou histórico
 ok 1 - P36: save P35 sem systems migra sem resetar nó, flags ou histórico
   ---
-  duration_ms: 12.3847
+  duration_ms: 19.4944
   type: 'test'
   ...
 # Subtest: P36: perseguição usa consequência narrativa persistente e superfície anti-spoiler
 ok 2 - P36: perseguição usa consequência narrativa persistente e superfície anti-spoiler
   ---
-  duration_ms: 7.9477
+  duration_ms: 10.6919
   type: 'test'
   ...
 # Subtest: P36: sabacc acumula rodadas e créditos de modo persistente
 ok 3 - P36: sabacc acumula rodadas e créditos de modo persistente
   ---
-  duration_ms: 7.5921
+  duration_ms: 9.2762
   type: 'test'
   ...
 # Subtest: P36: Zelcomm entra em lockdown e NovaCORE pode escalar risco + Tensão
 ok 4 - P36: Zelcomm entra em lockdown e NovaCORE pode escalar risco + Tensão
   ---
-  duration_ms: 11.6731
+  duration_ms: 17.3551
   type: 'test'
   ...
 # Subtest: P36: perfis Black Sun e Kaa’to existem na autoridade de combate usada pelo controller
 ok 5 - P36: perfis Black Sun e Kaa’to existem na autoridade de combate usada pelo controller
   ---
-  duration_ms: 17.1833
+  duration_ms: 9.4317
   type: 'test'
   ...
 # Subtest: P36: controller inicia encontro publicado e grava desfecho persistente
 ok 6 - P36: controller inicia encontro publicado e grava desfecho persistente
   ---
-  duration_ms: 180.9484
+  duration_ms: 170.7968
   type: 'test'
   ...
 # Subtest: P36: Kaa’to usa NPC do mundo, persiste incapacitação e não reaparece íntegro
 ok 7 - P36: Kaa’to usa NPC do mundo, persiste incapacitação e não reaparece íntegro
   ---
-  duration_ms: 703.7439
+  duration_ms: 791.2578
   type: 'test'
   ...
 # Subtest: P36: consequência de sabacc atinge créditos reais do personagem pelo controller
 ok 8 - P36: consequência de sabacc atinge créditos reais do personagem pelo controller
   ---
-  duration_ms: 142.7946
+  duration_ms: 172.0975
   type: 'test'
   ...
 # Subtest: P36: mantém gate EotE/MIXED e não converte Duty/Obligation entre linhas
 ok 9 - P36: mantém gate EotE/MIXED e não converte Duty/Obligation entre linhas
   ---
-  duration_ms: 38.5144
+  duration_ms: 28.9674
   type: 'test'
   ...
 # Subtest: P36: runtime e bridge expõem sistemas/encontro sem revelar especificação futura
 ok 10 - P36: runtime e bridge expõem sistemas/encontro sem revelar especificação futura
   ---
-  duration_ms: 9.1766
+  duration_ms: 9.3546
   type: 'test'
   ...
 # Subtest: P37: epílogo persiste destino de Kaa’to e consequências de facções sem spoiler antecipado
 ok 11 - P37: epílogo persiste destino de Kaa’to e consequências de facções sem spoiler antecipado
   ---
-  duration_ms: 17.5849
+  duration_ms: 18.2808
   type: 'test'
   ...
 # Subtest: P37: roubo Zelcomm adiciona Obligation antes da recompensa e mantém Duty separado
 ok 12 - P37: roubo Zelcomm adiciona Obligation antes da recompensa e mantém Duty separado
   ---
-  duration_ms: 499.4247
+  duration_ms: 640.5703
   type: 'test'
   ...
 # Subtest: P39: epílogo integra consequências ao Mundo Vivo somente após o desfecho
 ok 13 - P39: epílogo integra consequências ao Mundo Vivo somente após o desfecho
   ---
-  duration_ms: 11.504
+  duration_ms: 10.8121
   type: 'test'
   ...
 # Subtest: P39: Kaa’to morto sincroniza estado profundo e não cria plano de retorno
 ok 14 - P39: Kaa’to morto sincroniza estado profundo e não cria plano de retorno
   ---
-  duration_ms: 10.0104
+  duration_ms: 9.486
   type: 'test'
   ...
 1..14
@@ -91,5 +91,5 @@ ok 14 - P39: Kaa’to morto sincroniza estado profundo e não cria plano de reto
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2858.6504
+# duration_ms 3394.7766
 

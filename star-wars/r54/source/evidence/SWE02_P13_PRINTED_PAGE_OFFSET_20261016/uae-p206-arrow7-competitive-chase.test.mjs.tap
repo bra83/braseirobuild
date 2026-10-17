@@ -2,73 +2,73 @@ TAP version 13
 # Subtest: P206 official vehicle chase range is planetary and personal turret stays distinct
 ok 1 - P206 official vehicle chase range is planetary and personal turret stays distinct
   ---
-  duration_ms: 1157.6972
+  duration_ms: 1664.809
   type: 'test'
   ...
 # Subtest: P206 requires active official encounter and actual pilot sheets
 ok 2 - P206 requires active official encounter and actual pilot sheets
   ---
-  duration_ms: 1618.6909
+  duration_ms: 1822.4366
   type: 'test'
   ...
 # Subtest: P206 two real rolls, optional speed bonus only when both verified, with persistence x3
 ok 3 - P206 two real rolls, optional speed bonus only when both verified, with persistence x3
   ---
-  duration_ms: 853.044
+  duration_ms: 985.9979
   type: 'test'
   ...
 # Subtest: P206 does not invent speeds or accept unverified bonuses
 ok 4 - P206 does not invent speeds or accept unverified bonuses
   ---
-  duration_ms: 816.6611
+  duration_ms: 1004.5778
   type: 'test'
   ...
 # Subtest: P206 repeated chase in same round and after acted actor are atomic errors
 ok 5 - P206 repeated chase in same round and after acted actor are atomic errors
   ---
-  duration_ms: 954.782
+  duration_ms: 967.1922
   type: 'test'
   ...
 # Subtest: P206 anti-fraud checks face, pool, outcome, pilot provenance, duplicate receipt and order
 ok 6 - P206 anti-fraud checks face, pool, outcome, pilot provenance, duplicate receipt and order
   ---
-  duration_ms: 840.9553
+  duration_ms: 1161.1711
   type: 'test'
   ...
 # Subtest: P206 Android UI, bridge, offline bundle, version and source remain integrated
 ok 7 - P206 Android UI, bridge, offline bundle, version and source remain integrated
   ---
-  duration_ms: 60.3525
+  duration_ms: 87.8662
   type: 'test'
   ...
 # Subtest: P206 a second round compares actual successes; tied checks preserve planetary distance
 ok 8 - P206 a second round compares actual successes; tied checks preserve planetary distance
   ---
-  duration_ms: 838.7891
+  duration_ms: 1005.1435
   type: 'test'
   ...
 # Subtest: P206 forbids moving chase range after any actor has taken a turn
 ok 9 - P206 forbids moving chase range after any actor has taken a turn
   ---
-  duration_ms: 762.1247
+  duration_ms: 822.7183
   type: 'test'
   ...
 # Subtest: P206 pending GM escape cannot silently trigger more pursuit rolls
 ok 10 - P206 pending GM escape cannot silently trigger more pursuit rolls
   ---
-  duration_ms: 849.8082
+  duration_ms: 819.0141
   type: 'test'
   ...
 # Subtest: P206 GM explicitly confirms ESCAPED; end receipt replays and persists
 ok 11 - P206 GM explicitly confirms ESCAPED; end receipt replays and persists
   ---
-  duration_ms: 1166.259
+  duration_ms: 1130.9704
   type: 'test'
   ...
 # Subtest: P206 chase end receipt rejects fake range, source and outcome
 ok 12 - P206 chase end receipt rejects fake range, source and outcome
   ---
-  duration_ms: 986.258
+  duration_ms: 827.8241
   type: 'test'
   ...
 1..12
@@ -79,5 +79,5 @@ ok 12 - P206 chase end receipt rejects fake range, source and outcome
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 12214.9677
+# duration_ms 15135.3886
 

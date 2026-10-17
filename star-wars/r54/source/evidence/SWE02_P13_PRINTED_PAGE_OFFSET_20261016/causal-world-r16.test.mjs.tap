@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: evento concluído gera consequência causal persistente no local do PNPC
 ok 1 - evento concluído gera consequência causal persistente no local do PNPC
   ---
-  duration_ms: 39.2905
+  duration_ms: 30.5098
   type: 'test'
   ...
 # Subtest: consequência causal pode ser resolvida uma única vez e some dos candidatos
 ok 2 - consequência causal pode ser resolvida uma única vez e some dos candidatos
   ---
-  duration_ms: 13.3218
+  duration_ms: 5.3203
   type: 'test'
   ...
 # Subtest: Mestre move a cena apenas para local existente e recebe consequências causais no contexto
 ok 3 - Mestre move a cena apenas para local existente e recebe consequências causais no contexto
   ---
-  duration_ms: 60.4896
+  duration_ms: 69.8578
   type: 'test'
   ...
 # Subtest: Mestre pode narrar e resolver a consequência no mesmo fluxo transacional
 ok 4 - Mestre pode narrar e resolver a consequência no mesmo fluxo transacional
   ---
-  duration_ms: 139.6642
+  duration_ms: 146.9366
   type: 'test'
   ...
 1..4
@@ -31,5 +31,5 @@ ok 4 - Mestre pode narrar e resolver a consequência no mesmo fluxo transacional
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1650.7995
+# duration_ms 1619.796
 

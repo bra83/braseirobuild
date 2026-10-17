@@ -2,31 +2,31 @@ TAP version 13
 # Subtest: P88: Triumph/Despair de Além da Orla geram efeitos narrativos persistentes específicos
 ok 1 - P88: Triumph/Despair de Além da Orla geram efeitos narrativos persistentes específicos
   ---
-  duration_ms: 35.641
+  duration_ms: 29.1173
   type: 'test'
   ...
 # Subtest: P88: feedback público leva os efeitos da rolagem para a UI
 ok 2 - P88: feedback público leva os efeitos da rolagem para a UI
   ---
-  duration_ms: 6.6238
+  duration_ms: 6.4426
   type: 'test'
   ...
 # Subtest: P88: projeção pública esconde atenção ISB e rastreamento não detectado
 ok 3 - P88: projeção pública esconde atenção ISB e rastreamento não detectado
   ---
-  duration_ms: 3.8444
+  duration_ms: 3.2287
   type: 'test'
   ...
 # Subtest: P88: rastreador detectado pode ser mostrado sem revelar atenção interna do ISB
 ok 4 - P88: rastreador detectado pode ser mostrado sem revelar atenção interna do ISB
   ---
-  duration_ms: 3.7078
+  duration_ms: 4.6795
   type: 'test'
   ...
 # Subtest: P88: exposição alta sozinha não revela facção ISB nem epílogo imperial
 ok 5 - P88: exposição alta sozinha não revela facção ISB nem epílogo imperial
   ---
-  duration_ms: 3.8868
+  duration_ms: 3.4699
   type: 'test'
   ...
 1..5
@@ -37,5 +37,5 @@ ok 5 - P88: exposição alta sozinha não revela facção ISB nem epílogo imper
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 549.1654
+# duration_ms 592.3181
 

@@ -2,187 +2,187 @@ TAP version 13
 # Subtest: P152 social: single durable commit and three read-only reopens
 ok 1 - P152 social: single durable commit and three read-only reopens
   ---
-  duration_ms: 99.4025
+  duration_ms: 82.5795
   type: 'test'
   ...
 # Subtest: P152 social: disk failure rolls back every event
 ok 2 - P152 social: disk failure rolls back every event
   ---
-  duration_ms: 13.2772
+  duration_ms: 10.0829
   type: 'test'
   ...
 # Subtest: P152 assisted: single durable commit and three read-only reopens
 ok 3 - P152 assisted: single durable commit and three read-only reopens
   ---
-  duration_ms: 16.4832
+  duration_ms: 15.1921
   type: 'test'
   ...
 # Subtest: P152 assisted: disk failure rolls back every event
 ok 4 - P152 assisted: disk failure rolls back every event
   ---
-  duration_ms: 7.9825
+  duration_ms: 10.7722
   type: 'test'
   ...
 # Subtest: P152 competitive: single durable commit and three read-only reopens
 ok 5 - P152 competitive: single durable commit and three read-only reopens
   ---
-  duration_ms: 16.3679
+  duration_ms: 16.2377
   type: 'test'
   ...
 # Subtest: P152 competitive: disk failure rolls back every event
 ok 6 - P152 competitive: disk failure rolls back every event
   ---
-  duration_ms: 16.6297
+  duration_ms: 25.0364
   type: 'test'
   ...
 # Subtest: P152 raw: single durable commit and three read-only reopens
 ok 7 - P152 raw: single durable commit and three read-only reopens
   ---
-  duration_ms: 9.015
+  duration_ms: 10.705
   type: 'test'
   ...
 # Subtest: P152 raw: disk failure rolls back every event
 ok 8 - P152 raw: disk failure rolls back every event
   ---
-  duration_ms: 4.2553
+  duration_ms: 5.6203
   type: 'test'
   ...
 # Subtest: P152 opposed: single durable commit and three read-only reopens
 ok 9 - P152 opposed: single durable commit and three read-only reopens
   ---
-  duration_ms: 30.3998
+  duration_ms: 34.7031
   type: 'test'
   ...
 # Subtest: P152 opposed: disk failure rolls back every event
 ok 10 - P152 opposed: disk failure rolls back every event
   ---
-  duration_ms: 10.8388
+  duration_ms: 23.9958
   type: 'test'
   ...
 # Subtest: P152 suggested-master-check: single durable commit and three read-only reopens
 ok 11 - P152 suggested-master-check: single durable commit and three read-only reopens
   ---
-  duration_ms: 12.9274
+  duration_ms: 12.9806
   type: 'test'
   ...
 # Subtest: P152 suggested-master-check: disk failure rolls back every event
 ok 12 - P152 suggested-master-check: disk failure rolls back every event
   ---
-  duration_ms: 18.4432
+  duration_ms: 5.7305
   type: 'test'
   ...
 # Subtest: P152 weapon-attack: single durable commit and three read-only reopens
 ok 13 - P152 weapon-attack: single durable commit and three read-only reopens
   ---
-  duration_ms: 36.4977
+  duration_ms: 32.3034
   type: 'test'
   ...
 # Subtest: P152 weapon-attack: disk failure rolls back every event
 ok 14 - P152 weapon-attack: disk failure rolls back every event
   ---
-  duration_ms: 9.7748
+  duration_ms: 9.022
   type: 'test'
   ...
 # Subtest: P152 begin-combat: single durable commit and three read-only reopens
 ok 15 - P152 begin-combat: single durable commit and three read-only reopens
   ---
-  duration_ms: 18.4485
+  duration_ms: 12.812
   type: 'test'
   ...
 # Subtest: P152 begin-combat: disk failure rolls back every event
 ok 16 - P152 begin-combat: disk failure rolls back every event
   ---
-  duration_ms: 4.113
+  duration_ms: 5.4579
   type: 'test'
   ...
 # Subtest: P152 begin-encounter: single durable commit and three read-only reopens
 ok 17 - P152 begin-encounter: single durable commit and three read-only reopens
   ---
-  duration_ms: 15.6071
+  duration_ms: 20.4217
   type: 'test'
   ...
 # Subtest: P152 begin-encounter: disk failure rolls back every event
 ok 18 - P152 begin-encounter: disk failure rolls back every event
   ---
-  duration_ms: 7.705
+  duration_ms: 6.0362
   type: 'test'
   ...
 # Subtest: P152 environment-start: single durable commit and three read-only reopens
 ok 19 - P152 environment-start: single durable commit and three read-only reopens
   ---
-  duration_ms: 10.5284
+  duration_ms: 9.2347
   type: 'test'
   ...
 # Subtest: P152 environment-start: disk failure rolls back every event
 ok 20 - P152 environment-start: disk failure rolls back every event
   ---
-  duration_ms: 4.6573
+  duration_ms: 4.0719
   type: 'test'
   ...
 # Subtest: P152 fall: single durable commit and three read-only reopens
 ok 21 - P152 fall: single durable commit and three read-only reopens
   ---
-  duration_ms: 18.3185
+  duration_ms: 17.5175
   type: 'test'
   ...
 # Subtest: P152 fall: disk failure rolls back every event
 ok 22 - P152 fall: disk failure rolls back every event
   ---
-  duration_ms: 48.5309
+  duration_ms: 11.4162
   type: 'test'
   ...
 # Subtest: P152 impassable-terrain: single durable commit and three read-only reopens
 ok 23 - P152 impassable-terrain: single durable commit and three read-only reopens
   ---
-  duration_ms: 27.6648
+  duration_ms: 44.1288
   type: 'test'
   ...
 # Subtest: P152 impassable-terrain: disk failure rolls back every event
 ok 24 - P152 impassable-terrain: disk failure rolls back every event
   ---
-  duration_ms: 7.8775
+  duration_ms: 8.5045
   type: 'test'
   ...
 # Subtest: P152 combat-turn: single durable commit and three read-only reopens
 ok 25 - P152 combat-turn: single durable commit and three read-only reopens
   ---
-  duration_ms: 15.4809
+  duration_ms: 17.981
   type: 'test'
   ...
 # Subtest: P152 combat-turn: disk failure rolls back every event
 ok 26 - P152 combat-turn: disk failure rolls back every event
   ---
-  duration_ms: 9.0905
+  duration_ms: 7.4263
   type: 'test'
   ...
 # Subtest: P152 under-black-sun: social adjudication remains atomic inside active published adventure
 ok 27 - P152 under-black-sun: social adjudication remains atomic inside active published adventure
   ---
-  duration_ms: 127.1867
+  duration_ms: 132.5841
   type: 'test'
   ...
 # Subtest: P152 beyond-the-rim: social adjudication remains atomic inside active published adventure
 ok 28 - P152 beyond-the-rim: social adjudication remains atomic inside active published adventure
   ---
-  duration_ms: 91.8253
+  duration_ms: 85.4061
   type: 'test'
   ...
 # Subtest: P152 long-arm-of-the-hutt: social adjudication remains atomic inside active published adventure
 ok 29 - P152 long-arm-of-the-hutt: social adjudication remains atomic inside active published adventure
   ---
-  duration_ms: 123.1842
+  duration_ms: 87.239
   type: 'test'
   ...
 # Subtest: P152 jewel-of-yavin: social adjudication remains atomic inside active published adventure
 ok 30 - P152 jewel-of-yavin: social adjudication remains atomic inside active published adventure
   ---
-  duration_ms: 125.5004
+  duration_ms: 96.2042
   type: 'test'
   ...
 # Subtest: P152 mask-of-the-pirate-queen: social adjudication remains atomic inside active published adventure
 ok 31 - P152 mask-of-the-pirate-queen: social adjudication remains atomic inside active published adventure
   ---
-  duration_ms: 75.9596
+  duration_ms: 66.8778
   type: 'test'
   ...
 1..31
@@ -193,5 +193,5 @@ ok 31 - P152 mask-of-the-pirate-queen: social adjudication remains atomic inside
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2289.7977
+# duration_ms 2903.0565
 

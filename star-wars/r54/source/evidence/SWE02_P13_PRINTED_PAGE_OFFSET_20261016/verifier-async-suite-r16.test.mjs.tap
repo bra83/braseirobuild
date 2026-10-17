@@ -2,7 +2,7 @@ TAP version 13
 # Subtest: verificador executa a suíte completa pelo runner Python sem encadear node --test no processo Node pai
 ok 1 - verificador executa a suíte completa pelo runner Python sem encadear node --test no processo Node pai
   ---
-  duration_ms: 2.9668
+  duration_ms: 3.2791
   type: 'test'
   ...
 1..1
@@ -13,5 +13,5 @@ ok 1 - verificador executa a suíte completa pelo runner Python sem encadear nod
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 520.1761
+# duration_ms 680.4411
 

@@ -2,211 +2,211 @@ TAP version 13
 # Subtest: P158: six source slots become mechanically active, all other pending slots remain fail closed
 ok 1 - P158: six source slots become mechanically active, all other pending slots remain fail closed
   ---
-  duration_ms: 54.5009
+  duration_ms: 71.3133
   type: 'test'
   ...
 # Subtest: P158: Aclimatação 0 removes at most two setback in foraging only
 ok 2 - P158: Aclimatação 0 removes at most two setback in foraging only
   ---
-  duration_ms: 4.6077
+  duration_ms: 5.0284
   type: 'test'
   ...
 # Subtest: P158: Aclimatação 1 removes at most two setback in foraging only
 ok 3 - P158: Aclimatação 1 removes at most two setback in foraging only
   ---
-  duration_ms: 4.7432
+  duration_ms: 4.4354
   type: 'test'
   ...
 # Subtest: P158: Aclimatação 2 removes at most two setback in foraging only
 ok 4 - P158: Aclimatação 2 removes at most two setback in foraging only
   ---
-  duration_ms: 3.9521
+  duration_ms: 3.9495
   type: 'test'
   ...
 # Subtest: P158: Poison Resistance 0 grants Boost only on toxin resistance
 ok 5 - P158: Poison Resistance 0 grants Boost only on toxin resistance
   ---
-  duration_ms: 5.5488
+  duration_ms: 3.7778
   type: 'test'
   ...
 # Subtest: P158: Poison Resistance 1 grants Boost only on toxin resistance
 ok 6 - P158: Poison Resistance 1 grants Boost only on toxin resistance
   ---
-  duration_ms: 3.9728
+  duration_ms: 13.2312
   type: 'test'
   ...
 # Subtest: P158: foraging and poison flags change actual dice, persist and survive three reopens
 ok 7 - P158: foraging and poison flags change actual dice, persist and survive three reopens
   ---
-  duration_ms: 57.4687
+  duration_ms: 42.1768
   type: 'test'
   ...
 # Subtest: P158: forged skill context {"foraging":"true"} rejected without writing
 ok 8 - P158: forged skill context {"foraging":"true"} rejected without writing
   ---
-  duration_ms: 7.8873
+  duration_ms: 7.6638
   type: 'test'
   ...
 # Subtest: P158: forged skill context {"poisonResistance":1} rejected without writing
 ok 9 - P158: forged skill context {"poisonResistance":1} rejected without writing
   ---
-  duration_ms: 4.8249
+  duration_ms: 8.0877
   type: 'test'
   ...
 # Subtest: P158: forged skill context {"foraging":[]} rejected without writing
 ok 10 - P158: forged skill context {"foraging":[]} rejected without writing
   ---
-  duration_ms: 4.8991
+  duration_ms: 6.4341
   type: 'test'
   ...
 # Subtest: P158: forged skill context {"poisonResistance":null} rejected without writing
 ok 11 - P158: forged skill context {"poisonResistance":null} rejected without writing
   ---
-  duration_ms: 8.981
+  duration_ms: 9.6496
   type: 'test'
   ...
 # Subtest: P158: selective detonation rank 0 never excludes more targets than purchased
 ok 12 - P158: selective detonation rank 0 never excludes more targets than purchased
   ---
-  duration_ms: 4.3825
+  duration_ms: 3.8844
   type: 'test'
   ...
 # Subtest: P158: selective detonation rank 1 never excludes more targets than purchased
 ok 13 - P158: selective detonation rank 1 never excludes more targets than purchased
   ---
-  duration_ms: 5.4573
+  duration_ms: 3.0917
   type: 'test'
   ...
 # Subtest: P158: selective detonation rank 2 never excludes more targets than purchased
 ok 14 - P158: selective detonation rank 2 never excludes more targets than purchased
   ---
-  duration_ms: 3.1351
+  duration_ms: 6.5886
   type: 'test'
   ...
 # Subtest: P158: Master Grenadier rank 0 discounts Blast by one, never below one
 ok 15 - P158: Master Grenadier rank 0 discounts Blast by one, never below one
   ---
-  duration_ms: 3.3566
+  duration_ms: 9.2362
   type: 'test'
   ...
 # Subtest: P158: Master Grenadier rank 1 discounts Blast by one, never below one
 ok 16 - P158: Master Grenadier rank 1 discounts Blast by one, never below one
   ---
-  duration_ms: 3.153
+  duration_ms: 4.6264
   type: 'test'
   ...
 # Subtest: P158: Master Grenadier is included in the actual attack pending quality receipt
 ok 17 - P158: Master Grenadier is included in the actual attack pending quality receipt
   ---
-  duration_ms: 77.8504
+  duration_ms: 41.1627
   type: 'test'
   ...
 # Subtest: P158: selective blast excludes one of two adjudicated affected targets, pays shared budget and persists
 ok 18 - P158: selective blast excludes one of two adjudicated affected targets, pays shared budget and persists
   ---
-  duration_ms: 35.527
+  duration_ms: 22.9599
   type: 'test'
   ...
 # Subtest: P158: one Triumph excludes two blast targets, but base activation still costs Advantage
 ok 19 - P158: one Triumph excludes two blast targets, but base activation still costs Advantage
   ---
-  duration_ms: 21.7066
+  duration_ms: 16.4843
   type: 'test'
   ...
 # Subtest: P158: Master Grenadier and Selective Detonation combine with Powerful Blast in a single ledger
 ok 20 - P158: Master Grenadier and Selective Detonation combine with Powerful Blast in a single ledger
   ---
-  duration_ms: 30.6066
+  duration_ms: 17.8269
   type: 'test'
   ...
 # Subtest: P158: forged blast exclusion {"excludedTargetIds":["unknown"]} cannot mutate combat
 ok 21 - P158: forged blast exclusion {"excludedTargetIds":["unknown"]} cannot mutate combat
   ---
-  duration_ms: 16.352
+  duration_ms: 14.9828
   type: 'test'
   ...
 # Subtest: P158: forged blast exclusion {"excludedTargetIds":["unknown"],"useSelectiveTriumph":true} cannot mutate combat
 ok 22 - P158: forged blast exclusion {"excludedTargetIds":["unknown"],"useSelectiveTriumph":true} cannot mutate combat
   ---
-  duration_ms: 13.8713
+  duration_ms: 14.456
   type: 'test'
   ...
 # Subtest: P158: forged blast exclusion {"excludedTargetIds":["duplicate","duplicate"]} cannot mutate combat
 ok 23 - P158: forged blast exclusion {"excludedTargetIds":["duplicate","duplicate"]} cannot mutate combat
   ---
-  duration_ms: 17.8507
+  duration_ms: 16.8941
   type: 'test'
   ...
 # Subtest: P158: forged blast exclusion {"excludedTargetIds":["not-affected"]} cannot mutate combat
 ok 24 - P158: forged blast exclusion {"excludedTargetIds":["not-affected"]} cannot mutate combat
   ---
-  duration_ms: 13.222
+  duration_ms: 16.5209
   type: 'test'
   ...
 # Subtest: P158: forged blast exclusion {"excludedTargetIds":[],"useSelectiveTriumph":"true"} cannot mutate combat
 ok 25 - P158: forged blast exclusion {"excludedTargetIds":[],"useSelectiveTriumph":"true"} cannot mutate combat
   ---
-  duration_ms: 19.3283
+  duration_ms: 12.8549
   type: 'test'
   ...
 # Subtest: P158: cannot exclude more than rank or pay with absent Advantage/Triumph
 ok 26 - P158: cannot exclude more than rank or pay with absent Advantage/Triumph
   ---
-  duration_ms: 64.6342
+  duration_ms: 52.3837
   type: 'test'
   ...
 # Subtest: P158: repository failure rolls back target wounds, excluded targets and entire Advantage/Triumph ledger
 ok 27 - P158: repository failure rolls back target wounds, excluded targets and entire Advantage/Triumph ledger
   ---
-  duration_ms: 18.5631
+  duration_ms: 20.1969
   type: 'test'
   ...
 # Subtest: P158: Android UI and bundle expose blast exclusion, Triumph payment, foraging and poison context
 ok 28 - P158: Android UI and bundle expose blast exclusion, Triumph payment, foraging and poison context
   ---
-  duration_ms: 35.6973
+  duration_ms: 61.8517
   type: 'test'
   ...
 # Subtest: P158: UAE published adventure under-black-sun preserves objective graph and idempotent choice after three reopens
 ok 29 - P158: UAE published adventure under-black-sun preserves objective graph and idempotent choice after three reopens
   ---
-  duration_ms: 198.9747
+  duration_ms: 388.664
   type: 'test'
   ...
 # Subtest: P158: UAE published adventure beyond-the-rim preserves objective graph and idempotent choice after three reopens
 ok 30 - P158: UAE published adventure beyond-the-rim preserves objective graph and idempotent choice after three reopens
   ---
-  duration_ms: 238.5516
+  duration_ms: 221.8337
   type: 'test'
   ...
 # Subtest: P158: UAE published adventure long-arm-of-the-hutt preserves objective graph and idempotent choice after three reopens
 ok 31 - P158: UAE published adventure long-arm-of-the-hutt preserves objective graph and idempotent choice after three reopens
   ---
-  duration_ms: 240.027
+  duration_ms: 259.6118
   type: 'test'
   ...
 # Subtest: P158: UAE published adventure jewel-of-yavin preserves objective graph and idempotent choice after three reopens
 ok 32 - P158: UAE published adventure jewel-of-yavin preserves objective graph and idempotent choice after three reopens
   ---
-  duration_ms: 158.3871
+  duration_ms: 130.1858
   type: 'test'
   ...
 # Subtest: P158: UAE published adventure mask-of-the-pirate-queen preserves objective graph and idempotent choice after three reopens
 ok 33 - P158: UAE published adventure mask-of-the-pirate-queen preserves objective graph and idempotent choice after three reopens
   ---
-  duration_ms: 113.8926
+  duration_ms: 198.7342
   type: 'test'
   ...
 # Subtest: P158: a character without Selective Detonation cannot exclude a target even with spare Advantage
 ok 34 - P158: a character without Selective Detonation cannot exclude a target even with spare Advantage
   ---
-  duration_ms: 13.2093
+  duration_ms: 13.3634
   type: 'test'
   ...
 # Subtest: P158: a missed explosive shot may exclude the original target with one Advantage after paying miss-Blast cost
 ok 35 - P158: a missed explosive shot may exclude the original target with one Advantage after paying miss-Blast cost
   ---
-  duration_ms: 17.929
+  duration_ms: 21.071
   type: 'test'
   ...
 1..35
@@ -217,5 +217,5 @@ ok 35 - P158: a missed explosive shot may exclude the original target with one A
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2856.2005
+# duration_ms 3749.3733
 

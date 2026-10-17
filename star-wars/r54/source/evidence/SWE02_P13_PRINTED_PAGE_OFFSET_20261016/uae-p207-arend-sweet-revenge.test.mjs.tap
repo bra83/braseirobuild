@@ -2,61 +2,61 @@ TAP version 13
 # Subtest: P207 four published holdings, correct pages and no invented current location
 ok 1 - P207 four published holdings, correct pages and no invented current location
   ---
-  duration_ms: 14.572
+  duration_ms: 7.092
   type: 'test'
   ...
 # Subtest: P207 actual Average Computers roll discovers leads without locating Arend
 ok 2 - P207 actual Average Computers roll discovers leads without locating Arend
   ---
-  duration_ms: 899.6463
+  duration_ms: 1329.4466
   type: 'test'
   ...
 # Subtest: P207 Streetwise uses Cunning and failure needs GM retry
 ok 3 - P207 Streetwise uses Cunning and failure needs GM retry
   ---
-  duration_ms: 746.0248
+  duration_ms: 974.0556
   type: 'test'
   ...
 # Subtest: P207 d100 25/50/75/automatic at distinct locations, no teleports
 ok 4 - P207 d100 25/50/75/automatic at distinct locations, no teleports
   ---
-  duration_ms: 662.4236
+  duration_ms: 846.803
   type: 'test'
   ...
 # Subtest: P207 first visit 1/100 locates Arend, no extra visits
 ok 5 - P207 first visit 1/100 locates Arend, no extra visits
   ---
-  duration_ms: 653.9827
+  duration_ms: 695.7158
   type: 'test'
   ...
 # Subtest: P207 requires betrayal, no combat, resolved goons, GM access and arrival
 ok 6 - P207 requires betrayal, no combat, resolved goons, GM access and arrival
   ---
-  duration_ms: 631.4856
+  duration_ms: 656.645
   type: 'test'
   ...
 # Subtest: P207 duplicate receipts, repeated holdings and premature searches are atomic
 ok 7 - P207 duplicate receipts, repeated holdings and premature searches are atomic
   ---
-  duration_ms: 662.1209
+  duration_ms: 733.357
   type: 'test'
   ...
 # Subtest: P207 receipt replay rejects fake narrative faces, probabilities and fabricated findings
 ok 8 - P207 receipt replay rejects fake narrative faces, probabilities and fabricated findings
   ---
-  duration_ms: 583.4185
+  duration_ms: 794.9667
   type: 'test'
   ...
 # Subtest: P207 controller atomic commits and three reopenings retain receipts
 ok 9 - P207 controller atomic commits and three reopenings retain receipts
   ---
-  duration_ms: 622.1097
+  duration_ms: 987.7102
   type: 'test'
   ...
 # Subtest: P207 Android PTBR bridge, offline bundle, version, Kokoro preservation markers
 ok 10 - P207 Android PTBR bridge, offline bundle, version, Kokoro preservation markers
   ---
-  duration_ms: 43.8542
+  duration_ms: 228.2363
   type: 'test'
   ...
 1..10
@@ -67,5 +67,5 @@ ok 10 - P207 Android PTBR bridge, offline bundle, version, Kokoro preservation m
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 6827.2229
+# duration_ms 9363.1816
 

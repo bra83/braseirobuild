@@ -2,43 +2,43 @@ TAP version 13
 # Subtest: P233 Medicine consumes Kashyyyk vertigo in actual healing dice, once
 ok 1 - P233 Medicine consumes Kashyyyk vertigo in actual healing dice, once
   ---
-  duration_ms: 1304.5365
+  duration_ms: 1342.561
   type: 'test'
   ...
 # Subtest: P233 Stim Application consumes Kashyyyk vertigo in real talent dice, once
 ok 2 - P233 Stim Application consumes Kashyyyk vertigo in real talent dice, once
   ---
-  duration_ms: 1060.6604
+  duration_ms: 1067.8175
   type: 'test'
   ...
 # Subtest: P233 failed Medicine action rolls back combat, character and vertigo if save fails
 ok 3 - P233 failed Medicine action rolls back combat, character and vertigo if save fails
   ---
-  duration_ms: 837.537
+  duration_ms: 931.8145
   type: 'test'
   ...
 # Subtest: P233 failed Stim save rolls back real gear, character and pending vertigo
 ok 4 - P233 failed Stim save rolls back real gear, character and pending vertigo
   ---
-  duration_ms: 859.569
+  duration_ms: 850.7785
   type: 'test'
   ...
 # Subtest: P233 save validator rejects altered dice face and forged pool, duplicate consumption
 ok 5 - P233 save validator rejects altered dice face and forged pool, duplicate consumption
   ---
-  duration_ms: 850.4709
+  duration_ms: 1152.5098
   type: 'test'
   ...
 # Subtest: P233 pure downgrade never changes NPC pools, no proficiency cannot fabricate die
 ok 6 - P233 pure downgrade never changes NPC pools, no proficiency cannot fabricate die
   ---
-  duration_ms: 0.767
+  duration_ms: 0.6469
   type: 'test'
   ...
 # Subtest: P233 Android PT-BR status, offline bridge and version are integrated
 ok 7 - P233 Android PT-BR status, offline bridge and version are integrated
   ---
-  duration_ms: 86.7857
+  duration_ms: 83.4462
   type: 'test'
   ...
 1..7
@@ -49,5 +49,5 @@ ok 7 - P233 Android PT-BR status, offline bridge and version are integrated
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 6508.6095
+# duration_ms 6989.3246
 

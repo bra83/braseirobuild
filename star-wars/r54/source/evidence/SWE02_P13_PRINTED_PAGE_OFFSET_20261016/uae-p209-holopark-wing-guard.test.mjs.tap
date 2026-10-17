@@ -2,43 +2,43 @@ TAP version 13
 # Subtest: P209 published SWE09 p94 Wing Guard force is two separate two-officer groups plus sergeant
 ok 1 - P209 published SWE09 p94 Wing Guard force is two separate two-officer groups plus sergeant
   ---
-  duration_ms: 901.8818
+  duration_ms: 1339.2432
   type: 'test'
   ...
 # Subtest: P209 explicit physical arrival is required and errors roll back all state
 ok 2 - P209 explicit physical arrival is required and errors roll back all state
   ---
-  duration_ms: 750.148
+  duration_ms: 956.1242
   type: 'test'
   ...
 # Subtest: P209 real initiative, distinct minion groups, published context and receipt in ONE save
 ok 3 - P209 real initiative, distinct minion groups, published context and receipt in ONE save
   ---
-  duration_ms: 807.9439
+  duration_ms: 983.4726
   type: 'test'
   ...
 # Subtest: P209 three reopenings retain combat groups and landscape without duplicating receipts
 ok 4 - P209 three reopenings retain combat groups and landscape without duplicating receipts
   ---
-  duration_ms: 811.3783
+  duration_ms: 1096.7436
   type: 'test'
   ...
 # Subtest: P209 no Wing Guard encounter before goons resolved or during active combat
 ok 5 - P209 no Wing Guard encounter before goons resolved or during active combat
   ---
-  duration_ms: 693.1045
+  duration_ms: 992.7734
   type: 'test'
   ...
 # Subtest: P209 Android bridge, UI and offline bundle source wired
 ok 6 - P209 Android bridge, UI and offline bundle source wired
   ---
-  duration_ms: 13.3206
+  duration_ms: 17.5282
   type: 'test'
   ...
 # Subtest: P209 finishing published Holo-Park combat records the real encounter outcome once
 ok 7 - P209 finishing published Holo-Park combat records the real encounter outcome once
   ---
-  duration_ms: 779.4999
+  duration_ms: 937.3303
   type: 'test'
   ...
 1..7
@@ -49,5 +49,5 @@ ok 7 - P209 finishing published Holo-Park combat records the real encounter outc
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 6108.0192
+# duration_ms 8343.8359
 

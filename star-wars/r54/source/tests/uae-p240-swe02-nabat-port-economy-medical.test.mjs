@@ -176,6 +176,13 @@ test('P240 anti-forgery: missing or modified receipt fails adapter status',()=>{
  const x=structuredClone(g.state.world);x.publishedAdventure.flags.nabatHullRepaired=true;
  assert.throws(()=>adapter.status(x),/sem recibo/);
 });
+test('P240 anti-forgery: safehouse care receipt requires valid stable patient and effect fields',()=>{
+ const {g}=setup();g.advancePublishedAdventure('nabat-meet-nyn');g.treatSWE02NabatWounds();
+ for(const tamper of [x=>delete x.characterKey,x=>x.woundsHealed=1.5,x=>delete x.strainRecovered,x=>x.criticalTreatmentPending=false]){
+  const w=structuredClone(g.state.world),care=w.publishedAdventure.nabatReceipts.find(x=>x.type==='SAFEHOUSE_CARE');tamper(care);
+  assert.throws(()=>adapter.status(w),/cuidado médico inválido/);
+ }
+});
 test('P240 no mutation outside Nabat; failed actions do not save',()=>{
  const {g,repo}=setup({land:false});const n=repo.saves;
  assert.throws(()=>g.purchaseSWE02NabatItem({itemId:'glow_rod'}),/fora da cena/);

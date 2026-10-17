@@ -2,31 +2,31 @@ TAP version 13
 # Subtest: P216 Kashyyyk: actual NPC Despair triggers Difficult Discipline, strain and next action downgrade
 ok 1 - P216 Kashyyyk: actual NPC Despair triggers Difficult Discipline, strain and next action downgrade
   ---
-  duration_ms: 1369.0252
+  duration_ms: 1893.3667
   type: 'test'
   ...
 # Subtest: P216 insect: same attack roll gains exactly two real Boost dice only with original Triumph
 ok 2 - P216 insect: same attack roll gains exactly two real Boost dice only with original Triumph
   ---
-  duration_ms: 918.3425
+  duration_ms: 993.418
   type: 'test'
   ...
 # Subtest: P216 insect integrated in actual weapon attack, atomic receipt and three reopens
 ok 3 - P216 insect integrated in actual weapon attack, atomic receipt and three reopens
   ---
-  duration_ms: 829.6297
+  duration_ms: 958.1897
   type: 'test'
   ...
 # Subtest: P216 insect without original Triumph does not fabricate bonus or receipt
 ok 4 - P216 insect without original Triumph does not fabricate bonus or receipt
   ---
-  duration_ms: 915.3623
+  duration_ms: 885.5553
   type: 'test'
   ...
 # Subtest: P216 vertigo downgrades actual next weapon attack and cannot affect a second roll
 ok 5 - P216 vertigo downgrades actual next weapon attack and cannot affect a second roll
   ---
-  duration_ms: 856.8873
+  duration_ms: 937.0366
   type: 'test'
   ...
 1..5
@@ -37,5 +37,5 @@ ok 5 - P216 vertigo downgrades actual next weapon attack and cannot affect a sec
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 6353.6513
+# duration_ms 7830.0865
 

@@ -2,55 +2,55 @@ TAP version 13
 # Subtest: P194 official Leave No Trace: disassembly costs two real hours, including on failure
 ok 1 - P194 official Leave No Trace: disassembly costs two real hours, including on failure
   ---
-  duration_ms: 1113.0636
+  duration_ms: 2361.9811
   type: 'test'
   ...
 # Subtest: P194 failed disassembly still spends 120 minutes without extracting evidence
 ok 2 - P194 failed disassembly still spends 120 minutes without extracting evidence
   ---
-  duration_ms: 739.0092
+  duration_ms: 1532.8281
   type: 'test'
   ...
 # Subtest: P194 cannot dispose of the black box before successful extraction
 ok 3 - P194 cannot dispose of the black box before successful extraction
   ---
-  duration_ms: 575.6198
+  duration_ms: 971.5503
   type: 'test'
   ...
 # Subtest: P194 stolen black box remains incriminating; parts can be dumped only after confirmed travel
 ok 4 - P194 stolen black box remains incriminating; parts can be dumped only after confirmed travel
   ---
-  duration_ms: 1201.4805
+  duration_ms: 1473.4607
   type: 'test'
   ...
 # Subtest: P194 Hard Streetwise uses actual dice and does not fabricate payment
 ok 5 - P194 Hard Streetwise uses actual dice and does not fabricate payment
   ---
-  duration_ms: 640.6468
+  duration_ms: 893.4293
   type: 'test'
   ...
 # Subtest: P194 forged bank evidence receipt and cleanup clock are rejected
 ok 6 - P194 forged bank evidence receipt and cleanup clock are rejected
   ---
-  duration_ms: 768.9074
+  duration_ms: 936.3322
   type: 'test'
   ...
 # Subtest: P194 three reopenings preserve evidence decisions and ledger
 ok 7 - P194 three reopenings preserve evidence decisions and ledger
   ---
-  duration_ms: 734.7981
+  duration_ms: 964.4901
   type: 'test'
   ...
 # Subtest: P194 legacy P193 cleanup receipt without time remains valid without retroactive charge
 ok 8 - P194 legacy P193 cleanup receipt without time remains valid without retroactive charge
   ---
-  duration_ms: 678.2935
+  duration_ms: 969.1301
   type: 'test'
   ...
 # Subtest: P194 Android bridge and PT-BR source options are bundled
 ok 9 - P194 Android bridge and PT-BR source options are bundled
   ---
-  duration_ms: 39.1186
+  duration_ms: 70.6611
   type: 'test'
   ...
 1..9
@@ -61,5 +61,5 @@ ok 9 - P194 Android bridge and PT-BR source options are bundled
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 7803.5131
+# duration_ms 13565.4652
 

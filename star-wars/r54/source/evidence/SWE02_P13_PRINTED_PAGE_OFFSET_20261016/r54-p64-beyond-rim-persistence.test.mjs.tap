@@ -2,13 +2,13 @@ TAP version 13
 # Subtest: P64 completion reports completed and persists aftermath without spoilers before completion
 ok 1 - P64 completion reports completed and persists aftermath without spoilers before completion
   ---
-  duration_ms: 23.4301
+  duration_ms: 28.2326
   type: 'test'
   ...
 # Subtest: P64 aftermath application is idempotent
 ok 2 - P64 aftermath application is idempotent
   ---
-  duration_ms: 30.1963
+  duration_ms: 12.6006
   type: 'test'
   ...
 1..2
@@ -19,5 +19,5 @@ ok 2 - P64 aftermath application is idempotent
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 507.8267
+# duration_ms 587.3326
 

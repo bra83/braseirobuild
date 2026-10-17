@@ -2,7 +2,7 @@ TAP version 13
 # Subtest: interface PT-BR mostra encontro preparado sem esconder escolha de Reação rápida
 ok 1 - interface PT-BR mostra encontro preparado sem esconder escolha de Reação rápida
   ---
-  duration_ms: 3.4951
+  duration_ms: 4.2992
   type: 'test'
   ...
 1..1
@@ -13,5 +13,5 @@ ok 1 - interface PT-BR mostra encontro preparado sem esconder escolha de Reaçã
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 469.543
+# duration_ms 558.6657
 

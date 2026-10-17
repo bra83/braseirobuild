@@ -448,16 +448,16 @@
     "correction": "Removed unsupported claim that B’ura’s contacts refuel the Krayt Fang. Arrival narration covers upper landing/cantina, cavern homes and market stalls/species, local merchant and optional port-watch requests, contact-paid repairs and transponder removal. The safehouse narration now covers the militant group, Nyn, shelter/care, and one physician attempt per Critical Injury.",
     "tests": {
       "file": "tests/uae-p240-swe02-nabat-port-economy-medical.test.mjs",
-      "tests": 19,
-      "pass": 19,
+      "tests": 20,
+      "pass": 20,
       "fail": 0,
       "skip": 0,
       "evidence": "evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/p13-page-crosswalk-focused.tap"
     },
     "combined_affected_suite": {
       "files": 4,
-      "tests": 75,
-      "pass": 75,
+      "tests": 76,
+      "pass": 76,
       "fail": 0,
       "skip": 0,
       "evidence": "evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/p13-page-crosswalk-focused.tap"
@@ -493,8 +493,8 @@
     },
     "full_regression": {
       "files": 382,
-      "tests": 3467,
-      "pass": 3465,
+      "tests": 3468,
+      "pass": 3466,
       "fail": 0,
       "skip": 2,
       "stress_files": 6,

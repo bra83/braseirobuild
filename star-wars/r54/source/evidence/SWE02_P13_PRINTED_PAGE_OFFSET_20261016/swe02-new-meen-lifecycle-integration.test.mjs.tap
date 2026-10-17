@@ -2,7 +2,7 @@ TAP version 13
 # Subtest: pp.19–23 controller imports actual bribe and safe receipts into durable lifecycle events
 ok 1 - pp.19–23 controller imports actual bribe and safe receipts into durable lifecycle events
   ---
-  duration_ms: 664.1619
+  duration_ms: 800.3681
   type: 'test'
   ...
 1..1
@@ -13,5 +13,5 @@ ok 1 - pp.19–23 controller imports actual bribe and safe receipts into durable
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2042.436
+# duration_ms 2240.7156
 

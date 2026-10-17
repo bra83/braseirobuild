@@ -2,13 +2,13 @@ TAP version 13
 # Subtest: P77: TtsBridge usa somente APIs públicas disponíveis para identificar engine
 ok 1 - P77: TtsBridge usa somente APIs públicas disponíveis para identificar engine
   ---
-  duration_ms: 14.2496
+  duration_ms: 26.211
   type: 'test'
   ...
 # Subtest: P77: Android e shell publicam a mesma versão e permanecem em 1.0.77 ou posterior
 ok 2 - P77: Android e shell publicam a mesma versão e permanecem em 1.0.77 ou posterior
   ---
-  duration_ms: 30.3899
+  duration_ms: 287.3046
   type: 'test'
   ...
 1..2
@@ -19,5 +19,5 @@ ok 2 - P77: Android e shell publicam a mesma versão e permanecem em 1.0.77 ou p
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 491.6838
+# duration_ms 1043.4026
 

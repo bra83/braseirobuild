@@ -2,85 +2,85 @@ TAP version 13
 # Subtest: P195 live G-100 uses real Average Charm dice and confirmed berth
 ok 1 - P195 live G-100 uses real Average Charm dice and confirmed berth
   ---
-  duration_ms: 923.6467
+  duration_ms: 1270.0196
   type: 'test'
   ...
 # Subtest: P195 success leaves droid alive, with no black box extraction and no automatic reward
 ok 2 - P195 success leaves droid alive, with no black box extraction and no automatic reward
   ---
-  duration_ms: 735.7495
+  duration_ms: 990.2594
   type: 'test'
   ...
 # Subtest: P195 cannot convince droid before slicing
 ok 3 - P195 cannot convince droid before slicing
   ---
-  duration_ms: 678.0743
+  duration_ms: 699.5009
   type: 'test'
   ...
 # Subtest: P195 requires explicit ship berth, no invented travel or lodging
 ok 4 - P195 requires explicit ship berth, no invented travel or lodging
   ---
-  duration_ms: 588.8486
+  duration_ms: 931.4384
   type: 'test'
   ...
 # Subtest: P195 failed persuasion is not fabricated as success and can be retried
 ok 5 - P195 failed persuasion is not fabricated as success and can be retried
   ---
-  duration_ms: 765.9379
+  duration_ms: 1218.0306
   type: 'test'
   ...
 # Subtest: P195 rejects duplicate receipt and prevents second successful persuasion
 ok 6 - P195 rejects duplicate receipt and prevents second successful persuasion
   ---
-  duration_ms: 658.709
+  duration_ms: 778.2843
   type: 'test'
   ...
 # Subtest: P195 rejects persuasion after any dismantling attempt
 ok 7 - P195 rejects persuasion after any dismantling attempt
   ---
-  duration_ms: 668.4602
+  duration_ms: 686.999
   type: 'test'
   ...
 # Subtest: P195 forged dice, berth, derived state and receipt order are rejected
 ok 8 - P195 forged dice, berth, derived state and receipt order are rejected
   ---
-  duration_ms: 686.4333
+  duration_ms: 608.3255
   type: 'test'
   ...
 # Subtest: P195 three reopenings preserve droid status and all earlier receipts
 ok 9 - P195 three reopenings preserve droid status and all earlier receipts
   ---
-  duration_ms: 602.719
+  duration_ms: 829.5215
   type: 'test'
   ...
 # Subtest: P195 P194 legacy disassembly route remains available without live-droid receipt
 ok 10 - P195 P194 legacy disassembly route remains available without live-droid receipt
   ---
-  duration_ms: 643.3885
+  duration_ms: 644.8005
   type: 'test'
   ...
 # Subtest: P195 Android PT-BR source, bundle and bridge contain live droid action
 ok 11 - P195 Android PT-BR source, bundle and bridge contain live droid action
   ---
-  duration_ms: 39.6887
+  duration_ms: 37.7172
   type: 'test'
   ...
 # Subtest: P195 rejects an orphan BANK_DROID receipt without a bank state
 ok 12 - P195 rejects an orphan BANK_DROID receipt without a bank state
   ---
-  duration_ms: 527.8084
+  duration_ms: 464.5579
   type: 'test'
   ...
 # Subtest: P195 a bank locked after four failures cannot produce a living droid resolution
 ok 13 - P195 a bank locked after four failures cannot produce a living droid resolution
   ---
-  duration_ms: 744.1732
+  duration_ms: 907.8446
   type: 'test'
   ...
 # Subtest: P195 forged living droid status without receipts or bank is rejected
 ok 14 - P195 forged living droid status without receipts or bank is rejected
   ---
-  duration_ms: 523.8834
+  duration_ms: 645.2806
   type: 'test'
   ...
 1..14
@@ -91,5 +91,5 @@ ok 14 - P195 forged living droid status without receipts or bank is rejected
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 10011.459
+# duration_ms 13634.8096
 

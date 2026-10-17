@@ -1,18 +1,18 @@
 {
   "scope": "FRESH_PER_FILE_REGRESSION",
-  "generated_at_utc": "2026-10-17T01:09:33Z",
+  "generated_at_utc": "2026-10-17T01:14:22Z",
   "project": "C:\\Users\\bcruz\\Documents\\Codex\\2026-10-16\\files-mentioned-by-the-user-prompt\\work\\star-wars\\repo-sparse\\star-wars\\r54\\source",
   "log_dir": "C:\\Users\\bcruz\\Documents\\Codex\\2026-10-16\\files-mentioned-by-the-user-prompt\\work\\star-wars\\repo-sparse\\star-wars\\r54\\source\\evidence\\SWE02_P13_PRINTED_PAGE_OFFSET_20261016",
   "files": 382,
   "regular_files": 376,
   "stress_files": 6,
-  "tests": 3467,
-  "pass": 3465,
+  "tests": 3468,
+  "pass": 3466,
   "fail": 0,
   "skip": 2,
   "failed_files": [],
   "files_without_complete_summary": [],
-  "duration_seconds": 155.18,
+  "duration_seconds": 193.47,
   "results": [
     {
       "file": "acquisition-r13.test.mjs",
@@ -3529,8 +3529,8 @@
       "stress": false,
       "exit": 0,
       "ok": true,
-      "tests": 19,
-      "pass": 19,
+      "tests": 20,
+      "pass": 20,
       "fail": 0,
       "skip": 0
     },

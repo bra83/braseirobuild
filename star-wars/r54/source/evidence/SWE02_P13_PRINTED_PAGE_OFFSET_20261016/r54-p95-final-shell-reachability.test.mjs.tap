@@ -2,13 +2,13 @@ TAP version 13
 # Subtest: P95 R46 alcança social/oposto/competitivo/assistência sem fallback textual
 ok 1 - P95 R46 alcança social/oposto/competitivo/assistência sem fallback textual
   ---
-  duration_ms: 5.3204
+  duration_ms: 5.3385
   type: 'test'
   ...
 # Subtest: P95 UI veicular oferece Damage Control e reparo testado, não criação manual de crítico
 ok 2 - P95 UI veicular oferece Damage Control e reparo testado, não criação manual de crítico
   ---
-  duration_ms: 1.4608
+  duration_ms: 2.8483
   type: 'test'
   ...
 1..2
@@ -19,5 +19,5 @@ ok 2 - P95 UI veicular oferece Damage Control e reparo testado, não criação m
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 654.6902
+# duration_ms 715.9513
 

@@ -2,31 +2,31 @@ TAP version 13
 # Subtest: Wave 4: catálogo contém 5 aventuras oficiais publicadas
 ok 1 - Wave 4: catálogo contém 5 aventuras oficiais publicadas
   ---
-  duration_ms: 3.0381
+  duration_ms: 2.884
   type: 'test'
   ...
 # Subtest: Wave 4: todas as novas aventuras passam na validação do Universal Adventure Engine
 ok 2 - Wave 4: todas as novas aventuras passam na validação do Universal Adventure Engine
   ---
-  duration_ms: 1.9538
+  duration_ms: 1.8994
   type: 'test'
   ...
 # Subtest: Wave 4: adapters das novas aventuras executam início e avanço de cenas sem erro
 ok 3 - Wave 4: adapters das novas aventuras executam início e avanço de cenas sem erro
   ---
-  duration_ms: 109.6849
+  duration_ms: 131.3523
   type: 'test'
   ...
 # Subtest: Universal Adventure Engine: capacidades refletem implementação real, sem anunciar combate inexistente
 ok 4 - Universal Adventure Engine: capacidades refletem implementação real, sem anunciar combate inexistente
   ---
-  duration_ms: 4.3111
+  duration_ms: 5.8273
   type: 'test'
   ...
 # Subtest: Universal Adventure Engine: fluxo completo de jogo até conclusão e arquivamento nas 5 aventuras
 ok 5 - Universal Adventure Engine: fluxo completo de jogo até conclusão e arquivamento nas 5 aventuras
   ---
-  duration_ms: 894.7756
+  duration_ms: 2075.1254
   type: 'test'
   ...
 1..5
@@ -37,5 +37,5 @@ ok 5 - Universal Adventure Engine: fluxo completo de jogo até conclusão e arqu
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1898.2406
+# duration_ms 3221.4905
 

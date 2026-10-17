@@ -78,7 +78,7 @@
       "controller": "GameController.treatSWE02NabatPartyCare (all roster PCs atomically); treatSWE02NabatWounds (active-PC compatibility route)",
       "bridge": "BraseiroUiBridge.treatSWE02NabatPartyCare",
       "ui": "swe02NabatCare",
-      "persistence": "PLAYER_ROSTER_UPDATED + WORLD_UPDATED atomicAction; one unique SAFEHOUSE_CARE receipt per registered PC ID; group action requires roster size to match session playerCount and rejects combat; reopen confirms every treated PC",
+      "persistence": "PLAYER_ROSTER_UPDATED + WORLD_UPDATED atomicAction; one unique SAFEHOUSE_CARE receipt per registered PC ID; group action requires roster size to match session playerCount and rejects combat; reload validation checks stable patient ID, integer effect counts and pending critical care; reopen confirms every treated PC",
       "tests": ["tests/uae-p240-swe02-nabat-port-economy-medical.test.mjs", "tests/uae-p241-swe02-nyn-newmeen-social.test.mjs"],
       "limitations": "The physician's separate Critical Injury attempt is in P241 via swe02SocialP241.mjs:nynCriticalCare and can target a non-active roster PC using the same roster ID. Fuel quantity/pricing and remaining page-wide source proof stay open."
     }

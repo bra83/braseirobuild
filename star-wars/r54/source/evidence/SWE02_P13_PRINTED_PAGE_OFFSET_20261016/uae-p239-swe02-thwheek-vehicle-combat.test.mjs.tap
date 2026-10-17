@@ -2,139 +2,139 @@ TAP version 13
 # Subtest: P239 SWE02 p.12: official Dunelizard profile and linked laser cannons
 ok 1 - P239 SWE02 p.12: official Dunelizard profile and linked laser cannons
   ---
-  duration_ms: 4.4246
+  duration_ms: 5.7023
   type: 'test'
   ...
 # Subtest: P239 optimal navigation + slowed transponder: direct Nabat, no fighter
 ok 2 - P239 optimal navigation + slowed transponder: direct Nabat, no fighter
   ---
-  duration_ms: 562.0495
+  duration_ms: 633.9051
   type: 'test'
   ...
 # Subtest: P239 SWE02 p.11 six-hour transit advances one persisted living-world tick exactly once
 ok 3 - P239 SWE02 p.11 six-hour transit advances one persisted living-world tick exactly once
   ---
-  duration_ms: 200.5787
+  duration_ms: 235.1125
   type: 'test'
   ...
 # Subtest: P239 SWE02 p.8 failed route records unquantified extra transit time for GM adjudication
 ok 4 - P239 SWE02 p.8 failed route records unquantified extra transit time for GM adjudication
   ---
-  duration_ms: 222.6845
+  duration_ms: 276.2747
   type: 'test'
   ...
 # Subtest: P239 SWE02 normal route rejects extra transit time adjudication
 ok 5 - P239 SWE02 normal route rejects extra transit time adjudication
   ---
-  duration_ms: 186.4584
+  duration_ms: 229.5795
   type: 'test'
   ...
 # Subtest: P239 failed route forces interception even after slowed tracker
 ok 6 - P239 failed route forces interception even after slowed tracker
   ---
-  duration_ms: 450.7078
+  duration_ms: 402.0947
   type: 'test'
   ...
 # Subtest: P239 p.12: cannot start Thwheek without actual Krayt Fang
 ok 7 - P239 p.12: cannot start Thwheek without actual Krayt Fang
   ---
-  duration_ms: 189.8375
+  duration_ms: 212.3989
   type: 'test'
   ...
 # Subtest: P239 real vehicle engine: Short-range fighter and player must maneuver into Bocajarro
 ok 8 - P239 real vehicle engine: Short-range fighter and player must maneuver into Bocajarro
   ---
-  duration_ms: 276.945
+  duration_ms: 362.8178
   type: 'test'
   ...
 # Subtest: P239 p.12: each PC Cool slot selects its owner and receipts its vehicle actions
 ok 9 - P239 p.12: each PC Cool slot selects its owner and receipts its vehicle actions
   ---
-  duration_ms: 315.4154
+  duration_ms: 408.8713
   type: 'test'
   ...
 # Subtest: P239 p.12: PCs who did not see Thwheek emerge roll Vigilance; the others roll Cool
 ok 10 - P239 p.12: PCs who did not see Thwheek emerge roll Vigilance; the others roll Cool
   ---
-  duration_ms: 212.2076
+  duration_ms: 405.1328
   type: 'test'
   ...
 # Subtest: P239 p.12: unaware PC selection rejects unknown or duplicated roster IDs
 ok 11 - P239 p.12: unaware PC selection rejects unknown or duplicated roster IDs
   ---
-  duration_ms: 126.1938
+  duration_ms: 202.8738
   type: 'test'
   ...
 # Subtest: P239 p.12: initiative blocks bypassing Thwheek and manual round advancement
 ok 12 - P239 p.12: initiative blocks bypassing Thwheek and manual round advancement
   ---
-  duration_ms: 187.9045
+  duration_ms: 293.2395
   type: 'test'
   ...
 # Subtest: P239 legacy active Thwheek saves without initiative remain loadable and use their old round flow
 ok 13 - P239 legacy active Thwheek saves without initiative remain loadable and use their old round flow
   ---
-  duration_ms: 287.7187
+  duration_ms: 327.5354
   type: 'test'
   ...
 # Subtest: P239 real hit + five hull trauma: pursuit remains open, withdrawal permits Nabat
 ok 14 - P239 real hit + five hull trauma: pursuit remains open, withdrawal permits Nabat
   ---
-  duration_ms: 429.3904
+  duration_ms: 474.511
   type: 'test'
   ...
 # Subtest: P239 p.12: no victory without actual hits and no duplicate start/resolve
 ok 15 - P239 p.12: no victory without actual hits and no duplicate start/resolve
   ---
-  duration_ms: 281.3484
+  duration_ms: 293.747
   type: 'test'
   ...
 # Subtest: P239 p.12: incoming attack uses fixed Agility 3, Gunnery 0 even with forged GM overrides
 ok 16 - P239 p.12: incoming attack uses fixed Agility 3, Gunnery 0 even with forged GM overrides
   ---
-  duration_ms: 321.6925
+  duration_ms: 326.5034
   type: 'test'
   ...
 # Subtest: P239 p.12: target stay-on-target switches to evasive after first actual hit, persists next round
 ok 17 - P239 p.12: target stay-on-target switches to evasive after first actual hit, persists next round
   ---
-  duration_ms: 386.7294
+  duration_ms: 362.6054
   type: 'test'
   ...
 # Subtest: P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience checks
 ok 18 - P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience checks
   ---
-  duration_ms: 1280.9939
+  duration_ms: 1271.8467
   type: 'test'
   ...
 # Subtest: P239 p.12: three-person crew cannot be falsely certified by one PC
 ok 19 - P239 p.12: three-person crew cannot be falsely certified by one PC
   ---
-  duration_ms: 2518.4117
+  duration_ms: 2853.0108
   type: 'test'
   ...
 # Subtest: P239 p.12: crash Resilience is recorded once per stable PC ID, including duplicate names
 ok 20 - P239 p.12: crash Resilience is recorded once per stable PC ID, including duplicate names
   ---
-  duration_ms: 1888.6805
+  duration_ms: 1787.6275
   type: 'test'
   ...
 # Subtest: P239 p.12: successful Pilot soft landing upgrades one crew Resilience die
 ok 21 - P239 p.12: successful Pilot soft landing upgrades one crew Resilience die
   ---
-  duration_ms: 1046.515
+  duration_ms: 1196.3676
   type: 'test'
   ...
 # Subtest: P239 fail-closed: forged outcome or crew completion cannot survive adapter status
 ok 22 - P239 fail-closed: forged outcome or crew completion cannot survive adapter status
   ---
-  duration_ms: 311.2787
+  duration_ms: 578.3029
   type: 'test'
   ...
 # Subtest: P239 bridge exposes authoritative vehicle result and crash methods
 ok 23 - P239 bridge exposes authoritative vehicle result and crash methods
   ---
-  duration_ms: 0.8494
+  duration_ms: 0.6758
   type: 'test'
   ...
 1..23
@@ -145,5 +145,5 @@ ok 23 - P239 bridge exposes authoritative vehicle result and crash methods
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 13232.7188
+# duration_ms 15163.5046
 

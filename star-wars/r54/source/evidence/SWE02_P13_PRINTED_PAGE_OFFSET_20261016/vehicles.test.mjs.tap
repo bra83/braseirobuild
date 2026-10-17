@@ -2,103 +2,103 @@ TAP version 13
 # Subtest: perfil Ala-X reproduz os valores do livro inicial
 ok 1 - perfil Ala-X reproduz os valores do livro inicial
   ---
-  duration_ms: 9.1653
+  duration_ms: 7.0716
   type: 'test'
   ...
 # Subtest: Blindagem reduz dano em escala de veículo e limiar só inutiliza ao superar
 ok 2 - Blindagem reduz dano em escala de veículo e limiar só inutiliza ao superar
   ---
-  duration_ms: 5.2108
+  duration_ms: 4.3528
   type: 'test'
   ...
 # Subtest: Tensão de sistemas acima do limiar desliga velocidade, armas e defesa
 ok 3 - Tensão de sistemas acima do limiar desliga velocidade, armas e defesa
   ---
-  duration_ms: 4.1169
+  duration_ms: 5.2981
   type: 'test'
   ...
 # Subtest: um dia completo sem nova tensão recupera 1 Tensão de sistemas
 ok 4 - um dia completo sem nova tensão recupera 1 Tensão de sistemas
   ---
-  duration_ms: 0.9444
+  duration_ms: 1.0174
   type: 'test'
   ...
 # Subtest: Manejo positivo vira Impulso e negativo Contratempo
 ok 5 - Manejo positivo vira Impulso e negativo Contratempo
   ---
-  duration_ms: 0.881
+  duration_ms: 1.2448
   type: 'test'
   ...
 # Subtest: Acelerar/Frear altera exatamente 1 e respeita limites
 ok 6 - Acelerar/Frear altera exatamente 1 e respeita limites
   ---
-  duration_ms: 3.8909
+  duration_ms: 2.2487
   type: 'test'
   ...
 # Subtest: Pisar a fundo vai à velocidade máxima e sofre tensão igual à diferença
 ok 7 - Pisar a fundo vai à velocidade máxima e sofre tensão igual à diferença
   ---
-  duration_ms: 1.2503
+  duration_ms: 3.5408
   type: 'test'
   ...
 # Subtest: Avançar usa passos de alcance conforme velocidade
 ok 8 - Avançar usa passos de alcance conforme velocidade
   ---
-  duration_ms: 0.7723
+  duration_ms: 6.7442
   type: 'test'
   ...
 # Subtest: dificuldade de Artilharia usa diferença de Silhueta
 ok 9 - dificuldade de Artilharia usa diferença de Silhueta
   ---
-  duration_ms: 13.5915
+  duration_ms: 0.4471
   type: 'test'
   ...
 # Subtest: Enfilar usa diferença de Velocidade
 ok 10 - Enfilar usa diferença de Velocidade
   ---
-  duration_ms: 2.2824
+  duration_ms: 4.7059
   type: 'test'
   ...
 # Subtest: perigo de pilotagem usa maior entre Velocidade e metade da Silhueta, com upgrades pelo menor
 ok 11 - perigo de pilotagem usa maior entre Velocidade e metade da Silhueta, com upgrades pelo menor
   ---
-  duration_ms: 1.0508
+  duration_ms: 0.7411
   type: 'test'
   ...
 # Subtest: controle de danos calcula dificuldade e repara um tipo por vez
 ok 12 - controle de danos calcula dificuldade e repara um tipo por vez
   ---
-  duration_ms: 6.1027
+  duration_ms: 1.3935
   type: 'test'
   ...
 # Subtest: Critical Hits de veículo usam a Table 7-9 EotE Core com d100 e +10 cumulativo
 ok 13 - Critical Hits de veículo usam a Table 7-9 EotE Core com d100 e +10 cumulativo
   ---
-  duration_ms: 2.4747
+  duration_ms: 2.7099
   type: 'test'
   ...
 # Subtest: ataque de arma de nave usa Artilharia, Silhueta, Defesa e Blindagem
 ok 14 - ataque de arma de nave usa Artilharia, Silhueta, Defesa e Blindagem
   ---
-  duration_ms: 4.0967
+  duration_ms: 4.7879
   type: 'test'
   ...
 # Subtest: Manobras evasivas aumentam a Dificuldade e Seguir o objetivo melhora Capacidade, sem dados extras indevidos
 ok 15 - Manobras evasivas aumentam a Dificuldade e Seguir o objetivo melhora Capacidade, sem dados extras indevidos
   ---
-  duration_ms: 1.8391
+  duration_ms: 2.3844
   type: 'test'
   ...
 # Subtest: arma de veículo não pode atingir além do alcance indicado no perfil
 ok 16 - arma de veículo não pode atingir além do alcance indicado no perfil
   ---
-  duration_ms: 3.3561
+  duration_ms: 2.4946
   type: 'test'
   ...
 # Subtest: Ajuste fino e Reparos sólidos ampliam somente o tipo correspondente
 ok 17 - Ajuste fino e Reparos sólidos ampliam somente o tipo correspondente
   ---
-  duration_ms: 1.6949
+  duration_ms: 1.4253
   type: 'test'
   ...
 1..17
@@ -109,5 +109,5 @@ ok 17 - Ajuste fino e Reparos sólidos ampliam somente o tipo correspondente
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 742.3585
+# duration_ms 901.0046
 

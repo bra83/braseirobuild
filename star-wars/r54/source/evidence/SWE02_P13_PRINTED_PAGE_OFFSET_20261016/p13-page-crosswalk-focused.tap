@@ -2,459 +2,465 @@ TAP version 13
 # Subtest: P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery
 ok 1 - P238 SWE02 p7-8: navigation cannot be claimed without actual check and Bura discovery
   ---
-  duration_ms: 114.1276
+  duration_ms: 129.8635
   type: 'test'
   ...
 # Subtest: P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed
 ok 2 - P238 p8: failed Astrogation still plots slower route and forces Thwheek even if tracker slowed
   ---
-  duration_ms: 52.9935
+  duration_ms: 58.3366
   type: 'test'
   ...
 # Subtest: P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters
 ok 3 - P238 p8: optimal course and slowed tracker suppress pursuit, not future encounters
   ---
-  duration_ms: 46.9496
+  duration_ms: 44.6248
   type: 'test'
   ...
 # Subtest: P238 p7-8: both noises upgrade one difficulty; one disabled restores pool
 ok 4 - P238 p7-8: both noises upgrade one difficulty; one disabled restores pool
   ---
-  duration_ms: 22.5037
+  duration_ms: 19.4252
   type: 'test'
   ...
 # Subtest: P238 p8: transponder cannot be switched off in flight or removed before landing
 ok 5 - P238 p8: transponder cannot be switched off in flight or removed before landing
   ---
-  duration_ms: 79.6599
+  duration_ms: 71.9961
   type: 'test'
   ...
 # Subtest: P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception
 ok 6 - P238 p9: smell penalty for named organic heroes, Lowhhrick and droid exception
   ---
-  duration_ms: 21.1396
+  duration_ms: 22.3467
   type: 'test'
   ...
 # Subtest: P238 p9: jettison requires actual successful Perception and Computers
 ok 7 - P238 p9: jettison requires actual successful Perception and Computers
   ---
-  duration_ms: 37.0676
+  duration_ms: 32.9522
   type: 'test'
   ...
 # Subtest: P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill
 ok 8 - P238 p9-11: knowledge and droid part checks have source and cannot silently roll unknown skill
   ---
-  duration_ms: 10.2722
+  duration_ms: 9.6082
   type: 'test'
   ...
 # Subtest: P238: forged ship flags, forged Bura and forged intercept outcome fail closed
 ok 9 - P238: forged ship flags, forged Bura and forged intercept outcome fail closed
   ---
-  duration_ms: 32.7971
+  duration_ms: 28.9551
   type: 'test'
   ...
 # Subtest: P238: legacy route remains loadable but is explicitly uncertified
 ok 10 - P238: legacy route remains loadable but is explicitly uncertified
   ---
-  duration_ms: 18.3352
+  duration_ms: 13.4596
   type: 'test'
   ...
 # Subtest: P238 real controller: skill pool, roll receipt and three saved reopens
 ok 11 - P238 real controller: skill pool, roll receipt and three saved reopens
   ---
-  duration_ms: 118.933
+  duration_ms: 104.6429
   type: 'test'
   ...
 # Subtest: P238 real controller: GM selects an EotE Knowledge specialty and the roll receipt survives reopen
 ok 12 - P238 real controller: GM selects an EotE Knowledge specialty and the roll receipt survives reopen
   ---
-  duration_ms: 89.8335
+  duration_ms: 92.2074
   type: 'test'
   ...
 # Subtest: P238 real controller: observations, cargo, Bura conversation and six-hour transit survive three reopens
 ok 13 - P238 real controller: observations, cargo, Bura conversation and six-hour transit survive three reopens
   ---
-  duration_ms: 159.6459
+  duration_ms: 159.0282
   type: 'test'
   ...
 # Subtest: P238 controller: cargo transfers enter the selected roster PC inventory and survive reopen exactly once
 ok 14 - P238 controller: cargo transfers enter the selected roster PC inventory and survive reopen exactly once
   ---
-  duration_ms: 92.3417
+  duration_ms: 83.664
   type: 'test'
   ...
 # Subtest: P238: changing a successful slow tracker to false cannot conceal skipped interception
 ok 15 - P238: changing a successful slow tracker to false cannot conceal skipped interception
   ---
-  duration_ms: 41.8002
+  duration_ms: 39.8398
   type: 'test'
   ...
 # Subtest: P239 SWE02 p.12: official Dunelizard profile and linked laser cannons
 ok 16 - P239 SWE02 p.12: official Dunelizard profile and linked laser cannons
   ---
-  duration_ms: 4.2728
+  duration_ms: 3.4001
   type: 'test'
   ...
 # Subtest: P239 optimal navigation + slowed transponder: direct Nabat, no fighter
 ok 17 - P239 optimal navigation + slowed transponder: direct Nabat, no fighter
   ---
-  duration_ms: 356.5382
+  duration_ms: 341.1215
   type: 'test'
   ...
 # Subtest: P239 SWE02 p.11 six-hour transit advances one persisted living-world tick exactly once
 ok 18 - P239 SWE02 p.11 six-hour transit advances one persisted living-world tick exactly once
   ---
-  duration_ms: 120.8376
+  duration_ms: 116.4891
   type: 'test'
   ...
 # Subtest: P239 SWE02 p.8 failed route records unquantified extra transit time for GM adjudication
 ok 19 - P239 SWE02 p.8 failed route records unquantified extra transit time for GM adjudication
   ---
-  duration_ms: 114.5563
+  duration_ms: 137.0723
   type: 'test'
   ...
 # Subtest: P239 SWE02 normal route rejects extra transit time adjudication
 ok 20 - P239 SWE02 normal route rejects extra transit time adjudication
   ---
-  duration_ms: 126.2415
+  duration_ms: 119.9772
   type: 'test'
   ...
 # Subtest: P239 failed route forces interception even after slowed tracker
 ok 21 - P239 failed route forces interception even after slowed tracker
   ---
-  duration_ms: 344.1058
+  duration_ms: 284.9864
   type: 'test'
   ...
 # Subtest: P239 p.12: cannot start Thwheek without actual Krayt Fang
 ok 22 - P239 p.12: cannot start Thwheek without actual Krayt Fang
   ---
-  duration_ms: 148.7011
+  duration_ms: 133.8767
   type: 'test'
   ...
 # Subtest: P239 real vehicle engine: Short-range fighter and player must maneuver into Bocajarro
 ok 23 - P239 real vehicle engine: Short-range fighter and player must maneuver into Bocajarro
   ---
-  duration_ms: 193.3515
+  duration_ms: 195.9864
   type: 'test'
   ...
 # Subtest: P239 p.12: each PC Cool slot selects its owner and receipts its vehicle actions
 ok 24 - P239 p.12: each PC Cool slot selects its owner and receipts its vehicle actions
   ---
-  duration_ms: 247.7601
+  duration_ms: 231.5134
   type: 'test'
   ...
 # Subtest: P239 p.12: PCs who did not see Thwheek emerge roll Vigilance; the others roll Cool
 ok 25 - P239 p.12: PCs who did not see Thwheek emerge roll Vigilance; the others roll Cool
   ---
-  duration_ms: 206.0639
+  duration_ms: 189.5542
   type: 'test'
   ...
 # Subtest: P239 p.12: unaware PC selection rejects unknown or duplicated roster IDs
 ok 26 - P239 p.12: unaware PC selection rejects unknown or duplicated roster IDs
   ---
-  duration_ms: 139.4151
+  duration_ms: 119.9678
   type: 'test'
   ...
 # Subtest: P239 p.12: initiative blocks bypassing Thwheek and manual round advancement
 ok 27 - P239 p.12: initiative blocks bypassing Thwheek and manual round advancement
   ---
-  duration_ms: 158.0405
+  duration_ms: 155.7155
   type: 'test'
   ...
 # Subtest: P239 legacy active Thwheek saves without initiative remain loadable and use their old round flow
 ok 28 - P239 legacy active Thwheek saves without initiative remain loadable and use their old round flow
   ---
-  duration_ms: 185.9308
+  duration_ms: 139.2279
   type: 'test'
   ...
 # Subtest: P239 real hit + five hull trauma: pursuit remains open, withdrawal permits Nabat
 ok 29 - P239 real hit + five hull trauma: pursuit remains open, withdrawal permits Nabat
   ---
-  duration_ms: 273.1438
+  duration_ms: 221.959
   type: 'test'
   ...
 # Subtest: P239 p.12: no victory without actual hits and no duplicate start/resolve
 ok 30 - P239 p.12: no victory without actual hits and no duplicate start/resolve
   ---
-  duration_ms: 185.4373
+  duration_ms: 119.1795
   type: 'test'
   ...
 # Subtest: P239 p.12: incoming attack uses fixed Agility 3, Gunnery 0 even with forged GM overrides
 ok 31 - P239 p.12: incoming attack uses fixed Agility 3, Gunnery 0 even with forged GM overrides
   ---
-  duration_ms: 189.0428
+  duration_ms: 144.2668
   type: 'test'
   ...
 # Subtest: P239 p.12: target stay-on-target switches to evasive after first actual hit, persists next round
 ok 32 - P239 p.12: target stay-on-target switches to evasive after first actual hit, persists next round
   ---
-  duration_ms: 230.4661
+  duration_ms: 168.4762
   type: 'test'
   ...
 # Subtest: P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience checks
 ok 33 - P239 p.12: shot-down Krayt Fang needs real Pilot and crew Resilience checks
   ---
-  duration_ms: 808.549
+  duration_ms: 623.9115
   type: 'test'
   ...
 # Subtest: P239 p.12: three-person crew cannot be falsely certified by one PC
 ok 34 - P239 p.12: three-person crew cannot be falsely certified by one PC
   ---
-  duration_ms: 1422.617
+  duration_ms: 1166.9004
   type: 'test'
   ...
 # Subtest: P239 p.12: crash Resilience is recorded once per stable PC ID, including duplicate names
 ok 35 - P239 p.12: crash Resilience is recorded once per stable PC ID, including duplicate names
   ---
-  duration_ms: 722.3614
+  duration_ms: 645.5244
   type: 'test'
   ...
 # Subtest: P239 p.12: successful Pilot soft landing upgrades one crew Resilience die
 ok 36 - P239 p.12: successful Pilot soft landing upgrades one crew Resilience die
   ---
-  duration_ms: 341.3453
+  duration_ms: 325.8447
   type: 'test'
   ...
 # Subtest: P239 fail-closed: forged outcome or crew completion cannot survive adapter status
 ok 37 - P239 fail-closed: forged outcome or crew completion cannot survive adapter status
   ---
-  duration_ms: 110.8496
+  duration_ms: 101.5769
   type: 'test'
   ...
 # Subtest: P239 bridge exposes authoritative vehicle result and crash methods
 ok 38 - P239 bridge exposes authoritative vehicle result and crash methods
   ---
-  duration_ms: 0.3006
+  duration_ms: 0.3486
   type: 'test'
   ...
 # Subtest: P240 p.13: market uses only primary EotE Core entries priced <= 500
 ok 39 - P240 p.13: market uses only primary EotE Core entries priced <= 500
   ---
-  duration_ms: 5.2233
+  duration_ms: 7.5703
   type: 'test'
   ...
 # Subtest: P240 p.13: Nabat operations require source-backed safe docking arranged by B’ura
 ok 40 - P240 p.13: Nabat operations require source-backed safe docking arranged by B’ura
   ---
-  duration_ms: 331.7079
+  duration_ms: 319.027
   type: 'test'
   ...
 # Subtest: SWE02 p.13 arrival narration stays source-backed and does not promise fuel
 ok 41 - SWE02 p.13 arrival narration stays source-backed and does not promise fuel
   ---
-  duration_ms: 271.776
+  duration_ms: 284.0958
   type: 'test'
   ...
 # Subtest: SWE02 p.13 optional transponder removal opens the sourced ground Mechanics check after Nabat landing
 ok 42 - SWE02 p.13 optional transponder removal opens the sourced ground Mechanics check after Nabat landing
   ---
-  duration_ms: 401.6625
+  duration_ms: 397.1543
   type: 'test'
   ...
 # Subtest: P240 p.13: real purchase debits wallet and adds catalog gear atomically
 ok 43 - P240 p.13: real purchase debits wallet and adds catalog gear atomically
   ---
-  duration_ms: 289.9892
+  duration_ms: 245.8918
   type: 'test'
   ...
 # Subtest: P240 market rejects forged price, non-EotE source, 501+ item and bad quantities
 ok 44 - P240 market rejects forged price, non-EotE source, 501+ item and bad quantities
   ---
-  duration_ms: 222.7775
+  duration_ms: 220.7609
   type: 'test'
   ...
 # Subtest: P240 purchase insufficient credits: rollback of character, receipts and save
 ok 45 - P240 purchase insufficient credits: rollback of character, receipts and save
   ---
-  duration_ms: 194.5137
+  duration_ms: 155.6914
   type: 'test'
   ...
 # Subtest: P240 p.13: Bura contacts repair the real ship hull, systems and repairable criticals without creating a ship
 ok 46 - P240 p.13: Bura contacts repair the real ship hull, systems and repairable criticals without creating a ship
   ---
-  duration_ms: 259.7163
+  duration_ms: 229.0837
   type: 'test'
   ...
 # Subtest: P240 p.13: contacts cannot claim to repair a destroyed ship; failure rolls back all state
 ok 47 - P240 p.13: contacts cannot claim to repair a destroyed ship; failure rolls back all state
   ---
-  duration_ms: 209.9766
+  duration_ms: 152.6334
   type: 'test'
   ...
 # Subtest: P240 p.13: no ship repair if Bura not found, or ship name forged
 ok 48 - P240 p.13: no ship repair if Bura not found, or ship name forged
   ---
-  duration_ms: 199.8742
+  duration_ms: 143.9081
   type: 'test'
   ...
 # Subtest: P240 p.13–14: port watch must be requested, alert only after Nyn meeting
 ok 49 - P240 p.13–14: port watch must be requested, alert only after Nyn meeting
   ---
-  duration_ms: 233.653
+  duration_ms: 183.7395
   type: 'test'
   ...
 # Subtest: P240 p.13–14: watch at arrival, alert in Nyn safehouse, no automatic knowledge
 ok 50 - P240 p.13–14: watch at arrival, alert in Nyn safehouse, no automatic knowledge
   ---
-  duration_ms: 269.695
+  duration_ms: 197.5054
   type: 'test'
   ...
 # Subtest: P240 p.14: overnight choice closes Nyn scene, delivers requested alert and records the morning briefing
 ok 51 - P240 p.14: overnight choice closes Nyn scene, delivers requested alert and records the morning briefing
   ---
-  duration_ms: 266.8578
+  duration_ms: 198.955
   type: 'test'
   ...
 # Subtest: P240 p.14: morning reply is typed, one-time, and required before mine departure
 ok 52 - P240 p.14: morning reply is typed, one-time, and required before mine departure
   ---
-  duration_ms: 339.2948
+  duration_ms: 256.8754
   type: 'test'
   ...
 # Subtest: P240 p.13: Nyn shelter heals real wounds and strain, never erases critical injuries
 ok 53 - P240 p.13: Nyn shelter heals real wounds and strain, never erases critical injuries
   ---
-  duration_ms: 283.2092
+  duration_ms: 230.7319
   type: 'test'
   ...
 # Subtest: SWE02 p.13: Nyn shelter cares for every registered PC once and persists the whole roster
 ok 54 - SWE02 p.13: Nyn shelter cares for every registered PC once and persists the whole roster
   ---
-  duration_ms: 295.3133
+  duration_ms: 273.3337
   type: 'test'
   ...
 # Subtest: P240 anti-forgery: missing or modified receipt fails adapter status
 ok 55 - P240 anti-forgery: missing or modified receipt fails adapter status
   ---
-  duration_ms: 188.0384
+  duration_ms: 165.1624
+  type: 'test'
+  ...
+# Subtest: P240 anti-forgery: safehouse care receipt requires valid stable patient and effect fields
+ok 56 - P240 anti-forgery: safehouse care receipt requires valid stable patient and effect fields
+  ---
+  duration_ms: 185.6
   type: 'test'
   ...
 # Subtest: P240 no mutation outside Nabat; failed actions do not save
-ok 56 - P240 no mutation outside Nabat; failed actions do not save
+ok 57 - P240 no mutation outside Nabat; failed actions do not save
   ---
-  duration_ms: 165.0646
+  duration_ms: 126.9832
   type: 'test'
   ...
 # Subtest: P240 Android bridge and UI source expose port operations
-ok 57 - P240 Android bridge and UI source expose port operations
+ok 58 - P240 Android bridge and UI source expose port operations
   ---
-  duration_ms: 4.3028
+  duration_ms: 2.2919
   type: 'test'
   ...
 # Subtest: P241 p13: official physician uses 1 proficiency 2 difficulty, heals one actual critical
-ok 58 - P241 p13: official physician uses 1 proficiency 2 difficulty, heals one actual critical
+ok 59 - P241 p13: official physician uses 1 proficiency 2 difficulty, heals one actual critical
   ---
-  duration_ms: 461.0535
+  duration_ms: 431.6721
   type: 'test'
   ...
 # Subtest: P241 physician failure consumes only attempt; never erases injury
-ok 59 - P241 physician failure consumes only attempt; never erases injury
+ok 60 - P241 physician failure consumes only attempt; never erases injury
   ---
-  duration_ms: 312.0512
+  duration_ms: 285.9607
   type: 'test'
   ...
 # Subtest: P241 p13: Nyn can treat a non-active roster PC after that PC received shelter care
-ok 60 - P241 p13: Nyn can treat a non-active roster PC after that PC received shelter care
+ok 61 - P241 p13: Nyn can treat a non-active roster PC after that PC received shelter care
   ---
-  duration_ms: 430.0693
+  duration_ms: 335.8963
   type: 'test'
   ...
 # Subtest: P241 physician blocks unhealable/dead injuries and care-before-critical
-ok 61 - P241 physician blocks unhealable/dead injuries and care-before-critical
+ok 62 - P241 physician blocks unhealable/dead injuries and care-before-critical
   ---
-  duration_ms: 256.407
+  duration_ms: 244.0868
   type: 'test'
   ...
 # Subtest: P241 p14: negotiation records claims; party PCs receive sourced EotE profiles individually
-ok 62 - P241 p14: negotiation records claims; party PCs receive sourced EotE profiles individually
+ok 63 - P241 p14: negotiation records claims; party PCs receive sourced EotE profiles individually
   ---
-  duration_ms: 339.7566
+  duration_ms: 278.323
   type: 'test'
   ...
 # Subtest: P241 p14: Coerce Hard failure gives no gear, no retries
-ok 63 - P241 p14: Coerce Hard failure gives no gear, no retries
+ok 64 - P241 p14: Coerce Hard failure gives no gear, no retries
   ---
-  duration_ms: 266.5095
+  duration_ms: 233.8489
   type: 'test'
   ...
 # Subtest: P241 p14: Triumph with two Threat grants defective rifle and preserves defect marker
-ok 64 - P241 p14: Triumph with two Threat grants defective rifle and preserves defect marker
+ok 65 - P241 p14: Triumph with two Threat grants defective rifle and preserves defect marker
   ---
-  duration_ms: 316.7255
+  duration_ms: 210.3204
   type: 'test'
   ...
 # Subtest: P241 p14: first combat use removes defective Nyn rifle at encounter closure
-ok 65 - P241 p14: first combat use removes defective Nyn rifle at encounter closure
+ok 66 - P241 p14: first combat use removes defective Nyn rifle at encounter closure
   ---
-  duration_ms: 347.9806
+  duration_ms: 260.9424
   type: 'test'
   ...
 # Subtest: P241 p14: unused Nyn award survives an encounter
-ok 66 - P241 p14: unused Nyn award survives an encounter
+ok 67 - P241 p14: unused Nyn award survives an encounter
   ---
-  duration_ms: 268.2638
+  duration_ms: 216.9849
   type: 'test'
   ...
 # Subtest: P241 Nyn invalid method and wrong scene rollback without save
-ok 67 - P241 Nyn invalid method and wrong scene rollback without save
+ok 68 - P241 Nyn invalid method and wrong scene rollback without save
   ---
-  duration_ms: 279.9093
+  duration_ms: 188.7462
   type: 'test'
   ...
 # Subtest: P241 social receipt rejects tampered dice face or Nyn reward
-ok 68 - P241 social receipt rejects tampered dice face or Nyn reward
+ok 69 - P241 social receipt rejects tampered dice face or Nyn reward
   ---
-  duration_ms: 262.0543
+  duration_ms: 213.129
   type: 'test'
   ...
 # Subtest: P241 p23: 400-500 credits bribe uses actual opposed Negotiation and debit
-ok 69 - P241 p23: 400-500 credits bribe uses actual opposed Negotiation and debit
+ok 70 - P241 p23: 400-500 credits bribe uses actual opposed Negotiation and debit
   ---
-  duration_ms: 193.6668
+  duration_ms: 148.5665
   type: 'test'
   ...
 # Subtest: P241 failed bribe does not debit and cannot be converted into victory
-ok 70 - P241 failed bribe does not debit and cannot be converted into victory
+ok 71 - P241 failed bribe does not debit and cannot be converted into victory
   ---
-  duration_ms: 166.1505
+  duration_ms: 137.9057
   type: 'test'
   ...
 # Subtest: P241 invalid bribe, Drombb cannot be bribed and no overspending
-ok 71 - P241 invalid bribe, Drombb cannot be bribed and no overspending
+ok 72 - P241 invalid bribe, Drombb cannot be bribed and no overspending
   ---
-  duration_ms: 126.1467
+  duration_ms: 112.5196
   type: 'test'
   ...
 # Subtest: P241 all minions bribed still leaves Drombb as live adversary
-ok 72 - P241 all minions bribed still leaves Drombb as live adversary
+ok 73 - P241 all minions bribed still leaves Drombb as live adversary
   ---
-  duration_ms: 206.2385
+  duration_ms: 173.3426
   type: 'test'
   ...
 # Subtest: P241 New Meen cannot bribe during live encounter or from wrong scene
-ok 73 - P241 New Meen cannot bribe during live encounter or from wrong scene
+ok 74 - P241 New Meen cannot bribe during live encounter or from wrong scene
   ---
-  duration_ms: 191.3069
+  duration_ms: 129.5947
   type: 'test'
   ...
 # Subtest: P241 New Meen receipt rejects fake credit debit, forged dice, or unconfirmed party
-ok 74 - P241 New Meen receipt rejects fake credit debit, forged dice, or unconfirmed party
+ok 75 - P241 New Meen receipt rejects fake credit debit, forged dice, or unconfirmed party
   ---
-  duration_ms: 131.4382
+  duration_ms: 104.6754
   type: 'test'
   ...
 # Subtest: P241 Android offline bridge and UI expose social, party care, and gear distribution operations
-ok 75 - P241 Android offline bridge and UI expose social, party care, and gear distribution operations
+ok 76 - P241 Android offline bridge and UI expose social, party care, and gear distribution operations
   ---
-  duration_ms: 3.5826
+  duration_ms: 3.2712
   type: 'test'
   ...
-1..75
-# tests 75
+1..76
+# tests 76
 # suites 0
-# pass 75
+# pass 76
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 7412.3754
+# duration_ms 6549.4847

@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: Family authoring: 14 added noncombat source-backed operations across 9 palace scenes
 ok 1 - Family authoring: 14 added noncombat source-backed operations across 9 palace scenes
   ---
-  duration_ms: 1746.1441
+  duration_ms: 2200.4632
   type: 'test'
   ...
 # Subtest: Full reconnaissance route: reception, hallway, gladiators, workshop, kitchen, bar, pad, spy, comms
 ok 2 - Full reconnaissance route: reception, hallway, gladiators, workshop, kitchen, bar, pad, spy, comms
   ---
-  duration_ms: 520.7505
+  duration_ms: 807.1742
   type: 'test'
   ...
 # Subtest: Cannot loot hallway artwork from another room, mint sale cash, or impersonate proof
 ok 3 - Cannot loot hallway artwork from another room, mint sale cash, or impersonate proof
   ---
-  duration_ms: 101.7279
+  duration_ms: 123.6811
   type: 'test'
   ...
 # Subtest: Atomic controller + 3 reopenings: hallway cargo, rollback on unavailable operation
 ok 4 - Atomic controller + 3 reopenings: hallway cargo, rollback on unavailable operation
   ---
-  duration_ms: 207.8103
+  duration_ms: 184.0598
   type: 'test'
   ...
 1..4
@@ -31,5 +31,5 @@ ok 4 - Atomic controller + 3 reopenings: hallway cargo, rollback on unavailable 
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 3682.517
+# duration_ms 4814.5969
 

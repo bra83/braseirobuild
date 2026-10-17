@@ -2,55 +2,55 @@ TAP version 13
 # Subtest: P127 UAE: cadeia evento → trigger → objetivo → consequência em transição atômica
 ok 1 - P127 UAE: cadeia evento → trigger → objetivo → consequência em transição atômica
   ---
-  duration_ms: 32.1548
+  duration_ms: 44.2082
   type: 'test'
   ...
 # Subtest: P127 UAE: snapshot JSON restaura efeitos sem reaplicar gatilhos e sem reabrir objetivo
 ok 2 - P127 UAE: snapshot JSON restaura efeitos sem reaplicar gatilhos e sem reabrir objetivo
   ---
-  duration_ms: 20.3085
+  duration_ms: 26.9002
   type: 'test'
   ...
 # Subtest: P127 UAE: escolha inválida e erro no efeito não deixam mutações parciais
 ok 3 - P127 UAE: escolha inválida e erro no efeito não deixam mutações parciais
   ---
-  duration_ms: 2.4072
+  duration_ms: 2.6906
   type: 'test'
   ...
 # Subtest: P127 UAE: desconhecido não libera escolhas e lógica all/any não permite bypass
 ok 4 - P127 UAE: desconhecido não libera escolhas e lógica all/any não permite bypass
   ---
-  duration_ms: 1.4204
+  duration_ms: 1.2982
   type: 'test'
   ...
 # Subtest: P127 UAE: relógio concluído dispara uma única vez e resolve consequência
 ok 5 - P127 UAE: relógio concluído dispara uma única vez e resolve consequência
   ---
-  duration_ms: 4.5466
+  duration_ms: 11.5494
   type: 'test'
   ...
 # Subtest: P127 UAE: ciclo de gatilhos termina com limite auditável sem travamento
 ok 6 - P127 UAE: ciclo de gatilhos termina com limite auditável sem travamento
   ---
-  duration_ms: 4.2581
+  duration_ms: 9.0958
   type: 'test'
   ...
 # Subtest: P127 UAE: validação rejeita links quebrados, IDs duplicados e gatilhos malformados
 ok 7 - P127 UAE: validação rejeita links quebrados, IDs duplicados e gatilhos malformados
   ---
-  duration_ms: 1.116
+  duration_ms: 11.9899
   type: 'test'
   ...
 # Subtest: P127 UAE: migração é idempotente, impede cruzamento de aventura e snapshot futuro
 ok 8 - P127 UAE: migração é idempotente, impede cruzamento de aventura e snapshot futuro
   ---
-  duration_ms: 2.1012
+  duration_ms: 2.1603
   type: 'test'
   ...
 # Subtest: P127 UAE: as cinco aventuras publicadas preservam grafo íntegro, adaptadores e restauração
 ok 9 - P127 UAE: as cinco aventuras publicadas preservam grafo íntegro, adaptadores e restauração
   ---
-  duration_ms: 23.425
+  duration_ms: 25.9925
   type: 'test'
   ...
 1..9
@@ -61,5 +61,5 @@ ok 9 - P127 UAE: as cinco aventuras publicadas preservam grafo íntegro, adaptad
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1096.0842
+# duration_ms 1494.8101
 

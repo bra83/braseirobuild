@@ -2,103 +2,103 @@ TAP version 13
 # Subtest: P174: source tree activates two source-backed AoR positions
 ok 1 - P174: source tree activates two source-backed AoR positions
   ---
-  duration_ms: 6.9952
+  duration_ms: 6.5308
   type: 'test'
   ...
 # Subtest: P174: Redundant Systems repairs broken gear, donor intact, with real Easy Mechanics check
 ok 2 - P174: Redundant Systems repairs broken gear, donor intact, with real Easy Mechanics check
   ---
-  duration_ms: 86.3373
+  duration_ms: 159.9932
   type: 'test'
   ...
 # Subtest: P174: Bad Motivator fails a GM-approved device after real Hard Mechanics check
 ok 3 - P174: Bad Motivator fails a GM-approved device after real Hard Mechanics check
   ---
-  duration_ms: 27.9174
+  duration_ms: 31.7639
   type: 'test'
   ...
 # Subtest: P174: failed check and refused GM authorization never damage or repair
 ok 4 - P174: failed check and refused GM authorization never damage or repair
   ---
-  duration_ms: 206.8206
+  duration_ms: 114.4987
   type: 'test'
   ...
 # Subtest: P174: duplicate receipt replay is idempotent, other ID cannot spend same session talent
 ok 5 - P174: duplicate receipt replay is idempotent, other ID cannot spend same session talent
   ---
-  duration_ms: 62.4799
+  duration_ms: 59.0205
   type: 'test'
   ...
 # Subtest: P174: rejects missing talent, donor mismatch, damaged donor, invalid target, no session
 ok 6 - P174: rejects missing talent, donor mismatch, damaged donor, invalid target, no session
   ---
-  duration_ms: 77.8603
+  duration_ms: 86.7303
   type: 'test'
   ...
 # Subtest: P174: save failure rolls back check, equipment, receipt and event atomically
 ok 7 - P174: save failure rolls back check, equipment, receipt and event atomically
   ---
-  duration_ms: 56.2808
+  duration_ms: 67.3642
   type: 'test'
   ...
 # Subtest: P174: forged or missing causal receipt rejected by state validation
 ok 8 - P174: forged or missing causal receipt rejected by state validation
   ---
-  duration_ms: 119.967
+  duration_ms: 156.3598
   type: 'test'
   ...
 # Subtest: P174: bridge exposes durable source-backed action
 ok 9 - P174: bridge exposes durable source-backed action
   ---
-  duration_ms: 37.4859
+  duration_ms: 64.4645
   type: 'test'
   ...
 # Subtest: P174: legacy P173 save migrates with empty mechanic ledger
 ok 10 - P174: legacy P173 save migrates with empty mechanic ledger
   ---
-  duration_ms: 23.3357
+  duration_ms: 45.4111
   type: 'test'
   ...
 # Subtest: P174 under-black-sun: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores
 ok 11 - P174 under-black-sun: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores
   ---
-  duration_ms: 101.2588
+  duration_ms: 233.7736
   type: 'test'
   ...
 # Subtest: P174 beyond-the-rim: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores
 ok 12 - P174 beyond-the-rim: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores
   ---
-  duration_ms: 89.7322
+  duration_ms: 118.9228
   type: 'test'
   ...
 # Subtest: P174 long-arm-of-the-hutt: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores
 ok 13 - P174 long-arm-of-the-hutt: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores
   ---
-  duration_ms: 87.6447
+  duration_ms: 107.8326
   type: 'test'
   ...
 # Subtest: P174 jewel-of-yavin: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores
 ok 14 - P174 jewel-of-yavin: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores
   ---
-  duration_ms: 72.7445
+  duration_ms: 132.9468
   type: 'test'
   ...
 # Subtest: P174 mask-of-the-pirate-queen: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores
 ok 15 - P174 mask-of-the-pirate-queen: AoR mechanic equipment action does not alter five adventure UAE checkpoints across three restores
   ---
-  duration_ms: 94.0283
+  duration_ms: 105.2442
   type: 'test'
   ...
 # Subtest: P174: Bad Motivator disables actual catalog weapon actions until repaired
 ok 16 - P174: Bad Motivator disables actual catalog weapon actions until repaired
   ---
-  duration_ms: 68.5366
+  duration_ms: 115.6136
   type: 'test'
   ...
 # Subtest: P174: Unicode character names survive mechanic receipt and three reopenings
 ok 17 - P174: Unicode character names survive mechanic receipt and three reopenings
   ---
-  duration_ms: 54.2748
+  duration_ms: 147.1127
   type: 'test'
   ...
 1..17
@@ -109,5 +109,5 @@ ok 17 - P174: Unicode character names survive mechanic receipt and three reopeni
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2553.5342
+# duration_ms 3576.0317
 

@@ -2,43 +2,43 @@ TAP version 13
 # Subtest: DATA official pp.42, 44–45: bulk 11 authored operations; no arbitrary op or NPC-specific executor
 ok 1 - DATA official pp.42, 44–45: bulk 11 authored operations; no arbitrary op or NPC-specific executor
   ---
-  duration_ms: 296.3725
+  duration_ms: 537.1067
   type: 'test'
   ...
 # Subtest: Workshop: both certified EotE gear allocations and six source-authored locations/actions through shared executor
 ok 2 - Workshop: both certified EotE gear allocations and six source-authored locations/actions through shared executor
   ---
-  duration_ms: 125.0214
+  duration_ms: 199.2366
   type: 'test'
   ...
 # Subtest: Kitchen: cannot grant ryll evidence without adjudicated successful source check
 ok 3 - Kitchen: cannot grant ryll evidence without adjudicated successful source check
   ---
-  duration_ms: 125.1228
+  duration_ms: 178.5902
   type: 'test'
   ...
 # Subtest: Bar & landing pad: new official locations reachable without inventing combat/effects
 ok 4 - Bar & landing pad: new official locations reachable without inventing combat/effects
   ---
-  duration_ms: 277.2645
+  duration_ms: 410.3183
   type: 'test'
   ...
 # Subtest: Bith: interview is gated by real location, source-authored witness and idempotency
 ok 5 - Bith: interview is gated by real location, source-authored witness and idempotency
   ---
-  duration_ms: 127.0119
+  duration_ms: 180.9578
   type: 'test'
   ...
 # Subtest: Live Controller/Bridge/UI: one generic call handles all operations and 3 reopens, rollback on failure
 ok 6 - Live Controller/Bridge/UI: one generic call handles all operations and 3 reopens, rollback on failure
   ---
-  duration_ms: 185.4065
+  duration_ms: 217.9413
   type: 'test'
   ...
 # Subtest: Two independently witnessed palace proofs feed existing universal ending executor without Computers flag
 ok 7 - Two independently witnessed palace proofs feed existing universal ending executor without Computers flag
   ---
-  duration_ms: 185.5518
+  duration_ms: 165.7115
   type: 'test'
   ...
 1..7
@@ -49,5 +49,5 @@ ok 7 - Two independently witnessed palace proofs feed existing universal ending 
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2581.3358
+# duration_ms 3510.087
 

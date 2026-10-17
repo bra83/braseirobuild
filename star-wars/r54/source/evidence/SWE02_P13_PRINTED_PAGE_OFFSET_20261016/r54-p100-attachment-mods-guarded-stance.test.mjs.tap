@@ -2,55 +2,55 @@ TAP version 13
 # Subtest: P100: primeira modificação custa 100 créditos, exige Mecânica Difícil e altera o attachment instalado
 ok 1 - P100: primeira modificação custa 100 créditos, exige Mecânica Difícil e altera o attachment instalado
   ---
-  duration_ms: 81.9456
+  duration_ms: 77.3438
   type: 'test'
   ...
 # Subtest: P100: segunda modificação fica mais difícil, consome o último slot e reduz Imprecisa novamente
 ok 2 - P100: segunda modificação fica mais difícil, consome o último slot e reduz Imprecisa novamente
   ---
-  duration_ms: 48.595
+  duration_ms: 66.9028
   type: 'test'
   ...
 # Subtest: P100: falha de Mod custa créditos, consome uma opção e não concede o efeito
 ok 3 - P100: falha de Mod custa créditos, consome uma opção e não concede o efeito
   ---
-  duration_ms: 31.4226
+  duration_ms: 23.8542
   type: 'test'
   ...
 # Subtest: P100: Mod é bloqueado sem kit de ferramentas, com créditos insuficientes e durante combate
 ok 4 - P100: Mod é bloqueado sem kit de ferramentas, com créditos insuficientes e durante combate
   ---
-  duration_ms: 85.6228
+  duration_ms: 44.257
   type: 'test'
   ...
 # Subtest: P100: Mods instalados chegam ao resolveWeaponAttack real
 ok 5 - P100: Mods instalados chegam ao resolveWeaponAttack real
   ---
-  duration_ms: 122.9969
+  duration_ms: 126.8383
   type: 'test'
   ...
 # Subtest: P100: Mods pertencem ao attachment e sobrevivem remoção, reopen e reinstalação
 ok 6 - P100: Mods pertencem ao attachment e sobrevivem remoção, reopen e reinstalação
   ---
-  duration_ms: 48.3039
+  duration_ms: 65.3192
   type: 'test'
   ...
 # Subtest: P100: Postura Defensiva consome manobra e adiciona Setback aos próprios testes de combate
 ok 7 - P100: Postura Defensiva consome manobra e adiciona Setback aos próprios testes de combate
   ---
-  duration_ms: 35.9947
+  duration_ms: 34.4577
   type: 'test'
   ...
 # Subtest: P100: Postura Defensiva adiciona Setback a ataque melee contra o jogador, mas não a ranged
 ok 8 - P100: Postura Defensiva adiciona Setback a ataque melee contra o jogador, mas não a ranged
   ---
-  duration_ms: 28.2882
+  duration_ms: 40.0372
   type: 'test'
   ...
 # Subtest: P100: bridge/contratos/R46 expõem Mods e Postura Defensiva sem mutação bruta
 ok 9 - P100: bridge/contratos/R46 expõem Mods e Postura Defensiva sem mutação bruta
   ---
-  duration_ms: 29.6622
+  duration_ms: 24.4935
   type: 'test'
   ...
 1..9
@@ -61,5 +61,5 @@ ok 9 - P100: bridge/contratos/R46 expõem Mods e Postura Defensiva sem mutação
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1703.3586
+# duration_ms 1854.414
 

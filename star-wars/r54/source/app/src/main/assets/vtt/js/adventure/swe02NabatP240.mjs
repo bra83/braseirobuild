@@ -178,7 +178,9 @@ export function validateNabat(p){
     !Array.isArray(x.disabledComponentsBefore)||x.disabledComponentsBefore.some(component=>typeof component!=='string')||
     !Array.isArray(x.disabledComponentsAfter)||x.disabledComponentsAfter.length!==0))
    throw Error('SWE02: recibo de reparos dos contatos inválido.');
-  if(x.type==='SAFEHOUSE_CARE'&&(x.nodeId!=='nabat-contact'||!x.characterKey||x.woundsHealed<0||x.strainRecovered<0))
+  if(x.type==='SAFEHOUSE_CARE'&&(x.nodeId!=='nabat-contact'||typeof x.characterKey!=='string'||!x.characterKey.trim()||
+    !Number.isSafeInteger(x.woundsHealed)||x.woundsHealed<0||!Number.isSafeInteger(x.strainRecovered)||x.strainRecovered<0||
+    !Number.isSafeInteger(x.criticalInjuriesRemain)||x.criticalInjuriesRemain<0||x.criticalTreatmentPending!==true))
    throw Error('SWE02: cuidado médico inválido.');
   if(x.type==='TATOOINE_VISITORS_ALERT'&&(x.nodeId!=='nabat-contact'||x.arrivalLeadHours!==2))
    throw Error('SWE02: aviso do porto adulterado.');

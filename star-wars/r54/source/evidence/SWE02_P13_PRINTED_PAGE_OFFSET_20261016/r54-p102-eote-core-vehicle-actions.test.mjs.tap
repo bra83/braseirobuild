@@ -2,55 +2,55 @@ TAP version 13
 # Subtest: P102 Ganhar a Vantagem usa dificuldade por velocidade, consome ação, persiste zona e ignora Evasivas
 ok 1 - P102 Ganhar a Vantagem usa dificuldade por velocidade, consome ação, persiste zona e ignora Evasivas
   ---
-  duration_ms: 85.66
+  duration_ms: 102.2272
   type: 'test'
   ...
 # Subtest: P102 Copiloto sobrevive à troca de assalto e rebaixa o próximo teste de Pilotagem
 ok 2 - P102 Copiloto sobrevive à troca de assalto e rebaixa o próximo teste de Pilotagem
   ---
-  duration_ms: 26.8407
+  duration_ms: 28.0205
   type: 'test'
   ...
 # Subtest: P102 Traçar Curso reduz apenas Setback externo do próximo perigo e é consumido
 ok 3 - P102 Traçar Curso reduz apenas Setback externo do próximo perigo e é consumido
   ---
-  duration_ms: 26.5851
+  duration_ms: 29.1101
   type: 'test'
   ...
 # Subtest: P102 Reforçar Escudos sofre 1 Tensão e aumenta somente a zona escolhida durante a duração
 ok 4 - P102 Reforçar Escudos sofre 1 Tensão e aumenta somente a zona escolhida durante a duração
   ---
-  duration_ms: 41.1744
+  duration_ms: 38.1389
   type: 'test'
   ...
 # Subtest: P102 Disciplina de Fogo concede Boost ao próximo disparo real e consome a carga
 ok 5 - P102 Disciplina de Fogo concede Boost ao próximo disparo real e consome a carga
   ---
-  duration_ms: 27.3379
+  duration_ms: 26.9507
   type: 'test'
   ...
 # Subtest: P102 Escanear revela armamento/modificações e limiares, sem revelar níveis atuais de graça
 ok 6 - P102 Escanear revela armamento/modificações e limiares, sem revelar níveis atuais de graça
   ---
-  duration_ms: 20.9832
+  duration_ms: 19.6138
   type: 'test'
   ...
 # Subtest: P102 Fatiar Sistemas reduz defesa da zona por um round por êxito
 ok 7 - P102 Fatiar Sistemas reduz defesa da zona por um round por êxito
   ---
-  duration_ms: 41.2931
+  duration_ms: 34.9547
   type: 'test'
   ...
 # Subtest: P102 Despistar Mísseis melhora a dificuldade contra arma Guiada no assalto atual
 ok 8 - P102 Despistar Mísseis melhora a dificuldade contra arma Guiada no assalto atual
   ---
-  duration_ms: 21.9309
+  duration_ms: 15.8086
   type: 'test'
   ...
 # Subtest: P102 bridge, contratos e R46 expõem ações sem mutação bruta
 ok 9 - P102 bridge, contratos e R46 expõem ações sem mutação bruta
   ---
-  duration_ms: 10.5931
+  duration_ms: 38.1098
   type: 'test'
   ...
 1..9
@@ -61,5 +61,5 @@ ok 9 - P102 bridge, contratos e R46 expõem ações sem mutação bruta
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1409.6511
+# duration_ms 1602.3323
 

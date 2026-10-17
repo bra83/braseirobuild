@@ -2,73 +2,73 @@ TAP version 13
 # Subtest: Ato3 dossiê exige duas provas distintas concretas, não meras flags
 ok 1 - Ato3 dossiê exige duas provas distintas concretas, não meras flags
   ---
-  duration_ms: 209.0129
+  duration_ms: 291.2271
   type: 'test'
   ...
 # Subtest: Ato3 Anatta: provas verificadas, recibo durável, sem créditos e sem morte
 ok 2 - Ato3 Anatta: provas verificadas, recibo durável, sem créditos e sem morte
   ---
-  duration_ms: 192.7366
+  duration_ms: 238.7369
   type: 'test'
   ...
 # Subtest: Ato3 chantagem só diante de Teemo, sem combate e com dossiê
 ok 3 - Ato3 chantagem só diante de Teemo, sem combate e com dossiê
   ---
-  duration_ms: 282.2475
+  duration_ms: 338.061
   type: 'test'
   ...
 # Subtest: Ato3 intervenção Jabba via Anatta encerra sem fabricar morte ou combate
 ok 4 - Ato3 intervenção Jabba via Anatta encerra sem fabricar morte ou combate
   ---
-  duration_ms: 215.2087
+  duration_ms: 209.4425
   type: 'test'
   ...
 # Subtest: Ato3 dossiê adulterado, falso fim e falso crédito são rejeitados
 ok 5 - Ato3 dossiê adulterado, falso fim e falso crédito são rejeitados
   ---
-  duration_ms: 347.6442
+  duration_ms: 265.7886
   type: 'test'
   ...
 # Subtest: Ato3 cofre oficial: 10000 créditos somente depois de vitória real, sem duplicação
 ok 6 - Ato3 cofre oficial: 10000 créditos somente depois de vitória real, sem duplicação
   ---
-  duration_ms: 92.1499
+  duration_ms: 113.8261
   type: 'test'
   ...
 # Subtest: Ato3 controller/bridge/UI: persistência e três reaberturas; rollback em falha
 ok 7 - Ato3 controller/bridge/UI: persistência e três reaberturas; rollback em falha
   ---
-  duration_ms: 414.507
+  duration_ms: 549.2063
   type: 'test'
   ...
 # Subtest: Ato3 controlador: cofre realmente credita carteira e persiste três vezes
 ok 8 - Ato3 controlador: cofre realmente credita carteira e persiste três vezes
   ---
-  duration_ms: 160.7745
+  duration_ms: 319.8645
   type: 'test'
   ...
 # Subtest: Ato3 lustre exige combate, percepção e blaster; falha consome ação sem vitória
 ok 9 - Ato3 lustre exige combate, percepção e blaster; falha consome ação sem vitória
   ---
-  duration_ms: 340.2558
+  duration_ms: 252.2408
   type: 'test'
   ...
 # Subtest: Ato3 lustre acerta por dados reais: Hutt cai, minions recuam, combate fecha, cofre credita
 ok 10 - Ato3 lustre acerta por dados reais: Hutt cai, minions recuam, combate fecha, cofre credita
   ---
-  duration_ms: 439.3661
+  duration_ms: 468.4563
   type: 'test'
   ...
 # Subtest: Ato3 não aceita recibo adulterado de tiro ou sucesso sem teste de Percepção
 ok 11 - Ato3 não aceita recibo adulterado de tiro ou sucesso sem teste de Percepção
   ---
-  duration_ms: 183.6398
+  duration_ms: 175.2372
   type: 'test'
   ...
 # Subtest: Ato2 Anatta: 11 assuntos e preços oficiais, sem barganha nem compras duplicadas
 ok 12 - Ato2 Anatta: 11 assuntos e preços oficiais, sem barganha nem compras duplicadas
   ---
-  duration_ms: 107.4822
+  duration_ms: 160.1614
   type: 'test'
   ...
 1..12
@@ -79,5 +79,5 @@ ok 12 - Ato2 Anatta: 11 assuntos e preços oficiais, sem barganha nem compras du
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 4583.9997
+# duration_ms 5064.0876
 

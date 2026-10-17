@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: reserva positiva usa o maior valor como total e o menor como upgrades
 ok 1 - reserva positiva usa o maior valor como total e o menor como upgrades
   ---
-  duration_ms: 4.4912
+  duration_ms: 4.5425
   type: 'test'
   ...
 # Subtest: êxito/falha e vantagem/ameaça se cancelam em eixos independentes
 ok 2 - êxito/falha e vantagem/ameaça se cancelam em eixos independentes
   ---
-  duration_ms: 2.8147
+  duration_ms: 2.98
   type: 'test'
   ...
 # Subtest: triunfo conta como êxito e desespero conta como falha sem apagar o símbolo especial
 ok 3 - triunfo conta como êxito e desespero conta como falha sem apagar o símbolo especial
   ---
-  duration_ms: 0.6304
+  duration_ms: 0.5571
   type: 'test'
   ...
 # Subtest: rolagem aceita RNG injetado para testes determinísticos
 ok 4 - rolagem aceita RNG injetado para testes determinísticos
   ---
-  duration_ms: 1.0498
+  duration_ms: 0.9702
   type: 'test'
   ...
 1..4
@@ -31,5 +31,5 @@ ok 4 - rolagem aceita RNG injetado para testes determinísticos
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 448.9451
+# duration_ms 652.2943
 
