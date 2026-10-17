@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: Ala-X entra no estado persistente e combate de veículos reabre intacto
 ok 1 - Ala-X entra no estado persistente e combate de veículos reabre intacto
   ---
-  duration_ms: 48.6875
+  duration_ms: 54.5263
   type: 'test'
   ...
 # Subtest: segunda manobra exclusiva exige Tensão de sistemas ou ação
 ok 2 - segunda manobra exclusiva exige Tensão de sistemas ou ação
   ---
-  duration_ms: 25.8955
+  duration_ms: 33.1912
   type: 'test'
   ...
 # Subtest: ataque veicular consome ação e aplica resultado ao alvo
 ok 3 - ataque veicular consome ação e aplica resultado ao alvo
   ---
-  duration_ms: 17.2623
+  duration_ms: 24.4023
   type: 'test'
   ...
 # Subtest: controle de danos usa Mecânica do personagem e persiste
 ok 4 - controle de danos usa Mecânica do personagem e persiste
   ---
-  duration_ms: 38.2261
+  duration_ms: 36.7154
   type: 'test'
   ...
 1..4
@@ -31,5 +31,5 @@ ok 4 - controle de danos usa Mecânica do personagem e persiste
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1969.5206
+# duration_ms 1348.3704
 

@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: download de cache captura uma geração antes de entrar no executor
 ok 1 - download de cache captura uma geração antes de entrar no executor
   ---
-  duration_ms: 3.0348
+  duration_ms: 3.4443
   type: 'test'
   ...
 # Subtest: clear invalida a geração e remove imagem metadata e temporário sob o mesmo lock de commit
 ok 2 - clear invalida a geração e remove imagem metadata e temporário sob o mesmo lock de commit
   ---
-  duration_ms: 0.5714
+  duration_ms: 0.5849
   type: 'test'
   ...
 # Subtest: fetch só confirma arquivos se sua geração continuar atual dentro do lock de commit
 ok 3 - fetch só confirma arquivos se sua geração continuar atual dentro do lock de commit
   ---
-  duration_ms: 2.831
+  duration_ms: 2.6764
   type: 'test'
   ...
 # Subtest: fetch invalidado não publica erro tardio depois de clear ou requisição mais nova
 ok 4 - fetch invalidado não publica erro tardio depois de clear ou requisição mais nova
   ---
-  duration_ms: 0.6981
+  duration_ms: 0.7135
   type: 'test'
   ...
 1..4
@@ -31,5 +31,5 @@ ok 4 - fetch invalidado não publica erro tardio depois de clear ou requisição
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 744.6269
+# duration_ms 661.5361
 

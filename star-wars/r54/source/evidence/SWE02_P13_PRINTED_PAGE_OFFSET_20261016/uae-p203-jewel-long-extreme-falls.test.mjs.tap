@@ -2,55 +2,55 @@ TAP version 13
 # Subtest: P203 long fall forces incapacitation, +50 critical and actual 30 strain less advantages
 ok 1 - P203 long fall forces incapacitation, +50 critical and actual 30 strain less advantages
   ---
-  duration_ms: 1204.6568
+  duration_ms: 1135.1136
   type: 'test'
   ...
 # Subtest: P203 extreme fall forces incapacitation, +75 critical, 40 strain, no automatic GM-discretion death
 ok 2 - P203 extreme fall forces incapacitation, +75 critical, 40 strain, no automatic GM-discretion death
   ---
-  duration_ms: 975.2778
+  duration_ms: 902.2205
   type: 'test'
   ...
 # Subtest: P203 GM may use rolled triumph to reduce long to medium, applying numeric 30/20
 ok 3 - P203 GM may use rolled triumph to reduce long to medium, applying numeric 30/20
   ---
-  duration_ms: 998.4058
+  duration_ms: 771.3436
   type: 'test'
   ...
 # Subtest: P203 GM may use rolled triumph to reduce extreme to long, retaining +50 forced critical
 ok 4 - P203 GM may use rolled triumph to reduce extreme to long, retaining +50 forced critical
   ---
-  duration_ms: 746.7962
+  duration_ms: 759.9774
   type: 'test'
   ...
 # Subtest: P203 rejects GM reduction without a real triumph and leaves state intact
 ok 5 - P203 rejects GM reduction without a real triumph and leaves state intact
   ---
-  duration_ms: 786.753
+  duration_ms: 781.3927
   type: 'test'
   ...
 # Subtest: P203 tampered forced-critical receipt and range are detected
 ok 6 - P203 tampered forced-critical receipt and range are detected
   ---
-  duration_ms: 866.3903
+  duration_ms: 735.9712
   type: 'test'
   ...
 # Subtest: P203 forced fall survives three independent reloads, duplicate receipt rollback
 ok 7 - P203 forced fall survives three independent reloads, duplicate receipt rollback
   ---
-  duration_ms: 817.5054
+  duration_ms: 791.4686
   type: 'test'
   ...
 # Subtest: P203 Android UI includes long/extreme and GM triumph switch, bundle source is versioned
 ok 8 - P203 Android UI includes long/extreme and GM triumph switch, bundle source is versioned
   ---
-  duration_ms: 5.3284
+  duration_ms: 9.8054
   type: 'test'
   ...
 # Subtest: P203 rejects forged long-fall fields on legacy blast receipt
 ok 9 - P203 rejects forged long-fall fields on legacy blast receipt
   ---
-  duration_ms: 680.3801
+  duration_ms: 685.853
   type: 'test'
   ...
 1..9
@@ -61,5 +61,5 @@ ok 9 - P203 rejects forged long-fall fields on legacy blast receipt
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 8478.233
+# duration_ms 7927.9204
 

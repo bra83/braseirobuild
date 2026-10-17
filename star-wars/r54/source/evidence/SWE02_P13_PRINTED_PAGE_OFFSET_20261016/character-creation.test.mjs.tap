@@ -2,61 +2,61 @@ TAP version 13
 # Subtest: tabela oficial de Duty e política solo ficam distinguidas
 ok 1 - tabela oficial de Duty e política solo ficam distinguidas
   ---
-  duration_ms: 4.9768
+  duration_ms: 5.4017
   type: 'test'
   ...
 # Subtest: reduções de Duty cobrem as quatro opções e não permitem gasto maior que o Duty inicial
 ok 2 - reduções de Duty cobrem as quatro opções e não permitem gasto maior que o Duty inicial
   ---
-  duration_ms: 1.7451
+  duration_ms: 2.7046
   type: 'test'
   ...
 # Subtest: custo de Característica é sequencial e respeita o máximo 5
 ok 3 - custo de Característica é sequencial e respeita o máximo 5
   ---
-  duration_ms: 0.941
+  duration_ms: 2.2417
   type: 'test'
   ...
 # Subtest: Humano personalizado gera ficha válida com sobreposição carreira/especialização até grau 2
 ok 4 - Humano personalizado gera ficha válida com sobreposição carreira/especialização até grau 2
   ---
-  duration_ms: 3.1244
+  duration_ms: 5.3831
   type: 'test'
   ...
 # Subtest: Humano não pode usar como bônus racial uma perícia profissional
 ok 5 - Humano não pode usar como bônus racial uma perícia profissional
   ---
-  duration_ms: 0.8055
+  duration_ms: 0.9758
   type: 'test'
   ...
 # Subtest: Droide recebe treinamento ampliado, Resistente e Proteção derivada
 ok 6 - Droide recebe treinamento ampliado, Resistente e Proteção derivada
   ---
-  duration_ms: 1.1234
+  duration_ms: 1.9091
   type: 'test'
   ...
 # Subtest: bônus racial e escolhas gratuitas nunca ultrapassam grau 2 durante a criação
 ok 7 - bônus racial e escolhas gratuitas nunca ultrapassam grau 2 durante a criação
   ---
-  duration_ms: 0.784
+  duration_ms: 0.8718
   type: 'test'
   ...
 # Subtest: Motivação é obrigatória e PE insuficientes impedem criação
 ok 8 - Motivação é obrigatória e PE insuficientes impedem criação
   ---
-  duration_ms: 1.0329
+  duration_ms: 1.016
   type: 'test'
   ...
 # Subtest: prévia soma bônus de Duty, créditos e PE de Características sem alterar estado
 ok 9 - prévia soma bônus de Duty, créditos e PE de Características sem alterar estado
   ---
-  duration_ms: 0.8606
+  duration_ms: 0.8661
   type: 'test'
   ...
 # Subtest: dados do núcleo AoR mantêm oito espécies, seis carreiras e três especializações por carreira
 ok 10 - dados do núcleo AoR mantêm oito espécies, seis carreiras e três especializações por carreira
   ---
-  duration_ms: 0.7796
+  duration_ms: 1.0912
   type: 'test'
   ...
 1..10
@@ -67,5 +67,5 @@ ok 10 - dados do núcleo AoR mantêm oito espécies, seis carreiras e três espe
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 480.8827
+# duration_ms 518.5943
 

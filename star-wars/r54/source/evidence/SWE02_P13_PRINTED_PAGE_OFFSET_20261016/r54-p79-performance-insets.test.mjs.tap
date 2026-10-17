@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: P79 physically insets WebView inside system bars
 ok 1 - P79 physically insets WebView inside system bars
   ---
-  duration_ms: 2.7451
+  duration_ms: 2.6688
   type: 'test'
   ...
 # Subtest: P79 loads a single coalesced global DOM scheduler before repair scripts
 ok 2 - P79 loads a single coalesced global DOM scheduler before repair scripts
   ---
-  duration_ms: 1.741
+  duration_ms: 1.5536
   type: 'test'
   ...
 # Subtest: P79 uses the optimized mobile galaxy map
 ok 3 - P79 uses the optimized mobile galaxy map
   ---
-  duration_ms: 1.1461
+  duration_ms: 1.1146
   type: 'test'
   ...
 # Subtest: P79 keeps P78 gameplay/TTS fixes while bumping version
 ok 4 - P79 keeps P78 gameplay/TTS fixes while bumping version
   ---
-  duration_ms: 1.3043
+  duration_ms: 1.2584
   type: 'test'
   ...
 1..4
@@ -31,5 +31,5 @@ ok 4 - P79 keeps P78 gameplay/TTS fixes while bumping version
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 459.1969
+# duration_ms 491.6751
 

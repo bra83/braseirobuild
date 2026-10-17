@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: P53 metadados e fronteira avançam para Episódio II sem expor Episódio III
 ok 1 - P53 metadados e fronteira avançam para Episódio II sem expor Episódio III
   ---
-  duration_ms: 46.5687
+  duration_ms: 48.7475
   type: 'test'
   ...
 # Subtest: P53 busca em Cholganna exige resultado real para revelar rastro
 ok 2 - P53 busca em Cholganna exige resultado real para revelar rastro
   ---
-  duration_ms: 27.5717
+  duration_ms: 41.8744
   type: 'test'
   ...
 # Subtest: P53 fluxo principal persiste sobreviventes, confiança e crise imperial
 ok 3 - P53 fluxo principal persiste sobreviventes, confiança e crise imperial
   ---
-  duration_ms: 104.864
+  duration_ms: 61.6169
   type: 'test'
   ...
 # Subtest: P53 consequência do rastreador do Episódio I persiste internamente sem vazar se não foi detectada
 ok 4 - P53 consequência do rastreador do Episódio I persiste internamente sem vazar se não foi detectada
   ---
-  duration_ms: 17.1739
+  duration_ms: 25.211
   type: 'test'
   ...
 1..4
@@ -31,5 +31,5 @@ ok 4 - P53 consequência do rastreador do Episódio I persiste internamente sem 
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 697.1629
+# duration_ms 692.4509
 

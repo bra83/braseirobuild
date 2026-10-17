@@ -2,61 +2,61 @@ TAP version 13
 # Subtest: personagem inicial entra no estado persistente e a perícia usa seus valores
 ok 1 - personagem inicial entra no estado persistente e a perícia usa seus valores
   ---
-  duration_ms: 78.9955
+  duration_ms: 68.2761
   type: 'test'
   ...
 # Subtest: combate consome ação no ataque e segunda manobra por Tensão persiste na ficha
 ok 2 - combate consome ação no ataque e segunda manobra por Tensão persiste na ficha
   ---
-  duration_ms: 66.1575
+  duration_ms: 47.8303
   type: 'test'
   ...
 # Subtest: dificuldade automática por alcance, Mirar e crítico são aplicados no ataque
 ok 3 - dificuldade automática por alcance, Mirar e crítico são aplicados no ataque
   ---
-  duration_ms: 29.0343
+  duration_ms: 36.7119
   type: 'test'
   ...
 # Subtest: não rola uma segunda ação no mesmo turno nem permite agir incapacitado
 ok 4 - não rola uma segunda ação no mesmo turno nem permite agir incapacitado
   ---
-  duration_ms: 30.2344
+  duration_ms: 26.1654
   type: 'test'
   ...
 # Subtest: consulta de regras e contexto do Mestre persistem sem narrar livremente
 ok 5 - consulta de regras e contexto do Mestre persistem sem narrar livremente
   ---
-  duration_ms: 200.5706
+  duration_ms: 266.2095
   type: 'test'
   ...
 # Subtest: personagem personalizado EotE entra no mesmo estado persistente
 ok 6 - personagem personalizado EotE entra no mesmo estado persistente
   ---
-  duration_ms: 6.1251
+  duration_ms: 19.6288
   type: 'test'
   ...
 # Subtest: Base, recursos e Obligation persistem ao reabrir a campanha
 ok 7 - Base, recursos e Obligation persistem ao reabrir a campanha
   ---
-  duration_ms: 11.7549
+  duration_ms: 12.9262
   type: 'test'
   ...
 # Subtest: compra de talento de primeira linha persiste e desconta PE uma única vez
 ok 8 - compra de talento de primeira linha persiste e desconta PE uma única vez
   ---
-  duration_ms: 12.7254
+  duration_ms: 13.7258
   type: 'test'
   ...
 # Subtest: compra genérica da árvore completa desbloqueia conexão e persiste linha inferior
 ok 9 - compra genérica da árvore completa desbloqueia conexão e persiste linha inferior
   ---
-  duration_ms: 10.8769
+  duration_ms: 11.7369
   type: 'test'
   ...
 # Subtest: propor aquisição de arma consulta o Mestre sem descontar créditos
 ok 10 - propor aquisição de arma consulta o Mestre sem descontar créditos
   ---
-  duration_ms: 525.3083
+  duration_ms: 489.7984
   type: 'test'
   ...
 1..10
@@ -67,5 +67,5 @@ ok 10 - propor aquisição de arma consulta o Mestre sem descontar créditos
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2276.805
+# duration_ms 2229.3606
 

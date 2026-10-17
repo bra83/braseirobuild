@@ -2,49 +2,49 @@ TAP version 13
 # Subtest: export de ficha usa JSON canônico e nome .json sem criar estado
 ok 1 - export de ficha usa JSON canônico e nome .json sem criar estado
   ---
-  duration_ms: 34.5047
+  duration_ms: 46.2205
   type: 'test'
   ...
 # Subtest: import de ficha inválida não altera campanha nem cria snapshot
 ok 2 - import de ficha inválida não altera campanha nem cria snapshot
   ---
-  duration_ms: 5.3056
+  duration_ms: 5.234
   type: 'test'
   ...
 # Subtest: import de ficha válida cria snapshot antes da mutação e persiste nova ficha
 ok 3 - import de ficha válida cria snapshot antes da mutação e persiste nova ficha
   ---
-  duration_ms: 9.9015
+  duration_ms: 10.5105
   type: 'test'
   ...
 # Subtest: backup de campanha exporta JSON validado sem remover estado
 ok 4 - backup de campanha exporta JSON validado sem remover estado
   ---
-  duration_ms: 3.2843
+  duration_ms: 3.3708
   type: 'test'
   ...
 # Subtest: backup corrompido é rejeitado sem sobrescrever campanha nem snapshot
 ok 5 - backup corrompido é rejeitado sem sobrescrever campanha nem snapshot
   ---
-  duration_ms: 1.3898
+  duration_ms: 4.7589
   type: 'test'
   ...
 # Subtest: restore de backup válido preserva snapshot automático do estado anterior
 ok 6 - restore de backup válido preserva snapshot automático do estado anterior
   ---
-  duration_ms: 4.4577
+  duration_ms: 7.3169
   type: 'test'
   ...
 # Subtest: snapshot manual pode restaurar exatamente o estado salvo
 ok 7 - snapshot manual pode restaurar exatamente o estado salvo
   ---
-  duration_ms: 5.3615
+  duration_ms: 6.4082
   type: 'test'
   ...
 # Subtest: operações de backup/ficha sem campanha falham sem criar campanha padrão
 ok 8 - operações de backup/ficha sem campanha falham sem criar campanha padrão
   ---
-  duration_ms: 0.5193
+  duration_ms: 0.5436
   type: 'test'
   ...
 1..8
@@ -55,5 +55,5 @@ ok 8 - operações de backup/ficha sem campanha falham sem criar campanha padrã
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1868.0289
+# duration_ms 1399.4056
 

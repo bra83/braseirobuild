@@ -2,7 +2,7 @@ TAP version 13
 # Subtest: 33 sessões simuladas preservam plano de facção, afiliação do PNPC e avanço explícito após reaberturas
 ok 1 - 33 sessões simuladas preservam plano de facção, afiliação do PNPC e avanço explícito após reaberturas
   ---
-  duration_ms: 3465.9239
+  duration_ms: 3381.5871
   type: 'test'
   ...
 1..1
@@ -13,5 +13,5 @@ ok 1 - 33 sessões simuladas preservam plano de facção, afiliação do PNPC e 
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 6071.01
+# duration_ms 4635.0882
 

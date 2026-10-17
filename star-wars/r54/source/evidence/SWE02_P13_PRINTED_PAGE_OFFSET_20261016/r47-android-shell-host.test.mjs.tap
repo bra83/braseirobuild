@@ -2,49 +2,49 @@ TAP version 13
 # Subtest: R47 Android inicia pela shell visual R46 sem remover as pontes nativas
 ok 1 - R47 Android inicia pela shell visual R46 sem remover as pontes nativas
   ---
-  duration_ms: 8.3553
+  duration_ms: 5.1941
   type: 'test'
   ...
 # Subtest: host offline instala BraseiroGameBridge antes de montar o bundle React
 ok 2 - host offline instala BraseiroGameBridge antes de montar o bundle React
   ---
-  duration_ms: 12.5291
+  duration_ms: 2.7485
   type: 'test'
   ...
 # Subtest: bundle offline da shell e CSS estão presentes e sintaticamente fechados
 ok 3 - bundle offline da shell e CSS estão presentes e sintaticamente fechados
   ---
-  duration_ms: 4.9777
+  duration_ms: 4.7065
   type: 'test'
   ...
 # Subtest: rotas e domínio principal continuam na arquitetura R46
 ok 4 - rotas e domínio principal continuam na arquitetura R46
   ---
-  duration_ms: 5.9988
+  duration_ms: 5.8355
   type: 'test'
   ...
 # Subtest: CSS Android mantém viewport 415×915 e não referencia assets inexistentes
 ok 5 - CSS Android mantém viewport 415×915 e não referencia assets inexistentes
   ---
-  duration_ms: 11.9861
+  duration_ms: 3.1087
   type: 'test'
   ...
 # Subtest: apenas ícones canônicos materializados são usados no host
 ok 6 - apenas ícones canônicos materializados são usados no host
   ---
-  duration_ms: 34.5434
+  duration_ms: 49.572
   type: 'test'
   ...
 # Subtest: mapeamento de ícones não pede items.png ou records.png ausentes
 ok 7 - mapeamento de ícones não pede items.png ou records.png ausentes
   ---
-  duration_ms: 8.9059
+  duration_ms: 4.2205
   type: 'test'
   ...
 # Subtest: entrada legada permanece no pacote apenas como fallback não carregado
 ok 8 - entrada legada permanece no pacote apenas como fallback não carregado
   ---
-  duration_ms: 2.3498
+  duration_ms: 1.755
   type: 'test'
   ...
 1..8
@@ -55,5 +55,5 @@ ok 8 - entrada legada permanece no pacote apenas como fallback não carregado
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 753.4136
+# duration_ms 622.0638
 

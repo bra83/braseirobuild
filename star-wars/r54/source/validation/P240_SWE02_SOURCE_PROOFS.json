@@ -16,6 +16,17 @@
       "limitations": "Fuel quantity and price are not specified by the adventure and remain unmodified."
     },
     {
+      "feature": "Optional transponder removal can be attempted after Nabat landing",
+      "printedPages": [13, 8],
+      "executor": "swe02KraytFangP238.mjs:shipCheckAvailable/SHIP_CHECKS[removeTracker] + recordShipCheck",
+      "controller": "GameController.resolvePublishedAdventureCheck",
+      "bridge": "BraseiroUiBridge.resolvePublishedAdventureCheck",
+      "ui": "nabat-hull-inspection choice → krayt-fang-ground-inspection check",
+      "persistence": "The p.13 arrival choice enters the actual ground-inspection state; the source-p.8 Average Mechanics roll records removal on success, and the saved flag/source check survive three controller reopen cycles.",
+      "tests": ["tests/uae-p240-swe02-nabat-port-economy-medical.test.mjs", "tests/uae-p238-swe02-krayt-fang-ship-source.test.mjs"],
+      "limitations": "The p.13 scene offers the opportunity; difficulty and mechanic remain sourced to p.8. Fuel, market completeness, actual Android PDF import and page-wide proof remain open."
+    },
+    {
       "feature": "Nabat market limited to <=500 credits",
       "printedPage": 13,
       "executor": "app/src/main/assets/vtt/js/adventure/swe02NabatP240.mjs:nabatPurchase",

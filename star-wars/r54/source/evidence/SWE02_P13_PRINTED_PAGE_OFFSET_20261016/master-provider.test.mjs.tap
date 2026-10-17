@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: endpoint remoto exige HTTPS, exceto localhost de desenvolvimento
 ok 1 - endpoint remoto exige HTTPS, exceto localhost de desenvolvimento
   ---
-  duration_ms: 4.4016
+  duration_ms: 3.7494
   type: 'test'
   ...
 # Subtest: adaptador HTTP envia contexto e recebe somente proposta estruturada
 ok 2 - adaptador HTTP envia contexto e recebe somente proposta estruturada
   ---
-  duration_ms: 87.5052
+  duration_ms: 95.2321
   type: 'test'
   ...
 # Subtest: falha de rede do Mestre não altera o estado válido
 ok 3 - falha de rede do Mestre não altera o estado válido
   ---
-  duration_ms: 50.2449
+  duration_ms: 56.4507
   type: 'test'
   ...
 # Subtest: resposta remota validada altera só a camada narrativa autorizada
 ok 4 - resposta remota validada altera só a camada narrativa autorizada
   ---
-  duration_ms: 24.5709
+  duration_ms: 35.9319
   type: 'test'
   ...
 1..4
@@ -31,5 +31,5 @@ ok 4 - resposta remota validada altera só a camada narrativa autorizada
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1356.0886
+# duration_ms 1392.2311
 

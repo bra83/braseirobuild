@@ -2,31 +2,31 @@ TAP version 13
 # Subtest: P40: planos só existem após epílogo e avançam pelo relógio
 ok 1 - P40: planos só existem após epílogo e avançam pelo relógio
   ---
-  duration_ms: 51.7309
+  duration_ms: 55.3919
   type: 'test'
   ...
 # Subtest: P40: Pykes resolvem consequência e alteram influência persistentemente
 ok 2 - P40: Pykes resolvem consequência e alteram influência persistentemente
   ---
-  duration_ms: 50.4124
+  duration_ms: 40.3201
   type: 'test'
   ...
 # Subtest: P40: retaliação Zelcomm cria consequência jogável conhecida
 ok 3 - P40: retaliação Zelcomm cria consequência jogável conhecida
   ---
-  duration_ms: 19.0757
+  duration_ms: 25.2532
   type: 'test'
   ...
 # Subtest: P40: retorno de Kaa’to resolve sem vazar ao jogador antes de entrar em cena
 ok 4 - P40: retorno de Kaa’to resolve sem vazar ao jogador antes de entrar em cena
   ---
-  duration_ms: 25.2365
+  duration_ms: 18.3078
   type: 'test'
   ...
 # Subtest: P40: Kaa’to morto continua sem plano de retorno
 ok 5 - P40: Kaa’to morto continua sem plano de retorno
   ---
-  duration_ms: 19.406
+  duration_ms: 30.2498
   type: 'test'
   ...
 1..5
@@ -37,5 +37,5 @@ ok 5 - P40: Kaa’to morto continua sem plano de retorno
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 586.5476
+# duration_ms 744.9773
 

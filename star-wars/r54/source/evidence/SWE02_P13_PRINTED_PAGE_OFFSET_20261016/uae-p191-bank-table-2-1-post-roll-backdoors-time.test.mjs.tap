@@ -2,85 +2,85 @@ TAP version 13
 # Subtest: P191 PDF p70: one advantage creates one real boost for next bank slicing roll
 ok 1 - P191 PDF p70: one advantage creates one real boost for next bank slicing roll
   ---
-  duration_ms: 1132.0355
+  duration_ms: 1067.9503
   type: 'test'
   ...
 # Subtest: P191 PDF p70: two advantages upgrade positive dice in the next check
 ok 2 - P191 PDF p70: two advantages upgrade positive dice in the next check
   ---
-  duration_ms: 894.8028
+  duration_ms: 772.8682
   type: 'test'
   ...
 # Subtest: P191 PDF p70: two threats cost 15 actual elapsed minutes and durable ledger
 ok 3 - P191 PDF p70: two threats cost 15 actual elapsed minutes and durable ledger
   ---
-  duration_ms: 860.8982
+  duration_ms: 829.0984
   type: 'test'
   ...
 # Subtest: P191 cannot spend more advantages than rolled or threats on advantage result
 ok 4 - P191 cannot spend more advantages than rolled or threats on advantage result
   ---
-  duration_ms: 758.5386
+  duration_ms: 727.9104
   type: 'test'
   ...
 # Subtest: P191 spending must follow a real latest bank slice and cannot be replayed
 ok 5 - P191 spending must follow a real latest bank slice and cannot be replayed
   ---
-  duration_ms: 708.8444
+  duration_ms: 753.7921
   type: 'test'
   ...
 # Subtest: P191 tampering with spending choices, roll faces or pending state fails status
 ok 6 - P191 tampering with spending choices, roll faces or pending state fails status
   ---
-  duration_ms: 703.0977
+  duration_ms: 683.296
   type: 'test'
   ...
 # Subtest: P191 tampering with the 15-minute task ledger fails status
 ok 7 - P191 tampering with the 15-minute task ledger fails status
   ---
-  duration_ms: 677.3755
+  duration_ms: 629.8895
   type: 'test'
   ...
 # Subtest: P191 no automatic credit payout, no fake bank transfer, no second spend
 ok 8 - P191 no automatic credit payout, no fake bank transfer, no second spend
   ---
-  duration_ms: 775.1709
+  duration_ms: 650.0809
   type: 'test'
   ...
 # Subtest: P191 P190 legacy receipts without BANK_SLICE_SPEND stay valid
 ok 9 - P191 P190 legacy receipts without BANK_SLICE_SPEND stay valid
   ---
-  duration_ms: 699.361
+  duration_ms: 571.4693
   type: 'test'
   ...
 # Subtest: P191 UI bridge exposes after-roll choices and displays only supported table outcomes
 ok 10 - P191 UI bridge exposes after-roll choices and displays only supported table outcomes
   ---
-  duration_ms: 41.156
+  duration_ms: 60.8578
   type: 'test'
   ...
 # Subtest: P191 combines a boost and an upgrade from the same post-roll choice without overspending
 ok 11 - P191 combines a boost and an upgrade from the same post-roll choice without overspending
   ---
-  duration_ms: 866.2948
+  duration_ms: 677.3962
   type: 'test'
   ...
 # Subtest: P191 unknown spend fields, fractional counts and empty choices reject atomically
 ok 12 - P191 unknown spend fields, fractional counts and empty choices reject atomically
   ---
-  duration_ms: 919.1556
+  duration_ms: 585.1704
   type: 'test'
   ...
 # Subtest: P191 unknown receipt fields and forged extra time receipt are rejected on readback
 ok 13 - P191 unknown receipt fields and forged extra time receipt are rejected on readback
   ---
-  duration_ms: 984.2617
+  duration_ms: 727.1687
   type: 'test'
   ...
 # Subtest: P191 UI offline bundle includes the new Table 2-1 engine and the bridge method
 ok 14 - P191 UI offline bundle includes the new Table 2-1 engine and the bridge method
   ---
-  duration_ms: 41.5345
+  duration_ms: 35.5993
   type: 'test'
   ...
 1..14
@@ -91,5 +91,5 @@ ok 14 - P191 UI offline bundle includes the new Table 2-1 engine and the bridge 
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 11398.3483
+# duration_ms 9990.9084
 

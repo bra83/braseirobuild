@@ -2,139 +2,139 @@ TAP version 13
 # Subtest: Encumbrance threshold Core é 5 + Brawn e mochila soma +4
 ok 1 - Encumbrance threshold Core é 5 + Brawn e mochila soma +4
   ---
-  duration_ms: 10.5525
+  duration_ms: 8.047
   type: 'test'
   ...
 # Subtest: armadura vestida reduz Encumbrance em 3
 ok 2 - armadura vestida reduz Encumbrance em 3
   ---
-  duration_ms: 0.9043
+  duration_ms: 0.8565
   type: 'test'
   ...
 # Subtest: cada ponto acima do threshold gera setback em Brawn/Agility e excesso >= Brawn remove manobra grátis
 ok 3 - cada ponto acima do threshold gera setback em Brawn/Agility e excesso >= Brawn remove manobra grátis
   ---
-  duration_ms: 0.7686
+  duration_ms: 1.3988
   type: 'test'
   ...
 # Subtest: levantamento usa threshold efetivo e ajuda soma Brawn bruto
 ok 4 - levantamento usa threshold efetivo e ajuda soma Brawn bruto
   ---
-  duration_ms: 1.6085
+  duration_ms: 1.5146
   type: 'test'
   ...
 # Subtest: condições genéricas aplicam staggered/immobilized/disoriented e acumulam duração
 ok 5 - condições genéricas aplicam staggered/immobilized/disoriented e acumulam duração
   ---
-  duration_ms: 1.8336
+  duration_ms: 1.5721
   type: 'test'
   ...
 # Subtest: condições expiram por turno sem ficar negativas
 ok 6 - condições expiram por turno sem ficar negativas
   ---
-  duration_ms: 0.7895
+  duration_ms: 5.5015
   type: 'test'
   ...
 # Subtest: Fear usa Discipline ou Cool e dificuldade 1..5
 ok 7 - Fear usa Discipline ou Cool e dificuldade 1..5
   ---
-  duration_ms: 3.2403
+  duration_ms: 4.2914
   type: 'test'
   ...
 # Subtest: falha de Fear impõe setback e Despair aumenta dificuldade
 ok 8 - falha de Fear impõe setback e Despair aumenta dificuldade
   ---
-  duration_ms: 0.5914
+  duration_ms: 0.9037
   type: 'test'
   ...
 # Subtest: três Threat podem virar staggered no primeiro turno
 ok 9 - três Threat podem virar staggered no primeiro turno
   ---
-  duration_ms: 0.4744
+  duration_ms: 0.5127
   type: 'test'
   ...
 # Subtest: sucesso com Advantage prepara boost no primeiro check
 ok 10 - sucesso com Advantage prepara boost no primeiro check
   ---
-  duration_ms: 0.8218
+  duration_ms: 0.7748
   type: 'test'
   ...
 # Subtest: Destiny inicial soma um Force die por jogador
 ok 11 - Destiny inicial soma um Force die por jogador
   ---
-  duration_ms: 2.606
+  duration_ms: 2.5046
   type: 'test'
   ...
 # Subtest: gastar Destiny vira o ponto para o lado oposto
 ok 12 - gastar Destiny vira o ponto para o lado oposto
   ---
-  duration_ms: 1.1942
+  duration_ms: 0.6932
   type: 'test'
   ...
 # Subtest: upgrade de pool converte Ability em Proficiency e adiciona Ability quando necessário
 ok 13 - upgrade de pool converte Ability em Proficiency e adiciona Ability quando necessário
   ---
-  duration_ms: 0.7104
+  duration_ms: 0.556
   type: 'test'
   ...
 # Subtest: Obligation é d100 antes da sessão e identifica entrada por faixa cumulativa
 ok 14 - Obligation é d100 antes da sessão e identifica entrada por faixa cumulativa
   ---
-  duration_ms: 1.6236
+  duration_ms: 1.5136
   type: 'test'
   ...
 # Subtest: doubles dobram penalidade de Obligation
 ok 15 - doubles dobram penalidade de Obligation
   ---
-  duration_ms: 3.7265
+  duration_ms: 0.7571
   type: 'test'
   ...
 # Subtest: Obligation acima de 100 bloqueia progressão
 ok 16 - Obligation acima de 100 bloqueia progressão
   ---
-  duration_ms: 2.6174
+  duration_ms: 0.635
   type: 'test'
   ...
 # Subtest: startSession prepara Destiny e Obligation e aplica threshold efetivo sem destruir base
 ok 17 - startSession prepara Destiny e Obligation e aplica threshold efetivo sem destruir base
   ---
-  duration_ms: 39.0565
+  duration_ms: 36.1751
   type: 'test'
   ...
 # Subtest: encerrar sessão remove penalidade temporária de Obligation
 ok 18 - encerrar sessão remove penalidade temporária de Obligation
   ---
-  duration_ms: 12.2276
+  duration_ms: 10.3625
   type: 'test'
   ...
 # Subtest: Obligation >100 bloqueia treino, especialização, talento e Força pelo mesmo gate
 ok 19 - Obligation >100 bloqueia treino, especialização, talento e Força pelo mesmo gate
   ---
-  duration_ms: 4.2876
+  duration_ms: 3.6567
   type: 'test'
   ...
 # Subtest: Fear no controller evita rerrolar a mesma fonte sem mudança significativa
 ok 20 - Fear no controller evita rerrolar a mesma fonte sem mudança significativa
   ---
-  duration_ms: 11.4462
+  duration_ms: 11.0161
   type: 'test'
   ...
 # Subtest: disoriented do controller adiciona setback ao teste real
 ok 21 - disoriented do controller adiciona setback ao teste real
   ---
-  duration_ms: 33.1589
+  duration_ms: 24.5565
   type: 'test'
   ...
 # Subtest: Encumbrance remove a manobra gratuita e cobra 2 Strain já na primeira
 ok 22 - Encumbrance remove a manobra gratuita e cobra 2 Strain já na primeira
   ---
-  duration_ms: 7.0688
+  duration_ms: 6.7887
   type: 'test'
   ...
 # Subtest: Destiny gasto em skill check aprimora pool e vira a reserva
 ok 23 - Destiny gasto em skill check aprimora pool e vira a reserva
   ---
-  duration_ms: 6.636
+  duration_ms: 6.4992
   type: 'test'
   ...
 1..23
@@ -145,5 +145,5 @@ ok 23 - Destiny gasto em skill check aprimora pool e vira a reserva
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1427.1386
+# duration_ms 1369.3956
 

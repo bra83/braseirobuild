@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: P214 alderaan NPC Threat drops a real weapon and blocks its attack until actual recovery
 ok 1 - P214 alderaan NPC Threat drops a real weapon and blocks its attack until actual recovery
   ---
-  duration_ms: 1703.7889
+  duration_ms: 1464.8958
   type: 'test'
   ...
 # Subtest: P214 kashyyyk NPC Threat drops a real weapon and blocks its attack until actual recovery
 ok 2 - P214 kashyyyk NPC Threat drops a real weapon and blocks its attack until actual recovery
   ---
-  duration_ms: 1205.4223
+  duration_ms: 1116.9865
   type: 'test'
   ...
 # Subtest: P214 unused NPC Threat falls back to one real strain/wound, cannot be double spent
 ok 3 - P214 unused NPC Threat falls back to one real strain/wound, cannot be double spent
   ---
-  duration_ms: 990.9691
+  duration_ms: 1066.3144
   type: 'test'
   ...
 # Subtest: P214 rules, UI, bridge and offline bundle contain physical weapon loss and GM fallback
 ok 4 - P214 rules, UI, bridge and offline bundle contain physical weapon loss and GM fallback
   ---
-  duration_ms: 36.4092
+  duration_ms: 43.5332
   type: 'test'
   ...
 1..4
@@ -31,5 +31,5 @@ ok 4 - P214 rules, UI, bridge and offline bundle contain physical weapon loss an
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 5324.3274
+# duration_ms 5117.2055
 

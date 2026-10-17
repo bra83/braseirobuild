@@ -2,37 +2,37 @@ TAP version 13
 # Subtest: evento com mesmo ID só é aplicado uma vez
 ok 1 - evento com mesmo ID só é aplicado uma vez
   ---
-  duration_ms: 1520.3653
+  duration_ms: 22.6679
   type: 'test'
   ...
 # Subtest: export/import JSON preserva estado válido
 ok 2 - export/import JSON preserva estado válido
   ---
-  duration_ms: 7.773
+  duration_ms: 17.104
   type: 'test'
   ...
 # Subtest: fechar/reabrir um repositório de arquivo preserva estado
 ok 3 - fechar/reabrir um repositório de arquivo preserva estado
   ---
-  duration_ms: 8.4257
+  duration_ms: 18.708
   type: 'test'
   ...
 # Subtest: estado v1 é migrado sem perder campanha e recebe combate v10, veículos e sessão
 ok 4 - estado v1 é migrado sem perder campanha e recebe combate v10, veículos e sessão
   ---
-  duration_ms: 1.4684
+  duration_ms: 12.5712
   type: 'test'
   ...
 # Subtest: estado v2 migra para v10 preservando combate e adicionando encontro
 ok 5 - estado v2 migra para v10 preservando combate e adicionando encontro
   ---
-  duration_ms: 3.752
+  duration_ms: 8.3192
   type: 'test'
   ...
 # Subtest: estado v3 migra para v10 adicionando contexto do Mestre sem perder encontro
 ok 6 - estado v3 migra para v10 adicionando contexto do Mestre sem perder encontro
   ---
-  duration_ms: 1.4187
+  duration_ms: 1.9043
   type: 'test'
   ...
 1..6
@@ -43,5 +43,5 @@ ok 6 - estado v3 migra para v10 adicionando contexto do Mestre sem perder encont
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2163.4033
+# duration_ms 820.9987
 

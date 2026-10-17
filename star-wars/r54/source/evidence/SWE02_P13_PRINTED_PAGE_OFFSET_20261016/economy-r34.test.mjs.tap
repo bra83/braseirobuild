@@ -2,157 +2,157 @@ TAP version 13
 # Subtest: R34 catálogo econômico cobre 31 armas, 7 armaduras, 21 gear e veículos comprovados
 ok 1 - R34 catálogo econômico cobre 31 armas, 7 armaduras, 21 gear e veículos comprovados
   ---
-  duration_ms: 11.0711
+  duration_ms: 16.0801
   type: 'test'
   ...
 # Subtest: R34 perfis veiculares sem raridade comprovada falham fechados
 ok 2 - R34 perfis veiculares sem raridade comprovada falham fechados
   ---
-  duration_ms: 1.6044
+  duration_ms: 3.1019
   type: 'test'
   ...
 # Subtest: R34 disponibilidade genérica usa raridade da armadura
 ok 3 - R34 disponibilidade genérica usa raridade da armadura
   ---
-  duration_ms: 2.201
+  duration_ms: 1.4771
   type: 'test'
   ...
 # Subtest: R34 mercado local altera raridade efetiva
 ok 4 - R34 mercado local altera raridade efetiva
   ---
-  duration_ms: 0.7483
+  duration_ms: 0.8146
   type: 'test'
   ...
 # Subtest: R34 pedido de compra guarda tipo, mercado e localização
 ok 5 - R34 pedido de compra guarda tipo, mercado e localização
   ---
-  duration_ms: 462.0242
+  duration_ms: 431.6959
   type: 'test'
   ...
 # Subtest: R34 item desconhecido falha fechado
 ok 6 - R34 item desconhecido falha fechado
   ---
-  duration_ms: 0.9358
+  duration_ms: 0.8477
   type: 'test'
   ...
 # Subtest: R34 recompensa de arma cria inventário e ownership
 ok 7 - R34 recompensa de arma cria inventário e ownership
   ---
-  duration_ms: 404.2072
+  duration_ms: 387.8976
   type: 'test'
   ...
 # Subtest: R34 saque de armadura cria ownership sem equipar magicamente
 ok 8 - R34 saque de armadura cria ownership sem equipar magicamente
   ---
-  duration_ms: 367.9056
+  duration_ms: 356.83
   type: 'test'
   ...
 # Subtest: R34 gear catalogado persiste em gear + ownership
 ok 9 - R34 gear catalogado persiste em gear + ownership
   ---
-  duration_ms: 376.9586
+  duration_ms: 354.4001
   type: 'test'
   ...
 # Subtest: R34 veículo adquirido separa profile availability ownership state e visual
 ok 10 - R34 veículo adquirido separa profile availability ownership state e visual
   ---
-  duration_ms: 379.233
+  duration_ms: 377.6525
   type: 'test'
   ...
 # Subtest: R34 compra aprovada desconta créditos e concede ativo
 ok 11 - R34 compra aprovada desconta créditos e concede ativo
   ---
-  duration_ms: 345.1934
+  duration_ms: 357.875
   type: 'test'
   ...
 # Subtest: R34 compra rejeitada não altera créditos/propriedade
 ok 12 - R34 compra rejeitada não altera créditos/propriedade
   ---
-  duration_ms: 386.024
+  duration_ms: 323.3248
   type: 'test'
   ...
 # Subtest: R34 compra sem créditos é bloqueada
 ok 13 - R34 compra sem créditos é bloqueada
   ---
-  duration_ms: 378.7251
+  duration_ms: 405.8607
   type: 'test'
   ...
 # Subtest: R34 decisão econômica numérica exige evidência
 ok 14 - R34 decisão econômica numérica exige evidência
   ---
-  duration_ms: 337.4962
+  duration_ms: 375.8153
   type: 'test'
   ...
 # Subtest: R34 perda remove arma do inventário e registry
 ok 15 - R34 perda remove arma do inventário e registry
   ---
-  duration_ms: 359.7605
+  duration_ms: 331.6894
   type: 'test'
   ...
 # Subtest: R34 dano de item exige regra recuperada
 ok 16 - R34 dano de item exige regra recuperada
   ---
-  duration_ms: 312.3144
+  duration_ms: 313.4259
   type: 'test'
   ...
 # Subtest: R34 dano e reparo pessoal persistem condição e custo
 ok 17 - R34 dano e reparo pessoal persistem condição e custo
   ---
-  duration_ms: 367.5065
+  duration_ms: 331.9409
   type: 'test'
   ...
 # Subtest: R34 dano e reparo veicular alteram Hull Damage da unidade possuída
 ok 18 - R34 dano e reparo veicular alteram Hull Damage da unidade possuída
   ---
-  duration_ms: 357.5978
+  duration_ms: 344.8964
   type: 'test'
   ...
 # Subtest: R34 venda adiciona créditos e remove ativo mecânico
 ok 19 - R34 venda adiciona créditos e remove ativo mecânico
   ---
-  duration_ms: 315.1527
+  duration_ms: 328.022
   type: 'test'
   ...
 # Subtest: R34 proposta aceita pedido estruturado de veículo
 ok 20 - R34 proposta aceita pedido estruturado de veículo
   ---
-  duration_ms: 4.7349
+  duration_ms: 4.7641
   type: 'test'
   ...
 # Subtest: R34 proposta rejeita escrita econômica livre
 ok 21 - R34 proposta rejeita escrita econômica livre
   ---
-  duration_ms: 0.4477
+  duration_ms: 0.4342
   type: 'test'
   ...
 # Subtest: R34 dano/reparo/venda estruturados exigem regra conhecida
 ok 22 - R34 dano/reparo/venda estruturados exigem regra conhecida
   ---
-  duration_ms: 1.0244
+  duration_ms: 1.0084
   type: 'test'
   ...
 # Subtest: R34 contexto do Mestre inclui mercado, catálogo e ownership
 ok 23 - R34 contexto do Mestre inclui mercado, catálogo e ownership
   ---
-  duration_ms: 508.6257
+  duration_ms: 464.2757
   type: 'test'
   ...
 # Subtest: R34 GameController abre pedido genérico usando mercado local
 ok 24 - R34 GameController abre pedido genérico usando mercado local
   ---
-  duration_ms: 1017.9202
+  duration_ms: 981.5639
   type: 'test'
   ...
 # Subtest: R34 proposta do Mestre pode conceder saque catalogado sem escrita livre
 ok 25 - R34 proposta do Mestre pode conceder saque catalogado sem escrita livre
   ---
-  duration_ms: 405.885
+  duration_ms: 435.5971
   type: 'test'
   ...
 # Subtest: R34 compatibilidade: proposeWeaponAcquisition continua funcional
 ok 26 - R34 compatibilidade: proposeWeaponAcquisition continua funcional
   ---
-  duration_ms: 583.8493
+  duration_ms: 764.4036
   type: 'test'
   ...
 1..26
@@ -163,5 +163,5 @@ ok 26 - R34 compatibilidade: proposeWeaponAcquisition continua funcional
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 8852.9574
+# duration_ms 8886.546
 

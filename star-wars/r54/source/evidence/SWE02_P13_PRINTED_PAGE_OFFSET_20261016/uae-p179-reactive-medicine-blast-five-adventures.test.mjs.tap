@@ -2,157 +2,157 @@ TAP version 13
 # Subtest: P179 AoR catalog keeps 360 source positions distinct from 356 integrated effects; Brace remains pending
 ok 1 - P179 AoR catalog keeps 360 source positions distinct from 356 integrated effects; Brace remains pending
   ---
-  duration_ms: 21.4795
+  duration_ms: 16.4798
   type: 'test'
   ...
 # Subtest: P179 Tactician Superviviente is Natural Outdoorsman, not Unmatched Courage
 ok 2 - P179 Tactician Superviviente is Natural Outdoorsman, not Unmatched Courage
   ---
-  duration_ms: 91.7605
+  duration_ms: 81.586
   type: 'test'
   ...
 # Subtest: P179 Medic blocks a real threshold critical with Hard Medicine, not the wound damage
 ok 3 - P179 Medic blocks a real threshold critical with Hard Medicine, not the wound damage
   ---
-  duration_ms: 52.374
+  duration_ms: 77.0967
   type: 'test'
   ...
 # Subtest: P179 Medic failed Medicine check consumes the session use and leaves the critical intact
 ok 4 - P179 Medic failed Medicine check consumes the session use and leaves the critical intact
   ---
-  duration_ms: 21.8883
+  duration_ms: 34.8109
   type: 'test'
   ...
 # Subtest: P179 Medic does not consume once/session when no critical event occurs
 ok 5 - P179 Medic does not consume once/session when no critical event occurs
   ---
-  duration_ms: 35.7543
+  duration_ms: 24.8777
   type: 'test'
   ...
 # Subtest: P179 Medic rejects self, unowned, repeated, unapproved, and invalid targets atomically
 ok 6 - P179 Medic rejects self, unowned, repeated, unapproved, and invalid targets atomically
   ---
-  duration_ms: 83.9735
+  duration_ms: 70.9614
   type: 'test'
   ...
 # Subtest: P179 Medicine action rollback restores ally and medic on failed persistent save
 ok 7 - P179 Medicine action rollback restores ally and medic on failed persistent save
   ---
-  duration_ms: 39.9156
+  duration_ms: 19.6695
   type: 'test'
   ...
 # Subtest: P179 prepared Medic reacts during actual NPC attack and persists once/session
 ok 8 - P179 prepared Medic reacts during actual NPC attack and persists once/session
   ---
-  duration_ms: 51.6027
+  duration_ms: 41.6806
   type: 'test'
   ...
 # Subtest: P179 preparing Medic is atomic and validates real ally, ownership and GM approval
 ok 9 - P179 preparing Medic is atomic and validates real ally, ownership and GM approval
   ---
-  duration_ms: 32.9588
+  duration_ms: 51.5062
   type: 'test'
   ...
 # Subtest: P179 NPC blast receipt is derived from a real grenade and real attack Advantage
 ok 10 - P179 NPC blast receipt is derived from a real grenade and real attack Advantage
   ---
-  duration_ms: 38.6998
+  duration_ms: 47.8351
   type: 'test'
   ...
 # Subtest: P179 NPC blast requires actual Advantage and Blast quality, not a GM fabricated event
 ok 11 - P179 NPC blast requires actual Advantage and Blast quality, not a GM fabricated event
   ---
-  duration_ms: 13.8748
+  duration_ms: 35.0431
   type: 'test'
   ...
 # Subtest: P179 Time to Go escapes NPC blast, spends exactly one light Destiny and saves companion via Improved
 ok 12 - P179 Time to Go escapes NPC blast, spends exactly one light Destiny and saves companion via Improved
   ---
-  duration_ms: 75.6942
+  duration_ms: 55.2067
   type: 'test'
   ...
 # Subtest: P179 Blast with no Time to Go damages real player and companion with soak
 ok 13 - P179 Blast with no Time to Go damages real player and companion with soak
   ---
-  duration_ms: 46.4779
+  duration_ms: 41.6319
   type: 'test'
   ...
 # Subtest: P179 Blast refuses phantom, duplicate, unsupported and unapproved escapes atomically
 ok 14 - P179 Blast refuses phantom, duplicate, unsupported and unapproved escapes atomically
   ---
-  duration_ms: 90.0085
+  duration_ms: 54.0415
   type: 'test'
   ...
 # Subtest: P179 Blast rejects an unowned Time to Go and preserves Destiny
 ok 15 - P179 Blast rejects an unowned Time to Go and preserves Destiny
   ---
-  duration_ms: 30.7765
+  duration_ms: 31.1799
   type: 'test'
   ...
 # Subtest: P179 Blast cannot be resolved without light Destiny, even when all targets would escape
 ok 16 - P179 Blast cannot be resolved without light Destiny, even when all targets would escape
   ---
-  duration_ms: 38.7046
+  duration_ms: 36.0138
   type: 'test'
   ...
 # Subtest: P179 blast rollback restores spent Destiny, wounds and attack receipt
 ok 17 - P179 blast rollback restores spent Destiny, wounds and attack receipt
   ---
-  duration_ms: 36.2056
+  duration_ms: 35.5303
   type: 'test'
   ...
 # Subtest: P179 forged pending blast and forged Medic preparation rejected by state validator
 ok 18 - P179 forged pending blast and forged Medic preparation rejected by state validator
   ---
-  duration_ms: 21.6741
+  duration_ms: 17.3416
   type: 'test'
   ...
 # Subtest: P179 combat closure removes pending blast, prepared Medic and encounter-only escape receipts
 ok 19 - P179 combat closure removes pending blast, prepared Medic and encounter-only escape receipts
   ---
-  duration_ms: 85.2165
+  duration_ms: 61.1869
   type: 'test'
   ...
 # Subtest: P179 rejects forged blast escape without a matching resolved attack
 ok 20 - P179 rejects forged blast escape without a matching resolved attack
   ---
-  duration_ms: 29.689
+  duration_ms: 18.4827
   type: 'test'
   ...
 # Subtest: P179 UI bundle and Android source include actual controller reaction bridge
 ok 21 - P179 UI bundle and Android source include actual controller reaction bridge
   ---
-  duration_ms: 33.8127
+  duration_ms: 42.9181
   type: 'test'
   ...
 # Subtest: P179 under-black-sun: critical reaction and blast preserve adventure runtime after 3 reopens
 ok 22 - P179 under-black-sun: critical reaction and blast preserve adventure runtime after 3 reopens
   ---
-  duration_ms: 104.4884
+  duration_ms: 111.9535
   type: 'test'
   ...
 # Subtest: P179 beyond-the-rim: critical reaction and blast preserve adventure runtime after 3 reopens
 ok 23 - P179 beyond-the-rim: critical reaction and blast preserve adventure runtime after 3 reopens
   ---
-  duration_ms: 73.8783
+  duration_ms: 69.4871
   type: 'test'
   ...
 # Subtest: P179 long-arm-of-the-hutt: critical reaction and blast preserve adventure runtime after 3 reopens
 ok 24 - P179 long-arm-of-the-hutt: critical reaction and blast preserve adventure runtime after 3 reopens
   ---
-  duration_ms: 91.5843
+  duration_ms: 72.3096
   type: 'test'
   ...
 # Subtest: P179 jewel-of-yavin: critical reaction and blast preserve adventure runtime after 3 reopens
 ok 25 - P179 jewel-of-yavin: critical reaction and blast preserve adventure runtime after 3 reopens
   ---
-  duration_ms: 63.9991
+  duration_ms: 71.0056
   type: 'test'
   ...
 # Subtest: P179 mask-of-the-pirate-queen: critical reaction and blast preserve adventure runtime after 3 reopens
 ok 26 - P179 mask-of-the-pirate-queen: critical reaction and blast preserve adventure runtime after 3 reopens
   ---
-  duration_ms: 73.0979
+  duration_ms: 65.7776
   type: 'test'
   ...
 1..26
@@ -163,5 +163,5 @@ ok 26 - P179 mask-of-the-pirate-queen: critical reaction and blast preserve adve
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2797.395
+# duration_ms 2657.4723
 

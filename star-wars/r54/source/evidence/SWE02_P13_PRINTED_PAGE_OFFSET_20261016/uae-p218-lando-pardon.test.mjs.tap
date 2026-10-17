@@ -2,49 +2,49 @@ TAP version 13
 # Subtest: P218 official p.90: +5 Favor per GM-confirmed real PC, not a narrative flag
 ok 1 - P218 official p.90: +5 Favor per GM-confirmed real PC, not a narrative flag
   ---
-  duration_ms: 116.6543
+  duration_ms: 135.8609
   type: 'test'
   ...
 # Subtest: P218 no automatic pardon before Lando actually accepts restoration plan and grants pardon
 ok 2 - P218 no automatic pardon before Lando actually accepts restoration plan and grants pardon
   ---
-  duration_ms: 74.2615
+  duration_ms: 64.4018
   type: 'test'
   ...
 # Subtest: P218 exactly once even if caller changes actionId, plus three real reopenings
 ok 3 - P218 exactly once even if caller changes actionId, plus three real reopenings
   ---
-  duration_ms: 76.1583
+  duration_ms: 33.4311
   type: 'test'
   ...
 # Subtest: P218 existing group and personal legacy Obligation retained instead of disappearing
 ok 4 - P218 existing group and personal legacy Obligation retained instead of disappearing
   ---
-  duration_ms: 51.6478
+  duration_ms: 37.8002
   type: 'test'
   ...
 # Subtest: P218 no double-count of pre-existing group obligations
 ok 5 - P218 no double-count of pre-existing group obligations
   ---
-  duration_ms: 32.0015
+  duration_ms: 33.1336
   type: 'test'
   ...
 # Subtest: P218 replay rejects tampering, extra flags, duplicate names and removed proof
 ok 6 - P218 replay rejects tampering, extra flags, duplicate names and removed proof
   ---
-  duration_ms: 31.1244
+  duration_ms: 27.9791
   type: 'test'
   ...
 # Subtest: P218 cannot grant pardon during combat, or in AoR-only campaign
 ok 7 - P218 cannot grant pardon during combat, or in AoR-only campaign
   ---
-  duration_ms: 40.8798
+  duration_ms: 32.2936
   type: 'test'
   ...
 # Subtest: P218 real bridge, status, UI and version wired, Java/Kokoro source untouched
 ok 8 - P218 real bridge, status, UI and version wired, Java/Kokoro source untouched
   ---
-  duration_ms: 49.8886
+  duration_ms: 63.2407
   type: 'test'
   ...
 1..8
@@ -55,5 +55,5 @@ ok 8 - P218 real bridge, status, UI and version wired, Java/Kokoro source untouc
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2103.3294
+# duration_ms 1915.5299
 

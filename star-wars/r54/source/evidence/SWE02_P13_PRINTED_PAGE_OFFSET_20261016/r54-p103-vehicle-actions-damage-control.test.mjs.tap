@@ -2,43 +2,43 @@ TAP version 13
 # Subtest: P103 Controle de Danos separa Tensão e Casco e limita tentativa de Casco por encontro
 ok 1 - P103 Controle de Danos separa Tensão e Casco e limita tentativa de Casco por encontro
   ---
-  duration_ms: 78.5743
+  duration_ms: 97.646
   type: 'test'
   ...
 # Subtest: P103 Reparo Manual exige permissão contextual e Kit, usa Atletismo e compartilha limite do Casco
 ok 2 - P103 Reparo Manual exige permissão contextual e Kit, usa Atletismo e compartilha limite do Casco
   ---
-  duration_ms: 25.5153
+  duration_ms: 23.1974
   type: 'test'
   ...
 # Subtest: P103 Escanear só revela níveis atuais quando 2 Vantagens são escolhidas e disponíveis
 ok 3 - P103 Escanear só revela níveis atuais quando 2 Vantagens são escolhidas e disponíveis
   ---
-  duration_ms: 16.8725
+  duration_ms: 15.7674
   type: 'test'
   ...
 # Subtest: P103 Fatiar pode gastar Vantagens em Tensão e Triunfo para desativar arma por um assalto
 ok 4 - P103 Fatiar pode gastar Vantagens em Tensão e Triunfo para desativar arma por um assalto
   ---
-  duration_ms: 14.9694
+  duration_ms: 15.184
   type: 'test'
   ...
 # Subtest: P103 Disciplina de Fogo usa um Boost base + um por cada dois Êxitos adicionais
 ok 5 - P103 Disciplina de Fogo usa um Boost base + um por cada dois Êxitos adicionais
   ---
-  duration_ms: 12.7337
+  duration_ms: 12.0302
   type: 'test'
   ...
 # Subtest: P103 Despistar Mísseis ganha upgrade adicional por cada dois Êxitos adicionais
 ok 6 - P103 Despistar Mísseis ganha upgrade adicional por cada dois Êxitos adicionais
   ---
-  duration_ms: 16.151
+  duration_ms: 16.914
   type: 'test'
   ...
 # Subtest: P103 R46 expõe modos de Controle de Danos, Reparo Manual e gastos opcionais
 ok 7 - P103 R46 expõe modos de Controle de Danos, Reparo Manual e gastos opcionais
   ---
-  duration_ms: 6.2412
+  duration_ms: 6.1145
   type: 'test'
   ...
 1..7
@@ -49,5 +49,5 @@ ok 7 - P103 R46 expõe modos de Controle de Danos, Reparo Manual e gastos opcion
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1564.7953
+# duration_ms 1468.1861
 

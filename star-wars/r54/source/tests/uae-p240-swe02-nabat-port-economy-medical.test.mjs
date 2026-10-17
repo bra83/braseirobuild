@@ -52,6 +52,15 @@ test('SWE02 p.13 arrival narration stays source-backed and does not promise fuel
  assert.match(html,/swe02NabatMarketNote/);
  assert.match(html,/até 500 créditos podem ser encontrados pelo preço listado/);
 });
+test('SWE02 p.13 optional transponder removal opens the sourced ground Mechanics check after Nabat landing',()=>{
+ const {g,repo}=setup();
+ const skilled=structuredClone(g.state.player.character);skilled.skills={...skilled.skills,mecanica:3};g.setCharacter(skilled);
+ g.advancePublishedAdventure('nabat-hull-inspection');
+ const check=adapter.currentChecks(g.state.world).find(x=>x.index===8);assert.ok(check);assert.equal(check.source.printedPage,8);assert.equal(check.difficultyText,'Média');
+ const faces=[.45,.29,.29,0,0];let faceIndex=0;const result=g.resolvePublishedAdventureCheck(8,{rng:()=>faces[faceIndex++]??0});assert.equal(result.check.success,true);
+ assert.equal(result.adjudication.source.printedPage,8);assert.equal(g.state.world.publishedAdventure.flags.shipTrackerRemoved,true);
+ const reopened=new GameController(repo);assert.equal(reopened.state.world.publishedAdventure.flags.shipTrackerRemoved,true);reopen(repo);
+});
 test('P240 p.13: real purchase debits wallet and adds catalog gear atomically',()=>{
  const {g,repo}=setup();const before=g.state.player.character.credits;
  const r=g.purchaseSWE02NabatItem({itemId:'glow_rod',quantity:2});

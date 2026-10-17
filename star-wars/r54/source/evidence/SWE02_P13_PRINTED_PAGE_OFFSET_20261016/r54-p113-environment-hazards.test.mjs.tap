@@ -2,61 +2,61 @@ TAP version 13
 # Subtest: P113: gravidade e ocultação modificam pools canônicos
 ok 1 - P113: gravidade e ocultação modificam pools canônicos
   ---
-  duration_ms: 12.8834
+  duration_ms: 5.196
   type: 'test'
   ...
 # Subtest: P113: terreno difícil dobra manobras reais de faixa
 ok 2 - P113: terreno difícil dobra manobras reais de faixa
   ---
-  duration_ms: 41.4797
+  duration_ms: 41.7772
   type: 'test'
   ...
 # Subtest: P113: terreno intransponível bloqueia até Atletismo/Coordenação bem-sucedido
 ok 3 - P113: terreno intransponível bloqueia até Atletismo/Coordenação bem-sucedido
   ---
-  duration_ms: 33.1794
+  duration_ms: 26.4024
   type: 'test'
   ...
 # Subtest: P113: submersão respeita Brawn antes de iniciar sufocamento
 ok 4 - P113: submersão respeita Brawn antes de iniciar sufocamento
   ---
-  duration_ms: 3.2731
+  duration_ms: 2.2248
   type: 'test'
   ...
 # Subtest: P113: vácuo causa 3 Ferimentos por rodada e também entra em sufocamento após Brawn
 ok 5 - P113: vácuo causa 3 Ferimentos por rodada e também entra em sufocamento após Brawn
   ---
-  duration_ms: 2.374
+  duration_ms: 2.4883
   type: 'test'
   ...
 # Subtest: P113: fogo/ácido/atmosfera corrosiva aplicam Ferimentos diretos por rating
 ok 6 - P113: fogo/ácido/atmosfera corrosiva aplicam Ferimentos diretos por rating
   ---
-  duration_ms: 3.2052
+  duration_ms: 3.2721
   type: 'test'
   ...
 # Subtest: P113: sufocamento gera crítico em turno subsequente quando já incapacitado por Tensão
 ok 7 - P113: sufocamento gera crítico em turno subsequente quando já incapacitado por Tensão
   ---
-  duration_ms: 2.6496
+  duration_ms: 2.6895
   type: 'test'
   ...
 # Subtest: P113: queda curta usa soak e sucessos/vantagens para reduzir dano e Tensão
 ok 8 - P113: queda curta usa soak e sucessos/vantagens para reduzir dano e Tensão
   ---
-  duration_ms: 1.4639
+  duration_ms: 1.311
   type: 'test'
   ...
 # Subtest: P113: queda longa incapacita e aplica Ferimento Crítico com +50
 ok 9 - P113: queda longa incapacita e aplica Ferimento Crítico com +50
   ---
-  duration_ms: 1.5373
+  duration_ms: 1.5068
   type: 'test'
   ...
 # Subtest: P113: controller injeta ocultação em teste real e persiste ambiente
 ok 10 - P113: controller injeta ocultação em teste real e persiste ambiente
   ---
-  duration_ms: 6.3748
+  duration_ms: 6.0727
   type: 'test'
   ...
 1..10
@@ -67,5 +67,5 @@ ok 10 - P113: controller injeta ocultação em teste real e persiste ambiente
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1538.6163
+# duration_ms 1204.2329
 

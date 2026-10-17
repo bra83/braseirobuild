@@ -2,61 +2,61 @@ TAP version 13
 # Subtest: catálogo EotE preserva 18 especializações e AoR permanece aditivo
 ok 1 - catálogo EotE preserva 18 especializações e AoR permanece aditivo
   ---
-  duration_ms: 9.0101
+  duration_ms: 8.8689
   type: 'test'
   ...
 # Subtest: API de primeira linha preserva árvores Core e adiciona AoR e Exilado
 ok 2 - API de primeira linha preserva árvores Core e adiciona AoR e Exilado
   ---
-  duration_ms: 1.066
+  duration_ms: 1.1243
   type: 'test'
   ...
 # Subtest: somente primeira linha inicia desbloqueada; conexão adquirida libera nó seguinte
 ok 3 - somente primeira linha inicia desbloqueada; conexão adquirida libera nó seguinte
   ---
-  duration_ms: 22.6177
+  duration_ms: 9.76
   type: 'test'
   ...
 # Subtest: talento profundo desconectado não pode ser comprado diretamente
 ok 4 - talento profundo desconectado não pode ser comprado diretamente
   ---
-  duration_ms: 2.4359
+  duration_ms: 2.5556
   type: 'test'
   ...
 # Subtest: compra desconta o custo da linha e um mesmo espaço só é comprado uma vez
 ok 5 - compra desconta o custo da linha e um mesmo espaço só é comprado uma vez
   ---
-  duration_ms: 3.1255
+  duration_ms: 2.8169
   type: 'test'
   ...
 # Subtest: talento repetido em espaços diferentes soma graus
 ok 6 - talento repetido em espaços diferentes soma graus
   ---
-  duration_ms: 3.2328
+  duration_ms: 3.5531
   type: 'test'
   ...
 # Subtest: Dedicação exige escolha, respeita máximo 6 e atualiza derivados ligados
 ok 7 - Dedicação exige escolha, respeita máximo 6 e atualiza derivados ligados
   ---
-  duration_ms: 11.2962
+  duration_ms: 11.6876
   type: 'test'
   ...
 # Subtest: Firmeza, Endurecido e Resistente aplicam somente seus efeitos passivos EotE
 ok 8 - Firmeza, Endurecido e Resistente aplicam somente seus efeitos passivos EotE
   ---
-  duration_ms: 6.9272
+  duration_ms: 6.8104
   type: 'test'
   ...
 # Subtest: API compatível de primeira linha continua restrita à linha 1
 ok 9 - API compatível de primeira linha continua restrita à linha 1
   ---
-  duration_ms: 14.9781
+  duration_ms: 3.1215
   type: 'test'
   ...
 # Subtest: talento de outra especialização não pode ser comprado por ID
 ok 10 - talento de outra especialização não pode ser comprado por ID
   ---
-  duration_ms: 1.5311
+  duration_ms: 1.4081
   type: 'test'
   ...
 1..10
@@ -67,5 +67,5 @@ ok 10 - talento de outra especialização não pode ser comprado por ID
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 856.495
+# duration_ms 613.9016
 

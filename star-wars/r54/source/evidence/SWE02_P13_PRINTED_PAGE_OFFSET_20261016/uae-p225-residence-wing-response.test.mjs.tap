@@ -2,43 +2,43 @@ TAP version 13
 # Subtest: P225 failed roll generates pending patrol, not invented NPCs or damage
 ok 1 - P225 failed roll generates pending patrol, not invented NPCs or damage
   ---
-  duration_ms: 1025.4424
+  duration_ms: 1151.165
   type: 'test'
   ...
 # Subtest: P225 requires real failure, physical presence, distinct guards, GM faction and real range/count
 ok 2 - P225 requires real failure, physical presence, distinct guards, GM faction and real range/count
   ---
-  duration_ms: 992.4991
+  duration_ms: 999.3405
   type: 'test'
   ...
 # Subtest: P225 GM-confirmed physical Wing Guard uses official minion profile and real initiative
 ok 3 - P225 GM-confirmed physical Wing Guard uses official minion profile and real initiative
   ---
-  duration_ms: 943.0887
+  duration_ms: 1000.9962
   type: 'test'
   ...
 # Subtest: P225 real encounter closes into persistent published encounter history without replay
 ok 4 - P225 real encounter closes into persistent published encounter history without replay
   ---
-  duration_ms: 935.7
+  duration_ms: 896.5095
   type: 'test'
   ...
 # Subtest: P225 anti-fraud replay detects modified count, source, proof, chronology and derived state
 ok 5 - P225 anti-fraud replay detects modified count, source, proof, chronology and derived state
   ---
-  duration_ms: 886.7468
+  duration_ms: 908.3924
   type: 'test'
   ...
 # Subtest: P225 positive check never creates Wing Guard, preserves clock and saves
 ok 6 - P225 positive check never creates Wing Guard, preserves clock and saves
   ---
-  duration_ms: 938.7998
+  duration_ms: 735.586
   type: 'test'
   ...
 # Subtest: P225 Android PT-BR UI, bridge, bundle, source and version integrated without Kokoro changes
 ok 7 - P225 Android PT-BR UI, bridge, bundle, source and version integrated without Kokoro changes
   ---
-  duration_ms: 82.6418
+  duration_ms: 68.621
   type: 'test'
   ...
 1..7
@@ -49,5 +49,5 @@ ok 7 - P225 Android PT-BR UI, bridge, bundle, source and version integrated with
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 6914.9188
+# duration_ms 7605.7215
 

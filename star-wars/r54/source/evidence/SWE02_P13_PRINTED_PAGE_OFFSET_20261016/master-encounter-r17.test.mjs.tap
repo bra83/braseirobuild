@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: diretriz do Mestre aceita apenas perfis, quantidades, alcances e iniciativa válidos
 ok 1 - diretriz do Mestre aceita apenas perfis, quantidades, alcances e iniciativa válidos
   ---
-  duration_ms: 8.8878
+  duration_ms: 7.5215
   type: 'test'
   ...
 # Subtest: Mestre prepara encontro e jogador ainda escolhe Reação rápida antes da iniciativa
 ok 2 - Mestre prepara encontro e jogador ainda escolhe Reação rápida antes da iniciativa
   ---
-  duration_ms: 157.3631
+  duration_ms: 148.9493
   type: 'test'
   ...
 # Subtest: consequência causal pode originar encontro e só é resolvida quando o combate tem desfecho
 ok 3 - consequência causal pode originar encontro e só é resolvida quando o combate tem desfecho
   ---
-  duration_ms: 110.0843
+  duration_ms: 109.4183
   type: 'test'
   ...
 # Subtest: diretriz causal inválida reverte a proposta inteira
 ok 4 - diretriz causal inválida reverte a proposta inteira
   ---
-  duration_ms: 13.8869
+  duration_ms: 15.3185
   type: 'test'
   ...
 1..4
@@ -31,5 +31,5 @@ ok 4 - diretriz causal inválida reverte a proposta inteira
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1692.2285
+# duration_ms 1414.5616
 

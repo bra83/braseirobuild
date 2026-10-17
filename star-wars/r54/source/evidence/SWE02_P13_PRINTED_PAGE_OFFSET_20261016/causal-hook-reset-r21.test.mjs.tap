@@ -2,7 +2,7 @@ TAP version 13
 # Subtest: metadado causal não vaza para um combate posterior não causal
 ok 1 - metadado causal não vaza para um combate posterior não causal
   ---
-  duration_ms: 229.3642
+  duration_ms: 222.8137
   type: 'test'
   ...
 1..1
@@ -13,5 +13,5 @@ ok 1 - metadado causal não vaza para um combate posterior não causal
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1428.6947
+# duration_ms 1295.7083
 

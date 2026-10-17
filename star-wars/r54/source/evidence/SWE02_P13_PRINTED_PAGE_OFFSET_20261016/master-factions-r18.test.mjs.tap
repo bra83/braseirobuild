@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: Mestre cria duas facções e um PNPC afiliado usando somente operações estruturadas
 ok 1 - Mestre cria duas facções e um PNPC afiliado usando somente operações estruturadas
   ---
-  duration_ms: 135.0716
+  duration_ms: 140.4179
   type: 'test'
   ...
 # Subtest: operação de facção inválida faz rollback transacional da proposta inteira
 ok 2 - operação de facção inválida faz rollback transacional da proposta inteira
   ---
-  duration_ms: 24.745
+  duration_ms: 24.3868
   type: 'test'
   ...
 # Subtest: contexto do Mestre inclui facções, afiliação do PNPC e contagem digestível
 ok 3 - contexto do Mestre inclui facções, afiliação do PNPC e contagem digestível
   ---
-  duration_ms: 25.0011
+  duration_ms: 18.6016
   type: 'test'
   ...
 # Subtest: save/reopen preserva facções, relações, recursos, fatos e afiliação de PNPC
 ok 4 - save/reopen preserva facções, relações, recursos, fatos e afiliação de PNPC
   ---
-  duration_ms: 18.699
+  duration_ms: 20.1584
   type: 'test'
   ...
 1..4
@@ -31,5 +31,5 @@ ok 4 - save/reopen preserva facções, relações, recursos, fatos e afiliação
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1484.1326
+# duration_ms 1436.3319
 
