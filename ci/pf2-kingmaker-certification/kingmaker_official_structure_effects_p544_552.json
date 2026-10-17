@@ -378,7 +378,7 @@
       ],
       "item_bonus_rule": "+1 item bonus to Rest and Relax using Scholarship checks",
       "ruin_rule": "",
-      "effects_rule": "While in a settlement with a library, you gain a +1",
+      "effects_rule": "While in a settlement with a library, you gain a +1 item bonus to Lore checks made to Recall Knowledge while Investigating, as well as to Researching checks (Gamemastery Guide 154), and to Decipher Writing checks.",
       "upgrade_from": "",
       "upgrade_to": "academy",
       "semantic_certification": "PENDING"
@@ -654,7 +654,7 @@
       ],
       "item_bonus_rule": "+1 item bonus to Go Fishing",
       "ruin_rule": "",
-      "effects_rule": "A pier must be built in a lot next to a Water border. RUBBLE STRUCTURE — YARD An unsightly heap of rubble fills this lot. Lots 1; Cost —",
+      "effects_rule": "A pier must be built in a lot next to a Water border.",
       "upgrade_from": "",
       "upgrade_to": "waterfront",
       "semantic_certification": "PENDING"
@@ -719,7 +719,7 @@
       ],
       "item_bonus_rule": "+1 item bonus to Trade Commodities, +1 item bonus to Outfit Army (see Appendix 3: Warfare)",
       "ruin_rule": "",
-      "effects_rule": "While in a settlement with a smithy, you gain a +1",
+      "effects_rule": "While in a settlement with a smithy, you gain a +1 item bonus to Craft checks made to work with metal.",
       "upgrade_from": "",
       "upgrade_to": "",
       "semantic_certification": "PENDING"
@@ -922,7 +922,7 @@
       ],
       "item_bonus_rule": "+1 item bonus to Purchase Commodities",
       "ruin_rule": "",
-      "effects_rule": "When you build a trade shop, indicate the kind of shop it is, such as a bakery, carpenter, tailor, and so on. While in a settlement with a trade shop, you gain a +1",
+      "effects_rule": "When you build a trade shop, indicate the kind of shop it is, such as a bakery, carpenter, tailor, and so on. While in a settlement with a trade shop, you gain a +1 item bonus to all associated Crafting checks.",
       "upgrade_from": "",
       "upgrade_to": "guildhall",
       "semantic_certification": "PENDING"
