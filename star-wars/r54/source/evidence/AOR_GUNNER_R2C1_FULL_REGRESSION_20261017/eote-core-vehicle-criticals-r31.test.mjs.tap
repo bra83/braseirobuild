@@ -1,0 +1,119 @@
+TAP version 13
+# Subtest: Tabela 7-9 Core cobre 01-09 até 154+ sem lacunas
+ok 1 - Tabela 7-9 Core cobre 01-09 até 154+ sem lacunas
+  ---
+  duration_ms: 10.5112
+  type: 'test'
+  ...
+# Subtest: Mechanical Stress causa 1 system strain, não a sequência simplificada antiga
+ok 2 - Mechanical Stress causa 1 system strain, não a sequência simplificada antiga
+  ---
+  duration_ms: 4.477
+  type: 'test'
+  ...
+# Subtest: cada Critical Hit não reparado soma +10 à próxima rolagem
+ok 3 - cada Critical Hit não reparado soma +10 à próxima rolagem
+  ---
+  duration_ms: 2.1089
+  type: 'test'
+  ...
+# Subtest: Critical Hit reparado continua no histórico mas deixa de somar +10
+ok 4 - Critical Hit reparado continua no histórico mas deixa de somar +10
+  ---
+  duration_ms: 2.2698
+  type: 'test'
+  ...
+# Subtest: Jostled devolve consequências de tripulação para integração do controller
+ok 5 - Jostled devolve consequências de tripulação para integração do controller
+  ---
+  duration_ms: 0.8417
+  type: 'test'
+  ...
+# Subtest: Losing Power to Shields reduz apenas a zona afetada e reparo restaura derivação
+ok 6 - Losing Power to Shields reduz apenas a zona afetada e reparo restaura derivação
+  ---
+  duration_ms: 1.079
+  type: 'test'
+  ...
+# Subtest: Shields Failing sem Defesa usa fallback de 2 system strain
+ok 7 - Shields Failing sem Defesa usa fallback de 2 system strain
+  ---
+  duration_ms: 1.1121
+  type: 'test'
+  ...
+# Subtest: falha de hiperimpulsor bloqueia salto até reparo
+ok 8 - falha de hiperimpulsor bloqueia salto até reparo
+  ---
+  duration_ms: 1.2708
+  type: 'test'
+  ...
+# Subtest: Power Fluctuations bloqueia system strain voluntário e Punch It
+ok 9 - Power Fluctuations bloqueia system strain voluntário e Punch It
+  ---
+  duration_ms: 1.9823
+  type: 'test'
+  ...
+# Subtest: Engine Damaged reduz velocidade máxima efetiva sem corromper valor-base
+ok 10 - Engine Damaged reduz velocidade máxima efetiva sem corromper valor-base
+  ---
+  duration_ms: 1.0469
+  type: 'test'
+  ...
+# Subtest: Engines Down impede manobras mas preserva curso/velocidade atual
+ok 11 - Engines Down impede manobras mas preserva curso/velocidade atual
+  ---
+  duration_ms: 1.0921
+  type: 'test'
+  ...
+# Subtest: Destabilized reduz ambos thresholds efetivos à metade
+ok 12 - Destabilized reduz ambos thresholds efetivos à metade
+  ---
+  duration_ms: 0.7712
+  type: 'test'
+  ...
+# Subtest: Major Hull Breach em atmosfera vira Destabilized
+ok 13 - Major Hull Breach em atmosfera vira Destabilized
+  ---
+  duration_ms: 0.7327
+  type: 'test'
+  ...
+# Subtest: Component Hit expira mecanicamente mas segue contando +10 até reparo
+ok 14 - Component Hit expira mecanicamente mas segue contando +10 até reparo
+  ---
+  duration_ms: 1.5803
+  type: 'test'
+  ...
+# Subtest: Shield Overload só pode ser reparado após o encontro
+ok 15 - Shield Overload só pode ser reparado após o encontro
+  ---
+  duration_ms: 1.6354
+  type: 'test'
+  ...
+# Subtest: Breaking Up destrói ao atravessar o fim do assalto seguinte
+ok 16 - Breaking Up destrói ao atravessar o fim do assalto seguinte
+  ---
+  duration_ms: 1.2005
+  type: 'test'
+  ...
+# Subtest: Vaporized destrói imediatamente e não admite reparo
+ok 17 - Vaporized destrói imediatamente e não admite reparo
+  ---
+  duration_ms: 1.3081
+  type: 'test'
+  ...
+# Subtest: normalizador preserva saves antigos sem criticalState novo
+ok 18 - normalizador preserva saves antigos sem criticalState novo
+  ---
+  duration_ms: 1.32
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 715.7613
+

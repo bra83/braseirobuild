@@ -9,6 +9,7 @@ import {getHealthStatus} from '../app/src/main/assets/vtt/js/rules/health.mjs';
 
 const POSITION='ace:gunner:r1c2';
 const DURABLE_POSITION='ace:gunner:r1c1';
+const TOUGHENED_POSITION='ace:gunner:r2c1';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
  careerFreeSkills:['astronavegacion','frialdad','mecanica','percepcion'],
@@ -109,3 +110,51 @@ test('AoR p.68 Ace/Gunner R1C1 Durable buys exact node, reduces critical result 
 class RepoWithState extends Repo{
  constructor(state){super();this.state=clone(state);}
 }
+
+test('AoR p.68 Ace/Gunner R2C1 Toughened buys exact node, raises wound boundary and survives three reloads',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');setup.createAorCharacter({...characterOptions,name:'Kessa Dorn'});
+ const before=clone(setup.state.player.character);
+ const bridge=new BraseiroUiBridge({repository:repo});
+ const prerequisite=bridge.buyTalent(DURABLE_POSITION);
+ assert.equal(prerequisite.ok,true,'the exact adjacent R1C1 prerequisite is purchased first');
+ const candidate=new GameController(repo).eligibleTalents().find(n=>n.id===TOUGHENED_POSITION);
+ assert.ok(candidate);assert.equal(candidate.originalName,'ENDURECIDO');assert.equal(candidate.name,'Endurecido');
+ assert.equal(candidate.available,true);assert.equal(candidate.cost,10);assert.equal(candidate.source.printedPage,68);
+ assert.equal(candidate.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+ const treeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(n=>n.id===TOUGHENED_POSITION);
+ assert.ok(treeNode);assert.equal(treeNode.originalName,'ENDURECIDO');assert.equal(treeNode.source.printedPage,68);
+
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ assert.ok(html.includes('id="talentOptions"'));
+ assert.match(ui,/data-talent-id="\$\{escapeHtml\(t\.id\)\}"/);
+ assert.match(ui,/game\.buyTalent\(button\.dataset\.talentId/);
+
+ const result=bridge.buyTalent(TOUGHENED_POSITION);
+ assert.equal(result.ok,true);assert.equal(result.data.talent.id,TOUGHENED_POSITION);
+ assert.deepEqual(result.data.effect,{applied:true,label:'+2 no limiar de Ferimentos'});
+ const owned=result.data.character.talentPurchases.find(p=>p.nodeId===TOUGHENED_POSITION);
+ assert.equal(owned.originalName,'ENDURECIDO');assert.equal(owned.source.printedPage,68);
+ assert.equal(owned.specializationKey,'gunner');assert.equal(owned.cost,10);
+ const threshold=before.derived.wounds.threshold+2;
+ assert.equal(result.data.character.derived.wounds.threshold,threshold);
+ assert.equal(result.data.character.xp.available,before.xp.available-15);
+ const atBoundary=clone(result.data.character);atBoundary.derived.wounds.current=threshold;
+ assert.equal(getHealthStatus(atBoundary).woundIncapacitated,false);
+ const pastBoundary=clone(result.data.character);pastBoundary.derived.wounds.current=threshold+1;
+ assert.equal(getHealthStatus(pastBoundary).woundIncapacitated,true);
+
+ const saved=repo.saves;
+ for(let reopen=1;reopen<=3;reopen++){
+  const game=new GameController(repo),character=game.state.player.character;
+  const receipt=character.talentPurchases.find(p=>p.nodeId===TOUGHENED_POSITION);
+  assert.ok(receipt,`exact source node survives reopen ${reopen}`);
+  assert.equal(receipt.source.printedPage,68);assert.equal(receipt.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+  assert.equal(character.derived.wounds.threshold,threshold);
+  assert.equal(game.healthStatus().effectiveWoundThreshold,threshold);
+  assert.equal(game.eligibleTalents().find(n=>n.id===TOUGHENED_POSITION).purchased,true);
+ }
+ assert.equal(repo.saves,saved,'reopens are read-only');
+ assert.equal(bridge.buyTalent(TOUGHENED_POSITION).ok,false,'the exact node cannot be purchased twice');
+});

@@ -1,0 +1,29 @@
+TAP version 13
+# Subtest: UI publicada oferece ROLAR por check
+ok 1 - UI publicada oferece ROLAR por check
+  ---
+  duration_ms: 5.234
+  type: 'test'
+  ...
+# Subtest: resultado narrativo mostra sucesso, vantagem, momentum e alerta
+ok 2 - resultado narrativo mostra sucesso, vantagem, momentum e alerta
+  ---
+  duration_ms: 0.8545
+  type: 'test'
+  ...
+# Subtest: check resolvido tem estado visual
+ok 3 - check resolvido tem estado visual
+  ---
+  duration_ms: 0.5777
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 479.6828
+
