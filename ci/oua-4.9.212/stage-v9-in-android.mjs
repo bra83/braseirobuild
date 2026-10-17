@@ -25,7 +25,8 @@ if (!fs.readFileSync(path.join(src,'application','Tor2eRulesGuard.mjs'),'utf8')
     .includes('HARDENED_RULES_GUARD_V9')) {
   throw new Error('Production command bus hardening missing');
 }
-const allowed = ['application','domain','library','security','ui'];
+// Trusted-host security and secret-vault modules must never be staged under the WebView src tree.
+const allowed = ['application','domain','library','ui'];
 const copied = [];
 for (const dir of allowed) {
   const sourceDir=path.join(src,dir);
@@ -44,7 +45,8 @@ try {
   const marker = {
     base:'OUA-v4.9.211', overlay:'4.9.212-V9-hardening',
     status:'STAGED_ONLY_NOT_WIRED_TO_UI', nativeBarbara:'PENDING',
-    hostAuthority:'EXCLUDED_FROM_WEBVIEW', androidBuild:'PENDING',
+    hostAuthority:'EXCLUDED_FROM_WEBVIEW', security:'EXCLUDED_REQUIRES_NATIVE_HOST_BRIDGE',
+    androidBuild:'PENDING',
     included:copied
   };
   fs.writeFileSync(path.join(destination,'STAGING_STATUS.json'),JSON.stringify(marker,null,2)+'\n');
