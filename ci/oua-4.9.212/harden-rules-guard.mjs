@@ -14,11 +14,27 @@ function change(a,b,label) {
  s=s.replace(a,b);n++;
 }
 change(
+  "import { Tor2eRAGService } from '../library/Tor2eRAGService.mjs';",
+  "import { Tor2eRAGService } from '../library/Tor2eRAGService.mjs';\nimport { Tor2eAdventureController } from '../ui/bridges/Tor2eAdventureController.mjs';",
+  'import Tor2eAdventureController'
+);
+change(
   '  constructor() {\n    this.dice = new Tor2eDiceEngine();',
   '  constructor(options = {}) {\n    this.environment = options.environment || "test";\n' +
   '    this.authorizeCombatAction = typeof options.authorizeCombatAction === "function" ? options.authorizeCombatAction : null;\n' +
+  '    this.authorizedCharacterSheet = options.authorizedCharacterSheet || null;\n' +
+  '    this.getAuthorizedCharacterSheet = typeof options.getAuthorizedCharacterSheet === "function" ? options.getAuthorizedCharacterSheet : null;\n' +
+  '    this.persistenceStore = options.persistenceStore || null;\n' +
   '    this.gmHelpAuthorizedByHost = options.gmHelpAuthorizedByHost === true;\n' +
-  '    this.dice = new Tor2eDiceEngine();',
+  '    this.dice = new Tor2eDiceEngine();\n' +
+  '    this.adventureController = new Tor2eAdventureController(options.adventures, {\n' +
+  '      environment: this.environment,\n' +
+  '      authorizedCharacterSheet: this.authorizedCharacterSheet,\n' +
+  '      authorizeCombatAction: this.authorizeCombatAction,\n' +
+  '      requireCommandId: this.environment === "production",\n' +
+  '      hostGmSecretHash: options.hostGmSecretHash || null,\n' +
+  '      hostSecretProvider: options.hostSecretProvider || null\n' +
+  '    });',
   'constructor options'
 );
 change(
@@ -78,9 +94,100 @@ change(
   'combat values'
 );
 change(
+  "      } else {\n        events.push({\n          type: 'GENERIC_ACTION_LOGGED',\n          actionText: payload.text\n        });\n      }",
+  [
+    "      } else if (['START_ADVENTURE','PERFORM_SCENE_CHECK','APPLY_FAIL_FORWARD','SCENE_COMBAT_ATTACK','TRANSITION_SCENE','CONCLUDE_ADVENTURE'].includes(actionType)) {",
+    "        const preAdvSnap = this.adventureController.exportSnapshot();",
+    "        if (updatedState.ouaAdventureSnapshot) {",
+    "          this.adventureController.restoreFromSnapshot(updatedState.ouaAdventureSnapshot);",
+    "        }",
+    "        const hostSheet = typeof this.getAuthorizedCharacterSheet === 'function'",
+    "          ? this.getAuthorizedCharacterSheet(updatedState, payload)",
+    "          : (this.authorizedCharacterSheet || updatedState.authorizedCharacterSheet || updatedState.characterSheet || updatedState.character?.sheet || null);",
+    "        this.adventureController.authorizedCharacterSheet = hostSheet;",
+    "        try {",
+    "          if (actionType === 'START_ADVENTURE') {",
+    "            const view = this.adventureController.startAdventure(payload.adventureId);",
+    "            updatedState = { ...updatedState, ouaAdventureSnapshot: this.adventureController.exportSnapshot(), ouaAdventureView: view };",
+    "            events.push({ type: 'ADVENTURE_STARTED', adventureId: payload.adventureId, sceneId: view?.sceneId, view });",
+    "          } else if (actionType === 'PERFORM_SCENE_CHECK') {",
+    "            if (production && (payload.authorizedCharacterSheet !== undefined || payload.forgedSkillRank === true)) {",
+    "              throw new Error('Ficha enviada pelo cliente não é autorizada em produção');",
+    "            }",
+    "            const charClone = updatedState.character ? JSON.parse(JSON.stringify(updatedState.character)) : null;",
+    "            const checkRes = this.adventureController.performSceneCheck(payload.skill || payload.checkId, {",
+    "              ...payload, commandId, character: charClone, authorizedCharacterSheet: undefined",
+    "            });",
+    "            if (charClone) updatedState = { ...updatedState, character: charClone };",
+    "            const view = this.adventureController.getCurrentSceneView(production && this.gmHelpAuthorizedByHost ? 'GM' : 'PLAYER');",
+    "            updatedState = { ...updatedState, ouaAdventureSnapshot: this.adventureController.exportSnapshot(), ouaAdventureView: view, lastAdventureCheckResult: checkRes };",
+    "            events.push({ type: 'SCENE_CHECK_RESOLVED', ...checkRes });",
+    "          } else if (actionType === 'APPLY_FAIL_FORWARD') {",
+    "            const charClone = updatedState.character ? JSON.parse(JSON.stringify(updatedState.character)) : null;",
+    "            const ffRes = this.adventureController.applyFailForwardPenalty(charClone, payload);",
+    "            if (charClone) updatedState = { ...updatedState, character: charClone };",
+    "            const view = this.adventureController.getCurrentSceneView(production && this.gmHelpAuthorizedByHost ? 'GM' : 'PLAYER');",
+    "            updatedState = { ...updatedState, ouaAdventureSnapshot: this.adventureController.exportSnapshot(), ouaAdventureView: view, lastFailForwardResult: ffRes };",
+    "            events.push({ type: 'SCENE_FAIL_FORWARD_APPLIED', ...ffRes });",
+    "          } else if (actionType === 'SCENE_COMBAT_ATTACK') {",
+    "            const atkRes = this.adventureController.performSceneCombatAttack({ ...payload, commandId });",
+    "            const view = this.adventureController.getCurrentSceneView(production && this.gmHelpAuthorizedByHost ? 'GM' : 'PLAYER');",
+    "            updatedState = { ...updatedState, ouaAdventureSnapshot: this.adventureController.exportSnapshot(), ouaAdventureView: view, lastSceneCombatResult: atkRes };",
+    "            events.push({ type: 'SCENE_COMBAT_ATTACK_RESOLVED', ...atkRes });",
+    "          } else if (actionType === 'TRANSITION_SCENE') {",
+    "            const view = this.adventureController.transitionToScene(payload.nextSceneId);",
+    "            updatedState = { ...updatedState, ouaAdventureSnapshot: this.adventureController.exportSnapshot(), ouaAdventureView: view };",
+    "            events.push({ type: 'SCENE_TRANSITIONED', nextSceneId: payload.nextSceneId, view });",
+    "          } else if (actionType === 'CONCLUDE_ADVENTURE') {",
+    "            const charClone = updatedState.character ? JSON.parse(JSON.stringify(updatedState.character)) : {};",
+    "            const concRes = this.adventureController.concludeAdventure(charClone);",
+    "            if (concRes.status === 'ADVENTURE_CONCLUDED' && concRes.characterUpdates) {",
+    "              updatedState = { ...updatedState, character: concRes.characterUpdates };",
+    "            }",
+    "            const view = this.adventureController.getCurrentSceneView(production && this.gmHelpAuthorizedByHost ? 'GM' : 'PLAYER');",
+    "            updatedState = { ...updatedState, ouaAdventureSnapshot: this.adventureController.exportSnapshot(), ouaAdventureView: view, lastAdventureConclusion: concRes };",
+    "            events.push({ type: 'ADVENTURE_CONCLUDE_RESULT', ...concRes });",
+    "          }",
+    "        } catch (err) {",
+    "          this.adventureController.restoreFromSnapshot(preAdvSnap);",
+    "          throw err;",
+    "        }",
+    "      } else {",
+    "        events.push({",
+    "          type: 'GENERIC_ACTION_LOGGED',",
+    "          actionText: payload.text",
+    "        });",
+    "      }"
+  ].join('\n'),
+  'single ingress adventure controller actions'
+);
+change(
   "      this.executedCommandIds.add(commandId);\n\n      return {\n        commandId,\n        status: 'APPLIED',",
-  "      this.executedCommandIds.add(commandId);\n      if (production) {\n        updatedState = { ...updatedState, ouaExecutedCommandIds: [...durableCommandIds, commandId] };\n      }\n\n      return {\n        commandId,\n        status: 'APPLIED',",
-  'record durable command replay key'
+  [
+    "      const preCommitAdvSnap = this.adventureController.exportSnapshot();",
+    "      if (production) {",
+    "        updatedState = { ...updatedState, ouaExecutedCommandIds: [...durableCommandIds, commandId] };",
+    "      }",
+    "      if (this.persistenceStore && typeof this.persistenceStore.save === 'function') {",
+    "        try {",
+    "          const saved = this.persistenceStore.save(updatedState, { commandId, actionType });",
+    "          if (saved && typeof saved.then === 'function') throw new Error('Promise não é persistência atômica síncrona');",
+    "        } catch (err) {",
+    "          if (campaignState?.ouaAdventureSnapshot) {",
+    "            this.adventureController.restoreFromSnapshot(campaignState.ouaAdventureSnapshot);",
+    "          } else {",
+    "            this.adventureController.restoreFromSnapshot(preCommitAdvSnap);",
+    "          }",
+    "          throw new Error(`Transação abortada com rollback atômico (${actionType}): ${err.message}`);",
+    "        }",
+    "      }",
+    "      this.executedCommandIds.add(commandId);",
+    "",
+    "      return {",
+    "        commandId,",
+    "        status: 'APPLIED',"
+  ].join('\n'),
+  'record durable command replay key and atomic persistence commit'
 );
 fs.writeFileSync(file,s);
 console.log('OUA_RULES_GUARD_HARDENED='+n);

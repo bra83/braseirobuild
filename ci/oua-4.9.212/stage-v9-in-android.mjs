@@ -42,6 +42,48 @@ try {
   fs.copyFileSync(path.join(src,'barbara','Tor2eBarbaraSupervisor.mjs'),
     path.join(destination,'barbara','Tor2eBarbaraSupervisor.mjs'));
   copied.push('barbara-supervisor');
+  const hostBridgePath = path.join(destination,'ui','bridges','Tor2eHostGmBridge.mjs');
+  fs.mkdirSync(path.dirname(hostBridgePath),{recursive:true});
+  fs.writeFileSync(hostBridgePath, [
+    '// WebView-safe Host Authority Bridge (no secrets, hashes, or crypto in client bundle).',
+    'export class Tor2eGmSecretsVault {',
+    '  static getActiveAuthorityBridge() {',
+    '    return globalThis.__TOR2E_HOST_AUTHORITY_BRIDGE__ || globalThis.window?.BraseiroAndroid?.tor2eHostAuthority || null;',
+    '  }',
+    '  static verifyHostGmKey(gmSecretKey, hostGmSecretHash) {',
+    '    const bridge = this.getActiveAuthorityBridge();',
+    '    if (!bridge || typeof bridge.verifyHostKey !== "function") return false;',
+    '    return Boolean(bridge.verifyHostKey(gmSecretKey, hostGmSecretHash));',
+    '  }',
+    '  static unlockSceneSecrets(sceneId, gmSecretKey, hostGmSecretHash, customProvider = null) {',
+    '    if (!this.verifyHostGmKey(gmSecretKey, hostGmSecretHash)) return null;',
+    '    if (typeof customProvider === "function") return customProvider(sceneId, gmSecretKey);',
+    '    const bridge = this.getActiveAuthorityBridge();',
+    '    if (!bridge || typeof bridge.requestSceneSecrets !== "function") return null;',
+    '    return bridge.requestSceneSecrets(sceneId, gmSecretKey, hostGmSecretHash);',
+    '  }',
+    '  static unlockRagSecrets(gmSecretKey, hostGmSecretHash, customProvider = null) {',
+    '    if (!this.verifyHostGmKey(gmSecretKey, hostGmSecretHash)) return [];',
+    '    if (typeof customProvider === "function") return customProvider(gmSecretKey);',
+    '    const bridge = this.getActiveAuthorityBridge();',
+    '    if (!bridge || typeof bridge.requestRagSecrets !== "function") return [];',
+    '    return bridge.requestRagSecrets(gmSecretKey, hostGmSecretHash);',
+    '  }',
+    '}',
+    ''
+  ].join('\n'), 'utf8');
+  const stagedCtrlPath = path.join(destination,'ui','bridges','Tor2eAdventureController.mjs');
+  if (fs.existsSync(stagedCtrlPath)) {
+    const ctrlSrc = fs.readFileSync(stagedCtrlPath,'utf8')
+      .replace('../../security/Tor2eGmSecretsVault.mjs','./Tor2eHostGmBridge.mjs');
+    fs.writeFileSync(stagedCtrlPath, ctrlSrc, 'utf8');
+  }
+  const stagedRagPath = path.join(destination,'library','Tor2eRAGService.mjs');
+  if (fs.existsSync(stagedRagPath)) {
+    const ragSrc = fs.readFileSync(stagedRagPath,'utf8')
+      .replace('../security/Tor2eGmSecretsVault.mjs','../ui/bridges/Tor2eHostGmBridge.mjs');
+    fs.writeFileSync(stagedRagPath, ragSrc, 'utf8');
+  }
   const marker = {
     base:'OUA-v4.9.211', overlay:'4.9.212-V9-hardening',
     status:'STAGED_ONLY_NOT_WIRED_TO_UI', nativeBarbara:'PENDING',

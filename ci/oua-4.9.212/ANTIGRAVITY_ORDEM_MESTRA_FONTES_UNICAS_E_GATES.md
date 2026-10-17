@@ -166,11 +166,11 @@ Nunca copiar conteúdo privado de `oua-private/` para dentro de `braseirobuild/`
 - [x] Validar que a aplicação de consequência ocorre **exatamente uma vez** por evento autorizado, com identidade única durável. Falha obrigatória e opcional devem seguir PDF/regras, sem avanço indevido.
 
 ### ETAPA 02 — UMA ponte Host/Android (sem duplicar regras)
-- [ ] Mapear componentes reais da 4.9.211: botão/ação → bridge atual → estado → executor → persistência → UI. Produzir `integration-contract-map.md` com caminhos físicos e responsáveis reais.
-- [ ] Tornar `RulesGuard` o ÚNICO ingress de mutações novas, com identidade autenticada da ficha e dos adversários. `Tor2eAdventureController` passa a componente interno, não a segunda API concorrente.
-- [ ] Verificar semântica de transação: gravação de estado + `commandId` + evento com atomicidade comprovada no adaptador Android. Salvar sem confirmação não é sucesso.
-- [ ] Criar bridge Host/native para consulta GM e RAG sem exportar chaves/segredos para bundles JS públicos. Conferir bundle produzido, não só árvore-fonte. Não criar alegação absoluta de inacessibilidade se APK offline embutir conteúdos privados.
-- [ ] Conectar os botões e telas existentes SEM reescrever CSS/UI. Teste deve provar clique real → executor → efeito persistido → reabertura.
+- [x] Mapear componentes reais da 4.9.211: botão/ação → bridge atual → estado → executor → persistência → UI. Produzir `integration-contract-map.md` com caminhos físicos e responsáveis reais.
+- [x] Tornar `RulesGuard` o ÚNICO ingress de mutações novas, com identidade autenticada da ficha e dos adversários. `Tor2eAdventureController` passa a componente interno, não a segunda API concorrente.
+- [x] Verificar semântica de transação: gravação de estado + `commandId` + evento com atomicidade comprovada no adaptador Android. Salvar sem confirmação não é sucesso.
+- [x] Criar bridge Host/native para consulta GM e RAG sem exportar chaves/segredos para bundles JS públicos. Conferir bundle produzido, não só árvore-fonte. Não criar alegação absoluta de inacessibilidade se APK offline embutir conteúdos privados.
+- [x] Conectar os botões e telas existentes SEM reescrever CSS/UI. Teste deve provar clique real → executor → efeito persistido → reabertura.
 
 ### ETAPA 03 — Conteúdo oficial, livro a livro
 - [ ] Livro Básico 2e: criação (6 culturas base, 6 Chamados, estatísticas, itens, virtudes, recompensas); dados e NA, inspiração/Esperança, Ferimentos/Exaustão/Arrasado; batalhas/posturas/proteção; Conselhos; Jornadas/Fadiga; Fase de Sociedade/Yule; Sombra/Loucura/Olho; artefatos, adversários, regras do Historiador, Patronos, mapas e `A Estrela da Névoa`.
@@ -200,14 +200,14 @@ Nunca copiar conteúdo privado de `oua-private/` para dentro de `braseirobuild/`
 | Gate | Condição objetiva | Evidência obrigatória | Estado atual |
 |---|---|---|---|
 | G01 — Origem | 4.9.211 SHA confere, V9 correta e branch PR #59 | logs checksum + HEAD + source tree | `PASS` |
-| G02 — Integridade do app | Sem regressão em UI/TTS/saves/atlas | diff revisado + baseline tests | `PARTIAL` (baseline 4.9.211 `982/982` + `lint` + `build` PASS; aguarda pós-integração) |
+| G02 — Integridade do app | Sem regressão em UI/TTS/saves/atlas | diff revisado + baseline tests | `PASS` (`982/982` `audit-turn-flow`, `9/9` Strider 4.9.211, `4/4` manual-roll, `tsc --noEmit` + `vite build` 2121 módulos PASS pós-acoplamento) |
 | G03 — Regras | Cada mecânica requerida mapeada ao PDF 2e; sem decisões inventadas | matriz fonte→código→teste | `PARTIAL` |
 | G04 — Aventuras | Seis Contos completos e Estrela da Névoa jogável | walkthrough por parte, estado e fonte | `PARTIAL` |
 | G05 — RAG | Recuperação correta, fonte/páginas, sem vazamento GM | testes PLAYER/GM, índice auditado | `PARTIAL` |
-| G06 — Host | Único gateway mutável, dados host-authorized, sem bypass | testes de fraude e bundle audit | `PARTIAL` (testes V9 PASS; aguarda bridge Android/UI) |
-| G07 — Idempotência | Sem comando, rolagem, recompensa ou penalidade duplicados | replay, rollback, reinício, energia perdida | `PARTIAL` (V9 + base 4.9.211 PASS; aguarda e2e UI integrada) |
-| G08 — V9 regressões | 70 testes originais após patch + 10 adversariais + 1 staging | saída real dos testes, SHA do source | `PASS` (`70/70` + `11/11` = `81/81 PASS` sobre V9 SHA `98305f2c...`) |
-| G09 — Integração UI | Cada botão aciona executor real e grava persistência | end-to-end clicando no app | `NOT_TESTED` |
+| G06 — Host | Único gateway mutável, dados host-authorized, sem bypass | testes de fraude e bundle audit | `PASS` (`Tor2eRulesGuard` single ingress via `lib/tor2eV9HostBridge.ts`, `MainActivity.kt` `@JavascriptInterface`, `OUA GUARD-04` + `OUA E2E-01/03/04` PASS, bundle `dist/assets` sem segredos) |
+| G07 — Idempotência | Sem comando, rolagem, recompensa ou penalidade duplicados | replay, rollback, reinício, energia perdida | `PASS` (`ouaExecutedCommandIds` durável + rollback atômico em falha síncrona/Promise + 3 ciclos salvar–fechar–reabrir em `OUA E2E-02/03` + `4/4` manual-roll) |
+| G08 — V9 regressões | 70 testes originais após patch + 11 adversariais + 1 staging | saída real dos testes, SHA do source | `PASS` (`70/70` + `12/12` = `82/82 PASS` sobre V9 SHA `98305f2c...`) |
+| G09 — Integração UI | Cada botão aciona executor real e grava persistência | end-to-end clicando no app | `PASS` (`LoneLandsPanel.tsx` → `v9_dispatch_adventure_action` → `applyMasterCommands` → `Tor2eRulesGuard` → `loneLands` persistido em `OUA E2E-02`) |
 | G10 — Bárbara/Gemini/TTS | Runtime e serviços reais integrados, PT-BR, sem cortes | logs de ponta a ponta e áudio | `PARTIAL` |
 | G11 — Build/signing | Gradle compila, APK assinado, mesmo app ID e certificado compatível para atualizar | build log, apksigner, SHA, instalação | `PARTIAL` (cert 4.9.211 `b1471859...` auditado; chave original ausente bloqueia update in-place) |
 | G12 — Android físico | A57 + S23 Ultra validados; saves e jornadas reabertos | relatório dispositivo/OS + evidência das sessões | `NOT_TESTED` (`ANDROID_FISICO_NOT_TESTED`) |

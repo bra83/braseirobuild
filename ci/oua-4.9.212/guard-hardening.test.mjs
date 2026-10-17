@@ -44,3 +44,37 @@ test('OUA GUARD-03: duplicate action is rejected even after save and reopen',()=
  assert.equal(second.status,'DUPLICATE_REJECTED');
  assert.deepEqual(second.state,first.state);
 });
+test('OUA GUARD-04: single ingress dispatches adventure lifecycle with host-authorized sheet and atomic rollback on save failure',()=>{
+ const hostSheet={skills:[{name:'Caçada',rank:3},{name:'Viagem',rank:3},{name:'Vigilância',rank:2},{name:'Furtividade',rank:2},{name:'Cortesia',rank:2},{name:'Enigma',rank:2},{name:'Persuasão',rank:2}]};
+ const savedSnapshots=[];
+ let failSave=false;
+ const g=new Tor2eRulesGuard({
+   environment:'production',
+   authorizedCharacterSheet:hostSheet,
+   persistenceStore:{
+     save(state,meta){
+       if(failSave==='sync') throw new Error('disk full');
+       if(failSave==='async') return Promise.resolve();
+       savedSnapshots.push({state:structuredClone(state),meta});
+       return true;
+     }
+   }
+ });
+ const start=g.dispatch({commandId:'adv-start-1',kind:'PLAYER_ACTION',payload:{actionType:'START_ADVENTURE',adventureId:'tales-01-troll-hole'}},{character:{fatigue:0,shadow:0,hope:10}});
+ assert.equal(start.status,'APPLIED');
+ assert.equal(start.state.ouaAdventureSnapshot.activeAdventureId,'tales-01-troll-hole');
+ assert.throws(()=>g.dispatch({commandId:'adv-forged-sheet',kind:'PLAYER_ACTION',payload:{actionType:'PERFORM_SCENE_CHECK',skill:'Caçada',authorizedCharacterSheet:{skills:[{name:'Caçada',rank:6}]}}},start.state),/autorizada|diverg/i);
+ const checkId=start.state.ouaAdventureView.checks[0].checkId;
+ const skill=start.state.ouaAdventureView.checks[0].skill;
+ const check=g.dispatch({commandId:'adv-check-1',kind:'PLAYER_ACTION',payload:{actionType:'PERFORM_SCENE_CHECK',skill,checkId}},start.state);
+ assert.equal(check.status,'APPLIED');
+ assert.ok(check.state.ouaExecutedCommandIds.includes('adv-check-1'));
+ const replay=new Tor2eRulesGuard({environment:'production',authorizedCharacterSheet:hostSheet}).dispatch({commandId:'adv-check-1',kind:'PLAYER_ACTION',payload:{actionType:'PERFORM_SCENE_CHECK',skill,checkId}},structuredClone(check.state));
+ assert.equal(replay.status,'DUPLICATE_REJECTED');
+ failSave='sync';
+ assert.throws(()=>g.dispatch({commandId:'adv-fail-save',kind:'PLAYER_ACTION',payload:{actionType:'GENERIC_LOG',text:'boom'}},check.state),/rollback atômico/i);
+ assert.equal(g.executedCommandIds.has('adv-fail-save'),false);
+ failSave='async';
+ assert.throws(()=>g.dispatch({commandId:'adv-async-save',kind:'PLAYER_ACTION',payload:{actionType:'GENERIC_LOG',text:'boom-async'}},check.state),/Promise não é persistência atômica síncrona/i);
+ assert.equal(g.executedCommandIds.has('adv-async-save'),false);
+});
