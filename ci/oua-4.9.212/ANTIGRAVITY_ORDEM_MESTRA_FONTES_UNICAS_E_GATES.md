@@ -10,7 +10,7 @@
 
 | Fonte | É a autoridade sobre | Uso determinado | Uso proibido |
 |---|---|---|---|
-| **Fonte completa Android Studio 4.9.211** | Projeto Android, UI real, navegação, package ID, Gradle, TTS atual, mapas, imagens, saves e componentes já funcionais | **BASE IMUTÁVEL** da nova 4.9.212; trabalhar sobre uma cópia; comparar cada mudança | Substituir app por V9, alterar assinatura/package ID, apagar código existente, importar §android/§ genérico do monorepo |
+| **Fonte completa Android Studio 4.9.211** | Projeto Android, UI real, navegação, package ID, Gradle, TTS atual, mapas, imagens, saves e componentes já funcionais | **BASE IMUTÁVEL** da nova 4.9.212; trabalhar sobre uma cópia; comparar cada mudança | Substituir app por V9, alterar assinatura/package ID, apagar código existente, importar `android/` genérico do monorepo |
 | **ZIP 4.9.212 V9 EST01–EST14** | Módulos novos de regras, aventura, catálogo, RAG, adaptações, testes | **OVERLAY CANDIDATO**: selecionar e corrigir; sem sobrescrever mecanicamente o código estável | Tratar V9 como app final, executar dois motores alternativos com efeitos duplicados |
 | **Branch de integração + PR #59** | Correções de segurança da V9, ferramentas de estágio, testes adversariais, CI | **PATCH OBRIGATÓRIO** aplicado à V9 antes da integração e mantido no GitHub | Esquecer, reverter ou substituir as correções pelos arquivos brutos da V9 |
 | **PDFs O Um Anel 2e** | Regras oficiais, conteúdo, tramas, tabelas e referências de páginas | Fonte de verdade para comparar **ambas** as implementações | Inventar regra/cena/tesouro e declará-lo oficial; misturar suplementos de outras edições |
@@ -25,7 +25,7 @@
 - **Clone:** https://github.com/bra83/braseirobuild.git
 - **BRANCH A USAR:** https://github.com/bra83/braseirobuild/tree/integration/oua-49212-v9-hardened-20261017
 - **PR A CONTINUAR:** https://github.com/bra83/braseirobuild/pull/59
-- **HEAD verificado antes desta instrução:** §c70b8b27fb2925c04b8589b58938bc43f7780a01§. Confirmar HEAD novamente antes de editar.
+- **HEAD verificado antes desta instrução:** `c70b8b27fb2925c04b8589b58938bc43f7780a01`. Confirmar HEAD novamente antes de editar.
 - **Branch base de revisão, NÃO substituir por ela:** https://github.com/bra83/braseirobuild/tree/oua/base-playable-20261014
 - **Pasta de integração da branch (scripts/testes):** https://github.com/bra83/braseirobuild/tree/integration/oua-49212-v9-hardened-20261017/ci/oua-4.9.212
 - **Workflow:** https://github.com/bra83/braseirobuild/blob/integration/oua-49212-v9-hardened-20261017/.github/workflows/oua-v9-hardening.yml
@@ -33,14 +33,14 @@
 - **Esta ordem mestra:** https://github.com/bra83/braseirobuild/blob/integration/oua-49212-v9-hardened-20261017/ci/oua-4.9.212/ANTIGRAVITY_ORDEM_MESTRA_FONTES_UNICAS_E_GATES.md
 - **Perfil narrativo universal do Mestre:** https://github.com/bra83/braseirobuild/blob/oua/base-playable-20261014/docs/BRASEIRO_PERFIL_UNIVERSAL_MESTRE_HUMANO_DINAMICO.md
 
-**ATENÇÃO:** o monorepositório tem §android/§ e §ci/§ para vários jogos. A pasta real do Android OUA é identificada **APÓS EXTRAIR** o ZIP da release 4.9.211, procurando a raiz que contém simultaneamente §package.json§ e §android/§. Não presuma que a raiz do monorepo é a raiz do app OUA.
+**ATENÇÃO:** o monorepositório tem `android/` e `ci/` para vários jogos. A pasta real do Android OUA é identificada **APÓS EXTRAIR** o ZIP da release 4.9.211, procurando a raiz que contém simultaneamente `package.json` e `android/`. Não presuma que a raiz do monorepo é a raiz do app OUA.
 
 ### 2.2 Base Android comprovadamente publicada: OUA 4.9.211
 - **Release canônica:** https://github.com/bra83/braseirobuild/releases/tag/OUA-v4.9.211
 - **FONTE COMPLETA (268.010.292 bytes):** https://github.com/bra83/braseirobuild/releases/download/OUA-v4.9.211/BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip
-- **SHA-256 EXATO do ZIP fonte:** §ce636e4059402d3294aefc661cc56658c41136a287fc44e1ed7e01c40381c058§
+- **SHA-256 EXATO do ZIP fonte:** `ce636e4059402d3294aefc661cc56658c41136a287fc44e1ed7e01c40381c058`
 - **APK de referência:** https://github.com/bra83/braseirobuild/releases/download/OUA-v4.9.211/BRASEIRO_O_UM_ANEL_4.9.211_STRIDER_OPENING.apk
-- **SHA-256 do APK de referência:** §e8908814ac7906aa7d03fb19e1c07bd109c90ed0754731e287271a143c974ad8§
+- **SHA-256 do APK de referência:** `e8908814ac7906aa7d03fb19e1c07bd109c90ed0754731e287271a143c974ad8`
 - **Cópia privada da FONTE no Drive, pasta:** https://drive.google.com/drive/folders/1NUIcf4_HIOsz9PgYLq_IgDAz2XmAX_9z
 - **ZIP fonte nessa pasta privada:** https://drive.google.com/file/d/1VzLGe_LTqaMwf3epPmaApeOCmFxWT0O9/view
 
@@ -48,7 +48,7 @@
 
 ### 2.3 V9 de módulos — UMA versão única
 - **Pasta onde foi encontrada a V9 e versões históricas:** https://drive.google.com/drive/folders/0AEuJcNyOASFxUk9PVA
-- **V9 CORRETA (§EST01_EST14_HOMOLOGATED§; 404.712 bytes):** https://drive.google.com/file/d/1w9U-z2qWi1l4PBxaPSL0OFgH-_R6Ybn-/view
+- **V9 CORRETA (`EST01_EST14_HOMOLOGATED`; 404.712 bytes):** https://drive.google.com/file/d/1w9U-z2qWi1l4PBxaPSL0OFgH-_R6Ybn-/view
 - **V8 (HISTÓRICA — NÃO USAR COMO BASE):** https://drive.google.com/file/d/1MH0UF2kHv9WnnnjYVaSMd02v6FPcgGBK/view
 - **V7 (HISTÓRICA — NÃO USAR):** https://drive.google.com/file/d/14JIZZ256Z5Dlxu6R1rtLHH_q3eVdwfYH/view
 - **V6 (HISTÓRICA — NÃO USAR):** https://drive.google.com/file/d/1h105x9zak-Qk7ESGOnL10Tcyi074H3YJ/view
@@ -76,18 +76,18 @@ A V9 NÃO É O CÓDIGO-FONTE ANDROID. Já passou **70 testes na sua distribuiç�
 
 ### 2.5 Mapas, imagens, tokens, músicas e fichas (pastas REAIS)
 - **PASTA DE MAPAS:** https://drive.google.com/drive/folders/1dNkLNvZoJ4iJdKeBGpOq3I834IkFltYE
-  - §hex_index_terra_media.json§: https://drive.google.com/file/d/1wmtM2OKaQSnTtOeGPSdJ-XHoSl70A-Se/view
-  - §map_manifest_terra_media_v2.json§: https://drive.google.com/file/d/1BDZLrpiCo4WG5T0NNuxK6rJS_5vkZdfE/view
-  - §terra_media_hex_terrain_atlas.json§: https://drive.google.com/file/d/1PLn3MO0GGeKiS2ASg3aqvpz8E4WxKbst/view
+  - `hex_index_terra_media.json`: https://drive.google.com/file/d/1wmtM2OKaQSnTtOeGPSdJ-XHoSl70A-Se/view
+  - `map_manifest_terra_media_v2.json`: https://drive.google.com/file/d/1BDZLrpiCo4WG5T0NNuxK6rJS_5vkZdfE/view
+  - `terra_media_hex_terrain_atlas.json`: https://drive.google.com/file/d/1PLn3MO0GGeKiS2ASg3aqvpz8E4WxKbst/view
   - **Não usar pacotes antigos de aplicativo que também aparecem nesta pasta como a base 4.9.212.**
 - **TOKENS DO JOGADOR:** https://drive.google.com/drive/folders/1UJLYgVGuTH7i721pTMEvvHuwIDaUPB0q
 - **TOKENS DE NPCs:** https://drive.google.com/drive/folders/1OYdvaOffuQdos2HXUKwgpzPTH8xixNYi
 - **ACERVO BRASEIRO_TOKENS:** https://drive.google.com/drive/folders/1kAPHzMcSsey2aMBM0AyVzPv7dd2tL5Im
-  - §tokens_manifest.json§: https://drive.google.com/file/d/1TRDnidRV3X2RNgUjzFv5ZmeoDJn4s5dJ/view
-  - §tokens_manifest.schema.json§: https://drive.google.com/file/d/1cbcE3E_wWwJCHCTzRpBRQLBXHs0a644a/view
-- **MÚSICAS/MÍDIAS (§song§):** https://drive.google.com/drive/folders/17JHPi0eEe-R5CjwDYJ9GH3fGBg46OqOL
+  - `tokens_manifest.json`: https://drive.google.com/file/d/1TRDnidRV3X2RNgUjzFv5ZmeoDJn4s5dJ/view
+  - `tokens_manifest.schema.json`: https://drive.google.com/file/d/1cbcE3E_wWwJCHCTzRpBRQLBXHs0a644a/view
+- **MÚSICAS/MÍDIAS (`song`):** https://drive.google.com/drive/folders/17JHPi0eEe-R5CjwDYJ9GH3fGBg46OqOL
 - **FICHA JSON de referência (Burín):** https://drive.google.com/file/d/1EmsUUWcy7gCLFgq3SCoy2bJpDotzoSNS/view
-- **OUTRAS FICHAS:** disponíveis na pasta central (§Burin_Tres_Colheres_O_Um_Anel.json§, §Primula_Trombeta_O_Um_Anel.json§, §Targon_Dois_Passos_O_Um_Anel.json§).
+- **OUTRAS FICHAS:** disponíveis na pasta central (`Burin_Tres_Colheres_O_Um_Anel.json`, `Primula_Trombeta_O_Um_Anel.json`, `Targon_Dois_Passos_O_Um_Anel.json`).
 - **BACKUPS OUA HISTÓRICOS, APENAS RECUPERAÇÃO:** https://drive.google.com/drive/folders/1xThPALuNzajFT6iEsCSOlRRP17Ym4bPO
 
 **ASSETS:** conferir licença e propósito por arquivo. Não importar imagens/tokens sem manifesto, localização, nome correto ou verificação de dimensões. Preservar mapeamento existente do atlas, posição inicial, zoom, reconhecimento de hex e navegação.
@@ -107,11 +107,11 @@ A V9 NÃO É O CÓDIGO-FONTE ANDROID. Já passou **70 testes na sua distribuiç�
 - **SHA256SUMS-LATEST:** https://drive.google.com/file/d/1S1CoaSCZ-oaBEZ7ioFvIlOoEsfFrw_yx/view
 - **Validação multidispositivo:** https://drive.google.com/file/d/1Hdl9CLUQSbL1KTyd2TW-C6l7lPp4hlXY/view
 
-Validar checksums na pasta LATEST; não baixar §1.1.0§ da pasta adaptações e substituir 1.1.3 sem justificativa. Verificar qual runtime é realmente viável em Android/WebView; wheel Python isolado ou supervisor JS NÃO prova que o motor está conectado.
+Validar checksums na pasta LATEST; não baixar `1.1.0` da pasta adaptações e substituir 1.1.3 sem justificativa. Verificar qual runtime é realmente viável em Android/WebView; wheel Python isolado ou supervisor JS NÃO prova que o motor está conectado.
 
 ## 3 — DIRETÓRIOS LOCAIS EXATOS A CRIAR NO ANTIGRAVITY
-**Estes são DESTINOS PLANEJADOS, não caminhos existentes comprovados.** Criar sob uma única pasta escolhida §<WORKSPACE>§. Exemplo:
-§§§
+**Estes são DESTINOS PLANEJADOS, não caminhos existentes comprovados.** Criar sob uma única pasta escolhida `<WORKSPACE>`. Exemplo:
+```
 <WORKSPACE>/
   braseirobuild/                  # git clone da branch de integração; único lugar para commits
   oua-private/                    # FORA do Git público, em .gitignore e nunca commit
@@ -127,60 +127,60 @@ Validar checksums na pasta LATEST; não baixar §1.1.0§ da pasta adaptações e
     assets/                       # mapas, tokens, som com manifests
     evidence/                     # logs, saídas, matrizes, checksums, assinatura, screenshots
     apk-output/                   # APK compilado somente após gates
-§§§
-Nunca copiar conteúdo privado de §oua-private/§ para dentro de §braseirobuild/§ nem criar histórico Git com livros, conteúdo reservado GM, chaves, saves pessoais ou wheel/binários sem aprovação explícita.
+```
+Nunca copiar conteúdo privado de `oua-private/` para dentro de `braseirobuild/` nem criar histórico Git com livros, conteúdo reservado GM, chaves, saves pessoais ou wheel/binários sem aprovação explícita.
 
-**LOCALIZAÇÃO INTERNA REAL do Android:** encontrar pela presença de §package.json§ e §android/§, registrar o caminho exato encontrado no log. **LOCALIZAÇÃO INTERNA REAL da V9:** encontrar a raiz com §package.json§ e §src/ui/bridges/Tor2eAdventureController.mjs§. Se layouts divergirem, **falhar explicitamente**, não inventar caminhos.
+**LOCALIZAÇÃO INTERNA REAL do Android:** encontrar pela presença de `package.json` e `android/`, registrar o caminho exato encontrado no log. **LOCALIZAÇÃO INTERNA REAL da V9:** encontrar a raiz com `package.json` e `src/ui/bridges/Tor2eAdventureController.mjs`. Se layouts divergirem, **falhar explicitamente**, não inventar caminhos.
 
 ## 4 — QUAIS ARQUIVOS MANTER, MUDAR OU DESCARTAR
-1. **4.9.211:** preservar integralmente §android/§, Gradle, manifesto, applicationId, assinatura, frontend/UI CSS, header/bottom, mapas, tokens, controles, dados, salvamentos, música, Gemini, TTS Charon/Kokoro. Não substituir. Diagnosticar antes de alterar.
-2. **V9 §src/ui/bridges/Tor2eAdventureController.mjs§:** usar **SOMENTE após** aplicar §ci/oua-4.9.212/harden-v9.mjs§. Esse é o controlador interno de cena, com estado de desafio, transição, combate e idempotência. Não deixá-lo exposto como autoridade livre do WebView.
-3. **V9 §src/application/Tor2eRulesGuard.mjs§:** usar **SOMENTE após** aplicar §harden-rules-guard.mjs§. É a **ÚNICA rota de comando mutável** entre UI/Host e controlador/motores. Não manter segunda rota de ataque ou outro command bus que bypassa autorização.
-4. **V9 §src/domain/**§:** aproveitar regras determinísticas **após** confrontar as implementações 4.9.211 + PDFs 2e. Se ambas implementarem o mesmo efeito, selecionar **uma** e provar ausência de duplicação.
-5. **V9 §src/library/**§ / §Tor2eRAGService.mjs§ / corpus:** usar como **índice inicial**, não como livro integral; conferir edição, texto, páginas, proveniência, privacidade. §node:fs§ não deve ser importado no WebView.
-6. **V9 §src/security/**§ + §src/host-authority/**§:** NÃO copiar para assets/WebView. Implementar serviço confiável no Host Android ou backend privado, com ponte e teste de isolamento. O staging do PR #59 já exclui essas pastas. Avaliar segurança real considerando app pessoal/offline.
-7. **V9 §src/barbara/Tor2eBarbaraSupervisor.mjs§:** usar apenas **adaptador narrativo**, integrar runtime Bárbara 1.1.3 da pasta LATEST, não criar outro sintetizador/TTS concorrente.
-8. **V9 §src/ui/**§: bibliotecas/bridges específicas, NÃO substituir páginas, CSS nem navegação da 4.9.211.
+1. **4.9.211:** preservar integralmente `android/`, Gradle, manifesto, applicationId, assinatura, frontend/UI CSS, header/bottom, mapas, tokens, controles, dados, salvamentos, música, Gemini, TTS Charon/Kokoro. Não substituir. Diagnosticar antes de alterar.
+2. **V9 `src/ui/bridges/Tor2eAdventureController.mjs`:** usar **SOMENTE após** aplicar `ci/oua-4.9.212/harden-v9.mjs`. Esse é o controlador interno de cena, com estado de desafio, transição, combate e idempotência. Não deixá-lo exposto como autoridade livre do WebView.
+3. **V9 `src/application/Tor2eRulesGuard.mjs`:** usar **SOMENTE após** aplicar `harden-rules-guard.mjs`. É a **ÚNICA rota de comando mutável** entre UI/Host e controlador/motores. Não manter segunda rota de ataque ou outro command bus que bypassa autorização.
+4. **V9 `src/domain/**`:** aproveitar regras determinísticas **após** confrontar as implementações 4.9.211 + PDFs 2e. Se ambas implementarem o mesmo efeito, selecionar **uma** e provar ausência de duplicação.
+5. **V9 `src/library/**` / `Tor2eRAGService.mjs` / corpus:** usar como **índice inicial**, não como livro integral; conferir edição, texto, páginas, proveniência, privacidade. `node:fs` não deve ser importado no WebView.
+6. **V9 `src/security/**` + `src/host-authority/**`:** NÃO copiar para assets/WebView. Implementar serviço confiável no Host Android ou backend privado, com ponte e teste de isolamento. O staging do PR #59 já exclui essas pastas. Avaliar segurança real considerando app pessoal/offline.
+7. **V9 `src/barbara/Tor2eBarbaraSupervisor.mjs`:** usar apenas **adaptador narrativo**, integrar runtime Bárbara 1.1.3 da pasta LATEST, não criar outro sintetizador/TTS concorrente.
+8. **V9 `src/ui/**`: bibliotecas/bridges específicas, NÃO substituir páginas, CSS nem navegação da 4.9.211.
 9. **V9 cenas e catálogos:** validar TODOS os eventos e cenários com PDFs 2e antes de declarar canônico. As **44 cenas de Contos** e **5 cenas de A Estrela da Névoa** são estrutura inicial, NÃO certificado de conclusão integral.
 10. **V1–V8:** ARQUIVAR/IGNORAR. Histórico de comparação somente se um defeito específico o exigir. NÃO adicionar V1–V8 à compilação.
-11. **PR #59:** usar §hardening.test.mjs§ (sete testes), §guard-hardening.test.mjs§ (três), §staging-safety.test.mjs§ (um), scripts de patch, staging e CI. Esses arquivos **não** substituem o APK ou a V9; testam/corrigem sua integração.
+11. **PR #59:** usar `hardening.test.mjs` (sete testes), `guard-hardening.test.mjs` (três), `staging-safety.test.mjs` (um), scripts de patch, staging e CI. Esses arquivos **não** substituem o APK ou a V9; testam/corrigem sua integração.
 
-**ALERTA DE ARQUITETURA:** copiar §§src/application§§ e §§src/library§§ para §§ANDROID_49212_WORK/src§§ pode deixar importações transitivas para módulos Node/privados. Antes de importar qualquer módulo na UI, enumerar o grafo completo de dependências e implementar bridge Host. **Stage != wired; build web != Android; Gradle verde != gameplay homologado.**
+**ALERTA DE ARQUITETURA:** copiar ``src/application`` e ``src/library`` para ``ANDROID_49212_WORK/src`` pode deixar importações transitivas para módulos Node/privados. Antes de importar qualquer módulo na UI, enumerar o grafo completo de dependências e implementar bridge Host. **Stage != wired; build web != Android; Gradle verde != gameplay homologado.**
 
 ## 5 — ORDEM IMUTÁVEL DE EXECUÇÃO, COM EVIDÊNCIA POR ETAPA
 
 ### ETAPA 00 — Baseline e preservação
 - [ ] Conferir HEAD e PR #59. Criar log inicial com commit e árvore de trabalho. Não mudar branch sem registrar motivo.
 - [ ] Baixar os dois ZIPs corretos; validar checksum SHA-256 da base 4.9.211. Gerar/checksum da V9 baixada e registrar.
-- [ ] Extrair em pastas imutáveis. Identificar a raiz real Android. Inventariar §package.json§, Gradle, id do app, SDK, TTS, frontend, bridge, dados e persistência.
-- [ ] Fazer cópia 4.9.211 §ANDROID_49212_WORK§; obter baseline de §npm test§, §npm run lint§ e build disponível sem sobrescrever checkpoint. Registrar problemas que já existiam.
-- [ ] Medir assinatura do APK original via §apksigner verify --print-certs§, obter fingerprint e verificar meios legítimos de assinar atualização; se certificado diferente, BLOQUEAR a promessa de atualização sobre o APK instalado.
+- [ ] Extrair em pastas imutáveis. Identificar a raiz real Android. Inventariar `package.json`, Gradle, id do app, SDK, TTS, frontend, bridge, dados e persistência.
+- [ ] Fazer cópia 4.9.211 `ANDROID_49212_WORK`; obter baseline de `npm test`, `npm run lint` e build disponível sem sobrescrever checkpoint. Registrar problemas que já existiam.
+- [ ] Medir assinatura do APK original via `apksigner verify --print-certs`, obter fingerprint e verificar meios legítimos de assinar atualização; se certificado diferente, BLOQUEAR a promessa de atualização sobre o APK instalado.
 
 ### ETAPA 01 — Corrigir V9 de forma reproduzível
 - [ ] Extrair V9 para RAW; copiar para PATCHED.
-- [ ] Executar, nesta ordem, §harden-v9.mjs§ e §harden-rules-guard.mjs§ do PR #59 sobre PATCHED; confirmar marcadores §HARDENED_V9_5_GATES§ e §HARDENED_RULES_GUARD_V9§. Rodar uma segunda vez para provar idempotência da aplicação.
+- [ ] Executar, nesta ordem, `harden-v9.mjs` e `harden-rules-guard.mjs` do PR #59 sobre PATCHED; confirmar marcadores `HARDENED_V9_5_GATES` e `HARDENED_RULES_GUARD_V9`. Rodar uma segunda vez para provar idempotência da aplicação.
 - [ ] Executar os **70 testes originais da V9 corrigida**.
-- [ ] Executar os **sete adversariais do controlador, três do command bus e um de staging**; não aceitar apenas §node --check§.
-- [ ] Testar novamente os cinco bugs que motivaram o PR: inimigo inexistente, dados forjados, ficha forjada, §commandId§ não persistido, retry fornecido pelo chamador.
+- [ ] Executar os **sete adversariais do controlador, três do command bus e um de staging**; não aceitar apenas `node --check`.
+- [ ] Testar novamente os cinco bugs que motivaram o PR: inimigo inexistente, dados forjados, ficha forjada, `commandId` não persistido, retry fornecido pelo chamador.
 - [ ] Testar falha opcional após sucesso obrigatório, duas tentativas indevidas da mesma perícia, Sombra/Fadiga/recompensa duplicada, encerramento prematuro, rollback e replay após reinício.
 - [ ] Validar que a aplicação de consequência ocorre **exatamente uma vez** por evento autorizado, com identidade única durável. Falha obrigatória e opcional devem seguir PDF/regras, sem avanço indevido.
 
 ### ETAPA 02 — UMA ponte Host/Android (sem duplicar regras)
-- [ ] Mapear componentes reais da 4.9.211: botão/ação → bridge atual → estado → executor → persistência → UI. Produzir §integration-contract-map.md§ com caminhos físicos e responsáveis reais.
-- [ ] Tornar §RulesGuard§ o ÚNICO ingress de mutações novas, com identidade autenticada da ficha e dos adversários. §Tor2eAdventureController§ passa a componente interno, não a segunda API concorrente.
-- [ ] Verificar semântica de transação: gravação de estado + §commandId§ + evento com atomicidade comprovada no adaptador Android. Salvar sem confirmação não é sucesso.
+- [ ] Mapear componentes reais da 4.9.211: botão/ação → bridge atual → estado → executor → persistência → UI. Produzir `integration-contract-map.md` com caminhos físicos e responsáveis reais.
+- [ ] Tornar `RulesGuard` o ÚNICO ingress de mutações novas, com identidade autenticada da ficha e dos adversários. `Tor2eAdventureController` passa a componente interno, não a segunda API concorrente.
+- [ ] Verificar semântica de transação: gravação de estado + `commandId` + evento com atomicidade comprovada no adaptador Android. Salvar sem confirmação não é sucesso.
 - [ ] Criar bridge Host/native para consulta GM e RAG sem exportar chaves/segredos para bundles JS públicos. Conferir bundle produzido, não só árvore-fonte. Não criar alegação absoluta de inacessibilidade se APK offline embutir conteúdos privados.
 - [ ] Conectar os botões e telas existentes SEM reescrever CSS/UI. Teste deve provar clique real → executor → efeito persistido → reabertura.
 
 ### ETAPA 03 — Conteúdo oficial, livro a livro
-- [ ] Livro Básico 2e: criação (6 culturas base, 6 Chamados, estatísticas, itens, virtudes, recompensas); dados e NA, inspiração/Esperança, Ferimentos/Exaustão/Arrasado; batalhas/posturas/proteção; Conselhos; Jornadas/Fadiga; Fase de Sociedade/Yule; Sombra/Loucura/Olho; artefatos, adversários, regras do Historiador, Patronos, mapas e §A Estrela da Névoa§.
+- [ ] Livro Básico 2e: criação (6 culturas base, 6 Chamados, estatísticas, itens, virtudes, recompensas); dados e NA, inspiração/Esperança, Ferimentos/Exaustão/Arrasado; batalhas/posturas/proteção; Conselhos; Jornadas/Fadiga; Fase de Sociedade/Yule; Sombra/Loucura/Olho; artefatos, adversários, regras do Historiador, Patronos, mapas e `A Estrela da Névoa`.
 - [ ] Modo Peregrino: tabelas Sorte/Má Sorte, Narração/Conhecimento, encontros, missões, jornada solo, Escaramuça, coop sem Historiador, Sociedade.
 - [ ] Valfenda: localização/acesso, treze locais do mapa, Elrond/Patrono, Alto Elfo, virtudes, NPCs, restrições e condições.
 - [ ] Povos das Terras Ermas 2e: Beornings, Elfos da Floresta das Trevas, Homens da Floresta, bênçãos, equipamento, virtudes e progressão (confirmar correspondência com PDF); eliminar culturas duplicadas.
 - [ ] Trilhas de Personagens V2: 36 antecedentes de seis culturas, atributos, perícias favorecidas, características, Eventos Importantes — comparação literal das tabelas estruturadas.
 - [ ] Contos das Terras Solitárias: **seis aventuras**, cada parte do sumário, localização/NPC/pista/fraqueza/decisão, encontros e volta; todas consequências e continuidade até A Busca de Amon Guruthos. NÃO confundir 44 cenas com todo o livro.
 - [ ] A Estrela da Névoa: PDF 2e p.223+, ruínas do sul de Ered Luin, fortaleza de Arnor sobre ruínas anãs; condições de cenário e conteúdo real. As cinco cenas não são garantia de cobertura.
-- [ ] Cada registro deve conter §livro, edição, página impressa/PDF, entidade, regra, arquivo implementado, teste, resultado, evidência§. Erro ou ausência = NÃO CERTIFICADO. Não inventar para completar grade.
+- [ ] Cada registro deve conter `livro, edição, página impressa/PDF, entidade, regra, arquivo implementado, teste, resultado, evidência`. Erro ou ausência = NÃO CERTIFICADO. Não inventar para completar grade.
 
 ### ETAPA 04 — Mestre IA, mundo vivo, mídia e usabilidade
 - [ ] Bárbara 1.1.3 real com eventos/memória, prompt universal do Mestre, abertura imersiva, PT-BR, consequências duráveis; Gemini propõe narrativa/imagens mas NÃO escolhe dados/loot/regras finais.
@@ -191,9 +191,9 @@ Nunca copiar conteúdo privado de §oua-private/§ para dentro de §braseirobuil
 
 ### ETAPA 05 — Regressões, build e teste Android
 - [ ] Testes oficiais + adversariais + UI/bridge/segurança/salvamentos; 3 ciclos salvar–fechar–reabrir sem perder comando, dados ou personagens.
-- [ ] §npm run lint§ / build frontend + compilação Gradle da cópia Android real; verificar que o bundle contém código/bridges integrados, NÃO apenas módulos em quarentena.
+- [ ] `npm run lint` / build frontend + compilação Gradle da cópia Android real; verificar que o bundle contém código/bridges integrados, NÃO apenas módulos em quarentena.
 - [ ] Testar instalação limpa e atualização sobre 4.9.211; manter app ID e cert original, migrar salvamentos com backup, confirmar arquivos de mídia e permissões.
-- [ ] Android real Galaxy A57 e S23 Ultra: jornadas, combates, rolagens manuais/dados, imagem, áudio, TTS, narrativa, cenas completas e partidas longas. Se não houver dispositivo conectado, marcar §ANDROID_FISICO_NOT_TESTED§ e NÃO declarar 100%.
+- [ ] Android real Galaxy A57 e S23 Ultra: jornadas, combates, rolagens manuais/dados, imagem, áudio, TTS, narrativa, cenas completas e partidas longas. Se não houver dispositivo conectado, marcar `ANDROID_FISICO_NOT_TESTED` e NÃO declarar 100%.
 - [ ] Gerar APK após fechar gates. Publicar release APENAS com logs, SHA-256 binário, assinatura/certificado e origem do commit. Não trocar nome de web build por APK.
 
 ## 6 — MATRIZ DE APROVAÇÃO: 12 PORTÕES, QUALQUER FALHA BLOQUEIA RELEASE
@@ -213,15 +213,15 @@ Nunca copiar conteúdo privado de §oua-private/§ para dentro de §braseirobuil
 | G12 — Android físico | A57 + S23 Ultra validados; saves e jornadas reabertos | relatório dispositivo/OS + evidência das sessões |
 
 **Falha, parcial, não testado, skipped crítico, falta de fonte, mock isolado ou observação genérica = GATE NÃO APROVADO.**
-O agente **NÃO PODE** declarar §DONE§, §100%§, §HOMOLOGATED§, §RELEASE READY§, gerar release final nem fechar/mergear PR enquanto qualquer gate falhar. CI verde de sintaxe não fecha G08–G12. APK debug não fecha G11 ou G12.
+O agente **NÃO PODE** declarar `DONE`, `100%`, `HOMOLOGATED`, `RELEASE READY`, gerar release final nem fechar/mergear PR enquanto qualquer gate falhar. CI verde de sintaxe não fecha G08–G12. APK debug não fecha G11 ou G12.
 
 ## 7 — ROTINA DE ENGENHARIA E COMO REPORTAR
-1. Executar em **megalotes coesos**, commitar mudanças reais em §integration/oua-49212-v9-hardened-20261017§ frequentemente, sem rebase destrutivo ou force-push. Nunca commitar privados.
-2. No final de cada megalote, atualizar §INTEGRATION_STATUS.md§ e este documento apenas se houver evidência nova. Estado sempre classificado §PASS§, §FAIL§, §PARTIAL§ ou §NOT_TESTED§.
-3. Cada commit: §SHA, arquivos, comportamento alterado, teste que falhava antes, teste que passa depois, riscos de regressão§. Sem marcar tarefas por terem apenas documentação.
+1. Executar em **megalotes coesos**, commitar mudanças reais em `integration/oua-49212-v9-hardened-20261017` frequentemente, sem rebase destrutivo ou force-push. Nunca commitar privados.
+2. No final de cada megalote, atualizar `INTEGRATION_STATUS.md` e este documento apenas se houver evidência nova. Estado sempre classificado `PASS`, `FAIL`, `PARTIAL` ou `NOT_TESTED`.
+3. Cada commit: `SHA, arquivos, comportamento alterado, teste que falhava antes, teste que passa depois, riscos de regressão`. Sem marcar tarefas por terem apenas documentação.
 4. Se impedido por BRELGA/Drive/SDK/chave, registrar caminho, erro exato, reprodução e dependência; continuar áreas independentes e registrar bloqueio. Não fabricar PASS, não criar fonte substituta fictícia.
-5. O workflow §oua-v9-hardening.yml§ hoje executa sintaxe e staging automaticamente; o job privado/Android requer §workflow_dispatch§ com §v9_zip_path§ **ABSOLUTO NO RUNNER WINDOWS**. Caminho no computador Antigravity não é caminho no BRELGA. Sem V9 no runner, **não roda**: preparar a cópia privada e disparar por permissão apropriada.
-6. Entregar relatório de progresso somente com §G01–G12§, % baseado em gates realmente aprovados (nunca percentual imaginário), logs, links PR/run, APK quando pronto, checksum e evidência dos testes Android.
+5. O workflow `oua-v9-hardening.yml` hoje executa sintaxe e staging automaticamente; o job privado/Android requer `workflow_dispatch` com `v9_zip_path` **ABSOLUTO NO RUNNER WINDOWS**. Caminho no computador Antigravity não é caminho no BRELGA. Sem V9 no runner, **não roda**: preparar a cópia privada e disparar por permissão apropriada.
+6. Entregar relatório de progresso somente com `G01–G12`, % baseado em gates realmente aprovados (nunca percentual imaginário), logs, links PR/run, APK quando pronto, checksum e evidência dos testes Android.
 7. Se alguma exigência de funcionalidade só pode ser alcançada trocando componente de produção 4.9.211, fornecer justificativa, diff mínimo, rollback e testes antes de modificar.
 
 ## 8 — MENSAGEM INICIAL PARA ANTIGRAVITY
