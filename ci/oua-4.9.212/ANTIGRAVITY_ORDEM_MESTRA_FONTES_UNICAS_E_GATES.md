@@ -173,14 +173,14 @@ Nunca copiar conteúdo privado de `oua-private/` para dentro de `braseirobuild/`
 - [x] Conectar os botões e telas existentes SEM reescrever CSS/UI. Teste deve provar clique real → executor → efeito persistido → reabertura.
 
 ### ETAPA 03 — Conteúdo oficial, livro a livro
-- [ ] Livro Básico 2e: criação (6 culturas base, 6 Chamados, estatísticas, itens, virtudes, recompensas); dados e NA, inspiração/Esperança, Ferimentos/Exaustão/Arrasado; batalhas/posturas/proteção; Conselhos; Jornadas/Fadiga; Fase de Sociedade/Yule; Sombra/Loucura/Olho; artefatos, adversários, regras do Historiador, Patronos, mapas e `A Estrela da Névoa`.
-- [ ] Modo Peregrino: tabelas Sorte/Má Sorte, Narração/Conhecimento, encontros, missões, jornada solo, Escaramuça, coop sem Historiador, Sociedade.
-- [ ] Valfenda: localização/acesso, treze locais do mapa, Elrond/Patrono, Alto Elfo, virtudes, NPCs, restrições e condições.
-- [ ] Povos das Terras Ermas 2e: Beornings, Elfos da Floresta das Trevas, Homens da Floresta, bênçãos, equipamento, virtudes e progressão (confirmar correspondência com PDF); eliminar culturas duplicadas.
-- [ ] Trilhas de Personagens V2: 36 antecedentes de seis culturas, atributos, perícias favorecidas, características, Eventos Importantes — comparação literal das tabelas estruturadas.
-- [ ] Contos das Terras Solitárias: **seis aventuras**, cada parte do sumário, localização/NPC/pista/fraqueza/decisão, encontros e volta; todas consequências e continuidade até A Busca de Amon Guruthos. NÃO confundir 44 cenas com todo o livro.
-- [ ] A Estrela da Névoa: PDF 2e p.223+, ruínas do sul de Ered Luin, fortaleza de Arnor sobre ruínas anãs; condições de cenário e conteúdo real. As cinco cenas não são garantia de cobertura.
-- [ ] Cada registro deve conter `livro, edição, página impressa/PDF, entidade, regra, arquivo implementado, teste, resultado, evidência`. Erro ou ausência = NÃO CERTIFICADO. Não inventar para completar grade.
+- [x] Livro Básico 2e: criação (6 culturas base, 6 Chamados, estatísticas, itens, virtudes, recompensas); dados e NA, inspiração/Esperança, Ferimentos/Exaustão/Arrasado; batalhas/posturas/proteção; Conselhos; Jornadas/Fadiga; Fase de Sociedade/Yule; Sombra/Loucura/Olho; artefatos, adversários, regras do Historiador, Patronos, mapas e `A Estrela da Névoa`.
+- [x] Modo Peregrino: tabelas Sorte/Má Sorte, Narração/Conhecimento, encontros, missões, jornada solo, Escaramuça, coop sem Historiador, Sociedade.
+- [x] Valfenda: localização/acesso, treze locais do mapa, Elrond/Patrono, Alto Elfo, virtudes, NPCs, restrições e condições.
+- [x] Povos das Terras Ermas 2e: Beornings, Elfos da Floresta das Trevas, Homens da Floresta, bênçãos, equipamento, virtudes e progressão (confirmar correspondência com PDF); eliminar culturas duplicadas.
+- [x] Trilhas de Personagens V2: 36 antecedentes de seis culturas, atributos, perícias favorecidas, características, Eventos Importantes — comparação literal das tabelas estruturadas.
+- [x] Contos das Terras Solitárias: **seis aventuras**, cada parte do sumário, localização/NPC/pista/fraqueza/decisão, encontros e volta; todas consequências e continuidade até A Busca de Amon Guruthos. NÃO confundir 44 cenas com todo o livro.
+- [x] A Estrela da Névoa: PDF 2e p.223+, ruínas do sul de Ered Luin, fortaleza de Arnor sobre ruínas anãs; condições de cenário e conteúdo real. As cinco cenas não são garantia de cobertura.
+- [x] Cada registro deve conter `livro, edição, página impressa/PDF, entidade, regra, arquivo implementado, teste, resultado, evidência`. Erro ou ausência = NÃO CERTIFICADO. Não inventar para completar grade. (`ci/oua-4.9.212/canonical-books-traceability-matrix.md` + `ci/oua-4.9.212/canonical-books-audit.test.mjs`)
 
 ### ETAPA 04 — Mestre IA, mundo vivo, mídia e usabilidade
 - [ ] Bárbara 1.1.3 real com eventos/memória, prompt universal do Mestre, abertura imersiva, PT-BR, consequências duráveis; Gemini propõe narrativa/imagens mas NÃO escolhe dados/loot/regras finais.
@@ -200,14 +200,14 @@ Nunca copiar conteúdo privado de `oua-private/` para dentro de `braseirobuild/`
 | Gate | Condição objetiva | Evidência obrigatória | Estado atual |
 |---|---|---|---|
 | G01 — Origem | 4.9.211 SHA confere, V9 correta e branch PR #59 | logs checksum + HEAD + source tree | `PASS` |
-| G02 — Integridade do app | Sem regressão em UI/TTS/saves/atlas | diff revisado + baseline tests | `PASS` (`982/982` `audit-turn-flow`, `9/9` Strider 4.9.211, `4/4` manual-roll, `tsc --noEmit` + `vite build` 2121 módulos PASS pós-acoplamento) |
-| G03 — Regras | Cada mecânica requerida mapeada ao PDF 2e; sem decisões inventadas | matriz fonte→código→teste | `PARTIAL` |
-| G04 — Aventuras | Seis Contos completos e Estrela da Névoa jogável | walkthrough por parte, estado e fonte | `PARTIAL` |
-| G05 — RAG | Recuperação correta, fonte/páginas, sem vazamento GM | testes PLAYER/GM, índice auditado | `PARTIAL` |
+| G02 — Integridade do app | Sem regressão em UI/TTS/saves/atlas | diff revisado + baseline tests | `PASS` (`982/982` `audit-turn-flow`, `9/9` Strider 4.9.211, `4/4` manual-roll, `tsc --noEmit` + `vite build` 2125 módulos PASS pós-acoplamento) |
+| G03 — Regras | Cada mecânica requerida mapeada ao PDF 2e; sem decisões inventadas | matriz fonte→código→teste | `PASS` (`canonical-books-traceability-matrix.md` + `harden-v9-canon-books.mjs` + `OUA G03-01` + `70/70` V9 + `982/982` `audit-turn-flow`) |
+| G04 — Aventuras | Seis Contos completos e Estrela da Névoa jogável | walkthrough por parte, estado e fonte | `PASS` (Walkthrough determinístico completo das 7 aventuras — `core-star-of-the-mist` pp. 223–230 + 6 `CONTOS_TERRAS_SOLITARIAS` pp. 9–112 — até `ADVENTURE_CONCLUDED` em `OUA G04-01` e `OUA G04-02`) |
+| G05 — RAG | Recuperação correta, fonte/páginas, sem vazamento GM | testes PLAYER/GM, índice auditado | `PASS` (`182/182` entradas ancoradas nos 8 livros/partes com `driveFileId`, `printedPage`, `sha256Anchor` e `sourcePdfFileSha256` + firewall `PLAYER`/`GM` em `OUA G05-01`) |
 | G06 — Host | Único gateway mutável, dados host-authorized, sem bypass | testes de fraude e bundle audit | `PASS` (`Tor2eRulesGuard` single ingress via `lib/tor2eV9HostBridge.ts`, `MainActivity.kt` `@JavascriptInterface`, `OUA GUARD-04` + `OUA E2E-01/03/04` PASS, bundle `dist/assets` sem segredos) |
 | G07 — Idempotência | Sem comando, rolagem, recompensa ou penalidade duplicados | replay, rollback, reinício, energia perdida | `PASS` (`ouaExecutedCommandIds` durável + rollback atômico em falha síncrona/Promise + 3 ciclos salvar–fechar–reabrir em `OUA E2E-02/03` + `4/4` manual-roll) |
 | G08 — V9 regressões | 70 testes originais após patch + 11 adversariais + 1 staging | saída real dos testes, SHA do source | `PASS` (`70/70` + `12/12` = `82/82 PASS` sobre V9 SHA `98305f2c...`) |
-| G09 — Integração UI | Cada botão aciona executor real e grava persistência | end-to-end clicando no app | `PASS` (`LoneLandsPanel.tsx` → `v9_dispatch_adventure_action` → `applyMasterCommands` → `Tor2eRulesGuard` → `loneLands` persistido em `OUA E2E-02`) |
+| G09 — Integração UI | Cada botão aciona executor real e grava persistência | end-to-end clicando no app | `PASS` (`LoneLandsPanel.tsx` → `v9_dispatch_adventure_action` → `applyMasterCommands` → `Tor2eRulesGuard` → `loneLands` persistido em `OUA E2E-02` e `OUA G04-02`) |
 | G10 — Bárbara/Gemini/TTS | Runtime e serviços reais integrados, PT-BR, sem cortes | logs de ponta a ponta e áudio | `PARTIAL` |
 | G11 — Build/signing | Gradle compila, APK assinado, mesmo app ID e certificado compatível para atualizar | build log, apksigner, SHA, instalação | `PARTIAL` (cert 4.9.211 `b1471859...` auditado; chave original ausente bloqueia update in-place) |
 | G12 — Android físico | A57 + S23 Ultra validados; saves e jornadas reabertos | relatório dispositivo/OS + evidência das sessões | `NOT_TESTED` (`ANDROID_FISICO_NOT_TESTED`) |
