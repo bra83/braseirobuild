@@ -1,0 +1,65 @@
+TAP version 13
+# Subtest: SWE02 p7: four alerts and unresolved issue state have exact ordered source cues
+ok 1 - SWE02 p7: four alerts and unresolved issue state have exact ordered source cues
+  ---
+  duration_ms: 9.2237
+  type: 'test'
+  ...
+# Subtest: SWE02 p7: odor and noise penalties compose for checks and medical aid
+ok 2 - SWE02 p7: odor and noise penalties compose for checks and medical aid
+  ---
+  duration_ms: 1.6605
+  type: 'test'
+  ...
+# Subtest: SWE02 p7-8: route and slowed-tracker combination is deterministic and survives JSON reopen
+ok 3 - SWE02 p7-8: route and slowed-tracker combination is deterministic and survives JSON reopen
+  ---
+  duration_ms: 2.3876
+  type: 'test'
+  ...
+# Subtest: SWE02 pp9-11: cargo discovery records source manifest without transferring or selling items
+ok 4 - SWE02 pp9-11: cargo discovery records source manifest without transferring or selling items
+  ---
+  duration_ms: 1.5969
+  type: 'test'
+  ...
+# Subtest: SWE02 p11 + EotE Core: exact cataloged cargo transfers by count to a stable PC owner
+ok 5 - SWE02 p11 + EotE Core: exact cataloged cargo transfers by count to a stable PC owner
+  ---
+  duration_ms: 3.6467
+  type: 'test'
+  ...
+# Subtest: SWE02 p9: pelt find creates six discovered items; odor-source search remains exempt
+ok 6 - SWE02 p9: pelt find creates six discovered items; odor-source search remains exempt
+  ---
+  duration_ms: 8.2786
+  type: 'test'
+  ...
+# Subtest: SWE02 p9-10: cage identifies B’ura; freeing is free; knowledge symbols retain graded shell facts
+ok 7 - SWE02 p9-10: cage identifies B’ura; freeing is free; knowledge symbols retain graded shell facts
+  ---
+  duration_ms: 12.8933
+  type: 'test'
+  ...
+# Subtest: SWE02 p8: tracker-removal threats preserve a hull-damage obligation without inventing trauma
+ok 8 - SWE02 p8: tracker-removal threats preserve a hull-damage obligation without inventing trauma
+  ---
+  duration_ms: 0.9303
+  type: 'test'
+  ...
+# Subtest: SWE02 p11: verified route records six uneventful hours and available rest without inventing recovery
+ok 9 - SWE02 p11: verified route records six uneventful hours and available rest without inventing recovery
+  ---
+  duration_ms: 1.5831
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 527.9025
+

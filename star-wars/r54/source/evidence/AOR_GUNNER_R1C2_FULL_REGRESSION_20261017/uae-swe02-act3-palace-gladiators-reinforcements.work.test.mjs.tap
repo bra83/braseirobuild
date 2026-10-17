@@ -1,0 +1,53 @@
+TAP version 13
+# Subtest: p.44: four gladiators, real bribe, once, no charm, no fake alliance
+ok 1 - p.44: four gladiators, real bribe, once, no charm, no fake alliance
+  ---
+  duration_ms: 547.4164
+  type: 'test'
+  ...
+# Subtest: p.44: opposed Coercion dice, failed check does not mint allies; receipt anti-fraud
+ok 2 - p.44: opposed Coercion dice, failed check does not mint allies; receipt anti-fraud
+  ---
+  duration_ms: 180.0256
+  type: 'test'
+  ...
+# Subtest: p.44: gladiator combat is real and separate from Teemo; cannot fake victory
+ok 3 - p.44: gladiator combat is real and separate from Teemo; cannot fake victory
+  ---
+  duration_ms: 158.6153
+  type: 'test'
+  ...
+# Subtest: p.44: controller/bridge/UI: credits atomic, rollback and 3 reopenings
+ok 4 - p.44: controller/bridge/UI: credits atomic, rollback and 3 reopenings
+  ---
+  duration_ms: 294.3222
+  type: 'test'
+  ...
+# Subtest: p.44: GM confirms count; Teemo must spend maneuver on actual NPC turn; no premature arrival
+ok 5 - p.44: GM confirms count; Teemo must spend maneuver on actual NPC turn; no premature arrival
+  ---
+  duration_ms: 8.7725
+  type: 'test'
+  ...
+# Subtest: p.44: no alarm from incapacitated Teemo; no reinforcements without alarm
+ok 6 - p.44: no alarm from incapacitated Teemo; no reinforcements without alarm
+  ---
+  duration_ms: 2.7677
+  type: 'test'
+  ...
+# Subtest: p.44: controller commits real Teemo NPC maneuver, initiative countdown and three persisted reopens
+ok 7 - p.44: controller commits real Teemo NPC maneuver, initiative countdown and three persisted reopens
+  ---
+  duration_ms: 307.3681
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4122.9322
+

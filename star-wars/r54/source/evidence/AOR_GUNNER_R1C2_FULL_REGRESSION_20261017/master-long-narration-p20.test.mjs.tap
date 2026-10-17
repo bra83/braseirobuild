@@ -1,0 +1,23 @@
+TAP version 13
+# Subtest: P20: contrato do Mestre aceita a narração longa pedida ao Gemini
+ok 1 - P20: contrato do Mestre aceita a narração longa pedida ao Gemini
+  ---
+  duration_ms: 34.2309
+  type: 'test'
+  ...
+# Subtest: P20: host nativo e Motor Barbara usam o mesmo teto de 12k
+ok 2 - P20: host nativo e Motor Barbara usam o mesmo teto de 12k
+  ---
+  duration_ms: 0.9188
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 734.5073
+

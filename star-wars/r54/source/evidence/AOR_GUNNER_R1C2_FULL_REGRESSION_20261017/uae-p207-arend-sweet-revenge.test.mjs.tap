@@ -1,0 +1,71 @@
+TAP version 13
+# Subtest: P207 four published holdings, correct pages and no invented current location
+ok 1 - P207 four published holdings, correct pages and no invented current location
+  ---
+  duration_ms: 19.3851
+  type: 'test'
+  ...
+# Subtest: P207 actual Average Computers roll discovers leads without locating Arend
+ok 2 - P207 actual Average Computers roll discovers leads without locating Arend
+  ---
+  duration_ms: 1378.8854
+  type: 'test'
+  ...
+# Subtest: P207 Streetwise uses Cunning and failure needs GM retry
+ok 3 - P207 Streetwise uses Cunning and failure needs GM retry
+  ---
+  duration_ms: 1084.4127
+  type: 'test'
+  ...
+# Subtest: P207 d100 25/50/75/automatic at distinct locations, no teleports
+ok 4 - P207 d100 25/50/75/automatic at distinct locations, no teleports
+  ---
+  duration_ms: 879.7159
+  type: 'test'
+  ...
+# Subtest: P207 first visit 1/100 locates Arend, no extra visits
+ok 5 - P207 first visit 1/100 locates Arend, no extra visits
+  ---
+  duration_ms: 740.5719
+  type: 'test'
+  ...
+# Subtest: P207 requires betrayal, no combat, resolved goons, GM access and arrival
+ok 6 - P207 requires betrayal, no combat, resolved goons, GM access and arrival
+  ---
+  duration_ms: 822.6617
+  type: 'test'
+  ...
+# Subtest: P207 duplicate receipts, repeated holdings and premature searches are atomic
+ok 7 - P207 duplicate receipts, repeated holdings and premature searches are atomic
+  ---
+  duration_ms: 752.4049
+  type: 'test'
+  ...
+# Subtest: P207 receipt replay rejects fake narrative faces, probabilities and fabricated findings
+ok 8 - P207 receipt replay rejects fake narrative faces, probabilities and fabricated findings
+  ---
+  duration_ms: 683.3768
+  type: 'test'
+  ...
+# Subtest: P207 controller atomic commits and three reopenings retain receipts
+ok 9 - P207 controller atomic commits and three reopenings retain receipts
+  ---
+  duration_ms: 966.0387
+  type: 'test'
+  ...
+# Subtest: P207 Android PTBR bridge, offline bundle, version, Kokoro preservation markers
+ok 10 - P207 Android PTBR bridge, offline bundle, version, Kokoro preservation markers
+  ---
+  duration_ms: 102.0146
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9725.1128
+

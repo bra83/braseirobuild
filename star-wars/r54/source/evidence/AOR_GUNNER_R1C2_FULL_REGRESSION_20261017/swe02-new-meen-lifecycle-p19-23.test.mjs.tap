@@ -1,0 +1,95 @@
+TAP version 13
+# Subtest: p19: party-size state supports 2, 3, 4+ groups and blocks unspecified solo force
+ok 1 - p19: party-size state supports 2, 3, 4+ groups and blocks unspecified solo force
+  ---
+  duration_ms: 8.218
+  type: 'test'
+  ...
+# Subtest: p19–20: direct visit skips night, while avoid-and-stay makes the raid eligible
+ok 2 - p19–20: direct visit skips night, while avoid-and-stay makes the raid eligible
+  ---
+  duration_ms: 1.4411
+  type: 'test'
+  ...
+# Subtest: p20: no-help branch offers escort; refusal redirects thugs to PCs then requires adjudication
+ok 3 - p20: no-help branch offers escort; refusal redirects thugs to PCs then requires adjudication
+  ---
+  duration_ms: 4.0343
+  type: 'test'
+  ...
+# Subtest: p20: optional road harassment requires a GM disposition instead of a fabricated encounter
+ok 4 - p20: optional road harassment requires a GM disposition instead of a fabricated encounter
+  ---
+  duration_ms: 1.1795
+  type: 'test'
+  ...
+# Subtest: p20: existing P243 arrival receipt grants only the source-stated favor and preserves non-liberation
+ok 5 - p20: existing P243 arrival receipt grants only the source-stated favor and preserves non-liberation
+  ---
+  duration_ms: 1.474
+  type: 'test'
+  ...
+# Subtest: p20: speeder surrender is recorded without inventing its later disposition; provocation triggers combat
+ok 6 - p20: speeder surrender is recorded without inventing its later disposition; provocation triggers combat
+  ---
+  duration_ms: 4.6887
+  type: 'test'
+  ...
+# Subtest: p22: cautious approach avoids checks; detected polite negotiation guarantees gunfire alert
+ok 7 - p22: cautious approach avoids checks; detected polite negotiation guarantees gunfire alert
+  ---
+  duration_ms: 1.8761
+  type: 'test'
+  ...
+# Subtest: p21: prior night group is excluded; Charm does not roll and thugs resume fighting
+ok 8 - p21: prior night group is excluded; Charm does not roll and thugs resume fighting
+  ---
+  duration_ms: 2.9197
+  type: 'test'
+  ...
+# Subtest: p23: safe methods include key, blast, and Hard Skulduggery; credit grant is one-time and GM-gated
+ok 9 - p23: safe methods include key, blast, and Hard Skulduggery; credit grant is one-time and GM-gated
+  ---
+  duration_ms: 3.3484
+  type: 'test'
+  ...
+# Subtest: p23: the office clue appears only after the existing Hard Computers result passes
+ok 10 - p23: the office clue appears only after the existing Hard Computers result passes
+  ---
+  duration_ms: 3.8902
+  type: 'test'
+  ...
+# Subtest: p23: lifecycle imports the existing per-thug bribe receipt without charging twice or bribing Drombb
+ok 11 - p23: lifecycle imports the existing per-thug bribe receipt without charging twice or bribing Drombb
+  ---
+  duration_ms: 3.1851
+  type: 'test'
+  ...
+# Subtest: p23: victory requires Drombb defeated; defeat records B’ura/Ota rescue and no liberation
+ok 12 - p23: victory requires Drombb defeated; defeat records B’ura/Ota rescue and no liberation
+  ---
+  duration_ms: 2.3293
+  type: 'test'
+  ...
+# Subtest: p21 and p23 defeat passages stay distinct rather than auto-merging their outcomes
+ok 13 - p21 and p23 defeat passages stay distinct rather than auto-merging their outcomes
+  ---
+  duration_ms: 1.0066
+  type: 'test'
+  ...
+# Subtest: lifecycle event stream is serializable and rejects tampered provenance/revisions
+ok 14 - lifecycle event stream is serializable and rejects tampered provenance/revisions
+  ---
+  duration_ms: 3.9182
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 758.3496
+
