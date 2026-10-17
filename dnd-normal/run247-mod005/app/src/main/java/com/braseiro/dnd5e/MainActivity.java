@@ -1150,10 +1150,119 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private void strikActivateAndRefresh(){
-        StrixhavenAdventureProfile p=strixhavenProfile();p.activate();JSONObject bestiary=StrixhavenBestiaryRuntimeEngine.install(this);screenCache.clear();screenCacheTime.clear();applyTheme();buildShell();showCampaign();setStatus("Strixhaven ativada • "+bestiary.optInt("registered",0)+"/"+bestiary.optInt("expected",44)+" statblocks oficiais compilados. Faerûn continua preservado no save.");
+        if(isStrixhavenAdventure())return;
+        if(aiBusy){toast("Aguarde o Mestre concluir a cena antes de trocar de aventura.");return;}
+        // Strixhaven shares AppDb's scene/story tables with Faerun. Save only
+        // Faerun's current projection; this is NOT a destructive world reset.
+        JSONObject before=db.getSceneState();
+        boolean faerunScene=!StrixhavenSceneBoundary.strixhavenLocation(before);
+        android.content.SharedPreferences.Editor snapshot=prefs.edit()
+            .putString(StrixhavenSceneBoundary.SCENE_SNAPSHOT_PREF,faerunScene?before.toString():"")
+            .putString(StrixhavenSceneBoundary.STORY_SNAPSHOT_PREF,
+                faerunScene?db.getStoryState().toString():"")
+            .putString(StrixhavenSceneBoundary.CAST_SNAPSHOT_PREF,
+                faerunScene?currentSceneCastPreview.toString():"[]")
+            .putString("dnd_faerun_image_before_strixhaven_v1",
+                faerunScene?prefs.getString(PREF_SCENE_IMAGE_URI,""):"")
+            .putString("dnd_faerun_image_fingerprint_before_strixhaven_v1",
+                faerunScene?prefs.getString(PREF_SCENE_IMAGE_FINGERPRINT,""):"");
+        if(!snapshot.commit()){toast("Falha ao preservar a cena de Faerûn. Troca cancelada.");return;}
+        StrixhavenAdventureProfile p=strixhavenProfile();p.activate();
+        try{
+            JSONObject campus=StrixhavenSceneBoundary.enterNewLocation(db.getSceneState());
+            campus.put("location","Strixhaven • "+p.currentMapLabel());
+            campus.put("strixhaven_map_id",p.currentMapId());
+            campus.remove("hex_id");
+            db.saveSceneState(campus);
+        }catch(Exception error){
+            AppLog.e("StrixhavenEnter","Falha ao definir a cena inicial da escola.",error);
+            p.exitToFaerun();
+            toast("A cena de Strixhaven não pôde ser aberta.");
+            return;
+        }
+        clearTravelSceneDisplay("Strixhaven");
+        JSONObject bestiary=StrixhavenBestiaryRuntimeEngine.install(this);
+        screenCache.clear();screenCacheTime.clear();applyTheme();buildShell();showCampaign();
+        setStatus("Strixhaven ativada • "+bestiary.optInt("registered",0)+"/"+
+            bestiary.optInt("expected",44)+" statblocks oficiais compilados. Faerûn preservado.");
     }
     private void strikExitAndRefresh(){
-        StrixhavenAdventureProfile p=strixhavenProfile();p.exitToFaerun();screenCache.clear();screenCacheTime.clear();applyTheme();buildShell();showCampaign();ensureBundledMapForProfileAsync(WORLD_DND);setStatus("Strixhaven encerrada. O Atlas de Faerûn foi reativado sem resetar posição, câmera, névoa ou POIs.");
+        if(!isStrixhavenAdventure())return;
+        if(aiBusy){toast("Aguarde o Mestre concluir a cena antes de sair de Strixhaven.");return;}
+        try{
+            String stored=prefs.getString(StrixhavenSceneBoundary.SCENE_SNAPSHOT_PREF,"");
+            JSONObject previous=stored.trim().startsWith("{")?new JSONObject(stored):new JSONObject();
+            boolean canRestore=previous.length()>0&&!StrixhavenSceneBoundary.strixhavenLocation(previous);
+            JSONObject atlas=db.getMapState();
+            JSONObject restored=StrixhavenSceneBoundary.returnToFaerun(
+                previous,db.getSceneState(),NarrativeLocationNaturalizer.currentNarrativeLabel(db),
+                atlas.optString("current_hex_id",""));
+            String storyRaw=prefs.getString(StrixhavenSceneBoundary.STORY_SNAPSHOT_PREF,"");
+            JSONObject oldStory=canRestore&&storyRaw.trim().startsWith("{")
+                ?new JSONObject(storyRaw):new JSONObject();
+            String oldCast=canRestore
+                ?prefs.getString(StrixhavenSceneBoundary.CAST_SNAPSHOT_PREF,"[]"):"[]";
+            String fallback=StrixhavenSceneBoundary.waitingForArrival(restored.optString("location","Faerûn"));
+            boolean storyStarted=db.getStoryState().optInt("started",0)==1;
+            db.saveSceneState(restored);
+            if(oldStory.length()>0){
+                db.saveStoryState(oldStory.optInt("started",0)==1,
+                    oldStory.optString("last_narration",""),oldStory.optString("visual_prompt",""),
+                    oldStory.optString("options_json","[]"),
+                    oldStory.optString("pending_test_json",""),
+                    oldStory.optString("last_action",""));
+            }else{
+                // Existing installations did not snapshot Faerun on entry.
+                // Never keep Strixhaven narration or its Biblioplex cast.
+                db.saveStoryState(storyStarted,fallback,"","[]","","Retorno a Faerûn");
+            }
+            cancelNarrationAudio();audio.stopAmbience();audio.stopMusic();
+            sharedImageUri=null;sceneImage=null;lastMasterSupport=new JSONObject();
+            pendingTest=new JSONObject();lastRagCitations=new JSONArray();
+            currentSceneCastPreview=new JSONArray();
+            android.content.SharedPreferences.Editor editor=prefs.edit()
+                .putString("last_scene_cast_preview",oldCast)
+                .remove("last_master_support_json")
+                .remove(PREF_PENDING_IMAGE_FINGERPRINT)
+                .remove(StrixhavenSceneBoundary.SCENE_SNAPSHOT_PREF)
+                .remove(StrixhavenSceneBoundary.STORY_SNAPSHOT_PREF)
+                .remove(StrixhavenSceneBoundary.CAST_SNAPSHOT_PREF);
+            String oldImage=canRestore?prefs.getString("dnd_faerun_image_before_strixhaven_v1",""):"";
+            String oldImageFingerprint=canRestore?prefs.getString(
+                "dnd_faerun_image_fingerprint_before_strixhaven_v1",""):"";
+            if(oldImage.isEmpty())editor.remove(PREF_SCENE_IMAGE_URI);
+            else editor.putString(PREF_SCENE_IMAGE_URI,oldImage);
+            if(oldImageFingerprint.isEmpty())editor.remove(PREF_SCENE_IMAGE_FINGERPRINT);
+            else editor.putString(PREF_SCENE_IMAGE_FINGERPRINT,oldImageFingerprint);
+            editor.remove("dnd_faerun_image_before_strixhaven_v1")
+                .remove("dnd_faerun_image_fingerprint_before_strixhaven_v1").apply();
+            StrixhavenAdventureProfile p=strixhavenProfile();p.exitToFaerun();
+            loadStoryState();
+            screenCache.clear();screenCacheTime.clear();applyTheme();buildShell();showCampaign();
+            ensureBundledMapForProfileAsync(WORLD_DND);
+            setStatus("Faerûn reativada • cena, narração e NPCs de Strixhaven retirados da cena atual.");
+        }catch(Exception error){
+            AppLog.e("StrixhavenExit","Não foi possível restaurar Faerûn; perfil preservado para recuperação.",error);
+            toast("Falha ao restaurar a cena de Faerûn. Strixhaven continua selecionada.");
+        }
+    }
+    private void clearTravelSceneDisplay(String destination){
+        cancelNarrationAudio();
+        currentSceneCastPreview=new JSONArray();
+        currentOptions=new JSONArray();
+        pendingTest=new JSONObject();
+        lastMasterSupport=new JSONObject();
+        lastVisualPrompt="";
+        sharedImageUri=null;sceneImage=null;
+        lastNarration=StrixhavenSceneBoundary.waitingForArrival(destination);
+        prefs.edit().putString("last_scene_cast_preview","[]")
+            .remove("last_master_support_json")
+            .remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT)
+            .remove(PREF_PENDING_IMAGE_FINGERPRINT).apply();
+        JSONObject priorStory=db.getStoryState();
+        db.saveStoryState(priorStory.optInt("started",0)==1,
+            lastNarration,lastVisualPrompt,"[]","","Chegada a "+destination);
+        screenCache.remove("Mestre IA");screenCacheTime.remove("Mestre IA");
     }
 
     private void launchStrixhavenAdventure(final boolean reset){
@@ -1548,6 +1657,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private void commitStrixhavenFreeTravel(final float x,final float y,final StrixhavenAdventureProfile profile,final int minutes){
+        if(aiBusy){toast("Aguarde a narração atual antes de se deslocar.");return;}
         final String fromLabel=profile.currentPoiLabel().length()>0?profile.currentPoiLabel():profile.currentMapLabel();
         if(strixhavenCampusView!=null){strixhavenCampusView.select(x,y);strixhavenCampusView.animateTokenTo(x,y);setStatus("Explorando o campus…");ui.postDelayed(new Runnable(){public void run(){finishStrixhavenFreeTravel(x,y,profile,minutes,fromLabel);}},560L);}
         else finishStrixhavenFreeTravel(x,y,profile,minutes,fromLabel);
@@ -1555,7 +1665,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void finishStrixhavenFreeTravel(float x,float y,StrixhavenAdventureProfile profile,int minutes,String fromLabel){
         advanceSceneHours(minutes/60d);profile.setPosition(profile.currentMapId(),x,y,"","");
-        try{JSONObject scene=db.getSceneState();scene.put("location","Strixhaven • "+profile.currentMapLabel()+" • área explorada");scene.remove("hex_id");scene.put("strixhaven_map_id",profile.currentMapId());scene.remove("strixhaven_poi_id");scene.put("strixhaven_exploration_x",x);scene.put("strixhaven_exploration_y",y);scene.put("last_travel_minutes",minutes);scene.put("last_travel_from",fromLabel);scene.put("last_travel_to","área explorada em "+profile.currentMapLabel());scene.put("last_travel_kind","free_exploration");db.saveSceneState(scene);}catch(Exception ignored){AppLog.ignored("StrixhavenTravel","Falha tolerada ao salvar exploração livre.",ignored);}
+        try{JSONObject scene=db.getSceneState();scene.put("location","Strixhaven • "+profile.currentMapLabel()+" • área explorada");scene.remove("hex_id");scene.put("strixhaven_map_id",profile.currentMapId());scene.remove("strixhaven_poi_id");scene.put("strixhaven_exploration_x",x);scene.put("strixhaven_exploration_y",y);scene.put("last_travel_minutes",minutes);scene.put("last_travel_from",fromLabel);scene.put("last_travel_to","área explorada em "+profile.currentMapLabel());scene.put("last_travel_kind","free_exploration");db.saveSceneState(StrixhavenSceneBoundary.enterNewLocation(scene));}catch(Exception ignored){AppLog.ignored("StrixhavenTravel","Falha tolerada ao salvar exploração livre.",ignored);}
+        clearTravelSceneDisplay("área explorada em "+profile.currentMapLabel());
         db.addAuditEvent("strixhaven","Exploração livre",fromLabel+" → área não catalogada de "+profile.currentMapLabel()+" • "+minutes+" min","{}",profile.mapProjection().toString(),true);
         screenCache.remove("Mestre IA");screenCacheTime.remove("Mestre IA");showStrixhavenSession();
         if(db.getStoryState().optInt("started",0)==1&&!aiBusy){String arrival=profile.masterInstruction()+" EXPLORAÇÃO LIVRE CONFIRMADA PELO MAPA: o jogador caminhou por cerca de "+minutes+" minutos até um ponto NÃO CATALOGADO do mapa de "+profile.currentMapLabel()+". Narre o que é imediatamente perceptível em 1–3 parágrafos. Não invente um nome oficial para esse ponto e não trate um POI conhecido como destino se o jogador não o escolheu.";sendAi("Narrador",arrival);}
@@ -1597,6 +1708,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private void commitStrixhavenTravel(final StrixhavenLocationCatalog.Hotspot hotspot,final StrixhavenAdventureProfile profile){
+        if(aiBusy){toast("Aguarde a narração atual antes de se deslocar.");return;}
         final int minutes=estimateStrixhavenTravelMinutes(profile,hotspot);
         final String fromLabel=profile.currentPoiLabel().length()>0?profile.currentPoiLabel():profile.currentMapLabel();
         if(strixhavenCampusView!=null){
@@ -1616,7 +1728,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             profile.setPosition("university",hotspot.x,hotspot.y,hotspot.id,hotspot.label);
             profile.setPosition(hotspot.targetMapId,.50f,.86f,"",hotspot.label);
         }else profile.setPosition(profile.currentMapId(),hotspot.x,hotspot.y,hotspot.id,hotspot.label);
-        try{JSONObject scene=db.getSceneState();scene.put("location","Strixhaven • "+profile.currentMapLabel()+(profile.currentPoiLabel().length()>0?" • "+profile.currentPoiLabel():""));scene.remove("hex_id");scene.put("strixhaven_map_id",profile.currentMapId());scene.put("strixhaven_poi_id",profile.currentPoiId());scene.remove("strixhaven_exploration_x");scene.remove("strixhaven_exploration_y");scene.put("last_travel_minutes",minutes);scene.put("last_travel_from",fromLabel);scene.put("last_travel_to",profile.currentPoiLabel().length()>0?profile.currentPoiLabel():profile.currentMapLabel());scene.put("last_travel_kind","poi");db.saveSceneState(scene);}catch(Exception ignored){AppLog.ignored("StrixhavenTravel","Falha tolerada ao salvar posição narrativa.",ignored);}
+        try{JSONObject scene=db.getSceneState();scene.put("location","Strixhaven • "+profile.currentMapLabel()+(profile.currentPoiLabel().length()>0?" • "+profile.currentPoiLabel():""));scene.remove("hex_id");scene.put("strixhaven_map_id",profile.currentMapId());scene.put("strixhaven_poi_id",profile.currentPoiId());scene.remove("strixhaven_exploration_x");scene.remove("strixhaven_exploration_y");scene.put("last_travel_minutes",minutes);scene.put("last_travel_from",fromLabel);scene.put("last_travel_to",profile.currentPoiLabel().length()>0?profile.currentPoiLabel():profile.currentMapLabel());scene.put("last_travel_kind","poi");db.saveSceneState(StrixhavenSceneBoundary.enterNewLocation(scene));}catch(Exception ignored){AppLog.ignored("StrixhavenTravel","Falha tolerada ao salvar posição narrativa.",ignored);}
+        clearTravelSceneDisplay(profile.currentPoiLabel().length()>0?profile.currentPoiLabel():profile.currentMapLabel());
         db.addAuditEvent("strixhaven","Deslocamento no campus",fromLabel+" → "+(profile.currentPoiLabel().length()>0?profile.currentPoiLabel():profile.currentMapLabel())+" • "+minutes+" min","{}",profile.mapProjection().toString(),true);
         screenCache.remove("Mestre IA");screenCacheTime.remove("Mestre IA");
         showStrixhavenSession();
@@ -6250,7 +6363,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             JSONObject scene=db.getSceneState();String raw=scene.optString("present_npcs_json","[]");
             try{JSONArray npcs=new JSONArray(raw);for(int i=0;i<npcs.length();i++){Object value=npcs.opt(i);if(value instanceof JSONObject){JSONObject npc=(JSONObject)value;String name=GeneratedTextSanitizer.scalar(npc.toString(),"name");boolean transientNpc=npc.optBoolean("transient",false)||npc.optBoolean("anonymous",false);JSONObject memory=transientNpc?new JSONObject():db.findNpcMemoryByName(name);addSceneCastEntry(out,seen,name,"NPC",npc.optString("token_uri",memory.optString("token_uri","")),npc.optString("role",npc.optString("summary",memory.optString("summary",""))),Math.max(1,npc.optInt("count",1)),npc.optBoolean("group",false),transientNpc);}else{String name=GeneratedTextSanitizer.scalar(String.valueOf(value),"name");JSONObject memory=db.findNpcMemoryByName(name);addSceneCastEntry(out,seen,name,"NPC",memory.optString("token_uri",""),memory.optString("summary",""),1,false,false);}}}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}
             if(currentSceneCastPreview!=null)for(int i=0;i<currentSceneCastPreview.length();i++){JSONObject npc=currentSceneCastPreview.optJSONObject(i);if(npc==null)continue;String name=npc.optString("name","NPC");boolean transientNpc=npc.optBoolean("transient",false)||npc.optBoolean("anonymous",false);JSONObject memory=transientNpc?new JSONObject():db.findNpcMemoryByName(name);addSceneCastEntry(out,seen,name,"NPC",npc.optString("token_uri",memory.optString("token_uri","")),npc.optString("role",npc.optString("summary",memory.optString("summary",""))),Math.max(1,npc.optInt("count",1)),npc.optBoolean("group",false),transientNpc);}
-            for(JSONObject combatant:db.listCombatants())if(combatant.optInt("is_player",0)!=1)addSceneCastEntry(out,seen,combatant.optString("name","Inimigo"),"INIMIGO",combatant.optString("token_uri",""),combatant.optString("conditions",""),1,false,false);
+            if(db.getCombatState().optInt("running",0)==1)
+                for(JSONObject combatant:db.listCombatants())
+                    if(combatant.optInt("is_player",0)!=1)
+                        addSceneCastEntry(out,seen,combatant.optString("name","Inimigo"),
+                            "INIMIGO",combatant.optString("token_uri",""),
+                            combatant.optString("conditions",""),1,false,false);
         }catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}
         return out;
     }
