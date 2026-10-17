@@ -1,0 +1,10 @@
+# AoR Ace/Gunner R5C2 source review
+
+- Position: `ace:gunner:r5c2`, MEJORAS CASERAS (localized as Melhorias caseiras), printed page 68 of *Star Wars: Age of Rebellion Core Rulebook*.
+- Source file reviewed: `AoR-Core-Rulebook.pdf`, Google Drive file ID `1w2M6f7R_dzaaHk6Q6R8Y7TIqAYM2MJIq`.
+- SHA-256: `25087E5B43C289EF556A365EEC1177123055DFB75C3ECF03481CD66044CACE50`.
+- Visual review: physical PDF page 69 (one-based; zero-based index 68), printed footer 68. The Ace: Gunner tree places Jury Rigged at R5C2 for 25 XP. Its second purchased slot authorizes a distinct permanent improvement to an owned weapon or item; the existing R3C3 slot remains a separate purchase/assignment.
+- Deterministic consumer: `rules/talents.mjs:281-307` authorizes only source-backed Jury Rigged purchase IDs and derives the effect for the matching unique owned item. `core/controller.mjs:1983-2008` validates the exact node, weapon ownership, modification and item-instance uniqueness, then persists the assignment. `core/controller.mjs:5292-5294` applies the improvement in the real weapon attack. `core/uiBridge.mjs:1465-1468` exposes the action, and Android R46 `final-runtime.js:2645-2649` presents the acquired rank/item/effect controls and calls `assignJuryRigged`.
+- Exact acquisition and persistence test: `tests/uae-aor-individual-position-proofs.test.mjs`, test `AoR p.68 Ace/Gunner R5C2 Jury Rigged rank 2 buys exact node, improves a weapon and survives three reloads`. It purchases the connected path and exact R5C2 through `BraseiroUiBridge.buyTalent`, confirms 25 XP and source provenance, assigns its node ID to an owned catalog weapon through the bridge, compares a real attack against the same unmodified attack, and verifies the exact purchase, unique item instance, and effect across three fresh controller restores.
+- Full per-file regression: `evidence/AOR_GUNNER_R5C2_FULL_REGRESSION_20261017/summary.json` and per-file TAP logs, including all six stress files.
+- Certification scope: this evidence certifies only R5C2. Other AoR positions retain their individual statuses.

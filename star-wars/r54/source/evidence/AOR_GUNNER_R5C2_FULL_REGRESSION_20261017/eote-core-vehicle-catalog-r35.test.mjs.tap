@@ -1,0 +1,136 @@
+TAP version 13
+# Subtest: R35: catálogo veicular Core EotE possui 15 perfis ativos e nenhum AoR
+ok 1 - R35: catálogo veicular Core EotE possui 15 perfis ativos e nenhum AoR
+  ---
+  duration_ms: 20.1858
+  type: 'test'
+  ...
+# Subtest: R35: x34 reproduz perfil/custo/raridade Core
+ok 2 - R35: x34 reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 1.4736
+  type: 'test'
+  ...
+# Subtest: R35: digger_crawler reproduz perfil/custo/raridade Core
+ok 3 - R35: digger_crawler reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.7671
+  type: 'test'
+  ...
+# Subtest: R35: personnel_carrier reproduz perfil/custo/raridade Core
+ok 4 - R35: personnel_carrier reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.5767
+  type: 'test'
+  ...
+# Subtest: R35: at_pt reproduz perfil/custo/raridade Core
+ok 5 - R35: at_pt reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.6123
+  type: 'test'
+  ...
+# Subtest: R35: at_est reproduz perfil/custo/raridade Core
+ok 6 - R35: at_est reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.84
+  type: 'test'
+  ...
+# Subtest: R35: cloakshape reproduz perfil/custo/raridade Core
+ok 7 - R35: cloakshape reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.5637
+  type: 'test'
+  ...
+# Subtest: R35: jumpmaster_jm5000 reproduz perfil/custo/raridade Core
+ok 8 - R35: jumpmaster_jm5000 reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 1.6966
+  type: 'test'
+  ...
+# Subtest: R35: firespray reproduz perfil/custo/raridade Core
+ok 9 - R35: firespray reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.7745
+  type: 'test'
+  ...
+# Subtest: R35: lambda_t4a reproduz perfil/custo/raridade Core
+ok 10 - R35: lambda_t4a reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.8725
+  type: 'test'
+  ...
+# Subtest: R35: tie_ln reproduz perfil/custo/raridade Core
+ok 11 - R35: tie_ln reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.7279
+  type: 'test'
+  ...
+# Subtest: R35: ywing_btl reproduz perfil/custo/raridade Core
+ok 12 - R35: ywing_btl reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.6191
+  type: 'test'
+  ...
+# Subtest: R35: z95_af4 reproduz perfil/custo/raridade Core
+ok 13 - R35: z95_af4 reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.574
+  type: 'test'
+  ...
+# Subtest: R35: skipray_gat12h reproduz perfil/custo/raridade Core
+ok 14 - R35: skipray_gat12h reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 1.365
+  type: 'test'
+  ...
+# Subtest: R35: wayfarer reproduz perfil/custo/raridade Core
+ok 15 - R35: wayfarer reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.4346
+  type: 'test'
+  ...
+# Subtest: R35: yt1300 reproduz perfil/custo/raridade Core
+ok 16 - R35: yt1300 reproduz perfil/custo/raridade Core
+  ---
+  duration_ms: 0.422
+  type: 'test'
+  ...
+# Subtest: R35: perfis terrestres Core preservam capacidade e sensores comprovados
+ok 17 - R35: perfis terrestres Core preservam capacidade e sensores comprovados
+  ---
+  duration_ms: 0.3903
+  type: 'test'
+  ...
+# Subtest: R35: naves Core preservam hiperdrive/defesa/restrição e munição
+ok 18 - R35: naves Core preservam hiperdrive/defesa/restrição e munição
+  ---
+  duration_ms: 0.5592
+  type: 'test'
+  ...
+# Subtest: R35: os 15 veículos Core permanecem disponíveis na economia e X-Wing segue excluído
+ok 19 - R35: os 15 veículos Core permanecem disponíveis na economia e X-Wing segue excluído
+  ---
+  duration_ms: 7.0911
+  type: 'test'
+  ...
+# Subtest: R35: disponibilidade de veículo respeita raridade e restrição do Core
+ok 20 - R35: disponibilidade de veículo respeita raridade e restrição do Core
+  ---
+  duration_ms: 2.0288
+  type: 'test'
+  ...
+# Subtest: R35: X-Wing continua fail-closed na economia até fonte EotE própria
+ok 21 - R35: X-Wing continua fail-closed na economia até fonte EotE própria
+  ---
+  duration_ms: 1.4998
+  type: 'test'
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 822.8009

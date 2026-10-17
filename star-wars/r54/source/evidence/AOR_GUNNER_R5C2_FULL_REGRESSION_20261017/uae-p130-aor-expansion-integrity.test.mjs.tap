@@ -1,0 +1,100 @@
+TAP version 13
+# Subtest: P130 AoR: todas as 18 árvores de origem ficam navegáveis e a primeira linha desbloqueada
+ok 1 - P130 AoR: todas as 18 árvores de origem ficam navegáveis e a primeira linha desbloqueada
+  ---
+  duration_ms: 38.3176
+  type: 'test'
+  ...
+# Subtest: P130 AoR: compra real desconta PE, preserva fonte, posição e não modifica entrada
+ok 2 - P130 AoR: compra real desconta PE, preserva fonte, posição e não modifica entrada
+  ---
+  duration_ms: 10.4369
+  type: 'test'
+  ...
+# Subtest: P130 AoR: somente vizinhos de slots comprados são liberados, mesmo após JSON restore
+ok 3 - P130 AoR: somente vizinhos de slots comprados são liberados, mesmo após JSON restore
+  ---
+  duration_ms: 4.5963
+  type: 'test'
+  ...
+# Subtest: P130 AoR: bloqueia aquisição de outra especialização, árvore EotE e saldo insuficiente
+ok 4 - P130 AoR: bloqueia aquisição de outra especialização, árvore EotE e saldo insuficiente
+  ---
+  duration_ms: 3.2803
+  type: 'test'
+  ...
+# Subtest: P130 AoR: efeitos passivos já implementados são aplicados à ficha sem duplicação
+ok 5 - P130 AoR: efeitos passivos já implementados são aplicados à ficha sem duplicação
+  ---
+  duration_ms: 2.4193
+  type: 'test'
+  ...
+# Subtest: P130 AoR: compra no controlador persiste após reiniciar e passa pelo bridge Android
+ok 6 - P130 AoR: compra no controlador persiste após reiniciar e passa pelo bridge Android
+  ---
+  duration_ms: 33.2979
+  type: 'test'
+  ...
+# Subtest: P130 under-black-sun: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 7 - P130 under-black-sun: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 54.8107
+  type: 'test'
+  ...
+# Subtest: P130 beyond-the-rim: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 8 - P130 beyond-the-rim: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 22.6426
+  type: 'test'
+  ...
+# Subtest: P130 long-arm-of-the-hutt: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 9 - P130 long-arm-of-the-hutt: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 33.8761
+  type: 'test'
+  ...
+# Subtest: P130 jewel-of-yavin: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 10 - P130 jewel-of-yavin: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 9.0766
+  type: 'test'
+  ...
+# Subtest: P130 mask-of-the-pirate-queen: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+ok 11 - P130 mask-of-the-pirate-queen: journal íntegro aceita save e rejeita reordenação/IDs cruzados
+  ---
+  duration_ms: 17.5278
+  type: 'test'
+  ...
+# Subtest: P130 UAE: objetivo histórico contraditório e consequência duplicada são rejeitados
+ok 12 - P130 UAE: objetivo histórico contraditório e consequência duplicada são rejeitados
+  ---
+  duration_ms: 10.9773
+  type: 'test'
+  ...
+# Subtest: P130 equipamentos: tentativa de mod falhada consome slot também na resolução de combate
+ok 13 - P130 equipamentos: tentativa de mod falhada consome slot também na resolução de combate
+  ---
+  duration_ms: 11.0736
+  type: 'test'
+  ...
+# Subtest: P130 AoR: catálogo distingue aquisição de efeito mecânico realmente implementado
+ok 14 - P130 AoR: catálogo distingue aquisição de efeito mecânico realmente implementado
+  ---
+  duration_ms: 5.7863
+  type: 'test'
+  ...
+# Subtest: P130 AoR: talento racial e compra do mesmo nome acumulam graus sem duplicação
+ok 15 - P130 AoR: talento racial e compra do mesmo nome acumulam graus sem duplicação
+  ---
+  duration_ms: 4.8535
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1724.6308

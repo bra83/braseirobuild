@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: plano de facção usa etapas textuais explícitas e não avança sozinho
+ok 1 - plano de facção usa etapas textuais explícitas e não avança sozinho
+  ---
+  duration_ms: 32.6223
+  type: 'test'
+  ...
+# Subtest: avanço explícito conclui uma etapa por vez e encerra o plano no final
+ok 2 - avanço explícito conclui uma etapa por vez e encerra o plano no final
+  ---
+  duration_ms: 5.3727
+  type: 'test'
+  ...
+# Subtest: evento de avanço de plano gera consequência causal deduplicada no local da etapa ativa
+ok 3 - evento de avanço de plano gera consequência causal deduplicada no local da etapa ativa
+  ---
+  duration_ms: 7.7923
+  type: 'test'
+  ...
+# Subtest: plano rejeita etapa ligada a local inexistente
+ok 4 - plano rejeita etapa ligada a local inexistente
+  ---
+  duration_ms: 1.2346
+  type: 'test'
+  ...
+# Subtest: plano ativo não volta silenciosamente a planejado e aborto encerra etapas restantes
+ok 5 - plano ativo não volta silenciosamente a planejado e aborto encerra etapas restantes
+  ---
+  duration_ms: 1.7294
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 641.6838

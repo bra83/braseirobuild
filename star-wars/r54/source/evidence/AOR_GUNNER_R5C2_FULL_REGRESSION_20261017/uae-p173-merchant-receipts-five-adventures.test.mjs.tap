@@ -1,0 +1,148 @@
+TAP version 13
+# Subtest: P173: source-backed Negotiation roll pays strain before receipt, not at sale
+ok 1 - P173: source-backed Negotiation roll pays strain before receipt, not at sale
+  ---
+  duration_ms: 81.055
+  type: 'test'
+  ...
+# Subtest: P173: replayed receipt cannot sell another asset
+ok 2 - P173: replayed receipt cannot sell another asset
+  ---
+  duration_ms: 30.1799
+  type: 'test'
+  ...
+# Subtest: P173: receipt cannot be reused after reopening or rolled back to earlier object
+ok 3 - P173: receipt cannot be reused after reopening or rolled back to earlier object
+  ---
+  duration_ms: 50.3589
+  type: 'test'
+  ...
+# Subtest: P173: failed Negotiation charges 2 strain, grants no sale bonus
+ok 4 - P173: failed Negotiation charges 2 strain, grants no sale bonus
+  ---
+  duration_ms: 19.6768
+  type: 'test'
+  ...
+# Subtest: P173: successful purchase consumes prepaid receipt without second strain charge
+ok 5 - P173: successful purchase consumes prepaid receipt without second strain charge
+  ---
+  duration_ms: 32.978
+  type: 'test'
+  ...
+# Subtest: P173: failed purchase records rejection, consumes receipt, keeps paid strain
+ok 6 - P173: failed purchase records rejection, consumes receipt, keeps paid strain
+  ---
+  duration_ms: 49.9009
+  type: 'test'
+  ...
+# Subtest: P173: receipt cannot migrate to another character, session, campaign or item
+ok 7 - P173: receipt cannot migrate to another character, session, campaign or item
+  ---
+  duration_ms: 68.5854
+  type: 'test'
+  ...
+# Subtest: P173: no purchased talent means no receipt, no strain or changes
+ok 8 - P173: no purchased talent means no receipt, no strain or changes
+  ---
+  duration_ms: 10.4787
+  type: 'test'
+  ...
+# Subtest: P173: over-threshold strain rejects before rolling or modifying save
+ok 9 - P173: over-threshold strain rejects before rolling or modifying save
+  ---
+  duration_ms: 8.6589
+  type: 'test'
+  ...
+# Subtest: P173: save failure on negotiation rolls back paid strain and receipt
+ok 10 - P173: save failure on negotiation rolls back paid strain and receipt
+  ---
+  duration_ms: 49.8188
+  type: 'test'
+  ...
+# Subtest: P173: save failure on sale rolls back assets, credits and receipt consumption
+ok 11 - P173: save failure on sale rolls back assets, credits and receipt consumption
+  ---
+  duration_ms: 41.307
+  type: 'test'
+  ...
+# Subtest: P173: corrupted receipt or missing event fails validation and reopening
+ok 12 - P173: corrupted receipt or missing event fails validation and reopening
+  ---
+  duration_ms: 69.4215
+  type: 'test'
+  ...
+# Subtest: P173: bridge exposes receipt-based operation and returns errors instead of side effects
+ok 13 - P173: bridge exposes receipt-based operation and returns errors instead of side effects
+  ---
+  duration_ms: 29.0374
+  type: 'test'
+  ...
+# Subtest: P173: invalid check parameters cannot create receipts or spend strain
+ok 14 - P173: invalid check parameters cannot create receipts or spend strain
+  ---
+  duration_ms: 12.1683
+  type: 'test'
+  ...
+# Subtest: P173: legacy P172 save without ledger migrates with no synthetic receipts
+ok 15 - P173: legacy P172 save without ledger migrates with no synthetic receipts
+  ---
+  duration_ms: 7.7527
+  type: 'test'
+  ...
+# Subtest: P173 under-black-sun: real published adventure and Merchant receipt survive three reopens
+ok 16 - P173 under-black-sun: real published adventure and Merchant receipt survive three reopens
+  ---
+  duration_ms: 169.3878
+  type: 'test'
+  ...
+# Subtest: P173 beyond-the-rim: real published adventure and Merchant receipt survive three reopens
+ok 17 - P173 beyond-the-rim: real published adventure and Merchant receipt survive three reopens
+  ---
+  duration_ms: 143.5037
+  type: 'test'
+  ...
+# Subtest: P173 long-arm-of-the-hutt: real published adventure and Merchant receipt survive three reopens
+ok 18 - P173 long-arm-of-the-hutt: real published adventure and Merchant receipt survive three reopens
+  ---
+  duration_ms: 143.4122
+  type: 'test'
+  ...
+# Subtest: P173 jewel-of-yavin: real published adventure and Merchant receipt survive three reopens
+ok 19 - P173 jewel-of-yavin: real published adventure and Merchant receipt survive three reopens
+  ---
+  duration_ms: 133.6612
+  type: 'test'
+  ...
+# Subtest: P173 mask-of-the-pirate-queen: real published adventure and Merchant receipt survive three reopens
+ok 20 - P173 mask-of-the-pirate-queen: real published adventure and Merchant receipt survive three reopens
+  ---
+  duration_ms: 102.8525
+  type: 'test'
+  ...
+# Subtest: P173: receipt ledger refuses to discard 32 unconsumed rolls and rolls back the 33rd strain
+ok 21 - P173: receipt ledger refuses to discard 32 unconsumed rolls and rolls back the 33rd strain
+  ---
+  duration_ms: 1575.1838
+  type: 'test'
+  ...
+# Subtest: P173: event and consumption timestamp tampering are rejected
+ok 22 - P173: event and consumption timestamp tampering are rejected
+  ---
+  duration_ms: 24.5435
+  type: 'test'
+  ...
+# Subtest: P173: Android UI binds roll, receipt, GM authorization, sale and purchase; offline bundle 81 modules
+ok 23 - P173: Android UI binds roll, receipt, GM authorization, sale and purchase; offline bundle 81 modules
+  ---
+  duration_ms: 43.8443
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4549.5521

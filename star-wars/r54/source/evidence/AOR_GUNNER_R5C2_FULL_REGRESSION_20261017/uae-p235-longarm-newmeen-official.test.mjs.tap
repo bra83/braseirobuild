@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: SWE02 print pp21-22: Drombb thug official minion stats, group skills and weapons
+ok 1 - SWE02 print pp21-22: Drombb thug official minion stats, group skills and weapons
+  ---
+  duration_ms: 5.1356
+  type: 'test'
+  ...
+# Subtest: SWE02 p22: Angu Drombb official rival stats; no improvised nemesis
+ok 2 - SWE02 p22: Angu Drombb official rival stats; no improvised nemesis
+  ---
+  duration_ms: 0.4104
+  type: 'test'
+  ...
+# Subtest: SWE02 New Meen remains player choice; skipping never means community saved
+ok 3 - SWE02 New Meen remains player choice; skipping never means community saved
+  ---
+  duration_ms: 449.1259
+  type: 'test'
+  ...
+# Subtest: SWE02 p19: party size 2, 3 and 4+ creates three groups of 2,3,4; no invented solo difficulty
+ok 4 - SWE02 p19: party size 2, 3 and 4+ creates three groups of 2,3,4; no invented solo difficulty
+  ---
+  duration_ms: 1140.0064
+  type: 'test'
+  ...
+# Subtest: SWE02 p20: night raid has one group and officially requires one setback for each action
+ok 5 - SWE02 p20: night raid has one group and officially requires one setback for each action
+  ---
+  duration_ms: 215.4095
+  type: 'test'
+  ...
+# Subtest: SWE02 cannot leave an active New Meen combat by clicking another node
+ok 6 - SWE02 cannot leave an active New Meen combat by clicking another node
+  ---
+  duration_ms: 240.4787
+  type: 'test'
+  ...
+# Subtest: SWE02 New Meen combat rejects forged groups, ids, and victory without enemy defeat; atomic rollback
+ok 7 - SWE02 New Meen combat rejects forged groups, ids, and victory without enemy defeat; atomic rollback
+  ---
+  duration_ms: 227.6675
+  type: 'test'
+  ...
+# Subtest: SWE02 p21: resolved night group not recreated in Drombb cantina; sequential combat only
+ok 8 - SWE02 p21: resolved night group not recreated in Drombb cantina; sequential combat only
+  ---
+  duration_ms: 257.7948
+  type: 'test'
+  ...
+# Subtest: SWE02 New Meen full sequence: victory requires actual Drombb defeat with proof and 3 save reopens
+ok 9 - SWE02 New Meen full sequence: victory requires actual Drombb defeat with proof and 3 save reopens
+  ---
+  duration_ms: 317.3059
+  type: 'test'
+  ...
+# Subtest: SWE02 New Meen escape and evacuation persist without victory or experience
+ok 10 - SWE02 New Meen escape and evacuation persist without victory or experience
+  ---
+  duration_ms: 224.8588
+  type: 'test'
+  ...
+# Subtest: SWE02 tampered victory flag without corresponding combat receipt fails closed on restore/status/advance
+ok 11 - SWE02 tampered victory flag without corresponding combat receipt fails closed on restore/status/advance
+  ---
+  duration_ms: 283.2284
+  type: 'test'
+  ...
+# Subtest: SWE02 cannot invent combat by calling encounter without scene context
+ok 12 - SWE02 cannot invent combat by calling encounter without scene context
+  ---
+  duration_ms: 174.2367
+  type: 'test'
+  ...
+# Subtest: P235 actual Android controller starts New Meen raid with EotE session playerCount, official profile, persisted encounter
+ok 13 - P235 actual Android controller starts New Meen raid with EotE session playerCount, official profile, persisted encounter
+  ---
+  duration_ms: 784.3397
+  type: 'test'
+  ...
+# Subtest: P235 closing official night combat restores prior environment and does not automatically grant credits, PE or save New Meen
+ok 14 - P235 closing official night combat restores prior environment and does not automatically grant credits, PE or save New Meen
+  ---
+  duration_ms: 865.4807
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6376.1827
