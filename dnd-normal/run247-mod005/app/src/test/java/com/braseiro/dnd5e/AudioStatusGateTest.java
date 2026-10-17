@@ -30,4 +30,13 @@ public class AudioStatusGateTest {
         assertTrue(gate.allow("Fone ou Bluetooth removido; o áudio foi pausado.", 200L));
         assertFalse(gate.allow("  ", 300L));
     }
+    @Test public void onlyAudioStatusesAreThrottledOnGameFooter() {
+        assertTrue(AudioStatusGate.isAudioStatus("Braseiro Kokoro PT-BR narrando • áudio inteligente sincronizado."));
+        assertTrue(AudioStatusGate.isAudioStatus("Voz do Android iniciando."));
+        assertTrue(AudioStatusGate.isAudioStatus("Narração concluída."));
+        assertTrue(AudioStatusGate.isAudioStatus("SFX não encontrado para vento."));
+        assertFalse("Dice rolls are never filtered", AudioStatusGate.isAudioStatus("D20: 19"));
+        assertFalse("Game actions are never filtered", AudioStatusGate.isAudioStatus("O orc acertou o herói."));
+    }
+
 }
