@@ -20,9 +20,10 @@ def test_water_mill_upkeep_uses_real_water_border_placement():
     assert expected in upkeep[:900]
     assert 'optBoolean("water_mill")' not in settlement[:1200]
     assert 'optBoolean("water_mill")' not in upkeep[:900]
-    harness=(ROOT.parent/"pf2-kingmaker-r36/semantic/R36BookSemanticsHarness.java").read_text(encoding="utf-8")
-    assert 'hasWaterMill(lotVillage,new JSONArray().put(registeredMill))' in harness
-    assert '!KingmakerStructureSemantics.hasWaterMill(oldMillFlagTown,new JSONArray().put(inlandMill))' in harness
+    semantic=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerStructureSemantics.java").read_text(encoding="utf-8")
+    water_mill=semantic[semantic.index("public static boolean hasWaterMill("):][:1100]
+    assert "if(touchesWaterBorder(town,at))return true;" in water_mill
+    assert 'return legacy&&settlementGrid(town).optBoolean("water_mill");' in water_mill
 
 
 def test_collect_taxes_grants_economy_bonus_not_invented_rp():
