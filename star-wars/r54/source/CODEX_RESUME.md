@@ -153,3 +153,10 @@
 - Three affected SWE02 suites pass 55/55; offline bridge bundle rebuild passes with 135 modules. Evidence: `evidence/SWE02_P13_NABAT_CONTEXT_20261016/`.
 - Fresh full regression across 382 files (376 regular + 6 stress): 3,463 tests, 3,461 pass, 0 fail, 2 skips for missing JDK `jar`. No files lack a complete summary. Evidence: `evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_20261016/`.
 - p.13 remains pending page-wide source/RAG coverage, unspecified fuel pricing/quantities, and full page proof. All five adventures and selected EotE/AoR rules remain uncertified; all 360 AoR rows remain pending. Brace's personal path is covered, but its separate vehicle-action scope remains unresolved. Preserve the code/RAG/Gemini boundary and global release gates.
+
+## Resume update — SWE02 RAG printed-page citation path (2026-10-16)
+
+- The native-library adapter now preserves physical PDF `page` and optional printed-book `printedPage` separately through source search, master query receipts and the provider context. This prevents the SWE02 printed p.13 / physical PDF p.12 mismatch from collapsing into a misleading citation.
+- A P234 integration test exercises the native-library fixture → RAG → Gemini context path and asserts reference-only authority. Focused RAG/hybrid suite passes 17/17; bundle rebuild succeeds at 135 modules. Evidence: `evidence/SWE02_P13_RAG_CITATION_20261016/`.
+- Fresh full regression: 382 files, 3,464 tests, 3,462 pass, 0 fail, 2 expected JDK `jar` skips. Evidence: `evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_FINAL_20261016/`.
+- Actual Android import/retrieval of the official adventure PDF remains unverified, as do p.13 page-wide crosswalk and fuel details. Keep all adventure/rule certifications pending.

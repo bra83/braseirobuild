@@ -1,0 +1,47 @@
+TAP version 13
+# Subtest: P222 official Episode III p.95 rewards are 10/5/15, no speculative cloud car or escape reward
+ok 1 - P222 official Episode III p.95 rewards are 10/5/15, no speculative cloud car or escape reward
+  ---
+  duration_ms: 4.2929
+  type: 'test'
+  ...
+# Subtest: P222 Aris cannot grant PE before a real alliance or without GM approval
+ok 2 - P222 Aris cannot grant PE before a real alliance or without GM approval
+  ---
+  duration_ms: 995.8263
+  type: 'test'
+  ...
+# Subtest: P222 real Aris milestone grants exactly 5 to actual PC, persists across 3 reopens and blocks double awards
+ok 3 - P222 real Aris milestone grants exactly 5 to actual PC, persists across 3 reopens and blocks double awards
+  ---
+  duration_ms: 701.8427
+  type: 'test'
+  ...
+# Subtest: P222 tampered XP amount, proof, PC, faces of receipt and derived state rejected
+ok 4 - P222 tampered XP amount, proof, PC, faces of receipt and derived state rejected
+  ---
+  duration_ms: 643.7399
+  type: 'test'
+  ...
+# Subtest: P222 Arend XP cannot be granted merely because a GM recorded his fate; requires defeated real encounter
+ok 5 - P222 Arend XP cannot be granted merely because a GM recorded his fate; requires defeated real encounter
+  ---
+  duration_ms: 581.4941
+  type: 'test'
+  ...
+# Subtest: P222 bridge, controller, Android UI, offline bundle, save validator and version are connected
+ok 6 - P222 bridge, controller, Android UI, offline bundle, save validator and version are connected
+  ---
+  duration_ms: 316.0217
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4969.6134
+

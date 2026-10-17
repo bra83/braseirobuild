@@ -38,8 +38,10 @@ export function searchImportedLibrary(query, { limit = 5, bridge = globalThis.Br
         inputs: 'Consulta textual em PDF importado',
         source: String(row.source ?? row.fileName ?? 'Biblioteca local'),
         edition: 'Importado pelo usuário',
-        page: Number.isFinite(Number(row.page)) ? Number(row.page) : null,
-        printedPage: null,
+        // Keep physical PDF page and printed book page separate. Some imported
+        // adventure PDFs have covers/front matter that shift those numbers.
+        page: Number.isSafeInteger(Number(row.page)) && Number(row.page) > 0 ? Number(row.page) : null,
+        printedPage: Number.isSafeInteger(Number(row.printedPage)) && Number(row.printedPage) > 0 ? Number(row.printedPage) : null,
         function: null,
         test: null,
         official: null,

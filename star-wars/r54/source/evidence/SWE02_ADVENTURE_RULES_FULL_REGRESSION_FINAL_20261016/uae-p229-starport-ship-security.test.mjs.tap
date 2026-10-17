@@ -1,0 +1,65 @@
+TAP version 13
+# Subtest: P229 real Hard Computers 3 difficulty dice, physical third-party ship, actual roll faces
+ok 1 - P229 real Hard Computers 3 difficulty dice, physical third-party ship, actual roll faces
+  ---
+  duration_ms: 868.7007
+  type: 'test'
+  ...
+# Subtest: P229 refuses phantom ship, missing confirmations, active combat, duplicate receipt
+ok 2 - P229 refuses phantom ship, missing confirmations, active combat, duplicate receipt
+  ---
+  duration_ms: 850.5572
+  type: 'test'
+  ...
+# Subtest: P229 failure blocks boarding; GM-authorized real retry succeeds without faking faces
+ok 3 - P229 failure blocks boarding; GM-authorized real retry succeeds without faking faces
+  ---
+  duration_ms: 745.5796
+  type: 'test'
+  ...
+# Subtest: P229 real access receipt is mandatory for third-party boarding, but not own ship legacy
+ok 4 - P229 real access receipt is mandatory for third-party boarding, but not own ship legacy
+  ---
+  duration_ms: 1439.1548
+  type: 'test'
+  ...
+# Subtest: P229 tampering with difficulty, face, result, proof ID, time, duplicate access fails
+ok 5 - P229 tampering with difficulty, face, result, proof ID, time, duplicate access fails
+  ---
+  duration_ms: 682.4639
+  type: 'test'
+  ...
+# Subtest: P229 three reopens preserve the physical ship access and boarding proof
+ok 6 - P229 three reopens preserve the physical ship access and boarding proof
+  ---
+  duration_ms: 706.376
+  type: 'test'
+  ...
+# Subtest: P229 published one-difficulty upgrade applies to real Space Piloting hazard check while fleeing in borrowed ship
+ok 7 - P229 published one-difficulty upgrade applies to real Space Piloting hazard check while fleeing in borrowed ship
+  ---
+  duration_ms: 1302.9044
+  type: 'test'
+  ...
+# Subtest: P229 no invented XP, vehicles, pilot checks, guards or physical transit
+ok 8 - P229 no invented XP, vehicles, pilot checks, guards or physical transit
+  ---
+  duration_ms: 599.2861
+  type: 'test'
+  ...
+# Subtest: P229 UI, bridge, bundle, source, Android version and save validator connected
+ok 9 - P229 UI, bridge, bundle, source, Android version and save validator connected
+  ---
+  duration_ms: 129.9078
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8885.9963
+

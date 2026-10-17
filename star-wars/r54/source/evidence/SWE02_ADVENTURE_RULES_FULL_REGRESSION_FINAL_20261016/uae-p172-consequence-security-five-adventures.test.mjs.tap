@@ -1,0 +1,161 @@
+TAP version 13
+# Subtest: P172 under-black-sun: authored string consequence rejects injected rewards without mutation
+ok 1 - P172 under-black-sun: authored string consequence rejects injected rewards without mutation
+  ---
+  duration_ms: 65.5286
+  type: 'test'
+  ...
+# Subtest: P172 under-black-sun: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+ok 2 - P172 under-black-sun: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+  ---
+  duration_ms: 162.902
+  type: 'test'
+  ...
+# Subtest: P172 under-black-sun: rollback if a resolution action injects a script after legitimate events
+ok 3 - P172 under-black-sun: rollback if a resolution action injects a script after legitimate events
+  ---
+  duration_ms: 11.5277
+  type: 'test'
+  ...
+# Subtest: P172 under-black-sun: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+ok 4 - P172 under-black-sun: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+  ---
+  duration_ms: 5.0414
+  type: 'test'
+  ...
+# Subtest: P172 under-black-sun: source preflight blocks forged consequence metadata and reserved event emission
+ok 5 - P172 under-black-sun: source preflight blocks forged consequence metadata and reserved event emission
+  ---
+  duration_ms: 20.8834
+  type: 'test'
+  ...
+# Subtest: P172 beyond-the-rim: authored string consequence rejects injected rewards without mutation
+ok 6 - P172 beyond-the-rim: authored string consequence rejects injected rewards without mutation
+  ---
+  duration_ms: 9.6101
+  type: 'test'
+  ...
+# Subtest: P172 beyond-the-rim: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+ok 7 - P172 beyond-the-rim: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+  ---
+  duration_ms: 154.4064
+  type: 'test'
+  ...
+# Subtest: P172 beyond-the-rim: rollback if a resolution action injects a script after legitimate events
+ok 8 - P172 beyond-the-rim: rollback if a resolution action injects a script after legitimate events
+  ---
+  duration_ms: 11.4144
+  type: 'test'
+  ...
+# Subtest: P172 beyond-the-rim: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+ok 9 - P172 beyond-the-rim: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+  ---
+  duration_ms: 5.2149
+  type: 'test'
+  ...
+# Subtest: P172 beyond-the-rim: source preflight blocks forged consequence metadata and reserved event emission
+ok 10 - P172 beyond-the-rim: source preflight blocks forged consequence metadata and reserved event emission
+  ---
+  duration_ms: 16.2328
+  type: 'test'
+  ...
+# Subtest: P172 long-arm-of-the-hutt: authored string consequence rejects injected rewards without mutation
+ok 11 - P172 long-arm-of-the-hutt: authored string consequence rejects injected rewards without mutation
+  ---
+  duration_ms: 21.9112
+  type: 'test'
+  ...
+# Subtest: P172 long-arm-of-the-hutt: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+ok 12 - P172 long-arm-of-the-hutt: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+  ---
+  duration_ms: 47.8446
+  type: 'test'
+  ...
+# Subtest: P172 long-arm-of-the-hutt: rollback if a resolution action injects a script after legitimate events
+ok 13 - P172 long-arm-of-the-hutt: rollback if a resolution action injects a script after legitimate events
+  ---
+  duration_ms: 39.1161
+  type: 'test'
+  ...
+# Subtest: P172 long-arm-of-the-hutt: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+ok 14 - P172 long-arm-of-the-hutt: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+  ---
+  duration_ms: 5.8077
+  type: 'test'
+  ...
+# Subtest: P172 long-arm-of-the-hutt: source preflight blocks forged consequence metadata and reserved event emission
+ok 15 - P172 long-arm-of-the-hutt: source preflight blocks forged consequence metadata and reserved event emission
+  ---
+  duration_ms: 19.7711
+  type: 'test'
+  ...
+# Subtest: P172 jewel-of-yavin: authored string consequence rejects injected rewards without mutation
+ok 16 - P172 jewel-of-yavin: authored string consequence rejects injected rewards without mutation
+  ---
+  duration_ms: 7.8268
+  type: 'test'
+  ...
+# Subtest: P172 jewel-of-yavin: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+ok 17 - P172 jewel-of-yavin: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+  ---
+  duration_ms: 27.3765
+  type: 'test'
+  ...
+# Subtest: P172 jewel-of-yavin: rollback if a resolution action injects a script after legitimate events
+ok 18 - P172 jewel-of-yavin: rollback if a resolution action injects a script after legitimate events
+  ---
+  duration_ms: 9.4749
+  type: 'test'
+  ...
+# Subtest: P172 jewel-of-yavin: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+ok 19 - P172 jewel-of-yavin: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+  ---
+  duration_ms: 3.0839
+  type: 'test'
+  ...
+# Subtest: P172 jewel-of-yavin: source preflight blocks forged consequence metadata and reserved event emission
+ok 20 - P172 jewel-of-yavin: source preflight blocks forged consequence metadata and reserved event emission
+  ---
+  duration_ms: 8.0531
+  type: 'test'
+  ...
+# Subtest: P172 mask-of-the-pirate-queen: authored string consequence rejects injected rewards without mutation
+ok 21 - P172 mask-of-the-pirate-queen: authored string consequence rejects injected rewards without mutation
+  ---
+  duration_ms: 8.4046
+  type: 'test'
+  ...
+# Subtest: P172 mask-of-the-pirate-queen: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+ok 22 - P172 mask-of-the-pirate-queen: trigger -> string/object consequences -> prerequisites -> clocks -> three restores
+  ---
+  duration_ms: 38.3425
+  type: 'test'
+  ...
+# Subtest: P172 mask-of-the-pirate-queen: rollback if a resolution action injects a script after legitimate events
+ok 23 - P172 mask-of-the-pirate-queen: rollback if a resolution action injects a script after legitimate events
+  ---
+  duration_ms: 13.2935
+  type: 'test'
+  ...
+# Subtest: P172 mask-of-the-pirate-queen: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+ok 24 - P172 mask-of-the-pirate-queen: invalid compound conditions, unknown operators and nonexistent scenes fail closed
+  ---
+  duration_ms: 3.5536
+  type: 'test'
+  ...
+# Subtest: P172 mask-of-the-pirate-queen: source preflight blocks forged consequence metadata and reserved event emission
+ok 25 - P172 mask-of-the-pirate-queen: source preflight blocks forged consequence metadata and reserved event emission
+  ---
+  duration_ms: 18.4728
+  type: 'test'
+  ...
+1..25
+# tests 25
+# suites 0
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2389.3999
+

@@ -1,0 +1,29 @@
+TAP version 13
+# Subtest: contexto do Mestre inclui estado pertinente, eventos e regras recuperadas
+ok 1 - contexto do Mestre inclui estado pertinente, eventos e regras recuperadas
+  ---
+  duration_ms: 177.6839
+  type: 'test'
+  ...
+# Subtest: preparação local não finge provedor de IA
+ok 2 - preparação local não finge provedor de IA
+  ---
+  duration_ms: 39.5488
+  type: 'test'
+  ...
+# Subtest: consulta local devolve regra EotE auditada e falha fechado fora da autoridade disponível
+ok 3 - consulta local devolve regra EotE auditada e falha fechado fora da autoridade disponível
+  ---
+  duration_ms: 310.0157
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1619.0315
+

@@ -1,0 +1,112 @@
+TAP version 13
+# Subtest: RAG lexical encontra Obligation inicial EotE e preserva autoridade
+ok 1 - RAG lexical encontra Obligation inicial EotE e preserva autoridade
+  ---
+  duration_ms: 587.0107
+  type: 'test'
+  ...
+# Subtest: RAG lexical encontra estrutura EotE 8/6/18
+ok 2 - RAG lexical encontra estrutura EotE 8/6/18
+  ---
+  duration_ms: 301.6362
+  type: 'test'
+  ...
+# Subtest: RAG EotE apresenta raridade/disponibilidade auditada pelo Core e sem AoR
+ok 3 - RAG EotE apresenta raridade/disponibilidade auditada pelo Core e sem AoR
+  ---
+  duration_ms: 97.703
+  type: 'test'
+  ...
+# Subtest: dado da Força é autoridade mecânica EotE Core auditada no RAG
+ok 4 - dado da Força é autoridade mecânica EotE Core auditada no RAG
+  ---
+  duration_ms: 143.2764
+  type: 'test'
+  ...
+# Subtest: compra de especialização adicional é autoridade mecânica EotE Core auditada no RAG
+ok 5 - compra de especialização adicional é autoridade mecânica EotE Core auditada no RAG
+  ---
+  duration_ms: 59.7486
+  type: 'test'
+  ...
+# Subtest: corpus ativo mantém AoR restrito ao subconjunto Duty/Contribution explicitamente auditado
+ok 6 - corpus ativo mantém AoR restrito ao subconjunto Duty/Contribution explicitamente auditado
+  ---
+  duration_ms: 6.0766
+  type: 'test'
+  ...
+# Subtest: políticas operacionais do VTT permanecem explicitamente não oficiais
+ok 7 - políticas operacionais do VTT permanecem explicitamente não oficiais
+  ---
+  duration_ms: 62.7124
+  type: 'test'
+  ...
+# Subtest: RAG encontra os três poderes da Força do Core EotE
+ok 8 - RAG encontra os três poderes da Força do Core EotE
+  ---
+  duration_ms: 563.4437
+  type: 'test'
+  ...
+# Subtest: P234 canonical registry contains exactly five published adventures and rejects a sixth
+ok 9 - P234 canonical registry contains exactly five published adventures and rejects a sixth
+  ---
+  duration_ms: 6.0917
+  type: 'test'
+  ...
+# Subtest: P234 all five source aliases are recognized, foreign adventures remain excluded
+ok 10 - P234 all five source aliases are recognized, foreign adventures remain excluded
+  ---
+  duration_ms: 3.3753
+  type: 'test'
+  ...
+# Subtest: P234 native Android RAG and merged source path both exclude noncanonical adventure PDF
+ok 11 - P234 native Android RAG and merged source path both exclude noncanonical adventure PDF
+  ---
+  duration_ms: 3.1159
+  type: 'test'
+  ...
+# Subtest: SWE02 p.13 RAG context preserves printed and physical PDF page citations separately
+ok 12 - SWE02 p.13 RAG context preserves printed and physical PDF page citations separately
+  ---
+  duration_ms: 117.6969
+  type: 'test'
+  ...
+# Subtest: P234 hybrid routing never authorizes mechanical state changes by RAG/Gemini
+ok 13 - P234 hybrid routing never authorizes mechanical state changes by RAG/Gemini
+  ---
+  duration_ms: 1.2002
+  type: 'test'
+  ...
+# Subtest: P234 Master context and provider prompt express correct hybrid authority and five-adventure boundary
+ok 14 - P234 Master context and provider prompt express correct hybrid authority and five-adventure boundary
+  ---
+  duration_ms: 80.6492
+  type: 'test'
+  ...
+# Subtest: P234 offline app continues to register player intents without fabricated narration or dice
+ok 15 - P234 offline app continues to register player intents without fabricated narration or dice
+  ---
+  duration_ms: 75.0818
+  type: 'test'
+  ...
+# Subtest: P234 native Gemini failure falls back to local and never accepts fabricated rule IDs
+ok 16 - P234 native Gemini failure falls back to local and never accepts fabricated rule IDs
+  ---
+  duration_ms: 31.6552
+  type: 'test'
+  ...
+# Subtest: P234 offline Android bundle includes the safeguards and Java/Kokoro files were not modified
+ok 17 - P234 offline Android bundle includes the safeguards and Java/Kokoro files were not modified
+  ---
+  duration_ms: 66.747
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3625.434

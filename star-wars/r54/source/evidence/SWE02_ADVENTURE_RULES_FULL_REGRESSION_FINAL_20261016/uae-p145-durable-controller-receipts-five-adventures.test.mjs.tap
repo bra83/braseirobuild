@@ -1,0 +1,167 @@
+TAP version 13
+# Subtest: P145 under-black-sun: início e escolha têm recibos causais e retry sem duplicação após reabrir
+ok 1 - P145 under-black-sun: início e escolha têm recibos causais e retry sem duplicação após reabrir
+  ---
+  duration_ms: 199.7549
+  type: 'test'
+  ...
+# Subtest: P145 under-black-sun: teste de perícia só adjudica uma vez, inclusive após reinício
+ok 2 - P145 under-black-sun: teste de perícia só adjudica uma vez, inclusive após reinício
+  ---
+  duration_ms: 148.1676
+  type: 'test'
+  ...
+# Subtest: P145 under-black-sun: falha na gravação reverte recibo, UAE, cena e recompensa
+ok 3 - P145 under-black-sun: falha na gravação reverte recibo, UAE, cena e recompensa
+  ---
+  duration_ms: 138.0703
+  type: 'test'
+  ...
+# Subtest: P145 beyond-the-rim: início e escolha têm recibos causais e retry sem duplicação após reabrir
+ok 4 - P145 beyond-the-rim: início e escolha têm recibos causais e retry sem duplicação após reabrir
+  ---
+  duration_ms: 158.545
+  type: 'test'
+  ...
+# Subtest: P145 beyond-the-rim: teste de perícia só adjudica uma vez, inclusive após reinício
+ok 5 - P145 beyond-the-rim: teste de perícia só adjudica uma vez, inclusive após reinício
+  ---
+  duration_ms: 101.5173
+  type: 'test'
+  ...
+# Subtest: P145 beyond-the-rim: falha na gravação reverte recibo, UAE, cena e recompensa
+ok 6 - P145 beyond-the-rim: falha na gravação reverte recibo, UAE, cena e recompensa
+  ---
+  duration_ms: 114.2354
+  type: 'test'
+  ...
+# Subtest: P145 long-arm-of-the-hutt: início e escolha têm recibos causais e retry sem duplicação após reabrir
+ok 7 - P145 long-arm-of-the-hutt: início e escolha têm recibos causais e retry sem duplicação após reabrir
+  ---
+  duration_ms: 169.6467
+  type: 'test'
+  ...
+# Subtest: P145 long-arm-of-the-hutt: teste de perícia só adjudica uma vez, inclusive após reinício
+ok 8 - P145 long-arm-of-the-hutt: teste de perícia só adjudica uma vez, inclusive após reinício
+  ---
+  duration_ms: 26.6906
+  type: 'test'
+  ...
+# Subtest: P145 long-arm-of-the-hutt: falha na gravação reverte recibo, UAE, cena e recompensa
+ok 9 - P145 long-arm-of-the-hutt: falha na gravação reverte recibo, UAE, cena e recompensa
+  ---
+  duration_ms: 142.3933
+  type: 'test'
+  ...
+# Subtest: P145 jewel-of-yavin: início e escolha têm recibos causais e retry sem duplicação após reabrir
+ok 10 - P145 jewel-of-yavin: início e escolha têm recibos causais e retry sem duplicação após reabrir
+  ---
+  duration_ms: 144.2025
+  type: 'test'
+  ...
+# Subtest: P145 jewel-of-yavin: teste de perícia só adjudica uma vez, inclusive após reinício
+ok 11 - P145 jewel-of-yavin: teste de perícia só adjudica uma vez, inclusive após reinício
+  ---
+  duration_ms: 27.8333
+  type: 'test'
+  ...
+# Subtest: P145 jewel-of-yavin: falha na gravação reverte recibo, UAE, cena e recompensa
+ok 12 - P145 jewel-of-yavin: falha na gravação reverte recibo, UAE, cena e recompensa
+  ---
+  duration_ms: 89.6056
+  type: 'test'
+  ...
+# Subtest: P145 mask-of-the-pirate-queen: início e escolha têm recibos causais e retry sem duplicação após reabrir
+ok 13 - P145 mask-of-the-pirate-queen: início e escolha têm recibos causais e retry sem duplicação após reabrir
+  ---
+  duration_ms: 110.2831
+  type: 'test'
+  ...
+# Subtest: P145 mask-of-the-pirate-queen: teste de perícia só adjudica uma vez, inclusive após reinício
+ok 14 - P145 mask-of-the-pirate-queen: teste de perícia só adjudica uma vez, inclusive após reinício
+  ---
+  duration_ms: 22.7044
+  type: 'test'
+  ...
+# Subtest: P145 mask-of-the-pirate-queen: falha na gravação reverte recibo, UAE, cena e recompensa
+ok 15 - P145 mask-of-the-pirate-queen: falha na gravação reverte recibo, UAE, cena e recompensa
+  ---
+  duration_ms: 170.3906
+  type: 'test'
+  ...
+# Subtest: P145: encontro publicado e encerramento preservam causalidade e não recuperam Tensão duas vezes
+ok 16 - P145: encontro publicado e encerramento preservam causalidade e não recuperam Tensão duas vezes
+  ---
+  duration_ms: 231.4869
+  type: 'test'
+  ...
+# Subtest: P145: corrupção do livro de recibos impede novas ações e não altera armazenamento
+ok 17 - P145: corrupção do livro de recibos impede novas ações e não altera armazenamento
+  ---
+  duration_ms: 34.153
+  type: 'test'
+  ...
+# Subtest: P145: idempotency key malformada ou reutilizada em outra operação é rejeitada
+ok 18 - P145: idempotency key malformada ou reutilizada em outra operação é rejeitada
+  ---
+  duration_ms: 41.8423
+  type: 'test'
+  ...
+# Subtest: P145: bridge Android expõe execução idempotente e reabertura não regrava storage
+ok 19 - P145: bridge Android expõe execução idempotente e reabertura não regrava storage
+  ---
+  duration_ms: 166.6262
+  type: 'test'
+  ...
+# Subtest: P145: importação de save adulterado é bloqueada antes da normalização do mundo
+ok 20 - P145: importação de save adulterado é bloqueada antes da normalização do mundo
+  ---
+  duration_ms: 72.7739
+  type: 'test'
+  ...
+# Subtest: P145 under-black-sun: três reaberturas mantêm a prova causal sem reexecutar ação
+ok 21 - P145 under-black-sun: três reaberturas mantêm a prova causal sem reexecutar ação
+  ---
+  duration_ms: 117.9001
+  type: 'test'
+  ...
+# Subtest: P145 beyond-the-rim: três reaberturas mantêm a prova causal sem reexecutar ação
+ok 22 - P145 beyond-the-rim: três reaberturas mantêm a prova causal sem reexecutar ação
+  ---
+  duration_ms: 98.4954
+  type: 'test'
+  ...
+# Subtest: P145 long-arm-of-the-hutt: três reaberturas mantêm a prova causal sem reexecutar ação
+ok 23 - P145 long-arm-of-the-hutt: três reaberturas mantêm a prova causal sem reexecutar ação
+  ---
+  duration_ms: 103.931
+  type: 'test'
+  ...
+# Subtest: P145 jewel-of-yavin: três reaberturas mantêm a prova causal sem reexecutar ação
+ok 24 - P145 jewel-of-yavin: três reaberturas mantêm a prova causal sem reexecutar ação
+  ---
+  duration_ms: 82.9889
+  type: 'test'
+  ...
+# Subtest: P145 mask-of-the-pirate-queen: três reaberturas mantêm a prova causal sem reexecutar ação
+ok 25 - P145 mask-of-the-pirate-queen: três reaberturas mantêm a prova causal sem reexecutar ação
+  ---
+  duration_ms: 189.7797
+  type: 'test'
+  ...
+# Subtest: P145: recibos anteriores não podem ser reaplicados após reiniciar a mesma aventura
+ok 26 - P145: recibos anteriores não podem ser reaplicados após reiniciar a mesma aventura
+  ---
+  duration_ms: 267.9909
+  type: 'test'
+  ...
+1..26
+# tests 26
+# suites 0
+# pass 26
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4778.9853
+

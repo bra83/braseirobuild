@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: P212 official results: Coruscant flickering building and Alderaan nerf herd are distinct Triumph outcomes
+ok 1 - P212 official results: Coruscant flickering building and Alderaan nerf herd are distinct Triumph outcomes
+  ---
+  duration_ms: 5.4525
+  type: 'test'
+  ...
+# Subtest: P212 Coruscant consumes actual Triumph, applies defense 2 to ranged only, no melee
+ok 2 - P212 Coruscant consumes actual Triumph, applies defense 2 to ranged only, no melee
+  ---
+  duration_ms: 1348.9483
+  type: 'test'
+  ...
+# Subtest: P212 Coruscant real movement clears cover without erasing the receipt
+ok 3 - P212 Coruscant real movement clears cover without erasing the receipt
+  ---
+  duration_ms: 1182.67
+  type: 'test'
+  ...
+# Subtest: P212 Coruscant rejects no Triumph, wrong landscape, duplicate receipt and tampering atomically
+ok 4 - P212 Coruscant rejects no Triumph, wrong landscape, duplicate receipt and tampering atomically
+  ---
+  duration_ms: 1011.3784
+  type: 'test'
+  ...
+# Subtest: P212 Alderaan nerfs spend a real maneuver, roll Average Stealth and await GM adjudication
+ok 5 - P212 Alderaan nerfs spend a real maneuver, roll Average Stealth and await GM adjudication
+  ---
+  duration_ms: 995.0587
+  type: 'test'
+  ...
+# Subtest: P212 Alderaan refuses unconfirmed herd, missing Triumph, and invented stealth faces with atomic rollback
+ok 6 - P212 Alderaan refuses unconfirmed herd, missing Triumph, and invented stealth faces with atomic rollback
+  ---
+  duration_ms: 933.4631
+  type: 'test'
+  ...
+# Subtest: P212 Coruscant defense modifies ACTUAL NPC attack pool by two setback dice
+ok 7 - P212 Coruscant defense modifies ACTUAL NPC attack pool by two setback dice
+  ---
+  duration_ms: 971.7316
+  type: 'test'
+  ...
+# Subtest: P212 Android version, PT-BR UI and bundle expose the new effects
+ok 8 - P212 Android version, PT-BR UI and bundle expose the new effects
+  ---
+  duration_ms: 160.6874
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10358.667
+

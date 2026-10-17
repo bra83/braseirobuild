@@ -1,0 +1,107 @@
+TAP version 13
+# Subtest: P155: both source-backed AoR Utility Belt slots have actual controller and UI consumer
+ok 1 - P155: both source-backed AoR Utility Belt slots have actual controller and UI consumer
+  ---
+  duration_ms: 50.4758
+  type: 'test'
+  ...
+# Subtest: P155: catalog filters rarity, encumbrance, restricted items and non-single-use weapons
+ok 2 - P155: catalog filters rarity, encumbrance, restricted items and non-single-use weapons
+  ---
+  duration_ms: 9.1816
+  type: 'test'
+  ...
+# Subtest: P155: glow_rod consumes exactly one light Destiny, adds gear, reopens and replays without writes
+ok 3 - P155: glow_rod consumes exactly one light Destiny, adds gear, reopens and replays without writes
+  ---
+  duration_ms: 24.4212
+  type: 'test'
+  ...
+# Subtest: P155: stun_grenade consumes exactly one light Destiny, adds weapon, reopens and replays without writes
+ok 4 - P155: stun_grenade consumes exactly one light Destiny, adds weapon, reopens and replays without writes
+  ---
+  duration_ms: 59.0918
+  type: 'test'
+  ...
+# Subtest: P155: rejects unauthorized heavy_blaster_pistol with light=2, rank=1 without mutations
+ok 5 - P155: rejects unauthorized heavy_blaster_pistol with light=2, rank=1 without mutations
+  ---
+  duration_ms: 9.5302
+  type: 'test'
+  ...
+# Subtest: P155: rejects unauthorized medpac with light=2, rank=1 without mutations
+ok 6 - P155: rejects unauthorized medpac with light=2, rank=1 without mutations
+  ---
+  duration_ms: 8.5373
+  type: 'test'
+  ...
+# Subtest: P155: rejects unauthorized tool_kit with light=2, rank=1 without mutations
+ok 7 - P155: rejects unauthorized tool_kit with light=2, rank=1 without mutations
+  ---
+  duration_ms: 34.5797
+  type: 'test'
+  ...
+# Subtest: P155: rejects unauthorized blaster_pistol with light=2, rank=1 without mutations
+ok 8 - P155: rejects unauthorized blaster_pistol with light=2, rank=1 without mutations
+  ---
+  duration_ms: 8.2814
+  type: 'test'
+  ...
+# Subtest: P155: rejects unauthorized unknown with light=2, rank=1 without mutations
+ok 9 - P155: rejects unauthorized unknown with light=2, rank=1 without mutations
+  ---
+  duration_ms: 33.6996
+  type: 'test'
+  ...
+# Subtest: P155: rejects unauthorized glow_rod with light=0, rank=1 without mutations
+ok 10 - P155: rejects unauthorized glow_rod with light=0, rank=1 without mutations
+  ---
+  duration_ms: 48.9948
+  type: 'test'
+  ...
+# Subtest: P155: rejects unauthorized glow_rod with light=2, rank=0 without mutations
+ok 11 - P155: rejects unauthorized glow_rod with light=2, rank=0 without mutations
+  ---
+  duration_ms: 9.3003
+  type: 'test'
+  ...
+# Subtest: P155: invalid and missing action IDs fail closed
+ok 12 - P155: invalid and missing action IDs fail closed
+  ---
+  duration_ms: 5.5022
+  type: 'test'
+  ...
+# Subtest: P155: two legitimate activations spend two points, produce two independently owned assets
+ok 13 - P155: two legitimate activations spend two points, produce two independently owned assets
+  ---
+  duration_ms: 20.0045
+  type: 'test'
+  ...
+# Subtest: P155: failing storage rolls back both inventory and Destiny
+ok 14 - P155: failing storage rolls back both inventory and Destiny
+  ---
+  duration_ms: 22.7939
+  type: 'test'
+  ...
+# Subtest: P155: unsupported foreign talent label cannot authorize Utility Belt
+ok 15 - P155: unsupported foreign talent label cannot authorize Utility Belt
+  ---
+  duration_ms: 12.3417
+  type: 'test'
+  ...
+# Subtest: P155: tampered duplicate or malformed Utility Belt receipts cannot authorize a replay
+ok 16 - P155: tampered duplicate or malformed Utility Belt receipts cannot authorize a replay
+  ---
+  duration_ms: 62.7269
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1815.3232
+

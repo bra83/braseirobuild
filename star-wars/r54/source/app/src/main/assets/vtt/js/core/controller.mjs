@@ -859,7 +859,7 @@ export class GameController {
     consultRules(query, { limit = 5 } = {}) {
         const result = localMaster_mjs_1.consultRulesLocal(this.state, query, { limit });
         this.state = events_mjs_1.applyEvent(this.state, {
-            id: ids_mjs_1.newId('rag'), type: 'MASTER_RULE_QUERY', at: new Date().toISOString(), payload: { query: result.query, authority: result.retrieval?.authority ?? null, results: result.results.map(r => ({ id: r.id, title: r.title, status: r.status, summary: r.summary, source: r.source, page: r.page, official: r.official, sourceKind: r.sourceKind, documentId: r.documentId, authorityType: r.authorityType, authorityWeight: r.authorityWeight })) }
+            id: ids_mjs_1.newId('rag'), type: 'MASTER_RULE_QUERY', at: new Date().toISOString(), payload: { query: result.query, authority: result.retrieval?.authority ?? null, results: result.results.map(r => ({ id: r.id, title: r.title, status: r.status, summary: r.summary, source: r.source, page: r.page, printedPage: r.printedPage, official: r.official, sourceKind: r.sourceKind, documentId: r.documentId, authorityType: r.authorityType, authorityWeight: r.authorityWeight })) }
         });
         if (!this._atomicActionDepth) this.repository.save(this.state);
         return result;

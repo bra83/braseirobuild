@@ -50,6 +50,25 @@ test('P234 native Android RAG and merged source path both exclude noncanonical a
   assert.deepEqual(merged.map(x=>x.id),['core','jewel']);
 });
 
+test('SWE02 p.13 RAG context preserves printed and physical PDF page citations separately',()=>{
+  const previous=globalThis.BraseiroLibrary;
+  const row={id:'nabat-p13',docId:'swe02-official',title:'The Long Arm of the Hutt',fileName:'The Long Arm of the Hutt.pdf',authorityType:'AVENTURA',excerpt:'B’ura arranges safe docking and contact-paid ship repairs. The PCs may remove the transponder after landing.',page:12,printedPage:13,enabled:true};
+  globalThis.BraseiroLibrary={listDocuments:()=>JSON.stringify([row]),searchDocuments:()=>JSON.stringify({results:[row]})};
+  try{
+    const context=buildMasterContext(createCampaign('SWE02 RAG'),{intentText:'Nabat',ruleQuery:'Bura Nabat safe docking repairs transponder',maxRules:5});
+    const source=context.rules.find(x=>x.id==='nabat-p13');
+    assert.ok(source);
+    assert.equal(source.page,12);
+    assert.equal(source.printedPage,13);
+    assert.equal(source.authorityType,'AVENTURA');
+    assert.equal(source.sourceKind,'library_pdf');
+    assert.equal(context.hybrid.reference.route,'RAG');
+    assert.equal(context.hybrid.reference.canMutateState,false);
+    const payload=providerRequestBody(context);
+    assert.equal(payload.context.rules.find(x=>x.id==='nabat-p13').printedPage,13);
+  }finally{if(previous===undefined)delete globalThis.BraseiroLibrary;else globalThis.BraseiroLibrary=previous;}
+});
+
 test('P234 hybrid routing never authorizes mechanical state changes by RAG/Gemini',()=>{
   const source={id:'SW-EOTE-STIMPACK-001',status:'TESTADO',summary:'Efeito auditado',sourceKind:'rule_matrix'};
   assert.equal(hybridDecision({purpose:'mechanics',adventureId:'jewel-of-yavin'}).route,'BLOCKED');

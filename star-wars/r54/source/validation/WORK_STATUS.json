@@ -73,20 +73,20 @@
     }
   },
   "fresh_regression": {
-    "state": "PASS_FULL_REGRESSION_AFTER_AOR_BRACE_PERSONAL_PATH_AND_SWE02_P13_ARRIVAL_NARRATION",
+    "state": "PASS_FULL_REGRESSION_AFTER_SWE02_P13_RAG_CITATION_METADATA",
     "files": 382,
     "regular_files": 376,
     "stress_files": 6,
-    "tests": 3463,
-    "pass": 3461,
+    "tests": 3464,
+    "pass": 3462,
     "fail": 0,
     "skip": 2,
     "files_without_complete_summary": [],
-    "evidence": "evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_20261016/",
-    "summary": "evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_20261016/summary.json",
+    "evidence": "evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_FINAL_20261016/",
+    "summary": "evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_FINAL_20261016/summary.json",
     "skip_reason": "JDK jar executable unavailable for two offline Gradle-wrapper packaging checks.",
-    "runner_environment": "Per-file TAP runner, 8 workers; NODE_PATH points to work/build-deps5/node_modules; UTF-8 captured TAP; totals reconciled from each TAP summary.",
-    "supersedes": "evidence/SWE02_AOR_BRACE_FULL_REGRESSION_FINAL_20261016/"
+    "runner_environment": "Per-file TAP runner, 8 workers; NODE_PATH points to work/build-deps5/node_modules; UTF-8 TAP summaries preserve the skipped test count.",
+    "supersedes": "evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_20261016/"
   },
   "blockers": [
     "All 360 AoR positions lack individual source-to-effect, UI, persistence, and test evidence.",
@@ -465,8 +465,28 @@
     "bundle": {
       "state": "PASS",
       "modules": 135,
-      "evidence": "evidence/SWE02_P13_NABAT_CONTEXT_20261016/bundle-build.log"
+      "evidence": "evidence/SWE02_P13_RAG_CITATION_20261016/bundle-build.log"
     },
-    "pending": "Page-wide source-to-RAG/Gemini coverage, unspecified fuel quantities/pricing, and full page save/reopen proof remain open."
+    "pending": "Actual imported-PDF retrieval, unspecified fuel quantities/pricing, and page-wide source/effect/persistence proof remain open.",
+    "rag_context_test": {
+      "file": "tests/uae-p234-five-adventures-hybrid-safety.test.mjs",
+      "result": "PASS",
+      "assertions": [
+        "physical PDF page 12 preserved as page",
+        "printed page 13 preserved as printedPage",
+        "canonical SWE02 adventure source passes policy",
+        "RAG context reaches Gemini payload as reference only"
+      ],
+      "evidence": "evidence/SWE02_P13_RAG_CITATION_20261016/focused.tap",
+      "limitation": "Native-library fixture only; actual installed Android PDF import/retrieval remains unverified."
+    },
+    "full_regression": {
+      "files": 382,
+      "tests": 3464,
+      "pass": 3462,
+      "fail": 0,
+      "skip": 2,
+      "evidence": "evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_FINAL_20261016/summary.json"
+    }
   }
 }

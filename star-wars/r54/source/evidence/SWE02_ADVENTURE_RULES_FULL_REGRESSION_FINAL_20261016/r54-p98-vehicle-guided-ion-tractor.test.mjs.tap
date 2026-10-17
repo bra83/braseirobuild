@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: P98 Iônica causa Tensão de sistemas sem Trauma de Casco e não oferece Critical Hit
+ok 1 - P98 Iônica causa Tensão de sistemas sem Trauma de Casco e não oferece Critical Hit
+  ---
+  duration_ms: 78.1787
+  type: 'test'
+  ...
+# Subtest: P98 Vinculada usa o mesmo orçamento do crítico veicular
+ok 2 - P98 Vinculada usa o mesmo orçamento do crítico veicular
+  ---
+  duration_ms: 30.3919
+  type: 'test'
+  ...
+# Subtest: P98 Guiada em ataque perdido custa 3 Vantagens e agenda nova passagem
+ok 3 - P98 Guiada em ataque perdido custa 3 Vantagens e agenda nova passagem
+  ---
+  duration_ms: 29.9041
+  type: 'test'
+  ...
+# Subtest: P98 passagem Guiada resolve no fim do round e aplica dano real
+ok 4 - P98 passagem Guiada resolve no fim do round e aplica dano real
+  ---
+  duration_ms: 28.3405
+  type: 'test'
+  ...
+# Subtest: P98 Raio Trator bloqueia movimento e fuga legítima remove o lock
+ok 5 - P98 Raio Trator bloqueia movimento e fuga legítima remove o lock
+  ---
+  duration_ms: 41.2671
+  type: 'test'
+  ...
+# Subtest: P98 Munição Limitada veicular e Cadência Lenta persistem por arma/round
+ok 6 - P98 Munição Limitada veicular e Cadência Lenta persistem por arma/round
+  ---
+  duration_ms: 50.4448
+  type: 'test'
+  ...
+# Subtest: P98 orçamento veicular não permite Vinculada além do rating
+ok 7 - P98 orçamento veicular não permite Vinculada além do rating
+  ---
+  duration_ms: 36.1783
+  type: 'test'
+  ...
+# Subtest: P98 bridge/R46 expõem gasto veicular, Guiada e fuga do Trator sem mutação bruta
+ok 8 - P98 bridge/R46 expõem gasto veicular, Guiada e fuga do Trator sem mutação bruta
+  ---
+  duration_ms: 139.6294
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1613.8119
+
