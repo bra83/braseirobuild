@@ -105,38 +105,65 @@ public final class NarrationChunker {
         return PortugueseNarrationSanitizer.sanitize(text == null ? "" : text)
                 .replaceAll("\\s+", " ").trim();
     }
+    // Paridade com o planejador nativo aprovado no Forbidden Lands R98:
+    // primeiro bloco até 560 caracteres, demais até 760 e cortes naturais.
+    // Uma palavra excepcionalmente longa nunca pode ser dividida.
+    private static final int KOKORO_FIRST_MAX = 560;
+    private static final int KOKORO_NEXT_MAX = 760;
+    private static final int KOKORO_MIN_CUT = 350;
+    private static final int ANDROID_UTTERANCE_SAFE_LIMIT = 3900;
+
     public static List<String> kokoro(String text) {
         String clean = normalize(text);
-        ArrayList<String> out = new ArrayList<String>();
-        if (clean.length() == 0) return out;
-        if (clean.length() <= 650) { out.add(clean); return out; }
-        int start = 0;
-        while (start < clean.length()) {
-            int remaining = clean.length() - start;
-            if (remaining <= 650) { out.add(clean.substring(start).trim()); break; }
-            int target = Math.min(clean.length(), start + 450);
-            int min = Math.min(clean.length(), start + 250);
-            int max = Math.min(clean.length(), start + 650);
-            int cut = bestNaturalBreak(clean, min, target, max);
-            if (cut <= start) cut = max;
-            String chunk = clean.substring(start, cut).trim();
-            if (chunk.length() > 0) out.add(chunk);
-            start = cut; while (start < clean.length() && Character.isWhitespace(clean.charAt(start))) start++;
+        ArrayList<String> chunks = new ArrayList<String>();
+        int cursor = 0;
+        while (cursor < clean.length()) {
+            while (cursor < clean.length() && Character.isWhitespace(clean.charAt(cursor))) cursor++;
+            if (cursor >= clean.length()) break;
+            int maximum = chunks.isEmpty() ? KOKORO_FIRST_MAX : KOKORO_NEXT_MAX;
+            int end = Math.min(clean.length(), cursor + maximum);
+            int cut = end;
+            if (end < clean.length()) {
+                int minimum = Math.min(end, cursor + Math.min(KOKORO_MIN_CUT, maximum - 20));
+                cut = kokoroNaturalBoundary(clean, minimum, end);
+                if (cut < 0) {
+                    cut = end;
+                    while (cut < clean.length() && !Character.isWhitespace(clean.charAt(cut))) cut++;
+                }
+            }
+            if (cut <= cursor || cut - cursor > ANDROID_UTTERANCE_SAFE_LIMIT)
+                throw new IllegalArgumentException("Palavra de narração excede o limite do Android TTS.");
+            String chunk = clean.substring(cursor, cut).trim();
+            if (!chunk.isEmpty()) chunks.add(chunk);
+            cursor = cut;
         }
-        return out;
+        return chunks;
     }
 
-    private static int bestNaturalBreak(String text, int min, int target, int max) {
-        char[][] priorities = {{'.','!','?','…'},{';'},{','},{' '}};
-        for (char[] group : priorities) {
-            int best = -1, bestDistance = Integer.MAX_VALUE;
-            for (int i = min; i < max && i < text.length(); i++) {
-                char ch = text.charAt(i); boolean match = false; for (char p : group) if (ch == p) { match = true; break; }
-                if (!match) continue; int cut = i + 1; int d = Math.abs(cut - target); if (d < bestDistance) { best = cut; bestDistance = d; }
-            }
-            if (best > 0) return best;
+    private static int kokoroNaturalBoundary(String text, int minimum, int end) {
+        // Pontuação final (com aspas de fechamento), depois vírgulas e espaços.
+        for (int i = end; i >= minimum; i--) {
+            char c = text.charAt(i - 1);
+            if (c != '.' && c != '!' && c != '?' && c != '…') continue;
+            int close = i;
+            while (close < text.length() && isClosingQuote(text.charAt(close))) close++;
+            if (close <= end && (close == text.length() || Character.isWhitespace(text.charAt(close))))
+                return close;
         }
-        return max;
+        for (int i = end; i >= minimum; i--) {
+            char c = text.charAt(i - 1);
+            if ((c == ';' || c == ':' || c == ',')
+                    && (i == text.length() || Character.isWhitespace(text.charAt(i))))
+                return i;
+        }
+        for (int i = end; i >= minimum; i--)
+            if (i < text.length() && Character.isWhitespace(text.charAt(i))) return i;
+        return -1;
+    }
+
+    private static boolean isClosingQuote(char c) {
+        return c == '"' || c == '\'' || c == '”' || c == '’'
+                || c == '»' || c == ')' || c == '}' || c == ']';
     }
 
 }
