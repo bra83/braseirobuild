@@ -45,7 +45,7 @@ const derive = [
   '        throw new Error("Perícia ou graduação não autorizada: " + skillName);',
   '      }',
   '      if (rollParams.skillRank !== undefined && rollParams.skillRank !== found.rank) {',
-  '        throw new Error("skillRank diverge da ficha autorizada");',
+  '        throw new Error(`Violação de integridade (EST-12): skillRank informado (${rollParams.skillRank}) diverge da ficha autorizada (${found.rank}) para \'${skillName}\'.`);',
   '      }',
   '      return found.rank;',
   '    }',

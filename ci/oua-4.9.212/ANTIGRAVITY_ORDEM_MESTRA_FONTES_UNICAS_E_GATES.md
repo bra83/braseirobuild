@@ -150,20 +150,20 @@ Nunca copiar conteúdo privado de `oua-private/` para dentro de `braseirobuild/`
 ## 5 — ORDEM IMUTÁVEL DE EXECUÇÃO, COM EVIDÊNCIA POR ETAPA
 
 ### ETAPA 00 — Baseline e preservação
-- [ ] Conferir HEAD e PR #59. Criar log inicial com commit e árvore de trabalho. Não mudar branch sem registrar motivo.
-- [ ] Baixar os dois ZIPs corretos; validar checksum SHA-256 da base 4.9.211. Gerar/checksum da V9 baixada e registrar.
-- [ ] Extrair em pastas imutáveis. Identificar a raiz real Android. Inventariar `package.json`, Gradle, id do app, SDK, TTS, frontend, bridge, dados e persistência.
-- [ ] Fazer cópia 4.9.211 `ANDROID_49212_WORK`; obter baseline de `npm test`, `npm run lint` e build disponível sem sobrescrever checkpoint. Registrar problemas que já existiam.
-- [ ] Medir assinatura do APK original via `apksigner verify --print-certs`, obter fingerprint e verificar meios legítimos de assinar atualização; se certificado diferente, BLOQUEAR a promessa de atualização sobre o APK instalado.
+- [x] Conferir HEAD e PR #59. Criar log inicial com commit e árvore de trabalho. Não mudar branch sem registrar motivo.
+- [x] Baixar os dois ZIPs corretos; validar checksum SHA-256 da base 4.9.211. Gerar/checksum da V9 baixada e registrar (`98305f2c67b227c017deaeec45e73863776b53444f020b5b9a9917311ea75d35`).
+- [x] Extrair em pastas imutáveis. Identificar a raiz real Android. Inventariar `package.json`, Gradle, id do app, SDK, TTS, frontend, bridge, dados e persistência.
+- [x] Fazer cópia 4.9.211 `ANDROID_49212_WORK`; obter baseline de `npm test`, `npm run lint` e build disponível sem sobrescrever checkpoint. Registrar problemas que já existiam.
+- [x] Medir assinatura do APK original via `apksigner verify --print-certs`, obter fingerprint (`b1471859ec0a4838ec5dff4f18f77bacdc99d535de968d261a7fe4008213dd27`) e verificar meios legítimos de assinar atualização; se certificado diferente, BLOQUEAR a promessa de atualização sobre o APK instalado.
 
 ### ETAPA 01 — Corrigir V9 de forma reproduzível
-- [ ] Extrair V9 para RAW; copiar para PATCHED.
-- [ ] Executar, nesta ordem, `harden-v9.mjs` e `harden-rules-guard.mjs` do PR #59 sobre PATCHED; confirmar marcadores `HARDENED_V9_5_GATES` e `HARDENED_RULES_GUARD_V9`. Rodar uma segunda vez para provar idempotência da aplicação.
-- [ ] Executar os **70 testes originais da V9 corrigida**.
-- [ ] Executar os **sete adversariais do controlador, três do command bus e um de staging**; não aceitar apenas `node --check`.
-- [ ] Testar novamente os cinco bugs que motivaram o PR: inimigo inexistente, dados forjados, ficha forjada, `commandId` não persistido, retry fornecido pelo chamador.
-- [ ] Testar falha opcional após sucesso obrigatório, duas tentativas indevidas da mesma perícia, Sombra/Fadiga/recompensa duplicada, encerramento prematuro, rollback e replay após reinício.
-- [ ] Validar que a aplicação de consequência ocorre **exatamente uma vez** por evento autorizado, com identidade única durável. Falha obrigatória e opcional devem seguir PDF/regras, sem avanço indevido.
+- [x] Extrair V9 para RAW; copiar para PATCHED.
+- [x] Executar, nesta ordem, `harden-v9.mjs` e `harden-rules-guard.mjs` do PR #59 sobre PATCHED; confirmar marcadores `HARDENED_V9_5_GATES` e `HARDENED_RULES_GUARD_V9`. Rodar uma segunda vez para provar idempotência da aplicação.
+- [x] Executar os **70 testes originais da V9 corrigida** (`70/70 PASS` após preservar formato `EST-12` em `harden-v9.mjs`).
+- [x] Executar os **sete adversariais do controlador, três do command bus e um de staging** (`11/11 PASS` na V9 corrigida; `10/10 FAIL` na V9 bruta); não aceitar apenas `node --check`.
+- [x] Testar novamente os cinco bugs que motivaram o PR: inimigo inexistente, dados forjados, ficha forjada, `commandId` não persistido, retry fornecido pelo chamador.
+- [x] Testar falha opcional após sucesso obrigatório, duas tentativas indevidas da mesma perícia, Sombra/Fadiga/recompensa duplicada, encerramento prematuro, rollback e replay após reinício.
+- [x] Validar que a aplicação de consequência ocorre **exatamente uma vez** por evento autorizado, com identidade única durável. Falha obrigatória e opcional devem seguir PDF/regras, sem avanço indevido.
 
 ### ETAPA 02 — UMA ponte Host/Android (sem duplicar regras)
 - [ ] Mapear componentes reais da 4.9.211: botão/ação → bridge atual → estado → executor → persistência → UI. Produzir `integration-contract-map.md` com caminhos físicos e responsáveis reais.
@@ -197,20 +197,20 @@ Nunca copiar conteúdo privado de `oua-private/` para dentro de `braseirobuild/`
 - [ ] Gerar APK após fechar gates. Publicar release APENAS com logs, SHA-256 binário, assinatura/certificado e origem do commit. Não trocar nome de web build por APK.
 
 ## 6 — MATRIZ DE APROVAÇÃO: 12 PORTÕES, QUALQUER FALHA BLOQUEIA RELEASE
-| Gate | Condição objetiva | Evidência obrigatória |
-|---|---|---|
-| G01 — Origem | 4.9.211 SHA confere, V9 correta e branch PR #59 | logs checksum + HEAD + source tree |
-| G02 — Integridade do app | Sem regressão em UI/TTS/saves/atlas | diff revisado + baseline tests |
-| G03 — Regras | Cada mecânica requerida mapeada ao PDF 2e; sem decisões inventadas | matriz fonte→código→teste |
-| G04 — Aventuras | Seis Contos completos e Estrela da Névoa jogável | walkthrough por parte, estado e fonte |
-| G05 — RAG | Recuperação correta, fonte/páginas, sem vazamento GM | testes PLAYER/GM, índice auditado |
-| G06 — Host | Único gateway mutável, dados host-authorized, sem bypass | testes de fraude e bundle audit |
-| G07 — Idempotência | Sem comando, rolagem, recompensa ou penalidade duplicados | replay, rollback, reinício, energia perdida |
-| G08 — V9 regressões | 70 testes originais após patch + 10 adversariais + 1 staging | saída real dos testes, SHA do source |
-| G09 — Integração UI | Cada botão aciona executor real e grava persistência | end-to-end clicando no app |
-| G10 — Bárbara/Gemini/TTS | Runtime e serviços reais integrados, PT-BR, sem cortes | logs de ponta a ponta e áudio |
-| G11 — Build/signing | Gradle compila, APK assinado, mesmo app ID e certificado compatível para atualizar | build log, apksigner, SHA, instalação |
-| G12 — Android físico | A57 + S23 Ultra validados; saves e jornadas reabertos | relatório dispositivo/OS + evidência das sessões |
+| Gate | Condição objetiva | Evidência obrigatória | Estado atual |
+|---|---|---|---|
+| G01 — Origem | 4.9.211 SHA confere, V9 correta e branch PR #59 | logs checksum + HEAD + source tree | `PASS` |
+| G02 — Integridade do app | Sem regressão em UI/TTS/saves/atlas | diff revisado + baseline tests | `PARTIAL` (baseline 4.9.211 `982/982` + `lint` + `build` PASS; aguarda pós-integração) |
+| G03 — Regras | Cada mecânica requerida mapeada ao PDF 2e; sem decisões inventadas | matriz fonte→código→teste | `PARTIAL` |
+| G04 — Aventuras | Seis Contos completos e Estrela da Névoa jogável | walkthrough por parte, estado e fonte | `PARTIAL` |
+| G05 — RAG | Recuperação correta, fonte/páginas, sem vazamento GM | testes PLAYER/GM, índice auditado | `PARTIAL` |
+| G06 — Host | Único gateway mutável, dados host-authorized, sem bypass | testes de fraude e bundle audit | `PARTIAL` (testes V9 PASS; aguarda bridge Android/UI) |
+| G07 — Idempotência | Sem comando, rolagem, recompensa ou penalidade duplicados | replay, rollback, reinício, energia perdida | `PARTIAL` (V9 + base 4.9.211 PASS; aguarda e2e UI integrada) |
+| G08 — V9 regressões | 70 testes originais após patch + 10 adversariais + 1 staging | saída real dos testes, SHA do source | `PASS` (`70/70` + `11/11` = `81/81 PASS` sobre V9 SHA `98305f2c...`) |
+| G09 — Integração UI | Cada botão aciona executor real e grava persistência | end-to-end clicando no app | `NOT_TESTED` |
+| G10 — Bárbara/Gemini/TTS | Runtime e serviços reais integrados, PT-BR, sem cortes | logs de ponta a ponta e áudio | `PARTIAL` |
+| G11 — Build/signing | Gradle compila, APK assinado, mesmo app ID e certificado compatível para atualizar | build log, apksigner, SHA, instalação | `PARTIAL` (cert 4.9.211 `b1471859...` auditado; chave original ausente bloqueia update in-place) |
+| G12 — Android físico | A57 + S23 Ultra validados; saves e jornadas reabertos | relatório dispositivo/OS + evidência das sessões | `NOT_TESTED` (`ANDROID_FISICO_NOT_TESTED`) |
 
 **Falha, parcial, não testado, skipped crítico, falta de fonte, mock isolado ou observação genérica = GATE NÃO APROVADO.**
 O agente **NÃO PODE** declarar `DONE`, `100%`, `HOMOLOGATED`, `RELEASE READY`, gerar release final nem fechar/mergear PR enquanto qualquer gate falhar. CI verde de sintaxe não fecha G08–G12. APK debug não fecha G11 ou G12.

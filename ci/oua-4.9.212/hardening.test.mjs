@@ -77,44 +77,64 @@ test('OUA HARD-03: a caller cannot replace the host-signed character sheet', () 
   }), /cliente|autorizad/i);
   assert.deepEqual(c.exportSnapshot(), snap);
 });
-test('OUA HARD-04: a caller cannot invent a retry rule string', () => {
+test('OUA HARD-04: a caller cannot invent a retry rule string or duplicate fatigue', () => {
   const c = ctrl();
+  const hero = { fatigue: 0, shadow: 0 };
   c.performSceneCheck('hunt-1', {
-    commandId: 'first-check', mockFeatRolls: [1], mockSuccessRolls: [1]
+    commandId: 'first-check', character: hero, mockFeatRolls: [1], mockSuccessRolls: [1]
   });
+  assert.equal(hero.fatigue, 2);
+  assert.equal(c.sceneState.consequenceEvents.length, 1);
+  assert.equal(c.sceneState.consequenceEvents[0].eventId, 'conseq:hunt-1');
   const snap = c.exportSnapshot();
   assert.throws(() => c.performSceneCheck('hunt-1', {
-    commandId: 'forged-retry', allowRetry: true,
+    commandId: 'forged-retry', character: hero, allowRetry: true,
     retryRuleSource: 'any invented rule', mockFeatRolls: [12],
     mockSuccessRolls: [6]
   }), /Repetição|repeti/i);
+  assert.equal(hero.fatigue, 2);
+  assert.equal(c.sceneState.consequenceEvents.length, 1);
   assert.deepEqual(c.exportSnapshot(), snap);
 });
-test('OUA HARD-05: commandId is in durable snapshot before returning success', () => {
+test('OUA HARD-05: commandId is in durable snapshot before returning success and blocks replay/premature conclusion', () => {
   let durable = null;
   const store = { save(s) { durable = structuredClone(s); } };
   const c = ctrl({ persistenceStore: store, requireCommandId: true });
+  const hero = { fatigue: 0, shadow: 0, resources: { adventurePoints: 0, treasure: 0 } };
   c.performSceneCheck('hunt-1', {
-    commandId: 'durable-check', mockFeatRolls: [1], mockSuccessRolls: [1]
+    commandId: 'durable-check', character: hero, mockFeatRolls: [1], mockSuccessRolls: [1]
   });
   assert.ok(durable.processedCommands.some(([id]) => id === 'durable-check'));
+  assert.equal(hero.fatigue, 2);
+  assert.equal(c.concludeAdventure(hero).status, 'INCOMPLETE_ADVENTURE');
   const reopened = new Tor2eAdventureController(fixture(), { requireCommandId: true });
   reopened.restoreFromSnapshot(durable);
   const duplicate = reopened.performSceneCheck('hunt-1', {
-    commandId: 'durable-check', mockFeatRolls: [12], mockSuccessRolls: [6]
+    commandId: 'durable-check', character: hero, mockFeatRolls: [12], mockSuccessRolls: [6]
   });
   assert.equal(duplicate.status, 'DUPLICATE_COMMAND');
+  assert.equal(hero.fatigue, 2);
   assert.deepEqual(reopened.exportSnapshot(), durable);
 });
 test('OUA HARD-06: rejected save rolls back cached command and gameplay state', () => {
-  let reject = false;
-  const store = { save() { if (reject) throw new Error('disk full'); } };
+  let mode = 'ok';
+  const store = {
+    save() {
+      if (mode === 'throw') throw new Error('disk full');
+      if (mode === 'async') return Promise.resolve('unconfirmed-async-write');
+    }
+  };
   const c = ctrl({ persistenceStore: store });
   const original = c.exportSnapshot();
-  reject = true;
+  mode = 'throw';
   assert.throws(() => c.performSceneCheck('hunt-1', {
     commandId: 'rollback-check', mockFeatRolls: [1], mockSuccessRolls: [1]
   }), /rollback|Transação/i);
+  assert.deepEqual(c.exportSnapshot(), original);
+  mode = 'async';
+  assert.throws(() => c.performSceneCheck('hunt-1', {
+    commandId: 'rollback-async-check', mockFeatRolls: [1], mockSuccessRolls: [1]
+  }), /Promise|rollback|Transação/i);
   assert.deepEqual(c.exportSnapshot(), original);
 });
 test('OUA HARD-07: strict command ID required for durable mutations', () => {
