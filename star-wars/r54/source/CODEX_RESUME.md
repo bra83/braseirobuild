@@ -138,3 +138,18 @@
 - Replaced old test shortcuts that jumped from Ryloth directly to Nabat with fixtures that play the verified ship checks, B’ura discovery, transit and landing. Focused affected suites pass 146/146.
 - Full per-file regression passes 3,457/3,459 tests across 382 files (376 regular + 6 stress), with zero failures and two offline JDK `jar` packaging skips. Evidence: `evidence/SWE02_P13_NABAT_DOCKING_FULL_REGRESSION_FIXED_20261016/`. The Android UI bridge bundle rebuilt successfully with 135 modules.
 - SWE02 remains `IMPLEMENTADO_NAO_CERTIFICADO`; all five-adventure, rules and AoR 0/360 gates remain open. P.13 still needs page-wide source crosswalk and review; fuel amount/pricing remain unspecified. No P245 or Android release gates ran.
+
+## Resume update — AoR Gunner R2C2 Brace integrated proof (2026-10-16)
+
+- Wired Brace as a character maneuver with persisted rank/source/active-character identity. The next skill check or personal weapon attack removes no more than rank environmental setbacks; other setbacks remain. Any next action consumes the preparation. UI and offline bundle expose preparation and the environmental subset input.
+- Exact node `ace:gunner:r2c2` now passes source, purchase, controller, UI/bridge and three save/reopen cycles in `tests/uae-aor-brace-talent-authority.test.mjs` (6/6). Evidence: `evidence/AOR_BRACE_GUNNER_R2C2_20261016/`; offline bundle rebuild 135 modules.
+- Full regression: 382 files, 3,462 tests, 3,460 pass, 0 fail, 2 JDK `jar` packaging skips. Evidence: `evidence/SWE02_AOR_BRACE_FULL_REGRESSION_FINAL_20261016/`.
+- Updated the AoR proof ledger: Gunner page citations corrected from 67 to 68; the personal R2C2 path has exact-node tests, but all 360 proof rows remain PENDENTE because the source wording does not limit Brace's “next action” to personal combat and the separate vehicle-action consumer is unresolved. Gunner R4C3 rank 2 also remains pending exact-node integration. Overall rules and all five adventures remain uncertified.
+- Continue SWE02 page-wide source coverage and remaining Acts 1–3, then the other authorized adventures; reconcile the selected EotE/AoR source corpus. Preserve the hybrid boundary: deterministic code owns mechanics/state, cited RAG retrieves authorized text, Gemini narrates or proposes typed actions only. No P245 or Android release gate.
+
+## Resume update — SWE02 p.13 Nabat arrival source correction (2026-10-16)
+
+- Corrected the p.13 arrival summary: B’ura’s offer covers safe docking and contact-paid repairs; the adventure does not state that his contacts refuel the ship. Fuel amounts/prices remain unspecified and are not invented. Added source-backed upper landing/cantina and underground shelter/lylek context, and surfaced the optional transponder removal after landing.
+- Three affected SWE02 suites pass 55/55; offline bridge bundle rebuild passes with 135 modules. Evidence: `evidence/SWE02_P13_NABAT_CONTEXT_20261016/`.
+- Fresh full regression across 382 files (376 regular + 6 stress): 3,463 tests, 3,461 pass, 0 fail, 2 skips for missing JDK `jar`. No files lack a complete summary. Evidence: `evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_20261016/`.
+- p.13 remains pending page-wide source/RAG coverage, unspecified fuel pricing/quantities, and full page proof. All five adventures and selected EotE/AoR rules remain uncertified; all 360 AoR rows remain pending. Brace's personal path is covered, but its separate vehicle-action scope remains unresolved. Preserve the code/RAG/Gemini boundary and global release gates.

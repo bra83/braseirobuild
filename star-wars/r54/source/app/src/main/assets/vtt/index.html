@@ -213,7 +213,9 @@ ROTA PONTILHADA: retirada dos caçadores · SWE02 p.16</pre>
           <label>Desafio<input id="challenge" type="number" min="0" max="5" value="0"></label>
           <label>Impulso<input id="boost" type="number" min="0" max="6" value="0"></label>
           <label>Contratempo<input id="setback" type="number" min="0" max="6" value="0"></label>
+          <label>Contratempos ambientais<input id="braceEnvironmentalSetback" type="number" min="0" max="6" value="0"></label>
         </div>
+        <p class="microcopy">Para Brace, informe quantos dos contratempos declarados acima vêm do ambiente; outros tipos de contratempo não são removidos.</p>
         <label id="expertTalentRow" class="creator-skill-option" hidden><input id="useExpertTalent" type="checkbox"> <span id="expertTalentLabel">Usar talento especialista</span></label>
         <button id="rollCheck" class="secondary">Resolver teste</button>
         <div id="rollResult" class="result empty">Nenhum teste nesta sessão.</div>
@@ -399,6 +401,14 @@ ROTA PONTILHADA: retirada dos caçadores · SWE02 p.16</pre>
               </select>
               <button id="aimButton" class="secondary">Mirar · +1 Impulso no próximo ataque</button>
               <p id="aimStatus" class="microcopy"></p>
+              <label class="starter-label" for="braceManeuverMethod">Brace usa uma manobra</label>
+              <select id="braceManeuverMethod" class="starter-select">
+                <option value="normal">Usar a manobra disponível</option>
+                <option value="strain">Se for a 2ª: sofrer 2 de Tensão</option>
+                <option value="action">Se for a 2ª: trocar a ação</option>
+              </select>
+              <button id="braceButton" class="secondary">Brace · reduzir contratempo ambiental</button>
+              <p id="braceStatus" class="microcopy"></p>
             </div>
             <p id="maneuverFeedback" class="feedback"></p>
           </details>
@@ -418,7 +428,9 @@ ROTA PONTILHADA: retirada dos caçadores · SWE02 p.16</pre>
                 <label>Desafio<input id="attackChallenge" type="number" min="0" max="5" value="0"></label>
                 <label>Impulso<input id="attackBoost" type="number" min="0" max="6" value="0"></label>
                 <label>Contratempo<input id="attackSetback" type="number" min="0" max="6" value="0"></label>
+                <label>Contratempos ambientais<input id="attackBraceEnvironmentalSetback" type="number" min="0" max="6" value="0"></label>
               </div>
+              <p class="microcopy">Brace reduz somente a parte ambiental do contratempo informado.</p>
             </details>
             <button id="attackButton" class="primary full">Atacar</button>
             <div id="attackResult" class="result empty">Nenhum ataque resolvido.</div>

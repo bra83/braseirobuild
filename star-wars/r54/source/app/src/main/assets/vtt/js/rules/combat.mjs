@@ -95,6 +95,7 @@ export function spendAction(combat, label = 'Ação') {
   if (combat.playerTurn?.actionUsed) throw new Error('A ação deste turno já foi usada.');
   const next = cloneCombat(combat);
   next.playerTurn.actionUsed = true;
+  delete next.aorBracePrepared;
   next.log.push({ type: 'ACAO', round: next.round, label });
   return next;
 }

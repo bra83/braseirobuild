@@ -124,8 +124,8 @@ export const LONG_ARM_OF_THE_HUTT = Object.freeze({
     },
     'nabat-arrival':{
       episode:1,title:'Chegada ao porto de Nabat',locationId:LOC.nabat,
-      summary:'SWE02 p.13: B’ura B’an providencia abrigo, reparos e reabastecimento por contatos locais.',
-      narration:'A poeira vermelha se ergue das plataformas; as entradas subterrâneas conduzem a uma rede de túneis.',
+      summary:'SWE02 p.13: as plataformas, moradias pobres e cantina ocupam o nível exposto; os túneis protegem a população do clima e dos lyleks. B’ura B’an providencia atracamento seguro e reparos pagos pelos contatos locais. A remoção do transponder pode ser tentada após o pouso.',
+      narration:'As plataformas e a cantina ficam no nível superior, exposto ao clima de Ryloth. B’ura B’an conduz a tripulação para baixo, onde os túneis abrigam moradores dos elementos e dos lyleks errantes. Ele garante atracamento seguro para a Krayt Fang e oferece reparos pagos por seus contatos. Se quiserem retirar o transponder, este é o momento de fazê-lo em solo.',
       visibleNpcIds:[NPC.bura],checks:[],choices:[
         {id:'nabat-meet-nyn',label:'Conhecer Nyn Kablo e os militantes nos túneis',to:'nabat-contact'},
         {id:'nabat-hull-inspection',label:'Inspecionar o transponder após pousar',to:'krayt-fang-ground-inspection'}]

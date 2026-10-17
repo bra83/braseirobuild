@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: P167 two authentic AoR Mental Fortress slots, 304/360 mechanically active
+ok 1 - P167 two authentic AoR Mental Fortress slots, 304/360 mechanically active
+  ---
+  duration_ms: 38.9544
+  type: 'test'
+  ...
+# Subtest: P167 Mental Fortress only suppresses critical check modifiers on Intellect/Cunning, not incapacitation
+ok 2 - P167 Mental Fortress only suppresses critical check modifiers on Intellect/Cunning, not incapacitation
+  ---
+  duration_ms: 8.0952
+  type: 'test'
+  ...
+# Subtest: P167 Mental Fortress activation spends exactly one Destiny, persists, repeats blocked
+ok 3 - P167 Mental Fortress activation spends exactly one Destiny, persists, repeats blocked
+  ---
+  duration_ms: 38.7459
+  type: 'test'
+  ...
+# Subtest: P167 Mental Fortress rejects no talent, no combat, no Destiny and rolls back disk failure
+ok 4 - P167 Mental Fortress rejects no talent, no combat, no Destiny and rolls back disk failure
+  ---
+  duration_ms: 88.3072
+  type: 'test'
+  ...
+# Subtest: P167 Android bridge exposes mental defense and UI action
+ok 5 - P167 Android bridge exposes mental defense and UI action
+  ---
+  duration_ms: 98.3766
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2052.0833
+

@@ -1260,6 +1260,16 @@ export class BraseiroUiBridge {
         try { return ok(clone(controllerResult.data.resolveSkillCheck(options ?? {}))); }
         catch (error) { return fail('SKILL_CHECK_FAILED', messageOf(error)); }
     }
+    aorBraceStatus() {
+        const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.aorBraceStatus()));}
+        catch(e){return fail('AOR_BRACE_STATUS_FAILED',messageOf(e));}
+    }
+    prepareAoRBrace(options={}) {
+        const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.prepareAoRBrace(options??{})));}
+        catch(e){return fail('AOR_BRACE_FAILED',messageOf(e));}
+    }
     commitLastTaskTime(options = {}) {
         const controllerResult = this._controllerForExistingCampaign();
         if (!controllerResult.ok) return controllerResult;

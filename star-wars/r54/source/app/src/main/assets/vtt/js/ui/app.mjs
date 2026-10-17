@@ -820,6 +820,10 @@ function renderCombat(character, combat) {
   $('aimStatus').textContent=Number(combat.pendingAttackBoost ?? 0)>0
     ? `Mirar preparado: +${combat.pendingAttackBoost} dado de Impulso no próximo ataque.`
     : 'Nenhum bônus de Mirar preparado.';
+  const braceRank=game.talentRank('FIRMEZA'),bracePending=combat.aorBracePrepared;
+  $('braceButton').disabled=!combat.active||!ready||health.unconscious||braceRank<1||Boolean(bracePending)||combat.playerTurn.maneuversUsed>=2;
+  $('braceStatus').textContent=bracePending?`Brace preparado: ${bracePending.rank} graduação(ões); informe somente os contratempos ambientais no próximo teste ou ataque.`:
+    braceRank>0?`Brace disponível · ${braceRank} graduação(ões); reduz contratempos ambientais até o limite de graduação.`:'Brace não adquirido.';
 
   const select=$('weaponSelect');
   const previous=select.value;
@@ -1155,6 +1159,7 @@ $('rollCheck').addEventListener('click', () => {
       challenge: $('challenge').value,
       boost: $('boost').value,
       setback: $('setback').value,
+      braceEnvironmentalSetback:$('braceEnvironmentalSetback').value,
       useExpertTalent: $('useExpertTalent')?.checked ?? false
     });
     renderRoll(result); render();
@@ -1316,6 +1321,10 @@ $('aimButton').addEventListener('click',()=>{
   try { game.aim({maneuverMethod:$('aimManeuverMethod').value}); showFeedback('maneuverFeedback','Mirar preparado: +1 Impulso no próximo ataque.'); render(); }
   catch(e){ showFeedback('maneuverFeedback',e.message); }
 });
+$('braceButton').addEventListener('click',()=>{
+  try { game.prepareAoRBrace({maneuverMethod:$('braceManeuverMethod').value}); showFeedback('maneuverFeedback','Brace preparado para a próxima ação; declare somente os contratempos ambientais que se aplicam.'); render(); }
+  catch(e){ showFeedback('maneuverFeedback',e.message); }
+});
 
 $('attackButton').addEventListener('click',()=>{
   try {
@@ -1326,7 +1335,8 @@ $('attackButton').addEventListener('click',()=>{
       targetBehindRockPile:$('swe02TargetBehindRocks').checked,
       challenge:$('attackChallenge').value,
       boost:$('attackBoost').value,
-      setback:$('attackSetback').value
+      setback:$('attackSetback').value,
+      braceEnvironmentalSetback:$('attackBraceEnvironmentalSetback').value
     });
     renderAttack(attack); render();
   } catch(e){ const el=$('attackResult'); el.className='result fail'; el.textContent=e.message; }

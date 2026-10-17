@@ -1,0 +1,466 @@
+TAP version 13
+# Subtest: turno permite 1 ação e 1 manobra normal
+ok 1 - turno permite 1 ação e 1 manobra normal
+  ---
+  duration_ms: 5.2904
+  type: 'test'
+  ...
+# Subtest: segunda manobra exige Tensão ou troca da ação e nunca passa de 2
+ok 2 - segunda manobra exige Tensão ou troca da ação e nunca passa de 2
+  ---
+  duration_ms: 3.6111
+  type: 'test'
+  ...
+# Subtest: ação pode ser trocada pela segunda manobra e o turno seguinte reinicia recursos
+ok 3 - ação pode ser trocada pela segunda manobra e o turno seguinte reinicia recursos
+  ---
+  duration_ms: 0.9284
+  type: 'test'
+  ...
+# Subtest: personagem inicial entra no estado persistente e a perícia usa seus valores
+ok 4 - personagem inicial entra no estado persistente e a perícia usa seus valores
+  ---
+  duration_ms: 70.2898
+  type: 'test'
+  ...
+# Subtest: combate consome ação no ataque e segunda manobra por Tensão persiste na ficha
+ok 5 - combate consome ação no ataque e segunda manobra por Tensão persiste na ficha
+  ---
+  duration_ms: 43.2062
+  type: 'test'
+  ...
+# Subtest: dificuldade automática por alcance, Mirar e crítico são aplicados no ataque
+ok 6 - dificuldade automática por alcance, Mirar e crítico são aplicados no ataque
+  ---
+  duration_ms: 29.4077
+  type: 'test'
+  ...
+# Subtest: não rola uma segunda ação no mesmo turno nem permite agir incapacitado
+ok 7 - não rola uma segunda ação no mesmo turno nem permite agir incapacitado
+  ---
+  duration_ms: 30.004
+  type: 'test'
+  ...
+# Subtest: consulta de regras e contexto do Mestre persistem sem narrar livremente
+ok 8 - consulta de regras e contexto do Mestre persistem sem narrar livremente
+  ---
+  duration_ms: 188.9452
+  type: 'test'
+  ...
+# Subtest: personagem personalizado EotE entra no mesmo estado persistente
+ok 9 - personagem personalizado EotE entra no mesmo estado persistente
+  ---
+  duration_ms: 5.6777
+  type: 'test'
+  ...
+# Subtest: Base, recursos e Obligation persistem ao reabrir a campanha
+ok 10 - Base, recursos e Obligation persistem ao reabrir a campanha
+  ---
+  duration_ms: 8.7096
+  type: 'test'
+  ...
+# Subtest: compra de talento de primeira linha persiste e desconta PE uma única vez
+ok 11 - compra de talento de primeira linha persiste e desconta PE uma única vez
+  ---
+  duration_ms: 14.946
+  type: 'test'
+  ...
+# Subtest: compra genérica da árvore completa desbloqueia conexão e persiste linha inferior
+ok 12 - compra genérica da árvore completa desbloqueia conexão e persiste linha inferior
+  ---
+  duration_ms: 22.3278
+  type: 'test'
+  ...
+# Subtest: propor aquisição de arma consulta o Mestre sem descontar créditos
+ok 13 - propor aquisição de arma consulta o Mestre sem descontar créditos
+  ---
+  duration_ms: 383.8635
+  type: 'test'
+  ...
+# Subtest: AoR source FIRMEZA positions are Brace, not immediate Grit
+ok 14 - AoR source FIRMEZA positions are Brace, not immediate Grit
+  ---
+  duration_ms: 6.4358
+  type: 'test'
+  ...
+# Subtest: buying Gunner Brace preserves p.68 node provenance without granting Grit threshold
+ok 15 - buying Gunner Brace preserves p.68 node provenance without granting Grit threshold
+  ---
+  duration_ms: 9.3055
+  type: 'test'
+  ...
+# Subtest: AoR Brace relief is activated, rank-limited, and applies only to environmental setback
+ok 16 - AoR Brace relief is activated, rank-limited, and applies only to environmental setback
+  ---
+  duration_ms: 6.0463
+  type: 'test'
+  ...
+# Subtest: p.68 Gunner Brace maneuver persists, affects the next skill action only, and is wired to bridge/UI
+ok 17 - p.68 Gunner Brace maneuver persists, affects the next skill action only, and is wired to bridge/UI
+  ---
+  duration_ms: 94.1531
+  type: 'test'
+  ...
+# Subtest: p.68 Gunner Brace is consumed by the next weapon attack and cannot remove non-environmental setback
+ok 18 - p.68 Gunner Brace is consumed by the next weapon attack and cannot remove non-environmental setback
+  ---
+  duration_ms: 60.9121
+  type: 'test'
+  ...
+# Subtest: p.68 Gunner Brace expires after the next action when no environmental setback applies
+ok 19 - p.68 Gunner Brace expires after the next action when no environmental setback applies
+  ---
+  duration_ms: 20.036
+  type: 'test'
+  ...
+# Subtest: P132 AoR: catálogo de 18 árvores declara efeito somente para aliases com consumidores reais
+ok 20 - P132 AoR: catálogo de 18 árvores declara efeito somente para aliases com consumidores reais
+  ---
+  duration_ms: 15.1563
+  type: 'test'
+  ...
+# Subtest: P132 AoR: piloto compra aceleração máxima e ativa opção já integrada ao motor
+ok 21 - P132 AoR: piloto compra aceleração máxima e ativa opção já integrada ao motor
+  ---
+  duration_ms: 12.0182
+  type: 'test'
+  ...
+# Subtest: P132 AoR: reação rápida altera iniciativa e consome tensão de verdade
+ok 22 - P132 AoR: reação rápida altera iniciativa e consome tensão de verdade
+  ---
+  duration_ms: 8.0219
+  type: 'test'
+  ...
+# Subtest: P132 AoR: perícia piloto consumado remove setback na resolução de pool
+ok 23 - P132 AoR: perícia piloto consumado remove setback na resolução de pool
+  ---
+  duration_ms: 4.3022
+  type: 'test'
+  ...
+# Subtest: P132 AoR: segundo fôlego, esquiva e recuperação rápida reutilizam motores existentes
+ok 24 - P132 AoR: segundo fôlego, esquiva e recuperação rápida reutilizam motores existentes
+  ---
+  duration_ms: 11.5163
+  type: 'test'
+  ...
+# Subtest: P132 AoR: Sharpshooter Firmeza é Brace, não Grit, e permanece íntegra após restauração JSON
+ok 25 - P132 AoR: Sharpshooter Firmeza é Brace, não Grit, e permanece íntegra após restauração JSON
+  ---
+  duration_ms: 5.1581
+  type: 'test'
+  ...
+# Subtest: P132 AoR: Precisão letal exige escolha, persiste a perícia e calcula bônus real
+ok 26 - P132 AoR: Precisão letal exige escolha, persiste a perícia e calcula bônus real
+  ---
+  duration_ms: 9.6821
+  type: 'test'
+  ...
+# Subtest: P132 AoR: talentos não adquiridos ou sem mecânica não concedem bônus
+ok 27 - P132 AoR: talentos não adquiridos ou sem mecânica não concedem bônus
+  ---
+  duration_ms: 1.6803
+  type: 'test'
+  ...
+# Subtest: P132 AoR: compra pelo controlador persiste e desbloqueia ação real na UI Android
+ok 28 - P132 AoR: compra pelo controlador persiste e desbloqueia ação real na UI Android
+  ---
+  duration_ms: 26.8305
+  type: 'test'
+  ...
+# Subtest: P132 UAE: efeitos diretos são atômicos e respeitam delta zero sem criar avanço falso
+ok 29 - P132 UAE: efeitos diretos são atômicos e respeitam delta zero sem criar avanço falso
+  ---
+  duration_ms: 31.6828
+  type: 'test'
+  ...
+# Subtest: P132 under-black-sun: integridade do journal e gatilhos preservada após persistir/restaurar
+ok 30 - P132 under-black-sun: integridade do journal e gatilhos preservada após persistir/restaurar
+  ---
+  duration_ms: 49.7621
+  type: 'test'
+  ...
+# Subtest: P132 beyond-the-rim: integridade do journal e gatilhos preservada após persistir/restaurar
+ok 31 - P132 beyond-the-rim: integridade do journal e gatilhos preservada após persistir/restaurar
+  ---
+  duration_ms: 34.8632
+  type: 'test'
+  ...
+# Subtest: P132 long-arm-of-the-hutt: integridade do journal e gatilhos preservada após persistir/restaurar
+ok 32 - P132 long-arm-of-the-hutt: integridade do journal e gatilhos preservada após persistir/restaurar
+  ---
+  duration_ms: 43.6597
+  type: 'test'
+  ...
+# Subtest: P132 jewel-of-yavin: integridade do journal e gatilhos preservada após persistir/restaurar
+ok 33 - P132 jewel-of-yavin: integridade do journal e gatilhos preservada após persistir/restaurar
+  ---
+  duration_ms: 14.2563
+  type: 'test'
+  ...
+# Subtest: P132 mask-of-the-pirate-queen: integridade do journal e gatilhos preservada após persistir/restaurar
+ok 34 - P132 mask-of-the-pirate-queen: integridade do journal e gatilhos preservada após persistir/restaurar
+  ---
+  duration_ms: 27.2537
+  type: 'test'
+  ...
+# Subtest: P137 six AoR talent families remain active with at least 205/360 source-backed positions
+ok 35 - P137 six AoR talent families remain active with at least 205/360 source-backed positions
+  ---
+  duration_ms: 8.8183
+  type: 'test'
+  ...
+# Subtest: P137 REPARACIÓN EFICAZ bought through actual tree: rank, XP, immutability and JSON persistence
+ok 36 - P137 REPARACIÓN EFICAZ bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 14.9264
+  type: 'test'
+  ...
+# Subtest: P137 ROBUSTO bought through actual tree: rank, XP, immutability and JSON persistence
+ok 37 - P137 ROBUSTO bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 5.1755
+  type: 'test'
+  ...
+# Subtest: P137 CONFIANZA bought through actual tree: rank, XP, immutability and JSON persistence
+ok 38 - P137 CONFIANZA bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 6.6555
+  type: 'test'
+  ...
+# Subtest: P137 DISPARO CERTERO bought through actual tree: rank, XP, immutability and JSON persistence
+ok 39 - P137 DISPARO CERTERO bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 6.3414
+  type: 'test'
+  ...
+# Subtest: P137 ELUDIR SEGURIDAD bought through actual tree: rank, XP, immutability and JSON persistence
+ok 40 - P137 ELUDIR SEGURIDAD bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 9.6257
+  type: 'test'
+  ...
+# Subtest: P137 ESPECIALISTA EN ESTIMULANTES bought through actual tree: rank, XP, immutability and JSON persistence
+ok 41 - P137 ESPECIALISTA EN ESTIMULANTES bought through actual tree: rank, XP, immutability and JSON persistence
+  ---
+  duration_ms: 4.859
+  type: 'test'
+  ...
+# Subtest: P137 ranked SOLREP repairs hull, never system strain, and persists vehicle result
+ok 42 - P137 ranked SOLREP repairs hull, never system strain, and persists vehicle result
+  ---
+  duration_ms: 13.0737
+  type: 'test'
+  ...
+# Subtest: P137 ROBUSTO lowers incoming critical result 10 per rank, minimum 1, without mutating input
+ok 43 - P137 ROBUSTO lowers incoming critical result 10 per rank, minimum 1, without mutating input
+  ---
+  duration_ms: 13.6108
+  type: 'test'
+  ...
+# Subtest: P137 CONFIANZA reduces Discipline fear, never Cool, never below difficulty 1
+ok 44 - P137 CONFIANZA reduces Discipline fear, never Cool, never below difficulty 1
+  ---
+  duration_ms: 21.0965
+  type: 'test'
+  ...
+# Subtest: P137 BYP removes setback only for security bypass Computers/Skulduggery checks
+ok 45 - P137 BYP removes setback only for security bypass Computers/Skulduggery checks
+  ---
+  duration_ms: 85.5067
+  type: 'test'
+  ...
+# Subtest: P137 STIMSPEC increases healing and retains daily diminishing returns and item consumption
+ok 46 - P137 STIMSPEC increases healing and retains daily diminishing returns and item consumption
+  ---
+  duration_ms: 11.0596
+  type: 'test'
+  ...
+# Subtest: P137 TRUEAIM consumes one real maneuver and upgrades ranged pool; once per round and persistent
+ok 47 - P137 TRUEAIM consumes one real maneuver and upgrades ranged pool; once per round and persistent
+  ---
+  duration_ms: 76.594
+  type: 'test'
+  ...
+# Subtest: P137 TRUEAIM rejects unowned talent and melee attacks without committing illegal effects
+ok 48 - P137 TRUEAIM rejects unowned talent and melee attacks without committing illegal effects
+  ---
+  duration_ms: 18.7483
+  type: 'test'
+  ...
+# Subtest: P137 five adventures still restore canonical UAE state with new AoR rules loaded
+ok 49 - P137 five adventures still restore canonical UAE state with new AoR rules loaded
+  ---
+  duration_ms: 125.1927
+  type: 'test'
+  ...
+# Subtest: P137 Android UI offers true aim and keeps Kokoro untouched
+ok 50 - P137 Android UI offers true aim and keeps Kokoro untouched
+  ---
+  duration_ms: 7.3053
+  type: 'test'
+  ...
+# Subtest: P179 AoR catalog keeps 360 source positions distinct from 356 integrated effects; Brace remains pending
+ok 51 - P179 AoR catalog keeps 360 source positions distinct from 356 integrated effects; Brace remains pending
+  ---
+  duration_ms: 10.0263
+  type: 'test'
+  ...
+# Subtest: P179 Tactician Superviviente is Natural Outdoorsman, not Unmatched Courage
+ok 52 - P179 Tactician Superviviente is Natural Outdoorsman, not Unmatched Courage
+  ---
+  duration_ms: 68.1992
+  type: 'test'
+  ...
+# Subtest: P179 Medic blocks a real threshold critical with Hard Medicine, not the wound damage
+ok 53 - P179 Medic blocks a real threshold critical with Hard Medicine, not the wound damage
+  ---
+  duration_ms: 49.93
+  type: 'test'
+  ...
+# Subtest: P179 Medic failed Medicine check consumes the session use and leaves the critical intact
+ok 54 - P179 Medic failed Medicine check consumes the session use and leaves the critical intact
+  ---
+  duration_ms: 32.0108
+  type: 'test'
+  ...
+# Subtest: P179 Medic does not consume once/session when no critical event occurs
+ok 55 - P179 Medic does not consume once/session when no critical event occurs
+  ---
+  duration_ms: 17.802
+  type: 'test'
+  ...
+# Subtest: P179 Medic rejects self, unowned, repeated, unapproved, and invalid targets atomically
+ok 56 - P179 Medic rejects self, unowned, repeated, unapproved, and invalid targets atomically
+  ---
+  duration_ms: 57.2471
+  type: 'test'
+  ...
+# Subtest: P179 Medicine action rollback restores ally and medic on failed persistent save
+ok 57 - P179 Medicine action rollback restores ally and medic on failed persistent save
+  ---
+  duration_ms: 16.871
+  type: 'test'
+  ...
+# Subtest: P179 prepared Medic reacts during actual NPC attack and persists once/session
+ok 58 - P179 prepared Medic reacts during actual NPC attack and persists once/session
+  ---
+  duration_ms: 43.1789
+  type: 'test'
+  ...
+# Subtest: P179 preparing Medic is atomic and validates real ally, ownership and GM approval
+ok 59 - P179 preparing Medic is atomic and validates real ally, ownership and GM approval
+  ---
+  duration_ms: 25.3062
+  type: 'test'
+  ...
+# Subtest: P179 NPC blast receipt is derived from a real grenade and real attack Advantage
+ok 60 - P179 NPC blast receipt is derived from a real grenade and real attack Advantage
+  ---
+  duration_ms: 30.0793
+  type: 'test'
+  ...
+# Subtest: P179 NPC blast requires actual Advantage and Blast quality, not a GM fabricated event
+ok 61 - P179 NPC blast requires actual Advantage and Blast quality, not a GM fabricated event
+  ---
+  duration_ms: 15.2135
+  type: 'test'
+  ...
+# Subtest: P179 Time to Go escapes NPC blast, spends exactly one light Destiny and saves companion via Improved
+ok 62 - P179 Time to Go escapes NPC blast, spends exactly one light Destiny and saves companion via Improved
+  ---
+  duration_ms: 52.4825
+  type: 'test'
+  ...
+# Subtest: P179 Blast with no Time to Go damages real player and companion with soak
+ok 63 - P179 Blast with no Time to Go damages real player and companion with soak
+  ---
+  duration_ms: 27.7975
+  type: 'test'
+  ...
+# Subtest: P179 Blast refuses phantom, duplicate, unsupported and unapproved escapes atomically
+ok 64 - P179 Blast refuses phantom, duplicate, unsupported and unapproved escapes atomically
+  ---
+  duration_ms: 49.7275
+  type: 'test'
+  ...
+# Subtest: P179 Blast rejects an unowned Time to Go and preserves Destiny
+ok 65 - P179 Blast rejects an unowned Time to Go and preserves Destiny
+  ---
+  duration_ms: 15.9084
+  type: 'test'
+  ...
+# Subtest: P179 Blast cannot be resolved without light Destiny, even when all targets would escape
+ok 66 - P179 Blast cannot be resolved without light Destiny, even when all targets would escape
+  ---
+  duration_ms: 25.2145
+  type: 'test'
+  ...
+# Subtest: P179 blast rollback restores spent Destiny, wounds and attack receipt
+ok 67 - P179 blast rollback restores spent Destiny, wounds and attack receipt
+  ---
+  duration_ms: 23.7538
+  type: 'test'
+  ...
+# Subtest: P179 forged pending blast and forged Medic preparation rejected by state validator
+ok 68 - P179 forged pending blast and forged Medic preparation rejected by state validator
+  ---
+  duration_ms: 12.649
+  type: 'test'
+  ...
+# Subtest: P179 combat closure removes pending blast, prepared Medic and encounter-only escape receipts
+ok 69 - P179 combat closure removes pending blast, prepared Medic and encounter-only escape receipts
+  ---
+  duration_ms: 36.2148
+  type: 'test'
+  ...
+# Subtest: P179 rejects forged blast escape without a matching resolved attack
+ok 70 - P179 rejects forged blast escape without a matching resolved attack
+  ---
+  duration_ms: 14.9279
+  type: 'test'
+  ...
+# Subtest: P179 UI bundle and Android source include actual controller reaction bridge
+ok 71 - P179 UI bundle and Android source include actual controller reaction bridge
+  ---
+  duration_ms: 35.0285
+  type: 'test'
+  ...
+# Subtest: P179 under-black-sun: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 72 - P179 under-black-sun: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 84.6369
+  type: 'test'
+  ...
+# Subtest: P179 beyond-the-rim: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 73 - P179 beyond-the-rim: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 51.8903
+  type: 'test'
+  ...
+# Subtest: P179 long-arm-of-the-hutt: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 74 - P179 long-arm-of-the-hutt: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 59.2879
+  type: 'test'
+  ...
+# Subtest: P179 jewel-of-yavin: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 75 - P179 jewel-of-yavin: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 49.6375
+  type: 'test'
+  ...
+# Subtest: P179 mask-of-the-pirate-queen: critical reaction and blast preserve adventure runtime after 3 reopens
+ok 76 - P179 mask-of-the-pirate-queen: critical reaction and blast preserve adventure runtime after 3 reopens
+  ---
+  duration_ms: 44.1118
+  type: 'test'
+  ...
+1..76
+# tests 76
+# suites 0
+# pass 76
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2142.2327

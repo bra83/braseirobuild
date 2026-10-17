@@ -27,14 +27,14 @@
     "first_tree_rows": 20,
     "first_tree_rows_status": "PENDENTE",
     "first_tree_test": {
-      "command": "node --test --test-reporter=tap tests/uae-p132-aor-mechanics-and-integrity.test.mjs tests/uae-aor-brace-talent-authority.test.mjs",
+      "command": "node --test --test-reporter=tap tests/uae-aor-brace-talent-authority.test.mjs",
       "result": "PASS",
-      "tests": 18,
-      "pass": 18,
+      "tests": 6,
+      "pass": 6,
       "fail": 0,
       "skip": 0,
-      "evidence": "evidence/aor-brace-integration-20261016/focused.tap",
-      "scope": "Source mapping, rank/purchase provenance and pure environmental Brace relief arithmetic passed. Brace is not yet wired to controller/UI action consumption or proven through save/reopen; all 360 proof rows remain PENDENTE. Includes source correction for two Sharpshooter Brace positions on AoR Core p.93."
+      "evidence": "evidence/AOR_BRACE_GUNNER_R2C2_20261016/exact-node.tap",
+      "scope": "Exact Gunner R2C2 p.68 source node, purchase provenance, personal skill/weapon action path, maneuver consumption, UI/bridge route, and three save/reopen cycles pass. Individual certification stays PENDENTE until the source scope for separate vehicle actions is resolved."
     }
   },
   "drive_inventory": {
@@ -73,20 +73,20 @@
     }
   },
   "fresh_regression": {
-    "state": "PASS_FULL_REGRESSION_AFTER_SWE02_P13_NABAT_SAFE_DOCKING",
+    "state": "PASS_FULL_REGRESSION_AFTER_AOR_BRACE_PERSONAL_PATH_AND_SWE02_P13_ARRIVAL_NARRATION",
     "files": 382,
     "regular_files": 376,
     "stress_files": 6,
-    "tests": 3459,
-    "pass": 3457,
+    "tests": 3463,
+    "pass": 3461,
     "fail": 0,
     "skip": 2,
     "files_without_complete_summary": [],
-    "evidence": "evidence/SWE02_P13_NABAT_DOCKING_FULL_REGRESSION_FIXED_20261016/",
-    "summary": "evidence/SWE02_P13_NABAT_DOCKING_FULL_REGRESSION_FIXED_20261016/summary.json",
+    "evidence": "evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_20261016/",
+    "summary": "evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_20261016/summary.json",
     "skip_reason": "JDK jar executable unavailable for two offline Gradle-wrapper packaging checks.",
-    "runner_environment": "Per-file TAP runner, 8 workers; NODE_PATH points to work/build-deps5/node_modules; Python subprocess output decoded as UTF-8.",
-    "supersedes": "evidence/SWE02_P13_NABAT_SHIP_REPAIRS_FULL_REGRESSION_20261016/"
+    "runner_environment": "Per-file TAP runner, 8 workers; NODE_PATH points to work/build-deps5/node_modules; UTF-8 captured TAP; totals reconciled from each TAP summary.",
+    "supersedes": "evidence/SWE02_AOR_BRACE_FULL_REGRESSION_FINAL_20261016/"
   },
   "blockers": [
     "All 360 AoR positions lack individual source-to-effect, UI, persistence, and test evidence.",
@@ -97,7 +97,7 @@
     "SWE13 source-to-semantic coverage remains incomplete after its audit.",
     "SWE02 source-to-semantic coverage remains incomplete across Acts 1–3; Old Lylek WIP has specific p.15–18 open branches recorded in audits/SWE02_ACT1_DEEP_AUDIT.md."
   ],
-  "next_action": "Continue SWE02 printed p.13 page-wide source-to-semantic coverage, retaining the source ambiguity around unquantified fuel. Then close outstanding Acts 1–3 and the remaining four adventures; selected rules and 360 AoR individual proofs remain pending. Do not create P245 or run Android release gates until all global certification criteria pass.",
+  "next_action": "Continue SWE02 page-wide source-to-semantic coverage and remaining Acts 1–3, then the other four authorized adventures. Reconcile and verify the selected EotE/AoR rules source corpus; all 360 AoR individual proof rows remain PENDENTE while Gunner R2C2 vehicle-action scope is unresolved. Preserve cited RAG retrieval and deterministic code authority; do not create P245 or run Android release gates until all global certification criteria pass.",
   "swe02_krayt_fang_pp06_11": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
     "source": "Long Arm of the Hutt printed pp.6–11 / PDF pp.6–11",
@@ -441,5 +441,32 @@
     "pending": [
       "Page-wide p.13 crosswalk, remaining arrival/Act 1 branch evidence, and unspecified fuel amount/pricing."
     ]
+  },
+  "swe02_p13_arrival_narration": {
+    "status": "IMPLEMENTADO_NAO_CERTIFICADO",
+    "source": "The Long Arm of the Hutt printed p.13 / official PDF p.12",
+    "correction": "Removed unsupported claim that B’ura’s contacts refuel the Krayt Fang. Arrival summary/narration now covers source-backed upper landing pads/cantina, underground shelter from the harsh environment and wandering lyleks, contact-paid repairs, and optional post-landing transponder removal.",
+    "tests": {
+      "file": "tests/uae-p240-swe02-nabat-port-economy-medical.test.mjs",
+      "tests": 17,
+      "pass": 17,
+      "fail": 0,
+      "skip": 0,
+      "evidence": "evidence/SWE02_P13_NABAT_CONTEXT_20261016/focused.tap"
+    },
+    "combined_affected_suite": {
+      "files": 3,
+      "tests": 55,
+      "pass": 55,
+      "fail": 0,
+      "skip": 0,
+      "evidence": "evidence/SWE02_P13_NABAT_CONTEXT_20261016/focused.tap"
+    },
+    "bundle": {
+      "state": "PASS",
+      "modules": 135,
+      "evidence": "evidence/SWE02_P13_NABAT_CONTEXT_20261016/bundle-build.log"
+    },
+    "pending": "Page-wide source-to-RAG/Gemini coverage, unspecified fuel quantities/pricing, and full page save/reopen proof remain open."
   }
 }

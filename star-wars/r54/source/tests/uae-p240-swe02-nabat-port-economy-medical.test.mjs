@@ -29,6 +29,16 @@ test('P240 p.13: Nabat operations require source-backed safe docking arranged by
  assert.throws(()=>adapter.status(g.state.world),/sem recibo de atracamento seguro/);
  assert.throws(()=>g.repairSWE02KraytFangAtNabat(),/atracamento seguro/);assert.equal(repo.saves,saves);
 });
+test('SWE02 p.13 arrival narration stays source-backed and does not promise fuel',()=>{
+ const {g}=setup();
+ const scene=adapter.currentScene(g.state.world);
+ assert.match(scene.narration,/plataformas e a cantina/i);
+ assert.match(scene.narration,/clima de Ryloth/);
+ assert.match(scene.narration,/lyleks errantes/);
+ assert.match(scene.narration,/reparos pagos por seus contatos/);
+ assert.match(scene.narration,/retirar o transponder.*em solo/);
+ assert.doesNotMatch(scene.narration,/reabastec|abastecimento/i);
+});
 test('P240 p.13: real purchase debits wallet and adds catalog gear atomically',()=>{
  const {g,repo}=setup();const before=g.state.player.character.credits;
  const r=g.purchaseSWE02NabatItem({itemId:'glow_rod',quantity:2});

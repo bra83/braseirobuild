@@ -1,0 +1,136 @@
+TAP version 13
+# Subtest: AoR source FIRMEZA positions are Brace, not immediate Grit
+ok 1 - AoR source FIRMEZA positions are Brace, not immediate Grit
+  ---
+  duration_ms: 3.5919
+  type: 'test'
+  ...
+# Subtest: buying Gunner Brace preserves p.68 node provenance without granting Grit threshold
+ok 2 - buying Gunner Brace preserves p.68 node provenance without granting Grit threshold
+  ---
+  duration_ms: 6.6855
+  type: 'test'
+  ...
+# Subtest: AoR Brace relief is activated, rank-limited, and applies only to environmental setback
+ok 3 - AoR Brace relief is activated, rank-limited, and applies only to environmental setback
+  ---
+  duration_ms: 1.2636
+  type: 'test'
+  ...
+# Subtest: p.68 Gunner Brace maneuver persists, affects the next skill action only, and is wired to bridge/UI
+ok 4 - p.68 Gunner Brace maneuver persists, affects the next skill action only, and is wired to bridge/UI
+  ---
+  duration_ms: 54.4062
+  type: 'test'
+  ...
+# Subtest: p.68 Gunner Brace is consumed by the next weapon attack and cannot remove non-environmental setback
+ok 5 - p.68 Gunner Brace is consumed by the next weapon attack and cannot remove non-environmental setback
+  ---
+  duration_ms: 29.5697
+  type: 'test'
+  ...
+# Subtest: p.68 Gunner Brace expires after the next action when no environmental setback applies
+ok 6 - p.68 Gunner Brace expires after the next action when no environmental setback applies
+  ---
+  duration_ms: 11.6285
+  type: 'test'
+  ...
+# Subtest: P132 AoR: catálogo de 18 árvores declara efeito somente para aliases com consumidores reais
+ok 7 - P132 AoR: catálogo de 18 árvores declara efeito somente para aliases com consumidores reais
+  ---
+  duration_ms: 12.0986
+  type: 'test'
+  ...
+# Subtest: P132 AoR: piloto compra aceleração máxima e ativa opção já integrada ao motor
+ok 8 - P132 AoR: piloto compra aceleração máxima e ativa opção já integrada ao motor
+  ---
+  duration_ms: 9.3221
+  type: 'test'
+  ...
+# Subtest: P132 AoR: reação rápida altera iniciativa e consome tensão de verdade
+ok 9 - P132 AoR: reação rápida altera iniciativa e consome tensão de verdade
+  ---
+  duration_ms: 7.1851
+  type: 'test'
+  ...
+# Subtest: P132 AoR: perícia piloto consumado remove setback na resolução de pool
+ok 10 - P132 AoR: perícia piloto consumado remove setback na resolução de pool
+  ---
+  duration_ms: 2.9701
+  type: 'test'
+  ...
+# Subtest: P132 AoR: segundo fôlego, esquiva e recuperação rápida reutilizam motores existentes
+ok 11 - P132 AoR: segundo fôlego, esquiva e recuperação rápida reutilizam motores existentes
+  ---
+  duration_ms: 7.5459
+  type: 'test'
+  ...
+# Subtest: P132 AoR: Sharpshooter Firmeza é Brace, não Grit, e permanece íntegra após restauração JSON
+ok 12 - P132 AoR: Sharpshooter Firmeza é Brace, não Grit, e permanece íntegra após restauração JSON
+  ---
+  duration_ms: 2.6906
+  type: 'test'
+  ...
+# Subtest: P132 AoR: Precisão letal exige escolha, persiste a perícia e calcula bônus real
+ok 13 - P132 AoR: Precisão letal exige escolha, persiste a perícia e calcula bônus real
+  ---
+  duration_ms: 6.141
+  type: 'test'
+  ...
+# Subtest: P132 AoR: talentos não adquiridos ou sem mecânica não concedem bônus
+ok 14 - P132 AoR: talentos não adquiridos ou sem mecânica não concedem bônus
+  ---
+  duration_ms: 1.2209
+  type: 'test'
+  ...
+# Subtest: P132 AoR: compra pelo controlador persiste e desbloqueia ação real na UI Android
+ok 15 - P132 AoR: compra pelo controlador persiste e desbloqueia ação real na UI Android
+  ---
+  duration_ms: 20.2947
+  type: 'test'
+  ...
+# Subtest: P132 UAE: efeitos diretos são atômicos e respeitam delta zero sem criar avanço falso
+ok 16 - P132 UAE: efeitos diretos são atômicos e respeitam delta zero sem criar avanço falso
+  ---
+  duration_ms: 14.3393
+  type: 'test'
+  ...
+# Subtest: P132 under-black-sun: integridade do journal e gatilhos preservada após persistir/restaurar
+ok 17 - P132 under-black-sun: integridade do journal e gatilhos preservada após persistir/restaurar
+  ---
+  duration_ms: 39.4204
+  type: 'test'
+  ...
+# Subtest: P132 beyond-the-rim: integridade do journal e gatilhos preservada após persistir/restaurar
+ok 18 - P132 beyond-the-rim: integridade do journal e gatilhos preservada após persistir/restaurar
+  ---
+  duration_ms: 24.3797
+  type: 'test'
+  ...
+# Subtest: P132 long-arm-of-the-hutt: integridade do journal e gatilhos preservada após persistir/restaurar
+ok 19 - P132 long-arm-of-the-hutt: integridade do journal e gatilhos preservada após persistir/restaurar
+  ---
+  duration_ms: 24.87
+  type: 'test'
+  ...
+# Subtest: P132 jewel-of-yavin: integridade do journal e gatilhos preservada após persistir/restaurar
+ok 20 - P132 jewel-of-yavin: integridade do journal e gatilhos preservada após persistir/restaurar
+  ---
+  duration_ms: 9.7677
+  type: 'test'
+  ...
+# Subtest: P132 mask-of-the-pirate-queen: integridade do journal e gatilhos preservada após persistir/restaurar
+ok 21 - P132 mask-of-the-pirate-queen: integridade do journal e gatilhos preservada após persistir/restaurar
+  ---
+  duration_ms: 15.9245
+  type: 'test'
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 915.7084

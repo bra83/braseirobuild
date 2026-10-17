@@ -2050,6 +2050,28 @@ class BraseiroUiBridge {
             return fail('SKILL_CHECK_FAILED', messageOf(error));
         }
     }
+    aorBraceStatus() {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.aorBraceStatus()));
+        }
+        catch (e) {
+            return fail('AOR_BRACE_STATUS_FAILED', messageOf(e));
+        }
+    }
+    prepareAoRBrace(options = {}) {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.prepareAoRBrace(options ?? {})));
+        }
+        catch (e) {
+            return fail('AOR_BRACE_FAILED', messageOf(e));
+        }
+    }
     commitLastTaskTime(options = {}) {
         const controllerResult = this._controllerForExistingCampaign();
         if (!controllerResult.ok)
@@ -13806,8 +13828,8 @@ exports.LONG_ARM_OF_THE_HUTT = Object.freeze({
         },
         'nabat-arrival': {
             episode: 1, title: 'Chegada ao porto de Nabat', locationId: LOC.nabat,
-            summary: 'SWE02 p.13: B’ura B’an providencia abrigo, reparos e reabastecimento por contatos locais.',
-            narration: 'A poeira vermelha se ergue das plataformas; as entradas subterrâneas conduzem a uma rede de túneis.',
+            summary: 'SWE02 p.13: as plataformas, moradias pobres e cantina ocupam o nível exposto; os túneis protegem a população do clima e dos lyleks. B’ura B’an providencia atracamento seguro e reparos pagos pelos contatos locais. A remoção do transponder pode ser tentada após o pouso.',
+            narration: 'As plataformas e a cantina ficam no nível superior, exposto ao clima de Ryloth. B’ura B’an conduz a tripulação para baixo, onde os túneis abrigam moradores dos elementos e dos lyleks errantes. Ele garante atracamento seguro para a Krayt Fang e oferece reparos pagos por seus contatos. Se quiserem retirar o transponder, este é o momento de fazê-lo em solo.',
             visibleNpcIds: [NPC.bura], checks: [], choices: [
                 { id: 'nabat-meet-nyn', label: 'Conhecer Nyn Kablo e os militantes nos túneis', to: 'nabat-contact' },
                 { id: 'nabat-hull-inspection', label: 'Inspecionar o transponder após pousar', to: 'krayt-fang-ground-inspection' }
@@ -27051,7 +27073,7 @@ class GameController {
             return check;
         });
     }
-    resolveSkillCheck({ skillKey, difficulty = 2, challenge = 0, boost = 0, setback = 0, gearAssist = null, assistant = null, useExpertTalent = false, useIntenseFocus = false, intenseFocusManeuverMethod = 'normal', useSenseDanger = false, useTouchOfFate = false, useMasterOfShadows = false, useMasterLeader = false, useCleverSolution = false, useWorksLikeACharm = false, useStrokeOfGenius = false, useQuickFix = false, useMasterDoctor = false, useMasterSlicer = false, intimidatingStrain = 0, useNaturalReroll = false, useLightDestiny = false, usePlayerDestiny = false, useDarkDestiny = false, securityBypass = false, tracking = false, research = false, codebreaking = false, cloudCitySlicing = false, outdoors = false, searchingArea = false, chase = false, crafting = false, foraging = false, poisonResistance = false, scholarlyInstitution = false, terrainSetback = 0, taskDurationMinutes = null, spendKnowledgeTriumph = false, spendSmoothTalkerTriumph = false, spendSkilledSlicerTriumph = false, slicingSystemId = null, confirmedSlicingSystem = false, useSkilledSlicerManeuver = false, skilledSlicerManeuverMethod = 'normal', socialTalentManeuver = null, socialManeuverMethod = 'normal', greasedPalmsCredits = 0, greasedPalmsActionId = null, rng = Math.random }) {
+    resolveSkillCheck({ skillKey, difficulty = 2, challenge = 0, boost = 0, setback = 0, braceEnvironmentalSetback = 0, gearAssist = null, assistant = null, useExpertTalent = false, useIntenseFocus = false, intenseFocusManeuverMethod = 'normal', useSenseDanger = false, useTouchOfFate = false, useMasterOfShadows = false, useMasterLeader = false, useCleverSolution = false, useWorksLikeACharm = false, useStrokeOfGenius = false, useQuickFix = false, useMasterDoctor = false, useMasterSlicer = false, intimidatingStrain = 0, useNaturalReroll = false, useLightDestiny = false, usePlayerDestiny = false, useDarkDestiny = false, securityBypass = false, tracking = false, research = false, codebreaking = false, cloudCitySlicing = false, outdoors = false, searchingArea = false, chase = false, crafting = false, foraging = false, poisonResistance = false, scholarlyInstitution = false, terrainSetback = 0, taskDurationMinutes = null, spendKnowledgeTriumph = false, spendSmoothTalkerTriumph = false, spendSkilledSlicerTriumph = false, slicingSystemId = null, confirmedSlicingSystem = false, useSkilledSlicerManeuver = false, skilledSlicerManeuverMethod = 'normal', socialTalentManeuver = null, socialManeuverMethod = 'normal', greasedPalmsCredits = 0, greasedPalmsActionId = null, rng = Math.random }) {
         return this.atomicAction(() => {
             let character = this.state.player.character;
             // Validate time before any Destiny flip, combat action or strain cost.
@@ -27061,6 +27083,7 @@ class GameController {
             useLightDestiny = Boolean(useLightDestiny || usePlayerDestiny);
             let actionCritical = assertCanPerformAction(character);
             assertPlayerInitiativeTurn(this.state.combat);
+            const bracePending = clone(this.state.combat?.aorBracePrepared ?? null);
             let characteristicKey = character_mjs_1.SKILLS[skillKey];
             if (!characteristicKey || !(skillKey in character.skills))
                 throw new Error('Perícia não disponível nesta ficha.');
@@ -27316,6 +27339,9 @@ class GameController {
                 this.commit('GROUP_UPDATED', { group });
             }
             const baseSetback = Number(setback);
+            const declaredBraceEnvironment = Number(braceEnvironmentalSetback);
+            if (!Number.isSafeInteger(declaredBraceEnvironment) || declaredBraceEnvironment < 0 || declaredBraceEnvironment > baseSetback)
+                throw new Error('Brace exige um número válido de Setbacks ambientais incluídos no Setback informado.');
             let gearModifier = null;
             if (gearAssist) {
                 const assistItemId = String(gearAssist.itemId ?? '').trim();
@@ -27338,10 +27364,22 @@ class GameController {
             const environmentModifiers = environment_mjs_1.environmentSkillModifiers(this.state.environment, skillKey, characteristicKey);
             effectiveBoost += Number(environmentModifiers.boost ?? 0);
             const burdenSetback = encumbrance_mjs_1.encumbranceSetback(character, characteristicKey);
-            const talentModifiers = talents_mjs_1.talentSkillPoolModifiers(character, skillKey, { boost: effectiveBoost + Number(status.boost ?? 0), setback: environmentalSetback + Number(environmentModifiers.setback ?? 0) + critical.setback + Number(status.setback ?? 0) + burdenSetback, securityBypass, tracking, codebreaking, outdoors, chase, crafting, foraging, poisonResistance, terrainSetback });
+            const activePcId = this.state.player?.roster?.activeCharacterId ?? character.id ?? null;
+            if (bracePending && bracePending.characterId !== activePcId)
+                throw new Error('Brace foi preparado por outra ficha; encerre ou limpe essa preparação antes de agir.');
+            const braceEnvAuto = Math.max(0, Number(environmentModifiers.setback ?? 0));
+            const braceEnvTotal = declaredBraceEnvironment + braceEnvAuto;
+            const braceResult = bracePending ? talents_mjs_1.braceEnvironmentalSetbackRelief(character, { maneuverPrepared: true, environmentalSetback: braceEnvTotal }) : null;
+            const braceRemoved = Number(braceResult?.removedSetback ?? 0);
+            const braceManualRemoved = Math.min(braceRemoved, declaredBraceEnvironment, environmentalSetback);
+            const braceAutoRemoved = Math.min(Math.max(0, braceRemoved - braceManualRemoved), braceEnvAuto);
+            const talentModifiers = talents_mjs_1.talentSkillPoolModifiers(character, skillKey, { boost: effectiveBoost + Number(status.boost ?? 0), setback: Math.max(0, environmentalSetback - braceManualRemoved) + Math.max(0, braceEnvAuto - braceAutoRemoved) + critical.setback + Number(status.setback ?? 0) + burdenSetback, securityBypass, tracking, codebreaking, outdoors, chase, crafting, foraging, poisonResistance, terrainSetback });
             const senseDangerRemoved = useSenseDanger ? Math.min(Number(senseDanger.setbackRemoved ?? 0), Number(talentModifiers.setback ?? 0)) : 0;
-            const finalSetback = Math.max(0, Number(talentModifiers.setback ?? 0) - senseDangerRemoved) +
+            const baseFinalSetback = Math.max(0, Number(talentModifiers.setback ?? 0) - senseDangerRemoved) +
                 (this.state.combat?.active && ['pelea', 'armas_cuerpo_a_cuerpo', 'armas_distancia_ligeras', 'armas_distancia_pesadas', 'artilleria'].includes(skillKey) ? (0, jewelHoloParkEffects_mjs_1.holoParkTransportSetback)(this.state.combat) : 0);
+            const finalSetback = baseFinalSetback;
+            if (bracePending)
+                delete combat.aorBracePrepared;
             const finalPool = {
                 ...positive,
                 difficulty: criticalDifficulty.difficulty,
@@ -27401,7 +27439,9 @@ class GameController {
                 senseDanger: useSenseDanger ? { used: true, setbackRemoved: senseDangerRemoved } : null,
                 touchOfFate: useTouchOfFate ? { used: true, boost: Number(touchOfFate.boost ?? 0) } : null,
                 activeSkillTalents, masterLeader, cleverSolution: useCleverSolution ? { used: true, characteristicKey: 'astucia' } : null,
-                aorAttributeSubstitution: substitution ? { talent: substitution[0], characteristicKey: substitution[3], sessionKey: substitution[2], used: true } : null, intimidating: intimidating.spend > 0 ? intimidating : null, environmentModifiers
+                aorAttributeSubstitution: substitution ? { talent: substitution[0], characteristicKey: substitution[3], sessionKey: substitution[2], used: true } : null,
+                aorBrace: bracePending ? { rank: braceResult.rank, environmentalSetback: braceEnvTotal, removedSetback: braceRemoved, source: clone(bracePending.source) } : null,
+                intimidating: intimidating.spend > 0 ? intimidating : null, environmentModifiers
             };
             if (substitution)
                 character = markTalentUsedThisSession(character, substitution[2]);
@@ -27616,10 +27656,11 @@ class GameController {
             return result;
         });
     }
-    resolveWeaponAttack({ weaponIndex = 0, targetAdversaryId = null, targetRange = null, targetBehindRockPile = false, difficulty = 2, challenge = 0, boost = 0, setback = 0, useLightDestiny = false, useDarkDestiny = false, useAutoFire = false, useTargetedBlow = false, useAnatomyLessons = false, useStunningBlow = false, useSoftSpot = false, useCripplingBlow = false, useKashyyykInsect = false, gmInsectConfirmed = false, rng = Math.random }) {
+    resolveWeaponAttack({ weaponIndex = 0, targetAdversaryId = null, targetRange = null, targetBehindRockPile = false, difficulty = 2, challenge = 0, boost = 0, setback = 0, braceEnvironmentalSetback = 0, useLightDestiny = false, useDarkDestiny = false, useAutoFire = false, useTargetedBlow = false, useAnatomyLessons = false, useStunningBlow = false, useSoftSpot = false, useCripplingBlow = false, useKashyyykInsect = false, gmInsectConfirmed = false, rng = Math.random }) {
         (0, jewelHoloParkEffects_mjs_1.assertJewelHoloWeaponUsable)(this.state.combat, Number(weaponIndex));
         return this.atomicAction(() => {
             let character = this.state.player.character;
+            const bracePending = clone(this.state.combat?.aorBracePrepared ?? null);
             assertCanPerformAction(character);
             assertPlayerInitiativeTurn(this.state.combat);
             const weapon = character.weapons?.[Number(weaponIndex)];
@@ -27736,11 +27777,24 @@ class GameController {
             const quickStrike = targetAdversary ? talents_mjs_1.quickStrikeBoost(character, { targetActorId: targetAdversary.id, actedActorIds: combat.encounter?.actedActorIds ?? [] }) : { rank: 0, boost: 0, applies: false };
             const proneMods = targetAdversary ? proneTargetModifiers(targetAdversary, effectiveAttackWeapon) : { boost: 0, setback: 0 };
             const environmentModifiers = environment_mjs_1.environmentSkillModifiers(this.state.environment, weapon.skill, characteristicKey);
+            const declaredBraceEnvironment = Number(braceEnvironmentalSetback);
+            if (!Number.isSafeInteger(declaredBraceEnvironment) || declaredBraceEnvironment < 0 || declaredBraceEnvironment > Number(setback))
+                throw new Error('Brace exige um número válido de Setbacks ambientais incluídos no Setback informado.');
+            const activePcId = this.state.player?.roster?.activeCharacterId ?? character.id ?? null;
+            if (bracePending && bracePending.characterId !== activePcId)
+                throw new Error('Brace foi preparado por outra ficha; encerre ou limpe essa preparação antes de agir.');
             const oldLylekTargetCover = Boolean(targetBehindRockPile && targetAdversary &&
                 combat.publishedAdventureContext?.adventureId === 'long-arm-of-the-hutt' &&
                 combat.publishedAdventureContext?.encounterId === 'lylek-den-bounty-hunters' && !isMeleeWeapon(effectiveAttackWeapon));
             if (typeof targetBehindRockPile !== 'boolean')
                 throw Error('SWE02 p.17: estado de cobertura deve ser explícito.');
+            const braceEnvAuto = Math.max(0, Number(environmentModifiers.setback ?? 0)) + (oldLylekTargetCover ? 2 : 0);
+            const braceEnvTotal = declaredBraceEnvironment + braceEnvAuto;
+            const braceResult = bracePending ? talents_mjs_1.braceEnvironmentalSetbackRelief(character, { maneuverPrepared: true, environmentalSetback: braceEnvTotal }) : null;
+            const braceRemoved = Number(braceResult?.removedSetback ?? 0);
+            const braceManualRemoved = Math.min(braceRemoved, declaredBraceEnvironment);
+            const braceAutoRemoved = Math.min(Math.max(0, braceRemoved - braceManualRemoved), braceEnvAuto);
+            const braceAdjustedSetback = Math.max(0, Number(setback) - braceManualRemoved);
             const totalBoost = Number(boost) + Number(status.boost ?? 0) + Number(combat.pendingAttackBoost ?? 0) + Number(quickStrike.boost ?? 0) + Number(weaponQualityModifiers.accurate ?? 0) + Number(proneMods.boost ?? 0) + Number(environmentModifiers.boost ?? 0) + (0, jewelHoloParkEffects_mjs_1.holoParkThrantaBoost)(combat, weapon);
             const qualitySetback = Number(weaponQualityModifiers.setback ?? 0);
             const targetedAimSetback = pendingAim?.mode === 'targeted' ? (Number(pendingAim.count ?? 1) >= 2 ? 1 : 2) : 0;
@@ -27750,8 +27804,9 @@ class GameController {
                     difficulty: upgraded.difficulty,
                     challenge: upgraded.challenge,
                     boost: critical.removeBoost ? 0 : totalBoost,
-                    setback: Number(setback) + (oldLylekTargetCover ? 2 : 0) + critical.setback + Number(status.setback ?? 0) + qualitySetback + Number(proneMods.setback ?? 0) + targetedAimSetback + targetDefense + encumbrance_mjs_1.encumbranceSetback(character, characteristicKey) + (guardedStanceActive(character, combat?.round) ? 1 : 0) + Number(environmentModifiers.setback ?? 0) + (0, jewelHoloParkEffects_mjs_1.holoParkTransportSetback)(combat)
+                    setback: Math.max(0, braceAdjustedSetback + (oldLylekTargetCover ? 2 : 0) + critical.setback + Number(status.setback ?? 0) + qualitySetback + Number(proneMods.setback ?? 0) + targetedAimSetback + targetDefense + encumbrance_mjs_1.encumbranceSetback(character, characteristicKey) + (guardedStanceActive(character, combat?.round) ? 1 : 0) + Number(environmentModifiers.setback ?? 0) + (0, jewelHoloParkEffects_mjs_1.holoParkTransportSetback)(combat) - braceAutoRemoved)
                 }, rng), environmentModifiers, quickStrike, aim: pendingAim, trueAimUpgrades, targetedAimSetback, targetDefense, preciseAim: pendingPreciseAim, sniperShot: pendingSniperShot, strongArmBands, frenziedAttack, senseOffense: { applied: senseOffense.applied, upgrades: senseOffense.upgrades, triggersUsed: senseOffense.triggersUsed, triggersPerRound: senseOffense.triggersPerRound } };
+            check.aorBrace = bracePending ? { rank: braceResult.rank, environmentalSetback: braceEnvTotal, removedSetback: braceRemoved, source: clone(bracePending.source) } : null;
             check.swe02OldLylekCover = oldLylekTargetCover ? { behindRockPile: true, setback: 2, sourcePage: 17 } : null;
             let kashyyykInsectProof = null;
             if (useKashyyykInsect) {
@@ -27766,6 +27821,8 @@ class GameController {
             }
             if (weaponQualityModifiers.limitedAmmo > 0)
                 attackWeapon.runtimeState.limitedAmmoRemaining = Math.max(0, Number(attackWeapon.runtimeState.limitedAmmoRemaining) - 1);
+            if (bracePending)
+                delete combat.aorBracePrepared;
             if (weaponQualityModifiers.prepare > 0)
                 attackWeapon.runtimeState.preparedManeuvers = 0;
             if (weaponQualityModifiers.slowFiring > 0 && combat.active)
@@ -28197,6 +28254,29 @@ class GameController {
         character = result.character;
         this.commit('COMBAT_ACTION', { combat, character });
         return { ...result, combat };
+    }
+    aorBraceStatus() {
+        const character = this.state.player?.character, rank = character ? talents_mjs_1.sourceBackedTalentRank(character, 'BRACE') : 0;
+        const pending = this.state.combat?.aorBracePrepared ?? null;
+        return { rank, combatActive: Boolean(this.state.combat?.active), prepared: Boolean(pending), pending: clone(pending), source: { productCode: 'AOR', printedPage: 68 } };
+    }
+    prepareAoRBrace({ maneuverMethod = 'normal' } = {}) {
+        let character = requireCharacter(this.state.player?.character), combat = this.state.combat;
+        const option = talents_mjs_1.braceEnvironmentalSetbackRelief(character, { maneuverPrepared: true, environmentalSetback: 0 });
+        if (!option.available || option.rank < 1)
+            throw new Error('Brace (Firmeza) não foi adquirido com fonte AoR ativa.');
+        if (!combat?.active)
+            throw new Error('Brace exige encontro ativo.');
+        if (combat.aorBracePrepared)
+            throw new Error('Brace já está preparado para a próxima ação.');
+        const characterId = this.state.player?.roster?.activeCharacterId ?? character.id;
+        if (!characterId)
+            throw new Error('Brace exige a identidade persistente da ficha ativa.');
+        const spent = spendPlayerManeuver(character, combat, { method: maneuverMethod, label: 'Brace' });
+        combat = { ...spent.combat, aorBracePrepared: { characterId, rank: option.rank, preparedAtRound: Number(spent.combat.round ?? 0),
+                source: { productCode: 'AOR', printedPage: 68, nodeIds: (character.talentPurchases ?? []).filter(x => String(x.nodeId ?? '').startsWith('ace:gunner:') && String(x.source?.book ?? '').includes('Age of Rebellion') && x?.source?.printedPage === 68 && String(x.originalName ?? x.name ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase() === 'FIRMEZA').map(x => x.nodeId).filter(Boolean) } } };
+        this.commit('COMBAT_ACTION', { combat, character: spent.character });
+        return { combat: clone(combat), character: clone(spent.character), ...option, source: clone(combat.aorBracePrepared.source) };
     }
     aim({ maneuverMethod = 'normal', mode = 'boost', targetDetail = '' } = {}) {
         let character = this.state.player.character;
@@ -35724,6 +35804,7 @@ function spendAction(combat, label = 'Ação') {
         throw new Error('A ação deste turno já foi usada.');
     const next = cloneCombat(combat);
     next.playerTurn.actionUsed = true;
+    delete next.aorBracePrepared;
     next.log.push({ type: 'ACAO', round: next.round, label });
     return next;
 }
