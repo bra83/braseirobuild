@@ -172,6 +172,15 @@ public final class R36BookSemanticsHarness {
   JSONObject shop=structure("trade_shop",1).put("effects_json",new JSONObject().put("trade_focus_instances",new JSONArray().put("ferraria")));
   check(KingmakerStructureSemantics.pcItemBonus(new JSONArray().put(shop),"craft","crafting","Ferraria")==1,"trade shop related crafting item bonus");
   check(KingmakerStructureSemantics.pcItemBonus(new JSONArray().put(shop),"craft","crafting","padaria")==0,"trade shop bonus requires associated craft");
+  JSONArray craftingShops=new JSONArray().put(structure("smithy",1)).put(structure("specialized_artisan",1));
+  check(KingmakerStructureSemantics.pcItemBonus(craftingShops,"craft","crafting","metal")==1,"Smithy bonuses apply to metal Crafting");
+  check(KingmakerStructureSemantics.pcItemBonus(craftingShops,"craft","crafting","METALURGIA")==1,"Smithy PT-BR focus normalized");
+  check(KingmakerStructureSemantics.pcItemBonus(craftingShops,"craft","crafting","joalheria")==1,"Artisan bonuses apply to jewelry Crafting");
+  check(KingmakerStructureSemantics.pcItemBonus(craftingShops,"craft","crafting","clockwork")==1,"Artisan bonuses apply to clockwork Crafting");
+  check(KingmakerStructureSemantics.pcItemBonus(craftingShops,"craft","crafting","wood")==0,"unrelated crafting material gains no item bonus");
+  check(KingmakerStructureSemantics.pcItemBonus(craftingShops,"repair","crafting","metal")==0,"Crafting-only building bonus cannot spill into Repair");
+  check(KingmakerStructureSemantics.pcItemBonus(craftingShops,"craft","society","metal")==0,"Crafting-only building bonus cannot spill into Society");
+  check(KingmakerStructureSemantics.pcItemBonus(new JSONArray().put(structure("smithy",3)),"craft","crafting","metal")==1,"additional smithies never stack PC item bonuses");
   JSONObject oldGuild=structure("guildhall",2).put("effects_json",new JSONObject());
   JSONArray declared=KingmakerStructureSemantics.declareGuildFocus(oldGuild,2,"ferraria");
   check(declared.length()==2&&declared.optString(0).isEmpty()&&"ferraria".equals(declared.optString(1)),"legacy focus declared per establishment");
