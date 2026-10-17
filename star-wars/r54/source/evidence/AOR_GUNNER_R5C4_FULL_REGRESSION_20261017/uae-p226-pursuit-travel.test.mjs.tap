@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: P226 visit must be real and confirmed; no check before a visit, no double roll
+ok 1 - P226 visit must be real and confirmed; no check before a visit, no double roll
+  ---
+  duration_ms: 1281.0611
+  type: 'test'
+  ...
+# Subtest: P226 real failed Hard dice produce one pending group, never teleport NPC
+ok 2 - P226 real failed Hard dice produce one pending group, never teleport NPC
+  ---
+  duration_ms: 874.7452
+  type: 'test'
+  ...
+# Subtest: P226 successful Hard roll records zero pursuers and cannot deploy invented NPCs
+ok 3 - P226 successful Hard roll records zero pursuers and cannot deploy invented NPCs
+  ---
+  duration_ms: 833.7079
+  type: 'test'
+  ...
+# Subtest: P226 two Threat on a failed real roll permit two distinct sequential groups
+ok 4 - P226 two Threat on a failed real roll permit two distinct sequential groups
+  ---
+  duration_ms: 1110.8588
+  type: 'test'
+  ...
+# Subtest: P226 one Despair on a real upgraded Hard pool permits exactly three groups
+ok 5 - P226 one Despair on a real upgraded Hard pool permits exactly three groups
+  ---
+  duration_ms: 772.8196
+  type: 'test'
+  ...
+# Subtest: P226 GM physical presence, faction, distinct personnel, count and range are mandatory
+ok 6 - P226 GM physical presence, faction, distinct personnel, count and range are mandatory
+  ---
+  duration_ms: 1087.6163
+  type: 'test'
+  ...
+# Subtest: P226 physical Wing Guard encounter uses actual profile, initiative and history
+ok 7 - P226 physical Wing Guard encounter uses actual profile, initiative and history
+  ---
+  duration_ms: 942.3426
+  type: 'test'
+  ...
+# Subtest: P226 replay rejects falsified roll, arrival, chronology, derived state and receipt deletion
+ok 8 - P226 replay rejects falsified roll, arrival, chronology, derived state and receipt deletion
+  ---
+  duration_ms: 931.8741
+  type: 'test'
+  ...
+# Subtest: P226 bridge, PT-BR UI, offline bundle and state validation integrated
+ok 9 - P226 bridge, PT-BR UI, offline bundle and state validation integrated
+  ---
+  duration_ms: 123.5582
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9273.8488

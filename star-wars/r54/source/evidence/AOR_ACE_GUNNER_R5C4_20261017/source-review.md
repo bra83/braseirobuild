@@ -1,0 +1,10 @@
+# AoR Ace/Gunner R5C4 source review
+
+- Position: `ace:gunner:r5c4`, DISPARO CERTERO (True Aim), printed page 68 of *Star Wars: Age of Rebellion Core Rulebook*.
+- Source: official AoR Core Rulebook PDF, Google Drive ID `1w2M6f7R_dzaaHk6Q6R8Y7TIqAYM2MJIq`; SHA-256 `25087E5B43C289EF556A365EEC1177123055DFB75C3ECF03481CD66044CACE50`. The Ace: Gunner tree is printed p.68 (physical PDF p.69).
+- Source semantics: True Aim is a maneuver usable once per round. The next combat check upgrades its ability pool once per rank and gains the aiming boost. R5C4 is the second exact True Aim slot and costs 25 XP.
+- Deterministic consumer: `rules/talents.mjs:471-474` derives True Aim's rank from distinct source-backed purchases and returns the same rank as `abilityUpgrades`. `core/controller.mjs:5185-5202` applies those upgrades to the next attack check; `core/controller.mjs:5648-5662` validates and persists the once-per-round maneuver. The rank is derived from exact owned nodes, including `ace:gunner:r5c4`.
+- UI and bridge: `index.html#trueAimControl` exposes the maneuver and method selector; `ui/app.mjs:823-828` gates the control by owned rank/round state and `ui/app.mjs:1352` routes activation to `game.aim`; `core/uiBridge.mjs` exposes the deterministic `aim` bridge.
+- Exact consumer test: `tests/uae-aor-individual-position-proofs.test.mjs`, `AoR p.68 Ace/Gunner R5C4 True Aim rank 2 buys exact node, upgrades twice and survives three reloads`. It buys R1C4, R2C4, R3C4 and R4C4 before exact R5C4, asserts the 25 XP source receipt and rank 2, activates the maneuver through the UI bridge, resolves a live ranged attack with two real ability upgrades and one boost, enforces once per round, and repeats the source/effect checks after three fresh repository/controller loads.
+- Full per-file regression evidence: `evidence/AOR_GUNNER_R5C4_FULL_REGRESSION_20261017/summary.json`, raw TAP logs for every test file including all six stress files.
+- Scope: this review certifies only R5C4. Other AoR positions retain their individual statuses; static graph presence does not certify them.

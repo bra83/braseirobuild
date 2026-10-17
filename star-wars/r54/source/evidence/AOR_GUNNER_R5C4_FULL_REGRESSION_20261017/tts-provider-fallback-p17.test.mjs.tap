@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: Gemini TTS failure falls through to Android/Web instead of silencing narration
+ok 1 - Gemini TTS failure falls through to Android/Web instead of silencing narration
+  ---
+  duration_ms: 5.8089
+  type: 'test'
+  ...
+# Subtest: Gemini TTS remains multiblock and Charon-selectable
+ok 2 - Gemini TTS remains multiblock and Charon-selectable
+  ---
+  duration_ms: 12.9609
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 855.8304

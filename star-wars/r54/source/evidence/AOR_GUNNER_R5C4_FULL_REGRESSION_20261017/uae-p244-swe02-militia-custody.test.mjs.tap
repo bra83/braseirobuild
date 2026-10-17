@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: P244 surviving militia returns exact borrowed weapon, once, with three save reopens
+ok 1 - P244 surviving militia returns exact borrowed weapon, once, with three save reopens
+  ---
+  duration_ms: 467.4442
+  type: 'test'
+  ...
+# Subtest: P244 loan owner cannot be spoofed; no duplicate or fabricated weapon
+ok 2 - P244 loan owner cannot be spoofed; no duplicate or fabricated weapon
+  ---
+  duration_ms: 262.0355
+  type: 'test'
+  ...
+# Subtest: P244 an eliminated ally never returns a weapon without separate recovery proof
+ok 3 - P244 an eliminated ally never returns a weapon without separate recovery proof
+  ---
+  duration_ms: 361.7618
+  type: 'test'
+  ...
+# Subtest: P244 no return during active combat; failure does not save
+ok 4 - P244 no return during active combat; failure does not save
+  ---
+  duration_ms: 252.0428
+  type: 'test'
+  ...
+# Subtest: P244 P243 save with unmarked loans is migrated before return, preserving casualty count
+ok 5 - P244 P243 save with unmarked loans is migrated before return, preserving casualty count
+  ---
+  duration_ms: 409.7583
+  type: 'test'
+  ...
+# Subtest: P244 rejects tampered custody, duplicate loans, forged return receipts
+ok 6 - P244 rejects tampered custody, duplicate loans, forged return receipts
+  ---
+  duration_ms: 186.3437
+  type: 'test'
+  ...
+# Subtest: P244 return action is wired into bridge and offline Android UI
+ok 7 - P244 return action is wired into bridge and offline Android UI
+  ---
+  duration_ms: 5.3448
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3376.8408

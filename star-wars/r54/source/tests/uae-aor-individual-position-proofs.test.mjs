@@ -9,7 +9,7 @@ import {getHealthStatus} from '../app/src/main/assets/vtt/js/rules/health.mjs';
 import {vehicleStatus} from '../app/src/main/assets/vtt/js/rules/vehicles.mjs';
 import {weaponCatalogEntry} from '../app/src/main/assets/vtt/js/rules/equipmentCatalog.mjs';
 import {weaponQualityRank} from '../app/src/main/assets/vtt/js/rules/weapons.mjs';
-import {juryRiggedWeapon} from '../app/src/main/assets/vtt/js/rules/talents.mjs';
+import {juryRiggedWeapon,trueAimOption} from '../app/src/main/assets/vtt/js/rules/talents.mjs';
 
 const POSITION='ace:gunner:r1c2';
 const DURABLE_POSITION='ace:gunner:r1c1';
@@ -28,6 +28,7 @@ const JURY_RIGGED_RANK2_POSITION='ace:gunner:r5c2';
 const TRUE_AIM_POSITION='ace:gunner:r2c4';
 const OVERWHELM_RANK2_POSITION='ace:gunner:r3c4';
 const DEDICATION_POSITION='ace:gunner:r5c3';
+const TRUE_AIM_RANK2_POSITION='ace:gunner:r5c4';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
  careerFreeSkills:['astronavegacion','frialdad','mecanica','percepcion'],
@@ -944,4 +945,54 @@ test('AoR p.68 Ace/Gunner R5C3 Dedication buys exact node, applies chosen charac
  assert.match(rejected.message,/acima de 6/);
  assert.equal(capped.repo.state.player.character.xp.available,cappedBefore.xp.available);
  assert.equal(capped.repo.state.player.character.talentPurchases.some(purchase=>purchase.nodeId===DEDICATION_POSITION),false);
+});
+
+test('AoR p.68 Ace/Gunner R5C4 True Aim rank 2 buys exact node, upgrades twice and survives three reloads',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');setup.createAorCharacter({...characterOptions,name:'Tessa Vorn'});
+ const weapon=weaponCatalogEntry('blaster_pistol');assert.ok(weapon);
+ const armed=clone(setup.state.player.character);
+ armed.weapons=[{...clone(weapon),sourceCatalogId:weapon.id,ownedAssetId:'uae-r5c4-blaster',active:true,equipped:true,runtimeState:{}}];
+ armed.skills.armas_distancia_ligeras=2;armed.xp.available+=100;setup.setCharacter(armed);
+ const before=clone(repo.state.player.character),bridge=new BraseiroUiBridge({repository:repo});
+ for(const id of [DEBILITATING_POSITION,TRUE_AIM_POSITION,OVERWHELM_RANK2_POSITION,EXHAUST_PORT_POSITION]){
+  const prerequisite=bridge.buyTalent(id);assert.equal(prerequisite.ok,true,`exact connected prerequisite ${id} is purchased`);
+ }
+ const candidate=new GameController(repo).eligibleTalents().find(node=>node.id===TRUE_AIM_RANK2_POSITION);
+ assert.ok(candidate);assert.equal(candidate.available,true);assert.equal(candidate.originalName,'DISPARO CERTERO');
+ assert.equal(candidate.name,'Disparo certeiro');assert.equal(candidate.cost,25);
+ assert.equal(candidate.source.printedPage,68);assert.equal(candidate.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+ const treeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(node=>node.id===TRUE_AIM_RANK2_POSITION);
+ assert.ok(treeNode);assert.equal(treeNode.originalName,'DISPARO CERTERO');assert.equal(treeNode.cost,25);assert.equal(treeNode.source.printedPage,68);
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ assert.match(html,/id="trueAimControl" hidden/);assert.match(html,/id="trueAimButton"/);assert.match(html,/id="aimManeuverMethod"/);
+ assert.match(ui,/game\.talentRank\('TRUEAIM'\)/);assert.match(ui,/game\.aim\(\{mode:'true_aim',maneuverMethod:\$\('aimManeuverMethod'\)\.value\}\)/);
+ const purchase=bridge.buyTalent(TRUE_AIM_RANK2_POSITION);
+ assert.equal(purchase.ok,true);assert.equal(purchase.data.talent.id,TRUE_AIM_RANK2_POSITION);
+ assert.equal(purchase.data.character.xp.available,before.xp.available-75);
+ const receipt=purchase.data.character.talentPurchases.find(entry=>entry.nodeId===TRUE_AIM_RANK2_POSITION);
+ assert.ok(receipt);assert.equal(receipt.originalName,'DISPARO CERTERO');assert.equal(receipt.source.printedPage,68);
+ assert.equal(receipt.specializationKey,'gunner');assert.equal(receipt.cost,25);
+ assert.deepEqual(trueAimOption(purchase.data.character),{available:true,rank:2,abilityUpgrades:2,boost:1,oncePerRound:true});
+ new GameController(repo).beginCombat();
+ const activation=bridge.aim({mode:'true_aim',maneuverMethod:'normal'});
+ assert.equal(activation.ok,true);assert.equal(activation.data.combat.pendingAim.mode,'true_aim');
+ assert.equal(activation.data.combat.playerTurn.maneuversUsed,1);assert.equal(activation.data.combat.playerTurn.trueAimUsed,true);
+ const readyState=clone(repo.state);
+ assert.equal(bridge.aim({mode:'true_aim',maneuverMethod:'normal'}).ok,false,'the exact rank-2 talent remains once per round');
+ for(let reopen=1;reopen<=3;reopen++){
+  const restoredRepo=new RepoWithState(readyState),restored=new GameController(restoredRepo);assert.equal(validateState(restored.state),true);
+  const character=restored.state.player.character,owned=character.talentPurchases.find(entry=>entry.nodeId===TRUE_AIM_RANK2_POSITION);
+  assert.ok(owned,`exact R5C4 source receipt survives reopen ${reopen}`);
+  assert.equal(owned.source.printedPage,68);assert.equal(owned.specializationKey,'gunner');assert.equal(owned.cost,25);
+  assert.deepEqual(trueAimOption(character),{available:true,rank:2,abilityUpgrades:2,boost:1,oncePerRound:true});
+  assert.equal(restored.state.combat.pendingAim.mode,'true_aim');assert.equal(restored.state.combat.playerTurn.trueAimUsed,true);
+  const attack=restored.resolveWeaponAttack({weaponIndex:0,targetRange:'Curto',rng:()=>.4});
+  assert.equal(attack.hit,true);assert.equal(restored.state.lastCheck.trueAimUpgrades,2);
+  assert.equal(restored.state.lastCheck.pool.proficiency,3);assert.equal(restored.state.lastCheck.pool.ability,0);
+  assert.equal(restored.state.lastCheck.pool.boost,1);
+  assert.equal(restored.state.combat.pendingAim,undefined);assert.equal(restored.state.combat.playerTurn.trueAimUsed,true);
+ }
+ assert.equal(bridge.buyTalent(TRUE_AIM_RANK2_POSITION).ok,false,'the exact rank-2 node cannot be purchased twice');
 });

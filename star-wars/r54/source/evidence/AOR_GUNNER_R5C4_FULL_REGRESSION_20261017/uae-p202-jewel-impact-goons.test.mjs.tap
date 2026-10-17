@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: P202 explosion deducts real soak and persists actual wounds, never a naked raw 10
+ok 1 - P202 explosion deducts real soak and persists actual wounds, never a naked raw 10
+  ---
+  duration_ms: 1173.5676
+  type: 'test'
+  ...
+# Subtest: P202 source-backed fall medium 30 damage 20 strain reduced by soak and actual symbols
+ok 2 - P202 source-backed fall medium 30 damage 20 strain reduced by soak and actual symbols
+  ---
+  duration_ms: 887.1723
+  type: 'test'
+  ...
+# Subtest: P202 short fall uses 10/10 and only one confirmation
+ok 3 - P202 short fall uses 10/10 and only one confirmation
+  ---
+  duration_ms: 790.3599
+  type: 'test'
+  ...
+# Subtest: P202 no impact without explosion; GM must confirm distance; invalid range rejected
+ok 4 - P202 no impact without explosion; GM must confirm distance; invalid range rejected
+  ---
+  duration_ms: 746.1819
+  type: 'test'
+  ...
+# Subtest: P202 receipt replay rejects tampered wound and dice face
+ok 5 - P202 receipt replay rejects tampered wound and dice face
+  ---
+  duration_ms: 767.0911
+  type: 'test'
+  ...
+# Subtest: P202 atomic rollback and three reopenings with real health persistence
+ok 6 - P202 atomic rollback and three reopenings with real health persistence
+  ---
+  duration_ms: 736.8927
+  type: 'test'
+  ...
+# Subtest: P202 official four Shen goons are medium-range minions with compendium profile
+ok 7 - P202 official four Shen goons are medium-range minions with compendium profile
+  ---
+  duration_ms: 1.1796
+  type: 'test'
+  ...
+# Subtest: P202 four goons become a real combat encounter after blast + fall, never before
+ok 8 - P202 four goons become a real combat encounter after blast + fall, never before
+  ---
+  duration_ms: 871.6109
+  type: 'test'
+  ...
+# Subtest: P202 cannot skip goons or impact before advancing, legacy without bomb still valid
+ok 9 - P202 cannot skip goons or impact before advancing, legacy without bomb still valid
+  ---
+  duration_ms: 842.188
+  type: 'test'
+  ...
+# Subtest: P202 Android bridge, source and UI use the same actual impact action
+ok 10 - P202 Android bridge, source and UI use the same actual impact action
+  ---
+  duration_ms: 38.6793
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8697.0309

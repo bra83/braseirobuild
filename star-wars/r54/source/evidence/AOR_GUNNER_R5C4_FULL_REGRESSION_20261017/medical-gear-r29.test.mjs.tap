@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: Medpac e Medpac de emergência carregam apenas os efeitos de Medicina comprovados
+ok 1 - Medpac e Medpac de emergência carregam apenas os efeitos de Medicina comprovados
+  ---
+  duration_ms: 8.0092
+  type: 'test'
+  ...
+# Subtest: perfil médico recusa item sem efeito de Medicina auditado
+ok 2 - perfil médico recusa item sem efeito de Medicina auditado
+  ---
+  duration_ms: 1.5943
+  type: 'test'
+  ...
+# Subtest: Medpac remove penalização de falta de suprimentos e adiciona 1 dado de Benefício
+ok 3 - Medpac remove penalização de falta de suprimentos e adiciona 1 dado de Benefício
+  ---
+  duration_ms: 4.2128
+  type: 'test'
+  ...
+# Subtest: Medpac de emergência remove penalização sem acrescentar dado de Benefício
+ok 4 - Medpac de emergência remove penalização sem acrescentar dado de Benefício
+  ---
+  duration_ms: 4.4648
+  type: 'test'
+  ...
+# Subtest: sem item médico, ausência de suprimentos mantém a penalização existente
+ok 5 - sem item médico, ausência de suprimentos mantém a penalização existente
+  ---
+  duration_ms: 1.4169
+  type: 'test'
+  ...
+# Subtest: GameController aceita item médico explícito sem alterar a API legada
+ok 6 - GameController aceita item médico explícito sem alterar a API legada
+  ---
+  duration_ms: 67.6846
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1724.4109
