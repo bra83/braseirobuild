@@ -1,0 +1,202 @@
+TAP version 13
+# Subtest: P142 under-black-sun: journal vincula gatilho a evento causal real e persiste três reaberturas
+ok 1 - P142 under-black-sun: journal vincula gatilho a evento causal real e persiste três reaberturas
+  ---
+  duration_ms: 41.6342
+  type: 'test'
+  ...
+# Subtest: P142 under-black-sun: falsificação de causa, duplicação e downgrade são rejeitados
+ok 2 - P142 under-black-sun: falsificação de causa, duplicação e downgrade são rejeitados
+  ---
+  duration_ms: 85.0629
+  type: 'test'
+  ...
+# Subtest: P142 under-black-sun: origem interna e eventos de sistema não podem ser injetados
+ok 3 - P142 under-black-sun: origem interna e eventos de sistema não podem ser injetados
+  ---
+  duration_ms: 9.5158
+  type: 'test'
+  ...
+# Subtest: P142 under-black-sun: consequência, objetivo e relógio continuam atômicos após replay
+ok 4 - P142 under-black-sun: consequência, objetivo e relógio continuam atômicos após replay
+  ---
+  duration_ms: 27.5885
+  type: 'test'
+  ...
+# Subtest: P142 under-black-sun: conclusão de relógio exige avanço causal verificável
+ok 5 - P142 under-black-sun: conclusão de relógio exige avanço causal verificável
+  ---
+  duration_ms: 8.1185
+  type: 'test'
+  ...
+# Subtest: P142 under-black-sun: adaptador oficial preserva vínculo causal durante transição real
+ok 6 - P142 under-black-sun: adaptador oficial preserva vínculo causal durante transição real
+  ---
+  duration_ms: 31.1282
+  type: 'test'
+  ...
+# Subtest: P142 beyond-the-rim: journal vincula gatilho a evento causal real e persiste três reaberturas
+ok 7 - P142 beyond-the-rim: journal vincula gatilho a evento causal real e persiste três reaberturas
+  ---
+  duration_ms: 14.7571
+  type: 'test'
+  ...
+# Subtest: P142 beyond-the-rim: falsificação de causa, duplicação e downgrade são rejeitados
+ok 8 - P142 beyond-the-rim: falsificação de causa, duplicação e downgrade são rejeitados
+  ---
+  duration_ms: 43.243
+  type: 'test'
+  ...
+# Subtest: P142 beyond-the-rim: origem interna e eventos de sistema não podem ser injetados
+ok 9 - P142 beyond-the-rim: origem interna e eventos de sistema não podem ser injetados
+  ---
+  duration_ms: 3.419
+  type: 'test'
+  ...
+# Subtest: P142 beyond-the-rim: consequência, objetivo e relógio continuam atômicos após replay
+ok 10 - P142 beyond-the-rim: consequência, objetivo e relógio continuam atômicos após replay
+  ---
+  duration_ms: 39.9485
+  type: 'test'
+  ...
+# Subtest: P142 beyond-the-rim: conclusão de relógio exige avanço causal verificável
+ok 11 - P142 beyond-the-rim: conclusão de relógio exige avanço causal verificável
+  ---
+  duration_ms: 10.8291
+  type: 'test'
+  ...
+# Subtest: P142 beyond-the-rim: adaptador oficial preserva vínculo causal durante transição real
+ok 12 - P142 beyond-the-rim: adaptador oficial preserva vínculo causal durante transição real
+  ---
+  duration_ms: 28.8728
+  type: 'test'
+  ...
+# Subtest: P142 long-arm-of-the-hutt: journal vincula gatilho a evento causal real e persiste três reaberturas
+ok 13 - P142 long-arm-of-the-hutt: journal vincula gatilho a evento causal real e persiste três reaberturas
+  ---
+  duration_ms: 17.2378
+  type: 'test'
+  ...
+# Subtest: P142 long-arm-of-the-hutt: falsificação de causa, duplicação e downgrade são rejeitados
+ok 14 - P142 long-arm-of-the-hutt: falsificação de causa, duplicação e downgrade são rejeitados
+  ---
+  duration_ms: 27.2252
+  type: 'test'
+  ...
+# Subtest: P142 long-arm-of-the-hutt: origem interna e eventos de sistema não podem ser injetados
+ok 15 - P142 long-arm-of-the-hutt: origem interna e eventos de sistema não podem ser injetados
+  ---
+  duration_ms: 3.9218
+  type: 'test'
+  ...
+# Subtest: P142 long-arm-of-the-hutt: consequência, objetivo e relógio continuam atômicos após replay
+ok 16 - P142 long-arm-of-the-hutt: consequência, objetivo e relógio continuam atômicos após replay
+  ---
+  duration_ms: 11.4417
+  type: 'test'
+  ...
+# Subtest: P142 long-arm-of-the-hutt: conclusão de relógio exige avanço causal verificável
+ok 17 - P142 long-arm-of-the-hutt: conclusão de relógio exige avanço causal verificável
+  ---
+  duration_ms: 7.0949
+  type: 'test'
+  ...
+# Subtest: P142 long-arm-of-the-hutt: adaptador oficial preserva vínculo causal durante transição real
+ok 18 - P142 long-arm-of-the-hutt: adaptador oficial preserva vínculo causal durante transição real
+  ---
+  duration_ms: 48.429
+  type: 'test'
+  ...
+# Subtest: P142 jewel-of-yavin: journal vincula gatilho a evento causal real e persiste três reaberturas
+ok 19 - P142 jewel-of-yavin: journal vincula gatilho a evento causal real e persiste três reaberturas
+  ---
+  duration_ms: 18.158
+  type: 'test'
+  ...
+# Subtest: P142 jewel-of-yavin: falsificação de causa, duplicação e downgrade são rejeitados
+ok 20 - P142 jewel-of-yavin: falsificação de causa, duplicação e downgrade são rejeitados
+  ---
+  duration_ms: 12.2396
+  type: 'test'
+  ...
+# Subtest: P142 jewel-of-yavin: origem interna e eventos de sistema não podem ser injetados
+ok 21 - P142 jewel-of-yavin: origem interna e eventos de sistema não podem ser injetados
+  ---
+  duration_ms: 2.0802
+  type: 'test'
+  ...
+# Subtest: P142 jewel-of-yavin: consequência, objetivo e relógio continuam atômicos após replay
+ok 22 - P142 jewel-of-yavin: consequência, objetivo e relógio continuam atômicos após replay
+  ---
+  duration_ms: 7.2072
+  type: 'test'
+  ...
+# Subtest: P142 jewel-of-yavin: conclusão de relógio exige avanço causal verificável
+ok 23 - P142 jewel-of-yavin: conclusão de relógio exige avanço causal verificável
+  ---
+  duration_ms: 4.6283
+  type: 'test'
+  ...
+# Subtest: P142 jewel-of-yavin: adaptador oficial preserva vínculo causal durante transição real
+ok 24 - P142 jewel-of-yavin: adaptador oficial preserva vínculo causal durante transição real
+  ---
+  duration_ms: 27.119
+  type: 'test'
+  ...
+# Subtest: P142 mask-of-the-pirate-queen: journal vincula gatilho a evento causal real e persiste três reaberturas
+ok 25 - P142 mask-of-the-pirate-queen: journal vincula gatilho a evento causal real e persiste três reaberturas
+  ---
+  duration_ms: 11.3114
+  type: 'test'
+  ...
+# Subtest: P142 mask-of-the-pirate-queen: falsificação de causa, duplicação e downgrade são rejeitados
+ok 26 - P142 mask-of-the-pirate-queen: falsificação de causa, duplicação e downgrade são rejeitados
+  ---
+  duration_ms: 80.433
+  type: 'test'
+  ...
+# Subtest: P142 mask-of-the-pirate-queen: origem interna e eventos de sistema não podem ser injetados
+ok 27 - P142 mask-of-the-pirate-queen: origem interna e eventos de sistema não podem ser injetados
+  ---
+  duration_ms: 2.9877
+  type: 'test'
+  ...
+# Subtest: P142 mask-of-the-pirate-queen: consequência, objetivo e relógio continuam atômicos após replay
+ok 28 - P142 mask-of-the-pirate-queen: consequência, objetivo e relógio continuam atômicos após replay
+  ---
+  duration_ms: 7.502
+  type: 'test'
+  ...
+# Subtest: P142 mask-of-the-pirate-queen: conclusão de relógio exige avanço causal verificável
+ok 29 - P142 mask-of-the-pirate-queen: conclusão de relógio exige avanço causal verificável
+  ---
+  duration_ms: 4.2628
+  type: 'test'
+  ...
+# Subtest: P142 mask-of-the-pirate-queen: adaptador oficial preserva vínculo causal durante transição real
+ok 30 - P142 mask-of-the-pirate-queen: adaptador oficial preserva vínculo causal durante transição real
+  ---
+  duration_ms: 19.5718
+  type: 'test'
+  ...
+# Subtest: P142: P141 sem marcador é promovido sem reescrever causalidade antiga
+ok 31 - P142: P141 sem marcador é promovido sem reescrever causalidade antiga
+  ---
+  duration_ms: 7.759
+  type: 'test'
+  ...
+# Subtest: P142: gatilho acionado por evento interno legítimo mantém encadeamento causal
+ok 32 - P142: gatilho acionado por evento interno legítimo mantém encadeamento causal
+  ---
+  duration_ms: 22.3902
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2517.5572

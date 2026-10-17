@@ -26,6 +26,7 @@ const HEROIC_FORTITUDE_POSITION='ace:gunner:r5c1';
 const JURY_RIGGED_POSITION='ace:gunner:r3c3';
 const JURY_RIGGED_RANK2_POSITION='ace:gunner:r5c2';
 const TRUE_AIM_POSITION='ace:gunner:r2c4';
+const OVERWHELM_RANK2_POSITION='ace:gunner:r3c4';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
  careerFreeSkills:['astronavegacion','frialdad','mecanica','percepcion'],
@@ -827,4 +828,63 @@ test('AoR p.68 Ace/Gunner R2C4 True Aim buys exact node, upgrades a ranged attac
   assert.equal(restored.state.combat.pendingAim,undefined);assert.equal(restored.state.combat.playerTurn.trueAimUsed,true);
  }
  assert.equal(bridge.buyTalent(TRUE_AIM_POSITION).ok,false,'the exact node cannot be purchased twice');
+});
+
+test('AoR p.68 Ace/Gunner R3C4 Overwhelm rank 2 buys exact node, spends four Advantage and survives three reloads',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');setup.createAorCharacter({...characterOptions,name:'Kessa Vorn',specializationFreeSkills:['artilleria','disciplina']});
+ const character=clone(setup.state.player.character);character.characteristics.agilidad=5;character.skills.artilleria=0;setup.setCharacter(character);
+ const before=clone(repo.state.player.character),bridge=new BraseiroUiBridge({repository:repo});
+ const firstRank=bridge.buyTalent(OVERWHELM_POSITION);
+ assert.equal(firstRank.ok,true,'the exact R1C3 first rank is acquired before rank 2');
+ const root=bridge.buyTalent(DEBILITATING_POSITION);
+ assert.equal(root.ok,true,'the exact R1C4 root of the right-hand Gunner branch is purchased');
+ const prerequisite=bridge.buyTalent(TRUE_AIM_POSITION);
+ assert.equal(prerequisite.ok,true,'the exact adjacent R2C4 prerequisite is purchased');
+ const candidate=new GameController(repo).eligibleTalents().find(n=>n.id===OVERWHELM_RANK2_POSITION);
+ assert.ok(candidate);assert.equal(candidate.available,true);assert.equal(candidate.originalName,'ABRUMAR DEFENSAS');
+ assert.equal(candidate.name,'Sobrecarregar defesas');assert.equal(candidate.cost,15);
+ assert.equal(candidate.source.printedPage,68);assert.equal(candidate.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+ const treeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(n=>n.id===OVERWHELM_RANK2_POSITION);
+ assert.ok(treeNode);assert.equal(treeNode.originalName,'ABRUMAR DEFENSAS');assert.equal(treeNode.cost,15);assert.equal(treeNode.source.printedPage,68);
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ const android=fs.readFileSync(new URL('../app/src/main/assets/vtt/r46/final-runtime.js',import.meta.url),'utf8');
+ assert.ok(html.includes('id="talentOptions"'));assert.match(ui,/game\.buyTalent\(button\.dataset\.talentId/);
+ assert.ok(android.includes('aor_overwhelm'));assert.ok(android.includes('data-p98-quality'));
+ assert.ok(android.includes("call('activatePendingVehicleQuality',{qualityKey:x.dataset.p98Quality})"));
+ const purchase=bridge.buyTalent(OVERWHELM_RANK2_POSITION);
+ assert.equal(purchase.ok,true);assert.equal(purchase.data.talent.id,OVERWHELM_RANK2_POSITION);
+ assert.equal(purchase.data.character.xp.available,before.xp.available-35);
+ const receipt=purchase.data.character.talentPurchases.find(entry=>entry.nodeId===OVERWHELM_RANK2_POSITION);
+ assert.ok(receipt);assert.equal(receipt.originalName,'ABRUMAR DEFENSAS');assert.equal(receipt.source.printedPage,68);
+ assert.equal(receipt.specializationKey,'gunner');assert.equal(receipt.cost,15);
+
+ const live=new GameController(repo);live.addVehicle('xwing_t65b');
+ live.beginVehicleCombat({targetProfileKey:'vt49_decimator',range:'Bocajarro'});
+ const attack=live.resolveVehicleAttack({rng:()=>.9});
+ assert.equal(attack.hit,false);assert.ok(attack.check.netAdvantage>=4,'the failed live attack supplies four spendable Advantage');
+ const queued=attack.pendingSpend.qualities.find(quality=>quality.key==='aor_overwhelm');
+ assert.ok(queued);assert.equal(queued.rank,2);assert.equal(queued.cost,2);
+ const rolledState=clone(repo.state),rolledAdvantage=attack.check.netAdvantage,targetId=repo.state.vehicles.combat.targetVehicleId;
+ for(let reopen=1;reopen<=3;reopen++){
+  const restoredRepo=new RepoWithState(rolledState),restored=new GameController(restoredRepo),restoredBridge=new BraseiroUiBridge({repository:restoredRepo});
+  assert.equal(validateState(restored.state),true);
+  const owned=restored.state.player.character.talentPurchases.find(entry=>entry.nodeId===OVERWHELM_RANK2_POSITION);
+  assert.ok(owned,`exact R3C4 source receipt survives reopen ${reopen}`);
+  assert.equal(owned.source.printedPage,68);assert.equal(owned.specializationKey,'gunner');
+  assert.equal(restored.state.vehicles.combat.pendingVehicleSpend.qualities.find(quality=>quality.key==='aor_overwhelm').rank,2);
+  const beforeDefense=vehicleStatus(restored.state.vehicles.vehicles[targetId],{currentRound:1}).defense.proa;
+  const first=restoredBridge.activatePendingVehicleQuality({qualityKey:'aor_overwhelm'});
+  assert.equal(first.ok,true);assert.equal(first.data.effect.defenseAfter,beforeDefense-1);
+  assert.equal(first.data.remainingAdvantage,rolledAdvantage-2);
+  const second=restoredBridge.activatePendingVehicleQuality({qualityKey:'aor_overwhelm'});
+  assert.equal(second.ok,true);assert.equal(second.data.effect.defenseAfter,beforeDefense-2);
+  assert.equal(second.data.remainingAdvantage,rolledAdvantage-4);
+  const finalState=new GameController(restoredRepo).state;
+  assert.equal(vehicleStatus(finalState.vehicles.vehicles[targetId],{currentRound:1}).defense.proa,beforeDefense-2);
+  assert.equal(finalState.vehicles.vehicles[targetId].roundEffects.aorOverwhelmedDefense.proa,2);
+  assert.equal(restoredBridge.activatePendingVehicleQuality({qualityKey:'aor_overwhelm'}).ok,false,'both exact R3C4 ranks are spent');
+ }
+ assert.equal(bridge.buyTalent(OVERWHELM_RANK2_POSITION).ok,false,'the exact node cannot be purchased twice');
 });

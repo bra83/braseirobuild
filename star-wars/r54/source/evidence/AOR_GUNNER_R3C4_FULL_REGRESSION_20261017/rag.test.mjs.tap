@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: RAG lexical encontra Obligation inicial EotE e preserva autoridade
+ok 1 - RAG lexical encontra Obligation inicial EotE e preserva autoridade
+  ---
+  duration_ms: 405.787
+  type: 'test'
+  ...
+# Subtest: RAG lexical encontra estrutura EotE 8/6/18
+ok 2 - RAG lexical encontra estrutura EotE 8/6/18
+  ---
+  duration_ms: 167.4228
+  type: 'test'
+  ...
+# Subtest: RAG EotE apresenta raridade/disponibilidade auditada pelo Core e sem AoR
+ok 3 - RAG EotE apresenta raridade/disponibilidade auditada pelo Core e sem AoR
+  ---
+  duration_ms: 73.2631
+  type: 'test'
+  ...
+# Subtest: dado da Força é autoridade mecânica EotE Core auditada no RAG
+ok 4 - dado da Força é autoridade mecânica EotE Core auditada no RAG
+  ---
+  duration_ms: 83.7569
+  type: 'test'
+  ...
+# Subtest: compra de especialização adicional é autoridade mecânica EotE Core auditada no RAG
+ok 5 - compra de especialização adicional é autoridade mecânica EotE Core auditada no RAG
+  ---
+  duration_ms: 94.1841
+  type: 'test'
+  ...
+# Subtest: corpus ativo mantém AoR restrito ao subconjunto Duty/Contribution explicitamente auditado
+ok 6 - corpus ativo mantém AoR restrito ao subconjunto Duty/Contribution explicitamente auditado
+  ---
+  duration_ms: 2.8791
+  type: 'test'
+  ...
+# Subtest: políticas operacionais do VTT permanecem explicitamente não oficiais
+ok 7 - políticas operacionais do VTT permanecem explicitamente não oficiais
+  ---
+  duration_ms: 168.1366
+  type: 'test'
+  ...
+# Subtest: RAG encontra os três poderes da Força do Core EotE
+ok 8 - RAG encontra os três poderes da Força do Core EotE
+  ---
+  duration_ms: 191.755
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1915.2042

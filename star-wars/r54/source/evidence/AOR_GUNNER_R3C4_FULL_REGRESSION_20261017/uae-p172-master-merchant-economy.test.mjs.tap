@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: P172: source-backed merchant slot becomes mechanically active, not a label alias
+ok 1 - P172: source-backed merchant slot becomes mechanically active, not a label alias
+  ---
+  duration_ms: 35.3008
+  type: 'test'
+  ...
+# Subtest: P172: successful sale adds 25% base price plus independent Wheel and Deal 10%; consumes exactly 2 strain
+ok 2 - P172: successful sale adds 25% base price plus independent Wheel and Deal 10%; consumes exactly 2 strain
+  ---
+  duration_ms: 23.9213
+  type: 'test'
+  ...
+# Subtest: P172: buy with a successful Negotiation check deducts 25% and spends 2 strain atomically
+ok 3 - P172: buy with a successful Negotiation check deducts 25% and spends 2 strain atomically
+  ---
+  duration_ms: 12.2681
+  type: 'test'
+  ...
+# Subtest: P172: failed negotiation spends the declared strain without granting a discounted item
+ok 4 - P172: failed negotiation spends the declared strain without granting a discounted item
+  ---
+  duration_ms: 15.1701
+  type: 'test'
+  ...
+# Subtest: P172: no activation preserves old sales and acquisitions byte-for-byte in player resources
+ok 5 - P172: no activation preserves old sales and acquisitions byte-for-byte in player resources
+  ---
+  duration_ms: 16.7306
+  type: 'test'
+  ...
+# Subtest: P172: invalid activation {"masterMerchant":true,"negotiationSucceeded":false} never grants credits
+ok 6 - P172: invalid activation {"masterMerchant":true,"negotiationSucceeded":false} never grants credits
+  ---
+  duration_ms: 27.0453
+  type: 'test'
+  ...
+# Subtest: P172: invalid activation {"masterMerchant":"true","negotiationSucceeded":true} never grants credits
+ok 7 - P172: invalid activation {"masterMerchant":"true","negotiationSucceeded":true} never grants credits
+  ---
+  duration_ms: 15.7161
+  type: 'test'
+  ...
+# Subtest: P172: invalid activation {"masterMerchant":true,"negotiationSucceeded":"true"} never grants credits
+ok 8 - P172: invalid activation {"masterMerchant":true,"negotiationSucceeded":"true"} never grants credits
+  ---
+  duration_ms: 29.2109
+  type: 'test'
+  ...
+# Subtest: P172: over-threshold voluntary strain rejected without losing the item
+ok 9 - P172: over-threshold voluntary strain rejected without losing the item
+  ---
+  duration_ms: 26.4166
+  type: 'test'
+  ...
+# Subtest: P172: bridge quotes authorized sale and reports master merchant without modifying save
+ok 10 - P172: bridge quotes authorized sale and reports master merchant without modifying save
+  ---
+  duration_ms: 27.7626
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1775.6593

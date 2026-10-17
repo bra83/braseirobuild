@@ -1,0 +1,10 @@
+# AoR Ace/Gunner R3C4 source review
+
+- Position: `ace:gunner:r3c4`, ABRUMAR DEFENSAS (localized as Sobrecarregar defesas), printed page 68 of *Star Wars: Age of Rebellion Core Rulebook*.
+- Source file reviewed: `AoR-Core-Rulebook.pdf`, Google Drive file ID `1w2M6f7R_dzaaHk6Q6R8Y7TIqAYM2MJIq`.
+- SHA-256: `25087E5B43C289EF556A365EEC1177123055DFB75C3ECF03481CD66044CACE50`.
+- Visual review: physical PDF page 69 (one-based; zero-based index 68), printed footer 68. The Ace: Gunner tree places this second Overwhelm Defenses slot at R3C4 for 15 XP. Each rank permits spending 2 Advantage after a failed vehicle/starship attack to reduce the attacked defense zone by 1; the two ranks support two such activations from the same attack's Advantage pool.
+- Deterministic consumer: `rules/talents.mjs` counts distinct source-backed `OVERWHELMDEF` purchases. `core/controller.mjs:7215` queues the available ranks after a failed attack; `controller.mjs:7270-7302` authenticates each activation, charges 2 remaining Advantage, limits activations by rank and persists a one-point reduction to the selected zone. `core/uiBridge.mjs:1973-1977` exposes it; Android R46 `final-runtime.js` renders repeatable `data-p98-quality` buttons and routes them through `activatePendingVehicleQuality`.
+- Exact acquisition and persistence test: `tests/uae-aor-individual-position-proofs.test.mjs`, test `AoR p.68 Ace/Gunner R3C4 Overwhelm rank 2 buys exact node, spends four Advantage and survives three reloads`. It buys exact R1C3 and R3C4 nodes plus the connected R1C4/R2C4 path through the bridge, verifies R3C4's 15 XP/source receipt, resolves a failed vehicle attack with at least 4 real Advantage, then performs two bridge activations. Three fresh repositories/controllers restore the pending spend, repeat both activations, verify 4 total Advantage spent and 2 defense removed, and retain the round effect.
+- Full per-file regression: `evidence/AOR_GUNNER_R3C4_FULL_REGRESSION_20261017/summary.json` and per-file TAP logs, including all six stress files.
+- Certification scope: this evidence certifies only R3C4. Other AoR positions retain their individual statuses.
