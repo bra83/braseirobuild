@@ -1,0 +1,34 @@
+TAP version 13
+# Subtest: kit de ferramentas remove somente a parcela explicitamente atribuída à falta de ferramentas
+ok 1 - kit de ferramentas remove somente a parcela explicitamente atribuída à falta de ferramentas
+  ---
+  duration_ms: 3.9572
+  type: 'test'
+  ...
+# Subtest: GameController aplica kit de ferramentas apenas a Mecânica
+ok 2 - GameController aplica kit de ferramentas apenas a Mecânica
+  ---
+  duration_ms: 74.1723
+  type: 'test'
+  ...
+# Subtest: remendo de reparo de emergência fica registrado como ação para droide, equivalente ao injetor, sem fingir consumo
+ok 3 - remendo de reparo de emergência fica registrado como ação para droide, equivalente ao injetor, sem fingir consumo
+  ---
+  duration_ms: 0.6825
+  type: 'test'
+  ...
+# Subtest: recarga adicional fica registrada como manobra após Desespero de munição, sem inventar rastreamento de munição
+ok 4 - recarga adicional fica registrada como manobra após Desespero de munição, sem inventar rastreamento de munição
+  ---
+  duration_ms: 0.6646
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1529.566

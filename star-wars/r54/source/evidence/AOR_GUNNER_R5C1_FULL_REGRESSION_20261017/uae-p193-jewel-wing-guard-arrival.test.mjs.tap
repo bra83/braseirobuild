@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: P193 official JoY p12 Wing Guard officer and sergeant profiles are combat-capable
+ok 1 - P193 official JoY p12 Wing Guard officer and sergeant profiles are combat-capable
+  ---
+  duration_ms: 19.1712
+  type: 'test'
+  ...
+# Subtest: P193 no Wing Guard encounter before ETA and no fabricated dispatch
+ok 2 - P193 no Wing Guard encounter before ETA and no fabricated dispatch
+  ---
+  duration_ms: 1036.3891
+  type: 'test'
+  ...
+# Subtest: P193 ETA activates actual encounter with exactly as many Wing Guards as PCs
+ok 3 - P193 ETA activates actual encounter with exactly as many Wing Guards as PCs
+  ---
+  duration_ms: 1115.0546
+  type: 'test'
+  ...
+# Subtest: P193 cannot skip Wing Guard already at the bank
+ok 4 - P193 cannot skip Wing Guard already at the bank
+  ---
+  duration_ms: 785.4237
+  type: 'test'
+  ...
+# Subtest: P193 encounter cannot be forged, resolved before starting or started twice
+ok 5 - P193 encounter cannot be forged, resolved before starting or started twice
+  ---
+  duration_ms: 806.3447
+  type: 'test'
+  ...
+# Subtest: P193 Wing Guard combat can be finished and persists after three reopenings
+ok 6 - P193 Wing Guard combat can be finished and persists after three reopenings
+  ---
+  duration_ms: 894.5176
+  type: 'test'
+  ...
+# Subtest: P193 if party left bank, dispatched Wing Guard investigates location instead of teleporting
+ok 7 - P193 if party left bank, dispatched Wing Guard investigates location instead of teleporting
+  ---
+  duration_ms: 723.6688
+  type: 'test'
+  ...
+# Subtest: P193 invalid forged Wing Guard encounter history rejected
+ok 8 - P193 invalid forged Wing Guard encounter history rejected
+  ---
+  duration_ms: 883.8772
+  type: 'test'
+  ...
+# Subtest: P193 multiple alarms remain independent patrols, no phantom sergeants
+ok 9 - P193 multiple alarms remain independent patrols, no phantom sergeants
+  ---
+  duration_ms: 841.9357
+  type: 'test'
+  ...
+# Subtest: P193 legacy adventure with no Wing Guard receipts retains normal progression
+ok 10 - P193 legacy adventure with no Wing Guard receipts retains normal progression
+  ---
+  duration_ms: 779.584
+  type: 'test'
+  ...
+# Subtest: P193 captured signature upgrades generic Cloud City slicing but not unrelated Computers checks
+ok 11 - P193 captured signature upgrades generic Cloud City slicing but not unrelated Computers checks
+  ---
+  duration_ms: 719.0011
+  type: 'test'
+  ...
+# Subtest: P193 signature also applies to a confirmed named Cloud City slicing system
+ok 12 - P193 signature also applies to a confirmed named Cloud City slicing system
+  ---
+  duration_ms: 742.6632
+  type: 'test'
+  ...
+# Subtest: P193 cannot forge an active patrol before arrival or unknown dispatch ID
+ok 13 - P193 cannot forge an active patrol before arrival or unknown dispatch ID
+  ---
+  duration_ms: 622.5181
+  type: 'test'
+  ...
+# Subtest: P193 Android PT-BR presents patrol arrival and generic combat button
+ok 14 - P193 Android PT-BR presents patrol arrival and generic combat button
+  ---
+  duration_ms: 6.0026
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 11772.1178

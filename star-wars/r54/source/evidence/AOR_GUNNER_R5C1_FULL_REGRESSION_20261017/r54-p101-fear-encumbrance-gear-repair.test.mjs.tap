@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: P101: assistência de equipamento rejeita item que não está realmente possuído
+ok 1 - P101: assistência de equipamento rejeita item que não está realmente possuído
+  ---
+  duration_ms: 98.5093
+  type: 'test'
+  ...
+# Subtest: P101: Kit de ferramentas possuído remove apenas setback declarado de falta de ferramentas
+ok 2 - P101: Kit de ferramentas possuído remove apenas setback declarado de falta de ferramentas
+  ---
+  duration_ms: 9.9366
+  type: 'test'
+  ...
+# Subtest: P101: Eletrobinóculos possuídos removem no máximo 1 setback auditado
+ok 3 - P101: Eletrobinóculos possuídos removem no máximo 1 setback auditado
+  ---
+  duration_ms: 5.6251
+  type: 'test'
+  ...
+# Subtest: P101: remendo de reparo cura droide, consome item e persiste limite diário
+ok 4 - P101: remendo de reparo cura droide, consome item e persiste limite diário
+  ---
+  duration_ms: 8.8901
+  type: 'test'
+  ...
+# Subtest: P101: remendo é ação real em combate e orgânico não pode usá-lo
+ok 5 - P101: remendo é ação real em combate e orgânico não pode usá-lo
+  ---
+  duration_ms: 10.8866
+  type: 'test'
+  ...
+# Subtest: P101: Fear continua source-bound, persiste efeitos e não rerrola a mesma fonte
+ok 6 - P101: Fear continua source-bound, persiste efeitos e não rerrola a mesma fonte
+  ---
+  duration_ms: 13.9818
+  type: 'test'
+  ...
+# Subtest: P101: Encumbrance/lifting continuam no engine e refletem carga real
+ok 7 - P101: Encumbrance/lifting continuam no engine e refletem carga real
+  ---
+  duration_ms: 4.6937
+  type: 'test'
+  ...
+# Subtest: P101: bridge/contratos/R46 expõem Fear, carga, gear assist e reparo sem grant de item ou raw status
+ok 8 - P101: bridge/contratos/R46 expõem Fear, carga, gear assist e reparo sem grant de item ou raw status
+  ---
+  duration_ms: 13.5284
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1523.8258

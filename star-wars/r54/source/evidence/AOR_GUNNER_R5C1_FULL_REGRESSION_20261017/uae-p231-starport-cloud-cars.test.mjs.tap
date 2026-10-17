@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: P231 requires real boarding and takeoff, refuses phantom arrival
+ok 1 - P231 requires real boarding and takeoff, refuses phantom arrival
+  ---
+  duration_ms: 927.743
+  type: 'test'
+  ...
+# Subtest: P231 first squadron creates four separate official Storm IV and does not clone Venture patrol
+ok 2 - P231 first squadron creates four separate official Storm IV and does not clone Venture patrol
+  ---
+  duration_ms: 777.9525
+  type: 'test'
+  ...
+# Subtest: P231 cannot fabricate combat outcome or overwrite pilot skills
+ok 3 - P231 cannot fabricate combat outcome or overwrite pilot skills
+  ---
+  duration_ms: 751.6989
+  type: 'test'
+  ...
+# Subtest: P231 12 distinct cars in three physical waves of four with 12 actual piloting dice rolls
+ok 4 - P231 12 distinct cars in three physical waves of four with 12 actual piloting dice rolls
+  ---
+  duration_ms: 4088.2071
+  type: 'test'
+  ...
+# Subtest: P231 receipt tampering and vehicle tampering are rejected on load
+ok 5 - P231 receipt tampering and vehicle tampering are rejected on load
+  ---
+  duration_ms: 681.1051
+  type: 'test'
+  ...
+# Subtest: P231 player attack and official lone minion incoming attack use real vehicle combat
+ok 6 - P231 player attack and official lone minion incoming attack use real vehicle combat
+  ---
+  duration_ms: 744.7416
+  type: 'test'
+  ...
+# Subtest: P231 Android bridge, controller, UI and bundle wired, without Java/Kokoro change
+ok 7 - P231 Android bridge, controller, UI and bundle wired, without Java/Kokoro change
+  ---
+  duration_ms: 88.4895
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9377.266

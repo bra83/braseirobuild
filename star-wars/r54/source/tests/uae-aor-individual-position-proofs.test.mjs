@@ -21,6 +21,7 @@ const DEBILITATING_POSITION='ace:gunner:r1c4';
 const SPARE_CLIP_POSITION='ace:gunner:r2c3';
 const ENDURING_RANK2_POSITION='ace:gunner:r4c2';
 const EXHAUST_PORT_POSITION='ace:gunner:r4c4';
+const HEROIC_FORTITUDE_POSITION='ace:gunner:r5c1';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
  careerFreeSkills:['astronavegacion','frialdad','mecanica','percepcion'],
@@ -606,4 +607,55 @@ test('AoR p.68 Ace/Gunner R4C4 Exhaust Port buys exact node, ignores Massive on 
   assert.equal(restored.state.group.destiny.light,2);assert.equal(restored.state.vehicles.combat.lastAttack.massiveIgnored,2);
  }
  assert.equal(bridge.buyTalent(EXHAUST_PORT_POSITION).ok,false,'the exact node cannot be purchased twice');
+});
+
+test('AoR p.68 Ace/Gunner R5C1 Heroic Fortitude buys exact node, shields Brawn check and survives three reloads',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');setup.createAorCharacter({...characterOptions,name:'Rina Vale'});
+ const character=clone(setup.state.player.character);
+ character.criticalInjuries=[
+  {id:'r5c1-setback',active:true,effect:{setback:1,duration:'until_healed'}},
+  {id:'r5c1-brawn-difficulty',active:true,effect:{difficultyIncrease:1,difficultyCharacteristics:['fortaleza','agilidad'],duration:'until_healed'}}
+ ];setup.setCharacter(character);
+ const before=clone(new GameController(repo).state.player.character),bridge=new BraseiroUiBridge({repository:repo});
+ for(const id of [DURABLE_POSITION,TOUGHENED_POSITION,'ace:gunner:r2c2',ENDURING_POSITION,DURABLE_RANK2_POSITION,TOUGHENED_RANK2_POSITION]){
+  const prerequisite=bridge.buyTalent(id);assert.equal(prerequisite.ok,true,`exact path prerequisite ${id} is acquired`);
+ }
+ const candidate=new GameController(repo).eligibleTalents().find(n=>n.id===HEROIC_FORTITUDE_POSITION);
+ assert.ok(candidate);assert.equal(candidate.available,true);assert.equal(candidate.originalName,'MADERA DE HÉROE');
+ assert.equal(candidate.name,'Fibra de herói');assert.equal(candidate.cost,25);
+ assert.equal(candidate.source.printedPage,68);assert.equal(candidate.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+ const treeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(n=>n.id===HEROIC_FORTITUDE_POSITION);
+ assert.ok(treeNode);assert.equal(treeNode.originalName,'MADERA DE HÉROE');assert.equal(treeNode.cost,25);assert.equal(treeNode.source.printedPage,68);
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ assert.match(html,/id="heroicFortitudeControl" hidden/);assert.match(html,/id="heroicFortitudeButton"/);
+ assert.match(ui,/game\.talentRank\('HERFORT'\)/);assert.match(ui,/game\.activateHeroicFortitude\(\)/);
+ const purchase=bridge.buyTalent(HEROIC_FORTITUDE_POSITION);
+ assert.equal(purchase.ok,true);assert.equal(purchase.data.talent.id,HEROIC_FORTITUDE_POSITION);
+ assert.equal(purchase.data.character.xp.available,before.xp.available-100);
+ const receipt=purchase.data.character.talentPurchases.find(entry=>entry.nodeId===HEROIC_FORTITUDE_POSITION);
+ assert.ok(receipt);assert.equal(receipt.originalName,'MADERA DE HÉROE');assert.equal(receipt.source.printedPage,68);
+ assert.equal(receipt.source.book,'Star Wars - Age of Rebellion - Core Rulebook');assert.equal(receipt.specializationKey,'gunner');assert.equal(receipt.cost,25);
+ const encounter=new GameController(repo),group=clone(encounter.state.group);group.destiny={light:2,dark:1};encounter.commit('GROUP_UPDATED',{group});encounter.beginCombat();
+ const activationBridge=new BraseiroUiBridge({repository:repo}),activation=activationBridge.activateHeroicFortitude();
+ assert.equal(activation.ok,true);assert.equal(activation.data.active,true);assert.equal(activation.data.costDestiny,1);
+ assert.equal(activation.data.group.destiny.light,1);
+ assert.equal(activation.data.character.combatEffects.heroicFortitude,true);
+ for(let reopen=1;reopen<=3;reopen++){
+  const restored=new GameController(new RepoWithState(repo.state));assert.equal(validateState(restored.state),true);
+  assert.ok(restored.state.player.character.talentPurchases.some(entry=>entry.nodeId===HEROIC_FORTITUDE_POSITION));
+  assert.equal(restored.state.player.character.combatEffects.heroicFortitude,true,`active effect survives reopen ${reopen}`);
+  assert.equal(restored.state.group.destiny.light,1);
+  assert.throws(()=>restored.activateHeroicFortitude(),/já está ativa/);
+ }
+ const protectedCheck=new GameController(repo).resolveSkillCheck({skillKey:'atletismo',difficulty:2,rng:()=>0});
+ assert.equal(protectedCheck.pool.setback,0,'the exact R5C1 effect removes a live Brawn Critical Injury setback');
+ assert.equal(protectedCheck.pool.difficulty,2,'the live Brawn check keeps its base difficulty after R5C1 suppresses the Critical Injury increase');
+ for(let reopen=1;reopen<=3;reopen++){
+  const restored=new GameController(new RepoWithState(repo.state));assert.equal(validateState(restored.state),true);
+  assert.ok(restored.state.player.character.talentPurchases.some(entry=>entry.nodeId===HEROIC_FORTITUDE_POSITION));
+  assert.equal(restored.state.player.character.combatEffects.heroicFortitude,true);
+ }
+ assert.equal(bridge.buyTalent(HEROIC_FORTITUDE_POSITION).ok,false,'the exact node cannot be purchased twice');
 });

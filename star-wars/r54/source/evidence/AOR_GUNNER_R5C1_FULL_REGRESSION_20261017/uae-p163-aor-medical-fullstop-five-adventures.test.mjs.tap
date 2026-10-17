@@ -1,0 +1,160 @@
+TAP version 13
+# Subtest: P163: 8 AoR positions wired without source/display forgery
+ok 1 - P163: 8 AoR positions wired without source/display forgery
+  ---
+  duration_ms: 54.3701
+  type: 'test'
+  ...
+# Subtest: P163: Well Rounded chooses two distinct, permanent career skills with purchase provenance
+ok 2 - P163: Well Rounded chooses two distinct, permanent career skills with purchase provenance
+  ---
+  duration_ms: 16.8509
+  type: 'test'
+  ...
+# Subtest: P163: Bacta Specialist increases actual healing, not empty or unsupervised time
+ok 3 - P163: Bacta Specialist increases actual healing, not empty or unsupervised time
+  ---
+  duration_ms: 6.3313
+  type: 'test'
+  ...
+# Subtest: P163: Bacta recovery is explicit, persistent and rolled back on storage failure
+ok 4 - P163: Bacta recovery is explicit, persistent and rolled back on storage failure
+  ---
+  duration_ms: 24.5189
+  type: 'test'
+  ...
+# Subtest: P163: base Stim Application spends an action, boosts exactly one stat and costs 4 strain
+ok 5 - P163: base Stim Application spends an action, boosts exactly one stat and costs 4 strain
+  ---
+  duration_ms: 24.9298
+  type: 'test'
+  ...
+# Subtest: P163: Improved Stim raises difficulty and reduces strain to one
+ok 6 - P163: Improved Stim raises difficulty and reduces strain to one
+  ---
+  duration_ms: 5.0127
+  type: 'test'
+  ...
+# Subtest: P163: Supreme Stim spends actual Triumph and applies a different extra stat
+ok 7 - P163: Supreme Stim spends actual Triumph and applies a different extra stat
+  ---
+  duration_ms: 5.1274
+  type: 'test'
+  ...
+# Subtest: P163: Stim prevents repeat stat and equipment/alias forgery
+ok 8 - P163: Stim prevents repeat stat and equipment/alias forgery
+  ---
+  duration_ms: 6.4491
+  type: 'test'
+  ...
+# Subtest: P163: Stim failures never grant stat or strain, encounter end removes boosts
+ok 9 - P163: Stim failures never grant stat or strain, encounter end removes boosts
+  ---
+  duration_ms: 23.5707
+  type: 'test'
+  ...
+# Subtest: P163: Master Doctor applies real 2 strain and -1 Medicine difficulty
+ok 10 - P163: Master Doctor applies real 2 strain and -1 Medicine difficulty
+  ---
+  duration_ms: 14.5265
+  type: 'test'
+  ...
+# Subtest: P163: Master Doctor cannot be invoked by display label
+ok 11 - P163: Master Doctor cannot be invoked by display label
+  ---
+  duration_ms: 7.9591
+  type: 'test'
+  ...
+# Subtest: P163: AoR Full Stop gated by actual purchased node, costs speed in system strain
+ok 12 - P163: AoR Full Stop gated by actual purchased node, costs speed in system strain
+  ---
+  duration_ms: 43.2923
+  type: 'test'
+  ...
+# Subtest: P163: AoR Full Stop rejects unowned nodes before charging maneuver
+ok 13 - P163: AoR Full Stop rejects unowned nodes before charging maneuver
+  ---
+  duration_ms: 45.569
+  type: 'test'
+  ...
+# Subtest: P163: successful Supreme application refuses invented Triumph
+ok 14 - P163: successful Supreme application refuses invented Triumph
+  ---
+  duration_ms: 3.4783
+  type: 'test'
+  ...
+# Subtest: P163: Stim atomicity restores character and action after storage failure
+ok 15 - P163: Stim atomicity restores character and action after storage failure
+  ---
+  duration_ms: 19.1167
+  type: 'test'
+  ...
+# Subtest: P163: Medicine atomicity restores health and strain after storage failure
+ok 16 - P163: Medicine atomicity restores health and strain after storage failure
+  ---
+  duration_ms: 8.4892
+  type: 'test'
+  ...
+# Subtest: P163: Well Rounded persists after three reopenings and cannot be purchased twice
+ok 17 - P163: Well Rounded persists after three reopenings and cannot be purchased twice
+  ---
+  duration_ms: 31.1734
+  type: 'test'
+  ...
+# Subtest: P163: Stim application does not consume access-only medical equipment
+ok 18 - P163: Stim application does not consume access-only medical equipment
+  ---
+  duration_ms: 18.4781
+  type: 'test'
+  ...
+# Subtest: P163: Master Doctor also powers contextual Medicine check without forged purchase
+ok 19 - P163: Master Doctor also powers contextual Medicine check without forged purchase
+  ---
+  duration_ms: 27.6271
+  type: 'test'
+  ...
+# Subtest: P163: Android bridge routes new medical actions and bundle contains new API
+ok 20 - P163: Android bridge routes new medical actions and bundle contains new API
+  ---
+  duration_ms: 63.3038
+  type: 'test'
+  ...
+# Subtest: P163: under-black-sun UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 21 - P163: under-black-sun UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 93.6795
+  type: 'test'
+  ...
+# Subtest: P163: beyond-the-rim UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 22 - P163: beyond-the-rim UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 31.8358
+  type: 'test'
+  ...
+# Subtest: P163: long-arm-of-the-hutt UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 23 - P163: long-arm-of-the-hutt UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 32.3256
+  type: 'test'
+  ...
+# Subtest: P163: jewel-of-yavin UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 24 - P163: jewel-of-yavin UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 41.8775
+  type: 'test'
+  ...
+# Subtest: P163: mask-of-the-pirate-queen UAE trigger/objective/clock/consequence, rollback and 3 reloads
+ok 25 - P163: mask-of-the-pirate-queen UAE trigger/objective/clock/consequence, rollback and 3 reloads
+  ---
+  duration_ms: 49.5539
+  type: 'test'
+  ...
+1..25
+# tests 25
+# suites 0
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2521.093

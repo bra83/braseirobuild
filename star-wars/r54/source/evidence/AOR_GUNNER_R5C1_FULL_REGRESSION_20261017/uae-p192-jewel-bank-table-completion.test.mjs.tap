@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: P192 PDF p70: successful three-advantage bidder adds 10k conditional entitlement, never player credits
+ok 1 - P192 PDF p70: successful three-advantage bidder adds 10k conditional entitlement, never player credits
+  ---
+  duration_ms: 1106.7962
+  type: 'test'
+  ...
+# Subtest: P192 PDF p70: triumph can pay bidder choice; success is still required
+ok 2 - P192 PDF p70: triumph can pay bidder choice; success is still required
+  ---
+  duration_ms: 868.2736
+  type: 'test'
+  ...
+# Subtest: P192 no additional bidder if success missing, winner chosen, unfunded Pos or symbols missing
+ok 3 - P192 no additional bidder if success missing, winner chosen, unfunded Pos or symbols missing
+  ---
+  duration_ms: 2244.9449
+  type: 'test'
+  ...
+# Subtest: P192 PDF p70: one threat adds actual strain to player slicer and survives three reopenings
+ok 4 - P192 PDF p70: one threat adds actual strain to player slicer and survives three reopenings
+  ---
+  duration_ms: 734.1215
+  type: 'test'
+  ...
+# Subtest: P192 slicer strain cannot exceed real threshold or be assigned to hired NPC
+ok 5 - P192 slicer strain cannot exceed real threshold or be assigned to hired NPC
+  ---
+  duration_ms: 637.8985
+  type: 'test'
+  ...
+# Subtest: P192 PDF p70: three threats dispatch a Wing Guard team equal to party size with four-hour ETA
+ok 6 - P192 PDF p70: three threats dispatch a Wing Guard team equal to party size with four-hour ETA
+  ---
+  duration_ms: 715.887
+  type: 'test'
+  ...
+# Subtest: P192 PDF p70: despair dispatches Wing Guard or captures signature, not both with one despair
+ok 7 - P192 PDF p70: despair dispatches Wing Guard or captures signature, not both with one despair
+  ---
+  duration_ms: 665.3757
+  type: 'test'
+  ...
+# Subtest: P192 electronic signature applies one real difficulty upgrade on subsequent G-100 slicing
+ok 8 - P192 electronic signature applies one real difficulty upgrade on subsequent G-100 slicing
+  ---
+  duration_ms: 1264.6143
+  type: 'test'
+  ...
+# Subtest: P192 rejects forged signatures, additional bidder receipts, guard counts and time
+ok 9 - P192 rejects forged signatures, additional bidder receipts, guard counts and time
+  ---
+  duration_ms: 721.4682
+  type: 'test'
+  ...
+# Subtest: P192 prevents spending one symbol twice, invalid extra bidder IDs and duplicate action
+ok 10 - P192 prevents spending one symbol twice, invalid extra bidder IDs and duplicate action
+  ---
+  duration_ms: 661.4705
+  type: 'test'
+  ...
+# Subtest: P192 UI exposes all new table outcomes and offline engine
+ok 11 - P192 UI exposes all new table outcomes and offline engine
+  ---
+  duration_ms: 61.5312
+  type: 'test'
+  ...
+# Subtest: P192 second Wing Guard alarm may shorten ETA by one hour instead of adding another team
+ok 12 - P192 second Wing Guard alarm may shorten ETA by one hour instead of adding another team
+  ---
+  duration_ms: 741.9799
+  type: 'test'
+  ...
+# Subtest: P192 P191 legacy after-roll receipt survives the expanded replay and new actions
+ok 13 - P192 P191 legacy after-roll receipt survives the expanded replay and new actions
+  ---
+  duration_ms: 763.3838
+  type: 'test'
+  ...
+# Subtest: P192 PDF p70: duplicate despair result can accelerate an existing patrol by one hour
+ok 14 - P192 PDF p70: duplicate despair result can accelerate an existing patrol by one hour
+  ---
+  duration_ms: 620.8712
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 13728.5016

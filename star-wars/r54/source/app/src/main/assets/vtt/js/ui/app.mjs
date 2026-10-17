@@ -824,6 +824,11 @@ function renderCombat(character, combat) {
   $('braceButton').disabled=!combat.active||!ready||health.unconscious||braceRank<1||Boolean(bracePending)||combat.playerTurn.maneuversUsed>=2;
   $('braceStatus').textContent=bracePending?`Brace preparado: ${bracePending.rank} graduação(ões); informe somente os contratempos ambientais no próximo teste ou ataque.`:
     braceRank>0?`Brace disponível · ${braceRank} graduação(ões); reduz contratempos ambientais até o limite de graduação.`:'Brace não adquirido.';
+  const heroicFortitudeRank=game.talentRank('HERFORT'),heroicFortitudeActive=Boolean(character.combatEffects?.heroicFortitude),lightDestiny=Number(game.state.group?.destiny?.light??0);
+  $('heroicFortitudeControl').hidden=heroicFortitudeRank<1;
+  $('heroicFortitudeButton').disabled=!combat.active||!ready||health.unconscious||heroicFortitudeRank<1||heroicFortitudeActive||lightDestiny<1;
+  $('heroicFortitudeStatus').textContent=heroicFortitudeActive?'Ativa neste encontro: os efeitos de Ferimentos Críticos são ignorados em testes de Fortaleza e Agilidade.':
+    heroicFortitudeRank>0?`Fibra de herói disponível · gaste 1 Destino luminoso durante seu turno.`:'Fibra de herói não adquirida.';
 
   const select=$('weaponSelect');
   const previous=select.value;
@@ -1340,6 +1345,10 @@ $('aimButton').addEventListener('click',()=>{
 });
 $('braceButton').addEventListener('click',()=>{
   try { game.prepareAoRBrace({maneuverMethod:$('braceManeuverMethod').value}); showFeedback('maneuverFeedback','Brace preparado para a próxima ação; declare somente os contratempos ambientais que se aplicam.'); render(); }
+  catch(e){ showFeedback('maneuverFeedback',e.message); }
+});
+$('heroicFortitudeButton').addEventListener('click',()=>{
+  try { game.activateHeroicFortitude(); showFeedback('maneuverFeedback','Fibra de herói ativada: 1 Destino luminoso gasto até o fim do encontro.'); render(); }
   catch(e){ showFeedback('maneuverFeedback',e.message); }
 });
 

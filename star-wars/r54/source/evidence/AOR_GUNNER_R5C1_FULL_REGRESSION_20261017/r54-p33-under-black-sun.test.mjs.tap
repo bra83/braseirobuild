@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: P33: catálogo preserva EotE/MIXED e não oferece aventura EotE pura em AoR
+ok 1 - P33: catálogo preserva EotE/MIXED e não oferece aventura EotE pura em AoR
+  ---
+  duration_ms: 5.5788
+  type: 'test'
+  ...
+# Subtest: P33: início é PT-BR, persistente e não revela nós futuros ao jogador
+ok 2 - P33: início é PT-BR, persistente e não revela nós futuros ao jogador
+  ---
+  duration_ms: 21.5525
+  type: 'test'
+  ...
+# Subtest: P33: Episódio II aceita investigação em qualquer ordem e só libera desfecho após 2 linhas
+ok 3 - P33: Episódio II aceita investigação em qualquer ordem e só libera desfecho após 2 linhas
+  ---
+  duration_ms: 14.102
+  type: 'test'
+  ...
+# Subtest: P33: flags de consequências persistem até o Episódio III e epílogo
+ok 4 - P33: flags de consequências persistem até o Episódio III e epílogo
+  ---
+  duration_ms: 45.8688
+  type: 'test'
+  ...
+# Subtest: P33: recompensa fica registrada e não reseta ao reiniciar a aventura na mesma campanha
+ok 5 - P33: recompensa fica registrada e não reseta ao reiniciar a aventura na mesma campanha
+  ---
+  duration_ms: 2.5389
+  type: 'test'
+  ...
+# Subtest: P33: UI oferece aventura publicada separada do mundo livre e bridge expõe contrato
+ok 6 - P33: UI oferece aventura publicada separada do mundo livre e bridge expõe contrato
+  ---
+  duration_ms: 14.0738
+  type: 'test'
+  ...
+# Subtest: P34: checks da aventura expõem pool mecânico sem revelar destinos
+ok 7 - P34: checks da aventura expõem pool mecânico sem revelar destinos
+  ---
+  duration_ms: 1.9253
+  type: 'test'
+  ...
+# Subtest: P34: Advantage/Threat/Triumph/Despair alimentam consequência persistente e relógio de alerta
+ok 8 - P34: Advantage/Threat/Triumph/Despair alimentam consequência persistente e relógio de alerta
+  ---
+  duration_ms: 7.5806
+  type: 'test'
+  ...
+# Subtest: P34: controller e bridge ligam teste publicado ao resolvedor narrativo real
+ok 9 - P34: controller e bridge ligam teste publicado ao resolvedor narrativo real
+  ---
+  duration_ms: 8.434
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 619.4747
