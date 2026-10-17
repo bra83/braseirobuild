@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Abh16SectionRuntimeTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-17T01:22:56" hostname="BRELGA" time="0.027">
+  <properties/>
+  <testcase name="testAbh_sec_0_1" classname="com.braseiro.dnd5e.Abh16SectionRuntimeTest" time="0.014"/>
+  <testcase name="testAbh_sec_1_1" classname="com.braseiro.dnd5e.Abh16SectionRuntimeTest" time="0.003"/>
+  <testcase name="testAbh_sec_1_2" classname="com.braseiro.dnd5e.Abh16SectionRuntimeTest" time="0.001"/>
+  <testcase name="testAbh_sec_1_3" classname="com.braseiro.dnd5e.Abh16SectionRuntimeTest" time="0.001"/>
+  <testcase name="testAbh_sec_1_4" classname="com.braseiro.dnd5e.Abh16SectionRuntimeTest" time="0.001"/>
+  <testcase name="testAbh_sec_1_5" classname="com.braseiro.dnd5e.Abh16SectionRuntimeTest" time="0.001"/>
+  <testcase name="testAbh_sec_1_6" classname="com.braseiro.dnd5e.Abh16SectionRuntimeTest" time="0.0"/>
+  <testcase name="testAbh_sec_2_1" classname="com.braseiro.dnd5e.Abh16SectionRuntimeTest" time="0.0"/>
+  <testcase name="testAbh_sec_2_2" classname="com.braseiro.dnd5e.Abh16SectionRuntimeTest" time="0.0"/>
+  <testcase name="testAbh_sec_3_1" classname="com.braseiro.dnd5e.Abh16SectionRuntimeTest" time="0.001"/>
+  <testcase name="testAbh_sec_3_2" classname="com.braseiro.dnd5e.Abh16SectionRuntimeTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
