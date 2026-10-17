@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: P94: Destino luminoso gasto vira sombrio e persiste
+ok 1 - P94: Destino luminoso gasto vira sombrio e persiste
+  ---
+  duration_ms: 24.1081
+  type: 'test'
+  ...
+# Subtest: P94: movimento entre faixas consome manobra e segunda manobra custa 2 de Tensão
+ok 2 - P94: movimento entre faixas consome manobra e segunda manobra custa 2 de Tensão
+  ---
+  duration_ms: 49.0106
+  type: 'test'
+  ...
+# Subtest: P94: immobilized bloqueia manobra de movimento real
+ok 3 - P94: immobilized bloqueia manobra de movimento real
+  ---
+  duration_ms: 10.9947
+  type: 'test'
+  ...
+# Subtest: P94: cobertura e sacar/trocar arma consomem manobra real
+ok 4 - P94: cobertura e sacar/trocar arma consomem manobra real
+  ---
+  duration_ms: 25.3788
+  type: 'test'
+  ...
+# Subtest: P94: deslocar-se entre faixas abandona cobertura
+ok 5 - P94: deslocar-se entre faixas abandona cobertura
+  ---
+  duration_ms: 150.5836
+  type: 'test'
+  ...
+# Subtest: P94: equipamentos expõem attachments e hard points reais sem instalar nada automaticamente
+ok 6 - P94: equipamentos expõem attachments e hard points reais sem instalar nada automaticamente
+  ---
+  duration_ms: 6.1042
+  type: 'test'
+  ...
+# Subtest: P94: UI final mostra Destino, condições, movimento e hard points sem consultar RAG
+ok 7 - P94: UI final mostra Destino, condições, movimento e hard points sem consultar RAG
+  ---
+  duration_ms: 6.881
+  type: 'test'
+  ...
+# Subtest: P94: contratos TypeScript incluem as operações novas
+ok 8 - P94: contratos TypeScript incluem as operações novas
+  ---
+  duration_ms: 21.8258
+  type: 'test'
+  ...
+# Subtest: P94: cobertura adiciona Setback real a ataque NPC ranged e some ao fim do combate
+ok 9 - P94: cobertura adiciona Setback real a ataque NPC ranged e some ao fim do combate
+  ---
+  duration_ms: 27.1676
+  type: 'test'
+  ...
+# Subtest: P94: condição disoriented visível também aplica Setback real ao ataque
+ok 10 - P94: condição disoriented visível também aplica Setback real ao ataque
+  ---
+  duration_ms: 28.0435
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1818.043

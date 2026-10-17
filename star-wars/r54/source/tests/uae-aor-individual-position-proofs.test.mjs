@@ -505,3 +505,53 @@ test('AoR p.68 Ace/Gunner R4C2 Enduring rank 2 buys exact node, stacks soak and 
  }
  assert.equal(bridge.buyTalent(ENDURING_RANK2_POSITION).ok,false,'the exact rank node cannot be purchased twice');
 });
+
+
+test('AoR p.68 Ace/Gunner R4C3 Brace rank 2 buys exact node, removes two environmental setbacks and survives three reloads',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');setup.createAorCharacter({...characterOptions,name:'Veya Sol'});
+ let character=clone(setup.state.player.character);character.skills.artilleria=1;setup.setCharacter(character);
+ const before=clone(new GameController(repo).state.player.character),bridge=new BraseiroUiBridge({repository:repo});
+ for(const id of [DURABLE_POSITION,TOUGHENED_POSITION,'ace:gunner:r2c2',ENDURING_POSITION,DURABLE_RANK2_POSITION,TOUGHENED_RANK2_POSITION,ENDURING_RANK2_POSITION]){
+  const prerequisite=bridge.buyTalent(id);assert.equal(prerequisite.ok,true,`exact path prerequisite ${id} is acquired`);
+ }
+ const accrued=new GameController(repo).grantXp(50,{reason:'Prova R4C3: XP adicional para completar a árvore conectada'});
+ assert.equal(accrued.character.xp.available,before.xp.available-45);
+ for(const id of [OVERWHELM_POSITION,'ace:gunner:r2c3','ace:gunner:r3c3']){
+  const prerequisite=bridge.buyTalent(id);assert.equal(prerequisite.ok,true,`exact Brace path prerequisite ${id} is acquired`);
+ }
+ const targetId='ace:gunner:r4c3',candidate=new GameController(repo).eligibleTalents().find(n=>n.id===targetId);
+ assert.ok(candidate);assert.equal(candidate.available,true);assert.equal(candidate.originalName,'FIRMEZA');
+ assert.equal(candidate.name,'Firmeza');assert.equal(candidate.cost,20);
+ assert.equal(candidate.source.printedPage,68);assert.equal(candidate.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+ const treeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(n=>n.id===targetId);
+ assert.ok(treeNode);assert.equal(treeNode.originalName,'FIRMEZA');assert.equal(treeNode.cost,20);assert.equal(treeNode.source.printedPage,68);
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ assert.ok(html.includes('id="talentOptions"'));assert.match(ui,/data-talent-id="\$\{escapeHtml\(t\.id\)\}"/);
+ assert.match(ui,/game\.buyTalent\(button\.dataset\.talentId/);assert.ok(html.includes('id="braceButton"'));assert.match(ui,/prepareAoRBrace/);
+ const xpBeforeRank2=new GameController(repo).state.player.character.xp.available;
+ const purchase=bridge.buyTalent(targetId);
+ assert.equal(purchase.ok,true);assert.equal(purchase.data.talent.id,targetId);
+ const receipt=purchase.data.character.talentPurchases.find(entry=>entry.nodeId===targetId);
+ assert.ok(receipt);assert.equal(receipt.originalName,'FIRMEZA');assert.equal(receipt.source.printedPage,68);
+ assert.equal(receipt.source.book,'Star Wars - Age of Rebellion - Core Rulebook');assert.equal(receipt.specializationKey,'gunner');assert.equal(receipt.cost,20);
+ assert.equal(purchase.data.character.xp.available,xpBeforeRank2-20);
+ assert.equal(new GameController(repo).aorBraceStatus().rank,2,'both exact p.68 source-backed Gunner Brace ranks are recognized');
+ const combat=new GameController(repo);combat.beginCombat();
+ const braceBridge=new BraseiroUiBridge({repository:repo}),prepared=braceBridge.prepareAoRBrace();
+ assert.equal(prepared.ok,true);assert.equal(prepared.data.rank,2);assert.equal(prepared.data.combat.playerTurn.maneuversUsed,1);
+ assert.deepEqual(prepared.data.source,{productCode:'AOR',printedPage:68,nodeIds:['ace:gunner:r2c2',targetId]});
+ for(let reopen=1;reopen<=3;reopen++){
+  const restored=new GameController(new RepoWithState(repo.state));
+  assert.equal(restored.state.combat.aorBracePrepared.rank,2,`rank-2 preparation survives reopen ${reopen}`);
+  assert.deepEqual(restored.state.combat.aorBracePrepared.source,prepared.data.source);
+  assert.ok(restored.state.player.character.talentPurchases.some(entry=>entry.nodeId===targetId));
+ }
+ const action=new GameController(repo),check=action.resolveSkillCheck({skillKey:'artilleria',difficulty:2,setback:3,braceEnvironmentalSetback:2,rng:()=>0});
+ assert.equal(check.pool.setback,1,'rank 2 removes both declared environmental setbacks and leaves the other setback');
+ assert.deepEqual(check.aorBrace,{rank:2,environmentalSetback:2,removedSetback:2,source:prepared.data.source});
+ assert.equal(action.state.combat.aorBracePrepared,undefined,'Brace is consumed by that next action');
+ for(let reopen=1;reopen<=3;reopen++)assert.equal(new GameController(new RepoWithState(repo.state)).state.combat.aorBracePrepared,undefined,`consumed preparation remains cleared after reopen ${reopen}`);
+ assert.equal(bridge.buyTalent(targetId).ok,false,'the exact rank-2 node cannot be purchased twice');
+});

@@ -1,0 +1,124 @@
+TAP version 13
+# Subtest: dado da Força reproduz as 12 faces oficiais do Core
+ok 1 - dado da Força reproduz as 12 faces oficiais do Core
+  ---
+  duration_ms: 6.217
+  type: 'test'
+  ...
+# Subtest: Exilado Sensível à Força é universal, custa como carreira e concede Force Rating 1 sem skills grátis
+ok 2 - Exilado Sensível à Força é universal, custa como carreira e concede Force Rating 1 sem skills grátis
+  ---
+  duration_ms: 21.1872
+  type: 'test'
+  ...
+# Subtest: Droide não pode adquirir Exilado Sensível à Força
+ok 3 - Droide não pode adquirir Exilado Sensível à Força
+  ---
+  duration_ms: 2.032
+  type: 'test'
+  ...
+# Subtest: árvore universal do Exilado tem 20 nós e talentos de primeira linha acessíveis
+ok 4 - árvore universal do Exilado tem 20 nós e talentos de primeira linha acessíveis
+  ---
+  duration_ms: 5.4648
+  type: 'test'
+  ...
+# Subtest: Perspicácia torna Percepção e Disciplina perícias de carreira sem dar ranks
+ok 5 - Perspicácia torna Percepção e Disciplina perícias de carreira sem dar ranks
+  ---
+  duration_ms: 3.1519
+  type: 'test'
+  ...
+# Subtest: Sentidos e Reações sobrenaturais alimentam modificadores de perícia
+ok 6 - Sentidos e Reações sobrenaturais alimentam modificadores de perícia
+  ---
+  duration_ms: 5.0507
+  type: 'test'
+  ...
+# Subtest: rolagem usa Force Rating disponível e dados comprometidos reduzem a quantidade rolada
+ok 7 - rolagem usa Force Rating disponível e dados comprometidos reduzem a quantidade rolada
+  ---
+  duration_ms: 3.4626
+  type: 'test'
+  ...
+# Subtest: usuário luminoso pode converter resultados sombrios com um Destino e Tensão por ponto usado
+ok 8 - usuário luminoso pode converter resultados sombrios com um Destino e Tensão por ponto usado
+  ---
+  duration_ms: 2.5989
+  type: 'test'
+  ...
+# Subtest: sem Destino luminoso não é permitido usar resultados sombrios
+ok 9 - sem Destino luminoso não é permitido usar resultados sombrios
+  ---
+  duration_ms: 2.1362
+  type: 'test'
+  ...
+# Subtest: Sense, Influence e Move custam 10 PE e exigem Force Rating
+ok 10 - Sense, Influence e Move custam 10 PE e exigem Force Rating
+  ---
+  duration_ms: 5.4737
+  type: 'test'
+  ...
+# Subtest: aprimoramentos da Força respeitam conexões e custos da árvore
+ok 11 - aprimoramentos da Força respeitam conexões e custos da árvore
+  ---
+  duration_ms: 7.6697
+  type: 'test'
+  ...
+# Subtest: Influência básica causa 1 Tensão por ponto ou 2 com Strength
+ok 12 - Influência básica causa 1 Tensão por ponto ou 2 com Strength
+  ---
+  duration_ms: 2.1448
+  type: 'test'
+  ...
+# Subtest: regra especial de Influência separa emoções positivas/negativas por lado
+ok 13 - regra especial de Influência separa emoções positivas/negativas por lado
+  ---
+  duration_ms: 0.5233
+  type: 'test'
+  ...
+# Subtest: Mover com Control de arremesso calcula dano oficial por silhueta
+ok 14 - Mover com Control de arremesso calcula dano oficial por silhueta
+  ---
+  duration_ms: 2.7469
+  type: 'test'
+  ...
+# Subtest: árvore do Exilado respeita a malha oficial e não cria atalhos sob Insight/Forager
+ok 15 - árvore do Exilado respeita a malha oficial e não cria atalhos sob Insight/Forager
+  ---
+  duration_ms: 10.0913
+  type: 'test'
+  ...
+# Subtest: Sentir calcula alcance, magnitude e pensamentos sem confundir gasto de pontos
+ok 16 - Sentir calcula alcance, magnitude e pensamentos sem confundir gasto de pontos
+  ---
+  duration_ms: 42.9435
+  type: 'test'
+  ...
+# Subtest: Mover separa ativações de Strength, Range e Magnitude conforme o Core
+ok 17 - Mover separa ativações de Strength, Range e Magnitude conforme o Core
+  ---
+  duration_ms: 2.6788
+  type: 'test'
+  ...
+# Subtest: Sobrecarregar Emoções usa lados diferentes em Carisma versus Coerção/Enganação
+ok 18 - Sobrecarregar Emoções usa lados diferentes em Carisma versus Coerção/Enganação
+  ---
+  duration_ms: 10.0514
+  type: 'test'
+  ...
+# Subtest: controller persiste compra universal, poderes e consumo de Destino
+ok 19 - controller persiste compra universal, poderes e consumo de Destino
+  ---
+  duration_ms: 70.8467
+  type: 'test'
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1776.8579

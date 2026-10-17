@@ -1,0 +1,10 @@
+# AoR Ace/Gunner R4C3 source review
+
+- Position: `ace:gunner:r4c3`, FIRMEZA rank 2 (localized as Firmeza), printed page 68 of *Star Wars: Age of Rebellion Core Rulebook*.
+- Source file reviewed: `AoR-Core-Rulebook.pdf`, Google Drive file ID `1w2M6f7R_dzaaHk6Q6R8Y7TIqAYM2MJIq`.
+- SHA-256: `25087E5B43C289EF556A365EEC1177123055DFB75C3ECF03481CD66044CACE50`.
+- Visual review: physical PDF page 69 (one-based; zero-based index 68), printed footer 68. The Ace: Gunner talent tree shows Brace at R4C3, cost 20 XP. Its card says to perform the Brace maneuver and remove setbacks from the next action, limited to setbacks added by environmental circumstances; the rank-2 node permits removal of 2 setbacks per rank.
+- Deterministic consumer: `rules/talents.mjs:243-257` computes source-backed BRACE rank and environmental setback relief. `core/controller.mjs:5621-5638` prepares Brace using a maneuver and persists its source IDs; `controller.mjs:4659-4901` and `5160-5288` consume it on the next skill check or weapon attack and clear it. `core/uiBridge.mjs:1263-1271` and `ui/app.mjs:823-826,1336-1338` expose status and preparation to the UI.
+- Exact acquisition and persistence test: `tests/uae-aor-individual-position-proofs.test.mjs`, test `AoR p.68 Ace/Gunner R4C3 Brace rank 2 buys exact node, removes two environmental setbacks and survives three reloads`. It buys the exact connected prerequisites and R4C3 through `BraseiroUiBridge.buyTalent`, verifies source and 20 XP cost, prepares rank-2 Brace through the bridge, verifies the two exact source node IDs and rank-limited removal of 2 environmental setbacks from the next action while preserving a non-environmental setback, then verifies three restores before and after consumption.
+- Full per-file regression: `evidence/AOR_GUNNER_R4C3_FULL_REGRESSION_20261017/summary.json` and per-file TAP logs, including all six stress files.
+- Certification scope: this evidence certifies only R4C3. R2C2 remains independently PENDENTE pending resolution of its vehicle-action consumer scope.

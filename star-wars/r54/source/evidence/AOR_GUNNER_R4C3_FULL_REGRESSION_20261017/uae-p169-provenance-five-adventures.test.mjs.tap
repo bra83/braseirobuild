@@ -1,0 +1,202 @@
+TAP version 13
+# Subtest: P169 under-black-sun: forged source consequence, direct API and command rollback
+ok 1 - P169 under-black-sun: forged source consequence, direct API and command rollback
+  ---
+  duration_ms: 63.2438
+  type: 'test'
+  ...
+# Subtest: P169 under-black-sun: two authored triggers, replay receipt, reward once, three reopens
+ok 2 - P169 under-black-sun: two authored triggers, replay receipt, reward once, three reopens
+  ---
+  duration_ms: 106.1126
+  type: 'test'
+  ...
+# Subtest: P169 under-black-sun: tampered journal provenance cannot restore
+ok 3 - P169 under-black-sun: tampered journal provenance cannot restore
+  ---
+  duration_ms: 38.713
+  type: 'test'
+  ...
+# Subtest: P169 under-black-sun: ad-hoc consequence remains allowed but has no authored rewards
+ok 4 - P169 under-black-sun: ad-hoc consequence remains allowed but has no authored rewards
+  ---
+  duration_ms: 7.5928
+  type: 'test'
+  ...
+# Subtest: P169 under-black-sun: legacy checkpoint receives provenance boundary without rewriting old events
+ok 5 - P169 under-black-sun: legacy checkpoint receives provenance boundary without rewriting old events
+  ---
+  duration_ms: 7.274
+  type: 'test'
+  ...
+# Subtest: P169 beyond-the-rim: forged source consequence, direct API and command rollback
+ok 6 - P169 beyond-the-rim: forged source consequence, direct API and command rollback
+  ---
+  duration_ms: 5.4538
+  type: 'test'
+  ...
+# Subtest: P169 beyond-the-rim: two authored triggers, replay receipt, reward once, three reopens
+ok 7 - P169 beyond-the-rim: two authored triggers, replay receipt, reward once, three reopens
+  ---
+  duration_ms: 59.2217
+  type: 'test'
+  ...
+# Subtest: P169 beyond-the-rim: tampered journal provenance cannot restore
+ok 8 - P169 beyond-the-rim: tampered journal provenance cannot restore
+  ---
+  duration_ms: 40.665
+  type: 'test'
+  ...
+# Subtest: P169 beyond-the-rim: ad-hoc consequence remains allowed but has no authored rewards
+ok 9 - P169 beyond-the-rim: ad-hoc consequence remains allowed but has no authored rewards
+  ---
+  duration_ms: 38.6629
+  type: 'test'
+  ...
+# Subtest: P169 beyond-the-rim: legacy checkpoint receives provenance boundary without rewriting old events
+ok 10 - P169 beyond-the-rim: legacy checkpoint receives provenance boundary without rewriting old events
+  ---
+  duration_ms: 8.3547
+  type: 'test'
+  ...
+# Subtest: P169 long-arm-of-the-hutt: forged source consequence, direct API and command rollback
+ok 11 - P169 long-arm-of-the-hutt: forged source consequence, direct API and command rollback
+  ---
+  duration_ms: 7.7339
+  type: 'test'
+  ...
+# Subtest: P169 long-arm-of-the-hutt: two authored triggers, replay receipt, reward once, three reopens
+ok 12 - P169 long-arm-of-the-hutt: two authored triggers, replay receipt, reward once, three reopens
+  ---
+  duration_ms: 48.915
+  type: 'test'
+  ...
+# Subtest: P169 long-arm-of-the-hutt: tampered journal provenance cannot restore
+ok 13 - P169 long-arm-of-the-hutt: tampered journal provenance cannot restore
+  ---
+  duration_ms: 17.535
+  type: 'test'
+  ...
+# Subtest: P169 long-arm-of-the-hutt: ad-hoc consequence remains allowed but has no authored rewards
+ok 14 - P169 long-arm-of-the-hutt: ad-hoc consequence remains allowed but has no authored rewards
+  ---
+  duration_ms: 29.1125
+  type: 'test'
+  ...
+# Subtest: P169 long-arm-of-the-hutt: legacy checkpoint receives provenance boundary without rewriting old events
+ok 15 - P169 long-arm-of-the-hutt: legacy checkpoint receives provenance boundary without rewriting old events
+  ---
+  duration_ms: 10.354
+  type: 'test'
+  ...
+# Subtest: P169 jewel-of-yavin: forged source consequence, direct API and command rollback
+ok 16 - P169 jewel-of-yavin: forged source consequence, direct API and command rollback
+  ---
+  duration_ms: 11.1758
+  type: 'test'
+  ...
+# Subtest: P169 jewel-of-yavin: two authored triggers, replay receipt, reward once, three reopens
+ok 17 - P169 jewel-of-yavin: two authored triggers, replay receipt, reward once, three reopens
+  ---
+  duration_ms: 58.9782
+  type: 'test'
+  ...
+# Subtest: P169 jewel-of-yavin: tampered journal provenance cannot restore
+ok 18 - P169 jewel-of-yavin: tampered journal provenance cannot restore
+  ---
+  duration_ms: 41.6753
+  type: 'test'
+  ...
+# Subtest: P169 jewel-of-yavin: ad-hoc consequence remains allowed but has no authored rewards
+ok 19 - P169 jewel-of-yavin: ad-hoc consequence remains allowed but has no authored rewards
+  ---
+  duration_ms: 6.0341
+  type: 'test'
+  ...
+# Subtest: P169 jewel-of-yavin: legacy checkpoint receives provenance boundary without rewriting old events
+ok 20 - P169 jewel-of-yavin: legacy checkpoint receives provenance boundary without rewriting old events
+  ---
+  duration_ms: 46.5938
+  type: 'test'
+  ...
+# Subtest: P169 mask-of-the-pirate-queen: forged source consequence, direct API and command rollback
+ok 21 - P169 mask-of-the-pirate-queen: forged source consequence, direct API and command rollback
+  ---
+  duration_ms: 5.5043
+  type: 'test'
+  ...
+# Subtest: P169 mask-of-the-pirate-queen: two authored triggers, replay receipt, reward once, three reopens
+ok 22 - P169 mask-of-the-pirate-queen: two authored triggers, replay receipt, reward once, three reopens
+  ---
+  duration_ms: 42.5257
+  type: 'test'
+  ...
+# Subtest: P169 mask-of-the-pirate-queen: tampered journal provenance cannot restore
+ok 23 - P169 mask-of-the-pirate-queen: tampered journal provenance cannot restore
+  ---
+  duration_ms: 27.4679
+  type: 'test'
+  ...
+# Subtest: P169 mask-of-the-pirate-queen: ad-hoc consequence remains allowed but has no authored rewards
+ok 24 - P169 mask-of-the-pirate-queen: ad-hoc consequence remains allowed but has no authored rewards
+  ---
+  duration_ms: 23.9987
+  type: 'test'
+  ...
+# Subtest: P169 mask-of-the-pirate-queen: legacy checkpoint receives provenance boundary without rewriting old events
+ok 25 - P169 mask-of-the-pirate-queen: legacy checkpoint receives provenance boundary without rewriting old events
+  ---
+  duration_ms: 5.4954
+  type: 'test'
+  ...
+# Subtest: P169 AoR: one source-backed Master of Shadows position is a real skill consumer
+ok 26 - P169 AoR: one source-backed Master of Shadows position is a real skill consumer
+  ---
+  duration_ms: 66.272
+  type: 'test'
+  ...
+# Subtest: P169 AoR: stealth skill fails closed on wrong skill and storage rollback
+ok 27 - P169 AoR: stealth skill fails closed on wrong skill and storage rollback
+  ---
+  duration_ms: 39.8301
+  type: 'test'
+  ...
+# Subtest: P169 under-black-sun: AoR stealth check persists in published campaign with three reopens
+ok 28 - P169 under-black-sun: AoR stealth check persists in published campaign with three reopens
+  ---
+  duration_ms: 187.042
+  type: 'test'
+  ...
+# Subtest: P169 beyond-the-rim: AoR stealth check persists in published campaign with three reopens
+ok 29 - P169 beyond-the-rim: AoR stealth check persists in published campaign with three reopens
+  ---
+  duration_ms: 126.7928
+  type: 'test'
+  ...
+# Subtest: P169 long-arm-of-the-hutt: AoR stealth check persists in published campaign with three reopens
+ok 30 - P169 long-arm-of-the-hutt: AoR stealth check persists in published campaign with three reopens
+  ---
+  duration_ms: 118.6937
+  type: 'test'
+  ...
+# Subtest: P169 jewel-of-yavin: AoR stealth check persists in published campaign with three reopens
+ok 31 - P169 jewel-of-yavin: AoR stealth check persists in published campaign with three reopens
+  ---
+  duration_ms: 87.9231
+  type: 'test'
+  ...
+# Subtest: P169 mask-of-the-pirate-queen: AoR stealth check persists in published campaign with three reopens
+ok 32 - P169 mask-of-the-pirate-queen: AoR stealth check persists in published campaign with three reopens
+  ---
+  duration_ms: 102.8711
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3141.5053

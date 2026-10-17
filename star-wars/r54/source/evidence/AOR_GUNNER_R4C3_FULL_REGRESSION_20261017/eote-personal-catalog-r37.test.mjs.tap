@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: R37: catálogo pessoal inclui os 2 itens oficiais SWE09/EotE (62 itens) com Appraiser's Eye fundamentado em Fly Casual
+ok 1 - R37: catálogo pessoal inclui os 2 itens oficiais SWE09/EotE (62 itens) com Appraiser's Eye fundamentado em Fly Casual
+  ---
+  duration_ms: 4.864
+  type: 'test'
+  ...
+# Subtest: EotE Core printed-page citations resolve each ship-transfer gear profile to its actual printed entry
+ok 2 - EotE Core printed-page citations resolve each ship-transfer gear profile to its actual printed entry
+  ---
+  duration_ms: 0.707
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 598.3863
