@@ -1,0 +1,71 @@
+TAP version 13
+# Subtest: SWE02 printed p41: elite Gamorrean guards do not inherit generic inaccurate profile
+ok 1 - SWE02 printed p41: elite Gamorrean guards do not inherit generic inaccurate profile
+  ---
+  duration_ms: 6.2255
+  type: 'test'
+  ...
+# Subtest: SWE02 p41: frontal stealth not offered; deception gate only opens with successful actual check
+ok 2 - SWE02 p41: frontal stealth not offered; deception gate only opens with successful actual check
+  ---
+  duration_ms: 429.6272
+  type: 'test'
+  ...
+# Subtest: SWE02 p41: disguise requires Hard Deception and separate Average Charm
+ok 3 - SWE02 p41: disguise requires Hard Deception and separate Average Charm
+  ---
+  duration_ms: 200.4048
+  type: 'test'
+  ...
+# Subtest: SWE02 pp44-45: workshop B1 evidence is acquired explicitly and persists three reopens
+ok 4 - SWE02 pp44-45: workshop B1 evidence is acquired explicitly and persists three reopens
+  ---
+  duration_ms: 202.9382
+  type: 'test'
+  ...
+# Subtest: SWE02 p44: ryll kitchen evidence requires successful Hard Perception, not merely entering room
+ok 5 - SWE02 p44: ryll kitchen evidence requires successful Hard Perception, not merely entering room
+  ---
+  duration_ms: 264.5336
+  type: 'test'
+  ...
+# Subtest: SWE02 p45: communications five official pools, setback, evidence, two-threat lockout
+ok 6 - SWE02 p45: communications five official pools, setback, evidence, two-threat lockout
+  ---
+  duration_ms: 137.375
+  type: 'test'
+  ...
+# Subtest: SWE02 p45: throne encounter party count, elite guards and no fake victory without proof
+ok 7 - SWE02 p45: throne encounter party count, elite guards and no fake victory without proof
+  ---
+  duration_ms: 82.2696
+  type: 'test'
+  ...
+# Subtest: SWE02 pp45-46: Teemo defeated only by real group proof, rollback on tamper, no fabricated title
+ok 8 - SWE02 pp45-46: Teemo defeated only by real group proof, rollback on tamper, no fabricated title
+  ---
+  duration_ms: 229.4161
+  type: 'test'
+  ...
+# Subtest: P236 actual controller: palace checks use deterministic dice, persist and do not grant unearned access
+ok 9 - P236 actual controller: palace checks use deterministic dice, persist and do not grant unearned access
+  ---
+  duration_ms: 361.9206
+  type: 'test'
+  ...
+# Subtest: P236 actual controller: Teemo combat fails closed without reviewed extra group and Hutt source
+ok 10 - P236 actual controller: Teemo combat fails closed without reviewed extra group and Hutt source
+  ---
+  duration_ms: 287.8231
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6551.6381
+

@@ -1,0 +1,203 @@
+TAP version 13
+# Subtest: P136 evento com ID de outra campanha: transação reverte e importação falha fechada
+ok 1 - P136 evento com ID de outra campanha: transação reverte e importação falha fechada
+  ---
+  duration_ms: 20.3451
+  type: 'test'
+  ...
+# Subtest: P136 evento fora de ordem: transação reverte e importação falha fechada
+ok 2 - P136 evento fora de ordem: transação reverte e importação falha fechada
+  ---
+  duration_ms: 15.5028
+  type: 'test'
+  ...
+# Subtest: P136 timestamp inválido: transação reverte e importação falha fechada
+ok 3 - P136 timestamp inválido: transação reverte e importação falha fechada
+  ---
+  duration_ms: 9.9354
+  type: 'test'
+  ...
+# Subtest: P136 evento sem payload: transação reverte e importação falha fechada
+ok 4 - P136 evento sem payload: transação reverte e importação falha fechada
+  ---
+  duration_ms: 6.4706
+  type: 'test'
+  ...
+# Subtest: P136 evento sem turno: transação reverte e importação falha fechada
+ok 5 - P136 evento sem turno: transação reverte e importação falha fechada
+  ---
+  duration_ms: 4.1014
+  type: 'test'
+  ...
+# Subtest: P136 contador não numérico: transação reverte e importação falha fechada
+ok 6 - P136 contador não numérico: transação reverte e importação falha fechada
+  ---
+  duration_ms: 6.5089
+  type: 'test'
+  ...
+# Subtest: P136 contador booleano: transação reverte e importação falha fechada
+ok 7 - P136 contador booleano: transação reverte e importação falha fechada
+  ---
+  duration_ms: 3.737
+  type: 'test'
+  ...
+# Subtest: P136 gatilho inexistente: transação reverte e importação falha fechada
+ok 8 - P136 gatilho inexistente: transação reverte e importação falha fechada
+  ---
+  duration_ms: 5.6582
+  type: 'test'
+  ...
+# Subtest: P136 gatilho acima do limite: transação reverte e importação falha fechada
+ok 9 - P136 gatilho acima do limite: transação reverte e importação falha fechada
+  ---
+  duration_ms: 29.9839
+  type: 'test'
+  ...
+# Subtest: P136 objetivo concluído sem histórico: transação reverte e importação falha fechada
+ok 10 - P136 objetivo concluído sem histórico: transação reverte e importação falha fechada
+  ---
+  duration_ms: 4.8663
+  type: 'test'
+  ...
+# Subtest: P136 objetivo concluído com progresso impossível: transação reverte e importação falha fechada
+ok 11 - P136 objetivo concluído com progresso impossível: transação reverte e importação falha fechada
+  ---
+  duration_ms: 5.6407
+  type: 'test'
+  ...
+# Subtest: P136 objetivo no histórico sem conclusão: transação reverte e importação falha fechada
+ok 12 - P136 objetivo no histórico sem conclusão: transação reverte e importação falha fechada
+  ---
+  duration_ms: 3.7517
+  type: 'test'
+  ...
+# Subtest: P136 histórico de objetivo duplicado: transação reverte e importação falha fechada
+ok 13 - P136 histórico de objetivo duplicado: transação reverte e importação falha fechada
+  ---
+  duration_ms: 8.7772
+  type: 'test'
+  ...
+# Subtest: P136 relógio fora dos limites: transação reverte e importação falha fechada
+ok 14 - P136 relógio fora dos limites: transação reverte e importação falha fechada
+  ---
+  duration_ms: 7.8082
+  type: 'test'
+  ...
+# Subtest: P136 relógio booleano: transação reverte e importação falha fechada
+ok 15 - P136 relógio booleano: transação reverte e importação falha fechada
+  ---
+  duration_ms: 12.4563
+  type: 'test'
+  ...
+# Subtest: P136 cena atual inexistente: transação reverte e importação falha fechada
+ok 16 - P136 cena atual inexistente: transação reverte e importação falha fechada
+  ---
+  duration_ms: 5.3542
+  type: 'test'
+  ...
+# Subtest: P136 visita duplicada: transação reverte e importação falha fechada
+ok 17 - P136 visita duplicada: transação reverte e importação falha fechada
+  ---
+  duration_ms: 15.4241
+  type: 'test'
+  ...
+# Subtest: P136 consequência duplicada: transação reverte e importação falha fechada
+ok 18 - P136 consequência duplicada: transação reverte e importação falha fechada
+  ---
+  duration_ms: 7.7925
+  type: 'test'
+  ...
+# Subtest: P136 consequência resolvida sem data: transação reverte e importação falha fechada
+ok 19 - P136 consequência resolvida sem data: transação reverte e importação falha fechada
+  ---
+  duration_ms: 6.1844
+  type: 'test'
+  ...
+# Subtest: P136 dados não numéricos em efeitos falham sem contaminar clocks, counters ou journal
+ok 20 - P136 dados não numéricos em efeitos falham sem contaminar clocks, counters ou journal
+  ---
+  duration_ms: 52.7345
+  type: 'test'
+  ...
+# Subtest: P136 módulos com identificadores que colidem com protótipos são recusados
+ok 21 - P136 módulos com identificadores que colidem com protótipos são recusados
+  ---
+  duration_ms: 16.9936
+  type: 'test'
+  ...
+# Subtest: P136 under-black-sun: evento, consequência, objetivo, clock, restauração e projeção em um commit
+ok 22 - P136 under-black-sun: evento, consequência, objetivo, clock, restauração e projeção em um commit
+  ---
+  duration_ms: 99.3118
+  type: 'test'
+  ...
+# Subtest: P136 beyond-the-rim: evento, consequência, objetivo, clock, restauração e projeção em um commit
+ok 23 - P136 beyond-the-rim: evento, consequência, objetivo, clock, restauração e projeção em um commit
+  ---
+  duration_ms: 60.8714
+  type: 'test'
+  ...
+# Subtest: P136 long-arm-of-the-hutt: evento, consequência, objetivo, clock, restauração e projeção em um commit
+ok 24 - P136 long-arm-of-the-hutt: evento, consequência, objetivo, clock, restauração e projeção em um commit
+  ---
+  duration_ms: 64.018
+  type: 'test'
+  ...
+# Subtest: P136 jewel-of-yavin: evento, consequência, objetivo, clock, restauração e projeção em um commit
+ok 25 - P136 jewel-of-yavin: evento, consequência, objetivo, clock, restauração e projeção em um commit
+  ---
+  duration_ms: 17.2193
+  type: 'test'
+  ...
+# Subtest: P136 mask-of-the-pirate-queen: evento, consequência, objetivo, clock, restauração e projeção em um commit
+ok 26 - P136 mask-of-the-pirate-queen: evento, consequência, objetivo, clock, restauração e projeção em um commit
+  ---
+  duration_ms: 93.6329
+  type: 'test'
+  ...
+# Subtest: P136 AoR Jump Up compartilha o efeito JUMP sem criar efeito para talento não mapeado
+ok 27 - P136 AoR Jump Up compartilha o efeito JUMP sem criar efeito para talento não mapeado
+  ---
+  duration_ms: 53.3996
+  type: 'test'
+  ...
+# Subtest: P136 under-black-sun: três reaberturas e 100 turnos preservam journal, objetivos e sequência
+ok 28 - P136 under-black-sun: três reaberturas e 100 turnos preservam journal, objetivos e sequência
+  ---
+  duration_ms: 1961.5391
+  type: 'test'
+  ...
+# Subtest: P136 beyond-the-rim: três reaberturas e 100 turnos preservam journal, objetivos e sequência
+ok 29 - P136 beyond-the-rim: três reaberturas e 100 turnos preservam journal, objetivos e sequência
+  ---
+  duration_ms: 1461.2461
+  type: 'test'
+  ...
+# Subtest: P136 long-arm-of-the-hutt: três reaberturas e 100 turnos preservam journal, objetivos e sequência
+ok 30 - P136 long-arm-of-the-hutt: três reaberturas e 100 turnos preservam journal, objetivos e sequência
+  ---
+  duration_ms: 1402.5196
+  type: 'test'
+  ...
+# Subtest: P136 jewel-of-yavin: três reaberturas e 100 turnos preservam journal, objetivos e sequência
+ok 31 - P136 jewel-of-yavin: três reaberturas e 100 turnos preservam journal, objetivos e sequência
+  ---
+  duration_ms: 1545.7655
+  type: 'test'
+  ...
+# Subtest: P136 mask-of-the-pirate-queen: três reaberturas e 100 turnos preservam journal, objetivos e sequência
+ok 32 - P136 mask-of-the-pirate-queen: três reaberturas e 100 turnos preservam journal, objetivos e sequência
+  ---
+  duration_ms: 1292.7194
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9949.2907
+
