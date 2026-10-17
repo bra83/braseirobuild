@@ -25,6 +25,7 @@ const EXHAUST_PORT_POSITION='ace:gunner:r4c4';
 const HEROIC_FORTITUDE_POSITION='ace:gunner:r5c1';
 const JURY_RIGGED_POSITION='ace:gunner:r3c3';
 const JURY_RIGGED_RANK2_POSITION='ace:gunner:r5c2';
+const TRUE_AIM_POSITION='ace:gunner:r2c4';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
  careerFreeSkills:['astronavegacion','frialdad','mecanica','percepcion'],
@@ -776,4 +777,54 @@ test('AoR p.68 Ace/Gunner R3C3 Jury Rigged buys exact node, improves an owned we
   assert.equal(attack.criticalCost,unmodifiedAttack.criticalCost-1,'the real attack reduces the R3C3 critical threshold by one');
  }
  assert.equal(bridge.buyTalent(JURY_RIGGED_POSITION).ok,false,'the exact node cannot be purchased twice');
+});
+
+test('AoR p.68 Ace/Gunner R2C4 True Aim buys exact node, upgrades a ranged attack and survives three reloads',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');setup.createAorCharacter({...characterOptions,name:'Tessa Vorn'});
+ const weapon=weaponCatalogEntry('blaster_pistol');assert.ok(weapon);
+ const armed=clone(setup.state.player.character);
+ armed.weapons=[{...clone(weapon),sourceCatalogId:weapon.id,ownedAssetId:'uae-r2c4-blaster',active:true,equipped:true,runtimeState:{}}];
+ armed.skills.armas_distancia_ligeras=2;setup.setCharacter(armed);
+ const before=clone(repo.state.player.character),bridge=new BraseiroUiBridge({repository:repo});
+ const prerequisite=bridge.buyTalent(DEBILITATING_POSITION);
+ assert.equal(prerequisite.ok,true,'the exact adjacent R1C4 prerequisite is purchased');
+ const candidate=new GameController(repo).eligibleTalents().find(n=>n.id===TRUE_AIM_POSITION);
+ assert.ok(candidate);assert.equal(candidate.available,true);assert.equal(candidate.originalName,'DISPARO CERTERO');
+ assert.equal(candidate.name,'Disparo certeiro');assert.equal(candidate.cost,10);
+ assert.equal(candidate.source.printedPage,68);assert.equal(candidate.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+ const treeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(n=>n.id===TRUE_AIM_POSITION);
+ assert.ok(treeNode);assert.equal(treeNode.originalName,'DISPARO CERTERO');assert.equal(treeNode.cost,10);assert.equal(treeNode.source.printedPage,68);
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ assert.match(html,/id="trueAimControl" hidden/);assert.match(html,/id="trueAimButton"/);assert.match(html,/id="aimManeuverMethod"/);
+ assert.match(ui,/game\.talentRank\('TRUEAIM'\)/);
+ assert.match(ui,/game\.aim\(\{mode:'true_aim',maneuverMethod:\$\('aimManeuverMethod'\)\.value\}\)/);
+ const purchase=bridge.buyTalent(TRUE_AIM_POSITION);
+ assert.equal(purchase.ok,true);assert.equal(purchase.data.talent.id,TRUE_AIM_POSITION);
+ assert.equal(purchase.data.character.xp.available,before.xp.available-15);
+ const receipt=purchase.data.character.talentPurchases.find(entry=>entry.nodeId===TRUE_AIM_POSITION);
+ assert.ok(receipt);assert.equal(receipt.originalName,'DISPARO CERTERO');assert.equal(receipt.source.printedPage,68);
+ assert.equal(receipt.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+ assert.equal(receipt.specializationKey,'gunner');assert.equal(receipt.cost,10);
+
+ new GameController(repo).beginCombat();
+ const activation=bridge.aim({mode:'true_aim',maneuverMethod:'normal'});
+ assert.equal(activation.ok,true);assert.equal(activation.data.combat.pendingAim.mode,'true_aim');
+ assert.equal(activation.data.combat.playerTurn.maneuversUsed,1);assert.equal(activation.data.combat.playerTurn.trueAimUsed,true);
+ const readyState=clone(repo.state);
+ assert.equal(bridge.aim({mode:'true_aim',maneuverMethod:'normal'}).ok,false,'the exact talent can only be used once per round');
+ for(let reopen=1;reopen<=3;reopen++){
+  const restored=new GameController(new RepoWithState(readyState));assert.equal(validateState(restored.state),true);
+  const character=restored.state.player.character,owned=character.talentPurchases.find(entry=>entry.nodeId===TRUE_AIM_POSITION);
+  assert.ok(owned,`exact R2C4 source receipt survives reopen ${reopen}`);
+  assert.equal(owned.source.printedPage,68);assert.equal(owned.specializationKey,'gunner');
+  assert.equal(restored.state.combat.pendingAim.mode,'true_aim');assert.equal(restored.state.combat.playerTurn.trueAimUsed,true);
+  const attack=restored.resolveWeaponAttack({weaponIndex:0,targetRange:'Curto',rng:()=>.4});
+  assert.equal(attack.hit,true);assert.equal(restored.state.lastCheck.trueAimUpgrades,1);
+  assert.equal(restored.state.lastCheck.pool.proficiency,2);assert.equal(restored.state.lastCheck.pool.ability,1);
+  assert.equal(restored.state.lastCheck.pool.boost,1);
+  assert.equal(restored.state.combat.pendingAim,undefined);assert.equal(restored.state.combat.playerTurn.trueAimUsed,true);
+ }
+ assert.equal(bridge.buyTalent(TRUE_AIM_POSITION).ok,false,'the exact node cannot be purchased twice');
 });

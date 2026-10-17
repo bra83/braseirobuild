@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: catálogo EotE preserva 18 especializações e AoR permanece aditivo
+ok 1 - catálogo EotE preserva 18 especializações e AoR permanece aditivo
+  ---
+  duration_ms: 8.8419
+  type: 'test'
+  ...
+# Subtest: API de primeira linha preserva árvores Core e adiciona AoR e Exilado
+ok 2 - API de primeira linha preserva árvores Core e adiciona AoR e Exilado
+  ---
+  duration_ms: 1.0248
+  type: 'test'
+  ...
+# Subtest: somente primeira linha inicia desbloqueada; conexão adquirida libera nó seguinte
+ok 3 - somente primeira linha inicia desbloqueada; conexão adquirida libera nó seguinte
+  ---
+  duration_ms: 9.6381
+  type: 'test'
+  ...
+# Subtest: talento profundo desconectado não pode ser comprado diretamente
+ok 4 - talento profundo desconectado não pode ser comprado diretamente
+  ---
+  duration_ms: 2.5045
+  type: 'test'
+  ...
+# Subtest: compra desconta o custo da linha e um mesmo espaço só é comprado uma vez
+ok 5 - compra desconta o custo da linha e um mesmo espaço só é comprado uma vez
+  ---
+  duration_ms: 2.9051
+  type: 'test'
+  ...
+# Subtest: talento repetido em espaços diferentes soma graus
+ok 6 - talento repetido em espaços diferentes soma graus
+  ---
+  duration_ms: 3.0692
+  type: 'test'
+  ...
+# Subtest: Dedicação exige escolha, respeita máximo 6 e atualiza derivados ligados
+ok 7 - Dedicação exige escolha, respeita máximo 6 e atualiza derivados ligados
+  ---
+  duration_ms: 27.9482
+  type: 'test'
+  ...
+# Subtest: Firmeza, Endurecido e Resistente aplicam somente seus efeitos passivos EotE
+ok 8 - Firmeza, Endurecido e Resistente aplicam somente seus efeitos passivos EotE
+  ---
+  duration_ms: 6.3018
+  type: 'test'
+  ...
+# Subtest: API compatível de primeira linha continua restrita à linha 1
+ok 9 - API compatível de primeira linha continua restrita à linha 1
+  ---
+  duration_ms: 2.8278
+  type: 'test'
+  ...
+# Subtest: talento de outra especialização não pode ser comprado por ID
+ok 10 - talento de outra especialização não pode ser comprado por ID
+  ---
+  duration_ms: 1.2724
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 653.0404

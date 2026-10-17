@@ -820,6 +820,12 @@ function renderCombat(character, combat) {
   $('aimStatus').textContent=Number(combat.pendingAttackBoost ?? 0)>0
     ? `Mirar preparado: +${combat.pendingAttackBoost} dado de Impulso no próximo ataque.`
     : 'Nenhum bônus de Mirar preparado.';
+  const trueAimRank=game.talentRank('TRUEAIM'),trueAimUsed=Boolean(combat.playerTurn?.trueAimUsed);
+  const selectedAimWeapon=character.weapons?.[Number($('weaponSelect').value)];
+  const trueAimMelee=Boolean(selectedAimWeapon&&['pelea','armas_cuerpo_a_cuerpo'].includes(selectedAimWeapon.skill));
+  $('trueAimControl').hidden=trueAimRank<1;
+  $('trueAimButton').disabled=!combat.active||!ready||health.unconscious||trueAimRank<1||trueAimUsed||!selectedAimWeapon||trueAimMelee||combat.playerTurn.maneuversUsed>=2;
+  $('trueAimStatus').textContent=trueAimRank<1?'Mira Verdadeira não adquirida.':trueAimUsed?'Mira Verdadeira já foi usada nesta rodada.':trueAimMelee?'Mira Verdadeira exige arma de ataque à distância.':`Disponível: ${trueAimRank} aprimoramento(s) de habilidade no próximo ataque à distância.`;
   const braceRank=game.talentRank('FIRMEZA'),bracePending=combat.aorBracePrepared;
   $('braceButton').disabled=!combat.active||!ready||health.unconscious||braceRank<1||Boolean(bracePending)||combat.playerTurn.maneuversUsed>=2;
   $('braceStatus').textContent=bracePending?`Brace preparado: ${bracePending.rank} graduação(ões); informe somente os contratempos ambientais no próximo teste ou ataque.`:
@@ -1341,6 +1347,10 @@ $('swe02LylekRetreat').addEventListener('click',()=>{try{const r=game.resolveSWE
 $('swe02ArrivalDetails').addEventListener('click',()=>{try{const r=game.revealSWE02OldLylekDeveloperDetails({asked:true});if(!r.ok)throw Error(r.message);showFeedback('swe02OldLylekFeedback','Detalhes do desenvolvedor revelados após pergunta dos PCs (SWE02 pp.18–19).');render();}catch(e){showFeedback('swe02OldLylekFeedback',e.message);}});
 $('aimButton').addEventListener('click',()=>{
   try { game.aim({maneuverMethod:$('aimManeuverMethod').value}); showFeedback('maneuverFeedback','Mirar preparado: +1 Impulso no próximo ataque.'); render(); }
+  catch(e){ showFeedback('maneuverFeedback',e.message); }
+});
+$('trueAimButton').addEventListener('click',()=>{
+  try { game.aim({mode:'true_aim',maneuverMethod:$('aimManeuverMethod').value}); showFeedback('maneuverFeedback','Mira Verdadeira preparada: o próximo ataque à distância aprimora a habilidade.'); render(); }
   catch(e){ showFeedback('maneuverFeedback',e.message); }
 });
 $('braceButton').addEventListener('click',()=>{

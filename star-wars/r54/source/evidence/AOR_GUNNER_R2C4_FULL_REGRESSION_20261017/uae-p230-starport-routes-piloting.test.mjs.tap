@@ -1,0 +1,82 @@
+TAP version 13
+# Subtest: P230 official route requires GM physical arrival, route, security, no phantom movement
+ok 1 - P230 official route requires GM physical arrival, route, security, no phantom movement
+  ---
+  duration_ms: 1025.4809
+  type: 'test'
+  ...
+# Subtest: P230 non-destructive maintenance/sewer/deeper routes do not award Criminal Obligation
+ok 2 - P230 non-destructive maintenance/sewer/deeper routes do not award Criminal Obligation
+  ---
+  duration_ms: 2157.1407
+  type: 'test'
+  ...
+# Subtest: P230 destructive escape requires real published completed encounter and explicit GM proof
+ok 3 - P230 destructive escape requires real published completed encounter and explicit GM proof
+  ---
+  duration_ms: 669.6652
+  type: 'test'
+  ...
+# Subtest: P230 receipts detect falsified route, physical proof, duplicate, chronology and encounter
+ok 4 - P230 receipts detect falsified route, physical proof, duplicate, chronology and encounter
+  ---
+  duration_ms: 744.866
+  type: 'test'
+  ...
+# Subtest: P230 3 reopens preserve Criminal Obligation, physical route and receipts
+ok 5 - P230 3 reopens preserve Criminal Obligation, physical route and receipts
+  ---
+  duration_ms: 725.1074
+  type: 'test'
+  ...
+# Subtest: P230 upgrade scope: borrowed ship only, Space Piloting only, before offworld escape
+ok 6 - P230 upgrade scope: borrowed ship only, Space Piloting only, before offworld escape
+  ---
+  duration_ms: 814.2686
+  type: 'test'
+  ...
+# Subtest: P230 crew Copilot real Piloting Space roll is upgraded, Planetary roll is not
+ok 7 - P230 crew Copilot real Piloting Space roll is upgraded, Planetary roll is not
+  ---
+  duration_ms: 1366.0379
+  type: 'test'
+  ...
+# Subtest: P230 tractor escape and hazard real rolls upgrade in borrowed craft
+ok 8 - P230 tractor escape and hazard real rolls upgrade in borrowed craft
+  ---
+  duration_ms: 702.2237
+  type: 'test'
+  ...
+# Subtest: P230 UI/controller/bridge/bundle/Android source integration
+ok 9 - P230 UI/controller/bridge/bundle/Android source integration
+  ---
+  duration_ms: 86.0457
+  type: 'test'
+  ...
+# Subtest: P230 real Wing Guard combat ending in player incapacitation does NOT trigger Criminal Obligation
+ok 10 - P230 real Wing Guard combat ending in player incapacitation does NOT trigger Criminal Obligation
+  ---
+  duration_ms: 946.1845
+  type: 'test'
+  ...
+# Subtest: P230 Gain the Advantage uses upgraded difficulty on real Space Piloting and not Planetary
+ok 11 - P230 Gain the Advantage uses upgraded difficulty on real Space Piloting and not Planetary
+  ---
+  duration_ms: 1565.2969
+  type: 'test'
+  ...
+# Subtest: P230 Full Throttle real skill action upgrades borrowed ship Space Piloting only
+ok 12 - P230 Full Throttle real skill action upgrades borrowed ship Space Piloting only
+  ---
+  duration_ms: 1385.2548
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 13455.1751

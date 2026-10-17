@@ -1,0 +1,10 @@
+# AoR Ace/Gunner R2C4 source review
+
+- Position: `ace:gunner:r2c4`, DISPARO CERTERO (localized as Disparo certeiro), printed page 68 of *Star Wars: Age of Rebellion Core Rulebook*.
+- Source file reviewed: `AoR-Core-Rulebook.pdf`, Google Drive file ID `1w2M6f7R_dzaaHk6Q6R8Y7TIqAYM2MJIq`.
+- SHA-256: `25087E5B43C289EF556A365EEC1177123055DFB75C3ECF03481CD66044CACE50`.
+- Visual review: physical PDF page 69 (one-based; zero-based index 68), printed footer 68. The Ace: Gunner tree places this True Aim slot at R2C4 for 10 XP. It adds one ability upgrade to the True Aim attack; the maneuver can be used once per round.
+- Deterministic consumer: `rules/talents.mjs:471-475` derives True Aim rank from source-backed purchases. `core/controller.mjs:5640-5662` validates combat/ownership/once-per-round and spends a maneuver; `controller.mjs:5185-5202` upgrades the ranged attack pool by the owned rank. `core/uiBridge.mjs:1654-1658` exposes the route. The main UI adds `index.html#trueAimControl` and `ui/app.mjs` gates the button to the owned talent, active player turn, unused round ability and a non-melee selected weapon, then forwards `mode:'true_aim'` through the controller.
+- Exact acquisition and persistence test: `tests/uae-aor-individual-position-proofs.test.mjs`, test `AoR p.68 Ace/Gunner R2C4 True Aim buys exact node, upgrades a ranged attack and survives three reloads`. It purchases the adjacent exact R1C4 prerequisite and R2C4 through `BraseiroUiBridge.buyTalent`, verifies 10 XP and source provenance, starts combat and activates True Aim through the bridge. Three fresh controllers restore the pending aim and once-per-round state, resolve a ranged attack with one additional ability upgrade, and consume the aim while preserving the used-round flag.
+- Full per-file regression: `evidence/AOR_GUNNER_R2C4_FULL_REGRESSION_20261017/summary.json` and per-file TAP logs, including all six stress files.
+- Certification scope: this evidence certifies only R2C4. Other AoR positions retain their individual statuses.
