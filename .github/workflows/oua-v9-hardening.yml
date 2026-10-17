@@ -30,6 +30,9 @@ jobs:
           node --check ci/oua-4.9.212/guard-hardening.test.mjs
           node --check ci/oua-4.9.212/hardening.test.mjs
           node --check ci/oua-4.9.212/stage-v9-in-android.mjs
+          node --check ci/oua-4.9.212/staging-safety.test.mjs
+      - name: Execute no-secrets staging fixture
+        run: node --test ci/oua-4.9.212/staging-safety.test.mjs
   native_integration:
     if: github.event_name == 'workflow_dispatch'
     needs: patch_syntax
