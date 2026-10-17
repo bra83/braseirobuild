@@ -156,7 +156,30 @@
 
 ## Resume update — SWE02 RAG printed-page citation path (2026-10-16)
 
-- The native-library adapter now preserves physical PDF `page` and optional printed-book `printedPage` separately through source search, master query receipts and the provider context. This prevents the SWE02 printed p.13 / physical PDF p.12 mismatch from collapsing into a misleading citation.
+- The native-library adapter preserves physical PDF `page` and optional printed-book `printedPage` separately through source search, master query receipts and the provider context.
 - A P234 integration test exercises the native-library fixture → RAG → Gemini context path and asserts reference-only authority. Focused RAG/hybrid suite passes 17/17; bundle rebuild succeeds at 135 modules. Evidence: `evidence/SWE02_P13_RAG_CITATION_20261016/`.
 - Fresh full regression: 382 files, 3,464 tests, 3,462 pass, 0 fail, 2 expected JDK `jar` skips. Evidence: `evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_FINAL_20261016/`.
 - Actual Android import/retrieval of the official adventure PDF remains unverified, as do p.13 page-wide crosswalk and fuel details. Keep all adventure/rule certifications pending.
+
+## Resume update — native PDF printed-page mapping (2026-10-16)
+
+- The Android Library now lets the user set a per-document integer offset between physical PDF pages and printed book pages. The metadata survives reindexing; retrieved results carry both page values when mapped, and retain a null printed page when no mapping is configured. Out-of-range and fractional offsets are rejected.
+- The UI displays both citations and labels the offset as user-supplied. Visual review of the local official SWE02 PDF confirms printed p.13 is also physical PDF p.13, so its correct offset is 0; on-device import and retrieval have not yet been exercised.
+- Focused PDF policy, source authority, library, and P234 hybrid suites pass 28/28. UI bridge bundle rebuild passes with 135 modules. Evidence: `evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/`.
+- Fresh full regression after the code and bundle changes: 382 files, 3,464 tests, 3,462 pass, 0 fail, 2 offline JDK `jar` packaging skips. Every test file produced a complete summary; evidence: `evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/summary.json`.
+- SWE02 p.13 and overall certification remain pending; this closes citation mapping support only. RAG remains reference-only, code remains the sole mechanic/state authority, and Gemini remains narration/typed-proposal only.
+
+## Resume update — SWE02 p.13 source verification and scene coverage (2026-10-16)
+
+- Visual review of the official local PDF confirms printed p.13 is physical PDF p.13 (offset 0). An earlier p.12/+1 assumption was wrong; the test fixture, status record, and audit now use p.13/0. The PDF SHA-256 and rendered source page are in `evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/source-review.md` and `official-pdf-physical-page-13.png`.
+- Expanded SWE02 scene narration from the p.13 source to include the exposed landing/cantina level, cavern homes and market stalls, local merchants and the optional port alert, plus the militant safehouse, Nyn’s role, shelter care and one physician attempt per Critical Injury. Added a cited UI note for the 500-credit market limit.
+- p.13 remains pending: the Android import path, full page-level route/effect proof, fuel values/prices (unspecified by the source), and end-to-end persistence review still need evidence. Overall adventure/rule/AoR certification gates remain unchanged.
+- Focused PDF policy, source authority, Library, P234 hybrid, and P240 Nabat suites pass 45/45. Full 382-file regression after the scene changes passes 3,462/3,464 tests with zero failures and two expected JDK `jar` skips; all files have complete summaries.
+
+## Resume update — Nyn shelter care for all PCs (2026-10-16)
+
+- Changed the Nabat safehouse action to heal normal wounds and strain for every registered PC in one atomic action. It requires a complete roster matching session playerCount, writes one stable-ID receipt per PC, rejects combat and duplicate group care, and persists the whole roster with the adventure receipts. The old single-active-PC method remains available to earlier callers and now uses the stable roster ID.
+- Nyn's one-attempt Critical Injury treatment can select any registered PC, including a non-active character; UI injury options follow the selected patient. Treatment and shelter actions are blocked during combat.
+- Focused P240/P241 suites pass 36/36; offline bridge bundle rebuild passes with 135 modules. Evidence: `evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/party-care-focused.tap` and `party-care-bundle-build.log`.
+- Fresh per-file regression passes 3,464/3,466 tests across 382 files (376 regular + 6 stress), 0 failures, 2 expected JDK `jar` skips; all files have complete summaries. Evidence: `evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/summary.json`.
+- Page-wide p.13 proof, actual on-device PDF import/retrieval, unspecified fuel amount/pricing, and the wider SWE02/five-adventure/rules/AoR scope remain open. No P245, Gradle/APK, CI, or device gate was run.

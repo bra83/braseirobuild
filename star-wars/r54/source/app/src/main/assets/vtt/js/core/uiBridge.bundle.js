@@ -3373,6 +3373,17 @@ class BraseiroUiBridge {
             return fail('SWE02_NABAT_FAILED', messageOf(e));
         }
     }
+    treatSWE02NabatPartyCare() {
+        const r = this._controllerForExistingCampaign();
+        if (!r.ok)
+            return r;
+        try {
+            return ok(clone(r.data.treatSWE02NabatPartyCare()));
+        }
+        catch (e) {
+            return fail('SWE02_NABAT_FAILED', messageOf(e));
+        }
+    }
     treatSWE02NynCritical(options = {}) {
         const r = this._controllerForExistingCampaign();
         if (!r.ok)
@@ -13828,8 +13839,8 @@ exports.LONG_ARM_OF_THE_HUTT = Object.freeze({
         },
         'nabat-arrival': {
             episode: 1, title: 'Chegada ao porto de Nabat', locationId: LOC.nabat,
-            summary: 'SWE02 p.13: as plataformas, moradias pobres e cantina ocupam o nível exposto; os túneis protegem a população do clima e dos lyleks. B’ura B’an providencia atracamento seguro e reparos pagos pelos contatos locais. A remoção do transponder pode ser tentada após o pouso.',
-            narration: 'As plataformas e a cantina ficam no nível superior, exposto ao clima de Ryloth. B’ura B’an conduz a tripulação para baixo, onde os túneis abrigam moradores dos elementos e dos lyleks errantes. Ele garante atracamento seguro para a Krayt Fang e oferece reparos pagos por seus contatos. Se quiserem retirar o transponder, este é o momento de fazê-lo em solo.',
+            summary: 'SWE02 p.13: as plataformas, moradias modestas e cantina ocupam o nível exposto; túneis, lojas e casas escavadas nas cavernas protegem a população do clima e dos lyleks. B’ura garante o atracamento e reparos pagos pelos contatos, indica comerciantes e pode pedir que o porto informe sobre chegadas de Tatooine. A remoção do transponder pode ser tentada após o pouso.',
+            narration: 'As plataformas, as moradias modestas e a cantina ficam no nível superior, exposto ao clima de Ryloth. Mais abaixo, casas escavadas nas cavernas se abrem para corredores estreitos, lojas e bancas; Twi’leks, Aqualish e droides circulam entre comerciantes humanos. Os túneis protegem a população do clima severo e dos lyleks predadores que vagam por Ryloth. B’ura B’an garante atracamento seguro para a Krayt Fang e reparos pagos por seus contatos. Ele conhece comerciantes locais e, se vocês pedirem, solicitará ao pessoal do espaçoporto que avise sobre futuras chegadas de Tatooine. Se quiserem retirar o transponder, este é o momento de fazê-lo em solo.',
             visibleNpcIds: [NPC.bura], checks: [], choices: [
                 { id: 'nabat-meet-nyn', label: 'Conhecer Nyn Kablo e os militantes nos túneis', to: 'nabat-contact' },
                 { id: 'nabat-hull-inspection', label: 'Inspecionar o transponder após pousar', to: 'krayt-fang-ground-inspection' }
@@ -13845,8 +13856,8 @@ exports.LONG_ARM_OF_THE_HUTT = Object.freeze({
         },
         'nabat-contact': {
             episode: 1, title: 'Contato em Nabat', locationId: LOC.nabat,
-            summary: 'Nyn e B’ura B’an procuram ajuda para os mineiros de New Meen.',
-            narration: 'Entre passagens subterrâneas, trabalhadores deslocados descrevem a pressão crescente sobre as minas de ryll.',
+            summary: 'SWE02 p.13: a célula militante reúne três Twi’leks e dois humanos; Nyn Kablo, sua líder, oferece abrigo, comida, bebida e cuidados. Ela conversa com B’ura sobre o que ele sofreu e então procura os PCs para pedir ajuda aos mineiros de New Meen.',
+            narration: 'B’ura afasta vocês das passagens mais movimentadas e conduz a tripulação até uma sala ampla, escondida atrás de uma porta metálica. A célula que protege os interesses dos Twi’leks comuns em Ryloth reúne três Twi’leks e dois humanos. Nyn Kablo, sua líder serena, vive num pequeno aposento ao lado da sala principal. Enquanto conversa com B’ura sobre o que ele sofreu, oferece a vocês comida, bebida, descanso e atendimento: ferimentos e tensão são tratados, e um médico Twi’lek tenta curar cada Ferimento Crítico uma vez. Depois, Nyn se aproxima para falar dos mineiros de New Meen.',
             visibleNpcIds: [NPC.nyn, NPC.bura], checks: [{ skill: 'Charme', difficulty: 'Média', purpose: 'conquistar a confiança dos representantes twi’lek' }],
             choices: [{ id: 'travel-lylek-den', label: 'Descansar no abrigo de Nyn durante a noite', to: 'nabat-morning-departure' }]
         },
@@ -19048,9 +19059,9 @@ function nabatShipRepair(world, vehicles) {
         disabledComponentsBefore: before.disabledComponents, disabledComponentsAfter: [...repairedShip.disabledComponents] });
     return { world: w, vehicles: v, receipt: r };
 }
-function nabatSafehouseCare(world, character) {
+function nabatSafehouseCare(world, character, { characterKey = null } = {}) {
     const w = clone(world), p = active(w, new Set(['nabat-contact']));
-    const who = key(character);
+    const who = String(characterKey ?? key(character)).trim();
     if (!who)
         throw Error('SWE02: personagem sem identidade para cuidados.');
     if ((p.nabatReceipts || []).some(x => x.type === 'SAFEHOUSE_CARE' && x.characterKey === who))
@@ -20489,8 +20500,8 @@ function validateCheck(check, expected) { if (!check || !Array.isArray(check.fac
         throw Error('SWE02: quantidade de dados adulterada.'); const resolved = (0, narrativeDice_mjs_1.resolveSymbols)(raw); for (const k of ['success', 'netSuccess', 'netAdvantage', 'triumph', 'despair'])
     if (resolved[k] !== check[k])
         throw Error('SWE02: símbolos de dados adulterados.'); }
-function nynCriticalCare(world, character, { injuryId, rng = Math.random } = {}) {
-    const w = clone(world), c = clone(character), p = active(w, 'nabat-contact'), who = id(c);
+function nynCriticalCare(world, character, { injuryId, characterKey = null, rng = Math.random } = {}) {
+    const w = clone(world), c = clone(character), p = active(w, 'nabat-contact'), who = String(characterKey ?? id(c)).trim();
     if (!who || !String(injuryId || '').trim())
         throw Error('SWE02: paciente e ferimento devem ser identificados.');
     if (!(p.nabatReceipts || []).some(r => r.type === 'SAFEHOUSE_CARE' && r.characterKey === who))
@@ -28778,17 +28789,61 @@ class GameController {
     }
     treatSWE02NabatWounds() {
         return this.atomicAction(() => {
-            const out = (0, swe02NabatP240_mjs_1.nabatSafehouseCare)(this.state.world, requireCharacter(this.state.player?.character));
-            this.commit('CHARACTER_UPDATED', { character: out.character });
+            if (this.state.combat?.active)
+                throw Error('SWE02: encerre o combate antes dos cuidados no abrigo.');
+            const roster = clone(this.state.player?.roster ?? { schema: 1, activeCharacterId: null, entries: [] });
+            const entry = roster.entries.find(x => x.id === roster.activeCharacterId);
+            const character = requireCharacter(this.state.player?.character);
+            if (!entry)
+                throw Error('SWE02: PC ativo não existe no roster.');
+            const out = (0, swe02NabatP240_mjs_1.nabatSafehouseCare)(this.state.world, character, { characterKey: entry.id });
+            entry.character = out.character;
+            this.commit('PLAYER_ROSTER_UPDATED', { roster });
             this.commit('WORLD_UPDATED', { world: out.world });
             return clone(out.receipt);
         });
     }
-    /** SWE02 pp.13–14: one real physician dice roll per critical injury. */
-    treatSWE02NynCritical({ injuryId, rng = Math.random } = {}) {
+    treatSWE02NabatPartyCare() {
         return this.atomicAction(() => {
-            const out = (0, swe02SocialP241_mjs_1.nynCriticalCare)(this.state.world, requireCharacter(this.state.player?.character), { injuryId, rng });
-            this.commit('CHARACTER_UPDATED', { character: out.character });
+            if (this.state.combat?.active)
+                throw Error('SWE02: encerre o combate antes dos cuidados no abrigo.');
+            const roster = clone(this.state.player?.roster ?? { schema: 1, activeCharacterId: null, entries: [] });
+            const expected = Number(this.state.session?.campaignRules?.destiny?.playerCount ?? this.state.session?.eoteRules?.destiny?.playerCount ?? this.state.session?.playerCount ?? 1);
+            if (!Number.isSafeInteger(expected) || expected < 1 || expected > 8 || roster.entries.length !== expected)
+                throw Error('SWE02 p.13: cadastre uma ficha individual para cada PC antes dos cuidados do grupo.');
+            let world = clone(this.state.world);
+            const receipts = [];
+            const already = new Set((world.publishedAdventure?.nabatReceipts ?? []).filter(x => x.type === 'SAFEHOUSE_CARE').map(x => String(x.characterKey)));
+            for (const entry of roster.entries) {
+                if (already.has(entry.id))
+                    continue;
+                if (!entry.character)
+                    throw Error('SWE02 p.13: ficha de PC ausente no roster.');
+                const out = (0, swe02NabatP240_mjs_1.nabatSafehouseCare)(world, entry.character, { characterKey: entry.id });
+                world = out.world;
+                entry.character = out.character;
+                receipts.push(out.receipt);
+            }
+            if (!receipts.length)
+                throw Error('SWE02: todos os PCs já receberam os cuidados do abrigo.');
+            this.commit('PLAYER_ROSTER_UPDATED', { roster });
+            this.commit('WORLD_UPDATED', { world });
+            return { type: 'SAFEHOUSE_CARE_PARTY', patients: receipts.length, receipts: clone(receipts), woundsHealed: receipts.reduce((n, x) => n + Number(x.woundsHealed || 0), 0), strainRecovered: receipts.reduce((n, x) => n + Number(x.strainRecovered || 0), 0) };
+        });
+    }
+    /** SWE02 pp.13–14: one real physician dice roll per critical injury. */
+    treatSWE02NynCritical({ characterId = null, injuryId, rng = Math.random } = {}) {
+        return this.atomicAction(() => {
+            if (this.state.combat?.active)
+                throw Error('SWE02: encerre o combate antes do tratamento médico.');
+            const roster = clone(this.state.player?.roster ?? { schema: 1, activeCharacterId: null, entries: [] });
+            const pcId = String(characterId ?? roster.activeCharacterId ?? '');
+            const entry = roster.entries.find(x => x.id === pcId);
+            if (!entry?.character)
+                throw Error('SWE02: selecione uma ficha de PC registrada para o tratamento.');
+            const out = (0, swe02SocialP241_mjs_1.nynCriticalCare)(this.state.world, entry.character, { injuryId, characterKey: entry.id, rng });
+            entry.character = out.character;
+            this.commit('PLAYER_ROSTER_UPDATED', { roster });
             this.commit('WORLD_UPDATED', { world: out.world });
             return clone(out.receipt);
         });
@@ -31671,6 +31726,7 @@ function searchImportedLibrary(query, { limit = 5, bridge = globalThis.BraseiroL
         // adventure PDFs have covers/front matter that shift those numbers.
         page: Number.isSafeInteger(Number(row.page)) && Number(row.page) > 0 ? Number(row.page) : null,
         printedPage: Number.isSafeInteger(Number(row.printedPage)) && Number(row.printedPage) > 0 ? Number(row.printedPage) : null,
+        printedPageOffset: row.printedPageOffset !== null && row.printedPageOffset !== undefined && Number.isSafeInteger(Number(row.printedPageOffset)) ? Number(row.printedPageOffset) : null,
         function: null,
         test: null,
         official: null,
@@ -31681,11 +31737,14 @@ function searchImportedLibrary(query, { limit = 5, bridge = globalThis.BraseiroL
         enabled: row.enabled !== false
     }));
 }
-function updateLibraryDocumentPolicy(docId, { authorityType = 'SUPLEMENTO', enabled = true } = {}, bridge = globalThis.BraseiroLibrary) {
+function updateLibraryDocumentPolicy(docId, { authorityType = 'SUPLEMENTO', enabled = true, printedPageOffset = null } = {}, bridge = globalThis.BraseiroLibrary) {
     if (!bridge || typeof bridge.setDocumentPolicy !== 'function')
         throw new Error('Ajuste de autoridade indisponível neste ambiente.');
     const normalized = (0, sourceAuthority_mjs_1.normalizeLibraryAuthority)(authorityType);
-    const parsed = parseJson(bridge.setDocumentPolicy(String(docId ?? ''), normalized, Boolean(enabled)), { ok: false, message: 'Falha ao atualizar a fonte.' });
+    const offset = printedPageOffset === null || printedPageOffset === undefined || String(printedPageOffset).trim() === '' ? '' : Number(printedPageOffset);
+    if (offset !== '' && (!Number.isSafeInteger(offset) || offset < -1000 || offset > 1000))
+        throw new Error('Ajuste de página impressa deve ser inteiro entre -1000 e 1000.');
+    const parsed = parseJson(bridge.setDocumentPolicy(String(docId ?? ''), normalized, Boolean(enabled), String(offset)), { ok: false, message: 'Falha ao atualizar a fonte.' });
     if (!parsed?.ok)
         throw new Error(parsed?.message || 'Falha ao atualizar a fonte.');
     return parsed;

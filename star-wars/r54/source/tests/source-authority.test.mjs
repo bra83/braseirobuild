@@ -41,13 +41,17 @@ test('entre PDFs igualmente pertinentes, errata prevalece sobre livro básico e 
 });
 
 test('ponte atualiza autoridade e estado ativo de uma fonte',()=>{
+  let args;
   const bridge={
-    setDocumentPolicy(docId,authorityType,enabled){ return JSON.stringify({ok:true,document:{docId,authorityType,enabled}}); }
+    setDocumentPolicy(...values){ args=values; return JSON.stringify({ok:true,document:{docId:values[0],authorityType:values[1],enabled:values[2],printedPageOffset:Number(values[3])}}); }
   };
-  const result=updateLibraryDocumentPolicy('pdf_123',{authorityType:'BASE',enabled:false},bridge);
+  const result=updateLibraryDocumentPolicy('pdf_123',{authorityType:'BASE',enabled:false,printedPageOffset:1},bridge);
   assert.equal(result.ok,true);
   assert.equal(result.document.authorityType,'BASE');
   assert.equal(result.document.enabled,false);
+  assert.equal(result.document.printedPageOffset,1);
+  assert.deepEqual(args,['pdf_123','BASE',false,'1']);
+  assert.throws(()=>updateLibraryDocumentPolicy('pdf_123',{printedPageOffset:1.25},bridge),/inteiro/);
 });
 
 test('busca importada preserva autoridade devolvida pelo Android',()=>{

@@ -52,14 +52,15 @@ test('P234 native Android RAG and merged source path both exclude noncanonical a
 
 test('SWE02 p.13 RAG context preserves printed and physical PDF page citations separately',()=>{
   const previous=globalThis.BraseiroLibrary;
-  const row={id:'nabat-p13',docId:'swe02-official',title:'The Long Arm of the Hutt',fileName:'The Long Arm of the Hutt.pdf',authorityType:'AVENTURA',excerpt:'B’ura arranges safe docking and contact-paid ship repairs. The PCs may remove the transponder after landing.',page:12,printedPage:13,enabled:true};
+  const row={id:'nabat-p13',docId:'swe02-official',title:'The Long Arm of the Hutt',fileName:'The Long Arm of the Hutt.pdf',authorityType:'AVENTURA',excerpt:'B’ura arranges safe docking and contact-paid ship repairs. The PCs may remove the transponder after landing.',page:13,printedPage:13,printedPageOffset:0,enabled:true};
   globalThis.BraseiroLibrary={listDocuments:()=>JSON.stringify([row]),searchDocuments:()=>JSON.stringify({results:[row]})};
   try{
     const context=buildMasterContext(createCampaign('SWE02 RAG'),{intentText:'Nabat',ruleQuery:'Bura Nabat safe docking repairs transponder',maxRules:5});
     const source=context.rules.find(x=>x.id==='nabat-p13');
     assert.ok(source);
-    assert.equal(source.page,12);
+    assert.equal(source.page,13);
     assert.equal(source.printedPage,13);
+    assert.equal(source.printedPageOffset,0);
     assert.equal(source.authorityType,'AVENTURA');
     assert.equal(source.sourceKind,'library_pdf');
     assert.equal(context.hybrid.reference.route,'RAG');

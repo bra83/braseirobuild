@@ -30,14 +30,27 @@ test('P240 p.13: Nabat operations require source-backed safe docking arranged by
  assert.throws(()=>g.repairSWE02KraytFangAtNabat(),/atracamento seguro/);assert.equal(repo.saves,saves);
 });
 test('SWE02 p.13 arrival narration stays source-backed and does not promise fuel',()=>{
- const {g}=setup();
+ const {g,repo}=setup();
  const scene=adapter.currentScene(g.state.world);
- assert.match(scene.narration,/plataformas e a cantina/i);
+ assert.match(scene.narration,/plataformas.*cantina/i);
+ assert.match(scene.narration,/casas escavadas nas cavernas/i);
+ assert.match(scene.narration,/comerciantes humanos/i);
+ assert.match(scene.narration,/avis(e|ará).*chegadas de Tatooine/i);
  assert.match(scene.narration,/clima de Ryloth/);
- assert.match(scene.narration,/lyleks errantes/);
+ assert.match(scene.narration,/lyleks predadores/);
  assert.match(scene.narration,/reparos pagos por seus contatos/);
  assert.match(scene.narration,/retirar o transponder.*em solo/);
  assert.doesNotMatch(scene.narration,/reabastec|abastecimento/i);
+ g.advancePublishedAdventure('nabat-meet-nyn');
+ const contact=adapter.currentScene(g.state.world);
+ assert.match(contact.narration,/três Twi’leks e dois humanos/i);
+ assert.match(contact.narration,/Nyn Kablo/i);
+ assert.match(contact.narration,/médico Twi’lek tenta curar cada Ferimento Crítico uma vez/i);
+ const reopened=new GameController(repo);
+ assert.match(adapter.currentScene(reopened.state.world).narration,/Nyn Kablo/i);
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ assert.match(html,/swe02NabatMarketNote/);
+ assert.match(html,/até 500 créditos podem ser encontrados pelo preço listado/);
 });
 test('P240 p.13: real purchase debits wallet and adds catalog gear atomically',()=>{
  const {g,repo}=setup();const before=g.state.player.character.credits;
@@ -128,6 +141,25 @@ test('P240 p.13: Nyn shelter heals real wounds and strain, never erases critical
  assert.equal(g.state.player.character.criticalInjuries.length,1);assert.equal(r.criticalTreatmentPending,true);
  assert.throws(()=>g.treatSWE02NabatWounds(),/já realizado/);reopen(repo);
 });
+test('SWE02 p.13: Nyn shelter cares for every registered PC once and persists the whole roster',()=>{
+ const {g,repo}=setup();g.advancePublishedAdventure('nabat-meet-nyn');
+ const incompleteSaves=repo.saves;assert.throws(()=>g.treatSWE02NabatPartyCare(),/cadastre uma ficha individual/);assert.equal(repo.saves,incompleteSaves);
+ const second=structuredClone(g.state.player.character);second.id='pc-second';second.name='Segundo PC';
+ g.registerPartyCharacter({character:second,id:'pc:second'});g.selectPartyCharacter('pc:second');
+ const secondWounded=structuredClone(g.state.player.character);secondWounded.derived.wounds.current=4;secondWounded.derived.strain.current=2;
+ secondWounded.criticalInjuries=[{id:'second-critical',code:'stunned',healDifficulty:1,active:true}];g.setCharacter(secondWounded);
+ g.selectPartyCharacter(g.state.player.roster.entries[0].id);
+ const firstWounded=structuredClone(g.state.player.character);firstWounded.derived.wounds.current=5;firstWounded.derived.strain.current=3;
+ firstWounded.criticalInjuries=[{id:'first-critical',code:'stunned',healDifficulty:1,active:true}];g.setCharacter(firstWounded);
+ const r=g.treatSWE02NabatPartyCare();assert.equal(r.patients,2);assert.equal(r.woundsHealed,9);assert.equal(r.strainRecovered,5);
+ for(const entry of g.state.player.roster.entries){assert.equal(entry.character.derived.wounds.current,0);assert.equal(entry.character.derived.strain.current,0);assert.equal(entry.character.criticalInjuries.length,1);}
+ const keys=g.state.world.publishedAdventure.nabatReceipts.filter(x=>x.type==='SAFEHOUSE_CARE').map(x=>x.characterKey).sort();
+ assert.deepEqual(keys,g.state.player.roster.entries.map(x=>x.id).sort());
+ assert.throws(()=>g.treatSWE02NabatPartyCare(),/todos os PCs já receberam/);
+ const reopened=new GameController(repo);assert.equal(reopened.state.player.roster.entries.length,2);
+ assert.ok(reopened.state.player.roster.entries.every(x=>x.character.derived.wounds.current===0&&x.character.derived.strain.current===0));
+ assert.equal(reopened.state.world.publishedAdventure.nabatReceipts.filter(x=>x.type==='SAFEHOUSE_CARE').length,2);reopen(repo);
+});
 test('P240 anti-forgery: missing or modified receipt fails adapter status',()=>{
  const {g}=setup();g.purchaseSWE02NabatItem({itemId:'glow_rod'});
  const w=structuredClone(g.state.world),purchase=w.publishedAdventure.nabatReceipts.find(x=>x.type==='MARKET_PURCHASE');purchase.unitPrice=1;
@@ -144,10 +176,10 @@ test('P240 no mutation outside Nabat; failed actions do not save',()=>{
 });
 test('P240 Android bridge and UI source expose port operations',()=>{
  const b=new BraseiroUiBridge({repository:new Repo()});
- for(const method of ['swe02NabatMarket','purchaseSWE02NabatItem','requestSWE02SpaceportWatch','receiveSWE02SpaceportAlert','repairSWE02KraytFangAtNabat','treatSWE02NabatWounds'])
+ for(const method of ['swe02NabatMarket','purchaseSWE02NabatItem','requestSWE02SpaceportWatch','receiveSWE02SpaceportAlert','repairSWE02KraytFangAtNabat','treatSWE02NabatWounds','treatSWE02NabatPartyCare'])
   assert.equal(typeof b[method],'function',method);
  const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
  const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
- for(const id of ['swe02NabatWatch','swe02NabatAlert','swe02NabatRepair','swe02NabatCare','swe02NabatBuy'])
+ for(const id of ['swe02NabatWatch','swe02NabatAlert','swe02NabatRepair','swe02NabatCare','swe02NynPatientSelect','swe02NabatBuy'])
   {assert.ok(html.includes(`id="${id}"`));assert.ok(ui.includes(id));}
 });

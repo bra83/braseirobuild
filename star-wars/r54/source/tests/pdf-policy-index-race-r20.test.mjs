@@ -19,7 +19,7 @@ test('política da Biblioteca e gravações do indexador usam o mesmo lock de me
   const helper = methodBlock('private void writeIndexMetadataPreservingPolicy', 'private JSONObject readMetadata');
   assert.match(helper, /synchronized \(libraryMetadataLock\)/);
   assert.match(helper, /JSONObject latest = readMetadata\(dir\)/);
-  for (const field of ['authorityType', 'enabled', 'policyUpdatedAt']) {
+  for (const field of ['authorityType', 'enabled', 'policyUpdatedAt', 'printedPageOffset']) {
     assert.match(helper, new RegExp(`latest\\.has\\("${field}"\\)`), `campo mutável não preservado: ${field}`);
   }
   assert.match(helper, /writeMetadata\(dir, metadata\)/);

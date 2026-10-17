@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: EotE Core expõe exatamente 8 espécies, 6 carreiras e 18 especializações
+ok 1 - EotE Core expõe exatamente 8 espécies, 6 carreiras e 18 especializações
+  ---
+  duration_ms: 2.9384
+  type: 'test'
+  ...
+# Subtest: Obligation usa tabela oficial 2+ e política solo explícita; benefícios aumentam Obligation
+ok 2 - Obligation usa tabela oficial 2+ e política solo explícita; benefícios aumentam Obligation
+  ---
+  duration_ms: 6.2798
+  type: 'test'
+  ...
+# Subtest: Humano Contrabandista/Piloto é criado sem Duty e com Obligation
+ok 3 - Humano Contrabandista/Piloto é criado sem Duty e com Obligation
+  ---
+  duration_ms: 3.044
+  type: 'test'
+  ...
+# Subtest: Droide recebe 6 perícias de carreira e 3 da especialização
+ok 4 - Droide recebe 6 perícias de carreira e 3 da especialização
+  ---
+  duration_ms: 1.0123
+  type: 'test'
+  ...
+# Subtest: Gand com pulmões recebe +10 PE e preview reflete variante
+ok 5 - Gand com pulmões recebe +10 PE e preview reflete variante
+  ---
+  duration_ms: 1.3926
+  type: 'test'
+  ...
+# Subtest: estado novo é schema 15 EOTE_CORE e usa group EotE
+ok 6 - estado novo é schema 15 EOTE_CORE e usa group EotE
+  ---
+  duration_ms: 18.2434
+  type: 'test'
+  ...
+# Subtest: migração AoR preserva Duty/Contribution somente em legacyAoR sem converter em Obligation
+ok 7 - migração AoR preserva Duty/Contribution somente em legacyAoR sem converter em Obligation
+  ---
+  duration_ms: 13.8756
+  type: 'test'
+  ...
+# Subtest: controller bloqueia mutação Duty/Contribution e oferece Obligation
+ok 8 - controller bloqueia mutação Duty/Contribution e oferece Obligation
+  ---
+  duration_ms: 14.779
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1277.9531
+

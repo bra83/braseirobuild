@@ -1801,6 +1801,10 @@ completeMerchantAcquisition(options={}){
         const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.treatSWE02NabatWounds()));}catch(e){return fail('SWE02_NABAT_FAILED',messageOf(e));}
     }
+    treatSWE02NabatPartyCare(){
+        const r=this._controllerForExistingCampaign();if(!r.ok)return r;
+        try{return ok(clone(r.data.treatSWE02NabatPartyCare()));}catch(e){return fail('SWE02_NABAT_FAILED',messageOf(e));}
+    }
     treatSWE02NynCritical(options={}){
         const r=this._controllerForExistingCampaign();if(!r.ok)return r;
         try{return ok(clone(r.data.treatSWE02NynCritical(options??{})));}catch(e){return fail('SWE02_SOCIAL_FAILED',messageOf(e));}

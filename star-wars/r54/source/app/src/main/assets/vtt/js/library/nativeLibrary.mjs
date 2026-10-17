@@ -42,6 +42,7 @@ export function searchImportedLibrary(query, { limit = 5, bridge = globalThis.Br
         // adventure PDFs have covers/front matter that shift those numbers.
         page: Number.isSafeInteger(Number(row.page)) && Number(row.page) > 0 ? Number(row.page) : null,
         printedPage: Number.isSafeInteger(Number(row.printedPage)) && Number(row.printedPage) > 0 ? Number(row.printedPage) : null,
+        printedPageOffset: row.printedPageOffset !== null && row.printedPageOffset !== undefined && Number.isSafeInteger(Number(row.printedPageOffset)) ? Number(row.printedPageOffset) : null,
         function: null,
         test: null,
         official: null,
@@ -52,11 +53,13 @@ export function searchImportedLibrary(query, { limit = 5, bridge = globalThis.Br
         enabled: row.enabled !== false
     }));
 }
-export function updateLibraryDocumentPolicy(docId, { authorityType = 'SUPLEMENTO', enabled = true } = {}, bridge = globalThis.BraseiroLibrary) {
+export function updateLibraryDocumentPolicy(docId, { authorityType = 'SUPLEMENTO', enabled = true, printedPageOffset = null } = {}, bridge = globalThis.BraseiroLibrary) {
     if (!bridge || typeof bridge.setDocumentPolicy !== 'function')
         throw new Error('Ajuste de autoridade indisponível neste ambiente.');
     const normalized = (0, sourceAuthority_mjs_1.normalizeLibraryAuthority)(authorityType);
-    const parsed = parseJson(bridge.setDocumentPolicy(String(docId ?? ''), normalized, Boolean(enabled)), { ok: false, message: 'Falha ao atualizar a fonte.' });
+    const offset = printedPageOffset === null || printedPageOffset === undefined || String(printedPageOffset).trim() === '' ? '' : Number(printedPageOffset);
+    if (offset !== '' && (!Number.isSafeInteger(offset) || offset < -1000 || offset > 1000)) throw new Error('Ajuste de página impressa deve ser inteiro entre -1000 e 1000.');
+    const parsed = parseJson(bridge.setDocumentPolicy(String(docId ?? ''), normalized, Boolean(enabled), String(offset)), { ok: false, message: 'Falha ao atualizar a fonte.' });
     if (!parsed?.ok)
         throw new Error(parsed?.message || 'Falha ao atualizar a fonte.');
     return parsed;

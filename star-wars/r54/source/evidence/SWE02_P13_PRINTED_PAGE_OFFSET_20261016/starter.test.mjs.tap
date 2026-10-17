@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: Zal gera ficha inicial válida com recursos verificados
+ok 1 - Zal gera ficha inicial válida com recursos verificados
+  ---
+  duration_ms: 4.6173
+  type: 'test'
+  ...
+# Subtest: Vendri gera ficha inicial válida com recursos verificados
+ok 2 - Vendri gera ficha inicial válida com recursos verificados
+  ---
+  duration_ms: 0.8327
+  type: 'test'
+  ...
+# Subtest: Tendaar gera ficha inicial válida com recursos verificados
+ok 3 - Tendaar gera ficha inicial válida com recursos verificados
+  ---
+  duration_ms: 0.8536
+  type: 'test'
+  ...
+# Subtest: Jin-Rio gera ficha inicial válida com recursos verificados
+ok 4 - Jin-Rio gera ficha inicial válida com recursos verificados
+  ---
+  duration_ms: 0.7055
+  type: 'test'
+  ...
+# Subtest: Cael gera ficha inicial válida com recursos verificados
+ok 5 - Cael gera ficha inicial válida com recursos verificados
+  ---
+  duration_ms: 0.8484
+  type: 'test'
+  ...
+# Subtest: Arkhan gera ficha inicial válida com recursos verificados
+ok 6 - Arkhan gera ficha inicial válida com recursos verificados
+  ---
+  duration_ms: 0.788
+  type: 'test'
+  ...
+# Subtest: valores centrais dos perfis iniciais permanecem estáveis
+ok 7 - valores centrais dos perfis iniciais permanecem estáveis
+  ---
+  duration_ms: 0.9235
+  type: 'test'
+  ...
+# Subtest: fixtures locais de regressão são EotE, não oficiais e sem autoridade AoR
+ok 8 - fixtures locais de regressão são EotE, não oficiais e sem autoridade AoR
+  ---
+  duration_ms: 2.1505
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 520.0719
+

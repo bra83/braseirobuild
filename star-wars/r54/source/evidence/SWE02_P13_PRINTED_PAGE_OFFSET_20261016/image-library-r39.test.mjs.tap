@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: R39 baseline remains present in current additive image-library manifest
+ok 1 - R39 baseline remains present in current additive image-library manifest
+  ---
+  duration_ms: 4.578
+  type: 'test'
+  ...
+# Subtest: R39 visual wave3 contains exactly 10 confirmed assets
+ok 2 - R39 visual wave3 contains exactly 10 confirmed assets
+  ---
+  duration_ms: 1.5667
+  type: 'test'
+  ...
+# Subtest: R39 totals add 3 NPC portraits and 7 beasts without changing maps or droids
+ok 3 - R39 totals add 3 NPC portraits and 7 beasts without changing maps or droids
+  ---
+  duration_ms: 0.3616
+  type: 'test'
+  ...
+# Subtest: R39 direct URLs obey the existing Kainrath whitelist and cache contract
+ok 4 - R39 direct URLs obey the existing Kainrath whitelist and cache contract
+  ---
+  duration_ms: 1.1689
+  type: 'test'
+  ...
+# Subtest: R39 assets remain visual-only and cannot infer mechanics
+ok 5 - R39 assets remain visual-only and cannot infer mechanics
+  ---
+  duration_ms: 0.698
+  type: 'test'
+  ...
+# Subtest: R39 source metadata keeps prior waves and records wave3 separately
+ok 6 - R39 source metadata keeps prior waves and records wave3 separately
+  ---
+  duration_ms: 0.4187
+  type: 'test'
+  ...
+# Subtest: generic visual bridge automatically exposes R39 expanded totals
+ok 7 - generic visual bridge automatically exposes R39 expanded totals
+  ---
+  duration_ms: 67.8002
+  type: 'test'
+  ...
+# Subtest: R39 visual expansion leaves map catalog exactly unchanged
+ok 8 - R39 visual expansion leaves map catalog exactly unchanged
+  ---
+  duration_ms: 3.6701
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6628.2453
+

@@ -1,0 +1,119 @@
+TAP version 13
+# Subtest: P129 under-black-sun: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+ok 1 - P129 under-black-sun: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+  ---
+  duration_ms: 91.6628
+  type: 'test'
+  ...
+# Subtest: P129 beyond-the-rim: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+ok 2 - P129 beyond-the-rim: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+  ---
+  duration_ms: 50.0705
+  type: 'test'
+  ...
+# Subtest: P129 long-arm-of-the-hutt: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+ok 3 - P129 long-arm-of-the-hutt: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+  ---
+  duration_ms: 78.215
+  type: 'test'
+  ...
+# Subtest: P129 jewel-of-yavin: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+ok 4 - P129 jewel-of-yavin: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+  ---
+  duration_ms: 51.6187
+  type: 'test'
+  ...
+# Subtest: P129 mask-of-the-pirate-queen: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+ok 5 - P129 mask-of-the-pirate-queen: partida e primeira escolha auditadas, restauráveis, sem alterar mundo original
+  ---
+  duration_ms: 81.3763
+  type: 'test'
+  ...
+# Subtest: P129: save legado avançado recebe projeção de objetivos sem mutação nem novo turno
+ok 6 - P129: save legado avançado recebe projeção de objetivos sem mutação nem novo turno
+  ---
+  duration_ms: 42.8274
+  type: 'test'
+  ...
+# Subtest: P129: migração recupera episódios percorridos, sem inventar cenas ou recompensas
+ok 7 - P129: migração recupera episódios percorridos, sem inventar cenas ou recompensas
+  ---
+  duration_ms: 14.1889
+  type: 'test'
+  ...
+# Subtest: P129: save legado encerrado e arquivado recupera final e histórico uma vez
+ok 8 - P129: save legado encerrado e arquivado recupera final e histórico uma vez
+  ---
+  duration_ms: 75.8729
+  type: 'test'
+  ...
+# Subtest: P129: alteração externa de cena recupera marcos sem repetir início nem prêmio
+ok 9 - P129: alteração externa de cena recupera marcos sem repetir início nem prêmio
+  ---
+  duration_ms: 29.3365
+  type: 'test'
+  ...
+# Subtest: P129: flags apagadas no legado não reaparecem após restauração UAE
+ok 10 - P129: flags apagadas no legado não reaparecem após restauração UAE
+  ---
+  duration_ms: 21.1798
+  type: 'test'
+  ...
+# Subtest: P129: journal duplicado é rejeitado sem mutar save ou conceder recompensa
+ok 11 - P129: journal duplicado é rejeitado sem mutar save ou conceder recompensa
+  ---
+  duration_ms: 29.3203
+  type: 'test'
+  ...
+# Subtest: P129: validador rejeita divergência de cena, sequência e objetivo inválido
+ok 12 - P129: validador rejeita divergência de cena, sequência e objetivo inválido
+  ---
+  duration_ms: 7.7245
+  type: 'test'
+  ...
+# Subtest: P129: catálogo não anuncia combate para Além da Orla enquanto não houver encontro implementado
+ok 13 - P129: catálogo não anuncia combate para Além da Orla enquanto não houver encontro implementado
+  ---
+  duration_ms: 5.5333
+  type: 'test'
+  ...
+# Subtest: P129: attachment incompatível injetado no save não altera arma nem mods
+ok 14 - P129: attachment incompatível injetado no save não altera arma nem mods
+  ---
+  duration_ms: 3.1515
+  type: 'test'
+  ...
+# Subtest: P129: hard points vêm da arma e catálogo, nunca do custo forjado no save
+ok 15 - P129: hard points vêm da arma e catálogo, nunca do custo forjado no save
+  ---
+  duration_ms: 4.4851
+  type: 'test'
+  ...
+# Subtest: P129: duplicar ID de ativo não duplica attachment nem efeitos
+ok 16 - P129: duplicar ID de ativo não duplica attachment nem efeitos
+  ---
+  duration_ms: 1.2987
+  type: 'test'
+  ...
+# Subtest: P129: armas legadas sem capacidade declarada preservam attachments válidos
+ok 17 - P129: armas legadas sem capacidade declarada preservam attachments válidos
+  ---
+  duration_ms: 1.678
+  type: 'test'
+  ...
+# Subtest: P129: mods de attachment desativado não entram na resolução de ataque
+ok 18 - P129: mods de attachment desativado não entram na resolução de ataque
+  ---
+  duration_ms: 0.7323
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1942.7832
+

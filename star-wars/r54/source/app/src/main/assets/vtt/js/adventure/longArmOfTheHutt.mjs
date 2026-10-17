@@ -124,8 +124,8 @@ export const LONG_ARM_OF_THE_HUTT = Object.freeze({
     },
     'nabat-arrival':{
       episode:1,title:'Chegada ao porto de Nabat',locationId:LOC.nabat,
-      summary:'SWE02 p.13: as plataformas, moradias pobres e cantina ocupam o nível exposto; os túneis protegem a população do clima e dos lyleks. B’ura B’an providencia atracamento seguro e reparos pagos pelos contatos locais. A remoção do transponder pode ser tentada após o pouso.',
-      narration:'As plataformas e a cantina ficam no nível superior, exposto ao clima de Ryloth. B’ura B’an conduz a tripulação para baixo, onde os túneis abrigam moradores dos elementos e dos lyleks errantes. Ele garante atracamento seguro para a Krayt Fang e oferece reparos pagos por seus contatos. Se quiserem retirar o transponder, este é o momento de fazê-lo em solo.',
+      summary:'SWE02 p.13: as plataformas, moradias modestas e cantina ocupam o nível exposto; túneis, lojas e casas escavadas nas cavernas protegem a população do clima e dos lyleks. B’ura garante o atracamento e reparos pagos pelos contatos, indica comerciantes e pode pedir que o porto informe sobre chegadas de Tatooine. A remoção do transponder pode ser tentada após o pouso.',
+      narration:'As plataformas, as moradias modestas e a cantina ficam no nível superior, exposto ao clima de Ryloth. Mais abaixo, casas escavadas nas cavernas se abrem para corredores estreitos, lojas e bancas; Twi’leks, Aqualish e droides circulam entre comerciantes humanos. Os túneis protegem a população do clima severo e dos lyleks predadores que vagam por Ryloth. B’ura B’an garante atracamento seguro para a Krayt Fang e reparos pagos por seus contatos. Ele conhece comerciantes locais e, se vocês pedirem, solicitará ao pessoal do espaçoporto que avise sobre futuras chegadas de Tatooine. Se quiserem retirar o transponder, este é o momento de fazê-lo em solo.',
       visibleNpcIds:[NPC.bura],checks:[],choices:[
         {id:'nabat-meet-nyn',label:'Conhecer Nyn Kablo e os militantes nos túneis',to:'nabat-contact'},
         {id:'nabat-hull-inspection',label:'Inspecionar o transponder após pousar',to:'krayt-fang-ground-inspection'}]
@@ -139,8 +139,8 @@ export const LONG_ARM_OF_THE_HUTT = Object.freeze({
     },
     'nabat-contact': {
       episode:1,title:'Contato em Nabat',locationId:LOC.nabat,
-      summary:'Nyn e B’ura B’an procuram ajuda para os mineiros de New Meen.',
-      narration:'Entre passagens subterrâneas, trabalhadores deslocados descrevem a pressão crescente sobre as minas de ryll.',
+      summary:'SWE02 p.13: a célula militante reúne três Twi’leks e dois humanos; Nyn Kablo, sua líder, oferece abrigo, comida, bebida e cuidados. Ela conversa com B’ura sobre o que ele sofreu e então procura os PCs para pedir ajuda aos mineiros de New Meen.',
+      narration:'B’ura afasta vocês das passagens mais movimentadas e conduz a tripulação até uma sala ampla, escondida atrás de uma porta metálica. A célula que protege os interesses dos Twi’leks comuns em Ryloth reúne três Twi’leks e dois humanos. Nyn Kablo, sua líder serena, vive num pequeno aposento ao lado da sala principal. Enquanto conversa com B’ura sobre o que ele sofreu, oferece a vocês comida, bebida, descanso e atendimento: ferimentos e tensão são tratados, e um médico Twi’lek tenta curar cada Ferimento Crítico uma vez. Depois, Nyn se aproxima para falar dos mineiros de New Meen.',
       visibleNpcIds:[NPC.nyn,NPC.bura],checks:[{skill:'Charme',difficulty:'Média',purpose:'conquistar a confiança dos representantes twi’lek'}],
       choices:[{id:'travel-lylek-den',label:'Descansar no abrigo de Nyn durante a noite',to:'nabat-morning-departure'}]
     },

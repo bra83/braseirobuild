@@ -123,9 +123,9 @@ export function nabatShipRepair(world,vehicles){
   disabledComponentsBefore:before.disabledComponents,disabledComponentsAfter:[...repairedShip.disabledComponents]});
  return {world:w,vehicles:v,receipt:r};
 }
-export function nabatSafehouseCare(world,character){
+export function nabatSafehouseCare(world,character,{characterKey=null}={}){
  const w=clone(world),p=active(w,new Set(['nabat-contact']));
- const who=key(character);
+ const who=String(characterKey??key(character)).trim();
  if(!who)throw Error('SWE02: personagem sem identidade para cuidados.');
  if((p.nabatReceipts||[]).some(x=>x.type==='SAFEHOUSE_CARE'&&x.characterKey===who))
   throw Error('SWE02: atendimento normal já realizado para este personagem.');

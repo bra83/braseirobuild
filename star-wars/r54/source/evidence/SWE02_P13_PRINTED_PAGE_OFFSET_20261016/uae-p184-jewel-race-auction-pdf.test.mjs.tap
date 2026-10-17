@@ -1,0 +1,107 @@
+TAP version 13
+# Subtest: P184 PDF SWE09: seven ordered Grand Prix legs accumulate speed into Place Value
+ok 1 - P184 PDF SWE09: seven ordered Grand Prix legs accumulate speed into Place Value
+  ---
+  duration_ms: 271.8663
+  type: 'test'
+  ...
+# Subtest: P184 race rejects skipped leg, forged actionId and repeat without mutating input
+ok 2 - P184 race rejects skipped leg, forged actionId and repeat without mutating input
+  ---
+  duration_ms: 59.3403
+  type: 'test'
+  ...
+# Subtest: P184 race missed buoy, strain and collision persist, no unearned victory
+ok 3 - P184 race missed buoy, strain and collision persist, no unearned victory
+  ---
+  duration_ms: 46.4565
+  type: 'test'
+  ...
+# Subtest: P184 race placement must match rival Place Values, with tie GM-adjudicated
+ok 4 - P184 race placement must match rival Place Values, with tie GM-adjudicated
+  ---
+  duration_ms: 92.3428
+  type: 'test'
+  ...
+# Subtest: P184 auction official baseline Kaltho 200k after ten rounds without PC interference
+ok 5 - P184 auction official baseline Kaltho 200k after ten rounds without PC interference
+  ---
+  duration_ms: 205.509
+  type: 'test'
+  ...
+# Subtest: P184 auction successful influence adds 10k per affected round, successes and triumph to Bid Value
+ok 6 - P184 auction successful influence adds 10k per affected round, successes and triumph to Bid Value
+  ---
+  duration_ms: 102.4241
+  type: 'test'
+  ...
+# Subtest: P184 auction rejects unknown bidder, duplicate receipt, invalid result and out-of-scene action
+ok 7 - P184 auction rejects unknown bidder, duplicate receipt, invalid result and out-of-scene action
+  ---
+  duration_ms: 112.8837
+  type: 'test'
+  ...
+# Subtest: P184 auction fail does not increase bid, no automatic credit payout
+ok 8 - P184 auction fail does not increase bid, no automatic credit payout
+  ---
+  duration_ms: 107.3484
+  type: 'test'
+  ...
+# Subtest: P184 new race/auction receipts survive three reopenings with canonical UAE state
+ok 9 - P184 new race/auction receipts survive three reopenings with canonical UAE state
+  ---
+  duration_ms: 103.536
+  type: 'test'
+  ...
+# Subtest: P184 legacy Jewel progress migrates without creating phantom race results or bids
+ok 10 - P184 legacy Jewel progress migrates without creating phantom race results or bids
+  ---
+  duration_ms: 54.815
+  type: 'test'
+  ...
+# Subtest: P184 receipt audit rejects edited race Place Value and preserves source state
+ok 11 - P184 receipt audit rejects edited race Place Value and preserves source state
+  ---
+  duration_ms: 73.965
+  type: 'test'
+  ...
+# Subtest: P184 receipt audit rejects inflated auction credits and ghost influence
+ok 12 - P184 receipt audit rejects inflated auction credits and ghost influence
+  ---
+  duration_ms: 112.9835
+  type: 'test'
+  ...
+# Subtest: P184 reserved receipt identifiers cannot mutate Object prototype
+ok 13 - P184 reserved receipt identifiers cannot mutate Object prototype
+  ---
+  duration_ms: 76.6372
+  type: 'test'
+  ...
+# Subtest: P184 SWE02: old lylek den creates one source-checked hunter per PC including Gand
+ok 14 - P184 SWE02: old lylek den creates one source-checked hunter per PC including Gand
+  ---
+  duration_ms: 184.2935
+  type: 'test'
+  ...
+# Subtest: P184 SWE02: hunters cannot be marked defeated without combat, and never defeat Teemo
+ok 15 - P184 SWE02: hunters cannot be marked defeated without combat, and never defeat Teemo
+  ---
+  duration_ms: 177.8398
+  type: 'test'
+  ...
+# Subtest: P184 Android UI and controller expose four adjudicated operations
+ok 16 - P184 Android UI and controller expose four adjudicated operations
+  ---
+  duration_ms: 405.0509
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3396.2261
+

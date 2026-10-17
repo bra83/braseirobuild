@@ -1,0 +1,226 @@
+TAP version 13
+# Subtest: P240 p.13: market uses only primary EotE Core entries priced <= 500
+ok 1 - P240 p.13: market uses only primary EotE Core entries priced <= 500
+  ---
+  duration_ms: 3.6443
+  type: 'test'
+  ...
+# Subtest: P240 p.13: Nabat operations require source-backed safe docking arranged by B’ura
+ok 2 - P240 p.13: Nabat operations require source-backed safe docking arranged by B’ura
+  ---
+  duration_ms: 222.8819
+  type: 'test'
+  ...
+# Subtest: SWE02 p.13 arrival narration stays source-backed and does not promise fuel
+ok 3 - SWE02 p.13 arrival narration stays source-backed and does not promise fuel
+  ---
+  duration_ms: 161.7507
+  type: 'test'
+  ...
+# Subtest: P240 p.13: real purchase debits wallet and adds catalog gear atomically
+ok 4 - P240 p.13: real purchase debits wallet and adds catalog gear atomically
+  ---
+  duration_ms: 155.7716
+  type: 'test'
+  ...
+# Subtest: P240 market rejects forged price, non-EotE source, 501+ item and bad quantities
+ok 5 - P240 market rejects forged price, non-EotE source, 501+ item and bad quantities
+  ---
+  duration_ms: 136.1415
+  type: 'test'
+  ...
+# Subtest: P240 purchase insufficient credits: rollback of character, receipts and save
+ok 6 - P240 purchase insufficient credits: rollback of character, receipts and save
+  ---
+  duration_ms: 131.4565
+  type: 'test'
+  ...
+# Subtest: P240 p.13: Bura contacts repair the real ship hull, systems and repairable criticals without creating a ship
+ok 7 - P240 p.13: Bura contacts repair the real ship hull, systems and repairable criticals without creating a ship
+  ---
+  duration_ms: 150.5255
+  type: 'test'
+  ...
+# Subtest: P240 p.13: contacts cannot claim to repair a destroyed ship; failure rolls back all state
+ok 8 - P240 p.13: contacts cannot claim to repair a destroyed ship; failure rolls back all state
+  ---
+  duration_ms: 126.5071
+  type: 'test'
+  ...
+# Subtest: P240 p.13: no ship repair if Bura not found, or ship name forged
+ok 9 - P240 p.13: no ship repair if Bura not found, or ship name forged
+  ---
+  duration_ms: 125.1758
+  type: 'test'
+  ...
+# Subtest: P240 p.13–14: port watch must be requested, alert only after Nyn meeting
+ok 10 - P240 p.13–14: port watch must be requested, alert only after Nyn meeting
+  ---
+  duration_ms: 148.7017
+  type: 'test'
+  ...
+# Subtest: P240 p.13–14: watch at arrival, alert in Nyn safehouse, no automatic knowledge
+ok 11 - P240 p.13–14: watch at arrival, alert in Nyn safehouse, no automatic knowledge
+  ---
+  duration_ms: 199.8942
+  type: 'test'
+  ...
+# Subtest: P240 p.14: overnight choice closes Nyn scene, delivers requested alert and records the morning briefing
+ok 12 - P240 p.14: overnight choice closes Nyn scene, delivers requested alert and records the morning briefing
+  ---
+  duration_ms: 170.8525
+  type: 'test'
+  ...
+# Subtest: P240 p.14: morning reply is typed, one-time, and required before mine departure
+ok 13 - P240 p.14: morning reply is typed, one-time, and required before mine departure
+  ---
+  duration_ms: 204.1482
+  type: 'test'
+  ...
+# Subtest: P240 p.13: Nyn shelter heals real wounds and strain, never erases critical injuries
+ok 14 - P240 p.13: Nyn shelter heals real wounds and strain, never erases critical injuries
+  ---
+  duration_ms: 159.1672
+  type: 'test'
+  ...
+# Subtest: SWE02 p.13: Nyn shelter cares for every registered PC once and persists the whole roster
+ok 15 - SWE02 p.13: Nyn shelter cares for every registered PC once and persists the whole roster
+  ---
+  duration_ms: 197.618
+  type: 'test'
+  ...
+# Subtest: P240 anti-forgery: missing or modified receipt fails adapter status
+ok 16 - P240 anti-forgery: missing or modified receipt fails adapter status
+  ---
+  duration_ms: 112.8365
+  type: 'test'
+  ...
+# Subtest: P240 no mutation outside Nabat; failed actions do not save
+ok 17 - P240 no mutation outside Nabat; failed actions do not save
+  ---
+  duration_ms: 92.3505
+  type: 'test'
+  ...
+# Subtest: P240 Android bridge and UI source expose port operations
+ok 18 - P240 Android bridge and UI source expose port operations
+  ---
+  duration_ms: 2.6274
+  type: 'test'
+  ...
+# Subtest: P241 p13: official physician uses 1 proficiency 2 difficulty, heals one actual critical
+ok 19 - P241 p13: official physician uses 1 proficiency 2 difficulty, heals one actual critical
+  ---
+  duration_ms: 296.8181
+  type: 'test'
+  ...
+# Subtest: P241 physician failure consumes only attempt; never erases injury
+ok 20 - P241 physician failure consumes only attempt; never erases injury
+  ---
+  duration_ms: 183.9748
+  type: 'test'
+  ...
+# Subtest: P241 p13: Nyn can treat a non-active roster PC after that PC received shelter care
+ok 21 - P241 p13: Nyn can treat a non-active roster PC after that PC received shelter care
+  ---
+  duration_ms: 196.1105
+  type: 'test'
+  ...
+# Subtest: P241 physician blocks unhealable/dead injuries and care-before-critical
+ok 22 - P241 physician blocks unhealable/dead injuries and care-before-critical
+  ---
+  duration_ms: 153.7673
+  type: 'test'
+  ...
+# Subtest: P241 p14: negotiation records claims; party PCs receive sourced EotE profiles individually
+ok 23 - P241 p14: negotiation records claims; party PCs receive sourced EotE profiles individually
+  ---
+  duration_ms: 209.6547
+  type: 'test'
+  ...
+# Subtest: P241 p14: Coerce Hard failure gives no gear, no retries
+ok 24 - P241 p14: Coerce Hard failure gives no gear, no retries
+  ---
+  duration_ms: 178.1824
+  type: 'test'
+  ...
+# Subtest: P241 p14: Triumph with two Threat grants defective rifle and preserves defect marker
+ok 25 - P241 p14: Triumph with two Threat grants defective rifle and preserves defect marker
+  ---
+  duration_ms: 170.3776
+  type: 'test'
+  ...
+# Subtest: P241 p14: first combat use removes defective Nyn rifle at encounter closure
+ok 26 - P241 p14: first combat use removes defective Nyn rifle at encounter closure
+  ---
+  duration_ms: 228.0594
+  type: 'test'
+  ...
+# Subtest: P241 p14: unused Nyn award survives an encounter
+ok 27 - P241 p14: unused Nyn award survives an encounter
+  ---
+  duration_ms: 175.9361
+  type: 'test'
+  ...
+# Subtest: P241 Nyn invalid method and wrong scene rollback without save
+ok 28 - P241 Nyn invalid method and wrong scene rollback without save
+  ---
+  duration_ms: 166.3912
+  type: 'test'
+  ...
+# Subtest: P241 social receipt rejects tampered dice face or Nyn reward
+ok 29 - P241 social receipt rejects tampered dice face or Nyn reward
+  ---
+  duration_ms: 146.3979
+  type: 'test'
+  ...
+# Subtest: P241 p23: 400-500 credits bribe uses actual opposed Negotiation and debit
+ok 30 - P241 p23: 400-500 credits bribe uses actual opposed Negotiation and debit
+  ---
+  duration_ms: 116.781
+  type: 'test'
+  ...
+# Subtest: P241 failed bribe does not debit and cannot be converted into victory
+ok 31 - P241 failed bribe does not debit and cannot be converted into victory
+  ---
+  duration_ms: 93.4153
+  type: 'test'
+  ...
+# Subtest: P241 invalid bribe, Drombb cannot be bribed and no overspending
+ok 32 - P241 invalid bribe, Drombb cannot be bribed and no overspending
+  ---
+  duration_ms: 73.906
+  type: 'test'
+  ...
+# Subtest: P241 all minions bribed still leaves Drombb as live adversary
+ok 33 - P241 all minions bribed still leaves Drombb as live adversary
+  ---
+  duration_ms: 117.239
+  type: 'test'
+  ...
+# Subtest: P241 New Meen cannot bribe during live encounter or from wrong scene
+ok 34 - P241 New Meen cannot bribe during live encounter or from wrong scene
+  ---
+  duration_ms: 146.5484
+  type: 'test'
+  ...
+# Subtest: P241 New Meen receipt rejects fake credit debit, forged dice, or unconfirmed party
+ok 35 - P241 New Meen receipt rejects fake credit debit, forged dice, or unconfirmed party
+  ---
+  duration_ms: 76.5193
+  type: 'test'
+  ...
+# Subtest: P241 Android offline bridge and UI expose social, party care, and gear distribution operations
+ok 36 - P241 Android offline bridge and UI expose social, party care, and gear distribution operations
+  ---
+  duration_ms: 2.5725
+  type: 'test'
+  ...
+1..36
+# tests 36
+# suites 0
+# pass 36
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3371.402

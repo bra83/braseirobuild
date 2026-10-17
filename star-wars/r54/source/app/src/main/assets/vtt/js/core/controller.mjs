@@ -6083,16 +6083,47 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
     }
     treatSWE02NabatWounds(){
         return this.atomicAction(()=>{
-            const out=nabatSafehouseCare(this.state.world,requireCharacter(this.state.player?.character));
-            this.commit('CHARACTER_UPDATED',{character:out.character});
+            if(this.state.combat?.active)throw Error('SWE02: encerre o combate antes dos cuidados no abrigo.');
+            const roster=clone(this.state.player?.roster??{schema:1,activeCharacterId:null,entries:[]});
+            const entry=roster.entries.find(x=>x.id===roster.activeCharacterId);
+            const character=requireCharacter(this.state.player?.character);
+            if(!entry)throw Error('SWE02: PC ativo não existe no roster.');
+            const out=nabatSafehouseCare(this.state.world,character,{characterKey:entry.id});
+            entry.character=out.character;
+            this.commit('PLAYER_ROSTER_UPDATED',{roster});
             this.commit('WORLD_UPDATED',{world:out.world});return clone(out.receipt);
         });
     }
-    /** SWE02 pp.13–14: one real physician dice roll per critical injury. */
-    treatSWE02NynCritical({injuryId,rng=Math.random}={}){
+    treatSWE02NabatPartyCare(){
         return this.atomicAction(()=>{
-            const out=nynCriticalCare(this.state.world,requireCharacter(this.state.player?.character),{injuryId,rng});
-            this.commit('CHARACTER_UPDATED',{character:out.character});this.commit('WORLD_UPDATED',{world:out.world});
+            if(this.state.combat?.active)throw Error('SWE02: encerre o combate antes dos cuidados no abrigo.');
+            const roster=clone(this.state.player?.roster??{schema:1,activeCharacterId:null,entries:[]});
+            const expected=Number(this.state.session?.campaignRules?.destiny?.playerCount??this.state.session?.eoteRules?.destiny?.playerCount??this.state.session?.playerCount??1);
+            if(!Number.isSafeInteger(expected)||expected<1||expected>8||roster.entries.length!==expected)
+                throw Error('SWE02 p.13: cadastre uma ficha individual para cada PC antes dos cuidados do grupo.');
+            let world=clone(this.state.world);const receipts=[];
+            const already=new Set((world.publishedAdventure?.nabatReceipts??[]).filter(x=>x.type==='SAFEHOUSE_CARE').map(x=>String(x.characterKey)));
+            for(const entry of roster.entries){
+                if(already.has(entry.id))continue;
+                if(!entry.character)throw Error('SWE02 p.13: ficha de PC ausente no roster.');
+                const out=nabatSafehouseCare(world,entry.character,{characterKey:entry.id});
+                world=out.world;entry.character=out.character;receipts.push(out.receipt);
+            }
+            if(!receipts.length)throw Error('SWE02: todos os PCs já receberam os cuidados do abrigo.');
+            this.commit('PLAYER_ROSTER_UPDATED',{roster});this.commit('WORLD_UPDATED',{world});
+            return {type:'SAFEHOUSE_CARE_PARTY',patients:receipts.length,receipts:clone(receipts),woundsHealed:receipts.reduce((n,x)=>n+Number(x.woundsHealed||0),0),strainRecovered:receipts.reduce((n,x)=>n+Number(x.strainRecovered||0),0)};
+        });
+    }
+    /** SWE02 pp.13–14: one real physician dice roll per critical injury. */
+    treatSWE02NynCritical({characterId=null,injuryId,rng=Math.random}={}){
+        return this.atomicAction(()=>{
+            if(this.state.combat?.active)throw Error('SWE02: encerre o combate antes do tratamento médico.');
+            const roster=clone(this.state.player?.roster??{schema:1,activeCharacterId:null,entries:[]});
+            const pcId=String(characterId??roster.activeCharacterId??'');
+            const entry=roster.entries.find(x=>x.id===pcId);
+            if(!entry?.character)throw Error('SWE02: selecione uma ficha de PC registrada para o tratamento.');
+            const out=nynCriticalCare(this.state.world,entry.character,{injuryId,characterKey:entry.id,rng});
+            entry.character=out.character;this.commit('PLAYER_ROSTER_UPDATED',{roster});this.commit('WORLD_UPDATED',{world:out.world});
             return clone(out.receipt);
         });
     }

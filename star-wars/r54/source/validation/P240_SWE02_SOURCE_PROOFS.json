@@ -27,6 +27,18 @@
       "limitations": "Catalog intentionally restricts purchases to individually sourced EotE Core entries. Weapons currently use an AoR reference source and remain excluded until EotE crosswalk is verified."
     },
     {
+      "feature": "Printed p.13 Nabat geography, market approach and militant safehouse scene",
+      "printedPage": 13,
+      "executor": "longArmOfTheHutt.mjs:nabat-arrival/nabat-contact scene data + swe02NabatP240.mjs:nabatMarketCatalog",
+      "controller": "GameController.publishedAdventureStatus/current scene adapter",
+      "bridge": "BraseiroUiBridge.publishedAdventureStatus",
+      "ui": "published adventure scene narration + swe02NabatMarketNote",
+      "persistence": "The current adventure node is saved; reopening the controller derives the matching source-backed scene again. Market inventory remains catalog-derived and the <=500 credit item limit is enforced in deterministic code.",
+      "tests": ["tests/uae-p240-swe02-nabat-port-economy-medical.test.mjs"],
+      "source_review": "evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/source-review.md",
+      "limitations": "Narrative scene assertions and HTML presence are tested; a visual Android screen review and installed-PDF import are not yet evidenced. Full p.13 certification remains pending."
+    },
+    {
       "feature": "B'ura B'an's contacts pay for any needed Krayt Fang repairs",
       "printedPage": 13,
       "executor": "swe02NabatP240.mjs:nabatShipRepair",
@@ -49,15 +61,15 @@
       "limitations": "The alert is not automatic; it requires the player request and a later explicit delivery."
     },
     {
-      "feature": "Nyn safehouse heals normal wounds and strain",
+      "feature": "Nyn safehouse heals normal wounds and strain for every PC",
       "printedPage": 13,
       "executor": "swe02NabatP240.mjs:nabatSafehouseCare",
-      "controller": "GameController.treatSWE02NabatWounds",
-      "bridge": "BraseiroUiBridge.treatSWE02NabatWounds",
+      "controller": "GameController.treatSWE02NabatPartyCare (all roster PCs atomically); treatSWE02NabatWounds (active-PC compatibility route)",
+      "bridge": "BraseiroUiBridge.treatSWE02NabatPartyCare",
       "ui": "swe02NabatCare",
-      "persistence": "CHARACTER_UPDATED + WORLD_UPDATED atomicAction",
-      "tests": "tests/uae-p240-swe02-nabat-port-economy-medical.test.mjs",
-      "limitations": "P240's focused suite covered ordinary wound/strain care only. The physician's Critical Injury attempt was added in P241 via swe02SocialP241.mjs:nynCriticalCare, with bridge/UI wiring and three-reopen evidence; see validation/P241_SWE02_SOURCE_PROOFS.json and tests/uae-p241-swe02-nyn-newmeen-social.test.mjs. Other p.13 source gaps remain open."
+      "persistence": "PLAYER_ROSTER_UPDATED + WORLD_UPDATED atomicAction; one unique SAFEHOUSE_CARE receipt per registered PC ID; group action requires roster size to match session playerCount and rejects combat; reopen confirms every treated PC",
+      "tests": ["tests/uae-p240-swe02-nabat-port-economy-medical.test.mjs", "tests/uae-p241-swe02-nyn-newmeen-social.test.mjs"],
+      "limitations": "The physician's separate Critical Injury attempt is in P241 via swe02SocialP241.mjs:nynCriticalCare and can target a non-active roster PC using the same roster ID. Fuel quantity/pricing and remaining page-wide source proof stay open."
     }
   ],
   "still_not_certified": [

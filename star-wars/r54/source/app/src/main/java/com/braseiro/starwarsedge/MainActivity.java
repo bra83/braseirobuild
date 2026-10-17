@@ -374,7 +374,7 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
-        public String setDocumentPolicy(String docId, String authorityType, boolean enabled) {
+        public String setDocumentPolicy(String docId, String authorityType, boolean enabled, String printedPageOffset) {
             try {
                 File dir = safeDocumentDir(docId);
                 JSONObject metadata;
@@ -383,6 +383,7 @@ public class MainActivity extends Activity {
                     if (metadata == null) return new JSONObject().put("ok", false).put("message", "Documento não encontrado.").toString();
                     metadata.put("authorityType", normalizeAuthorityType(authorityType));
                     metadata.put("enabled", enabled);
+                    metadata.put("printedPageOffset", parsePrintedPageOffset(printedPageOffset));
                     metadata.put("policyUpdatedAt", Instant.now().toString());
                     writeMetadata(dir, metadata);
                 }
@@ -600,6 +601,13 @@ public class MainActivity extends Activity {
         return "SUPLEMENTO";
     }
 
+    private static Object parsePrintedPageOffset(String value) {
+        if (value == null || value.trim().isEmpty()) return JSONObject.NULL;
+        int offset = Integer.parseInt(value.trim());
+        if (offset < -1000 || offset > 1000) throw new IllegalArgumentException("Ajuste de página impressa fora do intervalo permitido.");
+        return offset;
+    }
+
     private static String normalize(String value) {
         String n = Normalizer.normalize(value == null ? "" : value, Normalizer.Form.NFD).replaceAll("\\p{M}+", "");
         return n.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", " ").trim();
@@ -633,10 +641,18 @@ public class MainActivity extends Activity {
                     .put("fileName", meta.optString("fileName"))
                     .put("source", "Biblioteca · " + meta.optString("fileName"))
                     .put("page", page)
+                    .put("printedPage", printedPage(meta, page))
+                    .put("printedPageOffset", meta.has("printedPageOffset") && !meta.isNull("printedPageOffset") ? meta.optInt("printedPageOffset", 0) : JSONObject.NULL)
                     .put("excerpt", excerpt(text, query, tokens))
                     .put("score", Math.round(score * 10000.0) / 10000.0)
                     .put("authorityType", normalizeAuthorityType(meta.optString("authorityType", "SUPLEMENTO")))
                     .put("enabled", meta.optBoolean("enabled", true));
+        }
+
+        private static Object printedPage(JSONObject meta, int physicalPage) {
+            if (!meta.has("printedPageOffset") || meta.isNull("printedPageOffset")) return JSONObject.NULL;
+            int printed = physicalPage + meta.optInt("printedPageOffset", 0);
+            return printed > 0 ? printed : JSONObject.NULL;
         }
     }
 
@@ -658,6 +674,7 @@ public class MainActivity extends Activity {
                 if (latest.has("authorityType")) metadata.put("authorityType", normalizeAuthorityType(latest.optString("authorityType", "SUPLEMENTO")));
                 if (latest.has("enabled")) metadata.put("enabled", latest.optBoolean("enabled", true));
                 if (latest.has("policyUpdatedAt")) metadata.put("policyUpdatedAt", latest.optString("policyUpdatedAt", ""));
+                if (latest.has("printedPageOffset")) metadata.put("printedPageOffset", latest.isNull("printedPageOffset") ? JSONObject.NULL : latest.optInt("printedPageOffset", 0));
             }
             writeMetadata(dir, metadata);
         }

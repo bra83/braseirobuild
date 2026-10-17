@@ -26,6 +26,7 @@ test('busca em PDF importado vira fonte local citável',()=>{
   assert.equal(results[0].status,'FONTE_IMPORTADA');
   assert.equal(results[0].sourceKind,'library_pdf');
   assert.equal(results[0].page,12);
+  assert.equal(results[0].printedPage,null);
   assert.match(results[0].summary,/talentos/i);
 });
 
@@ -68,6 +69,9 @@ test('shell Android persiste autoridade e permite ativar/desativar fonte sem apa
   assert.match(java,/authorityType/);
   assert.match(java,/ERRATA\|BASE\|SUPLEMENTO\|AVENTURA\|REFERENCIA/);
   assert.match(java,/optBoolean\("enabled", true\)/);
+  assert.match(java,/printedPageOffset/);
+  assert.match(java,/printedPage\(meta, page\)/);
+  assert.match(java,/\.put\("printedPageOffset", meta\.has\("printedPageOffset"\)/);
 });
 
 test('Biblioteca permite reindexar PDF preservado e registra falha de indexação',()=>{

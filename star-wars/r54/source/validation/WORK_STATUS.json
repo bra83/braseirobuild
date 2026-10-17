@@ -73,7 +73,7 @@
     }
   },
   "fresh_regression": {
-    "state": "PASS_FULL_REGRESSION_AFTER_SWE02_P13_RAG_CITATION_METADATA",
+    "state": "PASS_FULL_REGRESSION_AFTER_SWE02_P13_PRINTED_PAGE_OFFSET",
     "files": 382,
     "regular_files": 376,
     "stress_files": 6,
@@ -82,11 +82,11 @@
     "fail": 0,
     "skip": 2,
     "files_without_complete_summary": [],
-    "evidence": "evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_FINAL_20261016/",
-    "summary": "evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_FINAL_20261016/summary.json",
+    "evidence": "evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/",
+    "summary": "evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/summary.json",
     "skip_reason": "JDK jar executable unavailable for two offline Gradle-wrapper packaging checks.",
     "runner_environment": "Per-file TAP runner, 8 workers; NODE_PATH points to work/build-deps5/node_modules; UTF-8 TAP summaries preserve the skipped test count.",
-    "supersedes": "evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_20261016/"
+    "supersedes": "evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_FINAL_20261016/"
   },
   "blockers": [
     "All 360 AoR positions lack individual source-to-effect, UI, persistence, and test evidence.",
@@ -355,16 +355,16 @@
     "proof": "validation/P241_SWE02_SOURCE_PROOFS.json",
     "executor": "app/src/main/assets/vtt/js/adventure/swe02SocialP241.mjs:nynCriticalCare",
     "controller": "GameController.treatSWE02NynCritical",
-    "ui": "swe02NynCritical",
+    "ui": "swe02NynPatientSelect + swe02NynCriticalId + swe02NynCritical",
     "tests": {
       "file": "tests/uae-p241-swe02-nyn-newmeen-social.test.mjs",
-      "tests": 14,
-      "pass": 14,
+      "tests": 18,
+      "pass": 18,
       "fail": 0,
       "skip": 0,
-      "evidence": "evidence/SWE02_P13_PHYSICIAN_20261016/"
+      "evidence": "evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/party-care-focused.tap"
     },
-    "reopens": "Three independent GameController reloads are asserted for successful and failed attempts.",
+    "reopens": "Roster-wide shelter receipts and the non-active PC's healed character persist after reload; successful and failed physician attempts retain the one-attempt rule.",
     "pending": [
       "Printed p.13 page-wide certification: unspecified fuel quantity and pricing, remaining branch crosswalk, and page-level source/evidence review."
     ]
@@ -400,7 +400,7 @@
   },
   "swe02_p13_nabat_ship_repairs": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
-    "source": "The Long Arm of the Hutt printed p.13; official PDF printed p.13 / physical PDF p.12",
+    "source": "The Long Arm of the Hutt printed p.13 / official PDF physical p.13 (offset 0)",
     "source_claim": "B’ura B’an arranges safe docking and has his Nabat contacts carry out and pay for any needed ship repairs.",
     "executor": "swe02NabatP240.mjs:nabatShipRepair + rules/vehicles.mjs:repairVehicleCritical",
     "controller": "GameController.repairSWE02KraytFangAtNabat",
@@ -427,7 +427,7 @@
   },
   "swe02_p13_nabat_safe_docking": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
-    "source": "The Long Arm of the Hutt printed p.13; official PDF printed p.13 / physical PDF p.12",
+    "source": "The Long Arm of the Hutt printed p.13 / official PDF physical p.13 (offset 0)",
     "effect": "A source-cited safe-docking receipt is recorded only when the Krayt Fang, with B’ura aboard, reaches Nabat by one of the three resolved routes: no interception, Thwheek landed safely, or crash crew resolved. Nabat scenes and operations require the receipt; legacy Ryloth ship inspection remains loadable.",
     "executor": "swe02NabatP240.mjs:recordNabatSafeDocking + longArmOfTheHutt.mjs arrival transition",
     "source_proof": "validation/P240_SWE02_SOURCE_PROOFS.json",
@@ -444,8 +444,8 @@
   },
   "swe02_p13_arrival_narration": {
     "status": "IMPLEMENTADO_NAO_CERTIFICADO",
-    "source": "The Long Arm of the Hutt printed p.13 / official PDF p.12",
-    "correction": "Removed unsupported claim that B’ura’s contacts refuel the Krayt Fang. Arrival summary/narration now covers source-backed upper landing pads/cantina, underground shelter from the harsh environment and wandering lyleks, contact-paid repairs, and optional post-landing transponder removal.",
+    "source": "The Long Arm of the Hutt printed p.13 / official PDF physical p.13 (offset 0)",
+    "correction": "Removed unsupported claim that B’ura’s contacts refuel the Krayt Fang. Arrival narration covers upper landing/cantina, cavern homes and market stalls/species, local merchant and optional port-watch requests, contact-paid repairs and transponder removal. The safehouse narration now covers the militant group, Nyn, shelter/care, and one physician attempt per Critical Injury.",
     "tests": {
       "file": "tests/uae-p240-swe02-nabat-port-economy-medical.test.mjs",
       "tests": 17,
@@ -455,38 +455,51 @@
       "evidence": "evidence/SWE02_P13_NABAT_CONTEXT_20261016/focused.tap"
     },
     "combined_affected_suite": {
-      "files": 3,
-      "tests": 55,
-      "pass": 55,
+      "files": 2,
+      "tests": 36,
+      "pass": 36,
       "fail": 0,
       "skip": 0,
-      "evidence": "evidence/SWE02_P13_NABAT_CONTEXT_20261016/focused.tap"
+      "evidence": "evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/party-care-focused.tap"
     },
     "bundle": {
       "state": "PASS",
       "modules": 135,
-      "evidence": "evidence/SWE02_P13_RAG_CITATION_20261016/bundle-build.log"
+      "evidence": "evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/party-care-bundle-build.log"
     },
-    "pending": "Actual imported-PDF retrieval, unspecified fuel quantities/pricing, and page-wide source/effect/persistence proof remain open.",
+    "source_visual_review": {
+      "source": "Long Arm of the Hutt.pdf",
+      "sha256": "18FB9880242743D11765EACA442168FC3441A3B0D17AA92BC769057734B45489",
+      "printed_page": 13,
+      "physical_pdf_page": 13,
+      "printed_page_offset": 0,
+      "evidence": "evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/source-review.md",
+      "rendered_page": "evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/official-pdf-physical-page-13.png",
+      "correction": "Supersedes the earlier incorrect physical-page-12 / offset-1 assertion."
+    },
+    "pending": "On-device retrieval with a configured printed-page offset, unspecified fuel quantities/pricing, and page-wide source/effect/persistence proof remain open.",
     "rag_context_test": {
       "file": "tests/uae-p234-five-adventures-hybrid-safety.test.mjs",
       "result": "PASS",
       "assertions": [
-        "physical PDF page 12 preserved as page",
-        "printed page 13 preserved as printedPage",
+        "physical PDF page 13 preserved as page",
+        "printed page 13 preserved as printedPage with the verified zero offset",
+        "printedPageOffset 0 preserved through the library and RAG context",
         "canonical SWE02 adventure source passes policy",
         "RAG context reaches Gemini payload as reference only"
       ],
-      "evidence": "evidence/SWE02_P13_RAG_CITATION_20261016/focused.tap",
-      "limitation": "Native-library fixture only; actual installed Android PDF import/retrieval remains unverified."
+      "evidence": "evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/focused.tap",
+      "limitation": "Native-library response fixture only; actual installed Android PDF import/retrieval and setting a per-document offset remain unverified."
     },
     "full_regression": {
       "files": 382,
-      "tests": 3464,
-      "pass": 3462,
+      "tests": 3466,
+      "pass": 3464,
       "fail": 0,
       "skip": 2,
-      "evidence": "evidence/SWE02_ADVENTURE_RULES_FULL_REGRESSION_FINAL_20261016/summary.json"
+      "stress_files": 6,
+      "files_without_complete_summary": 0,
+      "evidence": "evidence/SWE02_P13_PRINTED_PAGE_OFFSET_20261016/summary.json"
     }
   }
 }

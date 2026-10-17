@@ -480,7 +480,7 @@ function renderLibrary() {
     const authority=String(doc.authorityType || 'SUPLEMENTO').toUpperCase();
     const enabled=doc.enabled!==false;
     row.dataset.docId=doc.docId;
-    row.innerHTML=`<div class="library-row-main"><strong>${escapeHtml(doc.title || doc.fileName || 'PDF importado')}</strong><span>${escapeHtml(libraryStatusLabel(doc.status))} · ${pages} pág. · ${formatBytes(doc.sizeBytes)}</span><small>${indexed}/${pages || 0} páginas com texto · armazenamento privado offline</small><div class="library-policy"><label>Autoridade<select class="library-authority" aria-label="Autoridade de ${escapeHtml(doc.title || doc.fileName)}"><option value="ERRATA">Errata / correção</option><option value="BASE">Livro básico</option><option value="SUPLEMENTO">Complemento de regras</option><option value="AVENTURA">Aventura / cenário</option><option value="REFERENCIA">Referência</option></select></label><label class="library-enabled-label"><input class="library-enabled" type="checkbox" ${enabled?'checked':''}> Usar no Mestre</label></div>${doc.lastError?`<small class="library-error">Último erro: ${escapeHtml(doc.lastError)}</small>`:''}</div><div class="library-actions"><button class="library-reindex" data-doc-id="${escapeHtml(doc.docId)}">Reindexar</button><button class="library-remove" data-doc-id="${escapeHtml(doc.docId)}" aria-label="Remover ${escapeHtml(doc.title || doc.fileName)}">Remover</button></div>`;
+    row.innerHTML=`<div class="library-row-main"><strong>${escapeHtml(doc.title || doc.fileName || 'PDF importado')}</strong><span>${escapeHtml(libraryStatusLabel(doc.status))} · ${pages} pág. · ${formatBytes(doc.sizeBytes)}</span><small>${indexed}/${pages || 0} páginas com texto · armazenamento privado offline</small><div class="library-policy"><label>Autoridade<select class="library-authority" aria-label="Autoridade de ${escapeHtml(doc.title || doc.fileName)}"><option value="ERRATA">Errata / correção</option><option value="BASE">Livro básico</option><option value="SUPLEMENTO">Complemento de regras</option><option value="AVENTURA">Aventura / cenário</option><option value="REFERENCIA">Referência</option></select></label><label class="library-page-offset">Ajuste da página impressa<input class="library-printed-page-offset" type="number" min="-1000" max="1000" step="1" value="${doc.printedPageOffset ?? ''}" placeholder="vazio = sem mapeamento" aria-label="Ajuste da página impressa de ${escapeHtml(doc.title || doc.fileName)}"></label><label class="library-enabled-label"><input class="library-enabled" type="checkbox" ${enabled?'checked':''}> Usar no Mestre</label></div><small>Informe a diferença entre a página impressa e a página do PDF; deixe vazio para citar somente a página física.</small>${doc.lastError?`<small class="library-error">Último erro: ${escapeHtml(doc.lastError)}</small>`:''}</div><div class="library-actions"><button class="library-reindex" data-doc-id="${escapeHtml(doc.docId)}">Reindexar</button><button class="library-remove" data-doc-id="${escapeHtml(doc.docId)}" aria-label="Remover ${escapeHtml(doc.title || doc.fileName)}">Remover</button></div>`;
     row.querySelector('.library-authority').value=['ERRATA','BASE','SUPLEMENTO','AVENTURA','REFERENCIA'].includes(authority)?authority:'SUPLEMENTO';
     host.append(row);
   }
@@ -491,7 +491,7 @@ function renderLibrarySearch(results=[]) {
   if (!results.length) { host.innerHTML='<div class="result fail">Nenhum trecho encontrado nos PDFs indexados.</div>'; return; }
   for (const result of results) {
     const card=document.createElement('article'); card.className='rule-result-card grounded';
-    const page=result.page ? ` · pág. ${result.page}` : '';
+    const page=result.page ? ` · PDF p.${result.page}${result.printedPage ? ` / impressa p.${result.printedPage}` : ''}` : '';
     card.innerHTML=`<div class="rule-result-head"><strong>${escapeHtml(result.title)}</strong><span>${escapeHtml(libraryAuthorityTypeLabel(result.authorityType))}</span></div><p>${escapeHtml(result.summary)}</p><small>${escapeHtml(result.source)}${escapeHtml(page)}</small>`;
     host.append(card);
   }
@@ -1030,9 +1030,12 @@ function renderVehicle(state){
   const nabatContact=state.world?.publishedAdventure?.currentNodeId==='nabat-contact';
   const nabatMorning=state.world?.publishedAdventure?.currentNodeId==='nabat-morning-departure';
   $('swe02NabatActions').hidden=!nabatNode;
+  $('swe02NabatMarketNote').hidden=!['nabat-arrival','nabat-contact'].includes(state.world?.publishedAdventure?.currentNodeId);
   $('swe02NabatRest').hidden=!nabatContact;
   $('swe02NabatMorning').hidden=!nabatMorning;
   $('swe02NynCritical').hidden=!nabatContact;
+  $('swe02NynPatientSelect').hidden=!nabatContact;
+  $('swe02NynCriticalId').hidden=!nabatContact;
   $('swe02NynNegotiate').hidden=!nabatContact;
   $('swe02NynMethod').hidden=!nabatContact;
   $('swe02NynReward').hidden=!nabatContact;
@@ -1063,10 +1066,19 @@ function renderVehicle(state){
     const selected=select.value;
     select.replaceChildren(new Option('Selecione um item do catálogo',''),...market.map(x=>new Option(`${x.name} — ${x.price} créditos`,x.id)));
     if(market.some(x=>x.id===selected))select.value=selected;
-    const injuries=state.player?.character?.criticalInjuries||[];
+    const patientSelect=$('swe02NynPatientSelect'),priorPatientId=patientSelect.value;
+    const roster=state.player?.roster?.entries??[];
+    patientSelect.replaceChildren(new Option('Selecione um PC',''),...roster.map(entry=>new Option(entry.character?.name??entry.id,entry.id)));
+    const selectedPatient=roster.some(entry=>entry.id===priorPatientId)?priorPatientId:state.player?.roster?.activeCharacterId;
+    if(roster.some(entry=>entry.id===selectedPatient))patientSelect.value=selectedPatient;
+    const patient=roster.find(entry=>entry.id===patientSelect.value)?.character;
+    const injuries=patient?.criticalInjuries||[];
     const criticalSelect=$('swe02NynCriticalId'),selectedInjury=criticalSelect.value;
     criticalSelect.replaceChildren(new Option('Selecione um Ferimento Crítico',''),...injuries.filter(x=>x.id).map(x=>new Option(`${x.label||x.code||x.id} · ${x.id}`,x.id)));
     if(injuries.some(x=>x.id===selectedInjury))criticalSelect.value=selectedInjury;
+    const expected=Number(state.session?.campaignRules?.destiny?.playerCount??state.session?.eoteRules?.destiny?.playerCount??state.session?.playerCount??1);
+    $('swe02NabatCare').disabled=Boolean(state.combat?.active)||roster.length!==expected;
+    $('swe02NynCritical').disabled=Boolean(state.combat?.active)||!patientSelect.value||!criticalSelect.value;
     const rewardSelect=$('swe02NynReward'),selectedReward=rewardSelect.value;
     const rewardOptions=game.swe02NynRewardOptions();
     rewardSelect.replaceChildren(new Option('Selecione equipamento e destinatário',''),...rewardOptions.items.map(x=>new Option(`${x.name} → ${x.characterName}`,`${x.itemId}|${x.characterId}`)));
@@ -1406,13 +1418,14 @@ for(const [id,method,args] of [
  catch(e){showFeedback('vehicleManeuverFeedback',e.message)}});
 for(const [id,method] of [
  ['swe02NabatWatch','requestSWE02SpaceportWatch'],['swe02NabatAlert','receiveSWE02SpaceportAlert'],
- ['swe02NabatRepair','repairSWE02KraytFangAtNabat'],['swe02NabatCare','treatSWE02NabatWounds']])
- $(id).addEventListener('click',()=>{try{const result=game[method]();showFeedback('swe02NabatFeedback',`Registrado: ${result.type||'SWE02'}`);render();}
+ ['swe02NabatRepair','repairSWE02KraytFangAtNabat'],['swe02NabatCare','treatSWE02NabatPartyCare']])
+ $(id).addEventListener('click',()=>{try{const result=game[method]();showFeedback('swe02NabatFeedback',result.patients?`Cuidados registrados para ${result.patients} PCs · ${result.woundsHealed} ferimentos e ${result.strainRecovered} tensão recuperados.`:`Registrado: ${result.type||'SWE02'}`);render();}
  catch(e){showFeedback('swe02NabatFeedback',e.message);}});
 $('swe02NynCritical').addEventListener('click',()=>{try{
- const r=game.treatSWE02NynCritical({injuryId:$('swe02NynCriticalId').value.trim()});
+ const r=game.treatSWE02NynCritical({characterId:$('swe02NynPatientSelect').value,injuryId:$('swe02NynCriticalId').value.trim()});
  showFeedback('swe02NabatFeedback',r.healed?'Ferimento Crítico tratado.':'Tentativa médica falhou; não é possível repetir para esta lesão.');render();
 }catch(e){showFeedback('swe02NabatFeedback',e.message);}});
+$('swe02NynPatientSelect').addEventListener('change',()=>render());
 $('swe02NynNegotiate').addEventListener('click',()=>{try{
  const r=game.negotiateSWE02Nyn({method:$('swe02NynMethod').value});
  showFeedback('swe02NabatFeedback',`Nyn: ${r.check.success?'sucesso':'falha'} · ${r.check.netAdvantage} Vantagens · ${r.check.triumph} Triunfos. Distribua as concessões entre os PCs.`);render();
@@ -1683,11 +1696,12 @@ $('searchLibrary').addEventListener('click',()=>{
 $('libraryQuery').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('searchLibrary').click(); } });
 $('libraryDocuments').addEventListener('change',e=>{
   const row=e.target.closest('.library-row');
-  if (!row || !e.target.matches('.library-authority,.library-enabled')) return;
+  if (!row || !e.target.matches('.library-authority,.library-enabled,.library-printed-page-offset')) return;
   const authorityType=row.querySelector('.library-authority').value;
   const enabled=row.querySelector('.library-enabled').checked;
+  const printedPageOffset=row.querySelector('.library-printed-page-offset').value;
   try {
-    updateLibraryDocumentPolicy(row.dataset.docId,{authorityType,enabled});
+    updateLibraryDocumentPolicy(row.dataset.docId,{authorityType,enabled,printedPageOffset});
     showFeedback('libraryImportFeedback',`Fonte atualizada: ${libraryAuthorityTypeLabel(authorityType)} · ${enabled?'ativa no Mestre':'desativada no Mestre'}.`);
     renderLibrary();
   } catch(err) { showFeedback('libraryImportFeedback',err.message); renderLibrary(); }
