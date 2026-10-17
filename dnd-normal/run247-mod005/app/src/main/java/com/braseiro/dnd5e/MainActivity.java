@@ -208,6 +208,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private volatile boolean pendingAdventureStartFromMap=false;
     private volatile boolean pendingAdventureStartReset=false;
     private volatile boolean nativeTtsReady=false;
+    private volatile boolean nativeTtsInitializing=false;
     private volatile boolean nativeTtsLanguageReady=false;
     private int nativeTtsInitAttempts=0;
     private long nativeTtsLastInitAt=0L;
@@ -480,22 +481,23 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
     private synchronized void ensureNativeTtsInitialized(){
         long now=System.currentTimeMillis();
-        if(nativeTts!=null&&(nativeTtsReady||now-nativeTtsLastInitAt<3500L))return;
+        // FL Kokoro parity: do not tear down a heavy neural engine while OnInit is still pending.
+        if(nativeTtsInitializing||(nativeTts!=null&&nativeTtsReady))return;
         if(nativeTtsInitAttempts>=3&&now-nativeTtsLastInitAt<30000L)return;
-        nativeTtsLastInitAt=now;nativeTtsInitAttempts++;
+        nativeTtsLastInitAt=now;nativeTtsInitAttempts++;nativeTtsInitializing=true;
         String selected=AndroidTtsBackend.resolveSavedEngine(this,prefs);
         nativeTtsRequestedEnginePackage=selected==null?"":selected;
         try{
             if(nativeTts!=null){try{nativeTts.shutdown();}catch(Throwable ignored){AppLog.ignored("MainActivity","Falha tolerada ao trocar engine TTS.",ignored);}}
             nativeTtsReady=false;nativeTtsLanguageReady=false;nativeTtsActiveEnginePackage="";
             nativeTts=createNativeTts(nativeTtsRequestedEnginePackage);
-        }catch(Throwable error){nativeTts=null;nativeTtsReady=false;nativeTtsLanguageReady=false;AppLog.e("NativeTts","Não foi possível criar o mecanismo de voz Android.",error);}
+        }catch(Throwable error){nativeTtsInitializing=false;nativeTts=null;nativeTtsReady=false;nativeTtsLanguageReady=false;AppLog.e("NativeTts","Não foi possível criar o mecanismo de voz Android.",error);}
     }
 
     private synchronized TextToSpeech createNativeTts(String requestedPackage){
         final String packageSnapshot=requestedPackage==null?"":requestedPackage.trim();
         final long generation=++nativeTtsInitGeneration;
-        TextToSpeech.OnInitListener listener=new TextToSpeech.OnInitListener(){public void onInit(int status){handleNativeTtsInit(generation,packageSnapshot,status);}};
+        TextToSpeech.OnInitListener listener=new TextToSpeech.OnInitListener(){public void onInit(final int status){ui.post(new Runnable(){public void run(){handleNativeTtsInit(generation,packageSnapshot,status);}});}};
         return packageSnapshot.length()>0?new TextToSpeech(this,listener,packageSnapshot):new TextToSpeech(this,listener);
     }
 
@@ -507,7 +509,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         nativeTtsRequestedEnginePackage=requested;nativeTtsRefreshAudioOnReady=true;nativeTtsInitAttempts=0;nativeTtsLastInitAt=0L;
         try{if(nativeTts!=null){nativeTts.stop();nativeTts.shutdown();}}catch(Throwable ignored){AppLog.ignored("MainActivity","Falha tolerada ao encerrar engine TTS anterior.",ignored);}
         nativeTtsInitGeneration++;
-        nativeTts=null;nativeTtsReady=false;nativeTtsLanguageReady=false;nativeTtsActiveEnginePackage="";
+        nativeTts=null;nativeTtsReady=false;nativeTtsInitializing=false;nativeTtsLanguageReady=false;nativeTtsActiveEnginePackage="";
         ensureNativeTtsInitialized();
     }
 
@@ -520,7 +522,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private synchronized void handleNativeTtsInit(final long generation,final String requestedPackage,int status){
         if(generation!=nativeTtsInitGeneration||!requestedPackage.equals(nativeTtsRequestedEnginePackage)){AppLog.i("NativeTts","Callback de inicialização obsoleto ignorado para "+requestedPackage+" • geração "+generation);return;}
-        nativeTtsReady=status==TextToSpeech.SUCCESS;
+        nativeTtsInitializing=false;
+        nativeTtsReady=status==TextToSpeech.SUCCESS && nativeTts!=null;
         nativeTtsLanguageReady=false;
         if(!nativeTtsReady){
             setStatus("A voz do Android não pôde ser iniciada. Uma nova tentativa será feita sem travar o app.");
@@ -545,7 +548,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         configureNativeTtsVoice();
         nativeTtsInitAttempts=0;
         nativeTts.setOnUtteranceProgressListener(new UtteranceProgressListener(){
-            public void onStart(final String id){ui.post(new Runnable(){public void run(){String sentence;synchronized(nativeVoiceSentenceByUtterance){sentence=nativeVoiceSentenceByUtterance.get(id);if(sentence!=null)nativeVoiceStartedUtterances.add(id);}if(sentence==null)return;if(narrativeAudio!=null)narrativeAudio.onNativeUtteranceStart(id,sentence,Build.VERSION.SDK_INT>=26);setStatus((isNativeKokoroEngine()?"Braseiro Kokoro PT-BR":"Voz do Android")+" narrando • áudio inteligente sincronizado.");}});}
+            public void onStart(final String id){ui.post(new Runnable(){public void run(){String sentence;synchronized(nativeVoiceSentenceByUtterance){sentence=nativeVoiceSentenceByUtterance.get(id);if(sentence!=null)nativeVoiceStartedUtterances.add(id);}if(sentence==null)return;if(narrativeAudio!=null)narrativeAudio.onNativeUtteranceStart(id,sentence,Build.VERSION.SDK_INT>=26);if(id.equals("narracao_"+nativeNarrationSession+"_0"))setStatus((isNativeKokoroEngine()?"Braseiro Kokoro PT-BR":"Voz do Android")+" narrando • áudio inteligente sincronizado.");}});}
             public void onRangeStart(final String id,final int start,final int end,final int frame){ui.post(new Runnable(){public void run(){String sentence;synchronized(nativeVoiceSentenceByUtterance){sentence=nativeVoiceSentenceByUtterance.get(id);}if(sentence==null)return;if(narrativeAudio!=null)narrativeAudio.onNativeRange(id,sentence,start,end);}});}
             public void onDone(final String id){ui.post(new Runnable(){public void run(){String completed;synchronized(nativeVoiceSentenceByUtterance){completed=nativeVoiceSentenceByUtterance.remove(id);nativeVoiceStartedUtterances.remove(id);if(completed!=null)nativeVoicePendingChunks=Math.max(0,nativeNarrationQueue.size()-nativeNarrationQueueIndex-1);}if(completed==null)return;if(narrativeAudio!=null)narrativeAudio.onUtteranceDone(id);nativeNarrationQueueIndex++;if(nativeNarrationQueueIndex>=nativeNarrationQueue.size()){finishNativeNarration();}else if(isNativeKokoroEngine()){speakNextNativeNarrationChunk();}else{long pause=narrativePauseMs(nativeChapterStartIndexes.contains(nativeNarrationQueueIndex));ui.postDelayed(new Runnable(){public void run(){speakNextNativeNarrationChunk();}},pause);}}});}
             public void onError(final String id){ui.post(new Runnable(){public void run(){String failed;synchronized(nativeVoiceSentenceByUtterance){failed=nativeVoiceSentenceByUtterance.remove(id);nativeVoiceStartedUtterances.remove(id);}if(failed==null)return;abortNativeNarrationAfterTtsError("A voz Android reportou erro. A narração foi interrompida neste trecho.");}});}
@@ -11365,7 +11368,12 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
     private void toast(String s){if(s==null)s="Erro desconhecido.";s=s.replaceAll("\\s+"," ").trim();if(s.length()>220)s=s.substring(0,217)+"...";Toast.makeText(this,s,Toast.LENGTH_LONG).show();}
     private boolean narrationOwnsStatus(){return activeAudioSession!=null||!nativeNarrationQueue.isEmpty();}
     private void setBackgroundStatus(String s){if(!narrationOwnsStatus())setStatus(s);}
-    private void setStatus(String s){if(statusText!=null)statusText.setText(s==null?"":s);}
+    private final AudioStatusGate gameFooterAudioStatusGate = new AudioStatusGate();
+    private void setStatus(String s){
+        if(statusText==null)return;
+        if(AudioStatusGate.isAudioStatus(s) && !gameFooterAudioStatusGate.allow(s,android.os.SystemClock.elapsedRealtime()))return;
+        statusText.setText(s==null?"":s);
+    }
     private void confirmCoreAction(String message,final Runnable yes){
         showApplyDialog(new AlertDialog.Builder(this).setMessage(message)
             .setNegativeButton("Cancelar",null).setPositiveButton("Confirmar",null),

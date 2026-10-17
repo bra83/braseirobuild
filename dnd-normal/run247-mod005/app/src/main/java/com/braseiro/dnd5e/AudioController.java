@@ -1089,7 +1089,12 @@ public final class AudioController {
         }
     }
 
-    private void say(String text) { if (status != null) try { status.onStatus(text); } catch (Exception e) { AppLog.w("AudioController","Callback de status de áudio falhou.",e); } }
+    private final AudioStatusGate footerStatusGate = new AudioStatusGate();
+    private void say(String text) {
+        if (status == null || !footerStatusGate.allow(text, android.os.SystemClock.elapsedRealtime())) return;
+        try { status.onStatus(text); }
+        catch (Exception e) { AppLog.w("AudioController","Callback de status de áudio falhou.",e); }
+    }
 
     private static final class VoiceClip {
         final File file;
