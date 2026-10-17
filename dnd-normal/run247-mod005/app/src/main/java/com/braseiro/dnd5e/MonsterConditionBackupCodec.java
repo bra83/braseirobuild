@@ -42,7 +42,8 @@ public final class MonsterConditionBackupCodec {
      * the target combatant ID. Preserve encounter UUID, round and turn index.
      */
     public static String remapReceiptKey(String key,Map<Long,Long> combatants) {
-        if(key==null||!key.startsWith("monster-condition-turn-v1:"))return key;
+        if(key==null||!key.startsWith("monster-condition-turn-v1:")&&
+            !key.startsWith("xmm-save-effect-turn-v1:"))return key;
         int last=key.lastIndexOf(':');
         if(last<"monster-condition-turn-v1:".length()||last==key.length()-1)
             throw new IllegalArgumentException("malformed_condition_turn_receipt_rollback");
@@ -62,12 +63,14 @@ public final class MonsterConditionBackupCodec {
             !source.contains("monster_condition_")&&
             !source.contains("xmm_manual_arbitration_v1")&&
             !source.contains(MonsterForcedMovementRules.SCHEMA)&&
-            !source.contains(TacticalGridMovementProofRules.SCHEMA))return source;
+            !source.contains(TacticalGridMovementProofRules.SCHEMA)&&
+            !source.contains(XmmSaveEffectLedger.SCHEMA))return source;
         JSONObject original;
         try{original=new JSONObject(source);}catch(Exception invalid){
             if(source.contains("monster_condition_")||source.contains("xmm_manual_arbitration_v1")||
                 source.contains(MonsterForcedMovementRules.SCHEMA)||
-                source.contains(TacticalGridMovementProofRules.SCHEMA))
+                source.contains(TacticalGridMovementProofRules.SCHEMA)||
+                source.contains(XmmSaveEffectLedger.SCHEMA))
                 throw new IllegalArgumentException("malformed_condition_receipt_rollback",invalid);
             return source;
         }
@@ -81,7 +84,8 @@ public final class MonsterConditionBackupCodec {
             "monster_condition_turn_v1".equals(schema)||
             "monster_condition_rider_v2".equals(schema)||
             "xmm_manual_arbitration_v1".equals(schema)||
-            MonsterForcedMovementRules.SCHEMA.equals(schema);
+            MonsterForcedMovementRules.SCHEMA.equals(schema)||
+            XmmSaveEffectLedger.SCHEMA.equals(schema);
         if((TacticalGridMovementProofRules.SCHEMA.equals(schema)||
             "xmm_manual_arbitration_v1".equals(schema))&&out.has("actor_id"))
             out.put("actor_id",mapped(out.optLong("actor_id",0),combatants));
@@ -90,6 +94,8 @@ public final class MonsterConditionBackupCodec {
             if("monster_condition_turn_v1".equals(schema)&&out.has("active_actor_id"))
                 out.put("active_actor_id",mapped(out.optLong("active_actor_id",0),combatants));
             if(MonsterForcedMovementRules.SCHEMA.equals(schema))
+                out.put("source_actor_id",mapped(out.optLong("source_actor_id",0),combatants));
+            if(XmmSaveEffectLedger.SCHEMA.equals(schema)&&out.has("source_actor_id"))
                 out.put("source_actor_id",mapped(out.optLong("source_actor_id",0),combatants));
             remapTimerArray(out,"timers_before",combatants);
             remapTimerArray(out,"timers_after",combatants);
