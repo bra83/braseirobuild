@@ -33,6 +33,13 @@ node ci/oua-4.9.212/stage-v9-in-android.mjs "$V9_ROOT" "$ANDROID_ROOT"
 
 O workflow permite `workflow_dispatch` em BRELGA com `v9_zip_path` (caminho do ZIP privado **no runner**). Ele restaura a fonte Android a partir da release e executa as verificações. Não publica APK automaticamente. Não envie livros ou a V9 com trechos de livros para este repositório público.
 
+## Gate adicional: proteção da superfície cliente
+- `stage-v9-in-android.mjs` **não** copia `src/security` nem `src/host-authority` para o WebView.
+- `staging-safety.test.mjs` exercita isso com fonte sintética; também verifica preservação da UI, projeto Android e bloqueio de sobrescrita.
+- Esses módulos ainda dependem de uma ponte Host/native confiável. **Não importar o RulesGuard/RAG da pasta de staging para o WebView até implementar e testar a ponte.**
+- A ausência das bibliotecas de segurança no cliente é intencional e não certifica o funcionamento de RAG/segredos em produção.
+- A verificação acima é independente dos dez testes adversariais que **ainda exigem a V9 privada** no runner BRELGA.
+
 ## Gates obrigatórios — estado factual
 1. **Sintaxe dos scripts:** CI automático em execução; só considerar aprovado após conferir o run verde.
 2. **Regressões antigas:** 70/70 aprovados na V9 original na inspeção local anterior; devem passar **novamente depois dos patches**.
