@@ -21,6 +21,10 @@ if (!fs.readFileSync(path.join(src,'ui','bridges','Tor2eAdventureController.mjs'
     .includes('HARDENED_V9_5_GATES')) {
   throw new Error('V9 hardening is not applied; staging prohibited');
 }
+if (!fs.readFileSync(path.join(src,'application','Tor2eRulesGuard.mjs'),'utf8')
+    .includes('HARDENED_RULES_GUARD_V9')) {
+  throw new Error('Production command bus hardening missing');
+}
 const allowed = ['application','domain','library','security','ui'];
 const copied = [];
 for (const dir of allowed) {
