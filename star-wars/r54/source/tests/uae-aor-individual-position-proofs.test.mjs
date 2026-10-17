@@ -15,6 +15,7 @@ const ENDURING_POSITION='ace:gunner:r3c2';
 const DURABLE_RANK2_POSITION='ace:gunner:r3c1';
 const TOUGHENED_RANK2_POSITION='ace:gunner:r4c1';
 const OVERWHELM_POSITION='ace:gunner:r1c3';
+const DEBILITATING_POSITION='ace:gunner:r1c4';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
  careerFreeSkills:['astronavegacion','frialdad','mecanica','percepcion'],
@@ -326,4 +327,55 @@ test('AoR p.68 Ace/Gunner R1C3 Overwhelm buys exact node, spends Advantage on a 
   assert.equal(new GameController(restored).state.vehicles.vehicles[targetId].roundEffects.aorOverwhelmedDefense.proa,beforeZone-1);
  }
  assert.equal(bridge.buyTalent(OVERWHELM_POSITION).ok,false,'the exact node cannot be purchased twice');
+});
+
+test('AoR p.68 Ace/Gunner R1C4 Debilitating Shot buys exact node, spends Advantage on a hit and persists speed reduction',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');
+ setup.createAorCharacter({...characterOptions,name:'Vela Marr',specializationFreeSkills:['artilleria','disciplina']});
+ const before=clone(setup.state.player.character),bridge=new BraseiroUiBridge({repository:repo});
+ const candidate=setup.eligibleTalents().find(n=>n.id===DEBILITATING_POSITION);
+ assert.ok(candidate);assert.equal(candidate.available,true);assert.equal(candidate.originalName,'DISPARO DEBILITANTE');
+ assert.equal(candidate.name,'Disparo debilitante');assert.equal(candidate.cost,5);
+ assert.equal(candidate.source.printedPage,68);assert.equal(candidate.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+ const treeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(n=>n.id===DEBILITATING_POSITION);
+ assert.ok(treeNode);assert.equal(treeNode.originalName,'DISPARO DEBILITANTE');assert.equal(treeNode.source.printedPage,68);
+ const html=fs.readFileSync(new URL('../app/src/main/assets/vtt/index.html',import.meta.url),'utf8');
+ const ui=fs.readFileSync(new URL('../app/src/main/assets/vtt/js/ui/app.mjs',import.meta.url),'utf8');
+ assert.ok(html.includes('id="talentOptions"'));
+ assert.match(ui,/data-talent-id="\$\{escapeHtml\(t\.id\)\}"/);
+ assert.match(ui,/game\.buyTalent\(button\.dataset\.talentId/);
+ const purchased=bridge.buyTalent(DEBILITATING_POSITION);
+ assert.equal(purchased.ok,true);assert.equal(purchased.data.talent.id,DEBILITATING_POSITION);
+ assert.deepEqual(purchased.data.effect,{applied:false,label:null});
+ assert.equal(purchased.data.character.xp.available,before.xp.available-5);
+ const receipt=purchased.data.character.talentPurchases.find(p=>p.nodeId===DEBILITATING_POSITION);
+ assert.equal(receipt.originalName,'DISPARO DEBILITANTE');assert.equal(receipt.source.printedPage,68);
+ assert.equal(receipt.specializationKey,'gunner');assert.equal(receipt.cost,5);
+ const saved=clone(repo.state);
+ for(let reopen=1;reopen<=3;reopen++){
+  const restored=new RepoWithState(saved),game=new GameController(restored);
+  const character=game.state.player.character,owned=character.talentPurchases.find(p=>p.nodeId===DEBILITATING_POSITION);
+  assert.ok(owned,`exact source node survives reopen ${reopen}`);
+  assert.equal(owned.source.printedPage,68);assert.equal(owned.specializationKey,'gunner');
+  assert.equal(game.eligibleTalents().find(n=>n.id===DEBILITATING_POSITION).purchased,true);
+  game.addVehicle('xwing_t65b');
+  game.beginVehicleCombat({targetProfileKey:'tie_ln',range:'Bocajarro'});
+  const vehicles=clone(game.state.vehicles),targetId=vehicles.combat.targetVehicleId;
+  vehicles.vehicles[targetId].speed=5;game.commit('VEHICLES_UPDATED',{vehicles});
+  const beforeStatus=vehicleStatus(game.state.vehicles.vehicles[targetId],{currentRound:1});
+  assert.equal(beforeStatus.effectiveSpeedMax,5);
+  let i=0;const rng=()=>[.999,.999,0,0,0][i++%5];
+  const attack=game.resolveVehicleAttack({rng});
+  assert.equal(attack.hit,true);assert.ok(attack.check.netAdvantage>=2);
+  assert.ok(attack.pendingSpend.qualities.some(q=>q.key==='aor_debilitating'&&q.rank===1));
+  const activation=game.activatePendingVehicleQuality({qualityKey:'aor_debilitating'});
+  assert.equal(activation.effect.untilRound,2);assert.equal(activation.remainingAdvantage,attack.check.netAdvantage-2);
+  assert.equal(vehicleStatus(game.state.vehicles.vehicles[targetId],{currentRound:1}).effectiveSpeedMax,4);
+  const restoredStatus=new GameController(restored).state.vehicles.vehicles[targetId];
+  assert.equal(vehicleStatus(restoredStatus,{currentRound:1}).effectiveSpeedMax,4);
+  assert.equal(vehicleStatus(restoredStatus,{currentRound:2}).effectiveSpeedMax,4);
+  assert.equal(vehicleStatus(restoredStatus,{currentRound:3}).effectiveSpeedMax,5);
+ }
+ assert.equal(bridge.buyTalent(DEBILITATING_POSITION).ok,false,'the exact node cannot be purchased twice');
 });

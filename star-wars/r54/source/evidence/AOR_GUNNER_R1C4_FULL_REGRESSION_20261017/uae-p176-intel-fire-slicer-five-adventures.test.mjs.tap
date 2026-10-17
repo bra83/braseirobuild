@@ -1,0 +1,149 @@
+TAP version 13
+# Subtest: P176 source-backed four new AoR slots; separate Skilled and Master Slicer
+ok 1 - P176 source-backed four new AoR slots; separate Skilled and Master Slicer
+  ---
+  duration_ms: 51.5242
+  type: 'test'
+  ...
+# Subtest: P176 Bought Info charges 150 credits, automatic one success, GM revelation pending, causal receipt
+ok 2 - P176 Bought Info charges 150 credits, automatic one success, GM revelation pending, causal receipt
+  ---
+  duration_ms: 71.2851
+  type: 'test'
+  ...
+# Subtest: P176 Bought Info rejects unowned talent, missing approval, invalid subject and insufficient funds
+ok 3 - P176 Bought Info rejects unowned talent, missing approval, invalid subject and insufficient funds
+  ---
+  duration_ms: 127.9241
+  type: 'test'
+  ...
+# Subtest: P176 Known Schematic Hard Education maneuver, one/session and no invented maps
+ok 4 - P176 Known Schematic Hard Education maneuver, one/session and no invented maps
+  ---
+  duration_ms: 66.4144
+  type: 'test'
+  ...
+# Subtest: P176 Known Schematic failure still consumes the single session use
+ok 5 - P176 Known Schematic failure still consumes the single session use
+  ---
+  duration_ms: 19.25
+  type: 'test'
+  ...
+# Subtest: P176 Fire Control gives +1 target silhouette on actual ship gunnery and expires
+ok 6 - P176 Fire Control gives +1 target silhouette on actual ship gunnery and expires
+  ---
+  duration_ms: 49.9807
+  type: 'test'
+  ...
+# Subtest: P176 Fire Control second maneuver pays vehicle strain and cannot bypass action budget
+ok 7 - P176 Fire Control second maneuver pays vehicle strain and cannot bypass action budget
+  ---
+  duration_ms: 35.0708
+  type: 'test'
+  ...
+# Subtest: P176 Skilled Slicer Triumph grants only same-system Computers maneuver; Master Slicer separate
+ok 8 - P176 Skilled Slicer Triumph grants only same-system Computers maneuver; Master Slicer separate
+  ---
+  duration_ms: 74.4354
+  type: 'test'
+  ...
+# Subtest: P176 Skilled Slicer cannot activate from a display label or without Triumph
+ok 9 - P176 Skilled Slicer cannot activate from a display label or without Triumph
+  ---
+  duration_ms: 36.2488
+  type: 'test'
+  ...
+# Subtest: P176 rollback on repository failure covers credits, events, maneuvers, source receipts
+ok 10 - P176 rollback on repository failure covers credits, events, maneuvers, source receipts
+  ---
+  duration_ms: 77.3259
+  type: 'test'
+  ...
+# Subtest: P176 tampered receipts, missing causal events and forged fire control are rejected
+ok 11 - P176 tampered receipts, missing causal events and forged fire control are rejected
+  ---
+  duration_ms: 75.505
+  type: 'test'
+  ...
+# Subtest: P176 Android bridge, UI and old P175 checkpoint migration are compatible
+ok 12 - P176 Android bridge, UI and old P175 checkpoint migration are compatible
+  ---
+  duration_ms: 79.3589
+  type: 'test'
+  ...
+# Subtest: P176 under-black-sun: Bought Info does not overwrite UAE, three reopenings
+ok 13 - P176 under-black-sun: Bought Info does not overwrite UAE, three reopenings
+  ---
+  duration_ms: 80.7794
+  type: 'test'
+  ...
+# Subtest: P176 beyond-the-rim: Bought Info does not overwrite UAE, three reopenings
+ok 14 - P176 beyond-the-rim: Bought Info does not overwrite UAE, three reopenings
+  ---
+  duration_ms: 105.3874
+  type: 'test'
+  ...
+# Subtest: P176 long-arm-of-the-hutt: Bought Info does not overwrite UAE, three reopenings
+ok 15 - P176 long-arm-of-the-hutt: Bought Info does not overwrite UAE, three reopenings
+  ---
+  duration_ms: 82.1128
+  type: 'test'
+  ...
+# Subtest: P176 jewel-of-yavin: Bought Info does not overwrite UAE, three reopenings
+ok 16 - P176 jewel-of-yavin: Bought Info does not overwrite UAE, three reopenings
+  ---
+  duration_ms: 65.5761
+  type: 'test'
+  ...
+# Subtest: P176 mask-of-the-pirate-queen: Bought Info does not overwrite UAE, three reopenings
+ok 17 - P176 mask-of-the-pirate-queen: Bought Info does not overwrite UAE, three reopenings
+  ---
+  duration_ms: 49.7386
+  type: 'test'
+  ...
+# Subtest: P176 Massive 2 raises actual critical cost by 2; Exhaust Port spends Destiny to ignore it
+ok 18 - P176 Massive 2 raises actual critical cost by 2; Exhaust Port spends Destiny to ignore it
+  ---
+  duration_ms: 66.6849
+  type: 'test'
+  ...
+# Subtest: P176 Massive without Exhaust Port increases critical cost and never consumes Destiny
+ok 19 - P176 Massive without Exhaust Port increases critical cost and never consumes Destiny
+  ---
+  duration_ms: 44.6224
+  type: 'test'
+  ...
+# Subtest: P176 Dead to Rights applies Agility-based vehicle damage only on hit and flips Destiny
+ok 20 - P176 Dead to Rights applies Agility-based vehicle damage only on hit and flips Destiny
+  ---
+  duration_ms: 82.3429
+  type: 'test'
+  ...
+# Subtest: P176 Exhaust Port and Dead to Rights reject unearned talents and insufficient Destiny atomically
+ok 21 - P176 Exhaust Port and Dead to Rights reject unearned talents and insufficient Destiny atomically
+  ---
+  duration_ms: 92.5167
+  type: 'test'
+  ...
+# Subtest: P176 Dead to Rights miss does not consume light Destiny
+ok 22 - P176 Dead to Rights miss does not consume light Destiny
+  ---
+  duration_ms: 35.969
+  type: 'test'
+  ...
+# Subtest: P176 Fire Control expires on original ship even when active ship is switched
+ok 23 - P176 Fire Control expires on original ship even when active ship is switched
+  ---
+  duration_ms: 42.8424
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2847.6407
+

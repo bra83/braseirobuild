@@ -1,0 +1,47 @@
+TAP version 13
+# Subtest: Android host registers all five native bridges under the names used by JS
+ok 1 - Android host registers all five native bridges under the names used by JS
+  ---
+  duration_ms: 3.8164
+  type: 'test'
+  ...
+# Subtest: Library bridge methods consumed by R46 exist on the Android host
+ok 2 - Library bridge methods consumed by R46 exist on the Android host
+  ---
+  duration_ms: 4.2834
+  type: 'test'
+  ...
+# Subtest: Gemini bridge methods consumed by engine/R46 exist on the Android host
+ok 3 - Gemini bridge methods consumed by engine/R46 exist on the Android host
+  ---
+  duration_ms: 10.3084
+  type: 'test'
+  ...
+# Subtest: Image cache bridge methods consumed by R46 exist on the Android host
+ok 4 - Image cache bridge methods consumed by R46 exist on the Android host
+  ---
+  duration_ms: 1.1887
+  type: 'test'
+  ...
+# Subtest: TTS runtime calls only methods exposed by TtsBridge
+ok 5 - TTS runtime calls only methods exposed by TtsBridge
+  ---
+  duration_ms: 1.4253
+  type: 'test'
+  ...
+# Subtest: JSON export uses the native FileBridge saveJson contract
+ok 6 - JSON export uses the native FileBridge saveJson contract
+  ---
+  duration_ms: 0.7082
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 689.9866
+

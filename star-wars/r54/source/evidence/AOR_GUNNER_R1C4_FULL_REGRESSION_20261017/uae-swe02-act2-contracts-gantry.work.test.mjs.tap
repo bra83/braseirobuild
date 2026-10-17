@@ -1,0 +1,71 @@
+TAP version 13
+# Subtest: Piddock p.33: quatro perguntas, aviso na quarta, encerramento na quinta, sem inventar respostas
+ok 1 - Piddock p.33: quatro perguntas, aviso na quarta, encerramento na quinta, sem inventar respostas
+  ---
+  duration_ms: 121.2114
+  type: 'test'
+  ...
+# Subtest: Piddock: manifestar comércio mantém diálogo aberto, mas não inventa armas
+ok 2 - Piddock: manifestar comércio mantém diálogo aberto, mas não inventa armas
+  ---
+  duration_ms: 53.5094
+  type: 'test'
+  ...
+# Subtest: Piddock choices oficializadas incrementam perguntas, sem bloquear escolhas já válidas
+ok 3 - Piddock choices oficializadas incrementam perguntas, sem bloquear escolhas já válidas
+  ---
+  duration_ms: 93.3309
+  type: 'test'
+  ...
+# Subtest: Vio p.33: contratar rota direta com débito exato, sem Dimmock/AA7 e sem trocar dono da nave
+ok 4 - Vio p.33: contratar rota direta com débito exato, sem Dimmock/AA7 e sem trocar dono da nave
+  ---
+  duration_ms: 136.4165
+  type: 'test'
+  ...
+# Subtest: Vio: negociação Média com dados reais, 250 por pessoa se passar e 500 se falhar
+ok 5 - Vio: negociação Média com dados reais, 250 por pessoa se passar e 500 se falhar
+  ---
+  duration_ms: 126.8984
+  type: 'test'
+  ...
+# Subtest: Vio controller/bridge/UI: compra atômica, rollback, três reaberturas
+ok 6 - Vio controller/bridge/UI: compra atômica, rollback, três reaberturas
+  ---
+  duration_ms: 217.9575
+  type: 'test'
+  ...
+# Subtest: AA7 p.37: 500 créditos retira apenas Vrixx, sem neutralizar soldados nem fabricar vitória
+ok 7 - AA7 p.37: 500 créditos retira apenas Vrixx, sem neutralizar soldados nem fabricar vitória
+  ---
+  duration_ms: 268.9853
+  type: 'test'
+  ...
+# Subtest: AA7 p.37: 1000 créditos executa tiro de Gand com dados, dano e cobertura reais
+ok 8 - AA7 p.37: 1000 créditos executa tiro de Gand com dados, dano e cobertura reais
+  ---
+  duration_ms: 288.5084
+  type: 'test'
+  ...
+# Subtest: AA7: pagamento falho preserva saldo, combate e saves; sem alvo real não há tiro
+ok 9 - AA7: pagamento falho preserva saldo, combate e saves; sem alvo real não há tiro
+  ---
+  duration_ms: 165.3424
+  type: 'test'
+  ...
+# Subtest: AA7: fechamento só aceita soldados realmente derrotados + Gand pago; embarque persiste
+ok 10 - AA7: fechamento só aceita soldados realmente derrotados + Gand pago; embarque persiste
+  ---
+  duration_ms: 308.1609
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3378.8095
+

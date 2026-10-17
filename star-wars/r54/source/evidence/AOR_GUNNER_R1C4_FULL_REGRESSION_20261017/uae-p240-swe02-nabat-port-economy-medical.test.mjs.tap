@@ -1,0 +1,131 @@
+TAP version 13
+# Subtest: P240 p.13: market uses only primary EotE Core entries priced <= 500
+ok 1 - P240 p.13: market uses only primary EotE Core entries priced <= 500
+  ---
+  duration_ms: 6.3161
+  type: 'test'
+  ...
+# Subtest: P240 p.13: Nabat operations require source-backed safe docking arranged by B’ura
+ok 2 - P240 p.13: Nabat operations require source-backed safe docking arranged by B’ura
+  ---
+  duration_ms: 428.9987
+  type: 'test'
+  ...
+# Subtest: SWE02 p.13 arrival narration stays source-backed and does not promise fuel
+ok 3 - SWE02 p.13 arrival narration stays source-backed and does not promise fuel
+  ---
+  duration_ms: 404.6385
+  type: 'test'
+  ...
+# Subtest: SWE02 p.13 optional transponder removal opens the sourced ground Mechanics check after Nabat landing
+ok 4 - SWE02 p.13 optional transponder removal opens the sourced ground Mechanics check after Nabat landing
+  ---
+  duration_ms: 512.2113
+  type: 'test'
+  ...
+# Subtest: P240 p.13: real purchase debits wallet and adds catalog gear atomically
+ok 5 - P240 p.13: real purchase debits wallet and adds catalog gear atomically
+  ---
+  duration_ms: 367.6287
+  type: 'test'
+  ...
+# Subtest: P240 market rejects forged price, non-EotE source, 501+ item and bad quantities
+ok 6 - P240 market rejects forged price, non-EotE source, 501+ item and bad quantities
+  ---
+  duration_ms: 417.4421
+  type: 'test'
+  ...
+# Subtest: P240 purchase insufficient credits: rollback of character, receipts and save
+ok 7 - P240 purchase insufficient credits: rollback of character, receipts and save
+  ---
+  duration_ms: 326.5486
+  type: 'test'
+  ...
+# Subtest: P240 p.13: Bura contacts repair the real ship hull, systems and repairable criticals without creating a ship
+ok 8 - P240 p.13: Bura contacts repair the real ship hull, systems and repairable criticals without creating a ship
+  ---
+  duration_ms: 382.0346
+  type: 'test'
+  ...
+# Subtest: P240 p.13: contacts cannot claim to repair a destroyed ship; failure rolls back all state
+ok 9 - P240 p.13: contacts cannot claim to repair a destroyed ship; failure rolls back all state
+  ---
+  duration_ms: 297.2095
+  type: 'test'
+  ...
+# Subtest: P240 p.13: no ship repair if Bura not found, or ship name forged
+ok 10 - P240 p.13: no ship repair if Bura not found, or ship name forged
+  ---
+  duration_ms: 298.4818
+  type: 'test'
+  ...
+# Subtest: P240 p.13–14: port watch must be requested, alert only after Nyn meeting
+ok 11 - P240 p.13–14: port watch must be requested, alert only after Nyn meeting
+  ---
+  duration_ms: 357.4876
+  type: 'test'
+  ...
+# Subtest: P240 p.13–14: watch at arrival, alert in Nyn safehouse, no automatic knowledge
+ok 12 - P240 p.13–14: watch at arrival, alert in Nyn safehouse, no automatic knowledge
+  ---
+  duration_ms: 471.2212
+  type: 'test'
+  ...
+# Subtest: P240 p.14: overnight choice closes Nyn scene, delivers requested alert and records the morning briefing
+ok 13 - P240 p.14: overnight choice closes Nyn scene, delivers requested alert and records the morning briefing
+  ---
+  duration_ms: 467.2439
+  type: 'test'
+  ...
+# Subtest: P240 p.14: morning reply is typed, one-time, and required before mine departure
+ok 14 - P240 p.14: morning reply is typed, one-time, and required before mine departure
+  ---
+  duration_ms: 567.2385
+  type: 'test'
+  ...
+# Subtest: P240 p.13: Nyn shelter heals real wounds and strain, never erases critical injuries
+ok 15 - P240 p.13: Nyn shelter heals real wounds and strain, never erases critical injuries
+  ---
+  duration_ms: 421.0682
+  type: 'test'
+  ...
+# Subtest: SWE02 p.13: Nyn shelter cares for every registered PC once and persists the whole roster
+ok 16 - SWE02 p.13: Nyn shelter cares for every registered PC once and persists the whole roster
+  ---
+  duration_ms: 475.4524
+  type: 'test'
+  ...
+# Subtest: P240 anti-forgery: missing or modified receipt fails adapter status
+ok 17 - P240 anti-forgery: missing or modified receipt fails adapter status
+  ---
+  duration_ms: 336.3671
+  type: 'test'
+  ...
+# Subtest: P240 anti-forgery: safehouse care receipt requires valid stable patient and effect fields
+ok 18 - P240 anti-forgery: safehouse care receipt requires valid stable patient and effect fields
+  ---
+  duration_ms: 352.6432
+  type: 'test'
+  ...
+# Subtest: P240 no mutation outside Nabat; failed actions do not save
+ok 19 - P240 no mutation outside Nabat; failed actions do not save
+  ---
+  duration_ms: 275.6536
+  type: 'test'
+  ...
+# Subtest: P240 Android bridge and UI source expose port operations
+ok 20 - P240 Android bridge and UI source expose port operations
+  ---
+  duration_ms: 4.8576
+  type: 'test'
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8559.2666
+
