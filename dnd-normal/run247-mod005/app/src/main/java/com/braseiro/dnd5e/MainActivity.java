@@ -223,6 +223,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private StrixhavenCampusView strixhavenCampusView;
     private StrixhavenAssetCatalog strixhavenAssetCatalog;
     private boolean strixhavenDrawerExpanded=true;
+    private boolean strixhavenControlsExpanded=true;
+    private TextView strixhavenNarrationOutput;
     private TextView statusText;
     private String currentScreen="Aventura";
     private String lastSuccessfulScreen="Aventura";
@@ -350,7 +352,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         super.onCreate(state);AppLog.init(this);AppLog.i("MainActivity","Inicializando Braseiro "+APP_VERSION);requestWindowFeature(Window.FEATURE_NO_TITLE);
         try{
             prefs=getSharedPreferences("settings",MODE_PRIVATE);if(!prefs.getBoolean("rag_master_2_2_migrated",false))prefs.edit().putString("master_pace","cinematic").putBoolean("rag_master_2_2_migrated",true).apply();if(!prefs.getBoolean("narrator_2_7_cinematic_restored",false)){SharedPreferences.Editor paceEdit=prefs.edit().putBoolean("narrator_2_7_cinematic_restored",true);if(prefs.getBoolean("narrator_2_6_speed_migrated",false)&&"balanced".equals(prefs.getString("master_pace","cinematic")))paceEdit.putString("master_pace","cinematic");paceEdit.apply();}reconcileWorldProfilePreferences();applyTheme();ui=new Handler(Looper.getMainLooper());showImmediateStartupSurface();
-            DatabaseMigrationGuard.beforeOpen(this);db=new AppDb(this);db.setActiveMapProfile(activeWorldProfile());DatabaseMigrationGuard.afterOpen(this,db);JSONObject sceneCommitRecovery=db.sceneCommitRecoveryState();if(!sceneCommitRecovery.optBoolean("safe",true))AppLog.w("SceneCommitRecovery","Journal protegido contra reaplicação automática: "+sceneCommitRecovery.optString("error")+" • bloqueados="+sceneCommitRecovery.optInt("blocked_count",0),null);else if(sceneCommitRecovery.optInt("retryable_count",0)>0)AppLog.i("SceneCommitRecovery",sceneCommitRecovery.optInt("retryable_count",0)+" commit(s) permanecem revisáveis; nenhuma consequência foi reaplicada automaticamente.");uiResponsivenessMonitor=new UiResponsivenessMonitor(this);uiResponsivenessMonitor.start();charonLatencyTelemetry=new CharonLatencyTelemetry(this);ensureWorldRagIsolationMigration();db.disableBrokenTokenPdfSources();secrets=new SecureSecretStore(this,prefs);secrets.migratePlaintext("gemini_key");secrets.migratePlaintext("gemini_paid_key");migrateLegacyModels();applyTheme();
+            DatabaseMigrationGuard.beforeOpen(this);db=new AppDb(this);db.setActiveMapProfile(activeWorldProfile());DatabaseMigrationGuard.afterOpen(this,db);JSONObject sceneCommitRecovery=db.sceneCommitRecoveryState();if(!sceneCommitRecovery.optBoolean("safe",true))AppLog.w("SceneCommitRecovery","Journal protegido contra reaplicação automática: "+sceneCommitRecovery.optString("error")+" • bloqueados="+sceneCommitRecovery.optInt("blocked_count",0),null);else if(sceneCommitRecovery.optInt("retryable_count",0)>0)AppLog.i("SceneCommitRecovery",sceneCommitRecovery.optInt("retryable_count",0)+" commit(s) permanecem revisáveis; nenhuma consequência foi reaplicada automaticamente.");uiResponsivenessMonitor=new UiResponsivenessMonitor(this);uiResponsivenessMonitor.start();charonLatencyTelemetry=new CharonLatencyTelemetry(this);ensureWorldRagIsolationMigration();if(!prefs.getBoolean("broken_token_pdf_sources_disabled",false)){db.disableBrokenTokenPdfSources();prefs.edit().putBoolean("broken_token_pdf_sources_disabled",true).apply();}secrets=new SecureSecretStore(this,prefs);secrets.migratePlaintext("gemini_key");secrets.migratePlaintext("gemini_paid_key");migrateLegacyModels();applyTheme();
             safety=new CampaignSafetyManager(this,db);libraryConnections=new LibraryConnectionManager(this);portableBackup=new PortableBackupManager(this,db,libraryConnections);maintenance=new AppMaintenanceManager(this,safety,portableBackup);CrashRecoveryHandler.install(this,db,safety);String safetyMessage="Braseiro pronto. Verificações de segurança continuam em segundo plano.";
             String audioRecoveryNotice=prefs.getString(PREF_AUDIO_RECOVERY_NOTICE,"");if(audioRecoveryNotice.length()>0){safetyMessage=safetyMessage+"\n"+audioRecoveryNotice;prefs.edit().remove(PREF_AUDIO_RECOVERY_NOTICE).apply();}
             gemini=new GeminiService(this);gemini.resetTtsPrimaryCircuit();drive=new DriveService(this);manualFolderScanner=new SafFolderScanner(this);localManualIndexer=new LocalManualIndexer(this,db,drive);tokenPdfLibrary=new TokenPdfLibrary(this);mapPackageManager=new MapPackageManager(this,db);accountManager=AccountManager.get(this);if(!prefs.getBoolean("npc_token_folder_47_migrated",false)){String old=prefs.getString("token_folder","");SharedPreferences.Editor tokenMigration=prefs.edit().putBoolean("npc_token_folder_47_migrated",true);if(old.length()==0||DEFAULT_TOKEN_FOLDER.equals(old))tokenMigration.putString("token_folder",DEFAULT_TOKEN_IMAGE_FOLDER);tokenMigration.apply();}
@@ -1354,43 +1356,94 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         JSONObject scene=db.getSceneState();double hour=scene.optDouble("clock_hour",9d);TextView clock=text("Agora • "+String.format(Locale.US,"%02d:%02d",(int)Math.floor(hour),(int)Math.round((hour-Math.floor(hour))*60)%60),9,GOLD,true);clock.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);meta.addView(clock,new LinearLayout.LayoutParams(dp(94),dp(30)));drawer.addView(meta);
 
         ScrollView narrativeScroll=new ScrollView(this);narrativeScroll.setFillViewport(false);LinearLayout narrativeBox=new LinearLayout(this);narrativeBox.setOrientation(LinearLayout.VERTICAL);narrativeBox.setPadding(dp(2),dp(2),dp(2),dp(4));
-        String narration=lastNarration==null||lastNarration.trim().length()==0?"Você chegou a Strixhaven. No primeiro ano, o programa é geral: explore o Campus Central e visite os cinco colégios antes de qualquer escolha futura de matrícula. Toque em um local do mapa para se deslocar.":lastNarration;
-        TextView narrationView=text(GeneratedTextSanitizer.humanText(narration),14,Color.rgb(244,234,211),false);narrationView.setLineSpacing(0,1.12f);narrativeBox.addView(narrationView);
+        String narration=aiBusy&&!masterSideQueryActive&&streamingNarration.length()>0?streamingNarration+" ▌":(lastNarration==null||lastNarration.trim().length()==0?(aiBusy&&!masterSideQueryActive?"O Mestre está escrevendo a cena…":"Você chegou a Strixhaven. No primeiro ano, o programa é geral: explore o Campus Central e visite os cinco colégios antes de qualquer escolha futura de matrícula. Toque em um local do mapa para se deslocar."):lastNarration);
+        strixhavenNarrationOutput=text(GeneratedTextSanitizer.humanText(narration),14,Color.rgb(244,234,211),false);strixhavenNarrationOutput.setLineSpacing(0,1.12f);narrativeBox.addView(strixhavenNarrationOutput);
         narrativeScroll.addView(narrativeBox);drawer.addView(narrativeScroll,new LinearLayout.LayoutParams(-1,0,1));
 
-        // Voz + imagem ficam dentro do próprio pergaminho da Sessão Strixhaven.
-        LinearLayout mediaRow=new LinearLayout(this);mediaRow.setOrientation(LinearLayout.HORIZONTAL);mediaRow.setGravity(Gravity.CENTER_VERTICAL);
-        Button charon=smallButton("▶ CHARON",Color.rgb(60,43,25));charon.setTextColor(GOLD);charon.setContentDescription("Ouvir a narração com a voz Charon do Gemini");
-        charon.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração para ouvir.");return;}speakCharonNarration(lastNarration);}});
-        Button androidVoice=smallButton("▶ ANDROID",Color.rgb(60,43,25));androidVoice.setTextColor(GOLD);androidVoice.setContentDescription("Ouvir a narração com a voz nativa do Android");
-        androidVoice.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração para ouvir.");return;}speakNativeNarrationWithSfx(lastNarration);}});
-        Button geminiImage=smallButton("✦ GEMINI",GOLD);geminiImage.setTextColor(Color.BLACK);geminiImage.setContentDescription("Enviar a cena atual ao Gemini para gerar imagem");
-        geminiImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){editVisualPrompt(true);}});
-        Button localImage=smallButton("🖼 LOCAL",Color.rgb(60,43,25));localImage.setTextColor(GOLD);localImage.setContentDescription("Gerar imagem da cena com a chave Gemini configurada");
-        localImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){generateSceneImage();}});
-        mediaRow.addView(charon,new LinearLayout.LayoutParams(0,dp(38),1));mediaRow.addView(androidVoice,new LinearLayout.LayoutParams(0,dp(38),1));mediaRow.addView(geminiImage,new LinearLayout.LayoutParams(0,dp(38),1));mediaRow.addView(localImage,new LinearLayout.LayoutParams(0,dp(38),1));
-        drawer.addView(mediaRow);
-        if(sharedImageUri!=null){Button openImage=smallButton("ABRIR CENA",Color.rgb(60,43,25));openImage.setTextColor(GOLD);openImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showSceneImageFullscreen();}});drawer.addView(openImage,new LinearLayout.LayoutParams(-1,dp(36)));}
-        addStrixhavenMasterConversationCard(drawer);
-        addGeminiMasterChoiceButtons(drawer);
+        LinearLayout quickBar=new LinearLayout(this);quickBar.setOrientation(LinearLayout.HORIZONTAL);quickBar.setGravity(Gravity.CENTER_VERTICAL);quickBar.setPadding(0,dp(3),0,dp(2));
+        Button toggleControls=smallButton(strixhavenControlsExpanded?"▼ OCULTAR MENU (MAXIMIZAR TEXTO)":"▲ MOSTRAR MENU & AÇÕES",strixhavenControlsExpanded?Color.rgb(60,43,25):GOLD);
+        if(!strixhavenControlsExpanded)toggleControls.setTextColor(Color.BLACK);else toggleControls.setTextColor(GOLD);
+        toggleControls.setOnClickListener(new View.OnClickListener(){public void onClick(View v){strixhavenControlsExpanded=!strixhavenControlsExpanded;showStrixhavenSession();}});
+        quickBar.addView(toggleControls,new LinearLayout.LayoutParams(0,dp(36),1));
+        Button qCharon=smallButton("▶ CHARON",Color.rgb(60,43,25));qCharon.setTextColor(GOLD);qCharon.setTextSize(9);qCharon.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração.");return;}speakCharonNarration(lastNarration);}});
+        Button qVoice=smallButton("▶ VOZ",Color.rgb(60,43,25));qVoice.setTextColor(GOLD);qVoice.setTextSize(9);qVoice.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração.");return;}speakNativeNarrationWithSfx(lastNarration);}});
+        quickBar.addView(qCharon,new LinearLayout.LayoutParams(dp(76),dp(36)));
+        quickBar.addView(qVoice,new LinearLayout.LayoutParams(dp(64),dp(36)));
+        drawer.addView(quickBar);
 
-        if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true))addPendingTestCard(drawer,pendingTest);
-
-        if(currentOptions!=null&&currentOptions.length()>0&&pendingTest.length()==0){
-            TextView sug=text("SUGESTÕES",9,GOLD,true);drawer.addView(sug);
-            HorizontalScrollView hscroll=new HorizontalScrollView(this);hscroll.setHorizontalScrollBarEnabled(false);LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
-            for(int i=0;i<currentOptions.length()&&i<3;i++){final JSONObject option=currentOptions.optJSONObject(i);if(option==null)continue;String label=option.optString("label",option.optString("action","Opção"));Button b=smallButton(label,PANEL2);b.setAllCaps(false);b.setTextSize(10);b.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});row.addView(b,new LinearLayout.LayoutParams(dp(165),dp(42)));}
-            hscroll.addView(row);drawer.addView(hscroll,new LinearLayout.LayoutParams(-1,dp(44)));
+        if(strixhavenControlsExpanded){
+            LinearLayout controlsBox=new LinearLayout(this);controlsBox.setOrientation(LinearLayout.VERTICAL);controlsBox.setPadding(0,dp(2),0,0);
+            LinearLayout mediaRow=new LinearLayout(this);mediaRow.setOrientation(LinearLayout.HORIZONTAL);mediaRow.setGravity(Gravity.CENTER_VERTICAL);
+            Button charon=smallButton("▶ CHARON",Color.rgb(60,43,25));charon.setTextColor(GOLD);charon.setContentDescription("Ouvir a narração com a voz Charon do Gemini");charon.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração para ouvir.");return;}speakCharonNarration(lastNarration);}});
+            Button androidVoice=smallButton("▶ ANDROID",Color.rgb(60,43,25));androidVoice.setTextColor(GOLD);androidVoice.setContentDescription("Ouvir a narração com a voz nativa do Android");androidVoice.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração para ouvir.");return;}speakNativeNarrationWithSfx(lastNarration);}});
+            Button geminiImage=smallButton("✦ GEMINI",GOLD);geminiImage.setTextColor(Color.BLACK);geminiImage.setContentDescription("Enviar a cena atual ao Gemini para gerar imagem");geminiImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){editVisualPrompt(true);}});
+            Button localImage=smallButton("🖼 LOCAL",Color.rgb(60,43,25));localImage.setTextColor(GOLD);localImage.setContentDescription("Gerar imagem da cena com a chave Gemini configurada");localImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){generateSceneImage();}});
+            mediaRow.addView(charon,new LinearLayout.LayoutParams(0,dp(36),1));mediaRow.addView(androidVoice,new LinearLayout.LayoutParams(0,dp(36),1));mediaRow.addView(geminiImage,new LinearLayout.LayoutParams(0,dp(36),1));mediaRow.addView(localImage,new LinearLayout.LayoutParams(0,dp(36),1));
+            controlsBox.addView(mediaRow);
+            if(sharedImageUri!=null){Button openImage=smallButton("ABRIR CENA",Color.rgb(60,43,25));openImage.setTextColor(GOLD);openImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showSceneImageFullscreen();}});controlsBox.addView(openImage,new LinearLayout.LayoutParams(-1,dp(34)));}
+            addStrixhavenMasterConversationCard(controlsBox);
+            if(hasFailedGeminiRequest()){
+                LinearLayout failCard=card();failCard.setBackground(makeBg(Color.rgb(55,20,20),RED,10));
+                failCard.addView(text("O Gemini não respondeu. A ação continua pendente e salva.",11,RED,true));
+                LinearLayout failRow=new LinearLayout(this);failRow.setOrientation(LinearLayout.HORIZONTAL);
+                Button retry=smallButton("TENTAR NOVAMENTE",GREEN);retry.setOnClickListener(new View.OnClickListener(){public void onClick(View v){retryFailedGeminiRequest();}});
+                Button off=smallButton("MESTRE OFFLINE",PANEL2);off.setOnClickListener(new View.OnClickListener(){public void onClick(View v){runExplicitOfflineMaster();}});
+                failRow.addView(retry,new LinearLayout.LayoutParams(0,dp(38),1));failRow.addView(off,new LinearLayout.LayoutParams(0,dp(38),1));
+                failCard.addView(failRow);controlsBox.addView(failCard);
+            }
+            if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true))addPendingTestCard(controlsBox,pendingTest);
+            if(currentOptions!=null&&currentOptions.length()>0&&pendingTest.length()==0){
+                TextView sug=text("SUGESTÕES",9,GOLD,true);controlsBox.addView(sug);
+                HorizontalScrollView hscroll=new HorizontalScrollView(this);hscroll.setHorizontalScrollBarEnabled(false);LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
+                for(int i=0;i<currentOptions.length()&&i<3;i++){final JSONObject option=currentOptions.optJSONObject(i);if(option==null)continue;String label=option.optString("label",option.optString("action","Opção"));Button b=smallButton(label,PANEL2);b.setAllCaps(false);b.setTextSize(10);b.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});row.addView(b,new LinearLayout.LayoutParams(dp(165),dp(40)));}
+                hscroll.addView(row);controlsBox.addView(hscroll,new LinearLayout.LayoutParams(-1,dp(42)));
+            }
+            final boolean[] strixMasterChatMode=new boolean[]{false};final int masterBlue=Color.rgb(96,200,230);
+            LinearLayout composerModeRow=new LinearLayout(this);composerModeRow.setOrientation(LinearLayout.HORIZONTAL);composerModeRow.setPadding(0,dp(2),0,dp(2));
+            final Button strixActionMode=smallButton("AÇÃO NA HISTÓRIA",GOLD),strixMasterMode=smallButton("CONSULTAR MESTRE",Color.rgb(19,49,73));
+            strixActionMode.setTextColor(Color.BLACK);strixMasterMode.setTextColor(masterBlue);
+            composerModeRow.addView(strixActionMode,new LinearLayout.LayoutParams(0,dp(36),1));composerModeRow.addView(strixMasterMode,new LinearLayout.LayoutParams(0,dp(36),1));
+            controlsBox.addView(composerModeRow);
+            LinearLayout actionRow=new LinearLayout(this);actionRow.setOrientation(LinearLayout.HORIZONTAL);
+            narratorInput=input("AÇÃO LIVRE — descreva o que deseja fazer","",false);
+            if(pendingRestoredNarratorDraft!=null&&pendingRestoredNarratorDraft.length()>0){narratorInput.setText(pendingRestoredNarratorDraft);pendingRestoredNarratorDraft="";}
+            narratorInput.setSingleLine(true);
+            final Button send=smallButton(aiBusy?"…":"➤",GOLD);send.setTextColor(Color.BLACK);
+            final Runnable refreshStrixComposer=new Runnable(){public void run(){
+                boolean help=strixMasterChatMode[0];
+                narratorInput.setHint(help?"CONSULTA AO MESTRE — dúvidas/regras sem avançar tempo":"AÇÃO LIVRE — descreva o que deseja fazer na cena");
+                narratorInput.setBackground(makeBg(help?Color.rgb(19,49,73):INPUT_BG,help?masterBlue:INPUT_STROKE,8));
+                narratorInput.setHintTextColor(help?Color.rgb(190,225,238):HINT);
+                narratorInput.setEnabled(!aiBusy&&(help||pendingTest.length()==0));
+                send.setBackground(makeBg(help?masterBlue:GOLD,help?masterBlue:GOLD,8));
+                send.setTextColor(help?Color.rgb(8,24,36):Color.BLACK);
+                send.setEnabled(!aiBusy&&(help||pendingTest.length()==0));
+                strixActionMode.setAlpha(help?0.55f:1f);strixMasterMode.setAlpha(help?1f:0.72f);
+            }};
+            strixActionMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                strixMasterChatMode[0]=false;refreshStrixComposer.run();
+                String q=narratorInput.getText().toString().trim();
+                if(q.length()>0){prefs.edit().putString("ai_mode","Narrador").apply();sendAi("Narrador",q);}
+                else{narratorInput.requestFocus();toast("Digite o que deseja fazer e toque em ➤.");}
+            }});
+            strixMasterMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                strixMasterChatMode[0]=true;refreshStrixComposer.run();
+                String q=narratorInput.getText().toString().trim();
+                if(q.length()>0){sendMasterSideQuestion(q);}
+                else{narratorInput.requestFocus();toast("Digite sua pergunta ao Mestre e toque em ➤.");}
+            }});
+            refreshStrixComposer.run();
+            send.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                String q=narratorInput.getText().toString().trim();
+                if(q.length()==0){toast(strixMasterChatMode[0]?"Escreva uma pergunta ao Mestre.":"Descreva uma ação no campo de texto.");return;}
+                prefs.edit().putString("ai_mode","Narrador").apply();
+                if(strixMasterChatMode[0]){sendMasterSideQuestion(q);return;}
+                sendAi("Narrador",q);
+            }});
+            actionRow.addView(narratorInput,new LinearLayout.LayoutParams(0,dp(44),1));actionRow.addView(send,new LinearLayout.LayoutParams(dp(54),dp(44)));
+            controlsBox.addView(actionRow);
+            drawer.addView(controlsBox);
         }
-
-        final boolean[] strixMasterChatMode=new boolean[]{false};final int masterBlue=Color.rgb(96,200,230);
-        LinearLayout composerModeRow=new LinearLayout(this);composerModeRow.setOrientation(LinearLayout.HORIZONTAL);Button strixActionMode=smallButton("AÇÃO",GOLD),strixMasterMode=smallButton("CONSULTAR MESTRE",Color.rgb(19,49,73));strixActionMode.setTextColor(Color.BLACK);strixMasterMode.setTextColor(masterBlue);composerModeRow.addView(strixActionMode,new LinearLayout.LayoutParams(0,dp(38),1));composerModeRow.addView(strixMasterMode,new LinearLayout.LayoutParams(0,dp(38),1));drawer.addView(composerModeRow);drawer.addView(text("AÇÃO avança a ficção. CONSULTAR MESTRE responde dúvidas sem avançar relógio, mapa, NPCs ou campanha.",10,MUTED,false));
-        LinearLayout actionRow=new LinearLayout(this);actionRow.setOrientation(LinearLayout.HORIZONTAL);narratorInput=input("AÇÃO LIVRE — descreva o que deseja fazer","",false);if(pendingRestoredNarratorDraft!=null&&pendingRestoredNarratorDraft.length()>0){narratorInput.setText(pendingRestoredNarratorDraft);pendingRestoredNarratorDraft="";}narratorInput.setSingleLine(true);
-        final Button send=smallButton(aiBusy?"…":"➤",GOLD);send.setTextColor(Color.BLACK);
-        final Runnable refreshStrixComposer=new Runnable(){public void run(){boolean help=strixMasterChatMode[0];narratorInput.setHint(help?"CONSULTA AO MESTRE — não avança a história":"AÇÃO LIVRE — descreva o que deseja fazer");narratorInput.setBackground(makeBg(help?Color.rgb(19,49,73):INPUT_BG,help?masterBlue:INPUT_STROKE,8));narratorInput.setHintTextColor(help?Color.rgb(190,225,238):HINT);narratorInput.setEnabled(!aiBusy&&(help||pendingTest.length()==0));send.setBackground(makeBg(help?masterBlue:GOLD,help?masterBlue:GOLD,8));send.setTextColor(help?Color.rgb(8,24,36):Color.BLACK);send.setEnabled(!aiBusy&&(help||pendingTest.length()==0));strixActionMode.setAlpha(help?0.55f:1f);strixMasterMode.setAlpha(help?1f:0.72f);}};
-        strixActionMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){strixMasterChatMode[0]=false;refreshStrixComposer.run();}});strixMasterMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){strixMasterChatMode[0]=true;refreshStrixComposer.run();}});refreshStrixComposer.run();
-        send.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String q=narratorInput.getText().toString().trim();if(q.length()==0){toast(strixMasterChatMode[0]?"Escreva uma pergunta ao Mestre.":"Descreva uma ação.");return;}prefs.edit().putString("ai_mode","Narrador").apply();if(strixMasterChatMode[0]){sendMasterSideQuestion(q);return;}sendAi("Narrador",q);}});
-        actionRow.addView(narratorInput,new LinearLayout.LayoutParams(0,dp(48),1));actionRow.addView(send,new LinearLayout.LayoutParams(dp(58),dp(48)));drawer.addView(actionRow);
         return drawer;
     }
 
@@ -2021,7 +2074,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }
         b.addView(seq);addCombatContextPanel(b);
         LinearLayout tools=card();Button addHeroes=button("ADICIONAR COMPANHIA",GREEN);addHeroes.setOnClickListener(new View.OnClickListener(){public void onClick(View v){int initiative=individual?0:state.optInt("party_initiative",0);for(JSONObject ch:db.listActiveCharacters())if(db.findCombatantByName(ch.optString("name")).length()==0)db.addCombatant(ch.optString("name"),initiative,ch.optInt("hp"),ch.optInt("max_hp"),ch.optInt("ac",9),"",true);db.setCombatRunning(true);try{JSONObject scene=new JSONObject().put("present_npcs",new JSONArray(db.getSceneState().optString("present_npcs_json","[]")));syncPresentNpcsIntoRunningCombat(new JSONObject().put("scene_state",scene));}catch(Exception error){AppLog.w("CombatNpcSync","NPCs presentes serão sincronizados na próxima atualização.",error);}showMystaraCombat();}});Button addEnemy=button("+ MONSTRO / PNJ",PANEL2);addEnemy.setOnClickListener(new View.OnClickListener(){public void onClick(View v){mystaraCombatantDialog();}});Button attack=button("RESOLVER JOGADA DE ATAQUE",GOLD);attack.setTextColor(Color.BLACK);attack.setOnClickListener(new View.OnClickListener(){public void onClick(View v){mystaraAttackDialog();}});Button reset=button("ENCERRAR ENCONTRO",RED);reset.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Encerrar e limpar o encontro?",new Runnable(){public void run(){String closing=prefs.getString("last_combat_narration","Encontro encerrado.");db.transitionCombatState(CombatStateMachine.ENCOUNTER_END,new JSONObject());db.addJournalFact("Encontro encerrado",closing,"Combate","combat-end-"+db.getCombatState().optString("encounter_id",""),"combat");db.resetCombat();prefs.edit().remove("last_combat_narration").apply();showMystaraCombat();}});}});tools.addView(addHeroes);tools.addView(addEnemy);tools.addView(attack);tools.addView(reset);b.addView(tools);
-        LinearLayout tactical=card();tactical.addView(text("MESA TÁTICA DO ENCONTRO",16,GOLD,true));tactical.addView(text("Heróis, PNJs e monstros usam o mesmo estado persistente da iniciativa. Toque no i para consultar a ficha.",12,MUTED,false));tacticalBoardView=new TacticalBoardView(this,db);tacticalBoardView.setInfoListener(new TacticalBoardView.InfoListener(){public void onInfoRequested(long combatantId,String name){JSONObject combatant=db.getCombatant(combatantId);if(combatant.length()==0)combatant=db.findCombatantByName(name);if(combatant.length()>0)combatantInfoDialog(combatant);}});tacticalBoardView.setMovementListener(new TacticalBoardView.MovementListener(){
+        LinearLayout tactical=card();tactical.addView(text("MESA TÁTICA DO ENCONTRO",16,GOLD,true));tactical.addView(text("Heróis, PNJs e monstros usam o mesmo estado persistente da iniciativa. Toque no i para consultar a ficha.",12,MUTED,false));tacticalBoardView=new TacticalBoardView(this,db);tacticalBoardView.setInfoListener(new TacticalBoardView.InfoListener(){public void onInfoRequested(long combatantId,String name){JSONObject combatant=db.getCombatant(combatantId);if(combatant.length()==0)combatant=db.findCombatantByName(name);if(combatant.length()>0)combatantInfoDialog(combatant);}});tacticalBoardView.setTokenClickListener(new TacticalBoardView.TokenClickListener(){public void onTokenSelected(long combatantId,String name){showTokenQuickActionsDialog(combatantId,name);}});tacticalBoardView.setMovementListener(new TacticalBoardView.MovementListener(){
             public void onGridDestinationRequested(long combatantId,int cellX,int cellY){
                 toast("Movimento de Mystara não utiliza o executor de D&D 5e; posição preservada.");
             }
@@ -3056,7 +3109,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             toast("Não foi possível reconciliar automaticamente os agarrões XMM.");
         ScrollView s=page("Combate","Iniciativa, PV temporários, concentração, reações, condições com duração e salvaguardas contra morte.");LinearLayout b=body(s);LinearLayout help=card();help.addView(text("COMBATE CONTROLADO E AUDITÁVEL",15,GOLD,true));help.addView(text("O Mestre pode montar o encontro, mas toda mudança permanece ajustável. Dano consome PV temporários primeiro; reações voltam no início do turno e durações registradas diminuem automaticamente.",13,TEXT,false));b.addView(help);addCombatContextPanel(b);JSONObject state=db.getCombatState();LinearLayout toolbar=card();toolbar.addView(text("RODADA "+state.optInt("round_no",1),22,GOLD,true));LinearLayout actions=new LinearLayout(this);Button heroes=smallButton("GRUPO (MANUAL)",GREEN);Button enemy=smallButton("+ CRIATURA MANUAL",GREEN);Button next=smallButton("PRÓXIMO TURNO",GOLD);next.setTextColor(Color.BLACK);Button reset=smallButton("ENCERRAR",RED);heroes.setOnClickListener(new View.OnClickListener(){public void onClick(View v){addActiveHeroesToCombat();}});enemy.setOnClickListener(new View.OnClickListener(){public void onClick(View v){combatantDialog();}});next.setOnClickListener(new View.OnClickListener(){public void onClick(View v){v.setEnabled(false);JSONObject active=db.nextTurn();String blocked=active.optString("turn_advance_blocked","");if(blocked.length()>0){toast("encounter_not_running".equals(blocked)?"Inicie um encontro antes de avançar o turno.":"Resolva "+("death_save_due".equals(blocked)?"a salvaguarda contra morte":
                     "condition_recovery_save_pending".equals(blocked)?"a salvaguarda de recuperação da condição":"o teste de concentração")+" antes de avançar o turno.");setStatus("Combate aguardando resolução obrigatória");showCombat();return;}if(active.length()>0){db.addAuditEvent("combate","Turno iniciado",active.optString("name"),"{}",active.toString(),false);setStatus("Turno de "+active.optString("name"));}showCombat();}});reset.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirmCoreAction("Encerrar e limpar o combate?",new Runnable(){public void run(){try{safety.beforeDestructiveChange("encerrar combate");}catch(Exception e){toast("Combate preservado porque o snapshot falhou.");return;}String closing=prefs.getString("last_combat_narration","Combate encerrado.");db.transitionCombatState(CombatStateMachine.ENCOUNTER_END,new JSONObject());db.addJournalFact("Combate encerrado",closing,"Combate","combat-end-"+db.getCombatState().optString("encounter_id",""),"combat");db.resetCombat();prefs.edit().remove("last_combat_narration").apply();db.addAuditEvent("combate","Combate encerrado","Estado anterior preservado em snapshot","{}","{}",true);showCombat();}});}});actions.addView(heroes);actions.addView(enemy);actions.addView(next);actions.addView(reset);toolbar.addView(actions);Button compiledEnemy=button("+ MONSTRO DE BLOCO COMPILADO",GREEN);compiledEnemy.setOnClickListener(new View.OnClickListener(){public void onClick(View v){compiledCombatantDialog();}});toolbar.addView(compiledEnemy);b.addView(toolbar);addCompiledRecoveryControls(b,state);
-        LinearLayout tactical=card();tactical.addView(text("MESA TÁTICA LOCAL",16,GOLD,true));tactical.addView(text("Selecione um token e toque na célula de destino para revisar o percurso, custo e reações; somente a confirmação executa o movimento.",12,MUTED,false));tacticalBoardView=new TacticalBoardView(this,db);tacticalBoardView.setInfoListener(new TacticalBoardView.InfoListener(){public void onInfoRequested(long combatantId,String name){JSONObject combatant=db.getCombatant(combatantId);if(combatant.length()==0)combatant=db.findCombatantByName(name);if(combatant.length()==0){toast("Combatente não encontrado.");return;}combatantInfoDialog(combatant);}});tacticalBoardView.setMovementListener(new TacticalBoardView.MovementListener(){
+        LinearLayout tactical=card();tactical.addView(text("MESA TÁTICA LOCAL",16,GOLD,true));tactical.addView(text("Selecione um token e toque na célula de destino para revisar o percurso, custo e reações; somente a confirmação executa o movimento.",12,MUTED,false));tacticalBoardView=new TacticalBoardView(this,db);tacticalBoardView.setInfoListener(new TacticalBoardView.InfoListener(){public void onInfoRequested(long combatantId,String name){JSONObject combatant=db.getCombatant(combatantId);if(combatant.length()==0)combatant=db.findCombatantByName(name);if(combatant.length()==0){toast("Combatente não encontrado.");return;}combatantInfoDialog(combatant);}});tacticalBoardView.setTokenClickListener(new TacticalBoardView.TokenClickListener(){public void onTokenSelected(long combatantId,String name){showTokenQuickActionsDialog(combatantId,name);}});tacticalBoardView.setMovementListener(new TacticalBoardView.MovementListener(){
             public void onGridDestinationRequested(long combatantId,int cellX,int cellY){
                 JSONObject current=db.getCombatant(combatantId);
                 if(current.length()==0||current.optInt("active_turn",0)!=1||
@@ -4604,7 +4657,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final String name=combatant.optString("name","Combatente");
         ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);
         LinearLayout body=new LinearLayout(this);body.setOrientation(LinearLayout.VERTICAL);body.setPadding(dp(12),dp(8),dp(12),dp(24));body.setBackgroundColor(BG);
-        LinearLayout header=card();header.addView(text(name.toUpperCase(new Locale("pt","BR")),22,player?GOLD:TEXT,true));header.addView(text(player?"HERÓI":"NPC / INIMIGO",12,MUTED,true));body.addView(header);
+        LinearLayout header=card();header.addView(text(name.toUpperCase(new Locale("pt","BR")),22,player?GOLD:TEXT,true));header.addView(text(player?"HERÓI":"NPC / INIMIGO",12,MUTED,true));
+        Button portraitBtn=button("✦ GERAR RETRATO NO GEMINI",GOLD);portraitBtn.setTextColor(Color.BLACK);portraitBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginPortraitForCombatant(combatant);}});
+        header.addView(portraitBtn);body.addView(header);
         StringBuilder vital=new StringBuilder();
         vital.append("Iniciativa ").append(combatant.optInt("initiative",0));
         if(combatant.optInt("active_turn",0)==1)vital.append(" • TURNO ATUAL");
@@ -6900,7 +6955,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private int countNarrationWords(String text){String clean=text==null?"":text.trim();if(clean.length()==0)return 0;return clean.split("\\s+").length;}
     private int countNarrationParagraphs(String text){String clean=text==null?"":text.trim();if(clean.length()==0)return 0;String[] blocks=clean.split("\\r?\\n\\s*");int count=0;for(String block:blocks)if(block!=null&&block.trim().length()>0)count++;return Math.max(1,count);}
 
-    private void streamNarrationPartial(final long requestId,String rawPartial){final String partial=PortugueseNarrationSanitizer.sanitize(extractPartialNarration(rawPartial));if(partial.length()==0||requestId!=aiRequestGeneration)return;if(partial.length()<streamingNarration.length())return;streamingNarration=partial;long now=System.currentTimeMillis();boolean ending=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(!ending&&now-lastStreamPostAt<320L)return;lastStreamPostAt=now;ui.post(new Runnable(){public void run(){if(!aiBusy||requestId!=aiRequestGeneration)return;long uiNow=System.currentTimeMillis();boolean giantStory=false;try{giantStory=activeMasterPlan!=null&&isFullStoryPresentation(activeMasterPlan.barbaraStoryOccasion);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao ajustar streaming de abertura longa.",ignored);}boolean enoughTime=uiNow-lastStreamUiAt>=(giantStory?800L:450L);boolean enoughText=partial.length()-lastStreamUiLength>=(giantStory?560:160);boolean finalPunctuation=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(masterSideQueryActive){if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();setStatus("Respondendo no painel auxiliar... "+partial.length()+" caracteres");}}else if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();if(narratorOutput!=null)narratorOutput.setText(partial+" ▌");updateAdventureStartupMessage("Escrevendo a cena… "+partial.length()+" caracteres recebidos");}}});}
+    private void streamNarrationPartial(final long requestId,String rawPartial){final String partial=PortugueseNarrationSanitizer.sanitize(extractPartialNarration(rawPartial));if(partial.length()==0||requestId!=aiRequestGeneration)return;if(partial.length()<streamingNarration.length())return;streamingNarration=partial;long now=System.currentTimeMillis();boolean ending=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(!ending&&now-lastStreamPostAt<320L)return;lastStreamPostAt=now;ui.post(new Runnable(){public void run(){if(!aiBusy||requestId!=aiRequestGeneration)return;long uiNow=System.currentTimeMillis();boolean giantStory=false;try{giantStory=activeMasterPlan!=null&&isFullStoryPresentation(activeMasterPlan.barbaraStoryOccasion);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao ajustar streaming de abertura longa.",ignored);}boolean enoughTime=uiNow-lastStreamUiAt>=(giantStory?800L:450L);boolean enoughText=partial.length()-lastStreamUiLength>=(giantStory?560:160);boolean finalPunctuation=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(masterSideQueryActive){if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();setStatus("Respondendo no painel auxiliar... "+partial.length()+" caracteres");}}else if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();if(narratorOutput!=null)narratorOutput.setText(partial+" ▌");if(strixhavenNarrationOutput!=null)strixhavenNarrationOutput.setText(partial+" ▌");updateAdventureStartupMessage("Escrevendo a cena… "+partial.length()+" caracteres recebidos");}}});}
 
     private void handleAiResponse(String raw,String action){
         JSONObject rawAgencyEnvelope=parseAiEnvelope(raw);
@@ -6969,7 +7024,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }
         if(!nonAdvancing){JSONObject responseCombat=env.optJSONObject("combat");String responseCombatAction=responseCombat==null?"none":responseCombat.optString("action","none").toLowerCase(Locale.ROOT);boolean combatNarration=db.getCombatState().optInt("running",0)==1||"start".equals(responseCombatAction)||"update".equals(responseCombatAction);if(combatNarration&&lastNarration!=null&&lastNarration.trim().length()>0)prefs.edit().putString("last_combat_narration",lastNarration).apply();}
         clearFailedGeminiRequest();
-        setStatus(nonAdvancing?"Dúvida respondida. A cena, o tempo, os NPCs e o Mundo Vivo permaneceram no mesmo ponto.":(!masterEnvelopeValid?"Cena preservada. Consequências estruturadas rejeitadas pela validação fechada; nenhum teste, estado ou transação foi aceito.":(changes?"Cena pronta. Revise todas as consequências antes de aplicá-las.":"Cena pronta. Nenhuma mudança persistente foi proposta.")));if("Mestre IA".equals(currentScreen))showNarrator();else if("Combate".equals(currentScreen))showCombat();if(changes)showTransactionReviewDialog(transactionId,env);
+        setStatus(nonAdvancing?"Dúvida respondida. A cena, o tempo, os NPCs e o Mundo Vivo permaneceram no mesmo ponto.":(!masterEnvelopeValid?"Cena preservada. Consequências estruturadas rejeitadas pela validação fechada; nenhum teste, estado ou transação foi aceito.":(changes?"Cena pronta. Revise todas as consequências antes de aplicá-las.":"Cena pronta. Nenhuma mudança persistente foi proposta.")));if(isStrixhavenAdventure())showStrixhavenSession();else if("Mestre IA".equals(currentScreen))showNarrator();else if("Combate".equals(currentScreen))showCombat();if(changes)showTransactionReviewDialog(transactionId,env);
     }
 
     private void showTransactionReviewDialog(final long transactionId,final JSONObject envelope){
@@ -10380,23 +10435,151 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             sharePortraitPromptWithGemini(p.toString(),name);setStatus("Prompt de retrato enviado ao Gemini para "+name+". Compartilhe a imagem de volta ao Braseiro.");
         }catch(Exception e){AppLog.e("NpcPortrait","Falha ao preparar retrato persistente.",e);toast("Retrato do NPC: "+e.getMessage());}
     }
+
+    private void beginMonsterPortrait(JSONObject combatant){
+        try{
+            final String name=combatant.optString("name","").trim();
+            final long id=combatant.optLong("id",combatant.optLong("combatant_id",0));
+            if(name.length()==0||id<=0){toast("Identidade do combatente inválida.");return;}
+            setPendingPortraitTarget("COMBATANT",id,String.valueOf(id),name);
+
+            String clean=name.replaceFirst("\\s+(?:#?\\d+|[IVX]+)$","").trim();
+            clean=clean.replaceFirst("\\s*\\((?:\\d+|[A-Za-z])\\)$","").trim();
+            JSONObject stats=null;
+            if(CompiledStatblockEngine.has(clean)){stats=CompiledStatblockEngine.get(clean);}
+            else if(CompiledStatblockEngine.has(name)){stats=CompiledStatblockEngine.get(name);}
+            JSONObject res=null;
+            try{res=new JSONObject(combatant.optString("resources_json","{}"));}catch(Exception ignored){}
+            if(stats==null&&res!=null&&res.has("block_id")&&CompiledStatblockEngine.has(res.optString("block_id"))){
+                stats=CompiledStatblockEngine.get(res.optString("block_id"));
+            }
+
+            StringBuilder p=new StringBuilder();
+            p.append("Crie o retrato CANÔNICO desta criatura/monstro de D&D para uso como token circular no Braseiro VTT. ").append(circularTokenPortraitRules()).append("\n\n");
+            p.append("CRIATURA/MONSTRO: ").append(name).append(".\n");
+            if(stats!=null){
+                String type=stats.optString("type",stats.optString("creature_type",""));
+                String size=stats.optString("size","");
+                String alignment=stats.optString("alignment","");
+                if(size.length()>0)p.append("Tamanho: ").append(size).append(".\n");
+                if(type.length()>0)p.append("Tipo de criatura: ").append(type).append(".\n");
+                if(alignment.length()>0)p.append("Tendência: ").append(alignment).append(".\n");
+                if(stats.optInt("ac",0)>0)p.append("Classe de Armadura: ").append(stats.optInt("ac")).append(" (").append(stats.optString("ac_type","natural/armadura")).append(").\n");
+                String desc=stats.optString("description",stats.optString("visual_description",""));
+                if(desc.length()>0)p.append("Aparência canônica: ").append(desc).append(".\n");
+                String traits=stats.optString("traits","");
+                if(traits.length()>0)p.append("Traços físicos visíveis: ").append(traits).append(".\n");
+            }else{
+                p.append("Aparência: Monstro/criatura de D&D 5e em combate. Considere traços fiéis à sua espécie e tipo no D&D.\n");
+            }
+            p.append("Enquadramento rigorosamente no formato de busto dos ombros para cima, focado na cabeça/rosto da criatura, adequado para exibição em círculo de token de mapa tático.");
+            sharePortraitPromptWithGemini(p.toString(),name);
+            setStatus("Prompt de retrato de "+name+" enviado ao Gemini. Ao receber a imagem, compartilhe-a de volta com o Braseiro.");
+        }catch(Exception e){AppLog.e("MonsterPortrait","Falha ao preparar retrato do monstro.",e);toast("Retrato do monstro: "+e.getMessage());}
+    }
+
+    private void beginPortraitForCombatant(JSONObject combatant){
+        try{
+            if(combatant==null||combatant.length()==0){toast("Combatente inválido.");return;}
+            final String name=combatant.optString("name","").trim();
+            if(name.length()==0)return;
+            final boolean player=combatant.optInt("is_player",0)==1;
+            final long id=combatant.optLong("id",combatant.optLong("combatant_id",0));
+            if(player){
+                JSONObject heroEntry=new JSONObject().put("name",name).put("id",id);
+                beginHeroPortrait(heroEntry);
+                return;
+            }
+            JSONObject npc=db.findNpcMemoryByName(name);
+            if(npc.length()>0){
+                JSONObject npcEntry=new JSONObject().put("name",name).put("id",npc.optLong("id",id));
+                beginNpcPortrait(npcEntry);
+                return;
+            }
+            beginMonsterPortrait(combatant);
+        }catch(Exception e){AppLog.e("Portrait","Falha ao gerar retrato para combatente",e);toast("Retrato: "+e.getMessage());}
+    }
+
+    private void showTokenQuickActionsDialog(final long combatantId,final String name){
+        final JSONObject combatant=db.getCombatant(combatantId);
+        final String displayName=(combatant!=null&&combatant.optString("name").length()>0)?combatant.optString("name"):name;
+        AlertDialog.Builder b=new AlertDialog.Builder(this);
+        b.setTitle("Token: "+displayName);
+        String[] options=new String[]{
+            "✦ Gerar Retrato Canônico no Gemini (Ombros para Cima)",
+            "Consultar Ficha / Status",
+            "Mover no Tabuleiro Tático"
+        };
+        b.setItems(options,new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialog,int which){
+                if(which==0){
+                    JSONObject target=combatant;
+                    if(target==null||target.length()==0){
+                        target=new JSONObject();
+                        try{target.put("id",combatantId).put("name",name);}catch(Exception ignored){}
+                    }
+                    beginPortraitForCombatant(target);
+                }else if(which==1){
+                    if(combatant!=null&&combatant.length()>0)combatantInfoDialog(combatant);
+                    else{
+                        JSONObject c=db.findCombatantByName(name);
+                        if(c.length()>0)combatantInfoDialog(c);
+                        else toast("Combatente não encontrado.");
+                    }
+                }else{
+                    toast("Toque na casa de destino para traçar a rota.");
+                }
+            }
+        });
+        b.setNegativeButton("Fechar",null);
+        b.show();
+    }
+
     private boolean hasPendingPortraitTarget(){
         if(prefs==null)return false;String type=prefs.getString("pending_image_target_type","");long id=prefs.getLong("pending_image_target_id",0);
-        if(id>0&&("HERO".equals(type)||"NPC".equals(type)))return true;
+        if(id>0&&("HERO".equals(type)||"NPC".equals(type)||"COMBATANT".equals(type)||"MONSTER".equals(type)))return true;
         return prefs.getLong("pending_npc_portrait_id",0)>0;
     }
     private void clearPendingPortraitTarget(){if(prefs!=null)prefs.edit().remove("pending_image_target_type").remove("pending_image_target_id").remove("pending_image_target_stable_id").remove("pending_image_target_name").remove("pending_npc_portrait_id").remove("pending_npc_portrait_stable_id").remove("pending_npc_portrait_name").apply();}
     private Uri storeHeroAvatar(Uri source,long characterId){try{return ImageStorageManager.importImage(this,source,"character_avatars","hero_"+characterId,80);}catch(Exception e){AppLog.e("ImageImport","Falha ao armazenar avatar do herói "+characterId,e);return null;}}
+    private Uri storeCombatantAvatar(Uri source,long combatantId){try{return ImageStorageManager.importImage(this,source,"combatant_avatars","combatant_"+combatantId,80);}catch(Exception e){AppLog.e("ImageImport","Falha ao armazenar avatar do combatente "+combatantId,e);return null;}}
     private void importReceivedPortraitAsync(final Uri source){
         String type=prefs.getString("pending_image_target_type","");long genericId=prefs.getLong("pending_image_target_id",0);
         if((type==null||type.length()==0||genericId<=0)&&prefs.getLong("pending_npc_portrait_id",0)>0){type="NPC";genericId=prefs.getLong("pending_npc_portrait_id",0);}
         final String targetType=type;final long id=genericId;final String expectedStable=prefs.getString("pending_image_target_stable_id",prefs.getString("pending_npc_portrait_stable_id",""));final String name=prefs.getString("pending_image_target_name",prefs.getString("pending_npc_portrait_name","personagem"));
-        if(id<=0||(!"HERO".equals(targetType)&&!"NPC".equals(targetType))){clearPendingPortraitTarget();return;}
+        if(id<=0||(!"HERO".equals(targetType)&&!"NPC".equals(targetType)&&!"COMBATANT".equals(targetType)&&!"MONSTER".equals(targetType))){clearPendingPortraitTarget();return;}
         setStatus("Salvando retrato persistente de "+name+"…");
         AppExecutors.io().execute(new Runnable(){public void run(){String failure="";Uri stored=null;try{
-            if("HERO".equals(targetType)){JSONObject hero=db.getCharacter(id);if(hero.length()==0)throw new Exception("A ficha do herói não existe mais.");stored=storeHeroAvatar(source,id);if(stored==null)throw new Exception("A imagem do herói não pôde ser armazenada.");db.setCharacterToken(id,stored.toString());}
-            else{JSONObject npc=db.getNpcMemory(id);JSONObject stats;try{stats=new JSONObject(npc.optString("stats_json","{}"));}catch(Exception parse){stats=new JSONObject();}boolean dead=stats.optBoolean("dead",false)||"dead".equalsIgnoreCase(stats.optString("status"))||"morto".equalsIgnoreCase(stats.optString("status"));PersistentPortraitImportPolicy.Result admission=PersistentPortraitImportPolicy.validate("NPC",id,expectedStable,npc.optString("stable_id"),npc.length()>0&&npc.optInt("active",1)!=0,dead);if(!admission.accepted)throw new Exception(admission.message);stored=storeNpcAvatar(source,id);if(stored==null)throw new Exception("A imagem do NPC não pôde ser armazenada.");db.setNpcToken(id,stored.toString());}
-        }catch(Exception e){failure=String.valueOf(e.getMessage());}final String error=failure;ui.post(new Runnable(){public void run(){if(error.length()>0){toast("Retrato: "+error);setStatus("Retrato não importado.");return;}try{db.addAuditEvent("retrato","Retrato persistente vinculado",name,"{}",new JSONObject().put("target_type",targetType).put("target_id",id).put("receipt","portrait:"+targetType+":"+id+":"+expectedStable).toString(),true);}catch(Exception audit){AppLog.w("PortraitImport","Retrato salvo, mas o recibo de auditoria não pôde ser gravado.",audit);}clearPendingPortraitTarget();screenCache.remove("Mestre IA");synchronizeVisualSceneCast();toast("Retrato de "+name+" salvo e vinculado somente a este "+("HERO".equals(targetType)?"herói":"NPC")+".");setStatus("Retrato persistente de "+name+" atualizado.");if("Mestre IA".equals(currentScreen))showNarrator();}});}});
+            if("HERO".equals(targetType)){
+                JSONObject hero=db.getCharacter(id);if(hero.length()==0)throw new Exception("A ficha do herói não existe mais.");
+                stored=storeHeroAvatar(source,id);if(stored==null)throw new Exception("A imagem do herói não pôde ser armazenada.");
+                db.setCharacterToken(id,stored.toString());
+                db.setCombatantVisualIdentity(id,"character",id,stored.toString());
+            }else if("COMBATANT".equals(targetType)||"MONSTER".equals(targetType)){
+                stored=storeCombatantAvatar(source,id);if(stored==null)throw new Exception("A imagem do combatente não pôde ser armazenada.");
+                db.setCombatantVisualIdentity(id,"combatant",id,stored.toString());
+                try{ContentValues cv=new ContentValues();cv.put("token_uri",stored.toString());db.getWritableDatabase().update("tactical_tokens",cv,"combatant_id=? AND world_profile=?",new String[]{String.valueOf(id),db.getActiveMapProfile()});}catch(Exception ignored){}
+            }else{
+                JSONObject npc=db.getNpcMemory(id);JSONObject stats;try{stats=new JSONObject(npc.optString("stats_json","{}"));}catch(Exception parse){stats=new JSONObject();}
+                boolean dead=stats.optBoolean("dead",false)||"dead".equalsIgnoreCase(stats.optString("status"))||"morto".equalsIgnoreCase(stats.optString("status"));
+                PersistentPortraitImportPolicy.Result admission=PersistentPortraitImportPolicy.validate("NPC",id,expectedStable,npc.optString("stable_id"),npc.length()>0&&npc.optInt("active",1)!=0,dead);
+                if(!admission.accepted)throw new Exception(admission.message);
+                stored=storeNpcAvatar(source,id);if(stored==null)throw new Exception("A imagem do NPC não pôde ser armazenada.");
+                db.setNpcToken(id,stored.toString());
+                db.setCombatantVisualIdentity(id,"npc",id,stored.toString());
+            }
+        }catch(Exception e){failure=String.valueOf(e.getMessage());}final String error=failure;ui.post(new Runnable(){public void run(){
+            if(error.length()>0){toast("Retrato: "+error);setStatus("Retrato não importado.");return;}
+            try{db.addAuditEvent("retrato","Retrato persistente vinculado",name,"{}",new JSONObject().put("target_type",targetType).put("target_id",id).put("receipt","portrait:"+targetType+":"+id+":"+expectedStable).toString(),true);}catch(Exception audit){AppLog.w("PortraitImport","Retrato salvo, mas o recibo de auditoria não pôde ser gravado.",audit);}
+            clearPendingPortraitTarget();screenCache.remove("Mestre IA");screenCache.remove("Combate");
+            synchronizeVisualSceneCast();
+            if(tacticalBoardView!=null)tacticalBoardView.refresh();
+            toast("Retrato de "+name+" salvo e aplicado ao token!");
+            setStatus("Retrato persistente de "+name+" atualizado.");
+            if("Mestre IA".equals(currentScreen))showNarrator();
+            else if("Combate".equals(currentScreen))showCombat();
+            else if(isStrixhavenAdventure())showStrixhavenSession();
+        }});}});
     }
 
     private Uri storeNpcAvatar(Uri source,long npcId){try{return ImageStorageManager.importImage(this,source,"npc_avatars","npc_"+npcId,80);}catch(Exception e){AppLog.e("ImageImport","Falha ao armazenar avatar do NPC "+npcId,e);return null;}}

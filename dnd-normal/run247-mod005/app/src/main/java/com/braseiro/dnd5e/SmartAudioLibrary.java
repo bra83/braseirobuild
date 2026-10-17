@@ -103,8 +103,8 @@ public final class SmartAudioLibrary {
         {"porta","porta range,porta se abre,porta abriu,abre a porta,abriu a porta,fecha a porta,fechou a porta,porta bate,porta se fecha,door creak,door opens,door closes,door slams","porta,portao,door,gate,lock,hinge,creak"},
         {"batida","batida na porta,batidas na porta,bate a porta,batem a porta,bater na porta,knock,knocking,pancada na porta","batida,knock,knocking,pancada,door hit"},
         {"passos","ouve passos,ouvem passos,passos ecoam,passos se aproximam,passos correm,footsteps,steps echo,approaching steps","passos,passo,footsteps,steps,walk,walking,run,running"},
-        {"espada","desembainha a espada,desembainhou a espada,lamina raspa,lâmina raspa,espadas se chocam,espada colide,golpe de espada acerta,sword drawn,swords clash,blade scrapes","espada,sword,lamina,blade,slash,unsheathe,clash"},
-        {"metal","armadura range,armadura raspa,metal raspa,metal se choca,ferro tilinta,cota de malha tilinta,clang,clank,armor creaks,metal scrapes","armadura,armor,armour,metal,ferro,chainmail,clang,clank,scrape"},
+        {"espada","desembainha a espada,desembainhou a espada,lamina raspa,lâmina raspa,espadas se chocam,espada colide,golpe de espada acerta,sword drawn,swords clash,blade scrapes,golpeia com a espada,ataca com a espada,desfere um golpe de espada,lâmina afiada,lamina afiada,espada corta,machado golpeia,adaga corta,draws weapon,swings sword,strikes with sword,slashes with blade","espada,sword,lamina,blade,slash,unsheathe,clash,dagger,adaga,axe,machado,weapon,rapier,scimitar,katana,sabre"},
+        {"metal","armadura range,armadura raspa,metal raspa,metal se choca,ferro tilinta,cota de malha tilinta,clang,clank,armor creaks,metal scrapes,placas de metal,portao de ferro,grade de ferro,trinco de ferro","armadura,armor,armour,metal,ferro,chainmail,clang,clank,scrape,shield,escudo"},
         {"corrente","correntes arrastam,corrente arrasta,corrente tilinta,chains drag,chains rattle,grilhao bate,grilhão bate","corrente,chain,chains,shackle,rattle,drag"},
         {"rugido","solta um rugido,rugido ecoa,rosna alto,roar echoes,growls,roars","rugido,roar,rosnado,growl"},
         {"grito","solta um grito,grito ecoa,grita de dor,scream,shriek,shout","grito,scream,shriek,shout"},
@@ -134,8 +134,8 @@ public final class SmartAudioLibrary {
         {"anvil","anvil,bigorna,blacksmith,armory,forge,martelo,hammer","blacksmith 01,blacksmith 02","music"},
         {"cart","stagecoach,carriage,cart,wagon,coach,carroca,carruagem","horse hoof,wheels","music,ambience"},
         {"footsteps","footstep,footsteps,passos,walk,walking","wood,dirt,forest,grass,gravel,mud,rocks,snow,water","music,ambience"},
-        {"sword","sword,blade,espada,dagger,rapier,combat","draw,scrape,clash,hit,swing,slash,strike","music,ambience"},
-        {"metal","metal,armor,armour,armadura,shield,blade,chain","hit,scrape,block,break,clang","music,ambience"},
+        {"sword","sword,blade,espada,lamina,dagger,adaga,rapier,scimitar,cimitarra,axe,machado,weapon,arma,sabre,katana","draw,scrape,clash,hit,swing,slash,strike,golpe,ataque,bloqueio,embainhar,desembainhar,combat","music,ambience"},
+        {"metal","metal,armor,armour,armadura,shield,escudo,chain,ferro,grade,portao,corrente,trinco","hit,scrape,block,break,clang,tinido,impacto","music,ambience,sword,espada,blade,lamina,dagger,adaga,axe,machado,weapon,arma,scimitar,rapier,flecha,arrow,combat_sword"},
         {"chains","chain,chains,corrente,heavy chains","rattle,drag","music,ambience"},
         {"roar","roar,growl,monster,dragon,orc,goblin,troll,rugido,rosnado","vocal","music,ambience"},
         {"scream","scream,screams,grito,voices,pain,death","male,female,fearful","music,ambience"},
@@ -931,7 +931,7 @@ public final class SmartAudioLibrary {
             if(rule!=null){
                 if(containsAny(corpus,rule[1]))score+=45;else continue;
                 if(containsAny(corpus,rule[2]))score+=18;
-                if(containsAny(corpus,rule[3]))score-=35;
+                if(containsAny(corpus,rule[3]))continue;
             }else score=scoreSfx(sound,phrase);
             score+=scoreSfx(sound,phrase);
             for(String word:phrase.split(" "))if(word.length()>=4&&containsPhrase(corpus,word))score+=2;
@@ -956,8 +956,8 @@ public final class SmartAudioLibrary {
         if(containsAny(n,"bigorna,anvil,martelo na forja,hammer on anvil"))return "anvil";
         if(containsAny(n,"carroca,carroça,carruagem,stagecoach,carriage,wagon,cart"))return "cart";
         if(containsAny(n,"passos,footsteps,steps"))return "footsteps";
-        if(containsAny(n,"espada,lamina,lâmina,sword,blade,rapier,dagger"))return "sword";
-        if(containsAny(n,"armadura,metal,ferro,armor,chainmail,clang"))return "metal";
+        if(containsAny(n,"espada,lamina,lâmina,sword,blade,rapier,dagger,adaga,machado,axe,weapon,arma,sabre,cimitarra,scimitar"))return "sword";
+        if(containsAny(n,"armadura,metal,ferro,armor,chainmail,clang,grade,portao,portão,trinco,escudo"))return "metal";
         if(containsAny(n,"corrente,correntes,chain,chains"))return "chains";
         if(containsAny(n,"rugido,rosnado,roar,growl"))return "roar";
         if(containsAny(n,"grito,grita,scream,shriek"))return "scream";

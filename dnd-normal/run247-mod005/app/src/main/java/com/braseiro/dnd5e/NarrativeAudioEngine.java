@@ -46,8 +46,8 @@ public final class NarrativeAudioEngine {
         new CueFamily("anvil",90,.92f,"martelo bate na bigorna|martelo na bigorna|marteladas na bigorna|batida de bigorna|hammer hits anvil|hammer on anvil","martelo na bigorna"),
         new CueFamily("cart",65,.78f,"carroça se aproxima|carroca se aproxima|carruagem se aproxima|carroça passa|carroca passa|carruagem passa|rodas da carroça|rodas de carroça|stagecoach approaches|carriage approaches|cart approaches|wagon approaches","carroça e rodas"),
         new CueFamily("footsteps",68,.76f,"ouve passos|ouvem passos|passos ecoam|passos se aproximam|passos correm|passos na madeira|passos na terra|footsteps|steps echo|approaching steps","passos"),
-        new CueFamily("sword",91,.98f,"desembainha a espada|desembainhou a espada|lâmina raspa|lamina raspa|espadas se chocam|espada corta|sword drawn|swords clash|blade scrapes|sword strikes","espada lâmina"),
-        new CueFamily("metal",78,.86f,"armadura range|armadura raspa|metal raspa|metal se choca|ferro tilinta|cota de malha tilinta|armor creaks|metal scrapes|clang|clank","metal armadura"),
+        new CueFamily("sword",91,.98f,"desembainha a espada|desembainhou a espada|lâmina raspa|lamina raspa|espadas se chocam|espada corta|sword drawn|swords clash|blade scrapes|sword strikes|ataca com a espada|golpeia com a espada|desfere um golpe de espada|golpe de espada|ataque com a espada|lâmina afiada|lamina afiada|espada atinge|golpe de machado|adaga corta|desembainha sua arma|desembainha a arma|draws weapon|swings sword|strikes with sword|slashes with blade","espada lâmina"),
+        new CueFamily("metal",78,.86f,"armadura range|armadura raspa|metal raspa|metal se choca|ferro tilinta|cota de malha tilinta|armor creaks|metal scrapes|clang|clank|placas de metal|portão de ferro|portao de ferro|grade de ferro|trinco de ferro","metal armadura"),
         new CueFamily("chains",80,.86f,"correntes arrastam|corrente arrasta|corrente tilinta|chains drag|chains rattle|grilhão bate|grilhao bate","correntes"),
         new CueFamily("roar",93,1.00f,"solta um rugido|rugido ecoa|rosna alto|monstro rosna|roar echoes|growls|roars","rugido monstro"),
         new CueFamily("scream",89,.96f,"solta um grito|grito ecoa|grita de dor|scream|shriek|screams","grito"),
@@ -94,6 +94,7 @@ public final class NarrativeAudioEngine {
     private String baseSignature="";
     private String climateSignature="";
     private String musicMood="";
+    private String currentDynamicEnv="";
     private String lastPlan="Áudio aguardando o botão PLAY.";
     private JSONObject lastDiagnostic=new JSONObject();
 
@@ -179,7 +180,7 @@ public final class NarrativeAudioEngine {
         if("none".equals(plan.mood)){if(audio.hasMusic())audio.stopMusic();summary.add("sem música por plano explícito");}
         else if(prepared.music!=null){String uri=prepared.music.optString("uri");if(moodChanged||!uri.equals(audio.currentMusicUri())){audio.playMusic(Uri.parse(uri),plan.transitionMs);catalog.markPlayed(prepared.music,"music","music",plan.mood);}summary.add("música "+plan.mood+": "+prepared.music.optString("name","selecionada"));}
         else summary.add("música não encontrada na pasta importada");
-        baseSignature=nextBase;climateSignature=nextClimate;sceneSignature=nextSignature;musicMood=plan.mood;explicitCues.clear();explicitCues.addAll(plan.explicitCues);
+        baseSignature=nextBase;climateSignature=nextClimate;sceneSignature=nextSignature;musicMood=plan.mood;currentDynamicEnv=plan.environment;explicitCues.clear();explicitCues.addAll(plan.explicitCues);
         try{lastDiagnostic=new JSONObject().put("environment",plan.environment).put("weather",plan.weather).put("location",plan.location).put("time_of_day",plan.timeOfDay).put("music_mood",plan.mood).put("soundscape_hints",plan.soundscapeHints).put("transition_ms",plan.transitionMs).put("detected_cues",prepared.cueCount).put("catalog_sounds",catalog.indexedSoundCount()).put("base_signature",baseSignature).put("climate_signature",climateSignature).put("scene_signature",sceneSignature).put("play_only",true).put("planner_thread","background");}catch(Exception ignored){AppLog.ignored("NarrativeAudioEngine","Falha tolerada; a execução continuou.",ignored);}
         lastPlan=join(summary," • ")+" • "+prepared.cueCount+" SFX posicionados";
         say("Áudio preparado pelo PLAY: "+lastPlan);
@@ -244,6 +245,7 @@ public final class NarrativeAudioEngine {
      */
     public synchronized void onNativeUtteranceStart(final String id,String text,boolean rangeCallbacksExpected){/*BR_JSON_WRAP*/try{
         if(!narrationActive||id==null||completedNativeUtterances.contains(id))return;markVoiceStartedLocked();
+        checkDynamicAmbienceShift(text);
         // onRangeStart pode chegar antes de onStart em engines externas.
         // Nesse caso a fala já foi registrada e os efeitos já seguiram a posição real.
         if(utterances.containsKey(id))return;
@@ -276,7 +278,7 @@ public final class NarrativeAudioEngine {
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
     public synchronized void onSyntheticChunkStart(String text,int durationMs){
-        if(!narrationActive)return;markVoiceStartedLocked();scheduleByDuration(stateFor(text),Math.max(500,durationMs),generation,0L,false);
+        if(!narrationActive)return;markVoiceStartedLocked();checkDynamicAmbienceShift(text);scheduleByDuration(stateFor(text),Math.max(500,durationMs),generation,0L,false);
     }
 
     private void markVoiceStartedLocked(){
@@ -286,12 +288,45 @@ public final class NarrativeAudioEngine {
 
     public synchronized void onUtteranceDone(String id){if(id==null||!narrationActive)return;completedNativeUtterances.add(id);UtteranceState state=utterances.remove(id);if(state!=null)cancelFallbackTasks(state);}
     public synchronized void endNarration(){narrationActive=false;voiceHasStarted=false;generation++;cancelCallbacksLocked();utterances.clear();preparedUtterances.clear();completedNativeUtterances.clear();audio.setExternalVoiceActive(false);}
-    public synchronized void cancelNarration(){narrationActive=false;voiceHasStarted=false;voiceStartedForPreparation=false;generation++;preparationGeneration++;pendingPreparedScene=null;cancelCallbacksLocked();utterances.clear();preparedUtterances.clear();completedNativeUtterances.clear();audio.setExternalVoiceActive(false);audio.stopSfx();}
-    public synchronized void stopAll(){narrationActive=false;voiceHasStarted=false;voiceStartedForPreparation=false;generation++;preparationGeneration++;pendingPreparedScene=null;cancelCallbacksLocked();utterances.clear();preparedUtterances.clear();completedNativeUtterances.clear();explicitCues.clear();lastEventAt.clear();lastFileAt.clear();sceneSignature="";baseSignature="";climateSignature="";musicMood="";audio.stopAll();lastPlan="Todos os canais e eventos pendentes foram interrompidos.";}
+    public synchronized void cancelNarration(){narrationActive=false;voiceHasStarted=false;voiceStartedForPreparation=false;generation++;preparationGeneration++;pendingPreparedScene=null;cancelCallbacksLocked();utterances.clear();preparedUtterances.clear();completedNativeUtterances.clear();currentDynamicEnv="";audio.setExternalVoiceActive(false);audio.stopSfx();}
+    public synchronized void stopAll(){narrationActive=false;voiceHasStarted=false;voiceStartedForPreparation=false;generation++;preparationGeneration++;pendingPreparedScene=null;cancelCallbacksLocked();utterances.clear();preparedUtterances.clear();completedNativeUtterances.clear();explicitCues.clear();lastEventAt.clear();lastFileAt.clear();sceneSignature="";baseSignature="";climateSignature="";musicMood="";currentDynamicEnv="";audio.stopAll();lastPlan="Todos os canais e eventos pendentes foram interrompidos.";}
     public synchronized void shutdown(){generation++;preparationGeneration++;pendingPreparedScene=null;cancelCallbacksLocked();narrationActive=false;voiceHasStarted=false;voiceStartedForPreparation=false;utterances.clear();preparedUtterances.clear();completedNativeUtterances.clear();explicitCues.clear();scenePlanner.shutdownNow();cuePlanner.shutdownNow();audio.setExternalVoiceActive(false);}
     public synchronized String lastPlanSummary(){return lastPlan;}
     public synchronized boolean hasConcreteCue(String text){return !detectCues(text,explicitCues).isEmpty();}
     public synchronized JSONObject diagnosticReport(){/*BR_JSON_WRAP*/try{try{return new JSONObject(lastDiagnostic.toString()).put("active",narrationActive).put("voice_confirmed_for_scene",voiceStartedForPreparation).put("pending_callbacks",pending.size()).put("audio_channels",audio.activeChannels());}catch(Exception e){return new JSONObject();}}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
+
+    private void checkDynamicAmbienceShift(String text){
+        if(text==null||!narrationActive)return;
+        String detected=inferExplicitEnvironment(text);
+        if(detected!=null&&detected.length()>0&&!detected.equalsIgnoreCase(currentDynamicEnv)){
+            currentDynamicEnv=detected;
+            JSONObject amb=catalog.resolveAmbience(detected);
+            if(amb!=null){
+                String uri=amb.optString("uri");
+                if(uri.length()>0&&!uri.equals(audio.currentAmbienceUri())){
+                    audio.playAmbience(Uri.parse(uri),3000);
+                    catalog.markPlayed(amb,"ambience","base",detected);
+                    say("Ambiência alternada para: "+amb.optString("name",detected));
+                }
+            }
+        }
+    }
+
+    private static String inferExplicitEnvironment(String text){
+        String n=fold(text);
+        if(has(n,"taverna","estalagem","inn","tavern"))return "interior de taverna";
+        if(has(n,"masmorra","dungeon","catacumba"))return "masmorra subterrânea";
+        if(has(n,"caverna","cave","gruta"))return "caverna";
+        if(has(n,"floresta","forest","bosque"))return "floresta";
+        if(has(n,"cidade","city","mercado"))return "cidade";
+        if(has(n,"aldeia","vila","village"))return "aldeia";
+        if(has(n,"navio","ship","mar","porto"))return "costa e porto";
+        if(has(n,"pantano","pântano","swamp"))return "pântano";
+        if(has(n,"deserto","desert"))return "deserto";
+        if(has(n,"montanha","mountain"))return "montanhas";
+        if(has(n,"chuva","tempestade"))return "exterior sob chuva";
+        return null;
+    }
 
     private UtteranceState stateFor(String text){
         UtteranceState prepared=preparedUtterances.get(chunkKey(text));
@@ -420,10 +455,10 @@ public final class NarrativeAudioEngine {
                 new String[]{"passos","pisadas","footsteps","steps"},
                 new String[]{"eco","aproxim","corr","caminh","ouve","soam","ritm"},"passos",false);
         addSemantic(text,out,unique,"sword",91,.98f,
-                new String[]{"espada","lamina","lâmina","sword","blade","rapier","dagger"},
-                new String[]{"desembainh","rasp","choc","cort","golp","strike","draw","swing"},"espada e lâmina",false);
+                new String[]{"espada","lamina","lâmina","sword","blade","rapier","dagger","adaga","machado","axe","arma","weapon","sabre"},
+                new String[]{"desembainh","rasp","choc","cort","golp","strike","draw","swing","atac","ating","brandi"},"espada e lâmina",false);
         addSemantic(text,out,unique,"metal",78,.86f,
-                new String[]{"metal","ferro","armadura","armor","chainmail"},
+                new String[]{"armadura","cota de malha","ferro","armor","chainmail","grade","portao","portão","trinco"},
                 new String[]{"rasp","choc","tilint","rang","clang","clank","hit"},"metal e armadura",false);
         addSemantic(text,out,unique,"chains",80,.86f,
                 new String[]{"corrente","correntes","grilhao","grilhão","chain","chains"},
@@ -464,6 +499,7 @@ public final class NarrativeAudioEngine {
                 int start=Math.max(0,at-72),end=Math.min(text.length(),at+target.length()+72);
                 String window=text.substring(start,end);
                 if(rejectDoor&&has(window,"porta","portao"))continue;
+                if("metal".equals(event)&&has(window,"espada","lamina","lâmina","sword","blade","dagger","adaga","machado","axe","weapon","arma"))continue;
                 if(!hasStem(window,actions)||isNegated(text,at,target.length()))continue;
                 int actionAt=firstStemPosition(window,actions);
                 int cueAt=actionAt<0?at:Math.min(at,start+actionAt);
