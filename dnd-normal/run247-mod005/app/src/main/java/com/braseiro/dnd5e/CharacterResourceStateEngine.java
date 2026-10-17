@@ -13,6 +13,8 @@ public final class CharacterResourceStateEngine {
     public static JSONObject ensure(JSONObject input,String className,int level,String profile){
         JSONObject s=copy(input);try{
             int lvl=Math.max(1,Math.min(20,level));DndRulesEngine rules=new DndRulesEngine();
+            s.put("level",lvl);
+            if(className!=null&&!className.isEmpty()&&!s.has("class_name"))s.put("class_name",className);
             s.put("hit_dice_max",lvl);s.put("hit_dice_spent",Math.max(0,Math.min(lvl,s.optInt("hit_dice_spent",0))));
             // RUN224: derive Spellcasting slots from the verified per-class history,
             // never from the primary class multiplied by total character level.
@@ -40,7 +42,7 @@ public final class CharacterResourceStateEngine {
             }
             if(rules.is2024(profile))s=Core2024ClassRuntimeEngine.ensure(s,className,lvl);
             if(HomebrewClassRuntimeEngine.supports(className))s=HomebrewClassRuntimeEngine.ensure(s,className,lvl);
-            HomebrewSubclassRuntimeEngine.applyToSheet(s);Run141CompactCharacterOptionEngine.applySubclassMechanics(s);Run143ForgottenSecretsEngine.applyPatronMechanics(s);ArcanaUnleashedRun143Engine.applySubclass(s);applyArcanaUnleashedFeatsAndBackground(s);s=ArcanaUnleashedRun145ItemEngine.applyInventoryPassives(s);s=ArcanaUnleashedRun147EvolvingItemsEngine.applyInventoryPassives(s);
+            HomebrewSubclassRuntimeEngine.applyToSheet(s);Core2024SubclassRuntimeEngine.applyToSheet(s);Run141CompactCharacterOptionEngine.applySubclassMechanics(s);Run143ForgottenSecretsEngine.applyPatronMechanics(s);ArcanaUnleashedRun143Engine.applySubclass(s);applyArcanaUnleashedFeatsAndBackground(s);s=ArcanaUnleashedRun145ItemEngine.applyInventoryPassives(s);s=ArcanaUnleashedRun147EvolvingItemsEngine.applyInventoryPassives(s);
             if(!s.has("inventory_ledger"))s.put("inventory_ledger",new JSONArray());
             if(!s.has("inventory_ledger_status"))s.put("inventory_ledger_status","structured_entries_only");
             s.put("resource_state_version",1).put("rules_profile",DndRulesEngine.canonicalProfile(profile));
@@ -58,7 +60,13 @@ public final class CharacterResourceStateEngine {
     public static JSONObject spendPactSlot(JSONObject input){JSONObject s=copy(input);try{if(s.has("multiclass_slot_validation_error"))return s.put("pact_slot_spend_blocked",true).put("reason","invalid_multiclass_slot_ledger");JSONObject pact=s.optJSONObject("pact_magic");if(pact==null)return s.put("pact_slot_spend_blocked",true);int current=Math.max(0,pact.optInt("current",0));if(current<=0)return s.put("pact_slot_spend_blocked",true);pact.put("current",current-1);s.put("pact_magic",pact).put("pact_slot_spent_level",pact.optInt("slot_level",1));}catch(Exception ignored){}return s;}
     public static JSONObject spendClassResource(JSONObject input,String resourceKey,int amount){JSONObject s=copy(input);try{JSONObject all=s.optJSONObject("class_resources");if(all==null)return s.put("class_resource_spend_blocked",true);JSONObject r=all.optJSONObject(resourceKey);if(r==null)return s.put("class_resource_spend_blocked",true);int use=Math.max(1,amount),current=Math.max(0,r.optInt("current",0));if(current<use)return s.put("class_resource_spend_blocked",true).put("class_resource",resourceKey);r.put("current",current-use);all.put(resourceKey,r);s.put("class_resources",all).put("class_resource_spent",resourceKey).put("class_resource_spent_amount",use);}catch(Exception ignored){}return s;}
 
-    private static void rechargeResources(JSONObject s,String rest){JSONObject r=s.optJSONObject("class_resources");if(r==null)return;Iterator<String>it=r.keys();while(it.hasNext()){String k=it.next();JSONObject x=r.optJSONObject(k);if(x==null)continue;String recharge=x.optString("recharge","");boolean ok="long_rest".equals(rest)&&(recharge.contains("long")||recharge.contains("short_or_long"))||"short_rest".equals(rest)&&(recharge.contains("short")||recharge.contains("short_or_long"));if(ok&&x.has("max"))try{x.put("current",x.optInt("max",x.optInt("current",0)));}catch(Exception ignored){}}}
+    private static void rechargeResources(JSONObject s,String rest){
+        rechargeResourceMap(s.optJSONObject("class_resources"),rest);
+        rechargeResourceMap(s.optJSONObject("subclass_resources"),rest);
+    }
+    private static void rechargeResourceMap(JSONObject r,String rest){
+        if(r==null)return;Iterator<String>it=r.keys();while(it.hasNext()){String k=it.next();JSONObject x=r.optJSONObject(k);if(x==null)continue;String recharge=x.optString("recharge","");boolean ok="long_rest".equals(rest)&&(recharge.contains("long")||recharge.contains("short_or_long"))||"short_rest".equals(rest)&&(recharge.contains("short")||recharge.contains("short_or_long"));if(ok&&x.has("max"))try{x.put("current",x.optInt("max",x.optInt("current",0)));}catch(Exception ignored){}}
+    }
     private static JSONArray boundedSlots(JSONArray cur,JSONArray max){JSONArray out=new JSONArray();for(int i=0;i<max.length();i++)out.put(Math.max(0,Math.min(max.optInt(i),cur.optInt(i))));return out;}
     private static JSONArray spellSlots(String cls,int level,String profile){String c=norm(cls);DndRulesEngine r=new DndRulesEngine();boolean full=c.contains("bardo")||c.contains("clerigo")||c.contains("druida")||c.contains("feiticeiro")||c.contains("mago")||HomebrewClassRuntimeEngine.fullCaster(cls);if(full)return r.fullCasterSlots(level);boolean half=c.contains("paladino")||c.contains("patrulheiro")||c.contains("guardiao")||HomebrewClassRuntimeEngine.halfCaster(cls);if(half){int effective;if(HomebrewClassRuntimeEngine.halfCaster(cls)){if(level<2)return zeros();effective=Math.max(1,level/2);}else if(r.is2024(profile))effective=Math.max(1,(level+1)/2);else{if(level<2)return zeros();effective=Math.max(1,level/2);}return r.fullCasterSlots(effective);}return null;}
     private static JSONObject pactSlots(String cls,int level){if(!norm(cls).contains("bruxo")&&!norm(cls).contains("warlock"))return null;int max=level==1?1:level<=10?2:level<=16?3:4;int slotLevel=level<=2?1:level<=4?2:level<=6?3:level<=8?4:5;try{return new JSONObject().put("max",max).put("slot_level",slotLevel);}catch(Exception e){return null;}}

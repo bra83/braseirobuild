@@ -24,6 +24,7 @@ import java.util.List;
  */
 public final class TacticalBoardView extends View {
     public interface InfoListener { void onInfoRequested(long combatantId,String name); }
+    public interface TokenClickListener { void onTokenSelected(long combatantId,String name); }
     /** G08: a tap only REQUESTS a destination; movement is committed by AppDb
      * after validating initiative, path, opportunity reactions and movement budget. */
     public interface MovementListener { void onGridDestinationRequested(long combatantId,int cellX,int cellY); }
@@ -35,6 +36,7 @@ public final class TacticalBoardView extends View {
     private long selectedId=-1;
     private float density;
     private InfoListener infoListener;
+    private TokenClickListener tokenClickListener;
     private MovementListener movementListener;
 
     public TacticalBoardView(Context value,AppDb database){
@@ -46,6 +48,7 @@ public final class TacticalBoardView extends View {
     }
 
     public void setInfoListener(InfoListener listener){infoListener=listener;}
+    public void setTokenClickListener(TokenClickListener listener){tokenClickListener=listener;}
     public void setMovementListener(MovementListener listener){movementListener=listener;}
 
     protected void onDraw(Canvas c){
@@ -209,8 +212,10 @@ public final class TacticalBoardView extends View {
             // A touch NEVER performs a direct token-coordinate database write.
             return true;
         }
-        double best=.12;long id=-1;for(JSONObject t:tokens){double dx=t.optDouble("x",.5)-nx,dy=t.optDouble("y",.5)-ny,d=Math.sqrt(dx*dx+dy*dy);if(d<best){best=d;id=t.optLong("combatant_id");}}
-        selectedId=id;invalidate();return true;
+        double best=.12;long id=-1;String selName="";for(JSONObject t:tokens){double dx=t.optDouble("x",.5)-nx,dy=t.optDouble("y",.5)-ny,d=Math.sqrt(dx*dx+dy*dy);if(d<best){best=d;id=t.optLong("combatant_id");selName=t.optString("name","");}}
+        selectedId=id;invalidate();
+        if(id>0&&tokenClickListener!=null)tokenClickListener.onTokenSelected(id,selName);
+        return true;
     }
 
     public void refresh(){tokenCache.clear();db.ensureTacticalTokensForCombat();invalidate();}

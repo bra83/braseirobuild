@@ -134,12 +134,27 @@ public class XmmMultiattackHostRobolectricTest {
         assertEquals(0,DatabaseUtils.longForQuery(db.getReadableDatabase(),
             "SELECT COUNT(*) FROM effect_receipts",null));
     }
-    @Test public void spellCompositionBlocksBeforeMutation() throws Exception {
-        bind("Adult Red Dragon");JSONObject selection=new JSONObject().put("variant_index",1)
+    @Test public void hybridMultiattackRequiresAtomicExecutorEvenWhenSpellExistsInStatblock() throws Exception {
+        bind("Adult Red Dragon");
+        // Source admission is distinct from effect execution.
+        assertTrue(XmmMultiattackHostPlan.actionExistsInStatblock("Adult Red Dragon", "Scorching Ray"));
+        assertTrue(XmmMultiattackHostPlan.actionExistsInStatblock("Adult Red Dragon", "Fire Breath"));
+        assertFalse(XmmMultiattackHostPlan.actionExistsInStatblock("Adult Red Dragon", "Wish"));
+
+        JSONObject selection=new JSONObject().put("variant_index",1)
             .put("selected_actions",new JSONArray().put("Scorching Ray").put("Rend").put("Rend"));
-        JSONObject result=db.applyCompiledStatblockMultiattack(actor,"Adult Red Dragon",new JSONArray(),
-            "ui-monster-multi-spell-block",selection);
-        assertEquals("multiattack_component_executor_not_installed_spell_0",result.optString("statblock_multiattack_blocked"));unchanged();
+        JSONObject decl=XmmMultiattackHostPlan.declaration("Adult Red Dragon",selection,new JSONObject());
+        assertEquals("A compiled name alone is not an atomic spell executor",
+            "multiattack_component_executor_not_installed_spell_0",
+            decl.optString("statblock_multiattack_blocked"));
+
+        // Host must refuse this variant before checking attack-roll count,
+        // decrementing an action, applying damage or writing effect receipts.
+        JSONObject blocked=db.applyCompiledStatblockMultiattack(actor,"Adult Red Dragon",new JSONArray(),
+            "ui-monster-multi-spell-count",selection);
+        assertEquals("multiattack_component_executor_not_installed_spell_0",
+            blocked.optString("statblock_multiattack_blocked"));
+        unchanged();
     }
     @Test public void hastenStateSurvivesBackup21RestoreAndThreeSqliteReopens() throws Exception {
         bind("Clay Golem");
@@ -197,5 +212,71 @@ public class XmmMultiattackHostRobolectricTest {
             assertEquals(0,DatabaseUtils.longForQuery(db.getReadableDatabase(),
                 "SELECT COUNT(*) FROM effect_receipts",null));
         }
+    }
+    @Test public void authorizedDragonHybridMultiattackExecutesAtomically() throws Exception {
+        bind("Adult Red Dragon");
+        JSONObject resources=new JSONObject(db.getCombatant(actor).getString("resources_json"));
+        resources.put("allow_hybrid_multiattack",true);
+        ContentValues v=new ContentValues();v.put("resources_json",resources.toString());
+        assertEquals(1,db.getWritableDatabase().update("combatants",v,"id=?",new String[]{String.valueOf(actor)}));
+
+        JSONObject selection=new JSONObject().put("variant_index",1)
+            .put("selected_actions",new JSONArray().put("Scorching Ray").put("Rend").put("Rend"));
+        JSONObject decl=XmmMultiattackHostPlan.declaration("Adult Red Dragon",selection,resources);
+        assertFalse(decl.toString(),decl.has("statblock_multiattack_blocked"));
+        assertEquals(3,decl.optInt("count"));
+        assertFalse(decl.optBoolean("preview_only"));
+
+        JSONArray rendDamage=new JSONArray()
+            .put(new JSONObject().put("expression","1d10 + 8").put("damage_type","slashing").put("damage_total",10))
+            .put(new JSONObject().put("expression","2d4").put("damage_type","fire").put("damage_total",5));
+
+        JSONArray rolls=new JSONArray();
+        rolls.put(new JSONObject().put("action","Scorching Ray").put("target_id",target)
+            .put("natural",18).put("long_range_second_d20",16).put("damage_total",7).put("rider_save_roll",0));
+        rolls.put(new JSONObject().put("action","Rend").put("target_id",target)
+            .put("natural",18).put("long_range_second_d20",0).put("damage_components",rendDamage).put("rider_save_roll",0));
+        rolls.put(new JSONObject().put("action","Rend").put("target_id",target)
+            .put("natural",18).put("long_range_second_d20",0).put("damage_components",rendDamage).put("rider_save_roll",0));
+
+        String token="ui-monster-multi-dragon-hybrid-ok";
+        JSONObject result=db.applyCompiledStatblockMultiattack(actor,"Adult Red Dragon",rolls,token,selection);
+        assertTrue(result.toString(),result.optBoolean("statblock_multiattack_committed"));
+        assertTrue(result.optBoolean("action_spent_once"));
+        assertEquals(3,result.getJSONArray("components").length());
+        assertEquals(50 - (7 + 15 + 15),db.getCombatant(target).optInt("hp"));
+
+        String receipt=result.getString("statblock_multiattack_receipt");
+        assertTrue(db.hasEffectReceipt(receipt));
+        db.close();db=new AppDb(context,name);db.setActiveMapProfile("dnd");
+        assertTrue(db.hasEffectReceipt(receipt));
+        assertEquals(13,db.getCombatant(target).optInt("hp"));
+    }
+    @Test public void unmodeledComponentFailsClosedEvenWithHostAuthorization() throws Exception {
+        bind("Adult Brass Dragon");
+        JSONObject resources=new JSONObject(db.getCombatant(actor).getString("resources_json"));
+        resources.put("allow_hybrid_multiattack",true);
+        ContentValues v=new ContentValues();v.put("resources_json",resources.toString());
+        assertEquals(1,db.getWritableDatabase().update("combatants",v,"id=?",new String[]{String.valueOf(actor)}));
+
+        JSONObject selection=new JSONObject().put("variant_index",1)
+            .put("selected_actions",new JSONArray().put("Sleep Breath").put("Rend").put("Rend"));
+        JSONObject decl=XmmMultiattackHostPlan.declaration("Adult Brass Dragon",selection,resources);
+        assertEquals("multiattack_component_executor_not_installed_use_0",
+            decl.optString("statblock_multiattack_blocked"));
+
+        JSONArray rolls=new JSONArray();
+        rolls.put(new JSONObject().put("action","Sleep Breath").put("target_id",target)
+            .put("natural",18).put("long_range_second_d20",0).put("damage_total",0).put("rider_save_roll",0));
+        rolls.put(new JSONObject().put("action","Rend").put("target_id",target)
+            .put("natural",18).put("long_range_second_d20",0).put("damage_total",15).put("rider_save_roll",0));
+        rolls.put(new JSONObject().put("action","Rend").put("target_id",target)
+            .put("natural",18).put("long_range_second_d20",0).put("damage_total",15).put("rider_save_roll",0));
+
+        JSONObject blocked=db.applyCompiledStatblockMultiattack(actor,"Adult Brass Dragon",rolls,
+            "ui-monster-multi-unmodeled-denied",selection);
+        assertEquals("multiattack_component_executor_not_installed_use_0",
+            blocked.optString("statblock_multiattack_blocked"));
+        unchanged();
     }
 }

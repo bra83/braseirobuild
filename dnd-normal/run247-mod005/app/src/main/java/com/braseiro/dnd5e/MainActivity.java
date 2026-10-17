@@ -223,6 +223,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private StrixhavenCampusView strixhavenCampusView;
     private StrixhavenAssetCatalog strixhavenAssetCatalog;
     private boolean strixhavenDrawerExpanded=true;
+    private boolean strixhavenControlsExpanded=true;
+    private TextView strixhavenNarrationOutput;
     private TextView statusText;
     private String currentScreen="Aventura";
     private String lastSuccessfulScreen="Aventura";
@@ -350,7 +352,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         super.onCreate(state);AppLog.init(this);AppLog.i("MainActivity","Inicializando Braseiro "+APP_VERSION);requestWindowFeature(Window.FEATURE_NO_TITLE);
         try{
             prefs=getSharedPreferences("settings",MODE_PRIVATE);if(!prefs.getBoolean("rag_master_2_2_migrated",false))prefs.edit().putString("master_pace","cinematic").putBoolean("rag_master_2_2_migrated",true).apply();if(!prefs.getBoolean("narrator_2_7_cinematic_restored",false)){SharedPreferences.Editor paceEdit=prefs.edit().putBoolean("narrator_2_7_cinematic_restored",true);if(prefs.getBoolean("narrator_2_6_speed_migrated",false)&&"balanced".equals(prefs.getString("master_pace","cinematic")))paceEdit.putString("master_pace","cinematic");paceEdit.apply();}reconcileWorldProfilePreferences();applyTheme();ui=new Handler(Looper.getMainLooper());showImmediateStartupSurface();
-            DatabaseMigrationGuard.beforeOpen(this);db=new AppDb(this);db.setActiveMapProfile(activeWorldProfile());DatabaseMigrationGuard.afterOpen(this,db);JSONObject sceneCommitRecovery=db.sceneCommitRecoveryState();if(!sceneCommitRecovery.optBoolean("safe",true))AppLog.w("SceneCommitRecovery","Journal protegido contra reaplicação automática: "+sceneCommitRecovery.optString("error")+" • bloqueados="+sceneCommitRecovery.optInt("blocked_count",0),null);else if(sceneCommitRecovery.optInt("retryable_count",0)>0)AppLog.i("SceneCommitRecovery",sceneCommitRecovery.optInt("retryable_count",0)+" commit(s) permanecem revisáveis; nenhuma consequência foi reaplicada automaticamente.");uiResponsivenessMonitor=new UiResponsivenessMonitor(this);uiResponsivenessMonitor.start();charonLatencyTelemetry=new CharonLatencyTelemetry(this);ensureWorldRagIsolationMigration();db.disableBrokenTokenPdfSources();secrets=new SecureSecretStore(this,prefs);secrets.migratePlaintext("gemini_key");secrets.migratePlaintext("gemini_paid_key");migrateLegacyModels();applyTheme();
+            DatabaseMigrationGuard.beforeOpen(this);db=new AppDb(this);db.setActiveMapProfile(activeWorldProfile());DatabaseMigrationGuard.afterOpen(this,db);JSONObject sceneCommitRecovery=db.sceneCommitRecoveryState();if(!sceneCommitRecovery.optBoolean("safe",true))AppLog.w("SceneCommitRecovery","Journal protegido contra reaplicação automática: "+sceneCommitRecovery.optString("error")+" • bloqueados="+sceneCommitRecovery.optInt("blocked_count",0),null);else if(sceneCommitRecovery.optInt("retryable_count",0)>0)AppLog.i("SceneCommitRecovery",sceneCommitRecovery.optInt("retryable_count",0)+" commit(s) permanecem revisáveis; nenhuma consequência foi reaplicada automaticamente.");uiResponsivenessMonitor=new UiResponsivenessMonitor(this);uiResponsivenessMonitor.start();charonLatencyTelemetry=new CharonLatencyTelemetry(this);ensureWorldRagIsolationMigration();if(!prefs.getBoolean("broken_token_pdf_sources_disabled",false)){db.disableBrokenTokenPdfSources();prefs.edit().putBoolean("broken_token_pdf_sources_disabled",true).apply();}secrets=new SecureSecretStore(this,prefs);secrets.migratePlaintext("gemini_key");secrets.migratePlaintext("gemini_paid_key");migrateLegacyModels();applyTheme();
             safety=new CampaignSafetyManager(this,db);libraryConnections=new LibraryConnectionManager(this);portableBackup=new PortableBackupManager(this,db,libraryConnections);maintenance=new AppMaintenanceManager(this,safety,portableBackup);CrashRecoveryHandler.install(this,db,safety);String safetyMessage="Braseiro pronto. Verificações de segurança continuam em segundo plano.";
             String audioRecoveryNotice=prefs.getString(PREF_AUDIO_RECOVERY_NOTICE,"");if(audioRecoveryNotice.length()>0){safetyMessage=safetyMessage+"\n"+audioRecoveryNotice;prefs.edit().remove(PREF_AUDIO_RECOVERY_NOTICE).apply();}
             gemini=new GeminiService(this);gemini.resetTtsPrimaryCircuit();drive=new DriveService(this);manualFolderScanner=new SafFolderScanner(this);localManualIndexer=new LocalManualIndexer(this,db,drive);tokenPdfLibrary=new TokenPdfLibrary(this);mapPackageManager=new MapPackageManager(this,db);accountManager=AccountManager.get(this);if(!prefs.getBoolean("npc_token_folder_47_migrated",false)){String old=prefs.getString("token_folder","");SharedPreferences.Editor tokenMigration=prefs.edit().putBoolean("npc_token_folder_47_migrated",true);if(old.length()==0||DEFAULT_TOKEN_FOLDER.equals(old))tokenMigration.putString("token_folder",DEFAULT_TOKEN_IMAGE_FOLDER);tokenMigration.apply();}
@@ -892,8 +894,232 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private ScrollView page(String heading,String subtitle){content.removeAllViews();ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);LinearLayout body=new LinearLayout(this);body.setOrientation(LinearLayout.VERTICAL);body.setPadding(dp(12),dp(12),dp(12),dp(32));if(isMystaraWorld()){LinearLayout banner=new LinearLayout(this);banner.setOrientation(LinearLayout.VERTICAL);banner.setGravity(Gravity.CENTER);banner.setPadding(dp(10),dp(8),dp(10),dp(8));banner.setBackground(makeBg(PANEL2,GOLD,2));TextView world=text("◆  M Y S T A R A  ◆",13,GOLD,true);world.setGravity(Gravity.CENTER);banner.addView(world);TextView rules=text("D&D Rules Cyclopedia • BECMI • regras clássicas completas",10,TEXT,false);rules.setGravity(Gravity.CENTER);banner.addView(rules);LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,-2);bp.setMargins(0,0,0,dp(10));body.addView(banner,bp);}TextView h=text(worldHeading(heading),26,GOLD,true);body.addView(h);String transformed=worldSubtitle(subtitle);if(transformed!=null&&transformed.length()>0){TextView st=text(transformed,14,MUTED,false);st.setPadding(0,dp(2),0,dp(12));body.addView(st);}scroll.addView(body);content.addView(scroll,new FrameLayout.LayoutParams(-1,-1));scroll.setTag(body);cacheCurrentScreen();return scroll;}
     private LinearLayout body(ScrollView s){return (LinearLayout)s.getTag();}
 
+
+    /** DMG 2024 Bastion: explicit dice, explicit DM approval, live AppDb writes. */
+    private void showBastion2024Dialog(){
+        final ArrayList<JSONObject> eligible=new ArrayList<JSONObject>();
+        for(JSONObject hero:db.listActiveCharacters()){
+            String rawSource=hero.optString("rules_source","").trim();
+            if(rawSource.isEmpty())rawSource=db.getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2014);
+            String source=DndRulesEngine.canonicalProfile(rawSource);
+            if(hero.optInt("level",0)>=5&&DndRulesEngine.PROFILE_2024.equals(source))
+                eligible.add(hero);
+        }
+        if(eligible.isEmpty()){
+            toast("Bastiões 2024 exigem personagem do perfil 2024 de nível 5 ou superior.");
+            return;
+        }
+        final String[] names=new String[eligible.size()];
+        for(int i=0;i<names.length;i++)names[i]=eligible.get(i).optString("name","Herói");
+        final Spinner who=spinner(names,names[0]);
+        new AlertDialog.Builder(this).setTitle("Bastiões • DMG 2024")
+            .setMessage("Escolha o personagem proprietário do Bastião.")
+            .setView(who).setNegativeButton("Voltar",null)
+            .setPositiveButton("ABRIR",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int which){
+                    long heroId=eligible.get(who.getSelectedItemPosition()).optLong("id");
+                    showBastion2024ForHero(heroId);
+                }}).show();
+    }
+
+    private void showBastion2024ForHero(final long heroId){
+        final JSONObject state=db.getBastion2024State(heroId);
+        if(state.length()==0){showBastion2024Setup(heroId);return;}
+        int gp=state.optInt("gold_gp"),def=state.optInt("defenders"),
+            turn=state.optInt("turn_number");
+        String summary="Turno "+turn+" • Tesouro "+gp+" PO • Defensores "+def+
+            "\\nRefugiados "+state.optInt("refugees")+
+            " • Proteção de hóspede "+state.optInt("friendly_monster_protection")+
+            "\\nInstalações "+(state.optJSONObject("facilities")==null?0:state.optJSONObject("facilities").length())+
+            " • Eventos "+(state.optJSONArray("event_history")==null?0:state.optJSONArray("event_history").length());
+        new AlertDialog.Builder(this).setTitle("Bastião 2024 • Estado salvo")
+            .setMessage(summary)
+            .setNegativeButton("Fechar",null)
+            .setNeutralButton("PRÓXIMO TURNO",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int w){
+                    new AlertDialog.Builder(MainActivity.this).setTitle("Confirmar turno do Bastião?")
+                        .setMessage("A passagem de turno e a indisponibilidade das instalações serão persistidas na ficha.")
+                        .setNegativeButton("Cancelar",null)
+                        .setPositiveButton("CONFIRMAR",new DialogInterface.OnClickListener(){
+                            public void onClick(DialogInterface d2,int w2){
+                                JSONObject result=db.advanceBastion2024Turn(heroId,true,
+                                    "ui-bastion-turn-"+java.util.UUID.randomUUID());
+                                if(!result.optBoolean("bastion_turn_committed",false))
+                                    toast("Turno bloqueado: "+result.optString("bastion_blocked","erro"));
+                                else showBastion2024ForHero(heroId);
+                            }}).show();
+                }})
+            .setPositiveButton("ROLAR EVENTO",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int w){showBastion2024EventRoll(heroId);}
+            }).show();
+    }
+
+    private void showBastion2024Setup(final long heroId){
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);
+        form.setPadding(dp(14),dp(8),dp(14),dp(8));
+        form.addView(text("Somente o Mestre pode confirmar os recursos iniciais. Bastiões começam disponíveis no nível 5. Não apagaremos estado existente.",13,TEXT,false));
+        final EditText gp=labeledField(form,"Ouro do Bastião, confirmado pelo Mestre","0",true);
+        final EditText defenders=labeledField(form,"Defensores iniciais confirmados","0",true);
+        final EditText facilities=labeledField(form,
+            "Identificadores das instalações especiais (separados por vírgula)","",false);
+        new AlertDialog.Builder(this).setTitle("Preparar Bastião 2024")
+            .setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null)
+            .setPositiveButton("CONFIRMAR CONFIGURAÇÃO",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int w){
+                    try{
+                        JSONArray ids=new JSONArray();
+                        for(String item:value(facilities).split(",")){
+                            if(!item.trim().isEmpty())ids.put(item.trim());
+                        }
+                        JSONObject result=db.configureBastion2024(heroId,
+                            Integer.parseInt(value(gp)),Integer.parseInt(value(defenders)),ids,true);
+                        if(result.optBoolean("bastion_configured",false))showBastion2024ForHero(heroId);
+                        else toast("Configuração bloqueada: "+result.optString("bastion_blocked","erro"));
+                    }catch(Exception error){toast("Informe inteiros válidos para ouro e defensores.");}
+                }}).show();
+    }
+
+    private static JSONArray parseBastion2024Dice(String raw)throws Exception {
+        JSONArray output=new JSONArray();
+        if(raw==null||raw.trim().isEmpty())return output;
+        for(String part:raw.split(","))output.put(Integer.parseInt(part.trim()));
+        return output;
+    }
+
+    private void showBastion2024EventRoll(final long heroId){
+        LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(dp(14),dp(8),dp(14),dp(8));
+        box.addView(text("Role 1d100 manualmente e informe o resultado. O motor não escolhe dados nem altera o Bastião sem confirmação.",13,TEXT,false));
+        final EditText roll=labeledField(box,"Resultado de 1d100 (1–100 ou 0=100)","",true);
+        new AlertDialog.Builder(this).setTitle("Evento do Bastião")
+            .setView(scrollableDialogView(box)).setNegativeButton("Voltar",null)
+            .setPositiveButton("CONTINUAR",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int w){
+                    try{
+                        int value=Integer.parseInt(value(roll));
+                        JSONObject event=Bastion2024RulesEngine.execute(
+                            "core2024.bastion.event.resolve",new JSONObject().put("d100_roll",value));
+                        if(!"ok".equals(event.optString("status"))){
+                            toast("Resultado de 1d100 inválido.");return;
+                        }
+                        showBastion2024EventDetails(heroId,event.optInt("d100_roll"),event.optString("event"));
+                    }catch(Exception e){toast("D100 inválido.");}
+                }}).show();
+    }
+
+    private void showBastion2024EventDetails(final long heroId,final int roll,final String eventName){
+        final JSONObject state=db.getBastion2024State(heroId);
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);
+        form.setPadding(dp(14),dp(8),dp(14),dp(8));
+        form.addView(text("Evento "+roll+": "+eventName,15,GOLD,true));
+        form.addView(text("Todos os dados devem ser rolados fisicamente. As escolhas só serão aplicadas após a segunda confirmação.",12,TEXT,false));
+        final EditText dice=labeledField(form,"Rolagens adicionais (d6/d4, separadas por vírgula)","",false);
+        final EditText second=labeledField(form,"Rolagem adicional secundária (se exigida)","",true);
+        final Spinner choice=spinner(new String[]{"SIM","NÃO"},"SIM");
+        form.addView(cardWithLabel("ESCOLHA / REQUISITO DO MESTRE",choice));
+        final Spinner onlyHireling=spinner(new String[]{"SIM","NÃO"},"SIM");
+        form.addView(cardWithLabel("A DEMISSÃO DEIXA A INSTALAÇÃO SEM CONTRATADOS?",onlyHireling));
+        final JSONObject facilities=state.optJSONObject("facilities");
+        final JSONArray facilityNames=facilities==null?new JSONArray():facilities.names();
+        String[] selections=new String[facilityNames==null||facilityNames.length()==0?1:facilityNames.length()];
+        if(facilityNames==null||facilityNames.length()==0)selections[0]="SEM INSTALAÇÃO";
+        else for(int i=0;i<selections.length;i++)selections[i]=facilityNames.optString(i);
+        final Spinner facility=spinner(selections,selections[0]);
+        form.addView(cardWithLabel("INSTALAÇÃO AFETADA (QUANDO NECESSÁRIO)",facility));
+        final EditText item=labeledField(form,"Nome de poção/pergaminho incomum, quando necessário","",false);
+        final Spinner itemType=spinner(new String[]{"potion","scroll"},"potion");
+        form.addView(cardWithLabel("TIPO DO ITEM MÁGICO",itemType));
+        String guidance="Escolha uma instalação quando o evento indicar prejuízo. Campos não utilizados são ignorados.";
+        if("Attack".equals(eventName))guidance="Informe seis resultados d6 separados por vírgula. As baixas são os dados que caíram em 1.";
+        else if("Criminal Hireling".equals(eventName))guidance="SIM = pagar suborno; informe o d6. NÃO = perder o contratado temporariamente.";
+        else if("Extraordinary Opportunity".equals(eventName))guidance="SIM = gastar 500 PO e rolar outro evento. NÃO = ignorar.";
+        else if("Friendly Visitors".equals(eventName))guidance="Informe um d6 para receber 100 × resultado em PO.";
+        else if("Guest".equals(eventName))guidance="Informe d4 para selecionar o tipo de hóspede. Se sair 2, informe também o d8 secundário.";
+        else if("Lost Hirelings".equals(eventName))guidance="Selecione a instalação cujos empregados partiram.";
+        else if("Magical Discovery".equals(eventName))guidance="Escolha uma poção ou pergaminho INCOMUM verificado pelo Mestre e escreva o nome.";
+        else if("Refugees".equals(eventName))guidance="Informe 2d4 separados por vírgula, pagamento d6 no campo secundário; SIM = há espaço para acolher.";
+        else if("Request for Aid".equals(eventName))guidance="SIM = enviar defensores. Informe um d6 POR DEFENSOR separado por vírgula e o d6 de recompensa no segundo campo.";
+        else if("Treasure".equals(eventName))guidance="Informe o segundo d100 no primeiro campo; o item final continua sujeito à tabela oficial.";
+        else guidance="Nenhuma rolagem adicional obrigatória; d8 opcional no primeiro campo.";
+        form.addView(text(guidance,12,GOLD,true));
+        new AlertDialog.Builder(this).setTitle("Bastião 2024 • "+eventName)
+            .setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null)
+            .setPositiveButton("PRÉVIA",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int w){
+                    try{
+                        JSONObject in=new JSONObject().put("d100_roll",roll);
+                        JSONArray faces=parseBastion2024Dice(value(dice));
+                        String secondary=value(second);
+                        boolean yes=choice.getSelectedItemPosition()==0;
+                        String selectedFacility=String.valueOf(facility.getSelectedItem());
+                        in.put("facility_id",selectedFacility);
+                        in.put("friendly_monster_available",
+                            state.optInt("friendly_monster_protection",0)>0);
+                        if("All Is Well".equals(eventName)){
+                            if(faces.length()>0)in.put("detail_d8",faces.getInt(0));
+                        }else if("Attack".equals(eventName)){
+                            in.put("defenders_before",state.optInt("defenders",0)).put("attack_6d6",faces);
+                        }else if("Criminal Hireling".equals(eventName)){
+                            in.put("retain_hireling",yes)
+                                .put("facility_has_no_other_hirelings",onlyHireling.getSelectedItemPosition()==0);
+                            if(yes&&faces.length()>0)in.put("bribe_d6",faces.getInt(0));
+                        }else if("Extraordinary Opportunity".equals(eventName)){
+                            in.put("accept_opportunity",yes);
+                        }else if("Friendly Visitors".equals(eventName)){
+                            if(faces.length()>0)in.put("payment_d6",faces.getInt(0));
+                        }else if("Guest".equals(eventName)){
+                            if(faces.length()>0)in.put("guest_d4",faces.getInt(0));
+                            if(!secondary.isEmpty())in.put("gift_d8",Integer.parseInt(secondary));
+                        }else if("Lost Hirelings".equals(eventName)){
+                            in.put("facility_id",selectedFacility);
+                        }else if("Magical Discovery".equals(eventName)){
+                            in.put("magic_item_type",String.valueOf(itemType.getSelectedItem()))
+                                .put("magic_item_id",value(item)).put("chosen_item_is_uncommon",yes);
+                        }else if("Refugees".equals(eventName)){
+                            in.put("refugees_2d4",faces).put("sufficient_basic_facility_space",yes);
+                            if(!secondary.isEmpty())in.put("payment_d6",Integer.parseInt(secondary));
+                        }else if("Request for Aid".equals(eventName)){
+                            in.put("send_defenders",yes).put("defenders_before",state.optInt("defenders",0));
+                            if(yes){in.put("aid_defender_d6",faces);
+                                if(!secondary.isEmpty())in.put("reward_d6",Integer.parseInt(secondary));}
+                        }else if("Treasure".equals(eventName)){
+                            if(faces.length()>0)in.put("treasure_d100",faces.getInt(0));
+                        }
+                        final JSONObject preview=Bastion2024RulesEngine.execute("core2024.bastion.event.effects",in);
+                        if(!"ok".equals(preview.optString("status"))){
+                            toast("Evento pendente: "+preview.optString("reason","dados inválidos"));return;
+                        }
+                        final JSONObject approvedInput=new JSONObject(in.toString());
+                        new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("CONFIRMAR CONSEQUÊNCIAS • "+eventName)
+                            .setMessage("Confirmar as alterações persistidas no Bastião?\\n\\n"+preview.toString())
+                            .setNegativeButton("NÃO APLICAR",null)
+                            .setPositiveButton("CONFIRMAR E SALVAR",new DialogInterface.OnClickListener(){
+                                public void onClick(DialogInterface d2,int w2){
+                                    JSONObject result=db.commitBastion2024Event(heroId,approvedInput,true,
+                                        "ui-bastion-event-"+java.util.UUID.randomUUID());
+                                    if(!result.optBoolean("bastion_event_committed",false)){
+                                        toast("Não aplicado: "+result.optString("bastion_blocked","erro"));return;
+                                    }
+                                    new AlertDialog.Builder(MainActivity.this)
+                                        .setTitle("Evento persistido • Bastião")
+                                        .setMessage(result.toString()).setPositiveButton("Fechar",null)
+                                        .show();
+                                }}).show();
+                    }catch(Exception ex){toast("Rolagens adicionais inválidas para esse evento.");}
+                }}).show();
+    }
+
     private void showCampaign(){
         final JSONObject c=db.getCampaign();final JSONObject story=db.getStoryState();ScrollView s=page("Aventura","Configure a campanha, os heróis e inicie ou continue a história.");LinearLayout b=body(s);
+        if(!isMystaraWorld()){
+            Button bastion2024Button=smallButton("BASTIÕES • DMG 2024",GOLD);
+            b.addView(bastion2024Button);
+            bastion2024Button.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v){showBastion2024Dialog();}
+            });
+        }
+
         final EditText name=input(isMystaraWorld()?"Nome da crônica":"Nome da campanha",c.optString("name","Nova Campanha"),false);b.addView(cardWithLabel(isMystaraWorld()?"NOME DA CRÔNICA":"NOME",name));
         final String selectedRulesProfile=DndRulesEngine.canonicalProfile(c.optString("rules_profile",DndRulesEngine.PROFILE_2024));
         final Spinner profile=spinner(new String[]{DndRulesEngine.PROFILE_2014,DndRulesEngine.PROFILE_2024,DndRulesEngine.PROFILE_HYBRID},selectedRulesProfile);
@@ -1130,43 +1356,94 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         JSONObject scene=db.getSceneState();double hour=scene.optDouble("clock_hour",9d);TextView clock=text("Agora • "+String.format(Locale.US,"%02d:%02d",(int)Math.floor(hour),(int)Math.round((hour-Math.floor(hour))*60)%60),9,GOLD,true);clock.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);meta.addView(clock,new LinearLayout.LayoutParams(dp(94),dp(30)));drawer.addView(meta);
 
         ScrollView narrativeScroll=new ScrollView(this);narrativeScroll.setFillViewport(false);LinearLayout narrativeBox=new LinearLayout(this);narrativeBox.setOrientation(LinearLayout.VERTICAL);narrativeBox.setPadding(dp(2),dp(2),dp(2),dp(4));
-        String narration=lastNarration==null||lastNarration.trim().length()==0?"Você chegou a Strixhaven. No primeiro ano, o programa é geral: explore o Campus Central e visite os cinco colégios antes de qualquer escolha futura de matrícula. Toque em um local do mapa para se deslocar.":lastNarration;
-        TextView narrationView=text(GeneratedTextSanitizer.humanText(narration),14,Color.rgb(244,234,211),false);narrationView.setLineSpacing(0,1.12f);narrativeBox.addView(narrationView);
+        String narration=aiBusy&&!masterSideQueryActive&&streamingNarration.length()>0?streamingNarration+" ▌":(lastNarration==null||lastNarration.trim().length()==0?(aiBusy&&!masterSideQueryActive?"O Mestre está escrevendo a cena…":"Você chegou a Strixhaven. No primeiro ano, o programa é geral: explore o Campus Central e visite os cinco colégios antes de qualquer escolha futura de matrícula. Toque em um local do mapa para se deslocar."):lastNarration);
+        strixhavenNarrationOutput=text(GeneratedTextSanitizer.humanText(narration),14,Color.rgb(244,234,211),false);strixhavenNarrationOutput.setLineSpacing(0,1.12f);narrativeBox.addView(strixhavenNarrationOutput);
         narrativeScroll.addView(narrativeBox);drawer.addView(narrativeScroll,new LinearLayout.LayoutParams(-1,0,1));
 
-        // Voz + imagem ficam dentro do próprio pergaminho da Sessão Strixhaven.
-        LinearLayout mediaRow=new LinearLayout(this);mediaRow.setOrientation(LinearLayout.HORIZONTAL);mediaRow.setGravity(Gravity.CENTER_VERTICAL);
-        Button charon=smallButton("▶ CHARON",Color.rgb(60,43,25));charon.setTextColor(GOLD);charon.setContentDescription("Ouvir a narração com a voz Charon do Gemini");
-        charon.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração para ouvir.");return;}speakCharonNarration(lastNarration);}});
-        Button androidVoice=smallButton("▶ ANDROID",Color.rgb(60,43,25));androidVoice.setTextColor(GOLD);androidVoice.setContentDescription("Ouvir a narração com a voz nativa do Android");
-        androidVoice.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração para ouvir.");return;}speakNativeNarrationWithSfx(lastNarration);}});
-        Button geminiImage=smallButton("✦ GEMINI",GOLD);geminiImage.setTextColor(Color.BLACK);geminiImage.setContentDescription("Enviar a cena atual ao Gemini para gerar imagem");
-        geminiImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){editVisualPrompt(true);}});
-        Button localImage=smallButton("🖼 LOCAL",Color.rgb(60,43,25));localImage.setTextColor(GOLD);localImage.setContentDescription("Gerar imagem da cena com a chave Gemini configurada");
-        localImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){generateSceneImage();}});
-        mediaRow.addView(charon,new LinearLayout.LayoutParams(0,dp(38),1));mediaRow.addView(androidVoice,new LinearLayout.LayoutParams(0,dp(38),1));mediaRow.addView(geminiImage,new LinearLayout.LayoutParams(0,dp(38),1));mediaRow.addView(localImage,new LinearLayout.LayoutParams(0,dp(38),1));
-        drawer.addView(mediaRow);
-        if(sharedImageUri!=null){Button openImage=smallButton("ABRIR CENA",Color.rgb(60,43,25));openImage.setTextColor(GOLD);openImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showSceneImageFullscreen();}});drawer.addView(openImage,new LinearLayout.LayoutParams(-1,dp(36)));}
-        addStrixhavenMasterConversationCard(drawer);
-        addGeminiMasterChoiceButtons(drawer);
+        LinearLayout quickBar=new LinearLayout(this);quickBar.setOrientation(LinearLayout.HORIZONTAL);quickBar.setGravity(Gravity.CENTER_VERTICAL);quickBar.setPadding(0,dp(3),0,dp(2));
+        Button toggleControls=smallButton(strixhavenControlsExpanded?"▼ OCULTAR MENU (MAXIMIZAR TEXTO)":"▲ MOSTRAR MENU & AÇÕES",strixhavenControlsExpanded?Color.rgb(60,43,25):GOLD);
+        if(!strixhavenControlsExpanded)toggleControls.setTextColor(Color.BLACK);else toggleControls.setTextColor(GOLD);
+        toggleControls.setOnClickListener(new View.OnClickListener(){public void onClick(View v){strixhavenControlsExpanded=!strixhavenControlsExpanded;showStrixhavenSession();}});
+        quickBar.addView(toggleControls,new LinearLayout.LayoutParams(0,dp(36),1));
+        Button qCharon=smallButton("▶ CHARON",Color.rgb(60,43,25));qCharon.setTextColor(GOLD);qCharon.setTextSize(9);qCharon.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração.");return;}speakCharonNarration(lastNarration);}});
+        Button qVoice=smallButton("▶ VOZ",Color.rgb(60,43,25));qVoice.setTextColor(GOLD);qVoice.setTextSize(9);qVoice.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração.");return;}speakNativeNarrationWithSfx(lastNarration);}});
+        quickBar.addView(qCharon,new LinearLayout.LayoutParams(dp(76),dp(36)));
+        quickBar.addView(qVoice,new LinearLayout.LayoutParams(dp(64),dp(36)));
+        drawer.addView(quickBar);
 
-        if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true))addPendingTestCard(drawer,pendingTest);
-
-        if(currentOptions!=null&&currentOptions.length()>0&&pendingTest.length()==0){
-            TextView sug=text("SUGESTÕES",9,GOLD,true);drawer.addView(sug);
-            HorizontalScrollView hscroll=new HorizontalScrollView(this);hscroll.setHorizontalScrollBarEnabled(false);LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
-            for(int i=0;i<currentOptions.length()&&i<3;i++){final JSONObject option=currentOptions.optJSONObject(i);if(option==null)continue;String label=option.optString("label",option.optString("action","Opção"));Button b=smallButton(label,PANEL2);b.setAllCaps(false);b.setTextSize(10);b.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});row.addView(b,new LinearLayout.LayoutParams(dp(165),dp(42)));}
-            hscroll.addView(row);drawer.addView(hscroll,new LinearLayout.LayoutParams(-1,dp(44)));
+        if(strixhavenControlsExpanded){
+            LinearLayout controlsBox=new LinearLayout(this);controlsBox.setOrientation(LinearLayout.VERTICAL);controlsBox.setPadding(0,dp(2),0,0);
+            LinearLayout mediaRow=new LinearLayout(this);mediaRow.setOrientation(LinearLayout.HORIZONTAL);mediaRow.setGravity(Gravity.CENTER_VERTICAL);
+            Button charon=smallButton("▶ CHARON",Color.rgb(60,43,25));charon.setTextColor(GOLD);charon.setContentDescription("Ouvir a narração com a voz Charon do Gemini");charon.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração para ouvir.");return;}speakCharonNarration(lastNarration);}});
+            Button androidVoice=smallButton("▶ ANDROID",Color.rgb(60,43,25));androidVoice.setTextColor(GOLD);androidVoice.setContentDescription("Ouvir a narração com a voz nativa do Android");androidVoice.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração para ouvir.");return;}speakNativeNarrationWithSfx(lastNarration);}});
+            Button geminiImage=smallButton("✦ GEMINI",GOLD);geminiImage.setTextColor(Color.BLACK);geminiImage.setContentDescription("Enviar a cena atual ao Gemini para gerar imagem");geminiImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){editVisualPrompt(true);}});
+            Button localImage=smallButton("🖼 LOCAL",Color.rgb(60,43,25));localImage.setTextColor(GOLD);localImage.setContentDescription("Gerar imagem da cena com a chave Gemini configurada");localImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){generateSceneImage();}});
+            mediaRow.addView(charon,new LinearLayout.LayoutParams(0,dp(36),1));mediaRow.addView(androidVoice,new LinearLayout.LayoutParams(0,dp(36),1));mediaRow.addView(geminiImage,new LinearLayout.LayoutParams(0,dp(36),1));mediaRow.addView(localImage,new LinearLayout.LayoutParams(0,dp(36),1));
+            controlsBox.addView(mediaRow);
+            if(sharedImageUri!=null){Button openImage=smallButton("ABRIR CENA",Color.rgb(60,43,25));openImage.setTextColor(GOLD);openImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showSceneImageFullscreen();}});controlsBox.addView(openImage,new LinearLayout.LayoutParams(-1,dp(34)));}
+            addStrixhavenMasterConversationCard(controlsBox);
+            if(hasFailedGeminiRequest()){
+                LinearLayout failCard=card();failCard.setBackground(makeBg(Color.rgb(55,20,20),RED,10));
+                failCard.addView(text("O Gemini não respondeu. A ação continua pendente e salva.",11,RED,true));
+                LinearLayout failRow=new LinearLayout(this);failRow.setOrientation(LinearLayout.HORIZONTAL);
+                Button retry=smallButton("TENTAR NOVAMENTE",GREEN);retry.setOnClickListener(new View.OnClickListener(){public void onClick(View v){retryFailedGeminiRequest();}});
+                Button off=smallButton("MESTRE OFFLINE",PANEL2);off.setOnClickListener(new View.OnClickListener(){public void onClick(View v){runExplicitOfflineMaster();}});
+                failRow.addView(retry,new LinearLayout.LayoutParams(0,dp(38),1));failRow.addView(off,new LinearLayout.LayoutParams(0,dp(38),1));
+                failCard.addView(failRow);controlsBox.addView(failCard);
+            }
+            if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true))addPendingTestCard(controlsBox,pendingTest);
+            if(currentOptions!=null&&currentOptions.length()>0&&pendingTest.length()==0){
+                TextView sug=text("SUGESTÕES",9,GOLD,true);controlsBox.addView(sug);
+                HorizontalScrollView hscroll=new HorizontalScrollView(this);hscroll.setHorizontalScrollBarEnabled(false);LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
+                for(int i=0;i<currentOptions.length()&&i<3;i++){final JSONObject option=currentOptions.optJSONObject(i);if(option==null)continue;String label=option.optString("label",option.optString("action","Opção"));Button b=smallButton(label,PANEL2);b.setAllCaps(false);b.setTextSize(10);b.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});row.addView(b,new LinearLayout.LayoutParams(dp(165),dp(40)));}
+                hscroll.addView(row);controlsBox.addView(hscroll,new LinearLayout.LayoutParams(-1,dp(42)));
+            }
+            final boolean[] strixMasterChatMode=new boolean[]{false};final int masterBlue=Color.rgb(96,200,230);
+            LinearLayout composerModeRow=new LinearLayout(this);composerModeRow.setOrientation(LinearLayout.HORIZONTAL);composerModeRow.setPadding(0,dp(2),0,dp(2));
+            final Button strixActionMode=smallButton("AÇÃO NA HISTÓRIA",GOLD),strixMasterMode=smallButton("CONSULTAR MESTRE",Color.rgb(19,49,73));
+            strixActionMode.setTextColor(Color.BLACK);strixMasterMode.setTextColor(masterBlue);
+            composerModeRow.addView(strixActionMode,new LinearLayout.LayoutParams(0,dp(36),1));composerModeRow.addView(strixMasterMode,new LinearLayout.LayoutParams(0,dp(36),1));
+            controlsBox.addView(composerModeRow);
+            LinearLayout actionRow=new LinearLayout(this);actionRow.setOrientation(LinearLayout.HORIZONTAL);
+            narratorInput=input("AÇÃO LIVRE — descreva o que deseja fazer","",false);
+            if(pendingRestoredNarratorDraft!=null&&pendingRestoredNarratorDraft.length()>0){narratorInput.setText(pendingRestoredNarratorDraft);pendingRestoredNarratorDraft="";}
+            narratorInput.setSingleLine(true);
+            final Button send=smallButton(aiBusy?"…":"➤",GOLD);send.setTextColor(Color.BLACK);
+            final Runnable refreshStrixComposer=new Runnable(){public void run(){
+                boolean help=strixMasterChatMode[0];
+                narratorInput.setHint(help?"CONSULTA AO MESTRE — dúvidas/regras sem avançar tempo":"AÇÃO LIVRE — descreva o que deseja fazer na cena");
+                narratorInput.setBackground(makeBg(help?Color.rgb(19,49,73):INPUT_BG,help?masterBlue:INPUT_STROKE,8));
+                narratorInput.setHintTextColor(help?Color.rgb(190,225,238):HINT);
+                narratorInput.setEnabled(!aiBusy&&(help||pendingTest.length()==0));
+                send.setBackground(makeBg(help?masterBlue:GOLD,help?masterBlue:GOLD,8));
+                send.setTextColor(help?Color.rgb(8,24,36):Color.BLACK);
+                send.setEnabled(!aiBusy&&(help||pendingTest.length()==0));
+                strixActionMode.setAlpha(help?0.55f:1f);strixMasterMode.setAlpha(help?1f:0.72f);
+            }};
+            strixActionMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                strixMasterChatMode[0]=false;refreshStrixComposer.run();
+                String q=narratorInput.getText().toString().trim();
+                if(q.length()>0){prefs.edit().putString("ai_mode","Narrador").apply();sendAi("Narrador",q);}
+                else{narratorInput.requestFocus();toast("Digite o que deseja fazer e toque em ➤.");}
+            }});
+            strixMasterMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                strixMasterChatMode[0]=true;refreshStrixComposer.run();
+                String q=narratorInput.getText().toString().trim();
+                if(q.length()>0){sendMasterSideQuestion(q);}
+                else{narratorInput.requestFocus();toast("Digite sua pergunta ao Mestre e toque em ➤.");}
+            }});
+            refreshStrixComposer.run();
+            send.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                String q=narratorInput.getText().toString().trim();
+                if(q.length()==0){toast(strixMasterChatMode[0]?"Escreva uma pergunta ao Mestre.":"Descreva uma ação no campo de texto.");return;}
+                prefs.edit().putString("ai_mode","Narrador").apply();
+                if(strixMasterChatMode[0]){sendMasterSideQuestion(q);return;}
+                sendAi("Narrador",q);
+            }});
+            actionRow.addView(narratorInput,new LinearLayout.LayoutParams(0,dp(44),1));actionRow.addView(send,new LinearLayout.LayoutParams(dp(54),dp(44)));
+            controlsBox.addView(actionRow);
+            drawer.addView(controlsBox);
         }
-
-        final boolean[] strixMasterChatMode=new boolean[]{false};final int masterBlue=Color.rgb(96,200,230);
-        LinearLayout composerModeRow=new LinearLayout(this);composerModeRow.setOrientation(LinearLayout.HORIZONTAL);Button strixActionMode=smallButton("AÇÃO",GOLD),strixMasterMode=smallButton("CONSULTAR MESTRE",Color.rgb(19,49,73));strixActionMode.setTextColor(Color.BLACK);strixMasterMode.setTextColor(masterBlue);composerModeRow.addView(strixActionMode,new LinearLayout.LayoutParams(0,dp(38),1));composerModeRow.addView(strixMasterMode,new LinearLayout.LayoutParams(0,dp(38),1));drawer.addView(composerModeRow);drawer.addView(text("AÇÃO avança a ficção. CONSULTAR MESTRE responde dúvidas sem avançar relógio, mapa, NPCs ou campanha.",10,MUTED,false));
-        LinearLayout actionRow=new LinearLayout(this);actionRow.setOrientation(LinearLayout.HORIZONTAL);narratorInput=input("AÇÃO LIVRE — descreva o que deseja fazer","",false);if(pendingRestoredNarratorDraft!=null&&pendingRestoredNarratorDraft.length()>0){narratorInput.setText(pendingRestoredNarratorDraft);pendingRestoredNarratorDraft="";}narratorInput.setSingleLine(true);
-        final Button send=smallButton(aiBusy?"…":"➤",GOLD);send.setTextColor(Color.BLACK);
-        final Runnable refreshStrixComposer=new Runnable(){public void run(){boolean help=strixMasterChatMode[0];narratorInput.setHint(help?"CONSULTA AO MESTRE — não avança a história":"AÇÃO LIVRE — descreva o que deseja fazer");narratorInput.setBackground(makeBg(help?Color.rgb(19,49,73):INPUT_BG,help?masterBlue:INPUT_STROKE,8));narratorInput.setHintTextColor(help?Color.rgb(190,225,238):HINT);narratorInput.setEnabled(!aiBusy&&(help||pendingTest.length()==0));send.setBackground(makeBg(help?masterBlue:GOLD,help?masterBlue:GOLD,8));send.setTextColor(help?Color.rgb(8,24,36):Color.BLACK);send.setEnabled(!aiBusy&&(help||pendingTest.length()==0));strixActionMode.setAlpha(help?0.55f:1f);strixMasterMode.setAlpha(help?1f:0.72f);}};
-        strixActionMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){strixMasterChatMode[0]=false;refreshStrixComposer.run();}});strixMasterMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){strixMasterChatMode[0]=true;refreshStrixComposer.run();}});refreshStrixComposer.run();
-        send.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String q=narratorInput.getText().toString().trim();if(q.length()==0){toast(strixMasterChatMode[0]?"Escreva uma pergunta ao Mestre.":"Descreva uma ação.");return;}prefs.edit().putString("ai_mode","Narrador").apply();if(strixMasterChatMode[0]){sendMasterSideQuestion(q);return;}sendAi("Narrador",q);}});
-        actionRow.addView(narratorInput,new LinearLayout.LayoutParams(0,dp(48),1));actionRow.addView(send,new LinearLayout.LayoutParams(dp(58),dp(48)));drawer.addView(actionRow);
         return drawer;
     }
 
@@ -1797,7 +2074,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }
         b.addView(seq);addCombatContextPanel(b);
         LinearLayout tools=card();Button addHeroes=button("ADICIONAR COMPANHIA",GREEN);addHeroes.setOnClickListener(new View.OnClickListener(){public void onClick(View v){int initiative=individual?0:state.optInt("party_initiative",0);for(JSONObject ch:db.listActiveCharacters())if(db.findCombatantByName(ch.optString("name")).length()==0)db.addCombatant(ch.optString("name"),initiative,ch.optInt("hp"),ch.optInt("max_hp"),ch.optInt("ac",9),"",true);db.setCombatRunning(true);try{JSONObject scene=new JSONObject().put("present_npcs",new JSONArray(db.getSceneState().optString("present_npcs_json","[]")));syncPresentNpcsIntoRunningCombat(new JSONObject().put("scene_state",scene));}catch(Exception error){AppLog.w("CombatNpcSync","NPCs presentes serão sincronizados na próxima atualização.",error);}showMystaraCombat();}});Button addEnemy=button("+ MONSTRO / PNJ",PANEL2);addEnemy.setOnClickListener(new View.OnClickListener(){public void onClick(View v){mystaraCombatantDialog();}});Button attack=button("RESOLVER JOGADA DE ATAQUE",GOLD);attack.setTextColor(Color.BLACK);attack.setOnClickListener(new View.OnClickListener(){public void onClick(View v){mystaraAttackDialog();}});Button reset=button("ENCERRAR ENCONTRO",RED);reset.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Encerrar e limpar o encontro?",new Runnable(){public void run(){String closing=prefs.getString("last_combat_narration","Encontro encerrado.");db.transitionCombatState(CombatStateMachine.ENCOUNTER_END,new JSONObject());db.addJournalFact("Encontro encerrado",closing,"Combate","combat-end-"+db.getCombatState().optString("encounter_id",""),"combat");db.resetCombat();prefs.edit().remove("last_combat_narration").apply();showMystaraCombat();}});}});tools.addView(addHeroes);tools.addView(addEnemy);tools.addView(attack);tools.addView(reset);b.addView(tools);
-        LinearLayout tactical=card();tactical.addView(text("MESA TÁTICA DO ENCONTRO",16,GOLD,true));tactical.addView(text("Heróis, PNJs e monstros usam o mesmo estado persistente da iniciativa. Toque no i para consultar a ficha.",12,MUTED,false));tacticalBoardView=new TacticalBoardView(this,db);tacticalBoardView.setInfoListener(new TacticalBoardView.InfoListener(){public void onInfoRequested(long combatantId,String name){JSONObject combatant=db.getCombatant(combatantId);if(combatant.length()==0)combatant=db.findCombatantByName(name);if(combatant.length()>0)combatantInfoDialog(combatant);}});tacticalBoardView.setMovementListener(new TacticalBoardView.MovementListener(){
+        LinearLayout tactical=card();tactical.addView(text("MESA TÁTICA DO ENCONTRO",16,GOLD,true));tactical.addView(text("Heróis, PNJs e monstros usam o mesmo estado persistente da iniciativa. Toque no i para consultar a ficha.",12,MUTED,false));tacticalBoardView=new TacticalBoardView(this,db);tacticalBoardView.setInfoListener(new TacticalBoardView.InfoListener(){public void onInfoRequested(long combatantId,String name){JSONObject combatant=db.getCombatant(combatantId);if(combatant.length()==0)combatant=db.findCombatantByName(name);if(combatant.length()>0)combatantInfoDialog(combatant);}});tacticalBoardView.setTokenClickListener(new TacticalBoardView.TokenClickListener(){public void onTokenSelected(long combatantId,String name){showTokenQuickActionsDialog(combatantId,name);}});tacticalBoardView.setMovementListener(new TacticalBoardView.MovementListener(){
             public void onGridDestinationRequested(long combatantId,int cellX,int cellY){
                 toast("Movimento de Mystara não utiliza o executor de D&D 5e; posição preservada.");
             }
@@ -2511,8 +2788,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         for(int i=0;i<eligible.length();i++)options.add("Xanathar — "+eligible.optString(i));
         boolean hasSpellSlot=value(f.spellcasting).trim().length()>0||value(f.spells).trim().length()>0;
         JSONArray volo=VoloRacialFeatRuntimeEngine.eligibleFeats(species,Math.max(1,num(f.level,1)),size,hasSpellSlot);for(int i=0;i<volo.length();i++)options.add("Volo Handbook — "+volo.optString(i));JSONArray r141Eligible=Run141CompactCharacterOptionEngine.eligibleFeats(species);for(int i=0;i<r141Eligible.length();i++)options.add("RUN141 Meio-Dragão — "+r141Eligible.optString(i));
+        options.add("Astarion • Talentos Vampíricos e de Origem");
+        options.add("Lorwyn • Talentos da Aurora e Penumbra");
         if(options.isEmpty()){toast("Nenhum talento suplementar deste lote está disponível para a espécie/antecedente atual.");return;}
-        final String[] arr=options.toArray(new String[0]);new AlertDialog.Builder(this).setTitle("Talentos suplementares").setItems(arr,new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){String selected=arr[which];if(selected.startsWith("Strixhaven")){showStrixhavenFeatConfigurator(f,college);return;}if(selected.startsWith("Definir linhagem")){showXanatharElfLineageSelector(f,profile);return;}if(selected.startsWith("Volo Handbook — ")){showVoloFeatConfigurator(f,selected.substring("Volo Handbook — ".length()));return;}if(selected.startsWith("RUN141 Meio-Dragão — ")){showRun141FeatConfigurator(f,selected.substring("RUN141 Meio-Dragão — ".length()));return;}showXanatharFeatConfigurator(f,profile,selected.substring("Xanathar — ".length()));}}).show();
+        final String[] arr=options.toArray(new String[0]);new AlertDialog.Builder(this).setTitle("Talentos suplementares").setItems(arr,new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){String selected=arr[which];if(selected.startsWith("Strixhaven")){showStrixhavenFeatConfigurator(f,college);return;}if(selected.startsWith("Definir linhagem")){showXanatharElfLineageSelector(f,profile);return;}if(selected.startsWith("Volo Handbook — ")){showVoloFeatConfigurator(f,selected.substring("Volo Handbook — ".length()));return;}if(selected.startsWith("RUN141 Meio-Dragão — ")){showRun141FeatConfigurator(f,selected.substring("RUN141 Meio-Dragão — ".length()));return;}if(selected.startsWith("Astarion")){showAstarionFeatConfigurator(f);return;}if(selected.startsWith("Lorwyn")){showLorwynFeatConfigurator(f);return;}showXanatharFeatConfigurator(f,profile,selected.substring("Xanathar — ".length()));}}).show();
     }
 
     private JSONObject featSelectionRoot(String raw){
@@ -2528,6 +2807,58 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final EditText spell=input("Magia de 1º círculo escolhida",old.optString("first_level_spell",""),false);box.addView(spell);final Spinner ability=spinner(new String[]{"Inteligência","Sabedoria","Carisma"},old.optString("ability","Inteligência"));box.addView(ability);
         final CheckBox mascot=check("Adicionar Strixhaven Mascot (requer nível 4+)",old.optBoolean("mascot",false));mascot.setEnabled(Math.max(1,num(f.level,1))>=4);box.addView(mascot);
         new AlertDialog.Builder(this).setTitle("Talentos de Strixhaven").setView(box).setNegativeButton("Cancelar",null).setPositiveButton("APLICAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){String a=String.valueOf(c1.getSelectedItem()),b=String.valueOf(c2.getSelectedItem());if(mechanicNorm(a).equals(mechanicNorm(b))){toast("Strixhaven Initiate exige dois truques diferentes.");return;}String chosenSpell=value(spell);if(chosenSpell.length()==0){toast("Escolha a magia de 1º círculo; ela não será escolhida automaticamente.");return;}try{JSONObject cfg=new JSONObject().put("college",college).put("cantrip1",a).put("cantrip2",b).put("first_level_spell",chosenSpell).put("ability",String.valueOf(ability.getSelectedItem())).put("mascot",mascot.isChecked());root.put("strixhaven",cfg);f.featChoicesJson.setText(root.toString());rebuildSupplementFeatSummary(f,root);toast("Escolhas de Strixhaven registradas.");}catch(Exception e){toast("Não foi possível registrar as escolhas: "+e.getMessage());}}}).show();
+    }
+
+    private void showAstarionFeatConfigurator(final CharacterFormRefs f){
+        final String[] feats={
+            "Folião Incansável (Tireless Reveler) [Origem]",
+            "Caçador de Vampiros (Vampire Hunter) [Origem]",
+            "Brinquedo de Vampiro (Vampire's Plaything) [Origem]",
+            "Sede de Sangue (Bloodlust) [Geral, 4º+]",
+            "Bombardeiro (Bomber) [Geral, 4º+]",
+            "Névoas Asfixiantes (Cloying Mists) [Geral, 4º+]",
+            "Dor Deliciosa (Delicious Pain) [Geral, 4º+]",
+            "Portador da Luz (Light Bringer) [Geral, 4º+]",
+            "Mordidas de Amor (Love Bites) [Geral, 4º+]",
+            "Putrefazer (Putrefy) [Geral, 4º+]",
+            "Repreensão (Rebuke) [Geral, 4º+]",
+            "Atração Traiçoeira (Treacherous Allure) [Geral, 4º+]",
+            "Tocado por Vampiro (Vampire Touched) [Geral, 4º+]",
+            "Bênção da Alvorada Flamejante (Boon of Blazing Dawn) [Bênção Épica, 19º+]",
+            "Bênção das Sombras Iminentes (Boon of Looming Shadows) [Bênção Épica, 19º+]",
+            "Bênção da Fuga em Névoa (Boon of Misty Escape) [Bênção Épica, 19º+]"
+        };
+        new AlertDialog.Builder(this).setTitle("Astarion's Book of Hungers • Talentos").setItems(feats,new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface d,int which){
+                String chosen=feats[which];
+                String current=value(f.features);
+                if(current.isEmpty())f.features.setText(chosen);
+                else f.features.setText(current+"\n"+chosen);
+                String currentFeats=value(f.feats);
+                if(currentFeats.isEmpty())f.feats.setText(chosen);
+                else f.feats.setText(currentFeats+"\n"+chosen);
+                toast("Talento adicionado à ficha: "+chosen);
+            }
+        }).setNegativeButton("Cancelar",null).show();
+    }
+
+    private void showLorwynFeatConfigurator(final CharacterFormRefs f){
+        final String[] feats={
+            "Filho do Sol (Child of the Sun) [Origem — Lorwyn]",
+            "Hexer de Shadowmoor (Shadowmoor Hexer) [Origem — Shadowmoor]"
+        };
+        new AlertDialog.Builder(this).setTitle("Lorwyn: First Light • Talentos").setItems(feats,new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface d,int which){
+                String chosen=feats[which];
+                String current=value(f.features);
+                if(current.isEmpty())f.features.setText(chosen);
+                else f.features.setText(current+"\n"+chosen);
+                String currentFeats=value(f.feats);
+                if(currentFeats.isEmpty())f.feats.setText(chosen);
+                else f.feats.setText(currentFeats+"\n"+chosen);
+                toast("Talento de Lorwyn adicionado à ficha: "+chosen);
+            }
+        }).setNegativeButton("Cancelar",null).show();
     }
 
     private void showXanatharElfLineageSelector(final CharacterFormRefs f,final String profile){
@@ -2660,7 +2991,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(o==null)return;try{Core2024EberronCharacterEngine.apply2024SpeciesMechanics(o);Core2024EberronCharacterEngine.applyDragonmarkMechanics(o);Core2024EberronCharacterEngine.prepare2024Background(o);Core2024EberronCharacterEngine.applyHouseAgentBackground(o);JSONObject root=featSelectionRoot(raw);JSONObject r=root.optJSONObject("run136");if(r==null){o.put("feat_selection_json",root.toString());return;}JSONObject ability=r.optJSONObject("origin_ability");if(ability!=null){JSONObject x=Core2024EberronCharacterEngine.applyOriginAbilityChoice(o,ability.optString("plus2"),ability.optString("plus1"),ability.optBoolean("applied_to_editor",false));if(!x.optBoolean("ok",false))o.put("run136_validation_error","Atributos 2024: "+x.optString("reason"));}JSONObject species=r.optJSONObject("species2024");if(species!=null){JSONObject x=Core2024EberronCharacterEngine.apply2024SpeciesChoice(o,species);if(!x.optBoolean("ok",false))o.put("run136_validation_error","Espécie 2024: "+x.optString("reason"));}JSONObject bg=r.optJSONObject("origin_feat_background");if(bg!=null){JSONObject x=Core2024EberronCharacterEngine.applyOriginFeat(o,bg.optString("feat"),bg.optJSONObject("choices"));if(!x.optBoolean("ok",false))o.put("run136_validation_error","Talento de Origem: "+x.optString("reason"));}JSONObject hu=r.optJSONObject("origin_feat_human");if(hu!=null){JSONObject x=Core2024EberronCharacterEngine.applyOriginFeat(o,hu.optString("feat"),hu.optJSONObject("choices"));if(!x.optBoolean("ok",false))o.put("run136_validation_error","Talento adicional Humano: "+x.optString("reason"));else o.put("human_extra_origin_feat_pending",false);}JSONObject dm=r.optJSONObject("dragonmark");if(dm!=null){JSONObject x=Core2024EberronCharacterEngine.applyDragonmarkChoice(o,dm);if(!x.optBoolean("ok",false))o.put("run136_validation_error","Dracossinal: "+x.optString("reason"));}JSONObject ha=r.optJSONObject("house_agent");if(ha!=null){JSONObject x=Core2024EberronCharacterEngine.applyHouseAgentChoice(o,ha.optString("house"));if(!x.optBoolean("ok",false))o.put("run136_validation_error","Agente das Casas: "+x.optString("reason"));}o.put("feat_selection_json",root.toString());}catch(Exception e){try{o.put("run136_validation_error",e.getMessage());}catch(Exception ignored){}}
     }
 
-    private String[] featureCatalog(CharacterFormRefs f){ArrayList<String> x=new ArrayList<String>();String cls=f.cls.getSelectedItem().toString(),sp=f.species.getSelectedItem().toString(),bg=f.background.getSelectedItem().toString();if("Bárbaro".equals(cls)){x.add("Fúria: bônus de dano, resistência e vantagem em testes de Força durante a fúria.");x.add("Defesa sem Armadura: CA baseada em Destreza e Constituição.");}else if("Bardo".equals(cls)){x.add("Inspiração de Bardo: concede um dado de inspiração como ação bônus.");x.add("Versatilidade: metade do bônus de proficiência em testes sem proficiência.");}else if("Bruxo".equals(cls)){x.add("Magia de Pacto: espaços retornam após descanso curto.");x.add("Invocações Místicas: melhorias sobrenaturais escolhidas pelo personagem.");}else if("Clérigo".equals(cls)){x.add("Canalizar Divindade: efeito sagrado definido pelo domínio.");x.add("Domínio Divino: concede magias e recursos temáticos.");}else if("Druida".equals(cls)){x.add("Forma Selvagem: assume formas de animais conhecidas.");x.add("Druídico: idioma secreto dos druidas.");}else if("Feiticeiro".equals(cls)){x.add("Fonte de Magia: pontos de feitiçaria para criar espaços e efeitos.");x.add("Metamagia: altera alcance, duração ou forma de magias.");}else if("Guerreiro".equals(cls)){x.add("Retomar o Fôlego: recupera PV como ação bônus.");x.add("Surto de Ação: realiza uma ação adicional no turno.");x.add("Estilo de Luta: treinamento especializado com armas ou defesa.");}else if("Ladino".equals(cls)){x.add("Ataque Furtivo: dano extra quando há vantagem ou aliado adjacente.");x.add("Ação Ardilosa: Disparada, Desengajar ou Esconder-se como ação bônus.");x.add("Especialização: dobra a proficiência em perícias escolhidas.");}else if("Mago".equals(cls)){x.add("Recuperação Arcana: recupera espaços de magia após descanso curto.");x.add("Livro de Magias: registra e prepara magias de mago.");}else if("Monge".equals(cls)){x.add("Artes Marciais: usa Destreza e dado marcial em ataques desarmados.");x.add("Pontos de Foco: alimentam Rajada de Golpes e outras técnicas.");}else if("Paladino".equals(cls)){x.add("Sentido Divino: percebe celestiais, corruptores e mortos-vivos.");x.add("Imposição das Mãos: reserva de cura por toque.");x.add("Golpe Divino: gasta espaço para causar dano radiante adicional.");}else if("Patrulheiro".equals(cls)){x.add("Explorador Hábil: competências de viagem e sobrevivência.");x.add("Marca do Caçador: concentra-se num alvo para causar dano adicional.");}else if("Cozinheiro".equals(cls)){x.add("Bolsa de Cozinheiro: conserva ingredientes e petiscos; exige reabastecimento periódico.");x.add("Petiscos: prepara efeitos culinários usando Constituição; somente um efeito de petisco por criatura.");x.add("Temperos Aromáticos: ajuda aliados a repetir salvaguardas contra condições previstas no suplemento.");}else if("Caçador de Sangue".equals(cls)){x.add("Ritual Vermelho: reduz temporariamente o PV máximo e imbui uma arma; escolha de dano é manual.");x.add("Sangue Maldito: usos por descanso curto/longo e amplificação com dano próprio fornecido pelo jogador.");}else if("Necromante".equals(cls)){x.add("Canalizar Necromancia: recurso por descanso curto/longo.");x.add("Recuperação de Magia Negra: seleção explícita de espaços após descanso curto.");}else if("Cronomancer".equals(cls)){x.add("Dados de Destino: reserva recuperada no descanso longo.");x.add("Roda do Tempo: Acelerar, Desacelerar e Surto exigem dados/decisões fornecidos pelo jogador.");}else if("Cavaleiro da Morte".equals(cls)){x.add("Funil da Morte: recurso de Constituição, CD e dano estruturados; salvaguarda do alvo é manual.");x.add("Forja Rúnica: até duas armas e ativação mágica por descanso longo.");}else if("Xamã".equals(cls)){x.add("Sentido Espiritual: usos por descanso longo para detectar mortos-vivos, elementais e mortes recentes.");x.add("Guia Espiritual: convoca espírito animal com forma e bênçãos escolhidas explicitamente.");x.add("Chamado para o Vidente: Perdão ou Vingança no 3º nível.");}else if("Artífice".equals(cls)){x.add("Infundir Item: concede propriedades mágicas temporárias a objetos.");x.add("Conjuração com Ferramentas: usa ferramentas como foco mágico.");}if(sp.toLowerCase(Locale.US).contains("halfling")){x.add("Sortudo: ao tirar 1 natural num d20, role novamente.");x.add("Bravura: vantagem para evitar ou encerrar Amedrontado.");x.add("Agilidade Halfling: atravessa o espaço de criatura maior.");x.add("Naturalmente Furtivo: pode esconder-se atrás de criatura maior.");}else if(sp.toLowerCase(Locale.US).contains("anão")){x.add("Resiliência Anã: vantagem contra veneno e resistência a dano venenoso.");x.add("Visão no Escuro: enxerga em escuridão até 18 m.");x.add("Treinamento Anão: proficiência com armas e ferramentas tradicionais.");}else if(sp.toLowerCase(Locale.US).contains("elf")){x.add("Ancestral Feérico: vantagem contra ser enfeitiçado e imunidade a sono mágico.");x.add("Transe: descanso meditativo reduzido.");x.add("Sentidos Aguçados: proficiência em Percepção.");}else if(sp.toLowerCase(Locale.US).contains("gnom")){x.add("Astúcia Gnômica: vantagem em salvaguardas mentais contra magia.");x.add("Visão no Escuro: enxerga em escuridão até 18 m.");}else if(sp.toLowerCase(Locale.US).contains("dracon")){x.add("Sopro Dracônico: exala energia elemental em área.");x.add("Resistência Dracônica: resistência ao tipo de dano da ancestralidade.");}else if(sp.toLowerCase(Locale.US).contains("tiefling")){x.add("Resistência Infernal: resistência a dano de fogo.");x.add("Legado Infernal: conhece truques e magias inatas.");}else{x.add("Determinação Heroica: inspiração concedida pelo Mestre por interpretação marcante.");}x.add("Recurso do antecedente — "+bg+": contatos, acesso ou reconhecimento coerente com a origem.");return x.toArray(new String[0]);}
+    private String[] featureCatalog(CharacterFormRefs f){ArrayList<String> x=new ArrayList<String>();String cls=f.cls.getSelectedItem().toString(),sp=f.species.getSelectedItem().toString(),bg=f.background.getSelectedItem().toString();if("Bárbaro".equals(cls)){x.add("Fúria: bônus de dano, resistência e vantagem em testes de Força durante a fúria.");x.add("Defesa sem Armadura: CA baseada em Destreza e Constituição.");}else if("Bardo".equals(cls)){x.add("Inspiração de Bardo: concede um dado de inspiração como ação bônus.");x.add("Versatilidade: metade do bônus de proficiência em testes sem proficiência.");}else if("Bruxo".equals(cls)){x.add("Magia de Pacto: espaços retornam após descanso curto.");x.add("Invocações Místicas: melhorias sobrenaturais escolhidas pelo personagem.");}else if("Clérigo".equals(cls)){x.add("Canalizar Divindade: efeito sagrado definido pelo domínio.");x.add("Domínio Divino: concede magias e recursos temáticos.");}else if("Druida".equals(cls)){x.add("Forma Selvagem: assume formas de animais conhecidas.");x.add("Druídico: idioma secreto dos druidas.");}else if("Feiticeiro".equals(cls)){x.add("Fonte de Magia: pontos de feitiçaria para criar espaços e efeitos.");x.add("Metamagia: altera alcance, duração ou forma de magias.");}else if("Guerreiro".equals(cls)){x.add("Retomar o Fôlego: recupera PV como ação bônus.");x.add("Surto de Ação: realiza uma ação adicional no turno.");x.add("Estilo de Luta: treinamento especializado com armas ou defesa.");}else if("Ladino".equals(cls)){x.add("Ataque Furtivo: dano extra quando há vantagem ou aliado adjacente.");x.add("Ação Ardilosa: Disparada, Desengajar ou Esconder-se como ação bônus.");x.add("Especialização: dobra a proficiência em perícias escolhidas.");}else if("Mago".equals(cls)){x.add("Recuperação Arcana: recupera espaços de magia após descanso curto.");x.add("Livro de Magias: registra e prepara magias de mago.");}else if("Monge".equals(cls)){x.add("Artes Marciais: usa Destreza e dado marcial em ataques desarmados.");x.add("Pontos de Foco: alimentam Rajada de Golpes e outras técnicas.");}else if("Paladino".equals(cls)){x.add("Sentido Divino: percebe celestiais, corruptores e mortos-vivos.");x.add("Imposição das Mãos: reserva de cura por toque.");x.add("Golpe Divino: gasta espaço para causar dano radiante adicional.");}else if("Patrulheiro".equals(cls)){x.add("Explorador Hábil: competências de viagem e sobrevivência.");x.add("Marca do Caçador: concentra-se num alvo para causar dano adicional.");}else if("Cozinheiro".equals(cls)){x.add("Bolsa de Cozinheiro: conserva ingredientes e petiscos; exige reabastecimento periódico.");x.add("Petiscos: prepara efeitos culinários usando Constituição; somente um efeito de petisco por criatura.");x.add("Temperos Aromáticos: ajuda aliados a repetir salvaguardas contra condições previstas no suplemento.");}else if("Caçador de Sangue".equals(cls)){x.add("Ritual Vermelho: reduz temporariamente o PV máximo e imbui uma arma; escolha de dano é manual.");x.add("Sangue Maldito: usos por descanso curto/longo e amplificação com dano próprio fornecido pelo jogador.");}else if("Necromante".equals(cls)){x.add("Canalizar Necromancia: recurso por descanso curto/longo.");x.add("Recuperação de Magia Negra: seleção explícita de espaços após descanso curto.");}else if("Cronomancer".equals(cls)){x.add("Dados de Destino: reserva recuperada no descanso longo.");x.add("Roda do Tempo: Acelerar, Desacelerar e Surto exigem dados/decisões fornecidos pelo jogador.");}else if("Cavaleiro da Morte".equals(cls)){x.add("Funil da Morte: recurso de Constituição, CD e dano estruturados; salvaguarda do alvo é manual.");x.add("Forja Rúnica: até duas armas e ativação mágica por descanso longo.");}else if("Xamã".equals(cls)){x.add("Sentido Espiritual: usos por descanso longo para detectar mortos-vivos, elementais e mortes recentes.");x.add("Guia Espiritual: convoca espírito animal com forma e bênçãos escolhidas explicitamente.");x.add("Chamado para o Vidente: Perdão ou Vingança no 3º nível.");}else if("Artífice".equals(cls)){x.add("Infundir Item: concede propriedades mágicas temporárias a objetos.");x.add("Conjuração com Ferramentas: usa ferramentas como foco mágico.");}if(sp.toLowerCase(Locale.US).contains("halfling")){x.add("Sortudo: ao tirar 1 natural num d20, role novamente.");x.add("Bravura: vantagem para evitar ou encerrar Amedrontado.");x.add("Agilidade Halfling: atravessa o espaço de criatura maior.");x.add("Naturalmente Furtivo: pode esconder-se atrás de criatura maior.");}else if(sp.toLowerCase(Locale.US).contains("anão")){x.add("Resiliência Anã: vantagem contra veneno e resistência a dano venenoso.");x.add("Visão no Escuro: enxerga em escuridão até 18 m.");x.add("Treinamento Anão: proficiência com armas e ferramentas tradicionais.");}else if(sp.toLowerCase(Locale.US).contains("elf")){x.add("Ancestral Feérico: vantagem contra ser enfeitiçado e imunidade a sono mágico.");x.add("Transe: descanso meditativo reduzido.");x.add("Sentidos Aguçados: proficiência em Percepção.");}else if(sp.toLowerCase(Locale.US).contains("gnom")){x.add("Astúcia Gnômica: vantagem em salvaguardas mentais contra magia.");x.add("Visão no Escuro: enxerga em escuridão até 18 m.");}else if(sp.toLowerCase(Locale.US).contains("dracon")){x.add("Sopro Dracônico: exala energia elemental em área.");x.add("Resistência Dracônica: resistência ao tipo de dano da ancestralidade.");}else if(sp.toLowerCase(Locale.US).contains("tiefling")){x.add("Resistência Infernal: resistência a dano de fogo.");x.add("Legado Infernal: conhece truques e magias inatas.");}else if(sp.toLowerCase(Locale.US).contains("dhampir")){x.add("Mordida Vampírica: ataque natural de 1d4 perfurante + Con; recupera PV ou adiciona bônus ao próximo teste.");x.add("Escalada de Aranha: velocidade de escalada igual ao deslocamento sem usar as mãos.");x.add("Natureza Imortal: não precisa respirar.");}else if(sp.toLowerCase(Locale.US).contains("boggart")){x.add("Fúria dos Pequenos: causa dano adicional igual ao bônus de proficiência contra alvos de tamanho maior.");x.add("Fuga Ágil: pode Desengajar ou Esconder-se como ação bônus.");x.add("Ancestral Feérico: vantagem em salvaguardas contra Enfeitiçado.");}else if(sp.toLowerCase(Locale.US).contains("kithkin")){x.add("Sorte dos Kithkin: ao tirar 1 natural num d20, role novamente.");x.add("Bravura: vantagem contra ser amedrontado.");x.add("Tecedura de Sentimentos: laço empático comunitário dos clãs de Lorwyn.");}else if(sp.toLowerCase(Locale.US).contains("flamekin")){x.add("Resistência ao Fogo: resistência a dano de fogo.");x.add("Toque Ígneo: conhece Produzir Chamas, Mãos Flamejantes e Lâmina Flamejante.");}else if(sp.toLowerCase(Locale.US).contains("rimekin")){x.add("Resistência ao Frio: resistência a dano de frio.");x.add("Toque Gélido: conhece Raio de Gelo, Faca de Gelo e Lâmina Flamejante de Gelo.");}else if(sp.toLowerCase(Locale.US).contains("changeling")){x.add("Metamorfose Feérica: altera livremente a forma humanoide ou fera bípede/quadrúpede.");x.add("Movimento Imprevisível: na rolagem de iniciativa, desloca-se até metade da velocidade.");}else if(sp.toLowerCase(Locale.US).contains("faerie")){x.add("Asas Feéricas: deslocamento de voo de 9 metros sem armadura pesada.");x.add("Magia Feérica: truque Druidismo, Fogo das Fadas e Aumentar/Reduzir.");}else{x.add("Determinação Heroica: inspiração concedida pelo Mestre por interpretação marcante.");}if(bg.contains("Palácio Szarr")){x.add("Recurso de Sobrevivente: instinto aguçado contra manipulações mentais e conhecimento dos segredos de Cazador.");}else if(bg.contains("Cortesão da Noite")){x.add("Recurso de Cortesão: desenvoltura social entre a aristocracia noturna e contatos na alta sociedade.");}else if(bg.contains("Caçador de Vampiros")){x.add("Recurso de Caçador: familiaridade com estacas, água benta, alho e proteção contra mortos-vivos.");}else if(bg.contains("Especialista de Lorwyn")){x.add("Recurso de Especialista de Lorwyn: cartografia das clareiras pastorais e salvo-conduto nos clãs kithkin.");}else if(bg.contains("Especialista de Shadowmoor")){x.add("Recurso de Especialista de Shadowmoor: orientação na penumbra perpétua e trilhas seguras em espinheiros.");}else{x.add("Recurso do antecedente — "+bg+": contatos, acesso ou reconhecimento coerente com a origem.");}return x.toArray(new String[0]);}
 
     private void showSpellcastingSelector(final CharacterFormRefs f){final String[] options={"Automático pela classe","Inteligência","Sabedoria","Carisma","Sem conjuração"};String current=value(f.spellcasting);int checked=0;if(mechanicNorm(current).contains("inteligencia"))checked=1;else if(mechanicNorm(current).contains("sabedoria"))checked=2;else if(mechanicNorm(current).contains("carisma"))checked=3;else if(current.length()==0)checked=4;final int[] choice={checked};new AlertDialog.Builder(this).setTitle("Configurar conjuração").setSingleChoiceItems(options,checked,new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){choice[0]=which;}}).setNegativeButton("Cancelar",null).setPositiveButton("APLICAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){String ability=options[choice[0]];if(choice[0]==0)ability=defaultSpellAbility(f.cls.getSelectedItem().toString());if("Sem conjuração".equals(ability)){f.spellcasting.setText("");f.spells.setText("");return;}f.spellcasting.setText(renderSpellcasting(f,ability));}}).show();}
     private String defaultSpellAbility(String cls){if("Mago".equals(cls)||"Artífice".equals(cls))return "Inteligência";if("Clérigo".equals(cls)||"Druida".equals(cls)||"Patrulheiro".equals(cls))return "Sabedoria";if("Bardo".equals(cls)||"Bruxo".equals(cls)||"Feiticeiro".equals(cls)||"Paladino".equals(cls))return "Carisma";return "Sem conjuração";}
@@ -2778,7 +3109,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             toast("Não foi possível reconciliar automaticamente os agarrões XMM.");
         ScrollView s=page("Combate","Iniciativa, PV temporários, concentração, reações, condições com duração e salvaguardas contra morte.");LinearLayout b=body(s);LinearLayout help=card();help.addView(text("COMBATE CONTROLADO E AUDITÁVEL",15,GOLD,true));help.addView(text("O Mestre pode montar o encontro, mas toda mudança permanece ajustável. Dano consome PV temporários primeiro; reações voltam no início do turno e durações registradas diminuem automaticamente.",13,TEXT,false));b.addView(help);addCombatContextPanel(b);JSONObject state=db.getCombatState();LinearLayout toolbar=card();toolbar.addView(text("RODADA "+state.optInt("round_no",1),22,GOLD,true));LinearLayout actions=new LinearLayout(this);Button heroes=smallButton("GRUPO (MANUAL)",GREEN);Button enemy=smallButton("+ CRIATURA MANUAL",GREEN);Button next=smallButton("PRÓXIMO TURNO",GOLD);next.setTextColor(Color.BLACK);Button reset=smallButton("ENCERRAR",RED);heroes.setOnClickListener(new View.OnClickListener(){public void onClick(View v){addActiveHeroesToCombat();}});enemy.setOnClickListener(new View.OnClickListener(){public void onClick(View v){combatantDialog();}});next.setOnClickListener(new View.OnClickListener(){public void onClick(View v){v.setEnabled(false);JSONObject active=db.nextTurn();String blocked=active.optString("turn_advance_blocked","");if(blocked.length()>0){toast("encounter_not_running".equals(blocked)?"Inicie um encontro antes de avançar o turno.":"Resolva "+("death_save_due".equals(blocked)?"a salvaguarda contra morte":
                     "condition_recovery_save_pending".equals(blocked)?"a salvaguarda de recuperação da condição":"o teste de concentração")+" antes de avançar o turno.");setStatus("Combate aguardando resolução obrigatória");showCombat();return;}if(active.length()>0){db.addAuditEvent("combate","Turno iniciado",active.optString("name"),"{}",active.toString(),false);setStatus("Turno de "+active.optString("name"));}showCombat();}});reset.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirmCoreAction("Encerrar e limpar o combate?",new Runnable(){public void run(){try{safety.beforeDestructiveChange("encerrar combate");}catch(Exception e){toast("Combate preservado porque o snapshot falhou.");return;}String closing=prefs.getString("last_combat_narration","Combate encerrado.");db.transitionCombatState(CombatStateMachine.ENCOUNTER_END,new JSONObject());db.addJournalFact("Combate encerrado",closing,"Combate","combat-end-"+db.getCombatState().optString("encounter_id",""),"combat");db.resetCombat();prefs.edit().remove("last_combat_narration").apply();db.addAuditEvent("combate","Combate encerrado","Estado anterior preservado em snapshot","{}","{}",true);showCombat();}});}});actions.addView(heroes);actions.addView(enemy);actions.addView(next);actions.addView(reset);toolbar.addView(actions);Button compiledEnemy=button("+ MONSTRO DE BLOCO COMPILADO",GREEN);compiledEnemy.setOnClickListener(new View.OnClickListener(){public void onClick(View v){compiledCombatantDialog();}});toolbar.addView(compiledEnemy);b.addView(toolbar);addCompiledRecoveryControls(b,state);
-        LinearLayout tactical=card();tactical.addView(text("MESA TÁTICA LOCAL",16,GOLD,true));tactical.addView(text("Selecione um token e toque na célula de destino para revisar o percurso, custo e reações; somente a confirmação executa o movimento.",12,MUTED,false));tacticalBoardView=new TacticalBoardView(this,db);tacticalBoardView.setInfoListener(new TacticalBoardView.InfoListener(){public void onInfoRequested(long combatantId,String name){JSONObject combatant=db.getCombatant(combatantId);if(combatant.length()==0)combatant=db.findCombatantByName(name);if(combatant.length()==0){toast("Combatente não encontrado.");return;}combatantInfoDialog(combatant);}});tacticalBoardView.setMovementListener(new TacticalBoardView.MovementListener(){
+        LinearLayout tactical=card();tactical.addView(text("MESA TÁTICA LOCAL",16,GOLD,true));tactical.addView(text("Selecione um token e toque na célula de destino para revisar o percurso, custo e reações; somente a confirmação executa o movimento.",12,MUTED,false));tacticalBoardView=new TacticalBoardView(this,db);tacticalBoardView.setInfoListener(new TacticalBoardView.InfoListener(){public void onInfoRequested(long combatantId,String name){JSONObject combatant=db.getCombatant(combatantId);if(combatant.length()==0)combatant=db.findCombatantByName(name);if(combatant.length()==0){toast("Combatente não encontrado.");return;}combatantInfoDialog(combatant);}});tacticalBoardView.setTokenClickListener(new TacticalBoardView.TokenClickListener(){public void onTokenSelected(long combatantId,String name){showTokenQuickActionsDialog(combatantId,name);}});tacticalBoardView.setMovementListener(new TacticalBoardView.MovementListener(){
             public void onGridDestinationRequested(long combatantId,int cellX,int cellY){
                 JSONObject current=db.getCombatant(combatantId);
                 if(current.length()==0||current.optInt("active_turn",0)!=1||
@@ -3700,7 +4031,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(targets.isEmpty()){toast("persisted_target_required");return;}
         String[] names=new String[targets.size()];for(int i=0;i<names.length;i++)names[i]=targets.get(i).optString("name");
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),dp(8),dp(12),dp(8));
-        form.addView(text("Prévia local. Duração e ciclo de vida ainda exigem integração ao host; confirmar esta prévia não altera PV, condições ou ficha.",12,MUTED,false));
+        form.addView(text("Efeito oficial do D&D Monster Manual 2025 com aplicação atômica e persistente em combate.",12,MUTED,false));
         final Spinner target=spinner(names,names[0]);form.addView(cardWithLabel("ALVO PERSISTIDO",target));
         final String[] fields=kind==0?new String[]{"lifecycle_active"}:kind==1?new String[]{"save_succeeded","target_eligibility_confirmed","prerequisite_confirmed"}:new String[]{"attack_hit","target_reduced_to_zero_hp"};
         String[] captions=kind==0?new String[]{"Vínculo / condição continua ativo?"}:kind==1?new String[]{"Salvaguarda teve sucesso?","Alvo elegível segundo a fonte?","Pré-requisito confirmado?"}:new String[]{"Ataque acertou?","Este ataque reduziu o alvo a 0 PV?"};
@@ -3710,7 +4041,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(boundary!=null)form.addView(cardWithLabel("LIMITE DO TURNO",boundary));
         form.addView(text("Fonte: "+spec.optString("source_pointer",spec.optString("ptr"))+"\n"+spec.toString(),11,MUTED,false));
         final AlertDialog effectDialog=new AlertDialog.Builder(this).setTitle("Escolhas do efeito")
-            .setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null).setPositiveButton("MOSTRAR PRÉVIA",null).create();
+            .setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null).setPositiveButton("APLICAR EFEITO",null).create();
         effectDialog.show();effectDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(
             new View.OnClickListener(){public void onClick(View view){try{
                 JSONObject input=new JSONObject().put("monster",spec.getString("id")).put("action",spec.getString("action"))
@@ -3719,10 +4050,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 for(int i=0;i<fields.length;i++){if(answers[i].getSelectedItemPosition()==0){toast("explicit_effect_context_required");return;}input.put(fields[i],answers[i].getSelectedItemPosition()==1);}
                 if(kind==0){if(boundary.getSelectedItemPosition()==0){toast("explicit_turn_boundary_required");return;}
                     input.put("turn_boundary",String.valueOf(boundary.getSelectedItem())).put("damage_total",Integer.parseInt(value(damage)));}
-                JSONObject result=kind==0?Xmm2025RecurringDamagePreviewEngine.resolve(input):kind==1?Xmm2025SaveConditionPreviewEngine.resolve(input):Xmm2025ZeroHpConditionPreviewEngine.resolve(input);
-                result.put("target_id",targets.get(target.getSelectedItemPosition()).optLong("id"))
-                    .put("effect_commit_blocked","effect_lifecycle_host_executor_not_installed");
-                showXmmResult("Prévia do efeito • sem aplicação",result);
+                JSONObject preview=kind==0?Xmm2025RecurringDamagePreviewEngine.resolve(input):kind==1?Xmm2025SaveConditionPreviewEngine.resolve(input):Xmm2025ZeroHpConditionPreviewEngine.resolve(input);
+                long targetId=targets.get(target.getSelectedItemPosition()).optLong("id");
+                if(preview.optBoolean("resolved",false)){
+                    JSONObject applied=db.applyCompiledMonsterLifecycleEffect(monster.optLong("id"),targetId,spec.getString("id"),spec.getString("action"),kind,preview,"ui-monster-eff-"+java.util.UUID.randomUUID());
+                    showXmmResult("Efeito de Monstro Aplicado",applied);
+                    showCombat();
+                }else{
+                    showXmmResult("Efeito bloqueado",preview);
+                }
             }catch(Exception e){toast("invalid_manual_effect_inputs");}}});
     }
     private void showXmmResult(final String title,final JSONObject result){
@@ -4012,6 +4348,46 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }});dialog.show();
     }
 
+    private void compiledSlowingBreathBatchDialog(final JSONObject monster) {
+        final long actor=monster.optLong("id");
+        final String block=parseObjectSafe(monster.optString("resources_json","{}")).optString("block_id");
+        if(XmmSaveEffectLedger.dc(block)==0){toast("Este bloco não possui Sopro Lento automatizado.");return;}
+        final ArrayList<JSONObject> targets=new ArrayList<JSONObject>();
+        final ArrayList<CheckBox> included=new ArrayList<CheckBox>();
+        final ArrayList<EditText> saves=new ArrayList<EditText>();
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);
+        form.setPadding(dp(12),dp(8),dp(12),dp(12));
+        form.addView(text("Marque todas as criaturas no cone de "+XmmSaveEffectLedger.cone(block)+
+            " pés, incluindo aliados. Informe o total de cada salvaguarda de Constituição (CD "+
+            XmmSaveEffectLedger.dc(block)+"). Uma ação aplica o sopro inteiro. O Mestre confirma o cone; alcance e caminho são conferidos no mapa.",12,MUTED,false));
+        for(JSONObject row:db.listCombatants())if(row.optLong("id")!=actor&&row.optInt("hp",0)>0){
+            targets.add(row);CheckBox selected=check(row.optString("name"),false);
+            included.add(selected);form.addView(selected);
+            saves.add(labeledField(form,"Total da salvaguarda de "+row.optString("name"),"",false));
+        }
+        ScrollView scroll=new ScrollView(this);scroll.addView(form);
+        final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Sopro Lento • cone")
+            .setView(scroll).setNegativeButton("CANCELAR",null).setPositiveButton("APLICAR",null).create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener(){public void onShow(DialogInterface d){
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                JSONArray rows=new JSONArray();
+                try {
+                    for(int i=0;i<targets.size();i++)if(included.get(i).isChecked())
+                        rows.put(new JSONObject().put("target_id",targets.get(i).optLong("id"))
+                            .put("save_total",Integer.parseInt(value(saves.get(i)).trim())));
+                }catch(Exception bad){toast("Informe um total inteiro para cada alvo marcado.");return;}
+                if(rows.length()==0){toast("Marque ao menos um alvo do cone.");return;}
+                JSONObject result=db.applyCompiledSaveEffectBatch(actor,block,"Slowing Breath",rows,
+                    "ui-monster-save-"+java.util.UUID.randomUUID());
+                if(!result.optBoolean("save_effect_batch_committed",false)){
+                    toast("Sopro preservado sem aplicação: "+result.optString("save_effect_batch_blocked",
+                        result.optString("operation_error","confira alvos, salvaguardas e mapa")));return;
+                }
+                toast("Sopro Lento aplicado a todos os alvos com uma ação.");dialog.dismiss();showCombat();
+            }});
+        }});dialog.show();
+    }
+
     /** Guided compiled monster action with a target saving throw; damage is supplied after the save. */
     private void compiledMonsterSaveActionDialog(final JSONObject monster){
         final long actorId=monster.optLong("id");final JSONObject resources=parseObjectSafe(monster.optString("resources_json","{}"));final String statblock=resources.optString("block_id","");
@@ -4031,6 +4407,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(names.isEmpty()||targets.isEmpty()){toast(names.isEmpty()?"Este bloco não declara ações de salvaguarda.":"Não há alvo vivo para a ação.");return;}
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),0);String[] targetNames=new String[targets.size()];for(int i=0;i<targets.size();i++)targetNames[i]=targets.get(i).optString("name","Alvo");
         final Spinner target=spinner(targetNames,targetNames[0]);form.addView(cardWithLabel("ALVO",target));final Spinner action=spinner(names.toArray(new String[0]),names.get(0));form.addView(cardWithLabel("AÇÃO DE SALVAGUARDA",action));
+        if(XmmSaveEffectLedger.dc(statblock)>0) {
+            form.addView(text("Sopro Lento: o Mestre confirma quais criaturas estão no cone. Não causa dano nem exige recarga. Em uma falha, o alvo fica sem reações, com deslocamento pela metade e pode usar ação OU ação bônus até o fim do próximo turno.",12,MUTED,false));
+            Button coneBatch=button("SOPRO LENTO • TODOS OS ALVOS DO CONE",GREEN);
+            coneBatch.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                compiledSlowingBreathBatchDialog(monster);
+            }});form.addView(coneBatch);
+        }
         final EditText save=labeledField(form,"Total da salvaguarda (d20 + bônus)","",false);final EditText damage=labeledField(form,"Dano final após a salvaguarda","0",false);
         final EditText forcedX=labeledField(form,"Empurrar/puxar: célula X de destino (se aplicável)","",false);
         final EditText forcedY=labeledField(form,"Empurrar/puxar: célula Y de destino (se aplicável)","",false);
@@ -4274,7 +4657,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final String name=combatant.optString("name","Combatente");
         ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);
         LinearLayout body=new LinearLayout(this);body.setOrientation(LinearLayout.VERTICAL);body.setPadding(dp(12),dp(8),dp(12),dp(24));body.setBackgroundColor(BG);
-        LinearLayout header=card();header.addView(text(name.toUpperCase(new Locale("pt","BR")),22,player?GOLD:TEXT,true));header.addView(text(player?"HERÓI":"NPC / INIMIGO",12,MUTED,true));body.addView(header);
+        LinearLayout header=card();header.addView(text(name.toUpperCase(new Locale("pt","BR")),22,player?GOLD:TEXT,true));header.addView(text(player?"HERÓI":"NPC / INIMIGO",12,MUTED,true));
+        Button portraitBtn=button("✦ GERAR RETRATO NO GEMINI",GOLD);portraitBtn.setTextColor(Color.BLACK);portraitBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginPortraitForCombatant(combatant);}});
+        header.addView(portraitBtn);body.addView(header);
         StringBuilder vital=new StringBuilder();
         vital.append("Iniciativa ").append(combatant.optInt("initiative",0));
         if(combatant.optInt("active_turn",0)==1)vital.append(" • TURNO ATUAL");
@@ -4286,6 +4671,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(combatant.optString("conditions").trim().length()>0)state.append("Condições: ").append(combatant.optString("conditions")).append('\n');
         if(combatant.optString("concentration").trim().length()>0)state.append("Concentração: ").append(combatant.optString("concentration")).append('\n');
         state.append("Reação: ").append(combatant.optInt("reaction_used",0)==1?"já utilizada":"disponível");
+        try { if(!"mystara".equals(db.getActiveMapProfile())&&XmmSaveEffectLedger.slowed(
+                parseObjectSafe(combatant.optString("resources_json","{}")),combatant.optLong("id")))
+            state.append("\nSopro Lento: sem reações; deslocamento pela metade; ação OU ação bônus. Termina no fim do próximo turno.");
+        } catch(Exception invalid) { state.append("\nEfeito de sopro inválido: confira os dados de combate."); }
         if(combatant.optInt("death_success",0)+combatant.optInt("death_fail",0)>0)state.append("\nMorte: ").append(combatant.optInt("death_success",0)).append(" sucessos • ").append(combatant.optInt("death_fail",0)).append(" falhas");
         addSheetSection(body,"CONDIÇÕES E TURNO",state.toString());
         StringBuilder defenses=new StringBuilder();
@@ -6566,7 +6955,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private int countNarrationWords(String text){String clean=text==null?"":text.trim();if(clean.length()==0)return 0;return clean.split("\\s+").length;}
     private int countNarrationParagraphs(String text){String clean=text==null?"":text.trim();if(clean.length()==0)return 0;String[] blocks=clean.split("\\r?\\n\\s*");int count=0;for(String block:blocks)if(block!=null&&block.trim().length()>0)count++;return Math.max(1,count);}
 
-    private void streamNarrationPartial(final long requestId,String rawPartial){final String partial=PortugueseNarrationSanitizer.sanitize(extractPartialNarration(rawPartial));if(partial.length()==0||requestId!=aiRequestGeneration)return;if(partial.length()<streamingNarration.length())return;streamingNarration=partial;long now=System.currentTimeMillis();boolean ending=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(!ending&&now-lastStreamPostAt<320L)return;lastStreamPostAt=now;ui.post(new Runnable(){public void run(){if(!aiBusy||requestId!=aiRequestGeneration)return;long uiNow=System.currentTimeMillis();boolean giantStory=false;try{giantStory=activeMasterPlan!=null&&isFullStoryPresentation(activeMasterPlan.barbaraStoryOccasion);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao ajustar streaming de abertura longa.",ignored);}boolean enoughTime=uiNow-lastStreamUiAt>=(giantStory?800L:450L);boolean enoughText=partial.length()-lastStreamUiLength>=(giantStory?560:160);boolean finalPunctuation=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(masterSideQueryActive){if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();setStatus("Respondendo no painel auxiliar... "+partial.length()+" caracteres");}}else if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();if(narratorOutput!=null)narratorOutput.setText(partial+" ▌");updateAdventureStartupMessage("Escrevendo a cena… "+partial.length()+" caracteres recebidos");}}});}
+    private void streamNarrationPartial(final long requestId,String rawPartial){final String partial=PortugueseNarrationSanitizer.sanitize(extractPartialNarration(rawPartial));if(partial.length()==0||requestId!=aiRequestGeneration)return;if(partial.length()<streamingNarration.length())return;streamingNarration=partial;long now=System.currentTimeMillis();boolean ending=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(!ending&&now-lastStreamPostAt<320L)return;lastStreamPostAt=now;ui.post(new Runnable(){public void run(){if(!aiBusy||requestId!=aiRequestGeneration)return;long uiNow=System.currentTimeMillis();boolean giantStory=false;try{giantStory=activeMasterPlan!=null&&isFullStoryPresentation(activeMasterPlan.barbaraStoryOccasion);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao ajustar streaming de abertura longa.",ignored);}boolean enoughTime=uiNow-lastStreamUiAt>=(giantStory?800L:450L);boolean enoughText=partial.length()-lastStreamUiLength>=(giantStory?560:160);boolean finalPunctuation=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(masterSideQueryActive){if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();setStatus("Respondendo no painel auxiliar... "+partial.length()+" caracteres");}}else if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();if(narratorOutput!=null)narratorOutput.setText(partial+" ▌");if(strixhavenNarrationOutput!=null)strixhavenNarrationOutput.setText(partial+" ▌");updateAdventureStartupMessage("Escrevendo a cena… "+partial.length()+" caracteres recebidos");}}});}
 
     private void handleAiResponse(String raw,String action){
         JSONObject rawAgencyEnvelope=parseAiEnvelope(raw);
@@ -6635,7 +7024,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }
         if(!nonAdvancing){JSONObject responseCombat=env.optJSONObject("combat");String responseCombatAction=responseCombat==null?"none":responseCombat.optString("action","none").toLowerCase(Locale.ROOT);boolean combatNarration=db.getCombatState().optInt("running",0)==1||"start".equals(responseCombatAction)||"update".equals(responseCombatAction);if(combatNarration&&lastNarration!=null&&lastNarration.trim().length()>0)prefs.edit().putString("last_combat_narration",lastNarration).apply();}
         clearFailedGeminiRequest();
-        setStatus(nonAdvancing?"Dúvida respondida. A cena, o tempo, os NPCs e o Mundo Vivo permaneceram no mesmo ponto.":(!masterEnvelopeValid?"Cena preservada. Consequências estruturadas rejeitadas pela validação fechada; nenhum teste, estado ou transação foi aceito.":(changes?"Cena pronta. Revise todas as consequências antes de aplicá-las.":"Cena pronta. Nenhuma mudança persistente foi proposta.")));if("Mestre IA".equals(currentScreen))showNarrator();else if("Combate".equals(currentScreen))showCombat();if(changes)showTransactionReviewDialog(transactionId,env);
+        setStatus(nonAdvancing?"Dúvida respondida. A cena, o tempo, os NPCs e o Mundo Vivo permaneceram no mesmo ponto.":(!masterEnvelopeValid?"Cena preservada. Consequências estruturadas rejeitadas pela validação fechada; nenhum teste, estado ou transação foi aceito.":(changes?"Cena pronta. Revise todas as consequências antes de aplicá-las.":"Cena pronta. Nenhuma mudança persistente foi proposta.")));if(isStrixhavenAdventure())showStrixhavenSession();else if("Mestre IA".equals(currentScreen))showNarrator();else if("Combate".equals(currentScreen))showCombat();if(changes)showTransactionReviewDialog(transactionId,env);
     }
 
     private void showTransactionReviewDialog(final long transactionId,final JSONObject envelope){
@@ -7973,6 +8362,14 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         JSONArray legacyCross=CrossBookCharacterOptionEngine.allSpecies();for(int i=0;i<legacyCross.length();i++)all.add(legacyCross.optString(i));
         JSONArray extra=CharacterOptionCatalogEngine.allSpecies();for(int i=0;i<extra.length();i++)all.add(extra.optString(i));
         JSONArray eberron=EberronForgeCompleteEngine.species();for(int i=0;i<eberron.length();i++)all.add(eberron.optString(i));
+        all.add("Dhampir");
+        all.add("Boggart");
+        all.add("Elfo de Lorwyn-Shadowmoor");
+        all.add("Faerie");
+        all.add("Flamekin");
+        all.add("Kithkin");
+        all.add("Changeling de Lorwyn");
+        all.add("Rimekin");
         return all.toArray(new String[all.size()]);
     }
     private String[] backgroundsForProfile(String profile){
@@ -7980,7 +8377,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         String[] base={"Acólito","Artesão de Guilda","Artista","Charlatão","Criminoso","Eremita","Forasteiro","Herói do Povo","Marinheiro","Nobre","Órfão","Sábio","Soldado"};
         JSONArray legacyCross=CrossBookCharacterBackgroundEngine.allBackgrounds();JSONArray cross=CharacterOptionCatalogEngine.allBackgrounds();java.util.LinkedHashSet<String> outSet=new java.util.LinkedHashSet<String>();
         if(isStrixhavenAdventure()){for(int i=0;i<legacyCross.length();i++){String x=legacyCross.optString(i);if(x.startsWith("Estudante de "))outSet.add(x);}for(int i=0;i<cross.length();i++){String x=cross.optString(i);if(x.startsWith("Estudante de "))outSet.add(x);}for(String x:base)outSet.add(x);}
-        else{for(String x:base)outSet.add(x);for(int i=0;i<legacyCross.length();i++)outSet.add(legacyCross.optString(i));for(int i=0;i<cross.length();i++)outSet.add(cross.optString(i));JSONArray eb=EberronForgeCompleteEngine.backgrounds();for(int i=0;i<eb.length();i++)outSet.add(eb.optString(i));JSONArray fr=ForgottenRealmsHeroesEngine.backgrounds();for(int i=0;i<fr.length();i++)outSet.add(fr.optString(i));}
+        else{for(String x:base)outSet.add(x);for(int i=0;i<legacyCross.length();i++)outSet.add(legacyCross.optString(i));for(int i=0;i<cross.length();i++)outSet.add(cross.optString(i));JSONArray eb=EberronForgeCompleteEngine.backgrounds();for(int i=0;i<eb.length();i++)outSet.add(eb.optString(i));JSONArray fr=ForgottenRealmsHeroesEngine.backgrounds();for(int i=0;i<fr.length();i++)outSet.add(fr.optString(i));outSet.add("Sobrevivente do Palácio Szarr");outSet.add("Cortesão da Noite");outSet.add("Assistente de Caçador de Vampiros");outSet.add("Especialista de Lorwyn");outSet.add("Especialista de Shadowmoor");}
         return outSet.toArray(new String[0]);
     }
     private String baseClass(String full){if(full==null)return "Guerreiro";int i=full.indexOf(" — ");if(i<0)i=full.indexOf(" - ");return i>0?full.substring(0,i).trim():full.trim();}
@@ -10038,23 +10435,151 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             sharePortraitPromptWithGemini(p.toString(),name);setStatus("Prompt de retrato enviado ao Gemini para "+name+". Compartilhe a imagem de volta ao Braseiro.");
         }catch(Exception e){AppLog.e("NpcPortrait","Falha ao preparar retrato persistente.",e);toast("Retrato do NPC: "+e.getMessage());}
     }
+
+    private void beginMonsterPortrait(JSONObject combatant){
+        try{
+            final String name=combatant.optString("name","").trim();
+            final long id=combatant.optLong("id",combatant.optLong("combatant_id",0));
+            if(name.length()==0||id<=0){toast("Identidade do combatente inválida.");return;}
+            setPendingPortraitTarget("COMBATANT",id,String.valueOf(id),name);
+
+            String clean=name.replaceFirst("\\s+(?:#?\\d+|[IVX]+)$","").trim();
+            clean=clean.replaceFirst("\\s*\\((?:\\d+|[A-Za-z])\\)$","").trim();
+            JSONObject stats=null;
+            if(CompiledStatblockEngine.has(clean)){stats=CompiledStatblockEngine.get(clean);}
+            else if(CompiledStatblockEngine.has(name)){stats=CompiledStatblockEngine.get(name);}
+            JSONObject res=null;
+            try{res=new JSONObject(combatant.optString("resources_json","{}"));}catch(Exception ignored){}
+            if(stats==null&&res!=null&&res.has("block_id")&&CompiledStatblockEngine.has(res.optString("block_id"))){
+                stats=CompiledStatblockEngine.get(res.optString("block_id"));
+            }
+
+            StringBuilder p=new StringBuilder();
+            p.append("Crie o retrato CANÔNICO desta criatura/monstro de D&D para uso como token circular no Braseiro VTT. ").append(circularTokenPortraitRules()).append("\n\n");
+            p.append("CRIATURA/MONSTRO: ").append(name).append(".\n");
+            if(stats!=null){
+                String type=stats.optString("type",stats.optString("creature_type",""));
+                String size=stats.optString("size","");
+                String alignment=stats.optString("alignment","");
+                if(size.length()>0)p.append("Tamanho: ").append(size).append(".\n");
+                if(type.length()>0)p.append("Tipo de criatura: ").append(type).append(".\n");
+                if(alignment.length()>0)p.append("Tendência: ").append(alignment).append(".\n");
+                if(stats.optInt("ac",0)>0)p.append("Classe de Armadura: ").append(stats.optInt("ac")).append(" (").append(stats.optString("ac_type","natural/armadura")).append(").\n");
+                String desc=stats.optString("description",stats.optString("visual_description",""));
+                if(desc.length()>0)p.append("Aparência canônica: ").append(desc).append(".\n");
+                String traits=stats.optString("traits","");
+                if(traits.length()>0)p.append("Traços físicos visíveis: ").append(traits).append(".\n");
+            }else{
+                p.append("Aparência: Monstro/criatura de D&D 5e em combate. Considere traços fiéis à sua espécie e tipo no D&D.\n");
+            }
+            p.append("Enquadramento rigorosamente no formato de busto dos ombros para cima, focado na cabeça/rosto da criatura, adequado para exibição em círculo de token de mapa tático.");
+            sharePortraitPromptWithGemini(p.toString(),name);
+            setStatus("Prompt de retrato de "+name+" enviado ao Gemini. Ao receber a imagem, compartilhe-a de volta com o Braseiro.");
+        }catch(Exception e){AppLog.e("MonsterPortrait","Falha ao preparar retrato do monstro.",e);toast("Retrato do monstro: "+e.getMessage());}
+    }
+
+    private void beginPortraitForCombatant(JSONObject combatant){
+        try{
+            if(combatant==null||combatant.length()==0){toast("Combatente inválido.");return;}
+            final String name=combatant.optString("name","").trim();
+            if(name.length()==0)return;
+            final boolean player=combatant.optInt("is_player",0)==1;
+            final long id=combatant.optLong("id",combatant.optLong("combatant_id",0));
+            if(player){
+                JSONObject heroEntry=new JSONObject().put("name",name).put("id",id);
+                beginHeroPortrait(heroEntry);
+                return;
+            }
+            JSONObject npc=db.findNpcMemoryByName(name);
+            if(npc.length()>0){
+                JSONObject npcEntry=new JSONObject().put("name",name).put("id",npc.optLong("id",id));
+                beginNpcPortrait(npcEntry);
+                return;
+            }
+            beginMonsterPortrait(combatant);
+        }catch(Exception e){AppLog.e("Portrait","Falha ao gerar retrato para combatente",e);toast("Retrato: "+e.getMessage());}
+    }
+
+    private void showTokenQuickActionsDialog(final long combatantId,final String name){
+        final JSONObject combatant=db.getCombatant(combatantId);
+        final String displayName=(combatant!=null&&combatant.optString("name").length()>0)?combatant.optString("name"):name;
+        AlertDialog.Builder b=new AlertDialog.Builder(this);
+        b.setTitle("Token: "+displayName);
+        String[] options=new String[]{
+            "✦ Gerar Retrato Canônico no Gemini (Ombros para Cima)",
+            "Consultar Ficha / Status",
+            "Mover no Tabuleiro Tático"
+        };
+        b.setItems(options,new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialog,int which){
+                if(which==0){
+                    JSONObject target=combatant;
+                    if(target==null||target.length()==0){
+                        target=new JSONObject();
+                        try{target.put("id",combatantId).put("name",name);}catch(Exception ignored){}
+                    }
+                    beginPortraitForCombatant(target);
+                }else if(which==1){
+                    if(combatant!=null&&combatant.length()>0)combatantInfoDialog(combatant);
+                    else{
+                        JSONObject c=db.findCombatantByName(name);
+                        if(c.length()>0)combatantInfoDialog(c);
+                        else toast("Combatente não encontrado.");
+                    }
+                }else{
+                    toast("Toque na casa de destino para traçar a rota.");
+                }
+            }
+        });
+        b.setNegativeButton("Fechar",null);
+        b.show();
+    }
+
     private boolean hasPendingPortraitTarget(){
         if(prefs==null)return false;String type=prefs.getString("pending_image_target_type","");long id=prefs.getLong("pending_image_target_id",0);
-        if(id>0&&("HERO".equals(type)||"NPC".equals(type)))return true;
+        if(id>0&&("HERO".equals(type)||"NPC".equals(type)||"COMBATANT".equals(type)||"MONSTER".equals(type)))return true;
         return prefs.getLong("pending_npc_portrait_id",0)>0;
     }
     private void clearPendingPortraitTarget(){if(prefs!=null)prefs.edit().remove("pending_image_target_type").remove("pending_image_target_id").remove("pending_image_target_stable_id").remove("pending_image_target_name").remove("pending_npc_portrait_id").remove("pending_npc_portrait_stable_id").remove("pending_npc_portrait_name").apply();}
     private Uri storeHeroAvatar(Uri source,long characterId){try{return ImageStorageManager.importImage(this,source,"character_avatars","hero_"+characterId,80);}catch(Exception e){AppLog.e("ImageImport","Falha ao armazenar avatar do herói "+characterId,e);return null;}}
+    private Uri storeCombatantAvatar(Uri source,long combatantId){try{return ImageStorageManager.importImage(this,source,"combatant_avatars","combatant_"+combatantId,80);}catch(Exception e){AppLog.e("ImageImport","Falha ao armazenar avatar do combatente "+combatantId,e);return null;}}
     private void importReceivedPortraitAsync(final Uri source){
         String type=prefs.getString("pending_image_target_type","");long genericId=prefs.getLong("pending_image_target_id",0);
         if((type==null||type.length()==0||genericId<=0)&&prefs.getLong("pending_npc_portrait_id",0)>0){type="NPC";genericId=prefs.getLong("pending_npc_portrait_id",0);}
         final String targetType=type;final long id=genericId;final String expectedStable=prefs.getString("pending_image_target_stable_id",prefs.getString("pending_npc_portrait_stable_id",""));final String name=prefs.getString("pending_image_target_name",prefs.getString("pending_npc_portrait_name","personagem"));
-        if(id<=0||(!"HERO".equals(targetType)&&!"NPC".equals(targetType))){clearPendingPortraitTarget();return;}
+        if(id<=0||(!"HERO".equals(targetType)&&!"NPC".equals(targetType)&&!"COMBATANT".equals(targetType)&&!"MONSTER".equals(targetType))){clearPendingPortraitTarget();return;}
         setStatus("Salvando retrato persistente de "+name+"…");
         AppExecutors.io().execute(new Runnable(){public void run(){String failure="";Uri stored=null;try{
-            if("HERO".equals(targetType)){JSONObject hero=db.getCharacter(id);if(hero.length()==0)throw new Exception("A ficha do herói não existe mais.");stored=storeHeroAvatar(source,id);if(stored==null)throw new Exception("A imagem do herói não pôde ser armazenada.");db.setCharacterToken(id,stored.toString());}
-            else{JSONObject npc=db.getNpcMemory(id);JSONObject stats;try{stats=new JSONObject(npc.optString("stats_json","{}"));}catch(Exception parse){stats=new JSONObject();}boolean dead=stats.optBoolean("dead",false)||"dead".equalsIgnoreCase(stats.optString("status"))||"morto".equalsIgnoreCase(stats.optString("status"));PersistentPortraitImportPolicy.Result admission=PersistentPortraitImportPolicy.validate("NPC",id,expectedStable,npc.optString("stable_id"),npc.length()>0&&npc.optInt("active",1)!=0,dead);if(!admission.accepted)throw new Exception(admission.message);stored=storeNpcAvatar(source,id);if(stored==null)throw new Exception("A imagem do NPC não pôde ser armazenada.");db.setNpcToken(id,stored.toString());}
-        }catch(Exception e){failure=String.valueOf(e.getMessage());}final String error=failure;ui.post(new Runnable(){public void run(){if(error.length()>0){toast("Retrato: "+error);setStatus("Retrato não importado.");return;}try{db.addAuditEvent("retrato","Retrato persistente vinculado",name,"{}",new JSONObject().put("target_type",targetType).put("target_id",id).put("receipt","portrait:"+targetType+":"+id+":"+expectedStable).toString(),true);}catch(Exception audit){AppLog.w("PortraitImport","Retrato salvo, mas o recibo de auditoria não pôde ser gravado.",audit);}clearPendingPortraitTarget();screenCache.remove("Mestre IA");synchronizeVisualSceneCast();toast("Retrato de "+name+" salvo e vinculado somente a este "+("HERO".equals(targetType)?"herói":"NPC")+".");setStatus("Retrato persistente de "+name+" atualizado.");if("Mestre IA".equals(currentScreen))showNarrator();}});}});
+            if("HERO".equals(targetType)){
+                JSONObject hero=db.getCharacter(id);if(hero.length()==0)throw new Exception("A ficha do herói não existe mais.");
+                stored=storeHeroAvatar(source,id);if(stored==null)throw new Exception("A imagem do herói não pôde ser armazenada.");
+                db.setCharacterToken(id,stored.toString());
+                db.setCombatantVisualIdentity(id,"character",id,stored.toString());
+            }else if("COMBATANT".equals(targetType)||"MONSTER".equals(targetType)){
+                stored=storeCombatantAvatar(source,id);if(stored==null)throw new Exception("A imagem do combatente não pôde ser armazenada.");
+                db.setCombatantVisualIdentity(id,"combatant",id,stored.toString());
+                try{ContentValues cv=new ContentValues();cv.put("token_uri",stored.toString());db.getWritableDatabase().update("tactical_tokens",cv,"combatant_id=? AND world_profile=?",new String[]{String.valueOf(id),db.getActiveMapProfile()});}catch(Exception ignored){}
+            }else{
+                JSONObject npc=db.getNpcMemory(id);JSONObject stats;try{stats=new JSONObject(npc.optString("stats_json","{}"));}catch(Exception parse){stats=new JSONObject();}
+                boolean dead=stats.optBoolean("dead",false)||"dead".equalsIgnoreCase(stats.optString("status"))||"morto".equalsIgnoreCase(stats.optString("status"));
+                PersistentPortraitImportPolicy.Result admission=PersistentPortraitImportPolicy.validate("NPC",id,expectedStable,npc.optString("stable_id"),npc.length()>0&&npc.optInt("active",1)!=0,dead);
+                if(!admission.accepted)throw new Exception(admission.message);
+                stored=storeNpcAvatar(source,id);if(stored==null)throw new Exception("A imagem do NPC não pôde ser armazenada.");
+                db.setNpcToken(id,stored.toString());
+                db.setCombatantVisualIdentity(id,"npc",id,stored.toString());
+            }
+        }catch(Exception e){failure=String.valueOf(e.getMessage());}final String error=failure;ui.post(new Runnable(){public void run(){
+            if(error.length()>0){toast("Retrato: "+error);setStatus("Retrato não importado.");return;}
+            try{db.addAuditEvent("retrato","Retrato persistente vinculado",name,"{}",new JSONObject().put("target_type",targetType).put("target_id",id).put("receipt","portrait:"+targetType+":"+id+":"+expectedStable).toString(),true);}catch(Exception audit){AppLog.w("PortraitImport","Retrato salvo, mas o recibo de auditoria não pôde ser gravado.",audit);}
+            clearPendingPortraitTarget();screenCache.remove("Mestre IA");screenCache.remove("Combate");
+            synchronizeVisualSceneCast();
+            if(tacticalBoardView!=null)tacticalBoardView.refresh();
+            toast("Retrato de "+name+" salvo e aplicado ao token!");
+            setStatus("Retrato persistente de "+name+" atualizado.");
+            if("Mestre IA".equals(currentScreen))showNarrator();
+            else if("Combate".equals(currentScreen))showCombat();
+            else if(isStrixhavenAdventure())showStrixhavenSession();
+        }});}});
     }
 
     private Uri storeNpcAvatar(Uri source,long npcId){try{return ImageStorageManager.importImage(this,source,"npc_avatars","npc_"+npcId,80);}catch(Exception e){AppLog.e("ImageImport","Falha ao armazenar avatar do NPC "+npcId,e);return null;}}

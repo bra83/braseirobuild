@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-10-17T01:42:43" hostname="BRELGA" time="0.144">
+  <properties/>
+  <testcase name="testLfl_sec_0_1" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.044"/>
+  <testcase name="testLfl_sec_0_2" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.0"/>
+  <testcase name="testLfl_sec_0_3" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.001"/>
+  <testcase name="testLfl_sec_0_4" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.008"/>
+  <testcase name="testLfl_sec_0_5" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.001"/>
+  <testcase name="testLfl_sec_0_6" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.001"/>
+  <testcase name="testLfl_sec_1_1" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.029"/>
+  <testcase name="testLfl_sec_1_2" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.001"/>
+  <testcase name="testLfl_sec_1_3" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.001"/>
+  <testcase name="testLfl_sec_1_4" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.018"/>
+  <testcase name="testLfl_sec_2_1" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.0"/>
+  <testcase name="testLfl_sec_2_2" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.001"/>
+  <testcase name="testLfl_sec_3_0" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.026"/>
+  <testcase name="testLfl_sec_3_1" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.001"/>
+  <testcase name="testLfl_sec_4_0" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.005"/>
+  <testcase name="testLfl_sec_4_1" classname="com.braseiro.dnd5e.Lfl20SectionRuntimeTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

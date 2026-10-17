@@ -5,8 +5,8 @@
     ],
     "Ambience Day (Gj).wav": [
         "day",
-        "ambience",
-        "(gj)"
+        "(gj)",
+        "ambience"
     ],
     "Ambiencia_taverna.m4a": [
         "ambiencia",
@@ -17,11 +17,11 @@
         "taverna"
     ],
     "Animals, Horse, Horse Galloping And Neighing, Passby - Epidemic Sound.mp3": [
-        "animals",
-        "neighing",
-        "passby",
+        "galloping",
         "horse",
-        "galloping"
+        "animals",
+        "passby",
+        "neighing"
     ],
     "Animals, Horse, Neigh 03 - Epidemic Sound.mp3": [
         "neigh",
@@ -29,8 +29,8 @@
         "animals"
     ],
     "Armor break.wav": [
-        "armor",
-        "break"
+        "break",
+        "armor"
     ],
     "Barefoot Footsteps On Grass.wav": [
         "footsteps",
@@ -41,10 +41,10 @@
         "barn"
     ],
     "Barulho_vidros_batendo-copos.wav": [
-        "barulho",
-        "vidros",
+        "batendo",
         "copos",
-        "batendo"
+        "barulho",
+        "vidros"
     ],
     "Basic Rpg Intro Track (RPG).wav": [
         "intro",
@@ -55,22 +55,22 @@
         "battle"
     ],
     "Birds Forest 3.m4a": [
-        "birds",
-        "forest"
+        "forest",
+        "birds"
     ],
     "Birds Forest 3_1.m4a": [
-        "birds",
-        "forest"
+        "forest",
+        "birds"
     ],
     "Blacksmith Armory Indoors.wav": [
         "indoors",
-        "armory",
-        "blacksmith"
+        "blacksmith",
+        "armory"
     ],
     "Blacksmith Armory Outdoors.wav": [
+        "blacksmith",
         "outdoors",
-        "armory",
-        "blacksmith"
+        "armory"
     ],
     "Blacksmith_01.m4a": [
         "blacksmith"
@@ -79,21 +79,21 @@
         "blacksmith"
     ],
     "Blade Scrape 2 - SFX Producer.wav": [
-        "blade",
-        "scrape"
+        "scrape",
+        "blade"
     ],
     "Blade Scrape 5 - SFX Producer.wav": [
-        "blade",
-        "scrape"
+        "scrape",
+        "blade"
     ],
     "Brinde_copos_brindando.wav": [
         "brindando",
-        "brinde",
-        "copos"
+        "copos",
+        "brinde"
     ],
     "Busy Medieval Town.wav": [
-        "busy",
         "medieval",
+        "busy",
         "town"
     ],
     "Calm Loop (Gj).m4a": [
@@ -101,25 +101,25 @@
         "calm"
     ],
     "Calm NPC Voice.wav": [
+        "calm",
         "npc",
-        "voice",
-        "calm"
+        "voice"
     ],
     "Calm River.m4a": [
-        "river",
-        "calm"
+        "calm",
+        "river"
     ],
     "Calm River_1.m4a": [
-        "river",
-        "calm"
+        "calm",
+        "river"
     ],
     "Capital City.m4a": [
-        "capital",
-        "city"
+        "city",
+        "capital"
     ],
     "Cavalo relinchando.mp3": [
-        "cavalo",
-        "relinchando"
+        "relinchando",
+        "cavalo"
     ],
     "Cave 2.m4a": [
         "cave"
@@ -156,13 +156,13 @@
     ],
     "Cave Evil Whispers.m4a": [
         "cave",
-        "whispers",
-        "evil"
+        "evil",
+        "whispers"
     ],
     "Cave Evil Whispers_1.m4a": [
         "cave",
-        "whispers",
-        "evil"
+        "evil",
+        "whispers"
     ],
     "Cave_Dark_01.m4a": [
         "cave",
@@ -172,55 +172,55 @@
         "chains"
     ],
     "Chair, Wooden, Drag, Hard Floor 06 - Epidemic Sound.mp3": [
-        "drag",
+        "wooden",
         "hard",
         "floor",
         "chair",
-        "wooden"
+        "drag"
     ],
     "Chambers Of Hell (No Boiling).m4a": [
         "boiling)",
-        "hell",
         "of",
-        "chambers",
-        "(no"
+        "hell",
+        "(no",
+        "chambers"
     ],
     "Chambers Of Hell 1.m4a": [
-        "of",
+        "hell",
         "chambers",
-        "hell"
+        "of"
     ],
     "Chambers Of Hell 2.m4a": [
-        "of",
+        "hell",
         "chambers",
-        "hell"
+        "of"
     ],
     "Chill RPG theme (RPG).m4a": [
-        "chill",
         "theme",
+        "chill",
         "(rpg)"
     ],
     "Chill Song 1.m4a": [
-        "chill",
-        "song"
+        "song",
+        "chill"
     ],
     "Chill Song 1_1.m4a": [
-        "chill",
-        "song"
+        "song",
+        "chill"
     ],
     "church-bell ao longe.wav": [
         "longe",
-        "bell",
+        "church",
         "ao",
-        "church"
+        "bell"
     ],
     "church-bell.wav": [
-        "bell",
-        "church"
+        "church",
+        "bell"
     ],
     "Chuva telhado.mp3": [
-        "chuva",
-        "telhado"
+        "telhado",
+        "chuva"
     ],
     "Cidade_sinos_ambiencia.flac": [
         "ambiencia",
@@ -228,400 +228,400 @@
         "sinos"
     ],
     "Cloth, Movement, Jacket, Thick, Rapid Actions, Slow Walk - Epidemic Sound.mp3": [
-        "actions",
+        "jacket",
         "slow",
+        "actions",
         "thick",
+        "movement",
         "rapid",
         "walk",
-        "jacket",
-        "cloth",
-        "movement"
+        "cloth"
     ],
     "Cloth, Movement, Jeans, Jacket Flap 01 - Epidemic Sound.mp3": [
         "jeans",
         "jacket",
         "flap",
-        "cloth",
-        "movement"
+        "movement",
+        "cloth"
     ],
     "combat_block_shield_c.wav": [
+        "shield",
         "combat",
-        "block",
-        "shield"
+        "block"
     ],
     "combat_block_shield_d.wav": [
+        "shield",
         "combat",
-        "block",
-        "shield"
+        "block"
     ],
     "combat_block_shield_e.wav": [
+        "shield",
         "combat",
-        "block",
-        "shield"
+        "block"
     ],
     "combat_block_sword_c.wav": [
         "combat",
-        "block",
-        "sword"
+        "sword",
+        "block"
     ],
     "combat_block_sword_d.wav": [
         "combat",
-        "block",
-        "sword"
+        "sword",
+        "block"
     ],
     "combat_block_sword_e.wav": [
         "combat",
-        "block",
-        "sword"
+        "sword",
+        "block"
     ],
     "combat_bow_draw_b.wav": [
-        "combat",
+        "bow",
         "draw",
-        "bow"
+        "combat"
     ],
     "combat_bow_draw_c.wav": [
-        "combat",
+        "bow",
         "draw",
-        "bow"
+        "combat"
     ],
     "combat_bow_fire_c.wav": [
-        "combat",
+        "bow",
         "fire",
-        "bow"
+        "combat"
     ],
     "combat_bow_fire_d.wav": [
-        "combat",
+        "bow",
         "fire",
-        "bow"
+        "combat"
     ],
     "combat_bow_fire_e.wav": [
-        "combat",
+        "bow",
         "fire",
-        "bow"
+        "combat"
     ],
     "combat_bow_impact_c.wav": [
+        "bow",
         "combat",
-        "impact",
-        "bow"
+        "impact"
     ],
     "combat_bow_impact_d.wav": [
+        "bow",
         "combat",
-        "impact",
-        "bow"
+        "impact"
     ],
     "combat_bow_impact_e.wav": [
+        "bow",
         "combat",
-        "impact",
-        "bow"
+        "impact"
     ],
     "combat_bow_pull_b.wav": [
-        "combat",
         "bow",
+        "combat",
         "pull"
     ],
     "combat_bow_pull_c.wav": [
-        "combat",
         "bow",
+        "combat",
         "pull"
     ],
     "combat_crossbow_fire_b.wav": [
+        "fire",
         "combat",
-        "crossbow",
-        "fire"
+        "crossbow"
     ],
     "combat_crossbow_fire_c.wav": [
+        "fire",
         "combat",
-        "crossbow",
-        "fire"
+        "crossbow"
     ],
     "combat_crossbow_load_b.wav": [
+        "load",
         "combat",
-        "crossbow",
-        "load"
+        "crossbow"
     ],
     "combat_crossbow_load_c.wav": [
+        "load",
         "combat",
-        "crossbow",
-        "load"
+        "crossbow"
     ],
     "combat_dagger_hit_metal_c.wav": [
-        "combat",
         "hit",
-        "dagger",
-        "metal"
+        "combat",
+        "metal",
+        "dagger"
     ],
     "combat_dagger_hit_metal_d.wav": [
-        "combat",
         "hit",
-        "dagger",
-        "metal"
+        "combat",
+        "metal",
+        "dagger"
     ],
     "combat_dagger_hit_metal_e.wav": [
-        "combat",
         "hit",
-        "dagger",
-        "metal"
+        "combat",
+        "metal",
+        "dagger"
     ],
     "combat_dagger_hit_wood_c.wav": [
-        "combat",
         "hit",
-        "dagger",
-        "wood"
+        "combat",
+        "wood",
+        "dagger"
     ],
     "combat_dagger_hit_wood_d.wav": [
-        "combat",
         "hit",
-        "dagger",
-        "wood"
+        "combat",
+        "wood",
+        "dagger"
     ],
     "combat_dagger_hit_wood_e.wav": [
-        "combat",
         "hit",
-        "dagger",
-        "wood"
+        "combat",
+        "wood",
+        "dagger"
     ],
     "combat_dagger_swing_c.wav": [
-        "combat",
         "swing",
+        "combat",
         "dagger"
     ],
     "combat_dagger_swing_d.wav": [
-        "combat",
         "swing",
+        "combat",
         "dagger"
     ],
     "combat_punch_hit_c.wav": [
+        "punch",
         "combat",
-        "hit",
-        "punch"
+        "hit"
     ],
     "combat_punch_hit_d.wav": [
+        "punch",
         "combat",
-        "hit",
-        "punch"
+        "hit"
     ],
     "combat_punch_hit_e.wav": [
+        "punch",
         "combat",
-        "hit",
-        "punch"
+        "hit"
     ],
     "combat_punch_swing_c.wav": [
-        "combat",
         "swing",
-        "punch"
+        "punch",
+        "combat"
     ],
     "combat_punch_swing_d.wav": [
-        "combat",
         "swing",
-        "punch"
+        "punch",
+        "combat"
     ],
     "combat_punch_swing_e.wav": [
-        "combat",
         "swing",
-        "punch"
+        "punch",
+        "combat"
     ],
     "combat_staff_draw_b.wav": [
-        "combat",
         "staff",
-        "draw"
+        "draw",
+        "combat"
     ],
     "combat_staff_draw_c.wav": [
-        "combat",
         "staff",
-        "draw"
+        "draw",
+        "combat"
     ],
     "combat_staff_hit_c.wav": [
-        "combat",
         "staff",
-        "hit"
+        "hit",
+        "combat"
     ],
     "combat_staff_hit_d.wav": [
-        "combat",
         "staff",
-        "hit"
+        "hit",
+        "combat"
     ],
     "combat_staff_hit_e.wav": [
-        "combat",
         "staff",
-        "hit"
+        "hit",
+        "combat"
     ],
     "combat_staff_swing_d.wav": [
-        "combat",
         "staff",
+        "combat",
         "swing"
     ],
     "combat_staff_swing_e.wav": [
-        "combat",
         "staff",
+        "combat",
         "swing"
     ],
     "combat_sword_draw_c.wav": [
+        "draw",
         "combat",
-        "sword",
-        "draw"
+        "sword"
     ],
     "combat_sword_draw_d.wav": [
+        "draw",
         "combat",
-        "sword",
-        "draw"
+        "sword"
     ],
     "combat_sword_draw_e.wav": [
+        "draw",
         "combat",
-        "sword",
-        "draw"
+        "sword"
     ],
     "combat_sword_hit_flesh_a.wav": [
+        "hit",
         "combat",
         "sword",
-        "flesh",
-        "hit"
+        "flesh"
     ],
     "combat_sword_hit_flesh_b.wav": [
+        "hit",
         "combat",
         "sword",
-        "flesh",
-        "hit"
+        "flesh"
     ],
     "combat_sword_hit_flesh_c.wav": [
+        "hit",
         "combat",
         "sword",
-        "flesh",
-        "hit"
+        "flesh"
     ],
     "combat_sword_hit_flesh_e.wav": [
+        "hit",
         "combat",
         "sword",
-        "flesh",
-        "hit"
+        "flesh"
     ],
     "combat_sword_hit_metal_c.wav": [
-        "combat",
-        "sword",
         "hit",
-        "metal"
+        "combat",
+        "metal",
+        "sword"
     ],
     "combat_sword_hit_metal_d.wav": [
-        "combat",
-        "sword",
         "hit",
-        "metal"
+        "combat",
+        "metal",
+        "sword"
     ],
     "combat_sword_hit_metal_e.wav": [
-        "combat",
-        "sword",
         "hit",
-        "metal"
+        "combat",
+        "metal",
+        "sword"
     ],
     "combat_sword_hit_wood_c.wav": [
+        "hit",
         "combat",
         "sword",
-        "hit",
         "wood"
     ],
     "combat_sword_hit_wood_d.wav": [
+        "hit",
         "combat",
         "sword",
-        "hit",
         "wood"
     ],
     "combat_sword_hit_wood_e.wav": [
+        "hit",
         "combat",
         "sword",
-        "hit",
         "wood"
     ],
     "combat_sword_swing_c.wav": [
+        "swing",
         "combat",
-        "sword",
-        "swing"
+        "sword"
     ],
     "combat_sword_swing_d.wav": [
+        "swing",
         "combat",
-        "sword",
-        "swing"
+        "sword"
     ],
     "combat_sword_swing_e.wav": [
+        "swing",
         "combat",
-        "sword",
-        "swing"
+        "sword"
     ],
     "Countryside Village Ambience.L.m4a": [
+        "village",
         "ambience.l",
-        "countryside",
-        "village"
+        "countryside"
     ],
     "Countryside Village Ambience.L_1.m4a": [
+        "village",
         "ambience.l",
-        "countryside",
-        "village"
+        "countryside"
     ],
     "Countryside Village Ambience.m4a": [
+        "village",
         "ambience",
-        "countryside",
-        "village"
+        "countryside"
     ],
     "Countryside Village Ambience.R.m4a": [
-        "ambience.r",
+        "village",
         "countryside",
-        "village"
+        "ambience.r"
     ],
     "Countryside Village Ambience.R_1.m4a": [
-        "ambience.r",
+        "village",
         "countryside",
-        "village"
+        "ambience.r"
     ],
     "Creatures, Dragon, Dragon, Vocalizations, Fire Breathing 04 - Epidemic Sound.mp3": [
-        "breathing",
-        "dragon",
         "creatures",
         "fire",
+        "breathing",
+        "dragon",
         "vocalizations"
     ],
     "Creatures, Dragon, Dragon, Vocalizations, Fire Breathing 05 - Epidemic Sound.mp3": [
-        "breathing",
-        "dragon",
         "creatures",
         "fire",
+        "breathing",
+        "dragon",
         "vocalizations"
     ],
     "Creatures, Dragon, Dragon, Vocalizations, Fire Breathing 07 - Epidemic Sound.mp3": [
-        "breathing",
-        "dragon",
         "creatures",
         "fire",
+        "breathing",
+        "dragon",
         "vocalizations"
     ],
     "Creatures, Dragon, Monster, Fire Burst, Breath, Spit Fire, Scream, Growl 02 - Epidemic Sound.mp3": [
-        "monster",
-        "breath",
-        "dragon",
-        "creatures",
-        "growl",
-        "fire",
         "burst",
+        "monster",
+        "fire",
+        "growl",
+        "dragon",
+        "spit",
         "scream",
-        "spit"
+        "creatures",
+        "breath"
     ],
     "Creatures, Dragon, Monster, Movement, Slow, Breath, Close - Epidemic Sound.mp3": [
+        "close",
         "monster",
         "slow",
-        "breath",
         "dragon",
-        "close",
+        "movement",
         "creatures",
-        "movement"
+        "breath"
     ],
     "Crickets Night 2.wav": [
-        "night",
-        "crickets"
+        "crickets",
+        "night"
     ],
     "Crickets Night 3.m4a": [
-        "night",
-        "crickets"
+        "crickets",
+        "night"
     ],
     "Crickets Night.wav": [
-        "night",
-        "crickets"
+        "crickets",
+        "night"
     ],
     "Crowd Panic .wav": [
         "panic",
@@ -629,48 +629,48 @@
     ],
     "Crowd Walla Murmurs 2.wav": [
         "walla",
-        "murmurs",
-        "crowd"
+        "crowd",
+        "murmurs"
     ],
     "Crowds, Cheering, Crowd, Small, British, Cheer 14 - Epidemic Sound.mp3": [
+        "small",
+        "crowd",
+        "british",
         "cheering",
         "cheer",
-        "crowds",
-        "small",
-        "british",
-        "crowd"
+        "crowds"
     ],
     "Crowds, Cheering, Small Group, One Male Cheer Loud 02 - Epidemic Sound.mp3": [
-        "cheering",
         "group",
+        "small",
         "one",
         "loud",
+        "cheering",
+        "male",
         "cheer",
-        "crowds",
-        "small",
-        "male"
+        "crowds"
     ],
     "Crowds, Quiet, Walla Church, Quiet End, Silence - Epidemic Sound.mp3": [
         "quiet",
-        "silence",
-        "church",
-        "walla",
         "end",
+        "silence",
+        "walla",
+        "church",
         "crowds"
     ],
     "Crystal Mountain Secret.wav": [
         "secret",
-        "mountain",
-        "crystal"
+        "crystal",
+        "mountain"
     ],
     "csigusz_foxoup__opening-an-old-door-slowly.flac": [
         "slowly",
-        "door",
-        "foxoup",
         "old",
-        "opening",
         "csigusz",
-        "an"
+        "an",
+        "foxoup",
+        "opening",
+        "door"
     ],
     "Cursed Lands 2.m4a": [
         "cursed",
@@ -690,53 +690,53 @@
         "cuspe"
     ],
     "Dagger Basic Attack Combo.wav": [
-        "dagger",
         "combo",
+        "attack",
         "basic",
-        "attack"
+        "dagger"
     ],
     "Dagger Scrape 3.wav": [
-        "dagger",
-        "scrape"
+        "scrape",
+        "dagger"
     ],
     "Damp Cave Ambience.wav": [
         "cave",
-        "ambience",
-        "damp"
+        "damp",
+        "ambience"
     ],
     "Desert KalNight .m4a": [
-        "desert",
-        "kalnight"
+        "kalnight",
+        "desert"
     ],
     "Desert KalNight _1.m4a": [
-        "desert",
-        "kalnight"
+        "kalnight",
+        "desert"
     ],
     "Designed, Drone, Dark, Rumble, Space, Sub, Loop - Epidemic Sound.mp3": [
-        "rumble",
-        "designed",
+        "dark",
         "sub",
         "drone",
-        "dark",
-        "space"
+        "space",
+        "rumble",
+        "designed"
     ],
     "Distant Monster.wav": [
         "monster",
         "distant"
     ],
     "djlprojects__low-and-short-monster-growl-or-purr.wav": [
+        "purr",
+        "low",
+        "growl",
         "monster",
         "or",
-        "low",
         "djlprojects",
-        "growl",
-        "purr",
         "short"
     ],
     "Doors, Knock, Knocking on Wood - Epidemic Sound.mp3": [
-        "knock",
-        "knocking",
         "doors",
+        "knocking",
+        "knock",
         "wood"
     ],
     "Dragon_01.wav": [
@@ -843,102 +843,102 @@
         "cavern"
     ],
     "Dungeon Of Madness.wav": [
-        "madness",
+        "of",
+        "dungeon",
+        "madness"
+    ],
+    "Dungeon Of Sorrow.m4a": [
+        "sorrow",
         "of",
         "dungeon"
     ],
-    "Dungeon Of Sorrow.m4a": [
-        "of",
-        "dungeon",
-        "sorrow"
-    ],
     "Enchendo_caneca.mp3": [
-        "enchendo",
-        "caneca"
+        "caneca",
+        "enchendo"
     ],
     "Enchendo_caneca_beer.mp3": [
+        "caneca",
         "beer",
-        "enchendo",
-        "caneca"
+        "enchendo"
     ],
     "Enchendo_caneca_cerveja.mp3": [
-        "enchendo",
+        "cerveja",
         "caneca",
-        "cerveja"
+        "enchendo"
     ],
     "escrita com lapis.mp3": [
-        "escrita",
-        "lapis"
+        "lapis",
+        "escrita"
     ],
     "Estalagem_hospedaria.mp3": [
-        "estalagem",
-        "hospedaria"
+        "hospedaria",
+        "estalagem"
     ],
     "Fazenda_farm_porco.wav": [
+        "farm",
         "porco",
-        "fazenda",
-        "farm"
+        "fazenda"
     ],
     "Fire activate.wav": [
-        "activate",
-        "fire"
+        "fire",
+        "activate"
     ],
     "Fire, Crackle, Fireplace, Indoor, Open, Crackling, Transient, Low Intensity - Epidemic Sound.mp3": [
-        "indoor",
+        "low",
+        "fireplace",
+        "fire",
         "crackling",
         "crackle",
         "open",
-        "low",
-        "fire",
-        "fireplace",
         "intensity",
-        "transient"
+        "transient",
+        "indoor"
     ],
     "Fishing Village At Night.wav": [
-        "night",
-        "fishing",
         "village",
-        "at"
+        "at",
+        "fishing",
+        "night"
     ],
     "Fishing Village.wav": [
-        "fishing",
-        "village"
+        "village",
+        "fishing"
     ],
     "Food & Drink, Glassware, Bottle, Glass, Milk, Empty, Down On Wood 01 - Epidemic Sound.mp3": [
-        "drink",
-        "milk",
-        "glass",
+        "glassware",
         "empty",
         "down",
-        "glassware",
         "bottle",
-        "wood",
-        "food"
+        "milk",
+        "glass",
+        "food",
+        "drink",
+        "wood"
     ],
     "Food & Drink, Glassware, Mug, Coffee, Down On Table 01 - Epidemic Sound.mp3": [
-        "drink",
-        "coffee",
-        "table",
-        "mug",
-        "down",
         "glassware",
-        "food"
+        "mug",
+        "table",
+        "down",
+        "coffee",
+        "food",
+        "drink"
     ],
     "Footsteps Balcony .wav": [
         "footsteps",
         "balcony"
     ],
     "Footsteps Branches.wav": [
-        "footsteps",
-        "branches"
+        "branches",
+        "footsteps"
     ],
     "Footsteps Bridge 1.wav": [
-        "footsteps",
-        "bridge"
+        "bridge",
+        "footsteps"
     ],
     "Footsteps Bridge 2 .wav": [
-        "footsteps",
-        "bridge"
+        "bridge",
+        "footsteps"
     ],
     "Footsteps Cement 12.wav": [
         "cement",
@@ -965,37 +965,37 @@
         "dirt"
     ],
     "Footsteps Dirt 8bb.wav": [
+        "bb",
         "footsteps",
-        "dirt",
-        "bb"
+        "dirt"
     ],
     "Footsteps Forest 2.wav": [
-        "footsteps",
-        "forest"
+        "forest",
+        "footsteps"
     ],
     "Footsteps Forest 2b.wav": [
-        "footsteps",
-        "forest"
+        "forest",
+        "footsteps"
     ],
     "Footsteps Forest 3.wav": [
-        "footsteps",
-        "forest"
+        "forest",
+        "footsteps"
     ],
     "Footsteps Forest 3b.wav": [
-        "footsteps",
-        "forest"
+        "forest",
+        "footsteps"
     ],
     "Footsteps Forest 7 .wav": [
-        "footsteps",
-        "forest"
+        "forest",
+        "footsteps"
     ],
     "Footsteps Forest 7.wav": [
-        "footsteps",
-        "forest"
+        "forest",
+        "footsteps"
     ],
     "Footsteps Forest 7b.wav": [
-        "footsteps",
-        "forest"
+        "forest",
+        "footsteps"
     ],
     "Footsteps Glasses.wav": [
         "footsteps",
@@ -1058,33 +1058,33 @@
         "(rpg)"
     ],
     "Footsteps Loop Together (Rpg).wav": [
-        "footsteps",
         "together",
+        "footsteps",
         "(rpg)"
     ],
     "Footsteps Mud 4.wav": [
-        "mud",
-        "footsteps"
+        "footsteps",
+        "mud"
     ],
     "Footsteps Mud 5.wav": [
-        "mud",
-        "footsteps"
+        "footsteps",
+        "mud"
     ],
     "Footsteps Rocks 6.wav": [
         "footsteps",
         "rocks"
     ],
     "Footsteps Sand 2.wav": [
-        "footsteps",
-        "sand"
+        "sand",
+        "footsteps"
     ],
     "Footsteps Sewer 1.m4a": [
-        "footsteps",
-        "sewer"
+        "sewer",
+        "footsteps"
     ],
     "Footsteps Sewer 2.m4a": [
-        "footsteps",
-        "sewer"
+        "sewer",
+        "footsteps"
     ],
     "Footsteps Snow 14 .wav": [
         "footsteps",
@@ -1103,8 +1103,8 @@
         "snow"
     ],
     "Footsteps Water.wav": [
-        "water",
-        "footsteps"
+        "footsteps",
+        "water"
     ],
     "Footsteps Wood 31.wav": [
         "footsteps",
@@ -1123,26 +1123,26 @@
         "wood"
     ],
     "Footsteps, Human, On Wet Ground, Muddy - Epidemic Sound.mp3": [
-        "human",
-        "ground",
         "footsteps",
+        "human",
         "muddy",
-        "wet"
+        "wet",
+        "ground"
     ],
     "Footsteps, Human, Rocks, Walking, Slow - Epidemic Sound.mp3": [
+        "footsteps",
         "human",
         "slow",
         "rocks",
-        "walking",
-        "footsteps"
+        "walking"
     ],
     "Footsteps, Human, Walking, Wet Sludgy Mud - Epidemic Sound.mp3": [
-        "human",
-        "mud",
-        "sludgy",
-        "walking",
         "footsteps",
-        "wet"
+        "human",
+        "wet",
+        "mud",
+        "walking",
+        "sludgy"
     ],
     "Forest 1 .m4a": [
         "forest"
@@ -1169,9 +1169,9 @@
         "forest"
     ],
     "Forest Night Crickets.m4a": [
-        "night",
         "forest",
-        "crickets"
+        "crickets",
+        "night"
     ],
     "Forest Rain 2.m4a": [
         "forest",
@@ -1198,65 +1198,65 @@
         "rain"
     ],
     "freesound_community-tavern_greece_indoor-63937.mp3": [
-        "indoor",
+        "greece",
         "tavern",
         "community",
-        "greece",
-        "freesound"
+        "freesound",
+        "indoor"
     ],
     "From Dusk Till Dawn.m4a": [
-        "dusk",
         "till",
-        "dawn",
-        "from"
+        "dusk",
+        "from",
+        "dawn"
     ],
     "Frost Footsteps.wav": [
         "footsteps",
         "frost"
     ],
     "Gladiator Buff.wav": [
-        "gladiator",
-        "buff"
+        "buff",
+        "gladiator"
     ],
     "Glass, Crash & Debris, Glass Drop Floor - Epidemic Sound.mp3": [
-        "drop",
         "debris",
+        "drop",
         "glass",
         "floor",
         "crash"
     ],
     "Glass, Crash & Debris, Wine Glass, Impact, Smash In Cardboard Box - Epidemic Sound.mp3": [
-        "impact",
         "debris",
-        "smash",
-        "cardboard",
-        "glass",
-        "crash",
         "wine",
-        "box"
+        "impact",
+        "cardboard",
+        "smash",
+        "box",
+        "glass",
+        "crash"
     ],
     "Group Walla.wav": [
         "walla",
         "group"
     ],
     "Happi Npc Voice.wav": [
-        "happi",
+        "voice",
         "npc",
-        "voice"
+        "happi"
     ],
     "Heavy chains.mp3": [
-        "heavy",
-        "chains"
+        "chains",
+        "heavy"
     ],
     "hokstnator__balfron-thunder-m.wav": [
-        "balfron",
         "hokstnator",
+        "balfron",
         "thunder"
     ],
     "Horse Breath Heavy.wav": [
-        "horse",
+        "breath",
         "heavy",
-        "breath"
+        "horse"
     ],
     "Horse Clydesdale 1.wav": [
         "clydesdale",
@@ -1291,21 +1291,21 @@
         "horse"
     ],
     "Horse Gallop Pass By 1 .wav": [
+        "gallop",
         "pass",
-        "horse",
         "by",
-        "gallop"
+        "horse"
     ],
     "Horse Gallop Pass By 2.wav": [
+        "gallop",
         "pass",
-        "horse",
         "by",
-        "gallop"
+        "horse"
     ],
     "Horse Hoof Movement .wav": [
         "hoof",
-        "horse",
-        "movement"
+        "movement",
+        "horse"
     ],
     "Horse Neigh 1 .wav": [
         "neigh",
@@ -1328,38 +1328,38 @@
         "horse"
     ],
     "Horse Pass By 1.wav": [
+        "by",
         "pass",
-        "horse",
-        "by"
+        "horse"
     ],
     "Horse Pass By 2 .wav": [
+        "by",
         "pass",
-        "horse",
-        "by"
+        "horse"
     ],
     "Horse Pass By 6 .wav": [
+        "by",
         "pass",
-        "horse",
-        "by"
+        "horse"
     ],
     "Horse Pass By 7.wav": [
+        "by",
         "pass",
-        "horse",
-        "by"
+        "horse"
     ],
     "Horse Snort 1.wav": [
         "snort",
         "horse"
     ],
     "Horse Walk By Gravel .wav": [
-        "walk",
-        "horse",
         "by",
-        "gravel"
+        "walk",
+        "gravel",
+        "horse"
     ],
     "Horse Walk Steady.wav": [
-        "steady",
         "walk",
+        "steady",
         "horse"
     ],
     "Horse Whinny 1.wav": [
@@ -1376,22 +1376,22 @@
         "crowd"
     ],
     "Human Crowd77.L.wav": [
-        "human",
-        "crowd.l"
+        "crowd.l",
+        "human"
     ],
     "Human Crowd77.R.wav": [
-        "human",
-        "crowd.r"
+        "crowd.r",
+        "human"
     ],
     "Human, Breath, Female, Breathing In Helmet 03, Anxious, Slow, Close Perspective - Epidemic Sound.mp3": [
+        "breath",
         "human",
+        "close",
         "slow",
         "breathing",
-        "breath",
-        "perspective",
-        "close",
-        "helmet",
         "anxious",
+        "helmet",
+        "perspective",
         "female"
     ],
     "Impact Attack 1.wav": [
@@ -1403,8 +1403,8 @@
         "generico"
     ],
     "In The Arena.wav": [
-        "the",
-        "arena"
+        "arena",
+        "the"
     ],
     "Invisibility Smoke Sound.wav": [
         "smoke",
@@ -1419,90 +1419,90 @@
         "keywords"
     ],
     "Knife Sharpen Blade 6 .wav": [
+        "sharpen",
         "blade",
-        "knife",
-        "sharpen"
+        "knife"
     ],
     "Knife Sharpen Blade 7.wav": [
+        "sharpen",
         "blade",
-        "knife",
-        "sharpen"
+        "knife"
     ],
     "Lake Shore 2.m4a": [
-        "shore",
-        "lake"
+        "lake",
+        "shore"
     ],
     "Lake Shore 2_1.m4a": [
-        "shore",
-        "lake"
+        "lake",
+        "shore"
     ],
     "Lake Shore Windy Day .m4a": [
-        "windy",
-        "shore",
         "lake",
+        "shore",
+        "windy",
         "day"
     ],
     "Lake Shore Windy Day _1.m4a": [
-        "windy",
-        "shore",
         "lake",
+        "shore",
+        "windy",
         "day"
     ],
     "Landing_Jump_Footsteps Gravel 1.wav": [
         "jump",
-        "footsteps",
         "gravel",
+        "footsteps",
         "landing"
     ],
     "Landing_Jump_Footsteps Gravel 9.wav": [
         "jump",
-        "footsteps",
         "gravel",
+        "footsteps",
         "landing"
     ],
     "lareira.wav": [
         "lareira"
     ],
     "Large Exterior Crowd 2.m4a": [
-        "exterior",
         "large",
-        "crowd"
+        "crowd",
+        "exterior"
     ],
     "Large Exterior Crowd.m4a": [
-        "exterior",
         "large",
-        "crowd"
+        "crowd",
+        "exterior"
     ],
     "Large Exterior Crowd_1.m4a": [
-        "exterior",
         "large",
-        "crowd"
+        "crowd",
+        "exterior"
     ],
     "Leap (Gj3).wav": [
-        "leap",
-        "(gj)"
+        "(gj)",
+        "leap"
     ],
     "Leaves Footsteps.m4a": [
         "footsteps",
         "leaves"
     ],
     "Level up Pickup (Rpg).wav": [
-        "pickup",
         "up",
+        "pickup",
         "level",
         "(rpg)"
     ],
     "Library_corridor_01.m4a": [
-        "corridor",
-        "library"
+        "library",
+        "corridor"
     ],
     "Magical Sting 2.wav": [
-        "sting",
-        "magical"
+        "magical",
+        "sting"
     ],
     "Magical Sting.wav": [
-        "sting",
-        "magical"
+        "magical",
+        "sting"
     ],
     "Male Screams .wav": [
         "screams",
@@ -1526,28 +1526,28 @@
     ],
     "Medieval Tavern, Happy Crowds, Voices, Walla, Laughter, Footsteps, Creaks & Scuffs - Epidemic Sound.mp3": [
         "medieval",
-        "tavern",
-        "voices",
         "footsteps",
         "happy",
-        "scuffs",
-        "walla",
+        "laughter",
         "creaks",
-        "crowds",
-        "laughter"
+        "voices",
+        "tavern",
+        "walla",
+        "scuffs",
+        "crowds"
     ],
     "medieval_village_atmosphere.mp3": [
-        "atmosphere",
         "medieval",
-        "village"
+        "village",
+        "atmosphere"
     ],
     "Mob Fight 1 .m4a": [
-        "fight",
-        "mob"
+        "mob",
+        "fight"
     ],
     "Mob Fight 2.m4a": [
-        "fight",
-        "mob"
+        "mob",
+        "fight"
     ],
     "Mob Walla.wav": [
         "walla",
@@ -1563,8 +1563,8 @@
     ],
     "Monster roar (Rpg).wav": [
         "monster",
-        "roar",
-        "(rpg)"
+        "(rpg)",
+        "roar"
     ],
     "monster_goblin_death.wav": [
         "monster",
@@ -1573,23 +1573,23 @@
     ],
     "monster_goblin_movement_l.wav": [
         "monster",
-        "goblin",
-        "movement"
+        "movement",
+        "goblin"
     ],
     "monster_goblin_movement_r.wav": [
         "monster",
-        "goblin",
-        "movement"
+        "movement",
+        "goblin"
     ],
     "monster_goblin_vocal_a.wav": [
         "monster",
-        "vocal",
-        "goblin"
+        "goblin",
+        "vocal"
     ],
     "monster_goblin_vocal_b.wav": [
         "monster",
-        "vocal",
-        "goblin"
+        "goblin",
+        "vocal"
     ],
     "monster_orc_death.wav": [
         "monster",
@@ -1618,8 +1618,8 @@
     ],
     "monster_troll_bite.wav": [
         "monster",
-        "bite",
-        "troll"
+        "troll",
+        "bite"
     ],
     "monster_troll_claw.wav": [
         "monster",
@@ -1628,8 +1628,8 @@
     ],
     "monster_troll_death.wav": [
         "monster",
-        "death",
-        "troll"
+        "troll",
+        "death"
     ],
     "monster_troll_movement_l.wav": [
         "monster",
@@ -1643,51 +1643,51 @@
     ],
     "monster_troll_vocal_a.wav": [
         "monster",
-        "vocal",
-        "troll"
+        "troll",
+        "vocal"
     ],
     "monster_troll_vocal_b.wav": [
         "monster",
-        "vocal",
-        "troll"
+        "troll",
+        "vocal"
     ],
     "More Walla.wav": [
         "walla",
         "more"
     ],
     "Mountain Canyon.m4a": [
-        "mountain",
-        "canyon"
+        "canyon",
+        "mountain"
     ],
     "mrfossy__foley_footsteps_shedwoodenfloor.wav": [
-        "foley",
-        "footsteps",
         "mrfossy",
-        "shedwoodenfloor"
+        "footsteps",
+        "shedwoodenfloor",
+        "foley"
     ],
     "naturenutt__barred-owls-cow-wind-fall-field-crickets-neches-riverbottom.m4a": [
-        "crickets",
-        "cow",
         "owls",
+        "cow",
         "naturenutt",
-        "field",
         "fall",
+        "riverbottom",
+        "wind",
+        "field",
         "barred",
         "neches",
-        "riverbottom",
-        "wind"
+        "crickets"
     ],
     "naturenutt__barred-owls-cow-wind-fall-field-crickets-neches-riverbottom_1.m4a": [
-        "crickets",
-        "cow",
         "owls",
+        "cow",
         "naturenutt",
-        "field",
         "fall",
+        "riverbottom",
+        "wind",
+        "field",
         "barred",
         "neches",
-        "riverbottom",
-        "wind"
+        "crickets"
     ],
     "Natureza.m4a": [
         "natureza"
@@ -1696,74 +1696,74 @@
         "natureza"
     ],
     "Objects, Container, Glass Jar, Set Down On Wood - Epidemic Sound.mp3": [
-        "container",
-        "glass",
-        "set",
-        "down",
         "jar",
+        "down",
+        "container",
+        "set",
+        "glass",
         "objects",
         "wood"
     ],
     "Objects, Writing, Crayon, Writing On Paper - Epidemic Sound.mp3": [
-        "crayon",
-        "writing",
+        "paper",
         "objects",
-        "paper"
+        "crayon",
+        "writing"
     ],
     "Objects, Writing, Write With Pencil, Paper - Epidemic Sound.mp3": [
-        "pencil",
         "paper",
-        "with",
-        "write",
+        "pencil",
         "writing",
-        "objects"
+        "write",
+        "objects",
+        "with"
     ],
     "Onboard The Ship (No Voices).wav": [
         "the",
         "onboard",
-        "voices)",
         "ship",
-        "(no"
+        "(no",
+        "voices)"
     ],
     "Onboard The Ship (Vocalized).wav": [
-        "ship",
         "the",
-        "(vocalized)",
-        "onboard"
+        "ship",
+        "onboard",
+        "(vocalized)"
     ],
     "Paper, Handle, Sheets, Many, Pick Up From Floor - Epidemic Sound.mp3": [
-        "up",
-        "many",
-        "from",
-        "paper",
-        "sheets",
         "pick",
-        "handle",
-        "floor"
+        "from",
+        "sheets",
+        "many",
+        "up",
+        "paper",
+        "floor",
+        "handle"
     ],
     "Passos na lama.wav": [
-        "passos",
         "na",
+        "passos",
         "lama"
     ],
     "Passos na terra.wav": [
-        "passos",
         "na",
+        "passos",
         "terra"
     ],
     "Pedra raspando.mp3": [
-        "pedra",
-        "raspando"
+        "raspando",
+        "pedra"
     ],
     "Pedras pequenas caindo.mp3": [
-        "pedras",
         "caindo",
-        "pequenas"
+        "pequenas",
+        "pedras"
     ],
     "People_Amb_Outdoor__01.m4a": [
-        "amb",
         "people",
-        "outdoor"
+        "outdoor",
+        "amb"
     ],
     "pergaminho.wav": [
         "pergaminho"
@@ -1774,43 +1774,43 @@
         "pixel"
     ],
     "Plant type buff.wav": [
-        "plant",
         "buff",
+        "plant",
         "type"
     ],
     "Plant-Seed idea 1 (Gj).wav": [
-        "seed",
-        "idea",
         "(gj)",
-        "plant"
+        "idea",
+        "plant",
+        "seed"
     ],
     "Plant-Seed idea 2 (Gj).wav": [
-        "seed",
-        "idea",
         "(gj)",
-        "plant"
+        "idea",
+        "plant",
+        "seed"
     ],
     "Plant-Seed idea 3 (Gj).wav": [
-        "seed",
-        "idea",
         "(gj)",
-        "plant"
+        "idea",
+        "plant",
+        "seed"
     ],
     "Plant-Seed idea 4 (Gj).wav": [
-        "seed",
-        "idea",
         "(gj)",
-        "plant"
+        "idea",
+        "plant",
+        "seed"
     ],
     "Port Town (No Bells).m4a": [
         "(no",
-        "port",
+        "bells)",
         "town",
-        "bells)"
+        "port"
     ],
     "Port Town.m4a": [
-        "port",
-        "town"
+        "town",
+        "port"
     ],
     "Porta de pedra.mp3": [
         "porta",
@@ -1826,21 +1826,21 @@
     ],
     "Potion Store Indoors.wav": [
         "potion",
-        "indoors",
-        "store"
+        "store",
+        "indoors"
     ],
     "Potion Store Outdoors.m4a": [
-        "outdoors",
         "potion",
-        "store"
+        "store",
+        "outdoors"
     ],
     "Prego_madeira.wav": [
         "madeira",
         "prego"
     ],
     "Pure Desert Wind.wav": [
-        "pure",
         "desert",
+        "pure",
         "wind"
     ],
     "Rage up.wav": [
@@ -1887,34 +1887,34 @@
         "rain"
     ],
     "Rain, Vegetation, Light, Drizzle, Dripping On Leaves, Calm 01 - Epidemic Sound.mp3": [
-        "drizzle",
         "vegetation",
         "dripping",
-        "leaves",
+        "drizzle",
         "calm",
+        "leaves",
         "light",
         "rain"
     ],
     "Rain, Vegetation, Light, Drizzle, Dripping On Leaves, Calm 07 - Epidemic Sound.mp3": [
-        "drizzle",
         "vegetation",
         "dripping",
-        "leaves",
+        "drizzle",
         "calm",
+        "leaves",
         "light",
         "rain"
     ],
     "Rain, Vegetation, Rain, Under Tree, Light - Epidemic Sound.mp3": [
-        "vegetation",
-        "tree",
-        "light",
         "under",
+        "vegetation",
+        "light",
+        "tree",
         "rain"
     ],
     "ralexpdx__my-tavern-1.wav": [
-        "ralexpdx",
         "my",
-        "tavern"
+        "tavern",
+        "ralexpdx"
     ],
     "Risadas.aiff": [
         "risadas"
@@ -1927,18 +1927,18 @@
         "risada"
     ],
     "Rocks, Handle, Movement, Stones, Pebbles, Wet 02 - Epidemic Sound.mp3": [
-        "rocks",
         "pebbles",
+        "movement",
         "stones",
-        "handle",
+        "rocks",
         "wet",
-        "movement"
+        "handle"
     ],
     "scicodedev__calm_happy_rpgtownbackground.mp3": [
-        "rpgtownbackground",
-        "happy",
+        "scicodedev",
         "calm",
-        "scicodedev"
+        "happy",
+        "rpgtownbackground"
     ],
     "Scream Female 1.wav": [
         "scream",
@@ -2008,71 +2008,71 @@
         "shore"
     ],
     "silverillusionist__bardic-melody-light-of-a-hero-shines.m4a": [
-        "silverillusionist",
+        "hero",
         "of",
         "melody",
         "bardic",
-        "hero",
-        "light",
-        "shines"
+        "shines",
+        "silverillusionist",
+        "light"
     ],
     "silverillusionist__bardic-melody-light-of-a-hero-shines_1.m4a": [
-        "silverillusionist",
+        "hero",
         "of",
         "melody",
         "bardic",
-        "hero",
-        "light",
-        "shines"
+        "shines",
+        "silverillusionist",
+        "light"
     ],
     "Small Waves Lapping Beach .m4a": [
+        "waves",
         "small",
         "beach",
-        "waves",
         "lapping"
     ],
     "Small Waves Lapping Beach _1.m4a": [
+        "waves",
         "small",
         "beach",
-        "waves",
         "lapping"
     ],
     "Som de vento mais curto.m4a": [
         "mais",
+        "som",
         "curto",
-        "vento",
-        "som"
+        "vento"
     ],
     "Som de vento mais curto_1.m4a": [
         "mais",
+        "som",
         "curto",
-        "vento",
-        "som"
+        "vento"
     ],
     "Som de vento mais longo.m4a": [
         "mais",
-        "vento",
+        "longo",
         "som",
-        "longo"
+        "vento"
     ],
     "Som de vento mais longo_1.m4a": [
         "mais",
-        "vento",
+        "longo",
         "som",
-        "longo"
+        "vento"
     ],
     "sonically_sound__medievalfantasy-rpg-loop-mix-at-32-secs-to-extendrepeat.flac": [
+        "sonically",
         "secs",
-        "medievalfantasy",
         "extendrepeat",
+        "medievalfantasy",
         "at",
-        "mix",
         "to",
-        "sonically"
+        "mix"
     ],
     "Sons pantano.wav": [
-        "sons",
-        "pantano"
+        "pantano",
+        "sons"
     ],
     "SSFX Crickets 3.m4a": [
         "crickets",
@@ -2098,211 +2098,211 @@
         "summer"
     ],
     "Summer Night Near The Village.m4a": [
-        "near",
         "the",
         "night",
-        "summer",
-        "village"
+        "near",
+        "village",
+        "summer"
     ],
     "Sword Battle 1.wav": [
-        "sword",
-        "battle"
+        "battle",
+        "sword"
     ],
     "Sword Battle 2.m4a": [
-        "sword",
-        "battle"
+        "battle",
+        "sword"
     ],
     "Sword Battle 3.m4a": [
-        "sword",
-        "battle"
+        "battle",
+        "sword"
     ],
     "Sword Fight Rapier 2 .wav": [
-        "rapier",
+        "fight",
         "sword",
-        "fight"
+        "rapier"
     ],
     "Sword Fight Rapier 3.wav": [
-        "rapier",
+        "fight",
         "sword",
-        "fight"
+        "rapier"
     ],
     "Sword Fight Rapier 4.wav": [
-        "rapier",
+        "fight",
         "sword",
-        "fight"
+        "rapier"
     ],
     "Sword Fight Rapier 5.wav": [
-        "rapier",
+        "fight",
         "sword",
-        "fight"
+        "rapier"
     ],
     "Sword Scrape 1 .wav": [
-        "sword",
-        "scrape"
+        "scrape",
+        "sword"
     ],
     "Sword Scrape 10 .wav": [
-        "sword",
-        "scrape"
+        "scrape",
+        "sword"
     ],
     "Sword Scrape 11.wav": [
-        "sword",
-        "scrape"
+        "scrape",
+        "sword"
     ],
     "Sword Scrape 12 .wav": [
-        "sword",
-        "scrape"
+        "scrape",
+        "sword"
     ],
     "Sword Scrape 14 .wav": [
-        "sword",
-        "scrape"
+        "scrape",
+        "sword"
     ],
     "Sword Scrape 2.wav": [
-        "sword",
-        "scrape"
+        "scrape",
+        "sword"
     ],
     "Sword Scrape 7 .wav": [
-        "sword",
-        "scrape"
+        "scrape",
+        "sword"
     ],
     "Sword Scrape 7b.wav": [
-        "sword",
-        "scrape"
+        "scrape",
+        "sword"
     ],
     "Sword Scrape 8 .wav": [
-        "sword",
-        "scrape"
+        "scrape",
+        "sword"
     ],
     "Sword Scrape 9 .wav": [
-        "sword",
-        "scrape"
+        "scrape",
+        "sword"
     ],
     "Sword Scrape Blade.wav": [
-        "sword",
+        "blade",
         "scrape",
-        "blade"
+        "sword"
     ],
     "Sword Scrape Court Sword 1 .wav": [
-        "sword",
+        "court",
         "scrape",
-        "court"
+        "sword"
     ],
     "Sword Scrape Court Sword 5 .wav": [
-        "sword",
+        "court",
         "scrape",
-        "court"
+        "sword"
     ],
     "Sword Scrape Court Sword 6 .wav": [
-        "sword",
+        "court",
         "scrape",
-        "court"
+        "sword"
     ],
     "Sword Scrape Court Sword 7 .wav": [
-        "sword",
+        "court",
         "scrape",
-        "court"
+        "sword"
     ],
     "Sword Scrape Fencing 2.wav": [
-        "sword",
         "fencing",
-        "scrape"
+        "scrape",
+        "sword"
     ],
     "Sword Scrape Rapier 10.wav": [
-        "rapier",
+        "scrape",
         "sword",
-        "scrape"
+        "rapier"
     ],
     "Sword Scrape Rapier 11.wav": [
-        "rapier",
+        "scrape",
         "sword",
-        "scrape"
+        "rapier"
     ],
     "Sword Scrape Rapier 12 .wav": [
-        "rapier",
+        "scrape",
         "sword",
-        "scrape"
+        "rapier"
     ],
     "Sword Scrape Rapier 13 .wav": [
-        "rapier",
+        "scrape",
         "sword",
-        "scrape"
+        "rapier"
     ],
     "Sword Scrape Rapier 14.wav": [
-        "rapier",
+        "scrape",
         "sword",
-        "scrape"
+        "rapier"
     ],
     "Sword Scrape Rapier 2.wav": [
-        "rapier",
+        "scrape",
         "sword",
-        "scrape"
+        "rapier"
     ],
     "Sword Scrape Rapier 3 .wav": [
-        "rapier",
+        "scrape",
         "sword",
-        "scrape"
+        "rapier"
     ],
     "Sword Scrape Rapier 4 .wav": [
-        "rapier",
+        "scrape",
         "sword",
-        "scrape"
+        "rapier"
     ],
     "Sword Scrape Rapier 5.wav": [
-        "rapier",
+        "scrape",
         "sword",
-        "scrape"
+        "rapier"
     ],
     "Sword Scrape Rapier 6 .wav": [
-        "rapier",
+        "scrape",
         "sword",
-        "scrape"
+        "rapier"
     ],
     "Sword Scrape Rapier 7 .wav": [
-        "rapier",
+        "scrape",
         "sword",
-        "scrape"
+        "rapier"
     ],
     "Sword Scrape Rapier 8 .wav": [
-        "rapier",
+        "scrape",
         "sword",
-        "scrape"
+        "rapier"
     ],
     "Sword Scrape Rapier 9 .wav": [
-        "rapier",
+        "scrape",
         "sword",
-        "scrape"
+        "rapier"
     ],
     "Sword Scrape Rapier.wav": [
-        "rapier",
+        "scrape",
         "sword",
-        "scrape"
+        "rapier"
     ],
     "Sword Slash (Rpg).wav": [
-        "sword",
         "slash",
+        "sword",
         "(rpg)"
     ],
     "Sword Strike 5 .wav": [
-        "sword",
-        "strike"
+        "strike",
+        "sword"
     ],
     "Taverna calma.mp3": [
-        "taverna",
-        "calma"
+        "calma",
+        "taverna"
     ],
     "tavern_ambience_agitada.mp3": [
         "ambience",
-        "agitada",
-        "tavern"
+        "tavern",
+        "agitada"
     ],
     "The Great Mine 2.wav": [
-        "the",
         "great",
-        "mine"
+        "mine",
+        "the"
     ],
     "The Great Mine.wav": [
-        "the",
         "great",
-        "mine"
+        "mine",
+        "the"
     ],
     "The Secret Cave 2.m4a": [
         "cave",
@@ -2315,14 +2315,14 @@
         "secret"
     ],
     "The Stronghold.wav": [
-        "the",
-        "stronghold"
+        "stronghold",
+        "the"
     ],
     "The Swamps At Night.m4a": [
+        "night",
         "the",
         "at",
-        "swamps",
-        "night"
+        "swamps"
     ],
     "The Swamps.m4a": [
         "the",
@@ -2342,33 +2342,33 @@
         "town"
     ],
     "UI Close.wav": [
-        "close",
-        "ui"
+        "ui",
+        "close"
     ],
     "UI Open.wav": [
-        "ui",
-        "open"
+        "open",
+        "ui"
     ],
     "Ui Ping 1.wav": [
-        "ui",
-        "ping"
+        "ping",
+        "ui"
     ],
     "Ui Ping 2.wav": [
-        "ui",
-        "ping"
+        "ping",
+        "ui"
     ],
     "UI Ping Deny.wav": [
-        "ui",
+        "deny",
         "ping",
-        "deny"
+        "ui"
     ],
     "Vegetacao.wav": [
         "vegetacao"
     ],
     "vento_mais_longo.mp3": [
+        "mais",
         "longo",
-        "vento",
-        "mais"
+        "vento"
     ],
     "Village On A Windy Day.wav": [
         "windy",
@@ -2376,61 +2376,61 @@
         "day"
     ],
     "Voices, Efforts, Male, Grunt, Ouch, Pain - Epidemic Sound.mp3": [
-        "ouch",
-        "voices",
-        "efforts",
-        "grunt",
         "pain",
-        "male"
+        "efforts",
+        "voices",
+        "grunt",
+        "male",
+        "ouch"
     ],
     "Voices, Male, Gagged, Cloth In Mouth, Try To Speak 01 - Epidemic Sound.mp3": [
         "speak",
-        "voices",
-        "try",
-        "to",
-        "gagged",
         "mouth",
+        "try",
+        "voices",
+        "male",
+        "gagged",
         "cloth",
-        "male"
+        "to"
     ],
     "Voices, Male, Gagged, Cloth In Mouth, Try To Speak 02 - Epidemic Sound.mp3": [
         "speak",
-        "voices",
-        "try",
-        "to",
-        "gagged",
         "mouth",
+        "try",
+        "voices",
+        "male",
+        "gagged",
         "cloth",
-        "male"
+        "to"
     ],
     "Voices, Male, Male In Pain, Male Yells Oww 01 - Epidemic Sound.mp3": [
         "oww",
-        "voices",
         "pain",
         "yells",
+        "voices",
         "male"
     ],
     "Voices, Male, Sudden Death, Combat, Pain 04 - Epidemic Sound.mp3": [
-        "voices",
-        "combat",
         "pain",
-        "sudden",
         "death",
+        "combat",
+        "sudden",
+        "voices",
         "male"
     ],
     "Voices, Scream, Male, Fearful Scream, Intense 01 - Epidemic Sound.mp3": [
         "voices",
-        "intense",
-        "fearful",
+        "male",
         "scream",
-        "male"
+        "intense",
+        "fearful"
     ],
     "Voices, Scream, Male, Screaming, Intensely - Epidemic Sound.mp3": [
         "screaming",
         "voices",
-        "intensely",
+        "male",
         "scream",
-        "male"
+        "intensely"
     ],
     "Walla 4.wav": [
         "walla"
@@ -2440,71 +2440,3527 @@
         "outdoor"
     ],
     "Watering Sound (Gj).wav": [
-        "watering",
-        "(gj)"
+        "(gj)",
+        "watering"
     ],
     "Weapon Break.wav": [
         "break",
         "weapon"
     ],
     "Weather, Storm, Rain, Thunder, Rural Nature - Epidemic Sound.mp3": [
-        "thunder",
         "weather",
-        "rural",
         "storm",
+        "thunder",
         "nature",
+        "rural",
         "rain"
     ],
     "Weather, Thunder, Distant, No Rain 01 - Epidemic Sound.mp3": [
+        "no",
         "distant",
         "thunder",
         "weather",
-        "no",
         "rain"
     ],
     "Weather, Thunder, Distant, No Rain 04 - Epidemic Sound.mp3": [
+        "no",
         "distant",
         "thunder",
         "weather",
-        "no",
         "rain"
     ],
     "Weather, Thunder, Tropical, Distant Thunder, Rumbling Thunder 01 - Epidemic Sound.mp3": [
+        "rumbling",
         "distant",
-        "thunder",
-        "weather",
         "tropical",
-        "rumbling"
+        "thunder",
+        "weather"
     ],
     "Wind Through The Trees.wav": [
-        "the",
-        "trees",
         "through",
-        "wind"
+        "trees",
+        "wind",
+        "the"
     ],
     "Wind, General, Cliff Valley, The Moon Close Rocks Loud, Wind Gusts - Epidemic Sound.mp3": [
-        "general",
-        "the",
-        "rocks",
-        "close",
-        "moon",
-        "valley",
-        "loud",
-        "gusts",
         "cliff",
-        "wind"
+        "the",
+        "close",
+        "wind",
+        "loud",
+        "valley",
+        "moon",
+        "rocks",
+        "general",
+        "gusts"
     ],
     "Wind, General, Wind Gusts, Light Whistles, Floor Valley 02 - Epidemic Sound.mp3": [
-        "general",
+        "floor",
+        "wind",
+        "whistles",
         "valley",
         "light",
-        "floor",
-        "gusts",
-        "whistles",
-        "wind"
+        "general",
+        "gusts"
     ],
     "wood-crackling.wav": [
         "crackling",
         "wood"
+    ],
+    "Blacksmith Armory Indoors.mp3": [
+        "indoors",
+        "blacksmith",
+        "armory"
+    ],
+    "Blacksmith Armory Outdoors.mp3": [
+        "blacksmith",
+        "outdoors",
+        "armory"
+    ],
+    "Busy Medieval Town.mp3": [
+        "medieval",
+        "busy",
+        "town"
+    ],
+    "Capital City.mp3": [
+        "city",
+        "capital"
+    ],
+    "Chambers Of Hell (No Boiling).mp3": [
+        "boiling)",
+        "of",
+        "hell",
+        "(no",
+        "chambers"
+    ],
+    "Chambers Of Hell 1.mp3": [
+        "hell",
+        "chambers",
+        "of"
+    ],
+    "Chambers Of Hell 2.mp3": [
+        "hell",
+        "chambers",
+        "of"
+    ],
+    "Crystal Mountain Secret.mp3": [
+        "secret",
+        "crystal",
+        "mountain"
+    ],
+    "Cursed Lands 2.mp3": [
+        "cursed",
+        "lands"
+    ],
+    "Cursed Lands.mp3": [
+        "cursed",
+        "lands"
+    ],
+    "Dungeon Of Madness.mp3": [
+        "of",
+        "dungeon",
+        "madness"
+    ],
+    "Dungeon Of Sorrow.mp3": [
+        "sorrow",
+        "of",
+        "dungeon"
+    ],
+    "Fishing Village At Night.mp3": [
+        "village",
+        "at",
+        "fishing",
+        "night"
+    ],
+    "Fishing Village.mp3": [
+        "village",
+        "fishing"
+    ],
+    "From Dusk Till Dawn.mp3": [
+        "till",
+        "dusk",
+        "from",
+        "dawn"
+    ],
+    "In The Arena.mp3": [
+        "arena",
+        "the"
+    ],
+    "Mountain Canyon.mp3": [
+        "canyon",
+        "mountain"
+    ],
+    "Onboard The Ship (No Voices).mp3": [
+        "the",
+        "onboard",
+        "ship",
+        "(no",
+        "voices)"
+    ],
+    "Onboard The Ship (Vocalized).mp3": [
+        "the",
+        "ship",
+        "onboard",
+        "(vocalized)"
+    ],
+    "Port Town (No Bells).mp3": [
+        "(no",
+        "bells)",
+        "town",
+        "port"
+    ],
+    "Port Town.mp3": [
+        "town",
+        "port"
+    ],
+    "Potion Store Indoors.mp3": [
+        "potion",
+        "store",
+        "indoors"
+    ],
+    "Potion Store Outdoors.mp3": [
+        "potion",
+        "store",
+        "outdoors"
+    ],
+    "Pure Desert Wind.mp3": [
+        "desert",
+        "pure",
+        "wind"
+    ],
+    "Summer Day In Nature.mp3": [
+        "day",
+        "nature",
+        "summer"
+    ],
+    "Summer Night Near The Village.mp3": [
+        "the",
+        "night",
+        "near",
+        "village",
+        "summer"
+    ],
+    "The Great Mine 2.mp3": [
+        "great",
+        "mine",
+        "the"
+    ],
+    "The Swamps.mp3": [
+        "the",
+        "swamps"
+    ],
+    "renomear.txt": [
+        "renomear"
+    ],
+    "Bridge_creak.mp3": [
+        "bridge",
+        "creak"
+    ],
+    "Campfire.mp3": [
+        "campfire"
+    ],
+    "Grass_Wind_Loop.wav": [
+        "wind",
+        "grass"
+    ],
+    "Crowds, Conversation, Calm, Male, Pass By - Multidões, Conversa, Calma, Masculino, Passagem.mp3": [
+        "calma",
+        "by",
+        "masculino",
+        "pass",
+        "passagem",
+        "conversation",
+        "multidões",
+        "calm",
+        "male",
+        "conversa",
+        "crowds"
+    ],
+    "Bridge_creak_3.mp3": [
+        "bridge",
+        "creak"
+    ],
+    "Campfire_1.mp3": [
+        "campfire"
+    ],
+    "River_Flow_Loop.wav": [
+        "river",
+        "flow"
+    ],
+    "Tonal_Night_Moon_Ambient_Loop.wav": [
+        "tonal",
+        "moon",
+        "ambient",
+        "night"
+    ],
+    "Wind_Calm_Night_Loop.wav": [
+        "calm",
+        "wind",
+        "night"
+    ],
+    "Campfire_3.mp3": [
+        "campfire"
+    ],
+    "Dagger_stab.mp3": [
+        "stab",
+        "dagger"
+    ],
+    "Doors, Knock, Thin Wood - Portas, batida, madeira fina.mp3": [
+        "madeira",
+        "fina",
+        "knock",
+        "thin",
+        "doors",
+        "batida",
+        "portas",
+        "wood"
+    ],
+    "Cave_ambience_2.mp3": [
+        "cave",
+        "ambience"
+    ],
+    "Coin_pickup_2.mp3": [
+        "coin",
+        "pickup"
+    ],
+    "Equip_weapon.mp3": [
+        "equip",
+        "weapon"
+    ],
+    "Gate_open.mp3": [
+        "open",
+        "gate"
+    ],
+    "Gate_open_1.mp3": [
+        "open",
+        "gate"
+    ],
+    "Ice_impact.mp3": [
+        "ice",
+        "impact"
+    ],
+    "Campfire_2.mp3": [
+        "campfire"
+    ],
+    "Coin_pickup.mp3": [
+        "coin",
+        "pickup"
+    ],
+    "Windmill_Village_Loop.wav": [
+        "village",
+        "windmill"
+    ],
+    "Bater madeira mesa porta wood knock.mp3": [
+        "madeira",
+        "knock",
+        "bater",
+        "porta",
+        "mesa",
+        "wood"
+    ],
+    "Enemy_death.mp3": [
+        "enemy",
+        "death"
+    ],
+    "Cavalo andando carroça.mp3": [
+        "cavalo",
+        "andando",
+        "carroça"
+    ],
+    "Gate_open_2.mp3": [
+        "open",
+        "gate"
+    ],
+    "Martelo bigorna anvil.wav": [
+        "bigorna",
+        "martelo",
+        "anvil"
+    ],
+    "Bow_and_arrow_shot_1.mp3": [
+        "bow",
+        "shot",
+        "arrow"
+    ],
+    "Metal, Impact, Metal Stick, Light - Metal, Impacto, Bastão de Metal, Luz.mp3": [
+        "metal",
+        "impact",
+        "luz",
+        "impacto",
+        "light",
+        "bastão",
+        "stick"
+    ],
+    "Goblin_laugh.mp3": [
+        "laugh",
+        "goblin"
+    ],
+    "Wagon, Horse Wagon, Pebbles, carroça.mp3": [
+        "pebbles",
+        "carroça",
+        "wagon",
+        "horse"
+    ],
+    "Bridge_creak_1.mp3": [
+        "bridge",
+        "creak"
+    ],
+    "Ice_impact_1.mp3": [
+        "ice",
+        "impact"
+    ],
+    "Ice_impact_2.mp3": [
+        "ice",
+        "impact"
+    ],
+    "Item_pickup.mp3": [
+        "pickup",
+        "item"
+    ],
+    "Level_up_3.mp3": [
+        "up",
+        "level"
+    ],
+    "Lever_pull_2.mp3": [
+        "lever",
+        "pull"
+    ],
+    "Potion_drink.mp3": [
+        "drink",
+        "potion"
+    ],
+    "Coin_pickup_3.mp3": [
+        "coin",
+        "pickup"
+    ],
+    "Dagger_stab_1.mp3": [
+        "stab",
+        "dagger"
+    ],
+    "Doors, Knock, Wood, Fingers, Fast - Portas, Bater, Madeira, Dedos, Rápido.mp3": [
+        "madeira",
+        "knock",
+        "bater",
+        "doors",
+        "fast",
+        "fingers",
+        "rápido",
+        "dedos",
+        "portas",
+        "wood"
+    ],
+    "River_flow_3.mp3": [
+        "river",
+        "flow"
+    ],
+    "Sword_swing.mp3": [
+        "swing",
+        "sword"
+    ],
+    "Banging - Spoon on Pot 3x.mp3": [
+        "pot",
+        "spoon",
+        "banging"
+    ],
+    "Bell, Church, Hammer Struck.mp3": [
+        "struck",
+        "church",
+        "bell",
+        "hammer"
+    ],
+    "Bicylce Ride with Chain - Loopable.mp3": [
+        "loopable",
+        "ride",
+        "bicylce",
+        "chain",
+        "with"
+    ],
+    "Bicylce, soft, Ride with Chain 2 - Loopable.mp3": [
+        "soft",
+        "ride",
+        "bicylce",
+        "loopable",
+        "chain",
+        "with"
+    ],
+    "Blade on Cutting Board - Loopable.mp3": [
+        "board",
+        "blade",
+        "loopable",
+        "cutting"
+    ],
+    "Blade, Sharpening, Loopable.mp3": [
+        "sharpening",
+        "blade",
+        "loopable"
+    ],
+    "Book, Turn Page.mp3": [
+        "turn",
+        "page",
+        "book"
+    ],
+    "Bottle Uncork 2.mp3": [
+        "uncork",
+        "bottle"
+    ],
+    "Bottle Unscrew Cap.mp3": [
+        "unscrew",
+        "cap",
+        "bottle"
+    ],
+    "Bottle, Corkscrew Open.mp3": [
+        "corkscrew",
+        "bottle",
+        "open"
+    ],
+    "Bottle, Pick Out a.mp3": [
+        "pick",
+        "bottle",
+        "out"
+    ],
+    "Break Object - Window, 2 Layer.mp3": [
+        "break",
+        "object",
+        "layer",
+        "window"
+    ],
+    "Break Object - Window, large glass.mp3": [
+        "large",
+        "object",
+        "window",
+        "break",
+        "glass"
+    ],
+    "Card. Shuffle.mp3": [
+        "shuffle",
+        "card."
+    ],
+    "Cards, deal 5 2.mp3": [
+        "cards",
+        "deal"
+    ],
+    "Cards, deck Shuffle and Cut.mp3": [
+        "cards",
+        "deck",
+        "shuffle",
+        "cut"
+    ],
+    "Cash Register, Vintage, Showing Total 2.mp3": [
+        "total",
+        "vintage",
+        "showing",
+        "cash",
+        "register"
+    ],
+    "Chair, Push back to stand.mp3": [
+        "push",
+        "back",
+        "stand",
+        "to",
+        "chair"
+    ],
+    "Chest, open 2.mp3": [
+        "open",
+        "chest"
+    ],
+    "Clanging Pipes - Loopable.mp3": [
+        "loopable",
+        "pipes",
+        "clanging"
+    ],
+    "Coin - Double Flip.mp3": [
+        "coin",
+        "flip",
+        "double"
+    ],
+    "Coin - Dropped on pavement.mp3": [
+        "coin",
+        "dropped",
+        "pavement"
+    ],
+    "Cooking - Sizzle of meat.mp3": [
+        "meat",
+        "of",
+        "cooking",
+        "sizzle"
+    ],
+    "Door, Slam.mp3": [
+        "door",
+        "slam"
+    ],
+    "Door, Metal Vault.mp3": [
+        "vault",
+        "door",
+        "metal"
+    ],
+    "Door, Rhythmic Knocking 2.mp3": [
+        "door",
+        "knocking",
+        "rhythmic"
+    ],
+    "Door, Vault - High Security.mp3": [
+        "vault",
+        "door",
+        "high",
+        "security"
+    ],
+    "Door, very slow, creak.mp3": [
+        "slow",
+        "door",
+        "creak",
+        "very"
+    ],
+    "Doorbell, ring double.mp3": [
+        "ring",
+        "double",
+        "doorbell"
+    ],
+    "Drink 3.mp3": [
+        "drink"
+    ],
+    "Drop, Complex Crystaline Item.mp3": [
+        "item",
+        "drop",
+        "crystaline",
+        "complex"
+    ],
+    "Droplet, Echo 4, Loopable.mp3": [
+        "echo",
+        "loopable",
+        "droplet"
+    ],
+    "Eating, done, collecting dishes.mp3": [
+        "eating",
+        "dishes",
+        "collecting",
+        "done"
+    ],
+    "Eating, using fork.mp3": [
+        "eating",
+        "fork",
+        "using"
+    ],
+    "Fence, Electric - Contact.mp3": [
+        "electric",
+        "fence",
+        "contact"
+    ],
+    "Fire, Lighting Large Flame.mp3": [
+        "flame",
+        "fire",
+        "lighting",
+        "large"
+    ],
+    "Fire, Striking Flint Stones.mp3": [
+        "fire",
+        "flint",
+        "striking",
+        "stones"
+    ],
+    "Fireball Launched.mp3": [
+        "launched",
+        "fireball"
+    ],
+    "Fishing reeling in.mp3": [
+        "reeling",
+        "fishing"
+    ],
+    "Forest Birdsong.mp3": [
+        "birdsong",
+        "forest"
+    ],
+    "Fuse Burn - 3 Second.mp3": [
+        "second",
+        "burn",
+        "fuse"
+    ],
+    "gate, Metal, Unlock 3.mp3": [
+        "unlock",
+        "gate",
+        "metal"
+    ],
+    "Generous Cheering and Applause.mp3": [
+        "applause",
+        "generous",
+        "cheering"
+    ],
+    "Glassware,  Breakable.mp3": [
+        "glassware",
+        "breakable"
+    ],
+    "heartbeat Quick 4 Cycle - Loopable.mp3": [
+        "heartbeat",
+        "loopable",
+        "cycle",
+        "quick"
+    ],
+    "heartbeat rapid.mp3": [
+        "rapid",
+        "heartbeat"
+    ],
+    "heartbeat Resting 4 Cycle - Loopable.mp3": [
+        "resting",
+        "heartbeat",
+        "loopable",
+        "cycle"
+    ],
+    "Heavy Object Hitting Water.mp3": [
+        "hitting",
+        "object",
+        "heavy",
+        "water"
+    ],
+    "Jar Glass Shatter 2.mp3": [
+        "glass",
+        "jar",
+        "shatter"
+    ],
+    "Jar Glass Shatter.mp3": [
+        "glass",
+        "jar",
+        "shatter"
+    ],
+    "Ladder, Climb Bottom tier.mp3": [
+        "tier",
+        "bottom",
+        "ladder",
+        "climb"
+    ],
+    "Ladder, Proping onto Roof.mp3": [
+        "proping",
+        "onto",
+        "ladder",
+        "roof"
+    ],
+    "Leaping and Landing on Ground.mp3": [
+        "leaping",
+        "ground",
+        "landing"
+    ],
+    "Lever Mechanism.mp3": [
+        "mechanism",
+        "lever"
+    ],
+    "Lifting Double Weight.mp3": [
+        "lifting",
+        "double",
+        "weight"
+    ],
+    "Machine Hum, Soft - Loopable.mp3": [
+        "hum",
+        "machine",
+        "soft",
+        "loopable"
+    ],
+    "Metal Bars - Impact.mp3": [
+        "impact",
+        "metal",
+        "bars"
+    ],
+    "Object - Falling Into Water with Splash.mp3": [
+        "object",
+        "splash",
+        "into",
+        "water",
+        "falling",
+        "with"
+    ],
+    "Object Falling From tree.mp3": [
+        "falling",
+        "object",
+        "tree",
+        "from"
+    ],
+    "Oven Door Opening.mp3": [
+        "oven",
+        "door",
+        "opening"
+    ],
+    "Paddle Lightly Striking Water.mp3": [
+        "paddle",
+        "striking",
+        "lightly",
+        "water"
+    ],
+    "Phone - Cellular ringing , Loopable.mp3": [
+        "ringing",
+        "cellular",
+        "loopable",
+        "phone"
+    ],
+    "Phone, Ringing - Loopable.mp3": [
+        "ringing",
+        "loopable",
+        "phone"
+    ],
+    "Pickup Item.mp3": [
+        "pickup",
+        "item"
+    ],
+    "Pickup Large item.mp3": [
+        "pickup",
+        "item",
+        "large"
+    ],
+    "Enemy_death_3.mp3": [
+        "enemy",
+        "death"
+    ],
+    "Wolf_growl.mp3": [
+        "wolf",
+        "growl"
+    ],
+    "Prejectile, Bolt, Hitting Armor.mp3": [
+        "hitting",
+        "prejectile",
+        "armor",
+        "bolt"
+    ],
+    "Puppet, Collapsing.mp3": [
+        "collapsing",
+        "puppet"
+    ],
+    "The Secret Cave 2.mp3": [
+        "cave",
+        "the",
+        "secret"
+    ],
+    "River, Med - Loopable.mp3": [
+        "med",
+        "river",
+        "loopable"
+    ],
+    "Rocks Tumbling.mp3": [
+        "rocks",
+        "tumbling"
+    ],
+    "Rocks, Cliff face collapse.mp3": [
+        "cliff",
+        "face",
+        "rocks",
+        "collapse"
+    ],
+    "Sack, CLoth CLosing.mp3": [
+        "closing",
+        "sack",
+        "cloth"
+    ],
+    "Potion_throw.mp3": [
+        "throw",
+        "potion"
+    ],
+    "Bridge_creak_2.mp3": [
+        "bridge",
+        "creak"
+    ],
+    "Cave_ambience.mp3": [
+        "cave",
+        "ambience"
+    ],
+    "reno.txt": [
+        "reno"
+    ],
+    "Critical_sword_hit_3.mp3": [
+        "critical",
+        "hit",
+        "sword"
+    ],
+    "River_flow.mp3": [
+        "river",
+        "flow"
+    ],
+    "Banging Metal Vase or Pipe.mp3": [
+        "metal",
+        "banging",
+        "vase",
+        "pipe",
+        "or"
+    ],
+    "Blade, Cutting Through Object.mp3": [
+        "through",
+        "object",
+        "blade",
+        "cutting"
+    ],
+    "Book, Flipping through 2.mp3": [
+        "through",
+        "flipping",
+        "book"
+    ],
+    "Bottle Uncork.mp3": [
+        "uncork",
+        "bottle"
+    ],
+    "Bottle, Uncork with mouth and spit.mp3": [
+        "uncork",
+        "bottle",
+        "spit",
+        "mouth",
+        "with"
+    ],
+    "Box, open.mp3": [
+        "open",
+        "box"
+    ],
+    "Breaking Ampoule.mp3": [
+        "breaking",
+        "ampoule"
+    ],
+    "Button Press.mp3": [
+        "press",
+        "button"
+    ],
+    "Cash Register, Vintage, Showing Total.mp3": [
+        "total",
+        "vintage",
+        "showing",
+        "cash",
+        "register"
+    ],
+    "Ceramic Pot Breaking 2.mp3": [
+        "pot",
+        "breaking",
+        "ceramic"
+    ],
+    "Ceramic Pot Breaking.mp3": [
+        "pot",
+        "breaking",
+        "ceramic"
+    ],
+    "Chair, Pull Up 2.mp3": [
+        "up",
+        "chair",
+        "pull"
+    ],
+    "Chair, Pull Up 3.mp3": [
+        "up",
+        "chair",
+        "pull"
+    ],
+    "Chest, open 1.mp3": [
+        "open",
+        "chest"
+    ],
+    "Coin - landing on table glass.mp3": [
+        "coin",
+        "table",
+        "glass",
+        "landing"
+    ],
+    "Coin - Small flip.mp3": [
+        "coin",
+        "small",
+        "flip"
+    ],
+    "Coin flip - Best landing 1.mp3": [
+        "coin",
+        "best",
+        "flip",
+        "landing"
+    ],
+    "Coin flip - with reverb.mp3": [
+        "coin",
+        "flip",
+        "with",
+        "reverb"
+    ],
+    "Crate Break 2.mp3": [
+        "break",
+        "crate"
+    ],
+    "Crate Lid Opened.mp3": [
+        "opened",
+        "lid",
+        "crate"
+    ],
+    "Cuttingboard - Single Chop - Loopable.mp3": [
+        "cuttingboard",
+        "loopable",
+        "single",
+        "chop"
+    ],
+    "Dice, Rolling.mp3": [
+        "dice",
+        "rolling"
+    ],
+    "Door Opening - Very Slow Level Creak.mp3": [
+        "creak",
+        "slow",
+        "level",
+        "very",
+        "door",
+        "opening"
+    ],
+    "Door slam Heavy.mp3": [
+        "door",
+        "heavy",
+        "slam"
+    ],
+    "Drink 1.mp3": [
+        "drink"
+    ],
+    "Door, closing.mp3": [
+        "door",
+        "closing"
+    ],
+    "Door, Glass, Object Striking - Loopable.mp3": [
+        "object",
+        "loopable",
+        "glass",
+        "striking",
+        "door"
+    ],
+    "Door, opening slowly, creak.mp3": [
+        "slowly",
+        "door",
+        "opening",
+        "creak"
+    ],
+    "Door, Secret Sliding Mechanism.mp3": [
+        "door",
+        "mechanism",
+        "sliding",
+        "secret"
+    ],
+    "Door, Security Bar Gate.mp3": [
+        "bar",
+        "door",
+        "gate",
+        "security"
+    ],
+    "Door, Unlock Gate.mp3": [
+        "unlock",
+        "door",
+        "gate"
+    ],
+    "Doorbell Chime.mp3": [
+        "chime",
+        "doorbell"
+    ],
+    "Doorbell, SIngle Ring, Chime.mp3": [
+        "chime",
+        "ring",
+        "single",
+        "doorbell"
+    ],
+    "Drop Large Item.mp3": [
+        "item",
+        "drop",
+        "large"
+    ],
+    "Drop, Heavy Weight.mp3": [
+        "drop",
+        "heavy",
+        "weight"
+    ],
+    "Droplet, Echo 1, Loopable.mp3": [
+        "echo",
+        "loopable",
+        "droplet"
+    ],
+    "Droplet, Echo 2, Loopable.mp3": [
+        "echo",
+        "loopable",
+        "droplet"
+    ],
+    "Droplet, Echo 3, Loopable.mp3": [
+        "echo",
+        "loopable",
+        "droplet"
+    ],
+    "Eating, done, Put down Fork and knife 2.mp3": [
+        "down",
+        "put",
+        "eating",
+        "fork",
+        "done",
+        "knife"
+    ],
+    "Eating, done, Put down Fork and knife.mp3": [
+        "down",
+        "put",
+        "eating",
+        "fork",
+        "done",
+        "knife"
+    ],
+    "Eating, Softly, With Utensils.mp3": [
+        "eating",
+        "utensils",
+        "with",
+        "softly"
+    ],
+    "Eating, Start, utensils.mp3": [
+        "eating",
+        "utensils",
+        "start"
+    ],
+    "Eating, With Utensils.mp3": [
+        "eating",
+        "utensils",
+        "with"
+    ],
+    "Engine, Deisel - Loopable.mp3": [
+        "loopable",
+        "deisel",
+        "engine"
+    ],
+    "Explosion - Firebomb Ignition.mp3": [
+        "ignition",
+        "explosion",
+        "firebomb"
+    ],
+    "Explosion - Within Metal target or Vehicle.mp3": [
+        "vehicle",
+        "target",
+        "metal",
+        "within",
+        "explosion",
+        "or"
+    ],
+    "Fence, Electric Hum - Loopable.mp3": [
+        "loopable",
+        "hum",
+        "electric",
+        "fence"
+    ],
+    "Fire - Structure Collapsing.mp3": [
+        "fire",
+        "collapsing",
+        "structure"
+    ],
+    "Fire, Flammable Large Lighting Up.mp3": [
+        "lighting",
+        "large",
+        "fire",
+        "flammable",
+        "up"
+    ],
+    "Fire, Strike Match 2.mp3": [
+        "fire",
+        "strike",
+        "match"
+    ],
+    "FIshingline cast Released.mp3": [
+        "cast",
+        "fishingline",
+        "released"
+    ],
+    "Fuse Burn large - 3 Seconds.mp3": [
+        "seconds",
+        "burn",
+        "fuse",
+        "large"
+    ],
+    "Gate, Metal, Locked.mp3": [
+        "gate",
+        "metal",
+        "locked"
+    ],
+    "gate, Metal, Unlock 2.mp3": [
+        "unlock",
+        "gate",
+        "metal"
+    ],
+    "Glass Vial Shattering.mp3": [
+        "glass",
+        "vial",
+        "shattering"
+    ],
+    "GolfBall Strike.mp3": [
+        "golfball",
+        "strike"
+    ],
+    "Heartbeat 4 Rested 2 - Loopable.mp3": [
+        "heartbeat",
+        "loopable",
+        "rested"
+    ],
+    "Item Dropping From Machine 2.mp3": [
+        "from",
+        "item",
+        "machine",
+        "dropping"
+    ],
+    "Item Picked Up on Surface.mp3": [
+        "picked",
+        "item",
+        "up",
+        "surface"
+    ],
+    "Jump, Soft Landing.mp3": [
+        "jump",
+        "soft",
+        "landing"
+    ],
+    "Keypad, Input 4 Digit Key.mp3": [
+        "key",
+        "digit",
+        "keypad",
+        "input"
+    ],
+    "Ladder, Testing.mp3": [
+        "ladder",
+        "testing"
+    ],
+    "Lifting Weights.mp3": [
+        "lifting",
+        "weights"
+    ],
+    "Lighter, Pilot Light.mp3": [
+        "light",
+        "lighter",
+        "pilot"
+    ],
+    "Lock, Metal chain.mp3": [
+        "chain",
+        "metal",
+        "lock"
+    ],
+    "Machine Hum - Loopable.mp3": [
+        "hum",
+        "machine",
+        "loopable"
+    ],
+    "Machine Hum, Heavy - Loopable.mp3": [
+        "hum",
+        "machine",
+        "loopable",
+        "heavy"
+    ],
+    "Machine Hum, Medium - Loopable.mp3": [
+        "medium",
+        "hum",
+        "machine",
+        "loopable"
+    ],
+    "Match Strike, Failure to Catch.mp3": [
+        "failure",
+        "strike",
+        "to",
+        "match",
+        "catch"
+    ],
+    "Money, Coin Pouch Drop.mp3": [
+        "coin",
+        "drop",
+        "pouch",
+        "money"
+    ],
+    "Money, Empty Bag of Coins.mp3": [
+        "empty",
+        "of",
+        "money",
+        "coins",
+        "bag"
+    ],
+    "Money, Shuffle Together.mp3": [
+        "together",
+        "shuffle",
+        "money"
+    ],
+    "Ice_impact_3.mp3": [
+        "ice",
+        "impact"
+    ],
+    "Level_up.mp3": [
+        "up",
+        "level"
+    ],
+    "Blade, Cutting Through, Soft.mp3": [
+        "through",
+        "soft",
+        "blade",
+        "cutting"
+    ],
+    "Blade, Small, Soft Cutting Through item.mp3": [
+        "through",
+        "small",
+        "soft",
+        "item",
+        "blade",
+        "cutting"
+    ],
+    "Book, Flip Page.mp3": [
+        "page",
+        "flip",
+        "book"
+    ],
+    "Book, Flipping Through.mp3": [
+        "through",
+        "flipping",
+        "book"
+    ],
+    "Bottle Uncork 3.mp3": [
+        "uncork",
+        "bottle"
+    ],
+    "Boulder Dislodged.mp3": [
+        "boulder",
+        "dislodged"
+    ],
+    "Break Object - Small.mp3": [
+        "break",
+        "object",
+        "small"
+    ],
+    "Break Object - Window, Panes Falling.mp3": [
+        "panes",
+        "object",
+        "window",
+        "break",
+        "falling"
+    ],
+    "Bushes, Peeking out from.mp3": [
+        "peeking",
+        "out",
+        "from",
+        "bushes"
+    ],
+    "Cape and Hood Drawn.mp3": [
+        "hood",
+        "drawn",
+        "cape"
+    ],
+    "Cash Register, Open Till.mp3": [
+        "till",
+        "open",
+        "register",
+        "cash"
+    ],
+    "Ceramic Pot Breaking 4.mp3": [
+        "pot",
+        "breaking",
+        "ceramic"
+    ],
+    "Chair Rocking.mp3": [
+        "chair",
+        "rocking"
+    ],
+    "Chair, Pull Up, large.mp3": [
+        "up",
+        "chair",
+        "large",
+        "pull"
+    ],
+    "Chair, Pull Up.mp3": [
+        "up",
+        "chair",
+        "pull"
+    ],
+    "Chair, sitting down.mp3": [
+        "down",
+        "chair",
+        "sitting"
+    ],
+    "Cloth Dragging.mp3": [
+        "dragging",
+        "cloth"
+    ],
+    "Coin - Dropped on asphault.mp3": [
+        "coin",
+        "dropped",
+        "asphault"
+    ],
+    "Coin - Flip.mp3": [
+        "coin",
+        "flip"
+    ],
+    "Crafting - Leather Tearing.mp3": [
+        "crafting",
+        "leather",
+        "tearing"
+    ],
+    "Deck of Cards, Shuffle and Cut.mp3": [
+        "cards",
+        "shuffle",
+        "of",
+        "cut",
+        "deck"
+    ],
+    "Dice, Drop.mp3": [
+        "dice",
+        "drop"
+    ],
+    "Door - careful, Creak.mp3": [
+        "careful",
+        "door",
+        "creak"
+    ],
+    "Door - Quick - Creak.mp3": [
+        "door",
+        "creak",
+        "quick"
+    ],
+    "Door, Gate Stuck - Locked.mp3": [
+        "door",
+        "gate",
+        "stuck",
+        "locked"
+    ],
+    "Door, Heavy Slam.mp3": [
+        "door",
+        "heavy",
+        "slam"
+    ],
+    "Door, Rhythmic Knocking 1.mp3": [
+        "door",
+        "knocking",
+        "rhythmic"
+    ],
+    "Doorbell, Sustained Ring.mp3": [
+        "sustained",
+        "ring",
+        "doorbell"
+    ],
+    "Doors, Automatic - Soft.mp3": [
+        "doors",
+        "soft",
+        "automatic"
+    ],
+    "Drawer Opened.mp3": [
+        "opened",
+        "drawer"
+    ],
+    "Drink 2.mp3": [
+        "drink"
+    ],
+    "Explosion Under Water.mp3": [
+        "explosion",
+        "under",
+        "water"
+    ],
+    "Fabric Tearing.mp3": [
+        "tearing",
+        "fabric"
+    ],
+    "Fire - Building Collapses.mp3": [
+        "fire",
+        "building",
+        "collapses"
+    ],
+    "Fire - Ignition, Accelerant.mp3": [
+        "ignition",
+        "fire",
+        "accelerant"
+    ],
+    "Fire - Ignition, Combustible Powder.mp3": [
+        "ignition",
+        "fire",
+        "combustible",
+        "powder"
+    ],
+    "Fire, Strike Match 4.mp3": [
+        "fire",
+        "strike",
+        "match"
+    ],
+    "Fire, Striking Match Repeatedly, Loopable.mp3": [
+        "fire",
+        "loopable",
+        "repeatedly",
+        "striking",
+        "match"
+    ],
+    "Forest Birdsong - Loopable.mp3": [
+        "birdsong",
+        "forest",
+        "loopable"
+    ],
+    "Fuse Box Tripping.mp3": [
+        "tripping",
+        "fuse",
+        "box"
+    ],
+    "Fuse Burn Getting Fainter - 3 Seconds.mp3": [
+        "seconds",
+        "burn",
+        "getting",
+        "fuse",
+        "fainter"
+    ],
+    "Fuse Engaging.mp3": [
+        "engaging",
+        "fuse"
+    ],
+    "Gate, Raise Up.mp3": [
+        "up",
+        "raise",
+        "gate"
+    ],
+    "Item Dropping From Machine 3.mp3": [
+        "from",
+        "item",
+        "machine",
+        "dropping"
+    ],
+    "Item Dropping into Tin.mp3": [
+        "item",
+        "tin",
+        "dropping",
+        "into"
+    ],
+    "Jar Clay Shatter.mp3": [
+        "clay",
+        "jar",
+        "shatter"
+    ],
+    "Jump, Hard Landing.mp3": [
+        "jump",
+        "hard",
+        "landing"
+    ],
+    "Large Window Breaking.mp3": [
+        "breaking",
+        "large",
+        "window"
+    ],
+    "Lever Pull 2.mp3": [
+        "lever",
+        "pull"
+    ],
+    "Lighter, 2 try.mp3": [
+        "try",
+        "lighter"
+    ],
+    "Machine, Insert Coin and rotate Reciever.mp3": [
+        "rotate",
+        "machine",
+        "coin",
+        "insert",
+        "reciever"
+    ],
+    "Machinery Engine - Dry Start.mp3": [
+        "machinery",
+        "start",
+        "engine",
+        "dry"
+    ],
+    "Money, Draw and toss bag.mp3": [
+        "draw",
+        "toss",
+        "bag",
+        "money"
+    ],
+    "Motorcycle, going past, walker.mp3": [
+        "past",
+        "walker",
+        "going",
+        "motorcycle"
+    ],
+    "Mouth Rinsing.mp3": [
+        "mouth",
+        "rinsing"
+    ],
+    "Object Falls in the Distance - Echo.mp3": [
+        "the",
+        "echo",
+        "distance",
+        "object",
+        "falls"
+    ],
+    "Object Hitting Roof of Vehicle.mp3": [
+        "hitting",
+        "vehicle",
+        "of",
+        "roof",
+        "object"
+    ],
+    "Object Rattling in Vent.mp3": [
+        "rattling",
+        "object",
+        "vent"
+    ],
+    "Object, Heavy Hitting Water.mp3": [
+        "hitting",
+        "object",
+        "heavy",
+        "water"
+    ],
+    "Paper Snatched Away.mp3": [
+        "paper",
+        "away",
+        "snatched"
+    ],
+    "Papers - Turning Over.mp3": [
+        "papers",
+        "over",
+        "turning"
+    ],
+    "Pen or Pencil pulled from a cupfull.mp3": [
+        "cupfull",
+        "pencil",
+        "pulled",
+        "from",
+        "pen",
+        "or"
+    ],
+    "Pipe Striking Chained Lock.mp3": [
+        "pipe",
+        "striking",
+        "chained",
+        "lock"
+    ],
+    "Pitcher Being Stirred.mp3": [
+        "pitcher",
+        "stirred",
+        "being"
+    ],
+    "Razor Tapping on Glass.mp3": [
+        "glass",
+        "razor",
+        "tapping"
+    ],
+    "Ship High Horn.mp3": [
+        "high",
+        "ship",
+        "horn"
+    ],
+    "Ship Low Horn.mp3": [
+        "low",
+        "ship",
+        "horn"
+    ],
+    "Slide Open Door.mp3": [
+        "slide",
+        "open",
+        "door"
+    ],
+    "Sparks Fizzing onto Ground.mp3": [
+        "sparks",
+        "onto",
+        "fizzing",
+        "ground"
+    ],
+    "Toilet, Floor model,  FLush.mp3": [
+        "floor",
+        "toilet",
+        "flush",
+        "model"
+    ],
+    "Toilet, Rapid Flush, Train-plane.mp3": [
+        "plane",
+        "train",
+        "toilet",
+        "rapid",
+        "flush"
+    ],
+    "Tuning Fork Ring.mp3": [
+        "fork",
+        "tuning",
+        "ring"
+    ],
+    "Unlock Chain.mp3": [
+        "unlock",
+        "chain"
+    ],
+    "Walk down Short Steps.mp3": [
+        "down",
+        "walk",
+        "steps",
+        "short"
+    ],
+    "Water - Rushing River, Close.mp3": [
+        "river",
+        "rushing",
+        "water",
+        "close"
+    ],
+    "Water, Draining From Container.mp3": [
+        "container",
+        "draining",
+        "from",
+        "water"
+    ],
+    "Water, Stream - Loopable.mp3": [
+        "stream",
+        "loopable",
+        "water"
+    ],
+    "Waterfall Cascade 2, Loopable.mp3": [
+        "waterfall",
+        "cascade",
+        "loopable"
+    ],
+    "Whistle - Steam Teapot.mp3": [
+        "teapot",
+        "whistle",
+        "steam"
+    ],
+    "Cave_ambience_1.mp3": [
+        "cave",
+        "ambience"
+    ],
+    "River_flow_1.mp3": [
+        "river",
+        "flow"
+    ],
+    "River_flow_2.mp3": [
+        "river",
+        "flow"
+    ],
+    "Bell, Church Tower.mp3": [
+        "tower",
+        "church",
+        "bell"
+    ],
+    "Bell, Ringer 2x.mp3": [
+        "bell",
+        "ringer"
+    ],
+    "Bicylce Ride with Chain 3 - Loopable.mp3": [
+        "loopable",
+        "ride",
+        "bicylce",
+        "chain",
+        "with"
+    ],
+    "Blade, Sharpening 2, Loopable.mp3": [
+        "sharpening",
+        "blade",
+        "loopable"
+    ],
+    "Book, Open.mp3": [
+        "open",
+        "book"
+    ],
+    "Book, Ruffling Pages.mp3": [
+        "ruffling",
+        "pages",
+        "book"
+    ],
+    "Break Object - Window, large glass 2.mp3": [
+        "large",
+        "object",
+        "window",
+        "break",
+        "glass"
+    ],
+    "Breaking glass - Ampoule.mp3": [
+        "glass",
+        "breaking",
+        "ampoule"
+    ],
+    "button press 2.mp3": [
+        "press",
+        "button"
+    ],
+    "Card, Shuffle Together.mp3": [
+        "together",
+        "card",
+        "shuffle"
+    ],
+    "Cards, Deal 5.mp3": [
+        "cards",
+        "deal"
+    ],
+    "Cards. Deal 2.mp3": [
+        "deal",
+        "cards."
+    ],
+    "Ceramic pot Breaking 3.mp3": [
+        "pot",
+        "breaking",
+        "ceramic"
+    ],
+    "Chair, Pull up a seat.mp3": [
+        "up",
+        "chair",
+        "seat",
+        "pull"
+    ],
+    "Coin - Heavy Flip.mp3": [
+        "coin",
+        "flip",
+        "heavy"
+    ],
+    "Coin flip - Best landing 2.mp3": [
+        "coin",
+        "best",
+        "flip",
+        "landing"
+    ],
+    "Coin Pouch Changing Hands.mp3": [
+        "coin",
+        "hands",
+        "pouch",
+        "changing"
+    ],
+    "Countdown, Proper 3.mp3": [
+        "countdown",
+        "proper"
+    ],
+    "Crafting - Slashing Canvas.mp3": [
+        "crafting",
+        "slashing",
+        "canvas"
+    ],
+    "Crate Break.mp3": [
+        "break",
+        "crate"
+    ],
+    "Destroy, Small Structure Collapse.mp3": [
+        "small",
+        "destroy",
+        "structure",
+        "collapse"
+    ],
+    "Dice, roll.mp3": [
+        "dice",
+        "roll"
+    ],
+    "Door, Airlock Booth - Hospital-prison.mp3": [
+        "hospital",
+        "prison",
+        "booth",
+        "airlock",
+        "door"
+    ],
+    "Door, Closing - Creak 2.mp3": [
+        "door",
+        "creak",
+        "closing"
+    ],
+    "Door, Locked, Key Unlocking.mp3": [
+        "unlocking",
+        "door",
+        "locked",
+        "key"
+    ],
+    "Door, Pound - Loopable.mp3": [
+        "door",
+        "pound",
+        "loopable"
+    ],
+    "Door, Quiet Testing of Locked Door.mp3": [
+        "quiet",
+        "of",
+        "locked",
+        "testing",
+        "door"
+    ],
+    "Doorbell, Musical.mp3": [
+        "musical",
+        "doorbell"
+    ],
+    "Doorknock Heavy.mp3": [
+        "doorknock",
+        "heavy"
+    ],
+    "Drop Object, into Water.mp3": [
+        "water",
+        "object",
+        "drop",
+        "into"
+    ],
+    "Drop Object, Large into Water.mp3": [
+        "large",
+        "object",
+        "drop",
+        "into",
+        "water"
+    ],
+    "Drop, Heavy Reverb.mp3": [
+        "drop",
+        "reverb",
+        "heavy"
+    ],
+    "Dropping Marble in Glass-ceramic Urn.mp3": [
+        "dropping",
+        "ceramic",
+        "marble",
+        "urn",
+        "glass"
+    ],
+    "Duct Tape Applied.mp3": [
+        "duct",
+        "applied",
+        "tape"
+    ],
+    "Eating, Bite Meat.mp3": [
+        "eating",
+        "meat",
+        "bite"
+    ],
+    "Exploding Drum.mp3": [
+        "drum",
+        "exploding"
+    ],
+    "Engine, Generator device - Loopable.mp3": [
+        "device",
+        "generator",
+        "loopable",
+        "engine"
+    ],
+    "Fence, Electric - High Voltage contact.mp3": [
+        "voltage",
+        "fence",
+        "contact",
+        "high",
+        "electric"
+    ],
+    "Fire - Launch Jet.mp3": [
+        "launch",
+        "fire",
+        "jet"
+    ],
+    "Fire, camp - Loopable.mp3": [
+        "fire",
+        "camp",
+        "loopable"
+    ],
+    "Fire, camp Bonfire.mp3": [
+        "fire",
+        "bonfire",
+        "camp"
+    ],
+    "FIre, Lighting Fuel.mp3": [
+        "fire",
+        "lighting",
+        "fuel"
+    ],
+    "Fire, Strike Match 3.mp3": [
+        "fire",
+        "strike",
+        "match"
+    ],
+    "Fire, Strike Match.mp3": [
+        "fire",
+        "strike",
+        "match"
+    ],
+    "Fishing, Reel Her In - Loopable - Copy.mp3": [
+        "reel",
+        "loopable",
+        "copy",
+        "her",
+        "fishing"
+    ],
+    "Fishing, Reel Her In - Loopable.mp3": [
+        "reel",
+        "her",
+        "loopable",
+        "fishing"
+    ],
+    "Flammable, Object Being Lit.mp3": [
+        "flammable",
+        "object",
+        "lit",
+        "being"
+    ],
+    "Furniture Collapse - Glass Table, Display or Cabinet.mp3": [
+        "cabinet",
+        "furniture",
+        "table",
+        "or",
+        "collapse",
+        "display",
+        "glass"
+    ],
+    "Fuse Burn - Going Out.mp3": [
+        "going",
+        "burn",
+        "fuse",
+        "out"
+    ],
+    "Gate, Heavy Impact.mp3": [
+        "impact",
+        "gate",
+        "heavy"
+    ],
+    "Gate, Metal, Electric lock.mp3": [
+        "gate",
+        "metal",
+        "electric",
+        "lock"
+    ],
+    "gate, Metal, Unlock.mp3": [
+        "unlock",
+        "gate",
+        "metal"
+    ],
+    "Generator Running - Loopable.mp3": [
+        "running",
+        "generator",
+        "loopable"
+    ],
+    "Gunshot Armored Target.mp3": [
+        "gunshot",
+        "armored",
+        "target"
+    ],
+    "Ice Clinking in Glass.mp3": [
+        "clinking",
+        "ice",
+        "glass"
+    ],
+    "Item Dropping From Machine 1.mp3": [
+        "from",
+        "item",
+        "machine",
+        "dropping"
+    ],
+    "Jar Clay Shatter 2.mp3": [
+        "clay",
+        "jar",
+        "shatter"
+    ],
+    "Knife on Cutting Board.mp3": [
+        "board",
+        "knife",
+        "cutting"
+    ],
+    "Knocking over, Tray.mp3": [
+        "over",
+        "knocking",
+        "tray"
+    ],
+    "Ladder, Placed.mp3": [
+        "placed",
+        "ladder"
+    ],
+    "Large Drum Strike.mp3": [
+        "drum",
+        "strike",
+        "large"
+    ],
+    "Lever Pull.mp3": [
+        "lever",
+        "pull"
+    ],
+    "Lighter, Electric Button.mp3": [
+        "lighter",
+        "electric",
+        "button"
+    ],
+    "Lock Chain.mp3": [
+        "chain",
+        "lock"
+    ],
+    "Lock, Chained Breaking.mp3": [
+        "breaking",
+        "chained",
+        "lock"
+    ],
+    "Money being banded or Clipped.mp3": [
+        "clipped",
+        "banded",
+        "money",
+        "being",
+        "or"
+    ],
+    "Money, Weigh Coin Purse.mp3": [
+        "weigh",
+        "coin",
+        "purse",
+        "money"
+    ],
+    "Oar Row in Water - Loopable.mp3": [
+        "row",
+        "oar",
+        "loopable",
+        "water"
+    ],
+    "Object falling in water.mp3": [
+        "falling",
+        "object",
+        "water"
+    ],
+    "Object falling on Wooden floor.mp3": [
+        "falling",
+        "wooden",
+        "object",
+        "floor"
+    ],
+    "Paper Tearing off Reciept or Slip.mp3": [
+        "tearing",
+        "or",
+        "paper",
+        "off",
+        "reciept",
+        "slip"
+    ],
+    "Phone Trill - Blaring.mp3": [
+        "blaring",
+        "trill",
+        "phone"
+    ],
+    "Phone Trill - Single,  Loopable.mp3": [
+        "loopable",
+        "single",
+        "trill",
+        "phone"
+    ],
+    "Pickpocket Snatch Soft.mp3": [
+        "snatch",
+        "pickpocket",
+        "soft"
+    ],
+    "Pickup Heavy item.mp3": [
+        "pickup",
+        "item",
+        "heavy"
+    ],
+    "Platform Collapsing into Water.mp3": [
+        "water",
+        "collapsing",
+        "platform",
+        "into"
+    ],
+    "Potion, Drink.mp3": [
+        "drink",
+        "potion"
+    ],
+    "The Great Mine.mp3": [
+        "great",
+        "mine",
+        "the"
+    ],
+    "The Stronghold.mp3": [
+        "stronghold",
+        "the"
+    ],
+    "The Swamps At Night.mp3": [
+        "night",
+        "the",
+        "at",
+        "swamps"
+    ],
+    "The Tavern.mp3": [
+        "the",
+        "tavern"
+    ],
+    "Reeling In Fishing Line.mp3": [
+        "line",
+        "reeling",
+        "fishing"
+    ],
+    "Rolling Thunder.mp3": [
+        "thunder",
+        "rolling"
+    ],
+    "Sawing.mp3": [
+        "sawing"
+    ],
+    "Scroll, Unrolled.mp3": [
+        "scroll",
+        "unrolled"
+    ],
+    "Switch Push.mp3": [
+        "push",
+        "switch"
+    ],
+    "Scissors Slicing - Loopable.mp3": [
+        "slicing",
+        "loopable",
+        "scissors"
+    ],
+    "Scroll - Paper, Unrolling.mp3": [
+        "paper",
+        "scroll",
+        "unrolling"
+    ],
+    "Sniffing Sugar.mp3": [
+        "sniffing",
+        "sugar"
+    ],
+    "Snowball Hitting Surface and falling.mp3": [
+        "snowball",
+        "falling",
+        "hitting",
+        "surface"
+    ],
+    "Striking, Pickaxe Mining Multiple 2 - Loopable.mp3": [
+        "multiple",
+        "pickaxe",
+        "loopable",
+        "mining",
+        "striking"
+    ],
+    "Toilet, Item-creature Flushed Down.mp3": [
+        "down",
+        "flushed",
+        "toilet",
+        "item",
+        "creature"
+    ],
+    "Tree, Object Falling From.mp3": [
+        "falling",
+        "object",
+        "tree",
+        "from"
+    ],
+    "Water Droplet landing - Loopable.mp3": [
+        "landing",
+        "loopable",
+        "water",
+        "droplet"
+    ],
+    "Water Large Droplets - Loopable.mp3": [
+        "droplets",
+        "large",
+        "loopable",
+        "water"
+    ],
+    "Waterfall Cascade Large, Loopable.mp3": [
+        "waterfall",
+        "cascade",
+        "large",
+        "loopable"
+    ],
+    "Waterfall Cascade soft, Loopable.mp3": [
+        "waterfall",
+        "cascade",
+        "soft",
+        "loopable"
+    ],
+    "Waterfall Cascade, Loopable.mp3": [
+        "waterfall",
+        "cascade",
+        "loopable"
+    ],
+    "Window, SIngle Glass Pane Shattering.mp3": [
+        "single",
+        "window",
+        "shattering",
+        "pane",
+        "glass"
+    ],
+    "Window, Slamming Shut.mp3": [
+        "shut",
+        "window",
+        "slamming"
+    ],
+    "Winds, In Blizzard - Loopable.mp3": [
+        "winds",
+        "loopable",
+        "blizzard"
+    ],
+    "Doors, Knock, Front, Wooden, Knocks Impatient - Portas, Batida, Frente, Madeira, Bate Impaciente.mp3": [
+        "madeira",
+        "wooden",
+        "knock",
+        "frente",
+        "doors",
+        "impaciente",
+        "front",
+        "batida",
+        "knocks",
+        "impatient",
+        "portas",
+        "bate"
+    ],
+    "Equip_weapon_3.mp3": [
+        "equip",
+        "weapon"
+    ],
+    "Floresta.wav": [
+        "floresta"
+    ],
+    "Ambience, Public Place, Cemetery, Rural Large Main Path, Footsteps, People Talking 01 - Ambiente, Logradouro, Cemitério, Caminho Principal Rural Grande, Passos, Pessoas Falando 01.mp3": [
+        "place",
+        "ambience",
+        "passos",
+        "ambiente",
+        "talking",
+        "cemitério",
+        "rural",
+        "cemetery",
+        "path",
+        "falando",
+        "main",
+        "footsteps",
+        "large",
+        "grande",
+        "principal",
+        "people",
+        "pessoas",
+        "public",
+        "caminho",
+        "logradouro"
+    ],
+    "Voices, Misc, Men, Dark Voice, Distant Chatter, Prison - Vozes, Diversos, Homens, Voz Negra, Conversa Distante, Prisão.mp3": [
+        "distante",
+        "dark",
+        "misc",
+        "voice",
+        "prison",
+        "voz",
+        "vozes",
+        "negra",
+        "prisão",
+        "distant",
+        "men",
+        "diversos",
+        "voices",
+        "homens",
+        "conversa",
+        "chatter"
+    ],
+    "Footstep_water.mp3": [
+        "footstep",
+        "water"
+    ],
+    "Footstep_wood_2.mp3": [
+        "footstep",
+        "wood"
+    ],
+    "Footsteps_gravel_2.mp3": [
+        "footsteps",
+        "gravel"
+    ],
+    "Lightning_cast.mp3": [
+        "cast",
+        "lightning"
+    ],
+    "Night_ambience_2.mp3": [
+        "ambience",
+        "night"
+    ],
+    "Potion_drink_3.mp3": [
+        "drink",
+        "potion"
+    ],
+    "Quest_complete_1.mp3": [
+        "complete",
+        "quest"
+    ],
+    "Running_on_grass.mp3": [
+        "running",
+        "grass"
+    ],
+    "Skeleton_attack_3.mp3": [
+        "attack",
+        "skeleton"
+    ],
+    "Sword_hit_armor_2.mp3": [
+        "hit",
+        "armor",
+        "sword"
+    ],
+    "Town_ambience.mp3": [
+        "ambience",
+        "town"
+    ],
+    "Zombie_moan_1.mp3": [
+        "moan",
+        "zombie"
+    ],
+    "Wind Through The Trees.mp3": [
+        "through",
+        "trees",
+        "wind",
+        "the"
+    ],
+    "Parking Meter, Expired.mp3": [
+        "parking",
+        "expired",
+        "meter"
+    ],
+    "Phone Ring, Melodic Tone - Loopable.mp3": [
+        "ring",
+        "melodic",
+        "loopable",
+        "phone",
+        "tone"
+    ],
+    "Phone Trill.mp3": [
+        "trill",
+        "phone"
+    ],
+    "Pickup Item, from table.mp3": [
+        "pickup",
+        "item",
+        "from",
+        "table"
+    ],
+    "Record Scratching.mp3": [
+        "scratching",
+        "record"
+    ],
+    "River , rushing up Close.mp3": [
+        "up",
+        "rushing",
+        "river",
+        "close"
+    ],
+    "Scissors, cutting Fabric or Hair once.mp3": [
+        "hair",
+        "fabric",
+        "once",
+        "or",
+        "cutting",
+        "scissors"
+    ],
+    "Seatbelts.mp3": [
+        "seatbelts"
+    ],
+    "Shaking Out Mat or tablecloth.mp3": [
+        "mat",
+        "tablecloth",
+        "shaking",
+        "out",
+        "or"
+    ],
+    "Shaking the Bones - Dice.mp3": [
+        "bones",
+        "dice",
+        "shaking",
+        "the"
+    ],
+    "Snow Sliding off Roof.mp3": [
+        "sliding",
+        "snow",
+        "off",
+        "roof"
+    ],
+    "Water - Large Wave Crest.mp3": [
+        "crest",
+        "large",
+        "water",
+        "wave"
+    ],
+    "Water draining From Container.mp3": [
+        "container",
+        "draining",
+        "from",
+        "water"
+    ],
+    "Water Fountain.mp3": [
+        "fountain",
+        "water"
+    ],
+    "Water Large wave Crest.mp3": [
+        "crest",
+        "large",
+        "water",
+        "wave"
+    ],
+    "Water, Oar Row Single - Loopable.mp3": [
+        "single",
+        "loopable",
+        "row",
+        "water",
+        "oar"
+    ],
+    "Water, Rapid Burst, Sink or Fountain - Loopable.mp3": [
+        "sink",
+        "burst",
+        "fountain",
+        "or",
+        "loopable",
+        "water",
+        "rapid"
+    ],
+    "Window, Opened in 2 steps.mp3": [
+        "opened",
+        "steps",
+        "window"
+    ],
+    "Running_dirt.mp3": [
+        "running",
+        "dirt"
+    ],
+    "Metal, Impact, Heavy Against Heavy, Blacksmith, Anvil 02 - Metal, Impacto, Pesado Contra Pesado, Ferreiro, Bigorna 02.mp3": [
+        "anvil",
+        "ferreiro",
+        "blacksmith",
+        "metal",
+        "against",
+        "contra",
+        "pesado",
+        "impact",
+        "impacto",
+        "bigorna",
+        "heavy"
+    ],
+    "Torch_fire.mp3": [
+        "fire",
+        "torch"
+    ],
+    "Dungeon_ambience.mp3": [
+        "ambience",
+        "dungeon"
+    ],
+    "Dungeon_ambience_1.mp3": [
+        "ambience",
+        "dungeon"
+    ],
+    "Dungeon_ambience_2.mp3": [
+        "ambience",
+        "dungeon"
+    ],
+    "Fire_spell_cast.mp3": [
+        "fire",
+        "spell",
+        "cast"
+    ],
+    "Fire_spell_cast_1.mp3": [
+        "fire",
+        "spell",
+        "cast"
+    ],
+    "Fire_spell_impact_2.mp3": [
+        "fire",
+        "impact",
+        "spell"
+    ],
+    "Footstep_dirt_2.mp3": [
+        "footstep",
+        "dirt"
+    ],
+    "Footstep_grass_2.mp3": [
+        "footstep",
+        "grass"
+    ],
+    "Footstep_grass_3.mp3": [
+        "footstep",
+        "grass"
+    ],
+    "Footstep_stone_1.mp3": [
+        "footstep",
+        "stone"
+    ],
+    "Footstep_stone_3.mp3": [
+        "footstep",
+        "stone"
+    ],
+    "Footstep_stone_6.mp3": [
+        "footstep",
+        "stone"
+    ],
+    "Footsteps_gravel_1.mp3": [
+        "footsteps",
+        "gravel"
+    ],
+    "Goblin_laugh_1.mp3": [
+        "laugh",
+        "goblin"
+    ],
+    "Ice_spell_cast_2.mp3": [
+        "cast",
+        "ice",
+        "spell"
+    ],
+    "Inventory_open_2.mp3": [
+        "open",
+        "inventory"
+    ],
+    "Inventory_open_3.mp3": [
+        "open",
+        "inventory"
+    ],
+    "Magic_projectile_lau_#1-1766764866448.mp3": [
+        "projectile",
+        "magic",
+        "lau"
+    ],
+    "Night_ambience_1.mp3": [
+        "ambience",
+        "night"
+    ],
+    "Potion_drink_2.mp3": [
+        "drink",
+        "potion"
+    ],
+    "Quest_complete.mp3": [
+        "complete",
+        "quest"
+    ],
+    "Shield_block_1.mp3": [
+        "shield",
+        "block"
+    ],
+    "Sword_hit_flesh_1.mp3": [
+        "hit",
+        "sword",
+        "flesh"
+    ],
+    "Wooden_door_open.mp3": [
+        "wooden",
+        "door",
+        "open"
+    ],
+    "Zombie_moan_2.mp3": [
+        "moan",
+        "zombie"
+    ],
+    "Achievement_unlock_2.mp3": [
+        "unlock",
+        "achievement"
+    ],
+    "Blessing_applied.mp3": [
+        "blessing",
+        "applied"
+    ],
+    "Floresta ao amanhecer.wav": [
+        "floresta",
+        "ao",
+        "amanhecer"
+    ],
+    "Village On A Windy Day.mp3": [
+        "windy",
+        "village",
+        "day"
+    ],
+    "Window Shattered Multiple Small Impacts.mp3": [
+        "small",
+        "multiple",
+        "window",
+        "shattered",
+        "impacts"
+    ],
+    "Window Smashed and Raining Shards.mp3": [
+        "shards",
+        "raining",
+        "window",
+        "smashed"
+    ],
+    "Zipper Jacket Opened.mp3": [
+        "jacket",
+        "opened",
+        "zipper"
+    ],
+    "Zipper Leather Jacket.mp3": [
+        "leather",
+        "jacket",
+        "zipper"
+    ],
+    "Dagger_stab_3.mp3": [
+        "stab",
+        "dagger"
+    ],
+    "Level_up_2.mp3": [
+        "up",
+        "level"
+    ],
+    "Tools, Hand, Hammer, Anvil, Impact, Blacksmith, Indoors, Mid Ranged 02 - Ferramentas, Mão, Martelo, Bigorna, Impacto, Ferreiro, Interior, Médio Alcance 02.mp3": [
+        "anvil",
+        "tools",
+        "blacksmith",
+        "ranged",
+        "ferreiro",
+        "hammer",
+        "alcance",
+        "ferramentas",
+        "impact",
+        "mão",
+        "martelo",
+        "indoors",
+        "mid",
+        "interior",
+        "impacto",
+        "médio",
+        "hand",
+        "bigorna"
+    ],
+    "Enemy_death_2.mp3": [
+        "enemy",
+        "death"
+    ],
+    "Fire_spell_cast_3.mp3": [
+        "fire",
+        "spell",
+        "cast"
+    ],
+    "Lever_pull_1.mp3": [
+        "lever",
+        "pull"
+    ],
+    "Footstep_stone_4.mp3": [
+        "footstep",
+        "stone"
+    ],
+    "Footstep_wood_1.mp3": [
+        "footstep",
+        "wood"
+    ],
+    "Player_hurt.mp3": [
+        "player",
+        "hurt"
+    ],
+    "Footsteps_running_on_#1.mp3": [
+        "running",
+        "footsteps"
+    ],
+    "Goblin_attack.mp3": [
+        "attack",
+        "goblin"
+    ],
+    "Goblin_attack_2.mp3": [
+        "attack",
+        "goblin"
+    ],
+    "Goblin_laugh_3.mp3": [
+        "laugh",
+        "goblin"
+    ],
+    "Item_pickup_3.mp3": [
+        "pickup",
+        "item"
+    ],
+    "Magic_projectile_lau_#4-1766764858633.mp3": [
+        "projectile",
+        "magic",
+        "lau"
+    ],
+    "Potion_throw_2.mp3": [
+        "throw",
+        "potion"
+    ],
+    "Quest_complete_3.mp3": [
+        "complete",
+        "quest"
+    ],
+    "Running_on_grass_1.mp3": [
+        "running",
+        "grass"
+    ],
+    "Running_on_wood_2.mp3": [
+        "running",
+        "wood"
+    ],
+    "Torch_fire_3.mp3": [
+        "fire",
+        "torch"
+    ],
+    "Spider_hiss_1.mp3": [
+        "hiss",
+        "spider"
+    ],
+    "Sword_swing#4.mp3": [
+        "swing#",
+        "sword"
+    ],
+    "Wooden_door_open_3.mp3": [
+        "wooden",
+        "door",
+        "open"
+    ],
+    "Floresta ao amanhecer (2).wav": [
+        "floresta",
+        "ao",
+        "amanhecer",
+        "()"
+    ],
+    "Sizzling - Meat tossed on Grill.mp3": [
+        "meat",
+        "sizzling",
+        "grill",
+        "tossed"
+    ],
+    "Sticks Knocking over onto Floor.mp3": [
+        "over",
+        "onto",
+        "floor",
+        "sticks",
+        "knocking"
+    ],
+    "Striking, Pickaxe, Multiple - Loopable.mp3": [
+        "striking",
+        "pickaxe",
+        "loopable",
+        "multiple"
+    ],
+    "Teapot Whistle.mp3": [
+        "teapot",
+        "whistle"
+    ],
+    "Toilet, Broken Flush.mp3": [
+        "broken",
+        "toilet",
+        "flush"
+    ],
+    "Water Gulp Of.mp3": [
+        "of",
+        "water",
+        "gulp"
+    ],
+    "Wave Washing Ashore 2.mp3": [
+        "washing",
+        "ashore",
+        "wave"
+    ],
+    "Window Double impact with shards falling.mp3": [
+        "impact",
+        "window",
+        "double",
+        "shards",
+        "falling",
+        "with"
+    ],
+    "Window, Opening Shutters.mp3": [
+        "shutters",
+        "opening",
+        "window"
+    ],
+    "Cave_ambience_3.mp3": [
+        "cave",
+        "ambience"
+    ],
+    "Critical_sword_hit.mp3": [
+        "critical",
+        "hit",
+        "sword"
+    ],
+    "Critical_sword_hit_2.mp3": [
+        "critical",
+        "hit",
+        "sword"
+    ],
+    "Metal, Impact, Metal Object Impacts, Light - Metal, Impacto, Impactos de objetos metálicos, Luz.mp3": [
+        "metal",
+        "metálicos",
+        "object",
+        "impact",
+        "impactos",
+        "luz",
+        "objetos",
+        "impacto",
+        "light",
+        "impacts"
+    ],
+    "Dungeon_ambience_3.mp3": [
+        "ambience",
+        "dungeon"
+    ],
+    "Enemy_death_1.mp3": [
+        "enemy",
+        "death"
+    ],
+    "Footstep_stone.mp3": [
+        "footstep",
+        "stone"
+    ],
+    "Footsteps_gravel.mp3": [
+        "footsteps",
+        "gravel"
+    ],
+    "Forest_ambience.mp3": [
+        "forest",
+        "ambience"
+    ],
+    "Goblin_attack_1.mp3": [
+        "attack",
+        "goblin"
+    ],
+    "Heavy_weapon_whoosh (2).mp3": [
+        "weapon",
+        "whoosh",
+        "heavy",
+        "()"
+    ],
+    "Lightning_cast_1.mp3": [
+        "cast",
+        "lightning"
+    ],
+    "Lightning_cast_2.mp3": [
+        "cast",
+        "lightning"
+    ],
+    "Lightning_cast_3.mp3": [
+        "cast",
+        "lightning"
+    ],
+    "Wolf_growl_1.mp3": [
+        "wolf",
+        "growl"
+    ],
+    "Running_on_grass_2.mp3": [
+        "running",
+        "grass"
+    ],
+    "Running_on_water_2.mp3": [
+        "running",
+        "water"
+    ],
+    "Skeleton_attack_1.mp3": [
+        "attack",
+        "skeleton"
+    ],
+    "Sword_hit_flesh.mp3": [
+        "hit",
+        "sword",
+        "flesh"
+    ],
+    "Town_ambience_1.mp3": [
+        "ambience",
+        "town"
+    ],
+    "Wooden_door_open_2.mp3": [
+        "wooden",
+        "door",
+        "open"
+    ],
+    "Axe_hit_armor_1.mp3": [
+        "hit",
+        "armor",
+        "axe"
+    ],
+    "Floresta com vento.wav": [
+        "floresta",
+        "vento"
+    ],
+    "Scroll, Paper, Roll Up.mp3": [
+        "paper",
+        "scroll",
+        "up",
+        "roll"
+    ],
+    "Ship Foghorn.mp3": [
+        "ship",
+        "foghorn"
+    ],
+    "Single Aluminum Chime.mp3": [
+        "chime",
+        "aluminum",
+        "single"
+    ],
+    "Snow Clump Falling off Roof or Branch.mp3": [
+        "branch",
+        "roof",
+        "or",
+        "off",
+        "snow",
+        "falling",
+        "clump"
+    ],
+    "Switch , Industrial LIght.mp3": [
+        "light",
+        "industrial",
+        "switch"
+    ],
+    "Tearing off Reciept or Slip.mp3": [
+        "tearing",
+        "or",
+        "off",
+        "reciept",
+        "slip"
+    ],
+    "Toilet, Urinal Flush.mp3": [
+        "toilet",
+        "flush",
+        "urinal"
+    ],
+    "Tree, Climbing down.mp3": [
+        "down",
+        "climbing",
+        "tree"
+    ],
+    "Water - Single Oar Rowing - Loopable.mp3": [
+        "single",
+        "loopable",
+        "rowing",
+        "water",
+        "oar"
+    ],
+    "Water, Diving Under.mp3": [
+        "diving",
+        "under",
+        "water"
+    ],
+    "Wave Washing Ashore.mp3": [
+        "washing",
+        "ashore",
+        "wave"
+    ],
+    "Window Shutting.mp3": [
+        "shutting",
+        "window"
+    ],
+    "Window, Vertical model, Closing.mp3": [
+        "closing",
+        "window",
+        "vertical",
+        "model"
+    ],
+    "Zipper Top or Dress clossed.mp3": [
+        "dress",
+        "clossed",
+        "zipper",
+        "top",
+        "or"
+    ],
+    "Equip_weapon_1.mp3": [
+        "equip",
+        "weapon"
+    ],
+    "Zombie_moan.mp3": [
+        "moan",
+        "zombie"
+    ],
+    "Fire_spell_impact.mp3": [
+        "fire",
+        "impact",
+        "spell"
+    ],
+    "Fire_spell_impact_1.mp3": [
+        "fire",
+        "impact",
+        "spell"
+    ],
+    "Footstep_water_2.mp3": [
+        "footstep",
+        "water"
+    ],
+    "Footstep_water_3.mp3": [
+        "footstep",
+        "water"
+    ],
+    "Footsteps_gravel_3.mp3": [
+        "footsteps",
+        "gravel"
+    ],
+    "Ice_spell_cast.mp3": [
+        "cast",
+        "ice",
+        "spell"
+    ],
+    "Ice_spell_cast_3.mp3": [
+        "cast",
+        "ice",
+        "spell"
+    ],
+    "Magic_projectile_lau_#2-1766764864417.mp3": [
+        "projectile",
+        "magic",
+        "lau"
+    ],
+    "Magic_projectile_lau_#3-1766764862223.mp3": [
+        "projectile",
+        "magic",
+        "lau"
+    ],
+    "Player_hurt_1.mp3": [
+        "player",
+        "hurt"
+    ],
+    "Potion_drink_4.mp3": [
+        "drink",
+        "potion"
+    ],
+    "Potion_throw_1.mp3": [
+        "throw",
+        "potion"
+    ],
+    "Quest_complete_2.mp3": [
+        "complete",
+        "quest"
+    ],
+    "Running_dirt_1.mp3": [
+        "running",
+        "dirt"
+    ],
+    "Sword_hit_armor_3.mp3": [
+        "hit",
+        "armor",
+        "sword"
+    ],
+    "Town_ambience_3.mp3": [
+        "ambience",
+        "town"
+    ],
+    "Achievement_unlock.mp3": [
+        "unlock",
+        "achievement"
+    ],
+    "Axe_hit_armor.mp3": [
+        "hit",
+        "armor",
+        "axe"
+    ],
+    "Folresta noite.wav": [
+        "folresta",
+        "noite"
+    ],
+    "Money, Pile Movement - casino table winnings.mp3": [
+        "table",
+        "money",
+        "winnings",
+        "pile",
+        "casino",
+        "movement"
+    ],
+    "Object Falling Into Water with Splash.mp3": [
+        "object",
+        "splash",
+        "into",
+        "water",
+        "falling",
+        "with"
+    ],
+    "Open Drawer.mp3": [
+        "open",
+        "drawer"
+    ],
+    "Payphone, Hanging Up.mp3": [
+        "hanging",
+        "payphone",
+        "up"
+    ],
+    "Payphone, reset.mp3": [
+        "payphone",
+        "reset"
+    ],
+    "Phone Trill - High.mp3": [
+        "high",
+        "trill",
+        "phone"
+    ],
+    "Phone Trill - Sharp.mp3": [
+        "sharp",
+        "trill",
+        "phone"
+    ],
+    "Pot, Emptying of Contents.mp3": [
+        "pot",
+        "emptying",
+        "of",
+        "contents"
+    ],
+    "Scroll - Paper, Unrolling 2.mp3": [
+        "paper",
+        "scroll",
+        "unrolling"
+    ],
+    "Sink Clogged, Bubbles.mp3": [
+        "clogged",
+        "bubbles",
+        "sink"
+    ],
+    "Switch Press.mp3": [
+        "press",
+        "switch"
+    ],
+    "Switch, Industrial, flipped.mp3": [
+        "flipped",
+        "industrial",
+        "switch"
+    ],
+    "Switch, Toggle Table lamp.mp3": [
+        "table",
+        "lamp",
+        "switch",
+        "toggle"
+    ],
+    "Tiny Object Ploping in water.mp3": [
+        "water",
+        "ploping",
+        "object",
+        "tiny"
+    ],
+    "Toilet, Object Caught in FLush.mp3": [
+        "object",
+        "caught",
+        "toilet",
+        "flush"
+    ],
+    "Water - Paddling Boat.mp3": [
+        "paddling",
+        "boat",
+        "water"
+    ],
+    "Water - Spray System - Loopable.mp3": [
+        "spray",
+        "loopable",
+        "system",
+        "water"
+    ],
+    "Water, Extinguishing - Looable.mp3": [
+        "looable",
+        "extinguishing",
+        "water"
+    ],
+    "Water, Rushing Rapids.mp3": [
+        "rushing",
+        "water",
+        "rapids"
+    ],
+    "window Shattered Large Impact.mp3": [
+        "impact",
+        "large",
+        "window",
+        "shattered"
+    ],
+    "Window Wood Frame Smashed.mp3": [
+        "frame",
+        "window",
+        "wood",
+        "smashed"
+    ],
+    "Dagger_stab_2.mp3": [
+        "stab",
+        "dagger"
+    ],
+    "Torch_fire_2.mp3": [
+        "fire",
+        "torch"
+    ],
+    "Equip_weapon_2.mp3": [
+        "equip",
+        "weapon"
+    ],
+    "Footstep_stone_5.mp3": [
+        "footstep",
+        "stone"
+    ],
+    "Wolf_growl_2.mp3": [
+        "wolf",
+        "growl"
+    ],
+    "Doors, Knock, Wood, Two Knocks, Very Short - Portas, Batidas, Madeira, Duas Batidas, Muito Curtas.mp3": [
+        "madeira",
+        "duas",
+        "muito",
+        "curtas",
+        "knock",
+        "doors",
+        "knocks",
+        "portas",
+        "very",
+        "short",
+        "two",
+        "batidas",
+        "wood"
+    ],
+    "Footsteps_gravel_4.mp3": [
+        "footsteps",
+        "gravel"
+    ],
+    "Footsteps_running_on_#2.mp3": [
+        "running",
+        "footsteps"
+    ],
+    "Forest_ambience_1.mp3": [
+        "forest",
+        "ambience"
+    ],
+    "Goblin_attack_3.mp3": [
+        "attack",
+        "goblin"
+    ],
+    "Night_ambience.mp3": [
+        "ambience",
+        "night"
+    ],
+    "Player_hurt_2.mp3": [
+        "player",
+        "hurt"
+    ],
+    "Rune_activate.mp3": [
+        "rune",
+        "activate"
+    ],
+    "Rune_activate_1.mp3": [
+        "rune",
+        "activate"
+    ],
+    "Running_dirt_2.mp3": [
+        "running",
+        "dirt"
+    ],
+    "Running_on_water.mp3": [
+        "running",
+        "water"
+    ],
+    "Running_on_water_1.mp3": [
+        "running",
+        "water"
+    ],
+    "Running_stone.mp3": [
+        "running",
+        "stone"
+    ],
+    "Skeleton_attack.mp3": [
+        "attack",
+        "skeleton"
+    ],
+    "Sword_hit_armor.mp3": [
+        "hit",
+        "armor",
+        "sword"
+    ],
+    "Blessing_applied_1.mp3": [
+        "blessing",
+        "applied"
+    ],
+    "White Noise , soft - Loopable.mp3": [
+        "noise",
+        "soft",
+        "white",
+        "loopable"
+    ],
+    "White Noise , Tv - Loopable.mp3": [
+        "noise",
+        "tv",
+        "white",
+        "loopable"
+    ],
+    "Wind Swept Field - Loopable.mp3": [
+        "wind",
+        "loopable",
+        "field",
+        "swept"
+    ],
+    "Window, Shutters Opened.mp3": [
+        "opened",
+        "shutters",
+        "window"
+    ],
+    "Zipper Drawn Backpack.mp3": [
+        "drawn",
+        "backpack",
+        "zipper"
+    ],
+    "Level_up_1.mp3": [
+        "up",
+        "level"
+    ],
+    "Lever_pull.mp3": [
+        "lever",
+        "pull"
+    ],
+    "Fire_spell_cast_2.mp3": [
+        "fire",
+        "spell",
+        "cast"
+    ],
+    "Footstep_dirt.mp3": [
+        "footstep",
+        "dirt"
+    ],
+    "Footstep_dirt_1.mp3": [
+        "footstep",
+        "dirt"
+    ],
+    "Footstep_dirt_3.mp3": [
+        "footstep",
+        "dirt"
+    ],
+    "Footstep_grass.mp3": [
+        "footstep",
+        "grass"
+    ],
+    "Footstep_water_1.mp3": [
+        "footstep",
+        "water"
+    ],
+    "Footstep_wood.mp3": [
+        "footstep",
+        "wood"
+    ],
+    "Footstep_wood_3.mp3": [
+        "footstep",
+        "wood"
+    ],
+    "Forest_ambience_2.mp3": [
+        "forest",
+        "ambience"
+    ],
+    "Forest_ambience_3.mp3": [
+        "forest",
+        "ambience"
+    ],
+    "Goblin_laugh_2.mp3": [
+        "laugh",
+        "goblin"
+    ],
+    "Heavy_weapon_whoosh.mp3": [
+        "weapon",
+        "whoosh",
+        "heavy"
+    ],
+    "Item_pickup_2.mp3": [
+        "pickup",
+        "item"
+    ],
+    "Lever_pull_3.mp3": [
+        "lever",
+        "pull"
+    ],
+    "Player_hurt_3.mp3": [
+        "player",
+        "hurt"
+    ],
+    "Potion_drink_1.mp3": [
+        "drink",
+        "potion"
+    ],
+    "Potion_throw_3.mp3": [
+        "throw",
+        "potion"
+    ],
+    "Quest_accepted.mp3": [
+        "quest",
+        "accepted"
+    ],
+    "Running_on_wood.mp3": [
+        "running",
+        "wood"
+    ],
+    "Running_on_wood_1.mp3": [
+        "running",
+        "wood"
+    ],
+    "Spider_hiss.mp3": [
+        "hiss",
+        "spider"
+    ],
+    "Running_on_wood_3.mp3": [
+        "running",
+        "wood"
+    ],
+    "Running_stone_2.mp3": [
+        "running",
+        "stone"
+    ],
+    "Running_stone_3.mp3": [
+        "running",
+        "stone"
+    ],
+    "Torch_fire_1.mp3": [
+        "fire",
+        "torch"
+    ],
+    "Achievement_unlock_1.mp3": [
+        "unlock",
+        "achievement"
+    ],
+    "Achievement_unlock_3.mp3": [
+        "unlock",
+        "achievement"
+    ],
+    "Axe_hit_armor_2.mp3": [
+        "hit",
+        "armor",
+        "axe"
+    ],
+    "Axe_hit_armor_3.mp3": [
+        "hit",
+        "armor",
+        "axe"
+    ],
+    "Bow_and_arrow_shot.mp3": [
+        "bow",
+        "shot",
+        "arrow"
+    ],
+    "The Secret Cave.mp3": [
+        "cave",
+        "the",
+        "secret"
+    ],
+    "Toilet Flush.mp3": [
+        "toilet",
+        "flush"
+    ],
+    "Vacuume Delivery Tube.mp3": [
+        "delivery",
+        "tube",
+        "vacuume"
+    ],
+    "Water, Object Doused with.mp3": [
+        "with",
+        "object",
+        "doused",
+        "water"
+    ],
+    "Water, River - Rushing - Loopable.mp3": [
+        "rushing",
+        "river",
+        "loopable",
+        "water"
+    ],
+    "Shield_block.mp3": [
+        "shield",
+        "block"
+    ],
+    "Coin_pickup_1.mp3": [
+        "coin",
+        "pickup"
+    ],
+    "Critical_sword_hit_1.mp3": [
+        "critical",
+        "hit",
+        "sword"
+    ],
+    "Fire_spell_impact_3.mp3": [
+        "fire",
+        "impact",
+        "spell"
+    ],
+    "Footstep_grass_1.mp3": [
+        "footstep",
+        "grass"
+    ],
+    "Footstep_stone_2.mp3": [
+        "footstep",
+        "stone"
+    ],
+    "Footstep_stone_7.mp3": [
+        "footstep",
+        "stone"
+    ],
+    "Ice_spell_cast_1.mp3": [
+        "cast",
+        "ice",
+        "spell"
+    ],
+    "Inventory_open.mp3": [
+        "open",
+        "inventory"
+    ],
+    "Inventory_open_1.mp3": [
+        "open",
+        "inventory"
+    ],
+    "Item_pickup_1.mp3": [
+        "pickup",
+        "item"
+    ],
+    "Running_dirt_3.mp3": [
+        "running",
+        "dirt"
+    ],
+    "Running_on_water_3.mp3": [
+        "running",
+        "water"
+    ],
+    "Running_stone_1.mp3": [
+        "running",
+        "stone"
+    ],
+    "Skeleton_attack_2.mp3": [
+        "attack",
+        "skeleton"
+    ],
+    "Sword swing #1.mp3": [
+        "swing",
+        "sword"
+    ],
+    "Sword_hit_armor_1.mp3": [
+        "hit",
+        "armor",
+        "sword"
+    ],
+    "Town_ambience_2.mp3": [
+        "ambience",
+        "town"
+    ],
+    "Wooden_door_open_1.mp3": [
+        "wooden",
+        "door",
+        "open"
+    ],
+    "Zombie_moan_3.mp3": [
+        "moan",
+        "zombie"
+    ],
+    "Blessing_applied_2.mp3": [
+        "blessing",
+        "applied"
+    ],
+    "Floresta com passaros.wav": [
+        "floresta",
+        "passaros"
     ]
 }

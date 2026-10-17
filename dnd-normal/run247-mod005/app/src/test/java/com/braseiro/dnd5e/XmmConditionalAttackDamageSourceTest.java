@@ -270,7 +270,7 @@ public final class XmmConditionalAttackDamageSourceTest {
             {"Giant Axe Beak","Sharpened Beak"}, {"Balor","Lightning Blade"},
             {"Fire Giant","Hammer Throw"}, {"Bearded Devil","Infernal Glaive"},
             {"Shadow","Draining Swipe"},
-            {"Mummy","Rotting Fist"}, {"Adult Copper Dragon","Slowing Breath"}
+            {"Mummy","Rotting Fist"}
         };
         for(String[] row:manual){
             JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile(row[0]),row[1]);
@@ -285,6 +285,23 @@ public final class XmmConditionalAttackDamageSourceTest {
             assertEquals("manual_source_action_resolution_required",result.optString("reason"));
             assertFalse(result.has("damage_expression"));
         }
+    }
+
+    @Test public void copperSlowingBreathIsTypedButManualUnmodeledRidersRemainBlocked(){
+        JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile("Adult Copper Dragon"),"Slowing Breath");
+        assertNotNull("source-bound copper breath action",action);
+        assertFalse("copper breath is no longer untyped",
+            action.optBoolean("manual_unmodeled_source_effect_required"));
+        assertFalse("typed save effect must not retain the old manual-only flag",
+            action.optBoolean("manual_rider_resolution_required"));
+        assertTrue("dedicated typed executor must recognize the source-bound contract",
+            XmmSaveEffectLedger.compiled("Adult Copper Dragon",action));
+        JSONObject result=StatblockCombatRuntimeEngine.savingThrowAction(
+            "Adult Copper Dragon","Slowing Breath",17);
+        assertTrue(result.toString(),result.optBoolean("resolved"));
+        assertFalse(result.toString(),result.optBoolean("blocked"));
+        assertEquals(XmmSaveEffectLedger.SLOW,result.optString("save_effect_kind"));
+        assertEquals("target_next_turn_end",result.optString("save_effect_duration"));
     }
 
     @Test public void unmodeledLegendarySaveEffectFailsClosed(){

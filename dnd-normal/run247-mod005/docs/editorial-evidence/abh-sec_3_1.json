@@ -1,0 +1,18 @@
+{
+  "book_id": "ABH",
+  "chapter_id": "ch_3",
+  "section_id": "sec_3_1",
+  "source_url": "https://github.com/5etools-mirror-3/5etools-src/blob/8c026b807fac21862a309379a0c3228a0683198b/data/book/book-abh.json",
+  "source_sha256": "a7acf774b297f669cd931d909ab0cffefe8d3c81f62deb94c9b2dce1e3379985",
+  "source_git_blob_sha1": "e93389f3197aa2d145fa99063a8bf82570beb6f5",
+  "source_version": "Astarions Book of Hungers; pinned 5etools mirror commit 8c026b807fac21862a309379a0c3228a0683198b",
+  "rights_basis": "MECHANICS_INTERPRETATION_ONLY_NO_SOURCE_PROSE_REPUBLISHED_RIGHTS_TO_VERBATIM_SOURCE_NOT_CLAIMED",
+  "source_text_rights_for_republication_asserted": false,
+  "expected_game_behavior": "Tres modulos/ganchos de aventura na taverna Rats Run e Cidade Baixa para niveis 3-10",
+  "observed_game_behavior": "Abh16SectionRuntimeTest#testAbh_sec_3_1 comprovou os ganchos e faixas de nivel",
+  "runtime_method": "listRatRunAdventures",
+  "runtime_class": "com.braseiro.dnd5e.AstarionHungersRulesEngine",
+  "test_xml": "docs/editorial-evidence/xml/TEST-com.braseiro.dnd5e.Abh16SectionRuntimeTest.xml",
+  "section_source_pointer": "/bookData/0/data/3/entries/3",
+  "caveat": "Proof covers ABH local advisory adjudication and source-derived statements, not automatic application in unrelated game engines; no claim of a licence to republish source prose."
+}

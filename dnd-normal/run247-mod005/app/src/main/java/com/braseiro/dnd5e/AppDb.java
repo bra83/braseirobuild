@@ -1079,6 +1079,10 @@ public class AppDb extends SQLiteOpenHelper {
     public long addCharacter(String name, String species, String className, int level, int hp, int maxHp, int ac, int str, int dex, int con, int intel, int wis, int cha, boolean active, String notes) {
         ContentValues v = new ContentValues();
         v.put("world_profile",getActiveMapProfile()); v.put("name", name); v.put("species", species); v.put("class_name", className); v.put("level", level);
+        // Pin the edition when the character is created. Campaign changes must not silently
+        // turn a legacy 2014 hero into a 2024 hero (or downgrade a 2024 one).
+        if("dnd".equals(getActiveMapProfile()))
+            v.put("rules_source",DndRulesEngine.canonicalProfile(dbRulesProfileFallback()));
         v.put("hp", hp); v.put("max_hp", maxHp); v.put("ac", ac); v.put("str", str); v.put("dex", dex); v.put("con", con); v.put("int_score", intel); v.put("wis", wis); v.put("cha", cha); v.put("active", active ? 1 : 0); v.put("notes", notes);
         v.put("created_at", System.currentTimeMillis()); v.put("updated_at", System.currentTimeMillis());
         return getWritableDatabase().insert("characters", null, v);
@@ -1091,6 +1095,13 @@ public class AppDb extends SQLiteOpenHelper {
         getWritableDatabase().update("characters", v, "id=?", new String[]{String.valueOf(id)});
     }
 
+    /** A SQLite NULL edition is JSON.NULL, which optString can surface as the literal "null". */
+    private static String explicitRulesProfile(JSONObject row,String key){
+        if(row==null||row.isNull(key))return "";
+        String value=row.optString(key,"").trim();
+        return "null".equalsIgnoreCase(value)?"":value;
+    }
+
     /** G03/G06: ficha, recursos/progressão e identidade são gravados como uma unidade. */
     public JSONObject saveCharacterSheetAtomic(final long existingId, final boolean edit, final JSONObject sheet,
             final String notes, final String controlMode) {
@@ -1099,14 +1110,14 @@ public class AppDb extends SQLiteOpenHelper {
             // Persist the edition before creating resources. An empty SQL value
             // overrides optString's fallback and otherwise silently selects 2014.
             // Editing a legacy hero without an edition must retain its own rules.
-            String source = candidate.optString("rules_source", "").trim();
+            String source = explicitRulesProfile(candidate,"rules_source");
             if (source.isEmpty() && edit) {
                 JSONObject existing = getCharacter(existingId);
-                source = existing.optString("rules_source", "").trim();
+                source = explicitRulesProfile(existing,"rules_source");
                 if (source.isEmpty()) {
                     JSONObject stored = readCharacterSheet(existing);
-                    source = stored.optString("rules_source", "").trim();
-                    if (source.isEmpty()) source = stored.optString("rules_profile", "").trim();
+                    source = explicitRulesProfile(stored,"rules_source");
+                    if (source.isEmpty()) source = explicitRulesProfile(stored,"rules_profile");
                 }
                 if (source.isEmpty()) source = DndRulesEngine.PROFILE_2014;
             }
@@ -1119,6 +1130,20 @@ public class AppDb extends SQLiteOpenHelper {
             String name = candidate.optString("name").trim();
             if (name.isEmpty()) return gate.put("save_blocked", "name_required");
             int level = Math.max(1, Math.min(20, candidate.optInt("level", 1)));
+            // PHB 2024: a catalog entry alone is not authority to select a subclass.
+            // Validate edition, owning class and level before any SQLite mutation.
+            if ("dnd".equals(getActiveMapProfile()) && new DndRulesEngine().is2024(source)) {
+                String requestedSubclass = candidate.optString("subclass_2024", "").trim();
+                if (!requestedSubclass.isEmpty()) {
+                    if (!Core2024SubclassRuntimeEngine.isSubclassSelectionValid(
+                            candidate.optString("class_name", ""), level, requestedSubclass))
+                        return new JSONObject().put("subclass_blocked", "invalid_2024_subclass_for_class_or_level");
+                    // Canonical PT-BR form: accepting the English alias must not produce
+                    // two different stored values for one official subclass.
+                    candidate.put("subclass_2024",
+                            Core2024SubclassRuntimeEngine.getSubclass(requestedSubclass).name);
+                }
+            }
             long id;
             if (edit) {
                 if (existingId <= 0 || getCharacter(existingId).length() == 0) return gate.put("save_blocked", "character_missing");
@@ -1193,7 +1218,7 @@ public class AppDb extends SQLiteOpenHelper {
     public JSONObject ensureCharacterResourceState(long id){return buildCharacterResourceState(id,true);}
     // RUN193_PREVIEW_NO_COMMIT: checking an action must not first write normalized sheet state.
     private JSONObject previewCharacterResourceState(long id){return buildCharacterResourceState(id,false);}
-    private JSONObject buildCharacterResourceState(long id,boolean persist){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=readCharacterSheet(ch);String profile=ch.optString("rules_source",sheet.optString("rules_source",dbRulesProfileFallback()));JSONObject next=CharacterResourceStateEngine.ensure(sheet,ch.optString("class_name"),ch.optInt("level",1),profile);VoloSubraceHandbookEngine.applySpeciesMechanics(next);VoloSubraceRun139Engine.applySpeciesMechanics(next);VoloSubraceRun140Engine.applySpeciesMechanics(next);String species=ch.optString("species",next.optString("species",""));if(Run141CompactCharacterOptionEngine.isSpecies(species))Run141CompactCharacterOptionEngine.applySpeciesMechanics(next);else Run141SpeciesFeatRuntimeEngine.applySpeciesMechanics(next);Run141CompactCharacterOptionEngine.applySubclassMechanics(next);Run143ForgottenSecretsEngine.applyPatronMechanics(next);String sub141=next.optString("subclass_name",next.optString("subclass",""));if(!Run141CompactCharacterOptionEngine.isSubclass(sub141)&&AncestralStancesRuntimeEngine.supports(sub141))next=AncestralStancesRuntimeEngine.apply(next);if(!Run143ForgottenSecretsEngine.isPatron(sub141)&&ForgottenSecretsRun141Engine.supports(sub141))next=ForgottenSecretsRun141Engine.apply(next);if(ArcanaUnleashedRun143Engine.supportsSubclass(sub141))ArcanaUnleashedRun143Engine.applySubclass(next);String auBg=next.optString("background_name",next.optString("background",""));if(ArcanaUnleashedRun143Engine.supportsBackground(auBg))ArcanaUnleashedRun143Engine.applyBackground(next,auBg);String auSelected=next.optString("selected_feats","");JSONArray auFeats=ArcanaUnleashedRun143Engine.allFeats();for(int i=0;i<auFeats.length();i++){String f=auFeats.optString(i);if(normRuntime(auSelected).contains(normRuntime(f)))ArcanaUnleashedRun143Engine.applyFeat(next,f);}String cls141=ch.optString("class_name",next.optString("class_name",""));if(RuneterraClassRuntimeEngine.supports(cls141))next=RuneterraClassRuntimeEngine.ensure(next,ch.optInt("level",next.optInt("level",1)));next=EberronForgeCompleteEngine.ensureCharacter(next,cls141,sub141,ch.optInt("level",next.optInt("level",1)),species,auBg,auSelected);next=ForgottenRealmsHeroesEngine.ensureCharacter(next,sub141,ch.optInt("level",next.optInt("level",1)),auBg,auSelected);try{next.put("hp",ch.optInt("hp")).put("max_hp",ch.optInt("max_hp"));next.put("progression",DndProgressionEngine.state(next,ch.optInt("level",1)));next.put("run148_reconciled",true);}catch(Exception ignored){}if(persist)updateCharacterSheet(id,next.toString());return next;}
+    private JSONObject buildCharacterResourceState(long id,boolean persist){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=readCharacterSheet(ch);if(!sheet.has("level")&&ch.has("level"))try{sheet.put("level",ch.optInt("level",1));sheet.put("class_name",ch.optString("class_name",""));sheet.put("str",ch.optInt("str",10));sheet.put("dex",ch.optInt("dex",10));sheet.put("con",ch.optInt("con",10));sheet.put("int_score",ch.optInt("int_score",10));sheet.put("wis",ch.optInt("wis",10));sheet.put("cha",ch.optInt("cha",10));sheet.put("hp",ch.optInt("hp",1));sheet.put("max_hp",ch.optInt("max_hp",1));}catch(Exception ignored){}String profile=ch.optString("rules_source",sheet.optString("rules_source",dbRulesProfileFallback()));JSONObject next=CharacterResourceStateEngine.ensure(sheet,ch.optString("class_name"),ch.optInt("level",1),profile);VoloSubraceHandbookEngine.applySpeciesMechanics(next);VoloSubraceRun139Engine.applySpeciesMechanics(next);VoloSubraceRun140Engine.applySpeciesMechanics(next);String species=ch.optString("species",next.optString("species",""));if(Run141CompactCharacterOptionEngine.isSpecies(species))Run141CompactCharacterOptionEngine.applySpeciesMechanics(next);else Run141SpeciesFeatRuntimeEngine.applySpeciesMechanics(next);Run141CompactCharacterOptionEngine.applySubclassMechanics(next);Run143ForgottenSecretsEngine.applyPatronMechanics(next);String sub141=next.optString("subclass_2024",next.optString("subclass_name",next.optString("subclass","")));if(!Run141CompactCharacterOptionEngine.isSubclass(sub141)&&AncestralStancesRuntimeEngine.supports(sub141))next=AncestralStancesRuntimeEngine.apply(next);if(!Run143ForgottenSecretsEngine.isPatron(sub141)&&ForgottenSecretsRun141Engine.supports(sub141))next=ForgottenSecretsRun141Engine.apply(next);if(ArcanaUnleashedRun143Engine.supportsSubclass(sub141))ArcanaUnleashedRun143Engine.applySubclass(next);if(Core2024SubclassRuntimeEngine.hasSubclass(sub141))Core2024SubclassRuntimeEngine.applyToSheet(next);String auBg=next.optString("background_name",next.optString("background",""));if(ArcanaUnleashedRun143Engine.supportsBackground(auBg))ArcanaUnleashedRun143Engine.applyBackground(next,auBg);String auSelected=next.optString("selected_feats","");JSONArray auFeats=ArcanaUnleashedRun143Engine.allFeats();for(int i=0;i<auFeats.length();i++){String f=auFeats.optString(i);if(normRuntime(auSelected).contains(normRuntime(f)))ArcanaUnleashedRun143Engine.applyFeat(next,f);}String cls141=ch.optString("class_name",next.optString("class_name",""));if(RuneterraClassRuntimeEngine.supports(cls141))next=RuneterraClassRuntimeEngine.ensure(next,ch.optInt("level",next.optInt("level",1)));next=EberronForgeCompleteEngine.ensureCharacter(next,cls141,sub141,ch.optInt("level",next.optInt("level",1)),species,auBg,auSelected);next=ForgottenRealmsHeroesEngine.ensureCharacter(next,sub141,ch.optInt("level",next.optInt("level",1)),auBg,auSelected);try{next.put("hp",ch.optInt("hp")).put("max_hp",ch.optInt("max_hp"));next.put("progression",DndProgressionEngine.state(next,ch.optInt("level",1)));next.put("run148_reconciled",true);}catch(Exception ignored){}if(persist)updateCharacterSheet(id,next.toString());return next;}
     private String dbRulesProfileFallback(){JSONObject c=getCampaign();return c.optString("rules_profile",DndRulesEngine.PROFILE_2024);}
     public JSONObject applyCharacterShortRestHitDice(long id,int count,int healingRoll){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);if(!sheet.optBoolean("short_rest_hit_dice_choice_pending",false)){try{return new JSONObject(sheet.toString()).put("short_rest_hit_dice_blocked","no_completed_short_rest_pending");}catch(Exception ignored){return sheet;}}String profile=ch.optString("rules_source",sheet.optString("rules_source",dbRulesProfileFallback()));JSONObject next=CharacterResourceStateEngine.spendHitDice(sheet,ch.optString("class_name"),ch.optInt("level",1),profile,Math.max(1,count),healingRoll);int maxHp=Math.max(1,ch.optInt("max_hp",1)),hp=Math.max(0,Math.min(maxHp,next.optInt("hp",ch.optInt("hp"))));try{int remaining=Math.max(0,next.optInt("hit_dice_max",ch.optInt("level",1))-next.optInt("hit_dice_spent",0));boolean mayContinue=remaining>0&&hp<maxHp;next.put("hp",hp).put("max_hp",maxHp).put("short_rest_hit_dice_choice_pending",mayContinue).put("short_rest_hit_dice_remaining",remaining);}catch(Exception ignored){}ContentValues v=new ContentValues();v.put("hp",hp);v.put("sheet_json",next.toString());v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("characters",v,"id=?",new String[]{String.valueOf(id)});syncPlayerCombatantHp(ch.optString("name"),hp);return next;}
     // RUN196_CHARACTER_ATOMIC: consumos da ficha agora têm recibo persistido, rollback e preview sem gravação.
@@ -1239,6 +1264,172 @@ public class AppDb extends SQLiteOpenHelper {
             persistCharacterSheetChecked(id,after);return after;
         }});
     }
+
+    /** DMG 2024 p.333+: one live Bastion owned by a level-5+ 2024 hero.
+     * The treasury and defender count are explicit starting values; they are
+     * never guessed from prose or RAG, and never reset on a second setup call.
+     * All data lives in sheet_json, which Backup21 already exports.
+     */
+    public JSONObject configureBastion2024(final long heroId,final int goldGp,
+            final int defenders,final JSONArray facilityIds,final boolean confirmed){
+        return characterAtomic("bastion2024_configure",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(!confirmed)return out.put("bastion_blocked","explicit_dm_confirmation_required");
+            JSONObject ch=getCharacter(heroId);
+            if(ch.length()==0)return out.put("bastion_blocked","character_not_found");
+            if(ch.optInt("level",0)<5)return out.put("bastion_blocked","hero_level_five_required");
+            JSONObject sheet=readCharacterSheet(ch);
+            String rawRules=explicitRulesProfile(ch,"rules_source");
+            if(rawRules.isEmpty())rawRules=explicitRulesProfile(sheet,"rules_source");
+            if(rawRules.isEmpty())rawRules=explicitRulesProfile(sheet,"rules_profile");
+            // Unversioned old characters are not silently upgraded by the campaign setting.
+            // Newly created characters now persist their edition in characters.rules_source.
+            String rules=DndRulesEngine.canonicalProfile(rawRules);
+            if(!DndRulesEngine.PROFILE_2024.equals(rules))
+                return out.put("bastion_blocked","2024_core_rules_required");
+            if(sheet.optJSONObject("bastion_2024")!=null)
+                return out.put("bastion_blocked","bastion_already_configured");
+            JSONObject bastion=Bastion2024StateEngine.initialize(goldGp,defenders,facilityIds);
+            if(!"ok".equals(bastion.optString("status")))
+                return out.put("bastion_blocked",bastion.optString("bastion_blocked"));
+            sheet.put("bastion_2024",bastion);
+            updateCharacterSheetChecked(heroId,sheet.toString());
+            return out.put("bastion_configured",true).put("persisted_to_world",true)
+                .put("hero_id",heroId).put("bastion_state",bastion);
+        }});
+    }
+
+    public JSONObject getBastion2024State(long heroId){
+        JSONObject ch=getCharacter(heroId);
+        return readCharacterSheet(ch).optJSONObject("bastion_2024")==null?
+            new JSONObject():readCharacterSheet(ch).optJSONObject("bastion_2024");
+    }
+
+    /** Atomic rule resolution, economy mutation, and durable replay receipt.
+     * No die roll or gold transfer is inferred. All inputs are source-validated
+     * and the target hero's existing Bastion treasury/defenders are checked.
+     */
+    public JSONObject commitBastion2024Event(final long heroId,final JSONObject eventInput,
+            final boolean dmConfirmed,final String token){
+        return characterAtomic("bastion2024_event",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(!dmConfirmed)return out.put("bastion_blocked","explicit_dm_confirmation_required");
+            JSONObject ch=getCharacter(heroId);
+            if(ch.length()==0)return out.put("bastion_blocked","character_not_found");
+            JSONObject sheet=readCharacterSheet(ch);
+            JSONObject before=sheet.optJSONObject("bastion_2024");
+            if(before==null)return out.put("bastion_blocked","bastion_not_configured");
+            // Source authority for guest protection comes from the persisted
+            // Bastion, never from the caller's selected input or Gemini.
+            JSONObject sourceInput=eventInput==null?new JSONObject():new JSONObject(eventInput.toString());
+            sourceInput.put("friendly_monster_available",
+                before.optInt("friendly_monster_protection",0)>0);
+            JSONObject event=Bastion2024RulesEngine.execute("core2024.bastion.event.effects",sourceInput);
+            if(!"ok".equals(event.optString("status")))
+                return out.put("bastion_blocked",event.optString("reason","source_event_blocked"))
+                    .put("event_preview",event);
+            JSONObject after=Bastion2024StateEngine.apply(before,event,token);
+            if(!"ok".equals(after.optString("status")))
+                return out.put("bastion_blocked",after.optString("bastion_blocked","state_transition_blocked"))
+                    .put("event_preview",event);
+            sheet.put("bastion_2024",after);
+            updateCharacterSheetChecked(heroId,sheet.toString());
+            return out.put("bastion_event_committed",true).put("persisted_to_world",true)
+                .put("hero_id",heroId).put("event_resolution",event)
+                .put("bastion_state",after).put("event_receipt_token",token);
+        }});
+    }
+
+    public JSONObject advanceBastion2024Turn(final long heroId,final boolean confirmed,final String token){
+        return characterAtomic("bastion2024_turn",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(!confirmed)return out.put("bastion_blocked","explicit_dm_confirmation_required");
+            JSONObject ch=getCharacter(heroId);
+            if(ch.length()==0)return out.put("bastion_blocked","character_not_found");
+            JSONObject sheet=readCharacterSheet(ch);
+            JSONObject previous=sheet.optJSONObject("bastion_2024");
+            JSONObject next=Bastion2024StateEngine.advanceTurn(previous,token);
+            if(!"ok".equals(next.optString("status")))
+                return out.put("bastion_blocked",next.optString("bastion_blocked","turn_blocked"));
+            sheet.put("bastion_2024",next);
+            updateCharacterSheetChecked(heroId,sheet.toString());
+            return out.put("bastion_turn_committed",true).put("persisted_to_world",true)
+                .put("hero_id",heroId).put("bastion_state",next);
+        }});
+    }
+
+    public JSONObject addBastion2024SpecialFacility(final long heroId,final String facilityId,final boolean confirmed){
+        return characterAtomic("bastion2024_add_facility",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(!confirmed)return out.put("bastion_blocked","explicit_dm_confirmation_required");
+            JSONObject ch=getCharacter(heroId);
+            if(ch.length()==0)return out.put("bastion_blocked","character_not_found");
+            int level=ch.optInt("level",0);
+            if(level<5)return out.put("bastion_blocked","hero_level_five_required");
+            JSONObject sheet=readCharacterSheet(ch);
+            String rawRules=explicitRulesProfile(ch,"rules_source");
+            if(rawRules.isEmpty())rawRules=explicitRulesProfile(sheet,"rules_source");
+            if(rawRules.isEmpty())rawRules=explicitRulesProfile(sheet,"rules_profile");
+            String rules=DndRulesEngine.canonicalProfile(rawRules);
+            if(!DndRulesEngine.PROFILE_2024.equals(rules))
+                return out.put("bastion_blocked","2024_core_rules_required");
+            JSONObject before=sheet.optJSONObject("bastion_2024");
+            if(before==null)return out.put("bastion_blocked","bastion_not_configured");
+            JSONObject facilities=before.optJSONObject("facilities");
+            JSONArray existingNames=facilities==null?new JSONArray():facilities.names();
+            JSONObject valInput=new JSONObject()
+                .put("character_level",level)
+                .put("character_class",ch.optString("class_name",sheet.optString("class","")))
+                .put("facility_id",facilityId)
+                .put("existing_facilities",existingNames);
+            JSONObject val=Bastion2024SpecialFacilitiesEngine.validate(valInput);
+            if(!"ok".equals(val.optString("status")))
+                return out.put("bastion_blocked",val.optString("reason","validation_failed"));
+            JSONObject after=Bastion2024StateEngine.addFacility(before,facilityId);
+            if(!"ok".equals(after.optString("status")))
+                return out.put("bastion_blocked",after.optString("bastion_blocked","facility_addition_failed"));
+            sheet.put("bastion_2024",after);
+            updateCharacterSheetChecked(heroId,sheet.toString());
+            return out.put("bastion_facility_added",true).put("persisted_to_world",true)
+                .put("hero_id",heroId).put("facility_id",facilityId).put("bastion_state",after);
+        }});
+    }
+
+    public JSONObject issueBastion2024SpecialFacilityOrder(final long heroId,final String facilityId,
+            final String order,final JSONObject orderParams,final boolean dmConfirmed,final String token){
+        return characterAtomic("bastion2024_facility_order",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(!dmConfirmed)return out.put("bastion_blocked","explicit_dm_confirmation_required");
+            JSONObject ch=getCharacter(heroId);
+            if(ch.length()==0)return out.put("bastion_blocked","character_not_found");
+            JSONObject sheet=readCharacterSheet(ch);
+            JSONObject before=sheet.optJSONObject("bastion_2024");
+            if(before==null)return out.put("bastion_blocked","bastion_not_configured");
+            JSONObject facilities=before.optJSONObject("facilities");
+            if(facilities==null||!facilities.has(facilityId))
+                return out.put("bastion_blocked","facility_not_present_in_bastion");
+            JSONObject facObj=facilities.optJSONObject(facilityId);
+            int unavailTurn=facObj!=null?facObj.optInt("unavailable_turn",0):0;
+            int currTurn=before.optInt("turn_number",0);
+            JSONObject in=orderParams==null?new JSONObject():new JSONObject(orderParams.toString());
+            in.put("facility_id",facilityId).put("order",order)
+              .put("unavailable_turn",unavailTurn).put("current_turn",currTurn);
+            JSONObject res=Bastion2024SpecialFacilitiesEngine.resolveOrder(in);
+            if(!"ok".equals(res.optString("status")))
+                return out.put("bastion_blocked",res.optString("reason","order_resolution_blocked"))
+                    .put("order_preview",res);
+            JSONObject after=Bastion2024StateEngine.applyOrder(before,res,token);
+            if(!"ok".equals(after.optString("status")))
+                return out.put("bastion_blocked",after.optString("bastion_blocked","order_state_transition_blocked"))
+                    .put("order_preview",res);
+            sheet.put("bastion_2024",after);
+            updateCharacterSheetChecked(heroId,sheet.toString());
+            return out.put("bastion_order_committed",true).put("persisted_to_world",true)
+                .put("hero_id",heroId).put("order_resolution",res)
+                .put("bastion_state",after).put("order_receipt_token",token);
+        }});
+    }
+
     private interface CharacterAtomicWork{JSONObject run()throws Exception;}
     private synchronized JSONObject characterAtomic(String label,CharacterAtomicWork work){
         SQLiteDatabase sql=getWritableDatabase();boolean owner=!sql.inTransaction();
@@ -1666,7 +1857,33 @@ public class AppDb extends SQLiteOpenHelper {
     public JSONObject resolveCharacterRun141FeatAction(long id,String feat,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);JSONArray selected=sheet.optJSONArray("run141_halfdragon_feats");boolean has=false;for(int i=0;selected!=null&&i<selected.length();i++)if(normRuntime(selected.optString(i)).equals(normRuntime(feat))){has=true;break;}if(!has||!Run141CompactCharacterOptionEngine.isFeat(feat)){try{return new JSONObject(sheet.toString()).put("feat_action_resolved",false).put("feat_action_status","blocked").put("feat_action_reason","run141_feat_not_selected_or_unknown").put("feat_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}JSONObject next=Run141CompactCharacterOptionEngine.resolveFeat(sheet,feat,action,payload);return persistCharacterRuntimeState(id,ch,next);}
     public JSONObject resolveCharacterVoloFeatAction(long id,String feat,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);if(ArcanaUnleashedRun143Engine.supportsFeat(feat)){String text=sheet.optString("selected_feats","");if(!normRuntime(text).contains(normRuntime(feat))){try{return new JSONObject(sheet.toString()).put("feat_action_resolved",false).put("feat_action_status","blocked").put("feat_action_reason","arcana_unleashed_feat_not_selected").put("feat_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}JSONObject next=ArcanaUnleashedRun143Engine.resolveFeat(sheet,feat,action,payload);return persistCharacterRuntimeState(id,ch,next);}if(Run141CompactCharacterOptionEngine.isFeat(feat)){JSONArray selected=sheet.optJSONArray("run141_halfdragon_feats");boolean has=false;for(int i=0;selected!=null&&i<selected.length();i++)if(normRuntime(selected.optString(i)).equals(normRuntime(feat))){has=true;break;}if(!has){try{return new JSONObject(sheet.toString()).put("feat_action_resolved",false).put("feat_action_status","blocked").put("feat_action_reason","run141_compact_feat_not_selected").put("feat_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}JSONObject next=Run141CompactCharacterOptionEngine.resolveFeat(sheet,feat,action,payload);return persistCharacterRuntimeState(id,ch,next);}if(Run141SpeciesFeatRuntimeEngine.supportsFeat(feat)){String text=sheet.optString("selected_feats","");if(!normRuntime(text).contains(normRuntime(feat))){try{return new JSONObject(sheet.toString()).put("feat_action_resolved",false).put("feat_action_status","blocked").put("feat_action_reason","run141_feat_not_selected").put("feat_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}JSONObject next=Run141SpeciesFeatRuntimeEngine.resolveFeat(sheet,feat,action,payload);return persistCharacterRuntimeState(id,ch,next);}JSONArray selected=sheet.optJSONArray("volo_racial_feats");boolean has=false;for(int i=0;selected!=null&&i<selected.length();i++)if(normRuntime(selected.optString(i)).equals(normRuntime(feat))){has=true;break;}if(!has||!VoloRacialFeatRuntimeEngine.isKnown(feat)){try{return new JSONObject(sheet.toString()).put("feat_action_resolved",false).put("feat_action_status","blocked").put("feat_action_reason","volo_feat_not_selected_or_unknown").put("feat_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}JSONObject next=VoloRacialFeatRuntimeEngine.resolve(sheet,feat,action,payload);return persistCharacterRuntimeState(id,ch,next);}
     public JSONObject resolveCharacterRun142InvocationAction(long id,String invocation,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);JSONObject next=Run143ForgottenSecretsEngine.resolveInvocation(sheet,invocation,action,payload);return persistCharacterRuntimeState(id,ch,next);}
-    public JSONObject resolveCharacterHomebrewSubclassAction(long id,String feature,JSONObject payload){try{JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);String subclass=sheet.optString("subclass_name",sheet.optString("subclass",""));JSONObject next;if(Run143ForgottenSecretsEngine.isPatron(subclass))next=Run143ForgottenSecretsEngine.resolvePatron(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(Run141CompactCharacterOptionEngine.isSubclass(subclass))next=Run141CompactCharacterOptionEngine.resolveSubclass(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(AncestralStancesRuntimeEngine.supports(subclass))next=AncestralStancesRuntimeEngine.resolve(sheet,feature,payload);else if(ForgottenSecretsRun141Engine.supports(subclass))next=ForgottenSecretsRun141Engine.resolve(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(ArcanaUnleashedRun143Engine.supportsSubclass(subclass))next=ArcanaUnleashedRun143Engine.resolveSubclass(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(EberronForgeCompleteEngine.supportsSubclass(subclass))next=EberronForgeCompleteEngine.resolveSubclassAction(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(ForgottenRealmsHeroesEngine.supportsSubclass(subclass))next=ForgottenRealmsHeroesEngine.resolveSubclassAction(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else{if(!HomebrewSubclassRuntimeEngine.isKnown(subclass)){try{return new JSONObject(sheet.toString()).put("subclass_action_resolved",false).put("subclass_action_status","blocked").put("subclass_action_reason","no_compiled_homebrew_subclass_runtime").put("subclass_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}next=HomebrewSubclassRuntimeEngine.resolve(sheet,subclass,feature,payload);}if(ForgottenRealmsHeroesEngine.supportsSubclass(subclass)&&shouldRejectHeroesPersistence(next))return next;JSONObject persisted=persistCharacterRuntimeState(id,ch,next);if(persisted.optBoolean("subclass_action_resolved",false)){String ev=persisted.optString("subclass_action_event","");JSONObject effect=persisted.optJSONObject("subclass_action_effect");if(effect!=null){if("warlord_war_cry".equals(ev)){applyHomebrewAllyHitDice(effect.optJSONArray("allies"));effect.put("allied_state_mutation_pending_gateway",false);}else if("shaman_pardon_echoed_words".equals(ev)){applyHomebrewHealingDistribution(effect.optJSONArray("distribution"));effect.put("allied_state_mutation_pending_gateway",false);}else if("shaman_pardon_sacrifice_spirit".equals(ev))applyHomebrewHealing(effect.optString("target_id",""),effect.optInt("healing",0));}}updateCharacterSheet(id,persisted.toString());return persisted;}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
+    public JSONObject resolveCharacterHomebrewSubclassAction(long id,String feature,JSONObject payload){try{
+        JSONObject ch=getCharacter(id);
+        if(ch.length()==0)return new JSONObject();
+        // Before any resource initialization or SQLite mutation, pin official PHB
+        // 2024 subclass features to the stored character's edition, class and level.
+        // The untrusted UI action/feature and sheet labels cannot grant a subclass.
+        JSONObject recorded=readCharacterSheet(ch);
+        String selected=Core2024SubclassRuntimeEngine.extractSubclass(recorded);
+        if(Core2024SubclassRuntimeEngine.hasSubclass(selected)){
+            String profile=ch.optString("rules_source",
+                recorded.optString("rules_source",dbRulesProfileFallback()));
+            int characterLevel=ch.optInt("level",recorded.optInt("level",1));
+            String className=ch.optString("class_name",recorded.optString("class_name",""));
+            String rejection="";
+            if(!new DndRulesEngine().is2024(profile))
+                rejection="official_2024_subclass_wrong_rules_profile";
+            else if(!Core2024SubclassRuntimeEngine.isSubclassSelectionValid(className,characterLevel,selected))
+                rejection="official_2024_subclass_not_owned_by_character";
+            if(!rejection.isEmpty())
+                return recorded.put("subclass_action_resolved",false)
+                    .put("subclass_action_status","blocked")
+                    .put("subclass_action_reason",rejection)
+                    .put("subclass_action_auto_rolls",false);
+        }
+        JSONObject sheet=ensureCharacterResourceState(id);
+        String subclass=sheet.optString("subclass_2024",sheet.optString("subclass_name",sheet.optString("subclass","")));
+        JSONObject next;if(Run143ForgottenSecretsEngine.isPatron(subclass))next=Run143ForgottenSecretsEngine.resolvePatron(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(Run141CompactCharacterOptionEngine.isSubclass(subclass))next=Run141CompactCharacterOptionEngine.resolveSubclass(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(AncestralStancesRuntimeEngine.supports(subclass))next=AncestralStancesRuntimeEngine.resolve(sheet,feature,payload);else if(ForgottenSecretsRun141Engine.supports(subclass))next=ForgottenSecretsRun141Engine.resolve(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(ArcanaUnleashedRun143Engine.supportsSubclass(subclass))next=ArcanaUnleashedRun143Engine.resolveSubclass(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(EberronForgeCompleteEngine.supportsSubclass(subclass))next=EberronForgeCompleteEngine.resolveSubclassAction(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(ForgottenRealmsHeroesEngine.supportsSubclass(subclass))next=ForgottenRealmsHeroesEngine.resolveSubclassAction(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(Core2024SubclassRuntimeEngine.hasSubclass(subclass))next=Core2024SubclassRuntimeEngine.resolve(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else{if(!HomebrewSubclassRuntimeEngine.isKnown(subclass)){try{return new JSONObject(sheet.toString()).put("subclass_action_resolved",false).put("subclass_action_status","blocked").put("subclass_action_reason","no_compiled_homebrew_subclass_runtime").put("subclass_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}next=HomebrewSubclassRuntimeEngine.resolve(sheet,subclass,feature,payload);}if(ForgottenRealmsHeroesEngine.supportsSubclass(subclass)&&shouldRejectHeroesPersistence(next))return next;JSONObject persisted=persistCharacterRuntimeState(id,ch,next);if(persisted.optBoolean("subclass_action_resolved",false)){String ev=persisted.optString("subclass_action_event","");JSONObject effect=persisted.optJSONObject("subclass_action_effect");if(effect!=null){if("warlord_war_cry".equals(ev)){applyHomebrewAllyHitDice(effect.optJSONArray("allies"));effect.put("allied_state_mutation_pending_gateway",false);}else if("shaman_pardon_echoed_words".equals(ev)){applyHomebrewHealingDistribution(effect.optJSONArray("distribution"));effect.put("allied_state_mutation_pending_gateway",false);}else if("shaman_pardon_sacrifice_spirit".equals(ev))applyHomebrewHealing(effect.optString("target_id",""),effect.optInt("healing",0));}}updateCharacterSheet(id,persisted.toString());return persisted;}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
     public JSONObject resolveForgottenSecretsSpell(final long id,final String spell,final int slotLevel,final JSONObject payload){return resolveCharacterSpellAtomic(id,"run149",spell,slotLevel,payload,new CharacterSpellResolver(){public JSONObject resolve(JSONObject sheet){return Run149ForgottenSecretsSpellEngine.resolve(sheet,spell,slotLevel,payload);}});}
     public JSONObject resolveEberronArtificerAction(long id,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);JSONObject next=EberronForgeCompleteEngine.resolveArtificerAction(sheet,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),action,payload);return persistCharacterRuntimeState(id,ch,next);}
     public JSONObject resolveEberronSubclassAction(long id,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);String sub=sheet.optString("subclass_name",sheet.optString("subclass",""));JSONObject next=EberronForgeCompleteEngine.resolveSubclassAction(sheet,sub,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),action,payload);return persistCharacterRuntimeState(id,ch,next);}
@@ -2076,12 +2293,60 @@ public class AppDb extends SQLiteOpenHelper {
     // RUN234: compiled action duration is a strict, integer, source-bound field.
     // Existing source actions without explicit timing preserve their RUN233 behavior.
     private JSONObject compiledMonsterRiderAction(String blockId,String actionName) {
-        JSONArray sourceActions=CompiledStatblockEngine.runtimeProfile(blockId).optJSONArray("actions");
-        if(sourceActions!=null)for(int i=0;i<sourceActions.length();i++){
-            JSONObject entry=sourceActions.optJSONObject(i);
-            if(entry!=null&&actionName!=null&&actionName.trim().equalsIgnoreCase(entry.optString("name","")))
-                return entry;
+        JSONObject profile=CompiledStatblockEngine.runtimeProfile(blockId);
+        for(String field:new String[]{"actions","special_actions"}){
+            JSONArray sourceActions=profile.optJSONArray(field);
+            if(sourceActions!=null)for(int i=0;i<sourceActions.length();i++){
+                JSONObject entry=sourceActions.optJSONObject(i);
+                if(entry!=null&&actionName!=null&&actionName.trim().equalsIgnoreCase(entry.optString("name","")))
+                    return entry;
+            }
         }
+        try{
+            JSONObject spellOpts=Xmm2025SpellUsageIndex.options(blockId);
+            if(spellOpts.optBoolean("resolved",false)){
+                JSONObject in=new JSONObject().put("monster",blockId).put("spell",actionName);
+                JSONObject checked=Xmm2025SpellUsageIndex.check(in);
+                if(checked.optBoolean("resolved",false)){
+                    String ability=checked.optString("spellcasting_ability","cha");
+                    int abilityScore=profile!=null&&profile.optJSONObject("abilities")!=null?
+                        profile.optJSONObject("abilities").optInt(ability,10):10;
+                    int abilityMod=(abilityScore-10)/2;
+                    double cr=profile!=null?profile.optDouble("challenge_rating",1.0):1.0;
+                    int pb=cr>=17?6:cr>=13?5:cr>=9?4:cr>=5?3:2;
+                    int spellBonus=abilityMod+pb,saveDc=8+abilityMod+pb;
+                    String clean=actionName.toLowerCase(java.util.Locale.ROOT).trim();
+                    JSONObject spellAction=new JSONObject()
+                        .put("name",actionName).put("category","action").put("source_bound",true)
+                        .put("is_spell",true).put("spellcasting_ability",ability)
+                        .put("spell_attack_bonus",spellBonus).put("spell_save_dc",saveDc);
+                    if(clean.contains("scorching ray")){
+                        spellAction.put("to_hit",spellBonus).put("damage","2d6").put("damage_type","fire")
+                            .put("reach_ft",0).put("range_normal_ft",120).put("range_long_ft",120).put("attack_modes",new JSONArray().put("r"));
+                    }else if(clean.contains("melf")||clean.contains("acid arrow")){
+                        spellAction.put("to_hit",spellBonus).put("damage","4d4").put("damage_type","acid")
+                            .put("reach_ft",0).put("range_normal_ft",90).put("range_long_ft",90).put("attack_modes",new JSONArray().put("r"));
+                    }else if(clean.contains("guiding bolt")){
+                        spellAction.put("to_hit",spellBonus).put("damage","4d6").put("damage_type","radiant")
+                            .put("reach_ft",0).put("range_normal_ft",120).put("range_long_ft",120).put("attack_modes",new JSONArray().put("r"));
+                    }else if(clean.contains("ice knife")){
+                        spellAction.put("to_hit",spellBonus).put("damage","1d10").put("damage_type","piercing")
+                            .put("reach_ft",0).put("range_normal_ft",60).put("range_long_ft",60).put("attack_modes",new JSONArray().put("r"));
+                    }else if(clean.contains("ray of sickness")){
+                        spellAction.put("to_hit",spellBonus).put("damage","2d8").put("damage_type","poison")
+                            .put("reach_ft",0).put("range_normal_ft",60).put("range_long_ft",60).put("attack_modes",new JSONArray().put("r"))
+                            .put("condition_on_fail","poisoned").put("save_dc",saveDc).put("save_ability","con");
+                    }else if(clean.contains("shatter")){
+                        spellAction.put("save_ability","con").put("save_dc",saveDc).put("damage","3d8").put("damage_type","thunder")
+                            .put("half_damage_on_success",true);
+                    }else if(clean.contains("mind spike")){
+                        spellAction.put("save_ability","wis").put("save_dc",saveDc).put("damage","3d8").put("damage_type","psychic")
+                            .put("half_damage_on_success",true);
+                    }
+                    return spellAction;
+                }
+            }
+        }catch(Exception ignored){}
         throw new IllegalStateException("compiled_rider_action_not_found_rollback");
     }
     private JSONObject compiledMonsterDeclaredAction(String blockId,String actionName){
@@ -2505,7 +2770,8 @@ public class AppDb extends SQLiteOpenHelper {
             targetResources.remove("xmm_grapple_state");
             int movementMax=targetResources.optInt("movement_max_ft",0);
             if(movementMax<=0&&!ConditionRulesEngine.speedZero(after)){
-                int speed=combatBaseSpeed(target);
+                JSONObject ungrappled=new JSONObject(target.toString()).put("conditions",after);
+                int speed=combatEffectiveSpeed(ungrappled,targetResources);
                 targetResources.put("movement_max_ft",speed).put("movement_remaining_ft",speed);
             }
             ContentValues values=new ContentValues();values.put("conditions",after);
@@ -3339,6 +3605,83 @@ public class AppDb extends SQLiteOpenHelper {
         }});
     }
 
+    public JSONObject applyCompiledMonsterLifecycleEffect(final long sourceActorId, final long targetId,
+        final String monsterBlockId, final String action, final int kind, final JSONObject resolvedPreview,
+        final String token) {
+        return combatAtomic("compiled_monster_lifecycle_effect", new CombatAtomicWork() {
+            public JSONObject run() throws Exception {
+                JSONObject out = new JSONObject();
+                if (token == null || !token.startsWith("ui-monster-") || !CombatActionReceiptGuard.validToken(token)) {
+                    return out.put("effect_commit_blocked", "invalid_operation_token");
+                }
+                String receiptKey = combatReceiptKey(sourceActorId, token + "-life-eff");
+                if (hasEffectReceipt(receiptKey)) {
+                    return out.put("effect_commit_blocked", "already_resolved_or_replayed");
+                }
+                JSONObject actor = getCombatant(sourceActorId);
+                JSONObject target = getCombatant(targetId);
+                if (actor.length() == 0 || target.length() == 0 || target.optInt("hp", 0) <= 0) {
+                    return out.put("effect_commit_blocked", "invalid_actor_or_target");
+                }
+                if (kind == 0) {
+                    int dmg = resolvedPreview.optInt("damage_total", 0);
+                    String dmgType = resolvedPreview.optString("damage_type", "untyped");
+                    if (dmg > 0) {
+                        JSONObject dmgResult = applyCombatantDamage(targetId, dmg, dmgType, false, false, token + "-dmg");
+                        if (dmgResult.has("damage_blocked")) return out.put("effect_commit_blocked", dmgResult.optString("damage_blocked"));
+                        out.put("damage_applied", dmgResult);
+                    }
+                } else if (kind == 1) {
+                    if (resolvedPreview.optBoolean("condition_applied", false)) {
+                        String conds = resolvedPreview.optString("conditions", "");
+                        if (!conds.isEmpty()) {
+                            String existing = target.optString("conditions", "");
+                            String updated = existing;
+                            for (String c : conds.split("[,; ]+")) {
+                                String tr = c.trim().toLowerCase(Locale.US);
+                                if (!tr.isEmpty()) updated = ConditionRulesEngine.add(updated, tr);
+                            }
+                            if (!updated.equals(existing)) updateConditionsChecked(targetId, updated);
+                            out.put("conditions_updated", updated);
+                        }
+                    }
+                } else if (kind == 2) {
+                    if (resolvedPreview.optBoolean("condition_applied", false)) {
+                        String conds = resolvedPreview.optString("condition", "");
+                        if (!conds.isEmpty()) {
+                            String existing = target.optString("conditions", "");
+                            String updated = existing;
+                            for (String c : conds.split("[,; ]+")) {
+                                String tr = c.trim().toLowerCase(Locale.US);
+                                if (!tr.isEmpty()) updated = ConditionRulesEngine.add(updated, tr);
+                            }
+                            if (!updated.equals(existing)) updateConditionsChecked(targetId, updated);
+                            out.put("zero_hp_conditions_updated", updated);
+                        }
+                    }
+                }
+                JSONObject receiptPayload = new JSONObject()
+                    .put("schema", "compiled_monster_lifecycle_effect_v1")
+                    .put("receipt_key", receiptKey)
+                    .put("token", token)
+                    .put("actor_id", sourceActorId)
+                    .put("target_id", targetId)
+                    .put("monster", monsterBlockId)
+                    .put("action", action)
+                    .put("kind", kind);
+                recordEffectReceipt(receiptKey, receiptPayload.toString());
+                return out.put("effect_applied", true)
+                          .put("persisted_to_combat", true)
+                          .put("actor_id", sourceActorId)
+                          .put("target_id", targetId)
+                          .put("monster", monsterBlockId)
+                          .put("action", action)
+                          .put("receipt_key", receiptKey)
+                          .put("target", getCombatant(targetId));
+            }
+        });
+    }
+
     /** Reverts a previously committed XMM manual arbitration receipt in a single SQLite
      * combat transaction, restoring the target's HP/temp HP/conditions/resources and the
      * monster's turn economy while marking the causal receipt as reverted.
@@ -3802,6 +4145,30 @@ public class AppDb extends SQLiteOpenHelper {
                 JSONObject target=getCombatant(targetId);
                 if(targetId<=0||targetId==actorId||target.length()==0||target.optInt("hp",0)<=0||combatantHasTotalCover(targetId))
                     return out.put("statblock_multiattack_blocked","invalid_or_covered_target_"+i);
+                boolean isSaveAction=!componentSource.has("to_hit")&&componentSource.has("save_dc");
+                if(isSaveAction){
+                    int saveRoll=step.optInt("rider_save_roll",step.optInt("save_roll",-1));
+                    if(saveRoll<1||saveRoll>100)return out.put("statblock_multiattack_blocked","invalid_save_roll_"+i);
+                    JSONObject saveResult=StatblockCombatRuntimeEngine.savingThrowAction(id,action,saveRoll);
+                    if(!saveResult.optBoolean("resolved",false))
+                        return out.put("statblock_multiattack_blocked","save_action_unresolved_"+i);
+                    previews[i]=saveResult;riders[i]=new JSONObject();
+                    geometries[i]=new JSONObject().put("attack_geometry_valid",true).put("attack_geometry_fingerprint","saving_throw");
+                    int damage=step.optInt("damage_total",0);damages[i]=damage;
+                    double mult=saveResult.optDouble("damage_multiplier",1.0);
+                    int mitigated=(int)Math.floor(damage*mult);
+                    mitigatedDamages[i]=mitigated;typedDamagePlans[i]=null;
+                    if(!saveResult.optBoolean("save_success",true)){
+                        String failCond=saveResult.optString("condition_on_fail","");
+                        if(!failCond.isEmpty()){
+                            String predicted=stagedConditions.containsKey(targetId)?stagedConditions.get(targetId):target.optString("conditions","");
+                            MonsterConditionRiderPlan.Result staged=MonsterConditionRiderPlan.plan(failCond,predicted,
+                                new MonsterConditionRiderPlan.Immunity(){public boolean immune(String c){return combatantConditionImmune(target,c);}});
+                            if(staged.valid())stagedConditions.put(targetId,staged.after);
+                        }
+                    }
+                    continue;
+                }
                 JSONArray suppliedDamage=step.optJSONArray("damage_components");
                 boolean typedDamage=suppliedDamage!=null;
                 int natural=step.optInt("natural",0),damage=typedDamage?0:step.optInt("damage_total",-1),
@@ -3977,6 +4344,29 @@ public class AppDb extends SQLiteOpenHelper {
                 // A previous component may have defeated this target; it must
                 // not be struck again, but later components may target others.
                 if(getCombatant(targetId).optInt("hp",0)<=0){outcomes.put(outcome.put("skipped_defeated_target",true));continue;}
+                boolean isSaveAction="saving_throw".equals(attack.optString("resolution_type"));
+                if(isSaveAction){
+                    String stepToken=token+"-s"+i;
+                    JSONObject damageResult=new JSONObject();
+                    if(mitigatedDamages[i]>0){
+                        damageResult=applyCombatantDamage(targetId,mitigatedDamages[i],
+                            attack.optString("damage_type",""),false,false,stepToken+"-damage");
+                        if(damageResult.length()==0||damageResult.has("operation_error")||
+                            damageResult.has("operation_blocked")||damageResult.optBoolean("operation_replayed",false)||
+                            !damageResult.has("raw_damage"))
+                            throw new IllegalStateException("multiattack_save_damage_rollback_"+i);
+                    }
+                    if(!attack.optBoolean("save_success",true)){
+                        String cond=attack.optString("condition_on_fail","");
+                        if(!cond.isEmpty()){
+                            JSONObject transition=commitCompiledMonsterConditionRider(actorId,targetId,id,actions[i],stepToken,cond);
+                            attack.put("condition_transition",transition);
+                        }
+                    }
+                    recordEffectReceipt(combatReceiptKey(actorId,stepToken+"-proof"),attack.toString());
+                    outcomes.put(outcome.put("resolved",attack).put("rider",rider).put("damage",damageResult));
+                    continue;
+                }
                 // RUN231: a preceding attack can defeat/incapacitate an adjacent
                 // hostile or alter the target's condition. Re-evaluate the REAL
                 // SQLite state after each prior component; never use stale d20
@@ -4193,7 +4583,8 @@ public class AppDb extends SQLiteOpenHelper {
             int range=source.optInt("target_range_ft",0);
             // This host has no source-bound area origin/direction selector yet.
             if(range<=0)return out.put("statblock_save_preview_blocked","source_save_geometry_not_compiled");
-            String geometry=compiledSaveTargetRangeBlock(actorId,targetId,actor,target,range);
+            String geometry=compiledSaveTargetRangeBlock(actorId,targetId,actor,target,range,
+                !XmmSaveEffectLedger.compiled(id,source));
             if(!geometry.isEmpty())return out.put("statblock_save_preview_blocked",geometry);
             JSONObject resolved=StatblockCombatRuntimeEngine.savingThrowAction(id,action,saveRoll);
             if(!resolved.optBoolean("resolved",false))return out.put("statblock_save_preview_blocked",resolved.optString("reason","statblock_save_unresolved"));
@@ -4215,6 +4606,12 @@ public class AppDb extends SQLiteOpenHelper {
     public JSONObject applyCompiledStatblockSaveAction(final long actorId,final long targetId,
         final String statblockId,final String action,final int saveRoll,final int damageTotal,
         final int destinationX,final int destinationY,final String token){
+        return applyCompiledStatblockSaveActionInternal(actorId,targetId,statblockId,action,
+            saveRoll,damageTotal,destinationX,destinationY,token,true);
+    }
+    private JSONObject applyCompiledStatblockSaveActionInternal(final long actorId,final long targetId,
+        final String statblockId,final String action,final int saveRoll,final int damageTotal,
+        final int destinationX,final int destinationY,final String token,final boolean chargeAction){
         return combatAtomic("compiled_statblock_save_action",new CombatAtomicWork(){public JSONObject run()throws Exception{
             JSONObject out=new JSONObject(),actor=getCombatant(actorId),target=getCombatant(targetId);
             if(token==null||!token.startsWith("ui-monster-save-")||!CombatActionReceiptGuard.validToken(token))
@@ -4227,7 +4624,12 @@ public class AppDb extends SQLiteOpenHelper {
             String id=resources.optString("block_id","").trim();
             String authorityBlock=CompiledMonsterActionGuard.statblockBlock(id,statblockId);
             if(!authorityBlock.isEmpty()||action==null||action.trim().isEmpty())return out.put("statblock_save_blocked",authorityBlock.isEmpty()?"missing_authorized_statblock_action":authorityBlock);
-            if(target.optInt("hp",0)<=0||saveRoll<1||saveRoll>100||damageTotal<0)return out.put("statblock_save_blocked","invalid_save_input");
+            boolean typedEffectSave=XmmSaveEffectLedger.dc(id)>0&&"Slowing Breath".equals(action.trim());
+            if(target.optInt("hp",0)<=0||saveRoll<(typedEffectSave?-100:1)||saveRoll>100||damageTotal<0)
+                return out.put("statblock_save_blocked","invalid_save_input");
+            if("mystara".equals(getActiveMapProfile())&&XmmSaveEffectLedger.dc(id)>0&&
+                "Slowing Breath".equals(action.trim()))
+                return out.put("statblock_save_blocked","manual_source_action_resolution_required");
             JSONObject resolved=StatblockCombatRuntimeEngine.savingThrowAction(id,action.trim(),saveRoll);
             if(!resolved.optBoolean("resolved",false))return out.put("statblock_save_blocked",resolved.optString("reason","statblock_save_unresolved"));
             // The runtime emits only the active damage expression. Recover the
@@ -4241,10 +4643,12 @@ public class AppDb extends SQLiteOpenHelper {
                 }
             }
             if(sourceAction.length()==0)return out.put("statblock_save_blocked","missing_compiled_save_action");
+            if(sourceAction.has("save_effect_kind")&&!XmmSaveEffectLedger.compiled(id,sourceAction))
+                return out.put("statblock_save_blocked","unsupported_compiled_save_effect");
             int targetRangeFeet=sourceAction.optInt("target_range_ft",0);
             if(targetRangeFeet>0){
                 String rangeBlock=compiledSaveTargetRangeBlock(actorId,targetId,actor,target,
-                    targetRangeFeet);
+                    targetRangeFeet,!XmmSaveEffectLedger.compiled(id,sourceAction));
                 if(!rangeBlock.isEmpty())return out.put("statblock_save_blocked",rangeBlock);
             }
             String saveAbilityBlock=MonsterActionEconomyGuard.saveAbilityBlock(
@@ -4342,7 +4746,7 @@ public class AppDb extends SQLiteOpenHelper {
             String activationBlock=CompiledMonsterActionGuard.actionRechargeBlock(recharge);
             if(!activationBlock.isEmpty())return out.put("statblock_save_blocked",activationBlock);
             if(!recharge.isEmpty()&&MonsterRechargeLedgerCodec.spent(spent,action))return out.put("statblock_save_blocked","recharge_required").put("recharge",recharge);
-            JSONObject actionSpent=spendCombatantTurnResource(actorId,resourceCost,token+"-"+resourceCost);
+            JSONObject actionSpent=chargeAction?spendCombatantTurnResource(actorId,resourceCost,token+"-"+resourceCost):new JSONObject().put("batch_budget",true);
             if(actionSpent.has("resource_blocked")||actionSpent.has("operation_blocked")||actionSpent.has("operation_replayed"))return out.put("statblock_save_blocked",actionSpent.optString("resource_blocked",actionSpent.optString("operation_blocked", "already_resolved_or_replayed")));
             if(actionSpent.has("operation_error")||actionSpent.length()==0)throw new IllegalStateException("compiled_statblock_save_action_rollback");
             JSONObject damage=new JSONObject();
@@ -4364,6 +4768,27 @@ public class AppDb extends SQLiteOpenHelper {
                         "id=? AND world_profile=?",new String[]{String.valueOf(targetId),getActiveMapProfile()}));
                     riderTransition.put("grapple_state",binding);
                 }
+                if(XmmSaveEffectLedger.compiled(id,sourceAction)) {
+                    JSONObject updated=getCombatant(targetId),effectResources=combatResources(updated),state=getCombatState();
+                    boolean alreadySlow=XmmSaveEffectLedger.slowed(effectResources,targetId);
+                    JSONArray effects=XmmSaveEffectLedger.stage(effectResources,actorId,targetId,id,sourceAction,
+                        token,state.optString("encounter_id"),state.optInt("round_no"),state.optInt("turn_index",-1));
+                    effectResources.put(XmmSaveEffectLedger.FIELD,effects);
+                    if(!alreadySlow) {
+                        int oldMax=effectResources.optInt("movement_max_ft",combatBaseSpeed(updated));
+                        int remaining=effectResources.optInt("movement_remaining_ft",oldMax);
+                        int nextMax=oldMax/2;
+                        effectResources.put("movement_max_ft",nextMax)
+                            .put("movement_remaining_ft",Math.max(0,nextMax-Math.max(0,oldMax-remaining)));
+                    }
+                    ContentValues effectWrite=new ContentValues();effectWrite.put("resources_json",effectResources.toString());
+                    requireCombatantWrite(getWritableDatabase().update("combatants",effectWrite,
+                        "id=? AND world_profile=?",new String[]{String.valueOf(targetId),getActiveMapProfile()}));
+                    syncCombatantHeroState(updated,updated.optInt("hp"),updated.optInt("temp_hp"),
+                        updated.optString("conditions"),effectResources);
+                    resolved.put("save_effect_transition",new JSONObject().put("schema",XmmSaveEffectLedger.SCHEMA)
+                        .put("target_id",targetId).put("effects_after",effects));
+                }
                 resolved.put("rider_condition_transition",riderTransition);
                 if(forced!=null){
                     JSONObject moved=commitCompiledMonsterForcedMovement(actorId,targetId,forced,forcedPlan);
@@ -4383,14 +4808,52 @@ public class AppDb extends SQLiteOpenHelper {
             return out.put("statblock_save_committed",true).put("statblock_save_receipt",key).put("resolved",resolved).put("damage",damage).put("damage_total",damageTotal).put("condition_transition",riderTransition).put("recharge_spent",!recharge.isEmpty());
         }});
     }
+    /** One cone activation, one action, explicit target/save totals, all-or-nothing persistence. */
+    public JSONObject applyCompiledSaveEffectBatch(final long actorId,final String block,
+        final String action,final JSONArray targetSaves,final String token) {
+        return combatAtomic("compiled_save_effect_batch",new CombatAtomicWork(){public JSONObject run()throws Exception {
+            JSONObject out=new JSONObject();
+            if(token==null||!token.startsWith("ui-monster-save-")||!CombatActionReceiptGuard.validToken(token)||token.length()>100)
+                return out.put("save_effect_batch_blocked","invalid_operation_token");
+            String key=combatReceiptKey(actorId,token+"-batch");
+            if(hasEffectReceipt(key))return out.put("save_effect_batch_blocked","already_resolved_or_replayed");
+            JSONObject source=compiledMonsterRiderAction(block,action);
+            if("mystara".equals(getActiveMapProfile())||!XmmSaveEffectLedger.compiled(block,source)||
+                targetSaves==null||targetSaves.length()<1||targetSaves.length()>100)
+                return out.put("save_effect_batch_blocked","unsupported_save_effect_batch");
+            java.util.HashSet<Long> seen=new java.util.HashSet<Long>();
+            JSONArray saves=new JSONArray(targetSaves.toString());
+            for(int i=0;i<saves.length();i++) {
+                JSONObject row=saves.optJSONObject(i);
+                if(row==null||!(row.opt("target_id") instanceof Number)||
+                    row.optDouble("target_id",0)!=row.optLong("target_id",0)||
+                    !seen.add(row.optLong("target_id",0))||
+                    !(row.opt("save_total") instanceof Number)||
+                    row.optDouble("save_total",0)!=row.optInt("save_total",0))
+                    return out.put("save_effect_batch_blocked","invalid_or_duplicate_target_save");
+            }
+            JSONArray results=new JSONArray();
+            for(int i=0;i<saves.length();i++) {
+                JSONObject row=saves.getJSONObject(i);
+                JSONObject result=applyCompiledStatblockSaveActionInternal(actorId,row.optLong("target_id"),
+                    block,action,row.optInt("save_total"),0,-1,-1,token+"-t"+i,i==0);
+                if(!result.optBoolean("statblock_save_committed",false))
+                    throw new IllegalStateException("save_effect_batch_rollback:"+result.optString(
+                        "statblock_save_blocked",result.optString("operation_error","save_failed")));
+                results.put(result);
+            }
+            recordEffectReceipt(key,new JSONObject().put("results",results).toString());
+            return out.put("save_effect_batch_committed",true).put("results",results);
+        }});
+    }
     /** Validates a source-declared saving-throw range and visible path against
      * the live tactical map before any action resource, damage or rider changes. */
     private String compiledSaveTargetRangeBlock(long actorId,long targetId,JSONObject actor,
-        JSONObject target,int rangeFeet){
+        JSONObject target,int rangeFeet,boolean requiresSight){
         if(rangeFeet<5||rangeFeet>600||rangeFeet%5!=0)return "invalid_compiled_save_range";
-        if(ConditionRulesEngine.sightCheckAutoFail(actor.optString("conditions","")))
+        if(requiresSight&&ConditionRulesEngine.sightCheckAutoFail(actor.optString("conditions","")))
             return "save_actor_cannot_see_target";
-        if(ConditionTokenGuard.has(target.optString("conditions",""),"invisible"))
+        if(requiresSight&&ConditionTokenGuard.has(target.optString("conditions",""),"invisible"))
             return "save_target_not_visible";
         try{
             JSONObject scene=new ProceduralTacticalSceneGenerator(this).ensureForCurrentScene();
@@ -4408,7 +4871,7 @@ public class AppDb extends SQLiteOpenHelper {
                 int x=ob.optInt("x",-1),y=ob.optInt("y",-1);
                 if(x<0||y<0||x>=w||y>=h)return "obstacle_outside_grid";
                 String kind=ob.optString("type",""),coverKind=ob.optString("cover","none");
-                opaque[0][y][x]=ob.optBoolean("blocks_sight",false)||"total".equals(coverKind)||
+                opaque[0][y][x]=(requiresSight&&ob.optBoolean("blocks_sight",false))||"total".equals(coverKind)||
                     "wall".equals(kind)||"pillar".equals(kind);
                 if("three_quarters".equals(coverKind))cover[0][y][x]=5;
                 else if("half".equals(coverKind))cover[0][y][x]=2;
@@ -5471,6 +5934,10 @@ public class AppDb extends SQLiteOpenHelper {
             String signature="spend:"+key;
             String decision=combatReceiptDecision(r,operationToken,signature,id);
             if(!decision.isEmpty())return combatReceiptResponse(c,"turn_resource",decision);
+            if(!"mystara".equals(getActiveMapProfile())) {
+                String effectBlock=XmmSaveEffectLedger.spendBlock(r,id,key);
+                if(!effectBlock.isEmpty())return c.put("resource_blocked",effectBlock);
+            }
             String blocked=CombatTurnGuard.spendBlock(key,getCombatState().optInt("running",0)==1,
                 c.optInt("active_turn",0)==1,ConditionRulesEngine.incapacitated(c.optString("conditions")),
                 c.optInt("hp",0),r.optBoolean("dead",false),c.optInt("reaction_used",0)==1,
@@ -5687,6 +6154,30 @@ public class AppDb extends SQLiteOpenHelper {
         JSONArray speedEndTransitions=previousActorId>0?
             advanceXmmMovementSpeedEffects(previousActorId,"target_turn_end",
                 state.optInt("round_no",1),state.optInt("turn_index",-1)):new JSONArray();
+        if(previousActorId>0) {
+            JSONObject prior=getCombatant(previousActorId),rr=combatResources(prior);
+            JSONArray oldEffects=XmmSaveEffectLedger.read(rr,previousActorId);
+            JSONArray remaining=XmmSaveEffectLedger.advance(rr,previousActorId,encounterId,
+                state.optInt("round_no",1),state.optInt("turn_index",-1));
+            if(oldEffects.length()!=remaining.length()) {
+                if(remaining.length()==0)rr.remove(XmmSaveEffectLedger.FIELD);
+                else rr.put(XmmSaveEffectLedger.FIELD,remaining);
+                if(remaining.length()==0) {
+                    int oldMax=rr.optInt("movement_max_ft",0),oldRemaining=rr.optInt("movement_remaining_ft",0);
+                    int newMax=combatEffectiveSpeed(prior,rr);
+                    rr.put("movement_max_ft",newMax).put("movement_remaining_ft",
+                        Math.max(0,newMax-Math.max(0,oldMax-oldRemaining)));
+                }
+                ContentValues effectWrite=new ContentValues();effectWrite.put("resources_json",rr.toString());
+                requireCombatantWrite(getWritableDatabase().update("combatants",effectWrite,
+                    "id=? AND world_profile=?",new String[]{String.valueOf(previousActorId),getActiveMapProfile()}));
+                syncCombatantHeroState(prior,prior.optInt("hp"),prior.optInt("temp_hp"),prior.optString("conditions"),rr);
+                recordEffectReceipt("xmm-save-effect-turn-v1:"+encounterId+":"+
+                    state.optInt("round_no",1)+":"+state.optInt("turn_index",-1)+":"+previousActorId,
+                    new JSONObject().put("schema",XmmSaveEffectLedger.SCHEMA).put("target_id",previousActorId)
+                        .put("effects_before",oldEffects).put("effects_after",remaining).toString());
+            }
+        }
         if(previousActorId>0)clearTacticalGridChargePath(previousActorId);
         int idx=state.optInt("turn_index",-1); int round=state.optInt("round_no",1); idx++; if(idx>=list.size()){idx=0;round++;}
         ContentValues clear=new ContentValues();clear.put("active_turn",0);getWritableDatabase().update("combatants",clear,"world_profile=?",new String[]{getActiveMapProfile()});
@@ -5905,7 +6396,20 @@ public class AppDb extends SQLiteOpenHelper {
         }catch(Exception error){AppLog.e("AppDb","Falha ao atualizar durações de condição.",error);
             throw new IllegalStateException("condition_timer_rollback",error);}
     }
-    private void prepareCombatantTurn(long id){JSONObject c=getCombatant(id);if(c.length()==0)return;try{JSONObject r=combatResources(c);boolean canAct=c.optInt("hp",0)>0&&!r.optBoolean("dead",false)&&!ConditionRulesEngine.incapacitated(c.optString("conditions"));r.put("action_available",canAct).put("bonus_action_available",canAct).put("turn_started_at",System.currentTimeMillis());int speed=combatBaseSpeed(c);if(c.optInt("is_player",0)==1){JSONObject ch=findCharacterByName(c.optString("name"));speed=Math.max(0,speed-new DndRulesEngine().exhaustionSpeedPenaltyFeet(ch));}int speedPenalty=XmmMovementSpeedEffectLedger.penalty(new JSONArray(r.optString(XmmMovementSpeedEffectLedger.FIELD,"[]")),id);if(speedPenalty<0)throw new IllegalStateException("speed_effect_ledger_invalid");speed=Math.max(0,speed-speedPenalty);if(ConditionRulesEngine.speedZero(c.optString("conditions")))speed=0;r.put("movement_max_ft",speed).put("movement_remaining_ft",speed);boolean dead=r.optBoolean("dead",false),stable=r.optBoolean("stable",false);r.put("death_save_due",c.optInt("hp")==0&&!dead&&!stable);if(ConditionRulesEngine.breaksConcentration(c.optString("conditions"))){r.remove("concentration_save_pending");r.remove("concentration_save_queue");}ContentValues v=new ContentValues();v.put("resources_json",r.toString());if(ConditionRulesEngine.breaksConcentration(c.optString("conditions")))v.put("concentration","");getWritableDatabase().update("combatants",v,"id=?",new String[]{String.valueOf(id)});}catch(Exception e){AppLog.e("AppDb","Falha ao preparar economia de turno.",e);throw new IllegalStateException("turn_budget_rollback",e);}}
+    private int combatEffectiveSpeed(JSONObject combatant,JSONObject resources)throws Exception {
+        long id=combatant.optLong("id");int speed=combatBaseSpeed(combatant);
+        if(combatant.optInt("is_player",0)==1) {
+            JSONObject character=findCharacterByName(combatant.optString("name"));
+            speed=Math.max(0,speed-new DndRulesEngine().exhaustionSpeedPenaltyFeet(character));
+        }
+        int penalty=XmmMovementSpeedEffectLedger.penalty(
+            new JSONArray(resources.optString(XmmMovementSpeedEffectLedger.FIELD,"[]")),id);
+        if(penalty<0)throw new IllegalStateException("speed_effect_ledger_invalid");
+        speed=Math.max(0,speed-penalty);
+        if(!"mystara".equals(getActiveMapProfile()))speed=XmmSaveEffectLedger.speed(resources,id,speed);
+        return ConditionRulesEngine.speedZero(combatant.optString("conditions"))?0:speed;
+    }
+    private void prepareCombatantTurn(long id){JSONObject c=getCombatant(id);if(c.length()==0)return;try{JSONObject r=combatResources(c);boolean canAct=c.optInt("hp",0)>0&&!r.optBoolean("dead",false)&&!ConditionRulesEngine.incapacitated(c.optString("conditions"));r.put("action_available",canAct).put("bonus_action_available",canAct).put("turn_started_at",System.currentTimeMillis());int speed=combatEffectiveSpeed(c,r);r.put("movement_max_ft",speed).put("movement_remaining_ft",speed);boolean dead=r.optBoolean("dead",false),stable=r.optBoolean("stable",false);r.put("death_save_due",c.optInt("hp")==0&&!dead&&!stable);if(ConditionRulesEngine.breaksConcentration(c.optString("conditions"))){r.remove("concentration_save_pending");r.remove("concentration_save_queue");}ContentValues v=new ContentValues();v.put("resources_json",r.toString());if(ConditionRulesEngine.breaksConcentration(c.optString("conditions")))v.put("concentration","");getWritableDatabase().update("combatants",v,"id=?",new String[]{String.valueOf(id)});}catch(Exception e){AppLog.e("AppDb","Falha ao preparar economia de turno.",e);throw new IllegalStateException("turn_budget_rollback",e);}}
 
 
     public long addDiceHistory(String formula,String detail,int total,String mode){return addDiceHistoryBound(formula,detail,total,mode,new JSONObject());}
@@ -7622,11 +8126,20 @@ public class AppDb extends SQLiteOpenHelper {
                     "character".equals(actor.optString("source_kind")),targetId,natural,attackBonus,ac,
                     rolledDamage,damageType,token);
                 if(!blocked.isEmpty())return new JSONObject().put("party_attack_blocked",blocked);
-                JSONObject weapon=equippedWeaponProof(action.optLong("character_id",0),weaponItemId,
+                long charId=action.optLong("character_id",0);
+                JSONObject weapon=equippedWeaponProof(charId,weaponItemId,
                     attackBonus,damageFormula,damageType);
                 EquippedWeaponAttackRules.Dice dice=EquippedWeaponAttackRules.parse(damageFormula);
+                JSONObject ch=getCharacter(charId);
+                JSONObject sheet=readCharacterSheet(ch);
+                // Pin the attacker class/level to persistent DB columns.
+                // A mutable sheet_json class label must not grant other subclasses.
+                sheet.put("class_name",ch.optString("class_name",""));
+                sheet.put("level",ch.optInt("level",1));
+                int critThreshold=Core2024SubclassRuntimeEngine.criticalThreshold(sheet);
+                boolean crit=natural>=critThreshold;
                 if(weapon.length()==0||dice==null||
-                    !dice.acceptsTotal(rolledDamage,PartyAttackCausalReceiptGuard.hit(natural,attackBonus,ac),natural==20))
+                    !dice.acceptsTotal(rolledDamage,PartyAttackCausalReceiptGuard.hit(natural,attackBonus,ac),crit))
                     return new JSONObject().put("party_attack_blocked","equipped_weapon_or_damage_invalid");
                 if(!token.startsWith("ui-weapon2-"))return new JSONObject().put("party_attack_blocked","weapon_geometry_token_required");
                 if(getCombatState().optInt("running",0)!=1)return new JSONObject().put("party_attack_blocked","encounter_not_running");
@@ -7652,7 +8165,7 @@ public class AppDb extends SQLiteOpenHelper {
                 getWritableDatabase().insertOrThrow("effect_receipts",null,geometryReceipt);
                 JSONObject damageResult=new JSONObject();
                 if(hit){
-                    damageResult=applyCombatantDamage(targetId,rolledDamage,damageType,natural==20,false,token+"-damage");
+                    damageResult=applyCombatantDamage(targetId,rolledDamage,damageType,crit,false,token+"-damage");
                     if(damageResult.length()==0||damageResult.has("operation_error")||
                        damageResult.has("operation_blocked")||damageResult.optBoolean("operation_replayed",false)||
                        !damageResult.has("raw_damage"))
@@ -7671,7 +8184,7 @@ public class AppDb extends SQLiteOpenHelper {
                 return new JSONObject().put("party_action_resolved",true).put("party_action_receipt",key)
                     .put("party_action_id",actionId).put("target_id",targetId).put("attack_roll",natural)
                     .put("attack_total",natural+attackBonus).put("target_ac",ac).put("attack_hit",hit)
-                    .put("attack_critical",natural==20).put("damage_result",damageResult)
+                    .put("attack_critical",crit).put("damage_result",damageResult)
                     .put("distance_ft",geometry.optInt("distance_ft"))
                     .put("cover_bonus",geometry.optInt("cover_bonus"));
             }
@@ -8930,6 +9443,11 @@ public List<JSONObject> listWorldEventsForMaster(int limit){return queryList("SE
                         resourcesChanged=true;
                     }
                 }
+            }
+            if(rawResources.contains(XmmSaveEffectLedger.FIELD)){
+                if(resources==null)resources=new JSONObject(rawResources);
+                XmmSaveEffectLedger.remap(resources,oldActor,idMap);
+                resourcesChanged=true;
             }
             if(resourcesChanged&&resources!=null)fixed.put("resources_json",resources.toString());
             // RUN236: typed condition timers embed the SOURCE combatant's old

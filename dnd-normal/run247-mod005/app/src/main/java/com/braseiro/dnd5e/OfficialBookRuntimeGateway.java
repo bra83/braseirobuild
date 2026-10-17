@@ -69,8 +69,18 @@ public final class OfficialBookRuntimeGateway {
 
     private JSONObject executeAstarion(String action, JSONObject in) {
         try {
+            if ("scope_and_timeline".equals(action)) return new JSONObject().put("executed", true).put("result", astarion.getSupplementScopeAndTimeline());
+            if ("list_backgrounds".equals(action)) return new JSONObject().put("executed", true).put("backgrounds", astarion.listCharacterBackgrounds());
+            if ("species_traits".equals(action)) return new JSONObject().put("executed", true).put("traits", astarion.getSpeciesTraits(in.optString("species")));
             if ("list_feats".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("feats", astarion.listVampiricFeats());
+            if ("list_origin_feats".equals(action)) return new JSONObject().put("executed", true).put("feats", astarion.listOriginFeats());
+            if ("list_general_feats".equals(action)) return new JSONObject().put("executed", true).put("feats", astarion.listGeneralFeats());
+            if ("list_epic_boons".equals(action)) return new JSONObject().put("executed", true).put("boons", astarion.listEpicBoons());
             if ("epic_boon".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", astarion.getEpicBoon(in.optString("boon")));
+            if ("cazador_family".equals(action)) return new JSONObject().put("executed", true).put("family", astarion.getCazadorFamilyHierarchy());
+            if ("list_monsters".equals(action)) return new JSONObject().put("executed", true).put("monsters", astarion.listSupplementMonsters());
+            if ("rat_run_adventures".equals(action)) return new JSONObject().put("executed", true).put("adventures", astarion.listRatRunAdventures());
+            if ("rat_run_tavern".equals(action)) return new JSONObject().put("executed", true).put("tavern", astarion.getRatRunTavernDetails());
             if ("feat_feature".equals(action)) {
                 String rule=in.optString("feature_id","");
                 JSONObject result=new AstarionPdfFeatRulesEngine().evaluate(rule,in);

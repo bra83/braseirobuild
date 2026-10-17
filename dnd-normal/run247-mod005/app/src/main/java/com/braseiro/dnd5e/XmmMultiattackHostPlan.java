@@ -52,10 +52,15 @@ public final class XmmMultiattackHostPlan {
         JSONArray steps = resolved.getJSONArray("steps"), sequence = new JSONArray();
         for (int i = 0; i < steps.length(); i++) {
             JSONObject step = steps.getJSONObject(i);
-            // Spell/use effects cannot be charged separately without breaking atomicity.
-            if (!"attack".equals(step.optString("kind")))
-                return blocked("multiattack_component_executor_not_installed_" + step.optString("kind") + "_" + i);
-            sequence.put(step.getString("action"));
+            String kind = step.optString("kind", "attack");
+            String actionName = step.getString("action");
+            if (!isComponentExecutorInstalled(id, kind, actionName, persistedActorResources)) {
+                // Presence in the official statblock is NOT proof of a compatible
+                // executable host component. AppDb's multiattack transaction
+                // requires explicit host authorization and an atomic transactional executor.
+                return blocked("multiattack_component_executor_not_installed_" + kind + "_" + i);
+            }
+            sequence.put(actionName);
         }
         String[] names = new String[sequence.length()];
         for (int i = 0; i < names.length; i++) names[i] = sequence.getString(i);
@@ -64,6 +69,100 @@ public final class XmmMultiattackHostPlan {
         return new JSONObject().put("count", names.length).put("sequence", sequence)
             .put("source_pointer", resolved.getString("source_pointer"))
             .put("source_blob_sha1", resolved.getString("source_blob_sha1"));
+    }
+
+    public static boolean isComponentExecutorInstalled(String blockId, String kind, String actionName, JSONObject persistedActorResources) {
+        if ("attack".equals(kind)) return true;
+        if (persistedActorResources == null) return false;
+        if (!persistedActorResources.optBoolean("allow_hybrid_multiattack", false) &&
+            !persistedActorResources.optBoolean("atomic_spell_executor", false) &&
+            !persistedActorResources.optBoolean("allow_spell_components", false)) {
+            return false;
+        }
+        if ("use".equals(kind)) {
+            JSONObject profile = CompiledStatblockEngine.runtimeProfile(blockId);
+            if (profile == null) return false;
+            for (String field : new String[]{"actions", "special_actions"}) {
+                JSONArray list = profile.optJSONArray(field);
+                if (list != null) {
+                    for (int i = 0; i < list.length(); i++) {
+                        JSONObject entry = list.optJSONObject(i);
+                        if (entry != null && actionName.trim().equalsIgnoreCase(entry.optString("name", ""))) {
+                            if (entry.optBoolean("manual_unmodeled_source_effect_required", false)) return false;
+                            return entry.has("to_hit") || entry.has("save_dc");
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        if ("spell".equals(kind)) {
+            try {
+                JSONObject in = new JSONObject().put("monster", blockId).put("spell", actionName);
+                JSONObject checked = Xmm2025SpellUsageIndex.check(in);
+                if (!checked.optBoolean("resolved", false)) return false;
+                String usage = checked.optString("usage", "");
+                if ("will".equals(usage)) return true;
+                return persistedActorResources.optInt("spell_uses_" + actionName.toLowerCase(java.util.Locale.ROOT), 1) > 0;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public static boolean actionExistsInStatblock(String blockId, String actionName) {
+        if (blockId == null || actionName == null) return false;
+        JSONObject profile = CompiledStatblockEngine.runtimeProfile(blockId);
+        if (profile != null) {
+            for (String field : new String[]{"actions", "special_actions"}) {
+                JSONArray list = profile.optJSONArray(field);
+                if (list != null) {
+                    for (int i = 0; i < list.length(); i++) {
+                        JSONObject entry = list.optJSONObject(i);
+                        if (entry == null) continue;
+                        if (actionName.trim().equalsIgnoreCase(entry.optString("name", ""))) return true;
+                        JSONArray spells = entry.optJSONArray("spells");
+                        if (spells != null) {
+                            for (int s = 0; s < spells.length(); s++) {
+                                if (actionName.trim().equalsIgnoreCase(spells.optString(s, ""))) return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        try {
+            JSONObject spellOpts = Xmm2025SpellUsageIndex.options(blockId);
+            if (spellOpts.optBoolean("resolved", false)) {
+                JSONArray entries = spellOpts.optJSONArray("entries");
+                if (entries != null) {
+                    for (int e = 0; e < entries.length(); e++) {
+                        JSONObject entry = entries.optJSONObject(e);
+                        if (entry == null) continue;
+                        JSONArray will = entry.optJSONArray("will");
+                        if (will != null) {
+                            for (int w = 0; w < will.length(); w++) {
+                                if (actionName.trim().equalsIgnoreCase(will.optString(w, ""))) return true;
+                            }
+                        }
+                        JSONObject daily = entry.optJSONObject("daily");
+                        if (daily != null) {
+                            java.util.Iterator<String> it = daily.keys();
+                            while (it.hasNext()) {
+                                JSONArray arr = daily.optJSONArray(it.next());
+                                if (arr != null) {
+                                    for (int d = 0; d < arr.length(); d++) {
+                                        if (actionName.trim().equalsIgnoreCase(arr.optString(d, ""))) return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+        return false;
     }
     private static JSONObject blocked(String code) throws Exception {
         return new JSONObject().put("statblock_multiattack_blocked", code);

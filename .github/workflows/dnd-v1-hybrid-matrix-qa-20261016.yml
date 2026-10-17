@@ -1,0 +1,115 @@
+name: DND V1 - XMM Hybrid Safety and Matrix Integrity
+on:
+  push:
+    branches:
+      - fix/dnd-v1-xmm-hybrid-matrix-evidence-20261016
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dnd-v1-hybrid-matrix-qa-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify deterministic unique IDs and no false E2E status
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          python3 tools/build_dnd_v1_3core_matriz_integral.py --check
+          python3 tools/build_dnd_v1_3core_gap_ledger.py --check
+  android:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+    steps:
+      - name: Confirm exact BRELGA and prohibit APK builds
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'WRONG_RUNNER'}
+          Write-Host ('DND_HYBRID_SHA='+$env:GITHUB_SHA)
+          Write-Host 'APK_BUILD=NO'
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - name: Setup Java 17 and SDK
+        shell: powershell
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          $ErrorActionPreference='Stop'
+          $java='C:\actions-runner\_work\_tool\Java_Temurin-Hotspot_jdk\17.0.20-101\x64'
+          if(Test-Path $java) {
+            Add-Content $env:GITHUB_ENV ('JAVA_HOME='+$java)
+            Add-Content $env:GITHUB_PATH (Join-Path $java 'bin')
+          }
+          $sdk=$env:ANDROID_HOME
+          if(!$sdk -or !(Test-Path $sdk)){$sdk=Join-Path $env:LOCALAPPDATA 'Android\Sdk'}
+          if(!(Test-Path $sdk)){throw 'ANDROID_SDK_MISSING'}
+          Add-Content $env:GITHUB_ENV ('ANDROID_HOME='+$sdk)
+          Add-Content $env:GITHUB_ENV ('ANDROID_SDK_ROOT='+$sdk)
+          $shared=Join-Path $env:USERPROFILE '.gradle'
+          $isolated=Join-Path $env:RUNNER_TEMP ('dnd-v1-hybrid-'+$env:GITHUB_RUN_ID)
+          New-Item -ItemType Directory -Force -Path $isolated | Out-Null
+          foreach($item in @('wrapper','caches')){
+            $from=Join-Path $shared $item
+            $to=Join-Path $isolated $item
+            if((Test-Path $from)-and !(Test-Path $to)){
+              New-Item -ItemType Junction -Path $to -Target $from | Out-Null
+            }
+          }
+          Add-Content $env:GITHUB_ENV ('GRADLE_USER_HOME='+$isolated)
+      - name: Targeted XMM regression and Backup21 integrity
+        shell: powershell
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          $ErrorActionPreference='Stop'
+          $dir='app/build/test-results/testDebugUnitTest'
+          if(Test-Path $dir){Remove-Item -LiteralPath $dir -Recurse -Force}
+          & .\gradlew.bat :app:testDebugUnitTest --tests com.braseiro.dnd5e.Xmm70MultiattackHostPlanTest --tests com.braseiro.dnd5e.V1ManualBackupIsolationRobolectricTest --tests com.braseiro.dnd5e.XmmMultiattackHostRobolectricTest --no-daemon --console=plain
+          $code=$LASTEXITCODE
+          $sum=0;$fail=0;$err=0;$skip=0
+          foreach($class in @('com.braseiro.dnd5e.Xmm70MultiattackHostPlanTest','com.braseiro.dnd5e.V1ManualBackupIsolationRobolectricTest','com.braseiro.dnd5e.XmmMultiattackHostRobolectricTest')){
+            $file=Join-Path $dir ('TEST-'+$class+'.xml')
+            if(!(Test-Path $file)){throw ('MISSING_XML='+$class)}
+            [xml]$d=Get-Content -LiteralPath $file -Raw
+            $sum += [int]$d.testsuite.tests
+            $fail += [int]$d.testsuite.failures
+            $err += [int]$d.testsuite.errors
+            $skip += [int]$d.testsuite.skipped
+          }
+          Write-Host ('DND_HYBRID_TARGETED_TESTS='+$sum+' FAIL='+$fail+' ERR='+$err+' SKIP='+$skip)
+          if($code -ne 0 -or $sum -lt 4 -or $fail -ne 0 -or $err -ne 0 -or $skip -ne 0){throw 'HYBRID_TARGETED_FAILED'}
+      - name: Full Android unit test suite at same SHA
+        shell: powershell
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          $ErrorActionPreference='Stop'
+          $dir='app/build/test-results/testDebugUnitTest'
+          if(Test-Path $dir){Remove-Item -LiteralPath $dir -Recurse -Force}
+          & .\gradlew.bat :app:testDebugUnitTest --no-daemon --console=plain
+          $code=$LASTEXITCODE
+          $xml=@(Get-ChildItem $dir -Filter 'TEST-*.xml' -File)
+          $total=0;$fail=0;$err=0;$skip=0
+          foreach($file in $xml){
+            [xml]$d=Get-Content -LiteralPath $file.FullName -Raw
+            $total += [int]$d.testsuite.tests
+            $fail += [int]$d.testsuite.failures
+            $err += [int]$d.testsuite.errors
+            $skip += [int]$d.testsuite.skipped
+            foreach($case in @($d.SelectNodes('//testcase/failure | //testcase/error'))){
+              Write-Host ('DND_FAIL_CASE='+$case.ParentNode.GetAttribute('classname')+'::'+$case.ParentNode.GetAttribute('name'))
+              Write-Host ('DND_FAIL_MSG='+$case.GetAttribute('message'))
+            }
+          }
+          Write-Host ('DND_HYBRID_FULL_TESTS='+$total+' FAIL='+$fail+' ERR='+$err+' SKIP='+$skip)
+          if($code -ne 0 -or $total -lt 2741 -or $fail -ne 0 -or $err -ne 0 -or $skip -ne 0){throw 'HYBRID_FULL_FAILED'}
+          Write-Host 'DND_HYBRID_FULL=PASS'
+          Write-Host 'PHB_DMG_XMM_SOURCE_PARITY=NOT_CERTIFIED'
