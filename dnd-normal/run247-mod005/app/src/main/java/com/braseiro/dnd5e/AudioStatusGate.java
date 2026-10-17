@@ -29,6 +29,25 @@ public final class AudioStatusGate {
         return true;
     }
 
+    /** Do not throttle game actions or other non-audio footer information. */
+    public static boolean isAudioStatus(String message) {
+        if (message == null) return false;
+        String s = message.trim().toLowerCase(Locale.ROOT);
+        return s.startsWith("sfx")
+            || s.startsWith("áudio preparado")
+            || s.startsWith("ambiência ")
+            || s.startsWith("clima pronto")
+            || s.startsWith("música pronta")
+            || s.startsWith("braseiro kokoro")
+            || s.startsWith("voz do android")
+            || s.startsWith("a voz android")
+            || s.startsWith("a voz do android")
+            || s.startsWith("a engine tts")
+            || s.startsWith("narração concluída")
+            || s.startsWith("preparando a voz")
+            || s.startsWith("play solicitado");
+    }
+
     private static boolean isRoutineSceneDiagnostic(String key) {
         return key.startsWith("sfx: ")
             || key.startsWith("sfx não encontrado para ")
