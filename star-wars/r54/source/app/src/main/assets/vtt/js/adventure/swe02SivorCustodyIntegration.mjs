@@ -24,7 +24,7 @@ export function recordSWE02SivorPhysicalCollection(p) {
   throw Error('SWE02: é preciso examinar, conservar e recolher a carapaça real.');
  const checked=p.shipChitinKnowledge.checkReceipt;
  // A falta de um recibo de perícia em um save antigo não fabrica uma rolagem.
- const knowledgeVerified=Boolean(checked&&checked.checkIndex===9&&checked.success===true);
+ const knowledgeVerified=Boolean(checked&&checked.checkIndex===9&&Number.isSafeInteger(checked.netSuccess)&&checked.netSuccess>0);
  p.sivorShellCustody={
   type:'SIVOR_MARKED_CHITIN_COLLECTED',assetId:SIVOR_SHELL_ID,
   origin:'KRAYT_FANG_HOLD3',holder:'PARTY',physical:true,
@@ -55,7 +55,7 @@ export function validateSWE02SivorPhysicalProof(p) {
    c.collectedAtNode!=='krayt-fang-logs'||c.source?.productCode!=='SWE02'||
    c.source?.printedPage!==9||c.source?.authority!=='OFFICIAL_PDF_TEXT_VERIFIED'||
    typeof c.knowledgeReceiptVerified!=='boolean'||
-   c.knowledgeReceiptVerified!==Boolean(p.shipChitinKnowledge?.checkReceipt?.checkIndex===9&&p.shipChitinKnowledge?.checkReceipt?.success===true)||
+   c.knowledgeReceiptVerified!==Boolean(p.shipChitinKnowledge?.checkReceipt?.checkIndex===9&&Number.isSafeInteger(p.shipChitinKnowledge?.checkReceipt?.netSuccess)&&p.shipChitinKnowledge.checkReceipt.netSuccess>0)||
    c.transfers!==0||!p.flags?.shipMarkedChitinKept||
    !p.shipChitinKnowledge||!evidence(p,'sivor-shell','shell')))
   throw Error('SWE02: custódia física de Sivor sem origem verificável.');
