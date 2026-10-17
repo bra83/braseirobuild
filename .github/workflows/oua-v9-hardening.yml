@@ -27,10 +27,15 @@ jobs:
         run: |
           node --check ci/oua-4.9.212/harden-v9.mjs
           node --check ci/oua-4.9.212/harden-rules-guard.mjs
+          node --check ci/oua-4.9.212/harden-v9-canon-books.mjs
+          node --check ci/oua-4.9.212/wire-v9-host-bridge.mjs
           node --check ci/oua-4.9.212/guard-hardening.test.mjs
           node --check ci/oua-4.9.212/hardening.test.mjs
           node --check ci/oua-4.9.212/stage-v9-in-android.mjs
           node --check ci/oua-4.9.212/staging-safety.test.mjs
+          node --check ci/oua-4.9.212/canonical-books-audit.test.mjs
+          node --check ci/oua-4.9.212/v9-android-host-bridge.test.mjs
+          node --check ci/oua-4.9.212/etapa04-barbara-tts-companions.test.mjs
       - name: Execute no-secrets staging fixture
         run: node --test ci/oua-4.9.212/staging-safety.test.mjs
   native_integration:
@@ -63,6 +68,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Idempotência do patch falhou' }
           & node.exe ci/oua-4.9.212/harden-rules-guard.mjs $v9
           if ($LASTEXITCODE -ne 0) { throw 'RulesGuard hardening failed' }
+          & node.exe ci/oua-4.9.212/harden-v9-canon-books.mjs $v9
+          if ($LASTEXITCODE -ne 0) { throw 'Canon books enrichment failed' }
           "OUA_V9_ROOT=$v9" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "OUA_WORK=$work" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
       - name: Run original V9 tests and seven adversarial regressions
@@ -94,14 +101,17 @@ jobs:
             Where-Object { Test-Path (Join-Path $_.Directory.FullName 'android') } | Select-Object -First 1
           if (-not $pkg) { throw 'Android Studio source root missing' }
           "OUA_ANDROID_ROOT=$($pkg.Directory.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-      - name: Stage modules without overwriting stable 4.9.211
+      - name: Stage and wire modules into stable 4.9.211
         shell: powershell
         run: |
           & node.exe ci/oua-4.9.212/stage-v9-in-android.mjs $env:OUA_V9_ROOT $env:OUA_ANDROID_ROOT
           if ($LASTEXITCODE -ne 0) { throw 'V9 Android staging failed' }
-      - name: Verify existing UI and web build
+          & node.exe ci/oua-4.9.212/wire-v9-host-bridge.mjs $env:OUA_ANDROID_ROOT
+          if ($LASTEXITCODE -ne 0) { throw 'V9 Host bridge wiring failed' }
+      - name: Verify existing UI, web build, and E2E/Canon/G10 suites
         shell: powershell
         run: |
+          $repoRoot = (Get-Location).Path
           Push-Location $env:OUA_ANDROID_ROOT
           try {
             & npm.cmd ci --ignore-scripts --no-audit --no-fund
@@ -111,7 +121,15 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw 'Typecheck failed' }
             & npm.cmd run build
             if ($LASTEXITCODE -ne 0) { throw 'Vite build failed' }
+            & node.exe scripts/sync-android-assets.mjs
+            if ($LASTEXITCODE -ne 0) { throw 'Sync Android assets failed' }
+            & npx.cmd tsx --test "$repoRoot/ci/oua-4.9.212/canonical-books-audit.test.mjs" "$repoRoot/ci/oua-4.9.212/v9-android-host-bridge.test.mjs" "$repoRoot/ci/oua-4.9.212/etapa04-barbara-tts-companions.test.mjs"
+            if ($LASTEXITCODE -ne 0) { throw 'E2E/Canon/G10 suites failed' }
           } finally { Pop-Location }
+        env:
+          OUA_V9_PATCHED_DIR: ${{ env.OUA_V9_ROOT }}
+          OUA_ANDROID_WORK_DIR: ${{ env.OUA_ANDROID_ROOT }}
+          OUA_ANDROID_ROOT: ${{ env.OUA_ANDROID_ROOT }}
       - name: Android debug compilation only — never publish as final
         shell: powershell
         run: |
