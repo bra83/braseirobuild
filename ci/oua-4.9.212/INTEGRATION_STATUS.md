@@ -3,6 +3,8 @@
 > **INSTRUÇÃO CANÔNICA PARA O ANTIGRAVITY:** [ANTIGRAVITY_ORDEM_MESTRA_FONTES_UNICAS_E_GATES.md](./ANTIGRAVITY_ORDEM_MESTRA_FONTES_UNICAS_E_GATES.md). Este documento estabelece precedência entre Android 4.9.211, V9 e PR #59, endereços de TODAS as pastas de origem relevantes, contratos de módulos, fluxo único de integração e G01–G12 obrigatórios. Qualquer plano conflitante anterior fica subordinado a ele. **NÃO fechar o PR nem publicar APK final antes de comprovação dos 12 gates.**
 
 
+> **ASSINATURA ORIGINAL IDENTIFICADA:** `build-signing/braseiro-stable-debug.keystore.b64` da branch existente. Leia [RECUPERACAO_ASSINATURA_OUA_49211.md](./RECUPERACAO_ASSINATURA_OUA_49211.md) antes de pedir ao usuário para procurar a antiga máquina; o workflow 4.9.211 comprova a origem. A verificação final do certificado no novo APK permanece obrigatória.
+
 ## Fontes verificadas
 - Último APK estável: [OUA-v4.9.211](https://github.com/bra83/braseirobuild/releases/tag/OUA-v4.9.211).
 - Fonte Android Studio 4.9.211: [ZIP completo da release](https://github.com/bra83/braseirobuild/releases/download/OUA-v4.9.211/BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip).
