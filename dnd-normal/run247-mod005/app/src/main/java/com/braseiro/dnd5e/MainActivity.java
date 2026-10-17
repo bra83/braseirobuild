@@ -1165,6 +1165,18 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 faerunScene?prefs.getString(PREF_SCENE_IMAGE_FINGERPRINT,""):"");
         if(!snapshot.commit()){toast("Falha ao preservar a cena de Faerûn. Troca cancelada.");return;}
         StrixhavenAdventureProfile p=strixhavenProfile();p.activate();
+        try{
+            JSONObject campus=StrixhavenSceneBoundary.enterNewLocation(db.getSceneState());
+            campus.put("location","Strixhaven • "+p.currentMapLabel());
+            campus.put("strixhaven_map_id",p.currentMapId());
+            campus.remove("hex_id");
+            db.saveSceneState(campus);
+        }catch(Exception error){
+            AppLog.e("StrixhavenEnter","Falha ao definir a cena inicial da escola.",error);
+            p.exitToFaerun();
+            toast("A cena de Strixhaven não pôde ser aberta.");
+            return;
+        }
         clearTravelSceneDisplay("Strixhaven");
         JSONObject bestiary=StrixhavenBestiaryRuntimeEngine.install(this);
         screenCache.clear();screenCacheTime.clear();applyTheme();buildShell();showCampaign();
@@ -1244,7 +1256,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             .remove("last_master_support_json")
             .remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT)
             .remove(PREF_PENDING_IMAGE_FINGERPRINT).apply();
-        persistStory("Chegada a "+destination);
+        JSONObject priorStory=db.getStoryState();
+        db.saveStoryState(priorStory.optInt("started",0)==1,
+            lastNarration,lastVisualPrompt,"[]","","Chegada a "+destination);
         screenCache.remove("Mestre IA");screenCacheTime.remove("Mestre IA");
     }
 
