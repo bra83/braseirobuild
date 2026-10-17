@@ -1,0 +1,10 @@
+# AoR Ace/Gunner R3C3 source review
+
+- Position: `ace:gunner:r3c3`, MEJORAS CASERAS (localized as Melhorias caseiras), printed page 68 of *Star Wars: Age of Rebellion Core Rulebook*.
+- Source file reviewed: `AoR-Core-Rulebook.pdf`, Google Drive file ID `1w2M6f7R_dzaaHk6Q6R8Y7TIqAYM2MJIq`.
+- SHA-256: `25087E5B43C289EF556A365EEC1177123055DFB75C3ECF03481CD66044CACE50`.
+- Visual review: physical PDF page 69 (one-based; zero-based index 68), printed footer 68. The Ace: Gunner tree places this Jury Rigged slot at R3C3 for 15 XP. Its card authorizes one permanent improvement to an owned item; the effect persists only while that item remains in use.
+- Deterministic consumer: `rules/talents.mjs:281-307` authorizes only source-backed Jury Rigged purchase IDs, binds an improvement to a unique owned item instance, and derives the reduced critical cost. `core/controller.mjs:1983-2008` validates and commits the exact-node assignment; `controller.mjs:5292-5294` applies the improved weapon to a real attack. `core/uiBridge.mjs:1465-1468` exposes assignment; Android R46 `final-runtime.js:2645-2649` presents the acquired rank/item/effect controls and calls `assignJuryRigged`.
+- Exact acquisition and persistence test: `tests/uae-aor-individual-position-proofs.test.mjs`, test `AoR p.68 Ace/Gunner R3C3 Jury Rigged buys exact node, improves an owned weapon and survives three reloads`. It buys connected prerequisites and exact R3C3 through `BraseiroUiBridge.buyTalent`, verifies 15 XP and source provenance, assigns the exact node to an owned catalog weapon through the bridge, compares the real attack's critical cost with an otherwise equivalent unmodified attack, and verifies the purchase, assignment, weapon instance and effect across three fresh controller restores.
+- Full per-file regression: `evidence/AOR_GUNNER_R3C3_FULL_REGRESSION_20261017/summary.json` and per-file TAP logs, including all six stress files.
+- Certification scope: this evidence certifies only R3C3. Other AoR positions retain their individual statuses.

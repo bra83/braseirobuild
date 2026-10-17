@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: R45 manifest V3.8 has 369 unique assets and 127 vehicles
+ok 1 - R45 manifest V3.8 has 369 unique assets and 127 vehicles
+  ---
+  duration_ms: 3.3952
+  type: 'test'
+  ...
+# Subtest: R45 vehicle wave5 indexes exactly the 7 direct-proven recovery entries
+ok 2 - R45 vehicle wave5 indexes exactly the 7 direct-proven recovery entries
+  ---
+  duration_ms: 2.6289
+  type: 'test'
+  ...
+# Subtest: R45 direct-media provenance records the exact observed Kainrath links
+ok 3 - R45 direct-media provenance records the exact observed Kainrath links
+  ---
+  duration_ms: 1.194
+  type: 'test'
+  ...
+# Subtest: R45 URLs obey secure Kainrath cache policy
+ok 4 - R45 URLs obey secure Kainrath cache policy
+  ---
+  duration_ms: 2.4259
+  type: 'test'
+  ...
+# Subtest: R45 recovered vehicles remain visual-only and mechanically unbound
+ok 5 - R45 recovered vehicles remain visual-only and mechanically unbound
+  ---
+  duration_ms: 0.5204
+  type: 'test'
+  ...
+# Subtest: R45 bridge exposes 127 vehicles while preserving other visual categories
+ok 6 - R45 bridge exposes 127 vehicles while preserving other visual categories
+  ---
+  duration_ms: 141.258
+  type: 'test'
+  ...
+# Subtest: R45 recovered landspeeders and freighters are searchable without campaign mutation
+ok 7 - R45 recovered landspeeders and freighters are searchable without campaign mutation
+  ---
+  duration_ms: 60.4219
+  type: 'test'
+  ...
+# Subtest: R45 preserves R44 beast recovery and leaves unproven media blocked
+ok 8 - R45 preserves R44 beast recovery and leaves unproven media blocked
+  ---
+  duration_ms: 35.0794
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1571.7264

@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: tipos de autoridade da Biblioteca são normalizados e rotulados em PT-BR
+ok 1 - tipos de autoridade da Biblioteca são normalizados e rotulados em PT-BR
+  ---
+  duration_ms: 3.7437
+  type: 'test'
+  ...
+# Subtest: mecânica testada do motor prevalece sobre qualquer PDF importado
+ok 2 - mecânica testada do motor prevalece sobre qualquer PDF importado
+  ---
+  duration_ms: 1.3311
+  type: 'test'
+  ...
+# Subtest: PDF importado pode preencher consulta onde a matriz só tem lacuna pendente
+ok 3 - PDF importado pode preencher consulta onde a matriz só tem lacuna pendente
+  ---
+  duration_ms: 0.8478
+  type: 'test'
+  ...
+# Subtest: entre PDFs igualmente pertinentes, errata prevalece sobre livro básico e complemento
+ok 4 - entre PDFs igualmente pertinentes, errata prevalece sobre livro básico e complemento
+  ---
+  duration_ms: 3.0414
+  type: 'test'
+  ...
+# Subtest: ponte atualiza autoridade e estado ativo de uma fonte
+ok 5 - ponte atualiza autoridade e estado ativo de uma fonte
+  ---
+  duration_ms: 9.2798
+  type: 'test'
+  ...
+# Subtest: busca importada preserva autoridade devolvida pelo Android
+ok 6 - busca importada preserva autoridade devolvida pelo Android
+  ---
+  duration_ms: 1.5778
+  type: 'test'
+  ...
+# Subtest: fonte desativada fica disponível na Biblioteca, mas não chega ao RAG
+ok 7 - fonte desativada fica disponível na Biblioteca, mas não chega ao RAG
+  ---
+  duration_ms: 0.8685
+  type: 'test'
+  ...
+# Subtest: decisão de autoridade fica disponível para persistência da consulta
+ok 8 - decisão de autoridade fica disponível para persistência da consulta
+  ---
+  duration_ms: 258.2366
+  type: 'test'
+  ...
+# Subtest: ponte de reindexação retorna erro legível quando indisponível
+ok 9 - ponte de reindexação retorna erro legível quando indisponível
+  ---
+  duration_ms: 2.1031
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 766.1564

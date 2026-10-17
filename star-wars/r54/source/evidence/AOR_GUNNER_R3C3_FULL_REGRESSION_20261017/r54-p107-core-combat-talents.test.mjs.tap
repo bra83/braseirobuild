@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: P107: Ataque Frenético sofre Tensão, fica pendente e aprimora somente Briga/Corpo a Corpo
+ok 1 - P107: Ataque Frenético sofre Tensão, fica pendente e aprimora somente Briga/Corpo a Corpo
+  ---
+  duration_ms: 66.5384
+  type: 'test'
+  ...
+# Subtest: P107: Força Feroz e Rajada adicionam dano real apenas nos ataques auditados
+ok 2 - P107: Força Feroz e Rajada adicionam dano real apenas nos ataques auditados
+  ---
+  duration_ms: 27.9974
+  type: 'test'
+  ...
+# Subtest: P107: Golpes Letais soma +10 por rank ao crítico realmente ativado
+ok 3 - P107: Golpes Letais soma +10 por rank ao crítico realmente ativado
+  ---
+  duration_ms: 16.6927
+  type: 'test'
+  ...
+# Subtest: P107: Segundo Fôlego recupera Tensão pelo rank e só funciona 1x por encontro
+ok 4 - P107: Segundo Fôlego recupera Tensão pelo rank e só funciona 1x por encontro
+  ---
+  duration_ms: 13.4835
+  type: 'test'
+  ...
+# Subtest: P107: Saque Rápido troca arma como incidental 1x por turno sem gastar manobra
+ok 5 - P107: Saque Rápido troca arma como incidental 1x por turno sem gastar manobra
+  ---
+  duration_ms: 11.6912
+  type: 'test'
+  ...
+# Subtest: P107: Passo Lateral aprimora dificuldade só de ataque ranged até o próximo turno
+ok 6 - P107: Passo Lateral aprimora dificuldade só de ataque ranged até o próximo turno
+  ---
+  duration_ms: 37.1737
+  type: 'test'
+  ...
+# Subtest: P107: Postura Defensiva aprimora dificuldade só de ataque melee até o próximo turno
+ok 7 - P107: Postura Defensiva aprimora dificuldade só de ataque melee até o próximo turno
+  ---
+  duration_ms: 30.3996
+  type: 'test'
+  ...
+# Subtest: P107: bridge expõe as novas ações de talentos de combate
+ok 8 - P107: bridge expõe as novas ações de talentos de combate
+  ---
+  duration_ms: 2.658
+  type: 'test'
+  ...
+# Subtest: P107: R46 oferece controles somente para talentos adquiridos e chama o bridge real
+ok 9 - P107: R46 oferece controles somente para talentos adquiridos e chama o bridge real
+  ---
+  duration_ms: 6.18
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1570.1575

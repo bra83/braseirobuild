@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: P194 official Leave No Trace: disassembly costs two real hours, including on failure
+ok 1 - P194 official Leave No Trace: disassembly costs two real hours, including on failure
+  ---
+  duration_ms: 1262.7825
+  type: 'test'
+  ...
+# Subtest: P194 failed disassembly still spends 120 minutes without extracting evidence
+ok 2 - P194 failed disassembly still spends 120 minutes without extracting evidence
+  ---
+  duration_ms: 851.0882
+  type: 'test'
+  ...
+# Subtest: P194 cannot dispose of the black box before successful extraction
+ok 3 - P194 cannot dispose of the black box before successful extraction
+  ---
+  duration_ms: 695.6352
+  type: 'test'
+  ...
+# Subtest: P194 stolen black box remains incriminating; parts can be dumped only after confirmed travel
+ok 4 - P194 stolen black box remains incriminating; parts can be dumped only after confirmed travel
+  ---
+  duration_ms: 1203.2022
+  type: 'test'
+  ...
+# Subtest: P194 Hard Streetwise uses actual dice and does not fabricate payment
+ok 5 - P194 Hard Streetwise uses actual dice and does not fabricate payment
+  ---
+  duration_ms: 864.3023
+  type: 'test'
+  ...
+# Subtest: P194 forged bank evidence receipt and cleanup clock are rejected
+ok 6 - P194 forged bank evidence receipt and cleanup clock are rejected
+  ---
+  duration_ms: 907.479
+  type: 'test'
+  ...
+# Subtest: P194 three reopenings preserve evidence decisions and ledger
+ok 7 - P194 three reopenings preserve evidence decisions and ledger
+  ---
+  duration_ms: 815.1393
+  type: 'test'
+  ...
+# Subtest: P194 legacy P193 cleanup receipt without time remains valid without retroactive charge
+ok 8 - P194 legacy P193 cleanup receipt without time remains valid without retroactive charge
+  ---
+  duration_ms: 617.5012
+  type: 'test'
+  ...
+# Subtest: P194 Android bridge and PT-BR source options are bundled
+ok 9 - P194 Android bridge and PT-BR source options are bundled
+  ---
+  duration_ms: 37.7287
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8700.3052

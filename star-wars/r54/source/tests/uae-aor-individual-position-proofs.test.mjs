@@ -23,6 +23,7 @@ const SPARE_CLIP_POSITION='ace:gunner:r2c3';
 const ENDURING_RANK2_POSITION='ace:gunner:r4c2';
 const EXHAUST_PORT_POSITION='ace:gunner:r4c4';
 const HEROIC_FORTITUDE_POSITION='ace:gunner:r5c1';
+const JURY_RIGGED_POSITION='ace:gunner:r3c3';
 const JURY_RIGGED_RANK2_POSITION='ace:gunner:r5c2';
 const clone=structuredClone;
 const characterOptions={name:'Nira Valen',speciesKey:'human',careerKey:'ace',specializationKey:'gunner',partySize:1,
@@ -720,4 +721,59 @@ test('AoR p.68 Ace/Gunner R5C2 Jury Rigged rank 2 buys exact node, improves a we
   assert.equal(attack.damage,unmodifiedAttack.damage+1,'the real attack includes exactly 1 extra R5C2 Jury Rigged damage');
  }
  assert.equal(bridge.buyTalent(JURY_RIGGED_RANK2_POSITION).ok,false,'the exact node cannot be purchased twice');
+});
+
+test('AoR p.68 Ace/Gunner R3C3 Jury Rigged buys exact node, improves an owned weapon and survives three reloads',()=>{
+ const repo=new Repo(),setup=new GameController(repo);
+ setup.setCampaignMode('AOR');setup.createAorCharacter({...characterOptions,name:'Siv Arlo'});
+ const weapon=weaponCatalogEntry('blaster_pistol');assert.ok(weapon);
+ const armed=clone(setup.state.player.character);
+ armed.weapons=[{...clone(weapon),sourceCatalogId:weapon.id,ownedAssetId:'uae-r3c3-blaster',active:true,equipped:true,runtimeState:{}}];
+ setup.setCharacter(armed);
+ const bridge=new BraseiroUiBridge({repository:repo});
+ for(const id of [DURABLE_POSITION,TOUGHENED_POSITION,'ace:gunner:r2c2',OVERWHELM_POSITION,SPARE_CLIP_POSITION]){
+  const prerequisite=bridge.buyTalent(id);assert.equal(prerequisite.ok,true,`connected prerequisite ${id} is purchased`);
+ }
+ const before=clone(repo.state.player.character);
+ const candidate=new GameController(repo).eligibleTalents().find(n=>n.id===JURY_RIGGED_POSITION);
+ assert.ok(candidate);assert.equal(candidate.available,true);assert.equal(candidate.originalName,'MEJORAS CASERAS');
+ assert.equal(candidate.name,'Melhorias caseiras');assert.equal(candidate.cost,15);
+ assert.equal(candidate.source.printedPage,68);assert.equal(candidate.source.book,'Star Wars - Age of Rebellion - Core Rulebook');
+ const treeNode=AOR_TALENT_TREES.ace.gunner.nodes.find(n=>n.id===JURY_RIGGED_POSITION);
+ assert.ok(treeNode);assert.equal(treeNode.originalName,'MEJORAS CASERAS');assert.equal(treeNode.cost,15);assert.equal(treeNode.source.printedPage,68);
+ const purchase=bridge.buyTalent(JURY_RIGGED_POSITION);
+ assert.equal(purchase.ok,true);assert.equal(purchase.data.talent.id,JURY_RIGGED_POSITION);
+ assert.deepEqual(purchase.data.effect,{applied:false,label:null});
+ assert.equal(purchase.data.character.xp.available,before.xp.available-15);
+ const receipt=purchase.data.character.talentPurchases.find(entry=>entry.nodeId===JURY_RIGGED_POSITION);
+ assert.equal(receipt.originalName,'MEJORAS CASERAS');assert.equal(receipt.source.printedPage,68);
+ assert.equal(receipt.specializationKey,'gunner');assert.equal(receipt.cost,15);
+
+ const runtime=fs.readFileSync(new URL('../app/src/main/assets/vtt/r46/final-runtime.js',import.meta.url),'utf8');
+ assert.ok(runtime.includes('Melhorias caseiras ${i+1}'),'Android UI exposes the acquired Jury Rigged degree');
+ assert.ok(runtime.includes("call('assignJuryRigged'"),'Android UI routes the assignment through the deterministic bridge');
+ const assignment=bridge.assignJuryRigged({nodeId:JURY_RIGGED_POSITION,weaponIndex:0,effect:'crit'});
+ assert.equal(assignment.ok,true);assert.equal(assignment.data.nodeId,JURY_RIGGED_POSITION);
+ const status=bridge.aorP170Status();assert.equal(status.ok,true);
+ assert.equal(status.data.juryRigged.nodes.includes(JURY_RIGGED_POSITION),true);
+ assert.equal(status.data.weapons[0].effect,'crit');
+ const assignedState=clone(repo.state),weaponBaseCrit=assignedState.player.character.weapons[0].crit;
+ const unmodifiedState=clone(assignedState);
+ delete unmodifiedState.player.character.talentAssignments.juryRigged;
+ delete unmodifiedState.player.character.weapons[0].juryRiggedInstanceId;
+ const unmodifiedAttack=new GameController(new RepoWithState(unmodifiedState)).resolveWeaponAttack({weaponIndex:0,difficulty:1,rng:()=>.49});
+ assert.equal(juryRiggedWeapon(assignedState.player.character,assignedState.player.character.weapons[0]).weapon.crit,weaponBaseCrit-1);
+ for(let reopen=1;reopen<=3;reopen++){
+  const restored=new GameController(repo),character=restored.state.player.character;
+  const owned=character.talentPurchases.find(entry=>entry.nodeId===JURY_RIGGED_POSITION);
+  assert.ok(owned,`exact R3C3 source purchase survives reload ${reopen}`);
+  assert.equal(owned.source.printedPage,68);assert.equal(owned.specializationKey,'gunner');
+  assert.equal(character.talentAssignments.juryRigged.some(entry=>entry.nodeId===JURY_RIGGED_POSITION),true);
+  assert.equal(character.weapons[0].juryRiggedInstanceId,assignedState.player.character.weapons[0].juryRiggedInstanceId);
+  const attack=new GameController(repo).resolveWeaponAttack({weaponIndex:0,difficulty:1,rng:()=>.49});
+  assert.equal(attack.hit,true);assert.equal(attack.juryRigged,'crit');
+  assert.equal(attack.weapon.crit,weaponBaseCrit-1);
+  assert.equal(attack.criticalCost,unmodifiedAttack.criticalCost-1,'the real attack reduces the R3C3 critical threshold by one');
+ }
+ assert.equal(bridge.buyTalent(JURY_RIGGED_POSITION).ok,false,'the exact node cannot be purchased twice');
 });
