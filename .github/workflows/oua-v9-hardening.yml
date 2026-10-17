@@ -1,0 +1,148 @@
+name: OUA 4.9.212 V9 hardening gates
+on:
+  push:
+    branches:
+      - integration/oua-49212-v9-hardened-20261017
+    paths:
+      - 'ci/oua-4.9.212/**'
+      - '.github/workflows/oua-v9-hardening.yml'
+  workflow_dispatch:
+    inputs:
+      v9_zip_path:
+        description: 'Caminho ABSOLUTO do ZIP V9 no runner BRELGA (material privado, não publicar no GitHub)'
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  patch_syntax:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate patch and regression source syntax
+        run: |
+          node --check ci/oua-4.9.212/harden-v9.mjs
+          node --check ci/oua-4.9.212/harden-rules-guard.mjs
+          node --check ci/oua-4.9.212/harden-v9-canon-books.mjs
+          node --check ci/oua-4.9.212/wire-v9-host-bridge.mjs
+          node --check ci/oua-4.9.212/guard-hardening.test.mjs
+          node --check ci/oua-4.9.212/hardening.test.mjs
+          node --check ci/oua-4.9.212/stage-v9-in-android.mjs
+          node --check ci/oua-4.9.212/staging-safety.test.mjs
+          node --check ci/oua-4.9.212/canonical-books-audit.test.mjs
+          node --check ci/oua-4.9.212/v9-android-host-bridge.test.mjs
+          node --check ci/oua-4.9.212/etapa04-barbara-tts-companions.test.mjs
+      - name: Execute no-secrets staging fixture
+        run: node --test ci/oua-4.9.212/staging-safety.test.mjs
+  native_integration:
+    if: github.event_name == 'workflow_dispatch'
+    needs: patch_syntax
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 90
+    env:
+      V9_ZIP: ${{ inputs.v9_zip_path }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore local private V9 and patch it
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not (Test-Path -LiteralPath $env:V9_ZIP -PathType Leaf)) { throw 'V9 ZIP não existe no runner, não criar fake PASS' }
+          $work = Join-Path $env:RUNNER_TEMP 'oua-49212-hardening'
+          if (Test-Path $work) { Remove-Item -LiteralPath $work -Recurse -Force }
+          New-Item -ItemType Directory -Path $work -Force | Out-Null
+          $v9 = Join-Path $work 'v9'
+          Expand-Archive -LiteralPath $env:V9_ZIP -DestinationPath $v9 -Force
+          if (-not (Test-Path (Join-Path $v9 'package.json'))) { throw 'V9 root/layout inesperado' }
+          & node.exe ci/oua-4.9.212/harden-v9.mjs $v9
+          if ($LASTEXITCODE -ne 0) { throw 'Hardening não aplicado' }
+          & node.exe ci/oua-4.9.212/harden-v9.mjs $v9
+          if ($LASTEXITCODE -ne 0) { throw 'Idempotência do patch falhou' }
+          & node.exe ci/oua-4.9.212/harden-rules-guard.mjs $v9
+          if ($LASTEXITCODE -ne 0) { throw 'RulesGuard hardening failed' }
+          & node.exe ci/oua-4.9.212/harden-v9-canon-books.mjs $v9
+          if ($LASTEXITCODE -ne 0) { throw 'Canon books enrichment failed' }
+          "OUA_V9_ROOT=$v9" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "OUA_WORK=$work" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Run original V9 tests and seven adversarial regressions
+        shell: powershell
+        run: |
+          Push-Location $env:OUA_V9_ROOT
+          try {
+            & npm.cmd test
+            if ($LASTEXITCODE -ne 0) { throw 'V9 regressions failed' }
+          } finally { Pop-Location }
+          & node.exe --test ci/oua-4.9.212/hardening.test.mjs ci/oua-4.9.212/guard-hardening.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'HARD 01..07 failed' }
+        env:
+          OUA_MODULE_ROOT: ${{ env.OUA_V9_ROOT }}
+      - name: Restore official Android Studio 4.9.211 source
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $headers=@{Authorization="Bearer $env:GH_TOKEN";Accept="application/vnd.github+json";"X-GitHub-Api-Version"="2022-11-28"}
+          $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/tags/OUA-v4.9.211"
+          $asset=@($release.assets | Where-Object { $_.name -eq 'BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip' }) | Select-Object -First 1
+          if (-not $asset) { throw 'Canonical 4.9.211 source not found' }
+          $zip=Join-Path $env:OUA_WORK 'oua-49211.zip'
+          & curl.exe -sS -L --fail --retry 3 -H "Authorization: Bearer $env:GH_TOKEN" -H "Accept: application/octet-stream" -o $zip "$($asset.url)"
+          if ($LASTEXITCODE -ne 0 -or (Get-Item $zip).Length -lt 260000000) { throw 'Android source unavailable/truncated' }
+          $src=Join-Path $env:OUA_WORK 'android-source'
+          Expand-Archive -LiteralPath $zip -DestinationPath $src -Force
+          $pkg=Get-ChildItem $src -Recurse -Filter package.json -File |
+            Where-Object { Test-Path (Join-Path $_.Directory.FullName 'android') } | Select-Object -First 1
+          if (-not $pkg) { throw 'Android Studio source root missing' }
+          "OUA_ANDROID_ROOT=$($pkg.Directory.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Stage and wire modules into stable 4.9.211
+        shell: powershell
+        run: |
+          & node.exe ci/oua-4.9.212/stage-v9-in-android.mjs $env:OUA_V9_ROOT $env:OUA_ANDROID_ROOT
+          if ($LASTEXITCODE -ne 0) { throw 'V9 Android staging failed' }
+          & node.exe ci/oua-4.9.212/wire-v9-host-bridge.mjs $env:OUA_ANDROID_ROOT
+          if ($LASTEXITCODE -ne 0) { throw 'V9 Host bridge wiring failed' }
+      - name: Verify existing UI, web build, and E2E/Canon/G10 suites
+        shell: powershell
+        run: |
+          $repoRoot = (Get-Location).Path
+          Push-Location $env:OUA_ANDROID_ROOT
+          try {
+            & npm.cmd ci --ignore-scripts --no-audit --no-fund
+            if ($LASTEXITCODE -ne 0) { & npm.cmd install --ignore-scripts --no-audit --no-fund }
+            if ($LASTEXITCODE -ne 0) { throw 'npm dependencies failed' }
+            & npm.cmd run lint
+            if ($LASTEXITCODE -ne 0) { throw 'Typecheck failed' }
+            & npm.cmd run build
+            if ($LASTEXITCODE -ne 0) { throw 'Vite build failed' }
+            & node.exe scripts/sync-android-assets.mjs
+            if ($LASTEXITCODE -ne 0) { throw 'Sync Android assets failed' }
+            & npx.cmd tsx --test "$repoRoot/ci/oua-4.9.212/canonical-books-audit.test.mjs" "$repoRoot/ci/oua-4.9.212/v9-android-host-bridge.test.mjs" "$repoRoot/ci/oua-4.9.212/etapa04-barbara-tts-companions.test.mjs"
+            if ($LASTEXITCODE -ne 0) { throw 'E2E/Canon/G10 suites failed' }
+          } finally { Pop-Location }
+        env:
+          OUA_V9_PATCHED_DIR: ${{ env.OUA_V9_ROOT }}
+          OUA_ANDROID_WORK_DIR: ${{ env.OUA_ANDROID_ROOT }}
+          OUA_ANDROID_ROOT: ${{ env.OUA_ANDROID_ROOT }}
+      - name: Android debug compilation only — never publish as final
+        shell: powershell
+        run: |
+          $android=Join-Path $env:OUA_ANDROID_ROOT 'android'
+          Push-Location $android
+          try {
+            if (Test-Path 'gradlew.bat') {
+              & .\gradlew.bat :app:assembleDebug --no-daemon
+              if ($LASTEXITCODE -ne 0) { throw 'Gradle failed' }
+            } else { throw 'Gradle wrapper unavailable' }
+          } finally { Pop-Location }
+      - name: Purge private working materials
+        shell: powershell
+        if: always()
+        run: |
+          if ($env:OUA_WORK -and (Test-Path $env:OUA_WORK)) { Remove-Item -LiteralPath $env:OUA_WORK -Recurse -Force -ErrorAction SilentlyContinue }
