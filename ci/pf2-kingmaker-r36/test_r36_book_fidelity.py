@@ -11,6 +11,20 @@ def method_body(signature):
     boundary=SOURCE.find("\n    public ",pos+len(signature))
     return SOURCE[pos:boundary if boundary>=0 else pos+6000]
 
+def test_water_mill_upkeep_uses_real_water_border_placement():
+    """The consumption engine must honor saved real lot/water-border positions."""
+    settlement=method_body('public JSONObject officialSettlementEffects(String settlementKey)')
+    upkeep=method_body('private int officialSettlementConsumption()')
+    expected='KingmakerStructureSemantics.hasWaterMill(town,rows)'
+    assert expected in settlement[:1200]
+    assert expected in upkeep[:900]
+    assert 'optBoolean("water_mill")' not in settlement[:1200]
+    assert 'optBoolean("water_mill")' not in upkeep[:900]
+    harness=(ROOT.parent/"pf2-kingmaker-r36/semantic/R36BookSemanticsHarness.java").read_text(encoding="utf-8")
+    assert 'hasWaterMill(lotVillage,new JSONArray().put(registeredMill))' in harness
+    assert '!KingmakerStructureSemantics.hasWaterMill(oldMillFlagTown,new JSONArray().put(inlandMill))' in harness
+
+
 def test_collect_taxes_grants_economy_bonus_not_invented_rp():
     s=method_body('public JSONObject resolveCollectTaxes(int naturalRoll,String skillKey,String ruinChoice,String notes)')
     assert '"economy_circumstance_bonus"' in s
