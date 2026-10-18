@@ -11,6 +11,8 @@ import * as imageLibraryData_mjs_1 from "../library/imageLibraryData.mjs";
 import * as sceneLibrary_mjs_1 from "../library/sceneLibrary.mjs";
 import * as imageLibrary_mjs_1 from "../library/imageLibrary.mjs";
 import { R54_LOCATION_MAP_ASSETS } from "../library/r54LocationMapData.mjs";
+import { getOrCreateHolotableState, setHolotableBiome, renderHolotableSvg } from "../ui/holotableUi.mjs";
+import { moveHolotableToken, calculateTacticalCheckModifiers, HOLO_BIOMES } from "../rules/tacticalHolotable.mjs";
 export const UI_BRIDGE_VERSION = 3;
 function clone(value) {
     return value === undefined ? undefined : structuredClone(value);
@@ -442,6 +444,44 @@ export class BraseiroUiBridge {
             this.repository.save(controllerResult.data.state);
             return ok(clone(res));
         } catch (error) { return fail('BEAST_PANIC_FAILED', messageOf(error)); }
+    }
+    getHolotableState() {
+        const stateRes = this.readState();
+        const char = stateRes?.ok ? stateRes.data?.player?.character : null;
+        const scene = stateRes?.ok ? stateRes.data?.scene : null;
+        try {
+            const hState = getOrCreateHolotableState(char, scene);
+            return ok({ state: clone(hState), svg: renderHolotableSvg(hState), biomes: Object.keys(HOLO_BIOMES) });
+        } catch (e) {
+            return fail('HOLOTABLE_STATE_FAILED', messageOf(e));
+        }
+    }
+    setHolotableBiome(biomeKey) {
+        try {
+            const hState = setHolotableBiome(biomeKey);
+            return ok({ state: clone(hState), svg: renderHolotableSvg(hState) });
+        } catch (e) {
+            return fail('HOLOTABLE_BIOME_FAILED', messageOf(e));
+        }
+    }
+    moveHolotableToken(tokenId, x, y) {
+        try {
+            const current = getOrCreateHolotableState();
+            const updated = moveHolotableToken(current, tokenId, x, y);
+            Object.assign(current, updated);
+            return ok({ state: clone(current), svg: renderHolotableSvg(current) });
+        } catch (e) {
+            return fail('HOLOTABLE_MOVE_FAILED', messageOf(e));
+        }
+    }
+    calculateTacticalCheck(targetId) {
+        try {
+            const current = getOrCreateHolotableState();
+            const res = calculateTacticalCheckModifiers(current, targetId);
+            return ok(clone(res));
+        } catch (e) {
+            return fail('TACTICAL_CHECK_FAILED', messageOf(e));
+        }
     }
     /** Single Android/WebView entrypoint for replay-safe published actions. */
     executePublishedAdventureCommand(command = {}) {
