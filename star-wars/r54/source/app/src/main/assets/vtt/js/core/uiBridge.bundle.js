@@ -232,6 +232,104 @@ class BraseiroUiBridge {
             return fail('PUBLISHED_ADVENTURE_FAILED', messageOf(error));
         }
     }
+    certifiedPublishedAdventureCatalog() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.certifiedPublishedAdventureCatalog()));
+        }
+        catch (error) {
+            return fail('PUBLISHED_ADVENTURE_FAILED', messageOf(error));
+        }
+    }
+    listMissionOpportunities(filters = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.listMissionOpportunities(filters ?? {})));
+        }
+        catch (error) {
+            return fail('MISSION_OPPORTUNITIES_FAILED', messageOf(error));
+        }
+    }
+    generateMissionOpportunities(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            const result = controllerResult.data.generateMissionOpportunities(options ?? {});
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(result));
+        }
+        catch (error) {
+            return fail('MISSION_GENERATE_FAILED', messageOf(error));
+        }
+    }
+    acceptMissionOpportunity(missionId) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            const result = controllerResult.data.acceptMissionOpportunity(String(missionId ?? ''));
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(result));
+        }
+        catch (error) {
+            return fail('MISSION_ACCEPT_FAILED', messageOf(error));
+        }
+    }
+    resolveMissionOpportunity(missionId, options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            const result = controllerResult.data.resolveMissionOpportunity(String(missionId ?? ''), options ?? {});
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(result));
+        }
+        catch (error) {
+            return fail('MISSION_RESOLVE_FAILED', messageOf(error));
+        }
+    }
+    rejectMissionOpportunity(missionId, options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            const result = controllerResult.data.rejectMissionOpportunity(String(missionId ?? ''), options ?? {});
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(result));
+        }
+        catch (error) {
+            return fail('MISSION_REJECT_FAILED', messageOf(error));
+        }
+    }
+    createOriginalAdventure(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.createOriginalAdventure(options ?? {})));
+        }
+        catch (error) {
+            return fail('ORIGINAL_ADVENTURE_CREATE_FAILED', messageOf(error));
+        }
+    }
+    registerOriginalAdventure(module) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            const result = controllerResult.data.registerOriginalAdventure(module);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(result));
+        }
+        catch (error) {
+            return fail('ORIGINAL_ADVENTURE_REGISTER_FAILED', messageOf(error));
+        }
+    }
     /** Single Android/WebView entrypoint for replay-safe published actions. */
     executePublishedAdventureCommand(command = {}) {
         const controllerResult = this._controllerForExistingCampaign();
@@ -6763,10 +6861,811 @@ function markBeyondTheRimRewardsApplied(world, details = {}) { const next = clon
 function archiveBeyondTheRim(world) { const next = clone(world); const p = next?.publishedAdventure; if (!p || p.id !== ID || p.status !== 'completed')
     throw new Error('Além da Orla precisa estar concluída antes de arquivar.'); p.status = 'archived'; p.archivedAt = now(); p.updatedAt = now(); return next; }
 });
+define("js/adventure/deadInTheWater.mjs",function(module,exports,require){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DEAD_IN_THE_WATER = void 0;
+exports.seedDeadInTheWaterWorld = seedDeadInTheWaterWorld;
+exports.startDeadInTheWater = startDeadInTheWater;
+exports.currentDeadInTheWaterScene = currentDeadInTheWaterScene;
+exports.currentDeadInTheWaterChecks = currentDeadInTheWaterChecks;
+exports.adjudicateDeadInTheWaterCheck = adjudicateDeadInTheWaterCheck;
+exports.currentDeadInTheWaterEncounter = currentDeadInTheWaterEncounter;
+exports.deadInTheWaterEncounterSpec = deadInTheWaterEncounterSpec;
+exports.markDeadInTheWaterEncounterActive = markDeadInTheWaterEncounterActive;
+exports.recordDeadInTheWaterEncounterOutcome = recordDeadInTheWaterEncounterOutcome;
+exports.advanceDeadInTheWater = advanceDeadInTheWater;
+exports.deadInTheWaterStatus = deadInTheWaterStatus;
+exports.markDeadInTheWaterRewardsApplied = markDeadInTheWaterRewardsApplied;
+exports.archiveDeadInTheWater = archiveDeadInTheWater;
+exports.currentDeadInTheWaterMasterRequest = currentDeadInTheWaterMasterRequest;
+const livingWorldDepth_mjs_1 = require("../world/livingWorldDepth.mjs");
+const ID = 'dead-in-the-water';
+const SOURCE = Object.freeze({
+    title: 'Dead in the Water',
+    originalTitle: 'Muerte en las profundidades',
+    system: 'Star Wars: Age of Rebellion',
+    productCode: 'SWA03',
+    sourceBook: "Age of Rebellion Game Master's Kit",
+    official: true,
+    userMaterial: false
+});
+const LOC = Object.freeze({
+    docks: 'ditw.loc.morjanssik_surface',
+    traffic: 'ditw.loc.traffic_control',
+    management: 'ditw.loc.management_offices',
+    rustyHarpoon: 'ditw.loc.rusty_harpoon',
+    catwalks: 'ditw.loc.catwalks',
+    bathysphere: 'ditw.loc.bathysphere_dock',
+    oceanTrench: 'ditw.loc.ocean_trench',
+    stagingArea: 'ditw.loc.mine_staging_area',
+    mineLevel42: 'ditw.loc.mine_level_42'
+});
+const NPC = Object.freeze({
+    kalbrac: 'ditw.npc.kalbrac',
+    chonk: 'ditw.npc.moren_chonk',
+    merv: 'ditw.npc.walif_merv',
+    wolg: 'ditw.npc.kelmut_wolg',
+    generet: 'ditw.npc.capitan_generet',
+    huv: 'ditw.npc.teniente_huv',
+    limeren: 'ditw.npc.agente_limeren',
+    q4: 'ditw.npc.q4_droid'
+});
+const FACTION = Object.freeze({
+    alliance: 'ditw.fac.rebel_alliance',
+    miners: 'ditw.fac.quarren_miners',
+    empire: 'ditw.fac.galactic_empire'
+});
+function clone(v) { return structuredClone(v); }
+function now() { return new Date().toISOString(); }
+function clamp(val, min, max) { return Math.max(min, Math.min(max, Number(val) || 0)); }
+function loc(id, name, description, tags = []) {
+    return { id, name, description, knownToPlayer: true, tags: ['published-adventure', ID, ...tags] };
+}
+function npc(id, name, locationId, factionId, profile = {}) {
+    return {
+        id, name, locationId, factionId,
+        goal: profile.goal || '',
+        relation: profile.relation || 'neutral',
+        status: 'active',
+        knownToPlayer: Boolean(profile.knownToPlayer),
+        facts: [],
+        tags: ['published-adventure', ID, ...(profile.tags || [])],
+        combatState: null,
+        updatedAt: now(),
+        species: profile.species || '',
+        sex: profile.sex || '',
+        gender: profile.gender || '',
+        origin: profile.origin || 'Mon Cala',
+        career: profile.career || '',
+        specialization: profile.specialization || '',
+        occupation: profile.occupation || '',
+        ageYears: profile.ageYears ?? null,
+        appearance: profile.appearance || ''
+    };
+}
+function faction(id, name, objective, knownToPlayer = false) {
+    return {
+        id, name, objective, status: 'active',
+        resources: [], relations: {}, facts: [],
+        knownToPlayer, tags: ['published-adventure', ID],
+        plans: [], updatedAt: now()
+    };
+}
+exports.DEAD_IN_THE_WATER = Object.freeze({
+    id: ID,
+    title: 'Morte nas Profundezas',
+    originalTitle: 'Dead in the Water (Muerte en las profundidades)',
+    rulesProfile: 'AOR_CORE',
+    campaignModes: Object.freeze(['AOR', 'MIXED']),
+    source: SOURCE,
+    startNodeId: 'arrival-surface',
+    schemaVersion: 1,
+    initialClocks: Object.freeze({
+        mineBreachClock: { value: 0, max: 6, status: 'ACTIVE' },
+        allianceMomentum: { value: 0, max: 6, status: 'ACTIVE' }
+    }),
+    nodes: Object.freeze({
+        // EPISÓDIO 1: LA LLEGADA
+        'arrival-surface': {
+            episode: 1,
+            title: 'Chegada a Morjanssik',
+            locationId: LOC.docks,
+            summary: 'A equipe da Aliança chega à cidade flutuante de Morjanssik em Mon Cala para investigar a paralisia na extração de minério dos Cruzadores Calamari.',
+            narration: 'Morjanssik flutua sobre as águas escuras de Mon Cala como uma enorme carcaça de metal e coral, cercada por névoa marítima e torres de controle. A produção de minério das profundezas do leito oceânico, crucial para a construção dos Cruzadores da Frota Rebelde, foi paralisada por acidentes misteriosos.',
+            visibleNpcIds: [NPC.kalbrac],
+            checks: [
+                { skill: 'Frieza', difficulty: 'Fácil', purpose: 'manter postura diplomática perante os operadores do porto' },
+                { skill: 'Percepção', difficulty: 'Média', purpose: 'identificar a presença atípica de patrulhas de segurança Quarren' }
+            ],
+            choices: [
+                { id: 'dock-cooperate', label: 'Cooperar com a segurança e seguir ao encontro de Kalbrac', to: 'management-meeting', effects: { arrivalApproach: 'cooperative' } },
+                { id: 'dock-observe', label: 'Observar o tráfego de carga antes de entrar no escritório', to: 'management-meeting', effects: { arrivalApproach: 'cautious', cargoNoticed: true } }
+            ]
+        },
+        'management-meeting': {
+            episode: 1,
+            title: 'Reunião de Gerência em Morjanssik',
+            locationId: LOC.management,
+            summary: 'O diplomata Mon Calamari Kalbrac apresenta a situação ao lado do Gerente Principal Moren Chonk; tensões raciais e suspeitas de sabotagem interna emergem.',
+            narration: 'No escritório central com vista para o oceano, Kalbrac e Moren Chonk discutem rispidamente. Chonk acusa o Conselho Calamari de negligência, enquanto Kalbrac aponta que remessas de droides perfuradores desapareceram e que o sabotador possui acesso interno.',
+            visibleNpcIds: [NPC.kalbrac, NPC.chonk],
+            checks: [
+                { skill: 'Negociação', difficulty: 'Média', purpose: 'apaziguar a tensão entre Chonk e Kalbrac' },
+                { skill: 'Carisma', difficulty: 'Média', purpose: 'conquistar a confiança de Moren Chonk' },
+                { skill: 'Perspicácia', difficulty: 'Média', purpose: 'detectar evasivas sobre os registros de carga' }
+            ],
+            choices: [
+                { id: 'investigate-underworld', label: 'Seguir a pista do mercado clandestino até o Arpão Enferrujado', to: 'rusty-harpoon-tavern', effects: { investigationTarget: 'merv' } }
+            ]
+        },
+        // EPISÓDIO 2: UNA NOCHE EN LA CIUDAD
+        'rusty-harpoon-tavern': {
+            episode: 2,
+            title: 'O Arpão Enferrujado',
+            locationId: LOC.rustyHarpoon,
+            summary: 'Uma taverna úmida no setor Quarren onde o contrabandista Walif Merv negocia peças roubadas e componentes de droides.',
+            narration: 'A taverna é escura, barulhenta e cheira a salmoura e óleo de motor. No fundo do salão, Walif Merv divide uma mesa com valentões Quarren, contando créditos e oferecendo peças que deveriam estar nas minas submarinas.',
+            visibleNpcIds: [NPC.merv],
+            checks: [
+                { skill: 'Negociação', difficulty: '1 Dificuldade + 1 Desafio', purpose: 'comprar a cooperação de Merv sem violência' },
+                { skill: 'Coerção', difficulty: 'Média', purpose: 'intimidar Merv a revelar o comprador do minério' },
+                { skill: 'Manha', difficulty: 'Média', purpose: 'descobrir quem forneceu o código das batisferas' }
+            ],
+            choices: [
+                { id: 'tavern-negotiate', label: 'Fechar acordo com Walif Merv e obter o código de acesso', to: 'catwalk-confrontation', effects: { mervBribed: true } },
+                { id: 'tavern-fight', label: 'Enfrentar os capangas de Merv quando a conversa azedar', to: 'catwalk-confrontation', effects: { barFight: true } }
+            ]
+        },
+        'catwalk-confrontation': {
+            episode: 2,
+            title: 'Perseguição nas Passarelas',
+            locationId: LOC.catwalks,
+            summary: 'Merv tenta fugir pelas passarelas externas sobre o oceano tempestuoso; a captura rende evidências sobre o subgerente Kelmut Wolg.',
+            narration: 'Chuva e ondas violentas fustigam as passarelas de serviço do anel inferior da cidade. Merv salta entre tubulações de vapor tentando alcançar um bote submarino. Ao ser cercado, ele confessa em pânico que vendeu os droides e explosivos para indivíduos com identidades Mon Calamari suspeitas que desceram ao leito marinho.',
+            visibleNpcIds: [NPC.merv],
+            checks: [
+                { skill: 'Atletismo', difficulty: 'Média', purpose: 'interceptar a rota de fuga nas passarelas molhadas' },
+                { skill: 'Percepção', difficulty: 'Média', purpose: 'localizar o datapad de transações deixado por Merv' }
+            ],
+            choices: [
+                { id: 'catwalk-capture', label: 'Interrogar Merv, recolher as provas e descer à batisfera', to: 'bathysphere-descent', effects: { mervInterrogated: true, wolgImplicated: true } }
+            ]
+        },
+        // EPISÓDIO 3: HUNDIRSE
+        'bathysphere-descent': {
+            episode: 3,
+            title: 'Descida na Batisfera Kulv-Bockar',
+            locationId: LOC.oceanTrench,
+            summary: 'A viagem na batisfera de transporte Kulv-Bockar desce quase um quilômetro na fossa oceânica até o leito marinho de Morjanssik.',
+            narration: 'A batisfera de transporte Kulv-Bockar range sob a imensa pressão hidrostática enquanto desce pelas profundezas azuis-escuras de Mon Cala. Abaixo, a grande trincheira marinha revela os mastros iluminados e os domos da instalação mineradora cravada na rocha oceânica.',
+            visibleNpcIds: [],
+            checks: [
+                { skill: 'Mecânica', difficulty: 'Média', purpose: 'estabilizar os sistemas de pressão da batisfera' },
+                { skill: 'Vigilância', difficulty: 'Média', purpose: 'detectar anomalias elétricas nas eclusas de atracação' }
+            ],
+            choices: [
+                { id: 'bathysphere-dock-clean', label: 'Atracar discretamente na eclusa da mina', to: 'staging-trap', effects: { stealthDescent: true } },
+                { id: 'bathysphere-dock-emergency', label: 'Atracar às pressas após oscilação nos controles', to: 'staging-trap', effects: { roughDescent: true } }
+            ]
+        },
+        // EPISÓDIO 4: LOS ACUSADOS
+        'staging-trap': {
+            episode: 4,
+            title: 'Emboscada na Área de Preparação',
+            locationId: LOC.stagingArea,
+            summary: 'Ao desembarcarem nas profundezas, os agentes são emboscados e acusados de sabotagem pelos conspiradores imperiais disfarçados.',
+            narration: 'A eclusa se abre para o ar úmido e pressurizado da área de preparação da mina. Antes que o grupo possa se orientar, guardas de segurança armados e dois oficiais com fisionomia Mon Calamari — Capitão Generet e Tenente Huv — fecham as saídas. Generet, com uma voz estranhamente rouca para um Mon Cal, acusa o grupo de espionagem imperial e ordena sua detenção.',
+            visibleNpcIds: [NPC.generet, NPC.huv],
+            checks: [
+                { skill: 'Percepção', difficulty: 'Difícil', purpose: 'notar anomalias cirúrgicas e voz artificial no disfarce de Generet' },
+                { skill: 'Disciplina', difficulty: 'Média', purpose: 'resistir ao interrogatório na cela de retenção' }
+            ],
+            choices: [
+                { id: 'staging-breakout', label: 'Efetuar a fuga da detenção com ajuda de Kelmut Wolg e do droide Q-4', to: 'staging-investigation', effects: { escapedDetention: true } }
+            ]
+        },
+        'staging-investigation': {
+            episode: 4,
+            title: 'A Verdade nas Profundezas',
+            locationId: LOC.stagingArea,
+            summary: 'Kelmut Wolg, arrependido, confessa que foi coagido pelos imperiais disfarçados que pretendem inundar toda a mina nível 42.',
+            narration: 'Nos corredores de serviço da mina submarina, o subgerente Quarren Kelmut Wolg surge desolado ao lado de um droide barrenador Q-4 modificado. Wolg revela que os supostos inspetores Mon Calamari são agentes da Divisão de Desestabilização Imperial. Eles tomaram a plataforma laser de mineração e estão descendo ao Nível 42 para fundir os pilares de sustentação e afundar a cidade!',
+            visibleNpcIds: [NPC.wolg, NPC.q4],
+            checks: [
+                { skill: 'Liderança', difficulty: 'Fácil', purpose: 'reunir os droides barrenadores Q-4 para apoiar a ofensiva' },
+                { skill: 'Computadores', difficulty: 'Média', purpose: 'baixar o manifesto da sabotagem e provas incontestáveis do complô imperial' }
+            ],
+            choices: [
+                { id: 'rush-level-42', label: 'Descer imediatamente ao Nível 42 para impedir a quebra da contenção marinha', to: 'level-42-showdown', effects: { evidenceSecured: true, q4Allied: true } }
+            ]
+        },
+        // EPISÓDIO 5: FUSIÓN
+        'level-42-showdown': {
+            episode: 5,
+            title: 'Batalha no Nível 42 — Plataforma Laser',
+            locationId: LOC.mineLevel42,
+            summary: 'O confronto decisivo no Nível 42 contra o Capitão Generet e a plataforma laser de mineração antes que a pressão do oceano rompa a mina.',
+            narration: 'O Nível 42 é uma gigantesca caverna submarina onde o leito rochoso sustenta milhões de toneladas de oceano. A plataforma laser de mineração avança roncando como um tanque blindado; seu feixe perfurante já superaquece a rocha do pilar central. Generet e seus agentes imperiais atiram da carcaça do veículo, determinados a quebrar a contenção e afogar todos na mina.',
+            visibleNpcIds: [NPC.generet, NPC.huv, NPC.limeren],
+            checks: [
+                { skill: 'Artilharia', difficulty: 'Difícil', purpose: 'alvejar os controles externos ou a escotilha da plataforma laser' },
+                { skill: 'Armas Pesadas', difficulty: 'Média', purpose: 'abrir fogo concentrado contra a blindagem traseira da plataforma' },
+                { skill: 'Liderança', difficulty: 'Fácil', purpose: 'comandar os droides Q-4 para perfurar a blindagem do veículo inimigo' },
+                { skill: 'Atletismo', difficulty: 'Difícil', purpose: 'escalar a plataforma em movimento sob fogo inimigo' }
+            ],
+            choices: [
+                {
+                    id: 'resolve-victory',
+                    label: 'Neutralizar a plataforma laser, capturar os sabotadores e salvar a mina de Morjanssik',
+                    to: 'epilogue-victory',
+                    condition: 'flag:laserPlatformDisabled',
+                    effects: { mineSaved: true, imperialPlotExposed: true, resolutionOutcome: 'victory' }
+                },
+                {
+                    id: 'resolve-evacuation',
+                    label: 'A contenção cedeu — evacuar a equipe e os sobreviventes com as provas do complô',
+                    to: 'epilogue-evacuation',
+                    condition: 'flag:mineBreached',
+                    effects: { mineSaved: false, imperialPlotExposed: true, resolutionOutcome: 'evacuation' }
+                }
+            ]
+        },
+        // EPÍLOGOS
+        'epilogue-victory': {
+            episode: 5,
+            title: 'Epílogo — Vitória e Lealdade Quarren',
+            locationId: LOC.management,
+            summary: 'A mina é salva intacta, o complô da Desestabilização Imperial é exposto e o povo Quarren declara apoio integral à Aliança Rebelde.',
+            narration: 'Com a queima da escotilha e a rendição dos agentes imperiais desmascarados, os alarmes da mina são silenciados. Moren Chonk e o Conselho Calamari recebem as provas gravadas da infiltração imperial. Envergonhado e grato, o conselho Quarren firma aliança incondicional com a Rebelião, garantindo o fluxo contínuo de minério para a construção dos Cruzadores da Frota.',
+            visibleNpcIds: [NPC.kalbrac, NPC.chonk, NPC.wolg, NPC.q4],
+            checks: [],
+            choices: []
+        },
+        'epilogue-evacuation': {
+            episode: 5,
+            title: 'Epílogo — Evacuação e Resistência',
+            locationId: LOC.docks,
+            summary: 'A mina sofre inundação severa paralisando as obras de cruzadores por um ano, mas a trama imperial foi desmascarada e a Aliança sobrevive.',
+            narration: 'A água do oceano rompe as galerias inferiores, forçando uma evacuação desesperada na batisfera. Morjanssik perde suas minas por pelo menos um ano, adiando dois novos Cruzadores Calamari para a Frota Rebelde. No entanto, as provas do complô imperial preservadas pelo grupo uniram Mon Calamari e Quarren contra o verdadeiro inimigo, frustrando o objetivo político do Império.',
+            visibleNpcIds: [NPC.kalbrac, NPC.chonk],
+            checks: [],
+            choices: []
+        }
+    })
+});
+function conditionOk(choice, progress) {
+    const c = choice.condition;
+    if (!c)
+        return true;
+    if (c.startsWith('flag:'))
+        return Boolean(progress.flags?.[c.slice(5)]);
+    if (c.startsWith('unvisited:'))
+        return !progress.visitedNodeIds.includes(c.slice(10));
+    return true;
+}
+function playerNode(node, progress) {
+    if (!node)
+        return null;
+    return {
+        id: progress.currentNodeId,
+        episode: node.episode,
+        title: node.title,
+        locationId: node.locationId,
+        summary: node.summary,
+        narration: node.narration,
+        visibleNpcIds: [...(node.visibleNpcIds || [])],
+        checks: node.checks || [],
+        choices: (node.choices || []).filter(c => conditionOk(c, progress)).map(c => ({ id: c.id, label: c.label }))
+    };
+}
+function baseProgress({ rewardsApplied = false } = {}) {
+    return {
+        id: ID,
+        status: 'active',
+        currentNodeId: exports.DEAD_IN_THE_WATER.startNodeId,
+        visitedNodeIds: [exports.DEAD_IN_THE_WATER.startNodeId],
+        checkHistory: [],
+        flags: {
+            mineBreachClock: 0,
+            allianceMomentum: 0,
+            laserPlatformDisabled: false,
+            mineBreached: false,
+            logorCaptured: false,
+            evidenceSecured: false
+        },
+        systems: {
+            encounters: { activeId: null, history: [] },
+            clocks: {
+                mineBreach: { value: 0, max: 6, status: 'active' },
+                momentum: { value: 0, max: 6, status: 'active' }
+            }
+        },
+        sceneJournal: [],
+        rewardsApplied: Boolean(rewardsApplied),
+        startedAt: now(),
+        updatedAt: now()
+    };
+}
+function ensureSystems(progress) {
+    progress.systems = progress.systems || {};
+    progress.systems.encounters = progress.systems.encounters || { activeId: null, history: [] };
+    progress.systems.clocks = progress.systems.clocks || {
+        mineBreach: { value: 0, max: 6, status: 'active' },
+        momentum: { value: 0, max: 6, status: 'active' }
+    };
+    return progress.systems;
+}
+function seedDeadInTheWaterWorld(world) {
+    const next = clone(world || {});
+    next.locations = next.locations || {};
+    next.npcs = next.npcs || {};
+    next.factions = next.factions || {};
+    const locations = [
+        loc(LOC.docks, 'Docas de Morjanssik', 'Doca de superfície da cidade flutuante mineradora de Mon Cala.', ['mon-cala', 'docks']),
+        loc(LOC.traffic, 'Torre de Controle de Tráfego', 'Centro de controle de tráfego aéreo e marítimo de Morjanssik.', ['mon-cala', 'traffic']),
+        loc(LOC.management, 'Escritórios de Gerência', 'Gabinete executivo de Moren Chonk com vista panorâmica do oceano.', ['mon-cala', 'management']),
+        loc(LOC.rustyHarpoon, 'O Arpão Enferrujado', 'Taverna decadente no setor operário Quarren de Morjanssik.', ['mon-cala', 'underworld', 'tavern']),
+        loc(LOC.catwalks, 'Passarelas Externas', 'Passarelas industriais expostas às ondas violentas de Mon Cala.', ['mon-cala', 'catwalks']),
+        loc(LOC.bathysphere, 'Doca da Batisfera', 'Estação de lançamento dos submarinos de transporte profundo.', ['mon-cala', 'submersible']),
+        loc(LOC.oceanTrench, 'Fossa Oceânica Submarina', 'Trincheira abissal a quase 1 km abaixo da superfície.', ['mon-cala', 'deep-ocean']),
+        loc(LOC.stagingArea, 'Área de Preparação da Mina', 'Complexo de docas e celas no fundo do mar.', ['mon-cala', 'mine-staging']),
+        loc(LOC.mineLevel42, 'Mina Morjanssik — Nível 42', 'Nível mais profundo da mina onde os pilares sustentam o oceano.', ['mon-cala', 'mine-level-42'])
+    ];
+    for (const l of locations) {
+        next.locations[l.id] = next.locations[l.id] ? { ...l, ...next.locations[l.id] } : l;
+    }
+    const factions = [
+        faction(FACTION.alliance, 'Aliança Rebelde', 'Garantir suprimentos de minério para a construção de cruzadores capitais.', true),
+        faction(FACTION.miners, 'Trabalhadores Quarren de Morjanssik', 'Preservar suas minas, autonomia e integridade dos trabalhadores.', true),
+        faction(FACTION.empire, 'Ramo de Desestabilização Imperial', 'Destruir a capacidade naval de Mon Cala e incitar guerra civil entre Quarren e Calamari.', false)
+    ];
+    for (const f of factions) {
+        next.factions[f.id] = next.factions[f.id] ? { ...f, ...next.factions[f.id] } : f;
+    }
+    const npcs = [
+        npc(NPC.kalbrac, 'Kalbrac', LOC.management, FACTION.alliance, {
+            species: 'Mon Calamari', sex: 'masculino', occupation: 'diplomata e oficial de ligação',
+            knownToPlayer: true, relation: 'ally', goal: 'Manter a aliança entre Mon Calamari e Quarren.'
+        }),
+        npc(NPC.chonk, 'Moren Chonk', LOC.management, FACTION.miners, {
+            species: 'Quarren', sex: 'masculino', occupation: 'gerente principal de Morjanssik',
+            knownToPlayer: true, relation: 'neutral', goal: 'Proteger os interesses comerciais e a segurança de Morjanssik.'
+        }),
+        npc(NPC.merv, 'Walif Merv', LOC.rustyHarpoon, null, {
+            species: 'Quarren', sex: 'masculino', occupation: 'contrabandista e comerciante do submundo',
+            knownToPlayer: false, relation: 'hostile', goal: 'Lucrar com peças e escapar sem ser preso.'
+        }),
+        npc(NPC.wolg, 'Kelmut Wolg', LOC.stagingArea, FACTION.miners, {
+            species: 'Quarren', sex: 'masculino', occupation: 'subgerente de operações mineradoras',
+            knownToPlayer: false, relation: 'neutral', goal: 'Livrar-se da chantagem imperial e salvar sua consciência.'
+        }),
+        npc(NPC.generet, 'Capitão Generet', LOC.mineLevel42, FACTION.empire, {
+            species: 'Humano (Disfarçado cirurgicamente de Mon Calamari)', sex: 'masculino', occupation: 'agente imperial de desestabilização',
+            knownToPlayer: false, relation: 'hostile', goal: 'Inundar a mina de Morjanssik e destruir o apoio naval da Rebelião.'
+        }),
+        npc(NPC.huv, 'Tenente Huv', LOC.mineLevel42, FACTION.empire, {
+            species: 'Humano (Disfarçado de Mon Calamari)', sex: 'masculino', occupation: 'agente imperial de desestabilização',
+            knownToPlayer: false, relation: 'hostile', goal: 'Destruir as defesas da mina e assegurar promoção no Império.'
+        }),
+        npc(NPC.limeren, 'Agente Limeren', LOC.mineLevel42, FACTION.empire, {
+            species: 'Humano (Disfarçado de Mon Calamari)', sex: 'masculino', occupation: 'agente imperial',
+            knownToPlayer: false, relation: 'hostile', goal: 'Eliminar qualquer intruso antes do colapso da mina.'
+        }),
+        npc(NPC.q4, 'Droide Q-4', LOC.stagingArea, FACTION.alliance, {
+            species: 'Droide de Mineração Q-4', sex: 'não aplicável', occupation: 'droide perfurador',
+            knownToPlayer: false, relation: 'friendly', goal: 'Auxiliar os mineiros e combater sabotadores.'
+        })
+    ];
+    for (const n of npcs) {
+        next.npcs[n.id] = next.npcs[n.id] ? { ...n, ...next.npcs[n.id] } : n;
+    }
+    next.publishedAdventureRewards = next.publishedAdventureRewards || {};
+    if (!next.publishedAdventure || next.publishedAdventure.id !== ID) {
+        next.publishedAdventure = baseProgress({ rewardsApplied: Boolean(next.publishedAdventureRewards[ID]) });
+    }
+    ensureSystems(next.publishedAdventure);
+    return next;
+}
+function startDeadInTheWater(world) {
+    const next = seedDeadInTheWaterWorld(world);
+    next.publishedAdventure = baseProgress({ rewardsApplied: Boolean(next.publishedAdventureRewards?.[ID]) });
+    const p = next.publishedAdventure;
+    p.visitedNodeIds = [p.currentNodeId];
+    p.updatedAt = now();
+    return {
+        world: next,
+        progress: clone(p),
+        node: playerNode(exports.DEAD_IN_THE_WATER.nodes[p.currentNodeId], p)
+    };
+}
+function currentDeadInTheWaterScene(world) {
+    const p = world?.publishedAdventure;
+    if (!p || p.id !== ID)
+        return null;
+    const node = exports.DEAD_IN_THE_WATER.nodes[p.currentNodeId];
+    if (!node)
+        return null;
+    return {
+        locationId: node.locationId,
+        title: node.title,
+        narration: node.narration,
+        visibleNpcIds: [...(node.visibleNpcIds || [])]
+    };
+}
+function currentDeadInTheWaterChecks(world) {
+    const p = world?.publishedAdventure;
+    if (!p || p.id !== ID)
+        return [];
+    const node = exports.DEAD_IN_THE_WATER.nodes[p.currentNodeId];
+    if (!node || !Array.isArray(node.checks))
+        return [];
+    return node.checks.map((c, index) => ({
+        index,
+        id: `${p.currentNodeId}-check-${index}`,
+        skill: c.skill,
+        difficulty: c.difficulty,
+        purpose: c.purpose
+    }));
+}
+function adjudicateDeadInTheWaterCheck(world, { checkIndex = 0, result = {} } = {}) {
+    const next = seedDeadInTheWaterWorld(world);
+    const p = next.publishedAdventure;
+    if (p.status !== 'active')
+        throw new Error('A aventura Morte nas Profundezas não está ativa.');
+    ensureSystems(p);
+    const checks = currentDeadInTheWaterChecks(next);
+    const reqIdx = Number(checkIndex);
+    const checkSpec = checks.find(x => x.index === reqIdx) || checks[reqIdx];
+    if (!checkSpec)
+        throw new Error('Teste de aventura indisponível neste ponto.');
+    const success = Boolean(result.success);
+    const netAdvantage = Number(result.netAdvantage) || 0;
+    const netSuccess = Number(result.netSuccess) || 0;
+    const triumph = Math.max(0, Number(result.triumph) || 0);
+    const despair = Math.max(0, Number(result.despair) || 0);
+    // Mechanical consequences on clocks
+    const breachDelta = Math.max(0, -netAdvantage > 1 ? 1 : 0) + (despair * 2);
+    const momentumDelta = (success ? 1 : 0) + triumph;
+    p.flags.mineBreachClock = clamp((p.flags.mineBreachClock || 0) + breachDelta, 0, 6);
+    p.flags.allianceMomentum = clamp((p.flags.allianceMomentum || 0) + momentumDelta, 0, 6);
+    if (p.currentNodeId === 'level-42-showdown') {
+        if (p.flags.allianceMomentum >= 4) {
+            p.flags.laserPlatformDisabled = true;
+        }
+        if (p.flags.mineBreachClock >= 5) {
+            p.flags.mineBreached = true;
+        }
+    }
+    const entry = {
+        at: now(),
+        nodeId: p.currentNodeId,
+        checkId: checkSpec.id,
+        skill: checkSpec.skill,
+        success,
+        netSuccess,
+        netAdvantage,
+        triumph,
+        despair
+    };
+    p.checkHistory.push(entry);
+    p.updatedAt = now();
+    next.publishedAdventure = p;
+    return {
+        world: next,
+        progress: clone(p),
+        adjudication: entry
+    };
+}
+function currentDeadInTheWaterEncounter(world) {
+    const p = world?.publishedAdventure;
+    if (!p || p.id !== ID || p.status !== 'active')
+        return null;
+    ensureSystems(p);
+    const history = p.systems.encounters.history || [];
+    let id = null, label = null;
+    if (p.currentNodeId === 'rusty-harpoon-tavern' || (p.currentNodeId === 'catwalk-confrontation' && p.flags?.barFight)) {
+        id = 'rusty-harpoon-brawl';
+        label = 'Briga no Arpão Enferrujado';
+    }
+    else if (p.currentNodeId === 'level-42-showdown') {
+        id = 'mining-laser-climax';
+        label = 'Confronto da Plataforma Laser — Nível 42';
+    }
+    if (!id)
+        return null;
+    const resolved = history.some(x => x.encounterId === id && x.outcome);
+    return {
+        id, label, available: !resolved,
+        status: resolved ? 'resolved' : (p.systems.encounters.activeId === id ? 'active' : 'ready')
+    };
+}
+function deadInTheWaterEncounterSpec(world, encounterId = null) {
+    const next = seedDeadInTheWaterWorld(world);
+    const p = next.publishedAdventure;
+    const current = currentDeadInTheWaterEncounter(next);
+    const id = String(encounterId || current?.id || '');
+    if (!current || id !== current.id || !current.available) {
+        throw new Error('Encontro publicado indisponível neste ponto.');
+    }
+    if (id === 'rusty-harpoon-brawl') {
+        return {
+            id,
+            label: 'Briga no Arpão Enferrujado',
+            playerInitiativeSkill: 'frialdad',
+            npcInitiativeSkill: 'alerta',
+            adversaries: [
+                { profileKey: 'walif_merv', worldNpcId: NPC.merv, range: 'Médio' },
+                { profileKey: 'quarren_thug', count: 3, range: 'Curto' }
+            ]
+        };
+    }
+    if (id === 'mining-laser-climax') {
+        return {
+            id,
+            label: 'Confronto da Plataforma Laser — Nível 42',
+            playerInitiativeSkill: 'disciplina',
+            npcInitiativeSkill: 'frialdad',
+            adversaries: [
+                { profileKey: 'capitan_generet', worldNpcId: NPC.generet, range: 'Longo' },
+                { profileKey: 'teniente_huv', worldNpcId: NPC.huv, range: 'Médio' },
+                { profileKey: 'agente_limeren', worldNpcId: NPC.limeren, range: 'Médio' },
+                { profileKey: 'imperial_saboteur', count: 4, range: 'Longo' }
+            ]
+        };
+    }
+    throw new Error('Encontro publicado desconhecido.');
+}
+function markDeadInTheWaterEncounterActive(world, encounterId) {
+    const next = seedDeadInTheWaterWorld(world);
+    const p = next.publishedAdventure;
+    ensureSystems(p);
+    const current = currentDeadInTheWaterEncounter(next);
+    const id = String(encounterId || current?.id || '');
+    if (!current || !current.available || id !== current.id) {
+        throw new Error('Encontro publicado indisponível neste ponto.');
+    }
+    p.systems.encounters.activeId = id;
+    p.updatedAt = now();
+    return next;
+}
+function recordDeadInTheWaterEncounterOutcome(world, { encounterId, outcome, adversaries = [] } = {}) {
+    const next = seedDeadInTheWaterWorld(world);
+    const p = next.publishedAdventure;
+    ensureSystems(p);
+    const current = currentDeadInTheWaterEncounter(next);
+    const id = String(encounterId || p.systems.encounters.activeId || current?.id || '');
+    if (!id || !current || id !== current.id)
+        throw new Error('Resultado de encontro incompatível com a cena atual.');
+    const record = {
+        at: now(),
+        nodeId: p.currentNodeId,
+        encounterId: id,
+        outcome: outcome || 'ended',
+        adversaries: (adversaries || []).map(a => ({
+            id: a.id ?? null,
+            worldNpcId: a.worldNpcId ?? null,
+            profileKey: a.profileKey ?? null,
+            status: a.status ?? 'active'
+        }))
+    };
+    p.systems.encounters.history.push(record);
+    p.systems.encounters.activeId = null;
+    if (id === 'mining-laser-climax') {
+        if (outcome === 'adversaries_defeated') {
+            p.flags.laserPlatformDisabled = true;
+        }
+        else {
+            p.flags.mineBreached = true;
+        }
+    }
+    p.updatedAt = now();
+    next.publishedAdventure = p;
+    return { world: next, record: clone(record) };
+}
+function applyDeadInTheWaterEpilogueConsequences(world, progress) {
+    if (progress.consequencesApplied)
+        return;
+    const outcome = progress.flags?.resolutionOutcome;
+    const isVictory = outcome === 'victory';
+    // Update NPCs
+    const wolg = world.npcs?.[NPC.wolg];
+    if (wolg) {
+        wolg.status = isVictory ? 'reabilitado' : 'sob_custodia';
+        wolg.relation = 'friendly';
+    }
+    const generet = world.npcs?.[NPC.generet];
+    if (generet) {
+        generet.status = isVictory ? 'capturado' : 'evadido';
+    }
+    // Living World depth integration
+    const deep = (0, livingWorldDepth_mjs_1.ensureLivingWorldDepth)(world);
+    world.livingDepth = deep.livingDepth;
+    const tick = Number(world.clock?.tick) || 0;
+    const memory = (npcId, summary, importance = 75) => {
+        const s = world.livingDepth?.npcs?.[npcId];
+        if (!s)
+            return;
+        s.memory = Array.isArray(s.memory) ? s.memory : [];
+        if (!s.memory.some(m => m.summary === summary)) {
+            s.memory.push({ tick, kind: 'published-adventure', summary, importance, actor: ID });
+        }
+    };
+    const rel = (factionId, delta) => {
+        const s = world.livingDepth?.factions?.[factionId];
+        if (!s)
+            return;
+        s.relations = s.relations && typeof s.relations === 'object' ? s.relations : {};
+        s.relations['player-group'] = clamp((Number(s.relations['player-group']) || 0) + delta, -100, 100);
+    };
+    memory(NPC.kalbrac, isVictory
+        ? 'A equipe da Aliança salvou as minas de Morjanssik e selou o apoio total dos Quarren.'
+        : 'A equipe da Aliança expôs a trama imperial, embora as minas de Morjanssik tenham sofrido danos severos.', 90);
+    memory(NPC.chonk, isVictory
+        ? 'Os Rebeldes protegeram os operários Quarren da sabotagem imperial com honra.'
+        : 'Os Rebeldes revelaram o plano imperial e salvaram as vidas dos mineiros durante a evacuação.', 85);
+    rel(FACTION.alliance, isVictory ? 20 : 10);
+    rel(FACTION.miners, isVictory ? 25 : 10);
+    rel(FACTION.empire, -30);
+    // Register aftermath plan in the Living World
+    const plans = world.publishedAdventureWorldPlans = { ...(world.publishedAdventureWorldPlans || {}) };
+    const createdDay = Math.floor(tick / 4);
+    plans[ID] = [
+        {
+            id: 'quarren-alliance-fleet-reinforcement',
+            factionId: FACTION.miners,
+            status: 'active',
+            visibility: 'post-epilogue',
+            createdDay,
+            goal: isVictory
+                ? 'Fornecer minério ininterrupto para a conclusão de dois novos Cruzadores Calamari para a Frota Rebelde.'
+                : 'Reconstruir os níveis inundados de Morjanssik com auxílio de engenheiros da Aliança.'
+        },
+        {
+            id: 'imperial-destabilization-retaliation',
+            factionId: FACTION.empire,
+            status: 'latent',
+            visibility: 'secret-until-resolved',
+            createdDay,
+            goal: 'Investigar o fracasso do Capitão Generet em Morjanssik e preparar contra-ataque da Divisão de Desestabilização.'
+        }
+    ];
+    world.publishedAdventureConsequences = {
+        ...(world.publishedAdventureConsequences || {}),
+        [ID]: {
+            appliedAt: now(),
+            resolutionOutcome: outcome,
+            mineSaved: Boolean(progress.flags?.mineSaved),
+            q4Joined: true,
+            wolgReconciled: true,
+            livingWorldApplied: true
+        }
+    };
+    progress.consequencesApplied = true;
+}
+function advanceDeadInTheWater(world, choiceId) {
+    const next = seedDeadInTheWaterWorld(world);
+    const p = next.publishedAdventure;
+    if (p.status !== 'active')
+        throw new Error('A aventura Morte nas Profundezas não está ativa.');
+    ensureSystems(p);
+    const node = exports.DEAD_IN_THE_WATER.nodes[p.currentNodeId];
+    if (!node)
+        throw new Error('Cena atual não existe.');
+    const choice = (node.choices || []).find(c => c.id === String(choiceId));
+    if (!choice || !conditionOk(choice, p))
+        throw new Error('Escolha indisponível neste ponto da aventura.');
+    const fromNodeId = p.currentNodeId;
+    const targetNodeId = choice.to;
+    const effects = { ...(choice.effects || {}) };
+    p.flags = { ...(p.flags || {}), ...effects };
+    p.currentNodeId = targetNodeId;
+    if (!p.visitedNodeIds.includes(targetNodeId)) {
+        p.visitedNodeIds.push(targetNodeId);
+    }
+    p.sceneJournal.push({
+        fromNodeId,
+        toNodeId: targetNodeId,
+        choiceId: choice.id,
+        choiceLabel: choice.label,
+        at: now()
+    });
+    if (targetNodeId.startsWith('epilogue-')) {
+        p.status = 'completed';
+        p.completedAt = now();
+        applyDeadInTheWaterEpilogueConsequences(next, p);
+    }
+    p.updatedAt = now();
+    next.publishedAdventure = p;
+    return {
+        world: next,
+        progress: clone(p),
+        node: playerNode(exports.DEAD_IN_THE_WATER.nodes[targetNodeId], p),
+        completed: p.status === 'completed'
+    };
+}
+function deadInTheWaterStatus(world) {
+    const p = world?.publishedAdventure;
+    if (!p || p.id !== ID) {
+        return {
+            available: true,
+            active: false,
+            catalog: {
+                id: ID,
+                title: exports.DEAD_IN_THE_WATER.title,
+                campaignModes: [...exports.DEAD_IN_THE_WATER.campaignModes],
+                rulesProfile: exports.DEAD_IN_THE_WATER.rulesProfile
+            }
+        };
+    }
+    ensureSystems(p);
+    const node = exports.DEAD_IN_THE_WATER.nodes[p.currentNodeId];
+    const reward = world?.publishedAdventureRewards?.[ID] || null;
+    return {
+        available: true,
+        active: p.status === 'active',
+        completed: p.status === 'completed',
+        archived: p.status === 'archived',
+        progress: clone(p),
+        node: node ? playerNode(node, p) : null,
+        encounter: currentDeadInTheWaterEncounter(world),
+        reward: reward?.applied ? clone(reward) : null
+    };
+}
+function markDeadInTheWaterRewardsApplied(world, details = {}) {
+    const next = clone(world);
+    next.publishedAdventureRewards = next.publishedAdventureRewards || {};
+    next.publishedAdventureRewards[ID] = {
+        applied: true,
+        appliedAt: now(),
+        xp: Number(details.xp) || 20,
+        duty: Number(details.duty) || 10,
+        note: details.note || 'Morte nas Profundezas — recompensa oficial de Deber e Pontos de Experiência'
+    };
+    if (next?.publishedAdventure?.id === ID) {
+        next.publishedAdventure.rewardsApplied = true;
+        next.publishedAdventure.updatedAt = now();
+    }
+    return next;
+}
+function archiveDeadInTheWater(world) {
+    const next = clone(world);
+    const p = next?.publishedAdventure;
+    if (!p || p.id !== ID || p.status !== 'completed') {
+        throw new Error('Morte nas Profundezas precisa estar concluída antes de arquivar.');
+    }
+    p.status = 'archived';
+    p.archivedAt = now();
+    p.updatedAt = now();
+    next.publishedAdventure = p;
+    return next;
+}
+function currentDeadInTheWaterMasterRequest(world) {
+    const s = deadInTheWaterStatus(world);
+    if (!s.active && !s.completed)
+        return null;
+    const node = s.node;
+    if (!node)
+        return null;
+    return {
+        kind: 'published_adventure',
+        adventureId: ID,
+        adventureTitle: exports.DEAD_IN_THE_WATER.title,
+        nodeId: node.id,
+        episode: node.episode,
+        locationId: node.locationId,
+        summary: node.summary,
+        checks: currentDeadInTheWaterChecks(world),
+        suggestedActions: (node.choices || []).filter(c => conditionOk(c, world.publishedAdventure)).map(c => c.label).slice(0, 6),
+        antiSpoiler: true,
+        source: SOURCE
+    };
+}
+});
 define("js/adventure/hybridFiveAdventurePolicy.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FIVE_PUBLISHED_ADVENTURE_IDS = void 0;
+exports.ALL_CANONICAL_ADVENTURE_IDS = exports.RELEASE_CERTIFIED_ADVENTURES = exports.FIVE_PUBLISHED_ADVENTURE_IDS = void 0;
 exports.assertFivePublishedAdventures = assertFivePublishedAdventures;
 exports.isCanonicalAdventureId = isCanonicalAdventureId;
 exports.canonicalAdventureForSource = canonicalAdventureForSource;
@@ -6780,9 +7679,20 @@ exports.FIVE_PUBLISHED_ADVENTURE_IDS = Object.freeze([
     'jewel-of-yavin',
     'mask-of-the-pirate-queen'
 ]);
-const ALLOWED = new Set(exports.FIVE_PUBLISHED_ADVENTURE_IDS);
+/** Release Dual Core + Two Adventures certified official adventures */
+exports.RELEASE_CERTIFIED_ADVENTURES = Object.freeze([
+    'under-black-sun',
+    'dead-in-the-water'
+]);
+exports.ALL_CANONICAL_ADVENTURE_IDS = Object.freeze([
+    ...exports.FIVE_PUBLISHED_ADVENTURE_IDS,
+    'dead-in-the-water'
+]);
+const ALLOWED = new Set(exports.ALL_CANONICAL_ADVENTURE_IDS);
+const LEGACY_ALLOWED = new Set(exports.FIVE_PUBLISHED_ADVENTURE_IDS);
 const ALIASES = Object.freeze({
     'under-black-sun': ['under a black sun', 'under black sun', 'sob um sol negro', 'swep01'],
+    'dead-in-the-water': ['dead in the water', 'muerte en las profundidades', 'morte nas profundezas', 'swa03'],
     'beyond-the-rim': ['beyond the rim', 'alem da orla', 'swe05'],
     'long-arm-of-the-hutt': ['the long arm of the hutt', 'long arm of the hutt', 'o longo braco do hutt', 'swe02'],
     'jewel-of-yavin': ['the jewel of yavin', 'jewel of yavin', 'a joia de yavin', 'swe09'],
@@ -6795,7 +7705,14 @@ function containsPhrase(haystack, phrase) {
     return ` ${haystack} `.includes(` ${phrase} `);
 }
 function assertFivePublishedAdventures(ids) {
-    if (!Array.isArray(ids) || ids.length !== ALLOWED.size || new Set(ids).size !== ALLOWED.size || ids.some(id => !ALLOWED.has(id))) {
+    if (!Array.isArray(ids)) {
+        throw new Error('Escopo de aventuras inválido: lista de identificadores obrigatória.');
+    }
+    const idSet = new Set(ids);
+    const isLegacyFive = idSet.size === LEGACY_ALLOWED.size && [...idSet].every(id => LEGACY_ALLOWED.has(id));
+    const isDualCertified = idSet.size === exports.RELEASE_CERTIFIED_ADVENTURES.length && [...idSet].every(id => exports.RELEASE_CERTIFIED_ADVENTURES.includes(id));
+    const isExtendedCanonical = idSet.size === ALLOWED.size && [...idSet].every(id => ALLOWED.has(id));
+    if (!isLegacyFive && !isDualCertified && !isExtendedCanonical) {
         throw new Error('Escopo de aventuras inválido: apenas os cinco módulos canônicos são permitidos.');
     }
     return true;
@@ -16511,17 +17428,44 @@ function validatePublishedAdventureGraph(module) {
 define("js/adventure/publishedAdventureRegistry.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.RELEASE_CERTIFIED_ADVENTURES = void 0;
+exports.certifiedPublishedAdventureCatalog = certifiedPublishedAdventureCatalog;
 exports.publishedAdventureCatalog = publishedAdventureCatalog;
 exports.getPublishedAdventureAdapter = getPublishedAdventureAdapter;
 exports.publishedAdventureAdapterSnapshot = publishedAdventureAdapterSnapshot;
 const publishedAdventureUaeBridge_mjs_1 = require("./publishedAdventureUaeBridge.mjs");
 const hybridFiveAdventurePolicy_mjs_1 = require("./hybridFiveAdventurePolicy.mjs");
+Object.defineProperty(exports, "RELEASE_CERTIFIED_ADVENTURES", { enumerable: true, get: function () { return hybridFiveAdventurePolicy_mjs_1.RELEASE_CERTIFIED_ADVENTURES; } });
 const underBlackSun = require("./underBlackSun.mjs");
+const deadInTheWater = require("./deadInTheWater.mjs");
 const beyondTheRim = require("./beyondTheRim.mjs");
 const longArmOfTheHutt = require("./longArmOfTheHutt.mjs");
 const jewelOfYavin = require("./jewelOfYavin.mjs");
 const maskOfThePirateQueen = require("./maskOfThePirateQueen.mjs");
 function clone(value) { return structuredClone(value); }
+const DEAD_IN_THE_WATER_ADAPTER = Object.freeze({
+    id: deadInTheWater.DEAD_IN_THE_WATER.id,
+    meta: deadInTheWater.DEAD_IN_THE_WATER,
+    modeError: 'Morte nas Profundezas exige campanha AoR ou MISTA porque a aventura é uma operação oficial da Aliança Rebelde.',
+    rewardPolicy: Object.freeze({
+        xp: 20,
+        duty: 10,
+        obligationReduction: 0
+    }),
+    continuation: Object.freeze({ startingPoint: 'Mon Cala — Morjanssik', regionLabel: 'Outer Rim' }),
+    status: deadInTheWater.deadInTheWaterStatus,
+    start: deadInTheWater.startDeadInTheWater,
+    advance: deadInTheWater.advanceDeadInTheWater,
+    currentScene: deadInTheWater.currentDeadInTheWaterScene,
+    masterRequest: deadInTheWater.currentDeadInTheWaterMasterRequest,
+    currentChecks: deadInTheWater.currentDeadInTheWaterChecks,
+    adjudicateCheck: deadInTheWater.adjudicateDeadInTheWaterCheck,
+    encounterSpec: deadInTheWater.deadInTheWaterEncounterSpec,
+    markEncounterActive: deadInTheWater.markDeadInTheWaterEncounterActive,
+    recordEncounterOutcome: deadInTheWater.recordDeadInTheWaterEncounterOutcome,
+    markRewardsApplied: deadInTheWater.markDeadInTheWaterRewardsApplied,
+    archive: deadInTheWater.archiveDeadInTheWater
+});
 const UNDER_BLACK_SUN_ADAPTER = Object.freeze({
     id: underBlackSun.UNDER_BLACK_SUN.id,
     meta: underBlackSun.UNDER_BLACK_SUN,
@@ -16666,20 +17610,39 @@ const MASK_OF_THE_PIRATE_QUEEN_ADAPTER = Object.freeze({
 });
 const REGISTRY = new Map([
     [UNDER_BLACK_SUN_ADAPTER.id, UNDER_BLACK_SUN_ADAPTER],
+    [DEAD_IN_THE_WATER_ADAPTER.id, DEAD_IN_THE_WATER_ADAPTER],
     [BEYOND_THE_RIM_ADAPTER.id, BEYOND_THE_RIM_ADAPTER],
     [LONG_ARM_OF_THE_HUTT_ADAPTER.id, LONG_ARM_OF_THE_HUTT_ADAPTER],
     [JEWEL_OF_YAVIN_ADAPTER.id, JEWEL_OF_YAVIN_ADAPTER],
     [MASK_OF_THE_PIRATE_QUEEN_ADAPTER.id, MASK_OF_THE_PIRATE_QUEEN_ADAPTER]
 ]);
 (0, hybridFiveAdventurePolicy_mjs_1.assertFivePublishedAdventures)([...REGISTRY.keys()]);
-function publishedAdventureCatalog() {
-    return [...REGISTRY.values()].map(adapter => ({
-        id: adapter.meta.id,
-        title: adapter.meta.title,
-        originalTitle: adapter.meta.originalTitle,
-        rulesProfile: adapter.meta.rulesProfile,
-        campaignModes: [...adapter.meta.campaignModes]
-    }));
+function certifiedPublishedAdventureCatalog() {
+    return hybridFiveAdventurePolicy_mjs_1.RELEASE_CERTIFIED_ADVENTURES.map(id => {
+        const adapter = REGISTRY.get(id);
+        return {
+            id: adapter.meta.id,
+            title: adapter.meta.title,
+            originalTitle: adapter.meta.originalTitle,
+            rulesProfile: adapter.meta.rulesProfile,
+            campaignModes: [...adapter.meta.campaignModes]
+        };
+    });
+}
+function publishedAdventureCatalog({ certifiedOnly = false, all = false } = {}) {
+    if (certifiedOnly)
+        return certifiedPublishedAdventureCatalog();
+    const ids = all ? [...REGISTRY.keys()] : hybridFiveAdventurePolicy_mjs_1.FIVE_PUBLISHED_ADVENTURE_IDS;
+    return ids.map(id => {
+        const adapter = REGISTRY.get(id);
+        return {
+            id: adapter.meta.id,
+            title: adapter.meta.title,
+            originalTitle: adapter.meta.originalTitle,
+            rulesProfile: adapter.meta.rulesProfile,
+            campaignModes: [...adapter.meta.campaignModes]
+        };
+    });
 }
 (0, publishedAdventureUaeBridge_mjs_1.installPublishedTaskTimeModuleResolver)(id => getPublishedAdventureAdapter(id).meta);
 const WRAPPED = new Map();
@@ -18227,7 +19190,8 @@ exports.guardCount = exports.ARGUMENTS = exports.FACTS = void 0;
 exports.scoreDimmock = scoreDimmock;
 exports.validateGeonosis = validateGeonosis;
 exports.recordGeonosisChoice = recordGeonosisChoice;
-// SWE02 official printed pp.7, 23, 30, 34, 36-37. Deterministic only.
+// SWE02 official printed pp.7, 9–10, 23, 30, 34, 36–37. Deterministic only.
+const swe02SivorCustodyIntegration_mjs_1 = require("./swe02SivorCustodyIntegration.mjs");
 exports.FACTS = Object.freeze({
     'sivor-shell': ['shell', 'krayt-fang-logs', 10],
     'drombb-messages': ['messages', 'drombb-cantina', 23],
@@ -18256,6 +19220,7 @@ function scoreDimmock(p) {
 function validateGeonosis(p) {
     if (!p)
         return true;
+    (0, swe02SivorCustodyIntegration_mjs_1.validateSWE02SivorPhysicalProof)(p);
     const evidence = p.geonosisEvidence || [], argumentsUsed = p.geonosisArguments || [];
     const h = p.checkHistory || [];
     for (const [flag, node] of [['geoPiddockCharmPassed', 'piddock-party'], ['geoDrombbCheckPassed', 'drombb-cantina']])
@@ -18306,6 +19271,10 @@ function recordGeonosisChoice(p, choiceId, nodeId) {
             throw Error('SWE02 Geonosis: prova já registrada.');
         p.geonosisEvidence.push({ choiceId, key: fact[0], nodeId, page: fact[2] });
         p.flags[`geo_${fact[0]}`] = true;
+        if (choiceId === 'sivor-shell')
+            (0, swe02SivorCustodyIntegration_mjs_1.recordSWE02SivorPhysicalCollection)(p);
+        if (choiceId === 'piddock-identify-shell')
+            (0, swe02SivorCustodyIntegration_mjs_1.recordSWE02SivorPiddockIdentification)(p);
     }
     if (arg) {
         p.geonosisArguments = p.geonosisArguments || [];
@@ -18313,6 +19282,8 @@ function recordGeonosisChoice(p, choiceId, nodeId) {
             throw Error('SWE02 Dimmock: argumento duplicado.');
         if (arg[2] && !p.geonosisEvidence?.some(x => x.key === arg[2]))
             throw Error('SWE02 Dimmock: prova não adquirida.');
+        if (choiceId === 'dimmock-shell')
+            (0, swe02SivorCustodyIntegration_mjs_1.requireSWE02SivorProofForDimmock)(p);
         if (arg[0] === 'antiEmpire' && p.geonosisArguments.some(x => x.key === 'loyalEmpire') || arg[0] === 'loyalEmpire' && p.geonosisArguments.some(x => x.key === 'antiEmpire'))
             throw Error('SWE02 Dimmock: declarações contraditórias.');
         p.geonosisArguments.push({ choiceId, key: arg[0], nodeId, page: 36 });
@@ -20460,6 +21431,95 @@ function validateSWE02PalaceOperations(world) {
     return true;
 }
 });
+define("js/adventure/swe02SivorCustodyIntegration.mjs",function(module,exports,require){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SIVOR_SHELL_ID = void 0;
+exports.getSWE02SivorCustodyStatus = getSWE02SivorCustodyStatus;
+exports.recordSWE02SivorPhysicalCollection = recordSWE02SivorPhysicalCollection;
+exports.recordSWE02SivorPiddockIdentification = recordSWE02SivorPiddockIdentification;
+exports.validateSWE02SivorPhysicalProof = validateSWE02SivorPhysicalProof;
+exports.requireSWE02SivorProofForDimmock = requireSWE02SivorProofForDimmock;
+// Reconciliação não destrutiva Codex + WIP28: SWE02, pp.9–10 e 30.
+// O teste de Conhecimento/causa original permanece no executor Krayt Fang P238.
+// Este módulo só registra a POSSE FÍSICA e a identificação feita em cena real.
+exports.SIVOR_SHELL_ID = 'SWE02:KRAYT_FANG:HOLD3:MARKED_CHITIN';
+const ADVENTURE_ID = 'long-arm-of-the-hutt';
+const SOURCE = Object.freeze({ productCode: 'SWE02', printedPage: 9, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' });
+function evidence(p, choiceId, key) {
+    return (p?.geonosisEvidence || []).some(x => x.choiceId === choiceId && x.key === key);
+}
+function getSWE02SivorCustodyStatus(p) {
+    if (p?.id !== ADVENTURE_ID)
+        return { status: 'NOT_ACTIVE', physical: false, identified: false };
+    const c = p.sivorShellCustody, i = p.sivorShellIdentification;
+    const physical = c?.assetId === exports.SIVOR_SHELL_ID && c?.holder === 'PARTY' && c?.physical === true;
+    const identified = Boolean(physical && i?.assetId === exports.SIVOR_SHELL_ID && i?.witness === 'PIDDOCK');
+    const legacy = Boolean((p.flags?.geo_shell && !physical) || (p.flags?.geo_identifiedShell && !identified));
+    return { status: legacy ? 'LEGACY_UNCERTIFIED' : identified ? 'IDENTIFIED' : physical ? 'HELD_UNIDENTIFIED' : 'NOT_COLLECTED',
+        physical: Boolean(physical), identified, identifiedBy: identified ? 'PIDDOCK' : null, assetId: physical ? exports.SIVOR_SHELL_ID : null };
+}
+function recordSWE02SivorPhysicalCollection(p) {
+    if (p?.id !== ADVENTURE_ID || p.currentNodeId !== 'krayt-fang-logs' || p.sivorShellCustody)
+        throw Error('SWE02: carapaça fora do porão três ou já recolhida.');
+    if (p.flags?.shipMarkedChitinKept !== true || !p.shipChitinKnowledge || !evidence(p, 'sivor-shell', 'shell'))
+        throw Error('SWE02: é preciso examinar, conservar e recolher a carapaça real.');
+    const checked = p.shipChitinKnowledge.checkReceipt;
+    // A falta de um recibo de perícia em um save antigo não fabrica uma rolagem.
+    const knowledgeVerified = Boolean(checked && checked.checkIndex === 9 && Number.isSafeInteger(checked.netSuccess) && checked.netSuccess > 0);
+    p.sivorShellCustody = {
+        type: 'SIVOR_MARKED_CHITIN_COLLECTED', assetId: exports.SIVOR_SHELL_ID,
+        origin: 'KRAYT_FANG_HOLD3', holder: 'PARTY', physical: true,
+        collectedAtNode: 'krayt-fang-logs', source: { ...SOURCE },
+        knowledgeReceiptVerified: knowledgeVerified, transfers: 0
+    };
+    return p.sivorShellCustody;
+}
+function recordSWE02SivorPiddockIdentification(p) {
+    if (p?.id !== ADVENTURE_ID || p.currentNodeId !== 'piddock-party' || p.activeEncounterId)
+        throw Error('SWE02: Piddock só examina a carapaça durante a recepção, fora de combate.');
+    if (p.sivorShellIdentification || p.sivorShellCustody?.assetId !== exports.SIVOR_SHELL_ID ||
+        p.sivorShellCustody?.holder !== 'PARTY' || !evidence(p, 'piddock-identify-shell', 'identifiedShell'))
+        throw Error('SWE02: identificação exige apresentação física única da carapaça.');
+    p.sivorShellIdentification = {
+        type: 'SIVOR_SHELL_POSITIVE_IDENTIFICATION', assetId: exports.SIVOR_SHELL_ID,
+        witness: 'PIDDOCK', physicalItemShown: true, conclusion: 'BELONGED_TO_SIVOR',
+        identifiedAtNode: 'piddock-party',
+        source: { productCode: 'SWE02', printedPage: 30, authority: 'OFFICIAL_PDF_TEXT_VERIFIED' }
+    };
+    return p.sivorShellIdentification;
+}
+function validateSWE02SivorPhysicalProof(p) {
+    if (p?.id !== ADVENTURE_ID)
+        return true;
+    const c = p.sivorShellCustody, i = p.sivorShellIdentification;
+    if (c && (c.type !== 'SIVOR_MARKED_CHITIN_COLLECTED' || c.assetId !== exports.SIVOR_SHELL_ID ||
+        c.origin !== 'KRAYT_FANG_HOLD3' || c.holder !== 'PARTY' || c.physical !== true ||
+        c.collectedAtNode !== 'krayt-fang-logs' || c.source?.productCode !== 'SWE02' ||
+        c.source?.printedPage !== 9 || c.source?.authority !== 'OFFICIAL_PDF_TEXT_VERIFIED' ||
+        typeof c.knowledgeReceiptVerified !== 'boolean' ||
+        c.knowledgeReceiptVerified !== Boolean(p.shipChitinKnowledge?.checkReceipt?.checkIndex === 9 && Number.isSafeInteger(p.shipChitinKnowledge?.checkReceipt?.netSuccess) && p.shipChitinKnowledge.checkReceipt.netSuccess > 0) ||
+        c.transfers !== 0 || !p.flags?.shipMarkedChitinKept ||
+        !p.shipChitinKnowledge || !evidence(p, 'sivor-shell', 'shell')))
+        throw Error('SWE02: custódia física de Sivor sem origem verificável.');
+    if (i && (!c || i.type !== 'SIVOR_SHELL_POSITIVE_IDENTIFICATION' ||
+        i.assetId !== exports.SIVOR_SHELL_ID || i.witness !== 'PIDDOCK' ||
+        i.identifiedAtNode !== 'piddock-party' || i.physicalItemShown !== true ||
+        i.conclusion !== 'BELONGED_TO_SIVOR' || i.source?.productCode !== 'SWE02' ||
+        i.source?.printedPage !== 30 || i.source?.authority !== 'OFFICIAL_PDF_TEXT_VERIFIED' ||
+        !evidence(p, 'piddock-identify-shell', 'identifiedShell')))
+        throw Error('SWE02: identificação de Sivor sem apresentação física verificável.');
+    // Leitura de saves antigos preservada. A validação não os promove.
+    return true;
+}
+function requireSWE02SivorProofForDimmock(p) {
+    if (!p?.sivorShellCustody || !p?.sivorShellIdentification || p.sivorShellCustody.knowledgeReceiptVerified !== true) {
+        throw Error('SWE02: save legado não certifica a identificação física de Sivor para Dimmock.');
+    }
+    validateSWE02SivorPhysicalProof(p);
+    return true;
+}
+});
 define("js/adventure/swe02SocialP241.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -21890,6 +22950,8 @@ const adventureRuntime_mjs_1 = require("../adventure/adventureRuntime.mjs");
 const publishedAdventureUaeBridge_mjs_2 = require("../adventure/publishedAdventureUaeBridge.mjs");
 const sandbox_mjs_1 = require("../world/sandbox.mjs");
 const publishedAdventureRegistry_mjs_1 = require("../adventure/publishedAdventureRegistry.mjs");
+const missionOpportunityEngine = require("../world/missionOpportunityEngine.mjs");
+const originalAdventureCreator = require("../master/originalAdventureCreator.mjs");
 const cybernetics_mjs_1 = require("../rules/cybernetics.mjs");
 const astrogation_mjs_1 = require("../rules/astrogation.mjs");
 const attachments_mjs_1 = require("../rules/attachments.mjs");
@@ -24494,6 +25556,50 @@ class GameController {
     publishedAdventureStatus(adventureId = 'under-black-sun') {
         const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(adventureId);
         return adapter.status(this.state.world);
+    }
+    certifiedPublishedAdventureCatalog() {
+        return publishedAdventureRegistry_mjs_1.certifiedPublishedAdventureCatalog();
+    }
+    listMissionOpportunities(filters = {}) {
+        return missionOpportunityEngine.listMissionOpportunities(this.state.world, filters);
+    }
+    generateMissionOpportunities(options = {}) {
+        return this.atomicAction(() => {
+            const res = missionOpportunityEngine.generateMissionOpportunities(this.state.world, options);
+            this.commit('WORLD_UPDATED', { world: res.world });
+            return { generated: res.generated, missions: missionOpportunityEngine.listMissionOpportunities(this.state.world), state: structuredClone(this.state) };
+        });
+    }
+    acceptMissionOpportunity(missionId) {
+        return this.atomicAction(() => {
+            const res = missionOpportunityEngine.acceptMissionOpportunity(this.state.world, missionId);
+            this.commit('WORLD_UPDATED', { world: res.world });
+            return { mission: res.mission, state: structuredClone(this.state) };
+        });
+    }
+    resolveMissionOpportunity(missionId, options = {}) {
+        return this.atomicAction(() => {
+            const res = missionOpportunityEngine.resolveMissionOpportunity(this.state.world, missionId, options);
+            this.commit('WORLD_UPDATED', { world: res.world });
+            return { mission: res.mission, success: res.success, state: structuredClone(this.state) };
+        });
+    }
+    rejectMissionOpportunity(missionId, options = {}) {
+        return this.atomicAction(() => {
+            const res = missionOpportunityEngine.rejectMissionOpportunity(this.state.world, missionId, options);
+            this.commit('WORLD_UPDATED', { world: res.world });
+            return { mission: res.mission, state: structuredClone(this.state) };
+        });
+    }
+    createOriginalAdventure(options = {}) {
+        return originalAdventureCreator.createOriginalAdventure(this.state.world, options);
+    }
+    registerOriginalAdventure(module) {
+        return this.atomicAction(() => {
+            const nextWorld = originalAdventureCreator.registerOriginalAdventureInWorld(this.state.world, module);
+            this.commit('WORLD_UPDATED', { world: nextWorld });
+            return { module, state: structuredClone(this.state) };
+        });
     }
     /** P184: source-adjudicated Jewel Grand Prix / auction operations for Android WebView. */
     adjudicateJewelOperation(kind, details = {}) {
@@ -32098,6 +33204,330 @@ function prepareLocalMasterTurn(state, intentText) {
     };
 }
 });
+define("js/master/originalAdventureCreator.mjs",function(module,exports,require){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.validateOriginalAdventure = validateOriginalAdventure;
+exports.compileSceneGraphToUaeModule = compileSceneGraphToUaeModule;
+exports.createOriginalAdventure = createOriginalAdventure;
+exports.registerOriginalAdventureInWorld = registerOriginalAdventureInWorld;
+const ids_mjs_1 = require("../core/ids.mjs");
+const adventureSchema_mjs_1 = require("../adventure/adventureSchema.mjs");
+const adventureSemanticGate_mjs_1 = require("../adventure/adventureSemanticGate.mjs");
+const livingWorldDepth_mjs_1 = require("../world/livingWorldDepth.mjs");
+const clone = v => structuredClone(v);
+const now = () => new Date().toISOString();
+function hash(s) {
+    let h = 2166136261;
+    for (const c of String(s)) {
+        h ^= c.charCodeAt(0);
+        h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+}
+function validateOriginalAdventure(module) {
+    (0, adventureSchema_mjs_1.validateAdventureModule)(module);
+    (0, adventureSemanticGate_mjs_1.validateAdventureSemantics)(module);
+    return true;
+}
+function compileSceneGraphToUaeModule(spec, world) {
+    const adventureId = String(spec.id || (0, ids_mjs_1.newId)('adv_orig')).trim();
+    const title = String(spec.title || 'Operação nas Sombras da Galáxia').trim();
+    const campaignModes = Array.isArray(spec.campaignModes) && spec.campaignModes.length ? spec.campaignModes : ['EOTE', 'AOR', 'MIXED'];
+    const rulesProfile = spec.rulesProfile || 'MIXED';
+    const nodes = {};
+    for (const [nodeId, n] of Object.entries(spec.nodes || {})) {
+        nodes[nodeId] = {
+            id: nodeId,
+            episode: Number(n.episode) || 1,
+            title: String(n.title || nodeId),
+            locationId: n.locationId || null,
+            summary: String(n.summary || ''),
+            narration: String(n.narration || ''),
+            visibleNpcIds: Array.isArray(n.visibleNpcIds) ? [...n.visibleNpcIds] : [],
+            checks: Array.isArray(n.checks) ? clone(n.checks) : [],
+            choices: (Array.isArray(n.choices) ? n.choices : []).map(c => ({
+                id: String(c.id),
+                label: String(c.label),
+                to: String(c.to),
+                ...(c.condition ? { condition: String(c.condition) } : {}),
+                ...(c.effects ? { effects: clone(c.effects) } : {})
+            }))
+        };
+    }
+    const module = {
+        id: adventureId,
+        title,
+        campaignModes: Object.freeze(campaignModes),
+        rulesProfile,
+        startNodeId: spec.startNodeId || Object.keys(nodes)[0] || 'ep1-briefing',
+        initialClocks: Object.freeze({
+            alertClock: { value: 0, max: 6, status: 'ACTIVE', visibleToPlayer: true },
+            momentum: { value: 0, max: 6, status: 'ACTIVE', visibleToPlayer: true },
+            ...(spec.initialClocks || {})
+        }),
+        initialObjectives: Object.freeze({
+            'episode-1': { title: 'Concluir o contato inicial e reunir inteligência', type: 'PRIMARY', target: 1 },
+            'episode-2': { title: 'Penetrar o perímetro do alvo', type: 'PRIMARY', target: 1 },
+            'episode-3': { title: 'Decidir o destino da operação e escapar', type: 'PRIMARY', target: 1 },
+            'adventure-finale': { title: 'Concluir a aventura original', type: 'PRIMARY', target: 1 },
+            ...(spec.initialObjectives || {})
+        }),
+        triggers: [
+            {
+                id: 'trg-ep1-enter-ep2',
+                event: 'NODE_ENTER',
+                condition: 'payload:to:ep2-stealth-approach',
+                maxFires: 1,
+                effects: [{ type: 'complete-objective', objectiveId: 'episode-1' }]
+            },
+            {
+                id: 'trg-ep1-enter-ep2-direct',
+                event: 'NODE_ENTER',
+                condition: 'payload:to:ep2-direct-approach',
+                maxFires: 1,
+                effects: [{ type: 'complete-objective', objectiveId: 'episode-1' }]
+            },
+            {
+                id: 'trg-ep2-enter-ep3-sabotage',
+                event: 'NODE_ENTER',
+                condition: 'payload:to:ep3-climax-sabotage',
+                maxFires: 1,
+                effects: [{ type: 'complete-objective', objectiveId: 'episode-2' }]
+            },
+            {
+                id: 'trg-ep2-enter-ep3-confront',
+                event: 'NODE_ENTER',
+                condition: 'payload:to:ep3-climax-confrontation',
+                maxFires: 1,
+                effects: [{ type: 'complete-objective', objectiveId: 'episode-2' }]
+            },
+            {
+                id: 'trg-finale-victory',
+                event: 'NODE_ENTER',
+                condition: 'payload:to:epilogue-victory',
+                maxFires: 1,
+                effects: [
+                    { type: 'complete-objective', objectiveId: 'episode-3' },
+                    { type: 'complete-objective', objectiveId: 'adventure-finale' }
+                ]
+            },
+            {
+                id: 'trg-finale-compromise',
+                event: 'NODE_ENTER',
+                condition: 'payload:to:epilogue-compromise',
+                maxFires: 1,
+                effects: [
+                    { type: 'complete-objective', objectiveId: 'episode-3' },
+                    { type: 'complete-objective', objectiveId: 'adventure-finale' }
+                ]
+            },
+            ...(spec.triggers || [])
+        ],
+        nodes: Object.freeze(nodes)
+    };
+    validateOriginalAdventure(module);
+    return module;
+}
+function createOriginalAdventure(world, { prompt = '', campaignMode = 'MIXED', preferredPatronNpcId = null, preferredLocationId = null, adventureId = null } = {}) {
+    const w = (0, livingWorldDepth_mjs_1.ensureLivingWorldDepth)(world);
+    const npcs = Object.values(w.npcs || {}).filter(n => {
+        const s = w.livingDepth?.npcs?.[n.id];
+        return !s || s.lifeState === 'alive';
+    });
+    const locations = Object.values(w.locations || {});
+    const factions = Object.values(w.factions || {});
+    // Grounding entities
+    const patron = (preferredPatronNpcId && w.npcs?.[preferredPatronNpcId]) ||
+        npcs.find(n => n.relation === 'ally' || n.relation === 'friendly') ||
+        npcs[0] ||
+        { id: 'npc_patron_orig', name: 'Capitão Jaro Vex', occupation: 'navegador veterano' };
+    const startLoc = (preferredLocationId && w.locations?.[preferredLocationId]) ||
+        (patron.locationId && w.locations?.[patron.locationId]) ||
+        locations[0] ||
+        { id: 'loc_start_orig', name: 'Entreposto da Orla Exterior' };
+    const targetLoc = locations.find(l => l.id !== startLoc.id) ||
+        { id: 'loc_target_orig', name: 'Instalação Abandonada no Hiperespaço' };
+    const faction = (patron.factionId && w.factions?.[patron.factionId]) ||
+        factions[0] ||
+        { id: 'fac_orig', name: 'Sindicato Independente' };
+    const seed = hash(prompt || adventureId || now());
+    const themes = [
+        { title: 'O Código Fantasma de Kuat', prize: 'esquemas técnicos confidenciais', antagonist: 'agente de segurança corporativa' },
+        { title: 'Conspiração nas Docas Negras', prize: 'carregamento de coaxium refinado', antagonist: 'sindicalista corrupto' },
+        { title: 'Resgate no Setor Trax', prize: 'diplomata da Aliança mantido refém', antagonist: 'caçador de recompensas Trandoshano' },
+        { title: 'A Carga de Kessel', prize: 'coordenadas de uma rota hiperespacial oculta', antagonist: 'patrulha imperial insubordinada' }
+    ];
+    const theme = themes[seed % themes.length];
+    const spec = {
+        id: adventureId || `orig_${seed.toString(36)}`,
+        title: theme.title,
+        campaignModes: ['EOTE', 'AOR', 'MIXED'],
+        rulesProfile: campaignMode === 'AOR' ? 'AOR_CORE' : campaignMode === 'EOTE' ? 'EOTE_CORE' : 'MIXED',
+        startNodeId: 'ep1-briefing',
+        nodes: {
+            'ep1-briefing': {
+                episode: 1,
+                title: `Episódio 1: Encontro em ${startLoc.name}`,
+                locationId: startLoc.id,
+                summary: `${patron.name} apresenta a oportunidade de recuperar ${theme.prize} antes que caia em mãos erradas.`,
+                narration: `A fumaça e as conversas abafadas de ${startLoc.name} oferecem cobertura suficiente para a reunião. ${patron.name} desliza um datapad criptografado sobre a mesa. "A oportunidade é única", afirma com voz cautelosa. "Temos registros confirmando a localização de ${theme.prize}. Mas o tempo é curto e já há patrulhas vasculhando o setor."`,
+                visibleNpcIds: [patron.id],
+                checks: [
+                    { skill: 'Negociação', difficulty: 'Média', purpose: 'exigir adiantamento ou garantia adicional de transporte' },
+                    { skill: 'Frieza', difficulty: 'Fácil', purpose: 'perceber espiões nas mesas vizinhas' }
+                ],
+                choices: [
+                    {
+                        id: 'ep1-choice-stealth',
+                        label: 'Aceitar o contrato e preparar aproximação furtiva pelos dutos de manutenção',
+                        to: 'ep2-stealth-approach',
+                        effects: { approach: 'stealth', preparedIntel: true }
+                    },
+                    {
+                        id: 'ep1-choice-direct',
+                        label: 'Aceitar o contrato e mover-se velozmente antes que a concorrência se organize',
+                        to: 'ep2-direct-approach',
+                        effects: { approach: 'direct', speedAdvantage: true }
+                    }
+                ]
+            },
+            'ep2-stealth-approach': {
+                episode: 2,
+                title: `Episódio 2: Infiltração Silenciosa em ${targetLoc.name}`,
+                locationId: targetLoc.id,
+                summary: 'A equipe contorna as defesas externas através dos conduítes industriais e hackeia o sistema central.',
+                narration: `O cheiro de ozônio e ferrugem domina os corredores silenciosos de ${targetLoc.name}. Câmeras de vigilância giram em ciclos automatizados. Nos terminais à frente, os registros protegidos de ${theme.prize} aguardam decodificação, mas os alarmes estão engatilhados.`,
+                visibleNpcIds: [],
+                checks: [
+                    { skill: 'Sigilo', difficulty: 'Média', purpose: 'mover-se pelos pontos cegos dos sensores' },
+                    { skill: 'Computadores', difficulty: 'Média', purpose: 'abrir a câmara do objetivo sem disparar alarme geral' }
+                ],
+                choices: [
+                    {
+                        id: 'ep2-stealth-to-sabotage',
+                        label: 'Sobrecaregar os geradores para apagar os rastros eletrônicos da extração',
+                        to: 'ep3-climax-sabotage',
+                        effects: { stealthExtraction: true }
+                    },
+                    {
+                        id: 'ep2-stealth-to-confront',
+                        label: 'Descer à câmara principal onde o opositor comanda a transferência da carga',
+                        to: 'ep3-climax-confrontation',
+                        effects: { ambushPosition: true }
+                    }
+                ]
+            },
+            'ep2-direct-approach': {
+                episode: 2,
+                title: `Episódio 2: Incursão Frontal em ${targetLoc.name}`,
+                locationId: targetLoc.id,
+                summary: 'Avanço audacioso através do hangar de carga; o grupo precisa forçar a passagem sob fogo cruzado.',
+                narration: `O rangido de metal e o clarão de disparos de blaster iluminam o perímetro de ${targetLoc.name}. O grupo rompe a barricada externa antes que as portas de isolamento possam ser completamente trancadas.`,
+                visibleNpcIds: [],
+                checks: [
+                    { skill: 'Vigilância', difficulty: 'Média', purpose: 'identificar a cobertura mais vantajosa sob fogo' },
+                    { skill: 'Atletismo', difficulty: 'Média', purpose: 'saltar sobre a esteira de triagem industrial' }
+                ],
+                choices: [
+                    {
+                        id: 'ep2-direct-to-confront',
+                        label: 'Encurralar o líder dos adversários antes que a nave de fuga decole',
+                        to: 'ep3-climax-confrontation',
+                        effects: { enemyTrapped: true }
+                    },
+                    {
+                        id: 'ep2-direct-to-sabotage',
+                        label: 'Cortar a linha de energia da plataforma de pouso',
+                        to: 'ep3-climax-sabotage',
+                        effects: { powerCut: true }
+                    }
+                ]
+            },
+            'ep3-climax-sabotage': {
+                episode: 3,
+                title: 'Episódio 3: Sabotagem e Fuga no Clímax',
+                locationId: targetLoc.id,
+                summary: 'Desafio técnico e contra-relógio: estabilizar a fuga enquanto a instalação sofre colapso controlado.',
+                narration: `Alarmes estridentes ecoam pelo complexo enquanto luzes vermelhas de emergência piscam sem parar. O feixe de contenção que prende ${theme.prize} começa a sobreaquecer. O grupo precisa agir em perfeita sincronia para selar a retirada.`,
+                visibleNpcIds: [],
+                checks: [
+                    { skill: 'Mecânica', difficulty: 'Média', purpose: 'destravar a cápsula da carga sem danificar o conteúdo' },
+                    { skill: 'Disciplina', difficulty: 'Média', purpose: 'manter o foco sob o ruído ensurdecedor do colapso' }
+                ],
+                choices: [
+                    {
+                        id: 'ep3-sabotage-victory',
+                        label: 'Garantir a carga intacta e saltar para o hiperespaço em segurança',
+                        to: 'epilogue-victory',
+                        effects: { outcome: 'victory', prizeIntact: true }
+                    },
+                    {
+                        id: 'ep3-sabotage-compromise',
+                        label: 'Abandonar metade dos componentes auxiliares para garantir a sobrevivência de todos',
+                        to: 'epilogue-compromise',
+                        effects: { outcome: 'compromise', prizePartial: true }
+                    }
+                ]
+            },
+            'ep3-climax-confrontation': {
+                episode: 3,
+                title: 'Episódio 3: Duelo Decisivo no Hangar',
+                locationId: targetLoc.id,
+                summary: 'O confronto frente a frente contra o opositor e seus guardas pelo controle definitivo do setor.',
+                narration: `No hangar cavernoso, o opositor recarrega seu rifle pesado atrás de um caixote blindado. "Vocês vieram de muito longe para morrer aqui!", grita pelo alto-falante. A rampa da nave de transporte começa a fechar.`,
+                visibleNpcIds: [],
+                checks: [
+                    { skill: 'Armas de Fogo (Leves)', difficulty: 'Média', purpose: 'suprimir o ninho de atiradores' },
+                    { skill: 'Liderança', difficulty: 'Média', purpose: 'coordenar o ataque em pinça da equipe' }
+                ],
+                choices: [
+                    {
+                        id: 'ep3-confront-victory',
+                        label: 'Desarmar os opositores, tomar a rampa e render os sobreviventes',
+                        to: 'epilogue-victory',
+                        effects: { outcome: 'victory', enemyNeutralized: true }
+                    },
+                    {
+                        id: 'ep3-confront-compromise',
+                        label: 'Forçar um cessar-fogo tenso e negociar a retirada com o prêmio principal',
+                        to: 'epilogue-compromise',
+                        effects: { outcome: 'compromise', truceBrokered: true }
+                    }
+                ]
+            },
+            'epilogue-victory': {
+                episode: 3,
+                title: 'Epílogo: Triunfo e Aliança Consolidada',
+                locationId: startLoc.id,
+                summary: 'A missão é coroada de êxito total; o patrono cumpre as promessas e a reputação do grupo cresce.',
+                narration: `De volta à segurança de ${startLoc.name}, ${patron.name} inspeciona ${theme.prize} com expressão de alívio e admiração. Os créditos acordados são transferidos pontualmente, e o suporte de ${faction.name} à tripulação está assegurado para os próximos desafios da galáxia.`,
+                visibleNpcIds: [patron.id],
+                checks: [],
+                choices: []
+            },
+            'epilogue-compromise': {
+                episode: 3,
+                title: 'Epílogo: Retirada Custosa e Sobrevivência',
+                locationId: startLoc.id,
+                summary: 'O grupo sobrevive e preserva a inteligência crítica, embora cicatrizes e tensões permaneçam.',
+                narration: `Com a nave danificada e os motores fumegantes, a equipe retorna a ${startLoc.name}. O objetivo principal foi conquistado e vidas foram salvas, mas o custo foi alto. ${patron.name} reconhece a coragem da equipe, embora alerte que novos inimigos foram feitos no processo.`,
+                visibleNpcIds: [patron.id],
+                checks: [],
+                choices: []
+            }
+        }
+    };
+    return compileSceneGraphToUaeModule(spec, w);
+}
+function registerOriginalAdventureInWorld(world, module) {
+    validateOriginalAdventure(module);
+    const next = clone(world);
+    next.customAdventures = next.customAdventures || {};
+    next.customAdventures[module.id] = clone(module);
+    return next;
+}
+});
 define("js/master/proposal.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -33775,6 +35205,15 @@ const UNDER_BLACK_SUN_IMPLEMENTATION_SOURCE = Object.freeze({
     authority: 'PUBLISHED_ADVENTURE_IMPLEMENTATION',
     note: 'Perfil funcional do BRASEIRO para integrar a aventura publicada ao motor de combate; não substitui a ficha editorial.'
 });
+const DEAD_IN_THE_WATER_SOURCE = Object.freeze({
+    title: 'Dead in the Water',
+    originalTitle: 'Muerte en las profundidades',
+    system: 'Star Wars: Age of Rebellion',
+    productCode: 'SWA03',
+    sourceBook: "Age of Rebellion Game Master's Kit",
+    authority: 'PUBLISHED_ADVENTURE_IMPLEMENTATION',
+    note: 'Perfis oficiais de adversários de Morte nas Profundezas (SWA03) auditados contra o PDF oficial do GM Kit.'
+});
 exports.ADVERSARY_PROFILES = Object.freeze({
     imperial_soldier: Object.freeze({
         key: 'imperial_soldier',
@@ -33924,6 +35363,110 @@ exports.PUBLISHED_ADVENTURE_ADVERSARY_PROFILES = Object.freeze({
         abilities: [{ key: 'jet_pack', name: 'Jet pack e mobilidade vertical' }, { key: 'cacador_experiente', name: 'Caçador experiente' }],
         weapons: [{ name: 'Pistola blaster pesada', skill: 'armas_distancia_ligeras', range: 'Médio', damage: 7, crit: 3 }, { name: 'Vibrofaca', skill: 'armas_cuerpo_a_cuerpo', range: 'Interação', damage: 5, crit: 2, pierce: 2 }],
         source: UNDER_BLACK_SUN_IMPLEMENTATION_SOURCE
+    }),
+    walif_merv: Object.freeze({
+        key: 'walif_merv',
+        name: 'Walif Merv',
+        kind: 'rival',
+        characteristics: { fortaleza: 2, agilidad: 3, intelecto: 2, astucia: 3, voluntad: 2, presencia: 2 },
+        soak: 2,
+        woundsThreshold: 12,
+        strainThreshold: null,
+        groupSkills: [],
+        skills: { actividad_criminal: 2, armas_distancia_pesadas: 2, negociacion: 3, pelea: 2, sigilo: 2 },
+        talents: [],
+        abilities: [],
+        weapons: [
+            { name: 'Pistola blaster pesada', skill: 'armas_distancia_pesadas', range: 'Médio', damage: 7, crit: 3 },
+            { name: 'Vibrofaca', skill: 'armas_cuerpo_a_cuerpo', range: 'Interação', damage: 3, crit: 2, pierce: 2 }
+        ],
+        source: DEAD_IN_THE_WATER_SOURCE
+    }),
+    capitan_generet: Object.freeze({
+        key: 'capitan_generet',
+        name: 'Capitão Generet (Disfarçado de Mon Calamari)',
+        kind: 'rival',
+        characteristics: { fortaleza: 3, agilidad: 3, intelecto: 2, astucia: 3, voluntad: 4, presencia: 2 },
+        soak: 2,
+        woundsThreshold: 12,
+        strainThreshold: null,
+        groupSkills: [],
+        skills: { armas_distancia_pesadas: 4, computadoras: 3, engano: 3, mecanica: 3, pelea: 3, sigilo: 3, xenologia: 3 },
+        talents: [],
+        abilities: [{ key: 'disfarce_cirurgico', name: 'Disfarce cirúrgico Mon Calamari' }],
+        weapons: [
+            { name: 'Pistola blaster pesada', skill: 'armas_distancia_pesadas', range: 'Médio', damage: 7, crit: 3 }
+        ],
+        source: DEAD_IN_THE_WATER_SOURCE
+    }),
+    teniente_huv: Object.freeze({
+        key: 'teniente_huv',
+        name: 'Tenente Huv (Disfarçado de Mon Calamari)',
+        kind: 'rival',
+        characteristics: { fortaleza: 3, agilidad: 3, intelecto: 2, astucia: 3, voluntad: 4, presencia: 2 },
+        soak: 2,
+        woundsThreshold: 12,
+        strainThreshold: null,
+        groupSkills: [],
+        skills: { armas_distancia_pesadas: 3, computadoras: 3, engano: 3, mecanica: 3, pelea: 2, pilotar_vehiculo_planetario: 2, sigilo: 3, xenologia: 2 },
+        talents: [],
+        abilities: [{ key: 'disfarce_cirurgico', name: 'Disfarce cirúrgico Mon Calamari' }],
+        weapons: [
+            { name: 'Pistola blaster pesada', skill: 'armas_distancia_pesadas', range: 'Médio', damage: 7, crit: 3 },
+            { name: 'Cassetete', skill: 'armas_cuerpo_a_cuerpo', range: 'Interação', damage: 5, crit: 5, disorient: 2 }
+        ],
+        source: DEAD_IN_THE_WATER_SOURCE
+    }),
+    agente_limeren: Object.freeze({
+        key: 'agente_limeren',
+        name: 'Agente Limeren (Disfarçado de Mon Calamari)',
+        kind: 'rival',
+        characteristics: { fortaleza: 3, agilidad: 3, intelecto: 2, astucia: 3, voluntad: 3, presencia: 2 },
+        soak: 2,
+        woundsThreshold: 12,
+        strainThreshold: null,
+        groupSkills: [],
+        skills: { armas_distancia_pesadas: 3, engano: 2, sigilo: 3, pelea: 2 },
+        talents: [],
+        abilities: [{ key: 'disfarce_cirurgico', name: 'Disfarce cirúrgico Mon Calamari' }],
+        weapons: [
+            { name: 'Pistola blaster pesada', skill: 'armas_distancia_pesadas', range: 'Médio', damage: 7, crit: 3 }
+        ],
+        source: DEAD_IN_THE_WATER_SOURCE
+    }),
+    quarren_thug: Object.freeze({
+        key: 'quarren_thug',
+        name: 'Capanga Quarren de Morjanssik',
+        kind: 'minion',
+        characteristics: { fortaleza: 3, agilidad: 2, intelecto: 2, astucia: 2, voluntad: 2, presencia: 1 },
+        soak: 3,
+        woundsThreshold: 4,
+        strainThreshold: null,
+        groupSkills: ['pelea', 'coaccion'],
+        skills: {},
+        talents: [],
+        abilities: [],
+        weapons: [
+            { name: 'Clava pesada', skill: 'pelea', range: 'Interação', damage: 5, crit: 5 }
+        ],
+        source: DEAD_IN_THE_WATER_SOURCE
+    }),
+    imperial_saboteur: Object.freeze({
+        key: 'imperial_saboteur',
+        name: 'Sabotador da Divisão de Desestabilização',
+        kind: 'minion',
+        characteristics: { fortaleza: 2, agilidad: 3, intelecto: 2, astucia: 2, voluntad: 2, presencia: 2 },
+        soak: 3,
+        woundsThreshold: 5,
+        strainThreshold: null,
+        groupSkills: ['armas_distancia_pesadas', 'mecanica', 'disciplina'],
+        skills: {},
+        talents: [],
+        abilities: [],
+        weapons: [
+            { name: 'Fuzil blaster', skill: 'armas_distancia_pesadas', range: 'Longo', damage: 9, crit: 3 }
+        ],
+        source: DEAD_IN_THE_WATER_SOURCE
     }),
     // SWE02, printed p.21 (PDF p.20): official Human and Aqualish Thugs minions.
     // Individual soldiers are tracked only inside their confirmed combat group.
@@ -42470,6 +44013,310 @@ function rememberNpc(world, npcId, event = {}) { const w = ensureLivingWorldDept
 function livingWorldSnapshot(world, { locationId = null, knownOnly = false, limit = 12 } = {}) { const w = ensureLivingWorldDepth(world), d = w.livingDepth; const npcs = Object.values(w.npcs || {}).filter(n => (!locationId || n.locationId === locationId) && (!knownOnly || n.knownToPlayer)).slice(0, Math.max(1, limit)).map(n => { const s = d.npcs[n.id]; return { id: n.id, name: n.name, species: n.species, sex: n.sex, gender: n.gender, origin: n.origin, career: n.career, specialization: n.specialization, appearance: n.appearance, locationId: n.locationId, factionId: n.factionId, goal: n.goal, relation: n.relation, lifeState: s?.lifeState || 'alive', ageYears: s?.ageYears ?? n.ageYears ?? null, wealthTier: s?.wealthTier || 'estável', wealthIndex: s?.wealthIndex ?? 50, occupation: s?.occupation || n.occupation || 'autônomo', currentActivity: s?.currentActivity || 'rotina', relationships: clone(s?.relationships || {}), commitments: clone((s?.commitments || []).filter(c => c.status === 'open').slice(-4)), recentMemory: (s?.memory || []).slice(-4) }; }); const factions = Object.values(w.factions || {}).filter(f => !knownOnly || f.knownToPlayer).slice(0, 12).map(f => ({ id: f.id, name: f.name, objective: f.objective, status: f.status, powerIndex: d.factions[f.id]?.powerIndex ?? 50, treasuryIndex: d.factions[f.id]?.treasuryIndex ?? 50, relations: clone(d.factions[f.id]?.relations || {}), treaties: clone((d.factions[f.id]?.treaties || []).filter(x => x.status === 'active').slice(-6)), wars: clone((d.factions[f.id]?.wars || []).filter(x => x.status === 'active').slice(-6)) })); const loc = locationId ? w.locations?.[locationId] : null; const locState = locationId ? d.locations?.[locationId] : null; return { time: clone(d.time), weather: locState?.weather || null, market: locState ? { pressure: Math.round(locState.marketPressure), supply: Math.round(locState.supply), demand: Math.round(locState.demand), security: Math.round(locState.security), routeAccess: Math.round(locState.routeAccess) } : null, location: loc ? { id: loc.id, name: loc.name } : null, npcs, factions, recentEvents: d.recentEvents.slice(-8), source: clone(SOURCE) }; }
 function livingWorldSummary(world) { const w = ensureLivingWorldDepth(world), d = w.livingDepth, ns = Object.values(d.npcs); return { schemaVersion: d.schemaVersion, time: clone(d.time), alive: ns.filter(n => n.lifeState === 'alive').length, dead: ns.filter(n => n.lifeState === 'dead').length, wealthy: ns.filter(n => ['próspero', 'rico'].includes(n.wealthTier)).length, npcCount: ns.length, factionCount: Object.keys(d.factions).length, marketCount: Object.keys(d.locations).length, recentEventCount: d.recentEvents.length, source: clone(SOURCE) }; }
 });
+define("js/world/missionOpportunityEngine.mjs",function(module,exports,require){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MISSION_STATUS = void 0;
+exports.ensureMissionOpportunities = ensureMissionOpportunities;
+exports.generateMissionOpportunities = generateMissionOpportunities;
+exports.acceptMissionOpportunity = acceptMissionOpportunity;
+exports.resolveMissionOpportunity = resolveMissionOpportunity;
+exports.rejectMissionOpportunity = rejectMissionOpportunity;
+exports.advanceMissionOpportunities = advanceMissionOpportunities;
+exports.listMissionOpportunities = listMissionOpportunities;
+const ids_mjs_1 = require("../core/ids.mjs");
+const livingWorldDepth_mjs_1 = require("./livingWorldDepth.mjs");
+const clone = v => structuredClone(v);
+const now = () => new Date().toISOString();
+const clamp = (n, min, max) => Math.max(min, Math.min(max, Number(n) || 0));
+exports.MISSION_STATUS = Object.freeze({
+    AVAILABLE: 'AVAILABLE',
+    ACTIVE: 'ACTIVE',
+    COMPLETED: 'COMPLETED',
+    FAILED: 'FAILED',
+    EXPIRED: 'EXPIRED',
+    REJECTED: 'REJECTED'
+});
+function ensureMissionOpportunities(world) {
+    const next = (0, livingWorldDepth_mjs_1.ensureLivingWorldDepth)(world);
+    next.missionOpportunities = Array.isArray(next.missionOpportunities) ? next.missionOpportunities : [];
+    return next;
+}
+function hash(s) {
+    let h = 2166136261;
+    for (const c of String(s)) {
+        h ^= c.charCodeAt(0);
+        h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+}
+function generateMissionOpportunities(world, { maxActive = 6, force = false } = {}) {
+    const next = ensureMissionOpportunities(world);
+    const currentTick = Number(next.clock?.tick) || 0;
+    const currentDay = Math.floor(currentTick / 4) + 1;
+    const opportunities = next.missionOpportunities;
+    // Count existing active/available
+    const openCount = opportunities.filter(o => o.status === exports.MISSION_STATUS.AVAILABLE || o.status === exports.MISSION_STATUS.ACTIVE).length;
+    if (!force && openCount >= maxActive) {
+        return { world: next, generated: 0 };
+    }
+    const npcs = Object.values(next.npcs || {}).filter(n => {
+        const s = next.livingDepth?.npcs?.[n.id];
+        return s && s.lifeState === 'alive' && n.status !== 'dead';
+    });
+    if (!npcs.length)
+        return { world: next, generated: 0 };
+    const locations = Object.values(next.locations || {});
+    const factions = Object.values(next.factions || {});
+    let generated = 0;
+    // Source 1: Faction Plans
+    for (const f of factions) {
+        if (openCount + generated >= maxActive)
+            break;
+        const plans = (f.plans || []).filter(p => p.status === 'active');
+        for (const plan of plans) {
+            const missionId = `mis_plan_${plan.id}_${f.id}`;
+            if (opportunities.some(o => o.missionId === missionId || o.planId === plan.id))
+                continue;
+            const patron = npcs.find(n => n.factionId === f.id) || npcs[hash(plan.id) % npcs.length];
+            const targetLoc = locations.find(l => l.id !== patron.locationId) || locations[0] || { id: 'loc.core', name: 'Setor Central' };
+            const patronLoc = next.locations?.[patron.locationId] || targetLoc;
+            const planTitle = String(plan.title || plan.goal || plan.objective || plan.summary || 'Operação Estratégica');
+            const planGoal = String(plan.goal || plan.objective || plan.title || plan.summary || 'Avançar objetivos da facção');
+            const mission = {
+                missionId,
+                planId: plan.id,
+                title: `Operação de Apoio: ${planTitle.slice(0, 50)}`,
+                patronNpcId: patron.id,
+                patronName: patron.name,
+                factionId: f.id,
+                factionName: f.name,
+                locationId: patronLoc.id,
+                locationName: patronLoc.name,
+                targetLocationId: targetLoc.id,
+                targetLocationName: targetLoc.name,
+                stakes: `Avanço prioritário do plano estratégico da facção "${f.name}".`,
+                rewards: {
+                    credits: 500 + (hash(plan.id) % 10) * 100,
+                    xp: 10,
+                    duty: f.id.includes('rebel') ? 5 : 0,
+                    obligationReduction: f.id.includes('syndicate') || f.id.includes('hutt') ? 5 : 0
+                },
+                createdTick: currentTick,
+                deadlineTick: currentTick + 16, // 4 campaign days
+                status: exports.MISSION_STATUS.AVAILABLE,
+                summary: `${patron.name} solicita apoio discreto para executar: ${planGoal}. O sucesso fortalecerá a posição de ${f.name} na região.`,
+                checks: [
+                    { skill: 'Manha', difficulty: 'Média', purpose: 'coletar informações e preparar a aproximação' },
+                    { skill: 'Computadores', difficulty: 'Média', purpose: 'acessar terminais ou transferir registros de carga' }
+                ],
+                consequences: {
+                    successFactionRep: 15,
+                    failureFactionRep: -10,
+                    patronRelationDelta: 15
+                },
+                createdAt: now(),
+                updatedAt: now()
+            };
+            opportunities.push(mission);
+            generated++;
+            break;
+        }
+    }
+    // Source 2: Market Pressures
+    for (const loc of locations) {
+        if (openCount + generated >= maxActive)
+            break;
+        const locState = next.livingDepth?.locations?.[loc.id];
+        if (locState && locState.marketPressure > 60) {
+            const missionId = `mis_mkt_${loc.id}_${currentDay}`;
+            if (opportunities.some(o => o.missionId === missionId))
+                continue;
+            const patron = npcs.find(n => n.locationId === loc.id) || npcs[0];
+            const mission = {
+                missionId,
+                title: `Escassez em ${loc.name} — Carga Emergencial`,
+                patronNpcId: patron.id,
+                patronName: patron.name,
+                factionId: patron.factionId || null,
+                locationId: loc.id,
+                locationName: loc.name,
+                targetLocationId: loc.id,
+                targetLocationName: loc.name,
+                stakes: `A pressão de mercado atingiu índice ${Math.round(locState.marketPressure)}. Mercadorias vitais precisam ser contrabandeadas ou fornecidas.`,
+                rewards: {
+                    credits: 800 + (hash(missionId) % 8) * 100,
+                    xp: 10,
+                    obligationReduction: 5
+                },
+                createdTick: currentTick,
+                deadlineTick: currentTick + 12, // 3 campaign days
+                status: exports.MISSION_STATUS.AVAILABLE,
+                summary: `A alta demanda e escassez de suprimentos em ${loc.name} geraram um prêmio excepcional para quem conseguir transportar componentes médicos e peças sem atrair a fiscalização.`,
+                checks: [
+                    { skill: 'Pilotagem (Espacial)', difficulty: 'Média', purpose: 'furar bloqueio ou patrulhas alfandegárias' },
+                    { skill: 'Negociação', difficulty: 'Média', purpose: 'maximizar a venda dos suprimentos' }
+                ],
+                consequences: {
+                    marketRelief: true,
+                    patronRelationDelta: 12
+                },
+                createdAt: now(),
+                updatedAt: now()
+            };
+            opportunities.push(mission);
+            generated++;
+        }
+    }
+    return { world: next, generated };
+}
+function acceptMissionOpportunity(world, missionId) {
+    const next = ensureMissionOpportunities(world);
+    const mission = next.missionOpportunities.find(m => m.missionId === String(missionId));
+    if (!mission)
+        throw new Error(`Missão "${missionId}" não encontrada.`);
+    if (mission.status !== exports.MISSION_STATUS.AVAILABLE) {
+        throw new Error(`Missão "${missionId}" não está disponível para aceitação (status: ${mission.status}).`);
+    }
+    mission.status = exports.MISSION_STATUS.ACTIVE;
+    mission.acceptedAtTick = Number(next.clock?.tick) || 0;
+    mission.updatedAt = now();
+    // Record commitment in patron NPC's causal memory without telepathy
+    const patronId = mission.patronNpcId;
+    const dueDay = Math.floor(mission.deadlineTick / 4) + 1;
+    const updatedWorld = (0, livingWorldDepth_mjs_1.rememberNpc)(next, patronId, {
+        kind: 'mission-accepted',
+        summary: `Acordou com o grupo a execução da missão "${mission.title}".`,
+        importance: 70,
+        actor: 'player-group',
+        commitment: mission.title,
+        commitmentKey: `mis:${mission.missionId}`,
+        dueDay
+    });
+    return { world: updatedWorld, mission: clone(mission) };
+}
+function resolveMissionOpportunity(world, missionId, { outcome = exports.MISSION_STATUS.COMPLETED, details = {} } = {}) {
+    let next = ensureMissionOpportunities(world);
+    const mission = next.missionOpportunities.find(m => m.missionId === String(missionId));
+    if (!mission)
+        throw new Error(`Missão "${missionId}" não encontrada.`);
+    if (mission.status !== exports.MISSION_STATUS.ACTIVE) {
+        throw new Error(`Missão "${missionId}" precisa estar ATIVA para ser resolvida (status atual: ${mission.status}).`);
+    }
+    const isSuccess = outcome === exports.MISSION_STATUS.COMPLETED;
+    mission.status = isSuccess ? exports.MISSION_STATUS.COMPLETED : exports.MISSION_STATUS.FAILED;
+    mission.resolvedAtTick = Number(next.clock?.tick) || 0;
+    mission.resolutionOutcome = outcome;
+    mission.resolutionNotes = details.notes || (isSuccess ? 'Missão concluída com êxito.' : 'Missão falhou na execução.');
+    mission.updatedAt = now();
+    const tick = Number(next.clock?.tick) || 0;
+    const patronId = mission.patronNpcId;
+    if (isSuccess) {
+        const relDelta = mission.consequences?.patronRelationDelta || 15;
+        next = (0, livingWorldDepth_mjs_1.rememberNpc)(next, patronId, {
+            tick,
+            kind: 'mission-success',
+            summary: `O grupo concluiu com êxito a missão "${mission.title}" conforme acordado.`,
+            importance: 80,
+            actor: 'player-group',
+            relationshipDelta: relDelta,
+            resolved: true
+        });
+        if (mission.factionId && next.livingDepth?.factions?.[mission.factionId]) {
+            const fState = next.livingDepth.factions[mission.factionId];
+            const rep = mission.consequences?.successFactionRep || 15;
+            fState.relations = fState.relations || {};
+            fState.relations['player-group'] = clamp((Number(fState.relations['player-group']) || 0) + rep, -100, 100);
+            fState.powerIndex = clamp((Number(fState.powerIndex) || 50) + 2, 0, 100);
+        }
+    }
+    else {
+        next = (0, livingWorldDepth_mjs_1.rememberNpc)(next, patronId, {
+            tick,
+            kind: 'mission-failed',
+            summary: `O grupo falhou em cumprir os prazos ou requisitos da missão "${mission.title}".`,
+            importance: 75,
+            actor: 'player-group',
+            relationshipDelta: -15,
+            resolved: true
+        });
+        if (mission.factionId && next.livingDepth?.factions?.[mission.factionId]) {
+            const fState = next.livingDepth.factions[mission.factionId];
+            const rep = mission.consequences?.failureFactionRep || -10;
+            fState.relations = fState.relations || {};
+            fState.relations['player-group'] = clamp((Number(fState.relations['player-group']) || 0) + rep, -100, 100);
+        }
+    }
+    return { world: next, mission: clone(mission), success: isSuccess };
+}
+function rejectMissionOpportunity(world, missionId, { reason = '' } = {}) {
+    const next = ensureMissionOpportunities(world);
+    const mission = next.missionOpportunities.find(m => m.missionId === String(missionId));
+    if (!mission)
+        throw new Error(`Missão "${missionId}" não encontrada.`);
+    if (mission.status !== exports.MISSION_STATUS.AVAILABLE) {
+        throw new Error(`Missão "${missionId}" não pode ser recusada (status: ${mission.status}).`);
+    }
+    mission.status = exports.MISSION_STATUS.REJECTED;
+    mission.rejectedAtTick = Number(next.clock?.tick) || 0;
+    mission.rejectionReason = reason || 'Oportunidade dispensada pelo grupo.';
+    mission.updatedAt = now();
+    return { world: next, mission: clone(mission) };
+}
+function advanceMissionOpportunities(world) {
+    let next = ensureMissionOpportunities(world);
+    const currentTick = Number(next.clock?.tick) || 0;
+    const expired = [];
+    const failed = [];
+    for (const m of next.missionOpportunities) {
+        if (m.deadlineTick !== null && currentTick > m.deadlineTick) {
+            if (m.status === exports.MISSION_STATUS.AVAILABLE) {
+                m.status = exports.MISSION_STATUS.EXPIRED;
+                m.expiredAtTick = currentTick;
+                m.updatedAt = now();
+                expired.push(m.missionId);
+            }
+            else if (m.status === exports.MISSION_STATUS.ACTIVE) {
+                m.status = exports.MISSION_STATUS.FAILED;
+                m.failedAtTick = currentTick;
+                m.failureReason = 'Prazo expirado antes do cumprimento dos objetivos.';
+                m.updatedAt = now();
+                failed.push(m.missionId);
+                // Apply failure consequences to patron memory
+                next = (0, livingWorldDepth_mjs_1.rememberNpc)(next, m.patronNpcId, {
+                    tick: currentTick,
+                    kind: 'mission-expired-active',
+                    summary: `O prazo da missão "${m.title}" venceu sem que o grupo entregasse os resultados prometidos.`,
+                    importance: 75,
+                    actor: 'player-group',
+                    relationshipDelta: -10,
+                    resolved: true
+                });
+                if (m.factionId && next.livingDepth?.factions?.[m.factionId]) {
+                    const fState = next.livingDepth.factions[m.factionId];
+                    fState.relations = fState.relations || {};
+                    fState.relations['player-group'] = clamp((Number(fState.relations['player-group']) || 0) - 5, -100, 100);
+                }
+            }
+        }
+    }
+    return { world: next, expired, failed };
+}
+function listMissionOpportunities(world, { status = null, patronNpcId = null, locationId = null, factionId = null } = {}) {
+    const next = ensureMissionOpportunities(world);
+    return next.missionOpportunities.filter(m => {
+        if (status && m.status !== status)
+            return false;
+        if (patronNpcId && m.patronNpcId !== patronNpcId)
+            return false;
+        if (locationId && m.locationId !== locationId && m.targetLocationId !== locationId)
+            return false;
+        if (factionId && m.factionId !== factionId)
+            return false;
+        return true;
+    }).map(clone);
+}
+});
 define("js/world/sandbox.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -43643,5 +45490,5 @@ function masterWorldSummary(world) {
     };
 }
 });
-try{const m=req("js/core/uiBridge.mjs");m.installBraseiroUiBridge(g);g.__BRASEIRO_ENGINE_BUNDLE__={ok:true,version:m.UI_BRIDGE_VERSION||null,modules:135,final:'1.0.244-r54-p244'};}catch(e){console.error(e);g.__BRASEIRO_ENGINE_BUNDLE__={ok:false,error:String(e&&e.stack||e)}};
+try{const m=req("js/core/uiBridge.mjs");m.installBraseiroUiBridge(g);g.__BRASEIRO_ENGINE_BUNDLE__={ok:true,version:m.UI_BRIDGE_VERSION||null,modules:139,final:'1.0.244-r54-p244'};}catch(e){console.error(e);g.__BRASEIRO_ENGINE_BUNDLE__={ok:false,error:String(e&&e.stack||e)}};
 })(window);

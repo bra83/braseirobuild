@@ -7,9 +7,23 @@ export const FIVE_PUBLISHED_ADVENTURE_IDS = Object.freeze([
   'mask-of-the-pirate-queen'
 ]);
 
-const ALLOWED = new Set(FIVE_PUBLISHED_ADVENTURE_IDS);
+/** Release Dual Core + Two Adventures certified official adventures */
+export const RELEASE_CERTIFIED_ADVENTURES = Object.freeze([
+  'under-black-sun',
+  'dead-in-the-water'
+]);
+
+export const ALL_CANONICAL_ADVENTURE_IDS = Object.freeze([
+  ...FIVE_PUBLISHED_ADVENTURE_IDS,
+  'dead-in-the-water'
+]);
+
+const ALLOWED = new Set(ALL_CANONICAL_ADVENTURE_IDS);
+const LEGACY_ALLOWED = new Set(FIVE_PUBLISHED_ADVENTURE_IDS);
+
 const ALIASES = Object.freeze({
   'under-black-sun': ['under a black sun', 'under black sun', 'sob um sol negro', 'swep01'],
+  'dead-in-the-water': ['dead in the water', 'muerte en las profundidades', 'morte nas profundezas', 'swa03'],
   'beyond-the-rim': ['beyond the rim', 'alem da orla', 'swe05'],
   'long-arm-of-the-hutt': ['the long arm of the hutt', 'long arm of the hutt', 'o longo braco do hutt', 'swe02'],
   'jewel-of-yavin': ['the jewel of yavin', 'jewel of yavin', 'a joia de yavin', 'swe09'],
@@ -24,7 +38,14 @@ function containsPhrase(haystack, phrase) {
 }
 
 export function assertFivePublishedAdventures(ids) {
-  if (!Array.isArray(ids) || ids.length !== ALLOWED.size || new Set(ids).size !== ALLOWED.size || ids.some(id => !ALLOWED.has(id))) {
+  if (!Array.isArray(ids)) {
+    throw new Error('Escopo de aventuras inválido: lista de identificadores obrigatória.');
+  }
+  const idSet = new Set(ids);
+  const isLegacyFive = idSet.size === LEGACY_ALLOWED.size && [...idSet].every(id => LEGACY_ALLOWED.has(id));
+  const isDualCertified = idSet.size === RELEASE_CERTIFIED_ADVENTURES.length && [...idSet].every(id => RELEASE_CERTIFIED_ADVENTURES.includes(id));
+  const isExtendedCanonical = idSet.size === ALLOWED.size && [...idSet].every(id => ALLOWED.has(id));
+  if (!isLegacyFive && !isDualCertified && !isExtendedCanonical) {
     throw new Error('Escopo de aventuras inválido: apenas os cinco módulos canônicos são permitidos.');
   }
   return true;

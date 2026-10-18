@@ -26,6 +26,16 @@ const UNDER_BLACK_SUN_IMPLEMENTATION_SOURCE = Object.freeze({
   note:'Perfil funcional do BRASEIRO para integrar a aventura publicada ao motor de combate; não substitui a ficha editorial.'
 });
 
+const DEAD_IN_THE_WATER_SOURCE = Object.freeze({
+  title:'Dead in the Water',
+  originalTitle:'Muerte en las profundidades',
+  system:'Star Wars: Age of Rebellion',
+  productCode:'SWA03',
+  sourceBook:"Age of Rebellion Game Master's Kit",
+  authority:'PUBLISHED_ADVENTURE_IMPLEMENTATION',
+  note:'Perfis oficiais de adversários de Morte nas Profundezas (SWA03) auditados contra o PDF oficial do GM Kit.'
+});
+
 
 export const ADVERSARY_PROFILES = Object.freeze({
   imperial_soldier: Object.freeze({
@@ -178,6 +188,110 @@ export const PUBLISHED_ADVENTURE_ADVERSARY_PROFILES = Object.freeze({
     abilities:[{key:'jet_pack',name:'Jet pack e mobilidade vertical'},{key:'cacador_experiente',name:'Caçador experiente'}],
     weapons:[{name:'Pistola blaster pesada',skill:'armas_distancia_ligeras',range:'Médio',damage:7,crit:3},{name:'Vibrofaca',skill:'armas_cuerpo_a_cuerpo',range:'Interação',damage:5,crit:2,pierce:2}],
     source:UNDER_BLACK_SUN_IMPLEMENTATION_SOURCE
+  }),
+  walif_merv: Object.freeze({
+    key:'walif_merv',
+    name:'Walif Merv',
+    kind:'rival',
+    characteristics:{fortaleza:2,agilidad:3,intelecto:2,astucia:3,voluntad:2,presencia:2},
+    soak:2,
+    woundsThreshold:12,
+    strainThreshold:null,
+    groupSkills:[],
+    skills:{actividad_criminal:2,armas_distancia_pesadas:2,negociacion:3,pelea:2,sigilo:2},
+    talents:[],
+    abilities:[],
+    weapons:[
+      {name:'Pistola blaster pesada',skill:'armas_distancia_pesadas',range:'Médio',damage:7,crit:3},
+      {name:'Vibrofaca',skill:'armas_cuerpo_a_cuerpo',range:'Interação',damage:3,crit:2,pierce:2}
+    ],
+    source:DEAD_IN_THE_WATER_SOURCE
+  }),
+  capitan_generet: Object.freeze({
+    key:'capitan_generet',
+    name:'Capitão Generet (Disfarçado de Mon Calamari)',
+    kind:'rival',
+    characteristics:{fortaleza:3,agilidad:3,intelecto:2,astucia:3,voluntad:4,presencia:2},
+    soak:2,
+    woundsThreshold:12,
+    strainThreshold:null,
+    groupSkills:[],
+    skills:{armas_distancia_pesadas:4,computadoras:3,engano:3,mecanica:3,pelea:3,sigilo:3,xenologia:3},
+    talents:[],
+    abilities:[{key:'disfarce_cirurgico',name:'Disfarce cirúrgico Mon Calamari'}],
+    weapons:[
+      {name:'Pistola blaster pesada',skill:'armas_distancia_pesadas',range:'Médio',damage:7,crit:3}
+    ],
+    source:DEAD_IN_THE_WATER_SOURCE
+  }),
+  teniente_huv: Object.freeze({
+    key:'teniente_huv',
+    name:'Tenente Huv (Disfarçado de Mon Calamari)',
+    kind:'rival',
+    characteristics:{fortaleza:3,agilidad:3,intelecto:2,astucia:3,voluntad:4,presencia:2},
+    soak:2,
+    woundsThreshold:12,
+    strainThreshold:null,
+    groupSkills:[],
+    skills:{armas_distancia_pesadas:3,computadoras:3,engano:3,mecanica:3,pelea:2,pilotar_vehiculo_planetario:2,sigilo:3,xenologia:2},
+    talents:[],
+    abilities:[{key:'disfarce_cirurgico',name:'Disfarce cirúrgico Mon Calamari'}],
+    weapons:[
+      {name:'Pistola blaster pesada',skill:'armas_distancia_pesadas',range:'Médio',damage:7,crit:3},
+      {name:'Cassetete',skill:'armas_cuerpo_a_cuerpo',range:'Interação',damage:5,crit:5,disorient:2}
+    ],
+    source:DEAD_IN_THE_WATER_SOURCE
+  }),
+  agente_limeren: Object.freeze({
+    key:'agente_limeren',
+    name:'Agente Limeren (Disfarçado de Mon Calamari)',
+    kind:'rival',
+    characteristics:{fortaleza:3,agilidad:3,intelecto:2,astucia:3,voluntad:3,presencia:2},
+    soak:2,
+    woundsThreshold:12,
+    strainThreshold:null,
+    groupSkills:[],
+    skills:{armas_distancia_pesadas:3,engano:2,sigilo:3,pelea:2},
+    talents:[],
+    abilities:[{key:'disfarce_cirurgico',name:'Disfarce cirúrgico Mon Calamari'}],
+    weapons:[
+      {name:'Pistola blaster pesada',skill:'armas_distancia_pesadas',range:'Médio',damage:7,crit:3}
+    ],
+    source:DEAD_IN_THE_WATER_SOURCE
+  }),
+  quarren_thug: Object.freeze({
+    key:'quarren_thug',
+    name:'Capanga Quarren de Morjanssik',
+    kind:'minion',
+    characteristics:{fortaleza:3,agilidad:2,intelecto:2,astucia:2,voluntad:2,presencia:1},
+    soak:3,
+    woundsThreshold:4,
+    strainThreshold:null,
+    groupSkills:['pelea','coaccion'],
+    skills:{},
+    talents:[],
+    abilities:[],
+    weapons:[
+      {name:'Clava pesada',skill:'pelea',range:'Interação',damage:5,crit:5}
+    ],
+    source:DEAD_IN_THE_WATER_SOURCE
+  }),
+  imperial_saboteur: Object.freeze({
+    key:'imperial_saboteur',
+    name:'Sabotador da Divisão de Desestabilização',
+    kind:'minion',
+    characteristics:{fortaleza:2,agilidad:3,intelecto:2,astucia:2,voluntad:2,presencia:2},
+    soak:3,
+    woundsThreshold:5,
+    strainThreshold:null,
+    groupSkills:['armas_distancia_pesadas','mecanica','disciplina'],
+    skills:{},
+    talents:[],
+    abilities:[],
+    weapons:[
+      {name:'Fuzil blaster',skill:'armas_distancia_pesadas',range:'Longo',damage:9,crit:3}
+    ],
+    source:DEAD_IN_THE_WATER_SOURCE
   }),
   // SWE02, printed p.21 (PDF p.20): official Human and Aqualish Thugs minions.
   // Individual soldiers are tracked only inside their confirmed combat group.

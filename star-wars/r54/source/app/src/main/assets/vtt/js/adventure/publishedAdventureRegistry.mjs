@@ -1,12 +1,37 @@
 import { reconcilePublishedAdventureWorld, publishedAdventureUaeSnapshot, publishedAdventureUaePublicStatus, installPublishedTaskTimeModuleResolver, publishedAdventureRuntimeModule, validatePublishedAdventureRuntimeState } from './publishedAdventureUaeBridge.mjs';
-import { assertFivePublishedAdventures } from './hybridFiveAdventurePolicy.mjs';
+import { assertFivePublishedAdventures, RELEASE_CERTIFIED_ADVENTURES, FIVE_PUBLISHED_ADVENTURE_IDS } from './hybridFiveAdventurePolicy.mjs';
 import * as underBlackSun from './underBlackSun.mjs';
+import * as deadInTheWater from './deadInTheWater.mjs';
 import * as beyondTheRim from './beyondTheRim.mjs';
 import * as longArmOfTheHutt from './longArmOfTheHutt.mjs';
 import * as jewelOfYavin from './jewelOfYavin.mjs';
 import * as maskOfThePirateQueen from './maskOfThePirateQueen.mjs';
 
 function clone(value) { return structuredClone(value); }
+
+const DEAD_IN_THE_WATER_ADAPTER = Object.freeze({
+  id: deadInTheWater.DEAD_IN_THE_WATER.id,
+  meta: deadInTheWater.DEAD_IN_THE_WATER,
+  modeError: 'Morte nas Profundezas exige campanha AoR ou MISTA porque a aventura é uma operação oficial da Aliança Rebelde.',
+  rewardPolicy: Object.freeze({
+    xp: 20,
+    duty: 10,
+    obligationReduction: 0
+  }),
+  continuation: Object.freeze({ startingPoint: 'Mon Cala — Morjanssik', regionLabel: 'Outer Rim' }),
+  status: deadInTheWater.deadInTheWaterStatus,
+  start: deadInTheWater.startDeadInTheWater,
+  advance: deadInTheWater.advanceDeadInTheWater,
+  currentScene: deadInTheWater.currentDeadInTheWaterScene,
+  masterRequest: deadInTheWater.currentDeadInTheWaterMasterRequest,
+  currentChecks: deadInTheWater.currentDeadInTheWaterChecks,
+  adjudicateCheck: deadInTheWater.adjudicateDeadInTheWaterCheck,
+  encounterSpec: deadInTheWater.deadInTheWaterEncounterSpec,
+  markEncounterActive: deadInTheWater.markDeadInTheWaterEncounterActive,
+  recordEncounterOutcome: deadInTheWater.recordDeadInTheWaterEncounterOutcome,
+  markRewardsApplied: deadInTheWater.markDeadInTheWaterRewardsApplied,
+  archive: deadInTheWater.archiveDeadInTheWater
+});
 
 const UNDER_BLACK_SUN_ADAPTER = Object.freeze({
   id: underBlackSun.UNDER_BLACK_SUN.id,
@@ -155,6 +180,7 @@ const MASK_OF_THE_PIRATE_QUEEN_ADAPTER = Object.freeze({
 
 const REGISTRY = new Map([
   [UNDER_BLACK_SUN_ADAPTER.id, UNDER_BLACK_SUN_ADAPTER],
+  [DEAD_IN_THE_WATER_ADAPTER.id, DEAD_IN_THE_WATER_ADAPTER],
   [BEYOND_THE_RIM_ADAPTER.id, BEYOND_THE_RIM_ADAPTER],
   [LONG_ARM_OF_THE_HUTT_ADAPTER.id, LONG_ARM_OF_THE_HUTT_ADAPTER],
   [JEWEL_OF_YAVIN_ADAPTER.id, JEWEL_OF_YAVIN_ADAPTER],
@@ -163,14 +189,34 @@ const REGISTRY = new Map([
 
 assertFivePublishedAdventures([...REGISTRY.keys()]);
 
-export function publishedAdventureCatalog() {
-  return [...REGISTRY.values()].map(adapter => ({
-    id: adapter.meta.id,
-    title: adapter.meta.title,
-    originalTitle: adapter.meta.originalTitle,
-    rulesProfile: adapter.meta.rulesProfile,
-    campaignModes: [...adapter.meta.campaignModes]
-  }));
+export { RELEASE_CERTIFIED_ADVENTURES };
+
+export function certifiedPublishedAdventureCatalog() {
+  return RELEASE_CERTIFIED_ADVENTURES.map(id => {
+    const adapter = REGISTRY.get(id);
+    return {
+      id: adapter.meta.id,
+      title: adapter.meta.title,
+      originalTitle: adapter.meta.originalTitle,
+      rulesProfile: adapter.meta.rulesProfile,
+      campaignModes: [...adapter.meta.campaignModes]
+    };
+  });
+}
+
+export function publishedAdventureCatalog({ certifiedOnly = false, all = false } = {}) {
+  if (certifiedOnly) return certifiedPublishedAdventureCatalog();
+  const ids = all ? [...REGISTRY.keys()] : FIVE_PUBLISHED_ADVENTURE_IDS;
+  return ids.map(id => {
+    const adapter = REGISTRY.get(id);
+    return {
+      id: adapter.meta.id,
+      title: adapter.meta.title,
+      originalTitle: adapter.meta.originalTitle,
+      rulesProfile: adapter.meta.rulesProfile,
+      campaignModes: [...adapter.meta.campaignModes]
+    };
+  });
 }
 
 installPublishedTaskTimeModuleResolver(id => getPublishedAdventureAdapter(id).meta);

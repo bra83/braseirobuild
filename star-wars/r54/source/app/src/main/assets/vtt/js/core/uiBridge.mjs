@@ -177,6 +177,74 @@ export class BraseiroUiBridge {
         try { return ok(clone(controllerResult.data.publishedAdventureStatus(String(adventureId ?? 'under-black-sun')))); }
         catch (error) { return fail('PUBLISHED_ADVENTURE_FAILED', messageOf(error)); }
     }
+    certifiedPublishedAdventureCatalog() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.certifiedPublishedAdventureCatalog())); }
+        catch (error) { return fail('PUBLISHED_ADVENTURE_FAILED', messageOf(error)); }
+    }
+    listMissionOpportunities(filters = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.listMissionOpportunities(filters ?? {}))); }
+        catch (error) { return fail('MISSION_OPPORTUNITIES_FAILED', messageOf(error)); }
+    }
+    generateMissionOpportunities(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const result = controllerResult.data.generateMissionOpportunities(options ?? {});
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(result));
+        }
+        catch (error) { return fail('MISSION_GENERATE_FAILED', messageOf(error)); }
+    }
+    acceptMissionOpportunity(missionId) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const result = controllerResult.data.acceptMissionOpportunity(String(missionId ?? ''));
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(result));
+        }
+        catch (error) { return fail('MISSION_ACCEPT_FAILED', messageOf(error)); }
+    }
+    resolveMissionOpportunity(missionId, options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const result = controllerResult.data.resolveMissionOpportunity(String(missionId ?? ''), options ?? {});
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(result));
+        }
+        catch (error) { return fail('MISSION_RESOLVE_FAILED', messageOf(error)); }
+    }
+    rejectMissionOpportunity(missionId, options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const result = controllerResult.data.rejectMissionOpportunity(String(missionId ?? ''), options ?? {});
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(result));
+        }
+        catch (error) { return fail('MISSION_REJECT_FAILED', messageOf(error)); }
+    }
+    createOriginalAdventure(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.createOriginalAdventure(options ?? {}))); }
+        catch (error) { return fail('ORIGINAL_ADVENTURE_CREATE_FAILED', messageOf(error)); }
+    }
+    registerOriginalAdventure(module) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const result = controllerResult.data.registerOriginalAdventure(module);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(result));
+        }
+        catch (error) { return fail('ORIGINAL_ADVENTURE_REGISTER_FAILED', messageOf(error)); }
+    }
     /** Single Android/WebView entrypoint for replay-safe published actions. */
     executePublishedAdventureCommand(command = {}) {
         const controllerResult = this._controllerForExistingCampaign();

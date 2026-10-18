@@ -88,6 +88,8 @@ import { AdventureRuntime } from "../adventure/adventureRuntime.mjs";
 import { publishedAdventureRuntimeModule, validatePublishedAdventureRuntimeState } from "../adventure/publishedAdventureUaeBridge.mjs";
 import * as sandbox_mjs_1 from "../world/sandbox.mjs";
 import * as publishedAdventureRegistry_mjs_1 from "../adventure/publishedAdventureRegistry.mjs";
+import * as missionOpportunityEngine from "../world/missionOpportunityEngine.mjs";
+import * as originalAdventureCreator from "../master/originalAdventureCreator.mjs";
 import * as cybernetics_mjs_1 from "../rules/cybernetics.mjs";
 import * as astrogation_mjs_1 from "../rules/astrogation.mjs";
 import * as attachments_mjs_1 from "../rules/attachments.mjs";
@@ -2386,6 +2388,50 @@ completeMerchantAcquisition({receiptId,approved,finalPrice=null,sourceRuleIds=['
     publishedAdventureStatus(adventureId = 'under-black-sun') {
         const adapter = publishedAdventureRegistry_mjs_1.getPublishedAdventureAdapter(adventureId);
         return adapter.status(this.state.world);
+    }
+    certifiedPublishedAdventureCatalog() {
+        return publishedAdventureRegistry_mjs_1.certifiedPublishedAdventureCatalog();
+    }
+    listMissionOpportunities(filters = {}) {
+        return missionOpportunityEngine.listMissionOpportunities(this.state.world, filters);
+    }
+    generateMissionOpportunities(options = {}) {
+        return this.atomicAction(() => {
+            const res = missionOpportunityEngine.generateMissionOpportunities(this.state.world, options);
+            this.commit('WORLD_UPDATED', { world: res.world });
+            return { generated: res.generated, missions: missionOpportunityEngine.listMissionOpportunities(this.state.world), state: structuredClone(this.state) };
+        });
+    }
+    acceptMissionOpportunity(missionId) {
+        return this.atomicAction(() => {
+            const res = missionOpportunityEngine.acceptMissionOpportunity(this.state.world, missionId);
+            this.commit('WORLD_UPDATED', { world: res.world });
+            return { mission: res.mission, state: structuredClone(this.state) };
+        });
+    }
+    resolveMissionOpportunity(missionId, options = {}) {
+        return this.atomicAction(() => {
+            const res = missionOpportunityEngine.resolveMissionOpportunity(this.state.world, missionId, options);
+            this.commit('WORLD_UPDATED', { world: res.world });
+            return { mission: res.mission, success: res.success, state: structuredClone(this.state) };
+        });
+    }
+    rejectMissionOpportunity(missionId, options = {}) {
+        return this.atomicAction(() => {
+            const res = missionOpportunityEngine.rejectMissionOpportunity(this.state.world, missionId, options);
+            this.commit('WORLD_UPDATED', { world: res.world });
+            return { mission: res.mission, state: structuredClone(this.state) };
+        });
+    }
+    createOriginalAdventure(options = {}) {
+        return originalAdventureCreator.createOriginalAdventure(this.state.world, options);
+    }
+    registerOriginalAdventure(module) {
+        return this.atomicAction(() => {
+            const nextWorld = originalAdventureCreator.registerOriginalAdventureInWorld(this.state.world, module);
+            this.commit('WORLD_UPDATED', { world: nextWorld });
+            return { module, state: structuredClone(this.state) };
+        });
     }
     /** P184: source-adjudicated Jewel Grand Prix / auction operations for Android WebView. */
     adjudicateJewelOperation(kind, details = {}) {
