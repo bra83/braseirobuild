@@ -175,7 +175,7 @@ html.braseiro-reduced-motion *,html.braseiro-reduced-motion *::before,html.brase
 
 /* Espaçamento inferior global contra sobreposição de barras e One UI */
 .app-content, main, .screen-content, .page-content, .r46-content, .scene-concept-shell {
-  padding-bottom: 120px !important;
+  padding-bottom: 58px !important;
 }
 
 /* Painel Heroico de Inicialização de Aventura */
@@ -371,63 +371,152 @@ html.braseiro-reduced-motion *,html.braseiro-reduced-motion *::before,html.brase
 
 /* ==========================================================================
    BRASEIRO MOBILE UI REFINEMENT - GALAXY A57 / AMOLED 415x915
-   Eliminate visual clutter, floating buttons, and anchor Hero Adventure Console
+   Reclaim vertical screen space, eliminate dead space, anchor Start Console
    ========================================================================== */
 
-/* Eliminar botoes flutuantes intrusivos sobrepostos as abas */
-.final-library-shortcut, .r53-restart-fab, .r53-fab {
+:root {
+  --safe-top: 0px !important;
+  --safe-bottom: 0px !important;
+  --nav-h: 3.25rem !important;
+}
+
+/* Eliminar espaço morto no topo da tela em modo de cena */
+.scene-mode,
+.scene-mode .app-shell,
+.app-shell.scene-mode,
+.app-shell:has(.scene-concept-shell) {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+.scene-concept-shell {
+  margin-top: 0 !important;
+  padding: 0 10px 58px !important;
+  gap: 6px !important;
+}
+
+/* Cabeçalho ultra-compacto */
+.scene-context-header {
+  padding: 4px 0 2px !important;
+  margin: 0 !important;
+}
+.scene-context-header h1 {
+  font-size: 1.15rem !important;
+  margin: 0 !important;
+}
+.scene-context-header p {
+  font-size: 0.72rem !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+  color: #7e8f99 !important;
+}
+
+/* Compactar visor de cena */
+.scene-media-slot {
+  height: 72px !important;
+  min-height: 72px !important;
+  max-height: 72px !important;
+  border-radius: 8px !important;
+  margin-bottom: 4px !important;
+  overflow: hidden !important;
+  background: #0a0f13 !important;
+  border: 1px solid #233540 !important;
+}
+.scene-media-slot.has-scene-image, .scene-media-slot.has-demo-art {
+  height: 135px !important;
+  max-height: 135px !important;
+}
+.scene-media-slot figcaption {
+  padding: 2px 6px !important;
+}
+.scene-media-slot figcaption span {
+  font-size: 0.58rem !important;
+}
+.scene-media-slot figcaption small {
   display: none !important;
 }
 
-/* Ocultar detalhes de debug que invadem a cena */
-.r54-p101, .r54-tactical-collapsible {
+/* Eliminar botões flutuantes intrusivos sobrepostos às abas */
+.final-library-shortcut, .r53-restart-fab, .r53-fab, .final-adventure-fab {
   display: none !important;
 }
 
-/* Console Datapad de Inicio de Aventura na CENA */
+/* Ocultar detalhes de depuração que poluem a tela */
+.r54-p101, .r54-tactical-collapsible, .scene-actions-panel {
+  display: none !important;
+}
+
+/* Barra inferior ultra-compacta, alinhada perfeitamente na base do aparelho */
+.bottom-navigation {
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  padding: 0 !important;
+  bottom: 0 !important;
+  background: #090d10 !important;
+  border-top: 1px solid #2a4353 !important;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.6) !important;
+}
+.bottom-nav-button {
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  padding: 2px 1px 1px !important;
+  gap: 0 !important;
+}
+.bottom-nav-button > .reference-icon {
+  width: 1.8rem !important;
+  height: 1.8rem !important;
+}
+.bottom-nav-button > span:last-child {
+  font-size: 0.58rem !important;
+  line-height: 1 !important;
+  margin-top: 1px !important;
+}
+
+/* Console Datapad de Início de Aventura na CENA */
 .final-adventure-gate {
-  margin: 12px 14px 16px !important;
-  padding: 16px !important;
-  border-radius: 12px !important;
+  margin: 6px 0 !important;
+  padding: 12px 14px !important;
+  border-radius: 10px !important;
   background: linear-gradient(180deg, #121c24 0%, #081016 100%) !important;
   border: 1px solid #3d6a85 !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5) !important;
 }
 .final-adventure-gate > div:first-child span {
   color: #38bdf8 !important;
-  font-size: 0.76rem !important;
+  font-size: 0.72rem !important;
   letter-spacing: 0.12em !important;
   font-weight: 800 !important;
   text-transform: uppercase !important;
 }
 .final-adventure-gate > div:first-child strong {
-  font-size: 1.15rem !important;
+  font-size: 1.08rem !important;
   color: #f0f9ff !important;
-  margin: 4px 0 !important;
+  margin: 3px 0 !important;
   display: block !important;
 }
 .final-adventure-gate > div:first-child small {
   color: #94a3b8 !important;
-  font-size: 0.82rem !important;
-  line-height: 1.4 !important;
+  font-size: 0.78rem !important;
+  line-height: 1.35 !important;
   display: block !important;
 }
 .final-adventure-gate .final-adventure-actions {
   display: flex !important;
   flex-direction: column !important;
-  gap: 10px !important;
-  margin-top: 14px !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
 }
 .final-adventure-gate .final-adventure-actions button {
-  min-height: 52px !important;
-  padding: 12px 16px !important;
+  min-height: 48px !important;
+  padding: 10px 14px !important;
   border-radius: 8px !important;
   background: linear-gradient(180deg, #1e3a4e 0%, #102432 100%) !important;
   border: 1px solid #4a82a6 !important;
   color: #e0f2fe !important;
-  font-size: 0.92rem !important;
+  font-size: 0.88rem !important;
   font-weight: 800 !important;
-  letter-spacing: 0.05em !important;
+  letter-spacing: 0.04em !important;
   cursor: pointer !important;
   text-align: center !important;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
@@ -444,12 +533,47 @@ html.braseiro-reduced-motion *,html.braseiro-reduced-motion *::before,html.brase
   color: #d1fae5 !important;
 }
 
+/* Painel de aventura publicada ativa */
+.final-published-adventure-panel {
+  margin: 6px 0 !important;
+  padding: 12px 14px !important;
+  border-radius: 10px !important;
+  background: linear-gradient(180deg, #131c22 0%, #0c1419 100%) !important;
+  border: 1px solid #365b73 !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
+}
+.final-published-choices {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  margin-top: 8px !important;
+}
+.final-published-choices button {
+  min-height: 48px !important;
+  padding: 10px 14px !important;
+  background: linear-gradient(180deg, #1c3546 0%, #10212c 100%) !important;
+  border: 1px solid #4886a8 !important;
+  color: #e0f2fe !important;
+  border-radius: 8px !important;
+  font-weight: 800 !important;
+  font-size: 0.88rem !important;
+  letter-spacing: 0.03em !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3) !important;
+}
+.final-published-choices button:active {
+  transform: translateY(1px) !important;
+  border-color: #38bdf8 !important;
+  background: #173243 !important;
+}
+
 /* Barra Mestre Gemini / Holonet na Cena */
 .r54-scene-gemini-bar {
   display: flex !important;
   flex-direction: column !important;
   gap: 8px !important;
-  margin: 10px 14px 14px !important;
+  margin: 8px 0 !important;
 }
 .r54-btn-gemini-trigger {
   min-height: 48px !important;

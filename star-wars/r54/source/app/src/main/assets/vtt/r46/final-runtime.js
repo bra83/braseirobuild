@@ -469,16 +469,66 @@ function setupOverlay(){
 }
 function enhanceAdventureGate(){
  const existing=document.querySelector('.final-adventure-gate');
- const pubView=publishedAdventureView();if(adventureStarted()&&pubView?.active&&pubView?.node){document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());return}
+ const pubView=publishedAdventureView();
+ if(pubView?.active&&pubView?.node){document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());return}
  const route=new URLSearchParams(location.search).get('screen')||'00';const character=hasCharacter(),gateKey=`${route}:${character?'character':'empty'}`;
  if(existing?.dataset?.gateKey===gateKey)return;
  document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());
  if(route==='00'){
   const root=document.querySelector('.scene-concept-shell');if(!root)return;const gate=document.createElement('section');gate.className='final-adventure-gate final-adventure-card';gate.dataset.gateKey=gateKey;
   const mode=campaignMode(),catalog=publishedAdventureCatalogView().filter(a=>Array.isArray(a.campaignModes)&&a.campaignModes.includes(mode));
-  const publishedButtons=catalog.map(a=>`<button type="button" data-start-published="${String(a.id||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}">${String(a.title||a.originalTitle||'AVENTURA').toUpperCase()}</button>`).join('');
-  gate.innerHTML=character?`<div><span>ESCOLHA COMO JOGAR</span><strong>Aventura publicada ou mundo livre.</strong><small>As aventuras disponíveis usam o material do acervo com estado persistente e anti-spoiler. O modo atual é <b>${mode}</b>.</small></div><div class="final-adventure-actions ${catalog.length>1?'final-adventure-actions-many':'final-adventure-actions-two'}">${publishedButtons}<button type="button" class="r54-hero-btn is-secondary" data-start-sandbox>★ MUNDO LIVRE (SANDBOX)</button></div><output></output>`:`<div><span>ANTES DE COMEÇAR</span><strong>Crie ou carregue um personagem.</strong><small>Você pode criar manualmente, gerar uma ficha completa aleatória ou importar .json.</small></div><div class="final-adventure-actions"><button type="button" data-manual-character>CRIAR FICHA</button><button type="button" data-random-character>ALEATÓRIA</button><button type="button" data-import-character>IMPORTAR JSON</button></div><output></output>`;
-  root.prepend(gate);const out=gate.querySelector('output');gate.querySelector('[data-manual-character]')?.addEventListener('click',()=>navigateRoute('18'));gate.querySelector('[data-random-character]')?.addEventListener('click',()=>quickRandomCharacter(out));gate.querySelector('[data-import-character]')?.addEventListener('click',()=>quickImportCharacter(out));gate.querySelectorAll('[data-start-published]').forEach(b=>b.addEventListener('click',()=>{const id=String(b.dataset.startPublished||''),entry=catalog.find(x=>x.id===id),label=String(entry?.title||entry?.originalTitle||'Aventura');b.disabled=true;const original=b.textContent;b.textContent='INICIANDO…';if(!sandboxReady()){const origin=id==='under-black-sun'?{startingPoint:'Coruscant — Setor 943',regionLabel:'Coruscant'}:{startingPoint:'Ord Mantell — Praça Central',regionLabel:'Ord Mantell'};bridgeResult('initializeLivingSandbox',origin);}const r=window.BraseiroPublishedActionClient.execute('start',id);if(!r.ok){b.disabled=false;b.textContent=original;if(out)out.textContent=r.message||'Não foi possível iniciar a aventura.';return}if(out)out.textContent=masterNarrationAvailable()?`${label} iniciada. Mestre preparando a cena…`:`${label} iniciada com narração local.`;setTimeout(()=>{enhanceSceneFromEngine();enhanceNarration();enhancePublishedAdventurePanel();enhanceSceneGeminiButton();if(masterNarrationAvailable())void requestPublishedMasterNarration(`abertura de ${label}`)},0)}));gate.querySelector('[data-start-sandbox]')?.addEventListener('click',async()=>{const b=gate.querySelector('[data-start-sandbox]');b.disabled=true;b.textContent='INICIANDO…';const r=await startBarbaraOpening();if(!r.ok){b.disabled=false;b.textContent='INICIAR SANDBOX';alert(r.message||'Não foi possível iniciar o sandbox.');return}setTimeout(()=>{enhanceSceneFromEngine();enhanceNarration();enhanceSceneGeminiButton()},0)});
+  const publishedButtons=catalog.map(a=>`<button type="button" data-start-published="${String(a.id||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}">🚀 INICIAR: ${String(a.title||a.originalTitle||'AVENTURA').toUpperCase()}</button>`).join('');
+  const finalButtons=publishedButtons||`<button type="button" data-start-published="under-black-sun">🚀 INICIAR: SOB UM SOL NEGRO (CORUSCANT)</button><button type="button" data-start-published="beyond-the-rim">🌌 INICIAR: ALÉM DA ORLA (ORD MANTELL)</button>`;
+  const st=currentState();
+  const openingNarration=String(st?.scene?.narration||'');
+  const isBlackSunOpening=openingNarration.includes('Alarmes ecoam')||openingNarration.includes('Black Sun')||openingNarration.includes('Sob um Sol Negro');
+  const quickChoices=isBlackSunOpening?`
+    <div class="final-published-choices" style="margin-top:12px;border-top:1px solid #334e68;padding-top:10px;">
+      <div style="font-size:0.75rem;font-weight:900;color:#f59e0b;letter-spacing:0.08em;margin-bottom:6px;">⚡ ESCOLHA SUA REAÇÃO IMEDIATA AO TIROTEIO:</div>
+      <button type="button" data-quick-black-sun="escape-clean">➔ 1. Assumir o controle do speeder e despistar</button>
+      <button type="button" data-quick-black-sun="escape-fight">➔ 2. Abrir caminho revidando contra a Black Sun</button>
+      <button type="button" data-quick-black-sun="escape-crash">➔ 3. Manobra evasiva (escapar após pouso forçado)</button>
+    </div>
+  `:'';
+  gate.innerHTML=character?`<div><span>CENTRAL DE MISSÕES GALÁCTICAS</span><strong>Escolha sua aventura ou explore o mundo livre</strong><small>As aventuras oficiais utilizam regras e narrativas completas de Star Wars: Fronteira do Império (EotE). Modo ativo: <b>${mode}</b>.</small></div><div class="final-adventure-actions ${catalog.length>1?'final-adventure-actions-many':'final-adventure-actions-two'}">${finalButtons}<button type="button" class="r54-hero-btn is-secondary" data-start-sandbox>★ INICIAR SANDBOX (MUNDO LIVRE)</button></div>${quickChoices}<output></output>`:`<div><span>ANTES DE COMEÇAR</span><strong>Crie ou carregue um personagem.</strong><small>Você pode criar manualmente, gerar uma ficha completa aleatória ou importar .json.</small></div><div class="final-adventure-actions"><button type="button" data-manual-character>CRIAR FICHA</button><button type="button" data-random-character>ALEATÓRIA</button><button type="button" data-import-character>IMPORTAR JSON</button></div><output></output>`;
+  const targetSlot=root.querySelector('.scene-narrative-paper')||root.querySelector('.scene-media-slot');
+  if(targetSlot&&targetSlot.nextSibling)root.insertBefore(gate,targetSlot.nextSibling);else root.prepend(gate);
+  const out=gate.querySelector('output');
+  gate.querySelector('[data-manual-character]')?.addEventListener('click',()=>navigateRoute('18'));
+  gate.querySelector('[data-random-character]')?.addEventListener('click',()=>quickRandomCharacter(out));
+  gate.querySelector('[data-import-character]')?.addEventListener('click',()=>quickImportCharacter(out));
+  gate.querySelectorAll('[data-start-published]').forEach(b=>b.addEventListener('click',()=>{
+    const id=String(b.dataset.startPublished||''),entry=catalog.find(x=>x.id===id),label=String(entry?.title||entry?.originalTitle||(id==='under-black-sun'?'Sob um Sol Negro':'Além da Orla'));
+    b.disabled=true;const original=b.textContent;b.textContent='INICIANDO…';
+    if(!sandboxReady()){
+      const origin=id==='under-black-sun'?{startingPoint:'Coruscant — Setor 943',regionLabel:'Coruscant'}:{startingPoint:'Ord Mantell — Praça Central',regionLabel:'Ord Mantell'};
+      bridgeResult('initializeLivingSandbox',origin);
+    }
+    const r=window.BraseiroPublishedActionClient.execute('start',id);
+    if(!r.ok){b.disabled=false;b.textContent=original;if(out)out.textContent=r.message||'Não foi possível iniciar a aventura.';return}
+    if(out)out.textContent=masterNarrationAvailable()?`${label} iniciada. Mestre preparando a cena…`:`${label} iniciada com narração local.`;
+    setTimeout(()=>{enhanceSceneFromEngine();enhanceNarration();enhancePublishedAdventurePanel();enhanceSceneGeminiButton();if(masterNarrationAvailable())void requestPublishedMasterNarration(`abertura de ${label}`)},0);
+  }));
+  gate.querySelectorAll('[data-quick-black-sun]').forEach(b=>b.addEventListener('click',()=>{
+    const choiceId=String(b.dataset.quickBlackSun||'');
+    b.disabled=true;b.textContent='EXECUTANDO ESCOLHA…';
+    if(!sandboxReady()){
+      bridgeResult('initializeLivingSandbox',{startingPoint:'Coruscant — Setor 943',regionLabel:'Coruscant'});
+    }
+    const startRes=window.BraseiroPublishedActionClient.execute('start','under-black-sun');
+    if(!startRes.ok&&startRes.code!=='ALREADY_ACTIVE'){
+      b.disabled=false;if(out)out.textContent=startRes.message||'Falha ao iniciar aventura.';return;
+    }
+    const choiceRes=window.BraseiroPublishedActionClient.execute('choice',choiceId);
+    if(out)out.textContent='Decisão aplicada com sucesso! Avançando cena…';
+    setTimeout(()=>{enhanceSceneFromEngine();enhanceNarration();enhancePublishedAdventurePanel();enhanceSceneGeminiButton();if(masterNarrationAvailable())void requestPublishedMasterNarration('reação imediata do grupo em Coruscant')},0);
+  }));
+  gate.querySelector('[data-start-sandbox]')?.addEventListener('click',async()=>{
+    const b=gate.querySelector('[data-start-sandbox]');b.disabled=true;b.textContent='INICIANDO…';
+    const r=await startBarbaraOpening();
+    if(!r.ok){b.disabled=false;b.textContent='INICIAR SANDBOX';alert(r.message||'Não foi possível iniciar o sandbox.');return}
+    setTimeout(()=>{enhanceSceneFromEngine();enhanceNarration();enhanceSceneGeminiButton()},0);
+  });
  }else if(character){
   const bar=document.createElement('button');bar.type='button';bar.className='final-adventure-gate final-adventure-fab';bar.dataset.gateKey=gateKey;bar.textContent='▶ INICIAR SANDBOX';bar.onclick=async()=>{const r=await startBarbaraOpening();if(!r.ok){alert(r.message||'Não foi possível iniciar o sandbox.');return}navigateRoute('00')};document.body.appendChild(bar);
  }
@@ -489,7 +539,7 @@ function enhancePublishedAdventurePanel(){
  if(!status?.active&&!status?.completed){old?.remove();return}
  const route=new URLSearchParams(location.search).get('screen')||'00';if(route!=='00'){old?.remove();return}
  const root=document.querySelector('.scene-concept-shell');if(!root)return;const node=status.node;if(!node){old?.remove();return}
- let panel=old;if(!panel){panel=document.createElement('section');panel.className='final-published-adventure-panel final-adventure-card';root.prepend(panel)}
+ let panel=old;if(!panel){panel=document.createElement('section');panel.className='final-published-adventure-panel final-adventure-card';const targetSlot=root.querySelector('.scene-narrative-paper')||root.querySelector('.scene-media-slot');if(targetSlot&&targetSlot.nextSibling)root.insertBefore(panel,targetSlot.nextSibling);else root.prepend(panel)}
  const last=status?.progress?.flags?.lastCheck||null;
  const checks=(node.checks||[]).map((c,i)=>{const isLast=last?.checkId===`${node.id}:check:${i}`;return `<li class="${isLast?'is-resolved':''}"><div><strong>${h(c.skill)}</strong> · ${h(c.difficulty)}<small>${h(c.purpose)}</small></div><button type="button" data-published-check="${i}">ROLAR</button></li>`}).join('');
  const choices=(node.choices||[]).map(c=>`<button type="button" data-published-choice="${h(c.id)}">${h(c.label)}</button>`).join('');
