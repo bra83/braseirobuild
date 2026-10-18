@@ -469,7 +469,7 @@ function setupOverlay(){
 }
 function enhanceAdventureGate(){
  const existing=document.querySelector('.final-adventure-gate');
- if(adventureStarted()){document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());return}
+ const pubView=publishedAdventureView();if(adventureStarted()&&pubView?.active&&pubView?.node){document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());return}
  const route=new URLSearchParams(location.search).get('screen')||'00';const character=hasCharacter(),gateKey=`${route}:${character?'character':'empty'}`;
  if(existing?.dataset?.gateKey===gateKey)return;
  document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());
@@ -2112,7 +2112,7 @@ if(window.BraseiroDomScheduler)window.BraseiroDomScheduler.register('p26-runtime
    p.querySelector('[data-p101-patch]')?.addEventListener('click',()=>{const r=call('useEmergencyRepairPatch');report(p,r,r?.ok?`Remendo aplicado: ${Number(r.data?.healed||0)} Ferimentos reparados; ${Number(r.data?.remaining||0)} restante(s).`:'');if(r?.ok)setTimeout(()=>{p.remove();mount()},80)});
    return p
  }
- function mount(){style();const r=route();document.querySelectorAll('[data-p101-mechanics]').forEach(x=>{if(x.dataset.p101Mechanics!==r)x.remove()});if(!['00','02'].includes(r)||document.querySelector(`[data-p101-mechanics="${r}"]`))return;const p=r==='00'?mountSession():mountRecovery();if(p){if(r==='00'){const wrap=document.createElement('details');wrap.className='r54-tactical-collapsible';wrap.innerHTML='<summary>⚙️ REGRAS TÁTICAS · MEDO, CARGA E REPAROS</summary>';wrap.appendChild(p);host().appendChild(wrap);}else{host().appendChild(p);}}}
+ function mount(){style();const r=route();document.querySelectorAll('.r54-tactical-collapsible').forEach(el=>el.remove());document.querySelectorAll('[data-p101-mechanics]').forEach(x=>{if(x.dataset.p101Mechanics!==r)x.remove()});if(!['00','02'].includes(r)||document.querySelector(`[data-p101-mechanics="${r}"]`))return;const p=r==='00'?mountSession():mountRecovery();if(p){if(r==='00'){const wrap=document.createElement('details');wrap.className='r54-tactical-collapsible';wrap.innerHTML='<summary>⚙️ REGRAS TÁTICAS · MEDO, CARGA E REPAROS</summary>';wrap.appendChild(p);host().appendChild(wrap);}else{host().appendChild(p);}}}
  if(window.BraseiroDomScheduler)window.BraseiroDomScheduler.register('p101-fear-load-gear',mount);else{if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();addEventListener('popstate',()=>setTimeout(mount,0))}
 })();
 

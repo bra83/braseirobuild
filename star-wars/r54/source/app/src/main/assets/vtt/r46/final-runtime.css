@@ -369,3 +369,121 @@ html.braseiro-reduced-motion *,html.braseiro-reduced-motion *::before,html.brase
   content: " ▲";
 }
 
+/* ==========================================================================
+   BRASEIRO MOBILE UI REFINEMENT - GALAXY A57 / AMOLED 415x915
+   Eliminate visual clutter, floating buttons, and anchor Hero Adventure Console
+   ========================================================================== */
+
+/* Eliminar botoes flutuantes intrusivos sobrepostos as abas */
+.final-library-shortcut, .r53-restart-fab, .r53-fab {
+  display: none !important;
+}
+
+/* Ocultar detalhes de debug que invadem a cena */
+.r54-p101, .r54-tactical-collapsible {
+  display: none !important;
+}
+
+/* Console Datapad de Inicio de Aventura na CENA */
+.final-adventure-gate {
+  margin: 12px 14px 16px !important;
+  padding: 16px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(180deg, #121c24 0%, #081016 100%) !important;
+  border: 1px solid #3d6a85 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+.final-adventure-gate > div:first-child span {
+  color: #38bdf8 !important;
+  font-size: 0.76rem !important;
+  letter-spacing: 0.12em !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+}
+.final-adventure-gate > div:first-child strong {
+  font-size: 1.15rem !important;
+  color: #f0f9ff !important;
+  margin: 4px 0 !important;
+  display: block !important;
+}
+.final-adventure-gate > div:first-child small {
+  color: #94a3b8 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.4 !important;
+  display: block !important;
+}
+.final-adventure-gate .final-adventure-actions {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin-top: 14px !important;
+}
+.final-adventure-gate .final-adventure-actions button {
+  min-height: 52px !important;
+  padding: 12px 16px !important;
+  border-radius: 8px !important;
+  background: linear-gradient(180deg, #1e3a4e 0%, #102432 100%) !important;
+  border: 1px solid #4a82a6 !important;
+  color: #e0f2fe !important;
+  font-size: 0.92rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  cursor: pointer !important;
+  text-align: center !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+  transition: all 0.15s ease !important;
+}
+.final-adventure-gate .final-adventure-actions button:active {
+  transform: translateY(1px) !important;
+  border-color: #38bdf8 !important;
+  background: #173243 !important;
+}
+.final-adventure-gate .final-adventure-actions button[data-start-sandbox] {
+  background: linear-gradient(180deg, #1b2820 0%, #0d1712 100%) !important;
+  border-color: #3e6850 !important;
+  color: #d1fae5 !important;
+}
+
+/* Barra Mestre Gemini / Holonet na Cena */
+.r54-scene-gemini-bar {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  margin: 10px 14px 14px !important;
+}
+.r54-btn-gemini-trigger {
+  min-height: 48px !important;
+  background: linear-gradient(180deg, #312e81 0%, #1e1b4b 100%) !important;
+  border: 1px solid #6366f1 !important;
+  color: #e0e7ff !important;
+  border-radius: 8px !important;
+  font-weight: 800 !important;
+  font-size: 0.88rem !important;
+  letter-spacing: 0.04em !important;
+  padding: 10px 14px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4) !important;
+}
+.r54-btn-gemini-trigger:active {
+  transform: translateY(1px);
+  border-color: #818cf8;
+}
+.r54-btn-holotable-trigger {
+  min-height: 42px !important;
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+  color: #94a3b8 !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  padding: 8px 12px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
