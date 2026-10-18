@@ -39,6 +39,42 @@ def test_a57_real_mainactivity_safe_area_touch_targets_and_tts_unchanged():
                     "navigate(final String n)", "showCampaign()"):
         assert feature in revised
 
+def test_a57_real_predictive_back_and_legacy_navigation():
+    """Validate the actual R35 MainActivity transformation, including callbacks."""
+    m = mod()
+    original = m.transform(BASE_FILE.read_text(encoding="utf-8"))
+    revised = m.transform_back(original)
+    for old, new in m.BACK_CHANGES:
+        assert original.count(old) == 1
+        assert revised.count(new) == 1
+    for invariant in (
+        'installR36BackNavigation();',
+        'registerOnBackInvokedCallback(',
+        'unregisterOnBackInvokedCallback(r36BackCallback);',
+        'public void onBackPressed(){handleR36BackNavigation();}',
+        'if(navigationInProgress)return;',
+        'navigate("Aventura");',
+        'finish();',
+        'DatabaseMigrationGuard.beforeOpen(this)',
+        'SHERPA_KOKORO_ENGINE_PACKAGE',
+        'com.samsung.SMT',
+    ):
+        assert invariant in revised, invariant
+    reversed_source = revised
+    for old, new in reversed(m.BACK_CHANGES):
+        reversed_source = reversed_source.replace(new, old, 1)
+    assert reversed_source == original
+
+
+def test_a57_back_rejects_second_patch_atomically():
+    m = mod()
+    original = m.transform(BASE_FILE.read_text(encoding="utf-8"))
+    patched = m.transform_back(original)
+    with pytest.raises(RuntimeError, match="back-navigation source anchor changed"):
+        m.transform_back(patched)
+    assert patched.count('registerOnBackInvokedCallback(') == 2
+
+
 def test_a57_patch_rejects_r35_and_changes_no_source(tmp_path):
     m = mod()
     version = tmp_path / "version.properties"
