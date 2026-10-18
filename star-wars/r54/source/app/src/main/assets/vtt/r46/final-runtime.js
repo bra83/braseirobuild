@@ -185,42 +185,63 @@ function npcTokenPrompt(p){
 function pendingNpcTokenId(){try{return localStorage.getItem(NPC_TOKEN_PENDING_KEY)||''}catch{return ''}}
 function setPendingNpcTokenId(id){try{id?localStorage.setItem(NPC_TOKEN_PENDING_KEY,String(id)):localStorage.removeItem(NPC_TOKEN_PENDING_KEY)}catch{}}
 function bindPersistentNpcToken(slot,p,frame,strong,small){
- if(!p?.tokenEligible||!p?.id||p?.kind==='vehicle'){slot.dataset.persistentNpcToken='0';return}
- const b=npcTokenNative();if(!b){slot.dataset.persistentNpcToken='0';return}
- const st=npcTokenStatus(p.id);
- const useToken=()=>{
+ if(!p?.id||p?.kind==='vehicle'){slot.dataset.persistentNpcToken='0';return}
+ const b=npcTokenNative(), g=window.BraseiroGemini;
+ const renderTokenIfAvailable=()=>{
   const latest=npcTokenStatus(p.id);
   if(latest?.hasToken&&latest.url){
-   slot.dataset.persistentNpcToken='1';slot.classList.add('has-persistent-token');slot.removeAttribute('role');slot.removeAttribute('tabindex');slot.onclick=null;slot.onkeydown=null;
+   slot.dataset.persistentNpcToken='1';slot.classList.add('has-persistent-token');
    if(frame){frame.classList.remove('is-empty');frame.setAttribute('aria-label',`Token permanente de ${p.name}`);frame.replaceChildren(Object.assign(document.createElement('img'),{className:'r54-p23-npc-token-image',src:latest.url,alt:`Token permanente de ${p.name}`}))}
-   if(strong){strong.dataset.npcToken='locked';strong.title='Token permanente vinculado a este personagem.'}
-   if(small)small.textContent=p.meta||p.status||'Token permanente';
+   if(strong){strong.dataset.npcToken='locked';strong.title='Toque para conversar com este NPC via Gemini.'}
    if(pendingNpcTokenId()===String(p.id))setPendingNpcTokenId('');
    return true;
   }
   return false;
  };
- if(useToken())return;
- slot.dataset.persistentNpcToken='0';slot.classList.add('npc-token-action');slot.setAttribute('role','button');slot.tabIndex=0;slot.setAttribute('aria-label',`Criar token permanente de ${p.name}`);
+ const hasImg=renderTokenIfAvailable();
+ slot.classList.add('npc-token-action');slot.setAttribute('role','button');slot.tabIndex=0;slot.setAttribute('aria-label',`Interagir com ${p.name} via Gemini`);
  const activate=()=>{
-  const current=npcTokenStatus(p.id);if(current?.hasToken){useToken();return}
-  const waiting=pendingNpcTokenId()===String(p.id)||current?.awaitingImport;
-  if(waiting&&typeof b.pickTokenImage==='function'){
-   try{const r=safeParse(b.pickTokenImage(String(p.id)),{});if(small)small.textContent=r.ok?'Selecione a imagem gerada para vincular a '+p.name+'.':(r.message||'Não foi possível importar o token.')}catch{if(small)small.textContent='Não foi possível importar o token.'}
-   return;
+  const npcName=String(p.name||'NPC').trim();
+  const role=String(p.meta||p.occupation||p.career||'personagem').trim();
+  const species=p.species?`Espécie: ${p.species}. `:'';
+  const sceneTitle=document.querySelector('.scene-header h1, .scene-concept-shell h1')?.textContent||'Cena Star Wars';
+  const situation=document.querySelector('.scene-situation-paper p')?.textContent||'';
+  const prompt=[
+   `[INTERAÇÃO_NPC_STAR_WARS] O jogador está interagindo diretamente com ${npcName} (${role}).`,
+   `${species}Local/Cena: ${sceneTitle}.`,
+   situation?`Situação imediata: ${situation}`:'',
+   p.appearance?`Aparência visual: ${p.appearance}`:'',
+   `Atue como o Mestre de Jogo de Star Wars (Fronteira do Império / Era da Rebelião) interpretando a reação, diálogo e atitude de ${npcName} em português do Brasil com a devida atmosfera da saga. Se for solicitado um retrato/token, gere um concept art cinematográfico de meio-corpo focado no rosto de ${npcName}.`
+  ].filter(Boolean).join('\n\n');
+
+  let opened=false;
+  if(b&&typeof b.openGeminiTokenPrompt==='function'&&p.id){
+   try{
+    const r=safeParse(b.openGeminiTokenPrompt(String(p.id),prompt),{});
+    if(r?.ok){opened=true;setPendingNpcTokenId(p.id);}
+   }catch(_){}
   }
-  const prompt=npcTokenPrompt(p);if(!prompt){if(small)small.textContent='Não há dados suficientes para montar o token.';return}
-  if(typeof b.openGeminiTokenPrompt!=='function'){if(small)small.textContent='Bridge de token indisponível.';return}
-  try{
-   const r=safeParse(b.openGeminiTokenPrompt(String(p.id),prompt),{});
-   if(r.ok){setPendingNpcTokenId(p.id);if(small)small.textContent='Gemini aberto · gere e compartilhe com Braseiro. Toque de novo para importar manualmente.'}
-   else if(small)small.textContent=r.message||'Não foi possível abrir o Gemini.';
-  }catch{if(small)small.textContent='Não foi possível abrir o Gemini.'}
+  if(!opened&&g&&typeof g.openGeminiWithPrompt==='function'){
+   try{
+    const r=safeParse(g.openGeminiWithPrompt(prompt),{});
+    if(r?.ok)opened=true;
+   }catch(_){}
+  }
+  if(!opened&&g&&typeof g.openGeminiScenePrompt==='function'){
+   try{
+    const r=safeParse(g.openGeminiScenePrompt(prompt,currentSceneKey()),{});
+    if(r?.ok)opened=true;
+   }catch(_){}
+  }
+  if(small){
+   small.textContent=opened?`Gemini aberto · falando com ${npcName}`:`Prompt gerado para ${npcName}`;
+  }
  };
- slot.onclick=activate;slot.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}};
- if(strong){strong.style.cursor='pointer';strong.title=`Criar token permanente de ${p.name}`}
- if(frame){frame.style.cursor='pointer';frame.title=`Criar token permanente de ${p.name}`}
- if((st?.awaitingImport||pendingNpcTokenId()===String(p.id))&&small)small.textContent='Aguardando token · toque para importar';
+ slot.onclick=(e)=>{e.preventDefault();e.stopPropagation();activate()};
+ slot.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}};
+ if(strong){strong.style.cursor='pointer';strong.title=`Interagir com ${p.name} via Gemini`}
+ if(frame){frame.style.cursor='pointer';frame.title=`Interagir com ${p.name} via Gemini`}
+ if(!hasImg&&small&&!small.textContent)small.textContent=p.meta||p.status||'Toque para interagir';
 }
 function sceneActionStatus(root,message,error=false){
  const composer=root?.querySelector('.scene-composer');if(!composer)return;
@@ -230,6 +251,20 @@ function sceneActionStatus(root,message,error=false){
 async function submitSuggestedAction(root,slot,action){
  if(slot.dataset.masterSending==='1')return;slot.dataset.masterSending='1';slot.setAttribute('aria-busy','true');const small=slot.querySelector('small'),previous=small?.textContent||'';if(small)small.textContent='Enviando ao Mestre…';
  const textarea=root.querySelector('.scene-composer textarea');sceneActionStatus(root,'Ação enviada ao Mestre; aguardando resposta…');
+ const pub=publishedAdventureView();
+ if(pub?.active&&Array.isArray(pub.node?.choices)){
+  const matchedChoice=pub.node.choices.find(c=>(c.label||c.title)===action);
+  if(matchedChoice&&window.BraseiroPublishedActionClient){
+   const cr=window.BraseiroPublishedActionClient.execute('choice',matchedChoice.id);
+   if(cr?.ok){
+    window.dispatchEvent(new Event('braseiro:r21-state-changed'));
+    sceneActionStatus(root,'Decisão da aventura executada.');
+    slot.dataset.masterSending='0';slot.removeAttribute('aria-busy');if(small)small.textContent=previous||'Sugestão do Mestre';
+    setTimeout(()=>{enhance();if(masterNarrationAvailable())void requestPublishedMasterNarration(`consequência de ${action}`)},50);
+    return;
+   }
+  }
+ }
  const result=await bridgeAsync('submitPlayerIntent',action);
  slot.dataset.masterSending='0';slot.removeAttribute('aria-busy');if(small)small.textContent=previous||'Sugestão do Mestre';
  if(!result?.ok){sceneActionStatus(root,result?.message||'O Mestre recusou a ação.',true);return}
@@ -259,7 +294,43 @@ function enhanceSceneFromEngine(){
  const view=playerView();if(!view)return;
  const situation=root.querySelector('.scene-situation-paper p');if(situation&&view.situation)situation.textContent=view.situation;
  const participantSlots=[...root.querySelectorAll('.scene-participant-slot')];
- const participants=Array.isArray(view.participants)?view.participants:[];
+ let participants=Array.isArray(view.participants)&&view.participants.length?[...view.participants]:[];
+ if(!participants.length){
+  const pub=publishedAdventureView();
+  if(Array.isArray(pub?.npcCards)&&pub.npcCards.length){
+   participants=pub.npcCards.map(c=>({
+    id:c.id,name:c.name,kind:'npc',tokenEligible:true,
+    meta:[c.species,c.occupation].filter(Boolean).join(' · ')||c.relation||'Presente',
+    status:c.status||'Visível',species:c.species,occupation:c.occupation,appearance:c.appearance
+   }));
+  }
+ }
+ if(!participants.length){
+  const st=currentState();
+  const activeAdv=activePublishedAdventureId();
+  if(activeAdv==='under-black-sun'||st?.publishedAdventure?.id==='under-black-sun'){
+   participants=[
+    {id:'npc_chopper',name:'Chopper',kind:'npc',tokenEligible:true,meta:'Besalisk · Contato dos Pykes',status:'Oficina ativa',species:'Besalisk',career:'Mecânico',appearance:'Besalisk robusto de quatro braços, avental de solda e olhar atento.'},
+    {id:'npc_kaato',name:'Kaa’to Leeachos',kind:'npc',tokenEligible:true,meta:'Nikto · Alvo da caçada',status:'Em fuga',species:'Kadas’sa’Nikto',career:'Caçador de recompensas',appearance:'Nikto verde com cicatrizes, prótese na perna e equipamento de caça.'}
+   ];
+  }else if(activeAdv==='beyond-the-rim'||st?.publishedAdventure?.id==='beyond-the-rim'){
+   participants=[
+    {id:'npc_reom',name:'Reom',kind:'npc',tokenEligible:true,meta:'IsoTech · Empregador',status:'Estação A Roda',species:'Humano',career:'Representante corporativo',appearance:'Executivo da IsoTech com túnica formal de viagem e datapad seguro.'},
+    {id:'npc_it3po',name:'IT-3PO',kind:'npc',tokenEligible:true,meta:'Droide de protocolo · Guia',status:'Aguardando',species:'Droide',career:'Protocolo',appearance:'Droide de protocolo dourado-fosco com insígnia da IsoTech.'}
+   ];
+  }else{
+   const locId=st?.scene?.locationId;
+   const allNpcs=Object.values(st?.world?.npcs||{});
+   const locNpcs=allNpcs.filter(n=>(locId&&n.locationId===locId)||n.knownToPlayer);
+   if(locNpcs.length){
+    participants=locNpcs.slice(0,3).map(n=>({
+     id:n.id,name:n.name,kind:'npc',tokenEligible:true,
+     meta:[n.species,n.occupation||n.career].filter(Boolean).join(' · ')||n.relation||'NPC',
+     status:n.status||'Visível',species:n.species,career:n.career,occupation:n.occupation,appearance:n.appearance
+    }));
+   }
+  }
+ }
  participantSlots.forEach((slot,i)=>{
   const p=participants[i],frame=slot.querySelector('.scene-participant-frame'),strong=slot.querySelector('strong'),small=slot.querySelector('small');
   if(p){
@@ -274,7 +345,38 @@ function enhanceSceneFromEngine(){
   }
  });
  const actionSlots=[...root.querySelectorAll('.scene-action-slot')];
- const actions=Array.isArray(view.suggestedActions)?view.suggestedActions.slice(0,6):[];
+ let actions=Array.isArray(view.suggestedActions)&&view.suggestedActions.length?[...view.suggestedActions]:[];
+ if(!actions.length){
+  const pub=publishedAdventureView();
+  if(Array.isArray(pub?.node?.choices)&&pub.node.choices.length){
+   actions=pub.node.choices.map(c=>c.label||c.title||String(c)).slice(0,6);
+  }else if(Array.isArray(pub?.suggestedActions)&&pub.suggestedActions.length){
+   actions=pub.suggestedActions.slice(0,6);
+  }
+ }
+ if(!actions.length){
+  const st=currentState();
+  const activeAdv=activePublishedAdventureId();
+  if(activeAdv==='under-black-sun'||st?.publishedAdventure?.id==='under-black-sun'){
+   actions=[
+    'Assumir os controles do speeder e despistar perseguidores',
+    'Fazer manobra evasiva em direção à oficina de Chopper',
+    'Abrir fogo defensivo contra os swoops da Black Sun'
+   ];
+  }else if(activeAdv==='beyond-the-rim'||st?.publishedAdventure?.id==='beyond-the-rim'){
+   actions=[
+    'Procurar os escritórios da IsoTech na estação A Roda',
+    'Investigar rumores sobre a Sa Nalaor nos hangares',
+    'Inspecionar a nave e checar os sistemas de hipermotor'
+   ];
+  }else{
+   actions=[
+    'Examinar o local e verificar rotas de fuga ou coberturas',
+    'Consultar o datapad sobre facções e oportunidades locais',
+    'Abordar contatos locais ou buscar informações'
+   ];
+  }
+ }
  actionSlots.forEach((slot,i)=>{
   const action=actions[i],strong=slot.querySelector('strong'),small=slot.querySelector('small'),end=slot.querySelector('.scene-action-empty-end');
   if(action){
@@ -396,6 +498,7 @@ function boundedVisualRoll(check,options={},timeoutMs=5200){
 async function startBarbaraOpening(){
  // R54_DEVICE_P0_START: local bootstrap is authoritative and never waits for network.
  const prep=bridgeResult('startSandboxSession',{});if(!prep?.ok)return prep;
+ navigateRoute('00');
  const game=globalThis.BraseiroGameBridge;
  if(game&&typeof game.submitPlayerIntent==='function'){
   const req=prep.data?.masterOpeningRequest||{};const location=String(req.locationName||'o ponto inicial');
@@ -405,6 +508,7 @@ async function startBarbaraOpening(){
   const intentText=`[ABERTURA_BARBARA] Inicie o sandbox agora como Mestre Barbara. ${facts} Gere uma abertura diferente das anteriores mesmo quando o local inicial se repetir, mas permaneça estritamente coerente com os fatos do mundo vivo. Não invente uma missão obrigatória. Não resuma, não escolha nem aja pelo personagem. Narre a situação em português do Brasil conforme o contrato do Mestre e termine deixando a decisão ao jogador.`;
   try{Promise.resolve(game.submitPlayerIntent(intentText)).catch(()=>{});}catch(_){/* offline: campaign remains started */}
  }
+ setTimeout(()=>{navigateRoute('00');enhance()},50);
  return prep;
 }
 function navigateRoute(route){const u=new URL(location.href);u.searchParams.set('screen',String(route));history.pushState({},'',u);window.dispatchEvent(new PopStateEvent('popstate'));window.scrollTo(0,0)}
@@ -1432,6 +1536,7 @@ function r54StartOrRestartPublishedAdventure(adventureId='under-black-sun'){
   bridgeResult('loadStarterCharacter','cael');
  }
  r54ClearTransientUiState();
+ navigateRoute('00');
  const origin=adventureId==='beyond-the-rim'?{startingPoint:'Ord Mantell — Praça Central',regionLabel:'Ord Mantell'}:{startingPoint:'Coruscant — Setor 943',regionLabel:'Coruscant'};
  if(!sandboxReady()){
   bridgeResult('initializeLivingSandbox',origin);
@@ -1445,6 +1550,7 @@ function r54StartOrRestartPublishedAdventure(adventureId='under-black-sun'){
  window.dispatchEvent(new Event('braseiro:r21-state-changed'));
  document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());
  setTimeout(()=>{
+  navigateRoute('00');
   enhance();
   if(masterNarrationAvailable())void requestPublishedMasterNarration(`abertura de ${adventureId==='under-black-sun'?'Sob um Sol Negro':'Além da Orla'}`);
  },50);
@@ -1453,6 +1559,7 @@ function r53RestartAdventure(){
  if(!confirm('Reiniciar a aventura mantendo personagem, grupo, nave e ajustes deste aparelho?'))return;
  try{
   r54ClearTransientUiState();
+  navigateRoute('00');
   if(!hasCharacter()){
    bridgeResult('loadStarterCharacter','cael');
   }
@@ -1467,6 +1574,7 @@ function r53RestartAdventure(){
   window.dispatchEvent(new Event('braseiro:r21-state-changed'));
   document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());
   setTimeout(()=>{
+   navigateRoute('00');
    enhance();
    if(masterNarrationAvailable())void requestPublishedMasterNarration(`reabertura de ${publishedId==='under-black-sun'?'Sob um Sol Negro':'Além da Orla'}`);
   },50);
@@ -1493,12 +1601,14 @@ function r54ZeroCampaign(){
  const fresh=bridgeResult('newCampaign','Nova campanha');
  if(!fresh?.ok){alert(fresh?.message||'Não foi possível zerar a campanha.');return}
  r54ClearTransientUiState();
+ navigateRoute('00');
  bridgeResult('loadStarterCharacter','cael');
  bridgeResult('initializeLivingSandbox',{startingPoint:'Coruscant — Setor 943',regionLabel:'Coruscant'});
  bridgeResult('restartPublishedAdventure','under-black-sun',{});
  window.dispatchEvent(new Event('braseiro:r21-state-changed'));
  document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());
  setTimeout(()=>{
+  navigateRoute('00');
   enhance();
   if(masterNarrationAvailable())void requestPublishedMasterNarration('abertura de Sob um Sol Negro');
  },50);
@@ -1572,12 +1682,31 @@ function enhanceBottomSheetMenu(){
   <div class="r54-sheet-divider"><span>UTILIDADES DO SISTEMA</span></div>
  `;
  if(header.nextSibling)header.parentNode.insertBefore(zone,header.nextSibling);else header.parentNode.appendChild(zone);
- const closeSheet=()=>{const c=sheet.querySelector('button[aria-label="Fechar"]');if(c)c.click();else sheet.closest('dialog')?.removeAttribute('open')};
- zone.querySelector('[data-r54-sheet-restart]')?.addEventListener('click',()=>{closeSheet();r53RestartAdventure()});
- zone.querySelector('[data-r54-sheet-beyond]')?.addEventListener('click',()=>{closeSheet();r54StartOrRestartPublishedAdventure('beyond-the-rim')});
- zone.querySelector('[data-r54-sheet-sandbox]')?.addEventListener('click',async()=>{closeSheet();await startBarbaraOpening()});
- zone.querySelector('[data-r54-sheet-hub]')?.addEventListener('click',()=>{closeSheet();r54OpenCampaignHub()});
- zone.querySelector('[data-r54-sheet-zero]')?.addEventListener('click',()=>{closeSheet();r54ZeroCampaign()});
+ const closeSheet=()=>{
+  try{
+   const c=sheet.querySelector('button[aria-label="Fechar"]');
+   if(c)c.click();
+   else{
+    sheet.closest('dialog')?.removeAttribute('open');
+    document.querySelectorAll('dialog.overlay[open]').forEach(d=>d.removeAttribute('open'));
+   }
+  }catch(_){}
+ };
+ const handleSheetAction=(e,fn)=>{
+  if(e){
+   e.preventDefault();
+   e.stopPropagation();
+   e.stopImmediatePropagation();
+  }
+  closeSheet();
+  navigateRoute('00');
+  setTimeout(()=>{try{fn()}catch(err){console.error(err)}},20);
+ };
+ zone.querySelector('[data-r54-sheet-restart]')?.addEventListener('click',e=>handleSheetAction(e,r53RestartAdventure));
+ zone.querySelector('[data-r54-sheet-beyond]')?.addEventListener('click',e=>handleSheetAction(e,()=>r54StartOrRestartPublishedAdventure('beyond-the-rim')));
+ zone.querySelector('[data-r54-sheet-sandbox]')?.addEventListener('click',e=>handleSheetAction(e,async()=>await startBarbaraOpening()));
+ zone.querySelector('[data-r54-sheet-hub]')?.addEventListener('click',e=>handleSheetAction(e,r54OpenCampaignHub));
+ zone.querySelector('[data-r54-sheet-zero]')?.addEventListener('click',e=>handleSheetAction(e,r54ZeroCampaign));
 }
 function r53EnsureRestart(){
  document.querySelectorAll('.r53-restart-fab').forEach(el=>el.remove());
