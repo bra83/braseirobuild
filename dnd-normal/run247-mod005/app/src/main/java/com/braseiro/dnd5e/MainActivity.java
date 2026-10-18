@@ -8076,6 +8076,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         p.append("\n").append(BraseiroNarrativeDirector.contract(c,db.getSceneState(),recentNarrativeTexts()));p.append(BraseiroNarrativeDirector.interactionContract(userText,braseiroNarrativeMemory(),activeInputChannel()));
         p.append(LiveTableNarrativeDirector.contract(c,db.getSceneState(),liveParty,liveWorld,braseiroNarrativeMemory(),userText));
         p.append(CompanionAgencyEngine.instruction(db,safeActiveCharacters(),activeTurnNonAdvancing(userText)));
+        p.append("\n").append(HumanMasterNarrativeProfile.systemInstruction()).append("\n");
         // RUN187: scene-specific creative direction is a separate, persisted runtime;
         // it does NOT mutate rules/state and never runs on GM_HELP or non-advancing turns.
         try{p.append(HumanMasterDynamicDirector.instruction(this,db,db.getSceneState(),userText,lastNarration,
@@ -8132,7 +8133,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if("Narrador".equals(mode)){
             JSONObject liveParty=partyDirector==null?new JSONObject():partyDirector.compactStateForPrompt(masterOrchestrator!=null&&masterOrchestrator.economyMode()?2600:3800);
             JSONObject liveWorld=liveTableWorldContext();
-            p.append(BraseiroNarrativeDirector.contract(c,db.getSceneState(),recentNarrativeTexts())).append(BraseiroNarrativeDirector.interactionContract(userText,braseiroNarrativeMemory(),activeInputChannel())).append(LiveTableNarrativeDirector.contract(c,db.getSceneState(),liveParty,liveWorld,braseiroNarrativeMemory(),userText));
+            p.append(BraseiroNarrativeDirector.contract(c,db.getSceneState(),recentNarrativeTexts())).append(BraseiroNarrativeDirector.interactionContract(userText,braseiroNarrativeMemory(),activeInputChannel())).append(LiveTableNarrativeDirector.contract(c,db.getSceneState(),liveParty,liveWorld,braseiroNarrativeMemory(),userText)).append("\n").append(HumanMasterNarrativeProfile.systemInstruction()).append("\n");
             if(activeTurnNonAdvancing(userText)){
                 p.append("ESCLARECIMENTO CONGELADO: responda ao pedido atual e encerre sem acontecimento novo. options vazio, pending_test null e todas as mutações vazias. Não transforme a pergunta em ação ou fala do personagem.");
             }else{

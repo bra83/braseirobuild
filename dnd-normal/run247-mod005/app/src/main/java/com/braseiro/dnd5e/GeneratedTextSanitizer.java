@@ -67,6 +67,7 @@ public final class GeneratedTextSanitizer {
             if(extracted.length()>0&&!extracted.equals(clean))clean=extracted;
         }
         clean=stripInternalNarrativeLeak(clean);
+        clean=NarrativeGuardService.sanitize(clean);
         return PortugueseNarrationSanitizer.sanitize(clean);
     }
 

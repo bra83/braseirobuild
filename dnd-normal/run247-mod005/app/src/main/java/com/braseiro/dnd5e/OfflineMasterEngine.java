@@ -50,7 +50,10 @@ public final class OfflineMasterEngine {
         String objective=clean(scene.optString("objective",""),150);
         String previous=clean(story.optString("last_narration",""),480);
         String declared=playerFacingAction(action);
-        String actor=heroes.length()>0?clean(heroes.optJSONObject(0).optString("name","A companhia"),70):"A companhia";
+        JSONObject hero0=heroes.length()>0?heroes.optJSONObject(0):null;
+        String actor=hero0!=null?clean(hero0.optString("name","A companhia"),70):"A companhia";
+        String heroArmor=hero0!=null?clean(hero0.optString("visual_description",hero0.optString("armor","")),90):"";
+        String heroEquip=hero0!=null?clean(hero0.optString("equipment",hero0.optString("weapons","")),90):"";
         String npc=npcs.length()>0?clean(npcs.optJSONObject(0).optString("name",""),70):"";
         String verified=resultMarker(action);
         String occasion=plan==null?"continuation":plan.barbaraStoryOccasion;if(occasion==null||occasion.trim().length()==0)occasion="continuation";
@@ -60,19 +63,29 @@ public final class OfflineMasterEngine {
 
         StringBuilder text=new StringBuilder();
         if(presentation){
-            if(opening)text.append("A chegada a ").append(location).append(" ganha forma pelo que já pode ser percebido agora. ");
-            else text.append("Ao alcançar ").append(location).append(", a companhia encontra o lugar já em movimento. ");
-            if(weather.length()>0)text.append("O tempo está ").append(lowerFirst(weather)).append(", e isso altera a luz, os sons e o uso do espaço. ");
+            if(opening)text.append("A chegada a ").append(location).append(" ganha forma pela luz e pelo relevo ao redor. ");
+            else text.append("Ao alcançar ").append(location).append(", a companhia encontra o lugar já em movimento contínuo. ");
+            if(weather.length()>0)text.append("O tempo está ").append(lowerFirst(weather)).append(", com o vento batendo no rosto e alterando o uso do espaço sob as botas. ");
             if(catalog.length()>0){String fact=naturalizeCatalog(catalog,localWater);if(fact.length()>0)text.append(clean(fact,320)).append(' ');}
-            if(npc.length()>0)text.append(npc).append(" está entre as pessoas que podem ser individualizadas na cena. ");
+            if(hero0!=null){
+                text.append(actor);
+                if(heroArmor.length()>0)text.append(", vestindo ").append(lowerFirst(heroArmor));
+                if(heroEquip.length()>0)text.append(", sente o peso de ").append(lowerFirst(heroEquip)).append(" ao alcance das mãos");
+                text.append(", mantendo a postura firme na marcha. ");
+            }
+            if(npc.length()>0)text.append(npc).append(" está em plena atividade e pode ser individualizado na cena. ");
             if(danger.length()>0)text.append("Há um sinal concreto de perigo: ").append(lowerFirst(danger)).append(". ");
             if(objective.length()>0)text.append("O objetivo já estabelecido continua sendo ").append(lowerFirst(objective)).append(". ");
             text.append("O restante permanece para ser descoberto pelas ações da companhia.");
         }else{
             text.append("Em ").append(location).append(", ");
+            if(weather.length()>0)text.append("sob o tempo ").append(lowerFirst(weather)).append(", ");
             if(declared.length()>0)text.append(lowerFirst(declared)).append(". ");
             else text.append(actor).append(" observa por um instante antes de escolher o próximo gesto. ");
-            if(npc.length()>0)text.append(npc).append(" percebe a mudança e reage de forma visível, sem antecipar o que a companhia fará depois. ");
+            if(hero0!=null&&declared.length()>0&&heroEquip.length()>0){
+                text.append(actor).append(" firma ").append(lowerFirst(heroEquip)).append(" enquanto o vento move a barra das roupas. ");
+            }
+            if(npc.length()>0)text.append(npc).append(" está em atividade no local, percebe o movimento e reage sem antecipar o que a companhia fará depois. ");
             if(verified.length()>0){
                 if("sucesso".equals(verified))text.append("A tentativa funciona, e a situação se abre exatamente a partir desse resultado. ");
                 else if("falha".equals(verified))text.append("A tentativa não alcança o efeito pretendido, e a situação responde a essa falha. ");
@@ -80,7 +93,7 @@ public final class OfflineMasterEngine {
             }else if(danger.length()>0)text.append("A ameaça continua presente: ").append(lowerFirst(danger)).append(". ");
             if(previous.length()>0)text.append("O que já estava em jogo permanece reconhecível: pessoas, posições e tensões não são substituídas por uma cena genérica. A ação atual modifica apenas o que ela alcança de fato. ");
             if(objective.length()>0)text.append("Adiante, ainda está em jogo ").append(lowerFirst(objective)).append(". ");
-            text.append("O ambiente responde com detalhes observáveis, sem decidir a próxima ação pelo grupo. Há espaço para continuar a conversa, investigar o que mudou, reposicionar-se ou abandonar esta abordagem. O próximo passo permanece nas mãos da companhia.");
+            text.append("O cenário oferece detalhes observáveis em tempo real, sem decidir a próxima ação pelo grupo. Há espaço para continuar a conversa, investigar o que mudou, reposicionar-se ou agir. A decisão permanece nas mãos da companhia.");
         }
 
         JSONObject out=emptyEnvelope();
@@ -188,7 +201,7 @@ public final class OfflineMasterEngine {
         String climate=weather.length()>0?weatherSentence(weather)+" ":"";
         out.append("Antes que ").append(location).append(" possa significar qualquer coisa para a companhia, é preciso situá-la no mundo que existe ao redor. ").append(scale).append("O nome não chega como uma senha que todos deveriam reconhecer: ele ganha sentido pela estrada, pelo relevo, pelas distâncias vencidas e por aquilo que muda à medida que a viagem se aproxima do destino. ").append(placeFact).append(" A região não está congelada à espera dos aventureiros. Pessoas trabalham, carregam coisas, escolhem caminhos, discutem preços, protegem interesses e medem desconhecidos com a atenção prática de quem tem uma vida própria. ").append(climate).append("A chegada acontece dentro desse movimento, e não acima dele.\n\n");
         out.append("A aproximação permite que ").append(actor).append(" e os demais reconheçam primeiro a escala do lugar, antes de qualquer detalhe virar pista ou ameaça. O caminho muda de textura, o ruído do trânsito local se distingue do silêncio ou da monotonia da viagem, e surgem marcas de uso que não precisam de legenda: rastros de passagem, pontos em que gente espera, espaços mais cuidados e outros evitados, trajetos que parecem cotidianos para quem mora aqui. Nada disso exige que a companhia conheça previamente mapas, reinos, facções ou histórias. O próprio cenário começa a ensinar como se organiza, mostrando por onde a vida entra, onde ela se concentra e de que maneira as pessoas ocupam o espaço.\n\n");
-        out.append("Também fica claro que o nome ").append(location).append(" não designa apenas um ponto no mapa. Ele corresponde a relações concretas entre quem chega, quem parte, quem vende, quem guarda, quem observa e quem depende do lugar para continuar vivendo. O que é importante não aparece como verbete de manual, mas na diferença entre uma passagem usada e outra quase vazia, na forma como mercadorias ou ferramentas são tratadas, no cuidado com portas, animais, carroças, mochilas ou balcões, na quantidade de gente parada e na quantidade de gente com pressa. Se houver autoridade, riqueza, medo, fé ou rivalidade aqui, seus sinais precisam ser percebidos antes que qualquer explicação abstrata se torne necessária.\n\n");
+        out.append("Também fica claro que o nome ").append(location).append(" não designa apenas um ponto no mapa. Ele corresponde a relações concretas entre quem chega, quem parte, quem vende, quem guarda, quem observa e quem depende do lugar para continuar vivendo. O que é importante não aparece como verbete de manual, mas na diferença entre uma passagem usada e outra quase vazia, na forma como mercadorias ou ferramentas são tratadas, no cuidado com portas, animais, carroças, mochilas ou balcões, na quantidade de gente parada e na quantidade de gente com pressa. Se houver autoridade, riqueza, medo, fé ou rivalidade aqui, seus sinais precisam ser percebidos de forma visível e concreta nos detalhes da cena.\n\n");
         out.append("A companhia entra nesse quadro sem receber conhecimento emprestado. Ninguém lhes entrega mentalmente a história do lugar, e o simples fato de um nome existir não transforma o nome em algo conhecido. O que eles podem saber agora é aquilo que a viagem, a ficha, a memória real da campanha e os sentidos permitem reconhecer. Vozes se sobrepõem em distâncias diferentes; gestos repetidos revelam rotinas; certas pessoas parecem saber exatamente para onde vão, enquanto outras procuram informação ou esperam uma oportunidade. O cenário oferece referências suficientes para que o jogador humano se oriente junto com os personagens, em vez de ser obrigado a fingir que leu um livro de cenário antes de começar.\n\n");
         out.append("Quando os olhos deixam o panorama e se aproximam das pessoas, a diferença entre presença e decoração fica mais nítida. Há quem esteja ocupado demais para dar atenção à companhia, quem observe por curiosidade, quem calcule se os recém-chegados representam trabalho, problema ou lucro, e quem simplesmente queira atravessar o espaço sem participar de nada. ");
         if(npc.length()>0)out.append(npc).append(" está entre os rostos que podem ser individualizados. O nome só importa porque essa pessoa está concretamente presente e porque sua posição ou comportamento pode afetar a cena; nenhuma biografia oculta é revelada de graça. ");
