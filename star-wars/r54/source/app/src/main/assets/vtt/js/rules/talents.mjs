@@ -1,6 +1,7 @@
 import { CHARACTERISTICS, SKILLS } from './character.mjs';
 import { TALENT_TREES } from './talentTreesData.mjs';
 import { AOR_TALENT_TREES } from '../expansion/aorTalentTreesData.mjs';
+import { FND_TALENT_TREES } from '../expansion/fndTalentTreesData.mjs';
 import { AOR_RUNTIME_MECHANICAL_TALENTS, aorCanonicalTalentName } from '../expansion/aorTalentRuntimeAliases.mjs';
 import { ownedSpecializationRefs, ownsSpecialization } from './progression.mjs';
 import { FORCE_SENSITIVE_EXILE_TREE } from './forceData.mjs';
@@ -9,13 +10,27 @@ import { forceRating, isForceSensitive, availableForceRating, rollForceDice } fr
 function clone(value){ return structuredClone(value); }
 function purchases(c){ return Array.isArray(c?.talentPurchases)?c.talentPurchases:[]; }
 
-const ACTIVE_TALENT_TREES=Object.freeze({...TALENT_TREES,...AOR_TALENT_TREES,universal:Object.freeze({force_sensitive_exile:FORCE_SENSITIVE_EXILE_TREE})});
+const BASE_DUAL_CORE_TREES=Object.freeze({...TALENT_TREES,...AOR_TALENT_TREES,universal:Object.freeze({force_sensitive_exile:FORCE_SENSITIVE_EXILE_TREE})});
+const ACTIVE_TALENT_TREES=Object.freeze({...BASE_DUAL_CORE_TREES,...FND_TALENT_TREES});
 const allNodes=Object.values(ACTIVE_TALENT_TREES).flatMap(specs=>Object.values(specs).flatMap(tree=>tree.nodes));
 // Prefer the established EotE labels when resolving existing character.talents.
 const eoteNodes=Object.values(TALENT_TREES).flatMap(specs=>Object.values(specs).flatMap(tree=>tree.nodes));
 const PT_BY_ORIGINAL=new Map([...allNodes,...eoteNodes].map(n=>[n.originalName,n.name]));
 
 function treeRef(character,{careerKey=null,specializationKey=null,nodeId=null}={}){
+  if (character?.creation?.rulesProfile === 'FND_CORE') {
+    const refs=ownedSpecializationRefs(character);
+    let career=careerKey, spec=specializationKey;
+    if(nodeId && (!career || !spec)){
+      const found=refs.find(ref=>FND_TALENT_TREES?.[ref.careerKey]?.[ref.specializationKey]?.nodes?.some(n=>n.id===nodeId));
+      if(found){career=found.careerKey;spec=found.specializationKey;}
+    }
+    career ||= character.creation.careerKey;
+    spec ||= character.creation.specializationKey;
+    const owned=refs.some(ref=>ref.careerKey===career && ref.specializationKey===spec);
+    const tree=owned ? FND_TALENT_TREES?.[career]?.[spec] ?? null : null;
+    return {career,spec,tree,owned:Boolean(tree)};
+  }
   // AoR purchases use the same authoritative specialization ownership ledger
   // as EotE. A node ID can select only a tree the character actually owns.
   // The AoR source catalog is isolated from EotE and universal trees.
@@ -128,6 +143,24 @@ function applyImmediateEffect(character,node,{characteristicKey=null,skillKey=nu
       if(!combatSkills.has(skillKey)) throw new Error('Precisão letal exige escolher uma perícia de combate.');
       return {applied:true,label:`Precisão letal vinculada a ${skillKey}`,skillKey};
     }
+    case 'SORESU_TECH':
+      c.lightsaberTechnique = { name: 'Soresu', characteristic: 'intelecto' };
+      return { applied: true, label: 'Técnica Soresu: Sabre de Luz usa Intelecto' };
+    case 'NIMAN_TECH':
+      c.lightsaberTechnique = { name: 'Niman', characteristic: 'voluntad' };
+      return { applied: true, label: 'Técnica Niman: Sabre de Luz usa Vontade' };
+    case 'MAKASHI_TECH':
+      c.lightsaberTechnique = { name: 'Makashi', characteristic: 'presencia' };
+      return { applied: true, label: 'Técnica Makashi: Sabre de Luz usa Presença' };
+    case 'ATARU_TECH':
+      c.lightsaberTechnique = { name: 'Ataru', characteristic: 'agilidad' };
+      return { applied: true, label: 'Técnica Ataru: Sabre de Luz usa Agilidade' };
+    case 'SHIEN_TECH':
+      c.lightsaberTechnique = { name: 'Shien', characteristic: 'astucia' };
+      return { applied: true, label: 'Técnica Shien: Sabre de Luz usa Astúcia' };
+    case 'JUYO_TECH':
+      c.lightsaberTechnique = { name: 'Juyo', characteristic: 'pelea' };
+      return { applied: true, label: 'Técnica Juyo: Sabre de Luz canaliza fúria interior' };
     default:
       return {applied:false,label:null};
   }
@@ -136,7 +169,7 @@ function applyImmediateEffect(character,node,{characteristicKey=null,skillKey=nu
 export { TALENT_TREES };
 
 export const FIRST_ROW_TALENTS=Object.freeze(Object.fromEntries(
-  Object.entries(ACTIVE_TALENT_TREES).map(([career,specs])=>[career,Object.fromEntries(
+  Object.entries(BASE_DUAL_CORE_TREES).map(([career,specs])=>[career,Object.fromEntries(
     Object.entries(specs).map(([spec,tree])=>[spec,tree.nodes.filter(n=>n.row===1).map(n=>({...n}))])
   )])
 ));
@@ -208,7 +241,7 @@ export function talentRankByOriginal(character,originalName){
   // AoR's translated labels may differ from EotE for the same mechanical
   // talent. Purchased slots retain the original source key and must not be
   // counted twice through the denormalized character.talents display list.
-  if (character?.creation?.rulesProfile === 'AOR_CORE') {
+  if (character?.creation?.rulesProfile === 'AOR_CORE' || character?.creation?.rulesProfile === 'FND_CORE') {
     const ownedPurchases=purchases(character);
     const bought=ownedPurchases.filter(p=>p.originalName===originalName || aorCanonicalTalentName(p.originalName)===originalName).length;
     const names=new Set([PT_BY_ORIGINAL.get(originalName)??originalName,

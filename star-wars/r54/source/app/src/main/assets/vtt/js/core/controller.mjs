@@ -94,6 +94,10 @@ import * as cybernetics_mjs_1 from "../rules/cybernetics.mjs";
 import * as astrogation_mjs_1 from "../rules/astrogation.mjs";
 import * as attachments_mjs_1 from "../rules/attachments.mjs";
 import * as environment_mjs_1 from "../rules/environment.mjs";
+import * as fndCharacterCreation_mjs_1 from "../rules/fndCharacterCreation.mjs";
+import * as morality_mjs_1 from "../rules/morality.mjs";
+import * as lightsabers_mjs_1 from "../rules/lightsabers.mjs";
+import * as fndForcePowers_mjs_1 from "../rules/fndForcePowers.mjs";
 function requireCharacter(character) {
     if (!character)
         throw new Error('Carregue um personagem antes desta ação.');
@@ -1038,6 +1042,38 @@ export class GameController {
             this.commit('GROUP_UPDATED', { group });
         }
         return this.state.player.character;
+    }
+    fndCreationCatalog() {
+        return { profile: 'FND_CORE', careers: structuredClone(fndCharacterCreation_mjs_1.FND_CAREERS), emotionalDispositions: structuredClone(morality_mjs_1.EMOTIONAL_DISPOSITIONS) };
+    }
+    createFndCharacter(options = {}) {
+        const character = fndCharacterCreation_mjs_1.createFndCharacter(options);
+        this.setCharacter(character);
+        return this.state.player.character;
+    }
+    fndLightsaberCatalog() {
+        return {
+            chassis: structuredClone(lightsabers_mjs_1.LIGHTSABER_CHASSIS_CATALOG),
+            crystals: structuredClone(lightsabers_mjs_1.KYBER_CRYSTAL_CATALOG),
+            attachments: structuredClone(lightsabers_mjs_1.LIGHTSABER_HILT_ATTACHMENTS)
+        };
+    }
+    createLightsaberWeapon(chassisId, options = {}) {
+        return lightsabers_mjs_1.createLightsaber(chassisId, options);
+    }
+    fndForcePowersCatalog() {
+        return structuredClone(fndForcePowers_mjs_1.FND_FORCE_POWERS);
+    }
+    addCharacterConflict(amount, reason) {
+        const character = requireCharacter(this.state.player.character);
+        const updated = morality_mjs_1.addConflict(character, amount, reason);
+        return this.setCharacter(updated);
+    }
+    resolveSessionMorality(options = {}) {
+        const character = requireCharacter(this.state.player.character);
+        const result = morality_mjs_1.resolveEndOfSessionMorality(character, options);
+        this.setCharacter(result.character);
+        return result;
     }
     buildRandomCharacter(options = {}) {
         return eoteCharacterCreation_mjs_1.createRandomEoteCoreCharacter(options);

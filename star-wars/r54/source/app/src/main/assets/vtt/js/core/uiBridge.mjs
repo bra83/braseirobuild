@@ -245,6 +245,57 @@ export class BraseiroUiBridge {
         }
         catch (error) { return fail('ORIGINAL_ADVENTURE_REGISTER_FAILED', messageOf(error)); }
     }
+    createFndCharacter(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const char = controllerResult.data.createFndCharacter(options);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(char));
+        } catch (error) { return fail('FND_CHARACTER_FAILED', messageOf(error)); }
+    }
+    fndCreationCatalog() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.fndCreationCatalog())); }
+        catch (error) { return fail('FND_CATALOG_FAILED', messageOf(error)); }
+    }
+    fndLightsaberCatalog() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.fndLightsaberCatalog())); }
+        catch (error) { return fail('LIGHTSABER_CATALOG_FAILED', messageOf(error)); }
+    }
+    createLightsaberWeapon(chassisId, options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.createLightsaberWeapon(chassisId, options))); }
+        catch (error) { return fail('LIGHTSABER_CREATION_FAILED', messageOf(error)); }
+    }
+    fndForcePowersCatalog() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.fndForcePowersCatalog())); }
+        catch (error) { return fail('FORCE_POWERS_CATALOG_FAILED', messageOf(error)); }
+    }
+    addCharacterConflict(amount, reason) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const char = controllerResult.data.addCharacterConflict(amount, reason);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(char));
+        } catch (error) { return fail('ADD_CONFLICT_FAILED', messageOf(error)); }
+    }
+    resolveSessionMorality(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const res = controllerResult.data.resolveSessionMorality(options);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        } catch (error) { return fail('RESOLVE_MORALITY_FAILED', messageOf(error)); }
+    }
     /** Single Android/WebView entrypoint for replay-safe published actions. */
     executePublishedAdventureCommand(command = {}) {
         const controllerResult = this._controllerForExistingCampaign();

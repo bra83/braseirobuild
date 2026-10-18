@@ -2,6 +2,8 @@ import { EOTE_CAREERS, EOTE_CORE } from './eoteCharacterCreation.mjs';
 import { EOTE_UNIVERSAL_SPECIALIZATIONS } from './forceData.mjs';
 import { AOR_CAREERS } from './characterCreation.mjs';
 import { AOR_TALENT_TREES } from '../expansion/aorTalentTreesData.mjs';
+import { FND_CAREERS, FND_CORE } from './fndCharacterCreation.mjs';
+import { FND_TALENT_TREES } from '../expansion/fndTalentTreesData.mjs';
 import { grantMinimumForceRating } from './force.mjs';
 
 export const MAX_SKILL_RANK = 5;
@@ -55,6 +57,12 @@ export function grantExperience(character, amount, {reason='Experiência concedi
 
 
 function specializationEntry(careerKey, specializationKey, profile = EOTE_CORE) {
+  if (profile === 'FND_CORE') {
+    const career = FND_CAREERS?.[careerKey];
+    const specialization = career?.specializations?.[specializationKey];
+    return career && specialization && FND_TALENT_TREES?.[careerKey]?.[specializationKey]
+      ? { careerKey, specializationKey, career, specialization, universal: false } : null;
+  }
   if (profile === 'AOR_CORE') {
     const career = AOR_CAREERS?.[careerKey];
     const specialization = career?.specializations?.[specializationKey];
@@ -108,7 +116,7 @@ export function ownsSpecialization(character, careerKey, specializationKey) {
 
 export function specializationPurchaseCost(character, careerKey, specializationKey) {
   const profile = character?.creation?.rulesProfile ?? EOTE_CORE;
-  if (![EOTE_CORE, 'AOR_CORE'].includes(profile)) throw new Error('Perfil de progressão não suportado.');
+  if (![EOTE_CORE, 'AOR_CORE', FND_CORE].includes(profile)) throw new Error('Perfil de progressão não suportado.');
   const ref = specializationEntry(String(careerKey), String(specializationKey), profile);
   if (!ref) throw new Error('Especialização não encontrada no catálogo auditado para este perfil.');
   if (ownsSpecialization(character, ref.careerKey, ref.specializationKey)) {
