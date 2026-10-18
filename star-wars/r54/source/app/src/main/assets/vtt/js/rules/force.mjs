@@ -1,9 +1,15 @@
-import { FORCE_DIE_FACES, FORCE_POWER_TREES } from './forceData.mjs';
+import { FORCE_DIE_FACES, FORCE_POWER_TREES as BASE_FORCE_POWER_TREES } from './forceData.mjs';
+import { ALL_FORCE_POWERS } from './fndExpandedForcePowers.mjs';
 
 const clone=v=>structuredClone(v);
 const int=(v,label,{min=0,max=999}={})=>{const n=Number(v);if(!Number.isInteger(n)||n<min||n>max)throw new Error(`${label} inválido.`);return n;};
 
-export { FORCE_DIE_FACES, FORCE_POWER_TREES };
+export const FORCE_POWER_TREES = Object.freeze({
+  ...BASE_FORCE_POWER_TREES,
+  ...ALL_FORCE_POWERS
+});
+
+export { FORCE_DIE_FACES };
 
 export function normalizeForceState(character){
   const raw=character?.force&&typeof character.force==='object'?character.force:{};

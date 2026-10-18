@@ -37937,7 +37937,7 @@ function createBlankCharacter(name = 'Personagem') {
         motivations: [], obligations: [], legacyAoR: null,
         force: { rating: 0, committed: 0, darkSideUser: false, ongoing: [], powers: {} },
         credits: 0, weapons: [], armor: [], gear: [], criticalInjuries: [], statusEffects: [], talents: [], description: {},
-        customSkills: []
+        customSkills: [], signatureAbilities: [], mounts: []
     };
 }
 function intIn(v, min, max, label) {
@@ -37973,6 +37973,10 @@ function validateCharacter(c) {
         if (!Array.isArray(c[key]))
             throw new Error(`Campo ${key} inválido.`);
     }
+    if (c.signatureAbilities !== undefined && !Array.isArray(c.signatureAbilities))
+        throw new Error('Campo signatureAbilities inválido.');
+    if (c.mounts !== undefined && !Array.isArray(c.mounts))
+        throw new Error('Campo mounts inválido.');
     return true;
 }
 function exportCharacterJson(c) { validateCharacter(c); return JSON.stringify(c, null, 2); }
@@ -40966,7 +40970,7 @@ function allCanonicalForcePowers() {
 define("js/rules/force.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FORCE_POWER_TREES = exports.FORCE_DIE_FACES = void 0;
+exports.FORCE_DIE_FACES = exports.FORCE_POWER_TREES = void 0;
 exports.normalizeForceState = normalizeForceState;
 exports.forceRating = forceRating;
 exports.availableForceRating = availableForceRating;
@@ -40992,10 +40996,14 @@ exports.moveHurlDamage = moveHurlDamage;
 exports.executeMoveSceneObject = executeMoveSceneObject;
 const forceData_mjs_1 = require("./forceData.mjs");
 Object.defineProperty(exports, "FORCE_DIE_FACES", { enumerable: true, get: function () { return forceData_mjs_1.FORCE_DIE_FACES; } });
-Object.defineProperty(exports, "FORCE_POWER_TREES", { enumerable: true, get: function () { return forceData_mjs_1.FORCE_POWER_TREES; } });
+const fndExpandedForcePowers_mjs_1 = require("./fndExpandedForcePowers.mjs");
 const clone = v => structuredClone(v);
 const int = (v, label, { min = 0, max = 999 } = {}) => { const n = Number(v); if (!Number.isInteger(n) || n < min || n > max)
     throw new Error(`${label} inválido.`); return n; };
+exports.FORCE_POWER_TREES = Object.freeze({
+    ...forceData_mjs_1.FORCE_POWER_TREES,
+    ...fndExpandedForcePowers_mjs_1.ALL_FORCE_POWERS
+});
 function normalizeForceState(character) {
     const raw = character?.force && typeof character.force === 'object' ? character.force : {};
     const powers = raw.powers && typeof raw.powers === 'object' ? raw.powers : {};
@@ -41004,7 +41012,7 @@ function normalizeForceState(character) {
         committed: Math.max(0, Number.isInteger(raw.committed) ? raw.committed : 0),
         darkSideUser: Boolean(raw.darkSideUser),
         ongoing: Array.isArray(raw.ongoing) ? clone(raw.ongoing) : [],
-        powers: Object.fromEntries(Object.keys(forceData_mjs_1.FORCE_POWER_TREES).map(key => [key, {
+        powers: Object.fromEntries(Object.keys(exports.FORCE_POWER_TREES).map(key => [key, {
                 purchased: Boolean(powers?.[key]?.purchased),
                 upgrades: Array.isArray(powers?.[key]?.upgrades) ? [...new Set(powers[key].upgrades.map(String))] : []
             }]))
@@ -41078,7 +41086,7 @@ function resolveForceResources(character, group, roll, { useOppositePoints = 0 }
 function purchaseForcePower(character, powerKey) {
     if (!isForceSensitive(character))
         throw new Error('É necessário Force Rating 1 ou maior para adquirir um poder da Força.');
-    const tree = forceData_mjs_1.FORCE_POWER_TREES[powerKey];
+    const tree = exports.FORCE_POWER_TREES[powerKey];
     if (!tree)
         throw new Error('Poder da Força desconhecido.');
     const next = clone(character), f = normalizeForceState(next);
@@ -41091,9 +41099,9 @@ function purchaseForcePower(character, powerKey) {
     next.force = f;
     return { character: next, powerKey, cost: tree.baseCost };
 }
-function upgradeEntry(powerKey, upgradeId) { const tree = forceData_mjs_1.FORCE_POWER_TREES[powerKey]; return { tree, upgrade: tree?.upgrades?.find(u => u.id === upgradeId) ?? null }; }
+function upgradeEntry(powerKey, upgradeId) { const tree = exports.FORCE_POWER_TREES[powerKey]; return { tree, upgrade: tree?.upgrades?.find(u => u.id === upgradeId) ?? null }; }
 function eligibleForceUpgrades(character, powerKey) {
-    const f = normalizeForceState(character), tree = forceData_mjs_1.FORCE_POWER_TREES[powerKey];
+    const f = normalizeForceState(character), tree = exports.FORCE_POWER_TREES[powerKey];
     if (!tree || !f.powers[powerKey]?.purchased)
         return [];
     const owned = new Set(f.powers[powerKey].upgrades), xp = Number(character?.xp?.available ?? 0);
@@ -41202,7 +41210,7 @@ function consumeSenseOngoingTrigger(character, { mode = 'defense', round = 0 } =
     return { character: next, applied: true, upgrades: caps.ongoingUpgradeCount, triggersUsed: entry.triggersUsed, triggersPerRound: caps.triggersPerRound };
 }
 function forcePowerCapabilities(character, powerKey) {
-    const tree = forceData_mjs_1.FORCE_POWER_TREES[powerKey];
+    const tree = exports.FORCE_POWER_TREES[powerKey];
     if (!tree)
         throw new Error('Poder da Força desconhecido.');
     const f = normalizeForceState(character), owned = new Set(f.powers[powerKey]?.upgrades ?? []);

@@ -22,7 +22,7 @@ export function createBlankCharacter(name='Personagem') {
     motivations:[], obligations:[], legacyAoR:null,
     force:{rating:0,committed:0,darkSideUser:false,ongoing:[],powers:{}},
     credits:0, weapons:[], armor:[], gear:[], criticalInjuries:[], statusEffects:[], talents:[], description:{},
-    customSkills:[]
+    customSkills:[], signatureAbilities:[], mounts:[]
   };
 }
 
@@ -52,6 +52,8 @@ export function validateCharacter(c) {
   for(const key of ['specializations','careerSkills','motivations','obligations','weapons','armor','gear','criticalInjuries','statusEffects','talents','customSkills']){
     if(!Array.isArray(c[key])) throw new Error(`Campo ${key} inválido.`);
   }
+  if(c.signatureAbilities !== undefined && !Array.isArray(c.signatureAbilities)) throw new Error('Campo signatureAbilities inválido.');
+  if(c.mounts !== undefined && !Array.isArray(c.mounts)) throw new Error('Campo mounts inválido.');
   return true;
 }
 
