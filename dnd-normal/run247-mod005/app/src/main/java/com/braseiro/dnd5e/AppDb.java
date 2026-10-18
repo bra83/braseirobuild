@@ -6895,11 +6895,52 @@ public class AppDb extends SQLiteOpenHelper {
         ArrayList<JSONObject> out=new ArrayList<JSONObject>();JSONObject correction=getMapHexCorrection(packageId,hexId);boolean hide=correction.optInt("hide_unconfirmed_locations",0)==1;
         List<JSONObject> base=queryList("SELECT l.*,j.hex_id AS linked_hex_id FROM map_locations l INNER JOIN map_hex_locations j ON j.package_id=l.package_id AND j.location_id=l.location_id WHERE j.package_id=? AND j.hex_id=? ORDER BY l.name COLLATE NOCASE",new String[]{packageId,hexId});
         for(JSONObject item:base){String status=item.optString("placement_status").toLowerCase();if(hide&&(status.contains("review")||status.contains("approx")))continue;try{if(item.optString("hex_id","").trim().length()==0)item.put("hex_id",item.optString("linked_hex_id",hexId));}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada ao resolver vínculo de local.",ignored);}out.add(item);}
-        try{JSONArray custom=new JSONArray(correction.optString("custom_locations_json","[]"));for(int i=0;i<custom.length();i++){JSONObject item=custom.optJSONObject(i);if(item!=null){JSONObject copy=new JSONObject(item.toString());copy.put("manual_correction",1);copy.put("hex_id",hexId);out.add(copy);}}}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}return out;
+        try{JSONArray custom=new JSONArray(correction.optString("custom_locations_json","[]"));for(int i=0;i<custom.length();i++){JSONObject item=custom.optJSONObject(i);if(item!=null){JSONObject copy=new JSONObject(item.toString());copy.put("manual_correction",1);copy.put("hex_id",hexId);out.add(copy);}}}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        java.util.HashSet<String> seenHexIds=new java.util.HashSet<String>();
+        for(JSONObject item:out){seenHexIds.add(item.optString("location_id"));seenHexIds.add(normalizeSearchText(item.optString("name")));}
+        try{
+            String logical=getLogicalMapIdForPackage(packageId);
+            if(logical.length()==0)logical="faerun-atlas-2025-ptbr-21600x15390-v2-max";
+            List<JSONObject> pois=getCampaignPoisForHex(logical,hexId,false);
+            for(JSONObject poi:pois){
+                if(seenHexIds.contains(poi.optString("id"))||seenHexIds.contains(normalizeSearchText(poi.optString("name"))))continue;
+                JSONObject item=new JSONObject();
+                item.put("location_id",poi.optString("id"));
+                item.put("name",poi.optString("name"));
+                item.put("type",poi.optString("type"));
+                item.put("hex_id",hexId);
+                item.put("region","DO40".equals(hexId)?"Vale do Dessarin":"");
+                item.put("placement_status","confirmed");
+                item.put("placement_confidence",1.0);
+                item.put("manual_correction",1);
+                item.put("raw_json",new JSONObject().put("description",poi.optString("description")).toString());
+                out.add(item);
+            }
+        }catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada ao agregar campaign_pois no hex.",ignored);}
+        return out;
     }
     public List<JSONObject> findMapLocationsByQuery(String packageId,String query,int limit){
         ArrayList<JSONObject> out=new ArrayList<JSONObject>();if(packageId==null||packageId.length()==0)return out;String q=normalizeSearchText(query);if(q.length()<2)return out;
         List<JSONObject> rows=queryList("SELECT * FROM map_locations WHERE package_id=? LIMIT 5000",new String[]{packageId});
+        java.util.HashSet<String> seenIds=new java.util.HashSet<String>();
+        for(JSONObject r:rows){seenIds.add(r.optString("location_id"));seenIds.add(normalizeSearchText(r.optString("name")));}
+        try{
+            List<JSONObject> pois=queryList("SELECT * FROM campaign_pois WHERE world_profile=? AND status<>'deleted' AND hidden=0",new String[]{getActiveMapProfile()});
+            for(JSONObject poi:pois){
+                String pId=poi.optString("id");String pName=poi.optString("name");
+                if(seenIds.contains(pId)||seenIds.contains(normalizeSearchText(pName)))continue;
+                JSONObject r=new JSONObject();
+                r.put("package_id",packageId);r.put("location_id",pId);r.put("name",pName);r.put("type",poi.optString("type"));r.put("hex_id",poi.optString("hex_id"));r.put("region","DO40".equals(poi.optString("hex_id"))?"Vale do Dessarin":"");r.put("official_5e",0);r.put("scope","local");r.put("placement_method","campaign_poi");r.put("placement_confidence",1.0);r.put("placement_status","confirmed");r.put("canonical",1);
+                if(poi.has("position_u")&&!poi.isNull("position_u"))r.put("position_u",poi.optDouble("position_u"));
+                if(poi.has("position_v")&&!poi.isNull("position_v"))r.put("position_v",poi.optDouble("position_v"));
+                JSONObject raw=new JSONObject();raw.put("description",poi.optString("description"));raw.put("type",poi.optString("type"));
+                JSONArray aliases=new JSONArray();
+                if("Newarre".equalsIgnoreCase(pName)){aliases.put("Marco do Percurso").put("Waystone Inn").put("Kote").put("Bast").put("Kvothe").put("Aldeia de Newarre");}
+                else if(pName.toLowerCase().contains("marco do percurso")||pName.toLowerCase().contains("waystone")){aliases.put("Waystone Inn").put("Newarre").put("Kote").put("Bast");}
+                raw.put("aliases",aliases);r.put("raw_json",raw.toString());
+                rows.add(r);
+            }
+        }catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada ao agregar campaign_pois na busca de locais.",ignored);}
         for(JSONObject row:rows){
             String name=normalizeSearchText(row.optString("name")),region=normalizeSearchText(row.optString("region")),rawText=row.optString("raw_json"),raw=normalizeSearchText(rawText),original="";int score=0;JSONArray aliases=null;
             try{JSONObject r=new JSONObject(rawText.length()==0?"{}":rawText);original=normalizeSearchText(r.optString("nomeOriginal",r.optString("nameOriginal","")));aliases=r.optJSONArray("aliases");}catch(Exception ignored){AppLog.ignored("AppDb","Metadados de busca de local inválidos.",ignored);}
@@ -6915,6 +6956,23 @@ public class AppDb extends SQLiteOpenHelper {
     public List<JSONObject> findConfirmedLocationsByQuery(String packageId,String query,int limit){
         ArrayList<JSONObject> out=new ArrayList<JSONObject>();if(packageId==null||packageId.length()==0)return out;String q=normalizeSearchText(query);if(q.length()<2)return out;
         List<JSONObject> rows=queryList("SELECT l.*,COALESCE(NULLIF(l.hex_id,''),j.hex_id) AS linked_hex_id FROM map_locations l LEFT JOIN map_hex_locations j ON j.package_id=l.package_id AND j.location_id=l.location_id WHERE l.package_id=? AND COALESCE(NULLIF(l.hex_id,''),j.hex_id,'')<>'' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%review%' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%approx%' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%unassigned%' GROUP BY l.package_id,l.location_id LIMIT 5000",new String[]{packageId});for(JSONObject row:rows){try{if(row.optString("hex_id","").length()==0)row.put("hex_id",row.optString("linked_hex_id",""));}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada ao resolver local pesquisável.",ignored);}}
+        java.util.HashSet<String> seenIds=new java.util.HashSet<String>();
+        for(JSONObject r:rows){seenIds.add(r.optString("location_id"));seenIds.add(normalizeSearchText(r.optString("name")));}
+        try{
+            List<JSONObject> pois=queryList("SELECT * FROM campaign_pois WHERE world_profile=? AND status<>'deleted' AND hidden=0 AND COALESCE(hex_id,'')<>''",new String[]{getActiveMapProfile()});
+            for(JSONObject poi:pois){
+                String pId=poi.optString("id");String pName=poi.optString("name");
+                if(seenIds.contains(pId)||seenIds.contains(normalizeSearchText(pName)))continue;
+                JSONObject r=new JSONObject();
+                r.put("package_id",packageId);r.put("location_id",pId);r.put("name",pName);r.put("type",poi.optString("type"));r.put("hex_id",poi.optString("hex_id"));r.put("region","DO40".equals(poi.optString("hex_id"))?"Vale do Dessarin":"");r.put("official_5e",0);r.put("scope","local");r.put("placement_method","campaign_poi");r.put("placement_confidence",1.0);r.put("placement_status","confirmed");
+                JSONObject raw=new JSONObject();raw.put("description",poi.optString("description"));raw.put("type",poi.optString("type"));
+                JSONArray aliases=new JSONArray();
+                if("Newarre".equalsIgnoreCase(pName)){aliases.put("Marco do Percurso").put("Waystone Inn").put("Kote").put("Bast").put("Kvothe");}
+                else if(pName.toLowerCase().contains("marco do percurso")||pName.toLowerCase().contains("waystone")){aliases.put("Waystone Inn").put("Newarre").put("Kote").put("Bast");}
+                raw.put("aliases",aliases);r.put("raw_json",raw.toString());
+                rows.add(r);
+            }
+        }catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada ao agregar campaign_pois em locais confirmados.",ignored);}
         for(JSONObject row:rows){String name=normalizeSearchText(row.optString("name")),region=normalizeSearchText(row.optString("region")),raw=normalizeSearchText(row.optString("raw_json"));int score=0;if(name.equals(q))score+=1000;else if(name.startsWith(q))score+=450;else if(name.contains(q))score+=250;if(raw.contains(q))score+=150;if(region.contains(q))score+=35;for(String term:q.split("\\s+")){if(term.length()<2)continue;if(name.contains(term))score+=35;if(raw.contains(term))score+=20;if(region.contains(term))score+=7;}if(score>0){try{row.put("_score",score);}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}out.add(row);}}
         java.util.Collections.sort(out,new java.util.Comparator<JSONObject>(){public int compare(JSONObject a,JSONObject b){int c=Integer.compare(b.optInt("_score"),a.optInt("_score"));return c!=0?c:a.optString("name").compareToIgnoreCase(b.optString("name"));}});int max=Math.max(1,Math.min(10,limit));return out.size()>max?new ArrayList<JSONObject>(out.subList(0,max)):out;
     }

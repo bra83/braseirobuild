@@ -302,6 +302,11 @@ public final class MapPackageManager {
                     pruneObsoletePackages(worldProfile, packageId, READY_PACKAGES_TO_KEEP);
 
                     progress(callback, "Pacote de mapa pronto", 8, 8);
+                    try {
+                        NewarreAndWaystoneEngine.install(appDb);
+                    } catch (Exception e) {
+                        AppLog.w("MapPackage", "Falha tolerada ao instalar Newarre no pacote de mapa.", e);
+                    }
                     if (callback != null) callback.onSuccess(new ImportResult(packageId, mapId, worldProfile, atlasProfile != null ? (atlasProfile.setting.length()>0?atlasProfile.setting+" — Atlas":atlasProfile.logicalMapId) : geometry.getLabel(), imageUri,
                             overlayUri, vectorUri.length() > 0 ? vectorUri : vectorGzipUri, indexUri, overlayMode,
                             manifestJson, currentHexId, tokenX, tokenY, hexCount, locationCount));

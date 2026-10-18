@@ -245,4 +245,52 @@ public final class NewarreAndWaystoneEngineTest {
         JSONObject report = spreader.spreadActiveNpcs();
         assertTrue("Distribuição deve ser bem-sucedida", report.optBoolean("success", false));
     }
+
+    @Test
+    public void testMapSearchAndCatalogLookupForNewarreAndWaystone() {
+        String packageId = "faerun-atlas-2025-ptbr-21600x15390-v2-max";
+        NewarreAndWaystoneEngine.install(db);
+
+        // 1. Busca por "newarre"
+        List<JSONObject> resultsNewarre = db.findMapLocationsByQuery(packageId, "newarre", 10);
+        assertFalse("Busca por 'newarre' não deve ser vazia", resultsNewarre.isEmpty());
+        JSONObject first = resultsNewarre.get(0);
+        assertEquals("Newarre", first.optString("name"));
+        assertEquals("DO40", first.optString("hex_id"));
+        assertEquals("Vale do Dessarin", first.optString("region"));
+
+        // 2. Busca por "marco do percurso"
+        List<JSONObject> resultsInn = db.findMapLocationsByQuery(packageId, "marco do percurso", 10);
+        assertFalse("Busca por 'marco do percurso' não deve ser vazia", resultsInn.isEmpty());
+        boolean foundInn = false;
+        for (JSONObject loc : resultsInn) {
+            if (loc.optString("name").contains("Marco do Percurso") && "DO40".equals(loc.optString("hex_id"))) {
+                foundInn = true;
+                break;
+            }
+        }
+        assertTrue("Busca deve encontrar Marco do Percurso em DO40", foundInn);
+
+        // 3. Busca por "kote" (alias)
+        List<JSONObject> resultsKote = db.findMapLocationsByQuery(packageId, "kote", 10);
+        assertFalse("Busca por 'kote' deve retornar resultados associados", resultsKote.isEmpty());
+        assertEquals("DO40", resultsKote.get(0).optString("hex_id"));
+
+        // 4. Locais do Hex DO40
+        List<JSONObject> hexLocs = db.getMapLocationsForHex(packageId, "DO40");
+        assertFalse("Hex DO40 deve conter locais", hexLocs.isEmpty());
+        boolean hasNewarre = false;
+        boolean hasWaystone = false;
+        for (JSONObject loc : hexLocs) {
+            if ("Newarre".equals(loc.optString("name"))) hasNewarre = true;
+            if (loc.optString("name").contains("Marco do Percurso")) hasWaystone = true;
+        }
+        assertTrue("Hex DO40 deve listar Newarre", hasNewarre);
+        assertTrue("Hex DO40 deve listar Marco do Percurso", hasWaystone);
+
+        // 5. findConfirmedLocationsByQuery
+        List<JSONObject> confirmed = db.findConfirmedLocationsByQuery(packageId, "newarre", 10);
+        assertFalse("Locais confirmados devem conter Newarre", confirmed.isEmpty());
+        assertEquals("DO40", confirmed.get(0).optString("hex_id"));
+    }
 }

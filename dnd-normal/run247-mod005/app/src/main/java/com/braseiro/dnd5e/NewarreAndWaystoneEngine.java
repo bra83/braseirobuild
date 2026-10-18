@@ -6,8 +6,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Motor oficial de Newarre e da Pousada Marco do Percurso (Waystone Inn).
@@ -68,6 +70,7 @@ public final class NewarreAndWaystoneEngine {
         try {
             ensureNpcs(db);
             ensurePoisAndSettlement(db);
+            ensureMapLocationsCatalog(db);
         } catch (Exception e) {
             AppLog.e("NewarreEngine", "Falha na sincronização de Newarre: " + e.getMessage(), e);
         }
@@ -311,6 +314,19 @@ public final class NewarreAndWaystoneEngine {
         String mapPackageId = state.optString("map_package_id", "");
         String migration = (mapPackageId.length() > 0 && db.isValidMapHex(mapPackageId, HEX_ID)) ? "ready" : "migration_pending";
 
+        double u = 0.4402;
+        double v = 0.2845;
+        if (mapPackageId.length() > 0) {
+            JSONObject hex = db.getRawMapHex(mapPackageId, HEX_ID);
+            JSONObject pack = db.getMapPackageAny(mapPackageId);
+            double w = pack.optDouble("image_width", 21600);
+            double h = pack.optDouble("image_height", 15390);
+            if (hex.length() > 0 && w > 0 && h > 0) {
+                u = hex.optDouble("center_x") / w;
+                v = hex.optDouble("center_y") / h;
+            }
+        }
+
         // 1. POI Principal da Aldeia (Newarre)
         JSONObject existingVillage = db.getCampaignPoi(POI_NEWARRE_ID);
         if (existingVillage.length() == 0) {
@@ -320,6 +336,8 @@ public final class NewarreAndWaystoneEngine {
                     .put("logical_map_id", logicalMapId)
                     .put("map_package_id", mapPackageId)
                     .put("hex_id", HEX_ID)
+                    .put("position_u", u)
+                    .put("position_v", v)
                     .put("name", SETTLEMENT_NAME)
                     .put("type", "povoado")
                     .put("description", "Pequena aldeia rural esquecida no Vale do Dessarin, com 20 a 30 propriedades rurais e aproximadamente 80 a 120 habitantes. Conhecida pela tranquilidade, bosques suaves e pela acolhedora Pousada Marco do Percurso.")
@@ -332,6 +350,11 @@ public final class NewarreAndWaystoneEngine {
                     .put("entity_kind", "settlement")
                     .put("entity_id", POI_NEWARRE_ID);
             db.createCampaignPoi(spec);
+        } else if (!existingVillage.has("position_u") || existingVillage.isNull("position_u")) {
+            ContentValues posUpdate = new ContentValues();
+            posUpdate.put("position_u", u);
+            posUpdate.put("position_v", v);
+            db.getWritableDatabase().update("campaign_pois", posUpdate, "id=?", new String[]{POI_NEWARRE_ID});
         }
 
         // 2. Registro do Assentamento (campaign_settlements)
@@ -373,50 +396,59 @@ public final class NewarreAndWaystoneEngine {
 
         // 3. Pousada Marco do Percurso (filha de Newarre)
         ensureSubPoi(db, POI_WAYSTONE_INN_ID, POI_NEWARRE_ID, INN_NAME, "estalagem",
-                "Construção sólida de pedra polida e madeira escura de primeira qualidade, mantida impecavelmente limpa. Salão com lareira de pedra aberta, balcão de freixo polido e ambiente que respira acolhimento e discreta melancolia.", logicalMapId, mapPackageId, profile);
+                "Construção sólida de pedra polida e madeira escura de primeira qualidade, mantida impecavelmente limpa. Salão com lareira de pedra aberta, balcão de freixo polido e ambiente que respira acolhimento e discreta melancolia.", logicalMapId, mapPackageId, profile, u, v);
 
         // Sublocais da Pousada
         ensureSubPoi(db, POI_HALL_ID, POI_WAYSTONE_INN_ID, "Marco do Percurso — Salão Principal", "edificio",
-                "Salão comum com mesas de madeira pesada, lareira crepitante, iluminação quente por velas de sebo e lampiões, e um silêncio característico em três partes.", logicalMapId, mapPackageId, profile);
+                "Salão comum com mesas de madeira pesada, lareira crepitante, iluminação quente por velas de sebo e lampiões, e um silêncio característico em três partes.", logicalMapId, mapPackageId, profile, u, v);
 
         ensureSubPoi(db, POI_BAR_ID, POI_WAYSTONE_INN_ID, "Marco do Percurso — Balcão de Serviço", "edificio",
-                "Balcão longo de madeira de freixo impecavelmente encerada, garrafas alinhadas em prateleiras, canecas de estanho reluzentes e Kote sempre presente.", logicalMapId, mapPackageId, profile);
+                "Balcão longo de madeira de freixo impecavelmente encerada, garrafas alinhadas em prateleiras, canecas de estanho reluzentes e Kote sempre presente.", logicalMapId, mapPackageId, profile, u, v);
 
         ensureSubPoi(db, POI_KITCHEN_ID, POI_WAYSTONE_INN_ID, "Marco do Percurso — Cozinha e Despensa", "edificio",
-                "Cozinha ampla com forno a lenha, panelas de ferro fundido, despensa com queijos curados, embutidos defumados e barris de sidra e cerveja.", logicalMapId, mapPackageId, profile);
+                "Cozinha ampla com forno a lenha, panelas de ferro fundido, despensa com queijos curados, embutidos defumados e barris de sidra e cerveja.", logicalMapId, mapPackageId, profile, u, v);
 
         ensureSubPoi(db, POI_ROOMS_ID, POI_WAYSTONE_INN_ID, "Marco do Percurso — Quartos de Hóspedes", "edificio",
-                "Quartos modestos no piso superior, com camas confortáveis, lençóis lavados com sabão de lavanda e janelas voltadas para as colinas de Newarre.", logicalMapId, mapPackageId, profile);
+                "Quartos modestos no piso superior, com camas confortáveis, lençóis lavados com sabão de lavanda e janelas voltadas para as colinas de Newarre.", logicalMapId, mapPackageId, profile, u, v);
 
         ensureSubPoi(db, POI_KOTE_ROOMS_ID, POI_WAYSTONE_INN_ID, "Marco do Percurso — Aposentos de Kote", "edificio",
-                "Quarto simples e austero nos fundos do andar superior. [SEGREDO DO MESTRE]: Sob o assoalho e num canto discreto repousa um baú de ferro e cobre com três fechaduras e a lendária espada Folly protegida em tecido cinzento.", logicalMapId, mapPackageId, profile);
+                "Quarto simples e austero nos fundos do andar superior. [SEGREDO DO MESTRE]: Sob o assoalho e num canto discreto repousa um baú de ferro e cobre com três fechaduras e a lendária espada Folly protegida em tecido cinzento.", logicalMapId, mapPackageId, profile, u, v);
 
         ensureSubPoi(db, POI_BAST_ROOMS_ID, POI_WAYSTONE_INN_ID, "Marco do Percurso — Dependências de Bast", "edificio",
-                "Pequeno quarto arejado com livros curiosos, ramos secos de árvores silvestres e objetos que revelam refinamento discreto e exótico.", logicalMapId, mapPackageId, profile);
+                "Pequeno quarto arejado com livros curiosos, ramos secos de árvores silvestres e objetos que revelam refinamento discreto e exótico.", logicalMapId, mapPackageId, profile, u, v);
 
         ensureSubPoi(db, POI_STABLES_ID, POI_WAYSTONE_INN_ID, "Marco do Percurso — Estábulo e Área Externa", "edificio",
-                "Cocheira arejada com feno fresco e água limpa para cavalos e mulas de carga, além de pátio traseiro para carroças de viajantes.", logicalMapId, mapPackageId, profile);
+                "Cocheira arejada com feno fresco e água limpa para cavalos e mulas de carga, além de pátio traseiro para carroças de viajantes.", logicalMapId, mapPackageId, profile, u, v);
 
         // Estabelecimentos da Aldeia
         ensureSubPoi(db, POI_BLACKSMITH_ID, POI_NEWARRE_ID, "Ferraria de Oswin", "oficina",
-                "Oficina aberta com bigorna, fole e lareira acesa onde Oswin conserta enxadas, arados e ferraduras. Pequenas ferragens e reparos disponíveis.", logicalMapId, mapPackageId, profile);
+                "Oficina aberta com bigorna, fole e lareira acesa onde Oswin conserta enxadas, arados e ferraduras. Pequenas ferragens e reparos disponíveis.", logicalMapId, mapPackageId, profile, u, v);
 
         ensureSubPoi(db, POI_MILL_ID, POI_NEWARRE_ID, "Moinho e Armazém de Mira", "edificio",
-                "Moinho de madeira com pás movidas pelo vento suave do vale, onde se processam sacos de trigo, cevada e milho colhidos nos campos circunvizinhos.", logicalMapId, mapPackageId, profile);
+                "Moinho de madeira com pás movidas pelo vento suave do vale, onde se processam sacos de trigo, cevada e milho colhidos nos campos circunvizinhos.", logicalMapId, mapPackageId, profile, u, v);
 
         ensureSubPoi(db, POI_SQUARE_ID, POI_NEWARRE_ID, "Praça Comunitária de Newarre", "rua",
-                "Espaço aberto de grama batida e pedras arredondadas onde ocorrem encontros comunitários, anúncios da aldeia e estacionamento da carroça de Teren Vale.", logicalMapId, mapPackageId, profile);
+                "Espaço aberto de grama batida e pedras arredondadas onde ocorrem encontros comunitários, anúncios da aldeia e estacionamento da carroça de Teren Vale.", logicalMapId, mapPackageId, profile, u, v);
 
         ensureSubPoi(db, POI_FARMS_ID, POI_NEWARRE_ID, "Fazendas e Apriscos do Entorno", "natureza",
-                "Casas de campo de taipa e pedra, cercas de madeira cinzenta, ovelhas pastando e lavouras que desenham o contorno rural do hexágono DO40.", logicalMapId, mapPackageId, profile);
+                "Casas de campo de taipa e pedra, cercas de madeira cinzenta, ovelhas pastando e lavouras que desenham o contorno rural do hexágono DO40.", logicalMapId, mapPackageId, profile, u, v);
 
         ensureSubPoi(db, POI_WOODS_ID, POI_NEWARRE_ID, "Trilhas e Bosques de Newarre", "natureza",
-                "Bosques mistos de faias e carvalhos que circundam o povoado, ricos em cogumelos, lenha seca e trilhas calmas para caminhadas locais.", logicalMapId, mapPackageId, profile);
+                "Bosques mistos de faias e carvalhos que circundam o povoado, ricos em cogumelos, lenha seca e trilhas calmas para caminhadas locais.", logicalMapId, mapPackageId, profile, u, v);
     }
 
     private static void ensureSubPoi(AppDb db, String id, String parentId, String name, String type,
-                                     String desc, String logicalMapId, String mapPackageId, String profile) {
-        if (db.getCampaignPoi(id).length() > 0) return;
+                                     String desc, String logicalMapId, String mapPackageId, String profile, double u, double v) {
+        JSONObject existing = db.getCampaignPoi(id);
+        if (existing.length() > 0) {
+            if (!existing.has("position_u") || existing.isNull("position_u")) {
+                ContentValues posUpdate = new ContentValues();
+                posUpdate.put("position_u", u);
+                posUpdate.put("position_v", v);
+                db.getWritableDatabase().update("campaign_pois", posUpdate, "id=?", new String[]{id});
+            }
+            return;
+        }
         try {
             String migration = (mapPackageId.length() > 0 && db.isValidMapHex(mapPackageId, HEX_ID)) ? "ready" : "migration_pending";
             JSONObject spec = new JSONObject()
@@ -425,6 +457,8 @@ public final class NewarreAndWaystoneEngine {
                     .put("logical_map_id", logicalMapId)
                     .put("map_package_id", mapPackageId)
                     .put("hex_id", HEX_ID)
+                    .put("position_u", u)
+                    .put("position_v", v)
                     .put("name", name)
                     .put("type", type)
                     .put("description", desc)
@@ -437,6 +471,136 @@ public final class NewarreAndWaystoneEngine {
                     .put("migration_status", migration);
             db.createCampaignPoi(spec);
         } catch (Exception ignored) {}
+    }
+
+    /**
+     * Garante o registro de Newarre e da Pousada Marco do Percurso no catálogo de locais do mapa
+     * (tabelas map_locations e map_hex_locations), permitindo busca direta no campo de pesquisa
+     * do mapa ("IR") e seleção precisa do hexágono DO40.
+     */
+    public static void ensureMapLocationsCatalog(AppDb db) {
+        if (db == null) return;
+        try {
+            JSONObject state = db.getMapState();
+            String activePackageId = state.optString("map_package_id", "").trim();
+            Set<String> packageIds = new LinkedHashSet<String>();
+            if (!activePackageId.isEmpty()) {
+                packageIds.add(activePackageId);
+            }
+            List<JSONObject> packs = db.listMapPackages(db.getActiveMapProfile());
+            if (packs != null) {
+                for (JSONObject p : packs) {
+                    String pid = p.optString("package_id", "").trim();
+                    if (!pid.isEmpty()) packageIds.add(pid);
+                }
+            }
+            if (packageIds.isEmpty()) {
+                packageIds.add("faerun-atlas-2025-ptbr-21600x15390-v2-max");
+            }
+
+            for (String pid : packageIds) {
+                String frameId = db.getCoordinateFrameIdForPackage(pid);
+                if (frameId == null || frameId.isEmpty()) {
+                    frameId = "faerun_2025_contract_21600x15390";
+                }
+
+                JSONObject hex = db.getRawMapHex(pid, HEX_ID);
+                double u = 0.4402;
+                double v = 0.2845;
+                if (hex != null && hex.length() > 0) {
+                    JSONObject pack = db.getMapPackageAny(pid);
+                    double w = pack.optDouble("image_width", 21600);
+                    double h = pack.optDouble("image_height", 15390);
+                    if (w > 0 && h > 0) {
+                        u = hex.optDouble("center_x", 0) / w;
+                        v = hex.optDouble("center_y", 0) / h;
+                    }
+                }
+
+                // 1. Newarre
+                JSONObject rawNewarre = new JSONObject()
+                        .put("description", "Pequena aldeia rural esquecida no Vale do Dessarin, com 20 a 30 propriedades rurais e aproximadamente 80 a 120 habitantes. Conhecida pela tranquilidade, bosques suaves e pela acolhedora Pousada Marco do Percurso.")
+                        .put("nameOriginal", "Newarre")
+                        .put("nomeOriginal", "Newarre")
+                        .put("aliases", new JSONArray()
+                                .put("Newarre")
+                                .put("Marco do Percurso")
+                                .put("Waystone Inn")
+                                .put("Kote")
+                                .put("Bast")
+                                .put("Kvothe")
+                                .put("Aldeia de Newarre"));
+
+                ContentValues cvNewarre = new ContentValues();
+                cvNewarre.put("package_id", pid);
+                cvNewarre.put("location_id", "loc-newarre-do40");
+                cvNewarre.put("name", SETTLEMENT_NAME);
+                cvNewarre.put("type", "povoado");
+                cvNewarre.put("hex_id", HEX_ID);
+                cvNewarre.put("region", REGION_NAME);
+                cvNewarre.put("official_5e", 0);
+                cvNewarre.put("scope", "local");
+                cvNewarre.put("placement_method", "canonical_contract_do40");
+                cvNewarre.put("placement_confidence", 1.0);
+                cvNewarre.put("placement_status", "confirmed");
+                cvNewarre.put("canonical", 1);
+                cvNewarre.put("coordinate_frame_id", frameId);
+                cvNewarre.put("position_u", u);
+                cvNewarre.put("position_v", v);
+                cvNewarre.put("source_ids", "[\"kingkiller_chronicle_adaptation\"]");
+                cvNewarre.put("tags", "[\"aldeia\",\"rural\",\"dessarin_valley\",\"waystone\"]");
+                cvNewarre.put("raw_json", rawNewarre.toString());
+                db.getWritableDatabase().insertWithOnConflict("map_locations", null, cvNewarre, SQLiteDatabase.CONFLICT_REPLACE);
+
+                ContentValues joinNewarre = new ContentValues();
+                joinNewarre.put("package_id", pid);
+                joinNewarre.put("hex_id", HEX_ID);
+                joinNewarre.put("location_id", "loc-newarre-do40");
+                db.getWritableDatabase().insertWithOnConflict("map_hex_locations", null, joinNewarre, SQLiteDatabase.CONFLICT_REPLACE);
+
+                // 2. Pousada Marco do Percurso
+                JSONObject rawWaystone = new JSONObject()
+                        .put("description", "Construção sólida de pedra polida e madeira escura de primeira qualidade, mantida impecavelmente limpa por Kote e Bast. Salão com lareira de pedra aberta, balcão de freixo polido e ambiente que respira acolhimento e discreta melancolia. Hospedeiro: Kote.")
+                        .put("nameOriginal", "Waystone Inn")
+                        .put("nomeOriginal", "Pousada Marco do Percurso")
+                        .put("aliases", new JSONArray()
+                                .put("Waystone Inn")
+                                .put("Marco do Percurso")
+                                .put("Pousada Marco do Percurso")
+                                .put("Pousada de Kote")
+                                .put("Estalagem Marco do Percurso")
+                                .put("Newarre"));
+
+                ContentValues cvWaystone = new ContentValues();
+                cvWaystone.put("package_id", pid);
+                cvWaystone.put("location_id", "loc-waystone-inn-do40");
+                cvWaystone.put("name", INN_NAME);
+                cvWaystone.put("type", "estalagem");
+                cvWaystone.put("hex_id", HEX_ID);
+                cvWaystone.put("region", REGION_NAME);
+                cvWaystone.put("official_5e", 0);
+                cvWaystone.put("scope", "local");
+                cvWaystone.put("placement_method", "canonical_contract_do40");
+                cvWaystone.put("placement_confidence", 1.0);
+                cvWaystone.put("placement_status", "confirmed");
+                cvWaystone.put("canonical", 1);
+                cvWaystone.put("coordinate_frame_id", frameId);
+                cvWaystone.put("position_u", u);
+                cvWaystone.put("position_v", v);
+                cvWaystone.put("source_ids", "[\"kingkiller_chronicle_adaptation\"]");
+                cvWaystone.put("tags", "[\"estalagem\",\"waystone\",\"kote\",\"bast\",\"pousada\"]");
+                cvWaystone.put("raw_json", rawWaystone.toString());
+                db.getWritableDatabase().insertWithOnConflict("map_locations", null, cvWaystone, SQLiteDatabase.CONFLICT_REPLACE);
+
+                ContentValues joinWaystone = new ContentValues();
+                joinWaystone.put("package_id", pid);
+                joinWaystone.put("hex_id", HEX_ID);
+                joinWaystone.put("location_id", "loc-waystone-inn-do40");
+                db.getWritableDatabase().insertWithOnConflict("map_hex_locations", null, joinWaystone, SQLiteDatabase.CONFLICT_REPLACE);
+            }
+        } catch (Exception e) {
+            AppLog.e("NewarreEngine", "Falha ao registrar Newarre no catálogo de locais: " + e.getMessage(), e);
+        }
     }
 
     /**
