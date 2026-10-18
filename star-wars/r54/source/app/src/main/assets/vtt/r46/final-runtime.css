@@ -7,9 +7,10 @@ html.braseiro-reduced-motion *,html.braseiro-reduced-motion *::before,html.brase
 .scene-narrative-tts-button svg{width:1.25rem;height:1.25rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .scene-narrative-tts-button[aria-pressed="true"]{background:rgba(101,37,20,.24)}
 .final-settings-grid{display:grid;gap:.75rem}
-.final-setting-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:.75rem;padding:.65rem;border:1px solid rgba(213,216,220,.16);background:rgba(43,48,52,.55)}
-.final-setting-row label,.final-setting-row span{font-weight:700}
-.final-setting-row select,.final-setting-row button{min-height:44px;background:#2B3034;color:#D5D8DC;border:1px solid rgba(212,157,66,.55);padding:.45rem .6rem}
+.final-setting-row{display:flex;flex-direction:column;align-items:stretch;gap:.35rem;padding:.75rem;border:1px solid rgba(100,169,186,.25);background:rgba(20,27,33,.85);border-radius:8px}
+.final-setting-row:has(input[type="checkbox"]){display:flex;flex-direction:row;justify-content:space-between;align-items:center}
+.final-setting-row label,.final-setting-row span{font-weight:700;font-size:.85rem;color:#d5d8dc;white-space:normal;word-break:normal}
+.final-setting-row select,.final-setting-row button{min-height:44px;background:#151d22;color:#D5D8DC;border:1px solid rgba(212,157,66,.55);border-radius:6px;padding:.45rem .6rem;width:100%}
 .final-setting-actions{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
 .final-setting-status{font-size:.85rem;color:#9CCBDA;line-height:1.4}
 
@@ -162,3 +163,209 @@ html.braseiro-reduced-motion *,html.braseiro-reduced-motion *::before,html.brase
 .final-published-uae-objective>small{flex:0 0 auto;font-size:9px;opacity:.8}
 .final-published-uae-objective.is-completed>span{color:#8acb9a}
 .final-published-uae-objective.is-completed>strong{opacity:.75}
+
+/* ==========================================================================
+   R54 REPAGINAÇÃO STAR WARS TÁTICA & AJUSTE FINO DE UI
+   ========================================================================== */
+
+/* Ocultação de marcas de depuração P92-P157 para dignidade visual */
+.r54-p92 > small, .r54-p93 > small, .r54-p94 > small, .r54-p99 > small, .r54-p101 > small, .r54-p151-context > small {
+  display: none !important;
+}
+
+/* Espaçamento inferior global contra sobreposição de barras e One UI */
+.app-content, main, .screen-content, .page-content, .r46-content, .scene-concept-shell {
+  padding-bottom: 120px !important;
+}
+
+/* Painel Heroico de Inicialização de Aventura */
+.r54-hero-adventure-gate {
+  margin: 12px 14px 18px;
+  padding: 16px;
+  background: linear-gradient(145deg, #18252d, #0b1115);
+  border: 1px solid #d49d42;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.65), inset 0 0 16px rgba(212,157,66,0.12);
+  display: grid;
+  gap: 12px;
+}
+.r54-hero-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #74d8ff;
+  background: rgba(116,216,255,0.12);
+  border: 1px solid rgba(116,216,255,0.35);
+  border-radius: 4px;
+}
+.r54-hero-title h2 {
+  margin: 6px 0 4px;
+  font-size: 1.25rem;
+  color: #f0e4cf;
+}
+.r54-hero-title p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #aeb7bc;
+  line-height: 1.4;
+}
+.r54-hero-actions {
+  display: grid;
+  gap: 8px;
+}
+.r54-hero-btn {
+  min-height: 48px;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, #652514, #44160a);
+  border: 1px solid #d49d42;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 900;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  cursor: pointer;
+}
+.r54-hero-btn.is-secondary {
+  background: linear-gradient(180deg, #1b323c, #102128);
+  border-color: #5bb3c7;
+  color: #def6ff;
+}
+.r54-hero-btn:active {
+  transform: translateY(1px);
+}
+
+/* Barra Ativa do Mestre Gemini na Cena */
+.r54-scene-gemini-bar {
+  margin: 10px 0 14px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.r54-btn-gemini-trigger {
+  flex: 1 1 180px;
+  min-height: 46px;
+  padding: 8px 14px;
+  border: 1px solid #74d8ff;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #153847, #0b2029);
+  color: #74d8ff;
+  font-weight: 900;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  box-shadow: 0 0 12px rgba(116,216,255,0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.r54-btn-gemini-trigger:active {
+  transform: scale(0.98);
+}
+.r54-btn-gemini-trigger:disabled {
+  opacity: 0.65;
+}
+.r54-btn-holotable-trigger {
+  flex: 1 1 150px;
+  min-height: 46px;
+  padding: 8px 12px;
+  border: 1px solid #d49d42;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #38281a, #1f150c);
+  color: #f1d29b;
+  font-weight: 900;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* Estilização moderna de botões nas telas mecânicas */
+.r54-p92 button, .r54-p94 button, .r54-p101 button, .r54-p151-context button {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 44px;
+  border-radius: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.r54-p101 button {
+  background: linear-gradient(180deg, #24353f, #131e24);
+  border: 1px solid #489cb5;
+  color: #eaf6fc;
+}
+.r54-p101 button:active, .r54-p92 button:active, .r54-p94 button:active {
+  transform: translateY(1px);
+}
+.r54-p92-output, [data-p93-output], [data-p94-output], [data-p101-output] {
+  border: 1px solid rgba(100,169,186,0.25);
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: rgba(10,16,20,0.85);
+  font-size: 0.8rem;
+}
+
+/* Estilo do Card de Carga / Sobrecarga */
+.r54-enc-card {
+  border-color: rgba(100,169,186,0.45) !important;
+}
+.r54-enc-stats {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.r54-stat-pill {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(20,32,40,0.8);
+  border: 1px solid rgba(100,169,186,0.3);
+  font-size: 0.8rem;
+  color: #c9e6f2;
+}
+.r54-stat-pill.is-danger {
+  border-color: #a84732;
+  color: #f7a292;
+  background: rgba(60,20,15,0.7);
+}
+
+/* Detalhes retráteis táticos para não poluir a CENA */
+.r54-tactical-collapsible {
+  margin: 14px 14px 110px;
+  border: 1px solid #4e655e;
+  border-radius: 10px;
+  background: #090e0c;
+  overflow: hidden;
+}
+.r54-tactical-collapsible summary {
+  padding: 12px 14px;
+  background: #111a16;
+  color: #c8e4d2;
+  font-weight: 800;
+  font-size: 0.86rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  list-style: none;
+}
+.r54-tactical-collapsible summary::-webkit-details-marker {
+  display: none;
+}
+.r54-tactical-collapsible summary::after {
+  content: " ▼";
+  float: right;
+  color: #8da495;
+}
+.r54-tactical-collapsible[open] summary::after {
+  content: " ▲";
+}
+
