@@ -91,7 +91,7 @@ def repository(s):
         JSONArray rows=new JSONArray(structures(settlementKey));JSONObject out=new JSONObject();
         for(String category:new String[]{"mundane","alchemical","arcane","divine","primal","occult","luxury_magic"})out.put(category+"_item_level",KingmakerStructureSemantics.itemAvailabilityLevel(town.optInt("level",1),rows,category));
         out.put("dangerous_event_unrest_reduction",KingmakerStructureSemantics.dangerousEventUnrestReduction(rows));
-        out.put("consumption_reduction",KingmakerStructureSemantics.consumptionReduction(rows,KingmakerStructureSemantics.hasWaterMill(town,rows)));
+        out.put("consumption_reduction",KingmakerStructureSemantics.consumptionReduction(rows,jsonObject(town.optString("grid_json","{}")).optBoolean("water_mill")));
         return out;
     }
 '''
@@ -171,7 +171,7 @@ def structure_triggers(s):
  helper='''    private int officialSettlementConsumption(){
         int total=0;for(JSONObject town:settlements()){
             JSONArray rows=new JSONArray(structures(town.optString("settlement_key")));
-            boolean waterMill=KingmakerStructureSemantics.hasWaterMill(town,rows);
+            boolean waterMill=jsonObject(town.optString("grid_json","{}")).optBoolean("water_mill");
             total+=Math.max(0,town.optInt("consumption")-KingmakerStructureSemantics.consumptionReduction(rows,waterMill));
         }return total;
     }
