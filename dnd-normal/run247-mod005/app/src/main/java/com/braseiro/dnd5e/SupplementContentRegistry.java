@@ -31,7 +31,23 @@ public final class SupplementContentRegistry {
 
     public static JSONObject catalogSummary(){
         JSONObject out=new JSONObject();try{
-            out.put("mode","compiled_first_rag_fallback");out.put("compiled_packs",new JSONArray().put(CookingRulesEngine.descriptor()).put(AnimalCompanionRulesEngine.descriptor()).put(DowntimeEconomyRulesEngine.descriptor()).put(CharacterOptionCatalogEngine.descriptor()).put(SpellItemCatalogEngine.descriptor()).put(TashaFeatCompiledRulesEngine.descriptor()).put(TashaCampaignSystemsEngine.descriptor()));
+            out.put("mode","compiled_first_rag_fallback");out.put("compiled_packs",new JSONArray()
+                    .put(CookingRulesEngine.descriptor())
+                    .put(FishingRulesEngine.descriptor())
+                    .put(TavernBrothelCatalogEngine.descriptor())
+                    .put(PeculiarTowersEngine.descriptor())
+                    .put(MysticalTattoosEngine.descriptor())
+                    .put(CruelDungeonEngine.descriptor())
+                    .put(ShipRulesEngine.descriptor())
+                    .put(EvernuraRegionalEngine.descriptor())
+                    .put(SouthSeaRegionalEngine.descriptor())
+                    .put(MerchantTradingEngine.descriptor())
+                    .put(AnimalCompanionRulesEngine.descriptor())
+                    .put(DowntimeEconomyRulesEngine.descriptor())
+                    .put(CharacterOptionCatalogEngine.descriptor())
+                    .put(SpellItemCatalogEngine.descriptor())
+                    .put(TashaFeatCompiledRulesEngine.descriptor())
+                    .put(TashaCampaignSystemsEngine.descriptor()));
             CompiledSupplementProcedureBootstrap.install();int registered=0,executable=0,manual=0;for(String id:RULE_IDS){JSONObject g=AuthorizedRuleProcedureEngine.gate(id,new JSONObject());if(g.optBoolean("registered",false))registered++;String pt=AuthorizedRuleProcedureEngine.get(id).optString("procedure_type","");if("state_rule_gate".equalsIgnoreCase(pt))manual++;else if(g.optBoolean("registered",false))executable++;}out.put("rule_count",RULE_IDS.size()).put("registered_procedures",registered).put("executable_procedures",executable).put("manual_resolution_procedures",manual).put("rag_role","lore, explicação e suplementos ainda não compilados");
         }catch(Exception ignored){AppLog.ignored("SupplementContentRegistry","Falha ao montar catálogo.",ignored);}return out;
     }
@@ -40,6 +56,15 @@ public final class SupplementContentRegistry {
         JSONObject out=new JSONObject();String n=normalize(action);try{
             JSONArray packs=new JSONArray();JSONArray rules=new JSONArray();
             if(matchesCooking(n)){packs.put(CookingRulesEngine.descriptor());addRules(rules,"cozinheiro.");}
+            if(hasAny(n,"pesca","pescar","peixe","anzol","isca","vara de pescar","fishing")){packs.put(FishingRulesEngine.descriptor());}
+            if(hasAny(n,"taberna","estalagem","taverna","bordel","bordeis","barman","bebida","hidromel","cerveja","taproom")){packs.put(TavernBrothelCatalogEngine.descriptor());}
+            if(hasAny(n,"torre peculiar","peculiar tower","torres peculiares","vidro cantante","relogio reverso","magnetita")){packs.put(PeculiarTowersEngine.descriptor());}
+            if(hasAny(n,"tatuagem","tatuagens","tattoo","tome of mystical tattoos","agulha arcana")){packs.put(MysticalTattoosEngine.descriptor());}
+            if(hasAny(n,"masmorra cruel","masmorras crueis","pendulo decapitador","teto esmagador","armadilha cruel")){packs.put(CruelDungeonEngine.descriptor());}
+            if(hasAny(n,"navio","navios","embarcacao","bote","caravela","galeao","abalroamento","marinheiro","maritimo")){packs.put(ShipRulesEngine.descriptor());}
+            if(hasAny(n,"evernura","bosque dos lamentos","val frio","circulo das cinzas","floresta de evernura")){packs.put(EvernuraRegionalEngine.descriptor());}
+            if(hasAny(n,"south sea","mar do sul","porto livre","tortuga","arquipelago das caveiras","pirata","corsario")){packs.put(SouthSeaRegionalEngine.descriptor());}
+            if(hasAny(n,"mercador","comerciante","regatear","barganha","desconto","traders and merchants","loja","boticario")){packs.put(MerchantTradingEngine.descriptor());}
             if(matchesAnimal(n)){packs.put(AnimalCompanionRulesEngine.descriptor());addRules(rules,"animal.");}
             if(matchesDowntime(n)){packs.put(DowntimeEconomyRulesEngine.descriptor());}
             if(hasAny(n,"magia","feitico","spell","item magico","tatuagem","grimorio","shard")){packs.put(SpellItemCatalogEngine.descriptor());}

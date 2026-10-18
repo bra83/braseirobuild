@@ -146,6 +146,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private WorldSixCoordinator worldSixCoordinator;
     private EmergentCampaignDirector emergentCampaignDirector;
     private LivingSettlementEngine livingSettlementEngine;
+    private NpcWorldSpreaderEngine npcWorldSpreader;
     private RumorNetworkEngine rumorNetworkEngine;
     private WorldHistoryEngine worldHistoryEngine;
     private CampaignLegacyEngine campaignLegacyEngine;
@@ -357,7 +358,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             safety=new CampaignSafetyManager(this,db);libraryConnections=new LibraryConnectionManager(this);portableBackup=new PortableBackupManager(this,db,libraryConnections);maintenance=new AppMaintenanceManager(this,safety,portableBackup);CrashRecoveryHandler.install(this,db,safety);String safetyMessage="Braseiro pronto. Verificações de segurança continuam em segundo plano.";
             String audioRecoveryNotice=prefs.getString(PREF_AUDIO_RECOVERY_NOTICE,"");if(audioRecoveryNotice.length()>0){safetyMessage=safetyMessage+"\n"+audioRecoveryNotice;prefs.edit().remove(PREF_AUDIO_RECOVERY_NOTICE).apply();}
             gemini=new GeminiService(this);gemini.resetTtsPrimaryCircuit();drive=new DriveService(this);manualFolderScanner=new SafFolderScanner(this);localManualIndexer=new LocalManualIndexer(this,db,drive);tokenPdfLibrary=new TokenPdfLibrary(this);mapPackageManager=new MapPackageManager(this,db);accountManager=AccountManager.get(this);if(!prefs.getBoolean("npc_token_folder_47_migrated",false)){String old=prefs.getString("token_folder","");SharedPreferences.Editor tokenMigration=prefs.edit().putBoolean("npc_token_folder_47_migrated",true);if(old.length()==0||DEFAULT_TOKEN_FOLDER.equals(old))tokenMigration.putString("token_folder",DEFAULT_TOKEN_IMAGE_FOLDER);tokenMigration.apply();}
-            prefs.edit().putBoolean("audio_background_playback",false).putBoolean("audio_background_disabled_3_7",true).apply();try{stopService(new Intent(this,AudioPlaybackService.class));}catch(Exception e){AppLog.w("MainActivity","Não foi possível encerrar um serviço de áudio legado.",e);}audio=AudioPlaybackService.controller(this);audioDiagnostics=new AudioDiagnosticsRepository(this);audioSessionCoordinator=new AudioSessionCoordinator(audioDiagnostics);npcTokenAutoBinder=new NpcTokenAutoBinder(this,db,drive);masterGameContext=new MasterGameContext(db);aiQuotaGovernor=new AiQuotaGovernor(this);ttsCache=new TtsCache(this);partyDirector=new PartyDirector(db);worldStateEngine=new WorldStateEngine(db);livingWorldEngine=new LivingWorldEngine(db);livingWorldCatchUpEngine=new LivingWorldCatchUpEngine(db);worldSixCoordinator=new WorldSixCoordinator(db);emergentCampaignDirector=new EmergentCampaignDirector(db);livingSettlementEngine=new LivingSettlementEngine(db);rumorNetworkEngine=new RumorNetworkEngine(db);worldHistoryEngine=new WorldHistoryEngine(db);campaignLegacyEngine=new CampaignLegacyEngine(db);npcVoiceDirector=new NpcVoiceDirector(db);tacticalSceneGenerator=new ProceduralTacticalSceneGenerator(db);localTableServer=new LocalTableServer(db);guildEngine=new GuildEngine(db);masterOrchestrator=new MasterOrchestrator(db,partyDirector,worldStateEngine,aiQuotaGovernor,this);adventureEngine=masterOrchestrator.getAdventureEngine();ruleRetrievalEngine=new RuleRetrievalEngine(db);offlineMaster=new OfflineMasterEngine();stateTransactionManager=new StateTransactionManager(db);consequenceEngine=new ConsequenceEngine(db);worldDomainEventLedger=new WorldDomainEventLedger(db);rulesEngine=new DndRulesEngine();mystaraRules=new MystaraRulesEngine();characterGenerator=new CharacterSheetGenerator(rulesEngine);characterRulesValidator=new CharacterRulesValidator();sceneStateEngine=new SceneStateEngine(db);environmentalDirector=new EnvironmentalDirector(db);travelRulesEngine=new TravelRulesEngine(db);taskQueue=new ResilientTaskQueue(this,db);mythicOracle=new MythicOracle(this);
+            prefs.edit().putBoolean("audio_background_playback",false).putBoolean("audio_background_disabled_3_7",true).apply();try{stopService(new Intent(this,AudioPlaybackService.class));}catch(Exception e){AppLog.w("MainActivity","Não foi possível encerrar um serviço de áudio legado.",e);}audio=AudioPlaybackService.controller(this);audioDiagnostics=new AudioDiagnosticsRepository(this);audioSessionCoordinator=new AudioSessionCoordinator(audioDiagnostics);npcTokenAutoBinder=new NpcTokenAutoBinder(this,db,drive);masterGameContext=new MasterGameContext(db);aiQuotaGovernor=new AiQuotaGovernor(this);ttsCache=new TtsCache(this);partyDirector=new PartyDirector(db);worldStateEngine=new WorldStateEngine(db);livingWorldEngine=new LivingWorldEngine(db);livingWorldCatchUpEngine=new LivingWorldCatchUpEngine(db);worldSixCoordinator=new WorldSixCoordinator(db);emergentCampaignDirector=new EmergentCampaignDirector(db);livingSettlementEngine=new LivingSettlementEngine(db);npcWorldSpreader=new NpcWorldSpreaderEngine(db);rumorNetworkEngine=new RumorNetworkEngine(db);worldHistoryEngine=new WorldHistoryEngine(db);campaignLegacyEngine=new CampaignLegacyEngine(db);npcVoiceDirector=new NpcVoiceDirector(db);tacticalSceneGenerator=new ProceduralTacticalSceneGenerator(db);localTableServer=new LocalTableServer(db);guildEngine=new GuildEngine(db);masterOrchestrator=new MasterOrchestrator(db,partyDirector,worldStateEngine,aiQuotaGovernor,this);adventureEngine=masterOrchestrator.getAdventureEngine();ruleRetrievalEngine=new RuleRetrievalEngine(db);offlineMaster=new OfflineMasterEngine();stateTransactionManager=new StateTransactionManager(db);consequenceEngine=new ConsequenceEngine(db);worldDomainEventLedger=new WorldDomainEventLedger(db);rulesEngine=new DndRulesEngine();mystaraRules=new MystaraRulesEngine();characterGenerator=new CharacterSheetGenerator(rulesEngine);characterRulesValidator=new CharacterRulesValidator();sceneStateEngine=new SceneStateEngine(db);environmentalDirector=new EnvironmentalDirector(db);travelRulesEngine=new TravelRulesEngine(db);taskQueue=new ResilientTaskQueue(this,db);mythicOracle=new MythicOracle(this);
             AndroidTtsBackend.migratePreferences(this,prefs);
             audio.setStatus(new AudioController.Status(){public void onStatus(final String text){ui.post(new Runnable(){public void run(){setBackgroundStatus(text);}});}});audio.setVolumes(prefs.getInt("vol_amb",35)/100f,prefs.getInt("vol_weather",28)/100f,prefs.getInt("vol_music",14)/100f,prefs.getInt("vol_sfx",80)/100f,prefs.getInt("vol_voice",100)/100f);
             resumeAudioImportMonitor();
@@ -8645,7 +8646,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         LinearLayout metrics=new LinearLayout(this);metrics.setOrientation(LinearLayout.HORIZONTAL);metrics.addView(livingWorldMetric("ARCOS",arcs==null?0:arcs.length(),GOLD),new LinearLayout.LayoutParams(0,-2,1));metrics.addView(livingWorldMetric("RUMORES",rumors==null?0:rumors.length(),GREEN),new LinearLayout.LayoutParams(0,-2,1));metrics.addView(livingWorldMetric("HISTÓRIA",history==null?0:history.length(),TEXT),new LinearLayout.LayoutParams(0,-2,1));metrics.addView(livingWorldMetric("LEGADOS",legacies==null?0:legacies.length(),MUTED),new LinearLayout.LayoutParams(0,-2,1));panel.addView(metrics);
         if(arcs!=null&&arcs.length()>0){panel.addView(livingWorldSectionTitle("ARCOS EMERGENTES"));for(int i=0;i<Math.min(3,arcs.length());i++){JSONObject a=arcs.optJSONObject(i);if(a==null)continue;LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.VERTICAL);row.setPadding(dp(8),dp(7),dp(8),dp(7));row.setBackground(makeBg(PANEL,CARD_STROKE,8));row.addView(text(a.optString("title"),13,TEXT,true));row.addView(text(a.optString("dramatic_question"),11,MUTED,false));row.addView(text(a.optString("stage").replace('_',' ')+" • impulso "+a.optInt("momentum")+" • urgência "+a.optInt("urgency"),10,GOLD,false));panel.addView(row);}}
         LinearLayout buttons=new LinearLayout(this);buttons.setOrientation(LinearLayout.HORIZONTAL);Button refresh=smallButton("ATUALIZAR 6.0",GREEN),details=smallButton("VER MUNDO",PANEL2),table=smallButton("MESA LOCAL",PANEL2);refresh.setOnClickListener(new View.OnClickListener(){public void onClick(View v){setStatus("Atualizando história, rumores, cidades e arcos emergentes…");AppExecutors.io().execute(new Runnable(){public void run(){final JSONObject r=worldSixCoordinator.tick();ui.post(new Runnable(){public void run(){screenCache.remove("Mundo Vivo");setStatus(r.optString("error").length()>0?"Mundo 6.0: "+r.optString("error"):"Mundo emergente atualizado sem criar consequências mecânicas arbitrárias.");showLivingWorld();}});}});}});details.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showWorldSixDetailsDialog();}});table.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showLocalTableDialog();}});buttons.addView(refresh,new LinearLayout.LayoutParams(0,dp(48),1));buttons.addView(details,new LinearLayout.LayoutParams(0,dp(48),1));buttons.addView(table,new LinearLayout.LayoutParams(0,dp(48),1));panel.addView(buttons);
-        LinearLayout second=new LinearLayout(this);second.setOrientation(LinearLayout.HORIZONTAL);Button tactical=smallButton("GERAR CENA TÁTICA",PANEL2),legacy=smallButton("LEGADO / NOVA ERA",PANEL2),voices=smallButton("VOZES DOS NPCS",PANEL2);tactical.setOnClickListener(new View.OnClickListener(){public void onClick(View v){JSONObject scene=tacticalSceneGenerator.regenerate();toast("Cena tática: "+scene.optString("environment","gerada")+" • "+scene.optInt("width_cells",12)+"×"+scene.optInt("height_cells",8));}});legacy.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showLegacyDialog();}});voices.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showNpcVoicesDialog();}});second.addView(tactical,new LinearLayout.LayoutParams(0,dp(48),1));second.addView(legacy,new LinearLayout.LayoutParams(0,dp(48),1));second.addView(voices,new LinearLayout.LayoutParams(0,dp(48),1));panel.addView(second);parent.addView(panel);
+        LinearLayout second=new LinearLayout(this);second.setOrientation(LinearLayout.HORIZONTAL);Button tactical=smallButton("GERAR CENA TÁTICA",PANEL2),legacy=smallButton("LEGADO / NOVA ERA",PANEL2),voices=smallButton("VOZES DOS NPCS",PANEL2);tactical.setOnClickListener(new View.OnClickListener(){public void onClick(View v){JSONObject scene=tacticalSceneGenerator.regenerate();toast("Cena tática: "+scene.optString("environment","gerada")+" • "+scene.optInt("width_cells",12)+"×"+scene.optInt("height_cells",8));}});legacy.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showLegacyDialog();}});voices.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showNpcVoicesDialog();}});second.addView(tactical,new LinearLayout.LayoutParams(0,dp(48),1));second.addView(legacy,new LinearLayout.LayoutParams(0,dp(48),1));second.addView(voices,new LinearLayout.LayoutParams(0,dp(48),1));panel.addView(second);
+        LinearLayout third=new LinearLayout(this);third.setOrientation(LinearLayout.HORIZONTAL);Button npcsWorld=smallButton("NPCS DO MUNDO",PANEL2),createNpc=smallButton("CRIAR NPC DOS LIVROS",GOLD),spreadNpcs=smallButton("ESPALHAR NO MUNDO",GREEN);npcsWorld.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showMemoryDialog();}});createNpc.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showCreateNpcFromBooksDialog();}});spreadNpcs.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(npcWorldSpreader==null)npcWorldSpreader=new NpcWorldSpreaderEngine(db);JSONObject rep=npcWorldSpreader.spreadActiveNpcs();toast(rep.optString("message","NPCs espalhados pelo mundo."));screenCache.remove("Mundo Vivo");showLivingWorld();}});third.addView(npcsWorld,new LinearLayout.LayoutParams(0,dp(48),1));third.addView(createNpc,new LinearLayout.LayoutParams(0,dp(48),1));third.addView(spreadNpcs,new LinearLayout.LayoutParams(0,dp(48),1));panel.addView(third);parent.addView(panel);
     }
 
     private void showWorldSixDetailsDialog(){
@@ -10473,6 +10475,17 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         list.addView(text("Local: "+scene.optString("location","não definido")+"\nHex: "+scene.optString("hex_id","—")+"\nHorário: "+scene.optString("time_of_day","—")+"\nClima: "+scene.optString("weather","—")+"\nIluminação: "+scene.optString("lighting","—")+"\nPerigo: "+scene.optString("danger","—")+"\nObjetivo: "+scene.optString("objective","—")+"\nPistas: "+scene.optString("clues_json","[]")+"\nConsequências: "+scene.optString("pending_consequences_json","[]"),13,TEXT,false));
         Button addNpc=button("+ CRIAR NPC PERSISTENTE",GREEN);
         addNpc.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(dialogRef[0]!=null)dialogRef[0].dismiss();editNpcMemoryDialog(new JSONObject());}});list.addView(addNpc);
+        Button addFromBooks=button("⚡ CRIAR NPC DOS LIVROS (DROPDOWNS)",GOLD);
+        addFromBooks.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(dialogRef[0]!=null)dialogRef[0].dismiss();showCreateNpcFromBooksDialog();}});list.addView(addFromBooks);
+        Button spreadBtn=button("🗺️ ESPALHAR NPCS PELO MUNDO VIVO",PANEL2);
+        spreadBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            if(npcWorldSpreader==null)npcWorldSpreader=new NpcWorldSpreaderEngine(db);
+            JSONObject rep=npcWorldSpreader.spreadActiveNpcs();
+            toast(rep.optString("message","NPCs espalhados pelo mundo."));
+            if(dialogRef[0]!=null)dialogRef[0].dismiss();
+            showMemoryDialog();
+        }});
+        list.addView(spreadBtn);
         list.addView(text("NPCS PERSISTENTES",15,GOLD,true));
         JSONArray npcs=db.listNpcMemories(100);
         if(npcs.length()==0)list.addView(text("Nenhum NPC salvo. Os NPCs criados pelo Mestre também aparecerão aqui e poderão receber um token.",13,MUTED,false));
@@ -10483,15 +10496,26 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             identity.addView(createAvatarView(npc.optString("token_uri"),npc.optString("name","NPC")),new LinearLayout.LayoutParams(dp(68),dp(68)));
             LinearLayout info=new LinearLayout(this);info.setOrientation(LinearLayout.VERTICAL);info.setPadding(dp(10),0,0,0);
             info.addView(text(npc.optString("name"),15,GOLD,true));
-            info.addView(text((npc.optInt("active",1)==1?"ATIVO":"ARQUIVADO")+" • "+npc.optString("attitude","neutra")+(npc.optString("hex_id").length()>0?" • hex "+npc.optString("hex_id"):""),11,MUTED,true));
+            info.addView(text((npc.optInt("active",1)==1?"ATIVO NO MUNDO":"ARQUIVADO")+" • "+npc.optString("attitude","neutra")+(npc.optString("hex_id").length()>0?" • hex "+npc.optString("hex_id"):""),11,npc.optInt("active",1)==1?GREEN:MUTED,true));
             identity.addView(info,new LinearLayout.LayoutParams(0,-2,1));item.addView(identity);
             item.addView(text(npc.optString("summary","Sem resumo")+"\nObjetivo: "+npc.optString("goals","—")+"\nRelação: "+npc.optString("relationship","—")+"\nÚltima aparição: "+npc.optString("last_seen","—"),12,TEXT,false));
             LinearLayout row1=new LinearLayout(this),row2=new LinearLayout(this);row1.setOrientation(LinearLayout.HORIZONTAL);row2.setOrientation(LinearLayout.HORIZONTAL);
-            Button token=smallButton(npc.optString("token_uri").length()>0?"TROCAR TOKEN":"ESCOLHER TOKEN",PANEL2),edit=smallButton("EDITAR NPC",PANEL2),active=smallButton(npc.optInt("active",1)==1?"ARQUIVAR":"REATIVAR",PANEL2),del=smallButton("EXCLUIR",RED);
+            Button token=smallButton(npc.optString("token_uri").length()>0?"TROCAR TOKEN":"ESCOLHER TOKEN",PANEL2),edit=smallButton("EDITAR NPC",PANEL2),active=smallButton(npc.optInt("active",1)==1?"REMOVER DO MUNDO":"ATIVAR NO MUNDO",npc.optInt("active",1)==1?RED:GREEN),del=smallButton("EXCLUIR",RED);
             token.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(dialogRef[0]!=null)dialogRef[0].dismiss();selectPendingTokenNpc(npc.optLong("id"));navigate("Tokens");}});
             edit.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(dialogRef[0]!=null)dialogRef[0].dismiss();editNpcMemoryDialog(npc);}});
-            active.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.setNpcActive(npc.optLong("id"),npc.optInt("active",1)!=1);if(dialogRef[0]!=null)dialogRef[0].dismiss();showMemoryDialog();}});
-            del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(dialogRef[0]!=null)dialogRef[0].dismiss();confirm("Excluir permanentemente "+npc.optString("name")+"?",new Runnable(){public void run(){db.deleteNpcMemory(npc.optLong("id"));showMemoryDialog();}});}});
+            active.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                if(npcWorldSpreader==null)npcWorldSpreader=new NpcWorldSpreaderEngine(db);
+                boolean willBeActive = npc.optInt("active",1)!=1;
+                npcWorldSpreader.setNpcActive(npc.optLong("id"), willBeActive);
+                toast(willBeActive ? "NPC ativado no mundo vivo." : "NPC removido do mundo vivo.");
+                if(dialogRef[0]!=null)dialogRef[0].dismiss();
+                showMemoryDialog();
+            }});
+            del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(dialogRef[0]!=null)dialogRef[0].dismiss();confirm("Excluir permanentemente "+npc.optString("name")+"?",new Runnable(){public void run(){
+                if(npcWorldSpreader==null)npcWorldSpreader=new NpcWorldSpreaderEngine(db);
+                npcWorldSpreader.deleteNpc(npc.optLong("id"));
+                showMemoryDialog();
+            }});}});
             row1.addView(token,new LinearLayout.LayoutParams(0,dp(46),1));row1.addView(edit,new LinearLayout.LayoutParams(0,dp(46),1));
             row2.addView(active,new LinearLayout.LayoutParams(0,dp(46),1));row2.addView(del,new LinearLayout.LayoutParams(0,dp(46),1));
             item.addView(row1);item.addView(row2);list.addView(item);
@@ -10499,6 +10523,86 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         ScrollView scroll=new ScrollView(this);scroll.addView(list);
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Continuidade da campanha").setView(scroll).setNegativeButton("Fechar",null).setNeutralButton("TOKENS AUTOMÁTICOS",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){assignMissingNpcTokensAsync(true);}}).setPositiveButton("EDITAR ESTADO DA CENA",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){editSceneStateDialog(scene);}}).create();
         dialogRef[0]=dialog;dialog.show();
+    }
+
+    private void showCreateNpcFromBooksDialog(){
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),dp(8),dp(12),dp(16));
+        form.addView(text("CRIAR NPC BASEADO NOS LIVROS",16,GOLD,true));
+        form.addView(text("Selecione as opções nos menus suspensos (dropdowns) para definir a identidade, peculiaridades e o papel deste NPC no mundo vivo.",12,TEXT,false));
+
+        final EditText nameField=labeledField(form,"Nome do Personagem","Eldrin Valente",false);
+        final Spinner originBookSpinner=spinner(NpcBookCatalogEngine.getOriginBooks(),NpcBookCatalogEngine.getOriginBooks()[0]);
+        form.addView(cardWithLabel("LIVRO DE ORIGEM",originBookSpinner));
+        final Spinner archetypeSpinner=spinner(NpcBookCatalogEngine.getArchetypes(),NpcBookCatalogEngine.getArchetypes()[0]);
+        form.addView(cardWithLabel("ARQUÉTIPO",archetypeSpinner));
+        final Spinner ancestrySpinner=spinner(NpcBookCatalogEngine.getAncestries(),NpcBookCatalogEngine.getAncestries()[0]);
+        form.addView(cardWithLabel("ANCESTRALIDADE / RAÇA",ancestrySpinner));
+        final Spinner socialClassSpinner=spinner(NpcBookCatalogEngine.getSocialClasses(),NpcBookCatalogEngine.getSocialClasses()[2]);
+        form.addView(cardWithLabel("CLASSE SOCIAL",socialClassSpinner));
+        final Spinner professionSpinner=spinner(NpcBookCatalogEngine.getProfessions(),NpcBookCatalogEngine.getProfessions()[0]);
+        form.addView(cardWithLabel("OFÍCIO / PROFISSÃO",professionSpinner));
+        final Spinner quirkSpinner=spinner(NpcBookCatalogEngine.getQuirks(),NpcBookCatalogEngine.getQuirks()[0]);
+        form.addView(cardWithLabel("PECULIARIDADE MARCANTE (DO LIVRO)",quirkSpinner));
+        final Spinner secretSpinner=spinner(NpcBookCatalogEngine.getSecrets(),NpcBookCatalogEngine.getSecrets()[0]);
+        form.addView(cardWithLabel("SEGREDO OCULTO",secretSpinner));
+        final Spinner hookSpinner=spinner(NpcBookCatalogEngine.getAdventureHooks(),NpcBookCatalogEngine.getAdventureHooks()[0]);
+        form.addView(cardWithLabel("GANCHO DE AVENTURA",hookSpinner));
+        final Spinner statblockSpinner=spinner(NpcBookCatalogEngine.getStatblockTemplates(),NpcBookCatalogEngine.getStatblockTemplates()[0]);
+        form.addView(cardWithLabel("FICHA BASE (STATBLOCK)",statblockSpinner));
+
+        final String[] localTokens=listAvailableNpcTokens();
+        final Spinner tokenSpinner=spinner(localTokens,localTokens[0]);
+        form.addView(cardWithLabel("TOKEN LOCAL (OPCIONAL)",tokenSpinner));
+
+        final String[] generatedTokenUri=new String[]{""};
+        final TextView tokenStatus=text("Nenhum retrato gerado com IA ainda.",11,MUTED,false);
+
+        Button generateGeminiAiPortrait=button("GERAR RETRATO COM GEMINI (IA)",GOLD);
+        generateGeminiAiPortrait.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            String k=geminiKey();
+            if(k==null||k.length()<20){toast("Configure uma chave da API Gemini em Configurações para gerar retratos com IA.");return;}
+            final String npcName=value(nameField);
+            String anc=String.valueOf(ancestrySpinner.getSelectedItem());
+            String soc=String.valueOf(socialClassSpinner.getSelectedItem());
+            String prof=String.valueOf(professionSpinner.getSelectedItem());
+            String qrk=String.valueOf(quirkSpinner.getSelectedItem());
+            final String prompt=NpcGeminiVisualPromptGenerator.buildPrompt(npcName,anc,soc,prof,qrk,"D&D 5e official portrait");
+            setStatus("Gerando retrato para "+npcName+" com Gemini…");toast("Enviando solicitação de arte ao Gemini…");
+            tokenStatus.setText("Gerando via Gemini: "+prompt);tokenStatus.setTextColor(GOLD);
+            NpcGeminiVisualPromptGenerator.generateAndStoreToken(MainActivity.this,gemini,k,prefs.getString("image_model","gemini-3.1-flash-image"),prompt,System.currentTimeMillis(),new NpcGeminiVisualPromptGenerator.PortraitCallback(){
+                public void onSuccess(final Uri storedUri,final String promptUsed){
+                    ui.post(new Runnable(){public void run(){
+                        generatedTokenUri[0]=storedUri.toString();tokenStatus.setText("Retrato IA gerado e salvo com sucesso!");tokenStatus.setTextColor(GREEN);toast("Retrato gerado pelo Gemini e vinculado ao NPC!");setStatus("Retrato IA pronto para "+npcName);
+                    }});
+                }
+                public void onError(final String error){
+                    ui.post(new Runnable(){public void run(){
+                        tokenStatus.setText("Falha na geração de imagem: "+error);tokenStatus.setTextColor(RED);toast("Erro no Gemini: "+error);setStatus("Falha ao gerar imagem com Gemini.");
+                    }});
+                }
+            });
+        }});
+        form.addView(generateGeminiAiPortrait);form.addView(tokenStatus);
+
+        ScrollView scroll=new ScrollView(this);scroll.addView(form);
+        new AlertDialog.Builder(this).setTitle("Criar NPC dos Livros").setView(scroll).setNegativeButton("Cancelar",null).setPositiveButton("SALVAR & INSERIR NO MUNDO",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){try{
+            String npcName=value(nameField);if(npcName.length()==0){toast("Informe o nome do NPC.");return;}
+            String chosenToken=generatedTokenUri[0];if(chosenToken.length()==0&&tokenSpinner.getSelectedItemPosition()>0){chosenToken="assets://npc/"+String.valueOf(tokenSpinner.getSelectedItem());}
+            JSONObject memory=NpcBookCatalogEngine.buildNpcMemory(npcName,String.valueOf(originBookSpinner.getSelectedItem()),String.valueOf(archetypeSpinner.getSelectedItem()),String.valueOf(ancestrySpinner.getSelectedItem()),String.valueOf(socialClassSpinner.getSelectedItem()),String.valueOf(professionSpinner.getSelectedItem()),String.valueOf(quirkSpinner.getSelectedItem()),String.valueOf(secretSpinner.getSelectedItem()),String.valueOf(hookSpinner.getSelectedItem()),String.valueOf(statblockSpinner.getSelectedItem()),chosenToken);
+            db.upsertNpcMemory(memory);
+            if(npcWorldSpreader==null)npcWorldSpreader=new NpcWorldSpreaderEngine(db);
+            npcWorldSpreader.spreadActiveNpcs();
+            assignMissingNpcTokensAsync(false);
+            toast("NPC "+npcName+" criado dos livros e integrado ao mundo vivo!");
+            screenCache.remove("Mundo Vivo");
+            if("Mundo Vivo".equals(currentScreen))showLivingWorld();else showMemoryDialog();
+        }catch(Exception e){toast("Falha ao criar NPC: "+e.getMessage());}}}).show();
+    }
+
+    private String[] listAvailableNpcTokens(){
+        ArrayList<String> list=new ArrayList<String>();list.add("(Nenhum / Automático)");
+        try{String[] files=getAssets().list("npc");if(files!=null)for(String f:files)if(f.endsWith(".png")||f.endsWith(".jpg")||f.endsWith(".webp"))list.add(f);}catch(Exception ignored){}
+        return list.toArray(new String[list.size()]);
     }
 
     private void editNpcMemoryDialog(final JSONObject npc){
