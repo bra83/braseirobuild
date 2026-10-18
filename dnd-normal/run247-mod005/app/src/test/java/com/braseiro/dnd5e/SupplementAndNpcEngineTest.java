@@ -193,6 +193,41 @@ public class SupplementAndNpcEngineTest {
         String[] hooks = NpcBookCatalogEngine.getAdventureHooks();
         assertTrue(hooks.length >= 8);
 
+        // Testa tabelas e rolagens d20 por livro
+        String[] booksToTest = new String[]{
+                NpcBookCatalogEngine.BOOK_GMB_NPC,
+                NpcBookCatalogEngine.BOOK_MASKS_1000,
+                NpcBookCatalogEngine.BOOK_RANDOM_ENCOUNTERS,
+                NpcBookCatalogEngine.BOOK_CATALOG_300
+        };
+
+        for (String b : booksToTest) {
+            String[] apps = NpcBookCatalogEngine.getAppearances(b);
+            assertEquals(20, apps.length);
+            String[] qrks = NpcBookCatalogEngine.getQuirks(b);
+            assertEquals(20, qrks.length);
+            String[] secs = NpcBookCatalogEngine.getSecrets(b);
+            assertEquals(20, secs.length);
+            String[] hoks = NpcBookCatalogEngine.getHooks(b);
+            assertEquals(20, hoks.length);
+
+            NpcBookCatalogEngine.RollResult rApp = NpcBookCatalogEngine.rollAppearance(b);
+            assertNotNull(rApp);
+            assertTrue(rApp.roll >= 1 && rApp.roll <= 20);
+            assertEquals("d20", rApp.die);
+            assertEquals(b, rApp.book);
+            assertFalse(rApp.text.isEmpty());
+
+            NpcBookCatalogEngine.RollResult rQrk = NpcBookCatalogEngine.rollQuirk(b);
+            assertTrue(rQrk.roll >= 1 && rQrk.roll <= 20);
+
+            NpcBookCatalogEngine.RollResult rSec = NpcBookCatalogEngine.rollSecret(b);
+            assertTrue(rSec.roll >= 1 && rSec.roll <= 20);
+
+            NpcBookCatalogEngine.RollResult rHok = NpcBookCatalogEngine.rollHook(b);
+            assertTrue(rHok.roll >= 1 && rHok.roll <= 20);
+        }
+
         JSONObject memory = NpcBookCatalogEngine.buildNpcMemory(
                 "Capitão Barba-Rubra",
                 "The Game Master's Book of NPCs",

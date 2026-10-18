@@ -10528,11 +10528,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void showCreateNpcFromBooksDialog(){
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),dp(8),dp(12),dp(16));
         form.addView(text("CRIAR NPC BASEADO NOS LIVROS",16,GOLD,true));
-        form.addView(text("Selecione as opções nos menus suspensos (dropdowns) para definir a identidade, peculiaridades e o papel deste NPC no mundo vivo.",12,TEXT,false));
+        form.addView(text("Selecione o livro de origem para carregar as tabelas oficiais ou role os dados (d20) para sortear traços com curadoria direta de cada livro.",12,TEXT,false));
 
         final EditText nameField=labeledField(form,"Nome do Personagem","Eldrin Valente",false);
         final Spinner originBookSpinner=spinner(NpcBookCatalogEngine.getOriginBooks(),NpcBookCatalogEngine.getOriginBooks()[0]);
-        form.addView(cardWithLabel("LIVRO DE ORIGEM",originBookSpinner));
+        form.addView(cardWithLabel("LIVRO DE ORIGEM (TABELAS DE DADOS)",originBookSpinner));
+
+        Button rollAllFromBook=button("🎲 ROLAR NPC COMPLETO PELAS TABELAS DO LIVRO",GOLD);
+        form.addView(rollAllFromBook);
+
         final Spinner archetypeSpinner=spinner(NpcBookCatalogEngine.getArchetypes(),NpcBookCatalogEngine.getArchetypes()[0]);
         form.addView(cardWithLabel("ARQUÉTIPO",archetypeSpinner));
         final Spinner ancestrySpinner=spinner(NpcBookCatalogEngine.getAncestries(),NpcBookCatalogEngine.getAncestries()[0]);
@@ -10541,18 +10545,96 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         form.addView(cardWithLabel("CLASSE SOCIAL",socialClassSpinner));
         final Spinner professionSpinner=spinner(NpcBookCatalogEngine.getProfessions(),NpcBookCatalogEngine.getProfessions()[0]);
         form.addView(cardWithLabel("OFÍCIO / PROFISSÃO",professionSpinner));
-        final Spinner quirkSpinner=spinner(NpcBookCatalogEngine.getQuirks(),NpcBookCatalogEngine.getQuirks()[0]);
-        form.addView(cardWithLabel("PECULIARIDADE MARCANTE (DO LIVRO)",quirkSpinner));
-        final Spinner secretSpinner=spinner(NpcBookCatalogEngine.getSecrets(),NpcBookCatalogEngine.getSecrets()[0]);
-        form.addView(cardWithLabel("SEGREDO OCULTO",secretSpinner));
-        final Spinner hookSpinner=spinner(NpcBookCatalogEngine.getAdventureHooks(),NpcBookCatalogEngine.getAdventureHooks()[0]);
-        form.addView(cardWithLabel("GANCHO DE AVENTURA",hookSpinner));
+
+        // Aparência Física por Livro com botão d20
+        LinearLayout appHeader=new LinearLayout(this);appHeader.setOrientation(LinearLayout.HORIZONTAL);appHeader.setGravity(Gravity.CENTER_VERTICAL);
+        appHeader.addView(text("APARÊNCIA FÍSICA (TABELA D20)",12,GOLD,true),new LinearLayout.LayoutParams(0,-2,1));
+        Button rollAppBtn=smallButton("🎲 ROLAR D20",PANEL2);appHeader.addView(rollAppBtn);form.addView(appHeader);
+        final Spinner appSpinner=spinner(NpcBookCatalogEngine.getAppearances(NpcBookCatalogEngine.getOriginBooks()[0]),NpcBookCatalogEngine.getAppearances(NpcBookCatalogEngine.getOriginBooks()[0])[0]);
+        form.addView(appSpinner);
+
+        // Peculiaridade / Maneirismo por Livro com botão d20
+        LinearLayout quirkHeader=new LinearLayout(this);quirkHeader.setOrientation(LinearLayout.HORIZONTAL);quirkHeader.setGravity(Gravity.CENTER_VERTICAL);
+        quirkHeader.addView(text("PECULIARIDADE / MANEIRISMO (TABELA D20)",12,GOLD,true),new LinearLayout.LayoutParams(0,-2,1));
+        Button rollQuirkBtn=smallButton("🎲 ROLAR D20",PANEL2);quirkHeader.addView(rollQuirkBtn);form.addView(quirkHeader);
+        final Spinner quirkSpinner=spinner(NpcBookCatalogEngine.getQuirks(NpcBookCatalogEngine.getOriginBooks()[0]),NpcBookCatalogEngine.getQuirks(NpcBookCatalogEngine.getOriginBooks()[0])[0]);
+        form.addView(quirkSpinner);
+
+        // Segredo Oculto por Livro com botão d20
+        LinearLayout secretHeader=new LinearLayout(this);secretHeader.setOrientation(LinearLayout.HORIZONTAL);secretHeader.setGravity(Gravity.CENTER_VERTICAL);
+        secretHeader.addView(text("SEGREDO OCULTO (TABELA D20)",12,GOLD,true),new LinearLayout.LayoutParams(0,-2,1));
+        Button rollSecretBtn=smallButton("🎲 ROLAR D20",PANEL2);secretHeader.addView(rollSecretBtn);form.addView(secretHeader);
+        final Spinner secretSpinner=spinner(NpcBookCatalogEngine.getSecrets(NpcBookCatalogEngine.getOriginBooks()[0]),NpcBookCatalogEngine.getSecrets(NpcBookCatalogEngine.getOriginBooks()[0])[0]);
+        form.addView(secretSpinner);
+
+        // Gancho de Aventura por Livro com botão d20
+        LinearLayout hookHeader=new LinearLayout(this);hookHeader.setOrientation(LinearLayout.HORIZONTAL);hookHeader.setGravity(Gravity.CENTER_VERTICAL);
+        hookHeader.addView(text("GANCHO DE AVENTURA (TABELA D20)",12,GOLD,true),new LinearLayout.LayoutParams(0,-2,1));
+        Button rollHookBtn=smallButton("🎲 ROLAR D20",PANEL2);hookHeader.addView(rollHookBtn);form.addView(hookHeader);
+        final Spinner hookSpinner=spinner(NpcBookCatalogEngine.getHooks(NpcBookCatalogEngine.getOriginBooks()[0]),NpcBookCatalogEngine.getHooks(NpcBookCatalogEngine.getOriginBooks()[0])[0]);
+        form.addView(hookSpinner);
+
         final Spinner statblockSpinner=spinner(NpcBookCatalogEngine.getStatblockTemplates(),NpcBookCatalogEngine.getStatblockTemplates()[0]);
         form.addView(cardWithLabel("FICHA BASE (STATBLOCK)",statblockSpinner));
 
         final String[] localTokens=listAvailableNpcTokens();
         final Spinner tokenSpinner=spinner(localTokens,localTokens[0]);
         form.addView(cardWithLabel("TOKEN LOCAL (OPCIONAL)",tokenSpinner));
+
+        // Ouvinte de mudança de livro: atualiza as listas curadas do livro escolhido
+        originBookSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            public void onItemSelected(AdapterView<?> parent,View view,int position,long id){
+                String selectedBook=String.valueOf(originBookSpinner.getSelectedItem());
+                updateSpinnerEntries(appSpinner,NpcBookCatalogEngine.getAppearances(selectedBook));
+                updateSpinnerEntries(quirkSpinner,NpcBookCatalogEngine.getQuirks(selectedBook));
+                updateSpinnerEntries(secretSpinner,NpcBookCatalogEngine.getSecrets(selectedBook));
+                updateSpinnerEntries(hookSpinner,NpcBookCatalogEngine.getHooks(selectedBook));
+            }
+            public void onNothingSelected(AdapterView<?> parent){}
+        });
+
+        // Rolagens individuais
+        rollAppBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            String b=String.valueOf(originBookSpinner.getSelectedItem());
+            NpcBookCatalogEngine.RollResult r=NpcBookCatalogEngine.rollAppearance(b);
+            appSpinner.setSelection(Math.max(0,r.roll-1));
+            toast("🎲 Aparência: "+r.die+"="+r.roll+" ("+b+")");
+        }});
+        rollQuirkBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            String b=String.valueOf(originBookSpinner.getSelectedItem());
+            NpcBookCatalogEngine.RollResult r=NpcBookCatalogEngine.rollQuirk(b);
+            quirkSpinner.setSelection(Math.max(0,r.roll-1));
+            toast("🎲 Peculiaridade: "+r.die+"="+r.roll+" ("+b+")");
+        }});
+        rollSecretBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            String b=String.valueOf(originBookSpinner.getSelectedItem());
+            NpcBookCatalogEngine.RollResult r=NpcBookCatalogEngine.rollSecret(b);
+            secretSpinner.setSelection(Math.max(0,r.roll-1));
+            toast("🎲 Segredo: "+r.die+"="+r.roll+" ("+b+")");
+        }});
+        rollHookBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            String b=String.valueOf(originBookSpinner.getSelectedItem());
+            NpcBookCatalogEngine.RollResult r=NpcBookCatalogEngine.rollHook(b);
+            hookSpinner.setSelection(Math.max(0,r.roll-1));
+            toast("🎲 Gancho: "+r.die+"="+r.roll+" ("+b+")");
+        }});
+
+        // Rolar tudo no d20 do livro selecionado
+        rollAllFromBook.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            String b=String.valueOf(originBookSpinner.getSelectedItem());
+            NpcBookCatalogEngine.RollResult rApp=NpcBookCatalogEngine.rollAppearance(b);
+            NpcBookCatalogEngine.RollResult rQrk=NpcBookCatalogEngine.rollQuirk(b);
+            NpcBookCatalogEngine.RollResult rSec=NpcBookCatalogEngine.rollSecret(b);
+            NpcBookCatalogEngine.RollResult rHok=NpcBookCatalogEngine.rollHook(b);
+            appSpinner.setSelection(Math.max(0,rApp.roll-1));
+            quirkSpinner.setSelection(Math.max(0,rQrk.roll-1));
+            secretSpinner.setSelection(Math.max(0,rSec.roll-1));
+            hookSpinner.setSelection(Math.max(0,rHok.roll-1));
+            if(ancestrySpinner.getCount()>0)ancestrySpinner.setSelection((int)(Math.random()*ancestrySpinner.getCount()));
+            if(archetypeSpinner.getCount()>0)archetypeSpinner.setSelection((int)(Math.random()*archetypeSpinner.getCount()));
+            if(professionSpinner.getCount()>0)professionSpinner.setSelection((int)(Math.random()*professionSpinner.getCount()));
+            toast("🎲 Rolagem d20 nas tabelas de "+b+"!\nAparência d20="+rApp.roll+" • Peculiaridade d20="+rQrk.roll);
+        }});
 
         final String[] generatedTokenUri=new String[]{""};
         final TextView tokenStatus=text("Nenhum retrato gerado com IA ainda.",11,MUTED,false);
@@ -10565,8 +10647,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             String anc=String.valueOf(ancestrySpinner.getSelectedItem());
             String soc=String.valueOf(socialClassSpinner.getSelectedItem());
             String prof=String.valueOf(professionSpinner.getSelectedItem());
+            String app=String.valueOf(appSpinner.getSelectedItem());
             String qrk=String.valueOf(quirkSpinner.getSelectedItem());
-            final String prompt=NpcGeminiVisualPromptGenerator.buildPrompt(npcName,anc,soc,prof,qrk,"D&D 5e official portrait");
+            final String prompt=NpcGeminiVisualPromptGenerator.buildPrompt(npcName,anc,soc,prof,app+". "+qrk,"D&D 5e official portrait");
             setStatus("Gerando retrato para "+npcName+" com Gemini…");toast("Enviando solicitação de arte ao Gemini…");
             tokenStatus.setText("Gerando via Gemini: "+prompt);tokenStatus.setTextColor(GOLD);
             NpcGeminiVisualPromptGenerator.generateAndStoreToken(MainActivity.this,gemini,k,prefs.getString("image_model","gemini-3.1-flash-image"),prompt,System.currentTimeMillis(),new NpcGeminiVisualPromptGenerator.PortraitCallback(){
@@ -10588,7 +10671,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         new AlertDialog.Builder(this).setTitle("Criar NPC dos Livros").setView(scroll).setNegativeButton("Cancelar",null).setPositiveButton("SALVAR & INSERIR NO MUNDO",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){try{
             String npcName=value(nameField);if(npcName.length()==0){toast("Informe o nome do NPC.");return;}
             String chosenToken=generatedTokenUri[0];if(chosenToken.length()==0&&tokenSpinner.getSelectedItemPosition()>0){chosenToken="assets://npc/"+String.valueOf(tokenSpinner.getSelectedItem());}
-            JSONObject memory=NpcBookCatalogEngine.buildNpcMemory(npcName,String.valueOf(originBookSpinner.getSelectedItem()),String.valueOf(archetypeSpinner.getSelectedItem()),String.valueOf(ancestrySpinner.getSelectedItem()),String.valueOf(socialClassSpinner.getSelectedItem()),String.valueOf(professionSpinner.getSelectedItem()),String.valueOf(quirkSpinner.getSelectedItem()),String.valueOf(secretSpinner.getSelectedItem()),String.valueOf(hookSpinner.getSelectedItem()),String.valueOf(statblockSpinner.getSelectedItem()),chosenToken);
+            String combinedQuirk=String.valueOf(appSpinner.getSelectedItem())+" • "+String.valueOf(quirkSpinner.getSelectedItem());
+            JSONObject memory=NpcBookCatalogEngine.buildNpcMemory(npcName,String.valueOf(originBookSpinner.getSelectedItem()),String.valueOf(archetypeSpinner.getSelectedItem()),String.valueOf(ancestrySpinner.getSelectedItem()),String.valueOf(socialClassSpinner.getSelectedItem()),String.valueOf(professionSpinner.getSelectedItem()),combinedQuirk,String.valueOf(secretSpinner.getSelectedItem()),String.valueOf(hookSpinner.getSelectedItem()),String.valueOf(statblockSpinner.getSelectedItem()),chosenToken);
             db.upsertNpcMemory(memory);
             if(npcWorldSpreader==null)npcWorldSpreader=new NpcWorldSpreaderEngine(db);
             npcWorldSpreader.spreadActiveNpcs();
@@ -10597,6 +10681,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             screenCache.remove("Mundo Vivo");
             if("Mundo Vivo".equals(currentScreen))showLivingWorld();else showMemoryDialog();
         }catch(Exception e){toast("Falha ao criar NPC: "+e.getMessage());}}}).show();
+    }
+
+    private void updateSpinnerEntries(Spinner s,String[] items){
+        ArrayAdapter<String> a=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,items){
+            public View getView(int position,View convertView,ViewGroup parent){TextView v=(TextView)super.getView(position,convertView,parent);v.setTextColor(TEXT);v.setTextSize(15);v.setTypeface(isMystaraWorld()?Typeface.SERIF:Typeface.DEFAULT);v.setPadding(dp(10),dp(10),dp(10),dp(10));return v;}
+            public View getDropDownView(int position,View convertView,ViewGroup parent){TextView v=(TextView)super.getDropDownView(position,convertView,parent);v.setTextColor(TEXT);v.setTextSize(15);v.setTypeface(isMystaraWorld()?Typeface.SERIF:Typeface.DEFAULT);v.setBackgroundColor(PANEL);v.setPadding(dp(14),dp(12),dp(14),dp(12));return v;}
+        };
+        a.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        s.setAdapter(a);
     }
 
     private String[] listAvailableNpcTokens(){
