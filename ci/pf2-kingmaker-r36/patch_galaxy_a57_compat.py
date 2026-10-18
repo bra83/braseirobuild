@@ -66,6 +66,62 @@ PATCHES = (
 )
 
 
+
+# R36_BACK_NAVIGATION_EMBEDDED: integrate production V8 Back behavior without
+# changing R35, other games, SQLite, TTS or the existing 11 insets patches.
+BACK_CHANGES = (
+    (
+        '            buildShell();',
+        '            buildShell();\n            installR36BackNavigation();',
+    ),
+    (
+        '    protected void onDestroy(){if(uiResponsivenessMonitor!=null)uiResponsivenessMonitor.stop();',
+        '''    protected void onDestroy(){
+        if(Build.VERSION.SDK_INT>=33&&r36BackCallback!=null){
+            getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(r36BackCallback);
+            r36BackCallback=null;
+        }
+        if(uiResponsivenessMonitor!=null)uiResponsivenessMonitor.stop();''',
+    ),
+    (
+        '    private void navigate(final String n){',
+        '''    // R36: predictive Back on Android 13-16 and legacy Back on older devices.
+    // IME and AlertDialog retain window-level Back handling.
+    private android.window.OnBackInvokedCallback r36BackCallback;
+    private void installR36BackNavigation(){
+        if(Build.VERSION.SDK_INT>=33&&r36BackCallback==null){
+            r36BackCallback=new android.window.OnBackInvokedCallback(){
+                @Override public void onBackInvoked(){handleR36BackNavigation();}
+            };
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT,r36BackCallback);
+        }
+    }
+    @Override
+    public void onBackPressed(){handleR36BackNavigation();}
+    private void handleR36BackNavigation(){
+        if(navigationInProgress)return;
+        if(!"Aventura".equals(currentScreen)&&!"Campanha".equals(currentScreen)){
+            navigate("Aventura");
+            return;
+        }
+        finish();
+    }
+
+    private void navigate(final String n){''',
+    ),
+)
+
+
+def transform_back(source):
+    for old, new in BACK_CHANGES:
+        count = source.count(old)
+        if count != 1:
+            raise RuntimeError("R36 back-navigation source anchor changed (count=%d): %s" % (count, old[:80]))
+        source = source.replace(old, new, 1)
+    return source
+
+
 def transform(source):
     for old, new in PATCHES:
         count = source.count(old)
@@ -84,7 +140,10 @@ def apply(project):
     if not path.is_file():
         raise RuntimeError("MainActivity production source not found.")
     old = path.read_text(encoding="utf-8")
-    new = transform(old)
+    new = transform_back(transform(old))
+    for invariant in ('DatabaseMigrationGuard.beforeOpen(this)', 'SHERPA_KOKORO_ENGINE_PACKAGE', 'com.samsung.SMT'):
+        if invariant not in new:
+            raise RuntimeError("R36 shell/SQLite/TTS invariant missing: " + invariant)
     if 'setContentView(shellHost);' not in new or 'applySystemBarInsets(shellHost);' not in new:
         raise RuntimeError("Production safe-area installation disappeared.")
     path.write_text(new, encoding="utf-8")
