@@ -501,28 +501,48 @@ function enhanceAdventureGate(){
   gate.querySelectorAll('[data-start-published]').forEach(b=>b.addEventListener('click',()=>{
     const id=String(b.dataset.startPublished||''),entry=catalog.find(x=>x.id===id),label=String(entry?.title||entry?.originalTitle||(id==='under-black-sun'?'Sob um Sol Negro':'Além da Orla'));
     b.disabled=true;const original=b.textContent;b.textContent='INICIANDO…';
+    if(!hasCharacter()){
+      bridgeResult('loadStarterCharacter','cael');
+    }
     if(!sandboxReady()){
       const origin=id==='under-black-sun'?{startingPoint:'Coruscant — Setor 943',regionLabel:'Coruscant'}:{startingPoint:'Ord Mantell — Praça Central',regionLabel:'Ord Mantell'};
       bridgeResult('initializeLivingSandbox',origin);
     }
-    const r=window.BraseiroPublishedActionClient.execute('start',id);
-    if(!r.ok){b.disabled=false;b.textContent=original;if(out)out.textContent=r.message||'Não foi possível iniciar a aventura.';return}
-    if(out)out.textContent=masterNarrationAvailable()?`${label} iniciada. Mestre preparando a cena…`:`${label} iniciada com narração local.`;
-    setTimeout(()=>{enhanceSceneFromEngine();enhanceNarration();enhancePublishedAdventurePanel();enhanceSceneGeminiButton();if(masterNarrationAvailable())void requestPublishedMasterNarration(`abertura de ${label}`)},0);
+    r54ClearTransientUiState();
+    let r=window.BraseiroPublishedActionClient.execute('start',id);
+    if(!r?.ok){
+      const direct=bridgeResult('restartPublishedAdventure',id,{});
+      if(direct&&direct.ok) r={ok:true};
+    }
+    if(!r?.ok){b.disabled=false;b.textContent=original;if(out)out.textContent=r?.message||'Não foi possível iniciar a aventura.';return}
+    window.dispatchEvent(new Event('braseiro:r21-state-changed'));
+    gate.remove();
+    setTimeout(()=>{
+      enhance();
+      if(masterNarrationAvailable())void requestPublishedMasterNarration(`abertura de ${label}`);
+    },50);
   }));
   gate.querySelectorAll('[data-quick-black-sun]').forEach(b=>b.addEventListener('click',()=>{
     const choiceId=String(b.dataset.quickBlackSun||'');
     b.disabled=true;b.textContent='EXECUTANDO ESCOLHA…';
+    if(!hasCharacter()){
+      bridgeResult('loadStarterCharacter','cael');
+    }
     if(!sandboxReady()){
       bridgeResult('initializeLivingSandbox',{startingPoint:'Coruscant — Setor 943',regionLabel:'Coruscant'});
     }
+    r54ClearTransientUiState();
     const startRes=window.BraseiroPublishedActionClient.execute('start','under-black-sun');
     if(!startRes.ok&&startRes.code!=='ALREADY_ACTIVE'){
-      b.disabled=false;if(out)out.textContent=startRes.message||'Falha ao iniciar aventura.';return;
+      bridgeResult('restartPublishedAdventure','under-black-sun',{});
     }
     const choiceRes=window.BraseiroPublishedActionClient.execute('choice',choiceId);
-    if(out)out.textContent='Decisão aplicada com sucesso! Avançando cena…';
-    setTimeout(()=>{enhanceSceneFromEngine();enhanceNarration();enhancePublishedAdventurePanel();enhanceSceneGeminiButton();if(masterNarrationAvailable())void requestPublishedMasterNarration('reação imediata do grupo em Coruscant')},0);
+    window.dispatchEvent(new Event('braseiro:r21-state-changed'));
+    gate.remove();
+    setTimeout(()=>{
+      enhance();
+      if(masterNarrationAvailable())void requestPublishedMasterNarration('reação imediata do grupo em Coruscant');
+    },50);
   }));
   gate.querySelector('[data-start-sandbox]')?.addEventListener('click',async()=>{
     const b=gate.querySelector('[data-start-sandbox]');b.disabled=true;b.textContent='INICIANDO…';
@@ -1266,7 +1286,7 @@ function enhanceSceneGeminiButton(){
  let wrap=media.querySelector('.final-scene-gemini');
  if(!wrap){
   wrap=document.createElement('div');wrap.className='final-scene-gemini';
-  wrap.innerHTML='<button type="button" data-r54-scene-illustration="1">ℹ ILUSTRAÇÃO COM GEMINI</button><small aria-live="polite"></small>';
+  wrap.innerHTML='<button type="button" class="final-gemini-info-icon" data-r54-scene-illustration="1" title="ILUSTRAÇÃO DA CENA COM GEMINI" aria-label="ILUSTRAÇÃO DA CENA COM GEMINI">ℹ</button><small aria-live="polite" class="final-gemini-msg"></small>';
   media.appendChild(wrap);
  }
  const btn=wrap.querySelector('[data-r54-scene-illustration]'),msg=wrap.querySelector('small');
@@ -1407,19 +1427,54 @@ function r53EnsureDiceFab(){
  if(document.querySelector('.r53-dice-fab'))return;
  const b=document.createElement('button');b.type='button';b.className='r53-fab r53-dice-fab';b.innerHTML='<img src="assets/ui/icons-v2/dice.png" alt="">DADOS';b.onclick=r53OpenDice;document.body.appendChild(b);
 }
+function r54StartOrRestartPublishedAdventure(adventureId='under-black-sun'){
+ if(!hasCharacter()){
+  bridgeResult('loadStarterCharacter','cael');
+ }
+ r54ClearTransientUiState();
+ const origin=adventureId==='beyond-the-rim'?{startingPoint:'Ord Mantell — Praça Central',regionLabel:'Ord Mantell'}:{startingPoint:'Coruscant — Setor 943',regionLabel:'Coruscant'};
+ if(!sandboxReady()){
+  bridgeResult('initializeLivingSandbox',origin);
+ }
+ const r=bridgeResult('restartPublishedAdventure',adventureId,{});
+ if(!r?.ok){
+  bridgeResult('restartSandboxPreservingParty');
+  bridgeResult('initializeLivingSandbox',origin);
+  bridgeResult('startPublishedAdventureSession',adventureId,{});
+ }
+ window.dispatchEvent(new Event('braseiro:r21-state-changed'));
+ document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());
+ setTimeout(()=>{
+  enhance();
+  if(masterNarrationAvailable())void requestPublishedMasterNarration(`abertura de ${adventureId==='under-black-sun'?'Sob um Sol Negro':'Além da Orla'}`);
+ },50);
+}
 function r53RestartAdventure(){
  if(!confirm('Reiniciar a aventura mantendo personagem, grupo, nave e ajustes deste aparelho?'))return;
- const published=publishedAdventureView(),publishedId=activePublishedAdventureId();if((published?.active||published?.completed)&&publishedId){const r=bridgeResult('restartPublishedAdventure',publishedId,{});if(!r.ok){alert(r.message||'Não foi possível reiniciar a aventura publicada.');return}setTimeout(enhance,0);return}
  try{
-  const r=bridgeResult('restartSandboxPreservingParty');
-  if(!r?.ok)throw new Error(r?.message||'O motor não conseguiu reiniciar o sandbox com segurança.');
-  localStorage.removeItem('braseiro.starwars.edge.snapshots.v1');
-  sessionStorage.clear();
-  location.href='r46-shell.html';
+  r54ClearTransientUiState();
+  if(!hasCharacter()){
+   bridgeResult('loadStarterCharacter','cael');
+  }
+  const publishedId=activePublishedAdventureId()||'under-black-sun';
+  const r=bridgeResult('restartPublishedAdventure',publishedId,{});
+  if(!r?.ok){
+   bridgeResult('restartSandboxPreservingParty');
+   const origin=publishedId==='beyond-the-rim'?{startingPoint:'Ord Mantell — Praça Central',regionLabel:'Ord Mantell'}:{startingPoint:'Coruscant — Setor 943',regionLabel:'Coruscant'};
+   bridgeResult('initializeLivingSandbox',origin);
+   bridgeResult('startPublishedAdventureSession',publishedId,{});
+  }
+  window.dispatchEvent(new Event('braseiro:r21-state-changed'));
+  document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());
+  setTimeout(()=>{
+   enhance();
+   if(masterNarrationAvailable())void requestPublishedMasterNarration(`reabertura de ${publishedId==='under-black-sun'?'Sob um Sol Negro':'Além da Orla'}`);
+  },50);
  }catch(err){alert('Falha ao reiniciar: '+String(err?.message||err))}
 }
 function r54ClearTransientUiState(){
  try{localStorage.removeItem('braseiro.starwars.edge.snapshots.v1')}catch(_){ }
+ try{localStorage.removeItem('braseiro.starwars.published.pending.v1')}catch(_){ }
  try{sessionStorage.clear()}catch(_){ }
 }
 function r54ReturnToCampaignSelection(mode){
@@ -1438,7 +1493,15 @@ function r54ZeroCampaign(){
  const fresh=bridgeResult('newCampaign','Nova campanha');
  if(!fresh?.ok){alert(fresh?.message||'Não foi possível zerar a campanha.');return}
  r54ClearTransientUiState();
- location.href='r46-shell.html?campaignReset=1';
+ bridgeResult('loadStarterCharacter','cael');
+ bridgeResult('initializeLivingSandbox',{startingPoint:'Coruscant — Setor 943',regionLabel:'Coruscant'});
+ bridgeResult('restartPublishedAdventure','under-black-sun',{});
+ window.dispatchEvent(new Event('braseiro:r21-state-changed'));
+ document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());
+ setTimeout(()=>{
+  enhance();
+  if(masterNarrationAvailable())void requestPublishedMasterNarration('abertura de Sob um Sol Negro');
+ },50);
 }
 function r54OpenCampaignHub(){
  if(document.querySelector('.r54-campaign-hub'))return;
@@ -1456,12 +1519,69 @@ function r54OpenCampaignHub(){
  ov.querySelector('[data-new-world]').onclick=()=>r54ReturnToCampaignSelection(select.value);
  ov.querySelector('[data-zero-campaign]').onclick=r54ZeroCampaign;
 }
+function enhanceBottomSheetMenu(){
+ const sheet=document.querySelector('.bottom-sheet');
+ if(!sheet)return;
+ if(sheet.querySelector('.r54-sheet-campaign-zone'))return;
+ const header=sheet.querySelector('header');
+ if(!header)return;
+ const zone=document.createElement('div');
+ zone.className='r54-sheet-campaign-zone';
+ zone.innerHTML=`
+  <div class="r54-sheet-campaign-header">
+   <span>CAMPANHA & AVENTURA</span>
+   <small>Modo: <b>${campaignMode()}</b></small>
+  </div>
+  <div class="r54-sheet-campaign-buttons">
+   <button type="button" class="r54-sheet-btn is-highlight" data-r54-sheet-restart>
+    <span class="r54-sheet-btn-icon">🚀</span>
+    <div class="r54-sheet-btn-text">
+     <strong>REINICIAR AVENTURA</strong>
+     <small>Reinicia do início (Sob um Sol Negro)</small>
+    </div>
+   </button>
+   <button type="button" class="r54-sheet-btn" data-r54-sheet-beyond>
+    <span class="r54-sheet-btn-icon">🌌</span>
+    <div class="r54-sheet-btn-text">
+     <strong>INICIAR: ALÉM DA ORLA</strong>
+     <small>Expedição ao redor de Ord Mantell (Ep. 1)</small>
+    </div>
+   </button>
+   <button type="button" class="r54-sheet-btn" data-r54-sheet-sandbox>
+    <span class="r54-sheet-btn-icon">★</span>
+    <div class="r54-sheet-btn-text">
+     <strong>MODO LIVRE (SANDBOX)</strong>
+     <small>Exploração galáctica sem roteiro</small>
+    </div>
+   </button>
+   <button type="button" class="r54-sheet-btn" data-r54-sheet-hub>
+    <span class="r54-sheet-btn-icon">🌐</span>
+    <div class="r54-sheet-btn-text">
+     <strong>NOVO MUNDO / VOLTAR À SELEÇÃO</strong>
+     <small>Trocar modo (EotE / AoR / Mista) ou criar mundo</small>
+    </div>
+   </button>
+   <button type="button" class="r54-sheet-btn is-danger" data-r54-sheet-zero>
+    <span class="r54-sheet-btn-icon">⚠️</span>
+    <div class="r54-sheet-btn-text">
+     <strong>ZERAR CAMPANHA INTEIRA</strong>
+     <small>Apagar tudo e reiniciar do zero</small>
+    </div>
+   </button>
+  </div>
+  <div class="r54-sheet-divider"><span>UTILIDADES DO SISTEMA</span></div>
+ `;
+ if(header.nextSibling)header.parentNode.insertBefore(zone,header.nextSibling);else header.parentNode.appendChild(zone);
+ const closeSheet=()=>{const c=sheet.querySelector('button[aria-label="Fechar"]');if(c)c.click();else sheet.closest('dialog')?.removeAttribute('open')};
+ zone.querySelector('[data-r54-sheet-restart]')?.addEventListener('click',()=>{closeSheet();r53RestartAdventure()});
+ zone.querySelector('[data-r54-sheet-beyond]')?.addEventListener('click',()=>{closeSheet();r54StartOrRestartPublishedAdventure('beyond-the-rim')});
+ zone.querySelector('[data-r54-sheet-sandbox]')?.addEventListener('click',async()=>{closeSheet();await startBarbaraOpening()});
+ zone.querySelector('[data-r54-sheet-hub]')?.addEventListener('click',()=>{closeSheet();r54OpenCampaignHub()});
+ zone.querySelector('[data-r54-sheet-zero]')?.addEventListener('click',()=>{closeSheet();r54ZeroCampaign()});
+}
 function r53EnsureRestart(){
- const old=document.querySelector('.r53-restart-fab');
- const route=new URLSearchParams(location.search).get('screen')||'00';
- if(route!=='00'){old?.remove();return}
- if(old)return;
- const b=document.createElement('button');b.type='button';b.className='r53-fab r53-restart-fab';b.textContent='☰ CAMPANHA';b.setAttribute('aria-label','Gerenciar campanha e mundo');b.onclick=r54OpenCampaignHub;document.body.appendChild(b);
+ document.querySelectorAll('.r53-restart-fab').forEach(el=>el.remove());
+ enhanceBottomSheetMenu();
 }
 function r53OpenLibrary(){
  if(document.querySelector('.r53-library-overlay'))return;
@@ -3018,3 +3138,19 @@ refreshReceipts();
  if(window.BraseiroDomScheduler)window.BraseiroDomScheduler.register('p197-wing-guard-tactics',mount);
  else{if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();addEventListener('popstate',()=>setTimeout(mount,0));}
 })();
+
+if(!window.__r54BottomSheetObserverInstalled){
+ window.__r54BottomSheetObserverInstalled=true;
+ try{
+  const observer = new MutationObserver(()=>{
+   if(document.querySelector('.bottom-sheet')) enhanceBottomSheetMenu();
+  });
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+ }catch(_){}
+ document.addEventListener('click',e=>{
+  if(e.target.closest('.scene-context-menu, [aria-label="Abrir utilidades"]')){
+   setTimeout(enhanceBottomSheetMenu,30);
+   setTimeout(enhanceBottomSheetMenu,150);
+  }
+ },true);
+}
