@@ -15,6 +15,9 @@
  .r54-character-portrait figcaption{padding:7px 0!important;text-align:center!important;background:transparent!important}
  .r54-p1-char-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;margin-top:8px!important}
  .r54-p1-char-actions button,.r54-p1-btn{min-height:44px!important;border:1px solid #9e7737!important;border-radius:10px!important;background:#151a1e!important;color:#eee6d8!important;font-weight:800!important;padding:8px 10px!important}
+ .r54-btn-gemini-char{grid-column:1 / -1!important;border-color:#38bdf8!important;background:linear-gradient(135deg,#0c2233,#132f4c)!important;color:#7dd3fc!important;box-shadow:0 2px 8px rgba(56,189,248,.25)!important;letter-spacing:.5px!important}
+ .r54-btn-gemini-char:active{background:#081b29!important;transform:scale(.98)!important}
+ .r54-p1-char-status{grid-column:1 / -1!important;font-size:11px!important;color:#7dd3fc!important;text-align:center!important;min-height:16px!important;line-height:1.3!important}
  .r54-p1-world-map{margin:12px 18px 22px!important;border:1px solid rgba(79,197,238,.45)!important;border-radius:12px!important;background:#05090c!important;overflow:hidden!important;position:relative!important;z-index:2!important}
  .r54-p1-map-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;padding:10px!important;background:#0b1217!important;color:#e9e2d5!important}
  .r54-p1-map-head strong{font-size:15px!important}.r54-p1-map-controls{display:flex!important;gap:6px!important}.r54-p1-map-controls button{min-width:42px!important;height:42px!important;border:1px solid #547989!important;border-radius:8px!important;background:#101a20!important;color:#dff6ff!important;font-weight:900!important}
@@ -63,7 +66,108 @@
  function setText(c,names,v){for(const n of names)if(Object.prototype.hasOwnProperty.call(c,n)){c[n]=v;return}c[names[0]]=v}
  function setNumber(c,names,v){const n=Number(v);if(!Number.isFinite(n))return;for(const k of names)if(Object.prototype.hasOwnProperty.call(c,k)){c[k]=n;return}c[names[0]]=n}
  function editCharacter(){const st=state(),c=st?.player?.character;if(!c)return;const modal=document.createElement('div');modal.className='r54-p1-modal';modal.innerHTML=`<section class="r54-p1-sheet"><div class="r54-p1-sheet-head"><h2>EDITAR FICHA</h2><button class="r54-p1-close">×</button></div><form class="r54-p1-form"><label>Nome<input name="name" value="${esc(charValue(c,['name']))}"></label><label>Espécie<input name="species" value="${esc(charValue(c,['species','speciesName']))}"></label><label>Carreira<input name="career" value="${esc(charValue(c,['career','careerName']))}"></label><label>Especialização<input name="specialization" value="${esc(charValue(c,['specialization','specializationName','primarySpecialization']))}"></label><label>Motivação<textarea name="motivation">${esc(typeof c.motivation==='string'?c.motivation:(c.motivation?.text||c.motivation?.name||''))}</textarea></label><label>Ferimentos atuais<input name="wounds" inputmode="numeric" value="${esc(charValue(c,['wounds','currentWounds']))}"></label><label>Tensão atual<input name="strain" inputmode="numeric" value="${esc(charValue(c,['strain','currentStrain']))}"></label><label>Créditos<input name="credits" inputmode="numeric" value="${esc(charValue(c,['credits']))}"></label><button class="r54-p1-btn" type="submit">SALVAR FICHA</button><output class="r54-p1-save-status"></output></form></section>`;document.body.appendChild(modal);modal.querySelector('.r54-p1-close').onclick=()=>modal.remove();modal.addEventListener('click',e=>{if(e.target===modal)modal.remove()});modal.querySelector('form').onsubmit=e=>{e.preventDefault();try{const raw=JSON.parse(localStorage.getItem(KEY)||'null');const ch=raw?.player?.character;if(!ch)throw new Error('Ficha não encontrada');const fd=new FormData(e.currentTarget);setText(ch,['name'],String(fd.get('name')||'').trim());setText(ch,['species','speciesName'],String(fd.get('species')||'').trim());setText(ch,['career','careerName'],String(fd.get('career')||'').trim());setText(ch,['specialization','specializationName','primarySpecialization'],String(fd.get('specialization')||'').trim());const mot=String(fd.get('motivation')||'').trim();if(ch.motivation&&typeof ch.motivation==='object'){if('text'in ch.motivation)ch.motivation.text=mot;else if('name'in ch.motivation)ch.motivation.name=mot;else ch.motivation.text=mot}else ch.motivation=mot;setNumber(ch,['wounds','currentWounds'],fd.get('wounds'));setNumber(ch,['strain','currentStrain'],fd.get('strain'));setNumber(ch,['credits'],fd.get('credits'));localStorage.setItem(KEY,JSON.stringify(raw));e.currentTarget.querySelector('output').textContent='Ficha salva.';setTimeout(()=>location.reload(),250)}catch(err){e.currentTarget.querySelector('output').textContent='Erro: '+String(err?.message||err)}}}
- function fixCharacterTools(force=false){if(route()!=='06')return;const fig=document.querySelector('.r54-character-portrait'),st=state(),c=st?.player?.character;if(!fig||!c)return;const custom=localStorage.getItem(PHOTO);const img=fig.querySelector('img');if(custom&&img&&img.src!==custom)img.src=custom;if(force)fig.querySelector('.r54-p1-char-actions')?.remove();if(fig.querySelector('.r54-p1-char-actions'))return;const box=document.createElement('div');box.className='r54-p1-char-actions';box.innerHTML='<button type="button" data-photo>TROCAR FOTO</button><button type="button" data-edit>EDITAR FICHA</button>';fig.appendChild(box);box.querySelector('[data-photo]').onclick=choosePhoto;box.querySelector('[data-edit]').onclick=editCharacter}
+ function generateCharacterGeminiPhoto(){
+  const st=state(),c=st?.player?.character;
+  if(!c)return;
+  const name=String(c.name||'Personagem').trim();
+  const species=String(c.species||c.speciesName||'').trim();
+  const career=String(c.career||c.careerName||'').trim();
+  const spec=String(c.specialization||c.specializationName||c.primarySpecialization||'').trim();
+  const gender=String(c.gender||c.sex||'').trim();
+  const desc=String(c.appearance||c.description||c.details||'').trim();
+  const mot=String(typeof c.motivation==='string'?c.motivation:(c.motivation?.text||c.motivation?.name||'')).trim();
+
+  const lines=[
+   'Gere uma imagem: retrato oficial e concept art cinematográfico para ficha de personagem no universo Star Wars (Fronteira do Império / Era da Rebelião).',
+   `Personagem: ${name}.`,
+   species?`Espécie: ${species}.`:'',
+   gender?`Gênero: ${gender}.`:'',
+   (career||spec)?`Carreira e Especialização: ${[career,spec].filter(Boolean).join(' · ')}.`:'',
+   desc?`Aparência física e vestimenta: ${desc}.`:'',
+   mot?`Personalidade e motivação: ${mot}.`:'',
+   'Enquadramento: Retrato vertical focado do peito para cima (meio-corpo), rosto nítido, centralizado e expressivo, proporção vertical 3:4 adequada para avatar e ficha de RPG.',
+   'Estética e Iluminação: Concept art realista no estilo oficial de Star Wars (Lucasfilm / Fantasy Flight Games), iluminação cinematográfica dramática, atmosfera space opera retro-industrial, paleta rica com sombras marcantes.',
+   'Fundo: Fundo diegético escuro e sutil (interior de hangar espacial, cantina galáctica ou cabine de cargueiro) com desfoque de profundidade suave (bokeh).',
+   'Restrições estritas: Apenas um personagem em cena. Sem letras, sem texto escrito, sem números, sem marcas d\'água, sem molduras ou bordas decorativas.'
+  ].filter(Boolean);
+
+  const prompt=lines.join('\n\n');
+  const out=document.querySelector('.r54-p1-char-status');
+  if(out) out.textContent='Copiando prompt e abrindo Gemini...';
+
+  let opened=false;
+  const b=window.BraseiroNpcTokens;
+  const g=window.BraseiroGemini;
+  if(b&&typeof b.openGeminiTokenPrompt==='function'){
+   try{
+    const r=parse(b.openGeminiTokenPrompt('hero',prompt));
+    if(r?.ok)opened=true;
+   }catch(_){}
+  }
+  if(!opened&&g&&typeof g.openGeminiWithPrompt==='function'){
+   try{
+    const r=parse(g.openGeminiWithPrompt(prompt));
+    if(r?.ok)opened=true;
+   }catch(_){}
+  }
+  if(!opened&&g&&typeof g.openGeminiScenePrompt==='function'){
+   try{
+    const r=parse(g.openGeminiScenePrompt(prompt,'hero'));
+    if(r?.ok)opened=true;
+   }catch(_){}
+  }
+  if(!opened&&navigator.clipboard?.writeText){
+   navigator.clipboard.writeText(prompt).catch(()=>{});
+  }
+  if(out){
+   setTimeout(()=>{
+    out.textContent='Gere a imagem no Gemini e toque em [TROCAR FOTO] ou compartilhe aqui.';
+   },2500);
+  }
+ }
+ function handleHeroTokenImport(raw){
+  try{
+   const evt=parse(raw);
+   if(evt?.type==='token_imported'){
+    const id=String(evt?.payload?.npcId||'').toLowerCase();
+    if(id==='hero'||id==='character'){
+     const url=evt?.payload?.url;
+     if(url){
+      localStorage.setItem(PHOTO,url);
+      const fig=document.querySelector('.r54-character-portrait');
+      if(fig){
+       const img=fig.querySelector('img');
+       if(img)img.src=url;
+      }
+     }
+    }
+   }
+  }catch(_){}
+ }
+ const prevNativeNpcToken=window.braseiroNpcTokenNativeEvent;
+ window.braseiroNpcTokenNativeEvent=function(raw){
+  handleHeroTokenImport(raw);
+  if(typeof prevNativeNpcToken==='function')prevNativeNpcToken(raw);
+ };
+ window.addEventListener('braseiroNpcTokenNativeEvent',e=>handleHeroTokenImport(e?.detail));
+
+ function fixCharacterTools(force=false){
+  if(!['06','07'].includes(route())&&!document.querySelector('.r54-character-portrait'))return;
+  const fig=document.querySelector('.r54-character-portrait'),st=state(),c=st?.player?.character;
+  if(!fig||!c)return;
+  const custom=localStorage.getItem(PHOTO);
+  const img=fig.querySelector('img');
+  if(custom&&img&&img.src!==custom)img.src=custom;
+  if(force)fig.querySelector('.r54-p1-char-actions')?.remove();
+  if(fig.querySelector('.r54-p1-char-actions'))return;
+  const box=document.createElement('div');
+  box.className='r54-p1-char-actions';
+  box.innerHTML='<button type="button" data-gemini class="r54-btn-gemini-char">✦ GERAR COM GEMINI</button><button type="button" data-photo>TROCAR FOTO</button><button type="button" data-edit>EDITAR FICHA</button><output class="r54-p1-char-status"></output>';
+  fig.appendChild(box);
+  box.querySelector('[data-gemini]').onclick=generateCharacterGeminiPhoto;
+  box.querySelector('[data-photo]').onclick=choosePhoto;
+  box.querySelector('[data-edit]').onclick=editCharacter;
+ }
 
  function geminiStatus(){try{return parse(window.BraseiroGemini?.getStatus?.())||{}}catch{return{}}}
  function fixGeminiSettings(){if(route()!=='29')return;const cards=[...document.querySelectorAll('section,article,[class*=card],div')];const card=cards.find(x=>norm(x.textContent).includes('chave da api gemini')&&x.querySelector('input'));if(!card)return;const input=[...card.querySelectorAll('input')].find(x=>/chave|gemini/i.test(x.placeholder||''))||card.querySelector('input');const save=[...card.querySelectorAll('button')].find(x=>norm(x.textContent).includes('salvar chave'));if(!input||!save)return;let out=card.querySelector('.r54-p1-save-status');if(!out){out=document.createElement('output');out.className='r54-p1-save-status';save.insertAdjacentElement('afterend',out)}const enable=()=>{save.disabled=String(input.value||'').trim().length<20};if(!input.dataset.p1){input.dataset.p1='1';input.addEventListener('input',enable)}enable();if(!save.dataset.p1){save.dataset.p1='1';save.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();const key=String(input.value||'').trim();if(key.length<20){out.textContent='Cole uma chave Gemini válida.';return}let r;try{r=parse(window.BraseiroGemini?.configureApiKey?.(key))}catch(err){r={ok:false,message:String(err)}}if(r?.ok){input.value='';out.textContent='Chave salva no aparelho.';const text=[...card.querySelectorAll('p,div')].find(x=>/^chave:/i.test(String(x.textContent||'').trim()));if(text)text.innerHTML='<strong>Chave:</strong> configurada';setTimeout(()=>window.dispatchEvent(new CustomEvent('braseiroGeminiNativeEvent',{detail:{type:'configured'}})),0)}else out.textContent=r?.message||'Falha ao salvar a chave.';enable()},true)}}

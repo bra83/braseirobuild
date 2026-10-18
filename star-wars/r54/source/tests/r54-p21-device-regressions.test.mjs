@@ -111,3 +111,16 @@ test('P21 Android não tenta exibir mapa externo remoto antes do cache e seleç�
   assert.match(select,/cacheExternalImage/);
   assert.match(select,/Baixando mapa para uso offline/);
 });
+
+test('R54: ficha do personagem expõe botão de gerar retrato com Gemini e aceita token importado',async()=>{
+  const p1=await text('app/src/main/assets/vtt/r54-device-p1.js');
+  assert.match(p1,/data-gemini/);
+  assert.match(p1,/GERAR COM GEMINI/);
+  assert.match(p1,/generateCharacterGeminiPhoto/);
+  assert.match(p1,/Gere uma imagem: retrato oficial e concept art cinematográfico para ficha de personagem/);
+  assert.match(p1,/r54-btn-gemini-char/);
+  assert.match(p1,/openGeminiTokenPrompt\('hero'/);
+  assert.match(p1,/handleHeroTokenImport/);
+  assert.match(p1,/braseiro\.starwars\.character\.photo\.v1/);
+});
+
