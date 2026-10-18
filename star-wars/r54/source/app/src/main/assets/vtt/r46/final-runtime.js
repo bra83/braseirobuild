@@ -199,19 +199,21 @@ function bindPersistentNpcToken(slot,p,frame,strong,small){
   return false;
  };
  const hasImg=renderTokenIfAvailable();
- slot.classList.add('npc-token-action');slot.setAttribute('role','button');slot.tabIndex=0;slot.setAttribute('aria-label',`Interagir com ${p.name} via Gemini`);
+ slot.classList.add('npc-token-action');slot.setAttribute('role','button');slot.tabIndex=0;slot.setAttribute('aria-label',`Gerar imagem de ${p.name} no Gemini`);
  const activate=()=>{
   const npcName=String(p.name||'NPC').trim();
   const role=String(p.meta||p.occupation||p.career||'personagem').trim();
   const species=p.species?`Espécie: ${p.species}. `:'';
   const sceneTitle=document.querySelector('.scene-header h1, .scene-concept-shell h1')?.textContent||'Cena Star Wars';
-  const situation=document.querySelector('.scene-situation-paper p')?.textContent||'';
   const prompt=[
-   `[INTERAÇÃO_NPC_STAR_WARS] O jogador está interagindo diretamente com ${npcName} (${role}).`,
-   `${species}Local/Cena: ${sceneTitle}.`,
-   situation?`Situação imediata: ${situation}`:'',
-   p.appearance?`Aparência visual: ${p.appearance}`:'',
-   `Atue como o Mestre de Jogo de Star Wars (Fronteira do Império / Era da Rebelião) interpretando a reação, diálogo e atitude de ${npcName} em português do Brasil com a devida atmosfera da saga. Se for solicitado um retrato/token, gere um concept art cinematográfico de meio-corpo focado no rosto de ${npcName}.`
+   `Gere uma imagem: retrato oficial e concept art cinematográfico para token de personagem no universo Star Wars.`,
+   `Personagem: ${npcName} (${role}).`,
+   species?`${species}`:'',
+   p.appearance?`Aparência física e vestimenta: ${p.appearance}.`:'',
+   `Enquadramento: Retrato vertical focado do peito para cima (meio-corpo), rosto nítido, centralizado e expressivo, proporção adequada para token de VTT.`,
+   `Estética e Iluminação: Concept art realista de Star Wars (Fronteira do Império / Era da Rebelião), iluminação cinematográfica, atmosfera de space opera.`,
+   `Fundo: Fundo neutro escuro ou ambiente sutil desfocado (bokeh suave) da cena (${sceneTitle}).`,
+   `Restrições: Apenas uma pessoa na imagem. Sem letras, sem texto escrito, sem números, sem logotipos, sem molduras ou bordas.`
   ].filter(Boolean).join('\n\n');
 
   let opened=false;
@@ -234,14 +236,14 @@ function bindPersistentNpcToken(slot,p,frame,strong,small){
    }catch(_){}
   }
   if(small){
-   small.textContent=opened?`Gemini aberto · falando com ${npcName}`:`Prompt gerado para ${npcName}`;
+   small.textContent=opened?`Gemini aberto · gerando retrato de ${npcName}`:`Prompt de imagem gerado para ${npcName}`;
   }
  };
  slot.onclick=(e)=>{e.preventDefault();e.stopPropagation();activate()};
  slot.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}};
- if(strong){strong.style.cursor='pointer';strong.title=`Interagir com ${p.name} via Gemini`}
- if(frame){frame.style.cursor='pointer';frame.title=`Interagir com ${p.name} via Gemini`}
- if(!hasImg&&small&&!small.textContent)small.textContent=p.meta||p.status||'Toque para interagir';
+ if(strong){strong.style.cursor='pointer';strong.title=`Gerar imagem de ${p.name} no Gemini`}
+ if(frame){frame.style.cursor='pointer';frame.title=`Gerar imagem de ${p.name} no Gemini`}
+ if(!hasImg&&small&&!small.textContent)small.textContent=p.meta||p.status||'Toque para gerar imagem';
 }
 function sceneActionStatus(root,message,error=false){
  const composer=root?.querySelector('.scene-composer');if(!composer)return;
@@ -1441,40 +1443,7 @@ function enhanceCharacterEmptyActions(){
 function enhanceUtilityShortcuts(){document.querySelectorAll('.final-utility-shortcuts').forEach(el=>el.remove());const route=new URLSearchParams(location.search).get('screen')||'00';if(route!=='29'||document.querySelector('.final-library-shortcut'))return;const host=document.createElement('div');host.innerHTML='<button type="button" class="r53-fab final-library-shortcut">BIBLIOTECA</button>';const b=host.firstElementChild;b.setAttribute('aria-label','Abrir Biblioteca');b.onclick=()=>r53OpenLibrary();document.body.appendChild(b);}
 
 function enhanceSceneGeminiMasterBar(){
- const route=new URLSearchParams(location.search).get('screen')||'00';if(route!=='00')return;
- const root=document.querySelector('.scene-concept-shell');if(!root)return;
- let bar=root.querySelector('.r54-scene-gemini-bar');
- if(!bar){
-  bar=document.createElement('div');bar.className='r54-scene-gemini-bar';
-  bar.innerHTML='<button type="button" class="r54-btn-gemini-trigger" id="r54-trigger-gemini-btn"><span>✦</span> NARRAR CENA COM MESTRE GEMINI</button><button type="button" class="r54-btn-holotable-trigger" onclick="window.BraseiroHolotable?.open()"><span>⬡</span> TERMINAL TÁTICO HOLONET</button>';
- }
- if(bar.parentNode!==root){
-  const anchor=root.querySelector('.scene-situation-grid')||root.querySelector('.scene-narrative-paper');
-  if(anchor&&anchor.parentNode===root&&anchor.nextSibling){root.insertBefore(bar,anchor.nextSibling)}else{root.appendChild(bar)}
- }
- const btn=bar.querySelector('#r54-trigger-gemini-btn');
- if(btn){
-  btn.onclick=async()=>{
-   btn.disabled=true;const oldHtml=btn.innerHTML;btn.innerHTML='<span>⏳</span> MESTRE GEMINI CONSULTANDO A GALÁXIA…';
-   try{
-    const pub=publishedAdventureView();
-    if(pub?.active){
-      await requestPublishedMasterNarration('pedido explícito do jogador para narrar a cena');
-    }else if(!adventureStarted()){
-      await startBarbaraOpening();
-    }else{
-      const game=globalThis.BraseiroGameBridge;
-      if(game&&typeof game.submitPlayerIntent==='function'){
-        await game.submitPlayerIntent('[NARRACAO_MESTRE] O jogador pediu que você assuma a narração desta cena atual com toda a imersão sensorial e regras dos 5 Pilares.');
-      }
-    }
-   }catch(e){console.error(e)}
-   finally{
-    btn.disabled=false;btn.innerHTML=oldHtml;
-    setTimeout(()=>{enhanceSceneFromEngine();enhanceNarration();badge()},100);
-   }
-  };
- }
+ document.querySelectorAll('.r54-scene-gemini-bar').forEach(el=>el.remove());
 }
 
 function enhance(){

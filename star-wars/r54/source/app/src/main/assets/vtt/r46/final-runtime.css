@@ -238,53 +238,8 @@ html.braseiro-reduced-motion *,html.braseiro-reduced-motion *::before,html.brase
   transform: translateY(1px);
 }
 
-/* Barra Ativa do Mestre Gemini na Cena */
-.r54-scene-gemini-bar {
-  margin: 10px 0 14px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.r54-btn-gemini-trigger {
-  flex: 1 1 180px;
-  min-height: 46px;
-  padding: 8px 14px;
-  border: 1px solid #74d8ff;
-  border-radius: 8px;
-  background: linear-gradient(180deg, #153847, #0b2029);
-  color: #74d8ff;
-  font-weight: 900;
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  box-shadow: 0 0 12px rgba(116,216,255,0.22);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-}
-.r54-btn-gemini-trigger:active {
-  transform: scale(0.98);
-}
-.r54-btn-gemini-trigger:disabled {
-  opacity: 0.65;
-}
-.r54-btn-holotable-trigger {
-  flex: 1 1 150px;
-  min-height: 46px;
-  padding: 8px 12px;
-  border: 1px solid #d49d42;
-  border-radius: 8px;
-  background: linear-gradient(180deg, #38281a, #1f150c);
-  color: #f1d29b;
-  font-weight: 900;
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
+.r54-scene-gemini-bar, .r54-btn-gemini-trigger, .r54-btn-holotable-trigger {
+  display: none !important;
 }
 
 /* Estilização moderna de botões nas telas mecânicas */
@@ -627,48 +582,9 @@ html.braseiro-reduced-motion *,html.braseiro-reduced-motion *::before,html.brase
   background: #173243 !important;
 }
 
-/* Barra Mestre Gemini / Holonet na Cena */
+/* Barra Mestre Gemini / Holonet removida para liberar espaço de tela */
 .r54-scene-gemini-bar {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-  margin: 8px 0 !important;
-}
-.r54-btn-gemini-trigger {
-  min-height: 48px !important;
-  background: linear-gradient(180deg, #312e81 0%, #1e1b4b 100%) !important;
-  border: 1px solid #6366f1 !important;
-  color: #e0e7ff !important;
-  border-radius: 8px !important;
-  font-weight: 800 !important;
-  font-size: 0.88rem !important;
-  letter-spacing: 0.04em !important;
-  padding: 10px 14px !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.4) !important;
-}
-.r54-btn-gemini-trigger:active {
-  transform: translateY(1px);
-  border-color: #818cf8;
-}
-.r54-btn-holotable-trigger {
-  min-height: 42px !important;
-  background: #0f172a !important;
-  border: 1px solid #334155 !important;
-  color: #94a3b8 !important;
-  border-radius: 8px !important;
-  font-weight: 700 !important;
-  font-size: 0.8rem !important;
-  padding: 8px 12px !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
+  display: none !important;
 }
 
 /* Zona de Campanha e Aventura no Menu Hambúrguer (Bottom Sheet) */
