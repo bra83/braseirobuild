@@ -33685,6 +33685,79 @@ function prepareLocalMasterTurn(state, intentText) {
     };
 }
 });
+define("js/master/narrativeGuard.mjs",function(module,exports,require){
+"use strict";
+/* Narrative Guard & Immersive Human Master Service — Star Wars VTT */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.NarrativeGuardService = exports.NARRATIVE_BLACKLIST_PATTERNS = void 0;
+exports.generateStarWarsImmersiveFallback = generateStarWarsImmersiveFallback;
+exports.NARRATIVE_BLACKLIST_PATTERNS = Object.freeze([
+    /\b(?:como uma ia|como inteligência artificial|assistente virtual|prompt|pipeline|sistema de ia)\b/gi,
+    /\b(?:a cena responde|antes que qualquer explicação|a cena não pede uma resposta|o sistema calculou)\b/gi,
+    /\b(?:você decide|você sente medo|você fica impressionado|você odeia|você se apaixona)\b/gi,
+    /\b(?:opções disponíveis|você pode:|ações sugeridas:|status:|local atual:|clima atualizado:)\b/gi,
+    /\b(?:hex\s*\d+|actor_\d+|loc_[a-z0-9_]+|npc_[a-z0-9_]+)\b/gi
+]);
+class NarrativeGuardService {
+    /**
+     * Limpa metalinguagem de software, rótulos de interface e muletas da prosa visível.
+     */
+    static sanitize(text) {
+        let clean = String(text || '').replace(/\r\n/g, '\n');
+        // Remove rótulos de interface que vazem para a prosa narrativa
+        clean = clean.replace(/^\s*(?:local atual|clima(?: atualizado)?|horário|período|objetivo|status|hex|coordenada)\s*:\s*.*$/gim, '');
+        clean = clean.replace(/^\s*(?:opções disponíveis|você pode|ações sugeridas)\s*:\s*$/gim, '');
+        // Remove metalinguagem de IA e software
+        clean = clean.replace(/\b(?:a cena responde|antes que qualquer explicação|a cena não pede uma resposta|o sistema calculou)[^.!?]*[.!?]/gi, '');
+        clean = clean.replace(/\b(?:como uma (?:ia|inteligência artificial|assistente virtual))\b[^.!?]*[.!?]/gi, '');
+        // Elimina muleta repetitiva de final de turno "O que você faz?"
+        clean = clean.replace(/\s*(?:e agora[?,]?\s*)?[Oo] que voc[êe](?:s)? faz(?:em)?[?]?\s*$/gi, '');
+        // Normaliza quebras de linha múltiplas
+        return clean.replace(/\n{3,}/g, '\n\n').trim();
+    }
+    /**
+     * Valida se a prosa segue as diretrizes do Mestre Humano (5 Pilares).
+     */
+    static validate(text) {
+        const errors = [];
+        const lower = String(text || '').toLowerCase();
+        if (/\b(?:como uma (?:ia|inteligência artificial)|assistente virtual|prompt|pipeline|modelo json)\b/i.test(lower)) {
+            errors.push('Metalinguagem de IA detectada na narração.');
+        }
+        if (/\b(?:você sente medo|você fica impressionado|você odeia)\b/i.test(lower)) {
+            errors.push('Sequestro de emoção/reação do personagem detectado.');
+        }
+        if (/\b(?:o que você faz\?|o que vocês fazem\?)\b/i.test(lower)) {
+            errors.push('Muleta genérica de encerramento detectada.');
+        }
+        return {
+            valid: errors.length === 0,
+            errors
+        };
+    }
+}
+exports.NarrativeGuardService = NarrativeGuardService;
+/**
+ * Fallback Local Imersivo Star Wars (Sem dependência remota de IA).
+ * Constrói uma cena cinematográfica de alta atmosfera fundamentada no estado real.
+ */
+function generateStarWarsImmersiveFallback({ character, location, situation } = {}) {
+    const name = character?.name || 'Seu personagem';
+    const species = character?.species || 'humano';
+    const locName = location?.name || location?.title || 'setor desconhecido da Orla Exterior';
+    const armor = character?.armor?.[0]?.name || 'colete acolchoado e vestes reforçadas';
+    const weapon = character?.weapons?.[0]?.name || 'pistola blaster no coldre';
+    const introSensory = [
+        `O ar de ${locName} carrega o cheiro denso de combustível queimado, ozônio residual de disparos e poeira industrial suspensa na penumbra.`,
+        `A iluminação oscila em tons alaranjados, refletindo nas chapas gastas de durasteel e nos consoles secundários que zumbem com estática contínua.`
+    ].join(' ');
+    const characterAnchor = `${name}, ajustando as correias de seu ${armor}, sente o peso reconfortante da ${weapon} pronta ao alcance dos dedos. Sendo um ${species} acostumado às intempéries da galáxia, cada ruído metálico distante ganha significado tático imediato.`;
+    const worldMotion = situation || 'Trabalhadores portuários descarregam caixotes pressurizados sob o olhar severo de guardas mercenários, enquanto os repulsores de um cargueiro distante emitem um silvo agudo ao desacelerar nas docas.';
+    const cameraZoomFocal = 'Um estalo mecânico curto ressoa perto das sombras de um corredor transversal, seguido pelo brilho tênue de um feixe de mira se ajustando na penumbra.';
+    const tensionHandoff = `A tensão se instala no ambiente antes de qualquer palavra ser dita. Os arredores oferecem cobertura parcial entre os contêineres e um duto de ventilação lateral semiaberto.`;
+    return [introSensory, characterAnchor, worldMotion, cameraZoomFocal, tensionHandoff].join('\n\n');
+}
+});
 define("js/master/originalAdventureCreator.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -34017,6 +34090,7 @@ exports.validateMasterProposal = validateMasterProposal;
 exports.applyValidatedNarrativeProposal = applyValidatedNarrativeProposal;
 const character_mjs_1 = require("../rules/character.mjs");
 const adversaries_mjs_1 = require("../rules/adversaries.mjs");
+const narrativeGuard_mjs_1 = require("./narrativeGuard.mjs");
 const ALLOWED_KEYS = new Set(['narration', 'sceneTitle', 'sceneLocationId', 'askPlayer', 'suggestedActions', 'suggestedCheck', 'sourceRuleIds', 'acquisitionRequest', 'acquisitionDecision', 'economyOperations', 'worldOperations', 'encounterDirective']);
 exports.MASTER_NARRATION_MAX_CHARS = 12000;
 function cleanText(value, label, max) {
@@ -34037,8 +34111,9 @@ function validateMasterProposal(value, { knownRuleIds = [], pendingAcquisition =
     for (const key of Object.keys(value))
         if (!ALLOWED_KEYS.has(key))
             throw new Error(`Campo não autorizado na proposta do Mestre: ${key}`);
+    const rawNarration = value.narration ? narrativeGuard_mjs_1.NarrativeGuardService.sanitize(value.narration) : value.narration;
     const proposal = {
-        narration: cleanText(value.narration, 'Narração', exports.MASTER_NARRATION_MAX_CHARS),
+        narration: cleanText(rawNarration, 'Narração', exports.MASTER_NARRATION_MAX_CHARS),
         sceneTitle: cleanText(value.sceneTitle, 'Título da cena', 120),
         sceneLocationId: cleanText(value.sceneLocationId, 'Local da cena', 160),
         askPlayer: cleanText(value.askPlayer, 'Pergunta ao jogador', 500),
@@ -34449,7 +34524,7 @@ function providerRequestBody(context) {
         throw new Error('Contexto do Mestre ausente.');
     return {
         protocol: 'braseiro.master.v1',
-        instruction: 'Produza apenas uma proposta estruturada. Este VTT é um sandbox de mundo vivo: apresente situações, tensões, rumores e consequências sem roteiro obrigatório, sem missão forçada e sem conteúdo de aventura publicado carregado por padrão. Somente cinco aventuras publicadas são autorizadas: Under a Black Sun, Beyond the Rim, Long Arm of the Hutt, The Jewel of Yavin e Mask of the Pirate Queen. Aventuras fora deste escopo não podem ser propostas como campanhas oficiais. Respeite o grafo publicado da aventura ativa, não revele spoilers futuros e não invente NPCs, recompensas, dados ou eventos oficiais. A arquitetura é híbrida: regras, rolagens, inventários e consequências são autoridade exclusiva dos executores determinísticos locais; RAG fornece apenas referências recuperadas, e o provedor remoto fornece apenas proposta narrativa sujeita a validação. Na ausência de fonte ou executor, solicite decisão do Mestre sem inventar uma regra. Falhas de rede/provedor não podem alterar a campanha. Não altere ficha, combate ou estado diretamente. Para mudanças ficcionais persistentes, inclusive facções, agendas, oportunidades, relógios, mercados e afiliação de PNPCs, use somente worldOperations permitidas; o motor validará IDs e limites. NPCs e facções continuam agindo fora da cena quando o tempo avança. Não invente regra mecânica, preço, raridade, estatística ou valor numérico não fundamentado: para decisões mecânicas cite somente sourceRuleIds presentes em context.rules. Para pedidos explícitos do jogador por arma, armadura, equipamento ou veículo presentes em context.economy.catalog, use acquisitionRequest; não conclua a compra no mesmo turno. Recompensa, saque, presente ou furto de um ativo catalogado usa economyOperations grant_asset. Perda pode usar lose_asset; dano, reparo e venda exigem sourceRuleIds recuperados. Nunca escreva inventário diretamente. Se uma consequência causal de context.causalEncounters for narrada ou descartada, resolva-a com worldOperations resolve_hook. sceneLocationId só pode apontar para um local existente em context.world.locations.',
+        instruction: 'Produza apenas uma proposta estruturada. Este VTT é um sandbox de mundo vivo com narração de Mestre Humano: conduza com presença de mesa ao vivo, peso dramático, enquadramento sensorial (luz, ozônio, fumaça, sons e texturas), ancoragem física dos heróis (nomes próprios, armaduras, armas empunhadas e fivelas), mundo em movimento contínuo com zoom de câmera (Macro -> Meso -> Micro -> Estímulo Focal) e devolução de agência sem muletas genéricas (nunca pergunte "O que você faz?"). Sem roteiro obrigatório, sem missão forçada e sem conteúdo de aventura publicado carregado por padrão. Somente cinco aventuras publicadas são autorizadas: Under a Black Sun, Beyond the Rim, Long Arm of the Hutt, The Jewel of Yavin e Mask of the Pirate Queen. Aventuras fora deste escopo não podem ser propostas como campanhas oficiais. Respeite o grafo publicado da aventura ativa, não revele spoilers futuros e não invente NPCs, recompensas, dados ou eventos oficiais. A arquitetura é híbrida: regras, rolagens, inventários e consequências são autoridade exclusiva dos executores determinísticos locais; RAG fornece apenas referências recuperadas, e o provedor remoto fornece apenas proposta narrativa sujeita a validação. Na ausência de fonte ou executor, solicite decisão do Mestre sem inventar uma regra. Falhas de rede/provedor não podem alterar a campanha. Não altere ficha, combate ou estado diretamente. Para mudanças ficcionais persistentes, inclusive facções, agendas, oportunidades, relógios, mercados e afiliação de PNPCs, use somente worldOperations permitidas; o motor validará IDs e limites. NPCs e facções continuam agindo fora da cena quando o tempo avança. Não invente regra mecânica, preço, raridade, estatística ou valor numérico não fundamentado: para decisões mecânicas cite somente sourceRuleIds presentes em context.rules. Para pedidos explícitos do jogador por arma, armadura, equipamento ou veículo presentes em context.economy.catalog, use acquisitionRequest; não conclua a compra no mesmo turno. Recompensa, saque, presente ou furto de um ativo catalogado usa economyOperations grant_asset. Perda pode usar lose_asset; dano, reparo e venda exigem sourceRuleIds recuperados. Nunca escreva inventário diretamente. Se uma consequência causal de context.causalEncounters for narrada ou descartada, resolva-a com worldOperations resolve_hook. sceneLocationId só pode apontar para um local existente em context.world.locations. Proibido o uso de metalinguagem de software ou IA ("a cena responde", "como uma IA", "status:").',
         context
     };
 }
@@ -48066,5 +48141,5 @@ function masterWorldSummary(world) {
     };
 }
 });
-try{const m=req("js/core/uiBridge.mjs");m.installBraseiroUiBridge(g);g.__BRASEIRO_ENGINE_BUNDLE__={ok:true,version:m.UI_BRIDGE_VERSION||null,modules:150,final:'1.0.244-r54-p244'};}catch(e){console.error(e);g.__BRASEIRO_ENGINE_BUNDLE__={ok:false,error:String(e&&e.stack||e)}};
+try{const m=req("js/core/uiBridge.mjs");m.installBraseiroUiBridge(g);g.__BRASEIRO_ENGINE_BUNDLE__={ok:true,version:m.UI_BRIDGE_VERSION||null,modules:151,final:'1.0.244-r54-p244'};}catch(e){console.error(e);g.__BRASEIRO_ENGINE_BUNDLE__={ok:false,error:String(e&&e.stack||e)}};
 })(window);

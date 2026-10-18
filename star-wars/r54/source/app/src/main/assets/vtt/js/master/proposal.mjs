@@ -1,5 +1,6 @@
 import { SKILLS } from '../rules/character.mjs';
 import { ADVERSARY_PROFILES } from '../rules/adversaries.mjs';
+import { NarrativeGuardService } from './narrativeGuard.mjs';
 
 const ALLOWED_KEYS=new Set(['narration','sceneTitle','sceneLocationId','askPlayer','suggestedActions','suggestedCheck','sourceRuleIds','acquisitionRequest','acquisitionDecision','economyOperations','worldOperations','encounterDirective']);
 export const MASTER_NARRATION_MAX_CHARS=12000;
@@ -16,8 +17,9 @@ function cleanText(value,label,max) {
 export function validateMasterProposal(value,{knownRuleIds=[],pendingAcquisition=null}={}) {
   if (!value || typeof value!=='object' || Array.isArray(value)) throw new Error('Proposta do Mestre inválida.');
   for (const key of Object.keys(value)) if (!ALLOWED_KEYS.has(key)) throw new Error(`Campo não autorizado na proposta do Mestre: ${key}`);
+  const rawNarration = value.narration ? NarrativeGuardService.sanitize(value.narration) : value.narration;
   const proposal={
-    narration:cleanText(value.narration,'Narração',MASTER_NARRATION_MAX_CHARS),
+    narration:cleanText(rawNarration,'Narração',MASTER_NARRATION_MAX_CHARS),
     sceneTitle:cleanText(value.sceneTitle,'Título da cena',120),
     sceneLocationId:cleanText(value.sceneLocationId,'Local da cena',160),
     askPlayer:cleanText(value.askPlayer,'Pergunta ao jogador',500),

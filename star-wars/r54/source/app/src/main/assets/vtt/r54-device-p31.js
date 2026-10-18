@@ -115,13 +115,13 @@ function style(){
  .bottom-navigation{
    position:fixed!important;left:50%!important;right:auto!important;top:auto!important;bottom:0!important;
    transform:translateX(-50%)!important;width:min(100%,415px)!important;
-   height:74px!important;min-height:74px!important;
-   padding:4px 4px 2px!important;margin:0!important;box-sizing:border-box!important;
+   height:calc(74px + env(safe-area-inset-bottom, 0px))!important;min-height:74px!important;
+   padding:4px 4px max(2px, env(safe-area-inset-bottom, 2px))!important;margin:0!important;box-sizing:border-box!important;
  }
  .bottom-navigation .bottom-nav-button{height:68px!important;min-height:68px!important;padding:6px 2px 4px!important}
- .scene-mode .bottom-navigation{height:74px!important;min-height:74px!important}
+ .scene-mode .bottom-navigation{height:calc(74px + env(safe-area-inset-bottom, 0px))!important;min-height:74px!important}
  .scene-mode .bottom-nav-button{height:68px!important;min-height:68px!important}
- .screen-container{padding-bottom:max(88px,5.5rem)!important}
+ .screen-container{padding-bottom:max(92px,calc(5.5rem + env(safe-area-inset-bottom, 0px)))!important}
  .r54-p1-you{
    width:10px!important;height:10px!important;min-width:10px!important;min-height:10px!important;
    background:rgba(59,203,245,.48)!important;border:1px solid rgba(255,255,255,.72)!important;

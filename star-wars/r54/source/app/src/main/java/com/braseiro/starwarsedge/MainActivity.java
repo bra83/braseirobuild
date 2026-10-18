@@ -81,6 +81,34 @@ public class MainActivity extends Activity {
         // real system-bar/cutout padding instead of relying only on CSS safe-area variables.
         getWindow().setStatusBarColor(Color.rgb(7, 10, 13));
         getWindow().setNavigationBarColor(Color.rgb(7, 10, 13));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            android.view.WindowManager.LayoutParams lp = getWindow().getAttributes();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                lp.layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+            } else {
+                lp.layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            }
+            getWindow().setAttributes(lp);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                android.view.Display display = getWindowManager().getDefaultDisplay();
+                if (display != null) {
+                    android.view.Display.Mode[] modes = display.getSupportedModes();
+                    android.view.Display.Mode maxMode = null;
+                    for (android.view.Display.Mode mode : modes) {
+                        if (maxMode == null || mode.getRefreshRate() > maxMode.getRefreshRate()) {
+                            maxMode = mode;
+                        }
+                    }
+                    if (maxMode != null && maxMode.getRefreshRate() >= 90.0f) {
+                        android.view.WindowManager.LayoutParams lp = getWindow().getAttributes();
+                        lp.preferredDisplayModeId = maxMode.getModeId();
+                        getWindow().setAttributes(lp);
+                    }
+                }
+            } catch (Throwable ignored) {}
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             getWindow().setDecorFitsSystemWindows(false);
         } else {
@@ -104,6 +132,9 @@ public class MainActivity extends Activity {
         WebView.setWebContentsDebuggingEnabled(false);
         webView.setFitsSystemWindows(false);
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        webView.setVerticalScrollBarEnabled(false);
+        webView.setHorizontalScrollBarEnabled(false);
         rootView.addView(webView, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         setContentView(rootView);
@@ -244,6 +275,7 @@ public class MainActivity extends Activity {
                 + "r.style.setProperty('--android-safe-right','0px');"
                 + "r.style.setProperty('--android-safe-bottom','0px');"
                 + "r.dataset.androidViewportInset='physical';"
+                + "r.dataset.deviceProfile='galaxy-a57';"
                 + "})();";
         runOnUiThread(() -> webView.evaluateJavascript(js, null));
     }
