@@ -24,6 +24,7 @@
       <button class="tab" data-view="vehicleView">Nave</button>
       <button class="tab" data-view="mapView">Mapa</button>
       <button class="tab" data-view="baseView">Base</button>
+      <button class="tab" data-view="workshopView">Oficina</button>
       <button class="tab" data-view="libraryView">Biblioteca</button>
       <button class="tab" data-view="settingsView">Ajustes</button>
     </nav>
@@ -822,6 +823,99 @@ ROTA PONTILHADA: retirada dos caçadores · SWE02 p.16</pre>
           </div>
           <p id="librarySearchFeedback" class="feedback"></p>
           <div id="librarySearchResults" class="rule-results"><div class="result empty">Nenhuma busca nesta sessão.</div></div>
+        </details>
+      </section>
+    </section>
+
+    <section id="workshopView" class="view">
+      <section class="character-card">
+        <div class="scene-kicker">OFICINA & TÁTICA</div>
+        <h2>Bancada de Criação e Operações Expandidas</h2>
+        <p class="microcopy">Forja de armas, armaduras e droides (Special Modifications / Fully Operational), câmara Kyber de Sabres de Luz (Force & Destiny), cavalaria e doma de feras (Stay on Target / Savage Spirits) e Habilidades de Assinatura.</p>
+
+        <details class="sheet-details" open>
+          <summary>Forja e Manufatura de Itens</summary>
+          <div class="creator-grid">
+            <label>Categoria
+              <select id="craftCategory">
+                <option value="weapon">Arma Personalizada</option>
+                <option value="armor">Armadura Reforçada</option>
+                <option value="droid">Droide Especializado</option>
+              </select>
+            </label>
+            <label class="wide">Projeto / Gabarito
+              <select id="craftTemplate"></select>
+            </label>
+          </div>
+          <p id="craftTemplateDetails" class="rule-summary">Selecione um projeto de manufatura.</p>
+          <div class="creator-options">
+            <label><input id="craftAdvantageOption" type="checkbox" checked> Aplicar gasto de Vantagens (+1 Dano / +1 Proteção / Redução de tempo)</label>
+            <label><input id="craftTriumphOption" type="checkbox"> Sintonizar Triunfo de engenharia (Qualidade Defensiva / Perfurante)</label>
+          </div>
+          <button id="craftExecuteBtn" class="primary full">Fabricar Item (Teste de Mecânica)</button>
+          <p id="craftFeedback" class="feedback"></p>
+        </details>
+
+        <details class="sheet-details" open>
+          <summary>Câmara Kyber: Sabres de Luz</summary>
+          <p class="microcopy">Escolha o chassi de empunhadura e engaste o Cristal Kyber autêntico sintonizado à Força.</p>
+          <div class="creator-grid">
+            <label>Empunhadura (Hilt)
+              <select id="saberChassis"></select>
+            </label>
+            <label class="wide">Cristal Kyber Sintonizado
+              <select id="saberCrystal"></select>
+            </label>
+          </div>
+          <button id="saberAssembleBtn" class="primary full">Montar e Sintonizar Sabre de Luz</button>
+          <p id="saberFeedback" class="feedback"></p>
+        </details>
+
+        <details class="sheet-details" open>
+          <summary>Feras e Cavalaria (Beast Riding)</summary>
+          <p class="microcopy">Catálogo canônico de montarias da galáxia. Doma com Sobrevivência, combate montado e bônus de investida.</p>
+          <label class="wide">Fera Disponível
+            <select id="beastSelect"></select>
+          </label>
+          <div class="button-row">
+            <button id="beastTameBtn" class="secondary">Domar Criatura</button>
+            <button id="beastMountBtn" class="secondary">Montar Fera</button>
+          </div>
+          <button id="beastChargeBtn" class="primary full" style="margin-top:8px;">Executar Investida Montada (+Silhueta no Dano)</button>
+          <p id="beastFeedback" class="feedback"></p>
+        </details>
+
+        <details class="sheet-details">
+          <summary>Esquadrões Táticos e Combate em Massa</summary>
+          <p class="microcopy">Subordinados de infantaria para absorver dano letal e resolução em grande escala de exércitos (Tiers 1 a 5).</p>
+          <div class="button-row">
+            <button id="squadCreateBtn" class="secondary">Mobilizar Esquadrão (4 Minions)</button>
+            <button id="squadAbsorbBtn" class="secondary">Sacrificar Minion (Absorver Dano)</button>
+          </div>
+          <p id="squadFeedback" class="feedback"></p>
+          <div class="creator-grid" style="margin-top:10px;">
+            <label>Força Aliada (Tier 1–5)
+              <input id="massFriendlyTier" type="number" min="1" max="5" value="2">
+            </label>
+            <label>Força Inimiga (Tier 1–5)
+              <input id="massEnemyTier" type="number" min="1" max="5" value="2">
+            </label>
+          </div>
+          <button id="massCombatBtn" class="primary full">Resolver Rodada de Combate em Massa</button>
+          <p id="massCombatFeedback" class="feedback"></p>
+        </details>
+
+        <details class="sheet-details">
+          <summary>Habilidades de Assinatura das Carreiras</summary>
+          <p class="microcopy">Habilidades supremas de carreira (custo 30 PE e ativação por inversão de Ponto de Destino).</p>
+          <label class="wide">Habilidade de Assinatura
+            <select id="sigSelect"></select>
+          </label>
+          <div class="button-row">
+            <button id="sigBuyBtn" class="secondary">Comprar por 30 PE</button>
+            <button id="sigActivateBtn" class="secondary">Ativar na Sessão (1 Destino)</button>
+          </div>
+          <p id="sigFeedback" class="feedback"></p>
         </details>
       </section>
     </section>

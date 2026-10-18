@@ -566,6 +566,91 @@ class BraseiroUiBridge {
             return fail('SET_DESTINY_FAILED', messageOf(error));
         }
     }
+    careerExpansionCatalog() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.careerExpansionCatalog()));
+        }
+        catch (error) {
+            return fail('CAREER_EXPANSION_CATALOG_FAILED', messageOf(error));
+        }
+    }
+    mountsCatalog() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.mountsCatalog()));
+        }
+        catch (error) {
+            return fail('MOUNTS_CATALOG_FAILED', messageOf(error));
+        }
+    }
+    tameBeast(mountKey, checkResult = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            const res = controllerResult.data.tameBeast(mountKey, checkResult);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        }
+        catch (error) {
+            return fail('TAME_BEAST_FAILED', messageOf(error));
+        }
+    }
+    mountBeast(mountId) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            const res = controllerResult.data.mountBeast(mountId);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        }
+        catch (error) {
+            return fail('MOUNT_BEAST_FAILED', messageOf(error));
+        }
+    }
+    dismountBeast(mountId) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            const res = controllerResult.data.dismountBeast(mountId);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        }
+        catch (error) {
+            return fail('DISMOUNT_BEAST_FAILED', messageOf(error));
+        }
+    }
+    executeMountedCharge(mountId, weaponBaseDamage = 4) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.executeMountedCharge(mountId, weaponBaseDamage)));
+        }
+        catch (error) {
+            return fail('MOUNTED_CHARGE_FAILED', messageOf(error));
+        }
+    }
+    checkBeastPanic(mountId, damageTaken, checkResult = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            const res = controllerResult.data.checkBeastPanic(mountId, damageTaken, checkResult);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        }
+        catch (error) {
+            return fail('BEAST_PANIC_FAILED', messageOf(error));
+        }
+    }
     /** Single Android/WebView entrypoint for replay-safe published actions. */
     executePublishedAdventureCommand(command = {}) {
         const controllerResult = this._controllerForExistingCampaign();
@@ -23196,9 +23281,12 @@ const fndCharacterCreation_mjs_1 = require("../rules/fndCharacterCreation.mjs");
 const morality_mjs_1 = require("../rules/morality.mjs");
 const lightsabers_mjs_1 = require("../rules/lightsabers.mjs");
 const fndForcePowers_mjs_1 = require("../rules/fndForcePowers.mjs");
+const fndExpandedForcePowers_mjs_1 = require("../rules/fndExpandedForcePowers.mjs");
 const crafting_mjs_1 = require("../rules/crafting.mjs");
 const squadsAndMassCombat_mjs_1 = require("../rules/squadsAndMassCombat.mjs");
 const signatureAbilities_mjs_1 = require("../rules/signatureAbilities.mjs");
+const beastRiding_mjs_1 = require("../rules/beastRiding.mjs");
+const careerExpansionData_mjs_1 = require("../rules/careerExpansionData.mjs");
 function requireCharacter(character) {
     if (!character)
         throw new Error('Carregue um personagem antes desta ação.');
@@ -24220,7 +24308,7 @@ class GameController {
         return lightsabers_mjs_1.createLightsaber(chassisId, options);
     }
     fndForcePowersCatalog() {
-        return structuredClone(fndForcePowers_mjs_1.FND_FORCE_POWERS);
+        return structuredClone(fndExpandedForcePowers_mjs_1.ALL_FORCE_POWERS);
     }
     addCharacterConflict(amount, reason) {
         const character = requireCharacter(this.state.player.character);
@@ -24288,6 +24376,61 @@ class GameController {
         if (result.group) {
             this.commit('GROUP_UPDATED', { group: result.group });
         }
+        return result;
+    }
+    careerExpansionCatalog() {
+        return structuredClone(careerExpansionData_mjs_1.EXPANDED_CAREER_SPECIALIZATIONS);
+    }
+    mountsCatalog() {
+        return structuredClone(beastRiding_mjs_1.CANONICAL_MOUNTS);
+    }
+    tameBeast(mountKey, checkResult = {}) {
+        const character = requireCharacter(this.state.player.character);
+        const result = beastRiding_mjs_1.tameBeast(character, mountKey, checkResult);
+        if (result.character) {
+            this.setCharacter(result.character);
+        }
+        return result;
+    }
+    mountBeast(mountId) {
+        const character = requireCharacter(this.state.player.character);
+        const mounts = Array.isArray(character.mounts) ? [...character.mounts] : [];
+        const idx = mounts.findIndex(m => m.id === mountId);
+        if (idx === -1)
+            throw new Error('Montaria não encontrada na ficha.');
+        mounts[idx] = beastRiding_mjs_1.mountBeast(mounts[idx]);
+        const nextChar = { ...character, mounts };
+        this.setCharacter(nextChar);
+        return mounts[idx];
+    }
+    dismountBeast(mountId) {
+        const character = requireCharacter(this.state.player.character);
+        const mounts = Array.isArray(character.mounts) ? [...character.mounts] : [];
+        const idx = mounts.findIndex(m => m.id === mountId);
+        if (idx === -1)
+            throw new Error('Montaria não encontrada na ficha.');
+        mounts[idx] = beastRiding_mjs_1.dismountBeast(mounts[idx]);
+        const nextChar = { ...character, mounts };
+        this.setCharacter(nextChar);
+        return mounts[idx];
+    }
+    executeMountedCharge(mountId, weaponBaseDamage = 4) {
+        const character = requireCharacter(this.state.player.character);
+        const mount = (character.mounts || []).find(m => m.id === mountId);
+        if (!mount)
+            throw new Error('Montaria não encontrada.');
+        return beastRiding_mjs_1.executeMountedCharge(mount, weaponBaseDamage);
+    }
+    checkBeastPanic(mountId, damageTaken, checkResult = {}) {
+        const character = requireCharacter(this.state.player.character);
+        const mounts = Array.isArray(character.mounts) ? [...character.mounts] : [];
+        const idx = mounts.findIndex(m => m.id === mountId);
+        if (idx === -1)
+            throw new Error('Montaria não encontrada na ficha.');
+        const result = beastRiding_mjs_1.checkBeastPanic(mounts[idx], damageTaken, checkResult);
+        mounts[idx] = result.mount;
+        const nextChar = { ...character, mounts };
+        this.setCharacter(nextChar);
         return result;
     }
     buildRandomCharacter(options = {}) {
@@ -37343,6 +37486,427 @@ function rarityModifierReferenceById(id) {
     return exports.RARITY_MODIFIER_REFERENCE.find(entry => entry.id === String(id)) ?? null;
 }
 });
+define("js/rules/beastRiding.mjs",function(module,exports,require){
+"use strict";
+// Star Wars: Age of Rebellion & Force and Destiny
+// Stay on Target (pp. 74-85) & Savage Spirits (pp. 68-79)
+// Canonical Beast Riding, Mount Profiles, Taming, Mounted Combat and Panic Mechanics.
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CANONICAL_MOUNTS = void 0;
+exports.tameBeast = tameBeast;
+exports.mountBeast = mountBeast;
+exports.dismountBeast = dismountBeast;
+exports.executeMountedCharge = executeMountedCharge;
+exports.checkBeastPanic = checkBeastPanic;
+const clone = v => structuredClone(v);
+const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
+exports.CANONICAL_MOUNTS = Object.freeze({
+    dewback: Object.freeze({
+        id: 'dewback',
+        name: 'Dewback de Tatooine',
+        silhouette: 3,
+        woundThreshold: 22,
+        soak: 5,
+        speed: 2,
+        defense: 0,
+        baseBiteDamage: 7,
+        tamingDifficulty: 2,
+        temperament: 'Dócil quando adestrado, implacável no deserto',
+        traits: Object.freeze(['Adaptado ao Calor Extremo', 'Mordida Trituradora', 'Resistência a Tempestades de Areia'])
+    }),
+    tauntaun: Object.freeze({
+        id: 'tauntaun',
+        name: 'Tauntaun das Estepes de Hoth',
+        silhouette: 2,
+        woundThreshold: 14,
+        soak: 3,
+        speed: 4,
+        defense: 1,
+        baseBiteDamage: 5,
+        tamingDifficulty: 2,
+        temperament: 'Nervoso e ágil, leal ao cavaleiro experiente',
+        traits: Object.freeze(['Pelagem Térmica Ártica', 'Galope das Neves', 'Faro Aguçado'])
+    }),
+    bantha: Object.freeze({
+        id: 'bantha',
+        name: 'Bantha Gigante',
+        silhouette: 4,
+        woundThreshold: 35,
+        soak: 7,
+        speed: 1,
+        defense: 0,
+        baseBiteDamage: 10,
+        tamingDifficulty: 3,
+        temperament: 'Plácido, mas uma muralha viva imparável quando enfurecido',
+        traits: Object.freeze(['Besta de Carga Titânica', 'Chifres Espirais de Choque', 'Pisoteio Esmagador'])
+    }),
+    varactyl: Object.freeze({
+        id: 'varactyl',
+        name: 'Varactyl de Utapau',
+        silhouette: 3,
+        woundThreshold: 18,
+        soak: 4,
+        speed: 5,
+        defense: 1,
+        baseBiteDamage: 6,
+        tamingDifficulty: 3,
+        temperament: 'Orgulhoso, leal e veloz escalador de despenhadeiros',
+        traits: Object.freeze(['Escalada Vertical em Penhascos', 'Salto Amortecido', 'Agilidade Réptil'])
+    }),
+    blurrg: Object.freeze({
+        id: 'blurrg',
+        name: 'Blurrg das Planícies',
+        silhouette: 2,
+        woundThreshold: 16,
+        soak: 4,
+        speed: 3,
+        defense: 0,
+        baseBiteDamage: 6,
+        tamingDifficulty: 2,
+        temperament: 'Teimoso, agressivo no combate e de mastigação voraz',
+        traits: Object.freeze(['Mandíbula Implacável', 'Firmeza de Tranco', 'Investida Pesada'])
+    })
+});
+function tameBeast(character, mountKey, checkResult = {}) {
+    const template = exports.CANONICAL_MOUNTS[mountKey];
+    if (!template)
+        throw new Error(`Montaria desconhecida: ${mountKey}`);
+    const successes = Number(checkResult.successes ?? checkResult.success ?? 0);
+    const advantages = Number(checkResult.advantages ?? checkResult.advantage ?? 0);
+    const triumphs = Number(checkResult.triumphs ?? checkResult.triumph ?? 0);
+    const threats = Number(checkResult.threats ?? checkResult.threat ?? 0);
+    const despairs = Number(checkResult.despairs ?? checkResult.despair ?? 0);
+    if (successes < 1) {
+        const retaliation = despairs > 0 || threats >= 3;
+        return {
+            tamed: false,
+            retaliation,
+            damageSuffered: retaliation ? template.baseBiteDamage : 0,
+            message: retaliation
+                ? `Falha na doma! O ${template.name} reagiu violentamente e desferiu um ataque de retaliação (${template.baseBiteDamage} de dano).`
+                : `O ${template.name} recusou o adestramento e se manteve arisco.`
+        };
+    }
+    const hasBond = triumphs > 0 || advantages >= 3;
+    const mountInstance = {
+        id: `mount_${template.id}_${Date.now()}`,
+        templateId: template.id,
+        name: `${template.name} de ${character.name}`,
+        silhouette: template.silhouette,
+        woundThreshold: template.woundThreshold,
+        currentWounds: 0,
+        soak: template.soak,
+        speed: template.speed,
+        defense: template.defense,
+        hasBond,
+        tamedAt: new Date().toISOString(),
+        mounted: false
+    };
+    const nextChar = clone(character);
+    nextChar.mounts = Array.isArray(nextChar.mounts) ? nextChar.mounts : [];
+    nextChar.mounts.push(mountInstance);
+    return {
+        tamed: true,
+        character: nextChar,
+        mount: mountInstance,
+        hasBond,
+        message: hasBond
+            ? `Sucesso extraordinário! O ${template.name} foi domado e desenvolveu um Elo Empático especial (+1 Dado de Vantagem contínuo).`
+            : `O ${template.name} foi domado com sucesso e agora aceita arreios e comandos.`
+    };
+}
+function mountBeast(mount) {
+    const next = clone(mount);
+    if (next.mounted)
+        throw new Error('O personagem já está montado nesta criatura.');
+    next.mounted = true;
+    return next;
+}
+function dismountBeast(mount) {
+    const next = clone(mount);
+    if (!next.mounted)
+        throw new Error('O personagem não está montado.');
+    next.mounted = false;
+    return next;
+}
+function executeMountedCharge(mount, weaponBaseDamage = 4) {
+    if (!mount.mounted)
+        throw new Error('É necessário estar montado para executar uma Investida de Montaria.');
+    // Canonical rule: Mounted charge adds the beast silhouette to the damage
+    const chargeBonus = Number(mount.silhouette) || 1;
+    const totalDamage = weaponBaseDamage + chargeBonus;
+    return {
+        chargeBonus,
+        totalDamage,
+        speed: mount.speed,
+        description: `Investida montada com ${mount.name}: +${chargeBonus} de dano por impacto de Silhueta ${mount.silhouette}. Dano total: ${totalDamage}.`
+    };
+}
+function checkBeastPanic(mount, damageTaken, checkResult = {}) {
+    const next = clone(mount);
+    next.currentWounds = clamp(Number(next.currentWounds || 0) + Number(damageTaken || 0), 0, next.woundThreshold * 2);
+    const halfThreshold = Math.floor(next.woundThreshold / 2);
+    const needsPanicCheck = next.currentWounds >= halfThreshold;
+    if (!needsPanicCheck) {
+        return {
+            mount: next,
+            panicked: false,
+            thrownRider: false,
+            message: `${next.name} suportou os ferimentos sem hesitar.`
+        };
+    }
+    const successes = Number(checkResult.successes ?? checkResult.success ?? 0);
+    const despairs = Number(checkResult.despairs ?? checkResult.despair ?? 0);
+    if (successes >= 1 && despairs === 0) {
+        return {
+            mount: next,
+            panicked: false,
+            thrownRider: false,
+            message: `Comando firme! O cavaleiro controlou o estresse de ${next.name}.`
+        };
+    }
+    next.mounted = false;
+    return {
+        mount: next,
+        panicked: true,
+        thrownRider: true,
+        strainSufferedByRider: 3,
+        message: `Pânico! Ferido criticamente, ${next.name} empinou em desespero, arremessou o cavaleiro ao solo (3 de Tensão) e disparou em fuga!`
+    };
+}
+});
+define("js/rules/careerExpansionData.mjs",function(module,exports,require){
+"use strict";
+// Star Wars: Edge Studio / Fantasy Flight Games
+// Canonical Career Sourcebook Specializations (24 canonical specializations)
+// Sources: Enter the Unknown, Dangerous Covenants, Far Horizons, Fly Casual,
+// No Disintegrations, Special Modifications, Lead by Example, Forged in Battle,
+// Stay on Target, Keeping the Peace, Disciples of Harmony, Endless Vigil, Savage Spirits, Knights of Fate.
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EXPANDED_CAREER_SPECIALIZATIONS = void 0;
+const source = (book, printedPage) => Object.freeze({ book, printedPage });
+exports.EXPANDED_CAREER_SPECIALIZATIONS = Object.freeze({
+    // EotE Careers:
+    bounty_hunter: Object.freeze({
+        martial_artist: Object.freeze({
+            key: 'martial_artist',
+            name: 'Artista Marcial (Martial Artist)',
+            careerKey: 'bounty_hunter',
+            source: source('No Disintegrations', 28),
+            careerSkills: Object.freeze(['pelea', 'atletismo', 'coordinacion', 'disciplina']),
+            description: 'Mestre no combate desarmado e imobilizações letais que transformam o próprio corpo em uma arma de captura de recompensas.'
+        }),
+        skip_tracer: Object.freeze({
+            key: 'skip_tracer',
+            name: 'Rastreador de Fugitivos (Skip Tracer)',
+            careerKey: 'bounty_hunter',
+            source: source('No Disintegrations', 30),
+            careerSkills: Object.freeze(['frialdad', 'engano', 'conocimiento_bajos_fondos', 'callejero']),
+            description: 'Especialista em investigação urbana, inteligência de submundo e caça a foragidos que se escondem em populosos centros planetários.'
+        })
+    }),
+    smuggler: Object.freeze({
+        gunslinger: Object.freeze({
+            key: 'gunslinger',
+            name: 'Pistoleiro (Gunslinger)',
+            careerKey: 'smuggler',
+            source: source('Fly Casual', 26),
+            careerSkills: Object.freeze(['armas_distancia_ligeras', 'coaccion', 'coordinacion', 'engano']),
+            description: 'Saque rápido e tiroteio com empunhadura dupla de blasters; o terror das cantinas e duelos nos becos espaciais.'
+        }),
+        charmer: Object.freeze({
+            key: 'charmer',
+            name: 'Sedutor (Charmer)',
+            careerKey: 'smuggler',
+            source: source('Fly Casual', 24),
+            careerSkills: Object.freeze(['encanto', 'frialdad', 'engano', 'negociacion']),
+            description: 'Mestre da lábia, charme aristocrático e manipulação social para escapar de alfândegas e negociações perigosas.'
+        })
+    }),
+    hired_gun: Object.freeze({
+        heavy: Object.freeze({
+            key: 'heavy',
+            name: 'Especialista em Armas Pesadas (Heavy)',
+            careerKey: 'hired_gun',
+            source: source('Dangerous Covenants', 26),
+            careerSkills: Object.freeze(['artilleria', 'armas_distancia_pesadas', 'atletismo', 'resistencia']),
+            description: 'Operador de metralhadoras blaster giratórias, canhões de repetição e explosivos pesados de supressão.'
+        }),
+        enforcer: Object.freeze({
+            key: 'enforcer',
+            name: 'Cobrador / Carrasco (Enforcer)',
+            careerKey: 'hired_gun',
+            source: source('Dangerous Covenants', 24),
+            careerSkills: Object.freeze(['pelea', 'coaccion', 'callejero', 'conocimiento_bajos_fondos']),
+            description: 'Especialista em intimidação implacável, extorsão e violência direta a serviço de chefões do crime.'
+        })
+    }),
+    technician: Object.freeze({
+        droid_tech: Object.freeze({
+            key: 'droid_tech',
+            name: 'Técnico em Droides (Droid Tech)',
+            careerKey: 'technician',
+            source: source('Special Modifications', 28),
+            careerSkills: Object.freeze(['mecanica', 'computadoras', 'conocimiento_educacion', 'engano']),
+            description: 'Engenheiro mestre na programação neural, reprogramação tática e reconstrução avançada de droides.'
+        }),
+        cyber_tech: Object.freeze({
+            key: 'cyber_tech',
+            name: 'Cibertecnólogo (Cyber Tech)',
+            careerKey: 'technician',
+            source: source('Special Modifications', 26),
+            careerSkills: Object.freeze(['mecanica', 'medicina', 'computadoras', 'disciplina']),
+            description: 'Pioneiro em próteses cibernéticas aprimoradas e implantes biotecnológicos no limite da cibernética galáctica.'
+        })
+    }),
+    // AoR Careers:
+    commander: Object.freeze({
+        figurehead: Object.freeze({
+            key: 'figurehead',
+            name: 'Líder Inspirador (Figurehead)',
+            careerKey: 'commander',
+            source: source('Lead by Example', 26),
+            careerSkills: Object.freeze(['encanto', 'frialdad', 'engano', 'liderazgo']),
+            description: 'Símbolo visível da causa rebelde, capaz de erguer a moral de frotas inteiras com discursos épicos.'
+        }),
+        instructor: Object.freeze({
+            key: 'instructor',
+            name: 'Instrutor Militar (Instructor)',
+            careerKey: 'commander',
+            source: source('Lead by Example', 28),
+            careerSkills: Object.freeze(['liderazgo', 'disciplina', 'conocimiento_mundos_del_nucleo', 'resistencia']),
+            description: 'Treinador de novos recrutas e organizador de planos de instrução tática rigorosos para o exército rebelde.'
+        })
+    }),
+    soldier: Object.freeze({
+        vanguard: Object.freeze({
+            key: 'vanguard',
+            name: 'Vanguarda (Vanguard)',
+            careerKey: 'soldier',
+            source: source('Forged in Battle', 28),
+            careerSkills: Object.freeze(['atletismo', 'resistencia', 'armas_distancia_ligeras', 'vigilancia']),
+            description: 'Tropas de choque que abrem brechas nas linhas imperiais e operam sob fogo concentrado na linha de frente.'
+        }),
+        trailblazer: Object.freeze({
+            key: 'trailblazer',
+            name: 'Pioneiro / Batedor de Terreno (Trailblazer)',
+            careerKey: 'soldier',
+            source: source('Forged in Battle', 30),
+            careerSkills: Object.freeze(['supervivencia', 'percepcion', 'armas_distancia_pesadas', 'sigilo']),
+            description: 'Especialista em guerra de guerrilha florestal e desbravamento de terrenos hostis desconhecidos.'
+        })
+    }),
+    // F&D Careers:
+    guardian: Object.freeze({
+        colossus: Object.freeze({
+            key: 'colossus',
+            name: 'Colosso (Colossus)',
+            careerKey: 'guardian',
+            source: source('Keeping the Peace', 26),
+            careerSkills: Object.freeze(['atletismo', 'resistencia', 'disciplina', 'armas_cuerpo_a_cuerpo']),
+            description: 'Guardião de tenacidade lendária que canaliza a Força para absorver impactos que destruiriam blindados.'
+        }),
+        armorer: Object.freeze({
+            key: 'armorer',
+            name: 'Armeiro da Força (Armorer)',
+            careerKey: 'guardian',
+            source: source('Keeping the Peace', 24),
+            careerSkills: Object.freeze(['mecanica', 'sabre_de_luz', 'conocimiento_lore', 'resistencia']),
+            description: 'Artesão místico que forja armaduras imbuídas da Força e aprimora sabres de luz com precisão sagrada.'
+        })
+    }),
+    mystic: Object.freeze({
+        steel_hand_adept: Object.freeze({
+            key: 'steel_hand_adept',
+            name: 'Adepto da Mão de Aço (Steel Hand Adept)',
+            careerKey: 'mystic',
+            source: source('Disciples of Harmony', 28),
+            careerSkills: Object.freeze(['pelea', 'coordinacion', 'disciplina', 'vigilancia']),
+            description: 'Praticante de Teräs Käsi e artes marciais arcanas que desferem golpes com a força de impactos cinéticos de sabre.'
+        }),
+        magus: Object.freeze({
+            key: 'magus',
+            name: 'Mago Arcano (Magus)',
+            careerKey: 'mystic',
+            source: source('Unlimited Power', 28),
+            careerSkills: Object.freeze(['coaccion', 'conocimiento_lore', 'supervivencia', 'disciplina']),
+            description: 'Erudito em rituais esquecidos e conhecimentos proibidos da Força viva nas bordas selvagens da galáxia.'
+        })
+    }),
+    consular: Object.freeze({
+        arbiter: Object.freeze({
+            key: 'arbiter',
+            name: 'Árbitro da Paz (Arbiter)',
+            careerKey: 'consular',
+            source: source('Disciples of Harmony', 24),
+            careerSkills: Object.freeze(['sabre_de_luz', 'negociacion', 'conocimiento_mundos_del_nucleo', 'percepcion']),
+            description: 'Juiz e negociador implacável que desce em zonas de guerra para mediar tratados sob o fio do sabre de luz.'
+        }),
+        teacher: Object.freeze({
+            key: 'teacher',
+            name: 'Mestre / Preceptor (Teacher)',
+            careerKey: 'consular',
+            source: source('Disciples of Harmony', 30),
+            careerSkills: Object.freeze(['disciplina', 'liderazgo', 'conocimiento_lore', 'percepcion']),
+            description: 'Guia sábio que orienta aprendizes e padawans no domínio dos caminhos da Força e da sabedoria Jedi.'
+        })
+    }),
+    sentinel: Object.freeze({
+        investigator: Object.freeze({
+            key: 'investigator',
+            name: 'Investigador Urbano (Investigator)',
+            careerKey: 'sentinel',
+            source: source('Endless Vigil', 26),
+            careerSkills: Object.freeze(['percepcion', 'callejero', 'conocimiento_bajos_fondos', 'vigilancia']),
+            description: 'Detetive que utiliza intuição da Força e métodos forenses para desvendar conspirações nas megalópoles.'
+        }),
+        racer: Object.freeze({
+            key: 'racer',
+            name: 'Piloto de Corridas (Racer)',
+            careerKey: 'sentinel',
+            source: source('Endless Vigil', 28),
+            careerSkills: Object.freeze(['coordinacion', 'frialdad', 'pilotar_planeta', 'pilotar_espacio']),
+            description: 'Reflexos pré-cognitivos da Força aplicados a velocidade extrema em circuitos de Podracer e speeders.'
+        })
+    }),
+    seeker: Object.freeze({
+        executioner: Object.freeze({
+            key: 'executioner',
+            name: 'Executor (Executioner)',
+            careerKey: 'seeker',
+            source: source('Savage Spirits', 26),
+            careerSkills: Object.freeze(['armas_cuerpo_a_cuerpo', 'armas_distancia_pesadas', 'supervivencia', 'vigilancia']),
+            description: 'Caçador implacável especializado em rastrear e eliminar abominações do Lado Sombrio e predadores colossais.'
+        }),
+        hermit: Object.freeze({
+            key: 'hermit',
+            name: 'Eremita Selvagem (Hermit)',
+            careerKey: 'seeker',
+            source: source('Savage Spirits', 28),
+            careerSkills: Object.freeze(['supervivencia', 'sigilo', 'disciplina', 'conocimiento_lore']),
+            description: 'Sensitivo à Força em profunda simbiose com a vida selvagem, capaz de comungar telepaticamente com feras.'
+        })
+    }),
+    warrior: Object.freeze({
+        shii_cho_knight: Object.freeze({
+            key: 'shii_cho_knight',
+            name: 'Cavaleiro Shii-Cho (Shii-Cho Knight)',
+            careerKey: 'warrior',
+            source: source('Knights of Fate', 26),
+            careerSkills: Object.freeze(['sabre_de_luz', 'atletismo', 'resistencia', 'armas_cuerpo_a_cuerpo']),
+            description: 'Mestre da Forma I de esgrima Jedi (A Determinação), desferindo varreduras amplas contra múltiplos oponentes.'
+        }),
+        juyo_berserker: Object.freeze({
+            key: 'juyo_berserker',
+            name: 'Furioso Juyo (Juyo Berserker)',
+            careerKey: 'warrior',
+            source: source('Knights of Fate', 28),
+            careerSkills: Object.freeze(['sabre_de_luz', 'coaccion', 'atletismo', 'resistencia']),
+            description: 'Praticante da Forma VII, canalizando paixão e ferocidade cinética calculada em ataques avassaladores.'
+        })
+    })
+});
+});
 define("js/rules/character.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -40151,6 +40715,144 @@ function createFndCharacter({ id = 'fnd-hero', name = 'Cavaleiro da Força', car
     return baseChar;
 }
 });
+define("js/rules/fndExpandedForcePowers.mjs",function(module,exports,require){
+"use strict";
+// Star Wars: Force and Destiny & Career Sourcebooks
+// Canonical Expanded Force Powers:
+// Battle Meditation, Foresee, Farsight, Alter, Conjure, Suppress, Manipulate, Imbue
+// Sources: F&D Core, Chronicles of the Gatekeeper, Savage Spirits, Unlimited Power, Endless Vigil, Disciples of Harmony.
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ALL_FORCE_POWERS = exports.SUPPLEMENTAL_FORCE_POWERS = void 0;
+const fndForcePowers_mjs_1 = require("./fndForcePowers.mjs");
+const source = (book, printedPage, section) => Object.freeze({
+    book,
+    printedPage,
+    section
+});
+function upgrade(id, cost, type, label, parents = []) {
+    return Object.freeze({
+        id,
+        cost,
+        type,
+        label,
+        parents: Object.freeze(parents),
+        source: source('Sourcebook Expansion', null, 'Force Power Upgrade')
+    });
+}
+exports.SUPPLEMENTAL_FORCE_POWERS = Object.freeze({
+    battle_meditation: Object.freeze({
+        key: 'battle_meditation',
+        label: 'Meditação de Batalha (Battle Meditation)',
+        baseCost: 15,
+        source: source('Chronicles of the Gatekeeper', 30, 'Force Power: Battle Meditation'),
+        description: 'Sincroniza as mentes dos aliados no campo de batalha, harmonizando suas ações e amplificando a eficácia do grupo inteiro.',
+        upgrades: Object.freeze([
+            upgrade('range_1', 5, 'range', 'Estende o alcance da sincronização de Curto para Médio.', []),
+            upgrade('magnitude_1', 10, 'magnitude', 'Aumenta em +1 o número de aliados adicionais beneficiados pela meditação.', ['range_1']),
+            upgrade('control_success', 15, 'control', 'Aliados sob o efeito adicionam 1 Sucesso automático a todos os testes de combate.', ['magnitude_1']),
+            upgrade('control_advantage', 15, 'control', 'Aliados adicionam 1 Vantagem automática a todos os testes de combate e manobras.', ['control_success']),
+            upgrade('mastery_fleet', 20, 'mastery', 'A meditação atinge escala planetária ou de frota naval estelar inteira.', ['control_advantage'])
+        ])
+    }),
+    foresee: Object.freeze({
+        key: 'foresee',
+        label: 'Previsão (Foresee)',
+        baseCost: 10,
+        source: source('Force and Destiny Core Rulebook', 288, 'Force Power: Foresee'),
+        description: 'Sonda o fluxo temporal imediato e futuro distante para antecipar perigos, emboscadas e desdobramentos de eventos.',
+        upgrades: Object.freeze([
+            upgrade('duration_1', 5, 'duration', 'Estende a janela de visão do futuro imediato para horas ou dias.', []),
+            upgrade('range_1', 10, 'range', 'Detecta eventos e ameaças a distâncias planetárias ou do setor.', ['duration_1']),
+            upgrade('control_initiative', 15, 'control', 'Adiciona pontos de Força gerados como Sucessos diretos no teste de Iniciativa do personagem e aliados.', ['range_1']),
+            upgrade('control_ambush', 15, 'control', 'O grupo não pode ser surpreendido em emboscadas; reage imediatamente na primeira rodada.', ['control_initiative']),
+            upgrade('mastery_destiny', 20, 'mastery', 'Permite prever uma reviravolta crítica da trama, concedendo 1 Ponto de Destino Luminoso adicional à reserva.', ['control_ambush'])
+        ])
+    }),
+    farsight: Object.freeze({
+        key: 'farsight',
+        label: 'Clarividência (Farsight)',
+        baseCost: 10,
+        source: source('Savage Spirits', 36, 'Force Power: Farsight'),
+        description: 'Projeta os sentidos visuais além de barreiras físicas e distâncias espaciais, enxergando no escuro absoluto e através de blindagens.',
+        upgrades: Object.freeze([
+            upgrade('range_1', 5, 'range', 'Estende a visão mística para alcance Médio e Longo.', []),
+            upgrade('control_see_unseen', 10, 'control', 'Ignora camuflagem óptica, escuridão total, fumaça e invisibilidade de alvos ocultos.', ['range_1']),
+            upgrade('control_scan_life', 15, 'control', 'Detecta presenças biológicas, sentimentos vitais e silhuetas através de estruturas sólidas.', ['control_see_unseen']),
+            upgrade('mastery_astral', 20, 'mastery', 'Permite projetar a visão para outros planetas com os quais o usuário tenha um elo prévio.', ['control_scan_life'])
+        ])
+    }),
+    alter: Object.freeze({
+        key: 'alter',
+        label: 'Alterar Ambiente (Alter)',
+        baseCost: 10,
+        source: source('Unlimited Power', 34, 'Force Power: Alter'),
+        description: 'Transmuta o terreno natural e o ambiente circundante, criando trincheiras, tempestades de poeira ou moldando barreiras de rocha e gelo.',
+        upgrades: Object.freeze([
+            upgrade('range_1', 5, 'range', 'Permite moldar terreno até alcance Médio.', []),
+            upgrade('magnitude_1', 10, 'magnitude', 'Aumenta a área de terreno alterada (raio de 10 metros adicionais por magnitude).', ['range_1']),
+            upgrade('control_difficult_terrain', 10, 'control', 'Converte terreno normal em terreno difícil intransponível para oponentes.', ['magnitude_1']),
+            upgrade('control_cover', 15, 'control', 'Ergue coberturas rochosas sólidas instantâneas (+2 de Defesa) para o usuário e aliados.', ['control_difficult_terrain']),
+            upgrade('mastery_cataclysm', 25, 'mastery', 'Desencadeia terremotos locais, fendas no solo ou avalanches contra forças inimigas.', ['control_cover'])
+        ])
+    }),
+    conjure: Object.freeze({
+        key: 'conjure',
+        label: 'Conjurar (Conjure)',
+        baseCost: 15,
+        source: source('Unlimited Power', 36, 'Force Power: Conjure'),
+        description: 'Moldagem tangível de energia da Força para forjar armas etéreas de pura luz/sombra ou invocar espectros de proteção.',
+        upgrades: Object.freeze([
+            upgrade('strength_1', 5, 'strength', 'Aumenta o dano da arma conjurada em +1.', []),
+            upgrade('duration_1', 10, 'duration', 'Mantém a criação mística ativa por todo o encontro sem custo adicional de concentração.', ['strength_1']),
+            upgrade('control_weapon_qualities', 15, 'control', 'Concede qualidades de combate à arma conjurada (ex: Perfurante 2, Atordoamento, Defensiva 1).', ['duration_1']),
+            upgrade('mastery_spectral_guardian', 25, 'mastery', 'Invoca um guardião espectral autônomo da Força que combate e defende os aliados.', ['control_weapon_qualities'])
+        ])
+    }),
+    suppress: Object.freeze({
+        key: 'suppress',
+        label: 'Suprimir a Força (Suppress)',
+        baseCost: 10,
+        source: source('Disciples of Harmony', 34, 'Force Power: Suppress'),
+        description: 'Cria um vórtice de contenção que dissipa, enfraquece e anula poderes da Força invocados por adversários sombrios.',
+        upgrades: Object.freeze([
+            upgrade('range_1', 5, 'range', 'Estende a bolha de supressão para alcance Médio.', []),
+            upgrade('magnitude_1', 10, 'magnitude', 'Protege múltiplos aliados simultaneamente sob o manto de amortecimento da Força.', ['range_1']),
+            upgrade('control_drain_force', 15, 'control', 'O oponente atingido deve despender 1 ponto adicional de Força para conseguir manifestar qualquer poder.', ['magnitude_1']),
+            upgrade('mastery_severance', 25, 'mastery', 'Corte da Força temporário: impede totalmente o oponente de ativar poderes da Força na rodada.', ['control_drain_force'])
+        ])
+    }),
+    manipulate: Object.freeze({
+        key: 'manipulate',
+        label: 'Manipulação de Máquinas (Manipulate)',
+        baseCost: 10,
+        source: source('Endless Vigil', 32, 'Force Power: Manipulate'),
+        description: 'Interage telepaticamente com circuitos, computadores, armas de energia e motores mecânicos através da Força viva presente na matéria.',
+        upgrades: Object.freeze([
+            upgrade('range_1', 5, 'range', 'Alcança sistemas eletrônicos e veículos a alcance Médio.', []),
+            upgrade('control_instant_repair', 10, 'control', 'Repara instantaneamente trauma de casco veicular ou dano mecânico sem ferramentas.', ['range_1']),
+            upgrade('control_overload', 15, 'control', 'Sobrecarga circuitos de armas ou escudos inimigos, desativando-os temporariamente.', ['control_instant_repair']),
+            upgrade('mastery_ghost_in_the_machine', 20, 'mastery', 'Assume controle absoluto de um droide ou sistema veicular automatizado com a mente.', ['control_overload'])
+        ])
+    }),
+    imbue: Object.freeze({
+        key: 'imbue',
+        label: 'Imbuir (Imbue)',
+        baseCost: 10,
+        source: source('Unlimited Power', 38, 'Force Power: Imbue'),
+        description: 'Transfere energia viva da Força para o corpo de um aliado, aprimorando drasticamente seus atributos biológicos ou resistências.',
+        upgrades: Object.freeze([
+            upgrade('range_1', 5, 'range', 'Estende o alcance para Curto e Médio.', []),
+            upgrade('duration_1', 10, 'duration', 'Mantém o efeito no aliado durante várias rodadas consecutivas.', ['range_1']),
+            upgrade('control_boost_characteristic', 15, 'control', 'Aumenta um atributo de escolha do aliado (ex: Fortaleza, Agilidade ou Presença) em +1.', ['duration_1']),
+            upgrade('mastery_champion', 20, 'mastery', 'Concede ao aliado resistência massiva (+2 Soak) e imunidade a efeitos de medo e atordoamento.', ['control_boost_characteristic'])
+        ])
+    })
+});
+exports.ALL_FORCE_POWERS = Object.freeze({
+    ...fndForcePowers_mjs_1.FND_FORCE_POWERS,
+    ...exports.SUPPLEMENTAL_FORCE_POWERS
+});
+});
 define("js/rules/fndForcePowers.mjs",function(module,exports,require){
 "use strict";
 // Star Wars: Force and Destiny — Core Rulebook
@@ -42317,6 +43019,162 @@ exports.SIGNATURE_ABILITIES_CATALOG = Object.freeze({
         upgrades: Object.freeze([
             { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
             { id: 'crit_1', name: 'Crítico Devastador', cost: 10, type: 'critical' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    hard_boiled: Object.freeze({
+        id: 'hard_boiled',
+        careerKey: 'bounty_hunter',
+        name: 'Casca Grossa (Hard-Boiled)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para ignorar todos os efeitos incapacitantes e reduzir qualquer dano massivo recebido a zero na rodada.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'duration_1', name: 'Resiliência Duradoura', cost: 10, type: 'duration' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    unmatched_fortune: Object.freeze({
+        id: 'unmatched_fortune',
+        careerKey: 'smuggler',
+        name: 'Sorte Inigualável (Unmatched Fortune)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para converter qualquer resultado de falha em Sucessos e Triunfos automáticos.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'allies_1', name: 'Sorte Compartilhada', cost: 15, type: 'allies' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    inventive_creation: Object.freeze({
+        id: 'inventive_creation',
+        careerKey: 'technician',
+        name: 'Criação Inventiva (Inventive Creation)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para montar instantaneamente um dispositivo ou ferramenta de alta tecnologia funcional com sucata ao redor.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'complexity_1', name: 'Engenharia Complexa', cost: 10, type: 'complexity' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    last_one_standing: Object.freeze({
+        id: 'last_one_standing',
+        careerKey: 'hired_gun',
+        name: 'Último de Pé (Last One Standing)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para desferir um golpe giratório devastador que incapacita instantaneamente todos os minions no alcance curto.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'range_1', name: 'Alcance Médio', cost: 10, type: 'range' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    master_commander: Object.freeze({
+        id: 'master_commander',
+        careerKey: 'commander',
+        name: 'Mestre Estrategista (Master Commander)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para reorganizar completamente as posições de iniciativa de todos os combatentes e conceder 1 ação extra imediata.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'actions_1', name: 'Coordenação Tática', cost: 15, type: 'actions' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    overwhelming_firepower: Object.freeze({
+        id: 'overwhelming_firepower',
+        careerKey: 'soldier',
+        name: 'Poder de Fogo Avassalador (Overwhelming Firepower)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para duplicar o dano base de uma arma pesada ou artilharia contra veículos ou alvos fortificados.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'crit_1', name: 'Destruição de Blindagem', cost: 10, type: 'critical' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    prophecy: Object.freeze({
+        id: 'prophecy',
+        careerKey: 'mystic',
+        name: 'Profecia Viva (Prophecy)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para canalizar uma visão transcendental que reverte qualquer catástrofe narrativa iminente.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'destiny_grant_1', name: 'Revelação Cósmica', cost: 15, type: 'destiny_grant' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    unstoppable_force: Object.freeze({
+        id: 'unstoppable_force',
+        careerKey: 'guardian',
+        name: 'Bastião Inabalável (Unstoppable Force)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para tornar a si e aos aliados adjacentes imunes a qualquer dano ou efeito crítico na rodada.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'duration_1', name: 'Bastião Prolongado', cost: 10, type: 'duration' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    peacekeeper_mandate: Object.freeze({
+        id: 'peacekeeper_mandate',
+        careerKey: 'consular',
+        name: 'Mandato da Pacificação (Peacekeeper Mandate)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para impor uma trégua psíquica compulsória ou resolver um conflito social hostil instantaneamente.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'range_1', name: 'Presença Ampla', cost: 10, type: 'range' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    my_target_awaits: Object.freeze({
+        id: 'my_target_awaits',
+        careerKey: 'seeker',
+        name: 'Meu Alvo me Espera (My Target Awaits)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para se mover instantaneamente para alcance engajado com qualquer presa ou alvo em vista.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'strike_1', name: 'Ataque de Emboscada', cost: 10, type: 'strike' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    unseen_infiltrator: Object.freeze({
+        id: 'unseen_infiltrator',
+        careerKey: 'sentinel',
+        name: 'Infiltrador Invisível (Unseen Infiltrator)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para se tornar imperceptível a sensores eletrônicos, câmeras e visão biológica até o final do encontro.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'allies_1', name: 'Infiltração de Esquadra', cost: 15, type: 'allies' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    deadly_reputation: Object.freeze({
+        id: 'deadly_reputation',
+        careerKey: 'warrior',
+        name: 'Reputação Mortal (Deadly Reputation)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para desmoralizar todos os oponentes na cena, forçando-os a sofrer 4 de Tensão e desvantagem constante.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'strain_1', name: 'Terror Profundo', cost: 10, type: 'strain' },
             { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
         ])
     })
@@ -47200,5 +48058,5 @@ function masterWorldSummary(world) {
     };
 }
 });
-try{const m=req("js/core/uiBridge.mjs");m.installBraseiroUiBridge(g);g.__BRASEIRO_ENGINE_BUNDLE__={ok:true,version:m.UI_BRIDGE_VERSION||null,modules:147,final:'1.0.244-r54-p244'};}catch(e){console.error(e);g.__BRASEIRO_ENGINE_BUNDLE__={ok:false,error:String(e&&e.stack||e)}};
+try{const m=req("js/core/uiBridge.mjs");m.installBraseiroUiBridge(g);g.__BRASEIRO_ENGINE_BUNDLE__={ok:true,version:m.UI_BRIDGE_VERSION||null,modules:150,final:'1.0.244-r54-p244'};}catch(e){console.error(e);g.__BRASEIRO_ENGINE_BUNDLE__={ok:false,error:String(e&&e.stack||e)}};
 })(window);

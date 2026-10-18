@@ -14,6 +14,7 @@ import { vehicleStatus, PLANETARY_RANGE_BANDS } from '../rules/vehicles.mjs';
 import { speakNarration, stopNarration } from './tts.mjs';
 import { IMAGE_LIBRARY_MANIFEST } from '../library/imageLibraryData.mjs';
 import { getImageAsset, searchImageAssets, imageAssetRuntimeDescriptor } from '../library/imageLibrary.mjs';
+import { initWorkshopUi } from './workshopUi.mjs';
 
 const repo = new LocalStorageRepository();
 const game = new GameController(repo);
@@ -1777,6 +1778,7 @@ for (const tab of document.querySelectorAll('.tab')) {
 
 initCharacterCreator();
 initVehicleProfiles();
+initWorkshopUi(game, $, render);
 render();
 const initialView=location.hash.replace(/^#/,'');
 if(initialView){

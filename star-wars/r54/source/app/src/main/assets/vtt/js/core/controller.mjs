@@ -98,9 +98,12 @@ import * as fndCharacterCreation_mjs_1 from "../rules/fndCharacterCreation.mjs";
 import * as morality_mjs_1 from "../rules/morality.mjs";
 import * as lightsabers_mjs_1 from "../rules/lightsabers.mjs";
 import * as fndForcePowers_mjs_1 from "../rules/fndForcePowers.mjs";
+import * as fndExpandedForcePowers_mjs_1 from "../rules/fndExpandedForcePowers.mjs";
 import * as crafting_mjs_1 from "../rules/crafting.mjs";
 import * as squadsAndMassCombat_mjs_1 from "../rules/squadsAndMassCombat.mjs";
 import * as signatureAbilities_mjs_1 from "../rules/signatureAbilities.mjs";
+import * as beastRiding_mjs_1 from "../rules/beastRiding.mjs";
+import * as careerExpansionData_mjs_1 from "../rules/careerExpansionData.mjs";
 function requireCharacter(character) {
     if (!character)
         throw new Error('Carregue um personagem antes desta ação.');
@@ -1065,7 +1068,7 @@ export class GameController {
         return lightsabers_mjs_1.createLightsaber(chassisId, options);
     }
     fndForcePowersCatalog() {
-        return structuredClone(fndForcePowers_mjs_1.FND_FORCE_POWERS);
+        return structuredClone(fndExpandedForcePowers_mjs_1.ALL_FORCE_POWERS);
     }
     addCharacterConflict(amount, reason) {
         const character = requireCharacter(this.state.player.character);
@@ -1133,6 +1136,57 @@ export class GameController {
         if (result.group) {
             this.commit('GROUP_UPDATED', { group: result.group });
         }
+        return result;
+    }
+    careerExpansionCatalog() {
+        return structuredClone(careerExpansionData_mjs_1.EXPANDED_CAREER_SPECIALIZATIONS);
+    }
+    mountsCatalog() {
+        return structuredClone(beastRiding_mjs_1.CANONICAL_MOUNTS);
+    }
+    tameBeast(mountKey, checkResult = {}) {
+        const character = requireCharacter(this.state.player.character);
+        const result = beastRiding_mjs_1.tameBeast(character, mountKey, checkResult);
+        if (result.character) {
+            this.setCharacter(result.character);
+        }
+        return result;
+    }
+    mountBeast(mountId) {
+        const character = requireCharacter(this.state.player.character);
+        const mounts = Array.isArray(character.mounts) ? [...character.mounts] : [];
+        const idx = mounts.findIndex(m => m.id === mountId);
+        if (idx === -1) throw new Error('Montaria não encontrada na ficha.');
+        mounts[idx] = beastRiding_mjs_1.mountBeast(mounts[idx]);
+        const nextChar = { ...character, mounts };
+        this.setCharacter(nextChar);
+        return mounts[idx];
+    }
+    dismountBeast(mountId) {
+        const character = requireCharacter(this.state.player.character);
+        const mounts = Array.isArray(character.mounts) ? [...character.mounts] : [];
+        const idx = mounts.findIndex(m => m.id === mountId);
+        if (idx === -1) throw new Error('Montaria não encontrada na ficha.');
+        mounts[idx] = beastRiding_mjs_1.dismountBeast(mounts[idx]);
+        const nextChar = { ...character, mounts };
+        this.setCharacter(nextChar);
+        return mounts[idx];
+    }
+    executeMountedCharge(mountId, weaponBaseDamage = 4) {
+        const character = requireCharacter(this.state.player.character);
+        const mount = (character.mounts || []).find(m => m.id === mountId);
+        if (!mount) throw new Error('Montaria não encontrada.');
+        return beastRiding_mjs_1.executeMountedCharge(mount, weaponBaseDamage);
+    }
+    checkBeastPanic(mountId, damageTaken, checkResult = {}) {
+        const character = requireCharacter(this.state.player.character);
+        const mounts = Array.isArray(character.mounts) ? [...character.mounts] : [];
+        const idx = mounts.findIndex(m => m.id === mountId);
+        if (idx === -1) throw new Error('Montaria não encontrada na ficha.');
+        const result = beastRiding_mjs_1.checkBeastPanic(mounts[idx], damageTaken, checkResult);
+        mounts[idx] = result.mount;
+        const nextChar = { ...character, mounts };
+        this.setCharacter(nextChar);
         return result;
     }
     buildRandomCharacter(options = {}) {

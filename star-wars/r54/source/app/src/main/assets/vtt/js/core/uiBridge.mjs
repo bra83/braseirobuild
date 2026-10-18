@@ -389,6 +389,60 @@ export class BraseiroUiBridge {
             return ok(clone(res));
         } catch (error) { return fail('SET_DESTINY_FAILED', messageOf(error)); }
     }
+    careerExpansionCatalog() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.careerExpansionCatalog())); }
+        catch (error) { return fail('CAREER_EXPANSION_CATALOG_FAILED', messageOf(error)); }
+    }
+    mountsCatalog() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.mountsCatalog())); }
+        catch (error) { return fail('MOUNTS_CATALOG_FAILED', messageOf(error)); }
+    }
+    tameBeast(mountKey, checkResult = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const res = controllerResult.data.tameBeast(mountKey, checkResult);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        } catch (error) { return fail('TAME_BEAST_FAILED', messageOf(error)); }
+    }
+    mountBeast(mountId) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const res = controllerResult.data.mountBeast(mountId);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        } catch (error) { return fail('MOUNT_BEAST_FAILED', messageOf(error)); }
+    }
+    dismountBeast(mountId) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const res = controllerResult.data.dismountBeast(mountId);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        } catch (error) { return fail('DISMOUNT_BEAST_FAILED', messageOf(error)); }
+    }
+    executeMountedCharge(mountId, weaponBaseDamage = 4) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.executeMountedCharge(mountId, weaponBaseDamage))); }
+        catch (error) { return fail('MOUNTED_CHARGE_FAILED', messageOf(error)); }
+    }
+    checkBeastPanic(mountId, damageTaken, checkResult = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const res = controllerResult.data.checkBeastPanic(mountId, damageTaken, checkResult);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        } catch (error) { return fail('BEAST_PANIC_FAILED', messageOf(error)); }
+    }
     /** Single Android/WebView entrypoint for replay-safe published actions. */
     executePublishedAdventureCommand(command = {}) {
         const controllerResult = this._controllerForExistingCampaign();
