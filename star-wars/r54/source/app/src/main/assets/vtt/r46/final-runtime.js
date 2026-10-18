@@ -468,11 +468,11 @@ function setupOverlay(){
  button.onclick=()=>{const chosen=points[pointIndex],point=chosen.name;button.disabled=true;status.textContent='Criando mundo persistente…';const m=bridgeResult('setCampaignMode',select.value);if(!m.ok){status.textContent=m.message||'Modo inválido.';button.disabled=false;return}const mapPoint=Number.isFinite(chosen.x)&&Number.isFinite(chosen.y)?{x:chosen.x,y:chosen.y}:null;const r=bridgeResult('initializeLivingSandbox',{startingPoint:point,regionLabel:chosen.region||`Região de ${point}`,startMapPoint:mapPoint});if(!r.ok){status.textContent=r.message||'Falha ao criar mundo.';button.disabled=false;return}status.textContent='Mundo criado.';host.remove();setTimeout(()=>{relabelCreationForCampaign();enhance()},0)};
 }
 function enhanceAdventureGate(){
- const existing=document.querySelector('.final-adventure-gate');
  const pubView=publishedAdventureView();
  if(pubView?.active&&pubView?.node){document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());return}
  const route=new URLSearchParams(location.search).get('screen')||'00';const character=hasCharacter(),gateKey=`${route}:${character?'character':'empty'}`;
- if(existing?.dataset?.gateKey===gateKey)return;
+ const existing=document.querySelector('.final-adventure-gate');
+ if(existing&&existing.dataset.gateKey===gateKey&&existing.parentNode){return}
  document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());
  if(route==='00'){
   const root=document.querySelector('.scene-concept-shell');if(!root)return;const gate=document.createElement('section');gate.className='final-adventure-gate final-adventure-card';gate.dataset.gateKey=gateKey;
@@ -490,10 +490,11 @@ function enhanceAdventureGate(){
       <button type="button" data-quick-black-sun="escape-crash">➔ 3. Manobra evasiva (escapar após pouso forçado)</button>
     </div>
   `:'';
-  gate.innerHTML=character?`<div><span>CENTRAL DE MISSÕES GALÁCTICAS</span><strong>Escolha sua aventura ou explore o mundo livre</strong><small>As aventuras oficiais utilizam regras e narrativas completas de Star Wars: Fronteira do Império (EotE). Modo ativo: <b>${mode}</b>.</small></div><div class="final-adventure-actions ${catalog.length>1?'final-adventure-actions-many':'final-adventure-actions-two'}">${finalButtons}<button type="button" class="r54-hero-btn is-secondary" data-start-sandbox>★ INICIAR SANDBOX (MUNDO LIVRE)</button></div>${quickChoices}<output></output>`:`<div><span>ANTES DE COMEÇAR</span><strong>Crie ou carregue um personagem.</strong><small>Você pode criar manualmente, gerar uma ficha completa aleatória ou importar .json.</small></div><div class="final-adventure-actions"><button type="button" data-manual-character>CRIAR FICHA</button><button type="button" data-random-character>ALEATÓRIA</button><button type="button" data-import-character>IMPORTAR JSON</button></div><output></output>`;
+  gate.innerHTML=character?`<div><span>CENTRAL DE MISSÕES GALÁCTICAS</span><strong>Escolha sua aventura ou explore o mundo livre</strong><small>As aventuras oficiais utilizam regras e narrativas completas de Star Wars: Fronteira do Império (EotE). Modo ativo: <b>${mode}</b>.</small></div><div class="final-adventure-actions ${catalog.length>1?'final-adventure-actions-many':'final-adventure-actions-two'}">${finalButtons}<button type="button" class="r54-hero-btn is-secondary" data-start-sandbox>★ INICIAR SANDBOX (MUNDO LIVRE)</button><button type="button" class="r53-secondary" data-open-campaign-hub style="background:#1e293b;border-color:#eab308;color:#fef08a;font-weight:800;">☰ GERENCIAR CAMPANHA / REINICIAR</button></div>${quickChoices}<output></output>`:`<div><span>ANTES DE COMEÇAR</span><strong>Crie ou carregue um personagem.</strong><small>Você pode criar manualmente, gerar uma ficha completa aleatória ou importar .json.</small></div><div class="final-adventure-actions"><button type="button" data-manual-character>CRIAR FICHA</button><button type="button" data-random-character>ALEATÓRIA</button><button type="button" data-import-character>IMPORTAR JSON</button></div><output></output>`;
   const targetSlot=root.querySelector('.scene-narrative-paper')||root.querySelector('.scene-media-slot');
-  if(targetSlot&&targetSlot.nextSibling)root.insertBefore(gate,targetSlot.nextSibling);else root.prepend(gate);
+  if(targetSlot&&targetSlot.parentNode===root&&targetSlot.nextSibling)root.insertBefore(gate,targetSlot.nextSibling);else root.prepend(gate);
   const out=gate.querySelector('output');
+  gate.querySelector('[data-open-campaign-hub]')?.addEventListener('click',r54OpenCampaignHub);
   gate.querySelector('[data-manual-character]')?.addEventListener('click',()=>navigateRoute('18'));
   gate.querySelector('[data-random-character]')?.addEventListener('click',()=>quickRandomCharacter(out));
   gate.querySelector('[data-import-character]')?.addEventListener('click',()=>quickImportCharacter(out));
@@ -539,7 +540,8 @@ function enhancePublishedAdventurePanel(){
  if(!status?.active&&!status?.completed){old?.remove();return}
  const route=new URLSearchParams(location.search).get('screen')||'00';if(route!=='00'){old?.remove();return}
  const root=document.querySelector('.scene-concept-shell');if(!root)return;const node=status.node;if(!node){old?.remove();return}
- let panel=old;if(!panel){panel=document.createElement('section');panel.className='final-published-adventure-panel final-adventure-card';const targetSlot=root.querySelector('.scene-narrative-paper')||root.querySelector('.scene-media-slot');if(targetSlot&&targetSlot.nextSibling)root.insertBefore(panel,targetSlot.nextSibling);else root.prepend(panel)}
+ let panel=old;if(!panel){panel=document.createElement('section');panel.className='final-published-adventure-panel final-adventure-card';}
+ if(panel.parentNode!==root){const targetSlot=root.querySelector('.scene-narrative-paper')||root.querySelector('.scene-media-slot');if(targetSlot&&targetSlot.parentNode===root&&targetSlot.nextSibling)root.insertBefore(panel,targetSlot.nextSibling);else root.prepend(panel)}
  const last=status?.progress?.flags?.lastCheck||null;
  const checks=(node.checks||[]).map((c,i)=>{const isLast=last?.checkId===`${node.id}:check:${i}`;return `<li class="${isLast?'is-resolved':''}"><div><strong>${h(c.skill)}</strong> · ${h(c.difficulty)}<small>${h(c.purpose)}</small></div><button type="button" data-published-check="${i}">ROLAR</button></li>`}).join('');
  const choices=(node.choices||[]).map(c=>`<button type="button" data-published-choice="${h(c.id)}">${h(c.label)}</button>`).join('');
@@ -763,8 +765,8 @@ function enhancePublishedAdventurePanel(){
  const supportingUi=[systems?`<div class="final-published-systems">${systems}</div>`:'',npcCards?`<div class="final-published-npcs">${npcCards}</div>`:'',knownClues?`<section class="final-published-clues" aria-label="Pistas conhecidas"><div class="final-published-clues-title">PISTAS CONHECIDAS</div>${knownClues}</section>`:'',checkFeedback?`<div class="final-published-feedbacks">${checkFeedback}</div>`:'',consequences?`<div class="final-published-consequences">${consequences}</div>`:'',timelineUi].filter(Boolean).join('');
  const supportingDetails=supportingUi?`<details class="final-published-support"><summary>INFORMAÇÕES DA CENA <b>＋</b></summary><div>${supportingUi}</div></details>`:'';
  const lastHistory=(status?.progress?.checkHistory||[]).slice(-1)[0]||null;const lastFeedback=(status?.checkFeedback||[]).slice(-1)[0]||null;const immediateEffects=lastFeedback?.id===lastHistory?.checkId?(lastFeedback.effects||[]):[];const immediateEffectsUi=immediateEffects.length?`<ul class="final-published-last-roll-effects">${immediateEffects.map(e=>`<li class="is-${h(e.kind||'scene')}"><span>${h(effectLabel[e.kind]||String(e.kind||'EFEITO').toUpperCase())}${Number(e.count)>1?` ×${Number(e.count)}`:''}</span><strong>${h(e.summary)}</strong>${Number(e.obligationDelta)>0?`<em>Obligation +${Number(e.obligationDelta)}</em>`:''}</li>`).join('')}</ul>`:'';const lastRollUi=lastHistory?`<div class="final-published-last-roll ${lastHistory.success?'is-success':'is-failure'}" role="status"><small>ÚLTIMO TESTE · ${h(lastHistory.skillKey||'PERÍCIA')}</small><strong>${lastHistory.success?'SUCESSO':'FALHA'} · Sucessos ${Number(lastHistory.netSuccess)||0} · ${Number(lastHistory.netAdvantage)>=0?'Vantagem':'Ameaça'} ${Math.abs(Number(lastHistory.netAdvantage)||0)}</strong>${immediateEffectsUi}</div>`:'';
- panel.innerHTML=`<div class="final-published-scene-head"><span>${h(adventureTitle).toUpperCase()} · EPISÓDIO ${Number(node.episode)||1}</span><strong>${h(node.title)}</strong><small>${h(node.summary)}</small></div>${trackerUi}${uaeObjectivesUi}${imperialClockUi}${jewelBankUi}${escapeBombUi}${companionImpactUi}${arrow7Ui}${arrow7ChaseUi}${holoWingUi}${holoFactionUi}${arendPropertyUi}${arendPatrolUi}${residenceWingUi}${p226TravelUi}${stormIvUi}${p231Ui}${starportRouteUi}${starportSecurityUi}${bespinDepartureUi}${jewelTransferUi}${p222XpUi}${shenUi}${landoPardonUi}${holoParkUi}${holoNarrativeUi}${p233VertigoUi}${holoEffectsUi}${arendRevengeUi}${jewelPatrolUi}${encounterUi}${checks?`<section class="final-published-action-zone"><div class="final-published-action-title">TESTES DISPONÍVEIS</div><ul class="final-published-checks">${checks}</ul></section>`:''}${lastRollUi}${choices?`<section class="final-published-action-zone"><div class="final-published-action-title">O QUE FAZER</div><div class="final-published-choices">${choices}</div></section>`:noChoiceUi}${supportingDetails}<output aria-live="polite"></output>`;
- const recovery=window.__BRASEIRO_PUBLISHED_RECOVERY__;if(recovery&&!recovery.ok){const notice=panel.querySelector('output');if(notice)notice.textContent='RECUPERAÇÃO PENDENTE: '+String(recovery.message||'Repita a ação anterior antes de continuar.')}
+ panel.innerHTML=`<div class="final-published-scene-head"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><span>${h(adventureTitle).toUpperCase()} · EPISÓDIO ${Number(node.episode)||1}</span><button type="button" data-panel-campaign-hub style="min-height:28px;padding:3px 8px;font-size:0.68rem;background:#131d24;border:1px solid #eab308;color:#fef08a;border-radius:5px;font-weight:800;cursor:pointer;">☰ CAMPANHA</button></div><strong>${h(node.title)}</strong><small>${h(node.summary)}</small></div>${trackerUi}${uaeObjectivesUi}${imperialClockUi}${jewelBankUi}${escapeBombUi}${companionImpactUi}${arrow7Ui}${arrow7ChaseUi}${holoWingUi}${holoFactionUi}${arendPropertyUi}${arendPatrolUi}${residenceWingUi}${p226TravelUi}${stormIvUi}${p231Ui}${starportRouteUi}${starportSecurityUi}${bespinDepartureUi}${jewelTransferUi}${p222XpUi}${shenUi}${landoPardonUi}${holoParkUi}${holoNarrativeUi}${p233VertigoUi}${holoEffectsUi}${arendRevengeUi}${jewelPatrolUi}${encounterUi}${checks?`<section class="final-published-action-zone"><div class="final-published-action-title">TESTES DISPONÍVEIS</div><ul class="final-published-checks">${checks}</ul></section>`:''}${lastRollUi}${choices?`<section class="final-published-action-zone"><div class="final-published-action-title">O QUE FAZER</div><div class="final-published-choices">${choices}</div></section>`:noChoiceUi}${supportingDetails}<output aria-live="polite"></output>`;
+ panel.querySelector("[data-panel-campaign-hub]")?.addEventListener("click",r54OpenCampaignHub);const recovery=window.__BRASEIRO_PUBLISHED_RECOVERY__;if(recovery&&!recovery.ok){const notice=panel.querySelector('output');if(notice)notice.textContent='RECUPERAÇÃO PENDENTE: '+String(recovery.message||'Repita a ação anterior antes de continuar.')}
  panel.querySelectorAll('[data-jewel-prep]').forEach(btn=>btn.addEventListener('click',()=>{
   const step=btn.dataset.jewelPrep,gmConfirmed=Boolean(panel.querySelector('[data-jewel-gm]')?.checked);
   if(step!=='spike'&&!gmConfirmed){panel.querySelector('output').textContent='Confirmação explícita do Mestre obrigatória.';return}
@@ -1264,7 +1266,7 @@ function enhanceSceneGeminiButton(){
  let wrap=media.querySelector('.final-scene-gemini');
  if(!wrap){
   wrap=document.createElement('div');wrap.className='final-scene-gemini';
-  wrap.innerHTML='<button type="button" data-r54-scene-illustration="1">✦ ILUSTRAÇÃO</button><small aria-live="polite"></small>';
+  wrap.innerHTML='<button type="button" data-r54-scene-illustration="1">ℹ ILUSTRAÇÃO COM GEMINI</button><small aria-live="polite"></small>';
   media.appendChild(wrap);
  }
  const btn=wrap.querySelector('[data-r54-scene-illustration]'),msg=wrap.querySelector('small');
@@ -1317,11 +1319,15 @@ function enhanceUtilityShortcuts(){document.querySelectorAll('.final-utility-sho
 function enhanceSceneGeminiMasterBar(){
  const route=new URLSearchParams(location.search).get('screen')||'00';if(route!=='00')return;
  const root=document.querySelector('.scene-concept-shell');if(!root)return;
- if(root.querySelector('.r54-scene-gemini-bar'))return;
- const bar=document.createElement('div');bar.className='r54-scene-gemini-bar';
- bar.innerHTML='<button type="button" class="r54-btn-gemini-trigger" id="r54-trigger-gemini-btn"><span>✦</span> NARRAR CENA COM MESTRE GEMINI</button><button type="button" class="r54-btn-holotable-trigger" onclick="window.BraseiroHolotable?.open()"><span>⬡</span> TERMINAL TÁTICO HOLONET</button>';
- const situation=root.querySelector('.scene-situation-paper')||root.querySelector('.scene-media-slot')||root.firstChild;
- if(situation)root.insertBefore(bar,situation);else root.prepend(bar);
+ let bar=root.querySelector('.r54-scene-gemini-bar');
+ if(!bar){
+  bar=document.createElement('div');bar.className='r54-scene-gemini-bar';
+  bar.innerHTML='<button type="button" class="r54-btn-gemini-trigger" id="r54-trigger-gemini-btn"><span>✦</span> NARRAR CENA COM MESTRE GEMINI</button><button type="button" class="r54-btn-holotable-trigger" onclick="window.BraseiroHolotable?.open()"><span>⬡</span> TERMINAL TÁTICO HOLONET</button>';
+ }
+ if(bar.parentNode!==root){
+  const anchor=root.querySelector('.scene-situation-grid')||root.querySelector('.scene-narrative-paper');
+  if(anchor&&anchor.parentNode===root&&anchor.nextSibling){root.insertBefore(bar,anchor.nextSibling)}else{root.appendChild(bar)}
+ }
  const btn=bar.querySelector('#r54-trigger-gemini-btn');
  if(btn){
   btn.onclick=async()=>{
@@ -1348,7 +1354,23 @@ function enhanceSceneGeminiMasterBar(){
 }
 
 function enhance(){
-enhanceSceneGeminiMasterBar();enhanceNarration();enhanceSceneFromEngine();maybePrewarmNativeTtsForScene();enhanceAccessibility();enhanceTtsSettings();relabelCreationForCampaign();setupOverlay();enhanceAdventureGate();enhancePublishedAdventurePanel();enhanceSceneGeminiButton();enhanceGeminiModels();enhanceCharacterEmptyActions();enhanceUtilityShortcuts()}
+ const safe=(name,fn)=>{try{fn()}catch(e){console.warn('[final-enhance] error in '+name+':',e)}};
+ safe('enhanceSceneGeminiMasterBar',enhanceSceneGeminiMasterBar);
+ safe('enhanceNarration',enhanceNarration);
+ safe('enhanceSceneFromEngine',enhanceSceneFromEngine);
+ safe('maybePrewarmNativeTtsForScene',maybePrewarmNativeTtsForScene);
+ safe('enhanceAccessibility',enhanceAccessibility);
+ safe('enhanceTtsSettings',enhanceTtsSettings);
+ safe('relabelCreationForCampaign',relabelCreationForCampaign);
+ safe('setupOverlay',setupOverlay);
+ safe('enhanceAdventureGate',enhanceAdventureGate);
+ safe('enhancePublishedAdventurePanel',enhancePublishedAdventurePanel);
+ safe('enhanceSceneGeminiButton',enhanceSceneGeminiButton);
+ safe('enhanceGeminiModels',enhanceGeminiModels);
+ safe('enhanceCharacterEmptyActions',enhanceCharacterEmptyActions);
+ safe('enhanceUtilityShortcuts',enhanceUtilityShortcuts);
+ safe('r53EnsureRestart',r53EnsureRestart);
+}
 if(window.BraseiroDomScheduler)window.BraseiroDomScheduler.register('final-enhance',enhance);
 else {window.addEventListener('popstate',()=>setTimeout(enhance,0));window.addEventListener('DOMContentLoaded',enhance);setTimeout(enhance,0);}
 window.braseiroNpcTokenNativeEvent=function(raw){const evt=safeParse(raw,{});if(evt?.type==='token_imported'){const id=String(evt?.payload?.npcId||'');if(id&&pendingNpcTokenId()===id)setPendingNpcTokenId('');setTimeout(enhanceSceneFromEngine,0)}};
@@ -1436,7 +1458,8 @@ function r54OpenCampaignHub(){
 }
 function r53EnsureRestart(){
  const old=document.querySelector('.r53-restart-fab');
- if(!adventureStarted()){old?.remove();return}
+ const route=new URLSearchParams(location.search).get('screen')||'00';
+ if(route!=='00'){old?.remove();return}
  if(old)return;
  const b=document.createElement('button');b.type='button';b.className='r53-fab r53-restart-fab';b.textContent='☰ CAMPANHA';b.setAttribute('aria-label','Gerenciar campanha e mundo');b.onclick=r54OpenCampaignHub;document.body.appendChild(b);
 }

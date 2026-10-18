@@ -410,23 +410,29 @@ html.braseiro-reduced-motion *,html.braseiro-reduced-motion *::before,html.brase
   color: #7e8f99 !important;
 }
 
-/* Compactar visor de cena */
+/* Compactar visor de cena e garantir espaço para botão de ilustração Gemini */
 .scene-media-slot {
-  height: 72px !important;
-  min-height: 72px !important;
-  max-height: 72px !important;
+  height: 110px !important;
+  min-height: 110px !important;
+  max-height: 110px !important;
   border-radius: 8px !important;
   margin-bottom: 4px !important;
   overflow: hidden !important;
   background: #0a0f13 !important;
   border: 1px solid #233540 !important;
+  position: relative !important;
 }
 .scene-media-slot.has-scene-image, .scene-media-slot.has-demo-art {
-  height: 135px !important;
-  max-height: 135px !important;
+  height: 140px !important;
+  max-height: 140px !important;
+}
+.scene-media-slot:before,
+.scene-media-slot:after {
+  pointer-events: none !important;
 }
 .scene-media-slot figcaption {
   padding: 2px 6px !important;
+  z-index: 10 !important;
 }
 .scene-media-slot figcaption span {
   font-size: 0.58rem !important;
@@ -435,8 +441,68 @@ html.braseiro-reduced-motion *,html.braseiro-reduced-motion *::before,html.brase
   display: none !important;
 }
 
-/* Eliminar botões flutuantes intrusivos sobrepostos às abas */
-.final-library-shortcut, .r53-restart-fab, .r53-fab, .final-adventure-fab {
+/* Botão ℹ ILUSTRAÇÃO da Cena - Gemini Prompt */
+.final-scene-gemini {
+  position: absolute !important;
+  left: 8px !important;
+  bottom: 8px !important;
+  z-index: 50 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  max-width: calc(100% - 16px) !important;
+  pointer-events: auto !important;
+}
+.final-scene-gemini button {
+  min-height: 32px !important;
+  border: 1px solid #eab308 !important;
+  background: rgba(10, 15, 20, 0.94) !important;
+  color: #fef08a !important;
+  font-weight: 800 !important;
+  font-size: 0.72rem !important;
+  border-radius: 6px !important;
+  padding: 5px 10px !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6) !important;
+  cursor: pointer !important;
+}
+.final-scene-gemini button:active {
+  background: #1e293b !important;
+}
+.final-scene-gemini small {
+  background: rgba(0, 0, 0, 0.75) !important;
+  padding: 3px 6px !important;
+  border-radius: 4px !important;
+  color: #e2e8f0 !important;
+  font-size: 0.65rem !important;
+}
+
+/* Botão de Campanha (Reiniciar Aventura / Novo Mundo / Zerar) sempre acessível no topo */
+.r53-restart-fab {
+  position: fixed !important;
+  top: 8px !important;
+  right: 10px !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  background: #111b22 !important;
+  border: 1px solid #eab308 !important;
+  color: #fef08a !important;
+  font-weight: 800 !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.05em !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7) !important;
+  cursor: pointer !important;
+}
+.r53-restart-fab:active {
+  background: #1e293b !important;
+  transform: translateY(1px) !important;
+}
+
+/* Eliminar botões flutuantes que sobrepõem abas inferiores */
+.final-library-shortcut, .final-adventure-fab {
   display: none !important;
 }
 
