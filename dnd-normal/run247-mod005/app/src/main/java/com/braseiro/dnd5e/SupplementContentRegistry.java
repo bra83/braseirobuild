@@ -47,7 +47,8 @@ public final class SupplementContentRegistry {
                     .put(CharacterOptionCatalogEngine.descriptor())
                     .put(SpellItemCatalogEngine.descriptor())
                     .put(TashaFeatCompiledRulesEngine.descriptor())
-                    .put(TashaCampaignSystemsEngine.descriptor()));
+                    .put(TashaCampaignSystemsEngine.descriptor())
+                    .put(NewarreAndWaystoneEngine.descriptor()));
             CompiledSupplementProcedureBootstrap.install();int registered=0,executable=0,manual=0;for(String id:RULE_IDS){JSONObject g=AuthorizedRuleProcedureEngine.gate(id,new JSONObject());if(g.optBoolean("registered",false))registered++;String pt=AuthorizedRuleProcedureEngine.get(id).optString("procedure_type","");if("state_rule_gate".equalsIgnoreCase(pt))manual++;else if(g.optBoolean("registered",false))executable++;}out.put("rule_count",RULE_IDS.size()).put("registered_procedures",registered).put("executable_procedures",executable).put("manual_resolution_procedures",manual).put("rag_role","lore, explicação e suplementos ainda não compilados");
         }catch(Exception ignored){AppLog.ignored("SupplementContentRegistry","Falha ao montar catálogo.",ignored);}return out;
     }
@@ -58,6 +59,7 @@ public final class SupplementContentRegistry {
             if(matchesCooking(n)){packs.put(CookingRulesEngine.descriptor());addRules(rules,"cozinheiro.");}
             if(hasAny(n,"pesca","pescar","peixe","anzol","isca","vara de pescar","fishing")){packs.put(FishingRulesEngine.descriptor());}
             if(hasAny(n,"taberna","estalagem","taverna","bordel","bordeis","barman","bebida","hidromel","cerveja","taproom")){packs.put(TavernBrothelCatalogEngine.descriptor());}
+            if(hasAny(n,"newarre","marco do percurso","waystone","kote","bast","do40","kvothe")){packs.put(NewarreAndWaystoneEngine.descriptor());}
             if(hasAny(n,"torre peculiar","peculiar tower","torres peculiares","vidro cantante","relogio reverso","magnetita")){packs.put(PeculiarTowersEngine.descriptor());}
             if(hasAny(n,"tatuagem","tatuagens","tattoo","tome of mystical tattoos","agulha arcana")){packs.put(MysticalTattoosEngine.descriptor());}
             if(hasAny(n,"masmorra cruel","masmorras crueis","pendulo decapitador","teto esmagador","armadilha cruel")){packs.put(CruelDungeonEngine.descriptor());}

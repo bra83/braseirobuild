@@ -159,6 +159,8 @@ public final class NpcWorldSpreaderEngine {
         list.add(new LocationSlot("Bairro dos Ferreiros e Armeiros", "H04-05", "city"));
         list.add(new LocationSlot("Quartel da Guarda Municipal", "H04-04", "city"));
         list.add(new LocationSlot("Vila Costeira dos Pescadores", "H02-02", "port"));
+        list.add(new LocationSlot("Newarre", NewarreAndWaystoneEngine.HEX_ID, "city"));
+        list.add(new LocationSlot("Pousada Marco do Percurso", NewarreAndWaystoneEngine.HEX_ID, "tavern"));
 
         return list;
     }
