@@ -413,6 +413,159 @@ class BraseiroUiBridge {
             return fail('RESOLVE_MORALITY_FAILED', messageOf(error));
         }
     }
+    craftingCatalog() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.craftingCatalog()));
+        }
+        catch (error) {
+            return fail('CRAFTING_CATALOG_FAILED', messageOf(error));
+        }
+    }
+    craftItem(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            const res = controllerResult.data.craftItem(options);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        }
+        catch (error) {
+            return fail('CRAFT_ITEM_FAILED', messageOf(error));
+        }
+    }
+    createSquad(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.createSquad(options)));
+        }
+        catch (error) {
+            return fail('CREATE_SQUAD_FAILED', messageOf(error));
+        }
+    }
+    redirectSquadDamage(squad, damageAmount = 1) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.redirectSquadDamage(squad, damageAmount)));
+        }
+        catch (error) {
+            return fail('REDIRECT_SQUAD_DAMAGE_FAILED', messageOf(error));
+        }
+    }
+    createStarfighterSquadron(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.createStarfighterSquadron(options)));
+        }
+        catch (error) {
+            return fail('CREATE_SQUADRON_FAILED', messageOf(error));
+        }
+    }
+    redirectSquadronDamage(squadron) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.redirectSquadronDamage(squadron)));
+        }
+        catch (error) {
+            return fail('REDIRECT_SQUADRON_DAMAGE_FAILED', messageOf(error));
+        }
+    }
+    resolveMassCombatRound(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.resolveMassCombatRound(options)));
+        }
+        catch (error) {
+            return fail('MASS_COMBAT_ROUND_FAILED', messageOf(error));
+        }
+    }
+    signatureAbilitiesCatalog() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.signatureAbilitiesCatalog()));
+        }
+        catch (error) {
+            return fail('SIGNATURE_CATALOG_FAILED', messageOf(error));
+        }
+    }
+    canPurchaseSignatureAbility(signatureKey) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            return ok(clone(controllerResult.data.canPurchaseSignatureAbility(signatureKey)));
+        }
+        catch (error) {
+            return fail('CAN_PURCHASE_SIGNATURE_FAILED', messageOf(error));
+        }
+    }
+    purchaseSignatureAbility(signatureKey) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            const res = controllerResult.data.purchaseSignatureAbility(signatureKey);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        }
+        catch (error) {
+            return fail('PURCHASE_SIGNATURE_FAILED', messageOf(error));
+        }
+    }
+    activateSignatureAbility(signatureKey) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            const res = controllerResult.data.activateSignatureAbility(signatureKey);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        }
+        catch (error) {
+            return fail('ACTIVATE_SIGNATURE_FAILED', messageOf(error));
+        }
+    }
+    setCharacter(character) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            const res = controllerResult.data.setCharacter(character);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        }
+        catch (error) {
+            return fail('SET_CHARACTER_FAILED', messageOf(error));
+        }
+    }
+    setGroupDestiny(payload) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok)
+            return controllerResult;
+        try {
+            const res = controllerResult.data.setGroupDestiny(payload);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        }
+        catch (error) {
+            return fail('SET_DESTINY_FAILED', messageOf(error));
+        }
+    }
     /** Single Android/WebView entrypoint for replay-safe published actions. */
     executePublishedAdventureCommand(command = {}) {
         const controllerResult = this._controllerForExistingCampaign();
@@ -23043,6 +23196,9 @@ const fndCharacterCreation_mjs_1 = require("../rules/fndCharacterCreation.mjs");
 const morality_mjs_1 = require("../rules/morality.mjs");
 const lightsabers_mjs_1 = require("../rules/lightsabers.mjs");
 const fndForcePowers_mjs_1 = require("../rules/fndForcePowers.mjs");
+const crafting_mjs_1 = require("../rules/crafting.mjs");
+const squadsAndMassCombat_mjs_1 = require("../rules/squadsAndMassCombat.mjs");
+const signatureAbilities_mjs_1 = require("../rules/signatureAbilities.mjs");
 function requireCharacter(character) {
     if (!character)
         throw new Error('Carregue um personagem antes desta ação.');
@@ -24075,6 +24231,63 @@ class GameController {
         const character = requireCharacter(this.state.player.character);
         const result = morality_mjs_1.resolveEndOfSessionMorality(character, options);
         this.setCharacter(result.character);
+        return result;
+    }
+    craftingCatalog() {
+        return {
+            templates: {
+                weapons: structuredClone(crafting_mjs_1.WEAPON_CRAFTING_TEMPLATES),
+                armor: structuredClone(crafting_mjs_1.ARMOR_CRAFTING_TEMPLATES),
+                droids: structuredClone(crafting_mjs_1.DROID_CRAFTING_TEMPLATES)
+            },
+            weaponAdvantageOptions: structuredClone(crafting_mjs_1.WEAPON_ADVANTAGE_OPTIONS),
+            armorAdvantageOptions: structuredClone(crafting_mjs_1.ARMOR_ADVANTAGE_OPTIONS),
+            droidAdvantageOptions: structuredClone(crafting_mjs_1.DROID_ADVANTAGE_OPTIONS)
+        };
+    }
+    craftItem(options = {}) {
+        const character = requireCharacter(this.state.player.character);
+        const result = crafting_mjs_1.craftItem(character, options);
+        this.setCharacter(result.character);
+        return result;
+    }
+    createSquad(options = {}) {
+        const character = this.state.player?.character;
+        return squadsAndMassCombat_mjs_1.createSquad({ leaderName: character?.name ?? 'Líder', ...options });
+    }
+    redirectSquadDamage(squad, damageAmount = 1) {
+        return squadsAndMassCombat_mjs_1.redirectDamageToSquad(squad, damageAmount);
+    }
+    createStarfighterSquadron(options = {}) {
+        const character = this.state.player?.character;
+        return squadsAndMassCombat_mjs_1.createStarfighterSquadron({ leaderPilotName: character?.name ?? 'Piloto', ...options });
+    }
+    redirectSquadronDamage(squadron) {
+        return squadsAndMassCombat_mjs_1.redirectVehicleDamageToWingman(squadron);
+    }
+    resolveMassCombatRound(options = {}) {
+        return squadsAndMassCombat_mjs_1.resolveMassCombatRound(options);
+    }
+    signatureAbilitiesCatalog() {
+        return structuredClone(signatureAbilities_mjs_1.SIGNATURE_ABILITIES_CATALOG);
+    }
+    canPurchaseSignatureAbility(signatureKey) {
+        const character = requireCharacter(this.state.player.character);
+        return signatureAbilities_mjs_1.canPurchaseSignatureAbility(character, signatureKey);
+    }
+    purchaseSignatureAbility(signatureKey) {
+        const character = requireCharacter(this.state.player.character);
+        const result = signatureAbilities_mjs_1.purchaseSignatureAbility(character, signatureKey);
+        this.setCharacter(result.character);
+        return result;
+    }
+    activateSignatureAbility(signatureKey) {
+        const character = requireCharacter(this.state.player.character);
+        const result = signatureAbilities_mjs_1.activateSignatureAbility(character, signatureKey, this.state.group);
+        this.setCharacter(result.character);
+        if (result.group) {
+            this.commit('GROUP_UPDATED', { group: result.group });
+        }
         return result;
     }
     buildRandomCharacter(options = {}) {
@@ -37654,6 +37867,283 @@ function escapeEnsnareCheck() {
     return { difficulty: 3, skill: 'atletismo', name: 'Difícil (3 Roxos)' };
 }
 });
+define("js/rules/crafting.mjs",function(module,exports,require){
+"use strict";
+// Star Wars: Edge Studio / Fantasy Flight Games
+// Special Modifications (pp. 72-91) & Fully Operational (pp. 78-95)
+// Canonical implementation of Weapon, Armor, and Droid Crafting mechanics.
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DROID_CRAFTING_TEMPLATES = exports.ARMOR_CRAFTING_TEMPLATES = exports.WEAPON_CRAFTING_TEMPLATES = void 0;
+exports.craftItem = craftItem;
+const clone = v => structuredClone(v);
+const int = (v, label, { min = 0, max = 999999 } = {}) => {
+    const n = Number(v);
+    if (!Number.isInteger(n) || n < min || n > max)
+        throw new Error(`${label} inválido.`);
+    return n;
+};
+exports.WEAPON_CRAFTING_TEMPLATES = Object.freeze({
+    blaster_pistol: Object.freeze({
+        id: 'blaster_pistol',
+        category: 'weapon',
+        name: 'Pistola Blaster Personalizada',
+        skill: 'armas_distancia_ligeras',
+        difficulty: 2,
+        creditCost: 150,
+        timeHours: 8,
+        baseDamage: 6,
+        baseCritical: 3,
+        baseEncumbrance: 1,
+        baseHardPoints: 2,
+        range: 'Médio',
+        qualities: Object.freeze(['Dano Atordoante'])
+    }),
+    blaster_rifle: Object.freeze({
+        id: 'blaster_rifle',
+        category: 'weapon',
+        name: 'Rifle Blaster Personalizado',
+        skill: 'armas_distancia_pesadas',
+        difficulty: 3,
+        creditCost: 400,
+        timeHours: 16,
+        baseDamage: 9,
+        baseCritical: 3,
+        baseEncumbrance: 4,
+        baseHardPoints: 3,
+        range: 'Longo',
+        qualities: Object.freeze(['Dano Atordoante'])
+    }),
+    heavy_blaster: Object.freeze({
+        id: 'heavy_blaster',
+        category: 'weapon',
+        name: 'Arma Blaster Pesada Personalizada',
+        skill: 'artilleria',
+        difficulty: 4,
+        creditCost: 850,
+        timeHours: 24,
+        baseDamage: 11,
+        baseCritical: 2,
+        baseEncumbrance: 6,
+        baseHardPoints: 4,
+        range: 'Longo',
+        qualities: Object.freeze(['Incômoda 3'])
+    }),
+    vibro_blade: Object.freeze({
+        id: 'vibro_blade',
+        category: 'weapon',
+        name: 'Vibrolâmina Forjada',
+        skill: 'armas_cuerpo_a_cuerpo',
+        difficulty: 2,
+        creditCost: 100,
+        timeHours: 6,
+        baseDamage: 3, // + Brawn
+        baseCritical: 2,
+        baseEncumbrance: 2,
+        baseHardPoints: 2,
+        range: 'Interação',
+        qualities: Object.freeze(['Perfurante 2', 'Viciosa 1'])
+    })
+});
+exports.ARMOR_CRAFTING_TEMPLATES = Object.freeze({
+    light_armor: Object.freeze({
+        id: 'light_armor',
+        category: 'armor',
+        name: 'Traje Laminado Leve',
+        difficulty: 2,
+        creditCost: 200,
+        timeHours: 10,
+        baseSoak: 1,
+        baseDefenseMelee: 0,
+        baseDefenseRanged: 0,
+        baseEncumbrance: 1,
+        baseHardPoints: 1
+    }),
+    heavy_armor: Object.freeze({
+        id: 'heavy_armor',
+        category: 'armor',
+        name: 'Armadura de Placas Pesada',
+        difficulty: 3,
+        creditCost: 650,
+        timeHours: 20,
+        baseSoak: 2,
+        baseDefenseMelee: 1,
+        baseDefenseRanged: 1,
+        baseEncumbrance: 3,
+        baseHardPoints: 2
+    }),
+    powered_armor: Object.freeze({
+        id: 'powered_armor',
+        category: 'armor',
+        name: 'Exoarmadura Energizada',
+        difficulty: 4,
+        creditCost: 3000,
+        timeHours: 40,
+        baseSoak: 3,
+        baseDefenseMelee: 2,
+        baseDefenseRanged: 2,
+        baseEncumbrance: 4,
+        baseHardPoints: 3
+    })
+});
+exports.DROID_CRAFTING_TEMPLATES = Object.freeze({
+    combat_droid: Object.freeze({
+        id: 'combat_droid',
+        category: 'droid',
+        name: 'Droide de Combate de Quarta Classe',
+        difficulty: 3,
+        creditCost: 2500,
+        timeHours: 32,
+        characteristics: Object.freeze({ fortaleza: 3, agilidad: 3, intelecto: 1, astucia: 2, voluntad: 1, presencia: 1 }),
+        woundsThreshold: 14,
+        strainThreshold: 10,
+        soak: 4,
+        skills: Object.freeze({ pelea: 2, armas_distancia_pesadas: 2, vigilancia: 1 })
+    }),
+    astromech_droid: Object.freeze({
+        id: 'astromech_droid',
+        category: 'droid',
+        name: 'Droide Astromecânico de Segunda Classe',
+        difficulty: 2,
+        creditCost: 1500,
+        timeHours: 20,
+        characteristics: Object.freeze({ fortaleza: 1, agilidad: 2, intelecto: 3, astucia: 2, voluntad: 1, presencia: 1 }),
+        woundsThreshold: 10,
+        strainThreshold: 10,
+        soak: 2,
+        skills: Object.freeze({ computadoras: 2, mecanica: 2, astronavegacion: 2 })
+    }),
+    medical_droid: Object.freeze({
+        id: 'medical_droid',
+        category: 'droid',
+        name: 'Droide Médico de Primeira Classe',
+        difficulty: 3,
+        creditCost: 1800,
+        timeHours: 24,
+        characteristics: Object.freeze({ fortaleza: 1, agilidad: 2, intelecto: 4, astucia: 2, voluntad: 1, presencia: 1 }),
+        woundsThreshold: 10,
+        strainThreshold: 12,
+        soak: 2,
+        skills: Object.freeze({ medicina: 3, educacion: 2 })
+    })
+});
+function craftItem(character, { templateType, // 'weapon' | 'armor' | 'droid'
+templateId, rollResult = { successes: 1, advantage: 0, triumph: 0, threat: 0, despair: 0 }, spentAdvantage = [] } = {}) {
+    if (!character)
+        throw new Error('Personagem inválido para fabricação.');
+    let template = null;
+    if (templateType === 'weapon')
+        template = exports.WEAPON_CRAFTING_TEMPLATES[templateId];
+    else if (templateType === 'armor')
+        template = exports.ARMOR_CRAFTING_TEMPLATES[templateId];
+    else if (templateType === 'droid')
+        template = exports.DROID_CRAFTING_TEMPLATES[templateId];
+    else
+        throw new Error(`Tipo de template inválido: ${templateType}`);
+    if (!template)
+        throw new Error(`Template não encontrado: ${templateId}`);
+    // Credit cost verification
+    const currentCredits = Number(character.credits ?? 0);
+    if (currentCredits < template.creditCost) {
+        throw new Error(`Créditos insuficientes: necessário ${template.creditCost}, disponível ${currentCredits}.`);
+    }
+    const successes = Number(rollResult.successes ?? 0);
+    if (successes < 1) {
+        // Construction failed: 50% material salvage lost
+        const nextChar = clone(character);
+        nextChar.credits -= Math.floor(template.creditCost / 2);
+        return {
+            success: false,
+            character: nextChar,
+            salvagedCreditsLost: Math.floor(template.creditCost / 2),
+            item: null,
+            message: 'Falha no teste de Mecânica. Metade dos materiais foi perdida.'
+        };
+    }
+    const nextChar = clone(character);
+    nextChar.credits -= template.creditCost;
+    const advantage = Number(rollResult.advantage ?? rollResult.advantages ?? 0);
+    const triumph = Number(rollResult.triumph ?? rollResult.triumphs ?? 0);
+    const threat = Number(rollResult.threat ?? rollResult.threats ?? 0);
+    const despair = Number(rollResult.despair ?? rollResult.despairs ?? 0);
+    let finalTimeHours = template.timeHours;
+    let damage = template.baseDamage ?? 0;
+    let soak = template.baseSoak ?? (template.soak ?? 0);
+    let hardPoints = template.baseHardPoints ?? 0;
+    let encumbrance = template.baseEncumbrance ?? 0;
+    const qualities = Array.isArray(template.qualities) ? [...template.qualities] : [];
+    // Advantage expenditure options
+    if (advantage >= 2) {
+        finalTimeHours = Math.max(1, Math.floor(finalTimeHours * 0.75)); // -25% tempo
+    }
+    if (advantage >= 3) {
+        if (templateType === 'weapon')
+            damage += 1;
+        if (templateType === 'armor')
+            soak += 1;
+        if (templateType === 'droid')
+            hardPoints += 1;
+    }
+    if (advantage >= 4) {
+        hardPoints += 1; // +1 Hard Point extra
+    }
+    // Triumph effects
+    if (triumph >= 1) {
+        if (templateType === 'weapon')
+            qualities.push('Precisa 1');
+        if (templateType === 'armor')
+            qualities.push('Defensiva 1');
+        if (templateType === 'droid') {
+            // Droid gains a free skill rank
+            if (template.skills) {
+                const firstSkill = Object.keys(template.skills)[0];
+                template = { ...template, skills: { ...template.skills, [firstSkill]: template.skills[firstSkill] + 1 } };
+            }
+        }
+    }
+    // Threat & Despair effects
+    if (threat >= 2) {
+        finalTimeHours = Math.floor(finalTimeHours * 1.5); // +50% tempo
+    }
+    if (despair >= 1) {
+        qualities.push('Imprecisa 1');
+    }
+    const craftedItem = {
+        id: `crafted_${template.id}_${Date.now()}`,
+        name: template.name,
+        category: templateType,
+        damage,
+        soak,
+        hardPoints,
+        encumbrance: Math.max(0, encumbrance),
+        timeHours: finalTimeHours,
+        qualities,
+        craftedBy: character.name,
+        craftedAt: new Date().toISOString(),
+        details: template
+    };
+    // Add to character inventory or droids
+    if (templateType === 'weapon') {
+        nextChar.weapons = Array.isArray(nextChar.weapons) ? nextChar.weapons : [];
+        nextChar.weapons.push(craftedItem);
+    }
+    else if (templateType === 'armor') {
+        nextChar.armor = Array.isArray(nextChar.armor) ? nextChar.armor : [];
+        nextChar.armor.push(craftedItem);
+    }
+    else if (templateType === 'droid') {
+        nextChar.gear = Array.isArray(nextChar.gear) ? nextChar.gear : [];
+        nextChar.gear.push(craftedItem);
+    }
+    return {
+        success: true,
+        character: nextChar,
+        item: craftedItem,
+        creditsSpent: template.creditCost,
+        timeHours: finalTimeHours,
+        message: `Fabricação de ${template.name} concluída com sucesso!`
+    };
+}
+});
 define("js/rules/critical.mjs",function(module,exports,require){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -41737,6 +42227,309 @@ function expireStimApplication(patient) {
     if (!Object.keys(next.combatEffects).length)
         delete next.combatEffects;
     return next;
+}
+});
+define("js/rules/signatureAbilities.mjs",function(module,exports,require){
+"use strict";
+// Star Wars: Edge Studio / Fantasy Flight Games
+// Canonical Career Signature Abilities & 8-Node Upgrade Trees
+// Source: Core Rulebooks and Career Sourcebooks.
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SIGNATURE_ABILITIES_CATALOG = void 0;
+exports.canPurchaseSignatureAbility = canPurchaseSignatureAbility;
+exports.purchaseSignatureAbility = purchaseSignatureAbility;
+exports.activateSignatureAbility = activateSignatureAbility;
+const clone = v => structuredClone(v);
+exports.SIGNATURE_ABILITIES_CATALOG = Object.freeze({
+    always_get_my_mark: Object.freeze({
+        id: 'always_get_my_mark',
+        careerKey: 'bounty_hunter',
+        name: 'Sempre Pego Minha Presa (Always Get My Mark)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para identificar a localização exata, pistas recentes e vulnerabilidade direta do alvo contratado.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'duration_1', name: 'Aumento de Duração', cost: 10, type: 'duration' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' },
+            { id: 'range_1', name: 'Aumento de Alcance', cost: 10, type: 'range' }
+        ])
+    }),
+    narrow_escape: Object.freeze({
+        id: 'narrow_escape',
+        careerKey: 'smuggler',
+        name: 'Fuga por um Fio (Narrow Escape)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para desvencilhar a si e aos aliados de um cerco ou perseguição sem saída, abrindo uma rota de fuga imediata.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'allies_1', name: 'Escolta Ampla', cost: 15, type: 'allies' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    the_miracle_worker: Object.freeze({
+        id: 'the_miracle_worker',
+        careerKey: 'technician',
+        name: 'Operador de Milagres (The Miracle Worker)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para reativar um sistema veicular ou dispositivo completamente destruído pelo restante do encontro.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'duration_1', name: 'Reparo Duradouro', cost: 10, type: 'duration' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    unmatched_carnage: Object.freeze({
+        id: 'unmatched_carnage',
+        careerKey: 'hired_gun',
+        name: 'Chacina Sem Igual (Unmatched Carnage)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para realizar um ataque adicional gratuito contra cada oponente engajado na mesma rodada.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'damage_1', name: 'Dano Adicional', cost: 10, type: 'damage' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    roused_to_action: Object.freeze({
+        id: 'roused_to_action',
+        careerKey: 'commander',
+        name: 'Despertar para a Ação (Roused to Action)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para conceder a todos os aliados no encontro 1 manobra gratuita adicional por turno durante o encontro.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'duration_1', name: 'Extensão de Comando', cost: 10, type: 'duration' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    }),
+    the_bigger_they_are: Object.freeze({
+        id: 'the_bigger_they_are',
+        careerKey: 'soldier',
+        name: 'Quanto Maior o Tamanho (The Bigger They Are)',
+        baseCost: 30,
+        destinyCost: 1,
+        description: 'Uma vez por sessão, gasta 1 Ponto de Destino para infligir acertos críticos automáticos e ignorar metade da proteção de alvos de silhueta superior.',
+        upgrades: Object.freeze([
+            { id: 'destiny_1', name: 'Redução de Destino', cost: 10, type: 'destiny' },
+            { id: 'crit_1', name: 'Crítico Devastador', cost: 10, type: 'critical' },
+            { id: 'frequency_1', name: 'Aumento de Frequência', cost: 15, type: 'frequency' }
+        ])
+    })
+});
+function canPurchaseSignatureAbility(character, signatureKey) {
+    const ability = exports.SIGNATURE_ABILITIES_CATALOG[signatureKey];
+    if (!ability)
+        return { can: false, reason: 'Habilidade de Assinatura desconhecida.' };
+    const careerKey = character?.creation?.careerKey;
+    if (careerKey !== ability.careerKey) {
+        return { can: false, reason: `Esta habilidade pertence à carreira ${ability.careerKey}, não a ${careerKey}.` };
+    }
+    // Check if character already owns it
+    const owned = character?.signatureAbilities || [];
+    if (owned.some(a => a.id === signatureKey)) {
+        return { can: false, reason: 'O personagem já possui esta Habilidade de Assinatura.' };
+    }
+    // Check if character has unlocked row 5 of a talent tree
+    const purchases = character?.talentPurchases || [];
+    const hasRow5 = purchases.some(p => p.row === 5);
+    if (!hasRow5) {
+        return { can: false, reason: 'É necessário ter adquirido pelo menos um talento de linha 5 na árvore da carreira.' };
+    }
+    const availableXp = Number(character?.xp?.available ?? 0);
+    if (availableXp < ability.baseCost) {
+        return { can: false, reason: `PE insuficientes: necessário ${ability.baseCost}, disponível ${availableXp}.` };
+    }
+    return { can: true, reason: null };
+}
+function purchaseSignatureAbility(character, signatureKey) {
+    const check = canPurchaseSignatureAbility(character, signatureKey);
+    if (!check.can)
+        throw new Error(check.reason);
+    const ability = exports.SIGNATURE_ABILITIES_CATALOG[signatureKey];
+    const next = clone(character);
+    next.xp.available -= ability.baseCost;
+    next.signatureAbilities = Array.isArray(next.signatureAbilities) ? next.signatureAbilities : [];
+    next.signatureAbilities.push({
+        id: ability.id,
+        name: ability.name,
+        purchasedAt: new Date().toISOString(),
+        upgrades: [],
+        usedThisSession: false
+    });
+    return {
+        character: next,
+        ability: clone(ability),
+        cost: ability.baseCost
+    };
+}
+function activateSignatureAbility(character, signatureKey, group) {
+    const nextChar = clone(character);
+    const nextGroup = clone(group);
+    const entry = (nextChar.signatureAbilities || []).find(a => a.id === signatureKey);
+    if (!entry)
+        throw new Error('Personagem não possui esta Habilidade de Assinatura.');
+    const ability = exports.SIGNATURE_ABILITIES_CATALOG[signatureKey];
+    if (entry.usedThisSession && !entry.upgrades.includes('frequency_1')) {
+        throw new Error('Esta habilidade já foi utilizada nesta sessão.');
+    }
+    // Destiny cost check:
+    const destiny = nextGroup?.destiny;
+    if (destiny && destiny.light < ability.destinyCost) {
+        throw new Error('Pontos de Destino luminosos insuficientes para ativar a Habilidade de Assinatura.');
+    }
+    if (destiny) {
+        destiny.light -= ability.destinyCost;
+        destiny.dark += ability.destinyCost;
+    }
+    entry.usedThisSession = true;
+    return {
+        character: nextChar,
+        group: nextGroup,
+        activated: true,
+        abilityName: ability.name,
+        description: ability.description
+    };
+}
+});
+define("js/rules/squadsAndMassCombat.mjs",function(module,exports,require){
+"use strict";
+// Star Wars: Age of Rebellion / Edge Studio
+// Lead by Example (pp. 70-87) & Stay on Target (pp. 70-85)
+// Canonical implementation of Squads, Starfighter Squadrons, and Mass Combat Battle Resolution.
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MASS_COMBAT_FORCE_TIERS = exports.SQUADRON_FORMATIONS = exports.SQUAD_FORMATIONS = void 0;
+exports.createSquad = createSquad;
+exports.setSquadFormation = setSquadFormation;
+exports.redirectDamageToSquad = redirectDamageToSquad;
+exports.createStarfighterSquadron = createStarfighterSquadron;
+exports.setSquadronFormation = setSquadronFormation;
+exports.redirectVehicleDamageToWingman = redirectVehicleDamageToWingman;
+exports.resolveMassCombatRound = resolveMassCombatRound;
+const clone = v => structuredClone(v);
+const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
+exports.SQUAD_FORMATIONS = Object.freeze({
+    skirmish: Object.freeze({ id: 'skirmish', name: 'Formação de Tiroteio', bonusRangedBoost: 1, bonusDefense: 0 }),
+    assault: Object.freeze({ id: 'assault', name: 'Formação de Choque', bonusMeleeBoost: 1, bonusDefense: 0 }),
+    defensive: Object.freeze({ id: 'defensive', name: 'Falange Defensiva', bonusRangedBoost: 0, bonusDefense: 1 })
+});
+exports.SQUADRON_FORMATIONS = Object.freeze({
+    vic: Object.freeze({ id: 'vic', name: 'Formação em V', handlingBoost: 1, gunneryBoost: 0 }),
+    spread: Object.freeze({ id: 'spread', name: 'Formação Espalhada', handlingBoost: 0, gunneryBoost: 1 })
+});
+exports.MASS_COMBAT_FORCE_TIERS = Object.freeze([
+    Object.freeze({ tier: 1, label: 'Pequeno (30-50 tropas / 2-4 veículos)' }),
+    Object.freeze({ tier: 2, label: 'Médio (100-300 tropas / 10-20 veículos)' }),
+    Object.freeze({ tier: 3, label: 'Grande (500-1.000 tropas / batalhão)' }),
+    Object.freeze({ tier: 4, label: 'Maciço (2.000-5.000 tropas / regimento)' }),
+    Object.freeze({ tier: 5, label: 'Planetário / Frota Titânica (10.000+ tropas)' })
+]);
+function createSquad({ leaderName, minionProfileName = 'Soldado Rebelde da Linha de Frente', minionCount = 4, maxCapacity = 6, formation = 'skirmish' } = {}) {
+    return {
+        id: `squad_${Date.now()}`,
+        leaderName,
+        minionProfileName,
+        minionCount: clamp(Number(minionCount) || 1, 1, maxCapacity),
+        maxCapacity,
+        formation: exports.SQUAD_FORMATIONS[formation] ? formation : 'skirmish',
+        active: true
+    };
+}
+function setSquadFormation(squad, formationKey) {
+    if (!exports.SQUAD_FORMATIONS[formationKey])
+        throw new Error(`Formação de esquadrão inválida: ${formationKey}`);
+    const next = clone(squad);
+    next.formation = formationKey;
+    return next;
+}
+function redirectDamageToSquad(squad, damageAmount = 1) {
+    const next = clone(squad);
+    if (next.minionCount <= 0) {
+        return { squad: next, absorbed: false, minionsLost: 0, remainingMinions: 0 };
+    }
+    next.minionCount -= 1;
+    if (next.minionCount === 0) {
+        next.active = false;
+    }
+    return {
+        squad: next,
+        absorbed: true,
+        minionsLost: 1,
+        remainingMinions: next.minionCount,
+        message: '1 subordinado do esquadrão absorveu o impacto fatal e foi eliminado.'
+    };
+}
+function createStarfighterSquadron({ leaderPilotName, leaderVehicleId, wingmanType = 'Caça T-65B X-Wing', wingmenCount = 3, maxWingmen = 4, formation = 'vic' } = {}) {
+    return {
+        id: `squadron_${Date.now()}`,
+        leaderPilotName,
+        leaderVehicleId,
+        wingmanType,
+        wingmenCount: clamp(Number(wingmenCount) || 1, 1, maxWingmen),
+        maxWingmen,
+        formation: exports.SQUADRON_FORMATIONS[formation] ? formation : 'vic',
+        active: true
+    };
+}
+function setSquadronFormation(squadron, formationKey) {
+    if (!exports.SQUADRON_FORMATIONS[formationKey])
+        throw new Error(`Formação de esquadrilha inválida: ${formationKey}`);
+    const next = clone(squadron);
+    next.formation = formationKey;
+    return next;
+}
+function redirectVehicleDamageToWingman(squadron) {
+    const next = clone(squadron);
+    if (next.wingmenCount <= 0) {
+        return { squadron: next, absorbed: false, wingmenLost: 0, remainingWingmen: 0 };
+    }
+    next.wingmenCount -= 1;
+    if (next.wingmenCount === 0) {
+        next.active = false;
+    }
+    return {
+        squadron: next,
+        absorbed: true,
+        wingmenLost: 1,
+        remainingWingmen: next.wingmenCount,
+        message: '1 caça de escolta da ala interceptou o ataque e foi destruído.'
+    };
+}
+function resolveMassCombatRound({ friendlyForceTier = 2, enemyForceTier = 2, commanderLeadershipRank = 2, rollResult = { successes: 1, advantage: 0, triumph: 0, threat: 0, despair: 0 } } = {}) {
+    const tierDiff = enemyForceTier - friendlyForceTier;
+    const baseDifficulty = clamp(2 + tierDiff, 1, 5);
+    const successes = Number(rollResult.successes ?? rollResult.success ?? 0);
+    const advantage = Number(rollResult.advantage ?? rollResult.advantages ?? 0);
+    const triumph = Number(rollResult.triumph ?? rollResult.triumphs ?? 0);
+    const threat = Number(rollResult.threat ?? rollResult.threats ?? 0);
+    const despair = Number(rollResult.despair ?? rollResult.despairs ?? 0);
+    const victory = successes > 0;
+    const enemyCasualtiesPercent = clamp(successes * 15 + triumph * 20, 0, 100);
+    const friendlyCasualtiesPercent = clamp((successes <= 0 ? 25 : 5) + threat * 5 + despair * 15, 0, 100);
+    let tacticalOutcome = '';
+    if (victory) {
+        tacticalOutcome = triumph > 0
+            ? 'Vitória esmagadora! As forças inimigas foram rompidas e bateram em retirada desordenada.'
+            : 'As forças aliadas conquistaram o objetivo da fase e empurraram a linha de frente inimiga.';
+    }
+    else {
+        tacticalOutcome = despair > 0
+            ? 'Derrota crítica! A linha defensiva cedeu e os comandantes correm risco de cerco.'
+            : 'Avanço repelido. As forças inimigas mantiveram suas posições e impuseram baixas.';
+    }
+    return {
+        baseDifficulty,
+        victory,
+        enemyCasualtiesPercent,
+        friendlyCasualtiesPercent,
+        commanderRisk: despair > 0,
+        tacticalOutcome,
+        moraleShift: advantage - threat
+    };
 }
 });
 define("js/rules/starterPresets.mjs",function(module,exports,require){
@@ -46407,5 +47200,5 @@ function masterWorldSummary(world) {
     };
 }
 });
-try{const m=req("js/core/uiBridge.mjs");m.installBraseiroUiBridge(g);g.__BRASEIRO_ENGINE_BUNDLE__={ok:true,version:m.UI_BRIDGE_VERSION||null,modules:144,final:'1.0.244-r54-p244'};}catch(e){console.error(e);g.__BRASEIRO_ENGINE_BUNDLE__={ok:false,error:String(e&&e.stack||e)}};
+try{const m=req("js/core/uiBridge.mjs");m.installBraseiroUiBridge(g);g.__BRASEIRO_ENGINE_BUNDLE__={ok:true,version:m.UI_BRIDGE_VERSION||null,modules:147,final:'1.0.244-r54-p244'};}catch(e){console.error(e);g.__BRASEIRO_ENGINE_BUNDLE__={ok:false,error:String(e&&e.stack||e)}};
 })(window);

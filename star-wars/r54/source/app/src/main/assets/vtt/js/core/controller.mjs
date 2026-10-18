@@ -98,6 +98,9 @@ import * as fndCharacterCreation_mjs_1 from "../rules/fndCharacterCreation.mjs";
 import * as morality_mjs_1 from "../rules/morality.mjs";
 import * as lightsabers_mjs_1 from "../rules/lightsabers.mjs";
 import * as fndForcePowers_mjs_1 from "../rules/fndForcePowers.mjs";
+import * as crafting_mjs_1 from "../rules/crafting.mjs";
+import * as squadsAndMassCombat_mjs_1 from "../rules/squadsAndMassCombat.mjs";
+import * as signatureAbilities_mjs_1 from "../rules/signatureAbilities.mjs";
 function requireCharacter(character) {
     if (!character)
         throw new Error('Carregue um personagem antes desta ação.');
@@ -1073,6 +1076,63 @@ export class GameController {
         const character = requireCharacter(this.state.player.character);
         const result = morality_mjs_1.resolveEndOfSessionMorality(character, options);
         this.setCharacter(result.character);
+        return result;
+    }
+    craftingCatalog() {
+        return {
+            templates: {
+                weapons: structuredClone(crafting_mjs_1.WEAPON_CRAFTING_TEMPLATES),
+                armor: structuredClone(crafting_mjs_1.ARMOR_CRAFTING_TEMPLATES),
+                droids: structuredClone(crafting_mjs_1.DROID_CRAFTING_TEMPLATES)
+            },
+            weaponAdvantageOptions: structuredClone(crafting_mjs_1.WEAPON_ADVANTAGE_OPTIONS),
+            armorAdvantageOptions: structuredClone(crafting_mjs_1.ARMOR_ADVANTAGE_OPTIONS),
+            droidAdvantageOptions: structuredClone(crafting_mjs_1.DROID_ADVANTAGE_OPTIONS)
+        };
+    }
+    craftItem(options = {}) {
+        const character = requireCharacter(this.state.player.character);
+        const result = crafting_mjs_1.craftItem(character, options);
+        this.setCharacter(result.character);
+        return result;
+    }
+    createSquad(options = {}) {
+        const character = this.state.player?.character;
+        return squadsAndMassCombat_mjs_1.createSquad({ leaderName: character?.name ?? 'Líder', ...options });
+    }
+    redirectSquadDamage(squad, damageAmount = 1) {
+        return squadsAndMassCombat_mjs_1.redirectDamageToSquad(squad, damageAmount);
+    }
+    createStarfighterSquadron(options = {}) {
+        const character = this.state.player?.character;
+        return squadsAndMassCombat_mjs_1.createStarfighterSquadron({ leaderPilotName: character?.name ?? 'Piloto', ...options });
+    }
+    redirectSquadronDamage(squadron) {
+        return squadsAndMassCombat_mjs_1.redirectVehicleDamageToWingman(squadron);
+    }
+    resolveMassCombatRound(options = {}) {
+        return squadsAndMassCombat_mjs_1.resolveMassCombatRound(options);
+    }
+    signatureAbilitiesCatalog() {
+        return structuredClone(signatureAbilities_mjs_1.SIGNATURE_ABILITIES_CATALOG);
+    }
+    canPurchaseSignatureAbility(signatureKey) {
+        const character = requireCharacter(this.state.player.character);
+        return signatureAbilities_mjs_1.canPurchaseSignatureAbility(character, signatureKey);
+    }
+    purchaseSignatureAbility(signatureKey) {
+        const character = requireCharacter(this.state.player.character);
+        const result = signatureAbilities_mjs_1.purchaseSignatureAbility(character, signatureKey);
+        this.setCharacter(result.character);
+        return result;
+    }
+    activateSignatureAbility(signatureKey) {
+        const character = requireCharacter(this.state.player.character);
+        const result = signatureAbilities_mjs_1.activateSignatureAbility(character, signatureKey, this.state.group);
+        this.setCharacter(result.character);
+        if (result.group) {
+            this.commit('GROUP_UPDATED', { group: result.group });
+        }
         return result;
     }
     buildRandomCharacter(options = {}) {

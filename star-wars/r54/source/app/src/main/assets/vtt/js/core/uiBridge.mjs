@@ -296,6 +296,99 @@ export class BraseiroUiBridge {
             return ok(clone(res));
         } catch (error) { return fail('RESOLVE_MORALITY_FAILED', messageOf(error)); }
     }
+    craftingCatalog() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.craftingCatalog())); }
+        catch (error) { return fail('CRAFTING_CATALOG_FAILED', messageOf(error)); }
+    }
+    craftItem(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const res = controllerResult.data.craftItem(options);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        } catch (error) { return fail('CRAFT_ITEM_FAILED', messageOf(error)); }
+    }
+    createSquad(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.createSquad(options))); }
+        catch (error) { return fail('CREATE_SQUAD_FAILED', messageOf(error)); }
+    }
+    redirectSquadDamage(squad, damageAmount = 1) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.redirectSquadDamage(squad, damageAmount))); }
+        catch (error) { return fail('REDIRECT_SQUAD_DAMAGE_FAILED', messageOf(error)); }
+    }
+    createStarfighterSquadron(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.createStarfighterSquadron(options))); }
+        catch (error) { return fail('CREATE_SQUADRON_FAILED', messageOf(error)); }
+    }
+    redirectSquadronDamage(squadron) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.redirectSquadronDamage(squadron))); }
+        catch (error) { return fail('REDIRECT_SQUADRON_DAMAGE_FAILED', messageOf(error)); }
+    }
+    resolveMassCombatRound(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.resolveMassCombatRound(options))); }
+        catch (error) { return fail('MASS_COMBAT_ROUND_FAILED', messageOf(error)); }
+    }
+    signatureAbilitiesCatalog() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.signatureAbilitiesCatalog())); }
+        catch (error) { return fail('SIGNATURE_CATALOG_FAILED', messageOf(error)); }
+    }
+    canPurchaseSignatureAbility(signatureKey) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.canPurchaseSignatureAbility(signatureKey))); }
+        catch (error) { return fail('CAN_PURCHASE_SIGNATURE_FAILED', messageOf(error)); }
+    }
+    purchaseSignatureAbility(signatureKey) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const res = controllerResult.data.purchaseSignatureAbility(signatureKey);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        } catch (error) { return fail('PURCHASE_SIGNATURE_FAILED', messageOf(error)); }
+    }
+    activateSignatureAbility(signatureKey) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const res = controllerResult.data.activateSignatureAbility(signatureKey);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        } catch (error) { return fail('ACTIVATE_SIGNATURE_FAILED', messageOf(error)); }
+    }
+    setCharacter(character) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const res = controllerResult.data.setCharacter(character);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        } catch (error) { return fail('SET_CHARACTER_FAILED', messageOf(error)); }
+    }
+    setGroupDestiny(payload) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try {
+            const res = controllerResult.data.setGroupDestiny(payload);
+            this.repository.save(controllerResult.data.state);
+            return ok(clone(res));
+        } catch (error) { return fail('SET_DESTINY_FAILED', messageOf(error)); }
+    }
     /** Single Android/WebView entrypoint for replay-safe published actions. */
     executePublishedAdventureCommand(command = {}) {
         const controllerResult = this._controllerForExistingCampaign();
