@@ -34,7 +34,7 @@ def patch(root_path):
         main_code = exact_replace(
             main_code,
             '    private static final String CANONICAL_INNER_SEA_MAP_ID="pathfinder2e-inner-sea-4270x5388-canonical-v6-grid-native-hires-compat";\n    private static final int CANONICAL_INNER_SEA_BUNDLE_REVISION=8;',
-            '    public static final String CANONICAL_KINGMAKER_MAP_ID="kingmaker_stolenlands_accurate_hd_8k";\n    public static final int CANONICAL_KINGMAKER_BUNDLE_REVISION=1;\n    public static final String CANONICAL_INNER_SEA_MAP_ID="pathfinder2e-inner-sea-4270x5388-canonical-v6-grid-native-hires-compat";\n    public static final int CANONICAL_INNER_SEA_BUNDLE_REVISION=8;'
+            '    public static final String CANONICAL_KINGMAKER_MAP_ID="kingmaker_stolenlands_accurate_hd_8k";\n    public static final int CANONICAL_KINGMAKER_BUNDLE_REVISION=2;\n    public static final String CANONICAL_INNER_SEA_MAP_ID="pathfinder2e-inner-sea-4270x5388-canonical-v6-grid-native-hires-compat";\n    public static final int CANONICAL_INNER_SEA_BUNDLE_REVISION=8;'
         )
 
     # In prepareKingmakerRestovStart, set hex_id to "AB2"
@@ -142,7 +142,8 @@ def patch(root_path):
                 public void onProgress(final String stage,final int current,final int total){ui.post(new Runnable(){public void run(){setStatus("Atlas Kingmaker • "+stage);}});}
                 public void onSuccess(final MapPackageManager.ImportResult result){bundledMapInstallRunning.set(false);ui.post(new Runnable(){public void run(){
                     if(!CANONICAL_KINGMAKER_MAP_ID.equals(result.mapId)){setStatus("Atlas rejeitado: mapId Kingmaker divergente.");return;}
-                    prefs.edit().putInt("bundled_kingmaker_map_revision",CANONICAL_KINGMAKER_BUNDLE_REVISION).putBoolean("bundled_kingmaker_ready",true).apply();
+                    db.activateMapPackage(result.packageId);
+                    prefs.edit().putString("map_world_profile",WORLD_PF2).putInt("bundled_kingmaker_map_revision",CANONICAL_KINGMAKER_BUNDLE_REVISION).putBoolean("bundled_kingmaker_ready",true).apply();
                     setStatus("Atlas das Terras Roubadas pronto • "+result.hexCount+" hexes • "+result.locationCount+" locais.");screenCache.remove("Mapa");screenCacheTime.remove("Mapa");if("Mapa".equals(currentScreen))showMap();
                 }});}
                 public void onError(final String error){bundledMapInstallRunning.set(false);ui.post(new Runnable(){public void run(){setStatus("Atlas Kingmaker não pôde ser preparado: "+error+". A campanha permanece jogável.");}});}
@@ -153,17 +154,57 @@ def patch(root_path):
     if "bundled_kingmaker_map_revision" not in main_code:
         main_code = exact_replace(main_code, old_bundled, new_bundled)
 
+    # Patch showMap uninstalled card
+    old_showmap_card = 'if(initial.optString("map_package_id","").trim().length()==0||initial.optString("image_uri","").trim().length()==0){LinearLayout noAtlas=card();noAtlas.setBackground(makeBg(Color.rgb(40,24,29),GOLD,2));noAtlas.addView(text("ATLAS PATHFINDER • INSTALANDO O MAPA INCLUÍDO",14,GOLD,true));noAtlas.addView(text("O pacote V6 em alta resolução já está dentro do aplicativo. A primeira instalação valida imagem, 3.300 hexes, locais e geometria antes de exibir o mapa.",12,TEXT,false));Button retryBundled=button("INSTALAR / TENTAR NOVAMENTE",GREEN);retryBundled.setOnClickListener(new View.OnClickListener(){public void onClick(View v){prefs.edit().putInt("bundled_inner_sea_revision",0).apply();ensureBundledMapForProfileAsync(WORLD_PF2);setStatus("Reiniciando a instalação do Atlas incluído…");}});noAtlas.addView(retryBundled);root.addView(noAtlas);}'
+    new_showmap_card = '''if(initial.optString("map_package_id","").trim().length()==0||initial.optString("image_uri","").trim().length()==0){
+            JSONObject kmReady=db.getLatestMapPackageByMapId(WORLD_PF2,CANONICAL_KINGMAKER_MAP_ID);
+            if(kmReady.optInt("ready",0)==1){
+                db.activateMapPackage(kmReady.optString("package_id"));
+                prefs.edit().putString("map_world_profile",WORLD_PF2).putBoolean("bundled_kingmaker_ready",true).apply();
+                showMap();
+                return;
+            }
+            ensureBundledMapForProfileAsync(WORLD_PF2);
+            LinearLayout noAtlas=card();noAtlas.setBackground(makeBg(Color.rgb(40,24,29),GOLD,2));
+            noAtlas.addView(text("ATLAS DAS TERRAS ROUBADAS (KINGMAKER 8K) • CARREGANDO",14,GOLD,true));
+            noAtlas.addView(text("O mapa 8K das Terras Roubadas já está incluído no aplicativo com todos os 354 hexágonos. Toque abaixo para carregar imediatamente o mapa oficial.",12,TEXT,false));
+            Button retryBundled=button("CARREGAR ATLAS KINGMAKER 8K • INSTALAR / TENTAR NOVAMENTE",GREEN);
+            retryBundled.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                prefs.edit().putInt("bundled_kingmaker_map_revision",0).apply();
+                ensureBundledMapForProfileAsync(WORLD_PF2);
+                setStatus("Carregando o Atlas de Kingmaker…");
+            }});
+            noAtlas.addView(retryBundled);
+            root.addView(noAtlas);
+        }'''
+    if old_showmap_card in main_code:
+        main_code = exact_replace(main_code, old_showmap_card, new_showmap_card)
+
     main_java.write_text(main_code, encoding="utf-8")
     print("PATCHED_MAIN_ACTIVITY_KINGMAKER_DEFAULT_MAP")
 
-    # 2. Patch MapPackageManager.java for Restov AB2 initial token placement
+    # 2. Patch MapPackageManager.java for Restov AB2 initial token placement & database sample validation
     map_code = map_pack_java.read_text(encoding="utf-8")
     old_init = 'MapManifestGeometry.ManifestHex initial = geometry.nearest(geometry.getImageWidth() / 2f, geometry.getImageHeight() / 2f);'
     new_init = 'MapManifestGeometry.ManifestHex initial = geometry.byId("AB2");\n                    if (initial == null) initial = geometry.nearest(geometry.getImageWidth() / 2f, geometry.getImageHeight() / 2f);'
     if old_init in map_code:
         map_code = exact_replace(map_code, old_init, new_init)
-        map_pack_java.write_text(map_code, encoding="utf-8")
         print("PATCHED_MAP_PACKAGE_MANAGER_RESTOV_INITIAL_HEX")
+
+    old_sample = '''        if(geometry.byId("0.00")!=null)ids.add("0.00");
+        if(geometry.byId("11.09")!=null)ids.add("11.09");'''
+    new_sample = '''        if(geometry.getMapId().contains("inner-sea")){
+            if(geometry.byId("0.00")!=null)ids.add("0.00");
+            if(geometry.byId("11.09")!=null)ids.add("11.09");
+        } else {
+            if(geometry.byId("AB2")!=null)ids.add("AB2");
+            if(geometry.byId("U3")!=null)ids.add("U3");
+        }'''
+    if old_sample in map_code:
+        map_code = exact_replace(map_code, old_sample, new_sample)
+        print("PATCHED_MAP_PACKAGE_MANAGER_VALIDATE_SAMPLES")
+
+    map_pack_java.write_text(map_code, encoding="utf-8")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
