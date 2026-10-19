@@ -7,6 +7,9 @@ on:
       - ".github/workflows/oua-braseiro-tts-brelga.yml"
       - "ci/oua-braseiro-tts/**"
   workflow_dispatch:
+concurrency:
+  group: oua-49212-automatic-vocal-brelga
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
