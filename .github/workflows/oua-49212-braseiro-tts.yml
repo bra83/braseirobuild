@@ -1,0 +1,47 @@
+name: OUA 4.9.212 TTS source preflight
+
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/oua-49212-braseiro-tts.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch complete OUA 4.9.211 source and inspect TTS integration
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/oua-49212"
+          mkdir -p "$WORK/source"
+          gh release download OUA-v4.9.211 --repo "$GITHUB_REPOSITORY" --pattern "BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip" --dir "$WORK" --clobber
+          unzip -q "$WORK/BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip" -d "$WORK/source"
+          PKG="$(find "$WORK/source" -type f -name package.json -not -path '*/node_modules/*' | while read -r f; do if [ -d "$(dirname "$f")/android" ]; then echo "$f"; break; fi; done)"
+          test -n "$PKG"
+          ROOT="$(dirname "$PKG")"
+          echo "ROOT=$ROOT"
+          echo "=== TTS files ==="
+          find "$ROOT" -maxdepth 4 -type f \( -iname '*tts*.ts' -o -iname '*tts*.tsx' -o -iname '*speech*.ts' -o -iname '*audio*.ts' -o -iname '*narration*.ts' \) -not -path '*/node_modules/*' | head -70
+          echo "=== model + tts configuration (no secrets) ==="
+          for f in lib/geminiModels.ts services/geminiService.ts components/SettingsView.tsx lib/geminiTransport.ts; do
+            if [ -f "$ROOT/$f" ]; then
+              echo "FILE: $f"
+              rg -n -C 5 "getGeminiTtsModel|GEMINI_TTS_MODEL_OPTIONS|speechConfig|responseModalities|generateGemini\(|getGeminiTextModel|ttsVoice|ttsModel|ttsStyle|selectedVoice" "$ROOT/$f" | head -170 || true
+            fi
+          done
+          echo "=== tts related service details ==="
+          find "$ROOT" -maxdepth 3 -type f \( -iname '*tts*.ts' -o -iname '*tts*.tsx' -o -iname '*narration*.ts' \) -not -path '*/node_modules/*' | head -15 | while read -r f; do
+            echo "FILE: ${f#$ROOT/}"
+            sed -n '1,220p' "$f" | head -220
+          done
+          echo "=== app tts anchors ==="
+          rg -n -C 3 "getGeminiTtsModel|generateTTS|narrateWith|speakNarration|speakWith|speak\(|ttsStyle|ttsModel" "$ROOT/App.tsx" | head -180 || true
