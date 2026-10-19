@@ -54,6 +54,52 @@ def test_canonical_pois_restov_and_olegs():
     assert loc_map["oleg_trading_post"]["hexId"] == "U3"
     assert loc_map["oleg_trading_post"]["placement"]["status"] == "needs_review"
 
+def test_canonical_pois_all_33_stolen_lands_locations():
+    with zipfile.ZipFile(MAP_ZIP) as z:
+        manifest = json.loads(z.read("map_manifest_kingmaker_8k.json").decode("utf-8"))
+        locations = json.loads(z.read("kingmaker_locations_8k.json").decode("utf-8"))
+    
+    hex_map = {h["hexId"]: h for h in manifest["maps"][0]["layout"]["hexes"]}
+    locs = locations["locations"]
+    assert len(locs) == 33, f"Expected 33 Kingmaker locations, got {len(locs)}"
+
+    # Key adventure sites must exist with valid hex assignments
+    expected_sites = {
+        "restov": "AB2",
+        "oleg_trading_post": "U3",
+        "fort_serenko": "Y3",
+        "nivaktas_crossing": "AA3",
+        "varnhold": "Z6",
+        "pitax": "G11",
+        "littletown": "E9",
+        "bokken_hut": "U4",
+        "fangberry_thicket": "T4",
+        "nettles_crossing": "V5",
+        "thorn_river_camp": "T5",
+        "old_sycamore": "V6",
+        "sootscale_caverns": "U6",
+        "temple_of_elk": "R5",
+        "tatzlwyrm_den": "W5",
+        "tuskgutter_lair": "Q7",
+        "stag_lord_fort": "U8",
+        "candlemere_island": "T8",
+        "lonely_barrow": "X7",
+        "hargulka_stronghold": "R7",
+        "tatzlford": "R8",
+        "vordakais_tomb": "AA7",
+        "fort_drelev": "M8",
+    }
+    loc_by_id = {loc["id"]: loc for loc in locs}
+    for site_id, exp_hex in expected_sites.items():
+        assert site_id in loc_by_id, f"Missing site {site_id}"
+        actual_hex = loc_by_id[site_id].get("hexId")
+        assert actual_hex == exp_hex, f"Site {site_id} expected {exp_hex}, got {actual_hex}"
+        assert actual_hex in hex_map, f"Hex {actual_hex} for site {site_id} not in layout"
+
+    for loc in locs:
+        assert loc.get("hexId") is not None, f"Location {loc['id']} has null hexId"
+        assert loc["hexId"] in hex_map, f"Location {loc['id']} hex {loc['hexId']} not in layout"
+
 def test_neighbor_symmetry_pointy_top():
     with zipfile.ZipFile(MAP_ZIP) as z:
         manifest = json.loads(z.read("map_manifest_kingmaker_8k.json").decode("utf-8"))
@@ -90,13 +136,27 @@ def test_production_project_kingmaker_default_map(tmp_path):
     project_root = Path(r"C:\Users\bcruz\Downloads\KINGMAKER_R36_WORK\r36-build")
     main_java = (project_root / "android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
     map_pack_java = (project_root / "android/app/src/main/java/com/braseiro/pathfinder2e/MapPackageManager.java").read_text(encoding="utf-8")
+    map_board_java = (project_root / "android/app/src/main/java/com/braseiro/pathfinder2e/MapBoardView.java").read_text(encoding="utf-8")
     bundled_zip = project_root / "android/app/src/main/assets/pathfinder/atlas/kingmaker_stolen_lands_canonical_8k.zip"
 
     assert bundled_zip.is_file(), "Bundled map zip missing from assets"
     assert bundled_zip.stat().st_size > 19_000_000, "Bundled map zip too small"
 
     assert 'CANONICAL_KINGMAKER_MAP_ID="kingmaker_stolenlands_accurate_hd_8k"' in main_java
+    assert 'CANONICAL_KINGMAKER_BUNDLE_REVISION=3;' in main_java
     assert 'bundled_kingmaker_map_revision' in main_java
     assert 'scene.put("hex_id","AB2");' in main_java
+    assert 'LOCAIS / POIs' in main_java
+    assert 'showCampaignPoisDialog' in main_java
+    assert 'listMapLocationsWithHexReference' in main_java
 
     assert 'MapManifestGeometry.ManifestHex initial = geometry.byId("AB2");' in map_pack_java
+
+    # Vector dynamic overlays for Regions and Politics
+    assert 'drawDynamicRegions' in map_board_java
+    assert 'drawDynamicPolitical' in map_board_java
+    assert 'CINTURÃO VERDE' in map_board_java
+    assert 'FLORESTA NARLMARCHES' in map_board_java
+    assert 'BARONATO DAS TERRAS ROUBADAS' in map_board_java
+    assert 'REINO DE PITAX' in map_board_java
+    assert 'SENHORES TIGRES' in map_board_java
