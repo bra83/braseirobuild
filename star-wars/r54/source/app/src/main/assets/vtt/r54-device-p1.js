@@ -61,11 +61,55 @@
  function centerCurrent(card,zoom,get,set){const p=currentPoint(state()),vp=card?.querySelector('.r54-p1-map-viewport');if(!p||!vp)return;const z=2.8,w=vp.clientWidth,h=vp.clientHeight;set({z,tx:w/2-(p.x/100)*w*z,ty:h/2-(p.y/100)*h*z})}
 
  function resizePhoto(file,done){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const cv=document.createElement('canvas');cv.width=600;cv.height=800;const c=cv.getContext('2d');const scale=Math.max(600/im.naturalWidth,800/im.naturalHeight),sw=600/scale,sh=800/scale,sx=(im.naturalWidth-sw)/2,sy=(im.naturalHeight-sh)/2;c.drawImage(im,sx,sy,sw,sh,0,0,600,800);done(cv.toDataURL('image/jpeg',.82))};im.src=String(r.result)};r.readAsDataURL(file)}
- function choosePhoto(){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.style.display='none';document.body.appendChild(inp);inp.onchange=()=>{const f=inp.files?.[0];if(!f){inp.remove();return}if(f.size>15*1024*1024){alert('Escolha uma imagem menor que 15 MB.');inp.remove();return}resizePhoto(f,data=>{try{localStorage.setItem(PHOTO,data);fixCharacterTools(true)}catch{alert('Não foi possível salvar a foto.')}inp.remove()})};inp.click()}
+ function choosePhoto(){
+  const b=window.BraseiroNpcTokens;
+  if(b&&typeof b.pickTokenImage==='function'){
+   try{
+    const r=parse(b.pickTokenImage('hero'));
+    if(r?.ok)return;
+   }catch(_){}
+  }
+  const inp=document.createElement('input');
+  inp.type='file';
+  inp.accept='image/*';
+  inp.style.display='none';
+  document.body.appendChild(inp);
+  inp.onchange=()=>{
+   const f=inp.files?.[0];
+   if(!f){inp.remove();return}
+   if(f.size>15*1024*1024){alert('Escolha uma imagem menor que 15 MB.');inp.remove();return}
+   resizePhoto(f,data=>{
+    try{
+     localStorage.setItem(PHOTO,data);
+     const fig=document.querySelector('.r54-character-portrait');
+     const img=fig?.querySelector('img');
+     if(img)img.src=data;
+     if(fig)fig.dataset.sig=data+'|hero';
+     fixCharacterTools(true);
+    }catch{alert('Não foi possível salvar a foto.')}
+    inp.remove();
+   });
+  };
+  inp.click();
+ }
  function charValue(c,names){for(const n of names){const v=c?.[n];if(v!=null&&typeof v!=='object')return v}return''}
  function setText(c,names,v){for(const n of names)if(Object.prototype.hasOwnProperty.call(c,n)){c[n]=v;return}c[names[0]]=v}
  function setNumber(c,names,v){const n=Number(v);if(!Number.isFinite(n))return;for(const k of names)if(Object.prototype.hasOwnProperty.call(c,k)){c[k]=n;return}c[names[0]]=n}
  function editCharacter(){const st=state(),c=st?.player?.character;if(!c)return;const modal=document.createElement('div');modal.className='r54-p1-modal';modal.innerHTML=`<section class="r54-p1-sheet"><div class="r54-p1-sheet-head"><h2>EDITAR FICHA</h2><button class="r54-p1-close">×</button></div><form class="r54-p1-form"><label>Nome<input name="name" value="${esc(charValue(c,['name']))}"></label><label>Espécie<input name="species" value="${esc(charValue(c,['species','speciesName']))}"></label><label>Carreira<input name="career" value="${esc(charValue(c,['career','careerName']))}"></label><label>Especialização<input name="specialization" value="${esc(charValue(c,['specialization','specializationName','primarySpecialization']))}"></label><label>Motivação<textarea name="motivation">${esc(typeof c.motivation==='string'?c.motivation:(c.motivation?.text||c.motivation?.name||''))}</textarea></label><label>Ferimentos atuais<input name="wounds" inputmode="numeric" value="${esc(charValue(c,['wounds','currentWounds']))}"></label><label>Tensão atual<input name="strain" inputmode="numeric" value="${esc(charValue(c,['strain','currentStrain']))}"></label><label>Créditos<input name="credits" inputmode="numeric" value="${esc(charValue(c,['credits']))}"></label><button class="r54-p1-btn" type="submit">SALVAR FICHA</button><output class="r54-p1-save-status"></output></form></section>`;document.body.appendChild(modal);modal.querySelector('.r54-p1-close').onclick=()=>modal.remove();modal.addEventListener('click',e=>{if(e.target===modal)modal.remove()});modal.querySelector('form').onsubmit=e=>{e.preventDefault();try{const raw=JSON.parse(localStorage.getItem(KEY)||'null');const ch=raw?.player?.character;if(!ch)throw new Error('Ficha não encontrada');const fd=new FormData(e.currentTarget);setText(ch,['name'],String(fd.get('name')||'').trim());setText(ch,['species','speciesName'],String(fd.get('species')||'').trim());setText(ch,['career','careerName'],String(fd.get('career')||'').trim());setText(ch,['specialization','specializationName','primarySpecialization'],String(fd.get('specialization')||'').trim());const mot=String(fd.get('motivation')||'').trim();if(ch.motivation&&typeof ch.motivation==='object'){if('text'in ch.motivation)ch.motivation.text=mot;else if('name'in ch.motivation)ch.motivation.name=mot;else ch.motivation.text=mot}else ch.motivation=mot;setNumber(ch,['wounds','currentWounds'],fd.get('wounds'));setNumber(ch,['strain','currentStrain'],fd.get('strain'));setNumber(ch,['credits'],fd.get('credits'));localStorage.setItem(KEY,JSON.stringify(raw));e.currentTarget.querySelector('output').textContent='Ficha salva.';setTimeout(()=>location.reload(),250)}catch(err){e.currentTarget.querySelector('output').textContent='Erro: '+String(err?.message||err)}}}
+ function getHeroPhoto(c){
+  try{
+   const b=window.BraseiroNpcTokens;
+   if(b&&typeof b.getTokenStatus==='function'){
+    const st=parse(b.getTokenStatus('hero'));
+    if(st?.ok&&st?.hasToken&&st?.url)return st.url;
+   }
+  }catch(_){}
+  try{
+   const custom=localStorage.getItem(PHOTO);
+   if(custom)return custom;
+  }catch(_){}
+  return '';
+ }
  function generateCharacterGeminiPhoto(){
   const st=state(),c=st?.player?.character;
   if(!c)return;
@@ -78,7 +122,7 @@
   const mot=String(typeof c.motivation==='string'?c.motivation:(c.motivation?.text||c.motivation?.name||'')).trim();
 
   const lines=[
-   'Gere uma imagem: retrato oficial e concept art cinematográfico para ficha de personagem no universo Star Wars (Fronteira do Império / Era da Rebelião).',
+   'Gere uma imagem: retrato oficial e concept art cinematográfico para ficha de personagem de ficção científica espacial (space opera retro-futurista).',
    `Personagem: ${name}.`,
    species?`Espécie: ${species}.`:'',
    gender?`Gênero: ${gender}.`:'',
@@ -86,7 +130,7 @@
    desc?`Aparência física e vestimenta: ${desc}.`:'',
    mot?`Personalidade e motivação: ${mot}.`:'',
    'Enquadramento: Retrato vertical focado do peito para cima (meio-corpo), rosto nítido, centralizado e expressivo, proporção vertical 3:4 adequada para avatar e ficha de RPG.',
-   'Estética e Iluminação: Concept art realista no estilo oficial de Star Wars (Lucasfilm / Fantasy Flight Games), iluminação cinematográfica dramática, atmosfera space opera retro-industrial, paleta rica com sombras marcantes.',
+   'Estética e Iluminação: Concept art cinematográfico realista e detalhado em estilo space opera clássica e ópera espacial retro-industrial, roupas e equipamentos analógicos desgastados, iluminação dramática de ficção científica espacial, paleta rica com sombras marcantes.',
    'Fundo: Fundo diegético escuro e sutil (interior de hangar espacial, cantina galáctica ou cabine de cargueiro) com desfoque de profundidade suave (bokeh).',
    'Restrições estritas: Apenas um personagem em cena. Sem letras, sem texto escrito, sem números, sem marcas d\'água, sem molduras ou bordas decorativas.'
   ].filter(Boolean);
@@ -138,7 +182,10 @@
       if(fig){
        const img=fig.querySelector('img');
        if(img)img.src=url;
+       fig.dataset.sig=url+'|hero';
       }
+      const out=document.querySelector('.r54-p1-char-status');
+      if(out)out.textContent='Retrato importado com sucesso!';
      }
     }
    }
@@ -155,7 +202,7 @@
   if(!['06','07'].includes(route())&&!document.querySelector('.r54-character-portrait'))return;
   const fig=document.querySelector('.r54-character-portrait'),st=state(),c=st?.player?.character;
   if(!fig||!c)return;
-  const custom=localStorage.getItem(PHOTO);
+  const custom=getHeroPhoto(c);
   const img=fig.querySelector('img');
   if(custom&&img&&img.src!==custom)img.src=custom;
   if(force)fig.querySelector('.r54-p1-char-actions')?.remove();
@@ -168,7 +215,6 @@
   box.querySelector('[data-photo]').onclick=choosePhoto;
   box.querySelector('[data-edit]').onclick=editCharacter;
  }
-
  function geminiStatus(){try{return parse(window.BraseiroGemini?.getStatus?.())||{}}catch{return{}}}
  function fixGeminiSettings(){if(route()!=='29')return;const cards=[...document.querySelectorAll('section,article,[class*=card],div')];const card=cards.find(x=>norm(x.textContent).includes('chave da api gemini')&&x.querySelector('input'));if(!card)return;const input=[...card.querySelectorAll('input')].find(x=>/chave|gemini/i.test(x.placeholder||''))||card.querySelector('input');const save=[...card.querySelectorAll('button')].find(x=>norm(x.textContent).includes('salvar chave'));if(!input||!save)return;let out=card.querySelector('.r54-p1-save-status');if(!out){out=document.createElement('output');out.className='r54-p1-save-status';save.insertAdjacentElement('afterend',out)}const enable=()=>{save.disabled=String(input.value||'').trim().length<20};if(!input.dataset.p1){input.dataset.p1='1';input.addEventListener('input',enable)}enable();if(!save.dataset.p1){save.dataset.p1='1';save.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();const key=String(input.value||'').trim();if(key.length<20){out.textContent='Cole uma chave Gemini válida.';return}let r;try{r=parse(window.BraseiroGemini?.configureApiKey?.(key))}catch(err){r={ok:false,message:String(err)}}if(r?.ok){input.value='';out.textContent='Chave salva no aparelho.';const text=[...card.querySelectorAll('p,div')].find(x=>/^chave:/i.test(String(x.textContent||'').trim()));if(text)text.innerHTML='<strong>Chave:</strong> configurada';setTimeout(()=>window.dispatchEvent(new CustomEvent('braseiroGeminiNativeEvent',{detail:{type:'configured'}})),0)}else out.textContent=r?.message||'Falha ao salvar a chave.';enable()},true)}}
 

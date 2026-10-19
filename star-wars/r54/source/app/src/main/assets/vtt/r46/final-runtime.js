@@ -204,14 +204,15 @@ function bindPersistentNpcToken(slot,p,frame,strong,small){
   const npcName=String(p.name||'NPC').trim();
   const role=String(p.meta||p.occupation||p.career||'personagem').trim();
   const species=p.species?`Espécie: ${p.species}. `:'';
-  const sceneTitle=document.querySelector('.scene-header h1, .scene-concept-shell h1')?.textContent||'Cena Star Wars';
+  const rawScene=document.querySelector('.scene-header h1, .scene-concept-shell h1')?.textContent||'Cena';
+  const sceneTitle=rawScene.replace(/star\s*wars|fronteira\s*do\s*imp[eé]rio|era\s*da\s*rebeli[aã]o/gi,'').trim()||'estação espacial';
   const prompt=[
-   `Gere uma imagem: retrato oficial e concept art cinematográfico para token de personagem no universo Star Wars.`,
+   `Gere uma imagem: retrato oficial e concept art cinematográfico para token de personagem de ficção científica espacial (space opera retro-futurista).`,
    `Personagem: ${npcName} (${role}).`,
    species?`${species}`:'',
    p.appearance?`Aparência física e vestimenta: ${p.appearance}.`:'',
    `Enquadramento: Retrato vertical focado do peito para cima (meio-corpo), rosto nítido, centralizado e expressivo, proporção adequada para token de VTT.`,
-   `Estética e Iluminação: Concept art realista de Star Wars (Fronteira do Império / Era da Rebelião), iluminação cinematográfica, atmosfera de space opera.`,
+   `Estética e Iluminação: Concept art cinematográfico realista e detalhado em estilo space opera clássica e ópera espacial retro-industrial, roupas e equipamentos analógicos desgastados, iluminação dramática de ficção científica espacial, paleta rica com sombras marcantes.`,
    `Fundo: Fundo neutro escuro ou ambiente sutil desfocado (bokeh suave) da cena (${sceneTitle}).`,
    `Restrições: Apenas uma pessoa na imagem. Sem letras, sem texto escrito, sem números, sem logotipos, sem molduras ou bordas.`
   ].filter(Boolean).join('\n\n');
@@ -1739,12 +1740,35 @@ async function r54EnhanceItemImages(){
   const fig=document.createElement('figure');fig.className='r54-item-visual';fig.dataset.r54VisualBound=key;fig.innerHTML=`<img loading="lazy" alt="${name.replace(/["<&]/g,'')}" src="${exact}">`;host.insertBefore(fig,host.firstChild);
  }
 }
+function r54CharacterPortraitSrc(c){
+ try{
+  const b=window.BraseiroNpcTokens;
+  if(b&&typeof b.getTokenStatus==='function'){
+   const st=safeParse(b.getTokenStatus('hero'),{});
+   if(st?.ok&&st?.hasToken&&st?.url)return st.url;
+  }
+ }catch(_){}
+ try{
+  const custom=localStorage.getItem('braseiro.starwars.character.photo.v1');
+  if(custom)return custom;
+ }catch(_){}
+ const species=r54Norm(c?.species||c?.speciesName||'');
+ if(species.includes('twi lek')||species.includes('twilek'))return R54_ASSET_ROOT+'portraits/twilek_female_blue.webp';
+ return '';
+}
 function r54CharacterPortrait(){
  const route=new URLSearchParams(location.search).get('screen')||'00';if(route!=='06')return;
- if(document.querySelector('.r54-character-portrait'))return;const state=currentState(),c=state?.player?.character;if(!c)return;
- const species=r54Norm(c.species||c.speciesName||'');let src='';if(species.includes('twi lek')||species.includes('twilek'))src=R54_ASSET_ROOT+'portraits/twilek_female_blue.webp';
- if(!src)return;const heading=[...document.querySelectorAll('h2,h3,div')].find(el=>r54Norm(el.textContent)==='identidade');const card=heading?.closest('section,article,.card')||heading?.parentElement;if(!card)return;
- const fig=document.createElement('figure');fig.className='r54-character-portrait';fig.innerHTML=`<img src="${src}" alt="Retrato visual de ${String(c.name||'personagem').replace(/["<&]/g,'')}"><figcaption>${String(c.name||'Personagem')}</figcaption>`;heading.insertAdjacentElement('afterend',fig);
+ const state=currentState(),c=state?.player?.character;if(!c)return;
+ const src=r54CharacterPortraitSrc(c);
+ if(!src)return;
+ const fig=document.querySelector('.r54-character-portrait');
+ if(fig){
+  const img=fig.querySelector('img');
+  if(img&&src&&img.getAttribute('src')!==src)img.src=src;
+  return;
+ }
+ const heading=[...document.querySelectorAll('h2,h3,div')].find(el=>r54Norm(el.textContent)==='identidade');const card=heading?.closest('section,article,.card')||heading?.parentElement;if(!card)return;
+ const created=document.createElement('figure');created.className='r54-character-portrait';created.innerHTML=`<img src="${src}" alt="Retrato visual de ${String(c.name||'personagem').replace(/["<&]/g,'')}"><figcaption>${String(c.name||'Personagem')}</figcaption>`;heading.insertAdjacentElement('afterend',created);
 }
 function r54FixSceneIcon(){
  const btn=document.querySelector('.bottom-navigation .bottom-nav-button:first-child');if(!btn)return;const icon=btn.querySelector('.reference-icon-mask');if(!icon||icon.dataset.r54Fixed)return;icon.dataset.r54Fixed='1';icon.classList.add('r54-scene-icon');icon.style.backgroundImage='none';icon.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16v11H4zM5 4l3 4M10 4l3 4M15 4l3 4M4 4h16v4H4z"/></svg>';

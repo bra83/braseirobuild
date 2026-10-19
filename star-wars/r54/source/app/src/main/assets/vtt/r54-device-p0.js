@@ -18,9 +18,38 @@
  `;document.head.appendChild(e)}
  function fixStartMap(){const map=document.getElementById('sandbox-map');if(!map)return;const img=map.querySelector(':scope>img');if(img&&!(img.getAttribute('src')||'').includes('9752360iy2h61')){img.src='assets/maps/galaxy_map_mobile.webp';img.removeAttribute('onerror');img.alt='Mapa galáctico aprovado com nomes de sistemas e regiões';}map.querySelectorAll('button[data-point]').forEach(b=>{b.textContent='';b.setAttribute('aria-label',b.getAttribute('title')||'Ponto inicial');});}
  function hash(s){let h=0;for(const c of String(s||''))h=((h<<5)-h+c.charCodeAt(0))|0;return Math.abs(h)}
- function fixPortrait(){if(!['06','07'].includes(route())&&!document.querySelector('.r54-character-portrait'))return;const st=state(),c=st?.player?.character;if(!c)return;let fig=document.querySelector('.r54-character-portrait');const species=norm(c.species||c.speciesName||'');let src=localStorage.getItem('braseiro.starwars.character.photo.v1')||'';if(!src&&(species.includes('twi lek')||species.includes('twilek')))src='image-library/local/r54/portraits/twilek_female_blue.webp';else if(!src)src=`image-library/local/tokens/heroes/heroes_${String((hash((c.name||'')+'|'+species)%15)+1).padStart(2,'0')}.png`;
-  if(!fig){const h=[...document.querySelectorAll('h1,h2')].find(x=>norm(x.textContent).includes('ficha'))||document.querySelector('.app-content h1,.app-content h2');if(!h)return;fig=document.createElement('figure');fig.className='r54-character-portrait';h.insertAdjacentElement('afterend',fig)}
-  const sig=src+'|'+String(c.name||'Personagem');if(fig.dataset.sig===sig)return;fig.dataset.sig=sig;fig.innerHTML=`<img src="${src}" alt="Retrato de ${String(c.name||'Personagem').replace(/["<&]/g,'')}"><figcaption>${String(c.name||'Personagem')}</figcaption>`;
+ function characterPhotoSource(c){
+  try{
+   const b=window.BraseiroNpcTokens;
+   if(b&&typeof b.getTokenStatus==='function'){
+    const st=JSON.parse(b.getTokenStatus('hero')||'{}');
+    if(st?.ok&&st?.hasToken&&st?.url)return st.url;
+   }
+  }catch(_){}
+  try{
+   const custom=localStorage.getItem('braseiro.starwars.character.photo.v1');
+   if(custom)return custom;
+  }catch(_){}
+  const species=norm(c?.species||c?.speciesName||'');
+  if(species.includes('twi lek')||species.includes('twilek'))return 'image-library/local/r54/portraits/twilek_female_blue.webp';
+  return `image-library/local/tokens/heroes/heroes_${String((hash((c?.name||'')+'|'+species)%15)+1).padStart(2,'0')}.png`;
+ }
+ function fixPortrait(){
+  if(!['06','07'].includes(route())&&!document.querySelector('.r54-character-portrait'))return;
+  const st=state(),c=st?.player?.character;if(!c)return;
+  let fig=document.querySelector('.r54-character-portrait');
+  const src=characterPhotoSource(c);
+  if(!fig){
+   const h=[...document.querySelectorAll('h1,h2')].find(x=>norm(x.textContent).includes('ficha'))||document.querySelector('.app-content h1,.app-content h2');
+   if(!h)return;
+   fig=document.createElement('figure');fig.className='r54-character-portrait';h.insertAdjacentElement('afterend',fig);
+  }
+  const sig=src+'|'+String(c.name||'Personagem');
+  if(fig.dataset.sig===sig)return;
+  fig.dataset.sig=sig;
+  const img=fig.querySelector('img');
+  if(img){if(img.getAttribute('src')!==src)img.src=src;}
+  else fig.innerHTML=`<img src="${src}" alt="Retrato de ${String(c.name||'Personagem').replace(/["<&]/g,'')}"><figcaption>${String(c.name||'Personagem')}</figcaption>`;
  }
  let bindP=null;function bindings(){if(!bindP)bindP=fetch('image-library/local/r54/bindings.json').then(r=>r.ok?r.json():{}).catch(()=>({}));return bindP}
  async function fixWeapons(){const r=route();if(r!=='08'&&r!=='09')return;const b=await bindings(),idx=new Map();for(const group of ['weapons','equipment'])for(const item of Object.values(b?.[group]||{})){const src=item?.path||(item?.file?'image-library/local/r54/'+item.file:'');if(!src)continue;for(const a of item.aliases||[])idx.set(norm(a),src)}if(!idx.size)return;
