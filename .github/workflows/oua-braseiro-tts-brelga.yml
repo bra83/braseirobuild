@@ -34,14 +34,57 @@ jobs:
           $pkg=Get-ChildItem (Join-Path $work 'source') -Recurse -File -Filter package.json | Where-Object { Test-Path (Join-Path $_.DirectoryName 'android') } | Select-Object -First 1
           if (-not $pkg) { throw 'Canonical Android Studio project not found' }
           "OUA_ROOT=$($pkg.DirectoryName)" >> $env:GITHUB_ENV
-      - name: Diagnose integration and install independent core
+      - name: Apply Braseiro TTS Mestre Único to actual OUA source
         shell: powershell
         run: |
           node ci/oua-braseiro-tts/apply.mjs "$env:OUA_ROOT"
-      - name: Report inspection only — build will follow integrated source
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate TypeScript and build UI
         shell: powershell
         run: |
-          Write-Host 'Source inspected; next commit integrates the actual OUA TTS before compiling.'
+          $ErrorActionPreference='Stop'
+          Set-Location $env:OUA_ROOT
+          npm ci --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+          npm run lint
+          if ($LASTEXITCODE -ne 0) { throw 'TypeScript errors' }
+          npm run build
+          if ($LASTEXITCODE -ne 0) { throw 'Vite build failed' }
+          node scripts/sync-android-assets.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Android assets sync failed' }
+      - name: Assemble signed debug APK on BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $keystoreEncoded=Join-Path $env:GITHUB_WORKSPACE 'build-signing/braseiro-stable-debug.keystore.b64'
+          if (-not (Test-Path $keystoreEncoded)) { throw 'Stable signing key missing' }
+          $androidDir=Join-Path $env:USERPROFILE '.android'
+          New-Item -ItemType Directory -Path $androidDir -Force | Out-Null
+          [System.IO.File]::WriteAllBytes((Join-Path $androidDir 'debug.keystore'),[Convert]::FromBase64String((Get-Content $keystoreEncoded -Raw).Trim()))
+          $sdk=$env:ANDROID_HOME
+          if (-not $sdk) { $sdk=$env:ANDROID_SDK_ROOT }
+          if (-not $sdk -or -not (Test-Path $sdk)) { throw 'Android SDK not configured on BRELGA' }
+          Set-Location (Join-Path $env:OUA_ROOT 'android')
+          ('sdk.dir='+$sdk.Replace('\','/')) | Set-Content 'local.properties' -Encoding Ascii
+          & .\gradlew.bat :app:assembleDebug --no-daemon --stacktrace
+          if ($LASTEXITCODE -ne 0) { throw 'Gradle assembleDebug failed' }
+          $apk=Get-ChildItem 'app/build/outputs/apk/debug' -Filter '*.apk' -File | Select-Object -First 1
+          if (-not $apk) { throw 'APK was not produced' }
+          $dest=Join-Path $env:RUNNER_TEMP 'BRASEIRO_O_UM_ANEL_4.9.211_TTS_MESTRE_UNICO_BRELGA.apk'
+          Copy-Item $apk.FullName $dest -Force
+          Write-Host ('BRASEIRO_TTS_APK_PASS '+$dest+' '+(Get-Item $dest).Length+' bytes')
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: BRASEIRO_O_UM_ANEL_4.9.211_TTS_MESTRE_UNICO_BRELGA
+          path: ${{ runner.temp }}/BRASEIRO_O_UM_ANEL_4.9.211_TTS_MESTRE_UNICO_BRELGA.apk
+          if-no-files-found: error
       - name: Preserve relevant source files for patch validation
         shell: powershell
         run: |
