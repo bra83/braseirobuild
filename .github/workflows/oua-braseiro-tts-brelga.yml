@@ -38,6 +38,9 @@ jobs:
         shell: powershell
         run: |
           node ci/oua-braseiro-tts/apply.mjs "$env:OUA_ROOT"
+          if ($LASTEXITCODE -ne 0) { throw "Core patch failed" }
+          node ci/oua-braseiro-tts/patch-ui.mjs "$env:OUA_ROOT"
+          if ($LASTEXITCODE -ne 0) { throw "Voice settings UI patch failed" }
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -56,6 +59,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'TypeScript errors' }
           npm run build
           if ($LASTEXITCODE -ne 0) { throw 'Vite build failed' }
+          $js=Get-ChildItem 'dist/assets' -Filter 'index*.js' -File | Select-Object -First 1
+          if (-not $js) { throw 'UI bundle missing' }
+          $bundle=[System.IO.File]::ReadAllText($js.FullName)
+          foreach($expected in @('Braseiro TTS','Perfil vocal','Estilo vocal','Modulação dos NPCs','Voz do Mestre')) {
+            if(-not $bundle.Contains($expected)){throw ('TTS UI absent from bundle: '+$expected)}
+          }
+          Write-Host 'BRASEIRO_TTS_UI_BUNDLE_PASS'
           node scripts/sync-android-assets.mjs
           if ($LASTEXITCODE -ne 0) { throw 'Android assets sync failed' }
       - name: Assemble signed debug APK on BRELGA
@@ -84,6 +94,18 @@ jobs:
           if (-not $apk) { throw 'APK was not produced' }
           $dest=Join-Path $env:RUNNER_TEMP 'BRASEIRO_O_UM_ANEL_4.9.211_TTS_MESTRE_UNICO_BRELGA.apk'
           Copy-Item $apk.FullName $dest -Force
+          Add-Type -AssemblyName System.IO.Compression
+          $zip=[System.IO.Compression.ZipFile]::OpenRead($dest)
+          try {
+            $entry=$zip.Entries|Where-Object{$_.FullName -like 'assets/assets/index*.js'}|Select-Object -First 1
+            if(-not $entry){throw 'APK does not contain UI JavaScript'}
+            $reader=New-Object System.IO.StreamReader($entry.Open(),[Text.Encoding]::UTF8)
+            try {$content=$reader.ReadToEnd()} finally {$reader.Dispose()}
+            foreach($expected in @('Braseiro TTS','Perfil vocal','Estilo vocal','Modulação dos NPCs','Voz do Mestre')) {
+              if(-not $content.Contains($expected)){throw ('APK MISSING TTS SETTING: '+$expected)}
+            }
+          } finally {$zip.Dispose()}
+          Write-Host 'BRASEIRO_TTS_UI_APK_VERIFIED'
           Write-Host ('BRASEIRO_TTS_APK_PASS '+$dest+' '+(Get-Item $dest).Length+' bytes')
       - uses: actions/upload-artifact@v4
         if: success()
