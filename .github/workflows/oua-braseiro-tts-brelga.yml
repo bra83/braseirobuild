@@ -1,4 +1,4 @@
-name: OUA 4.9.211 Braseiro TTS — BRELGA experimental
+name: OUA 4.9.212 Braseiro TTS — direcao vocal automatica
 on:
   push:
     branches:
@@ -41,6 +41,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Core patch failed" }
           node ci/oua-braseiro-tts/patch-ui.mjs "$env:OUA_ROOT"
           if ($LASTEXITCODE -ne 0) { throw "Voice settings UI patch failed" }
+          node ci/oua-braseiro-tts/auto-tags-apply.mjs "$env:OUA_ROOT"
+          if ($LASTEXITCODE -ne 0) { throw "Automatic vocal tags patch failed" }
+          node ci/oua-braseiro-tts/auto-tags-verify.mjs "$env:OUA_ROOT"
+          if ($LASTEXITCODE -ne 0) { throw "Automatic vocal direction tests failed" }
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -59,6 +63,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'TypeScript errors' }
           npm run build
           if ($LASTEXITCODE -ne 0) { throw 'Vite build failed' }
+          Write-Host 'BRASEIRO_TTS_49212_TYPESCRIPT_BUILD_PASS'
           $js=Get-ChildItem 'dist/assets' -Filter 'index*.js' -File | Select-Object -First 1
           if (-not $js) { throw 'UI bundle missing' }
           $bundle=[System.IO.File]::ReadAllText($js.FullName)
@@ -92,7 +97,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Gradle assembleDebug failed' }
           $apk=Get-ChildItem 'app/build/outputs/apk/debug' -Filter '*.apk' -File | Select-Object -First 1
           if (-not $apk) { throw 'APK was not produced' }
-          $dest=Join-Path $env:RUNNER_TEMP 'BRASEIRO_O_UM_ANEL_4.9.211_TTS_MESTRE_UNICO_BRELGA.apk'
+          $dest=Join-Path $env:RUNNER_TEMP 'BRASEIRO_O_UM_ANEL_4.9.212_BR_TTS_TAGS_AUTOMATICAS_BRELGA.apk'
           Copy-Item $apk.FullName $dest -Force
           Add-Type -AssemblyName System.IO.Compression.FileSystem
           $zip=[System.IO.Compression.ZipFile]::OpenRead($dest)
@@ -110,8 +115,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: BRASEIRO_O_UM_ANEL_4.9.211_TTS_MESTRE_UNICO_BRELGA
-          path: ${{ runner.temp }}/BRASEIRO_O_UM_ANEL_4.9.211_TTS_MESTRE_UNICO_BRELGA.apk
+          name: BRASEIRO_O_UM_ANEL_4.9.212_BR_TTS_TAGS_AUTOMATICAS_BRELGA
+          path: ${{ runner.temp }}/BRASEIRO_O_UM_ANEL_4.9.212_BR_TTS_TAGS_AUTOMATICAS_BRELGA.apk
           if-no-files-found: error
       - name: Preserve relevant source files for patch validation
         shell: powershell
