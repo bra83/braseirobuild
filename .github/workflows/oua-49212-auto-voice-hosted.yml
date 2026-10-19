@@ -1,0 +1,93 @@
+name: OUA 4.9.212 automatic vocal tags — hosted Android APK
+on:
+  push:
+    branches: [experiment/oua-49211-braseiro-tts-mestre-unico]
+    paths:
+      - ".github/workflows/oua-49212-auto-voice-hosted.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Obtain canonical OUA 4.9.211 Android Studio project
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/oua-49212/extracted"
+          gh release download OUA-v4.9.211 --repo "$GITHUB_REPOSITORY" --pattern "BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip" --dir "$RUNNER_TEMP/oua-49212" --clobber
+          unzip -q "$RUNNER_TEMP/oua-49212/BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip" -d "$RUNNER_TEMP/oua-49212/extracted"
+          PKG=""
+          while IFS= read -r candidate; do
+            if [ -d "$(dirname "$candidate")/android" ]; then PKG="$candidate"; break; fi
+          done < <(find "$RUNNER_TEMP/oua-49212/extracted" -type f -name package.json -not -path '*/node_modules/*' | sort)
+          test -n "$PKG"
+          echo "OUA_ROOT=$(dirname "$PKG")" >> "$GITHUB_ENV"
+      - name: Integrate Braseiro TTS and automatic vocal tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          node ci/oua-braseiro-tts/apply.mjs "$OUA_ROOT"
+          node ci/oua-braseiro-tts/patch-ui.mjs "$OUA_ROOT"
+          node ci/oua-braseiro-tts/auto-tags-apply.mjs "$OUA_ROOT"
+          node ci/oua-braseiro-tts/auto-tags-verify.mjs "$OUA_ROOT"
+      - name: Compile and validate web runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$OUA_ROOT"
+          npm config set registry https://registry.npmjs.org/
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts --no-audit --no-fund || npm install --ignore-scripts --no-audit --no-fund
+          else
+            npm install --ignore-scripts --no-audit --no-fund
+          fi
+          npm install --no-save --ignore-scripts --no-audit --no-fund esbuild @rollup/rollup-linux-x64-gnu @esbuild/linux-x64
+          npm run lint
+          npm run build
+          node scripts/sync-android-assets.mjs
+          node "$GITHUB_WORKSPACE/ci/oua-braseiro-tts/auto-tags-verify.mjs" "$OUA_ROOT"
+      - name: Assemble same-signature Android update
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.android"
+          base64 -d "$GITHUB_WORKSPACE/build-signing/braseiro-stable-debug.keystore.b64" > "$HOME/.android/debug.keystore"
+          cd "$OUA_ROOT/android"
+          printf 'sdk.dir=%s\n' "$ANDROID_HOME" > local.properties
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug --no-daemon --stacktrace
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | sort | head -n 1)"
+          test -s "$APK"
+          DEST="$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.212_TTS_TAGS_AUTOMATICAS.apk"
+          cp "$APK" "$DEST"
+          TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          "$TOOLS/aapt" dump badging "$DEST" > "$RUNNER_TEMP/APK_BADGING.txt"
+          "$TOOLS/apksigner" verify --verbose --print-certs "$DEST" > "$RUNNER_TEMP/APK_SIGNATURE.txt"
+          grep -q "package: name='com.braseiro.oumanel'" "$RUNNER_TEMP/APK_BADGING.txt"
+          grep -q "versionCode='49212'" "$RUNNER_TEMP/APK_BADGING.txt"
+          grep -q "versionName='4.9.212'" "$RUNNER_TEMP/APK_BADGING.txt"
+          unzip -p "$DEST" assets/assets/index*.js | grep -aq 'Braseiro TTS'
+          sha256sum "$DEST" > "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.212_TTS_TAGS_AUTOMATICAS.apk.sha256"
+          echo "BRASEIRO_OUA_49212_AUTOMATIC_TAGS_APK_PASS"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_O_UM_ANEL_4.9.212_TTS_TAGS_AUTOMATICAS_HOSTED
+          path: |
+            ${{ runner.temp }}/BRASEIRO_O_UM_ANEL_4.9.212_TTS_TAGS_AUTOMATICAS.apk
+            ${{ runner.temp }}/BRASEIRO_O_UM_ANEL_4.9.212_TTS_TAGS_AUTOMATICAS.apk.sha256
+            ${{ runner.temp }}/APK_BADGING.txt
+            ${{ runner.temp }}/APK_SIGNATURE.txt
+          if-no-files-found: error
