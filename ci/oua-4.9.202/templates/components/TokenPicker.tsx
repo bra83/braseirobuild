@@ -5,6 +5,7 @@ import {
   installPartyTokenById,
   loadPartyTokenManifest,
   partyCultureKey,
+  partyRaceFromCulture,
   partyTokenMatchesCulture,
   resolvePartyTokenAsset,
   type PartyTokenEntry,
@@ -72,10 +73,22 @@ export const TokenPicker: React.FC<TokenPickerProps> = ({
     return [...matching].sort((a, b) => Number(b.culture === cultureKey) - Number(a.culture === cultureKey));
   }, [partyManifest, playerOnly, showAll, culture]);
 
-  const legacyTokens = useMemo(() => {
-    if (!playerOnly || showAll) return tokens.filter(token => !token.category?.startsWith('party:'));
-    return [];
-  }, [tokens, playerOnly, showAll]);
+  // Os tokens do ZIP também usam categorias party:*. O manifesto embutido e o
+  // banco de tokens importados são duas fontes distintas; exibir ambas sem duplicar.
+  const importedTokens = useMemo(() => {
+    const builtInIds = new Set((partyManifest?.tokens || []).map(entry => entry.id));
+    const external = tokens.filter(token => !builtInIds.has(token.id));
+    if (!playerOnly) return external.filter(token => !token.category?.startsWith('party:'));
+    const race = partyRaceFromCulture(culture);
+    return external.filter(token => {
+      const category = String(token.category || '').toLowerCase();
+      // Tokens não classificados só aparecem mediante escolha explícita.
+      if (!category.startsWith('party:')) return showAll;
+      const tokenRace = category.split(':')[1];
+      if (tokenRace === 'enemy') return false;
+      return showAll || !race || tokenRace === race;
+    });
+  }, [tokens, partyManifest, playerOnly, showAll, culture]);
 
   const selectBuiltIn = async (entry: PartyTokenEntry) => {
     setIsImporting(true); setError(null);
@@ -122,10 +135,10 @@ export const TokenPicker: React.FC<TokenPickerProps> = ({
             </div>
           </>}
 
-          {legacyTokens.length > 0 && <>
-            <h3 className="mb-2 mt-5 text-xs uppercase tracking-[.18em] text-[#8d7958]">Tokens importados</h3>
+          {importedTokens.length > 0 && <>
+            <h3 className="mb-2 mt-5 text-xs uppercase tracking-[.18em] text-[#8d7958]">Tokens importados ({importedTokens.length})</h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-6">
-              {legacyTokens.map(t => <button type="button" key={t.id} onClick={() => onSelect(t.id)} className={`flex h-32 items-center justify-center overflow-hidden rounded border p-2 ${selectedTokenId === t.id ? 'border-[#d5b36b]' : 'border-[#5f503b]/35'}`}>
+              {importedTokens.map(t => <button type="button" key={t.id} onClick={() => onSelect(t.id)} className={`flex h-32 items-center justify-center overflow-hidden rounded border p-2 ${selectedTokenId === t.id ? 'border-[#d5b36b]' : 'border-[#5f503b]/35'}`}>
                 {tokenUrls[t.id] && <img src={tokenUrls[t.id]} alt="Token importado" className="h-full w-full object-contain"/>}
               </button>)}
             </div>
