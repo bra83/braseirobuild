@@ -1,0 +1,54 @@
+name: OUA 4.9.211 Braseiro TTS — BRELGA experimental
+on:
+  push:
+    branches:
+      - experiment/oua-49211-braseiro-tts-mestre-unico
+    paths:
+      - ".github/workflows/oua-braseiro-tts-brelga.yml"
+      - "ci/oua-braseiro-tts/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integrate-and-build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify BRELGA
+        shell: pwsh
+        run: |
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA runner" }
+      - name: Download untouched OUA 4.9.211 baseline
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $work=Join-Path $env:RUNNER_TEMP 'oua-braseiro-tts'
+          New-Item -ItemType Directory -Path $work -Force | Out-Null
+          gh release download OUA-v4.9.211 --repo $env:GITHUB_REPOSITORY --pattern 'BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip' --dir $work --clobber
+          Expand-Archive -LiteralPath (Join-Path $work 'BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip') -DestinationPath (Join-Path $work 'source') -Force
+          $pkg=Get-ChildItem (Join-Path $work 'source') -Recurse -File -Filter package.json | Where-Object { Test-Path (Join-Path $_.DirectoryName 'android') } | Select-Object -First 1
+          if (-not $pkg) { throw 'Canonical Android Studio project not found' }
+          "OUA_ROOT=$($pkg.DirectoryName)" >> $env:GITHUB_ENV
+      - name: Diagnose integration and install independent core
+        shell: pwsh
+        run: |
+          node ci/oua-braseiro-tts/apply.mjs "$env:OUA_ROOT"
+      - name: Validate and build only if integration succeeded
+        shell: pwsh
+        run: |
+          Set-Location $env:OUA_ROOT
+          npm ci
+          npm run lint
+          npm run build
+          node scripts/sync-android-assets.mjs
+          Set-Location android
+          ./gradlew.bat :app:assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: oua-tts-diagnostics
+          path: ${{ runner.temp }}/oua-braseiro-tts/source/**/BRASEIRO_TTS_INTEGRATION_DIAGNOSTIC.json
+          if-no-files-found: ignore
