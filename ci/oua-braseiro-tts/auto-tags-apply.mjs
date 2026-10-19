@@ -1,12 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 const root=process.argv[2];
 if(!root||!fs.existsSync(path.join(root,'App.tsx')))throw Error('OUA complete Android source missing');
 const get=f=>fs.readFileSync(path.join(root,f),'utf8');
 const put=(f,v)=>{const out=path.join(root,f);fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,v,'utf8');};
 const must=(ok,label)=>{if(!ok)throw Error('BRASEIRO_VOCAL_ANCHOR '+label);};
 function once(s,from,to,label){const i=s.indexOf(from);must(i>=0&&s.indexOf(from,i+from.length)<0,label);return s.slice(0,i)+to+s.slice(i+from.length);}
-const here=path.dirname(new URL(import.meta.url).pathname);
+const here=path.dirname(fileURLToPath(import.meta.url));
 put('lib/braseiroVocalDirector.ts',fs.readFileSync(path.join(here,'braseiroVocalDirector.ts'),'utf8'));
 let app=get('App.tsx');
 app=once(app,
