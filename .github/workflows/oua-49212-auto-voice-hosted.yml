@@ -5,6 +5,9 @@ on:
     paths:
       - ".github/workflows/oua-49212-auto-voice-hosted.yml"
   workflow_dispatch:
+concurrency:
+  group: oua-49212-auto-vocal-hosted
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -13,6 +16,10 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            ci/oua-braseiro-tts
+            build-signing
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
