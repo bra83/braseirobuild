@@ -3,7 +3,7 @@ on:
   push:
     branches: [experiment/oua-49211-braseiro-tts-mestre-unico]
     paths:
-      - ".github/workflows/oua-49213-auto-voice-hosted.yml"
+      - ".github/workflows/oua-49212-auto-voice-hosted.yml"
   workflow_dispatch:
 concurrency:
   group: oua-49213-auto-vocal-hosted
