@@ -42,6 +42,25 @@ jobs:
         shell: powershell
         run: |
           Write-Host 'Source inspected; next commit integrates the actual OUA TTS before compiling.'
+      - name: Preserve relevant source files for patch validation
+        shell: powershell
+        run: |
+          $root=$env:OUA_ROOT
+          $destination=Join-Path $env:RUNNER_TEMP 'oua-tts-source-review'
+          New-Item -ItemType Directory -Path $destination -Force | Out-Null
+          @('package.json','types.ts','App.tsx','services/geminiService.ts','lib/geminiModels.ts','lib/geminiTransport.ts','lib/AudioEngine.ts','lib/narration.ts','android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt') | ForEach-Object {
+            $src=Join-Path $root $_
+            if(Test-Path $src){
+              $dest=Join-Path $destination $_
+              New-Item -ItemType Directory -Path (Split-Path $dest -Parent) -Force | Out-Null
+              Copy-Item $src $dest -Force
+            }
+          }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oua-tts-source-review
+          path: ${{ runner.temp }}/oua-tts-source-review/
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
