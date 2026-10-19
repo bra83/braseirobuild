@@ -56,6 +56,8 @@ python -m pytest -q \
   ci/pf2-kingmaker-r36/test_windows_harness_utf8.py \
   ci/pf2-kingmaker-r36/test_galaxy_a57_compat.py \
   ci/pf2-kingmaker-r36/test_kingmaker_turn_checklist.py \
+  ci/pf2-kingmaker-r36/test_kingmaker_stolen_lands_map.py \
+  ci/pf2-kingmaker-r36/test_appdb_three_reopenings_endurance.py \
   ci/pf2-kingmaker-certification/test_chapters_1_11_audit.py
 for patch in \
   patch.py patch_runtime_json_integer.py patch_claim_hex_prepaid.py patch_kingdom_accounting.py \
@@ -64,7 +66,8 @@ for patch in \
   patch_official_build_ui.py patch_chapter11_gate.py patch_chapter9_canonical_anchors.py \
   patch_consumption_atomic.py patch_turn_phase_atomic.py patch_war_atomic.py \
   patch_semantic_domains.py patch_legacy_javac_dependencies.py \
-  patch_windows_harness_utf8.py patch_galaxy_a57_compat.py patch_kingmaker_turn_checklist.py; do
+  patch_windows_harness_utf8.py patch_galaxy_a57_compat.py patch_kingmaker_turn_checklist.py \
+  patch_kingmaker_default_map.py; do
   python "ci/pf2-kingmaker-r36/$patch" "$PROJECT"
 done
 grep -Fx 'VERSION_NAME=9.0.37' "$PROJECT/version.properties"
