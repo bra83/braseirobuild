@@ -21,8 +21,25 @@ import java.util.Set;
 public final class SceneEntityGrounding {
     private SceneEntityGrounding() { }
 
+    private static final String[] CANONICAL_GEOGRAPHY = new String[]{
+        "Restov", "Brevoy", "Rostland", "Issia", "Pitax", "Varnhold", "Fort Drelev", "Drelev",
+        "Golarion", "Terras Roubadas", "Stolen Lands", "Cinturão Verde", "Greenbelt",
+        "Narlmarches", "Floresta Narlmarches", "Kamelands", "Dunsward", "Hooktongue",
+        "Pântano Hooktongue", "Glenebon", "Altiplanos de Glenebon", "Thousand Voices",
+        "Tors of Levenies", "Rio Shrike", "Rio Thorn", "Lago Candlemere", "Tuskwater",
+        "Lago Silverstep", "Lago Hooktongue", "Lago Rushlight", "Posto Comercial de Oleg",
+        "Posto de Oleg", "Oleg", "Forte Serenko", "Serenko", "Nivakta", "Travessia de Nivakta",
+        "Littletown", "Velho Sicômoro", "Cavernas Sootscale", "Sootscale", "Templo do Alce",
+        "Fortaleza do Senhor dos Cervos", "Senhor dos Cervos", "Ilha Candlemere", "Candlemere",
+        "Cabana de Bokken", "Bokken", "Arbustos Fangberry", "Fangberry", "Travessia de Nettle",
+        "Nettle", "Covil do Tatzlwyrm", "Tatzlwyrm", "Covil de Tuskgutter", "Tuskgutter",
+        "Fortaleza de Hargulka", "Hargulka", "Tatzlford", "Tumba de Vordakai", "Vordakai",
+        "Senhores Tigres", "Tiger Lords"
+    };
+
     public static Set<String> placeAliases(AppDb db, JSONObject scene) {
         HashSet<String> out = new HashSet<String>();
+        for (String g : CANONICAL_GEOGRAPHY) addPlaceAliases(out, g);
         if (db == null) return out;
         JSONObject effective = scene == null ? db.getSceneState() : scene;
         addPlaceAliases(out, effective.optString("location", ""));
@@ -31,16 +48,21 @@ public final class SceneEntityGrounding {
             JSONObject map = db.getMapState();
             String packageId = map.optString("map_package_id", "");
             String hex = map.optString("current_hex_id", "");
-            if (packageId.length() > 0 && hex.length() > 0) {
-                List<JSONObject> locations = db.getMapLocationsForHex(packageId, hex);
-                for (JSONObject location : locations) {
+            if (packageId.length() > 0) {
+                if (hex.length() > 0) {
+                    List<JSONObject> locations = db.getMapLocationsForHex(packageId, hex);
+                    for (JSONObject location : locations) {
+                        if (location == null) continue;
+                        addPlaceAliases(out, location.optString("name", ""));
+                    }
+                    JSONObject note = db.getMapHexNote(packageId, hex);
+                    addPlaceAliases(out, note.optString("title", note.optString("note_title", "")));
+                }
+                List<JSONObject> allLocs = db.listMapLocationsWithHexReference(packageId, 500);
+                for (JSONObject location : allLocs) {
                     if (location == null) continue;
-                    String status = normalize(location.optString("placement_status", ""));
-                    if (status.contains("review") || status.contains("approx") || status.contains("unassigned")) continue;
                     addPlaceAliases(out, location.optString("name", ""));
                 }
-                JSONObject note = db.getMapHexNote(packageId, hex);
-                addPlaceAliases(out, note.optString("title", note.optString("note_title", "")));
             }
         } catch (Exception ignored) { AppLog.ignored("SceneEntityGrounding", "Não foi possível expandir aliases cartográficos.", ignored); }
         return out;
@@ -129,6 +151,15 @@ public final class SceneEntityGrounding {
     }
 
     private static void addPlaceAliases(Set<String> out, String raw) {
+        if (raw == null || raw.trim().isEmpty()) return;
+        String[] parts = raw.split("[,;/\\-\\—|•\\(\\)\\[\\]]+");
+        for (String part : parts) {
+            addSinglePlaceAlias(out, part);
+        }
+        addSinglePlaceAlias(out, raw);
+    }
+
+    private static void addSinglePlaceAlias(Set<String> out, String raw) {
         String n = normalize(raw); if (n.length()==0) return; out.add(n);
         String stripped = n.replaceFirst("^(?:a|o|as|os|na|no|nas|nos|em|nesta|neste|nessa|nesse)\\s+", "");
         out.add(stripped);

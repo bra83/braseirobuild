@@ -112,6 +112,21 @@ public final class PortugueseNarrationSanitizer {
                 .replace("\\n","\n").replace("\\r","").replace("\\t"," ");
         text=text.replaceAll("(?i)(^|\\s)(?:n\\s*n|nn)(?=\\s|$)","$1\n\n");
         text=text.replaceAll("(?i)(^|\\s)/n(?=\\s|$)","$1\n");
+
+        // 1. Remove rótulos de interface vazados na prosa
+        text=text.replaceAll("(?im)^\\s*(?:local atual|clima(?: atualizado)?|horário|horario|período|periodo|objetivo|status|hex|coordenada)\\s*:\\s*.*$", "");
+        text=text.replaceAll("(?im)^\\s*(?:opções disponíveis|opcoes disponiveis|você pode|voce pode|ações sugeridas|acoes sugeridas)\\s*:\\s*$", "");
+
+        // 2. Remove metalinguagem de software
+        text=text.replaceAll("(?iu)\\b(?:a cena responde(?: ao último gesto)?|antes que qualquer explicação(?: seja necessária)?|a cena não pede uma resposta|o sistema calculou)[^.!?\\n]*[.!?]?", "");
+        text=text.replaceAll("(?iu)\\b(?:como uma ia|como inteligência artificial|como inteligencia artificial|assistente virtual|prompt de sistema|pipeline de execução)\\b[^.!?\\n]*[.!?]?", "");
+
+        // 3. Suaviza sequestro de agência e emoções involuntárias
+        text=text.replaceAll("(?iu)\\bvocê sente medo\\b", "um calafrio percorre sua espinha");
+        text=text.replaceAll("(?iu)\\bvocês sentem medo\\b", "um calafrio percorre a espinha de vocês");
+        text=text.replaceAll("(?iu)\\bvocê fica impressionad[oa]\\b", "a cena chama sua atenção");
+        text=text.replaceAll("(?iu)\\bvocês ficam impressionados\\b", "a cena chama a atenção de vocês");
+
         text=text.replaceAll("[ \\t]+"," ").replaceAll(" *\\n *","\n");
         text=text.replaceAll("([a-záàâãéêíóôõúç])([A-ZÁÀÂÃÉÊÍÓÔÕÚÇ])","$1 $2");
         for(Map.Entry<Pattern,String> entry:FIXES.entrySet())text=replacePreservingInitialCase(text,entry.getKey(),entry.getValue());
@@ -122,8 +137,19 @@ public final class PortugueseNarrationSanitizer {
         text=text.replaceAll("([.!?…])([“\"'])(?=[A-Za-zÀ-ÿ])","$1 $2");
         text=text.replaceAll("(?<=[A-Za-zÀ-ÿ0-9])([”’\"')\\]])(?=[A-Za-zÀ-ÿ])","$1 ");
         text=text.replaceAll("(?iu)\\b(\\p{L}{3,})(?:\\s+\\1){1,2}\\b","$1");
+
+        // 4. Remove muleta repetitiva de fim de turno ("O que você faz?")
+        text=text.replaceAll("(?iu)(?:[,.;:!?…\\s]+)?\\b(?:o que você(?:s)? faz(?:em)?(?: agora)?|como você(?:s)? pretend(?:e|em) agir|qual é a sua escolha)\\??\\s*$", ".");
+
         text=text.replaceAll(" {2,}"," ").replaceAll("\\n{3,}","\n\n");
         return text.trim();
+    }
+
+    public static boolean hasMetaViolation(String text){
+        if(text==null||text.isEmpty())return false;
+        String lower=text.toLowerCase(new Locale("pt","BR"));
+        return lower.matches("(?s).*\\b(?:como uma ia|assistente virtual|prompt|pipeline|json)\\b.*")
+                || lower.matches("(?s).*\\b(?:a cena responde|antes que qualquer explicação)\\b.*");
     }
 
     /**

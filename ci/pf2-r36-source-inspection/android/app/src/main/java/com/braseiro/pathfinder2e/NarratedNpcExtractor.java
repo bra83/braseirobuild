@@ -110,7 +110,24 @@ public final class NarratedNpcExtractor {
     private static int parseCount(String raw){if(raw==null||raw.trim().isEmpty())return 1;String n=normalize(raw);if("dois".equals(n)||"duas".equals(n))return 2;if("tres".equals(n))return 3;if("quatro".equals(n))return 4;if("cinco".equals(n))return 5;if("seis".equals(n))return 6;if("sete".equals(n))return 7;if("oito".equals(n))return 8;if("nove".equals(n))return 9;if("dez".equals(n))return 10;try{return Math.max(1,Math.min(99,Integer.parseInt(n)));}catch(Exception ignored){return 1;}}
     private static boolean isPlural(String raw){String n=normalize(raw);return n.endsWith("s")||n.endsWith("oes")||n.endsWith("ais");}
     private static String displayRole(String value){if(value==null||value.trim().isEmpty())return "NPC";String lower=value.trim().toLowerCase(new Locale("pt","BR"));return lower.substring(0,1).toUpperCase(new Locale("pt","BR"))+lower.substring(1);}
-    private static boolean isReservedIdentity(String normalized){String[] values={"voce","voces","eu","nos","ele","ela","eles","elas","jogador","jogadora","jogadores","jogadoras","grupo","companhia","heroi","herois","aventureiro","aventureiros","player","players","party","narrador","narradora","mestre do jogo","game master","gm"};for(String value:values)if(value.equals(normalized))return true;return false;}
+    private static final String[] RESERVED_IDENTITIES = new String[]{
+        "voce","voces","eu","nos","ele","ela","eles","elas","jogador","jogadora","jogadores","jogadoras","o jogador","a jogadora",
+        "grupo","o grupo","grupo de aventureiros","companhia","a companhia","heroi","herois","aventureiro","aventureiros",
+        "player","players","party","the party","narrador","narradora","mestre do jogo","game master","gm",
+        "restov","brevoy","rostland","issia","pitax","varnhold","drelev","fort drelev","golarion","terras roubadas","stolen lands",
+        "cinturao verde","greenbelt","narlmarches","floresta narlmarches","kamelands","dunsward","hooktongue","pantano hooktongue",
+        "glenebon","altiplanos de glenebon","thousand voices","tors of levenies","rio shrike","rio thorn","lago candlemere","tuskwater",
+        "lago silverstep","lago hooktongue","lago rushlight","posto comercial de oleg","posto de oleg","oleg","forte serenko","serenko",
+        "nivakta","travessia de nivakta","littletown","velho sicomoro","cavernas sootscale","sootscale","templo do alce",
+        "fortaleza do senhor dos cervos","senhor dos cervos","ilha candlemere","candlemere","cabana de bokken","bokken",
+        "arbustos fangberry","fangberry","travessia de nettle","nettle","covil do tatzlwyrm","tatzlwyrm","covil de tuskgutter",
+        "tuskgutter","fortaleza de hargulka","hargulka","tatzlford","tumba de vordakai","vordakai","senhores tigres","tiger lords"
+    };
+
+    private static boolean isReservedIdentity(String normalized){
+        for(String value:RESERVED_IDENTITIES)if(value.equals(normalized))return true;
+        return false;
+    }
     private static String titleCase(String value){if(value==null||value.isEmpty())return "";String lower=value.toLowerCase(new Locale("pt","BR"));return lower.substring(0,1).toUpperCase(new Locale("pt","BR"))+lower.substring(1);}
     private static String normalize(String value){return Normalizer.normalize(value==null?"":value,Normalizer.Form.NFD).replaceAll("\\p{M}+","").toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+"," ").trim();}
 }

@@ -122,7 +122,7 @@ public final class NarrationPlaybackPolicy {
     }
 
     private static String fold(String value){
-        return java.text.Normalizer.normalize(value==null?"":value,java.text.Normalizer.Form.NFD).replaceAll("\\\\p{M}+","").toLowerCase(java.util.Locale.ROOT);
+        return java.text.Normalizer.normalize(value==null?"":value,java.text.Normalizer.Form.NFD).replaceAll("\\p{M}+","").toLowerCase(java.util.Locale.ROOT);
     }
 
     private static void append(StringBuilder out,String label,String value){String v=value==null?"":value.trim();if(v.length()==0||"none".equalsIgnoreCase(v))return;if(out.length()>0)out.append(" | ");out.append(label).append(": ").append(v);}

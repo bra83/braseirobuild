@@ -49,7 +49,12 @@ public final class OfflineMasterEngine {
         String objective=clean(scene.optString("objective",""),150);
         String previous=clean(story.optString("last_narration",""),480);
         String declared=playerFacingAction(action);
-        String actor=heroes.length()>0?clean(heroes.optJSONObject(0).optString("name","A companhia"),70):"A companhia";
+        JSONObject primaryHero=heroes.length()>0?heroes.optJSONObject(0):null;
+        String actor=primaryHero!=null?clean(primaryHero.optString("name","A companhia"),70):"A companhia";
+        String armor=primaryHero!=null?clean(primaryHero.optString("armor",primaryHero.optString("armor_name","")),60):"";
+        if(armor.isEmpty())armor="as roupas reforçadas de viagem";
+        String weapons=primaryHero!=null?clean(primaryHero.optString("weapons",primaryHero.optString("weapon","")),60):"";
+        if(weapons.isEmpty())weapons="as armas de prontidão";
         String npc=npcs.length()>0?clean(npcs.optJSONObject(0).optString("name",""),70):"";
         String verified=resultMarker(action);
         boolean opening=isOpeningDirective(action);
@@ -57,24 +62,35 @@ public final class OfflineMasterEngine {
 
         StringBuilder text=new StringBuilder();
         if(opening){
-            text.append(location).append(" não se apresenta em silêncio. ");
-            if(catalog.length()>0)text.append(naturalizeCatalog(catalog,localWater)).append(" ");
-            else text.append("A chegada já mostra movimento, vozes e pequenos sinais de que este lugar tem vida própria. ");
+            text.append("A atmosfera de ").append(location).append(" se impõe antes de qualquer gesto. ");
             if(weather.length()>0)text.append(weatherSentence(weather)).append(" ");
-            text.append(actor).append(" entra nesse movimento sem receber um caminho pronto. ");
-            if(npc.length()>0)text.append(npc).append(" está por perto e reage à presença da companhia, atento ao que ela fará primeiro. ");
-            if(danger.length()>0)text.append("Há também um sinal imediato de tensão: ").append(lowerFirst(danger)).append(". ");
-            if(objective.length()>0)text.append("O motivo que trouxe o grupo até aqui continua claro: ").append(lowerFirst(objective)).append(". ");
-            text.append("Entre o fluxo do lugar e aquilo que chama a atenção agora, há mais de uma maneira de começar.");
+            else text.append("O ar traz consigo o cheiro denso de terra úmida, lenha e vegetação selvagem. ");
+            if(catalog.length()>0)text.append(naturalizeCatalog(catalog,localWater)).append(" ");
+            else text.append("O chão sob as botas revela a rudeza do terreno, enquanto construções e trilhas ao redor mostram pessoas em pleno movimento — atarefadas em seus afazeres, vigiando ou descarregando fardos. ");
+            text.append("Vocês mantêm a postura firme. ");
+            if(primaryHero!=null){
+                text.append(actor).append(", vestindo ").append(armor).append(", você sente o peso familiar de ").append(weapons)
+                    .append(" ao alcance dos dedos, com o vento frio fazendo tremular a barra do manto enquanto o vapor da respiração se dissipa no ar. ");
+            }else{
+                text.append(actor).append(" avança mantendo os sentidos despertos e o equipamento firme ao corpo. ");
+            }
+            if(npc.length()>0)text.append(npc).append(" está em atividade por perto, erguendo o olhar e reagindo à presença da companhia. ");
+            if(danger.length()>0)text.append("Um sinal nítido de tensão exige vigilância: ").append(lowerFirst(danger)).append(". ");
+            if(objective.length()>0)text.append("O motivo que guiou o grupo até aqui permanece à vista: ").append(lowerFirst(objective)).append(". ");
+            text.append("Diante de vocês, o relevo e as escolhas imediatas se abrem com peso real.");
         }else{
             text.append("Em ").append(location).append(", ");
             if(declared.length()>0)text.append(lowerFirst(declared)).append(". ");
-            else text.append(actor).append(" observa por um instante antes de escolher o próximo gesto. ");
-            if(npc.length()>0)text.append(npc).append(" percebe a mudança e reage de forma visível, sem antecipar o que a companhia fará depois. ");
+            else text.append(actor).append(" ajusta a postura e examina o entorno com atenção. ");
+            if(weather.length()>0)text.append("O clima segue evidente na pele e na respiração. ");
+            if(primaryHero!=null){
+                text.append("O peso de ").append(weapons).append(" e a rigidez de ").append(armor).append(" ancoram cada movimento na lama e no cascalho sob as botas. ");
+            }
+            if(npc.length()>0)text.append(npc).append(" percebe a mudança, interrompe o que fazia e reage de forma direta, sem antecipar o passo seguinte da companhia. ");
             if(verified.length()>0){
                 if("sucesso".equals(verified))text.append("A tentativa funciona, e a situação se abre exatamente a partir desse resultado. ");
                 else if("falha".equals(verified))text.append("A tentativa não alcança o efeito pretendido, e a situação responde a essa falha. ");
-                else text.append("O resultado já obtido passa a definir o que acontece a seguir. ");
+                else text.append("O resultado obtido passa a definir o rumo imediato. ");
             }else if(danger.length()>0)text.append("A ameaça continua presente: ").append(lowerFirst(danger)).append(". ");
             if(previous.length()>0)text.append("O que já estava em jogo continua reconhecível, mas a cena muda com a ação atual. ");
             if(objective.length()>0)text.append("Adiante, ainda está em jogo ").append(lowerFirst(objective)).append(". ");
@@ -153,6 +169,28 @@ public final class OfflineMasterEngine {
     private static JSONObject firstObject(JSONObject a,JSONObject b){return a!=null?a:(b!=null?b:new JSONObject());}
     private static void copy(JSONObject from,JSONObject to,String... keys)throws Exception{for(String key:keys)if(from.has(key))to.put(key,from.opt(key));}
     private static String resultMarker(String action){String n=clean(action,900).toLowerCase(new Locale("pt","BR"));if(!n.contains("mecanica_local_verificada"))return "";if(n.contains("resultado=sucesso")||n.contains("resultado: sucesso"))return "sucesso";if(n.contains("resultado=falha")||n.contains("resultado: falha"))return "falha";return "resultado registrado";}
+    public static String generateLocalImmersiveFallback(JSONObject hero, String currentPeriod, String weather, String location) {
+        String name = hero == null ? "Aventureiro" : hero.optString("name", "Aventureiro");
+        String armor = hero == null ? "" : hero.optString("armor", hero.optString("armor_name", ""));
+        if (armor.isEmpty()) armor = "suas roupas reforçadas de viagem";
+        String weapons = hero == null ? "" : hero.optString("weapons", hero.optString("weapon", ""));
+        if (weapons.isEmpty()) weapons = "suas armas de prontidão";
+
+        boolean morning = currentPeriod != null && (currentPeriod.toLowerCase(Locale.ROOT).contains("manhã") || currentPeriod.toLowerCase(Locale.ROOT).contains("morning") || currentPeriod.toLowerCase(Locale.ROOT).contains("alvorada"));
+        String timeSense = morning 
+            ? "A luz pálida da manhã corta a bruma que rasteja pelo solo"
+            : "O crepúsculo avermelhado estende sombras compridas sobre o relevo";
+
+        String place = (location == null || location.trim().isEmpty() || "esta região".equalsIgnoreCase(location.trim())) ? "" : (" em " + location.trim());
+        String weatherStr = (weather == null || weather.trim().isEmpty()) ? "O ar traz consigo o cheiro denso de terra úmida e vegetação selvagem." : ("O clima se faz sentir: " + weather.trim().toLowerCase(new Locale("pt", "BR")) + ". O ar traz consigo o cheiro denso de terra úmida e vento frio.");
+
+        return timeSense + place + ". " + weatherStr + "\n\n" +
+                "Vocês mantêm a postura firme no terreno irregular. " + name + ", vestindo " + armor + ", " +
+                "você sente o peso familiar de " + weapons + " ao alcance das mãos, enquanto o vento frio faz tremular " +
+                "a barra de sua capa e o vapor da sua respiração se dissipa no ar. Ao redor, a terra segue seu próprio ritmo rústico.\n\n" +
+                "Diante de vocês, trilhas antigas e contornos recortados no horizonte exigem uma decisão de avanço. Como vocês pretendem seguir?";
+    }
+
     private static String lowerFirst(String value){if(value==null||value.length()==0)return "";return Character.toLowerCase(value.charAt(0))+value.substring(1);}
     private static String clean(String value,int max){String out=value==null?"":value.replace('\n',' ').replace('\r',' ').replaceAll("\\s+"," ").trim();if(out.length()<=max)return out;return out.substring(0,Math.max(1,max-1)).trim()+"…";}
 }
