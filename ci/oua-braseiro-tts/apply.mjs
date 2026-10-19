@@ -1,33 +1,74 @@
 import fs from 'node:fs';
 import path from 'node:path';
 const root=process.argv[2];
-if(!root||!fs.existsSync(path.join(root,'package.json')))throw Error('OUA root not found');
-const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
-console.log('PROJECT ROOT',root);
-console.log('PACKAGE',JSON.stringify({name:pkg.name,scripts:pkg.scripts},null,2));
-console.log('DIRECTORY',fs.readdirSync(root).slice(0,90));
-const skipped=new Set(['node_modules','.git','dist','build','.gradle','.next','out','vendor','resources','assets','gradle','.idea']);
-function crawl(p,depth=0){if(depth>10)return[];return fs.readdirSync(p,{withFileTypes:true}).flatMap(x=>
-x.isDirectory()?skipped.has(x.name)?[]:crawl(path.join(p,x.name),depth+1):
-/\.(tsx?|jsx?|java|kt)$/.test(x.name)?[path.join(p,x.name)]:[]);}
-const re=/generateTTS|generateTts|generateSpeech|speechConfig|prebuiltVoiceConfig|synthesizeSpeech|generateContent.*AUDIO|textToSpeech|speechSynthesis|speakWith|TextToSpeech|VOICE_NAME|voiceName/i;
-const candidates=crawl(root).filter(p=>fs.statSync(p).size<1_200_000).map(p=>({p,t:fs.readFileSync(p,'utf8')})).filter(x=>re.test(x.t));
-const records=[];
-for(const {p,t} of candidates){
- const lines=t.split(/\r?\n/);const spans=[];
- for(let i=0;i<lines.length;i++)if(re.test(lines[i])){
-   const low=Math.max(0,i-9),high=Math.min(lines.length,i+17);
-   spans.push({line:i+1,text:lines.slice(low,high).map((x,k)=>String(low+k+1).padStart(4)+' '+x).join('\n')});
-   if(spans.length===5)break;
- }
- records.push({file:path.relative(root,p),size:t.length,spans});
+if(!root||!fs.existsSync(path.join(root,'App.tsx')))throw Error('OUA source missing');
+const get=p=>fs.readFileSync(path.join(root,p),'utf8');
+const put=(p,s)=>fs.writeFileSync(path.join(root,p),s,'utf8');
+function replace(s,a,b,name){const i=s.indexOf(a);if(i<0||s.indexOf(a,i+1)>=0)throw Error('ANCHOR:'+name);return s.slice(0,i)+b+s.slice(i+a.length);}
+function slice(s,a,b,v,name){const i=s.indexOf(a),j=s.indexOf(b,i+a.length);if(i<0||j<=i)throw Error('SECTION:'+name);return s.slice(0,i)+v+s.slice(j);}
+const nl='\n';
+{
+let s=get('lib/geminiModels.ts');
+s=replace(s,"  { id: 'gemini-3.1-flash-tts-preview', label: 'Gemini 3.1 Flash TTS Preview — recomendado' },",[
+"  { id: 'gemini-3.8-flash-tts', label: 'Gemini 3.8 Flash TTS — recomendado' },",
+"  { id: 'gemini-3.8-flash-lite-tts', label: 'Gemini 3.8 Flash-Lite TTS — menor latência' },",
+"  { id: 'gemini-3.1-flash-tts-preview', label: 'Gemini 3.1 Flash TTS Preview — compatibilidade' },"].join(nl),'models');
+s=replace(s,"const TTS_DEFAULT = 'gemini-3.1-flash-tts-preview';","const TTS_DEFAULT = 'gemini-3.8-flash-tts';",'default');
+put('lib/geminiModels.ts',s);
 }
-const report={version:'4.9.211',status:'DISCOVERY',package:pkg.name,files:records};
-fs.writeFileSync(path.join(root,'BRASEIRO_TTS_INTEGRATION_DIAGNOSTIC.json'),JSON.stringify(report,null,2));
-console.log('=== BRASEIRO TTS DISCOVERY ===');
-console.log('Found', records.length,'files');
-for(const r of records.slice(0,18)){
- console.log('\nFILE',r.file,'length',r.size);
- for(const s of r.spans.slice(0,3))console.log('AROUND '+s.line+'\n'+s.text.slice(0,2700));
+{
+let s=get('services/geminiService.ts');
+s=replace(s,"const DEFAULT_TTS_MODELS = ['gemini-3.1-flash-tts-preview', 'gemini-2.5-flash-preview-tts'];","const DEFAULT_TTS_MODELS = ['gemini-3.8-flash-lite-tts', 'gemini-3.1-flash-tts-preview'];",'fallback');
+s=replace(s,'tts-v9-\${safeVoice}-pt-BR-1.0','tts-v10-\${safeVoice}-pt-BR-1.0','cache');
+const v=[
+"          const modern = model.startsWith('gemini-3.8-');",
+"          const transcript = normalizedText.replace(/\\[(?:tom|emoção|estilo|voz):[^\\]]+\\]/gi,'').trim();",
+"          const part = modern ? { text: transcript, speech_metadata: { style: stableStyle } }",
+"            : { text: 'Leia apenas a narração em português brasileiro: ' + transcript };",
+"          const response = await generateGemini(model,",
+"            [{ role:'user', parts:[part] }],",
+"            {responseModalities:['AUDIO'],speechConfig:{voiceConfig:modern",
+"              ? {voice:safeVoice} : {prebuiltVoiceConfig:{voiceName:safeVoice}}}},",
+"          );",
+""].join(nl);
+s=slice(s,'          const response = await generateGemini('+nl,"          const audio = response.candidates?.[0]?.content?.parts?.find(part => part.inlineData)?.inlineData?.data;",v,'browser synthesis');
+put('services/geminiService.ts',s);
 }
-console.log('=== END DISCOVERY ===');
+{
+let s=get('android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt');
+s=replace(s,'tts-v9|$model|$safeVoice|pt-BR|$stableStyle|$text','tts-v10|$model|$safeVoice|pt-BR|$stableStyle|$text','cache-native');
+const v=[
+'        val modern = model.startsWith("gemini-3.8-")',
+'        val transcript = text.replace(Regex("\\\\[(tom|emoção|estilo|voz):[^\\\\]]+\\\\]", RegexOption.IGNORE_CASE), "").trim()',
+'        val part = JSONObject().put("text", if (modern) transcript else "Leia apenas a narração em português brasileiro: $transcript")',
+'        if (modern) part.put("speech_metadata", JSONObject().put("style", stableStyle))',
+'        val voiceConfig = if (modern) JSONObject().put("voice", safeVoice)',
+'            else JSONObject().put("prebuiltVoiceConfig", JSONObject().put("voiceName", safeVoice))',
+'        val body = JSONObject().apply {',
+'            put("contents", JSONArray().put(JSONObject().put("role","user").put("parts", JSONArray().put(part))))',
+'            put("generationConfig", JSONObject().apply {',
+'                put("responseModalities", JSONArray().put("AUDIO"))',
+'                put("speechConfig", JSONObject().put("voiceConfig", voiceConfig))',
+'            })',
+'        }.toString()',
+''].join(nl);
+s=slice(s,'        val prompt = """Perfil de áudio fixo: $stableStyle','        val envelope = performGeminiRequest(model, body, paidOnly)',v,'native synthesis');
+put('android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt',s);
+}
+{
+let s=get('App.tsx');
+const v=[
+"  const voiceForSegment = (segment: VoiceSegment): { voice: TtsVoiceName; style: string } => {",
+"    if(segment.speakerType==='narrator') return {voice:'Charon',style:CHARON_NARRATOR_STYLE};",
+"    const npc=segment.speakerId?allNpcs.find(item=>item.id===segment.speakerId):allNpcs.find(item=>normalizeText(item.name)===normalizeText(segment.speakerName));",
+"    const key=segment.speakerId||segment.speakerName||'npc';",
+"    const variants=['ligeiramente mais firme e grave','ligeiramente mais suave e leve','ritmo ligeiramente mais lento','cadência um pouco mais viva'];",
+"    const index=Array.from(key).reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7)%variants.length;",
+"    return {voice:'Charon',style:CHARON_NARRATOR_STYLE+'; mesmo narrador; interpretação discreta: '+variants[index]+'; emoção: '+(segment.emotion||npc?.emotionalState||'natural')};",
+"  };",
+""].join(nl)+nl;
+s=slice(s,'  const voiceForSegment = (segment: VoiceSegment): { voice: TtsVoiceName; style: string } => {','  const playCharonNarration = async (node: SceneNode) => {',v,'single voice');
+put('App.tsx',s);
+}
+if(!get('services/geminiService.ts').includes('speech_metadata')||!get('android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt').includes('speech_metadata'))throw Error('metadata not integrated');
+console.log('BRASEIRO_TTS_PATCH_PASS: native + browser 3.8, voice consistent, model fallback');
