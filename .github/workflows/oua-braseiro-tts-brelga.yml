@@ -67,9 +67,15 @@ jobs:
           $androidDir=Join-Path $env:USERPROFILE '.android'
           New-Item -ItemType Directory -Path $androidDir -Force | Out-Null
           [System.IO.File]::WriteAllBytes((Join-Path $androidDir 'debug.keystore'),[Convert]::FromBase64String((Get-Content $keystoreEncoded -Raw).Trim()))
-          $sdk=$env:ANDROID_HOME
-          if (-not $sdk) { $sdk=$env:ANDROID_SDK_ROOT }
-          if (-not $sdk -or -not (Test-Path $sdk)) { throw 'Android SDK not configured on BRELGA' }
+          $candidates=@('C:\actions-runner\android-sdk')
+          if($env:ANDROID_SDK_ROOT){$candidates+=$env:ANDROID_SDK_ROOT}
+          if($env:ANDROID_HOME){$candidates+=$env:ANDROID_HOME}
+          if($env:LOCALAPPDATA){$candidates+=(Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
+          $sdk=$candidates|Where-Object{$_ -and (Test-Path $_) -and (Test-Path (Join-Path $_ 'platforms'))}|Select-Object -First 1
+          if(-not $sdk){throw 'Android SDK not found on BRELGA'}
+          $env:ANDROID_HOME=$sdk
+          $env:ANDROID_SDK_ROOT=$sdk
+          Write-Host ('Using Android SDK: '+$sdk)
           Set-Location (Join-Path $env:OUA_ROOT 'android')
           ('sdk.dir='+$sdk.Replace('\','/')) | Set-Content 'local.properties' -Encoding Ascii
           & .\gradlew.bat :app:assembleDebug --no-daemon --stacktrace
