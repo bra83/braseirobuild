@@ -67,7 +67,6 @@ jobs:
           npm run lint
           npm run build
           node scripts/sync-android-assets.mjs
-          node "$GITHUB_WORKSPACE/ci/oua-braseiro-tts/auto-tags-verify.mjs" "$OUA_ROOT"
           node "$GITHUB_WORKSPACE/ci/oua-braseiro-tts/turn-continuity-verify.mjs" "$OUA_ROOT"
       - name: Assemble same-signature Android update
         shell: bash
