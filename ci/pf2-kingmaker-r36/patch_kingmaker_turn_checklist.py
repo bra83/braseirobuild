@@ -8,6 +8,73 @@ from pathlib import Path
 import shutil
 import sys
 
+def patch_player_initiated_dice(java_dir: Path):
+    """Require a deliberate touch before the existing face-up 3D physics starts.
+
+    This reuses PhysicalDiceEngine and Dice3DOverlay; no alternative random
+    resolver or fabricated face is introduced. Fail closed on source drift.
+    """
+    overlay = java_dir / "Dice3DOverlay.java"
+    if not overlay.is_file():
+        raise FileNotFoundError(f"Physical dice overlay missing: {overlay}")
+    code = overlay.read_text(encoding="utf-8")
+    if "BRASEIRO_DICE3D_EXPLICIT_USER_LAUNCH_V1" in code:
+        return
+    replacements = [
+        (
+            'public static boolean enabled(SharedPreferences prefs){return prefs.getBoolean("dice3d_enabled_v1",true);}',
+            'public static boolean enabled(SharedPreferences prefs){return true;}',
+            "REQUIRE_PHYSICAL_DICE",
+        ),
+        (
+            'final TextView resultView=label(activity,"Dados em movimento…",20,true);',
+            'final TextView resultView=label(activity,"Aguardando seu toque em LANÇAR DADOS.",20,true);',
+            "VISIBLE_ROLL_REQUEST",
+        ),
+        (
+            'final Button apply=new Button(activity);',
+            '// BRASEIRO_DICE3D_EXPLICIT_USER_LAUNCH_V1\n'
+            '        final Button launch=new Button(activity);'
+            'launch.setText("LANÇAR DADOS 3D");'
+            'launch.setContentDescription("Iniciar lançamento físico 3D, iniciado pelo jogador");'
+            'bottom.addView(launch,new LinearLayout.LayoutParams(-1,dp(activity,50)));\n'
+            '        final Button apply=new Button(activity);',
+            "LAUNCH_BUTTON",
+        ),
+        (
+            'final boolean[] done={false};final long[] lastNs={System.nanoTime()};',
+            'final boolean[] started={false};final boolean[] done={false};final long[] lastNs={System.nanoTime()};',
+            "INITIATION_STATE",
+        ),
+        (
+            'if(done[0]||!dialog.isShowing())return;long now=System.nanoTime();',
+            'if(done[0]||!dialog.isShowing()||!started[0])return;long now=System.nanoTime();',
+            "TICKER_FAIL_CLOSED",
+        ),
+        (
+            'cancel.setOnClickListener(new View.OnClickListener()',
+            'launch.setOnClickListener(new View.OnClickListener(){public void onClick(View v){'
+            'if(started[0]||done[0])return;started[0]=true;'
+            'launch.setVisibility(View.GONE);resultView.setText("Dados em movimento…");'
+            'lastNs[0]=System.nanoTime();diceView.postOnAnimation(ticker);}});\n'
+            '        cancel.setOnClickListener(new View.OnClickListener()',
+            "REQUIRE_EXPLICIT_TAP",
+        ),
+        (
+            'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);diceView.postOnAnimation(ticker);',
+            'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);',
+            "NO_ROLL_ON_DIALOG_SHOW",
+        ),
+    ]
+    for original, replacement, label in replacements:
+        count = code.count(original)
+        if count != 1:
+            raise RuntimeError(f"R36_DICE3D_SOURCE_DRIFT_{label}: expected one anchor, got {count}")
+        code = code.replace(original, replacement, 1)
+    overlay.write_text(code, encoding="utf-8")
+    print("R36_DICE3D_USER_LAUNCH_PATCHED=PASS")
+
+
 def patch_checklist(project_dir: Path):
     project_dir = Path(project_dir).resolve()
     java_dir = project_dir / "android/app/src/main/java/com/braseiro/pathfinder2e"
@@ -60,6 +127,7 @@ def patch_checklist(project_dir: Path):
         content = content.replace(anchor_km, replacement_km, 1)
 
     main_file.write_text(content, encoding="utf-8")
+    patch_player_initiated_dice(java_dir)
     print(f"R36_KINGMAKER_CHECKLIST_PATCHED={target_checklist}")
 
 if __name__ == "__main__":
