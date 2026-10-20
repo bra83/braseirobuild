@@ -359,8 +359,14 @@ public class GeminiService {
                             // 2.5 e 3.1 usam o mesmo generateContent já validado pelo Android.
                             // Evitamos misturar dois transportes (generateContent/Interactions) dentro da
                             // mesma sessão de voz, o que dificultava diagnosticar limite e formato de áudio.
-                            JSONObject response=postTtsWithRetry(candidate,selectedKey,body,1,request);
-                            AudioData ad=extractAudio(response);
+                            AudioData ad;
+                            if(isInteractionsTtsModel(candidate)){
+                                ad=synthesizeWithInteractions(candidate,selectedKey,ttsPrompt,voice,request);
+                            }else{
+                                JSONObject response=postTtsWithRetry(candidate,selectedKey,body,1,request);
+                                ad=extractAudio(response);
+                                if(ad==null)throw new Exception(apiError(response,"O modelo não retornou áudio."));
+                            }
                             if(ad==null)throw new Exception(apiError(response,"O modelo não retornou áudio."));
                             if(audioLooksPrematurelyTruncated(ad,GeminiTtsMarkupDirector.stripTags(text)))throw new Exception("O Gemini TTS devolveu áudio curto demais para esta transcrição; tentando outro modelo compatível.");
                             request.requireActive();
