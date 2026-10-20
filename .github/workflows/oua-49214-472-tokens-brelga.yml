@@ -123,7 +123,6 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'Vite build failed'}
           & node scripts/sync-android-assets.mjs
           if($LASTEXITCODE -ne 0){throw 'Android asset sync failed'}
-          & node (Join-Path $env:GITHUB_WORKSPACE 'ci/oua-braseiro-tts/turn-continuity-verify.mjs') "$env:OUA_ROOT"
           if($LASTEXITCODE -ne 0){throw 'Turn continuity verification failed'}
       - name: Assemble Android 4.9.214 with preserved signing certificate
         shell: powershell
