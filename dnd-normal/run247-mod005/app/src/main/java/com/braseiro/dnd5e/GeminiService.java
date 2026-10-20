@@ -332,7 +332,7 @@ public class GeminiService {
                 String primary=primaryApiKey==null?"":primaryApiKey.trim();
                 String fallback=fallbackApiKey==null?"":fallbackApiKey.trim();
                 if(primary.length()<20&&fallback.length()<20)throw new Exception("Configure ao menos uma chave da API Gemini em Configurações.");
-                String ttsPrompt=NarrationPlaybackPolicy.charonPrompt(text);
+                String ttsPrompt=PortugueseNarrationSanitizer.sanitize(text==null?"":text).trim();
                 JSONObject body=new JSONObject();JSONObject content=new JSONObject();content.put("role","user");content.put("parts",new JSONArray().put(new JSONObject().put("text",ttsPrompt)));body.put("contents",new JSONArray().put(content));
                 JSONObject prebuilt=new JSONObject().put("voiceName",voice==null||voice.length()==0?"Charon":voice);
                 JSONObject voiceConfig=new JSONObject().put("prebuiltVoiceConfig",prebuilt);
