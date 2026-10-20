@@ -58,7 +58,7 @@ def patch(source: str) -> str:
     # The original next statement used the old response variable, which is
     # now intentionally scoped only to the legacy-adapter branch.
     source = exactly_once(source,
-        '                            if(ad==null)throw new Exception(apiError(response,"O modelo não retornou áudio."));\\n'
+        '                            if(ad==null)throw new Exception(apiError(response,"O modelo não retornou áudio."));\n'
         '                            if(audioLooksPrematurelyTruncated',
         '                            if(audioLooksPrematurelyTruncated',
         "LEGACY_RESPONSE_SCOPE")
@@ -107,7 +107,7 @@ def main():
     board=boards[0].read_text(encoding="utf-8")
     if "Typeface." in board and "import android.graphics.Typeface;" not in board:
         board=exactly_once(board,"import android.graphics.Paint;",
-                           "import android.graphics.Paint;\\nimport android.graphics.Typeface;",
+                           "import android.graphics.Paint;\nimport android.graphics.Typeface;",
                            "MAP_TYPEFACE_IMPORT")
         boards[0].write_text(board,encoding="utf-8")
         print("R36_TYPEFACE_IMPORT_FIXED=PASS")
