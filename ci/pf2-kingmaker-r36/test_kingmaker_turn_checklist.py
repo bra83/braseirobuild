@@ -71,7 +71,23 @@ def test_checklist_javac_compilation(tmp_path):
 
     out_classes = tmp_path / "classes"
     out_classes.mkdir()
-    res = subprocess.run([javac, "-encoding", "UTF-8", "-cp", str(android_jar), "-d", str(out_classes), str(SEMANTIC_FILE)],
+    # Production has KingmakerRepository on the Android application classpath.
+    # Compile the checklist against its exact public read-only contract so the
+    # isolated test keeps checking real Java types instead of hiding an error.
+    repository_stub = tmp_path / "KingmakerRepository.java"
+    repository_stub.write_text("""
+package com.braseiro.pathfinder2e;
+import org.json.JSONObject;
+import java.util.List;
+import java.util.ArrayList;
+public class KingmakerRepository {
+    public JSONObject state(){return new JSONObject();}
+    public JSONObject activeTurn(){return new JSONObject();}
+    public int vacantLeadershipRoles(){return 0;}
+    public List<JSONObject> leaders(){return new ArrayList<JSONObject>();}
+}
+""", encoding="utf-8")
+    res = subprocess.run([javac, "-encoding", "UTF-8", "-cp", str(android_jar), "-d", str(out_classes), str(SEMANTIC_FILE), str(repository_stub)],
                          capture_output=True, text=True)
     assert res.returncode == 0, f"javac failed: {res.stderr}\n{res.stdout}"
 
