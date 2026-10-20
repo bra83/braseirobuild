@@ -218,28 +218,8 @@ def transform_visible_dice(source: str) -> str:
         if source.count(before) != 1:
             raise RuntimeError("Visible physical dice production anchor missing or duplicated: " + before[:78])
         source = source.replace(before, after, 1)
-    # The prior visibility guard adds a launch button. We hide that control
-    # and start the SAME physical ticker when the dialog is displayed.
-    # A roll is necessary, not an extra player decision; it must still be visible.
-    auto_start = (
-        (
-            'final TextView resultView=label(activity,"Aguardando seu toque em LANÇAR DADOS.",20,true);',
-            'final TextView resultView=label(activity,"Dados em movimento…",20,true);',
-        ),
-        (
-            'launch.setText("LANÇAR DADOS 3D");',
-            'launch.setText("LANÇAR DADOS 3D");launch.setVisibility(View.GONE);',
-        ),
-        (
-            'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);',
-            'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);started[0]=true;diceView.postOnAnimation(ticker);',
-        ),
-    )
-    for before, after in auto_start:
-        if source.count(before) != 1:
-            raise RuntimeError("Visible automatic launch source anchor changed: " + before[:78])
-        source = source.replace(before, after, 1)
-
+    # Do not begin a roll when its dialog opens: the player must touch LANÇAR.
+    # A settled face may be reported without a *second* button press.
     for evidence in ("PhysicalDiceEngine.create(physicalFormula,seed)", "if(session.isComplete())",
                      "resultView.setText(resolvedDetail)", "DiceRollSpec.Result resolved=spec.resolve(rolls)",
                      "callback.onResult(new RollResult("):
@@ -250,11 +230,11 @@ def transform_visible_dice(source: str) -> str:
     return source
 
 
-def update_dice_regression_for_automatic_visible_ui(project_dir: Path):
+def update_dice_regression_for_player_initiated_ui(project_dir: Path):
     """Retain the original physics test but assert the *new* visible UX contract.
 
     The old button was intentionally removed in favor of a visible, settled
-    result handoff after the required physical dice automatically begin visibly.
+    result handoff after the player explicitly launches the physical dice.
     """
     test=project_dir/"tests_pf2/test_device_regressions_8_2.py"
     if not test.is_file():
@@ -263,9 +243,9 @@ def update_dice_regression_for_automatic_visible_ui(project_dir: Path):
     old="    for token in ('PhysicalDiceEngine.create','PhysicalDiceEngine.FIXED_DT','new Dice3DView','spec.resolve(rolls)','APLICAR RESULTADO'):"
     new=("    for token in ('PhysicalDiceEngine.create','PhysicalDiceEngine.FIXED_DT',"
          "'new Dice3DView','spec.resolve(rolls)',"
-         "'R36_VISIBLE_AUTOMATIC_PHYSICAL_DICE','launch.setVisibility(View.GONE)',"
+         "'R36_VISIBLE_AUTOMATIC_PHYSICAL_DICE','LANÇAR DADOS 3D',"
          "'if(done[0]||!dialog.isShowing()||!started[0])return;',"
-         "'started[0]=true;diceView.postOnAnimation(ticker);',"
+         "'started[0]=true;',"
          "'diceView.postDelayed(new Runnable()'):")
     if s.count(old)!=1:
         raise RuntimeError(f"R36_DICE_TEST_CONTRACT_DRIFT: expected one anchor, got {s.count(old)}")
@@ -274,7 +254,7 @@ def update_dice_regression_for_automatic_visible_ui(project_dir: Path):
     if s.count(anchor)!=1:
         raise RuntimeError("R36_DICE_TEST_PHYSICS_ASSERTION_MISSING")
     s=s.replace(anchor,
-        "    assert 'started[0]=true;diceView.postOnAnimation(ticker);' in overlay\n    assert 'APLICAR RESULTADO' not in overlay\n"+anchor,
+        "    assert 'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);diceView.postOnAnimation(ticker);' not in overlay\n    assert 'APLICAR RESULTADO' not in overlay\n"+anchor,
         1)
     test.write_text(s,encoding="utf-8")
     print("R36_EXISTING_DICE_PHYSICS_REGRESSION_UPGRADED=PASS")
@@ -286,7 +266,7 @@ def patch_checklist(project_dir: Path):
     if not java_dir.exists():
         raise FileNotFoundError(f"Java source directory missing: {java_dir}")
 
-    # Compose mandatory visible physics; the dice begin without asking permission.
+    # Visible physics remains player-initiated (explicit tap required).
     overlay_path = project_dir / DICE_OVERLAY
     if not overlay_path.is_file():
         raise FileNotFoundError(f"Real R36 Dice3DOverlay missing: {overlay_path}")
@@ -351,10 +331,10 @@ def patch_checklist(project_dir: Path):
     main_file.write_text(content, encoding="utf-8")
     patch_player_initiated_dice(java_dir)
     overlay_path.write_text(transform_visible_dice(overlay_path.read_text(encoding="utf-8")), encoding="utf-8")
-    print("R36_VISIBLE_PHYSICAL_DICE_AUTO_RESULT=true auto_start=true manual_roll_approval=false")
+    print("R36_VISIBLE_PHYSICAL_DICE_AUTO_RESULT=true user_initiated=true")
     patch_no_invisible_kingdom_dice(java_dir)
     patch_visible_construction_dice(java_dir)
-    update_dice_regression_for_automatic_visible_ui(project_dir)
+    update_dice_regression_for_player_initiated_ui(project_dir)
     print(f"R36_KINGMAKER_CHECKLIST_PATCHED={target_checklist}")
 
 if __name__ == "__main__":
