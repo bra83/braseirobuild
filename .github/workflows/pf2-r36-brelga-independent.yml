@@ -333,13 +333,37 @@ jobs:
           $hash=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
           @("HEAD=$env:GITHUB_SHA","APK_SHA256=$hash","REBUILT_SOURCE_R36=YES","RULE_TESTS=PASS","JAVA_COMPILE=PASS","APK_SIGNATURE_VALID=PASS","HISTORIC_SIGNER_INSTALL_OVER=NOT_TESTED","A57_REAL_AUDIO=NOT_TESTED","FINAL_RELEASE=BLOCKED") | Set-Content internal-apk/provenance.txt
           Write-Host "R36_TTS_V3_ASSEMBLE_AND_IDENTITY=PASS SHA256=$hash"
-      - uses: actions/upload-artifact@v4
+      - name: Publish rebuilt R36 signed APK to private draft Release
         if: github.event_name == 'push'
-        with:
-          name: kingmaker-r36-tts-v3-internal-android
-          path: internal-apk/*
-          if-no-files-found: error
-          retention-days: 30
+        shell: powershell
+        timeout-minutes: 18
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo=$env:GITHUB_REPOSITORY
+          $tag='braseiro-kingmaker-r36-tts-v3-'+$env:GITHUB_SHA.Substring(0,12)
+          $apk='internal-apk/pf2-kingmaker-r36-tts-v3-internal.apk'
+          $proof='internal-apk/provenance.txt'
+          if(!(Test-Path $apk) -or !(Test-Path $proof)){throw 'R36_SIGNED_APK_OR_PROVENANCE_MISSING'}
+          if(!$env:GH_TOKEN){throw 'GITHUB_RELEASE_TOKEN_MISSING'}
+          $headers=@{'Authorization'="Bearer $env:GH_TOKEN";'Accept'='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='Braseiro-BRELGA'}
+          $body=@{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name='Kingmaker R36 TTS v3 signed APK (Android physical acceptance pending)';body='BRELGA source/rules/JVM/Gradle APK checks. Not final: historic signer install-over and A57 physical voice acceptance still pending.';draft=$true;prerelease=$false}
+          $release=Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases" -Method Post -Headers $headers -ContentType 'application/json; charset=utf-8' -Body ($body|ConvertTo-Json -Depth 5) -TimeoutSec 90
+          if(!$release.id -or !$release.upload_url){throw 'R36_DRAFT_RELEASE_CREATION_FAILED'}
+          $upload=$release.upload_url.Split('{')[0]
+          foreach($file in @($apk,$proof)){
+            $name=[Uri]::EscapeDataString([IO.Path]::GetFileName($file))
+            $asset=Invoke-RestMethod -Uri ($upload+'?name='+$name) -Method Post -Headers $headers -ContentType 'application/octet-stream' -InFile $file -TimeoutSec 900
+            if(!$asset.id -or $asset.size -ne (Get-Item $file).Length){throw 'R36_RELEASE_ASSET_SIZE_MISMATCH'}
+            Write-Host ("R36_RELEASE_ASSET="+$asset.name+" bytes="+$asset.size)
+          }
+          $assets=Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets" -Method Get -Headers $headers -TimeoutSec 90
+          $names=@($assets|ForEach-Object{$_.name})
+          foreach($file in @($apk,$proof)){
+            if($names -notcontains [IO.Path]::GetFileName($file)){throw 'R36_RELEASE_ASSET_NOT_PRESENT'}
+          }
+          Write-Host ("R36_TTS_V3_SIGNED_APK_IN_DRAFT_RELEASE="+$release.html_url)
       - name: Provision Android Emulator and API 30 AVD on BRELGA
         if: github.event_name == 'workflow_dispatch' && inputs.compile_apk
         shell: powershell
