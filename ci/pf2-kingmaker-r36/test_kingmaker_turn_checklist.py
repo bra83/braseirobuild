@@ -233,15 +233,18 @@ def test_legacy_kingdom_random_shortcuts_are_disabled(tmp_path):
     assert 'new java.util.Random().nextInt(20)' not in updated
 
 
-def test_necessary_physical_roll_autostarts_visibly_without_result_approval(tmp_path):
-    """No permission tap for necessary dice, no hidden RNG or precalculated face."""
+def test_physical_roll_requires_player_launch_but_settled_result_is_delivered(tmp_path):
+    """A player launches the dice; settled physical faces need no second approval tap."""
     patch, target = _apply_physical_dice_patch(tmp_path)
     source = target.read_text(encoding="utf-8")
     result = patch.transform_visible_dice(source)
     assert "R36_VISIBLE_AUTOMATIC_PHYSICAL_DICE" in result
-    assert 'final TextView resultView=label(activity,"Dados em movimento…"' in result
+    assert 'final TextView resultView=label(activity,"Aguardando seu toque em LANÇAR DADOS."' in result
     assert 'launch.setVisibility(View.GONE)' in result
-    assert 'started[0]=true;diceView.postOnAnimation(ticker);' in result
+    assert 'started[0]=true;' in result
+    assert 'lastNs[0]=System.nanoTime();diceView.postOnAnimation(ticker);' in result
+    assert 'if(done[0]||!dialog.isShowing()||!started[0])return;' in result
+    assert 'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);diceView.postOnAnimation(ticker);' not in result
     assert 'final long seed=new java.security.SecureRandom().nextLong();' in result
     assert 'PhysicalDiceEngine.create(physicalFormula,seed)' in result
     assert 'PhysicalDiceEngine.FIXED_DT' in result
