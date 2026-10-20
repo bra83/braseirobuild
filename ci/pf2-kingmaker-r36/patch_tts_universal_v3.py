@@ -55,6 +55,14 @@ def patch(source: str) -> str:
                                 if(ad==null)throw new Exception(apiError(response,"O modelo não retornou áudio."));
                             }'''
     source = exactly_once(source,old,new,"REAL_RUNTIME_CALL")
+    # The original next statement used the old response variable, which is
+    # now intentionally scoped only to the legacy-adapter branch.
+    source = exactly_once(source,
+        '                            if(ad==null)throw new Exception(apiError(response,"O modelo não retornou áudio."));\\n'
+        '                            if(audioLooksPrematurelyTruncated',
+        '                            if(audioLooksPrematurelyTruncated',
+        "LEGACY_RESPONSE_SCOPE")
+
 
     anchor = '            ordered.add("gemini-3.1-flash-tts-preview");'
     if "gemini-3.8-flash-tts" not in source:
@@ -89,6 +97,21 @@ def main():
     if updated==original:
         raise RuntimeError("TTS_V3_BLOCKED_NO_CHANGES")
     matches[0].write_text(updated,encoding="utf-8")
+    board_paths=[
+        project/"android/app/src/main/java/com/braseiro/pathfinder2e/MapBoardView.java",
+        project/"app/src/main/java/com/braseiro/pathfinder2e/MapBoardView.java",
+    ]
+    boards=[p for p in board_paths if p.is_file()]
+    if len(boards)!=1:
+        raise RuntimeError("R36_MAP_VIEW_NOT_FOUND")
+    board=boards[0].read_text(encoding="utf-8")
+    if "Typeface." in board and "import android.graphics.Typeface;" not in board:
+        board=exactly_once(board,"import android.graphics.Paint;",
+                           "import android.graphics.Paint;\\nimport android.graphics.Typeface;",
+                           "MAP_TYPEFACE_IMPORT")
+        boards[0].write_text(board,encoding="utf-8")
+        print("R36_TYPEFACE_IMPORT_FIXED=PASS")
+
     # Update the obsolete source-contract assertion, NOT disable the regression test.
     # The new assertions reject speaking director instructions and require typed metadata.
     contract=project/"tests_pf2/test_r23_narrative_tts_director.py"
