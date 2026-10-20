@@ -74,3 +74,53 @@ def test_checklist_javac_compilation(tmp_path):
     res = subprocess.run([javac, "-encoding", "UTF-8", "-cp", str(android_jar), "-d", str(out_classes), str(SEMANTIC_FILE)],
                          capture_output=True, text=True)
     assert res.returncode == 0, f"javac failed: {res.stderr}\n{res.stdout}"
+
+
+def _apply_physical_dice_patch(tmp_path):
+    """Execute the production patch against the existing inspected Android class."""
+    import importlib.util
+    import shutil
+
+    reference = ROOT / "ci/pf2-r36-source-inspection/android/app/src/main/java/com/braseiro/pathfinder2e/Dice3DOverlay.java"
+    assert reference.is_file(), "Canonical physical-dice test fixture is missing"
+    target = tmp_path / "Dice3DOverlay.java"
+    shutil.copyfile(reference, target)
+    spec = importlib.util.spec_from_file_location("kingmaker_turn_checklist_patch", PATCH_SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.patch_player_initiated_dice(tmp_path)
+    return module, target
+
+
+def test_player_must_explicitly_launch_physical_dice(tmp_path):
+    """Opening a dice request may not initiate a hidden or automatic roll."""
+    patch, target = _apply_physical_dice_patch(tmp_path)
+    content = target.read_text(encoding="utf-8")
+    assert "BRASEIRO_DICE3D_EXPLICIT_USER_LAUNCH_V1" in content
+    assert 'launch.setText("LANÇAR DADOS 3D")' in content
+    assert 'if(done[0]||!dialog.isShowing()||!started[0])return;' in content
+    assert 'started[0]=true;' in content
+    assert 'lastNs[0]=System.nanoTime();diceView.postOnAnimation(ticker);' in content
+    assert "ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);diceView.postOnAnimation(ticker);" not in content
+    assert "public static boolean enabled(SharedPreferences prefs){return true;}" in content
+    assert "PhysicalDiceEngine.create(physicalFormula,seed)" in content
+    assert "session.step()" in content
+    assert "apply.setOnClickListener" in content
+    assert "callback.onResult(new RollResult(" in content
+    previous = content
+    patch.patch_player_initiated_dice(tmp_path)
+    assert target.read_text(encoding="utf-8") == previous
+
+
+def test_physical_dice_patch_rejects_unknown_source_before_writing(tmp_path):
+    patch, target = _apply_physical_dice_patch(tmp_path)
+    original = target.read_text(encoding="utf-8")
+    target.write_text(original.replace(
+        "BRASEIRO_DICE3D_EXPLICIT_USER_LAUNCH_V1", "MISSING_PATCH_MARKER"
+    ).replace(
+        'launch.setText("LANÇAR DADOS 3D")', 'launch.setText("ALTERADO")'
+    ), encoding="utf-8")
+    modified = target.read_text(encoding="utf-8")
+    with pytest.raises(RuntimeError, match="SOURCE_DRIFT"):
+        patch.patch_player_initiated_dice(tmp_path)
+    assert target.read_text(encoding="utf-8") == modified
