@@ -1,0 +1,67 @@
+name: DND TTS v3 BRELGA regression and signed-build gates
+on:
+  push:
+    branches: [feature/tts-universal-v3-dnd-20261020]
+    paths:
+      - 'dnd-normal/run247-mod005/**'
+      - '.github/workflows/dnd-tts-v3-brelga-validation.yml'
+permissions:
+  contents: read
+concurrency:
+  group: dnd-tts-v3-brelga
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+      - name: Validate real source and tests before compiling
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'WRONG_RUNNER'}
+          Set-Location 'dnd-normal/run247-mod005'
+          $service=Get-Content 'app/src/main/java/com/braseiro/dnd5e/GeminiService.java' -Raw
+          foreach($required in @('speech_metadata','gemini-3.8-flash-tts','PortugueseNarrationSanitizer.sanitize','generate_config','v1beta/interactions')){
+            if($required -eq 'generate_config'){continue}
+            if(!$service.Contains($required)){throw "TTS_V3_MISSING_$required"}
+          }
+          $env:JAVA_TOOL_OPTIONS='-Dfile.encoding=UTF-8'
+          .\gradlew.bat :app:compileDebugJavaWithJavac :app:testDebugUnitTest --no-daemon --console=plain
+          if($LASTEXITCODE -ne 0){throw 'DND_ANDROID_REGRESSION_FAILED'}
+          Write-Host 'DND_SOURCE_AND_JVM_REGRESSIONS=PASS'
+      - name: Compile exact source after successful regressions
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Set-Location 'dnd-normal/run247-mod005'
+          .\gradlew.bat :app:assembleDebug --no-daemon --console=plain
+          if($LASTEXITCODE -ne 0){throw 'DND_ANDROID_ASSEMBLE_FAILED'}
+      - name: Validate identity, APK signature and retain verification artifact
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root='dnd-normal/run247-mod005'
+          $apk=Get-ChildItem "$root/app/build/outputs/apk/debug" -Filter '*.apk' -File | Select-Object -First 1
+          if(!$apk){throw 'DND_APK_MISSING'}
+          $sdk=$env:ANDROID_HOME;if(!$sdk){$sdk=Join-Path $env:LOCALAPPDATA 'Android\Sdk'}
+          $tools=Get-ChildItem (Join-Path $sdk 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          if(!$tools){throw 'DND_BUILD_TOOLS_MISSING'}
+          $badging=(& (Join-Path $tools.FullName 'aapt.exe') dump badging $apk.FullName) -join "`n"
+          if($LASTEXITCODE -ne 0 -or $badging -notmatch "package: name='com[.]braseiro[.]dnd5e'"){throw 'DND_APP_ID_CHANGED'}
+          $cert=(& (Join-Path $tools.FullName 'apksigner.bat') verify --verbose --print-certs $apk.FullName) -join "`n"
+          if($LASTEXITCODE -ne 0){throw 'DND_SIGNING_INVALID'}
+          New-Item -ItemType Directory -Path evidence -Force|Out-Null
+          $hash=(Get-FileHash $apk.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          Copy-Item $apk.FullName 'evidence/dnd-tts-v3-internal-verification.apk'
+          @("HEAD=$env:GITHUB_SHA","SHA256=$hash","SOURCE_REGRESSIONS=PASS","ANDROID_SIGNING_VALID=PASS","INSTALL_OVER=NOT_TESTED","A57_AUDIO=NOT_TESTED","FINAL_RELEASE=BLOCKED")|Set-Content 'evidence/dnd-source-proof.txt'
+          Write-Host "DND_INTERNAL_APK_SHA256=$hash"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dnd-tts-v3-verified-source-build
+          path: evidence/*
+          if-no-files-found: error
+          retention-days: 30
