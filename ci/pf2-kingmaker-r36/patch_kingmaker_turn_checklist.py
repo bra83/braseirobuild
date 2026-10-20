@@ -106,6 +106,11 @@ def patch_checklist(project_dir: Path):
         'btnChecklist.setTextColor(Color.BLACK);'
         'btnChecklist.setOnClickListener(new View.OnClickListener(){public void onClick(View v){KingmakerTurnChecklist.showDialog(MainActivity.this);}});'
         'checklistCard.addView(btnChecklist);'
+        'Button advisorBtn=button(KingmakerTurnChecklist.hasUrgentAdvisorTip(kingmakerRepository)?'
+        '"❗ CONSELHEIRO • ALERTA":"ℹ CONSELHEIRO VIVO",PANEL2);'
+        'advisorBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){'
+        'KingmakerTurnChecklist.showAdvisorDialog(MainActivity.this,kingmakerRepository);}});'
+        'checklistCard.addView(advisorBtn);'
         'b.addView(checklistCard);'
     )
 
@@ -121,11 +126,18 @@ def patch_checklist(project_dir: Path):
         '        Button btnChecklistKm=button("📋 CHECKLIST DO TURNO DO REINO",PANEL2);'
         'btnChecklistKm.setOnClickListener(new View.OnClickListener(){public void onClick(View v){KingmakerTurnChecklist.showDialog(MainActivity.this);}});'
         'b.addView(btnChecklistKm);'
+        'Button advisorBtnKm=button(KingmakerTurnChecklist.hasUrgentAdvisorTip(kingmakerRepository)?'
+        '"❗ CONSELHEIRO • ALERTA":"ℹ CONSELHEIRO VIVO",PANEL2);'
+        'advisorBtnKm.setOnClickListener(new View.OnClickListener(){public void onClick(View v){'
+        'KingmakerTurnChecklist.showAdvisorDialog(MainActivity.this,kingmakerRepository);}});'
+        'b.addView(advisorBtnKm);'
     )
 
     if anchor_km in content and 'btnChecklistKm' not in content:
         content = content.replace(anchor_km, replacement_km, 1)
 
+    if 'KingmakerTurnChecklist.showAdvisorDialog(MainActivity.this,kingmakerRepository)' not in content:
+        raise RuntimeError("R36_ADVISOR_BLOCKED: contextual guide was not wired to the active screen")
     main_file.write_text(content, encoding="utf-8")
     patch_player_initiated_dice(java_dir)
     print(f"R36_KINGMAKER_CHECKLIST_PATCHED={target_checklist}")
