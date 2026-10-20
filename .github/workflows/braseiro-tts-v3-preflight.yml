@@ -1,0 +1,26 @@
+name: Braseiro TTS v3 BRELGA preflight
+on:
+  push:
+    branches: [feature/braseiro-tts-universal-v3-preflight-20261020]
+    paths: ['ci/braseiro-tts-v3/PREFLIGHT.md', '.github/workflows/braseiro-tts-v3-preflight.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    steps:
+      - name: Check BRELGA environment without building
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw 'BRELGA_REQUIRED' }
+          Write-Host ('TTS_V3_RUNNER=' + $env:RUNNER_NAME)
+          foreach ($command in @('git','node','java','python')) {
+            $found = Get-Command $command -ErrorAction SilentlyContinue
+            if ($found) { Write-Host ('TTS_V3_TOOL=' + $command + ' ' + $found.Source) }
+            else { Write-Host ('TTS_V3_TOOL_MISSING=' + $command) }
+          }
+          Write-Host 'TTS_V3_PREFLIGHT=PASS'
+          Write-Host 'APK_BUILT=NO; INTEGRATION=NOT_TESTED; A57=NOT_TESTED'
