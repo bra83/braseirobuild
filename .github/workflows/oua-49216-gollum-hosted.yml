@@ -1,0 +1,150 @@
+name: OUA 4.9.216 Gollum e 352 PNGs limpos Android Linux
+on:
+  push:
+    branches: [feature/oua-49216-gollum-clean-tokens]
+    paths:
+      - ".github/workflows/oua-49216-gollum-hosted.yml"
+  workflow_dispatch:
+concurrency:
+  group: oua-49216-gollum-hosted
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            ci/oua-braseiro-tts
+            ci/oua-4.9.214
+            ci/oua-4.9.215
+            ci/oua-4.9.216
+            build-signing
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Obtain canonical OUA 4.9.211 Android Studio project
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/oua-49216/extracted"
+          gh release download OUA-v4.9.211 --repo "$GITHUB_REPOSITORY" --pattern "BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip" --dir "$RUNNER_TEMP/oua-49216" --clobber
+          unzip -q "$RUNNER_TEMP/oua-49216/BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip" -d "$RUNNER_TEMP/oua-49216/extracted"
+          PKG=""
+          while IFS= read -r candidate; do
+            if [ -d "$(dirname "$candidate")/android" ]; then PKG="$candidate"; break; fi
+          done < <(find "$RUNNER_TEMP/oua-49216/extracted" -type f -name package.json -not -path '*/node_modules/*' | sort)
+          test -n "$PKG"
+          echo "OUA_ROOT=$(dirname "$PKG")" >> "$GITHUB_ENV"
+      - name: Restore and verify original 352 tokens
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet gdown Pillow numpy opencv-python-headless
+          mkdir -p "$RUNNER_TEMP/oua-49216/tokens"
+          cd "$RUNNER_TEMP/oua-49216"
+          python - <<'PY'
+          import gdown,hashlib,pathlib,time,zipfile
+          ids=["1CaA39VrMm7zcP1_FHZh3FNeZVU4jBDdd","1DZeV3U_Ni3Z09B-Y5Iuvv3r-806YVSPl","1LZddqdEEjxRvCw4pbnVUvRTXxnljprup","1GEAIZQoYXWxDkyTl46DuSfZwn1NGLFId","1fyEbeLCIGT1MzsOqbZzttRN7gzIgdKsP","19EZbGBtEn2niqthb9GogEUNBD0GcuRsO","16RWNFy5zBno5nIyf_fAMRnzuJzGMga3C","1D549pMgqUNq8AY08Vp_F1ICVit_U2OGT","1ZUYi40gMA0zDef-36B5Rd9_2WUXLSD0W","1rJX_jmzV6e7cUF7BoEk0_1KQzfCH2a5r","1Ba93-5q9kyVrB3XqEl0rSQCg8BHpQHV8","1EtXvCn5rh0WnAvrytfUiCtHAOoe7GNYA"]
+          root=pathlib.Path('tokens');root.mkdir(exist_ok=True)
+          for i,id in enumerate(ids):
+              p=root/('part%02d'%i);expected=9500000 if i<11 else 6060677
+              for attempt in range(3):
+                  try:
+                      if not p.is_file() or p.stat().st_size!=expected:
+                          if not gdown.download(id=id,output=str(p),quiet=True):raise RuntimeError('download failed')
+                      if p.stat().st_size!=expected:raise RuntimeError('invalid part length')
+                      break
+                  except Exception:
+                      if p.exists():p.unlink()
+                      if attempt==2:raise
+                      time.sleep(4*(attempt+1))
+          dst=root/'original352.zip'
+          with dst.open('wb') as out:
+              for i in range(len(ids)):
+                  with (root/('part%02d'%i)).open('rb') as f:
+                      for piece in iter(lambda:f.read(1048576),b''):out.write(piece)
+          assert hashlib.sha256(dst.read_bytes()).hexdigest()=='a30da14b31867e9e5f01dc837046b21ebff0ceb0d16852bfb6e09724a0e19039'
+          with zipfile.ZipFile(dst) as z:
+              assert z.testzip() is None
+              assert len([f for f in z.namelist() if f.endswith('.png')])==352
+          print('OUA_ORIGINAL_352_TOKENS_VERIFIED')
+          PY
+
+      - name: Integrate canonical TTS/Gemini, 460 portraits, Gollum and clean PNGs
+        run: |
+          set -euo pipefail
+          node ci/oua-braseiro-tts/apply.mjs "$OUA_ROOT"
+          node ci/oua-braseiro-tts/patch-ui.mjs "$OUA_ROOT"
+          node ci/oua-braseiro-tts/auto-tags-apply.mjs "$OUA_ROOT"
+          node ci/oua-braseiro-tts/auto-tags-verify.mjs "$OUA_ROOT"
+          node ci/oua-braseiro-tts/turn-continuity-apply.mjs "$OUA_ROOT"
+          node ci/oua-braseiro-tts/turn-continuity-verify.mjs "$OUA_ROOT"
+          node ci/oua-4.9.214/apply-hero-token-catalog.mjs "$OUA_ROOT"
+          node ci/oua-4.9.215/fix-352-visibility.mjs "$OUA_ROOT"
+          python ci/oua-4.9.216/remove_green_fringe.py "$RUNNER_TEMP/oua-49216/tokens/original352.zip" "$RUNNER_TEMP/oua-49216/tokens/cleaned352.zip"
+          python ci/oua-4.9.214/embed-352-tokens.py "$RUNNER_TEMP/oua-49216/tokens/cleaned352.zip" "$OUA_ROOT"
+          node ci/oua-4.9.215/verify-hero-catalog.mjs "$OUA_ROOT"
+          node ci/oua-4.9.216/integrate-gollum.mjs "$OUA_ROOT"
+          node ci/oua-4.9.216/verify-gollum.mjs "$OUA_ROOT"
+      - name: Compile and validate web runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$OUA_ROOT"
+          npm config set registry https://registry.npmjs.org/
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts --no-audit --no-fund || npm install --ignore-scripts --no-audit --no-fund
+          else
+            npm install --ignore-scripts --no-audit --no-fund
+          fi
+          npm install --no-save --ignore-scripts --no-audit --no-fund esbuild @rollup/rollup-linux-x64-gnu @esbuild/linux-x64
+          npm run lint
+          npm run build
+          node scripts/sync-android-assets.mjs
+          node "$GITHUB_WORKSPACE/ci/oua-4.9.216/verify-gollum.mjs" "$OUA_ROOT"
+      - name: Assemble same-signature Android update
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.android"
+          base64 -d "$GITHUB_WORKSPACE/build-signing/braseiro-stable-debug.keystore.b64" > "$HOME/.android/debug.keystore"
+          cd "$OUA_ROOT/android"
+          printf 'sdk.dir=%s\n' "$ANDROID_HOME" > local.properties
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug --no-daemon --stacktrace
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | sort | head -n 1)"
+          test -s "$APK"
+          DEST="$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.216_GOLLUM_352_SEM_VERDE.apk"
+          cp "$APK" "$DEST"
+          TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          "$TOOLS/aapt" dump badging "$DEST" > "$RUNNER_TEMP/APK_BADGING.txt"
+          "$TOOLS/apksigner" verify --verbose --print-certs "$DEST" > "$RUNNER_TEMP/APK_SIGNATURE.txt"
+          grep -q "package: name='com.braseiro.oumanel'" "$RUNNER_TEMP/APK_BADGING.txt"
+          grep -q "versionCode='49216'" "$RUNNER_TEMP/APK_BADGING.txt"
+          grep -q "versionName='4.9.216'" "$RUNNER_TEMP/APK_BADGING.txt"
+          unzip -p "$DEST" assets/assets/index*.js | grep -aq 'Braseiro TTS'
+          sha256sum "$DEST" > "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.216_GOLLUM_352_SEM_VERDE.apk.sha256"
+          python "$GITHUB_WORKSPACE/ci/oua-4.9.214/verify-final-apk.py" "$DEST"
+          echo "OUA_49216_SIGNED_APK_GOLLUM_352_VERIFIED_PASS"
+      - name: Publish APK directly in GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG=OUA-v4.9.216-GOLLUM-CLEAN-TOKENS
+          APK="$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.216_GOLLUM_352_SEM_VERDE.apk"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$APK" --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$TAG" "$APK" --repo "$GITHUB_REPOSITORY" --title 'O Um Anel 4.9.216 - Gollum e tokens limpos' --prerelease --notes 'Gollum contextual, consulta fundamentada nos manuais 2e, TTS por toque, 352 tokens com halo verde corrigido e 120 originais preservados. Assinatura estável do repositório: diferente das antigas 4.9.213 experimentais. Exporte campanha antes de desinstalar. Teste físico Android pendente.'
+          fi
+          echo OUA_49216_RELEASE_PUBLISHED
