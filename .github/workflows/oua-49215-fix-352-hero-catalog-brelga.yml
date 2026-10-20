@@ -1,9 +1,9 @@
 name: OUA 4.9.215 BRELGA - 460 selectable hero portraits
 on:
   push:
-    branches: [feature/oua-49215-hero-token-catalog]
+    branches: [fix/oua-49215-352-visible-in-hero-picker]
     paths:
-      - ".github/workflows/oua-49215-472-tokens-brelga.yml"
+      - ".github/workflows/oua-49215-fix-352-hero-catalog-brelga.yml"
   workflow_dispatch:
 concurrency:
   group: oua-49215-472-tokens-brelga
