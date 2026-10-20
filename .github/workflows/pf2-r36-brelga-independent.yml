@@ -285,6 +285,41 @@ jobs:
           if($code -ne 0){throw "R36 Android Java type verification failed code=$code"}
           Write-Host 'R36_ANDROID_JAVA_TYPECHECK_PASS=true'
           Write-Host 'Java classes checked; APK assembly and publication remain disabled.'
+      - name: Assemble rebuilt Kingmaker Android only after all required R36 gates
+        if: github.event_name == 'push'
+        shell: powershell
+        timeout-minutes: 45
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'BRELGA_REQUIRED'}
+          $project=$env:PF2_R36_PROJECT
+          if(!(Test-Path (Join-Path $project 'gradlew.bat'))){throw 'REBUILT_PROJECT_MISSING'}
+          Push-Location $project
+          try {
+            & .\gradlew.bat :app:assembleDebug --no-daemon --console=plain
+            if($LASTEXITCODE -ne 0){throw 'R36_TTS_V3_ASSEMBLE_FAILED'}
+          } finally {Pop-Location}
+          $apk=Join-Path $project 'android\app\build\outputs\apk\debug\app-debug.apk'
+          if(!(Test-Path $apk)){throw 'R36_REBUILT_APK_NOT_FOUND'}
+          $sdk=$env:ANDROID_HOME
+          $b=Get-ChildItem (Join-Path $sdk 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          if(!$b){throw 'ANDROID_BUILD_TOOLS_MISSING'}
+          $badging=(& (Join-Path $b.FullName 'aapt.exe') dump badging $apk) -join "`n"
+          if($LASTEXITCODE -ne 0 -or $badging -notmatch "package: name='com[.]braseiro[.]pathfinder2e'"){throw 'APK_APPLICATION_ID_MISMATCH'}
+          $cert=(& (Join-Path $b.FullName 'apksigner.bat') verify --print-certs $apk) -join "`n"
+          if($LASTEXITCODE -ne 0){throw 'APK_SIGNATURE_INVALID'}
+          New-Item -ItemType Directory -Path internal-apk -Force|Out-Null
+          Copy-Item $apk internal-apk/pf2-kingmaker-r36-tts-v3-internal.apk
+          $hash=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          @("HEAD=$env:GITHUB_SHA","APK_SHA256=$hash","REBUILT_SOURCE_R36=YES","RULE_TESTS=PASS","JAVA_COMPILE=PASS","APK_SIGNATURE_VALID=PASS","HISTORIC_SIGNER_INSTALL_OVER=NOT_TESTED","A57_REAL_AUDIO=NOT_TESTED","FINAL_RELEASE=BLOCKED") | Set-Content internal-apk/provenance.txt
+          Write-Host "R36_TTS_V3_ASSEMBLE_AND_IDENTITY=PASS SHA256=$hash"
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push'
+        with:
+          name: kingmaker-r36-tts-v3-internal-android
+          path: internal-apk/*
+          if-no-files-found: error
+          retention-days: 30
       - name: Provision Android Emulator and API 30 AVD on BRELGA
         if: github.event_name == 'workflow_dispatch' && inputs.compile_apk
         shell: powershell
