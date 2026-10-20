@@ -1,0 +1,67 @@
+name: Publish verified TTS v3 RC APKs from signed drafts
+on:
+  push:
+    branches: [feature/tts-universal-v3-dnd-20261020]
+    paths: ['.github/workflows/publish-verified-tts-v3-rcs-from-draft.yml']
+permissions:
+  contents: write
+concurrency:
+  group: braseiro-rc-v3-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 45
+    steps:
+      - name: Recover existing APK bytes, hash-verify and publish public-to-repo RC prereleases
+        shell: powershell
+        env:
+          GH_TOKEN: \${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo='bra83/braseirobuild'
+          $base="https://api.github.com/repos/$repo"
+          if(!$env:GH_TOKEN){throw 'NO_TOKEN'}
+          $h=@{Authorization="Bearer $env:GH_TOKEN";Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='Braseiro-BRELGA'}
+          $download=@{Authorization="Bearer $env:GH_TOKEN";Accept='application/octet-stream';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='Braseiro-BRELGA'}
+          $items=@(
+            @{name='DND 5e';rid=418191264;aid=658801485;file='dnd-tts-v3-internal-verification.apk';bytes=[int64]333768804;sha='ecc24f035b53d25ac14913fabe7ece3b5e8cfae4aad55b6602c3e06317ffb2e1';commit='c2b10667094551d66ab071832c305d355365d59f';tag='braseiro-dnd-tts-v3-rc1-c2b106670945'},
+            @{name='Star Wars';rid=418206737;aid=658826045;file='star-wars-tts-v3-internal-verification.apk';bytes=[int64]87489060;sha='a59c1cf8b3934e2a2c52cd49d7581645d3c187d42c1c520d26f901903ed80ac6';commit='81c9ebd98618bbfba6f5fbaaae10f557c8b1e662';tag='braseiro-star-wars-tts-v3-rc1-81c9ebd98618'},
+            @{name='PF2 Kingmaker R36';rid=418477576;aid=659514112;file='pf2-kingmaker-r36-tts-v3-internal.apk';bytes=[int64]200833258;sha='b0839d712890199c27068188f9a503ee79d0849b40a32ffda644a71b10ab8802';commit='55805219472543711b722e39febfd1140ad4bfd6';tag='braseiro-kingmaker-r36-tts-v3-rc1-558052194725'}
+          )
+          $dir=Join-Path $env:RUNNER_TEMP 'braseiro-verified-rcs'
+          New-Item -ItemType Directory -Force -Path $dir|Out-Null
+          foreach($item in $items){
+            $original=Invoke-RestMethod -Uri "$base/releases/$($item.rid)" -Headers $h -TimeoutSec 90
+            if(!$original.draft -or $original.target_commitish -ne $item.commit){throw "SOURCE_DRAFT_MISMATCH_$($item.name)"}
+            $assets=@($original.assets|Where-Object{$_.id -eq $item.aid -and $_.name -eq $item.file -and $_.state -eq 'uploaded'})
+            if($assets.Count -ne 1 -or [int64]$assets[0].size -ne $item.bytes){throw "SOURCE_SIZE_MISMATCH_$($item.name)"}
+            $local=Join-Path $dir $item.file
+            Invoke-WebRequest -Uri "$base/releases/assets/$($item.aid)" -Headers $download -OutFile $local -MaximumRedirection 8 -TimeoutSec 900
+            if((Get-Item $local).Length -ne $item.bytes){throw "DOWNLOADED_ASSET_SIZE_MISMATCH_$($item.name)"}
+            $actual=(Get-FileHash $local -Algorithm SHA256).Hash.ToLowerInvariant()
+            if($actual -ne $item.sha){throw "DOWNLOADED_APK_SHA256_MISMATCH_$($item.name)"}
+            Write-Host "RC_SOURCE_BYTES_VERIFIED name=$($item.name) sha256=$actual"
+            $r=$null
+            try{$r=Invoke-RestMethod -Uri "$base/releases/tags/$($item.tag)" -Headers $h -TimeoutSec 90}
+            catch{if([int]$_.Exception.Response.StatusCode -ne 404){throw}}
+            if(!$r){
+              $notes="Release Candidate: unchanged APK from BRELGA signed build, SHA256=$actual. Automated build/signature/source checks passed. NOT full final homologation: Galaxy A57 physical TTS and install-over-previous-version untested."
+              $body=@{tag_name=$item.tag;target_commitish=$item.commit;name="Braseiro $($item.name) TTS v3 RC1";body=$notes;draft=$false;prerelease=$true}|ConvertTo-Json -Depth 4
+              $r=Invoke-RestMethod -Uri "$base/releases" -Method Post -Headers $h -ContentType 'application/json; charset=utf-8' -Body $body -TimeoutSec 90
+            }
+            if(!$r.id -or $r.draft -or !$r.prerelease){throw "RC_RELEASE_STATUS_WRONG_$($item.name)"}
+            $match=@($r.assets|Where-Object{$_.name -eq $item.file -and $_.state -eq 'uploaded'})
+            if($match.Count -eq 0){
+              $uri=$r.upload_url.Split('{')[0]+'?name='+[Uri]::EscapeDataString($item.file)
+              $new=Invoke-RestMethod -Uri $uri -Method Post -Headers $h -ContentType 'application/octet-stream' -InFile $local -TimeoutSec 900
+              if(!$new.id -or [int64]$new.size -ne $item.bytes){throw "RC_UPLOAD_SIZE_MISMATCH_$($item.name)"}
+            }
+            $final=Invoke-RestMethod -Uri "$base/releases/$($r.id)" -Headers $h -TimeoutSec 90
+            $confirmed=@($final.assets|Where-Object{$_.name -eq $item.file -and [int64]$_.size -eq $item.bytes -and $_.state -eq 'uploaded'})
+            if($final.draft -or !$final.prerelease -or $confirmed.Count -ne 1){throw "RC_FINAL_VERIFICATION_FAILED_$($item.name)"}
+            Write-Host "RC_PUBLISHED_AND_VERIFIED name=$($item.name) url=$($final.html_url)"
+            Write-Host "APK_DOWNLOAD_URL=$($confirmed[0].browser_download_url)"
+            Remove-Item -LiteralPath $local -Force
+          }
+          Write-Host 'BRASEIRO_THREE_RC_APKS_PUBLISHED=PASS'
