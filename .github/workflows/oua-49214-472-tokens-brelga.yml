@@ -156,26 +156,31 @@ jobs:
           Get-FileHash $dest -Algorithm SHA256 | Format-List | Out-File (Join-Path $env:OUA_WORK 'APK_SHA256.txt')
           Write-Host "OUA_49214_SIGNED_WITH_STABLE_KEY_NOT_COMPATIBLE_WITH_49213=$dest"
           Write-Host "OUA_49214_BRELGA_472_TOKENS_APK_PASS=$dest"
-      - name: Publish signed APK as GitHub release, without Actions artifact quota
+      - name: Upload signed OUA 4.9.214 APK to draft GitHub Release and publish
         shell: powershell
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
-          $tag='OUA-v4.9.214-472TOKENS-STABLE'
+          $releaseId=418078556
           $apk=Join-Path $env:OUA_WORK 'BRASEIRO_O_UM_ANEL_4.9.214_472_TOKENS_TTS_GEMINI.apk'
-          if(-not (Test-Path $apk)){throw 'Signed APK missing'}
-          $title='Braseiro O Um Anel 4.9.214 — 472 tokens'
+          if(-not (Test-Path $apk)){throw 'APK missing after successful Gradle build'}
+          $file=Split-Path $apk -Leaf
+          $uploadUrl="https://uploads.github.com/repos/$env:GITHUB_REPOSITORY/releases/$releaseId/assets?name=$file"
+          $reply=Join-Path $env:OUA_WORK 'github-release-upload.json'
+          & curl.exe -fL --retry 3 --retry-delay 5 -sS -X POST -H "Authorization: Bearer $env:GH_TOKEN" -H 'X-GitHub-Api-Version: 2022-11-28' -H 'Accept: application/vnd.github+json' -H 'Content-Type: application/vnd.android.package-archive' --data-binary "@$apk" --output $reply $uploadUrl
+          if($LASTEXITCODE -ne 0){throw 'GitHub Releases asset upload failed'}
+          $asset=(Get-Content $reply -Raw)|ConvertFrom-Json
+          if($asset.state -ne 'uploaded' -or $asset.size -lt 50000000){throw 'Uploaded release APK not confirmed'}
+          Write-Host ('OUA_49214_ASSET_UPLOADED id='+$asset.id+' size='+$asset.size)
+          $url="https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/$releaseId"
+          $headers=@{Authorization=('Bearer '+$env:GH_TOKEN);Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='Braseiro-OUA-49214'}
           $notes=@'
-          Build BRELGA 4.9.214 com 120 tokens originais e 352 novos PNGs transparentes incorporados. Biblioteca classificada, filtro por povo e escolha de imagem do heroi. Preservados os patches do TTS e continuacao do Gemini.
+          APK Braseiro O Um Anel v4.9.214 (BRELGA). Preserva 120 tokens originais e incorpora 352 novos PNGs transparentes, separados por povo e selecionaveis como imagem do heroi. Motor TTS e continuidade Gemini preservados. APK verificado com 472 tokens.
           
-          AVISO DE ASSINATURA: esta build usa a chave estavel do repositorio (SHA-256: 6aa87a24a2eb4762c3f493c9d5fddbf10b60cc8659a90423aed7cde8ae582bd3). O APK experimental 4.9.213 usa a assinatura b08a0f2943a4786e87e8202bcfa78bb7d6eea431861bae1c46333aec19e4df8e. NAO DESINSTALE a versao atual sem antes exportar e verificar o backup das campanhas. Instalacao por cima da 4.9.213 nao e suportada. Homologacao no aparelho pendente.
+          IMPORTANTE: assinado com a chave estavel do repositorio (SHA256 6aa87a24a2eb4762c3f493c9d5fddbf10b60cc8659a90423aed7cde8ae582bd3), diferente da assinatura do APK 4.9.213 (b08a0f2943a4786e87e8202bcfa78bb7d6eea431861bae1c46333aec19e4df8e). NAO desinstale ou limpe os dados da versao atual sem exportar e verificar todas as campanhas. Instalacao sobre a 4.9.213 experimental nao e suportada; testes fisicos pendentes.
           '@
-          & gh release view $tag --repo $env:GITHUB_REPOSITORY 2>$null
-          if($LASTEXITCODE -eq 0){
-            & gh release upload $tag $apk --repo $env:GITHUB_REPOSITORY --clobber
-          } else {
-            & gh release create $tag $apk --repo $env:GITHUB_REPOSITORY --title $title --notes $notes --latest=false
-          }
-          if($LASTEXITCODE -ne 0){throw 'GitHub Release upload failed'}
-          Write-Host 'OUA_49214_FINAL_APK_RELEASE_PASS'
+          $body=@{draft=$false;prerelease=$true;make_latest='false';body=$notes}|ConvertTo-Json
+          $release=Invoke-RestMethod -Method Patch -Uri $url -Headers $headers -Body ([Text.Encoding]::UTF8.GetBytes($body)) -ContentType 'application/json; charset=utf-8'
+          if($release.draft -or $release.id -ne $releaseId){throw 'GitHub Release was not published'}
+          Write-Host ('OUA_49214_GITHUB_RELEASE_PUBLISHED='+$release.html_url)
