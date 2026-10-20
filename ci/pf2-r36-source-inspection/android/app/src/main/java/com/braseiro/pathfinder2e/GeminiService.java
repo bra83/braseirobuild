@@ -522,6 +522,8 @@ public class GeminiService {
             if(default25&&rememberedClean.length()>0)ordered.add(rememberedClean);
             if(configuredClean.length()>0)ordered.add(configuredClean);
             if(!default25&&rememberedClean.length()>0)ordered.add(rememberedClean);
+            ordered.add("gemini-3.8-flash-tts");
+            ordered.add("gemini-3.8-flash-lite-tts");
             ordered.add("gemini-2.5-flash-preview-tts");
             ordered.add("gemini-3.1-flash-tts-preview");
         } else {
