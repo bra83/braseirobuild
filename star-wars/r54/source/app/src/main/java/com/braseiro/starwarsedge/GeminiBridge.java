@@ -50,7 +50,7 @@ final class GeminiBridge {
 
     private static final String DEFAULT_IMAGE_MODEL = "gemini-3.1-flash-image";
     private static final String DEFAULT_MASTER_MODEL = "gemini-3.8-flash";
-    private static final String DEFAULT_TTS_MODEL = "gemini-3.1-flash-tts-preview";
+    private static final String DEFAULT_TTS_MODEL = "gemini-3.8-flash-tts";
     private static final String MODEL_PREFS = "braseiro.starwars.gemini.models.v1";
     private static final String ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
     private static final String KEY_ALIAS = "braseiro.starwars.gemini.api.v1";
@@ -201,12 +201,22 @@ final class GeminiBridge {
             } catch (Exception e) { return fail("Não foi possível salvar os modelos Gemini."); }
         }
 
+        /** The voice style is stored independently of the Master text model. */
+        @JavascriptInterface
+        public String configureTtsVoiceStyle(String rawStyle) {
+            String style=rawStyle==null?"":rawStyle.trim();
+            if(style.length()>240) return fail("O estilo vocal excede 240 caracteres.");
+            modelPreferences.edit().putString("ttsVoiceStyle",style).apply();
+            try{return new JSONObject().put("ok",true).put("style",style).toString();}
+            catch(Exception error){return fail("Falha ao salvar estilo de voz.");}
+        }
+
         @JavascriptInterface
         public String speakTts(String rawText, String rawVoice) {
             String text = String.valueOf(rawText == null ? "" : rawText).trim();
             String voice = normalizeVoice(rawVoice);
             if (text.isEmpty()) return fail("Não há narração visível para ler.");
-            if (text.length() > 12000) text = text.substring(0, 12000);
+            if (text.length() > 12000) return fail("Narração acima do limite de segurança de 12.000 caracteres. Não cortamos falas.");
             if (voice == null) return fail("Voz Gemini inválida.");
             try {
                 String apiKey = readApiKey();
@@ -632,7 +642,7 @@ final class GeminiBridge {
 
     private List<String> splitTtsText(String text,int maxChars) {
         List<String> out=new ArrayList<>(); String remaining=String.valueOf(text==null?"":text).trim(); int max=Math.max(300,maxChars);
-        while(remaining.length()>max){int cut=-1;String[] marks={". ","! ","? ","; ",": ",", ","\n"," "};for(String mark:marks){int at=remaining.lastIndexOf(mark,max);if(at>=Math.max(180,max/2)){cut=at+mark.length();break;}}if(cut<1)cut=max;String chunk=remaining.substring(0,cut).trim();if(!chunk.isEmpty())out.add(chunk);remaining=remaining.substring(cut).trim();}
+        while(remaining.length()>max){int cut=-1;String[] marks={". ","! ","? ","; ",": ",", ","\n"," "};for(String mark:marks){int at=remaining.lastIndexOf(mark,max);if(at>=Math.max(180,max/2)){cut=at+mark.length();break;}}if(cut<1){cut=max;while(cut<remaining.length() && !Character.isWhitespace(remaining.charAt(cut)))cut++;}String chunk=remaining.substring(0,cut).trim();if(!chunk.isEmpty())out.add(chunk);remaining=remaining.substring(cut).trim();}
         if(!remaining.isEmpty())out.add(remaining);return out;
     }
 
@@ -654,7 +664,22 @@ final class GeminiBridge {
 
     private void generateTtsChunk(String text,String voice,File outputFile) throws Exception {
         String apiKey=readApiKey(); if(apiKey==null||apiKey.isBlank())throw new IllegalStateException("Chave Gemini indisponível.");
-        JSONObject body=new JSONObject().put("model",currentTtsModel()).put("input",new JSONArray().put(new JSONObject().put("type","text").put("text",text))).put("response_format",new JSONObject().put("type","audio")).put("generation_config",new JSONObject().put("speech_config",new JSONArray().put(new JSONObject().put("voice",voice))));
+        String model=currentTtsModel();
+        JSONObject inputTurn=new JSONObject().put("type","text").put("text",text);
+        JSONObject input;
+        if(model.startsWith("gemini-3.8-")){
+            JSONObject metadata=new JSONObject().put("type","speech_metadata").put("style",
+                    modelPreferences.getString("ttsVoiceStyle","natural Brazilian Portuguese, measured and restrained"));
+            inputTurn.put("annotations",new JSONArray().put(metadata));
+            input=new JSONObject().put("type","user_input").put("content",new JSONArray().put(inputTurn));
+        }else{
+            input=inputTurn; // Legacy model adapter unchanged.
+        }
+        JSONObject body=new JSONObject().put("model",model)
+                .put("input",new JSONArray().put(input))
+                .put("response_format",new JSONObject().put("type","audio"))
+                .put("generation_config",new JSONObject().put("speech_config",new JSONArray()
+                        .put(new JSONObject().put("voice",voice))));
         HttpURLConnection connection=(HttpURLConnection)new URL(ENDPOINT).openConnection();connection.setConnectTimeout(8000);connection.setReadTimeout(45000);connection.setRequestMethod("POST");connection.setDoOutput(true);connection.setRequestProperty("Content-Type","application/json; charset=utf-8");connection.setRequestProperty("x-goog-api-key",apiKey);
         byte[] request=body.toString().getBytes(StandardCharsets.UTF_8);connection.setFixedLengthStreamingMode(request.length);try(java.io.OutputStream output=connection.getOutputStream()){output.write(request);}int status=connection.getResponseCode();InputStream stream=status>=200&&status<300?connection.getInputStream():connection.getErrorStream();byte[] response=readLimited(stream,24L*1024L*1024L);connection.disconnect();if(status<200||status>=300)throw new IllegalStateException(remoteError(response,status));JSONObject parsed=new JSONObject(new String(response,StandardCharsets.UTF_8));AudioPayload audio=findAudio(parsed);if(audio==null)throw new IllegalStateException("A resposta Gemini TTS não continha áudio.");byte[] decoded=Base64.decode(audio.data,Base64.DEFAULT);if(decoded.length<16||decoded.length>20L*1024L*1024L)throw new IllegalStateException("Áudio Gemini inválido ou excessivo.");byte[] playable=decoded;String mime=audio.mime==null?"":audio.mime.toLowerCase();if(!isWave(decoded)&&(mime.contains("l16")||mime.contains("pcm")||mime.isBlank()))playable=wrapPcm16MonoAsWav(decoded,extractSampleRate(mime));writeBytes(outputFile,playable);
     }
