@@ -172,3 +172,62 @@ def test_guide_does_not_claim_kingdom_tax_rewards_rp_or_invent_dice():
     assert "duas Ruínas distintas" in unrest
     assert "cobra exatamente 1 PR ANTES do teste" in claim
     assert "sem nova cobrança no sucesso" in claim
+
+
+def _loaded_kingmaker_patch():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("kingmaker_turn_checklist_secure_rolls", PATCH_SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_construction_ui_requires_physical_rolls_and_explicit_approval(tmp_path):
+    import shutil
+    source = ROOT / "ci/pf2-r36-source-inspection/android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java"
+    assert source.is_file()
+    target = tmp_path / "MainActivity.java"
+    shutil.copyfile(source, target)
+    _loaded_kingmaker_patch().patch_visible_construction_dice(tmp_path)
+    s = target.read_text(encoding="utf-8")
+    assert "R36_VISIBLE_CONSTRUCTION_DICE_V1" in s
+    assert "Dice3DOverlay.roll(MainActivity.this,prefs,\"1d20\"" in s
+    assert "Dice3DOverlay.roll(MainActivity.this,prefs,\"2d4\"" in s
+    assert 'new AlertDialog.Builder(MainActivity.this)' in s
+    assert '.setPositiveButton("APROVAR"' in s
+    assert "physicalD20.natural,skill,value(notes),commodityChoice" in s
+    assert '"die1",physicalD4.rolls.get(0)' in s
+    assert '"die2",physicalD4.rolls.get(1)' in s
+    assert '"d20 de construção",String.valueOf(new java.util.Random().nextInt(20)+1)' not in s
+    construction=s[s.index("R36_VISIBLE_CONSTRUCTION_DICE_V1"):s.index("R36_VISIBLE_CONSTRUCTION_DICE_V1")+3000]
+    assert "new Random().nextInt(" not in construction
+    assert "callback.onResult" not in construction
+    assert "Construção cancelada: sem rolagem física." in s
+
+
+def test_legacy_kingdom_random_shortcuts_are_disabled(tmp_path):
+    import shutil
+    reference = ROOT / "ci/pf2-r36-source-inspection/android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerRepository.java"
+    assert reference.is_file()
+    target = tmp_path / "KingmakerRepository.java"
+    shutil.copyfile(reference, target)
+    # The semantic patch changes only this legacy builder overload; model its
+    # exact post-semantic body before applying the final production safety gate.
+    old = '''return buildStructure(settlementKey,structureKey,notes,false);
+    }'''
+    new = '''JSONObject choices=new JSONObject().put("die1",new java.util.Random().nextInt(4)+1).put("die2",new java.util.Random().nextInt(4)+1);
+        return resolveBuildStructure(settlementKey,structureKey,new java.util.Random().nextInt(20)+1,skill,notes,"",choices);
+    }'''
+    original = target.read_text(encoding="utf-8")
+    assert original.count(old)==1
+    target.write_text(original.replace(old,new,1),encoding="utf-8")
+    _loaded_kingmaker_patch().patch_no_invisible_kingdom_dice(tmp_path)
+    updated=target.read_text(encoding="utf-8")
+    assert "R36_HIDDEN_DICE_DRIFT" not in updated
+    assert "Acalmar Agitação: informe o d6 e o d4 lançados fisicamente" in updated
+    assert "Reparar Estrutura: é obrigatório lançar" in updated
+    assert "Construir Estrutura: use o procedimento auditado" in updated
+    assert 'p.optInt("critical_success_d6",-1)' in updated
+    assert 'p.optInt("critical_failure_d4",-1)' in updated
+    assert 'dice.nextInt(6)' not in updated
+    assert 'new java.util.Random().nextInt(20)' not in updated
