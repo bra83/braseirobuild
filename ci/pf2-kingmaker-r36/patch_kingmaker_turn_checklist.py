@@ -75,6 +75,121 @@ def patch_player_initiated_dice(java_dir: Path):
     print("R36_DICE3D_USER_LAUNCH_PATCHED=PASS")
 
 
+def patch_no_invisible_kingdom_dice(java_dir: Path):
+    """Reject legacy implicit kingdom RNG; callers must supply visible dice."""
+    path = java_dir / "KingmakerRepository.java"
+    if not path.is_file():
+        raise FileNotFoundError(path)
+    s = path.read_text(encoding="utf-8")
+    changes = [
+        (
+            '''public JSONObject resolveQuellUnrest(int naturalRoll,String skillKey,String notes)throws Exception{
+        java.util.Random dice=new java.util.Random();
+        return resolveQuellUnrest(naturalRoll,skillKey,dice.nextInt(6)+1,dice.nextInt(4)+1,
+            "unrest","","",notes);
+    }''',
+            '''public JSONObject resolveQuellUnrest(int naturalRoll,String skillKey,String notes)throws Exception{
+        throw new IllegalStateException("Acalmar Agitação: informe o d6 e o d4 lançados fisicamente e escolha a consequência antes de confirmar.");
+    }''',
+            "QUELL_UNREST_LEGACY",
+        ),
+        (
+            '''public JSONObject resolveRepairStructure(String settlementKey,String structureKey,String notes)throws Exception{
+        return resolveRepairStructure(settlementKey,structureKey,new java.util.Random().nextInt(20)+1,"engineering",notes);
+    }''',
+            '''public JSONObject resolveRepairStructure(String settlementKey,String structureKey,String notes)throws Exception{
+        throw new IllegalStateException("Reparar Estrutura: é obrigatório lançar e confirmar o d20 físico antes da resolução.");
+    }''',
+            "REPAIR_LEGACY",
+        ),
+        (
+            '''JSONObject choices=new JSONObject().put("die1",new java.util.Random().nextInt(4)+1).put("die2",new java.util.Random().nextInt(4)+1);
+        return resolveBuildStructure(settlementKey,structureKey,new java.util.Random().nextInt(20)+1,skill,notes,"",choices);''',
+            '''throw new IllegalStateException("Construir Estrutura: use o procedimento auditado com d20 e d4 físicos, não o atalho legado.");''',
+            "BUILD_LEGACY",
+        ),
+        (
+            'p.optInt("critical_success_d6",new java.util.Random().nextInt(6)+1)',
+            'p.optInt("critical_success_d6",-1)',
+            "QUELL_DISPATCH_D6",
+        ),
+        (
+            'p.optInt("critical_failure_d4",new java.util.Random().nextInt(4)+1)',
+            'p.optInt("critical_failure_d4",-1)',
+            "QUELL_DISPATCH_D4",
+        ),
+    ]
+    for old, new, label in changes:
+        count=s.count(old)
+        if count!=1:
+            raise RuntimeError(f"R36_HIDDEN_DICE_DRIFT_{label}: expected one anchor, got {count}")
+        s=s.replace(old,new,1)
+    path.write_text(s,encoding="utf-8")
+    print("R36_LEGACY_HIDDEN_KINGDOM_DICE_BLOCKED=PASS")
+
+
+def patch_visible_construction_dice(java_dir: Path):
+    """Construction is committed only after both real 3D rolls AND approval."""
+    path=java_dir/"MainActivity.java"
+    if not path.is_file():
+        raise FileNotFoundError(path)
+    s=path.read_text(encoding="utf-8")
+    old_input='final EditText roll=labeledField(form,"d20 de construção",String.valueOf(new java.util.Random().nextInt(20)+1),false);'
+    new_input='final EditText roll=labeledField(form,"d20 de construção • será lançado em 3D","",false);roll.setEnabled(false);'
+    if s.count(old_input)!=1:
+        raise RuntimeError(f"R36_CONSTRUCTION_HIDDEN_D20_DRIFT: {s.count(old_input)}")
+    s=s.replace(old_input,new_input,1)
+    start_marker="JSONObject result=kingmakerRepository.resolveBuildStructure("
+    end_marker='''                        showKingmaker();
+                        toast("Construção resolvida: "+result.optString("construction_status","resultado registrado")+".");'''
+    if s.count(start_marker)!=1 or s.count(end_marker)!=1:
+        raise RuntimeError("R36_CONSTRUCTION_UI_DRIFT: expected exactly one real construction resolver")
+    a=s.index(start_marker);b=s.index(end_marker,a)+len(end_marker)
+    original=s[a:b]
+    if original.count("new Random().nextInt(4)+1")!=2:
+        raise RuntimeError("R36_CONSTRUCTION_HIDDEN_D4_DRIFT")
+    if original.count("n,skill,value(notes),commodityChoice")!=1:
+        raise RuntimeError("R36_CONSTRUCTION_D20_BINDING_DRIFT")
+    invocation=original.replace("n,skill,value(notes),commodityChoice",
+                                "physicalD20.natural,skill,value(notes),commodityChoice",1)
+    invocation=invocation.replace("new Random().nextInt(4)+1","physicalD4.rolls.get(0)",1)
+    invocation=invocation.replace("new Random().nextInt(4)+1","physicalD4.rolls.get(1)",1)
+    approved=invocation.replace("\n","\n                                    ")
+    replacement='''// R36_VISIBLE_CONSTRUCTION_DICE_V1: no seeded hidden d20/d4.
+                        Dice3DOverlay.roll(MainActivity.this,prefs,"1d20","Normal","Construção do Reino",
+                            new Dice3DOverlay.Callback(){
+                                @Override public void onResult(final Dice3DOverlay.RollResult physicalD20){
+                                    Dice3DOverlay.roll(MainActivity.this,prefs,"2d4","Normal","Consequências da construção",
+                                        new Dice3DOverlay.Callback(){
+                                            @Override public void onResult(final Dice3DOverlay.RollResult physicalD4){
+                                                if(physicalD4.rolls.size()!=2){toast("Os dois d4 não foram concluídos.");return;}
+                                                new AlertDialog.Builder(MainActivity.this)
+                                                    .setTitle("AUDITORIA DA CONSTRUÇÃO")
+                                                    .setMessage("d20: "+physicalD20.natural+"\\n2d4: "+physicalD4.rolls+
+                                                        "\\n\\nAprovar a aplicação das regras e dos custos oficiais ao Reino?")
+                                                    .setNegativeButton("RECUSAR",null)
+                                                    .setPositiveButton("APROVAR",new DialogInterface.OnClickListener(){
+                                                        @Override public void onClick(DialogInterface audit,int button){
+                                                            try{
+                                    '''+approved+'''
+                                                            }catch(Exception ex){toast("Construção oficial: "+ex.getMessage());}
+                                                        }
+                                                    }).show();
+                                            }
+                                            @Override public void onError(String message){toast("Dados de consequência: "+message);}
+                                            @Override public void onCancel(){toast("Construção cancelada: os dados não foram aprovados.");}
+                                        });
+                                }
+                                @Override public void onError(String message){toast("Dado de construção: "+message);}
+                                @Override public void onCancel(){toast("Construção cancelada: sem rolagem física.");}
+                            });'''
+    s=s[:a]+replacement+s[b:]
+    if "R36_VISIBLE_CONSTRUCTION_DICE_V1" not in s:
+        raise RuntimeError("R36_VISIBLE_CONSTRUCTION_MARKER_MISSING")
+    path.write_text(s,encoding="utf-8")
+    print("R36_CONSTRUCTION_DICE_PHYSICAL_AND_AUDITED=PASS")
+
+
 def patch_checklist(project_dir: Path):
     project_dir = Path(project_dir).resolve()
     java_dir = project_dir / "android/app/src/main/java/com/braseiro/pathfinder2e"
@@ -140,6 +255,8 @@ def patch_checklist(project_dir: Path):
         raise RuntimeError("R36_ADVISOR_BLOCKED: contextual guide was not wired to the active screen")
     main_file.write_text(content, encoding="utf-8")
     patch_player_initiated_dice(java_dir)
+    patch_no_invisible_kingdom_dice(java_dir)
+    patch_visible_construction_dice(java_dir)
     print(f"R36_KINGMAKER_CHECKLIST_PATCHED={target_checklist}")
 
 if __name__ == "__main__":
