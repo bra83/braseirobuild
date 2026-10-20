@@ -140,3 +140,35 @@ def test_physical_dice_patch_rejects_unknown_source_before_writing(tmp_path):
     with pytest.raises(RuntimeError, match="SOURCE_DRIFT"):
         patch.patch_player_initiated_dice(tmp_path)
     assert target.read_text(encoding="utf-8") == modified
+
+
+def test_advisor_uses_only_kingdom_state_without_secret_or_random_rolls():
+    source = SEMANTIC_FILE.read_text(encoding="utf-8")
+    start = source.index("public static List<AdvisorTip> advisorTips(")
+    end = source.index("public static boolean hasUrgentAdvisorTip(", start)
+    advisor = source[start:end]
+    for contract in ("repository.state()", "repository.vacantLeadershipRoles()",
+                     "repository.leaders()", "repository.activeTurn()"):
+        assert contract in advisor
+    assert 'leader.optInt("vacant",0)' in advisor
+    assert "honestidade secreta de um NPC" in advisor
+    assert "new Random(" not in advisor
+    assert "new java.util.Random(" not in advisor
+    assert "db.getWritableDatabase()" not in advisor
+    patch = PATCH_SCRIPT.read_text(encoding="utf-8")
+    assert patch.count("KingmakerTurnChecklist.showAdvisorDialog(MainActivity.this,kingmakerRepository)") >= 2
+    assert "hasUrgentAdvisorTip(kingmakerRepository)" in patch
+
+
+def test_guide_does_not_claim_kingdom_tax_rewards_rp_or_invent_dice():
+    src = SEMANTIC_FILE.read_text(encoding="utf-8")
+    taxes = src[src.index('add("collect_taxes"'):src.index('add("improve_lifestyle"')]
+    unrest = src[src.index('add("quell_unrest"'):src.index('add("recruit_army"')]
+    claim = src[src.index('add("claim_hex"'):src.index('add("clear_hex"')]
+    assert "Não gera PR." in taxes
+    assert "Sucesso crítico: +2" in taxes
+    assert "Sucesso ou falha: +1" in taxes
+    assert "reduz Agitação em 1d6" in unrest
+    assert "duas Ruínas distintas" in unrest
+    assert "cobra exatamente 1 PR ANTES do teste" in claim
+    assert "sem nova cobrança no sucesso" in claim
