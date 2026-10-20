@@ -8,72 +8,30 @@ from pathlib import Path
 import shutil
 import sys
 
-def patch_player_initiated_dice(java_dir: Path):
-    """Require a deliberate touch before the existing face-up 3D physics starts.
+def patch_visible_auto_launch_dice(java_dir: Path):
+    """Start every required 3D roll visibly when the dice window opens.
 
-    This reuses PhysicalDiceEngine and Dice3DOverlay; no alternative random
-    resolver or fabricated face is introduced. Fail closed on source drift.
+    No launch/approval touch for mandatory random procedures. Physics decides
+    the top face; approval of gameplay decisions stays separate.
     """
     overlay = java_dir / "Dice3DOverlay.java"
     if not overlay.is_file():
-        raise FileNotFoundError(f"Physical dice overlay missing: {overlay}")
+        raise FileNotFoundError("Physical dice overlay missing: " + str(overlay))
     code = overlay.read_text(encoding="utf-8")
-    if "BRASEIRO_DICE3D_EXPLICIT_USER_LAUNCH_V1" in code:
+    marker = "BRASEIRO_DICE3D_AUTO_VISIBLE_LAUNCH_V2"
+    if marker in code:
         return
-    replacements = [
-        (
-            'public static boolean enabled(SharedPreferences prefs){return prefs.getBoolean("dice3d_enabled_v1",true);}',
-            'public static boolean enabled(SharedPreferences prefs){return true;}',
-            "REQUIRE_PHYSICAL_DICE",
-        ),
-        (
-            'final TextView resultView=label(activity,"Dados em movimento…",20,true);',
-            'final TextView resultView=label(activity,"Aguardando seu toque em LANÇAR DADOS.",20,true);',
-            "VISIBLE_ROLL_REQUEST",
-        ),
-        (
-            'final Button apply=new Button(activity);',
-            '// BRASEIRO_DICE3D_EXPLICIT_USER_LAUNCH_V1\n'
-            '        final Button launch=new Button(activity);'
-            'launch.setText("LANÇAR DADOS 3D");'
-            'launch.setContentDescription("Iniciar lançamento físico 3D, iniciado pelo jogador");'
-            'bottom.addView(launch,new LinearLayout.LayoutParams(-1,dp(activity,50)));\n'
-            '        final Button apply=new Button(activity);',
-            "LAUNCH_BUTTON",
-        ),
-        (
-            'final boolean[] done={false};final long[] lastNs={System.nanoTime()};',
-            'final boolean[] started={false};final boolean[] done={false};final long[] lastNs={System.nanoTime()};',
-            "INITIATION_STATE",
-        ),
-        (
-            'if(done[0]||!dialog.isShowing())return;long now=System.nanoTime();',
-            'if(done[0]||!dialog.isShowing()||!started[0])return;long now=System.nanoTime();',
-            "TICKER_FAIL_CLOSED",
-        ),
-        (
-            'cancel.setOnClickListener(new View.OnClickListener()',
-            'launch.setOnClickListener(new View.OnClickListener(){public void onClick(View v){'
-            'if(started[0]||done[0])return;started[0]=true;'
-            'launch.setVisibility(View.GONE);resultView.setText("Dados em movimento…");'
-            'lastNs[0]=System.nanoTime();diceView.postOnAnimation(ticker);}});\n'
-            '        cancel.setOnClickListener(new View.OnClickListener()',
-            "REQUIRE_EXPLICIT_TAP",
-        ),
-        (
-            'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);diceView.postOnAnimation(ticker);',
-            'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);',
-            "NO_ROLL_ON_DIALOG_SHOW",
-        ),
-    ]
-    for original, replacement, label in replacements:
-        count = code.count(original)
+    before = 'public static boolean enabled(SharedPreferences prefs){return prefs.getBoolean("dice3d_enabled_v1",true);}'
+    show_hook = 'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);diceView.postOnAnimation(ticker);'
+    for label, fragment in (("ENABLE_PHYSICS", before), ("VISIBLE_ON_SHOW", show_hook),
+                            ("PHYSICAL_SESSION", "PhysicalDiceEngine.create(physicalFormula,seed)"),
+                            ("SETTLED_FACE", "if(session.isComplete())")):
+        count = code.count(fragment)
         if count != 1:
-            raise RuntimeError(f"R36_DICE3D_SOURCE_DRIFT_{label}: expected one anchor, got {count}")
-        code = code.replace(original, replacement, 1)
-    overlay.write_text(code, encoding="utf-8")
-    print("R36_DICE3D_USER_LAUNCH_PATCHED=PASS")
-
+            raise RuntimeError("R36_DICE3D_SOURCE_DRIFT_" + label + ": expected one anchor, got " + str(count))
+    after = "// BRASEIRO_DICE3D_AUTO_VISIBLE_LAUNCH_V2: visible on show, never silent.\n    public static boolean enabled(SharedPreferences prefs){return true;}"
+    overlay.write_text(code.replace(before, after, 1), encoding="utf-8")
+    print("R36_DICE3D_AUTO_VISIBLE_ON_SHOW=PASS")
 
 def patch_no_invisible_kingdom_dice(java_dir: Path):
     """Reject legacy implicit kingdom RNG; callers must supply visible dice."""
@@ -218,8 +176,7 @@ def transform_visible_dice(source: str) -> str:
         if source.count(before) != 1:
             raise RuntimeError("Visible physical dice production anchor missing or duplicated: " + before[:78])
         source = source.replace(before, after, 1)
-    # Do not begin a roll when its dialog opens: the player must touch LANÇAR.
-    # A settled face may be reported without a *second* button press.
+    # Start physics on the visible dialog and deliver its settled face without a tap.
     for evidence in ("PhysicalDiceEngine.create(physicalFormula,seed)", "if(session.isComplete())",
                      "resultView.setText(resolvedDetail)", "DiceRollSpec.Result resolved=spec.resolve(rolls)",
                      "callback.onResult(new RollResult("):
@@ -230,12 +187,8 @@ def transform_visible_dice(source: str) -> str:
     return source
 
 
-def update_dice_regression_for_player_initiated_ui(project_dir: Path):
-    """Retain the original physics test but assert the *new* visible UX contract.
-
-    The old button was intentionally removed in favor of a visible, settled
-    result handoff after the player explicitly launches the physical dice.
-    """
+def update_dice_regression_for_automatic_ui(project_dir: Path):
+    """Keep production physics tests aligned with automatic visible rolls."""
     test=project_dir/"tests_pf2/test_device_regressions_8_2.py"
     if not test.is_file():
         raise RuntimeError("R36_DICE_EXISTING_PRODUCTION_TEST_MISSING")
@@ -243,22 +196,21 @@ def update_dice_regression_for_player_initiated_ui(project_dir: Path):
     old="    for token in ('PhysicalDiceEngine.create','PhysicalDiceEngine.FIXED_DT','new Dice3DView','spec.resolve(rolls)','APLICAR RESULTADO'):"
     new=("    for token in ('PhysicalDiceEngine.create','PhysicalDiceEngine.FIXED_DT',"
          "'new Dice3DView','spec.resolve(rolls)',"
-         "'R36_VISIBLE_AUTOMATIC_PHYSICAL_DICE','LANÇAR DADOS 3D',"
-         "'if(done[0]||!dialog.isShowing()||!started[0])return;',"
-         "'started[0]=true;',"
+         "'R36_VISIBLE_AUTOMATIC_PHYSICAL_DICE',"
+         "'BRASEIRO_DICE3D_AUTO_VISIBLE_LAUNCH_V2',"
          "'diceView.postDelayed(new Runnable()'):")
     if s.count(old)!=1:
-        raise RuntimeError(f"R36_DICE_TEST_CONTRACT_DRIFT: expected one anchor, got {s.count(old)}")
+        raise RuntimeError("R36_DICE_TEST_CONTRACT_DRIFT: expected one anchor, got " + str(s.count(old)))
     s=s.replace(old,new,1)
     anchor="    assert 'FIXED_DT=1.0/120.0' in physics"
     if s.count(anchor)!=1:
         raise RuntimeError("R36_DICE_TEST_PHYSICS_ASSERTION_MISSING")
     s=s.replace(anchor,
-        "    assert 'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);diceView.postOnAnimation(ticker);' not in overlay\n    assert 'APLICAR RESULTADO' not in overlay\n"+anchor,
-        1)
+        "    assert 'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);diceView.postOnAnimation(ticker);' in overlay\n"
+        "    assert 'LANÇAR DADOS 3D' not in overlay\n"
+        "    assert 'APLICAR RESULTADO' not in overlay\n"+anchor,1)
     test.write_text(s,encoding="utf-8")
-    print("R36_EXISTING_DICE_PHYSICS_REGRESSION_UPGRADED=PASS")
-
+    print("R36_EXISTING_DICE_AUTO_VISIBLE_REGRESSION_UPGRADED=PASS")
 
 def patch_checklist(project_dir: Path):
     project_dir = Path(project_dir).resolve()
@@ -266,7 +218,7 @@ def patch_checklist(project_dir: Path):
     if not java_dir.exists():
         raise FileNotFoundError(f"Java source directory missing: {java_dir}")
 
-    # Visible physics remains player-initiated (explicit tap required).
+    # Mandatory physical dice start automatically in full-screen view; decisions remain audited.
     overlay_path = project_dir / DICE_OVERLAY
     if not overlay_path.is_file():
         raise FileNotFoundError(f"Real R36 Dice3DOverlay missing: {overlay_path}")
@@ -329,12 +281,12 @@ def patch_checklist(project_dir: Path):
     if 'KingmakerTurnChecklist.showAdvisorDialog(MainActivity.this,kingmakerRepository)' not in content:
         raise RuntimeError("R36_ADVISOR_BLOCKED: contextual guide was not wired to the active screen")
     main_file.write_text(content, encoding="utf-8")
-    patch_player_initiated_dice(java_dir)
+    patch_visible_auto_launch_dice(java_dir)
     overlay_path.write_text(transform_visible_dice(overlay_path.read_text(encoding="utf-8")), encoding="utf-8")
-    print("R36_VISIBLE_PHYSICAL_DICE_AUTO_RESULT=true user_initiated=true")
+    print("R36_VISIBLE_PHYSICAL_DICE_AUTO_RESULT=true roll_auto_start=true")
     patch_no_invisible_kingdom_dice(java_dir)
     patch_visible_construction_dice(java_dir)
-    update_dice_regression_for_player_initiated_ui(project_dir)
+    update_dice_regression_for_automatic_ui(project_dir)
     print(f"R36_KINGMAKER_CHECKLIST_PATCHED={target_checklist}")
 
 if __name__ == "__main__":
