@@ -94,9 +94,26 @@ jobs:
           Copy-Item $apk 'evidence/star-wars-tts-v3-internal-verification.apk'
           @("HEAD=$env:GITHUB_SHA","APK_SHA256=$hash","ANDROID_JVM=PASS","APP_ID=PASS","SIGNED=PASS","INSTALL_OVER=NOT_TESTED","A57_AUDIO=NOT_TESTED","FINAL_RELEASE=BLOCKED") | Set-Content evidence/provenance.txt
           Write-Host "SW_INTERNAL_BUILD_SHA256=$hash"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: star-wars-tts-v3-source-verification
-          path: evidence/*
-          if-no-files-found: error
-          retention-days: 30
+      - name: Publish signed APK via private GitHub Release (not Actions artifact storage)
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if(!(Get-Command gh -ErrorAction SilentlyContinue)){throw 'GITHUB_CLI_MISSING_ON_BRELGA'}
+          $apk='evidence/star-wars-tts-v3-internal-verification.apk'
+          $proof='evidence/provenance.txt'
+          if(!(Test-Path $apk) -or !(Test-Path $proof)){throw 'SIGNED_APK_EVIDENCE_MISSING'}
+          $tag='braseiro-star-wars-tts-v3-'+$env:GITHUB_SHA.Substring(0,12)
+          $repo=$env:GITHUB_REPOSITORY
+          $notes='Signed Android APK built on BRELGA. Source regression and signature checks passed. NOT a final certified release: A57 real audio and install-over-existing validation pending. Source commit: '+$env:GITHUB_SHA
+          & gh release view $tag --repo $repo --json tagName 2>$null | Out-Null
+          if($LASTEXITCODE -ne 0){
+            & gh release create $tag --repo $repo --target $env:GITHUB_SHA --draft --title 'Star Wars · TTS v3 · APK compilado (aguardando homologação)' --notes $notes
+            if($LASTEXITCODE -ne 0){throw 'PRIVATE_RELEASE_CREATION_FAILED'}
+          }
+          & gh release upload $tag $apk $proof --repo $repo --clobber
+          if($LASTEXITCODE -ne 0){throw 'PRIVATE_RELEASE_ASSET_UPLOAD_FAILED'}
+          & gh release view $tag --repo $repo --json url,assets,tagName
+          if($LASTEXITCODE -ne 0){throw 'PRIVATE_RELEASE_LINK_VERIFICATION_FAILED'}
+          Write-Host "SIGNED_APK_DELIVERY_VIA_GITHUB_RELEASE=PASS tag=$tag"
