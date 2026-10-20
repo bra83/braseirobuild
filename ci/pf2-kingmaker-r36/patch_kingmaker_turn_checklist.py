@@ -212,6 +212,62 @@ def update_dice_regression_for_automatic_ui(project_dir: Path):
     test.write_text(s,encoding="utf-8")
     print("R36_EXISTING_DICE_AUTO_VISIBLE_REGRESSION_UPGRADED=PASS")
 
+
+def patch_visible_physical_dice(java_dir: Path):
+    """Use the existing physical engine, but never demand an extra permission
+    or let a settled mechanical roll be discarded and rerolled.
+    The final face is resolved by PhysicalDiceEngine, not a hidden PRNG.
+    Fail closed if the canonical production overlay changed.
+    """
+    overlay = java_dir / "Dice3DOverlay.java"
+    if not overlay.is_file():
+        raise FileNotFoundError(f"Physical dice overlay missing: {overlay}")
+    source = overlay.read_text(encoding="utf-8")
+    marker = "BRASEIRO_DICE_VISIBLE_AUTO_COMMIT_V1"
+    if marker in source:
+        return
+
+    def replace_once(old: str, new: str, label: str):
+        nonlocal source
+        count = source.count(old)
+        if count != 1:
+            raise ValueError(f"VISIBLE_DICE_{label}_ANCHOR_COUNT={count}")
+        source = source.replace(old, new, 1)
+
+    replace_once(
+        'public static boolean enabled(SharedPreferences prefs){return prefs.getBoolean("dice3d_enabled_v1",true);}',
+        'public static boolean enabled(SharedPreferences prefs){return true;} // '+marker,
+        "ENABLED")
+    replace_once(
+        'final Button apply=new Button(activity);apply.setText("APLICAR RESULTADO");apply.setVisibility(View.GONE);bottom.addView(apply,new LinearLayout.LayoutParams(-1,dp(activity,50)));',
+        '// Physical resolution is automatic; no permission or APPLY button.',
+        "APPROVAL_BUTTON")
+    replace_once(
+        'final Button cancel=new Button(activity);cancel.setText("CANCELAR ROLAGEM");bottom.addView(cancel,new LinearLayout.LayoutParams(-1,dp(activity,50)));',
+        '// Do not let the player discard a mandatory die in flight or after it settles.',
+        "DISCARD_BUTTON")
+    old_commit = (
+        'apply.setVisibility(View.VISIBLE);cancel.setText("DESCARTAR");'
+        'apply.setOnClickListener(new View.OnClickListener(){public void onClick(View v){'
+        'dialog.dismiss();callback.onResult(new RollResult(rolls,physicalFaces,'
+        'resolved.total,resolved.natural,resolvedDetail,resolved.critical,spec.formula,spec.mode));}});'
+    )
+    new_commit = (
+        'diceView.postDelayed(new Runnable(){public void run(){'
+        'if(!dialog.isShowing())return;dialog.dismiss();'
+        'callback.onResult(new RollResult(rolls,physicalFaces,resolved.total,'
+        'resolved.natural,resolvedDetail,resolved.critical,spec.formula,spec.mode));'
+        '}},900);'
+    )
+    replace_once(old_commit, new_commit, "PHYSICS_SETTLED_AUTOCOMMIT")
+    replace_once(
+        'cancel.setOnClickListener(new View.OnClickListener(){public void onClick(View v){done[0]=true;dialog.dismiss();callback.onCancel();}});',
+        '// No reroll/discard controls for a required physical roll.',
+        "DISCARD_CALLBACK")
+    overlay.write_text(source, encoding="utf-8")
+    print("R36_VISIBLE_PHYSICAL_DICE_AUTO_COMMIT=PASS")
+
+
 def patch_checklist(project_dir: Path):
     project_dir = Path(project_dir).resolve()
     java_dir = project_dir / "android/app/src/main/java/com/braseiro/pathfinder2e"
@@ -281,6 +337,7 @@ def patch_checklist(project_dir: Path):
     if 'KingmakerTurnChecklist.showAdvisorDialog(MainActivity.this,kingmakerRepository)' not in content:
         raise RuntimeError("R36_ADVISOR_BLOCKED: contextual guide was not wired to the active screen")
     main_file.write_text(content, encoding="utf-8")
+    patch_visible_physical_dice(java_dir)
     patch_visible_auto_launch_dice(java_dir)
     overlay_path.write_text(transform_visible_dice(overlay_path.read_text(encoding="utf-8")), encoding="utf-8")
     print("R36_VISIBLE_PHYSICAL_DICE_AUTO_RESULT=true roll_auto_start=true")
