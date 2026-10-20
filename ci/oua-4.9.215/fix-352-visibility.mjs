@@ -21,8 +21,8 @@ lib=swap(lib,"cache:'force-cache'","cache:'no-store'",'catalog fetch cache');
 wr('lib/partyTokenLibrary.ts',lib);
 let ui=rd('components/TokenPicker.tsx');
 ui=swap(ui,
-  '{partyManifest && <h3',
-  '{partyManifest?.tokens.length === 120 && <p role="alert" className="my-2 text-sm text-red-300">Pacote adicional de 352 tokens indisponível. A biblioteca deve conter 472 tokens. Verifique a instalação do aplicativo.</p>}\n        {partyManifest && <h3',
+  '{builtIns.length > 0 && <>',
+  '{partyManifest?.tokens.length === 120 && <p role="alert" className="my-2 text-sm text-red-300">Pacote adicional de 352 tokens indisponível. A biblioteca deve conter 472 tokens. Verifique a instalação do aplicativo.</p>}\n        {builtIns.length > 0 && <>',
   'catalog missing warning');
 wr('components/TokenPicker.tsx',ui);
 wr('lib/version.ts',rd('lib/version.ts').replace(/APP_VERSION\s*=\s*'[^']+'/, "APP_VERSION = '4.9.215'").replace(/APP_VERSION_CODE\s*=\s*\d+/, 'APP_VERSION_CODE = 49215'));
