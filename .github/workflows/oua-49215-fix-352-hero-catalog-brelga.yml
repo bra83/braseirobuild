@@ -162,7 +162,7 @@ jobs:
       - name: Publish signed 4.9.215 APK using GitHub Release API
         shell: powershell
         env:
-          GH_TOKEN: \${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
           $apk=Join-Path $env:OUA_WORK 'BRASEIRO_O_UM_ANEL_4.9.215_472_TOKENS_TTS_GEMINI.apk'
