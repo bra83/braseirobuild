@@ -1,0 +1,31 @@
+name: OUA 4.9.215 release permissions preflight
+on:
+  push:
+    branches: [fix/oua-49215-352-visible-in-hero-picker]
+    paths:
+      - ".github/workflows/oua-49215-release-preflight.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  create-draft:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    steps:
+      - name: Create or locate draft release for signed 4.9.215
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $api='https://api.github.com/repos/'+$env:GITHUB_REPOSITORY+'/releases'
+          $headers=@{Authorization=('Bearer '+$env:GH_TOKEN);Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='Braseiro-OUA-49215'}
+          $tag='OUA-v4.9.215-460PORTRAITS-STABLE'
+          $existing=$null
+          try{$existing=Invoke-RestMethod -Method Get -Uri ($api+'/tags/'+$tag) -Headers $headers}catch{}
+          if(-not $existing){
+            $body=@{tag_name=$tag;target_commitish='fix/oua-49215-352-visible-in-hero-picker';name='O Um Anel 4.9.215 - 472 tokens';draft=$true;prerelease=$true;make_latest='false';body='APK preparado no BRELGA. Assinatura estavel do repo diferente da build experimental 4.9.213. Nao desinstale sem exportar dados.'}|ConvertTo-Json
+            $existing=Invoke-RestMethod -Method Post -Uri $api -Headers $headers -Body ([Text.Encoding]::UTF8.GetBytes($body)) -ContentType 'application/json; charset=utf-8'
+          }
+          if(-not $existing.id){throw 'GitHub release draft creation failed'}
+          Write-Host ('OUA_49215_DRAFT_RELEASE_READY id='+$existing.id+' draft='+$existing.draft)
