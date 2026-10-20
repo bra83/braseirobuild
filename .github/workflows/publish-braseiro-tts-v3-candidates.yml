@@ -1,0 +1,67 @@
+name: Publish already-verified Braseiro TTS v3 RC APKs
+on:
+  push:
+    branches: [feature/tts-universal-v3-dnd-20261020]
+    paths:
+      - .github/workflows/publish-braseiro-tts-v3-candidates.yml
+permissions:
+  contents: write
+concurrency:
+  group: braseiro-tts-v3-publish-verified-rc
+  cancel-in-progress: false
+jobs:
+  publish-existing-rcs:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    steps:
+      - name: Promote existing verified draft assets to named RC releases (no rebuild)
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if(!$env:GH_TOKEN){throw 'GITHUB_TOKEN_UNAVAILABLE'}
+          $repo='bra83/braseirobuild'
+          $headers=@{'Authorization'="Bearer $env:GH_TOKEN";'Accept'='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='Braseiro-RC-Publisher'}
+          $releases=@(
+            @{
+              id=418191264
+              tag='braseiro-dnd-tts-v3-c2b106670945'
+              apk='dnd-tts-v3-internal-verification.apk'
+              size=333768804
+              sha='c2b10667094551d66ab071832c305d355365d59f'
+              name='Braseiro D&D 5e - TTS v3 - Release Candidate'
+            },
+            @{
+              id=418206737
+              tag='braseiro-star-wars-tts-v3-81c9ebd98618'
+              apk='star-wars-tts-v3-internal-verification.apk'
+              size=87489060
+              sha='81c9ebd98618bbfba6f5fbaaae10f557c8b1e662'
+              name='Braseiro Star Wars - TTS v3 - Release Candidate'
+            }
+          )
+          foreach($spec in $releases){
+            $url="https://api.github.com/repos/$repo/releases/$($spec.id)"
+            $existing=Invoke-RestMethod -Uri $url -Headers $headers -TimeoutSec 30
+            if($existing.tag_name -ne $spec.tag){throw "UNEXPECTED_RELEASE_TAG_$($spec.id)"}
+            if($existing.target_commitish -ne $spec.sha){throw "UNEXPECTED_RELEASE_SOURCE_$($spec.id)"}
+            $apk=@($existing.assets | Where-Object {$_.name -eq $spec.apk})
+            if($apk.Count -ne 1 -or [int64]$apk[0].size -ne [int64]$spec.size -or $apk[0].state -ne 'uploaded'){
+              throw "SIGNED_APK_ASSET_MISSING_OR_WRONG_SIZE_$($spec.id)"
+            }
+            if(!$existing.draft -and $existing.prerelease){
+              Write-Host "RC_ALREADY_PUBLISHED tag=$($spec.tag) asset=$($spec.apk)"
+              continue
+            }
+            if(!$existing.draft){throw "RELEASE_ALREADY_PUBLIC_WITH_UNEXPECTED_STATUS_$($spec.id)"}
+            $notes='Release Candidate APK compiled, Android app identity/signature verified and uploaded by BRELGA. This is NOT the final certified release. Install-over-previous-signature, Galaxy A57 physical playback, Gemini quota and multi-speaker quality have not been verified. No automatic update of stable installations.'
+            $body=@{name=$spec.name;draft=$false;prerelease=$true;body=$notes}|ConvertTo-Json -Depth 4
+            $updated=Invoke-RestMethod -Uri $url -Method Patch -Headers $headers -ContentType 'application/json; charset=utf-8' -Body $body -TimeoutSec 60
+            if($updated.draft -or !$updated.prerelease -or $updated.tag_name -ne $spec.tag){throw "RELEASE_PROMOTION_NOT_CONFIRMED_$($spec.id)"}
+            Write-Host "RC_PUBLISHED_PASS tag=$($spec.tag) url=$($updated.html_url)"
+            $assets=Invoke-RestMethod -Uri "$url/assets" -Headers $headers -TimeoutSec 30
+            $found=@($assets|Where-Object {$_.name -eq $spec.apk -and $_.state -eq 'uploaded'})
+            if($found.Count -ne 1){throw "PROMOTED_RC_ASSET_NOT_VERIFIED_$($spec.id)"}
+            Write-Host "RC_APK_ASSET_VERIFIED_PASS name=$($found[0].name) size=$($found[0].size)"
+          }
