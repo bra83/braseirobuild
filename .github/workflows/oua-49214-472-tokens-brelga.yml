@@ -9,7 +9,7 @@ concurrency:
   group: oua-49214-472-tokens-brelga
   cancel-in-progress: true
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     runs-on: [self-hosted, Windows, X64]
@@ -156,11 +156,26 @@ jobs:
           Get-FileHash $dest -Algorithm SHA256 | Format-List | Out-File (Join-Path $env:OUA_WORK 'APK_SHA256.txt')
           Write-Host "OUA_49214_SIGNED_WITH_STABLE_KEY_NOT_COMPATIBLE_WITH_49213=$dest"
           Write-Host "OUA_49214_BRELGA_472_TOKENS_APK_PASS=$dest"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: BRASEIRO_O_UM_ANEL_4.9.214_472_TOKENS_TTS_GEMINI_BRELGA
-          path: |
-            ${{ runner.temp }}/oua-49214-472/BRASEIRO_O_UM_ANEL_4.9.214_472_TOKENS_TTS_GEMINI.apk
-            ${{ runner.temp }}/oua-49214-472/APK_SHA256.txt
-            ${{ runner.temp }}/oua-49214-472/signature.txt
-          if-no-files-found: error
+      - name: Publish signed APK as GitHub release, without Actions artifact quota
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $tag='OUA-v4.9.214-472TOKENS-STABLE'
+          $apk=Join-Path $env:OUA_WORK 'BRASEIRO_O_UM_ANEL_4.9.214_472_TOKENS_TTS_GEMINI.apk'
+          if(-not (Test-Path $apk)){throw 'Signed APK missing'}
+          $title='Braseiro O Um Anel 4.9.214 — 472 tokens'
+          $notes=@'
+          Build BRELGA 4.9.214 com 120 tokens originais e 352 novos PNGs transparentes incorporados. Biblioteca classificada, filtro por povo e escolha de imagem do heroi. Preservados os patches do TTS e continuacao do Gemini.
+          
+          AVISO DE ASSINATURA: esta build usa a chave estavel do repositorio (SHA-256: 6aa87a24a2eb4762c3f493c9d5fddbf10b60cc8659a90423aed7cde8ae582bd3). O APK experimental 4.9.213 usa a assinatura b08a0f2943a4786e87e8202bcfa78bb7d6eea431861bae1c46333aec19e4df8e. NAO DESINSTALE a versao atual sem antes exportar e verificar o backup das campanhas. Instalacao por cima da 4.9.213 nao e suportada. Homologacao no aparelho pendente.
+          '@
+          & gh release view $tag --repo $env:GITHUB_REPOSITORY 2>$null
+          if($LASTEXITCODE -eq 0){
+            & gh release upload $tag $apk --repo $env:GITHUB_REPOSITORY --clobber
+          } else {
+            & gh release create $tag $apk --repo $env:GITHUB_REPOSITORY --title $title --notes $notes --latest=false
+          }
+          if($LASTEXITCODE -ne 0){throw 'GitHub Release upload failed'}
+          Write-Host 'OUA_49214_FINAL_APK_RELEASE_PASS'
