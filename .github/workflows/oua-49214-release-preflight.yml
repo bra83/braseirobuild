@@ -24,8 +24,8 @@ jobs:
           $existing=$null
           try{$existing=Invoke-RestMethod -Method Get -Uri ($api+'/tags/'+$tag) -Headers $headers}catch{}
           if(-not $existing){
-            $body=@{tag_name=$tag;target_commitish='feature/oua-49214-hero-token-catalog';name='O Um Anel 4.9.214 — 472 tokens';draft=$true;prerelease=$true;make_latest='false';body='APK preparado no BRELGA. Assinatura estavel do repo diferente da build experimental 4.9.213. Nao desinstale sem exportar dados.'}|ConvertTo-Json
-            $existing=Invoke-RestMethod -Method Post -Uri $api -Headers $headers -Body $body -ContentType 'application/json'
+            $body=@{tag_name=$tag;target_commitish='feature/oua-49214-hero-token-catalog';name='O Um Anel 4.9.214 - 472 tokens';draft=$true;prerelease=$true;make_latest='false';body='APK preparado no BRELGA. Assinatura estavel do repo diferente da build experimental 4.9.213. Nao desinstale sem exportar dados.'}|ConvertTo-Json
+            $existing=Invoke-RestMethod -Method Post -Uri $api -Headers $headers -Body ([Text.Encoding]::UTF8.GetBytes($body)) -ContentType 'application/json; charset=utf-8'
           }
           if(-not $existing.id){throw 'GitHub release draft creation failed'}
           Write-Host ('OUA_49214_DRAFT_RELEASE_READY id='+$existing.id+' draft='+$existing.draft)
