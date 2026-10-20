@@ -208,7 +208,7 @@ def transform_visible_dice(source: str) -> str:
         ),
         (
             'apply.setVisibility(View.VISIBLE);cancel.setText("DESCARTAR");apply.setOnClickListener(new View.OnClickListener(){public void onClick(View v){dialog.dismiss();callback.onResult(new RollResult(rolls,physicalFaces,resolved.total,resolved.natural,resolvedDetail,resolved.critical,spec.formula,spec.mode));}});',
-            '// R36_VISIBLE_AUTOMATIC_PHYSICAL_DICE: physics settles before rule result.\\n'
+            '/* R36_VISIBLE_AUTOMATIC_PHYSICAL_DICE: physics settles before rule result. */'
             'cancel.setText("RESULTADO OBTIDO");diceView.postDelayed(new Runnable(){public void run(){'
             'if(!dialog.isShowing())return;dialog.dismiss();callback.onResult(new RollResult(rolls,physicalFaces,resolved.total,resolved.natural,resolvedDetail,resolved.critical,spec.formula,spec.mode));'
             '}},1300L);',
