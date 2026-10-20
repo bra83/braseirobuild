@@ -1,0 +1,35 @@
+name: OUA experimental — manual dice and Gollum domain tests
+on:
+  push:
+    branches: [experiment/oua-manual-dice-gollum-20261020]
+    paths:
+      - ".github/workflows/oua-dual-implementations-domain-tests.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/workflows/oua-dual-implementations-domain-tests.yml
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Retrieve original implementation and verify exact SHA256
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet gdown
+          gdown --id '1svUjRDysWZKU9puKajno3mYdIUEkTZWf' --output "$RUNNER_TEMP/oua-dual-prototype.zip"
+          printf 'e8334080c3a270f824ff098a9d4680c0e0a6a0c6e9634537a25fa3bc6c95a8ea  %s\n' "$RUNNER_TEMP/oua-dual-prototype.zip" | sha256sum -c -
+          unzip -q "$RUNNER_TEMP/oua-dual-prototype.zip" -d "$RUNNER_TEMP"
+      - name: Execute manual-roll persistence and Gollum privacy tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test "$RUNNER_TEMP"/oua-dual-prototype/test/*.test.mjs
+          echo OUA_DUAL_IMPLEMENTATIONS_DOMAIN_TESTS_PASS
