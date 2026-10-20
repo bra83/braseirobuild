@@ -1,0 +1,72 @@
+name: Star Wars TTS v3 BRELGA real-runtime validation
+on:
+  push:
+    branches: [feature/tts-universal-v3-star-wars-20261020]
+    paths:
+      - 'star-wars/r54/source/**'
+      - '.github/workflows/star-wars-tts-v3-brelga-validation.yml'
+permissions:
+  contents: read
+concurrency:
+  group: star-wars-tts-v3-brelga
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: star-wars/r54/source
+      - name: Gate exact runtime entry and TTS v3 contracts
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'WRONG_RUNNER'}
+          Set-Location 'star-wars/r54/source'
+          node --check app/src/main/assets/vtt/js/ui/tts.mjs
+          if($LASTEXITCODE -ne 0){throw 'WEB_TTS_SYNTAX_FAILED'}
+          node --test tests/tts-universal-v3-bridge.test.mjs tests/r54-p76-tts-kokoro-pipeline.test.mjs tests/r54-p77-android-build-fix.test.mjs
+          if($LASTEXITCODE -ne 0){throw 'TTS_V3_SOURCE_TESTS_FAILED'}
+          $entry=Get-Content 'app/src/main/java/com/braseiro/starwarsedge/MainActivity.java' -Raw
+          if(!$entry.Contains('r46-shell.html')){throw 'ANDROID_ENTRY_UNKNOWN'}
+          Write-Host 'SW_REAL_RUNTIME_SOURCE_GATES_PASS'
+      - name: Full Android JVM and compilation regression
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Set-Location 'star-wars/r54/source'
+          .\gradlew.bat :app:compileDebugJavaWithJavac :app:testDebugUnitTest --no-daemon --console=plain
+          if($LASTEXITCODE -ne 0){throw 'SW_ANDROID_JVM_REGRESSION_FAILED'}
+      - name: Assemble only after source and JVM gates passed
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Set-Location 'star-wars/r54/source'
+          .\gradlew.bat :app:assembleDebug --no-daemon --console=plain
+          if($LASTEXITCODE -ne 0){throw 'SW_APK_BUILD_FAILED'}
+      - name: Verify package/signature and preserve internal evidence
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $apk='star-wars/r54/source/app/build/outputs/apk/debug/app-debug.apk'
+          if(!(Test-Path $apk)){throw 'SW_APK_MISSING'}
+          $sdk=$env:ANDROID_HOME;if(!$sdk){$sdk=Join-Path $env:LOCALAPPDATA 'Android\Sdk'}
+          $toolDir=Get-ChildItem (Join-Path $sdk 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          if(!$toolDir){throw 'SW_BUILD_TOOLS_MISSING'}
+          $badging=(& (Join-Path $toolDir.FullName 'aapt.exe') dump badging $apk)-join "`n"
+          if($LASTEXITCODE -ne 0 -or $badging -notmatch "package: name='com[.]braseiro[.]starwarsedge'"){throw 'SW_APPLICATION_ID_MISMATCH'}
+          $cert=(& (Join-Path $toolDir.FullName 'apksigner.bat') verify --verbose --print-certs $apk)-join "`n"
+          if($LASTEXITCODE -ne 0){throw 'SW_APK_SIGNATURE_INVALID'}
+          $hash=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          New-Item -ItemType Directory -Path evidence -Force|Out-Null
+          Copy-Item $apk 'evidence/star-wars-tts-v3-internal-verification.apk'
+          @("HEAD=$env:GITHUB_SHA","APK_SHA256=$hash","ANDROID_JVM=PASS","APP_ID=PASS","SIGNED=PASS","INSTALL_OVER=NOT_TESTED","A57_AUDIO=NOT_TESTED","FINAL_RELEASE=BLOCKED") | Set-Content evidence/provenance.txt
+          Write-Host "SW_INTERNAL_BUILD_SHA256=$hash"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: star-wars-tts-v3-source-verification
+          path: evidence/*
+          if-no-files-found: error
+          retention-days: 30
