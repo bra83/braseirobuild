@@ -190,11 +190,55 @@ def patch_visible_construction_dice(java_dir: Path):
     print("R36_CONSTRUCTION_DICE_PHYSICAL_AND_AUDITED=PASS")
 
 
+# Every necessary roll starts visibly. No separate approval of a settled die face.
+# This changes the production overlay, not the pristine R35 source ZIP.
+DICE_OVERLAY = Path("android/app/src/main/java/com/braseiro/pathfinder2e/Dice3DOverlay.java")
+
+def transform_visible_dice(source: str) -> str:
+    if "R36_VISIBLE_AUTOMATIC_PHYSICAL_DICE" in source:
+        raise RuntimeError("Visible physical dice patch has already been applied.")
+    changes = (
+        (
+            'final Button apply=new Button(activity);apply.setText("APLICAR RESULTADO");apply.setVisibility(View.GONE);bottom.addView(apply,new LinearLayout.LayoutParams(-1,dp(activity,50)));',
+            'final TextView autoResult=label(activity,"A rolagem sera registrada automaticamente apos os dados pararem.",12,false);autoResult.setGravity(Gravity.CENTER);bottom.addView(autoResult);',
+        ),
+        (
+            'final Button cancel=new Button(activity);cancel.setText("CANCELAR ROLAGEM");bottom.addView(cancel,new LinearLayout.LayoutParams(-1,dp(activity,50)));',
+            'final Button cancel=new Button(activity);cancel.setText("DADOS EM MOVIMENTO");cancel.setEnabled(false);bottom.addView(cancel,new LinearLayout.LayoutParams(-1,dp(activity,50)));',
+        ),
+        (
+            'apply.setVisibility(View.VISIBLE);cancel.setText("DESCARTAR");apply.setOnClickListener(new View.OnClickListener(){public void onClick(View v){dialog.dismiss();callback.onResult(new RollResult(rolls,physicalFaces,resolved.total,resolved.natural,resolvedDetail,resolved.critical,spec.formula,spec.mode));}});',
+            '// R36_VISIBLE_AUTOMATIC_PHYSICAL_DICE: physics settles before rule result.\\n'
+            'cancel.setText("RESULTADO OBTIDO");diceView.postDelayed(new Runnable(){public void run(){'
+            'if(!dialog.isShowing())return;dialog.dismiss();callback.onResult(new RollResult(rolls,physicalFaces,resolved.total,resolved.natural,resolvedDetail,resolved.critical,spec.formula,spec.mode));'
+            '}},1300L);',
+        ),
+    )
+    for before, after in changes:
+        if source.count(before) != 1:
+            raise RuntimeError("Visible physical dice production anchor missing or duplicated: " + before[:78])
+        source = source.replace(before, after, 1)
+    for evidence in ("PhysicalDiceEngine.create(physicalFormula,seed)", "if(session.isComplete())",
+                     "resultView.setText(resolvedDetail)", "DiceRollSpec.Result resolved=spec.resolve(rolls)",
+                     "callback.onResult(new RollResult("):
+        if evidence not in source:
+            raise RuntimeError("Physical dice engine/result invariant missing: " + evidence)
+    if source.count("callback.onResult(new RollResult(") != 1:
+        raise RuntimeError("Physical result must be handed off exactly once.")
+    return source
+
+
 def patch_checklist(project_dir: Path):
     project_dir = Path(project_dir).resolve()
     java_dir = project_dir / "android/app/src/main/java/com/braseiro/pathfinder2e"
     if not java_dir.exists():
         raise FileNotFoundError(f"Java source directory missing: {java_dir}")
+
+    # Validate and stage the visible physical-dice transformation first.
+    overlay_path = project_dir / DICE_OVERLAY
+    if not overlay_path.is_file():
+        raise FileNotFoundError(f"Real R36 Dice3DOverlay missing: {overlay_path}")
+    overlay_new = transform_visible_dice(overlay_path.read_text(encoding="utf-8"))
 
     # 1. Copy KingmakerTurnChecklist.java
     source_checklist = Path(__file__).parent / "semantic/KingmakerTurnChecklist.java"
@@ -254,6 +298,8 @@ def patch_checklist(project_dir: Path):
     if 'KingmakerTurnChecklist.showAdvisorDialog(MainActivity.this,kingmakerRepository)' not in content:
         raise RuntimeError("R36_ADVISOR_BLOCKED: contextual guide was not wired to the active screen")
     main_file.write_text(content, encoding="utf-8")
+    overlay_path.write_text(overlay_new, encoding="utf-8")
+    print("R36_VISIBLE_PHYSICAL_DICE_AUTO_RESULT=true no_approval_button=true")
     patch_player_initiated_dice(java_dir)
     patch_no_invisible_kingdom_dice(java_dir)
     patch_visible_construction_dice(java_dir)
