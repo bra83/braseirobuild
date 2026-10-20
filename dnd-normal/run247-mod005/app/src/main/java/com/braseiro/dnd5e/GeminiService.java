@@ -386,14 +386,28 @@ public class GeminiService {
      * generateContent apenas como fallback de compatibilidade. */
     private boolean isInteractionsTtsModel(String model){
         String value=normalizeModel(model).toLowerCase(Locale.US);
-        return value.contains("gemini-3.1")&&value.contains("tts");
+        return (value.contains("gemini-3.1") || value.contains("gemini-3.8")) && value.contains("tts");
     }
 
     private AudioData synthesizeWithInteractions(String model,String key,String ttsPrompt,String voice,SpeechRequest request)throws Exception{/*BR_JSON_WRAP*/try{
         JSONObject body=new JSONObject();
         body.put("model",normalizeModel(model));
-        body.put("input",ttsPrompt);
-        body.put("response_format",new JSONObject().put("type","audio"));
+        // Gemini 3.8 receives a literal transcript and separate voice directions.
+        // Legacy Interactions models retain their minimal, transcript-only request.
+        boolean metadata38=normalizeModel(model).startsWith("gemini-3.8-");
+        if(metadata38){
+            JSONObject style=new JSONObject().put("type","speech_metadata")
+                    .put("style","natural Brazilian Portuguese, clear diction and restrained acting");
+            JSONObject transcript=new JSONObject().put("type","text").put("text",ttsPrompt)
+                    .put("annotations",new JSONArray().put(style));
+            JSONObject userInput=new JSONObject().put("type","user_input")
+                    .put("content",new JSONArray().put(transcript));
+            body.put("input",new JSONArray().put(userInput));
+            body.put("response_format",new JSONObject().put("type","audio").put("mime_type","audio/wav"));
+        }else{
+            body.put("input",ttsPrompt);
+            body.put("response_format",new JSONObject().put("type","audio"));
+        }
         String selectedVoice=voice==null||voice.trim().length()==0?"Charon":voice.trim();
         JSONObject speech=new JSONObject().put("voice",selectedVoice);
         body.put("generation_config",new JSONObject().put("speech_config",new JSONArray().put(speech)));
@@ -493,7 +507,7 @@ public class GeminiService {
         if(rememberedClean.length()>0)ordered.add(rememberedClean);
         if(kind==Kind.TEXT){ordered.add("gemini-3.8-flash");ordered.add("gemini-3.7-flash");ordered.add("gemini-3.6-flash");ordered.add("gemini-3.5-flash-lite");ordered.add("gemini-3.5-flash");ordered.add("gemini-3.1-flash-lite");}
         else if(kind==Kind.IMAGE){ordered.add("gemini-3.1-flash-image");ordered.add("gemini-3-pro-image");}
-        else {ordered.add("gemini-3.1-flash-tts-preview");ordered.add("gemini-2.5-flash-preview-tts");}
+        else {ordered.add("gemini-3.8-flash-tts");ordered.add("gemini-3.8-flash-lite-tts");ordered.add("gemini-3.1-flash-tts-preview");ordered.add("gemini-2.5-flash-preview-tts");}
 
         // Não chama models.list em toda cena. Essa consulta extra era feita antes de cada
         // geração e aumentava sensivelmente o tempo de resposta. Os candidatos são tentados
@@ -641,7 +655,7 @@ public class GeminiService {
 
     private AudioData extractAudio(JSONObject response){JSONArray c=response.optJSONArray("candidates");if(c==null)return null;for(int i=0;i<c.length();i++){JSONObject content=c.optJSONObject(i)==null?null:c.optJSONObject(i).optJSONObject("content");JSONArray parts=content==null?null:content.optJSONArray("parts");if(parts==null)continue;for(int j=0;j<parts.length();j++){JSONObject p=parts.optJSONObject(j);if(p==null)continue;JSONObject in=p.optJSONObject("inlineData");if(in==null)in=p.optJSONObject("inline_data");if(in!=null&&in.optString("data").length()>0){String mime=in.optString("mimeType",in.optString("mime_type","audio/L16;rate=24000"));int rate=24000;int pos=mime.indexOf("rate=");if(pos>=0){String r=mime.substring(pos+5).replaceAll("[^0-9].*$","");try{rate=Integer.parseInt(r);}catch(Exception ignored){AppLog.ignored("GeminiService","Falha tolerada; a execução continuou.",ignored);}}return new AudioData(Base64.decode(in.optString("data"),Base64.DEFAULT),rate);}}}return null;}
 
-    private static void writeWav(File file,byte[] pcm,int sampleRate)throws Exception{FileOutputStream out=new FileOutputStream(file);int dataLen=pcm.length;int total=dataLen+36;int byteRate=sampleRate*2;out.write(new byte[]{'R','I','F','F'});writeIntLE(out,total);out.write(new byte[]{'W','A','V','E','f','m','t',' '});writeIntLE(out,16);writeShortLE(out,1);writeShortLE(out,1);writeIntLE(out,sampleRate);writeIntLE(out,byteRate);writeShortLE(out,2);writeShortLE(out,16);out.write(new byte[]{'d','a','t','a'});writeIntLE(out,dataLen);out.write(pcm);out.close();}
+    private static void writeWav(File file,byte[] pcm,int sampleRate)throws Exception{FileOutputStream out=new FileOutputStream(file);if(pcm.length>=12&&pcm[0]=='R'&&pcm[1]=='I'&&pcm[2]=='F'&&pcm[3]=='F'&&pcm[8]=='W'&&pcm[9]=='A'&&pcm[10]=='V'&&pcm[11]=='E'){try{out.write(pcm);}finally{out.close();}return;}int dataLen=pcm.length;int total=dataLen+36;int byteRate=sampleRate*2;out.write(new byte[]{'R','I','F','F'});writeIntLE(out,total);out.write(new byte[]{'W','A','V','E','f','m','t',' '});writeIntLE(out,16);writeShortLE(out,1);writeShortLE(out,1);writeIntLE(out,sampleRate);writeIntLE(out,byteRate);writeShortLE(out,2);writeShortLE(out,16);out.write(new byte[]{'d','a','t','a'});writeIntLE(out,dataLen);out.write(pcm);out.close();}
     private static void writeIntLE(FileOutputStream o,int v)throws Exception{o.write(v&255);o.write((v>>8)&255);o.write((v>>16)&255);o.write((v>>24)&255);}private static void writeShortLE(FileOutputStream o,int v)throws Exception{o.write(v&255);o.write((v>>8)&255);}
     private static String read(InputStream in)throws Exception{if(in==null)return "";BufferedReader r=new BufferedReader(new InputStreamReader(in,"UTF-8"));StringBuilder b=new StringBuilder();String line;while((line=r.readLine())!=null)b.append(line).append('\n');r.close();return b.toString();}
 
