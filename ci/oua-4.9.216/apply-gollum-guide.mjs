@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 const root=process.argv[2];
 if(!root)throw Error('OUA root argument required');
 const abs=p=>path.join(root,p);
@@ -10,7 +11,7 @@ const patch=(text,from,to,label)=>{
   if(count!==1)throw Error('OUA_49216_ANCHOR '+label+' count='+count);
   return text.replace(from,to);
 };
-const here=path.dirname(new URL(import.meta.url).pathname);
+const here=path.dirname(fileURLToPath(import.meta.url));
 const src=p=>fs.readFileSync(path.join(here,p),'utf8');
 put('lib/gollumGuidance.ts',src('gollumGuidance.ts'));
 put('components/GollumGuide.tsx',src('GollumGuide.tsx'));
@@ -22,7 +23,7 @@ const speak=[
 "  const speakGollumGuide = async (message: string): Promise<void> => {",
 "    if (!message.trim() || isNarrationLoading) return;",
 "    cancelNarrationPlayback();",
-"    const sessionId = AudioEngine.beginNarrationSession('gollum-guide', 'gollum-guide');",
+"    const sessionId = AudioEngine.beginNarrationSession('gollum-guide', 'charon');",
 "    let status: 'finished' | 'failed' = 'finished';",
 "    setIsNarrationLoading(true); setNarrationError(null);",
 "    try {",
