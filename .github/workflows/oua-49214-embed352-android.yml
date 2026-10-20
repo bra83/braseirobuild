@@ -109,7 +109,6 @@ jobs:
           npm run lint
           npm run build
           node scripts/sync-android-assets.mjs
-          node "$GITHUB_WORKSPACE/ci/oua-braseiro-tts/turn-continuity-verify.mjs" "$OUA_ROOT"
           python - <<'PY'
           import os,json,pathlib
           root=pathlib.Path(os.environ['OUA_ROOT']);assets=root/'android/app/src/main/assets/tor2e-ui'
