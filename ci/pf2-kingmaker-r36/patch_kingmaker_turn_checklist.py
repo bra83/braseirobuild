@@ -234,11 +234,10 @@ def patch_checklist(project_dir: Path):
     if not java_dir.exists():
         raise FileNotFoundError(f"Java source directory missing: {java_dir}")
 
-    # Validate and stage the visible physical-dice transformation first.
+    # Compose visible roll only after requiring the player's deliberate launch.
     overlay_path = project_dir / DICE_OVERLAY
     if not overlay_path.is_file():
         raise FileNotFoundError(f"Real R36 Dice3DOverlay missing: {overlay_path}")
-    overlay_new = transform_visible_dice(overlay_path.read_text(encoding="utf-8"))
 
     # 1. Copy KingmakerTurnChecklist.java
     source_checklist = Path(__file__).parent / "semantic/KingmakerTurnChecklist.java"
@@ -298,9 +297,9 @@ def patch_checklist(project_dir: Path):
     if 'KingmakerTurnChecklist.showAdvisorDialog(MainActivity.this,kingmakerRepository)' not in content:
         raise RuntimeError("R36_ADVISOR_BLOCKED: contextual guide was not wired to the active screen")
     main_file.write_text(content, encoding="utf-8")
-    overlay_path.write_text(overlay_new, encoding="utf-8")
-    print("R36_VISIBLE_PHYSICAL_DICE_AUTO_RESULT=true no_approval_button=true")
     patch_player_initiated_dice(java_dir)
+    overlay_path.write_text(transform_visible_dice(overlay_path.read_text(encoding="utf-8")), encoding="utf-8")
+    print("R36_VISIBLE_PHYSICAL_DICE_AUTO_RESULT=true player_initiated=true")
     patch_no_invisible_kingdom_dice(java_dir)
     patch_visible_construction_dice(java_dir)
     print(f"R36_KINGMAKER_CHECKLIST_PATCHED={target_checklist}")
