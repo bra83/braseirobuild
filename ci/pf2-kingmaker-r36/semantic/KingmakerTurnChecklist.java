@@ -15,6 +15,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,8 +93,8 @@ public final class KingmakerTurnChecklist {
         // ==========================================
         add("collect_taxes", "COMMERCE", "Comércio", "Coletar Impostos (Treinado)", "Collect Taxes (Trained)",
             "Tesoureiro (primário), Governante, Conselheiro, Emissário, General, Magister, Vice-Rei, Guardião", "1 vez por fase de Comércio", "Treinado",
-            "Arrecada tributos, taxas alfandegárias e impostos da população e comerciantes locais para abastecer o Tesouro do Reino.",
-            "Kingmaker AP p. 539. Teste de Indústria contra a CD de Controle. Sucesso Crítico: Ganha PR igual ao dobro do Nível do Reino. Sucesso: Ganha PR igual ao Nível do Reino. Falha: Ganha 1 PR. Falha Crítica: Não arrecada nada e ganha +1 de Agitação.");
+            "A arrecadação influencia os testes de Economia durante este turno. Não concede Pontos de Recursos diretamente; pode provocar Agitação e Ruína.",
+            "Kingmaker AP 2e p. 530. Sucesso crítico: +2 circunstancial em Economia neste turno. Sucesso ou falha: +1 circunstancial em Economia, com efeitos de Agitação previstos na regra e nas coletas consecutivas. Falha crítica: +2 Agitação e +1 Ruína à escolha. Não gera PR.");
 
         add("improve_lifestyle", "COMMERCE", "Comércio", "Melhorar Estilo de Vida", "Improve Lifestyle",
             "Governante, Conselheiro, Emissário, General, Magister, Tesoureiro, Vice-Rei, Guardião", "1 vez por fase de Comércio", "Destreinado",
@@ -191,7 +192,7 @@ public final class KingmakerTurnChecklist {
         add("quell_unrest", "LEADERSHIP", "Liderança", "Acalmar Agitação (1/Rodada)", "Quell Unrest (Once Per Round)",
             "Governante, Conselheiro, Emissário, General, Magister, Treasurer, Viceroy, Warden", "1 vez por rodada", "Destreinado",
             "O líder faz um discurso memorável, ouve as queixas dos cidadãos e faz concessões políticas para restaurar a ordem.",
-            "Kingmaker AP p. 543. Teste de Política ou Artes contra a CD de Controle. Sucesso: reduz a Agitação em 1d4. Sucesso Crítico: reduz em 1d4+2.");
+            "Kingmaker AP 2e p. 531. Sucesso crítico: reduz Agitação em 1d6, com dado lançado à vista do jogador. Falha crítica: o jogador escolhe entre +1d4 Agitação ou duas Ruínas distintas. Aplicar somente a resolução oficial.");
 
         add("recruit_army", "LEADERSHIP", "Liderança", "Recrutar Exército", "Recruit Army",
             "General, Guardião", "3 ações por jogador", "Destreinado",
@@ -259,7 +260,7 @@ public final class KingmakerTurnChecklist {
         add("claim_hex", "REGION", "Região", "Reivindicar Hexágono (1/Turno)", "Claim Hex (Once Per Turn)",
             "Governante, Conselheiro, Emissário, General, Magister, Tesoureiro, Vice-Rei, Guardião", "1 vez por turno", "Destreinado",
             "Anexa um hexágono adjacente, previamente reconhecido e limpo de ameaças, às fronteiras soberanas do reino.",
-            "Kingmaker AP p. 545. Paga o custo em PR baseado no tipo de terreno e fronteira. Aumenta o Tamanho do Reino em 1.");
+            "Kingmaker AP 2e p. 530. Reivindicar Hexágono cobra exatamente 1 PR ANTES do teste, sem nova cobrança no sucesso. Máximo de 1, 2 ou 3 tentativas por turno conforme os níveis do Reino 1, 4 ou 9. O hex deve satisfazer os requisitos oficiais.");
 
         add("clear_hex", "REGION", "Região", "Limpar / Desbravar Hexágono", "Clear Hex",
             "General, Guardião", "3 ações no total", "Destreinado",
@@ -391,6 +392,106 @@ public final class KingmakerTurnChecklist {
             "General, Guardião", "máximo 1 vez por exército por turno", "Destreinado",
             "Conduz exercícios táticos no campo de batalha para ensinar manobras especializadas ou elevar o nível de proficiência militar da tropa.",
             "Kingmaker AP p. 550. Teste de Guerra. Sucesso concede uma nova tática de combate ou aprimoramento de experiência à unidade militar.");
+    }
+
+
+    /** Um aviso de interface, nunca uma ordem de jogo nem uma ficha de NPC. */
+    public static final class AdvisorTip {
+        public final String key, title, body, source;
+        public final boolean urgent;
+        AdvisorTip(String key, String title, String body, String source, boolean urgent) {
+            this.key=key; this.title=title; this.body=body; this.source=source; this.urgent=urgent;
+        }
+    }
+
+    /** Somente consulta dados registrados. Não sorteia, não grava e não revela segredos. */
+    public static List<AdvisorTip> advisorTips(KingmakerRepository repository) {
+        ArrayList<AdvisorTip> tips=new ArrayList<AdvisorTip>();
+        if(repository==null) {
+            tips.add(new AdvisorTip("offline","Conselheiro à disposição",
+                "As explicações ficam disponíveis, mas o estado do Reino ainda não pôde ser consultado.",
+                "Guia do Reino • consulta local",false));
+            return Collections.unmodifiableList(tips);
+        }
+        try {
+            JSONObject state=repository.state();
+            if(state==null || state.length()==0) {
+                tips.add(new AdvisorTip("not-founded","Sua jornada está começando",
+                    "Explore, conheça aliados e volte quando houver um Reino estabelecido. Nenhum cargo será preenchido automaticamente.",
+                    "Kingmaker • liderança e exploração",false));
+                return Collections.unmodifiableList(tips);
+            }
+            int vacant=repository.vacantLeadershipRoles();
+            if(vacant>0) {
+                StringBuilder names=new StringBuilder();
+                for(JSONObject leader:repository.leaders()) {
+                    if(leader.optInt("vacant",0)!=1)continue;
+                    if(names.length()>0)names.append(", ");
+                    names.append(leader.optString("role_name",leader.optString("role_key","cargo")));
+                }
+                tips.add(new AdvisorTip("vacant-leaders",
+                    "Seu reino precisa de pessoas de confiança!",
+                    "Há "+vacant+" cargo(s) de liderança vago(s)"+(names.length()>0?": "+names+".":".")+
+                    " Observe os aliados disponíveis e considere quem deseja assumir cada função. Cargos vagos podem impor penalidades. "+
+                    "O Conselheiro não conhece a honestidade secreta de um NPC e nunca nomeia alguém por você.",
+                    "Kingmaker AP 2e • New Leadership / cargos de liderança, p. 520",true));
+            }
+            int unrest=state.optInt("unrest",0);
+            if(unrest>0) {
+                tips.add(new AdvisorTip("unrest",
+                    unrest>=20?"Alerta: Reino em Anarquia":"Atenção à Agitação do Reino",
+                    "Agitação atual registrada: "+unrest+". Consulte as atividades oficiais disponíveis "+
+                    "e confira custos e resultados antes de avançar o turno.",
+                    "Kingmaker AP 2e • Agitação e turnos do Reino",unrest>=20));
+            }
+            JSONObject turn=repository.activeTurn();
+            if(turn!=null && "active".equals(turn.optString("status"))) {
+                String phase=turn.optString("phase","UPKEEP");
+                tips.add(new AdvisorTip("turn-phase","Existe um turno do Reino em andamento",
+                    "Fase registrada: "+phase+". Consulte o checklist para aprender a sequência, "+
+                    "os líderes elegíveis e as escolhas que dependem da sua aprovação. "+
+                    "Rolagens nunca devem ser realizadas em segredo.",
+                    "Kingmaker AP 2e • Kingdom Turn",false));
+            }
+            if(tips.isEmpty()) {
+                tips.add(new AdvisorTip("learning","Seu Conselheiro está à disposição",
+                    "Posso explicar os cargos de liderança, ações do Reino, assentamentos, "+
+                    "construções, exércitos e turnos. Não tomo decisões nem lanço dados por você.",
+                    "Kingmaker AP 2e • regras do Reino e Guerra",false));
+            }
+        }catch(Exception unavailable) {
+            tips.clear();
+            tips.add(new AdvisorTip("unavailable","Não consigo verificar o estado do Reino",
+                "Não vou inventar alertas nem tomar decisões sem consultar os dados do jogo. "+
+                "O checklist de regras permanece disponível.",
+                "Consulta de estado • falha controlada",false));
+        }
+        return Collections.unmodifiableList(tips);
+    }
+
+    public static boolean hasUrgentAdvisorTip(KingmakerRepository repository) {
+        for(AdvisorTip tip:advisorTips(repository))if(tip.urgent)return true;
+        return false;
+    }
+
+    public static void showAdvisorDialog(final Activity activity, final KingmakerRepository repository) {
+        if(activity==null || activity.isFinishing())return;
+        StringBuilder message=new StringBuilder();
+        for(AdvisorTip tip:advisorTips(repository)) {
+            if(message.length()>0)message.append("\n\n");
+            message.append(tip.urgent?"❗ ":"ℹ ").append(tip.title)
+                   .append("\n").append(tip.body).append("\nFonte: ").append(tip.source);
+        }
+        new AlertDialog.Builder(activity)
+            .setTitle("Conselheiro Vivo • Kingmaker")
+            .setMessage(message.toString())
+            .setNeutralButton("VER REGRAS DO REINO",new DialogInterface.OnClickListener() {
+                @Override public void onClick(DialogInterface d,int which) {
+                    showDialog(activity);
+                }
+            })
+            .setPositiveButton("ENTENDIDO",null)
+            .show();
     }
 
     private static void add(String id, String phase, String phaseLabel, String namePt, String nameEn,
