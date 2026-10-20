@@ -71,14 +71,14 @@ jobs:
           @'
           import gdown,pathlib,hashlib,zipfile,time,sys
           dest=pathlib.Path(sys.argv[1]);dest.mkdir(parents=True,exist_ok=True)
-          ids=["1JqL6rbjpj83q_k1ul7xVlFZ4SUjUY1Rg","135s4ms4jmSR1c2pvpLbDRk4Ln-V4SbZb","1Rg7Bq5PTZpkZqKJMmf0LKJqaASr1vAwE","1nCxfFeH5d-Xo2t4wJN-PWZcIuTyQ_lTW","1u-INYbhuwErkqhUc14O2YwfeFhQwIzDa","1EpI73-PAqjBiq-JnnvD-_lsQsLFu43nR","1UkMW7uxZCj5oWSBes8d1owco8k6IFPYU","1KSJPagmcGORdZiomPSMIUG2XONKPhf3y","1yZU2iGjg0wIjrB1A23M3OcAMELJ9kU_s","1cgEysQxaSa9Cl4nvvlnFntIBdP66EWUJ","1A7mdJOF8NevNEHTYcK7Cues9lAKwfink","1DqczCfZ_UatQKlZwAGZ9VCl-lir8b15S","1BfWSoJTKGi6to-Wijh6QzE15ARdpFqWc","1LHYBQZkJLuTSCGToiQb_UGh8Stzu9aB1","1IFxaSRO7jy2tkpVW5jLPdSMo6U8AVLQd","12Vk5LU0uPpE3IsxXH7PmilVPrfKxnkfa"]
+          ids=["1CaA39VrMm7zcP1_FHZh3FNeZVU4jBDdd","1DZeV3U_Ni3Z09B-Y5Iuvv3r-806YVSPl","1LZddqdEEjxRvCw4pbnVUvRTXxnljprup","1GEAIZQoYXWxDkyTl46DuSfZwn1NGLFId","1fyEbeLCIGT1MzsOqbZzttRN7gzIgdKsP","19EZbGBtEn2niqthb9GogEUNBD0GcuRsO","16RWNFy5zBno5nIyf_fAMRnzuJzGMga3C","1D549pMgqUNq8AY08Vp_F1ICVit_U2OGT","1ZUYi40gMA0zDef-36B5Rd9_2WUXLSD0W","1rJX_jmzV6e7cUF7BoEk0_1KQzfCH2a5r","1Ba93-5q9kyVrB3XqEl0rSQCg8BHpQHV8","1EtXvCn5rh0WnAvrytfUiCtHAOoe7GNYA"]
           for i,file_id in enumerate(ids):
            p=dest/('part%02d'%i)
-           target=7000000 if i<15 else 5560677
+           target=9500000 if i<11 else 6060677
            for attempt in range(3):
             try:
              if not p.exists() or p.stat().st_size!=target:
-              out=gdown.download(id=file_id,output=str(p),quiet=False)
+              out=gdown.download(id=file_id,output=str(p),quiet=False, fuzzy=True)
               if not out:raise RuntimeError('Download failed for part %d'%i)
              if p.stat().st_size!=target:raise RuntimeError('Bad size for part %d: %d'%(i,p.stat().st_size))
              print('OUA352_PART_OK',i,flush=True)
