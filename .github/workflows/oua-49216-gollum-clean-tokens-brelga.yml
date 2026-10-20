@@ -1,4 +1,4 @@
-name: OUA 4.9.216 Gollum + 352 clean tokens BRELGA
+name: OUA 4.9.216 Gollum RAG + 352 clean tokens BRELGA
 on:
   push:
     branches: [feature/oua-49216-gollum-clean-tokens]
