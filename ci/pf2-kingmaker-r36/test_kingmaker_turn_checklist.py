@@ -252,6 +252,8 @@ def test_physical_roll_auto_starts_and_delivers_settled_face(tmp_path):
     assert 'cancel.setEnabled(false)' in result
     assert 'apply.setText("APLICAR RESULTADO")' not in result
     assert 'cancel.setText("DESCARTAR")' not in result
+    assert 'R36_PHYSICAL_DICE_NO_DISCARD' in result
+    assert 'callback.onCancel();' not in result
     assert result.index('resultView.setText(resolvedDetail)') < result.index('diceView.postDelayed(new Runnable()')
     with pytest.raises(RuntimeError, match="already been applied"):
         patch.transform_visible_dice(result)
