@@ -1,0 +1,63 @@
+name: OUA 4.9.214 hero picker source preflight
+on:
+  push:
+    branches: [feature/oua-49214-hero-token-catalog]
+    paths:
+      - ".github/workflows/oua-49214-hero-picker-preflight.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            ci/oua-braseiro-tts
+            ci/oua-4.9.214
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Fetch OUA 4.9.211 canonical baseline
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/oua-49214/extracted"
+          gh release download OUA-v4.9.211 --repo "$GITHUB_REPOSITORY" --pattern 'BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip' --dir "$RUNNER_TEMP/oua-49214" --clobber
+          unzip -q "$RUNNER_TEMP/oua-49214/BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip" -d "$RUNNER_TEMP/oua-49214/extracted"
+          PKG=""
+          while IFS= read -r candidate; do
+            if [ -d "$(dirname "$candidate")/android" ]; then PKG="$candidate"; break; fi
+          done < <(find "$RUNNER_TEMP/oua-49214/extracted" -type f -name package.json -not -path '*/node_modules/*' | sort)
+          test -n "$PKG"
+          echo "OUA_ROOT=$(dirname "$PKG")" >> "$GITHUB_ENV"
+      - name: Reapply validated TTS 4.9.213 and hero-picker 4.9.214 patches
+        run: |
+          set -euo pipefail
+          node ci/oua-braseiro-tts/apply.mjs "$OUA_ROOT"
+          node ci/oua-braseiro-tts/patch-ui.mjs "$OUA_ROOT"
+          node ci/oua-braseiro-tts/auto-tags-apply.mjs "$OUA_ROOT"
+          node ci/oua-braseiro-tts/turn-continuity-apply.mjs "$OUA_ROOT"
+          node ci/oua-4.9.214/apply-hero-token-catalog.mjs "$OUA_ROOT"
+          grep -q 'hero-token-pack-352.json' "$OUA_ROOT/lib/partyTokenLibrary.ts"
+          grep -q 'importedTokens.map' "$OUA_ROOT/components/TokenPicker.tsx"
+          grep -q 'versionCode = 49214' "$OUA_ROOT/android/app/build.gradle.kts"
+      - name: Typecheck and build, without pretending the 352 PNGs are already embedded
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$OUA_ROOT"
+          npm config set registry https://registry.npmjs.org/
+          npm ci --ignore-scripts --no-audit --no-fund || npm install --ignore-scripts --no-audit --no-fund
+          npm install --no-save --ignore-scripts --no-audit --no-fund esbuild @rollup/rollup-linux-x64-gnu @esbuild/linux-x64
+          npm run lint
+          npm run build
+          echo 'OUA_49214_HERO_PICKER_SOURCE_PASS; APK_PENDING_EXACT_352_TOKEN_ZIP'
