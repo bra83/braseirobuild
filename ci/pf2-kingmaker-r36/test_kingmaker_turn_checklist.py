@@ -231,3 +231,29 @@ def test_legacy_kingdom_random_shortcuts_are_disabled(tmp_path):
     assert 'p.optInt("critical_failure_d4",-1)' in updated
     assert 'dice.nextInt(6)' not in updated
     assert 'new java.util.Random().nextInt(20)' not in updated
+
+
+def test_necessary_physical_roll_autostarts_visibly_without_result_approval(tmp_path):
+    """No permission tap for necessary dice, no hidden RNG or precalculated face."""
+    patch, target = _apply_physical_dice_patch(tmp_path)
+    source = target.read_text(encoding="utf-8")
+    result = patch.transform_visible_dice(source)
+    assert "R36_VISIBLE_AUTOMATIC_PHYSICAL_DICE" in result
+    assert 'final TextView resultView=label(activity,"Dados em movimento…"' in result
+    assert 'launch.setVisibility(View.GONE)' in result
+    assert 'started[0]=true;diceView.postOnAnimation(ticker);' in result
+    assert 'final long seed=new java.security.SecureRandom().nextLong();' in result
+    assert 'PhysicalDiceEngine.create(physicalFormula,seed)' in result
+    assert 'PhysicalDiceEngine.FIXED_DT' in result
+    assert 'DiceRollSpec.Result resolved=spec.resolve(rolls)' in result
+    assert 'resultView.setText(resolvedDetail)' in result
+    assert 'diceView.postDelayed(new Runnable()' in result
+    assert '}},1300L);' in result
+    assert result.count('callback.onResult(new RollResult(') == 1
+    assert 'cancel.setEnabled(false)' in result
+    assert 'apply.setText("APLICAR RESULTADO")' not in result
+    assert 'cancel.setText("DESCARTAR")' not in result
+    assert result.index('resultView.setText(resolvedDetail)') < result.index('diceView.postDelayed(new Runnable()')
+    assert '/* R36_VISIBLE_AUTOMATIC_PHYSICAL_DICE:' in result
+    with pytest.raises(RuntimeError, match="already been applied"):
+        patch.transform_visible_dice(result)
