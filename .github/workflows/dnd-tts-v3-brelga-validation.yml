@@ -6,7 +6,7 @@ on:
       - 'dnd-normal/run247-mod005/**'
       - '.github/workflows/dnd-tts-v3-brelga-validation.yml'
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: dnd-tts-v3-brelga
   cancel-in-progress: true
