@@ -1,7 +1,7 @@
 name: PF2 Kingmaker R36 BRELGA Independent Build And Book Gates
 on:
   push:
-    branches: [pf2-kingmaker-r36-official-rule-fixes-20261011]
+    branches: [feature/tts-universal-v3-kingmaker-20261020]
     paths:
       - '.github/workflows/pf2-r36-brelga-independent.yml'
       - 'ci/pf2-kingmaker-r36/**'
@@ -135,6 +135,9 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'Kingmaker Turn Checklist patch failed'}
           python ci\pf2-kingmaker-r36\patch_kingmaker_default_map.py "$project"
           if($LASTEXITCODE -ne 0){throw 'Kingmaker Default Map patch failed'}
+          # TTS v3 applies ONLY after all official R36 integrations, to the actual rebuilt app.
+          python ci\pf2-kingmaker-r36\patch_tts_universal_v3.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'TTS_V3_REAL_ANDROID_PATCH_FAILED'}
           python ci\pf2-kingmaker-r36\audit_catalog_expansion.py --project "$project" --out r36-catalog-73-brelga.json --require-73
           if($LASTEXITCODE -ne 0){throw 'Canonical 73-structure numerical audit failed'}
           python ci\pf2-kingmaker-certification\audit_structure_catalog.py --project "$project" --out r36-official-structure-delta-brelga.json --require-zero-mismatches
