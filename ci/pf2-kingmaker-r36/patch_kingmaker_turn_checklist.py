@@ -218,6 +218,28 @@ def transform_visible_dice(source: str) -> str:
         if source.count(before) != 1:
             raise RuntimeError("Visible physical dice production anchor missing or duplicated: " + before[:78])
         source = source.replace(before, after, 1)
+    # The prior visibility guard adds a launch button. We hide that control
+    # and start the SAME physical ticker when the dialog is displayed.
+    # A roll is necessary, not an extra player decision; it must still be visible.
+    auto_start = (
+        (
+            'final TextView resultView=label(activity,"Aguardando seu toque em LANÇAR DADOS.",20,true);',
+            'final TextView resultView=label(activity,"Dados em movimento…",20,true);',
+        ),
+        (
+            'launch.setText("LANÇAR DADOS 3D");',
+            'launch.setText("LANÇAR DADOS 3D");launch.setVisibility(View.GONE);',
+        ),
+        (
+            'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);',
+            'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);started[0]=true;diceView.postOnAnimation(ticker);',
+        ),
+    )
+    for before, after in auto_start:
+        if source.count(before) != 1:
+            raise RuntimeError("Visible automatic launch source anchor changed: " + before[:78])
+        source = source.replace(before, after, 1)
+
     for evidence in ("PhysicalDiceEngine.create(physicalFormula,seed)", "if(session.isComplete())",
                      "resultView.setText(resolvedDetail)", "DiceRollSpec.Result resolved=spec.resolve(rolls)",
                      "callback.onResult(new RollResult("):
@@ -299,7 +321,7 @@ def patch_checklist(project_dir: Path):
     main_file.write_text(content, encoding="utf-8")
     patch_player_initiated_dice(java_dir)
     overlay_path.write_text(transform_visible_dice(overlay_path.read_text(encoding="utf-8")), encoding="utf-8")
-    print("R36_VISIBLE_PHYSICAL_DICE_AUTO_RESULT=true player_initiated=true")
+    print("R36_VISIBLE_PHYSICAL_DICE_AUTO_RESULT=true auto_start=true manual_roll_approval=false")
     patch_no_invisible_kingdom_dice(java_dir)
     patch_visible_construction_dice(java_dir)
     print(f"R36_KINGMAKER_CHECKLIST_PATCHED={target_checklist}")
