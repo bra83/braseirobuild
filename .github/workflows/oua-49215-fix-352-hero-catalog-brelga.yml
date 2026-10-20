@@ -1,0 +1,195 @@
+name: OUA 4.9.215 BRELGA - 460 selectable hero portraits
+on:
+  push:
+    branches: [feature/oua-49215-hero-token-catalog]
+    paths:
+      - ".github/workflows/oua-49215-472-tokens-brelga.yml"
+  workflow_dispatch:
+concurrency:
+  group: oua-49215-472-tokens-brelga
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            ci/oua-braseiro-tts
+            ci/oua-4.9.214
+            ci/oua-4.9.215
+            build-signing
+      - name: Verify BRELGA and download OUA sources
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'Must compile on BRELGA'}
+          $work=Join-Path $env:RUNNER_TEMP 'oua-49215-472'
+          New-Item -ItemType Directory -Path $work -Force | Out-Null
+          $sourceZip=Join-Path $work 'BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip'
+          $downloaded=$false
+          if(Get-Command gh -ErrorAction SilentlyContinue){
+            & gh release download OUA-v4.9.211 --repo "$env:GITHUB_REPOSITORY" --pattern 'BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip' --dir $work --clobber
+            if($LASTEXITCODE -eq 0 -and (Test-Path $sourceZip) -and (Get-Item $sourceZip).Length -gt 100000000){$downloaded=$true}
+          }
+          if(-not $downloaded){
+            $headers=@{Authorization=('Bearer '+$env:GH_TOKEN);'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='Braseiro-BRELGA-Source'}
+            $release=Invoke-RestMethod -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/tags/OUA-v4.9.211" -Headers $headers
+            $asset=$release.assets|Where-Object{$_.name -eq 'BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip'}|Select-Object -First 1
+            if(-not $asset){throw 'Canonical OUA source absent from GitHub release'}
+            $headers['Accept']='application/octet-stream'
+            & curl.exe -fL --retry 3 --retry-delay 3 -H "Authorization: Bearer $env:GH_TOKEN" -H 'Accept: application/octet-stream' -H 'X-GitHub-Api-Version: 2022-11-28' -o $sourceZip "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/assets/$($asset.id)"
+            if($LASTEXITCODE -ne 0){throw 'Authenticated source download failed'}
+          }
+          if(-not (Test-Path $sourceZip) -or (Get-Item $sourceZip).Length -lt 100000000){throw 'Invalid source archive'}
+          Write-Host ('OUA_CANONICAL_SOURCE_PASS='+[string](Get-Item $sourceZip).Length)
+          Expand-Archive -LiteralPath $sourceZip -DestinationPath (Join-Path $work 'source') -Force
+          $pkg=Get-ChildItem (Join-Path $work 'source') -Recurse -File -Filter package.json | Where-Object {Test-Path (Join-Path $_.DirectoryName 'android')} | Select-Object -First 1
+          if(-not $pkg){throw 'Canonical OUA source not found'}
+          "OUA_ROOT=$($pkg.DirectoryName)" >> $env:GITHUB_ENV
+          "OUA_WORK=$work" >> $env:GITHUB_ENV
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Download and validate 352 original token images
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          & python --version
+          if($LASTEXITCODE -ne 0){throw 'Python needed for integrity verification'}
+          & python -m pip install --quiet gdown Pillow
+          if($LASTEXITCODE -ne 0){throw 'Missing token download or image verifier'}
+          $script=Join-Path $env:OUA_WORK 'download-original-352.py'
+          @'
+          import gdown,pathlib,hashlib,zipfile,time,sys
+          dest=pathlib.Path(sys.argv[1]);dest.mkdir(parents=True,exist_ok=True)
+          ids=["1CaA39VrMm7zcP1_FHZh3FNeZVU4jBDdd","1DZeV3U_Ni3Z09B-Y5Iuvv3r-806YVSPl","1LZddqdEEjxRvCw4pbnVUvRTXxnljprup","1GEAIZQoYXWxDkyTl46DuSfZwn1NGLFId","1fyEbeLCIGT1MzsOqbZzttRN7gzIgdKsP","19EZbGBtEn2niqthb9GogEUNBD0GcuRsO","16RWNFy5zBno5nIyf_fAMRnzuJzGMga3C","1D549pMgqUNq8AY08Vp_F1ICVit_U2OGT","1ZUYi40gMA0zDef-36B5Rd9_2WUXLSD0W","1rJX_jmzV6e7cUF7BoEk0_1KQzfCH2a5r","1Ba93-5q9kyVrB3XqEl0rSQCg8BHpQHV8","1EtXvCn5rh0WnAvrytfUiCtHAOoe7GNYA"]
+          for i,file_id in enumerate(ids):
+           p=dest/('part%02d'%i)
+           target=9500000 if i<11 else 6060677
+           for attempt in range(3):
+            try:
+             if not p.exists() or p.stat().st_size!=target:
+              out=gdown.download(id=file_id,output=str(p),quiet=False, fuzzy=True)
+              if not out:raise RuntimeError('Download failed for part %d'%i)
+             if p.stat().st_size!=target:raise RuntimeError('Bad size for part %d: %d'%(i,p.stat().st_size))
+             print('OUA352_PART_OK',i,flush=True)
+             break
+            except Exception:
+             if p.exists():p.unlink()
+             if attempt==2:raise
+             time.sleep(5)
+          target=dest/'original352.zip'
+          with target.open('wb') as w:
+           for i in range(len(ids)):
+            with (dest/('part%02d'%i)).open('rb') as f:
+             for b in iter(lambda:f.read(1048576),b''):w.write(b)
+          digest=hashlib.sha256(target.read_bytes()).hexdigest()
+          if digest!='a30da14b31867e9e5f01dc837046b21ebff0ceb0d16852bfb6e09724a0e19039':raise RuntimeError('ZIP SHA256 mismatch '+digest)
+          with zipfile.ZipFile(target) as z:
+           if z.testzip():raise RuntimeError('Corrupt ZIP')
+           if len([n for n in z.namelist() if n.endswith('.png')])!=352:raise RuntimeError('Wrong tokens count')
+          print('OUA_352_SOURCE_INTACT_PASS',flush=True)
+          '@ | Set-Content -LiteralPath $script -Encoding UTF8
+          & python $script (Join-Path $env:OUA_WORK 'tokens')
+          if($LASTEXITCODE -ne 0){throw 'Exact 352 tokens failed SHA256 download'}
+      - name: Apply stable TTS and Gemini continuity and hero-token catalog
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $steps=@('ci/oua-braseiro-tts/apply.mjs','ci/oua-braseiro-tts/patch-ui.mjs','ci/oua-braseiro-tts/auto-tags-apply.mjs','ci/oua-braseiro-tts/auto-tags-verify.mjs','ci/oua-braseiro-tts/turn-continuity-apply.mjs','ci/oua-braseiro-tts/turn-continuity-verify.mjs','ci/oua-4.9.214/apply-hero-token-catalog.mjs','ci/oua-4.9.215/fix-352-visibility.mjs')
+          foreach($step in $steps){& node $step "$env:OUA_ROOT";if($LASTEXITCODE -ne 0){throw ('Patch failed: '+$step)}}
+          & python ci/oua-4.9.214/embed-352-tokens.py (Join-Path $env:OUA_WORK 'tokens/original352.zip') "$env:OUA_ROOT"
+          if($LASTEXITCODE -ne 0){throw 'Cannot embed exactly 352 tokens'}
+      - name: TypeScript build and Android asset sync
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Set-Location $env:OUA_ROOT
+          & npm ci --ignore-scripts --no-audit --no-fund
+          if($LASTEXITCODE -ne 0){& npm install --ignore-scripts --no-audit --no-fund}
+          if($LASTEXITCODE -ne 0){throw 'npm installation failed'}
+          & npm run lint
+          if($LASTEXITCODE -ne 0){throw 'TS lint failed'}
+          & npm run build
+          if($LASTEXITCODE -ne 0){throw 'Vite build failed'}
+          & node scripts/sync-android-assets.mjs
+          if($LASTEXITCODE -ne 0){throw 'Android asset sync failed'}
+          if($LASTEXITCODE -ne 0){throw 'Turn continuity verification failed'}
+          & node (Join-Path $env:GITHUB_WORKSPACE 'ci/oua-4.9.215/verify-hero-catalog.mjs') "$env:OUA_ROOT"
+          if($LASTEXITCODE -ne 0){throw 'Hero token catalog verification failed'}
+      - name: Assemble Android 4.9.215 with preserved signing certificate
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $encoded=Join-Path $env:GITHUB_WORKSPACE 'build-signing/braseiro-stable-debug.keystore.b64'
+          $androidDir=Join-Path $env:USERPROFILE '.android'
+          New-Item -ItemType Directory -Path $androidDir -Force | Out-Null
+          [System.IO.File]::WriteAllBytes((Join-Path $androidDir 'debug.keystore'),[Convert]::FromBase64String((Get-Content $encoded -Raw).Trim()))
+          $candidates=@('C:\actions-runner\android-sdk')
+          if($env:ANDROID_HOME){$candidates+=$env:ANDROID_HOME}
+          if($env:ANDROID_SDK_ROOT){$candidates+=$env:ANDROID_SDK_ROOT}
+          if($env:LOCALAPPDATA){$candidates+=(Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
+          $sdk=$candidates|Where-Object{$_ -and (Test-Path $_) -and (Test-Path (Join-Path $_ 'platforms'))}|Select-Object -First 1
+          if(-not $sdk){throw 'BRELGA Android SDK unavailable'}
+          $env:ANDROID_HOME=$sdk; $env:ANDROID_SDK_ROOT=$sdk
+          Set-Location (Join-Path $env:OUA_ROOT 'android')
+          ('sdk.dir='+$sdk.Replace('\','/'))|Set-Content 'local.properties' -Encoding Ascii
+          & .\gradlew.bat :app:assembleDebug --no-daemon --stacktrace
+          if($LASTEXITCODE -ne 0){throw 'Gradle failed'}
+          $apk=Get-ChildItem 'app/build/outputs/apk/debug' -Filter '*.apk' -File | Select-Object -First 1
+          if(-not $apk){throw 'No APK'}
+          $dest=Join-Path $env:OUA_WORK 'BRASEIRO_O_UM_ANEL_4.9.215_472_TOKENS_TTS_GEMINI.apk'
+          Copy-Item $apk.FullName $dest -Force
+          $buildtools=Get-ChildItem (Join-Path $sdk 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          & (Join-Path $buildtools.FullName 'apksigner.bat') verify --print-certs --verbose $dest | Out-File (Join-Path $env:OUA_WORK 'signature.txt')
+          if($LASTEXITCODE -ne 0){throw 'Bad APK signing'}
+          if(-not ((Get-Content (Join-Path $env:OUA_WORK 'signature.txt') -Raw).Contains('6aa87a24a2eb4762c3f493c9d5fddbf10b60cc8659a90423aed7cde8ae582bd3'))){throw 'Signing certificate differs from the repository stable key'}
+          & python (Join-Path $env:GITHUB_WORKSPACE 'ci/oua-4.9.214/verify-final-apk.py') $dest
+          if($LASTEXITCODE -ne 0){throw 'APK does not have 472 tokens'}
+          Get-FileHash $dest -Algorithm SHA256 | Format-List | Out-File (Join-Path $env:OUA_WORK 'APK_SHA256.txt')
+          Write-Host "OUA_49215_SIGNED_WITH_STABLE_KEY_NOT_COMPATIBLE_WITH_49213=$dest"
+          Write-Host "OUA_49215_BRELGA_472_TOKENS_APK_PASS=$dest"
+      - name: Publish signed 4.9.215 APK using GitHub Release API
+        shell: powershell
+        env:
+          GH_TOKEN: \${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $apk=Join-Path $env:OUA_WORK 'BRASEIRO_O_UM_ANEL_4.9.215_472_TOKENS_TTS_GEMINI.apk'
+          if(-not (Test-Path $apk)){throw 'APK missing after successful Gradle build'}
+          $api="https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases"
+          $headers=@{Authorization=('Bearer '+$env:GH_TOKEN);Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='Braseiro-OUA-49215'}
+          $tag='OUA-v4.9.215-460PORTRAITS-STABLE'
+          $release=$null
+          try{$release=Invoke-RestMethod -Method Get -Uri ($api+'/tags/'+$tag) -Headers $headers}catch{}
+          if(-not $release){
+            $body=@{tag_name=$tag;target_commitish='fix/oua-49215-352-visible-in-hero-picker';name='O Um Anel 4.9.215 - 460 herois selecionaveis';draft=$true;prerelease=$true;make_latest='false';body='Corrige catalogo de tokens no seletor. Exporte campanhas antes de desinstalar.'}|ConvertTo-Json
+            $release=Invoke-RestMethod -Method Post -Uri $api -Headers $headers -Body ([Text.Encoding]::UTF8.GetBytes($body)) -ContentType 'application/json; charset=utf-8'
+          }
+          if(-not $release.id){throw 'Failed to create target Release'}
+          $name=Split-Path $apk -Leaf
+          $upload="https://uploads.github.com/repos/$env:GITHUB_REPOSITORY/releases/$($release.id)/assets?name=$name"
+          $receipt=Join-Path $env:OUA_WORK 'upload-receipt.json'
+          & curl.exe -fL --retry 3 --retry-delay 5 -sS -X POST -H "Authorization: Bearer $env:GH_TOKEN" -H 'X-GitHub-Api-Version: 2022-11-28' -H 'Accept: application/vnd.github+json' -H 'Content-Type: application/vnd.android.package-archive' --data-binary "@$apk" --output $receipt $upload
+          if($LASTEXITCODE -ne 0){throw 'GitHub Release APK upload failed'}
+          $asset=Get-Content $receipt -Raw | ConvertFrom-Json
+          if($asset.state -ne 'uploaded' -or $asset.size -lt 50000000){throw 'Uploaded APK not verified'}
+          $notes=@'
+          O Um Anel v4.9.215 - corrigido o carregamento do catalogo de retratos. Os 352 PNGs adicionais sao carregados junto com os 120 originais, chegando a 472 tokens embutidos. Como os 12 inimigos sao excluidos da escolha do heroi, Todos os povos deve mostrar 460 personagens. Preservadas as correcoes anteriores de TTS e Gemini.
+          
+          ATENCAO: assinatura estavel do repositorio (SHA-256 6aa87a24a2eb4762c3f493c9d5fddbf10b60cc8659a90423aed7cde8ae582bd3), diferente da assinatura experimental 4.9.213. Exporte os dados antes de desinstalar. Testes fisicos ainda pendentes.
+          '@
+          $body=@{draft=$false;prerelease=$true;make_latest='false';body=$notes}|ConvertTo-Json
+          $final=Invoke-RestMethod -Method Patch -Uri ($api+'/'+$release.id) -Headers $headers -Body ([Text.Encoding]::UTF8.GetBytes($body)) -ContentType 'application/json; charset=utf-8'
+          if($final.draft -or -not $final.html_url){throw 'GitHub Release publication failed'}
+          Write-Host ('OUA_49215_CATALOG_FIX_RELEASE_PASS='+$final.html_url)
