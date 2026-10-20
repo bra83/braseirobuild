@@ -104,43 +104,40 @@ def _apply_physical_dice_patch(tmp_path):
     spec = importlib.util.spec_from_file_location("kingmaker_turn_checklist_patch", PATCH_SCRIPT)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    module.patch_player_initiated_dice(tmp_path)
+    module.patch_visible_auto_launch_dice(tmp_path)
     return module, target
 
 
-def test_player_must_explicitly_launch_physical_dice(tmp_path):
-    """Opening a dice request may not initiate a hidden or automatic roll."""
+def test_required_rolls_start_visible_3d_without_a_launch_tap(tmp_path):
+    """The shown dice dialog itself launches real physics; no user approval of RNG."""
     patch, target = _apply_physical_dice_patch(tmp_path)
     content = target.read_text(encoding="utf-8")
-    assert "BRASEIRO_DICE3D_EXPLICIT_USER_LAUNCH_V1" in content
-    assert 'launch.setText("LANÇAR DADOS 3D")' in content
-    assert 'if(done[0]||!dialog.isShowing()||!started[0])return;' in content
-    assert 'started[0]=true;' in content
-    assert 'lastNs[0]=System.nanoTime();diceView.postOnAnimation(ticker);' in content
-    assert "ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);diceView.postOnAnimation(ticker);" not in content
+    assert "BRASEIRO_DICE3D_AUTO_VISIBLE_LAUNCH_V2" in content
+    assert 'launch.setText("LANÇAR DADOS 3D")' not in content
+    assert "started[0]=true;" not in content
+    assert 'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);diceView.postOnAnimation(ticker);' in content
     assert "public static boolean enabled(SharedPreferences prefs){return true;}" in content
     assert "PhysicalDiceEngine.create(physicalFormula,seed)" in content
     assert "session.step()" in content
-    assert "apply.setOnClickListener" in content
     assert "callback.onResult(new RollResult(" in content
-    previous = content
-    patch.patch_player_initiated_dice(tmp_path)
-    assert target.read_text(encoding="utf-8") == previous
-
+    unchanged = content
+    patch.patch_visible_auto_launch_dice(tmp_path)
+    assert target.read_text(encoding="utf-8") == unchanged
 
 def test_physical_dice_patch_rejects_unknown_source_before_writing(tmp_path):
     patch, target = _apply_physical_dice_patch(tmp_path)
     original = target.read_text(encoding="utf-8")
+    assert "BRASEIRO_DICE3D_AUTO_VISIBLE_LAUNCH_V2" in original
     target.write_text(original.replace(
-        "BRASEIRO_DICE3D_EXPLICIT_USER_LAUNCH_V1", "MISSING_PATCH_MARKER"
+        "BRASEIRO_DICE3D_AUTO_VISIBLE_LAUNCH_V2", "MISSING_PATCH_MARKER"
     ).replace(
-        'launch.setText("LANÇAR DADOS 3D")', 'launch.setText("ALTERADO")'
+        'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);diceView.postOnAnimation(ticker);',
+        'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);'
     ), encoding="utf-8")
     modified = target.read_text(encoding="utf-8")
     with pytest.raises(RuntimeError, match="SOURCE_DRIFT"):
-        patch.patch_player_initiated_dice(tmp_path)
+        patch.patch_visible_auto_launch_dice(tmp_path)
     assert target.read_text(encoding="utf-8") == modified
-
 
 def test_advisor_uses_only_kingdom_state_without_secret_or_random_rolls():
     source = SEMANTIC_FILE.read_text(encoding="utf-8")
@@ -233,18 +230,17 @@ def test_legacy_kingdom_random_shortcuts_are_disabled(tmp_path):
     assert 'new java.util.Random().nextInt(20)' not in updated
 
 
-def test_physical_roll_requires_player_tap_and_delivers_settled_result(tmp_path):
-    """Only an explicit player tap starts 3D motion; the settled face is then delivered."""
+def test_physical_roll_auto_starts_and_delivers_settled_face(tmp_path):
+    """Opening the overlay starts 3D physics and registers the settled face."""
     patch, target = _apply_physical_dice_patch(tmp_path)
     source = target.read_text(encoding="utf-8")
     result = patch.transform_visible_dice(source)
     assert "R36_VISIBLE_AUTOMATIC_PHYSICAL_DICE" in result
-    assert 'final TextView resultView=label(activity,"Aguardando seu toque em LANÇAR DADOS."' in result
-    assert 'launch.setVisibility(View.GONE)' in result
-    assert 'started[0]=true;' in result
-    assert 'lastNs[0]=System.nanoTime();diceView.postOnAnimation(ticker);' in result
-    assert 'if(done[0]||!dialog.isShowing()||!started[0])return;' in result
-    assert 'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);started[0]=true;diceView.postOnAnimation(ticker);' not in result
+    assert "BRASEIRO_DICE3D_AUTO_VISIBLE_LAUNCH_V2" in result
+    assert 'final TextView resultView=label(activity,"Dados em movimento…"' in result
+    assert 'LANÇAR DADOS 3D' not in result
+    assert 'started[0]=true;' not in result
+    assert 'ww.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);diceView.postOnAnimation(ticker);' in result
     assert 'final long seed=new java.security.SecureRandom().nextLong();' in result
     assert 'PhysicalDiceEngine.create(physicalFormula,seed)' in result
     assert 'PhysicalDiceEngine.FIXED_DT' in result
@@ -257,6 +253,5 @@ def test_physical_roll_requires_player_tap_and_delivers_settled_result(tmp_path)
     assert 'apply.setText("APLICAR RESULTADO")' not in result
     assert 'cancel.setText("DESCARTAR")' not in result
     assert result.index('resultView.setText(resolvedDetail)') < result.index('diceView.postDelayed(new Runnable()')
-    assert '/* R36_VISIBLE_AUTOMATIC_PHYSICAL_DICE:' in result
     with pytest.raises(RuntimeError, match="already been applied"):
         patch.transform_visible_dice(result)
