@@ -3,13 +3,13 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=process.argv[2];if(!root||!fs.existsSync(path.join(root,'App.tsx')))throw Error('Missing OUA root');
 const here=path.dirname(fileURLToPath(import.meta.url));
-for(const [source,destination] of [['GollumAdvisor.tsx','components/GollumAdvisor.tsx'],['gollumCounsel.ts','lib/gollumCounsel.ts']]){
+for(const [source,destination] of [['GollumAdvisor.tsx','components/GollumAdvisor.tsx'],['gollumCounsel.ts','lib/gollumCounsel.ts'],['gollumRules.ts','lib/gollumRules.ts']]){
   const out=path.join(root,destination);fs.mkdirSync(path.dirname(out),{recursive:true});fs.copyFileSync(path.join(here,source),out);
 }
 const filename=path.join(root,'App.tsx');let app=fs.readFileSync(filename,'utf8');
 function swap(a,b,label){const count=app.split(a).length-1;if(count!==1)throw Error('OUA_49216_ANCHOR_'+label+'_'+count);app=app.replace(a,b)}
 swap("import { AppHeader } from './components/AppHeader';",
-  "import { AppHeader } from './components/AppHeader';\nimport { GollumAdvisor } from './components/GollumAdvisor';",'import');
+  "import { AppHeader } from './components/AppHeader';\nimport { GollumAdvisor } from './components/GollumAdvisor';\nimport { askGollumRules } from './lib/gollumRules';",'import');
 const marker='<QuickAudioPanel open={quickAudioOpen} onClose={() => setQuickAudioOpen(false)} onStopAll={handleStopAll} />';
 const component=[
   marker,
@@ -22,7 +22,7 @@ const component=[
   '        currentTab:activeTab,',
   "        locationName:String(campaign.currentLocation||''),",
   '        storyBusy:isStoryLoading,',
-  '      }} onSpeak={text=>speakWithAndroid(text)}/>'
+  '      }} onSpeak={text=>speakWithAndroid(text)} onAsk={askGollumRules}/>'
 ].join('\n');
 swap(marker,component,'render');
 fs.writeFileSync(filename,app);
