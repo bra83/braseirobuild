@@ -16,7 +16,7 @@ jobs:
       - name: Recover existing APK bytes, hash-verify and publish public-to-repo RC prereleases
         shell: powershell
         env:
-          GH_TOKEN: \${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
           $repo='bra83/braseirobuild'
