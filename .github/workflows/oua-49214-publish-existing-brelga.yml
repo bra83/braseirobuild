@@ -1,0 +1,66 @@
+name: Publish already-built OUA 4.9.214 APK — BRELGA
+on:
+  push:
+    branches: [feature/oua-49214-hero-token-catalog]
+    paths:
+      - ".github/workflows/oua-49214-publish-existing-brelga.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            ci/oua-4.9.214
+      - name: Find already built OUA 4.9.214 APK and validate contents
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'Expected BRELGA'}
+          $candidates=@(
+            'C:\actions-runner\_work\_temp\oua-49214-472\BRASEIRO_O_UM_ANEL_4.9.214_472_TOKENS_TTS_GEMINI.apk',
+            'C:\actions-runner\_work\_temp\oua-49214-472\source\extract\android\app\build\outputs\apk\debug\app-debug.apk'
+          )
+          $src=$candidates|Where-Object{Test-Path $_}|Select-Object -First 1
+          if(-not $src){throw 'NEEDS_REBUILD: prior APK was removed from BRELGA temporary directory'}
+          $target=Join-Path $env:RUNNER_TEMP 'BRASEIRO_O_UM_ANEL_4.9.214_472_TOKENS_TTS_GEMINI.apk'
+          Copy-Item -LiteralPath $src -Destination $target -Force
+          & python ci/oua-4.9.214/verify-final-apk.py $target
+          if($LASTEXITCODE -ne 0){throw '472 tokens missing in APK'}
+          $candidateSDK=@('C:\actions-runner\android-sdk')
+          if($env:ANDROID_HOME){$candidateSDK+=$env:ANDROID_HOME}
+          if($env:ANDROID_SDK_ROOT){$candidateSDK+=$env:ANDROID_SDK_ROOT}
+          $sdk=$candidateSDK|Where-Object{Test-Path (Join-Path $_ 'build-tools')}|Select-Object -First 1
+          if(-not $sdk){throw 'SDK needed for signing verification'}
+          $tools=Get-ChildItem (Join-Path $sdk 'build-tools') -Directory|Sort-Object Name -Descending|Select-Object -First 1
+          $sig=& (Join-Path $tools.FullName 'apksigner.bat') verify --print-certs --verbose $target
+          if($LASTEXITCODE -ne 0){throw 'APK signature invalid'}
+          if(($sig -join ' ') -notmatch '6aa87a24a2eb4762c3f493c9d5fddbf10b60cc8659a90423aed7cde8ae582bd3'){throw 'Unexpected APK certificate'}
+          $sha=(Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash
+          Write-Host "OUA_49214_APK_SHA256=$sha"
+          "OUA_APK=$target" >> $env:GITHUB_ENV
+      - name: Publish APK through GitHub Release (no Actions artifact quota)
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $tag='OUA-v4.9.214-472TOKENS-STABLE'
+          $title='O Um Anel 4.9.214 — 472 tokens + TTS/Gemini'
+          $notes=@'
+          APK Android 4.9.214 compilado no BRELGA, com 120 tokens antigos e 352 recortes transparentes adicionais, categorizados e selecionáveis na escolha do herói. Preserva os patches do motor de voz e continuidade Gemini.
+          
+          ATENÇÃO: assinado pela chave estável atual do repositório, SHA256 6aa87a24a2eb4762c3f493c9d5fddbf10b60cc8659a90423aed7cde8ae582bd3. NÃO é compatível como atualização in-place com o APK experimental 4.9.213 (fingerprint b08a0f2943a4786e87e8202bcfa78bb7d6eea431861bae1c46333aec19e4df8e). Faça backup/exportação da campanha antes de qualquer desinstalação. Não há homologação física Android.
+          '@
+          & gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if($LASTEXITCODE -ne 0){
+            & gh release create $tag $env:OUA_APK --repo $env:GITHUB_REPOSITORY --title $title --notes $notes --latest=false
+          }else{
+            & gh release upload $tag $env:OUA_APK --repo $env:GITHUB_REPOSITORY --clobber
+          }
+          if($LASTEXITCODE -ne 0){throw 'GitHub Release APK publication failed'}
+          Write-Host 'OUA_49214_GITHUB_RELEASE_PUBLISHED'
