@@ -89,26 +89,35 @@ jobs:
           Copy-Item $apk.FullName 'evidence/dnd-tts-v3-internal-verification.apk'
           @("HEAD=$env:GITHUB_SHA","SHA256=$hash","SOURCE_REGRESSIONS=PASS","ANDROID_SIGNING_VALID=PASS","INSTALL_OVER=NOT_TESTED","A57_AUDIO=NOT_TESTED","FINAL_RELEASE=BLOCKED")|Set-Content 'evidence/dnd-source-proof.txt'
           Write-Host "DND_INTERNAL_APK_SHA256=$hash"
-      - name: Publish signed APK via private GitHub Release (not Actions artifact storage)
+      - name: Publish signed APK to draft GitHub Release via REST (no gh binary)
         shell: powershell
         env:
           GH_TOKEN: ${{ github.token }}
+        timeout-minutes: 18
         run: |
           $ErrorActionPreference='Stop'
-          if(!(Get-Command gh -ErrorAction SilentlyContinue)){throw 'GITHUB_CLI_MISSING_ON_BRELGA'}
+          $repo=$env:GITHUB_REPOSITORY
+          $tag='braseiro-dnd-tts-v3-'+$env:GITHUB_SHA.Substring(0,12)
           $apk='evidence/dnd-tts-v3-internal-verification.apk'
           $proof='evidence/dnd-source-proof.txt'
-          if(!(Test-Path $apk) -or !(Test-Path $proof)){throw 'SIGNED_APK_EVIDENCE_MISSING'}
-          $tag='braseiro-dnd-tts-v3-'+$env:GITHUB_SHA.Substring(0,12)
-          $repo=$env:GITHUB_REPOSITORY
-          $notes='Signed Android APK built on BRELGA. Source regression and signature checks passed. NOT a final certified release: A57 real audio and install-over-existing validation pending. Source commit: '+$env:GITHUB_SHA
-          & gh release view $tag --repo $repo --json tagName 2>$null | Out-Null
-          if($LASTEXITCODE -ne 0){
-            & gh release create $tag --repo $repo --target $env:GITHUB_SHA --draft --title 'D&D 5e · TTS v3 · APK compilado (aguardando homologação)' --notes $notes
-            if($LASTEXITCODE -ne 0){throw 'PRIVATE_RELEASE_CREATION_FAILED'}
+          if(!(Test-Path -LiteralPath $apk) -or !(Test-Path -LiteralPath $proof)){throw 'APK_OR_PROVENANCE_MISSING'}
+          if(!$env:GH_TOKEN){throw 'WORKFLOW_CONTENTS_WRITE_TOKEN_MISSING'}
+          $headers=@{'Authorization'="Bearer $env:GH_TOKEN";'Accept'='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='Braseiro-BRELGA'}
+          $body=@{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name='D&D 5e · TTS v3 · APK assinado (homologação Android pendente)';body='Built on BRELGA. Source and Android signatures PASS. A57 physical playback and install-over-existing NOT TESTED. Not marked final.';draft=$true;prerelease=$false}
+          $release=Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases" -Method Post -Headers $headers -ContentType 'application/json; charset=utf-8' -Body ($body | ConvertTo-Json -Depth 6) -TimeoutSec 90
+          if(!$release.id -or !$release.upload_url){throw 'DRAFT_RELEASE_CREATION_INCOMPLETE'}
+          $upload=$release.upload_url.Split('{')[0]
+          foreach($file in @($apk,$proof)){
+            $name=[Uri]::EscapeDataString([IO.Path]::GetFileName($file))
+            $uri=$upload+'?name='+$name
+            $uploaded=Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -ContentType 'application/octet-stream' -InFile $file -TimeoutSec 900
+            if(!$uploaded.id -or $uploaded.size -ne (Get-Item $file).Length){throw 'RELEASE_UPLOAD_SIZE_MISMATCH'}
+            Write-Host ("RELEASE_ASSET_STORED="+$uploaded.name+" bytes="+$uploaded.size)
           }
-          & gh release upload $tag $apk $proof --repo $repo --clobber
-          if($LASTEXITCODE -ne 0){throw 'PRIVATE_RELEASE_ASSET_UPLOAD_FAILED'}
-          & gh release view $tag --repo $repo --json url,assets,tagName
-          if($LASTEXITCODE -ne 0){throw 'PRIVATE_RELEASE_LINK_VERIFICATION_FAILED'}
-          Write-Host "SIGNED_APK_DELIVERY_VIA_GITHUB_RELEASE=PASS tag=$tag"
+          $assets=Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets" -Method Get -Headers $headers -TimeoutSec 90
+          $names=@($assets | ForEach-Object {$_.name})
+          foreach($file in @($apk,$proof)){
+            if($names -notcontains [IO.Path]::GetFileName($file)){throw 'RELEASE_ASSET_MISSING_AFTER_UPLOAD'}
+          }
+          Write-Host ("DRAFT_RELEASE_APK_DELIVERED="+$release.html_url)
+          Write-Host 'A57_HOMOLOGATION=NOT_TESTED'
