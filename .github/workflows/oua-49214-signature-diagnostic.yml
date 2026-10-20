@@ -1,0 +1,31 @@
+name: OUA signing certificate diagnostic — BRELGA
+on:
+  push:
+    branches: [feature/oua-49214-hero-token-catalog]
+    paths:
+      - ".github/workflows/oua-49214-signature-diagnostic.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  signature:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            build-signing
+      - name: Check original stable Android signing certificate, never print key
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $encoded=Join-Path $env:GITHUB_WORKSPACE 'build-signing/braseiro-stable-debug.keystore.b64'
+          $ks=Join-Path $env:RUNNER_TEMP 'oua-49214-stable-debug.keystore'
+          [System.IO.File]::WriteAllBytes($ks,[Convert]::FromBase64String((Get-Content $encoded -Raw).Trim()))
+          & keytool.exe -list -v -keystore $ks -storepass android | Select-String 'SHA256'
+          if($LASTEXITCODE -ne 0){throw 'Could not inspect signing certificate'}
+          $out=& keytool.exe -list -v -keystore $ks -storepass android
+          $matches=($out | Select-String 'SHA256:').ToString()
+          Write-Host ('STABLE_DEBUG_CERT_FINGERPRINT='+$matches)
+          if($matches -match 'B0:8A:0F:29:43:A4:78:6E:87:E8:20:2B:CF:A7:8B:B7:D6:EE:A4:31:86:1B:AE:1C:46:33:AE:C1:9E:4D:F8:E'){Write-Host 'MATCHES_OUA_49213=true'}else{Write-Host 'MATCHES_OUA_49213=false'}
