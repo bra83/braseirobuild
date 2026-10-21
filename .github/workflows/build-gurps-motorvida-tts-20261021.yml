@@ -18,9 +18,9 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           if ($env:RUNNER_NAME -ne 'BRELGA') { throw "RUNNER_MUST_BE_BRELGA: $env:RUNNER_NAME" }
-          $sourceName = 'BRASEIRO_GURPS_10.8.0_IMPORTACAO_CANONICA_V2_20261021_SOURCE.zip'
-          $expectedSha = 'b32df8332574ae80cd00b7b29af0aeb420fdfc0fc074a50d81694ac672116b16'
-          $driveId = '10QGazPf0k8YmIDilAsXlZROe0m3aAcJJ'
+          $sourceName = 'BRASEIRO_GURPS_10.8.0_PAINEL_NARRACAO_FIX_V3_20261021_SOURCE.zip'
+          $expectedSha = '6473aaa35f51c56f491d160efe466e274683ec29207e0f51c0f342f09425c8e8'
+          $driveId = '1mVfD0pilVMXvNYOZfBcF8bifaTV6xjPX'
           $work = Join-Path $env:RUNNER_TEMP 'gurps-motorvida-tts-20261021'
           New-Item -ItemType Directory -Force -Path $work | Out-Null
           $zip = Join-Path $work $sourceName
@@ -122,20 +122,3 @@ jobs:
           Write-Output "APK_CREATED=$output"
           Write-Output "APK_SHA256=$apkSha"
           Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value "GURPS 10.8.0 Motor Vida V2 + TTS V3: debug APK built on BRELGA; SHA256 $apkSha. Android device test not executed."
-      - name: Publish APK to private repository release
-        shell: powershell
-        continue-on-error: false
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $tag = 'GURPS-10.8.0-MOTORVIDA-V2-TTSV3-20261021'
-          $apk = Join-Path $env:GITHUB_WORKSPACE 'gurps-apk-output\BRASEIRO_GURPS_10.8.0_MOTOR_VIDA_V2_TTS_V3_DEBUG.apk'
-          if (-not (Test-Path -LiteralPath $apk)) { throw 'APK_NOT_FOUND_FOR_RELEASE' }
-          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
-          if ($LASTEXITCODE -eq 0) {
-            gh release upload $tag $apk --clobber --repo $env:GITHUB_REPOSITORY
-          } else {
-            gh release create $tag $apk --repo $env:GITHUB_REPOSITORY --title 'GURPS 10.8.0 Motor Vida V2 + TTS V3 (APK debug)' --notes 'APK de teste compilado no BRELGA. Nao homologado no Galaxy A57.'
-          }
-          if ($LASTEXITCODE -ne 0) { throw 'PRIVATE_RELEASE_UPLOAD_FAILED' }
