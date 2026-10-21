@@ -1,0 +1,50 @@
+name: Publish GURPS Motor Vida V2 + TTS V3 APK from BRELGA
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-gurps-motorvida-tts-20261021.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 20
+    steps:
+      - name: Verify compiled APK and publish private release
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw 'RUNNER_MUST_BE_BRELGA' }
+          $apkName = 'BRASEIRO_GURPS_10.8.0_MOTOR_VIDA_V2_TTS_V3_DEBUG.apk'
+          $apk = Join-Path $env:GITHUB_WORKSPACE "gurps-apk-output\$apkName"
+          if (-not (Test-Path -LiteralPath $apk -PathType Leaf)) { throw 'COMPILED_APK_MISSING_ON_BRELGA' }
+          $sha = (Get-FileHash -LiteralPath $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($sha -ne '477d430b38ec7f4ea3e69a549d180bff155c181042e006a2c12df01617f2caee') { throw "COMPILED_APK_SHA_MISMATCH=$sha" }
+          Write-Output "VERIFIED_BRELGA_APK_SHA256=$sha"
+          $tag = 'GURPS-10.8.0-MOTORVIDA-V2-TTSV3-20261021'
+          $repo = $env:GITHUB_REPOSITORY
+          $notes = 'APK debug GURPS 10.8.0 com Motor Vida V2 e TTS V3, compilado no BRELGA. Teste no Galaxy A57 ainda pendente. SHA256: ' + $sha
+          if (Get-Command gh -ErrorAction SilentlyContinue) {
+            & gh release view $tag --repo $repo *> $null
+            if ($LASTEXITCODE -eq 0) {
+              & gh release upload $tag $apk --repo $repo --clobber
+            } else {
+              & gh release create $tag $apk --repo $repo --title 'Braseiro GURPS 10.8.0 Motor Vida V2 + TTS V3 - APK debug' --notes $notes --prerelease
+            }
+            if ($LASTEXITCODE -ne 0) { throw 'GH_RELEASE_PUBLISH_FAILED' }
+          } else {
+            $headers = @{Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28'}
+            $releaseUrl = "https://api.github.com/repos/$repo/releases/tags/$tag"
+            try { $release = Invoke-RestMethod -Uri $releaseUrl -Headers $headers -Method Get } catch {
+              $body = @{tag_name=$tag; name='Braseiro GURPS 10.8.0 Motor Vida V2 + TTS V3 - APK debug'; body=$notes; draft=$false; prerelease=$true} | ConvertTo-Json
+              $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases" -Headers $headers -Method Post -ContentType 'application/json' -Body $body
+            }
+            $uploadUri = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$apkName"
+            $asset = Invoke-RestMethod -Uri $uploadUri -Headers $headers -Method Post -ContentType 'application/vnd.android.package-archive' -InFile $apk
+            if (-not $asset.id) { throw 'GITHUB_RELEASE_ASSET_NOT_CONFIRMED' }
+          }
+          Write-Output "PRIVATE_APK_RELEASE_PUBLISHED_TAG=$tag"
+          Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value "APK debug GURPS publicado em release privado: $tag. SHA256 $sha."
