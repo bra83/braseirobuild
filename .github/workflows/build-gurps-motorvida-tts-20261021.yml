@@ -78,7 +78,19 @@ jobs:
           $android = Join-Path $root 'android'
           if (-not (Test-Path -LiteralPath (Join-Path $android 'settings.gradle.kts'))) { throw 'ANDROID_GRADLE_ROOT_MISSING' }
           if (-not (Test-Path -LiteralPath (Join-Path $android 'gradlew.bat'))) { throw 'GRADLE_WRAPPER_MISSING' }
-          if (-not $env:ANDROID_HOME -and -not $env:ANDROID_SDK_ROOT) { throw 'ANDROID_SDK_MISSING' }
+          $sdkCandidates = @('C:\actions-runner\android-sdk', 'C:\Android\Sdk')
+          if ($env:ANDROID_HOME) { $sdkCandidates = @($env:ANDROID_HOME) + $sdkCandidates }
+          if ($env:ANDROID_SDK_ROOT) { $sdkCandidates = @($env:ANDROID_SDK_ROOT) + $sdkCandidates }
+          if ($env:LOCALAPPDATA) { $sdkCandidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk') }
+          $sdk = $null
+          foreach ($candidate in ($sdkCandidates | Select-Object -Unique)) {
+            if (Test-Path -LiteralPath (Join-Path $candidate 'platforms')) { $sdk = $candidate; break }
+            if (Test-Path -LiteralPath (Join-Path $candidate 'cmdline-tools')) { $sdk = $candidate; break }
+          }
+          if (-not $sdk) { throw 'ANDROID_SDK_NOT_FOUND_ON_BRELGA' }
+          $env:ANDROID_HOME = $sdk
+          $env:ANDROID_SDK_ROOT = $sdk
+          Write-Output "ANDROID_SDK_RESOLVED=$sdk"
           Push-Location $android
           try {
             & .\gradlew.bat --no-daemon --stacktrace :app:compileDebugJavaWithJavac :app:assembleDebug
