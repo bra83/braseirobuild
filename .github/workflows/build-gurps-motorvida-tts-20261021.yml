@@ -18,9 +18,9 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           if ($env:RUNNER_NAME -ne 'BRELGA') { throw "RUNNER_MUST_BE_BRELGA: $env:RUNNER_NAME" }
-          $sourceName = 'BRASEIRO_GURPS_10.8.0_IMPORTACAO_CANONICA_V1_20261021_SOURCE.zip'
-          $expectedSha = 'a17d9bddf98e0abca8fff6d9349cdce6ac203df631a5cdf57cd890094ad9a1c5'
-          $driveId = '1sjH73x7sVMHdnBFj4pc9pg9C556--W8b'
+          $sourceName = 'BRASEIRO_GURPS_10.8.0_IMPORTACAO_CANONICA_V2_20261021_SOURCE.zip'
+          $expectedSha = 'b32df8332574ae80cd00b7b29af0aeb420fdfc0fc074a50d81694ac672116b16'
+          $driveId = '10QGazPf0k8YmIDilAsXlZROe0m3aAcJJ'
           $work = Join-Path $env:RUNNER_TEMP 'gurps-motorvida-tts-20261021'
           New-Item -ItemType Directory -Force -Path $work | Out-Null
           $zip = Join-Path $work $sourceName
