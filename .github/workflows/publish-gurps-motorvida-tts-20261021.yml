@@ -22,7 +22,7 @@ jobs:
           $apk = Join-Path $env:GITHUB_WORKSPACE "gurps-apk-output\$apkName"
           if (-not (Test-Path -LiteralPath $apk -PathType Leaf)) { throw 'COMPILED_APK_MISSING_ON_BRELGA' }
           $sha = (Get-FileHash -LiteralPath $apk -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($sha -ne '477d430b38ec7f4ea3e69a549d180bff155c181042e006a2c12df01617f2caee') { throw "COMPILED_APK_SHA_MISMATCH=$sha" }
+          if ($sha -ne '78559d5d30955e0eb097ef724eaea92f182b035a1af21a8863fd0a2345f91a84') { throw "COMPILED_APK_SHA_MISMATCH=$sha" }
           Write-Output "VERIFIED_BRELGA_APK_SHA256=$sha"
           $tag = 'GURPS-10.8.0-MOTORVIDA-V2-TTSV3-20261021'
           $repo = $env:GITHUB_REPOSITORY
