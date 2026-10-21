@@ -91,6 +91,22 @@ jobs:
           $env:ANDROID_HOME = $sdk
           $env:ANDROID_SDK_ROOT = $sdk
           Write-Output "ANDROID_SDK_RESOLVED=$sdk"
+          $javaCandidates = @('C:\Program Files\Android\Android Studio\jbr', 'C:\actions-runner\jdk-17', 'C:\Program Files\Java\jdk-17')
+          foreach ($javaBase in @('C:\Program Files\Eclipse Adoptium', 'C:\Program Files\Java', 'C:\Program Files\Microsoft', 'C:\Program Files\Zulu')) {
+            if (Test-Path -LiteralPath $javaBase) {
+              $javaCandidates += @(Get-ChildItem -LiteralPath $javaBase -Directory -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })
+            }
+          }
+          if ($env:JAVA_HOME) { $javaCandidates = @($env:JAVA_HOME) + $javaCandidates }
+          $javaHome = $null
+          foreach ($javaCandidate in ($javaCandidates | Select-Object -Unique)) {
+            if (Test-Path -LiteralPath (Join-Path $javaCandidate 'bin\java.exe')) { $javaHome = $javaCandidate; break }
+          }
+          if (-not $javaHome) { throw 'JDK_NOT_FOUND_ON_BRELGA' }
+          $env:JAVA_HOME = $javaHome
+          $env:PATH = (Join-Path $javaHome 'bin') + ';' + $env:PATH
+          Write-Output "JAVA_HOME_RESOLVED=$javaHome"
+          & java -version
           Push-Location $android
           try {
             & .\gradlew.bat --no-daemon --stacktrace :app:compileDebugJavaWithJavac :app:assembleDebug
