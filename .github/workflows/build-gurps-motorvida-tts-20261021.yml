@@ -18,9 +18,9 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           if ($env:RUNNER_NAME -ne 'BRELGA') { throw "RUNNER_MUST_BE_BRELGA: $env:RUNNER_NAME" }
-          $sourceName = 'BRASEIRO_GURPS_10.8.0_MOTOR_VIDA_V2_TTS_V3_BUILD_FIX2_20261021_SOURCE.zip'
-          $expectedSha = 'f0a90d60681e840c3856c6d1a43e02a0dbf642d57706cf0590300aa6e183b59d'
-          $driveId = '15k-Hgsm6Qzy9LG8lOFqgTZ1UgH4SSWcC'
+          $sourceName = 'BRASEIRO_GURPS_10.8.0_IMPORTACAO_CANONICA_V1_20261021_SOURCE.zip'
+          $expectedSha = 'a17d9bddf98e0abca8fff6d9349cdce6ac203df631a5cdf57cd890094ad9a1c5'
+          $driveId = '1sjH73x7sVMHdnBFj4pc9pg9C556--W8b'
           $work = Join-Path $env:RUNNER_TEMP 'gurps-motorvida-tts-20261021'
           New-Item -ItemType Directory -Force -Path $work | Out-Null
           $zip = Join-Path $work $sourceName
@@ -122,16 +122,9 @@ jobs:
           Write-Output "APK_CREATED=$output"
           Write-Output "APK_SHA256=$apkSha"
           Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value "GURPS 10.8.0 Motor Vida V2 + TTS V3: debug APK built on BRELGA; SHA256 $apkSha. Android device test not executed."
-      - name: Publish APK as private Actions artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: BRASEIRO_GURPS_10.8.0_MOTOR_VIDA_V2_TTS_V3_DEBUG
-          path: gurps-apk-output/*.apk
-          if-no-files-found: error
-          retention-days: 30
       - name: Publish APK to private repository release
         shell: powershell
-        continue-on-error: true
+        continue-on-error: false
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
