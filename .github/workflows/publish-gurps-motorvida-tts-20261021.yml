@@ -42,7 +42,8 @@ jobs:
               $body = @{tag_name=$tag; name='Braseiro GURPS 10.8.0 Motor Vida V2 + TTS V3 - APK debug'; body=$notes; draft=$false; prerelease=$true} | ConvertTo-Json
               $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases" -Headers $headers -Method Post -ContentType 'application/json' -Body $body
             }
-            $uploadUri = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$apkName"
+            $uploadName = "BRASEIRO_GURPS_10.8.0_IMPORTACAO_CANONICA_DEBUG.apk"
+            $uploadUri = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$uploadName"
             $asset = Invoke-RestMethod -Uri $uploadUri -Headers $headers -Method Post -ContentType 'application/vnd.android.package-archive' -InFile $apk
             if (-not $asset.id) { throw 'GITHUB_RELEASE_ASSET_NOT_CONFIRMED' }
           }
