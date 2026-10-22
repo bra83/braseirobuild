@@ -46,6 +46,18 @@ jobs:
           if ('false' -eq 'true') {
             throw 'FONTE_INTEGRAL_REFERENCIA_GDRIVE_RELEASE_NAO_RECONCILIADA_NESTE_BRANCH'
           }
+      - name: Preparar Java 21 no BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $roots=@('C:\\actions-runner\\_work\\_tool\\Java_Temurin-Hotspot_jdk','C:\\Program Files\\Eclipse Adoptium','C:\\Program Files\\Java')
+          $candidates=@()
+          foreach($root in $roots){if(Test-Path $root){$candidates+=Get-ChildItem $root -Filter 'java.exe' -File -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Split-Path (Split-Path $_.FullName -Parent) -Parent }}}
+          $jdk=$candidates | Where-Object { Test-Path (Join-Path $_ 'bin\\javac.exe') } | Sort-Object -Descending | Select-Object -First 1
+          if(!$jdk){throw 'BRELGA_JDK_NOT_FOUND'}
+          "JAVA_HOME=$jdk" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "PATH=$jdk\\bin;$env:PATH" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          & (Join-Path $jdk 'bin\\java.exe') -version
       - name: Android SDK e suite de build sem publicar como final
         shell: powershell
         run: |
