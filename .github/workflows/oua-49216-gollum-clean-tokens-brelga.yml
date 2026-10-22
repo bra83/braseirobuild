@@ -118,6 +118,8 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'Gollum guide integration failed'}
           & python ci/oua-4.9.216/cleanup_embedded_tokens.py "$env:OUA_ROOT"
           if($LASTEXITCODE -ne 0){throw 'Green chroma contamination cleanup failed'}
+          & python ci/oua-4.9.216/patch-oua.py "$env:OUA_ROOT"
+          if($LASTEXITCODE -ne 0){throw 'Importador JSON V2.2 não integrado ao runtime real'}
       - name: TypeScript build and Android asset sync
         shell: powershell
         run: |
