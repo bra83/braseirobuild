@@ -1,0 +1,52 @@
+name: Publish existing GURPS 10.9.1 APK - BRELGA (no artifacts quota)
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-existing-gurps-v9-1-brelga-20261022.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish-existing-apk:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 25
+    steps:
+      - name: Verify actual BRELGA compiled APK and publish GitHub release
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "EXPECTED_BRELGA_GOT_$env:RUNNER_NAME" }
+          $name = 'BRASEIRO_GURPS_10.9.1_TTS_FORBIDDEN_LANDS_PORT_DEBUG.apk'
+          $apk = Join-Path $env:GITHUB_WORKSPACE "gurps-apk-output\$name"
+          if (-not (Test-Path -LiteralPath $apk -PathType Leaf)) { throw "APK_NOT_FOUND_ON_BRELGA=$apk" }
+          $expected = '284b0256d7eeb03bee2104e45c97f3db00bd69fb24064fbcb3705e7f84ed8273'
+          $actual = (Get-FileHash -LiteralPath $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -ne $expected) { throw "APK_SHA256_MISMATCH actual=$actual expected=$expected" }
+          $size = (Get-Item -LiteralPath $apk).Length
+          Write-Output "GURPS_10_9_1_APK_SHA256_VERIFIED=$actual"
+          Write-Output "GURPS_10_9_1_APK_SIZE=$size"
+          $tag = 'GURPS-10.9.1-FL-AUDIO-20261022'
+          $repo = $env:GITHUB_REPOSITORY
+          $notes = "GURPS 10.9.1: port do contrato Android Kokoro / Forbidden Lands, compilado no runner BRELGA em 2026-10-22. A compilacao Android passou; teste real no Galaxy pendente. SHA256: $actual"
+          $headers = @{Authorization = "Bearer $env:GH_TOKEN";Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28'}
+          $api = "https://api.github.com/repos/$repo"
+          try {
+            $release = Invoke-RestMethod -Method Get -Uri "$api/releases/tags/$tag" -Headers $headers
+          } catch {
+            $json = @{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name='Braseiro GURPS 10.9.1 - Kokoro Forbidden Lands';body=$notes;draft=$false;prerelease=$true} | ConvertTo-Json
+            $release = Invoke-RestMethod -Method Post -Uri "$api/releases" -Headers $headers -ContentType 'application/json' -Body ([System.Text.Encoding]::UTF8.GetBytes($json))
+          }
+          if (-not $release.id) { throw 'RELEASE_ID_MISSING' }
+          $assets = @($release.assets)
+          $existing = $assets | Where-Object { $_.name -eq $name } | Select-Object -First 1
+          if ($existing -and $existing.size -ne $size) { throw "RELEASE_ASSET_NAME_CONFLICT_WITH_OTHER_SIZE" }
+          if (-not $existing) {
+            $uploadUrl = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$name"
+            $asset = Invoke-RestMethod -Method Post -Uri $uploadUrl -Headers $headers -ContentType 'application/vnd.android.package-archive' -InFile $apk
+          } else { $asset = $existing }
+          if (-not $asset.id -or $asset.state -ne 'uploaded' -or $asset.size -ne $size) { throw 'GITHUB_ASSET_UPLOAD_NOT_VERIFIED' }
+          Write-Output "GURPS_APK_PUBLISHED=$($asset.browser_download_url)"
+          Write-Output "GURPS_RELEASE=$($release.html_url)"
+          Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value "GURPS V9.1 APK published: $($asset.browser_download_url) | SHA256 $actual | size $size bytes | Android device test pending"
