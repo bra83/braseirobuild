@@ -61,11 +61,10 @@ jobs:
             Write-Host 'Fonte de runtime 4.9.216 vem de Release OUA-v4.9.211, não deste snapshot; não compilar snapshot antigo.'
           if ($LASTEXITCODE -ne 0) { throw 'ANDROID_GRADLE_FAILED' }
           Write-Host 'OUA_ANDROID_COMPILE_TEST_ASSEMBLE_GATE_PASS'
-      - name: Armazenar evidencias mesmo em caso de bloqueio
+      - name: Exibir evidencias nos logs sem consumir cota do GitHub Artifacts
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: VIDA_V22_OUA_BRELGA_${{ github.run_id }}
-          path: evidence-vida-v22-oua/*
-          if-no-files-found: warn
-          retention-days: 14
+        shell: powershell
+        run: |
+          $path='evidence-vida-v22-oua/STATUS.txt'
+          if (Test-Path $path) { Get-Content $path | ForEach-Object { Write-Host $_ } }
+          else { Write-Host 'STATUS_FILE_ABSENT; diagnose previous step logs' }
