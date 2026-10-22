@@ -4,6 +4,8 @@ on:
     branches: [feature/oua-49216-gollum-guide-degreen]
     paths:
       - ".github/workflows/oua-49216-gollum-clean-tokens-brelga.yml"
+      - "ci/oua-4.9.216/patch-oua.py"
+      - "ci/oua-4.9.216/braseiroJsonAdventure.ts"
   workflow_dispatch:
 concurrency:
   group: oua-49216-472-tokens-brelga
@@ -158,7 +160,7 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'Gradle failed'}
           $apk=Get-ChildItem 'app/build/outputs/apk/debug' -Filter '*.apk' -File | Select-Object -First 1
           if(-not $apk){throw 'No APK'}
-          $dest=Join-Path $env:OUA_WORK 'BRASEIRO_O_UM_ANEL_4.9.216_GOLLUM_TOKENS_SEM_VERDE.apk'
+          $dest=Join-Path $env:OUA_WORK 'BRASEIRO_O_UM_ANEL_4.9.216_IMPORTADOR_JSON_V22.apk'
           Copy-Item $apk.FullName $dest -Force
           $buildtools=Get-ChildItem (Join-Path $sdk 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
           & (Join-Path $buildtools.FullName 'apksigner.bat') verify --print-certs --verbose $dest | Out-File (Join-Path $env:OUA_WORK 'signature.txt')
@@ -175,15 +177,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
-          $apk=Join-Path $env:OUA_WORK 'BRASEIRO_O_UM_ANEL_4.9.216_GOLLUM_TOKENS_SEM_VERDE.apk'
+          $apk=Join-Path $env:OUA_WORK 'BRASEIRO_O_UM_ANEL_4.9.216_IMPORTADOR_JSON_V22.apk'
           if(-not (Test-Path $apk)){throw 'APK missing after successful Gradle build'}
           $api="https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases"
           $headers=@{Authorization=('Bearer '+$env:GH_TOKEN);Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='Braseiro-OUA-49216'}
-          $tag='OUA-v4.9.216-GOLLUM-TOKENS-CLEAN'
+          $tag='OUA-v4.9.216-IMPORTADOR-JSON-VIDA-V22'
           $release=$null
           try{$release=Invoke-RestMethod -Method Get -Uri ($api+'/tags/'+$tag) -Headers $headers}catch{}
           if(-not $release){
-            $body=@{tag_name=$tag;target_commitish='feature/oua-49216-gollum-guide-degreen';name='O Um Anel 4.9.216 - Gollum guia e tokens corrigidos';draft=$true;prerelease=$true;make_latest='false';body='Guia Gollum contextual sem spoilers e 352 tokens com tratamento de bordas verdes. Exporte campanhas antes de desinstalar.'}|ConvertTo-Json
+            $body=@{tag_name=$tag;target_commitish='feature/oua-49216-gollum-guide-degreen';name='O Um Anel 4.9.216 - Aventura JSON e Vida V2.2 integrada (candidata)';draft=$true;prerelease=$true;make_latest='false';body='Guia Gollum contextual sem spoilers e 352 tokens com tratamento de bordas verdes. Exporte campanhas antes de desinstalar.'}|ConvertTo-Json
             $release=Invoke-RestMethod -Method Post -Uri $api -Headers $headers -Body ([Text.Encoding]::UTF8.GetBytes($body)) -ContentType 'application/json; charset=utf-8'
           }
           if(-not $release.id){throw 'Failed to create target Release'}
@@ -195,6 +197,7 @@ jobs:
           $asset=Get-Content $receipt -Raw | ConvertFrom-Json
           if($asset.state -ne 'uploaded' -or $asset.size -lt 50000000){throw 'Uploaded APK not verified'}
           $notes=@'
+          Importador de aventuras JSON Vida Persistente V2.2: botão em Campanha, GM private context e confirmação; Android físico ainda não certificado. O projeto usa engine original 4.9.216 com Gollum e 472 tokens.
           O Um Anel v4.9.216 - novo Gollum, guia da interface contextual, sem spoilers e sem alteracoes automaticas na campanha; limpeza dos halos verdes nos 352 PNGs. Corrigido o carregamento do catalogo de retratos. Os 352 PNGs adicionais sao carregados junto com os 120 originais, chegando a 472 tokens embutidos. Como os 12 inimigos sao excluidos da escolha do heroi, Todos os povos deve mostrar 460 personagens. Preservadas as correcoes anteriores de TTS e Gemini.
           
           ATENCAO: assinatura estavel do repositorio (SHA-256 6aa87a24a2eb4762c3f493c9d5fddbf10b60cc8659a90423aed7cde8ae582bd3), diferente da assinatura experimental 4.9.213. Exporte os dados antes de desinstalar. Testes fisicos ainda pendentes.
