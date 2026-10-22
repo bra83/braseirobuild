@@ -19,14 +19,14 @@ jobs:
           $apk=Join-Path $env:GITHUB_WORKSPACE 'gurps-apk-output\BRASEIRO_GURPS_10.8.0_MOTOR_VIDA_V2_TTS_V3_DEBUG.apk'
           if(!(Test-Path -LiteralPath $apk)){throw 'VERIFIED_APK_MISSING'}
           $sha=(Get-FileHash -LiteralPath $apk -Algorithm SHA256).Hash.ToLowerInvariant()
-          if($sha -ne '7d33177313cdc7c47f4aa92a87b57891d78439f57ee61000c33b429717059129'){throw 'APK_SHA_MISMATCH'}
+          if($sha -ne 'd13cce9679ad7d234c786caf1414cda5bf5c138e188edcd33cda13774806c227'){throw 'APK_SHA_MISMATCH'}
           $destinations=@('G:\My Drive\BRASEIRO_GURPS_CHECKPOINTS','G:\Meu Drive\BRASEIRO_GURPS_CHECKPOINTS','G:\Google Drive\My Drive\BRASEIRO_GURPS_CHECKPOINTS')
           $folder=$destinations | Where-Object { Test-Path -LiteralPath $_ -PathType Container } | Select-Object -First 1
           if(!$folder){throw 'GURPS_PRIVATE_DRIVE_FOLDER_NOT_MOUNTED'}
-          $out=Join-Path $folder 'BRASEIRO_GURPS_10.8.0_NPCS_PRESENTES_KOKORO_V6_20261022.apk'
+          $out=Join-Path $folder 'BRASEIRO_GURPS_10.8.0_TOKENS_NARRACAO_TTS_KOKORO_V7_20261022.apk'
           Copy-Item -LiteralPath $apk -Destination $out -Force
           $copied=(Get-FileHash -LiteralPath $out -Algorithm SHA256).Hash.ToLowerInvariant()
           if($copied -ne $sha){throw 'PRIVATE_DRIVE_APK_SHA_MISMATCH'}
           Write-Output "PRIVATE_DRIVE_APK_COPIED=$out"
           Write-Output "APK_SHA256=$sha"
-          Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value "APK publicado no Google Drive privado: BRASEIRO_GURPS_10.8.0_NPCS_PRESENTES_KOKORO_V6_20261022.apk. SHA256 $sha."
+          Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value "APK publicado no Google Drive privado: BRASEIRO_GURPS_10.8.0_TOKENS_NARRACAO_TTS_KOKORO_V7_20261022.apk. SHA256 $sha."
