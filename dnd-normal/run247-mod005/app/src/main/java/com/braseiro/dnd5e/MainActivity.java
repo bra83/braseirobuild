@@ -113,7 +113,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private static final String WORLD_DND="dnd";
     private static final String WORLD_MYSTARA="mystara";
     private static final String FAERUN_LOGICAL_MAP_ID="forgotten_realms:faerun";
-    private static final int REQ_MAP=1001,REQ_AUDIO_AMBIENCE=1002,REQ_AUDIO_MUSIC=1003,REQ_AUDIO_SFX=1004,REQ_IMPORT_MANUALS=1005,REQ_EXPORT_BACKUP=1006,REQ_IMPORT_BACKUP=1007,REQ_TOKEN=1008,REQ_MAP_MANIFEST=1009,REQ_DRIVE_AUTH=1010,REQ_TOKEN_PDF_FOLDER=1011,REQ_AUDIO_FOLDER=1012,REQ_AUDIO_KEYWORDS=1013,REQ_MAP_PACKAGE=1014,REQ_MAP_OVERLAY=1015,REQ_EXPORT_MAP_CORRECTIONS=1016,REQ_IMPORT_MAP_CORRECTIONS=1017,REQ_EXPORT_CHARACTER=1018,REQ_IMPORT_CHARACTER=1019,REQ_EXPORT_DIAGNOSTIC=1020,REQ_EXPORT_JOURNAL_PDF=1021,REQ_DRIVE_CONSENT=1022,REQ_MANUAL_FOLDER=1023,REQ_TOKEN_IMAGE_FOLDER=1024,REQ_BACKUP_FOLDER=1025,REQ_AUDIO_IMPORT_NOTIFICATIONS=1026,REQ_DICE_FACE_IMAGE=1027;
+    private static final int REQ_MAP=1001,REQ_AUDIO_AMBIENCE=1002,REQ_AUDIO_MUSIC=1003,REQ_AUDIO_SFX=1004,REQ_IMPORT_MANUALS=1005,REQ_EXPORT_BACKUP=1006,REQ_IMPORT_BACKUP=1007,REQ_TOKEN=1008,REQ_MAP_MANIFEST=1009,REQ_DRIVE_AUTH=1010,REQ_TOKEN_PDF_FOLDER=1011,REQ_AUDIO_FOLDER=1012,REQ_AUDIO_KEYWORDS=1013,REQ_MAP_PACKAGE=1014,REQ_MAP_OVERLAY=1015,REQ_EXPORT_MAP_CORRECTIONS=1016,REQ_IMPORT_MAP_CORRECTIONS=1017,REQ_EXPORT_CHARACTER=1018,REQ_IMPORT_CHARACTER=1019,REQ_EXPORT_DIAGNOSTIC=1020,REQ_EXPORT_JOURNAL_PDF=1021,REQ_DRIVE_CONSENT=1022,REQ_MANUAL_FOLDER=1023,REQ_TOKEN_IMAGE_FOLDER=1024,REQ_BACKUP_FOLDER=1025,REQ_AUDIO_IMPORT_NOTIFICATIONS=1026,REQ_DICE_FACE_IMAGE=1027,REQ_IMPORT_BRASEIRO_ADVENTURE=1028;
     private static final String DEFAULT_FOLDER="https://drive.google.com/drive/folders/13wB-KfYCe2k5xGmb-z2D09KRDJtSyfHu";
     private static final String DEFAULT_TOKEN_FOLDER="https://drive.google.com/drive/folders/1gfBQfV6x0KAri0pdyKXpMhVlQYblLD-W";
     private static final String DEFAULT_TOKEN_IMAGE_FOLDER="https://drive.google.com/drive/folders/1AHvEEQoVQme8geVJ5PDWbz5bJiwpoTmx";
@@ -1117,6 +1117,16 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void showCampaign(){
         final JSONObject c=db.getCampaign();final JSONObject story=db.getStoryState();ScrollView s=page("Aventura","Configure a campanha, os heróis e inicie ou continue a história.");LinearLayout b=body(s);
         if(!isMystaraWorld()){
+            // Importador universal: botão visível na abertura da campanha, não escondido nos backups.
+            LinearLayout importCard=card();importCard.addView(text("AVENTURA JSON · VIDA PERSISTENTE",16,GOLD,true));
+            JSONObject adventureInfo=new BraseiroAdventureStore(db).masterContext();
+            importCard.addView(text(adventureInfo.optString("title","Nenhuma aventura JSON ativa"),13,TEXT,true));
+            Button adventureImport=button("IMPORTAR AVENTURA JSON",GREEN);
+            adventureImport.setOnClickListener(new View.OnClickListener(){public void onClick(View v){openFile("application/json",REQ_IMPORT_BRASEIRO_ADVENTURE,false);}});
+            importCard.addView(adventureImport);
+            Button adventureComplete=button("CONCLUIR AVENTURA · PRESERVAR MUNDO",PANEL2);
+            adventureComplete.setOnClickListener(new View.OnClickListener(){public void onClick(View v){new AlertDialog.Builder(MainActivity.this).setTitle("Concluir aventura importada?").setMessage("História e NPCs persistentes não serão apagados.").setNegativeButton("Cancelar",null).setPositiveButton("Concluir",new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){boolean done=new BraseiroAdventureStore(db).finish();toast(done?"Roteiro arquivado; mundo preservado.":"Nenhuma aventura ativa.");showCampaign();}}).show();}});
+            importCard.addView(adventureComplete);b.addView(importCard);
             Button bastion2024Button=smallButton("BASTIÕES • DMG 2024",GOLD);
             b.addView(bastion2024Button);
             bastion2024Button.setOnClickListener(new View.OnClickListener(){
@@ -10944,7 +10954,22 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }catch(Exception error){if(libraryConnections!=null)libraryConnections.recordSyncFailure(source,error.getMessage());toast("Não foi possível manter acesso à pasta: "+String.valueOf(error.getMessage()));return false;}
     }
 
-    protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(request==REQ_DICE_FACE_IMAGE){
+    protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);
+    if(request==REQ_IMPORT_BRASEIRO_ADVENTURE){
+        if(result!=RESULT_OK||data==null||data.getData()==null){toast("Importação de aventura cancelada.");return;}
+        if(isMystaraWorld()){toast("Mystara está congelado; importe apenas no D&D Normal.");return;}
+        try{
+            Uri uri=data.getData();
+            long count=sizeOf(uri);if(count>2_000_000L)throw new Exception("JSON excede 2 MB.");
+            InputStream in=getContentResolver().openInputStream(uri);if(in==null)throw new Exception("Não foi possível abrir o arquivo.");
+            String raw;try{raw=readAll(in);}finally{in.close();}
+            JSONObject resultImport=new BraseiroAdventureStore(db).importJson(raw);
+            toast("Aventura importada: "+resultImport.optString("title"));
+            showCampaign();
+        }catch(Exception ex){toast("Aventura recusada: "+String.valueOf(ex.getMessage()));}
+        return;
+    }
+    if(request==REQ_DICE_FACE_IMAGE){
         try{if(result==RESULT_OK&&data!=null&&data.getData()!=null){Dice3DOverlay.saveFaceImage(this,prefs,pendingDiceFaceActorName,pendingDiceFaceActorId,pendingDiceFaceSides,pendingDiceFaceValue,data.getData());toast("Imagem da face "+pendingDiceFaceValue+" salva no conjunto de dados.");}else toast("Seleção de imagem cancelada.");}catch(Exception e){toast("Imagem do dado: "+e.getMessage());}finally{pendingDiceFaceActorName="";pendingDiceFaceActorId=0;pendingDiceFaceSides=0;pendingDiceFaceValue=0;}return;
     }if(request==REQ_MANUAL_FOLDER){
         if(result!=RESULT_OK||data==null||data.getData()==null){toast("Seleção da pasta de manuais cancelada.");return;}
