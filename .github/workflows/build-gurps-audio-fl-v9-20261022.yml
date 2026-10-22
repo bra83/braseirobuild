@@ -1,0 +1,154 @@
+name: GURPS 10.9.0 Audio Forbidden Lands - BRELGA
+on:
+  push:
+    paths:
+      - '.github/workflows/build-gurps-audio-fl-v9-20261022.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 150
+    steps:
+      - name: Fetch exact source from private Drive and compile on BRELGA
+        shell: powershell
+        env:
+          GURPS_DRIVE_TOKEN_SECRET: ${{ secrets.GURPS_DRIVE_TOKEN }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "RUNNER_MUST_BE_BRELGA: $env:RUNNER_NAME" }
+          $sourceName = 'BRASEIRO_GURPS_10.9.0_TTS_FORBIDDEN_LANDS_PORT_SOURCE.zip'
+          $expectedSha = '7bdbc46b01f111e2cfc53e90494b9e4878f5c6fdbb820354a0840643610b0f1e'
+          $driveId = '1afcJ9YCr0j2Uu1ZlD4hACa6rEZWr7VDE'
+          $work = Join-Path $env:RUNNER_TEMP 'gurps-audio-forbiddenlands-v9-20261022'
+          New-Item -ItemType Directory -Force -Path $work | Out-Null
+          $zip = Join-Path $work $sourceName
+          $candidates = @(
+            "G:\My Drive\BRASEIRO_GURPS_CHECKPOINTS\$sourceName",
+            "G:\Meu Drive\BRASEIRO_GURPS_CHECKPOINTS\$sourceName",
+            "G:\Google Drive\My Drive\BRASEIRO_GURPS_CHECKPOINTS\$sourceName",
+            "C:\BRELGA\incoming\$sourceName",
+            (Join-Path $env:USERPROFILE "My Drive\BRASEIRO_GURPS_CHECKPOINTS\$sourceName")
+          )
+          $found = $candidates | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
+          if ($found) {
+            Copy-Item -LiteralPath $found -Destination $zip -Force
+            Write-Output 'SOURCE_FROM_PRIVATE_DRIVE_MOUNT'
+          } else {
+            $token = if ($env:GURPS_DRIVE_TOKEN_SECRET) { $env:GURPS_DRIVE_TOKEN_SECRET } else { $env:GURPS_DRIVE_TOKEN }
+            if (-not $token) { throw 'PRIVATE_SOURCE_UNAVAILABLE: no Drive mount and no GURPS_DRIVE_TOKEN' }
+            $uri = [uri]"https://www.googleapis.com/drive/v3/files/$driveId?alt=media&supportsAllDrives=true"
+            $handler = [System.Net.Http.HttpClientHandler]::new()
+            $handler.AllowAutoRedirect = $false
+            $client = [System.Net.Http.HttpClient]::new($handler)
+            try {
+              for ($i = 0; $i -lt 5; $i++) {
+                $request = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::Get, $uri)
+                if ($uri.Host -eq 'www.googleapis.com') {
+                  $request.Headers.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new('Bearer', $token)
+                }
+                $response = $client.SendAsync($request, [System.Net.Http.HttpCompletionOption]::ResponseHeadersRead).GetAwaiter().GetResult()
+                if ([int]$response.StatusCode -ge 300 -and [int]$response.StatusCode -lt 400) {
+                  $next = $response.Headers.Location
+                  if (-not $next.IsAbsoluteUri) { $next = [uri]::new($uri, $next) }
+                  $hostName = $next.Host.ToLowerInvariant()
+                  if (-not ($hostName -eq 'www.googleapis.com' -or $hostName.EndsWith('.googleapis.com') -or $hostName -eq 'googleusercontent.com' -or $hostName.EndsWith('.googleusercontent.com'))) { throw 'DRIVE_REDIRECT_UNTRUSTED' }
+                  $response.Dispose()
+                  $uri = $next
+                  continue
+                }
+                if (-not $response.IsSuccessStatusCode) { throw "DRIVE_HTTP_$([int]$response.StatusCode)" }
+                $inputStream = $response.Content.ReadAsStreamAsync().GetAwaiter().GetResult()
+                $outputStream = [System.IO.File]::Create($zip)
+                try { $inputStream.CopyTo($outputStream) } finally { $outputStream.Dispose(); $inputStream.Dispose() }
+                $response.Dispose()
+                break
+              }
+            } finally { $client.Dispose(); $handler.Dispose() }
+            if (-not (Test-Path -LiteralPath $zip)) { throw 'DRIVE_DOWNLOAD_MISSING' }
+            Write-Output 'SOURCE_FROM_PRIVATE_DRIVE_OAUTH'
+          }
+          $sha = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($sha -ne $expectedSha) { throw "SOURCE_SHA256_MISMATCH actual=$sha" }
+          Write-Output "SOURCE_SHA256_VERIFIED=$sha"
+          $dest = Join-Path $work 'extracted'
+          Expand-Archive -LiteralPath $zip -DestinationPath $dest -Force
+          $root = Join-Path $dest 'Braseiro_GURPS_10.8.0_ISOLAMENTO_CAMPANHA_BARBARA_1.1.2_ANDROID_STUDIO'
+          $android = Join-Path $root 'android'
+          if (-not (Test-Path -LiteralPath (Join-Path $android 'settings.gradle.kts'))) { throw 'ANDROID_GRADLE_ROOT_MISSING' }
+          if (-not (Test-Path -LiteralPath (Join-Path $android 'gradlew.bat'))) { throw 'GRADLE_WRAPPER_MISSING' }
+          $sdkCandidates = @('C:\actions-runner\android-sdk', 'C:\Android\Sdk')
+          if ($env:ANDROID_HOME) { $sdkCandidates = @($env:ANDROID_HOME) + $sdkCandidates }
+          if ($env:ANDROID_SDK_ROOT) { $sdkCandidates = @($env:ANDROID_SDK_ROOT) + $sdkCandidates }
+          if ($env:LOCALAPPDATA) { $sdkCandidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk') }
+          $sdk = $null
+          foreach ($candidate in ($sdkCandidates | Select-Object -Unique)) {
+            if (Test-Path -LiteralPath (Join-Path $candidate 'platforms')) { $sdk = $candidate; break }
+            if (Test-Path -LiteralPath (Join-Path $candidate 'cmdline-tools')) { $sdk = $candidate; break }
+          }
+          if (-not $sdk) { throw 'ANDROID_SDK_NOT_FOUND_ON_BRELGA' }
+          $env:ANDROID_HOME = $sdk
+          $env:ANDROID_SDK_ROOT = $sdk
+          Write-Output "ANDROID_SDK_RESOLVED=$sdk"
+          $javaCandidates = @('C:\Program Files\Android\Android Studio\jbr', 'C:\actions-runner\jdk-17', 'C:\Program Files\Java\jdk-17')
+          foreach ($javaBase in @('C:\Program Files\Eclipse Adoptium', 'C:\Program Files\Java', 'C:\Program Files\Microsoft', 'C:\Program Files\Zulu')) {
+            if (Test-Path -LiteralPath $javaBase) {
+              $javaCandidates += @(Get-ChildItem -LiteralPath $javaBase -Directory -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })
+            }
+          }
+          if ($env:JAVA_HOME) { $javaCandidates = @($env:JAVA_HOME) + $javaCandidates }
+          $javaHome = $null
+          foreach ($javaCandidate in ($javaCandidates | Select-Object -Unique)) {
+            if (Test-Path -LiteralPath (Join-Path $javaCandidate 'bin\java.exe')) { $javaHome = $javaCandidate; break }
+          }
+          if (-not $javaHome) { throw 'JDK_NOT_FOUND_ON_BRELGA' }
+          $env:JAVA_HOME = $javaHome
+          $env:PATH = (Join-Path $javaHome 'bin') + ';' + $env:PATH
+          Write-Output "JAVA_HOME_RESOLVED=$javaHome"
+          & java -version
+          Push-Location $android
+          try {
+            & .\gradlew.bat --no-daemon --stacktrace :app:compileDebugJavaWithJavac :app:assembleDebug
+            if ($LASTEXITCODE -ne 0) { throw "ANDROID_BUILD_FAILED=$LASTEXITCODE" }
+          } finally { Pop-Location }
+          $apk = Get-ChildItem -LiteralPath (Join-Path $android 'app\build\outputs\apk\debug') -Filter '*.apk' -File | Select-Object -First 1
+          if (-not $apk) { throw 'APK_MISSING_AFTER_BUILD' }
+          $outDir = Join-Path $env:GITHUB_WORKSPACE 'gurps-apk-output'
+          New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+          $output = Join-Path $outDir 'BRASEIRO_GURPS_10.9.0_TTS_FORBIDDEN_LANDS_PORT_DEBUG.apk'
+          Copy-Item -LiteralPath $apk.FullName -Destination $output
+          $apkSha = (Get-FileHash -LiteralPath $output -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Output "APK_CREATED=$output"
+          Write-Output "APK_SHA256=$apkSha"
+          Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value "GURPS 10.9.0 Audio Forbidden Lands port: APK compilado no BRELGA; SHA256 $apkSha. Teste Android físico pendente."
+
+      - name: Attach verified APK to workflow
+        uses: actions/upload-artifact@v4
+        with:
+          name: gurps-v9-fl-audio-apk
+          path: gurps-apk-output/BRASEIRO_GURPS_10.9.0_TTS_FORBIDDEN_LANDS_PORT_DEBUG.apk
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish new private release
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $apk = Join-Path $env:GITHUB_WORKSPACE 'gurps-apk-output\BRASEIRO_GURPS_10.9.0_TTS_FORBIDDEN_LANDS_PORT_DEBUG.apk'
+          if (-not (Test-Path $apk)) { throw 'APK_MISSING' }
+          $sha = (Get-FileHash -LiteralPath $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          $tag = 'GURPS-10.9.0-FL-AUDIO-20261022'
+          $note = "Port Android TTS do Forbidden Lands para GURPS. Compilado no BRELGA. Teste físico Galaxy pendente. APK SHA256: $sha"
+          if (Get-Command gh -ErrorAction SilentlyContinue) {
+            & gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+            if ($LASTEXITCODE -eq 0) {
+              & gh release upload $tag $apk --repo $env:GITHUB_REPOSITORY --clobber
+            } else {
+              & gh release create $tag $apk --repo $env:GITHUB_REPOSITORY --title 'Braseiro GURPS 10.9.0 audio Forbidden Lands' --notes $note --prerelease
+            }
+            if ($LASTEXITCODE -ne 0) { throw 'GITHUB_RELEASE_UPLOAD_FAILED' }
+          } else {
+            Write-Output 'GH_CLI_UNAVAILABLE_APK_REMAINS_AS_ARTIFACT'
+          }
