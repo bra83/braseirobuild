@@ -61,11 +61,10 @@ jobs:
             .\gradlew.bat :app:compileDebugJavaWithJavac :app:testDebugUnitTest :app:assembleDebug --no-daemon --console=plain
           if ($LASTEXITCODE -ne 0) { throw 'ANDROID_GRADLE_FAILED' }
           Write-Host 'STAR_WARS_ANDROID_COMPILE_TEST_ASSEMBLE_GATE_PASS'
-      - name: Armazenar evidencias mesmo em caso de bloqueio
+      - name: Exibir evidencias nos logs sem consumir cota do GitHub Artifacts
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: VIDA_V22_STAR_WARS_BRELGA_${{ github.run_id }}
-          path: evidence-vida-v22-star-wars/*
-          if-no-files-found: warn
-          retention-days: 14
+        shell: powershell
+        run: |
+          $path='evidence-vida-v22-star-wars/STATUS.txt'
+          if (Test-Path $path) { Get-Content $path | ForEach-Object { Write-Host $_ } }
+          else { Write-Host 'STATUS_FILE_ABSENT; diagnose previous step logs' }
