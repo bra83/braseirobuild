@@ -61,11 +61,10 @@ jobs:
             Write-Host 'Fonte integral R36 exige reconciliação com ZIP do Drive; não compilar inspeção parcial.'
           if ($LASTEXITCODE -ne 0) { throw 'ANDROID_GRADLE_FAILED' }
           Write-Host 'KINGMAKER_ANDROID_COMPILE_TEST_ASSEMBLE_GATE_PASS'
-      - name: Armazenar evidencias mesmo em caso de bloqueio
+      - name: Exibir evidencias nos logs sem consumir cota do GitHub Artifacts
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: VIDA_V22_KINGMAKER_BRELGA_${{ github.run_id }}
-          path: evidence-vida-v22-kingmaker/*
-          if-no-files-found: warn
-          retention-days: 14
+        shell: powershell
+        run: |
+          $path='evidence-vida-v22-kingmaker/STATUS.txt'
+          if (Test-Path $path) { Get-Content $path | ForEach-Object { Write-Host $_ } }
+          else { Write-Host 'STATUS_FILE_ABSENT; diagnose previous step logs' }
