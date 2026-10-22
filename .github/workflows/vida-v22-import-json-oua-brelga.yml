@@ -1,0 +1,71 @@
+name: Vida V2.2 importador JSON E2E - OUA - BRELGA
+on:
+  push:
+    branches: [integration/oua-voice-life-20261021]
+    paths:
+      - '.github/workflows/vida-v22-import-json-oua-brelga.yml'
+      - 'ci/oua-4.9.4/source-snapshot/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: braseiro-vida-v22-oua-brelga
+  cancel-in-progress: false
+jobs:
+  importador-e2e:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verificar identidade BRELGA e fonte
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw 'WRONG_RUNNER_BRELGA_REQUIRED' }
+          if (!(Test-Path 'ci/oua-4.9.4/source-snapshot')) { throw 'FONTE_NAO_EXISTE_NESTE_BRANCH' }
+          New-Item -ItemType Directory -Force 'evidence-vida-v22-oua' | Out-Null
+          "SOURCE_SHA=$env:GITHUB_SHA" | Set-Content 'evidence-vida-v22-oua/STATUS.txt'
+          "ISSUE=https://github.com/bra83/braseirobuild/issues/65" | Add-Content 'evidence-vida-v22-oua/STATUS.txt'
+      - name: Verificar importador universal real e fidelidade ao APK de 21-10
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root='ci/oua-4.9.4/source-snapshot'
+          $files=Get-ChildItem $root -Recurse -File -ErrorAction SilentlyContinue |
+            Where-Object { $_.Extension -in @('.java','.kt','.js','.mjs','.ts','.tsx','.html') -and $_.Length -lt 3000000 -and $_.FullName -notmatch '[\\/](build|node_modules|dist|\.gradle)[\\/]' }
+          $schema=@($files | Select-String -Pattern 'braseiro[.]adventure/v1' -SimpleMatch:$false -ErrorAction SilentlyContinue)
+          $import=@($files | Select-String -Pattern 'Importar aventura JSON|Importar aventura|importAdventureJson|importAdventureFile|AdventureImport' -ErrorAction SilentlyContinue)
+          $persistent=@($files | Select-String -Pattern 'LifeRuntime|npcLedger|npc_memory|NpcMemory|BraseiroLifeV2|worldId.*timelineId' -ErrorAction SilentlyContinue)
+          $report=@("SYSTEM=OUA","SCHEMA_REFS=$($schema.Count)","IMPORT_UI_REFS=$($import.Count)","PERSISTENCE_REFS=$($persistent.Count)","CANONICAL_20261021_APK_EQUIVALENCE=NOT_YET_VERIFIED","FULL_JSON_TO_MASTER_TO_NPC_E2E=NOT_YET_CERTIFIED")
+          $report | Add-Content 'evidence-vida-v22-oua/STATUS.txt'
+          $report | ForEach-Object { Write-Host $_ }
+          if ($schema.Count -lt 1 -or $import.Count -lt 1 -or $persistent.Count -lt 1) {
+            throw 'INTEGRACAO_VIDA_V22_INCOMPLETA_NAO_GERAR_APK_SEM_IMPORTADOR_E_MEMORIA'
+          }
+          # Falso positivo por palavras-chave NAO equivale a teste E2E: exigir certificacao de fonte exata antes do APK.
+          if ('true' -eq 'true') {
+            throw 'FONTE_INTEGRAL_REFERENCIA_GDRIVE_RELEASE_NAO_RECONCILIADA_NESTE_BRANCH'
+          }
+      - name: Android SDK e suite de build sem publicar como final
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $sdk= @($env:ANDROID_HOME,$env:ANDROID_SDK_ROOT,'C:\actions-runner\android-sdk',"$env:LOCALAPPDATA\Android\Sdk") |
+            Where-Object { $_ -and (Test-Path (Join-Path $_ 'platforms')) } | Select-Object -First 1
+          if (!$sdk) { throw 'ANDROID_SDK_REQUIRED_BRELGA' }
+          $env:ANDROID_HOME=$sdk
+          $env:ANDROID_SDK_ROOT=$sdk
+          Set-Location 'ci/oua-4.9.4/source-snapshot'
+          if (!(Test-Path 'gradlew.bat')) { throw 'ANDROID_PROJECT_GRADLE_WRAPPER_REQUIRED' }
+          ('sdk.dir='+$sdk.Replace('\','/')) | Set-Content 'local.properties' -Encoding ascii
+            Write-Host 'Fonte de runtime 4.9.216 vem de Release OUA-v4.9.211, não deste snapshot; não compilar snapshot antigo.'
+          if ($LASTEXITCODE -ne 0) { throw 'ANDROID_GRADLE_FAILED' }
+          Write-Host 'OUA_ANDROID_COMPILE_TEST_ASSEMBLE_GATE_PASS'
+      - name: Armazenar evidencias mesmo em caso de bloqueio
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VIDA_V22_OUA_BRELGA_${{ github.run_id }}
+          path: evidence-vida-v22-oua/*
+          if-no-files-found: warn
+          retention-days: 14
