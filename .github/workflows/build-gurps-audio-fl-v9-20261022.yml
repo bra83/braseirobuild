@@ -1,4 +1,4 @@
-name: GURPS 10.9.0 Audio Forbidden Lands - BRELGA
+name: GURPS 10.9.1 Audio Forbidden Lands - BRELGA
 on:
   push:
     paths:
@@ -76,6 +76,28 @@ jobs:
           Expand-Archive -LiteralPath $zip -DestinationPath $dest -Force
           $root = Join-Path $dest 'Braseiro_GURPS_10.8.0_ISOLAMENTO_CAMPANHA_BARBARA_1.1.2_ANDROID_STUDIO'
           $android = Join-Path $root 'android'
+          # Deterministic source patch V9.1: TextToSpeech has no getCurrentEngine() API.
+          # Base ZIP SHA256 was verified above. Other VTTs untouched.
+          $javaFile = Join-Path $android 'app\src\main\java\com\braseiro\dnd\MainActivity.java'
+          $oldBlock = @(
+            '        String actual="";'
+            '        try{actual=nativeTts.getCurrentEngine();}catch(Throwable error){AppLog.w("NativeTts","Falha ao consultar motor efetivamente ativado.",error);}'
+          ) -join "`n"
+          $newBlock = @(
+            '        // Android TextToSpeech nao expoe getCurrentEngine() publico.'
+            '        // Como no Forbidden Lands, sucesso em OnInit do construtor com enginePackage'
+            '        // confirma o pacote solicitado; para modo padrao, consultar o engine padrao.'
+            '        String actual=requested;'
+            '        if(actual.isEmpty())try{actual=nativeTts.getDefaultEngine();}'
+            '        catch(Throwable error){AppLog.w("NativeTts","Falha ao consultar motor padrao.",error);}'
+          ) -join "`n"
+          $javaText = [System.IO.File]::ReadAllText($javaFile, [System.Text.Encoding]::UTF8)
+          if (-not $javaText.Contains($oldBlock)) { throw 'JAVA_TTS_PATCH_SOURCE_NOT_FOUND' }
+          $javaText = $javaText.Replace($oldBlock,$newBlock)
+          [System.IO.File]::WriteAllText($javaFile,$javaText,[System.Text.UTF8Encoding]::new($false))
+          $patchedSha = (Get-FileHash -LiteralPath $javaFile -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($patchedSha -ne '75ccb89a5338378d1539b054c4748943e154be7c9582a7a44e57e1fb106cb376') { throw "JAVA_TTS_PATCH_SHA_MISMATCH=$patchedSha" }
+          Write-Output "JAVA_TTS_PATCH_V9_1_VERIFIED=$patchedSha"
           if (-not (Test-Path -LiteralPath (Join-Path $android 'settings.gradle.kts'))) { throw 'ANDROID_GRADLE_ROOT_MISSING' }
           if (-not (Test-Path -LiteralPath (Join-Path $android 'gradlew.bat'))) { throw 'GRADLE_WRAPPER_MISSING' }
           $sdkCandidates = @('C:\actions-runner\android-sdk', 'C:\Android\Sdk')
@@ -116,18 +138,18 @@ jobs:
           if (-not $apk) { throw 'APK_MISSING_AFTER_BUILD' }
           $outDir = Join-Path $env:GITHUB_WORKSPACE 'gurps-apk-output'
           New-Item -ItemType Directory -Force -Path $outDir | Out-Null
-          $output = Join-Path $outDir 'BRASEIRO_GURPS_10.9.0_TTS_FORBIDDEN_LANDS_PORT_DEBUG.apk'
+          $output = Join-Path $outDir 'BRASEIRO_GURPS_10.9.1_TTS_FORBIDDEN_LANDS_PORT_DEBUG.apk'
           Copy-Item -LiteralPath $apk.FullName -Destination $output
           $apkSha = (Get-FileHash -LiteralPath $output -Algorithm SHA256).Hash.ToLowerInvariant()
           Write-Output "APK_CREATED=$output"
           Write-Output "APK_SHA256=$apkSha"
-          Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value "GURPS 10.9.0 Audio Forbidden Lands port: APK compilado no BRELGA; SHA256 $apkSha. Teste Android físico pendente."
+          Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value "GURPS 10.9.1 Audio Forbidden Lands port: APK compilado no BRELGA; SHA256 $apkSha. Teste Android físico pendente."
 
       - name: Attach verified APK to workflow
         uses: actions/upload-artifact@v4
         with:
-          name: gurps-v9-fl-audio-apk
-          path: gurps-apk-output/BRASEIRO_GURPS_10.9.0_TTS_FORBIDDEN_LANDS_PORT_DEBUG.apk
+          name: gurps-v9-1-fl-audio-apk
+          path: gurps-apk-output/BRASEIRO_GURPS_10.9.1_TTS_FORBIDDEN_LANDS_PORT_DEBUG.apk
           if-no-files-found: error
           retention-days: 30
       - name: Publish new private release
@@ -136,17 +158,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = 'Stop'
-          $apk = Join-Path $env:GITHUB_WORKSPACE 'gurps-apk-output\BRASEIRO_GURPS_10.9.0_TTS_FORBIDDEN_LANDS_PORT_DEBUG.apk'
+          $apk = Join-Path $env:GITHUB_WORKSPACE 'gurps-apk-output\BRASEIRO_GURPS_10.9.1_TTS_FORBIDDEN_LANDS_PORT_DEBUG.apk'
           if (-not (Test-Path $apk)) { throw 'APK_MISSING' }
           $sha = (Get-FileHash -LiteralPath $apk -Algorithm SHA256).Hash.ToLowerInvariant()
-          $tag = 'GURPS-10.9.0-FL-AUDIO-20261022'
+          $tag = 'GURPS-10.9.1-FL-AUDIO-20261022'
           $note = "Port Android TTS do Forbidden Lands para GURPS. Compilado no BRELGA. Teste físico Galaxy pendente. APK SHA256: $sha"
           if (Get-Command gh -ErrorAction SilentlyContinue) {
             & gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
             if ($LASTEXITCODE -eq 0) {
               & gh release upload $tag $apk --repo $env:GITHUB_REPOSITORY --clobber
             } else {
-              & gh release create $tag $apk --repo $env:GITHUB_REPOSITORY --title 'Braseiro GURPS 10.9.0 audio Forbidden Lands' --notes $note --prerelease
+              & gh release create $tag $apk --repo $env:GITHUB_REPOSITORY --title 'Braseiro GURPS 10.9.1 audio Forbidden Lands' --notes $note --prerelease
             }
             if ($LASTEXITCODE -ne 0) { throw 'GITHUB_RELEASE_UPLOAD_FAILED' }
           } else {
