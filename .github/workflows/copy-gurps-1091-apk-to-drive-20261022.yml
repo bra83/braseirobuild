@@ -1,0 +1,40 @@
+name: Copy GURPS 10.9.1 APK to Drive for ChatGPT
+on:
+  push:
+    paths:
+      - '.github/workflows/copy-gurps-1091-apk-to-drive-20261022.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  copy:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
+    steps:
+      - name: Copy verified compiled GURPS APK to mounted private Drive
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "RUNNER_NOT_BRELGA=$env:RUNNER_NAME" }
+          $name = 'BRASEIRO_GURPS_10.9.1_TTS_FORBIDDEN_LANDS_PORT_DEBUG.apk'
+          $source = Join-Path $env:GITHUB_WORKSPACE "gurps-apk-output\$name"
+          if (-not (Test-Path -LiteralPath $source -PathType Leaf)) { throw "COMPILED_APK_MISSING=$source" }
+          $expected = '284b0256d7eeb03bee2104e45c97f3db00bd69fb24064fbcb3705e7f84ed8273'
+          $actual = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -ne $expected) { throw "SOURCE_SHA_MISMATCH=$actual" }
+          $folders = @(
+            'G:\My Drive\BRASEIRO_GURPS_CHECKPOINTS',
+            'G:\Meu Drive\BRASEIRO_GURPS_CHECKPOINTS',
+            'G:\Google Drive\My Drive\BRASEIRO_GURPS_CHECKPOINTS',
+            'C:\BRELGA\Google Drive\BRASEIRO_GURPS_CHECKPOINTS'
+          )
+          $folder = $folders | Where-Object { Test-Path -LiteralPath $_ -PathType Container } | Select-Object -First 1
+          if (-not $folder) { throw 'GURPS_PRIVATE_DRIVE_FOLDER_NOT_MOUNTED' }
+          $dest = Join-Path $folder $name
+          Copy-Item -LiteralPath $source -Destination $dest -Force
+          $copied = (Get-FileHash -LiteralPath $dest -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($copied -ne $expected) { throw "COPIED_APK_SHA_MISMATCH=$copied" }
+          Write-Output "COPIED_GURPS_APK_TO_DRIVE=$dest"
+          Write-Output "GURPS_APK_SHA256=$copied"
+          Write-Output "GURPS_APK_SIZE=$((Get-Item -LiteralPath $dest).Length)"
+          Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value "GURPS V9.1 APK copied to private Drive BRASEIRO_GURPS_CHECKPOINTS/$name SHA256 $copied"
