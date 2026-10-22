@@ -1,0 +1,61 @@
+diff --git a/components/CampaignView.tsx b/components/CampaignView.tsx
+--- a/components/CampaignView.tsx
++++ b/components/CampaignView.tsx
+@@ -12,6 +12,7 @@
+   Users,
+ } from 'lucide-react';
+ import { CampaignState } from '../lib/db';
++import { importAdventureJson, finishImportedAdventure } from '../lib/braseiroAdventure';
+ import {
+   generateCompleteBackup,
+   generateQuickBackup,
+@@ -37,6 +38,8 @@
+   const [message, setMessage] = useState('');
+   const [isDriveExplorerOpen, setIsDriveExplorerOpen] = useState(false);
+   const fileInputRef = useRef<HTMLInputElement>(null);
++  const adventureInputRef = useRef<HTMLInputElement>(null);
++  const [adventureMessage, setAdventureMessage] = useState('');
+ 
+   const stats = useMemo(() => {
+     const events = campaign.events || [];
+@@ -183,6 +186,21 @@
+             <p className="mb-4 text-xs leading-relaxed text-slate-400">
+               O backup JSON abre o seletor nativo do Android e só confirma depois que o arquivo é realmente gravado.
+             </p>
++            <div className="mb-4 grid gap-2 rounded border border-blue-900/60 p-3">
++              <h3 className="font-serif text-sm font-bold text-blue-200">Aventuras importadas · Motor de Vida</h3>
++              <p className="text-xs text-slate-400">Carregue uma aventura Braseiro em JSON. Não confundir com restauração de backup.</p>
++              <button onClick={() => adventureInputRef.current?.click()} disabled={isBusy} className="medieval-button flex items-center justify-center gap-2"><Upload className="h-4 w-4"/> Importar aventura JSON</button>
++              <input ref={adventureInputRef} aria-label="Selecionar aventura JSON" type="file" accept=".json,application/json" className="hidden" onChange={event => {
++                const file=event.target.files?.[0];event.target.value='';if(!file)return;
++                void (async () => {setIsBusy(true);try {
++                  if(file.size>2_000_000)throw new Error('Arquivo excede 2 MB');
++                  const saved=await importAdventureJson(campaign,await file.text());
++                  setAdventureMessage(`Aventura ${saved.active?.title || ''} importada e persistida; continue a crônica com o Mestre.`);
++                }catch(error){setAdventureMessage('Importação recusada: '+(error instanceof Error?error.message:String(error)));}finally{setIsBusy(false);}})();
++              }}/>
++              <button onClick={() => void (async()=>{if(!window.confirm('Arquivar apenas o roteiro importado, preservando mundo e NPCs?'))return;const ok=await finishImportedAdventure(campaign);setAdventureMessage(ok?'Aventura concluída. Mundo preservado.':'Não há aventura ativa.');})()} className="medieval-button-secondary">Concluir aventura · manter mundo</button>
++              {adventureMessage && <p role="status" className="text-xs text-blue-200">{adventureMessage}</p>}
++            </div>
+             <div className="grid gap-2">
+               <button onClick={() => void exportJson()} disabled={isBusy} className="medieval-button flex items-center justify-center gap-2">
+                 <Download className="h-4 w-4" /> Exportar backup seguro
+diff --git a/lib/contextBuilder.ts b/lib/contextBuilder.ts
+--- a/lib/contextBuilder.ts
++++ b/lib/contextBuilder.ts
+@@ -1,4 +1,5 @@
+ import { CampaignState, CharacterSheet, ManualChunk, Npc } from './db';
++import { importedAdventureMasterContext } from './braseiroAdventure';
+ import { SceneSourceReference } from '../types';
+ import { getCharacters, getStoreData, searchChunks } from './db';
+ import { buildRuleSearchTerms, detectRuleDomains } from './rulesEngine';
+@@ -444,7 +445,8 @@
+   const priorRulesText = relevantRuleDecisions.length ? relevantRuleDecisions.map(item => `- ${item.source}: ${JSON.stringify(item.command)}`).join('\n') : 'Nenhuma decisão anterior registrada.';
+ 
+   const partyFull = party.map(character => `[ID DO HERÓI: ${character.id}]\n${formatCharacterSheetForPrompt(character.sheet)}`).join('\n');
+-  const directorContext = `${contextText}\n\n--- ESTADO CANÔNICO DO MESTRE (OCULTO) ---\n${JSON.stringify(masterForPrompt)}\n\n--- FICHAS COMPLETAS DA COMPANHIA ---\n${partyFull || 'Nenhuma ficha carregada.'}\n\n--- NPCS PRESENTES: ESTADO COMPLETO E SEGREDOS ---\n${activeNpcs.map(formatNpcForDirector).join('\n') || 'Nenhum NPC presente.'}\n\n--- DECISÕES DE REGRA ANTERIORES DA MESA ---\n${priorRulesText}\n\nREGRA DE AUTORIDADE: o Diretor pode planejar mudanças, mas o aplicativo validará cada comando. Deve indicar targetCharacterId em toda consequência individual. Um único jogador humano controla todos os Heróis-jogadores; nunca trate a Companhia como protagonista único. O estado formal da cena define participantes, objetivo, tensão e foco. NPC novo deve ser criado por upsert_npc com descrição detalhada; o aplicativo aplica uma das 300 personalidades e escolhe ou gera um retrato persistente automaticamente. Poderes, Patronos, casas, clãs, Guardiões, guildas de ofício, ordens, cultos, bandos e conselhos podem ser atualizados com upsert_organization; refúgios, salões, acampamentos, torres, ruínas ocupadas, covis e fortalezas relevantes usam upsert_stronghold e devem se tornar persistentes quando entram de verdade na ficção. Depois de conquista validada e combate encerrado use claim_stronghold; nunca coloque o loot diretamente na ficha. O estoque conquistado permanece no local para decisão do jogador. Nunca use classes, magias, CA, PV ou mecânicas de outros RPGs.`;
++  const importedPrivate = await importedAdventureMasterContext(campaign).catch(() => '');
++  const directorContext = `${contextText}${importedPrivate}\n\n--- ESTADO CANÔNICO DO MESTRE (OCULTO) ---\n${JSON.stringify(masterForPrompt)}\n\n--- FICHAS COMPLETAS DA COMPANHIA ---\n${partyFull || 'Nenhuma ficha carregada.'}\n\n--- NPCS PRESENTES: ESTADO COMPLETO E SEGREDOS ---\n${activeNpcs.map(formatNpcForDirector).join('\n') || 'Nenhum NPC presente.'}\n\n--- DECISÕES DE REGRA ANTERIORES DA MESA ---\n${priorRulesText}\n\nREGRA DE AUTORIDADE: o Diretor pode planejar mudanças, mas o aplicativo validará cada comando. Deve indicar targetCharacterId em toda consequência individual. Um único jogador humano controla todos os Heróis-jogadores; nunca trate a Companhia como protagonista único. O estado formal da cena define participantes, objetivo, tensão e foco. NPC novo deve ser criado por upsert_npc com descrição detalhada; o aplicativo aplica uma das 300 personalidades e escolhe ou gera um retrato persistente automaticamente. Poderes, Patronos, casas, clãs, Guardiões, guildas de ofício, ordens, cultos, bandos e conselhos podem ser atualizados com upsert_organization; refúgios, salões, acampamentos, torres, ruínas ocupadas, covis e fortalezas relevantes usam upsert_stronghold e devem se tornar persistentes quando entram de verdade na ficção. Depois de conquista validada e combate encerrado use claim_stronghold; nunca coloque o loot diretamente na ficha. O estoque conquistado permanece no local para decisão do jogador. Nunca use classes, magias, CA, PV ou mecânicas de outros RPGs.`;
+ 
+   const publicContext = `${contextText}\n\n--- VISÃO PERMITIDA AOS JOGADORES ---\n${JSON.stringify(publicMaster)}\n\n--- NPCS PRESENTES: SOMENTE O VISÍVEL ---\n${activeNpcs.map(formatNpcForNarrator).join('\n') || 'Nenhum NPC presente.'}\n\n--- PRECEDENTES DE REGRA DA CAMPANHA ---\n${priorRulesText}\n\nNão revele segredos, objetivos ocultos, suspeitas internas ou conhecimento marcado como master.`;
+   const bound = (value: string, max = 46_000) => value.length <= max
