@@ -91,8 +91,8 @@ jobs:
           Set-Location $env:KINGMAKER_PROJECT
           if (!(Test-Path 'gradlew.bat')) {throw 'NOT_AN_ANDROID_PROJECT'}
           if (!(Test-Path 'version.properties')) {
-            @('VERSION_NAME=9.0.37','VERSION_CODE=9038') | Set-Content -Encoding ascii 'version.properties'
-            Write-Host 'SOURCE_ARCHIVE_MISSING_VERSION_PROPERTIES: created candidate-only version.properties (9.0.37 / 9038); installer upgrade equivalence not certified.'
+            @('VERSION_NAME=9.0.37','VERSION_CODE=90038') | Set-Content -Encoding ascii 'version.properties'
+            Write-Host 'SOURCE_ARCHIVE_MISSING_VERSION_PROPERTIES: created candidate-only version.properties (9.0.37 / 90038); installer upgrade equivalence not certified.'
           }
           "sdk.dir=$($sdk.Replace('\','/'))" | Set-Content -Encoding ascii 'local.properties'
           & .\gradlew.bat :app:compileDebugJavaWithJavac :app:assembleDebug --no-daemon --console=plain --stacktrace
