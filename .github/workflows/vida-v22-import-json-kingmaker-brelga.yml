@@ -1,70 +1,105 @@
-name: Vida V2.2 importador JSON E2E - KINGMAKER - BRELGA
+name: Kingmaker R36 - JSON V2.2 real source APK on BRELGA
 on:
   push:
     branches: [integration/kingmaker-voice-life-20261021]
     paths:
       - '.github/workflows/vida-v22-import-json-kingmaker-brelga.yml'
-      - 'ci/pf2-r36-source-inspection/android/**'
+      - 'ci/pf2-r36-importer-v22/**'
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 concurrency:
-  group: braseiro-vida-v22-kingmaker-brelga
+  group: kingmaker-r36-canonical-import-v22-${{ github.ref }}
   cancel-in-progress: false
 jobs:
-  importador-e2e:
+  build-corrected-source:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
-      - name: Verificar identidade BRELGA e fonte
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Verify runner and canonical patch
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
-          if ($env:RUNNER_NAME -ne 'BRELGA') { throw 'WRONG_RUNNER_BRELGA_REQUIRED' }
-          if (!(Test-Path 'ci/pf2-r36-source-inspection/android')) { throw 'FONTE_NAO_EXISTE_NESTE_BRANCH' }
-          New-Item -ItemType Directory -Force 'evidence-vida-v22-kingmaker' | Out-Null
-          "SOURCE_SHA=$env:GITHUB_SHA" | Set-Content 'evidence-vida-v22-kingmaker/STATUS.txt'
-          "ISSUE=https://github.com/bra83/braseirobuild/issues/66" | Add-Content 'evidence-vida-v22-kingmaker/STATUS.txt'
-      - name: Verificar importador universal real e fidelidade ao APK de 21-10
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'BRELGA_REQUIRED'}
+          $patch='ci/pf2-r36-importer-v22/KINGMAKER_R36_CORRECOES_JSON_V22_20261023.patch'
+          if(!(Test-Path $patch)){throw 'KINGMAKER_PATCH_MISSING'}
+          $got=(Get-FileHash $patch -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($got -ne 'ef8e16f70abb95be7602462ccc9065da72451489beabc916badc223f5e55f3bf'){throw 'KINGMAKER_PATCH_SHA256_MISMATCH '+$got}
+      - name: Download full R36 Android Studio source from canonical Drive file
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
-          $root='ci/pf2-r36-source-inspection/android'
-          $files=Get-ChildItem $root -Recurse -File -ErrorAction SilentlyContinue |
-            Where-Object { $_.Extension -in @('.java','.kt','.js','.mjs','.ts','.tsx','.html') -and $_.Length -lt 3000000 -and $_.FullName -notmatch '[\\/](build|node_modules|dist|\.gradle)[\\/]' }
-          $schema=@($files | Select-String -Pattern 'braseiro[.]adventure/v1' -SimpleMatch:$false -ErrorAction SilentlyContinue)
-          $import=@($files | Select-String -Pattern 'Importar aventura JSON|Importar aventura|importAdventureJson|importAdventureFile|AdventureImport' -ErrorAction SilentlyContinue)
-          $persistent=@($files | Select-String -Pattern 'LifeRuntime|npcLedger|npc_memory|NpcMemory|BraseiroLifeV2|worldId.*timelineId' -ErrorAction SilentlyContinue)
-          $report=@("SYSTEM=KINGMAKER","SCHEMA_REFS=$($schema.Count)","IMPORT_UI_REFS=$($import.Count)","PERSISTENCE_REFS=$($persistent.Count)","CANONICAL_20261021_APK_EQUIVALENCE=NOT_YET_VERIFIED","FULL_JSON_TO_MASTER_TO_NPC_E2E=NOT_YET_CERTIFIED")
-          $report | Add-Content 'evidence-vida-v22-kingmaker/STATUS.txt'
-          $report | ForEach-Object { Write-Host $_ }
-          if ($schema.Count -lt 1 -or $import.Count -lt 1 -or $persistent.Count -lt 1) {
-            throw 'INTEGRACAO_VIDA_V22_INCOMPLETA_NAO_GERAR_APK_SEM_IMPORTADOR_E_MEMORIA'
-          }
-          # Falso positivo por palavras-chave NAO equivale a teste E2E: exigir certificacao de fonte exata antes do APK.
-          if ('true' -eq 'true') {
-            throw 'FONTE_INTEGRAL_REFERENCIA_GDRIVE_RELEASE_NAO_RECONCILIADA_NESTE_BRANCH'
-          }
-      - name: Android SDK e suite de build sem publicar como final
+          $dir=Join-Path $env:RUNNER_TEMP ('km-r36-v22-'+$env:GITHUB_RUN_ID)
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          $archive=Join-Path $dir 'KINGMAKER_R36_CANONICAL_SOURCE.zip'
+          & python -m pip install --disable-pip-version-check --quiet gdown
+          if($LASTEXITCODE -ne 0){throw 'GDOWN_INSTALL_FAILED'}
+          & python -m gdown 'https://drive.google.com/uc?id=1M4GD5S_0-sZmAec7qXmt3lkjKl-ktx7x' -O $archive
+          if($LASTEXITCODE -ne 0 -or !(Test-Path $archive)){throw 'CANONICAL_SOURCE_DOWNLOAD_BLOCKED_PERMISSION_OR_QUOTA'}
+          $size=(Get-Item $archive).Length
+          $sha=(Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Host "SOURCE_BYTES=$size SOURCE_SHA256=$sha"
+          if($size -ne 110266871 -or $sha -ne '8dc976ed79578fc35e3004e9532240f0ff0a475f41d50df43c20a9eecf78b7f1'){throw 'SOURCE_PIN_MISMATCH'}
+          $root=Join-Path $dir 'source'
+          Expand-Archive -LiteralPath $archive -DestinationPath $root -Force
+          if(!(Test-Path (Join-Path $root 'app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java'))){throw 'ZIP_MISSING_REAL_MAIN_ACTIVITY'}
+          if(!(Test-Path (Join-Path $root 'gradlew.bat'))){throw 'GRADLE_WRAPPER_MISSING'}
+          "KINGMAKER_SOURCE_ROOT=$root" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Apply and assert corrected adventure importer source
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
-          $sdk= @($env:ANDROID_HOME,$env:ANDROID_SDK_ROOT,'C:\actions-runner\android-sdk',"$env:LOCALAPPDATA\Android\Sdk") |
-            Where-Object { $_ -and (Test-Path (Join-Path $_ 'platforms')) } | Select-Object -First 1
-          if (!$sdk) { throw 'ANDROID_SDK_REQUIRED_BRELGA' }
-          $env:ANDROID_HOME=$sdk
-          $env:ANDROID_SDK_ROOT=$sdk
-          Set-Location 'ci/pf2-r36-source-inspection/android'
-          if (!(Test-Path 'gradlew.bat')) { throw 'ANDROID_PROJECT_GRADLE_WRAPPER_REQUIRED' }
-          ('sdk.dir='+$sdk.Replace('\','/')) | Set-Content 'local.properties' -Encoding ascii
-            Write-Host 'Fonte integral R36 exige reconciliação com ZIP do Drive; não compilar inspeção parcial.'
-          if ($LASTEXITCODE -ne 0) { throw 'ANDROID_GRADLE_FAILED' }
-          Write-Host 'KINGMAKER_ANDROID_COMPILE_TEST_ASSEMBLE_GATE_PASS'
-      - name: Exibir evidencias nos logs sem consumir cota do GitHub Artifacts
-        if: always()
+          $patch=Join-Path $env:GITHUB_WORKSPACE 'ci/pf2-r36-importer-v22/KINGMAKER_R36_CORRECOES_JSON_V22_20261023.patch'
+          Set-Location $env:KINGMAKER_SOURCE_ROOT
+          & git apply --check --ignore-space-change --ignore-whitespace $patch
+          if($LASTEXITCODE -ne 0){throw 'PINNED_R36_SOURCE_PATCH_CONFLICT'}
+          & git apply --ignore-space-change --ignore-whitespace $patch
+          if($LASTEXITCODE -ne 0){throw 'PATCH_APPLY_FAILED'}
+          $store='app/src/main/java/com/braseiro/pathfinder2e/BraseiroAdventureStore.java'
+          $main='app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java'
+          if(!(Test-Path $store) -or !(Select-String -Path $store -Pattern 'validatePackage' -Quiet)){throw 'SCHEMA_VALIDATOR_MISSING'}
+          if(!(Select-String -Path $main -Pattern 'CONFIRMAR AVENTURA JSON' -Quiet)){throw 'IMPORT_CONFIRMATION_MISSING'}
+          if(!(Select-String -Path $main -Pattern 'masterContext' -Quiet)){throw 'MASTER_CONTEXT_MISSING'}
+          'VERSION_NAME=9.0.38-R36-VIDA-V22' | Set-Content 'version.properties' -Encoding ascii
+          'VERSION_CODE=90038' | Add-Content 'version.properties' -Encoding ascii
+          Write-Host 'KINGMAKER_R36_REAL_ANDROID_SOURCE_PATCHED_AND_VALIDATED'
+      - name: Configure Android SDK 35
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+      - name: Compile full Android APK, not inspection stub
         shell: powershell
         run: |
-          $path='evidence-vida-v22-kingmaker/STATUS.txt'
-          if (Test-Path $path) { Get-Content $path | ForEach-Object { Write-Host $_ } }
-          else { Write-Host 'STATUS_FILE_ABSENT; diagnose previous step logs' }
+          $ErrorActionPreference='Stop'
+          $sdk=if($env:ANDROID_HOME){$env:ANDROID_HOME}else{$env:ANDROID_SDK_ROOT}
+          if(-not $sdk -or !(Test-Path (Join-Path $sdk 'platforms/android-35'))){throw 'ANDROID_SDK_35_NOT_INSTALLED'}
+          Set-Location $env:KINGMAKER_SOURCE_ROOT
+          ('sdk.dir='+$sdk.Replace('\','/'))|Set-Content local.properties -Encoding ascii
+          & .\gradlew.bat :app:compileDebugJavaWithJavac :app:assembleDebug --no-daemon --stacktrace --console=plain
+          if($LASTEXITCODE -ne 0){throw 'KINGMAKER_R36_REAL_APK_BUILD_FAILED'}
+          $apk=Get-ChildItem 'app/build/outputs/apk/debug' -Filter '*.apk' | Select-Object -First 1
+          if(-not $apk -or $apk.Length -lt 100000000){throw 'APK_MISSING_OR_TOO_SMALL'}
+          $dest=Join-Path $env:RUNNER_TEMP 'BRASEIRO_KINGMAKER_R36_JSON_V22_CORRIGIDO_CANDIDATO.apk'
+          Copy-Item $apk.FullName $dest
+          $bt=Join-Path $sdk 'build-tools/35.0.0'
+          & (Join-Path $bt 'apksigner.bat') verify --verbose --print-certs $dest
+          if($LASTEXITCODE -ne 0){throw 'APK_SIGNATURE_INVALID'}
+          $sha=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Host "KINGMAKER_APK_SOURCE_SHA=$env:GITHUB_SHA"
+          Write-Host "KINGMAKER_APK_SHA256=$sha"
+          "KINGMAKER_APK_PATH=$dest" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Publish new candidate release preserving prior builds
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $tag='kingmaker-r36-json-v22-'+$env:GITHUB_SHA.Substring(0,12)
+          & gh release create $tag $env:KINGMAKER_APK_PATH --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Kingmaker R36 - JSON Vida V2.2 corrigido (candidato)' --notes 'Compilado integralmente da fonte R36 SHA256 8dc976ed79578fc35e3004e9532240f0ff0a475f41d50df43c20a9eecf78b7f1 com patch de 23/10. TTS existente preservado. Assinatura e instalacao sobre app anterior ainda precisam ser comparadas; teste fisico A57 pendente.' --prerelease
+          if($LASTEXITCODE -ne 0){throw 'RELEASE_PUBLICATION_FAILED'}
+          Write-Host "KINGMAKER_CORRECTED_RELEASE=https://github.com/$env:GITHUB_REPOSITORY/releases/tag/$tag"
