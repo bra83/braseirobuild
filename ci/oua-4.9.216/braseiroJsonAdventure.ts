@@ -34,7 +34,7 @@ export function validateAdventure(source:unknown):ImportedAdventure{
    seen.add(itemId);
   }
  }
- if(!(source.locations as Array<Record<string,unknown>>).some(x=>x.id===source.start.locationId))throw Error('start.locationId não foi encontrado em locations.');
+ if(!(source.locations as Array<Record<string,unknown>>).some(x=>x.id===(source.start as {locationId:string}).locationId))throw Error('start.locationId não foi encontrado em locations.');
  for(const secret of (source.secrets as Record<string,unknown>[]||[]))if(secret.visibility!=='gm_only'||!str(secret.truth))throw Error('Segredo precisa de visibility=gm_only e truth.');
  for(const enemy of (source.enemies as Record<string,unknown>[]||[]))if(!obj(enemy.rulesRef)||!str(enemy.rulesRef.source))throw Error('Inimigo precisa de rulesRef.source.');
  if(source.timelineId!==undefined&&!IDENT.test(str(source.timelineId,121)))throw Error('timelineId inválido.');
