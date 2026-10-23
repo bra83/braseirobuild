@@ -1,0 +1,307 @@
+--- a/app/src/main/java/com/braseiro/pathfinder2e/GeminiTtsMarkupDirector.java
++++ b/app/src/main/java/com/braseiro/pathfinder2e/GeminiTtsMarkupDirector.java
+@@ -30,7 +30,7 @@
+     }
+ 
+     public static String annotateForModel(String model,String raw,String delivery,int intensity,String pauseProfile,String speaker){
+-        String clean=PortugueseNarrationSanitizer.sanitize(raw==null?"":raw).replaceAll("\\s+"," ").trim();
++        String clean=BraseiroSpokenTextSanitizer.sanitize(PortugueseNarrationSanitizer.sanitize(raw==null?"":raw));
+         if(clean.length()==0||!supportsInlineTags(model))return clean;
+         return annotate(clean,delivery,intensity,pauseProfile,speaker);
+     }
+--- a/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java
++++ b/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java
+@@ -117,7 +117,7 @@
+     public static final int CANONICAL_KINGMAKER_BUNDLE_REVISION=3;
+     public static final String CANONICAL_INNER_SEA_MAP_ID="pathfinder2e-inner-sea-4270x5388-canonical-v6-grid-native-hires-compat";
+     public static final int CANONICAL_INNER_SEA_BUNDLE_REVISION=8;
+-    private static final int REQ_MAP=1001,REQ_AUDIO_AMBIENCE=1002,REQ_AUDIO_MUSIC=1003,REQ_AUDIO_SFX=1004,REQ_IMPORT_MANUALS=1005,REQ_EXPORT_BACKUP=1006,REQ_IMPORT_BACKUP=1007,REQ_TOKEN=1008,REQ_MAP_MANIFEST=1009,REQ_DRIVE_AUTH=1010,REQ_TOKEN_PDF_FOLDER=1011,REQ_AUDIO_FOLDER=1012,REQ_AUDIO_KEYWORDS=1013,REQ_MAP_PACKAGE=1014,REQ_MAP_OVERLAY=1015,REQ_EXPORT_MAP_CORRECTIONS=1016,REQ_IMPORT_MAP_CORRECTIONS=1017,REQ_EXPORT_CHARACTER=1018,REQ_IMPORT_CHARACTER=1019,REQ_EXPORT_DIAGNOSTIC=1020,REQ_EXPORT_JOURNAL_PDF=1021,REQ_DRIVE_CONSENT=1022,REQ_MANUAL_FOLDER=1023,REQ_TOKEN_IMAGE_FOLDER=1024,REQ_BACKUP_FOLDER=1025,REQ_AUDIO_IMPORT_NOTIFICATIONS=1026,REQ_EXPORT_CAMPAIGN_POIS=1027,REQ_IMPORT_CAMPAIGN_POIS=1028;
++    private static final int REQ_MAP=1001,REQ_AUDIO_AMBIENCE=1002,REQ_AUDIO_MUSIC=1003,REQ_AUDIO_SFX=1004,REQ_IMPORT_MANUALS=1005,REQ_EXPORT_BACKUP=1006,REQ_IMPORT_BACKUP=1007,REQ_TOKEN=1008,REQ_MAP_MANIFEST=1009,REQ_DRIVE_AUTH=1010,REQ_TOKEN_PDF_FOLDER=1011,REQ_AUDIO_FOLDER=1012,REQ_AUDIO_KEYWORDS=1013,REQ_MAP_PACKAGE=1014,REQ_MAP_OVERLAY=1015,REQ_EXPORT_MAP_CORRECTIONS=1016,REQ_IMPORT_MAP_CORRECTIONS=1017,REQ_EXPORT_CHARACTER=1018,REQ_IMPORT_CHARACTER=1019,REQ_EXPORT_DIAGNOSTIC=1020,REQ_EXPORT_JOURNAL_PDF=1021,REQ_DRIVE_CONSENT=1022,REQ_MANUAL_FOLDER=1023,REQ_TOKEN_IMAGE_FOLDER=1024,REQ_BACKUP_FOLDER=1025,REQ_AUDIO_IMPORT_NOTIFICATIONS=1026,REQ_EXPORT_CAMPAIGN_POIS=1027,REQ_IMPORT_CAMPAIGN_POIS=1028,REQ_IMPORT_BRASEIRO_ADVENTURE=1029;
+     private static final String DEFAULT_FOLDER="https://drive.google.com/drive/folders/13wB-KfYCe2k5xGmb-z2D09KRDJtSyfHu";
+     private static final String DEFAULT_TOKEN_FOLDER="https://drive.google.com/drive/folders/1gfBQfV6x0KAri0pdyKXpMhVlQYblLD-W";
+     private static final String DEFAULT_TOKEN_IMAGE_FOLDER="https://drive.google.com/drive/folders/1AHvEEQoVQme8geVJ5PDWbz5bJiwpoTmx";
+@@ -3493,7 +3493,7 @@
+ 
+     private void speakGemini(String text){
+         if(text==null||text.trim().length()==0){toast("Não há texto para narrar.");return;}
+-        final String clean=PortugueseNarrationSanitizer.sanitize(GeneratedTextSanitizer.narrative(stripMarkdown(text)));
++        final String clean=BraseiroSpokenTextSanitizer.sanitize(PortugueseNarrationSanitizer.sanitize(GeneratedTextSanitizer.narrative(stripMarkdown(text))));
+         if(!audioEngineReady)initializeAudioEngineAsync();
+         if(nativeTts==null||!nativeTtsReady||!nativeTtsLanguageReady)ensureNativeTtsInitialized();
+         final List<String> chunks=charonVoiceChunks(clean);final long preparation=++charonPreparationGeneration;
+@@ -3537,7 +3537,7 @@
+     private List<String> nativeVoiceChunks(String text){List<String> out=isNativeNeuralProfile()?NarrationChunker.kokoro(text):NarrationChunker.android(text);nativeChapterStartIndexes.clear();if(!out.isEmpty())nativeChapterStartIndexes.add(0);return out;}
+ 
+     private void speakNativeNarrationWithSfx(String text){
+-        final String clean=PortugueseNarrationSanitizer.sanitize(GeneratedTextSanitizer.narrative(stripMarkdown(text)));if(clean.length()==0){toast("Não há texto para narrar.");return;}
++        final String clean=BraseiroSpokenTextSanitizer.sanitize(PortugueseNarrationSanitizer.sanitize(GeneratedTextSanitizer.narrative(stripMarkdown(text))));if(clean.length()==0){toast("Não há texto para narrar.");return;}
+         if(!audioEngineReady)initializeAudioEngineAsync();
+         if(nativeTts==null||!nativeTtsReady||!nativeTtsLanguageReady){cancelNarrationAudio();pendingRequestedNativeNarration=clean;ensureNativeTtsInitialized();setStatus("PLAY solicitado. Preparando a voz do Android sem bloquear a tela…");return;}
+         cancelNarrationAudio();applyNativeNarrativeDelivery();beginCoordinatedAudioSession("Android TTS",clean);pauseBackgroundWorkForNarration();startAudioServiceSafely();final long session=++nativeNarrationSession;final List<String> chunks=nativeVoiceChunks(clean);setStatus("Voz do Android pronta • iniciando em "+chunks.size()+" bloco"+(chunks.size()==1?"":"s")+" contínuo"+(chunks.size()==1?"":"s")+"…");
+@@ -3610,7 +3610,7 @@
+     private void synthesizeChunk(final List<String> chunks,final int index,final long session,final AudioSessionCoordinator.Session coordinated,final int recoveryAttempt){
+         if(session!=charonNarrationGeneration||!isCurrentAudioSession(coordinated))return;
+         if(index>=chunks.size()){activeCharonRequest=null;audio.endVoiceSessionInput();if(chunks.isEmpty()&&narrativeAudio!=null)narrativeAudio.endNarration();return;}
+-        String key=geminiKey();String paidKey=geminiPaidKey();final String model=canonicalConfiguredTtsModel(prefs.getString("tts_model","gemini-2.5-flash-preview-tts"));final String cacheModel=ttsCacheModelKey(model);final String packedSentence=chunks.get(index);final String sentence=NpcVoiceDirector.text(packedSentence);final String voice=NpcVoiceDirector.voice(packedSentence,prefs.getString("tts_voice","Charon"));final String speaker=NpcVoiceDirector.speaker(packedSentence);final JSONObject ttsDirection=buildCharonDirection(speaker,voice);final String delivery=ttsDirection.optString("delivery","normal");final int intensity=ttsDirection.optInt("intensity",1);final String pauseProfile=ttsDirection.optString("pause_profile","normal");final String expressiveText=GeminiTtsMarkupDirector.annotateForModel(model,sentence,delivery,intensity,pauseProfile,speaker);final boolean safeRecovery=recoveryAttempt>0;final String ttsText=safeRecovery?sentence:expressiveText;try{if(safeRecovery)ttsDirection.put("recovery_mode",recoveryAttempt==1?"clean transcript, same performance direction":"clean transcript, simplified reliable delivery");if(recoveryAttempt>=2){ttsDirection.put("delivery","normal");ttsDirection.put("intensity",Math.min(2,intensity));ttsDirection.put("pause_profile","normal");}}catch(Exception ignored){AppLog.ignored("CharonDirection","Falha ao preparar modo seguro de recuperação.",ignored);}final String cacheDirection=ttsDirection.toString();final boolean last=index==chunks.size()-1;
++        String key=geminiKey();String paidKey=geminiPaidKey();final String model=canonicalConfiguredTtsModel(prefs.getString("tts_model","gemini-2.5-flash-preview-tts"));final String cacheModel=ttsCacheModelKey(model);final String packedSentence=chunks.get(index);final String sentence=BraseiroSpokenTextSanitizer.sanitize(NpcVoiceDirector.text(packedSentence));final String voice=NpcVoiceDirector.voice(packedSentence,prefs.getString("tts_voice","Charon"));final String speaker=NpcVoiceDirector.speaker(packedSentence);final JSONObject ttsDirection=buildCharonDirection(speaker,voice);final String delivery=ttsDirection.optString("delivery","normal");final int intensity=ttsDirection.optInt("intensity",1);final String pauseProfile=ttsDirection.optString("pause_profile","normal");final String expressiveText=GeminiTtsMarkupDirector.annotateForModel(model,sentence,delivery,intensity,pauseProfile,speaker);final boolean safeRecovery=recoveryAttempt>0;final String ttsText=safeRecovery?sentence:expressiveText;try{if(safeRecovery)ttsDirection.put("recovery_mode",recoveryAttempt==1?"clean transcript, same performance direction":"clean transcript, simplified reliable delivery");if(recoveryAttempt>=2){ttsDirection.put("delivery","normal");ttsDirection.put("intensity",Math.min(2,intensity));ttsDirection.put("pause_profile","normal");}}catch(Exception ignored){AppLog.ignored("CharonDirection","Falha ao preparar modo seguro de recuperação.",ignored);}final String cacheDirection=ttsDirection.toString();final boolean last=index==chunks.size()-1;
+         File cached=ttsCache==null?null:ttsCache.get(cacheModel,voice,ttsText,cacheDirection);
+         if(cached!=null){
+             activeCharonRequest=null;
+@@ -5322,6 +5322,14 @@
+         LinearLayout cacheCard=card();cacheCard.addView(text("CACHE DE MINIATURAS",17,GOLD,true));final Spinner cacheSpinner=spinner(new String[]{"250 MB","500 MB","1 GB"},prefs.getInt("token_cache_mb",500)>=1000?"1 GB":(prefs.getInt("token_cache_mb",500)<=250?"250 MB":"500 MB"));cacheCard.addView(cacheSpinner);cacheCard.addView(text("Miniaturas antigas são removidas automaticamente. Avatares vinculados permanecem protegidos.",12,MUTED,false));b.addView(cacheCard);
+         Button save=button("SALVAR E APLICAR",GREEN);save.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String cv=String.valueOf(cacheSpinner.getSelectedItem());int cacheMb="1 GB".equals(cv)?1024:("250 MB".equals(cv)?250:500);if(!saveGeminiSecretsAtomically(key.getText().toString().trim(),paidKey.getText().toString().trim())){toast("O Android Keystore não conseguiu proteger uma das chaves; nenhuma configuração foi aplicada.");return;}prefs.edit().putString("text_model",textModel.getText().toString().trim()).remove("narrator_text_model").putString("image_model",imageModel.getText().toString().trim()).putString("tts_model",canonicalConfiguredTtsModel(ttsModel.getText().toString().trim())).putString("tts_voice",voice.getText().toString().trim()).putBoolean("tts_android_fallback_enabled",autoAndroidFallback.isChecked()).putString("drive_folder",folder.getText().toString().trim()).putString("token_pdf_drive_folder",tokenPdfDriveFolder.getText().toString().trim()).putString("token_folder",tokenFolder.getText().toString().trim()).putInt("token_cache_mb",cacheMb).putInt("ai_daily_call_limit",Math.max(10,num(dailyCalls,80))).putInt("ai_daily_char_limit",Math.max(100000,num(dailyChars,900)*1000)).putInt("ai_daily_tts_limit",Math.max(2,num(dailyTts,160))).putString(themePrefKey(),themeMode(String.valueOf(themeSpinner.getSelectedItem()))).putString("theme_mode",themeMode(String.valueOf(themeSpinner.getSelectedItem()))).putString("master_pace",paceMode(String.valueOf(paceSpinner.getSelectedItem()))).putBoolean("candle_light_enabled",candleLight.isChecked()).putInt("candle_light_intensity",Math.max(20,candleIntensity.getProgress())).apply();applyTheme();String screen=currentScreen;buildShell();navigate(screen);toast("Configurações e chave protegida aplicadas.");}});b.addView(save);
+         LinearLayout safetyCard=card();safetyCard.addView(text("PROTEÇÃO AUTOMÁTICA DA CAMPANHA",17,GOLD,true));JSONObject health=db.healthCheck();safetyCard.addView(text((health.optBoolean("healthy")?"Banco íntegro":"ATENÇÃO: banco precisa de verificação")+" • "+safety.snapshotFileCount()+" snapshots rotativos\n"+safety.getStartupMessage(),13,health.optBoolean("healthy")?TEXT:RED,false));Button snap=button("CRIAR SNAPSHOT AGORA",GREEN),restore=button("DESFAZER / RESTAURAR ÚLTIMO SNAPSHOT",PANEL2),history=button("HISTÓRICO E AUDITORIA",PANEL2),memories=button("CENAS E MEMÓRIA DE NPCS",PANEL2);snap.setOnClickListener(new View.OnClickListener(){public void onClick(View v){try{File file=safety.createSnapshot("Snapshot manual");toast("Snapshot íntegro criado: "+file.getName());showSettings();}catch(Exception e){toast("Snapshot: "+e.getMessage());}}});restore.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Restaurar o último snapshot válido? O estado atual será substituído.",new Runnable(){public void run(){try{String file=safety.restoreLatest();loadStoryState();toast("Restaurado: "+file);navigate("Aventura");}catch(Exception e){toast("Restauração: "+e.getMessage());}}});}});history.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showAuditDialog();}});memories.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showMemoryDialog();}});safetyCard.addView(snap);safetyCard.addView(restore);safetyCard.addView(history);safetyCard.addView(memories);b.addView(safetyCard);
++        LinearLayout adventureJson=card();adventureJson.addView(text("AVENTURAS JSON E VIDA PERSISTENTE",17,GOLD,true));
++        adventureJson.addView(text("Importe aventuras braseiro.adventure/v1 de Kingmaker. O Mestre recebe o roteiro privado; fichas, mapas, NPCs e as regras permanecem sob autoridade do jogo.",12,MUTED,false));
++        Button importAdventure=button("IMPORTAR AVENTURA JSON",GREEN);
++        importAdventure.setOnClickListener(new View.OnClickListener(){public void onClick(View v){openFile("application/json",REQ_IMPORT_BRASEIRO_ADVENTURE,false);}});
++        adventureJson.addView(importAdventure);
++        Button finishAdventure=button("CONCLUIR AVENTURA IMPORTADA (PRESERVAR CAMPANHA)",PANEL2);
++        finishAdventure.setOnClickListener(new View.OnClickListener(){public void onClick(View v){new AlertDialog.Builder(MainActivity.this).setTitle("Concluir aventura importada?").setMessage("Apenas o roteiro importado será arquivado. A campanha, personagens, mundo e feitos serão preservados.").setNegativeButton("Cancelar",null).setPositiveButton("CONCLUIR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){boolean ok=new BraseiroAdventureStore(db).finish();toast(ok?"Aventura arquivada. O mundo continua.":"Não há aventura importada ativa.");}}).show();}});
++        adventureJson.addView(finishAdventure);b.addView(adventureJson);
+         LinearLayout backup=card();backup.addView(text("BACKUP DE CAMPANHA PORTÁTIL",17,GOLD,true));backup.addView(text("Inclui integralmente a campanha do mundo ativo: fichas, combate, hex atual, rota, névoa, notas, cenas, NPCs e memória do Mestre. Manuais, índices RAG, tokens, áudios e arquivos físicos de mapa são bibliotecas externas e nunca são apagados ao importar. Chaves Gemini e tokens OAuth nunca entram no arquivo.",12,MUTED,false));boolean backupLinked=libraryConnections!=null&&libraryConnections.hasPersistedReadPermission(LibraryConnectionManager.BACKUPS)&&libraryConnections.hasPersistedWritePermission(LibraryConnectionManager.BACKUPS);backup.addView(text(backupLinked?"Pasta automática conectada com leitura e gravação.":"Backup automático ainda sem pasta válida.",12,backupLinked?GREEN:GOLD,true));Button export=button("EXPORTAR CAMPANHA",PANEL2),importB=button("IMPORTAR CAMPANHA VALIDADA",PANEL2),chooseBackup=button(backupLinked?"TROCAR PASTA DE BACKUP AUTOMÁTICO":"ESCOLHER PASTA DE BACKUP AUTOMÁTICO",PANEL2),backupNow=button("CRIAR BACKUP AUTOMÁTICO AGORA",GREEN),backupConfig=button("CONFIGURAR RETENÇÃO E AUTOMATIZAÇÃO",PANEL2);export.setOnClickListener(new View.OnClickListener(){public void onClick(View v){Intent x=new Intent(Intent.ACTION_CREATE_DOCUMENT);x.addCategory(Intent.CATEGORY_OPENABLE);x.setType("application/json");x.putExtra(Intent.EXTRA_TITLE,"Braseiro_campanha_"+activeWorldProfile()+"_"+new SimpleDateFormat("yyyyMMdd_HHmm",Locale.US).format(new Date())+".json");startActivityForResult(x,REQ_EXPORT_BACKUP);}});importB.setOnClickListener(new View.OnClickListener(){public void onClick(View v){openFile("application/json",REQ_IMPORT_BACKUP,false);}});chooseBackup.setOnClickListener(new View.OnClickListener(){public void onClick(View v){selectBackupFolder();}});backupNow.setOnClickListener(new View.OnClickListener(){public void onClick(View v){createPortableBackupNow();}});backupConfig.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showAutomaticBackupDialog();}});backup.addView(export);backup.addView(importB);backup.addView(chooseBackup);backup.addView(backupNow);backup.addView(backupConfig);b.addView(backup);
+         JSONObject masterAudit=masterGameContext.auditConnections();if(masterAudit==null)masterAudit=new JSONObject();
+         JSONObject audioDiagnostic=audioDiagnosticSnapshot();
+@@ -5521,7 +5529,28 @@
+         return;
+     }
+ if(request==REQ_TOKEN_IMAGE_FOLDER){if(result!=RESULT_OK||data==null||data.getData()==null){toast("Seleção da pasta de imagens cancelada.");return;}if(persistSelectedTree(LibraryConnectionManager.TOKEN_IMAGES,data,false)){toast("Pasta de imagens vinculada pelo Android.");syncTokens();}return;}if(request==REQ_AUDIO_FOLDER){if(result!=RESULT_OK||data==null||data.getData()==null){toast("Seleção da pasta de áudio cancelada.");return;}if(persistSelectedTree(LibraryConnectionManager.AUDIO,data,false))syncAudioLibrary();return;}if(request==REQ_AUDIO_KEYWORDS){if(result!=RESULT_OK||data==null)return;final Intent keywordData=data;setStatus("Lendo biblioteca_sons.json...");taskQueue.submit("audio-catalog-"+System.currentTimeMillis(),"Importar biblioteca_sons.json",new ResilientTaskQueue.Work(){public void run(ResilientTaskQueue.Progress progress)throws Exception{progress.update(0,1,"Validando nomes e palavras-chave");final int count=smartAudio.importKeywordIntent(keywordData);progress.update(1,1,count+" áudios catalogados");prefs.edit().putInt("last_audio_keyword_count",count).apply();}},new ResilientTaskQueue.Callback(){public void onSuccess(){ui.post(new Runnable(){public void run(){int count=prefs.getInt("last_audio_keyword_count",0);toast(count+" áudios ligados ao catálogo JSON.");setStatus("biblioteca_sons.json aplicado. Atualize o índice da pasta para conferir os arquivos.");showAudio();}});}public void onError(final String message){ui.post(new Runnable(){public void run(){toast("biblioteca_sons.json: "+message);setStatus("Falha ao importar o catálogo de sons.");}});}});return;}if(request==REQ_TOKEN_PDF_FOLDER){if(result!=RESULT_OK||data==null||data.getData()==null){toast("Seleção da pasta tokens cancelada.");return;}if(persistSelectedTree(LibraryConnectionManager.TOKEN_PDFS,data,false)){toast("Pasta de PDFs de tokens vinculada.");syncTokenPdfCatalog();}return;}if(request==REQ_BACKUP_FOLDER){if(result!=RESULT_OK||data==null||data.getData()==null){toast("Seleção da pasta de backup cancelada.");return;}if(persistSelectedTree(LibraryConnectionManager.BACKUPS,data,true)){prefs.edit().putBoolean("automatic_drive_backup",true).apply();toast("Pasta de backup automático vinculada.");if(maintenance!=null)maintenance.runMaintenance("Pasta de backup vinculada",true);showSettings();}return;}if((request==REQ_EXPORT_CHARACTER||request==REQ_IMPORT_CHARACTER)&&(result!=RESULT_OK||data==null||data.getData()==null)){pendingCharacterExport=new JSONObject();toast("Operação de ficha JSON cancelada.");return;}if(request==REQ_EXPORT_JOURNAL_PDF&&(result!=RESULT_OK||data==null||data.getData()==null)){if(pendingAdventurePdf!=null)pendingAdventurePdf.delete();pendingAdventurePdf=null;pendingAdventurePdfKind="livro";toast("Exportação do PDF cancelada.");return;}if(result!=RESULT_OK||data==null)return;try{
+-        if(request==REQ_MAP_PACKAGE&&data.getData()!=null){safety.beforeDestructiveChange("importar pacote de mapa");Uri zip=data.getData();persist(zip,data);importMapPackage(zip);}
++        if(request==REQ_IMPORT_BRASEIRO_ADVENTURE&&data.getData()!=null){
++            long length=sizeOf(data.getData());if(length>2_000_000)throw new Exception("JSON maior que 2 MB");
++            InputStream in=getContentResolver().openInputStream(data.getData());if(in==null)throw new Exception("Não foi possível abrir o JSON");
++             final String json;try{json=readAll(in);}finally{in.close();}
++             final JSONObject preview=new JSONObject(json);
++             BraseiroAdventureStore.validatePackage(preview);
++             final String adventureTitle=preview.getString("title");
++             final String world=preview.getString("worldId");
++             final int locations=preview.getJSONArray("locations").length();
++             final int npcCount=preview.optJSONArray("npcs")!=null?preview.optJSONArray("npcs").length():0;
++             new AlertDialog.Builder(this).setTitle("CONFIRMAR AVENTURA JSON")
++               .setMessage("Aventura: "+adventureTitle+"\nMundo: "+world+"\nLocais: "+locations+"\nNPCs: "+npcCount+"\n\nImportar mantendo personagens e mundo? Incompatibilidades serão recusadas.")
++               .setNegativeButton("Cancelar",null)
++               .setPositiveButton("IMPORTAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){
++                   try{JSONObject imported=new BraseiroAdventureStore(db).importJson(json);
++                       toast("Aventura importada: "+imported.optString("title"));
++                       setStatus("Mestre: roteiro JSON conectado à campanha atual.");
++                   }catch(Exception error){toast("Importação recusada: "+error.getMessage());}
++               }}).show();
++             return;
++        }
++        else if(request==REQ_MAP_PACKAGE&&data.getData()!=null){safety.beforeDestructiveChange("importar pacote de mapa");Uri zip=data.getData();persist(zip,data);importMapPackage(zip);}
+         else if(request==REQ_MAP&&data.getData()!=null){safety.beforeDestructiveChange("substituir imagem do mapa");Uri uri=data.getData();persist(uri,data);JSONObject st=db.getMapState();db.saveMapPackageState(uri.toString(),"",st.optString("manifest_json"),"","",false,"{}",st.optString("grid_type","Quadrada"),(float)st.optDouble("grid_size",64),st.optInt("fog_enabled")==1,.5f,.5f,0,0,0);db.addAuditEvent("mapa","Imagem do mapa substituída",displayName(uri),"{}",db.getMapState().toString(),true);showMap();}
+         else if(request==REQ_MAP_OVERLAY&&data.getData()!=null){Uri overlayUri=data.getData();persist(overlayUri,data);MapBoardView probe=mapView!=null?mapView:new MapBoardView(this);JSONObject st=db.getMapState();if(st.optString("image_uri").length()>0)probe.load(Uri.parse(st.optString("image_uri")));probe.loadOverlay(overlayUri);db.saveMapPackageState(st.optString("image_uri"),overlayUri.toString(),st.optString("manifest_json"),st.optString("map_package_id"),st.optString("current_hex_id"),true,st.optString("reveals_json","{}"),st.optString("grid_type","Quadrada"),(float)st.optDouble("grid_size",64),st.optInt("fog_enabled")==1,(float)st.optDouble("token_x",.5),(float)st.optDouble("token_y",.5),(float)st.optDouble("scale",1),(float)st.optDouble("offset_x",0),(float)st.optDouble("offset_y",0));toast("Overlay de IDs vinculado.");showMap();}
+         else if(request==REQ_AUDIO_AMBIENCE&&data.getData()!=null){persist(data.getData(),data);if(audio!=null)audio.playAmbience(data.getData());else toast("O motor de áudio ainda está iniciando.");}
+--- a/app/src/main/java/com/braseiro/pathfinder2e/MasterGameContext.java
++++ b/app/src/main/java/com/braseiro/pathfinder2e/MasterGameContext.java
+@@ -56,6 +56,7 @@
+             root.put("living_world",new JSONObject(new LivingWorldEngine(db).compactContext()));
+             root.put("world_6",new WorldSixCoordinator(db).context());
+             root.put("kingmaker",new KingmakerService(db).masterContext());
++            root.put("imported_adventure_private",new BraseiroAdventureStore(db).masterContext());
+             root.put("pending_transactions",new JSONArray(db.listPendingTransactions("pending",20)));
+             root.put("pending_actions",db.listPendingActions("pending",40));
+             root.put("tactical_tokens",new JSONArray(db.listTacticalTokens()));
+@@ -102,6 +103,7 @@
+             root.put("living_world",new JSONObject(new LivingWorldEngine(db).compactContext()));
+             root.put("world_6",new WorldSixCoordinator(db).context());
+             root.put("kingmaker",new KingmakerService(db).masterContext());
++            root.put("imported_adventure_private",new BraseiroAdventureStore(db).masterContext());
+             root.put("party_state",db.getPartyState());
+             root.put("party_actions",new JSONArray(db.listPartyActions("queued",40)));
+             root.put("travel_rules_state",db.getTravelRulesState());
+--- a/app/src/main/java/com/braseiro/pathfinder2e/BraseiroAdventureStore.java
++++ b/app/src/main/java/com/braseiro/pathfinder2e/BraseiroAdventureStore.java
+@@ -0,0 +1,171 @@
++package com.braseiro.pathfinder2e;
++
++import android.content.ContentValues;
++import android.database.sqlite.SQLiteDatabase;
++import org.json.JSONArray;
++import org.json.JSONObject;
++
++/** Importação narrativa v1: somente o banco do host pode persistir fatos e regras. */
++public final class BraseiroAdventureStore {
++    private final AppDb db;
++    public BraseiroAdventureStore(AppDb appDb){this.db=appDb;}
++    private void ensureSchema(SQLiteDatabase sql){
++        sql.execSQL("CREATE TABLE IF NOT EXISTS braseiro_adventure_packages (scope TEXT PRIMARY KEY, world_id TEXT NOT NULL, timeline_id TEXT NOT NULL, active_json TEXT NOT NULL, history_json TEXT NOT NULL, updated_at INTEGER NOT NULL)");
++        sql.execSQL("CREATE TABLE IF NOT EXISTS braseiro_adventure_npc_ledger (scope TEXT NOT NULL, npc_id TEXT NOT NULL, data_json TEXT NOT NULL, PRIMARY KEY(scope, npc_id))");
++    }
++    private String scope(){return db.getActiveMapProfile()+":"+db.getCampaign().optString("name", "Kingmaker");}
++    public synchronized JSONObject importJson(String source)throws Exception {
++        if(source==null || source.length()==0 || source.getBytes("UTF-8").length>2_000_000)throw new IllegalArgumentException("A aventura deve ter menos de 2 MB.");
++        JSONObject pkg=new JSONObject(source);
++        validatePackage(pkg);
++        String id=pkg.getString("id");
++        SQLiteDatabase sql=db.getWritableDatabase(); ensureSchema(sql);
++        String key=scope();JSONObject previous=db.queryOne("SELECT * FROM braseiro_adventure_packages WHERE scope=?",new String[]{key});
++        String world=pkg.getString("worldId"),timeline=pkg.optString("timelineId","principal");
++        if(previous.length()>0){
++            if(!world.equals(previous.optString("world_id")) || !timeline.equals(previous.optString("timeline_id")))throw new IllegalArgumentException("Mundo ou cronologia incompatível com o histórico da campanha.");
++            JSONObject existing=new JSONObject(previous.optString("active_json","{}"));
++            if(existing.length()>0 && !existing.optString("id").equals(id))throw new IllegalArgumentException("Conclua a aventura atual antes de importar outra.");
++        }
++        ContentValues values=new ContentValues();values.put("scope",key);values.put("world_id",world);values.put("timeline_id",timeline);values.put("active_json",pkg.toString());values.put("history_json",previous.optString("history_json","[]"));values.put("updated_at",System.currentTimeMillis());
++        sql.beginTransaction();
++        try {
++            if(sql.insertWithOnConflict("braseiro_adventure_packages",null,values,SQLiteDatabase.CONFLICT_REPLACE)<0)throw new IllegalStateException("Não foi possível salvar o JSON no banco.");
++            JSONArray npcs=pkg.optJSONArray("npcs");
++            if(npcs!=null)for(int i=0;i<npcs.length()&&i<500;i++){
++                JSONObject npc=npcs.optJSONObject(i);if(npc==null)continue;
++                String npcId=npc.optString("id","");
++                if(!npcId.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,159}"))continue;
++                ContentValues n=new ContentValues();n.put("scope",key);n.put("npc_id",npcId);n.put("data_json",npc.toString());
++                // Preservar identidade anterior e segredos ainda não descobertos.
++                sql.insertWithOnConflict("braseiro_adventure_npc_ledger",null,n,SQLiteDatabase.CONFLICT_IGNORE);
++            }
++            sql.setTransactionSuccessful();
++        } finally {sql.endTransaction();}
++        return new JSONObject().put("ok",true).put("id",id).put("title",pkg.optString("title"));
++    }
++    /** Validate adventure/v1 before any SQLite transaction. Story data have no mechanics authority. */
++    public static void validatePackage(JSONObject pkg) throws Exception {
++        if (!"braseiro.adventure/v1".equals(pkg.optString("schema")))
++            throw new IllegalArgumentException("Contrato de aventura JSON inválido.");
++        requireId(pkg.opt("id"), "id");
++        String system=requireId(pkg.opt("system"),"system").toLowerCase(java.util.Locale.ROOT);
++        if(!"pf2e-kingmaker".equals(system)&&!"pathfinder2e-kingmaker".equals(system))
++            throw new IllegalArgumentException("Esta aventura não pertence a Kingmaker R36.");
++        requireId(pkg.opt("worldId"),"worldId");
++        requireText(pkg.opt("title"),"title");
++        JSONObject start=pkg.optJSONObject("start");
++        if(start==null)throw new IllegalArgumentException("start deve ser objeto com locationId.");
++        String firstLocation=requireId(start.opt("locationId"),"start.locationId");
++        optionalText(start.opt("hook"),"start.hook");
++        JSONObject story=pkg.optJSONObject("story");
++        if(story==null)throw new IllegalArgumentException("story deve ser objeto.");
++        requireText(story.opt("premise"),"story.premise");
++        requireText(story.opt("background"),"story.background");
++        optionalText(story.opt("playerIntroduction"),"story.playerIntroduction");
++        JSONArray places=list(pkg,"locations",true);boolean found=false;
++        for(int i=0;i<places.length();i++)if(firstLocation.equals(places.getJSONObject(i).optString("id")))found=true;
++        if(!found)throw new IllegalArgumentException("start.locationId não existe na lista locations.");
++        for(String field:new String[]{"npcs","objectives","encounters"})list(pkg,field,false);
++        JSONArray enemies=list(pkg,"enemies",false);
++        for(int i=0;i<enemies.length();i++){
++            JSONObject ref=enemies.getJSONObject(i).optJSONObject("rulesRef");
++            if(ref==null)throw new IllegalArgumentException("enemies["+i+"].rulesRef ausente.");
++            requireText(ref.opt("source"),"enemies["+i+"].rulesRef.source");
++        }
++        JSONArray secrets=list(pkg,"secrets",false);
++        for(int i=0;i<secrets.length();i++){
++            JSONObject secret=secrets.getJSONObject(i);
++            if(!"gm_only".equals(secret.opt("visibility")))throw new IllegalArgumentException("secrets["+i+"].visibility deve ser gm_only.");
++            requireText(secret.opt("truth"),"secrets["+i+"].truth");
++        }
++        optionalText(pkg.opt("description"),"description");
++        optionalText(pkg.opt("author"),"author");
++        if(pkg.has("timelineId"))requireId(pkg.opt("timelineId"),"timelineId");
++    }
++    private static String requireId(Object raw,String label){
++        if(!(raw instanceof String))throw new IllegalArgumentException(label+": identificador inválido.");
++        String id=(String)raw;
++        if(id.length()>160||!id.matches("[a-zA-Z0-9][a-zA-Z0-9._:-]*"))throw new IllegalArgumentException(label+": identificador inválido.");
++        return id;
++    }
++    private static void requireText(Object raw,String label){
++        if(!(raw instanceof String)||((String)raw).trim().isEmpty())throw new IllegalArgumentException(label+": texto obrigatório ausente.");
++    }
++    private static void optionalText(Object raw,String label){
++        if(raw!=null&&raw!=JSONObject.NULL&&!(raw instanceof String))throw new IllegalArgumentException(label+": deve ser texto.");
++    }
++    private static JSONArray list(JSONObject pkg,String label,boolean required)throws Exception{
++        if(!pkg.has(label)&&!required)return new JSONArray();
++        JSONArray arr=pkg.optJSONArray(label);if(arr==null)throw new IllegalArgumentException(label+": lista inválida.");
++        java.util.Set<String> seen=new java.util.HashSet<>();
++        for(int i=0;i<arr.length();i++){
++            JSONObject item=arr.optJSONObject(i);
++            if(item==null)throw new IllegalArgumentException(label+"["+i+"]: objeto inválido.");
++            String id=requireId(item.opt("id"),label+"["+i+"].id");
++            if(!seen.add(id))throw new IllegalArgumentException(label+": ID duplicado ("+id+").");
++        }
++        return arr;
++    }
++    public synchronized boolean finish(){
++        SQLiteDatabase sql=db.getWritableDatabase();ensureSchema(sql);String key=scope();
++        JSONObject row=db.queryOne("SELECT * FROM braseiro_adventure_packages WHERE scope=?",new String[]{key});
++        if(row.length()==0)return false;
++        try{
++            JSONObject active=new JSONObject(row.optString("active_json","{}"));if(active.length()==0)return false;
++            JSONArray history=new JSONArray(row.optString("history_json","[]"));
++            history.put(new JSONObject().put("id",active.optString("id")).put("title",active.optString("title")).put("finishedAt",System.currentTimeMillis()));
++            sql.execSQL("UPDATE braseiro_adventure_packages SET active_json='{}', history_json=?,updated_at=? WHERE scope=?",new Object[]{history.toString(),System.currentTimeMillis(),key});
++            return true;
++        }catch(Exception ex){throw new IllegalStateException("Aventura não pôde ser concluída",ex);}
++    }
++    /** Privado para o contexto do Mestre; não aciona eventos de jogo. */
++    public JSONObject masterContext(){
++        JSONObject out=new JSONObject();
++        try{
++            ensureSchema(db.getWritableDatabase());
++            JSONObject row=db.queryOne("SELECT * FROM braseiro_adventure_packages WHERE scope=?",new String[]{scope()});
++            if(row.length()==0)return out;
++            JSONObject active=new JSONObject(row.optString("active_json","{}"));
++            JSONArray history=new JSONArray(row.optString("history_json","[]"));
++            out.put("worldId",row.optString("world_id"));out.put("timelineId",row.optString("timeline_id"));
++            if(active.length()>0){
++                out.put("activeId",active.optString("id"));out.put("title",active.optString("title"));
++                out.put("description",shortText(active.optString("description"),1200));
++                JSONObject story=active.optJSONObject("story");if(story!=null){out.put("premise",shortText(story.optString("premise"),1800));out.put("background_private",shortText(story.optString("background"),3500));out.put("opening_for_player",shortText(story.optString("playerIntroduction"),1800));}
++                JSONObject start=active.optJSONObject("start");if(start!=null){out.put("start_location",start.optString("locationId"));out.put("start_hook",shortText(start.optString("hook"),800));}
++                out.put("locations_private",summarize(active.optJSONArray("locations"),"description",24));
++                out.put("encounters_private",summarize(active.optJSONArray("encounters"),"description",24));
++                out.put("objectives_private",summarize(active.optJSONArray("objectives"),"description",16));
++                out.put("npcNames",summarize(active.optJSONArray("npcs"),"name",12));
++                out.put("npcs_private",summarizePrivateNpcs(scope(),30));
++                out.put("secrets_private",summarize(active.optJSONArray("secrets"),"truth",12));
++                out.put("clues_private",summarize(active.optJSONArray("clues"),"description",18));
++            }
++            out.put("completedAdventures",history);
++            out.put("authority","Com uma aventura importada ativa, seguir seus locais e encontros sem substituir o roteiro. Dados importados são fonte de ficção privada. O Mestre não pode conceder recompensas, declarar feitos ou decidir ações do jogador sem validação pelo host. Nenhum segredo é conhecido pelos NPCs sem evidência.");
++        }catch(Exception ex){try{out.put("loadError",String.valueOf(ex.getMessage()));}catch(Exception ignored){}}
++        return out;
++    }
++    private JSONArray summarizePrivateNpcs(String key,int max){
++        JSONArray out=new JSONArray();
++        try {
++            android.database.Cursor c=db.getReadableDatabase().rawQuery(
++                "SELECT npc_id,data_json FROM braseiro_adventure_npc_ledger WHERE scope=? LIMIT "+Math.max(1,Math.min(300,max)),new String[]{key});
++            try {while(c.moveToNext()){
++                JSONObject original=new JSONObject(c.getString(1));
++                JSONObject limited=new JSONObject();
++                for(String k:new String[]{"id","name","kin","species","role","faction","goals","goal","secret","gmNotes","knowledgeLimits","schedule","plans","locationId"})
++                    if(original.has(k))limited.put(k,original.get(k));
++                out.put(limited);
++            }}finally{c.close();}
++        }catch(Exception ignored){}
++        return out;
++    }
++    private static String shortText(String source,int cap){if(source==null)return "";return source.length()<=cap?source:source.substring(0,cap);}
++    private static JSONArray summarize(JSONArray values,String field,int cap){
++        JSONArray out=new JSONArray();if(values==null)return out;
++        for(int i=0;i<values.length() && i<cap;i++){Object x=values.opt(i);if(x instanceof JSONObject){JSONObject item=(JSONObject)x;out.put(shortText(item.optString("name",item.optString("title",item.optString(field,""))),140)+" — "+shortText(item.optString(field),280));}else if(x instanceof String)out.put(shortText((String)x,300));}
++        return out;
++    }
++}
+--- a/app/src/main/java/com/braseiro/pathfinder2e/BraseiroSpokenTextSanitizer.java
++++ b/app/src/main/java/com/braseiro/pathfinder2e/BraseiroSpokenTextSanitizer.java
+@@ -0,0 +1,18 @@
++package com.braseiro.pathfinder2e;
++
++import java.util.regex.Pattern;
++/** Apenas a entrada TTS é limpa; a cena canônica nunca é modificada. */
++public final class BraseiroSpokenTextSanitizer {
++    private static final Pattern VOCAL = Pattern.compile("(?i)\\[\\s*(?:voz|voice|speaker|perfil\\s+vocal|estilo\\s+vocal|voice\\s+profile|voice\\s+style|emotion|emoção|tom|tone|sfx|pause|pausa|style|profile)\\s*[:=][^\\]\\r\\n]{0,200}\\]");
++    private static final Pattern META = Pattern.compile("(?i)<\\s*/?\\s*(?:sigh|breath|short[ -]pause|laugh|cough|speaker|voice)(?:\\s+[^>]*)?\\s*/?\\s*>");
++    private static final Pattern LABEL = Pattern.compile("(?im)^(?:Speaker\\s*\\d+|Locutor\\s*\\d+|NARRADOR|VOICE|PERFIL\\s+VOCAL|ESTILO\\s+VOCAL)\\s*:\\s*");
++    private static final Pattern SPACES = Pattern.compile("\\s+");
++    private BraseiroSpokenTextSanitizer() {}
++    public static String sanitize(String raw){
++        if(raw==null)return "";
++        String spoken=META.matcher(raw).replaceAll(" ");
++        spoken=VOCAL.matcher(spoken).replaceAll(" ");
++        spoken=LABEL.matcher(spoken).replaceAll("");
++        return SPACES.matcher(spoken).replaceAll(" ").trim();
++    }
++}
