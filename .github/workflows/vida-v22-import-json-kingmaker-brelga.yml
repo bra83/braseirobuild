@@ -39,7 +39,7 @@ jobs:
           $archive=Join-Path $dir 'KINGMAKER_R36_CANONICAL_SOURCE.zip'
           & python -m pip install --disable-pip-version-check --quiet gdown
           if($LASTEXITCODE -ne 0){throw 'GDOWN_INSTALL_FAILED'}
-          & curl.exe --fail --location --retry 3 --retry-delay 2 --silent --show-error --output $archive 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-33bc-820e-b5c5-c6ca24972539/raw?se=2026-10-23T08%3A59%3A48Z&sp=r&sv=2026-02-06&sr=b&scid=b06baeb9-5258-528e-9e6c-f52cc74029d6&skoid=4a431cd2-eafd-49c7-90be-bbb4d45e696d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-23T07%3A46%3A41Z&ske=2026-10-24T07%3A46%3A41Z&sks=b&skv=2026-02-06&sig=0ktaW9Gi3EnBVZnz2OFW4TpLALnP8Kq0/oaRFPGtqOU%3D'
+          & curl.exe --fail --location --retry 3 --retry-delay 2 --silent --show-error --output $archive 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-f924-820e-bb01-30475d1c799a/raw?se=2026-10-23T09%3A06%3A18Z&sp=r&sv=2026-02-06&sr=b&scid=e0c3bc65-0574-5097-abea-b89280b84efd&skoid=4a431cd2-eafd-49c7-90be-bbb4d45e696d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-23T06%3A05%3A40Z&ske=2026-10-24T06%3A05%3A40Z&sks=b&skv=2026-02-06&sig=rNeBULYbZqh%2BLIyV/ajAuDfyhF9%2B0TyofMGUQBIhxvY%3D'
           if($LASTEXITCODE -ne 0 -or !(Test-Path $archive)){throw 'CANONICAL_SOURCE_DOWNLOAD_BLOCKED_PERMISSION_OR_QUOTA'}
           $size=(Get-Item $archive).Length
           $sha=(Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -114,6 +114,21 @@ jobs:
         run: |
           $ErrorActionPreference='Stop'
           $tag='kingmaker-r36-json-v22-'+$env:GITHUB_SHA.Substring(0,12)
-          & gh release create $tag $env:KINGMAKER_APK_PATH --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Kingmaker R36 - JSON Vida V2.2 corrigido (candidato)' --notes 'Compilado integralmente da fonte R36 SHA256 8dc976ed79578fc35e3004e9532240f0ff0a475f41d50df43c20a9eecf78b7f1 com patch de 23/10. TTS existente preservado. Assinatura e instalacao sobre app anterior ainda precisam ser comparadas; teste fisico A57 pendente.' --prerelease
-          if($LASTEXITCODE -ne 0){throw 'RELEASE_PUBLICATION_FAILED'}
-          Write-Host "KINGMAKER_CORRECTED_RELEASE=https://github.com/$env:GITHUB_REPOSITORY/releases/tag/$tag"
+          $ErrorActionPreference='Stop'
+          $assetName='BRASEIRO_KINGMAKER_R36_JSON_V22_CORRIGIDO_CANDIDATO.apk'
+          $path=$env:KINGMAKER_APK_PATH
+          if(!(Test-Path $path)){throw 'APK_NOT_FOUND_FOR_PUBLICATION'}
+          $apk=Get-Item $path
+          $sha=(Get-FileHash $apk.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          $headers=@{Authorization=('Bearer '+$env:GH_TOKEN);Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='Braseiro-Kingmaker-R36'}
+          $api="https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases"
+          $notes="Source $env:GITHUB_SHA; canonical ZIP SHA256 8dc976ed79578fc35e3004e9532240f0ff0a475f41d50df43c20a9eecf78b7f1; APK SHA256 $sha; compileDebugJavaWithJavac/assembleDebug PASS; APK certificate verify PASS. Candidate only: in-place installation and A57 physical acceptance not certified."
+          $body=@{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name='Kingmaker R36 JSON Vida V2.2 corrigido - candidato Android';body=$notes;draft=$false;prerelease=$true}|ConvertTo-Json -Depth 5
+          $release=Invoke-RestMethod -Uri $api -Method Post -Headers $headers -ContentType 'application/json' -Body ([Text.Encoding]::UTF8.GetBytes($body)) -TimeoutSec 90
+          if(!$release.id -or !$release.upload_url){throw 'GITHUB_RELEASE_CREATE_FAILED'}
+          $upUri=$release.upload_url.Split('{')[0]+'?name='+$assetName
+          $up=Invoke-RestMethod -Uri $upUri -Method Post -Headers $headers -InFile $apk.FullName -ContentType 'application/vnd.android.package-archive' -TimeoutSec 1200
+          if(!$up.id -or $up.size -ne $apk.Length){throw 'GITHUB_ASSET_SIZE_OR_UPLOAD_MISMATCH'}
+          Write-Host "KINGMAKER_CORRECTED_RELEASE=$($release.html_url)"
+          Write-Host "KINGMAKER_APK_ASSET=$($up.browser_download_url)"
+          Write-Host "KINGMAKER_APK_SHA256=$sha"
