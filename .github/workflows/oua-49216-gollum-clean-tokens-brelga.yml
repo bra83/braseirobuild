@@ -1,14 +1,14 @@
 name: OUA 4.9.216 Gollum Guide and Green Cleanup BRELGA
 on:
   push:
-    branches: [feature/oua-49216-gollum-guide-degreen]
+    branches: [feature/oua-49216-gollum-guide-degreen, fix/oua-49216-import-schema-v22-20261023]
     paths:
       - ".github/workflows/oua-49216-gollum-clean-tokens-brelga.yml"
       - "ci/oua-4.9.216/patch-oua.py"
       - "ci/oua-4.9.216/braseiroJsonAdventure.ts"
   workflow_dispatch:
 concurrency:
-  group: oua-49216-472-tokens-brelga
+  group: oua-49216-472-tokens-brelga-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: write
@@ -181,11 +181,11 @@ jobs:
           if(-not (Test-Path $apk)){throw 'APK missing after successful Gradle build'}
           $api="https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases"
           $headers=@{Authorization=('Bearer '+$env:GH_TOKEN);Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='Braseiro-OUA-49216'}
-          $tag='OUA-v4.9.216-IMPORTADOR-JSON-VIDA-V22'
+          $tag='OUA-v4.9.216-IMPORTADOR-JSON-VIDA-V22-'+$env:GITHUB_SHA.Substring(0,12)
           $release=$null
           try{$release=Invoke-RestMethod -Method Get -Uri ($api+'/tags/'+$tag) -Headers $headers}catch{}
           if(-not $release){
-            $body=@{tag_name=$tag;target_commitish='feature/oua-49216-gollum-guide-degreen';name='O Um Anel 4.9.216 - Aventura JSON e Vida V2.2 integrada (candidata)';draft=$true;prerelease=$true;make_latest='false';body='Guia Gollum contextual sem spoilers e 352 tokens com tratamento de bordas verdes. Exporte campanhas antes de desinstalar.'}|ConvertTo-Json
+            $body=@{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name='O Um Anel 4.9.216 - Aventura JSON e Vida V2.2 integrada (candidata)';draft=$true;prerelease=$true;make_latest='false';body='Guia Gollum contextual sem spoilers e 352 tokens com tratamento de bordas verdes. Exporte campanhas antes de desinstalar.'}|ConvertTo-Json
             $release=Invoke-RestMethod -Method Post -Uri $api -Headers $headers -Body ([Text.Encoding]::UTF8.GetBytes($body)) -ContentType 'application/json; charset=utf-8'
           }
           if(-not $release.id){throw 'Failed to create target Release'}
