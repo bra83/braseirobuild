@@ -1,0 +1,100 @@
+name: Forbidden Lands Core - JSON V2.2 corrected source on BRELGA
+on:
+  push:
+    branches: [integration/kingmaker-voice-life-20261021]
+    paths: ['.github/workflows/fl-json-v22-brelga-private-source.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: fl-json-v22-corrected-main-repo-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build-original-fl-source:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read exact corrected source branch with available private-repo credentials
+        shell: powershell
+        env:
+          FL_REPO_TOKEN: ${{ secrets.FORBIDDEN_LANDS_TOKEN || secrets.BRASEIRO_GITHUB_PAT || secrets.GH_PAT || github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'BRELGA_REQUIRED'}
+          $root=Join-Path $env:RUNNER_TEMP ('braseiro-fl-v22-'+$env:GITHUB_RUN_ID)
+          $env:GIT_TERMINAL_PROMPT='0'
+          $repo='https://github.com/bra83/braseiro-forbidden-lands.git'
+          $source=Join-Path $root 'source'
+          New-Item -ItemType Directory -Force $root | Out-Null
+          & git clone --quiet --branch 'fix/importador-json-schema-v22-20261023' --single-branch $repo $source 2>$null
+          $ok=$LASTEXITCODE -eq 0
+          if(-not $ok -and $env:FL_REPO_TOKEN) {
+            $encoded=[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes('x-access-token:'+$env:FL_REPO_TOKEN))
+            & git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $encoded" clone --quiet --branch 'fix/importador-json-schema-v22-20261023' --single-branch $repo $source 2>$null
+            $ok=$LASTEXITCODE -eq 0
+          }
+          if(-not $ok){throw 'FL_PRIVATE_REPO_ACCESS_DENIED_ON_BRELGA: provide read-only repo access or move the runner to the FL repository'}
+          Set-Location $source
+          $sha=(& git rev-parse HEAD).Trim()
+          if($sha -ne 'e7efd725677d4b680edc8b0776d4e7cae6cfeace'){throw 'FL_SOURCE_CHANGED_REVERIFY_SOURCE '+$sha}
+          if(!(Test-Path 'src/services/BraseiroAdventureImportService.ts')){throw 'FL_JSON_V22_IMPLEMENTATION_MISSING'}
+          Write-Host "FL_CORRECTED_SOURCE=$sha"
+          "FL_SOURCE_ROOT=$source" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
+      - name: Verify import, TTS and TypeScript
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Set-Location $env:FL_SOURCE_ROOT
+          & npm ci --no-audit --no-fund
+          if($LASTEXITCODE -ne 0){throw 'FL_NPM_CI_FAILED'}
+          & node --import tsx scripts/verify-braseiro-import-tts-v3.mjs
+          if($LASTEXITCODE -ne 0){throw 'FL_JSON_TTS_GATE_FAILED'}
+          & npm run lint
+          if($LASTEXITCODE -ne 0){throw 'FL_TYPESCRIPT_FAILED'}
+          & npm run build:web
+          if($LASTEXITCODE -ne 0){throw 'FL_VITE_BUILD_FAILED'}
+      - name: Sync and compile original Core Android app
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Set-Location $env:FL_SOURCE_ROOT
+          & node -r ./work/tsx-userinfo-shim.cjs node_modules/@capacitor/cli/bin/capacitor sync android
+          if($LASTEXITCODE -ne 0){throw 'FL_ANDROID_SYNC_FAILED'}
+          & npm run android:patch
+          if($LASTEXITCODE -ne 0){throw 'FL_ANDROID_PATCH_FAILED'}
+          $sdk=if($env:ANDROID_HOME){$env:ANDROID_HOME}else{$env:ANDROID_SDK_ROOT}
+          if(!$sdk){throw 'FL_ANDROID_SDK_MISSING'}
+          ('sdk.dir='+$sdk.Replace('\','/'))|Set-Content 'android/local.properties' -Encoding ascii
+          Set-Location android
+          & .\gradlew.bat :app:assembleDebug --no-daemon --stacktrace --console=plain
+          if($LASTEXITCODE -ne 0){throw 'FL_GRADLE_BUILD_FAILED_SIGNING_OR_SOURCE'}
+          $apk=Get-ChildItem 'app/build/outputs/apk/debug' -Filter '*.apk' | Select-Object -First 1
+          if(!$apk -or $apk.Length -lt 10000000){throw 'FL_APK_NOT_CREATED'}
+          $dest=Join-Path $env:RUNNER_TEMP 'BRASEIRO_FORBIDDEN_LANDS_JSON_V22_CORRIGIDO_CANDIDATO.apk'
+          Copy-Item $apk.FullName $dest
+          $tools=Join-Path $sdk 'build-tools/36.0.0'
+          & (Join-Path $tools 'apksigner.bat') verify --verbose --print-certs $dest
+          if($LASTEXITCODE -ne 0){throw 'FL_APK_BAD_CERTIFICATE'}
+          "FL_APK_PATH=$dest" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host ('FL_APK_SHA256='+((Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()))
+      - name: Publish distinct candidate without replacing established Core
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $tag='fl-json-v22-corrected-'+$env:GITHUB_SHA.Substring(0,12)
+          & gh release create $tag $env:FL_APK_PATH --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Forbidden Lands Core - importador JSON corrigido 23/10 candidato' --notes 'Fonte original privada bra83/braseiro-forbidden-lands SHA e7efd725677d4b680edc8b0776d4e7cae6cfeace. Build executada BRELGA. Assinatura original obrigatoria pelo Gradle. Teste Galaxy A57 e upgrade in-place ainda pendentes.' --prerelease
+          if($LASTEXITCODE -ne 0){throw 'FL_RELEASE_FAILED'}
+          Write-Host "FL_CORRECTED_RELEASE=https://github.com/$env:GITHUB_REPOSITORY/releases/tag/$tag"
