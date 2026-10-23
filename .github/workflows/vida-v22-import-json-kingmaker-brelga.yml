@@ -29,7 +29,7 @@ jobs:
           $patch='ci/pf2-r36-importer-v22/KINGMAKER_R36_CORRECOES_JSON_V22_20261023.patch'
           if(!(Test-Path $patch)){throw 'KINGMAKER_PATCH_MISSING'}
           $got=(Get-FileHash $patch -Algorithm SHA256).Hash.ToLowerInvariant()
-          if($got -ne 'ef8e16f70abb95be7602462ccc9065da72451489beabc916badc223f5e55f3bf'){throw 'KINGMAKER_PATCH_SHA256_MISMATCH '+$got}
+          if($got -ne '347e9bd975277bdf31752d3d2053ba4a471335d592c0aa7b99e929ac39c988c6'){throw 'KINGMAKER_PATCH_SHA256_MISMATCH '+$got}
       - name: Download full R36 Android Studio source from canonical Drive file
         shell: powershell
         run: |
