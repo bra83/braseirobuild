@@ -68,10 +68,24 @@ jobs:
           'VERSION_NAME=9.0.38-R36-VIDA-V22' | Set-Content 'version.properties' -Encoding ascii
           'VERSION_CODE=90038' | Add-Content 'version.properties' -Encoding ascii
           Write-Host 'KINGMAKER_R36_REAL_ANDROID_SOURCE_PATCHED_AND_VALIDATED'
-      - name: Configure Android SDK 35
-        uses: android-actions/setup-android@v4
-        with:
-          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+      - name: Bind existing BRELGA Android SDK 35 without broken Windows setup action
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $candidates=@('C:\actions-runner\android-sdk','C:\Android\Sdk',$env:ANDROID_HOME,$env:ANDROID_SDK_ROOT)
+          if($env:LOCALAPPDATA){$candidates+=Join-Path $env:LOCALAPPDATA 'Android\Sdk'}
+          $sdk=$candidates | Where-Object {$_ -and (Test-Path (Join-Path $_ 'platforms'))} | Select-Object -First 1
+          if(-not $sdk){throw 'BRELGA_ANDROID_SDK_MISSING'}
+          $sdk=(Resolve-Path $sdk).Path
+          if(!(Test-Path (Join-Path $sdk 'platforms/android-35')) -or !(Test-Path (Join-Path $sdk 'build-tools/35.0.0'))){
+            $manager=Get-ChildItem (Join-Path $sdk 'cmdline-tools') -Filter sdkmanager.bat -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+            if(-not $manager){throw 'SDK_35_MISSING_AND_SDKMANAGER_NOT_INSTALLED'}
+            & $manager.FullName --sdk_root=$sdk 'platforms;android-35' 'build-tools;35.0.0'
+            if($LASTEXITCODE -ne 0){throw 'INSTALL_SDK_35_FAILED'}
+          }
+          "ANDROID_HOME=$sdk"|Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "ANDROID_SDK_ROOT=$sdk"|Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "BRELGA_EXISTING_SDK_35_PASS"
       - name: Compile full Android APK, not inspection stub
         shell: powershell
         run: |
