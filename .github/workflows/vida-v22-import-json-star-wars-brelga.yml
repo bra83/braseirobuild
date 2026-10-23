@@ -1,7 +1,7 @@
 name: Vida V2.2 importador JSON E2E - STAR_WARS - BRELGA
 on:
   push:
-    branches: [integration/star-wars-voice-life-20261021]
+    branches: [integration/star-wars-voice-life-20261021, fix/star-import-schema-v22-20261023]
     paths:
       - '.github/workflows/vida-v22-import-json-star-wars-brelga.yml'
       - 'star-wars/r54/source/**'
