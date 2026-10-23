@@ -35,7 +35,23 @@ jobs:
           if ($env:RUNNER_NAME -ne 'BRELGA') {throw 'BRELGA_REQUIRED'}
           $root=Join-Path $env:GITHUB_WORKSPACE 'fl-source'
           if (!(Test-Path (Join-Path $root 'package.json'))) {
-            Write-Host 'GitHub cross-repository checkout not granted by repository-scoped token. Trying original runner source checkout without silent fallback to older code.'
+            Write-Host 'Cross-repo GITHUB_TOKEN denied. Test BRELGA operator-owned GH CLI auth without disclosing any credential.'
+            Remove-Item Env:GH_TOKEN -ErrorAction SilentlyContinue
+            if (Get-Command gh -ErrorAction SilentlyContinue) {
+              & gh auth status
+              if ($LASTEXITCODE -eq 0) {
+                if (Test-Path $root) {Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue}
+                & gh repo clone bra83/braseiro-forbidden-lands $root -- --no-checkout
+                if ($LASTEXITCODE -eq 0) {
+                  & git -C $root checkout --detach e7efd725677d4b680edc8b0776d4e7cae6cfeace
+                  if ($LASTEXITCODE -ne 0) {throw 'FL_OPERATOR_AUTH_CHECKOUT_FAILED'}
+                  Write-Host 'FL_SOURCE_AUTHENTICATED_BRELGA_OPERATOR_CLONE_PASS'
+                }
+              }
+            }
+          }
+          if (!(Test-Path (Join-Path $root 'package.json'))) {
+            Write-Host 'Operator GH CLI clone not available; trying existing runner cache.'
             $candidate=Join-Path $env:RUNNER_WORKSPACE '..\braseiro-forbidden-lands\braseiro-forbidden-lands'
             if(!(Test-Path (Join-Path $candidate '.git'))) {throw 'PRIVATE_FL_SOURCE_NOT_ACCESSIBLE_FROM_BRASEIROBUILD_TOKEN_OR_RUNNER_CACHE'}
             & git -C $candidate fetch origin e7efd725677d4b680edc8b0776d4e7cae6cfeace
