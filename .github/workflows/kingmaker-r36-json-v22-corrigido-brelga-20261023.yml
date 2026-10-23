@@ -19,37 +19,51 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - name: Download canonical Kingmaker 21-10 source and verified 23-10 source patch
+      - name: Download exact Kingmaker R36 corrected source from private 24h transport (SHA256 verified)
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
           if ($env:RUNNER_NAME -ne 'BRELGA') {throw 'BRELGA_REQUIRED'}
-          python -m pip install --quiet gdown
-          if ($LASTEXITCODE -ne 0) {throw 'GDOWN_INSTALL_FAILED'}
+          python -m pip install --quiet requests
+          if ($LASTEXITCODE -ne 0) {throw 'DOWNLOAD_LIBRARY_INSTALL_FAILED'}
           $root=Join-Path $env:RUNNER_TEMP 'braseiro-kingmaker-v22-corrected'
           New-Item -Force -ItemType Directory $root | Out-Null
           @'
-          import sys,hashlib,zipfile,pathlib,gdown
+          import sys,hashlib,zipfile,pathlib,requests
           root=pathlib.Path(sys.argv[1])
-          objects=[
-            ('1M4GD5S_0-sZmAec7qXmt3lkjKl-ktx7x','source.zip','8dc976ed79578fc35e3004e9532240f0ff0a475f41d50df43c20a9eecf78b7f1'),
-            ('1b7qKJL-bBC832a0-eyozQvkiBxn3wMVe','patch.zip','575312400e7111050dce2746267e1116f2b1a42af6e3290287b72e6fa034f340')
-          ]
-          for drive_id,name,expected in objects:
-            path=root/name
-            result=gdown.download(id=drive_id,output=str(path),quiet=False,fuzzy=True)
-            if not result or not path.is_file(): raise RuntimeError('SOURCE_OR_PATCH_DOWNLOAD_FAILED: '+name)
-            digest=hashlib.sha256(path.read_bytes()).hexdigest()
-            print('DOWNLOAD',name,path.stat().st_size,'SHA256',digest,flush=True)
-            if digest!=expected:raise RuntimeError('CHECKSUM_MISMATCH '+name+' '+digest)
+          api='https://api.firestorage.ai/dev/file/shares/OUlRh1oyD22c'
+          response=requests.get(api+'/files?maxResults=100',timeout=40)
+          response.raise_for_status()
+          listing=response.json()
+          files=listing.get('files',[])
+          expected_prefix='BRASEIRO_KINGMAKER_R36_FONTE_JSON_V22_23OUT_part'
+          archive=root/'source.zip'
+          with archive.open('wb') as assembled:
+            for i in range(1,14):
+              name=expected_prefix+f'{i:02d}.bin'
+              match=[f for f in files if f.get('fileName',f.get('file_name'))==name]
+              if len(match)!=1:raise RuntimeError('MISSING_SOURCE_PART_'+name)
+              part=match[0]
+              file_id=part.get('fileId',part.get('file_id'))
+              if not file_id:raise RuntimeError('SOURCE_PART_ID_MISSING_'+name)
+              res=requests.post(api+'/files/'+file_id+'/download',timeout=40)
+              res.raise_for_status()
+              link=res.json().get('downloadUrl')
+              if not link:raise RuntimeError('SOURCE_PART_LINK_MISSING_'+name)
+              download=requests.get(link,stream=True,timeout=90)
+              download.raise_for_status()
+              size=0
+              for chunk in download.iter_content(1024*1024):
+                if chunk:assembled.write(chunk);size+=len(chunk)
+              expected=9000000 if i<13 else 2273365
+              if size!=expected:raise RuntimeError('SOURCE_PART_SIZE_MISMATCH_'+name+' '+str(size))
+              print('DOWNLOADED_PART',i,size,flush=True)
+          digest=hashlib.sha256(archive.read_bytes()).hexdigest()
+          print('KINGMAKER_SOURCE_FULL_SHA256',digest,flush=True)
+          if digest!='d90574eea42c9459f9e3f5ed915010735829280eeeff6969a6b878241c198175':raise RuntimeError('SOURCE_ZIP_SHA256_MISMATCH')
           out=root/'project'
-          with zipfile.ZipFile(root/'source.zip') as z:
+          with zipfile.ZipFile(archive) as z:
             if z.testzip():raise RuntimeError('SOURCE_ZIP_CORRUPT')
-            z.extractall(out)
-          with zipfile.ZipFile(root/'patch.zip') as z:
-            if z.testzip():raise RuntimeError('PATCH_ZIP_CORRUPT')
-            keys=z.namelist()
-            if len(keys)!=5 or not all(n.endswith('.java') for n in keys):raise RuntimeError('EXPECTED_FIVE_CORRECTED_JAVA_FILES')
             z.extractall(out)
           java=out/'app/src/main/java/com/braseiro/pathfinder2e'
           st=(java/'BraseiroAdventureStore.java').read_text(encoding='utf-8')
