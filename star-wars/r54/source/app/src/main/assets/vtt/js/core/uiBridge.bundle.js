@@ -24221,6 +24221,9 @@ class GameController {
             throw new Error('Digite uma ação.');
         const before = structuredClone(this.state);
         const prepared = localMaster_mjs_1.prepareLocalMasterTurn(before, intentText.trim());
+        const privateImportContext = globalThis.BraseiroAdventureImport?.masterContext?.() || '';
+        if (privateImportContext && prepared.context && typeof prepared.context === 'object')
+            prepared.context.braseiroImportedAdventureGmOnly = privateImportContext;
         try {
             const remote = await provider_mjs_1.requestHttpMasterProposal({ endpoint, context: prepared.context, fetchImpl, timeoutMs, signal });
             const knownRuleIds = prepared.context.rules.map(r => r.id);
