@@ -51,6 +51,18 @@ jobs:
             }
           }
           if (!(Test-Path (Join-Path $root 'package.json'))) {
+            Write-Host 'Attempting Windows Git Credential Manager without exposing credentials.'
+            $env:GIT_TERMINAL_PROMPT='0'
+            $env:GCM_INTERACTIVE='never'
+            if(Test-Path $root) {Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue}
+            & git -c 'http.https://github.com/.extraheader=' clone --no-checkout https://github.com/bra83/braseiro-forbidden-lands.git $root
+            if($LASTEXITCODE -eq 0){
+              & git -C $root checkout --detach e7efd725677d4b680edc8b0776d4e7cae6cfeace
+              if($LASTEXITCODE -ne 0){throw 'FL_GCM_CHECKOUT_FAILED'}
+              Write-Host 'FL_SOURCE_LOCAL_GCM_PASS'
+            }
+          }
+          if (!(Test-Path (Join-Path $root 'package.json'))) {
             Write-Host 'Operator GH CLI clone not available; trying existing runner cache.'
             $candidate=Join-Path $env:RUNNER_WORKSPACE '..\braseiro-forbidden-lands\braseiro-forbidden-lands'
             if(!(Test-Path (Join-Path $candidate '.git'))) {throw 'PRIVATE_FL_SOURCE_NOT_ACCESSIBLE_FROM_BRASEIROBUILD_TOKEN_OR_RUNNER_CACHE'}
@@ -118,5 +130,14 @@ jobs:
           $apk=Join-Path $env:RUNNER_TEMP 'BRASEIRO_FL_JSON_V22_CORRIGIDO_CANDIDATO.apk'
           $hash=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
           $tag='FL-JSON-V22-FIXED-'+$env:GITHUB_SHA.Substring(0,12)
-          & gh release create $tag $apk --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Forbidden Lands Core - importador JSON V2.2 corrigido (candidato)' --notes "Fonte FL corrigida: e7efd725677d4b680edc8b0776d4e7cae6cfeace. SHA256 $hash. Importador e TTS V3, verificacoes Android. Atualizacao in-place/assinatura e teste Galaxy A57 ainda não homologados." --prerelease
-          if ($LASTEXITCODE -ne 0){throw 'FL_CANDIDATE_PUBLISH_FAILED'}
+          $headers=@{Authorization=('Bearer '+$env:GH_TOKEN);Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='Braseiro-FL-BRELGA'}
+          $api="https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases"
+          $notes="FL corrigida SHA e7efd725677d4b680edc8b0776d4e7cae6cfeace; APK SHA256 $hash. Testes e compilação BRELGA: PASS. Certificação física A57 e assinatura in-place não homologadas."
+          $payload=@{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name='Forbidden Lands Core - JSON V2.2 corrigido - candidato';body=$notes;draft=$false;prerelease=$true}|ConvertTo-Json -Depth 5
+          $release=Invoke-RestMethod -Uri $api -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -TimeoutSec 90
+          if (!$release.id) {throw 'FL_RELEASE_CREATE_FAILED'}
+          $upload=$release.upload_url.Split('{')[0]+'?name=BRASEIRO_FL_JSON_V22_CORRIGIDO_CANDIDATO.apk'
+          $up=Invoke-RestMethod -Uri $upload -Method Post -Headers $headers -InFile $apk -ContentType 'application/vnd.android.package-archive' -TimeoutSec 1200
+          if (!$up.id -or $up.size -ne (Get-Item $apk).Length) {throw 'FL_RELEASE_ASSET_SIZE_MISMATCH'}
+          Write-Host "FL_RELEASE_URL=$($release.html_url)"
+          Write-Host "FL_APK_URL=$($up.browser_download_url)"
