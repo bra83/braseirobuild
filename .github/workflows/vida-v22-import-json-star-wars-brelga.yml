@@ -7,7 +7,7 @@ on:
       - 'star-wars/r54/source/**'
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: braseiro-vida-v22-star-wars-brelga
   cancel-in-progress: false
@@ -68,6 +68,34 @@ jobs:
             .\gradlew.bat :app:compileDebugJavaWithJavac :app:testDebugUnitTest :app:assembleDebug --no-daemon --console=plain
           if ($LASTEXITCODE -ne 0) { throw 'ANDROID_GRADLE_FAILED' }
           Write-Host 'STAR_WARS_ANDROID_COMPILE_TEST_ASSEMBLE_GATE_PASS'
+      - name: Publicar APK compilado em release verificada sem cota de artefatos
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $apkPath='star-wars/r54/source/app/build/outputs/apk/debug/app-debug.apk'
+          if (!(Test-Path $apkPath)) { throw 'APK_NOT_FOUND_AFTER_BUILD' }
+          $apk=Get-Item $apkPath
+          $hash=(Get-FileHash $apk.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          $headers=@{ Authorization=('Bearer '+$env:GH_TOKEN); Accept='application/vnd.github+json'; 'X-GitHub-Api-Version'='2022-11-28'; 'User-Agent'='Braseiro-BRELGA' }
+          $repo=$env:GITHUB_REPOSITORY
+          $tag='vida-v22-star-wars-import-'+$env:GITHUB_SHA.Substring(0,12)
+          $api="https://api.github.com/repos/$repo/releases"
+          $old=$null
+          try { $old=Invoke-RestMethod -Uri ($api+'/tags/'+$tag) -Headers $headers -TimeoutSec 45 } catch {}
+          if ($old) { throw 'RELEASE_TAG_ALREADY_EXISTS_AVOID_SILENT_OVERWRITE' }
+          $notes="Commit $env:GITHUB_SHA`nAPK SHA256 $hash`nCompilacao JVM e Android: PASS`nInstalacao sobre versao antiga e fluxo real no A57: NAO CERTIFICADOS"
+          $body=@{ tag_name=$tag; target_commitish=$env:GITHUB_SHA; name='Star Wars EotE/AoR - importador JSON Vida V2.2 candidato'; body=$notes; draft=$false; prerelease=$true } | ConvertTo-Json -Depth 6
+          $release=Invoke-RestMethod -Method Post -Uri $api -Headers $headers -ContentType 'application/json' -Body $body -TimeoutSec 90
+          if (!$release.id -or !$release.upload_url) { throw 'RELEASE_CREATION_FAILED' }
+          $assetName='BRASEIRO_STAR_WARS_IMPORTADOR_JSON_V22_CANDIDATO.apk'
+          $upUrl=$release.upload_url.Split('{')[0]+'?name='+$assetName
+          $up=Invoke-RestMethod -Uri $upUrl -Method Post -Headers $headers -InFile $apk.FullName -ContentType 'application/vnd.android.package-archive' -TimeoutSec 1200
+          if (!$up.id -or $up.size -ne $apk.Length) { throw 'RELEASE_ASSET_UPLOAD_UNVERIFIED' }
+          Write-Host "APK_CANDIDATO_PUBLICADO=$($release.html_url)"
+          Write-Host "APK_ASSET_URL=$($up.browser_download_url)"
+          Write-Host "APK_SHA256=$hash"
       - name: Exibir evidencias nos logs sem consumir cota do GitHub Artifacts
         if: always()
         shell: powershell
