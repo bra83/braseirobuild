@@ -110,6 +110,22 @@ jobs:
           if (!(Test-Path $apk)) {throw 'APK_ABSENT'}
           $hash=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
           $tag='KINGMAKER-R36-JSON-V22-'+$env:GITHUB_SHA.Substring(0,12)
-          & gh release create $tag $apk --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Kingmaker R36 - Importador JSON V2.2 corrigido - APK candidato' --notes "Compilado do projeto integral R36 21/10 + cinco arquivos Java corrigidos 23/10. APK SHA256 $hash. Android físico A57, assinatura para upgrade e E2E ainda NÃO homologados." --prerelease
-          if ($LASTEXITCODE -ne 0) {throw 'RELEASE_PUBLICATION_FAILED'}
+          $headers=@{
+            Authorization=('Bearer '+$env:GH_TOKEN)
+            Accept='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='Braseiro-Kingmaker-R36-BRELGA'
+          }
+          $api="https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases"
+          $notes="Fonte corrigida SHA256 d90574eea42c9459f9e3f5ed915010735829280eeeff6969a6b878241c198175; commit workflow $env:GITHUB_SHA; APK SHA256 $hash; BUILD Android PASS. V2.2/TTS V3 e preview de aventura. Teste real Galaxy A57, assinatura de atualização e E2E integral não homologados."
+          $payload=@{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name='Kingmaker R36 - Importador JSON V2.2 corrigido - candidato';body=$notes;draft=$false;prerelease=$true}|ConvertTo-Json -Depth 5
+          $release=Invoke-RestMethod -Method Post -Uri $api -Headers $headers -ContentType 'application/json' -Body $payload -TimeoutSec 90
+          if (!$release.id -or !$release.upload_url) {throw 'KINGMAKER_RELEASE_CREATE_FAILED'}
+          $assetName='BRASEIRO_KINGMAKER_R36_JSON_V22_CORRIGIDO_CANDIDATO.apk'
+          $upload=$release.upload_url.Split('{')[0]+'?name='+$assetName
+          $receipt=Invoke-RestMethod -Method Post -Uri $upload -Headers $headers -ContentType 'application/vnd.android.package-archive' -InFile $apk -TimeoutSec 1200
+          if (!$receipt.id -or $receipt.size -ne (Get-Item $apk).Length) {throw 'KINGMAKER_APK_UPLOAD_SIZE_MISMATCH'}
+          Write-Host "KINGMAKER_CANDIDATE_RELEASE=$($release.html_url)"
+          Write-Host "KINGMAKER_APK_SHA256=$hash"
+          Write-Host "KINGMAKER_APK_URL=$($receipt.browser_download_url)"
           Write-Host "KINGMAKER_CANDIDATE_RELEASE=https://github.com/$env:GITHUB_REPOSITORY/releases/tag/$tag"
