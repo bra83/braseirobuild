@@ -7,7 +7,7 @@ on:
       - 'dnd-normal/run247-mod005/**'
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: braseiro-vida-v22-dnd-brelga
   cancel-in-progress: false
@@ -73,6 +73,30 @@ jobs:
             .\gradlew.bat :app:compileDebugJavaWithJavac :app:testDebugUnitTest :app:assembleDebug --no-daemon --console=plain
           if ($LASTEXITCODE -ne 0) { throw 'ANDROID_GRADLE_FAILED' }
           Write-Host 'DND_ANDROID_COMPILE_TEST_ASSEMBLE_GATE_PASS'
+      - name: Publicar APK de verificacao sem usar cota de Artifacts
+        shell: powershell
+        timeout-minutes: 25
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $path='dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk'
+          if (!(Test-Path $path)) { throw 'APK_DEBUG_NOT_FOUND' }
+          $apk=Get-Item $path
+          $hash=(Get-FileHash $apk.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          $repo=$env:GITHUB_REPOSITORY
+          $tag='vida-v22-dnd-import-'+$env:GITHUB_SHA.Substring(0,12)
+          $headers=@{'Authorization'="Bearer $env:GH_TOKEN";'Accept'='application/vnd.github+json';'User-Agent'='BRELGA';'X-GitHub-Api-Version'='2022-11-28'}
+          $notes="Fonte exata: $env:GITHUB_SHA`nSHA256: $hash`nCompilacao e testes JVM: PASS`nInstalacao por cima/assinatura do APK de 21/10: NAO HOMOLOGADA`nTeste fisico A57 e aventura completa: NAO HOMOLOGADOS"
+          $payload=@{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name='D&D Importador JSON Vida V2.2 - candidato Android';body=$notes;draft=$false;prerelease=$true}|ConvertTo-Json -Depth 6
+          $release=Invoke-RestMethod -Method Post -Uri "https://api.github.com/repos/$repo/releases" -Headers $headers -ContentType 'application/json' -Body $payload -TimeoutSec 90
+          if (!$release.id -or !$release.upload_url) { throw 'RELEASE_CREATE_FAILED' }
+          $uri=$release.upload_url.Split('{')[0]+'?name=BRASEIRO_DND_IMPORTADOR_JSON_V22_CANDIDATO.apk'
+          $up=Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -InFile $apk.FullName -ContentType 'application/vnd.android.package-archive' -TimeoutSec 1200
+          if ($up.size -ne $apk.Length) { throw 'RELEASE_SIZE_MISMATCH' }
+          Write-Host "APK_CANDIDATO_PUBLICADO=$($release.html_url)"
+          Write-Host "APK_SHA256=$hash"
+          Write-Host "APK_ASSET_URL=$($up.browser_download_url)"
       - name: Exibir evidencias nos logs sem consumir cota do GitHub Artifacts
         if: always()
         shell: powershell
