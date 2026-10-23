@@ -1,7 +1,7 @@
 name: Vida V2.2 importador JSON E2E - DND - BRELGA
 on:
   push:
-    branches: [integration/dnd-voice-life-20261021]
+    branches: [integration/dnd-voice-life-20261021, fix/dnd-import-schema-v22-20261023]
     paths:
       - '.github/workflows/vida-v22-import-json-dnd-brelga.yml'
       - 'dnd-normal/run247-mod005/**'
