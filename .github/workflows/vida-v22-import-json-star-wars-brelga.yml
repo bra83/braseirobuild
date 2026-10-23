@@ -55,6 +55,13 @@ jobs:
           if (!$sdk) { throw 'ANDROID_SDK_REQUIRED_BRELGA' }
           $env:ANDROID_HOME=$sdk
           $env:ANDROID_SDK_ROOT=$sdk
+          # Runner Windows permanece sem JAVA_HOME entre jobs; usar JDK 21 instalado.
+          $candidates=@('C:\\actions-runner\\_work\\_tool\\Java_Temurin-Hotspot_jdk\\21.0.12-101.0.LTS\\x64','C:\\Program Files\\Eclipse Adoptium\\jdk-21')
+          $javaHome=@($env:JAVA_HOME)+$candidates | Where-Object { $_ -and (Test-Path (Join-Path $_ 'bin\\java.exe')) } | Select-Object -First 1
+          if (!$javaHome) { throw 'JDK21_NOT_FOUND_ON_BRELGA' }
+          $env:JAVA_HOME=$javaHome
+          $env:PATH=(Join-Path $javaHome 'bin')+';'+$env:PATH
+          & (Join-Path $javaHome 'bin\\java.exe') -version
           Set-Location 'star-wars/r54/source'
           if (!(Test-Path 'gradlew.bat')) { throw 'ANDROID_PROJECT_GRADLE_WRAPPER_REQUIRED' }
           ('sdk.dir='+$sdk.Replace('\','/')) | Set-Content 'local.properties' -Encoding ascii
