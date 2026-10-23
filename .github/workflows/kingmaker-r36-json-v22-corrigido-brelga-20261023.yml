@@ -1,0 +1,97 @@
+name: Kingmaker R36 - JSON V2.2 corrected source - BRELGA candidate
+on:
+  push:
+    branches: [build/kingmaker-r36-vida-v22-fixed-20261023]
+    paths: ['.github/workflows/kingmaker-r36-json-v22-corrigido-brelga-20261023.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: kingmaker-r36-json-candidate-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  compile-candidate:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Download canonical Kingmaker 21-10 source and verified 23-10 source patch
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') {throw 'BRELGA_REQUIRED'}
+          python -m pip install --quiet gdown
+          if ($LASTEXITCODE -ne 0) {throw 'GDOWN_INSTALL_FAILED'}
+          $root=Join-Path $env:RUNNER_TEMP 'braseiro-kingmaker-v22-corrected'
+          New-Item -Force -ItemType Directory $root | Out-Null
+          @'
+          import sys,hashlib,zipfile,pathlib,gdown
+          root=pathlib.Path(sys.argv[1])
+          objects=[
+            ('1M4GD5S_0-sZmAec7qXmt3lkjKl-ktx7x','source.zip','8dc976ed79578fc35e3004e9532240f0ff0a475f41d50df43c20a9eecf78b7f1'),
+            ('1b7qKJL-bBC832a0-eyozQvkiBxn3wMVe','patch.zip','575312400e7111050dce2746267e1116f2b1a42af6e3290287b72e6fa034f340')
+          ]
+          for drive_id,name,expected in objects:
+            path=root/name
+            result=gdown.download(id=drive_id,output=str(path),quiet=False,fuzzy=True)
+            if not result or not path.is_file(): raise RuntimeError('SOURCE_OR_PATCH_DOWNLOAD_FAILED: '+name)
+            digest=hashlib.sha256(path.read_bytes()).hexdigest()
+            print('DOWNLOAD',name,path.stat().st_size,'SHA256',digest,flush=True)
+            if digest!=expected:raise RuntimeError('CHECKSUM_MISMATCH '+name+' '+digest)
+          out=root/'project'
+          with zipfile.ZipFile(root/'source.zip') as z:
+            if z.testzip():raise RuntimeError('SOURCE_ZIP_CORRUPT')
+            z.extractall(out)
+          with zipfile.ZipFile(root/'patch.zip') as z:
+            if z.testzip():raise RuntimeError('PATCH_ZIP_CORRUPT')
+            keys=z.namelist()
+            if len(keys)!=5 or not all(n.endswith('.java') for n in keys):raise RuntimeError('EXPECTED_FIVE_CORRECTED_JAVA_FILES')
+            z.extractall(out)
+          java=out/'app/src/main/java/com/braseiro/pathfinder2e'
+          st=(java/'BraseiroAdventureStore.java').read_text(encoding='utf-8')
+          main=(java/'MainActivity.java').read_text(encoding='utf-8')
+          master=(java/'MasterGameContext.java').read_text(encoding='utf-8')
+          for marker in ['validatePackage(pkg)','rulesRef.source','secrets_private','opening_for_player','encounters_private']:
+            if marker not in st:raise RuntimeError('MISSING_ADVENTURE_VALIDATION_'+marker)
+          if 'CONFIRMAR AVENTURA JSON' not in main:raise RuntimeError('NO_IMPORT_CONFIRMATION')
+          if 'BraseiroSpokenTextSanitizer.sanitize' not in main:raise RuntimeError('NO_TTS_SANITIZER')
+          if 'imported_adventure_private' not in master:raise RuntimeError('MASTER_MISSING_ADVENTURE_CONTEXT')
+          print('KINGMAKER_R36_SOURCE_RECONCILED_5_FILES_PASS',flush=True)
+          '@ | Set-Content -Encoding UTF8 (Join-Path $root 'prepare_source.py')
+          python (Join-Path $root 'prepare_source.py') $root
+          if ($LASTEXITCODE -ne 0) {throw 'KINGMAKER_RECONCILIATION_FAILED'}
+          "KINGMAKER_PROJECT=$root\project" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Build Android candidate from corrected R36 source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $sdk=@($env:ANDROID_HOME,$env:ANDROID_SDK_ROOT,'C:\actions-runner\android-sdk',"$env:LOCALAPPDATA\Android\Sdk") |
+            Where-Object {$_ -and (Test-Path (Join-Path $_ 'platforms'))} | Select-Object -First 1
+          if (-not $sdk) {throw 'BRELGA_ANDROID_SDK_MISSING'}
+          $env:ANDROID_HOME=$sdk
+          $env:ANDROID_SDK_ROOT=$sdk
+          Set-Location $env:KINGMAKER_PROJECT
+          if (!(Test-Path 'gradlew.bat')) {throw 'NOT_AN_ANDROID_PROJECT'}
+          "sdk.dir=$($sdk.Replace('\','/'))" | Set-Content -Encoding ascii 'local.properties'
+          & .\gradlew.bat :app:compileDebugJavaWithJavac :app:assembleDebug --no-daemon --console=plain --stacktrace
+          if ($LASTEXITCODE -ne 0) {throw 'KINGMAKER_ANDROID_BUILD_FAILED'}
+          $apk=Get-ChildItem 'app/build/outputs/apk/debug' -Filter '*.apk' -File | Select-Object -First 1
+          if (!$apk) {throw 'NO_KINGMAKER_APK'}
+          Copy-Item $apk.FullName (Join-Path $env:RUNNER_TEMP 'BRASEIRO_KINGMAKER_R36_JSON_V22_CORRIGIDO_CANDIDATO.apk') -Force
+      - name: Publish candidate to separate release without overwriting existing APKs
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $apk=Join-Path $env:RUNNER_TEMP 'BRASEIRO_KINGMAKER_R36_JSON_V22_CORRIGIDO_CANDIDATO.apk'
+          if (!(Test-Path $apk)) {throw 'APK_ABSENT'}
+          $hash=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          $tag='KINGMAKER-R36-JSON-V22-'+$env:GITHUB_SHA.Substring(0,12)
+          & gh release create $tag $apk --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Kingmaker R36 - Importador JSON V2.2 corrigido - APK candidato' --notes "Compilado do projeto integral R36 21/10 + cinco arquivos Java corrigidos 23/10. APK SHA256 $hash. Android físico A57, assinatura para upgrade e E2E ainda NÃO homologados." --prerelease
+          if ($LASTEXITCODE -ne 0) {throw 'RELEASE_PUBLICATION_FAILED'}
+          Write-Host "KINGMAKER_CANDIDATE_RELEASE=https://github.com/$env:GITHUB_REPOSITORY/releases/tag/$tag"
