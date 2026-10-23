@@ -52,12 +52,22 @@
   function panel(){if(!root.document?.body)return;let el=document.getElementById('braseiro-adventure-import-panel');if(el)return;
     el=document.createElement('section');el.id='braseiro-adventure-import-panel';el.setAttribute('aria-label','Aventura JSON');
     el.style.cssText='position:fixed;bottom:calc(84px + env(safe-area-inset-bottom, 0px));right:10px;z-index:9999;max-width:min(95vw,340px);font:13px sans-serif;color:#ece6dd';
-    el.innerHTML='<button type="button" data-open style="background:#273340;color:#fff;border:1px solid #bca26a;border-radius:8px;padding:12px">Aventura JSON · Importar</button><div data-content hidden style="background:#151f28;border:1px solid #bca26a;padding:12px;border-radius:8px;margin-top:5px"><strong>Importar aventura JSON</strong><p>Roteiro, NPCs e memória persistente; não é backup.</p><label>Selecionar arquivo JSON <input type="file" data-file accept=".json,application/json"></label><p data-title></p><p data-status aria-live="polite"></p><button type="button" data-finish>Concluir roteiro sem apagar mundo</button><button type="button" data-close>Fechar</button></div>';
+    el.innerHTML='<button type="button" data-open style="background:#273340;color:#fff;border:1px solid #bca26a;border-radius:8px;padding:12px">Aventura JSON · Importar</button><div data-content hidden style="background:#151f28;border:1px solid #bca26a;padding:12px;border-radius:8px;margin-top:5px"><strong>Importar aventura JSON</strong><p>Roteiro, NPCs e memória persistente; não é backup.</p><label>Selecionar arquivo JSON <input type="file" data-file accept=".json,application/json"></label><p data-title></p><p data-status aria-live="polite"></p><button type="button" data-start>Iniciar aventura importada</button><button type="button" data-finish>Concluir roteiro sem apagar mundo</button><button type="button" data-close>Fechar</button></div>';
     document.body.appendChild(el);const content=el.querySelector('[data-content]'),status=el.querySelector('[data-status]'),title=el.querySelector('[data-title]');
     const refresh=()=>{const s=read();title.textContent=s?.active?'Ativa: '+s.active.title:'Nenhuma aventura importada';};refresh();
     el.querySelector('[data-open]').onclick=()=>{content.hidden=!content.hidden;refresh()};
     el.querySelector('[data-close]').onclick=()=>{content.hidden=true};
     el.querySelector('[data-file]').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const s=importJson(await file.text());status.textContent='Aventura salva: '+s.active.title+'. Roteiro aguardando vínculo do Mestre host.';refresh();document.dispatchEvent(new CustomEvent('braseiro:adventure-imported',{detail:{id:s.active.id,title:s.active.title}}));}catch(err){status.textContent='Importação recusada: '+err.message}finally{e.target.value=''}};
+    el.querySelector('[data-start]').onclick=async()=>{
+      const active=read()?.active, bridge=root.BraseiroGameBridge;
+      if(!active){status.textContent='Importe uma aventura primeiro.';return;}
+      if(!bridge||typeof bridge.submitPlayerIntent!=='function'){status.textContent='Motor de jogo não está pronto.';return;}
+      status.textContent='Solicitando abertura ao Mestre…';
+      try{const result=await bridge.submitPlayerIntent('Começar a aventura importada '+active.title+'. Gancho inicial: '+String(active.start.hook||'').slice(0,500)+'. O jogador ainda não realizou nenhuma ação. Faça a abertura mantendo o mundo e NPCs persistentes.');
+        status.textContent=result?.ok?'Abertura solicitada ao Mestre.':'Mestre indisponível; roteiro continua salvo.';
+        if(result?.ok)document.dispatchEvent(new Event('braseiro:r21-state-changed'));
+      }catch(error){status.textContent='Erro ao iniciar: '+String(error?.message||error)}
+    };
     el.querySelector('[data-finish]').onclick=()=>{if(!confirm('Concluir o roteiro mantendo mundo e NPCs?'))return;status.textContent=finish()?'Roteiro arquivado. Mundo preservado.':'Sem aventura ativa.';refresh()};
   }
   root.BraseiroAdventureImport=Object.freeze({read,importJson,finish,recordConfirmedEvent,masterContext});
