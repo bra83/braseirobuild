@@ -40,6 +40,7 @@ import braseiro.ose.rules.api.RuleEvidence
 import braseiro.ose.rules.api.RuleTrace
 import braseiro.ose.rules.shared.StartingEquipmentCatalog
 import braseiro.ose.session.SessionEngine
+import braseiro.ose.session.ActionAuthorityPolicy
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.concurrent.Executors
@@ -354,7 +355,9 @@ class MainActivity : Activity() {
                                     .put("stateHash", CanonicalStateHash.sha256(current))
                                     .put("viewState", projectForUi(current)))
                             )
-                            if (current.campaignState.party.characterIds.any {
+                            // Administrative wage operations do not advance companions or the story.
+                            if (ActionAuthorityPolicy.triggersCompanionAutonomy(mechanicalIntent) &&
+                                current.campaignState.party.characterIds.any {
                                     CharacterControlCoordinator.mode(current, it) != CharacterControlMode.PLAYER
                                 }) {
                                 val autonomous = runCatching { advanceMasterCharacters("reaction:$reactionId") }

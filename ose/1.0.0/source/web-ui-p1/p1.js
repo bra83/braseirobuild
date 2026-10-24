@@ -284,7 +284,32 @@ function renderMasterContinue(){
  const controlled=(viewState?.party||[]).filter(m=>m.controlMode==='MASTER'||m.controlMode==='CURATED');
  return controlled.length?'<div class="panel"><h3>Personagens do Mestre</h3><p class="note">O Mestre age automaticamente após suas ações. Também é possível solicitar uma rodada de decisões.</p><button class="secondary" data-master-continue>CONTINUAR AÇÕES DO MESTRE</button></div>':'';
 }
-function renderCompany(){const party=viewState?.party||(!hasNative()?[{characterId:'demo-character',name:'Aventureiro',classIds:['FIGHTER'],hpCurrentNumerator:8,hpMaxNumerator:8,hpDenominator:1}]:[]);return `<div class="kicker">Companhia</div><div class="panel"><h2>${party.length?'Companhia atual':'Ainda vazia'}</h2>${party.length?`<div class="text-entity-list">${party.map(m=>`<div class="text-entity character-management ${m.characterId===viewState?.selectedCharacterId?'active':''}"><div><b>${esc(m.name)}</b><span>${esc((m.classIds||[]).map(classLabel).join(' / '))} · HP ${hpText(m)} · Nível ${esc(Object.values(m.levelByClass||{})[0]||1)}</span></div>${renderCharacterControlSelect(m)}<div class="character-actions"><button data-character-select="${esc(m.characterId)}">ABRIR FICHA</button><button class="secondary" data-delete-character="${esc(m.characterId)}">EXCLUIR FICHA</button></div></div>`).join('')}</div><p class="note">A companhia viaja e ocupa o mundo como um único grupo.</p>`:'<p>Crie seu primeiro personagem para formar a companhia.</p>'}<div class="character-actions"><button class="primary" data-add-character>ADICIONAR PERSONAGEM</button><button class="secondary" data-import-character>IMPORTAR FICHA.JSON</button></div></div>${renderCuratorPanel()}${renderCompanionOpinions()}${renderMasterContinue()}`}
+function renderRetainerWage(r, actor) {
+ const dueDays=Number(r.wageDueDays||0), dueGp=Number(r.wageDueGp||0);
+ const note=r.wageLedgerNeedsBaseline ? 'Histórico antigo precisa ser reconciliado pelo árbitro'
+  : 'Pago: '+Number(r.totalWagesPaidGp||0)+' po; pendente: '+dueGp+' po ('+dueDays+' dias)';
+ const button=r.employerCharacterId!==actor ? '' : r.wageLedgerNeedsBaseline
+  ? '<button class="secondary" data-retainer-baseline="'+esc(r.npcId)+'">RECONCILIAR HISTÓRICO</button>'
+  : dueDays>0 ? '<button class="secondary" data-retainer-pay="'+esc(r.npcId)+'">PAGAR DIÁRIAS</button>' : '';
+ return '<div class="note">'+esc(note)+'</div>'+button;
+}
+
+function renderRetainerPanel(){
+ const hired=(viewState?.retainers||[]),candidates=(viewState?.retainerCandidates||[]),actor=viewState?.selectedCharacterId;
+ const employed=hired.filter(x=>x.active);
+ return `<div class="panel retainer-panel"><h3>Auxiliares de aventura</h3>
+ <p class="note">O recrutamento usa 2d6 e o Carisma do contratante. Só são elegíveis NPCs com nível, classe e ficha mecânica comprovados. Mercenários militares não são auxiliares.</p>
+ ${employed.length?`<div class="text-entity-list">${employed.map(r=>`<div class="text-entity"><b>${esc(r.name)}</b><span>Empregador: ${esc((viewState?.party||[]).find(p=>p.characterId===r.employerCharacterId)?.name||r.employerCharacterId)} · ${r.dailyWageGp} po/dia · ${r.treasureHalfShares}/2 cota(s) de tesouro</span>${renderRetainerWage(r,actor)}</div>`).join('')}</div>`:'<p class="note">Nenhum auxiliar contratado.</p>'}
+ ${hired.some(x=>!x.active)?'<p class="note">Auxiliares que encerraram o contrato continuam registrados no histórico.</p>':''}
+ <h3>Propor contratação</h3>
+ ${!actor?'<p class="note">Selecione primeiro um personagem.</p>':!candidates.length?'<p class="note">Nenhum NPC presente possui ficha de auxiliar comprovada.</p>':`
+ <div class="row"><label class="field">Diária proposta (po)<input id="retainerDailyWage" type="number" min="0" step="1" value="1"></label>
+ <label class="field">Meias partes do tesouro<input id="retainerTreasureHalves" type="number" min="1" step="1" value="1"></label></div>
+ <div class="text-entity-list">${candidates.map(n=>`<div class="text-entity"><b>${esc(n.name)}</b><button class="secondary" data-retainer-proposal="${esc(n.npcId)}">FAZER OFERTA</button></div>`).join('')}</div>`}
+ </div>`;
+}
+
+function renderCompany(){const party=viewState?.party||(!hasNative()?[{characterId:'demo-character',name:'Aventureiro',classIds:['FIGHTER'],hpCurrentNumerator:8,hpMaxNumerator:8,hpDenominator:1}]:[]);return `<div class="kicker">Companhia</div><div class="panel"><h2>${party.length?'Companhia atual':'Ainda vazia'}</h2>${party.length?`<div class="text-entity-list">${party.map(m=>`<div class="text-entity character-management ${m.characterId===viewState?.selectedCharacterId?'active':''}"><div><b>${esc(m.name)}</b><span>${esc((m.classIds||[]).map(classLabel).join(' / '))} · HP ${hpText(m)} · Nível ${esc(Object.values(m.levelByClass||{})[0]||1)}</span></div>${renderCharacterControlSelect(m)}<div class="character-actions"><button data-character-select="${esc(m.characterId)}">ABRIR FICHA</button><button class="secondary" data-delete-character="${esc(m.characterId)}">EXCLUIR FICHA</button></div></div>`).join('')}</div><p class="note">A companhia viaja e ocupa o mundo como um único grupo.</p>`:'<p>Crie seu primeiro personagem para formar a companhia.</p>'}<div class="character-actions"><button class="primary" data-add-character>ADICIONAR PERSONAGEM</button><button class="secondary" data-import-character>IMPORTAR FICHA.JSON</button></div></div>${renderCuratorPanel()}${renderCompanionOpinions()}${renderMasterContinue()}${renderRetainerPanel()}`}
 
 function renderDicePanel(){return `<div class="panel dice-panel"><div class="row"><h3>🎲 Dados</h3><span class="note">Rolagem manual; não altera a campanha sozinha.</span></div><div class="dice-buttons">${[4,6,8,10,12,20,100].map(s=>`<button class="small" data-die="${s}">d${s}</button>`).join('')}</div><div class="dice-controls"><label>Quantidade<input id="diceCount" type="number" min="1" max="20" value="1"></label><label>Modificador<input id="diceModifier" type="number" min="-100" max="100" value="0"></label></div>${diceHistory.length?`<div class="dice-history">${diceHistory.map(d=>`<div><b>${d.count}d${d.sides}${d.modifier?`${d.modifier>0?'+':''}${d.modifier}`:''} = ${d.total}</b><small>${esc((d.rolls||[]).join(', '))}</small></div>`).join('')}</div>`:''}</div>`}
 function renderDiceScreen(){return `<div class="kicker">Rolagem de dados</div>${renderDicePanel()}<div class="panel"><p class="note">Rolagens manuais são livres e não alteram a campanha sozinhas. Quando uma regra OSE exige um teste, o motor usa a rolagem autoritativa e registra a regra consultada na sessão.</p></div>`}
@@ -332,6 +357,35 @@ function wireCurrentScreen(){
  el('librarySearch')?.addEventListener('input',e=>{libraryQuery=e.currentTarget.value;render()});
  document.querySelector('[data-commit-draft]')?.addEventListener('click',e=>{const d=e.currentTarget.dataset.commitDraft,name=el('creationName')?.value.trim();if(!name)return showToast('Digite um nome.');e.currentTarget.disabled=true;const adv=String(viewState?.campaign?.profile||'').includes('ADVANCED');const method=adv?(el('creationMethod')?.value||'ADVANCED_BASIC'):'CLASSIC';const race=adv&&method==='ADVANCED_METHOD'?(el('creationRace')?.value||null):null;postNative('CharacterCreationCommit',{draftId:d,characterId:'char-'+Date.now()+'-'+Math.random().toString(36).slice(2,9),name,method,classIds:[el('creationClass').value],raceId:race||'',adjustments:[]})});
  document.querySelectorAll('[data-photo-item]').forEach(b=>b.onclick=()=>chooseMedia('ITEM',b.dataset.photoItem));
+ document.querySelectorAll('[data-retainer-proposal]').forEach(b=>b.onclick=()=>{
+   const npcId=b.dataset.retainerProposal,actor=viewState?.selectedCharacterId;
+   const npc=(viewState?.retainerCandidates||[]).find(n=>n.npcId===npcId);
+   const wage=Number(el('retainerDailyWage')?.value),halves=Number(el('retainerTreasureHalves')?.value);
+   if(!npc||!actor||!Number.isSafeInteger(wage)||wage<0||!Number.isSafeInteger(halves)||halves<1)
+      return showToast('Selecione um personagem e informe uma oferta válida.');
+   b.disabled=true;
+   const reactionId='retainer-offer-'+Date.now()+'-'+Math.random().toString(36).slice(2,9);
+   const text='Ofereço a '+npc.name+' '+wage+' po por dia e '+halves+'/2 cota(s) de tesouro para nos acompanhar.';
+   if(!postNative('PlayerReaction',{reactionId,text,mechanicalIntent:'RETAINER_RECRUIT:'+actor+':'+npcId+':'+wage+':'+halves}))b.disabled=false;
+ });
+ document.querySelectorAll('[data-retainer-baseline]').forEach(b=>b.onclick=()=>{
+   const npcId=b.dataset.retainerBaseline,actor=viewState?.selectedCharacterId;
+   if(!actor||!npcId||!confirm('Confirmar marco no dia atual? Dívidas antigas exigem arbitragem separada.'))return;
+   b.disabled=true;
+   const reactionId='retainer-baseline-'+Date.now()+'-'+Math.random().toString(36).slice(2,9);
+   if(!postNative('PlayerReaction',{reactionId,characterId:actor,text:'Confirmo o marco de pagamento sem presumir dívidas passadas.',
+     mechanicalIntent:'RETAINER_WAGE_BASELINE:'+actor+':'+npcId}))b.disabled=false;
+ });
+ document.querySelectorAll('[data-retainer-pay]').forEach(b=>b.onclick=()=>{
+   const npcId=b.dataset.retainerPay,actor=viewState?.selectedCharacterId;
+   const contract=(viewState?.retainers||[]).find(r=>r.npcId===npcId&&r.employerCharacterId===actor);
+   if(!contract||!Number.isSafeInteger(Number(contract.wageDueGp))||
+     !confirm('Pagar '+contract.wageDueGp+' po por '+contract.wageDueDays+' dia(s) com o ouro do contratante?'))return;
+   b.disabled=true;
+   const reactionId='retainer-pay-'+Date.now()+'-'+Math.random().toString(36).slice(2,9);
+   if(!postNative('PlayerReaction',{reactionId,characterId:actor,text:'Pago as diárias vencidas de '+contract.name+'.',
+     mechanicalIntent:'RETAINER_PAY_DAILY:'+actor+':'+npcId}))b.disabled=false;
+ });
  document.querySelectorAll('[data-loadout-buy]').forEach(b=>b.onclick=()=>postNative('UiCommand',{command:'loadout_purchase',commandId:'buy-'+Date.now()+'-'+b.dataset.loadoutBuy,characterId:loadoutState()?.characterId||'',catalogId:b.dataset.loadoutBuy}));
  document.querySelectorAll('[data-loadout-equip]').forEach(b=>b.onclick=()=>postNative('UiCommand',{command:'loadout_equip',commandId:'equip-'+Date.now()+'-'+b.dataset.loadoutEquip,characterId:loadoutState()?.characterId||'',itemId:b.dataset.loadoutEquip,equipped:b.dataset.equipped!=='1'}));
  document.querySelector('[data-loadout-finish]')?.addEventListener('click',()=>postNative('UiCommand',{command:'loadout_finish',commandId:'finish-'+Date.now(),characterId:loadoutState()?.characterId||''}));
