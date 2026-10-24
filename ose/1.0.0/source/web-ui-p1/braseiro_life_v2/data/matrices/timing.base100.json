@@ -1,0 +1,927 @@
+{
+  "schema": "braseiro.matrix-table/v1",
+  "id": "timing",
+  "version": "2.2.0",
+  "rows": [
+    {
+      "id": "timing-sleep-1",
+      "text": "apresentar uma vez",
+      "domain": "sleep",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-sleep-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "sleep",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-sleep-3",
+      "text": "aguardar local relacionado",
+      "domain": "sleep",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-sleep-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "sleep",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-sleep-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "sleep",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-memory-1",
+      "text": "apresentar uma vez",
+      "domain": "memory",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-memory-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "memory",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-memory-3",
+      "text": "aguardar local relacionado",
+      "domain": "memory",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-memory-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "memory",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-memory-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "memory",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-emotion-1",
+      "text": "apresentar uma vez",
+      "domain": "emotion",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-emotion-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "emotion",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-emotion-3",
+      "text": "aguardar local relacionado",
+      "domain": "emotion",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-emotion-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "emotion",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-emotion-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "emotion",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-habits-1",
+      "text": "apresentar uma vez",
+      "domain": "habits",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-habits-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "habits",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-habits-3",
+      "text": "aguardar local relacionado",
+      "domain": "habits",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-habits-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "habits",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-habits-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "habits",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-family-1",
+      "text": "apresentar uma vez",
+      "domain": "family",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-family-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "family",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-family-3",
+      "text": "aguardar local relacionado",
+      "domain": "family",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-family-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "family",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-family-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "family",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-intimacy-1",
+      "text": "apresentar uma vez",
+      "domain": "intimacy",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-intimacy-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "intimacy",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-intimacy-3",
+      "text": "aguardar local relacionado",
+      "domain": "intimacy",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-intimacy-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "intimacy",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-intimacy-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "intimacy",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-work-1",
+      "text": "apresentar uma vez",
+      "domain": "work",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-work-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "work",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-work-3",
+      "text": "aguardar local relacionado",
+      "domain": "work",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-work-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "work",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-work-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "work",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-resources-1",
+      "text": "apresentar uma vez",
+      "domain": "resources",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-resources-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "resources",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-resources-3",
+      "text": "aguardar local relacionado",
+      "domain": "resources",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-resources-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "resources",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-resources-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "resources",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-social-1",
+      "text": "apresentar uma vez",
+      "domain": "social",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-social-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "social",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-social-3",
+      "text": "aguardar local relacionado",
+      "domain": "social",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-social-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "social",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-social-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "social",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-reputation-1",
+      "text": "apresentar uma vez",
+      "domain": "reputation",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-reputation-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "reputation",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-reputation-3",
+      "text": "aguardar local relacionado",
+      "domain": "reputation",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-reputation-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "reputation",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-reputation-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "reputation",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-npc-1",
+      "text": "apresentar uma vez",
+      "domain": "npc",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-npc-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "npc",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-npc-3",
+      "text": "aguardar local relacionado",
+      "domain": "npc",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-npc-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "npc",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-npc-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "npc",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-world-1",
+      "text": "apresentar uma vez",
+      "domain": "world",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-world-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "world",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-world-3",
+      "text": "aguardar local relacionado",
+      "domain": "world",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-world-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "world",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-world-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "world",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-recovery-1",
+      "text": "apresentar uma vez",
+      "domain": "recovery",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-recovery-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "recovery",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-recovery-3",
+      "text": "aguardar local relacionado",
+      "domain": "recovery",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-recovery-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "recovery",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-recovery-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "recovery",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-belief-1",
+      "text": "apresentar uma vez",
+      "domain": "belief",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-belief-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "belief",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-belief-3",
+      "text": "aguardar local relacionado",
+      "domain": "belief",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-belief-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "belief",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-belief-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "belief",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-goals-1",
+      "text": "apresentar uma vez",
+      "domain": "goals",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-goals-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "goals",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-goals-3",
+      "text": "aguardar local relacionado",
+      "domain": "goals",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-goals-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "goals",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-goals-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "goals",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-body-1",
+      "text": "apresentar uma vez",
+      "domain": "body",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-body-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "body",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-body-3",
+      "text": "aguardar local relacionado",
+      "domain": "body",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-body-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "body",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-body-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "body",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-home-1",
+      "text": "apresentar uma vez",
+      "domain": "home",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-home-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "home",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-home-3",
+      "text": "aguardar local relacionado",
+      "domain": "home",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-home-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "home",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-home-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "home",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-community-1",
+      "text": "apresentar uma vez",
+      "domain": "community",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-community-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "community",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-community-3",
+      "text": "aguardar local relacionado",
+      "domain": "community",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-community-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "community",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-community-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "community",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-legacy-1",
+      "text": "apresentar uma vez",
+      "domain": "legacy",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-legacy-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "legacy",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-legacy-3",
+      "text": "aguardar local relacionado",
+      "domain": "legacy",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-legacy-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "legacy",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-legacy-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "legacy",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    },
+    {
+      "id": "timing-justice-1",
+      "text": "apresentar uma vez",
+      "domain": "justice",
+      "mode": "once",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-justice-2",
+      "text": "aguardar uma cena pertinente",
+      "domain": "justice",
+      "mode": "relevant_scene",
+      "agency": "schedule_only",
+      "requiredCapabilities": []
+    },
+    {
+      "id": "timing-justice-3",
+      "text": "aguardar local relacionado",
+      "domain": "justice",
+      "mode": "related_location",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_location"
+      ]
+    },
+    {
+      "id": "timing-justice-4",
+      "text": "aguardar uma pessoa relacionada",
+      "domain": "justice",
+      "mode": "related_person",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "related_person"
+      ]
+    },
+    {
+      "id": "timing-justice-5",
+      "text": "aguardar uma pausa da atividade principal",
+      "domain": "justice",
+      "mode": "downtime",
+      "agency": "schedule_only",
+      "requiredCapabilities": [
+        "downtime"
+      ]
+    }
+  ]
+}

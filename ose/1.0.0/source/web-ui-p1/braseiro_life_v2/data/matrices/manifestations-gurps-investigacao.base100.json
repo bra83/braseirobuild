@@ -1,0 +1,2806 @@
+{
+  "schema": "braseiro.matrix-table/v1",
+  "id": "manifestations-gurps-investigacao",
+  "version": "2.2.0",
+  "rows": [
+    {
+      "id": "gurps-investigacao-1-observe",
+      "baseSituationId": "gurps-investigacao-situation-1",
+      "text": "Um colega comunica o andamento confirmado de um inquérito. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-1-conversation",
+      "baseSituationId": "gurps-investigacao-situation-1",
+      "text": "Um colega comunica o andamento confirmado de um inquérito. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-1-choice",
+      "baseSituationId": "gurps-investigacao-situation-1",
+      "text": "Um colega comunica o andamento confirmado de um inquérito. Há espaço para uma decisão livre do personagem.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-1-verification",
+      "baseSituationId": "gurps-investigacao-situation-1",
+      "text": "Um colega comunica o andamento confirmado de um inquérito. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-1-continuity",
+      "baseSituationId": "gurps-investigacao-situation-1",
+      "text": "Um colega comunica o andamento confirmado de um inquérito. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-2-observe",
+      "baseSituationId": "gurps-investigacao-situation-2",
+      "text": "Uma escala de serviço muda a disponibilidade de colegas. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-2-conversation",
+      "baseSituationId": "gurps-investigacao-situation-2",
+      "text": "Uma escala de serviço muda a disponibilidade de colegas. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-2-choice",
+      "baseSituationId": "gurps-investigacao-situation-2",
+      "text": "Uma escala de serviço muda a disponibilidade de colegas. Há espaço para uma decisão livre do personagem.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-2-verification",
+      "baseSituationId": "gurps-investigacao-situation-2",
+      "text": "Uma escala de serviço muda a disponibilidade de colegas. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-2-continuity",
+      "baseSituationId": "gurps-investigacao-situation-2",
+      "text": "Uma escala de serviço muda a disponibilidade de colegas. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-3-observe",
+      "baseSituationId": "gurps-investigacao-situation-3",
+      "text": "Uma visita familiar coincide com uma responsabilidade profissional. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-3-conversation",
+      "baseSituationId": "gurps-investigacao-situation-3",
+      "text": "Uma visita familiar coincide com uma responsabilidade profissional. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person",
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-3-choice",
+      "baseSituationId": "gurps-investigacao-situation-3",
+      "text": "Uma visita familiar coincide com uma responsabilidade profissional. Há espaço para uma decisão livre do personagem.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-3-verification",
+      "baseSituationId": "gurps-investigacao-situation-3",
+      "text": "Uma visita familiar coincide com uma responsabilidade profissional. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-3-continuity",
+      "baseSituationId": "gurps-investigacao-situation-3",
+      "text": "Uma visita familiar coincide com uma responsabilidade profissional. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-4-observe",
+      "baseSituationId": "gurps-investigacao-situation-4",
+      "text": "Uma testemunha apresenta um detalhe que exige verificação. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "belief",
+      "causeTags": [
+        "justice",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-4-conversation",
+      "baseSituationId": "gurps-investigacao-situation-4",
+      "text": "Uma testemunha apresenta um detalhe que exige verificação. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "belief",
+      "causeTags": [
+        "justice",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-4-choice",
+      "baseSituationId": "gurps-investigacao-situation-4",
+      "text": "Uma testemunha apresenta um detalhe que exige verificação. Há espaço para uma decisão livre do personagem.",
+      "domain": "belief",
+      "causeTags": [
+        "justice",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-4-verification",
+      "baseSituationId": "gurps-investigacao-situation-4",
+      "text": "Uma testemunha apresenta um detalhe que exige verificação. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "belief",
+      "causeTags": [
+        "justice",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-4-continuity",
+      "baseSituationId": "gurps-investigacao-situation-4",
+      "text": "Uma testemunha apresenta um detalhe que exige verificação. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "belief",
+      "causeTags": [
+        "justice",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-5-observe",
+      "baseSituationId": "gurps-investigacao-situation-5",
+      "text": "Um elemento do ambiente recorda um caso encerrado. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "memory",
+      "causeTags": [
+        "violence",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-5-conversation",
+      "baseSituationId": "gurps-investigacao-situation-5",
+      "text": "Um elemento do ambiente recorda um caso encerrado. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "memory",
+      "causeTags": [
+        "violence",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-5-choice",
+      "baseSituationId": "gurps-investigacao-situation-5",
+      "text": "Um elemento do ambiente recorda um caso encerrado. Há espaço para uma decisão livre do personagem.",
+      "domain": "memory",
+      "causeTags": [
+        "violence",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-5-verification",
+      "baseSituationId": "gurps-investigacao-situation-5",
+      "text": "Um elemento do ambiente recorda um caso encerrado. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "memory",
+      "causeTags": [
+        "violence",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-5-continuity",
+      "baseSituationId": "gurps-investigacao-situation-5",
+      "text": "Um elemento do ambiente recorda um caso encerrado. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "memory",
+      "causeTags": [
+        "violence",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-6-observe",
+      "baseSituationId": "gurps-investigacao-situation-6",
+      "text": "O ambiente de repouso é afetado pela rotina de plantão. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-6-conversation",
+      "baseSituationId": "gurps-investigacao-situation-6",
+      "text": "O ambiente de repouso é afetado pela rotina de plantão. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-6-choice",
+      "baseSituationId": "gurps-investigacao-situation-6",
+      "text": "O ambiente de repouso é afetado pela rotina de plantão. Há espaço para uma decisão livre do personagem.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-6-verification",
+      "baseSituationId": "gurps-investigacao-situation-6",
+      "text": "O ambiente de repouso é afetado pela rotina de plantão. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-6-continuity",
+      "baseSituationId": "gurps-investigacao-situation-6",
+      "text": "O ambiente de repouso é afetado pela rotina de plantão. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-7-observe",
+      "baseSituationId": "gurps-investigacao-situation-7",
+      "text": "Um colega oferece cobertura para uma pausa escolhida. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-7-conversation",
+      "baseSituationId": "gurps-investigacao-situation-7",
+      "text": "Um colega oferece cobertura para uma pausa escolhida. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-7-choice",
+      "baseSituationId": "gurps-investigacao-situation-7",
+      "text": "Um colega oferece cobertura para uma pausa escolhida. Há espaço para uma decisão livre do personagem.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-7-verification",
+      "baseSituationId": "gurps-investigacao-situation-7",
+      "text": "Um colega oferece cobertura para uma pausa escolhida. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-7-continuity",
+      "baseSituationId": "gurps-investigacao-situation-7",
+      "text": "Um colega oferece cobertura para uma pausa escolhida. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-8-observe",
+      "baseSituationId": "gurps-investigacao-situation-8",
+      "text": "Uma reportagem repete uma versão pública do caso. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "justice",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-8-conversation",
+      "baseSituationId": "gurps-investigacao-situation-8",
+      "text": "Uma reportagem repete uma versão pública do caso. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "justice",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-8-choice",
+      "baseSituationId": "gurps-investigacao-situation-8",
+      "text": "Uma reportagem repete uma versão pública do caso. Há espaço para uma decisão livre do personagem.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "justice",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-8-verification",
+      "baseSituationId": "gurps-investigacao-situation-8",
+      "text": "Uma reportagem repete uma versão pública do caso. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "justice",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-8-continuity",
+      "baseSituationId": "gurps-investigacao-situation-8",
+      "text": "Uma reportagem repete uma versão pública do caso. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "justice",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-9-observe",
+      "baseSituationId": "gurps-investigacao-situation-9",
+      "text": "Um equipamento precisa ser compartilhado entre equipes. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "resources",
+      "causeTags": [
+        "work",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-9-conversation",
+      "baseSituationId": "gurps-investigacao-situation-9",
+      "text": "Um equipamento precisa ser compartilhado entre equipes. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "resources",
+      "causeTags": [
+        "work",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-9-choice",
+      "baseSituationId": "gurps-investigacao-situation-9",
+      "text": "Um equipamento precisa ser compartilhado entre equipes. Há espaço para uma decisão livre do personagem.",
+      "domain": "resources",
+      "causeTags": [
+        "work",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-9-verification",
+      "baseSituationId": "gurps-investigacao-situation-9",
+      "text": "Um equipamento precisa ser compartilhado entre equipes. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "resources",
+      "causeTags": [
+        "work",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-9-continuity",
+      "baseSituationId": "gurps-investigacao-situation-9",
+      "text": "Um equipamento precisa ser compartilhado entre equipes. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "resources",
+      "causeTags": [
+        "work",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-10-observe",
+      "baseSituationId": "gurps-investigacao-situation-10",
+      "text": "Um antigo parceiro assume outra função. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-10-conversation",
+      "baseSituationId": "gurps-investigacao-situation-10",
+      "text": "Um antigo parceiro assume outra função. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-10-choice",
+      "baseSituationId": "gurps-investigacao-situation-10",
+      "text": "Um antigo parceiro assume outra função. Há espaço para uma decisão livre do personagem.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-10-verification",
+      "baseSituationId": "gurps-investigacao-situation-10",
+      "text": "Um antigo parceiro assume outra função. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-10-continuity",
+      "baseSituationId": "gurps-investigacao-situation-10",
+      "text": "Um antigo parceiro assume outra função. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-11-observe",
+      "baseSituationId": "gurps-investigacao-situation-11",
+      "text": "Um objeto doméstico guarda uma lembrança de antes do caso. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-11-conversation",
+      "baseSituationId": "gurps-investigacao-situation-11",
+      "text": "Um objeto doméstico guarda uma lembrança de antes do caso. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-11-choice",
+      "baseSituationId": "gurps-investigacao-situation-11",
+      "text": "Um objeto doméstico guarda uma lembrança de antes do caso. Há espaço para uma decisão livre do personagem.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-11-verification",
+      "baseSituationId": "gurps-investigacao-situation-11",
+      "text": "Um objeto doméstico guarda uma lembrança de antes do caso. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-11-continuity",
+      "baseSituationId": "gurps-investigacao-situation-11",
+      "text": "Um objeto doméstico guarda uma lembrança de antes do caso. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-12-observe",
+      "baseSituationId": "gurps-investigacao-situation-12",
+      "text": "Um curso desejado abre uma nova turma. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-12-conversation",
+      "baseSituationId": "gurps-investigacao-situation-12",
+      "text": "Um curso desejado abre uma nova turma. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-12-choice",
+      "baseSituationId": "gurps-investigacao-situation-12",
+      "text": "Um curso desejado abre uma nova turma. Há espaço para uma decisão livre do personagem.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-12-verification",
+      "baseSituationId": "gurps-investigacao-situation-12",
+      "text": "Um curso desejado abre uma nova turma. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-12-continuity",
+      "baseSituationId": "gurps-investigacao-situation-12",
+      "text": "Um curso desejado abre uma nova turma. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-13-observe",
+      "baseSituationId": "gurps-investigacao-situation-13",
+      "text": "Moradores organizam apoio a pessoas afetadas. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "community",
+      "causeTags": [
+        "justice",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-13-conversation",
+      "baseSituationId": "gurps-investigacao-situation-13",
+      "text": "Moradores organizam apoio a pessoas afetadas. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "community",
+      "causeTags": [
+        "justice",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-13-choice",
+      "baseSituationId": "gurps-investigacao-situation-13",
+      "text": "Moradores organizam apoio a pessoas afetadas. Há espaço para uma decisão livre do personagem.",
+      "domain": "community",
+      "causeTags": [
+        "justice",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-13-verification",
+      "baseSituationId": "gurps-investigacao-situation-13",
+      "text": "Moradores organizam apoio a pessoas afetadas. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "community",
+      "causeTags": [
+        "justice",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-13-continuity",
+      "baseSituationId": "gurps-investigacao-situation-13",
+      "text": "Moradores organizam apoio a pessoas afetadas. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "community",
+      "causeTags": [
+        "justice",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-14-observe",
+      "baseSituationId": "gurps-investigacao-situation-14",
+      "text": "Um investigador novo consulta um procedimento antigo. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-14-conversation",
+      "baseSituationId": "gurps-investigacao-situation-14",
+      "text": "Um investigador novo consulta um procedimento antigo. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-14-choice",
+      "baseSituationId": "gurps-investigacao-situation-14",
+      "text": "Um investigador novo consulta um procedimento antigo. Há espaço para uma decisão livre do personagem.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-14-verification",
+      "baseSituationId": "gurps-investigacao-situation-14",
+      "text": "Um investigador novo consulta um procedimento antigo. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-14-continuity",
+      "baseSituationId": "gurps-investigacao-situation-14",
+      "text": "Um investigador novo consulta um procedimento antigo. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-investigacao-15-observe",
+      "baseSituationId": "gurps-investigacao-situation-15",
+      "text": "Uma adaptação no posto de trabalho fica disponível. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-15-conversation",
+      "baseSituationId": "gurps-investigacao-situation-15",
+      "text": "Uma adaptação no posto de trabalho fica disponível. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-15-choice",
+      "baseSituationId": "gurps-investigacao-situation-15",
+      "text": "Uma adaptação no posto de trabalho fica disponível. Há espaço para uma decisão livre do personagem.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-15-verification",
+      "baseSituationId": "gurps-investigacao-situation-15",
+      "text": "Uma adaptação no posto de trabalho fica disponível. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-15-continuity",
+      "baseSituationId": "gurps-investigacao-situation-15",
+      "text": "Uma adaptação no posto de trabalho fica disponível. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-16-observe",
+      "baseSituationId": "gurps-investigacao-situation-16",
+      "text": "Uma pessoa próxima pede tempo para uma conversa. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-16-conversation",
+      "baseSituationId": "gurps-investigacao-situation-16",
+      "text": "Uma pessoa próxima pede tempo para uma conversa. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-16-choice",
+      "baseSituationId": "gurps-investigacao-situation-16",
+      "text": "Uma pessoa próxima pede tempo para uma conversa. Há espaço para uma decisão livre do personagem.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-16-verification",
+      "baseSituationId": "gurps-investigacao-situation-16",
+      "text": "Uma pessoa próxima pede tempo para uma conversa. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-16-continuity",
+      "baseSituationId": "gurps-investigacao-situation-16",
+      "text": "Uma pessoa próxima pede tempo para uma conversa. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-17-observe",
+      "baseSituationId": "gurps-investigacao-situation-17",
+      "text": "Colegas fazem um convite fora do expediente. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-17-conversation",
+      "baseSituationId": "gurps-investigacao-situation-17",
+      "text": "Colegas fazem um convite fora do expediente. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-17-choice",
+      "baseSituationId": "gurps-investigacao-situation-17",
+      "text": "Colegas fazem um convite fora do expediente. Há espaço para uma decisão livre do personagem.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-17-verification",
+      "baseSituationId": "gurps-investigacao-situation-17",
+      "text": "Colegas fazem um convite fora do expediente. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-17-continuity",
+      "baseSituationId": "gurps-investigacao-situation-17",
+      "text": "Colegas fazem um convite fora do expediente. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-18-observe",
+      "baseSituationId": "gurps-investigacao-situation-18",
+      "text": "Uma instituição altera seu atendimento ao público. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-18-conversation",
+      "baseSituationId": "gurps-investigacao-situation-18",
+      "text": "Uma instituição altera seu atendimento ao público. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-18-choice",
+      "baseSituationId": "gurps-investigacao-situation-18",
+      "text": "Uma instituição altera seu atendimento ao público. Há espaço para uma decisão livre do personagem.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-18-verification",
+      "baseSituationId": "gurps-investigacao-situation-18",
+      "text": "Uma instituição altera seu atendimento ao público. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-18-continuity",
+      "baseSituationId": "gurps-investigacao-situation-18",
+      "text": "Uma instituição altera seu atendimento ao público. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-19-observe",
+      "baseSituationId": "gurps-investigacao-situation-19",
+      "text": "Um reconhecimento discreto recorda quem ajudou no caso. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "emotion",
+      "causeTags": [
+        "loss",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-19-conversation",
+      "baseSituationId": "gurps-investigacao-situation-19",
+      "text": "Um reconhecimento discreto recorda quem ajudou no caso. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "emotion",
+      "causeTags": [
+        "loss",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-19-choice",
+      "baseSituationId": "gurps-investigacao-situation-19",
+      "text": "Um reconhecimento discreto recorda quem ajudou no caso. Há espaço para uma decisão livre do personagem.",
+      "domain": "emotion",
+      "causeTags": [
+        "loss",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-19-verification",
+      "baseSituationId": "gurps-investigacao-situation-19",
+      "text": "Um reconhecimento discreto recorda quem ajudou no caso. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "emotion",
+      "causeTags": [
+        "loss",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-19-continuity",
+      "baseSituationId": "gurps-investigacao-situation-19",
+      "text": "Um reconhecimento discreto recorda quem ajudou no caso. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "emotion",
+      "causeTags": [
+        "loss",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-20-observe",
+      "baseSituationId": "gurps-investigacao-situation-20",
+      "text": "Uma rotina de deslocamento precisa de ajuste. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-20-conversation",
+      "baseSituationId": "gurps-investigacao-situation-20",
+      "text": "Uma rotina de deslocamento precisa de ajuste. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-20-choice",
+      "baseSituationId": "gurps-investigacao-situation-20",
+      "text": "Uma rotina de deslocamento precisa de ajuste. Há espaço para uma decisão livre do personagem.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-20-verification",
+      "baseSituationId": "gurps-investigacao-situation-20",
+      "text": "Uma rotina de deslocamento precisa de ajuste. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-investigacao-20-continuity",
+      "baseSituationId": "gurps-investigacao-situation-20",
+      "text": "Uma rotina de deslocamento precisa de ajuste. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-investigacao",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    }
+  ]
+}

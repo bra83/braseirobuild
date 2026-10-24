@@ -1,0 +1,907 @@
+{
+  "schema": "braseiro.matrix-table/v1",
+  "id": "causes",
+  "version": "2.2.0",
+  "rows": [
+    {
+      "id": "cause-loss-1",
+      "text": "morte confirmada de alguém próximo",
+      "causeTags": [
+        "loss"
+      ],
+      "originCode": "cause-loss-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-loss-2",
+      "text": "desaparecimento ainda sem desfecho",
+      "causeTags": [
+        "loss"
+      ],
+      "originCode": "cause-loss-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-loss-3",
+      "text": "perda de uma moradia",
+      "causeTags": [
+        "loss"
+      ],
+      "originCode": "cause-loss-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-loss-4",
+      "text": "destruição de um objeto significativo",
+      "causeTags": [
+        "loss"
+      ],
+      "originCode": "cause-loss-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-loss-5",
+      "text": "ruptura de um vínculo importante",
+      "causeTags": [
+        "loss"
+      ],
+      "originCode": "cause-loss-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-victory-1",
+      "text": "ameaça derrotada",
+      "causeTags": [
+        "victory"
+      ],
+      "originCode": "cause-victory-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-victory-2",
+      "text": "pessoa resgatada",
+      "causeTags": [
+        "victory"
+      ],
+      "originCode": "cause-victory-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-victory-3",
+      "text": "comunidade protegida",
+      "causeTags": [
+        "victory"
+      ],
+      "originCode": "cause-victory-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-victory-4",
+      "text": "objetivo difícil alcançado",
+      "causeTags": [
+        "victory"
+      ],
+      "originCode": "cause-victory-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-victory-5",
+      "text": "injustiça reparada",
+      "causeTags": [
+        "victory"
+      ],
+      "originCode": "cause-victory-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-failure-1",
+      "text": "objetivo não alcançado",
+      "causeTags": [
+        "failure"
+      ],
+      "originCode": "cause-failure-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-failure-2",
+      "text": "tentativa de resgate malsucedida",
+      "causeTags": [
+        "failure"
+      ],
+      "originCode": "cause-failure-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-failure-3",
+      "text": "acordo que não se sustentou",
+      "causeTags": [
+        "failure"
+      ],
+      "originCode": "cause-failure-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-failure-4",
+      "text": "erro reconhecido em serviço",
+      "causeTags": [
+        "failure"
+      ],
+      "originCode": "cause-failure-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-failure-5",
+      "text": "oportunidade perdida",
+      "causeTags": [
+        "failure"
+      ],
+      "originCode": "cause-failure-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-violence-1",
+      "text": "exposição a uma agressão",
+      "causeTags": [
+        "violence"
+      ],
+      "originCode": "cause-violence-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-violence-2",
+      "text": "participação em confronto",
+      "causeTags": [
+        "violence"
+      ],
+      "originCode": "cause-violence-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-violence-3",
+      "text": "testemunho de destruição",
+      "causeTags": [
+        "violence"
+      ],
+      "originCode": "cause-violence-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-violence-4",
+      "text": "atendimento às vítimas",
+      "causeTags": [
+        "violence"
+      ],
+      "originCode": "cause-violence-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-violence-5",
+      "text": "descoberta de vestígios violentos",
+      "causeTags": [
+        "violence"
+      ],
+      "originCode": "cause-violence-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-care-1",
+      "text": "acolhimento recebido",
+      "causeTags": [
+        "care"
+      ],
+      "originCode": "cause-care-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-care-2",
+      "text": "cuidado oferecido",
+      "causeTags": [
+        "care"
+      ],
+      "originCode": "cause-care-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-care-3",
+      "text": "ajuda aceita",
+      "causeTags": [
+        "care"
+      ],
+      "originCode": "cause-care-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-care-4",
+      "text": "proteção durante uma crise",
+      "causeTags": [
+        "care"
+      ],
+      "originCode": "cause-care-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-care-5",
+      "text": "presença de alguém confiável",
+      "causeTags": [
+        "care"
+      ],
+      "originCode": "cause-care-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-promise-1",
+      "text": "promessa assumida",
+      "causeTags": [
+        "promise"
+      ],
+      "originCode": "cause-promise-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-promise-2",
+      "text": "promessa cumprida",
+      "causeTags": [
+        "promise"
+      ],
+      "originCode": "cause-promise-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-promise-3",
+      "text": "promessa adiada",
+      "causeTags": [
+        "promise"
+      ],
+      "originCode": "cause-promise-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-promise-4",
+      "text": "compromisso rompido",
+      "causeTags": [
+        "promise"
+      ],
+      "originCode": "cause-promise-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-promise-5",
+      "text": "obrigação renegociada",
+      "causeTags": [
+        "promise"
+      ],
+      "originCode": "cause-promise-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-betrayal-1",
+      "text": "confiança violada",
+      "causeTags": [
+        "betrayal"
+      ],
+      "originCode": "cause-betrayal-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-betrayal-2",
+      "text": "segredo divulgado sem consentimento",
+      "causeTags": [
+        "betrayal"
+      ],
+      "originCode": "cause-betrayal-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-betrayal-3",
+      "text": "aliança abandonada",
+      "causeTags": [
+        "betrayal"
+      ],
+      "originCode": "cause-betrayal-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-betrayal-4",
+      "text": "acordo usado como armadilha",
+      "causeTags": [
+        "betrayal"
+      ],
+      "originCode": "cause-betrayal-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-betrayal-5",
+      "text": "fraude descoberta",
+      "causeTags": [
+        "betrayal"
+      ],
+      "originCode": "cause-betrayal-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-discovery-1",
+      "text": "pista confirmada",
+      "causeTags": [
+        "discovery"
+      ],
+      "originCode": "cause-discovery-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-discovery-2",
+      "text": "lugar encontrado",
+      "causeTags": [
+        "discovery"
+      ],
+      "originCode": "cause-discovery-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-discovery-3",
+      "text": "segredo revelado legitimamente",
+      "causeTags": [
+        "discovery"
+      ],
+      "originCode": "cause-discovery-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-discovery-4",
+      "text": "informação corrigida",
+      "causeTags": [
+        "discovery"
+      ],
+      "originCode": "cause-discovery-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-discovery-5",
+      "text": "conhecimento aprendido",
+      "causeTags": [
+        "discovery"
+      ],
+      "originCode": "cause-discovery-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-journey-1",
+      "text": "travessia concluída",
+      "causeTags": [
+        "journey"
+      ],
+      "originCode": "cause-journey-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-journey-2",
+      "text": "viagem interrompida",
+      "causeTags": [
+        "journey"
+      ],
+      "originCode": "cause-journey-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-journey-3",
+      "text": "chegada a região desconhecida",
+      "causeTags": [
+        "journey"
+      ],
+      "originCode": "cause-journey-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-journey-4",
+      "text": "retorno ao ponto de partida",
+      "causeTags": [
+        "journey"
+      ],
+      "originCode": "cause-journey-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-journey-5",
+      "text": "separação durante deslocamento",
+      "causeTags": [
+        "journey"
+      ],
+      "originCode": "cause-journey-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-scarcity-1",
+      "text": "falta de alimentos",
+      "causeTags": [
+        "scarcity"
+      ],
+      "originCode": "cause-scarcity-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-scarcity-2",
+      "text": "falta de abrigo",
+      "causeTags": [
+        "scarcity"
+      ],
+      "originCode": "cause-scarcity-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-scarcity-3",
+      "text": "falta de recursos de trabalho",
+      "causeTags": [
+        "scarcity"
+      ],
+      "originCode": "cause-scarcity-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-scarcity-4",
+      "text": "interrupção de transporte",
+      "causeTags": [
+        "scarcity"
+      ],
+      "originCode": "cause-scarcity-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-scarcity-5",
+      "text": "dificuldade de acesso a cuidados",
+      "causeTags": [
+        "scarcity"
+      ],
+      "originCode": "cause-scarcity-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-conflict-1",
+      "text": "disputa entre vizinhos",
+      "causeTags": [
+        "conflict"
+      ],
+      "originCode": "cause-conflict-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-conflict-2",
+      "text": "conflito institucional",
+      "causeTags": [
+        "conflict"
+      ],
+      "originCode": "cause-conflict-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-conflict-3",
+      "text": "rivalidade entre grupos",
+      "causeTags": [
+        "conflict"
+      ],
+      "originCode": "cause-conflict-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-conflict-4",
+      "text": "desacordo na equipe",
+      "causeTags": [
+        "conflict"
+      ],
+      "originCode": "cause-conflict-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-conflict-5",
+      "text": "pressão de uma autoridade",
+      "causeTags": [
+        "conflict"
+      ],
+      "originCode": "cause-conflict-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-reputation-1",
+      "text": "feito testemunhado",
+      "causeTags": [
+        "reputation"
+      ],
+      "originCode": "cause-reputation-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-reputation-2",
+      "text": "notícia recebida",
+      "causeTags": [
+        "reputation"
+      ],
+      "originCode": "cause-reputation-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-reputation-3",
+      "text": "relato distorcido",
+      "causeTags": [
+        "reputation"
+      ],
+      "originCode": "cause-reputation-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-reputation-4",
+      "text": "acusação conhecida",
+      "causeTags": [
+        "reputation"
+      ],
+      "originCode": "cause-reputation-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-reputation-5",
+      "text": "reconhecimento público",
+      "causeTags": [
+        "reputation"
+      ],
+      "originCode": "cause-reputation-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-work-1",
+      "text": "tarefa profissional concluída",
+      "causeTags": [
+        "work"
+      ],
+      "originCode": "cause-work-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-work-2",
+      "text": "mudança de função",
+      "causeTags": [
+        "work"
+      ],
+      "originCode": "cause-work-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-work-3",
+      "text": "projeto iniciado",
+      "causeTags": [
+        "work"
+      ],
+      "originCode": "cause-work-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-work-4",
+      "text": "ferramenta perdida",
+      "causeTags": [
+        "work"
+      ],
+      "originCode": "cause-work-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-work-5",
+      "text": "responsabilidade ampliada",
+      "causeTags": [
+        "work"
+      ],
+      "originCode": "cause-work-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-home-1",
+      "text": "retorno ao lar",
+      "causeTags": [
+        "home"
+      ],
+      "originCode": "cause-home-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-home-2",
+      "text": "mudança de residência",
+      "causeTags": [
+        "home"
+      ],
+      "originCode": "cause-home-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-home-3",
+      "text": "reparo concluído",
+      "causeTags": [
+        "home"
+      ],
+      "originCode": "cause-home-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-home-4",
+      "text": "visita recebida",
+      "causeTags": [
+        "home"
+      ],
+      "originCode": "cause-home-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-home-5",
+      "text": "espaço pessoal reorganizado",
+      "causeTags": [
+        "home"
+      ],
+      "originCode": "cause-home-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-health-1",
+      "text": "ferimento confirmado pelas regras",
+      "causeTags": [
+        "health"
+      ],
+      "originCode": "cause-health-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-health-2",
+      "text": "recuperação validada",
+      "causeTags": [
+        "health"
+      ],
+      "originCode": "cause-health-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-health-3",
+      "text": "cansaço após esforço",
+      "causeTags": [
+        "health"
+      ],
+      "originCode": "cause-health-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-health-4",
+      "text": "cuidado médico disponível",
+      "causeTags": [
+        "health"
+      ],
+      "originCode": "cause-health-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-health-5",
+      "text": "limitação reconhecida pelo sistema",
+      "causeTags": [
+        "health"
+      ],
+      "originCode": "cause-health-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-recovery-1",
+      "text": "apoio continuado",
+      "causeTags": [
+        "recovery"
+      ],
+      "originCode": "cause-recovery-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-recovery-2",
+      "text": "dificuldade superada",
+      "causeTags": [
+        "recovery"
+      ],
+      "originCode": "cause-recovery-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-recovery-3",
+      "text": "rotina restabelecida",
+      "causeTags": [
+        "recovery"
+      ],
+      "originCode": "cause-recovery-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-recovery-4",
+      "text": "vínculo reconstruído",
+      "causeTags": [
+        "recovery"
+      ],
+      "originCode": "cause-recovery-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-recovery-5",
+      "text": "segurança recuperada",
+      "causeTags": [
+        "recovery"
+      ],
+      "originCode": "cause-recovery-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-change-1",
+      "text": "passagem de estação",
+      "causeTags": [
+        "change"
+      ],
+      "originCode": "cause-change-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-change-2",
+      "text": "mudança de liderança",
+      "causeTags": [
+        "change"
+      ],
+      "originCode": "cause-change-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-change-3",
+      "text": "nova fronteira",
+      "causeTags": [
+        "change"
+      ],
+      "originCode": "cause-change-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-change-4",
+      "text": "transformação econômica",
+      "causeTags": [
+        "change"
+      ],
+      "originCode": "cause-change-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-change-5",
+      "text": "alteração de uma tradição local",
+      "causeTags": [
+        "change"
+      ],
+      "originCode": "cause-change-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-justice-1",
+      "text": "captura confirmada",
+      "causeTags": [
+        "justice"
+      ],
+      "originCode": "cause-justice-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-justice-2",
+      "text": "julgamento realizado",
+      "causeTags": [
+        "justice"
+      ],
+      "originCode": "cause-justice-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-justice-3",
+      "text": "reparação concedida",
+      "causeTags": [
+        "justice"
+      ],
+      "originCode": "cause-justice-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-justice-4",
+      "text": "inocência demonstrada",
+      "causeTags": [
+        "justice"
+      ],
+      "originCode": "cause-justice-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-justice-5",
+      "text": "investigação encerrada",
+      "causeTags": [
+        "justice"
+      ],
+      "originCode": "cause-justice-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-celebration-1",
+      "text": "festa comunitária",
+      "causeTags": [
+        "celebration"
+      ],
+      "originCode": "cause-celebration-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-celebration-2",
+      "text": "aniversário significativo",
+      "causeTags": [
+        "celebration"
+      ],
+      "originCode": "cause-celebration-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-celebration-3",
+      "text": "reencontro",
+      "causeTags": [
+        "celebration"
+      ],
+      "originCode": "cause-celebration-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-celebration-4",
+      "text": "obra apresentada",
+      "causeTags": [
+        "celebration"
+      ],
+      "originCode": "cause-celebration-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-celebration-5",
+      "text": "tradição celebrada",
+      "causeTags": [
+        "celebration"
+      ],
+      "originCode": "cause-celebration-5",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-legacy-1",
+      "text": "aposentadoria escolhida",
+      "causeTags": [
+        "legacy"
+      ],
+      "originCode": "cause-legacy-1",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-legacy-2",
+      "text": "aprendiz formado",
+      "causeTags": [
+        "legacy"
+      ],
+      "originCode": "cause-legacy-2",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-legacy-3",
+      "text": "objeto herdado",
+      "causeTags": [
+        "legacy"
+      ],
+      "originCode": "cause-legacy-3",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-legacy-4",
+      "text": "história transmitida",
+      "causeTags": [
+        "legacy"
+      ],
+      "originCode": "cause-legacy-4",
+      "agency": "verified_origin"
+    },
+    {
+      "id": "cause-legacy-5",
+      "text": "responsabilidade recebida",
+      "causeTags": [
+        "legacy"
+      ],
+      "originCode": "cause-legacy-5",
+      "agency": "verified_origin"
+    }
+  ]
+}
