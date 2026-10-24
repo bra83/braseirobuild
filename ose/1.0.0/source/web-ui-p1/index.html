@@ -45,21 +45,46 @@
         <input id="textModel" type="text" autocomplete="off" placeholder="ex.: gemini-3.1-flash-lite">
         <label class="field" for="imageModel">Modelo de imagem · mapas/interiores/equipamentos</label>
         <input id="imageModel" type="text" autocomplete="off" placeholder="ex.: gemini-3.1-flash-image">
+        <label class="field" for="ttsModel">Modelo Gemini TTS (áudio)</label>
+        <input id="ttsModel" type="text" autocomplete="off" placeholder="ex.: gemini-3.1-flash-tts-preview">
         <button id="saveModels" class="primary" style="margin-top:9px">SALVAR MODELOS</button>
       </section>
 
       <section class="credential-block">
-        <label class="field">Chave Gemini — Mestre / imagens permitidas</label>
+        <label class="field">Chave Gemini — Mestre / narração e imagens</label>
         <input id="textSceneKey" type="password" autocomplete="off" placeholder="Cole a chave para salvar ou substituir">
         <div class="row"><button class="small" data-key-save="TEXT_SCENE">SALVAR</button><button class="small" data-key-test="TEXT_SCENE">TESTAR</button><button class="small" data-key-delete="TEXT_SCENE">APAGAR</button></div>
         <div id="textSceneStatus" class="credential-status">Não configurada</div>
       </section>
+
       <section class="credential-block">
-        <h3>Narração Android / Kokoro</h3>
-        <p class="note">Usa os motores TTS instalados no Android. Braseiro Kokoro/Sherpa, Samsung e Google aparecem aqui quando instalados. O VTT não copia nem acessa o modelo neural.</p>
-        <label class="field" for="ttsEngine">Motor de voz</label>
+        <label class="field">Chave Gemini — TTS / Áudio (opcional; usa principal se vazia)</label>
+        <input id="ttsAudioKey" type="password" autocomplete="off" placeholder="Cole a chave para TTS ou deixe em branco">
+        <div class="row"><button class="small" data-key-save="TTS_AUDIO">SALVAR</button><button class="small" data-key-test="TTS_AUDIO">TESTAR</button><button class="small" data-key-delete="TTS_AUDIO">APAGAR</button></div>
+        <div id="ttsAudioStatus" class="credential-status">Não configurada</div>
+      </section>
+
+      <section class="credential-block">
+        <h3>Narração Universal V3</h3>
+        <p class="note">Suporta síntese neural remota Gemini TTS, motor Kokoro Android neural instalado, Android TTS padrão do sistema, ou mudo.</p>
+        <label class="field" for="ttsModeSelect">Modo de áudio</label>
+        <select id="ttsModeSelect" class="settings-select">
+          <option value="ANDROID_TTS">Android TTS instalado</option>
+          <option value="KOKORO_INSTALLED">Kokoro Android instalado</option>
+          <option value="GEMINI_TTS">Gemini TTS</option>
+          <option value="OFF">OFF (Mudo)</option>
+        </select>
+        <label class="field" for="ttsGeminiVoiceSelect">Voz Gemini (Charon, Kore, Puck, etc.)</label>
+        <select id="ttsGeminiVoiceSelect" class="settings-select">
+          <option value="Kore">Kore</option>
+          <option value="Charon">Charon</option>
+          <option value="Puck">Puck</option>
+          <option value="Fenrir">Fenrir</option>
+          <option value="Aoede">Aoede</option>
+        </select>
+        <label class="field" for="ttsEngine">Motor Android instalado / Kokoro</label>
         <select id="ttsEngine" class="settings-select"></select>
-        <label class="field" for="ttsVoiceSelect">Voz em português</label>
+        <label class="field" for="ttsVoiceSelect">Voz local em português</label>
         <select id="ttsVoiceSelect" class="settings-select"></select>
         <label class="field" for="ttsRate">Velocidade <span id="ttsRateValue">1,00×</span></label>
         <input id="ttsRate" type="range" min="0.65" max="1.50" step="0.05" value="1.00">

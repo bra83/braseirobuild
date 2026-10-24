@@ -53,6 +53,7 @@ class MainActivity : Activity() {
         const val START_URL = "${LOCAL_APP_ORIGIN}index.html?screen=session&state=active"
         const val REQUEST_EXPORT_CHARACTER = 4101
         const val REQUEST_IMPORT_CHARACTER = 4102
+        const val REQUEST_IMPORT_ADVENTURE = 4103
         val CAMPAIGN_ID = CampaignId("braseiro-ose-primary")
     }
 
@@ -65,6 +66,8 @@ class MainActivity : Activity() {
     private lateinit var mediaStore: PresentationMediaStore
     private lateinit var gemini: GeminiInteractionsClient
     private lateinit var tts: braseiro.ose.tts.android.AndroidTtsController
+    private lateinit var geminiTts: GeminiTtsController
+    private lateinit var adventureStore: BraseiroAdventureStore
     private val manualDice = SecureRandom()
     private val evidenceRegistry = RuleEvidenceRegistry()
     private val creationCoordinator = NativeCharacterCreationCoordinator()
@@ -90,9 +93,18 @@ class MainActivity : Activity() {
         runtimeSettings = GeminiRuntimeSettings(applicationContext)
         mediaStore = PresentationMediaStore(applicationContext)
         gemini = GeminiInteractionsClient()
-        session = SessionEngine(repository, RulesRefereeBoundary(), GeminiBarbaraSupervisor(credentials, runtimeSettings, gemini))
+        adventureStore = BraseiroAdventureStore(applicationContext)
+        geminiTts = GeminiTtsController(applicationContext, credentials, runtimeSettings, gemini)
+        geminiTts.onState = { res, err ->
+            if (tts.mode() == braseiro.ose.tts.android.AndroidTtsController.Mode.GEMINI_TTS) {
+                sendTtsState(if (res == GeminiTtsController.Result.STARTING || res == GeminiTtsController.Result.REPLAYING) "PLAYING" else "IDLE", err)
+            }
+        }
+        session = SessionEngine(repository, RulesRefereeBoundary(), GeminiBarbaraSupervisor(credentials, runtimeSettings, gemini, adventureStore::masterContextPrompt))
         tts = braseiro.ose.tts.android.AndroidTtsController(applicationContext)
         tts.onState = { state, error -> sendTtsState(state.name, error) }
+        tts.geminiSpeaker = { text -> geminiTts.playVisibleNarration(text) }
+        tts.geminiStopper = { geminiTts.stop() }
 
         val assetLoader = WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this))
@@ -179,6 +191,23 @@ class MainActivity : Activity() {
                         val persisted = session.loadSession(CAMPAIGN_ID)
                         storeSelectedCharacterId(persisted, imported.campaignState.party.characterIds.last())
                         send(JSONObject().put("type","CharacterSheetImportResult").put("payload",JSONObject().put("ok",true).put("viewState",projectForUi(persisted))))
+                    } catch (t: Throwable) {
+                        send(JSONObject().put("type","BridgeError").put("payload",JSONObject().put("message",safeError(t))))
+                    }
+                }
+            }
+            REQUEST_IMPORT_ADVENTURE -> {
+                if (resultCode != RESULT_OK || data?.data == null) {
+                    send(JSONObject().put("type","AdventureImportResult").put("payload",JSONObject().put("ok",false).put("cancelled",true)))
+                    return
+                }
+                val uri = data.data!!
+                io.execute {
+                    try {
+                        val raw = contentResolver.openInputStream(uri)!!.bufferedReader(Charsets.UTF_8).use { it.readText() }
+                        val res = adventureStore.importJson(raw)
+                        val current = session.loadSession(CAMPAIGN_ID)
+                        send(JSONObject().put("type","AdventureImportResult").put("payload",res.put("viewState",projectForUi(current))))
                     } catch (t: Throwable) {
                         send(JSONObject().put("type","BridgeError").put("payload",JSONObject().put("message",safeError(t))))
                     }
@@ -426,7 +455,8 @@ class MainActivity : Activity() {
                             tts.configure(
                                 payload.optString("enginePackage", "").takeIf { it.isNotBlank() },
                                 payload.optString("voiceName", "").takeIf { it.isNotBlank() },
-                                payload.optDouble("speechRate", tts.speechRate().toDouble()).toFloat()
+                                payload.optDouble("speechRate", tts.speechRate().toDouble()).toFloat(),
+                                payload.optString("mode", "").takeIf { it.isNotBlank() }
                             )
                             sendTtsSettingsState()
                         }
@@ -434,6 +464,45 @@ class MainActivity : Activity() {
                         "TtsTest" -> {
                             tts.playTestPhrase()
                             sendTtsState(tts.state.name, tts.lastError)
+                        }
+
+                        "AdventureImport" -> {
+                            val raw = payload.optString("rawJson", "").trim()
+                            if (raw.isNotBlank()) {
+                                io.execute {
+                                    try {
+                                        val res = adventureStore.importJson(raw)
+                                        val current = session.loadSession(CAMPAIGN_ID)
+                                        send(JSONObject().put("type", "AdventureImportResult").put("payload", res.put("viewState", projectForUi(current))))
+                                    } catch (t: Throwable) {
+                                        send(JSONObject().put("type", "BridgeError").put("payload", JSONObject().put("message", safeError(t))))
+                                    }
+                                }
+                            } else {
+                                runOnUiThread {
+                                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                                        addCategory(Intent.CATEGORY_OPENABLE)
+                                        type = "application/json"
+                                    }
+                                    startActivityForResult(intent, REQUEST_IMPORT_ADVENTURE)
+                                }
+                            }
+                        }
+
+                        "AdventureFinish" -> {
+                            io.execute {
+                                try {
+                                    val ok = adventureStore.finish()
+                                    val current = session.loadSession(CAMPAIGN_ID)
+                                    send(JSONObject().put("type", "AdventureFinishResult").put("payload", JSONObject().put("ok", ok).put("viewState", projectForUi(current))))
+                                } catch (t: Throwable) {
+                                    send(JSONObject().put("type", "BridgeError").put("payload", JSONObject().put("message", safeError(t))))
+                                }
+                            }
+                        }
+
+                        "AdventureContextQuery" -> {
+                            send(JSONObject().put("type", "AdventureContextResult").put("payload", adventureStore.masterContext()))
                         }
 
                         "GeminiSettingsGet" -> sendSettingsState()
@@ -1234,9 +1303,12 @@ class MainActivity : Activity() {
         val runtimeState = runtimeSettings.statusJson()
         run { val keys = runtimeState.keys(); while (keys.hasNext()) { val key = keys.next(); geminiState.put(key, runtimeState.get(key)) } }
         geminiState.put("ttsAudioConfigured", tts.isReady())
-        geminiState.put("ttsMode", "ANDROID_INSTALLED_ENGINE")
+        geminiState.put("ttsMode", tts.mode().wireName)
         out.put("gemini", geminiState)
         out.put("tts", ttsStatusJson(includeCatalogs = false))
+        adventureStore.getActiveAdventureSummary()?.let {
+            out.put("activeAdventure", it)
+        }
         out.put("worldStatus", JSONObject()
             .put("active", game.hexWorld != null && game.npcs.isNotEmpty())
             .put("schedulerActive", true)
@@ -1263,7 +1335,7 @@ class MainActivity : Activity() {
         val runtime = runtimeSettings.statusJson()
         run { val keys = runtime.keys(); while (keys.hasNext()) { val key = keys.next(); payload.put(key, runtime.get(key)) } }
         payload.put("ttsAudioConfigured", tts.isReady())
-        payload.put("ttsMode", "ANDROID_INSTALLED_ENGINE")
+        payload.put("ttsMode", tts.mode().wireName)
         send(JSONObject().put("type", "GeminiSettingsState").put("payload", payload))
         sendTtsSettingsState()
     }
@@ -1286,9 +1358,10 @@ class MainActivity : Activity() {
             .put("enginePackage", tts.selectedEnginePackage() ?: JSONObject.NULL)
             .put("voiceName", tts.selectedVoiceName() ?: JSONObject.NULL)
             .put("speechRate", tts.speechRate())
-            .put("mode", "ANDROID_INSTALLED_ENGINE")
+            .put("mode", tts.mode().wireName)
             .put("error", tts.lastError ?: JSONObject.NULL)
         if (includeCatalogs) {
+            payload.put("modes", JSONArray(listOf("GEMINI_TTS", "KOKORO_INSTALLED", "ANDROID_TTS", "OFF")))
             payload.put("engines", JSONArray(tts.engineOptions().map { e ->
                 JSONObject()
                     .put("packageName", e.packageName)
@@ -1484,6 +1557,9 @@ class MainActivity : Activity() {
         val message = t.message.orEmpty()
         return when {
             message.startsWith("GEMINI_") -> message
+            message.startsWith("INVALID_") || message.startsWith("INCOMPATIBLE_") ||
+                message.startsWith("EMPTY_") || message.startsWith("MISSING_") ||
+                message.startsWith("ENEMY_") || message.startsWith("SECRET_") -> message
             message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_NPC_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNSUPPORTED_PORTRAIT_KIND", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER", "NO_CHARACTER", "CHARACTER_ALREADY_EXISTS", "RANDOM_CHARACTER_NO_VALID_CLASS", "INVALID_CHARACTER_SHEET", "CHARACTER_PROFILE_MISMATCH", "CHARACTER_ID_EXISTS", "CHARACTER_ITEM_PROFILE_MISMATCH", "ITEM_ID_EXISTS", "INVALID_CHARACTER_NAME", "CHARACTER_RECREATE_AFTER_START", "INVALID_CHARACTER_COMMAND", "CHARACTER_COMMAND_ALREADY_APPLIED", "CHARACTER_SELECTION_SAVE_FAILED", "CHARACTER_PLAYER_CONTROLLED", "CHARACTER_MASTER_CONTROLLED", "CHARACTER_CURATOR_APPROVAL_REQUIRED", "CHARACTER_NOT_CURATED", "UNKNOWN_PROPOSAL", "INVALID_PROPOSAL_ID", "INVALID_PROPOSAL_CONTENT", "PROPOSAL_ID_COLLISION", "PROPOSAL_ALREADY_REVIEWED", "CHARACTER_ACTOR_PROTECTED", "GROUP_ACTION_REQUIRES_PLAYER_DECISION") -> message
             else -> t::class.java.simpleName
         }
@@ -1500,6 +1576,7 @@ class MainActivity : Activity() {
 
     override fun onDestroy() {
         io.shutdownNow()
+        if (::geminiTts.isInitialized) geminiTts.shutdown()
         if (::tts.isInitialized) tts.shutdown()
         if (::db.isInitialized) db.close()
         if (::webView.isInitialized) webView.destroy()

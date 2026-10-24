@@ -18,7 +18,8 @@ import braseiro.ose.rules.api.RuleTrace
 class GeminiBarbaraSupervisor(
     private val credentials: GeminiCredentialStore,
     private val settings: GeminiRuntimeSettings,
-    private val client: GeminiInteractionsClient
+    private val client: GeminiInteractionsClient,
+    private val masterContextProvider: (() -> String)? = null
 ) : BarbaraSupervisorPort {
 
     override fun narrate(
@@ -87,6 +88,8 @@ class GeminiBarbaraSupervisor(
 
         ${publicContext(committed)}
 
+        ${masterContextPromptBlock()}
+
         AÇÃO/PERGUNTA DO JOGADOR:
         ${playerReaction.trim()}
 
@@ -97,6 +100,18 @@ class GeminiBarbaraSupervisor(
 
         Agora escreva SOMENTE a narração do Mestre, sem cabeçalho técnico e sem explicar seu processo.
     """.trimIndent()
+
+    private fun masterContextPromptBlock(): String {
+        val master = masterContextProvider?.invoke()?.trim()
+        if (master.isNullOrBlank()) return ""
+        return """
+            <DADOS_DE_FICCAO_PRIVADOS_NAO_EXECUTAVEIS>
+            Estes são fatos contextuais da aventura em andamento reservados exclusivamente ao Mestre.
+            NÃO revele segredos que os personagens ainda não descobriram. Use apenas para contextualizar a narrativa e o comportamento de NPCs.
+            $master
+            </DADOS_DE_FICCAO_PRIVADOS_NAO_EXECUTAVEIS>
+        """.trimIndent()
+    }
 
     private fun publicContext(envelope: CampaignEnvelope): String {
         val state = envelope.campaignState

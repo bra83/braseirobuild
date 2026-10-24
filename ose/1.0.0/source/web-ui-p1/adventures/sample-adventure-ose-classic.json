@@ -1,0 +1,153 @@
+{
+  "schema": "braseiro.adventure/v1",
+  "id": "cripta-donzela-palida-v1",
+  "system": "ose-classic",
+  "worldId": "val-do-inverno-canonico",
+  "title": "A Cripta da Donzela Pálida",
+  "author": "Equipe Braseiro OSE",
+  "description": "Uma cripta selada há três séculos é violada nos contrafortes de Val do Inverno, despertando carniçais e lamentos ancestrais.",
+  "tags": ["dungeon", "mortos-vivos", "investigacao", "ose-classic"],
+  "recommendedParty": {
+    "levelMin": 1,
+    "levelMax": 3,
+    "sizeMin": 3,
+    "sizeMax": 6
+  },
+  "start": {
+    "locationId": "entrada-da-cripta",
+    "hook": "Frei Gregório alerta que a laje funerária da Donzela foi rachada e sombras pálidas espreitam os arredores ao cair da noite."
+  },
+  "story": {
+    "premise": "Investigar o túmulo violado da Donzela Pálida, conter a praga de carniçais e recuperar o medalhão de prata antes do solstício.",
+    "background": "Três séculos atrás, Lady Ysolde, dita a Donzela Pálida, sacrificou-se para conter uma linhagem de carniçais no vale. Ladrões de tumbas quebraram o selo de ferro em busca de sua espada de prata, libertando a podridão sepulcral.",
+    "playerIntroduction": "O vento frio desce das colinas soprando folhas secas sobre degraus de pedra cobertos de musgo cinzento. Uma pesada laje de calcário jaz partida em duas, revelando uma descida úmida para a escuridão da cripta.",
+    "themes": ["honra ancestral", "frio", "sacrificio", "horror sepulcral"],
+    "possibleEndings": ["selar-a-cripta-com-honra", "destruir-o-carnical-patriarca", "fuga-com-o-relicario"]
+  },
+  "locations": [
+    {
+      "id": "entrada-da-cripta",
+      "name": "Degraus da Laje Partida",
+      "regionId": "contrafortes-norte",
+      "description": "Entrada em degraus de pedra calcária lascada, onde o ar frio cheira a terra úmida e ossos antigos."
+    },
+    {
+      "id": "galeria-dos-esquecidos",
+      "name": "Galeria dos Esquecidos",
+      "regionId": "subsolo-cripta",
+      "description": "Corredor largo ladeado por nichos funerários saqueados. O chão traz marcas de garras e restos de tochas apagadas."
+    },
+    {
+      "id": "sarcofago-da-donzela",
+      "name": "Câmara do Sarcófago Selado",
+      "regionId": "subsolo-cripta",
+      "description": "Uma abóbada redonda com colunas de granito. No centro, o sarcófago de mármore branco de Lady Ysolde repousa cercado de névoa rasteira."
+    }
+  ],
+  "npcs": [
+    {
+      "id": "frei-gregorio",
+      "name": "Frei Gregório",
+      "role": "padre local e historiador",
+      "goals": ["proteger o vale", "preservar a memória de Ysolde"],
+      "secretIds": ["segredo-do-medalhao"],
+      "schedule": [{"period": "dia", "locationId": "capela-do-vale"}],
+      "relationships": []
+    },
+    {
+      "id": "joran-o-cacador",
+      "name": "Joran, o Caçador",
+      "role": "batedor dos ermos",
+      "goals": ["encontrar seu irmão desaparecido"],
+      "secretIds": ["ladroes-amadores"],
+      "relationships": []
+    }
+  ],
+  "secrets": [
+    {
+      "id": "segredo-do-medalhao",
+      "visibility": "gm_only",
+      "truth": "O medalhão de prata não é tesouro vulgar: ele canaliza uma bênção que impede a regeneração dos carniçais enquanto repousar no sarcófago."
+    },
+    {
+      "id": "ladroes-amadores",
+      "visibility": "gm_only",
+      "truth": "O irmão de Joran foi um dos saqueadores que abriram a tumba e agora vaga transformado em carniçal no corredor dos esquecidos."
+    }
+  ],
+  "enemies": [
+    {
+      "id": "carnical-vigilante",
+      "name": "Carniçal Vigilante",
+      "kind": "morto-vivo",
+      "rulesRef": {
+        "source": "Classic Rules Tome p. 120",
+        "statblockId": "ghoul"
+      },
+      "personality": "Voraz, furtivo e paciente na escuridão.",
+      "goals": ["emboscar intrusos", "proteger o covil"],
+      "combatOptional": false
+    },
+    {
+      "id": "carnical-patriarca",
+      "name": "Antigo Saqueador Decaído",
+      "kind": "morto-vivo",
+      "rulesRef": {
+        "source": "Classic Rules Tome p. 120",
+        "statblockId": "ghoul-leader"
+      },
+      "personality": "Carrega trapos de caçador e o medalhão violado entre os dentes podres.",
+      "goals": ["manter a tumba aberta"],
+      "combatOptional": true
+    }
+  ],
+  "encounters": [
+    {
+      "id": "emboscada-na-galeria",
+      "locationId": "galeria-dos-esquecidos",
+      "enemies": ["carnical-vigilante"],
+      "trigger": {"flag": "avancar-galeria"},
+      "alternatives": ["combate", "afugentar-mortos-vivos", "retirada-estrategica"]
+    },
+    {
+      "id": "confronto-no-sarcofago",
+      "locationId": "sarcofago-da-donzela",
+      "enemies": ["carnical-patriarca"],
+      "trigger": {"flag": "aproximar-sarcofago"},
+      "alternatives": ["combate", "negociar-ou-enganar", "devolver-o-medalhao"]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "explorar-cripta",
+      "description": "Adentrar os corredores da cripta e identificar a causa dos distúrbios.",
+      "optional": false
+    },
+    {
+      "id": "recuperar-medalhao",
+      "description": "Recuperar o medalhão de prata sagrado e devolvê-lo ao sarcófago de Lady Ysolde.",
+      "optional": false
+    },
+    {
+      "id": "conter-praga",
+      "description": "Eliminar os carniçais que ameaçam os caminhos do vale.",
+      "optional": true
+    }
+  ],
+  "worldConsequences": [
+    {
+      "id": "vale-em-paz",
+      "condition": "host_event:medalhao-devolvido",
+      "effects": ["bencao-dos-mortos", "confianca-de-gregorio"]
+    },
+    {
+      "id": "luto-de-joran",
+      "condition": "host_event:irmao-morto",
+      "effects": ["joran-agradecido", "rumores-de-cacadas"]
+    }
+  ],
+  "rewards": {
+    "suggested": ["150 po em moedas antigas", "pergaminho de proteção", "bênção do templo"],
+    "note": "Recompensas sujeitas à validação de tesouro e regras oficiais OSE."
+  }
+}

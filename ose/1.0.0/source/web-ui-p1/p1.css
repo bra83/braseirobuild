@@ -173,3 +173,6 @@ button { cursor: pointer; }
   .map-viewport { min-height: 230px; }
   .overlay { padding-top: 8px; }
 }
+
+.avatar-thumb{width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;border:1px solid #705021;display:inline-block}
+.adventure-panel{border-left:4px solid #b38642}

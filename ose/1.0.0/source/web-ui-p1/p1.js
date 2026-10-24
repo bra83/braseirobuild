@@ -60,7 +60,9 @@ window.BraseiroReceive=(raw)=>{
   else if(m.type==='SceneImageResult'){postNative('ViewState',{request:'after-scene-image'});showToast('Ilustração da cena atualizada.');}
   else if(m.type==='ScenePromptShareResult')showToast('Abrindo o Gemini com o prompt da cena…');
   else if(m.type==='PortraitPromptShareResult')showToast('Abrindo o Gemini com o prompt do retrato…');
-  else if(m.type==='PresentationImageSaved'){postNative('ViewState',{request:'after-media-save'});showToast(p.scope==='SCENE'?'Imagem da cena importada.':'Imagem salva e vinculada ao item.');}
+  else if(m.type==='PresentationImageSaved'){postNative('ViewState',{request:'after-media-save'});showToast(p.scope==='SCENE'?'Imagem da cena importada.':p.scope==='CHARACTER'?'Retrato do personagem atualizado.':p.scope==='NPC'?'Retrato do NPC atualizado.':'Imagem salva e vinculada.');}
+  else if(m.type==='AdventureImportResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok?`Aventura carregada: ${p.title||''}`:p.cancelled?'Importação cancelada.':'Erro ao importar aventura.');}
+  else if(m.type==='AdventureFinishResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok?'Aventura concluída. O legado e o mundo foram preservados.':'Nenhuma aventura ativa.');}
   else if(m.type==='ManualDiceResult'){diceHistory.unshift({rolls:p.rolls||[],total:p.total,sides:p.sides,count:p.count,modifier:p.modifier||0});diceHistory=diceHistory.slice(0,12);render();showToast(`Resultado: ${p.total}`);}
   else if(m.type==='RuleEvidenceListResult'){ruleLibrary=p.rules||[];ruleLibraryLoaded=true;render();}
   else if(m.type==='RuleEvidenceResult'){showRuleDetail(p);}
@@ -111,19 +113,33 @@ function renderSession(){
  const raw=viewState?.sceneDecisions||[];
  const ds=raw.length===3?raw:(fallbackDecisions[stateName]||fallbackDecisions.active);
  const presentNpcs=viewState?.presentation?.presentNpcs||[];
- const npcPanel=presentNpcs.length?`<div class="panel"><h3>NPCs presentes</h3><div class="text-entity-list">${presentNpcs.map(n=>`<div class="text-entity"><b>${esc(n.name)}</b></div>`).join('')}</div></div>`:'';
+ const npcPanel=presentNpcs.length?`<div class="panel"><h3>NPCs presentes</h3><div class="text-entity-list">${presentNpcs.map(n=>{const nPort=n.portraitUrl||viewState?.presentation?.npcPortraits?.[n.npcId];return `<div class="text-entity">${nPort?`<img src="${esc(nPort)}" class="avatar-thumb" alt="Retrato">`:''}<b>${esc(n.name)}</b>${hasNative()?`<button class="photo-action" data-photo-npc="${esc(n.npcId)}" title="Retrato do NPC">📷</button>`:''}</div>`}).join('')}</div></div>`:'';
  return `<div class="kicker">Sessão ativa</div>
   <div class="panel"><div class="row"><div><span class="pill">${profileLabel()}</span><h2 style="margin-top:7px">Cena atual</h2></div></div>
   ${sceneUrl?img(sceneUrl,'Ilustração da cena atual','scene-image'):''}
   <div id="visibleNarration" class="narrative-text">${paragraphs(narration)}</div>
   <div class="session-tools"><button class="small" data-tts="play">▶ OUVIR</button><button class="small" data-tts="stop">■ PARAR</button><button class="small" data-tts="replay">↻ REPETIR</button><button class="small" data-scene-prompt>▧ GERAR CENA</button><button class="small" data-scene-import data-scene-id="${esc(sceneId)}">⇩ IMPORTAR</button></div></div>
   ${npcPanel}
+  ${renderAdventureCard()}
   ${renderCuratorPanel()}
   ${renderCompanionOpinions()}
   ${renderMasterContinue()}
   ${renderRuleTrace(lastRuleTrace||viewState?.lastRuleTrace)}
   <div class="panel"><h3>O que você faz?</h3><div class="suggestions">${ds.map(x=>`<button class="suggestion" data-suggest="${esc(x.reaction||x[1]||'')}" data-intent="${esc(x.mechanicalIntent||'')}">${esc(x.label||x[0]||'AÇÃO')}</button>`).join('')}</div><textarea id="reactionInput" placeholder="Ex.: examino as pegadas, pergunto o que há por perto, sigo com cuidado..."></textarea><button class="primary" data-react ${hasNative()&&!(viewState?.party||[]).some(m=>(m.controlMode||'PLAYER')==='PLAYER')?'disabled':''}>Enviar ação</button><button class="secondary" style="margin-top:7px" data-go="dice">Abrir rolagem de dados</button></div>
   <div class="panel"><h3>Diário</h3><div class="log friendly-log">${esc(localLog.slice(-8).join('\n')||'Sem eventos registrados.')}</div></div>`;
+}
+function renderAdventureCard(){
+ const adv=viewState?.activeAdventure;
+ if(!adv)return `<div class="panel adventure-panel"><h3>Aventuras</h3><p class="note">Nenhum pacote de aventura ativo. O mundo segue em sandbox ou você pode importar um pacote JSON.</p><div class="row"><button class="small primary" data-adventure-import>IMPORTAR AVENTURA JSON</button><button class="small secondary" data-adventure-load-classic>EXEMPLO CLÁSSICO</button><button class="small secondary" data-adventure-load-advanced>EXEMPLO AVANÇADO</button></div></div>`;
+ return `<div class="panel adventure-panel"><div class="row"><div><span class="pill">${esc(adv.system||'OSE')}</span><h3 style="margin-top:6px">${esc(adv.title||'Aventura')}</h3></div></div><p><b>Premissa:</b> ${esc(adv.premise||'')}</p><p class="note">${adv.locationsCount||0} locais cadastrados · ${adv.npcsCount||0} NPCs registrados · ${adv.objectivesCount||0} objetivos</p><div class="row" style="margin-top:8px"><button class="small secondary" data-adventure-import>SUBSTITUIR JSON</button><button class="small secondary" data-adventure-finish>CONCLUIR AVENTURA (PRESERVAR MUNDO)</button></div></div>`;
+}
+function loadSampleAdventure(path){
+ fetch(path).then(r=>r.text()).then(raw=>{
+  postNative('AdventureImport',{rawJson:raw});
+  showToast('Carregando aventura canônica…');
+ }).catch(_e=>{
+  showToast('Não foi possível ler o arquivo da aventura.');
+ });
 }
 function paragraphs(text){return String(text||'').split(/\n\s*\n/).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('')}
 function traceStatusLabel(s){const m={CANONICAL_RULE:'Regra canônica',CANONICAL_PROCEDURE:'Procedimento canônico',OPTIONAL_RULE:'Regra opcional',PRODUCT_PRESET:'Contrato do produto',PROCEDURAL_TABLE:'Tabela/procedimento',ADVENTURE_LOCAL_RULE:'Regra da aventura',REFEREE_JUDGMENT:'Julgamento do Mestre',MISSING_EVIDENCE:'Evidência insuficiente'};return m[s]||String(s||'Sem rastreio')}
@@ -233,7 +249,9 @@ function renderSheet(){
  const inv=(viewState?.inventory||(!hasNative()?[{itemId:'demo-mace',catalogId:'ADV_EQUIP_WEAPON_PURCHASE_09',quantity:1,equipped:false,kind:'WEAPON'}]:[])).filter(it=>!hasNative()||it.ownerId===demo.characterId);
  const editPanel=editingCharacter?`<div class="panel edit-character"><h3>Editar ficha</h3><label class="field">Nome do personagem</label><input id="editCharacterName" maxlength="80" value="${esc(demo.name||'')}"><p class="note">O nome pode ser alterado a qualquer momento. Raça, classe, atributos, HP inicial e valores derivados continuam protegidos pelas regras OSE. Antes da primeira cena, use “Criar outro personagem” para refazer a parte mecânica.</p><div class="row"><button class="primary" data-save-character>Salvar</button><button class="secondary" data-cancel-character-edit>Cancelar</button></div></div>`:'';
  const manage=hasNative()?`${renderCharacterControlSelect({...demo,controlMode:(viewState?.characterControlModes||{})[demo.characterId]||"PLAYER"})}<button class="secondary" data-add-character>ADICIONAR PERSONAGEM</button><button class="secondary" data-delete-character="${esc(demo.characterId)}">EXCLUIR FICHA</button>`:'';
- return `<div class="hero panel text-first-hero"><div><div class="kicker">Personagem</div><h2>${esc(demo.name||'Aventureiro')}</h2><p><b>${esc(raceLabel(demo.raceId||'HUMAN'))}</b> · ${esc((demo.classIds||[]).map(classLabel).join(' / ')||'—')} · ${profileLabel()}</p><div class="vitals"><div class="vital"><span>HP</span><b>${hpText(demo)}</b></div><div class="vital"><span>CA</span><b>${demo.armorClassDescending??'—'}</b></div><div class="vital"><span>NÍVEL</span><b>${Object.values(demo.levelByClass||{})[0]??1}</b></div></div></div></div>
+ const portraitUrl=viewState?.presentation?.characterPortraits?.[demo.characterId];
+  const portraitHtml=`<div class="portrait">${portraitUrl?`<img src="${esc(portraitUrl)}" alt="Retrato">`:"👤"}${hasNative()?`<button class="small photo-action" data-photo-character="${esc(demo.characterId)}" title="Alterar retrato">📷</button>`:""}</div>`;
+  return `<div class="hero panel text-first-hero">${portraitHtml}<div><div class="kicker">Personagem</div><h2>${esc(demo.name||'Aventureiro')}</h2><p><b>${esc(raceLabel(demo.raceId||'HUMAN'))}</b> · ${esc((demo.classIds||[]).map(classLabel).join(' / ')||'—')} · ${profileLabel()}</p><div class="vitals"><div class="vital"><span>HP</span><b>${hpText(demo)}</b></div><div class="vital"><span>CA</span><b>${demo.armorClassDescending??'—'}</b></div><div class="vital"><span>NÍVEL</span><b>${Object.values(demo.levelByClass||{})[0]??1}</b></div></div></div></div>
  ${editPanel}
  <div class="panel"><div class="attrs">${attrPairs(demo.attributes).map(([k,v])=>`<div class="attr"><b>${v??'—'}</b><span>${k}</span></div>`).join('')}</div><div class="sheet-actions"><button class="small" data-edit-character>EDITAR FICHA</button>${manage}<button class="small" data-export-character>EXPORTAR FICHA.JSON</button><button class="small" data-import-character>IMPORTAR FICHA.JSON</button></div></div>
  <div class="panel"><h3>Inventário</h3><div class="inventory-grid">${inv.length?inv.map(renderInventoryItem).join(''):'<p class="note">Inventário vazio.</p>'}</div></div>${hasNative()?renderNativeLoadout():renderDemoShop()}`;
@@ -309,7 +327,7 @@ function renderRetainerPanel(){
  </div>`;
 }
 
-function renderCompany(){const party=viewState?.party||(!hasNative()?[{characterId:'demo-character',name:'Aventureiro',classIds:['FIGHTER'],hpCurrentNumerator:8,hpMaxNumerator:8,hpDenominator:1}]:[]);return `<div class="kicker">Companhia</div><div class="panel"><h2>${party.length?'Companhia atual':'Ainda vazia'}</h2>${party.length?`<div class="text-entity-list">${party.map(m=>`<div class="text-entity character-management ${m.characterId===viewState?.selectedCharacterId?'active':''}"><div><b>${esc(m.name)}</b><span>${esc((m.classIds||[]).map(classLabel).join(' / '))} · HP ${hpText(m)} · Nível ${esc(Object.values(m.levelByClass||{})[0]||1)}</span></div>${renderCharacterControlSelect(m)}<div class="character-actions"><button data-character-select="${esc(m.characterId)}">ABRIR FICHA</button><button class="secondary" data-delete-character="${esc(m.characterId)}">EXCLUIR FICHA</button></div></div>`).join('')}</div><p class="note">A companhia viaja e ocupa o mundo como um único grupo.</p>`:'<p>Crie seu primeiro personagem para formar a companhia.</p>'}<div class="character-actions"><button class="primary" data-add-character>ADICIONAR PERSONAGEM</button><button class="secondary" data-import-character>IMPORTAR FICHA.JSON</button></div></div>${renderCuratorPanel()}${renderCompanionOpinions()}${renderMasterContinue()}${renderRetainerPanel()}`}
+function renderCompany(){const party=viewState?.party||(!hasNative()?[{characterId:'demo-character',name:'Aventureiro',classIds:['FIGHTER'],hpCurrentNumerator:8,hpMaxNumerator:8,hpDenominator:1}]:[]);return `<div class="kicker">Companhia</div><div class="panel"><h2>${party.length?'Companhia atual':'Ainda vazia'}</h2>${party.length?`<div class="text-entity-list">${party.map(m=>{const mPort=viewState?.presentation?.characterPortraits?.[m.characterId];return `<div class="text-entity character-management ${m.characterId===viewState?.selectedCharacterId?'active':''}"><div>${mPort?`<img src="${esc(mPort)}" class="avatar-thumb" alt="Retrato">`:""}<b>${esc(m.name)}</b><span>${esc((m.classIds||[]).map(classLabel).join(' / '))} · HP ${hpText(m)} · Nível ${esc(Object.values(m.levelByClass||{})[0]||1)}</span></div>${renderCharacterControlSelect(m)}<div class="character-actions"><button data-character-select="${esc(m.characterId)}">ABRIR FICHA</button>${hasNative()?`<button class="secondary photo-action" data-photo-character="${esc(m.characterId)}" title="Alterar retrato">📷</button>`:""}<button class="secondary" data-delete-character="${esc(m.characterId)}">EXCLUIR FICHA</button></div></div>`}).join('')}</div><p class="note">A companhia viaja e ocupa o mundo como um único grupo.</p>`:'<p>Crie seu primeiro personagem para formar a companhia.</p>'}<div class="character-actions"><button class="primary" data-add-character>ADICIONAR PERSONAGEM</button><button class="secondary" data-import-character>IMPORTAR FICHA.JSON</button></div></div>${renderCuratorPanel()}${renderCompanionOpinions()}${renderMasterContinue()}${renderRetainerPanel()}`}
 
 function renderDicePanel(){return `<div class="panel dice-panel"><div class="row"><h3>🎲 Dados</h3><span class="note">Rolagem manual; não altera a campanha sozinha.</span></div><div class="dice-buttons">${[4,6,8,10,12,20,100].map(s=>`<button class="small" data-die="${s}">d${s}</button>`).join('')}</div><div class="dice-controls"><label>Quantidade<input id="diceCount" type="number" min="1" max="20" value="1"></label><label>Modificador<input id="diceModifier" type="number" min="-100" max="100" value="0"></label></div>${diceHistory.length?`<div class="dice-history">${diceHistory.map(d=>`<div><b>${d.count}d${d.sides}${d.modifier?`${d.modifier>0?'+':''}${d.modifier}`:''} = ${d.total}</b><small>${esc((d.rolls||[]).join(', '))}</small></div>`).join('')}</div>`:''}</div>`}
 function renderDiceScreen(){return `<div class="kicker">Rolagem de dados</div>${renderDicePanel()}<div class="panel"><p class="note">Rolagens manuais são livres e não alteram a campanha sozinhas. Quando uma regra OSE exige um teste, o motor usa a rolagem autoritativa e registra a regra consultada na sessão.</p></div>`}
@@ -356,7 +374,13 @@ function wireCurrentScreen(){
  document.querySelectorAll('[data-rule-id]').forEach(b=>b.onclick=()=>postNative('RuleEvidenceQuery',{ruleId:b.dataset.ruleId}));
  el('librarySearch')?.addEventListener('input',e=>{libraryQuery=e.currentTarget.value;render()});
  document.querySelector('[data-commit-draft]')?.addEventListener('click',e=>{const d=e.currentTarget.dataset.commitDraft,name=el('creationName')?.value.trim();if(!name)return showToast('Digite um nome.');e.currentTarget.disabled=true;const adv=String(viewState?.campaign?.profile||'').includes('ADVANCED');const method=adv?(el('creationMethod')?.value||'ADVANCED_BASIC'):'CLASSIC';const race=adv&&method==='ADVANCED_METHOD'?(el('creationRace')?.value||null):null;postNative('CharacterCreationCommit',{draftId:d,characterId:'char-'+Date.now()+'-'+Math.random().toString(36).slice(2,9),name,method,classIds:[el('creationClass').value],raceId:race||'',adjustments:[]})});
- document.querySelectorAll('[data-photo-item]').forEach(b=>b.onclick=()=>chooseMedia('ITEM',b.dataset.photoItem));
+ document.querySelectorAll('[data-photo-character]').forEach(b=>b.onclick=()=>chooseMedia('CHARACTER',b.dataset.photoCharacter));
+  document.querySelectorAll('[data-photo-npc]').forEach(b=>b.onclick=()=>chooseMedia('NPC',b.dataset.photoNpc));
+  document.querySelectorAll('[data-adventure-import]').forEach(b=>b.onclick=()=>postNative('AdventureImport',{}));
+  document.querySelectorAll('[data-adventure-finish]').forEach(b=>b.onclick=()=>{if(confirm('Concluir esta aventura e arquivar seus feitos? Seus personagens, itens, relações e mundo serão integralmente preservados.'))postNative('AdventureFinish',{})});
+  document.querySelectorAll('[data-adventure-load-classic]').forEach(b=>b.onclick=()=>loadSampleAdventure('adventures/sample-adventure-ose-classic.json'));
+  document.querySelectorAll('[data-adventure-load-advanced]').forEach(b=>b.onclick=()=>loadSampleAdventure('adventures/sample-adventure-ose-advanced.json'));
+  document.querySelectorAll('[data-photo-item]').forEach(b=>b.onclick=()=>chooseMedia('ITEM',b.dataset.photoItem));
  document.querySelectorAll('[data-retainer-proposal]').forEach(b=>b.onclick=()=>{
    const npcId=b.dataset.retainerProposal,actor=viewState?.selectedCharacterId;
    const npc=(viewState?.retainerCandidates||[]).find(n=>n.npcId===npcId);
@@ -417,23 +441,37 @@ el('mediaPicker').addEventListener('change',()=>{const f=el('mediaPicker').files
 
 document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.screen));
 el('settingsButton').onclick=()=>{el('settingsOverlay').classList.remove('hidden');postNative('GeminiSettingsGet',{});postNative('TtsSettingsGet',{});updateSettingsStatus();updateTtsSettings()};el('settingsClose').onclick=()=>el('settingsOverlay').classList.add('hidden');
-function updateSettingsStatus(){if(!el('textSceneStatus'))return;el('textSceneStatus').textContent=geminiState.textSceneConfigured?'Chave configurada':'Chave não configurada';if(geminiState.textModel&&!el('textModel').dataset.dirty)el('textModel').value=geminiState.textModel;if(geminiState.imageModel&&!el('imageModel').dataset.dirty)el('imageModel').value=geminiState.imageModel;const ws=viewState?.worldStatus||{};el('worldStatus').textContent=ws.active?'Ativo — mapa, NPCs persistentes e agenda de eventos carregados.':'Ainda não inicializado.';const lib=viewState?.libraryStatus||{};el('libraryStatus').textContent=lib.embedded?`Regras incorporadas: ${profileLabel()}. Autoridade carregada.`:'Biblioteca não carregada.'}
+function updateSettingsStatus(){if(!el('textSceneStatus'))return;el('textSceneStatus').textContent=geminiState.textSceneConfigured?'Chave configurada':'Chave não configurada';if(geminiState.textModel&&!el('textModel').dataset.dirty)el('textModel').value=geminiState.textModel;if(geminiState.imageModel&&!el('imageModel').dataset.dirty)el('imageModel').value=geminiState.imageModel;const ws=viewState?.worldStatus||{};if(geminiState.ttsModel&&el('ttsModel')&&!el('ttsModel').dataset.dirty)el('ttsModel').value=geminiState.ttsModel;if(el('ttsAudioStatus'))el('ttsAudioStatus').textContent=geminiState.ttsAudioConfigured?'Chave configurada':'Não configurada';el('worldStatus').textContent=ws.active?'Ativo — mapa, NPCs persistentes e agenda de eventos carregados.':'Ainda não inicializado.';const lib=viewState?.libraryStatus||{};el('libraryStatus').textContent=lib.embedded?`Regras incorporadas: ${profileLabel()}. Autoridade carregada.`:'Biblioteca não carregada.'}
 function updateTtsSettings(){
- const engine=el('ttsEngine'),voice=el('ttsVoiceSelect'),rate=el('ttsRate'),rateValue=el('ttsRateValue'),status=el('ttsLocalStatus');if(!engine||!voice)return;
+ const engine=el('ttsEngine'),voice=el('ttsVoiceSelect'),rate=el('ttsRate'),rateValue=el('ttsRateValue'),status=el('ttsLocalStatus');
+ const modeSelect=el('ttsModeSelect'),geminiVoice=el('ttsGeminiVoiceSelect');if(!engine||!voice)return;
+ if(modeSelect&&ttsState.mode)modeSelect.value=ttsState.mode;
+ if(geminiVoice&&geminiState.ttsVoice)geminiVoice.value=geminiState.ttsVoice;
  const selectedEngine=String(ttsState.enginePackage||'');const selectedVoice=String(ttsState.voiceName||'');
  engine.innerHTML=(ttsState.engines||[]).map(e=>`<option value="${esc(e.packageName)}" ${e.packageName===selectedEngine?'selected':''}>${esc(e.label||e.packageName)}${e.preferredKokoro?' · Kokoro':''}</option>`).join('')||`<option value="">Nenhum motor detectado</option>`;
  voice.innerHTML=(ttsState.voices||[]).map(v=>`<option value="${esc(v.name)}" ${v.name===selectedVoice?'selected':''}>${esc(v.name)} · ${esc(v.localeTag||'pt')} ${v.networkRequired?'· rede':'· local'}</option>`).join('')||`<option value="">Nenhuma voz PT detectada</option>`;
  if(rate&&!rate.dataset.dirty)rate.value=String(ttsState.speechRate||1);if(rateValue)rateValue.textContent=Number(rate?.value||ttsState.speechRate||1).toFixed(2).replace('.',',')+'×';
- if(status)status.textContent=ttsState.ready?`${(ttsState.enginePackage||'Motor Android')} · ${(ttsState.voiceName||'voz automática')} · pronto`:(ttsState.error?`Erro: ${ttsState.error}`:'Inicializando motor de voz…');
+ if(status){
+  const m=ttsState.mode||'ANDROID_TTS';
+  status.textContent=m==='OFF'?'Narração em voz desligada (OFF)':m==='GEMINI_TTS'?`Gemini TTS · Voz: ${geminiState.ttsVoice||'Kore'} · pronto`:ttsState.ready?`${(ttsState.enginePackage||'Motor Android')} · ${(ttsState.voiceName||'voz automática')} · pronto`:(ttsState.error?`Erro: ${ttsState.error}`:'Inicializando motor de voz…');
+ }
 }
 ['textModel','imageModel'].forEach(id=>el(id)?.addEventListener('input',e=>e.currentTarget.dataset.dirty='1'));
-el('saveModels')?.addEventListener('click',()=>{const payload={textModel:el('textModel').value.trim(),imageModel:el('imageModel').value.trim()};if(postNative('GeminiRuntimeSettingsSet',payload)){['textModel','imageModel'].forEach(id=>delete el(id).dataset.dirty);showToast('Modelos salvos.')}});
-document.querySelectorAll('[data-key-save]').forEach(b=>b.onclick=()=>{const input=el('textSceneKey'),key=input.value.trim();if(!key)return showToast('Cole uma chave antes de salvar.');if(postNative('GeminiCredentialSet',{slot:'TEXT_SCENE',key})){input.value='';showToast('Chave salva no armazenamento seguro.')}});
-document.querySelectorAll('[data-key-test]').forEach(b=>b.onclick=()=>{if(postNative('GeminiCredentialTest',{slot:'TEXT_SCENE'}))showToast('Testando modelo e conexão…')});
-document.querySelectorAll('[data-key-delete]').forEach(b=>b.onclick=()=>postNative('GeminiCredentialDelete',{slot:'TEXT_SCENE'}));
+el('saveModels')?.addEventListener('click',()=>{const payload={textModel:el('textModel').value.trim(),imageModel:el('imageModel').value.trim(),ttsModel:el('ttsModel')?.value?.trim()||''};if(postNative('GeminiRuntimeSettingsSet',payload)){['textModel','imageModel'].forEach(id=>delete el(id).dataset.dirty);showToast('Modelos salvos.')}});
+document.querySelectorAll('[data-key-save]').forEach(b=>b.onclick=()=>{const slot=b.dataset.keySave||'TEXT_SCENE';const input=slot==='TTS_AUDIO'?el('ttsAudioKey'):el('textSceneKey');const key=input?.value?.trim();if(!key)return showToast('Cole uma chave antes de salvar.');if(postNative('GeminiCredentialSet',{slot,key})){input.value='';showToast('Chave salva no armazenamento seguro.')}});
+document.querySelectorAll('[data-key-test]').forEach(b=>b.onclick=()=>{const slot=b.dataset.keyTest||'TEXT_SCENE';if(postNative('GeminiCredentialTest',{slot}))showToast('Testando modelo e conexão…')});
+document.querySelectorAll('[data-key-delete]').forEach(b=>b.onclick=()=>{const slot=b.dataset.keyDelete||'TEXT_SCENE';postNative('GeminiCredentialDelete',{slot})});
 el('ttsRate')?.addEventListener('input',e=>{e.currentTarget.dataset.dirty='1';el('ttsRateValue').textContent=Number(e.currentTarget.value).toFixed(2).replace('.',',')+'×'});
 el('ttsEngine')?.addEventListener('change',()=>{postNative('TtsSettingsSet',{enginePackage:el('ttsEngine').value,voiceName:'',speechRate:Number(el('ttsRate')?.value||1)});showToast('Trocando motor de voz…')});
-el('saveTts')?.addEventListener('click',()=>{if(postNative('TtsSettingsSet',{enginePackage:el('ttsEngine')?.value||'',voiceName:el('ttsVoiceSelect')?.value||'',speechRate:Number(el('ttsRate')?.value||1)})){delete el('ttsRate').dataset.dirty;showToast('Motor e voz salvos.')}});
+el('saveTts')?.addEventListener('click',()=>{
+ const mode=el('ttsModeSelect')?.value||'ANDROID_TTS',gVoice=el('ttsGeminiVoiceSelect')?.value||'Kore';
+ const payload={enginePackage:el('ttsEngine')?.value||'',voiceName:el('ttsVoiceSelect')?.value||'',speechRate:Number(el('ttsRate')?.value||1),mode};
+ if(postNative('TtsSettingsSet',payload)){
+  delete el('ttsRate').dataset.dirty;
+  if(gVoice||el('ttsModel')?.value)postNative('GeminiRuntimeSettingsSet',{ttsVoice:gVoice,ttsModel:el('ttsModel')?.value?.trim()});
+  showToast('Motor e voz salvos.');
+ }
+});
 el('testTts')?.addEventListener('click',()=>{if(postNative('TtsTest',{}))showToast('Testando a voz selecionada…')});
 el('refreshTts')?.addEventListener('click',()=>postNative('TtsSettingsGet',{}));
 el('resetAdventure')?.addEventListener('click',()=>{const ok=confirm('RECOMEÇAR A AVENTURA?\n\nO mundo, tempo, mapa revelado e progresso da campanha serão reiniciados. Sua ficha, inventário, equipamento e configurações Gemini serão preservados.');if(!ok)return;if(postNative('ResetAdventure',{})){el('settingsOverlay').classList.add('hidden');showToast('Recomeçando a aventura com o mesmo personagem…')}});
