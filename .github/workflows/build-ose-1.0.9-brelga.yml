@@ -30,6 +30,7 @@ jobs:
         run: |
           $ErrorActionPreference='Stop'
           if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
+          & git.exe config --global core.autocrlf false
           Remove-Item $env:BUILD_ROOT -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $env:BUILD_ROOT -Force | Out-Null
 

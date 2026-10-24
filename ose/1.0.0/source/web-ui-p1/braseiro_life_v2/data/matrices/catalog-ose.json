@@ -143,14 +143,14 @@
       "baseRows": 100,
       "expandedRows": 500,
       "file": "manifestations-ose-classic.expanded500.json",
-      "sha256": "a9eeb8aa7e844a9e1f83f96e84469de8551a59649209ef15a5539d569efd80ab"
+      "sha256": "0755e7b82b3cab13449b07460416a0fbc310685f741ef7ef5f96a827ff203c92"
     },
     {
       "id": "manifestations-ose-advanced",
       "baseRows": 100,
       "expandedRows": 500,
       "file": "manifestations-ose-advanced.expanded500.json",
-      "sha256": "973daa3781049e19dd688b03474c624700dfe38f60177f578709f0e3d067c41c"
+      "sha256": "b3819fca2124f1735e54213d0eb86e0f48c95f4fb6cc2d4e121d94ee14c6601c"
     }
   ],
   "baseRows": 1600,
@@ -305,7 +305,7 @@
         "response": "responses"
       },
       "bundleFile": "packs/ose-classic.json",
-      "bundleSha256": "d71691614e0e47243872854f422435fa914db9ca95a260a077ea73fa403feb1b"
+      "bundleSha256": "3534adc9471462a01844cbd66e24d182f452f6aca635772a57aaef3241bb3886"
     },
     {
       "id": "ose-advanced",
@@ -320,7 +320,7 @@
         "response": "responses"
       },
       "bundleFile": "packs/ose-advanced.json",
-      "bundleSha256": "c46813c695011cdf9a52ed6316642a7c0cfb543e0fff8d1d4752bddf1dc60786"
+      "bundleSha256": "bd4e5a6b40df60d1a2179bf4fc4e9f0a441197087a92772091b4c8ec032cc9db"
     }
   ]
 }

@@ -15,8 +15,8 @@ O pacote instalável oficial foi compilado e assinado de forma reproduzível com
 | Campo | Valor de Evidência |
 |---|---|
 | **Arquivo Gerado** | `BRASEIRO_OSE_1.0.9_FINAL.apk` |
-| **Tamanho em Disco** | 100.464.235 bytes (~95.81 MB) |
-| **SHA-256 do Binário** | `5DB09B0327359EDB31F14DF93E3107F797CCAD039E2382CC5C1805D4C2F8CDF6` |
+| **Tamanho em Disco** | 100.334.888 bytes (~95.68 MB) |
+| **SHA-256 do Binário** | `d091b4cdf678392b18223ee82a45b95459a16beb9c4dcf9af814cbe60f47800f` |
 | **Package Name** | `braseiro.ose` |
 | **Version Code** | `10` |
 | **Version Name** | `1.0.9` |
@@ -49,12 +49,12 @@ flowchart TD
 | Bloqueador | Descrição da Resolução | Status |
 |---|---|---|
 | **P0-A** | Configurado gatilho direto de push na branch `ose/final-integration-20261024` no workflow `build-ose-1.0.9-brelga.yml` e gerado `OSE_1_0_9_FINAL_TRIGGER.txt`. | **RESOLVIDO** |
-| **P0-B** | Criado `vtt_life_bridge.js` carregado no `index.html` e integrado ao ciclo de vida do VTT em `p1.js` e `MainActivity.kt`. Eventos confirmados de sessão, avanço de dias e descanso alimentam causalmente o runtime. Teste de ponta a ponta `vtt-life-integration.test.mjs` (5/5 PASS). | **RESOLVIDO** |
-| **P0-C** | `BraseiroAdventureStore` agora utiliza diretamente o `BraseiroOseDatabase` via Room com `MIGRATION_2_3`. Tabelas `adventure_packages`, `adventure_npc_ledger` e `life_store`. Valida compatibilidade de `worldId` e presença de `start.locationId`. Teste Robolectric com fechamento e reabertura 3x aprovado. | **RESOLVIDO** |
+| **P0-B** | Integração total do Motor de Vida V2.2 real em `vtt_life_bridge.js`: utiliza `LifeRuntime`, `transact`, `sampleCrossedMatrix`, `checkMatrixCoherence`, `planAutomaticMatrices`, `buildSceneContext` e os packs OSE Classic e Advanced. Rumores e repercussões nascem exclusivamente de eventos confirmados em sessão, com garantia de idempotência, coerência e `canonMutation: none`. | **RESOLVIDO** |
+| **P0-C** | `BraseiroAdventureStore` agora utiliza diretamente o `BraseiroOseDatabase` via Room com `MIGRATION_2_3`. Tabelas `adventure_packages`, `adventure_npc_ledger` e `life_store`. Corrigido o contrato de `finish()` para devolver `ok` booleano real (indicando se havia aventura ativa encerrada). Corrigido `worldId` para usar a identidade canônica da campanha (`current.campaignId.value`) e não coordenadas espaciais. Teste Robolectric com fechamento e reabertura 3x aprovado. | **RESOLVIDO** |
 | **P0-D** | O comando de ponte `AdventureContextQuery` foi sanitizado para devolver **exclusivamente** o resumo público (`getActiveAdventureSummary`), sem expor `background` ou `secrets`. O contexto confidencial completo é injetado unicamente no prompt do `GeminiBarbaraSupervisor`. | **RESOLVIDO** |
-| **P0-E** | Reconciliados `docs/OSE_REGRA_A_REGRA_EVIDENCIAS.csv` e corpus: `XP_SPLIT_REMAINDER` e `CLASSIC_POTION_83_84` marcados canonicamente como `MISSING_EVIDENCE`; `ADVANCED_POST_LEVEL_14` e os 11 módulos oficiais marcados como `NOT_BOUND`. | **RESOLVIDO** |
-| **P1-F** | Atualizado `.github/workflows/validate-ose-ragfree-runtime.yml` para exigir a presença de `data-photo-character` e `data-photo-npc` (fluxo seguro via `PresentationMediaStore`), mantendo a proibição estrita de geração automática por IA (`! data-generate-*`). | **RESOLVIDO** |
-| **P1-G** | Corrigida a contagem e discriminação de testes: o arquivo `ose-matrices.test.mjs` possui exatamente 4 testes; a suíte completa do motor de vida contém 143 testes distribuídos em 6 arquivos. | **RESOLVIDO** |
+| **P0-E** | Reconciliados `docs/OSE_REGRA_A_REGRA_EVIDENCIAS.csv` e corpus: `XP_SPLIT_REMAINDER` e `CLASSIC_POTION_83_84` marcados canonicamente como `MISSING_EVIDENCE`; `ADVANCED_POST_LEVEL_14` e os 11 módulos oficiais marcados como `NOT_BOUND`. Distinção estrita entre Marco A (aplicativo jogável, motores integrados e APK homologado) e Marco B (certificação documental integral de corpus). | **RESOLVIDO** |
+| **P0-F** | Resolução da divergência de checksums nos 67 testes: normalização dos JSONs matriciais para LF, atualização dos hashes em `catalog-ose.json`, inclusão de `.gitattributes` (`* text=auto eol=lf`) e carregador `node-matrices.mjs` resiliente a conversão de quebras de linha em runners Windows/Linux. 143/143 testes PASS no Motor de Vida V2.2. | **RESOLVIDO** |
+| **P1-G** | CI workflow alinhado para aceitar retratos seguros sem geração IA (`data-photo-character`, `data-photo-npc`). | **RESOLVIDO** |
 
 ---
 

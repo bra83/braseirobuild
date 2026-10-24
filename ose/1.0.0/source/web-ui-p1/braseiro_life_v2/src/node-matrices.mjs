@@ -13,7 +13,14 @@ export async function loadMatrixBundle(packId){
  const tables={};for(const [axis,id] of Object.entries(pack.tables)){
   const descriptor=catalog.tables.find(t=>t.id===id);if(!descriptor)throw Error('Tabela ausente');
   const body=await readFile(new URL(descriptor.file,directory));
-  if(createHash('sha256').update(body).digest('hex')!==descriptor.sha256)throw Error('Checksum da tabela divergente');
+  const rawHash=createHash('sha256').update(body).digest('hex');
+  if(rawHash!==descriptor.sha256){
+   const lfHash=createHash('sha256').update(Buffer.from(body.toString('utf8').replace(/\r\n/g,'\n'),'utf8')).digest('hex');
+   const crlfHash=createHash('sha256').update(Buffer.from(body.toString('utf8').replace(/\r\n/g,'\n').replace(/\n/g,'\r\n'),'utf8')).digest('hex');
+   if(lfHash!==descriptor.sha256 && crlfHash!==descriptor.sha256){
+    throw Error('Checksum da tabela divergente');
+   }
+  }
   tables[axis]=JSON.parse(body).rows;
  }
  return validateMatrixBundle({schema:'braseiro.matrix-bundle/v1',pack:{...pack,version:catalog.version},tables});

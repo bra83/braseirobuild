@@ -267,10 +267,11 @@ class BraseiroAdventureStore(private val db: BraseiroOseDatabase) {
             }
         }
 
+        val hadActiveAdventure = archivedId != null
         return JSONObject()
-            .put("ok", true)
+            .put("ok", hadActiveAdventure)
             .put("archivedAdventureId", archivedId ?: "none")
-            .put("status", "FINISHED")
+            .put("status", if (hadActiveAdventure) "FINISHED" else "NO_ACTIVE_ADVENTURE")
     }
 
     /**

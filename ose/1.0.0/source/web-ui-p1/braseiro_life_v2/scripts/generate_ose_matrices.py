@@ -329,6 +329,10 @@ def sha256_file(path):
             h.update(chunk)
     return h.hexdigest()
 
+def write_json_lf(path, obj):
+    body = (json.dumps(obj, indent=2, ensure_ascii=False) + '\n').encode('utf-8')
+    path.write_bytes(body)
+
 def main():
     print("Generating OSE Classic & Advanced Matrix Packs with base100 and expanded500...")
     
@@ -340,13 +344,9 @@ def main():
 
     # 1. OSE Classic
     classic_base, classic_expanded = make_rows('ose-classic', 'ose-classic', OSE_CLASSIC_SITUATIONS)
-    (DATA_DIR / 'manifestations-ose-classic.base100.json').write_text(
-        json.dumps({"schema": "braseiro.matrix-table/v1", "id": "manifestations-ose-classic", "version": "2.2.0", "rows": classic_base}, indent=2, ensure_ascii=False), encoding='utf-8'
-    )
+    write_json_lf(DATA_DIR / 'manifestations-ose-classic.base100.json', {"schema": "braseiro.matrix-table/v1", "id": "manifestations-ose-classic", "version": "2.2.0", "rows": classic_base})
     classic_table_path = DATA_DIR / 'manifestations-ose-classic.expanded500.json'
-    classic_table_path.write_text(
-        json.dumps({"schema": "braseiro.matrix-table/v1", "id": "manifestations-ose-classic", "version": "2.2.0", "rows": classic_expanded}, indent=2, ensure_ascii=False), encoding='utf-8'
-    )
+    write_json_lf(classic_table_path, {"schema": "braseiro.matrix-table/v1", "id": "manifestations-ose-classic", "version": "2.2.0", "rows": classic_expanded})
     classic_table_sha = sha256_file(classic_table_path)
     
     classic_pack = {
@@ -374,19 +374,15 @@ def main():
         }
     }
     classic_pack_path = PACKS_DIR / 'ose-classic.json'
-    classic_pack_path.write_text(json.dumps(classic_pack, indent=2, ensure_ascii=False), encoding='utf-8')
+    write_json_lf(classic_pack_path, classic_pack)
     classic_pack_sha = sha256_file(classic_pack_path)
     print(f"Classic pack generated (SHA-256: {classic_pack_sha})")
 
     # 2. OSE Advanced
     adv_base, adv_expanded = make_rows('ose-advanced', 'ose-advanced', OSE_ADVANCED_SITUATIONS)
-    (DATA_DIR / 'manifestations-ose-advanced.base100.json').write_text(
-        json.dumps({"schema": "braseiro.matrix-table/v1", "id": "manifestations-ose-advanced", "version": "2.2.0", "rows": adv_base}, indent=2, ensure_ascii=False), encoding='utf-8'
-    )
+    write_json_lf(DATA_DIR / 'manifestations-ose-advanced.base100.json', {"schema": "braseiro.matrix-table/v1", "id": "manifestations-ose-advanced", "version": "2.2.0", "rows": adv_base})
     adv_table_path = DATA_DIR / 'manifestations-ose-advanced.expanded500.json'
-    adv_table_path.write_text(
-        json.dumps({"schema": "braseiro.matrix-table/v1", "id": "manifestations-ose-advanced", "version": "2.2.0", "rows": adv_expanded}, indent=2, ensure_ascii=False), encoding='utf-8'
-    )
+    write_json_lf(adv_table_path, {"schema": "braseiro.matrix-table/v1", "id": "manifestations-ose-advanced", "version": "2.2.0", "rows": adv_expanded})
     adv_table_sha = sha256_file(adv_table_path)
 
     adv_pack = {
@@ -414,7 +410,7 @@ def main():
         }
     }
     adv_pack_path = PACKS_DIR / 'ose-advanced.json'
-    adv_pack_path.write_text(json.dumps(adv_pack, indent=2, ensure_ascii=False), encoding='utf-8')
+    write_json_lf(adv_pack_path, adv_pack)
     adv_pack_sha = sha256_file(adv_pack_path)
     print(f"Advanced pack generated (SHA-256: {adv_pack_sha})")
 
@@ -425,7 +421,7 @@ def main():
     # Restore catalog.json to original 9 packs if modified, so legacy unit test stays at 134/134 PASS
     canonical_catalog['tables'] = [t for t in canonical_catalog['tables'] if not t['id'].endswith('-ose-classic') and not t['id'].endswith('-ose-advanced')]
     canonical_catalog['packs'] = [p for p in canonical_catalog['packs'] if p['id'] not in ('ose-classic', 'ose-advanced')]
-    catalog_path.write_text(json.dumps(canonical_catalog, indent=2, ensure_ascii=False), encoding='utf-8')
+    write_json_lf(catalog_path, canonical_catalog)
 
     # Now make catalog-ose.json which includes all 11 packs
     ose_catalog = json.loads(json.dumps(canonical_catalog))
@@ -479,7 +475,8 @@ def main():
     ])
     ose_catalog['baseRows'] = 1600
     ose_catalog['expandedRows'] = 8000
-    (DATA_DIR / 'catalog-ose.json').write_text(json.dumps(ose_catalog, indent=2, ensure_ascii=False), encoding='utf-8')
+    write_json_lf(DATA_DIR / 'catalog-ose.json', ose_catalog)
+    print("Wrote catalog-ose.json with 11 packs (including ose-classic and ose-advanced).")
     print("Wrote catalog-ose.json with 11 packs (including ose-classic and ose-advanced).")
 
     print("Generation complete!")

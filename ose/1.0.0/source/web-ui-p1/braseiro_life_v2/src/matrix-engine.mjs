@@ -4,11 +4,12 @@ const clone=x=>structuredClone(x);
 const key=x=>typeof x==='string'&&/^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,159}$/.test(x)&&!['__proto__','constructor','prototype'].includes(x);
 const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 const AXES=['cause','manifestation','domain','timing','response'];
-const aliases={'dnd5e-2024':'dnd5e','oua':'o-um-anel','tor2e':'o-um-anel','pf2e':'pf2e-kingmaker','gurps-investigacao':'gurps','gurps-csi':'gurps','gurps-serial-killer':'gurps','star-wars-aor':'star-wars','star-wars-eote':'star-wars'};
+const aliases={'ose':'ose-classic','ose-fantasy':'ose-classic','dnd5e-2024':'dnd5e','oua':'o-um-anel','tor2e':'o-um-anel','pf2e':'pf2e-kingmaker','gurps-investigacao':'gurps','gurps-csi':'gurps','gurps-serial-killer':'gurps','star-wars-aor':'star-wars','star-wars-eote':'star-wars'};
 const profiles={
  'gurps-investigacao':['gurps','investigacao'], 'gurps-csi':['gurps','csi'], 'gurps-serial-killer':['gurps','serial-killer'],
  'o-um-anel':['o-um-anel','default'],'dnd5e':['dnd5e','default'],'forbidden-lands':['forbidden-lands','default'],'pf2e-kingmaker':['pf2e-kingmaker','default'],
- 'star-wars-aor':['star-wars','aor'],'star-wars-eote':['star-wars','eote']
+ 'star-wars-aor':['star-wars','aor'],'star-wars-eote':['star-wars','eote'],
+ 'ose-classic':['ose-classic','classic'],'ose-advanced':['ose-advanced','advanced']
 };
 export function selectMatrixProfile(packId,system){
  const profile=profiles[packId];assert(profile&&(aliases[system]??system)===profile[0],'perfil pertence a outro sistema');

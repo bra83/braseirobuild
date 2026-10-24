@@ -206,7 +206,7 @@ class MainActivity : Activity() {
                     try {
                         val raw = contentResolver.openInputStream(uri)!!.bufferedReader(Charsets.UTF_8).use { it.readText() }
                         val current = session.loadSession(CAMPAIGN_ID)
-                        val worldId = current.campaignState.position.primary.spatialEntityId.ifBlank { "world" }
+                        val worldId = current.campaignId.value.ifBlank { "world" }
                         val res = adventureStore.importJson(raw, scope = current.campaignId.value, expectedWorldId = worldId)
                         send(JSONObject().put("type","AdventureImportResult").put("payload",res.put("viewState",projectForUi(current))))
                     } catch (t: Throwable) {
@@ -473,7 +473,7 @@ class MainActivity : Activity() {
                                 io.execute {
                                     try {
                                         val current = session.loadSession(CAMPAIGN_ID)
-                                        val worldId = current.campaignState.position.primary.spatialEntityId.ifBlank { "world" }
+                                        val worldId = current.campaignId.value.ifBlank { "world" }
                                         val res = adventureStore.importJson(raw, scope = current.campaignId.value, expectedWorldId = worldId)
                                         send(JSONObject().put("type", "AdventureImportResult").put("payload", res.put("viewState", projectForUi(current))))
                                     } catch (t: Throwable) {
@@ -495,7 +495,8 @@ class MainActivity : Activity() {
                             io.execute {
                                 try {
                                     val current = session.loadSession(CAMPAIGN_ID)
-                                    val ok = adventureStore.finish(scope = current.campaignId.value)
+                                    val res = adventureStore.finish(scope = current.campaignId.value)
+                                    val ok = res.optBoolean("ok", false)
                                     send(JSONObject().put("type", "AdventureFinishResult").put("payload", JSONObject().put("ok", ok).put("viewState", projectForUi(current))))
                                 } catch (t: Throwable) {
                                     send(JSONObject().put("type", "BridgeError").put("payload", JSONObject().put("message", safeError(t))))
