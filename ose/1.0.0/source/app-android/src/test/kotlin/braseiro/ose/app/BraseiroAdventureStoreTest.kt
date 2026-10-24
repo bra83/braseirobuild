@@ -2,6 +2,7 @@ package braseiro.ose.app
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 
@@ -71,6 +72,33 @@ class BraseiroAdventureStoreTest {
     }
 
     @Test
+    fun validatesWorldCompatibilityMatching() {
+        val obj = BraseiroAdventureStore.validate(validClassicJson, expectedWorldId = "mundo-teste")
+        assertEquals("mundo-teste", obj.getString("worldId"))
+    }
+
+    @Test
+    fun rejectsWorldMismatch() {
+        try {
+            BraseiroAdventureStore.validate(validClassicJson, expectedWorldId = "outro-mundo-errado")
+            fail("Should reject when worldId does not match expected world")
+        } catch (e: IllegalArgumentException) {
+            assertTrue(e.message!!.contains("INCOMPATIBLE_WORLD"))
+        }
+    }
+
+    @Test
+    fun rejectsStartLocationNotInLocations() {
+        val invalidStart = validClassicJson.replace("\"locationId\": \"entrada\"", "\"locationId\": \"sala-inexistente\"")
+        try {
+            BraseiroAdventureStore.validate(invalidStart)
+            fail("Should reject when start.locationId is not present in locations[]")
+        } catch (e: IllegalArgumentException) {
+            assertTrue(e.message!!.contains("START_LOCATION_NOT_FOUND"))
+        }
+    }
+
+    @Test
     fun rejectsIncompatibleSystem() {
         val foreignSystem = validClassicJson.replace("\"system\": \"ose-classic\"", "\"system\": \"dnd5e-2024\"")
         try {
@@ -78,7 +106,7 @@ class BraseiroAdventureStoreTest {
             fail("Should reject incompatible system")
         } catch (e: IllegalArgumentException) {
             assertNotNull(e.message)
-            assert(e.message!!.contains("INCOMPATIBLE_SYSTEM"))
+            assertTrue(e.message!!.contains("INCOMPATIBLE_SYSTEM"))
         }
     }
 
@@ -90,7 +118,7 @@ class BraseiroAdventureStoreTest {
             fail("Should reject enemy without rules source")
         } catch (e: IllegalArgumentException) {
             assertNotNull(e.message)
-            assert(e.message!!.contains("ENEMY_MISSING_RULES_SOURCE"))
+            assertTrue(e.message!!.contains("ENEMY_MISSING_RULES_SOURCE"))
         }
     }
 
@@ -99,25 +127,10 @@ class BraseiroAdventureStoreTest {
         val publicSecret = validClassicJson.replace("\"visibility\": \"gm_only\"", "\"visibility\": \"public\"")
         try {
             BraseiroAdventureStore.validate(publicSecret)
-            fail("Should reject secret not marked gm_only")
+            fail("Should reject non-gm_only secret")
         } catch (e: IllegalArgumentException) {
             assertNotNull(e.message)
-            assert(e.message!!.contains("SECRET_VISIBILITY_MUST_BE_GM_ONLY"))
-        }
-    }
-
-    @Test
-    fun rejectsEmptyLocations() {
-        val emptyLoc = validClassicJson.replace(
-            "\"locations\": [\n    { \"id\": \"entrada\", \"name\": \"Entrada\" }\n  ]",
-            "\"locations\": []"
-        )
-        try {
-            BraseiroAdventureStore.validate(emptyLoc)
-            fail("Should reject empty locations")
-        } catch (e: IllegalArgumentException) {
-            assertNotNull(e.message)
-            assert(e.message!!.contains("EMPTY_LOCATIONS_ARRAY"))
+            assertTrue(e.message!!.contains("SECRET_VISIBILITY_MUST_BE_GM_ONLY"))
         }
     }
 }

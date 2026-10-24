@@ -4,8 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches: [main, ose/final-integration-20261024]
-    paths:
-      - "OSE_1_0_9_FINAL_TRIGGER.txt"
 
 permissions:
   contents: write

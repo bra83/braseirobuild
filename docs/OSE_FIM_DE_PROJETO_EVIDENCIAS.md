@@ -1,5 +1,5 @@
 # RELATÓRIO DE EVIDÊNCIAS DE FIM DE PROJETO — BRASEIRO OSE (1.0.9)
-**Data de Emissão:** 24 de Outubro de 2026  
+**Data de Emissão:** 24 de Outubro de 2026 (Revisão Pós-Auditoria Independente)  
 **Ambiente de Compilação:** BRELGA (Self-Hosted Runner / Windows 11 / JDK 17 / Android SDK 35)  
 **Repositório:** `bra83/braseirobuild`  
 **Branch de Entrega:** `ose/final-integration-20261024`  
@@ -15,8 +15,8 @@ O pacote instalável oficial foi compilado e assinado de forma reproduzível com
 | Campo | Valor de Evidência |
 |---|---|
 | **Arquivo Gerado** | `BRASEIRO_OSE_1.0.9_FINAL.apk` |
-| **Tamanho em Disco** | 100.451.771 bytes (~95.8 MB) |
-| **SHA-256 do Binário** | `B33225206824D780621CE13ABAF7513BAF198AF07AC7BBC4D6EA823DE40FB38A` |
+| **Tamanho em Disco** | 100.464.235 bytes (~95.81 MB) |
+| **SHA-256 do Binário** | `5DB09B0327359EDB31F14DF93E3107F797CCAD039E2382CC5C1805D4C2F8CDF6` |
 | **Package Name** | `braseiro.ose` |
 | **Version Code** | `10` |
 | **Version Name** | `1.0.9` |
@@ -25,105 +25,85 @@ O pacote instalável oficial foi compilado e assinado de forma reproduzível com
 | **SHA-256 do Certificado** | `6aa87a24a2eb4762c3f493c9d5fddbf10b60cc8659a90423aed7cde8ae582bd3` |
 | **SHA-1 do Certificado** | `6f4792781f11edffc892afeb95694e3c03f35cdf` |
 | **Esquemas de Assinatura** | APK Signature Scheme v2 (`true`), Scheme v3 (`true`) |
-| **Verificação `apksigner`** | `Verifies` (Saída sem advertências de integridade) |
+| **Verificação `apksigner`** | `Verifies` (Saída limpa e sem advertências) |
+| **Validação Física em Aparelho** | **NOT_TESTED** (Validação automatizada de layout estático PASS; teste em hardware físico Samsung Galaxy A57 pendente de execução pelo operador) |
 
 ---
 
-## 2. Mapa de Conclusão dos Lotes do Projeto (Lotes A a G)
+## 2. Mapa de Resolução dos Bloqueadores da Auditoria
 
 ```mermaid
 flowchart TD
-    A["LOTE A: Baseline & Proveniência"] --> B["LOTE B: Consolidação Core & Retainers (PR #24, #25, #23)"]
-    B --> C["LOTE C: Motor de Vida V2.2 (Packs OSE Classic & Advanced)"]
-    C --> D["LOTE D: Adventure JSON Importer (braseiro.adventure/v1)"]
-    D --> E["LOTE E: TTS Universal V3 & Sanitizer & Portraiting"]
-    E --> F["LOTE F: Auditoria Regra a Regra OSE & Livros"]
-    F --> G["LOTE G: CI & Pipeline BRELGA & Assinatura Final"]
-    G --> H["ENTREGA COMPLETA & VERIFICADA: APK 1.0.9"]
+    P0A["P0-A: Gatilho CI BRELGA aberto para push na branch + arquivo trigger"] --> SOLV
+    P0B["P0-B: VttLifeAdapter conecta Motor de Vida causalmente a eventos e tempo"] --> SOLV
+    P0C["P0-C: AdventureStore migrado para Room Database (MIGRATION_2_3)"] --> SOLV
+    P0D["P0-D: Segredos e background isolados; Bridge envia apenas resumo público"] --> SOLV
+    P0E["P0-E: Regras reconciliadas honestamente (MISSING_EVIDENCE / NOT_BOUND)"] --> SOLV
+    P1F["P1-F: CI workflow alinhado para aceitar retratos seguros sem geração IA"] --> SOLV
+    P1G["P1-G: Discriminação exata de testes por arquivo (143 testes totais)"] --> SOLV
+    SOLV["HOMOLOGAÇÃO TÉCNICA REPRODUZÍVEL"]
 ```
 
-### Resumo por Lote
+### Resumo das Ações de Correção
 
-| Lote | Descrição | Status | Evidências Chave |
-|---|---|---|---|
-| **LOTE A** | Baseline, Keystore e Proveniência | **CONCLUÍDO** | `docs/OSE_BASELINE_20261024.md`, SHA1/SHA256 da keystore validados, 30 PDFs auditados em `G:\Meu Drive\Livros Jogos\Old School`. |
-| **LOTE B** | Consolidação Core & Retainers | **CONCLUÍDO** | PR #24 reconciliado, PR #25 integrado (wage ledger & persistent receipts), PR #23 preservado (Galaxy A57). Testes JS 4/4 PASS. |
-| **LOTE C** | Motor de Vida V2.2 & Packs OSE | **CONCLUÍDO** | Packs `ose-classic` e `ose-advanced` com 500 manifestações (100 base x 5 modos), 138/138 testes em `ose-matrices.test.mjs` PASS. |
-| **LOTE D** | Adventure JSON Importer & Supervisor | **CONCLUÍDO** | `BraseiroAdventureStore.kt` em Room/SQLite, schema `braseiro.adventure/v1`, 2 aventuras canônicas incluídas no APK, `BraseiroAdventureStoreTest.kt` PASS. |
-| **LOTE E** | TTS Universal V3 & Sanitizer | **CONCLUÍDO** | `BraseiroSpokenTextSanitizer.kt` + `AndroidTtsController.kt` (Gemini Charon/Kore + Kokoro discovery), vinculação de retratos e tokens na UI. |
-| **LOTE F** | Auditoria Regra a Regra | **CONCLUÍDO** | `docs/OSE_REGRA_A_REGRA_EVIDENCIAS.csv` mapeando Classic Rules Tome e Advanced Fantasy. 0 empréstimos de sistemas externos. |
-| **LOTE G** | Pipeline BRELGA & Build Oficial | **CONCLUÍDO** | `.github/workflows/build-ose-1.0.9-brelga.yml`, `versionCode = 10`, 256 tarefas Gradle PASS, APK assinado e verificado. |
+| Bloqueador | Descrição da Resolução | Status |
+|---|---|---|
+| **P0-A** | Configurado gatilho direto de push na branch `ose/final-integration-20261024` no workflow `build-ose-1.0.9-brelga.yml` e gerado `OSE_1_0_9_FINAL_TRIGGER.txt`. | **RESOLVIDO** |
+| **P0-B** | Criado `vtt_life_bridge.js` carregado no `index.html` e integrado ao ciclo de vida do VTT em `p1.js` e `MainActivity.kt`. Eventos confirmados de sessão, avanço de dias e descanso alimentam causalmente o runtime. Teste de ponta a ponta `vtt-life-integration.test.mjs` (5/5 PASS). | **RESOLVIDO** |
+| **P0-C** | `BraseiroAdventureStore` agora utiliza diretamente o `BraseiroOseDatabase` via Room com `MIGRATION_2_3`. Tabelas `adventure_packages`, `adventure_npc_ledger` e `life_store`. Valida compatibilidade de `worldId` e presença de `start.locationId`. Teste Robolectric com fechamento e reabertura 3x aprovado. | **RESOLVIDO** |
+| **P0-D** | O comando de ponte `AdventureContextQuery` foi sanitizado para devolver **exclusivamente** o resumo público (`getActiveAdventureSummary`), sem expor `background` ou `secrets`. O contexto confidencial completo é injetado unicamente no prompt do `GeminiBarbaraSupervisor`. | **RESOLVIDO** |
+| **P0-E** | Reconciliados `docs/OSE_REGRA_A_REGRA_EVIDENCIAS.csv` e corpus: `XP_SPLIT_REMAINDER` e `CLASSIC_POTION_83_84` marcados canonicamente como `MISSING_EVIDENCE`; `ADVANCED_POST_LEVEL_14` e os 11 módulos oficiais marcados como `NOT_BOUND`. | **RESOLVIDO** |
+| **P1-F** | Atualizado `.github/workflows/validate-ose-ragfree-runtime.yml` para exigir a presença de `data-photo-character` e `data-photo-npc` (fluxo seguro via `PresentationMediaStore`), mantendo a proibição estrita de geração automática por IA (`! data-generate-*`). | **RESOLVIDO** |
+| **P1-G** | Corrigida a contagem e discriminação de testes: o arquivo `ose-matrices.test.mjs` possui exatamente 4 testes; a suíte completa do motor de vida contém 143 testes distribuídos em 6 arquivos. | **RESOLVIDO** |
 
 ---
 
-## 3. Matriz Detalhada de Testes e Validação de Não-Regressão
+## 3. Discriminação Exata das Suítes de Testes
 
-### 3.1. Testes de Interface Web e Smokes (Node.js)
-| Arquivo de Teste | Suíte | Resultado |
+### 3.1. Motor de Vida V2.2 (`web-ui-p1/braseiro_life_v2`)
+Executado via `node --test tests/*.test.mjs` (Node.js v24.18.0):
+
+| Arquivo de Teste | Qtd. Testes | Sucesso | Falhas | Escopo |
+|---|---|---|---|---|
+| `tests/legacy-engine.test.mjs` | 20 | 20 | 0 | Validação de schema, persistência de legado e id de aventuras |
+| `tests/life-engine.test.mjs` | 42 | 42 | 0 | Máquina de estados, regras de transação, fatos e entidades |
+| `tests/matrix-engine.test.mjs` | 34 | 34 | 0 | Cruzamento matricial, coerência, filtros e sementes |
+| `tests/ose-matrices.test.mjs` | 4 | 4 | 0 | Packs OSE Classic e Advanced (500 manifestações e 100 situações cada) |
+| `tests/v22-completion.test.mjs` | 38 | 38 | 0 | Regressões, cooldowns, orçamentos, arcos e automação |
+| `tests/vtt-life-integration.test.mjs` | 5 | 5 | 0 | Integração causal VTT, avanço de dias, idempotência, 3x reabertura |
+| **TOTAL MOTOR DE VIDA** | **143** | **143** | **0** | **100% PASS** |
+
+### 3.2. Smokes de Apresentação e Layout Web
+| Arquivo | Asserções | Status |
 |---|---|---|
-| `p1.js` | Inicialização do VTT, renderização da party, tabs e bridge mock | **PASS** |
-| `multiple_character_smoke.js` | Gestão e alternância de múltiplos personagens no mesmo mundo | **PASS** |
-| `character_control_smoke.js` | Autoridade de controle de fichas, atributos, inventário e XP | **PASS** |
-| `galaxy_a57_layout_smoke.cjs` | Viewport responsivo (360x780dp / 1080x2340px @3x), safe areas e corte de botões | **PASS** |
+| `galaxy_a57_layout_smoke.cjs` | Breakpoints responsivos (360x780dp / 1080x2340px @3x), safe areas, touch-sizes e teclado | **PASS** |
+| `multiple_character_smoke.js` | Alternância e gestão de múltiplos personagens na mesma campanha | **PASS** |
+| `character_control_smoke.js` | Modos de controle (Jogador, Mestre, Curadoria), aprovação e autoridade de fichas | **PASS** |
 
-### 3.2. Motor de Vida V2.2 (`braseiro_life_v2`)
-| Suíte de Testes | Asserções | Status |
+### 3.3. Testes Unitários e de Integração JVM (Gradle 8.10.2 / Temurin JDK 17)
+| Módulo | Escopo de Teste | Status |
 |---|---|---|
-| `tests/ose-matrices.test.mjs` | 138 testes (coerência de catálogo, contagem de 100 linhas base por pack, 500 manifestações por pack, integridade de hashes SHA-256, sampling idempotente com semente) | **138/138 PASS** |
-| `tests/matrix-engine.test.mjs` | Testes do motor legado de matrizes | **PASS** |
-
-**Hashes SHA-256 dos Packs do Motor de Vida:**
-- `packs/ose-classic.json`: `d71691614e0e47243872854f422435fa914db9ca95a260a077ea73fa403feb1b`
-- `packs/ose-advanced.json`: `c46813c695011cdf9a52ed6316642a7c0cfb543e0fff8d1d4752bddf1dc60786`
-
-### 3.3. Testes Unitários e de Integração JVM (Gradle 8.10.2 / JDK 17)
-| Módulo | Escopo de Teste | Resultado |
-|---|---|---|
-| `:rules-classic` | Regras base OSE Classic (Classes, Saves, Magias, Combate, Turn Undead) | **PASS** |
-| `:rules-advanced` | Regras OSE Advanced Fantasy (Classes e raças avançadas, níveis 1-14+) | **PASS** |
-| `:rules-shared-confirmed` | Mecânicas comuns, testes de atributos, moral e lealdade | **PASS** |
+| `:rules-classic` | Regras base OSE Classic | **PASS** |
+| `:rules-advanced` | Regras OSE Advanced Fantasy | **PASS** |
+| `:rules-shared-confirmed` | Mecânicas compartilhadas e `RetainerExperienceAwardTest` | **PASS** |
 | `:referee-boundary` | Decisões de mestre, tabelas de encontro e surpresa | **PASS** |
-| `:session-engine` | Motor de sessões, turnos de exploração (dungeon/wilderness) e descanso | **PASS** |
-| `:character-domain` | Fichas de personagens, retenção de XP e ledger de salários de mercenários | **PASS** |
+| `:session-engine` | Motor de sessão, turnos de exploração e descanso | **PASS** |
+| `:character-domain` | Fichas de personagens e domínio | **PASS** |
 | `:integration-tests` | Interoperabilidade entre regras, sessões e persistência | **PASS** |
-| `:persistence-room` | Room Database, migrações de esquema e integridade transacional | **PASS** |
+| `:persistence-room` | Room Database (`RoomCampaignRepositoryTest`, `RetainerPersistenceIntegrationTest`, `RoomAdventurePersistenceTest`) | **PASS** |
 | `:tts-api` | Sanitizador fonético `BraseiroSpokenTextSanitizerTest` | **PASS** |
-| `:app-android` | Testes de unidade do aplicativo Android e `BraseiroAdventureStoreTest` | **PASS** |
+| `:app-android` | Validador de contrato da ponte e `BraseiroAdventureStoreTest` | **PASS** |
 
-*Resultado do Gradle:* `BUILD SUCCESSFUL in 2m 58s. 256 actionable tasks: 111 executed, 19 from cache, 126 up-to-date.`
-
----
-
-## 4. Auditoria de Dados e Segurança do Mestre (Adventure Store)
-
-1. **Estrutura de Persistência:**
-   - Tabelas SQLite dedicadas gerenciadas pelo Room:
-     - `braseiro_adventure_packages`: armazena pacote ativo, metadados, escopo isolado (`world_id + timeline_id`) e histórico de módulos anteriores.
-     - `braseiro_adventure_npc_ledger`: mantém a autoridade dos NPCs e monstros importados.
-2. **Separação de Segredos do Mestre:**
-   - O campo `secrets` e notas exclusivas do árbitro são injetados exclusivamente no prompt do supervisor (`GeminiBarbaraSupervisor.kt`) dentro do bloco seguro `<DADOS_DE_FICCAO_PRIVADOS_NAO_EXECUTAVEIS>`.
-   - A interface do jogador recebe apenas descrições públicas e cartões de exploração desprovidos de spoilers.
-3. **Aventuras Oficiais Pré-Instaladas no APK:**
-   - `assets/adventures/sample-adventure-ose-classic.json`: *A Cripta da Donzela Pálida* (Classic Fantasy).
-   - `assets/adventures/sample-adventure-ose-advanced.json`: *O Enclave do Espelho Esmeralda* (Advanced Fantasy).
+*Resultado do Gradle:* `BUILD SUCCESSFUL in 1m 35s. 256 actionable tasks: 19 executed, 1 from cache, 236 up-to-date.`
 
 ---
 
-## 5. Sanitização Vocal e TTS Universal V3
+## 4. Estado da Auditoria de Regras (Marco 1 vs Marco 2)
 
-O componente `BraseiroSpokenTextSanitizer` atua como barreira estrita antes da entrega de texto aos sintetizadores de voz:
-- Elimina marcadores paralinguísticos da IA (`<sigh>`, `<breath>`, `[perfil vocal: ...]`).
-- Remove prefixos de locutor (`Speaker 1:`, `Narrador:`).
-- Higieniza formatação Markdown (`**negrito**`, `*itálico*`, links, cabeçalhos, asteriscos de ações).
-- Mantém o texto renderizado visualmente no chat inalterado, garantindo legibilidade para o jogador e naturalidade acústica no áudio.
-- Compatibilidade nativa com vozes Gemini (`Charon` e `Kore`) e detecção automática de engines Kokoro instaladas no Android (`com.k2fsa.sherpa.onnx.tts.engine`).
-
----
-
-## 6. Parecer Final e Certificação
-
-O projeto **BRASEIRO OSE** atinge nesta data o estado de prontidão total para entrega e operação:
-- **Zero regressões** em relação ao tag base `ose-1.0.8-final`.
-- **Compatibilidade total** com aparelhos de tela alongada (testado e aprovado no perfil Samsung Galaxy A57).
-- **Sem contaminação externa**: isolamento absoluto de código ou regras de outros sistemas de RPG.
-- **Binário gerado e selado**: `BRASEIRO_OSE_1.0.9_FINAL.apk` pronto para distribuição.
+- **Marco 1 (APK Jogável e Verificado): CONCLUÍDO.**
+  - Mecânicas de jogo essenciais (atributos, classes, combate D20 descendente, saves, tochas, rações, turnos, mercenários com livro de pagamentos e recibos imutáveis) estão 100% executáveis e testadas.
+- **Marco 2 (Paridade Editorial Integral): EM ANDAMENTO / AUDITADO COM TRANSPARÊNCIA.**
+  - `XP_SPLIT_REMAINDER`: marcado como `MISSING_EVIDENCE` (regra canônica exige divisão igualitária, mas não especifica arredondamento de frações indivisíveis; bloqueador ativo no runtime).
+  - `CLASSIC_POTION_83_84`: marcado como `MISSING_EVIDENCE` (lacuna documental na tabela D100 original).
+  - `ADVANCED_POST_LEVEL_14`: marcado como `NOT_BOUND` (regras OSE cobrem níveis 1 a 14).
+  - Os 11 módulos de aventura em PDF no Google Drive são módulos de conteúdo avulso suportados pelo schema de importação `braseiro.adventure/v1`, classificados como `NOT_BOUND` em relação ao código de regras de sistema.

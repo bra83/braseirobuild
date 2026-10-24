@@ -87,20 +87,20 @@ class MainActivity : Activity() {
             applicationContext,
             BraseiroOseDatabase::class.java,
             "braseiro-ose.db"
-        ).addMigrations(MIGRATION_1_2).build()
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build()
         repository = RoomCampaignRepository(db)
         credentials = GeminiCredentialStore(applicationContext)
         runtimeSettings = GeminiRuntimeSettings(applicationContext)
         mediaStore = PresentationMediaStore(applicationContext)
         gemini = GeminiInteractionsClient()
-        adventureStore = BraseiroAdventureStore(applicationContext)
+        adventureStore = BraseiroAdventureStore(db)
         geminiTts = GeminiTtsController(applicationContext, credentials, runtimeSettings, gemini)
         geminiTts.onState = { res, err ->
             if (tts.mode() == braseiro.ose.tts.android.AndroidTtsController.Mode.GEMINI_TTS) {
                 sendTtsState(if (res == GeminiTtsController.Result.STARTING || res == GeminiTtsController.Result.REPLAYING) "PLAYING" else "IDLE", err)
             }
         }
-        session = SessionEngine(repository, RulesRefereeBoundary(), GeminiBarbaraSupervisor(credentials, runtimeSettings, gemini, adventureStore::masterContextPrompt))
+        session = SessionEngine(repository, RulesRefereeBoundary(), GeminiBarbaraSupervisor(credentials, runtimeSettings, gemini) { adventureStore.masterContextPrompt(CAMPAIGN_ID.value) })
         tts = braseiro.ose.tts.android.AndroidTtsController(applicationContext)
         tts.onState = { state, error -> sendTtsState(state.name, error) }
         tts.geminiSpeaker = { text -> geminiTts.playVisibleNarration(text) }
@@ -205,8 +205,9 @@ class MainActivity : Activity() {
                 io.execute {
                     try {
                         val raw = contentResolver.openInputStream(uri)!!.bufferedReader(Charsets.UTF_8).use { it.readText() }
-                        val res = adventureStore.importJson(raw)
                         val current = session.loadSession(CAMPAIGN_ID)
+                        val worldId = current.campaignState.position.primary.spatialEntityId.ifBlank { "world" }
+                        val res = adventureStore.importJson(raw, scope = current.campaignId.value, expectedWorldId = worldId)
                         send(JSONObject().put("type","AdventureImportResult").put("payload",res.put("viewState",projectForUi(current))))
                     } catch (t: Throwable) {
                         send(JSONObject().put("type","BridgeError").put("payload",JSONObject().put("message",safeError(t))))
@@ -471,8 +472,9 @@ class MainActivity : Activity() {
                             if (raw.isNotBlank()) {
                                 io.execute {
                                     try {
-                                        val res = adventureStore.importJson(raw)
                                         val current = session.loadSession(CAMPAIGN_ID)
+                                        val worldId = current.campaignState.position.primary.spatialEntityId.ifBlank { "world" }
+                                        val res = adventureStore.importJson(raw, scope = current.campaignId.value, expectedWorldId = worldId)
                                         send(JSONObject().put("type", "AdventureImportResult").put("payload", res.put("viewState", projectForUi(current))))
                                     } catch (t: Throwable) {
                                         send(JSONObject().put("type", "BridgeError").put("payload", JSONObject().put("message", safeError(t))))
@@ -492,8 +494,8 @@ class MainActivity : Activity() {
                         "AdventureFinish" -> {
                             io.execute {
                                 try {
-                                    val ok = adventureStore.finish()
                                     val current = session.loadSession(CAMPAIGN_ID)
+                                    val ok = adventureStore.finish(scope = current.campaignId.value)
                                     send(JSONObject().put("type", "AdventureFinishResult").put("payload", JSONObject().put("ok", ok).put("viewState", projectForUi(current))))
                                 } catch (t: Throwable) {
                                     send(JSONObject().put("type", "BridgeError").put("payload", JSONObject().put("message", safeError(t))))
@@ -502,7 +504,46 @@ class MainActivity : Activity() {
                         }
 
                         "AdventureContextQuery" -> {
-                            send(JSONObject().put("type", "AdventureContextResult").put("payload", adventureStore.masterContext()))
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            send(JSONObject().put("type", "AdventureContextResult").put("payload", adventureStore.getActiveAdventureSummary(current.campaignId.value)))
+                        }
+
+                        "LifeStoreSync" -> {
+                            io.execute {
+                                try {
+                                    val scope = payload.optString("scope", CAMPAIGN_ID.value).ifBlank { CAMPAIGN_ID.value }
+                                    val stateJson = payload.optString("stateJson", "").trim()
+                                    val revision = payload.optLong("revision", 0L)
+                                    val day = payload.optInt("day", 0)
+                                    if (stateJson.isNotBlank()) {
+                                        db.lifeStoreDao().save(
+                                            LifeStoreEntity(
+                                                scope = scope,
+                                                revision = revision,
+                                                day = day,
+                                                stateJson = stateJson,
+                                                updatedAt = System.currentTimeMillis()
+                                            )
+                                        )
+                                        send(JSONObject().put("type", "LifeStoreSyncResult").put("payload", JSONObject().put("ok", true).put("scope", scope)))
+                                    }
+                                } catch (t: Throwable) {
+                                    send(JSONObject().put("type", "BridgeError").put("payload", JSONObject().put("message", safeError(t))))
+                                }
+                            }
+                        }
+
+                        "LifeStoreQuery" -> {
+                            io.execute {
+                                try {
+                                    val scope = payload.optString("scope", CAMPAIGN_ID.value).ifBlank { CAMPAIGN_ID.value }
+                                    val entity = db.lifeStoreDao().findByScope(scope)
+                                    val json = entity?.stateJson ?: "{}"
+                                    send(JSONObject().put("type", "LifeStoreResult").put("payload", JSONObject().put("ok", true).put("scope", scope).put("state", JSONObject(json))))
+                                } catch (t: Throwable) {
+                                    send(JSONObject().put("type", "BridgeError").put("payload", JSONObject().put("message", safeError(t))))
+                                }
+                            }
                         }
 
                         "GeminiSettingsGet" -> sendSettingsState()
@@ -1306,8 +1347,13 @@ class MainActivity : Activity() {
         geminiState.put("ttsMode", tts.mode().wireName)
         out.put("gemini", geminiState)
         out.put("tts", ttsStatusJson(includeCatalogs = false))
-        adventureStore.getActiveAdventureSummary()?.let {
-            out.put("activeAdventure", it)
+        adventureStore.getActiveAdventureSummary(current.campaignId.value).let {
+            if (it.optBoolean("active", false)) out.put("activeAdventure", it)
+        }
+        db.lifeStoreDao().findByScope(current.campaignId.value)?.let { entity ->
+            if (entity.stateJson.isNotBlank()) {
+                runCatching { JSONObject(entity.stateJson) }.getOrNull()?.let { out.put("lifeStore", it) }
+            }
         }
         out.put("worldStatus", JSONObject()
             .put("active", game.hexWorld != null && game.npcs.isNotEmpty())

@@ -1,0 +1,6 @@
+BRASEIRO OSE 1.0.9 FINAL BRELGA BUILD TRIGGER
+Target Branch: ose/final-integration-20261024
+ApplicationId: braseiro.ose
+VersionCode: 10
+VersionName: 1.0.9
+TriggeredAt: 2026-10-24T17:15:00-03:00

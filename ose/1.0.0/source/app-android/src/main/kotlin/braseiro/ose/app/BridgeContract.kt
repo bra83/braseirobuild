@@ -33,6 +33,8 @@ private val ALLOWED_BRIDGE_TYPES = setOf(
     "AdventureImport",
     "AdventureFinish",
     "AdventureContextQuery",
+    "LifeStoreSync",
+    "LifeStoreQuery",
     "RuleEvidenceQuery",
     "BackupExport",
     "BackupImport",
