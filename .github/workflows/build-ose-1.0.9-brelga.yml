@@ -1,4 +1,4 @@
-name: BRASEIRO OSE 1.0.9 Final - BRELGA
+name: BRASEIRO OSE 1.0.10 Final - BRELGA
 
 on:
   workflow_dispatch:
@@ -9,13 +9,13 @@ permissions:
   contents: write
 
 concurrency:
-  group: ose-1.0.9-final-brelga
+  group: ose-1.0.10-final-brelga
   cancel-in-progress: true
 
 env:
-  BUILD_ROOT: "D:\\brelga-ose-1.0.9-final"
-  APK_NAME: "BRASEIRO_OSE_1.0.9_FINAL.apk"
-  TAG: "ose-1.0.9-final"
+  BUILD_ROOT: "D:\\brelga-ose-1.0.10-final"
+  APK_NAME: "BRASEIRO_OSE_1.0.10_FINAL.apk"
+  TAG: "ose-1.0.10-final"
 
 jobs:
   build:
@@ -97,9 +97,9 @@ jobs:
           if ($LASTEXITCODE -ne 0) { Pop-Location; throw 'Motor de Vida V2.2 test suite failed' }
           Pop-Location
 
-          # Verify versionCode (10 or 11) and versionName (1.0.9 or 1.0.10)
-          if (-not ($gradle -match 'versionCode\s*=\s*(10|11)') -or -not ($gradle -match 'versionName\s*=\s*"1\.0\.(9|10)"')) {
-            throw 'Version check failed: expected versionCode 10 or 11 and versionName 1.0.9 or 1.0.10'
+          # Exact identity: never publish a 1.0.10 binary with a 1.0.9 label.
+          if (-not ($gradle -match 'versionCode\s*=\s*11') -or -not ($gradle -match 'versionName\s*=\s*"1\.0\.10"')) {
+            throw 'Version check failed: expected versionCode 11 and versionName 1.0.10'
           }
 
       - name: Authoritative compile and unit test suite
@@ -155,30 +155,80 @@ jobs:
           "$hash  $env:APK_NAME" | Set-Content (Join-Path $out "$($env:APK_NAME).sha256") -Encoding ascii
 
           @(
-            'STATUS=PASS_FINAL_APK',
-            'VERSION=1.0.9',
-            'VERSION_CODE=10',
+            'STATUS=AUTOMATED_GATES_AND_SIGNING_PASS',
+            'VERSION=1.0.10',
+            'VERSION_CODE=11',
             'APPLICATION_ID=braseiro.ose',
-            'MOTOR_DE_VIDA_V22=PASS',
-            'ADVENTURE_JSON_IMPORTER_V1=PASS',
-            'TTS_UNIVERSAL_V3=PASS',
-            'PORTRAIT_TOKEN_LINKING=PASS',
-            'GALAXY_A57_RESPONSIVE_LAYOUT=PASS',
-            'FULL_JVM_SUITE=PASS',
+            'AUTOMATED_NODE_GATES=PASS',
+            'AUTOMATED_JVM_SUITE=PASS',
             'CANONICAL_STABLE_SIGNING=PASS',
+            'GALAXY_A57_DEVICE_TEST=NOT_TESTED',
+            'GEMINI_LIVE_TEST=NOT_TESTED',
+            'TTS_LIVE_TEST=NOT_TESTED',
             "APK_SHA256=$hash"
-          ) | Set-Content (Join-Path $out 'OSE_1_0_9_FINAL_PROOF.txt') -Encoding utf8
+          ) | Set-Content (Join-Path $out 'OSE_1_0_10_FINAL_PROOF.txt') -Encoding utf8
           "dir=$out" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Upload final artifact
+        id: actions_artifact_upload
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_OSE_1.0.9_FINAL
+          name: BRASEIRO_OSE_1.0.10_FINAL
           path: |
-            ${{ env.BUILD_ROOT }}/publish/BRASEIRO_OSE_1.0.9_FINAL.apk
-            ${{ env.BUILD_ROOT }}/publish/BRASEIRO_OSE_1.0.9_FINAL.apk.sha256
+            ${{ env.BUILD_ROOT }}/publish/BRASEIRO_OSE_1.0.10_FINAL.apk
+            ${{ env.BUILD_ROOT }}/publish/BRASEIRO_OSE_1.0.10_FINAL.apk.sha256
             ${{ env.BUILD_ROOT }}/publish/APK_BADGING.txt
             ${{ env.BUILD_ROOT }}/publish/APK_SIGNATURE.txt
             ${{ env.BUILD_ROOT }}/publish/KEYSTORE_SIGNATURE.txt
-            ${{ env.BUILD_ROOT }}/publish/OSE_1_0_9_FINAL_PROOF.txt
+            ${{ env.BUILD_ROOT }}/publish/OSE_1_0_10_FINAL_PROOF.txt
           retention-days: 30
+      # Artifact quota can be exhausted even after successful compilation.
+      # The release endpoint is separate and reports failures transparently.
+      - name: Release fallback when artifact storage quota is exhausted
+        if: ${{ steps.actions_artifact_upload.outcome == 'failure' }}
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if ([string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) { throw 'No GITHUB_TOKEN for release fallback' }
+          $headers=@{
+            Authorization="Bearer $env:GITHUB_TOKEN"
+            Accept="application/vnd.github+json"
+            "X-GitHub-Api-Version"="2022-11-28"
+          }
+          $repo=$env:GITHUB_REPOSITORY
+          $url="https://api.github.com/repos/$repo/releases"
+          $tag=[uri]::EscapeDataString($env:TAG)
+          try {
+            $release=Invoke-RestMethod -Method Get -Uri "$url/tags/$tag" -Headers $headers
+          } catch {
+            $status=$_.Exception.Response.StatusCode.value__
+            if ($status -ne 404) { throw }
+            $payload=@{
+              tag_name=$env:TAG
+              target_commitish=$env:GITHUB_SHA
+              name="BRASEIRO OSE 1.0.10 (automated build)"
+              body="Built from commit $($env:GITHUB_SHA). Verify checksum and test on Galaxy A57 before declaring device homologation."
+              draft=$false
+              prerelease=$true
+            } | ConvertTo-Json
+            $release=Invoke-RestMethod -Method Post -Uri $url -Headers $headers -ContentType 'application/json' -Body $payload
+          }
+          $folder=Join-Path $env:BUILD_ROOT 'publish'
+          $names=@($env:APK_NAME,"$($env:APK_NAME).sha256",'APK_BADGING.txt','APK_SIGNATURE.txt','KEYSTORE_SIGNATURE.txt','OSE_1_0_10_FINAL_PROOF.txt')
+          $uploadUri=([string]$release.upload_url).Split('{')[0]
+          foreach ($name in $names) {
+            $full=Join-Path $folder $name
+            if (-not (Test-Path -LiteralPath $full)) { throw "Missing fallback release file: $name" }
+            $old=$release.assets | Where-Object { $_.name -eq $name }
+            foreach ($asset in @($old)) {
+              Invoke-RestMethod -Method Delete -Uri $asset.url -Headers $headers | Out-Null
+            }
+            $dest="$($uploadUri)?name=$([uri]::EscapeDataString($name))"
+            $mime=if($name.EndsWith('.apk')){'application/vnd.android.package-archive'}else{'application/octet-stream'}
+            Invoke-RestMethod -Method Post -Uri $dest -Headers $headers -ContentType $mime -InFile $full | Out-Null
+          }
+          Write-Host "Release fallback published: $($release.html_url)"
+
