@@ -310,7 +310,7 @@ class CombatMovementLightStateFlowTest {
                 party = PartyState(listOf("hero")),
                 position = PositionState(SpatialRef.Settlement("village", "inn")),
                 game = base.campaignState.game.copy(
-                    characters = mapOf("hero" to hero),
+                    characters = mapOf("hero" to hero, "reserve" to hero.copy(characterId = "reserve", name = "Reserve")),
                     inventory = InventorySnapshot(mapOf(coins.itemId to coins))
                 )
             ))
@@ -325,5 +325,29 @@ class CombatMovementLightStateFlowTest {
         assertTrue(healedHero.hitPoints.currentNumerator > 5, "Hero should have healed 1d3 HP")
         assertEquals(144, outFunded.updatedState.time.turns)
         assertEquals(1, outFunded.updatedState.time.days)
+        assertEquals(5, outFunded.updatedState.game.characters.getValue("reserve").hitPoints.currentNumerator,
+            "Characters outside the current party must never receive healing or consume dice")
+
+        // Loot is valid gold; neither its origin nor its item ID may block inn payment.
+        val goldLoot = coins.copy(itemId = "loot-gold", catalogId = "LOOT_GOLD_GP", quantity = 2)
+        val lootEnv = fundedEnv.copy(campaignState = fundedEnv.campaignState.copy(
+            game = fundedEnv.campaignState.game.copy(
+                inventory = InventorySnapshot(mapOf(goldLoot.itemId to goldLoot))
+            )
+        ))
+        val outLoot = boundary.resolve(lootEnv, "SETTLEMENT_REST_DAY", rng)
+        assertTrue(outLoot.mechanicalMutation)
+        assertEquals(1, outLoot.updatedState.game.inventory.items.getValue("loot-gold").quantity)
+        assertEquals(5, outLoot.updatedState.game.characters.getValue("reserve").hitPoints.currentNumerator)
+
+        // Currency denomination safety: silver is never silently charged as gold.
+        val silver = coins.copy(itemId = "silver", catalogId = "SILVER_SP", quantity = 200)
+        val silverEnv = fundedEnv.copy(campaignState = fundedEnv.campaignState.copy(
+            game = fundedEnv.campaignState.game.copy(inventory = InventorySnapshot(mapOf("silver" to silver)))
+        ))
+        val outSilver = boundary.resolve(silverEnv, "SETTLEMENT_REST_DAY", rng)
+        assertFalse(outSilver.mechanicalMutation)
+        assertFalse(outSilver.rngConsumed)
+        assertTrue(outSilver.feedback.contains("Fundos insuficientes"))
     }
 }
