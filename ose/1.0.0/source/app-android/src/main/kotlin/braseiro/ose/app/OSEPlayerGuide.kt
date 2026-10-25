@@ -230,6 +230,19 @@ object OSEPlayerGuide {
         return matched.ifEmpty { TOPICS.take(4) }
     }
 
+    /** Only gp-denominated coin stacks carried by active party members count toward an inn fee. */
+    fun availableGoldGp(envelope: CampaignEnvelope): Int {
+        val state = envelope.campaignState
+        return state.game.inventory.items.values.filter { item ->
+            val code = item.catalogId.uppercase()
+            item.ownerId in state.party.characterIds && item.kind == InventoryItemKind.COIN &&
+                (code == "GP" || code == "GOLD" || code == "GOLD_GP" ||
+                 code == "GOLD_PIECE" || code == "GOLD_PIECES" ||
+                 code.endsWith("_GOLD_GP") || code.endsWith("_GP") || code.endsWith("_GOLD")) &&
+                item.quantity > 0
+        }.sumOf { it.quantity }
+    }
+
     fun getActionSuggestions(envelope: CampaignEnvelope): List<ActionSuggestion> {
         val state = envelope.campaignState
         val game = state.game
@@ -238,6 +251,10 @@ object OSEPlayerGuide {
         val suggestions = mutableListOf<ActionSuggestion>()
 
         val primaryActor = state.party.characterIds.firstOrNull() ?: ""
+        val livingPartyCount = state.party.characterIds.count { id ->
+            game.characters[id]?.hitPoints?.dead == false
+        }
+        val canAffordInn = livingPartyCount > 0 && availableGoldGp(envelope) >= livingPartyCount
         val hasShield = game.inventory.items.values.any { it.equipped && it.kind == InventoryItemKind.SHIELD }
         val hasRanged = game.inventory.items.values.any { it.equipped && (it.catalogId.contains("BOW") || it.catalogId.contains("SLING") || it.catalogId.contains("CROSSBOW")) }
         val hasMelee = game.inventory.items.values.any { it.equipped && it.kind == InventoryItemKind.WEAPON && !it.catalogId.contains("BOW") }
@@ -387,10 +404,16 @@ object OSEPlayerGuide {
                         plainLabel = "Descansar na estalagem para recuperar PV",
                         intentCandidate = "SETTLEMENT_REST_DAY",
                         textCandidate = "Procuramos a estalagem local para alugar quartos confortáveis, comer refeições quentes e descansar o dia inteiro.",
-                        preconditions = listOf("Ouro suficiente para diária (1 po)"),
+                        preconditions = listOf("1 po por aventureiro vivo da companhia"),
                         riskHint = "Consome 1 dia de tempo de jogo; recupera 1d3 PV",
                         timePreview = "1 dia (24 horas)",
-                        sourceRuleRef = "Classic Rules Tome p. 9"
+                        sourceRuleRef = "Classic Rules Tome p. 9",
+                        executable = canAffordInn,
+                        missingRequirement = when {
+                            livingPartyCount == 0 -> "Nenhum aventureiro vivo na companhia"
+                            !canAffordInn -> "A companhia precisa de $livingPartyCount po para a diária"
+                            else -> null
+                        }
                     )
                 )
                 suggestions.add(
