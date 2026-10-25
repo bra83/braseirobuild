@@ -8,15 +8,7 @@ permissions:
   contents: write
   actions: write
 jobs:
-  prepare:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Liberar tentativa anterior que aguardava a publicacao
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh api --method POST repos/bra83/braseirobuild/actions/runs/40168939977/cancel >/dev/null 2>&1 || true
   sign:
-    needs: prepare
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 20
     steps:
