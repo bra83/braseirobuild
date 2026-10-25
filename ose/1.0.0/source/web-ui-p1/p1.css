@@ -253,3 +253,10 @@ body{background:#c9aa72}
 .navbtn .ico{line-height:21px}
 .item-thumb.equipment-art{width:54px;height:54px;object-fit:contain;float:right;margin:0 0 6px 7px}
 @media(max-width:480px){.bottom{bottom:0;height:56px;max-height:56px;padding-bottom:0}.navbtn{height:56px;min-height:56px;padding:2px 0}#phone{padding-bottom:56px}.status{margin-top:4px}.stat{padding:4px;min-height:37px}.top{gap:6px}.logo{height:42px}.screen{min-height:0;padding-bottom:10px}}
+
+/* Native geometry/physics visualizer. Original FL CSS tray remains the fallback. */
+#dice3dStage.physics-active{height:clamp(270px,42dvh,355px);min-height:270px;overflow:hidden}
+#dice3dStage.physics-active .dice3d-tray{visibility:hidden}
+#dice3dStage.physics-active .dice3d-floor{opacity:.4}
+.ose-physics-canvas{position:absolute;inset:0;z-index:2;display:block;width:100%;height:100%;touch-action:none;pointer-events:none}
+@media(max-height:630px){#dice3dStage.physics-active{height:240px;min-height:240px}}

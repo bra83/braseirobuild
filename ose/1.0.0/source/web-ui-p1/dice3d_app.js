@@ -49,6 +49,7 @@ function normalizeRolls(cfg){
 }
 function launch(cfg){
   ++renderToken;
+  window.OSEPhysicsDice?.stop();
   try{
     cfg=cfg||{};
     const dice=normalizeRolls(cfg);
@@ -63,7 +64,11 @@ function launch(cfg){
     const expression=dice.map(d=>(d.sign<0?'− ':'')+'d'+d.sides+'['+d.value+']').join(' + ').replace(/\+ −/g,'−');
     detail.textContent=expression+(Number(cfg.modifier)?' '+(cfg.modifier>0?'+':'−')+' '+Math.abs(Number(cfg.modifier)):'')+' = '+official;
     overlay.classList.remove('hidden');
-    return {ok:true,rolls:dice.map(d=>d.value),total:official};
+    const physics=window.OSEPhysicsDice?.start(cfg,dice,()=>{
+      status.textContent='Simulação concluída · faces confirmadas pelo árbitro OSE';
+    });
+    if(physics)status.textContent='Dados físicos em movimento · resultado definido pelo árbitro OSE';
+    return {ok:true,rolls:dice.map(d=>d.value),total:official,visualMode:physics?'physics':'fl-css'};
   }catch(error){
     tray.innerHTML='';
     status.textContent='Não foi possível representar a rolagem';
@@ -73,7 +78,7 @@ function launch(cfg){
     return {ok:false,error:String(error&&error.message||error)};
   }
 }
-function stop(){++renderToken;tray.innerHTML='';}
+function stop(){++renderToken;window.OSEPhysicsDice?.stop();tray.innerHTML='';}
 close.addEventListener('click',()=>{stop();overlay.classList.add('hidden')});
 overlay.addEventListener('click',e=>{if(e.target===overlay){stop();overlay.classList.add('hidden')}});
 window.BraseiroDice={start:launch,stop};
