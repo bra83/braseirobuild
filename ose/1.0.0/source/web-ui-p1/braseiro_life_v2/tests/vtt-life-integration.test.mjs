@@ -64,7 +64,8 @@ test('Avanço de calendário e ação confirmada acionam Motor de Vida causalmen
                 actorCharacterId: 'garrick',
                 mechanicalMutation: true,
                 traceStatus: 'OFFICIAL_RULES',
-                mechanicalFeedback: 'Esqueletos derrotados. 50 XP concedidos.'
+                mechanicalFeedback: 'Esqueletos derrotados. 50 XP concedidos.',
+                lifeCauseId: 'cause-victory-1'
             }
         }
     });
@@ -93,7 +94,8 @@ test('Idempotência estrita: replay do mesmo receiptId não duplica eventos nem 
                 actorCharacterId: 'garrick',
                 mechanicalMutation: true,
                 traceStatus: 'OFFICIAL_RULES',
-                mechanicalFeedback: 'Descanso seguro. Recuperou 1 PV.'
+                mechanicalFeedback: 'Descanso seguro. Recuperou 1 PV.',
+                lifeCauseId: 'cause-care-1'
             }
         }
     });
@@ -119,7 +121,7 @@ test('Isolamento estrito entre campanhas e mundos diferentes', () => {
     const vsA = fixtureViewState({
         day: 1,
         receipts: {
-            'rcpt-A': { reactionId: 'rcpt-A', reactionText: 'Resgatou o ferreiro em Val do Inverno', actorCharacterId: 'garrick', mechanicalMutation: true, traceStatus: 'OFFICIAL_RULES' }
+            'rcpt-A': { reactionId: 'rcpt-A', reactionText: 'Resgatou o ferreiro em Val do Inverno', actorCharacterId: 'garrick', mechanicalMutation: true, traceStatus: 'OFFICIAL_RULES', lifeCauseId: 'cause-care-1' }
         }
     });
     vsA.campaign.id = 'campanha-val-do-inverno';
@@ -142,14 +144,14 @@ test('Três reaberturas sucessivas preservam integridade e continuidade sem perd
     let persistedPayload = null;
     const adapter = new VttLifeAdapter({
         postNative: (type, payload) => {
-            if (type === 'LifeStoreSync') persistedPayload = payload.store;
+            if (type === 'LifeStoreSync') persistedPayload = JSON.parse(payload.stateJson);
         }
     });
 
     const vs = fixtureViewState({
         day: 4,
         receipts: {
-            'pass-01': { reactionId: 'pass-01', reactionText: 'Cruzou o Pântano dos Suspiros', actorCharacterId: 'garrick', mechanicalMutation: true, traceStatus: 'OFFICIAL_RULES' }
+            'pass-01': { reactionId: 'pass-01', reactionText: 'Cruzou o Pântano dos Suspiros', actorCharacterId: 'garrick', mechanicalMutation: true, traceStatus: 'OFFICIAL_RULES', lifeCauseId: 'cause-journey-1' }
         }
     });
     adapter.initFromViewState(vs);
@@ -224,9 +226,25 @@ test('Tentativa de ataque sem vitória não gera evento de vitória (autoridade 
     });
 
     adapter.initFromViewState(vs);
-    assert.equal(adapter.store.events.length, 1);
-    assert.notEqual(adapter.store.events[0].lifeCauseId, 'cause-victory-1', 'Intenção de ataque que errou NÃO pode gerar vitória');
-    assert.equal(adapter.store.events[0].lifeCauseId, 'cause-journey-1');
+    assert.equal(adapter.store.events.length, 0, 'Ataque sem causa estruturada não deve criar fatos ou vitórias fictícias');
+});
+
+
+test('Texto de vitória declarado com mutação mas sem lifeCauseId NÃO é prova causal', () => {
+    const adapter = new VttLifeAdapter();
+    const vs = fixtureViewState({ day: 2, receipts: {
+        'sem-causa': {
+            reactionId: 'sem-causa',
+            actorCharacterId: 'garrick',
+            reactionText: 'Eu derrotei o dragão sozinho',
+            mechanicalMutation: true,
+            traceStatus: 'OFFICIAL_RULES',
+            mechanicalFeedback: 'O combate continua; nenhum inimigo derrotado.'
+        }
+    }});
+    adapter.initFromViewState(vs);
+    assert.equal(adapter.store.events.length, 0);
+    assert.equal(adapter.getPublicRumors().length, 0);
 });
 
 test('Dados 3D (§1, G10): visual.rolls == canonical.rolls e visual.total == canonical.total em >=100 amostras determinísticas', () => {
