@@ -30,21 +30,43 @@ object ContextualDecisionSuggester {
                 val attackIntent = if (primaryActor.isNotBlank() && targetOpponent != null && weapon != null) "COMBAT_ATTACK_MELEE:PARTY:$primaryActor:$targetOpponent:$weapon" else null
                 val retreatIntent = if (primaryActor.isNotBlank() && encounter != null) "COMBAT_MOVE:PARTY:$primaryActor:RETREAT" else null
                 listOf(
-                    Suggestion("ATACAR CORPO A CORPO", "Avanço com arma em punho para desferir um ataque contra o adversário.", attackIntent),
-                    Suggestion("RECUO CAUTELOSO", "Mantenho a guarda defensiva e recuo com cautela sem expor as costas.", retreatIntent),
+                    if (attackIntent != null)
+                        Suggestion("ATACAR CORPO A CORPO", "Avanço com arma em punho para desferir um ataque contra o adversário.", attackIntent)
+                    else Suggestion("OBSERVAR O ADVERSÁRIO", "Observo a ameaça sem declarar um ataque impossível."),
+                    if (retreatIntent != null)
+                        Suggestion("RECUO CAUTELOSO", "Mantenho a guarda defensiva e recuo com cautela sem expor as costas.", retreatIntent)
+                    else Suggestion("BUSCAR ABRIGO", "Avalio o entorno e as posições de defesa disponíveis."),
                     Suggestion("AGUARDAR TURNO", "Aguardamos e observamos a movimentação inimiga.", "WAIT_TURN")
                 )
             }
-            position is SpatialRef.Dungeon -> listOf(
-                Suggestion("PROCURAR NA SALA", "Examinamos minuciosamente o ambiente em busca de passagens secretas e armadilhas.", "DUNGEON_SEARCH_ROOM"),
-                Suggestion("ESCUTAR NA PORTA", "Aproximo o ouvido da fresta da porta de madeira escutando ruídos com atenção.", "DUNGEON_LISTEN_DOOR"),
-                Suggestion("FORÇAR PORTA", "Apoio o ombro contra a porta emperrada e forço o mecanismo com toda a força.", "DUNGEON_OPEN_STUCK_DOOR")
-            )
-            position is SpatialRef.Settlement -> listOf(
-                Suggestion("DESCANSAR NA ESTALAGEM", "Procuramos a estalagem local para alugar quartos e descansar o dia inteiro recuperando PV.", "SETTLEMENT_REST_DAY"),
-                Suggestion("AGUARDAR 1 TURNO", "Aguardamos observando o movimento e conversando com os viajantes.", "WAIT_TURN"),
-                Suggestion("REORGANIZAR GRUPO", "Verificamos as provisões e a condição de todos antes de partir.")
-            )
+            position is SpatialRef.Dungeon -> {
+                val dungeon = game.dungeon
+                val knownDoors = dungeon?.edges.orEmpty().filter { edge ->
+                    !edge.secret && edge.kind.equals("DOOR", ignoreCase = true) && dungeon != null &&
+                    ((edge.from == position.nodeId && (edge.to in dungeon.knownNodeIds || edge.to in dungeon.visibleNodeIds)) ||
+                     (edge.to == position.nodeId && (edge.from in dungeon.knownNodeIds || edge.from in dungeon.visibleNodeIds)))
+                }
+                listOf(
+                    Suggestion("PROCURAR NA SALA", "Examinamos minuciosamente o ambiente em busca de passagens secretas e armadilhas.", "DUNGEON_SEARCH_ROOM"),
+                    if (knownDoors.isNotEmpty())
+                        Suggestion("ESCUTAR NA PORTA", "Aproximo o ouvido da porta conhecida escutando ruídos com atenção.", "DUNGEON_LISTEN_DOOR")
+                    else Suggestion("EXAMINAR O AMBIENTE", "Observo os objetos e as passagens que consigo perceber sem supor portas ocultas."),
+                    if (knownDoors.any { !it.open })
+                        Suggestion("FORÇAR PORTA", "Tento forçar a porta fechada que está diante da companhia.", "DUNGEON_OPEN_STUCK_DOOR")
+                    else Suggestion("REORGANIZAR O GRUPO", "Confiro a posição, as fontes de luz e os equipamentos da companhia.")
+                )
+            }
+            position is SpatialRef.Settlement -> {
+                val livingCount = state.party.characterIds.count { id -> game.characters[id]?.hitPoints?.dead == false }
+                val canAfford = livingCount > 0 && OSEPlayerGuide.availableGoldGp(envelope) >= livingCount
+                listOf(
+                    if (canAfford)
+                        Suggestion("DESCANSAR NA ESTALAGEM", "Procuramos a estalagem local para alugar quartos e descansar o dia inteiro recuperando PV.", "SETTLEMENT_REST_DAY")
+                    else Suggestion("CONSULTAR HOSPEDAGEM", "Pergunto os preços de hospedagem e avalio as provisões, sem contratar uma diária ainda."),
+                    Suggestion("AGUARDAR 1 TURNO", "Aguardamos observando o movimento e conversando com os viajantes.", "WAIT_TURN"),
+                    Suggestion("REORGANIZAR GRUPO", "Verificamos as provisões e a condição de todos antes de partir.")
+                )
+            }
             position is SpatialRef.Hex -> hexTravelSuggestions(envelope, position)
             visible.contains("trilha") || visible.contains("caminho") || visible.contains("colina") -> listOf(
                 Suggestion("AGUARDAR 1 TURNO", "Fazemos uma breve pausa de 10 minutos para observar o terreno.", "WAIT_TURN"),
