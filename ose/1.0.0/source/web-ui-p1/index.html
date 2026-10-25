@@ -137,6 +137,35 @@
     </div>
   </div>
 
+  <div id="firstLaunchOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Bem-vindo ao BRASEIRO OSE">
+    <div class="settings panel">
+      <div class="settings-head"><h3>Bem-vindo ao BRASEIRO OSE</h3></div>
+      <p class="note">Adaptação fiel das regras oficiais de Old-School Essentials (Classic e Advanced). Escolha sua experiência de jogo:</p>
+      <div style="margin:16px 0;display:flex;flex-direction:column;gap:12px">
+        <button id="firstLaunchLearn" class="primary" style="padding:14px;text-align:left;height:auto">
+          <b style="display:block;font-size:15px;color:#d9a84c">✦ Aprender Jogando (Recomendado)</b>
+          <span style="font-size:12px;color:#cbb898;line-height:1.4;display:block;margin-top:4px">Ideal para novatos ou quem quer refrescar as regras OSE. Inclui orientações contextuais, explicações mecânicas, comparação de classes e sugestões do que fazer.</span>
+        </button>
+        <button id="firstLaunchExperienced" class="secondary" style="padding:14px;text-align:left;height:auto">
+          <b style="display:block;font-size:15px">⚔ Jogador Experiente</b>
+          <span style="font-size:12px;color:#a89880;line-height:1.4;display:block;margin-top:4px">Interface direta clássica sem explicações adicionais na tela principal. O guia e as regras completas continuam acessíveis a qualquer momento.</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="photoMenuOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Opções de Imagem">
+    <div class="settings panel">
+      <div class="settings-head"><h3 id="photoMenuTitle">Imagem / Retrato</h3><button id="photoMenuClose" class="small">FECHAR</button></div>
+      <p id="photoMenuSubtitle" class="note">Selecione como deseja definir ou atualizar esta imagem:</p>
+      <div style="margin:12px 0;display:flex;flex-direction:column;gap:8px">
+        <button id="photoMenuGemini" class="primary">✦ GERAR COM IA GEMINI</button>
+        <button id="photoMenuGallery" class="secondary">📁 ESCOLHER DO DISPOSITIVO</button>
+        <button id="photoMenuRemove" class="danger-button">✕ REMOVER IMAGEM ATUAL</button>
+      </div>
+      <button id="photoMenuCancel" class="small" style="width:100%;margin-top:6px">CANCELAR</button>
+    </div>
+  </div>
   <div id="dice3dOverlay" class="overlay hidden" style="background:rgba(12,8,5,0.88);z-index:90;padding:0;overflow:hidden">
     <canvas id="stage" style="width:100%;height:100%;touch-action:none"></canvas>
     <div id="hud" style="position:absolute;left:0;right:0;top:10px;text-align:center;pointer-events:none;color:#eed5a2">

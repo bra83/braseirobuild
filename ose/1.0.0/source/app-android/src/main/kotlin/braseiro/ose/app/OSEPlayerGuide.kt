@@ -98,72 +98,97 @@ object OSEPlayerGuide {
             topicId = "hit_points",
             title = "Pontos de Vida (PV) e Morte",
             category = "Sobrevivência",
-            summary = "A resistência a ferimentos e fadiga antes da incapacitação ou morte.",
-            details = "Ao atingir 0 PV, o personagem está morto ou moribundo (conforme regra do grupo). No 1º nível, o dado de vida depende da classe (Guerreiro d8, Clérigo d6, Mago d4) somado ao bônus de Constituição (mínimo 1 PV).",
+            summary = "Capacidade de absorver ferimentos e fadiga antes da morte.",
+            details = "Determinados no nível 1 pelo Dado de Vida (DV) da classe (ex.: d8 para Guerreiro, d4 para Mago) mais modificador de CON. Em 0 PV ou menos, o personagem morre imediatamente pelas regras clássicas. Descanso em refúgio seguro cura 1d3 PV por dia de cama.",
             examples = listOf(
-                "Descanso de 24 horas em local seguro recupera 1d3 PV.",
-                "Magias de cura (como Curar Ferimentos Leves) restauram 1d6+1 PV."
+                "Guerreiro com CON 14 (+1) rola 1d8+1 (mínimo 2 PV, máximo 9 PV no 1º nível).",
+                "Mago com CON 7 (-1) rola 1d4-1 (mínimo 1 PV)."
             ),
-            sourceRuleRef = "Classic Rules Tome p. 106"
+            sourceRuleRef = "Classic Rules Tome p. 9 / Advanced Player's Tome p. 13"
+        ),
+        HelpTopic(
+            topicId = "saving_throws",
+            title = "Jogadas de Proteção (Salvaguardas)",
+            category = "Sobrevivência",
+            summary = "Chances de resistir a perigos letais: Veneno, Varinhas, Paralisia, Sopro e Magias.",
+            details = "Rola-se 1d20. Se o resultado for igual ou superior ao valor exigido na tabela da classe e nível, o perigo é evitado ou reduzido à metade.",
+            examples = listOf(
+                "Guerreiro de 1º nível testando contra Veneno: precisa de 12 ou mais em 1d20.",
+                "Anões e Halflings recebem bônus substanciais em Salvaguardas devido à constituição robusta."
+            ),
+            sourceRuleRef = "Classic Rules Tome p. 105 / Advanced Player's Tome p. 120"
         ),
         HelpTopic(
             topicId = "dungeon_turns",
-            title = "Turnos de Exploração em Masmorra",
+            title = "O Turno de Masmorra (10 minutos)",
             category = "Exploração",
-            summary = "Em masmorras, o tempo avança em 'Turnos' de 10 minutos.",
-            details = "A cada turno, o grupo pode percorrer uma distância com cautela, examinar uma sala, procurar armadilhas ou arrombar uma porta. A cada 2 turnos (ou conforme o local), o Mestre pode rolar 1d6 para encontros errantes (1 em 6 indica encontro).",
+            summary = "A unidade básica de tempo na exploração subterrânea é o turno de 10 minutos.",
+            details = "A cada turno, o grupo pode se mover com cautela (mapeando), examinar uma sala, forçar uma porta emperrada ou procurar armadilhas. O Mestre rola encontro errante a cada 2 turnos (1 em 6 em 1d6). A cada 5 turnos de atividade, o grupo deve descansar 1 turno.",
             examples = listOf(
-                "Procurar armadilhas numa porta consome 1 turno (10 min).",
-                "Uma tocha queima por 6 turnos (1 hora completa)."
+                "Procurar armadilhas em uma sala: consome 1 turno completo.",
+                "Uma tocha dura 6 turnos (1 hora) antes de se extinguir."
             ),
-            sourceRuleRef = "Classic Rules Tome p. 96"
-        ),
-        HelpTopic(
-            topicId = "torches_light",
-            title = "Luz e Tochas",
-            category = "Equipamento",
-            summary = "Monstros e perigos atacam no escuro sem chance de defesa se não houver iluminação.",
-            details = "Humanos não enxergam no escuro. Uma tocha ou lanterna ilumina um raio de 9 metros (30 pés). Uma tocha dura exatamente 6 turnos (1 hora). Ficar no escuro total causa penalidades severas e impede o mapeamento.",
-            examples = listOf(
-                "Acender tocha gasta 1 unidade do inventário.",
-                "Lanternas a óleo consomem 1 frasco de óleo a cada 24 turnos (4 horas)."
-            ),
-            sourceRuleRef = "Classic Rules Tome p. 44"
-        ),
-        HelpTopic(
-            topicId = "wilderness_travel",
-            title = "Viagem pelos Ermos",
-            category = "Viagem",
-            summary = "Nos ermos, a escala de tempo é medida em Dias de viagem.",
-            details = "Um grupo a pé geralmente avança de 1 a 2 hexágonos por dia, dependendo do terreno (estradas e planícies são mais rápidas; pântanos e montanhas são mais lentos). Cada dia consome 1 ração e água potável por aventureiro.",
-            examples = listOf(
-                "Sem rações, a cada dia sem comida a companhia acumula penalidades de fadiga e perda gradual de moral.",
-                "Em terreno desconhecido, há chance diária do grupo se perder (extravio)."
-            ),
-            sourceRuleRef = "Classic Rules Tome p. 110"
-        ),
-        HelpTopic(
-            topicId = "retainers",
-            title = "Auxiliares e Mercenários",
-            category = "Companhia",
-            summary = "Aventureiros podem contratar ajudantes para carregar tochas, vigiar acampamentos ou lutar.",
-            details = "O número máximo de auxiliares é determinado pelo Carisma do contratante. Exigem pagamento de diária fixa (geralmente 1 po/dia) e uma cota de tesouro (geralmente 1/2 cota). Possuem índice de Lealdade que reage a bom tratamento e perigo extremo.",
-            examples = listOf(
-                "Se o empregador não pagar as diárias devidas, o auxiliar pode abandonar o grupo na primeira oportunidade segura.",
-                "Auxiliares ganham metade do XP que os personagens dos jogadores recebem."
-            ),
-            sourceRuleRef = "Classic Rules Tome p. 19-20"
+            sourceRuleRef = "Classic Rules Tome p. 96 / Advanced Referee's Tome p. 88"
         ),
         HelpTopic(
             topicId = "combat_rounds",
-            title = "Rodadas de Combate",
+            title = "A Rodada de Combate (10 segundos)",
             category = "Combate",
-            summary = "O combate é dividido em rodadas de 10 segundos, com iniciativa por lado.",
-            details = "Sequência oficial OSE: 1. Declaração de magias ou recuo; 2. Iniciativa (1d6 por lado); 3. Lado vencedor age (moral, movimento, projéteis, magias, combate corpo a corpo); 4. Lado perdedor age na mesma ordem.",
+            summary = "O combate é dividido em rodadas de 10 segundos, resolvidas por iniciativa de grupo.",
+            details = "Cada rodada tem sequência estrita: 1) Declaração de magias e recuo; 2) Iniciativa de grupo (1d6 contra 1d6); 3) Movimento; 4) Disparos de projéteis; 5) Magias; 6) Ataques corpo a corpo; 7) Testes de moral dos monstros.",
             examples = listOf(
-                "Se um conjurador for ferido antes do seu momento de lançar a magia na rodada, a magia é perdida."
+                "Se o grupo vencer a iniciativa (número mais alto no 1d6), age antes dos monstros.",
+                "Conjurador que sofrer dano antes da fase de magias perde a magia declarada."
             ),
-            sourceRuleRef = "Classic Rules Tome p. 102"
+            sourceRuleRef = "Classic Rules Tome p. 102 / Advanced Player's Tome p. 116"
+        ),
+        HelpTopic(
+            topicId = "wilderness_travel",
+            title = "Viagem pelos Ermos e Clima",
+            category = "Ermos",
+            summary = "Deslocamento por hexágonos no mapa-múndi medido em milhas diárias.",
+            details = "O grupo viaja até seu limite de movimento diário (ex.: 24 milhas para humanos com carga leve). O terreno (floresta, pântano, montanha) e o clima (chuva, nevasca) reduzem a velocidade e aumentam o risco de se perder.",
+            examples = listOf(
+                "Pântano e montanhas dobram o custo de movimento (metade da velocidade normal).",
+                "Sem comida e água limpa, a companhia sofre penalidades graves e exaustão."
+            ),
+            sourceRuleRef = "Classic Rules Tome p. 98 / Advanced Referee's Tome p. 92"
+        ),
+        HelpTopic(
+            topicId = "torches_light",
+            title = "Iluminação, Tochas e Recursos",
+            category = "Recursos",
+            summary = "Sem luz em masmorras fechadas, humanos ficam cegos e vulneráveis a emboscadas.",
+            details = "Uma tocha ilumina um raio de 9 metros (30 pés) por 6 turnos (1 hora). Lanternas a óleo iluminam o mesmo raio com foco ajustável e óleo dura 24 turnos (4 horas). Se a luz apagar em território hostil, ataques recebem penalidades severas.",
+            examples = listOf(
+                "Carregar tocha em uma das mãos impede o uso de armas de duas mãos ou escudo.",
+                "Soltar a tocha no chão durante o combate permite sacar o escudo, mas arrisca apagar a chama."
+            ),
+            sourceRuleRef = "Classic Rules Tome p. 44, 96 / Advanced Player's Tome p. 48"
+        ),
+        HelpTopic(
+            topicId = "retainers",
+            title = "Auxiliares, Mercenários e Moral",
+            category = "Companhia",
+            summary = "Contratar ajudantes na cidade aumenta as chances de sobrevivência da companhia.",
+            details = "O Carisma do líder determina o número máximo de auxiliares (retainers) e sua Moral básica (2d6). Auxiliares exigem diária em moedas de ouro e meia cota de tesouro encontrado. Em perigo extremo ou morte de aliados, o Mestre testa Moral 2d6.",
+            examples = listOf(
+                "Carisma 13: até 5 auxiliares com Moral 8.",
+                "Se o teste de 2d6 superar o valor de Moral, o auxiliar recua ou foge."
+            ),
+            sourceRuleRef = "Classic Rules Tome p. 28 / Advanced Player's Tome p. 34"
+        ),
+        HelpTopic(
+            topicId = "rule_trace",
+            title = "Explicação da Última Ação do Mestre",
+            category = "Arbitragem",
+            summary = "Como o árbitro determinístico do OSE calculou e comprovou o último evento mecânico.",
+            details = "Todas as resoluções de ataque, dano, salvaguarda, movimento ou consumo de tempo são registradas em traces auditáveis com referências aos livros oficiais (Classic Tome / Advanced Tome). O guia de regras permite consultar a fonte exata sem consumir RNG.",
+            examples = listOf(
+                "Ataque corpo a corpo: comparado com a matriz THAC0 oficial da classe.",
+                "Consumo de tempo: relógio avançado em turnos (10 min) ou dias inteiros."
+            ),
+            sourceRuleRef = "Classic Rules Tome p. 102-105"
         )
     )
 
@@ -176,18 +201,21 @@ object OSEPlayerGuide {
         when (phase.uppercase()) {
             "CHARACTER_LOADOUT", "READY_TO_START" -> {
                 getTopic("attributes")?.let { matched.add(it) }
+                getTopic("armor_class")?.let { matched.add(it) }
                 getTopic("torches_light")?.let { matched.add(it) }
                 getTopic("hit_points")?.let { matched.add(it) }
             }
             "COMBAT" -> {
                 getTopic("combat_rounds")?.let { matched.add(it) }
                 getTopic("armor_class")?.let { matched.add(it) }
+                getTopic("saving_throws")?.let { matched.add(it) }
                 getTopic("hit_points")?.let { matched.add(it) }
             }
             else -> {
                 if (locationKind.contains("DUNGEON", ignoreCase = true)) {
                     getTopic("dungeon_turns")?.let { matched.add(it) }
                     getTopic("torches_light")?.let { matched.add(it) }
+                    getTopic("saving_throws")?.let { matched.add(it) }
                 } else if (locationKind.contains("HEX", ignoreCase = true) || locationKind.contains("WILD", ignoreCase = true)) {
                     getTopic("wilderness_travel")?.let { matched.add(it) }
                 }
@@ -195,7 +223,7 @@ object OSEPlayerGuide {
                 getTopic("hit_points")?.let { matched.add(it) }
             }
         }
-        return matched.ifEmpty { TOPICS.take(3) }
+        return matched.ifEmpty { TOPICS.take(4) }
     }
 
     fun getActionSuggestions(envelope: CampaignEnvelope): List<ActionSuggestion> {
@@ -205,28 +233,50 @@ object OSEPlayerGuide {
         val pos = state.position.primary
         val suggestions = mutableListOf<ActionSuggestion>()
 
+        val hasShield = game.inventory.items.values.any { it.equipped && it.kind == InventoryItemKind.SHIELD }
+        val hasRanged = game.inventory.items.values.any { it.equipped && (it.catalogId.contains("BOW") || it.catalogId.contains("SLING") || it.catalogId.contains("CROSSBOW")) }
+        val hasMelee = game.inventory.items.values.any { it.equipped && it.kind == InventoryItemKind.WEAPON && !it.catalogId.contains("BOW") }
+        val hasTorches = game.inventory.items.values.any { it.kind == InventoryItemKind.LIGHT_SOURCE || it.catalogId.contains("TORCH") || it.catalogId.contains("OIL") }
+        val hasCompanions = state.party.characterIds.size > 1 || game.retainerContracts.isNotEmpty()
+
         when {
             phase == "COMBAT" -> {
-                suggestions.add(
-                    ActionSuggestion(
-                        id = "act-combat-melee",
-                        plainLabel = "Atacar o adversário mais próximo",
-                        intentCandidate = "COMBAT_ATTACK_MELEE",
-                        textCandidate = "Avanço com arma em punho para desferir um ataque contra o inimigo mais próximo.",
-                        preconditions = listOf("Arma corpo a corpo equipada"),
-                        riskHint = "Inimigo pode contra-atacar na mesma rodada",
-                        timePreview = "1 rodada (10 segundos)",
-                        sourceRuleRef = "Classic Rules Tome p. 102"
+                if (hasMelee) {
+                    suggestions.add(
+                        ActionSuggestion(
+                            id = "act-combat-melee",
+                            plainLabel = "Atacar com arma corpo a corpo",
+                            intentCandidate = "COMBAT_ATTACK_MELEE",
+                            textCandidate = "Avanço com arma em punho para desferir um ataque contra o adversário mais próximo.",
+                            preconditions = listOf("Arma corpo a corpo equipada"),
+                            riskHint = "Inimigo pode contra-atacar na mesma rodada",
+                            timePreview = "1 rodada (10 segundos)",
+                            sourceRuleRef = "Classic Rules Tome p. 102"
+                        )
                     )
-                )
+                }
+                if (hasRanged) {
+                    suggestions.add(
+                        ActionSuggestion(
+                            id = "act-combat-ranged",
+                            plainLabel = "Disparar projétil à distância",
+                            intentCandidate = "COMBAT_ATTACK_MISSILE",
+                            textCandidate = "Mantenho distância segura e disparo minha arma de projéteis contra o inimigo mais exposto.",
+                            preconditions = listOf("Arma de disparo e munição disponíveis"),
+                            riskHint = "Não pode disparar se já engajado em combate corpo a corpo",
+                            timePreview = "1 rodada (10 segundos)",
+                            sourceRuleRef = "Classic Rules Tome p. 102"
+                        )
+                    )
+                }
                 suggestions.add(
                     ActionSuggestion(
                         id = "act-combat-defend",
-                        plainLabel = "Postura defensiva e recuo",
+                        plainLabel = if (hasShield) "Recuo cauteloso com escudo" else "Postura defensiva e recuo",
                         intentCandidate = "COMBAT_FIGHTING_WITHDRAWAL",
-                        textCandidate = "Mantenho a guarda alta com o escudo e recuo com cautela, evitando expor as costas.",
-                        preconditions = listOf("Espaço livre para recuo"),
-                        riskHint = "Movimento limitado à metade da velocidade",
+                        textCandidate = if (hasShield) "Mantenho a guarda alta com o escudo e recuo com cautela, evitando expor as costas." else "Mantenho a guarda alta com minha arma e recuo com cautela, evitando expor as costas.",
+                        preconditions = if (hasShield) listOf("Escudo equipado", "Espaço livre para recuo") else listOf("Arma em punho", "Espaço livre para recuo"),
+                        riskHint = "Movimento limitado à metade da velocidade normal",
                         timePreview = "1 rodada (10 segundos)",
                         sourceRuleRef = "Classic Rules Tome p. 103"
                     )
@@ -269,81 +319,98 @@ object OSEPlayerGuide {
                         sourceRuleRef = "Classic Rules Tome p. 97"
                     )
                 )
+                if (hasTorches) {
+                    suggestions.add(
+                        ActionSuggestion(
+                            id = "act-dungeon-torch",
+                            plainLabel = "Acender tocha de reserva",
+                            intentCandidate = "DUNGEON_LIGHT_TORCH",
+                            textCandidate = "Retiro uma tocha e pederneira da mochila e acendo a chama para manter o raio de 9 metros iluminado.",
+                            preconditions = listOf("Tocha e pederneira no inventário"),
+                            riskHint = "Ocupa uma das mãos durante a exploração",
+                            timePreview = "Instantâneo (dentro do turno)",
+                            sourceRuleRef = "Classic Rules Tome p. 96"
+                        )
+                    )
+                }
+            }
+            pos is SpatialRef.Settlement -> {
                 suggestions.add(
                     ActionSuggestion(
-                        id = "act-dungeon-torch",
-                        plainLabel = "Verificar estado das tochas e suprimentos",
-                        intentCandidate = "CHECK_SUPPLIES",
-                        textCandidate = "Verifico quanto tempo resta na tocha acesa e confiro as provisões da mochila.",
-                        preconditions = emptyList(),
-                        riskHint = "Nenhum risco",
-                        timePreview = "Sem custo de tempo",
-                        sourceRuleRef = "Classic Rules Tome p. 44"
+                        id = "act-settle-inn",
+                        plainLabel = "Descansar na estalagem para recuperar PV",
+                        intentCandidate = "SETTLEMENT_REST",
+                        textCandidate = "Procuramos a estalagem local para alugar quartos confortáveis, comer refeições quentes e descansar o dia inteiro.",
+                        preconditions = listOf("Ouro suficiente para diária (1 po)"),
+                        riskHint = "Consome 1 dia de tempo de jogo; recupera 1d3 PV",
+                        timePreview = "1 dia (24 horas)",
+                        sourceRuleRef = "Classic Rules Tome p. 9"
                     )
                 )
                 suggestions.add(
                     ActionSuggestion(
-                        id = "act-dungeon-advance",
-                        plainLabel = "Avançar cautelosamente para a próxima câmara",
-                        intentCandidate = "DUNGEON_ADVANCE",
-                        textCandidate = "Avançamos em formação cautelosa pela passagem, testando o piso com a ponta da haste de madeira.",
-                        preconditions = listOf("Passagem aberta"),
-                        riskHint = "Pode revelar nova sala com monstros ou armadilhas",
-                        timePreview = "1 turno (10 minutos)",
-                        sourceRuleRef = "Classic Rules Tome p. 96"
+                        id = "act-settle-rumors",
+                        plainLabel = "Ouvir rumores na taverna e na praça",
+                        intentCandidate = "SETTLEMENT_GATHER_RUMORS",
+                        textCandidate = "Circulo pelas mesas da taverna pagando cerveja e conversando com os viajantes para saber o que acontece na região.",
+                        preconditions = listOf("Algumas moedas para bebidas e gorjetas"),
+                        riskHint = "Rumores podem conter verdades misturadas com boatos falsos",
+                        timePreview = "1 turno a 1 hora",
+                        sourceRuleRef = "Classic Rules Tome p. 110"
+                    )
+                )
+                suggestions.add(
+                    ActionSuggestion(
+                        id = "act-settle-shop",
+                        plainLabel = "Comprar mantimentos e tochas com o mercador",
+                        intentCandidate = "SETTLEMENT_SHOP",
+                        textCandidate = "Dirijo-me ao mercado ou armazém geral para comprar rações de ferro, cordas e tochas antes da próxima viagem.",
+                        preconditions = listOf("Mercador ou armazém presente no assentamento"),
+                        riskHint = "Preços do livro oficial OSE",
+                        timePreview = "1 hora",
+                        sourceRuleRef = "Classic Rules Tome p. 44"
                     )
                 )
             }
             else -> {
-                // Wilderness / Hex exploration
                 suggestions.add(
                     ActionSuggestion(
-                        id = "act-wild-observe",
-                        plainLabel = "Examinar o terreno e sinais da região",
-                        intentCandidate = "WILD_OBSERVE_TERRAIN",
-                        textCandidate = "Subimos a um ponto elevado para examinar o horizonte, identificar trilhas, vegetação e possíveis abrigos.",
-                        preconditions = listOf("Luz do dia"),
-                        riskHint = "Revela detalhes do hexágono atual sem forçar deslocamento",
-                        timePreview = "1 turno (10 minutos)",
-                        sourceRuleRef = "Classic Rules Tome p. 110"
-                    )
-                )
-                suggestions.add(
-                    ActionSuggestion(
-                        id = "act-wild-travel-cautious",
-                        plainLabel = "Viajar para o hexágono vizinho com cautela",
-                        intentCandidate = "WILD_TRAVEL_CAUTIOUS",
-                        textCandidate = "Organizamos a marcha em fila e seguimos viagem em direção à próxima região com batedores atentos.",
-                        preconditions = listOf("Provisões e água potável"),
-                        riskHint = "Consome 1 dia de viagem e 1 ração diária por aventureiro",
-                        timePreview = "1 dia de marcha",
-                        sourceRuleRef = "Classic Rules Tome p. 110"
+                        id = "act-wild-travel",
+                        plainLabel = "Marchar pelo hexágono em ritmo seguro",
+                        intentCandidate = "WILD_TRAVEL",
+                        textCandidate = "Organizamos a marcha em fila com vigias na vanguarda e retaguarda, avançando pelo terreno com cautela.",
+                        preconditions = listOf("Sem combate ativo", "Companhia em condições de marcha"),
+                        riskHint = "Gasto de rações diárias; teste de encontro errante e risco de se perder",
+                        timePreview = "1 dia de viagem",
+                        sourceRuleRef = "Classic Rules Tome p. 98"
                     )
                 )
                 suggestions.add(
                     ActionSuggestion(
                         id = "act-wild-camp",
-                        plainLabel = "Montar acampamento e repousar",
-                        intentCandidate = "WILD_REST",
-                        textCandidate = "Escolhemos um local protegido do vento, montamos o acampamento e organizamos turnos de vigília para a noite.",
-                        preconditions = listOf("Local adequado de abrigo"),
-                        riskHint = "Consome rações; exige vigília contra encontros noturnos",
-                        timePreview = "1 dia / repouso completo",
-                        sourceRuleRef = "Classic Rules Tome p. 111"
+                        plainLabel = "Montar acampamento e estabelecer vigília",
+                        intentCandidate = "WILD_CAMP",
+                        textCandidate = "Escolhemos um ponto elevado e abrigado do vento para armar as barracas e dividir os turnos de guarda da noite.",
+                        preconditions = listOf("Provisões diárias disponíveis"),
+                        riskHint = "Possibilidade de encontros noturnos se a guarda falhar",
+                        timePreview = "1 noite (8 horas de descanso)",
+                        sourceRuleRef = "Classic Rules Tome p. 98"
                     )
                 )
-                suggestions.add(
-                    ActionSuggestion(
-                        id = "act-wild-consult-party",
-                        plainLabel = "Pedir a opinião dos companheiros",
-                        intentCandidate = "CONSULT_COMPANIONS",
-                        textCandidate = "Reúno a companhia para avaliar o mapa, a condição dos ferimentos e ouvir as sugestões de cada um.",
-                        preconditions = listOf("Companheiros presentes"),
-                        riskHint = "Nenhum risco mecânico; não consome tempo",
-                        timePreview = "Instantâneo",
-                        sourceRuleRef = "Regra de Curadoria de Companhia"
+                if (hasCompanions) {
+                    suggestions.add(
+                        ActionSuggestion(
+                            id = "act-wild-consult",
+                            plainLabel = "Consultar a opinião dos companheiros",
+                            intentCandidate = "COMPANION_OPINIONS",
+                            textCandidate = "Reúno os membros da companhia para ouvir suas observações sobre o caminho a seguir e os perigos adiante.",
+                            preconditions = listOf("Companheiros presentes"),
+                            riskHint = "Não avança o tempo de jogo (somente leitura)",
+                            timePreview = "Instantâneo",
+                            sourceRuleRef = "Classic Rules Tome p. 28"
+                        )
                     )
-                )
+                }
             }
         }
 

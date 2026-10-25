@@ -885,7 +885,9 @@ class LifeRuntime {
 
       if (viewState.lifeStore && viewState.lifeStore.schema === 'braseiro.life/v2') {
         this.store = assertLifeStore(structuredClone(viewState.lifeStore));
-      } else if (!this.store) {
+        this.processedReceipts.clear();
+      } else if (!this.store || this.store.legacy?.worldId !== worldId) {
+        this.processedReceipts.clear();
         const legacy = createLegacyStore({ system: sys, worldId: worldId, timelineId: 'canonical' });
         this.store = createLifeStore(legacy);
         this.store = transact(this.store, { id: 'init-cfg', type: 'matrix_configure', packId: sys }, { verifiedByHost: true });
@@ -933,8 +935,8 @@ class LifeRuntime {
       for (const [receiptId, receipt] of Object.entries(receipts)) {
         if (this.processedReceipts.has(receiptId)) continue;
 
-        // Causal authority: reject unconfirmed exploratory or failed player actions
-        if (receipt.mechanicalMutation === false || receipt.unconfirmed === true || receipt.traceStatus === 'UNCONFIRMED') {
+        // Causal authority (§11): strictly require confirmed referee mechanicalMutation === true
+        if (receipt.mechanicalMutation !== true || receipt.unconfirmed === true || receipt.traceStatus === 'UNCONFIRMED') {
           continue;
         }
 
@@ -943,23 +945,19 @@ class LifeRuntime {
 
         const actorId = receipt.actorCharacterId || (viewState.party && viewState.party[0]?.id) || 'party';
         const summary = receipt.reactionText || receipt.mechanicalIntent || 'Ação confirmada da companhia';
-        const intent = String(receipt.mechanicalIntent || '').toUpperCase();
 
+        // Never derive victory or care from player intent strings (e.g. ATTACK is not victory)
         let causeId = 'cause-journey-1';
-        if (intent.includes('REST') || intent.includes('HEAL') || intent.includes('CAMP')) {
-          causeId = 'cause-care-1';
-        } else if (intent.includes('COMBAT') || intent.includes('ATTACK') || intent.includes('DEFEAT') || intent.includes('VICTORY')) {
-          causeId = 'cause-victory-1';
-        } else if (intent.includes('TRAVEL') || intent.includes('MOVE') || intent.includes('EXPLORE') || intent.includes('ADVANCE')) {
-          causeId = 'cause-journey-1';
-        } else if (receipt.lifeCauseId) {
+        if (receipt.lifeCauseId) {
           causeId = receipt.lifeCauseId;
         } else {
-          const lower = (receipt.mechanicalFeedback || summary).toLowerCase();
-          if (lower.includes('descans') || lower.includes('estalagem') || lower.includes('repous') || lower.includes('curou')) {
-            causeId = 'cause-care-1';
-          } else if (lower.includes('derrot') || lower.includes('resgat') || lower.includes('esquelet')) {
+          const lower = String(receipt.mechanicalFeedback || summary).toLowerCase();
+          if (lower.includes('derrot') || lower.includes('venceu') || lower.includes('abatido') || lower.includes('esquelet')) {
             causeId = 'cause-victory-1';
+          } else if (lower.includes('descans') || lower.includes('recuperou pv') || lower.includes('estalagem') || lower.includes('repous') || lower.includes('curou')) {
+            causeId = 'cause-care-1';
+          } else {
+            causeId = 'cause-journey-1';
           }
         }
 
@@ -1083,6 +1081,7 @@ class LifeRuntime {
         this.postNative('LifeStoreSync', {
           scope: this.scope,
           stateJson: JSON.stringify(this.store),
+          store: this.store,
           revision: this.store.revision,
           day: this.store.day
         });

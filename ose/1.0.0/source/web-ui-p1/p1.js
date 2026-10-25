@@ -63,16 +63,25 @@ window.BraseiroReceive=(raw)=>{
   else if(m.type==='SceneImageResult'){postNative('ViewState',{request:'after-scene-image'});showToast('Ilustração da cena atualizada.');}
   else if(m.type==='ScenePromptShareResult')showToast('Abrindo o Gemini com o prompt da cena…');
   else if(m.type==='PortraitPromptShareResult')showToast('Abrindo o Gemini com o prompt do retrato…');
-  else if(m.type==='PresentationImageSaved'){postNative('ViewState',{request:'after-media-save'});showToast(p.scope==='SCENE'?'Imagem da cena importada.':p.scope==='CHARACTER'?'Retrato do personagem atualizado.':p.scope==='NPC'?'Retrato do NPC atualizado.':'Imagem salva e vinculada.');}
+  else if(m.type==='PresentationImageSaved'){if(p.viewState)viewState=p.viewState;else postNative('ViewState',{request:'after-media-save'});render();showToast(p.scope==='SCENE'?'Imagem da cena atualizada.':p.scope==='CHARACTER'?'Retrato do personagem atualizado.':p.scope==='NPC'?'Retrato do NPC atualizado.':'Imagem salva e vinculada.');}
+  else if(m.type==='PresentationImageRemoved'){if(p.viewState)viewState=p.viewState;else postNative('ViewState',{request:'after-media-remove'});render();showToast('Imagem removida com sucesso.');}
   else if(m.type==='AdventureImportResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok?`Aventura carregada: ${p.title||''}`:p.cancelled?'Importação cancelada.':'Erro ao importar aventura.');}
   else if(m.type==='AdventureFinishResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok?'Aventura concluída. O legado e o mundo foram preservados.':'Nenhuma aventura ativa.');}
   else if(m.type==='ManualDiceResult'){
-    diceHistory.unshift({rolls:p.rolls||[],total:p.total,sides:p.sides,count:p.count,modifier:p.modifier||0});
+    const formula = `${p.count}d${p.sides}${p.modifier ? (p.modifier > 0 ? '+' : '') + p.modifier : ''}`;
+    diceHistory.unshift({rolls:p.rolls||[],total:p.total,sides:p.sides,count:p.count,modifier:p.modifier||0,formula});
     diceHistory=diceHistory.slice(0,12);
     render();
     showToast(`Resultado: ${p.total}`);
     el('dice3dOverlay')?.classList.remove('hidden');
-    window.BraseiroDice?.start({sides:p.sides,count:p.count,modifier:p.modifier||0});
+    window.BraseiroDice?.start({
+      sides: p.sides,
+      count: p.count,
+      modifier: p.modifier || 0,
+      canonicalTotal: p.total,
+      rolls: p.rolls || [],
+      formula: formula
+    });
   }
   else if(m.type==='RuleEvidenceListResult'){ruleLibrary=p.rules||[];ruleLibraryLoaded=true;render();}
   else if(m.type==='RuleEvidenceResult'){showRuleDetail(p);}
@@ -110,7 +119,7 @@ function updateHeader(){
  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.screen===screen));
 }
 function go(s){if(s!=='sheet'){creatingAdditionalCharacter=false;editingCharacter=false;}screen=s;q.set('screen',s);try{history.replaceState(null,'',`${location.pathname}?${q}`)}catch(_e){}render()}
-function render(){updateHeader();main.innerHTML=screen==='session'?renderSession():screen==='map'?renderMap():screen==='sheet'?renderSheet():screen==='dice'?renderDiceScreen():screen==='library'?renderLibrary():screen==='world'?renderWorld():renderCompany();wireCurrentScreen();if(screen==='library'&&hasNative()&&!ruleLibraryLoaded)postNative('RuleEvidenceList',{});}
+function render(){updateHeader();main.innerHTML=screen==='session'?renderSession():screen==='map'?renderMap():screen==='sheet'?renderSheet():screen==='dice'?renderDiceScreen():screen==='library'?renderLibrary():screen==='world'?renderWorld():renderCompany();wireCurrentScreen();checkFirstLaunch();if(screen==='library'&&hasNative()&&!ruleLibraryLoaded)postNative('RuleEvidenceList',{});}
 
 function renderSession(){
  if(hasNative()&&!viewState?.selectedCharacter&&phase()==='ACTIVE'&&!(viewState?.creation?.drafts||[]).length)return renderCreationStart();
@@ -130,7 +139,13 @@ function renderSession(){
   <div class="panel">${badgeHtml}<div class="row"><div><span class="pill">${profileLabel()}</span><h2 style="margin-top:7px">Cena atual</h2></div></div>
   ${sceneUrl?img(sceneUrl,'Ilustração da cena atual','scene-image'):''}
   <div id="visibleNarration" class="narrative-text">${paragraphs(narration)}</div>
-  <div class="session-tools"><button class="small" data-tts="play">▶ OUVIR</button><button class="small" data-tts="stop">■ PARAR</button><button class="small" data-tts="replay">↻ REPETIR</button><button class="small" data-scene-prompt>▧ GERAR CENA</button><button class="small" data-scene-import data-scene-id="${esc(sceneId)}">⇩ IMPORTAR</button></div></div>
+  <div class="session-tools">
+  <button class="small" data-tts="play">▶ OUVIR</button>
+  <button class="small" data-tts="stop">■ PARAR</button>
+  <button class="small" data-tts="replay">↻ REPETIR</button>
+  <button class="small" data-scene-photo data-scene-id="${esc(sceneId)}" title="Menu de imagem da cena">📷 CENA</button>
+  <button class="small" data-guide-topic="rule_trace" title="Explica como o árbitro resolveu mecanicamente a última ação">❓ REGRA DA AÇÃO</button>
+</div></div>
   ${npcPanel}
   ${renderAdventureCard()}
   ${renderCuratorPanel()}
@@ -160,13 +175,60 @@ function showRuleDetail(p){const t=p.trace||{};const ev=t.evidence||[];const msg
 
 function renderPrestart(){return `<div class="kicker">Pronto para começar</div><div class="panel prestart-card"><span class="pill">${profileLabel()}</span><h2>A aventura ainda não começou</h2><p>Seu personagem e o mundo já estão preparados. Quando você tocar no botão abaixo, Barbara apresentará a cena inicial usando o estado atual da campanha.</p><button class="primary start-adventure" data-start-adventure>COMEÇAR A AVENTURA</button><button class="secondary" style="margin-top:7px" data-go="dice">ROLAR DADOS</button></div>`}
 function renderCreationStart(){return `<div class="kicker">Novo aventureiro</div><div class="panel"><h2>Criar personagem</h2><p>Os seis atributos serão rolados pelo próprio aplicativo conforme as regras OSE e ficarão registrados na campanha.</p><span class="pill">${profileLabel()}</span><button class="primary" style="margin-top:10px" data-start-draft>CRIAR PASSO A PASSO · ROLAR 3D6</button><button class="secondary" style="margin-top:7px" data-random-character>CRIAR PERSONAGEM ALEATÓRIO</button><button class="secondary" style="margin-top:7px" data-import-character>IMPORTAR FICHA.JSON</button></div>`}
+function attrMod(val){
+  if(val==null)return'';
+  if(val>=18)return'+3';
+  if(val>=16)return'+2';
+  if(val>=13)return'+1';
+  if(val>=9)return'0';
+  if(val>=6)return'-1';
+  if(val>=4)return'-2';
+  return'-3';
+}
+
+function classRecommendation(a, isAdv){
+  const s = a.str||10, i = a.int||10, w = a.wis||10, d = a.dex||10, c = a.con||10, ch = a.cha||10;
+  const maxVal = Math.max(s, i, w, d, c, ch);
+  if(s === maxVal) return { prime: 'Força (FOR)', rec: 'Guerreiro', tip: 'Excelente capacidade de combate corpo a corpo e maior bônus de dano.' };
+  if(w === maxVal) return { prime: 'Sabedoria (SAB)', rec: 'Clérigo', tip: 'Alta proteção contra magias e habilidades divinas para curar o grupo.' };
+  if(i === maxVal) return { prime: 'Inteligência (INT)', rec: 'Mago', tip: 'Poderosos feitiços arcanos; ganha línguas adicionais.' };
+  if(d === maxVal) return { prime: 'Destreza (DES)', rec: 'Ladrão', tip: 'Bônus na CA, ataques à distância e perícias de ladinagem.' };
+  if(c === maxVal) return { prime: 'Constituição (CON)', rec: isAdv?'Bárbaro / Guerreiro':'Anão / Guerreiro', tip: 'Pontos de vida adicionais e resistência física superior.' };
+  return { prime: 'Carisma (CAR)', rec: isAdv?'Bardo / Cavaleiro':'Guerreiro ou Clérigo', tip: 'Maior lealdade e reação favorável de contratados e monstros.' };
+}
+
 function renderCreationDraft(d){
  const a=d.attributes||{};const isAdv=String(d.profile||'').includes('ADVANCED');
  const classes=isAdv?['ACROBAT','ASSASSIN','BARBARIAN','BARD','CLERIC','DRUID','FIGHTER','ILLUSIONIST','KNIGHT','MAGIC_USER','PALADIN','RANGER','THIEF']:['DWARF','CLERIC','ELF','FIGHTER','HALFLING','THIEF','MAGIC_USER'];
  const races=['HUMAN','DROW','DUERGAR','DWARF','ELF','GNOME','HALF_ELF','HALFLING','HALF_ORC','SVIRFNEBLIN'];
- return `<div class="kicker">Novo aventureiro</div><div class="panel"><h3>Criar personagem</h3><div class="attrs">${Object.entries({FOR:a.str,INT:a.int,SAB:a.wis,DES:a.dex,CON:a.con,CAR:a.cha}).map(([k,v])=>`<div class="attr"><b>${v??'—'}</b><span>${k}</span></div>`).join('')}</div>
- ${isAdv?`<label class="field">Método de criação</label><select id="creationMethod"><option value="ADVANCED_BASIC">Básico</option><option value="ADVANCED_METHOD">Avançado</option></select><label class="field">Raça (método avançado)</label><select id="creationRace"><option value="">Nenhuma / conforme método</option>${races.map(x=>`<option value="${x}">${raceLabel(x)}</option>`).join('')}</select>`:''}
- <label class="field">Classe</label><select id="creationClass">${classes.map(x=>`<option value="${x}">${classLabel(x)}</option>`).join('')}</select><label class="field">Nome</label><input id="creationName" placeholder="Nome do aventureiro"><button class="primary" style="margin-top:9px" data-commit-draft="${esc(d.draftId)}">Criar personagem</button><button class="secondary" style="margin-top:7px;width:100%" data-cancel-draft="${esc(d.draftId)}">CANCELAR CRIAÇÃO</button></div>`;
+ const rec = classRecommendation(a, isAdv);
+ const classComp = [
+   { id: 'FIGHTER', name: 'Guerreiro', prime: 'FOR', hd: 'd8', arm: 'Todas', desc: 'Especialista em armas e combate direto.' },
+   { id: 'CLERIC', name: 'Clérigo', prime: 'SAB', hd: 'd6', arm: 'Todas + Escudos', desc: 'Magias divinas, cura e expulsão de mortos-vivos.' },
+   { id: 'MAGIC_USER', name: 'Mago', prime: 'INT', hd: 'd4', arm: 'Nenhuma', desc: 'Conjura feitiços arcanos poderosos de grimório.' },
+   { id: 'THIEF', name: 'Ladrão', prime: 'DES', hd: 'd4', arm: 'Couro apenas', desc: 'Furtividade, arrombamento e ataque pelas costas.' }
+ ];
+ return `<div class="kicker">Novo aventureiro · Aprender Jogando</div>
+ <div class="panel">
+   <h3>Criar personagem</h3>
+   <p class="note">Atributos rolados com 3d6 estritos em ordem. Requisitos primários de 13+ concedem bônus de +5% de XP (+10% para 16+).</p>
+   <div class="attrs">${Object.entries({FOR:a.str,INT:a.int,SAB:a.wis,DES:a.dex,CON:a.con,CAR:a.cha}).map(([k,v])=>`<div class="attr" title="Modificador: ${attrMod(v)}"><b>${v??'—'}</b><span>${k} (${attrMod(v)})</span></div>`).join('')}</div>
+   <div class="guide-card" style="margin-top:10px;border-left:3px solid #d9a84c;background:rgba(217,168,76,0.08);padding:8px 12px">
+     <b style="color:#d9a84c">💡 Recomendação OSE:</b> Sua melhor aptidão é <b>${esc(rec.prime)}</b> (${Math.max(a.str||0,a.int||0,a.wis||0,a.dex||0,a.con||0,a.cha||0)}).
+     <span style="display:block;margin-top:2px;font-size:12px;color:#cbb898">Classe sugerida: <b>${esc(rec.rec)}</b>. ${esc(rec.tip)}</span>
+   </div>
+   <div style="margin-top:10px">
+     <h4 style="margin-bottom:6px">Comparação rápida de classes clássicas:</h4>
+     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;font-size:11px">
+       ${classComp.map(c=>`<div style="background:rgba(0,0,0,0.25);padding:6px;border-radius:4px"><b>${c.name}</b> (${c.prime})<br>DV: ${c.hd} · Armaduras: ${c.arm}<br><span style="color:#a89880">${c.desc}</span></div>`).join('')}
+     </div>
+   </div>
+   ${isAdv?`<label class="field" style="margin-top:10px">Método de criação</label><select id="creationMethod"><option value="ADVANCED_BASIC">Básico</option><option value="ADVANCED_METHOD">Avançado</option></select><label class="field">Raça (método avançado)</label><select id="creationRace"><option value="">Nenhuma / conforme método</option>${races.map(x=>`<option value="${x}">${raceLabel(x)}</option>`).join('')}</select>`:''}
+   <label class="field" style="margin-top:10px">Classe</label><select id="creationClass">${classes.map(x=>`<option value="${x}">${classLabel(x)}</option>`).join('')}</select>
+   <label class="field">Nome do aventureiro</label><input id="creationName" placeholder="Ex.: Rogar, Morwen, Alistair">
+   <button class="primary" style="margin-top:9px" data-commit-draft="${esc(d.draftId)}">Criar personagem</button>
+   <button class="secondary" style="margin-top:7px;width:100%" data-cancel-draft="${esc(d.draftId)}">CANCELAR CRIAÇÃO</button>
+ </div>`;
 }
 
 const geom=Object.freeze({hexW:64,hexH:73.90,xStep:62.8,yStep:54.8,oddOffset:31.4,originX:24,originY:28});
@@ -263,9 +325,25 @@ function renderSheet(){
  const manage=hasNative()?`${renderCharacterControlSelect({...demo,controlMode:(viewState?.characterControlModes||{})[demo.characterId]||"PLAYER"})}<button class="secondary" data-add-character>ADICIONAR PERSONAGEM</button><button class="secondary" data-delete-character="${esc(demo.characterId)}">EXCLUIR FICHA</button>`:'';
  const portraitUrl=viewState?.presentation?.characterPortraits?.[demo.characterId];
   const portraitHtml=`<div class="portrait">${portraitUrl?`<img src="${esc(portraitUrl)}" alt="Retrato">`:"👤"}${hasNative()?`<button class="small photo-action" data-photo-character="${esc(demo.characterId)}" title="Alterar retrato">📷</button>`:""}</div>`;
-  return `<div class="hero panel text-first-hero">${portraitHtml}<div><div class="kicker">Personagem</div><h2>${esc(demo.name||'Aventureiro')}</h2><p><b>${esc(raceLabel(demo.raceId||'HUMAN'))}</b> · ${esc((demo.classIds||[]).map(classLabel).join(' / ')||'—')} · ${profileLabel()}</p><div class="vitals"><div class="vital"><span>HP</span><b>${hpText(demo)}</b></div><div class="vital"><span>CA</span><b>${demo.armorClassDescending??'—'}</b></div><div class="vital"><span>NÍVEL</span><b>${Object.values(demo.levelByClass||{})[0]??1}</b></div></div></div></div>
+  return `<div class="hero panel text-first-hero">${portraitHtml}<div><div class="kicker">Personagem</div><h2>${esc(demo.name||'Aventureiro')}</h2><p><b>${esc(raceLabel(demo.raceId||'HUMAN'))}</b> · ${esc((demo.classIds||[]).map(classLabel).join(' / ')||'—')} · ${profileLabel()}</p><div class="vitals">
+  <div class="vital" data-guide-topic="hit_points" title="Pontos de Vida (HP) · Toque para ajuda"><span>HP <small class="help-badge">?</small></span><b>${hpText(demo)}</b></div>
+  <div class="vital" data-guide-topic="armor_class" title="Classe de Armadura (CA) descendente · Toque para ajuda"><span>CA <small class="help-badge">?</small></span><b>${demo.armorClassDescending??'—'}</b></div>
+  <div class="vital" data-guide-topic="character_advancement" title="Nível de experiência · Toque para ajuda"><span>NÍVEL <small class="help-badge">?</small></span><b>${Object.values(demo.levelByClass||{})[0]??1}</b></div>
+</div></div></div>
  ${editPanel}
- <div class="panel"><div class="attrs">${attrPairs(demo.attributes).map(([k,v])=>`<div class="attr"><b>${v??'—'}</b><span>${k}</span></div>`).join('')}</div><div class="sheet-actions"><button class="small" data-edit-character>EDITAR FICHA</button>${manage}<button class="small" data-export-character>EXPORTAR FICHA.JSON</button><button class="small" data-import-character>IMPORTAR FICHA.JSON</button></div></div>
+ <div class="panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+    <h3 style="margin:0">Jogadas de Proteção</h3>
+    <button class="small" data-guide-topic="saving_throws" style="padding:2px 8px;font-size:11px">? COMO FUNCIONA</button>
+  </div>
+  <div class="attrs" style="grid-template-columns:repeat(auto-fit,minmax(60px,1fr));margin-bottom:12px">
+    <div class="attr" title="Morte / Veneno"><b>${demo.savingThrows?.deathPoison??'—'}</b><span>Morte</span></div>
+    <div class="attr" title="Varinhas mágicas"><b>${demo.savingThrows?.wands??'—'}</b><span>Varinhas</span></div>
+    <div class="attr" title="Paralisia / Petrificação"><b>${demo.savingThrows?.paralysisPetrification??'—'}</b><span>Paralisia</span></div>
+    <div class="attr" title="Sopro de dragão"><b>${demo.savingThrows?.breath??'—'}</b><span>Sopro</span></div>
+    <div class="attr" title="Magias / Cajados"><b>${demo.savingThrows?.spellsRodsStaves??'—'}</b><span>Magias</span></div>
+  </div>
+  <div class="attrs">${attrPairs(demo.attributes).map(([k,v])=>`<div class="attr" title="Modificador: ${attrMod(v)}"><b>${v??'—'}</b><span>${k} (${attrMod(v)})</span></div>`).join('')}</div><div class="sheet-actions"><button class="small" data-edit-character>EDITAR FICHA</button>${manage}<button class="small" data-export-character>EXPORTAR FICHA.JSON</button><button class="small" data-import-character>IMPORTAR FICHA.JSON</button></div></div>
  <div class="panel"><h3>Inventário</h3><div class="inventory-grid">${inv.length?inv.map(renderInventoryItem).join(''):'<p class="note">Inventário vazio.</p>'}</div></div>${hasNative()?renderNativeLoadout():renderDemoShop()}`;
 }
 function loadoutState(){return viewState?.loadout&&viewState.loadout.characterId?viewState.loadout:null}
@@ -273,7 +351,7 @@ function catalogEntry(id){return loadoutState()?.catalog?.find(x=>x.catalogId===
 function catalogLabel(id){if(id==='STARTING_GOLD_GP')return 'Moedas de ouro';const e=catalogEntry(id);if(e?.name)return e.name;return 'Item'}
 function itemArt(catalogId,name='',kind=''){if(/^(CLASSIC|ADV)_EQUIP_/.test(String(catalogId||'')))return img(`equipment-icons/${esc(catalogId)}.png`,name,'item-thumb equipment-art');const p=kind==='SHIELD'?'tesouros_escudos/escudo_redondo.png':kind==='ARMOR'?'equipamentos/cota_malha.png':'equipamentos_variantes/equipamentos_variantes_01.png';return img(asset(p),name,'item-thumb')}
 function renderInventoryItem(it){const name=catalogLabel(it.catalogId),custom=viewState?.presentation?.itemThumbnails?.[it.itemId],canEquip=['WEAPON','ARMOR','SHIELD'].includes(it.kind)&&loadoutState()&&!loadoutState().completed;return `<div class="item">${custom?img(custom,name,'item-thumb'):itemArt(it.catalogId,name,it.kind)}<b>${esc(name)}</b><small>×${it.quantity??1}${it.equipped?' · EQUIPADO':''}</small>${hasNative()?`<div class="actions">${canEquip?`<button data-loadout-equip="${esc(it.itemId)}" data-equipped="${it.equipped?'1':'0'}">${it.equipped?'TIRAR':'EQUIPAR'}</button>`:''}<button class="photo-action" title="Trocar imagem" data-photo-item="${esc(it.itemId)}">📷</button></div>`:''}</div>`}
-function renderNativeLoadout(){const l=loadoutState();if(!hasNative()||!l||l.completed)return'';const groups=[['Aventura',['ADVENTURING_GEAR','FOOD','LIGHT_SOURCE','OIL_FLASK']],['Armas',['WEAPON']],['Armaduras e munição',['ARMOR','SHIELD','AMMUNITION']]];return `<div class="panel"><div class="kicker">Equipamento inicial</div><h3>${l.remainingWealthGp} po restantes de ${l.startingWealthGp} po</h3><p class="note">Os preços, quantidades e estatísticas são aplicados automaticamente pelas regras OSE.</p>${groups.map(([title,kinds])=>`<h3>${title}</h3><div class="inventory-grid">${(l.catalog||[]).filter(e=>kinds.includes(e.kind)).map(e=>`<div class="item">${itemArt(e.catalogId,e.name,e.kind)}<b>${esc(e.name)}</b><small>${e.priceGp==null?'Preço não comprovado':`${e.priceGp} po`}${e.purchaseQuantity>1?` · ×${e.purchaseQuantity}`:''}${e.ownedQuantity?` · possui ${e.ownedQuantity}`:''}</small><div class="actions"><button data-loadout-buy="${esc(e.catalogId)}" ${e.priceGp==null||e.priceGp>l.remainingWealthGp?'disabled':''}>COMPRAR</button></div></div>`).join('')}</div>`).join('')}<button class="primary" data-loadout-finish="1" style="margin-top:9px">Concluir equipamento</button><button class="secondary" data-cancel-loadout="${esc(l.characterId)}" style="margin-top:7px;width:100%">CANCELAR E DESCARTAR RASCUNHO</button></div>`}
+function renderNativeLoadout(){const l=loadoutState();if(!hasNative()||!l||l.completed)return'';const groups=[['Aventura',['ADVENTURING_GEAR','FOOD','LIGHT_SOURCE','OIL_FLASK']],['Armas',['WEAPON']],['Armaduras e munição',['ARMOR','SHIELD','AMMUNITION']]];return `<div class="panel"><div class="kicker">Equipamento inicial</div><h3>${l.remainingWealthGp} po restantes de ${l.startingWealthGp} po</h3><p class="note">Os preços, quantidades e estatísticas são aplicados automaticamente pelas regras OSE.</p>${groups.map(([title,kinds])=>`<h3>${title}</h3><div class="inventory-grid">${(l.catalog||[]).filter(e=>kinds.includes(e.kind)).map(e=>`<div class="item">${itemArt(e.catalogId,e.name,e.kind)}<b>${esc(e.name)}</b><small>${e.priceGp==null?'Preço não comprovado':`${e.priceGp} po`}${e.purchaseQuantity>1?` · ×${e.purchaseQuantity}`:''}${e.ownedQuantity?` · possui ${e.ownedQuantity}`:''}</small><div class="actions"><button data-loadout-buy="${esc(e.catalogId)}" ${e.priceGp==null||e.priceGp>l.remainingWealthGp?'disabled':''}>COMPRAR</button></div></div>`).join('')}</div>`).join('')}<button class="primary" data-loadout-finish="1" style="margin-top:9px">Concluir equipamento</button><button class="secondary" data-loadout-back="1" style="margin-top:7px;width:100%">VOLTAR À FICHA (MANTER PERSONAGEM)</button></div>`}
 function renderDemoShop(){return ''}
 function renderCharacterControlSelect(m){
  const mode=m.controlMode||'PLAYER';
@@ -386,8 +464,9 @@ function wireCurrentScreen(){
  document.querySelectorAll('[data-rule-id]').forEach(b=>b.onclick=()=>postNative('RuleEvidenceQuery',{ruleId:b.dataset.ruleId}));
  el('librarySearch')?.addEventListener('input',e=>{libraryQuery=e.currentTarget.value;render()});
  document.querySelector('[data-commit-draft]')?.addEventListener('click',e=>{const d=e.currentTarget.dataset.commitDraft,name=el('creationName')?.value.trim();if(!name)return showToast('Digite um nome.');e.currentTarget.disabled=true;const adv=String(viewState?.campaign?.profile||'').includes('ADVANCED');const method=adv?(el('creationMethod')?.value||'ADVANCED_BASIC'):'CLASSIC';const race=adv&&method==='ADVANCED_METHOD'?(el('creationRace')?.value||null):null;postNative('CharacterCreationCommit',{draftId:d,characterId:'char-'+Date.now()+'-'+Math.random().toString(36).slice(2,9),name,method,classIds:[el('creationClass').value],raceId:race||'',adjustments:[]})});
- document.querySelectorAll('[data-photo-character]').forEach(b=>b.onclick=()=>chooseMedia('CHARACTER',b.dataset.photoCharacter));
-  document.querySelectorAll('[data-photo-npc]').forEach(b=>b.onclick=()=>chooseMedia('NPC',b.dataset.photoNpc));
+  document.querySelectorAll('[data-photo-character]').forEach(b=>b.onclick=()=>openPhotoMenu('CHARACTER',b.dataset.photoCharacter,'Personagem'));
+  document.querySelectorAll('[data-photo-npc]').forEach(b=>b.onclick=()=>openPhotoMenu('NPC',b.dataset.photoNpc,'NPC'));
+  document.querySelectorAll('[data-scene-photo]').forEach(b=>b.onclick=()=>openPhotoMenu('SCENE',b.dataset.sceneId,'Cena atual'));
   document.querySelectorAll('[data-adventure-import]').forEach(b=>b.onclick=()=>postNative('AdventureImport',{}));
   document.querySelectorAll('[data-adventure-finish]').forEach(b=>b.onclick=()=>{if(confirm('Concluir esta aventura e arquivar seus feitos? Seus personagens, itens, relações e mundo serão integralmente preservados.'))postNative('AdventureFinish',{})});
   document.querySelectorAll('[data-adventure-load-classic]').forEach(b=>b.onclick=()=>loadSampleAdventure('adventures/sample-adventure-ose-classic.json'));
@@ -398,12 +477,11 @@ function wireCurrentScreen(){
     creatingAdditionalCharacter=false;
     postNative('CharacterCreationCancel',{draftId:d});
   });
-  document.querySelectorAll('[data-cancel-loadout]').forEach(b=>b.onclick=e=>{
-    const id=e.currentTarget.dataset.cancelLoadout;
-    if(!confirm('Deseja cancelar a criação e descartar este personagem?'))return;
-    postNative('CharacterDelete',{characterId:id,commandId:'delete-'+Date.now()});
+  document.querySelectorAll('[data-loadout-back]').forEach(b=>b.onclick=()=>{
+    creatingAdditionalCharacter = false;
+    go('sheet');
   });
-  document.querySelectorAll('[data-photo-item]').forEach(b=>b.onclick=()=>chooseMedia('ITEM',b.dataset.photoItem));
+  document.querySelectorAll('[data-photo-item]').forEach(b=>b.onclick=()=>openPhotoMenu('ITEM',b.dataset.photoItem,'Item'));
  document.querySelectorAll('[data-retainer-proposal]').forEach(b=>b.onclick=()=>{
    const npcId=b.dataset.retainerProposal,actor=viewState?.selectedCharacterId;
    const npc=(viewState?.retainerCandidates||[]).find(n=>n.npcId===npcId);
@@ -592,3 +670,101 @@ document.addEventListener('click', e => {
   }
 });
 el('suggestionsClose')?.addEventListener('click', () => el('suggestionsOverlay').classList.add('hidden'));
+
+
+// --- GESTÃO DE FOTOS & RETRATOS UNIFICADA ---
+let currentPhotoTarget = null;
+function openPhotoMenu(scope, id, name) {
+  currentPhotoTarget = { scope, id, name };
+  const title = el('photoMenuTitle');
+  if (title) title.textContent = name ? `Imagem · ${name}` : 'Imagem / Retrato';
+  el('photoMenuOverlay')?.classList.remove('hidden');
+}
+
+el('photoMenuClose')?.addEventListener('click', () => el('photoMenuOverlay')?.classList.add('hidden'));
+el('photoMenuCancel')?.addEventListener('click', () => el('photoMenuOverlay')?.classList.add('hidden'));
+
+el('photoMenuGemini')?.addEventListener('click', () => {
+  if (!currentPhotoTarget) return;
+  const { scope, id } = currentPhotoTarget;
+  el('photoMenuOverlay')?.classList.add('hidden');
+  if (scope === 'SCENE') {
+    if (geminiState.textSceneConfigured) {
+      postNative('SceneImageGenerate', {});
+      showToast('Solicitando geração de ilustração ao Gemini…');
+    } else {
+      postNative('ScenePromptShare', {});
+      showToast('Compartilhando prompt da cena com Gemini…');
+    }
+  } else if (scope === 'CHARACTER' || scope === 'NPC') {
+    if (geminiState.textSceneConfigured) {
+      postNative('PortraitImageGenerate', { kind: scope, id });
+      showToast('Gerando retrato com IA Gemini…');
+    } else {
+      postNative('PortraitPromptShare', { kind: scope, id });
+      showToast('Compartilhando prompt do retrato com Gemini…');
+    }
+  } else {
+    showToast('Para itens, selecione uma imagem do seu dispositivo.');
+  }
+});
+
+el('photoMenuGallery')?.addEventListener('click', () => {
+  if (!currentPhotoTarget) return;
+  const { scope, id } = currentPhotoTarget;
+  el('photoMenuOverlay')?.classList.add('hidden');
+  chooseMedia(scope, id);
+});
+
+el('photoMenuRemove')?.addEventListener('click', () => {
+  if (!currentPhotoTarget) return;
+  const { scope, id } = currentPhotoTarget;
+  el('photoMenuOverlay')?.classList.add('hidden');
+  postNative('PresentationImageRemove', { scope, id });
+  showToast('Removendo imagem…');
+});
+
+// --- PRIMEIRO LANÇAMENTO / ESCOLHA DE MODO ---
+let firstLaunchDismissed = false;
+function checkFirstLaunch() {
+  if (viewState?.playerGuide?.firstLaunch && !firstLaunchDismissed) {
+    el('firstLaunchOverlay')?.classList.remove('hidden');
+  }
+}
+
+el('firstLaunchLearn')?.addEventListener('click', () => {
+  firstLaunchDismissed = true;
+  postNative('PlayerGuideModeSet', { mode: 'LEARN_PLAYING' });
+  el('firstLaunchOverlay')?.classList.add('hidden');
+  showToast('Modo Aprender Jogando ativado!');
+});
+
+el('firstLaunchExperienced')?.addEventListener('click', () => {
+  firstLaunchDismissed = true;
+  postNative('PlayerGuideModeSet', { mode: 'EXPERIENCED' });
+  el('firstLaunchOverlay')?.classList.add('hidden');
+  showToast('Modo Jogador Experiente ativado!');
+});
+
+// --- TÓPICOS DO GUIA POR CLIQUE CONTEXTUAL ---
+function openGuideTopic(topicId) {
+  renderGuideOverlay();
+  el('guideOverlay')?.classList.remove('hidden');
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.guide-card');
+    cards.forEach(c => {
+      if (c.innerHTML.toLowerCase().includes(topicId.replace(/_/g, ' '))) {
+        c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        c.style.boxShadow = '0 0 10px #d9a84c';
+      }
+    });
+  }, 50);
+}
+
+document.addEventListener('click', e => {
+  const target = e.target.closest('[data-guide-topic]');
+  if (target) {
+    e.stopPropagation();
+    openGuideTopic(target.dataset.guideTopic);
+  }
+});
