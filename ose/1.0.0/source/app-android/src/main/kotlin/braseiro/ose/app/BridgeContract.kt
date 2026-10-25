@@ -49,7 +49,10 @@ private val ALLOWED_BRIDGE_TYPES = setOf(
     "GeminiCredentialTest",
     "SceneImageGenerate",
     "ScenePromptShare",
+    "PortraitImageGenerate",
+    "PortraitPromptShare",
     "PresentationImageSave",
+    "PresentationImageRemove",
     "ManualDiceRoll",
     // Legacy spellings remain accepted only for backward-compatible transport parsing.
     // They do not create alternate mutation channels.

@@ -41,6 +41,11 @@
             if(y>0)floodSeed(x,y-1);
             if(y+1<h)floodSeed(x,y+1);
           }
+          if(queue.length===0){
+            // Asset is already cleanly transparent on disk
+            resolve(src);
+            return;
+          }
           for(const id of queue)data[id*4+3]=0;
           let left=w,top=h,right=-1,bottom=-1;
           for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(data[(y*w+x)*4+3]>20){
@@ -70,8 +75,8 @@
       img.dataset.equipmentCleaning='1';
       clean(src).then(cleanUrl=>{
         if(img.isConnected&&img.getAttribute('src')===src){
-          img.src=cleanUrl;
-          img.dataset.equipmentCleaned=cleanUrl===src?'unavailable':'yes';
+          if(cleanUrl!==src)img.src=cleanUrl;
+          img.dataset.equipmentCleaned='yes';
         }
       });
     });

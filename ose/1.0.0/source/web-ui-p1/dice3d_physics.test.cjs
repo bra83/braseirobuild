@@ -73,4 +73,73 @@ for(const roll of [
 const heavy={terms:[{count:19,sides:6}],rolls:Array(19).fill(1)};
 assert.equal(window.OSEPhysicsDice.start(heavy,heavy.rolls.map(value=>({value})),()=>{}),false);
 assert.equal(stage.activeClasses.has('physics-active'),false);
-console.log('PASS physical Canvas animations, lifecycle and FL CSS fallback');
+
+// 1. Abrir/fechar repetidamente
+for(let cycle=0;cycle<10;cycle++){
+  const r={terms:[{count:2,sides:6}],rolls:[3,4]};
+  assert.equal(window.OSEPhysicsDice.start(r,r.rolls.map(value=>({value})),()=>{}),true);
+  assert.ok(stage.canvas,'canvas attached on open cycle '+cycle);
+  window.OSEPhysicsDice.stop();
+  assert.ok(!stage.canvas,'canvas detached on close cycle '+cycle);
+  assert.equal(stage.activeClasses.has('physics-active'),false);
+}
+
+// 2. Rolagem após rolagem (sucessão)
+for(let seq=0;seq<5;seq++){
+  const r={terms:[{count:1,sides:20}],rolls:[seq+1]};
+  let done=0;
+  assert.equal(window.OSEPhysicsDice.start(r,r.rolls.map(value=>({value})),()=>done++),true);
+  let frames=0;
+  while(queue.length&&frames<1600){
+    const job=queue.shift();now+=1000/60;job.fn(now);frames++;
+  }
+  assert.equal(done,1,'sequence completed '+seq);
+  window.OSEPhysicsDice.stop();
+}
+
+// 3. Cancelamento durante a animação (mid-flight stop)
+{
+  const r={terms:[{count:3,sides:6}],rolls:[1,2,3]};
+  let done=0;
+  assert.equal(window.OSEPhysicsDice.start(r,r.rolls.map(value=>({value})),()=>done++),true);
+  for(let f=0;f<5&&queue.length;f++){
+    const job=queue.shift();now+=1000/60;job.fn(now);
+  }
+  // Mid-flight stop
+  window.OSEPhysicsDice.stop();
+  assert.ok(!stage.canvas,'canvas removed after mid-flight stop');
+  assert.equal(stage.activeClasses.has('physics-active'),false);
+  assert.equal(done,0,'onDone not called on abort');
+}
+
+// 4. Resolução de tela pequena (280x200) e grande (415x915)
+for(const [w,h] of [[280,200],[360,800],[415,915]]){
+  stage.getBoundingClientRect=()=>({width:w,height:h});
+  const r={terms:[{count:1,sides:8}],rolls:[7]};
+  let done=0;
+  assert.equal(window.OSEPhysicsDice.start(r,r.rolls.map(value=>({value})),()=>done++),true);
+  let frames=0;
+  while(queue.length&&frames<1600){
+    const job=queue.shift();now+=1000/60;job.fn(now);frames++;
+  }
+  assert.equal(done,1,'completed for viewport '+w+'x'+h);
+  window.OSEPhysicsDice.stop();
+}
+// restore default size
+stage.getBoundingClientRect=()=>({width:380,height:310});
+
+// 5. Falha de Canvas / context null
+{
+  const brokenDoc={
+    getElementById(id){return id==='dice3dStage'?stage:null},
+    createElement(){return {setAttribute(){},getContext(){return null},parentNode:null,remove(){}}}
+  };
+  const brokenWin={Dice3DCore:Core,requestAnimationFrame:raf,cancelAnimationFrame:caf,devicePixelRatio:1};
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'dice3d_physics_view.js'),'utf8'),
+    {window:brokenWin,document:brokenDoc,console,requestAnimationFrame:raf,cancelAnimationFrame:caf});
+  const r={terms:[{count:1,sides:6}],rolls:[4]};
+  assert.equal(brokenWin.OSEPhysicsDice.start(r,r.rolls.map(value=>({value})),()=>{}),false);
+  assert.equal(stage.activeClasses.has('physics-active'),false);
+}
+
+console.log('PASS physical Canvas animations, lifecycle, stress and FL CSS fallback');

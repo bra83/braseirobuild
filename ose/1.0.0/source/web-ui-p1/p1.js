@@ -147,8 +147,8 @@ function profileLabel(){const p=viewState?.campaign?.profile||'OSE_CLASSIC_FANTA
 function classLabel(id){return classLabels[id]||String(id||'').replaceAll('_',' ')}
 function raceLabel(id){return raceLabels[id]||String(id||'').replaceAll('_',' ')}
 function updateHeader(){
- const titles={session:'SESSÃO',map:'MAPA',sheet:'FICHA',dice:'DADOS',library:'BIBLIOTECA',world:'MUNDO VIVO',company:'COMPANHIA'};
- el('headerTitle').textContent=`${titles[screen]} · BRASEIRO OSE`;
+ const titles={session:'SESSÃO DE JOGO',map:'MAPA',sheet:'FICHA DO PERSONAGEM',dice:'MESA DE DADOS',library:'BIBLIOTECA OSE',world:'MUNDO VIVO',company:'COMPANHIA'};
+ el('headerTitle').textContent=titles[screen]||'BRASEIRO OSE';
  const tm=viewState?.time||{};el('timeStatus').textContent=`DIA ${(tm.days??0)+1} · T${tm.turns??0}`;
  el('phaseStatus').textContent=phaseLabel();el('torchStatus').textContent=resource('torch','0');el('rationStatus').textContent=resource('rations','0');
  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.screen===screen));
