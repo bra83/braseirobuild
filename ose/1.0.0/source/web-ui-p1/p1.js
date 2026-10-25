@@ -38,7 +38,7 @@ window.BraseiroCreation=Object.freeze({start:draftId=>postNative('CharacterCreat
 window.BraseiroReceive=(raw)=>{
  try{
   const m=typeof raw==='string'?JSON.parse(raw):raw,p=m.payload||{};
-  if(m.type==='ViewState'){viewState=p;if(window.vttLifeAdapter)window.vttLifeAdapter.initFromViewState(viewState);geminiState=p.gemini||geminiState;ttsState=p.tts?{...ttsState,...p.tts}:ttsState;lastRuleTrace=p.lastRuleTrace||lastRuleTrace;render();}
+  if(m.type==='ViewState'){viewState=p;if(window.vttLifeAdapter)window.vttLifeAdapter.initFromViewState(viewState);geminiState=p.gemini||geminiState;ttsState=p.tts?{...ttsState,...p.tts}:ttsState;lastRuleTrace=p.lastRuleTrace||lastRuleTrace;render();checkFirstLaunch();}
   else if(m.type==='SessionUpdate'){
    const previous=viewState;
    if(p.viewState){viewState=p.viewState;geminiState=viewState.gemini||geminiState;}
@@ -608,7 +608,6 @@ el('refreshTts')?.addEventListener('click',()=>postNative('TtsSettingsGet',{}));
 el('resetAdventure')?.addEventListener('click',()=>{const ok=confirm('RECOMEÇAR A AVENTURA?\n\nO mundo, tempo, mapa revelado e progresso da campanha serão reiniciados. Sua ficha, inventário, equipamento e configurações Gemini serão preservados.');if(!ok)return;if(postNative('ResetAdventure',{})){el('settingsOverlay').classList.add('hidden');showToast('Recomeçando a aventura com o mesmo personagem…')}});
 el('backupExport')?.addEventListener('click',()=>postNative('BackupExport',{}));el('backupImport')?.addEventListener('click',()=>{const backup=el('backupText').value.trim();if(!backup)return showToast('Cole um backup antes de restaurar.');postNative('BackupImport',{backup})});el('backupCopy')?.addEventListener('click',async()=>{const text=el('backupText').value||backupBuffer;if(!text)return showToast('Gere um backup primeiro.');try{await navigator.clipboard.writeText(text);showToast('Backup copiado.')}catch(_e){el('backupText').focus();el('backupText').select();document.execCommand('copy');showToast('Backup copiado.')}});
 render();document.body.dataset.ready='true';postNative('ViewState',{request:'initial'});
-})();
 
 function renderGuideOverlay() {
   const guide = viewState?.playerGuide || {};
@@ -768,3 +767,4 @@ document.addEventListener('click', e => {
     openGuideTopic(target.dataset.guideTopic);
   }
 });
+})();
