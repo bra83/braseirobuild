@@ -143,4 +143,16 @@ stage.getBoundingClientRect=()=>({width:380,height:310});
   assert.equal(stage.activeClasses.has('physics-active'),false);
 }
 
-console.log('PASS physical Canvas animations, lifecycle, stress and FL CSS fallback');
+// Percentile: both physical dice must remain visibly labelled at ANY resting angle.
+for(let repeat=0;repeat<15;repeat++){
+  const r={terms:[{count:1,sides:100}],rolls:[82]};
+  let done=0;
+  assert.equal(window.OSEPhysicsDice.start(r,[{value:82}],()=>done++),true);
+  let frames=0;
+  while(queue.length&&frames<1600){const job=queue.shift();now+=1000/60;job.fn(now);frames++;}
+  assert.equal(done,1,'d100 final value remained canonical');
+  assert.deepEqual([...textThisFrame].sort(),['2','80'].sort(),
+    'both physical percentile faces must show values even when projected edge-on');
+  window.OSEPhysicsDice.stop();
+}
+console.log('PASS physical Canvas animations, lifecycle, d100 labels, stress and FL CSS fallback');

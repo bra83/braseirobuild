@@ -139,6 +139,10 @@ function render(session){
     }
     return radius;
   }
+  // Narrow projected facets (notably d100 kites) use a compact number badge
+  // AFTER the geometry pass. It is still the canonical target face value,
+  // never a new result. This avoids missing values on near-edge projections.
+  const fallbackLabels=[];
   // Render each visible 3D facet
   for(const face of faces){
     ctx.beginPath();
@@ -181,8 +185,37 @@ function render(session){
           ctx.fill();
         }
         ctx.restore();
+      }else if(face.body.done){
+        fallbackLabels.push({text:face.label,x:face.center[0],y:face.center[1]});
       }
     }
+  }
+  // Topmost overlays are reserved for genuinely unreadable narrow faces.
+  // Avoid crossing the tray border or another percentile badge.
+  const occupied=[];
+  for(const badge of fallbackLabels){
+    const badgeWidth=badge.text.length*10+12,badgeHeight=21;
+    let x=Math.min(width-badgeWidth-5,Math.max(5,badge.x-badgeWidth/2));
+    let y=Math.min(height-badgeHeight-5,Math.max(5,badge.y-badgeHeight/2));
+    for(let attempt=0;attempt<5;attempt++){
+      if(!occupied.some(r=>x<r.x+r.w+3 && x+badgeWidth+3>r.x && y<r.y+r.h+3 && y+badgeHeight+3>r.y))break;
+      y=Math.max(5,y-badgeHeight-4);
+    }
+    occupied.push({x,y,w:badgeWidth,h:badgeHeight});
+    ctx.save();
+    ctx.fillStyle='rgba(29,17,12,.94)';
+    ctx.fillRect(x,y,badgeWidth,badgeHeight);
+    ctx.strokeStyle='rgba(207,163,87,.9)';
+    ctx.lineWidth=1.1;
+    ctx.beginPath();
+    ctx.moveTo(x,y);ctx.lineTo(x+badgeWidth,y);
+    ctx.lineTo(x+badgeWidth,y+badgeHeight);ctx.lineTo(x,y+badgeHeight);
+    ctx.closePath();ctx.stroke();
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font='800 12px Georgia, "Times New Roman", serif';
+    ctx.fillStyle='#fff3cc';
+    ctx.fillText(badge.text,x+badgeWidth/2,y+badgeHeight/2,badgeWidth-4);
+    ctx.restore();
   }
 }
 function resize(session){
