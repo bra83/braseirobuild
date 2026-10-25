@@ -45,6 +45,7 @@ object AppViewStateProjector {
                         .put("narration", r.narration ?: JSONObject.NULL)
                         .put("mechanicalIntent", r.mechanicalIntent ?: JSONObject.NULL)
                         .put("actorCharacterId", r.actorCharacterId ?: JSONObject.NULL)
+                        .put("lifeCauseId", r.lifeCauseId ?: JSONObject.NULL)
                 })))
             .put("party", JSONArray(party.map { c ->
                 characterSummary(c).put("controlMode", (game.characterControlModes[c.characterId]
