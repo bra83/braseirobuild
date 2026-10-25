@@ -157,7 +157,21 @@ function renderSession(){
  const presentNpcs=viewState?.presentation?.presentNpcs||[];
  const npcPanel=presentNpcs.length?`<div class="panel"><h3>NPCs presentes</h3><div class="text-entity-list">${presentNpcs.map(n=>{const nPort=n.portraitUrl||viewState?.presentation?.npcPortraits?.[n.npcId];return `<div class="text-entity">${nPort?`<img src="${esc(nPort)}" class="avatar-thumb" alt="Retrato">`:''}<b>${esc(n.name)}</b>${hasNative()?`<button class="photo-action" data-photo-npc="${esc(n.npcId)}" title="Retrato do NPC">📷</button>`:''}</div>`}).join('')}</div></div>`:'';
  const receipt = viewState?.narrationReceipt;
- const badgeHtml = receipt ? `<div class="narration-badge ${esc(String(receipt.status||'').toLowerCase())}">${receipt.provider === 'GEMINI_TEXT' ? 'Narrado por Mestre Gemini (' + esc(receipt.model || 'neural') + ')' : 'Narração Local Offline'}</div>` : '';
+ const narrativeStatus = String(receipt?.status || '').toUpperCase();
+ const isPartialNarration = narrativeStatus === 'PARTIAL_LENGTH';
+ const narrationOrigin = receipt?.provider === 'GEMINI_TEXT'
+   ? 'Mestre Gemini (' + esc(receipt.model || 'neural') + ')'
+   : 'Narração local offline';
+ const narrationNotice = isPartialNarration
+   ? 'Cena abreviada: o Gemini não atingiu a extensão solicitada. O texto recebido foi preservado.'
+   : narrativeStatus === 'FALLBACK'
+     ? 'Gemini indisponível nesta resposta; o Mestre utilizou a narração local.'
+     : narrativeStatus === 'LOCAL_ONLY'
+       ? 'Narração local: chave Gemini de texto não configurada.'
+       : narrationOrigin;
+ const badgeHtml = receipt
+   ? `<div class="narration-badge ${esc(narrativeStatus.toLowerCase())}" role="status">${esc(narrationNotice)}</div>`
+   : '';
  return `<div class="kicker">Sessão ativa</div>
   <div class="panel">${badgeHtml}<div class="row"><div><span class="pill">${profileLabel()}</span><h2 style="margin-top:7px">Cena atual</h2></div></div>
   ${sceneUrl?img(sceneUrl,'Ilustração da cena atual','scene-image'):''}
