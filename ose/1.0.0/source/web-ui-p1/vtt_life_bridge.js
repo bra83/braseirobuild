@@ -946,19 +946,11 @@ class LifeRuntime {
         const actorId = receipt.actorCharacterId || (viewState.party && viewState.party[0]?.id) || 'party';
         const summary = receipt.reactionText || receipt.mechanicalIntent || 'Ação confirmada da companhia';
 
-        // Never derive victory or care from player intent strings (e.g. ATTACK is not victory)
-        let causeId = 'cause-journey-1';
-        if (receipt.lifeCauseId) {
-          causeId = receipt.lifeCauseId;
-        } else {
-          const lower = String(receipt.mechanicalFeedback || summary).toLowerCase();
-          if (lower.includes('derrot') || lower.includes('venceu') || lower.includes('abatido') || lower.includes('esquelet')) {
-            causeId = 'cause-victory-1';
-          } else if (lower.includes('descans') || lower.includes('recuperou pv') || lower.includes('estalagem') || lower.includes('repous') || lower.includes('curou')) {
-            causeId = 'cause-care-1';
-          } else {
-            causeId = 'cause-journey-1';
-          }
+        // A cause must be emitted by the authoritative referee and persisted with the receipt.
+        // Neither mechanical feedback nor the player's text is proof of victory, healing or travel.
+        const causeId = typeof receipt.lifeCauseId === 'string' ? receipt.lifeCauseId : '';
+        if (!['cause-journey-1', 'cause-care-1', 'cause-victory-1'].includes(causeId)) {
+          continue;
         }
 
         const evt = {
