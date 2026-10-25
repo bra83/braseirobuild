@@ -120,9 +120,21 @@ window.BraseiroReceive=(raw)=>{
 };
 
 function uiStatusMessage(p){if(p.ok===false)return 'A ação não pôde ser concluída pelas regras atuais.';if(p.status==='READY_TO_START')return 'Equipamento concluído. Agora você pode começar a aventura.';return 'Equipamento atualizado.'}
-function friendlyBridgeError(code){const m={GEMINI_KEY_MISSING:'Configure a chave Gemini.',INVALID_GEMINI_MODEL:'Confira o nome do modelo Gemini.',INVALID_TTS_VOICE:'Confira o nome da voz TTS.',EMPTY_VISIBLE_NARRATION:'Ainda não há narração para ouvir.',NO_CHARACTER:'Crie ou importe um personagem primeiro.',CHARACTER_ALREADY_EXISTS:'Já existe uma ficha com este identificador.',RANDOM_CHARACTER_NO_VALID_CLASS:'Não foi possível gerar uma classe válida para estes atributos.',INVALID_CHARACTER_SHEET:'A ficha JSON não é válida para o BRASEIRO OSE.',CHARACTER_PROFILE_MISMATCH:'A ficha pertence a outro perfil OSE.',CHARACTER_ID_EXISTS:'Já existe um personagem com este identificador.',CHARACTER_ITEM_PROFILE_MISMATCH:'Um item da ficha pertence a outro perfil OSE.',ITEM_ID_EXISTS:'Já existe um item com este identificador.',INVALID_CHARACTER_NAME:'Digite um nome válido para o personagem.',CHARACTER_RECREATE_AFTER_START:'A recriação pré-início não está disponível; use EXCLUIR FICHA.',UNKNOWN_CHARACTER_ID:'Este personagem não está na companhia.',CHARACTER_SELECTION_SAVE_FAILED:'Não foi possível salvar a seleção da ficha.',INVALID_CHARACTER_COMMAND:'Comando incompleto. Tente novamente.',CHARACTER_COMMAND_ALREADY_APPLIED:'Este comando já foi realizado. Atualize a companhia.',CHARACTER_PLAYER_CONTROLLED:'Este personagem só pode agir por sua decisão.',CHARACTER_MASTER_CONTROLLED:'Este personagem é controlado pelo Mestre.',CHARACTER_CURATOR_APPROVAL_REQUIRED:'A ação precisa da sua aprovação antes de ser executada.',PROPOSAL_ALREADY_REVIEWED:'Esta proposta já foi revisada.',CHARACTER_NOT_CURATED:'Este personagem não está no modo de curadoria.',CHARACTER_ACTOR_PROTECTED:'O Mestre não pode decidir pelo personagem protegido de outro controlador.',GROUP_ACTION_REQUIRES_PLAYER_DECISION:'Essa ação afeta toda a companhia e depende da decisão humana.'};return m[code]||'O aplicativo encontrou um erro ao executar esta ação.'}
+function friendlyBridgeError(code){
+ const errorCode=String(code||'ERRO_DESCONHECIDO').trim().slice(0,100);
+ if(/^GEMINI_HTTP_(400|401|402|403|404|429)$/.test(errorCode)){
+   const suffix=errorCode.split('_').pop();
+   if(suffix==='429')return 'Gemini: cota excedida. Use ABRIR GEMINI no menu de imagem ou importe pela galeria.';
+   if(suffix==='402'||suffix==='403')return 'Gemini: a geração via API não está liberada para sua chave/cota gratuita. Use ABRIR GEMINI no menu e compartilhe a imagem.';
+   if(suffix==='401')return 'Gemini: chave não autorizada. Confira a configuração; a opção Gemini externo continua disponível.';
+   if(suffix==='404')return 'Gemini: modelo de imagem indisponível. Verifique o modelo nas configurações.';
+   return 'Gemini: solicitação de imagem recusada ('+errorCode+'). Verifique o modelo ou use a opção externa.';
+ }
+ if(errorCode==='GEMINI_IMAGE_OUTPUT_MISSING')return 'Gemini não retornou uma imagem. Tente outra descrição ou use a opção externa.';
+ if(errorCode==='GEMINI_TEXT_SCENE_KEY_MISSING')return 'Não há chave de API configurada. O Gemini externo pode ser usado sem configurar a API.';
+ const m={GEMINI_KEY_MISSING:'Configure a chave Gemini.',INVALID_GEMINI_MODEL:'Confira o nome do modelo Gemini.',INVALID_TTS_VOICE:'Confira o nome da voz TTS.',EMPTY_VISIBLE_NARRATION:'Ainda não há narração para ouvir.',NO_CHARACTER:'Crie ou importe um personagem primeiro.',CHARACTER_ALREADY_EXISTS:'Já existe uma ficha com este identificador.',RANDOM_CHARACTER_NO_VALID_CLASS:'Não foi possível gerar uma classe válida para estes atributos.',INVALID_CHARACTER_SHEET:'A ficha JSON não é válida para o BRASEIRO OSE.',CHARACTER_PROFILE_MISMATCH:'A ficha pertence a outro perfil OSE.',CHARACTER_ID_EXISTS:'Já existe um personagem com este identificador.',CHARACTER_ITEM_PROFILE_MISMATCH:'Um item da ficha pertence a outro perfil OSE.',ITEM_ID_EXISTS:'Já existe um item com este identificador.',INVALID_CHARACTER_NAME:'Digite um nome válido para o personagem.',CHARACTER_RECREATE_AFTER_START:'A recriação pré-início não está disponível; use EXCLUIR FICHA.',UNKNOWN_CHARACTER_ID:'Este personagem não está na companhia.',CHARACTER_SELECTION_SAVE_FAILED:'Não foi possível salvar a seleção da ficha.',INVALID_CHARACTER_COMMAND:'Comando incompleto. Tente novamente.',CHARACTER_COMMAND_ALREADY_APPLIED:'Este comando já foi realizado. Atualize a companhia.',CHARACTER_PLAYER_CONTROLLED:'Este personagem só pode agir por sua decisão.',CHARACTER_MASTER_CONTROLLED:'Este personagem é controlado pelo Mestre.',CHARACTER_CURATOR_APPROVAL_REQUIRED:'A ação precisa da sua aprovação antes de ser executada.',PROPOSAL_ALREADY_REVIEWED:'Esta proposta já foi revisada.',CHARACTER_NOT_CURATED:'Este personagem não está no modo de curadoria.',CHARACTER_ACTOR_PROTECTED:'O Mestre não pode decidir pelo personagem protegido de outro controlador.',GROUP_ACTION_REQUIRES_PLAYER_DECISION:'Essa ação afeta toda a companhia e depende da decisão humana.'};return m[errorCode]||('Falha ao executar a ação ('+errorCode+'). Abra as configurações ou tente novamente.');}
 function ttsMessage(s){return s==='PREPARING'?'Preparando a narração em voz.':s==='PLAYING'?'Narração em andamento.':s==='STOPPED'?'Áudio interrompido.':s==='IDLE'?'Motor de voz pronto.':s==='ERROR'?'Falha no motor de voz.':'TTS atualizado.'}
-function showToast(msg){const t=el('toast');if(!t)return;t.textContent=msg;t.classList.remove('hidden');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.add('hidden'),2600)}
+function showToast(msg){const t=el('toast');if(!t)return;t.textContent=msg;t.classList.remove('hidden');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.add('hidden'),/falha|erro|cota|não está|não retornou|gratuita|compartilhe/i.test(String(msg))?6200:3500)}
 function rationValue(vs){const xs=vs?.resources||[];const hit=xs.find(x=>String(x).toLowerCase().startsWith('rations:'));return hit?Number(String(hit).split(':').pop())||0:0}
 function actionCostSummary(intent){if(!intent)return'';const n=Math.max(1,(viewState?.party||[]).length),r=rationValue(viewState);if(intent.startsWith('WILD_TRAVEL_FORAGE_DAY'))return `Dia inteiro de viagem. O motor fará e exibirá os testes autoritativos de perder-se, forrageio e encontro. O grupo pode percorrer vários hexes conforme movimento/terreno. Necessidade de comida: até ${n}; rações atuais: ${r}. Se faltar comida, o déficit ficará registrado.`;if(intent.startsWith('WILD_TRAVEL_DAY')||intent.startsWith('WILD_FORCED_MARCH_DAY'))return `Dia inteiro de viagem. O motor fará e exibirá os testes autoritativos de perder-se e encontro. O grupo pode percorrer vários hexes conforme movimento/terreno${intent.startsWith('WILD_FORCED_MARCH_DAY')?' e aplicará a regra de marcha forçada':''}. Necessidade de comida: até ${n}; rações atuais: ${r}. Se faltar comida, o déficit ficará registrado.`;if(intent.startsWith('WILD_REST_DAY'))return `Descansar consumirá 1 dia. Necessidade de comida: até ${n}; rações atuais: ${r}. Se faltar comida, o déficit ficará registrado.`;return''}
 function showEventPopup(title,lines){if(!lines?.length)return;document.getElementById('eventPopup')?.remove();const o=document.createElement('div');o.id='eventPopup';o.className='event-popup-overlay';o.innerHTML=`<div class="event-popup panel"><div class="kicker">Atualização da campanha</div><h3>${esc(title)}</h3>${lines.map(x=>`<p>${esc(x)}</p>`).join('')}<button class="primary" data-event-ok>CONTINUAR</button></div>`;document.getElementById('phone').appendChild(o);o.querySelector('[data-event-ok]').onclick=()=>o.remove()}
@@ -749,7 +761,7 @@ el('photoMenuGemini')?.addEventListener('click', () => {
       postNative('ScenePromptShare', {});
       showToast('Compartilhando prompt da cena com Gemini…');
     }
-  } else if (scope === 'CHARACTER' || scope === 'NPC') {
+  } else if (scope === 'CHARACTER' || scope === 'NPC' || scope === 'ITEM') {
     if (geminiState.textSceneConfigured) {
       postNative('PortraitImageGenerate', { kind: scope, id });
       showToast('Gerando retrato com IA Gemini…');
@@ -757,8 +769,19 @@ el('photoMenuGemini')?.addEventListener('click', () => {
       postNative('PortraitPromptShare', { kind: scope, id });
       showToast('Compartilhando prompt do retrato com Gemini…');
     }
+  }
+});
+
+el('photoMenuGeminiApp')?.addEventListener('click', () => {
+  if (!currentPhotoTarget) return;
+  const { scope, id } = currentPhotoTarget;
+  el('photoMenuOverlay')?.classList.add('hidden');
+  const action = scope === 'SCENE' ? 'ScenePromptShare' : 'PortraitPromptShare';
+  const payload = scope === 'SCENE' ? {} : { kind: scope, id };
+  if (postNative(action, payload)) {
+    showToast('Abrindo o Gemini externo. Depois de gerar, compartilhe a imagem com o Braseiro OSE ou salve e importe pela galeria.');
   } else {
-    showToast('Para itens, selecione uma imagem do seu dispositivo.');
+    showToast('O Gemini externo requer o aplicativo Android.');
   }
 });
 
