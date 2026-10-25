@@ -176,7 +176,9 @@ class CombatMovementLightStateFlowTest {
         }
         val outNoSecret = boundary.resolve(envDungeon, "DUNGEON_SEARCH_ROOM", rng)
         assertTrue(outNoSecret.mechanicalMutation)
-        assertTrue(outNoSecret.feedback.contains("nenhum mecanismo ou passagem oculta existente nesta sala"))
+        assertTrue(outNoSecret.feedback.contains("Nenhum indício de passagem ou mecanismo oculto foi percebido"))
+        assertFalse(outNoSecret.feedback.contains("inexistente", ignoreCase = true), "Busca nao pode revelar conhecimento secreto do Mestre")
+        assertFalse(outNoSecret.feedback.contains("não existe", ignoreCase = true), "Ausencia de segredos deve permanecer desconhecida")
         assertEquals(dWithoutSecret.edges, outNoSecret.updatedState.game.dungeon?.edges)
 
         // 3. Room with NO doors -> listening or forcing door is rejected without mutating state
