@@ -200,14 +200,15 @@ jobs:
           }
           $repo=$env:GITHUB_REPOSITORY
           $url="https://api.github.com/repos/$repo/releases"
-          $tag=[uri]::EscapeDataString($env:TAG)
+          $releaseTag="$($env:TAG)-$($env:GITHUB_SHA.Substring(0,8))"
+          $tag=[uri]::EscapeDataString($releaseTag)
           try {
             $release=Invoke-RestMethod -Method Get -Uri "$url/tags/$tag" -Headers $headers
           } catch {
             $status=$_.Exception.Response.StatusCode.value__
             if ($status -ne 404) { throw }
             $payload=@{
-              tag_name=$env:TAG
+              tag_name=$releaseTag
               target_commitish=$env:GITHUB_SHA
               name="BRASEIRO OSE 1.0.10 (automated build)"
               body="Built from commit $($env:GITHUB_SHA). Verify checksum and test on Galaxy A57 before declaring device homologation."
@@ -223,8 +224,12 @@ jobs:
             $full=Join-Path $folder $name
             if (-not (Test-Path -LiteralPath $full)) { throw "Missing fallback release file: $name" }
             $old=$release.assets | Where-Object { $_.name -eq $name }
-            foreach ($asset in @($old)) {
-              Invoke-RestMethod -Method Delete -Uri $asset.url -Headers $headers | Out-Null
+            if ($null -ne $old) {
+              foreach ($asset in @($old)) {
+                if ($null -ne $asset) {
+                  Invoke-RestMethod -Method Delete -Uri $asset.url -Headers $headers | Out-Null
+                }
+              }
             }
             $dest="$($uploadUri)?name=$([uri]::EscapeDataString($name))"
             $mime=if($name.EndsWith('.apk')){'application/vnd.android.package-archive'}else{'application/octet-stream'}
