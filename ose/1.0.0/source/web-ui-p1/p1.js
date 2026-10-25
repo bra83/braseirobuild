@@ -44,6 +44,21 @@ window.BraseiroReceive=(raw)=>{
    if(p.viewState){viewState=p.viewState;geminiState=viewState.gemini||geminiState;}
    if(window.vttLifeAdapter)window.vttLifeAdapter.initFromViewState(viewState);
    lastRuleTrace=p.ruleTrace||viewState?.lastRuleTrace||lastRuleTrace;
+   if(Array.isArray(p.diceRolls) && p.diceRolls.length > 0){
+     const rolls = p.diceRolls.map(d => d.value);
+     const total = rolls.reduce((a, b) => a + b, 0);
+     const sides = p.diceRolls[0].sides || 6;
+     const formula = `${p.diceRolls.length}d${sides}`;
+     el('dice3dOverlay')?.classList.remove('hidden');
+     window.BraseiroDice?.start({
+       sides: sides,
+       count: p.diceRolls.length,
+       modifier: 0,
+       canonicalTotal: total,
+       rolls: rolls,
+       formula: formula
+     });
+   }
    localLog.push(p.mechanicalMutation?'A ação foi resolvida e o mundo foi atualizado.':'O Mestre respondeu sem alterar o estado mecânico.');
    render();showToast('Ação concluída.');announceStateChanges(previous,viewState,p.feedback||'');
   }
@@ -615,7 +630,7 @@ function renderGuideOverlay() {
   const container = el('guideContent');
   if (!container) return;
   container.innerHTML = topics.map(t => `
-    <div class="guide-card">
+    <div class="guide-card" data-topic-id="${esc(t.topicId)}">
       <h4>${esc(t.title)}</h4>
       <span class="pill" style="margin-bottom:4px">${esc(t.category)}</span>
       <p><b>Resumo:</b> ${esc(t.summary)}</p>
@@ -752,7 +767,8 @@ function openGuideTopic(topicId) {
   setTimeout(() => {
     const cards = document.querySelectorAll('.guide-card');
     cards.forEach(c => {
-      if (c.innerHTML.toLowerCase().includes(topicId.replace(/_/g, ' '))) {
+      const match = c.dataset.topicId === topicId || c.innerHTML.toLowerCase().includes(topicId.replace(/_/g, ' '));
+      if (match) {
         c.scrollIntoView({ behavior: 'smooth', block: 'center' });
         c.style.boxShadow = '0 0 10px #d9a84c';
       }

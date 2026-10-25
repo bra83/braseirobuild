@@ -50,11 +50,36 @@ class GeminiBarbaraSupervisor(
             return localNarration(committed, playerReaction, mechanicalFeedback)
         }
         val model = settings.snapshot().textModel
+        val isCampaignOpening = playerReaction.contains("A aventura começa agora", ignoreCase = true) ||
+            committed.campaignState.time.turns == 0L
+        val isMajorScene = mechanicalFeedback.contains("Viagem:", ignoreCase = true) ||
+            mechanicalFeedback.contains("Encontro", ignoreCase = true) ||
+            playerReaction.contains("descans", ignoreCase = true)
+        val minRequiredLength = when {
+            isCampaignOpening -> 1200
+            isMajorScene -> 300
+            else -> 120
+        }
+
         return runCatching {
-            val generated = client.generateText(key, model, buildNarrationPrompt(committed, playerReaction, mechanicalFeedback, trace))
+            var generated = client.generateText(key, model, buildNarrationPrompt(committed, playerReaction, mechanicalFeedback, trace))
                 .trim()
-                .takeIf { it.length >= 120 && !looksTechnical(it) }
-                ?: error("GEMINI_NARRATION_TOO_SHORT_OR_TECHNICAL")
+            if (generated.length < minRequiredLength && !looksTechnical(generated)) {
+                // controlled single retry/continuation request
+                val continuationPrompt = """
+                    Continue e aprofunde a narração anterior sem reiniciar ou repetir o que já foi dito.
+                    Desenvolva a descrição sensorial do ambiente, o estado dos companheiros, luz, sombras e detalhes circundantes.
+                    Texto até o momento:
+                    $generated
+                """.trimIndent()
+                val additional = runCatching { client.generateText(key, model, continuationPrompt).trim() }.getOrNull()
+                if (!additional.isNullOrBlank() && !looksTechnical(additional)) {
+                    generated = (generated + "\n\n" + additional).trim()
+                }
+            }
+            if (generated.length < minRequiredLength || looksTechnical(generated)) {
+                error("GEMINI_NARRATION_LENGTH_OR_TECHNICAL: length=${generated.length} min=$minRequiredLength")
+            }
             lastReceipt = NarrationReceipt(
                 provider = "GEMINI_TEXT",
                 model = model,

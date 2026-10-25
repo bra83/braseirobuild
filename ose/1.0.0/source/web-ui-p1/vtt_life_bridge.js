@@ -949,7 +949,7 @@ class LifeRuntime {
         // A cause must be emitted by the authoritative referee and persisted with the receipt.
         // Neither mechanical feedback nor the player's text is proof of victory, healing or travel.
         const causeId = typeof receipt.lifeCauseId === 'string' ? receipt.lifeCauseId : '';
-        if (!['cause-journey-1', 'cause-care-1', 'cause-victory-1'].includes(causeId)) {
+        if (!['cause-journey-1', 'cause-care-1', 'cause-victory-1', 'cause-loss-1', 'cause-discovery-1', 'cause-promise-1'].includes(causeId)) {
           continue;
         }
 

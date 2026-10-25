@@ -46,6 +46,11 @@ object AppViewStateProjector {
                         .put("mechanicalIntent", r.mechanicalIntent ?: JSONObject.NULL)
                         .put("actorCharacterId", r.actorCharacterId ?: JSONObject.NULL)
                         .put("lifeCauseId", r.lifeCauseId ?: JSONObject.NULL)
+                        .put("lifeTransitionRef", r.lifeTransitionRef ?: JSONObject.NULL)
+                        .put("lifeConsequence", r.lifeConsequence ?: JSONObject.NULL)
+                        .put("diceRolls", JSONArray(r.diceRolls.map { d ->
+                            JSONObject().put("sides", d.sides).put("value", d.value).put("label", d.label ?: JSONObject.NULL)
+                        }))
                 })))
             .put("party", JSONArray(party.map { c ->
                 characterSummary(c).put("controlMode", (game.characterControlModes[c.characterId]

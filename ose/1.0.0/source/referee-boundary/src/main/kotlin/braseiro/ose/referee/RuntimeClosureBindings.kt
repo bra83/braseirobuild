@@ -672,7 +672,7 @@ object RuntimeClosureBindings {
 
     private fun authoritativeDie(rng: NamedRngStreams, sides: Int): Int {
         require(sides>=1)
-        return (rng.draw(RngStreamId.RULES_DICE)%sides.toUInt()).toInt()+1
+        return rng.rollDie(sides)
     }
 
     private fun outcome(state: CampaignState,message:String,ruleId:String,profile:RuleProfile,status:EvidenceStatus,note:String,mutation:Boolean,rng:Boolean)=

@@ -54,7 +54,9 @@ object OSEPlayerGuide {
         val preconditions: List<String>,
         val riskHint: String,
         val timePreview: String,
-        val sourceRuleRef: String
+        val sourceRuleRef: String,
+        val executable: Boolean = true,
+        val missingRequirement: String? = null
     ) {
         fun toJson(): JSONObject = JSONObject()
             .put("id", id)
@@ -65,6 +67,8 @@ object OSEPlayerGuide {
             .put("riskHint", riskHint)
             .put("timePreview", timePreview)
             .put("sourceRuleRef", sourceRuleRef)
+            .put("executable", executable)
+            .put("missingRequirement", missingRequirement ?: JSONObject.NULL)
     }
 
     private val TOPICS = listOf(
@@ -233,39 +237,50 @@ object OSEPlayerGuide {
         val pos = state.position.primary
         val suggestions = mutableListOf<ActionSuggestion>()
 
+        val primaryActor = state.party.characterIds.firstOrNull() ?: ""
         val hasShield = game.inventory.items.values.any { it.equipped && it.kind == InventoryItemKind.SHIELD }
         val hasRanged = game.inventory.items.values.any { it.equipped && (it.catalogId.contains("BOW") || it.catalogId.contains("SLING") || it.catalogId.contains("CROSSBOW")) }
         val hasMelee = game.inventory.items.values.any { it.equipped && it.kind == InventoryItemKind.WEAPON && !it.catalogId.contains("BOW") }
-        val hasTorches = game.inventory.items.values.any { it.kind == InventoryItemKind.LIGHT_SOURCE || it.catalogId.contains("TORCH") || it.catalogId.contains("OIL") }
-        val hasCompanions = state.party.characterIds.size > 1 || game.retainerContracts.isNotEmpty()
+        val unlitTorch = game.inventory.items.values.firstOrNull { it.kind == InventoryItemKind.LIGHT_SOURCE && it.quantity > 0 }
+        val encounter = game.encounter
+        val hasOpposition = encounter?.combatants?.values?.any { it.side == EncounterSide.OPPOSITION && (it.alive && it.hpCurrentNumerator > 0) } == true
+        val targetOpponent = encounter?.combatants?.values?.firstOrNull { it.side == EncounterSide.OPPOSITION && (it.alive && it.hpCurrentNumerator > 0) }?.actorId ?: "monster_1"
 
         when {
-            phase == "COMBAT" -> {
+            phase == "COMBAT" || encounter?.phase == EncounterPhase.COMBAT -> {
                 if (hasMelee) {
+                    val weapon = game.inventory.items.values.firstOrNull { it.equipped && it.kind == InventoryItemKind.WEAPON && !it.catalogId.contains("BOW") }
+                    val weaponId = weapon?.itemId ?: "default_weapon"
                     suggestions.add(
                         ActionSuggestion(
                             id = "act-combat-melee",
                             plainLabel = "Atacar com arma corpo a corpo",
-                            intentCandidate = "COMBAT_ATTACK_MELEE",
+                            intentCandidate = "COMBAT_ATTACK_MELEE:PARTY:$primaryActor:$targetOpponent:$weaponId",
                             textCandidate = "Avanço com arma em punho para desferir um ataque contra o adversário mais próximo.",
                             preconditions = listOf("Arma corpo a corpo equipada"),
                             riskHint = "Inimigo pode contra-atacar na mesma rodada",
                             timePreview = "1 rodada (10 segundos)",
-                            sourceRuleRef = "Classic Rules Tome p. 102"
+                            sourceRuleRef = "Classic Rules Tome p. 102",
+                            executable = hasOpposition,
+                            missingRequirement = if (!hasOpposition) "Nenhum oponente ativo no combate" else null
                         )
                     )
                 }
                 if (hasRanged) {
+                    val ranged = game.inventory.items.values.firstOrNull { it.equipped && (it.catalogId.contains("BOW") || it.catalogId.contains("SLING") || it.catalogId.contains("CROSSBOW")) }
+                    val rangedId = ranged?.itemId ?: "default_bow"
                     suggestions.add(
                         ActionSuggestion(
                             id = "act-combat-ranged",
                             plainLabel = "Disparar projétil à distância",
-                            intentCandidate = "COMBAT_ATTACK_MISSILE",
+                            intentCandidate = "COMBAT_ATTACK_MISSILE:PARTY:$primaryActor:$targetOpponent:$rangedId",
                             textCandidate = "Mantenho distância segura e disparo minha arma de projéteis contra o inimigo mais exposto.",
                             preconditions = listOf("Arma de disparo e munição disponíveis"),
                             riskHint = "Não pode disparar se já engajado em combate corpo a corpo",
                             timePreview = "1 rodada (10 segundos)",
-                            sourceRuleRef = "Classic Rules Tome p. 102"
+                            sourceRuleRef = "Classic Rules Tome p. 102",
+                            executable = hasOpposition,
+                            missingRequirement = if (!hasOpposition) "Nenhum oponente ativo no combate" else null
                         )
                     )
                 }
@@ -273,24 +288,12 @@ object OSEPlayerGuide {
                     ActionSuggestion(
                         id = "act-combat-defend",
                         plainLabel = if (hasShield) "Recuo cauteloso com escudo" else "Postura defensiva e recuo",
-                        intentCandidate = "COMBAT_FIGHTING_WITHDRAWAL",
+                        intentCandidate = "COMBAT_MOVE:PARTY:$primaryActor:RETREAT",
                         textCandidate = if (hasShield) "Mantenho a guarda alta com o escudo e recuo com cautela, evitando expor as costas." else "Mantenho a guarda alta com minha arma e recuo com cautela, evitando expor as costas.",
                         preconditions = if (hasShield) listOf("Escudo equipado", "Espaço livre para recuo") else listOf("Arma em punho", "Espaço livre para recuo"),
                         riskHint = "Movimento limitado à metade da velocidade normal",
                         timePreview = "1 rodada (10 segundos)",
                         sourceRuleRef = "Classic Rules Tome p. 103"
-                    )
-                )
-                suggestions.add(
-                    ActionSuggestion(
-                        id = "act-combat-parley",
-                        plainLabel = "Tentar parlamentar ou exigir rendição",
-                        intentCandidate = "COMBAT_PARLEY",
-                        textCandidate = "Levanto a voz com firmeza propondo um cessar-fogo ou termos de rendição antes de mais sangue.",
-                        preconditions = listOf("Inimigo inteligente com linguagem comum"),
-                        riskHint = "Inimigo pode ignorar e atacar se a moral estiver firme",
-                        timePreview = "Instantâneo (fase de declaração)",
-                        sourceRuleRef = "Classic Rules Tome p. 102"
                     )
                 )
             }
@@ -319,12 +322,24 @@ object OSEPlayerGuide {
                         sourceRuleRef = "Classic Rules Tome p. 97"
                     )
                 )
-                if (hasTorches) {
+                suggestions.add(
+                    ActionSuggestion(
+                        id = "act-dungeon-stuck-door",
+                        plainLabel = "Forçar porta emperrada",
+                        intentCandidate = "DUNGEON_OPEN_STUCK_DOOR",
+                        textCandidate = "Apoio o ombro contra a porta de carvalho e forço o mecanismo com toda a força.",
+                        preconditions = listOf("Porta emperrada diante do grupo"),
+                        riskHint = "Ruído alto alerta criaturas próximas (1 turno)",
+                        timePreview = "1 turno (10 minutos)",
+                        sourceRuleRef = "Classic Rules Tome p. 97"
+                    )
+                )
+                if (unlitTorch != null) {
                     suggestions.add(
                         ActionSuggestion(
                             id = "act-dungeon-torch",
-                            plainLabel = "Acender tocha de reserva",
-                            intentCandidate = "DUNGEON_LIGHT_TORCH",
+                            plainLabel = "Acender tocha do inventário",
+                            intentCandidate = "LIGHT_IGNITE_ITEM:${unlitTorch.itemId}:$primaryActor",
                             textCandidate = "Retiro uma tocha e pederneira da mochila e acendo a chama para manter o raio de 9 metros iluminado.",
                             preconditions = listOf("Tocha e pederneira no inventário"),
                             riskHint = "Ocupa uma das mãos durante a exploração",
@@ -339,7 +354,7 @@ object OSEPlayerGuide {
                     ActionSuggestion(
                         id = "act-settle-inn",
                         plainLabel = "Descansar na estalagem para recuperar PV",
-                        intentCandidate = "SETTLEMENT_REST",
+                        intentCandidate = "SETTLEMENT_REST_DAY",
                         textCandidate = "Procuramos a estalagem local para alugar quartos confortáveis, comer refeições quentes e descansar o dia inteiro.",
                         preconditions = listOf("Ouro suficiente para diária (1 po)"),
                         riskHint = "Consome 1 dia de tempo de jogo; recupera 1d3 PV",
@@ -349,68 +364,78 @@ object OSEPlayerGuide {
                 )
                 suggestions.add(
                     ActionSuggestion(
-                        id = "act-settle-rumors",
-                        plainLabel = "Ouvir rumores na taverna e na praça",
-                        intentCandidate = "SETTLEMENT_GATHER_RUMORS",
-                        textCandidate = "Circulo pelas mesas da taverna pagando cerveja e conversando com os viajantes para saber o que acontece na região.",
-                        preconditions = listOf("Algumas moedas para bebidas e gorjetas"),
-                        riskHint = "Rumores podem conter verdades misturadas com boatos falsos",
-                        timePreview = "1 turno a 1 hora",
+                        id = "act-settle-wait",
+                        plainLabel = "Aguardar 1 turno no assentamento",
+                        intentCandidate = "WAIT_TURN",
+                        textCandidate = "Aguardamos alguns instantes observando o movimento ao redor da praça e dos comerciantes.",
+                        preconditions = listOf("Sem combate ativo"),
+                        riskHint = "Avança 1 turno (10 minutos)",
+                        timePreview = "1 turno (10 minutos)",
                         sourceRuleRef = "Classic Rules Tome p. 110"
-                    )
-                )
-                suggestions.add(
-                    ActionSuggestion(
-                        id = "act-settle-shop",
-                        plainLabel = "Comprar mantimentos e tochas com o mercador",
-                        intentCandidate = "SETTLEMENT_SHOP",
-                        textCandidate = "Dirijo-me ao mercado ou armazém geral para comprar rações de ferro, cordas e tochas antes da próxima viagem.",
-                        preconditions = listOf("Mercador ou armazém presente no assentamento"),
-                        riskHint = "Preços do livro oficial OSE",
-                        timePreview = "1 hora",
-                        sourceRuleRef = "Classic Rules Tome p. 44"
                     )
                 )
             }
             else -> {
+                // Wilderness or Hex
+                data class D(val key: String, val label: String, val dq: Int, val dr: Int)
+                val dirs = listOf(D("E","LESTE",1,0),D("SE","SUDESTE",0,1),D("NE","NORDESTE",1,-1),D("W","OESTE",-1,0),D("SW","SUDOESTE",-1,1),D("NW","NOROESTE",0,-1))
+                val hexPos = pos as? SpatialRef.Hex
+                val cells = game.hexWorld?.cells.orEmpty()
+                val validDirs = if (hexPos != null) {
+                    dirs.filter { d -> cells.any { it.q == hexPos.q + d.dq && it.r == hexPos.r + d.dr && it.hydrology.name != "SEA_OCEAN" } }
+                } else dirs
+
+                val primaryDir = validDirs.firstOrNull() ?: dirs[0]
+                val secondaryDir = validDirs.getOrNull(1) ?: dirs[1]
+
                 suggestions.add(
                     ActionSuggestion(
-                        id = "act-wild-travel",
-                        plainLabel = "Marchar pelo hexágono em ritmo seguro",
-                        intentCandidate = "WILD_TRAVEL",
-                        textCandidate = "Organizamos a marcha em fila com vigias na vanguarda e retaguarda, avançando pelo terreno com cautela.",
+                        id = "act-wild-travel-day",
+                        plainLabel = "Viajar 1 dia · ${primaryDir.label}",
+                        intentCandidate = "WILD_TRAVEL_DAY:${primaryDir.key}",
+                        textCandidate = "Organizamos a marcha em fila com vigias na vanguarda e retaguarda, avançando por um dia em direção a ${primaryDir.label.lowercase()}.",
                         preconditions = listOf("Sem combate ativo", "Companhia em condições de marcha"),
                         riskHint = "Gasto de rações diárias; teste de encontro errante e risco de se perder",
                         timePreview = "1 dia de viagem",
-                        sourceRuleRef = "Classic Rules Tome p. 98"
+                        sourceRuleRef = "Classic Rules Tome p. 98",
+                        executable = !game.expedition.immobile && !game.expedition.forcedMarchRestRequired,
+                        missingRequirement = when {
+                            game.expedition.immobile -> "Grupo imóvel pela carga excessiva"
+                            game.expedition.forcedMarchRestRequired -> "Descanso obrigatório de 1 dia após marcha forçada"
+                            else -> null
+                        }
                     )
                 )
                 suggestions.add(
                     ActionSuggestion(
-                        id = "act-wild-camp",
-                        plainLabel = "Montar acampamento e estabelecer vigília",
-                        intentCandidate = "WILD_CAMP",
-                        textCandidate = "Escolhemos um ponto elevado e abrigado do vento para armar as barracas e dividir os turnos de guarda da noite.",
-                        preconditions = listOf("Provisões diárias disponíveis"),
-                        riskHint = "Possibilidade de encontros noturnos se a guarda falhar",
-                        timePreview = "1 noite (8 horas de descanso)",
-                        sourceRuleRef = "Classic Rules Tome p. 98"
+                        id = "act-wild-travel-forage",
+                        plainLabel = "Viajar + Forragear · ${secondaryDir.label}",
+                        intentCandidate = "WILD_TRAVEL_FORAGE_DAY:${secondaryDir.key}",
+                        textCandidate = "Avançamos por um dia em direção a ${secondaryDir.label.lowercase()} procurando alimento e caça no caminho.",
+                        preconditions = listOf("Sem combate ativo", "Terreno com flora/fauna"),
+                        riskHint = "Velocidade de marcha reduzida; teste de forrageamento",
+                        timePreview = "1 dia de viagem",
+                        sourceRuleRef = "Classic Rules Tome p. 98",
+                        executable = !game.expedition.immobile && !game.expedition.forcedMarchRestRequired,
+                        missingRequirement = when {
+                            game.expedition.immobile -> "Grupo imóvel pela carga excessiva"
+                            game.expedition.forcedMarchRestRequired -> "Descanso obrigatório de 1 dia após marcha forçada"
+                            else -> null
+                        }
                     )
                 )
-                if (hasCompanions) {
-                    suggestions.add(
-                        ActionSuggestion(
-                            id = "act-wild-consult",
-                            plainLabel = "Consultar a opinião dos companheiros",
-                            intentCandidate = "COMPANION_OPINIONS",
-                            textCandidate = "Reúno os membros da companhia para ouvir suas observações sobre o caminho a seguir e os perigos adiante.",
-                            preconditions = listOf("Companheiros presentes"),
-                            riskHint = "Não avança o tempo de jogo (somente leitura)",
-                            timePreview = "Instantâneo",
-                            sourceRuleRef = "Classic Rules Tome p. 28"
-                        )
+                suggestions.add(
+                    ActionSuggestion(
+                        id = "act-wild-rest-day",
+                        plainLabel = "Descansar 1 dia completo nos ermos",
+                        intentCandidate = "WILD_REST_DAY",
+                        textCandidate = "Montamos acampamento e permanecemos parados um dia inteiro para descansar, cuidar dos ferimentos e reorganizar provisões.",
+                        preconditions = listOf("Provisões diárias disponíveis"),
+                        riskHint = "Consome rações diárias; recupera 1d3 PV; zera contador de marcha",
+                        timePreview = "1 dia (24 horas)",
+                        sourceRuleRef = "Classic Rules Tome p. 121"
                     )
-                }
+                )
             }
         }
 

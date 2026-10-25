@@ -29,7 +29,20 @@ object Pcg32 {
 
 @Serializable data class SeedState(val rootSeed: ULong, val streams: Map<RngStreamId, Pcg32State>)
 
+@Serializable data class RecordedDieRoll(
+    val sides: Int,
+    val value: Int,
+    val label: String = ""
+) {
+    init {
+        require(sides >= 1)
+        require(value in 1..sides)
+    }
+}
+
 class NamedRngStreams private constructor(private var seedState: SeedState) {
+    private val recordedDice = mutableListOf<RecordedDieRoll>()
+
     companion object {
         fun fromSeedState(seedState: SeedState): NamedRngStreams = NamedRngStreams(seedState)
         fun fromRootSeed(rootSeed: ULong): NamedRngStreams {
@@ -51,6 +64,17 @@ class NamedRngStreams private constructor(private var seedState: SeedState) {
         val draw = Pcg32.next(seedState.streams.getValue(id))
         seedState = seedState.copy(streams = seedState.streams + (id to draw.next))
         return draw.value
+    }
+    fun rollDie(sides: Int, label: String = ""): Int {
+        require(sides >= 1)
+        val value = (draw(RngStreamId.RULES_DICE) % sides.toUInt()).toInt() + 1
+        recordedDice.add(RecordedDieRoll(sides, value, label))
+        return value
+    }
+    fun drainRecordedDice(): List<RecordedDieRoll> {
+        val out = recordedDice.toList()
+        recordedDice.clear()
+        return out
     }
     fun snapshot(): SeedState = seedState
 }

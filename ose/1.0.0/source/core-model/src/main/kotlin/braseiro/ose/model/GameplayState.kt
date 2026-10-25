@@ -110,6 +110,17 @@ import kotlinx.serialization.Serializable
     fun canonical() = copy(purchases = purchases.toSortedMap())
 }
 
+@Serializable data class CanonicalDieRollSnapshot(
+    val sides: Int,
+    val value: Int,
+    val label: String = ""
+) {
+    init {
+        require(sides >= 1)
+        require(value in 1..sides)
+    }
+}
+
 @Serializable data class ReactionReceiptSnapshot(
     val reactionId: String,
     val reactionText: String,
@@ -122,7 +133,13 @@ import kotlinx.serialization.Serializable
     val mechanicalIntent: String? = null,
     val actorCharacterId: String? = null,
     /** Canonical, referee-confirmed life cause; never derived from player narration. */
-    val lifeCauseId: String? = null
+    val lifeCauseId: String? = null,
+    /** Canonical dice rolled by the referee during this resolution. */
+    val diceRolls: List<CanonicalDieRollSnapshot> = emptyList(),
+    /** Canonical structured transition ref for Motor de Vida V2.2. */
+    val lifeTransitionRef: String? = null,
+    /** Canonical structured consequence summary for Motor de Vida V2.2. */
+    val lifeConsequence: String? = null
 ) {
     init { require(reactionId.isNotBlank()); require(reactionText.isNotBlank()) }
     fun canonical() = copy(traceEvidenceRefs = traceEvidenceRefs.distinct().sorted())

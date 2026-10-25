@@ -402,6 +402,11 @@ class MainActivity : Activity() {
                                 CAMPAIGN_ID, reactionId, actorId, text, mechanicalIntent
                             )
                             val current = session.loadSession(CAMPAIGN_ID)
+                            val receipt = current.campaignState.game.session.reactionReceipts[reactionId]
+                            val diceRollsList = receipt?.diceRolls?.map { d ->
+                                JSONObject().put("sides", d.sides).put("value", d.value).put("label", d.label ?: JSONObject.NULL)
+                            } ?: emptyList<JSONObject>()
+                            val diceRollsJson = JSONArray(diceRollsList)
                             send(
                                 JSONObject().put("type", "SessionUpdate").put("payload", JSONObject()
                                     .put("narration", result.narration)
@@ -410,7 +415,11 @@ class MainActivity : Activity() {
                                     .put("mechanicalMutation", result.mechanicalMutation)
                                     .put("ruleTrace", traceJson(result.trace))
                                     .put("stateHash", CanonicalStateHash.sha256(current))
-                                    .put("viewState", projectForUi(current)))
+                                    .put("viewState", projectForUi(current))
+                                    .put("diceRolls", diceRollsJson)
+                                    .put("lifeCauseId", receipt?.lifeCauseId ?: JSONObject.NULL)
+                                    .put("lifeTransitionRef", receipt?.lifeTransitionRef ?: JSONObject.NULL)
+                                    .put("lifeConsequence", receipt?.lifeConsequence ?: JSONObject.NULL))
                             )
                             // Administrative wage operations do not advance companions or the story.
                             if (ActionAuthorityPolicy.triggersCompanionAutonomy(mechanicalIntent) &&

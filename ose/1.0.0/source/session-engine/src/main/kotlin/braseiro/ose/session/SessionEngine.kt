@@ -128,21 +128,73 @@ class SessionEngine(
 
         val rng=restoreRng(loaded.campaignState.game)
         val outcome=referee.resolve(loaded,mechanicalIntent,rng)
+        val diceRollsSnapshots = rng.drainRecordedDice().map { CanonicalDieRollSnapshot(it.sides, it.value, it.label) }
         val evidenceRefs=outcome.trace.evidence.map{it.ref()}
         val beforeGameRaw=outcome.updatedState.game
         val beforeTurn=loaded.campaignState.time.turns
         val afterTurn=outcome.updatedState.time.turns
         val beforeGame=if(afterTurn>beforeTurn) WorldEventScheduler.advance(beforeGameRaw,beforeTurn,afterTurn) else beforeGameRaw
-        // Only the referee's committed time change may classify an event for the Life engine.
-        // An attack attempt, descriptive success claim or unverified action is never a victory.
-        val confirmedLifeCauseId = if (outcome.mechanicalMutation &&
-            outcome.updatedState.time.days > loaded.campaignState.time.days) {
-            when (mechanicalIntent.substringBefore(':').uppercase()) {
-                "WILD_TRAVEL_DAY", "WILD_TRAVEL_FORAGE_DAY", "WILD_FORCED_MARCH_DAY" -> "cause-journey-1"
-                "WILD_REST_DAY" -> "cause-care-1"
-                else -> null
+
+        val beforeState = loaded.campaignState
+        val afterState = outcome.updatedState
+        val beforeChars = beforeState.game.characters
+        val afterChars = afterState.game.characters
+        val beforeKnownFacts = beforeState.playerKnowledge.knownFactIds
+        val afterKnownFacts = afterState.playerKnowledge.knownFactIds
+
+        var transitionCauseId: String? = null
+        var transitionRef: String? = null
+        var transitionConsequence: String? = null
+
+        if (outcome.mechanicalMutation) {
+            val anyPartyDied = afterChars.values.any { it.hitPoints.dead && beforeChars[it.characterId]?.hitPoints?.dead == false }
+            val partyHealed = afterChars.values.any { it.hitPoints.currentNumerator > (beforeChars[it.characterId]?.hitPoints?.currentNumerator ?: 0) }
+            val newFactsDiscovered = afterKnownFacts.size > beforeKnownFacts.size
+            val daysAdvanced = afterState.time.days > beforeState.time.days
+            val intentUpper = mechanicalIntent.substringBefore(':').uppercase()
+
+            val beforeEncounter = beforeState.game.encounter
+            val afterEncounter = afterState.game.encounter
+            val victoryAchieved = (beforeEncounter != null && beforeEncounter.phase != EncounterPhase.RESOLVED &&
+                afterEncounter?.phase == EncounterPhase.RESOLVED &&
+                afterEncounter.combatants.values.any { it.side == EncounterSide.OPPOSITION && (!it.alive || it.hpCurrentNumerator <= 0) })
+
+            val retainerContractSigned = afterState.game.retainerContracts.size > beforeState.game.retainerContracts.size
+
+            when {
+                anyPartyDied -> {
+                    transitionCauseId = "cause-loss-1"
+                    transitionRef = "FATALITY"
+                    transitionConsequence = "Membro da companhia pereceu durante a expedição."
+                }
+                victoryAchieved -> {
+                    transitionCauseId = "cause-victory-1"
+                    transitionRef = "COMBAT_VICTORY"
+                    transitionConsequence = "Inimigos derrotados com sucesso pelo grupo."
+                }
+                partyHealed || intentUpper == "WILD_REST_DAY" || intentUpper == "SETTLEMENT_REST_DAY" -> {
+                    transitionCauseId = "cause-care-1"
+                    transitionRef = "REST_HEALING"
+                    transitionConsequence = "Descanso realizado e vigor físico recuperado."
+                }
+                newFactsDiscovered -> {
+                    transitionCauseId = "cause-discovery-1"
+                    transitionRef = "DISCOVERY"
+                    transitionConsequence = "Novos territórios ou segredos foram mapeados."
+                }
+                daysAdvanced && (intentUpper == "WILD_TRAVEL_DAY" || intentUpper == "WILD_TRAVEL_FORAGE_DAY" || intentUpper == "WILD_FORCED_MARCH_DAY") -> {
+                    transitionCauseId = "cause-journey-1"
+                    transitionRef = "JOURNEY_DAY"
+                    transitionConsequence = "Jornada de ermos avançou pelo mapa."
+                }
+                retainerContractSigned -> {
+                    transitionCauseId = "cause-promise-1"
+                    transitionRef = "RETAINER_CONTRACT"
+                    transitionConsequence = "Acordo de serviço firmado com auxiliar."
+                }
             }
-        } else null
+        }
+
         val receipt = ReactionReceiptSnapshot(
             reactionId = reactionId,
             reactionText = reaction,
@@ -153,7 +205,10 @@ class SessionEngine(
             traceEvidenceRefs = evidenceRefs,
             mechanicalIntent = mechanicalIntent,
             actorCharacterId = actorCharacterId,
-            lifeCauseId = confirmedLifeCauseId
+            lifeCauseId = transitionCauseId,
+            diceRolls = diceRollsSnapshots,
+            lifeTransitionRef = transitionRef,
+            lifeConsequence = transitionConsequence
         )
         val firstSession=beforeGame.session.copy(
             phase="ACTIVE",

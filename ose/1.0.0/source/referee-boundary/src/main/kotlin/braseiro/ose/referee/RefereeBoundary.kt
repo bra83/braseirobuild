@@ -28,7 +28,7 @@ class RulesRefereeBoundary : RefereeResolutionPort {
             return ResolutionOutcome(updated,"1 turno (10 minutos) transcorrido; durações de luz ativas foram atualizadas.",trace(envelope.ruleProfile,"TIME.TURN","GAME_SYSTEM_SPEC §§12,14: 1 turno = 10 min; recursos temporais decrementam com o tempo"),true)
         }
         if(text.equals("ROLL_D20",ignoreCase=true)) {
-            val roll=(rng.draw(RngStreamId.RULES_DICE)%20u).toInt()+1
+            val roll=rng.rollDie(20)
             return ResolutionOutcome(envelope.campaignState,"d20: $roll",RuleTrace(EvidenceStatus.REFEREE_JUDGMENT,emptyList(),"die roll only; no rule context supplied"),false,true)
         }
         val parts=text.split(':')
@@ -569,6 +569,78 @@ class RulesRefereeBoundary : RefereeResolutionPort {
                     return ResolutionOutcome(envelope.campaignState,"Ataque CAA: ${if(r.hit)"acerto" else "erro"} (d20=$roll).",r.trace,false,true)
                 }
             }
+            "DUNGEON_SEARCH_ROOM" -> {
+                val state = advanceCampaignTurns(envelope.campaignState, 1)
+                val activeChar = state.party.characterIds.firstOrNull()?.let(state.game.characters::get)
+                val isDwarfOrElf = activeChar?.classIds?.any { it.contains("DWARF", ignoreCase = true) || it.contains("ELF", ignoreCase = true) } == true
+                val target = if (isDwarfOrElf) 2 else 1
+                val roll = authoritativeD6(rng)
+                val success = roll <= target
+                val msg = "Busca minuciosa na sala (1 turno / 10 min): d6=$roll vs $target-em-6. ${if (success) "Sucesso! Sinais, passagens secretas ou armadilhas identificadas." else "Nenhuma passagem secreta ou mecanismo oculto detectado."}"
+                return ResolutionOutcome(
+                    state, msg,
+                    RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.SEARCH", envelope.ruleProfile, "Classic Rules Tome p. 96", "Searching: 1 turn; 1-in-6 chance (demihumans 2-in-6)"))),
+                    true, true
+                )
+            }
+            "DUNGEON_LISTEN_DOOR" -> {
+                val state = advanceCampaignTurns(envelope.campaignState, 1)
+                val activeChar = state.party.characterIds.firstOrNull()?.let(state.game.characters::get)
+                val isDemihuman = activeChar?.classIds?.any { it.contains("DWARF", ignoreCase = true) || it.contains("ELF", ignoreCase = true) || it.contains("HALFLING", ignoreCase = true) } == true
+                val target = if (isDemihuman) 2 else 1
+                val roll = authoritativeD6(rng)
+                val success = roll <= target
+                val msg = "Escutar ruídos na porta (1 turno / 10 min): d6=$roll vs $target-em-6. ${if (success) "Ruídos e movimentação abafada ouvidos do outro lado!" else "Silêncio absoluto do outro lado da porta."}"
+                return ResolutionOutcome(
+                    state, msg,
+                    RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.LISTEN", envelope.ruleProfile, "Classic Rules Tome p. 97", "Listening at doors: 1 turn; 1-in-6 chance (demihumans 2-in-6)"))),
+                    true, true
+                )
+            }
+            "DUNGEON_OPEN_STUCK_DOOR" -> {
+                val state = advanceCampaignTurns(envelope.campaignState, 1)
+                val activeChar = state.party.characterIds.firstOrNull()?.let(state.game.characters::get)
+                val str = activeChar?.attributes?.get(AttributeKey.STR) ?: 10
+                val target = when {
+                    str >= 18 -> 5
+                    str in 16..17 -> 4
+                    str in 13..15 -> 3
+                    str in 9..12 -> 2
+                    else -> 1
+                }
+                val roll = authoritativeD6(rng)
+                val success = roll <= target
+                val msg = "Forçar porta emperrada (1 turno / 10 min; FOR $str): d6=$roll vs $target-em-6. ${if (success) "A porta range violentamente e cede!" else "A porta resiste com firmeza aos impactos."}"
+                return ResolutionOutcome(
+                    state, msg,
+                    RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.DOOR", envelope.ruleProfile, "Classic Rules Tome p. 97", "Open stuck door: 1 turn; modified by STR modifier / x-in-6 table"))),
+                    true, true
+                )
+            }
+            "SETTLEMENT_REST_DAY" -> {
+                val s = envelope.campaignState
+                val game = s.game
+                val healed = game.characters.mapValues { (_, c) ->
+                    if (c.hitPoints.dead) c else c.copy(hitPoints = c.hitPoints.heal(rng.rollDie(3))).canonical()
+                }
+                val t = s.time
+                val turns = t.turns + 144
+                val hours = t.hours + 24
+                val days = t.days + 1
+                val expedition = game.expedition
+                val lights = MovementLightRules.advanceLightByTurns(expedition.lightSources, 144)
+                val pools = MovementLightRules.advanceOilPoolsByTurns(expedition.oilPools, 144)
+                val base = s.copy(
+                    time = t.copy(turns = turns, hours = hours, days = days),
+                    game = game.copy(characters = healed, expedition = expedition.copy(lightSources = lights, oilPools = pools))
+                )
+                val updated = RuntimeClosureBindings.advanceMagicTurns(base, 144)
+                return ResolutionOutcome(
+                    updated, "Dia completo de descanso no assentamento: 1d3 PV recuperados para personagens vivos; tempo avançado em 1 dia.",
+                    RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("SETTLEMENT.REST", envelope.ruleProfile, "Classic Rules Tome p. 9", "Full day bed rest in safe settlement heals 1d3 hp"))),
+                    true, true
+                )
+            }
         }
         val judgmentSource = if (envelope.ruleProfile == RuleProfile.OSE_CLASSIC_FANTASY) "Classic Rules Tome" else "Advanced Referee's Tome v1.2"
         return ResolutionOutcome(
@@ -664,10 +736,10 @@ class RulesRefereeBoundary : RefereeResolutionPort {
         return if(crossedTurns>0) advanceCampaignTurns(withMagic,crossedTurns) else withMagic
     }
 
-    private fun authoritativeD4(rng:NamedRngStreams):Int=(rng.draw(RngStreamId.RULES_DICE)%4u).toInt()+1
-    private fun authoritativeD20(rng:NamedRngStreams):Int=(rng.draw(RngStreamId.RULES_DICE)%20u).toInt()+1
-    private fun authoritativeD6(rng:NamedRngStreams):Int=(rng.draw(RngStreamId.RULES_DICE)%6u).toInt()+1
-    private fun authoritativeD100(rng:NamedRngStreams):Int=(rng.draw(RngStreamId.RULES_DICE)%100u).toInt()+1
+    private fun authoritativeD4(rng:NamedRngStreams):Int=rng.rollDie(4)
+    private fun authoritativeD20(rng:NamedRngStreams):Int=rng.rollDie(20)
+    private fun authoritativeD6(rng:NamedRngStreams):Int=rng.rollDie(6)
+    private fun authoritativeD100(rng:NamedRngStreams):Int=rng.rollDie(100)
 
     private fun trace(profile:RuleProfile,id:String,note:String)=RuleTrace(EvidenceStatus.CANONICAL_RULE,listOf(RuleEvidence(id,profile,"GAME_SYSTEM_SPEC.md",note)))
     private fun advanceTurns(t:TimeState,n:Long):TimeState {
