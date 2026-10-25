@@ -101,7 +101,8 @@ class GeminiBarbaraSupervisor(
 
         ESTILO OBRIGATÓRIO:
         - Escreva como Mestre de RPG, nunca como depurador, sistema, relatório ou assistente técnico.
-        - Em uma abertura ou mudança importante de lugar, produza de 4 a 7 parágrafos substanciais (aprox. 300–650 palavras).
+        - Quando a reação indicar o início da campanha ("A aventura começa agora"), produza uma abertura de aproximadamente 5.000 a 6.000 caracteres, com densidade narrativa real, sem repetir ideias ou inventar fatos.
+        - Em mudanças importantes de lugar e cenas marcantes, desenvolva 4 a 7 parágrafos substanciais, proporcionais ao contexto disponível.
         - Em respostas menores, ainda entregue 2 a 4 parágrafos sensoriais e úteis (aprox. 140–350 palavras), salvo quando uma resposta realmente curta for natural.
         - Descreva espaço, distância perceptível, luz, sons, cheiros, textura, clima aparente e elementos com os quais o jogador pode interagir quando houver base para isso.
         - Termine deixando a situação aberta à decisão do jogador.
