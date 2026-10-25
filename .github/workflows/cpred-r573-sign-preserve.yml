@@ -48,9 +48,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Falha ao assinar com a chave debug existente.' }
           $certificate = & $signer.FullName verify --print-certs $outputApk
           if ($LASTEXITCODE -ne 0 -or (($certificate -join ' ') -notmatch $expectedCert)) { throw 'CERTIFICADO_DIFERENTE: APK nao sera publicado como atualizacao.' }
+          Write-Host ($certificate -join [Environment]::NewLine)
           $certificate | Set-Content -Encoding UTF8 (Join-Path $dir 'CERTIFICADO.txt')
           $hash = (Get-FileHash $outputApk -Algorithm SHA256).Hash.ToLower()
           "$hash  BRASEIRO_CYBERPUNK_RED_4.1.73_ASSINADO.apk" | Set-Content -Encoding ASCII (Join-Path $dir 'SHA256SUMS.txt')
+          Write-Host "APK_SHA256=$hash"
           $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; 'User-Agent' = 'Braseiro-Cyberpunk-R573'; Accept = 'application/vnd.github+json' }
           $tag = 'cyberpunk-red-r573-mobile-signed-20261025'
           $body = @{ tag_name = $tag; target_commitish = $env:GITHUB_SHA; name = 'Cyberpunk RED 4.1.73 - interface mobile, assinatura preservada'; prerelease = $true; body = "APK testado em https://github.com/bra83/hello-world/releases/tag/cyberpunk-red-r573-mobile-ui-20261025 e reassinado com o mesmo certificado da versao 4.1.72 instalada. Fonte e alteracoes: https://github.com/bra83/hello-world/pull/1. Certificado SHA256: $expectedCert." } | ConvertTo-Json
@@ -59,13 +61,13 @@ jobs:
           $upload = $published.upload_url -replace '\{\?name,label\}', ''
           foreach ($file in @($outputApk, (Join-Path $dir 'SHA256SUMS.txt'), (Join-Path $dir 'CERTIFICADO.txt'))) {
             $name = [uri]::EscapeDataString((Split-Path $file -Leaf))
-            Invoke-RestMethod -Method Post -Uri "${upload}?name=$name" -Headers $headers -ContentType 'application/octet-stream' -InFile $file | Out-Null
+            $existing = $published.assets | Where-Object { $_.name -eq (Split-Path $file -Leaf) } | Select-Object -First 1
+            if ($existing) {
+              $localDigest = 'sha256:' + (Get-FileHash $file -Algorithm SHA256).Hash.ToLower()
+              if ($existing.digest -ne $localDigest) { throw "Asset existente diverge: $name" }
+              Write-Host "Asset existente conferido: $name"
+            } else {
+              Invoke-RestMethod -Method Post -Uri "${upload}?name=$name" -Headers $headers -ContentType 'application/octet-stream' -InFile $file | Out-Null
+            }
           }
           Write-Host "Atualizacao assinada publicada: $($published.html_url)"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: cyberpunk-r573-same-certificate
-          path: |
-            ${{ runner.temp }}/cpred-r573-sign/BRASEIRO_CYBERPUNK_RED_4.1.73_ASSINADO.apk
-            ${{ runner.temp }}/cpred-r573-sign/SHA256SUMS.txt
-            ${{ runner.temp }}/cpred-r573-sign/CERTIFICADO.txt
