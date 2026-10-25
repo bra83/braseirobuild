@@ -27,11 +27,11 @@ const stage={
   getBoundingClientRect(){return {width:380,height:310}},
   appendChild(c){stage.canvas=c;c.parentNode=stage}
 };
-let drawing=0;
+let drawing=0,textThisFrame=[];
 const ctx={
-  setTransform(){},clearRect(){},fillRect(){},beginPath(){},moveTo(){},
+  setTransform(){},clearRect(){textThisFrame=[]},fillRect(){},beginPath(){},moveTo(){},
   lineTo(){},closePath(){},fill(){drawing++},stroke(){},save(){},restore(){},
-  ellipse(){},arc(){},strokeText(){},fillText(){drawing++},
+  ellipse(){},arc(){},clip(){},strokeText(){},fillText(label){drawing++;textThisFrame.push(String(label))},
   createRadialGradient(){return {addColorStop(){}}}
 };
 const document={
@@ -64,6 +64,7 @@ for(const roll of [
   }
   assert.equal(completed,1,'onDone once '+JSON.stringify(roll));
   assert.ok(drawing>0,'actual visible face draw calls');
+  assert.equal(textThisFrame.length,roll.terms.reduce((n,t)=>n+t.count*(t.sides===100?2:1),0),'one label per canonical die after settling');
   assert.ok(stage.canvas,'canvas attached');
   assert.ok(stage.activeClasses.has('physics-active'));
   window.OSEPhysicsDice.stop();

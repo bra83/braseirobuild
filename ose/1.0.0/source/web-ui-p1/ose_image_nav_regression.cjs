@@ -30,3 +30,8 @@ verify('dice source is official FL visual adaptation', dice.includes('Forbidden 
 verify('dice UI cannot change referee RNG', !dice.includes('Math.random') && dice.includes('canonicalTotal'));
 require('./dice3d_physics.test.cjs');
 console.log('Braseiro OSE image/nav/physics regression: PASS (device QA remains separate)');
+
+// Persistence projection must use OSE canonical item names even after equipment selection.
+const nativeMain=fs.readFileSync(path.join(root,'app-android/src/main/kotlin/braseiro/ose/app/MainActivity.kt'),'utf8');
+check('OSE item labels projected without active loadout',nativeMain.includes('out.optJSONArray("inventory")')&&nativeMain.includes('item.put("displayName", canonicalName)'));
+check('inventory renderer reads per-item name',fs.readFileSync(path.join(__dirname,'p1.js'),'utf8').includes('catalogLabel(it.catalogId,it)'));

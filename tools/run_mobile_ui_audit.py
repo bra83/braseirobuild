@@ -79,13 +79,13 @@ CAMPAIGN_FIXTURE = {
         }
     ],
     "inventory": [
-        {"itemId": "it-1", "ownerId": "char-hero-1", "catalogId": "CLASSIC_EQUIP_WEAPON_PURCHASE_18", "quantity": 1, "equipped": True, "kind": "WEAPON"},
-        {"itemId": "it-2", "ownerId": "char-hero-1", "catalogId": "CLASSIC_EQUIP_ARMOR_02", "quantity": 1, "equipped": True, "kind": "ARMOR"},
-        {"itemId": "it-3", "ownerId": "char-hero-1", "catalogId": "CLASSIC_EQUIP_ARMOR_04", "quantity": 1, "equipped": True, "kind": "SHIELD"},
-        {"itemId": "it-4", "ownerId": "char-hero-1", "catalogId": "CLASSIC_EQUIP_GEAR_18", "quantity": 6, "equipped": False, "kind": "LIGHT_SOURCE"},
-        {"itemId": "it-5", "ownerId": "char-hero-1", "catalogId": "CLASSIC_EQUIP_GEAR_14", "quantity": 7, "equipped": False, "kind": "FOOD"},
-        {"itemId": "it-6", "ownerId": "char-hero-1", "catalogId": "CLASSIC_EQUIP_GEAR_05", "quantity": 1, "equipped": False, "kind": "ADVENTURING_GEAR"},
-        {"itemId": "it-7", "ownerId": "char-hero-1", "catalogId": "CLASSIC_EQUIP_GEAR_08", "quantity": 1, "equipped": True, "kind": "ADVENTURING_GEAR"}
+        {"itemId": "it-1", "ownerId": "char-hero-1", "catalogId": "CLASSIC_EQUIP_WEAPON_PURCHASE_18", "quantity": 1, "equipped": True, "kind": "WEAPON", "displayName": "Machado de mão"},
+        {"itemId": "it-2", "ownerId": "char-hero-1", "catalogId": "CLASSIC_EQUIP_ARMOR_02", "quantity": 1, "equipped": True, "kind": "ARMOR", "displayName": "Cota de malha"},
+        {"itemId": "it-3", "ownerId": "char-hero-1", "catalogId": "CLASSIC_EQUIP_ARMOR_04", "quantity": 1, "equipped": True, "kind": "SHIELD", "displayName": "Escudo"},
+        {"itemId": "it-4", "ownerId": "char-hero-1", "catalogId": "CLASSIC_EQUIP_GEAR_18", "quantity": 6, "equipped": False, "kind": "FOOD", "displayName": "Rações de viagem (7 dias)"},
+        {"itemId": "it-5", "ownerId": "char-hero-1", "catalogId": "CLASSIC_EQUIP_GEAR_14", "quantity": 7, "equipped": False, "kind": "OIL_FLASK", "displayName": "Óleo (frasco)"},
+        {"itemId": "it-6", "ownerId": "char-hero-1", "catalogId": "CLASSIC_EQUIP_GEAR_05", "quantity": 1, "equipped": False, "kind": "ADVENTURING_GEAR", "displayName": "Cantil"},
+        {"itemId": "it-7", "ownerId": "char-hero-1", "catalogId": "CLASSIC_EQUIP_GEAR_08", "quantity": 1, "equipped": True, "kind": "ADVENTURING_GEAR", "displayName": "Espelho de aço"}
     ],
     "session": {
         "visibleNarration": "A névoa matinal se dissipa revelando o antigo Túmulo do Rei Cinzento encravado nas encostas rochosas. A pesada porta de pedra está semiaberta, com marcas antigas de machado nas bordas. O ar que sai da fresta cheira a terra úmida e cinzas frias. O que a companhia pretende fazer?",
@@ -246,7 +246,14 @@ def run_audit():
 
         # 6. Inventory Section
         print('[Audit] 6. Inventory section capture')
-        # Scroll down so inventory grid is prominent
+        # Exercise completed-loadout inventory: the catalogue UI is gone but
+        # official names must still be projected alongside persisted item IDs.
+        names = page.locator('.inventory-grid .item b').all_text_contents()
+        for expected in ['Machado de mão','Cota de malha','Escudo',
+                         'Rações de viagem (7 dias)','Óleo (frasco)',
+                         'Cantil','Espelho de aço']:
+            assert expected in names, f'Item label missing: {expected} / {names}'
+        assert 'Item' not in names, f'Generic inventory placeholder: {names}'
         page.evaluate("() => { const inv = document.querySelector('.inventory-grid'); if(inv) inv.scrollIntoView(); }")
         page.wait_for_timeout(200)
         page.screenshot(path=str(OUTPUT_DIR / 'a57-inventory.png'), full_page=False)

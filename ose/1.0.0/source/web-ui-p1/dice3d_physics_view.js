@@ -109,11 +109,36 @@ function render(session){
       const illumination=Math.min(1.45,.40+diff*.60+spec);
       const raw=body.displayMap?.[i]??(i+1);
       faces.push({points:v,center:projected(center,width,height,scale),depth,color:color(palette,illumination),
-        label:String(raw),exposure,area:polygonArea(v),body,spec});
+        label:String(raw),exposure,area:polygonArea(v),body,faceIndex:i,spec});
     }
   }
   faces.sort((a,b)=>a.depth-b.depth);
 
+  // Face labels must fit their actual polygons: area-based fonts alone caused
+  // overlapping d20 numbers and percentile markings outside adjacent faces.
+  // Once settled, display only the canonical face on each physical die.
+  const labelled=new Set(),moving=new Map();
+  for(const face of faces){
+    if(face.body.done){
+      if(face.faceIndex===face.body.faceIndex)labelled.add(face);
+    }else if(face.exposure>.40){
+      const list=moving.get(face.body)||[];list.push(face);moving.set(face.body,list);
+    }
+  }
+  for(const candidates of moving.values()){
+    candidates.sort((a,b)=>b.exposure*b.area-a.exposure*a.area);
+    for(const face of candidates.slice(0,2))labelled.add(face);
+  }
+  function inscriptionRadius(face){
+    const [cx,cy]=face.center;
+    let radius=Infinity;
+    for(let i=0;i<face.points.length;i++){
+      const a=face.points[i],b=face.points[(i+1)%face.points.length];
+      const dx=b[0]-a[0],dy=b[1]-a[1];
+      radius=Math.min(radius,Math.abs(dx*(cy-a[1])-dy*(cx-a[0]))/Math.max(.0001,Math.hypot(dx,dy)));
+    }
+    return radius;
+  }
   // Render each visible 3D facet
   for(const face of faces){
     ctx.beginPath();
@@ -127,29 +152,35 @@ function render(session){
     ctx.strokeStyle='rgba(20,12,8,.92)';
     ctx.stroke();
 
-    // Prominent, engraved numbers with high-contrast inlay
-    const fontSize=Math.max(11,Math.min(30,Math.sqrt(face.area)*.54));
-    if(face.exposure>.22 && fontSize>=9.5){
-      ctx.textAlign='center';
-      ctx.textBaseline='middle';
-      ctx.font='800 '+fontSize+'px Georgia, "Times New Roman", serif';
-      // Deep engraved dark stroke
-      ctx.lineWidth=Math.max(2.4,fontSize*.26);
-      ctx.strokeStyle='rgba(16,8,4,.95)';
-      ctx.strokeText(face.label,face.center[0],face.center[1]);
-      // Warm ivory/gold numeral fill
-      ctx.fillStyle='#fff6de';
-      ctx.fillText(face.label,face.center[0],face.center[1]);
-
-      // Disambiguation dot/line for 6 and 9 on d10/d12/d20
-      if(face.label==='6'||face.label==='9'){
-        const dotY=face.center[1]+fontSize*.46*(face.label==='6'?1:-1);
-        const dotR=Math.max(1.2,fontSize*.08);
+    // Engrave only the face(s) chosen above. Clip ink to the face boundary,
+    // and adapt font size to its shortest distance from the center to an edge.
+    if(labelled.has(face)){
+      const radius=inscriptionRadius(face);
+      const fontSize=Math.min(29,Math.sqrt(face.area)*.47,radius*1.34,
+        (radius*1.65)/(face.label.length*.63));
+      if(fontSize>=8.2){
+        ctx.save();
         ctx.beginPath();
-        if(typeof ctx.arc==='function')ctx.arc(face.center[0],dotY,dotR,0,Math.PI*2);
-        else ctx.ellipse(face.center[0],dotY,dotR,dotR,0,0,Math.PI*2);
+        face.points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));
+        ctx.closePath();
+        ctx.clip();
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        ctx.font='800 '+fontSize+'px Georgia, "Times New Roman", serif';
+        ctx.lineWidth=Math.max(1.5,fontSize*.20);
+        ctx.strokeStyle='rgba(16,8,4,.95)';
+        ctx.strokeText(face.label,face.center[0],face.center[1],radius*1.75);
         ctx.fillStyle='#fff6de';
-        ctx.fill();
+        ctx.fillText(face.label,face.center[0],face.center[1],radius*1.75);
+        if(face.label==='6'||face.label==='9'){
+          const dotY=face.center[1]+fontSize*.36;
+          const dotR=Math.max(.9,fontSize*.065);
+          ctx.beginPath();
+          if(typeof ctx.arc==='function')ctx.arc(face.center[0],dotY,dotR,0,Math.PI*2);
+          else ctx.ellipse(face.center[0],dotY,dotR,dotR,0,0,Math.PI*2);
+          ctx.fill();
+        }
+        ctx.restore();
       }
     }
   }

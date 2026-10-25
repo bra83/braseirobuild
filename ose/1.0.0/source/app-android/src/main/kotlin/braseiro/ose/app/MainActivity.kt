@@ -1526,6 +1526,19 @@ class MainActivity : Activity() {
         game.inventory.items.keys.sorted().forEach { id -> mediaStore.url(PresentationMediaStore.Scope.ITEM, id)?.let { itemThumbnails.put(id, it) } }
         val sceneId = scenePresentationId(current)
         val selectedCharacterId = selectedCharacterId(current)
+        // This dictionary is independent of the one-time creation loadout.
+        // The player's owned equipment keeps its OSE official name after
+        // purchases are finished, exports/imports, and app restarts.
+        val itemNames = StartingEquipmentCatalog.all(current.ruleProfile)
+            .associate { it.catalogId to it.displayName }
+        out.optJSONArray("inventory")?.let { inventory ->
+            for (index in 0 until inventory.length()) {
+                val item = inventory.optJSONObject(index) ?: continue
+                itemNames[item.optString("catalogId")]?.let { canonicalName ->
+                    item.put("displayName", canonicalName)
+                }
+            }
+        }
         val loadout = selectedCharacterId?.let(game.loadouts::get)
         if (selectedCharacterId != null && loadout != null) {
             val ownedByCatalog = game.inventory.items.values.filter { it.ownerId == selectedCharacterId }.groupBy { it.catalogId }
