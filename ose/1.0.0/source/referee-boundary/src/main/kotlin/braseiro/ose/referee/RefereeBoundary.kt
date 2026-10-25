@@ -773,7 +773,13 @@ class RulesRefereeBoundary : RefereeResolutionPort {
                 val allPartyCoins = s.game.inventory.items.values.filter {
                     it.ownerId in s.party.characterIds &&
                     it.kind == InventoryItemKind.COIN &&
-                    it.catalogId == "STARTING_GOLD_GP" &&
+                    // Recognize gold denominations from both starting wealth and later loot.
+                    // Never count silver/copper as gold without an explicit exchange operation.
+                    it.catalogId.uppercase().let { code ->
+                        code == "GP" || code == "GOLD" ||
+                            code == "GOLD_GP" || code == "GOLD_PIECE" || code == "GOLD_PIECES" ||
+                            code.endsWith("_GOLD_GP") || code.endsWith("_GP") || code.endsWith("_GOLD")
+                    } &&
                     it.quantity > 0
                 }.sortedBy { it.itemId }
                 val totalGp = allPartyCoins.sumOf { it.quantity }
@@ -802,8 +808,10 @@ class RulesRefereeBoundary : RefereeResolutionPort {
                 }
                 val updatedInventory = s.game.inventory.copy(items = updatedItems.toSortedMap())
 
-                val healed = s.game.characters.mapValues { (_, c) ->
-                    if (c.hitPoints.dead) c else c.copy(hitPoints = c.hitPoints.heal(rng.rollDie(3))).canonical()
+                val activeLivingIds = livingChars.map { it.characterId }.toSet()
+                val healed = s.game.characters.mapValues { (characterId, c) ->
+                    if (characterId !in activeLivingIds || c.hitPoints.dead) c
+                    else c.copy(hitPoints = c.hitPoints.heal(rng.rollDie(3))).canonical()
                 }
                 val t = s.time
                 val turns = t.turns + 144
