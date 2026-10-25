@@ -245,6 +245,18 @@ object OSEPlayerGuide {
         val encounter = game.encounter
         val hasOpposition = encounter?.combatants?.values?.any { it.side == EncounterSide.OPPOSITION && (it.alive && it.hpCurrentNumerator > 0) } == true
         val targetOpponent = encounter?.combatants?.values?.firstOrNull { it.side == EncounterSide.OPPOSITION && (it.alive && it.hpCurrentNumerator > 0) }?.actorId
+        // Only doors already known to the party may be used for contextual guidance.
+        // Never reveal or enumerate secret dungeon edges in the player's guide.
+        val activeDungeon = game.dungeon
+        val knownDoorEdges = if (pos is SpatialRef.Dungeon && activeDungeon != null) {
+            activeDungeon.edges.filter { edge ->
+                !edge.secret && edge.kind.equals("DOOR", ignoreCase = true) &&
+                    ((edge.from == pos.nodeId && (edge.to in activeDungeon.knownNodeIds || edge.to in activeDungeon.visibleNodeIds)) ||
+                     (edge.to == pos.nodeId && (edge.from in activeDungeon.knownNodeIds || edge.from in activeDungeon.visibleNodeIds)))
+            }
+        } else emptyList()
+        val hasKnownDoor = knownDoorEdges.isNotEmpty()
+        val hasClosedKnownDoor = knownDoorEdges.any { !it.open }
 
         when {
             phase == "COMBAT" || encounter?.phase == EncounterPhase.COMBAT -> {
@@ -334,7 +346,9 @@ object OSEPlayerGuide {
                         preconditions = listOf("Porta ou passagem diante do grupo"),
                         riskHint = "Baixo risco; sucesso depende do teste de Ouvir Ruídos",
                         timePreview = "1 turno (10 minutos)",
-                        sourceRuleRef = "Classic Rules Tome p. 97"
+                        sourceRuleRef = "Classic Rules Tome p. 97",
+                        executable = hasKnownDoor,
+                        missingRequirement = if (!hasKnownDoor) "Não há porta conhecida e acessível diante da companhia" else null
                     )
                 )
                 suggestions.add(
@@ -346,7 +360,9 @@ object OSEPlayerGuide {
                         preconditions = listOf("Porta emperrada diante do grupo"),
                         riskHint = "Ruído alto alerta criaturas próximas (1 turno)",
                         timePreview = "1 turno (10 minutos)",
-                        sourceRuleRef = "Classic Rules Tome p. 97"
+                        sourceRuleRef = "Classic Rules Tome p. 97",
+                        executable = hasClosedKnownDoor,
+                        missingRequirement = if (!hasClosedKnownDoor) "Não há porta fechada conhecida diante da companhia" else null
                     )
                 )
                 if (unlitTorch != null) {
