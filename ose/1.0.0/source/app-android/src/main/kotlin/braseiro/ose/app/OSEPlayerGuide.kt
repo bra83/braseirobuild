@@ -268,8 +268,7 @@ object OSEPlayerGuide {
         val knownDoorEdges = if (pos is SpatialRef.Dungeon && activeDungeon != null) {
             activeDungeon.edges.filter { edge ->
                 !edge.secret && edge.kind.equals("DOOR", ignoreCase = true) &&
-                    ((edge.from == pos.nodeId && (edge.to in activeDungeon.knownNodeIds || edge.to in activeDungeon.visibleNodeIds)) ||
-                     (edge.to == pos.nodeId && (edge.from in activeDungeon.knownNodeIds || edge.from in activeDungeon.visibleNodeIds)))
+                    (edge.from == pos.nodeId || edge.to == pos.nodeId)
             }
         } else emptyList()
         val hasKnownDoor = knownDoorEdges.isNotEmpty()
