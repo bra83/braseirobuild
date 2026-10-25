@@ -54,6 +54,7 @@ class MainActivity : Activity() {
         const val REQUEST_EXPORT_CHARACTER = 4101
         const val REQUEST_IMPORT_CHARACTER = 4102
         const val REQUEST_IMPORT_ADVENTURE = 4103
+        const val REQUEST_PICK_IMAGE = 4104
         val CAMPAIGN_ID = CampaignId("braseiro-ose-primary")
     }
 
@@ -76,6 +77,7 @@ class MainActivity : Activity() {
     private val loadoutCoordinator = NativeCharacterLoadoutCoordinator()
     private val io = Executors.newSingleThreadExecutor()
     @Volatile private var pendingCharacterExport: Pair<String, String>? = null
+    private var pendingImageChooser: android.webkit.ValueCallback<Array<Uri>>? = null
 
     @Volatile
     var lastBridgeMessage: BridgeEnvelopeMetadata? = null
@@ -135,7 +137,29 @@ class MainActivity : Activity() {
                     request: WebResourceRequest
                 ): WebResourceResponse? = assetLoader.shouldInterceptRequest(request.url)
             }
-            webChromeClient = WebChromeClient()
+            webChromeClient = object : WebChromeClient() {
+                override fun onShowFileChooser(
+                    webView: WebView?,
+                    filePathCallback: android.webkit.ValueCallback<Array<Uri>>?,
+                    fileChooserParams: FileChooserParams?
+                ): Boolean {
+                    pendingImageChooser?.onReceiveValue(null)
+                    pendingImageChooser = filePathCallback
+                    return try {
+                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            type = "image/*"
+                        }
+                        startActivityForResult(Intent.createChooser(intent, "Escolher imagem"), REQUEST_PICK_IMAGE)
+                        true
+                    } catch (t: Throwable) {
+                        pendingImageChooser?.onReceiveValue(null)
+                        pendingImageChooser = null
+                        android.util.Log.e("BraseiroOSE", "Image gallery unavailable", t)
+                        false
+                    }
+                }
+            }
             addJavascriptInterface(BridgeEndpoint(), "BraseiroBridge")
         }
         val root = FrameLayout(this)
@@ -174,6 +198,13 @@ class MainActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
+            REQUEST_PICK_IMAGE -> {
+                val callback = pendingImageChooser
+                pendingImageChooser = null
+                callback?.onReceiveValue(
+                    if (resultCode == RESULT_OK) data?.data?.let { arrayOf(it) } else null
+                )
+            }
             REQUEST_EXPORT_CHARACTER -> {
                 val pending = pendingCharacterExport
                 pendingCharacterExport = null
@@ -1204,8 +1235,14 @@ class MainActivity : Activity() {
                         }
                     }
                 } catch (t: Throwable) {
+                    // The operation name identifies the failing button/bridge command.
+                    // Do not include the raw JSON payload: it may contain a Gemini key.
+                    val operation = runCatching {
+                        JSONObject(raw).optString("type", "INVALID_ENVELOPE")
+                    }.getOrDefault("INVALID_ENVELOPE").take(80)
+                    android.util.Log.e("BraseiroOSE", "Bridge command failed: $operation", t)
                     send(JSONObject().put("type", "BridgeError").put("payload", JSONObject()
-                        .put("message", safeError(t))))
+                        .put("operation", operation).put("message", safeError(t))))
                 }
             }
         }
