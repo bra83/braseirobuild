@@ -36,14 +36,14 @@ class GeminiInteractionsClient(private val transport: GeminiTransport = HttpsGem
         return textBlocks(response).joinToString("\n\n").trim().ifBlank { error("GEMINI_TEXT_OUTPUT_MISSING") }
     }
 
-    fun generateSceneImage(apiKey: String, model: String, prompt: String): MediaBlob {
+    fun generateSceneImage(apiKey: String, model: String, prompt: String, aspectRatio: String = "4:3"): MediaBlob {
         require(prompt.isNotBlank()) { "EMPTY_SCENE_PROMPT" }
         val body = JSONObject()
             .put("model", validateModel(model))
             .put("input", prompt)
             .put("response_format", JSONObject()
                 .put("type", "image")
-                .put("aspect_ratio", "4:3")
+                .put("aspect_ratio", aspectRatio.takeIf { it in setOf("1:1", "4:3", "16:9") } ?: "4:3")
                 .put("image_size", "1K")
                 .put("mime_type", "image/jpeg"))
         return firstMedia(transport.post(apiKey, body), "image")
@@ -75,6 +75,18 @@ class GeminiInteractionsClient(private val transport: GeminiTransport = HttpsGem
     }
 
     private fun firstMedia(response: JSONObject, type: String): MediaBlob {
+        // Gemini Interactions API image responses can arrive as top-level output_image.
+        // The previous implementation only inspected steps[].model_output.content[],
+        // incorrectly rejecting successfully generated images.
+        if (type == "image") {
+            response.optJSONObject("output_image")?.let { image ->
+                val base64 = image.optString("data", "")
+                if (base64.isNotBlank()) return MediaBlob(
+                    mimeType = image.optString("mime_type", "image/jpeg"),
+                    data = java.util.Base64.getDecoder().decode(base64)
+                )
+            }
+        }
         if (type == "audio") {
             response.optJSONObject("output_audio")?.let { audio ->
                 val data = audio.optString("data", "")
