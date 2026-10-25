@@ -589,7 +589,7 @@ class RulesRefereeBoundary : RefereeResolutionPort {
                 val currentNode = dungeon.nodes.firstOrNull { it.nodeId == pos.nodeId }
                 val adjacentEdges = dungeon.edges.filter { it.from == pos.nodeId || it.to == pos.nodeId }
                 val secretEdges = adjacentEdges.filter { it.secret }
-                val hasSecret = secretEdges.isNotEmpty() || (currentNode?.secret == true)
+                val hasSecret = secretEdges.isNotEmpty()
 
                 val state = advanceCampaignTurns(envelope.campaignState, 1)
                 val activeChar = state.party.characterIds.firstOrNull()?.let(state.game.characters::get)
@@ -599,7 +599,7 @@ class RulesRefereeBoundary : RefereeResolutionPort {
                 val success = roll <= target
 
                 if (!hasSecret) {
-                    val msg = "Busca minuciosa na sala ${pos.nodeId} (1 turno / 10 min): d6=$roll vs $target-em-6. Ambiente minuciosamente examinado; nenhum mecanismo ou passagem oculta existente nesta sala."
+                    val msg = "Busca minuciosa na sala ${pos.nodeId} (1 turno / 10 min): d6=$roll vs $target-em-6. Nenhum indício de passagem ou mecanismo oculto foi percebido nesta busca."
                     return ResolutionOutcome(
                         state, msg,
                         RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.SEARCH", envelope.ruleProfile, "Classic Rules Tome p. 96", "Searching: 1 turn; 1-in-6 chance (demihumans 2-in-6)"))),
