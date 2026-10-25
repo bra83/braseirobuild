@@ -28,4 +28,5 @@ verify('Gemini API button does not silently open external app', js.includes('A g
 verify('native bridge reports action operation', activity.includes('.put("operation", operation)') && activity.includes('Bridge command failed: $operation'));
 verify('dice source is official FL visual adaptation', dice.includes('Forbidden Lands Dice3DStage'));
 verify('dice UI cannot change referee RNG', !dice.includes('Math.random') && dice.includes('canonicalTotal'));
-console.log('Braseiro OSE image/nav regression: PASS (device QA remains separate)');
+require('./dice3d_physics.test.cjs');
+console.log('Braseiro OSE image/nav/physics regression: PASS (device QA remains separate)');
