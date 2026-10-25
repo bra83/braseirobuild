@@ -42,9 +42,8 @@ object ContextualDecisionSuggester {
             position is SpatialRef.Dungeon -> {
                 val dungeon = game.dungeon
                 val knownDoors = dungeon?.edges.orEmpty().filter { edge ->
-                    !edge.secret && edge.kind.equals("DOOR", ignoreCase = true) && dungeon != null &&
-                    ((edge.from == position.nodeId && (edge.to in dungeon.knownNodeIds || edge.to in dungeon.visibleNodeIds)) ||
-                     (edge.to == position.nodeId && (edge.from in dungeon.knownNodeIds || edge.from in dungeon.visibleNodeIds)))
+                    !edge.secret && edge.kind.equals("DOOR", ignoreCase = true) &&
+                    (edge.from == position.nodeId || edge.to == position.nodeId)
                 }
                 listOf(
                     Suggestion("PROCURAR NA SALA", "Examinamos minuciosamente o ambiente em busca de passagens secretas e armadilhas.", "DUNGEON_SEARCH_ROOM"),
