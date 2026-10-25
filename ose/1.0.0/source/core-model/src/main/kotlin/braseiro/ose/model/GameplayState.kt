@@ -120,7 +120,9 @@ import kotlinx.serialization.Serializable
     val traceEvidenceRefs: List<String> = emptyList(),
     val narration: String? = null,
     val mechanicalIntent: String? = null,
-    val actorCharacterId: String? = null
+    val actorCharacterId: String? = null,
+    /** Canonical, referee-confirmed life cause; never derived from player narration. */
+    val lifeCauseId: String? = null
 ) {
     init { require(reactionId.isNotBlank()); require(reactionText.isNotBlank()) }
     fun canonical() = copy(traceEvidenceRefs = traceEvidenceRefs.distinct().sorted())
