@@ -20,10 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Test OSE JS and canonical physics
-        shell: bash
+        shell: powershell
         run: |
-          set -euo pipefail
-          UI=ose/1.0.0/source/web-ui-p1
+          $UI = "ose/1.0.0/source/web-ui-p1"
           node --check "$UI/dice3d_core.js"
           node --check "$UI/dice3d_app.js"
           node --check "$UI/dice3d_physics_view.js"
@@ -32,7 +31,7 @@ jobs:
           node "$UI/ose_image_nav_regression.cjs"
           node "$UI/dice3d_physics.test.cjs"
       - name: Run mobile UI audit and capture evidence
-        shell: bash
+        shell: powershell
         run: |
           python tools/run_mobile_ui_audit.py
       - name: Upload mobile QA screenshots

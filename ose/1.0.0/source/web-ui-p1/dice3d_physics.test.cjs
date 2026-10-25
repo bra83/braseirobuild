@@ -31,7 +31,7 @@ let drawing=0;
 const ctx={
   setTransform(){},clearRect(){},fillRect(){},beginPath(){},moveTo(){},
   lineTo(){},closePath(){},fill(){drawing++},stroke(){},save(){},restore(){},
-  ellipse(){},strokeText(){},fillText(){drawing++},
+  ellipse(){},arc(){},strokeText(){},fillText(){drawing++},
   createRadialGradient(){return {addColorStop(){}}}
 };
 const document={

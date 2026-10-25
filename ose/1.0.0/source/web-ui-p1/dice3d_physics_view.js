@@ -6,10 +6,15 @@
 'use strict';
 const core=root.Dice3DCore;
 const stage=()=>document.getElementById('dice3dStage');
-const light=[0.28,-0.42,0.86], camera=[0,-0.62,0.785];
+const light=[0.24,-0.38,0.89], camera=[0,-0.56,0.83];
 const palettes={
-  4:[154,104,58],6:[143,106,63],8:[105,89,117],
-  10:[126,66,60],12:[82,108,92],20:[111,92,63],100:[112,66,60]
+  4:[186,124,70],   // Antique hammered bronze
+  6:[198,178,148],  // Aged carved ivory bone
+  8:[134,102,152],  // Runic dark amethyst / iron
+  10:[170,68,58],   // Dragon-scale crimson
+  12:[82,132,102],  // Weathered verdigris moss
+  20:[192,154,74],  // Ancient lustrous gold
+  100:[156,58,52]   // Blood lacquer & obsidian
 };
 let active=null,sequence=0;
 function stop(){
@@ -26,7 +31,7 @@ function color(rgb,lightness){
 }
 function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
 function projected(p,width,height,scale){
-  return [width*.5+p[0]*scale, height*.73+(p[1]*.52-p[2]*.78)*scale];
+  return [width*.5+p[0]*scale, height*.50+(p[1]*.48-p[2]*.72)*scale];
 }
 function polygonArea(p){
   let a=0;
@@ -39,26 +44,52 @@ function render(session){
   if(!width||!height)return;
   ctx.setTransform(session.dpr,0,0,session.dpr,0,0);
   ctx.clearRect(0,0,width,height);
-  const grd=ctx.createRadialGradient(width*.5,height*.48,5,width*.5,height*.55,width*.68);
-  grd.addColorStop(0,'rgba(100,68,43,.46)');
-  grd.addColorStop(1,'rgba(28,17,13,.14)');
+
+  // Forbidden Lands carved wooden tray backdrop with ambient vignette
+  const grd=ctx.createRadialGradient(width*.5,height*.50,width*.08,width*.5,height*.52,width*.65);
+  grd.addColorStop(0,'rgba(88,56,36,.58)');
+  grd.addColorStop(.55,'rgba(42,26,17,.42)');
+  grd.addColorStop(1,'rgba(14,9,7,.25)');
   ctx.fillStyle=grd;
   ctx.fillRect(0,0,width,height);
-  const scale=Math.min(width/10.4,height/11.4);
+
+  // Subtle wood grain lines
   ctx.save();
-  ctx.strokeStyle='rgba(181,133,91,.055)';
+  ctx.strokeStyle='rgba(196,145,98,.065)';
   ctx.lineWidth=1;
-  for(let y=0;y<height;y+=17){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y+10);ctx.stroke();}
+  for(let y=0;y<height;y+=14){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y+8);ctx.stroke();}
   ctx.restore();
+
+  // Dynamic responsive scale: prominent, legible, filling available tray space
+  const total=world.bodies.length;
+  const scale=total<=2 ? Math.min(width/5.4,height/5.8) :
+              total<=4 ? Math.min(width/6.2,height/6.6) :
+              total<=8 ? Math.min(width/7.2,height/7.8) :
+              Math.min(width/8.8,height/9.4);
+
+  // Realistic contact and ambient drop shadows under each die
   for(const body of world.bodies){
     const s=projected([body.p[0],body.p[1],0],width,height,scale);
+    const z=Math.max(0,body.p[2]);
+    const shadowAlpha=Math.max(.08,.48-z*.07);
+    const rad=body.size*scale;
     ctx.save();
-    ctx.fillStyle='rgba(0,0,0,'+Math.max(.05,.30-body.p[2]*.033)+')';
+    // Ambient spread shadow
+    ctx.fillStyle='rgba(10,6,4,'+shadowAlpha+')';
     ctx.beginPath();
-    ctx.ellipse(s[0],s[1]+2,body.size*scale*(1.3+Math.min(body.p[2],4)*.04),body.size*scale*.49,0,0,Math.PI*2);
+    ctx.ellipse(s[0],s[1]+4,rad*(1.22+z*.05),rad*.52,0,0,Math.PI*2);
     ctx.fill();
+    // Sharp dark contact core when resting on or near tray floor
+    if(z<1.0){
+      ctx.fillStyle='rgba(4,2,1,'+((1.0-z)*.55)+')';
+      ctx.beginPath();
+      ctx.ellipse(s[0],s[1]+2,rad*.92,rad*.38,0,0,Math.PI*2);
+      ctx.fill();
+    }
     ctx.restore();
   }
+
+  // Project and sort polyhedral faces (Painter's algorithm with depth)
   const faces=[];
   for(const body of world.bodies){
     const mesh=body.mesh, verts=mesh.vertices.map(v=>core.V.add(body.p,core.V.mul(core.Q.rot(body.q,v),body.size)));
@@ -71,32 +102,55 @@ function render(session){
       if(polygonArea(v)<1.8)continue;
       const center=core.V.add(body.p,core.V.mul(core.Q.rot(body.q,mesh.centers[i]),body.size));
       const depth=dot(center,camera);
-      const illumination=.48+Math.max(0,dot(normal,light))*.58;
+      const diff=Math.max(0,dot(normal,light));
+      // Specular sheen for resin / metal polyhedrals
+      const half=core.V.norm(core.V.add(light,camera));
+      const spec=Math.pow(Math.max(0,dot(normal,half)),16)*.38;
+      const illumination=Math.min(1.45,.40+diff*.60+spec);
       const raw=body.displayMap?.[i]??(i+1);
       faces.push({points:v,center:projected(center,width,height,scale),depth,color:color(palette,illumination),
-        label:String(raw),exposure,area:polygonArea(v),body});
+        label:String(raw),exposure,area:polygonArea(v),body,spec});
     }
   }
   faces.sort((a,b)=>a.depth-b.depth);
+
+  // Render each visible 3D facet
   for(const face of faces){
     ctx.beginPath();
     face.points.forEach((point,i)=>i?ctx.lineTo(point[0],point[1]):ctx.moveTo(point[0],point[1]));
     ctx.closePath();
     ctx.fillStyle=face.color;
     ctx.fill();
-    ctx.lineWidth=1.35;
-    ctx.strokeStyle='rgba(23,14,11,.8)';
+
+    // Distinct chamfered edge stroke
+    ctx.lineWidth=Math.max(1.4,Math.min(2.8,scale*.036));
+    ctx.strokeStyle='rgba(20,12,8,.92)';
     ctx.stroke();
-    const fontSize=Math.max(8,Math.min(21,Math.sqrt(face.area)*.45));
-    if(face.exposure>.24 && fontSize>=8.5){
+
+    // Prominent, engraved numbers with high-contrast inlay
+    const fontSize=Math.max(11,Math.min(30,Math.sqrt(face.area)*.54));
+    if(face.exposure>.22 && fontSize>=9.5){
       ctx.textAlign='center';
       ctx.textBaseline='middle';
-      ctx.font='800 '+fontSize+'px Georgia, serif';
-      ctx.lineWidth=Math.max(2,fontSize*.23);
-      ctx.strokeStyle='rgba(25,16,12,.88)';
+      ctx.font='800 '+fontSize+'px Georgia, "Times New Roman", serif';
+      // Deep engraved dark stroke
+      ctx.lineWidth=Math.max(2.4,fontSize*.26);
+      ctx.strokeStyle='rgba(16,8,4,.95)';
       ctx.strokeText(face.label,face.center[0],face.center[1]);
-      ctx.fillStyle='#fff1cf';
+      // Warm ivory/gold numeral fill
+      ctx.fillStyle='#fff6de';
       ctx.fillText(face.label,face.center[0],face.center[1]);
+
+      // Disambiguation dot/line for 6 and 9 on d10/d12/d20
+      if(face.label==='6'||face.label==='9'){
+        const dotY=face.center[1]+fontSize*.46*(face.label==='6'?1:-1);
+        const dotR=Math.max(1.2,fontSize*.08);
+        ctx.beginPath();
+        if(typeof ctx.arc==='function')ctx.arc(face.center[0],dotY,dotR,0,Math.PI*2);
+        else ctx.ellipse(face.center[0],dotY,dotR,dotR,0,0,Math.PI*2);
+        ctx.fillStyle='#fff6de';
+        ctx.fill();
+      }
     }
   }
 }
