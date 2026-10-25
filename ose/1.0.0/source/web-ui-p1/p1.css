@@ -135,7 +135,7 @@ button { cursor: pointer; }
   header { padding-left: max(10px, env(safe-area-inset-left, 0px)); padding-right: max(10px, env(safe-area-inset-right, 0px)); padding-top: 5px; padding-bottom: 3px; }
   .bottom {
     width: 100%;
-    height: calc(80px + env(safe-area-inset-bottom, 0px));
+    height: calc(56px + env(safe-area-inset-bottom, 0px));
     padding-bottom: env(safe-area-inset-bottom, 0px);
     padding-left: env(safe-area-inset-left, 0px);
     padding-right: env(safe-area-inset-right, 0px);
@@ -194,3 +194,51 @@ button { cursor: pointer; }
 .suggestion-card small{display:block;font:9px Arial;color:#7e5229;margin-top:3px}
 #dice3d-overlay{background:rgba(10,7,5,0.85);z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center}
 #dice3d-overlay canvas{width:100%;height:100%;touch-action:none}
+
+
+/* OSE Galaxy A57 UI correction: compact fixed nav; WebView native inset is handled in MainActivity. */
+.bottom{height:56px;align-items:stretch}
+.navbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.1;padding:2px 0;font-size:8px}
+.navbtn .ico{font-size:18px;line-height:20px}
+#phone{padding-bottom:calc(56px + env(safe-area-inset-bottom,0px))}
+.screen{padding-bottom:14px}
+.toast{bottom:calc(66px + env(safe-area-inset-bottom,0px))}
+@media(max-width:480px){.bottom{height:calc(56px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px)}.navbtn{min-height:0;padding:2px 0;font-size:8px}.navbtn .ico{font-size:18px;line-height:20px}.toast{bottom:calc(66px + env(safe-area-inset-bottom,0px))}.screen{padding-bottom:14px}}
+/* Remove CSS frames and crop black pixel frames embedded in the legacy catalog illustrations. */
+.item-thumb{border:0;background:transparent;box-shadow:none}
+.item-thumb.equipment-art{border:0!important;background:transparent!important;clip-path:inset(12% round 3px);transform:scale(1.17);transform-origin:center;}
+/* Actual Forbidden Lands 3.3.24 Dice3DStage visual rules, adapted for OSE and no React dependency. */
+/* Rolador 3D — Forbidden Lands */
+.dice3d-stage{position:relative;min-height:190px;margin:0 0 1.25rem;overflow:hidden;border:1px solid rgba(159,110,74,.45);border-radius:18px;background:radial-gradient(circle at 50% 8%,rgba(125,67,43,.20),transparent 48%),linear-gradient(180deg,rgba(11,9,8,.98),rgba(24,18,15,.98));perspective:820px;box-shadow:inset 0 0 45px rgba(0,0,0,.65)}
+.dice3d-floor{position:absolute;left:7%;right:7%;bottom:-40px;height:130px;border-radius:50%;background:radial-gradient(ellipse,rgba(120,71,42,.20),rgba(0,0,0,0) 70%);transform:rotateX(67deg);filter:blur(1px)}
+.dice3d-tray{position:relative;z-index:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:24px 20px;min-height:190px;padding:28px 18px 20px;transform-style:preserve-3d}
+.dice3d-slot{display:flex;min-width:72px;flex-direction:column;align-items:center;justify-content:center;gap:12px;perspective:620px}
+.dice3d-caption{font-size:10px;line-height:1;text-transform:uppercase;letter-spacing:.12em;color:rgba(231,219,201,.66)}
+.dice3d-cube{position:relative;width:58px;height:58px;transform-style:preserve-3d;animation:dice3d-roll 920ms cubic-bezier(.18,.74,.19,1.02) both;animation-delay:var(--dice-delay,0ms);filter:drop-shadow(0 16px 10px rgba(0,0,0,.5))}
+.dice3d-face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.22);border-radius:10px;background:linear-gradient(145deg,var(--dice-hi,#533d31),var(--dice-lo,#241b17));color:#f3eadf;font-family:Georgia,serif;font-size:25px;font-weight:700;backface-visibility:hidden;box-shadow:inset 0 0 13px rgba(0,0,0,.34),inset 2px 2px 5px rgba(255,255,255,.07)}
+.dice3d-front{transform:translateZ(29px)}.dice3d-back{transform:rotateY(180deg) translateZ(29px)}.dice3d-right{transform:rotateY(90deg) translateZ(29px)}.dice3d-left{transform:rotateY(-90deg) translateZ(29px)}.dice3d-top{transform:rotateX(90deg) translateZ(29px)}.dice3d-bottom{transform:rotateX(-90deg) translateZ(29px)}
+.dice3d-base{--dice-hi:#5d5046;--dice-lo:#2e2925}.dice3d-skill{--dice-hi:#7d5a25;--dice-lo:#3a2913}.dice3d-negative{--dice-hi:#59353a;--dice-lo:#28171a}.dice3d-gear{--dice-hi:#4f5a51;--dice-lo:#252d28}.dice3d-artifact{--dice-hi:#69413a;--dice-lo:#2f1b18}.dice3d-custom{--dice-hi:#53483d;--dice-lo:#29221d}
+.dice3d-poly{position:relative;width:64px;height:64px;display:grid;place-items:center;transform-style:preserve-3d;animation:dice3d-poly-roll 980ms cubic-bezier(.18,.74,.19,1.02) both;animation-delay:var(--dice-delay,0ms);filter:drop-shadow(0 16px 10px rgba(0,0,0,.52));background:linear-gradient(145deg,var(--dice-hi,#69413a),var(--dice-lo,#2f1b18));border:1px solid rgba(255,255,255,.24);box-shadow:inset 5px 5px 13px rgba(255,255,255,.06),inset -8px -8px 15px rgba(0,0,0,.35)}
+.dice3d-poly-8{clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)}
+.dice3d-poly-10{clip-path:polygon(50% 0,82% 12%,100% 42%,91% 79%,50% 100%,9% 79%,0 42%,18% 12%)}
+.dice3d-poly-12{clip-path:polygon(50% 0,79% 9%,97% 35%,93% 67%,70% 93%,35% 100%,7% 78%,0 44%,17% 15%)}
+.dice3d-poly-core{position:relative;z-index:2;color:#f6ecdf;font-family:Georgia,serif;font-size:23px;font-weight:800;text-shadow:0 2px 3px rgba(0,0,0,.75)}
+.dice3d-poly-shine{position:absolute;inset:8px 13px 31px 13px;border-radius:50%;background:rgba(255,255,255,.11);filter:blur(2px);transform:translateZ(8px)}
+@keyframes dice3d-roll{0%{transform:translate3d(0,-58px,90px) rotateX(var(--dice-spin-x)) rotateY(var(--dice-spin-y)) scale(.74)}58%{transform:translate3d(6px,8px,18px) rotateX(calc(var(--dice-final-x) + 135deg)) rotateY(calc(var(--dice-final-y) + 160deg)) scale(1.05)}76%{transform:translate3d(-3px,-5px,7px) rotateX(calc(var(--dice-final-x) + 34deg)) rotateY(calc(var(--dice-final-y) - 26deg)) scale(.98)}100%{transform:translate3d(0,0,0) rotateX(var(--dice-final-x)) rotateY(var(--dice-final-y)) scale(1)}}
+@keyframes dice3d-poly-roll{0%{transform:translate3d(0,-62px,95px) rotateX(var(--dice-spin-x)) rotateY(var(--dice-spin-y)) rotateZ(180deg) scale(.72)}62%{transform:translate3d(5px,10px,14px) rotateX(48deg) rotateY(-38deg) rotateZ(28deg) scale(1.05)}82%{transform:translate3d(-2px,-4px,5px) rotateX(-14deg) rotateY(12deg) rotateZ(-8deg) scale(.98)}100%{transform:translate3d(0,0,0) rotateX(0) rotateY(0) rotateZ(0) scale(1)}}
+@media (prefers-reduced-motion:reduce){.dice3d-cube,.dice3d-poly{animation-duration:1ms;animation-delay:0ms}}
+@media (max-width:420px){.dice3d-stage{min-height:170px}.dice3d-tray{min-height:170px;gap:20px 13px;padding:24px 10px 18px}.dice3d-slot{min-width:59px}.dice3d-cube{width:52px;height:52px}.dice3d-front{transform:translateZ(26px)}.dice3d-back{transform:rotateY(180deg) translateZ(26px)}.dice3d-right{transform:rotateY(90deg) translateZ(26px)}.dice3d-left{transform:rotateY(-90deg) translateZ(26px)}.dice3d-top{transform:rotateX(90deg) translateZ(26px)}.dice3d-bottom{transform:rotateX(-90deg) translateZ(26px)}.dice3d-poly{width:57px;height:57px}}
+#dice3dOverlay{align-items:center;justify-content:center;background:rgba(11,7,4,.78)!important;padding:12px!important;z-index:90}
+.ose-dice-dialog{position:relative;width:min(420px,100%);max-height:min(80dvh,660px);overflow-y:auto;border:1px solid #9c7540;border-radius:16px;background:linear-gradient(160deg,#33241a,#190f0c);box-shadow:0 16px 45px #000c;padding:16px 12px 14px;color:#eddbc0}
+.ose-dice-hud{text-align:center;position:relative;pointer-events:none;color:#ead5b0;margin-bottom:13px}
+.ose-dice-hud #title{font:800 12px Arial;letter-spacing:1px;color:#e0b965}
+.ose-dice-hud #status{font:13px/1.4 Arial;margin-top:6px;color:#d9c6a8}
+.ose-dice-hud #result{font:800 31px Georgia;color:#fff0cd;margin-top:6px}
+.ose-dice-hud #detail{font:11px/1.45 Arial;color:#d6bea0;overflow-wrap:anywhere;margin-top:4px}
+.ose-dice-dialog .dice3d-stage{width:100%;min-height:200px;margin:0 0 12px}
+.ose-dice-dialog .dice3d-tray{min-height:200px}
+.ose-dice-close{display:block!important;position:relative!important;right:auto!important;bottom:auto!important;z-index:1;margin:8px auto 0;min-width:130px;min-height:44px}
+.dice3d-poly-4{clip-path:polygon(50% 0,100% 100%,0 100%)}
+.dice3d-poly-20{clip-path:polygon(50% 0,91% 19%,100% 62%,70% 100%,30% 100%,0 62%,9% 19%)}
+.dice3d-poly-100{clip-path:polygon(50% 0,86% 15%,100% 53%,70% 100%,30% 100%,0 53%,14% 15%)}
+@media(max-width:480px){.ose-dice-dialog{padding:14px 10px 12px}.ose-dice-dialog .dice3d-tray{gap:20px 12px}}
