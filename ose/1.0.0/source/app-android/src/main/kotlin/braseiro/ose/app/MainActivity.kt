@@ -67,7 +67,9 @@ class MainActivity : Activity() {
     private lateinit var gemini: GeminiInteractionsClient
     private lateinit var tts: braseiro.ose.tts.android.AndroidTtsController
     private lateinit var geminiTts: GeminiTtsController
+    private lateinit var geminiSupervisor: GeminiBarbaraSupervisor
     private lateinit var adventureStore: BraseiroAdventureStore
+    private var playerGuideMode = OSEPlayerGuide.GuideMode.LEARN_PLAYING
     private val manualDice = SecureRandom()
     private val evidenceRegistry = RuleEvidenceRegistry()
     private val creationCoordinator = NativeCharacterCreationCoordinator()
@@ -100,7 +102,8 @@ class MainActivity : Activity() {
                 sendTtsState(if (res == GeminiTtsController.Result.STARTING || res == GeminiTtsController.Result.REPLAYING) "PLAYING" else "IDLE", err)
             }
         }
-        session = SessionEngine(repository, RulesRefereeBoundary(), GeminiBarbaraSupervisor(credentials, runtimeSettings, gemini) { adventureStore.masterContextPrompt(CAMPAIGN_ID.value) })
+        geminiSupervisor = GeminiBarbaraSupervisor(credentials, runtimeSettings, gemini) { adventureStore.masterContextPrompt(CAMPAIGN_ID.value) }
+        session = SessionEngine(repository, RulesRefereeBoundary(), geminiSupervisor)
         tts = braseiro.ose.tts.android.AndroidTtsController(applicationContext)
         tts.onState = { state, error -> sendTtsState(state.name, error) }
         tts.geminiSpeaker = { text -> geminiTts.playVisibleNarration(text) }
@@ -206,9 +209,16 @@ class MainActivity : Activity() {
                     try {
                         val raw = contentResolver.openInputStream(uri)!!.bufferedReader(Charsets.UTF_8).use { it.readText() }
                         val current = session.loadSession(CAMPAIGN_ID)
-                        val worldId = current.campaignId.value.ifBlank { "world" }
-                        val res = adventureStore.importJson(raw, scope = current.campaignId.value, expectedWorldId = worldId)
-                        send(JSONObject().put("type","AdventureImportResult").put("payload",res.put("viewState",projectForUi(current))))
+                        val res = adventureStore.importJson(raw, scope = current.campaignId.value, expectedWorldId = null)
+                        val startLocationId = res.optString("startLocationId")
+                        val advWorldId = res.optString("worldId", current.campaignId.value)
+                        if (startLocationId.isNotBlank()) {
+                            val nextPos = SpatialRef.Scene(advWorldId, startLocationId)
+                            val updatedState = current.campaignState.copy(position = current.campaignState.position.copy(primary = nextPos))
+                            repository.commit(CAMPAIGN_ID, StateTransition("adventure-start-pos:$startLocationId", updatedState))
+                        }
+                        val persisted = session.loadSession(CAMPAIGN_ID)
+                        send(JSONObject().put("type","AdventureImportResult").put("payload",res.put("viewState",projectForUi(persisted))))
                     } catch (t: Throwable) {
                         send(JSONObject().put("type","BridgeError").put("payload",JSONObject().put("message",safeError(t))))
                     }
@@ -259,7 +269,13 @@ class MainActivity : Activity() {
         val generated = HexWorldGeneratorV1.generate("world-1", worldSeed, profile)
         val coherence = GeographicCoherenceValidator.validate(generated, profile)
         check(coherence.pass) { "HEX_BOOTSTRAP_INVALID:${coherence.errors.joinToString()}" }
-        val world = HexKnowledge.reveal(generated, 3, 2, 0)
+        val startCell = generated.cells.firstOrNull { it.poiId != null }
+            ?: generated.cells.firstOrNull { it.terrain.name == "PLAINS" || it.terrain.name == "CLEAR" }
+            ?: generated.cells.firstOrNull { it.q == 3 && it.r == 2 }
+            ?: generated.cells.first()
+        val startQ = startCell.q
+        val startR = startCell.r
+        val world = HexKnowledge.reveal(generated, startQ, startR, 0)
         val dungeon = DungeonGeneratorV1.generate("DUNGEON_001", dungeonSeed, 12)
         check(DungeonGeneratorV1.isReachable(dungeon)) { "DUNGEON_BOOTSTRAP_UNREACHABLE" }
         val settlement = SettlementPackages.canonicalVillage()
@@ -275,9 +291,9 @@ class MainActivity : Activity() {
         return CampaignState(
             party = PartyState(),
             time = TimeState(turns = 0),
-            position = PositionState(SpatialRef.Hex("world-1", 3, 2)),
+            position = PositionState(SpatialRef.Hex("world-1", startQ, startR)),
             resources = ResourceState(),
-            playerKnowledge = PlayerKnowledgeState(listOf("hex:3,2")),
+            playerKnowledge = PlayerKnowledgeState(listOf("hex:$startQ,$startR")),
             game = GameExtensions(
                 session = SessionSnapshot(phase = "ACTIVE"),
                 hexWorld = world, dungeon = dungeon, settlement = settlement, npcs = npcs, worldEvents = events,
@@ -453,6 +469,8 @@ class MainActivity : Activity() {
                         "TtsSettingsGet" -> sendTtsSettingsState()
 
                         "TtsSettingsSet" -> {
+                            tts.stop()
+                            geminiTts.stop()
                             tts.configure(
                                 payload.optString("enginePackage", "").takeIf { it.isNotBlank() },
                                 payload.optString("voiceName", "").takeIf { it.isNotBlank() },
@@ -473,9 +491,16 @@ class MainActivity : Activity() {
                                 io.execute {
                                     try {
                                         val current = session.loadSession(CAMPAIGN_ID)
-                                        val worldId = current.campaignId.value.ifBlank { "world" }
-                                        val res = adventureStore.importJson(raw, scope = current.campaignId.value, expectedWorldId = worldId)
-                                        send(JSONObject().put("type", "AdventureImportResult").put("payload", res.put("viewState", projectForUi(current))))
+                                        val res = adventureStore.importJson(raw, scope = current.campaignId.value, expectedWorldId = null)
+                                        val startLocationId = res.optString("startLocationId")
+                                        val advWorldId = res.optString("worldId", current.campaignId.value)
+                                        if (startLocationId.isNotBlank()) {
+                                            val nextPos = SpatialRef.Scene(advWorldId, startLocationId)
+                                            val updatedState = current.campaignState.copy(position = current.campaignState.position.copy(primary = nextPos))
+                                            repository.commit(CAMPAIGN_ID, StateTransition("adventure-start-pos:$startLocationId", updatedState))
+                                        }
+                                        val persisted = session.loadSession(CAMPAIGN_ID)
+                                        send(JSONObject().put("type", "AdventureImportResult").put("payload", res.put("viewState", projectForUi(persisted))))
                                     } catch (t: Throwable) {
                                         send(JSONObject().put("type", "BridgeError").put("payload", JSONObject().put("message", safeError(t))))
                                     }
@@ -497,7 +522,11 @@ class MainActivity : Activity() {
                                     val current = session.loadSession(CAMPAIGN_ID)
                                     val res = adventureStore.finish(scope = current.campaignId.value)
                                     val ok = res.optBoolean("ok", false)
-                                    send(JSONObject().put("type", "AdventureFinishResult").put("payload", JSONObject().put("ok", ok).put("viewState", projectForUi(current))))
+                                    send(JSONObject().put("type", "AdventureFinishResult").put("payload", JSONObject()
+                                        .put("ok", ok)
+                                        .put("archivedAdventureId", res.optString("archivedAdventureId", ""))
+                                        .put("status", res.optString("status", ""))
+                                        .put("viewState", projectForUi(current))))
                                 } catch (t: Throwable) {
                                     send(JSONObject().put("type", "BridgeError").put("payload", JSONObject().put("message", safeError(t))))
                                 }
@@ -864,6 +893,44 @@ class MainActivity : Activity() {
                                 .put("created",outcome.created).put("viewState",projectForUi(persisted))))
                         }
 
+                        "CharacterCreationCancel" -> {
+                            val draftId = payload.optString("draftId", "").trim()
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val game = current.campaignState.game
+                            val newDrafts = if (draftId.isNotBlank()) game.creationDrafts - draftId else emptyMap()
+                            val updatedGame = game.copy(creationDrafts = newDrafts)
+                            repository.commit(CAMPAIGN_ID, StateTransition("character-draft-cancel", current.campaignState.copy(game = updatedGame)))
+                            val persisted = session.loadSession(CAMPAIGN_ID)
+                            send(JSONObject().put("type", "CharacterCreationCancelResult").put("payload", JSONObject()
+                                .put("ok", true).put("viewState", projectForUi(persisted))))
+                        }
+
+                        "PlayerGuideModeSet" -> {
+                            val modeStr = payload.optString("mode", "LEARN_PLAYING")
+                            playerGuideMode = OSEPlayerGuide.GuideMode.fromString(modeStr)
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            send(JSONObject().put("type", "PlayerGuideModeResult").put("payload", JSONObject()
+                                .put("ok", true).put("mode", playerGuideMode.wireName).put("viewState", projectForUi(current))))
+                        }
+
+                        "PlayerGuideQuery" -> {
+                            val topicId = payload.optString("topicId", "").trim()
+                            val topic = if (topicId.isNotBlank()) OSEPlayerGuide.getTopic(topicId) else null
+                            val all = OSEPlayerGuide.getAllTopics()
+                            send(JSONObject().put("type", "PlayerGuideQueryResult").put("payload", JSONObject()
+                                .put("ok", true)
+                                .put("topic", topic?.toJson() ?: JSONObject.NULL)
+                                .put("topics", JSONArray(all.map { it.toJson() }))))
+                        }
+
+                        "ActionSuggestionsQuery" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val suggestions = OSEPlayerGuide.getActionSuggestions(current)
+                            send(JSONObject().put("type", "ActionSuggestionsQueryResult").put("payload", JSONObject()
+                                .put("ok", true)
+                                .put("suggestions", JSONArray(suggestions.map { it.toJson() }))))
+                        }
+
                         "CharacterCreationCommit" -> {
                             val draftId = payload.optString("draftId", "").trim()
                             val characterId = payload.optString("characterId", "").trim()
@@ -1198,6 +1265,9 @@ class MainActivity : Activity() {
         val game = current.campaignState.game
         val root = JSONObject().put("schema", "BRASEIRO_OSE_FICHA_V1").put("profile", current.ruleProfile.name)
             .put("character", characterToJson(c))
+        mediaStore.url(PresentationMediaStore.Scope.CHARACTER, c.characterId)?.let { url ->
+            root.put("portraitUrl", url)
+        }
         root.put("inventory", JSONArray(game.inventory.items.values.filter { it.ownerId == c.characterId }.sortedBy { it.itemId }.map(::inventoryItemToJson)))
         game.loadouts[c.characterId]?.let { l ->
             root.put("loadout", JSONObject().put("characterId", l.characterId).put("startingWealthGp", l.startingWealthGp)
@@ -1234,14 +1304,20 @@ class MainActivity : Activity() {
         val root = JSONObject(raw)
         require(root.getString("schema") == "BRASEIRO_OSE_FICHA_V1") { "INVALID_CHARACTER_SHEET" }
         require(root.getString("profile") == current.ruleProfile.name) { "CHARACTER_PROFILE_MISMATCH" }
-        val c = characterFromJson(root.getJSONObject("character"))
-        require(!current.campaignState.game.characters.containsKey(c.characterId)) { "CHARACTER_ID_EXISTS" }
+        var c = characterFromJson(root.getJSONObject("character"))
+        if (current.campaignState.game.characters.containsKey(c.characterId)) {
+            val freshId = "${c.characterId}_${System.currentTimeMillis()}"
+            c = c.copy(characterId = freshId).canonical()
+        }
         val items = mutableMapOf<String, InventoryItemSnapshot>()
         val arr = root.optJSONArray("inventory") ?: JSONArray()
         for (i in 0 until arr.length()) {
-            val item = inventoryItemFromJson(arr.getJSONObject(i))
-            require(item.ownerId == c.characterId && item.profile == current.ruleProfile) { "CHARACTER_ITEM_PROFILE_MISMATCH" }
-            require(!current.campaignState.game.inventory.items.containsKey(item.itemId) && !items.containsKey(item.itemId)) { "ITEM_ID_EXISTS" }
+            var item = inventoryItemFromJson(arr.getJSONObject(i))
+            require(item.profile == current.ruleProfile) { "CHARACTER_ITEM_PROFILE_MISMATCH" }
+            item = item.copy(ownerId = c.characterId)
+            if (current.campaignState.game.inventory.items.containsKey(item.itemId) || items.containsKey(item.itemId)) {
+                item = item.copy(itemId = "${item.itemId}_${System.currentTimeMillis()}_$i")
+            }
             items[item.itemId] = item
         }
         val loadout = root.optJSONObject("loadout")?.let { o ->
@@ -1374,6 +1450,19 @@ class MainActivity : Activity() {
             .put("authority", current.authorityRevision.authorityId)
             .put("ruleCount", evidenceRegistry.registeredRuleIds().size)
             .put("embedded", true))
+        out.put("playerGuide", JSONObject()
+            .put("mode", playerGuideMode.wireName)
+            .put("topics", JSONArray(OSEPlayerGuide.getAllTopics().map { it.toJson() }))
+            .put("contextualTopics", JSONArray(OSEPlayerGuide.getContextualHelp(current.campaignState.game.session.phase, current.campaignState.position.primary.javaClass.simpleName).map { it.toJson() }))
+            .put("actionSuggestions", JSONArray(OSEPlayerGuide.getActionSuggestions(current).map { it.toJson() }))
+        )
+        geminiSupervisor.lastReceipt?.let { r ->
+            out.put("narrationReceipt", JSONObject()
+                .put("provider", r.provider)
+                .put("model", r.model ?: JSONObject.NULL)
+                .put("status", r.status)
+                .put("reason", r.reason ?: JSONObject.NULL))
+        }
         return out
     }
 

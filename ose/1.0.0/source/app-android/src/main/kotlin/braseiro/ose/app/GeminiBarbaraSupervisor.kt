@@ -22,6 +22,17 @@ class GeminiBarbaraSupervisor(
     private val masterContextProvider: (() -> String)? = null
 ) : BarbaraSupervisorPort {
 
+    data class NarrationReceipt(
+        val provider: String,
+        val model: String?,
+        val status: String,
+        val reason: String? = null
+    )
+
+    @Volatile
+    var lastReceipt: NarrationReceipt? = null
+        private set
+
     override fun narrate(
         committed: CampaignEnvelope,
         playerReaction: String,
@@ -29,14 +40,34 @@ class GeminiBarbaraSupervisor(
         trace: RuleTrace
     ): String {
         val key = credentials.get(GeminiCredentialStore.Slot.TEXT_SCENE)
-            ?: return localNarration(committed, playerReaction, mechanicalFeedback)
+        if (key == null) {
+            lastReceipt = NarrationReceipt(
+                provider = "LOCAL",
+                model = null,
+                status = "LOCAL_ONLY",
+                reason = "CREDENTIAL_MISSING"
+            )
+            return localNarration(committed, playerReaction, mechanicalFeedback)
+        }
         val model = settings.snapshot().textModel
         return runCatching {
-            client.generateText(key, model, buildNarrationPrompt(committed, playerReaction, mechanicalFeedback, trace))
+            val generated = client.generateText(key, model, buildNarrationPrompt(committed, playerReaction, mechanicalFeedback, trace))
                 .trim()
                 .takeIf { it.length >= 120 && !looksTechnical(it) }
                 ?: error("GEMINI_NARRATION_TOO_SHORT_OR_TECHNICAL")
-        }.getOrElse {
+            lastReceipt = NarrationReceipt(
+                provider = "GEMINI_TEXT",
+                model = model,
+                status = "SUCCESS"
+            )
+            generated
+        }.getOrElse { err ->
+            lastReceipt = NarrationReceipt(
+                provider = "LOCAL",
+                model = model,
+                status = "FALLBACK",
+                reason = err.message ?: "UNKNOWN_ERROR"
+            )
             localNarration(committed, playerReaction, mechanicalFeedback)
         }
     }

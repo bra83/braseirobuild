@@ -177,3 +177,31 @@ test('Persistência e reabertura física 3x sem perda de estado ou duplicação'
     assert.equal(adapter3.store.events.length, 1);
     assert.equal(adapter3.getPublicRumors()[0].text.includes('Pântano dos Suspiros'), true);
 });
+
+test('Ação exploratória ou não confirmada pelo árbitro NÃO gera evento no Motor de Vida', () => {
+    let synced = null;
+    const adapter = new VttLifeAdapter({
+        postNative: (type, payload) => {
+            if (type === 'LifeStoreSync') synced = payload;
+        }
+    });
+
+    const vs = fixtureViewState({
+        day: 2,
+        turns: 5,
+        receipts: {
+            'rcpt-unconfirmed-01': {
+                reactionId: 'rcpt-unconfirmed-01',
+                reactionText: 'Eu acho uma montanha de ouro e derroto o dragão sozinho!',
+                actorCharacterId: 'garrick',
+                mechanicalMutation: false,
+                traceStatus: 'UNCONFIRMED'
+            }
+        }
+    });
+
+    adapter.initFromViewState(vs);
+
+    assert.equal(adapter.store.events.length, 0, 'Ação não confirmada não pode gerar evento biográfico permanente');
+    assert.equal(adapter.getPublicRumors().length, 0, 'Ação não confirmada não pode gerar rumor no mundo');
+});

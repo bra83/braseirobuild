@@ -12,6 +12,7 @@
     <div class="top">
       <div class="logo">OLD-SCHOOL<br>ESSENTIALS</div>
       <div class="title"><b id="headerTitle">SESSÃO · BRASEIRO OSE</b><small>MESTRE BARBARA · CAMPANHA OSE</small></div>
+      <button id="guideButton" class="guide-btn" title="Aprender Jogando / Guia OSE" aria-label="Ajuda">?</button>
       <button id="settingsButton" class="gear" title="Configurações" aria-label="Configurações">⚙</button>
     </div>
     <div class="status">
@@ -117,9 +118,41 @@
       </section>
     </div>
   </div>
+  <div id="guideOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Aprender Jogando">
+    <div class="settings panel">
+      <div class="settings-head"><h3>Aprender Jogando · Guia OSE</h3><button id="guideClose" class="small">FECHAR</button></div>
+      <div class="row" style="margin:8px 0">
+        <button id="guideModeLearn" class="small">MODO APRENDIZ</button>
+        <button id="guideModeExperienced" class="small">MODO EXPERIENTE</button>
+      </div>
+      <div id="guideContent"></div>
+    </div>
+  </div>
+
+  <div id="suggestionsOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="O que posso fazer agora?">
+    <div class="settings panel">
+      <div class="settings-head"><h3>O que posso fazer agora?</h3><button id="suggestionsClose" class="small">FECHAR</button></div>
+      <p class="note">Sugestões contextuais oficiais baseadas na situação atual da companhia. Nenhuma ação será executada sem a sua confirmação.</p>
+      <div id="suggestionsContent" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <div id="dice3dOverlay" class="overlay hidden" style="background:rgba(12,8,5,0.88);z-index:90;padding:0;overflow:hidden">
+    <canvas id="stage" style="width:100%;height:100%;touch-action:none"></canvas>
+    <div id="hud" style="position:absolute;left:0;right:0;top:10px;text-align:center;pointer-events:none;color:#eed5a2">
+      <div id="title" style="font:800 12px Arial;letter-spacing:1px;color:#d9a84c">MESA FÍSICA 3D</div>
+      <div id="status" style="font-size:15px;margin-top:4px">Rolando dados…</div>
+      <div id="result" class="result" style="font:800 24px Georgia;color:#fff6d8;margin-top:4px"></div>
+      <div id="detail" class="detail" style="font:11px Arial;color:#cbb898"></div>
+    </div>
+    <div id="quality" style="display:none"></div>
+    <button id="close" class="small" style="position:absolute;right:14px;bottom:14px;z-index:95">FECHAR</button>
+  </div>
   <input id="mediaPicker" class="hidden" type="file" accept="image/jpeg,image/png,image/webp">
   <div id="toast" class="toast hidden" role="status"></div>
 </div>
+<script src="dice3d_core.js"></script>
+<script src="dice3d_app.js"></script>
 <script src="generated_map_assets.js"></script>
 <script src="vtt_life_bridge.js"></script>
 <script src="p1.js"></script>

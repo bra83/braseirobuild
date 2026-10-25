@@ -933,20 +933,34 @@ class LifeRuntime {
       for (const [receiptId, receipt] of Object.entries(receipts)) {
         if (this.processedReceipts.has(receiptId)) continue;
 
+        // Causal authority: reject unconfirmed exploratory or failed player actions
+        if (receipt.mechanicalMutation === false || receipt.unconfirmed === true || receipt.traceStatus === 'UNCONFIRMED') {
+          continue;
+        }
+
         this.processedReceipts.add(receiptId);
         this.store.legacy.processedEventIds.push(receiptId);
 
         const actorId = receipt.actorCharacterId || (viewState.party && viewState.party[0]?.id) || 'party';
         const summary = receipt.reactionText || receipt.mechanicalIntent || 'Ação confirmada da companhia';
-        const lower = summary.toLowerCase();
+        const intent = String(receipt.mechanicalIntent || '').toUpperCase();
 
-        let causeId = 'cause-victory-1';
-        if (lower.includes('descans') || lower.includes('estalagem') || lower.includes('repous') || lower.includes('curou')) {
+        let causeId = 'cause-journey-1';
+        if (intent.includes('REST') || intent.includes('HEAL') || intent.includes('CAMP')) {
           causeId = 'cause-care-1';
-        } else if (lower.includes('viagem') || lower.includes('cruzou') || lower.includes('pântano') || lower.includes('estrada') || lower.includes('chegou')) {
-          causeId = 'cause-journey-1';
-        } else if (lower.includes('derrot') || lower.includes('resgat') || lower.includes('esquelet') || lower.includes('ouro')) {
+        } else if (intent.includes('COMBAT') || intent.includes('ATTACK') || intent.includes('DEFEAT') || intent.includes('VICTORY')) {
           causeId = 'cause-victory-1';
+        } else if (intent.includes('TRAVEL') || intent.includes('MOVE') || intent.includes('EXPLORE') || intent.includes('ADVANCE')) {
+          causeId = 'cause-journey-1';
+        } else if (receipt.lifeCauseId) {
+          causeId = receipt.lifeCauseId;
+        } else {
+          const lower = (receipt.mechanicalFeedback || summary).toLowerCase();
+          if (lower.includes('descans') || lower.includes('estalagem') || lower.includes('repous') || lower.includes('curou')) {
+            causeId = 'cause-care-1';
+          } else if (lower.includes('derrot') || lower.includes('resgat') || lower.includes('esquelet')) {
+            causeId = 'cause-victory-1';
+          }
         }
 
         const evt = {

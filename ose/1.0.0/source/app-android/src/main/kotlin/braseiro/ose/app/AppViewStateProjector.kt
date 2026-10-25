@@ -32,7 +32,20 @@ object AppViewStateProjector {
                 .put("visibleNarration", game.session.visibleNarration)
                 .put("visibleMechanicalFeedback", game.session.visibleMechanicalFeedback)
                 .put("lastPlayerReaction", game.session.lastPlayerReaction)
-                .put("pendingNarrationReactionId", game.session.pendingNarrationReactionId ?: JSONObject.NULL))
+                .put("pendingNarrationReactionId", game.session.pendingNarrationReactionId ?: JSONObject.NULL)
+                .put("reactionReceipts", JSONObject(game.session.reactionReceipts.mapValues { (_, r) ->
+                    JSONObject()
+                        .put("reactionId", r.reactionId)
+                        .put("reactionText", r.reactionText)
+                        .put("mechanicalFeedback", r.mechanicalFeedback)
+                        .put("mechanicalMutation", r.mechanicalMutation)
+                        .put("traceStatus", r.traceStatus)
+                        .put("traceNote", r.traceNote)
+                        .put("traceEvidenceRefs", JSONArray(r.traceEvidenceRefs))
+                        .put("narration", r.narration ?: JSONObject.NULL)
+                        .put("mechanicalIntent", r.mechanicalIntent ?: JSONObject.NULL)
+                        .put("actorCharacterId", r.actorCharacterId ?: JSONObject.NULL)
+                })))
             .put("party", JSONArray(party.map { c ->
                 characterSummary(c).put("controlMode", (game.characterControlModes[c.characterId]
                     ?: CharacterControlMode.PLAYER).name)

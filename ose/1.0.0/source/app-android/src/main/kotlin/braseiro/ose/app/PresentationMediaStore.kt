@@ -20,7 +20,7 @@ class PresentationMediaStore(context: Context) : WebViewAssetLoader.PathHandler 
     fun save(scope: Scope, stableId: String, mimeType: String, bytes: ByteArray): String = synchronized(lock) {
         require(stableId.isNotBlank()) { "MEDIA_ID_REQUIRED" }
         require(mimeType in setOf("image/jpeg", "image/png", "image/webp")) { "UNSUPPORTED_IMAGE_TYPE" }
-        require(bytes.isNotEmpty() && bytes.size <= 5 * 1024 * 1024) { "IMAGE_SIZE_INVALID" }
+        require(bytes.isNotEmpty() && bytes.size <= 20 * 1024 * 1024) { "IMAGE_SIZE_INVALID" }
         val ext = when (mimeType) { "image/png" -> "png"; "image/webp" -> "webp"; else -> "jpg" }
         val publicName = "${scope.name.lowercase()}-${sha256(stableId).take(24)}.$ext"
         File(root, publicName).writeBytes(bytes)
@@ -30,11 +30,13 @@ class PresentationMediaStore(context: Context) : WebViewAssetLoader.PathHandler 
         mediaUrl(publicName)
     }
 
-    fun saveDataUrl(scope: Scope, stableId: String, dataUrl: String): String {
+    fun saveDataUrl(scope: Scope, stableId: String, dataUrl: String): String = runCatching {
         val match = Regex("^data:(image/(?:jpeg|png|webp));base64,(.+)$", RegexOption.DOT_MATCHES_ALL).matchEntire(dataUrl)
             ?: error("INVALID_IMAGE_DATA_URL")
         val bytes = Base64.getDecoder().decode(match.groupValues[2])
-        return save(scope, stableId, match.groupValues[1], bytes)
+        save(scope, stableId, match.groupValues[1], bytes)
+    }.getOrElse { t ->
+        throw IllegalArgumentException("MEDIA_SAVE_FAILED: ${t.message}", t)
     }
 
     fun url(scope: Scope, stableId: String): String? = synchronized(lock) {

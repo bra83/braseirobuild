@@ -48,6 +48,8 @@ window.BraseiroReceive=(raw)=>{
    render();showToast('Ação concluída.');announceStateChanges(previous,viewState,p.feedback||'');
   }
   else if(m.type==='CharacterCreationDraft'||m.type==='CharacterCreationResult'){if(p.viewState)viewState=p.viewState;if(m.type==='CharacterCreationResult'&&p.ok)creatingAdditionalCharacter=false;render();showToast(p.ok===false?'Não foi possível concluir a criação.':'Criação atualizada.');}
+  else if(m.type==='CharacterCreationCancelResult'){if(p.viewState)viewState=p.viewState;creatingAdditionalCharacter=false;editingCharacter=false;render();showToast('Criação cancelada.');}
+  else if(m.type==='PlayerGuideModeResult'){if(p.viewState)viewState=p.viewState;render();showToast('Modo de orientação alterado.');}
   else if(m.type==='CharacterSelectionResult'){if(p.viewState)viewState=p.viewState;editingCharacter=false;creatingAdditionalCharacter=false;screen='sheet';render();}
   else if(m.type==='CompanionOpinionsResult'){if(p.readOnly===true&&p.mechanicalDelta===false){companionOpinions=p;render();showToast('Opiniões consultadas sem avançar a cena.')}else showToast('Resposta de opinião inválida.');}
   else if(m.type==='CharacterControlResult'||m.type==='MasterActionResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok===false?'A decisão do Mestre não foi concluída. O último turno do jogador continua salvo.':m.type==='CharacterControlResult'?'Controle do personagem atualizado.':'Decisão do Mestre atualizada.');}
@@ -64,7 +66,14 @@ window.BraseiroReceive=(raw)=>{
   else if(m.type==='PresentationImageSaved'){postNative('ViewState',{request:'after-media-save'});showToast(p.scope==='SCENE'?'Imagem da cena importada.':p.scope==='CHARACTER'?'Retrato do personagem atualizado.':p.scope==='NPC'?'Retrato do NPC atualizado.':'Imagem salva e vinculada.');}
   else if(m.type==='AdventureImportResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok?`Aventura carregada: ${p.title||''}`:p.cancelled?'Importação cancelada.':'Erro ao importar aventura.');}
   else if(m.type==='AdventureFinishResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok?'Aventura concluída. O legado e o mundo foram preservados.':'Nenhuma aventura ativa.');}
-  else if(m.type==='ManualDiceResult'){diceHistory.unshift({rolls:p.rolls||[],total:p.total,sides:p.sides,count:p.count,modifier:p.modifier||0});diceHistory=diceHistory.slice(0,12);render();showToast(`Resultado: ${p.total}`);}
+  else if(m.type==='ManualDiceResult'){
+    diceHistory.unshift({rolls:p.rolls||[],total:p.total,sides:p.sides,count:p.count,modifier:p.modifier||0});
+    diceHistory=diceHistory.slice(0,12);
+    render();
+    showToast(`Resultado: ${p.total}`);
+    el('dice3dOverlay')?.classList.remove('hidden');
+    window.BraseiroDice?.start({sides:p.sides,count:p.count,modifier:p.modifier||0});
+  }
   else if(m.type==='RuleEvidenceListResult'){ruleLibrary=p.rules||[];ruleLibraryLoaded=true;render();}
   else if(m.type==='RuleEvidenceResult'){showRuleDetail(p);}
   else if(m.type==='ResetAdventureResult'){if(p.viewState)viewState=p.viewState;lastRuleTrace=null;ruleLibraryLoaded=false;ruleLibrary=[];screen='session';render();showToast('A aventura foi recomeçada.');}
@@ -115,8 +124,10 @@ function renderSession(){
  const ds=raw.length===3?raw:(fallbackDecisions[stateName]||fallbackDecisions.active);
  const presentNpcs=viewState?.presentation?.presentNpcs||[];
  const npcPanel=presentNpcs.length?`<div class="panel"><h3>NPCs presentes</h3><div class="text-entity-list">${presentNpcs.map(n=>{const nPort=n.portraitUrl||viewState?.presentation?.npcPortraits?.[n.npcId];return `<div class="text-entity">${nPort?`<img src="${esc(nPort)}" class="avatar-thumb" alt="Retrato">`:''}<b>${esc(n.name)}</b>${hasNative()?`<button class="photo-action" data-photo-npc="${esc(n.npcId)}" title="Retrato do NPC">📷</button>`:''}</div>`}).join('')}</div></div>`:'';
+ const receipt = viewState?.narrationReceipt;
+ const badgeHtml = receipt ? `<div class="narration-badge ${esc(String(receipt.status||'').toLowerCase())}">${receipt.provider === 'GEMINI_TEXT' ? 'Narrado por Mestre Gemini (' + esc(receipt.model || 'neural') + ')' : 'Narração Local Offline'}</div>` : '';
  return `<div class="kicker">Sessão ativa</div>
-  <div class="panel"><div class="row"><div><span class="pill">${profileLabel()}</span><h2 style="margin-top:7px">Cena atual</h2></div></div>
+  <div class="panel">${badgeHtml}<div class="row"><div><span class="pill">${profileLabel()}</span><h2 style="margin-top:7px">Cena atual</h2></div></div>
   ${sceneUrl?img(sceneUrl,'Ilustração da cena atual','scene-image'):''}
   <div id="visibleNarration" class="narrative-text">${paragraphs(narration)}</div>
   <div class="session-tools"><button class="small" data-tts="play">▶ OUVIR</button><button class="small" data-tts="stop">■ PARAR</button><button class="small" data-tts="replay">↻ REPETIR</button><button class="small" data-scene-prompt>▧ GERAR CENA</button><button class="small" data-scene-import data-scene-id="${esc(sceneId)}">⇩ IMPORTAR</button></div></div>
@@ -126,7 +137,7 @@ function renderSession(){
   ${renderCompanionOpinions()}
   ${renderMasterContinue()}
   ${renderRuleTrace(lastRuleTrace||viewState?.lastRuleTrace)}
-  <div class="panel"><h3>O que você faz?</h3><div class="suggestions">${ds.map(x=>`<button class="suggestion" data-suggest="${esc(x.reaction||x[1]||'')}" data-intent="${esc(x.mechanicalIntent||'')}">${esc(x.label||x[0]||'AÇÃO')}</button>`).join('')}</div><textarea id="reactionInput" placeholder="Ex.: examino as pegadas, pergunto o que há por perto, sigo com cuidado..."></textarea><button class="primary" data-react ${hasNative()&&!(viewState?.party||[]).some(m=>(m.controlMode||'PLAYER')==='PLAYER')?'disabled':''}>Enviar ação</button><button class="secondary" style="margin-top:7px" data-go="dice">Abrir rolagem de dados</button></div>
+  <div class="panel"><h3>O que você faz?</h3><button id="openSuggestionsBtn" class="secondary" style="margin-bottom:8px;width:100%">💡 O QUE POSSO FAZER AGORA?</button><div class="suggestions">${ds.map(x=>`<button class="suggestion" data-suggest="${esc(x.reaction||x[1]||'')}" data-intent="${esc(x.mechanicalIntent||'')}">${esc(x.label||x[0]||'AÇÃO')}</button>`).join('')}</div><textarea id="reactionInput" placeholder="Ex.: examino as pegadas, pergunto o que há por perto, sigo com cuidado..."></textarea><button class="primary" data-react ${hasNative()&&!(viewState?.party||[]).some(m=>(m.controlMode||'PLAYER')==='PLAYER')?'disabled':''}>Enviar ação</button><button class="secondary" style="margin-top:7px" data-go="dice">Abrir rolagem de dados</button></div>
   <div class="panel"><h3>Diário</h3><div class="log friendly-log">${esc(localLog.slice(-8).join('\n')||'Sem eventos registrados.')}</div></div>`;
 }
 function renderAdventureCard(){
@@ -155,7 +166,7 @@ function renderCreationDraft(d){
  const races=['HUMAN','DROW','DUERGAR','DWARF','ELF','GNOME','HALF_ELF','HALFLING','HALF_ORC','SVIRFNEBLIN'];
  return `<div class="kicker">Novo aventureiro</div><div class="panel"><h3>Criar personagem</h3><div class="attrs">${Object.entries({FOR:a.str,INT:a.int,SAB:a.wis,DES:a.dex,CON:a.con,CAR:a.cha}).map(([k,v])=>`<div class="attr"><b>${v??'—'}</b><span>${k}</span></div>`).join('')}</div>
  ${isAdv?`<label class="field">Método de criação</label><select id="creationMethod"><option value="ADVANCED_BASIC">Básico</option><option value="ADVANCED_METHOD">Avançado</option></select><label class="field">Raça (método avançado)</label><select id="creationRace"><option value="">Nenhuma / conforme método</option>${races.map(x=>`<option value="${x}">${raceLabel(x)}</option>`).join('')}</select>`:''}
- <label class="field">Classe</label><select id="creationClass">${classes.map(x=>`<option value="${x}">${classLabel(x)}</option>`).join('')}</select><label class="field">Nome</label><input id="creationName" placeholder="Nome do aventureiro"><button class="primary" style="margin-top:9px" data-commit-draft="${esc(d.draftId)}">Criar personagem</button></div>`;
+ <label class="field">Classe</label><select id="creationClass">${classes.map(x=>`<option value="${x}">${classLabel(x)}</option>`).join('')}</select><label class="field">Nome</label><input id="creationName" placeholder="Nome do aventureiro"><button class="primary" style="margin-top:9px" data-commit-draft="${esc(d.draftId)}">Criar personagem</button><button class="secondary" style="margin-top:7px;width:100%" data-cancel-draft="${esc(d.draftId)}">CANCELAR CRIAÇÃO</button></div>`;
 }
 
 const geom=Object.freeze({hexW:64,hexH:73.90,xStep:62.8,yStep:54.8,oddOffset:31.4,originX:24,originY:28});
@@ -262,7 +273,7 @@ function catalogEntry(id){return loadoutState()?.catalog?.find(x=>x.catalogId===
 function catalogLabel(id){if(id==='STARTING_GOLD_GP')return 'Moedas de ouro';const e=catalogEntry(id);if(e?.name)return e.name;return 'Item'}
 function itemArt(catalogId,name='',kind=''){if(/^(CLASSIC|ADV)_EQUIP_/.test(String(catalogId||'')))return img(`equipment-icons/${esc(catalogId)}.png`,name,'item-thumb equipment-art');const p=kind==='SHIELD'?'tesouros_escudos/escudo_redondo.png':kind==='ARMOR'?'equipamentos/cota_malha.png':'equipamentos_variantes/equipamentos_variantes_01.png';return img(asset(p),name,'item-thumb')}
 function renderInventoryItem(it){const name=catalogLabel(it.catalogId),custom=viewState?.presentation?.itemThumbnails?.[it.itemId],canEquip=['WEAPON','ARMOR','SHIELD'].includes(it.kind)&&loadoutState()&&!loadoutState().completed;return `<div class="item">${custom?img(custom,name,'item-thumb'):itemArt(it.catalogId,name,it.kind)}<b>${esc(name)}</b><small>×${it.quantity??1}${it.equipped?' · EQUIPADO':''}</small>${hasNative()?`<div class="actions">${canEquip?`<button data-loadout-equip="${esc(it.itemId)}" data-equipped="${it.equipped?'1':'0'}">${it.equipped?'TIRAR':'EQUIPAR'}</button>`:''}<button class="photo-action" title="Trocar imagem" data-photo-item="${esc(it.itemId)}">📷</button></div>`:''}</div>`}
-function renderNativeLoadout(){const l=loadoutState();if(!hasNative()||!l||l.completed)return'';const groups=[['Aventura',['ADVENTURING_GEAR','FOOD','LIGHT_SOURCE','OIL_FLASK']],['Armas',['WEAPON']],['Armaduras e munição',['ARMOR','SHIELD','AMMUNITION']]];return `<div class="panel"><div class="kicker">Equipamento inicial</div><h3>${l.remainingWealthGp} po restantes de ${l.startingWealthGp} po</h3><p class="note">Os preços, quantidades e estatísticas são aplicados automaticamente pelas regras OSE.</p>${groups.map(([title,kinds])=>`<h3>${title}</h3><div class="inventory-grid">${(l.catalog||[]).filter(e=>kinds.includes(e.kind)).map(e=>`<div class="item">${itemArt(e.catalogId,e.name,e.kind)}<b>${esc(e.name)}</b><small>${e.priceGp==null?'Preço não comprovado':`${e.priceGp} po`}${e.purchaseQuantity>1?` · ×${e.purchaseQuantity}`:''}${e.ownedQuantity?` · possui ${e.ownedQuantity}`:''}</small><div class="actions"><button data-loadout-buy="${esc(e.catalogId)}" ${e.priceGp==null||e.priceGp>l.remainingWealthGp?'disabled':''}>COMPRAR</button></div></div>`).join('')}</div>`).join('')}<button class="primary" data-loadout-finish="1" style="margin-top:9px">Concluir equipamento</button></div>`}
+function renderNativeLoadout(){const l=loadoutState();if(!hasNative()||!l||l.completed)return'';const groups=[['Aventura',['ADVENTURING_GEAR','FOOD','LIGHT_SOURCE','OIL_FLASK']],['Armas',['WEAPON']],['Armaduras e munição',['ARMOR','SHIELD','AMMUNITION']]];return `<div class="panel"><div class="kicker">Equipamento inicial</div><h3>${l.remainingWealthGp} po restantes de ${l.startingWealthGp} po</h3><p class="note">Os preços, quantidades e estatísticas são aplicados automaticamente pelas regras OSE.</p>${groups.map(([title,kinds])=>`<h3>${title}</h3><div class="inventory-grid">${(l.catalog||[]).filter(e=>kinds.includes(e.kind)).map(e=>`<div class="item">${itemArt(e.catalogId,e.name,e.kind)}<b>${esc(e.name)}</b><small>${e.priceGp==null?'Preço não comprovado':`${e.priceGp} po`}${e.purchaseQuantity>1?` · ×${e.purchaseQuantity}`:''}${e.ownedQuantity?` · possui ${e.ownedQuantity}`:''}</small><div class="actions"><button data-loadout-buy="${esc(e.catalogId)}" ${e.priceGp==null||e.priceGp>l.remainingWealthGp?'disabled':''}>COMPRAR</button></div></div>`).join('')}</div>`).join('')}<button class="primary" data-loadout-finish="1" style="margin-top:9px">Concluir equipamento</button><button class="secondary" data-cancel-loadout="${esc(l.characterId)}" style="margin-top:7px;width:100%">CANCELAR E DESCARTAR RASCUNHO</button></div>`}
 function renderDemoShop(){return ''}
 function renderCharacterControlSelect(m){
  const mode=m.controlMode||'PLAYER';
@@ -381,6 +392,17 @@ function wireCurrentScreen(){
   document.querySelectorAll('[data-adventure-finish]').forEach(b=>b.onclick=()=>{if(confirm('Concluir esta aventura e arquivar seus feitos? Seus personagens, itens, relações e mundo serão integralmente preservados.'))postNative('AdventureFinish',{})});
   document.querySelectorAll('[data-adventure-load-classic]').forEach(b=>b.onclick=()=>loadSampleAdventure('adventures/sample-adventure-ose-classic.json'));
   document.querySelectorAll('[data-adventure-load-advanced]').forEach(b=>b.onclick=()=>loadSampleAdventure('adventures/sample-adventure-ose-advanced.json'));
+
+  document.querySelectorAll('[data-cancel-draft]').forEach(b=>b.onclick=e=>{
+    const d=e.currentTarget.dataset.cancelDraft;
+    creatingAdditionalCharacter=false;
+    postNative('CharacterCreationCancel',{draftId:d});
+  });
+  document.querySelectorAll('[data-cancel-loadout]').forEach(b=>b.onclick=e=>{
+    const id=e.currentTarget.dataset.cancelLoadout;
+    if(!confirm('Deseja cancelar a criação e descartar este personagem?'))return;
+    postNative('CharacterDelete',{characterId:id,commandId:'delete-'+Date.now()});
+  });
   document.querySelectorAll('[data-photo-item]').forEach(b=>b.onclick=()=>chooseMedia('ITEM',b.dataset.photoItem));
  document.querySelectorAll('[data-retainer-proposal]').forEach(b=>b.onclick=()=>{
    const npcId=b.dataset.retainerProposal,actor=viewState?.selectedCharacterId;
@@ -437,8 +459,38 @@ function wireMap(){
  document.querySelectorAll('[data-map-q]').forEach(b=>b.onclick=e=>{e.stopPropagation();mapSelection={q:Number(b.dataset.mapQ),r:Number(b.dataset.mapR)};render()});
  document.querySelector('[data-map-travel]')?.addEventListener('click',b=>{const text=b.currentTarget.dataset.mapText,intent=b.currentTarget.dataset.mapTravel;go('session');setTimeout(()=>{const t=el('reactionInput');if(t){t.value=text;t.dataset.mechanicalIntent=intent;t.focus()}},0)})
 }
+function downscaleImage(file, maxDim, quality, callback) {
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+  img.onload = () => {
+    URL.revokeObjectURL(url);
+    let w = img.width, h = img.height;
+    if (w > maxDim || h > maxDim) {
+      if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+      else { w = Math.round((w * maxDim) / h); h = maxDim; }
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    callback(canvas.toDataURL('image/jpeg', quality));
+  };
+  img.onerror = () => {
+    URL.revokeObjectURL(url);
+    showToast('Falha ao processar arquivo de imagem.');
+  };
+  img.src = url;
+}
 function chooseMedia(scope,id){mediaTarget={scope,id};el('mediaPicker').value='';el('mediaPicker').click()}
-el('mediaPicker').addEventListener('change',()=>{const f=el('mediaPicker').files?.[0];if(!f||!mediaTarget)return;if(f.size>5*1024*1024)return showToast('Imagem deve ter no máximo 5 MB.');const r=new FileReader();r.onload=()=>postNative('PresentationImageSave',{scope:mediaTarget.scope,id:mediaTarget.id,dataUrl:r.result});r.readAsDataURL(f)});
+el('mediaPicker').addEventListener('change',()=>{
+  const f=el('mediaPicker').files?.[0];
+  if(!f||!mediaTarget)return;
+  if(f.size>20*1024*1024)return showToast('Imagem deve ter no máximo 20 MB.');
+  downscaleImage(f, 1024, 0.85, (dataUrl)=>{
+    postNative('PresentationImageSave',{scope:mediaTarget.scope,id:mediaTarget.id,dataUrl});
+    showToast('Processando e salvando imagem…');
+  });
+});
 
 document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.screen));
 el('settingsButton').onclick=()=>{el('settingsOverlay').classList.remove('hidden');postNative('GeminiSettingsGet',{});postNative('TtsSettingsGet',{});updateSettingsStatus();updateTtsSettings()};el('settingsClose').onclick=()=>el('settingsOverlay').classList.add('hidden');
@@ -479,3 +531,64 @@ el('resetAdventure')?.addEventListener('click',()=>{const ok=confirm('RECOMEÇAR
 el('backupExport')?.addEventListener('click',()=>postNative('BackupExport',{}));el('backupImport')?.addEventListener('click',()=>{const backup=el('backupText').value.trim();if(!backup)return showToast('Cole um backup antes de restaurar.');postNative('BackupImport',{backup})});el('backupCopy')?.addEventListener('click',async()=>{const text=el('backupText').value||backupBuffer;if(!text)return showToast('Gere um backup primeiro.');try{await navigator.clipboard.writeText(text);showToast('Backup copiado.')}catch(_e){el('backupText').focus();el('backupText').select();document.execCommand('copy');showToast('Backup copiado.')}});
 render();document.body.dataset.ready='true';postNative('ViewState',{request:'initial'});
 })();
+
+function renderGuideOverlay() {
+  const guide = viewState?.playerGuide || {};
+  const topics = guide.topics || [];
+  const container = el('guideContent');
+  if (!container) return;
+  container.innerHTML = topics.map(t => `
+    <div class="guide-card">
+      <h4>${esc(t.title)}</h4>
+      <span class="pill" style="margin-bottom:4px">${esc(t.category)}</span>
+      <p><b>Resumo:</b> ${esc(t.summary)}</p>
+      <p>${esc(t.details)}</p>
+      <small>Fonte: ${esc(t.sourceRuleRef)}</small>
+    </div>
+  `).join('') || '<p class="note">Nenhum tópico disponível no momento.</p>';
+}
+
+el('guideButton')?.addEventListener('click', () => {
+  renderGuideOverlay();
+  el('guideOverlay').classList.remove('hidden');
+});
+el('guideClose')?.addEventListener('click', () => el('guideOverlay').classList.add('hidden'));
+el('guideModeLearn')?.addEventListener('click', () => postNative('PlayerGuideModeSet', { mode: 'LEARN_PLAYING' }));
+el('guideModeExperienced')?.addEventListener('click', () => postNative('PlayerGuideModeSet', { mode: 'EXPERIENCED' }));
+
+function renderSuggestionsOverlay() {
+  const guide = viewState?.playerGuide || {};
+  const suggestions = guide.actionSuggestions || [];
+  const container = el('suggestionsContent');
+  if (!container) return;
+  container.innerHTML = suggestions.map(s => `
+    <div class="suggestion-card" data-pick-suggestion="${esc(s.textCandidate)}" data-suggestion-intent="${esc(s.intentCandidate)}">
+      <b>${esc(s.plainLabel)}</b>
+      <span>${esc(s.textCandidate)}</span>
+      <small>Tempo: ${esc(s.timePreview)} · Risco: ${esc(s.riskHint)}</small>
+      <small style="color:#8b6537">Regra: ${esc(s.sourceRuleRef)}</small>
+    </div>
+  `).join('') || '<p class="note">Nenhuma sugestão contextual disponível.</p>';
+  container.querySelectorAll('[data-pick-suggestion]').forEach(card => {
+    card.onclick = () => {
+      const text = card.dataset.pickSuggestion;
+      const intent = card.dataset.suggestionIntent;
+      const t = el('reactionInput');
+      if (t) {
+        t.value = text;
+        t.dataset.mechanicalIntent = intent;
+        t.focus();
+      }
+      el('suggestionsOverlay').classList.add('hidden');
+      showToast('Sugestão aplicada no campo de ação.');
+    };
+  });
+}
+
+document.addEventListener('click', e => {
+  if (e.target && e.target.id === 'openSuggestionsBtn') {
+    renderSuggestionsOverlay();
+    el('suggestionsOverlay').classList.remove('hidden');
+  }
+});
+el('suggestionsClose')?.addEventListener('click', () => el('suggestionsOverlay').classList.add('hidden'));
