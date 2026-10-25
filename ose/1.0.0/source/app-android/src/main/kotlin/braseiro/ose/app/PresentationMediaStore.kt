@@ -33,7 +33,10 @@ class PresentationMediaStore(context: Context) : WebViewAssetLoader.PathHandler 
         val h = boundsOpts.outHeight
         require(w > 0 && h > 0) { "CORRUPT_OR_MALFORMED_IMAGE: Não foi possível decodificar as dimensões da imagem." }
 
-        val ext = when (mimeType) { "image/png" -> "png"; "image/webp" -> "webp"; else -> "jpg" }
+        // Resized WebP must not be written as JPEG under a .webp extension.
+        // PNG also preserves the alpha channel in enlarged illustrations.
+        val outputMime = if (maxOf(w, h) > 2048 && mimeType == "image/webp") "image/png" else mimeType
+        val ext = when (outputMime) { "image/png" -> "png"; "image/webp" -> "webp"; else -> "jpg" }
         val publicName = "${scope.name.lowercase()}-${sha256(stableId).take(24)}.$ext"
         val targetFile = File(root, publicName)
         val tmpFile = File(root, "$publicName.tmp")
@@ -45,7 +48,7 @@ class PresentationMediaStore(context: Context) : WebViewAssetLoader.PathHandler 
                 while (maxDim / sample > 2048) sample *= 2
                 val decodeOpts = BitmapFactory.Options().apply {
                     inSampleSize = sample
-                    inPreferredConfig = Bitmap.Config.RGB_565
+                    inPreferredConfig = Bitmap.Config.ARGB_8888
                 }
                 val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, decodeOpts)
                     ?: throw IllegalArgumentException("IMAGE_DECODE_FAILED")
@@ -73,7 +76,7 @@ class PresentationMediaStore(context: Context) : WebViewAssetLoader.PathHandler 
         }
 
         val key = key(scope, stableId)
-        val meta = readMetadata().put(key, JSONObject().put("file", publicName).put("mime", mimeType))
+        val meta = readMetadata().put(key, JSONObject().put("file", publicName).put("mime", outputMime))
         writeMetadata(meta)
         mediaUrl(publicName)
     }

@@ -206,7 +206,7 @@ button { cursor: pointer; }
 @media(max-width:480px){.bottom{height:calc(56px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px)}.navbtn{min-height:0;padding:2px 0;font-size:8px}.navbtn .ico{font-size:18px;line-height:20px}.toast{bottom:calc(66px + env(safe-area-inset-bottom,0px))}.screen{padding-bottom:14px}}
 /* Remove CSS frames and crop black pixel frames embedded in the legacy catalog illustrations. */
 .item-thumb{border:0;background:transparent;box-shadow:none}
-.item-thumb.equipment-art{border:0!important;background:transparent!important;clip-path:inset(12% round 3px);transform:scale(1.17);transform-origin:center;}
+.item-thumb.equipment-art{border:0!important;background:transparent!important;clip-path:none!important;transform:none!important;object-fit:contain;image-rendering:auto;}
 /* Actual Forbidden Lands 3.3.24 Dice3DStage visual rules, adapted for OSE and no React dependency. */
 /* Rolador 3D — Forbidden Lands */
 .dice3d-stage{position:relative;min-height:190px;margin:0 0 1.25rem;overflow:hidden;border:1px solid rgba(159,110,74,.45);border-radius:18px;background:radial-gradient(circle at 50% 8%,rgba(125,67,43,.20),transparent 48%),linear-gradient(180deg,rgba(11,9,8,.98),rgba(24,18,15,.98));perspective:820px;box-shadow:inset 0 0 45px rgba(0,0,0,.65)}
@@ -242,3 +242,14 @@ button { cursor: pointer; }
 .dice3d-poly-20{clip-path:polygon(50% 0,91% 19%,100% 62%,70% 100%,30% 100%,0 62%,9% 19%)}
 .dice3d-poly-100{clip-path:polygon(50% 0,86% 15%,100% 53%,70% 100%,30% 100%,0 53%,14% 15%)}
 @media(max-width:480px){.ose-dice-dialog{padding:14px 10px 12px}.ose-dice-dialog .dice3d-tray{gap:20px 12px}}
+
+/* Galaxy A57: WebView already excludes Android system bars through native margins.
+   Do not double-apply the safe-area inset to the navigation dock. */
+html,body,#phone{min-height:100dvh}
+body{background:#c9aa72}
+.bottom{bottom:0;max-height:56px;height:56px;box-sizing:border-box;padding-bottom:0}
+#phone{padding-bottom:56px}
+.navbtn{height:56px;min-height:56px;overflow:hidden}
+.navbtn .ico{line-height:21px}
+.item-thumb.equipment-art{width:54px;height:54px;object-fit:contain;float:right;margin:0 0 6px 7px}
+@media(max-width:480px){.bottom{bottom:0;height:56px;max-height:56px;padding-bottom:0}.navbtn{height:56px;min-height:56px;padding:2px 0}#phone{padding-bottom:56px}.status{margin-top:4px}.stat{padding:4px;min-height:37px}.top{gap:6px}.logo{height:42px}.screen{min-height:0;padding-bottom:10px}}

@@ -115,8 +115,8 @@ window.BraseiroReceive=(raw)=>{
   else if(m.type==='CharacterRecreateResult'){if(p.viewState)viewState=p.viewState;editingCharacter=false;screen='sheet';render();showToast('Personagem anterior removido. Crie o novo aventureiro.');}
   else if(m.type==='BackupExportResult'){backupBuffer=p.backup||'';const t=el('backupText');if(t)t.value=backupBuffer;showToast('Backup gerado. Copie e guarde o texto.');}
   else if(m.type==='BackupImportResult'){if(p.viewState)viewState=p.viewState;render();showToast('Backup restaurado.');}
-  else if(m.type==='BridgeError'){document.querySelectorAll('[data-delete-character],[data-random-character],[data-commit-draft],[data-save-character],[data-start-draft],[data-character-select],[data-character-mode],[data-curator-approve],[data-curator-change],[data-curator-reject],[data-master-continue],[data-companion-opinions]').forEach(x=>x.disabled=false);showToast(friendlyBridgeError(p.message));}
- }catch(_e){showToast('Não foi possível ler a resposta do aplicativo.');}
+  else if(m.type==='BridgeError'){console.error('[Braseiro OSE] native bridge action failed',p.operation||'unknown',p.message||'unknown');document.querySelectorAll('[data-delete-character],[data-random-character],[data-commit-draft],[data-save-character],[data-start-draft],[data-character-select],[data-character-mode],[data-curator-approve],[data-curator-change],[data-curator-reject],[data-master-continue],[data-companion-opinions]').forEach(x=>x.disabled=false);showToast(friendlyBridgeError(p.message));}
+ }catch(_e){console.error('[Braseiro OSE] invalid native response',_e);showToast('Falha ao interpretar a resposta: '+String(_e&&_e.message||_e).slice(0,130));}
 };
 
 function uiStatusMessage(p){if(p.ok===false)return 'A ação não pôde ser concluída pelas regras atuais.';if(p.status==='READY_TO_START')return 'Equipamento concluído. Agora você pode começar a aventura.';return 'Equipamento atualizado.'}
@@ -154,7 +154,7 @@ function updateHeader(){
  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.screen===screen));
 }
 function go(s){if(s!=='sheet'){creatingAdditionalCharacter=false;editingCharacter=false;}screen=s;q.set('screen',s);try{history.replaceState(null,'',`${location.pathname}?${q}`)}catch(_e){}render()}
-function render(){updateHeader();main.innerHTML=screen==='session'?renderSession():screen==='map'?renderMap():screen==='sheet'?renderSheet():screen==='dice'?renderDiceScreen():screen==='library'?renderLibrary():screen==='world'?renderWorld():renderCompany();wireCurrentScreen();checkFirstLaunch();if(screen==='library'&&hasNative()&&!ruleLibraryLoaded)postNative('RuleEvidenceList',{});}
+function render(){updateHeader();main.innerHTML=screen==='session'?renderSession():screen==='map'?renderMap():screen==='sheet'?renderSheet():screen==='dice'?renderDiceScreen():screen==='library'?renderLibrary():screen==='world'?renderWorld():renderCompany();window.OSEEquipmentArt?.refresh(main);wireCurrentScreen();checkFirstLaunch();if(screen==='library'&&hasNative()&&!ruleLibraryLoaded)postNative('RuleEvidenceList',{});}
 
 function renderSession(){
  if(hasNative()&&!viewState?.selectedCharacter&&phase()==='ACTIVE'&&!(viewState?.creation?.drafts||[]).length)return renderCreationStart();
@@ -600,7 +600,7 @@ function downscaleImage(file, maxDim, quality, callback) {
     canvas.width = w; canvas.height = h;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0, w, h);
-    callback(canvas.toDataURL('image/jpeg', quality));
+    callback(file.type==='image/png'||file.type==='image/webp'?canvas.toDataURL('image/png'):canvas.toDataURL('image/jpeg',quality));
   };
   img.onerror = () => {
     URL.revokeObjectURL(url);
@@ -752,24 +752,16 @@ el('photoMenuCancel')?.addEventListener('click', () => el('photoMenuOverlay')?.c
 el('photoMenuGemini')?.addEventListener('click', () => {
   if (!currentPhotoTarget) return;
   const { scope, id } = currentPhotoTarget;
-  el('photoMenuOverlay')?.classList.add('hidden');
-  if (scope === 'SCENE') {
-    if (geminiState.textSceneConfigured) {
-      postNative('SceneImageGenerate', {});
-      showToast('Solicitando geração de ilustração ao Gemini…');
-    } else {
-      postNative('ScenePromptShare', {});
-      showToast('Compartilhando prompt da cena com Gemini…');
-    }
-  } else if (scope === 'CHARACTER' || scope === 'NPC' || scope === 'ITEM') {
-    if (geminiState.textSceneConfigured) {
-      postNative('PortraitImageGenerate', { kind: scope, id });
-      showToast('Gerando retrato com IA Gemini…');
-    } else {
-      postNative('PortraitPromptShare', { kind: scope, id });
-      showToast('Compartilhando prompt do retrato com Gemini…');
-    }
+  if(!geminiState.textSceneConfigured){
+    showToast('A geração integrada requer uma chave Gemini com cota de imagens habilitada. A cota gratuita de imagem não está disponível: use a galeria ou a opção externa.');
+    return;
   }
+  const sent=scope==='SCENE'?postNative('SceneImageGenerate',{}):
+    (scope==='CHARACTER'||scope==='NPC'||scope==='ITEM')?
+      postNative('PortraitImageGenerate',{kind:scope,id}):false;
+  if(!sent){showToast('A geração integrada exige o aplicativo Android e um tipo de imagem válido.');return;}
+  el('photoMenuOverlay')?.classList.add('hidden');
+  showToast(scope==='SCENE'?'Solicitando a imagem de cena ao Gemini…':'Solicitando a imagem ao Gemini…');
 });
 
 el('photoMenuGeminiApp')?.addEventListener('click', () => {

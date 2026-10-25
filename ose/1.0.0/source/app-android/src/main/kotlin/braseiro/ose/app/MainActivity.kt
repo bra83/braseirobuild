@@ -1811,6 +1811,9 @@ class MainActivity : Activity() {
     }
 
     private fun safeError(t: Throwable): String {
+        // Retain the actual exception and stack trace in Android Logcat instead
+        // of reducing every failure to a generic toast. Never log API keys.
+        android.util.Log.e("BraseiroOSE", "Native action failure: ${t::class.java.simpleName}", t)
         val message = t.message.orEmpty()
         return when {
             message.startsWith("GEMINI_") -> message
