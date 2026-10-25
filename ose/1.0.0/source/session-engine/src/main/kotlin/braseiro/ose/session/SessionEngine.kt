@@ -133,6 +133,16 @@ class SessionEngine(
         val beforeTurn=loaded.campaignState.time.turns
         val afterTurn=outcome.updatedState.time.turns
         val beforeGame=if(afterTurn>beforeTurn) WorldEventScheduler.advance(beforeGameRaw,beforeTurn,afterTurn) else beforeGameRaw
+        // Only the referee's committed time change may classify an event for the Life engine.
+        // An attack attempt, descriptive success claim or unverified action is never a victory.
+        val confirmedLifeCauseId = if (outcome.mechanicalMutation &&
+            outcome.updatedState.time.days > loaded.campaignState.time.days) {
+            when (mechanicalIntent.substringBefore(':').uppercase()) {
+                "WILD_TRAVEL_DAY", "WILD_TRAVEL_FORAGE_DAY", "WILD_FORCED_MARCH_DAY" -> "cause-journey-1"
+                "WILD_REST_DAY" -> "cause-care-1"
+                else -> null
+            }
+        } else null
         val receipt = ReactionReceiptSnapshot(
             reactionId = reactionId,
             reactionText = reaction,
@@ -142,7 +152,8 @@ class SessionEngine(
             traceNote = outcome.trace.note,
             traceEvidenceRefs = evidenceRefs,
             mechanicalIntent = mechanicalIntent,
-            actorCharacterId = actorCharacterId
+            actorCharacterId = actorCharacterId,
+            lifeCauseId = confirmedLifeCauseId
         )
         val firstSession=beforeGame.session.copy(
             phase="ACTIVE",
