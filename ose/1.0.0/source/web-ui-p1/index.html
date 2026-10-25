@@ -159,23 +159,31 @@
       <div class="settings-head"><h3 id="photoMenuTitle">Imagem / Retrato</h3><button id="photoMenuClose" class="small">FECHAR</button></div>
       <p id="photoMenuSubtitle" class="note">Selecione como deseja definir ou atualizar esta imagem:</p>
       <div style="margin:12px 0;display:flex;flex-direction:column;gap:8px">
-        <button id="photoMenuGemini" class="primary">✦ GERAR COM IA GEMINI</button>
+        <button id="photoMenuGemini" class="primary">✦ GERAR PELA API GEMINI (EXIGE COTA DE IMAGEM)</button>
+        <button id="photoMenuGeminiApp" class="secondary">✦ ABRIR GEMINI / GERAR E COMPARTILHAR</button>
+        <p class="note">A chave gratuita pode narrar textos, mas a API de imagens pode exigir cobrança. A opção Gemini externo permite trazer a imagem de volta por Compartilhar.</p>
         <button id="photoMenuGallery" class="secondary">📁 ESCOLHER DO DISPOSITIVO</button>
         <button id="photoMenuRemove" class="danger-button">✕ REMOVER IMAGEM ATUAL</button>
       </div>
       <button id="photoMenuCancel" class="small" style="width:100%;margin-top:6px">CANCELAR</button>
     </div>
   </div>
-  <div id="dice3dOverlay" class="overlay hidden" style="background:rgba(12,8,5,0.88);z-index:90;padding:0;overflow:hidden">
-    <canvas id="stage" style="width:100%;height:100%;touch-action:none"></canvas>
-    <div id="hud" style="position:absolute;left:0;right:0;top:10px;text-align:center;pointer-events:none;color:#eed5a2">
-      <div id="title" style="font:800 12px Arial;letter-spacing:1px;color:#d9a84c">MESA FÍSICA 3D</div>
-      <div id="status" style="font-size:15px;margin-top:4px">Rolando dados…</div>
-      <div id="result" class="result" style="font:800 24px Georgia;color:#fff6d8;margin-top:4px"></div>
-      <div id="detail" class="detail" style="font:11px Arial;color:#cbb898"></div>
+  <div id="dice3dOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Dados 3D - mesa Forbidden Lands adaptada ao OSE">
+    <div class="ose-dice-dialog">
+      <div id="hud" class="ose-dice-hud">
+        <div id="title">DADOS 3D · BRASEIRO OSE</div>
+        <div id="status">Rolando dados…</div>
+        <div id="result" class="result"></div>
+        <div id="detail" class="detail"></div>
+      </div>
+      <div id="dice3dStage" class="dice3d-stage" role="group" aria-label="Rolagem animada de dados">
+        <div class="dice3d-floor" aria-hidden="true"></div>
+        <div id="dice3dTray" class="dice3d-tray"></div>
+      </div>
+      <canvas id="stage" class="hidden" aria-hidden="true"></canvas>
+      <div id="quality" class="hidden"></div>
+      <button id="close" class="small ose-dice-close">FECHAR</button>
     </div>
-    <div id="quality" style="display:none"></div>
-    <button id="close" class="small" style="position:absolute;right:14px;bottom:14px;z-index:95">FECHAR</button>
   </div>
   <input id="mediaPicker" class="hidden" type="file" accept="image/jpeg,image/png,image/webp">
   <div id="toast" class="toast hidden" role="status"></div>
