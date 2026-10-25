@@ -677,6 +677,11 @@ class MainActivity : Activity() {
                                     scope = PresentationMediaStore.Scope.NPC
                                     prompt = buildNpcPortraitPrompt(current, stableId)
                                 }
+                                "ITEM" -> {
+                                    require(current.campaignState.game.inventory.items.containsKey(stableId)) { "UNKNOWN_ITEM_ID" }
+                                    scope = PresentationMediaStore.Scope.ITEM
+                                    prompt = buildItemImagePrompt(current, stableId)
+                                }
                                 else -> error("UNSUPPORTED_PORTRAIT_KIND")
                             }
                             launchGeminiWithPrompt(prompt, scope, stableId)
@@ -687,7 +692,7 @@ class MainActivity : Activity() {
                         "SceneImageGenerate" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
                             val key = credentials.get(GeminiCredentialStore.Slot.TEXT_SCENE) ?: error("GEMINI_TEXT_SCENE_KEY_MISSING")
-                            val blob = gemini.generateSceneImage(key, runtimeSettings.snapshot().imageModel, buildSceneImagePrompt(current))
+                            val blob = gemini.generateSceneImage(key, runtimeSettings.snapshot().imageModel, buildSceneImagePrompt(current), "16:9")
                             val sceneId = scenePresentationId(current)
                             val url = mediaStore.save(PresentationMediaStore.Scope.SCENE, sceneId, blob.mimeType, blob.data)
                             send(JSONObject().put("type", "SceneImageResult").put("payload", JSONObject()
@@ -711,10 +716,15 @@ class MainActivity : Activity() {
                                     scope = PresentationMediaStore.Scope.NPC
                                     prompt = buildNpcPortraitPrompt(current, stableId)
                                 }
+                                "ITEM" -> {
+                                    require(current.campaignState.game.inventory.items.containsKey(stableId)) { "UNKNOWN_ITEM_ID" }
+                                    scope = PresentationMediaStore.Scope.ITEM
+                                    prompt = buildItemImagePrompt(current, stableId)
+                                }
                                 else -> error("UNSUPPORTED_PORTRAIT_KIND")
                             }
                             val key = credentials.get(GeminiCredentialStore.Slot.TEXT_SCENE) ?: error("GEMINI_TEXT_SCENE_KEY_MISSING")
-                            val blob = gemini.generateSceneImage(key, runtimeSettings.snapshot().imageModel, prompt)
+                            val blob = gemini.generateSceneImage(key, runtimeSettings.snapshot().imageModel, prompt, "1:1")
                             val url = mediaStore.save(scope, stableId, blob.mimeType, blob.data)
                             val persisted = session.loadSession(CAMPAIGN_ID)
                             send(JSONObject().put("type", "PresentationImageSaved").put("payload", JSONObject()
@@ -1714,6 +1724,20 @@ class MainActivity : Activity() {
             não revele segredos, facção oculta, estatísticas, tesouros ou intenções não conhecidas. Sem texto, sem nome escrito, sem moldura, sem HUD, sem logotipo. A imagem será usada como identidade visual persistente do NPC.
 
             Entregue somente a imagem, preferencialmente quadrada 1:1.
+        """.trimIndent()
+    }
+
+    private fun buildItemImagePrompt(current: CampaignEnvelope, itemId: String): String {
+        val item = current.campaignState.game.inventory.items[itemId] ?: error("UNKNOWN_ITEM_ID")
+        return """
+            Gere UMA ilustração única de um item de fantasia medieval para a ficha de Old-School Essentials.
+            Identificação do catálogo público: ${item.catalogId}.
+            Tipo: ${item.kind.name}.
+            Ilustração old-school de livro de RPG com tinta e pintura discreta, somente o objeto
+            centralizado, completamente visível, fundo neutro transparente ou claro.
+            SEM moldura, SEM quadro preto, SEM borda espessa, SEM texto, SEM números, SEM HUD.
+            Não represente propriedades mágicas, segredos ou poderes não existentes.
+            Formato quadrado 1:1. Entregue somente a imagem.
         """.trimIndent()
     }
 
