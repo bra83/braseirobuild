@@ -1,0 +1,88 @@
+name: Cyberpunk R5.77 - assinar no Windows preservando a chave instalada
+on:
+  push:
+    branches: [fix/cyberpunk-r577-sign-20261025]
+    paths: [.github/workflows/cpred-r577-sign-preserve.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+jobs:
+  sign:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 35
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Assinar somente com o certificado da versao instalada
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $ProgressPreference = 'SilentlyContinue'
+          $expectedCert = '6aa87a24a2eb4762c3f493c9d5fddbf10b60cc8659a90423aed7cde8ae582bd3'
+          $apkUrl = 'https://github.com/bra83/hello-world/releases/download/cyberpunk-red-r577-model-settings-20261025/BRASEIRO_CYBERPUNK_RED_4.1.77.apk'
+          $expectedHash = $null
+          $dir = Join-Path $env:RUNNER_TEMP 'cpred-r577-sign'
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          $inputApk = Join-Path $dir 'cloud.apk'
+          $sumFile = Join-Path $dir 'published-sha256.txt'
+          $sumUrl = 'https://github.com/bra83/hello-world/releases/download/cyberpunk-red-r577-model-settings-20261025/SHA256SUMS.txt'
+          for ($attempt = 0; $attempt -lt 90; $attempt++) {
+            & curl.exe --silent --fail --location --connect-timeout 5 --max-time 10 --output $sumFile $sumUrl
+            if ($LASTEXITCODE -eq 0) {
+              foreach ($line in (Get-Content $sumFile)) {
+                if ($line -match '^([a-f0-9]{64})\s+BRASEIRO_CYBERPUNK_RED_4\.1\.77\.apk$') { $expectedHash = $Matches[1]; break }
+              }
+            }
+            if ($expectedHash) { break }
+            Write-Host 'Aguardando publicacao do APK que passou pelos testes.'
+            Start-Sleep -Seconds 10
+          }
+          if (!$expectedHash) { throw 'APK_TESTADO_AINDA_NAO_PUBLICADO: nenhuma assinatura foi realizada.' }
+          Write-Host "INPUT_APK_SHA256=$expectedHash"
+          & curl.exe --fail --location --retry 6 --retry-all-errors --retry-delay 5 --output $inputApk $apkUrl
+          if ($LASTEXITCODE -ne 0) { throw 'Falha no download do APK testado.' }
+          if (!$expectedHash -or (Get-FileHash $inputApk -Algorithm SHA256).Hash.ToLower() -ne $expectedHash) { throw 'SHA do APK baixado diverge da Release.' }
+          $keys = @('C:\Users\bcruz\.android\debug.keystore', (Join-Path $env:USERPROFILE '.android\debug.keystore'))
+          if ($env:CPRED_KEYSTORE_PATH) { $keys = @($env:CPRED_KEYSTORE_PATH) + $keys }
+          $key = $keys | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (!$key) { throw 'KEYSTORE_INSTALADO_NAO_ENCONTRADO: configure CPRED_KEYSTORE_PATH no runner.' }
+          $roots = @($env:ANDROID_HOME, $env:ANDROID_SDK_ROOT, 'C:\Users\bcruz\AppData\Local\Android\Sdk', 'C:\actions-runner\android-sdk') | Where-Object { $_ -and (Test-Path $_) }
+          $signer = $null
+          foreach ($root in $roots) {
+            $signer = Get-ChildItem (Join-Path $root 'build-tools') -Filter apksigner.bat -Recurse -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1
+            if ($signer) { break }
+          }
+          if (!$signer) { throw 'apksigner nao encontrado no SDK do Windows.' }
+          $outputApk = Join-Path $dir 'BRASEIRO_CYBERPUNK_RED_4.1.77_ASSINADO.apk'
+          & $signer.FullName sign --ks $key --ks-pass pass:android --key-pass pass:android --ks-key-alias androiddebugkey --out $outputApk $inputApk
+          if ($LASTEXITCODE -ne 0) { throw 'Falha ao assinar com a chave debug existente.' }
+          $certificate = & $signer.FullName verify --print-certs $outputApk
+          if ($LASTEXITCODE -ne 0 -or (($certificate -join ' ') -notmatch $expectedCert)) { throw 'CERTIFICADO_DIFERENTE: APK nao sera publicado como atualizacao.' }
+          Write-Host ($certificate -join [Environment]::NewLine)
+          $certificate | Set-Content -Encoding UTF8 (Join-Path $dir 'CERTIFICADO.txt')
+          $hash = (Get-FileHash $outputApk -Algorithm SHA256).Hash.ToLower()
+          "$hash  BRASEIRO_CYBERPUNK_RED_4.1.77_ASSINADO.apk" | Set-Content -Encoding ASCII (Join-Path $dir 'SHA256SUMS.txt')
+          Write-Host "APK_SHA256=$hash"
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; 'User-Agent' = 'Braseiro-Cyberpunk-R573'; Accept = 'application/vnd.github+json' }
+          $tag = 'cyberpunk-red-r577-mobile-signed-20261025'
+          $body = @{ tag_name = $tag; target_commitish = $env:GITHUB_SHA; name = 'Cyberpunk RED 4.1.77 - modelo de texto persistente, assinatura preservada'; prerelease = $true; body = "APK testado em https://github.com/bra83/hello-world/releases/tag/cyberpunk-red-r577-model-settings-20261025 e reassinado com o mesmo certificado da versao 4.1.76 instalada. Fonte e alteracoes: https://github.com/bra83/hello-world/pull/5. Certificado SHA256: $expectedCert." } | ConvertTo-Json
+          try { $published = Invoke-RestMethod -Uri "https://api.github.com/repos/bra83/braseirobuild/releases/tags/$tag" -Headers $headers }
+          catch { $published = Invoke-RestMethod -Method Post -Uri 'https://api.github.com/repos/bra83/braseirobuild/releases' -Headers $headers -ContentType 'application/json' -Body $body }
+          $upload = $published.upload_url -replace '\{\?name,label\}', ''
+          foreach ($file in @($outputApk, (Join-Path $dir 'SHA256SUMS.txt'), (Join-Path $dir 'CERTIFICADO.txt'))) {
+            $name = [uri]::EscapeDataString((Split-Path $file -Leaf))
+            $existing = $published.assets | Where-Object { $_.name -eq (Split-Path $file -Leaf) } | Select-Object -First 1
+            if ($existing) {
+              $localDigest = 'sha256:' + (Get-FileHash $file -Algorithm SHA256).Hash.ToLower()
+              if ($existing.digest -ne $localDigest) { throw "Asset existente diverge: $name" }
+              Write-Host "Asset existente conferido: $name"
+            } else {
+              Invoke-RestMethod -Method Post -Uri "${upload}?name=$name" -Headers $headers -ContentType 'application/octet-stream' -InFile $file | Out-Null
+            }
+          }
+          Write-Host "Atualizacao assinada publicada: $($published.html_url)"
