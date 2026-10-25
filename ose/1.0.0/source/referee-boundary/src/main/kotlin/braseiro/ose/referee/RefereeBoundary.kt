@@ -570,27 +570,111 @@ class RulesRefereeBoundary : RefereeResolutionPort {
                 }
             }
             "DUNGEON_SEARCH_ROOM" -> {
+                val pos = envelope.campaignState.position.primary
+                if (pos !is SpatialRef.Dungeon) {
+                    return ResolutionOutcome(
+                        envelope.campaignState,
+                        "Ação exclusiva para masmorras; companhia não está em uma masmorra ativa.",
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.SEARCH", envelope.ruleProfile, "Classic Rules Tome p. 96", "Searching: dungeon only"))),
+                        false, false
+                    )
+                }
+                val dungeon = envelope.campaignState.game.dungeon
+                    ?: return ResolutionOutcome(
+                        envelope.campaignState,
+                        "Masmorra não inicializada no estado.",
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.SEARCH", envelope.ruleProfile, "Classic Rules Tome p. 96", "Searching: dungeon only"))),
+                        false, false
+                    )
+                val currentNode = dungeon.nodes.firstOrNull { it.nodeId == pos.nodeId }
+                val adjacentEdges = dungeon.edges.filter { it.from == pos.nodeId || it.to == pos.nodeId }
+                val secretEdges = adjacentEdges.filter { it.secret }
+                val hasSecret = secretEdges.isNotEmpty() || (currentNode?.secret == true)
+
                 val state = advanceCampaignTurns(envelope.campaignState, 1)
                 val activeChar = state.party.characterIds.firstOrNull()?.let(state.game.characters::get)
                 val isDwarfOrElf = activeChar?.classIds?.any { it.contains("DWARF", ignoreCase = true) || it.contains("ELF", ignoreCase = true) } == true
                 val target = if (isDwarfOrElf) 2 else 1
                 val roll = authoritativeD6(rng)
                 val success = roll <= target
-                val msg = "Busca minuciosa na sala (1 turno / 10 min): d6=$roll vs $target-em-6. ${if (success) "Sucesso! Sinais, passagens secretas ou armadilhas identificadas." else "Nenhuma passagem secreta ou mecanismo oculto detectado."}"
-                return ResolutionOutcome(
-                    state, msg,
-                    RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.SEARCH", envelope.ruleProfile, "Classic Rules Tome p. 96", "Searching: 1 turn; 1-in-6 chance (demihumans 2-in-6)"))),
-                    true, true
-                )
+
+                if (!hasSecret) {
+                    val msg = "Busca minuciosa na sala ${pos.nodeId} (1 turno / 10 min): d6=$roll vs $target-em-6. Ambiente minuciosamente examinado; nenhum mecanismo ou passagem oculta existente nesta sala."
+                    return ResolutionOutcome(
+                        state, msg,
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.SEARCH", envelope.ruleProfile, "Classic Rules Tome p. 96", "Searching: 1 turn; 1-in-6 chance (demihumans 2-in-6)"))),
+                        true, true
+                    )
+                }
+
+                if (success) {
+                    val revealedNodeIds = secretEdges.map { if (it.from == pos.nodeId) it.to else it.from }.toSet()
+                    val updatedEdges = dungeon.edges.map { edge ->
+                        if ((edge.from == pos.nodeId || edge.to == pos.nodeId) && edge.secret) edge.copy(secret = false) else edge
+                    }
+                    val updatedDungeon = dungeon.copy(
+                        edges = updatedEdges,
+                        knownNodeIds = dungeon.knownNodeIds + revealedNodeIds,
+                        visibleNodeIds = dungeon.visibleNodeIds + revealedNodeIds
+                    ).canonical()
+                    val updatedState = state.copy(game = state.game.copy(dungeon = updatedDungeon))
+                    val msg = "Busca minuciosa na sala ${pos.nodeId} (1 turno / 10 min): d6=$roll vs $target-em-6. Sucesso! Passagem secreta revelada conectando a ${revealedNodeIds.joinToString()}."
+                    return ResolutionOutcome(
+                        updatedState, msg,
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.SEARCH", envelope.ruleProfile, "Classic Rules Tome p. 96", "Searching: 1 turn; 1-in-6 chance (demihumans 2-in-6)"))),
+                        true, true
+                    )
+                } else {
+                    val msg = "Busca minuciosa na sala ${pos.nodeId} (1 turno / 10 min): d6=$roll vs $target-em-6. Nenhuma passagem secreta ou mecanismo oculto detectado."
+                    return ResolutionOutcome(
+                        state, msg,
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.SEARCH", envelope.ruleProfile, "Classic Rules Tome p. 96", "Searching: 1 turn; 1-in-6 chance (demihumans 2-in-6)"))),
+                        true, true
+                    )
+                }
             }
             "DUNGEON_LISTEN_DOOR" -> {
+                val pos = envelope.campaignState.position.primary
+                if (pos !is SpatialRef.Dungeon) {
+                    return ResolutionOutcome(
+                        envelope.campaignState,
+                        "Ação exclusiva para masmorras; companhia não está em uma masmorra ativa.",
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.LISTEN", envelope.ruleProfile, "Classic Rules Tome p. 97", "Listening: dungeon only"))),
+                        false, false
+                    )
+                }
+                val dungeon = envelope.campaignState.game.dungeon
+                    ?: return ResolutionOutcome(
+                        envelope.campaignState,
+                        "Masmorra não inicializada no estado.",
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.LISTEN", envelope.ruleProfile, "Classic Rules Tome p. 97", "Listening at doors"))),
+                        false, false
+                    )
+                val doorEdges = dungeon.edges.filter { (it.from == pos.nodeId || it.to == pos.nodeId) && it.kind.equals("DOOR", ignoreCase = true) }
+                if (doorEdges.isEmpty()) {
+                    return ResolutionOutcome(
+                        envelope.campaignState,
+                        "Não há portas adjacentes na sala ${pos.nodeId} para escutar.",
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.LISTEN", envelope.ruleProfile, "Classic Rules Tome p. 97", "Listening at doors"))),
+                        false, false
+                    )
+                }
+
                 val state = advanceCampaignTurns(envelope.campaignState, 1)
                 val activeChar = state.party.characterIds.firstOrNull()?.let(state.game.characters::get)
                 val isDemihuman = activeChar?.classIds?.any { it.contains("DWARF", ignoreCase = true) || it.contains("ELF", ignoreCase = true) || it.contains("HALFLING", ignoreCase = true) } == true
                 val target = if (isDemihuman) 2 else 1
                 val roll = authoritativeD6(rng)
                 val success = roll <= target
-                val msg = "Escutar ruídos na porta (1 turno / 10 min): d6=$roll vs $target-em-6. ${if (success) "Ruídos e movimentação abafada ouvidos do outro lado!" else "Silêncio absoluto do outro lado da porta."}"
+
+                val adjacentNodeIds = doorEdges.map { if (it.from == pos.nodeId) it.to else it.from }.toSet()
+                val hasSoundSource = state.game.encounter != null || adjacentNodeIds.any { id -> dungeon?.nodes?.firstOrNull { it.nodeId == id }?.kind == "DEEP_ROOM" }
+
+                val soundMsg = if (success && hasSoundSource) "Ruídos e movimentação abafada ouvidos do outro lado da porta!"
+                    else if (success) "Silêncio absoluto do outro lado da porta."
+                    else "Nenhum som discernível do outro lado da porta."
+
+                val msg = "Escutar ruídos na porta da sala ${pos.nodeId} (1 turno / 10 min): d6=$roll vs $target-em-6. $soundMsg"
                 return ResolutionOutcome(
                     state, msg,
                     RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.LISTEN", envelope.ruleProfile, "Classic Rules Tome p. 97", "Listening at doors: 1 turn; 1-in-6 chance (demihumans 2-in-6)"))),
@@ -598,6 +682,40 @@ class RulesRefereeBoundary : RefereeResolutionPort {
                 )
             }
             "DUNGEON_OPEN_STUCK_DOOR" -> {
+                val pos = envelope.campaignState.position.primary
+                if (pos !is SpatialRef.Dungeon) {
+                    return ResolutionOutcome(
+                        envelope.campaignState,
+                        "Ação exclusiva para masmorras; companhia não está em uma masmorra ativa.",
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.DOOR", envelope.ruleProfile, "Classic Rules Tome p. 97", "Door: dungeon only"))),
+                        false, false
+                    )
+                }
+                val dungeon = envelope.campaignState.game.dungeon
+                    ?: return ResolutionOutcome(
+                        envelope.campaignState,
+                        "Masmorra não inicializada no estado.",
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.DOOR", envelope.ruleProfile, "Classic Rules Tome p. 97", "Open stuck door"))),
+                        false, false
+                    )
+                val doorEdge = dungeon.edges.firstOrNull { (it.from == pos.nodeId || it.to == pos.nodeId) && it.kind.equals("DOOR", ignoreCase = true) }
+                if (doorEdge == null) {
+                    return ResolutionOutcome(
+                        envelope.campaignState,
+                        "Não há portas diante do grupo para forçar na sala ${pos.nodeId}.",
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.DOOR", envelope.ruleProfile, "Classic Rules Tome p. 97", "Open stuck door"))),
+                        false, false
+                    )
+                }
+                if (doorEdge.open) {
+                    return ResolutionOutcome(
+                        envelope.campaignState,
+                        "A porta diante do grupo na sala ${pos.nodeId} já está aberta.",
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.DOOR", envelope.ruleProfile, "Classic Rules Tome p. 97", "Open stuck door"))),
+                        false, false
+                    )
+                }
+
                 val state = advanceCampaignTurns(envelope.campaignState, 1)
                 val activeChar = state.party.characterIds.firstOrNull()?.let(state.game.characters::get)
                 val str = activeChar?.attributes?.get(AttributeKey.STR) ?: 10
@@ -610,33 +728,101 @@ class RulesRefereeBoundary : RefereeResolutionPort {
                 }
                 val roll = authoritativeD6(rng)
                 val success = roll <= target
-                val msg = "Forçar porta emperrada (1 turno / 10 min; FOR $str): d6=$roll vs $target-em-6. ${if (success) "A porta range violentamente e cede!" else "A porta resiste com firmeza aos impactos."}"
-                return ResolutionOutcome(
-                    state, msg,
-                    RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.DOOR", envelope.ruleProfile, "Classic Rules Tome p. 97", "Open stuck door: 1 turn; modified by STR modifier / x-in-6 table"))),
-                    true, true
-                )
+
+                if (success) {
+                    val updatedEdges = dungeon.edges.map { if (it == doorEdge) it.copy(open = true) else it }
+                    val updatedDungeon = dungeon.copy(edges = updatedEdges).canonical()
+                    val updatedState = state.copy(game = state.game.copy(dungeon = updatedDungeon))
+                    val msg = "Forçar porta emperrada na sala ${pos.nodeId} (1 turno / 10 min; FOR $str): d6=$roll vs $target-em-6. A porta range violentamente e cede, ficando aberta!"
+                    return ResolutionOutcome(
+                        updatedState, msg,
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.DOOR", envelope.ruleProfile, "Classic Rules Tome p. 97", "Open stuck door: 1 turn; modified by STR modifier / x-in-6 table"))),
+                        true, true
+                    )
+                } else {
+                    val msg = "Forçar porta emperrada na sala ${pos.nodeId} (1 turno / 10 min; FOR $str): d6=$roll vs $target-em-6. A porta resiste com firmeza aos impactos e continua emperrada."
+                    return ResolutionOutcome(
+                        state, msg,
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("DUNGEON.DOOR", envelope.ruleProfile, "Classic Rules Tome p. 97", "Open stuck door: 1 turn; modified by STR modifier / x-in-6 table"))),
+                        true, true
+                    )
+                }
             }
             "SETTLEMENT_REST_DAY" -> {
                 val s = envelope.campaignState
-                val game = s.game
-                val healed = game.characters.mapValues { (_, c) ->
+                val pos = s.position.primary
+                if (pos !is SpatialRef.Settlement) {
+                    return ResolutionOutcome(
+                        s,
+                        "Descanso em assentamento requer estar em um assentamento seguro (atualmente fora de assentamento).",
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("SETTLEMENT.REST", envelope.ruleProfile, "Classic Rules Tome p. 9", "Full day bed rest in safe settlement"))),
+                        false, false
+                    )
+                }
+                val livingChars = s.game.characters.values.filter { it.characterId in s.party.characterIds && !it.hitPoints.dead }
+                if (livingChars.isEmpty()) {
+                    return ResolutionOutcome(
+                        s,
+                        "Nenhum aventureiro vivo na companhia para descansar.",
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("SETTLEMENT.REST", envelope.ruleProfile, "Classic Rules Tome p. 9", "Rest requires living characters"))),
+                        false, false
+                    )
+                }
+
+                val requiredGp = livingChars.size
+                val allPartyCoins = s.game.inventory.items.values.filter {
+                    it.ownerId in s.party.characterIds &&
+                    it.kind == InventoryItemKind.COIN &&
+                    it.catalogId == "STARTING_GOLD_GP" &&
+                    it.quantity > 0
+                }.sortedBy { it.itemId }
+                val totalGp = allPartyCoins.sumOf { it.quantity }
+
+                if (totalGp < requiredGp) {
+                    return ResolutionOutcome(
+                        s,
+                        "Fundos insuficientes para diária na estalagem: necessários ${requiredGp} po (1 po por aventureiro vivo), disponíveis $totalGp po no inventário canônico.",
+                        RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("SETTLEMENT.REST", envelope.ruleProfile, "Classic Rules Tome p. 9 / OSE Adventuring", "Lodging fee: 1 gp per character"))),
+                        false, false
+                    )
+                }
+
+                var remainingDeduct = requiredGp
+                val updatedItems = s.game.inventory.items.toMutableMap()
+                for (coin in allPartyCoins) {
+                    if (remainingDeduct <= 0) break
+                    val deduct = minOf(coin.quantity, remainingDeduct)
+                    val nextQty = coin.quantity - deduct
+                    if (nextQty <= 0) {
+                        updatedItems.remove(coin.itemId)
+                    } else {
+                        updatedItems[coin.itemId] = coin.copy(quantity = nextQty)
+                    }
+                    remainingDeduct -= deduct
+                }
+                val updatedInventory = s.game.inventory.copy(items = updatedItems.toSortedMap())
+
+                val healed = s.game.characters.mapValues { (_, c) ->
                     if (c.hitPoints.dead) c else c.copy(hitPoints = c.hitPoints.heal(rng.rollDie(3))).canonical()
                 }
                 val t = s.time
                 val turns = t.turns + 144
                 val hours = t.hours + 24
                 val days = t.days + 1
-                val expedition = game.expedition
+                val expedition = s.game.expedition
                 val lights = MovementLightRules.advanceLightByTurns(expedition.lightSources, 144)
                 val pools = MovementLightRules.advanceOilPoolsByTurns(expedition.oilPools, 144)
                 val base = s.copy(
                     time = t.copy(turns = turns, hours = hours, days = days),
-                    game = game.copy(characters = healed, expedition = expedition.copy(lightSources = lights, oilPools = pools))
+                    game = s.game.copy(
+                        characters = healed,
+                        inventory = updatedInventory,
+                        expedition = expedition.copy(lightSources = lights, oilPools = pools)
+                    )
                 )
                 val updated = RuntimeClosureBindings.advanceMagicTurns(base, 144)
                 return ResolutionOutcome(
-                    updated, "Dia completo de descanso no assentamento: 1d3 PV recuperados para personagens vivos; tempo avançado em 1 dia.",
+                    updated, "Dia completo de descanso na estalagem (${requiredGp} po debitados): 1d3 PV recuperados para personagens vivos; tempo avançado em 1 dia.",
                     RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, listOf(RuleEvidence("SETTLEMENT.REST", envelope.ruleProfile, "Classic Rules Tome p. 9", "Full day bed rest in safe settlement heals 1d3 hp"))),
                     true, true
                 )

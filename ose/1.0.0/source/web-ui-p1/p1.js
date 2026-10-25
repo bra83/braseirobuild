@@ -47,15 +47,23 @@ window.BraseiroReceive=(raw)=>{
    if(Array.isArray(p.diceRolls) && p.diceRolls.length > 0){
      const rolls = p.diceRolls.map(d => d.value);
      const total = rolls.reduce((a, b) => a + b, 0);
-     const sides = p.diceRolls[0].sides || 6;
-     const formula = `${p.diceRolls.length}d${sides}`;
+     const terms = [];
+     p.diceRolls.forEach(d => {
+       const sides = d.sides || 6;
+       const last = terms[terms.length - 1];
+       if (last && last.sides === sides) { last.count++; } else { terms.push({ count: 1, sides: sides, sign: 1 }); }
+     });
+     const formula = terms.map(t => `${t.count}d${t.sides}`).join(' + ');
+     const primarySides = p.diceRolls[0].sides || 6;
      el('dice3dOverlay')?.classList.remove('hidden');
      window.BraseiroDice?.start({
-       sides: sides,
+       sides: primarySides,
        count: p.diceRolls.length,
+       terms: terms,
        modifier: 0,
        canonicalTotal: total,
        rolls: rolls,
+       targetRolls: rolls,
        formula: formula
      });
    }
@@ -624,12 +632,17 @@ el('resetAdventure')?.addEventListener('click',()=>{const ok=confirm('RECOMEÇAR
 el('backupExport')?.addEventListener('click',()=>postNative('BackupExport',{}));el('backupImport')?.addEventListener('click',()=>{const backup=el('backupText').value.trim();if(!backup)return showToast('Cole um backup antes de restaurar.');postNative('BackupImport',{backup})});el('backupCopy')?.addEventListener('click',async()=>{const text=el('backupText').value||backupBuffer;if(!text)return showToast('Gere um backup primeiro.');try{await navigator.clipboard.writeText(text);showToast('Backup copiado.')}catch(_e){el('backupText').focus();el('backupText').select();document.execCommand('copy');showToast('Backup copiado.')}});
 render();document.body.dataset.ready='true';postNative('ViewState',{request:'initial'});
 
-function renderGuideOverlay() {
+let guideShowAllTopics = false;
+function renderGuideOverlay(forceAll = null) {
+  if (forceAll !== null) guideShowAllTopics = forceAll;
   const guide = viewState?.playerGuide || {};
-  const topics = guide.topics || [];
+  const contextual = guide.contextualTopics || [];
+  const all = guide.topics || [];
+  const topics = guideShowAllTopics ? all : (contextual.length ? contextual : all);
   const container = el('guideContent');
   if (!container) return;
-  container.innerHTML = topics.map(t => `
+  const toggleBtn = `<div style="margin-bottom:10px;text-align:right;"><button class="small" id="guideToggleAllBtn">${guideShowAllTopics ? "Mostrar apenas tópicos contextuais" : "Ver todos os assuntos (" + all.length + ")"}</button></div>`;
+  const cardsHtml = topics.map(t => `
     <div class="guide-card" data-topic-id="${esc(t.topicId)}">
       <h4>${esc(t.title)}</h4>
       <span class="pill" style="margin-bottom:4px">${esc(t.category)}</span>
@@ -638,6 +651,11 @@ function renderGuideOverlay() {
       <small>Fonte: ${esc(t.sourceRuleRef)}</small>
     </div>
   `).join('') || '<p class="note">Nenhum tópico disponível no momento.</p>';
+  container.innerHTML = toggleBtn + cardsHtml;
+  el('guideToggleAllBtn')?.addEventListener('click', () => {
+    guideShowAllTopics = !guideShowAllTopics;
+    renderGuideOverlay();
+  });
 }
 
 el('guideButton')?.addEventListener('click', () => {
@@ -653,18 +671,26 @@ function renderSuggestionsOverlay() {
   const suggestions = guide.actionSuggestions || [];
   const container = el('suggestionsContent');
   if (!container) return;
-  container.innerHTML = suggestions.map(s => `
-    <div class="suggestion-card" data-pick-suggestion="${esc(s.textCandidate)}" data-suggestion-intent="${esc(s.intentCandidate)}">
+  container.innerHTML = suggestions.map(s => {
+    const isExec = s.executable !== false;
+    const disabledAttr = !isExec ? 'style="opacity: 0.6; cursor: not-allowed; border-color: #664444;"' : '';
+    const missingBadge = !isExec && s.missingRequirement ? `<div style="color:#d9534f;font-size:0.8rem;margin-top:4px;"><b>Indisponível:</b> ${esc(s.missingRequirement)}</div>` : '';
+    return `
+    <div class="suggestion-card ${!isExec ? "disabled" : ""}" ${disabledAttr} data-pick-suggestion="${isExec ? esc(s.textCandidate) : ""}" data-suggestion-intent="${isExec ? esc(s.intentCandidate || "") : ""}">
       <b>${esc(s.plainLabel)}</b>
       <span>${esc(s.textCandidate)}</span>
       <small>Tempo: ${esc(s.timePreview)} · Risco: ${esc(s.riskHint)}</small>
       <small style="color:#8b6537">Regra: ${esc(s.sourceRuleRef)}</small>
+      ${missingBadge}
     </div>
-  `).join('') || '<p class="note">Nenhuma sugestão contextual disponível.</p>';
+  `;
+  }).join('') || '<p class="note">Nenhuma sugestão contextual disponível.</p>';
   container.querySelectorAll('[data-pick-suggestion]').forEach(card => {
+    if (card.classList.contains('disabled')) return;
     card.onclick = () => {
       const text = card.dataset.pickSuggestion;
       const intent = card.dataset.suggestionIntent;
+      if (!text) return;
       const t = el('reactionInput');
       if (t) {
         t.value = text;
@@ -677,8 +703,7 @@ function renderSuggestionsOverlay() {
   });
 }
 
-document.addEventListener('click', e => {
-  if (e.target && e.target.id === 'openSuggestionsBtn') {
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') document.addEventListener('click', e => { if (e.target && e.target.id === 'openSuggestionsBtn') {
     renderSuggestionsOverlay();
     el('suggestionsOverlay').classList.remove('hidden');
   }
@@ -762,12 +787,12 @@ el('firstLaunchExperienced')?.addEventListener('click', () => {
 
 // --- TÓPICOS DO GUIA POR CLIQUE CONTEXTUAL ---
 function openGuideTopic(topicId) {
-  renderGuideOverlay();
+  renderGuideOverlay(true);
   el('guideOverlay')?.classList.remove('hidden');
   setTimeout(() => {
     const cards = document.querySelectorAll('.guide-card');
     cards.forEach(c => {
-      const match = c.dataset.topicId === topicId || c.innerHTML.toLowerCase().includes(topicId.replace(/_/g, ' '));
+      const match = c.dataset.topicId === topicId;
       if (match) {
         c.scrollIntoView({ behavior: 'smooth', block: 'center' });
         c.style.boxShadow = '0 0 10px #d9a84c';
@@ -776,8 +801,7 @@ function openGuideTopic(topicId) {
   }, 50);
 }
 
-document.addEventListener('click', e => {
-  const target = e.target.closest('[data-guide-topic]');
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') document.addEventListener('click', e => { const target = e.target && e.target.closest ? e.target.closest('[data-guide-topic]') : null;
   if (target) {
     e.stopPropagation();
     openGuideTopic(target.dataset.guideTopic);

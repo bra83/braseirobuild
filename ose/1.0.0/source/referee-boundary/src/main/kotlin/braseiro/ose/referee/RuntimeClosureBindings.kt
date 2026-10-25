@@ -138,24 +138,29 @@ object RuntimeClosureBindings {
     }
 
     private fun combatMove(envelope: CampaignEnvelope, parts: List<String>): ResolutionOutcome {
-        if(parts.size!=4) return outcome(envelope.campaignState,"Use COMBAT_MOVE:PARTY|OPPOSITION:actorId:meters.","COMBAT.MOVEMENT",envelope.ruleProfile,EvidenceStatus.CANONICAL_RULE,"GAME_SYSTEM_SPEC §23.3",false,false)
+        if(parts.size!=4) return outcome(envelope.campaignState,"Use COMBAT_MOVE:PARTY|OPPOSITION:actorId:meters|RETREAT.","COMBAT.MOVEMENT",envelope.ruleProfile,EvidenceStatus.CANONICAL_RULE,"GAME_SYSTEM_SPEC §23.3",false,false)
         val side=runCatching{EncounterSide.valueOf(parts[1].uppercase())}.getOrNull()
             ?: return outcome(envelope.campaignState,"Lado inválido.","COMBAT.MOVEMENT",envelope.ruleProfile,EvidenceStatus.CANONICAL_RULE,"GAME_SYSTEM_SPEC §23",false,false)
-        val actorId=parts[2].trim(); val meters=parts[3].toIntOrNull()
-            ?: return outcome(envelope.campaignState,"Distância inválida.","COMBAT.MOVEMENT",envelope.ruleProfile,EvidenceStatus.CANONICAL_RULE,"GAME_SYSTEM_SPEC §23.3",false,false)
-        if(meters<0) return outcome(envelope.campaignState,"Distância inválida.","COMBAT.MOVEMENT",envelope.ruleProfile,EvidenceStatus.CANONICAL_RULE,"GAME_SYSTEM_SPEC §23.3",false,false)
+        val actorId=parts[2].trim()
+        val rawParam=parts[3].trim()
+        val isRetreat = rawParam.equals("RETREAT", ignoreCase = true)
+        val parsedMeters = rawParam.toIntOrNull()
+        if (!isRetreat && (parsedMeters == null || parsedMeters < 0))
+            return outcome(envelope.campaignState,"Distância inválida.","COMBAT.MOVEMENT",envelope.ruleProfile,EvidenceStatus.CANONICAL_RULE,"GAME_SYSTEM_SPEC §23.3",false,false)
         val game=envelope.campaignState.game; val encounter=game.encounter ?: return outcome(envelope.campaignState,"Nenhum encontro ativo.","COMBAT.MOVEMENT",envelope.ruleProfile,EvidenceStatus.CANONICAL_RULE,"GAME_SYSTEM_SPEC §23",false,false)
         val round=encounter.combatRound ?: return outcome(envelope.campaignState,"Nenhuma rodada ativa.","COMBAT.MOVEMENT",envelope.ruleProfile,EvidenceStatus.CANONICAL_RULE,"GAME_SYSTEM_SPEC §23",false,false)
         CombatRuntimeRules.validateAction(round,side,actorId,CombatActionPhase.MOVEMENT)?.let{return outcome(envelope.campaignState,it,"COMBAT.MOVEMENT",envelope.ruleProfile,EvidenceStatus.CANONICAL_RULE,"GAME_SYSTEM_SPEC §23.1",false,false)}
         val actor=encounter.combatants[actorId]
         if(actor==null || actor.side!=side || !actor.alive) return outcome(envelope.campaignState,"Combatente inválido/inativo.","COMBAT.MOVEMENT",envelope.ruleProfile,EvidenceStatus.CANONICAL_RULE,"GAME_SYSTEM_SPEC §23",false,false)
+        val meters = if (isRetreat) actor.encounterMoveMeters / 2 else parsedMeters!!
         val key=CombatRuntimeRules.key(side,actorId).value
         if(envelope.ruleProfile==RuleProfile.OSE_ADVANCED_FANTASY && round.declarations[key]=="SPELL" && meters>0)
             return outcome(envelope.campaignState,"Advanced: conjurar é ação única; quem declarou feitiço não pode mover-se nesta rodada.","COMBAT.SPELL",envelope.ruleProfile,EvidenceStatus.CANONICAL_RULE,"GAME_SYSTEM_SPEC §23.3 / Advanced casting",false,false)
         if(meters>actor.encounterMoveMeters) return outcome(envelope.campaignState,"Movimento excede a taxa canônica de ${actor.encounterMoveMeters}m.","COMBAT.MOVEMENT",envelope.ruleProfile,EvidenceStatus.CANONICAL_RULE,"GAME_SYSTEM_SPEC §§12.3,23.3",false,false)
         val nextRound=CombatRuntimeRules.markActionComplete(round.copy(movedActorKeys=(round.movedActorKeys+key).toSortedSet()),side,actorId)
         val updated=envelope.campaignState.copy(game=game.copy(encounter=encounter.copy(combatRound=nextRound)))
-        return outcome(updated,"Movimento de $actorId registrado: ${meters}m.","COMBAT.MOVEMENT",envelope.ruleProfile,EvidenceStatus.CANONICAL_RULE,"GAME_SYSTEM_SPEC §§12.3,23.3",true,false)
+        val msg = if (isRetreat) "Recuo tático de $actorId registrado: ${meters}m (recuo defensivo a meia taxa de combate)." else "Movimento de $actorId registrado: ${meters}m."
+        return outcome(updated,msg,"COMBAT.MOVEMENT",envelope.ruleProfile,EvidenceStatus.CANONICAL_RULE,"GAME_SYSTEM_SPEC §§12.3,23.3 / OSE Fighting Withdrawal",true,false)
     }
 
     private fun combatAttack(envelope: CampaignEnvelope, parts: List<String>, rng: NamedRngStreams, phase: CombatActionPhase): ResolutionOutcome {

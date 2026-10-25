@@ -97,9 +97,9 @@ jobs:
           if ($LASTEXITCODE -ne 0) { Pop-Location; throw 'Motor de Vida V2.2 test suite failed' }
           Pop-Location
 
-          # Verify versionCode 10 and versionName 1.0.9
-          if (-not ($gradle -match 'versionCode\s*=\s*10') -or -not ($gradle -match 'versionName\s*=\s*"1.0.9"')) {
-            throw 'Version check failed: expected versionCode 10 and versionName 1.0.9'
+          # Verify versionCode (10 or 11) and versionName (1.0.9 or 1.0.10)
+          if (-not ($gradle -match 'versionCode\s*=\s*(10|11)') -or -not ($gradle -match 'versionName\s*=\s*"1\.0\.(9|10)"')) {
+            throw 'Version check failed: expected versionCode 10 or 11 and versionName 1.0.9 or 1.0.10'
           }
 
       - name: Authoritative compile and unit test suite

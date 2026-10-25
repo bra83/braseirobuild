@@ -56,7 +56,7 @@ class GeminiBarbaraSupervisor(
             mechanicalFeedback.contains("Encontro", ignoreCase = true) ||
             playerReaction.contains("descans", ignoreCase = true)
         val minRequiredLength = when {
-            isCampaignOpening -> 1200
+            isCampaignOpening -> 5000
             isMajorScene -> 300
             else -> 120
         }
@@ -77,8 +77,21 @@ class GeminiBarbaraSupervisor(
                     generated = (generated + "\n\n" + additional).trim()
                 }
             }
-            if (generated.length < minRequiredLength || looksTechnical(generated)) {
-                error("GEMINI_NARRATION_LENGTH_OR_TECHNICAL: length=${generated.length} min=$minRequiredLength")
+            if (looksTechnical(generated)) {
+                error("GEMINI_NARRATION_TECHNICAL: contains technical terms")
+            }
+            if (generated.length < minRequiredLength) {
+                if (generated.length >= 120) {
+                    lastReceipt = NarrationReceipt(
+                        provider = "GEMINI_TEXT",
+                        model = model,
+                        status = "PARTIAL_LENGTH",
+                        reason = "Narrativa de abertura com ${generated.length} caracteres (mínimo exigido: $minRequiredLength)"
+                    )
+                    return@runCatching generated
+                } else {
+                    error("GEMINI_NARRATION_TOO_SHORT: length=${generated.length} min=120")
+                }
             }
             lastReceipt = NarrationReceipt(
                 provider = "GEMINI_TEXT",

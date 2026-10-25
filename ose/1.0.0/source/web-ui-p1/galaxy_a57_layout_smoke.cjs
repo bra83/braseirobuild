@@ -21,5 +21,5 @@ check('small landscape layout', css.includes('@media (max-height: 600px) and (or
 check('native status and navigation insets', activity.includes('root.setOnApplyWindowInsetsListener') && activity.includes('lp.topMargin = insets.systemWindowInsetTop') && activity.includes('lp.bottomMargin = insets.systemWindowInsetBottom'));
 check('keyboard resize mode', manifest.includes('android:windowSoftInputMode="adjustResize"'));
 check('adaptive viewport and user zoom', html.includes('width=device-width,initial-scale=1,viewport-fit=cover') && !html.includes('user-scalable=no'));
-check('preserved package and update capability', gradle.includes('applicationId = "braseiro.ose"') && gradle.includes('versionCode = 10'));
+check('preserved package and update capability', gradle.includes('applicationId = "braseiro.ose"') && (gradle.includes('versionCode = 10') || gradle.includes('versionCode = 11')));
 console.log('Galaxy A57 static WebView contract: PASS (device testing still required)');

@@ -49,7 +49,7 @@ object OSEPlayerGuide {
     data class ActionSuggestion(
         val id: String,
         val plainLabel: String,
-        val intentCandidate: String,
+        val intentCandidate: String? = null,
         val textCandidate: String,
         val preconditions: List<String>,
         val riskHint: String,
@@ -61,7 +61,7 @@ object OSEPlayerGuide {
         fun toJson(): JSONObject = JSONObject()
             .put("id", id)
             .put("plainLabel", plainLabel)
-            .put("intentCandidate", intentCandidate)
+            .put("intentCandidate", intentCandidate ?: JSONObject.NULL)
             .put("textCandidate", textCandidate)
             .put("preconditions", JSONArray(preconditions))
             .put("riskHint", riskHint)
@@ -244,56 +244,71 @@ object OSEPlayerGuide {
         val unlitTorch = game.inventory.items.values.firstOrNull { it.kind == InventoryItemKind.LIGHT_SOURCE && it.quantity > 0 }
         val encounter = game.encounter
         val hasOpposition = encounter?.combatants?.values?.any { it.side == EncounterSide.OPPOSITION && (it.alive && it.hpCurrentNumerator > 0) } == true
-        val targetOpponent = encounter?.combatants?.values?.firstOrNull { it.side == EncounterSide.OPPOSITION && (it.alive && it.hpCurrentNumerator > 0) }?.actorId ?: "monster_1"
+        val targetOpponent = encounter?.combatants?.values?.firstOrNull { it.side == EncounterSide.OPPOSITION && (it.alive && it.hpCurrentNumerator > 0) }?.actorId
 
         when {
             phase == "COMBAT" || encounter?.phase == EncounterPhase.COMBAT -> {
                 if (hasMelee) {
                     val weapon = game.inventory.items.values.firstOrNull { it.equipped && it.kind == InventoryItemKind.WEAPON && !it.catalogId.contains("BOW") }
-                    val weaponId = weapon?.itemId ?: "default_weapon"
+                    val weaponId = weapon?.itemId
+                    val isMeleeExec = hasOpposition && targetOpponent != null && weaponId != null && primaryActor.isNotBlank()
                     suggestions.add(
                         ActionSuggestion(
                             id = "act-combat-melee",
                             plainLabel = "Atacar com arma corpo a corpo",
-                            intentCandidate = "COMBAT_ATTACK_MELEE:PARTY:$primaryActor:$targetOpponent:$weaponId",
+                            intentCandidate = if (isMeleeExec) "COMBAT_ATTACK_MELEE:PARTY:$primaryActor:$targetOpponent:$weaponId" else null,
                             textCandidate = "Avanço com arma em punho para desferir um ataque contra o adversário mais próximo.",
                             preconditions = listOf("Arma corpo a corpo equipada"),
                             riskHint = "Inimigo pode contra-atacar na mesma rodada",
                             timePreview = "1 rodada (10 segundos)",
                             sourceRuleRef = "Classic Rules Tome p. 102",
-                            executable = hasOpposition,
-                            missingRequirement = if (!hasOpposition) "Nenhum oponente ativo no combate" else null
+                            executable = isMeleeExec,
+                            missingRequirement = when {
+                                primaryActor.isBlank() -> "Nenhum combatente ativo na companhia"
+                                !hasOpposition || targetOpponent == null -> "Nenhum oponente ativo no combate"
+                                weaponId == null -> "Nenhuma arma corpo a corpo equipada"
+                                else -> null
+                            }
                         )
                     )
                 }
                 if (hasRanged) {
                     val ranged = game.inventory.items.values.firstOrNull { it.equipped && (it.catalogId.contains("BOW") || it.catalogId.contains("SLING") || it.catalogId.contains("CROSSBOW")) }
-                    val rangedId = ranged?.itemId ?: "default_bow"
+                    val rangedId = ranged?.itemId
+                    val isRangedExec = hasOpposition && targetOpponent != null && rangedId != null && primaryActor.isNotBlank()
                     suggestions.add(
                         ActionSuggestion(
                             id = "act-combat-ranged",
                             plainLabel = "Disparar projétil à distância",
-                            intentCandidate = "COMBAT_ATTACK_MISSILE:PARTY:$primaryActor:$targetOpponent:$rangedId",
+                            intentCandidate = if (isRangedExec) "COMBAT_ATTACK_MISSILE:PARTY:$primaryActor:$targetOpponent:$rangedId" else null,
                             textCandidate = "Mantenho distância segura e disparo minha arma de projéteis contra o inimigo mais exposto.",
                             preconditions = listOf("Arma de disparo e munição disponíveis"),
                             riskHint = "Não pode disparar se já engajado em combate corpo a corpo",
                             timePreview = "1 rodada (10 segundos)",
                             sourceRuleRef = "Classic Rules Tome p. 102",
-                            executable = hasOpposition,
-                            missingRequirement = if (!hasOpposition) "Nenhum oponente ativo no combate" else null
+                            executable = isRangedExec,
+                            missingRequirement = when {
+                                primaryActor.isBlank() -> "Nenhum combatente ativo na companhia"
+                                !hasOpposition || targetOpponent == null -> "Nenhum oponente ativo no combate"
+                                rangedId == null -> "Nenhuma arma de disparo equipada"
+                                else -> null
+                            }
                         )
                     )
                 }
+                val isRetreatExec = primaryActor.isNotBlank() && encounter != null
                 suggestions.add(
                     ActionSuggestion(
                         id = "act-combat-defend",
                         plainLabel = if (hasShield) "Recuo cauteloso com escudo" else "Postura defensiva e recuo",
-                        intentCandidate = "COMBAT_MOVE:PARTY:$primaryActor:RETREAT",
+                        intentCandidate = if (isRetreatExec) "COMBAT_MOVE:PARTY:$primaryActor:RETREAT" else null,
                         textCandidate = if (hasShield) "Mantenho a guarda alta com o escudo e recuo com cautela, evitando expor as costas." else "Mantenho a guarda alta com minha arma e recuo com cautela, evitando expor as costas.",
                         preconditions = if (hasShield) listOf("Escudo equipado", "Espaço livre para recuo") else listOf("Arma em punho", "Espaço livre para recuo"),
                         riskHint = "Movimento limitado à metade da velocidade normal",
                         timePreview = "1 rodada (10 segundos)",
-                        sourceRuleRef = "Classic Rules Tome p. 103"
+                        sourceRuleRef = "Classic Rules Tome p. 103",
+                        executable = isRetreatExec,
+                        missingRequirement = if (!isRetreatExec) "Recuo exige combate e combatente ativo" else null
                     )
                 )
             }

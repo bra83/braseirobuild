@@ -46,6 +46,7 @@ object AppViewStateProjector {
                         .put("mechanicalIntent", r.mechanicalIntent ?: JSONObject.NULL)
                         .put("actorCharacterId", r.actorCharacterId ?: JSONObject.NULL)
                         .put("lifeCauseId", r.lifeCauseId ?: JSONObject.NULL)
+                        .put("lifeCauses", JSONArray(r.lifeCauses))
                         .put("lifeTransitionRef", r.lifeTransitionRef ?: JSONObject.NULL)
                         .put("lifeConsequence", r.lifeConsequence ?: JSONObject.NULL)
                         .put("diceRolls", JSONArray(r.diceRolls.map { d ->

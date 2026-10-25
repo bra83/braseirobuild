@@ -948,30 +948,37 @@ class LifeRuntime {
 
         // A cause must be emitted by the authoritative referee and persisted with the receipt.
         // Neither mechanical feedback nor the player's text is proof of victory, healing or travel.
-        const causeId = typeof receipt.lifeCauseId === 'string' ? receipt.lifeCauseId : '';
-        if (!['cause-journey-1', 'cause-care-1', 'cause-victory-1', 'cause-loss-1', 'cause-discovery-1', 'cause-promise-1'].includes(causeId)) {
+        const validCauses = ['cause-journey-1', 'cause-care-1', 'cause-victory-1', 'cause-loss-1', 'cause-discovery-1', 'cause-promise-1'];
+        const candidateCauses = Array.isArray(receipt.lifeCauses) && receipt.lifeCauses.length > 0
+          ? receipt.lifeCauses.filter(c => validCauses.includes(c))
+          : (typeof receipt.lifeCauseId === 'string' && validCauses.includes(receipt.lifeCauseId) ? [receipt.lifeCauseId] : []);
+
+        if (candidateCauses.length === 0) {
           continue;
         }
 
-        const evt = {
-          id: receiptId,
-          day: this.store.day,
-          turn: currentTurn,
-          lifeCauseId: causeId,
-          summary: summary,
-          actorIds: [actorId],
-          visibility: 'private',
-          locationId: viewState.position?.primary?.spatialEntityId || 'village'
-        };
+        candidateCauses.forEach((causeId, idx) => {
+          const subId = candidateCauses.length === 1 ? receiptId : `${receiptId}:${causeId}`;
+          const evt = {
+            id: subId,
+            day: this.store.day,
+            turn: currentTurn,
+            lifeCauseId: causeId,
+            summary: summary,
+            actorIds: [actorId],
+            visibility: 'private',
+            locationId: viewState.position?.primary?.spatialEntityId || 'village'
+          };
 
-        this.store = transact(this.store, {
-          id: receiptId,
-          type: 'event',
-          event: evt
-        }, { verifiedByHost: true });
+          this.store = transact(this.store, {
+            id: subId,
+            type: 'event',
+            event: evt
+          }, { verifiedByHost: true });
 
-        this.executeMatrixAutomation(evt, viewState);
-        mutated = true;
+          this.executeMatrixAutomation(evt, viewState);
+          mutated = true;
+        });
       }
 
       if (mutated) {

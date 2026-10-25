@@ -418,6 +418,7 @@ class MainActivity : Activity() {
                                     .put("viewState", projectForUi(current))
                                     .put("diceRolls", diceRollsJson)
                                     .put("lifeCauseId", receipt?.lifeCauseId ?: JSONObject.NULL)
+                                    .put("lifeCauses", JSONArray(receipt?.lifeCauses ?: emptyList<String>()))
                                     .put("lifeTransitionRef", receipt?.lifeTransitionRef ?: JSONObject.NULL)
                                     .put("lifeConsequence", receipt?.lifeConsequence ?: JSONObject.NULL))
                             )

@@ -142,7 +142,7 @@ class SessionEngine(
         val beforeKnownFacts = beforeState.playerKnowledge.knownFactIds
         val afterKnownFacts = afterState.playerKnowledge.knownFactIds
 
-        var transitionCauseId: String? = null
+        val transitionCauses = mutableListOf<String>()
         var transitionRef: String? = null
         var transitionConsequence: String? = null
 
@@ -155,45 +155,57 @@ class SessionEngine(
 
             val beforeEncounter = beforeState.game.encounter
             val afterEncounter = afterState.game.encounter
+            val oppositionKilledThisTurn = beforeEncounter != null && afterEncounter != null &&
+                afterEncounter.combatants.values.any { afterC ->
+                    afterC.side == EncounterSide.OPPOSITION && (!afterC.alive || afterC.hpCurrentNumerator <= 0) &&
+                    (beforeEncounter.combatants[afterC.actorId]?.let { it.alive && it.hpCurrentNumerator > 0 } == true)
+                }
             val victoryAchieved = (beforeEncounter != null && beforeEncounter.phase != EncounterPhase.RESOLVED &&
-                afterEncounter?.phase == EncounterPhase.RESOLVED &&
-                afterEncounter.combatants.values.any { it.side == EncounterSide.OPPOSITION && (!it.alive || it.hpCurrentNumerator <= 0) })
+                afterEncounter?.phase == EncounterPhase.RESOLVED && oppositionKilledThisTurn)
 
             val retainerContractSigned = afterState.game.retainerContracts.size > beforeState.game.retainerContracts.size
 
-            when {
-                anyPartyDied -> {
-                    transitionCauseId = "cause-loss-1"
-                    transitionRef = "FATALITY"
-                    transitionConsequence = "Membro da companhia pereceu durante a expedição."
-                }
-                victoryAchieved -> {
-                    transitionCauseId = "cause-victory-1"
-                    transitionRef = "COMBAT_VICTORY"
-                    transitionConsequence = "Inimigos derrotados com sucesso pelo grupo."
-                }
-                partyHealed || intentUpper == "WILD_REST_DAY" || intentUpper == "SETTLEMENT_REST_DAY" -> {
-                    transitionCauseId = "cause-care-1"
+            if (anyPartyDied) {
+                transitionCauses.add("cause-loss-1")
+                transitionRef = "FATALITY"
+                transitionConsequence = "Membro da companhia pereceu durante a expedição."
+            }
+            if (victoryAchieved) {
+                transitionCauses.add("cause-victory-1")
+                transitionRef = "COMBAT_VICTORY"
+                transitionConsequence = "Inimigos derrotados com sucesso pelo grupo."
+            }
+            if (partyHealed || intentUpper == "WILD_REST_DAY" || intentUpper == "SETTLEMENT_REST_DAY") {
+                transitionCauses.add("cause-care-1")
+                if (transitionRef == null) {
                     transitionRef = "REST_HEALING"
                     transitionConsequence = "Descanso realizado e vigor físico recuperado."
                 }
-                newFactsDiscovered -> {
-                    transitionCauseId = "cause-discovery-1"
+            }
+            if (newFactsDiscovered) {
+                transitionCauses.add("cause-discovery-1")
+                if (transitionRef == null) {
                     transitionRef = "DISCOVERY"
                     transitionConsequence = "Novos territórios ou segredos foram mapeados."
                 }
-                daysAdvanced && (intentUpper == "WILD_TRAVEL_DAY" || intentUpper == "WILD_TRAVEL_FORAGE_DAY" || intentUpper == "WILD_FORCED_MARCH_DAY") -> {
-                    transitionCauseId = "cause-journey-1"
+            }
+            if (daysAdvanced && (intentUpper == "WILD_TRAVEL_DAY" || intentUpper == "WILD_TRAVEL_FORAGE_DAY" || intentUpper == "WILD_FORCED_MARCH_DAY")) {
+                transitionCauses.add("cause-journey-1")
+                if (transitionRef == null) {
                     transitionRef = "JOURNEY_DAY"
                     transitionConsequence = "Jornada de ermos avançou pelo mapa."
                 }
-                retainerContractSigned -> {
-                    transitionCauseId = "cause-promise-1"
+            }
+            if (retainerContractSigned) {
+                transitionCauses.add("cause-promise-1")
+                if (transitionRef == null) {
                     transitionRef = "RETAINER_CONTRACT"
                     transitionConsequence = "Acordo de serviço firmado com auxiliar."
                 }
             }
         }
+
+        val primaryLifeCauseId = transitionCauses.firstOrNull()
 
         val receipt = ReactionReceiptSnapshot(
             reactionId = reactionId,
@@ -205,7 +217,8 @@ class SessionEngine(
             traceEvidenceRefs = evidenceRefs,
             mechanicalIntent = mechanicalIntent,
             actorCharacterId = actorCharacterId,
-            lifeCauseId = transitionCauseId,
+            lifeCauseId = primaryLifeCauseId,
+            lifeCauses = transitionCauses,
             diceRolls = diceRollsSnapshots,
             lifeTransitionRef = transitionRef,
             lifeConsequence = transitionConsequence

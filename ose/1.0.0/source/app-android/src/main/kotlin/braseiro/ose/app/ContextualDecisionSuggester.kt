@@ -25,11 +25,13 @@ object ContextualDecisionSuggester {
 
         return when {
             phase.contains("COMBAT") || encounter?.phase == EncounterPhase.COMBAT -> {
-                val targetOpponent = encounter?.combatants?.values?.firstOrNull { it.side.name == "OPPOSITION" && (it.alive && it.hpCurrentNumerator > 0) }?.actorId ?: "monster_1"
-                val weapon = game.inventory.items.values.firstOrNull { it.equipped && it.kind.name == "WEAPON" }?.itemId ?: "default_weapon"
+                val targetOpponent = encounter?.combatants?.values?.firstOrNull { it.side.name == "OPPOSITION" && (it.alive && it.hpCurrentNumerator > 0) }?.actorId
+                val weapon = game.inventory.items.values.firstOrNull { it.equipped && it.kind.name == "WEAPON" }?.itemId
+                val attackIntent = if (primaryActor.isNotBlank() && targetOpponent != null && weapon != null) "COMBAT_ATTACK_MELEE:PARTY:$primaryActor:$targetOpponent:$weapon" else null
+                val retreatIntent = if (primaryActor.isNotBlank() && encounter != null) "COMBAT_MOVE:PARTY:$primaryActor:RETREAT" else null
                 listOf(
-                    Suggestion("ATACAR CORPO A CORPO", "Avanço com arma em punho para desferir um ataque contra o adversário.", "COMBAT_ATTACK_MELEE:PARTY:$primaryActor:$targetOpponent:$weapon"),
-                    Suggestion("RECUO CAUTELOSO", "Mantenho a guarda defensiva e recuo com cautela sem expor as costas.", "COMBAT_MOVE:PARTY:$primaryActor:RETREAT"),
+                    Suggestion("ATACAR CORPO A CORPO", "Avanço com arma em punho para desferir um ataque contra o adversário.", attackIntent),
+                    Suggestion("RECUO CAUTELOSO", "Mantenho a guarda defensiva e recuo com cautela sem expor as costas.", retreatIntent),
                     Suggestion("AGUARDAR TURNO", "Aguardamos e observamos a movimentação inimiga.", "WAIT_TURN")
                 )
             }

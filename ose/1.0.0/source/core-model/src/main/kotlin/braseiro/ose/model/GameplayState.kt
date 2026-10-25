@@ -134,6 +134,8 @@ import kotlinx.serialization.Serializable
     val actorCharacterId: String? = null,
     /** Canonical, referee-confirmed life cause; never derived from player narration. */
     val lifeCauseId: String? = null,
+    /** All canonical, referee-confirmed life causes for multiple simultaneous consequences. */
+    val lifeCauses: List<String> = emptyList(),
     /** Canonical dice rolled by the referee during this resolution. */
     val diceRolls: List<CanonicalDieRollSnapshot> = emptyList(),
     /** Canonical structured transition ref for Motor de Vida V2.2. */
@@ -164,7 +166,7 @@ import kotlinx.serialization.Serializable
     val kind: String,
     val secret: Boolean = false
 )
-@Serializable data class DungeonEdgeSnapshot(val from: String, val to: String, val kind: String = "PASSAGE", val secret: Boolean = false)
+@Serializable data class DungeonEdgeSnapshot(val from: String, val to: String, val kind: String = "PASSAGE", val secret: Boolean = false, val open: Boolean = false)
 @Serializable data class DungeonSnapshot(
     val dungeonId: String,
     val generatorVersion: Int,
