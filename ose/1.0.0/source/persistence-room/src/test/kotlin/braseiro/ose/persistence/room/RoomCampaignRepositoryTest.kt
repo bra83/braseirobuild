@@ -95,6 +95,47 @@ class RoomCampaignRepositoryTest {
         context.deleteDatabase(dbName)
     }
 
+
+    @Test fun `legacy runtime repair id may be followed by multiple new startup repairs without wiping save`() {
+        val original = fixture("historical-ose")
+        repository.create(original)
+        val id = original.campaignId
+        // This is the previously saved audit ID on the user's phone.
+        repository.commit(id, StateTransition("runtime-repair-v2",
+            original.campaignState.copy(time = TimeState(turns = 7))))
+        val uniqueRepairA = "runtime-repair-v3-${java.util.UUID.randomUUID()}"
+        repository.commit(id, StateTransition(uniqueRepairA,
+            original.campaignState.copy(time = TimeState(turns = 8))))
+        // Normal campaign progress must still persist between reopen repairs.
+        repository.commit(id, StateTransition("player-progress-after-startup",
+            original.campaignState.copy(time = TimeState(turns = 9))))
+        val uniqueRepairB = "runtime-repair-v3-${java.util.UUID.randomUUID()}"
+        repository.commit(id, StateTransition(uniqueRepairB,
+            original.campaignState.copy(time = TimeState(turns = 10))))
+        assertTrue(uniqueRepairA != uniqueRepairB)
+        val loaded = repository.load(id) as CampaignLoadResult.Loaded
+        assertEquals(10, loaded.envelope.campaignState.time.turns)
+        assertEquals(original.campaignId, loaded.envelope.campaignId)
+        assertEquals(4, db.campaignDao().auditCount(id.value))
+        assertTrue(db.campaignDao().findTransitionAudit(id.value,"runtime-repair-v2") != null)
+    }
+
+    @Test fun `duplicate transition ids with different payloads are still rejected`() {
+        val original = fixture("reject-collisions")
+        repository.create(original)
+        repository.commit(original.campaignId, StateTransition("user-action-1",
+            original.campaignState.copy(time = TimeState(turns = 2))))
+        val collision = runCatching {
+            repository.commit(original.campaignId, StateTransition("user-action-1",
+                original.campaignState.copy(time = TimeState(turns = 3))))
+        }.exceptionOrNull()
+        assertTrue(collision is IllegalArgumentException)
+        assertTrue(collision?.message?.contains("TRANSITION_ID_COLLISION") == true)
+        val saved = repository.load(original.campaignId) as CampaignLoadResult.Loaded
+        assertEquals(2, saved.envelope.campaignState.time.turns)
+        assertEquals(1, db.campaignDao().auditCount(original.campaignId.value))
+    }
+
     @Test fun `missing remains not found`() {
         assertIs<CampaignLoadResult.NotFound>(repository.load(CampaignId("missing")))
         assertTrue(repository.listCampaigns().isEmpty())

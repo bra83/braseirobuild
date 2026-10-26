@@ -49,3 +49,10 @@ check('portrait uses head-aware top focus rather than centered crop',css.include
 check('native startup catches database recovery exceptions',nativeMain.includes('Campaign bootstrap failed; keeping original save intact')&&nativeMain.includes('showStartupRecovery(failure)'));
 check('WebView renderer recovers without clearing player data',nativeMain.includes('override fun onRenderProcessGone(')&&nativeMain.includes('putBoolean("skip_media", true)'));
 check('UI media projection supports safe startup',nativeMain.includes('private fun safeMediaUrl(')&&nativeMain.includes('if (recoveryPrefs.getBoolean("skip_media", false)) null'));
+
+verify('repeated startup repair uses unique transition id instead of legacy fixed id',
+  activity.includes('runtime-repair-v3-') &&
+  activity.includes('java.util.UUID.randomUUID()') &&
+  !activity.includes('StateTransition("runtime-repair-v2", repaired.campaignState)'));
+verify('recovery screen renders line breaks instead of literal slash-n',
+  activity.includes('recuperação de inicialização\\\\n\\\\n') === false);

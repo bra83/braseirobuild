@@ -344,7 +344,14 @@ class MainActivity : Activity() {
                 repaired = repairCanonicalResources(repaired)
                 repaired = repairLegacyPresentation(repaired)
                 if (repaired != loaded.envelope) {
-                    repository.commit(CAMPAIGN_ID, StateTransition("runtime-repair-v2", repaired.campaignState))
+                    // The previous fixed ID was already recorded by older APKs.
+                    // Reusing it for a different repair snapshot caused
+                    // TRANSITION_ID_COLLISION:runtime-repair-v2 on launch.
+                    // Every actual repair is a NEW audited transition, not a
+                    // replay of the historical one. Preserve all saves and
+                    // the action audit; do not touch the repository idempotency rule.
+                    val repairId = "runtime-repair-v3-${java.util.UUID.randomUUID()}"
+                    repository.commit(CAMPAIGN_ID, StateTransition(repairId, repaired.campaignState))
                 }
             }
             is CampaignLoadResult.ReadFailure -> throw loaded.cause
@@ -1573,9 +1580,9 @@ class MainActivity : Activity() {
             setBackgroundColor(android.graphics.Color.rgb(32, 26, 20))
         }
         val message = android.widget.TextView(this).apply {
-            text = "BRASEIRO OSE — recuperação de inicialização\\n\\n" +
-                "O aplicativo encontrou uma falha ao abrir. Sua campanha e suas imagens permanecem salvas.\\n\\n" +
-                detail + "\\n\\nNão limpe os dados nem desinstale o aplicativo."
+            text = "BRASEIRO OSE — recuperação de inicialização\n\n" +
+                "O aplicativo encontrou uma falha ao abrir. Sua campanha e suas imagens permanecem salvas.\n\n" +
+                detail + "\n\nNão limpe os dados nem desinstale o aplicativo."
             setTextColor(android.graphics.Color.WHITE)
             textSize = 16f
         }
