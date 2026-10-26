@@ -74,6 +74,18 @@ class AppUpdateManagerTest {
   }
 
   @Test
+  fun testNewerManifestWithoutChecksumIsRejected() {
+    val manifest = """{ "versionCode": 28, "versionName": "1.3.21", "downloadUrl": "https://example.com/app.apk" }"""
+    assertEquals(UpdateStatus.INVALID_MANIFEST, manager.parseManifest(manifest).status)
+  }
+
+  @Test
+  fun testNewerManifestOverHttpIsRejected() {
+    val manifest = """{ "versionCode": 28, "versionName": "1.3.21", "downloadUrl": "http://example.com/app.apk", "sha256": "${"a".repeat(64)}" }"""
+    assertEquals(UpdateStatus.INVALID_MANIFEST, manager.parseManifest(manifest).status)
+  }
+
+  @Test
   fun testDownloadUrlContract() {
     val validUrl = "https://example.com/download.apk"
     assertTrue(manager.isValidDownloadUrl(validUrl))

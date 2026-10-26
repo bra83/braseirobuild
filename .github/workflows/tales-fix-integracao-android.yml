@@ -1,0 +1,43 @@
+name: Braseiro Tales Android - correcoes de integracao
+on:
+  push:
+    branches:
+      - fix/tales-1.3.20-auditoria-integracao-20261026
+  workflow_dispatch:
+jobs:
+  test-build:
+    name: Unit tests and Android debug build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install required Android SDK packages
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - name: Test and assemble
+        working-directory: android/tales-vtt
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --stacktrace --console=plain
+      - name: Upload Android unit-test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tales-unit-test-results
+          path: android/tales-vtt/app/build/test-results/testDebugUnitTest
+          if-no-files-found: ignore
+      - name: Upload debug APK (not release-signed)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tales-candidate-debug-apk
+          path: android/tales-vtt/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
