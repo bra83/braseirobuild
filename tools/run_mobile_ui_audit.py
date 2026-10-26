@@ -340,6 +340,7 @@ def run_audit():
             modifier: 0
         })''')
         assert roll_res['ok'] and roll_res['total'] == 104 and roll_res['visualMode'] == 'physics', roll_res
+        assert page.locator('#title').inner_text() == 'MESA FÍSICA 3D · BRASEIRO OSE', 'Name of unrelated game is visible'
 
         # Capture in-flight motion & collision
         time.sleep(0.4)

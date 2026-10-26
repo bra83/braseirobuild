@@ -58,7 +58,7 @@ function launch(cfg){
     if(!Number.isFinite(official))throw new Error('Resultado oficial inválido.');
     const token=renderToken;
     tray.innerHTML=dice.map((die,i)=>buildFaces(die,i,token)).join('');
-    title.textContent='MESA 3D · FORBIDDEN LANDS / OSE';
+    title.textContent='MESA FÍSICA 3D · BRASEIRO OSE';
     status.textContent='Faces registradas pelo árbitro OSE';
     result.textContent=String(official);
     const expression=dice.map(d=>(d.sign<0?'− ':'')+'d'+d.sides+'['+d.value+']').join(' + ').replace(/\+ −/g,'−');
@@ -68,7 +68,7 @@ function launch(cfg){
       status.textContent='Simulação concluída · faces confirmadas pelo árbitro OSE';
     });
     if(physics)status.textContent='Dados físicos em movimento · resultado definido pelo árbitro OSE';
-    return {ok:true,rolls:dice.map(d=>d.value),total:official,visualMode:physics?'physics':'fl-css'};
+    return {ok:true,rolls:dice.map(d=>d.value),total:official,visualMode:physics?'physics':'ose-css'};
   }catch(error){
     tray.innerHTML='';
     status.textContent='Não foi possível representar a rolagem';

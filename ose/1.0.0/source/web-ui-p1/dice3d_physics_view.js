@@ -31,7 +31,7 @@ function color(rgb,lightness){
 }
 function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
 function projected(p,width,height,scale){
-  return [width*.5+p[0]*scale, height*.50+(p[1]*.48-p[2]*.72)*scale];
+  return [width*.5+p[0]*scale, height*.64+(p[1]*.48-p[2]*.72)*scale];
 }
 function polygonArea(p){
   let a=0;
@@ -60,16 +60,23 @@ function render(session){
   for(let y=0;y<height;y+=14){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y+8);ctx.stroke();}
   ctx.restore();
 
-  // Dynamic responsive scale: prominent, legible, filling available tray space
+  // Camera follows the actual group. The original world positions accumulated
+  // horizontal/vertical drift and left a tiny die at the tray's edge.
   const total=world.bodies.length;
-  const scale=total<=2 ? Math.min(width/5.4,height/5.8) :
-              total<=4 ? Math.min(width/6.2,height/6.6) :
-              total<=8 ? Math.min(width/7.2,height/7.8) :
-              Math.min(width/8.8,height/9.4);
+  const xs=world.bodies.map(b=>b.p[0]),ys=world.bodies.map(b=>b.p[1]);
+  const targetX=(Math.min(...xs)+Math.max(...xs))/2;
+  const targetY=(Math.min(...ys)+Math.max(...ys))/2;
+  if(!Number.isFinite(session.camX)){session.camX=targetX;session.camY=targetY;}
+  session.camX+=(targetX-session.camX)*.20;
+  session.camY+=(targetY-session.camY)*.20;
+  const spanX=Math.max(...xs)-Math.min(...xs);
+  const spanY=Math.max(...ys)-Math.min(...ys);
+  const scale=total===1 ? Math.min(width/3.05,height/3.05)
+    : Math.min(width/Math.max(4.3,3+spanX),height/Math.max(4.0,3+spanY*.55));
 
   // Realistic contact and ambient drop shadows under each die
   for(const body of world.bodies){
-    const s=projected([body.p[0],body.p[1],0],width,height,scale);
+    const s=projected([body.p[0]-session.camX,body.p[1]-session.camY,0],width,height,scale);
     const z=Math.max(0,body.p[2]);
     const shadowAlpha=Math.max(.08,.48-z*.07);
     const rad=body.size*scale;
@@ -98,7 +105,7 @@ function render(session){
       const normal=core.Q.rot(body.q,mesh.normals[i]);
       const exposure=dot(normal,camera);
       if(exposure<=.015)continue;
-      const v=mesh.faces[i].map(idx=>projected(verts[idx],width,height,scale));
+      const v=mesh.faces[i].map(idx=>projected([verts[idx][0]-session.camX,verts[idx][1]-session.camY,verts[idx][2]],width,height,scale));
       if(polygonArea(v)<1.8)continue;
       const center=core.V.add(body.p,core.V.mul(core.Q.rot(body.q,mesh.centers[i]),body.size));
       const depth=dot(center,camera);
@@ -108,7 +115,7 @@ function render(session){
       const spec=Math.pow(Math.max(0,dot(normal,half)),16)*.38;
       const illumination=Math.min(1.45,.40+diff*.60+spec);
       const raw=body.displayMap?.[i]??(i+1);
-      faces.push({points:v,center:projected(center,width,height,scale),depth,color:color(palette,illumination),
+      faces.push({points:v,center:projected([center[0]-session.camX,center[1]-session.camY,center[2]],width,height,scale),depth,color:color(palette,illumination),
         label:String(raw),exposure,area:polygonArea(v),body,faceIndex:i,spec});
     }
   }
@@ -253,7 +260,7 @@ function start(cfg,dice,onDone){
     canvas.setAttribute('aria-hidden','true');
     const ctx=canvas.getContext('2d',{alpha:true});
     if(!ctx)return false;
-    const session={stage:container,canvas,ctx,world,frame:null,stopped:false,cssWidth:0,cssHeight:0,dpr:1,last:null,accumulator:0};
+    const session={stage:container,canvas,ctx,world,frame:null,stopped:false,cssWidth:0,cssHeight:0,dpr:1,last:null,accumulator:0,camX:NaN,camY:NaN};
     container.appendChild(canvas);
     container.classList.add('physics-active');
     active=session;

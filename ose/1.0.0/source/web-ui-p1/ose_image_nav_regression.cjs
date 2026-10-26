@@ -35,3 +35,5 @@ console.log('Braseiro OSE image/nav/physics regression: PASS (device QA remains 
 const nativeMain=fs.readFileSync(path.join(root,'app-android/src/main/kotlin/braseiro/ose/app/MainActivity.kt'),'utf8');
 check('OSE item labels projected without active loadout',nativeMain.includes('out.optJSONArray("inventory")')&&nativeMain.includes('item.put("displayName", canonicalName)'));
 check('inventory renderer reads per-item name',fs.readFileSync(path.join(__dirname,'p1.js'),'utf8').includes('catalogLabel(it.catalogId,it)'));
+
+check('OSE dice UI never displays another game title',!fs.readFileSync(path.join(__dirname,'dice3d_app.js'),'utf8').includes("title.textContent='MESA 3D · FORBIDDEN LANDS / OSE'")&&html.includes('aria-label="Mesa de dados físicos 3D do Braseiro OSE"'));
