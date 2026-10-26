@@ -10,7 +10,7 @@ class GeminiInteractionsClient(private val transport: GeminiTransport = HttpsGem
     companion object {
         const val DEFAULT_TEXT_MODEL = "gemini-3.1-flash-lite"
         const val DEFAULT_IMAGE_MODEL = "gemini-3.1-flash-image"
-        const val DEFAULT_TTS_MODEL = "gemini-3.1-flash-tts-preview"
+        const val DEFAULT_TTS_MODEL = "gemini-3.8-flash-lite-tts"
         const val DEFAULT_TTS_VOICE = "Kore"
     }
 
@@ -54,11 +54,21 @@ class GeminiInteractionsClient(private val transport: GeminiTransport = HttpsGem
         val safeVoice = voice.trim().also {
             require(it.isNotBlank() && it.length <= 80 && it.all { c -> c.isLetterOrDigit() || c in "._-" }) { "INVALID_TTS_VOICE" }
         }
+        // Gemini 3.8: the transcript MUST be the only spoken text. Narrator
+        // direction belongs in speech_metadata, never in the transcript itself.
+        val spokenBlock = JSONObject()
+            .put("type", "text")
+            .put("text", visibleNarration)
+            .put("annotations", JSONArray().put(JSONObject()
+                .put("type", "speech_metadata")
+                .put("style", "Natural, warm and expressive Brazilian Portuguese RPG narrator; seamless cadence, without unnecessary pauses")))
         val body = JSONObject()
             .put("model", validateModel(model))
-            .put("input", "Narre em português do Brasil, com voz natural de mestre de RPG, ritmo expressivo e sem acrescentar nem remover informação: $visibleNarration")
-            .put("response_format", JSONObject().put("type", "audio").put("sample_rate", 24000))
-            .put("generation_config", JSONObject().put("speech_config", JSONArray().put(JSONObject().put("voice", safeVoice))))
+            .put("input", JSONArray().put(JSONObject().put("type", "user_input")
+                .put("content", JSONArray().put(spokenBlock))))
+            .put("response_format", JSONObject().put("type", "audio"))
+            .put("generation_config", JSONObject().put("speech_config",
+                JSONArray().put(JSONObject().put("voice", safeVoice))))
         return firstMedia(transport.post(apiKey, body), "audio")
     }
 

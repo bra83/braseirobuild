@@ -17,7 +17,11 @@ class GeminiRuntimeSettings(context: Context) {
     fun snapshot(): Snapshot = Snapshot(
         textModel = prefs.getString("textModel", null).orEmpty().ifBlank { GeminiInteractionsClient.DEFAULT_TEXT_MODEL },
         imageModel = prefs.getString("imageModel", null).orEmpty().ifBlank { GeminiInteractionsClient.DEFAULT_IMAGE_MODEL },
-        ttsModel = prefs.getString("ttsModel", null).orEmpty().ifBlank { GeminiInteractionsClient.DEFAULT_TTS_MODEL },
+        // Migrate only known legacy model IDs; retain custom user selections.
+        ttsModel = prefs.getString("ttsModel", null).orEmpty()
+            .takeUnless { it.isBlank() || it == "gemini-3.1-flash-tts-preview" ||
+                it == "gemini-2.5-flash-preview-tts" }
+            ?: GeminiInteractionsClient.DEFAULT_TTS_MODEL,
         ttsVoice = prefs.getString("ttsVoice", null).orEmpty().ifBlank { GeminiInteractionsClient.DEFAULT_TTS_VOICE }
     )
 

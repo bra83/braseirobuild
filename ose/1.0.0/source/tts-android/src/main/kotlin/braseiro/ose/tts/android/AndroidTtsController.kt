@@ -278,7 +278,16 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
             fail("TTS_ENGINE_MISSING")
             return
         }
-        val nextChunks = TtsTextSegmenter.segment(spoken, targetChars = 450, maxChars = 650, minMergeChars = 220)
+        // Sherpa/Kokoro has costly synthesis startup for every speak() call.
+        // Queue fewer, longer utterances (still under Android's max input
+        // length) so sentence boundaries do not trigger another cold start.
+        // Google/Samsung engines keep the previously validated segment sizes.
+        val localKokoro = activeMode == Mode.KOKORO_INSTALLED ||
+            (activeEnginePackage in KOKORO_ENGINES)
+        val nextChunks = if (localKokoro)
+            TtsTextSegmenter.segment(spoken, targetChars = 3000, maxChars = 3500, minMergeChars = 900)
+        else
+            TtsTextSegmenter.segment(spoken, targetChars = 450, maxChars = 650, minMergeChars = 220)
         if (nextChunks.isEmpty()) {
             fail("EMPTY_VISIBLE_NARRATION")
             return

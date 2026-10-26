@@ -45,7 +45,7 @@ function render(session){
   ctx.setTransform(session.dpr,0,0,session.dpr,0,0);
   ctx.clearRect(0,0,width,height);
 
-  // Forbidden Lands carved wooden tray backdrop with ambient vignette
+  // Braseiro OSE carved wooden tray backdrop with ambient vignette
   const grd=ctx.createRadialGradient(width*.5,height*.50,width*.08,width*.5,height*.52,width*.65);
   grd.addColorStop(0,'rgba(88,56,36,.58)');
   grd.addColorStop(.55,'rgba(42,26,17,.42)');
@@ -71,7 +71,7 @@ function render(session){
   session.camY+=(targetY-session.camY)*.20;
   const spanX=Math.max(...xs)-Math.min(...xs);
   const spanY=Math.max(...ys)-Math.min(...ys);
-  const scale=total===1 ? Math.min(width/3.05,height/3.05)
+  const scale=total===1 ? Math.min(width/2.38,height/3.6)
     : Math.min(width/Math.max(4.3,3+spanX),height/Math.max(4.0,3+spanY*.55));
 
   // Realistic contact and ambient drop shadows under each die
