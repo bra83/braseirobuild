@@ -43,3 +43,9 @@ check('image reuse is cache-busted and absent files are discarded',fs.readFileSy
 
 check('new sandbox worlds select varied safe land hexes',nativeMain.includes('kotlin.random.Random(worldSeed.toLong()).nextInt(candidates.size)')&&nativeMain.includes('val safeLand = setOf('));
 check('portrait uses head-aware top focus rather than centered crop',css.includes('.text-first-hero .portrait img{object-fit:cover;object-position:50% 12%}'));
+
+// Static startup gates: the Android release must not die on a bad save or
+// WebView renderer failure. Saved files must remain intact during recovery.
+check('native startup catches database recovery exceptions',nativeMain.includes('Campaign bootstrap failed; keeping original save intact')&&nativeMain.includes('showStartupRecovery(failure)'));
+check('WebView renderer recovers without clearing player data',nativeMain.includes('override fun onRenderProcessGone(')&&nativeMain.includes('putBoolean("skip_media", true)'));
+check('UI media projection supports safe startup',nativeMain.includes('private fun safeMediaUrl(')&&nativeMain.includes('if (recoveryPrefs.getBoolean("skip_media", false)) null'));

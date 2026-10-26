@@ -49,6 +49,22 @@ class WebViewSmokeTest {
         }
     }
 
+    @Test
+    fun repeatedActivityLaunchPreservesWorkingWebViewAndBridge() {
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            repeat(3) {
+                scenario.recreate()
+                val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(40)
+                var ready: String? = null
+                while (System.nanoTime() < deadline && ready != "\"true\"") {
+                    ready = evaluateJavascript(scenario, "document.body && document.body.dataset.ready")
+                    if (ready != "\"true\"") Thread.sleep(200)
+                }
+                assertEquals("\"true\"", ready)
+            }
+        }
+    }
+
     private fun evaluateJavascript(
         scenario: ActivityScenario<MainActivity>,
         script: String

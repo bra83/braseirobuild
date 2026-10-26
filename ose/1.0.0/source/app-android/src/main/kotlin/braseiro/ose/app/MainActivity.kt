@@ -81,6 +81,7 @@ class MainActivity : Activity() {
     private val imageRequestBusy = java.util.concurrent.atomic.AtomicBoolean(false)
     @Volatile private var pendingCharacterExport: Pair<String, String>? = null
     private var pendingImageChooser: android.webkit.ValueCallback<Array<Uri>>? = null
+    private val recoveryPrefs by lazy { getSharedPreferences("braseiro_ose_startup_recovery_v1", MODE_PRIVATE) }
 
     @Volatile
     var lastBridgeMessage: BridgeEnvelopeMetadata? = null
@@ -89,6 +90,7 @@ class MainActivity : Activity() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        try {
 
         db = Room.databaseBuilder(
             applicationContext,
@@ -138,7 +140,30 @@ class MainActivity : Activity() {
                 override fun shouldInterceptRequest(
                     view: WebView?,
                     request: WebResourceRequest
-                ): WebResourceResponse? = assetLoader.shouldInterceptRequest(request.url)
+                ): WebResourceResponse? = try {
+                    assetLoader.shouldInterceptRequest(request.url)
+                } catch (failure: Throwable) {
+                    android.util.Log.e("BraseiroOSE", "Asset/media request rejected without stopping app", failure)
+                    null
+                }
+
+                override fun onRenderProcessGone(
+                    view: WebView?,
+                    detail: android.webkit.RenderProcessGoneDetail?
+                ): Boolean {
+                    android.util.Log.e("BraseiroOSE", "WebView renderer exited; starting without saved images. Crashed=${detail?.didCrash()}")
+                    val wasSafe = recoveryPrefs.getBoolean("skip_media", false)
+                    recoveryPrefs.edit().putBoolean("skip_media", true).apply()
+                    runOnUiThread {
+                        if (isFinishing || isDestroyed) return@runOnUiThread
+                        if (wasSafe) {
+                            showStartupRecovery(IllegalStateException("WEBVIEW_RENDERER_CRASH_IN_SAFE_MODE"))
+                        } else {
+                            recreate()
+                        }
+                    }
+                    return true
+                }
             }
             webChromeClient = object : WebChromeClient() {
                 override fun onShowFileChooser(
@@ -183,13 +208,22 @@ class MainActivity : Activity() {
         root.requestApplyInsets()
 
         io.execute {
-            bootstrapIfMissing()
-            // An invalid shared image must never prevent WebView startup.
-            try { saveSharedSceneImage(intent, notifyUi = false) }
-            catch (t: Throwable) { android.util.Log.e("BraseiroOSE", "Startup media import ignored", t) }
-            runOnUiThread {
-                if (!isFinishing && !isDestroyed) webView.loadUrl(START_URL)
+            try {
+                bootstrapIfMissing()
+                // Never let a shared image prevent the game from starting.
+                try { saveSharedSceneImage(intent, notifyUi = false) }
+                catch (t: Throwable) { android.util.Log.e("BraseiroOSE", "Startup media import ignored", t) }
+                runOnUiThread {
+                    if (!isFinishing && !isDestroyed) webView.loadUrl(START_URL)
+                }
+            } catch (failure: Throwable) {
+                android.util.Log.e("BraseiroOSE", "Campaign bootstrap failed; keeping original save intact", failure)
+                runOnUiThread { if (!isFinishing && !isDestroyed) showStartupRecovery(failure) }
             }
+        }
+        } catch (failure: Throwable) {
+            android.util.Log.e("BraseiroOSE", "Native initialization failed", failure)
+            showStartupRecovery(failure)
         }
     }
 
@@ -1525,18 +1559,62 @@ class MainActivity : Activity() {
 
     private fun safeFileName(name:String):String = name.lowercase().replace(Regex("[^a-z0-9_-]+"),"_").trim('_').ifBlank{"personagem"}
 
+    /**
+     * Never destroy the player's database because of startup or renderer
+     * errors. A diagnostic screen is safer than a process crash, and offers
+     * a retry with user media temporarily disabled.
+     */
+    private fun showStartupRecovery(failure: Throwable) {
+        android.util.Log.e("BraseiroOSE", "Safe-start recovery", failure)
+        val detail = "${failure.javaClass.simpleName}: ${failure.message.orEmpty().take(240)}"
+        val root = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(36, 64, 36, 24)
+            setBackgroundColor(android.graphics.Color.rgb(32, 26, 20))
+        }
+        val message = android.widget.TextView(this).apply {
+            text = "BRASEIRO OSE — recuperação de inicialização\\n\\n" +
+                "O aplicativo encontrou uma falha ao abrir. Sua campanha e suas imagens permanecem salvas.\\n\\n" +
+                detail + "\\n\\nNão limpe os dados nem desinstale o aplicativo."
+            setTextColor(android.graphics.Color.WHITE)
+            textSize = 16f
+        }
+        root.addView(message)
+        val restart = android.widget.Button(this).apply {
+            text = "TENTAR ABRIR SEM IMAGENS"
+            setOnClickListener {
+                recoveryPrefs.edit().putBoolean("skip_media", true).apply()
+                recreate()
+            }
+        }
+        root.addView(restart)
+        val copy = android.widget.Button(this).apply {
+            text = "COPIAR ERRO PARA DIAGNÓSTICO"
+            setOnClickListener {
+                val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                clipboard.setPrimaryClip(android.content.ClipData.newPlainText("Braseiro OSE startup", detail))
+            }
+        }
+        root.addView(copy)
+        val scroller = android.widget.ScrollView(this).apply { addView(root) }
+        setContentView(scroller)
+    }
+
+    private fun safeMediaUrl(scope: PresentationMediaStore.Scope, id: String): String? =
+        if (recoveryPrefs.getBoolean("skip_media", false)) null else mediaStore.url(scope, id)
+
     private fun projectForUi(current: CampaignEnvelope): JSONObject {
         val out = AppViewStateProjector.project(current, selectedCharacterId(current))
         val game = current.campaignState.game
         val portraits = JSONObject()
-        current.campaignState.party.characterIds.forEach { id -> mediaStore.url(PresentationMediaStore.Scope.CHARACTER, id)?.let { portraits.put(id, it) } }
+        current.campaignState.party.characterIds.forEach { id -> safeMediaUrl(PresentationMediaStore.Scope.CHARACTER, id)?.let { portraits.put(id, it) } }
         val npcPortraits = JSONObject()
-        game.npcs.keys.sorted().forEach { id -> mediaStore.url(PresentationMediaStore.Scope.NPC, id)?.let { npcPortraits.put(id, it) } }
+        game.npcs.keys.sorted().forEach { id -> safeMediaUrl(PresentationMediaStore.Scope.NPC, id)?.let { npcPortraits.put(id, it) } }
         val presentNpcs = game.npcs.values
             .filter { it.spatialRef != null && it.spatialRef == current.campaignState.position.primary }
             .sortedBy { it.name }
         val itemThumbnails = JSONObject()
-        game.inventory.items.keys.sorted().forEach { id -> mediaStore.url(PresentationMediaStore.Scope.ITEM, id)?.let { itemThumbnails.put(id, it) } }
+        game.inventory.items.keys.sorted().forEach { id -> safeMediaUrl(PresentationMediaStore.Scope.ITEM, id)?.let { itemThumbnails.put(id, it) } }
         val sceneId = scenePresentationId(current)
         val selectedCharacterId = selectedCharacterId(current)
         // This dictionary is independent of the one-time creation loadout.
@@ -1574,14 +1652,14 @@ class MainActivity : Activity() {
         latestRuleTraceJson(current)?.let { out.put("lastRuleTrace", it) } ?: out.put("lastRuleTrace", JSONObject.NULL)
         out.put("presentation", JSONObject()
             .put("sceneId", sceneId)
-            .put("sceneImageUrl", mediaStore.url(PresentationMediaStore.Scope.SCENE, sceneId) ?: JSONObject.NULL)
+            .put("sceneImageUrl", safeMediaUrl(PresentationMediaStore.Scope.SCENE, sceneId) ?: JSONObject.NULL)
             .put("characterPortraits", portraits)
             .put("npcPortraits", npcPortraits)
             .put("presentNpcs", JSONArray(presentNpcs.map { npc ->
                 JSONObject()
                     .put("npcId", npc.npcId)
                     .put("name", npc.name)
-                    .put("portraitUrl", mediaStore.url(PresentationMediaStore.Scope.NPC, npc.npcId) ?: JSONObject.NULL)
+                    .put("portraitUrl", safeMediaUrl(PresentationMediaStore.Scope.NPC, npc.npcId) ?: JSONObject.NULL)
             }))
             .put("itemThumbnails", itemThumbnails))
         val geminiState = credentials.statusJson()
