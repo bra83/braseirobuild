@@ -32,6 +32,7 @@ class PresentationMediaStore(context: Context) : WebViewAssetLoader.PathHandler 
         val w = boundsOpts.outWidth
         val h = boundsOpts.outHeight
         require(w > 0 && h > 0) { "CORRUPT_OR_MALFORMED_IMAGE: Não foi possível decodificar as dimensões da imagem." }
+        require(w.toLong() * h.toLong() <= 100_000_000L) { "IMAGE_DIMENSIONS_EXCESSIVE" }
 
         // Resized WebP must not be written as JPEG under a .webp extension.
         // PNG also preserves the alpha channel in enlarged illustrations.
@@ -76,9 +77,13 @@ class PresentationMediaStore(context: Context) : WebViewAssetLoader.PathHandler 
         }
 
         val key = key(scope, stableId)
-        val meta = readMetadata().put(key, JSONObject().put("file", publicName).put("mime", outputMime))
+        // Unique revision prevents WebView from reusing the former image when
+        // a character replaces their portrait at the same canonical file path.
+        val revision = java.util.UUID.randomUUID().toString().take(12)
+        val meta = readMetadata().put(key, JSONObject()
+            .put("file", publicName).put("mime", outputMime).put("rev", revision))
         writeMetadata(meta)
-        mediaUrl(publicName)
+        mediaUrl(publicName, revision)
     }
 
     fun saveDataUrl(scope: Scope, stableId: String, dataUrl: String): String = runCatching {
@@ -114,7 +119,10 @@ class PresentationMediaStore(context: Context) : WebViewAssetLoader.PathHandler 
     }
 
     fun url(scope: Scope, stableId: String): String? = synchronized(lock) {
-        readMetadata().optJSONObject(key(scope, stableId))?.optString("file")?.takeIf { it.isNotBlank() }?.let(::mediaUrl)
+        val entry = readMetadata().optJSONObject(key(scope, stableId)) ?: return null
+        val file = entry.optString("file")
+        if (!file.matches(Regex("[a-z]+-[0-9a-f]{24}\\.(jpg|png|webp)")) || !File(root, file).isFile) return null
+        mediaUrl(file, entry.optString("rev"))
     }
 
     override fun handle(path: String): WebResourceResponse? {
@@ -126,7 +134,9 @@ class PresentationMediaStore(context: Context) : WebViewAssetLoader.PathHandler 
     }
 
     private fun key(scope: Scope, stableId: String) = "${scope.name}:$stableId"
-    private fun mediaUrl(publicName: String) = "https://appassets.androidplatform.net/media/$publicName"
+    private fun mediaUrl(publicName: String, revision: String = "") =
+        "https://appassets.androidplatform.net/media/$publicName" +
+            if (revision.isBlank()) "" else "?v=$revision"
     private fun readMetadata() = try { if (metadataFile.exists()) JSONObject(metadataFile.readText()) else JSONObject() } catch (_: Throwable) { JSONObject() }
     private fun writeMetadata(json: JSONObject) {
         val tmp = File(root, "index.tmp")

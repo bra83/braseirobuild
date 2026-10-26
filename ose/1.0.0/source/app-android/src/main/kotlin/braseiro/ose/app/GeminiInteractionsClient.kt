@@ -146,7 +146,19 @@ class HttpsGeminiTransport : GeminiTransport {
             connection.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
             val code = connection.responseCode
             val stream = if (code in 200..299) connection.inputStream else connection.errorStream
-            val text = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+            // Bounded read prevents a giant/malformed base64 image response
+            // from exhausting memory and making WebView appear permanently stuck.
+            val text = stream?.bufferedReader(Charsets.UTF_8)?.use { reader ->
+                val buffer = CharArray(8192)
+                val out = StringBuilder()
+                while (true) {
+                    val count = reader.read(buffer)
+                    if (count < 0) break
+                    require(out.length + count <= 28 * 1024 * 1024) { "GEMINI_RESPONSE_TOO_LARGE" }
+                    out.append(buffer, 0, count)
+                }
+                out.toString()
+            }.orEmpty()
             if (code !in 200..299) error("GEMINI_HTTP_$code")
             return JSONObject(text)
         } finally {

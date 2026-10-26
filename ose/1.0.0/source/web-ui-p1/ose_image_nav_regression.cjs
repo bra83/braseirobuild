@@ -37,3 +37,6 @@ check('OSE item labels projected without active loadout',nativeMain.includes('ou
 check('inventory renderer reads per-item name',fs.readFileSync(path.join(__dirname,'p1.js'),'utf8').includes('catalogLabel(it.catalogId,it)'));
 
 check('OSE dice UI never displays another game title',!fs.readFileSync(path.join(__dirname,'dice3d_app.js'),'utf8').includes("title.textContent='MESA 3D · FORBIDDEN LANDS / OSE'")&&html.includes('aria-label="Mesa de dados físicos 3D do Braseiro OSE"'));
+
+check('Gemini image generation uses isolated worker, safe bounded downloads and resets busy', nativeMain.includes('private val imageIo = Executors.newSingleThreadExecutor()') && nativeMain.includes('imageRequestBusy.set(false)') && nativeMain.includes('startImageGeneration(scope, stableId'));
+check('image reuse is cache-busted and absent files are discarded',fs.readFileSync(path.join(root,'app-android/src/main/kotlin/braseiro/ose/app/PresentationMediaStore.kt'),'utf8').includes('mediaUrl(file, entry.optString("rev"))'));

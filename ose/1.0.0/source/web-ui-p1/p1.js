@@ -83,6 +83,12 @@ window.BraseiroReceive=(raw)=>{
   else if(m.type==='TtsSettingsState'){ttsState={...ttsState,...p};updateTtsSettings();}
   else if(m.type==='GeminiSettingsState'){geminiState=p;updateSettingsStatus();}
   else if(m.type==='GeminiCredentialTestResult')showToast(p.ok?'Conexão Gemini: OK':'Não foi possível usar a configuração informada.');
+  else if(m.type==='ImageGenerationState'){
+    imageGenerationBusy=!!p.busy;
+    const button=el('photoMenuGemini');
+    if(button)button.disabled=imageGenerationBusy;
+    if(imageGenerationBusy)showToast('Gerando imagem em segundo plano. Você pode continuar usando a ficha.');
+  }
   else if(m.type==='SceneImageResult'){postNative('ViewState',{request:'after-scene-image'});showToast('Ilustração da cena atualizada.');}
   else if(m.type==='ScenePromptShareResult')showToast('Abrindo o Gemini com o prompt da cena…');
   else if(m.type==='PortraitPromptShareResult')showToast('Abrindo o Gemini com o prompt do retrato…');
@@ -739,6 +745,7 @@ el('suggestionsClose')?.addEventListener('click', () => el('suggestionsOverlay')
 
 // --- GESTÃO DE FOTOS & RETRATOS UNIFICADA ---
 let currentPhotoTarget = null;
+let imageGenerationBusy = false;
 function openPhotoMenu(scope, id, name) {
   currentPhotoTarget = { scope, id, name };
   const title = el('photoMenuTitle');
@@ -751,6 +758,7 @@ el('photoMenuCancel')?.addEventListener('click', () => el('photoMenuOverlay')?.c
 
 el('photoMenuGemini')?.addEventListener('click', () => {
   if (!currentPhotoTarget) return;
+  if(imageGenerationBusy)return showToast('Aguarde a imagem atual terminar; a sessão continua utilizável.');
   const { scope, id } = currentPhotoTarget;
   if(!geminiState.textSceneConfigured){
     showToast('A geração integrada requer uma chave Gemini com cota de imagens habilitada. A cota gratuita de imagem não está disponível: use a galeria ou a opção externa.');

@@ -76,6 +76,9 @@ class MainActivity : Activity() {
     private val creationCoordinator = NativeCharacterCreationCoordinator()
     private val loadoutCoordinator = NativeCharacterLoadoutCoordinator()
     private val io = Executors.newSingleThreadExecutor()
+    // Network image generation must never block the session/bridge executor.
+    private val imageIo = Executors.newSingleThreadExecutor()
+    private val imageRequestBusy = java.util.concurrent.atomic.AtomicBoolean(false)
     @Volatile private var pendingCharacterExport: Pair<String, String>? = null
     private var pendingImageChooser: android.webkit.ValueCallback<Array<Uri>>? = null
 
@@ -181,7 +184,9 @@ class MainActivity : Activity() {
 
         io.execute {
             bootstrapIfMissing()
-            saveSharedSceneImage(intent, notifyUi = false)
+            // An invalid shared image must never prevent WebView startup.
+            try { saveSharedSceneImage(intent, notifyUi = false) }
+            catch (t: Throwable) { android.util.Log.e("BraseiroOSE", "Startup media import ignored", t) }
             runOnUiThread {
                 if (!isFinishing && !isDestroyed) webView.loadUrl(START_URL)
             }
@@ -191,7 +196,14 @@ class MainActivity : Activity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        io.execute { saveSharedSceneImage(intent, notifyUi = true) }
+        io.execute {
+            try { saveSharedSceneImage(intent, notifyUi = true) }
+            catch (t: Throwable) {
+                android.util.Log.e("BraseiroOSE", "Shared image import failed", t)
+                send(JSONObject().put("type", "BridgeError").put("payload", JSONObject()
+                    .put("operation", "ANDROID_SHARE_IMAGE").put("message", safeError(t))))
+            }
+        }
     }
 
     @Deprecated("Deprecated in Android API; retained for document picker compatibility on minSdk 26")
@@ -723,11 +735,11 @@ class MainActivity : Activity() {
                         "SceneImageGenerate" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
                             val key = credentials.get(GeminiCredentialStore.Slot.TEXT_SCENE) ?: error("GEMINI_TEXT_SCENE_KEY_MISSING")
-                            val blob = gemini.generateSceneImage(key, runtimeSettings.snapshot().imageModel, buildSceneImagePrompt(current), "16:9")
-                            val sceneId = scenePresentationId(current)
-                            val url = mediaStore.save(PresentationMediaStore.Scope.SCENE, sceneId, blob.mimeType, blob.data)
-                            send(JSONObject().put("type", "SceneImageResult").put("payload", JSONObject()
-                                .put("ok", true).put("url", url).put("sceneId", sceneId).put("mechanicalDelta", false)))
+                            startImageGeneration(
+                                PresentationMediaStore.Scope.SCENE, scenePresentationId(current),
+                                key, runtimeSettings.snapshot().imageModel,
+                                buildSceneImagePrompt(current), "16:9"
+                            ))
                         }
 
                         "PortraitImageGenerate" -> {
@@ -755,12 +767,7 @@ class MainActivity : Activity() {
                                 else -> error("UNSUPPORTED_PORTRAIT_KIND")
                             }
                             val key = credentials.get(GeminiCredentialStore.Slot.TEXT_SCENE) ?: error("GEMINI_TEXT_SCENE_KEY_MISSING")
-                            val blob = gemini.generateSceneImage(key, runtimeSettings.snapshot().imageModel, prompt, "1:1")
-                            val url = mediaStore.save(scope, stableId, blob.mimeType, blob.data)
-                            val persisted = session.loadSession(CAMPAIGN_ID)
-                            send(JSONObject().put("type", "PresentationImageSaved").put("payload", JSONObject()
-                                .put("ok", true).put("url", url).put("scope", scope.name).put("id", stableId).put("mechanicalDelta", false)
-                                .put("viewState", projectForUi(persisted))))
+                            startImageGeneration(scope, stableId, key, runtimeSettings.snapshot().imageModel, prompt, "1:1"))
                         }
 
                         "PresentationImageSave" -> {
@@ -1842,8 +1849,21 @@ class MainActivity : Activity() {
     private fun saveSharedSceneImage(incoming: Intent?, notifyUi: Boolean) {
         if (incoming?.action != Intent.ACTION_SEND || incoming.type?.startsWith("image/") != true) return
         val uri = incoming.getParcelableExtra<Uri>(Intent.EXTRA_STREAM) ?: return
-        val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
-        require(bytes.isNotEmpty() && bytes.size <= 20 * 1024 * 1024) { "IMAGE_SIZE_INVALID" }
+        // Stream with a strict cap BEFORE allocating the image; readBytes()
+        // could previously allocate hundreds of MB and prevent app startup.
+        val limit = 20 * 1024 * 1024
+        val bytes = contentResolver.openInputStream(uri)?.use { input ->
+            val output = java.io.ByteArrayOutputStream()
+            val chunk = ByteArray(8192)
+            while (true) {
+                val count = input.read(chunk)
+                if (count < 0) break
+                require(output.size() + count <= limit) { "IMAGE_SIZE_INVALID" }
+                output.write(chunk, 0, count)
+            }
+            output.toByteArray()
+        } ?: return
+        require(bytes.isNotEmpty()) { "IMAGE_SIZE_INVALID" }
         val mime = contentResolver.getType(uri)?.takeIf { it in setOf("image/jpeg", "image/png", "image/webp") } ?: "image/jpeg"
         val current = session.loadSession(CAMPAIGN_ID)
         val target = consumeExternalImageTarget(current)
@@ -1857,6 +1877,75 @@ class MainActivity : Activity() {
                 .put("sceneId", if (scope == PresentationMediaStore.Scope.SCENE) stableId else JSONObject.NULL)
                 .put("source", "ANDROID_SHARE").put("mechanicalDelta", false)
                 .put("viewState", projectForUi(current))))
+        }
+    }
+
+    /**
+     * Gemini networking runs outside the canonical IO executor. The SessionEngine
+     * and media commit stay on IO and never race the campaign's state machine.
+     * A single in-flight image prevents exponential memory/HTTP accumulation.
+     */
+    private fun startImageGeneration(
+        scope: PresentationMediaStore.Scope,
+        stableId: String,
+        apiKey: String,
+        model: String,
+        prompt: String,
+        aspectRatio: String
+    ) {
+        if (!imageRequestBusy.compareAndSet(false, true)) {
+            send(JSONObject().put("type", "BridgeError").put("payload", JSONObject()
+                .put("operation", "IMAGE_GENERATE").put("message", "IMAGE_GENERATION_ALREADY_RUNNING")))
+            return
+        }
+        send(JSONObject().put("type", "ImageGenerationState").put("payload", JSONObject()
+            .put("busy", true)))
+        try {
+            imageIo.execute {
+                val attempt = runCatching {
+                    gemini.generateSceneImage(apiKey, model, prompt, aspectRatio)
+                }
+                try {
+                    io.execute {
+                        try {
+                            val blob = attempt.getOrThrow()
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val stillValid = when (scope) {
+                                PresentationMediaStore.Scope.SCENE -> stableId == scenePresentationId(current)
+                                PresentationMediaStore.Scope.CHARACTER -> current.campaignState.game.characters.containsKey(stableId)
+                                PresentationMediaStore.Scope.NPC -> current.campaignState.game.npcs.containsKey(stableId)
+                                PresentationMediaStore.Scope.ITEM -> current.campaignState.game.inventory.items.containsKey(stableId)
+                            }
+                            require(stillValid) { "IMAGE_TARGET_CHANGED" }
+                            val url = mediaStore.save(scope, stableId, blob.mimeType, blob.data)
+                            if (scope == PresentationMediaStore.Scope.SCENE) {
+                                send(JSONObject().put("type", "SceneImageResult").put("payload", JSONObject()
+                                    .put("ok", true).put("url", url).put("sceneId", stableId)
+                                    .put("mechanicalDelta", false)))
+                            } else {
+                                send(JSONObject().put("type", "PresentationImageSaved").put("payload", JSONObject()
+                                    .put("ok", true).put("url", url).put("scope", scope.name).put("id", stableId)
+                                    .put("mechanicalDelta", false)
+                                    .put("viewState", projectForUi(current))))
+                            }
+                        } catch (t: Throwable) {
+                            android.util.Log.e("BraseiroOSE", "Image generation failed for $scope", t)
+                            send(JSONObject().put("type", "BridgeError").put("payload", JSONObject()
+                                .put("operation", "IMAGE_GENERATE").put("message", safeError(t))))
+                        } finally {
+                            imageRequestBusy.set(false)
+                            send(JSONObject().put("type", "ImageGenerationState").put("payload", JSONObject()
+                                .put("busy", false)))
+                        }
+                    }
+                } catch (ignored: java.util.concurrent.RejectedExecutionException) {
+                    imageRequestBusy.set(false) // Activity is closing.
+                }
+            }
+        } catch (t: java.util.concurrent.RejectedExecutionException) {
+            imageRequestBusy.set(false)
+            send(JSONObject().put("type", "BridgeError").put("payload", JSONObject()
+                .put("operation", "IMAGE_GENERATE").put("message", "IMAGE_WORKER_UNAVAILABLE")))
         }
     }
 
@@ -1885,6 +1974,7 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
+        imageIo.shutdownNow()
         io.shutdownNow()
         if (::geminiTts.isInitialized) geminiTts.shutdown()
         if (::tts.isInitialized) tts.shutdown()
