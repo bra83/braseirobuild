@@ -12,8 +12,8 @@ android {
     applicationId = "com.braseiro.talesvtt"
     minSdk = 24
     targetSdk = 36
-    versionCode = 27
-    versionName = "1.3.20"
+    versionCode = 28
+    versionName = "1.3.21"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }

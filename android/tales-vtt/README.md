@@ -1,4 +1,4 @@
-# BRASEIRO TALES VTT — Android Studio Source 1.3.20 FINAL (build 26)
+# BRASEIRO TALES VTT — Android Studio 1.3.21 candidato (build 28)
 
 Projeto Android/Compose final para **Tales from the Loop — Tales/Kids**, com núcleo mecânico Flood/Teens isolado para expansão e biblioteca visual compartilhada.
 
