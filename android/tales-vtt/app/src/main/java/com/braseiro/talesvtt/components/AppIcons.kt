@@ -11,6 +11,8 @@ import androidx.compose.material.icons.outlined.Air
 import androidx.compose.material.icons.outlined.Dehaze
 import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.material.icons.outlined.WbSunny
+import androidx.compose.material.icons.outlined.Brightness4
+import androidx.compose.material.icons.outlined.NightsStay
 import androidx.compose.material.icons.outlined.Backpack
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Casino
@@ -42,6 +44,8 @@ object AppIcons {
 
   val WeatherOvercast = Icons.Outlined.CloudQueue
   val WeatherClear = Icons.Outlined.WbSunny
+  val WeatherDusk = Icons.Outlined.Brightness4
+  val WeatherNight = Icons.Outlined.NightsStay
   val WeatherRain = Icons.Outlined.WaterDrop
   val WeatherSnow = Icons.Outlined.AcUnit
   val WeatherFog = Icons.Outlined.Dehaze

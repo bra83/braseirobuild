@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.random.Random
+import org.json.JSONObject
 
 data class MotorRuntimeStatus(
   val firewallReady: Boolean = true,
@@ -118,7 +119,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
       markMotorTransportOffline("Resultado pronto, mas a chave Gemini não está configurada para enviar ao Mestre.")
       return
     }
-    dispatch(GameEvent.SetTestResultReported(true))
+    // Only acknowledge after the model returned a validated narration. This prevents
+    // a permanently disabled button when network/model processing fails.
     val extScene = extendedIndex?.let { _state.value.extended.scenes.getOrNull(it) }
     requestMotor(MotorIntent(
       type = if (extendedIndex != null) "extended_test_result" else "test_result",
@@ -187,10 +189,19 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     viewModelScope.launch {
       motorTransport.request(intent, stateSnapshot, privateSnapshot)
         .onSuccess { transport ->
-          applyMotorPacket(transport.parsed.packet, transport.parsed.rejectedWireActions)
+          val applied = applyMotorPacket(transport.parsed.packet, transport.parsed.rejectedWireActions)
+          if (intent.type == "test_result" && applied.acceptedActions > 0 &&
+              transport.parsed.packet.actions.any { it is MotorAction.Narration }) {
+            // A narrative result authorizes returning to the scene even if the model
+            // omitted the recommended test_clear action.
+            if (_state.value.activeTest != null && _state.value.testResolution != null) {
+              dispatch(GameEvent.ClearTest)
+            }
+            _motorRoute.value = MotorRouteHint.SCENE
+          }
         }
         .onFailure { error ->
-          if (intent.type == "test_result" && _state.value.testResolution?.reportedToGm == true) {
+          if (intent.type in setOf("test_result", "extended_test_result") && _state.value.testResolution?.reportedToGm == true) {
             dispatch(GameEvent.SetTestResultReported(false))
           }
           val rawMessage = error.message.orEmpty()
@@ -210,6 +221,49 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
   fun consumeMotorRoute() {
     _motorRoute.value = MotorRouteHint.NONE
+  }
+
+  fun applyGroupHelp(memberName: String) {
+    val current = _state.value
+    if (current.activeTest == null || current.testResolution != null) {
+      _dataStatus.value = "A ajuda precisa ser definida antes da rolagem."
+      return
+    }
+    val member = current.group.members.firstOrNull { it.name.equals(memberName, ignoreCase = true) }
+    if (member == null || member.broken || member.name.equals(current.kid.name, ignoreCase = true)) {
+      _dataStatus.value = "Ajudante inválido ou indisponível."
+      return
+    }
+    dispatch(GameEvent.ApplyHelp(member.name))
+    _dataStatus.value = if (_state.value.lastError == null) "Ajuda de ${member.name}: +1 dado antes da rolagem." else _state.value.lastError.orEmpty()
+  }
+
+  private fun rememberCurrentKid() {
+    val state = _state.value
+    val old = runCatching { JSONObject(prefs.getString(KEY_KID_ROSTER, "{}") ?: "{}") }.getOrDefault(JSONObject())
+    old.put(state.rulesProfile.name + "|" + state.kid.name, KidJsonCodec.encode(state.rulesProfile, state.kid))
+    prefs.edit().putString(KEY_KID_ROSTER, old.toString()).apply()
+  }
+
+  fun selectGroupKid(memberName: String) {
+    val current = _state.value
+    val member = current.group.members.firstOrNull { it.name.equals(memberName, ignoreCase = true) } ?: return
+    if (member.name.equals(current.kid.name, ignoreCase = true)) return
+    if (current.activeTest != null) {
+      _dataStatus.value = "Finalize o teste atual antes de trocar o Kid ativo."
+      return
+    }
+    rememberCurrentKid()
+    val roster = runCatching { JSONObject(prefs.getString(KEY_KID_ROSTER, "{}") ?: "{}") }.getOrDefault(JSONObject())
+    val stored = roster.optString(current.rulesProfile.name + "|" + member.name)
+    val selected = stored.takeIf { it.isNotBlank() }?.let { runCatching { KidJsonCodec.decodeForProfile(it, current.rulesProfile) }.getOrNull() }
+      ?: (if (current.rulesProfile == RulesProfile.FLOOD_TEENS) RandomTeenFactory.create() else RandomKidFactory.create()).copy(
+        name = member.name, archetype = member.archetype, portraitAssetKey = member.portraitAssetKey,
+        conditions = member.conditions, broken = member.broken
+      )
+    _state.value = current.copy(kid = selected, lastError = null)
+    persistAutosave()
+    _dataStatus.value = "Ficha individual selecionada: ${selected.name}."
   }
 
   fun submitHelpProposal() {
@@ -355,6 +409,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
       return
     }
     if (_state.value.rulesProfile==profile) return
+    prefs.edit().remove(KEY_KID_ROSTER).apply() // Separate incompatible Tales/Flood rosters.
     val character=if(profile==RulesProfile.FLOOD_TEENS) RandomTeenFactory.create() else RandomKidFactory.create()
     _state.value=GameState(rulesProfile=profile,kid=character,group=groupForProfile(profile,character))
     gmPrivateState=GmPrivateState()
@@ -370,7 +425,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     if (members.isEmpty()) {
       members += GroupMemberState(kid.name, kid.archetype, kid.portraitAssetKey)
     } else {
-      members[0] = members[0].copy(
+      val index = members.indexOfFirst { it.name.equals(_state.value.kid.name, ignoreCase = true) }.takeIf { it >= 0 } ?: 0
+      members[index] = members[index].copy(
         name = kid.name,
         archetype = kid.archetype,
         portraitAssetKey = kid.portraitAssetKey,
@@ -871,10 +927,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         KidJsonCodec.decodeForProfile(text,_state.value.rulesProfile)
       }.onSuccess { kid ->
         val members = _state.value.group.members.toMutableList()
-        if (members.isNotEmpty()) members[0] = members[0].copy(
+        if (members.isNotEmpty()) {
+          val index = members.indexOfFirst { it.name.equals(_state.value.kid.name, ignoreCase = true) }.takeIf { it >= 0 } ?: 0
+          members[index] = members[index].copy(
           name = kid.name, archetype = kid.archetype, portraitAssetKey = kid.portraitAssetKey,
           conditions = kid.conditions, broken = kid.broken
         )
+        }
         _state.value = _state.value.copy(kid = kid, group = _state.value.group.copy(members = members), activeTest = null, testResolution = null, lastError = null)
         persistAutosave()
         _dataStatus.value = "Ficha ${kid.name} importada e validada para ${_state.value.rulesProfile.wireName}."
@@ -951,6 +1010,17 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
   }
 
   private fun persistAutosave() {
+    val snapshot = _state.value
+    val updatedMembers = snapshot.group.members.map { member ->
+      if (member.name.equals(snapshot.kid.name, ignoreCase = true)) member.copy(
+        archetype = snapshot.kid.archetype, portraitAssetKey = snapshot.kid.portraitAssetKey,
+        conditions = snapshot.kid.conditions, broken = snapshot.kid.broken
+      ) else member
+    }
+    if (updatedMembers != snapshot.group.members) {
+      _state.value = snapshot.copy(group = snapshot.group.copy(members = updatedMembers))
+    }
+    rememberCurrentKid()
     prefs.edit()
       .putString(KEY_AUTOSAVE, GameSnapshotCodec.encode(_state.value))
       .putString(KEY_GM_AUTOSAVE, GmPrivateSnapshotCodec.encode(gmPrivateState))
@@ -977,5 +1047,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private const val KEY_ADVENTURE_STARTED = "adventure_started_v1"
     private const val KEY_ADVENTURE_HISTORY = "adventure_history_v1"
     private const val KEY_ACTIVE_INSTANCE_ID = "active_instance_id_v1"
+    private const val KEY_KID_ROSTER = "kid_roster_v1"
   }
 }

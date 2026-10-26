@@ -49,14 +49,18 @@ fun ContextItem(
     ContextIconType.LOCATION -> AppIcons.Location
     ContextIconType.SCENE_TONE -> AppIcons.AudioWaves
     ContextIconType.MYSTERY -> AppIcons.Mystery
-    ContextIconType.DAYLIGHT -> AppIcons.WeatherOvercast
+    ContextIconType.DAYLIGHT -> when {
+      item.value.orEmpty().contains("crep", ignoreCase = true) || item.value.orEmpty().contains("entardec", ignoreCase = true) -> AppIcons.WeatherDusk
+      item.value.orEmpty().contains("noite", ignoreCase = true) || item.value.orEmpty().contains("madrug", ignoreCase = true) -> AppIcons.WeatherNight
+      else -> AppIcons.WeatherClear
+    }
     ContextIconType.AUDIO_TTS -> AppIcons.AudioTts
   }
   val imageRes: Int? = when (item.iconType) {
     ContextIconType.CHARACTERS -> R.drawable.nav_group
     ContextIconType.LOCATION -> R.drawable.state_current_location
     ContextIconType.MYSTERY -> R.drawable.nav_mystery
-    ContextIconType.DAYLIGHT -> R.drawable.state_daylight
+    ContextIconType.DAYLIGHT -> null // Dynamic vector matches the real narrated daylight.
     ContextIconType.AUDIO_TTS -> R.drawable.action_tts
     else -> null
   }

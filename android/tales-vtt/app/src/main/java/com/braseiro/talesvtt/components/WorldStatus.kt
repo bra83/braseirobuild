@@ -39,7 +39,14 @@ fun WorldStatus(
     horizontalArrangement = Arrangement.End
   ) {
     Icon(
-      imageVector = AppIcons.WeatherOvercast,
+      imageVector = when {
+        data.time.substringBefore(':').toIntOrNull()?.let { it >= 19 || it < 5 } == true -> AppIcons.WeatherNight
+        data.time.substringBefore(':').toIntOrNull()?.let { it >= 17 && it < 19 } == true -> AppIcons.WeatherDusk
+        data.weather.contains("chuva", ignoreCase = true) -> AppIcons.WeatherRain
+        data.weather.contains("neve", ignoreCase = true) -> AppIcons.WeatherSnow
+        data.weather.contains("nublado", ignoreCase = true) -> AppIcons.WeatherOvercast
+        else -> AppIcons.WeatherClear
+      },
       contentDescription = "Clima",
       tint = AppTheme.colors.accentAmber,
       modifier = Modifier.size(16.dp)

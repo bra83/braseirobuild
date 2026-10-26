@@ -33,6 +33,8 @@ import com.braseiro.talesvtt.game.Condition
 import com.braseiro.talesvtt.game.CanonicalTalesRules
 import com.braseiro.talesvtt.game.BonusEffectKind
 import com.braseiro.talesvtt.game.GameState
+import com.braseiro.talesvtt.game.MotorRuntimeStatus
+import com.braseiro.talesvtt.components.PhysicalDiceTray
 import com.braseiro.talesvtt.game.TestPurpose
 import com.braseiro.talesvtt.game.RulesProfile
 import com.braseiro.talesvtt.game.RulesProfiles
@@ -48,7 +50,8 @@ fun TroubleScreen(
   onNavigate: (AppDestination) -> Unit,
   gameState: GameState,
   onRoll: () -> Unit,
-  onHelp: () -> Unit,
+  onHelp: (String) -> Unit,
+  motorStatus: MotorRuntimeStatus,
   onLuck: () -> Unit,
   onPush: (Condition?) -> Unit,
   onPride: () -> Unit,
@@ -66,6 +69,7 @@ fun TroubleScreen(
   val result = gameState.testResolution
   val activeCondition = gameState.kid.conditions.firstOrNull()
   val flood = gameState.rulesProfile == RulesProfile.FLOOD_TEENS
+  var selectingHelper by remember(test?.reason) { mutableStateOf(false) }
 
   val contextItems = listOf(
     ContextItemData("tr_loc", "Local Atual", gameState.scene.location, ContextIconType.LOCATION),
@@ -122,6 +126,13 @@ fun TroubleScreen(
       Spacer(modifier = Modifier.height(Dimens.spacing10))
     }
 
+    if (motorStatus.busy || motorStatus.lastMessage.contains("Mestre", ignoreCase = true)) {
+      AppPanel(borderColor = if (motorStatus.busy) AppTheme.colors.accentCyan else AppTheme.colors.borderSubtle) {
+        Text(if (motorStatus.busy) "MESTRE GEMINI PROCESSANDO..." else "STATUS DO MESTRE", style = AppTheme.typography.label.copy(color = AppTheme.colors.accentCyan))
+        Text(motorStatus.lastMessage, style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.textPrimary))
+      }
+      Spacer(modifier = Modifier.height(Dimens.spacing8))
+    }
     if (test == null) {
       AppPanel(borderColor = AppTheme.colors.accentCyan) {
         Text(text = "NENHUM TESTE ATIVO", style = AppTheme.typography.sectionTitle.copy(color = AppTheme.colors.accentCyan))
@@ -204,13 +215,27 @@ fun TroubleScreen(
         Spacer(modifier = Modifier.height(7.dp))
         if (test.helperKid == null) {
           SecondaryButton(
-            text = "PEDIR AJUDA  •  +1 dado de ${if(flood) "um Teen" else "um Kid"}",
+            text = "PEDIR AJUDA • escolher um ${if(flood) "Teen" else "Kid"}",
             icon = AppIcons.Group,
-            onClick = onHelp,
+            onClick = { selectingHelper = !selectingHelper },
             modifier = Modifier.fillMaxWidth()
           )
+          if (selectingHelper) {
+            Spacer(modifier = Modifier.height(6.dp))
+            Text("Escolha um companheiro presente que possa ajudar de verdade. A ajuda dá +1 dado antes de rolar e compartilha consequências.", style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.textSecondary))
+            gameState.group.members.filter { !it.name.equals(gameState.kid.name, ignoreCase = true) && !it.broken }.forEach { companion ->
+              Spacer(modifier = Modifier.height(5.dp))
+              SecondaryButton(
+                text = "AJUDA DE ${companion.name.uppercase()} • +1 DADO",
+                onClick = { onHelp(companion.name); selectingHelper = false },
+                modifier = Modifier.fillMaxWidth()
+              )
+            }
+          }
         }
       } else {
+        PhysicalDiceTray(result.dice)
+        Spacer(modifier = Modifier.height(Dimens.spacing6))
         RollResultPanel(gameState, onLuck, onPush, onPride, onShame, onScar)
         LeadershipComfortEffect(gameState,onLeadershipComfort)
         CanonicalBonusEffects(gameState,onPurchaseBonusEffect)
@@ -219,9 +244,12 @@ fun TroubleScreen(
         PrimaryButton(
           text = when { result.reportedToGm -> "RESULTADO ENVIADO AO MESTRE"; pendingComfort -> "ESCOLHA A CONDIÇÃO CURADA"; else -> "ENVIAR RESULTADO AO MESTRE" },
           onClick = onSubmitResult,
-          enabled = !result.reportedToGm && !pendingComfort,
+          enabled = !result.reportedToGm && !pendingComfort && !motorStatus.busy,
           modifier = Modifier.fillMaxWidth()
         )
+        if (motorStatus.busy) {
+          Text("O resultado está sendo processado. A cena mudará quando o Mestre responder; não é necessário trocar de aba.", style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.accentCyan))
+        }
       }
     }
 

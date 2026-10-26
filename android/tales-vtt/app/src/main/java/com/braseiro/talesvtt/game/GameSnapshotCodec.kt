@@ -24,6 +24,7 @@ object GameSnapshotCodec {
     fun line(key: String, value: Any?) { append(key).append('=').append(value ?: "").append('\n') }
     line("version", VERSION)
     line("rules.profile", state.rulesProfile.name)
+    line("kid.id", enc(state.kid.id))
     line("kid.name", enc(state.kid.name))
     line("kid.archetype", enc(state.kid.archetype))
     line("kid.portrait", enc(state.kid.portraitAssetKey))

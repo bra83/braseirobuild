@@ -107,7 +107,8 @@ fun AppNavGraph(
         onExportKid = gameViewModel::exportKid,
         onImportKid = gameViewModel::importKid,
         onChangePortrait = gameViewModel::setKidPortrait,
-        onRecordFloodScar = gameViewModel::recordFloodScar
+        onRecordFloodScar = gameViewModel::recordFloodScar,
+        onSelectKid = gameViewModel::selectGroupKid
       )
     }
     composable(AppDestination.GROUP.route) {
@@ -182,7 +183,8 @@ fun AppNavGraph(
         onNavigate = onNavigate,
         gameState = gameState,
         onRoll = gameViewModel::roll,
-        onHelp = gameViewModel::submitHelpProposal,
+        onHelp = gameViewModel::applyGroupHelp,
+        motorStatus = motorStatus,
         onLuck = gameViewModel::spendLuck,
         onPush = gameViewModel::push,
         onPride = gameViewModel::usePride,

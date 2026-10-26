@@ -58,6 +58,7 @@ fun KidScreen(
   onImportKid: (Uri) -> Unit,
   onChangePortrait: (Uri) -> Unit,
   onRecordFloodScar: (String) -> Unit,
+  onSelectKid: (String) -> Unit,
   modifier: Modifier = Modifier
 ) {
   val exportKid = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { it?.let(onExportKid) }
@@ -86,6 +87,26 @@ fun KidScreen(
     onNavigate = onNavigate,
     modifier = modifier
   ) {
+    SectionHeader(title = if (flood) "4 TEENS • FICHAS DO GRUPO" else "4 KIDS • FICHAS DO GRUPO", color = AppTheme.colors.accentCyan)
+    Spacer(modifier = Modifier.height(Dimens.spacing6))
+    gameState.group.members.chunked(2).forEach { members ->
+      Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Dimens.spacing6)) {
+        members.forEach { member ->
+          val selected = member.name.equals(gameState.kid.name, ignoreCase = true)
+          SecondaryButton(
+            text = (if (selected) "● " else "") + member.name.substringBefore(' '),
+            onClick = { onSelectKid(member.name) },
+            modifier = Modifier.weight(1f)
+          )
+        }
+      }
+      Spacer(modifier = Modifier.height(Dimens.spacing6))
+    }
+    Text(
+      "Selecione um membro para abrir sua ficha individual. A ficha ativa é usada nas rolagens; cada membro mantém seus próprios atributos e recursos.",
+      style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.textSecondary)
+    )
+    Spacer(modifier = Modifier.height(Dimens.spacing12))
     SectionHeader(title = "VISÃO GERAL", color = AppTheme.colors.accentCyan)
     Spacer(modifier = Modifier.height(Dimens.spacing8))
 
