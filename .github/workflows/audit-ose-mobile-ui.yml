@@ -23,13 +23,22 @@ jobs:
         shell: powershell
         run: |
           $UI = "ose/1.0.0/source/web-ui-p1"
-          node --check "$UI/dice3d_core.js"
-          node --check "$UI/dice3d_app.js"
-          node --check "$UI/dice3d_physics_view.js"
-          node --check "$UI/equipment-icon-cleaner.js"
-          node --check "$UI/p1.js"
-          node "$UI/ose_image_nav_regression.cjs"
-          node "$UI/dice3d_physics.test.cjs"
+          $ErrorActionPreference='Stop'
+          $files = @(
+            "$UI/dice3d_core.js",
+            "$UI/dice3d_app.js",
+            "$UI/dice3d_physics_view.js",
+            "$UI/equipment-icon-cleaner.js",
+            "$UI/p1.js"
+          )
+          foreach ($file in $files) {
+            & node --check $file
+            if ($LASTEXITCODE -ne 0) { throw "OSE JavaScript syntax failure: $file" }
+          }
+          & node "$UI/ose_image_nav_regression.cjs"
+          if ($LASTEXITCODE -ne 0) { throw 'OSE image and startup regression failed' }
+          & node "$UI/dice3d_physics.test.cjs"
+          if ($LASTEXITCODE -ne 0) { throw 'OSE physics test failed' }
       - name: Run mobile UI audit and capture evidence
         shell: powershell
         run: |

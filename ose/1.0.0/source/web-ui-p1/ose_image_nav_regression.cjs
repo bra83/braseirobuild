@@ -16,6 +16,8 @@ function verify(name, ok) {
   assert.ok(ok, name);
   console.log('PASS '+name);
 }
+// Keep all older/newer assertions in the same strict failure path.
+const check = verify;
 verify('dock final 56px in mobile WebView', css.includes('.bottom{bottom:0;height:56px;max-height:56px;padding-bottom:0}'));
 verify('native bottom inset separated from CSS dock', activity.includes('lp.bottomMargin = insets.systemWindowInsetBottom') && css.includes('#phone{padding-bottom:56px}'));
 verify('no asset frame CSS cropping', !css.includes('clip-path:inset(12%') && css.includes('clip-path:none!important'));
