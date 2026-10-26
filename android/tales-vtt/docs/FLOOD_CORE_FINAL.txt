@@ -1,0 +1,47 @@
+PASS | 12 Flood skills
+PASS | 10 Flood types
+PASS | all Flood types have 3 key skills
+PASS | valid Teen creation
+PASS | age 13 rejected
+PASS | age 20 rejected
+PASS | attribute sum 14 required
+PASS | skill sum 10 required
+PASS | non-key initial skill max 1
+PASS | runtime skill max 5
+PASS | XP capped 10
+PASS | GM test accepted
+PASS | base Flood pool 8
+PASS | minimum 1 die when not Broken
+PASS | Broken pool is zero
+PASS | one helper adds one die
+PASS | second helper blocked
+PASS | iconic-style +2 approved bonus
+PASS | 6 counts as success
+PASS | Shame adds automatic success
+PASS | Shame cannot repeat in same test
+PASS | Scar adds +1 success
+PASS | Scar becomes accepted
+PASS | accepted Scar cannot be used again
+PASS | Push marks Condition
+PASS | Push rerolls non-six
+PASS | Push only once
+PASS | fifth Condition -> Broken
+PASS | Broken creates first Scar
+PASS | first Scar needs no death roll
+PASS | second Scar records d6
+PASS | failed non-extended death roll is pending
+PASS | Flood Normal target = 3x Teens
+PASS | above half -> compromise
+PASS | exact half does not invent ruling
+PASS | target reached -> objective complete
+PASS | below half -> complete failure
+PASS | Extremely Difficult target = 4x
+PASS | Almost Impossible target = 5x
+PASS | Anchor clears Conditions
+PASS | accepted Scar can heal
+PASS | unaccepted Scar cannot heal
+PASS | XP storage cap 10
+PASS | 5 XP buys +1 Skill
+PASS | Flood core has no Tales Luck state
+PASS | Flood core has no Tales Pride state
+RESULT 46 PASS / 0 FAIL

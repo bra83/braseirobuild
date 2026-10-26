@@ -1,0 +1,411 @@
+Starting a Gradle Daemon, 1 incompatible and 4 stopped Daemons could not be reused, use --status for details
+Calculating task graph as configuration cache cannot be reused because file 'app\build.gradle.kts' has changed.
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugBuildConfig
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+> Task :app:compileDebugKotlin
+w: file:///C:/Users/bcruz/Downloads/BRASEIRO_TALES_FLOOD_DEV/app/src/main/java/com/braseiro/talesvtt/audio/UniversalTtsV3Engine.kt:171:23 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///C:/Users/bcruz/Downloads/BRASEIRO_TALES_FLOOD_DEV/app/src/main/java/com/braseiro/talesvtt/components/AppIcons.kt:38:32 'val Icons.Outlined.MenuBook: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Outlined.MenuBook.
+w: file:///C:/Users/bcruz/Downloads/BRASEIRO_TALES_FLOOD_DEV/app/src/main/java/com/braseiro/talesvtt/components/AppIcons.kt:57:35 'val Icons.Outlined.DirectionsRun: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Outlined.DirectionsRun.
+
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:compileDebugJavaWithJavac
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:compileDebugUnitTestKotlin
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
+
+> Task :app:testDebugUnitTest
+
+UniversalTtsV3EngineTest > testSplitIntoSafeChunks_LongNarrative PASSED
+
+UniversalTtsV3EngineTest > testSplitIntoSafeChunks_ShortTextDoesNotSplit PASSED
+
+UniversalTtsV3EngineTest > testSanitizeVisibleText_RemovesTagsAndInstructions PASSED
+
+NarrationTextChunkerTest > longNarrativeIsSplitWithoutOversizedChunks PASSED
+
+AiAdventureGenerationTest > testInvalidAdventurePackageRejected PASSED
+
+AiAdventureGenerationTest > testProceduralOfflineFallbackIsValidPackage PASSED
+
+AiAdventureGenerationTest > testValidAdventurePackageSchemaV1Passes PASSED
+
+CanonicalRulesV1313Test > actualMysteryItemUsesOnlyItsStoredBonus PASSED
+
+CanonicalRulesV1313Test > mysteryBoundaryKeepsMysteryItemsUntilChangeThenDropsRemaining PASSED
+
+CanonicalRulesV1313Test > locationsRemainDynamicVisibleStateNotHardcodedRuleCatalog PASSED
+
+CanonicalRulesV1313Test > zeroPoolDoesNotBorrowFloodMinimumDie PASSED
+
+CanonicalRulesV1313Test > snapshotRoundTripPreservesInventoryAndFavoriteSong PASSED
+
+CanonicalRulesV1313Test > transportExplicitlySeparatesMechanicalAuthorityFromOptionalReferenceContext PASSED
+
+CanonicalRulesV1313Test > itemAcquisitionAndRemovalAreEngineOwned PASSED
+
+CanonicalRulesV1313Test > ordinaryObjectNeverGetsAutomaticBonus PASSED
+
+CanonicalRulesV1313Test > eachMildConditionRemovesExactlyOneDieAndBrokenAutoFails PASSED
+
+CanonicalRulesV1313Test > canonicalCatalogIsLocalAndCompleteForCoreCharacterMath PASSED
+
+DeterministicRulesFuzz250kTest > testDeterministicRulesFuzz250kEvents PASSED
+
+FloodCoreMechanicsV1316Test > laterScarNeedsSurvivalRollAndCanRemoveTeen PASSED
+
+FloodCoreMechanicsV1316Test > acceptedScarCanOnlyHealAfterSessionWithGroupApproval PASSED
+
+FloodCoreMechanicsV1316Test > talesDoesNotAcquireFloodScarWhenBroken PASSED
+
+FloodCoreMechanicsV1316Test > snapshotPreservesPendingScar PASSED
+
+FloodCoreMechanicsV1316Test > floodCompleteExtendedFailureBreaksActiveTeenAndNeedsScar PASSED
+
+FloodCoreMechanicsV1316Test > sixthScarAlwaysRemovesTeen PASSED
+
+FloodCoreMechanicsV1316Test > fifthConditionBreaksAndRequiresScarBeforeHealing PASSED
+
+FloodCoreMechanicsV1316Test > frictionRecoveryHealsOnlyWhenNoTroubleOccurred PASSED
+
+FloodCoreMechanicsV1316Test > leadSceneCreatesPoolButAddsZeroThreat PASSED
+
+FloodCoreMechanicsV1316Test > scarGivesAutomaticSuccessOnceAndBecomesAccepted PASSED
+
+FloodEffectsAndItemsV1316Test > floodRealItemsRequirePlusOneToPlusThree PASSED
+
+FloodEffectsAndItemsV1316Test > sourceFilesRouteEffectsAndItemsThroughRulesProfiles PASSED
+
+FloodEffectsAndItemsV1316Test > floodForceWaiverAutoResolvesExactSameTrouble PASSED
+
+FloodEffectsAndItemsV1316Test > replacingIconicThenConfirmingChangeLosesOtherFloodItems PASSED
+
+FloodEffectsAndItemsV1316Test > floodLeadershipPrepareUsesTwoFourSixPool PASSED
+
+FloodEffectsAndItemsV1316Test > floodCalculateExtraSuccessBanksInformationDie PASSED
+
+FloodEffectsAndItemsV1316Test > floodAndTalesEffectIdsAreMutuallyExclusive PASSED
+
+FloodMotorAndFrictionV1316Test > wireFloodAliasAlsoRecognizesFrictionRecovery PASSED
+
+FloodMotorAndFrictionV1316Test > systemPromptIsProfileNeutralAndMechanicalContractOwnsRules PASSED
+
+FloodMotorAndFrictionV1316Test > groupScreenNeverOffersTalesHideoutRecoveryToFlood PASSED
+
+FloodMotorAndFrictionV1316Test > wireRecognizesFrictionRecovery PASSED
+
+FloodMotorAndFrictionV1316Test > floodFrictionRecoveryHealsOnlyThroughFloodFirewall PASSED
+
+FloodProfileFoundationV1316Test > teenFactoryIsCanonicalAcrossSeeds PASSED
+
+FloodProfileFoundationV1316Test > floodPoolHasOneDieFloorButTalesDoesNot PASSED
+
+FloodProfileFoundationV1316Test > kidToTeenKeepsIdentityButRedistributesMechanics PASSED
+
+FloodProfileFoundationV1316Test > floodRejectsLuckAndPrideButAcceptsShame PASSED
+
+FloodProfileFoundationV1316Test > floodThreatTargetsAreThreeFourFive PASSED
+
+FloodProfileFoundationV1316Test > motorFirewallCannotCrossProfiles PASSED
+
+FloodProfileFoundationV1316Test > snapshotPreservesFloodProfileAndFields PASSED
+
+FloodProfileLifecycleV1316Test > pendingFloodScarBlocksXpClosure PASSED
+
+FloodProfileLifecycleV1316Test > menuAndCodecExposeExplicitProfileFirewall PASSED
+
+FloodProfileLifecycleV1316Test > floodChangeEditsShameButDoesNotSilentlyEditDrive PASSED
+
+FloodProfileLifecycleV1316Test > floodBirthdayAddsAgeOnlyAndTwentyLeavesPlay PASSED
+
+FloodProfileUiV1316Test > characterSheetExposesFloodStateAndPendingScar PASSED
+
+FloodProfileUiV1316Test > troubleBranchesShameScarsAwayFromLuckPride PASSED
+
+FloodProfileUiV1316Test > endingHasFloodXpChangeAndAgeBranches PASSED
+
+GmPrivateWorldMemoryV1315Test > samePrivateIdUpdatesInsteadOfDuplicating PASSED
+
+GmPrivateWorldMemoryV1315Test > privateUpsertsNeverMutatePlayerState PASSED
+
+GmPrivateWorldMemoryV1315Test > invalidCountdownIsRejected PASSED
+
+GmPrivateWorldMemoryV1315Test > legacyV1StillMigrates PASSED
+
+GmPrivateWorldMemoryV1315Test > privateMemoryRoundTripV2 PASSED
+
+LeadershipContactsV1315Test > contactBuildsOneUseItemUpToThree PASSED
+
+LeadershipContactsV1315Test > comfortNeverHealsBrokenTarget PASSED
+
+LeadershipContactsV1315Test > leadershipExtraCanHealLeader PASSED
+
+LeadershipContactsV1315Test > leadershipExtraCanHealAnotherTargetCondition PASSED
+
+LeadershipContactsV1315Test > leadershipAssignmentAddsDiceThenIsConsumed PASSED
+
+LeadershipContactsV1315Test > snapshotPersistsContactAndLeadershipResources PASSED
+
+LeadershipContactsV1315Test > leadershipComfortHealsChosenTargetCondition PASSED
+
+LeadershipContactsV1315Test > contactCannotStackWithAnotherItem PASSED
+
+NegativeCasesVerificationTest > testCase6_TtsSanitizationAndDucking PASSED
+
+NegativeCasesVerificationTest > testCase1_MalformedJsonAndCrossSystemRejection PASSED
+
+NegativeCasesVerificationTest > testCase5_ProfileSwitchGuardsConditionsAndSecrets PASSED
+
+NegativeCasesVerificationTest > testCase3_OfflineFallbackDoesNotCrashOrWipeScene PASSED
+
+NegativeCasesVerificationTest > testCase2_SupplementFirewallAndItemCapEnforcement PASSED
+
+NegativeCasesVerificationTest > testCase4_AdventureConclusionDoesNotDuplicateLegacy PASSED
+
+OfficialSupplementRulesTest > testOurFriendsTheMachines10PlusTriggerAndCaps PASSED
+
+OfficialSupplementRulesTest > testProfileFirewallInvariants PASSED
+
+OfficialSupplementRulesTest > testTgufAlienStagesAndHealAbility PASSED
+
+OfficialSupplementRulesTest > testHometownHackActivation PASSED
+
+RecoveryAndChangeV1314Test > activePlayCannotEditChangeFields PASSED
+
+RecoveryAndChangeV1314Test > genericRecoveryIsRejected PASSED
+
+RecoveryAndChangeV1314Test > anchorAndQualifiedHideoutHealAll PASSED
+
+RecoveryAndChangeV1314Test > comfortHealsExactlyOneMildConditionAndNeverBroken PASSED
+
+RecoveryAndChangeV1314Test > nextMysteryRequiresChangeReview PASSED
+
+RecoveryAndChangeV1314Test > talesChangeAllowsOnlyBetweenMysteriesAndRequiresConfirmation PASSED
+
+RouteHistoryTest > worldPatchRecordsOnlyRealLocationChanges PASSED
+
+RouteHistoryTest > snapshotRoundTripPreservesRoute PASSED
+
+SkillEffectsAndItemsV1315Test > itemWaitsForChange PASSED
+
+SkillEffectsAndItemsV1315Test > itemUpgradeCount PASSED
+
+SkillEffectsAndItemsV1315Test > snapshotPreservesNewState PASSED
+
+SkillEffectsAndItemsV1315Test > leadershipPool PASSED
+
+SkillEffectsAndItemsV1315Test > allSkillsHaveEffects PASSED
+
+SkillEffectsAndItemsV1315Test > sameTroubleAutoResolves PASSED
+
+SkillEffectsAndItemsV1315Test > matchingEffectOnly PASSED
+
+SkillEffectsAndItemsV1315Test > participationCannotBeNo PASSED
+
+SkillEffectsAndItemsV1315Test > randomCreationStillCanonical PASSED
+
+SkillEffectsAndItemsV1315Test > itemCanBecomeIconic PASSED
+
+SkillEffectsAndItemsV1315Test > informationBank PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession01 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession02 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession03 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession04 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession05 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession06 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession07 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession08 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession09 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession10 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession11 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession12 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession13 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession14 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession15 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession16 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession17 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession18 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession19 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession20 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession21 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession22 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession23 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession24 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession25 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession26 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession27 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession28 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession29 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession30 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession31 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession32 PASSED
+
+ThirtyThreeFloodSessionSimulationV1316Test > floodSession33 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session01 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session02 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session03 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session04 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session05 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session06 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session07 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session08 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session09 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session10 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session11 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session12 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session13 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session14 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session15 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session16 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session17 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session18 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session19 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session20 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session21 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session22 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session23 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session24 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session25 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session26 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session27 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session28 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session29 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session30 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session31 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session32 PASSED
+
+ThirtyThreeSessionSimulationV1315Test > session33 PASSED
+
+AdventureAndLifePersistenceEngineTest > testCharacterLegacyRecord_PersistenceAcrossAdventures PASSED
+
+AdventureAndLifePersistenceEngineTest > testWorldTimelineState_AdvanceTimeAndOffSceneJournal PASSED
+
+AdventureAndLifePersistenceEngineTest > testAdventurePackageValidator_RejectsInvalidSchema PASSED
+
+AdventureAndLifePersistenceEngineTest > testAdventurePackageValidator_ValidPackage PASSED
+
+AdventureAndLifePersistenceEngineTest > testAdventurePackageValidator_RejectsDuplicateIds PASSED
+
+AdventureAndLifePersistenceEngineTest > testAdventurePackageValidator_RejectsMissingStartLocation PASSED
+
+AdventureAndLifePersistenceEngineTest > testCharacterIdentityKey_SerializationRoundTrip PASSED
+
+AdventureAndLifePersistenceEngineTest > testAdventurePackageValidator_RejectsEncounterWithMissingEnemy PASSED
+
+AdventureContinuityScenarioTest > testScenarioAtoBContinuityAndIsolation PASSED
+
+AdventureContinuityScenarioTest > testExhaustiveValidationP03Gates PASSED
+
+AdventureLifecycleEndToEndTest > testAdventureInstanceSerializationRoundTrip PASSED
+
+AdventureLifecycleEndToEndTest > testCharacterLegacyRecordRoundTripWithDeeds PASSED
+
+AdventureLifecycleEndToEndTest > testProceduralAdventureGenerationAndValidation PASSED
+
+IdempotentConcludeTest > testWorldTimelineShareRumor PASSED
+
+IdempotentConcludeTest > testWorldTimelineClockAndOffSceneEvent PASSED
+
+IdempotentConcludeTest > testCharacterLegacyDeduplicationIsStrictlyIdempotent PASSED
+
+InteractiveMapContractTest > mapSourceKeepsInteractiveContracts PASSED
+
+AppUpdateManagerTest > testMalformedManifestReturnsInvalidManifestStatus PASSED
+
+AppUpdateManagerTest > testManifestWithOlderVersionBlocksDowngrade PASSED
+
+AppUpdateManagerTest > testMissingRequiredFieldsReturnsInvalidManifestStatus PASSED
+
+AppUpdateManagerTest > testManifestWithSameVersionReportsUpToDate PASSED
+
+AppUpdateManagerTest > testManifestWithNewerVersionTriggersUpdateAvailable PASSED
+
+AppUpdateManagerTest > testDownloadUrlContract PASSED
+
+BUILD SUCCESSFUL in 1m 48s
+26 actionable tasks: 12 executed, 14 up-to-date
+Configuration cache entry stored.

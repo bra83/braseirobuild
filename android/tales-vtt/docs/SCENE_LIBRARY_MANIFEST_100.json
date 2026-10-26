@@ -1,0 +1,2227 @@
+{
+  "version": "scene-library-100-2026-09-09",
+  "total_runtime_count": 100,
+  "target_count": 100,
+  "remaining_to_target": 0,
+  "selection_dimensions": [
+    "profile",
+    "location",
+    "narrative tags",
+    "weather",
+    "daylight/time"
+  ],
+  "entries": [
+    {
+      "id": "SHARED_HOME_01",
+      "assetKey": "scene_family_kitchen",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "casa",
+        "cozinha"
+      ],
+      "tags": [
+        "jant",
+        "jantar",
+        "familia",
+        "pais",
+        "mae",
+        "pai",
+        "volta para casa",
+        "retorno",
+        "cotidiano"
+      ],
+      "file": "scene_family_kitchen.png"
+    },
+    {
+      "id": "SHARED_HOME_02",
+      "assetKey": "scene_living_room",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "casa",
+        "sala",
+        "bairro"
+      ],
+      "tags": [
+        "casa",
+        "televisao",
+        "familia",
+        "conversa",
+        "cotidiano",
+        "retorno",
+        "volta para casa"
+      ],
+      "file": "scene_living_room.png"
+    },
+    {
+      "id": "SHARED_HOME_03",
+      "assetKey": "scene_teen_bedroom",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "quarto",
+        "casa"
+      ],
+      "tags": [
+        "quarto",
+        "sozinho",
+        "sozinha",
+        "musica",
+        "telefone",
+        "depois da festa",
+        "ressaca",
+        "madrugada",
+        "teen"
+      ],
+      "file": "scene_teen_bedroom.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_01",
+      "assetKey": "scene_school_corridor",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "escola",
+        "colegio"
+      ],
+      "tags": [
+        "corredor",
+        "armario",
+        "aula",
+        "intervalo",
+        "escola",
+        "cotidiano"
+      ],
+      "file": "scene_school_corridor.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_02",
+      "assetKey": "scene_classroom",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "escola",
+        "sala de aula"
+      ],
+      "tags": [
+        "aula",
+        "professor",
+        "professora",
+        "classe",
+        "prova",
+        "licao"
+      ],
+      "file": "scene_classroom.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_03",
+      "assetKey": "scene_library",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "biblioteca"
+      ],
+      "tags": [
+        "pesquisa",
+        "livro",
+        "arquivo",
+        "estudar",
+        "investigacao"
+      ],
+      "file": "scene_library.png"
+    },
+    {
+      "id": "SHARED_TRAVEL_01",
+      "assetKey": "scene_hideout",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "esconderijo",
+        "refugio"
+      ],
+      "tags": [
+        "grupo",
+        "amizade",
+        "planejar",
+        "plano",
+        "reuniao",
+        "bicicleta"
+      ],
+      "file": "scene_hideout.png"
+    },
+    {
+      "id": "SHARED_HOME_04",
+      "assetKey": "scene_forest_path",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "floresta",
+        "bosque",
+        "estrada",
+        "caminho"
+      ],
+      "tags": [
+        "floresta",
+        "caminho",
+        "bicicleta",
+        "indo para casa",
+        "voltando para casa",
+        "retorno",
+        "chuva",
+        "anoitecer"
+      ],
+      "file": "scene_forest_path.png"
+    },
+    {
+      "id": "SHARED_ADV_01",
+      "assetKey": "scene_lakeshore",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "lago",
+        "margem",
+        "malaren"
+      ],
+      "tags": [
+        "lago",
+        "agua",
+        "neblina",
+        "isolamento",
+        "estranho",
+        "misterio"
+      ],
+      "file": "scene_lakeshore.png"
+    },
+    {
+      "id": "SHARED_TOWN_01",
+      "assetKey": "scene_farm",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "fazenda",
+        "campo",
+        "rural"
+      ],
+      "tags": [
+        "celeiro",
+        "campo",
+        "animal",
+        "fazenda",
+        "rural",
+        "cotidiano"
+      ],
+      "file": "scene_farm.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_04",
+      "assetKey": "scene_quarry",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "pedreira"
+      ],
+      "tags": [
+        "pedreira",
+        "escavacao",
+        "perigo",
+        "investigacao"
+      ],
+      "file": "scene_quarry.png"
+    },
+    {
+      "id": "SHARED_ADV_02",
+      "assetKey": "scene_scrapyard",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "ferro velho",
+        "sucata"
+      ],
+      "tags": [
+        "sucata",
+        "carro",
+        "perseguicao",
+        "esconder",
+        "mecanica"
+      ],
+      "file": "scene_scrapyard.png"
+    },
+    {
+      "id": "SHARED_SOCIAL_01",
+      "assetKey": "scene_town_square",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "bjorkasen",
+        "cidade",
+        "praca"
+      ],
+      "tags": [
+        "cidade",
+        "praca",
+        "encontro",
+        "social",
+        "cotidiano",
+        "tarde"
+      ],
+      "file": "scene_town_square.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_05",
+      "assetKey": "scene_bus_stop",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "ponto de onibus",
+        "estrada"
+      ],
+      "tags": [
+        "onibus",
+        "espera",
+        "escola",
+        "retorno",
+        "chuva",
+        "viagem"
+      ],
+      "file": "scene_bus_stop.png"
+    },
+    {
+      "id": "SHARED_SOCIAL_02",
+      "assetKey": "scene_convenience_shop",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "loja",
+        "mercado"
+      ],
+      "tags": [
+        "loja",
+        "compras",
+        "lanche",
+        "social",
+        "cotidiano",
+        "noite"
+      ],
+      "file": "scene_convenience_shop.png"
+    },
+    {
+      "id": "SHARED_TRAVEL_02",
+      "assetKey": "scene_gas_station",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "posto",
+        "estrada",
+        "rodovia"
+      ],
+      "tags": [
+        "posto",
+        "carro",
+        "estrada",
+        "viagem",
+        "fuga",
+        "noite",
+        "chuva"
+      ],
+      "file": "scene_gas_station.png"
+    },
+    {
+      "id": "SHARED_TOWN_02",
+      "assetKey": "scene_hospital",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "hospital"
+      ],
+      "tags": [
+        "hospital",
+        "ferido",
+        "ferida",
+        "visita",
+        "recuperacao",
+        "medico"
+      ],
+      "file": "scene_hospital.png"
+    },
+    {
+      "id": "SHARED_TOWN_03",
+      "assetKey": "scene_police_station",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "delegacia",
+        "policia"
+      ],
+      "tags": [
+        "policia",
+        "delegacia",
+        "autoridade",
+        "interrogatorio"
+      ],
+      "file": "scene_police_station.png"
+    },
+    {
+      "id": "SHARED_LOOP_01",
+      "assetKey": "scene_loop_gate",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "portao de servico",
+        "loop industries",
+        "instalacao"
+      ],
+      "tags": [
+        "portao",
+        "cerca",
+        "entrada",
+        "seguranca",
+        "loop",
+        "suspense"
+      ],
+      "file": "scene_loop_gate.png"
+    },
+    {
+      "id": "SHARED_LOOP_02",
+      "assetKey": "scene_maintenance_corridor",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "loop industries",
+        "instalacao"
+      ],
+      "tags": [
+        "corredor",
+        "manutencao",
+        "cabos",
+        "tecnico",
+        "invasao"
+      ],
+      "file": "scene_maintenance_corridor.png"
+    },
+    {
+      "id": "SHARED_LOOP_03",
+      "assetKey": "scene_control_room",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "loop industries",
+        "sala de controle"
+      ],
+      "tags": [
+        "controle",
+        "computador",
+        "console",
+        "alarme",
+        "programacao"
+      ],
+      "file": "scene_control_room.png"
+    },
+    {
+      "id": "SHARED_LOOP_04",
+      "assetKey": "scene_reactor_hall",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "loop industries",
+        "reator"
+      ],
+      "tags": [
+        "reator",
+        "climax",
+        "energia",
+        "maquina",
+        "perigo"
+      ],
+      "file": "scene_reactor_hall.png"
+    },
+    {
+      "id": "SHARED_LOOP_05",
+      "assetKey": "scene_antenna_field",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "antenas",
+        "campo de antenas"
+      ],
+      "tags": [
+        "antena",
+        "radio",
+        "sinal",
+        "comunicacao"
+      ],
+      "file": "scene_antenna_field.png"
+    },
+    {
+      "id": "SHARED_ADV_03",
+      "assetKey": "scene_flooded_tunnel",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "tunel"
+      ],
+      "tags": [
+        "tunel",
+        "alagado",
+        "inundado",
+        "agua",
+        "esgoto",
+        "flood",
+        "perigo"
+      ],
+      "file": "scene_flooded_tunnel.png"
+    },
+    {
+      "id": "SHARED_HOME_05",
+      "assetKey": "scene_home_arrival_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "casa",
+        "bairro",
+        "rua residencial"
+      ],
+      "tags": [
+        "chegando em casa",
+        "chegar em casa",
+        "volta para casa",
+        "retorno para casa",
+        "bicicleta",
+        "chuva",
+        "anoitecer",
+        "fim de tarde"
+      ],
+      "file": "scene_home_arrival_rain.png"
+    },
+    {
+      "id": "SHARED_HOME_06",
+      "assetKey": "scene_kitchen_empty_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "casa",
+        "cozinha"
+      ],
+      "tags": [
+        "cozinha vazia",
+        "casa vazia",
+        "jantar acabou",
+        "depois do jantar",
+        "chuva",
+        "noite",
+        "cotidiano"
+      ],
+      "file": "scene_kitchen_empty_rain.png"
+    },
+    {
+      "id": "SHARED_HOME_07",
+      "assetKey": "scene_bedroom_after_school",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "quarto",
+        "casa"
+      ],
+      "tags": [
+        "depois da escola",
+        "quarto",
+        "fim de tarde",
+        "entardecer",
+        "mochila",
+        "cotidiano",
+        "descansar"
+      ],
+      "file": "scene_bedroom_after_school.png"
+    },
+    {
+      "id": "SHARED_HOME_08",
+      "assetKey": "scene_homework_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "quarto",
+        "casa"
+      ],
+      "tags": [
+        "dever de casa",
+        "lição de casa",
+        "estudar",
+        "estudo",
+        "caderno",
+        "chuva",
+        "noite"
+      ],
+      "file": "scene_homework_rain.png"
+    },
+    {
+      "id": "SHARED_HOME_09",
+      "assetKey": "scene_bedroom_music_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "quarto",
+        "casa"
+      ],
+      "tags": [
+        "ouvindo música",
+        "musica",
+        "walkman",
+        "fita",
+        "cassete",
+        "quarto",
+        "chuva",
+        "noite"
+      ],
+      "file": "scene_bedroom_music_rain.png"
+    },
+    {
+      "id": "SHARED_HOME_10",
+      "assetKey": "scene_family_argument",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "casa",
+        "cozinha",
+        "sala"
+      ],
+      "tags": [
+        "discussão com os pais",
+        "discussao com os pais",
+        "briga com os pais",
+        "família",
+        "familia",
+        "pais",
+        "conflito",
+        "tensão",
+        "tensao"
+      ],
+      "file": "scene_family_argument.png"
+    },
+    {
+      "id": "SHARED_HOME_11",
+      "assetKey": "scene_bedroom_insomnia",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "quarto",
+        "casa"
+      ],
+      "tags": [
+        "insônia",
+        "insonia",
+        "sem dormir",
+        "madrugada",
+        "acordado",
+        "acordada",
+        "2:17",
+        "chuva",
+        "noite"
+      ],
+      "file": "scene_bedroom_insomnia.png"
+    },
+    {
+      "id": "SHARED_HOME_12",
+      "assetKey": "scene_bedroom_morning_winter",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "quarto",
+        "casa"
+      ],
+      "tags": [
+        "manhã",
+        "manha",
+        "antes da escola",
+        "inverno",
+        "arrumar mochila",
+        "amanhecer",
+        "frio"
+      ],
+      "file": "scene_bedroom_morning_winter.png"
+    },
+    {
+      "id": "SHARED_HOME_13",
+      "assetKey": "scene_kitchen_quiet_night",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "casa",
+        "cozinha"
+      ],
+      "tags": [
+        "cozinha silenciosa",
+        "cozinha vazia",
+        "café",
+        "cafe",
+        "chuva",
+        "noite",
+        "cotidiano"
+      ],
+      "file": "scene_kitchen_quiet_night.png"
+    },
+    {
+      "id": "SHARED_HOME_14",
+      "assetKey": "scene_bedroom_empty_retro",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "quarto",
+        "casa"
+      ],
+      "tags": [
+        "quarto vazio",
+        "ausência",
+        "ausencia",
+        "desaparecido",
+        "desaparecida",
+        "procurar quarto",
+        "revistar quarto",
+        "cotidiano"
+      ],
+      "file": "scene_bedroom_empty_retro.png"
+    },
+    {
+      "id": "SHARED_HOME_15",
+      "assetKey": "scene_bedroom_late_study",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "quarto",
+        "casa"
+      ],
+      "tags": [
+        "estudo tarde",
+        "estudar à noite",
+        "estudar a noite",
+        "caderno",
+        "pesquisa",
+        "chuva",
+        "noite",
+        "madrugada"
+      ],
+      "file": "scene_bedroom_late_study.png"
+    },
+    {
+      "id": "SHARED_HOME_16",
+      "assetKey": "scene_bedroom_journal_dusk",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "quarto",
+        "casa"
+      ],
+      "tags": [
+        "diário",
+        "diario",
+        "escrever",
+        "anotar",
+        "música",
+        "musica",
+        "fone",
+        "fim de tarde",
+        "chuva"
+      ],
+      "file": "scene_bedroom_journal_dusk.png"
+    },
+    {
+      "id": "SHARED_HOME_17",
+      "assetKey": "scene_home_return_evening",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "casa",
+        "bairro",
+        "rua residencial"
+      ],
+      "tags": [
+        "regresso",
+        "retorno",
+        "volta para casa",
+        "chegando em casa",
+        "bicicleta",
+        "anoitecer",
+        "chuva"
+      ],
+      "file": "scene_home_return_evening.png"
+    },
+    {
+      "id": "SHARED_HOME_18",
+      "assetKey": "scene_home_arrival_sunset",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "casa",
+        "bairro"
+      ],
+      "tags": [
+        "chegando em casa",
+        "portão de casa",
+        "porta de casa",
+        "volta para casa",
+        "bicicleta",
+        "entardecer",
+        "pôr do sol",
+        "por do sol"
+      ],
+      "file": "scene_home_arrival_sunset.png"
+    },
+    {
+      "id": "SHARED_HOME_19",
+      "assetKey": "scene_home_return_heavy_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "casa",
+        "bairro"
+      ],
+      "tags": [
+        "chegando em casa",
+        "volta para casa",
+        "chuva forte",
+        "encharcado",
+        "encharcada",
+        "tempestade",
+        "bicicleta",
+        "noite"
+      ],
+      "file": "scene_home_return_heavy_rain.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_06",
+      "assetKey": "scene_school_arrival_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "escola",
+        "colégio"
+      ],
+      "tags": [
+        "chegada à escola",
+        "chegada na escola",
+        "antes da aula",
+        "bicicletas",
+        "chuva",
+        "manhã",
+        "manha"
+      ],
+      "file": "scene_school_arrival_rain.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_07",
+      "assetKey": "scene_school_corridor_busy",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "escola"
+      ],
+      "tags": [
+        "corredor cheio",
+        "corredor movimentado",
+        "alunos",
+        "chuva"
+      ],
+      "file": "scene_school_corridor_busy.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_08",
+      "assetKey": "scene_classroom_after_hours",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "escola",
+        "sala de aula"
+      ],
+      "tags": [
+        "sala vazia",
+        "depois da aula",
+        "fim da aula",
+        "quadro negro",
+        "professor saiu",
+        "chuva"
+      ],
+      "file": "scene_classroom_after_hours.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_09",
+      "assetKey": "scene_school_yard_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "escola",
+        "pátio",
+        "patio"
+      ],
+      "tags": [
+        "pátio",
+        "patio",
+        "intervalo",
+        "saída",
+        "saida",
+        "chuva",
+        "fim de tarde"
+      ],
+      "file": "scene_school_yard_rain.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_10",
+      "assetKey": "scene_library_study_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "biblioteca",
+        "escola"
+      ],
+      "tags": [
+        "biblioteca",
+        "estudar",
+        "pesquisar",
+        "livros",
+        "depois da aula",
+        "chuva",
+        "silêncio",
+        "silencio"
+      ],
+      "file": "scene_library_study_rain.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_11",
+      "assetKey": "scene_school_lab_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "escola",
+        "laboratório",
+        "laboratorio"
+      ],
+      "tags": [
+        "laboratório",
+        "laboratorio",
+        "experimento",
+        "ciência",
+        "ciencia",
+        "aula de ciências",
+        "chuva"
+      ],
+      "file": "scene_school_lab_rain.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_12",
+      "assetKey": "scene_locker_room_empty",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "escola",
+        "vestiário",
+        "vestiario",
+        "ginásio",
+        "ginasio"
+      ],
+      "tags": [
+        "vestiário vazio",
+        "vestiario vazio",
+        "ginásio",
+        "ginasio",
+        "depois do treino",
+        "armários",
+        "armarios",
+        "fim de tarde"
+      ],
+      "file": "scene_locker_room_empty.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_13",
+      "assetKey": "scene_principal_office_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "escola",
+        "diretoria",
+        "gabinete"
+      ],
+      "tags": [
+        "diretoria",
+        "diretor",
+        "diretora",
+        "professor",
+        "conversa séria",
+        "conversa seria",
+        "problema na escola",
+        "chuva"
+      ],
+      "file": "scene_principal_office_rain.png"
+    },
+    {
+      "id": "SHARED_HOME_20",
+      "assetKey": "scene_school_exit_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "escola",
+        "pátio",
+        "patio"
+      ],
+      "tags": [
+        "saída da escola",
+        "saida da escola",
+        "fim das aulas",
+        "voltando para casa",
+        "bicicletas",
+        "chuva",
+        "fim de tarde"
+      ],
+      "file": "scene_school_exit_rain.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_14",
+      "assetKey": "scene_school_yard_evening",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "escola",
+        "pátio",
+        "patio"
+      ],
+      "tags": [
+        "pátio vazio",
+        "patio vazio",
+        "depois da aula",
+        "anoitecer",
+        "bicicletas",
+        "chuva"
+      ],
+      "file": "scene_school_yard_evening.png"
+    },
+    {
+      "id": "SHARED_HOME_21",
+      "assetKey": "scene_bus_shelter_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "ponto de ônibus",
+        "ponto de onibus",
+        "rua",
+        "bairro"
+      ],
+      "tags": [
+        "esperando ônibus",
+        "esperando onibus",
+        "ponto de ônibus",
+        "ponto de onibus",
+        "chuva",
+        "fim de tarde",
+        "volta para casa"
+      ],
+      "file": "scene_bus_shelter_rain.png"
+    },
+    {
+      "id": "SHARED_HOME_22",
+      "assetKey": "scene_neighborhood_bike_sunset",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "bairro",
+        "rua residencial",
+        "cidade"
+      ],
+      "tags": [
+        "pedalando",
+        "bicicleta",
+        "rua residencial",
+        "entardecer",
+        "pôr do sol",
+        "por do sol",
+        "volta para casa"
+      ],
+      "file": "scene_neighborhood_bike_sunset.png"
+    },
+    {
+      "id": "SHARED_TOWN_04",
+      "assetKey": "scene_convenience_store_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "loja",
+        "mercado",
+        "mercadinho"
+      ],
+      "tags": [
+        "loja de conveniência",
+        "loja de conveniencia",
+        "compras",
+        "lanche",
+        "revistas",
+        "chuva",
+        "noite",
+        "cotidiano"
+      ],
+      "file": "scene_convenience_store_rain.png"
+    },
+    {
+      "id": "SHARED_HOME_23",
+      "assetKey": "scene_group_bikes_sunset",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "bairro",
+        "rua residencial",
+        "cidade"
+      ],
+      "tags": [
+        "grupo de kids",
+        "grupo de teens",
+        "bicicletas",
+        "pedalando juntos",
+        "voltando para casa",
+        "pôr do sol",
+        "por do sol"
+      ],
+      "file": "scene_group_bikes_sunset.png"
+    },
+    {
+      "id": "SHARED_TRAVEL_03",
+      "assetKey": "scene_neighborhood_loop_sunset",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "bairro",
+        "cidade",
+        "rua residencial"
+      ],
+      "tags": [
+        "loop ao longe",
+        "torres ao longe",
+        "cidade",
+        "bicicleta",
+        "entardecer",
+        "pôr do sol",
+        "por do sol",
+        "estranho"
+      ],
+      "file": "scene_neighborhood_loop_sunset.png"
+    },
+    {
+      "id": "SHARED_HOME_24",
+      "assetKey": "scene_home_loop_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "casa",
+        "bairro",
+        "rua residencial"
+      ],
+      "tags": [
+        "chegando em casa",
+        "loop ao fundo",
+        "anel ao longe",
+        "chuva",
+        "bicicleta",
+        "estranho",
+        "mistério",
+        "misterio"
+      ],
+      "file": "scene_home_loop_rain.png"
+    },
+    {
+      "id": "SHARED_TRAVEL_04",
+      "assetKey": "scene_loop_towers_sunset",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "bairro",
+        "cidade",
+        "rua residencial"
+      ],
+      "tags": [
+        "torres do loop",
+        "loop ao longe",
+        "bicicleta",
+        "cidade",
+        "entardecer",
+        "estranho",
+        "mistério",
+        "misterio"
+      ],
+      "file": "scene_loop_towers_sunset.png"
+    },
+    {
+      "id": "SHARED_TOWN_05",
+      "assetKey": "scene_hideout_planning_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "esconderijo",
+        "refúgio",
+        "refugio"
+      ],
+      "tags": [
+        "reunião do grupo",
+        "reuniao do grupo",
+        "planejar",
+        "mapa",
+        "pistas",
+        "rádio",
+        "radio",
+        "chuva",
+        "noite"
+      ],
+      "file": "scene_hideout_planning_rain.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_15",
+      "assetKey": "scene_lakeshore_bikes_mist",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "lago",
+        "margem",
+        "mälaren",
+        "malaren"
+      ],
+      "tags": [
+        "bicicletas abandonadas",
+        "bicicletas",
+        "lago",
+        "neblina",
+        "silêncio",
+        "silencio",
+        "investigação",
+        "investigacao",
+        "mistério",
+        "misterio"
+      ],
+      "file": "scene_lakeshore_bikes_mist.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_16",
+      "assetKey": "scene_quarry_overlook",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "pedreira",
+        "floresta"
+      ],
+      "tags": [
+        "observando pedreira",
+        "pedreira",
+        "vigiar",
+        "investigar",
+        "investigação",
+        "investigacao",
+        "perigo",
+        "entardecer"
+      ],
+      "file": "scene_quarry_overlook.png"
+    },
+    {
+      "id": "SHARED_LOOP_06",
+      "assetKey": "scene_abandoned_radar_facility",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "instalação",
+        "instalacao",
+        "floresta",
+        "radar",
+        "loop industries"
+      ],
+      "tags": [
+        "radar abandonado",
+        "cúpula",
+        "cupula",
+        "instalação abandonada",
+        "instalacao abandonada",
+        "cerca",
+        "invasão",
+        "invasao",
+        "mistério",
+        "misterio"
+      ],
+      "file": "scene_abandoned_radar_facility.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_17",
+      "assetKey": "scene_abandoned_amusement_park",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "parque de diversões",
+        "parque de diversoes",
+        "floresta",
+        "cidade"
+      ],
+      "tags": [
+        "parque abandonado",
+        "roda gigante",
+        "brinquedos abandonados",
+        "investigação",
+        "investigacao",
+        "mistério",
+        "misterio",
+        "estranho"
+      ],
+      "file": "scene_abandoned_amusement_park.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_18",
+      "assetKey": "scene_abandoned_river_factory",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "fábrica",
+        "fabrica",
+        "industrial",
+        "rio",
+        "cais"
+      ],
+      "tags": [
+        "fábrica abandonada",
+        "fabrica abandonada",
+        "guindaste",
+        "cais",
+        "ruína industrial",
+        "ruina industrial",
+        "investigação",
+        "investigacao",
+        "flood",
+        "mistério",
+        "misterio"
+      ],
+      "file": "scene_abandoned_river_factory.png"
+    },
+    {
+      "id": "SHARED_TRAVEL_05",
+      "assetKey": "scene_group_bikes_ring_sunset",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "bairro",
+        "cidade",
+        "estrada"
+      ],
+      "tags": [
+        "grupo de kids",
+        "grupo de teens",
+        "anel gigante",
+        "loop ao longe",
+        "bicicletas",
+        "pôr do sol",
+        "por do sol",
+        "mistério",
+        "misterio"
+      ],
+      "file": "scene_group_bikes_ring_sunset.png"
+    },
+    {
+      "id": "FLD_HOME_01",
+      "assetKey": "scene_064_basement_party_lights",
+      "profiles": [
+        "flood_teen"
+      ],
+      "locations": [
+        "porão",
+        "casa",
+        "festa"
+      ],
+      "tags": [
+        "festa",
+        "porão",
+        "música",
+        "luzes",
+        "social",
+        "noite"
+      ],
+      "file": "scene_064_basement_party_lights.png"
+    },
+    {
+      "id": "FLD_HOME_02",
+      "assetKey": "scene_065_teen_porch",
+      "profiles": [
+        "flood_teen"
+      ],
+      "locations": [
+        "casa",
+        "varanda",
+        "bairro"
+      ],
+      "tags": [
+        "chegar em casa",
+        "sair de casa",
+        "varanda",
+        "discussão",
+        "anoitecer",
+        "teen"
+      ],
+      "file": "scene_065_teen_porch.png"
+    },
+    {
+      "id": "SHARED_TOWN_06",
+      "assetKey": "scene_066_suburb_dusk",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "bairro",
+        "rua residencial",
+        "cidade"
+      ],
+      "tags": [
+        "subúrbio",
+        "bairro",
+        "crepúsculo",
+        "cotidiano",
+        "seco",
+        "fim de tarde"
+      ],
+      "file": "scene_066_suburb_dusk.png"
+    },
+    {
+      "id": "TAL_TRAVEL_01",
+      "assetKey": "scene_067_kids_loop_dusk",
+      "profiles": [
+        "tales_kid"
+      ],
+      "locations": [
+        "bairro",
+        "cidade",
+        "loop"
+      ],
+      "tags": [
+        "kids",
+        "loop ao longe",
+        "bicicleta",
+        "grupo",
+        "entardecer",
+        "mistério"
+      ],
+      "file": "scene_067_kids_loop_dusk.png"
+    },
+    {
+      "id": "SHARED_HOME_25",
+      "assetKey": "scene_068_anchor_dinner",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "casa",
+        "cozinha"
+      ],
+      "tags": [
+        "jantar",
+        "âncora",
+        "anchor",
+        "conversa",
+        "família",
+        "recuperação",
+        "cotidiano"
+      ],
+      "file": "scene_068_anchor_dinner.png"
+    },
+    {
+      "id": "FLD_HOME_03",
+      "assetKey": "scene_069_teen_room_rain_mystery",
+      "profiles": [
+        "flood_teen"
+      ],
+      "locations": [
+        "quarto",
+        "casa"
+      ],
+      "tags": [
+        "quarto",
+        "teen",
+        "chuva",
+        "mistério",
+        "sozinho",
+        "telefone",
+        "noite"
+      ],
+      "file": "scene_069_teen_room_rain_mystery.png"
+    },
+    {
+      "id": "SHARED_TRAVEL_06",
+      "assetKey": "scene_070_winter_suburb_bike",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "bairro",
+        "rua residencial"
+      ],
+      "tags": [
+        "inverno",
+        "neve",
+        "bicicleta",
+        "bairro",
+        "mistério",
+        "frio"
+      ],
+      "file": "scene_070_winter_suburb_bike.png"
+    },
+    {
+      "id": "SHARED_SOCIAL_03",
+      "assetKey": "scene_071_diner_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "lanchonete",
+        "cidade"
+      ],
+      "tags": [
+        "lanchonete",
+        "diner",
+        "lanche",
+        "social",
+        "chuva",
+        "noite"
+      ],
+      "file": "scene_071_diner_rain.png"
+    },
+    {
+      "id": "TAL_SCHOOL_01",
+      "assetKey": "scene_072_schoolyard_dusk",
+      "profiles": [
+        "tales_kid"
+      ],
+      "locations": [
+        "escola",
+        "pátio"
+      ],
+      "tags": [
+        "escola",
+        "pátio",
+        "bicicletas",
+        "fim de aula",
+        "crepúsculo"
+      ],
+      "file": "scene_072_schoolyard_dusk.png"
+    },
+    {
+      "id": "SHARED_HOME_26",
+      "assetKey": "scene_073_garage_dusk",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "garagem",
+        "casa",
+        "oficina"
+      ],
+      "tags": [
+        "garagem",
+        "consertar",
+        "rádio",
+        "mecânica",
+        "bicicleta",
+        "crepúsculo"
+      ],
+      "file": "scene_073_garage_dusk.png"
+    },
+    {
+      "id": "SHARED_LOOP_07",
+      "assetKey": "scene_074_distant_towers",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "floresta",
+        "bairro",
+        "loop"
+      ],
+      "tags": [
+        "torres",
+        "explorar",
+        "vigiar",
+        "mistério",
+        "aventura",
+        "entardecer"
+      ],
+      "file": "scene_074_distant_towers.png"
+    },
+    {
+      "id": "SHARED_TOWN_07",
+      "assetKey": "scene_075_waiting_room_comfort",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "hospital",
+        "sala de espera"
+      ],
+      "tags": [
+        "sala de espera",
+        "hospital",
+        "recuperação",
+        "âncora",
+        "conforto",
+        "noite"
+      ],
+      "file": "scene_075_waiting_room_comfort.png"
+    },
+    {
+      "id": "SHARED_TRAVEL_07",
+      "assetKey": "scene_076_forest_dawn",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "floresta",
+        "bosque",
+        "caminho"
+      ],
+      "tags": [
+        "floresta",
+        "amanhecer",
+        "manhã",
+        "exploração",
+        "bicicleta",
+        "céu limpo"
+      ],
+      "file": "scene_076_forest_dawn.png"
+    },
+    {
+      "id": "SHARED_ADV_04",
+      "assetKey": "scene_077_industrial_tunnel",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "túnel",
+        "instalação",
+        "industrial"
+      ],
+      "tags": [
+        "túnel",
+        "industrial",
+        "exploração",
+        "invasão",
+        "lanterna",
+        "perigo"
+      ],
+      "file": "scene_077_industrial_tunnel.png"
+    },
+    {
+      "id": "FLD_HOME_04",
+      "assetKey": "scene_078_teen_room_snow",
+      "profiles": [
+        "flood_teen"
+      ],
+      "locations": [
+        "quarto",
+        "casa"
+      ],
+      "tags": [
+        "quarto",
+        "teen",
+        "neve",
+        "inverno",
+        "sozinho",
+        "música",
+        "noite"
+      ],
+      "file": "scene_078_teen_room_snow.png"
+    },
+    {
+      "id": "SHARED_SOCIAL_04",
+      "assetKey": "scene_079_laundromat_rain",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "lavanderia",
+        "cidade"
+      ],
+      "tags": [
+        "lavanderia",
+        "cotidiano",
+        "espera",
+        "chuva",
+        "social",
+        "noite"
+      ],
+      "file": "scene_079_laundromat_rain.png"
+    },
+    {
+      "id": "FLD_SCHOOL_01",
+      "assetKey": "scene_080_teen_meeting_dusk",
+      "profiles": [
+        "flood_teen"
+      ],
+      "locations": [
+        "bairro",
+        "cidade",
+        "escola"
+      ],
+      "tags": [
+        "adolescentes",
+        "encontro",
+        "conversa",
+        "relação",
+        "crepúsculo",
+        "social"
+      ],
+      "file": "scene_080_teen_meeting_dusk.png"
+    },
+    {
+      "id": "SHARED_TRAVEL_08",
+      "assetKey": "scene_081_bus_rain_dusk",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "ônibus",
+        "cidade",
+        "bairro"
+      ],
+      "tags": [
+        "ônibus",
+        "viagem",
+        "retorno",
+        "chuva",
+        "entardecer",
+        "transporte"
+      ],
+      "file": "scene_081_bus_rain_dusk.png"
+    },
+    {
+      "id": "FLD_SOCIAL_01",
+      "assetKey": "scene_082_teens_rain_dusk",
+      "profiles": [
+        "flood_teen"
+      ],
+      "locations": [
+        "bairro",
+        "cidade"
+      ],
+      "tags": [
+        "adolescentes",
+        "chuva",
+        "crepúsculo",
+        "conversa",
+        "friction",
+        "social"
+      ],
+      "file": "scene_082_teens_rain_dusk.png"
+    },
+    {
+      "id": "SHARED_HOME_27",
+      "assetKey": "scene_083_departure_dome",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "bairro",
+        "casa",
+        "loop"
+      ],
+      "tags": [
+        "partida",
+        "sair de casa",
+        "bicicleta",
+        "domo",
+        "loop",
+        "anoitecer"
+      ],
+      "file": "scene_083_departure_dome.png"
+    },
+    {
+      "id": "TAL_SCHOOL_02",
+      "assetKey": "scene_084_schoolyard_towers",
+      "profiles": [
+        "tales_kid"
+      ],
+      "locations": [
+        "escola",
+        "pátio"
+      ],
+      "tags": [
+        "escola",
+        "pátio",
+        "torres",
+        "loop",
+        "depois da aula",
+        "mistério"
+      ],
+      "file": "scene_084_schoolyard_towers.png"
+    },
+    {
+      "id": "SHARED_SOCIAL_05",
+      "assetKey": "scene_085_diner_dusk",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "lanchonete",
+        "cidade"
+      ],
+      "tags": [
+        "lanchonete",
+        "diner",
+        "social",
+        "entardecer",
+        "cotidiano",
+        "lanche"
+      ],
+      "file": "scene_085_diner_dusk.png"
+    },
+    {
+      "id": "SHARED_TOWN_08",
+      "assetKey": "scene_086_winter_suburb_tower",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "bairro",
+        "rua residencial"
+      ],
+      "tags": [
+        "inverno",
+        "neve",
+        "torre",
+        "bairro",
+        "cotidiano",
+        "mistério"
+      ],
+      "file": "scene_086_winter_suburb_tower.png"
+    },
+    {
+      "id": "FLD_LOOP_01",
+      "assetKey": "scene_087_substation_teens",
+      "profiles": [
+        "flood_teen"
+      ],
+      "locations": [
+        "subestação",
+        "industrial",
+        "loop"
+      ],
+      "tags": [
+        "subestação",
+        "eletricidade",
+        "adolescentes",
+        "vigiar",
+        "invasão",
+        "perigo"
+      ],
+      "file": "scene_087_substation_teens.png"
+    },
+    {
+      "id": "FLD_HOME_05",
+      "assetKey": "scene_088_basement_party",
+      "profiles": [
+        "flood_teen"
+      ],
+      "locations": [
+        "porão",
+        "casa",
+        "festa"
+      ],
+      "tags": [
+        "festa",
+        "porão",
+        "adolescentes",
+        "música",
+        "estranho",
+        "noite"
+      ],
+      "file": "scene_088_basement_party.png"
+    },
+    {
+      "id": "SHARED_HOME_28",
+      "assetKey": "scene_089_workshop_dusk",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "oficina",
+        "garagem",
+        "casa"
+      ],
+      "tags": [
+        "oficina",
+        "consertar",
+        "bicicleta",
+        "ferramentas",
+        "mecânica",
+        "anoitecer"
+      ],
+      "file": "scene_089_workshop_dusk.png"
+    },
+    {
+      "id": "TAL_TRAVEL_02",
+      "assetKey": "scene_090_kids_bikes_fog",
+      "profiles": [
+        "tales_kid"
+      ],
+      "locations": [
+        "bairro",
+        "estrada",
+        "floresta"
+      ],
+      "tags": [
+        "kids",
+        "bicicletas",
+        "neblina",
+        "viagem",
+        "mistério",
+        "grupo"
+      ],
+      "file": "scene_090_kids_bikes_fog.png"
+    },
+    {
+      "id": "FLD_HOME_06",
+      "assetKey": "scene_091_teen_room_moon",
+      "profiles": [
+        "flood_teen"
+      ],
+      "locations": [
+        "quarto",
+        "casa"
+      ],
+      "tags": [
+        "quarto",
+        "teen",
+        "lua",
+        "noite",
+        "sozinho",
+        "música",
+        "reflexão"
+      ],
+      "file": "scene_091_teen_room_moon.png"
+    },
+    {
+      "id": "SHARED_ADV_05",
+      "assetKey": "scene_092_railway_tunnel",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "túnel",
+        "ferrovia",
+        "industrial"
+      ],
+      "tags": [
+        "túnel ferroviário",
+        "trilhos",
+        "exploração",
+        "lanterna",
+        "invasão",
+        "perigo"
+      ],
+      "file": "scene_092_railway_tunnel.png"
+    },
+    {
+      "id": "SHARED_TOWN_09",
+      "assetKey": "scene_093_waiting_room_cold",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "hospital",
+        "sala de espera"
+      ],
+      "tags": [
+        "sala de espera",
+        "hospital",
+        "espera",
+        "recuperação",
+        "noite",
+        "frio"
+      ],
+      "file": "scene_093_waiting_room_cold.png"
+    },
+    {
+      "id": "FLD_LOOP_02",
+      "assetKey": "scene_094_teen_loop_dusk",
+      "profiles": [
+        "flood_teen"
+      ],
+      "locations": [
+        "bairro",
+        "cidade",
+        "loop"
+      ],
+      "tags": [
+        "teen",
+        "loop",
+        "entardecer",
+        "sozinho",
+        "cidade",
+        "mistério"
+      ],
+      "file": "scene_094_teen_loop_dusk.png"
+    },
+    {
+      "id": "SHARED_TRAVEL_09",
+      "assetKey": "scene_095_bus_sunset",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "ônibus",
+        "cidade",
+        "bairro"
+      ],
+      "tags": [
+        "ônibus",
+        "viagem",
+        "pôr do sol",
+        "entardecer",
+        "retorno",
+        "transporte"
+      ],
+      "file": "scene_095_bus_sunset.png"
+    },
+    {
+      "id": "TAL_TRAVEL_03",
+      "assetKey": "scene_096_kids_bikes_loop",
+      "profiles": [
+        "tales_kid"
+      ],
+      "locations": [
+        "bairro",
+        "cidade",
+        "loop"
+      ],
+      "tags": [
+        "kids",
+        "bicicletas",
+        "loop",
+        "grupo",
+        "viagem",
+        "aventura"
+      ],
+      "file": "scene_096_kids_bikes_loop.png"
+    },
+    {
+      "id": "SHARED_TOWN_10",
+      "assetKey": "scene_097_kiosk_ring",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "loja",
+        "quiosque",
+        "cidade"
+      ],
+      "tags": [
+        "quiosque",
+        "loja",
+        "npc",
+        "conversa",
+        "cotidiano",
+        "anel"
+      ],
+      "file": "scene_097_kiosk_ring.png"
+    },
+    {
+      "id": "SHARED_LOOP_08",
+      "assetKey": "scene_098_youth_frozen_loop",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "campo",
+        "bairro",
+        "loop"
+      ],
+      "tags": [
+        "jovens",
+        "inverno",
+        "congelado",
+        "loop",
+        "descoberta",
+        "mistério"
+      ],
+      "file": "scene_098_youth_frozen_loop.png"
+    },
+    {
+      "id": "SHARED_SCHOOL_19",
+      "assetKey": "scene_099_suburb_edge_mystery",
+      "profiles": [
+        "tales_kid",
+        "flood_teen"
+      ],
+      "locations": [
+        "bairro",
+        "campo",
+        "estrada"
+      ],
+      "tags": [
+        "limite do subúrbio",
+        "objeto estranho",
+        "descoberta",
+        "investigação",
+        "mistério"
+      ],
+      "file": "scene_099_suburb_edge_mystery.png"
+    },
+    {
+      "id": "FLD_HOME_07",
+      "assetKey": "scene_100_teen_room_rain_loop",
+      "profiles": [
+        "flood_teen"
+      ],
+      "locations": [
+        "quarto",
+        "casa"
+      ],
+      "tags": [
+        "quarto",
+        "teen",
+        "chuva",
+        "loop",
+        "telefone",
+        "mistério",
+        "noite"
+      ],
+      "file": "scene_100_teen_room_rain_loop.png"
+    }
+  ]
+}

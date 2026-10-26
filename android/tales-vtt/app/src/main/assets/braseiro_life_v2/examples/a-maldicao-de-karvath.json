@@ -1,0 +1,50 @@
+{
+  "schema": "braseiro.adventure/v1",
+  "id": "karvath-dragao-v1",
+  "system": "dnd5e-2024",
+  "worldId": "faerun-campanha-principal",
+  "title": "A Maldição de Karvath",
+  "author": "Exemplo original Braseiro",
+  "description": "Um vale isolado paga tributo a um dragão cuja presença desperta velhas dívidas.",
+  "tags": ["investigacao", "fantasia", "consequencias", "dragão"],
+  "recommendedParty": {"levelMin": 8, "levelMax": 12, "sizeMin": 3, "sizeMax": 5},
+  "start": {"locationId": "aldeia-karvath", "hook": "Caravanas desapareceram e uma carta pede socorro."},
+  "story": {
+    "premise": "Descobrir por que Karvath voltou a pagar tributos e decidir o destino do dragão.",
+    "background": "Um governante local rompeu uma promessa antiga. O dragão exige reparação, mas sua cobrança atinge inocentes.",
+    "playerIntroduction": "Por semanas, fumaça cobre as encostas e viajantes desaparecem na estrada de Karvath.",
+    "themes": ["responsabilidade", "memoria", "poder"],
+    "possibleEndings": ["derrotar-o-dragao", "acordo-com-o-dragao", "evacuacao-do-vale"]
+  },
+  "locations": [
+    {"id": "aldeia-karvath", "name": "Vila de Karvath", "regionId": "vale-karvath", "description": "Casas de pedra sob cinzas persistentes.", "map": {"reference": "biblioteca-local-ou-hex-validado", "hexId": null}},
+    {"id": "fortaleza-arruinada", "name": "Fortaleza Arruinada", "regionId": "vale-karvath", "description": "Uma fortaleza anterior à ocupação humana."},
+    {"id": "covil-do-dragao", "name": "Câmara da Cinza", "regionId": "montanhas-karvath", "description": "A antiga corte do dragão, tomada por calor e prata derretida."}
+  ],
+  "npcs": [
+    {"id": "prefeita-nara", "name": "Nara", "role": "prefeita", "goals": ["proteger aldeoes"], "secretIds": ["pacto-antigo"], "schedule": [{"period": "manha", "locationId": "aldeia-karvath"}], "relationships": []},
+    {"id": "cavaleiro-varys", "name": "Varys", "role": "emissario", "goals": ["salvar o dragão"], "secretIds": ["herdeiro-do-pacto"], "relationships": []}
+  ],
+  "secrets": [
+    {"id": "pacto-antigo", "visibility": "gm_only", "truth": "O tributo era um pacto de proteção rompido por um governante anterior.", "revealWhen": {"flag": "provas-do-pacto"}},
+    {"id": "herdeiro-do-pacto", "visibility": "gm_only", "truth": "Varys conhece uma saída não violenta.", "revealWhen": {"flag": "varys-confianca"}}
+  ],
+  "enemies": [
+    {"id": "dragao-karvath", "name": "Karvath, o Vermelho", "kind": "dragao", "rulesRef": {"source": "dnd5e-2024-monster-manual", "statblockId": "adult-red-dragon"}, "personality": "Orgulhoso, paciente e capaz de negociar.", "goals": ["restaurar o pacto"], "combatOptional": true},
+    {"id": "saqueador-cinzas", "name": "Saqueador das Cinzas", "kind": "humanoide", "rulesRef": {"source": "dnd5e-2024-monster-manual", "statblockId": "bandit"}, "combatOptional": true}
+  ],
+  "encounters": [
+    {"id": "emboscada-estrada", "locationId": "aldeia-karvath", "enemies": ["saqueador-cinzas"], "trigger": {"flag": "estrada-investigada"}, "alternatives": ["fuga", "negociacao", "combate"]},
+    {"id": "audiencia-cinzas", "locationId": "covil-do-dragao", "enemies": ["dragao-karvath"], "trigger": {"flag": "entrada-covil"}, "alternatives": ["pacto", "retirada", "combate"]}
+  ],
+  "objectives": [
+    {"id": "investigar-tributos", "description": "Descobrir o motivo dos tributos", "optional": false},
+    {"id": "proteger-inocentes", "description": "Evitar mortes de aldeões", "optional": false},
+    {"id": "resolver-conflito", "description": "Encerrar ou transformar o conflito com Karvath", "optional": false}
+  ],
+  "worldConsequences": [
+    {"id": "vale-liberto", "condition": "host_event:dragao-morto", "effects": ["rumores-se-propagam", "culto-do-dragao-reage"]},
+    {"id": "pacto-refeito", "condition": "host_event:pacto-celebrado", "effects": ["vale-protegido", "nara-deve-tributos"]}
+  ],
+  "rewards": {"suggested": ["titulo-local", "recompensa-monetaria"], "note": "Nunca conceder automaticamente: validar decisões e regras do sistema."}
+}

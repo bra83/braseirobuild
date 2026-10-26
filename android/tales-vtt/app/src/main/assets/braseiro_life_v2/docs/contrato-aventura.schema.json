@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://braseiro.local/schemas/adventure-v1.json",
+  "title": "Braseiro Adventure Package v1",
+  "type": "object",
+  "required": ["schema", "id", "system", "worldId", "title", "start", "story", "locations"],
+  "properties": {
+    "schema": {"const": "braseiro.adventure/v1"},
+    "id": {"$ref": "#/$defs/id"},
+    "system": {"$ref": "#/$defs/id"},
+    "worldId": {"$ref": "#/$defs/id"},
+    "title": {"type": "string", "minLength": 1},
+    "description": {"type": "string"},
+    "author": {"type": "string"},
+    "start": {"type": "object", "required": ["locationId"], "properties": {"locationId": {"$ref": "#/$defs/id"}, "hook": {"type": "string"}}},
+    "story": {"type": "object", "required": ["premise", "background"], "properties": {"premise": {"type": "string", "minLength": 1}, "background": {"type": "string", "minLength": 1}, "playerIntroduction": {"type": "string"}}},
+    "locations": {"type": "array", "items": {"$ref": "#/$defs/refObject"}},
+    "npcs": {"type": "array", "items": {"$ref": "#/$defs/refObject"}},
+    "objectives": {"type": "array", "items": {"$ref": "#/$defs/refObject"}},
+    "encounters": {"type": "array", "items": {"$ref": "#/$defs/refObject"}},
+    "enemies": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/refObject"}, {"type": "object", "required": ["rulesRef"], "properties": {"rulesRef": {"type": "object", "required": ["source"], "properties": {"source": {"type": "string", "minLength": 1}}}}]}},
+    "secrets": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/refObject"}, {"type": "object", "required": ["visibility", "truth"], "properties": {"visibility": {"const": "gm_only"}, "truth": {"type": "string", "minLength": 1}}}]}}
+  },
+  "$defs": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 160, "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$"},
+    "refObject": {"type": "object", "required": ["id"], "properties": {"id": {"$ref": "#/$defs/id"}}}
+  }
+}

@@ -1,0 +1,113 @@
+PASS  max luck = 15-age
+PASS  one active condition
+PASS  base pool 4
+PASS  condition makes pool 3
+PASS  help +1 die
+PASS  max one helper
+PASS  reject wrong dice count
+PASS  failed roll has 0 successes
+PASS  luck spent
+PASS  max one luck per roll
+PASS  push marks chosen condition
+PASS  push marks used
+PASS  push cannot mark an already active condition
+PASS  push only once
+PASS  pride +1 automatic success
+PASS  pride consumed
+PASS  duplicate condition rejected
+PASS  cannot push before roll
+PASS  push with four mild conditions makes Kid Broken
+PASS  broken pool zero
+PASS  broken auto failure
+PASS  healing clears broken
+PASS  hidden connection rejected
+PASS  revealed connection accepted
+PASS  normal threat 2x kids
+PASS  four scenes required
+PASS  all scenes resolved
+PASS  half target enables compromise
+PASS  extra conditions count as successes
+PASS  compromise costs are actually marked on a Kid
+PASS  compromise reaches target
+PASS  single-kid compromise is available at half target
+PASS  compromise may make Kid Broken for one success
+PASS  session end awards answers XP
+PASS  between mysteries heals conditions
+PASS  new mystery pride available
+PASS  session XP cannot be awarded twice
+PASS  xp storage cap 10
+PASS  skill improvement costs 5
+PASS  skill improvement raises exactly one skill
+PASS  cannot improve if under 5 xp
+PASS  cannot spend xp during active session flow
+PASS  skill maximum 5 enforced
+PASS  invented skill cannot receive xp
+PASS  approved iconic item +2
+PASS  reject generic +4 item
+PASS  player action recorded
+PASS  blank action rejected
+PASS  extended trouble requires one scene per kid
+PASS  snapshot codec decodes
+PASS  snapshot preserves kid state
+PASS  snapshot preserves Kid bio
+PASS  snapshot preserves group state
+PASS  snapshot preserves scene season/year
+PASS  snapshot preserves imported scene image binding
+PASS  snapshot preserves active test
+PASS  snapshot preserves roll and result-report state
+PASS  snapshot preserves revealed firewall state
+PASS  snapshot preserves extended trouble
+PASS  snapshot preserves ending/change state
+PASS  snapshot preserves extended test link
+PASS  snapshot rejects unsupported version
+PASS  difficult threat 3x kids
+PASS  almost impossible 4x kids
+PASS  motor packet accepted cleanly
+PASS  motor private clue stored outside public reveal
+PASS  motor reveal exposes title only
+PASS  motor test uses authoritative kid sheet
+PASS  motor test routes to trouble
+PASS  motor-approved Help adds exactly one die
+PASS  motor rejects Help from non-group character
+PASS  motor rejects self Help
+PASS  motor-approved Iconic Item applies canonical +2
+PASS  motor cannot approve Item without active test
+PASS  motor rejects invented skill
+PASS  motor rejects trouble difficulty above 3
+PASS  motor cannot move player to unrevealed location
+PASS  motor rejects non-canonical scene asset
+PASS  motor profile Tales accepted
+PASS  motor cannot reveal nonexistent private clue
+PASS  motor reveal then world patch location
+PASS  motor blocks connection until both endpoints revealed
+PASS  motor extended trouble uses 3x target
+PASS  motor extended trouble routes to climax
+PASS  motor can apply explicit Broken consequence
+PASS  motor-approved recovery clears conditions and Broken
+PASS  xp is calculated from five answers, not GM
+PASS  result can be marked reported exactly in state
+PASS  reported result survives autosave codec
+PASS  GM private snapshot roundtrip
+PASS  extended scene opens authoritative Kid test
+PASS  extended scene uses final roll successes
+PASS  extended finalization is idempotent
+PASS  client never invents another Kid roll
+PASS  compromise exists before decline
+PASS  player can decline compromise
+PASS  declined compromise can close extended trouble
+PASS  compromise requires exact missing-success cost
+PASS  session end does not heal Conditions
+PASS  new session refills Luck and Pride
+PASS  mystery end heals Conditions
+PASS  mystery cannot continue before explicit birthday review
+PASS  birthday gives exactly +1 Attribute and +1 age
+PASS  birthday reduces maximum Luck by age rule
+PASS  birthday-complete mystery can continue
+PASS  birthday Attribute cannot exceed 5
+PASS  turning 16 requires a new Kid
+PASS  age 16 blocks continuing with old Kid
+PASS  motor session_end opens session ending without awarding XP
+PASS  motor mystery_end opens mystery ending without awarding XP
+PASS  verified external Kid result can advance extended scene
+PASS  clearing an extended test returns to Climax
+RESULT 112 PASS / 0 FAIL

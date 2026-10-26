@@ -1,0 +1,26 @@
+{
+  "pass": true,
+  "library_count": 63,
+  "target_count": 100,
+  "remaining_to_target": 37,
+  "web_android_binary_parity": {
+    "pass": true,
+    "matching": 63,
+    "total": 63
+  },
+  "asset_catalog_scene_coverage": {
+    "pass": true,
+    "cataloged": 63,
+    "scene_files": 63
+  },
+  "legacy_selector_regression": "48/48 PASS",
+  "expanded_selector_reachability": "78/78 PASS",
+  "expanded_unique_per_profile": 39,
+  "total_selector_cases_across_profiles": 126,
+  "engine_regression": "113 PASS / 0 FAIL",
+  "static_audit": "PASS",
+  "product_feature_audit": "PASS",
+  "profile_firewall_audit": "PASS",
+  "user_visual_lock_audit": "PASS",
+  "note": "63 existing scene illustrations are synchronized between web and Android. No new image generation was required in this pass."
+}

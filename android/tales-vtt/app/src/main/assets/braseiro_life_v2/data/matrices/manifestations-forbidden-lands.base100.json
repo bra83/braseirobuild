@@ -1,0 +1,2783 @@
+{
+  "schema": "braseiro.matrix-table/v1",
+  "id": "manifestations-forbidden-lands",
+  "version": "2.2.0",
+  "rows": [
+    {
+      "id": "forbidden-lands-1-observe",
+      "baseSituationId": "forbidden-lands-situation-1",
+      "text": "O estoque de provisões exige conferência antes da marcha. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-1-conversation",
+      "baseSituationId": "forbidden-lands-situation-1",
+      "text": "O estoque de provisões exige conferência antes da marcha. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-1-choice",
+      "baseSituationId": "forbidden-lands-situation-1",
+      "text": "O estoque de provisões exige conferência antes da marcha. Há espaço para uma decisão livre do personagem.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-1-verification",
+      "baseSituationId": "forbidden-lands-situation-1",
+      "text": "O estoque de provisões exige conferência antes da marcha. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-1-continuity",
+      "baseSituationId": "forbidden-lands-situation-1",
+      "text": "O estoque de provisões exige conferência antes da marcha. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-2-observe",
+      "baseSituationId": "forbidden-lands-situation-2",
+      "text": "A fortaleza mostra o resultado de um reparo confirmado. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-2-conversation",
+      "baseSituationId": "forbidden-lands-situation-2",
+      "text": "A fortaleza mostra o resultado de um reparo confirmado. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-2-choice",
+      "baseSituationId": "forbidden-lands-situation-2",
+      "text": "A fortaleza mostra o resultado de um reparo confirmado. Há espaço para uma decisão livre do personagem.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-2-verification",
+      "baseSituationId": "forbidden-lands-situation-2",
+      "text": "A fortaleza mostra o resultado de um reparo confirmado. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-2-continuity",
+      "baseSituationId": "forbidden-lands-situation-2",
+      "text": "A fortaleza mostra o resultado de um reparo confirmado. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-3-observe",
+      "baseSituationId": "forbidden-lands-situation-3",
+      "text": "Um artesão do povoado desenvolve um projeto próprio. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-3-conversation",
+      "baseSituationId": "forbidden-lands-situation-3",
+      "text": "Um artesão do povoado desenvolve um projeto próprio. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-3-choice",
+      "baseSituationId": "forbidden-lands-situation-3",
+      "text": "Um artesão do povoado desenvolve um projeto próprio. Há espaço para uma decisão livre do personagem.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-3-verification",
+      "baseSituationId": "forbidden-lands-situation-3",
+      "text": "Um artesão do povoado desenvolve um projeto próprio. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-3-continuity",
+      "baseSituationId": "forbidden-lands-situation-3",
+      "text": "Um artesão do povoado desenvolve um projeto próprio. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-4-observe",
+      "baseSituationId": "forbidden-lands-situation-4",
+      "text": "Um clã discute um uso comum da terra. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "community",
+      "causeTags": [
+        "conflict",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-4-conversation",
+      "baseSituationId": "forbidden-lands-situation-4",
+      "text": "Um clã discute um uso comum da terra. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "community",
+      "causeTags": [
+        "conflict",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-4-choice",
+      "baseSituationId": "forbidden-lands-situation-4",
+      "text": "Um clã discute um uso comum da terra. Há espaço para uma decisão livre do personagem.",
+      "domain": "community",
+      "causeTags": [
+        "conflict",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-4-verification",
+      "baseSituationId": "forbidden-lands-situation-4",
+      "text": "Um clã discute um uso comum da terra. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "community",
+      "causeTags": [
+        "conflict",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-4-continuity",
+      "baseSituationId": "forbidden-lands-situation-4",
+      "text": "Um clã discute um uso comum da terra. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "community",
+      "causeTags": [
+        "conflict",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-5-observe",
+      "baseSituationId": "forbidden-lands-situation-5",
+      "text": "Um sinal na trilha evoca uma travessia anterior. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-5-conversation",
+      "baseSituationId": "forbidden-lands-situation-5",
+      "text": "Um sinal na trilha evoca uma travessia anterior. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-5-choice",
+      "baseSituationId": "forbidden-lands-situation-5",
+      "text": "Um sinal na trilha evoca uma travessia anterior. Há espaço para uma decisão livre do personagem.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-5-verification",
+      "baseSituationId": "forbidden-lands-situation-5",
+      "text": "Um sinal na trilha evoca uma travessia anterior. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-5-continuity",
+      "baseSituationId": "forbidden-lands-situation-5",
+      "text": "Um sinal na trilha evoca uma travessia anterior. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-6-observe",
+      "baseSituationId": "forbidden-lands-situation-6",
+      "text": "O acampamento oferece condições de descanso diferentes. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-6-conversation",
+      "baseSituationId": "forbidden-lands-situation-6",
+      "text": "O acampamento oferece condições de descanso diferentes. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-6-choice",
+      "baseSituationId": "forbidden-lands-situation-6",
+      "text": "O acampamento oferece condições de descanso diferentes. Há espaço para uma decisão livre do personagem.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-6-verification",
+      "baseSituationId": "forbidden-lands-situation-6",
+      "text": "O acampamento oferece condições de descanso diferentes. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-6-continuity",
+      "baseSituationId": "forbidden-lands-situation-6",
+      "text": "O acampamento oferece condições de descanso diferentes. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-7-observe",
+      "baseSituationId": "forbidden-lands-situation-7",
+      "text": "Um companheiro oferece ajuda numa tarefa do acampamento. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-7-conversation",
+      "baseSituationId": "forbidden-lands-situation-7",
+      "text": "Um companheiro oferece ajuda numa tarefa do acampamento. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-7-choice",
+      "baseSituationId": "forbidden-lands-situation-7",
+      "text": "Um companheiro oferece ajuda numa tarefa do acampamento. Há espaço para uma decisão livre do personagem.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-7-verification",
+      "baseSituationId": "forbidden-lands-situation-7",
+      "text": "Um companheiro oferece ajuda numa tarefa do acampamento. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-7-continuity",
+      "baseSituationId": "forbidden-lands-situation-7",
+      "text": "Um companheiro oferece ajuda numa tarefa do acampamento. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-8-observe",
+      "baseSituationId": "forbidden-lands-situation-8",
+      "text": "Uma história do grupo chega a outro povoado. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "reputation",
+      "causeTags": [
+        "victory",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-8-conversation",
+      "baseSituationId": "forbidden-lands-situation-8",
+      "text": "Uma história do grupo chega a outro povoado. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "reputation",
+      "causeTags": [
+        "victory",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-8-choice",
+      "baseSituationId": "forbidden-lands-situation-8",
+      "text": "Uma história do grupo chega a outro povoado. Há espaço para uma decisão livre do personagem.",
+      "domain": "reputation",
+      "causeTags": [
+        "victory",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-8-verification",
+      "baseSituationId": "forbidden-lands-situation-8",
+      "text": "Uma história do grupo chega a outro povoado. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "reputation",
+      "causeTags": [
+        "victory",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-8-continuity",
+      "baseSituationId": "forbidden-lands-situation-8",
+      "text": "Uma história do grupo chega a outro povoado. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "reputation",
+      "causeTags": [
+        "victory",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-9-observe",
+      "baseSituationId": "forbidden-lands-situation-9",
+      "text": "Uma rota de comércio sofre um desvio verificável. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-9-conversation",
+      "baseSituationId": "forbidden-lands-situation-9",
+      "text": "Uma rota de comércio sofre um desvio verificável. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-9-choice",
+      "baseSituationId": "forbidden-lands-situation-9",
+      "text": "Uma rota de comércio sofre um desvio verificável. Há espaço para uma decisão livre do personagem.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-9-verification",
+      "baseSituationId": "forbidden-lands-situation-9",
+      "text": "Uma rota de comércio sofre um desvio verificável. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-9-continuity",
+      "baseSituationId": "forbidden-lands-situation-9",
+      "text": "Uma rota de comércio sofre um desvio verificável. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-10-observe",
+      "baseSituationId": "forbidden-lands-situation-10",
+      "text": "Uma superstição local pode ser confrontada com vestígios. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-10-conversation",
+      "baseSituationId": "forbidden-lands-situation-10",
+      "text": "Uma superstição local pode ser confrontada com vestígios. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-10-choice",
+      "baseSituationId": "forbidden-lands-situation-10",
+      "text": "Uma superstição local pode ser confrontada com vestígios. Há espaço para uma decisão livre do personagem.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-10-verification",
+      "baseSituationId": "forbidden-lands-situation-10",
+      "text": "Uma superstição local pode ser confrontada com vestígios. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-10-continuity",
+      "baseSituationId": "forbidden-lands-situation-10",
+      "text": "Uma superstição local pode ser confrontada com vestígios. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-11-observe",
+      "baseSituationId": "forbidden-lands-situation-11",
+      "text": "Uma família guarda uma história do tempo em que se separou. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-11-conversation",
+      "baseSituationId": "forbidden-lands-situation-11",
+      "text": "Uma família guarda uma história do tempo em que se separou. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person",
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-11-choice",
+      "baseSituationId": "forbidden-lands-situation-11",
+      "text": "Uma família guarda uma história do tempo em que se separou. Há espaço para uma decisão livre do personagem.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-11-verification",
+      "baseSituationId": "forbidden-lands-situation-11",
+      "text": "Uma família guarda uma história do tempo em que se separou. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-11-continuity",
+      "baseSituationId": "forbidden-lands-situation-11",
+      "text": "Uma família guarda uma história do tempo em que se separou. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-12-observe",
+      "baseSituationId": "forbidden-lands-situation-12",
+      "text": "Um material útil a um projeto pode ser obtido por negociação. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-12-conversation",
+      "baseSituationId": "forbidden-lands-situation-12",
+      "text": "Um material útil a um projeto pode ser obtido por negociação. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-12-choice",
+      "baseSituationId": "forbidden-lands-situation-12",
+      "text": "Um material útil a um projeto pode ser obtido por negociação. Há espaço para uma decisão livre do personagem.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-12-verification",
+      "baseSituationId": "forbidden-lands-situation-12",
+      "text": "Um material útil a um projeto pode ser obtido por negociação. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-12-continuity",
+      "baseSituationId": "forbidden-lands-situation-12",
+      "text": "Um material útil a um projeto pode ser obtido por negociação. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-13-observe",
+      "baseSituationId": "forbidden-lands-situation-13",
+      "text": "Um objeto de um viajante antigo preserva sua procedência. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-13-conversation",
+      "baseSituationId": "forbidden-lands-situation-13",
+      "text": "Um objeto de um viajante antigo preserva sua procedência. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-13-choice",
+      "baseSituationId": "forbidden-lands-situation-13",
+      "text": "Um objeto de um viajante antigo preserva sua procedência. Há espaço para uma decisão livre do personagem.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-13-verification",
+      "baseSituationId": "forbidden-lands-situation-13",
+      "text": "Um objeto de um viajante antigo preserva sua procedência. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-13-continuity",
+      "baseSituationId": "forbidden-lands-situation-13",
+      "text": "Um objeto de um viajante antigo preserva sua procedência. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "forbidden-lands-14-observe",
+      "baseSituationId": "forbidden-lands-situation-14",
+      "text": "Uma limitação já confirmada pede adaptação na viagem. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-14-conversation",
+      "baseSituationId": "forbidden-lands-situation-14",
+      "text": "Uma limitação já confirmada pede adaptação na viagem. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person",
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-14-choice",
+      "baseSituationId": "forbidden-lands-situation-14",
+      "text": "Uma limitação já confirmada pede adaptação na viagem. Há espaço para uma decisão livre do personagem.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-14-verification",
+      "baseSituationId": "forbidden-lands-situation-14",
+      "text": "Uma limitação já confirmada pede adaptação na viagem. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-14-continuity",
+      "baseSituationId": "forbidden-lands-situation-14",
+      "text": "Uma limitação já confirmada pede adaptação na viagem. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-15-observe",
+      "baseSituationId": "forbidden-lands-situation-15",
+      "text": "A vigília oferece ocasião para uma conversa reservada. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-15-conversation",
+      "baseSituationId": "forbidden-lands-situation-15",
+      "text": "A vigília oferece ocasião para uma conversa reservada. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-15-choice",
+      "baseSituationId": "forbidden-lands-situation-15",
+      "text": "A vigília oferece ocasião para uma conversa reservada. Há espaço para uma decisão livre do personagem.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-15-verification",
+      "baseSituationId": "forbidden-lands-situation-15",
+      "text": "A vigília oferece ocasião para uma conversa reservada. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-15-continuity",
+      "baseSituationId": "forbidden-lands-situation-15",
+      "text": "A vigília oferece ocasião para uma conversa reservada. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-16-observe",
+      "baseSituationId": "forbidden-lands-situation-16",
+      "text": "Uma mesa de taverna reúne conhecidos de outra viagem. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-16-conversation",
+      "baseSituationId": "forbidden-lands-situation-16",
+      "text": "Uma mesa de taverna reúne conhecidos de outra viagem. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-16-choice",
+      "baseSituationId": "forbidden-lands-situation-16",
+      "text": "Uma mesa de taverna reúne conhecidos de outra viagem. Há espaço para uma decisão livre do personagem.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-16-verification",
+      "baseSituationId": "forbidden-lands-situation-16",
+      "text": "Uma mesa de taverna reúne conhecidos de outra viagem. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-16-continuity",
+      "baseSituationId": "forbidden-lands-situation-16",
+      "text": "Uma mesa de taverna reúne conhecidos de outra viagem. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-17-observe",
+      "baseSituationId": "forbidden-lands-situation-17",
+      "text": "Uma liderança local esclarece uma cobrança. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-17-conversation",
+      "baseSituationId": "forbidden-lands-situation-17",
+      "text": "Uma liderança local esclarece uma cobrança. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-17-choice",
+      "baseSituationId": "forbidden-lands-situation-17",
+      "text": "Uma liderança local esclarece uma cobrança. Há espaço para uma decisão livre do personagem.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-17-verification",
+      "baseSituationId": "forbidden-lands-situation-17",
+      "text": "Uma liderança local esclarece uma cobrança. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-17-continuity",
+      "baseSituationId": "forbidden-lands-situation-17",
+      "text": "Uma liderança local esclarece uma cobrança. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-18-observe",
+      "baseSituationId": "forbidden-lands-situation-18",
+      "text": "Um retorno seguro recebe um acolhimento discreto. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-18-conversation",
+      "baseSituationId": "forbidden-lands-situation-18",
+      "text": "Um retorno seguro recebe um acolhimento discreto. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-18-choice",
+      "baseSituationId": "forbidden-lands-situation-18",
+      "text": "Um retorno seguro recebe um acolhimento discreto. Há espaço para uma decisão livre do personagem.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-18-verification",
+      "baseSituationId": "forbidden-lands-situation-18",
+      "text": "Um retorno seguro recebe um acolhimento discreto. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-18-continuity",
+      "baseSituationId": "forbidden-lands-situation-18",
+      "text": "Um retorno seguro recebe um acolhimento discreto. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-19-observe",
+      "baseSituationId": "forbidden-lands-situation-19",
+      "text": "Um costume de preparação de acampamento reaparece. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-19-conversation",
+      "baseSituationId": "forbidden-lands-situation-19",
+      "text": "Um costume de preparação de acampamento reaparece. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-19-choice",
+      "baseSituationId": "forbidden-lands-situation-19",
+      "text": "Um costume de preparação de acampamento reaparece. Há espaço para uma decisão livre do personagem.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-19-verification",
+      "baseSituationId": "forbidden-lands-situation-19",
+      "text": "Um costume de preparação de acampamento reaparece. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-19-continuity",
+      "baseSituationId": "forbidden-lands-situation-19",
+      "text": "Um costume de preparação de acampamento reaparece. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-20-observe",
+      "baseSituationId": "forbidden-lands-situation-20",
+      "text": "Uma ferramenta precisa de manutenção antes de novo uso. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-20-conversation",
+      "baseSituationId": "forbidden-lands-situation-20",
+      "text": "Uma ferramenta precisa de manutenção antes de novo uso. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-20-choice",
+      "baseSituationId": "forbidden-lands-situation-20",
+      "text": "Uma ferramenta precisa de manutenção antes de novo uso. Há espaço para uma decisão livre do personagem.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-20-verification",
+      "baseSituationId": "forbidden-lands-situation-20",
+      "text": "Uma ferramenta precisa de manutenção antes de novo uso. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "forbidden-lands-20-continuity",
+      "baseSituationId": "forbidden-lands-situation-20",
+      "text": "Uma ferramenta precisa de manutenção antes de novo uso. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "forbidden-lands",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    }
+  ]
+}

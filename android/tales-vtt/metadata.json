@@ -1,0 +1,13 @@
+{
+  "name": "Braseiro Tales & Flood VTT",
+  "description": "VTT mobile premium de RPG narrativo retrofuturista anos 1980/1990 inspirado em Tales from the Loop e Things from the Flood",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ],
+  "version": "1.3.20",
+  "versionCode": 27,
+  "sourceFinal": true,
+  "primaryProfile": "tales_kid_flood_teen",
+  "sceneLibraryCount": 100
+}

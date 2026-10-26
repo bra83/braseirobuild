@@ -1,0 +1,9 @@
+{
+  "versionCode": 27,
+  "versionName": "1.3.20",
+  "downloadUrl": "https://github.com/bra83/braseirobuild/releases/download/v1.3.20/braseiro-tales-flood-v1.3.20.apk",
+  "sha256": "341E59B2EE40F66C3A6B899474BAD26E1FCDF4DBC21C459F80F6E47F1C33667F",
+  "changelog": "Versão 1.3.20 final: Publicação oficial com GitHub Release v1.3.20 real (ativo, sem erro 404); árvore Kotlin completa incluída no repositório GitHub (android/tales-vtt/); 185 testes unitários e de integração homologados com log reprodutível de execução; Motor de Vida Persistente com continuidade completa de cenários A->B e herança de NPCs/fatos; Gemini Speech TTS e Bárbara homologados.",
+  "publishedAt": "2026-10-26T07:45:00Z",
+  "minRequiredVersionCode": 25
+}

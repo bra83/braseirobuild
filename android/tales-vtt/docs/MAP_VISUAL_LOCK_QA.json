@@ -1,0 +1,49 @@
+{
+  "base": "assets/map_malaren_clean3.png",
+  "markers": [
+    {
+      "title": "Escola",
+      "src": "assets/loc_school.png"
+    },
+    {
+      "title": "Casa de Lasse",
+      "src": "assets/loc_home.png"
+    },
+    {
+      "title": "Praça Central",
+      "src": "assets/loc_shop.png"
+    },
+    {
+      "title": "Loja do Kjell",
+      "src": "assets/loc_shop.png"
+    },
+    {
+      "title": "Esconderijo",
+      "src": "assets/loc_hideout.png"
+    },
+    {
+      "title": "Torre de Comunicação",
+      "src": "assets/loc_radio_tower.png"
+    },
+    {
+      "title": "Loop Industries",
+      "src": "assets/loc_loop_facility.png"
+    },
+    {
+      "title": "Estrada Fechada",
+      "src": "assets/state_blocked.png"
+    },
+    {
+      "title": "Antiga Pedreira",
+      "src": "assets/loc_quarry.png"
+    }
+  ],
+  "oldPins": 0,
+  "repaintVisible": false,
+  "footerCells": 7,
+  "pageH": 915,
+  "pageErrors": [],
+  "failedRequests": [],
+  "errors": [],
+  "pass": true
+}

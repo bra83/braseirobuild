@@ -1,0 +1,707 @@
+{
+  "schema": "braseiro.matrix-table/v1",
+  "id": "responses",
+  "version": "2.2.0",
+  "rows": [
+    {
+      "id": "response-sleep-1",
+      "text": "examinar o ambiente de repouso",
+      "domain": "sleep",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-sleep-2",
+      "text": "pedir uma mudança de escala",
+      "domain": "sleep",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-sleep-3",
+      "text": "comentar o sonho se desejar",
+      "domain": "sleep",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-sleep-4",
+      "text": "escolher uma pausa",
+      "domain": "sleep",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-sleep-5",
+      "text": "manter a rotina atual",
+      "domain": "sleep",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-memory-1",
+      "text": "falar da lembrança",
+      "domain": "memory",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-memory-2",
+      "text": "guardar o assunto por enquanto",
+      "domain": "memory",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-memory-3",
+      "text": "examinar o objeto associado",
+      "domain": "memory",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-memory-4",
+      "text": "perguntar a quem também estava presente",
+      "domain": "memory",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-memory-5",
+      "text": "registrar a passagem na crônica",
+      "domain": "memory",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-emotion-1",
+      "text": "expressar a reação escolhida",
+      "domain": "emotion",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-emotion-2",
+      "text": "conversar com alguém de confiança",
+      "domain": "emotion",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-emotion-3",
+      "text": "permanecer em silêncio",
+      "domain": "emotion",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-emotion-4",
+      "text": "compartilhar um agradecimento",
+      "domain": "emotion",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-emotion-5",
+      "text": "seguir com a tarefa atual",
+      "domain": "emotion",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-habits-1",
+      "text": "manter um costume",
+      "domain": "habits",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-habits-2",
+      "text": "propor um ajuste de rotina",
+      "domain": "habits",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-habits-3",
+      "text": "perguntar aos companheiros",
+      "domain": "habits",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-habits-4",
+      "text": "experimentar uma alternativa",
+      "domain": "habits",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-habits-5",
+      "text": "adiar a decisão",
+      "domain": "habits",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-family-1",
+      "text": "responder à notícia",
+      "domain": "family",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-family-2",
+      "text": "combinar uma visita",
+      "domain": "family",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-family-3",
+      "text": "pedir mais informações",
+      "domain": "family",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-family-4",
+      "text": "oferecer ajuda possível",
+      "domain": "family",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-family-5",
+      "text": "decidir depois",
+      "domain": "family",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-intimacy-1",
+      "text": "aceitar uma conversa",
+      "domain": "intimacy",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-intimacy-2",
+      "text": "propor outro momento",
+      "domain": "intimacy",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-intimacy-3",
+      "text": "explicar um limite",
+      "domain": "intimacy",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-intimacy-4",
+      "text": "ouvir sem assumir compromisso",
+      "domain": "intimacy",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-intimacy-5",
+      "text": "preservar privacidade",
+      "domain": "intimacy",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-work-1",
+      "text": "negociar a tarefa",
+      "domain": "work",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-work-2",
+      "text": "solicitar um recurso",
+      "domain": "work",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-work-3",
+      "text": "dividir uma responsabilidade",
+      "domain": "work",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-work-4",
+      "text": "verificar um procedimento",
+      "domain": "work",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-work-5",
+      "text": "recusar uma proposta",
+      "domain": "work",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-resources-1",
+      "text": "conferir o estoque",
+      "domain": "resources",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-resources-2",
+      "text": "buscar um fornecedor",
+      "domain": "resources",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-resources-3",
+      "text": "negociar uma entrega",
+      "domain": "resources",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-resources-4",
+      "text": "adaptar o plano",
+      "domain": "resources",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-resources-5",
+      "text": "guardar recursos para depois",
+      "domain": "resources",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-social-1",
+      "text": "aceitar um convite",
+      "domain": "social",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-social-2",
+      "text": "propor outra atividade",
+      "domain": "social",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-social-3",
+      "text": "retomar um contato",
+      "domain": "social",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-social-4",
+      "text": "conversar brevemente",
+      "domain": "social",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-social-5",
+      "text": "declinar sem hostilidade",
+      "domain": "social",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-reputation-1",
+      "text": "perguntar pela fonte",
+      "domain": "reputation",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-reputation-2",
+      "text": "contar sua versão",
+      "domain": "reputation",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-reputation-3",
+      "text": "consultar uma testemunha",
+      "domain": "reputation",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-reputation-4",
+      "text": "deixar o relato sem resposta",
+      "domain": "reputation",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-reputation-5",
+      "text": "investigar uma distorção",
+      "domain": "reputation",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-npc-1",
+      "text": "perguntar pelo projeto",
+      "domain": "npc",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-npc-2",
+      "text": "oferecer ajuda concreta",
+      "domain": "npc",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-npc-3",
+      "text": "negociar um favor",
+      "domain": "npc",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-npc-4",
+      "text": "acompanhar sem intervir",
+      "domain": "npc",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-npc-5",
+      "text": "seguir com seus próprios planos",
+      "domain": "npc",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-world-1",
+      "text": "observar a mudança",
+      "domain": "world",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-world-2",
+      "text": "consultar moradores",
+      "domain": "world",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-world-3",
+      "text": "examinar os efeitos",
+      "domain": "world",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-world-4",
+      "text": "propor uma intervenção",
+      "domain": "world",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-world-5",
+      "text": "deixar a situação evoluir",
+      "domain": "world",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-recovery-1",
+      "text": "aceitar apoio",
+      "domain": "recovery",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-recovery-2",
+      "text": "pedir outro tipo de ajuda",
+      "domain": "recovery",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-recovery-3",
+      "text": "escolher uma atividade habitual",
+      "domain": "recovery",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-recovery-4",
+      "text": "buscar informação sobre cuidados",
+      "domain": "recovery",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-recovery-5",
+      "text": "recusar a oferta por enquanto",
+      "domain": "recovery",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-belief-1",
+      "text": "buscar confirmação",
+      "domain": "belief",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-belief-2",
+      "text": "comparar testemunhos",
+      "domain": "belief",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-belief-3",
+      "text": "revisar uma hipótese",
+      "domain": "belief",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-belief-4",
+      "text": "manter a dúvida explícita",
+      "domain": "belief",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-belief-5",
+      "text": "não concluir sem evidência",
+      "domain": "belief",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-goals-1",
+      "text": "dedicar tempo ao projeto",
+      "domain": "goals",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-goals-2",
+      "text": "negociar acesso a um recurso",
+      "domain": "goals",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-goals-3",
+      "text": "pedir orientação",
+      "domain": "goals",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-goals-4",
+      "text": "mudar o plano por escolha própria",
+      "domain": "goals",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-goals-5",
+      "text": "adiar o objetivo",
+      "domain": "goals",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-body-1",
+      "text": "solicitar uma adaptação",
+      "domain": "body",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-body-2",
+      "text": "consultar cuidado disponível",
+      "domain": "body",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-body-3",
+      "text": "repartir uma tarefa",
+      "domain": "body",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-body-4",
+      "text": "explicar um limite conhecido",
+      "domain": "body",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-body-5",
+      "text": "continuar conforme as regras permitirem",
+      "domain": "body",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-home-1",
+      "text": "cuidar de um espaço",
+      "domain": "home",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-home-2",
+      "text": "receber uma visita",
+      "domain": "home",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-home-3",
+      "text": "examinar um objeto guardado",
+      "domain": "home",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-home-4",
+      "text": "planejar um reparo",
+      "domain": "home",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-home-5",
+      "text": "escolher descansar",
+      "domain": "home",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-community-1",
+      "text": "participar da tarefa",
+      "domain": "community",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-community-2",
+      "text": "ouvir a proposta coletiva",
+      "domain": "community",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-community-3",
+      "text": "oferecer um recurso",
+      "domain": "community",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-community-4",
+      "text": "negociar responsabilidades",
+      "domain": "community",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-community-5",
+      "text": "acompanhar sem participar",
+      "domain": "community",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-legacy-1",
+      "text": "contar uma história",
+      "domain": "legacy",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-legacy-2",
+      "text": "ensinar algo conhecido",
+      "domain": "legacy",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-legacy-3",
+      "text": "perguntar sobre a procedência",
+      "domain": "legacy",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-legacy-4",
+      "text": "registrar uma transmissão",
+      "domain": "legacy",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-legacy-5",
+      "text": "manter o objeto consigo",
+      "domain": "legacy",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    },
+    {
+      "id": "response-justice-1",
+      "text": "consultar o registro",
+      "domain": "justice",
+      "agency": "player_choice",
+      "choiceKey": "option-1"
+    },
+    {
+      "id": "response-justice-2",
+      "text": "ouvir uma testemunha",
+      "domain": "justice",
+      "agency": "player_choice",
+      "choiceKey": "option-2"
+    },
+    {
+      "id": "response-justice-3",
+      "text": "distinguir rumor de fato",
+      "domain": "justice",
+      "agency": "player_choice",
+      "choiceKey": "option-3"
+    },
+    {
+      "id": "response-justice-4",
+      "text": "solicitar uma atualização",
+      "domain": "justice",
+      "agency": "player_choice",
+      "choiceKey": "option-4"
+    },
+    {
+      "id": "response-justice-5",
+      "text": "aguardar informação verificável",
+      "domain": "justice",
+      "agency": "player_choice",
+      "choiceKey": "option-5"
+    }
+  ]
+}

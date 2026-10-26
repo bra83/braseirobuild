@@ -1,0 +1,16 @@
+{
+  "version": "1.3.5",
+  "library_entries": 100,
+  "new_assets": 37,
+  "missing_drawables": [],
+  "missing_scene_screen_mappings": [],
+  "missing_firewall_entries": [],
+  "bad_new_dimensions": [],
+  "selector_profile_filter": true,
+  "pass": true,
+  "own_context_reachability": "100/100",
+  "exact_duplicate_files": 0,
+  "all_runtime_dimensions": "100/100 at 768x512",
+  "selector_kotlin_compile": "PASS",
+  "gradle_compile": "BLOCKED_BY_NETWORK_services.gradle.org (wrapper 9.3.1 unavailable locally)"
+}

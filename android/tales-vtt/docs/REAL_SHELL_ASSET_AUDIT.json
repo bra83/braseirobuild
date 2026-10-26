@@ -1,0 +1,26 @@
+{
+  "screen_files_count": 13,
+  "screen_files": [
+    "BackpackScreen.kt",
+    "ClimaxScreen.kt",
+    "ConnectionsScreen.kt",
+    "EndingScreen.kt",
+    "EverydayScreen.kt",
+    "GroupScreen.kt",
+    "KidScreen.kt",
+    "LocationScreen.kt",
+    "MapScreen.kt",
+    "MenuScreen.kt",
+    "MysteryScreen.kt",
+    "SceneScreen.kt",
+    "TroubleScreen.kt"
+  ],
+  "drawable_assets_count": 88,
+  "drawable_refs_count": 73,
+  "missing_drawables": [],
+  "forbidden_hits": {},
+  "brace_balance_issues": [],
+  "internal_routes_present": true,
+  "real_android_capture_generated": false,
+  "gradle_blocker": "Gradle 9.3.1 distribution unavailable locally; network DNS blocked"
+}

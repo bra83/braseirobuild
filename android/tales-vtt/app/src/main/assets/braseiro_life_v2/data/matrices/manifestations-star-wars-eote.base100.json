@@ -1,0 +1,2762 @@
+{
+  "schema": "braseiro.matrix-table/v1",
+  "id": "manifestations-star-wars-eote",
+  "version": "2.2.0",
+  "rows": [
+    {
+      "id": "star-wars-eote-1-observe",
+      "baseSituationId": "star-wars-eote-situation-1",
+      "text": "Uma manutenção da nave disputa o orçamento da tripulação. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "challenging"
+    },
+    {
+      "id": "star-wars-eote-1-conversation",
+      "baseSituationId": "star-wars-eote-situation-1",
+      "text": "Uma manutenção da nave disputa o orçamento da tripulação. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "challenging"
+    },
+    {
+      "id": "star-wars-eote-1-choice",
+      "baseSituationId": "star-wars-eote-situation-1",
+      "text": "Uma manutenção da nave disputa o orçamento da tripulação. Há espaço para uma decisão livre do personagem.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "challenging"
+    },
+    {
+      "id": "star-wars-eote-1-verification",
+      "baseSituationId": "star-wars-eote-situation-1",
+      "text": "Uma manutenção da nave disputa o orçamento da tripulação. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "challenging"
+    },
+    {
+      "id": "star-wars-eote-1-continuity",
+      "baseSituationId": "star-wars-eote-situation-1",
+      "text": "Uma manutenção da nave disputa o orçamento da tripulação. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "challenging"
+    },
+    {
+      "id": "star-wars-eote-2-observe",
+      "baseSituationId": "star-wars-eote-situation-2",
+      "text": "Um contato relacionado a uma Obrigação solicita negociar condições sem alterar sua pontuação. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "promise",
+        "conflict",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-2-conversation",
+      "baseSituationId": "star-wars-eote-situation-2",
+      "text": "Um contato relacionado a uma Obrigação solicita negociar condições sem alterar sua pontuação. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "promise",
+        "conflict",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-2-choice",
+      "baseSituationId": "star-wars-eote-situation-2",
+      "text": "Um contato relacionado a uma Obrigação solicita negociar condições sem alterar sua pontuação. Há espaço para uma decisão livre do personagem.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "promise",
+        "conflict",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-2-verification",
+      "baseSituationId": "star-wars-eote-situation-2",
+      "text": "Um contato relacionado a uma Obrigação solicita negociar condições sem alterar sua pontuação. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "promise",
+        "conflict",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-2-continuity",
+      "baseSituationId": "star-wars-eote-situation-2",
+      "text": "Um contato relacionado a uma Obrigação solicita negociar condições sem alterar sua pontuação. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "promise",
+        "conflict",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-3-observe",
+      "baseSituationId": "star-wars-eote-situation-3",
+      "text": "Um porto altera taxas ou acesso por motivo verificável. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-3-conversation",
+      "baseSituationId": "star-wars-eote-situation-3",
+      "text": "Um porto altera taxas ou acesso por motivo verificável. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-3-choice",
+      "baseSituationId": "star-wars-eote-situation-3",
+      "text": "Um porto altera taxas ou acesso por motivo verificável. Há espaço para uma decisão livre do personagem.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-3-verification",
+      "baseSituationId": "star-wars-eote-situation-3",
+      "text": "Um porto altera taxas ou acesso por motivo verificável. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-3-continuity",
+      "baseSituationId": "star-wars-eote-situation-3",
+      "text": "Um porto altera taxas ou acesso por motivo verificável. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-4-observe",
+      "baseSituationId": "star-wars-eote-situation-4",
+      "text": "Um documento pode esclarecer uma cobrança ou detenção. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-4-conversation",
+      "baseSituationId": "star-wars-eote-situation-4",
+      "text": "Um documento pode esclarecer uma cobrança ou detenção. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-4-choice",
+      "baseSituationId": "star-wars-eote-situation-4",
+      "text": "Um documento pode esclarecer uma cobrança ou detenção. Há espaço para uma decisão livre do personagem.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-4-verification",
+      "baseSituationId": "star-wars-eote-situation-4",
+      "text": "Um documento pode esclarecer uma cobrança ou detenção. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-4-continuity",
+      "baseSituationId": "star-wars-eote-situation-4",
+      "text": "Um documento pode esclarecer uma cobrança ou detenção. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-5-observe",
+      "baseSituationId": "star-wars-eote-situation-5",
+      "text": "Um contato da Orla desenvolve um negócio próprio. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-5-conversation",
+      "baseSituationId": "star-wars-eote-situation-5",
+      "text": "Um contato da Orla desenvolve um negócio próprio. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-5-choice",
+      "baseSituationId": "star-wars-eote-situation-5",
+      "text": "Um contato da Orla desenvolve um negócio próprio. Há espaço para uma decisão livre do personagem.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-5-verification",
+      "baseSituationId": "star-wars-eote-situation-5",
+      "text": "Um contato da Orla desenvolve um negócio próprio. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-5-continuity",
+      "baseSituationId": "star-wars-eote-situation-5",
+      "text": "Um contato da Orla desenvolve um negócio próprio. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-6-observe",
+      "baseSituationId": "star-wars-eote-situation-6",
+      "text": "Um detalhe de uma escala evoca uma viagem anterior. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-6-conversation",
+      "baseSituationId": "star-wars-eote-situation-6",
+      "text": "Um detalhe de uma escala evoca uma viagem anterior. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-6-choice",
+      "baseSituationId": "star-wars-eote-situation-6",
+      "text": "Um detalhe de uma escala evoca uma viagem anterior. Há espaço para uma decisão livre do personagem.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-6-verification",
+      "baseSituationId": "star-wars-eote-situation-6",
+      "text": "Um detalhe de uma escala evoca uma viagem anterior. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-6-continuity",
+      "baseSituationId": "star-wars-eote-situation-6",
+      "text": "Um detalhe de uma escala evoca uma viagem anterior. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-7-observe",
+      "baseSituationId": "star-wars-eote-situation-7",
+      "text": "O abrigo da tripulação muda as condições de repouso. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-7-conversation",
+      "baseSituationId": "star-wars-eote-situation-7",
+      "text": "O abrigo da tripulação muda as condições de repouso. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-7-choice",
+      "baseSituationId": "star-wars-eote-situation-7",
+      "text": "O abrigo da tripulação muda as condições de repouso. Há espaço para uma decisão livre do personagem.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-7-verification",
+      "baseSituationId": "star-wars-eote-situation-7",
+      "text": "O abrigo da tripulação muda as condições de repouso. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-7-continuity",
+      "baseSituationId": "star-wars-eote-situation-7",
+      "text": "O abrigo da tripulação muda as condições de repouso. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-8-observe",
+      "baseSituationId": "star-wars-eote-situation-8",
+      "text": "Um tripulante oferece ajuda sem criar dívida automática. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-8-conversation",
+      "baseSituationId": "star-wars-eote-situation-8",
+      "text": "Um tripulante oferece ajuda sem criar dívida automática. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-8-choice",
+      "baseSituationId": "star-wars-eote-situation-8",
+      "text": "Um tripulante oferece ajuda sem criar dívida automática. Há espaço para uma decisão livre do personagem.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-8-verification",
+      "baseSituationId": "star-wars-eote-situation-8",
+      "text": "Um tripulante oferece ajuda sem criar dívida automática. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-8-continuity",
+      "baseSituationId": "star-wars-eote-situation-8",
+      "text": "Um tripulante oferece ajuda sem criar dívida automática. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-9-observe",
+      "baseSituationId": "star-wars-eote-situation-9",
+      "text": "Um feito circula entre contatos de uma rota identificável. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-9-conversation",
+      "baseSituationId": "star-wars-eote-situation-9",
+      "text": "Um feito circula entre contatos de uma rota identificável. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-9-choice",
+      "baseSituationId": "star-wars-eote-situation-9",
+      "text": "Um feito circula entre contatos de uma rota identificável. Há espaço para uma decisão livre do personagem.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-9-verification",
+      "baseSituationId": "star-wars-eote-situation-9",
+      "text": "Um feito circula entre contatos de uma rota identificável. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-9-continuity",
+      "baseSituationId": "star-wars-eote-situation-9",
+      "text": "Um feito circula entre contatos de uma rota identificável. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-10-observe",
+      "baseSituationId": "star-wars-eote-situation-10",
+      "text": "Um canto da nave reúne lembranças de seus ocupantes. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-10-conversation",
+      "baseSituationId": "star-wars-eote-situation-10",
+      "text": "Um canto da nave reúne lembranças de seus ocupantes. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-10-choice",
+      "baseSituationId": "star-wars-eote-situation-10",
+      "text": "Um canto da nave reúne lembranças de seus ocupantes. Há espaço para uma decisão livre do personagem.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-10-verification",
+      "baseSituationId": "star-wars-eote-situation-10",
+      "text": "Um canto da nave reúne lembranças de seus ocupantes. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-10-continuity",
+      "baseSituationId": "star-wars-eote-situation-10",
+      "text": "Um canto da nave reúne lembranças de seus ocupantes. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-11-observe",
+      "baseSituationId": "star-wars-eote-situation-11",
+      "text": "Uma oferta de serviço precisa de confirmação de procedência. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-11-conversation",
+      "baseSituationId": "star-wars-eote-situation-11",
+      "text": "Uma oferta de serviço precisa de confirmação de procedência. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-11-choice",
+      "baseSituationId": "star-wars-eote-situation-11",
+      "text": "Uma oferta de serviço precisa de confirmação de procedência. Há espaço para uma decisão livre do personagem.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-11-verification",
+      "baseSituationId": "star-wars-eote-situation-11",
+      "text": "Uma oferta de serviço precisa de confirmação de procedência. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-11-continuity",
+      "baseSituationId": "star-wars-eote-situation-11",
+      "text": "Uma oferta de serviço precisa de confirmação de procedência. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-12-observe",
+      "baseSituationId": "star-wars-eote-situation-12",
+      "text": "Uma mensagem pessoal encontra a tripulação em trânsito. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-12-conversation",
+      "baseSituationId": "star-wars-eote-situation-12",
+      "text": "Uma mensagem pessoal encontra a tripulação em trânsito. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-12-choice",
+      "baseSituationId": "star-wars-eote-situation-12",
+      "text": "Uma mensagem pessoal encontra a tripulação em trânsito. Há espaço para uma decisão livre do personagem.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-12-verification",
+      "baseSituationId": "star-wars-eote-situation-12",
+      "text": "Uma mensagem pessoal encontra a tripulação em trânsito. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-12-continuity",
+      "baseSituationId": "star-wars-eote-situation-12",
+      "text": "Uma mensagem pessoal encontra a tripulação em trânsito. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-13-observe",
+      "baseSituationId": "star-wars-eote-situation-13",
+      "text": "Um plano pessoal exige negociar tempo ou um recurso. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-13-conversation",
+      "baseSituationId": "star-wars-eote-situation-13",
+      "text": "Um plano pessoal exige negociar tempo ou um recurso. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-13-choice",
+      "baseSituationId": "star-wars-eote-situation-13",
+      "text": "Um plano pessoal exige negociar tempo ou um recurso. Há espaço para uma decisão livre do personagem.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-13-verification",
+      "baseSituationId": "star-wars-eote-situation-13",
+      "text": "Um plano pessoal exige negociar tempo ou um recurso. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-13-continuity",
+      "baseSituationId": "star-wars-eote-situation-13",
+      "text": "Um plano pessoal exige negociar tempo ou um recurso. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-14-observe",
+      "baseSituationId": "star-wars-eote-situation-14",
+      "text": "Moradores de um porto mantêm uma rede de apoio. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-14-conversation",
+      "baseSituationId": "star-wars-eote-situation-14",
+      "text": "Moradores de um porto mantêm uma rede de apoio. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-14-choice",
+      "baseSituationId": "star-wars-eote-situation-14",
+      "text": "Moradores de um porto mantêm uma rede de apoio. Há espaço para uma decisão livre do personagem.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-14-verification",
+      "baseSituationId": "star-wars-eote-situation-14",
+      "text": "Moradores de um porto mantêm uma rede de apoio. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-14-continuity",
+      "baseSituationId": "star-wars-eote-situation-14",
+      "text": "Moradores de um porto mantêm uma rede de apoio. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-15-observe",
+      "baseSituationId": "star-wars-eote-situation-15",
+      "text": "Um tripulante novo aprende um costume de bordo. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-15-conversation",
+      "baseSituationId": "star-wars-eote-situation-15",
+      "text": "Um tripulante novo aprende um costume de bordo. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-15-choice",
+      "baseSituationId": "star-wars-eote-situation-15",
+      "text": "Um tripulante novo aprende um costume de bordo. Há espaço para uma decisão livre do personagem.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-15-verification",
+      "baseSituationId": "star-wars-eote-situation-15",
+      "text": "Um tripulante novo aprende um costume de bordo. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-15-continuity",
+      "baseSituationId": "star-wars-eote-situation-15",
+      "text": "Um tripulante novo aprende um costume de bordo. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "star-wars-eote-16-observe",
+      "baseSituationId": "star-wars-eote-situation-16",
+      "text": "Uma tarefa da nave pode ser adaptada a limites conhecidos. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-16-conversation",
+      "baseSituationId": "star-wars-eote-situation-16",
+      "text": "Uma tarefa da nave pode ser adaptada a limites conhecidos. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-16-choice",
+      "baseSituationId": "star-wars-eote-situation-16",
+      "text": "Uma tarefa da nave pode ser adaptada a limites conhecidos. Há espaço para uma decisão livre do personagem.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-16-verification",
+      "baseSituationId": "star-wars-eote-situation-16",
+      "text": "Uma tarefa da nave pode ser adaptada a limites conhecidos. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-16-continuity",
+      "baseSituationId": "star-wars-eote-situation-16",
+      "text": "Uma tarefa da nave pode ser adaptada a limites conhecidos. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-17-observe",
+      "baseSituationId": "star-wars-eote-situation-17",
+      "text": "Uma parada oferece ocasião para conversa reservada. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-17-conversation",
+      "baseSituationId": "star-wars-eote-situation-17",
+      "text": "Uma parada oferece ocasião para conversa reservada. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-17-choice",
+      "baseSituationId": "star-wars-eote-situation-17",
+      "text": "Uma parada oferece ocasião para conversa reservada. Há espaço para uma decisão livre do personagem.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-17-verification",
+      "baseSituationId": "star-wars-eote-situation-17",
+      "text": "Uma parada oferece ocasião para conversa reservada. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-17-continuity",
+      "baseSituationId": "star-wars-eote-situation-17",
+      "text": "Uma parada oferece ocasião para conversa reservada. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-18-observe",
+      "baseSituationId": "star-wars-eote-situation-18",
+      "text": "Uma cantina reúne antigos e novos contatos. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-18-conversation",
+      "baseSituationId": "star-wars-eote-situation-18",
+      "text": "Uma cantina reúne antigos e novos contatos. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-18-choice",
+      "baseSituationId": "star-wars-eote-situation-18",
+      "text": "Uma cantina reúne antigos e novos contatos. Há espaço para uma decisão livre do personagem.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-18-verification",
+      "baseSituationId": "star-wars-eote-situation-18",
+      "text": "Uma cantina reúne antigos e novos contatos. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-18-continuity",
+      "baseSituationId": "star-wars-eote-situation-18",
+      "text": "Uma cantina reúne antigos e novos contatos. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-19-observe",
+      "baseSituationId": "star-wars-eote-situation-19",
+      "text": "Um contrato encerrado dá espaço para comentar suas consequências. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-19-conversation",
+      "baseSituationId": "star-wars-eote-situation-19",
+      "text": "Um contrato encerrado dá espaço para comentar suas consequências. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-19-choice",
+      "baseSituationId": "star-wars-eote-situation-19",
+      "text": "Um contrato encerrado dá espaço para comentar suas consequências. Há espaço para uma decisão livre do personagem.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-19-verification",
+      "baseSituationId": "star-wars-eote-situation-19",
+      "text": "Um contrato encerrado dá espaço para comentar suas consequências. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-19-continuity",
+      "baseSituationId": "star-wars-eote-situation-19",
+      "text": "Um contrato encerrado dá espaço para comentar suas consequências. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-20-observe",
+      "baseSituationId": "star-wars-eote-situation-20",
+      "text": "Uma rotina de partida encontra um obstáculo solucionável. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-20-conversation",
+      "baseSituationId": "star-wars-eote-situation-20",
+      "text": "Uma rotina de partida encontra um obstáculo solucionável. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-20-choice",
+      "baseSituationId": "star-wars-eote-situation-20",
+      "text": "Uma rotina de partida encontra um obstáculo solucionável. Há espaço para uma decisão livre do personagem.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-20-verification",
+      "baseSituationId": "star-wars-eote-situation-20",
+      "text": "Uma rotina de partida encontra um obstáculo solucionável. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "star-wars-eote-20-continuity",
+      "baseSituationId": "star-wars-eote-situation-20",
+      "text": "Uma rotina de partida encontra um obstáculo solucionável. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "star-wars-eote",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    }
+  ]
+}
