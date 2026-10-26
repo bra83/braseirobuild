@@ -23,6 +23,7 @@ import com.braseiro.talesvtt.audio.TtsEngineType
 import com.braseiro.talesvtt.audio.TtsSettings
 import com.braseiro.talesvtt.audio.TtsVoiceOption
 import com.braseiro.talesvtt.audio.UniversalTtsV3Engine
+import com.braseiro.talesvtt.components.GuidedModeAction
 import com.braseiro.talesvtt.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,6 +64,7 @@ fun VoiceSettingsScreen(
             )
           }
         },
+        actions = { GuidedModeAction("Voz") },
         colors = TopAppBarDefaults.topAppBarColors(
           containerColor = AppTheme.colors.surfacePrimary
         )

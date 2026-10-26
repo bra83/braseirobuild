@@ -49,7 +49,8 @@ fun AppHeader(
   sceneLabel: String? = "Cena 7",
   worldStatus: WorldStatusData = WorldStatusData(),
   onMenuClick: () -> Unit = {},
-  onHelpClick: () -> Unit = {}
+  onHelpClick: () -> Unit = {},
+  guideTipAvailable: Boolean = false
 ) {
   val borderSubtle = AppTheme.colors.borderSubtle
   val backgroundSecondary = AppTheme.colors.backgroundSecondary
@@ -152,21 +153,34 @@ fun AppHeader(
           )
         }
 
-        Icon(
-          imageVector = AppIcons.Help,
-          contentDescription = "Como jogar",
-          tint = AppTheme.colors.accentCyan,
+        // Reuse the existing header help icon: no floating overlay over narration or dice.
+        Box(
+          contentAlignment = Alignment.Center,
           modifier = Modifier
-            .size(28.dp)
+            .minimumInteractiveComponentSize()
+            .size(34.dp)
             .clip(CircleShape)
             .clickable(
               interactionSource = remember { MutableInteractionSource() },
               indication = ripple(bounded = false),
               onClick = onHelpClick
             )
-            .padding(4.dp)
             .testTag("header_game_order_help")
-        )
+        ) {
+          Icon(
+            imageVector = AppIcons.Help,
+            contentDescription = "Abrir guia contextual da partida",
+            tint = AppTheme.colors.accentCyan,
+            modifier = Modifier.size(22.dp).testTag("header_guided_mode_icon")
+          )
+          if (guideTipAvailable) Box(
+            modifier = Modifier
+              .align(Alignment.TopEnd)
+              .size(6.dp)
+              .background(AppTheme.colors.accentAmber, CircleShape)
+              .testTag("header_guided_tip_available")
+          )
+        }
 
         val weatherLower = worldStatus.weather.lowercase()
         val weatherIcon = when {

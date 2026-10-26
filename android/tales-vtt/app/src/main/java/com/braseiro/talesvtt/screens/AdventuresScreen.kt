@@ -36,6 +36,7 @@ import com.braseiro.talesvtt.game.AdventureFactory
 import com.braseiro.talesvtt.life.AdventurePackage
 import com.braseiro.talesvtt.life.AdventurePackageValidator
 import com.braseiro.talesvtt.life.AdventureRepository
+import com.braseiro.talesvtt.components.GuidedModeAction
 import com.braseiro.talesvtt.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,6 +109,7 @@ fun AdventuresScreen(
             )
           }
         },
+        actions = { GuidedModeAction("Aventuras") },
         colors = TopAppBarDefaults.topAppBarColors(
           containerColor = AppTheme.colors.surfacePrimary
         )

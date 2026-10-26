@@ -8,10 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,24 +35,20 @@ fun AppShell(
   scrollable: Boolean = true,
   content: @Composable ColumnScope.() -> Unit
 ) {
-  var showGameOrder by remember { mutableStateOf(false) }
+  val guidedContext = LocalGuideContext.current
+  val guide = GuidedMode.resolve(currentDestination, screenTitle, guidedContext)
+  val (guideEnabled, setGuideEnabled) = rememberGuidedModePreference()
+  var showGuidedHelp by remember { mutableStateOf(false) }
+  val hasNewGuideTip = rememberUnseenGuideTip(guide.id, guideEnabled, showGuidedHelp)
 
-  if (showGameOrder) {
-    AlertDialog(
-      onDismissRequest = { showGameOrder = false },
-      title = { Text("ORDEM DE JOGO") },
-      text = {
-        Text(
-          "1. No MENU, configure o Motor Barbara/Gemini.\n" +
-            "2. Crie, importe ou gere um Kid aleatório.\n" +
-            "3. Toque em NOVA AVENTURA ALEATÓRIA.\n" +
-            "4. Leia a cena e escolha uma decisão ou escreva sua própria ação.\n" +
-            "5. Quando houver Trouble, o Mestre pede Atributo + Perícia; role e resolva Sorte/Forçar/Orgulho quando permitido.\n" +
-            "6. Investigue, revele pistas e acompanhe MISTÉRIO/MAPA/GRUPO.\n" +
-            "7. No encerramento, responda as perguntas de XP e aplique mudanças antes da próxima sessão."
-        )
-      },
-      confirmButton = { TextButton(onClick = { showGameOrder = false }) { Text("ENTENDI") } }
+  if (showGuidedHelp) {
+    GuidedModeSheet(
+      page = guide,
+      profile = guidedContext.game.rulesProfile,
+      enabled = guideEnabled,
+      onEnabledChange = setGuideEnabled,
+      onDismiss = { showGuidedHelp = false },
+      onNavigate = onNavigate
     )
   }
 
@@ -85,7 +78,8 @@ fun AppShell(
         sceneLabel = sceneLabel,
         worldStatus = worldStatus,
         onMenuClick = onMenuClick,
-        onHelpClick = { showGameOrder = true }
+        onHelpClick = { showGuidedHelp = true },
+        guideTipAvailable = hasNewGuideTip
       )
 
       // 2. Optional Context Strip

@@ -3,6 +3,7 @@ package com.braseiro.talesvtt.navigation
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -13,6 +14,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.braseiro.talesvtt.components.GuideContext
+import com.braseiro.talesvtt.components.LocalGuideContext
 import com.braseiro.talesvtt.game.GameViewModel
 import com.braseiro.talesvtt.game.MotorRouteHint
 import com.braseiro.talesvtt.model.AppDestination
@@ -84,6 +87,9 @@ fun AppNavGraph(
     if (motorRoute != MotorRouteHint.NONE) gameViewModel.consumeMotorRoute()
   }
 
+  CompositionLocalProvider(
+    LocalGuideContext provides GuideContext(gameState, motorStatus, adventureStarted, motorConfig.apiKeyConfigured)
+  ) {
   NavHost(
     navController = navController,
     startDestination = startDestination,
@@ -286,5 +292,6 @@ fun AppNavGraph(
         onNavigateBack = { navController.popBackStack() }
       )
     }
+  }
   }
 }
