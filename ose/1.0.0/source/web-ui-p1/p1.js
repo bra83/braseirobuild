@@ -12,6 +12,8 @@ let mediaTarget=null;
 let mapSelection=null;
 let mapMode='AUTO';
 let diceHistory=[];
+let dicePool={4:0,6:0,8:0,10:0,12:0,20:1,100:0};
+let diceModifier=0;
 let backupBuffer='';
 let ruleLibrary=[];
 let ruleLibraryLoaded=false;
@@ -97,9 +99,19 @@ window.BraseiroReceive=(raw)=>{
   else if(m.type==='AdventureImportResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok?`Aventura carregada: ${p.title||''}`:p.cancelled?'Importação cancelada.':'Erro ao importar aventura.');}
   else if(m.type==='AdventureFinishResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok?'Aventura concluída. O legado e o mundo foram preservados.':'Nenhuma aventura ativa.');}
   else if(m.type==='ManualDiceResult'){
-    const formula = `${p.count}d${p.sides}${p.modifier ? (p.modifier > 0 ? '+' : '') + p.modifier : ''}`;
-    diceHistory.unshift({rolls:p.rolls||[],total:p.total,sides:p.sides,count:p.count,modifier:p.modifier||0,formula});
-    diceHistory=diceHistory.slice(0,12);
+    const formula = p.formula || `${p.count}d${p.sides}${p.modifier ? (p.modifier > 0 ? '+' : '') + p.modifier : ''}`;
+    const terms = p.terms || [{count: p.count, sides: p.sides, sign: 1}];
+    diceHistory.unshift({
+      rolls: p.rolls || [],
+      total: p.total,
+      sides: p.sides,
+      count: p.count,
+      modifier: p.modifier || 0,
+      formula,
+      terms,
+      detail: p.detail || ''
+    });
+    diceHistory=diceHistory.slice(0,15);
     render();
     showToast(`Resultado: ${p.total}`);
     el('dice3dOverlay')?.classList.remove('hidden');
@@ -109,7 +121,8 @@ window.BraseiroReceive=(raw)=>{
       modifier: p.modifier || 0,
       canonicalTotal: p.total,
       rolls: p.rolls || [],
-      formula: formula
+      terms,
+      formula
     });
   }
   else if(m.type==='RuleEvidenceListResult'){ruleLibrary=p.rules||[];ruleLibraryLoaded=true;render();}
@@ -474,7 +487,179 @@ function renderRetainerPanel(){
 
 function renderCompany(){const party=viewState?.party||(!hasNative()?[{characterId:'demo-character',name:'Aventureiro',classIds:['FIGHTER'],hpCurrentNumerator:8,hpMaxNumerator:8,hpDenominator:1}]:[]);return `<div class="kicker">Companhia</div><div class="panel"><h2>${party.length?'Companhia atual':'Ainda vazia'}</h2>${party.length?`<div class="text-entity-list">${party.map(m=>{const mPort=viewState?.presentation?.characterPortraits?.[m.characterId];return `<div class="text-entity character-management ${m.characterId===viewState?.selectedCharacterId?'active':''}"><div>${mPort?`<img src="${esc(mPort)}" class="avatar-thumb" alt="Retrato">`:""}<b>${esc(m.name)}</b><span>${esc((m.classIds||[]).map(classLabel).join(' / '))} · HP ${hpText(m)} · Nível ${esc(Object.values(m.levelByClass||{})[0]||1)}</span></div>${renderCharacterControlSelect(m)}<div class="character-actions"><button data-character-select="${esc(m.characterId)}">ABRIR FICHA</button>${hasNative()?`<button class="secondary photo-action" data-photo-character="${esc(m.characterId)}" title="Alterar retrato">📷</button>`:""}<button class="secondary" data-delete-character="${esc(m.characterId)}">EXCLUIR FICHA</button></div></div>`}).join('')}</div><p class="note">A companhia viaja e ocupa o mundo como um único grupo.</p>`:'<p>Crie seu primeiro personagem para formar a companhia.</p>'}<div class="character-actions"><button class="primary" data-add-character>ADICIONAR PERSONAGEM</button><button class="secondary" data-import-character>IMPORTAR FICHA.JSON</button></div></div>${renderCuratorPanel()}${renderCompanionOpinions()}${renderMasterContinue()}${renderRetainerPanel()}`}
 
-function renderDicePanel(){return `<div class="panel dice-panel"><div class="row"><h3>🎲 Dados</h3><span class="note">Rolagem manual; não altera a campanha sozinha.</span></div><div class="dice-buttons">${[4,6,8,10,12,20,100].map(s=>`<button class="small" data-die="${s}">d${s}</button>`).join('')}</div><div class="dice-controls"><label>Quantidade<input id="diceCount" type="number" min="1" max="20" value="1"></label><label>Modificador<input id="diceModifier" type="number" min="-100" max="100" value="0"></label></div>${diceHistory.length?`<div class="dice-history">${diceHistory.map(d=>`<div><b>${d.count}d${d.sides}${d.modifier?`${d.modifier>0?'+':''}${d.modifier}`:''} = ${d.total}</b><small>${esc((d.rolls||[]).join(', '))}</small></div>`).join('')}</div>`:''}</div>`}
+function getAtelierFormula(){
+  const terms=[];
+  for(const sides of [20,12,10,8,6,4,100]){
+    const count=dicePool[sides]||0;
+    if(count>0) terms.push({count,sides,sign:1});
+  }
+  const isEmpty=terms.length===0;
+  const activeTerms=isEmpty?[{count:1,sides:20,sign:1}]:terms;
+  const totalDice=activeTerms.reduce((sum,t)=>sum+t.count,0);
+  const parts=activeTerms.map((t,idx)=>`${idx>0?'+ ':''}${t.count}d${t.sides}`);
+  let text=parts.join(' ');
+  if(diceModifier!==0){
+    text+=(diceModifier>0?' + ':' - ')+Math.abs(diceModifier);
+  }
+  return {terms:activeTerms,modifier:diceModifier,text,isEmpty,totalDice};
+}
+
+function executeAtelierRoll(){
+  const f=getAtelierFormula();
+  const terms=f.terms;
+  const modifier=f.modifier;
+  const formulaStr=f.text;
+  if(!postNative('ManualDiceRoll',{terms,modifier,formula:formulaStr})){
+    const rolls=[];
+    let total=modifier;
+    const detailParts=[];
+    for(const t of terms){
+      const termRolls=Array.from({length:t.count},()=>1+Math.floor(Math.random()*t.sides));
+      rolls.push(...termRolls);
+      const subtotal=termRolls.reduce((a,b)=>a+b,0);
+      total+=(t.sign===-1?-1:1)*subtotal;
+      const signPrefix=t.sign===-1?'- ':(detailParts.length?'+ ':'');
+      detailParts.push(`${signPrefix}${t.count}d${t.sides}[${termRolls.join(', ')}]`);
+    }
+    const detail=detailParts.join(' ')+(modifier?(modifier>0?' + ':' - ')+Math.abs(modifier):'')+` = ${total}`;
+    const firstSide=terms[0]?.sides||20;
+    const firstCount=terms[0]?.count||1;
+    diceHistory.unshift({rolls,total,sides:firstSide,count:firstCount,modifier,formula:formulaStr,terms,detail});
+    diceHistory=diceHistory.slice(0,15);
+    render();
+    showToast(`Resultado: ${total}`);
+    el('dice3dOverlay')?.classList.remove('hidden');
+    window.BraseiroDice?.start({
+      sides:firstSide,
+      count:firstCount,
+      modifier,
+      canonicalTotal:total,
+      rolls,
+      terms,
+      formula:formulaStr
+    });
+  }
+}
+
+function renderDicePanel(){
+  const f=getAtelierFormula();
+  const dieCatalog=[
+    {s:4,name:'d4',desc:'Adaga / Dano leve',color:'#c3692d'},
+    {s:6,name:'d6',desc:'Iniciativa / Reação',color:'#8e7952'},
+    {s:8,name:'d8',desc:'Espada / Dano marcial',color:'#7d3a98'},
+    {s:10,name:'d10',desc:'Arma pesada / Dano',color:'#b42a3a'},
+    {s:12,name:'d12',desc:'Machado / Bárbaro',color:'#2469b9'},
+    {s:20,name:'d20',desc:'Ataque / Salvaguarda',color:'#1a8a55'},
+    {s:100,name:'d100',desc:'Percentil (2×d10)',color:'#2b3036'}
+  ];
+  return `<div class="panel dice-atelier-panel">
+    <div class="row dice-atelier-header">
+      <div>
+        <h3 style="margin:0">🎲 Ateliê de Dados OSE</h3>
+        <span class="note">Física 3D · Construtor de fórmulas multi-dado</span>
+      </div>
+      <button class="small secondary" data-atelier-action="clear" title="Limpar todos os dados">LIMPAR</button>
+    </div>
+
+    <div class="dice-formula-banner">
+      <div class="formula-meta">
+        <span class="formula-tag">FÓRMULA ATIVA</span>
+        <span class="formula-dice-count">${f.totalDice} dado(s)${f.isEmpty?' (padrão)':''}</span>
+      </div>
+      <div class="formula-display">
+        <b class="formula-text">${esc(f.text)}</b>
+      </div>
+    </div>
+
+    <div class="dice-pool-chips">
+      ${[4,6,8,10,12,20,100].map(s=>{
+        const count=dicePool[s]||0;
+        if(!count)return '';
+        return `<div class="dice-chip chip-d${s}">
+          <span class="chip-label"><b>${count}×</b> d${s}</span>
+          <button class="chip-btn" data-atelier-remove="${s}" title="Remover um d${s}">−</button>
+          <button class="chip-btn" data-atelier-add="${s}" title="Adicionar um d${s}">+</button>
+        </div>`;
+      }).join('') || '<div class="chip-empty">Toque nos dados abaixo para compor sua fórmula</div>'}
+    </div>
+
+    <div class="dice-grid">
+      ${dieCatalog.map(die=>{
+        const count=dicePool[die.s]||0;
+        return `<div class="dice-card ${count>0?'selected':''}" data-atelier-die="${die.s}">
+          <div class="die-icon-box" style="border-color:${die.color}">
+            <span class="die-glyph" style="color:${die.color}">${die.name}</span>
+            ${count>0?`<span class="die-badge">${count}</span>`:''}
+          </div>
+          <div class="die-info">
+            <b class="die-title">${die.name}</b>
+            <small class="die-desc">${die.desc}</small>
+          </div>
+          <div class="die-stepper">
+            <button class="die-step-btn" data-atelier-remove="${die.s}" ${count===0?'disabled':''}>−</button>
+            <span class="die-count">${count}</span>
+            <button class="die-step-btn plus" data-atelier-add="${die.s}">+</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="dice-modifier-row">
+      <span class="modifier-label">Modificador Fixo:</span>
+      <div class="modifier-stepper">
+        <button class="small secondary" data-atelier-mod="-5">−5</button>
+        <button class="small secondary" data-atelier-mod="-1">−1</button>
+        <span class="modifier-value">${diceModifier>=0?'+':''}${diceModifier}</span>
+        <button class="small secondary" data-atelier-mod="+1">+1</button>
+        <button class="small secondary" data-atelier-mod="+5">+5</button>
+        <button class="small secondary" data-atelier-mod="reset" title="Zerar modificador">0</button>
+      </div>
+    </div>
+
+    <div class="dice-presets-row">
+      <span class="presets-label">Presets OSE:</span>
+      <div class="presets-buttons">
+        <button class="preset-btn" data-preset="1d20">1d20</button>
+        <button class="preset-btn" data-preset="2d6">2d6</button>
+        <button class="preset-btn" data-preset="1d6">1d6</button>
+        <button class="preset-btn" data-preset="3d6">3d6</button>
+        <button class="preset-btn" data-preset="1d100">d100</button>
+        <button class="preset-btn" data-preset="1d8">1d8</button>
+        <button class="preset-btn" data-preset="1d20+1d6">1d20+1d6</button>
+        <button class="preset-btn" data-preset="2d6+1d4">2d6+1d4</button>
+      </div>
+    </div>
+
+    <button class="primary dice-roll-btn" data-atelier-action="roll">
+      🎲 ROLAR FÓRMULA [ ${esc(f.text)} ]
+    </button>
+
+    ${diceHistory.length ? `
+    <div class="dice-last-result">
+      <div class="result-header">
+        <span>Última Rolagem: <b>${esc(diceHistory[0].formula||'')}</b></span>
+        <button class="small secondary" data-atelier-action="reroll">↻ RERROLAR</button>
+      </div>
+      <div class="result-body">
+        <span class="result-total">${diceHistory[0].total}</span>
+        <span class="result-detail">${esc(diceHistory[0].detail||(diceHistory[0].rolls||[]).join(' · '))}</span>
+      </div>
+    </div>` : ''}
+
+    ${diceHistory.length > 1 ? `
+    <div class="dice-history-section">
+      <h4>Histórico Recente</h4>
+      <div class="dice-history-list">
+        ${diceHistory.slice(1,6).map(h=>`
+          <div class="dice-history-item">
+            <b>${esc(h.formula||'')} = ${h.total}</b>
+            <small>${esc(h.detail||(h.rolls||[]).join(', '))}</small>
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+  </div>`;
+}
 function renderDiceScreen(){return `<div class="kicker">Rolagem de dados</div>${renderDicePanel()}<div class="panel"><p class="note">Rolagens manuais são livres e não alteram a campanha sozinhas. Quando uma regra OSE exige um teste, o motor usa a rolagem autoritativa e registra a regra consultada na sessão.</p></div>`}
 function renderLibrary(){const lib=viewState?.libraryStatus||{};const qx=libraryQuery.trim().toLowerCase();const filtered=ruleLibrary.filter(r=>!qx||String(r.ruleId).toLowerCase().includes(qx)||JSON.stringify(r.trace||{}).toLowerCase().includes(qx));return `<div class="kicker">Biblioteca de regras</div><div class="panel"><h2>${profileLabel()}</h2><p class="note">Autoridade: ${esc(lib.authority||'Fonte OSE incorporada')} · ${lib.ruleCount||ruleLibrary.length||0} regras catalogadas.</p><input id="librarySearch" type="search" placeholder="Buscar regra, fonte ou página" value="${esc(libraryQuery)}"></div><div class="rule-library">${ruleLibraryLoaded?(filtered.slice(0,100).map(r=>{const t=r.trace||{},e=(t.evidence||[])[0]||{};return `<button class="panel library-rule" data-rule-id="${esc(r.ruleId)}"><b>${esc(r.ruleId)}</b><span>${esc(traceStatusLabel(t.status))}</span><small>${esc(e.source||'')} ${esc(e.location||'')}</small></button>`}).join('')||'<div class="panel"><p>Nenhuma regra encontrada.</p></div>'):'<div class="panel"><p>Carregando catálogo de regras…</p></div>'}</div>`}
 function renderWorld(){const w=viewState?.worldStatus||{},p=viewState?.position||{},cell=currentMapCell();const weather={CLEAR:'Céu limpo',OVERCAST:'Encoberto',RAIN:'Chuva',FOG:'Neblina',STORM:'Tempestade',COLD:'Frio intenso',HOT:'Calor forte'}[w.weather]||w.weather||'—';const rumors=window.vttLifeAdapter?.getPublicRumors()||[];const lifeArcs=window.vttLifeAdapter?.getActiveLifeArcs()||[];return `<div class="kicker">Mundo Vivo</div><div class="panel"><h2>${w.active?'Mundo ativo':'Mundo ainda não iniciado'}</h2><div class="world-grid"><div><span>Clima</span><b>${esc(weather)}</b></div><div><span>Pulsos autônomos</span><b>${w.worldPulseCount??0}</b></div><div><span>NPCs persistentes</span><b>${w.npcCount??0}</b></div><div><span>Atividade de NPCs</span><b>${w.npcActivityCount??0}</b></div><div><span>Hexes conhecidos</span><b>${w.knownHexes??0}</b></div><div><span>Eventos pendentes</span><b>${w.scheduledEventCount??0}</b></div><div><span>Eventos resolvidos</span><b>${w.resolvedEventCount??0}</b></div><div><span>Revisão do mundo</span><b>${w.revision??0}</b></div></div><p class="note">O mundo e as rotinas dos NPCs avançam automaticamente quando o tempo canônico passa. Clima e atividade de fundo são persistidos sem inventar modificadores de regra.</p></div><div class="panel"><h3>Posição atual</h3><p>${esc(cell?terrainName(cell):'Local atual')} · Dia ${(viewState?.time?.days??0)+1}, turno ${viewState?.time?.turns??0}</p><button class="secondary" data-go="map">ABRIR MAPA</button></div><div class="panel"><h3>Motor de Vida V2.2 · Rumores e Repercussões</h3>${rumors.length?`<ul class="rumor-list">${rumors.map(r=>`<li><b>Dia ${(r.day??0)+1}:</b> ${esc(r.text||r.title||'')}</li>`).join('')}</ul>`:'<p class="note">Nenhum rumor recente em circulação. Realize ações de viagem, descanso ou exploração para gerar manifestações biográficas.</p>'}</div>${renderRuleTrace(lastRuleTrace||viewState?.lastRuleTrace)}`}
@@ -489,7 +674,67 @@ function wireCurrentScreen(){
  document.querySelectorAll('[data-tts]').forEach(b=>b.onclick=()=>{if(!postNative('TtsCommand',{command:b.dataset.tts}))showToast('A narração em voz requer o app Android.');});
  document.querySelector('[data-scene-prompt]')?.addEventListener('click',()=>{if(postNative('ScenePromptShare',{explicitUserAction:true}))showToast('Abrindo o Gemini com o prompt da cena…');else showToast('Geração externa requer o app Android.')});
  document.querySelector('[data-scene-import]')?.addEventListener('click',b=>chooseMedia('SCENE',b.currentTarget.dataset.sceneId));
- document.querySelectorAll('[data-die]').forEach(b=>b.onclick=()=>{const count=Math.max(1,Math.min(20,Number(el('diceCount')?.value||1))),modifier=Math.max(-100,Math.min(100,Number(el('diceModifier')?.value||0)));if(!postNative('ManualDiceRoll',{sides:Number(b.dataset.die),count,modifier})){const rolls=Array.from({length:count},()=>1+Math.floor(Math.random()*Number(b.dataset.die))),total=rolls.reduce((a,x)=>a+x,0)+modifier;diceHistory.unshift({rolls,total,sides:Number(b.dataset.die),count,modifier});render()}});
+ document.querySelectorAll('[data-atelier-add]').forEach(b=>b.onclick=e=>{
+   e.stopPropagation();
+   const s=Number(b.dataset.atelierAdd);
+   dicePool[s]=Math.min(20,(dicePool[s]||0)+1);
+   render();
+ });
+ document.querySelectorAll('[data-atelier-remove]').forEach(b=>b.onclick=e=>{
+   e.stopPropagation();
+   const s=Number(b.dataset.atelierRemove);
+   dicePool[s]=Math.max(0,(dicePool[s]||0)-1);
+   render();
+ });
+ document.querySelectorAll('[data-atelier-die]').forEach(card=>card.onclick=e=>{
+   if(e.target.closest('button'))return;
+   const s=Number(card.dataset.atelierDie);
+   dicePool[s]=Math.min(20,(dicePool[s]||0)+1);
+   render();
+ });
+ document.querySelectorAll('[data-atelier-mod]').forEach(b=>b.onclick=()=>{
+   const m=b.dataset.atelierMod;
+   if(m==='reset')diceModifier=0;
+   else diceModifier=Math.max(-100,Math.min(100,diceModifier+Number(m)));
+   render();
+ });
+ document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{
+   const p=b.dataset.preset;
+   dicePool={4:0,6:0,8:0,10:0,12:0,20:0,100:0};
+   diceModifier=0;
+   if(p==='1d20')dicePool[20]=1;
+   else if(p==='2d6')dicePool[6]=2;
+   else if(p==='1d6')dicePool[6]=1;
+   else if(p==='3d6')dicePool[6]=3;
+   else if(p==='1d100')dicePool[100]=1;
+   else if(p==='1d8')dicePool[8]=1;
+   else if(p==='1d20+1d6'){dicePool[20]=1;dicePool[6]=1;}
+   else if(p==='2d6+1d4'){dicePool[6]=2;dicePool[4]=1;}
+   render();
+ });
+ document.querySelectorAll('[data-atelier-action="clear"]').forEach(b=>b.onclick=()=>{
+   dicePool={4:0,6:0,8:0,10:0,12:0,20:0,100:0};
+   diceModifier=0;
+   render();
+ });
+ document.querySelectorAll('[data-atelier-action="roll"]').forEach(b=>b.onclick=()=>executeAtelierRoll());
+ document.querySelectorAll('[data-atelier-action="reroll"]').forEach(b=>b.onclick=()=>{
+   if(diceHistory.length&&diceHistory[0].terms){
+     const h=diceHistory[0];
+     dicePool={4:0,6:0,8:0,10:0,12:0,20:0,100:0};
+     for(const t of h.terms){dicePool[t.sides]=(dicePool[t.sides]||0)+t.count;}
+     diceModifier=h.modifier||0;
+   }
+   executeAtelierRoll();
+ });
+ document.querySelectorAll('[data-die]').forEach(b=>b.onclick=()=>{
+   const s=Number(b.dataset.die);
+   const count=Math.max(1,Math.min(20,Number(el('diceCount')?.value||1))),modifier=Math.max(-100,Math.min(100,Number(el('diceModifier')?.value||0)));
+   dicePool={4:0,6:0,8:0,10:0,12:0,20:0,100:0};
+   dicePool[s]=count;
+   diceModifier=modifier;
+   executeAtelierRoll();
+ });
  document.querySelector('[data-start-draft]')?.addEventListener('click',e=>{e.currentTarget.disabled=true;postNative('CharacterCreationStart',{draftId:'draft-'+Date.now()+'-'+Math.random().toString(36).slice(2,9)})});
  document.querySelector('[data-random-character]')?.addEventListener('click',e=>{e.currentTarget.disabled=true;if(postNative('CharacterCreationRandom',{commandId:'random-'+Date.now()+'-'+Math.random().toString(36).slice(2,9)}))showToast('Criando personagem aleatório pelas regras…');else e.currentTarget.disabled=false});
  document.querySelectorAll('[data-export-character]').forEach(b=>b.onclick=()=>postNative('CharacterSheetExportRequest',{characterId:b.dataset.exportCharacter||viewState?.selectedCharacterId}));

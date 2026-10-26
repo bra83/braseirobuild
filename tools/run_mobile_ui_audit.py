@@ -184,6 +184,48 @@ def run_audit():
             window.BraseiroBridge = {{
                 postMessage: (msg) => {{
                     console.log('[Native Bridge Mock received]', msg);
+                    try {{
+                        const parsed = typeof msg === 'string' ? JSON.parse(msg) : msg;
+                        if (parsed.type === 'ManualDiceRoll') {{
+                            const p = parsed.payload || {{}};
+                            const terms = (p.terms && p.terms.length > 0) ? p.terms : [{{ count: p.count || 1, sides: p.sides || 20, sign: 1 }}];
+                            const modifier = p.modifier || 0;
+                            const termsResult = [];
+                            const allRolls = [];
+                            let runningSum = 0;
+                            for (const t of terms) {{
+                                const c = t.count || 1;
+                                const s = t.sides || 20;
+                                const sign = t.sign || 1;
+                                const rolls = [];
+                                for (let i = 0; i < c; i++) {{
+                                    const r = s === 6 ? 4 : (s === 4 ? 3 : (s === 20 ? 19 : (s === 100 ? 82 : Math.floor(s / 2))));
+                                    rolls.push(r);
+                                    allRolls.push(r);
+                                }}
+                                const subtotal = rolls.reduce((a, b) => a + b, 0) * sign;
+                                runningSum += subtotal;
+                                termsResult.push({{ count: c, sides: s, sign, rolls, subtotal }});
+                            }}
+                            const total = runningSum + modifier;
+                            const detail = allRolls.join('+') + (modifier > 0 ? ` + ${{modifier}}` : (modifier < 0 ? ` - ${{-modifier}}` : '')) + ` = ${{total}}`;
+                            setTimeout(() => {{
+                                window.BraseiroReceive({{
+                                    type: 'ManualDiceResult',
+                                    payload: {{
+                                        terms: termsResult,
+                                        rolls: allRolls,
+                                        total,
+                                        modifier,
+                                        formula: p.formula || `${{terms.map(t => t.count + 'd' + t.sides).join(' + ')}}${{modifier > 0 ? '+' + modifier : ''}}`,
+                                        detail
+                                    }}
+                                }});
+                            }}, 30);
+                        }}
+                    }} catch (e) {{
+                        console.error('Mock postMessage error', e);
+                    }}
                 }}
             }};
             window.BraseiroReceive({{
@@ -330,6 +372,14 @@ def run_audit():
         print('[Audit] 15. 3D Dice screen and rolling physics')
         page.locator('.navbtn[data-screen="dice"]').click()
         page.wait_for_timeout(200)
+
+        # Test Dice Atelier multi-formula interaction
+        page.locator('[data-preset="2d6+1d4"]').click()
+        page.wait_for_timeout(100)
+        page.locator('[data-atelier-mod="+1"]').click()
+        page.wait_for_timeout(100)
+        formula_txt = page.locator('.formula-text').inner_text()
+        assert '2d6 + 1d4 + 1' in formula_txt, f'unexpected formula: {formula_txt}'
         page.screenshot(path=str(OUTPUT_DIR / 'a57-dice-tray.png'), full_page=False)
 
         # Launch composed roll: 1d4 + 1d20 + 1d100

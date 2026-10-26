@@ -858,17 +858,65 @@ class MainActivity : Activity() {
                         }
 
                         "ManualDiceRoll" -> {
-                            val sides = payload.optInt("sides", 20)
-                            val count = payload.optInt("count", 1)
                             val modifier = payload.optInt("modifier", 0)
-                            require(sides in setOf(4,6,8,10,12,20,100)) { "INVALID_DIE" }
-                            require(count in 1..20) { "INVALID_DICE_COUNT" }
                             require(modifier in -100..100) { "INVALID_DICE_MODIFIER" }
-                            val rolls = List(count) { manualDice.nextInt(sides) + 1 }
-                            val total = rolls.sum() + modifier
+                            val termsList = mutableListOf<Triple<Int, Int, Int>>() // count, sides, sign
+                            if (payload.has("terms")) {
+                                val termsArr = payload.getJSONArray("terms")
+                                for (i in 0 until termsArr.length()) {
+                                    val t = termsArr.getJSONObject(i)
+                                    val count = t.optInt("count", 1)
+                                    val sides = t.optInt("sides", 6)
+                                    val sign = if (t.optInt("sign", 1) < 0) -1 else 1
+                                    require(sides in setOf(4, 6, 8, 10, 12, 20, 100)) { "INVALID_DIE" }
+                                    require(count in 1..20) { "INVALID_DICE_COUNT" }
+                                    termsList.add(Triple(count, sides, sign))
+                                }
+                            } else {
+                                val sides = payload.optInt("sides", 20)
+                                val count = payload.optInt("count", 1)
+                                require(sides in setOf(4, 6, 8, 10, 12, 20, 100)) { "INVALID_DIE" }
+                                require(count in 1..20) { "INVALID_DICE_COUNT" }
+                                termsList.add(Triple(count, sides, 1))
+                            }
+                            require(termsList.isNotEmpty()) { "EMPTY_DICE_TERMS" }
+                            require(termsList.sumOf { it.first } <= 60) { "TOO_MANY_DICE" }
+
+                            val rolls = mutableListOf<Int>()
+                            val termsJson = JSONArray()
+                            val detailParts = mutableListOf<String>()
+                            var total = modifier
+
+                            for ((count, sides, sign) in termsList) {
+                                val termRolls = List(count) { manualDice.nextInt(sides) + 1 }
+                                rolls.addAll(termRolls)
+                                val subtotal = termRolls.sum()
+                                total += sign * subtotal
+                                termsJson.put(JSONObject().put("count", count).put("sides", sides).put("sign", sign))
+                                val signPrefix = if (sign < 0) "- " else if (detailParts.isNotEmpty()) "+ " else ""
+                                detailParts.add("${signPrefix}${if (count > 1) "$count" else ""}d$sides[${termRolls.joinToString(", ")}]")
+                            }
+
+                            val formulaStr = payload.optString("formula", "").ifEmpty {
+                                termsList.mapIndexed { idx, (c, s, sign) ->
+                                    val p = if (sign < 0) "-" else if (idx > 0) "+" else ""
+                                    "${p}${if (c > 1) "$c" else ""}d$s"
+                                }.joinToString("") + (if (modifier != 0) (if (modifier > 0) "+$modifier" else "$modifier") else "")
+                            }
+
+                            val detailStr = detailParts.joinToString(" ") + (if (modifier != 0) (if (modifier > 0) " + $modifier" else " - ${kotlin.math.abs(modifier)}") else "") + " = $total"
+                            val sidesFirst = termsList.first().second
+                            val countFirst = termsList.first().first
+
                             send(JSONObject().put("type", "ManualDiceResult").put("payload", JSONObject()
-                                .put("sides", sides).put("count", count).put("modifier", modifier)
-                                .put("rolls", JSONArray(rolls)).put("total", total)
+                                .put("sides", sidesFirst)
+                                .put("count", countFirst)
+                                .put("modifier", modifier)
+                                .put("terms", termsJson)
+                                .put("formula", formulaStr)
+                                .put("rolls", JSONArray(rolls))
+                                .put("total", total)
+                                .put("detail", detailStr)
                                 .put("mechanicalDelta", false)))
                         }
 

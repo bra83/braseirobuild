@@ -293,3 +293,53 @@ body{background:#c9aa72}
  #dice3dOverlay #result{font-size:25px}
  #dice3dOverlay .ose-dice-close{min-height:40px;margin-top:4px}
 }
+
+/* Ateliê de Dados OSE — Construtor de Fórmulas e Mesa Física */
+.dice-atelier-panel{display:grid;gap:12px;background:#fbf3e2;border:1px solid #9f7542;border-radius:8px;padding:14px}
+.dice-atelier-header{align-items:center;justify-content:space-between;border-bottom:1px solid #d4b886;padding-bottom:8px}
+.dice-formula-banner{background:linear-gradient(135deg,#23160e,#3a2416);border:1px solid #c89d5d;border-radius:6px;padding:12px;box-shadow:inset 0 1px 3px rgba(0,0,0,.45)}
+.formula-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.formula-tag{font:700 9px Arial;text-transform:uppercase;letter-spacing:.08em;color:#e8be78}
+.formula-dice-count{font:9px Arial;color:#cbb592}
+.formula-display{min-height:32px;display:flex;align-items:center}
+.formula-text{font:800 22px Georgia,"Times New Roman",serif;color:#fff4d4;letter-spacing:.02em;word-break:break-all}
+.dice-pool-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;align-items:center}
+.chip-empty{font:italic 11px Georgia,serif;color:#7a5a3a}
+.dice-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:14px;background:#e2c99b;border:1px solid #9e7542;font:700 11px Arial;color:#24160e}
+.chip-btn{border:none;background:rgba(36,22,14,.18);color:#24160e;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font:700 12px Arial;padding:0;cursor:pointer}
+.chip-btn:hover{background:rgba(36,22,14,.35)}
+.dice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.dice-card{display:flex;flex-direction:column;align-items:center;text-align:center;background:#f3e3c3;border:1px solid #bba073;border-radius:6px;padding:8px 6px;cursor:pointer;transition:transform .1s,border-color .15s}
+.dice-card:active{transform:scale(.98)}
+.dice-card.selected{border-color:#81261a;background:#f8ecd1;box-shadow:0 0 0 1px #81261a}
+.die-icon-box{position:relative;width:42px;height:42px;border-radius:50%;border:2px solid;background:#fff8ee;display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+.die-glyph{font:800 16px Georgia,serif}
+.die-badge{position:absolute;top:-4px;right:-6px;background:#81261a;color:#fff;font:700 10px Arial;border-radius:10px;padding:1px 5px;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.die-info{display:flex;flex-direction:column;gap:1px;margin-bottom:6px}
+.die-title{font:700 12px Arial;color:#2b190f}
+.die-desc{font:9px Arial;color:#6b4d32;line-height:1.15}
+.die-stepper{display:flex;align-items:center;gap:4px;width:100%;justify-content:center}
+.die-step-btn{border:1px solid #9e7542;background:#ebd3a4;color:#351e10;border-radius:4px;width:24px;height:24px;font:700 13px Arial;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.die-step-btn:disabled{opacity:.35;cursor:default}
+.die-step-btn.plus{background:#81261a;color:#fff;border-color:#5a150d}
+.die-count{font:700 12px Arial;min-width:16px;text-align:center;color:#2c190e}
+.dice-modifier-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:#eee0be;padding:8px 10px;border-radius:6px;border:1px solid #c2a87d}
+.modifier-label{font:700 11px Arial;color:#462d1c}
+.modifier-stepper{display:flex;align-items:center;gap:4px}
+.modifier-value{font:800 14px Arial;min-width:32px;text-align:center;color:#6d2419}
+.dice-presets-row{display:flex;flex-direction:column;gap:4px}
+.presets-label{font:700 10px Arial;text-transform:uppercase;letter-spacing:.05em;color:#61442b}
+.presets-buttons{display:flex;flex-wrap:wrap;gap:4px}
+.preset-btn{background:#e7d3aa;border:1px solid #a88350;border-radius:4px;font:700 10px Arial;padding:4px 7px;color:#311e11;cursor:pointer}
+.preset-btn:active{background:#cdae78}
+.dice-roll-btn{min-height:46px;font:800 14px Georgia,serif;letter-spacing:.03em;margin-top:4px}
+.dice-last-result{background:#f6eed8;border:1px solid #b5925e;border-radius:6px;padding:10px}
+.result-header{display:flex;justify-content:space-between;align-items:center;font:11px Arial;color:#5a3f29;border-bottom:1px solid #dfc79d;padding-bottom:4px;margin-bottom:6px}
+.result-body{display:flex;align-items:baseline;gap:12px}
+.result-total{font:800 28px Georgia,serif;color:#81261a}
+.result-detail{font:11px/1.3 Arial;color:#483222}
+.dice-history-section h4{margin:0 0 6px;font:700 11px Arial;color:#5c3f28;text-transform:uppercase}
+.dice-history-list{display:grid;gap:4px}
+.dice-history-item{display:flex;justify-content:space-between;align-items:center;background:#f3e4c4;border:1px solid #baa175;border-radius:4px;padding:5px 8px}
+.dice-history-item b{font:700 11px Arial;color:#28180e}
+.dice-history-item small{font:9px Arial;color:#6a4c33}

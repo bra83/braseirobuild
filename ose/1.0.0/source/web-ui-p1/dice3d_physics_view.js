@@ -8,14 +8,25 @@ const core=root.Dice3DCore;
 const stage=()=>document.getElementById('dice3dStage');
 const light=[0.24,-0.38,0.89], camera=[0,-0.56,0.83];
 const palettes={
-  4:[53,69,55],   // Old bronze
-  6:[91,83,59],   // Weathered bone brass
-  8:[57,60,75],   // Dark amethyst iron
-  10:[49,72,62],  // Dark forest-green resin, gilded borders
-  12:[50,73,60],  // Aged verdigris
-  20:[55,76,60],  // Moss-green gold-inlay
-  100:[65,62,50] // Obsidian and antique brass
+  4:[195,105,45],   // Rich polished antique bronze
+  6:[225,210,178],  // Warm tumbled ivory / antique bone
+  8:[125,58,152],   // Royal gem-like purple amethyst
+  10:[180,42,58],   // Deep crimson ruby resin
+  12:[36,105,185],  // Luminous sapphire blue
+  20:[26,138,85],   // Signature Braseiro OSE gilded emerald
+  100:[38,42,48]    // Polished onyx black
 };
+const materials={
+  4:{base:[195,105,45],edge:'rgba(255,220,150,0.75)',ink:'#fff9eb',inkStroke:'rgba(32,16,8,0.95)'},
+  6:{base:[225,210,178],edge:'rgba(255,252,240,0.85)',ink:'#26190f',inkStroke:'rgba(245,235,215,0.85)'},
+  8:{base:[125,58,152],edge:'rgba(225,175,255,0.75)',ink:'#fffef6',inkStroke:'rgba(26,10,36,0.95)'},
+  10:{base:[180,42,58],edge:'rgba(255,155,170,0.75)',ink:'#fffef6',inkStroke:'rgba(34,8,12,0.95)'},
+  12:{base:[36,105,185],edge:'rgba(155,210,255,0.75)',ink:'#fffef6',inkStroke:'rgba(8,22,48,0.95)'},
+  20:{base:[26,138,85],edge:'rgba(145,245,195,0.80)',ink:'#fffbe8',inkStroke:'rgba(6,28,16,0.95)'},
+  100:{base:[38,42,48],edge:'rgba(235,195,115,0.80)',ink:'#ffe89c',inkStroke:'rgba(12,14,16,0.98)'}
+};
+const onesPercentileMat={base:[205,150,48],edge:'rgba(255,225,150,0.80)',ink:'#fffbe8',inkStroke:'rgba(35,22,6,0.95)'};
+
 let active=null,sequence=0;
 function stop(){
   if(!active)return;
@@ -31,7 +42,7 @@ function color(rgb,lightness){
 }
 function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
 function projected(p,width,height,scale){
-  return [width*.5+p[0]*scale, height*.64+(p[1]*.48-p[2]*.72)*scale];
+  return [width*.5+p[0]*scale, height*.50+(p[1]*.44-p[2]*.70)*scale];
 }
 function polygonArea(p){
   let a=0;
@@ -60,37 +71,40 @@ function render(session){
   for(let y=0;y<height;y+=14){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y+8);ctx.stroke();}
   ctx.restore();
 
-  // Camera follows the actual group. The original world positions accumulated
-  // horizontal/vertical drift and left a tiny die at the tray's edge.
+  // Camera follows the active dice group to keep all polyhedra centered
   const total=world.bodies.length;
   const xs=world.bodies.map(b=>b.p[0]),ys=world.bodies.map(b=>b.p[1]);
   const targetX=(Math.min(...xs)+Math.max(...xs))/2;
   const targetY=(Math.min(...ys)+Math.max(...ys))/2;
   if(!Number.isFinite(session.camX)){session.camX=targetX;session.camY=targetY;}
-  session.camX+=(targetX-session.camX)*.20;
-  session.camY+=(targetY-session.camY)*.20;
+  session.camX+=(targetX-session.camX)*.22;
+  session.camY+=(targetY-session.camY)*.22;
   const spanX=Math.max(...xs)-Math.min(...xs);
   const spanY=Math.max(...ys)-Math.min(...ys);
-  const scale=total===1 ? Math.min(width/2.38,height/3.6)
-    : Math.min(width/Math.max(4.3,3+spanX),height/Math.max(4.0,3+spanY*.55));
+
+  // Generous scale matching the D&D physical presence and tabletop impact
+  const scale=total===1 ? Math.min(width/2.05,height/2.95)
+    : total<=3 ? Math.min(width/Math.max(3.1,2.1+spanX*.72),height/Math.max(3.2,2.1+spanY*.42))
+    : total<=6 ? Math.min(width/Math.max(3.7,2.5+spanX*.78),height/Math.max(3.5,2.3+spanY*.48))
+    : Math.min(width/Math.max(4.5,3.1+spanX*.85),height/Math.max(3.9,2.7+spanY*.52));
 
   // Realistic contact and ambient drop shadows under each die
   for(const body of world.bodies){
     const s=projected([body.p[0]-session.camX,body.p[1]-session.camY,0],width,height,scale);
     const z=Math.max(0,body.p[2]);
-    const shadowAlpha=Math.max(.08,.48-z*.07);
+    const shadowAlpha=Math.max(.10,.55-z*.08);
     const rad=body.size*scale;
     ctx.save();
-    // Ambient spread shadow
-    ctx.fillStyle='rgba(10,6,4,'+shadowAlpha+')';
+    // Ambient soft occlusion
+    ctx.fillStyle='rgba(8,4,2,'+shadowAlpha+')';
     ctx.beginPath();
-    ctx.ellipse(s[0],s[1]+4,rad*(1.22+z*.05),rad*.52,0,0,Math.PI*2);
+    ctx.ellipse(s[0],s[1]+5,rad*(1.28+z*.06),rad*.56,0,0,Math.PI*2);
     ctx.fill();
-    // Sharp dark contact core when resting on or near tray floor
-    if(z<1.0){
-      ctx.fillStyle='rgba(4,2,1,'+((1.0-z)*.55)+')';
+    // Dark floor contact core
+    if(z<0.9){
+      ctx.fillStyle='rgba(2,1,1,'+((0.9-z)*.65)+')';
       ctx.beginPath();
-      ctx.ellipse(s[0],s[1]+2,rad*.92,rad*.38,0,0,Math.PI*2);
+      ctx.ellipse(s[0],s[1]+3,rad*0.95,rad*0.38,0,0,Math.PI*2);
       ctx.fill();
     }
     ctx.restore();
@@ -100,6 +114,7 @@ function render(session){
   const faces=[];
   for(const body of world.bodies){
     const mesh=body.mesh, verts=mesh.vertices.map(v=>core.V.add(body.p,core.V.mul(core.Q.rot(body.q,v),body.size)));
+    const mat=(body.themeSides===100&&body.tag==='1')?onesPercentileMat:(materials[body.themeSides]||materials[body.sides]||materials[20]);
     const palette=palettes[body.themeSides]||palettes[body.sides]||palettes[20];
     for(let i=0;i<mesh.faces.length;i++){
       const normal=core.Q.rot(body.q,mesh.normals[i]);
@@ -110,20 +125,20 @@ function render(session){
       const center=core.V.add(body.p,core.V.mul(core.Q.rot(body.q,mesh.centers[i]),body.size));
       const depth=dot(center,camera);
       const diff=Math.max(0,dot(normal,light));
-      // Specular sheen for resin / metal polyhedrals
+      // Specular sheen for resin / gem / metal polyhedrals
       const half=core.V.norm(core.V.add(light,camera));
-      const spec=Math.pow(Math.max(0,dot(normal,half)),16)*.38;
-      const illumination=Math.min(1.45,.40+diff*.60+spec);
+      const spec=Math.pow(Math.max(0,dot(normal,half)),18)*.42;
+      const rim=Math.pow(1-Math.max(0,dot(normal,camera)),3)*.20;
+      const illumination=Math.min(1.48,.38+diff*.62+spec+rim);
       const raw=body.displayMap?.[i]??(i+1);
-      faces.push({points:v,center:projected([center[0]-session.camX,center[1]-session.camY,center[2]],width,height,scale),depth,color:color(palette,illumination),
-        label:String(raw),exposure,area:polygonArea(v),body,faceIndex:i,spec});
+      faces.push({points:v,center:projected([center[0]-session.camX,center[1]-session.camY,center[2]],width,height,scale),depth,
+        color:color(mat.base||palette,illumination),baseRgb:mat.base||palette,mat,normal,diff,spec,
+        label:String(raw),exposure,area:polygonArea(v),body,faceIndex:i});
     }
   }
   faces.sort((a,b)=>a.depth-b.depth);
 
-  // Face labels must fit their actual polygons: area-based fonts alone caused
-  // overlapping d20 numbers and percentile markings outside adjacent faces.
-  // Once settled, display only the canonical face on each physical die.
+  // Face labels: prioritize clear readable face inscription
   const labelled=new Set(),moving=new Map(),settled=new Map();
   for(const face of faces){
     if(face.body.done){
@@ -139,8 +154,6 @@ function render(session){
     candidates.sort((a,b)=>b.exposure*b.area-a.exposure*a.area);
     for(const face of candidates.slice(0,2))labelled.add(face);
   }
-  // Physical dice should have numbers on neighboring visible facets, just
-  // like engraved polyhedra. Keep the official upper face visible first.
   for(const candidates of settled.values()){
     candidates.sort((a,b)=>b.exposure*b.area-a.exposure*a.area);
     for(const face of candidates.slice(0,5))labelled.add(face);
@@ -155,32 +168,51 @@ function render(session){
     }
     return radius;
   }
-  // Narrow projected facets (notably d100 kites) use a compact number badge
-  // AFTER the geometry pass. It is still the canonical target face value,
-  // never a new result. This avoids missing values on near-edge projections.
+
   const fallbackLabels=[];
-  // Render each visible 3D facet
+  // Render each visible 3D facet with volumetric material shading and chamfered edges
   for(const face of faces){
     ctx.beginPath();
     face.points.forEach((point,i)=>i?ctx.lineTo(point[0],point[1]):ctx.moveTo(point[0],point[1]));
     ctx.closePath();
-    ctx.fillStyle=face.color;
-    ctx.fill();
 
-    // Double-edged metal inlay, closer to the engraved tabletop reference.
-    ctx.lineWidth=Math.max(2,Math.min(3.0,scale*.026));
-    ctx.strokeStyle='rgba(18,23,19,.96)';
-    ctx.stroke();
-    ctx.lineWidth=Math.max(1,Math.min(1.65,scale*.013));
-    ctx.strokeStyle='rgba(195,145,86,.93)';
+    // Volumetric gradient across facet to give weight and solid curved form
+    let pMin=face.points[0],pMax=face.points[0];
+    for(let k=1;k<face.points.length;k++){
+      if(face.points[k][1]<pMin[1])pMin=face.points[k];
+      if(face.points[k][1]>pMax[1])pMax=face.points[k];
+    }
+    let filled=false;
+    if(typeof ctx.createLinearGradient==='function'){
+      try{
+        const fg=ctx.createLinearGradient(pMin[0],pMin[1],pMax[0],pMax[1]);
+        if(fg&&typeof fg.addColorStop==='function'){
+          const base=face.baseRgb;
+          const topFactor=Math.min(1.5,0.45+face.diff*.55+face.spec*1.2);
+          const botFactor=Math.max(0.25,0.30+face.diff*.35);
+          fg.addColorStop(0,color(base,topFactor));
+          fg.addColorStop(1,color(base,botFactor));
+          ctx.fillStyle=fg;
+          ctx.fill();
+          filled=true;
+        }
+      }catch(_){}
+    }
+    if(!filled){
+      ctx.fillStyle=face.color;
+      ctx.fill();
+    }
+
+    // Refined tumbled chamfer highlight: NO heavy wireframe cage lines!
+    ctx.lineWidth=Math.max(0.75,Math.min(1.5,scale*.011));
+    ctx.strokeStyle=(face.diff>0.35||face.spec>0.10)?face.mat.edge:'rgba(16,10,6,0.38)';
     ctx.stroke();
 
-    // Engrave only the face(s) chosen above. Clip ink to the face boundary,
-    // and adapt font size to its shortest distance from the center to an edge.
+    // Engrave numerals with Georgia serif, deep ivory / ink contrast
     if(labelled.has(face)){
       const radius=inscriptionRadius(face);
-      const fontSize=Math.min(29,Math.sqrt(face.area)*.47,radius*1.34,
-        (radius*1.65)/(face.label.length*.63));
+      const fontSize=Math.min(32,Math.sqrt(face.area)*.48,radius*1.36,
+        (radius*1.68)/(face.label.length*.63));
       if(fontSize>=8.2){
         ctx.save();
         ctx.beginPath();
@@ -190,11 +222,21 @@ function render(session){
         ctx.textAlign='center';
         ctx.textBaseline='middle';
         ctx.font='800 '+fontSize+'px Georgia, "Times New Roman", serif';
-        ctx.lineWidth=Math.max(1.5,fontSize*.20);
-        ctx.strokeStyle='rgba(16,8,4,.95)';
+        ctx.lineWidth=Math.max(1.6,fontSize*.20);
+        ctx.strokeStyle=face.mat.inkStroke||'rgba(16,8,4,.95)';
         ctx.strokeText(face.label,face.center[0],face.center[1],radius*1.75);
-        ctx.fillStyle='#fff6de';
+        ctx.fillStyle=face.mat.ink||'#fff6de';
+
+        // Critical natural 20 aura
+        if(face.body.sides===20&&face.label==='20'&&face.faceIndex===face.body.faceIndex&&face.body.done){
+          ctx.fillStyle='#ffe57f';
+          ctx.shadowColor='#ffc107';
+          ctx.shadowBlur=8;
+        }
+
         ctx.fillText(face.label,face.center[0],face.center[1],radius*1.75);
+
+        // Disambiguation dot for 6 and 9
         if(face.label==='6'||face.label==='9'){
           const dotY=face.center[1]+fontSize*.36;
           const dotR=Math.max(.9,fontSize*.065);
@@ -205,15 +247,15 @@ function render(session){
         }
         ctx.restore();
       }else if(face.body.done && face.faceIndex===face.body.faceIndex){
-        fallbackLabels.push({text:face.label,x:face.center[0],y:face.center[1]});
+        fallbackLabels.push({text:face.label,x:face.center[0],y:face.center[1],mat:face.mat});
       }
     }
   }
-  // Topmost overlays are reserved for genuinely unreadable narrow faces.
-  // Avoid crossing the tray border or another percentile badge.
+
+  // Topmost badge for narrow edge-on faces (e.g. d100 kites near rim)
   const occupied=[];
   for(const badge of fallbackLabels){
-    const badgeWidth=badge.text.length*10+12,badgeHeight=21;
+    const badgeWidth=badge.text.length*10+14,badgeHeight=22;
     let x=Math.min(width-badgeWidth-5,Math.max(5,badge.x-badgeWidth/2));
     let y=Math.min(height-badgeHeight-5,Math.max(5,badge.y-badgeHeight/2));
     for(let attempt=0;attempt<5;attempt++){
@@ -222,17 +264,17 @@ function render(session){
     }
     occupied.push({x,y,w:badgeWidth,h:badgeHeight});
     ctx.save();
-    ctx.fillStyle='rgba(29,17,12,.94)';
+    ctx.fillStyle='rgba(24,15,10,.94)';
     ctx.fillRect(x,y,badgeWidth,badgeHeight);
-    ctx.strokeStyle='rgba(207,163,87,.9)';
-    ctx.lineWidth=1.1;
+    ctx.strokeStyle=badge.mat?.edge||'rgba(207,163,87,.9)';
+    ctx.lineWidth=1.2;
     ctx.beginPath();
     ctx.moveTo(x,y);ctx.lineTo(x+badgeWidth,y);
     ctx.lineTo(x+badgeWidth,y+badgeHeight);ctx.lineTo(x,y+badgeHeight);
     ctx.closePath();ctx.stroke();
     ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.font='800 12px Georgia, "Times New Roman", serif';
-    ctx.fillStyle='#fff3cc';
+    ctx.fillStyle=badge.mat?.ink||'#fff3cc';
     ctx.fillText(badge.text,x+badgeWidth/2,y+badgeHeight/2,badgeWidth-4);
     ctx.restore();
   }
@@ -260,7 +302,6 @@ function start(cfg,dice,onDone){
     count:Number(t.count),sides:Number(t.sides),sign:t.sign===-1?-1:1
   })):[{count:dice.length,sides:Number(cfg.sides),sign:1}];
   const physicalCount=terms.reduce((sum,t)=>sum+t.count*(t.sides===100?2:1),0);
-  // Large bursts fall back to the original FL animation without blocking a phone.
   if(physicalCount>18)return false;
   let canvas,container;
   try{
