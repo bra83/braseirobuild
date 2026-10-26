@@ -745,7 +745,7 @@ class MainActivity : Activity() {
                                 PresentationMediaStore.Scope.SCENE, scenePresentationId(current),
                                 key, runtimeSettings.snapshot().imageModel,
                                 buildSceneImagePrompt(current), "16:9"
-                            ))
+                            )
                         }
 
                         "PortraitImageGenerate" -> {
@@ -773,7 +773,7 @@ class MainActivity : Activity() {
                                 else -> error("UNSUPPORTED_PORTRAIT_KIND")
                             }
                             val key = credentials.get(GeminiCredentialStore.Slot.TEXT_SCENE) ?: error("GEMINI_TEXT_SCENE_KEY_MISSING")
-                            startImageGeneration(scope, stableId, key, runtimeSettings.snapshot().imageModel, prompt, "1:1"))
+                            startImageGeneration(scope, stableId, key, runtimeSettings.snapshot().imageModel, prompt, "1:1")
                         }
 
                         "PresentationImageSave" -> {
