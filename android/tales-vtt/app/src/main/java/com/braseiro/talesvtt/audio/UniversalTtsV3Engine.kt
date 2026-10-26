@@ -15,6 +15,12 @@ import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import java.util.Locale
 import java.util.UUID
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 enum class TtsEngineType(val label: String) {
   ANDROID_NATIVE("Android TTS (Google/Samsung)"),
@@ -80,6 +86,9 @@ class UniversalTtsV3Engine(private val context: Context) : TextToSpeech.OnInitLi
   private var currentChunkIndex = 0
   private var isSpeaking = false
   private var currentSessionId: String = ""
+  private val geminiNarration = GeminiNarrationTts(context)
+  private val geminiScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+  private var geminiJob: Job? = null
 
   var onStateChangedListener: ((Boolean, String) -> Unit)? = null
 
@@ -252,6 +261,7 @@ class UniversalTtsV3Engine(private val context: Context) : TextToSpeech.OnInitLi
    */
   fun splitIntoSafeChunks(text: String, minLength: Int = 350, maxLength: Int = 800): List<String> {
     val clean = sanitizeVisibleText(text)
+    if (clean.isBlank()) return emptyList()
     if (clean.length <= maxLength) return listOf(clean)
 
     val chunks = mutableListOf<String>()
@@ -312,7 +322,28 @@ class UniversalTtsV3Engine(private val context: Context) : TextToSpeech.OnInitLi
     isSpeaking = true
 
     requestAudioFocus()
-    playNextChunk()
+    if (currentSettings.engineType == TtsEngineType.GEMINI_SPEECH) {
+      val session = currentSessionId
+      geminiJob = geminiScope.launch {
+        for (i in chunks.indices) {
+          if (!isSpeaking || currentSessionId != session) return@launch
+          currentChunkIndex = i
+          onStateChangedListener?.invoke(true, chunks[i])
+          val result = geminiNarration.speak(chunks[i])
+          if (!isSpeaking || currentSessionId != session) return@launch
+          if (result.isFailure) {
+            // Explicitly inform the UI; continue the remaining chunks using Android TTS.
+            onStateChangedListener?.invoke(true,
+              "Gemini indisponível: ${result.exceptionOrNull()?.message ?: "erro de áudio"}. Usando voz Android.")
+            if (isTtsInitialized) playNextChunk() else stop()
+            return@launch
+          }
+        }
+        if (isSpeaking && currentSessionId == session) stop()
+      }
+    } else {
+      playNextChunk()
+    }
   }
 
   private fun playNextChunk() {
@@ -370,12 +401,16 @@ class UniversalTtsV3Engine(private val context: Context) : TextToSpeech.OnInitLi
 
   fun shutdown() {
     stop()
+    geminiScope.cancel()
     try { tts?.shutdown() } catch (_: Exception) {}
     tts = null
     isTtsInitialized = false
   }
 
   fun stop() {
+    geminiJob?.cancel()
+    geminiJob = null
+    geminiNarration.stop()
     isSpeaking = false
     currentChunks = emptyList()
     currentChunkIndex = 0

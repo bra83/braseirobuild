@@ -3,6 +3,12 @@ package com.braseiro.talesvtt.audio
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import android.os.Handler
+import android.os.Looper
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import android.util.Base64
 import com.braseiro.talesvtt.BuildConfig
 import com.braseiro.talesvtt.data.SecureSecretStore
@@ -28,6 +34,8 @@ class GeminiNarrationTts(private val context: Context) {
   private val prefs = context.getSharedPreferences("braseiro_motor_cfg_v1", Context.MODE_PRIVATE)
   private val secrets = SecureSecretStore(context)
   private var player: MediaPlayer? = null
+  private var playbackCompletion: CancellableContinuation<Unit>? = null
+  private val mainHandler = Handler(Looper.getMainLooper())
 
   fun enabled(): Boolean = prefs.getString("tts_mode", "gemini") == "gemini"
 
@@ -95,6 +103,7 @@ class GeminiNarrationTts(private val context: Context) {
     }
   }
 
+  /** Completes only when MediaPlayer has finished the whole chunk (not on start). */
   private suspend fun playGenerated(generated: GeneratedAudio) {
     val mime = generated.mimeType.lowercase()
     val isPcm = mime.contains("l16") || mime.contains("pcm") || mime.isBlank()
@@ -107,39 +116,59 @@ class GeminiNarrationTts(private val context: Context) {
     }
     val bytes = if (isPcm) pcmToWav(generated.bytes, rateFromMime(mime), 1, 16) else generated.bytes
     val file = File.createTempFile("tales_tts_", extension, context.cacheDir)
-    file.writeBytes(bytes)
-    withContext(Dispatchers.Main) {
-      player?.release()
-      player = MediaPlayer().apply {
-        setAudioAttributes(
-          AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_MEDIA)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-            .build()
-        )
-        setDataSource(file.absolutePath)
-        setOnCompletionListener { finished ->
-          finished.release()
-          if (player === finished) player = null
-          file.delete()
+    try {
+      file.writeBytes(bytes)
+      withContext(Dispatchers.Main) {
+        suspendCancellableCoroutine<Unit> { continuation ->
+          val next = MediaPlayer()
+          try {
+            player?.release()
+            player = next
+            playbackCompletion = continuation
+            next.setAudioAttributes(AudioAttributes.Builder()
+              .setUsage(AudioAttributes.USAGE_MEDIA)
+              .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build())
+            next.setDataSource(file.absolutePath)
+            next.setOnCompletionListener { mp ->
+              if (player === mp) { player = null; playbackCompletion = null }
+              runCatching { mp.release() }
+              if (continuation.isActive) continuation.resume(Unit)
+            }
+            next.setOnErrorListener { mp, _, _ ->
+              if (player === mp) { player = null; playbackCompletion = null }
+              runCatching { mp.release() }
+              if (continuation.isActive) continuation.resumeWithException(
+                IllegalStateException("Erro ao reproduzir áudio Gemini."))
+              true
+            }
+            continuation.invokeOnCancellation {
+              mainHandler.post {
+                if (player === next) { player = null; playbackCompletion = null }
+                runCatching { next.release() }
+              }
+            }
+            next.prepare()
+            next.start()
+          } catch (e: Exception) {
+            if (player === next) { player = null; playbackCompletion = null }
+            runCatching { next.release() }
+            if (continuation.isActive) continuation.resumeWithException(e)
+          }
         }
-        setOnErrorListener { failed, _, _ ->
-          failed.release()
-          if (player === failed) player = null
-          file.delete()
-          true
-        }
-        prepare()
-        start()
-        check(isPlaying) { "A reprodução da voz Gemini não iniciou." }
       }
+    } finally {
+      file.delete()
     }
   }
 
   fun stop() {
-    runCatching { player?.stop() }
-    player?.release()
-    player = null
+    val action = {
+      playbackCompletion?.cancel()
+      playbackCompletion = null
+      player?.let { runCatching { it.release() } }
+      player = null
+    }
+    if (Looper.myLooper() == Looper.getMainLooper()) action() else mainHandler.post(action)
   }
 
   private fun resolveApiKey(): String {

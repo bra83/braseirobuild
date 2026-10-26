@@ -29,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.braseiro.talesvtt.R
+import com.braseiro.talesvtt.BuildConfig
 import com.braseiro.talesvtt.components.AppPanel
 import com.braseiro.talesvtt.components.AppShell
 import com.braseiro.talesvtt.components.PrimaryButton
@@ -257,13 +258,15 @@ fun MenuScreen(
     SectionHeader(title = "SISTEMA & ATUALIZAÇÕES (M13)", color = AppTheme.colors.accentCyan)
     Spacer(Modifier.height(Dimens.spacing8))
     val updateScope = rememberCoroutineScope()
-    val updateManager = remember { AppUpdateManager(currentVersionCode = 26, currentVersionName = "1.3.19") }
+    val updateManager = remember { AppUpdateManager(currentVersionCode = BuildConfig.VERSION_CODE, currentVersionName = BuildConfig.VERSION_NAME) }
     var updateResult by remember { mutableStateOf<UpdateCheckResult?>(null) }
     var isCheckingUpdate by remember { mutableStateOf(false) }
+    var isDownloadingUpdate by remember { mutableStateOf(false) }
+    var updateInstallError by remember { mutableStateOf<String?>(null) }
 
     AppPanel {
       Text(
-        text = "Versão Instalada: 1.3.20 • Build versionCode 27\nCanal Oficial: Android / One UI 7 (A57 Homologado)",
+        text = "Versão Instalada: ${BuildConfig.VERSION_NAME} • Build ${BuildConfig.VERSION_CODE}\nCanal oficial Braseiro",
         style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.textSecondary)
       )
       Spacer(Modifier.height(8.dp))
@@ -281,12 +284,13 @@ fun MenuScreen(
         modifier = Modifier.fillMaxWidth()
       )
 
+      updateInstallError?.let { Text(it, style = AppTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error)) }
       updateResult?.let { res ->
         Spacer(Modifier.height(8.dp))
         when (res.status) {
           UpdateStatus.UP_TO_DATE -> {
             Text(
-              text = "✓ Sistema atualizado. A versão 1.3.19 (build 26) é a mais recente.",
+              text = "✓ Nenhuma versão mais nova disponível (instalada: ${BuildConfig.VERSION_NAME}).",
               style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.accentCyan)
             )
           }
@@ -305,10 +309,19 @@ fun MenuScreen(
               if (!res.downloadUrl.isNullOrBlank()) {
                 Spacer(Modifier.height(4.dp))
                 PrimaryButton(
-                  text = "BAIXAR ATUALIZAÇÃO OFICIAL",
+                  text = if (isDownloadingUpdate) "BAIXANDO E VERIFICANDO APK..." else "BAIXAR ATUALIZAÇÃO OFICIAL",
+                  enabled = !isDownloadingUpdate,
                   onClick = {
-                    val intent = updateManager.createDownloadIntent(res.downloadUrl)
-                    context.startActivity(intent)
+                    isDownloadingUpdate = true
+                    updateInstallError = null
+                    updateScope.launch {
+                      val verified = updateManager.downloadVerifiedApk(context, res)
+                      isDownloadingUpdate = false
+                      verified.onSuccess { apk ->
+                        runCatching { context.startActivity(updateManager.createInstallIntent(context, apk)) }
+                          .onFailure { updateInstallError = "Instalação não pôde ser aberta: ${it.message}" }
+                      }.onFailure { updateInstallError = "Atualização rejeitada: ${it.message}" }
+                    }
                   },
                   modifier = Modifier.fillMaxWidth()
                 )

@@ -3,6 +3,8 @@ package com.braseiro.talesvtt.life
 import android.content.Context
 import org.json.JSONObject
 import java.io.File
+import java.io.FileOutputStream
+import android.util.AtomicFile
 import java.util.UUID
 
 class AdventureRepository(private val context: Context) {
@@ -25,35 +27,32 @@ class AdventureRepository(private val context: Context) {
 
   fun sanitizeId(id: String): String = id.replace(Regex("[^a-zA-Z0-9_-]"), "_")
 
+  /** Android AtomicFile preserves the previous valid file until finishWrite succeeds. */
   private fun atomicWrite(file: File, content: String): Boolean {
     val parent = file.parentFile ?: return false
-    if (!parent.exists()) parent.mkdirs()
-    val tmp = File(parent, "${file.name}.${UUID.randomUUID()}.tmp")
-    val bak = File(parent, "${file.name}.bak")
+    if (!parent.exists() && !parent.mkdirs()) return false
+    val atomic = AtomicFile(file)
+    var output: FileOutputStream? = null
     return try {
-      java.io.FileOutputStream(tmp).use { fos ->
-        fos.write(content.toByteArray(Charsets.UTF_8))
-        fos.flush()
-        fos.fd.sync()
-      }
-      if (file.exists()) {
-        try {
-          if (bak.exists()) bak.delete()
-          file.copyTo(bak, overwrite = true)
-        } catch (_: Exception) {}
-        file.delete()
-      }
-      val renamed = tmp.renameTo(file)
-      if (!renamed) {
-        tmp.copyTo(file, overwrite = true)
-        tmp.delete()
-      }
+      output = atomic.startWrite()
+      output.write(content.toByteArray(Charsets.UTF_8))
+      output.fd.sync()
+      atomic.finishWrite(output)
       true
-    } catch (e: Exception) {
-      if (tmp.exists()) tmp.delete()
+    } catch (_: Exception) {
+      output?.let { runCatching { atomic.failWrite(it) } }
       false
     }
   }
+
+  /** openRead restores a surviving .bak after a crash during replacement. */
+  private fun atomicRead(file: File): String? = runCatching {
+    AtomicFile(file).openRead().bufferedReader(Charsets.UTF_8).use { it.readText() }
+  }.getOrNull()
+
+  private fun legacyKey(key: CharacterIdentityKey): String = listOf(
+    key.systemId, key.worldId, key.timelineId, key.characterId
+  ).joinToString("_") { sanitizeId(it) }
 
   fun saveTimeline(timeline: WorldTimelineState): Boolean {
     val safeId = "${sanitizeId(timeline.worldId)}_${sanitizeId(timeline.timelineId)}"
@@ -64,9 +63,9 @@ class AdventureRepository(private val context: Context) {
   fun loadTimeline(worldId: String, timelineId: String): WorldTimelineState? {
     val safeId = "${sanitizeId(worldId)}_${sanitizeId(timelineId)}"
     val file = File(timelineDir, "$safeId.json")
-    if (!file.exists()) return null
+    val raw = atomicRead(file) ?: return null
     return try {
-      val obj = JSONObject(file.readText(Charsets.UTF_8))
+      val obj = JSONObject(raw)
       WorldTimelineState.fromJson(obj)
     } catch (_: Exception) {
       null
@@ -84,7 +83,7 @@ class AdventureRepository(private val context: Context) {
     val files = packagesDir.listFiles { _, name -> name.endsWith(".json") } ?: emptyArray()
     for (f in files) {
       try {
-        val content = f.readText(Charsets.UTF_8)
+        val content = atomicRead(f) ?: continue
         val res = AdventurePackageValidator.parseAndValidate(content)
         if (res is AdventurePackageValidator.ValidationResult.Valid) {
           result.add(res.adventurePackage)
@@ -97,8 +96,7 @@ class AdventureRepository(private val context: Context) {
   fun getPackage(id: String): AdventurePackage? {
     val safeId = sanitizeId(id)
     val file = File(packagesDir, "$safeId.json")
-    if (!file.exists()) return null
-    val content = file.readText(Charsets.UTF_8)
+    val content = atomicRead(file) ?: return null
     val res = AdventurePackageValidator.parseAndValidate(content)
     return (res as? AdventurePackageValidator.ValidationResult.Valid)?.adventurePackage
   }
@@ -129,9 +127,9 @@ class AdventureRepository(private val context: Context) {
   fun loadInstance(instanceId: String): AdventureInstance? {
     val safeId = sanitizeId(instanceId)
     val file = File(instancesDir, "$safeId.json")
-    if (!file.exists()) return null
+    val raw = atomicRead(file) ?: return null
     return try {
-      val obj = JSONObject(file.readText(Charsets.UTF_8))
+      val obj = JSONObject(raw)
       AdventureInstance.fromJson(obj)
     } catch (_: Exception) {
       null
@@ -143,7 +141,7 @@ class AdventureRepository(private val context: Context) {
     val files = instancesDir.listFiles { _, name -> name.endsWith(".json") } ?: emptyArray()
     for (f in files) {
       try {
-        val obj = JSONObject(f.readText(Charsets.UTF_8))
+        val obj = JSONObject(atomicRead(f) ?: continue)
         result.add(AdventureInstance.fromJson(obj))
       } catch (_: Exception) {}
     }
@@ -151,42 +149,36 @@ class AdventureRepository(private val context: Context) {
   }
 
   fun saveLegacy(legacy: CharacterLegacyRecord): Boolean {
-    val compoundKey = "${sanitizeId(legacy.identityKey.systemId)}_${sanitizeId(legacy.identityKey.worldId)}_${sanitizeId(legacy.identityKey.characterId)}"
-    val file = File(legacyDir, "$compoundKey.json")
-    return atomicWrite(file, legacy.toJson().toString())
+    // Always include timelineId. Previous 3-component filenames remain read-only migration sources.
+    return atomicWrite(File(legacyDir, "${legacyKey(legacy.identityKey)}.json"), legacy.toJson().toString())
   }
 
   fun loadLegacy(identityKey: CharacterIdentityKey): CharacterLegacyRecord? {
-    val compoundKey = "${sanitizeId(identityKey.systemId)}_${sanitizeId(identityKey.worldId)}_${sanitizeId(identityKey.characterId)}"
-    val file = File(legacyDir, "$compoundKey.json")
-    if (!file.exists()) {
-      val fallback = File(legacyDir, "${sanitizeId(identityKey.characterId)}.json")
-      if (!fallback.exists()) return null
-      return try {
-        val obj = JSONObject(fallback.readText(Charsets.UTF_8))
-        CharacterLegacyRecord.fromJson(obj)
-      } catch (_: Exception) {
-        null
-      }
-    }
-    return try {
-      val obj = JSONObject(file.readText(Charsets.UTF_8))
-      CharacterLegacyRecord.fromJson(obj)
-    } catch (_: Exception) {
-      null
-    }
-  }
-
-  fun loadLegacy(characterId: String): CharacterLegacyRecord? {
-    val safeCharId = sanitizeId(characterId)
-    val files = legacyDir.listFiles { _, name -> name == "$safeCharId.json" || name.endsWith("_$safeCharId.json") } ?: emptyArray()
-    for (f in files) {
-      try {
-        val obj = JSONObject(f.readText(Charsets.UTF_8))
-        val rec = CharacterLegacyRecord.fromJson(obj)
-        if (rec != null) return rec
-      } catch (_: Exception) {}
+    val canonical = File(legacyDir, "${legacyKey(identityKey)}.json")
+    val olderThreePartKey = listOf(identityKey.systemId, identityKey.worldId, identityKey.characterId)
+      .joinToString("_") { sanitizeId(it) }
+    val candidates = listOf(canonical, File(legacyDir, "$olderThreePartKey.json"),
+      File(legacyDir, "${sanitizeId(identityKey.characterId)}.json"))
+    for (file in candidates) {
+      val raw = atomicRead(file) ?: continue
+      val record = runCatching { CharacterLegacyRecord.fromJson(JSONObject(raw)) }.getOrNull()
+      if (record?.identityKey != identityKey) continue // Never load another timeline's legacy.
+      if (file != canonical) saveLegacy(record) // Non-destructive migration.
+      return record
     }
     return null
+  }
+
+  /** Compatibility lookup: refuse ambiguous IDs used in multiple timelines/worlds. */
+  fun loadLegacy(characterId: String): CharacterLegacyRecord? {
+    val matches = mutableListOf<CharacterLegacyRecord>()
+    val files = legacyDir.listFiles { _, name -> name.endsWith(".json") } ?: return null
+    for (file in files) {
+      val raw = atomicRead(file) ?: continue
+      val record = runCatching { CharacterLegacyRecord.fromJson(JSONObject(raw)) }.getOrNull()
+      if (record?.identityKey?.characterId == characterId &&
+        matches.none { it.identityKey == record.identityKey }) matches.add(record)
+    }
+    return matches.singleOrNull()
   }
 }
