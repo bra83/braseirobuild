@@ -36,7 +36,7 @@ jobs:
             & curl.exe --silent --fail --location --connect-timeout 5 --max-time 10 --output $sumFile $sumUrl
             if ($LASTEXITCODE -eq 0) {
               foreach ($line in (Get-Content $sumFile)) {
-                if ($line -match '^([a-f0-9]{64})\s+BRASEIRO_CYBERPUNK_RED_4\.1\.79\.apk$') { $expectedHash = $Matches[1]; break }
+                if ($line -match '^([a-f0-9]{64})\s+BRASEIRO_CYBERPUNK_RED_4\.1\.80\.apk$') { $expectedHash = $Matches[1]; break }
               }
             }
             if ($expectedHash) { break }
