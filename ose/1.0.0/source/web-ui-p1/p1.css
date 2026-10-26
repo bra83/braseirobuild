@@ -264,3 +264,7 @@ body{background:#c9aa72}
 /* OSE 3D close-up: centered, framed and still fully scroll-safe. */
 #dice3dStage.physics-active{height:clamp(300px,49dvh,425px);min-height:300px}
 @media(max-height:630px){#dice3dStage.physics-active{height:250px;min-height:250px}}
+
+/* A square Gemini portrait in the wide sheet slot must show the CHARACTER,
+   not center-crop the face away. User images remain unmodified on disk. */
+.text-first-hero .portrait img{object-fit:cover;object-position:50% 12%}

@@ -40,3 +40,6 @@ check('OSE dice UI never displays another game title',!fs.readFileSync(path.join
 
 check('Gemini image generation uses isolated worker, safe bounded downloads and resets busy', nativeMain.includes('private val imageIo = Executors.newSingleThreadExecutor()') && nativeMain.includes('imageRequestBusy.set(false)') && nativeMain.includes('startImageGeneration(scope, stableId'));
 check('image reuse is cache-busted and absent files are discarded',fs.readFileSync(path.join(root,'app-android/src/main/kotlin/braseiro/ose/app/PresentationMediaStore.kt'),'utf8').includes('mediaUrl(file, entry.optString("rev"))'));
+
+check('new sandbox worlds select varied safe land hexes',nativeMain.includes('kotlin.random.Random(worldSeed.toLong()).nextInt(candidates.size)')&&nativeMain.includes('val safeLand = setOf('));
+check('portrait uses head-aware top focus rather than centered crop',css.includes('.text-first-hero .portrait img{object-fit:cover;object-position:50% 12%}'));

@@ -323,10 +323,16 @@ class MainActivity : Activity() {
         val generated = HexWorldGeneratorV1.generate("world-1", worldSeed, profile)
         val coherence = GeographicCoherenceValidator.validate(generated, profile)
         check(coherence.pass) { "HEX_BOOTSTRAP_INVALID:${coherence.errors.joinToString()}" }
-        val startCell = generated.cells.firstOrNull { it.poiId != null }
-            ?: generated.cells.firstOrNull { it.terrain.name == "PLAINS" || it.terrain.name == "CLEAR" }
-            ?: generated.cells.firstOrNull { it.q == 3 && it.r == 2 }
-            ?: generated.cells.first()
+        // Each genuinely NEW sandbox world gets a coherent but varied starting
+        // land hex. Never re-roll when loading an existing campaign: this
+        // method is only used by fresh bootstrap / explicit adventure reset.
+        val safeLand = setOf("PLAINS", "CLEAR", "CLEAR_GRASSLANDS", "FOREST", "HILLS",
+            "WOODS", "FARMLAND", "SETTLEMENT")
+        val candidates = generated.cells.filter { it.terrain.name in safeLand }
+            .ifEmpty { generated.cells.filter { it.poiId != null } }
+            .ifEmpty { generated.cells }
+            .sortedWith(compareBy({ it.q }, { it.r }))
+        val startCell = candidates[kotlin.random.Random(worldSeed.toLong()).nextInt(candidates.size)]
         val startQ = startCell.q
         val startR = startCell.r
         val world = HexKnowledge.reveal(generated, startQ, startR, 0)
