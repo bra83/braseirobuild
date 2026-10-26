@@ -51,7 +51,12 @@ class GeminiInteractionsClientTest {
         assertEquals(24000, blob.sampleRate)
         val body = transport.bodySeen!!
         assertEquals("custom-tts-model", body.getString("model"))
-        assertTrue(body.getString("input").endsWith("Narração visível"))
+        val input = body.getJSONArray("input").getJSONObject(0)
+            .getJSONArray("content").getJSONObject(0)
+        assertEquals("Narração visível", input.getString("text"))
+        assertEquals("speech_metadata", input.getJSONArray("annotations")
+            .getJSONObject(0).getString("type"))
+        assertFalse(input.getString("text").contains("Narre em"))
         assertEquals("audio", body.getJSONObject("response_format").getString("type"))
         assertFalse(body.toString().contains("tts-secret"))
     }

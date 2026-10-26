@@ -1,0 +1,8 @@
+BRASEIRO OSE 1.0.9 FINAL BRELGA BUILD TRIGGER
+Target Branch: ose/final-integration-20261024
+ApplicationId: braseiro.ose
+VersionCode: 10
+VersionName: 1.0.9
+TriggeredAt: 2026-10-24T18:02:00-03:00
+TriggerCommit: Motor de Vida V2.2 full causal runtime integration + Checksum divergence resolution (LF normalization & resilient loader) + AdventureStore finish boolean contract + WorldId canonical campaign identity
+APK_SHA256: d091b4cdf678392b18223ee82a45b95459a16beb9c4dcf9af814cbe60f47800f

@@ -1,0 +1,54 @@
+name: OSE Mobile UI and Physics Audit
+
+on:
+  push:
+    branches:
+      - ose/final-integration-20261024
+    paths:
+      - "ose/1.0.0/source/web-ui-p1/**"
+      - "tools/**"
+      - ".github/workflows/audit-ose-mobile-ui.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ui-audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test OSE JS and canonical physics
+        shell: powershell
+        run: |
+          $UI = "ose/1.0.0/source/web-ui-p1"
+          $ErrorActionPreference='Stop'
+          $files = @(
+            "$UI/dice3d_core.js",
+            "$UI/dice3d_app.js",
+            "$UI/dice3d_physics_view.js",
+            "$UI/equipment-icon-cleaner.js",
+            "$UI/p1.js"
+          )
+          foreach ($file in $files) {
+            & node --check $file
+            if ($LASTEXITCODE -ne 0) { throw "OSE JavaScript syntax failure: $file" }
+          }
+          & node "$UI/ose_image_nav_regression.cjs"
+          if ($LASTEXITCODE -ne 0) { throw 'OSE image and startup regression failed' }
+          & node "$UI/dice3d_physics.test.cjs"
+          if ($LASTEXITCODE -ne 0) { throw 'OSE physics test failed' }
+      - name: Run mobile UI audit and capture evidence
+        shell: powershell
+        run: |
+          python tools/run_mobile_ui_audit.py
+      - name: Upload mobile QA screenshots
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: ose-mobile-ui-physics-qa
+          path: qa/ose/
+          retention-days: 14
+          if-no-files-found: warn

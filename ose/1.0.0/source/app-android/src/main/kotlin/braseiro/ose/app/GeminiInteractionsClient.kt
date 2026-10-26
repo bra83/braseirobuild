@@ -10,7 +10,7 @@ class GeminiInteractionsClient(private val transport: GeminiTransport = HttpsGem
     companion object {
         const val DEFAULT_TEXT_MODEL = "gemini-3.1-flash-lite"
         const val DEFAULT_IMAGE_MODEL = "gemini-3.1-flash-image"
-        const val DEFAULT_TTS_MODEL = "gemini-3.1-flash-tts-preview"
+        const val DEFAULT_TTS_MODEL = "gemini-3.8-flash-lite-tts"
         const val DEFAULT_TTS_VOICE = "Kore"
     }
 
@@ -36,14 +36,14 @@ class GeminiInteractionsClient(private val transport: GeminiTransport = HttpsGem
         return textBlocks(response).joinToString("\n\n").trim().ifBlank { error("GEMINI_TEXT_OUTPUT_MISSING") }
     }
 
-    fun generateSceneImage(apiKey: String, model: String, prompt: String): MediaBlob {
+    fun generateSceneImage(apiKey: String, model: String, prompt: String, aspectRatio: String = "4:3"): MediaBlob {
         require(prompt.isNotBlank()) { "EMPTY_SCENE_PROMPT" }
         val body = JSONObject()
             .put("model", validateModel(model))
             .put("input", prompt)
             .put("response_format", JSONObject()
                 .put("type", "image")
-                .put("aspect_ratio", "4:3")
+                .put("aspect_ratio", aspectRatio.takeIf { it in setOf("1:1", "4:3", "16:9") } ?: "4:3")
                 .put("image_size", "1K")
                 .put("mime_type", "image/jpeg"))
         return firstMedia(transport.post(apiKey, body), "image")
@@ -54,11 +54,21 @@ class GeminiInteractionsClient(private val transport: GeminiTransport = HttpsGem
         val safeVoice = voice.trim().also {
             require(it.isNotBlank() && it.length <= 80 && it.all { c -> c.isLetterOrDigit() || c in "._-" }) { "INVALID_TTS_VOICE" }
         }
+        // Gemini 3.8: the transcript MUST be the only spoken text. Narrator
+        // direction belongs in speech_metadata, never in the transcript itself.
+        val spokenBlock = JSONObject()
+            .put("type", "text")
+            .put("text", visibleNarration)
+            .put("annotations", JSONArray().put(JSONObject()
+                .put("type", "speech_metadata")
+                .put("style", "Natural, warm and expressive Brazilian Portuguese RPG narrator; seamless cadence, without unnecessary pauses")))
         val body = JSONObject()
             .put("model", validateModel(model))
-            .put("input", "Narre em português do Brasil, com voz natural de mestre de RPG, ritmo expressivo e sem acrescentar nem remover informação: $visibleNarration")
-            .put("response_format", JSONObject().put("type", "audio").put("sample_rate", 24000))
-            .put("generation_config", JSONObject().put("speech_config", JSONArray().put(JSONObject().put("voice", safeVoice))))
+            .put("input", JSONArray().put(JSONObject().put("type", "user_input")
+                .put("content", JSONArray().put(spokenBlock))))
+            .put("response_format", JSONObject().put("type", "audio"))
+            .put("generation_config", JSONObject().put("speech_config",
+                JSONArray().put(JSONObject().put("voice", safeVoice))))
         return firstMedia(transport.post(apiKey, body), "audio")
     }
 
@@ -75,6 +85,18 @@ class GeminiInteractionsClient(private val transport: GeminiTransport = HttpsGem
     }
 
     private fun firstMedia(response: JSONObject, type: String): MediaBlob {
+        // Gemini Interactions API image responses can arrive as top-level output_image.
+        // The previous implementation only inspected steps[].model_output.content[],
+        // incorrectly rejecting successfully generated images.
+        if (type == "image") {
+            response.optJSONObject("output_image")?.let { image ->
+                val base64 = image.optString("data", "")
+                if (base64.isNotBlank()) return MediaBlob(
+                    mimeType = image.optString("mime_type", "image/jpeg"),
+                    data = java.util.Base64.getDecoder().decode(base64)
+                )
+            }
+        }
         if (type == "audio") {
             response.optJSONObject("output_audio")?.let { audio ->
                 val data = audio.optString("data", "")
@@ -134,7 +156,19 @@ class HttpsGeminiTransport : GeminiTransport {
             connection.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
             val code = connection.responseCode
             val stream = if (code in 200..299) connection.inputStream else connection.errorStream
-            val text = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+            // Bounded read prevents a giant/malformed base64 image response
+            // from exhausting memory and making WebView appear permanently stuck.
+            val text = stream?.bufferedReader(Charsets.UTF_8)?.use { reader ->
+                val buffer = CharArray(8192)
+                val out = StringBuilder()
+                while (true) {
+                    val count = reader.read(buffer)
+                    if (count < 0) break
+                    require(out.length + count <= 28 * 1024 * 1024) { "GEMINI_RESPONSE_TOO_LARGE" }
+                    out.append(buffer, 0, count)
+                }
+                out.toString()
+            }.orEmpty()
             if (code !in 200..299) error("GEMINI_HTTP_$code")
             return JSONObject(text)
         } finally {

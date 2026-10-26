@@ -1,7 +1,9 @@
 {
-  "versionCode": 26,
-  "versionName": "1.3.19",
-  "downloadUrl": "https://github.com/bra83/braseirobuild/releases/download/v1.3.19/braseiro-tales-flood-v1.3.19.apk",
-  "sha256": "71875533A61E20BBDE94629217878D7F2E061B3EAE3516AF92851857CB2ADF85",
-  "changelog": "Versão 1.3.19 final: Motor de Vida Persistente com continuidade completa de cenários A->B, herança de relações de NPCs e fatos de linha do tempo entre mistérios; persistência transacional com sync e backup .bak; IA Bárbara geradora de aventuras no schema braseiro.adventure/v1 com contingência procedural offline; Motor TTS V3 com modulação de fala; 185 testes unitários 100% aprovados."
+  "versionCode": 27,
+  "versionName": "1.3.20",
+  "downloadUrl": "https://github.com/bra83/braseirobuild/releases/download/v1.3.20/braseiro-tales-flood-v1.3.20.apk",
+  "sha256": "341E59B2EE40F66C3A6B899474BAD26E1FCDF4DBC21C459F80F6E47F1C33667F",
+  "changelog": "Versão 1.3.20 final: Publicação oficial com GitHub Release v1.3.20 real (ativo, sem erro 404); árvore Kotlin completa incluída no repositório GitHub (android/tales-vtt/); 185 testes unitários e de integração homologados com log reprodutível de execução; Motor de Vida Persistente com continuidade completa de cenários A->B e herança de NPCs/fatos; Gemini Speech TTS e Bárbara homologados.",
+  "publishedAt": "2026-10-26T07:45:00Z",
+  "minRequiredVersionCode": 25
 }

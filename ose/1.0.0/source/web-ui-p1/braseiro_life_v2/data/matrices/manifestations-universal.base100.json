@@ -1,0 +1,1607 @@
+{
+  "schema": "braseiro.matrix-table/v1",
+  "id": "manifestations-universal",
+  "version": "2.2.0",
+  "rows": [
+    {
+      "id": "universal-memory-1",
+      "text": "Um cheiro familiar evoca uma passagem já vivida.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "discovery",
+        "journey",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-memory-2",
+      "text": "Um objeto guardado chama atenção durante uma tarefa comum.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "discovery",
+        "journey",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-memory-3",
+      "text": "Um lugar conhecido parece diferente após o que aconteceu.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "discovery",
+        "journey",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-memory-4",
+      "text": "Uma frase de alguém lembra uma conversa antiga.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "discovery",
+        "journey",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-memory-5",
+      "text": "Uma data no calendário traz uma lembrança específica.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "discovery",
+        "journey",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-sleep-1",
+      "text": "Um ruído interfere no ambiente de descanso.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "journey",
+        "health",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-sleep-2",
+      "text": "Uma lembrança aparece em um sonho sem impor interpretação.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "journey",
+        "health",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-sleep-3",
+      "text": "O abrigo oferece uma condição de repouso melhor que a anterior.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "journey",
+        "health",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-sleep-4",
+      "text": "A tranquilidade contrasta com um período recente de tensão.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "journey",
+        "health",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-sleep-5",
+      "text": "Uma conversa cria a oportunidade de ajustar a rotina de repouso.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "journey",
+        "health",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-family-1",
+      "text": "Um parente pede notícias do tempo em que estiveram separados.",
+      "domain": "family",
+      "causeTags": [
+        "loss",
+        "home",
+        "care",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-family-2",
+      "text": "Uma visita traz um assunto doméstico ainda pendente.",
+      "domain": "family",
+      "causeTags": [
+        "loss",
+        "home",
+        "care",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-family-3",
+      "text": "Uma celebração familiar ocorre enquanto outras preocupações continuam.",
+      "domain": "family",
+      "causeTags": [
+        "loss",
+        "home",
+        "care",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-family-4",
+      "text": "Alguém da família oferece ajuda prática.",
+      "domain": "family",
+      "causeTags": [
+        "loss",
+        "home",
+        "care",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-family-5",
+      "text": "Uma notícia de parentes exige apenas decidir se haverá resposta.",
+      "domain": "family",
+      "causeTags": [
+        "loss",
+        "home",
+        "care",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-intimacy-1",
+      "text": "Uma pessoa próxima propõe uma conversa reservada.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "betrayal",
+        "home",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-intimacy-2",
+      "text": "Um gesto de cuidado abre espaço para uma resposta livre.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "betrayal",
+        "home",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-intimacy-3",
+      "text": "Uma mudança de planos deixa menos tempo para a convivência.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "betrayal",
+        "home",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-intimacy-4",
+      "text": "Uma lembrança compartilhada surge numa tarefa cotidiana.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "betrayal",
+        "home",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-intimacy-5",
+      "text": "Um limite de convivência é apresentado para discussão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "betrayal",
+        "home",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-work-1",
+      "text": "Um colega solicita opinião sobre uma tarefa semelhante à anterior.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "victory",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-work-2",
+      "text": "Uma ferramenta associada ao trabalho reaparece em uso.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "victory",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-work-3",
+      "text": "Uma responsabilidade pode ser redistribuída por negociação.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "victory",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-work-4",
+      "text": "Um projeto de terceiro avança e altera a rotina de trabalho.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "victory",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-work-5",
+      "text": "Uma oportunidade profissional depende de uma resposta do personagem.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "victory",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-resources-1",
+      "text": "Um fornecedor informa disponibilidade diferente de um recurso.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work",
+        "change",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-resources-2",
+      "text": "Uma rota alternativa passa a ser oferecida por alguém.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work",
+        "change",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-resources-3",
+      "text": "Uma despesa conhecida chega ao prazo previsto.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work",
+        "change",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-resources-4",
+      "text": "Um estoque pode ser conferido antes de uma decisão importante.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work",
+        "change",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-resources-5",
+      "text": "Uma ajuda material chega acompanhada de condições explícitas.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work",
+        "change",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-social-1",
+      "text": "Um conhecido faz um convite sem relação com a missão atual.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "care",
+        "reputation",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-social-2",
+      "text": "Uma conversa casual mostra que a vida local continuou.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "care",
+        "reputation",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-social-3",
+      "text": "Um grupo mantém uma tradição apesar das mudanças.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "care",
+        "reputation",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-social-4",
+      "text": "Uma amizade oferece companhia para uma atividade comum.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "care",
+        "reputation",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-social-5",
+      "text": "Um encontro breve permite retomar contato sem criar uma obrigação.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "care",
+        "reputation",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-reputation-1",
+      "text": "Um relato conhecido é repetido com uma diferença identificável.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "victory",
+        "failure",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-reputation-2",
+      "text": "Uma pessoa pergunta se o personagem é quem participou do feito.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "victory",
+        "failure",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-reputation-3",
+      "text": "Um reconhecimento pequeno aparece numa situação cotidiana.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "victory",
+        "failure",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-reputation-4",
+      "text": "Uma expectativa alheia entra em conflito com a versão de outra pessoa.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "victory",
+        "failure",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-reputation-5",
+      "text": "Uma testemunha oferece contar o que realmente presenciou.",
+      "domain": "reputation",
+      "causeTags": [
+        "reputation",
+        "victory",
+        "failure",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-npc-1",
+      "text": "Um conhecido apresenta progresso em um projeto pessoal.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care",
+        "conflict",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-npc-2",
+      "text": "Uma pessoa mudou sua rotina por motivos próprios.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care",
+        "conflict",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-npc-3",
+      "text": "Um aliado busca ajuda para uma questão que não envolve o antigo inimigo.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care",
+        "conflict",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-npc-4",
+      "text": "Um rival encontra uma limitação concreta em seus planos.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care",
+        "conflict",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-npc-5",
+      "text": "Um antigo contato passa uma responsabilidade adiante.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care",
+        "conflict",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-world-1",
+      "text": "Uma rota mostra sinais de uso diferentes dos anteriores.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "victory",
+        "scarcity",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-world-2",
+      "text": "Um serviço local passa a funcionar em outro horário.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "victory",
+        "scarcity",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-world-3",
+      "text": "Uma decisão institucional começa a produzir efeitos observáveis.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "victory",
+        "scarcity",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-world-4",
+      "text": "Uma obra muda a circulação de pessoas.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "victory",
+        "scarcity",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-world-5",
+      "text": "Um costume público acompanha uma transformação já confirmada.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "victory",
+        "scarcity",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-recovery-1",
+      "text": "Uma pessoa confiável se dispõe a ouvir sem pressionar.",
+      "domain": "recovery",
+      "causeTags": [
+        "recovery",
+        "care",
+        "health",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-recovery-2",
+      "text": "Uma atividade habitual pode ser retomada em condições mais favoráveis.",
+      "domain": "recovery",
+      "causeTags": [
+        "recovery",
+        "care",
+        "health",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-recovery-3",
+      "text": "Um apoio prático reduz uma dificuldade cotidiana.",
+      "domain": "recovery",
+      "causeTags": [
+        "recovery",
+        "care",
+        "health",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-recovery-4",
+      "text": "Uma melhora já observada é reconhecida sem prometer cura.",
+      "domain": "recovery",
+      "causeTags": [
+        "recovery",
+        "care",
+        "health",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-recovery-5",
+      "text": "Um intervalo permite escolher entre descanso e outra atividade.",
+      "domain": "recovery",
+      "causeTags": [
+        "recovery",
+        "care",
+        "health",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-belief-1",
+      "text": "Um novo testemunho pode esclarecer uma dúvida existente.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal",
+        "justice",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-belief-2",
+      "text": "Uma interpretação antiga é confrontada com evidência verificável.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal",
+        "justice",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-belief-3",
+      "text": "Uma pessoa admite que não tinha todas as informações.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal",
+        "justice",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-belief-4",
+      "text": "Um relato contraditório pode ser investigado sem mudar o fato canônico.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal",
+        "justice",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-belief-5",
+      "text": "Um detalhe permite distinguir suspeita de certeza.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal",
+        "justice",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-goals-1",
+      "text": "Um recurso necessário a um projeto pessoal fica disponível.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "legacy",
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-goals-2",
+      "text": "Uma promessa pode ser retomada em circunstâncias diferentes.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "legacy",
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-goals-3",
+      "text": "Um aprendiz pergunta sobre o próximo passo de sua formação.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "legacy",
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-goals-4",
+      "text": "Uma rota oferece acesso a um objetivo já escolhido.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "legacy",
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-goals-5",
+      "text": "Um plano pessoal encontra um obstáculo concreto e negociável.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "legacy",
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-body-1",
+      "text": "O ambiente oferece uma adaptação útil a uma limitação já confirmada.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "journey",
+        "recovery",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-body-2",
+      "text": "Um cuidado disponível pode ser considerado sem impor sua aceitação.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "journey",
+        "recovery",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-body-3",
+      "text": "Uma tarefa pode ser dividida para respeitar limites conhecidos.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "journey",
+        "recovery",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-body-4",
+      "text": "Uma pessoa pergunta como acomodar uma necessidade já registrada.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "journey",
+        "recovery",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-body-5",
+      "text": "Um sinal corporal passageiro pode ser narrado sem diagnóstico ou penalidade.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "journey",
+        "recovery",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-home-1",
+      "text": "Um reparo necessário é lembrado ao usar um cômodo.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "legacy",
+        "loss",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-home-2",
+      "text": "Um presente antigo permanece onde foi deixado.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "legacy",
+        "loss",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-home-3",
+      "text": "Uma visita encontra marcas da história dos moradores.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "legacy",
+        "loss",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-home-4",
+      "text": "Uma mudança no espaço comum pede uma decisão dos envolvidos.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "legacy",
+        "loss",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-home-5",
+      "text": "Um objeto doméstico evoca alguém que passou por ali.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "legacy",
+        "loss",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-community-1",
+      "text": "Moradores organizam uma tarefa coletiva.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "change",
+        "scarcity",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-community-2",
+      "text": "Uma tradição recebe novos participantes.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "change",
+        "scarcity",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-community-3",
+      "text": "Uma comunidade decide como usar um recurso recuperado.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "change",
+        "scarcity",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-community-4",
+      "text": "Uma pessoa recém-chegada pede orientação sobre costumes locais.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "change",
+        "scarcity",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-community-5",
+      "text": "Um pequeno gesto público reconhece uma ajuda recebida.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "change",
+        "scarcity",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-legacy-1",
+      "text": "Um aprendiz usa algo que aprendeu com o personagem.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss",
+        "victory",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-legacy-2",
+      "text": "Um objeto muda de mãos preservando sua origem.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss",
+        "victory",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-legacy-3",
+      "text": "Uma história é contada a alguém que não viveu os acontecimentos.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss",
+        "victory",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-legacy-4",
+      "text": "Uma função pode ser assumida por uma nova pessoa.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss",
+        "victory",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-legacy-5",
+      "text": "Uma marca deixada no mundo aparece numa rotina alheia.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss",
+        "victory",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-justice-1",
+      "text": "Uma instituição fornece uma atualização verificável do caso.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery",
+        "reputation",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-justice-2",
+      "text": "Uma testemunha mantém uma versão que pode ser confrontada com evidências.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery",
+        "reputation",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-justice-3",
+      "text": "Uma reparação produz um efeito cotidiano perceptível.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery",
+        "reputation",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-justice-4",
+      "text": "Um contato pergunta sobre o estado real de um procedimento.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery",
+        "reputation",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-justice-5",
+      "text": "Uma notícia distingue situação legal confirmada de rumor.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery",
+        "reputation",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-emotion-1",
+      "text": "Uma situação dá espaço para expressar alívio, se o jogador quiser.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "loss",
+        "celebration",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-emotion-2",
+      "text": "Uma conquista recebe reconhecimento de alguém próximo.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "loss",
+        "celebration",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-emotion-3",
+      "text": "Uma ausência é percebida durante uma ocasião comum.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "loss",
+        "celebration",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-emotion-4",
+      "text": "Um agradecimento pode ser recebido sem criar dívida obrigatória.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "loss",
+        "celebration",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-emotion-5",
+      "text": "Uma pausa permite ao jogador dizer como o personagem vive a mudança.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "loss",
+        "celebration",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-habits-1",
+      "text": "Um costume já observado volta a ser possível.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "promise",
+        "home",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-habits-2",
+      "text": "Uma rotina encontra uma interrupção com causa identificável.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "promise",
+        "home",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-habits-3",
+      "text": "Um companheiro pergunta se manterão um ritual compartilhado.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "promise",
+        "home",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-habits-4",
+      "text": "Uma tarefa recorrente pode ser realizada de outro modo.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "promise",
+        "home",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    },
+    {
+      "id": "universal-habits-5",
+      "text": "Um hábito escolhido pelo jogador é reconhecido por quem o presenciou.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "promise",
+        "home",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "requiredCapabilities": []
+    }
+  ]
+}

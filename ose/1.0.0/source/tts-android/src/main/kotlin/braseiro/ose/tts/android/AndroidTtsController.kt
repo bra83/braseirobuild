@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
+import braseiro.ose.tts.BraseiroSpokenTextSanitizer
 import braseiro.ose.tts.TtsPort
 import braseiro.ose.tts.TtsState
 import braseiro.ose.tts.TtsTextSegmenter
@@ -12,18 +13,35 @@ import java.util.Locale
 import java.util.concurrent.atomic.AtomicLong
 
 /**
- * Android TTS adapter used by BRASEIRO OSE.
+ * Android TTS adapter used by BRASEIRO OSE with TTS Universal V3 routing.
  *
- * The VTT never reads Android/data and never bundles or copies a Kokoro model.
- * Kokoro/Sherpa, Samsung and Google are ordinary installed Android TTS engines.
- * Selection is persisted as engine package + voice name.
+ * Supported operational modes:
+ * - GEMINI_TTS: Remote neural Gemini TTS synthesis
+ * - KOKORO_INSTALLED: Local neural Kokoro/Sherpa-onnx Android TTS engine
+ * - ANDROID_TTS: System default or user-selected installed Android TTS engine
+ * - OFF: Muted speech output
  *
- * Narration is segmented on safe boundaries and queued in one pass. No watchdog,
- * per-sentence stop(), or mid-stream QUEUE_FLUSH is used. This is important for
- * heavier local PT-BR Kokoro voices: Android is allowed to keep its synthesis
- * pipeline warm while QUEUE_ADD drains the remaining chunks.
+ * Narration is sanitized by BraseiroSpokenTextSanitizer before audio synthesis.
+ * Canonical visibleNarration in UI and state remains unaltered.
  */
 class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListener {
+
+    enum class Mode(val wireName: String) {
+        GEMINI_TTS("GEMINI_TTS"),
+        KOKORO_INSTALLED("KOKORO_INSTALLED"),
+        ANDROID_TTS("ANDROID_TTS"),
+        OFF("OFF");
+
+        companion object {
+            fun fromString(name: String?): Mode = when (name?.trim()?.uppercase()) {
+                "GEMINI_TTS" -> GEMINI_TTS
+                "KOKORO_INSTALLED", "KOKORO" -> KOKORO_INSTALLED
+                "OFF" -> OFF
+                else -> ANDROID_TTS
+            }
+        }
+    }
+
     data class EngineOption(
         val packageName: String,
         val label: String,
@@ -41,11 +59,12 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
 
     companion object {
         private const val PREFS = "braseiro_ose_android_tts_v2"
+        private const val KEY_MODE = "tts_mode_v3"
         private const val KEY_ENGINE = "engine_package"
         private const val KEY_VOICE = "voice_name"
         private const val KEY_RATE = "speech_rate"
         private const val DEFAULT_RATE = 1.0f
-        private val KOKORO_ENGINES = setOf(
+        val KOKORO_ENGINES = setOf(
             "com.k2fsa.sherpa.onnx.tts.engine",
             "com.k2fsa.sherpa.onnx.tts.engine.debug"
         )
@@ -62,6 +81,9 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
     private var completedChunks = 0
     private var activeGeneration = 0L
 
+    var geminiSpeaker: ((String) -> Unit)? = null
+    var geminiStopper: (() -> Unit)? = null
+
     @Volatile override var state: TtsState = TtsState.PREPARING
         private set
 
@@ -72,6 +94,11 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
 
     init {
         restartEngine(prefs.getString(KEY_ENGINE, null))
+    }
+
+    fun mode(): Mode {
+        val stored = prefs.getString(KEY_MODE, null)
+        return if (stored != null) Mode.fromString(stored) else Mode.ANDROID_TTS
     }
 
     override fun onInit(status: Int) {
@@ -142,15 +169,18 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
         val tts = engine ?: return emptyList()
         return tts.engines
             .map {
+                val isKokoro = it.name in KOKORO_ENGINES
+                val rawLabel = it.label?.toString().orEmpty().ifBlank { it.name }
+                val displayLabel = if (isKokoro) "Kokoro PT-BR Neural ($rawLabel)" else rawLabel
                 EngineOption(
                     packageName = it.name,
-                    label = it.label?.toString().orEmpty().ifBlank { it.name },
+                    label = displayLabel,
                     system = runCatching {
                         val info = appContext.packageManager.getApplicationInfo(it.name, 0)
                         (info.flags and ApplicationInfo.FLAG_SYSTEM) != 0 ||
                             (info.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
                     }.getOrDefault(false),
-                    preferredKokoro = it.name in KOKORO_ENGINES
+                    preferredKokoro = isKokoro
                 )
             }
             .sortedWith(compareByDescending<EngineOption> { it.preferredKokoro }.thenBy { it.label.lowercase() })
@@ -177,15 +207,19 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
 
     fun speechRate(): Float = prefs.getFloat(KEY_RATE, DEFAULT_RATE).coerceIn(0.65f, 1.50f)
 
-    fun isReady(): Boolean = state != TtsState.PREPARING && state != TtsState.ERROR && engine != null
+    fun isReady(): Boolean = (mode() == Mode.OFF || mode() == Mode.GEMINI_TTS) ||
+        (state != TtsState.PREPARING && state != TtsState.ERROR && engine != null)
 
-    fun configure(enginePackage: String?, voiceName: String?, rate: Float) {
+    fun configure(enginePackage: String?, voiceName: String?, rate: Float, mode: String? = null) {
         val cleanEngine = enginePackage?.trim()?.takeIf { it.isNotBlank() }
         val cleanVoice = voiceName?.trim()?.takeIf { it.isNotBlank() }
         val cleanRate = rate.coerceIn(0.65f, 1.50f)
+        val cleanMode = mode?.let { Mode.fromString(it) }
+
         val editor = prefs.edit().putFloat(KEY_RATE, cleanRate)
         if (cleanEngine == null) editor.remove(KEY_ENGINE) else editor.putString(KEY_ENGINE, cleanEngine)
         if (cleanVoice == null) editor.remove(KEY_VOICE) else editor.putString(KEY_VOICE, cleanVoice)
+        if (cleanMode != null) editor.putString(KEY_MODE, cleanMode.wireName)
         editor.apply()
 
         if (cleanEngine != null && cleanEngine != activeEnginePackage) {
@@ -206,6 +240,30 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
             return
         }
         lastNarration = clean
+
+        val activeMode = mode()
+        if (activeMode == Mode.OFF) {
+            updateState(TtsState.IDLE)
+            return
+        }
+
+        // Sanitize narration for speech before passing to synthesis
+        val spoken = BraseiroSpokenTextSanitizer.sanitize(clean)
+        if (spoken.isBlank()) {
+            fail("EMPTY_VISIBLE_NARRATION")
+            return
+        }
+
+        if (activeMode == Mode.GEMINI_TTS) {
+            updateState(TtsState.PLAYING)
+            try {
+                geminiSpeaker?.invoke(spoken)
+            } catch (t: Throwable) {
+                fail(t.message ?: "GEMINI_TTS_FAILED")
+            }
+            return
+        }
+
         if (state == TtsState.PREPARING || engine == null) {
             pendingNarration = clean
             return
@@ -220,14 +278,21 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
             fail("TTS_ENGINE_MISSING")
             return
         }
-        val nextChunks = TtsTextSegmenter.segment(clean)
+        // Sherpa/Kokoro has costly synthesis startup for every speak() call.
+        // Queue fewer, longer utterances (still under Android's max input
+        // length) so sentence boundaries do not trigger another cold start.
+        // Google/Samsung engines keep the previously validated segment sizes.
+        val localKokoro = activeMode == Mode.KOKORO_INSTALLED ||
+            (activeEnginePackage in KOKORO_ENGINES)
+        val nextChunks = if (localKokoro)
+            TtsTextSegmenter.segment(spoken, targetChars = 3000, maxChars = 3500, minMergeChars = 900)
+        else
+            TtsTextSegmenter.segment(spoken, targetChars = 450, maxChars = 650, minMergeChars = 220)
         if (nextChunks.isEmpty()) {
             fail("EMPTY_VISIBLE_NARRATION")
             return
         }
 
-        // A new explicit narration replaces the previous one. This is the only
-        // normal-path stop; chunks inside one narration never stop/flush each other.
         generation.incrementAndGet()
         tts.stop()
         chunks = nextChunks
@@ -264,6 +329,7 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
         pendingNarration = null
         chunks = emptyList()
         completedChunks = 0
+        runCatching { geminiStopper?.invoke() }
         engine?.stop()
         if (state != TtsState.ERROR) updateState(TtsState.STOPPED)
     }
@@ -273,6 +339,7 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
         pendingNarration = null
         chunks = emptyList()
         completedChunks = 0
+        runCatching { geminiStopper?.invoke() }
         engine?.stop()
         engine?.shutdown()
         engine = null

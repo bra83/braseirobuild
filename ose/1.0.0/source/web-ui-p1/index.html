@@ -11,7 +11,8 @@
   <header>
     <div class="top">
       <div class="logo">OLD-SCHOOL<br>ESSENTIALS</div>
-      <div class="title"><b id="headerTitle">SESSÃO · BRASEIRO OSE</b><small>MESTRE BARBARA · CAMPANHA OSE</small></div>
+      <div class="title"><b id="headerTitle">SESSÃO DE JOGO</b><small id="headerSubtitle">MESTRE BÁRBARA · CAMPANHA OSE</small></div>
+      <button id="guideButton" class="guide-btn" title="Aprender Jogando / Guia OSE" aria-label="Ajuda">?</button>
       <button id="settingsButton" class="gear" title="Configurações" aria-label="Configurações">⚙</button>
     </div>
     <div class="status">
@@ -45,21 +46,46 @@
         <input id="textModel" type="text" autocomplete="off" placeholder="ex.: gemini-3.1-flash-lite">
         <label class="field" for="imageModel">Modelo de imagem · mapas/interiores/equipamentos</label>
         <input id="imageModel" type="text" autocomplete="off" placeholder="ex.: gemini-3.1-flash-image">
+        <label class="field" for="ttsModel">Modelo Gemini TTS (áudio)</label>
+        <input id="ttsModel" type="text" autocomplete="off" placeholder="ex.: gemini-3.1-flash-tts-preview">
         <button id="saveModels" class="primary" style="margin-top:9px">SALVAR MODELOS</button>
       </section>
 
       <section class="credential-block">
-        <label class="field">Chave Gemini — Mestre / imagens permitidas</label>
+        <label class="field">Chave Gemini — Mestre / narração e imagens</label>
         <input id="textSceneKey" type="password" autocomplete="off" placeholder="Cole a chave para salvar ou substituir">
         <div class="row"><button class="small" data-key-save="TEXT_SCENE">SALVAR</button><button class="small" data-key-test="TEXT_SCENE">TESTAR</button><button class="small" data-key-delete="TEXT_SCENE">APAGAR</button></div>
         <div id="textSceneStatus" class="credential-status">Não configurada</div>
       </section>
+
       <section class="credential-block">
-        <h3>Narração Android / Kokoro</h3>
-        <p class="note">Usa os motores TTS instalados no Android. Braseiro Kokoro/Sherpa, Samsung e Google aparecem aqui quando instalados. O VTT não copia nem acessa o modelo neural.</p>
-        <label class="field" for="ttsEngine">Motor de voz</label>
+        <label class="field">Chave Gemini — TTS / Áudio (opcional; usa principal se vazia)</label>
+        <input id="ttsAudioKey" type="password" autocomplete="off" placeholder="Cole a chave para TTS ou deixe em branco">
+        <div class="row"><button class="small" data-key-save="TTS_AUDIO">SALVAR</button><button class="small" data-key-test="TTS_AUDIO">TESTAR</button><button class="small" data-key-delete="TTS_AUDIO">APAGAR</button></div>
+        <div id="ttsAudioStatus" class="credential-status">Não configurada</div>
+      </section>
+
+      <section class="credential-block">
+        <h3>Narração Universal V3</h3>
+        <p class="note">Suporta síntese neural remota Gemini TTS, motor Kokoro Android neural instalado, Android TTS padrão do sistema, ou mudo.</p>
+        <label class="field" for="ttsModeSelect">Modo de áudio</label>
+        <select id="ttsModeSelect" class="settings-select">
+          <option value="ANDROID_TTS">Android TTS instalado</option>
+          <option value="KOKORO_INSTALLED">Kokoro Android instalado</option>
+          <option value="GEMINI_TTS">Gemini TTS</option>
+          <option value="OFF">OFF (Mudo)</option>
+        </select>
+        <label class="field" for="ttsGeminiVoiceSelect">Voz Gemini (Charon, Kore, Puck, etc.)</label>
+        <select id="ttsGeminiVoiceSelect" class="settings-select">
+          <option value="Kore">Kore</option>
+          <option value="Charon">Charon</option>
+          <option value="Puck">Puck</option>
+          <option value="Fenrir">Fenrir</option>
+          <option value="Aoede">Aoede</option>
+        </select>
+        <label class="field" for="ttsEngine">Motor Android instalado / Kokoro</label>
         <select id="ttsEngine" class="settings-select"></select>
-        <label class="field" for="ttsVoiceSelect">Voz em português</label>
+        <label class="field" for="ttsVoiceSelect">Voz local em português</label>
         <select id="ttsVoiceSelect" class="settings-select"></select>
         <label class="field" for="ttsRate">Velocidade <span id="ttsRateValue">1,00×</span></label>
         <input id="ttsRate" type="range" min="0.65" max="1.50" step="0.05" value="1.00">
@@ -92,10 +118,82 @@
       </section>
     </div>
   </div>
+  <div id="guideOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Aprender Jogando">
+    <div class="settings panel">
+      <div class="settings-head"><h3>Aprender Jogando · Guia OSE</h3><button id="guideClose" class="small">FECHAR</button></div>
+      <div class="row" style="margin:8px 0">
+        <button id="guideModeLearn" class="small">MODO APRENDIZ</button>
+        <button id="guideModeExperienced" class="small">MODO EXPERIENTE</button>
+      </div>
+      <div id="guideContent"></div>
+    </div>
+  </div>
+
+  <div id="suggestionsOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="O que posso fazer agora?">
+    <div class="settings panel">
+      <div class="settings-head"><h3>O que posso fazer agora?</h3><button id="suggestionsClose" class="small">FECHAR</button></div>
+      <p class="note">Sugestões contextuais oficiais baseadas na situação atual da companhia. Nenhuma ação será executada sem a sua confirmação.</p>
+      <div id="suggestionsContent" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <div id="firstLaunchOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Bem-vindo ao BRASEIRO OSE">
+    <div class="settings panel">
+      <div class="settings-head"><h3>Bem-vindo ao BRASEIRO OSE</h3></div>
+      <p class="note">Adaptação fiel das regras oficiais de Old-School Essentials (Classic e Advanced). Escolha sua experiência de jogo:</p>
+      <div style="margin:16px 0;display:flex;flex-direction:column;gap:12px">
+        <button id="firstLaunchLearn" class="primary" style="padding:14px;text-align:left;height:auto">
+          <b style="display:block;font-size:15px;color:#d9a84c">✦ Aprender Jogando (Recomendado)</b>
+          <span style="font-size:12px;color:#cbb898;line-height:1.4;display:block;margin-top:4px">Ideal para novatos ou quem quer refrescar as regras OSE. Inclui orientações contextuais, explicações mecânicas, comparação de classes e sugestões do que fazer.</span>
+        </button>
+        <button id="firstLaunchExperienced" class="secondary" style="padding:14px;text-align:left;height:auto">
+          <b style="display:block;font-size:15px">⚔ Jogador Experiente</b>
+          <span style="font-size:12px;color:#a89880;line-height:1.4;display:block;margin-top:4px">Interface direta clássica sem explicações adicionais na tela principal. O guia e as regras completas continuam acessíveis a qualquer momento.</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="photoMenuOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Opções de Imagem">
+    <div class="settings panel">
+      <div class="settings-head"><h3 id="photoMenuTitle">Imagem / Retrato</h3><button id="photoMenuClose" class="small">FECHAR</button></div>
+      <p id="photoMenuSubtitle" class="note">Selecione como deseja definir ou atualizar esta imagem:</p>
+      <div style="margin:12px 0;display:flex;flex-direction:column;gap:8px">
+        <button id="photoMenuGemini" class="primary">✦ GERAR PELA API GEMINI (EXIGE COTA DE IMAGEM)</button>
+        <button id="photoMenuGeminiApp" class="secondary">✦ ABRIR GEMINI / GERAR E COMPARTILHAR</button>
+        <p class="note">O modelo de geração de imagens Gemini não possui cota gratuita de API. A geração integrada exige chave e cota de imagem habilitada; sem elas, escolha a galeria ou o Gemini externo.</p>
+        <button id="photoMenuGallery" class="secondary">📁 ESCOLHER DO DISPOSITIVO</button>
+        <button id="photoMenuRemove" class="danger-button">✕ REMOVER IMAGEM ATUAL</button>
+      </div>
+      <button id="photoMenuCancel" class="small" style="width:100%;margin-top:6px">CANCELAR</button>
+    </div>
+  </div>
+  <div id="dice3dOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Mesa de dados físicos 3D do Braseiro OSE">
+    <div class="ose-dice-dialog">
+      <div id="hud" class="ose-dice-hud">
+        <div id="title">DADOS 3D · BRASEIRO OSE</div>
+        <div id="status">Rolando dados…</div>
+        <div id="result" class="result"></div>
+        <div id="detail" class="detail"></div>
+      </div>
+      <div id="dice3dStage" class="dice3d-stage" role="group" aria-label="Rolagem animada de dados">
+        <div class="dice3d-floor" aria-hidden="true"></div>
+        <div id="dice3dTray" class="dice3d-tray"></div>
+      </div>
+      <canvas id="stage" class="hidden" aria-hidden="true"></canvas>
+      <div id="quality" class="hidden"></div>
+      <button id="close" class="small ose-dice-close">FECHAR</button>
+    </div>
+  </div>
   <input id="mediaPicker" class="hidden" type="file" accept="image/jpeg,image/png,image/webp">
   <div id="toast" class="toast hidden" role="status"></div>
 </div>
+<script src="dice3d_core.js"></script>
+<script src="dice3d_physics_view.js"></script>
+<script src="dice3d_app.js"></script>
 <script src="generated_map_assets.js"></script>
+<script src="vtt_life_bridge.js"></script>
+<script src="equipment-icon-cleaner.js"></script>
 <script src="p1.js"></script>
 </body>
 </html>

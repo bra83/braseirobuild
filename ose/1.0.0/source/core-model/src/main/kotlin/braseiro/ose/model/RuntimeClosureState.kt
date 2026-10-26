@@ -295,6 +295,8 @@ data class XpRecipientSnapshot(
     val profile: RuleProfile,
     val surviving: Boolean = true,
     val retainer: Boolean = false,
+    /** Employment/party eligibility: a departing living retainer is not dead. */
+    val awardEligible: Boolean = true,
     val classIds: List<String>,
     /** Final class-specific prime-requisite percentage derived from canonical character state. */
     val primeModifierPercentByClass: Map<String, Int> = emptyMap(),

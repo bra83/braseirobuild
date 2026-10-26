@@ -102,6 +102,8 @@ class SessionEngine(
         require(reactionId.isNotBlank())
         require(reaction.isNotBlank())
         require(mechanicalIntent.isNotBlank())
+        // Reject spoofed employer identities before reading receipt or consuming RNG.
+        ActionAuthorityPolicy.requireBoundActor(mechanicalIntent, actorCharacterId)
         val loaded = load(campaignId)
         if (!characterAuthorized) {
             require(loaded.campaignState.party.characterIds.none { id ->
@@ -126,11 +128,85 @@ class SessionEngine(
 
         val rng=restoreRng(loaded.campaignState.game)
         val outcome=referee.resolve(loaded,mechanicalIntent,rng)
+        val diceRollsSnapshots = rng.drainRecordedDice().map { CanonicalDieRollSnapshot(it.sides, it.value, it.label) }
         val evidenceRefs=outcome.trace.evidence.map{it.ref()}
         val beforeGameRaw=outcome.updatedState.game
         val beforeTurn=loaded.campaignState.time.turns
         val afterTurn=outcome.updatedState.time.turns
         val beforeGame=if(afterTurn>beforeTurn) WorldEventScheduler.advance(beforeGameRaw,beforeTurn,afterTurn) else beforeGameRaw
+
+        val beforeState = loaded.campaignState
+        val afterState = outcome.updatedState
+        val beforeChars = beforeState.game.characters
+        val afterChars = afterState.game.characters
+        val beforeKnownFacts = beforeState.playerKnowledge.knownFactIds
+        val afterKnownFacts = afterState.playerKnowledge.knownFactIds
+
+        val transitionCauses = mutableListOf<String>()
+        var transitionRef: String? = null
+        var transitionConsequence: String? = null
+
+        if (outcome.mechanicalMutation) {
+            val anyPartyDied = afterChars.values.any { it.hitPoints.dead && beforeChars[it.characterId]?.hitPoints?.dead == false }
+            val partyHealed = afterChars.values.any { it.hitPoints.currentNumerator > (beforeChars[it.characterId]?.hitPoints?.currentNumerator ?: 0) }
+            val newFactsDiscovered = afterKnownFacts.size > beforeKnownFacts.size
+            val daysAdvanced = afterState.time.days > beforeState.time.days
+            val intentUpper = mechanicalIntent.substringBefore(':').uppercase()
+
+            val beforeEncounter = beforeState.game.encounter
+            val afterEncounter = afterState.game.encounter
+            val oppositionKilledThisTurn = beforeEncounter != null && afterEncounter != null &&
+                afterEncounter.combatants.values.any { afterC ->
+                    afterC.side == EncounterSide.OPPOSITION && (!afterC.alive || afterC.hpCurrentNumerator <= 0) &&
+                    (beforeEncounter.combatants[afterC.actorId]?.let { it.alive && it.hpCurrentNumerator > 0 } == true)
+                }
+            val victoryAchieved = (beforeEncounter != null && beforeEncounter.phase != EncounterPhase.RESOLVED &&
+                afterEncounter?.phase == EncounterPhase.RESOLVED && oppositionKilledThisTurn)
+
+            val retainerContractSigned = afterState.game.retainerContracts.size > beforeState.game.retainerContracts.size
+
+            if (anyPartyDied) {
+                transitionCauses.add("cause-loss-1")
+                transitionRef = "FATALITY"
+                transitionConsequence = "Membro da companhia pereceu durante a expedição."
+            }
+            if (victoryAchieved) {
+                transitionCauses.add("cause-victory-1")
+                transitionRef = "COMBAT_VICTORY"
+                transitionConsequence = "Inimigos derrotados com sucesso pelo grupo."
+            }
+            if (partyHealed || intentUpper == "WILD_REST_DAY" || intentUpper == "SETTLEMENT_REST_DAY") {
+                transitionCauses.add("cause-care-1")
+                if (transitionRef == null) {
+                    transitionRef = "REST_HEALING"
+                    transitionConsequence = "Descanso realizado e vigor físico recuperado."
+                }
+            }
+            if (newFactsDiscovered) {
+                transitionCauses.add("cause-discovery-1")
+                if (transitionRef == null) {
+                    transitionRef = "DISCOVERY"
+                    transitionConsequence = "Novos territórios ou segredos foram mapeados."
+                }
+            }
+            if (daysAdvanced && (intentUpper == "WILD_TRAVEL_DAY" || intentUpper == "WILD_TRAVEL_FORAGE_DAY" || intentUpper == "WILD_FORCED_MARCH_DAY")) {
+                transitionCauses.add("cause-journey-1")
+                if (transitionRef == null) {
+                    transitionRef = "JOURNEY_DAY"
+                    transitionConsequence = "Jornada de ermos avançou pelo mapa."
+                }
+            }
+            if (retainerContractSigned) {
+                transitionCauses.add("cause-promise-1")
+                if (transitionRef == null) {
+                    transitionRef = "RETAINER_CONTRACT"
+                    transitionConsequence = "Acordo de serviço firmado com auxiliar."
+                }
+            }
+        }
+
+        val primaryLifeCauseId = transitionCauses.firstOrNull()
+
         val receipt = ReactionReceiptSnapshot(
             reactionId = reactionId,
             reactionText = reaction,
@@ -140,7 +216,12 @@ class SessionEngine(
             traceNote = outcome.trace.note,
             traceEvidenceRefs = evidenceRefs,
             mechanicalIntent = mechanicalIntent,
-            actorCharacterId = actorCharacterId
+            actorCharacterId = actorCharacterId,
+            lifeCauseId = primaryLifeCauseId,
+            lifeCauses = transitionCauses,
+            diceRolls = diceRollsSnapshots,
+            lifeTransitionRef = transitionRef,
+            lifeConsequence = transitionConsequence
         )
         val firstSession=beforeGame.session.copy(
             phase="ACTIVE",

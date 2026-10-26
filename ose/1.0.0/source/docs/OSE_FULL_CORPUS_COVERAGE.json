@@ -1,0 +1,386 @@
+{
+  "schema": "BRASEIRO_OSE_CORPUS_V1",
+  "generatedAt": "2026-10-08",
+  "authority": "GAME_SYSTEM_SPEC.md §1 + OSE canonical handoff",
+  "purpose": "Source audit register, NOT proof of mechanical completion",
+  "statusVocabulary": [
+    "REFERENCE_ONLY",
+    "PARTIAL_RUNTIME_UNVERIFIED",
+    "NOT_BOUND",
+    "SOURCE_SCOPE_REVIEW",
+    "COMPLETE_VERIFIED"
+  ],
+  "completionGate": "COMPLETE_VERIFIED requires source chapter/rule IDs, canonical executable Kotlin, entrypoint, persisted mutation, and passing deterministic + Android tests",
+  "sources": [
+    {
+      "id": "classic-rules-tome",
+      "kind": "CORE_CLASSIC",
+      "title": "OSE - Tomo de regras",
+      "sourceUrl": "https://drive.google.com/file/d/11ykCUGATH0_z8Aj3Co76G-YajN6VizdS/view",
+      "status": "PARTIAL_RUNTIME_UNVERIFIED",
+      "note": "GAME_SYSTEM_SPEC §§5–49; canonical Classic authority",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "classic-basic-ptbr",
+      "kind": "CORE_CLASSIC_CONFIRMATION",
+      "title": "OSE Regras Básicas PT-BR",
+      "sourceUrl": "https://drive.google.com/file/d/1AsxSYaoSuRkzFc2pDoWtYFxkO-mAaMiI/view",
+      "status": "REFERENCE_ONLY",
+      "note": "Core rules confirmation; check source hierarchy",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "classic-magic",
+      "kind": "CORE_CLASSIC_EXTENSION",
+      "title": "Classic Magic v1.0 PT-BR",
+      "sourceUrl": "https://drive.google.com/file/d/1Huo2MuSmUEFDd2lZWkCnj5za4ISHr_4j/view",
+      "status": "PARTIAL_RUNTIME_UNVERIFIED",
+      "note": "Spell effects, memorization, scroll and casting by source",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "classic-treasures",
+      "kind": "CORE_CLASSIC_EXTENSION",
+      "title": "Classic Treasures v1.0",
+      "sourceUrl": "https://drive.google.com/file/d/1I0T8TMMG5wJWG9iCy53maivfx3MSpGJJ/view",
+      "status": "PARTIAL_RUNTIME_UNVERIFIED",
+      "note": "Magic items, tables, potion results 83–84 ambiguous",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "advanced-player",
+      "kind": "CORE_ADVANCED",
+      "title": "Advanced Player's Tome",
+      "sourceUrl": "https://drive.google.com/file/d/11uvse0xjHljuqELFs8Agle84rltvQ0gS/view",
+      "status": "PARTIAL_RUNTIME_UNVERIFIED",
+      "note": "Races, classes, spells, campaign procedures",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "advanced-referee",
+      "kind": "CORE_ADVANCED",
+      "title": "Advanced Referee's Tome operational v1.2 corpus",
+      "sourceUrl": "https://drive.google.com/file/d/18yl5iRpSEoVx3cQF9Gmo2FwgSwwt4D-y/view",
+      "status": "PARTIAL_RUNTIME_UNVERIFIED",
+      "note": "Primary referee authority; some incomplete extraction",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "advanced-referee-gap",
+      "kind": "CORE_ADVANCED_GAP_FILL",
+      "title": "Advanced Referee's Tome v0.3",
+      "sourceUrl": "https://drive.google.com/file/d/1LpIoIZxwN5vN3ZpDtJS3ZgoZjNO6T6wN/view",
+      "status": "REFERENCE_ONLY",
+      "note": "Gap-fill only where operational v1.2 incomplete",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "advanced-bestiary",
+      "kind": "CORE_ADVANCED_EXTENSION",
+      "title": "Advanced Fantasy Bestiary",
+      "sourceUrl": "https://drive.google.com/file/d/1HlWTIgta17wuLv9Gg_MhalCWyQaomDls/view",
+      "status": "PARTIAL_RUNTIME_UNVERIFIED",
+      "note": "Catalog entries not equivalent to running special attacks/abilities",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "winters-daughter",
+      "kind": "ADVENTURE_LOCAL",
+      "title": "Winter's Daughter OSE",
+      "sourceUrl": "https://drive.google.com/file/d/1PF6pRUybUJWpFYGRXAdqpcW69tPmmrYj/view",
+      "status": "NOT_BOUND",
+      "note": "Scoped adventure encounters and local rules",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "incandescent-grottoes",
+      "kind": "ADVENTURE_LOCAL",
+      "title": "The Incandescent Grottoes",
+      "sourceUrl": "https://drive.google.com/file/d/1AzugpHsnWvCdlTxNifFTG0r9axezyuvi/view",
+      "status": "NOT_BOUND",
+      "note": "Scoped dungeon, NPCs, hazards and triggers",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "isle-plangent-mage",
+      "kind": "ADVENTURE_LOCAL",
+      "title": "The Isle of the Plangent Mage",
+      "sourceUrl": "https://drive.google.com/file/d/1L_0VK_YtTp0gukkqrFyZbP7YGGk4DLJk/view",
+      "status": "NOT_BOUND",
+      "note": "Adventure-local effects and conditions",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "shadow-tower-silveraxe",
+      "kind": "ADVENTURE_LOCAL",
+      "title": "In the Shadow of Tower Silveraxe",
+      "sourceUrl": "https://drive.google.com/file/d/1Sf5NsN2ttGMLMl69oRfbytwQSqBlU5in/view",
+      "status": "NOT_BOUND",
+      "note": "Hunting namespace, adventure events",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "scourge-northland",
+      "kind": "ADVENTURE_LOCAL",
+      "title": "The Scourge of the Northland",
+      "sourceUrl": "https://drive.google.com/file/d/1SC-Rl8h4RUS3UPihG1y4vk4qWXT2Sofo/view",
+      "status": "NOT_BOUND",
+      "note": "Adventure-specific mass battle; never a generic core rule",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "ose-advanthology-1",
+      "kind": "ADVENTURE_LOCAL",
+      "title": "OSE Advanthology I",
+      "sourceUrl": "https://drive.google.com/file/d/1dXgIBOv84HxXBVvdSBtnd-IHyvnEHPc8/view",
+      "status": "NOT_BOUND",
+      "note": "Individual adventure local namespaces",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "ose-advanthology-2",
+      "kind": "ADVENTURE_LOCAL",
+      "title": "OSE Advanthology II",
+      "sourceUrl": "https://drive.google.com/file/d/1UQ0Nm3-7RIlqsAjqnvx7Ee4ot4x3_8Bm/view",
+      "status": "NOT_BOUND",
+      "note": "Individual adventure local namespaces",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "holy-mountain-shaker",
+      "kind": "ADVENTURE_LOCAL",
+      "title": "Holy Mountain Shaker",
+      "sourceUrl": "https://drive.google.com/file/d/1AsaQ1C3ptdtpnBHs-5fVbqDofKkeV5rU/view",
+      "status": "NOT_BOUND",
+      "note": "Adventure-local clocks and triggers",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "halls-blood-king",
+      "kind": "ADVENTURE_LOCAL",
+      "title": "Halls of the Blood King",
+      "sourceUrl": "https://drive.google.com/file/d/10CTEJzsNJ11PUDGfwVhS2xRhAr1PhKiX/view",
+      "status": "NOT_BOUND",
+      "note": "Specific local rules/encounters",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "hole-in-oak",
+      "kind": "ADVENTURE_LOCAL",
+      "title": "O Buraco no Carvalho / Hole in the Oak",
+      "sourceUrl": "https://drive.google.com/file/d/1I0F6PGcURB40CwXfcjN6thavRT61MJXh/view",
+      "status": "NOT_BOUND",
+      "note": "Adventure local traps and dungeon state",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "summer-end",
+      "kind": "ADVENTURE_LOCAL",
+      "title": "Summer's End",
+      "sourceUrl": "https://drive.google.com/file/d/1XhB6oWXtNPyGcJ-xCLAUcp48KlGtWQSk/view",
+      "status": "NOT_BOUND",
+      "note": "Adventure-local procedures",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "dark-sun-ose",
+      "kind": "SETTING_REVIEW",
+      "title": "Dark Sun OSE A5 PT-BR",
+      "sourceUrl": "https://drive.google.com/file/d/1Hn-hsCcyWcTwQs79wUg8LqL8FRSuzQsp/view",
+      "status": "SOURCE_SCOPE_REVIEW",
+      "note": "Setting conversion; must not silently modify core Classic/Advanced rules",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    },
+    {
+      "id": "other-compatible-material",
+      "kind": "SCOPE_REVIEW",
+      "title": "Other OSE-compatible or cross-system files in Drive",
+      "sourceUrl": null,
+      "status": "SOURCE_SCOPE_REVIEW",
+      "note": "Search is not exhaustive; catalog further OSE-compatible local books before 100% sign-off",
+      "evidence": {
+        "sourceChapters": [],
+        "ruleIds": [],
+        "kotlinExecutors": [],
+        "runtimeEntrypoints": [],
+        "persistenceTests": [],
+        "integrationTests": [],
+        "androidTests": []
+      }
+    }
+  ],
+  "knownSourceGaps": [
+    "XP_SPLIT_REMAINDER",
+    "CLASSIC_POTION_83_84",
+    "ADVANCED_POST_LEVEL_14"
+  ],
+  "verifiedNewMechanicScope": [
+    "RETAINER_CHARISMA_LIMITS",
+    "RETAINER_REACTION_TABLE",
+    "RETAINER_LOYALTY_2D6",
+    "MERCENARY_MORALE_BASE",
+    "RETAINER_HALF_SHARE_ARITHMETIC"
+  ],
+  "newMechanicsStatus": "IMPLEMENTED_IN_BRANCH_NOT_YET_TESTED"
+}

@@ -1,64 +1,96 @@
 package braseiro.ose.app
 
 import braseiro.ose.model.CampaignEnvelope
+import braseiro.ose.model.EncounterPhase
 import braseiro.ose.model.SpatialRef
 import org.json.JSONArray
 import org.json.JSONObject
 
 /**
  * Three deterministic, read-only suggestions from player-visible state only.
- * They are reaction text, never commands and never mechanical mutations.
+ * They are reaction text with valid, executable mechanicalIntent where applicable.
  */
 object ContextualDecisionSuggester {
     data class Suggestion(val label: String, val reaction: String, val mechanicalIntent: String? = null)
 
     fun suggest(envelope: CampaignEnvelope): List<Suggestion> {
-        val session = envelope.campaignState.game.session
+        val state = envelope.campaignState
+        val game = state.game
+        val session = game.session
         val visible = session.visibleNarration.lowercase()
         val phase = session.phase.uppercase()
-        val position = envelope.campaignState.position.primary
+        val position = state.position.primary
+        val encounter = game.encounter
+        val primaryActor = state.party.characterIds.firstOrNull() ?: ""
+
         return when {
-            phase.contains("COMBAT") -> listOf(
-                Suggestion("OBSERVAR A AMEAÇA", "Mantemos a formação e observamos a ameaça antes de nos comprometer."),
-                Suggestion("BUSCAR COBERTURA", "Procuramos uma posição defensável ao nosso alcance sem avançar às cegas."),
-                Suggestion("TENTAR FALAR", "Tentamos comunicação antes de iniciar outra ação hostil.")
-            )
-            phase.contains("RECOVERY") || visible.contains("silenc") -> listOf(
-                Suggestion("VERIFICAR O GRUPO", "Verificamos a condição do grupo e o que está imediatamente ao nosso redor."),
-                Suggestion("EXAMINAR A ÁREA", "Examinamos a área visível em busca de sinais ou mudanças recentes."),
-                Suggestion("REORGANIZAR", "Reorganizamos a companhia antes de decidir para onde seguir.")
-            )
-            visible.contains("porta") || visible.contains("corredor") || position is SpatialRef.Dungeon -> listOf(
-                Suggestion("EXAMINAR", "Examinamos cuidadosamente a passagem visível sem abri-la nem avançar ainda."),
-                Suggestion("ESCUTAR", "Ficamos em silêncio e escutamos antes de agir."),
-                Suggestion("RECUAR", "Recuamos até a última posição conhecida como segura.")
-            )
+            phase.contains("COMBAT") || encounter?.phase == EncounterPhase.COMBAT -> {
+                val targetOpponent = encounter?.combatants?.values?.firstOrNull { it.side.name == "OPPOSITION" && (it.alive && it.hpCurrentNumerator > 0) }?.actorId
+                val weapon = game.inventory.items.values.firstOrNull { it.equipped && it.kind.name == "WEAPON" }?.itemId
+                val attackIntent = if (primaryActor.isNotBlank() && targetOpponent != null && weapon != null) "COMBAT_ATTACK_MELEE:PARTY:$primaryActor:$targetOpponent:$weapon" else null
+                val retreatIntent = if (primaryActor.isNotBlank() && encounter != null) "COMBAT_MOVE:PARTY:$primaryActor:RETREAT" else null
+                listOf(
+                    if (attackIntent != null)
+                        Suggestion("ATACAR CORPO A CORPO", "Avanço com arma em punho para desferir um ataque contra o adversário.", attackIntent)
+                    else Suggestion("OBSERVAR O ADVERSÁRIO", "Observo a ameaça sem declarar um ataque impossível."),
+                    if (retreatIntent != null)
+                        Suggestion("RECUO CAUTELOSO", "Mantenho a guarda defensiva e recuo com cautela sem expor as costas.", retreatIntent)
+                    else Suggestion("BUSCAR ABRIGO", "Avalio o entorno e as posições de defesa disponíveis."),
+                    Suggestion("AGUARDAR TURNO", "Aguardamos e observamos a movimentação inimiga.", "WAIT_TURN")
+                )
+            }
+            position is SpatialRef.Dungeon -> {
+                val dungeon = game.dungeon
+                val knownDoors = dungeon?.edges.orEmpty().filter { edge ->
+                    !edge.secret && edge.kind.equals("DOOR", ignoreCase = true) &&
+                    (edge.from == position.nodeId || edge.to == position.nodeId)
+                }
+                listOf(
+                    Suggestion("PROCURAR NA SALA", "Examinamos minuciosamente o ambiente em busca de passagens secretas e armadilhas.", "DUNGEON_SEARCH_ROOM"),
+                    if (knownDoors.isNotEmpty())
+                        Suggestion("ESCUTAR NA PORTA", "Aproximo o ouvido da porta conhecida escutando ruídos com atenção.", "DUNGEON_LISTEN_DOOR")
+                    else Suggestion("EXAMINAR O AMBIENTE", "Observo os objetos e as passagens que consigo perceber sem supor portas ocultas."),
+                    if (knownDoors.any { !it.open })
+                        Suggestion("FORÇAR PORTA", "Tento forçar a porta fechada que está diante da companhia.", "DUNGEON_OPEN_STUCK_DOOR")
+                    else Suggestion("REORGANIZAR O GRUPO", "Confiro a posição, as fontes de luz e os equipamentos da companhia.")
+                )
+            }
+            position is SpatialRef.Settlement -> {
+                val livingCount = state.party.characterIds.count { id -> game.characters[id]?.hitPoints?.dead == false }
+                val canAfford = livingCount > 0 && OSEPlayerGuide.availableGoldGp(envelope) >= livingCount
+                listOf(
+                    if (canAfford)
+                        Suggestion("DESCANSAR NA ESTALAGEM", "Procuramos a estalagem local para alugar quartos e descansar o dia inteiro recuperando PV.", "SETTLEMENT_REST_DAY")
+                    else Suggestion("CONSULTAR HOSPEDAGEM", "Pergunto os preços de hospedagem e avalio as provisões, sem contratar uma diária ainda."),
+                    Suggestion("AGUARDAR 1 TURNO", "Aguardamos observando o movimento e conversando com os viajantes.", "WAIT_TURN"),
+                    Suggestion("REORGANIZAR GRUPO", "Verificamos as provisões e a condição de todos antes de partir.")
+                )
+            }
             position is SpatialRef.Hex -> hexTravelSuggestions(envelope, position)
             visible.contains("trilha") || visible.contains("caminho") || visible.contains("colina") -> listOf(
-                Suggestion("LER O TERRENO", "Examinamos o terreno e sinais visíveis antes de escolher o caminho."),
+                Suggestion("AGUARDAR 1 TURNO", "Fazemos uma breve pausa de 10 minutos para observar o terreno.", "WAIT_TURN"),
                 Suggestion("SEGUIR COM CAUTELA", "Seguimos pela rota visível com cautela, atentos a mudanças no terreno."),
                 Suggestion("BUSCAR VANTAGEM", "Procuramos um ponto visível que permita observar melhor os arredores.")
             )
             else -> listOf(
-                Suggestion("OBSERVAR", "Observamos com atenção o que está visível antes de agir."),
+                Suggestion("AGUARDAR 1 TURNO", "Fazemos uma pausa de 10 minutos para avaliar os arredores.", "WAIT_TURN"),
                 Suggestion("AVANÇAR DEVAGAR", "Avançamos devagar pela opção de caminho já visível."),
-                Suggestion("VOLTAR", "Voltamos à última posição conhecida antes de decidir novamente.")
+                Suggestion("VERIFICAR O GRUPO", "Verificamos a condição do grupo e o que está imediatamente ao nosso redor.")
             )
         }.also { check(it.size == 3) }
     }
 
-
-    private fun hexTravelSuggestions(envelope:CampaignEnvelope, position:SpatialRef.Hex):List<Suggestion> {
-        data class D(val key:String,val label:String,val dq:Int,val dr:Int)
-        val dirs=listOf(D("E","LESTE",1,0),D("SE","SUDESTE",0,1),D("NE","NORDESTE",1,-1),D("W","OESTE",-1,0),D("SW","SUDOESTE",-1,1),D("NW","NOROESTE",0,-1))
-        val cells=envelope.campaignState.game.hexWorld?.cells.orEmpty()
-        val valid=dirs.filter { d -> cells.any { it.q==position.q+d.dq && it.r==position.r+d.dr && it.hydrology.name!="SEA_OCEAN" } }
-        val first=valid.getOrNull(0) ?: dirs[0]
-        val second=valid.getOrNull(1) ?: dirs[1]
+    private fun hexTravelSuggestions(envelope: CampaignEnvelope, position: SpatialRef.Hex): List<Suggestion> {
+        data class D(val key: String, val label: String, val dq: Int, val dr: Int)
+        val dirs = listOf(D("E","LESTE",1,0), D("SE","SUDESTE",0,1), D("NE","NORDESTE",1,-1), D("W","OESTE",-1,0), D("SW","SUDOESTE",-1,1), D("NW","NOROESTE",0,-1))
+        val cells = envelope.campaignState.game.hexWorld?.cells.orEmpty()
+        val valid = dirs.filter { d -> cells.any { it.q == position.q + d.dq && it.r == position.r + d.dr && it.hydrology.name != "SEA_OCEAN" } }
+        val first = valid.getOrNull(0) ?: dirs[0]
+        val second = valid.getOrNull(1) ?: dirs[1]
         return listOf(
-            Suggestion("VIAJAR UM DIA · ${first.label}","Viajamos por um dia para ${first.label.lowercase()} com cautela, observando o caminho.","WILD_TRAVEL_DAY:${first.key}"),
-            Suggestion("VIAJAR + FORRAGEAR · ${second.label}","Seguimos por um dia para ${second.label.lowercase()} procurando alimento durante a viagem.","WILD_TRAVEL_FORAGE_DAY:${second.key}"),
-            Suggestion("DESCANSAR UM DIA","Paramos para descansar um dia inteiro e recuperar as forças.","WILD_REST_DAY")
+            Suggestion("VIAJAR UM DIA · ${first.label}", "Viajamos por um dia para ${first.label.lowercase()} com cautela, observando o caminho.", "WILD_TRAVEL_DAY:${first.key}"),
+            Suggestion("VIAJAR + FORRAGEAR · ${second.label}", "Seguimos por um dia para ${second.label.lowercase()} procurando alimento durante a viagem.", "WILD_TRAVEL_FORAGE_DAY:${second.key}"),
+            Suggestion("DESCANSAR UM DIA", "Paramos para descansar um dia inteiro e recuperar as forças.", "WILD_REST_DAY")
         )
     }
 

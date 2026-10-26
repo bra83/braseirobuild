@@ -1,0 +1,10 @@
+DIA 7: { alimentos: 3, preco: 2 }
+DEPOIS DA SOLUÇÃO: { alimentos: 20, preco: 1, problema: 'resolved' }
+ESCOLHA DO JOGADOR: [
+  {
+    id: 'home-return:home-scene:7',
+    text: 'Ao voltar, você encontra a casa marcada pelo tempo. O que deseja fazer?',
+    choices: [ 'rest', 'visit' ]
+  }
+]
+TRÊS REABERTURAS: { dia: 7, eventos: 1, ofertasPendentes: 1 }

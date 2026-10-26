@@ -1,0 +1,57 @@
+name: OSE Android Startup and Recovery (Emulator)
+
+on:
+  push:
+    branches:
+      - ose/final-integration-20261024
+    paths:
+      - "ose/1.0.0/source/app-android/**"
+      - "ose/1.0.0/source/web-ui-p1/**"
+      - ".github/workflows/audit-ose-android-startup-emulator.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-launch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: android-actions/setup-android@v3
+      - name: Boot Android 15, launch OSE and reopen saved campaign three times
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          cores: 2
+          ram-size: 3072M
+          disable-animations: true
+          script: |
+            cd ose/1.0.0/source
+            chmod +x gradlew
+            ./gradlew --no-daemon :app-android:connectedDebugAndroidTest --stacktrace
+      - name: Android crash details
+        if: always()
+        shell: bash
+        run: |
+          adb logcat -d -b crash > android-startup-crash-log.txt 2>/dev/null || true
+          if test -s android-startup-crash-log.txt; then tail -n 160 android-startup-crash-log.txt; fi
+      - name: Upload native test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ose-android-startup-emulator
+          path: |
+            android-startup-crash-log.txt
+            ose/1.0.0/source/app-android/build/outputs/androidTest-results/
+            ose/1.0.0/source/app-android/build/reports/androidTests/
+          retention-days: 14
+          if-no-files-found: warn

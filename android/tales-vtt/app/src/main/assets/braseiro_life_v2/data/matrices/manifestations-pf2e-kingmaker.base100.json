@@ -1,0 +1,2799 @@
+{
+  "schema": "braseiro.matrix-table/v1",
+  "id": "manifestations-pf2e-kingmaker",
+  "version": "2.2.0",
+  "rows": [
+    {
+      "id": "pf2e-kingmaker-1-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-1",
+      "text": "Um assentamento mostra um efeito de decisão já tomada. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-1-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-1",
+      "text": "Um assentamento mostra um efeito de decisão já tomada. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-1-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-1",
+      "text": "Um assentamento mostra um efeito de decisão já tomada. Há espaço para uma decisão livre do personagem.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-1-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-1",
+      "text": "Um assentamento mostra um efeito de decisão já tomada. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-1-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-1",
+      "text": "Um assentamento mostra um efeito de decisão já tomada. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-2-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-2",
+      "text": "Uma necessidade de abastecimento chega ao conselho. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-2-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-2",
+      "text": "Uma necessidade de abastecimento chega ao conselho. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-2-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-2",
+      "text": "Uma necessidade de abastecimento chega ao conselho. Há espaço para uma decisão livre do personagem.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-2-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-2",
+      "text": "Uma necessidade de abastecimento chega ao conselho. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-2-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-2",
+      "text": "Uma necessidade de abastecimento chega ao conselho. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-3-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-3",
+      "text": "Uma petição pede que se examine um fato documentado. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-3-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-3",
+      "text": "Uma petição pede que se examine um fato documentado. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-3-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-3",
+      "text": "Uma petição pede que se examine um fato documentado. Há espaço para uma decisão livre do personagem.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-3-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-3",
+      "text": "Uma petição pede que se examine um fato documentado. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-3-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-3",
+      "text": "Uma petição pede que se examine um fato documentado. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-4-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-4",
+      "text": "Um conselheiro concilia o cargo com um projeto próprio. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-4-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-4",
+      "text": "Um conselheiro concilia o cargo com um projeto próprio. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-4-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-4",
+      "text": "Um conselheiro concilia o cargo com um projeto próprio. Há espaço para uma decisão livre do personagem.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-4-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-4",
+      "text": "Um conselheiro concilia o cargo com um projeto próprio. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-4-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-4",
+      "text": "Um conselheiro concilia o cargo com um projeto próprio. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-5-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-5",
+      "text": "Um marco das Terras Roubadas lembra uma exploração. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-5-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-5",
+      "text": "Um marco das Terras Roubadas lembra uma exploração. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-5-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-5",
+      "text": "Um marco das Terras Roubadas lembra uma exploração. Há espaço para uma decisão livre do personagem.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-5-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-5",
+      "text": "Um marco das Terras Roubadas lembra uma exploração. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-5-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-5",
+      "text": "Um marco das Terras Roubadas lembra uma exploração. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "journey",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-6-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-6",
+      "text": "A hospedagem de uma viagem muda as condições de repouso. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-6-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-6",
+      "text": "A hospedagem de uma viagem muda as condições de repouso. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-6-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-6",
+      "text": "A hospedagem de uma viagem muda as condições de repouso. Há espaço para uma decisão livre do personagem.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-6-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-6",
+      "text": "A hospedagem de uma viagem muda as condições de repouso. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-6-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-6",
+      "text": "A hospedagem de uma viagem muda as condições de repouso. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-7-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-7",
+      "text": "Um aliado oferece dividir uma responsabilidade. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-7-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-7",
+      "text": "Um aliado oferece dividir uma responsabilidade. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-7-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-7",
+      "text": "Um aliado oferece dividir uma responsabilidade. Há espaço para uma decisão livre do personagem.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-7-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-7",
+      "text": "Um aliado oferece dividir uma responsabilidade. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-7-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-7",
+      "text": "Um aliado oferece dividir uma responsabilidade. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-8-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-8",
+      "text": "Uma comunidade comenta uma decisão do governo. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "reputation",
+      "causeTags": [
+        "victory",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-8-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-8",
+      "text": "Uma comunidade comenta uma decisão do governo. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "reputation",
+      "causeTags": [
+        "victory",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-8-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-8",
+      "text": "Uma comunidade comenta uma decisão do governo. Há espaço para uma decisão livre do personagem.",
+      "domain": "reputation",
+      "causeTags": [
+        "victory",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-8-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-8",
+      "text": "Uma comunidade comenta uma decisão do governo. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "reputation",
+      "causeTags": [
+        "victory",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-8-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-8",
+      "text": "Uma comunidade comenta uma decisão do governo. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "reputation",
+      "causeTags": [
+        "victory",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-9-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-9",
+      "text": "Um espaço da sede preserva marcas dos primeiros dias. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-9-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-9",
+      "text": "Um espaço da sede preserva marcas dos primeiros dias. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-9-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-9",
+      "text": "Um espaço da sede preserva marcas dos primeiros dias. Há espaço para uma decisão livre do personagem.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-9-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-9",
+      "text": "Um espaço da sede preserva marcas dos primeiros dias. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-9-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-9",
+      "text": "Um espaço da sede preserva marcas dos primeiros dias. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-10-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-10",
+      "text": "Um relatório de fronteira precisa de confirmação. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-10-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-10",
+      "text": "Um relatório de fronteira precisa de confirmação. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-10-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-10",
+      "text": "Um relatório de fronteira precisa de confirmação. Há espaço para uma decisão livre do personagem.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-10-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-10",
+      "text": "Um relatório de fronteira precisa de confirmação. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-10-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-10",
+      "text": "Um relatório de fronteira precisa de confirmação. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-11-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-11",
+      "text": "Uma família acompanha as mudanças de seu assentamento. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-11-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-11",
+      "text": "Uma família acompanha as mudanças de seu assentamento. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person",
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-11-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-11",
+      "text": "Uma família acompanha as mudanças de seu assentamento. Há espaço para uma decisão livre do personagem.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-11-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-11",
+      "text": "Uma família acompanha as mudanças de seu assentamento. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-11-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-11",
+      "text": "Uma família acompanha as mudanças de seu assentamento. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-12-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-12",
+      "text": "Um objetivo pessoal compete por tempo com o governo. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-12-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-12",
+      "text": "Um objetivo pessoal compete por tempo com o governo. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-12-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-12",
+      "text": "Um objetivo pessoal compete por tempo com o governo. Há espaço para uma decisão livre do personagem.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-12-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-12",
+      "text": "Um objetivo pessoal compete por tempo com o governo. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-12-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-12",
+      "text": "Um objetivo pessoal compete por tempo com o governo. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-13-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-13",
+      "text": "Moradores discutem uma obra ou festividade. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-13-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-13",
+      "text": "Moradores discutem uma obra ou festividade. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-13-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-13",
+      "text": "Moradores discutem uma obra ou festividade. Há espaço para uma decisão livre do personagem.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-13-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-13",
+      "text": "Moradores discutem uma obra ou festividade. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-13-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-13",
+      "text": "Moradores discutem uma obra ou festividade. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-14-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-14",
+      "text": "Um aprendiz conhece a origem de uma instituição. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-14-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-14",
+      "text": "Um aprendiz conhece a origem de uma instituição. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-14-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-14",
+      "text": "Um aprendiz conhece a origem de uma instituição. Há espaço para uma decisão livre do personagem.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-14-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-14",
+      "text": "Um aprendiz conhece a origem de uma instituição. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-14-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-14",
+      "text": "Um aprendiz conhece a origem de uma instituição. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "pf2e-kingmaker-15-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-15",
+      "text": "Uma reunião permite acomodar uma necessidade conhecida. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-15-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-15",
+      "text": "Uma reunião permite acomodar uma necessidade conhecida. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person",
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-15-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-15",
+      "text": "Uma reunião permite acomodar uma necessidade conhecida. Há espaço para uma decisão livre do personagem.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-15-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-15",
+      "text": "Uma reunião permite acomodar uma necessidade conhecida. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-15-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-15",
+      "text": "Uma reunião permite acomodar uma necessidade conhecida. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-16-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-16",
+      "text": "Uma pessoa próxima pede um momento fora do conselho. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-16-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-16",
+      "text": "Uma pessoa próxima pede um momento fora do conselho. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-16-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-16",
+      "text": "Uma pessoa próxima pede um momento fora do conselho. Há espaço para uma decisão livre do personagem.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-16-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-16",
+      "text": "Uma pessoa próxima pede um momento fora do conselho. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-16-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-16",
+      "text": "Uma pessoa próxima pede um momento fora do conselho. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-17-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-17",
+      "text": "Uma refeição reúne pessoas com vínculos diferentes. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-17-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-17",
+      "text": "Uma refeição reúne pessoas com vínculos diferentes. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-17-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-17",
+      "text": "Uma refeição reúne pessoas com vínculos diferentes. Há espaço para uma decisão livre do personagem.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-17-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-17",
+      "text": "Uma refeição reúne pessoas com vínculos diferentes. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-17-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-17",
+      "text": "Uma refeição reúne pessoas com vínculos diferentes. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-18-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-18",
+      "text": "Um resultado do reino é recebido por alguém afetado. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-18-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-18",
+      "text": "Um resultado do reino é recebido por alguém afetado. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-18-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-18",
+      "text": "Um resultado do reino é recebido por alguém afetado. Há espaço para uma decisão livre do personagem.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-18-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-18",
+      "text": "Um resultado do reino é recebido por alguém afetado. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-18-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-18",
+      "text": "Um resultado do reino é recebido por alguém afetado. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-19-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-19",
+      "text": "Uma rotina de inspeção encontra uma interrupção explicável. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-19-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-19",
+      "text": "Uma rotina de inspeção encontra uma interrupção explicável. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-19-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-19",
+      "text": "Uma rotina de inspeção encontra uma interrupção explicável. Há espaço para uma decisão livre do personagem.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-19-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-19",
+      "text": "Uma rotina de inspeção encontra uma interrupção explicável. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-19-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-19",
+      "text": "Uma rotina de inspeção encontra uma interrupção explicável. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-20-observe",
+      "baseSituationId": "pf2e-kingmaker-situation-20",
+      "text": "Uma função do conselho precisa de redistribuição. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-20-conversation",
+      "baseSituationId": "pf2e-kingmaker-situation-20",
+      "text": "Uma função do conselho precisa de redistribuição. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-20-choice",
+      "baseSituationId": "pf2e-kingmaker-situation-20",
+      "text": "Uma função do conselho precisa de redistribuição. Há espaço para uma decisão livre do personagem.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-20-verification",
+      "baseSituationId": "pf2e-kingmaker-situation-20",
+      "text": "Uma função do conselho precisa de redistribuição. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "pf2e-kingmaker-20-continuity",
+      "baseSituationId": "pf2e-kingmaker-situation-20",
+      "text": "Uma função do conselho precisa de redistribuição. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "pf2e-kingmaker",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    }
+  ]
+}

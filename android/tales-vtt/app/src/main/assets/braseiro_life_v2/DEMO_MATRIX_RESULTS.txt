@@ -1,0 +1,21 @@
+Após três anos: proposal
+Sugestão reservada: {
+  situation: 'Um morador agradece uma ajuda específica. Há espaço para uma decisão livre do personagem.',
+  focus: 'reconhecimento individual',
+  playerOption: 'perguntar pela fonte',
+  timing: 'once',
+  requiresPlayerChoice: true,
+  mechanicalEffect: 'none',
+  canonMutation: 'none'
+}
+Antes da seleção pelo Mestre: 0 ofertas públicas
+Depois da seleção: [
+  {
+    id: 'present:scene-present:1096',
+    text: 'Um morador agradece uma ajuda específica. Há espaço para uma decisão livre do personagem.',
+    choices: [ 'engage', 'pass' ],
+    suggestedAction: 'perguntar pela fonte'
+  }
+]
+Cânone preservado: imprisoned
+Cinco eixos auditados: 5

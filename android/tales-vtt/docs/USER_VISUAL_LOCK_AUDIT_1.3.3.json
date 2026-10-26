@@ -1,0 +1,49 @@
+{
+  "pass": true,
+  "failed": [],
+  "checks": {
+    "footer_approved_vector_refs": {
+      "pass": true,
+      "missing": []
+    },
+    "footer_vector_files": {
+      "pass": true,
+      "missing": []
+    },
+    "footer_geometry_visual_lock": {
+      "pass": true
+    },
+    "footer_no_legacy_refs": {
+      "pass": true
+    },
+    "internal_parent_tab_lock": {
+      "pass": true,
+      "bad": []
+    },
+    "weather_unboxed": {
+      "pass": true
+    },
+    "kid_direct_file_actions": {
+      "pass": true
+    },
+    "kid_portrait_persistence_hook": {
+      "pass": true
+    },
+    "map_visual_lock": {
+      "pass": true,
+      "bad": [],
+      "poi_count": 9
+    },
+    "map_base_file_present": {
+      "pass": true
+    },
+    "illustration_library_24": {
+      "pass": true,
+      "count": 63,
+      "unique": 63
+    },
+    "illustration_selector_mechanics_neutral": {
+      "pass": true
+    }
+  }
+}

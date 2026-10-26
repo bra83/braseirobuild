@@ -1,0 +1,2800 @@
+{
+  "schema": "braseiro.matrix-table/v1",
+  "id": "manifestations-gurps-serial-killer",
+  "version": "2.2.0",
+  "rows": [
+    {
+      "id": "gurps-serial-killer-1-observe",
+      "baseSituationId": "gurps-serial-killer-situation-1",
+      "text": "Um registro confirma a condição atual de custódia de um suspeito. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-1-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-1",
+      "text": "Um registro confirma a condição atual de custódia de um suspeito. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-1-choice",
+      "baseSituationId": "gurps-serial-killer-situation-1",
+      "text": "Um registro confirma a condição atual de custódia de um suspeito. Há espaço para uma decisão livre do personagem.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-1-verification",
+      "baseSituationId": "gurps-serial-killer-situation-1",
+      "text": "Um registro confirma a condição atual de custódia de um suspeito. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-1-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-1",
+      "text": "Um registro confirma a condição atual de custódia de um suspeito. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-2-observe",
+      "baseSituationId": "gurps-serial-killer-situation-2",
+      "text": "Uma correspondência atribuída a alguém precisa ter origem verificada. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "suspicious_correspondence_verified"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-2-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-2",
+      "text": "Uma correspondência atribuída a alguém precisa ter origem verificada. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person",
+        "suspicious_correspondence_verified"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-2-choice",
+      "baseSituationId": "gurps-serial-killer-situation-2",
+      "text": "Uma correspondência atribuída a alguém precisa ter origem verificada. Há espaço para uma decisão livre do personagem.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "suspicious_correspondence_verified"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-2-verification",
+      "baseSituationId": "gurps-serial-killer-situation-2",
+      "text": "Uma correspondência atribuída a alguém precisa ter origem verificada. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "suspicious_correspondence_verified"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-2-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-2",
+      "text": "Uma correspondência atribuída a alguém precisa ter origem verificada. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "suspicious_correspondence_verified"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-3-observe",
+      "baseSituationId": "gurps-serial-killer-situation-3",
+      "text": "Uma equipe revê o que está comprovado e o que segue em aberto. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-3-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-3",
+      "text": "Uma equipe revê o que está comprovado e o que segue em aberto. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-3-choice",
+      "baseSituationId": "gurps-serial-killer-situation-3",
+      "text": "Uma equipe revê o que está comprovado e o que segue em aberto. Há espaço para uma decisão livre do personagem.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-3-verification",
+      "baseSituationId": "gurps-serial-killer-situation-3",
+      "text": "Uma equipe revê o que está comprovado e o que segue em aberto. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-3-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-3",
+      "text": "Uma equipe revê o que está comprovado e o que segue em aberto. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "failure",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-4-observe",
+      "baseSituationId": "gurps-serial-killer-situation-4",
+      "text": "Um detalhe cotidiano recorda um caso sem criar conexão com o atual. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "memory",
+      "causeTags": [
+        "violence",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-4-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-4",
+      "text": "Um detalhe cotidiano recorda um caso sem criar conexão com o atual. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "memory",
+      "causeTags": [
+        "violence",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-4-choice",
+      "baseSituationId": "gurps-serial-killer-situation-4",
+      "text": "Um detalhe cotidiano recorda um caso sem criar conexão com o atual. Há espaço para uma decisão livre do personagem.",
+      "domain": "memory",
+      "causeTags": [
+        "violence",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-4-verification",
+      "baseSituationId": "gurps-serial-killer-situation-4",
+      "text": "Um detalhe cotidiano recorda um caso sem criar conexão com o atual. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "memory",
+      "causeTags": [
+        "violence",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-4-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-4",
+      "text": "Um detalhe cotidiano recorda um caso sem criar conexão com o atual. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "memory",
+      "causeTags": [
+        "violence",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-5-observe",
+      "baseSituationId": "gurps-serial-killer-situation-5",
+      "text": "Um elemento do ambiente interfere na tranquilidade do repouso. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-5-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-5",
+      "text": "Um elemento do ambiente interfere na tranquilidade do repouso. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-5-choice",
+      "baseSituationId": "gurps-serial-killer-situation-5",
+      "text": "Um elemento do ambiente interfere na tranquilidade do repouso. Há espaço para uma decisão livre do personagem.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-5-verification",
+      "baseSituationId": "gurps-serial-killer-situation-5",
+      "text": "Um elemento do ambiente interfere na tranquilidade do repouso. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-5-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-5",
+      "text": "Um elemento do ambiente interfere na tranquilidade do repouso. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-6-observe",
+      "baseSituationId": "gurps-serial-killer-situation-6",
+      "text": "Uma pessoa confiável oferece apoio sem presumir diagnóstico. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-6-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-6",
+      "text": "Uma pessoa confiável oferece apoio sem presumir diagnóstico. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-6-choice",
+      "baseSituationId": "gurps-serial-killer-situation-6",
+      "text": "Uma pessoa confiável oferece apoio sem presumir diagnóstico. Há espaço para uma decisão livre do personagem.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-6-verification",
+      "baseSituationId": "gurps-serial-killer-situation-6",
+      "text": "Uma pessoa confiável oferece apoio sem presumir diagnóstico. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-6-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-6",
+      "text": "Uma pessoa confiável oferece apoio sem presumir diagnóstico. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-7-observe",
+      "baseSituationId": "gurps-serial-killer-situation-7",
+      "text": "Uma responsabilidade familiar continua durante a investigação. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-7-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-7",
+      "text": "Uma responsabilidade familiar continua durante a investigação. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person",
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-7-choice",
+      "baseSituationId": "gurps-serial-killer-situation-7",
+      "text": "Uma responsabilidade familiar continua durante a investigação. Há espaço para uma decisão livre do personagem.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-7-verification",
+      "baseSituationId": "gurps-serial-killer-situation-7",
+      "text": "Uma responsabilidade familiar continua durante a investigação. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-7-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-7",
+      "text": "Uma responsabilidade familiar continua durante a investigação. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "family_contact"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-8-observe",
+      "baseSituationId": "gurps-serial-killer-situation-8",
+      "text": "Uma pessoa próxima pede conversar sobre limites de convivência. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-8-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-8",
+      "text": "Uma pessoa próxima pede conversar sobre limites de convivência. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-8-choice",
+      "baseSituationId": "gurps-serial-killer-situation-8",
+      "text": "Uma pessoa próxima pede conversar sobre limites de convivência. Há espaço para uma decisão livre do personagem.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-8-verification",
+      "baseSituationId": "gurps-serial-killer-situation-8",
+      "text": "Uma pessoa próxima pede conversar sobre limites de convivência. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-8-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-8",
+      "text": "Uma pessoa próxima pede conversar sobre limites de convivência. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "betrayal"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-9-observe",
+      "baseSituationId": "gurps-serial-killer-situation-9",
+      "text": "Uma versão pública do caso chega por uma fonte identificável. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "reputation",
+      "causeTags": [
+        "justice",
+        "reputation",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-9-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-9",
+      "text": "Uma versão pública do caso chega por uma fonte identificável. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "reputation",
+      "causeTags": [
+        "justice",
+        "reputation",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-9-choice",
+      "baseSituationId": "gurps-serial-killer-situation-9",
+      "text": "Uma versão pública do caso chega por uma fonte identificável. Há espaço para uma decisão livre do personagem.",
+      "domain": "reputation",
+      "causeTags": [
+        "justice",
+        "reputation",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-9-verification",
+      "baseSituationId": "gurps-serial-killer-situation-9",
+      "text": "Uma versão pública do caso chega por uma fonte identificável. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "reputation",
+      "causeTags": [
+        "justice",
+        "reputation",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-9-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-9",
+      "text": "Uma versão pública do caso chega por uma fonte identificável. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "reputation",
+      "causeTags": [
+        "justice",
+        "reputation",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-10-observe",
+      "baseSituationId": "gurps-serial-killer-situation-10",
+      "text": "Uma necessidade da equipe disputa recursos disponíveis. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "challenging"
+    },
+    {
+      "id": "gurps-serial-killer-10-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-10",
+      "text": "Uma necessidade da equipe disputa recursos disponíveis. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "challenging"
+    },
+    {
+      "id": "gurps-serial-killer-10-choice",
+      "baseSituationId": "gurps-serial-killer-situation-10",
+      "text": "Uma necessidade da equipe disputa recursos disponíveis. Há espaço para uma decisão livre do personagem.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "challenging"
+    },
+    {
+      "id": "gurps-serial-killer-10-verification",
+      "baseSituationId": "gurps-serial-killer-situation-10",
+      "text": "Uma necessidade da equipe disputa recursos disponíveis. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "challenging"
+    },
+    {
+      "id": "gurps-serial-killer-10-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-10",
+      "text": "Uma necessidade da equipe disputa recursos disponíveis. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "challenging"
+    },
+    {
+      "id": "gurps-serial-killer-11-observe",
+      "baseSituationId": "gurps-serial-killer-situation-11",
+      "text": "Um colega cuida de um objetivo independente do caso. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-11-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-11",
+      "text": "Um colega cuida de um objetivo independente do caso. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-11-choice",
+      "baseSituationId": "gurps-serial-killer-situation-11",
+      "text": "Um colega cuida de um objetivo independente do caso. Há espaço para uma decisão livre do personagem.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-11-verification",
+      "baseSituationId": "gurps-serial-killer-situation-11",
+      "text": "Um colega cuida de um objetivo independente do caso. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-11-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-11",
+      "text": "Um colega cuida de um objetivo independente do caso. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-12-observe",
+      "baseSituationId": "gurps-serial-killer-situation-12",
+      "text": "Uma lembrança pessoal permanece no espaço doméstico. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-12-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-12",
+      "text": "Uma lembrança pessoal permanece no espaço doméstico. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-12-choice",
+      "baseSituationId": "gurps-serial-killer-situation-12",
+      "text": "Uma lembrança pessoal permanece no espaço doméstico. Há espaço para uma decisão livre do personagem.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-12-verification",
+      "baseSituationId": "gurps-serial-killer-situation-12",
+      "text": "Uma lembrança pessoal permanece no espaço doméstico. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-12-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-12",
+      "text": "Uma lembrança pessoal permanece no espaço doméstico. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-13-observe",
+      "baseSituationId": "gurps-serial-killer-situation-13",
+      "text": "Um plano de vida pode avançar sem retomar o crime anterior. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-13-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-13",
+      "text": "Um plano de vida pode avançar sem retomar o crime anterior. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-13-choice",
+      "baseSituationId": "gurps-serial-killer-situation-13",
+      "text": "Um plano de vida pode avançar sem retomar o crime anterior. Há espaço para uma decisão livre do personagem.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-13-verification",
+      "baseSituationId": "gurps-serial-killer-situation-13",
+      "text": "Um plano de vida pode avançar sem retomar o crime anterior. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-13-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-13",
+      "text": "Um plano de vida pode avançar sem retomar o crime anterior. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-14-observe",
+      "baseSituationId": "gurps-serial-killer-situation-14",
+      "text": "Uma comunidade procura informação confirmada e apoio. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "community",
+      "causeTags": [
+        "justice",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-14-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-14",
+      "text": "Uma comunidade procura informação confirmada e apoio. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "community",
+      "causeTags": [
+        "justice",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-14-choice",
+      "baseSituationId": "gurps-serial-killer-situation-14",
+      "text": "Uma comunidade procura informação confirmada e apoio. Há espaço para uma decisão livre do personagem.",
+      "domain": "community",
+      "causeTags": [
+        "justice",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-14-verification",
+      "baseSituationId": "gurps-serial-killer-situation-14",
+      "text": "Uma comunidade procura informação confirmada e apoio. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "community",
+      "causeTags": [
+        "justice",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-14-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-14",
+      "text": "Uma comunidade procura informação confirmada e apoio. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "community",
+      "causeTags": [
+        "justice",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-15-observe",
+      "baseSituationId": "gurps-serial-killer-situation-15",
+      "text": "Uma pessoa preserva a memória de alguém ausente. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-15-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-15",
+      "text": "Uma pessoa preserva a memória de alguém ausente. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-15-choice",
+      "baseSituationId": "gurps-serial-killer-situation-15",
+      "text": "Uma pessoa preserva a memória de alguém ausente. Há espaço para uma decisão livre do personagem.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-15-verification",
+      "baseSituationId": "gurps-serial-killer-situation-15",
+      "text": "Uma pessoa preserva a memória de alguém ausente. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-15-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-15",
+      "text": "Uma pessoa preserva a memória de alguém ausente. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "positive"
+    },
+    {
+      "id": "gurps-serial-killer-16-observe",
+      "baseSituationId": "gurps-serial-killer-situation-16",
+      "text": "Uma tarefa recebe adaptação para uma limitação validada. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-16-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-16",
+      "text": "Uma tarefa recebe adaptação para uma limitação validada. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person",
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-16-choice",
+      "baseSituationId": "gurps-serial-killer-situation-16",
+      "text": "Uma tarefa recebe adaptação para uma limitação validada. Há espaço para uma decisão livre do personagem.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-16-verification",
+      "baseSituationId": "gurps-serial-killer-situation-16",
+      "text": "Uma tarefa recebe adaptação para uma limitação validada. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-16-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-16",
+      "text": "Uma tarefa recebe adaptação para uma limitação validada. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [
+        "known_limitation"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-17-observe",
+      "baseSituationId": "gurps-serial-killer-situation-17",
+      "text": "Um convite oferece convivência sem discutir o caso. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-17-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-17",
+      "text": "Um convite oferece convivência sem discutir o caso. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-17-choice",
+      "baseSituationId": "gurps-serial-killer-situation-17",
+      "text": "Um convite oferece convivência sem discutir o caso. Há espaço para uma decisão livre do personagem.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-17-verification",
+      "baseSituationId": "gurps-serial-killer-situation-17",
+      "text": "Um convite oferece convivência sem discutir o caso. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-17-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-17",
+      "text": "Um convite oferece convivência sem discutir o caso. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-18-observe",
+      "baseSituationId": "gurps-serial-killer-situation-18",
+      "text": "Uma instituição acompanha uma consequência já documentada. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-18-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-18",
+      "text": "Uma instituição acompanha uma consequência já documentada. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-18-choice",
+      "baseSituationId": "gurps-serial-killer-situation-18",
+      "text": "Uma instituição acompanha uma consequência já documentada. Há espaço para uma decisão livre do personagem.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-18-verification",
+      "baseSituationId": "gurps-serial-killer-situation-18",
+      "text": "Uma instituição acompanha uma consequência já documentada. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-18-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-18",
+      "text": "Uma instituição acompanha uma consequência já documentada. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-19-observe",
+      "baseSituationId": "gurps-serial-killer-situation-19",
+      "text": "O encerramento de uma etapa permite reação escolhida pelo jogador. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-19-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-19",
+      "text": "O encerramento de uma etapa permite reação escolhida pelo jogador. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-19-choice",
+      "baseSituationId": "gurps-serial-killer-situation-19",
+      "text": "O encerramento de uma etapa permite reação escolhida pelo jogador. Há espaço para uma decisão livre do personagem.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-19-verification",
+      "baseSituationId": "gurps-serial-killer-situation-19",
+      "text": "O encerramento de uma etapa permite reação escolhida pelo jogador. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-19-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-19",
+      "text": "O encerramento de uma etapa permite reação escolhida pelo jogador. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-20-observe",
+      "baseSituationId": "gurps-serial-killer-situation-20",
+      "text": "Uma rotina cotidiana pede ajuste por um motivo verificável. Um sinal pode ser observado sem exigir uma decisão.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-20-conversation",
+      "baseSituationId": "gurps-serial-killer-situation-20",
+      "text": "Uma rotina cotidiana pede ajuste por um motivo verificável. Uma pessoa envolvida pode esclarecer o que sabe.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "conversation",
+      "requiredCapabilities": [
+        "related_person"
+      ],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-20-choice",
+      "baseSituationId": "gurps-serial-killer-situation-20",
+      "text": "Uma rotina cotidiana pede ajuste por um motivo verificável. Há espaço para uma decisão livre do personagem.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "choice",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-20-verification",
+      "baseSituationId": "gurps-serial-killer-situation-20",
+      "text": "Uma rotina cotidiana pede ajuste por um motivo verificável. A informação pode ser conferida antes de qualquer conclusão.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "verification",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": true,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "gurps-serial-killer-20-continuity",
+      "baseSituationId": "gurps-serial-killer-situation-20",
+      "text": "Uma rotina cotidiana pede ajuste por um motivo verificável. A situação pode seguir sem se tornar uma nova missão.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "continuity",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "gurps-serial-killer",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    }
+  ]
+}

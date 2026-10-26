@@ -1,0 +1,153 @@
+{
+  "schema": "braseiro.adventure/v1",
+  "id": "enclave-espelho-esmeralda-v1",
+  "system": "ose-advanced",
+  "worldId": "costa-do-mago-canonico",
+  "title": "O Enclave do Espelho Esmeralda",
+  "author": "Equipe Braseiro OSE",
+  "description": "Nas ruínas de um monastério élfico nas falésias da Costa do Mago, um espelho esmeralda ressoa com energias planares e atrai intrusos do Subterrâneo.",
+  "tags": ["planar", "ilusoes", "ose-advanced", "drow", "ruinas"],
+  "recommendedParty": {
+    "levelMin": 2,
+    "levelMax": 4,
+    "sizeMin": 3,
+    "sizeMax": 6
+  },
+  "start": {
+    "locationId": "patio-das-ruinas",
+    "hook": "Luzes esmeralda pulsam nas falésias à noite, e o erudito gnômico Finneas busca aventureiros para resgatar lentes de observação antes que os drow dominem o portal."
+  },
+  "story": {
+    "premise": "Explorar o antigo observatório élfico, investigar as refrações mágicas do Espelho Esmeralda e neutralizar as incursões dimensionais.",
+    "background": "Construído por astrônomos elfos da Alta Floresta, o Espelho Esmeralda alinhava portais menores com o Plano Astral. Um terremoto recente desalinhou os prismas, projetando reflexos hostis e permitindo que batedores drow estabeleçam uma cabeça de ponte.",
+    "playerIntroduction": "O vento salgado do oceano bate contra arcos de pedra branca desgastados pela maresia. Pelo topo da falésia, fragmentos de vidro verde cintilam sob o luar, e uma canção distante e cristalina ecoa do subsolo.",
+    "themes": ["astronomia arcana", "espelhos", "sombras", "incursao planar"],
+    "possibleEndings": ["realinhar-o-espelho", "estilhacar-o-vidro-planar", "expulsar-a-vanguarda-drow"]
+  },
+  "locations": [
+    {
+      "id": "patio-das-ruinas",
+      "name": "Pátio das Falésias",
+      "regionId": "costa-do-mago",
+      "description": "Terraço ao ar livre de frente para o mar bravio, salpicado por colunas partidas e gárgulas vigilantes de pedra polida."
+    },
+    {
+      "id": "salao-das-refracoes",
+      "name": "Salão das Refrações",
+      "regionId": "interior-monasterio",
+      "description": "Uma câmara octogonal repleta de prismas giratórios suspensos por correntes de bronze. A luz se curva em cores anômalas nas paredes."
+    },
+    {
+      "id": "cripta-dos-prismas",
+      "name": "Câmara do Grande Espelho",
+      "regionId": "interior-monasterio",
+      "description": "O santuário profundo onde repousa uma moldura elíptica de três metros cravada de esmeraldas. Sua superfície parece água verde ondulante."
+    }
+  ],
+  "npcs": [
+    {
+      "id": "finneas-o-oculista",
+      "name": "Finneas, o Oculista Gnômico",
+      "role": "pesquisador e cartógrafo celeste",
+      "goals": ["recuperar as lentes arcanas", "estudar o alinhamento planar"],
+      "secretIds": ["segredo-da-fenda"],
+      "schedule": [{"period": "noite", "locationId": "patio-das-ruinas"}],
+      "relationships": []
+    },
+    {
+      "id": "batedora-shirra",
+      "name": "Shirra Val'Xan",
+      "role": "vanguarda drow",
+      "goals": ["assegurar passagem para o enclave subterrâneo"],
+      "secretIds": ["objetivo-drow"],
+      "relationships": []
+    }
+  ],
+  "secrets": [
+    {
+      "id": "segredo-da-fenda",
+      "visibility": "gm_only",
+      "truth": "O espelho não está apenas refletindo: ele está sugando lentamente a luz do farol costeiro para estabilizar uma fenda com o Plano Astral."
+    },
+    {
+      "id": "objetivo-drow",
+      "visibility": "gm_only",
+      "truth": "Shirra foi enviada não para conquistar, mas como exilada política disposta a negociar a retirada caso receba passagem segura para o continente."
+    }
+  ],
+  "enemies": [
+    {
+      "id": "gargula-vigia",
+      "name": "Gárgula dos Prismas",
+      "kind": "monstro",
+      "rulesRef": {
+        "source": "Advanced Fantasy Bestiary p. 45",
+        "statblockId": "gargoyle"
+      },
+      "personality": "Imóvel como rocha até ser perturbada pelo som de metal ou passos pesados.",
+      "goals": ["punir profanadores do observatório"],
+      "combatOptional": true
+    },
+    {
+      "id": "guerreiro-drow",
+      "name": "Sentinela Drow",
+      "kind": "humanoide",
+      "rulesRef": {
+        "source": "Advanced Fantasy Bestiary p. 38",
+        "statblockId": "drow"
+      },
+      "personality": "Disciplinado, desconfiado e empunhando besta leve com virote sonífero.",
+      "goals": ["guardar a Câmara do Grande Espelho"],
+      "combatOptional": true
+    }
+  ],
+  "encounters": [
+    {
+      "id": "emboscada-no-patio",
+      "locationId": "patio-das-ruinas",
+      "enemies": ["gargula-vigia"],
+      "trigger": {"flag": "examinar-estatuas"},
+      "alternatives": ["combate", "evasao-furtiva", "ativar-simbolo-elfico"]
+    },
+    {
+      "id": "negociacao-na-cripta",
+      "locationId": "cripta-dos-prismas",
+      "enemies": ["guerreiro-drow"],
+      "trigger": {"flag": "adentrar-camara-espelho"},
+      "alternatives": ["parlamento-com-shirra", "combate-tatico", "desativar-o-espelho"]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "acessar-monasterio",
+      "description": "Cruzar o Pátio das Falésias e entrar nas ruínas do observatório.",
+      "optional": false
+    },
+    {
+      "id": "resolver-anomalia-espelho",
+      "description": "Realinhar os prismas ou conter a fenda dimensional do Espelho Esmeralda.",
+      "optional": false
+    },
+    {
+      "id": "resgatar-lentes",
+      "description": "Recuperar as lentes astronômicas intactas para Finneas.",
+      "optional": true
+    }
+  ],
+  "worldConsequences": [
+    {
+      "id": "farol-protegido",
+      "condition": "host_event:espelho-alinhado",
+      "effects": ["navegacao-segura-na-costa", "patronato-de-finneas"]
+    },
+    {
+      "id": "alianca-shirra",
+      "condition": "host_event:acordo-drow",
+      "effects": ["contato-no-subterraneo", "rumores-de-casa-nobre"]
+    }
+  ],
+  "rewards": {
+    "suggested": ["250 po em gemas de esmeralda", "anel de queda suave", "mapa das rotas astrais"],
+    "note": "Recompensas sujeitas à validação de tesouro e regras oficiais OSE."
+  }
+}

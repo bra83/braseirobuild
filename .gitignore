@@ -1,0 +1,15 @@
+# Gradle & Android
+.gradle/
+**/build/
+*.idsig
+local.properties
+.idea/
+*.iml
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# Temporary test logs
+*.log

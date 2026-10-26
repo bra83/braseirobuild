@@ -1,0 +1,2707 @@
+{
+  "schema": "braseiro.matrix-table/v1",
+  "id": "manifestations-ose-advanced",
+  "version": "2.2.0",
+  "rows": [
+    {
+      "id": "ose-advanced-1-observe",
+      "baseSituationId": "ose-advanced-situation-1",
+      "text": "O descanso em tenda de campanha avançada é velado por sentinelas com darkvision atenta. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "sleep",
+      "causeTags": [
+        "journey",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-2-observe",
+      "baseSituationId": "ose-advanced-situation-2",
+      "text": "O sono leve do bárbaro fareja fumaça e passo de predadores muito antes do alarme geral. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "sleep",
+      "causeTags": [
+        "violence",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-3-observe",
+      "baseSituationId": "ose-advanced-situation-3",
+      "text": "O mosteiro fortificado oferece celas silenciosas para meditação e sono sem sobressaltos. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "sleep",
+      "causeTags": [
+        "home",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-4-observe",
+      "baseSituationId": "ose-advanced-situation-4",
+      "text": "A névoa mefítica do pântano exige filtros de tecido umedecido para dormir sem tossir. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "sleep",
+      "causeTags": [
+        "scarcity",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-5-observe",
+      "baseSituationId": "ose-advanced-situation-5",
+      "text": "Um cântico druídico ao longe embala o acampamento nas cercanias do bosque de faias. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "sleep",
+      "causeTags": [
+        "discovery",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-6-observe",
+      "baseSituationId": "ose-advanced-situation-6",
+      "text": "Uma adaga envenenada de guilda secreta evoca uma dívida de sangue jamais perdoada. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "memory",
+      "causeTags": [
+        "loss",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-7-observe",
+      "baseSituationId": "ose-advanced-situation-7",
+      "text": "Um astrolábio de latão pertencente a um navegador svirfneblin traz memórias da profundeza. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "memory",
+      "causeTags": [
+        "discovery",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-8-observe",
+      "baseSituationId": "ose-advanced-situation-8",
+      "text": "O colar de dentes de hidra atesta a bravura comprovada diante dos anciãos bárbaros. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "memory",
+      "causeTags": [
+        "victory",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-9-observe",
+      "baseSituationId": "ose-advanced-situation-9",
+      "text": "O grimório herdado de um mestre ilusionista traz anotações codificadas em tinta de polvo. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "memory",
+      "causeTags": [
+        "legacy",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-10-observe",
+      "baseSituationId": "ose-advanced-situation-10",
+      "text": "A promessa quebrada por um cavaleiro rival arde viva a cada desafio em torneio de armas. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "memory",
+      "causeTags": [
+        "betrayal",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-11-observe",
+      "baseSituationId": "ose-advanced-situation-11",
+      "text": "A conquista do feudo nas marcas de fronteira enche o peito do paladino de devoção sagrada. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "emotion",
+      "causeTags": [
+        "victory",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-12-observe",
+      "baseSituationId": "ose-advanced-situation-12",
+      "text": "O fracasso na colheita de beladona antes do murchar das flores frustra os planos do alquimista. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "emotion",
+      "causeTags": [
+        "loss",
+        "failure"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-13-observe",
+      "baseSituationId": "ose-advanced-situation-13",
+      "text": "O murmúrio das liras dos bardos na corte senhorial ameniza o peso das campanhas militares. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "emotion",
+      "causeTags": [
+        "care",
+        "celebration"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-14-observe",
+      "baseSituationId": "ose-advanced-situation-14",
+      "text": "O escárnio de nobres cortesãos desafia a paciência do meio-orc recém-armado cavaleiro. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "emotion",
+      "causeTags": [
+        "conflict",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-15-observe",
+      "baseSituationId": "ose-advanced-situation-15",
+      "text": "Desvendar o enigma de um espelho de ilusão traz triunfo intelectual ao arcanista dedicado. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "emotion",
+      "causeTags": [
+        "discovery",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-16-observe",
+      "baseSituationId": "ose-advanced-situation-16",
+      "text": "O acrobata testa a tensão de cabos de cânhamo e o equilíbrio em bordas antes de escalar. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "habits",
+      "causeTags": [
+        "journey",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-17-observe",
+      "baseSituationId": "ose-advanced-situation-17",
+      "text": "O assassino confere a vedação dos frascos de veneno vegetal e as lâminas ocultas nas botas. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "habits",
+      "causeTags": [
+        "violence",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-18-observe",
+      "baseSituationId": "ose-advanced-situation-18",
+      "text": "O bardo afina as cordas de tripa do alaúde e revisa o repertório de baladas heróicas. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "habits",
+      "causeTags": [
+        "home",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-19-observe",
+      "baseSituationId": "ose-advanced-situation-19",
+      "text": "O druida colhe visco com foice dourada na lua nova para alimentar seu foco sagrado. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "habits",
+      "causeTags": [
+        "belief",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-20-observe",
+      "baseSituationId": "ose-advanced-situation-20",
+      "text": "O ranger inspeciona pegadas e ramagens quebradas na trilha para avaliar o rastro da presa. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "habits",
+      "causeTags": [
+        "work",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-21-observe",
+      "baseSituationId": "ose-advanced-situation-21",
+      "text": "Um clã de duergar cobra laços de sangue e lealdade ancestral à forja sob a montanha. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-22-observe",
+      "baseSituationId": "ose-advanced-situation-22",
+      "text": "O reencontro entre irmãos meio-elfos revela escolhas divergentes entre a floresta e o burgo. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "family",
+      "causeTags": [
+        "care",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-23-observe",
+      "baseSituationId": "ose-advanced-situation-23",
+      "text": "Um jovem gnomo demonstra engenhosidade mecânica ao aprimorar a besta de repetição familiar. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "family",
+      "causeTags": [
+        "work",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-24-observe",
+      "baseSituationId": "ose-advanced-situation-24",
+      "text": "A partilha de terras feudais exige arbitragem solene perante os arautos e o tribunal de armas. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "family",
+      "causeTags": [
+        "legacy",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-25-observe",
+      "baseSituationId": "ose-advanced-situation-25",
+      "text": "Uma celebração solsticial no enclave élfico reúne várias gerações sob a copa das árvores. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "family",
+      "causeTags": [
+        "home",
+        "celebration"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-26-observe",
+      "baseSituationId": "ose-advanced-situation-26",
+      "text": "O cavaleiro e sua dama compartilham votos de lealdade antes da partida para a cruzada. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "intimacy",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-27-observe",
+      "baseSituationId": "ose-advanced-situation-27",
+      "text": "Um momento a sós permite ao drow expressar a dor de viver sob o estigma das profundezas. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "intimacy",
+      "causeTags": [
+        "loss",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-28-observe",
+      "baseSituationId": "ose-advanced-situation-28",
+      "text": "Conversas sussurradas em dialeto secreto revelam sonhos de fundar um santuário próprio. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "intimacy",
+      "causeTags": [
+        "home",
+        "hope"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-29-observe",
+      "baseSituationId": "ose-advanced-situation-29",
+      "text": "A descoberta de uma espionagem encomendada abala a cumplicidade forjada em batalhas. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "intimacy",
+      "causeTags": [
+        "betrayal",
+        "conflict"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-30-observe",
+      "baseSituationId": "ose-advanced-situation-30",
+      "text": "A partilha de um elixir élfico de mel e ervas sela amizade leal entre ranger e bárbaro. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "intimacy",
+      "causeTags": [
+        "celebration",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-31-observe",
+      "baseSituationId": "ose-advanced-situation-31",
+      "text": "O armeiro especializado em mithral exige pagamento adiantado para forjar cota de malha leve. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "work",
+      "causeTags": [
+        "work",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-32-observe",
+      "baseSituationId": "ose-advanced-situation-32",
+      "text": "A guilda de assassinos cobra taxa de registro e respeito rigoroso aos alvos declarados. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "work",
+      "causeTags": [
+        "reputation",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-33-observe",
+      "baseSituationId": "ose-advanced-situation-33",
+      "text": "O cartógrafo arcano desenha cartas de navegação para rotas subterrâneas inexploradas. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "work",
+      "causeTags": [
+        "discovery",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-34-observe",
+      "baseSituationId": "ose-advanced-situation-34",
+      "text": "O estalajadeiro gnomo instala sistema de polias para subir bagagens sem esforço manual. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "work",
+      "causeTags": [
+        "change",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-35-observe",
+      "baseSituationId": "ose-advanced-situation-35",
+      "text": "Um pergaminho de ilusão rasurado requer raspagem cuidadosa com osso de baleia e nova tinta. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "work",
+      "causeTags": [
+        "failure",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-36-observe",
+      "baseSituationId": "ose-advanced-situation-36",
+      "text": "O abastecimento de óleo de essência vegetal para lanternas com foco regulável está escasso. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "journey"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-37-observe",
+      "baseSituationId": "ose-advanced-situation-37",
+      "text": "O valor de gemas brutas de esmeralda e rubi atrai avaliadores da corporação dos lapidários. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "resources",
+      "causeTags": [
+        "work",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-38-observe",
+      "baseSituationId": "ose-advanced-situation-38",
+      "text": "Uma câmara secreta revela lingotes de ferro meteórico e frascos selados com lacre real. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "resources",
+      "causeTags": [
+        "discovery",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-39-observe",
+      "baseSituationId": "ose-advanced-situation-39",
+      "text": "Cavalos de guerra treinados para suportar barulho de aço e trombetas exigem ração nobre. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "resources",
+      "causeTags": [
+        "scarcity",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-40-observe",
+      "baseSituationId": "ose-advanced-situation-40",
+      "text": "O manto de camuflagem élfica rasgou-se nos espinhos das charnecas e perdeu parte da eficácia. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "resources",
+      "causeTags": [
+        "loss",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-41-observe",
+      "baseSituationId": "ose-advanced-situation-41",
+      "text": "O banquete no castelo do barão reúne damas, cavaleiros e campeões de todas as marcas. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "social",
+      "causeTags": [
+        "celebration",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-42-observe",
+      "baseSituationId": "ose-advanced-situation-42",
+      "text": "O círculo de druidas acolhe a comitiva com cânticos e partilha de frutos silvestres. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "social",
+      "causeTags": [
+        "reputation",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-43-observe",
+      "baseSituationId": "ose-advanced-situation-43",
+      "text": "Guerreiros bárbaros e soldados da milícia trocam provocações acaloradas no mercado de gado. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "social",
+      "causeTags": [
+        "conflict",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-44-observe",
+      "baseSituationId": "ose-advanced-situation-44",
+      "text": "Uma tertúlia de bardos debate as variações métricas do poema da Queda de Durgath. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "social",
+      "causeTags": [
+        "discovery",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-45-observe",
+      "baseSituationId": "ose-advanced-situation-45",
+      "text": "O conselho dos arcanistas convoca sabat com porta fechada para deliberar sobre a relíquia. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "social",
+      "causeTags": [
+        "reputation",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-46-observe",
+      "baseSituationId": "ose-advanced-situation-46",
+      "text": "O renome de que o paladino curou a lepra de um peregrino atrai suplicantes à fortaleza. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "reputation",
+      "causeTags": [
+        "victory",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-47-observe",
+      "baseSituationId": "ose-advanced-situation-47",
+      "text": "A notícia de que a patrulha do ranger caiu em armadilha espalha apreensão nas fazendas. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "reputation",
+      "causeTags": [
+        "failure",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-48-observe",
+      "baseSituationId": "ose-advanced-situation-48",
+      "text": "O código de cavalaria cumprido em duelo público rende elogios formais do marechal de armas. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "reputation",
+      "causeTags": [
+        "justice",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-49-observe",
+      "baseSituationId": "ose-advanced-situation-49",
+      "text": "Boatos de que o grupo abriga um drow renegado alimentam desconfiança na corte do bispo. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "reputation",
+      "causeTags": [
+        "conflict",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-50-observe",
+      "baseSituationId": "ose-advanced-situation-50",
+      "text": "Estudiosos de várias ordens viajam para consultar o acervo de mapas raros da companhia. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "reputation",
+      "causeTags": [
+        "discovery",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-51-observe",
+      "baseSituationId": "ose-advanced-situation-51",
+      "text": "O escudeiro jovem pede instrução sobre as regras de heráldica e polimento de elmos emplumados. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "npc",
+      "causeTags": [
+        "work",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-52-observe",
+      "baseSituationId": "ose-advanced-situation-52",
+      "text": "Um caçador de recompensas rastreia desertores e busca aliança tática nos ermos. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "npc",
+      "causeTags": [
+        "conflict",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-53-observe",
+      "baseSituationId": "ose-advanced-situation-53",
+      "text": "Uma boticária meio-elfa oferece unguento contra paralisia em troca de fungos raros de grutas. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "npc",
+      "causeTags": [
+        "discovery",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-54-observe",
+      "baseSituationId": "ose-advanced-situation-54",
+      "text": "Um arauto ambicioso distorce o resultado da escaramuça para favorecer um lorde rival. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "npc",
+      "causeTags": [
+        "betrayal",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-55-observe",
+      "baseSituationId": "ose-advanced-situation-55",
+      "text": "Um eremita svirfneblin ensina rota segura evitando os ninhos de basiliscos na escuridão. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "npc",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-56-observe",
+      "baseSituationId": "ose-advanced-situation-56",
+      "text": "Tributos abusivos cobrados pelo duque desestabilizam o comércio entre os principados. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-57-observe",
+      "baseSituationId": "ose-advanced-situation-57",
+      "text": "A retomada da ponte dos anões reativa o fluxo de ferro e prata para as fundições do sul. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "world",
+      "causeTags": [
+        "victory",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-58-observe",
+      "baseSituationId": "ose-advanced-situation-58",
+      "text": "Tropas mercenárias desmobilizadas transformam-se em bandos armados pilhando aldeias. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "world",
+      "causeTags": [
+        "conflict",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-59-observe",
+      "baseSituationId": "ose-advanced-situation-59",
+      "text": "A quebra de um selo elemental provocou tremores que alteraram a topografia das colinas. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "world",
+      "causeTags": [
+        "discovery",
+        "change"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-60-observe",
+      "baseSituationId": "ose-advanced-situation-60",
+      "text": "Uma carta de foral reconhece a autonomia dos burgueses e altera as taxas alfandegárias. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "world",
+      "causeTags": [
+        "change",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-61-observe",
+      "baseSituationId": "ose-advanced-situation-61",
+      "text": "A imposição de mãos purifica a podridão da ferida e restabelece a respiração do guerreiro. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-62-observe",
+      "baseSituationId": "ose-advanced-situation-62",
+      "text": "Banhos termais sulfurosos na cidadela anã aliviam a rigidez muscular após dias em cota de aço. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "recovery",
+      "causeTags": [
+        "recovery",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-63-observe",
+      "baseSituationId": "ose-advanced-situation-63",
+      "text": "Infusão de folhas de athelas preparadas por bardo acalma a febre e afasta pesadelos macabros. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "recovery",
+      "causeTags": [
+        "care",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-64-observe",
+      "baseSituationId": "ose-advanced-situation-64",
+      "text": "O bálsamo vegetal do druida cicatriza queimaduras de ácido sem deixar carne viva exposta. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "recovery",
+      "causeTags": [
+        "health",
+        "relief"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-65-observe",
+      "baseSituationId": "ose-advanced-situation-65",
+      "text": "O repouso sob as árvores cantantes de um bosque sagrado regenera mente e espírito. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "recovery",
+      "causeTags": [
+        "recovery",
+        "celebration"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-66-observe",
+      "baseSituationId": "ose-advanced-situation-66",
+      "text": "A lâmina sagrada brilha com fogo prateado quando empunhada contra mortos-vivos sacrílegos. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "belief",
+      "causeTags": [
+        "belief",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-67-observe",
+      "baseSituationId": "ose-advanced-situation-67",
+      "text": "O círculo de pedras megalíticas guarda marcas de ritos antiquíssimos anteriores aos deuses atuais. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "belief",
+      "causeTags": [
+        "conflict",
+        "discovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-68-observe",
+      "baseSituationId": "ose-advanced-situation-68",
+      "text": "O canto fúnebre do bardo conduz a memória dos caídos para os salões da glória eterna. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "belief",
+      "causeTags": [
+        "loss",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-69-observe",
+      "baseSituationId": "ose-advanced-situation-69",
+      "text": "A contemplação das constelações orienta a busca do ranger pelos caminhos do destino. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "belief",
+      "causeTags": [
+        "discovery",
+        "belief"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-70-observe",
+      "baseSituationId": "ose-advanced-situation-70",
+      "text": "O voto de cavalaria impõe conduta reta mesmo quando a traição do inimigo parece triunfar. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "belief",
+      "causeTags": [
+        "change",
+        "belief"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-71-observe",
+      "baseSituationId": "ose-advanced-situation-71",
+      "text": "Construir um domínio com capela, estábulos e muralhas de cantaria no vale desbravado. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "goals",
+      "causeTags": [
+        "promise",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-72-observe",
+      "baseSituationId": "ose-advanced-situation-72",
+      "text": "Fundar um capítulo de ordem de cavalaria dedicado à defesa das fronteiras setentrionais. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "goals",
+      "causeTags": [
+        "legacy",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-73-observe",
+      "baseSituationId": "ose-advanced-situation-73",
+      "text": "Dominar a fórmula alquímica do elixir da longevidade guardada nos arquivos do santuário. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "goals",
+      "causeTags": [
+        "discovery",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-74-observe",
+      "baseSituationId": "ose-advanced-situation-74",
+      "text": "Vencer a grande justa anual perante a corte ducal e receber a condecoração do Grifo de Ouro. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "goals",
+      "causeTags": [
+        "reputation",
+        "victory"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-75-observe",
+      "baseSituationId": "ose-advanced-situation-75",
+      "text": "Restituir o trono ancestral usurpado da dinastia élfica nas florestas ocidentais. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "goals",
+      "causeTags": [
+        "care",
+        "promise"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-76-observe",
+      "baseSituationId": "ose-advanced-situation-76",
+      "text": "A musculatura robusta forjada na forja anã resiste a impactos que quebrariam homens comuns. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "violence"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-77-observe",
+      "baseSituationId": "ose-advanced-situation-77",
+      "text": "A flexibilidade treinada do acrobata permite desvencilhar-se de amarras e fendas estreitas. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "body",
+      "causeTags": [
+        "recovery",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-78-observe",
+      "baseSituationId": "ose-advanced-situation-78",
+      "text": "A tolerância adquirida contra toxinas evita que venenos moderados paralisem o organismo. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "body",
+      "causeTags": [
+        "scarcity",
+        "health"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-79-observe",
+      "baseSituationId": "ose-advanced-situation-79",
+      "text": "A sensibilidade auditiva élfica capta o armar de um gatilho a dezenas de passos no bosque. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "body",
+      "causeTags": [
+        "health",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-80-observe",
+      "baseSituationId": "ose-advanced-situation-80",
+      "text": "A constituição vigorosa do bárbaro recupera fôlego após esforço que estafaria a tropa. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "body",
+      "causeTags": [
+        "recovery",
+        "care"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-81-observe",
+      "baseSituationId": "ose-advanced-situation-81",
+      "text": "A torre de guarda nas montanhas oferece seteiras defensivas e adega seca para o inverno. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "recovery"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-82-observe",
+      "baseSituationId": "ose-advanced-situation-82",
+      "text": "O chalé de caça com tapeçarias e pele de urso serve de base confortável entre incursões. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "home",
+      "causeTags": [
+        "care",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-83-observe",
+      "baseSituationId": "ose-advanced-situation-83",
+      "text": "A oficina subterrânea de joalheria possui fornalhas a carvão e bigornas bem aprumadas. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "home",
+      "causeTags": [
+        "legacy",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-84-observe",
+      "baseSituationId": "ose-advanced-situation-84",
+      "text": "Vizinhos desconfiam das luzes e odores de enxofre emitidos pelo laboratório do ilusionista. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "home",
+      "causeTags": [
+        "conflict",
+        "home"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-85-observe",
+      "baseSituationId": "ose-advanced-situation-85",
+      "text": "O pátio de armas da guarnição reúne soldados e auxiliares para treinamento com escudo. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "home",
+      "causeTags": [
+        "home",
+        "celebration"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-86-observe",
+      "baseSituationId": "ose-advanced-situation-86",
+      "text": "O festival do equinócio reúne druidas e povo comum para abençoar rebanhos e sementes. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "community",
+      "causeTags": [
+        "celebration",
+        "community"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-87-observe",
+      "baseSituationId": "ose-advanced-situation-87",
+      "text": "A guilda de artesãos financia a construção de celeiro comunal à prova de incêndios. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "community",
+      "causeTags": [
+        "care",
+        "scarcity"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-88-observe",
+      "baseSituationId": "ose-advanced-situation-88",
+      "text": "Disputa de fronteira entre baronato e território livre das tribos é levada a julgamento neutro. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "community",
+      "causeTags": [
+        "conflict",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-89-observe",
+      "baseSituationId": "ose-advanced-situation-89",
+      "text": "Assentamento de colonos atrai novos ofícios e transforma aldeia em vila mercantil. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "community",
+      "causeTags": [
+        "change",
+        "community"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-90-observe",
+      "baseSituationId": "ose-advanced-situation-90",
+      "text": "Torneio de arco e besta incentiva jovens aldeões a praticar pontaria defensiva. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "community",
+      "causeTags": [
+        "reputation",
+        "community"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-91-observe",
+      "baseSituationId": "ose-advanced-situation-91",
+      "text": "Um discípulo aprende a misturar pós de ilusão e traçar círculos de proteção com precisão. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "work"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-92-observe",
+      "baseSituationId": "ose-advanced-situation-92",
+      "text": "A cota de malha leve entalhada com runas élficas é confiada à nova líder dos patrulheiros. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "legacy",
+      "causeTags": [
+        "legacy",
+        "loss"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-93-observe",
+      "baseSituationId": "ose-advanced-situation-93",
+      "text": "Crônicas arquivadas na abadia narram os feitos da antiga companhia das Sete Lanças. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "legacy",
+      "causeTags": [
+        "discovery",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-94-observe",
+      "baseSituationId": "ose-advanced-situation-94",
+      "text": "A concessão formal de brasão de armas perpetua o nome da linhagem nos anais da nobreza. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "legacy",
+      "causeTags": [
+        "victory",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-95-observe",
+      "baseSituationId": "ose-advanced-situation-95",
+      "text": "Um carvalho sagrado plantado no centro do arraial comemora o pacto selado com os povos livres. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "legacy",
+      "causeTags": [
+        "home",
+        "legacy"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-96-observe",
+      "baseSituationId": "ose-advanced-situation-96",
+      "text": "O tribunal ducal condena traidores que venderam segredos militares a corsários do leste. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "justice",
+      "causeTags": [
+        "justice",
+        "reputation"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-97-observe",
+      "baseSituationId": "ose-advanced-situation-97",
+      "text": "Cavaleiros errantes arbitram desacordo sobre dívida de sangue entre duas famílias patrícias. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "justice",
+      "causeTags": [
+        "conflict",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-98-observe",
+      "baseSituationId": "ose-advanced-situation-98",
+      "text": "A investigação de um bardo desmascara falsificação de selos e decretos de expropriação. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "justice",
+      "causeTags": [
+        "discovery",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 3,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-99-observe",
+      "baseSituationId": "ose-advanced-situation-99",
+      "text": "O código de leis promulgado pelo novo regente garante justiça rápida e penas proporcionais. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "justice",
+      "causeTags": [
+        "promise",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 1,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    },
+    {
+      "id": "ose-advanced-100-observe",
+      "baseSituationId": "ose-advanced-situation-100",
+      "text": "Um assassino capturado com veneno de basilisco é julgado sob as leis severas do burgo. Um detalhe relevante pode ser observado sem exigir deliberação imediata.",
+      "domain": "justice",
+      "causeTags": [
+        "betrayal",
+        "justice"
+      ],
+      "agency": "narrative_opportunity",
+      "intensity": 2,
+      "requiresFacts": {},
+      "forbidsFacts": {},
+      "sceneMode": "observe",
+      "requiredCapabilities": [],
+      "offersVoluntaryDecision": false,
+      "setting": "ose-advanced",
+      "allowedStages": [
+        "immediate",
+        "settling",
+        "established",
+        "dormant",
+        "long_term"
+      ],
+      "cooldownDays": 14,
+      "valence": "neutral"
+    }
+  ]
+}

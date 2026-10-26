@@ -1,0 +1,1420 @@
+{
+  "format": "braseiro.life.recipes/v2",
+  "entities": [
+    {
+      "id": "home",
+      "kind": "home",
+      "title": "Um lugar para voltar",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "promise",
+      "kind": "promise",
+      "title": "A promessa ao aprendiz",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "npc-project",
+      "kind": "npc_project",
+      "title": "A oficina do ferreiro",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "bond",
+      "kind": "relationship",
+      "title": "Confiança e receio",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero",
+        "innkeeper"
+      ],
+      "status": "active",
+      "dimensions": {
+        "trust": 2,
+        "fear": 1
+      }
+    },
+    {
+      "id": "tradition",
+      "kind": "tradition",
+      "title": "Um brinde antes da partida",
+      "visibility": "private",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active",
+      "eventTag": "departure-toast",
+      "threshold": 3,
+      "progress": 0
+    },
+    {
+      "id": "keepsake",
+      "kind": "heirloom",
+      "title": "O casaco remendado",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active",
+      "ownerId": "hero",
+      "provenance": []
+    },
+    {
+      "id": "reputation",
+      "kind": "reputation",
+      "title": "Libertadores da vila",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "expedition",
+      "kind": "opportunity",
+      "title": "Uma expedição parte amanhã",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active",
+      "dueDay": 1
+    },
+    {
+      "id": "road",
+      "kind": "world_change",
+      "title": "A estrada reaberta",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "recognition",
+      "kind": "recognition",
+      "title": "Uma canção sobre os heróis",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "cookbook",
+      "kind": "personal_project",
+      "title": "Escrever um livro de receitas",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "legacy",
+      "kind": "succession",
+      "title": "Um aprendiz recebe o legado",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "warning",
+      "kind": "foreshadowing",
+      "title": "Sinais de paralisação",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "food",
+      "kind": "resource",
+      "title": "Estoque de alimentos",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active",
+      "quantity": 10,
+      "dailyDelta": -1
+    },
+    {
+      "id": "supply",
+      "kind": "problem",
+      "title": "Abastecimento interrompido",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "countermeasure",
+      "kind": "adaptation",
+      "title": "O rival prepara uma resposta",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "clue",
+      "kind": "information",
+      "title": "Um esconderijo ocupado ontem",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active",
+      "validUntil": 1
+    },
+    {
+      "id": "escalation",
+      "kind": "causal_chain",
+      "title": "Da escassez ao contrabando",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "bell",
+      "kind": "routine",
+      "title": "O sino toca todas as manhãs",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "rival",
+      "kind": "adversary",
+      "title": "Um rival com recursos limitados",
+      "visibility": "public",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "recovery",
+      "kind": "life_arc",
+      "title": "Uma oportunidade de apoio",
+      "visibility": "private",
+      "locationId": "village",
+      "actorIds": [
+        "hero"
+      ],
+      "status": "active"
+    }
+  ],
+  "rules": [
+    {
+      "id": "home-return",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:returned-home",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "offer",
+          "id": "home-scene",
+          "text": "Ao voltar, você encontra a casa marcada pelo tempo. O que deseja fazer?",
+          "actorIds": [
+            "hero"
+          ],
+          "visibility": "private",
+          "choices": {
+            "rest": [
+              {
+                "type": "set_fact",
+                "id": "rest-requested",
+                "value": true,
+                "visibility": "private",
+                "actorIds": [
+                  "hero"
+                ]
+              }
+            ],
+            "visit": [
+              {
+                "type": "set_fact",
+                "id": "visit-requested",
+                "value": true,
+                "visibility": "private",
+                "actorIds": [
+                  "hero"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "agency": "player_choice",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "promise-due",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:promise-made",
+          "op": "eq",
+          "value": true
+        },
+        {
+          "ref": "fact:promise-fulfilled",
+          "op": "eq",
+          "value": false
+        },
+        {
+          "ref": "fact:promise-due",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "offer",
+          "id": "promise-reminder",
+          "text": "O aprendiz pergunta quando terão a aula prometida.",
+          "actorIds": [
+            "hero"
+          ],
+          "visibility": "private",
+          "choices": {
+            "teach": [
+              {
+                "type": "set_fact",
+                "id": "lesson-requested",
+                "value": true,
+                "visibility": "private",
+                "actorIds": [
+                  "hero"
+                ]
+              }
+            ],
+            "postpone": [
+              {
+                "type": "set_fact",
+                "id": "lesson-postponed",
+                "value": true,
+                "visibility": "private",
+                "actorIds": [
+                  "hero"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "agency": "player_choice",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "npc-workshop",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:smith-funded",
+          "op": "eq",
+          "value": true
+        },
+        {
+          "ref": "fact:smith-has-tools",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_entity",
+          "id": "npc-project",
+          "field": "status",
+          "value": "resolved"
+        },
+        {
+          "type": "set_fact",
+          "id": "workshop-open",
+          "value": true,
+          "visibility": "public",
+          "actorIds": []
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "individual-bond",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:protected-innkeeper",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "trust-innkeeper-hero",
+          "value": 3,
+          "visibility": "private",
+          "actorIds": [
+            "innkeeper",
+            "hero"
+          ]
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "heirloom-return",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:keepsake-recovered",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "offer",
+          "id": "keepsake-memory",
+          "text": "O remendo ainda está no casaco recuperado.",
+          "actorIds": [
+            "hero"
+          ],
+          "visibility": "private",
+          "choices": {
+            "keep": [
+              {
+                "type": "set_fact",
+                "id": "keepsake-kept",
+                "value": true,
+                "visibility": "private",
+                "actorIds": [
+                  "hero"
+                ]
+              }
+            ],
+            "give": []
+          }
+        }
+      ],
+      "agency": "player_choice",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "conflicting-reputation",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:village-liberated",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "villagers-grateful",
+          "value": true,
+          "visibility": "public",
+          "actorIds": []
+        },
+        {
+          "type": "set_fact",
+          "id": "former-rulers-hostile",
+          "value": true,
+          "visibility": "gm_only",
+          "actorIds": []
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "expedition-departs",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "entity:expedition:status",
+          "op": "eq",
+          "value": "expired"
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "expedition-left",
+          "value": true,
+          "visibility": "public",
+          "actorIds": []
+        },
+        {
+          "type": "set_fact",
+          "id": "expedition-leader",
+          "value": "another-adventurer",
+          "visibility": "public",
+          "actorIds": []
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "road-economy",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:road-safe",
+          "op": "eq",
+          "value": true
+        },
+        {
+          "ref": "fact:trade-resumed",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "market-open",
+          "value": true,
+          "visibility": "public",
+          "actorIds": []
+        },
+        {
+          "type": "set_entity",
+          "id": "road",
+          "field": "status",
+          "value": "resolved"
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "recognition-earned",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:village-liberated",
+          "op": "eq",
+          "value": true
+        },
+        {
+          "ref": "fact:bard-knows-feat",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "song-performed",
+          "value": true,
+          "visibility": "public",
+          "actorIds": []
+        },
+        {
+          "type": "set_entity",
+          "id": "recognition",
+          "field": "status",
+          "value": "resolved"
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "cooking-project",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:recipe-tested",
+          "op": "eq",
+          "value": true
+        },
+        {
+          "ref": "fact:ingredients-recorded",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_entity",
+          "id": "cookbook",
+          "field": "status",
+          "value": "resolved"
+        },
+        {
+          "type": "set_fact",
+          "id": "cookbook-finished",
+          "value": true,
+          "visibility": "private",
+          "actorIds": [
+            "hero"
+          ]
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "succession-offer",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:retirement-requested",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "offer",
+          "id": "retirement",
+          "text": "Deseja encerrar sua atuação como aventureiro e assumir uma função no mundo?",
+          "actorIds": [
+            "hero"
+          ],
+          "visibility": "private",
+          "choices": {
+            "confirm": [
+              {
+                "type": "set_fact",
+                "id": "retirement-confirmed",
+                "value": true,
+                "visibility": "private",
+                "actorIds": [
+                  "hero"
+                ]
+              }
+            ],
+            "continue": []
+          }
+        }
+      ],
+      "agency": "player_choice",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "strike-warning",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:wages-unpaid",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "workers-meeting",
+          "value": true,
+          "visibility": "public",
+          "actorIds": []
+        },
+        {
+          "type": "set_entity",
+          "id": "warning",
+          "field": "status",
+          "value": "resolved"
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "strike-after-warning",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:workers-meeting",
+          "op": "eq",
+          "value": true
+        },
+        {
+          "ref": "fact:negotiations-failed",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "strike-active",
+          "value": true,
+          "visibility": "public",
+          "actorIds": []
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "scarcity",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "entity:food:quantity",
+          "op": "lte",
+          "value": 3
+        },
+        {
+          "ref": "fact:supply-restored",
+          "op": "eq",
+          "value": false
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "scarcity-active",
+          "value": true,
+          "visibility": "public",
+          "actorIds": []
+        },
+        {
+          "type": "set_fact",
+          "id": "food-price-factor",
+          "value": 2,
+          "visibility": "public",
+          "actorIds": []
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "narrative": false,
+      "locationId": "village"
+    },
+    {
+      "id": "supply-solved",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:supply-restored",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_entity",
+          "id": "supply",
+          "field": "status",
+          "value": "resolved"
+        },
+        {
+          "type": "set_fact",
+          "id": "scarcity-active",
+          "value": false,
+          "visibility": "public",
+          "actorIds": []
+        },
+        {
+          "type": "set_fact",
+          "id": "food-price-factor",
+          "value": 1,
+          "visibility": "public",
+          "actorIds": []
+        },
+        {
+          "type": "set_entity",
+          "id": "food",
+          "field": "quantity",
+          "value": 20
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "narrative": false,
+      "locationId": "village"
+    },
+    {
+      "id": "rival-adapts",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:rival-knows-negotiation-pattern",
+          "op": "eq",
+          "value": true
+        },
+        {
+          "ref": "fact:rival-can-afford-decoy",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "rival-decoy-prepared",
+          "value": true,
+          "visibility": "gm_only",
+          "actorIds": []
+        },
+        {
+          "type": "set_entity",
+          "id": "countermeasure",
+          "field": "status",
+          "value": "resolved"
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "clue-stale",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "entity:clue:status",
+          "op": "eq",
+          "value": "expired"
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "hideout-occupancy",
+          "value": "unknown",
+          "visibility": "public",
+          "actorIds": []
+        },
+        {
+          "type": "set_fact",
+          "id": "departure-traces-available",
+          "value": true,
+          "visibility": "public",
+          "actorIds": []
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "scarcity-smuggling",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:scarcity-active",
+          "op": "eq",
+          "value": true
+        },
+        {
+          "ref": "fact:smuggler-has-route",
+          "op": "eq",
+          "value": true
+        },
+        {
+          "ref": "fact:supply-restored",
+          "op": "eq",
+          "value": false
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "smuggling-active",
+          "value": true,
+          "visibility": "public",
+          "actorIds": []
+        },
+        {
+          "type": "set_entity",
+          "id": "escalation",
+          "field": "status",
+          "value": "active"
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "prevention",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:supply-restored",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "smuggling-active",
+          "value": false,
+          "visibility": "public",
+          "actorIds": []
+        },
+        {
+          "type": "set_entity",
+          "id": "escalation",
+          "field": "status",
+          "value": "resolved"
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "priority": 10,
+      "narrative": false,
+      "locationId": "village"
+    },
+    {
+      "id": "bell-absence",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:bell-expected",
+          "op": "eq",
+          "value": true
+        },
+        {
+          "ref": "fact:bellringer-missing",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "bell-silent",
+          "value": true,
+          "visibility": "public",
+          "actorIds": []
+        },
+        {
+          "type": "set_fact",
+          "id": "bell-absence-clue",
+          "value": true,
+          "visibility": "public",
+          "actorIds": []
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "rival-retreats",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:pursuit-cost-unaffordable",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "rival-pursuing",
+          "value": false,
+          "visibility": "public",
+          "actorIds": []
+        },
+        {
+          "type": "set_entity",
+          "id": "rival",
+          "field": "status",
+          "value": "dormant"
+        }
+      ],
+      "agency": "world",
+      "once": true,
+      "locationId": "village"
+    },
+    {
+      "id": "support-opportunity",
+      "version": "2.0.0",
+      "when": [
+        {
+          "ref": "fact:distressing-event",
+          "op": "eq",
+          "value": true
+        },
+        {
+          "ref": "fact:trusted-support-present",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "type": "offer",
+          "id": "support",
+          "text": "Uma pessoa de confiança se dispõe a conversar, sem pressioná-lo.",
+          "actorIds": [
+            "hero"
+          ],
+          "visibility": "private",
+          "choices": {
+            "accept": [
+              {
+                "type": "set_fact",
+                "id": "support-accepted",
+                "value": true,
+                "visibility": "private",
+                "actorIds": [
+                  "hero"
+                ]
+              }
+            ],
+            "decline": []
+          }
+        }
+      ],
+      "agency": "player_choice",
+      "once": true,
+      "locationId": "village"
+    }
+  ],
+  "bindings": [
+    {
+      "id": "bind-returned-home",
+      "tag": "returned-home",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "returned-home",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-promise-made",
+      "tag": "promise-made",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "promise-made",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-promise-due",
+      "tag": "promise-due",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "promise-due",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-smith-funded",
+      "tag": "smith-funded",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "smith-funded",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-smith-has-tools",
+      "tag": "smith-has-tools",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "smith-has-tools",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-protected-innkeeper",
+      "tag": "protected-innkeeper",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "protected-innkeeper",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-keepsake-recovered",
+      "tag": "keepsake-recovered",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "keepsake-recovered",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-village-liberated",
+      "tag": "village-liberated",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "village-liberated",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-road-safe",
+      "tag": "road-safe",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "road-safe",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-trade-resumed",
+      "tag": "trade-resumed",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "trade-resumed",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-bard-knows-feat",
+      "tag": "bard-knows-feat",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "bard-knows-feat",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-recipe-tested",
+      "tag": "recipe-tested",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "recipe-tested",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-ingredients-recorded",
+      "tag": "ingredients-recorded",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "ingredients-recorded",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-retirement-requested",
+      "tag": "retirement-requested",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "retirement-requested",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-wages-unpaid",
+      "tag": "wages-unpaid",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "wages-unpaid",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-workers-meeting",
+      "tag": "workers-meeting",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "workers-meeting",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-negotiations-failed",
+      "tag": "negotiations-failed",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "negotiations-failed",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-supply-restored",
+      "tag": "supply-restored",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "supply-restored",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-rival-knows-negotiation-pattern",
+      "tag": "rival-knows-negotiation-pattern",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "rival-knows-negotiation-pattern",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-rival-can-afford-decoy",
+      "tag": "rival-can-afford-decoy",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "rival-can-afford-decoy",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-scarcity-active",
+      "tag": "scarcity-active",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "scarcity-active",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-smuggler-has-route",
+      "tag": "smuggler-has-route",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "smuggler-has-route",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-bell-expected",
+      "tag": "bell-expected",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "bell-expected",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-bellringer-missing",
+      "tag": "bellringer-missing",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "bellringer-missing",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-pursuit-cost-unaffordable",
+      "tag": "pursuit-cost-unaffordable",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "pursuit-cost-unaffordable",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-distressing-event",
+      "tag": "distressing-event",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "distressing-event",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    },
+    {
+      "id": "bind-trusted-support-present",
+      "tag": "trusted-support-present",
+      "effects": [
+        {
+          "type": "set_fact",
+          "id": "trusted-support-present",
+          "value": true,
+          "visibility": "public",
+          "actorIds": [],
+          "locationId": "village"
+        }
+      ]
+    }
+  ]
+}

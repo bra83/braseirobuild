@@ -1,0 +1,12 @@
+Sorteios após descanso: 1
+Cena: [
+  {
+    id: 'present-auto-db2ac57a930197d2:scene-present-auto-db2ac57a930197d2:10',
+    text: 'Uma autoridade informa o estado confirmado de uma disputa. Há espaço para uma decisão livre do personagem.',
+    choices: [ 'engage', 'pass' ],
+    suggestedAction: 'solicitar uma atualização'
+  }
+]
+Arco apresentado: active
+Após apoio confirmado: resolving
+Após três reaberturas: { day: 10, arc: 'resolving', automation: true }

@@ -110,6 +110,17 @@ import kotlinx.serialization.Serializable
     fun canonical() = copy(purchases = purchases.toSortedMap())
 }
 
+@Serializable data class CanonicalDieRollSnapshot(
+    val sides: Int,
+    val value: Int,
+    val label: String = ""
+) {
+    init {
+        require(sides >= 1)
+        require(value in 1..sides)
+    }
+}
+
 @Serializable data class ReactionReceiptSnapshot(
     val reactionId: String,
     val reactionText: String,
@@ -120,7 +131,17 @@ import kotlinx.serialization.Serializable
     val traceEvidenceRefs: List<String> = emptyList(),
     val narration: String? = null,
     val mechanicalIntent: String? = null,
-    val actorCharacterId: String? = null
+    val actorCharacterId: String? = null,
+    /** Canonical, referee-confirmed life cause; never derived from player narration. */
+    val lifeCauseId: String? = null,
+    /** All canonical, referee-confirmed life causes for multiple simultaneous consequences. */
+    val lifeCauses: List<String> = emptyList(),
+    /** Canonical dice rolled by the referee during this resolution. */
+    val diceRolls: List<CanonicalDieRollSnapshot> = emptyList(),
+    /** Canonical structured transition ref for Motor de Vida V2.2. */
+    val lifeTransitionRef: String? = null,
+    /** Canonical structured consequence summary for Motor de Vida V2.2. */
+    val lifeConsequence: String? = null
 ) {
     init { require(reactionId.isNotBlank()); require(reactionText.isNotBlank()) }
     fun canonical() = copy(traceEvidenceRefs = traceEvidenceRefs.distinct().sorted())
@@ -145,7 +166,7 @@ import kotlinx.serialization.Serializable
     val kind: String,
     val secret: Boolean = false
 )
-@Serializable data class DungeonEdgeSnapshot(val from: String, val to: String, val kind: String = "PASSAGE", val secret: Boolean = false)
+@Serializable data class DungeonEdgeSnapshot(val from: String, val to: String, val kind: String = "PASSAGE", val secret: Boolean = false, val open: Boolean = false)
 @Serializable data class DungeonSnapshot(
     val dungeonId: String,
     val generatorVersion: Int,
@@ -207,8 +228,15 @@ import kotlinx.serialization.Serializable
     val knownFactIds: Set<String> = emptySet(),
     val reactionHistory: List<String> = emptyList(),
     val memorySummaries: List<String> = emptyList(),
-    val consequenceFlags: Set<String> = emptySet()
+    val consequenceFlags: Set<String> = emptySet(),
+    /** Confirmed NPC adventurer level; absent is not eligible for recruitment. */
+    val retainerLevel: Int? = null,
+    val retainerClassId: String? = null
 ) {
+    init {
+        require(retainerLevel == null || retainerLevel >= 0)
+        require(retainerLevel == null || retainerLevel == 0 || !retainerClassId.isNullOrBlank())
+    }
     fun canonical() = copy(
         knownFactIds = knownFactIds.toSortedSet(),
         reactionHistory = reactionHistory.toList(),
@@ -415,6 +443,9 @@ import kotlinx.serialization.Serializable
     val characterControlModes: Map<String, CharacterControlMode> = emptyMap(),
     val characterActionProposals: Map<String, CharacterActionProposalSnapshot> = emptyMap(),
     val creationDrafts: Map<String, CharacterCreationDraftSnapshot> = emptyMap(),
+    /** Retainers differ from mercenary military units and player characters. */
+    val retainerContracts: Map<String, RetainerContractSnapshot> = emptyMap(),
+    val retainerOffendedLocations: Set<String> = emptySet(),
     val loadouts: Map<String, CharacterLoadoutSnapshot> = emptyMap(),
     val session: SessionSnapshot = SessionSnapshot(),
     val encounter: EncounterSnapshot? = null,
@@ -438,6 +469,8 @@ import kotlinx.serialization.Serializable
         characterControlModes = characterControlModes.toSortedMap(),
         characterActionProposals = characterActionProposals.toSortedMap(),
         creationDrafts = creationDrafts.toSortedMap(),
+        retainerContracts = retainerContracts.toSortedMap(),
+        retainerOffendedLocations = retainerOffendedLocations.toSortedSet(),
         loadouts = loadouts.toSortedMap().mapValues { it.value.canonical() },
         session = session.canonical(),
         encounter = encounter?.canonical(),

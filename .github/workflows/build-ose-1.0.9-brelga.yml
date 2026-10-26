@@ -1,0 +1,239 @@
+name: BRASEIRO OSE 1.0.10 Final - BRELGA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, ose/final-integration-20261024]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ose-1.0.10-final-brelga
+  cancel-in-progress: true
+
+env:
+  BUILD_ROOT: "D:\\brelga-ose-1.0.10-final"
+  APK_NAME: "BRASEIRO_OSE_1.0.10_FINAL.apk"
+  TAG: "ose-1.0.10-final"
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 240
+    steps:
+      - name: Checkout canonical source
+        uses: actions/checkout@v4
+
+      - name: Configure BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
+          & git.exe config --global core.autocrlf false
+          Remove-Item $env:BUILD_ROOT -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $env:BUILD_ROOT -Force | Out-Null
+
+          $javaRoot='C:\actions-runner\_work\_tool\Java_Temurin-Hotspot_jdk'
+          $javaDir=Get-ChildItem $javaRoot -Directory -Recurse |
+            Where-Object { Test-Path (Join-Path $_.FullName 'bin\java.exe') } |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          $nodeRoot='C:\actions-runner\_work\_tool\node'
+          $nodeDir=Get-ChildItem $nodeRoot -Directory |
+            ForEach-Object { Get-ChildItem $_.FullName -Directory -ErrorAction SilentlyContinue } |
+            Where-Object { Test-Path (Join-Path $_.FullName 'node.exe') } |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          $sdk='C:\actions-runner\android-sdk'
+          if (-not $javaDir -or -not $nodeDir -or -not (Test-Path $sdk)) { throw 'BRELGA toolchain incomplete' }
+
+          $temp=Join-Path $env:BUILD_ROOT 'temp'
+          $gradle=Join-Path $env:BUILD_ROOT 'gradle-home'
+          New-Item -ItemType Directory -Path $temp,$gradle -Force | Out-Null
+          $newPath="$($nodeDir.FullName);$($javaDir.FullName)\bin;$env:PATH"
+          "PATH=$newPath" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "JAVA_HOME=$($javaDir.FullName)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_HOME=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "TEMP=$temp" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "TMP=$temp" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "GRADLE_USER_HOME=$gradle" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $env:PATH=$newPath
+          java -version
+          node --version
+
+      - name: Install stable Braseiro signing key
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $androidDir=Join-Path $env:USERPROFILE '.android'
+          New-Item -ItemType Directory -Path $androidDir -Force | Out-Null
+          $keystore=Join-Path $androidDir 'debug.keystore'
+          $b64=(Get-Content 'build-signing\braseiro-stable-debug.keystore.b64' -Raw).Trim()
+          [IO.File]::WriteAllBytes($keystore,[Convert]::FromBase64String($b64))
+          & keytool.exe -list -keystore $keystore -storepass android -alias androiddebugkey
+          if ($LASTEXITCODE -ne 0) { throw 'Stable signing key validation failed' }
+
+      - name: Product and regression gates
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root='ose\1.0.0\source'
+          $gradle=Get-Content "$root\app-android\build.gradle.kts" -Raw
+
+          & node.exe --check "$root\web-ui-p1\generated_map_assets.js"
+          if ($LASTEXITCODE -ne 0) { throw 'Generated map asset pack syntax failed' }
+          & node.exe --check "$root\web-ui-p1\p1.js"
+          if ($LASTEXITCODE -ne 0) { throw 'JavaScript syntax failed' }
+          & node.exe "$root\web-ui-p1\multiple_character_smoke.js"
+          if ($LASTEXITCODE -ne 0) { throw 'Multi-character WebView smoke failed' }
+          & node.exe "$root\web-ui-p1\character_control_smoke.js"
+          if ($LASTEXITCODE -ne 0) { throw 'Character control smoke failed' }
+          & node.exe "$root\web-ui-p1\galaxy_a57_layout_smoke.cjs"
+          if ($LASTEXITCODE -ne 0) { throw 'Galaxy A57 responsive layout smoke failed' }
+
+          # Motor de Vida V2.2 tests
+          Push-Location "$root\web-ui-p1\braseiro_life_v2"
+          & node.exe --test tests/*.test.mjs
+          if ($LASTEXITCODE -ne 0) { Pop-Location; throw 'Motor de Vida V2.2 test suite failed' }
+          Pop-Location
+
+          # Exact identity: never publish a 1.0.10 binary with a 1.0.9 label.
+          if (-not ($gradle -match 'versionCode\s*=\s*11') -or -not ($gradle -match 'versionName\s*=\s*"1\.0\.10"')) {
+            throw 'Version check failed: expected versionCode 11 and versionName 1.0.10'
+          }
+
+      - name: Authoritative compile and unit test suite
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          cd 'ose\1.0.0\source'
+          .\gradlew.bat --no-daemon `
+            :rules-classic:test `
+            :rules-advanced:test `
+            :rules-shared-confirmed:test `
+            :referee-boundary:test `
+            :session-engine:test `
+            :character-domain:test `
+            :integration-tests:test `
+            :persistence-room:testDebugUnitTest `
+            :tts-api:test `
+            :app-android:testDebugUnitTest
+          if ($LASTEXITCODE -ne 0) { throw 'JVM Gradle test suite failed' }
+
+      - name: Build authoritative signed APK
+        id: apk
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          cd 'ose\1.0.0\source'
+          .\gradlew.bat --no-daemon :app-android:assembleRelease
+          if ($LASTEXITCODE -ne 0) { throw 'Assemble release failed' }
+
+          $sdk=$env:ANDROID_HOME
+          $buildTools=Get-ChildItem (Join-Path $sdk 'build-tools') -Directory | Sort-Object FullName -Descending | Select-Object -First 1
+          $aapt=Join-Path $buildTools.FullName 'aapt.exe'
+          $apksigner=Join-Path $buildTools.FullName 'apksigner.bat'
+          $keystore=Join-Path (Join-Path $env:USERPROFILE '.android') 'debug.keystore'
+
+          $unsignedApk="app-android\build\outputs\apk\release\app-android-release-unsigned.apk"
+          if (-not (Test-Path $unsignedApk)) {
+            $unsignedApk="app-android\build\outputs\apk\release\app-android-release.apk"
+          }
+
+          $out=Join-Path $env:BUILD_ROOT 'publish'
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $targetApk=Join-Path $out $env:APK_NAME
+
+          & $apksigner sign --ks $keystore --ks-pass pass:android --ks-key-alias androiddebugkey --out $targetApk $unsignedApk
+          if ($LASTEXITCODE -ne 0) { throw 'APK signing failed' }
+
+          & $aapt dump badging $targetApk | Out-File (Join-Path $out 'APK_BADGING.txt') -Encoding utf8
+          & $apksigner verify --verbose --print-certs $targetApk | Out-File (Join-Path $out 'APK_SIGNATURE.txt') -Encoding utf8
+          & keytool.exe -list -v -keystore $keystore -storepass android -alias androiddebugkey | Out-File (Join-Path $out 'KEYSTORE_SIGNATURE.txt') -Encoding utf8
+
+          $hash=(Get-FileHash $targetApk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:APK_NAME" | Set-Content (Join-Path $out "$($env:APK_NAME).sha256") -Encoding ascii
+
+          @(
+            'STATUS=AUTOMATED_GATES_AND_SIGNING_PASS',
+            'VERSION=1.0.10',
+            'VERSION_CODE=11',
+            'APPLICATION_ID=braseiro.ose',
+            'AUTOMATED_NODE_GATES=PASS',
+            'AUTOMATED_JVM_SUITE=PASS',
+            'CANONICAL_STABLE_SIGNING=PASS',
+            'GALAXY_A57_DEVICE_TEST=NOT_TESTED',
+            'GEMINI_LIVE_TEST=NOT_TESTED',
+            'TTS_LIVE_TEST=NOT_TESTED',
+            "APK_SHA256=$hash"
+          ) | Set-Content (Join-Path $out 'OSE_1_0_10_FINAL_PROOF.txt') -Encoding utf8
+          "dir=$out" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Upload final artifact
+        id: actions_artifact_upload
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_OSE_1.0.10_FINAL
+          path: |
+            ${{ env.BUILD_ROOT }}/publish/BRASEIRO_OSE_1.0.10_FINAL.apk
+            ${{ env.BUILD_ROOT }}/publish/BRASEIRO_OSE_1.0.10_FINAL.apk.sha256
+            ${{ env.BUILD_ROOT }}/publish/APK_BADGING.txt
+            ${{ env.BUILD_ROOT }}/publish/APK_SIGNATURE.txt
+            ${{ env.BUILD_ROOT }}/publish/KEYSTORE_SIGNATURE.txt
+            ${{ env.BUILD_ROOT }}/publish/OSE_1_0_10_FINAL_PROOF.txt
+          retention-days: 30
+      # Artifact quota can be exhausted even after successful compilation.
+      # The release endpoint is separate and reports failures transparently.
+      - name: Release fallback when artifact storage quota is exhausted
+        if: ${{ steps.actions_artifact_upload.outcome == 'failure' }}
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if ([string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) { throw 'No GITHUB_TOKEN for release fallback' }
+          $headers=@{
+            Authorization="Bearer $env:GITHUB_TOKEN"
+            Accept="application/vnd.github+json"
+            "X-GitHub-Api-Version"="2022-11-28"
+          }
+          $repo=$env:GITHUB_REPOSITORY
+          $url="https://api.github.com/repos/$repo/releases"
+          $releaseTag="$($env:TAG)-$($env:GITHUB_SHA.Substring(0,8))"
+          $tag=[uri]::EscapeDataString($releaseTag)
+          try {
+            $release=Invoke-RestMethod -Method Get -Uri "$url/tags/$tag" -Headers $headers
+          } catch {
+            $status=$_.Exception.Response.StatusCode.value__
+            if ($status -ne 404) { throw }
+            $payload=@{
+              tag_name=$releaseTag
+              target_commitish=$env:GITHUB_SHA
+              name="BRASEIRO OSE 1.0.10 (automated build)"
+              body="Built from commit $($env:GITHUB_SHA). Verify checksum and test on Galaxy A57 before declaring device homologation."
+              draft=$false
+              prerelease=$true
+            } | ConvertTo-Json
+            $release=Invoke-RestMethod -Method Post -Uri $url -Headers $headers -ContentType 'application/json' -Body $payload
+          }
+          $folder=Join-Path $env:BUILD_ROOT 'publish'
+          $names=@($env:APK_NAME,"$($env:APK_NAME).sha256",'APK_BADGING.txt','APK_SIGNATURE.txt','KEYSTORE_SIGNATURE.txt','OSE_1_0_10_FINAL_PROOF.txt')
+          $uploadUri=([string]$release.upload_url).Split('{')[0]
+          foreach ($name in $names) {
+            $full=Join-Path $folder $name
+            if (-not (Test-Path -LiteralPath $full)) { throw "Missing fallback release file: $name" }
+            $old=$release.assets | Where-Object { $_.name -eq $name }
+            if ($null -ne $old) {
+              foreach ($asset in @($old)) {
+                if ($null -ne $asset) {
+                  Invoke-RestMethod -Method Delete -Uri $asset.url -Headers $headers | Out-Null
+                }
+              }
+            }
+            $dest="$($uploadUri)?name=$([uri]::EscapeDataString($name))"
+            $mime=if($name.EndsWith('.apk')){'application/vnd.android.package-archive'}else{'application/octet-stream'}
+            Invoke-RestMethod -Method Post -Uri $dest -Headers $headers -ContentType $mime -InFile $full | Out-Null
+          }
+          Write-Host "Release fallback published: $($release.html_url)"
+

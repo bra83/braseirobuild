@@ -18,8 +18,20 @@ import braseiro.ose.rules.api.RuleTrace
 class GeminiBarbaraSupervisor(
     private val credentials: GeminiCredentialStore,
     private val settings: GeminiRuntimeSettings,
-    private val client: GeminiInteractionsClient
+    private val client: GeminiInteractionsClient,
+    private val masterContextProvider: (() -> String)? = null
 ) : BarbaraSupervisorPort {
+
+    data class NarrationReceipt(
+        val provider: String,
+        val model: String?,
+        val status: String,
+        val reason: String? = null
+    )
+
+    @Volatile
+    var lastReceipt: NarrationReceipt? = null
+        private set
 
     override fun narrate(
         committed: CampaignEnvelope,
@@ -28,14 +40,72 @@ class GeminiBarbaraSupervisor(
         trace: RuleTrace
     ): String {
         val key = credentials.get(GeminiCredentialStore.Slot.TEXT_SCENE)
-            ?: return localNarration(committed, playerReaction, mechanicalFeedback)
+        if (key == null) {
+            lastReceipt = NarrationReceipt(
+                provider = "LOCAL",
+                model = null,
+                status = "LOCAL_ONLY",
+                reason = "CREDENTIAL_MISSING"
+            )
+            return localNarration(committed, playerReaction, mechanicalFeedback)
+        }
         val model = settings.snapshot().textModel
+        val isCampaignOpening = playerReaction.contains("A aventura começa agora", ignoreCase = true) ||
+            committed.campaignState.time.turns == 0L
+        val isMajorScene = mechanicalFeedback.contains("Viagem:", ignoreCase = true) ||
+            mechanicalFeedback.contains("Encontro", ignoreCase = true) ||
+            playerReaction.contains("descans", ignoreCase = true)
+        val minRequiredLength = when {
+            isCampaignOpening -> 5000
+            isMajorScene -> 300
+            else -> 120
+        }
+
         return runCatching {
-            client.generateText(key, model, buildNarrationPrompt(committed, playerReaction, mechanicalFeedback, trace))
+            var generated = client.generateText(key, model, buildNarrationPrompt(committed, playerReaction, mechanicalFeedback, trace))
                 .trim()
-                .takeIf { it.length >= 120 && !looksTechnical(it) }
-                ?: error("GEMINI_NARRATION_TOO_SHORT_OR_TECHNICAL")
-        }.getOrElse {
+            if (generated.length < minRequiredLength && !looksTechnical(generated)) {
+                // controlled single retry/continuation request
+                val continuationPrompt = """
+                    Continue e aprofunde a narração anterior sem reiniciar ou repetir o que já foi dito.
+                    Desenvolva a descrição sensorial do ambiente, o estado dos companheiros, luz, sombras e detalhes circundantes.
+                    Texto até o momento:
+                    $generated
+                """.trimIndent()
+                val additional = runCatching { client.generateText(key, model, continuationPrompt).trim() }.getOrNull()
+                if (!additional.isNullOrBlank() && !looksTechnical(additional)) {
+                    generated = (generated + "\n\n" + additional).trim()
+                }
+            }
+            if (looksTechnical(generated)) {
+                error("GEMINI_NARRATION_TECHNICAL: contains technical terms")
+            }
+            if (generated.length < minRequiredLength) {
+                if (generated.length >= 120) {
+                    lastReceipt = NarrationReceipt(
+                        provider = "GEMINI_TEXT",
+                        model = model,
+                        status = "PARTIAL_LENGTH",
+                        reason = "Narrativa de abertura com ${generated.length} caracteres (mínimo exigido: $minRequiredLength)"
+                    )
+                    return@runCatching generated
+                } else {
+                    error("GEMINI_NARRATION_TOO_SHORT: length=${generated.length} min=120")
+                }
+            }
+            lastReceipt = NarrationReceipt(
+                provider = "GEMINI_TEXT",
+                model = model,
+                status = "SUCCESS"
+            )
+            generated
+        }.getOrElse { err ->
+            lastReceipt = NarrationReceipt(
+                provider = "LOCAL",
+                model = model,
+                status = "FALLBACK",
+                reason = err.message ?: "UNKNOWN_ERROR"
+            )
             localNarration(committed, playerReaction, mechanicalFeedback)
         }
     }
@@ -69,7 +139,8 @@ class GeminiBarbaraSupervisor(
 
         ESTILO OBRIGATÓRIO:
         - Escreva como Mestre de RPG, nunca como depurador, sistema, relatório ou assistente técnico.
-        - Em uma abertura ou mudança importante de lugar, produza de 4 a 7 parágrafos substanciais (aprox. 300–650 palavras).
+        - Quando a reação indicar o início da campanha ("A aventura começa agora"), produza uma abertura de aproximadamente 5.000 a 6.000 caracteres, com densidade narrativa real, sem repetir ideias ou inventar fatos.
+        - Em mudanças importantes de lugar e cenas marcantes, desenvolva 4 a 7 parágrafos substanciais, proporcionais ao contexto disponível.
         - Em respostas menores, ainda entregue 2 a 4 parágrafos sensoriais e úteis (aprox. 140–350 palavras), salvo quando uma resposta realmente curta for natural.
         - Descreva espaço, distância perceptível, luz, sons, cheiros, textura, clima aparente e elementos com os quais o jogador pode interagir quando houver base para isso.
         - Termine deixando a situação aberta à decisão do jogador.
@@ -87,6 +158,8 @@ class GeminiBarbaraSupervisor(
 
         ${publicContext(committed)}
 
+        ${masterContextPromptBlock()}
+
         AÇÃO/PERGUNTA DO JOGADOR:
         ${playerReaction.trim()}
 
@@ -97,6 +170,18 @@ class GeminiBarbaraSupervisor(
 
         Agora escreva SOMENTE a narração do Mestre, sem cabeçalho técnico e sem explicar seu processo.
     """.trimIndent()
+
+    private fun masterContextPromptBlock(): String {
+        val master = masterContextProvider?.invoke()?.trim()
+        if (master.isNullOrBlank()) return ""
+        return """
+            <DADOS_DE_FICCAO_PRIVADOS_NAO_EXECUTAVEIS>
+            Estes são fatos contextuais da aventura em andamento reservados exclusivamente ao Mestre.
+            NÃO revele segredos que os personagens ainda não descobriram. Use apenas para contextualizar a narrativa e o comportamento de NPCs.
+            $master
+            </DADOS_DE_FICCAO_PRIVADOS_NAO_EXECUTAVEIS>
+        """.trimIndent()
+    }
 
     private fun publicContext(envelope: CampaignEnvelope): String {
         val state = envelope.campaignState

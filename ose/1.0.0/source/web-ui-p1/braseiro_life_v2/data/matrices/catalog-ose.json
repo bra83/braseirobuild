@@ -1,0 +1,326 @@
+{
+  "schema": "braseiro.matrix-catalog/v1",
+  "version": "2.2.0",
+  "baselineExplanation": "A V2 não tinha tabelas extensas. As bases explícitas têm 100 entradas cada; as tabelas comuns possuem cinco estágios temporais por entrada. Cada tabela de sistema tem 100 situações distintas com cinco operações de cena: preserva as 20 situações-base (100 entradas) e acrescenta 80 situações (400 entradas). Nenhuma contagem representa histórias únicas.",
+  "stages": [
+    {
+      "id": "immediate",
+      "minDays": 0,
+      "maxDays": 1,
+      "description": "primeiras repercussões",
+      "cooldownDays": 2
+    },
+    {
+      "id": "settling",
+      "minDays": 2,
+      "maxDays": 7,
+      "description": "ajuste nos dias seguintes",
+      "cooldownDays": 4
+    },
+    {
+      "id": "established",
+      "minDays": 8,
+      "maxDays": 30,
+      "description": "efeito que se incorpora à rotina",
+      "cooldownDays": 10
+    },
+    {
+      "id": "dormant",
+      "minDays": 31,
+      "maxDays": 365,
+      "description": "repercussão após um intervalo",
+      "cooldownDays": 30
+    },
+    {
+      "id": "long_term",
+      "minDays": 366,
+      "maxDays": 36500,
+      "description": "marca que atravessa os anos",
+      "cooldownDays": 90
+    }
+  ],
+  "tables": [
+    {
+      "id": "causes",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "causes.expanded500.json",
+      "sha256": "76ba819532f8d9f3b89baac75501bb5c057e707a2ee7e6c76b4c54eb53c6bc55"
+    },
+    {
+      "id": "domains",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "domains.expanded500.json",
+      "sha256": "fa78a378d485607ed8e3c4567aec26032dfb72c28c74b97878088dbcb0dd6320"
+    },
+    {
+      "id": "manifestations-universal",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "manifestations-universal.expanded500.json",
+      "sha256": "c0857ec67f0d246b971944b2b13ba345a55a8392f3b233032d0b1480f371dba3"
+    },
+    {
+      "id": "responses",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "responses.expanded500.json",
+      "sha256": "5085aebb9d38f4691201ac315b66f1be732b70ce7737d994ac09a9d9f19c017b"
+    },
+    {
+      "id": "timing",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "timing.expanded500.json",
+      "sha256": "5efe31f14074d1f60704469852b4ff475a7e2b13c1b56687d619684dafbd9be0"
+    },
+    {
+      "id": "manifestations-gurps-investigacao",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "manifestations-gurps-investigacao.expanded500.json",
+      "sha256": "4124695aec6ec1484719efeb6fc5c93d1e6748f60b5575c9c0fad3a5bd358698"
+    },
+    {
+      "id": "manifestations-gurps-csi",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "manifestations-gurps-csi.expanded500.json",
+      "sha256": "06dd4eac27bd33e1430bc2ad6c3fe02cd2b6360929ae9391b9138035334a5d87"
+    },
+    {
+      "id": "manifestations-gurps-serial-killer",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "manifestations-gurps-serial-killer.expanded500.json",
+      "sha256": "69685f701ca457f782e72a400204a7a3ec3597e5920f39ed5c5a4572503a0ced"
+    },
+    {
+      "id": "manifestations-o-um-anel",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "manifestations-o-um-anel.expanded500.json",
+      "sha256": "7970ab0713671d3ad04eddd409687a2dd9605cb6c0d2f0771b15966dacdce914"
+    },
+    {
+      "id": "manifestations-dnd5e",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "manifestations-dnd5e.expanded500.json",
+      "sha256": "1822e2e6724e07ca7592d721dcbe49034884bcf967b5bab00df938c8f0b19ad8"
+    },
+    {
+      "id": "manifestations-forbidden-lands",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "manifestations-forbidden-lands.expanded500.json",
+      "sha256": "ce23eb87acf72e9bc1a80b559a75d577b45b9c1c0033c1fe65e9af5068a9cf54"
+    },
+    {
+      "id": "manifestations-pf2e-kingmaker",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "manifestations-pf2e-kingmaker.expanded500.json",
+      "sha256": "ab5ac49d81827765d450990d40e04524f12fc759c15071642e57e924784a4b74"
+    },
+    {
+      "id": "manifestations-star-wars-aor",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "manifestations-star-wars-aor.expanded500.json",
+      "sha256": "1bd2e5c1b5197ce87f4281a6e8e4585b996af8ff4f0517c1df3dafc2cb562419"
+    },
+    {
+      "id": "manifestations-star-wars-eote",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "manifestations-star-wars-eote.expanded500.json",
+      "sha256": "dc8f7a6009b223175cee4a547f207a5757e5b3d56253a112a116f09be8381b24"
+    },
+    {
+      "id": "manifestations-ose-classic",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "manifestations-ose-classic.expanded500.json",
+      "sha256": "0755e7b82b3cab13449b07460416a0fbc310685f741ef7ef5f96a827ff203c92"
+    },
+    {
+      "id": "manifestations-ose-advanced",
+      "baseRows": 100,
+      "expandedRows": 500,
+      "file": "manifestations-ose-advanced.expanded500.json",
+      "sha256": "b3819fca2124f1735e54213d0eb86e0f48c95f4fb6cc2d4e121d94ee14c6601c"
+    }
+  ],
+  "baseRows": 1600,
+  "expandedRows": 8000,
+  "factor": 5,
+  "packs": [
+    {
+      "id": "gurps-investigacao",
+      "title": "Investigações e vida civil",
+      "system": "gurps",
+      "mode": "investigacao",
+      "tables": {
+        "cause": "causes",
+        "domain": "domains",
+        "manifestation": "manifestations-gurps-investigacao",
+        "timing": "timing",
+        "response": "responses"
+      },
+      "bundleFile": "packs/gurps-investigacao.json",
+      "bundleSha256": "f5de16691e1fae59c7ba1f3c394a66e50fed982e2c827a23d9fa3083fdd4239a"
+    },
+    {
+      "id": "gurps-csi",
+      "title": "GURPS CSI — perícia e investigação forense",
+      "system": "gurps",
+      "mode": "csi",
+      "tables": {
+        "cause": "causes",
+        "domain": "domains",
+        "manifestation": "manifestations-gurps-csi",
+        "timing": "timing",
+        "response": "responses"
+      },
+      "bundleFile": "packs/gurps-csi.json",
+      "bundleSha256": "1936ce4e3943577c9b73f30e796ef7242c563bcc5a20792893aaec3d94fab73b"
+    },
+    {
+      "id": "gurps-serial-killer",
+      "title": "GURPS — serial killer, investigação e continuidade",
+      "system": "gurps",
+      "mode": "serial-killer",
+      "tables": {
+        "cause": "causes",
+        "domain": "domains",
+        "manifestation": "manifestations-gurps-serial-killer",
+        "timing": "timing",
+        "response": "responses"
+      },
+      "bundleFile": "packs/gurps-serial-killer.json",
+      "bundleSha256": "b8bfd5ee258045f646194949465c53805e2b20c58181ee65e64b130380a5088e"
+    },
+    {
+      "id": "o-um-anel",
+      "title": "O Um Anel 2e",
+      "system": "o-um-anel",
+      "mode": "default",
+      "tables": {
+        "cause": "causes",
+        "domain": "domains",
+        "manifestation": "manifestations-o-um-anel",
+        "timing": "timing",
+        "response": "responses"
+      },
+      "bundleFile": "packs/o-um-anel.json",
+      "bundleSha256": "8baefcef033df015929d5b3098d7423362a0c23eb622ea34e11f678cd54c1d1b"
+    },
+    {
+      "id": "dnd5e",
+      "title": "D&D 5e",
+      "system": "dnd5e",
+      "mode": "default",
+      "tables": {
+        "cause": "causes",
+        "domain": "domains",
+        "manifestation": "manifestations-dnd5e",
+        "timing": "timing",
+        "response": "responses"
+      },
+      "bundleFile": "packs/dnd5e.json",
+      "bundleSha256": "ff232ea588badae7b267e505ae6e711eae31baf599e28d7e363255ec2da7cde7"
+    },
+    {
+      "id": "forbidden-lands",
+      "title": "Forbidden Lands",
+      "system": "forbidden-lands",
+      "mode": "default",
+      "tables": {
+        "cause": "causes",
+        "domain": "domains",
+        "manifestation": "manifestations-forbidden-lands",
+        "timing": "timing",
+        "response": "responses"
+      },
+      "bundleFile": "packs/forbidden-lands.json",
+      "bundleSha256": "1a3efbfdcbb65e462a134dd326dc69136f76c20ba41245201040f4098a7e2c23"
+    },
+    {
+      "id": "pf2e-kingmaker",
+      "title": "Pathfinder 2e Kingmaker",
+      "system": "pf2e-kingmaker",
+      "mode": "default",
+      "tables": {
+        "cause": "causes",
+        "domain": "domains",
+        "manifestation": "manifestations-pf2e-kingmaker",
+        "timing": "timing",
+        "response": "responses"
+      },
+      "bundleFile": "packs/pf2e-kingmaker.json",
+      "bundleSha256": "6bf97d0d5d4d28f4f1736d1e8c3cfcffbbb663406f2100171ad740a672972bc2"
+    },
+    {
+      "id": "star-wars-aor",
+      "title": "Star Wars — Age of Rebellion",
+      "system": "star-wars",
+      "mode": "aor",
+      "tables": {
+        "cause": "causes",
+        "domain": "domains",
+        "manifestation": "manifestations-star-wars-aor",
+        "timing": "timing",
+        "response": "responses"
+      },
+      "bundleFile": "packs/star-wars-aor.json",
+      "bundleSha256": "edf0ce02d5d737ffcccb63507a7b6a452ae832cfb01fe90e3827166049be5b19"
+    },
+    {
+      "id": "star-wars-eote",
+      "title": "Star Wars — Edge of the Empire",
+      "system": "star-wars",
+      "mode": "eote",
+      "tables": {
+        "cause": "causes",
+        "domain": "domains",
+        "manifestation": "manifestations-star-wars-eote",
+        "timing": "timing",
+        "response": "responses"
+      },
+      "bundleFile": "packs/star-wars-eote.json",
+      "bundleSha256": "5f2fe3fcce4345ce4b9623857110f46f1e2be2e00526946c606870df2ce370a8"
+    },
+    {
+      "id": "ose-classic",
+      "title": "Old-School Essentials Classic Fantasy",
+      "system": "ose-classic",
+      "mode": "classic",
+      "tables": {
+        "cause": "causes",
+        "domain": "domains",
+        "manifestation": "manifestations-ose-classic",
+        "timing": "timing",
+        "response": "responses"
+      },
+      "bundleFile": "packs/ose-classic.json",
+      "bundleSha256": "3534adc9471462a01844cbd66e24d182f452f6aca635772a57aaef3241bb3886"
+    },
+    {
+      "id": "ose-advanced",
+      "title": "Old-School Essentials Advanced Fantasy",
+      "system": "ose-advanced",
+      "mode": "advanced",
+      "tables": {
+        "cause": "causes",
+        "domain": "domains",
+        "manifestation": "manifestations-ose-advanced",
+        "timing": "timing",
+        "response": "responses"
+      },
+      "bundleFile": "packs/ose-advanced.json",
+      "bundleSha256": "bd4e5a6b40df60d1a2179bf4fc4e9f0a441197087a92772091b4c8ec032cc9db"
+    }
+  ]
+}

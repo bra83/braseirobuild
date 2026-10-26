@@ -1,0 +1,607 @@
+{
+  "schema": "braseiro.matrix-table/v1",
+  "id": "domains",
+  "version": "2.2.0",
+  "rows": [
+    {
+      "id": "domain-sleep-1",
+      "text": "horário de repouso",
+      "domain": "sleep",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-sleep-2",
+      "text": "despertar",
+      "domain": "sleep",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-sleep-3",
+      "text": "sonhos lembrados",
+      "domain": "sleep",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-sleep-4",
+      "text": "segurança para dormir",
+      "domain": "sleep",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-sleep-5",
+      "text": "ambiente do descanso",
+      "domain": "sleep",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-memory-1",
+      "text": "associação sensorial",
+      "domain": "memory",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-memory-2",
+      "text": "lembrança de uma pessoa",
+      "domain": "memory",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-memory-3",
+      "text": "objeto evocativo",
+      "domain": "memory",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-memory-4",
+      "text": "data marcante",
+      "domain": "memory",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-memory-5",
+      "text": "lugar reconhecido",
+      "domain": "memory",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-emotion-1",
+      "text": "alívio",
+      "domain": "emotion",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-emotion-2",
+      "text": "saudade",
+      "domain": "emotion",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-emotion-3",
+      "text": "orgulho",
+      "domain": "emotion",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-emotion-4",
+      "text": "inquietação",
+      "domain": "emotion",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-emotion-5",
+      "text": "gratidão",
+      "domain": "emotion",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-habits-1",
+      "text": "ritual de partida",
+      "domain": "habits",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-habits-2",
+      "text": "organização de pertences",
+      "domain": "habits",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-habits-3",
+      "text": "rotina de chegada",
+      "domain": "habits",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-habits-4",
+      "text": "forma de pedir ajuda",
+      "domain": "habits",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-habits-5",
+      "text": "costume compartilhado",
+      "domain": "habits",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-family-1",
+      "text": "visita familiar",
+      "domain": "family",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-family-2",
+      "text": "conversa reservada",
+      "domain": "family",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-family-3",
+      "text": "responsabilidade doméstica",
+      "domain": "family",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-family-4",
+      "text": "notícia de parentes",
+      "domain": "family",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-family-5",
+      "text": "celebração em família",
+      "domain": "family",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-intimacy-1",
+      "text": "tempo a dois",
+      "domain": "intimacy",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-intimacy-2",
+      "text": "privacidade",
+      "domain": "intimacy",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-intimacy-3",
+      "text": "conversa sobre confiança",
+      "domain": "intimacy",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-intimacy-4",
+      "text": "limites de convivência",
+      "domain": "intimacy",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-intimacy-5",
+      "text": "gesto de carinho",
+      "domain": "intimacy",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-work-1",
+      "text": "ferramentas",
+      "domain": "work",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-work-2",
+      "text": "agenda de tarefas",
+      "domain": "work",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-work-3",
+      "text": "reconhecimento profissional",
+      "domain": "work",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-work-4",
+      "text": "limites de responsabilidade",
+      "domain": "work",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-work-5",
+      "text": "projeto em andamento",
+      "domain": "work",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-resources-1",
+      "text": "estoques",
+      "domain": "resources",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-resources-2",
+      "text": "acesso a transporte",
+      "domain": "resources",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-resources-3",
+      "text": "moradia",
+      "domain": "resources",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-resources-4",
+      "text": "renda disponível",
+      "domain": "resources",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-resources-5",
+      "text": "despesas previstas",
+      "domain": "resources",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-social-1",
+      "text": "amizades",
+      "domain": "social",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-social-2",
+      "text": "encontros cotidianos",
+      "domain": "social",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-social-3",
+      "text": "convites",
+      "domain": "social",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-social-4",
+      "text": "convivência comunitária",
+      "domain": "social",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-social-5",
+      "text": "rede de apoio",
+      "domain": "social",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-reputation-1",
+      "text": "versão pública do feito",
+      "domain": "reputation",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-reputation-2",
+      "text": "alcance regional",
+      "domain": "reputation",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-reputation-3",
+      "text": "fonte do relato",
+      "domain": "reputation",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-reputation-4",
+      "text": "expectativas de terceiros",
+      "domain": "reputation",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-reputation-5",
+      "text": "reconhecimento individual",
+      "domain": "reputation",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-npc-1",
+      "text": "projeto de um conhecido",
+      "domain": "npc",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-npc-2",
+      "text": "pedido de um aliado",
+      "domain": "npc",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-npc-3",
+      "text": "notícia de um rival",
+      "domain": "npc",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-npc-4",
+      "text": "mudança de ofício",
+      "domain": "npc",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-npc-5",
+      "text": "vida doméstica de alguém",
+      "domain": "npc",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-world-1",
+      "text": "rota comercial",
+      "domain": "world",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-world-2",
+      "text": "instituição local",
+      "domain": "world",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-world-3",
+      "text": "paisagem transformada",
+      "domain": "world",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-world-4",
+      "text": "distribuição de serviços",
+      "domain": "world",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-world-5",
+      "text": "organização comunitária",
+      "domain": "world",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-recovery-1",
+      "text": "apoio acessível",
+      "domain": "recovery",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-recovery-2",
+      "text": "intervalo de descanso",
+      "domain": "recovery",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-recovery-3",
+      "text": "retomada de atividade",
+      "domain": "recovery",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-recovery-4",
+      "text": "progresso gradual",
+      "domain": "recovery",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-recovery-5",
+      "text": "segurança percebida",
+      "domain": "recovery",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-belief-1",
+      "text": "interpretação de uma experiência",
+      "domain": "belief",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-belief-2",
+      "text": "dúvida reconhecida",
+      "domain": "belief",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-belief-3",
+      "text": "convicção questionada",
+      "domain": "belief",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-belief-4",
+      "text": "informação incompleta",
+      "domain": "belief",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-belief-5",
+      "text": "certeza reconsiderada",
+      "domain": "belief",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-goals-1",
+      "text": "projeto pessoal",
+      "domain": "goals",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-goals-2",
+      "text": "aprendizado",
+      "domain": "goals",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-goals-3",
+      "text": "promessa pendente",
+      "domain": "goals",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-goals-4",
+      "text": "plano de viagem",
+      "domain": "goals",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-goals-5",
+      "text": "desejo de estabilidade",
+      "domain": "goals",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-body-1",
+      "text": "sensação sem efeito mecânico",
+      "domain": "body",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-body-2",
+      "text": "limitação já confirmada",
+      "domain": "body",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-body-3",
+      "text": "adaptação do ambiente",
+      "domain": "body",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-body-4",
+      "text": "cuidado disponível",
+      "domain": "body",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-body-5",
+      "text": "recuperação em curso",
+      "domain": "body",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-home-1",
+      "text": "lembrança material",
+      "domain": "home",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-home-2",
+      "text": "espaço de convivência",
+      "domain": "home",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-home-3",
+      "text": "manutenção",
+      "domain": "home",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-home-4",
+      "text": "hospitalidade",
+      "domain": "home",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-home-5",
+      "text": "pertencimento",
+      "domain": "home",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-community-1",
+      "text": "tradição local",
+      "domain": "community",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-community-2",
+      "text": "cuidado coletivo",
+      "domain": "community",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-community-3",
+      "text": "decisão pública",
+      "domain": "community",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-community-4",
+      "text": "mutirão",
+      "domain": "community",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-community-5",
+      "text": "acolhimento de recém-chegados",
+      "domain": "community",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-legacy-1",
+      "text": "aprendizado transmitido",
+      "domain": "legacy",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-legacy-2",
+      "text": "objeto com história",
+      "domain": "legacy",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-legacy-3",
+      "text": "sucessão de função",
+      "domain": "legacy",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-legacy-4",
+      "text": "registro de um feito",
+      "domain": "legacy",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-legacy-5",
+      "text": "memória de alguém ausente",
+      "domain": "legacy",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-justice-1",
+      "text": "andamento de um caso",
+      "domain": "justice",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-justice-2",
+      "text": "condição de custódia",
+      "domain": "justice",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-justice-3",
+      "text": "reparação",
+      "domain": "justice",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-justice-4",
+      "text": "relato de testemunha",
+      "domain": "justice",
+      "agency": "context_only"
+    },
+    {
+      "id": "domain-justice-5",
+      "text": "consequência institucional",
+      "domain": "justice",
+      "agency": "context_only"
+    }
+  ]
+}

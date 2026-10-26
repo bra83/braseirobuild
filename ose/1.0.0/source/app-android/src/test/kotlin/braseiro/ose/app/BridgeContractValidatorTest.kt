@@ -5,8 +5,13 @@ import org.junit.Test
 
 class BridgeContractValidatorTest {
     @Test fun acceptsNarrativeFirstChannels() {
-        for(type in listOf("ViewState","PLAYER_REACTION","GM_HELP","TTS_PLAY","TTS_STOP")) {
-            assertEquals(type,BridgeContractValidator.validate("{\"version\":1,\"type\":\"$type\",\"payload\":{}}").type)
+        for (type in listOf(
+            "ViewState", "PLAYER_REACTION", "GM_HELP", "TTS_PLAY", "TTS_STOP",
+            "AdventureImport", "AdventureFinish", "AdventureContextQuery",
+            "LifeStoreSync", "LifeStoreQuery",
+            "TtsSettingsGet", "TtsSettingsSet", "TtsTest"
+        )) {
+            assertEquals(type, BridgeContractValidator.validate("{\"version\":1,\"type\":\"$type\",\"payload\":{}}").type)
         }
     }
 }

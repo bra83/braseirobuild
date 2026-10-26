@@ -1,0 +1,783 @@
+diff -ruN '--exclude=docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md' /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/build.gradle.kts /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/build.gradle.kts
+--- /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/build.gradle.kts	2026-09-15 05:00:37.000000000 +0000
++++ /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/build.gradle.kts	2026-09-18 02:50:37.811107397 +0000
+@@ -12,7 +12,7 @@
+     applicationId = "com.braseiro.talesvtt"
+     minSdk = 24
+     targetSdk = 36
+-    versionCode = 16
++    versionCode = 21
+     versionName = "1.3.16"
+ 
+     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+diff -ruN '--exclude=docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md' /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/GameSnapshotCodec.kt /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/GameSnapshotCodec.kt
+--- /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/GameSnapshotCodec.kt	2026-09-15 04:16:47.000000000 +0000
++++ /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/GameSnapshotCodec.kt	2026-09-18 02:46:57.869313891 +0000
+@@ -9,7 +9,7 @@
+  * GM-private memory is deliberately stored by GameViewModel in a separate private snapshot.
+  */
+ object GameSnapshotCodec {
+-  private const val VERSION = 9
++  private const val VERSION = 10
+ 
+   private fun enc(value: String): String = URLEncoder.encode(value, StandardCharsets.UTF_8.name())
+   private fun dec(value: String): String = URLDecoder.decode(value, StandardCharsets.UTF_8.name())
+@@ -20,6 +20,13 @@
+     if (parts.size == 2) parts[1].toIntOrNull()?.let { dec(parts[0]) to it } else null
+   }.toMap()
+ 
++
++  private fun encodeStringMap(map: Map<String, Int>): String = map.entries.joinToString("|") { (k, v) -> "${enc(k)}~$v" }
++  private fun decodeStringMap(raw: String): Map<String, Int> = raw.split('|').filter { it.isNotBlank() }.mapNotNull { item ->
++    val parts = item.split('~', limit = 2)
++    if (parts.size == 2) parts[1].toIntOrNull()?.let { dec(parts[0]) to it } else null
++  }.toMap()
++
+   private fun encodeItems(items: List<MechanicalItem>): String = items.joinToString("|") {
+     listOf(enc(it.id), enc(it.name), it.bonusDice.toString(), it.iconic.toString()).joinToString("~")
+   }
+@@ -65,6 +72,27 @@
+     line("change.newKidRequired", state.change.newKidRequired)
+     line("xp.answers", state.xpAnswers.joinToString(",") { when (it) { true -> "1"; false -> "0"; null -> "_" } })
+ 
++    val supplement = state.supplement
++    line("supp.active", supplement.active.name)
++    line("supp.mysteryId", enc(supplement.mysteryId))
++    line("supp.tgufStage", supplement.tgufStage.name)
++    line("supp.imprintedKids", supplement.imprintedKids.joinToString("|") { enc(it) })
++    line("supp.used", supplement.oncePerMysteryUsed.joinToString("|") { enc(it) })
++    line("supp.trustPenalty", supplement.tgufTrustPenalty)
++    line("supp.extEscalation", supplement.tgufExtendedEscalationSteps)
++    line("supp.countdowns", encodeStringMap(supplement.countdowns))
++    line("supp.chipped", supplement.chippedCharacters.joinToString("|") { enc(it) })
++    line("supp.disabledChips", supplement.disabledChips.joinToString("|") { enc(it) })
++    line("supp.savedBonus", encodeStringMap(supplement.savedBonusDice))
++    line("supp.permanentBonus", encodeStringMap(supplement.permanentBonusDice))
++    line("supp.hometown.city", enc(supplement.hometownHack.city))
++    line("supp.hometown.area", enc(supplement.hometownHack.area))
++    line("supp.hometown.map", enc(supplement.hometownHack.mapReference))
++    line("supp.hometown.loop", enc(supplement.hometownHack.loopLayout))
++    line("supp.hometown.agency", enc(supplement.hometownHack.agency))
++    line("supp.hometown.institutions", supplement.hometownHack.institutions.joinToString("|") { enc(it) })
++    line("supp.hometown.summary", enc(supplement.hometownHack.summary))
++
+     val scene = state.scene
+     line("scene.title", enc(scene.title))
+     line("scene.chapter", enc(scene.chapter))
+@@ -105,6 +133,8 @@
+       line("test.item", test.approvedItemBonus)
+       line("test.helper", test.helperKid?.let(::enc) ?: "")
+       line("test.leadBonus", test.leadBonusDice)
++      line("test.supplementBonus", test.supplementBonusDice)
++      line("test.supplementRuleId", test.supplementRuleId?.let(::enc) ?: "")
+       line("test.extendedSceneIndex", test.extendedSceneIndex ?: "")
+     }
+ 
+@@ -131,6 +161,7 @@
+     line("ext.threat", ext.threatLevel.name)
+     line("ext.extraConditions", ext.acceptedExtraConditions)
+     line("ext.compromiseDeclined", ext.compromiseDeclined)
++    line("ext.supplementAutomatic", ext.supplementAutomaticSuccesses)
+     line("ext.compromiseMarks", ext.compromiseMarks.joinToString("|") { mark ->
+       "${enc(mark.kid)}~${mark.condition?.name ?: "_BROKEN_"}"
+     })
+@@ -241,6 +272,30 @@
+       )
+     } else defaultGroup
+ 
++    val supplement = if (version >= 10) {
++      fun decodeStringSet(key: String): Set<String> = map[key].orEmpty().split('|').filter { it.isNotBlank() }.map(::dec).toSet()
++      SupplementCampaignState(
++        active = runCatching { OfficialSupplement.valueOf(map["supp.active"].orEmpty()) }.getOrDefault(OfficialSupplement.NONE),
++        mysteryId = decoded("supp.mysteryId"),
++        tgufStage = runCatching { TgufAlienStage.valueOf(map["supp.tgufStage"].orEmpty()) }.getOrDefault(TgufAlienStage.NONE),
++        imprintedKids = decodeStringSet("supp.imprintedKids"),
++        oncePerMysteryUsed = decodeStringSet("supp.used"),
++        tgufTrustPenalty = int("supp.trustPenalty").coerceIn(0, 1),
++        tgufExtendedEscalationSteps = int("supp.extEscalation").coerceIn(0, 1),
++        countdowns = decodeStringMap(map["supp.countdowns"].orEmpty()),
++        chippedCharacters = decodeStringSet("supp.chipped"),
++        disabledChips = decodeStringSet("supp.disabledChips"),
++        savedBonusDice = decodeStringMap(map["supp.savedBonus"].orEmpty()),
++        permanentBonusDice = decodeStringMap(map["supp.permanentBonus"].orEmpty()).mapValues { (_,v) -> OfficialSupplementRules.capPermanentBonus(v) },
++        hometownHack = HometownHackState(
++          city = decoded("supp.hometown.city"), area = decoded("supp.hometown.area"), mapReference = decoded("supp.hometown.map"),
++          loopLayout = decoded("supp.hometown.loop"), agency = decoded("supp.hometown.agency"),
++          institutions = map["supp.hometown.institutions"].orEmpty().split('|').filter { it.isNotBlank() }.map(::dec),
++          summary = decoded("supp.hometown.summary")
++        )
++      )
++    } else SupplementCampaignState()
++
+     val test = if (bool("test.present")) {
+       TestRequest(
+         reason = decoded("test.reason"),
+@@ -252,6 +307,8 @@
+         approvedItemBonus = int("test.item"),
+         helperKid = decoded("test.helper").ifBlank { null },
+         leadBonusDice = if (version >= 9) int("test.leadBonus") else 0,
++        supplementBonusDice = if (version >= 10) int("test.supplementBonus") else 0,
++        supplementRuleId = if (version >= 10) decoded("test.supplementRuleId").ifBlank { null } else null,
+         extendedSceneIndex = if (version >= 6) map["test.extendedSceneIndex"]?.toIntOrNull() else null
+       )
+     } else null
+@@ -318,7 +375,8 @@
+       scenes = scenes,
+       acceptedExtraConditions = int("ext.extraConditions"),
+       compromiseMarks = compromiseMarks,
+-      compromiseDeclined = if (version >= 6) bool("ext.compromiseDeclined") else false
++      compromiseDeclined = if (version >= 6) bool("ext.compromiseDeclined") else false,
++      supplementAutomaticSuccesses = if (version >= 10) int("ext.supplementAutomatic") else 0
+     )
+ 
+     val xpAnswers = if (version >= 2) map["xp.answers"].orEmpty().split(',').take(5).map {
+@@ -347,6 +405,7 @@
+       sessionXpAwarded = bool("mysteryXpApplied"),
+       endingMode = endingMode,
+       change = change,
++      supplement = supplement,
+       lastError = null
+     )
+   }.getOrNull()
+diff -ruN '--exclude=docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md' /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/GameViewModel.kt /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/GameViewModel.kt
+--- /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/GameViewModel.kt	2026-09-15 04:53:41.000000000 +0000
++++ /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/GameViewModel.kt	2026-09-18 02:48:59.129638640 +0000
+@@ -96,6 +96,19 @@
+     persistAutosave()
+   }
+ 
++  fun selectOfficialSupplement(supplement: OfficialSupplement) {
++    if (_activeProfile.value != CampaignProfile.TALES_KIDS) {
++      _dataStatus.value = "Suplementos Tales não podem ser ativados no perfil Flood/Teens."
++      return
++    }
++    if (_adventureStarted.value) {
++      _dataStatus.value = "Troque o suplemento ao iniciar uma nova aventura, para preservar a campanha atual."
++      return
++    }
++    dispatch(GameEvent.SetSupplement(supplement))
++    if (_state.value.lastError == null) _dataStatus.value = "Módulo Tales: ${supplement.label}. Mecânicas oficiais ficam locais; RAG não define números."
++  }
++
+   fun selectProfile(profile: CampaignProfile) {
+     if (_activeProfile.value == profile) return
+     _activeProfile.value = profile
+@@ -502,11 +515,13 @@
+         if (member.name.equals(_state.value.kid.name, ignoreCase = true)) member.copy(name=refreshedKid.name,archetype=refreshedKid.archetype,portraitAssetKey=refreshedKid.portraitAssetKey,conditions=emptySet(),broken=false)
+         else member.copy(conditions=emptySet(),broken=false)
+       }
++      val selectedSupplement = _state.value.supplement.startMystery(seed.signature)
+       _state.value = GameState(
+         kid = refreshedKid,
+         group = _state.value.group.copy(members = refreshedMembers),
+         scene = SceneState(title=seed.title,chapter="NOVA AVENTURA",seasonYear=seed.seasonYear,location=seed.location,weather=seed.weather,time=seed.time,daylight=seed.daylight,visualAssetKey=seed.visualAsset,narrative=listOf("A campanha começou localmente. O Motor Barbara pode enriquecer a abertura quando o Gemini estiver disponível."),choices=emptyList()),
+-        revealed = RevealedState(clues=emptySet(),locations=setOf(seed.location),connections=emptySet())
++        revealed = RevealedState(clues=emptySet(),locations=setOf(seed.location),connections=emptySet()),
++        supplement = selectedSupplement
+       )
+       _talesMapState.value = DynamicMapState.startingState(CampaignProfile.TALES_KIDS, seed.location)
+     }
+@@ -517,7 +532,7 @@
+     persistAutosave()
+     if (motorTransport.hasApiKey()) {
+       _dataStatus.value = "Aventura iniciada localmente; o Mestre está preparando a abertura."
+-      requestMotor(MotorIntent(type="adventure_start", text=seed.motorBrief(_activeProfile.value)))
++      requestMotor(MotorIntent(type="adventure_start", text=seed.motorBrief(_activeProfile.value) + if (_activeProfile.value == CampaignProfile.TALES_KIDS && _state.value.supplement.active != OfficialSupplement.NONE) "\nSuplemento oficial ativo: ${_state.value.supplement.active.label}." else ""))
+     } else {
+       markMotorTransportOffline("Aventura iniciada localmente. Configure Gemini quando quiser narração do Motor Barbara.")
+       _dataStatus.value = "Aventura iniciada e salva localmente; Gemini não é necessário para manter a campanha."
+diff -ruN '--exclude=docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md' /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraContract.kt /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraContract.kt
+--- /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraContract.kt	2026-09-15 04:21:06.000000000 +0000
++++ /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraContract.kt	2026-09-18 02:47:53.748730296 +0000
+@@ -67,6 +67,11 @@
+     val visualAssetKey: String? = null
+   ) : MotorAction
+   data class TestRequest(val skill: String, val requiredSuccesses: Int, val label: String) : MotorAction
++  data class SupplementTestRequest(val ruleId: String, val skill: String, val label: String) : MotorAction
++  data class SupplementBonus(val ruleId: String) : MotorAction
++  data class SupplementAbility(val ruleId: String) : MotorAction
++  data class SupplementAutomaticSuccesses(val ruleId: String) : MotorAction
++  data class SupplementExtended(val ruleId: String, val stakes: String, val scenes: List<Pair<String, String>>) : MotorAction
+   data object TestClear : MotorAction
+   data class ApproveHelp(val helperKid: String) : MotorAction
+   data object ApproveIconicItem : MotorAction
+@@ -287,6 +292,41 @@
+           }
+         }
+ 
++        is MotorAction.SupplementTestRequest -> {
++          val canonical = TalesSkillCatalog.canonicalSkill(action.skill)
++          val required = OfficialSupplementRules.requiredSuccesses(state.supplement, action.ruleId, canonical)
++          val request = if (canonical != null && required != null) state.kid.testForSkill(
++            reason = action.label.trim().ifBlank { OfficialSupplementRules.rule(action.ruleId)?.description ?: canonical },
++            skill = canonical,
++            requiredSuccesses = required
++          )?.copy(supplementRuleId = action.ruleId) else null
++          if (request == null) rejected += "ação[$index] supplement_test_request: ruleId/perícia não autorizados para o suplemento ativo."
++          else if (reduce(GameEvent.GmRequestTest(request), "supplement_test_request")) raiseRoute(MotorRouteHint.TROUBLE)
++        }
++
++        is MotorAction.SupplementBonus -> {
++          if (reduce(GameEvent.ApplySupplementBonus(action.ruleId), "supplement_bonus")) raiseRoute(MotorRouteHint.TROUBLE)
++        }
++
++        is MotorAction.SupplementAbility -> {
++          if (reduce(GameEvent.UseSupplementAbility(action.ruleId), "supplement_ability")) raiseRoute(MotorRouteHint.SCENE)
++        }
++
++        is MotorAction.SupplementAutomaticSuccesses -> {
++          if (reduce(GameEvent.ApplySupplementAutomaticSuccesses(action.ruleId), "supplement_auto_success")) raiseRoute(MotorRouteHint.CLIMAX)
++        }
++
++        is MotorAction.SupplementExtended -> {
++          val level = OfficialSupplementRules.extendedThreatLevel(state.supplement, action.ruleId)
++          if (level == null) rejected += "ação[$index] supplement_extended: ruleId não autorizado para o suplemento ativo."
++          else if (action.stakes.isBlank() || action.scenes.isEmpty() || action.scenes.any { TalesSkillCatalog.canonicalSkill(it.second) == null }) {
++            rejected += "ação[$index] supplement_extended: cenas/apostas inválidas."
++          } else {
++            val scenes = action.scenes.map { (kid, skill) -> ExtendedKidScene(kid, TalesSkillCatalog.canonicalSkill(skill)!!) }
++            if (reduce(GameEvent.StartExtendedTrouble(action.stakes, scenes.size, level, scenes), "supplement_extended")) raiseRoute(MotorRouteHint.CLIMAX)
++          }
++        }
++
+         is MotorAction.TestRequest -> {
+           val canonical = TalesSkillCatalog.canonicalSkill(action.skill)
+           val request = canonical?.let {
+diff -ruN '--exclude=docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md' /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraTransport.kt /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraTransport.kt
+--- /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraTransport.kt	2026-09-15 04:23:02.000000000 +0000
++++ /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraTransport.kt	2026-09-18 02:48:43.069040470 +0000
+@@ -223,6 +223,18 @@
+         .put("connections", JSONArray(state.revealed.connections.map { JSONArray(listOf(it.first, it.second)) }))
+       )
+ 
++    publicState.put("officialSupplement", JSONObject()
++      .put("active", state.supplement.active.name)
++      .put("label", state.supplement.active.label)
++      .put("mysteryId", state.supplement.mysteryId)
++      .put("tgufStage", state.supplement.tgufStage.name)
++      .put("usedOncePerMystery", JSONArray(state.supplement.oncePerMysteryUsed.toList()))
++      .put("tgufTrustPenalty", state.supplement.tgufTrustPenalty)
++      .put("tgufExtendedEscalationSteps", state.supplement.tgufExtendedEscalationSteps)
++      .put("chippedCharacters", JSONArray(state.supplement.chippedCharacters.toList()))
++      .put("disabledChips", JSONArray(state.supplement.disabledChips.toList()))
++    )
++
+     state.activeTest?.let { test ->
+       publicState.put("activeTest", JSONObject()
+         .put("reason", test.reason)
+@@ -282,7 +294,8 @@
+ 
+     return JSONObject()
+       .put("active_profile", "tales_kid")
+-      .put("mechanical_contract", "Tales/Kids. Regras mecânicas são locais e prevalecem sobre RAG: Atributo+Perícia d6, 6=sucesso, Sorte, Push/Forçar, Pride/Orgulho, Conditions, Items +1..+3/Iconic +2 e Extended Trouble Tales 2x/3x/4x.")
++      .put("mechanical_contract", "Tales/Kids. Regras mecânicas são locais e prevalecem sobre RAG: Atributo+Perícia d6, 6=sucesso, Sorte, Push/Forçar, Pride/Orgulho, Conditions, Items +1..+3/Iconic +2, Extended Trouble Tales 2x/3x/4x e exceções oficiais TGUF/OFM somente por ruleId do registry local.")
++      .put("supplement_rule_ids", JSONArray(OfficialSupplementRules.definitions.values.filter { it.supplement == state.supplement.active }.map { it.id }))
+       .put("player_intent", intentJson)
+       .put("player_visible_state", publicState)
+       .put("gm_private", privateJson)
+@@ -292,7 +305,7 @@
+       .put("task", if (intent.type == "adventure_start") {
+         "Inicie uma aventura NOVA a partir do seed do player_intent. A primeira narration deve ser extensa e útil para jogar: aproximadamente 700–1100 palavras, em parágrafos, apresentando geografia local, ambiente, clima, sons, cheiros, pessoas presentes, relações e a Vida Cotidiana antes de introduzir o gancho do Mistério. Não revele a solução. Termine com 2 ou 3 escolhas concretas. Varie clima, horário, NPCs, locais e tipo de mistério; chuva não é padrão. Retorne somente JSON com actions."
+       } else {
+-        "Continue a partida. Narrações de cenas importantes devem ter substância de Mestre de RPG (aprox. 250–650 palavras quando o momento pedir), descrevendo espaço, geografia imediata, pessoas e detalhes sensoriais antes das decisões. Retorne somente JSON com actions. Use test_request somente quando houver Trouble real. Se player_intent.type=help_request, aprove apenas uma ajuda ficcionalmente plausível com help_approve e um membro real do grupo; caso contrário, narre a recusa sem bônus. Se player_intent.type=item_proposal, use iconic_item_approve apenas quando o Item Icônico for claramente útil no teste ativo; nunca invente bônus. Se player_intent.type=extended_test_result, trate o valor recebido como o resultado definitivo da cena daquele Kid, inclua test_clear e continue o Problema Estendido sem criar rolagem final. extended_scene_result só pode reproduzir um resultado verificado fornecido por outro cliente/jogador; nunca invente sucessos para outro Kid. Nunca altere recursos do Kid diretamente e nunca revele gm_private sem uma action explícita de reveal."
++        "Continue a partida. Narrações de cenas importantes devem ter substância de Mestre de RPG (aprox. 250–650 palavras quando o momento pedir), descrevendo espaço, geografia imediata, pessoas e detalhes sensoriais antes das decisões. Retorne somente JSON com actions. Use test_request somente para regra base. Quando officialSupplement.active não for NONE, qualquer dificuldade/bônus/sucesso automático/Problema Estendido específico do suplemento DEVE usar supplement_test_request, supplement_bonus, supplement_ability, supplement_auto_success ou supplement_extended com um ruleId presente em supplement_rule_ids; nunca envie o número mecânico do suplemento. Se player_intent.type=help_request, aprove apenas uma ajuda ficcionalmente plausível com help_approve e um membro real do grupo; caso contrário, narre a recusa sem bônus. Se player_intent.type=item_proposal, use iconic_item_approve apenas quando o Item Icônico for claramente útil no teste ativo; nunca invente bônus. Se player_intent.type=extended_test_result, trate o valor recebido como o resultado definitivo da cena daquele Kid, inclua test_clear e continue o Problema Estendido sem criar rolagem final. extended_scene_result só pode reproduzir um resultado verificado fornecido por outro cliente/jogador; nunca invente sucessos para outro Kid. Nunca altere recursos do Kid diretamente e nunca revele gm_private sem uma action explícita de reveal."
+       })
+       .toString(2)
+   }
+@@ -357,7 +370,7 @@
+ REGRAS INEGOCIÁVEIS:
+ - Testes usam Atributo + Perícia canônica, d6; cada 6 é 1 sucesso.
+ - Perícias: Furtividade/Força/Movimentação -> Corpo; Mecânica/Programação/Cálculo -> Tecnologia; Contatos/Charme/Liderança -> Coração; Investigação/Conhecimento/Empatia -> Mente.
+-- Trouble normal exige 1, 2 ou 3 sucessos, definidos pelo Mestre.
++- Trouble base exige 1, 2 ou 3 sucessos. Exceções oficiais de TGUF/OFM (inclusive dificuldade 4) só existem via ruleId local; jamais invente um número a partir do RAG.
+ - Condições: Chateado, Assustado, Exausto e Machucado; Quebrado falha automaticamente.
+ - Sorte, Forçar e Orgulho são resolvidos pelo engine. Ajuda e Item precisam primeiro de sua validação ficcional: help_approve aplica exatamente +1 dado; iconic_item_approve aplica exatamente +2 dados ao Item Icônico. Você nunca inventa outros bônus nem gasta recursos do jogador.
+ - NPCs não rolam dados. Não crie HP, iniciativa, rounds ou combate tático.
+@@ -380,7 +393,12 @@
+ - narration {text, choices:[[titulo,descricao], ...]}
+ - scene_visual {asset}
+ - world_patch {patch:{location,weather,time,daylight}}
+-- test_request {skill,required,label}
++- test_request {skill,required,label} — somente regra base
++- supplement_test_request {ruleId,skill,label} — dificuldade específica oficial; o engine ignora qualquer número vindo do modelo
++- supplement_bonus {ruleId} — bônus oficial local no teste ativo
++- supplement_ability {ruleId} — habilidade oficial não-numérica/uma vez por Mistério
++- supplement_auto_success {ruleId} — sucessos automáticos oficiais em Problema Estendido
++- supplement_extended {ruleId,stakes,scenes:[{kid,skill}]} — multiplicador vem do registry local
+ - test_clear
+ - help_approve {helperKid}
+ - iconic_item_approve
+diff -ruN '--exclude=docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md' /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraWireAdapter.kt /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraWireAdapter.kt
+--- /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraWireAdapter.kt	2026-09-15 04:22:23.000000000 +0000
++++ /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraWireAdapter.kt	2026-09-18 02:47:53.748897489 +0000
+@@ -65,6 +65,21 @@
+       )
+     }
+ 
++    "supplement_test_request" -> {
++      val ruleId = a.optString("ruleId").trim(); val skill = a.optString("skill").trim()
++      if (ruleId.isEmpty() || skill.isEmpty()) null else MotorAction.SupplementTestRequest(ruleId, skill, a.optString("label", skill))
++    }
++    "supplement_bonus" -> a.optString("ruleId").trim().takeIf { it.isNotEmpty() }?.let(MotorAction::SupplementBonus)
++    "supplement_ability" -> a.optString("ruleId").trim().takeIf { it.isNotEmpty() }?.let(MotorAction::SupplementAbility)
++    "supplement_auto_success" -> a.optString("ruleId").trim().takeIf { it.isNotEmpty() }?.let(MotorAction::SupplementAutomaticSuccesses)
++    "supplement_extended" -> {
++      val ruleId = a.optString("ruleId").trim(); val stakes = a.optString("stakes").trim(); val arr = a.optJSONArray("scenes")
++      if (ruleId.isEmpty() || stakes.isEmpty() || arr == null) null else {
++        val scenes = buildList { for (i in 0 until arr.length()) { val row=arr.optJSONObject(i)?:continue; val kid=row.optString("kid").trim(); val skill=row.optString("skill").trim(); if(kid.isNotEmpty()&&skill.isNotEmpty()) add(kid to skill) } }
++        if (scenes.isEmpty()) null else MotorAction.SupplementExtended(ruleId, stakes, scenes)
++      }
++    }
++
+     "test_clear" -> MotorAction.TestClear
+ 
+     "help_approve" -> a.optString("helperKid").takeIf { it.isNotBlank() }?.let(MotorAction::ApproveHelp)
+diff -ruN '--exclude=docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md' /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/OfficialSupplementRules.kt /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/OfficialSupplementRules.kt
+--- /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/OfficialSupplementRules.kt	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/OfficialSupplementRules.kt	2026-09-18 02:53:30.302955934 +0000
+@@ -0,0 +1,192 @@
++package com.braseiro.talesvtt.game
++
++/** Official Tales/Kids supplements supported as local mechanics/content-data.
++ *  The LLM/RAG may reference a ruleId but never supplies authoritative numbers.
++ */
++enum class OfficialSupplement(val label: String) {
++  NONE("Tales Base"),
++  THEY_GROW_UP_SO_FAST("They Grow Up So Fast"),
++  OUR_FRIENDS_THE_MACHINES("Nossas Amigas as Máquinas")
++}
++
++enum class TgufAlienStage { NONE, EGG, HATCHLING, DEVELOPING, MATURE }
++
++data class HometownHackState(
++  val city: String = "",
++  val area: String = "",
++  val mapReference: String = "",
++  val loopLayout: String = "",
++  val agency: String = "",
++  val institutions: List<String> = emptyList(),
++  val summary: String = ""
++)
++
++data class SupplementCampaignState(
++  val active: OfficialSupplement = OfficialSupplement.NONE,
++  val mysteryId: String = "",
++  val tgufStage: TgufAlienStage = TgufAlienStage.NONE,
++  val imprintedKids: Set<String> = emptySet(),
++  val oncePerMysteryUsed: Set<String> = emptySet(),
++  val tgufTrustPenalty: Int = 0,
++  val tgufExtendedEscalationSteps: Int = 0,
++  val countdowns: Map<String, Int> = emptyMap(),
++  val chippedCharacters: Set<String> = emptySet(),
++  val disabledChips: Set<String> = emptySet(),
++  val savedBonusDice: Map<String, Int> = emptyMap(),
++  val permanentBonusDice: Map<String, Int> = emptyMap(),
++  val hometownHack: HometownHackState = HometownHackState()
++) {
++  fun startMystery(id: String): SupplementCampaignState = copy(
++    mysteryId = id,
++    oncePerMysteryUsed = emptySet()
++  )
++}
++
++data class SupplementRuleDefinition(
++  val id: String,
++  val supplement: OfficialSupplement,
++  val requiredSuccesses: Int? = null,
++  val bonusDice: Int = 0,
++  val automaticSuccesses: Int = 0,
++  val extendedMultiplier: Int? = null,
++  val allowedSkills: Set<String> = emptySet(),
++  val oncePerMystery: Boolean = false,
++  val description: String
++)
++
++object OfficialSupplementRules {
++  // IDs are stable runtime contracts. They deliberately encode only mechanics present in official sources.
++  const val TGUF_BOND_HEAL = "TGUF_BOND_HEAL"
++  const val TGUF_DRAIN_DEVICE = "TGUF_DRAIN_DEVICE"
++  const val TGUF_STATIC_SHOCK = "TGUF_STATIC_SHOCK"
++  const val TGUF_REACTOR_MOVE_2 = "TGUF_REACTOR_MOVE_2"
++  const val TGUF_REACTOR_CHARM_2 = "TGUF_REACTOR_CHARM_2"
++  const val TGUF_PARENT_LOOP_CHARM_BONUS_2 = "TGUF_PARENT_LOOP_CHARM_BONUS_2"
++  const val TGUF_LAB_SNEAK_2 = "TGUF_LAB_SNEAK_2"
++  const val TGUF_TUNNEL_SNEAK_3 = "TGUF_TUNNEL_SNEAK_3"
++  const val TGUF_SECURITY_SNEAK_CHARM_2 = "TGUF_SECURITY_SNEAK_CHARM_2"
++  const val TGUF_NEODYMIUM_FORCE_4 = "TGUF_NEODYMIUM_FORCE_4"
++  const val TGUF_FREE_TO_CHOOSE_BONUS_1 = "TGUF_FREE_TO_CHOOSE_BONUS_1"
++  const val TGUF_REGAIN_TRUST_CHARM_2 = "TGUF_REGAIN_TRUST_CHARM_2"
++  const val TGUF_ESCAPE_EXTENDED_2X = "TGUF_ESCAPE_EXTENDED_2X"
++  const val TGUF_BULLIES_EXTENDED_2X = "TGUF_BULLIES_EXTENDED_2X"
++  const val TGUF_DANIEL_EXTENDED_2X = "TGUF_DANIEL_EXTENDED_2X"
++  const val TGUF_TRAVEL_EXTENDED_2X = "TGUF_TRAVEL_EXTENDED_2X"
++  const val TGUF_OTHER_KIDS_EXTENDED_3X = "TGUF_OTHER_KIDS_EXTENDED_3X"
++  const val TGUF_AGENTS_EXTENDED_2X = "TGUF_AGENTS_EXTENDED_2X"
++  const val TGUF_RIFT_EXTENDED_2X = "TGUF_RIFT_EXTENDED_2X"
++  const val TGUF_RIFT_NO_DANIEL_EXTENDED_3X = "TGUF_RIFT_NO_DANIEL_EXTENDED_3X"
++  const val TGUF_RIFT_REMINDER_AUTO_2 = "TGUF_RIFT_REMINDER_AUTO_2"
++  const val TGUF_APPEAL_EXTENDED_3X = "TGUF_APPEAL_EXTENDED_3X"
++  const val TGUF_FORCE_REGIS_EXTENDED_3X = "TGUF_FORCE_REGIS_EXTENDED_3X"
++
++  const val OFM_HACK_TOY_CHIP_2 = "OFM_HACK_TOY_CHIP_2"
++  const val OFM_LARGE_MACHINE_GROUP_3 = "OFM_LARGE_MACHINE_GROUP_3"
++  const val OFM_MACHINE_HACKERS_PER_CHIP_10 = "OFM_MACHINE_HACKERS_PER_CHIP_10"
++  const val OFM_CHIP_REACTIVATE_D6_6 = "OFM_CHIP_REACTIVATE_D6_6"
++  const val OFM_DESTRUCTION_EXTENDED_4X = "OFM_DESTRUCTION_EXTENDED_4X"
++  const val OFM_DESTRUCTION_WITH_B_EXTENDED_3X = "OFM_DESTRUCTION_WITH_B_EXTENDED_3X"
++  const val OFM_CAPTURE_EXTENDED_2X = "OFM_CAPTURE_EXTENDED_2X"
++  const val OFM_PATROL_PATTERN_BONUS_1 = "OFM_PATROL_PATTERN_BONUS_1"
++  const val OFM_MAYHEM_EXTENDED_3X = "OFM_MAYHEM_EXTENDED_3X"
++  const val OFM_MAYHEM_ALLIES_EXTENDED_2X = "OFM_MAYHEM_ALLIES_EXTENDED_2X"
++  const val OFM_MUMMY_STAIRS_2 = "OFM_MUMMY_STAIRS_2"
++  const val OFM_DIM9_EXTENDED_3X = "OFM_DIM9_EXTENDED_3X"
++  const val OFM_DIM9_ALLIES_EXTENDED_2X = "OFM_DIM9_ALLIES_EXTENDED_2X"
++  const val OFM_NPC_SPECIAL_2 = "OFM_NPC_SPECIAL_2"
++  const val OFM_COMMUNICATOR_PERMANENT_CAP_3 = "OFM_COMMUNICATOR_PERMANENT_CAP_3"
++
++  private fun skills(vararg names: String): Set<String> = names.mapNotNull(TalesSkillCatalog::canonicalSkill).toSet()
++
++  val definitions: Map<String, SupplementRuleDefinition> = listOf(
++    SupplementRuleDefinition(TGUF_BOND_HEAL, OfficialSupplement.THEY_GROW_UP_SO_FAST, oncePerMystery = true, description = "Kid imprinted remove uma Condition por Mistério ao narrar a conexão."),
++    SupplementRuleDefinition(TGUF_DRAIN_DEVICE, OfficialSupplement.THEY_GROW_UP_SO_FAST, oncePerMystery = true, description = "Kid imprinted drena um aparelho eletrônico portátil por Mistério."),
++    SupplementRuleDefinition(TGUF_STATIC_SHOCK, OfficialSupplement.THEY_GROW_UP_SO_FAST, bonusDice = 2, oncePerMystery = true, description = "Choque estático do vínculo: +2 dados em uma rolagem apropriada, uma vez por Mistério."),
++    SupplementRuleDefinition(TGUF_REACTOR_MOVE_2, OfficialSupplement.THEY_GROW_UP_SO_FAST, requiredSuccesses = 2, allowedSkills = skills("Movimentação"), description = "Entrada no reator sem se ferir/ser pego."),
++    SupplementRuleDefinition(TGUF_REACTOR_CHARM_2, OfficialSupplement.THEY_GROW_UP_SO_FAST, requiredSuccesses = 2, allowedSkills = skills("Charme"), description = "Convencer segurança a permitir entrada."),
++    SupplementRuleDefinition(TGUF_PARENT_LOOP_CHARM_BONUS_2, OfficialSupplement.THEY_GROW_UP_SO_FAST, bonusDice = 2, allowedSkills = skills("Charme"), description = "Citar pai/mãe que trabalha no Loop concede +2 dados no Charme da entrada."),
++    SupplementRuleDefinition(TGUF_LAB_SNEAK_2, OfficialSupplement.THEY_GROW_UP_SO_FAST, requiredSuccesses = 2, allowedSkills = skills("Furtividade"), description = "Furtividade pela instalação/laboratórios."),
++    SupplementRuleDefinition(TGUF_TUNNEL_SNEAK_3, OfficialSupplement.THEY_GROW_UP_SO_FAST, requiredSuccesses = 3, allowedSkills = skills("Furtividade"), description = "Entrar furtivamente nos túneis de serviço."),
++    SupplementRuleDefinition(TGUF_SECURITY_SNEAK_CHARM_2, OfficialSupplement.THEY_GROW_UP_SO_FAST, requiredSuccesses = 2, allowedSkills = skills("Furtividade", "Charme"), description = "Segurança reforçada no Loop em estação posterior."),
++    SupplementRuleDefinition(TGUF_NEODYMIUM_FORCE_4, OfficialSupplement.THEY_GROW_UP_SO_FAST, requiredSuccesses = 4, allowedSkills = skills("Força"), description = "Mover disco de neodímio grande exige 4 sucessos em Força."),
++    SupplementRuleDefinition(TGUF_FREE_TO_CHOOSE_BONUS_1, OfficialSupplement.THEY_GROW_UP_SO_FAST, bonusDice = 1, description = "Uso direto do cargueiro Free to Choose em ações contra as outras crianças: +1 dado."),
++    SupplementRuleDefinition(TGUF_REGAIN_TRUST_CHARM_2, OfficialSupplement.THEY_GROW_UP_SO_FAST, requiredSuccesses = 2, allowedSkills = skills("Charme"), description = "Recuperar a confiança da criatura no Mistério seguinte."),
++    SupplementRuleDefinition(TGUF_ESCAPE_EXTENDED_2X, OfficialSupplement.THEY_GROW_UP_SO_FAST, extendedMultiplier = 2, description = "Fuga dos túneis/ReGIS: Problema Estendido normal 2×Kids."),
++    SupplementRuleDefinition(TGUF_BULLIES_EXTENDED_2X, OfficialSupplement.THEY_GROW_UP_SO_FAST, extendedMultiplier = 2, description = "Lidar com valentões: Problema Estendido normal 2×Kids."),
++    SupplementRuleDefinition(TGUF_DANIEL_EXTENDED_2X, OfficialSupplement.THEY_GROW_UP_SO_FAST, extendedMultiplier = 2, description = "Escapar/lidar com Daniel: Problema Estendido normal 2×Kids."),
++    SupplementRuleDefinition(TGUF_TRAVEL_EXTENDED_2X, OfficialSupplement.THEY_GROW_UP_SO_FAST, extendedMultiplier = 2, description = "Mover a criatura sem ser notado: Problema Estendido normal 2×Kids."),
++    SupplementRuleDefinition(TGUF_OTHER_KIDS_EXTENDED_3X, OfficialSupplement.THEY_GROW_UP_SO_FAST, extendedMultiplier = 3, description = "Remover o outro grupo da península: Problema Estendido difícil 3×Kids."),
++    SupplementRuleDefinition(TGUF_AGENTS_EXTENDED_2X, OfficialSupplement.THEY_GROW_UP_SO_FAST, extendedMultiplier = 2, description = "Fazer agentes deixarem o local: Problema Estendido normal 2×Kids."),
++    SupplementRuleDefinition(TGUF_RIFT_EXTENDED_2X, OfficialSupplement.THEY_GROW_UP_SO_FAST, extendedMultiplier = 2, description = "Operar equipamento para abrir o rift com Daniel presente: Problema Estendido 2×Kids."),
++    SupplementRuleDefinition(TGUF_RIFT_NO_DANIEL_EXTENDED_3X, OfficialSupplement.THEY_GROW_UP_SO_FAST, extendedMultiplier = 3, description = "Operar equipamento para abrir o rift sem Daniel presente: Problema Estendido 3×Kids."),
++    SupplementRuleDefinition(TGUF_RIFT_REMINDER_AUTO_2, OfficialSupplement.THEY_GROW_UP_SO_FAST, automaticSuccesses = 2, oncePerMystery = true, description = "Lembrar Daniel das flutuações de energia: 2 sucessos automáticos, sem rolagem."),
++    SupplementRuleDefinition(TGUF_APPEAL_EXTENDED_3X, OfficialSupplement.THEY_GROW_UP_SO_FAST, extendedMultiplier = 3, description = "Apelar à simpatia de ReGIS: Problema Estendido 3×Kids."),
++    SupplementRuleDefinition(TGUF_FORCE_REGIS_EXTENDED_3X, OfficialSupplement.THEY_GROW_UP_SO_FAST, extendedMultiplier = 3, description = "Barricar/forçar ReGIS para fora: Problema Estendido 3×Kids."),
++
++    SupplementRuleDefinition(OFM_HACK_TOY_CHIP_2, OfficialSupplement.OUR_FRIENDS_THE_MACHINES, requiredSuccesses = 2, allowedSkills = skills("Programação"), description = "Hackear chip de um brinquedo individual: 2 sucessos."),
++    SupplementRuleDefinition(OFM_LARGE_MACHINE_GROUP_3, OfficialSupplement.OUR_FRIENDS_THE_MACHINES, requiredSuccesses = 3, description = "Grupo grande (10+) de Máquinas é problema de 3 sucessos."),
++    SupplementRuleDefinition(OFM_DESTRUCTION_EXTENDED_4X, OfficialSupplement.OUR_FRIENDS_THE_MACHINES, extendedMultiplier = 4, description = "Destruição da fábrica sem ajuda de B: 4×Kids."),
++    SupplementRuleDefinition(OFM_DESTRUCTION_WITH_B_EXTENDED_3X, OfficialSupplement.OUR_FRIENDS_THE_MACHINES, extendedMultiplier = 3, description = "Destruição da fábrica com ajuda de B: 3×Kids."),
++    SupplementRuleDefinition(OFM_CAPTURE_EXTENDED_2X, OfficialSupplement.OUR_FRIENDS_THE_MACHINES, extendedMultiplier = 2, description = "Plano de A para capturar/chipar: ameaça normal 2×Kids."),
++    SupplementRuleDefinition(OFM_PATROL_PATTERN_BONUS_1, OfficialSupplement.OUR_FRIENDS_THE_MACHINES, bonusDice = 1, allowedSkills = skills("Furtividade", "Movimentação"), description = "Padrão de patrulha descoberto concede +1 ao teste subsequente permitido."),
++    SupplementRuleDefinition(OFM_MAYHEM_EXTENDED_3X, OfficialSupplement.OUR_FRIENDS_THE_MACHINES, extendedMultiplier = 3, description = "Clímax de Horror Movie Mayhem sem ajuda: 3×Kids."),
++    SupplementRuleDefinition(OFM_MAYHEM_ALLIES_EXTENDED_2X, OfficialSupplement.OUR_FRIENDS_THE_MACHINES, extendedMultiplier = 2, description = "Com ajuda externa adequada: ameaça reduzida a 2×Kids."),
++    SupplementRuleDefinition(OFM_MUMMY_STAIRS_2, OfficialSupplement.OUR_FRIENDS_THE_MACHINES, requiredSuccesses = 2, allowedSkills = skills("Conhecimento", "Investigação"), description = "Descobrir a identidade/local da múmia: 2 sucessos."),
++    SupplementRuleDefinition(OFM_DIM9_EXTENDED_3X, OfficialSupplement.OUR_FRIENDS_THE_MACHINES, extendedMultiplier = 3, description = "Clímax DIM-9 sem ajuda: 3×Kids."),
++    SupplementRuleDefinition(OFM_DIM9_ALLIES_EXTENDED_2X, OfficialSupplement.OUR_FRIENDS_THE_MACHINES, extendedMultiplier = 2, description = "Clímax DIM-9 com a ajuda prevista pela aventura: reduz para Normal, 2×Kids."),
++    SupplementRuleDefinition(OFM_NPC_SPECIAL_2, OfficialSupplement.OUR_FRIENDS_THE_MACHINES, requiredSuccesses = 2, description = "Atributo Especial 2 de NPC: requer 2 sucessos quando diretamente aplicável."),
++    SupplementRuleDefinition(OFM_COMMUNICATOR_PERMANENT_CAP_3, OfficialSupplement.OUR_FRIENDS_THE_MACHINES, description = "Sucessos adicionais no comunicador podem virar bônus permanente até +3.")
++  ).associateBy { it.id }
++
++  fun rule(id: String): SupplementRuleDefinition? = definitions[id]
++
++  fun isRuleActive(state: SupplementCampaignState, ruleId: String): Boolean =
++    rule(ruleId)?.supplement == state.active
++
++  fun canUseOncePerMystery(state: SupplementCampaignState, ruleId: String): Boolean {
++    val r = rule(ruleId) ?: return false
++    return !r.oncePerMystery || ruleId !in state.oncePerMysteryUsed
++  }
++
++  fun markUsed(state: SupplementCampaignState, ruleId: String): SupplementCampaignState =
++    if (rule(ruleId)?.oncePerMystery == true) state.copy(oncePerMysteryUsed = state.oncePerMysteryUsed + ruleId) else state
++
++  fun requiredSuccesses(state: SupplementCampaignState, ruleId: String, skill: String?): Int? {
++    val r = rule(ruleId) ?: return null
++    if (r.supplement != state.active) return null
++    val canonical = skill?.let(TalesSkillCatalog::canonicalSkill)
++    if (r.allowedSkills.isNotEmpty() && canonical !in r.allowedSkills) return null
++    val base = r.requiredSuccesses ?: return null
++    return if (state.active == OfficialSupplement.THEY_GROW_UP_SO_FAST && state.tgufTrustPenalty > 0 && canonical == "Charme") {
++      base + state.tgufTrustPenalty
++    } else base
++  }
++
++  fun bonusDice(state: SupplementCampaignState, ruleId: String, skill: String?): Int? {
++    val r = rule(ruleId) ?: return null
++    if (r.supplement != state.active || !canUseOncePerMystery(state, ruleId)) return null
++    val canonical = skill?.let(TalesSkillCatalog::canonicalSkill)
++    if (r.allowedSkills.isNotEmpty() && canonical !in r.allowedSkills) return null
++    return r.bonusDice.takeIf { it > 0 }
++  }
++
++  fun automaticSuccesses(state: SupplementCampaignState, ruleId: String): Int? {
++    val r = rule(ruleId) ?: return null
++    if (r.supplement != state.active || !canUseOncePerMystery(state, ruleId)) return null
++    return r.automaticSuccesses.takeIf { it > 0 }
++  }
++
++  fun extendedThreatLevel(state: SupplementCampaignState, ruleId: String): ThreatLevel? {
++    val r = rule(ruleId) ?: return null
++    if (r.supplement != state.active) return null
++    var mult = r.extendedMultiplier ?: return null
++    if (state.active == OfficialSupplement.THEY_GROW_UP_SO_FAST && state.tgufExtendedEscalationSteps > 0) {
++      mult = (mult + state.tgufExtendedEscalationSteps).coerceAtMost(4)
++    }
++    return when (mult) { 2 -> ThreatLevel.NORMAL; 3 -> ThreatLevel.DIFFICULT; 4 -> ThreatLevel.ALMOST_IMPOSSIBLE; else -> null }
++  }
++
++  fun chipReactivates(nearDeceiverCount: Int, d6: Int): Boolean = nearDeceiverCount >= 10 && d6 == 6
++  fun machinesNeededToHackChips(chips: Int): Int = chips.coerceAtLeast(0) * 10
++  fun capPermanentBonus(value: Int): Int = value.coerceIn(0, 3)
++}
+diff -ruN '--exclude=docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md' /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/TalesCore.kt /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/TalesCore.kt
+--- /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/TalesCore.kt	2026-09-15 04:16:00.000000000 +0000
++++ /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/game/TalesCore.kt	2026-09-18 02:46:34.602524989 +0000
+@@ -182,6 +182,8 @@
+   val approvedItemBonus: Int = 0,
+   val helperKid: String? = null,
+   val leadBonusDice: Int = 0,
++  val supplementBonusDice: Int = 0,
++  val supplementRuleId: String? = null,
+   val extendedSceneIndex: Int? = null
+ ) {
+   fun basePool(): Int = attributeValue + if (skillName == null) 0 else skillValue
+@@ -243,11 +245,12 @@
+   val scenes: List<ExtendedKidScene> = emptyList(),
+   val acceptedExtraConditions: Int = 0,
+   val compromiseMarks: List<CompromiseMark> = emptyList(),
+-  val compromiseDeclined: Boolean = false
++  val compromiseDeclined: Boolean = false,
++  val supplementAutomaticSuccesses: Int = 0
+ ) {
+   val target: Int get() = kids * threatLevel.multiplier
+   val resolvedScenes: Int get() = scenes.count { it.successes != null }
+-  val totalSuccesses: Int get() = scenes.sumOf { it.countedSuccesses } + acceptedExtraConditions
++  val totalSuccesses: Int get() = scenes.sumOf { it.countedSuccesses } + acceptedExtraConditions + supplementAutomaticSuccesses
+   val leadPoolRemaining: Int get() = (scenes.sumOf { it.leadPoolGenerated } - scenes.sumOf { it.leadDiceAllocated }).coerceAtLeast(0)
+   val allScenesResolved: Boolean get() = scenes.size == kids && scenes.all { it.successes != null }
+   val nextUnresolvedIndex: Int? get() = scenes.indexOfFirst { it.successes == null }.takeIf { it >= 0 }
+@@ -270,12 +273,13 @@
+   val sessionXpAwarded: Boolean = false,
+   val endingMode: EndingMode = EndingMode.NONE,
+   val change: ChangeState = ChangeState(),
++  val supplement: SupplementCampaignState = SupplementCampaignState(),
+   val lastError: String? = null
+ ) {
+   fun finalPool(): Int {
+     val test = activeTest ?: return 0
+     if (kid.broken) return 0
+-    return (test.basePool() + test.approvedItemBonus + test.leadBonusDice + (if (test.helperKid != null) 1 else 0) - kid.conditionPenalty).coerceAtLeast(0)
++    return (test.basePool() + test.approvedItemBonus + test.leadBonusDice + test.supplementBonusDice + (if (test.helperKid != null) 1 else 0) - kid.conditionPenalty).coerceAtLeast(0)
+   }
+ }
+ 
+@@ -290,6 +294,17 @@
+     val visualAssetKey: String? = null
+   ) : GameEvent
+   data class GmRequestTest(val request: TestRequest) : GameEvent
++  data class SetSupplement(val supplement: OfficialSupplement) : GameEvent
++  data class StartSupplementMystery(val mysteryId: String) : GameEvent
++  data class ApplySupplementBonus(val ruleId: String) : GameEvent
++  data class UseSupplementAbility(val ruleId: String) : GameEvent
++  data class ApplySupplementAutomaticSuccesses(val ruleId: String) : GameEvent
++  data class SetTgufAlienStage(val stage: TgufAlienStage) : GameEvent
++  data class SetTgufTrustPenalty(val extraSuccesses: Int) : GameEvent
++  data class SetTgufExtendedEscalation(val steps: Int) : GameEvent
++  data class SetHometownHack(val state: HometownHackState) : GameEvent
++  data class SetChipState(val characterId: String, val chipped: Boolean, val disabled: Boolean = false) : GameEvent
++  data class SaveSupplementBonus(val key: String, val dice: Int, val permanent: Boolean = false) : GameEvent
+   data class SetSceneImportedImage(val uri: String?) : GameEvent
+   data object ClearTest : GameEvent
+   data class ApplyHelp(val helperKid: String) : GameEvent
+@@ -386,11 +401,96 @@
+       }
+ 
+       is GameEvent.GmRequestTest -> {
+-        if (event.request.attributeValue < 0 || event.request.skillValue < 0 || event.request.requiredSuccesses !in 1..3) {
+-          fail("Teste inválido.")
++        val ruleId = event.request.supplementRuleId
++        val supplementRequired = ruleId?.let { OfficialSupplementRules.requiredSuccesses(state.supplement, it, event.request.skillName) }
++        val difficultyOk = if (ruleId == null) event.request.requiredSuccesses in 1..3 else supplementRequired == event.request.requiredSuccesses
++        if (event.request.attributeValue < 0 || event.request.skillValue < 0 || !difficultyOk) {
++          fail("Teste inválido ou regra suplementar não autorizada.")
+         } else ok(state.copy(activeTest = event.request, testResolution = null))
+       }
+ 
++      is GameEvent.SetSupplement -> {
++        if (event.supplement != OfficialSupplement.NONE && state.extended.active) fail("Não troque suplemento durante Problema Estendido.")
++        else ok(state.copy(supplement = SupplementCampaignState(active = event.supplement)))
++      }
++
++      is GameEvent.StartSupplementMystery -> {
++        if (event.mysteryId.isBlank()) fail("Mystery ID suplementar vazio.")
++        else ok(state.copy(supplement = state.supplement.startMystery(event.mysteryId.trim())))
++      }
++
++      is GameEvent.ApplySupplementBonus -> {
++        val test = state.activeTest ?: return fail("Não há teste ativo.")
++        if (state.testResolution != null) fail("Bônus suplementar deve ser aplicado antes da rolagem.")
++        else {
++          val bonus = OfficialSupplementRules.bonusDice(state.supplement, event.ruleId, test.skillName)
++            ?: return fail("Regra suplementar/bônus não autorizado.")
++          val nextSupp = OfficialSupplementRules.markUsed(state.supplement, event.ruleId)
++          ok(state.copy(activeTest = test.copy(supplementBonusDice = test.supplementBonusDice + bonus), supplement = nextSupp))
++        }
++      }
++
++      is GameEvent.UseSupplementAbility -> {
++        if (!OfficialSupplementRules.isRuleActive(state.supplement, event.ruleId) || !OfficialSupplementRules.canUseOncePerMystery(state.supplement, event.ruleId)) {
++          fail("Habilidade suplementar indisponível.")
++        } else when (event.ruleId) {
++          OfficialSupplementRules.TGUF_BOND_HEAL -> {
++            if (state.kid.conditions.isEmpty()) fail("Não há Condition para remover.")
++            else {
++              val removed = state.kid.conditions.first()
++              ok(state.copy(kid = state.kid.copy(conditions = state.kid.conditions - removed), supplement = OfficialSupplementRules.markUsed(state.supplement, event.ruleId)))
++            }
++          }
++          OfficialSupplementRules.TGUF_DRAIN_DEVICE -> ok(state.copy(supplement = OfficialSupplementRules.markUsed(state.supplement, event.ruleId)))
++          else -> fail("Habilidade suplementar sem efeito local direto.")
++        }
++      }
++
++      is GameEvent.ApplySupplementAutomaticSuccesses -> {
++        if (!state.extended.active) fail("Sucessos automáticos suplementares exigem Problema Estendido ativo.")
++        else {
++          val amount = OfficialSupplementRules.automaticSuccesses(state.supplement, event.ruleId) ?: return fail("Sucessos automáticos não autorizados.")
++          val nextSupp = OfficialSupplementRules.markUsed(state.supplement, event.ruleId)
++          ok(state.copy(extended = state.extended.copy(supplementAutomaticSuccesses = state.extended.supplementAutomaticSuccesses + amount), supplement = nextSupp))
++        }
++      }
++
++      is GameEvent.SetTgufAlienStage -> {
++        if (state.supplement.active != OfficialSupplement.THEY_GROW_UP_SO_FAST) fail("Estágio alien só existe em TGUF.")
++        else ok(state.copy(supplement = state.supplement.copy(tgufStage = event.stage)))
++      }
++
++      is GameEvent.SetTgufTrustPenalty -> {
++        if (state.supplement.active != OfficialSupplement.THEY_GROW_UP_SO_FAST || event.extraSuccesses !in 0..1) fail("Penalidade TGUF inválida.")
++        else ok(state.copy(supplement = state.supplement.copy(tgufTrustPenalty = event.extraSuccesses)))
++      }
++
++      is GameEvent.SetTgufExtendedEscalation -> {
++        if (state.supplement.active != OfficialSupplement.THEY_GROW_UP_SO_FAST || event.steps !in 0..1) fail("Escalada TGUF inválida.")
++        else ok(state.copy(supplement = state.supplement.copy(tgufExtendedEscalationSteps = event.steps)))
++      }
++
++      is GameEvent.SetHometownHack -> {
++        if (state.supplement.active != OfficialSupplement.OUR_FRIENDS_THE_MACHINES) fail("Hometown Hack exige OFM ativo.")
++        else ok(state.copy(supplement = state.supplement.copy(hometownHack = event.state)))
++      }
++
++      is GameEvent.SetChipState -> {
++        if (state.supplement.active != OfficialSupplement.OUR_FRIENDS_THE_MACHINES || event.characterId.isBlank()) fail("Estado de chip inválido.")
++        else {
++          val id = event.characterId.trim()
++          val chipped = if (event.chipped) state.supplement.chippedCharacters + id else state.supplement.chippedCharacters - id
++          val disabled = if (event.disabled) state.supplement.disabledChips + id else state.supplement.disabledChips - id
++          ok(state.copy(supplement = state.supplement.copy(chippedCharacters = chipped, disabledChips = disabled)))
++        }
++      }
++
++      is GameEvent.SaveSupplementBonus -> {
++        if (event.key.isBlank() || event.dice !in 0..3 || state.supplement.active == OfficialSupplement.NONE) fail("Bônus suplementar persistente inválido.")
++        else if (event.permanent) ok(state.copy(supplement = state.supplement.copy(permanentBonusDice = state.supplement.permanentBonusDice + (event.key to OfficialSupplementRules.capPermanentBonus(event.dice)))))
++        else ok(state.copy(supplement = state.supplement.copy(savedBonusDice = state.supplement.savedBonusDice + (event.key to event.dice))))
++      }
++
+       GameEvent.ClearTest -> ok(state.copy(activeTest = null, testResolution = null))
+ 
+       is GameEvent.ApplyHelp -> {
+diff -ruN '--exclude=docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md' /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/navigation/AppNavGraph.kt /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/navigation/AppNavGraph.kt
+--- /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/navigation/AppNavGraph.kt	2026-09-15 04:50:33.000000000 +0000
++++ /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/navigation/AppNavGraph.kt	2026-09-18 02:49:10.152663725 +0000
+@@ -137,6 +137,7 @@
+         floodState = floodState,
+         activeProfile = activeProfile,
+         onSelectProfile = gameViewModel::selectProfile,
++        onSelectOfficialSupplement = gameViewModel::selectOfficialSupplement,
+         adventureStarted = adventureStarted,
+         hasManualSave = hasManualSave,
+         motorStatus = motorStatus,
+diff -ruN '--exclude=docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md' /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/screens/MenuScreen.kt /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/screens/MenuScreen.kt
+--- /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/screens/MenuScreen.kt	2026-09-15 04:50:33.000000000 +0000
++++ /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/app/src/main/java/com/braseiro/talesvtt/screens/MenuScreen.kt	2026-09-18 02:49:10.152506460 +0000
+@@ -35,6 +35,7 @@
+ import com.braseiro.talesvtt.game.FloodTypeCatalog
+ import com.braseiro.talesvtt.game.CampaignProfile
+ import com.braseiro.talesvtt.game.MotorRuntimeStatus
++import com.braseiro.talesvtt.game.OfficialSupplement
+ import com.braseiro.talesvtt.game.MotorTransportConfig
+ import com.braseiro.talesvtt.model.AppDestination
+ import com.braseiro.talesvtt.model.ContextIconType
+@@ -50,6 +51,7 @@
+   floodState: FloodState,
+   activeProfile: CampaignProfile,
+   onSelectProfile: (CampaignProfile) -> Unit,
++  onSelectOfficialSupplement: (OfficialSupplement) -> Unit,
+   adventureStarted: Boolean,
+   hasManualSave: Boolean,
+   motorStatus: MotorRuntimeStatus,
+@@ -118,6 +120,22 @@
+       Spacer(Modifier.width(7.dp))
+       SecondaryButton(if(floodActive) "● FLOOD / TEENS" else "FLOOD / TEENS", { onSelectProfile(CampaignProfile.FLOOD_TEENS) }, Modifier.weight(1f))
+     }
++    if (!floodActive) {
++      Spacer(Modifier.height(Dimens.spacing12))
++      SectionHeader(title = "MÓDULO OFICIAL TALES", color = AppTheme.colors.accentAmber)
++      Spacer(Modifier.height(Dimens.spacing8))
++      Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp)) {
++        OfficialSupplement.entries.forEach { supplement ->
++          SecondaryButton(
++            if (gameState.supplement.active == supplement) "● ${supplement.label.uppercase()}" else supplement.label.uppercase(),
++            { onSelectOfficialSupplement(supplement) },
++            Modifier.fillMaxWidth()
++          )
++        }
++      }
++      Text("TGUF/OFM usam o engine Tales. Dificuldades, bônus e multiplicadores específicos vêm do registry local, não do RAG.", style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.textSecondary))
++    }
++
+     Spacer(Modifier.height(Dimens.spacing16))
+     SectionHeader(title = "COMEÇAR", color = AppTheme.colors.accentCyan)
+     Spacer(Modifier.height(Dimens.spacing8))
+diff -ruN '--exclude=docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md' /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/docs/HANDOFF_FINAL_1.3.16.md /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/docs/HANDOFF_FINAL_1.3.16.md
+--- /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/docs/HANDOFF_FINAL_1.3.16.md	2026-09-15 07:27:48.000000000 +0000
++++ /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/docs/HANDOFF_FINAL_1.3.16.md	2026-09-18 02:58:46.205274478 +0000
+@@ -26,3 +26,11 @@
+ 5. Se houver falha concreta, corrigir incrementalmente nesta 1.3.16 e repetir apenas os gates afetados.
+ 
+ **NÃO USAR GITHUB. NÃO GERAR APK COMO ENTREGA PRINCIPAL.**
++
++
++## 2026-09-17 — OFFICIAL SUPPLEMENTS LOCAL MECHANICS LOCK
++- Snapshot Tales atualizado para v10.
++- versionCode final: 21; versionName: 1.3.16.
++- TGUF e OFM usam `OfficialSupplementRules.kt`; números mecânicos não dependem de RAG/Gemini.
++- Harness suplementar final: 44/44 PASS.
++- Audits finais: final_1316/visual/assets/product/firewall/static PASS.
+diff -ruN '--exclude=docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md' /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md
+--- /mnt/data/tales_old/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/tales_finish/BRASEIRO_TALES_VTT_ANDROID_STUDIO_FINAL_1.3.16/android/docs/OFFICIAL_SUPPLEMENTS_LOCAL_MECHANICS_1.3.16.md	2026-09-18 02:58:45.473075723 +0000
+@@ -0,0 +1,22 @@
++# Official supplements — local mechanics lock 1.3.16
++
++Profiles remain separate: Tales/Kids and Flood/Teens. Official Tales supplements do not create a third engine.
++
++## Local authority
++
++- Tales core rules are resolved by `TalesCore.kt`.
++- Things from the Flood core rules are resolved by `FloodCore.kt`.
++- `They Grow Up So Fast` and `Nossas Amigas as Máquinas e Outros Mistérios` exceptions are resolved by `OfficialSupplementRules.kt`.
++- Gemini/RAG may select an allowed `ruleId` from current campaign context, but cannot supply or override numeric difficulty, bonus dice, automatic successes, extended-trouble multiplier, usage limits, or persistent supplement state.
++- Unknown, inactive, cross-profile, or skill-incompatible `ruleId`s are rejected by `MotorBarbaraFirewall`.
++
++## Persistence
++
++`GameSnapshotCodec` v10 persists the active official supplement and its campaign state, including TGUF bond/stage/once-per-Mystery uses/trust/escalation and OFM chips/saved bonuses/permanent bonuses/Hometown Hack.
++
++## Verification
++
++`SupplementRulesHarness.kt`: 44/44 PASS after final local registry changes.
++Project audits: final_1316, final_visual_asset, product_feature, profile_firewall, static_audit = PASS.
++
++No supplemental mechanic is allowed to override the global Tales/Flood profile firewall.

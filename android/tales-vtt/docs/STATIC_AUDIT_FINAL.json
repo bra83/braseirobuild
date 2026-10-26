@@ -1,0 +1,23 @@
+{
+  "screens_expected": 13,
+  "screens_present": 13,
+  "missing_screens": [],
+  "drawable_refs": 130,
+  "drawable_files": 165,
+  "missing_drawables": [],
+  "forbidden_hits": {
+    "question_marks": 0,
+    "tactical_radar": 0,
+    "hp": 0,
+    "initiative": 0,
+    "encumbrance": 0,
+    "demo_triggers": 0
+  },
+  "placeholder_screen_hits": [],
+  "brace_bad": [],
+  "old_package_hits": 0,
+  "backup_disabled": true,
+  "missing_engine_tokens": [],
+  "scaffold_files": [],
+  "pass": true
+}

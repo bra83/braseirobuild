@@ -1,0 +1,1 @@
+SNAPSHOT_SCALE_PASS publicBytes=1787647 publicEncodeMs=61 publicDecodeMs=185 privateBytes=4531618 privateEncodeMs=86 privateDecodeMs=224

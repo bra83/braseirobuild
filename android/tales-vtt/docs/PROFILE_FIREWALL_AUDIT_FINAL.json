@@ -1,0 +1,15 @@
+{
+  "pass": true,
+  "checks": {
+    "tales_core_has_no_flood_state": true,
+    "flood_core_has_no_luck_state": true,
+    "flood_core_has_no_pride_state": true,
+    "tales_codec_profile_locked": true,
+    "flood_codec_profile_locked": true,
+    "flood_codec_rejects_tales_resources": true,
+    "motor_still_tales_only_until_profile_router": true,
+    "flood_skill_count_12": true,
+    "flood_type_count_10": true
+  },
+  "note": "Flood core exists as separate mechanical module. Motor Barbara remains intentionally Tales-only until a profile router is installed; this prevents cross-profile contamination."
+}

@@ -32,7 +32,27 @@ object AppViewStateProjector {
                 .put("visibleNarration", game.session.visibleNarration)
                 .put("visibleMechanicalFeedback", game.session.visibleMechanicalFeedback)
                 .put("lastPlayerReaction", game.session.lastPlayerReaction)
-                .put("pendingNarrationReactionId", game.session.pendingNarrationReactionId ?: JSONObject.NULL))
+                .put("pendingNarrationReactionId", game.session.pendingNarrationReactionId ?: JSONObject.NULL)
+                .put("reactionReceipts", JSONObject(game.session.reactionReceipts.mapValues { (_, r) ->
+                    JSONObject()
+                        .put("reactionId", r.reactionId)
+                        .put("reactionText", r.reactionText)
+                        .put("mechanicalFeedback", r.mechanicalFeedback)
+                        .put("mechanicalMutation", r.mechanicalMutation)
+                        .put("traceStatus", r.traceStatus)
+                        .put("traceNote", r.traceNote)
+                        .put("traceEvidenceRefs", JSONArray(r.traceEvidenceRefs))
+                        .put("narration", r.narration ?: JSONObject.NULL)
+                        .put("mechanicalIntent", r.mechanicalIntent ?: JSONObject.NULL)
+                        .put("actorCharacterId", r.actorCharacterId ?: JSONObject.NULL)
+                        .put("lifeCauseId", r.lifeCauseId ?: JSONObject.NULL)
+                        .put("lifeCauses", JSONArray(r.lifeCauses))
+                        .put("lifeTransitionRef", r.lifeTransitionRef ?: JSONObject.NULL)
+                        .put("lifeConsequence", r.lifeConsequence ?: JSONObject.NULL)
+                        .put("diceRolls", JSONArray(r.diceRolls.map { d ->
+                            JSONObject().put("sides", d.sides).put("value", d.value).put("label", d.label ?: JSONObject.NULL)
+                        }))
+                })))
             .put("party", JSONArray(party.map { c ->
                 characterSummary(c).put("controlMode", (game.characterControlModes[c.characterId]
                     ?: CharacterControlMode.PLAYER).name)
@@ -56,6 +76,30 @@ object AppViewStateProjector {
                         .put("stance", proposal.stance)
                         .put("status", proposal.status.name)
                 }))
+            .put("retainers", JSONArray(game.retainerContracts.values.sortedBy { it.npcId }.map { contract ->
+                JSONObject()
+                    .put("npcId", contract.npcId)
+                    .put("name", game.npcs[contract.npcId]?.name ?: contract.npcId)
+                    .put("employerCharacterId", contract.employerCharacterId)
+                    .put("dailyWageGp", contract.dailyWageGp)
+                    .put("treasureHalfShares", contract.treasureHalfShares)
+                    .put("wagePaidThroughDay", contract.wagePaidThroughDay ?: JSONObject.NULL)
+                    .put("totalWagesPaidGp", contract.totalWagesPaidGp)
+                    .put("wagePaymentCount", contract.wageReceipts.size)
+                    .put("wageLedgerNeedsBaseline", contract.wagePaidThroughDay == null)
+                    .put("wageDueDays", braseiro.ose.rules.shared.RetainerMercenaryRules.quoteDailyWage(
+                        contract.dailyWageGp, contract.wagePaidThroughDay, state.time.days).daysOwed)
+                    .put("wageDueGp", braseiro.ose.rules.shared.RetainerMercenaryRules.quoteDailyWage(
+                        contract.dailyWageGp, contract.wagePaidThroughDay, state.time.days).amountGp)
+                    .put("active", contract.active)
+            }))
+            .put("retainerCandidates", JSONArray(game.npcs.values
+                .filter { npc -> npc.spatialRef == state.position.primary &&
+                    npc.retainerLevel != null &&
+                    npc.npcId in game.characters &&
+                    game.retainerContracts[npc.npcId]?.active != true }
+                .sortedBy { it.name }
+                .map { npc -> JSONObject().put("npcId", npc.npcId).put("name", npc.name) }))
             .put("selectedCharacterId", selected?.characterId ?: JSONObject.NULL)
             .put("selectedCharacter", selected?.let(::characterDetail) ?: JSONObject.NULL)
             .put("inventory", JSONArray(game.inventory.items.values

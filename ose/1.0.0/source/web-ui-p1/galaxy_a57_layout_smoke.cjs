@@ -13,7 +13,11 @@ function check(label, condition) { assert.ok(condition, label); process.stdout.w
 check('responsive <=480 dp breakpoint', css.includes('@media (max-width: 480px)'));
 check('compact <=370 dp breakpoint', css.includes('@media (max-width: 370px)'));
 check('dynamic height', css.includes('min-height: 100dvh'));
-check('bottom-nav safe inset', css.includes('height: calc(80px + env(safe-area-inset-bottom, 0px))'));
+check('bottom-nav compact + safe inset', css.includes('height: calc(56px + env(safe-area-inset-bottom, 0px))') && !css.includes('height: calc(80px + env(safe-area-inset-bottom, 0px))'));
+check('bottom-nav separate Android system inset', activity.includes('lp.bottomMargin = insets.systemWindowInsetBottom'));
+check('compact content reserves real bar height', css.includes('#phone{padding-bottom:calc(56px + env(safe-area-inset-bottom,0px))}'));
+check('Forbidden Lands tray present', html.includes('id="dice3dTray"') && css.includes('.dice3d-stage') && css.includes('.dice3d-cube'));
+check('catalog icons do not rely on black CSS border', css.includes('.item-thumb.equipment-art{border:0!important'));
 check('touch-size controls', css.includes('min-height: 44px'));
 check('touch-size zoom controls', css.includes('min-width: 44px'));
 check('keyboard-safe overlays', css.includes('max-height: 100dvh') && css.includes('.settings { max-height: 100%; overflow-y: auto;'));
@@ -21,5 +25,5 @@ check('small landscape layout', css.includes('@media (max-height: 600px) and (or
 check('native status and navigation insets', activity.includes('root.setOnApplyWindowInsetsListener') && activity.includes('lp.topMargin = insets.systemWindowInsetTop') && activity.includes('lp.bottomMargin = insets.systemWindowInsetBottom'));
 check('keyboard resize mode', manifest.includes('android:windowSoftInputMode="adjustResize"'));
 check('adaptive viewport and user zoom', html.includes('width=device-width,initial-scale=1,viewport-fit=cover') && !html.includes('user-scalable=no'));
-check('preserved package and update capability', gradle.includes('applicationId = "braseiro.ose"') && gradle.includes('versionCode = 9'));
+check('preserved package and update capability', gradle.includes('applicationId = "braseiro.ose"') && (gradle.includes('versionCode = 10') || gradle.includes('versionCode = 11')));
 console.log('Galaxy A57 static WebView contract: PASS (device testing still required)');

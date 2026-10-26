@@ -1,0 +1,3 @@
+RANDOM_KID_10000_PASS
+ADVENTURE_10000_UNIQUE_PASS
+WEATHER_VARIETY_PASS=Chuva,Chuva forte,C?u limpo,Garoa,Neblina,Neve leve,Nublado,Vento frio

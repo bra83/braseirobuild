@@ -1,0 +1,189 @@
+[gurps-investigacao]
+justice|Um prazo processual conhecido se aproxima;Uma testemunha solicita retificar seu depoimento;Uma reparação aprovada aguarda encaminhamento;Um familiar pergunta como acessar informação pública
+work|Uma promoção exige decidir quais tarefas abandonar;Um parceiro retorna de um afastamento;Uma mudança de chefia redistribui responsabilidades;Um plantão precisa ser trocado por acordo
+belief|Um álibi documentado contraria uma suspeita antiga;Uma fonte admite que confundiu duas pessoas;Uma denúncia anônima precisa de confirmação independente;Um registro contém um horário incompatível com outro
+memory|Uma cadeira vazia recorda um colega ausente;Um antigo caderno reaparece entre os pertences;Uma música toca durante uma espera comum;Um trajeto passa por um lugar associado a outra fase
+resources|Uma viatura disponível precisa de manutenção;Um orçamento limita deslocamentos da equipe;Um fornecedor atrasa material de escritório;Uma sala de atendimento precisa ser compartilhada
+npc|Um colega prepara sua aposentadoria;Uma recepcionista começa um curso noturno;Um antigo informante muda de profissão;Um superior organiza a mudança de casa
+family|Um parente pede presença numa comemoração;Uma tarefa doméstica ficou pendente durante a ausência;Uma pessoa da família procura orientação prática;Uma lembrança familiar chega por correspondência
+home|Uma chave antiga precisa ter seu destino decidido;Uma reforma abre uma caixa esquecida;Um vizinho pede combinar o uso de um espaço;Um reparo devolve utilidade a um cômodo
+recovery|Um colega reconhece que dividiu bem uma tarefa;Uma pausa segura permite retomar uma atividade escolhida;Um amigo oferece companhia para resolver uma pendência;Um cuidado previamente combinado fica disponível
+social|Um convite de aniversário chega ao investigador;Um conhecido propõe uma partida de cartas;Uma conversa de bar segue longe dos casos;Um grupo organiza um passeio simples
+reputation|Um elogio público omite o trabalho de outra pessoa;Uma entrevista antiga volta a circular;Um morador reconhece quem prestou uma ajuda;Uma acusação pública tem sua fonte identificada
+body|Um assento pode ser ajustado a uma necessidade conhecida;Uma atividade permite respeitar uma limitação registrada;Um atendimento autorizado ganha data disponível;Uma pessoa oferece carregar equipamento pesado
+intimacy|Um encontro precisa ser remarcado;Uma pessoa próxima pede combinar privacidade;Um gesto de carinho recorda um acordo antigo;Uma conversa pode esclarecer uma expectativa de convivência
+community|Moradores organizam iluminação de uma rua;Uma associação solicita uma reunião informativa;Uma festa de bairro precisa de voluntários;Uma biblioteca recolhe histórias de antigos moradores
+legacy|Um estagiário pergunta por um procedimento documentado;Uma família deseja preservar uma fotografia;Um colega entrega anotações de trabalho com procedência;Uma experiência pode ser ensinada numa formação
+sleep|Um conserto elimina um ruído noturno;Uma mudança de turno altera o horário disponível;Uma hospedagem oferece um quarto mais tranquilo;Uma lembrança de sonho pode ser comentada livremente
+emotion|Um agradecimento discreto chega após o fim do caso;Uma pequena conquista recebe reconhecimento;Uma ausência é notada numa celebração;Um reencontro permite expressar uma reação escolhida
+habits|Um café habitual muda de horário;Um ritual de início do plantão pode ser revisto;Um companheiro pergunta por um costume compartilhado;Um caminho alternativo torna a rotina mais simples
+world|Uma obra altera o acesso à delegacia;Um serviço público muda o atendimento;Uma linha de transporte amplia sua frequência;Uma decisão municipal modifica a circulação do bairro
+goals|Uma inscrição num curso fica disponível;Um projeto de escrita encontra um leitor interessado;Uma viagem desejada ganha uma alternativa acessível;Uma promessa pessoal encontra ocasião para avançar
+[gurps-csi]
+justice|Uma cadeia de custódia precisa ter uma lacuna esclarecida;Uma autorização conhecida delimita o material examinável;Uma devolução de pertences aguarda conferência;Uma audiência solicita explicar limites de um exame
+work|Um protocolo recebe uma atualização documentada;Uma bancada precisa ser reservada;Uma conferência de laudo demanda revisão por outro perito;Uma troca de turno exige passagem clara de responsabilidades
+belief|Uma amostra disponível apresenta identificação a conferir;Um controle de qualidade pede repetir um procedimento;Um intervalo de tempo permanece indeterminado;Uma hipótese precisa ser separada de uma conclusão
+resources|Um equipamento entra em manutenção programada;Um estoque de reagente conhecido se aproxima do limite;Uma embalagem adequada precisa ser obtida;Uma entrega de material precisa de conferência
+npc|Uma técnica apresenta pesquisa própria;Um fotógrafo prepara uma exposição fora do trabalho;Um colega assume a formação de iniciantes;Uma profissional negocia um novo horário
+memory|Uma etiqueta antiga lembra um procedimento aprendido;Um cheiro de limpeza recorda outro laboratório;Um corredor evoca uma conversa marcante;Um caderno preserva perguntas de um caso encerrado
+family|Um compromisso familiar coincide com uma reserva de equipamento;Um parente pede notícias fora do expediente;Uma tarefa doméstica requer combinar responsabilidades;Uma comemoração oferece reencontro sem discutir trabalho
+home|Um espaço de estudo pode ser reorganizado;Uma caixa de objetos pessoais precisa de destino;Um reparo melhora a rotina de chegada;Um vizinho devolve um objeto emprestado
+recovery|Uma revisão reconhece um erro corrigido sem punição automática;Um colega oferece apoio numa tarefa acumulada;Uma pausa permite retomar um interesse pessoal;Uma ajuda prática torna o trabalho menos desgastante
+social|Uma equipe celebra a conclusão de um curso;Um conhecido convida para uma refeição;Um antigo colega propõe retomar contato;Uma atividade cultural ocorre fora do expediente
+reputation|Uma notícia confunde evidência com certeza;Um elogio atribui a uma pessoa trabalho coletivo;Uma entrevista permite esclarecer o alcance de uma técnica;Uma escola solicita uma apresentação informativa
+body|Uma bancada regulável permite uma adaptação necessária;Uma tarefa repetitiva pode ser dividida;Um transporte interno facilita mover material pesado;Uma necessidade registrada pode ser acomodada numa escala
+intimacy|Uma pessoa próxima pede uma noite sem telefonemas de trabalho;Um encontro ganha nova data por acordo;Uma conversa esclarece um limite de convivência;Uma lembrança compartilhada abre espaço para aproximação
+community|Uma ação educativa explica a preservação de registros;Uma instituição recebe perguntas de moradores;Uma biblioteca organiza uma atividade científica;Uma associação busca informação sem detalhes privados
+legacy|Um perito novo consulta um manual anotado;Um procedimento antigo tem sua origem registrada;Uma experiência profissional pode ser transmitida numa oficina;Um colega oferece organizar material de formação
+aftercare|Uma pessoa confiável se dispõe a conversar após um turno;Uma atividade escolhida volta a caber na agenda;Um apoio combinado pode ser retomado;Uma melhora cotidiana é percebida sem diagnóstico
+emotion|Um agradecimento reconhece o cuidado com uma família;Uma incerteza admitida alivia uma expectativa indevida;Uma tarefa concluída oferece espaço para satisfação;Uma perda profissional pode ser lembrada sem reabrir o caso
+habits|Uma dupla revisa sua conferência de etiquetas;Uma rotina de entrada de material encontra uma exceção documentada;Um costume de fim de turno pode ser mantido;Uma passagem de serviço ganha um registro mais claro
+world|Um laboratório altera a recepção de amostras;Uma obra muda o acesso ao prédio;Um convênio documentado redistribui encaminhamentos;Uma instituição anuncia um novo horário de atendimento
+goals|Uma certificação profissional abre inscrição;Um artigo em preparação encontra ocasião de revisão;Uma ferramenta de estudo fica acessível;Uma formação desejada pode ser negociada na agenda
+[gurps-serial-killer]
+justice|Uma atualização de custódia precisa ser obtida por fonte oficial;Uma família busca informação sobre uma reparação;Uma data processual conhecida se aproxima;Uma testemunha pergunta como corrigir um detalhe registrado
+work|Uma investigação nova exige delimitar seu próprio escopo;Um parceiro pede dividir uma tarefa difícil;Uma escala precisa respeitar um compromisso já assumido;Uma revisão organiza o que ainda depende de evidência
+belief|Uma carta disponível possui origem ainda não demonstrada;Uma assinatura atribuída precisa de autenticação;Um boato de fuga contraria um registro acessível;Uma semelhança entre casos pode ser apenas coincidência
+memory|Uma data recorda alguém que não voltou;Um objeto pessoal mantém uma história independente do criminoso;Um lugar comum evoca uma lembrança inesperada;Uma fotografia preserva uma fase anterior da vida
+resources|Um deslocamento exige negociar transporte;Uma equipe precisa repartir material disponível;Um prazo de serviço disputa tempo de trabalho;Uma despesa doméstica conhecida requer planejamento
+npc|Um antigo parceiro decide mudar de setor;Uma pessoa afetada pelo caso persegue um projeto próprio;Um contato se dedica a uma atividade comunitária;Um colega prepara uma comemoração familiar
+family|Uma visita familiar continua possível após o caso;Uma pessoa da família solicita ajuda prática;Uma celebração precisa de uma resposta;Uma rotina doméstica pede redistribuir uma tarefa
+home|Um quarto recebe um uso escolhido pelos moradores;Uma lembrança guardada pode permanecer onde está;Um reparo pendente melhora uma rotina simples;Uma visita devolve familiaridade à casa
+recovery|Uma rede de apoio oferece presença sem exigir relato;Uma atividade prazerosa pode ser retomada;Um cuidado anteriormente combinado ganha nova ocasião;Uma ajuda prática reduz uma dificuldade de rotina
+social|Um amigo propõe convivência sem falar dos crimes;Um conhecido convida para cozinhar em grupo;Uma atividade cultural oferece assunto novo;Um encontro permite retomar uma amizade antiga
+reputation|Uma reportagem usa uma imagem fora de contexto;Um morador agradece uma ajuda específica;Uma versão pública exagera o papel de um investigador;Uma testemunha reconhece o trabalho de outra pessoa
+body|Uma necessidade conhecida pode ser respeitada numa tarefa;Uma adaptação de equipamento fica disponível;Uma pessoa oferece dividir um esforço físico;Um cuidado validado encontra horário acessível
+intimacy|Uma pessoa próxima pede conversar sobre disponibilidade;Um limite de privacidade pode ser combinado;Uma saudade pode ser expressa pelo jogador;Um encontro cotidiano permite reconstruir convivência
+community|Uma comunidade preserva a memória de pessoas ausentes;Um grupo organiza apoio sem expor detalhes privados;Uma atividade de bairro acolhe novos participantes;Uma instituição solicita informação pública confirmada
+legacy|Um colega mais novo pergunta como registrar incertezas;Uma família deseja guardar a história de alguém;Um objeto herdado conserva procedência;Uma experiência pode orientar outro profissional sem definir sua vida
+sleep|Um ruído conhecido interfere no ambiente de repouso;Uma noite tranquila pode ser apenas uma noite tranquila;Uma mudança de escala abre tempo para descanso;Um sonho pode ser narrado sem impor interpretação
+emotion|Uma conquista recente dá espaço a orgulho escolhido;Um agradecimento recorda quem ajudou;Uma ausência é percebida numa ocasião alegre;Uma pequena melhora permite reação livre
+habits|Uma rotina de chegada ganha uma alternativa;Um costume compartilhado pode ser confirmado;Uma pausa habitual encontra interrupção explicável;Um trajeto oferece chance de seguir por outro caminho
+world|Uma instituição mantém uma consequência documentada do caso;Um bairro muda por motivos independentes da investigação;Uma obra altera uma rota cotidiana;Um serviço amplia o acesso de moradores
+goals|Um plano de vida encontra recurso disponível;Uma promessa antiga pode ser retomada;Uma formação desejada ganha nova turma;Uma viagem pessoal pode ser planejada sem ligação com o caso
+[o-um-anel]
+justice|Uma liderança escuta duas versões de uma disputa;Um anfitrião esclarece uma obrigação de hospitalidade;Uma promessa pública pede testemunho de quem a ouviu;Uma reparação combinada encontra ocasião de cumprimento
+work|Um artesão solicita ajuda para concluir uma encomenda;Um guardião precisa repartir tarefas de vigília;Uma ponte recebe manutenção de moradores;Uma colheita exige combinar mãos disponíveis
+belief|Um rumor de estrada tem sua fonte identificada;Um relato de viajante admite uma lacuna;Uma marca antiga permite revisar uma interpretação;Uma notícia contraditória pede ouvir outra testemunha
+memory|Uma canção lembra um salão distante;Uma estrela visível evoca uma noite de jornada;Um caminho passa por uma árvore já conhecida;Um presente guarda a memória de um anfitrião
+resources|Um celeiro precisa de conferência antes do inverno;Uma ponte interditada exige pensar uma rota;Uma caravana oferece transporte por acordo;Um manto guardado pode ser reparado
+npc|Um estalajadeiro prepara o casamento de uma filha;Um mensageiro procura quem cuide de sua horta;Um artesão ensina seu primeiro aprendiz;Um velho conhecido decide mudar de ofício
+family|Uma carta de parentes chega com viajantes;Uma celebração familiar pede decidir a presença;Um parente transmite uma receita antiga;Uma ausência pede reorganizar tarefas da casa
+home|Um jardim mostra o efeito da passagem das estações;Um banco junto ao fogo preserva um lugar conhecido;Um reparo devolve uso a uma despensa;Um vizinho traz notícias de uma casa próxima
+recovery|Uma estadia segura oferece tempo para atividade escolhida;Um companheiro propõe dividir uma tarefa;Uma canção familiar pode ser ouvida sem efeito mecânico;Um anfitrião oferece ajuda sem cobrar confidências
+social|Uma mesa recebe viajantes de caminhos diferentes;Um conhecido convida para colher frutas;Uma história pode ser contada durante a refeição;Uma festa permite reencontro sem nova missão
+reputation|Um canto exagera um feito da companhia;Um morador reconhece uma ajuda prestada;Um relato alcança outro salão por fonte conhecida;Uma expectativa de terceiros pode ser esclarecida
+body|Um cajado pode ser ajustado a uma necessidade conhecida;Uma carga pode ser repartida entre companheiros;Um trajeto acessível é oferecido por quem o conhece;Um abrigo permite acomodar uma limitação registrada
+intimacy|Uma conversa reservada permite falar de saudade;Um presente simples pode receber uma resposta livre;Uma pessoa próxima pede combinar o próximo reencontro;Uma lembrança comum surge durante o caminho
+community|Moradores organizam o reparo de um poço;Uma festa conserva o nome de alguém ausente;Uma aldeia recebe novos habitantes;Um mutirão combina responsabilidades para o inverno
+legacy|Um aprendiz usa uma técnica ensinada antes;Um objeto de família tem sua origem contada;Uma criança pergunta sobre uma viagem antiga;Um guardião transmite uma função por acordo
+sleep|Um telhado reparado mantém o abrigo seco;Uma vigília pode ser repartida por escolha;Um quarto tranquilo oferece repouso pelas regras do jogo;Uma lembrança de sonho pode permanecer sem interpretação
+emotion|Um reencontro permite expressar alegria;Uma cadeira vazia traz saudade numa festa;Uma ajuda recebida pode inspirar gratidão escolhida;Uma chegada segura permite ao jogador narrar alívio
+habits|Um ritual de arrumar mochilas é lembrado;Uma companhia decide se manterá sua canção de partida;Uma refeição habitual ganha ingrediente diferente;Um anfitrião reconhece um costume de visita
+world|Uma trilha recebe manutenção depois da estação;Uma passagem muda por efeito de chuva registrada;Um povoado retoma uma feira;Uma estrada recebe mais viajantes após segurança confirmada
+goals|Uma viagem pessoal encontra companhia interessada;Uma promessa a um anfitrião pode ser cumprida;Um aprendizado desejado encontra um mestre disponível;Uma história pode ser registrada antes de seguir caminho
+[dnd5e]
+justice|Uma guilda solicita testemunho sobre um acordo;Uma autoridade esclarece uma recompensa já aprovada;Um morador pergunta por uma reparação prometida;Uma disputa de propriedade possui registro consultável
+work|Um artesão oferece lugar para um aprendiz;Uma guilda precisa redistribuir uma encomenda;Uma oficina testa uma ferramenta reparada;Um cozinheiro procura ajuda para uma receita conhecida
+belief|Um relato de taverna mistura duas histórias;Um documento acessível contraria uma suspeita;Um estudioso admite que sua tradução é incerta;Uma notícia de templo pode ter a fonte verificada
+memory|Uma peça do equipamento recorda quem a consertou;Uma canção evoca uma passagem da estrada;Um aroma lembra uma pousada distante;Uma data recorda uma promessa do grupo
+resources|Um mercado informa falta de um ingrediente;Uma carroça oferece espaço por negociação;Uma oficina pode reparar um item já possuído;Uma hospedaria altera preços por causa conhecida
+npc|Um taverneiro contrata ajuda para descansar;Um mercador planeja abrir outra loja;Uma guarda se prepara para mudar de função;Um aprendiz deseja apresentar seu trabalho
+family|Um parente envia notícias da colheita;Uma comemoração pede decidir se haverá visita;Uma pessoa da família necessita ajuda numa mudança;Uma lembrança herdada chega por mãos conhecidas
+home|Uma sala da pousada recebe um reparo;Um presente permanece guardado num lugar familiar;Um vizinho pede combinar o uso de um pátio;Uma visita devolve um utensílio emprestado
+recovery|Um aliado oferece tempo para uma conversa;Uma atividade escolhida volta a caber na rotina;Uma adaptação prática facilita uma tarefa;Uma pequena melhora é reconhecida sem prometer cura
+social|Um conhecido convida para uma noite de música;Uma refeição reúne pessoas de ofícios diferentes;Uma amizade antiga pode ser retomada;Um jogo de mesa permite convivência sem missão
+reputation|Uma balada omite a participação de um companheiro;Um prato recebe o nome de um feito conhecido;Um visitante pergunta pela fonte de uma história;Uma testemunha pode corrigir um exagero
+body|Uma sela pode ser ajustada a uma necessidade conhecida;Um trajeto oferece alternativa a uma limitação registrada;Uma carga pode ser dividida por acordo;Um atendimento legítimo fica disponível pelas regras
+intimacy|Um encontro precisa ser remarcado por acordo;Uma pessoa próxima pede tempo de convivência;Um gesto de carinho abre espaço para resposta livre;Um limite de privacidade pode ser combinado
+community|Um bairro organiza o reparo de uma fonte;Uma feira acolhe novos comerciantes;Um grupo deseja preservar uma tradição local;Uma comunidade decide como usar ajuda recebida
+legacy|Um aprendiz usa um conselho recebido antes;Uma arma herdada possui história verificável;Uma biblioteca recolhe relatos de moradores;Uma função de guardião pode passar a outra pessoa
+sleep|Uma janela reparada reduz o ruído do quarto;Uma vigília pode ser combinada entre companheiros;Um abrigo oferece condições melhores que a estrada;Uma lembrança de sonho pode ser comentada livremente
+emotion|Um agradecimento chega quando o perigo já passou;Uma conquista pequena dá espaço para satisfação;Uma ausência é notada numa ocasião festiva;Um reencontro permite reação escolhida pelo jogador
+habits|Um brinde de partida pode se tornar tradição;Um companheiro pergunta por um costume antigo;Uma rotina de manutenção pode ser compartilhada;Uma refeição habitual encontra uma variação local
+world|Uma ponte segura volta a receber carroças;Uma rota comercial traz novos produtos;Uma oficina abre após obter recursos confirmados;Uma festa muda de data por motivo público conhecido
+goals|Um projeto culinário encontra ingrediente adequado;Um instrumento pode ser estudado com um mestre;Uma promessa de retorno encontra ocasião;Uma viagem pessoal ganha uma alternativa possível
+[forbidden-lands]
+justice|Uma liderança esclarece uma cobrança conhecida;Uma promessa de abrigo pede ouvir testemunhas;Uma disputa entre clãs admite uma conversa;Uma reparação combinada pode ser negociada
+work|Uma forja precisa repartir tempo entre encomendas;Um curtidor oferece ensinar uma técnica;Uma muralha recebe manutenção programada;Uma cozinha da fortaleza necessita reorganizar tarefas
+belief|Uma superstição de aldeia pode ser comparada com vestígios;Um rumor de estrada tem uma fonte identificável;Uma marca antiga admite mais de uma interpretação;Um mapa conhecido possui uma anotação incerta
+memory|Uma ruína evoca uma travessia anterior;Um utensílio recorda um antigo companheiro;Uma música de taverna lembra outra estação;Um caminho conserva uma marca feita pelo grupo
+resources|Um celeiro exige conferir provisões disponíveis;Uma fonte conhecida requer reparo;Um caçador oferece negociar parte de uma caça confirmada;Uma carroça precisa de material para manutenção
+npc|Um artesão deseja formar um aprendiz;Um morador prepara mudança de povoado;Um guarda pretende visitar sua família;Uma comerciante reorganiza sua rota
+family|Um parente envia notícia por um viajante;Uma família pede ajuda para reparar seu teto;Uma lembrança ancestral encontra quem conte sua origem;Uma celebração exige combinar a presença dos envolvidos
+home|Uma paliçada mostra o efeito de um conserto;Uma horta da fortaleza chega a outra estação;Um espaço comum pode receber nova função;Um visitante devolve uma ferramenta emprestada
+recovery|Um abrigo seguro permite uma atividade escolhida;Um companheiro oferece carregar parte de uma tarefa;Um apoio combinado pode ser retomado;Uma melhora prática facilita a rotina sem efeito automático
+social|Uma taverna reúne viajantes de povoados diferentes;Um conhecido convida para preparar uma refeição;Uma história antiga pode ser contada sem nova missão;Uma pequena festa acolhe o retorno do grupo
+reputation|Um relato de caçada altera detalhes conhecidos;Uma comunidade reconhece uma ajuda recebida;Um viajante pergunta se conhece os heróis da história;Uma testemunha pode esclarecer um feito
+body|Uma mochila pode ser ajustada a um limite conhecido;Uma carga pode ser repartida antes da marcha;Um trajeto permite respeitar uma limitação registrada;Uma tarefa da fortaleza admite adaptação
+intimacy|Uma vigília oferece ocasião para conversar à parte;Uma pessoa próxima pede combinar a próxima visita;Um pequeno presente aguarda resposta livre;Uma convivência pede discutir privacidade
+community|Moradores organizam um reparo na ponte;Um clã debate o uso de uma pastagem;Uma aldeia escolhe como guardar provisões;Uma tradição recebe novos participantes
+legacy|Um aprendiz demonstra um ofício ensinado antes;Uma ferramenta herdada conserva procedência;Uma história de fundação é transmitida a recém-chegados;Uma responsabilidade da fortaleza pode ser dividida
+sleep|Um telhado reparado evita goteiras no abrigo;Uma escala de vigília pode ser combinada;Uma noite tranquila não exige novo acontecimento;Uma lembrança de sonho pode permanecer apenas lembrança
+emotion|Um retorno seguro recebe um gesto de acolhimento;Uma ausência é lembrada junto ao fogo;Uma ajuda prática pode suscitar gratidão escolhida;Uma conquista cotidiana permite expressão livre
+habits|Um ritual de acampamento é lembrado por alguém;Uma rotina de caça pode ser revista por acordo;Um costume de chegada encontra uma interrupção explicável;Uma refeição habitual ganha ingrediente da estação
+world|Uma rota muda após chuvas registradas;Uma fortaleza passa a atrair comerciantes;Um povoado retoma uma feira suspensa;Uma região percebe efeitos de uma ameaça realmente removida
+goals|Um projeto de oficina encontra ferramenta adequada;Uma promessa a um povoado pode ser retomada;Uma expedição desejada encontra companhia disponível;Uma receita pode ser testada com provisões legítimas
+[pf2e-kingmaker]
+justice|Uma petição possui documento ainda não examinado;Uma comunidade pede esclarecer uma decisão pública;Uma reparação aprovada aguarda execução;Uma disputa de fronteira permite ouvir testemunhas
+work|Uma função do conselho precisa de substituição temporária;Uma oficina do assentamento recebe nova encomenda;Uma inspeção necessita combinar transporte;Um projeto administrativo exige repartir tarefas
+belief|Um relatório de fronteira contém uma lacuna;Um mapa acessível contraria um boato;Uma fonte reconhece que exagerou uma ameaça;Uma notícia de outra comunidade pede confirmação
+memory|Um marco recorda os primeiros dias da exploração;Uma sala conserva um objeto de uma viagem;Uma cerimônia evoca alguém que ajudou no início;Uma anotação antiga esclarece uma promessa
+resources|Um assentamento confere seu estoque disponível;Uma estrada demanda material para reparo;Um fornecedor oferece uma rota alternativa;Uma obra precisa respeitar recursos realmente existentes
+npc|Um conselheiro prepara um projeto familiar;Uma comerciante deseja abrir outra oficina;Um guarda pede tempo para formar um aprendiz;Um antigo aliado organiza sua própria viagem
+family|Uma visita familiar coincide com uma reunião;Um parente envia notícia de outro assentamento;Uma tarefa doméstica precisa ser repartida;Uma celebração pede decidir disponibilidade
+home|Uma dependência da sede recebe um reparo;Um jardim conserva marcas da primeira estação;Uma sala comum pode ganhar outro uso;Um morador devolve um objeto emprestado
+recovery|Um conselheiro oferece conduzir uma audiência já combinada;Uma pausa permite retomar um interesse pessoal;Uma adaptação reduz um obstáculo cotidiano;Uma rede de apoio reconhece melhora confirmada
+social|Uma refeição reúne moradores com opiniões diferentes;Um conhecido convida para uma atividade comum;Uma amizade pode ser retomada fora do conselho;Uma festa oferece convivência sem assunto de governo
+reputation|Uma decisão é elogiada numa região e criticada noutra;Um visitante conhece apenas parte de um feito;Uma testemunha pode corrigir um relato público;Uma homenagem permite reconhecer o trabalho de outros
+body|Uma reunião pode acomodar uma necessidade conhecida;Uma cavalgada admite alternativa de transporte;Uma carga pode ser repartida durante inspeção;Uma tarefa respeita uma limitação validada
+intimacy|Uma pessoa próxima pede um momento sem responsabilidades públicas;Um encontro encontra nova data por acordo;Uma conversa esclarece expectativas de convivência;Um gesto discreto pede resposta livre
+community|Moradores organizam um mutirão de manutenção;Uma assembleia discute o uso de um espaço;Uma celebração recebe recém-chegados;Uma comunidade propõe preservar uma tradição
+legacy|Um aprendiz consulta um registro de fundação;Uma função pública pode ser transmitida por acordo;Um objeto histórico tem procedência explicada;Uma criança pergunta sobre um marco do território
+sleep|Uma hospedagem oferece condições de repouso melhores;Uma escala de vigília pode ser reorganizada;Um reparo reduz ruído num alojamento;Uma lembrança de sonho não produz penalidade automática
+emotion|Uma obra concluída recebe agradecimento de usuários;Uma ausência é percebida numa cerimônia;Um resultado permite ao jogador expressar satisfação;Uma dificuldade superada pode ser reconhecida por aliados
+habits|Uma rotina de audiência encontra uma exceção documentada;Um costume de inspeção pode ser combinado;Uma refeição de conselho recebe novos participantes;Um ritual de partida é lembrado por um companheiro
+world|Uma estrada reparada altera o fluxo de viajantes;Um serviço muda após uma decisão confirmada;Um assentamento recebe novos moradores;Uma rota comercial passa a funcionar de outra forma
+goals|Um projeto pessoal precisa negociar tempo com o conselho;Uma formação desejada encontra um mestre disponível;Uma promessa de visita pode ser cumprida;Uma obra de interesse pessoal encontra recurso legítimo
+[star-wars-aor]
+justice|Um canal confirmado informa a condição de um prisioneiro;Uma família solicita notícia por via disponível;Um registro permite esclarecer uma detenção;Uma responsabilidade assumida pede prestação de contas
+work|Uma célula precisa repartir uma tarefa de Dever sem alterar pontos;Uma unidade recebe substituição temporária;Uma operação confirmada exige revisar procedimentos;Uma escala precisa acomodar um compromisso legítimo
+belief|Uma mensagem de inteligência contém uma lacuna;Uma fonte diferencia observação de suspeita;Uma transmissão contradiz outro registro acessível;Uma informação pede autenticação de origem
+memory|Um emblema evoca uma operação anterior;Um som da base lembra uma viagem;Uma peça guardada recorda um aliado;Uma data mantém a memória de uma perda
+resources|Uma base confere suas provisões disponíveis;Uma nave precisa de manutenção documentada;Um transporte oferece espaço por acordo;Uma entrega autorizada requer conferência
+npc|Um recruta procura quem ensine um ofício;Uma técnica desenvolve um projeto próprio;Um oficial deseja visitar contatos pessoais;Um tripulante planeja reorganizar seu alojamento
+family|Uma mensagem de família chega por canal seguro disponível;Um parente pede notícias sem discutir operações;Uma comemoração distante admite uma resposta;Uma promessa pessoal pode ser renegociada
+home|Um alojamento conserva um objeto do primeiro dia;Uma oficina da base termina um reparo;Um espaço comum pode receber atividade de convivência;Um tripulante devolve um utensílio emprestado
+recovery|Um aliado oferece cobertura numa tarefa por acordo;Uma pausa permite retomar uma atividade escolhida;Uma adaptação prática torna a rotina menos difícil;Uma rede de apoio mantém contato sem pressionar
+social|Uma refeição reúne integrantes de unidades diferentes;Um encontro informal celebra uma pequena conquista;Um conhecido propõe ouvir música;Uma amizade pode ser retomada longe dos relatórios
+reputation|Um relato de serviço chega a outra célula;Uma homenagem omite a ajuda de civis;Uma fonte pode corrigir um exagero sobre a operação;Um recém-chegado conhece apenas uma versão do feito
+body|Um posto de trabalho pode ser ajustado;Uma tarefa de bordo admite redistribuição por acordo;Uma necessidade validada pode ser respeitada na escala;Um transporte disponível oferece alternativa acessível
+intimacy|Uma pessoa próxima pede conversar fora do plantão;Um reencontro pode ser combinado por canal disponível;Um limite de privacidade precisa de acordo;Um gesto de cuidado permite resposta livre
+community|Civis organizam a distribuição de ajuda existente;Uma base prepara uma atividade de convivência;Um grupo preserva a memória de pessoas ausentes;Um mutirão repara um espaço comum
+legacy|Um recruta consulta um procedimento documentado;Uma peça de equipamento tem procedência contada;Uma experiência pode orientar um treinamento;Uma função de instrução encontra novo responsável
+sleep|Uma escala abre um período real de repouso;Um reparo reduz ruído no alojamento;Um companheiro oferece trocar uma vigília;Uma lembrança de sonho pode ser comentada sem conclusão clínica
+emotion|Uma chegada segura permite ao jogador expressar alívio;Uma mensagem agradece ajuda confirmada;Uma ausência é lembrada numa comemoração;Uma pequena melhora pode ser reconhecida
+habits|Um ritual de preparação pode ser mantido;Uma rotina de comunicação encontra uma exceção conhecida;Uma refeição de unidade ganha novos participantes;Um costume de chegada é lembrado por um colega
+world|Uma rota muda após informação confirmada;Uma base altera o uso de um espaço;Um porto registra mudança de procedimento;Uma população percebe efeito de uma operação realmente concluída
+goals|Um objetivo pessoal encontra recurso disponível;Uma formação desejada cabe num intervalo de serviço;Uma promessa de reencontro pode ser retomada;Um projeto particular precisa negociar tempo com responsabilidades
+[star-wars-eote]
+justice|Um documento permite esclarecer uma cobrança;Um registro confirma uma condição de detenção;Um contrato conhecido admite discutir uma cláusula;Uma reparação combinada precisa de confirmação
+work|Um contato ligado a Obrigação propõe acordo sem alterar pontos;Um contratante solicita renegociar uma tarefa;Uma oficina pede ajuda para terminar um serviço;Uma escala de bordo precisa ser repartida
+belief|Uma oferta de frete pede verificar procedência;Uma transmissão apresenta um detalhe contraditório;Uma fonte distingue o que viu do que ouviu;Um mapa de rota possui anotação incerta
+memory|Uma peça da nave recorda quem a reparou;Um som de porto evoca uma viagem anterior;Um objeto guardado lembra um antigo parceiro;Uma data está associada a uma promessa
+resources|Uma manutenção disputa recursos existentes da tripulação;Um fornecedor oferece peça de procedência documentada;Um porto informa taxa conhecida antes da negociação;Um transporte alternativo precisa de acordo
+npc|Um mecânico planeja abrir uma oficina;Uma pessoa de contato organiza sua mudança;Um tripulante deseja formar um aprendiz;Um negociante revê uma rota por motivo próprio
+family|Uma mensagem pessoal alcança a nave por canal disponível;Um parente pede ajuda numa tarefa comum;Uma celebração admite decidir se haverá visita;Uma lembrança de família chega por mãos conhecidas
+home|Um beliche conserva um presente antigo;Uma área comum da nave pode ser reorganizada;Um reparo devolve uso a um compartimento;Um tripulante devolve algo emprestado
+recovery|Um companheiro oferece dividir uma tarefa sem criar dívida;Uma pausa permite uma atividade escolhida;Um contato confiável oferece ajuda prática;Uma adaptação melhora uma rotina sem mudar a ficha
+social|Uma cantina reúne contatos de viagens diferentes;Um conhecido convida para uma refeição;Uma noite livre permite retomar uma amizade;Um jogo amistoso oferece convivência sem contrato
+reputation|Um relato de frete circula entre portos;Um cliente conhece apenas uma versão de um trabalho;Uma testemunha pode corrigir um exagero;Um gesto público reconhece ajuda realmente prestada
+body|Um posto da nave pode ser adaptado;Uma carga pode ser repartida antes do embarque;Um atendimento legítimo encontra horário disponível;Uma tarefa respeita um limite conhecido
+intimacy|Uma parada permite combinar tempo de convivência;Uma pessoa próxima pede conversar em particular;Um reencontro depende de um canal de contato disponível;Um gesto de afeto pode receber resposta livre
+community|Moradores de um porto organizam ajuda mútua;Uma oficina compartilha recurso por acordo;Uma festa local acolhe viajantes;Um grupo repara uma área de uso comum
+legacy|Um tripulante aprende um procedimento de bordo;Uma ferramenta herdada mantém sua procedência;Um antigo contrato pode ter sua história contada;Uma responsabilidade de nave pode ser transmitida por acordo
+sleep|Um reparo torna um compartimento mais silencioso;Uma escala oferece período de repouso;Um abrigo de porto tem condições verificáveis;Uma lembrança de sonho não determina uma ação
+emotion|Um trabalho concluído permite expressão de satisfação;Um reencontro pode despertar uma reação escolhida;Um agradecimento recorda uma ajuda específica;Uma ausência é percebida numa refeição comum
+habits|Um ritual de partida é reconhecido por um tripulante;Uma rotina de manutenção admite ajuste;Um costume de cantina pode ser mantido;Uma tarefa recorrente encontra uma alternativa disponível
+world|Uma taxa de porto muda por decisão conhecida;Uma rota de carga ganha nova conexão;Uma oficina local altera horários;Uma comunidade percebe efeitos de uma entrega realmente feita
+goals|Um plano de compra pode ser revisto com recursos reais;Uma promessa a um contato encontra ocasião;Uma habilidade desejada encontra quem ensine;Um projeto pessoal disputa tempo por negociação

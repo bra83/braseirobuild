@@ -1,0 +1,13 @@
+STRESS_PASS
+campaigns=150
+sessions=1500
+turns=112500
+tests=36000 success=14868 failure=21132
+luckUses=4276 pushes=7118 prideUses=1403 recoveries=5229
+extended=4500 full=1500 compromise=1500 fail=1500
+snapshots=24000
+gmPackets=254227 secrets=10500 reveals=6000
+invariantChecks=374227
+firewallInvalidRounds=30000 rejects=30000
+snapshotFuzzRounds=30000
+elapsedMs=7449

@@ -1,0 +1,87 @@
+{
+  "pass": true,
+  "checks": {
+    "secure_api_key_store": {
+      "pass": true,
+      "file": "app/src/main/java/com/braseiro/talesvtt/data/SecureSecretStore.kt",
+      "missing": []
+    },
+    "gemini_text_model_config": {
+      "pass": true,
+      "file": "app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraTransport.kt",
+      "missing": []
+    },
+    "gemini_voice_tts": {
+      "pass": true,
+      "file": "app/src/main/java/com/braseiro/talesvtt/audio/GeminiNarrationTts.kt",
+      "missing": []
+    },
+    "android_tts_fallback": {
+      "pass": true,
+      "file": "app/src/main/java/com/braseiro/talesvtt/components/NarrationTts.kt",
+      "missing": []
+    },
+    "portable_campaign_backup": {
+      "pass": true,
+      "file": "app/src/main/java/com/braseiro/talesvtt/data/PortableCampaignBackup.kt",
+      "missing": []
+    },
+    "kid_json_import_export": {
+      "pass": true,
+      "file": "app/src/main/java/com/braseiro/talesvtt/data/KidJsonCodec.kt",
+      "missing": []
+    },
+    "scene_prompt_export": {
+      "pass": true,
+      "file": "app/src/main/java/com/braseiro/talesvtt/data/SceneImageExchange.kt",
+      "missing": []
+    },
+    "scene_image_share_import": {
+      "pass": true,
+      "file": "app/src/main/java/com/braseiro/talesvtt/data/SceneImageExchange.kt",
+      "missing": []
+    },
+    "scene_image_persisted": {
+      "pass": true,
+      "file": "app/src/main/java/com/braseiro/talesvtt/game/GameSnapshotCodec.kt",
+      "missing": []
+    },
+    "manual_pdf_indexer": {
+      "pass": true,
+      "file": "app/src/main/java/com/braseiro/talesvtt/data/ManualLibraryRepository.kt",
+      "missing": []
+    },
+    "rag_search_ui": {
+      "pass": true,
+      "file": "app/src/main/java/com/braseiro/talesvtt/screens/LibraryScreen.kt",
+      "missing": []
+    },
+    "rag_into_motor": {
+      "pass": true,
+      "file": "app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraTransport.kt",
+      "missing": []
+    },
+    "menu_data_tools": {
+      "pass": true,
+      "file": "app/src/main/java/com/braseiro/talesvtt/screens/MenuScreen.kt",
+      "missing": []
+    },
+    "share_receiver_manifest": {
+      "pass": true,
+      "file": "app/src/main/AndroidManifest.xml",
+      "missing": []
+    },
+    "forbidden_dnd_package": {
+      "pass": true,
+      "hits": []
+    },
+    "forbidden_dnd_rules_engine": {
+      "pass": true,
+      "hits": []
+    },
+    "forbidden_tactical_hp": {
+      "pass": true,
+      "hits": []
+    }
+  }
+}

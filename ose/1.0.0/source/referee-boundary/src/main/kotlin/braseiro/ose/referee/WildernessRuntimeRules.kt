@@ -245,9 +245,9 @@ object WildernessRuntimeRules {
 
     private fun no(e:CampaignEnvelope,msg:String,id:String)=ResolutionOutcome(e.campaignState,msg,RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE,listOf(RuleEvidence(id,e.ruleProfile,"GAME_SYSTEM_SPEC.md","§16"))),false,false)
     private fun missing(e:CampaignEnvelope,id:String,msg:String)=ResolutionOutcome(e.campaignState,msg,RuleTrace(EvidenceStatus.MISSING_EVIDENCE,listOf(RuleEvidence(id,e.ruleProfile,"GAME_SYSTEM_SPEC.md","§16")),msg),false,false)
-    private fun d3(r:NamedRngStreams)=(r.draw(RngStreamId.RULES_DICE)%3u).toInt()+1
-    private fun d6(r:NamedRngStreams)=(r.draw(RngStreamId.RULES_DICE)%6u).toInt()+1
-    private fun d8(r:NamedRngStreams)=(r.draw(RngStreamId.RULES_DICE)%8u).toInt()+1
-    private fun d12(r:NamedRngStreams)=(r.draw(RngStreamId.RULES_DICE)%12u).toInt()+1
-    private fun d20(r:NamedRngStreams)=(r.draw(RngStreamId.RULES_DICE)%20u).toInt()+1
+    private fun d3(r:NamedRngStreams)=r.rollDie(3)
+    private fun d6(r:NamedRngStreams)=r.rollDie(6)
+    private fun d8(r:NamedRngStreams)=r.rollDie(8)
+    private fun d12(r:NamedRngStreams)=r.rollDie(12)
+    private fun d20(r:NamedRngStreams)=r.rollDie(20)
 }

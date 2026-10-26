@@ -128,12 +128,12 @@ jobs:
           grep -q 'data-travel-roll' "$JS"
           grep -q 'ScenePromptShare' "$MAIN"
           grep -q '"SCENE" -> PresentationMediaStore.Scope.SCENE' "$MAIN"
+          grep -q 'data-photo-character' "$JS"
+          grep -q 'data-photo-npc' "$JS"
           ! grep -q 'data-generate-character' "$JS"
           ! grep -q 'data-generate-npc' "$JS"
-          ! grep -q 'data-photo-character' "$JS"
-          ! grep -q 'data-photo-npc' "$JS"
           ! grep -q 'tokens_compactos/' "$JS"
-          echo "Text-first UI with scene/hex/interior/equipment imagery and dormant character/NPC portraits: PASS"
+          echo "Text-first UI with scene/hex/interior/equipment imagery and safe user-picked character/NPC portraits: PASS"
 
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v4

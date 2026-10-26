@@ -38,15 +38,41 @@ window.BraseiroCreation=Object.freeze({start:draftId=>postNative('CharacterCreat
 window.BraseiroReceive=(raw)=>{
  try{
   const m=typeof raw==='string'?JSON.parse(raw):raw,p=m.payload||{};
-  if(m.type==='ViewState'){viewState=p;geminiState=p.gemini||geminiState;ttsState=p.tts?{...ttsState,...p.tts}:ttsState;lastRuleTrace=p.lastRuleTrace||lastRuleTrace;render();}
+  if(m.type==='ViewState'){viewState=p;if(window.vttLifeAdapter)window.vttLifeAdapter.initFromViewState(viewState);geminiState=p.gemini||geminiState;ttsState=p.tts?{...ttsState,...p.tts}:ttsState;lastRuleTrace=p.lastRuleTrace||lastRuleTrace;render();checkFirstLaunch();}
   else if(m.type==='SessionUpdate'){
    const previous=viewState;
    if(p.viewState){viewState=p.viewState;geminiState=viewState.gemini||geminiState;}
+   if(window.vttLifeAdapter)window.vttLifeAdapter.initFromViewState(viewState);
    lastRuleTrace=p.ruleTrace||viewState?.lastRuleTrace||lastRuleTrace;
+   if(Array.isArray(p.diceRolls) && p.diceRolls.length > 0){
+     const rolls = p.diceRolls.map(d => d.value);
+     const total = rolls.reduce((a, b) => a + b, 0);
+     const terms = [];
+     p.diceRolls.forEach(d => {
+       const sides = d.sides || 6;
+       const last = terms[terms.length - 1];
+       if (last && last.sides === sides) { last.count++; } else { terms.push({ count: 1, sides: sides, sign: 1 }); }
+     });
+     const formula = terms.map(t => `${t.count}d${t.sides}`).join(' + ');
+     const primarySides = p.diceRolls[0].sides || 6;
+     el('dice3dOverlay')?.classList.remove('hidden');
+     window.BraseiroDice?.start({
+       sides: primarySides,
+       count: p.diceRolls.length,
+       terms: terms,
+       modifier: 0,
+       canonicalTotal: total,
+       rolls: rolls,
+       targetRolls: rolls,
+       formula: formula
+     });
+   }
    localLog.push(p.mechanicalMutation?'A ação foi resolvida e o mundo foi atualizado.':'O Mestre respondeu sem alterar o estado mecânico.');
    render();showToast('Ação concluída.');announceStateChanges(previous,viewState,p.feedback||'');
   }
   else if(m.type==='CharacterCreationDraft'||m.type==='CharacterCreationResult'){if(p.viewState)viewState=p.viewState;if(m.type==='CharacterCreationResult'&&p.ok)creatingAdditionalCharacter=false;render();showToast(p.ok===false?'Não foi possível concluir a criação.':'Criação atualizada.');}
+  else if(m.type==='CharacterCreationCancelResult'){if(p.viewState)viewState=p.viewState;creatingAdditionalCharacter=false;editingCharacter=false;render();showToast('Criação cancelada.');}
+  else if(m.type==='PlayerGuideModeResult'){if(p.viewState)viewState=p.viewState;render();showToast('Modo de orientação alterado.');}
   else if(m.type==='CharacterSelectionResult'){if(p.viewState)viewState=p.viewState;editingCharacter=false;creatingAdditionalCharacter=false;screen='sheet';render();}
   else if(m.type==='CompanionOpinionsResult'){if(p.readOnly===true&&p.mechanicalDelta===false){companionOpinions=p;render();showToast('Opiniões consultadas sem avançar a cena.')}else showToast('Resposta de opinião inválida.');}
   else if(m.type==='CharacterControlResult'||m.type==='MasterActionResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok===false?'A decisão do Mestre não foi concluída. O último turno do jogador continua salvo.':m.type==='CharacterControlResult'?'Controle do personagem atualizado.':'Decisão do Mestre atualizada.');}
@@ -57,11 +83,35 @@ window.BraseiroReceive=(raw)=>{
   else if(m.type==='TtsSettingsState'){ttsState={...ttsState,...p};updateTtsSettings();}
   else if(m.type==='GeminiSettingsState'){geminiState=p;updateSettingsStatus();}
   else if(m.type==='GeminiCredentialTestResult')showToast(p.ok?'Conexão Gemini: OK':'Não foi possível usar a configuração informada.');
+  else if(m.type==='ImageGenerationState'){
+    imageGenerationBusy=!!p.busy;
+    const button=el('photoMenuGemini');
+    if(button)button.disabled=imageGenerationBusy;
+    if(imageGenerationBusy)showToast('Gerando imagem em segundo plano. Você pode continuar usando a ficha.');
+  }
   else if(m.type==='SceneImageResult'){postNative('ViewState',{request:'after-scene-image'});showToast('Ilustração da cena atualizada.');}
   else if(m.type==='ScenePromptShareResult')showToast('Abrindo o Gemini com o prompt da cena…');
   else if(m.type==='PortraitPromptShareResult')showToast('Abrindo o Gemini com o prompt do retrato…');
-  else if(m.type==='PresentationImageSaved'){postNative('ViewState',{request:'after-media-save'});showToast(p.scope==='SCENE'?'Imagem da cena importada.':'Imagem salva e vinculada ao item.');}
-  else if(m.type==='ManualDiceResult'){diceHistory.unshift({rolls:p.rolls||[],total:p.total,sides:p.sides,count:p.count,modifier:p.modifier||0});diceHistory=diceHistory.slice(0,12);render();showToast(`Resultado: ${p.total}`);}
+  else if(m.type==='PresentationImageSaved'){if(p.viewState)viewState=p.viewState;else postNative('ViewState',{request:'after-media-save'});render();showToast(p.scope==='SCENE'?'Imagem da cena atualizada.':p.scope==='CHARACTER'?'Retrato do personagem atualizado.':p.scope==='NPC'?'Retrato do NPC atualizado.':'Imagem salva e vinculada.');}
+  else if(m.type==='PresentationImageRemoved'){if(p.viewState)viewState=p.viewState;else postNative('ViewState',{request:'after-media-remove'});render();showToast('Imagem removida com sucesso.');}
+  else if(m.type==='AdventureImportResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok?`Aventura carregada: ${p.title||''}`:p.cancelled?'Importação cancelada.':'Erro ao importar aventura.');}
+  else if(m.type==='AdventureFinishResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok?'Aventura concluída. O legado e o mundo foram preservados.':'Nenhuma aventura ativa.');}
+  else if(m.type==='ManualDiceResult'){
+    const formula = `${p.count}d${p.sides}${p.modifier ? (p.modifier > 0 ? '+' : '') + p.modifier : ''}`;
+    diceHistory.unshift({rolls:p.rolls||[],total:p.total,sides:p.sides,count:p.count,modifier:p.modifier||0,formula});
+    diceHistory=diceHistory.slice(0,12);
+    render();
+    showToast(`Resultado: ${p.total}`);
+    el('dice3dOverlay')?.classList.remove('hidden');
+    window.BraseiroDice?.start({
+      sides: p.sides,
+      count: p.count,
+      modifier: p.modifier || 0,
+      canonicalTotal: p.total,
+      rolls: p.rolls || [],
+      formula: formula
+    });
+  }
   else if(m.type==='RuleEvidenceListResult'){ruleLibrary=p.rules||[];ruleLibraryLoaded=true;render();}
   else if(m.type==='RuleEvidenceResult'){showRuleDetail(p);}
   else if(m.type==='ResetAdventureResult'){if(p.viewState)viewState=p.viewState;lastRuleTrace=null;ruleLibraryLoaded=false;ruleLibrary=[];screen='session';render();showToast('A aventura foi recomeçada.');}
@@ -71,14 +121,26 @@ window.BraseiroReceive=(raw)=>{
   else if(m.type==='CharacterRecreateResult'){if(p.viewState)viewState=p.viewState;editingCharacter=false;screen='sheet';render();showToast('Personagem anterior removido. Crie o novo aventureiro.');}
   else if(m.type==='BackupExportResult'){backupBuffer=p.backup||'';const t=el('backupText');if(t)t.value=backupBuffer;showToast('Backup gerado. Copie e guarde o texto.');}
   else if(m.type==='BackupImportResult'){if(p.viewState)viewState=p.viewState;render();showToast('Backup restaurado.');}
-  else if(m.type==='BridgeError'){document.querySelectorAll('[data-delete-character],[data-random-character],[data-commit-draft],[data-save-character],[data-start-draft],[data-character-select],[data-character-mode],[data-curator-approve],[data-curator-change],[data-curator-reject],[data-master-continue],[data-companion-opinions]').forEach(x=>x.disabled=false);showToast(friendlyBridgeError(p.message));}
- }catch(_e){showToast('Não foi possível ler a resposta do aplicativo.');}
+  else if(m.type==='BridgeError'){console.error('[Braseiro OSE] native bridge action failed',p.operation||'unknown',p.message||'unknown');document.querySelectorAll('[data-delete-character],[data-random-character],[data-commit-draft],[data-save-character],[data-start-draft],[data-character-select],[data-character-mode],[data-curator-approve],[data-curator-change],[data-curator-reject],[data-master-continue],[data-companion-opinions]').forEach(x=>x.disabled=false);showToast(friendlyBridgeError(p.message));}
+ }catch(_e){console.error('[Braseiro OSE] invalid native response',_e);showToast('Falha ao interpretar a resposta: '+String(_e&&_e.message||_e).slice(0,130));}
 };
 
 function uiStatusMessage(p){if(p.ok===false)return 'A ação não pôde ser concluída pelas regras atuais.';if(p.status==='READY_TO_START')return 'Equipamento concluído. Agora você pode começar a aventura.';return 'Equipamento atualizado.'}
-function friendlyBridgeError(code){const m={GEMINI_KEY_MISSING:'Configure a chave Gemini.',INVALID_GEMINI_MODEL:'Confira o nome do modelo Gemini.',INVALID_TTS_VOICE:'Confira o nome da voz TTS.',EMPTY_VISIBLE_NARRATION:'Ainda não há narração para ouvir.',NO_CHARACTER:'Crie ou importe um personagem primeiro.',CHARACTER_ALREADY_EXISTS:'Já existe uma ficha com este identificador.',RANDOM_CHARACTER_NO_VALID_CLASS:'Não foi possível gerar uma classe válida para estes atributos.',INVALID_CHARACTER_SHEET:'A ficha JSON não é válida para o BRASEIRO OSE.',CHARACTER_PROFILE_MISMATCH:'A ficha pertence a outro perfil OSE.',CHARACTER_ID_EXISTS:'Já existe um personagem com este identificador.',CHARACTER_ITEM_PROFILE_MISMATCH:'Um item da ficha pertence a outro perfil OSE.',ITEM_ID_EXISTS:'Já existe um item com este identificador.',INVALID_CHARACTER_NAME:'Digite um nome válido para o personagem.',CHARACTER_RECREATE_AFTER_START:'A recriação pré-início não está disponível; use EXCLUIR FICHA.',UNKNOWN_CHARACTER_ID:'Este personagem não está na companhia.',CHARACTER_SELECTION_SAVE_FAILED:'Não foi possível salvar a seleção da ficha.',INVALID_CHARACTER_COMMAND:'Comando incompleto. Tente novamente.',CHARACTER_COMMAND_ALREADY_APPLIED:'Este comando já foi realizado. Atualize a companhia.',CHARACTER_PLAYER_CONTROLLED:'Este personagem só pode agir por sua decisão.',CHARACTER_MASTER_CONTROLLED:'Este personagem é controlado pelo Mestre.',CHARACTER_CURATOR_APPROVAL_REQUIRED:'A ação precisa da sua aprovação antes de ser executada.',PROPOSAL_ALREADY_REVIEWED:'Esta proposta já foi revisada.',CHARACTER_NOT_CURATED:'Este personagem não está no modo de curadoria.',CHARACTER_ACTOR_PROTECTED:'O Mestre não pode decidir pelo personagem protegido de outro controlador.',GROUP_ACTION_REQUIRES_PLAYER_DECISION:'Essa ação afeta toda a companhia e depende da decisão humana.'};return m[code]||'O aplicativo encontrou um erro ao executar esta ação.'}
+function friendlyBridgeError(code){
+ const errorCode=String(code||'ERRO_DESCONHECIDO').trim().slice(0,100);
+ if(/^GEMINI_HTTP_(400|401|402|403|404|429)$/.test(errorCode)){
+   const suffix=errorCode.split('_').pop();
+   if(suffix==='429')return 'Gemini: cota excedida. Use ABRIR GEMINI no menu de imagem ou importe pela galeria.';
+   if(suffix==='402'||suffix==='403')return 'Gemini: a geração via API não está liberada para sua chave/cota gratuita. Use ABRIR GEMINI no menu e compartilhe a imagem.';
+   if(suffix==='401')return 'Gemini: chave não autorizada. Confira a configuração; a opção Gemini externo continua disponível.';
+   if(suffix==='404')return 'Gemini: modelo de imagem indisponível. Verifique o modelo nas configurações.';
+   return 'Gemini: solicitação de imagem recusada ('+errorCode+'). Verifique o modelo ou use a opção externa.';
+ }
+ if(errorCode==='GEMINI_IMAGE_OUTPUT_MISSING')return 'Gemini não retornou uma imagem. Tente outra descrição ou use a opção externa.';
+ if(errorCode==='GEMINI_TEXT_SCENE_KEY_MISSING')return 'Não há chave de API configurada. O Gemini externo pode ser usado sem configurar a API.';
+ const m={GEMINI_KEY_MISSING:'Configure a chave Gemini.',INVALID_GEMINI_MODEL:'Confira o nome do modelo Gemini.',INVALID_TTS_VOICE:'Confira o nome da voz TTS.',EMPTY_VISIBLE_NARRATION:'Ainda não há narração para ouvir.',NO_CHARACTER:'Crie ou importe um personagem primeiro.',CHARACTER_ALREADY_EXISTS:'Já existe uma ficha com este identificador.',RANDOM_CHARACTER_NO_VALID_CLASS:'Não foi possível gerar uma classe válida para estes atributos.',INVALID_CHARACTER_SHEET:'A ficha JSON não é válida para o BRASEIRO OSE.',CHARACTER_PROFILE_MISMATCH:'A ficha pertence a outro perfil OSE.',CHARACTER_ID_EXISTS:'Já existe um personagem com este identificador.',CHARACTER_ITEM_PROFILE_MISMATCH:'Um item da ficha pertence a outro perfil OSE.',ITEM_ID_EXISTS:'Já existe um item com este identificador.',INVALID_CHARACTER_NAME:'Digite um nome válido para o personagem.',CHARACTER_RECREATE_AFTER_START:'A recriação pré-início não está disponível; use EXCLUIR FICHA.',UNKNOWN_CHARACTER_ID:'Este personagem não está na companhia.',CHARACTER_SELECTION_SAVE_FAILED:'Não foi possível salvar a seleção da ficha.',INVALID_CHARACTER_COMMAND:'Comando incompleto. Tente novamente.',CHARACTER_COMMAND_ALREADY_APPLIED:'Este comando já foi realizado. Atualize a companhia.',CHARACTER_PLAYER_CONTROLLED:'Este personagem só pode agir por sua decisão.',CHARACTER_MASTER_CONTROLLED:'Este personagem é controlado pelo Mestre.',CHARACTER_CURATOR_APPROVAL_REQUIRED:'A ação precisa da sua aprovação antes de ser executada.',PROPOSAL_ALREADY_REVIEWED:'Esta proposta já foi revisada.',CHARACTER_NOT_CURATED:'Este personagem não está no modo de curadoria.',CHARACTER_ACTOR_PROTECTED:'O Mestre não pode decidir pelo personagem protegido de outro controlador.',GROUP_ACTION_REQUIRES_PLAYER_DECISION:'Essa ação afeta toda a companhia e depende da decisão humana.'};return m[errorCode]||('Falha ao executar a ação ('+errorCode+'). Abra as configurações ou tente novamente.');}
 function ttsMessage(s){return s==='PREPARING'?'Preparando a narração em voz.':s==='PLAYING'?'Narração em andamento.':s==='STOPPED'?'Áudio interrompido.':s==='IDLE'?'Motor de voz pronto.':s==='ERROR'?'Falha no motor de voz.':'TTS atualizado.'}
-function showToast(msg){const t=el('toast');if(!t)return;t.textContent=msg;t.classList.remove('hidden');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.add('hidden'),2600)}
+function showToast(msg){const t=el('toast');if(!t)return;t.textContent=msg;t.classList.remove('hidden');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.add('hidden'),/falha|erro|cota|não está|não retornou|gratuita|compartilhe/i.test(String(msg))?6200:3500)}
 function rationValue(vs){const xs=vs?.resources||[];const hit=xs.find(x=>String(x).toLowerCase().startsWith('rations:'));return hit?Number(String(hit).split(':').pop())||0:0}
 function actionCostSummary(intent){if(!intent)return'';const n=Math.max(1,(viewState?.party||[]).length),r=rationValue(viewState);if(intent.startsWith('WILD_TRAVEL_FORAGE_DAY'))return `Dia inteiro de viagem. O motor fará e exibirá os testes autoritativos de perder-se, forrageio e encontro. O grupo pode percorrer vários hexes conforme movimento/terreno. Necessidade de comida: até ${n}; rações atuais: ${r}. Se faltar comida, o déficit ficará registrado.`;if(intent.startsWith('WILD_TRAVEL_DAY')||intent.startsWith('WILD_FORCED_MARCH_DAY'))return `Dia inteiro de viagem. O motor fará e exibirá os testes autoritativos de perder-se e encontro. O grupo pode percorrer vários hexes conforme movimento/terreno${intent.startsWith('WILD_FORCED_MARCH_DAY')?' e aplicará a regra de marcha forçada':''}. Necessidade de comida: até ${n}; rações atuais: ${r}. Se faltar comida, o déficit ficará registrado.`;if(intent.startsWith('WILD_REST_DAY'))return `Descansar consumirá 1 dia. Necessidade de comida: até ${n}; rações atuais: ${r}. Se faltar comida, o déficit ficará registrado.`;return''}
 function showEventPopup(title,lines){if(!lines?.length)return;document.getElementById('eventPopup')?.remove();const o=document.createElement('div');o.id='eventPopup';o.className='event-popup-overlay';o.innerHTML=`<div class="event-popup panel"><div class="kicker">Atualização da campanha</div><h3>${esc(title)}</h3>${lines.map(x=>`<p>${esc(x)}</p>`).join('')}<button class="primary" data-event-ok>CONTINUAR</button></div>`;document.getElementById('phone').appendChild(o);o.querySelector('[data-event-ok]').onclick=()=>o.remove()}
@@ -91,14 +153,14 @@ function profileLabel(){const p=viewState?.campaign?.profile||'OSE_CLASSIC_FANTA
 function classLabel(id){return classLabels[id]||String(id||'').replaceAll('_',' ')}
 function raceLabel(id){return raceLabels[id]||String(id||'').replaceAll('_',' ')}
 function updateHeader(){
- const titles={session:'SESSÃO',map:'MAPA',sheet:'FICHA',dice:'DADOS',library:'BIBLIOTECA',world:'MUNDO VIVO',company:'COMPANHIA'};
- el('headerTitle').textContent=`${titles[screen]} · BRASEIRO OSE`;
+ const titles={session:'SESSÃO DE JOGO',map:'MAPA',sheet:'FICHA DO PERSONAGEM',dice:'MESA DE DADOS',library:'BIBLIOTECA OSE',world:'MUNDO VIVO',company:'COMPANHIA'};
+ el('headerTitle').textContent=titles[screen]||'BRASEIRO OSE';
  const tm=viewState?.time||{};el('timeStatus').textContent=`DIA ${(tm.days??0)+1} · T${tm.turns??0}`;
  el('phaseStatus').textContent=phaseLabel();el('torchStatus').textContent=resource('torch','0');el('rationStatus').textContent=resource('rations','0');
  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.screen===screen));
 }
 function go(s){if(s!=='sheet'){creatingAdditionalCharacter=false;editingCharacter=false;}screen=s;q.set('screen',s);try{history.replaceState(null,'',`${location.pathname}?${q}`)}catch(_e){}render()}
-function render(){updateHeader();main.innerHTML=screen==='session'?renderSession():screen==='map'?renderMap():screen==='sheet'?renderSheet():screen==='dice'?renderDiceScreen():screen==='library'?renderLibrary():screen==='world'?renderWorld():renderCompany();wireCurrentScreen();if(screen==='library'&&hasNative()&&!ruleLibraryLoaded)postNative('RuleEvidenceList',{});}
+function render(){updateHeader();main.innerHTML=screen==='session'?renderSession():screen==='map'?renderMap():screen==='sheet'?renderSheet():screen==='dice'?renderDiceScreen():screen==='library'?renderLibrary():screen==='world'?renderWorld():renderCompany();window.OSEEquipmentArt?.refresh(main);wireCurrentScreen();checkFirstLaunch();if(screen==='library'&&hasNative()&&!ruleLibraryLoaded)postNative('RuleEvidenceList',{});}
 
 function renderSession(){
  if(hasNative()&&!viewState?.selectedCharacter&&phase()==='ACTIVE'&&!(viewState?.creation?.drafts||[]).length)return renderCreationStart();
@@ -111,19 +173,55 @@ function renderSession(){
  const raw=viewState?.sceneDecisions||[];
  const ds=raw.length===3?raw:(fallbackDecisions[stateName]||fallbackDecisions.active);
  const presentNpcs=viewState?.presentation?.presentNpcs||[];
- const npcPanel=presentNpcs.length?`<div class="panel"><h3>NPCs presentes</h3><div class="text-entity-list">${presentNpcs.map(n=>`<div class="text-entity"><b>${esc(n.name)}</b></div>`).join('')}</div></div>`:'';
+ const npcPanel=presentNpcs.length?`<div class="panel"><h3>NPCs presentes</h3><div class="text-entity-list">${presentNpcs.map(n=>{const nPort=n.portraitUrl||viewState?.presentation?.npcPortraits?.[n.npcId];return `<div class="text-entity">${nPort?`<img src="${esc(nPort)}" class="avatar-thumb" alt="Retrato">`:''}<b>${esc(n.name)}</b>${hasNative()?`<button class="photo-action" data-photo-npc="${esc(n.npcId)}" title="Retrato do NPC">📷</button>`:''}</div>`}).join('')}</div></div>`:'';
+ const receipt = viewState?.narrationReceipt;
+ const narrativeStatus = String(receipt?.status || '').toUpperCase();
+ const isPartialNarration = narrativeStatus === 'PARTIAL_LENGTH';
+ const narrationOrigin = receipt?.provider === 'GEMINI_TEXT'
+   ? 'Mestre Gemini (' + esc(receipt.model || 'neural') + ')'
+   : 'Narração local offline';
+ const narrationNotice = isPartialNarration
+   ? 'Cena abreviada: o Gemini não atingiu a extensão solicitada. O texto recebido foi preservado.'
+   : narrativeStatus === 'FALLBACK'
+     ? 'Gemini indisponível nesta resposta; o Mestre utilizou a narração local.'
+     : narrativeStatus === 'LOCAL_ONLY'
+       ? 'Narração local: chave Gemini de texto não configurada.'
+       : narrationOrigin;
+ const badgeHtml = receipt
+   ? `<div class="narration-badge ${esc(narrativeStatus.toLowerCase())}" role="status">${esc(narrationNotice)}</div>`
+   : '';
  return `<div class="kicker">Sessão ativa</div>
-  <div class="panel"><div class="row"><div><span class="pill">${profileLabel()}</span><h2 style="margin-top:7px">Cena atual</h2></div></div>
+  <div class="panel">${badgeHtml}<div class="row"><div><span class="pill">${profileLabel()}</span><h2 style="margin-top:7px">Cena atual</h2></div></div>
   ${sceneUrl?img(sceneUrl,'Ilustração da cena atual','scene-image'):''}
   <div id="visibleNarration" class="narrative-text">${paragraphs(narration)}</div>
-  <div class="session-tools"><button class="small" data-tts="play">▶ OUVIR</button><button class="small" data-tts="stop">■ PARAR</button><button class="small" data-tts="replay">↻ REPETIR</button><button class="small" data-scene-prompt>▧ GERAR CENA</button><button class="small" data-scene-import data-scene-id="${esc(sceneId)}">⇩ IMPORTAR</button></div></div>
+  <div class="session-tools">
+  <button class="small" data-tts="play">▶ OUVIR</button>
+  <button class="small" data-tts="stop">■ PARAR</button>
+  <button class="small" data-tts="replay">↻ REPETIR</button>
+  <button class="small" data-scene-photo data-scene-id="${esc(sceneId)}" title="Menu de imagem da cena">📷 CENA</button>
+  <button class="small" data-guide-topic="rule_trace" title="Explica como o árbitro resolveu mecanicamente a última ação">❓ REGRA DA AÇÃO</button>
+</div></div>
   ${npcPanel}
+  ${renderAdventureCard()}
   ${renderCuratorPanel()}
   ${renderCompanionOpinions()}
   ${renderMasterContinue()}
   ${renderRuleTrace(lastRuleTrace||viewState?.lastRuleTrace)}
-  <div class="panel"><h3>O que você faz?</h3><div class="suggestions">${ds.map(x=>`<button class="suggestion" data-suggest="${esc(x.reaction||x[1]||'')}" data-intent="${esc(x.mechanicalIntent||'')}">${esc(x.label||x[0]||'AÇÃO')}</button>`).join('')}</div><textarea id="reactionInput" placeholder="Ex.: examino as pegadas, pergunto o que há por perto, sigo com cuidado..."></textarea><button class="primary" data-react ${hasNative()&&!(viewState?.party||[]).some(m=>(m.controlMode||'PLAYER')==='PLAYER')?'disabled':''}>Enviar ação</button><button class="secondary" style="margin-top:7px" data-go="dice">Abrir rolagem de dados</button></div>
+  <div class="panel"><h3>O que você faz?</h3><button id="openSuggestionsBtn" class="secondary" style="margin-bottom:8px;width:100%">💡 O QUE POSSO FAZER AGORA?</button><div class="suggestions">${ds.map(x=>`<button class="suggestion" data-suggest="${esc(x.reaction||x[1]||'')}" data-intent="${esc(x.mechanicalIntent||'')}">${esc(x.label||x[0]||'AÇÃO')}</button>`).join('')}</div><textarea id="reactionInput" placeholder="Ex.: examino as pegadas, pergunto o que há por perto, sigo com cuidado..."></textarea><button class="primary" data-react ${hasNative()&&!(viewState?.party||[]).some(m=>(m.controlMode||'PLAYER')==='PLAYER')?'disabled':''}>Enviar ação</button><button class="secondary" style="margin-top:7px" data-go="dice">Abrir rolagem de dados</button></div>
   <div class="panel"><h3>Diário</h3><div class="log friendly-log">${esc(localLog.slice(-8).join('\n')||'Sem eventos registrados.')}</div></div>`;
+}
+function renderAdventureCard(){
+ const adv=viewState?.activeAdventure;
+ if(!adv)return `<div class="panel adventure-panel"><h3>Aventuras</h3><p class="note">Nenhum pacote de aventura ativo. O mundo segue em sandbox ou você pode importar um pacote JSON.</p><div class="row"><button class="small primary" data-adventure-import>IMPORTAR AVENTURA JSON</button><button class="small secondary" data-adventure-load-classic>EXEMPLO CLÁSSICO</button><button class="small secondary" data-adventure-load-advanced>EXEMPLO AVANÇADO</button></div></div>`;
+ return `<div class="panel adventure-panel"><div class="row"><div><span class="pill">${esc(adv.system||'OSE')}</span><h3 style="margin-top:6px">${esc(adv.title||'Aventura')}</h3></div></div><p><b>Premissa:</b> ${esc(adv.premise||'')}</p><p class="note">${adv.locationsCount||0} locais cadastrados · ${adv.npcsCount||0} NPCs registrados · ${adv.objectivesCount||0} objetivos</p><div class="row" style="margin-top:8px"><button class="small secondary" data-adventure-import>SUBSTITUIR JSON</button><button class="small secondary" data-adventure-finish>CONCLUIR AVENTURA (PRESERVAR MUNDO)</button></div></div>`;
+}
+function loadSampleAdventure(path){
+ fetch(path).then(r=>r.text()).then(raw=>{
+  postNative('AdventureImport',{rawJson:raw});
+  showToast('Carregando aventura canônica…');
+ }).catch(_e=>{
+  showToast('Não foi possível ler o arquivo da aventura.');
+ });
 }
 function paragraphs(text){return String(text||'').split(/\n\s*\n/).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('')}
 function traceStatusLabel(s){const m={CANONICAL_RULE:'Regra canônica',CANONICAL_PROCEDURE:'Procedimento canônico',OPTIONAL_RULE:'Regra opcional',PRODUCT_PRESET:'Contrato do produto',PROCEDURAL_TABLE:'Tabela/procedimento',ADVENTURE_LOCAL_RULE:'Regra da aventura',REFEREE_JUDGMENT:'Julgamento do Mestre',MISSING_EVIDENCE:'Evidência insuficiente'};return m[s]||String(s||'Sem rastreio')}
@@ -132,13 +230,60 @@ function showRuleDetail(p){const t=p.trace||{};const ev=t.evidence||[];const msg
 
 function renderPrestart(){return `<div class="kicker">Pronto para começar</div><div class="panel prestart-card"><span class="pill">${profileLabel()}</span><h2>A aventura ainda não começou</h2><p>Seu personagem e o mundo já estão preparados. Quando você tocar no botão abaixo, Barbara apresentará a cena inicial usando o estado atual da campanha.</p><button class="primary start-adventure" data-start-adventure>COMEÇAR A AVENTURA</button><button class="secondary" style="margin-top:7px" data-go="dice">ROLAR DADOS</button></div>`}
 function renderCreationStart(){return `<div class="kicker">Novo aventureiro</div><div class="panel"><h2>Criar personagem</h2><p>Os seis atributos serão rolados pelo próprio aplicativo conforme as regras OSE e ficarão registrados na campanha.</p><span class="pill">${profileLabel()}</span><button class="primary" style="margin-top:10px" data-start-draft>CRIAR PASSO A PASSO · ROLAR 3D6</button><button class="secondary" style="margin-top:7px" data-random-character>CRIAR PERSONAGEM ALEATÓRIO</button><button class="secondary" style="margin-top:7px" data-import-character>IMPORTAR FICHA.JSON</button></div>`}
+function attrMod(val){
+  if(val==null)return'';
+  if(val>=18)return'+3';
+  if(val>=16)return'+2';
+  if(val>=13)return'+1';
+  if(val>=9)return'0';
+  if(val>=6)return'-1';
+  if(val>=4)return'-2';
+  return'-3';
+}
+
+function classRecommendation(a, isAdv){
+  const s = a.str||10, i = a.int||10, w = a.wis||10, d = a.dex||10, c = a.con||10, ch = a.cha||10;
+  const maxVal = Math.max(s, i, w, d, c, ch);
+  if(s === maxVal) return { prime: 'Força (FOR)', rec: 'Guerreiro', tip: 'Excelente capacidade de combate corpo a corpo e maior bônus de dano.' };
+  if(w === maxVal) return { prime: 'Sabedoria (SAB)', rec: 'Clérigo', tip: 'Alta proteção contra magias e habilidades divinas para curar o grupo.' };
+  if(i === maxVal) return { prime: 'Inteligência (INT)', rec: 'Mago', tip: 'Poderosos feitiços arcanos; ganha línguas adicionais.' };
+  if(d === maxVal) return { prime: 'Destreza (DES)', rec: 'Ladrão', tip: 'Bônus na CA, ataques à distância e perícias de ladinagem.' };
+  if(c === maxVal) return { prime: 'Constituição (CON)', rec: isAdv?'Bárbaro / Guerreiro':'Anão / Guerreiro', tip: 'Pontos de vida adicionais e resistência física superior.' };
+  return { prime: 'Carisma (CAR)', rec: isAdv?'Bardo / Cavaleiro':'Guerreiro ou Clérigo', tip: 'Maior lealdade e reação favorável de contratados e monstros.' };
+}
+
 function renderCreationDraft(d){
  const a=d.attributes||{};const isAdv=String(d.profile||'').includes('ADVANCED');
  const classes=isAdv?['ACROBAT','ASSASSIN','BARBARIAN','BARD','CLERIC','DRUID','FIGHTER','ILLUSIONIST','KNIGHT','MAGIC_USER','PALADIN','RANGER','THIEF']:['DWARF','CLERIC','ELF','FIGHTER','HALFLING','THIEF','MAGIC_USER'];
  const races=['HUMAN','DROW','DUERGAR','DWARF','ELF','GNOME','HALF_ELF','HALFLING','HALF_ORC','SVIRFNEBLIN'];
- return `<div class="kicker">Novo aventureiro</div><div class="panel"><h3>Criar personagem</h3><div class="attrs">${Object.entries({FOR:a.str,INT:a.int,SAB:a.wis,DES:a.dex,CON:a.con,CAR:a.cha}).map(([k,v])=>`<div class="attr"><b>${v??'—'}</b><span>${k}</span></div>`).join('')}</div>
- ${isAdv?`<label class="field">Método de criação</label><select id="creationMethod"><option value="ADVANCED_BASIC">Básico</option><option value="ADVANCED_METHOD">Avançado</option></select><label class="field">Raça (método avançado)</label><select id="creationRace"><option value="">Nenhuma / conforme método</option>${races.map(x=>`<option value="${x}">${raceLabel(x)}</option>`).join('')}</select>`:''}
- <label class="field">Classe</label><select id="creationClass">${classes.map(x=>`<option value="${x}">${classLabel(x)}</option>`).join('')}</select><label class="field">Nome</label><input id="creationName" placeholder="Nome do aventureiro"><button class="primary" style="margin-top:9px" data-commit-draft="${esc(d.draftId)}">Criar personagem</button></div>`;
+ const rec = classRecommendation(a, isAdv);
+ const classComp = [
+   { id: 'FIGHTER', name: 'Guerreiro', prime: 'FOR', hd: 'd8', arm: 'Todas', desc: 'Especialista em armas e combate direto.' },
+   { id: 'CLERIC', name: 'Clérigo', prime: 'SAB', hd: 'd6', arm: 'Todas + Escudos', desc: 'Magias divinas, cura e expulsão de mortos-vivos.' },
+   { id: 'MAGIC_USER', name: 'Mago', prime: 'INT', hd: 'd4', arm: 'Nenhuma', desc: 'Conjura feitiços arcanos poderosos de grimório.' },
+   { id: 'THIEF', name: 'Ladrão', prime: 'DES', hd: 'd4', arm: 'Couro apenas', desc: 'Furtividade, arrombamento e ataque pelas costas.' }
+ ];
+ return `<div class="kicker">Novo aventureiro · Aprender Jogando</div>
+ <div class="panel">
+   <h3>Criar personagem</h3>
+   <p class="note">Atributos rolados com 3d6 estritos em ordem. Requisitos primários de 13+ concedem bônus de +5% de XP (+10% para 16+).</p>
+   <div class="attrs">${Object.entries({FOR:a.str,INT:a.int,SAB:a.wis,DES:a.dex,CON:a.con,CAR:a.cha}).map(([k,v])=>`<div class="attr" title="Modificador: ${attrMod(v)}"><b>${v??'—'}</b><span>${k} (${attrMod(v)})</span></div>`).join('')}</div>
+   <div class="guide-card" style="margin-top:10px;border-left:3px solid #d9a84c;background:rgba(217,168,76,0.08);padding:8px 12px">
+     <b style="color:#d9a84c">💡 Recomendação OSE:</b> Sua melhor aptidão é <b>${esc(rec.prime)}</b> (${Math.max(a.str||0,a.int||0,a.wis||0,a.dex||0,a.con||0,a.cha||0)}).
+     <span style="display:block;margin-top:2px;font-size:12px;color:#cbb898">Classe sugerida: <b>${esc(rec.rec)}</b>. ${esc(rec.tip)}</span>
+   </div>
+   <div style="margin-top:10px">
+     <h4 style="margin-bottom:6px">Comparação rápida de classes clássicas:</h4>
+     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;font-size:11px">
+       ${classComp.map(c=>`<div style="background:rgba(0,0,0,0.25);padding:6px;border-radius:4px"><b>${c.name}</b> (${c.prime})<br>DV: ${c.hd} · Armaduras: ${c.arm}<br><span style="color:#a89880">${c.desc}</span></div>`).join('')}
+     </div>
+   </div>
+   ${isAdv?`<label class="field" style="margin-top:10px">Método de criação</label><select id="creationMethod"><option value="ADVANCED_BASIC">Básico</option><option value="ADVANCED_METHOD">Avançado</option></select><label class="field">Raça (método avançado)</label><select id="creationRace"><option value="">Nenhuma / conforme método</option>${races.map(x=>`<option value="${x}">${raceLabel(x)}</option>`).join('')}</select>`:''}
+   <label class="field" style="margin-top:10px">Classe</label><select id="creationClass">${classes.map(x=>`<option value="${x}">${classLabel(x)}</option>`).join('')}</select>
+   <label class="field">Nome do aventureiro</label><input id="creationName" placeholder="Ex.: Rogar, Morwen, Alistair">
+   <button class="primary" style="margin-top:9px" data-commit-draft="${esc(d.draftId)}">Criar personagem</button>
+   <button class="secondary" style="margin-top:7px;width:100%" data-cancel-draft="${esc(d.draftId)}">CANCELAR CRIAÇÃO</button>
+ </div>`;
 }
 
 const geom=Object.freeze({hexW:64,hexH:73.90,xStep:62.8,yStep:54.8,oddOffset:31.4,originX:24,originY:28});
@@ -154,7 +299,7 @@ function renderHexMap(){
  const travel=selected?travelForSelection(pos,selected):null;
  const gridW=Math.ceil(geom.originX*2+(Math.max(1,width)-1)*geom.xStep+geom.oddOffset+geom.hexW+92),gridH=Math.ceil(geom.originY*2+(Math.max(1,height)-1)*geom.yStep+geom.hexH+28);
  const knownText=selected?.known?`Terreno conhecido: ${terrainName(selected)}.`:'Esta área ainda não foi revelada à companhia.';
- return `<section class="map-shell"><div class="map-head"><div><div class="kicker">Mapa da campanha</div><div class="map-title">Ermos do Norte</div></div><div class="camera-tools"><button id="zoomOut">−</button><button id="zoomIn">+</button></div></div><div id="mapViewport" class="map-viewport" aria-label="Mapa da campanha"><div id="mapGrid" class="map-grid" style="width:${gridW}px;height:${gridH}px">${all}<div class="canonical-ring" style="left:${px-9}px;top:${py-9}px"></div><div class="party-marker" style="left:${px}px;top:${py}px" aria-label="Companhia">◆</div><div class="map-label" style="left:${px+30}px;top:${py+2}px">COMPANHIA</div></div></div><div class="map-inspect panel"><div>${selected&&terrainAsset(selected)?img('hexes-runtime/'+terrainAsset(selected),terrainName(selected),'inspect-hex'):'<div class="unknown-inspect">✦</div>'}</div><div><div class="inspect-title">${esc(selected?terrainName(selected):'Selecione um hex')}</div><div class="inspect-copy">${esc(knownText)}</div>${travel?`<button class="small map-travel" data-map-travel="${esc(travel.intent)}" data-map-text="${esc(travel.text)}">Preparar dia de viagem para ${travel.label}</button>`:'<div class="inspect-copy">Selecione um hex vizinho à companhia para preparar a viagem.</div>'}</div></div></section>`
+ return `<section class="map-shell"><div class="map-head"><div><div class="kicker">Mapa da campanha</div><div class="map-title">Ermos do Norte</div></div>${mapModeTabs()}<div class="camera-tools"><button id="zoomOut">−</button><button id="zoomIn">+</button></div></div><div id="mapViewport" class="map-viewport" aria-label="Mapa da campanha"><div id="mapGrid" class="map-grid" style="width:${gridW}px;height:${gridH}px">${all}<div class="canonical-ring" style="left:${px-9}px;top:${py-9}px"></div><div class="party-marker" style="left:${px}px;top:${py}px" aria-label="Companhia">◆</div><div class="map-label" style="left:${px+30}px;top:${py+2}px">COMPANHIA</div></div></div><div class="map-inspect panel"><div>${selected&&terrainAsset(selected)?img('hexes-runtime/'+terrainAsset(selected),terrainName(selected),'inspect-hex'):'<div class="unknown-inspect">✦</div>'}</div><div><div class="inspect-title">${esc(selected?terrainName(selected):'Selecione um hex')}</div><div class="inspect-copy">${esc(knownText)}</div>${travel?`<button class="small map-travel" data-map-travel="${esc(travel.intent)}" data-map-text="${esc(travel.text)}">Preparar dia de viagem para ${travel.label}</button>`:'<div class="inspect-copy">Selecione um hex vizinho à companhia para preparar a viagem.</div>'}</div></div></section>`
 }
 
 function effectiveMapMode(){
@@ -233,17 +378,35 @@ function renderSheet(){
  const inv=(viewState?.inventory||(!hasNative()?[{itemId:'demo-mace',catalogId:'ADV_EQUIP_WEAPON_PURCHASE_09',quantity:1,equipped:false,kind:'WEAPON'}]:[])).filter(it=>!hasNative()||it.ownerId===demo.characterId);
  const editPanel=editingCharacter?`<div class="panel edit-character"><h3>Editar ficha</h3><label class="field">Nome do personagem</label><input id="editCharacterName" maxlength="80" value="${esc(demo.name||'')}"><p class="note">O nome pode ser alterado a qualquer momento. Raça, classe, atributos, HP inicial e valores derivados continuam protegidos pelas regras OSE. Antes da primeira cena, use “Criar outro personagem” para refazer a parte mecânica.</p><div class="row"><button class="primary" data-save-character>Salvar</button><button class="secondary" data-cancel-character-edit>Cancelar</button></div></div>`:'';
  const manage=hasNative()?`${renderCharacterControlSelect({...demo,controlMode:(viewState?.characterControlModes||{})[demo.characterId]||"PLAYER"})}<button class="secondary" data-add-character>ADICIONAR PERSONAGEM</button><button class="secondary" data-delete-character="${esc(demo.characterId)}">EXCLUIR FICHA</button>`:'';
- return `<div class="hero panel text-first-hero"><div><div class="kicker">Personagem</div><h2>${esc(demo.name||'Aventureiro')}</h2><p><b>${esc(raceLabel(demo.raceId||'HUMAN'))}</b> · ${esc((demo.classIds||[]).map(classLabel).join(' / ')||'—')} · ${profileLabel()}</p><div class="vitals"><div class="vital"><span>HP</span><b>${hpText(demo)}</b></div><div class="vital"><span>CA</span><b>${demo.armorClassDescending??'—'}</b></div><div class="vital"><span>NÍVEL</span><b>${Object.values(demo.levelByClass||{})[0]??1}</b></div></div></div></div>
+ const portraitUrl=viewState?.presentation?.characterPortraits?.[demo.characterId];
+  const portraitHtml=`<div class="portrait">${portraitUrl?`<img src="${esc(portraitUrl)}" alt="Retrato">`:"👤"}${hasNative()?`<button class="small photo-action" data-photo-character="${esc(demo.characterId)}" title="Alterar retrato">📷</button>`:""}</div>`;
+  return `<div class="hero panel text-first-hero">${portraitHtml}<div><div class="kicker">Personagem</div><h2>${esc(demo.name||'Aventureiro')}</h2><p><b>${esc(raceLabel(demo.raceId||'HUMAN'))}</b> · ${esc((demo.classIds||[]).map(classLabel).join(' / ')||'—')} · ${profileLabel()}</p><div class="vitals">
+  <div class="vital" data-guide-topic="hit_points" title="Pontos de Vida (HP) · Toque para ajuda"><span>HP <small class="help-badge">?</small></span><b>${hpText(demo)}</b></div>
+  <div class="vital" data-guide-topic="armor_class" title="Classe de Armadura (CA) descendente · Toque para ajuda"><span>CA <small class="help-badge">?</small></span><b>${demo.armorClassDescending??'—'}</b></div>
+  <div class="vital" data-guide-topic="character_advancement" title="Nível de experiência · Toque para ajuda"><span>NÍVEL <small class="help-badge">?</small></span><b>${Object.values(demo.levelByClass||{})[0]??1}</b></div>
+</div></div></div>
  ${editPanel}
- <div class="panel"><div class="attrs">${attrPairs(demo.attributes).map(([k,v])=>`<div class="attr"><b>${v??'—'}</b><span>${k}</span></div>`).join('')}</div><div class="sheet-actions"><button class="small" data-edit-character>EDITAR FICHA</button>${manage}<button class="small" data-export-character>EXPORTAR FICHA.JSON</button><button class="small" data-import-character>IMPORTAR FICHA.JSON</button></div></div>
+ <div class="panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+    <h3 style="margin:0">Jogadas de Proteção</h3>
+    <button class="small" data-guide-topic="saving_throws" style="padding:2px 8px;font-size:11px">? COMO FUNCIONA</button>
+  </div>
+  <div class="attrs" style="grid-template-columns:repeat(auto-fit,minmax(60px,1fr));margin-bottom:12px">
+    <div class="attr" title="Morte / Veneno"><b>${demo.savingThrows?.deathPoison??'—'}</b><span>Morte</span></div>
+    <div class="attr" title="Varinhas mágicas"><b>${demo.savingThrows?.wands??'—'}</b><span>Varinhas</span></div>
+    <div class="attr" title="Paralisia / Petrificação"><b>${demo.savingThrows?.paralysisPetrification??'—'}</b><span>Paralisia</span></div>
+    <div class="attr" title="Sopro de dragão"><b>${demo.savingThrows?.breath??'—'}</b><span>Sopro</span></div>
+    <div class="attr" title="Magias / Cajados"><b>${demo.savingThrows?.spellsRodsStaves??'—'}</b><span>Magias</span></div>
+  </div>
+  <div class="attrs">${attrPairs(demo.attributes).map(([k,v])=>`<div class="attr" title="Modificador: ${attrMod(v)}"><b>${v??'—'}</b><span>${k} (${attrMod(v)})</span></div>`).join('')}</div><div class="sheet-actions"><button class="small" data-edit-character>EDITAR FICHA</button>${manage}<button class="small" data-export-character>EXPORTAR FICHA.JSON</button><button class="small" data-import-character>IMPORTAR FICHA.JSON</button></div></div>
  <div class="panel"><h3>Inventário</h3><div class="inventory-grid">${inv.length?inv.map(renderInventoryItem).join(''):'<p class="note">Inventário vazio.</p>'}</div></div>${hasNative()?renderNativeLoadout():renderDemoShop()}`;
 }
 function loadoutState(){return viewState?.loadout&&viewState.loadout.characterId?viewState.loadout:null}
 function catalogEntry(id){return loadoutState()?.catalog?.find(x=>x.catalogId===id)||null}
-function catalogLabel(id){if(id==='STARTING_GOLD_GP')return 'Moedas de ouro';const e=catalogEntry(id);if(e?.name)return e.name;return 'Item'}
+function catalogLabel(id,item){if(id==='STARTING_GOLD_GP')return 'Moedas de ouro';return String(item?.displayName||item?.name||catalogEntry(id)?.name||id||'Equipamento sem identificação')}
 function itemArt(catalogId,name='',kind=''){if(/^(CLASSIC|ADV)_EQUIP_/.test(String(catalogId||'')))return img(`equipment-icons/${esc(catalogId)}.png`,name,'item-thumb equipment-art');const p=kind==='SHIELD'?'tesouros_escudos/escudo_redondo.png':kind==='ARMOR'?'equipamentos/cota_malha.png':'equipamentos_variantes/equipamentos_variantes_01.png';return img(asset(p),name,'item-thumb')}
-function renderInventoryItem(it){const name=catalogLabel(it.catalogId),custom=viewState?.presentation?.itemThumbnails?.[it.itemId],canEquip=['WEAPON','ARMOR','SHIELD'].includes(it.kind)&&loadoutState()&&!loadoutState().completed;return `<div class="item">${custom?img(custom,name,'item-thumb'):itemArt(it.catalogId,name,it.kind)}<b>${esc(name)}</b><small>×${it.quantity??1}${it.equipped?' · EQUIPADO':''}</small>${hasNative()?`<div class="actions">${canEquip?`<button data-loadout-equip="${esc(it.itemId)}" data-equipped="${it.equipped?'1':'0'}">${it.equipped?'TIRAR':'EQUIPAR'}</button>`:''}<button class="photo-action" title="Trocar imagem" data-photo-item="${esc(it.itemId)}">📷</button></div>`:''}</div>`}
-function renderNativeLoadout(){const l=loadoutState();if(!hasNative()||!l||l.completed)return'';const groups=[['Aventura',['ADVENTURING_GEAR','FOOD','LIGHT_SOURCE','OIL_FLASK']],['Armas',['WEAPON']],['Armaduras e munição',['ARMOR','SHIELD','AMMUNITION']]];return `<div class="panel"><div class="kicker">Equipamento inicial</div><h3>${l.remainingWealthGp} po restantes de ${l.startingWealthGp} po</h3><p class="note">Os preços, quantidades e estatísticas são aplicados automaticamente pelas regras OSE.</p>${groups.map(([title,kinds])=>`<h3>${title}</h3><div class="inventory-grid">${(l.catalog||[]).filter(e=>kinds.includes(e.kind)).map(e=>`<div class="item">${itemArt(e.catalogId,e.name,e.kind)}<b>${esc(e.name)}</b><small>${e.priceGp==null?'Preço não comprovado':`${e.priceGp} po`}${e.purchaseQuantity>1?` · ×${e.purchaseQuantity}`:''}${e.ownedQuantity?` · possui ${e.ownedQuantity}`:''}</small><div class="actions"><button data-loadout-buy="${esc(e.catalogId)}" ${e.priceGp==null||e.priceGp>l.remainingWealthGp?'disabled':''}>COMPRAR</button></div></div>`).join('')}</div>`).join('')}<button class="primary" data-loadout-finish="1" style="margin-top:9px">Concluir equipamento</button></div>`}
+function renderInventoryItem(it){const name=catalogLabel(it.catalogId,it),custom=viewState?.presentation?.itemThumbnails?.[it.itemId],canEquip=['WEAPON','ARMOR','SHIELD'].includes(it.kind)&&loadoutState()&&!loadoutState().completed;return `<div class="item">${custom?img(custom,name,'item-thumb'):itemArt(it.catalogId,name,it.kind)}<b>${esc(name)}</b><small>×${it.quantity??1}${it.equipped?' · EQUIPADO':''}</small>${hasNative()?`<div class="actions">${canEquip?`<button data-loadout-equip="${esc(it.itemId)}" data-equipped="${it.equipped?'1':'0'}">${it.equipped?'TIRAR':'EQUIPAR'}</button>`:''}<button class="photo-action" title="Trocar imagem" data-photo-item="${esc(it.itemId)}">📷</button></div>`:''}</div>`}
+function renderNativeLoadout(){const l=loadoutState();if(!hasNative()||!l||l.completed)return'';const groups=[['Aventura',['ADVENTURING_GEAR','FOOD','LIGHT_SOURCE','OIL_FLASK']],['Armas',['WEAPON']],['Armaduras e munição',['ARMOR','SHIELD','AMMUNITION']]];return `<div class="panel"><div class="kicker">Equipamento inicial</div><h3>${l.remainingWealthGp} po restantes de ${l.startingWealthGp} po</h3><p class="note">Os preços, quantidades e estatísticas são aplicados automaticamente pelas regras OSE.</p>${groups.map(([title,kinds])=>`<h3>${title}</h3><div class="inventory-grid">${(l.catalog||[]).filter(e=>kinds.includes(e.kind)).map(e=>`<div class="item">${itemArt(e.catalogId,e.name,e.kind)}<b>${esc(e.name)}</b><small>${e.priceGp==null?'Preço não comprovado':`${e.priceGp} po`}${e.purchaseQuantity>1?` · ×${e.purchaseQuantity}`:''}${e.ownedQuantity?` · possui ${e.ownedQuantity}`:''}</small><div class="actions"><button data-loadout-buy="${esc(e.catalogId)}" ${e.priceGp==null||e.priceGp>l.remainingWealthGp?'disabled':''}>COMPRAR</button></div></div>`).join('')}</div>`).join('')}<button class="primary" data-loadout-finish="1" style="margin-top:9px">Concluir equipamento</button><button class="secondary" data-loadout-back="1" style="margin-top:7px;width:100%">VOLTAR À FICHA (MANTER PERSONAGEM)</button></div>`}
 function renderDemoShop(){return ''}
 function renderCharacterControlSelect(m){
  const mode=m.controlMode||'PLAYER';
@@ -284,12 +447,37 @@ function renderMasterContinue(){
  const controlled=(viewState?.party||[]).filter(m=>m.controlMode==='MASTER'||m.controlMode==='CURATED');
  return controlled.length?'<div class="panel"><h3>Personagens do Mestre</h3><p class="note">O Mestre age automaticamente após suas ações. Também é possível solicitar uma rodada de decisões.</p><button class="secondary" data-master-continue>CONTINUAR AÇÕES DO MESTRE</button></div>':'';
 }
-function renderCompany(){const party=viewState?.party||(!hasNative()?[{characterId:'demo-character',name:'Aventureiro',classIds:['FIGHTER'],hpCurrentNumerator:8,hpMaxNumerator:8,hpDenominator:1}]:[]);return `<div class="kicker">Companhia</div><div class="panel"><h2>${party.length?'Companhia atual':'Ainda vazia'}</h2>${party.length?`<div class="text-entity-list">${party.map(m=>`<div class="text-entity character-management ${m.characterId===viewState?.selectedCharacterId?'active':''}"><div><b>${esc(m.name)}</b><span>${esc((m.classIds||[]).map(classLabel).join(' / '))} · HP ${hpText(m)} · Nível ${esc(Object.values(m.levelByClass||{})[0]||1)}</span></div>${renderCharacterControlSelect(m)}<div class="character-actions"><button data-character-select="${esc(m.characterId)}">ABRIR FICHA</button><button class="secondary" data-delete-character="${esc(m.characterId)}">EXCLUIR FICHA</button></div></div>`).join('')}</div><p class="note">A companhia viaja e ocupa o mundo como um único grupo.</p>`:'<p>Crie seu primeiro personagem para formar a companhia.</p>'}<div class="character-actions"><button class="primary" data-add-character>ADICIONAR PERSONAGEM</button><button class="secondary" data-import-character>IMPORTAR FICHA.JSON</button></div></div>${renderCuratorPanel()}${renderCompanionOpinions()}${renderMasterContinue()}`}
+function renderRetainerWage(r, actor) {
+ const dueDays=Number(r.wageDueDays||0), dueGp=Number(r.wageDueGp||0);
+ const note=r.wageLedgerNeedsBaseline ? 'Histórico antigo precisa ser reconciliado pelo árbitro'
+  : 'Pago: '+Number(r.totalWagesPaidGp||0)+' po; pendente: '+dueGp+' po ('+dueDays+' dias)';
+ const button=r.employerCharacterId!==actor ? '' : r.wageLedgerNeedsBaseline
+  ? '<button class="secondary" data-retainer-baseline="'+esc(r.npcId)+'">RECONCILIAR HISTÓRICO</button>'
+  : dueDays>0 ? '<button class="secondary" data-retainer-pay="'+esc(r.npcId)+'">PAGAR DIÁRIAS</button>' : '';
+ return '<div class="note">'+esc(note)+'</div>'+button;
+}
+
+function renderRetainerPanel(){
+ const hired=(viewState?.retainers||[]),candidates=(viewState?.retainerCandidates||[]),actor=viewState?.selectedCharacterId;
+ const employed=hired.filter(x=>x.active);
+ return `<div class="panel retainer-panel"><h3>Auxiliares de aventura</h3>
+ <p class="note">O recrutamento usa 2d6 e o Carisma do contratante. Só são elegíveis NPCs com nível, classe e ficha mecânica comprovados. Mercenários militares não são auxiliares.</p>
+ ${employed.length?`<div class="text-entity-list">${employed.map(r=>`<div class="text-entity"><b>${esc(r.name)}</b><span>Empregador: ${esc((viewState?.party||[]).find(p=>p.characterId===r.employerCharacterId)?.name||r.employerCharacterId)} · ${r.dailyWageGp} po/dia · ${r.treasureHalfShares}/2 cota(s) de tesouro</span>${renderRetainerWage(r,actor)}</div>`).join('')}</div>`:'<p class="note">Nenhum auxiliar contratado.</p>'}
+ ${hired.some(x=>!x.active)?'<p class="note">Auxiliares que encerraram o contrato continuam registrados no histórico.</p>':''}
+ <h3>Propor contratação</h3>
+ ${!actor?'<p class="note">Selecione primeiro um personagem.</p>':!candidates.length?'<p class="note">Nenhum NPC presente possui ficha de auxiliar comprovada.</p>':`
+ <div class="row"><label class="field">Diária proposta (po)<input id="retainerDailyWage" type="number" min="0" step="1" value="1"></label>
+ <label class="field">Meias partes do tesouro<input id="retainerTreasureHalves" type="number" min="1" step="1" value="1"></label></div>
+ <div class="text-entity-list">${candidates.map(n=>`<div class="text-entity"><b>${esc(n.name)}</b><button class="secondary" data-retainer-proposal="${esc(n.npcId)}">FAZER OFERTA</button></div>`).join('')}</div>`}
+ </div>`;
+}
+
+function renderCompany(){const party=viewState?.party||(!hasNative()?[{characterId:'demo-character',name:'Aventureiro',classIds:['FIGHTER'],hpCurrentNumerator:8,hpMaxNumerator:8,hpDenominator:1}]:[]);return `<div class="kicker">Companhia</div><div class="panel"><h2>${party.length?'Companhia atual':'Ainda vazia'}</h2>${party.length?`<div class="text-entity-list">${party.map(m=>{const mPort=viewState?.presentation?.characterPortraits?.[m.characterId];return `<div class="text-entity character-management ${m.characterId===viewState?.selectedCharacterId?'active':''}"><div>${mPort?`<img src="${esc(mPort)}" class="avatar-thumb" alt="Retrato">`:""}<b>${esc(m.name)}</b><span>${esc((m.classIds||[]).map(classLabel).join(' / '))} · HP ${hpText(m)} · Nível ${esc(Object.values(m.levelByClass||{})[0]||1)}</span></div>${renderCharacterControlSelect(m)}<div class="character-actions"><button data-character-select="${esc(m.characterId)}">ABRIR FICHA</button>${hasNative()?`<button class="secondary photo-action" data-photo-character="${esc(m.characterId)}" title="Alterar retrato">📷</button>`:""}<button class="secondary" data-delete-character="${esc(m.characterId)}">EXCLUIR FICHA</button></div></div>`}).join('')}</div><p class="note">A companhia viaja e ocupa o mundo como um único grupo.</p>`:'<p>Crie seu primeiro personagem para formar a companhia.</p>'}<div class="character-actions"><button class="primary" data-add-character>ADICIONAR PERSONAGEM</button><button class="secondary" data-import-character>IMPORTAR FICHA.JSON</button></div></div>${renderCuratorPanel()}${renderCompanionOpinions()}${renderMasterContinue()}${renderRetainerPanel()}`}
 
 function renderDicePanel(){return `<div class="panel dice-panel"><div class="row"><h3>🎲 Dados</h3><span class="note">Rolagem manual; não altera a campanha sozinha.</span></div><div class="dice-buttons">${[4,6,8,10,12,20,100].map(s=>`<button class="small" data-die="${s}">d${s}</button>`).join('')}</div><div class="dice-controls"><label>Quantidade<input id="diceCount" type="number" min="1" max="20" value="1"></label><label>Modificador<input id="diceModifier" type="number" min="-100" max="100" value="0"></label></div>${diceHistory.length?`<div class="dice-history">${diceHistory.map(d=>`<div><b>${d.count}d${d.sides}${d.modifier?`${d.modifier>0?'+':''}${d.modifier}`:''} = ${d.total}</b><small>${esc((d.rolls||[]).join(', '))}</small></div>`).join('')}</div>`:''}</div>`}
 function renderDiceScreen(){return `<div class="kicker">Rolagem de dados</div>${renderDicePanel()}<div class="panel"><p class="note">Rolagens manuais são livres e não alteram a campanha sozinhas. Quando uma regra OSE exige um teste, o motor usa a rolagem autoritativa e registra a regra consultada na sessão.</p></div>`}
 function renderLibrary(){const lib=viewState?.libraryStatus||{};const qx=libraryQuery.trim().toLowerCase();const filtered=ruleLibrary.filter(r=>!qx||String(r.ruleId).toLowerCase().includes(qx)||JSON.stringify(r.trace||{}).toLowerCase().includes(qx));return `<div class="kicker">Biblioteca de regras</div><div class="panel"><h2>${profileLabel()}</h2><p class="note">Autoridade: ${esc(lib.authority||'Fonte OSE incorporada')} · ${lib.ruleCount||ruleLibrary.length||0} regras catalogadas.</p><input id="librarySearch" type="search" placeholder="Buscar regra, fonte ou página" value="${esc(libraryQuery)}"></div><div class="rule-library">${ruleLibraryLoaded?(filtered.slice(0,100).map(r=>{const t=r.trace||{},e=(t.evidence||[])[0]||{};return `<button class="panel library-rule" data-rule-id="${esc(r.ruleId)}"><b>${esc(r.ruleId)}</b><span>${esc(traceStatusLabel(t.status))}</span><small>${esc(e.source||'')} ${esc(e.location||'')}</small></button>`}).join('')||'<div class="panel"><p>Nenhuma regra encontrada.</p></div>'):'<div class="panel"><p>Carregando catálogo de regras…</p></div>'}</div>`}
-function renderWorld(){const w=viewState?.worldStatus||{},p=viewState?.position||{},cell=currentMapCell();const weather={CLEAR:'Céu limpo',OVERCAST:'Encoberto',RAIN:'Chuva',FOG:'Neblina',STORM:'Tempestade',COLD:'Frio intenso',HOT:'Calor forte'}[w.weather]||w.weather||'—';return `<div class="kicker">Mundo Vivo</div><div class="panel"><h2>${w.active?'Mundo ativo':'Mundo ainda não iniciado'}</h2><div class="world-grid"><div><span>Clima</span><b>${esc(weather)}</b></div><div><span>Pulsos autônomos</span><b>${w.worldPulseCount??0}</b></div><div><span>NPCs persistentes</span><b>${w.npcCount??0}</b></div><div><span>Atividade de NPCs</span><b>${w.npcActivityCount??0}</b></div><div><span>Hexes conhecidos</span><b>${w.knownHexes??0}</b></div><div><span>Eventos pendentes</span><b>${w.scheduledEventCount??0}</b></div><div><span>Eventos resolvidos</span><b>${w.resolvedEventCount??0}</b></div><div><span>Revisão do mundo</span><b>${w.revision??0}</b></div></div><p class="note">O mundo e as rotinas dos NPCs avançam automaticamente quando o tempo canônico passa. Clima e atividade de fundo são persistidos sem inventar modificadores de regra.</p></div><div class="panel"><h3>Posição atual</h3><p>${esc(cell?terrainName(cell):'Local atual')} · Dia ${(viewState?.time?.days??0)+1}, turno ${viewState?.time?.turns??0}</p><button class="secondary" data-go="map">ABRIR MAPA</button></div>${renderRuleTrace(lastRuleTrace||viewState?.lastRuleTrace)}`}
+function renderWorld(){const w=viewState?.worldStatus||{},p=viewState?.position||{},cell=currentMapCell();const weather={CLEAR:'Céu limpo',OVERCAST:'Encoberto',RAIN:'Chuva',FOG:'Neblina',STORM:'Tempestade',COLD:'Frio intenso',HOT:'Calor forte'}[w.weather]||w.weather||'—';const rumors=window.vttLifeAdapter?.getPublicRumors()||[];const lifeArcs=window.vttLifeAdapter?.getActiveLifeArcs()||[];return `<div class="kicker">Mundo Vivo</div><div class="panel"><h2>${w.active?'Mundo ativo':'Mundo ainda não iniciado'}</h2><div class="world-grid"><div><span>Clima</span><b>${esc(weather)}</b></div><div><span>Pulsos autônomos</span><b>${w.worldPulseCount??0}</b></div><div><span>NPCs persistentes</span><b>${w.npcCount??0}</b></div><div><span>Atividade de NPCs</span><b>${w.npcActivityCount??0}</b></div><div><span>Hexes conhecidos</span><b>${w.knownHexes??0}</b></div><div><span>Eventos pendentes</span><b>${w.scheduledEventCount??0}</b></div><div><span>Eventos resolvidos</span><b>${w.resolvedEventCount??0}</b></div><div><span>Revisão do mundo</span><b>${w.revision??0}</b></div></div><p class="note">O mundo e as rotinas dos NPCs avançam automaticamente quando o tempo canônico passa. Clima e atividade de fundo são persistidos sem inventar modificadores de regra.</p></div><div class="panel"><h3>Posição atual</h3><p>${esc(cell?terrainName(cell):'Local atual')} · Dia ${(viewState?.time?.days??0)+1}, turno ${viewState?.time?.turns??0}</p><button class="secondary" data-go="map">ABRIR MAPA</button></div><div class="panel"><h3>Motor de Vida V2.2 · Rumores e Repercussões</h3>${rumors.length?`<ul class="rumor-list">${rumors.map(r=>`<li><b>Dia ${(r.day??0)+1}:</b> ${esc(r.text||r.title||'')}</li>`).join('')}</ul>`:'<p class="note">Nenhum rumor recente em circulação. Realize ações de viagem, descanso ou exploração para gerar manifestações biográficas.</p>'}</div>${renderRuleTrace(lastRuleTrace||viewState?.lastRuleTrace)}`}
 
 
 function wireCurrentScreen(){
@@ -331,7 +519,53 @@ function wireCurrentScreen(){
  document.querySelectorAll('[data-rule-id]').forEach(b=>b.onclick=()=>postNative('RuleEvidenceQuery',{ruleId:b.dataset.ruleId}));
  el('librarySearch')?.addEventListener('input',e=>{libraryQuery=e.currentTarget.value;render()});
  document.querySelector('[data-commit-draft]')?.addEventListener('click',e=>{const d=e.currentTarget.dataset.commitDraft,name=el('creationName')?.value.trim();if(!name)return showToast('Digite um nome.');e.currentTarget.disabled=true;const adv=String(viewState?.campaign?.profile||'').includes('ADVANCED');const method=adv?(el('creationMethod')?.value||'ADVANCED_BASIC'):'CLASSIC';const race=adv&&method==='ADVANCED_METHOD'?(el('creationRace')?.value||null):null;postNative('CharacterCreationCommit',{draftId:d,characterId:'char-'+Date.now()+'-'+Math.random().toString(36).slice(2,9),name,method,classIds:[el('creationClass').value],raceId:race||'',adjustments:[]})});
- document.querySelectorAll('[data-photo-item]').forEach(b=>b.onclick=()=>chooseMedia('ITEM',b.dataset.photoItem));
+  document.querySelectorAll('[data-photo-character]').forEach(b=>b.onclick=()=>openPhotoMenu('CHARACTER',b.dataset.photoCharacter,'Personagem'));
+  document.querySelectorAll('[data-photo-npc]').forEach(b=>b.onclick=()=>openPhotoMenu('NPC',b.dataset.photoNpc,'NPC'));
+  document.querySelectorAll('[data-scene-photo]').forEach(b=>b.onclick=()=>openPhotoMenu('SCENE',b.dataset.sceneId,'Cena atual'));
+  document.querySelectorAll('[data-adventure-import]').forEach(b=>b.onclick=()=>postNative('AdventureImport',{}));
+  document.querySelectorAll('[data-adventure-finish]').forEach(b=>b.onclick=()=>{if(confirm('Concluir esta aventura e arquivar seus feitos? Seus personagens, itens, relações e mundo serão integralmente preservados.'))postNative('AdventureFinish',{})});
+  document.querySelectorAll('[data-adventure-load-classic]').forEach(b=>b.onclick=()=>loadSampleAdventure('adventures/sample-adventure-ose-classic.json'));
+  document.querySelectorAll('[data-adventure-load-advanced]').forEach(b=>b.onclick=()=>loadSampleAdventure('adventures/sample-adventure-ose-advanced.json'));
+
+  document.querySelectorAll('[data-cancel-draft]').forEach(b=>b.onclick=e=>{
+    const d=e.currentTarget.dataset.cancelDraft;
+    creatingAdditionalCharacter=false;
+    postNative('CharacterCreationCancel',{draftId:d});
+  });
+  document.querySelectorAll('[data-loadout-back]').forEach(b=>b.onclick=()=>{
+    creatingAdditionalCharacter = false;
+    go('sheet');
+  });
+  document.querySelectorAll('[data-photo-item]').forEach(b=>b.onclick=()=>openPhotoMenu('ITEM',b.dataset.photoItem,'Item'));
+ document.querySelectorAll('[data-retainer-proposal]').forEach(b=>b.onclick=()=>{
+   const npcId=b.dataset.retainerProposal,actor=viewState?.selectedCharacterId;
+   const npc=(viewState?.retainerCandidates||[]).find(n=>n.npcId===npcId);
+   const wage=Number(el('retainerDailyWage')?.value),halves=Number(el('retainerTreasureHalves')?.value);
+   if(!npc||!actor||!Number.isSafeInteger(wage)||wage<0||!Number.isSafeInteger(halves)||halves<1)
+      return showToast('Selecione um personagem e informe uma oferta válida.');
+   b.disabled=true;
+   const reactionId='retainer-offer-'+Date.now()+'-'+Math.random().toString(36).slice(2,9);
+   const text='Ofereço a '+npc.name+' '+wage+' po por dia e '+halves+'/2 cota(s) de tesouro para nos acompanhar.';
+   if(!postNative('PlayerReaction',{reactionId,text,mechanicalIntent:'RETAINER_RECRUIT:'+actor+':'+npcId+':'+wage+':'+halves}))b.disabled=false;
+ });
+ document.querySelectorAll('[data-retainer-baseline]').forEach(b=>b.onclick=()=>{
+   const npcId=b.dataset.retainerBaseline,actor=viewState?.selectedCharacterId;
+   if(!actor||!npcId||!confirm('Confirmar marco no dia atual? Dívidas antigas exigem arbitragem separada.'))return;
+   b.disabled=true;
+   const reactionId='retainer-baseline-'+Date.now()+'-'+Math.random().toString(36).slice(2,9);
+   if(!postNative('PlayerReaction',{reactionId,characterId:actor,text:'Confirmo o marco de pagamento sem presumir dívidas passadas.',
+     mechanicalIntent:'RETAINER_WAGE_BASELINE:'+actor+':'+npcId}))b.disabled=false;
+ });
+ document.querySelectorAll('[data-retainer-pay]').forEach(b=>b.onclick=()=>{
+   const npcId=b.dataset.retainerPay,actor=viewState?.selectedCharacterId;
+   const contract=(viewState?.retainers||[]).find(r=>r.npcId===npcId&&r.employerCharacterId===actor);
+   if(!contract||!Number.isSafeInteger(Number(contract.wageDueGp))||
+     !confirm('Pagar '+contract.wageDueGp+' po por '+contract.wageDueDays+' dia(s) com o ouro do contratante?'))return;
+   b.disabled=true;
+   const reactionId='retainer-pay-'+Date.now()+'-'+Math.random().toString(36).slice(2,9);
+   if(!postNative('PlayerReaction',{reactionId,characterId:actor,text:'Pago as diárias vencidas de '+contract.name+'.',
+     mechanicalIntent:'RETAINER_PAY_DAILY:'+actor+':'+npcId}))b.disabled=false;
+ });
  document.querySelectorAll('[data-loadout-buy]').forEach(b=>b.onclick=()=>postNative('UiCommand',{command:'loadout_purchase',commandId:'buy-'+Date.now()+'-'+b.dataset.loadoutBuy,characterId:loadoutState()?.characterId||'',catalogId:b.dataset.loadoutBuy}));
  document.querySelectorAll('[data-loadout-equip]').forEach(b=>b.onclick=()=>postNative('UiCommand',{command:'loadout_equip',commandId:'equip-'+Date.now()+'-'+b.dataset.loadoutEquip,characterId:loadoutState()?.characterId||'',itemId:b.dataset.loadoutEquip,equipped:b.dataset.equipped!=='1'}));
  document.querySelector('[data-loadout-finish]')?.addEventListener('click',()=>postNative('UiCommand',{command:'loadout_finish',commandId:'finish-'+Date.now(),characterId:loadoutState()?.characterId||''}));
@@ -358,31 +592,256 @@ function wireMap(){
  document.querySelectorAll('[data-map-q]').forEach(b=>b.onclick=e=>{e.stopPropagation();mapSelection={q:Number(b.dataset.mapQ),r:Number(b.dataset.mapR)};render()});
  document.querySelector('[data-map-travel]')?.addEventListener('click',b=>{const text=b.currentTarget.dataset.mapText,intent=b.currentTarget.dataset.mapTravel;go('session');setTimeout(()=>{const t=el('reactionInput');if(t){t.value=text;t.dataset.mechanicalIntent=intent;t.focus()}},0)})
 }
+function downscaleImage(file, maxDim, quality, callback) {
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+  img.onload = () => {
+    URL.revokeObjectURL(url);
+    let w = img.width, h = img.height;
+    if (w > maxDim || h > maxDim) {
+      if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+      else { w = Math.round((w * maxDim) / h); h = maxDim; }
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    callback(file.type==='image/png'||file.type==='image/webp'?canvas.toDataURL('image/png'):canvas.toDataURL('image/jpeg',quality));
+  };
+  img.onerror = () => {
+    URL.revokeObjectURL(url);
+    showToast('Falha ao processar arquivo de imagem.');
+  };
+  img.src = url;
+}
 function chooseMedia(scope,id){mediaTarget={scope,id};el('mediaPicker').value='';el('mediaPicker').click()}
-el('mediaPicker').addEventListener('change',()=>{const f=el('mediaPicker').files?.[0];if(!f||!mediaTarget)return;if(f.size>5*1024*1024)return showToast('Imagem deve ter no máximo 5 MB.');const r=new FileReader();r.onload=()=>postNative('PresentationImageSave',{scope:mediaTarget.scope,id:mediaTarget.id,dataUrl:r.result});r.readAsDataURL(f)});
+el('mediaPicker').addEventListener('change',()=>{
+  const f=el('mediaPicker').files?.[0];
+  if(!f||!mediaTarget)return;
+  if(f.size>20*1024*1024)return showToast('Imagem deve ter no máximo 20 MB.');
+  downscaleImage(f, 1024, 0.85, (dataUrl)=>{
+    postNative('PresentationImageSave',{scope:mediaTarget.scope,id:mediaTarget.id,dataUrl});
+    showToast('Processando e salvando imagem…');
+  });
+});
 
 document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.screen));
 el('settingsButton').onclick=()=>{el('settingsOverlay').classList.remove('hidden');postNative('GeminiSettingsGet',{});postNative('TtsSettingsGet',{});updateSettingsStatus();updateTtsSettings()};el('settingsClose').onclick=()=>el('settingsOverlay').classList.add('hidden');
-function updateSettingsStatus(){if(!el('textSceneStatus'))return;el('textSceneStatus').textContent=geminiState.textSceneConfigured?'Chave configurada':'Chave não configurada';if(geminiState.textModel&&!el('textModel').dataset.dirty)el('textModel').value=geminiState.textModel;if(geminiState.imageModel&&!el('imageModel').dataset.dirty)el('imageModel').value=geminiState.imageModel;const ws=viewState?.worldStatus||{};el('worldStatus').textContent=ws.active?'Ativo — mapa, NPCs persistentes e agenda de eventos carregados.':'Ainda não inicializado.';const lib=viewState?.libraryStatus||{};el('libraryStatus').textContent=lib.embedded?`Regras incorporadas: ${profileLabel()}. Autoridade carregada.`:'Biblioteca não carregada.'}
+function updateSettingsStatus(){if(!el('textSceneStatus'))return;el('textSceneStatus').textContent=geminiState.textSceneConfigured?'Chave configurada':'Chave não configurada';if(geminiState.textModel&&!el('textModel').dataset.dirty)el('textModel').value=geminiState.textModel;if(geminiState.imageModel&&!el('imageModel').dataset.dirty)el('imageModel').value=geminiState.imageModel;const ws=viewState?.worldStatus||{};if(geminiState.ttsModel&&el('ttsModel')&&!el('ttsModel').dataset.dirty)el('ttsModel').value=geminiState.ttsModel;if(el('ttsAudioStatus'))el('ttsAudioStatus').textContent=geminiState.ttsAudioConfigured?'Chave configurada':'Não configurada';el('worldStatus').textContent=ws.active?'Ativo — mapa, NPCs persistentes e agenda de eventos carregados.':'Ainda não inicializado.';const lib=viewState?.libraryStatus||{};el('libraryStatus').textContent=lib.embedded?`Regras incorporadas: ${profileLabel()}. Autoridade carregada.`:'Biblioteca não carregada.'}
 function updateTtsSettings(){
- const engine=el('ttsEngine'),voice=el('ttsVoiceSelect'),rate=el('ttsRate'),rateValue=el('ttsRateValue'),status=el('ttsLocalStatus');if(!engine||!voice)return;
+ const engine=el('ttsEngine'),voice=el('ttsVoiceSelect'),rate=el('ttsRate'),rateValue=el('ttsRateValue'),status=el('ttsLocalStatus');
+ const modeSelect=el('ttsModeSelect'),geminiVoice=el('ttsGeminiVoiceSelect');if(!engine||!voice)return;
+ if(modeSelect&&ttsState.mode)modeSelect.value=ttsState.mode;
+ if(geminiVoice&&geminiState.ttsVoice)geminiVoice.value=geminiState.ttsVoice;
  const selectedEngine=String(ttsState.enginePackage||'');const selectedVoice=String(ttsState.voiceName||'');
  engine.innerHTML=(ttsState.engines||[]).map(e=>`<option value="${esc(e.packageName)}" ${e.packageName===selectedEngine?'selected':''}>${esc(e.label||e.packageName)}${e.preferredKokoro?' · Kokoro':''}</option>`).join('')||`<option value="">Nenhum motor detectado</option>`;
  voice.innerHTML=(ttsState.voices||[]).map(v=>`<option value="${esc(v.name)}" ${v.name===selectedVoice?'selected':''}>${esc(v.name)} · ${esc(v.localeTag||'pt')} ${v.networkRequired?'· rede':'· local'}</option>`).join('')||`<option value="">Nenhuma voz PT detectada</option>`;
  if(rate&&!rate.dataset.dirty)rate.value=String(ttsState.speechRate||1);if(rateValue)rateValue.textContent=Number(rate?.value||ttsState.speechRate||1).toFixed(2).replace('.',',')+'×';
- if(status)status.textContent=ttsState.ready?`${(ttsState.enginePackage||'Motor Android')} · ${(ttsState.voiceName||'voz automática')} · pronto`:(ttsState.error?`Erro: ${ttsState.error}`:'Inicializando motor de voz…');
+ if(status){
+  const m=ttsState.mode||'ANDROID_TTS';
+  status.textContent=m==='OFF'?'Narração em voz desligada (OFF)':m==='GEMINI_TTS'?`Gemini TTS · Voz: ${geminiState.ttsVoice||'Kore'} · pronto`:ttsState.ready?`${(ttsState.enginePackage||'Motor Android')} · ${(ttsState.voiceName||'voz automática')} · pronto`:(ttsState.error?`Erro: ${ttsState.error}`:'Inicializando motor de voz…');
+ }
 }
 ['textModel','imageModel'].forEach(id=>el(id)?.addEventListener('input',e=>e.currentTarget.dataset.dirty='1'));
-el('saveModels')?.addEventListener('click',()=>{const payload={textModel:el('textModel').value.trim(),imageModel:el('imageModel').value.trim()};if(postNative('GeminiRuntimeSettingsSet',payload)){['textModel','imageModel'].forEach(id=>delete el(id).dataset.dirty);showToast('Modelos salvos.')}});
-document.querySelectorAll('[data-key-save]').forEach(b=>b.onclick=()=>{const input=el('textSceneKey'),key=input.value.trim();if(!key)return showToast('Cole uma chave antes de salvar.');if(postNative('GeminiCredentialSet',{slot:'TEXT_SCENE',key})){input.value='';showToast('Chave salva no armazenamento seguro.')}});
-document.querySelectorAll('[data-key-test]').forEach(b=>b.onclick=()=>{if(postNative('GeminiCredentialTest',{slot:'TEXT_SCENE'}))showToast('Testando modelo e conexão…')});
-document.querySelectorAll('[data-key-delete]').forEach(b=>b.onclick=()=>postNative('GeminiCredentialDelete',{slot:'TEXT_SCENE'}));
+el('saveModels')?.addEventListener('click',()=>{const payload={textModel:el('textModel').value.trim(),imageModel:el('imageModel').value.trim(),ttsModel:el('ttsModel')?.value?.trim()||''};if(postNative('GeminiRuntimeSettingsSet',payload)){['textModel','imageModel'].forEach(id=>delete el(id).dataset.dirty);showToast('Modelos salvos.')}});
+document.querySelectorAll('[data-key-save]').forEach(b=>b.onclick=()=>{const slot=b.dataset.keySave||'TEXT_SCENE';const input=slot==='TTS_AUDIO'?el('ttsAudioKey'):el('textSceneKey');const key=input?.value?.trim();if(!key)return showToast('Cole uma chave antes de salvar.');if(postNative('GeminiCredentialSet',{slot,key})){input.value='';showToast('Chave salva no armazenamento seguro.')}});
+document.querySelectorAll('[data-key-test]').forEach(b=>b.onclick=()=>{const slot=b.dataset.keyTest||'TEXT_SCENE';if(postNative('GeminiCredentialTest',{slot}))showToast('Testando modelo e conexão…')});
+document.querySelectorAll('[data-key-delete]').forEach(b=>b.onclick=()=>{const slot=b.dataset.keyDelete||'TEXT_SCENE';postNative('GeminiCredentialDelete',{slot})});
 el('ttsRate')?.addEventListener('input',e=>{e.currentTarget.dataset.dirty='1';el('ttsRateValue').textContent=Number(e.currentTarget.value).toFixed(2).replace('.',',')+'×'});
 el('ttsEngine')?.addEventListener('change',()=>{postNative('TtsSettingsSet',{enginePackage:el('ttsEngine').value,voiceName:'',speechRate:Number(el('ttsRate')?.value||1)});showToast('Trocando motor de voz…')});
-el('saveTts')?.addEventListener('click',()=>{if(postNative('TtsSettingsSet',{enginePackage:el('ttsEngine')?.value||'',voiceName:el('ttsVoiceSelect')?.value||'',speechRate:Number(el('ttsRate')?.value||1)})){delete el('ttsRate').dataset.dirty;showToast('Motor e voz salvos.')}});
+el('saveTts')?.addEventListener('click',()=>{
+ const mode=el('ttsModeSelect')?.value||'ANDROID_TTS',gVoice=el('ttsGeminiVoiceSelect')?.value||'Kore';
+ const payload={enginePackage:el('ttsEngine')?.value||'',voiceName:el('ttsVoiceSelect')?.value||'',speechRate:Number(el('ttsRate')?.value||1),mode};
+ if(postNative('TtsSettingsSet',payload)){
+  delete el('ttsRate').dataset.dirty;
+  if(gVoice||el('ttsModel')?.value)postNative('GeminiRuntimeSettingsSet',{ttsVoice:gVoice,ttsModel:el('ttsModel')?.value?.trim()});
+  showToast('Motor e voz salvos.');
+ }
+});
 el('testTts')?.addEventListener('click',()=>{if(postNative('TtsTest',{}))showToast('Testando a voz selecionada…')});
 el('refreshTts')?.addEventListener('click',()=>postNative('TtsSettingsGet',{}));
 el('resetAdventure')?.addEventListener('click',()=>{const ok=confirm('RECOMEÇAR A AVENTURA?\n\nO mundo, tempo, mapa revelado e progresso da campanha serão reiniciados. Sua ficha, inventário, equipamento e configurações Gemini serão preservados.');if(!ok)return;if(postNative('ResetAdventure',{})){el('settingsOverlay').classList.add('hidden');showToast('Recomeçando a aventura com o mesmo personagem…')}});
 el('backupExport')?.addEventListener('click',()=>postNative('BackupExport',{}));el('backupImport')?.addEventListener('click',()=>{const backup=el('backupText').value.trim();if(!backup)return showToast('Cole um backup antes de restaurar.');postNative('BackupImport',{backup})});el('backupCopy')?.addEventListener('click',async()=>{const text=el('backupText').value||backupBuffer;if(!text)return showToast('Gere um backup primeiro.');try{await navigator.clipboard.writeText(text);showToast('Backup copiado.')}catch(_e){el('backupText').focus();el('backupText').select();document.execCommand('copy');showToast('Backup copiado.')}});
 render();document.body.dataset.ready='true';postNative('ViewState',{request:'initial'});
+
+let guideShowAllTopics = false;
+function renderGuideOverlay(forceAll = null) {
+  if (forceAll !== null) guideShowAllTopics = forceAll;
+  const guide = viewState?.playerGuide || {};
+  const contextual = guide.contextualTopics || [];
+  const all = guide.topics || [];
+  const topics = guideShowAllTopics ? all : (contextual.length ? contextual : all);
+  const container = el('guideContent');
+  if (!container) return;
+  const toggleBtn = `<div style="margin-bottom:10px;text-align:right;"><button class="small" id="guideToggleAllBtn">${guideShowAllTopics ? "Mostrar apenas tópicos contextuais" : "Ver todos os assuntos (" + all.length + ")"}</button></div>`;
+  const cardsHtml = topics.map(t => `
+    <div class="guide-card" data-topic-id="${esc(t.topicId)}">
+      <h4>${esc(t.title)}</h4>
+      <span class="pill" style="margin-bottom:4px">${esc(t.category)}</span>
+      <p><b>Resumo:</b> ${esc(t.summary)}</p>
+      <p>${esc(t.details)}</p>
+      <small>Fonte: ${esc(t.sourceRuleRef)}</small>
+    </div>
+  `).join('') || '<p class="note">Nenhum tópico disponível no momento.</p>';
+  container.innerHTML = toggleBtn + cardsHtml;
+  el('guideToggleAllBtn')?.addEventListener('click', () => {
+    guideShowAllTopics = !guideShowAllTopics;
+    renderGuideOverlay();
+  });
+}
+
+el('guideButton')?.addEventListener('click', () => {
+  renderGuideOverlay();
+  el('guideOverlay').classList.remove('hidden');
+});
+el('guideClose')?.addEventListener('click', () => el('guideOverlay').classList.add('hidden'));
+el('guideModeLearn')?.addEventListener('click', () => postNative('PlayerGuideModeSet', { mode: 'LEARN_PLAYING' }));
+el('guideModeExperienced')?.addEventListener('click', () => postNative('PlayerGuideModeSet', { mode: 'EXPERIENCED' }));
+
+function renderSuggestionsOverlay() {
+  const guide = viewState?.playerGuide || {};
+  const suggestions = guide.actionSuggestions || [];
+  const container = el('suggestionsContent');
+  if (!container) return;
+  container.innerHTML = suggestions.map(s => {
+    const isExec = s.executable !== false;
+    const disabledAttr = !isExec ? 'style="opacity: 0.6; cursor: not-allowed; border-color: #664444;"' : '';
+    const missingBadge = !isExec && s.missingRequirement ? `<div style="color:#d9534f;font-size:0.8rem;margin-top:4px;"><b>Indisponível:</b> ${esc(s.missingRequirement)}</div>` : '';
+    return `
+    <div class="suggestion-card ${!isExec ? "disabled" : ""}" ${disabledAttr} data-pick-suggestion="${isExec ? esc(s.textCandidate) : ""}" data-suggestion-intent="${isExec ? esc(s.intentCandidate || "") : ""}">
+      <b>${esc(s.plainLabel)}</b>
+      <span>${esc(s.textCandidate)}</span>
+      <small>Tempo: ${esc(s.timePreview)} · Risco: ${esc(s.riskHint)}</small>
+      <small style="color:#8b6537">Regra: ${esc(s.sourceRuleRef)}</small>
+      ${missingBadge}
+    </div>
+  `;
+  }).join('') || '<p class="note">Nenhuma sugestão contextual disponível.</p>';
+  container.querySelectorAll('[data-pick-suggestion]').forEach(card => {
+    if (card.classList.contains('disabled')) return;
+    card.onclick = () => {
+      const text = card.dataset.pickSuggestion;
+      const intent = card.dataset.suggestionIntent;
+      if (!text) return;
+      const t = el('reactionInput');
+      if (t) {
+        t.value = text;
+        t.dataset.mechanicalIntent = intent;
+        t.focus();
+      }
+      el('suggestionsOverlay').classList.add('hidden');
+      showToast('Sugestão aplicada no campo de ação.');
+    };
+  });
+}
+
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') document.addEventListener('click', e => { if (e.target && e.target.id === 'openSuggestionsBtn') {
+    renderSuggestionsOverlay();
+    el('suggestionsOverlay').classList.remove('hidden');
+  }
+});
+el('suggestionsClose')?.addEventListener('click', () => el('suggestionsOverlay').classList.add('hidden'));
+
+
+// --- GESTÃO DE FOTOS & RETRATOS UNIFICADA ---
+let currentPhotoTarget = null;
+let imageGenerationBusy = false;
+function openPhotoMenu(scope, id, name) {
+  currentPhotoTarget = { scope, id, name };
+  const title = el('photoMenuTitle');
+  if (title) title.textContent = name ? `Imagem · ${name}` : 'Imagem / Retrato';
+  el('photoMenuOverlay')?.classList.remove('hidden');
+}
+
+el('photoMenuClose')?.addEventListener('click', () => el('photoMenuOverlay')?.classList.add('hidden'));
+el('photoMenuCancel')?.addEventListener('click', () => el('photoMenuOverlay')?.classList.add('hidden'));
+
+el('photoMenuGemini')?.addEventListener('click', () => {
+  if (!currentPhotoTarget) return;
+  if(imageGenerationBusy)return showToast('Aguarde a imagem atual terminar; a sessão continua utilizável.');
+  const { scope, id } = currentPhotoTarget;
+  if(!geminiState.textSceneConfigured){
+    showToast('A geração integrada requer uma chave Gemini com cota de imagens habilitada. A cota gratuita de imagem não está disponível: use a galeria ou a opção externa.');
+    return;
+  }
+  const sent=scope==='SCENE'?postNative('SceneImageGenerate',{}):
+    (scope==='CHARACTER'||scope==='NPC'||scope==='ITEM')?
+      postNative('PortraitImageGenerate',{kind:scope,id}):false;
+  if(!sent){showToast('A geração integrada exige o aplicativo Android e um tipo de imagem válido.');return;}
+  el('photoMenuOverlay')?.classList.add('hidden');
+  showToast(scope==='SCENE'?'Solicitando a imagem de cena ao Gemini…':'Solicitando a imagem ao Gemini…');
+});
+
+el('photoMenuGeminiApp')?.addEventListener('click', () => {
+  if (!currentPhotoTarget) return;
+  const { scope, id } = currentPhotoTarget;
+  el('photoMenuOverlay')?.classList.add('hidden');
+  const action = scope === 'SCENE' ? 'ScenePromptShare' : 'PortraitPromptShare';
+  const payload = scope === 'SCENE' ? {} : { kind: scope, id };
+  if (postNative(action, payload)) {
+    showToast('Abrindo o Gemini externo. Depois de gerar, compartilhe a imagem com o Braseiro OSE ou salve e importe pela galeria.');
+  } else {
+    showToast('O Gemini externo requer o aplicativo Android.');
+  }
+});
+
+el('photoMenuGallery')?.addEventListener('click', () => {
+  if (!currentPhotoTarget) return;
+  const { scope, id } = currentPhotoTarget;
+  el('photoMenuOverlay')?.classList.add('hidden');
+  chooseMedia(scope, id);
+});
+
+el('photoMenuRemove')?.addEventListener('click', () => {
+  if (!currentPhotoTarget) return;
+  const { scope, id } = currentPhotoTarget;
+  el('photoMenuOverlay')?.classList.add('hidden');
+  postNative('PresentationImageRemove', { scope, id });
+  showToast('Removendo imagem…');
+});
+
+// --- PRIMEIRO LANÇAMENTO / ESCOLHA DE MODO ---
+let firstLaunchDismissed = false;
+function checkFirstLaunch() {
+  if (viewState?.playerGuide?.firstLaunch && !firstLaunchDismissed) {
+    el('firstLaunchOverlay')?.classList.remove('hidden');
+  }
+}
+
+el('firstLaunchLearn')?.addEventListener('click', () => {
+  firstLaunchDismissed = true;
+  postNative('PlayerGuideModeSet', { mode: 'LEARN_PLAYING' });
+  el('firstLaunchOverlay')?.classList.add('hidden');
+  showToast('Modo Aprender Jogando ativado!');
+});
+
+el('firstLaunchExperienced')?.addEventListener('click', () => {
+  firstLaunchDismissed = true;
+  postNative('PlayerGuideModeSet', { mode: 'EXPERIENCED' });
+  el('firstLaunchOverlay')?.classList.add('hidden');
+  showToast('Modo Jogador Experiente ativado!');
+});
+
+// --- TÓPICOS DO GUIA POR CLIQUE CONTEXTUAL ---
+function openGuideTopic(topicId) {
+  renderGuideOverlay(true);
+  el('guideOverlay')?.classList.remove('hidden');
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.guide-card');
+    cards.forEach(c => {
+      const match = c.dataset.topicId === topicId;
+      if (match) {
+        c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        c.style.boxShadow = '0 0 10px #d9a84c';
+      }
+    });
+  }, 50);
+}
+
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') document.addEventListener('click', e => { const target = e.target && e.target.closest ? e.target.closest('[data-guide-topic]') : null;
+  if (target) {
+    e.stopPropagation();
+    openGuideTopic(target.dataset.guideTopic);
+  }
+});
 })();
