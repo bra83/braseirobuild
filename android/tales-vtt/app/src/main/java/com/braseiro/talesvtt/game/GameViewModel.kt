@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import java.io.ByteArrayOutputStream
 import android.util.Base64
 import com.braseiro.talesvtt.data.KidJsonCodec
+import com.braseiro.talesvtt.life.AdventureRuntimeProgress
 import com.braseiro.talesvtt.life.AdventurePackage
 import com.braseiro.talesvtt.life.AdventureRepository
 import com.braseiro.talesvtt.life.OffSceneEvent
@@ -139,6 +140,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     _state.value = result.gameState
     gmPrivateState = result.privateState
     _motorRoute.value = result.routeHint
+    // Persist imported encounter/objective progress through a local whitelist.
+    if (result.acceptedActions > 0 && result.rejected.none { it.contains("Perfil mecânico incompatível") }) {
+      val instanceId = currentAdventureInstanceId
+      val inst = instanceId?.let(adventureRepo::loadInstance)
+      val pkg = inst?.let { adventureRepo.getPackage(it.packageId) }
+      if (inst != null && pkg != null) {
+        val sceneLoc = pkg.locations.firstOrNull { it.name == result.gameState.scene.location }?.id
+          ?: inst.currentLocationId
+        val current = inst.copy(currentLocationId = sceneLoc,
+          discoveredClues = result.gameState.revealed.clues.toList())
+        val updated = AdventureRuntimeProgress.apply(current, pkg, packet)
+        if (updated != inst) adventureRepo.saveInstance(updated)
+      }
+    }
     val rejectedCount = result.rejected.size + wireRejected.size
     _motorStatus.value = MotorRuntimeStatus(
       firewallReady = true,
@@ -464,6 +479,18 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
       .associate { it.id to PrivateWorldFact(id = it.id, subject = "secret", value = it.truth, scope = "adventure") }
       .toMutableMap()
 
+    // Structured goals/encounter IDs for the GM; the local engine validates each ID.
+    pkg.objectives.forEach { obj ->
+      gmFacts["objective-${obj.id}"] = PrivateWorldFact(
+        id = "objective-${obj.id}", subject = "active_objective",
+        value = "ID=${obj.id}; ${obj.description}; opcional=${obj.optional}", scope = "adventure")
+    }
+    pkg.encounters.forEach { enc ->
+      gmFacts["encounter-${enc.id}"] = PrivateWorldFact(
+        id = "encounter-${enc.id}", subject = "available_encounter",
+        value = "ID=${enc.id}; local=${enc.locationId}; alternativas=${enc.alternatives.joinToString("; ")}", scope = "adventure")
+    }
+
     // Add facts from existing legacy deeds
     existingLegacy?.confirmedDeeds?.forEach { d ->
       gmFacts["legacy-${d.id}"] = PrivateWorldFact(id = "legacy-${d.id}", subject = "deed", value = d.summary, scope = "world")
@@ -497,6 +524,21 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     _dataStatus.value = "Mistério '${pkg.title}' iniciado com sucesso."
     persistAutosave()
     _motorRoute.value = MotorRouteHint.SCENE
+    // Imported mysteries must request their first real Gemini narration too.
+    if (motorTransport.hasApiKey()) {
+      requestMotor(MotorIntent(type = "adventure_start", text =
+        "Abra '${pkg.title}' em '${locName}' para o jogador. Premissa pública: ${pkg.story.playerIntroduction.ifBlank { pkg.story.premise }}. " +
+        "Gancho: ${pkg.start.hook}. Produza uma abertura longa, sensorial, três ações e preserve todos os segredos."))
+    } else {
+      markMotorTransportOffline("Mistério importado iniciado com texto local: configure a chave Gemini para gerar a abertura.")
+    }
+  }
+
+  fun retryOpeningNarration() {
+    if (_motorStatus.value.busy) return
+    requestMotor(MotorIntent(type = "adventure_start", text =
+      "Gere AGORA a abertura longa do mistério '${_state.value.scene.title}' situado em '${_state.value.scene.location}'. " +
+      "Descreva 5 sentidos, NPCs presentes, o clima e termine com três opções sem revelar segredos."))
   }
 
   suspend fun generateAdventureWithAi(
@@ -533,6 +575,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
   }
 
   fun concludeCurrentAdventure(summary: String = "Mistério concluído com sucesso") {
+    val currentId = currentAdventureInstanceId ?: prefs.getString(KEY_ACTIVE_INSTANCE_ID, null)
+    if (currentId != null && adventureRepo.loadInstance(currentId)?.concluded == true) {
+      _adventureStarted.value = false
+      prefs.edit().putBoolean(KEY_ADVENTURE_STARTED, false).apply()
+      _dataStatus.value = "Esse mistério já foi concluído; legado e relógio preservados sem duplicação."
+      return
+    }
     _adventureStarted.value = false
     prefs.edit().putBoolean(KEY_ADVENTURE_STARTED, false).apply()
 
@@ -554,8 +603,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     val currentKid = _state.value.kid
     val currentProfileStr = if (_state.value.rulesProfile == RulesProfile.FLOOD_TEENS) "FLOOD_TEENS" else "TALES_KIDS"
     val systemId = if (_state.value.rulesProfile == RulesProfile.FLOOD_TEENS) "flood-teens" else "tales-kids"
-    val worldId = "malaren-islands"
-    val timelineId = "timeline-default"
+    val activeInstance = activeInstId?.let { adventureRepo.loadInstance(it) }
+    val worldId = activeInstance?.worldId?.ifBlank { "malaren-islands" } ?: "malaren-islands"
+    val timelineId = activeInstance?.timelineId?.ifBlank { "timeline-default" } ?: "timeline-default"
     val charId = currentKid.id.ifBlank { currentKid.name.lowercase().replace(" ", "-") }
 
     val identityKey = CharacterIdentityKey(

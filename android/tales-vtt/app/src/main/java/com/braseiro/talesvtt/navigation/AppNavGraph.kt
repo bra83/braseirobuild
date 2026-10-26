@@ -96,7 +96,8 @@ fun AppNavGraph(
         onNavigate = onNavigate,
         gameState = gameState,
         motorStatus = motorStatus,
-        onDeclareAction = gameViewModel::submitPlayerIntent
+        onDeclareAction = gameViewModel::submitPlayerIntent,
+        onRetryOpening = gameViewModel::retryOpeningNarration
       )
     }
     composable(AppDestination.KID.route) {

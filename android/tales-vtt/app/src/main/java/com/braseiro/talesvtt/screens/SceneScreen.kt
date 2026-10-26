@@ -3,6 +3,7 @@ package com.braseiro.talesvtt.screens
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -36,6 +37,7 @@ fun SceneScreen(
   gameState: GameState,
   motorStatus: MotorRuntimeStatus,
   onDeclareAction: (String) -> Unit,
+  onRetryOpening: () -> Unit = {},
   modifier: Modifier = Modifier
 ) {
   val scene = gameState.scene
@@ -130,6 +132,12 @@ fun SceneScreen(
         Spacer(modifier = Modifier.height(Dimens.spacing8))
       }
     }
+
+    androidx.compose.material3.OutlinedButton(
+      enabled = !motorStatus.busy,
+      onClick = onRetryOpening,
+      modifier = Modifier.fillMaxWidth()
+    ) { Text(if (motorStatus.busy) "Mestre Gemini escrevendo..." else "Gerar / repetir abertura com Gemini") }
 
     FreeActionPrompt(onSubmit = { text -> if (!motorStatus.busy) onDeclareAction(text) })
     Spacer(modifier = Modifier.height(Dimens.spacing6))

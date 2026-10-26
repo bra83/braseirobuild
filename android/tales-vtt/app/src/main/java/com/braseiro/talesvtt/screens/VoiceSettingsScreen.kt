@@ -144,7 +144,9 @@ fun VoiceSettingsScreen(
             text = "Modelo utilizado exclusivamente para áudio/voz. Não sobrescreve o modelo de texto da Bárbara.",
             style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.textSecondary, fontSize = 11.sp)
           )
-          val models = listOf("gemini-2.5-flash", "gemini-3.0-flash", "gemini-2.0-flash")
+          val models = listOf(
+            "gemini-3.8-flash-lite-tts", "gemini-3.8-flash-tts", "gemini-3.1-flash-tts-preview", "gemini-2.5-pro-preview-tts"
+          )
           models.forEach { model ->
             Row(
               modifier = Modifier
@@ -193,24 +195,46 @@ fun VoiceSettingsScreen(
             text = "Interpretação e modulação de fala do Mestre.",
             style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.textSecondary, fontSize = 11.sp)
           )
-          Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf("Narrador Imersivo", "Sombrio", "Anos 80").forEach { profile ->
-              FilterChip(
-                selected = settings.voiceProfile == profile,
-                onClick = {
-                  val updated = settings.copy(voiceProfile = profile)
-                  settings = updated
-                  ttsEngine.saveSettings(updated)
-                },
-                label = { Text(profile, fontSize = 11.sp) }
-              )
-            }
-          }
+          OutlinedTextField(
+            value = settings.voiceProfile,
+            onValueChange = { value ->
+              val updated = settings.copy(voiceProfile = value.take(500))
+              settings = updated
+              ttsEngine.saveSettings(updated)
+            },
+            label = { Text("Perfil vocal — identidade e características da voz") },
+            placeholder = { Text("Ex.: narrador brasileiro, voz grave, dicção clara, sotaque neutro") },
+            modifier = Modifier.fillMaxWidth(),
+            minLines = 2,
+            maxLines = 4
+          )
+          OutlinedTextField(
+            value = settings.voiceStyle,
+            onValueChange = { value ->
+              val updated = settings.copy(voiceStyle = value.take(500))
+              settings = updated
+              ttsEngine.saveSettings(updated)
+            },
+            label = { Text("Estilo vocal — interpretação da fala") },
+            placeholder = { Text("Ex.: acolhedor, ritmo natural, suspense crescente sem pausas longas") },
+            modifier = Modifier.fillMaxWidth(),
+            minLines = 2,
+            maxLines = 4
+          )
+          Text(
+            "Gemini 3.8 utiliza speech_metadata.style para a interpretação. Essas instruções não fazem parte do texto narrado.",
+            style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.textSecondary)
+          )
         }
       }
 
       // 3. Voice Selection
-      if (availableVoices.isNotEmpty()) {
+      val voiceOptions = if (settings.engineType == TtsEngineType.GEMINI_SPEECH) {
+        com.braseiro.talesvtt.audio.GeminiNarrationTts.SUPPORTED_VOICES.map { voice ->
+          TtsVoiceOption(voice, voice, "gemini", "pt-BR", true)
+        }
+      } else availableVoices
+      if (voiceOptions.isNotEmpty()) {
         Card(
           colors = CardDefaults.cardColors(containerColor = AppTheme.colors.surfacePrimary),
           shape = RoundedCornerShape(12.dp)
@@ -220,7 +244,7 @@ fun VoiceSettingsScreen(
               text = "VOZES DETECTADAS (PORTUGUÊS)",
               style = AppTheme.typography.label.copy(color = AppTheme.colors.accentCyan, fontWeight = FontWeight.Bold)
             )
-            availableVoices.take(6).forEach { voice ->
+            voiceOptions.forEach { voice ->
               Row(
                 modifier = Modifier
                   .fillMaxWidth()
@@ -234,7 +258,7 @@ fun VoiceSettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
               ) {
                 RadioButton(
-                  selected = settings.selectedVoiceId == voice.id || (settings.selectedVoiceId.isEmpty() && voice == availableVoices.first()),
+                  selected = settings.selectedVoiceId == voice.id || (settings.selectedVoiceId.isEmpty() && voice == voiceOptions.first()),
                   onClick = {
                     val updated = settings.copy(selectedVoiceId = voice.id)
                     settings = updated

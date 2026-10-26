@@ -102,6 +102,8 @@ sealed interface MotorAction {
   data object EndExtendedTrouble : MotorAction
   data object SessionEnd : MotorAction
   data object MysteryEnd : MotorAction
+  data class ObjectiveComplete(val objectiveId: String) : MotorAction
+  data class EncounterTriggered(val encounterId: String) : MotorAction
   data class Message(val text: String) : MotorAction
 }
 
@@ -525,6 +527,17 @@ object MotorBarbaraFirewall {
         MotorAction.MysteryEnd -> {
           // Motor opens the Change/XP flow, but never awards XP by itself.
           if (reduce(GameEvent.OpenEnding(EndingMode.MYSTERY), "mystery_end")) raiseRoute(MotorRouteHint.ENDING)
+        }
+
+        is MotorAction.ObjectiveComplete -> {
+          // Adventure-specific IDs and effects are checked by the runtime package validator.
+          if (action.objectiveId.isBlank()) rejected += "ação[$index] objective_complete: ID vazio."
+          else accepted++
+        }
+
+        is MotorAction.EncounterTriggered -> {
+          if (action.encounterId.isBlank()) rejected += "ação[$index] encounter_trigger: ID vazio."
+          else accepted++
         }
 
         is MotorAction.Message -> {

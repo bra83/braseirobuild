@@ -14,7 +14,7 @@ data class MotorParseResult(
  * MotorBarbaraFirewall before touching GameState.
  */
 object MotorBarbaraWireAdapter {
-  fun parse(raw: String): MotorParseResult {
+  fun parse(raw: String, expectedProfile: MotorProfile = MotorProfile.TALES_KIDS): MotorParseResult {
     val root = parseRoot(raw)
     val actionsJson = when {
       root.optJSONArray("actions") != null -> root.getJSONArray("actions")
@@ -40,7 +40,8 @@ object MotorBarbaraWireAdapter {
 
     val profile=when(root.optString("profile").trim().lowercase()) {
       "flood_teen","flood_teens","things_from_the_flood","flood" -> MotorProfile.FLOOD_TEENS
-      else -> MotorProfile.TALES_KIDS
+      "tales_kid", "tales_kids", "tales" -> MotorProfile.TALES_KIDS
+      else -> expectedProfile // Missing profile in model output must not break Flood openings.
     }
     return MotorParseResult(MotorPacket(profile=profile, actions = parsed), rejected)
   }
@@ -243,6 +244,8 @@ object MotorBarbaraWireAdapter {
 
     "session_end" -> MotorAction.SessionEnd
     "mystery_end" -> MotorAction.MysteryEnd
+    "objective_complete" -> a.optString("objectiveId").takeIf { it.isNotBlank() }?.let(MotorAction::ObjectiveComplete)
+    "encounter_trigger" -> a.optString("encounterId").takeIf { it.isNotBlank() }?.let(MotorAction::EncounterTriggered)
     "message" -> MotorAction.Message(a.optString("text"))
 
     else -> null

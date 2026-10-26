@@ -45,16 +45,19 @@ class GeminiNarrationTts(private val context: Context) {
       require(apiKey.isNotBlank()) { "Chave Gemini não configurada para voz." }
       val configured = prefs.getString("tts_model", DEFAULT_TTS_MODEL).orEmpty().trim()
       val voice = sanitizeVoice(prefs.getString("tts_voice", DEFAULT_VOICE).orEmpty())
-      val models = linkedSetOf<String>().apply {
-        if (configured.contains("tts", ignoreCase = true)) add(configured)
-        add(DEFAULT_TTS_MODEL)
-        add(LEGACY_TTS_MODEL)
-      }
+      require(configured.contains("tts", ignoreCase = true)) { "Escolha um modelo Gemini TTS na configuração de voz." }
+      val models = listOf(configured) // do not silently spend quota on a different model
 
       var lastFailure: Throwable? = null
       for (model in models) {
         try {
-          val generated = generateAudio(apiKey, model, voice, text)
+          val profile = prefs.getString("voice_profile", "").orEmpty()
+          val style = prefs.getString("voice_style", "").orEmpty()
+          val generated = if (model.startsWith("gemini-3.8-")) {
+            generateInteractionsAudio(apiKey, model, voice, text, profile, style)
+          } else {
+            generateAudio(apiKey, model, voice, text)
+          }
           playGenerated(generated)
           return@runCatching Unit
         } catch (t: Throwable) {
@@ -62,6 +65,26 @@ class GeminiNarrationTts(private val context: Context) {
         }
       }
       throw IllegalStateException(lastFailure?.message ?: "Gemini TTS indisponível.")
+    }
+  }
+
+  /** Gemini 3.8 TTS uses Interactions: verbatim transcript + structured speech_metadata.style. */
+  private fun generateInteractionsAudio(
+    apiKey: String, model: String, voice: String, text: String, profile: String, style: String
+  ): GeneratedAudio {
+    val body = GeminiSpeechProtocol.request(model, voice, text, profile, style)
+    val req = Request.Builder()
+      .url("https://generativelanguage.googleapis.com/v1beta/interactions")
+      .header("Content-Type", "application/json; charset=utf-8")
+      .header("x-goog-api-key", apiKey)
+      .post(body.toString().toRequestBody("application/json; charset=utf-8".toMediaType()))
+      .build()
+    client.newCall(req).execute().use { response ->
+      val raw = response.body?.string().orEmpty()
+      if (!response.isSuccessful) error(userSafeHttpError(response.code))
+      val root = JSONObject(raw)
+      val (encoded, mime) = GeminiSpeechProtocol.response(root)
+      return GeneratedAudio(Base64.decode(encoded, Base64.DEFAULT), mime)
     }
   }
 
@@ -206,10 +229,10 @@ class GeminiNarrationTts(private val context: Context) {
   private data class GeneratedAudio(val bytes: ByteArray, val mimeType: String)
 
   companion object {
-    const val DEFAULT_TTS_MODEL = "gemini-3.1-flash-tts-preview"
+    const val DEFAULT_TTS_MODEL = "gemini-3.8-flash-lite-tts"
     const val DEFAULT_VOICE = "Kore"
     private const val LEGACY_TTS_MODEL = "gemini-2.5-flash-preview-tts"
-    private val SUPPORTED_VOICES = setOf(
+    val SUPPORTED_VOICES = listOf(
       "Zephyr", "Puck", "Charon", "Kore", "Fenrir", "Leda", "Orus", "Aoede", "Callirrhoe", "Autonoe",
       "Enceladus", "Iapetus", "Umbriel", "Algieba", "Despina", "Erinome", "Algenib", "Rasalgethi",
       "Laomedeia", "Achernar", "Alnilam", "Schedar", "Gacrux", "Pulcherrima", "Achird", "Zubenelgenubi",

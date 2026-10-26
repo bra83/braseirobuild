@@ -112,6 +112,7 @@ class MotorBarbaraTransport(private val context: Context) {
         ))
         .put("generationConfig", JSONObject()
           .put("temperature", 0.65)
+          .put("maxOutputTokens", 12288)
           .put("responseMimeType", "application/json")
         )
 
@@ -146,7 +147,7 @@ class MotorBarbaraTransport(private val context: Context) {
             for (i in 0 until parts.length()) append(parts.optJSONObject(i)?.optString("text").orEmpty())
           }.trim()
           require(text.isNotEmpty()) { "Motor Gemini não retornou JSON textual." }
-          val parsed = MotorBarbaraWireAdapter.parse(text)
+          val parsed = MotorBarbaraWireAdapter.parse(text, RulesProfiles.motorProfile(gameState.rulesProfile))
           val needsNarration = intent.type in setOf("adventure_start", "free_action", "travel_request", "test_result", "extended_test_result")
           if (needsNarration && parsed.packet.actions.none { it is MotorAction.Narration }) {
             error("O Mestre respondeu de forma incompleta.")
@@ -461,6 +462,8 @@ AÇÕES SUPORTADAS:
 - extended_patch {patch:{active:true,stakes,threatLevel,kids,scenes:[{kid,skill},...]}} ou {patch:{active:false}}
 - extended_scene_result {kid,successes} — somente para resultado verificado de outro cliente/jogador
 - player_intent.bonusEffects contém somente efeitos já comprados e validados localmente; apenas narre suas consequências, nunca troque/invente efeitos.
+- objective_complete {objectiveId} — somente para objetivo presente no pacote ativo, após sucesso narrativo real.
+- encounter_trigger {encounterId} — somente para encontro existente no pacote e plausível na cena.
 - session_end
 - mystery_end
 - message {text}

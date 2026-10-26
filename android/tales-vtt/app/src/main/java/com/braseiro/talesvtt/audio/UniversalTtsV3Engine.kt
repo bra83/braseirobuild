@@ -40,7 +40,7 @@ data class TtsVoiceOption(
 data class TtsSettings(
   val engineType: TtsEngineType = TtsEngineType.ANDROID_NATIVE,
   val selectedVoiceId: String = "",
-  val selectedModel: String = "gemini-2.5-flash",
+  val selectedModel: String = "gemini-3.8-flash-lite-tts",
   val voiceProfile: String = "Narrador Imersivo",
   val voiceStyle: String = "Calmo e misterioso",
   val speechRate: Float = 1.0f,
@@ -143,7 +143,7 @@ class UniversalTtsV3Engine(private val context: Context) : TextToSpeech.OnInitLi
     return TtsSettings(
       engineType = engine,
       selectedVoiceId = prefs.getString(KEY_VOICE, "") ?: "",
-      selectedModel = prefs.getString(KEY_MODEL, "gemini-2.5-flash") ?: "gemini-2.5-flash",
+      selectedModel = prefs.getString(KEY_MODEL, GeminiNarrationTts.DEFAULT_TTS_MODEL) ?: GeminiNarrationTts.DEFAULT_TTS_MODEL,
       voiceProfile = prefs.getString(KEY_PROFILE, "Narrador Imersivo") ?: "Narrador Imersivo",
       voiceStyle = prefs.getString(KEY_STYLE, "Calmo e misterioso") ?: "Calmo e misterioso",
       speechRate = prefs.getFloat(KEY_RATE, 1.0f),
