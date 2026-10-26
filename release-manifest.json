@@ -1,0 +1,7 @@
+{
+  "versionCode": 26,
+  "versionName": "1.3.19",
+  "downloadUrl": "https://github.com/bra83/braseirobuild/releases/download/v1.3.19/braseiro-tales-flood-v1.3.19.apk",
+  "sha256": "C9F646EC525A6F3E22EB1CD82632EA6137D46B4F8B3D9C52B229F23930E3BD47",
+  "changelog": "Versão 1.3.19 final: Motor de Vida Persistente com identidade imutável e persistência idempotente; Geração de mistérios com IA Bárbara/Gemini e contingência procedural offline; Motor TTS V3 com modulação de diálogos e desacoplamento total de modelos; Atualizador oficial ativo com fallback e proteção contra downgrade; 183 testes automatizados aprovados."
+}
