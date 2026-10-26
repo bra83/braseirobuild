@@ -21,6 +21,39 @@ for(let v=1;v<=6;v++){
 }
 console.log('PASS 166 canonical face simulations (d4-d100 and composed rolls)');
 
+/* No twisted kite faces and no projected backfaces masquerading as front. */
+for(const sides of [4,6,8,10,12,20]){
+  const mesh=Core.meshes[sides],V=Core.V,Q=Core.Q;
+  for(const face of mesh.faces){
+    if(face.length<=3)continue;
+    const a=mesh.vertices[face[0]],b=mesh.vertices[face[1]],c=mesh.vertices[face[2]];
+    const n=V.norm(V.cross(V.sub(b,a),V.sub(c,a)));
+    for(const k of face.slice(3)){
+      assert.ok(Math.abs(V.dot(n,V.sub(mesh.vertices[k],a)))<.00001,'twisted face d'+sides);
+    }
+  }
+  for(let value=1;value<=Math.min(12,sides);value++){
+    const world=new Core.World({terms:[{count:1,sides}],targetRolls:[value]},value*101+sides);
+    for(let i=0;i<2000&&!world.done();i++)world.step(1/120);
+    assert.ok(world.done());
+    const body=world.bodies[0],eye=V.norm([0,.70,.44]),signs=new Set();
+    body.mesh.faces.forEach((face,i)=>{
+      const normal=Q.rot(body.q,body.mesh.normals[i]);
+      if(V.dot(normal,eye)<=.08)return;
+      const projected=face.map(k=>Q.rot(body.q,body.mesh.vertices[k]));
+      const area=projected.reduce((acc,p,k)=>{
+        const next=projected[(k+1)%projected.length];
+        return acc+p[0]*(next[1]*.44-next[2]*.70)-next[0]*(p[1]*.44-p[2]*.70);
+      },0)*.5;
+      assert.ok(Math.abs(area)>.0001,'front-facing facet projects edge-on d'+sides);
+      signs.add(Math.sign(area));
+    });
+    assert.equal(signs.size,1,'backside shown on d'+sides+', face '+value);
+  }
+}
+console.log('PASS polyhedron coplanarity, visual camera and culling');
+
+
 const stage={
   activeClasses:new Set(),canvas:null,
   classList:{add(v){stage.activeClasses.add(v)},remove(v){stage.activeClasses.delete(v)}},

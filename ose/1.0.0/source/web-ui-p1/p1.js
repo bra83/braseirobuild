@@ -541,6 +541,35 @@ function executeAtelierRoll(){
   }
 }
 
+
+function oseDieMiniature(sides){
+  const core=window.Dice3DCore;
+  if(!core?.meshes)return '<span class="die-glyph">d'+sides+'</span>';
+  const shape=sides===100?10:sides,mesh=core.meshes[shape],V=core.V,Q=core.Q;
+  if(!mesh)return '<span class="die-glyph">d'+sides+'</span>';
+  const colors={4:[211,111,45],6:[66,112,198],8:[225,131,43],
+    10:[144,63,177],12:[59,141,199],20:[130,159,63],100:[46,53,70]};
+  const base=colors[sides],eye=V.norm([0,.70,.44]),light=V.norm([.32,.3,.9]);
+  const target=shape===20?11:shape===10?6:Math.min(shape-1,3);
+  const q=Q.mul(Q.axis(eye,-.22),Q.fromTo(mesh.normals[target],eye));
+  const verts=mesh.vertices.map(v=>Q.rot(q,v));
+  const faces=mesh.faces.map((f,i)=>{
+    const n=Q.rot(q,mesh.normals[i]);
+    if(V.dot(n,eye)<.05)return null;
+    const poly=f.map(k=>[32+verts[k][0]*23,32+(verts[k][1]*.44-verts[k][2]*.70)*25]);
+    const area=Math.abs(poly.reduce((acc,p,k)=>{
+      const next=poly[(k+1)%poly.length];return acc+p[0]*next[1]-next[0]*p[1];
+    },0))*.5;
+    const center=poly.reduce((a,p)=>[a[0]+p[0]/poly.length,a[1]+p[1]/poly.length],[0,0]);
+    const factor=.49+.53*Math.max(0,V.dot(n,light));
+    const fill='rgb('+base.map(c=>Math.min(255,Math.round(c*factor))).join(',')+')';
+    const text=area>100?`<text x="${center[0].toFixed(1)}" y="${(center[1]+2.1).toFixed(1)}" text-anchor="middle" font-size="${area>230?8:6}" font-weight="700" fill="#fff8e4" stroke="#302016" stroke-width=".35" paint-order="stroke">${sides===100?(i*10)%100:i+1}</text>`:'';
+    return {depth:V.dot(Q.rot(q,mesh.centers[i]),eye),
+      svg:`<polygon points="${poly.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="${fill}" stroke="#efdbb4" stroke-width=".8" stroke-linejoin="round"/>${text}`};
+  }).filter(Boolean).sort((a,b)=>a.depth-b.depth);
+  return `<svg class="die-model-svg" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="56" rx="21" ry="4.5" fill="#000" opacity=".20"/>${faces.map(f=>f.svg).join('')}</svg>`;
+}
+
 function renderDicePanel(){
   const f=getAtelierFormula();
   const dieCatalog=[
@@ -588,7 +617,7 @@ function renderDicePanel(){
         const count=dicePool[die.s]||0;
         return `<div class="dice-card ${count>0?'selected':''}" data-atelier-die="${die.s}">
           <div class="die-icon-box" style="border-color:${die.color}">
-            <span class="die-glyph" style="color:${die.color}">${die.name}</span>
+            ${oseDieMiniature(die.s)}
             ${count>0?`<span class="die-badge">${count}</span>`:''}
           </div>
           <div class="die-info">

@@ -343,3 +343,9 @@ body{background:#c9aa72}
 .dice-history-item{display:flex;justify-content:space-between;align-items:center;background:#f3e4c4;border:1px solid #baa175;border-radius:4px;padding:5px 8px}
 .dice-history-item b{font:700 11px Arial;color:#28180e}
 .dice-history-item small{font:9px Arial;color:#6a4c33}
+
+/* Dice previews are actual faceted physical polyhedra, not type-name badges. */
+.die-icon-box{width:64px;height:64px;border:0!important;border-radius:0;background:transparent;overflow:visible;margin:0 auto 5px}
+.die-model-svg{width:64px;height:64px;display:block;overflow:visible;filter:drop-shadow(0 3px 3px #47301a55)}
+.dice-card{min-height:125px;touch-action:manipulation}
+.dice-grid{grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}

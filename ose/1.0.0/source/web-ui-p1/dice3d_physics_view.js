@@ -6,7 +6,9 @@
 'use strict';
 const core=root.Dice3DCore;
 const stage=()=>document.getElementById('dice3dStage');
-const light=[0.24,-0.38,0.89], camera=[0,-0.56,0.83];
+// Camera is normal to the projection plane: x=X, y=.44Y-.70Z.
+ // The old viewing vector exposed BACK faces, making convex dice look spiky.
+ const camera=core.V.norm([0,.70,.44]),light=core.V.norm([.30,.34,.89]);
 const palettes={
   4:[195,105,45],   // Rich polished antique bronze
   6:[225,210,178],  // Warm tumbled ivory / antique bone
@@ -42,7 +44,7 @@ function color(rgb,lightness){
 }
 function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
 function projected(p,width,height,scale){
-  return [width*.5+p[0]*scale, height*.50+(p[1]*.44-p[2]*.70)*scale];
+  return [width*.5+p[0]*scale, height*.52+(p[1]*.44-(p[2]-.85)*.70)*scale];
 }
 function polygonArea(p){
   let a=0;
@@ -83,7 +85,7 @@ function render(session){
   const spanY=Math.max(...ys)-Math.min(...ys);
 
   // Generous scale matching the D&D physical presence and tabletop impact
-  const scale=total===1 ? Math.min(width/2.05,height/2.95)
+  const scale=total===1 ? Math.min(width/2.65,height/3.35)
     : total<=3 ? Math.min(width/Math.max(3.1,2.1+spanX*.72),height/Math.max(3.2,2.1+spanY*.42))
     : total<=6 ? Math.min(width/Math.max(3.7,2.5+spanX*.78),height/Math.max(3.5,2.3+spanY*.48))
     : Math.min(width/Math.max(4.5,3.1+spanX*.85),height/Math.max(3.9,2.7+spanY*.52));
@@ -119,7 +121,7 @@ function render(session){
     for(let i=0;i<mesh.faces.length;i++){
       const normal=core.Q.rot(body.q,mesh.normals[i]);
       const exposure=dot(normal,camera);
-      if(exposure<=.015)continue;
+      if(exposure<=.025)continue;
       const v=mesh.faces[i].map(idx=>projected([verts[idx][0]-session.camX,verts[idx][1]-session.camY,verts[idx][2]],width,height,scale));
       if(polygonArea(v)<1.8)continue;
       const center=core.V.add(body.p,core.V.mul(core.Q.rot(body.q,mesh.centers[i]),body.size));
@@ -143,7 +145,7 @@ function render(session){
   for(const face of faces){
     if(face.body.done){
       if(face.faceIndex===face.body.faceIndex)labelled.add(face);
-      if(face.exposure>.27&&face.area>85){
+      if(face.exposure>.33&&face.area>180){
         const list=settled.get(face.body)||[];list.push(face);settled.set(face.body,list);
       }
     }else if(face.exposure>.40){
@@ -156,7 +158,7 @@ function render(session){
   }
   for(const candidates of settled.values()){
     candidates.sort((a,b)=>b.exposure*b.area-a.exposure*a.area);
-    for(const face of candidates.slice(0,5))labelled.add(face);
+    for(const face of candidates.slice(0,4))labelled.add(face);
   }
   function inscriptionRadius(face){
     const [cx,cy]=face.center;
@@ -211,8 +213,8 @@ function render(session){
     // Engrave numerals with Georgia serif, deep ivory / ink contrast
     if(labelled.has(face)){
       const radius=inscriptionRadius(face);
-      const fontSize=Math.min(32,Math.sqrt(face.area)*.48,radius*1.36,
-        (radius*1.68)/(face.label.length*.63));
+      const fontSize=Math.min(30,Math.sqrt(face.area)*.43,radius*1.16,
+        (radius*1.42)/(face.label.length*.63));
       if(fontSize>=8.2){
         ctx.save();
         ctx.beginPath();

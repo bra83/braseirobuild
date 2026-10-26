@@ -62,3 +62,5 @@ verify('recovery screen renders line breaks instead of literal slash-n',
 check('Gemini 3.8 TTS defaults and free-tier eligible model',fs.readFileSync(path.join(root,'app-android/src/main/kotlin/braseiro/ose/app/GeminiInteractionsClient.kt'),'utf8').includes('gemini-3.8-flash-lite-tts'));
 check('Kokoro long single-utterance chunks reduce repeated synthesis startup',fs.readFileSync(path.join(root,'tts-android/src/main/kotlin/braseiro/ose/tts/android/AndroidTtsController.kt'),'utf8').includes('targetChars = 3000, maxChars = 3500'));
 check('OSE physical dice get immersive full-screen theater',css.includes('#dice3dOverlay .ose-dice-dialog{')&&css.includes('max-width:none;max-height:100%;height:100%'));
+
+check('all dice selection glyphs are model-backed SVG', js.includes('function oseDieMiniature(sides)') && js.includes('${oseDieMiniature(die.s)}') && css.includes('.die-model-svg{'));

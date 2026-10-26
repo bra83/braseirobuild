@@ -9,7 +9,10 @@ function mesh8(){let v=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];retu
 function mesh10(){
     // Trapezoedro pentagonal: dez faces em formato de pipa, como um d10 real.
     // Duas coroas defasadas evitam o antigo aspecto de bipirâmide triangular.
-    const h=1.30,z=.34,r=1.0,v=[[0,0,h],[0,0,-h]];
+    const h=1.30,r=1.0;
+    // A genuine pentagonal trapezohedron has ten COPLANAR kite faces.
+    // z=.34 produced nonplanar quads and phantom broken d10/d100 facets.
+    const c=Math.cos(Math.PI/5),z=h*(1-c)/(1+c),v=[[0,0,h],[0,0,-h]];
     for(let i=0;i<5;i++){let a=2*Math.PI*i/5-Math.PI/2;v.push([r*Math.cos(a),r*Math.sin(a),z])}
     for(let i=0;i<5;i++){let a=2*Math.PI*i/5-Math.PI/2+Math.PI/5;v.push([r*Math.cos(a),r*Math.sin(a),-z])}
     const f=[];
