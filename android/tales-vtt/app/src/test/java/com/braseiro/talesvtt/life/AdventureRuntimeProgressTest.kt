@@ -7,7 +7,7 @@ import org.junit.Test
 
 class AdventureRuntimeProgressTest {
   private fun fixture(): Pair<AdventureInstance, AdventurePackage> {
-    val json = """{"schema":"braseiro.adventure/v1","id":"a1","system":"tales-kids","worldId":"loop","title":"Exemplo","story":{"premise":"Uma pista estranha"},"start":{"locationId":"escola"},"locations":[{"id":"escola","name":"Escola"}],"objectives":[{"id":"obj1","description":"Encontrar a pista"}],"encounters":[{"id":"enc1","locationId":"escola"}]}"""
+    val json = """{"schema":"braseiro.adventure/v1","id":"adv-a1","system":"tales-kids","worldId":"loop","title":"Exemplo","story":{"premise":"Uma pista estranha","background":"A escola abriga um transmissor"},"start":{"locationId":"escola"},"locations":[{"id":"escola","name":"Escola"}],"objectives":[{"id":"obj1","description":"Encontrar a pista"}],"encounters":[{"id":"enc1","locationId":"escola"}]}"""
     val pkg = (AdventurePackageValidator.parseAndValidate(json) as AdventurePackageValidator.ValidationResult.Valid).adventurePackage
     return AdventureInstance("i1",pkg.id,pkg.worldId,"t1",1L,"escola") to pkg
   }
