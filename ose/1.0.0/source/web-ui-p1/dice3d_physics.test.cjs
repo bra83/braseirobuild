@@ -64,7 +64,11 @@ for(const roll of [
   }
   assert.equal(completed,1,'onDone once '+JSON.stringify(roll));
   assert.ok(drawing>0,'actual visible face draw calls');
-  assert.equal(textThisFrame.length,roll.terms.reduce((n,t)=>n+t.count*(t.sides===100?2:1),0),'one label per canonical die after settling');
+  assert.ok(textThisFrame.length>=roll.terms.reduce((n,t)=>n+t.count*(t.sides===100?2:1),0),
+    'all canonical settled die faces visible, with optional neighboring numbers');
+  if(roll.terms.length===1&&roll.terms[0].sides!==100){
+    assert.ok(textThisFrame.includes(String(roll.rolls[0])),'official upper face clearly numbered');
+  }
   assert.ok(stage.canvas,'canvas attached');
   assert.ok(stage.activeClasses.has('physics-active'));
   window.OSEPhysicsDice.stop();
@@ -151,8 +155,8 @@ for(let repeat=0;repeat<15;repeat++){
   let frames=0;
   while(queue.length&&frames<1600){const job=queue.shift();now+=1000/60;job.fn(now);frames++;}
   assert.equal(done,1,'d100 final value remained canonical');
-  assert.deepEqual([...textThisFrame].sort(),['2','80'].sort(),
-    'both physical percentile faces must show values even when projected edge-on');
+  assert.ok(textThisFrame.includes('2') && textThisFrame.includes('80'),
+    'both official percentile faces must remain visible regardless of projection');
   window.OSEPhysicsDice.stop();
 }
 console.log('PASS physical Canvas animations, lifecycle, d100 labels, stress and FL CSS fallback');

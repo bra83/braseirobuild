@@ -8,13 +8,13 @@ const core=root.Dice3DCore;
 const stage=()=>document.getElementById('dice3dStage');
 const light=[0.24,-0.38,0.89], camera=[0,-0.56,0.83];
 const palettes={
-  4:[186,124,70],   // Antique hammered bronze
-  6:[198,178,148],  // Aged carved ivory bone
-  8:[134,102,152],  // Runic dark amethyst / iron
-  10:[170,68,58],   // Dragon-scale crimson
-  12:[82,132,102],  // Weathered verdigris moss
-  20:[192,154,74],  // Ancient lustrous gold
-  100:[156,58,52]   // Blood lacquer & obsidian
+  4:[53,69,55],   // Old bronze
+  6:[91,83,59],   // Weathered bone brass
+  8:[57,60,75],   // Dark amethyst iron
+  10:[49,72,62],  // Dark forest-green resin, gilded borders
+  12:[50,73,60],  // Aged verdigris
+  20:[55,76,60],  // Moss-green gold-inlay
+  100:[65,62,50] // Obsidian and antique brass
 };
 let active=null,sequence=0;
 function stop(){
@@ -124,10 +124,13 @@ function render(session){
   // Face labels must fit their actual polygons: area-based fonts alone caused
   // overlapping d20 numbers and percentile markings outside adjacent faces.
   // Once settled, display only the canonical face on each physical die.
-  const labelled=new Set(),moving=new Map();
+  const labelled=new Set(),moving=new Map(),settled=new Map();
   for(const face of faces){
     if(face.body.done){
       if(face.faceIndex===face.body.faceIndex)labelled.add(face);
+      if(face.exposure>.27&&face.area>85){
+        const list=settled.get(face.body)||[];list.push(face);settled.set(face.body,list);
+      }
     }else if(face.exposure>.40){
       const list=moving.get(face.body)||[];list.push(face);moving.set(face.body,list);
     }
@@ -135,6 +138,12 @@ function render(session){
   for(const candidates of moving.values()){
     candidates.sort((a,b)=>b.exposure*b.area-a.exposure*a.area);
     for(const face of candidates.slice(0,2))labelled.add(face);
+  }
+  // Physical dice should have numbers on neighboring visible facets, just
+  // like engraved polyhedra. Keep the official upper face visible first.
+  for(const candidates of settled.values()){
+    candidates.sort((a,b)=>b.exposure*b.area-a.exposure*a.area);
+    for(const face of candidates.slice(0,5))labelled.add(face);
   }
   function inscriptionRadius(face){
     const [cx,cy]=face.center;
@@ -158,9 +167,12 @@ function render(session){
     ctx.fillStyle=face.color;
     ctx.fill();
 
-    // Distinct chamfered edge stroke
-    ctx.lineWidth=Math.max(1.4,Math.min(2.8,scale*.036));
-    ctx.strokeStyle='rgba(20,12,8,.92)';
+    // Double-edged metal inlay, closer to the engraved tabletop reference.
+    ctx.lineWidth=Math.max(2,Math.min(3.0,scale*.026));
+    ctx.strokeStyle='rgba(18,23,19,.96)';
+    ctx.stroke();
+    ctx.lineWidth=Math.max(1,Math.min(1.65,scale*.013));
+    ctx.strokeStyle='rgba(195,145,86,.93)';
     ctx.stroke();
 
     // Engrave only the face(s) chosen above. Clip ink to the face boundary,
@@ -192,7 +204,7 @@ function render(session){
           ctx.fill();
         }
         ctx.restore();
-      }else if(face.body.done){
+      }else if(face.body.done && face.faceIndex===face.body.faceIndex){
         fallbackLabels.push({text:face.label,x:face.center[0],y:face.center[1]});
       }
     }
