@@ -2,7 +2,7 @@ name: Tales v1.3.23 verified candidate (existing Braseiro signature)
 on:
   push:
     branches:
-      - fix/tales-1.3.23-gemini-first-text-voice
+      - fix/tales-1323-ui
   workflow_dispatch:
 permissions:
   contents: write
