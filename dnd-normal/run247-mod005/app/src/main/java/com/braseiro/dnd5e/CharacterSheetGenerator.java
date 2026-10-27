@@ -414,17 +414,19 @@ public final class CharacterSheetGenerator {
             if (o.optString("background").trim().isEmpty()) o.put("background", "Soldado");
             if (o.optInt("level", 0) < 1) o.put("level", 1);
             applyMechanicsIfMissing(o);
-            enrichNarrativeIfMissing(o);
+            if(!o.optBoolean("life_path_pending",false))enrichNarrativeIfMissing(o);
             putDefault(o, "name", randomName(o.optString("species")));
             putDefault(o, "alignment", "Neutro e Bom");
             putDefault(o, "life_origin", "Cidade mercantil");
             putDefault(o, "life_career", careerForClass(o.optString("class_name")));
             if (o.optInt("life_terms", 0) < 1) o.put("life_terms", 2);
+            if(!o.optBoolean("life_path_pending",false)) {
             if (o.optString("life_path").trim().isEmpty()) o.put("life_path", generateLifePath(
                     o.optString("life_origin"), o.optString("life_career"), o.optInt("life_terms", 2),
                     o.optString("species"), o.optString("class_name"), o.optString("background")));
             syncLifeDetails(o, false);
             o.put("history", mergeHistory(o.optString("history"), o.optString("life_path")));
+            }
             sanitizeNarrativeFields(o);
             putDefault(o, "equipment", o.optString("inventory"));
         } catch(Exception ignored){AppLog.ignored("CharacterSheetGenerator","Falha tolerada; a execução continuou.",ignored);}
