@@ -209,6 +209,57 @@ public final class BraseiroAdventureStore {
         }catch(Exception ex){try{out.put("loadError",String.valueOf(ex.getMessage()));}catch(Exception ignored){}}
         return out;
     }
+
+    /** BACKUP21 extension: private adventures, imported NPCs and witnessed facts. */
+    public synchronized void attachPortableBackup(JSONObject root)throws Exception{
+        SQLiteDatabase sql=db.getWritableDatabase();ensureSchema(sql);
+        sql.execSQL("CREATE TABLE IF NOT EXISTS braseiro_adventure_causal_facts ("+
+            "world_scope TEXT NOT NULL, commit_key TEXT NOT NULL, actor_character_id INTEGER NOT NULL, "+
+            "adventure_id TEXT NOT NULL, event_json TEXT NOT NULL, created_at INTEGER NOT NULL, "+
+            "PRIMARY KEY(world_scope,commit_key))");
+        String prefix=db.getActiveMapProfile()+":%";
+        root.put("braseiroAdventurePackages",new JSONArray(db.queryList(
+            "SELECT * FROM braseiro_adventure_packages WHERE scope LIKE ?",new String[]{prefix})));
+        root.put("braseiroAdventureNpcLedger",new JSONArray(db.queryList(
+            "SELECT * FROM braseiro_adventure_npc_ledger WHERE scope LIKE ?",new String[]{prefix})));
+        root.put("braseiroAdventureCausalFacts",new JSONArray(db.queryList(
+            "SELECT * FROM braseiro_adventure_causal_facts WHERE world_scope LIKE ?",new String[]{prefix})));
+    }
+    /** Called inside AppDb's existing verified, atomic BACKUP21 restoration. */
+    public synchronized void restorePortableBackup(SQLiteDatabase sql,JSONObject root,String profile)throws Exception{
+        ensureSchema(sql);
+        sql.execSQL("CREATE TABLE IF NOT EXISTS braseiro_adventure_causal_facts ("+
+            "world_scope TEXT NOT NULL, commit_key TEXT NOT NULL, actor_character_id INTEGER NOT NULL, "+
+            "adventure_id TEXT NOT NULL, event_json TEXT NOT NULL, created_at INTEGER NOT NULL, "+
+            "PRIMARY KEY(world_scope,commit_key))");
+        String prefix=profile+":%";
+        for(String table:new String[]{"braseiro_adventure_npc_ledger","braseiro_adventure_packages"})
+            sql.delete(table,"scope LIKE ?",new String[]{prefix});
+        sql.delete("braseiro_adventure_causal_facts","world_scope LIKE ?",new String[]{prefix});
+        String[] keys={"braseiroAdventurePackages","braseiroAdventureNpcLedger","braseiroAdventureCausalFacts"};
+        String[] tables={"braseiro_adventure_packages","braseiro_adventure_npc_ledger","braseiro_adventure_causal_facts"};
+        for(int group=0;group<keys.length;group++){
+            JSONArray rows=root.optJSONArray(keys[group]);if(rows==null)continue;
+            for(int i=0;i<rows.length();i++){
+                JSONObject item=rows.optJSONObject(i);if(item==null)continue;
+                String field=group==2?"world_scope":"scope";
+                String scope=item.optString(field);
+                if(!scope.startsWith(profile+":"))throw new SecurityException("Backup de aventura com world_profile incompatível.");
+                ContentValues v=new ContentValues();
+                java.util.Iterator<String> it=item.keys();
+                while(it.hasNext()){
+                    String key=it.next();Object value=item.opt(key);
+                    if(value==JSONObject.NULL)v.putNull(key);
+                    else if(value instanceof Integer)v.put(key,(Integer)value);
+                    else if(value instanceof Long)v.put(key,(Long)value);
+                    else v.put(key,String.valueOf(value));
+                }
+                if(sql.insertWithOnConflict(tables[group],null,v,SQLiteDatabase.CONFLICT_REPLACE)<0)
+                    throw new IllegalStateException("Falha ao restaurar a tabela "+tables[group]);
+            }
+        }
+    }
+
     private static String shortText(String source,int cap){if(source==null)return "";return source.length()<=cap?source:source.substring(0,cap);}
     private static JSONArray summarize(JSONArray values,String field,int cap){
         JSONArray out=new JSONArray();if(values==null)return out;
