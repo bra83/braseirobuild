@@ -45,6 +45,7 @@ import com.braseiro.talesvtt.model.ContextItemData
 import com.braseiro.talesvtt.model.WorldStatusData
 import com.braseiro.talesvtt.ui.theme.AppTheme
 import com.braseiro.talesvtt.ui.theme.Dimens
+import com.braseiro.talesvtt.updater.BraseiroPackageInstall
 import com.braseiro.talesvtt.updater.AppUpdateManager
 import com.braseiro.talesvtt.updater.UpdateCheckResult
 import com.braseiro.talesvtt.updater.UpdateStatus
@@ -263,6 +264,29 @@ fun MenuScreen(
     var isCheckingUpdate by remember { mutableStateOf(false) }
     var isDownloadingUpdate by remember { mutableStateOf(false) }
     var updateInstallError by remember { mutableStateOf<String?>(null) }
+    var updateInstallNote by remember { mutableStateOf<String?>(null) }
+    var readyInstallApk by remember { mutableStateOf<java.io.File?>(null) }
+    val nativeInstaller = remember(context) { BraseiroPackageInstall(context) }
+
+    fun openSystemInstaller(apk: java.io.File, update: UpdateCheckResult) {
+      if (!nativeInstaller.hasInstallPermission()) {
+        updateInstallNote = "Autorize a instalação de apps desta fonte para o Braseiro. Depois volte e toque INSTALAR ATUALIZAÇÃO VERIFICADA."
+        runCatching { nativeInstaller.openInstallPermissionSettings() }
+          .onFailure { updateInstallError = "Não foi possível abrir a permissão: ${it.message}" }
+        return
+      }
+      isDownloadingUpdate = true
+      updateInstallNote = "Enviando APK verificado ao instalador nativo do Android..."
+      updateScope.launch {
+        runCatching { nativeInstaller.commitVerifiedApk(apk, update.sha256.orEmpty()) }
+          .onSuccess { session ->
+            updateInstallNote = "Instalação iniciada (sessão $session). Confirme no diálogo do Android."
+            readyInstallApk = null
+          }
+          .onFailure { updateInstallError = "Falha ao iniciar a instalação: ${it.message}" }
+        isDownloadingUpdate = false
+      }
+    }
 
     AppPanel {
       Text(
@@ -278,6 +302,8 @@ fun MenuScreen(
           updateScope.launch {
             val res = updateManager.checkForUpdates()
             updateResult = res
+            readyInstallApk = null
+            updateInstallNote = null
             isCheckingUpdate = false
           }
         },
@@ -285,6 +311,7 @@ fun MenuScreen(
       )
 
       updateInstallError?.let { Text(it, style = AppTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error)) }
+      updateInstallNote?.let { Text(it, style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.accentCyan)) }
       updateResult?.let { res ->
         Spacer(Modifier.height(8.dp))
         when (res.status) {
@@ -309,18 +336,26 @@ fun MenuScreen(
               if (!res.downloadUrl.isNullOrBlank()) {
                 Spacer(Modifier.height(4.dp))
                 PrimaryButton(
-                  text = if (isDownloadingUpdate) "BAIXANDO E VERIFICANDO APK..." else "BAIXAR ATUALIZAÇÃO OFICIAL",
+                  text = if (isDownloadingUpdate) "PREPARANDO ATUALIZAÇÃO..." else
+                    if (readyInstallApk?.isFile == true) "INSTALAR ATUALIZAÇÃO VERIFICADA" else
+                      "BAIXAR E INSTALAR ATUALIZAÇÃO",
                   enabled = !isDownloadingUpdate,
                   onClick = {
-                    isDownloadingUpdate = true
                     updateInstallError = null
-                    updateScope.launch {
-                      val verified = updateManager.downloadVerifiedApk(context, res)
-                      isDownloadingUpdate = false
-                      verified.onSuccess { apk ->
-                        runCatching { context.startActivity(updateManager.createInstallIntent(context, apk)) }
-                          .onFailure { updateInstallError = "Instalação não pôde ser aberta: ${it.message}" }
-                      }.onFailure { updateInstallError = "Atualização rejeitada: ${it.message}" }
+                    val ready = readyInstallApk?.takeIf { it.isFile }
+                    if (ready != null) {
+                      openSystemInstaller(ready, res)
+                    } else {
+                      isDownloadingUpdate = true
+                      updateInstallNote = "Baixando APK e conferindo SHA-256, identidade e assinatura..."
+                      updateScope.launch {
+                        val verified = updateManager.downloadVerifiedApk(context, res)
+                        isDownloadingUpdate = false
+                        verified.onSuccess { apk ->
+                          readyInstallApk = apk
+                          openSystemInstaller(apk, res)
+                        }.onFailure { updateInstallError = "Atualização rejeitada: ${it.message}" }
+                      }
                     }
                   },
                   modifier = Modifier.fillMaxWidth()
