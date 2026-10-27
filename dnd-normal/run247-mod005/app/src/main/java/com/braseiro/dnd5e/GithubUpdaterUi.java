@@ -21,7 +21,15 @@ final class GithubUpdaterUi {
             "Verifica release de D&D, SHA-256, assinatura Android, pacote e versionCode. " +
             "Faz backup local antes da instalação; o instalador do Android exige seu consentimento. Não depende de BRELGA.");
         hint.setTextSize(13);section.addView(hint);
-        TextView status=new TextView(a);status.setText("Versão instalada: "+BuildConfig.VERSION_NAME+" • Toque para verificar.");status.setTextSize(12);section.addView(status);
+        TextView status=new TextView(a);
+        String versionLabel=BuildConfig.VERSION_NAME;
+        try{
+            android.content.pm.PackageInfo current=a.getPackageManager().getPackageInfo(a.getPackageName(),0);
+            long code=Build.VERSION.SDK_INT>=28?current.getLongVersionCode():current.versionCode;
+            versionLabel+=" • versionCode "+code;
+        }catch(Exception ignored){ /* Version display is diagnostic only. */ }
+        status.setText("Instalado: "+versionLabel+" • Toque para verificar.");
+        status.setTextSize(12);section.addView(status);
         Button update=new Button(a);update.setText("VERIFICAR ATUALIZAÇÕES NO GITHUB");section.addView(update);
         final GithubApkUpdater updater=new GithubApkUpdater(a);
         update.setOnClickListener(v->{
