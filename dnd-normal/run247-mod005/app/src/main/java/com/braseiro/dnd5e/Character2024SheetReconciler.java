@@ -184,9 +184,8 @@ public final class Character2024SheetReconciler {
         LinkedHashSet<String> feats=new LinkedHashSet<>();
         JSONArray current=sheet.optJSONArray("selected_origin_feats");
         if(current!=null)for(int i=0;i<current.length();i++){
-            String item=current.optString(i);
-            if(containsWord(item,"Sortudo"))feats.add("Sortudo");
-            if(containsWord(item,"Músico"))feats.add("Músico");
+            String item=current.optString(i).trim();
+            if(!item.isEmpty())feats.add(item); // Never discard other 2024 origin feats.
         }
         String declared=sheet.optString("selected_feats","")+
             "; "+sheet.optString("features","");
@@ -198,6 +197,11 @@ public final class Character2024SheetReconciler {
             JSONArray result=new JSONArray();
             for(String feat:feats)result.put(feat);
             sheet.put("selected_origin_feats",result);
+            int proficiency=pb(sheet.optInt("level",1));
+            if(feats.contains("Sortudo")&&!sheet.has("luck_points_max"))
+                sheet.put("luck_points_max",proficiency);
+            if(feats.contains("Músico")&&!sheet.has("musician_inspiration_target_limit"))
+                sheet.put("musician_inspiration_target_limit",proficiency);
         }
         if(norm(sheet.optString("species")).equals("humano")){
             boolean extra=feats.contains("Músico");
