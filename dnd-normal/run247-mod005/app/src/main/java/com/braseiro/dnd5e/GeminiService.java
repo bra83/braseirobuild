@@ -30,6 +30,27 @@ public class GeminiService {
     public interface RagProgress { void onProgress(String message); }
     public interface FileCallback { void onSuccess(File file, String mime); void onError(String error); }
     public interface UploadCallback { void onSuccess(String fileUri, String fileName, long expiresAt); void onError(String error); }
+    public interface VoiceCatalogCallback { void onSuccess(JSONArray voices); void onError(String error); }
+    /** Extended voices remain API-authoritative; never infer entitlement from the static studio names. */
+    public void listExtendedVoices(final String apiKey, final VoiceCatalogCallback cb) {
+        AppExecutors.network().execute(new Runnable(){public void run(){
+            try {
+                ensureKey(apiKey);
+                JSONArray all=new JSONArray();
+                String page="";
+                int pages=0;
+                do {
+                    String endpoint="https://generativelanguage.googleapis.com/v1beta/voices?pageSize=100"
+                         +(page.isEmpty()?"":"&pageToken="+URLEncoder.encode(page,"UTF-8"));
+                    JSONObject response=get(endpoint,apiKey);
+                    JSONArray voices=response.optJSONArray("voices");
+                    if(voices!=null)for(int i=0;i<voices.length() && all.length()<800;i++)all.put(voices.optJSONObject(i));
+                    page=response.optString("nextPageToken","");
+                } while(!page.isEmpty() && ++pages<8 && all.length()<800);
+                cb.onSuccess(all);
+            }catch(Exception e){cb.onError(clean(e));}
+        }});
+    }
     public static final class SpeechRequest {
         private volatile boolean cancelled;
         private volatile HttpURLConnection connection;
@@ -389,6 +410,14 @@ public class GeminiService {
         return (value.contains("gemini-3.1") || value.contains("gemini-3.8")) && value.contains("tts");
     }
 
+    /** Voice metadata is never prepended to the transcript or read aloud. */
+    private String vocalStyle(){
+        String profile=settings.getString("tts_vocal_profile","Voz brasileira, dicção clara, tom natural");
+        String style=settings.getString("tts_vocal_style","Interpretação expressiva, sem exageros nem pausas artificiais");
+        String metadata=(profile==null?"":profile.trim())+". "+(style==null?"":style.trim());
+        metadata=metadata.replaceAll("[\\r\\n<>]"," ").trim();
+        return metadata.length()>600?metadata.substring(0,600):metadata;
+    }
     private AudioData synthesizeWithInteractions(String model,String key,String ttsPrompt,String voice,SpeechRequest request)throws Exception{/*BR_JSON_WRAP*/try{
         JSONObject body=new JSONObject();
         body.put("model",normalizeModel(model));
@@ -397,7 +426,7 @@ public class GeminiService {
         boolean metadata38=normalizeModel(model).startsWith("gemini-3.8-");
         if(metadata38){
             JSONObject style=new JSONObject().put("type","speech_metadata")
-                    .put("style","natural Brazilian Portuguese, clear diction and restrained acting");
+                     .put("style",vocalStyle());
             JSONObject transcript=new JSONObject().put("type","text").put("text",ttsPrompt)
                     .put("annotations",new JSONArray().put(style));
             JSONObject userInput=new JSONObject().put("type","user_input")
@@ -413,7 +442,7 @@ public class GeminiService {
         body.put("generation_config",new JSONObject().put("speech_config",new JSONArray().put(speech)));
         JSONObject response=postInteractionsWithRetry(key,body,NarrationPlaybackPolicy.CHARON_RECOVERABLE_RETRIES,request);
         AudioData audio=extractInteractionAudio(response);
-        if(audio==null||audio.bytes==null||audio.bytes.length==0)throw new Exception(apiError(response,"O Gemini 3.1 TTS não retornou áudio PCM."));
+        if(audio==null||audio.bytes==null||audio.bytes.length==0)throw new Exception(apiError(response,"O Gemini TTS não retornou áudio válido."));
         return audio;
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
