@@ -38,16 +38,16 @@ public class DndReleaseSelectorTest {
         assertNull(DndReleaseSelector.firstInstallable(invalid));
     }
     @Test public void proofRequiresCorrectPackageAndPositiveVersionCode() {
-        String valid="SOURCE_SHA=abcd\\nVERSION_CODE=202610280\\nPACKAGE=com.braseiro.dnd5e\\n";
+        String valid="SOURCE_SHA=abcd\nVERSION_CODE=202610280\nPACKAGE=com.braseiro.dnd5e\n";
         assertEquals(202610280L,DndReleaseSelector.verifiedCode(valid,"com.braseiro.dnd5e"));
         assertEquals(-1L,DndReleaseSelector.verifiedCode(valid,"com.braseiro.other"));
         assertEquals(-1L,DndReleaseSelector.verifiedCode("VERSION_CODE=202610280", "com.braseiro.dnd5e"));
-        assertEquals(-1L,DndReleaseSelector.verifiedCode("VERSION_CODE=0\\nPACKAGE=com.braseiro.dnd5e", "com.braseiro.dnd5e"));
-        assertEquals(-1L,DndReleaseSelector.verifiedCode("VERSION_CODE=202610280x\\nPACKAGE=com.braseiro.dnd5e", "com.braseiro.dnd5e"));
+        assertEquals(-1L,DndReleaseSelector.verifiedCode("VERSION_CODE=0\nPACKAGE=com.braseiro.dnd5e", "com.braseiro.dnd5e"));
+        assertEquals(-1L,DndReleaseSelector.verifiedCode("VERSION_CODE=202610280x\nPACKAGE=com.braseiro.dnd5e", "com.braseiro.dnd5e"));
     }
     @Test public void proofRejectsInvalidAndOverflowVersionCodes() {
-        assertEquals(-1L,DndReleaseSelector.verifiedCode("VERSION_CODE=9999999999\\nPACKAGE=com.braseiro.dnd5e","com.braseiro.dnd5e"));
-        assertEquals(-1L,DndReleaseSelector.verifiedCode("VERSION_CODE=-999\\nPACKAGE=com.braseiro.dnd5e","com.braseiro.dnd5e"));
+        assertEquals(-1L,DndReleaseSelector.verifiedCode("VERSION_CODE=9999999999\nPACKAGE=com.braseiro.dnd5e","com.braseiro.dnd5e"));
+        assertEquals(-1L,DndReleaseSelector.verifiedCode("VERSION_CODE=-999\nPACKAGE=com.braseiro.dnd5e","com.braseiro.dnd5e"));
     }
     @Test public void absentProofUrlCannotBeAssumedNewer() throws Exception {
         JSONObject noProof=release("dnd-6.6.18",false,false,true,true);
