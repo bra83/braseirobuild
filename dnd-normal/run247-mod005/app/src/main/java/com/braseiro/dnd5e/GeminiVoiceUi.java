@@ -46,6 +46,8 @@ final class GeminiVoiceUi {
         EditText profile=field(activity,prefs.getString("tts_vocal_profile","Voz brasileira, dicção clara e tom natural"),"Perfil vocal");
         EditText style=field(activity,prefs.getString("tts_vocal_style","Expressivo, com ritmo natural, sem pausas artificiais"),"Estilo vocal");
         target.addView(profile);target.addView(style);
+        button(activity,"GEMINI 3.8 FLASH TTS — ALTA FIDELIDADE",target,()->model.setText("gemini-3.8-flash-tts"));
+        button(activity,"GEMINI 3.8 FLASH-LITE TTS — MAIS RÁPIDO",target,()->model.setText("gemini-3.8-flash-lite-tts"));
         button(activity,"SELECIONAR ENTRE 30 VOZES DE ESTÚDIO",target,()->new AlertDialog.Builder(activity)
             .setTitle("Vozes de estúdio Gemini 3.8").setItems(STUDIO,(d,i)->voice.setText(STUDIO[i]))
             .setNegativeButton("Fechar",null).show());
