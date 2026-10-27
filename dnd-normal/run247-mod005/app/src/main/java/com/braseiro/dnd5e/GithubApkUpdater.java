@@ -105,33 +105,8 @@ public final class GithubApkUpdater {
         // Scanning just 30 releases could never reliably discover D&D releases.
         for(int page=1;page<=MAX_RELEASE_PAGES;page++){
             JSONArray list=new JSONArray(readText(API_BASE+page,16*1024*1024));
-            for(int i=0;i<list.length();i++){
-                JSONObject release=list.optJSONObject(i);
-                if(release==null||release.optBoolean("draft",false)||release.optBoolean("prerelease",false))continue;
-                if(!release.optString("tag_name","").startsWith("dnd-"))continue;
-                JSONArray files=release.optJSONArray("assets");
-                if(files==null)continue;
-                String apkName="";
-                for(int j=0;j<files.length();j++){
-                    JSONObject asset=files.optJSONObject(j);
-                    if(asset==null)continue;
-                    String name=asset.optString("name","");
-                    if(name.startsWith("BRASEIRO_DND_")&&name.endsWith(".apk")){
-                        apkName=name;
-                        break;
-                    }
-                }
-                if(apkName.isEmpty())continue;
-                boolean hasDigest=false;
-                for(int j=0;j<files.length();j++){
-                    JSONObject asset=files.optJSONObject(j);
-                    if(asset!=null&&(apkName+".sha256").equals(asset.optString("name",""))){
-                        hasDigest=true;
-                        break;
-                    }
-                }
-                if(hasDigest)return release;
-            }
+            JSONObject suitable=DndReleaseSelector.firstInstallable(list);
+            if(suitable!=null)return suitable;
             if(list.length()<100)break;
         }
         return null;
