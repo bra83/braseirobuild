@@ -130,6 +130,14 @@ public class Character2024SheetReconcilerTest {
         assertTrue(o.getBoolean("human_extra_origin_feat_pending"));
         assertFalse(o.getBoolean("species_choices_complete"));
     }
+    @Test public void editingNeverRefreshesSpentLuckPoints() throws Exception {
+        JSONObject sheet=Character2024SheetReconciler.reconcile(arcanista());
+        assertEquals(2,sheet.getInt("luck_points"));
+        sheet.put("luck_points",0);
+        Character2024SheetReconciler.reconcile(sheet);
+        assertEquals(0,sheet.getInt("luck_points"));
+        assertEquals(2,sheet.getInt("luck_points_max"));
+    }
     @Test public void otherEditionsAreNotTouched() throws Exception {
         JSONObject o=arcanista();o.put("rules_source","5e 2014");
         String before=o.toString();
