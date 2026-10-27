@@ -21,27 +21,21 @@ final class GithubUpdaterUi {
             "Verifica release de D&D, SHA-256, assinatura Android, pacote e versionCode. " +
             "Faz backup local antes da instalação; o instalador do Android exige seu consentimento. Não depende de BRELGA.");
         hint.setTextSize(13);section.addView(hint);
-        TextView status=new TextView(a);status.setText("Nenhuma atualização verificada.");status.setTextSize(12);section.addView(status);
-        Button update=new Button(a);update.setText("VERIFICAR / BAIXAR / INSTALAR APK");section.addView(update);
+        TextView status=new TextView(a);status.setText("Versão instalada: "+BuildConfig.VERSION_NAME+" • Toque para verificar.");status.setTextSize(12);section.addView(status);
+        Button update=new Button(a);update.setText("VERIFICAR ATUALIZAÇÕES NO GITHUB");section.addView(update);
         final GithubApkUpdater updater=new GithubApkUpdater(a);
         update.setOnClickListener(v->{
-            if(updater.isBusy()){status.setText("Download em andamento.");return;}
-            if(Build.VERSION.SDK_INT>=26&&!a.getPackageManager().canRequestPackageInstalls()){
-                new AlertDialog.Builder(a).setTitle("Permitir a instalação de atualizações")
-                    .setMessage("O Android precisa autorizar instalações iniciadas pelo Braseiro. Nenhum APK será instalado silenciosamente.")
-                    .setPositiveButton("ABRIR PERMISSÃO",(d,w)->a.startActivity(
-                        new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:"+a.getPackageName()))))
-                    .setNegativeButton("Cancelar",null).show();
-                return;
-            }
+            if(updater.isBusy()){status.setText("Verificação ou download em andamento.");return;}
+            // Do not request unknown-source permission merely to CHECK the version.
+            // Android prompts for installation permission only if a verified newer APK exists.
             update.setEnabled(false);
             updater.checkAndDownload(new GithubApkUpdater.Reporter(){
                 public void status(String message){a.runOnUiThread(()->{
                     status.setText(message);
-                    if(message.startsWith("Atualização não instalada:")||
-                        message.startsWith("Nenhum APK")||
-                        message.startsWith("Release de D&D")||
-                        message.startsWith("Release recusada:")) update.setEnabled(true);
+                    if(!message.startsWith("Consultando")&&
+                       !message.startsWith("Baixando")&&
+                       !message.startsWith("APK verificado:"))
+                        update.setEnabled(true);
                 });}
                 public void installationReady(final File file){
                     AppExecutors.serial().execute(()->{
