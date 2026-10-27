@@ -67,8 +67,18 @@ public class CharacterCreationUiRobolectricTest {
     void level(int level){control("Selecionar Nível").performClick();AlertDialog picker=ShadowAlertDialog.getLatestAlertDialog();int index=level+2; // current value + random + oracle + levels 1..20; level 1 is deduplicated
         for(int i=0;i<picker.getListView().getCount();i++)if(String.valueOf(level).equals(picker.getListView().getItemAtPosition(i).toString())){index=i;break;}
         picker.getListView().performItemClick(picker.getListView().getChildAt(index),index,index);shadowOf(Looper.getMainLooper()).idle();}
-    void save(){form.getButton(AlertDialog.BUTTON_POSITIVE).performClick();shadowOf(Looper.getMainLooper()).idle();}
-    JSONObject only(){assertEquals(1,db.listCharacters().size());return db.listCharacters().get(0);}
+    void waitForSave(){
+        long until=System.currentTimeMillis()+15000;
+        while(System.currentTimeMillis()<until){
+            shadowOf(Looper.getMainLooper()).idle();
+            if(form==null || !form.isShowing() || form.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled())return;
+            try{Thread.sleep(20);}catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new AssertionError(interrupted);}
+        }
+        fail("Async character save exceeded 15 seconds; dialog remained blocked");
+    }
+    void save(){form.getButton(AlertDialog.BUTTON_POSITIVE).performClick();waitForSave();}
+    JSONObject only(){if(form!=null&&form.isShowing()&&!form.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled())waitForSave();
+        assertEquals(1,db.listCharacters().size());return db.listCharacters().get(0);}
     JSONObject sheet()throws Exception{return new JSONObject(only().optString("sheet_json"));}
     void reopenDb()throws Exception {db.close();db=new AppDb(activity,database);db.setActiveMapProfile("dnd");set("db",db);set("safety",new CampaignSafetyManager(activity,db));set("worldStateEngine",new WorldStateEngine(db));}
     AlertDialog picker(String label){control("Selecionar "+label).performClick();AlertDialog picker=ShadowAlertDialog.getLatestAlertDialog();assertNotSame(form,picker);return picker;}
