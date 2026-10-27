@@ -82,7 +82,7 @@ jobs:
       - name: JVM regression and personality tests
         working-directory: ${{ env.PROJECT }}
         run: |
-          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain --stacktrace
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain --stacktrace
 
       - name: Full APK with canonical map assets
         working-directory: ${{ env.PROJECT }}
