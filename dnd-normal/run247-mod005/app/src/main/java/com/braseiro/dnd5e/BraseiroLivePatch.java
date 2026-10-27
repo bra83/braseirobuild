@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.os.Build;
+import android.graphics.BitmapFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.File;
@@ -82,6 +83,15 @@ public final class BraseiroLivePatch {
         for(byte x:digest)b.append(String.format(Locale.ROOT,"%02x",x&0xff));
         return b.toString();
     }
+    private static void validateImage(File file)throws Exception{
+        // Decode headers only; do not allocate bitmaps from untrusted update files.
+        BitmapFactory.Options opts=new BitmapFactory.Options();
+        opts.inJustDecodeBounds=true;
+        BitmapFactory.decodeFile(file.getAbsolutePath(),opts);
+        if(opts.outWidth<=0||opts.outHeight<=0||
+           opts.outWidth>24000||opts.outHeight>24000)
+            throw new SecurityException("Imagem inválida ou dimensões excessivas.");
+    }
     private static void download(String source,File target,long size,String digest)throws Exception{
         if(size<1||size>MAX_FILE||digest==null||!digest.matches("[a-fA-F0-9]{64}"))
             throw new SecurityException("Arquivo de atualização sem integridade válida.");
@@ -100,6 +110,7 @@ public final class BraseiroLivePatch {
         }
         if(count!=size||!hex(sha.digest()).equalsIgnoreCase(digest))
             throw new SecurityException("SHA-256 incorreto ou arquivo incompleto.");
+        validateImage(target);
     }
     private static void deleteTree(File f){
         if(f==null||!f.exists())return;
@@ -179,8 +190,10 @@ public final class BraseiroLivePatch {
         int active=preferences(c).getInt("active",-1);
         if(active>=0){
             File replacement=new File(new File(root(c),"rev-"+active),name);
-            if(replacement.isFile()&&replacement.length()>0)
-                return new FileInputStream(replacement);
+            if(replacement.isFile()&&replacement.length()>0){
+                try{return new FileInputStream(replacement);}
+                catch(java.io.IOException unreadable){ /* Always retain the signed APK fallback. */ }
+            }
         }
         return c.getAssets().open(path);
     }
@@ -192,11 +205,13 @@ public final class BraseiroLivePatch {
         SharedPreferences prefs=preferences(c);
         int previous=prefs.getInt("previous",-1);
         int current=prefs.getInt("active",-1);
-        if(previous<0)return "Nenhuma revisão anterior disponível para restaurar.";
-        if(!new File(root(c),"rev-"+previous).isDirectory())
+        if(current<0)return "Os recursos originais do APK já estão ativos.";
+        if(previous>=0 && !new File(root(c),"rev-"+previous).isDirectory())
             return "Revisão anterior não encontrada. A correção atual foi preservada.";
         if(!prefs.edit().putInt("active",previous).putInt("previous",current).commit())
             return "Falha ao restaurar revisão anterior.";
-        return "Correção revertida para a revisão "+previous+". Reabra a tela para atualizar os recursos.";
+        return previous<0?"Correção desativada. Recursos originais do APK restaurados.":
+            "Correção revertida para a revisão "+previous+". Reabra a tela para atualizar os recursos.";
+
     }
 }
