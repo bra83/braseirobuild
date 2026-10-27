@@ -198,8 +198,16 @@ public final class Character2024SheetReconciler {
             for(String feat:feats)result.put(feat);
             sheet.put("selected_origin_feats",result);
             int proficiency=pb(sheet.optInt("level",1));
-            if(feats.contains("Sortudo")&&!sheet.has("luck_points_max"))
-                sheet.put("luck_points_max",proficiency);
+            if(feats.contains("Sortudo")){
+                if(!sheet.has("luck_points_max"))sheet.put("luck_points_max",proficiency);
+                // Never refill spent luck during an edit. Only initialize on an
+                // explicitly fresh first-level sheet whose ledger has no value.
+                JSONObject progress=sheet.optJSONObject("progression");
+                boolean fresh=sheet.optInt("level",1)==1 &&
+                    (progress==null||progress.optInt("xp",0)==0);
+                if(fresh&&!sheet.has("luck_points"))
+                    sheet.put("luck_points",proficiency);
+            }
             if(feats.contains("Músico")&&!sheet.has("musician_inspiration_target_limit"))
                 sheet.put("musician_inspiration_target_limit",proficiency);
         }
