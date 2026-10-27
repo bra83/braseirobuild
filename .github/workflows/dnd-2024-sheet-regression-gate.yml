@@ -9,6 +9,7 @@ on:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AppDb.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterRulesValidator.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024SheetReconcilerTest.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024SheetDatabaseTest.java'
       - '.github/workflows/dnd-2024-sheet-regression-gate.yml'
   workflow_dispatch:
 
@@ -50,4 +51,5 @@ jobs:
         working-directory: dnd-normal/run247-mod005
         run: |
           ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.Character2024SheetReconcilerTest \
+            --tests com.braseiro.dnd5e.Character2024SheetDatabaseTest \
             -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
