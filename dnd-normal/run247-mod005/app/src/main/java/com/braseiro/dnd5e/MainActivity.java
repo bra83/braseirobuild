@@ -8047,7 +8047,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         appendHeroField(b,"Inventário",h.optString("inventory",h.optString("equipment")));appendHeroField(b,"Aparência",h.optString("appearance",h.optString("visual_description")));
         appendHeroField(b,"Personalidade",h.optString("personality"));appendHeroField(b,"Ideal",h.optString("ideal"));
         appendHeroField(b,"Vínculo",h.optString("bond"));appendHeroField(b,"Medo",h.optString("fear"));appendHeroField(b,"Defeito",h.optString("flaw"));appendHeroField(b,"Contato",h.optString("contact"));appendHeroField(b,"Rival",h.optString("rival"));appendHeroField(b,"Dívida",h.optString("debt"));appendHeroField(b,"Motivação",h.optString("motivation"));appendHeroField(b,"Entrada na classe",h.optString("class_entry"));appendHeroField(b,"História",h.optString("history"));
-        String out=b.toString().replaceAll("\\s*\\n\\s*"," ").replaceAll("[ \t]+"," ").trim();return out.length()>5200?out.substring(0,5200)+"…":out;
+        String persona=BraseiroPersonalityProfile.forNarrator(legacy,lastNarration);
+        String out=b.toString().replaceAll("\\s*\\n\\s*"," ").replaceAll("[ \\t]+"," ").trim();
+        int budget=Math.max(1200,5200-persona.length());
+        return (out.length()>budget?out.substring(0,budget)+"…":out)+persona;
     }
     private String buildMystaraHeroAiContext(JSONObject legacy){
         JSONObject h=mystaraSheet(legacy);StringBuilder b=new StringBuilder();
@@ -8104,6 +8107,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         p.append("\n").append(BraseiroNarrativeDirector.contract(c,db.getSceneState(),recentNarrativeTexts()));p.append(BraseiroNarrativeDirector.interactionContract(userText,braseiroNarrativeMemory(),activeInputChannel()));
         p.append(LiveTableNarrativeDirector.contract(c,db.getSceneState(),liveParty,liveWorld,braseiroNarrativeMemory(),userText));
         p.append(CompanionAgencyEngine.instruction(db,safeActiveCharacters(),activeTurnNonAdvancing(userText)));
+        if(!isMystaraWorld()){List<JSONObject> personalityHeroes=safeActiveCharacters();
+            for(int pi=0;pi<personalityHeroes.size()&&pi<4;pi++){
+                String context=BraseiroPersonalityProfile.forNarrator(personalityHeroes.get(pi),lastNarration+" "+userText);
+                if(context.length()>0)p.append(context);
+            }
+        }
         p.append("\n").append(HumanMasterNarrativeProfile.systemInstruction()).append("\n");
         // RUN187: scene-specific creative direction is a separate, persisted runtime;
         // it does NOT mutate rules/state and never runs on GM_HELP or non-advancing turns.
