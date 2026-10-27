@@ -138,6 +138,20 @@ public class Character2024SheetReconcilerTest {
         assertEquals(0,sheet.getInt("luck_points"));
         assertEquals(2,sheet.getInt("luck_points_max"));
     }
+    @Test public void mandatoryBackgroundClassAndHumanChoicesCannotDisappearOnSave() throws Exception {
+        JSONObject o=Character2024SheetReconciler.reconcile(arcanista());
+        String[] all={"Acrobacia","Adestrar Animais","Arcanismo","Atletismo","Atuação",
+            "Enganação","Furtividade","História","Intimidação","Intuição",
+            "Investigação","Medicina","Natureza","Percepção","Persuasão",
+            "Prestidigitação","Religião","Sobrevivência"};
+        int[] unchecked=new int[all.length];
+        Character2024SheetReconciler.applySelections(o,new boolean[6],unchecked,all);
+        assertTrue(o.getString("saving_throws").contains("Inteligência +4 ★"));
+        assertTrue(o.getString("saving_throws").contains("Sabedoria +2 ★"));
+        assertTrue(o.getString("skills").contains("Intuição +2 ★"));
+        assertTrue(o.getString("skills").contains("Furtividade +5 ★"));
+        assertTrue(o.getString("skills").contains("Atuação +3 ★"));
+    }
     @Test public void otherEditionsAreNotTouched() throws Exception {
         JSONObject o=arcanista();o.put("rules_source","5e 2014");
         String before=o.toString();
