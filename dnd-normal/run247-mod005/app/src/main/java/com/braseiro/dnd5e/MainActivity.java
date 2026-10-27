@@ -1128,8 +1128,22 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             Button adventureImport=button("IMPORTAR AVENTURA JSON",GREEN);
             adventureImport.setOnClickListener(new View.OnClickListener(){public void onClick(View v){openFile("application/json",REQ_IMPORT_BRASEIRO_ADVENTURE,false);}});
             importCard.addView(adventureImport);
+            Button activateImported=button("ATIVAR NPCS IMPORTADOS NO MUNDO",PANEL2);
+            activateImported.setOnClickListener(v->{
+                if(!v.isEnabled())return;v.setEnabled(false);
+                AppExecutors.serial().execute(()->{
+                    try{final JSONObject answer=new BraseiroAdventureStore(db).activateImportedNpcs();
+                        ui.post(()->{toast("NPCs ativados: "+answer.optInt("activated")+
+                            " • já presentes ou incompletos: "+answer.optInt("already_present_or_incomplete"));showCampaign();});}
+                    catch(final Exception ex){ui.post(()->{v.setEnabled(true);toast("Importação de NPCs: "+ex.getMessage());});}
+                });
+            });importCard.addView(activateImported);
             Button adventureComplete=button("CONCLUIR AVENTURA · PRESERVAR MUNDO",PANEL2);
-            adventureComplete.setOnClickListener(new View.OnClickListener(){public void onClick(View v){new AlertDialog.Builder(MainActivity.this).setTitle("Concluir aventura importada?").setMessage("História e NPCs persistentes não serão apagados.").setNegativeButton("Cancelar",null).setPositiveButton("Concluir",new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){boolean done=new BraseiroAdventureStore(db).finish();toast(done?"Roteiro arquivado; mundo preservado.":"Nenhuma aventura ativa.");showCampaign();}}).show();}});
+            adventureComplete.setOnClickListener(new View.OnClickListener(){public void onClick(View v){new AlertDialog.Builder(MainActivity.this).setTitle("Concluir aventura importada?").setMessage("História e NPCs persistentes não serão apagados.").setNegativeButton("Cancelar",null).setPositiveButton("Concluir",new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){AppExecutors.serial().execute(()->{
+                    try{final boolean done=new BraseiroAdventureStore(db).finish();
+                        ui.post(()->{toast(done?"Roteiro arquivado; feitos canônicos preservados.":"Nenhuma aventura ativa.");showCampaign();});}
+                    catch(final Exception failure){ui.post(()->toast("Conclusão não confirmada: "+failure.getMessage()));}
+                });}}).show();}});
             importCard.addView(adventureComplete);b.addView(importCard);
             Button bastion2024Button=smallButton("BASTIÕES • DMG 2024",GOLD);
             b.addView(bastion2024Button);
