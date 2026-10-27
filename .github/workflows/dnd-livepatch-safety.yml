@@ -1,0 +1,43 @@
+name: D&D LivePatch Safe Mode — tests only
+on:
+  pull_request:
+    paths:
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/BraseiroLivePatch.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/GithubUpdaterUi.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/BraseiroLivePatchSafetyTest.java'
+      - '.github/workflows/dnd-livepatch-safety.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK 35
+        run: |
+          set -euxo pipefail
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+      - name: Compile APK sources without assembling or publishing
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:compileDebugJavaWithJavac --no-daemon --console=plain
+      - name: Safe-mode + rollback regression tests
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.BraseiroLivePatchSafetyTest \
+            -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
