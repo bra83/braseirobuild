@@ -24,8 +24,9 @@ public final class AdventureContinuityEngine {
         return db.getActiveMapProfile()+":"+world+":"+timeline;
     }
     private JSONObject activePackage(){
-        return db.queryOne("SELECT active_json,world_id,timeline_id FROM braseiro_adventure_packages "+
-                "WHERE scope=? LIMIT 1",new String[]{db.getActiveMapProfile()+":"+db.getCampaign().optString("name","D&D Normal")});
+        try{return db.queryOne("SELECT active_json,world_id,timeline_id FROM braseiro_adventure_packages "+
+                "WHERE scope=? LIMIT 1",new String[]{db.getActiveMapProfile()+":"+db.getCampaign().optString("name","D&D Normal")});}
+        catch(Exception missingImportTable){return new JSONObject();}
     }
     /** Must be invoked exclusively from an already-authorized scene commit transaction. */
     public int recordConfirmed(String commitId,JSONObject envelope)throws Exception{
