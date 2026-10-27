@@ -32,6 +32,7 @@ public class CharacterCreationUiRobolectricTest {
         assertEquals(DndRulesEngine.PROFILE_2024,db.getCampaign().optString("rules_profile"));
         content=new FrameLayout(activity);activity.setContentView(content);
         set("content",content);set("db",db);set("prefs",activity.getSharedPreferences(database,0));
+        set("ui",new android.os.Handler(Looper.getMainLooper()));
         set("rulesEngine",new DndRulesEngine());
         set("characterGenerator",new CharacterSheetGenerator(new DndRulesEngine()));
         set("characterRulesValidator",new CharacterRulesValidator());
