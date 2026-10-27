@@ -138,7 +138,7 @@ public final class Character2024SheetReconciler {
                 String ability=canonicalAbility(value);
                 if(!ability.isEmpty())out.add(ability);
             }
-            if(norm(sheet.optString("class_name")).equals("mago")){
+            if(norm(sheet.optString("class_name")).startsWith("mago")){
                 out.add("Inteligência");out.add("Sabedoria");
             }
             return out;
@@ -146,7 +146,7 @@ public final class Character2024SheetReconciler {
         String saved=sheet.optString("saving_throws","");
         for(String ability:ABILITIES)if(marker(saved,ability,"★"))out.add(ability);
         // Saving throws are fixed class features rather than player options.
-        if(norm(sheet.optString("class_name")).equals("mago")){
+        if(norm(sheet.optString("class_name")).startsWith("mago")){
             out.add("Inteligência");
             out.add("Sabedoria");
         }
@@ -295,7 +295,7 @@ public final class Character2024SheetReconciler {
             }
             // Fixed class/background/species proficiencies cannot be removed by
             // accidentally unchecking a generated selector in an editor.
-            if(norm(sheet.optString("class_name")).equals("mago")){
+            if(norm(sheet.optString("class_name")).startsWith("mago")){
                 saveSet.add("Inteligência");saveSet.add("Sabedoria");
             }
             if(norm(sheet.optString("background")).equals("andarilho")){
