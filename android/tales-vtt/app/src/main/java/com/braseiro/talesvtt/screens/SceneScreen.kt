@@ -16,7 +16,7 @@ import com.braseiro.talesvtt.components.AppShell
 import com.braseiro.talesvtt.components.ChoiceCard
 import com.braseiro.talesvtt.components.FreeActionPrompt
 import com.braseiro.talesvtt.components.NarrativePanel
-import com.braseiro.talesvtt.components.rememberNarrationTtsController
+import com.braseiro.talesvtt.components.NarrationTtsController
 import com.braseiro.talesvtt.components.SceneImageSlot
 import com.braseiro.talesvtt.components.SectionHeader
 import com.braseiro.talesvtt.game.GameState
@@ -38,11 +38,12 @@ fun SceneScreen(
   motorStatus: MotorRuntimeStatus,
   onDeclareAction: (String) -> Unit,
   onRetryOpening: () -> Unit = {},
+  narrationTts: NarrationTtsController,
   modifier: Modifier = Modifier
 ) {
   val scene = gameState.scene
   val context = LocalContext.current
-  val tts = rememberNarrationTtsController()
+  val tts = narrationTts
   val contextItems = listOf(
     ContextItemData(
       id = "loc",

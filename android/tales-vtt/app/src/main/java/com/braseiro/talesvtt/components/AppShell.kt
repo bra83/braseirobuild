@@ -36,6 +36,7 @@ fun AppShell(
   content: @Composable ColumnScope.() -> Unit
 ) {
   val guidedContext = LocalGuideContext.current
+  val narration = LocalNarrationController.current
   val guide = GuidedMode.resolve(currentDestination, screenTitle, guidedContext)
   val (guideEnabled, setGuideEnabled) = rememberGuidedModePreference()
   var showGuidedHelp by remember { mutableStateOf(false) }
@@ -79,7 +80,9 @@ fun AppShell(
         worldStatus = worldStatus,
         onMenuClick = onMenuClick,
         onHelpClick = { showGuidedHelp = true },
-        guideTipAvailable = hasNewGuideTip
+        guideTipAvailable = hasNewGuideTip,
+        narrationActive = narration?.isNarrating == true,
+        onNarrationStop = { narration?.stop() }
       )
 
       // 2. Optional Context Strip

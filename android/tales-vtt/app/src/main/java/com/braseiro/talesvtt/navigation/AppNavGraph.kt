@@ -40,6 +40,8 @@ import com.braseiro.talesvtt.screens.VoiceSettingsScreen
 import androidx.compose.ui.platform.LocalContext
 import com.braseiro.talesvtt.life.AdventureRepository
 import com.braseiro.talesvtt.life.AdventurePackage
+import com.braseiro.talesvtt.components.rememberNarrationTtsController
+import com.braseiro.talesvtt.components.LocalNarrationController
 
 @Composable
 fun AppNavGraph(
@@ -56,6 +58,8 @@ fun AppNavGraph(
   val dataStatus by gameViewModel.dataStatus.collectAsStateWithLifecycle()
   val manualLibraryStatus by gameViewModel.manualLibraryStatus.collectAsStateWithLifecycle()
   val adventureStarted by gameViewModel.adventureStarted.collectAsStateWithLifecycle()
+  // Shared TTS lifetime survives switching routes inside NavHost.
+  val narrationTts = rememberNarrationTtsController()
 
   val onNavigate: (AppDestination) -> Unit = { requested ->
     // Read the live StateFlow value here instead of the last composed snapshot. During
@@ -88,7 +92,8 @@ fun AppNavGraph(
   }
 
   CompositionLocalProvider(
-    LocalGuideContext provides GuideContext(gameState, motorStatus, adventureStarted, motorConfig.apiKeyConfigured)
+    LocalGuideContext provides GuideContext(gameState, motorStatus, adventureStarted, motorConfig.apiKeyConfigured),
+    LocalNarrationController provides narrationTts
   ) {
   NavHost(
     navController = navController,
@@ -103,7 +108,8 @@ fun AppNavGraph(
         gameState = gameState,
         motorStatus = motorStatus,
         onDeclareAction = gameViewModel::submitPlayerIntent,
-        onRetryOpening = gameViewModel::retryOpeningNarration
+        onRetryOpening = gameViewModel::retryOpeningNarration,
+        narrationTts = narrationTts
       )
     }
     composable(AppDestination.KID.route) {
@@ -211,14 +217,16 @@ fun AppNavGraph(
       LocationScreen(
         onNavigate = onNavigate,
         gameState = gameState,
-        onDeclareAction = gameViewModel::submitPlayerIntent
+        onDeclareAction = gameViewModel::submitPlayerIntent,
+        narrationTts = narrationTts
       )
     }
     composable(InternalRoutes.EVERYDAY) {
       EverydayScreen(
         onNavigate = onNavigate,
         gameState = gameState,
-        onDeclareAction = gameViewModel::submitPlayerIntent
+        onDeclareAction = gameViewModel::submitPlayerIntent,
+        narrationTts = narrationTts
       )
     }
     composable(InternalRoutes.CLIMAX) {
@@ -285,8 +293,7 @@ fun AppNavGraph(
       )
     }
     composable(InternalRoutes.VOICE_SETTINGS) {
-      val context = LocalContext.current
-      val ttsEngine = remember { UniversalTtsV3Engine(context) }
+      val ttsEngine = narrationTts.engine
       VoiceSettingsScreen(
         ttsEngine = ttsEngine,
         onNavigateBack = { navController.popBackStack() }

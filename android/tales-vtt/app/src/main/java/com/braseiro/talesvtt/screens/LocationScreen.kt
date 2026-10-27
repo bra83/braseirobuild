@@ -13,7 +13,7 @@ import com.braseiro.talesvtt.components.FreeActionPrompt
 import com.braseiro.talesvtt.components.NarrativePanel
 import com.braseiro.talesvtt.components.SceneImageSlot
 import com.braseiro.talesvtt.components.SectionHeader
-import com.braseiro.talesvtt.components.rememberNarrationTtsController
+import com.braseiro.talesvtt.components.NarrationTtsController
 import com.braseiro.talesvtt.game.GameState
 import com.braseiro.talesvtt.game.SceneChoiceDefaults
 import com.braseiro.talesvtt.model.AppDestination
@@ -28,10 +28,11 @@ fun LocationScreen(
   onNavigate: (AppDestination) -> Unit,
   gameState: GameState,
   onDeclareAction: (String) -> Unit,
+  narrationTts: NarrationTtsController,
   modifier: Modifier = Modifier
 ) {
   val scene = gameState.scene
-  val tts = rememberNarrationTtsController()
+  val tts = narrationTts
   val contextItems = listOf(
     ContextItemData("loc_here", "Local Atual", scene.location, ContextIconType.LOCATION, isHighlighted = true),
     ContextItemData("loc_kids", "Kids Presentes", "${gameState.group.members.size}", ContextIconType.CHARACTERS),

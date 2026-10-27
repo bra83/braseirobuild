@@ -50,7 +50,9 @@ fun AppHeader(
   worldStatus: WorldStatusData = WorldStatusData(),
   onMenuClick: () -> Unit = {},
   onHelpClick: () -> Unit = {},
-  guideTipAvailable: Boolean = false
+  guideTipAvailable: Boolean = false,
+  narrationActive: Boolean = false,
+  onNarrationStop: () -> Unit = {}
 ) {
   val borderSubtle = AppTheme.colors.borderSubtle
   val backgroundSecondary = AppTheme.colors.backgroundSecondary
@@ -151,6 +153,18 @@ fun AppHeader(
               fontSize = 11.sp
             )
           )
+        }
+
+        if (narrationActive) {
+          Box(
+            modifier = Modifier.minimumInteractiveComponentSize().size(32.dp).clip(CircleShape)
+              .clickable(onClick = onNarrationStop).testTag("header_stop_narration"),
+            contentAlignment = Alignment.Center
+          ) {
+            Icon(imageVector = AppIcons.AudioWaves,
+              contentDescription = "Parar narração em andamento",
+              tint = AppTheme.colors.accentAmber, modifier = Modifier.size(21.dp))
+          }
         }
 
         // Reuse the existing header help icon: no floating overlay over narration or dice.

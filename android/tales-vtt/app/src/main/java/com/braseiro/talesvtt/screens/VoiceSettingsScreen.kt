@@ -38,12 +38,12 @@ fun VoiceSettingsScreen(
   var isSpeakingState by remember { mutableStateOf(false) }
 
   DisposableEffect(ttsEngine) {
-    ttsEngine.onStateChangedListener = { speaking, _ ->
+    val previousListener = ttsEngine.onStateChangedListener
+    ttsEngine.onStateChangedListener = { speaking, chunk ->
+      previousListener?.invoke(speaking, chunk)
       isSpeakingState = speaking
     }
-    onDispose {
-      ttsEngine.onStateChangedListener = null
-    }
+    onDispose { ttsEngine.onStateChangedListener = previousListener }
   }
 
   Scaffold(

@@ -21,7 +21,7 @@ import com.braseiro.talesvtt.components.FreeActionPrompt
 import com.braseiro.talesvtt.components.NarrativePanel
 import com.braseiro.talesvtt.components.SceneImageSlot
 import com.braseiro.talesvtt.components.SectionHeader
-import com.braseiro.talesvtt.components.rememberNarrationTtsController
+import com.braseiro.talesvtt.components.NarrationTtsController
 import com.braseiro.talesvtt.game.GameState
 import com.braseiro.talesvtt.model.AppDestination
 import com.braseiro.talesvtt.model.ContextIconType
@@ -35,11 +35,12 @@ fun EverydayScreen(
   onNavigate: (AppDestination) -> Unit,
   gameState: GameState,
   onDeclareAction: (String) -> Unit,
+  narrationTts: NarrationTtsController,
   modifier: Modifier = Modifier
 ) {
   val scene = gameState.scene
   val anchorLabel = gameState.kid.anchorName.substringBefore('—').trim().ifBlank { gameState.kid.anchorName }
-  val tts = rememberNarrationTtsController()
+  val tts = narrationTts
   val contextItems = listOf(
     ContextItemData("ev_loc", "Local Atual", scene.location, ContextIconType.LOCATION, isHighlighted = true),
     ContextItemData("ev_anchor", "Âncora", anchorLabel, ContextIconType.CHARACTERS),

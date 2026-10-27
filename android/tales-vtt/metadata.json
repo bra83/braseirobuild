@@ -5,8 +5,8 @@
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
   ],
-  "version": "1.3.24",
-  "versionCode": 31,
+  "version": "1.3.25",
+  "versionCode": 32,
   "sourceFinal": true,
   "primaryProfile": "tales_kid_flood_teen",
   "sceneLibraryCount": 100

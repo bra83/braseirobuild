@@ -40,8 +40,8 @@ class AppUpdateManager(
 ) {
 
   companion object {
-    const val PRIMARY_MANIFEST_URL = "https://raw.githubusercontent.com/bra83/braseirobuild/main/release-manifest.json"
-    const val FALLBACK_MANIFEST_URL = "https://raw.githubusercontent.com/bra83/braseirobuild/build/tales-1.3.20-final/release-manifest.json"
+    const val PRIMARY_MANIFEST_URL = "https://raw.githubusercontent.com/bra83/braseirobuild/main/releases/tales/release-manifest.json"
+    const val FALLBACK_MANIFEST_URL = "https://raw.githubusercontent.com/bra83/braseirobuild/main/release-manifest.json"
   }
 
   fun parseManifest(jsonString: String): UpdateCheckResult {

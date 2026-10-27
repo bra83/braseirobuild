@@ -8,6 +8,10 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import com.braseiro.talesvtt.audio.GeminiNarrationTts
 import kotlinx.coroutines.CoroutineScope
@@ -64,6 +68,13 @@ internal object NarrationTextChunker {
 class NarrationTtsController(context: Context) {
   private val appContext = context.applicationContext
   private val v3Engine = com.braseiro.talesvtt.audio.UniversalTtsV3Engine(appContext)
+  val engine: com.braseiro.talesvtt.audio.UniversalTtsV3Engine get() = v3Engine
+  var isNarrating by mutableStateOf(false)
+    private set
+
+  init {
+    v3Engine.onStateChangedListener = { speaking, _ -> isNarrating = speaking }
+  }
 
   fun speakVisibleNarrative(paragraphs: List<String>) {
     val visible = paragraphs.joinToString("\n\n").trim()
@@ -73,12 +84,16 @@ class NarrationTtsController(context: Context) {
 
   fun stop() {
     v3Engine.stop()
+    isNarrating = false
   }
 
   fun shutdown() {
     v3Engine.shutdown()
+    isNarrating = false
   }
 }
+
+val LocalNarrationController = staticCompositionLocalOf<NarrationTtsController?> { null }
 
 @Composable
 fun rememberNarrationTtsController(): NarrationTtsController {
