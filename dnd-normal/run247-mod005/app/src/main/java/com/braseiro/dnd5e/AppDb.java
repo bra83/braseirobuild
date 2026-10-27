@@ -1123,6 +1123,7 @@ public class AppDb extends SQLiteOpenHelper {
             }
             if (source.isEmpty()) source = dbRulesProfileFallback();
             candidate.put("rules_source", source);
+            Character2024SheetReconciler.reconcile(candidate);
             boolean multiclass = getCampaign().optInt("multiclass", 1) == 1;
             JSONObject gate = CharacterMulticlassRules.validate(candidate, multiclass);
             if (!gate.optBoolean("valid", false))

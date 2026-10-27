@@ -1,0 +1,55 @@
+name: D&D 2024 Sheet Regression Gate — no release
+on:
+  pull_request:
+    paths:
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024SheetReconciler.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterSheetGenerator.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Core2024EberronCharacterEngine.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AppDb.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterRulesValidator.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024SheetReconcilerTest.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024SheetDatabaseTest.java'
+      - '.github/workflows/dnd-2024-sheet-regression-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sheet-2024:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout D&D only
+        uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK 35 with absolute sdkmanager
+        run: |
+          set -euxo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+      - name: Compile Java safely (do not create an APK)
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:compileDebugJavaWithJavac --no-daemon --console=plain
+      - name: 2024 golden fixture and engine regression
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.Character2024SheetReconcilerTest \
+            --tests com.braseiro.dnd5e.Character2024SheetDatabaseTest \
+            -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain

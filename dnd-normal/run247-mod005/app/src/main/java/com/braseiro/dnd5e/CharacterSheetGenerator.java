@@ -432,7 +432,7 @@ public final class CharacterSheetGenerator {
             sanitizeNarrativeFields(o);
             putDefault(o, "equipment", o.optString("inventory"));
         } catch(Exception ignored){AppLog.ignored("CharacterSheetGenerator","Falha tolerada; a execução continuou.",ignored);}
-        return o;
+        return Character2024SheetReconciler.reconcile(o);
     }
 
     private void syncLifeDetails(JSONObject o, boolean overwrite) throws Exception {
@@ -612,6 +612,7 @@ public final class CharacterSheetGenerator {
         JSONObject structured=CharacterResourceStateEngine.ensure(o,cls,level,o.optString("rules_source"));
         for(String key:new String[]{"hit_dice_max","hit_dice_spent","spell_slots_max","spell_slots_current","pact_magic","class_resources","inventory_ledger","inventory_ledger_status","resource_state_version","class_rules_source","class_rules_runtime","class_rules_profile","class_rules_auto_rolls","class_choices_pending","rage_damage_bonus","weapon_masteries_known","wild_shape_forms_known","wild_shape_max_cr","wild_shape_flight_allowed","sneak_attack_dice","cunning_strike_available","martial_arts_die","unarmored_movement_bonus_m","crimson_rite_die","blood_curses_known","source_hit_die_declared","source_first_level_hp","source_later_hp","prepared_spells_formula","spellbook_points_initial","spellbook_points_per_level_after_first","spellcasting_ability","creature_type_note","homebrew_class","subclass_name","subclass_class","subclass_source","subclass_runtime","subclass_mechanics_compiled","subclass_choices_pending","subclass_resources"})if(structured.has(key))o.put(key,structured.opt(key));
         o.put("progression",DndProgressionEngine.state(o,level));
+        Character2024SheetReconciler.reconcile(o);
     }
 
     private void applyMechanicsIfMissing(JSONObject o) throws Exception {

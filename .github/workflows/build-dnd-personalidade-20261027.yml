@@ -25,10 +25,10 @@ jobs:
         shell: bash
     env:
       PROJECT: dnd-normal/run247-mod005
-      NAME: BRASEIRO_DND_6.6.18_ATUALIZADOR_CORRIGIDO_20261027.apk
-      CODE: "202610280"
-      VERSION: "6.6.18-atualizador-corrigido-20261027"
-      TAG: dnd-6.6.18-atualizador-corrigido-20261027
+      NAME: BRASEIRO_DND_6.6.19_FICHA_DND2024_20261027.apk
+      CODE: "202700000"
+      VERSION: "6.6.19-ficha-dnd2024-20261027"
+      TAG: dnd-6.6.19-ficha-dnd2024-20261027
     steps:
       - name: Checkout only D&D source
         uses: actions/checkout@v4
@@ -112,7 +112,7 @@ jobs:
       - name: Keep APK as Actions artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_DND_ATUALIZADOR_CORRIGIDO_20261027
+          name: BRASEIRO_DND_FICHA_DND2024_20261027
           path: dnd-apk-output/*
           retention-days: 30
           if-no-files-found: error
@@ -120,11 +120,11 @@ jobs:
       - name: Publish installable release candidate
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: dnd-6.6.18-atualizador-corrigido-20261027
-          name: Braseiro D&D 6.6.18 - Atualizador GitHub (candidato)
+          tag_name: dnd-6.6.19-ficha-dnd2024-20261027
+          name: Braseiro D&D 6.6.19 - Correção da ficha D&D 2024 (candidato)
           body: |
             Build do branch feature/dnd-personalidade-estruturada-importador-20261027.
-            Impede baixar APK com versionCode menor/igual ao instalado; escolhe o maior versionCode verificado do canal D&D e preserva as verificações e saves.
+            Corrige proficiências, salvaguardas, escolhas de origem 2024 e ciclo da ficha sem alterar personalidade, magias e inventário.
             Esta release NÃO certifica as pendências restantes da ficha 2024 mencionadas no handoff.
             Testes de compilação e JVM concluídos no workflow; assinatura verificada no APK.
             A importação e persistência no aparelho Galaxy A57 ainda exigem teste físico.
