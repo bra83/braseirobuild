@@ -27,7 +27,7 @@ public final class BraseiroAdventureStore {
             JSONObject existing=new JSONObject(previous.optString("active_json","{}"));
             if(existing.length()>0 && !existing.optString("id").equals(id))throw new IllegalArgumentException("Conclua a aventura atual antes de importar outra.");
         }
-        ContentValues values=new ContentValues();values.put("scope",key);values.put("world_id",world);values.put("timeline_id",timeline);values.put("active_json",pkg.toString());values.put("history_json",previous.optString("history_json","[]"));values.put("updated_at",System.currentTimeMillis());
+        ContentValues values=new ContentValues();values.put("scope",key);values.put("world_id",world);values.put("timeline_id",timeline);values.put("active_json",new JSONObject(pkg.toString()).put("_imported_at",System.currentTimeMillis()).toString());values.put("history_json",previous.optString("history_json","[]"));values.put("updated_at",System.currentTimeMillis());
         // Transação atômica: o pacote e o cadastro de NPCs sobrevivem a reabertura juntos.
         // Nunca criar NPC público só pela importação de arquivo GM privado.
         sql.beginTransaction();
@@ -116,14 +116,55 @@ public final class BraseiroAdventureStore {
         }
         return array;
     }
+    /** Only the confirmed host history of this adventure is carried into later adventures. */
+    private JSONArray verifiedFacts(JSONObject active) throws Exception{
+        long start=active.optLong("_imported_at",0L);
+        JSONArray facts=new JSONArray();
+        if(start<=0)return facts;
+        for(JSONObject fact:db.queryList("SELECT event_key,title,summary,actors_json,location,day_number,significance,created_at FROM world_history_events "+
+                "WHERE world_profile=? AND canonical=1 AND created_at>=? ORDER BY created_at,id LIMIT 200",
+                new String[]{db.getActiveMapProfile(),String.valueOf(start)})){
+            facts.put(fact);
+        }
+        return facts;
+    }
+    /** Explicit GM action: move public NPC identity into living-world memory.
+     * Secrets remain only inside the private adventure package. */
+    public synchronized JSONObject activateImportedNpcs() throws Exception{
+        ensureSchema(db.getWritableDatabase());
+        JSONObject stored=db.queryOne("SELECT active_json FROM braseiro_adventure_packages WHERE scope=?",
+                new String[]{scope()});
+        if(stored.length()==0)throw new IllegalStateException("Nenhuma aventura ativa.");
+        JSONObject active=new JSONObject(stored.optString("active_json","{}"));
+        JSONArray npcs=active.optJSONArray("npcs");int count=0,skipped=0;
+        for(int i=0;npcs!=null&&i<npcs.length();i++){
+            JSONObject npc=npcs.optJSONObject(i);if(npc==null)continue;
+            String name=npc.optString("name","").trim();
+            if(name.isEmpty()){skipped++;continue;}
+            JSONObject existing=db.findNpcMemoryByName(name);
+            if(existing.length()>0){skipped++;continue;}
+            JSONObject publicNpc=new JSONObject().put("name",name)
+                .put("summary",npc.optString("description",npc.optString("summary","")))
+                .put("visual_description",npc.optString("appearance",npc.optString("visual_description","")))
+                .put("active",1);
+            JSONObject stats=npc.optJSONObject("stats_json");
+            if(stats!=null)publicNpc.put("stats_json",stats.toString());
+            db.upsertNpcMemoryChecked(publicNpc);
+            count++;
+        }
+        return new JSONObject().put("activated",count).put("already_present_or_incomplete",skipped);
+    }
     public synchronized boolean finish(){
         SQLiteDatabase sql=db.getWritableDatabase();ensureSchema(sql);String key=scope();
         JSONObject row=db.queryOne("SELECT * FROM braseiro_adventure_packages WHERE scope=?",new String[]{key});
         if(row.length()==0)return false;
         try{
             JSONObject active=new JSONObject(row.optString("active_json","{}"));if(active.length()==0)return false;
+            JSONObject ingestion=new WorldHistoryEngine(db).ingestCanonicalFacts();
+            if(!ingestion.optString("error","").isEmpty())throw new IllegalStateException("Histórico canônico indisponível: "+ingestion.optString("error"));
             JSONArray history=new JSONArray(row.optString("history_json","[]"));
-            history.put(new JSONObject().put("id",active.optString("id")).put("title",active.optString("title")).put("finishedAt",System.currentTimeMillis()));
+            history.put(new JSONObject().put("id",active.optString("id")).put("title",active.optString("title"))
+                .put("finishedAt",System.currentTimeMillis()).put("confirmedFacts",verifiedFacts(active)));
             sql.execSQL("UPDATE braseiro_adventure_packages SET active_json='{}', history_json=?,updated_at=? WHERE scope=?",new Object[]{history.toString(),System.currentTimeMillis(),key});
             return true;
         }catch(Exception ex){throw new IllegalStateException("Aventura não pôde ser concluída",ex);}
@@ -163,6 +204,7 @@ public final class BraseiroAdventureStore {
                 out.put("clues_private",summarize(active.optJSONArray("clues"),"description",18));
             }
             out.put("completedAdventures",history);
+            out.put("witnessedContinuity",new AdventureContinuityEngine(db).sceneContext());
             out.put("authority","Enquanto existir aventura ativa, o Mestre deve seguir a abertura, os locais e encontros importados sem substituir o roteiro. Dados importados são fonte de ficção privada. O Mestre não pode conceder recompensas, declarar feitos ou decidir ações do jogador sem validação pelo host. Nenhum segredo é conhecido pelos NPCs sem evidência.");
         }catch(Exception ex){try{out.put("loadError",String.valueOf(ex.getMessage()));}catch(Exception ignored){}}
         return out;
