@@ -138,6 +138,9 @@ public final class Character2024SheetReconciler {
                 String ability=canonicalAbility(value);
                 if(!ability.isEmpty())out.add(ability);
             }
+            if(norm(sheet.optString("class_name")).equals("mago")){
+                out.add("Inteligência");out.add("Sabedoria");
+            }
             return out;
         }
         String saved=sheet.optString("saving_throws","");
@@ -289,6 +292,19 @@ public final class Character2024SheetReconciler {
                 String source=(old!=null&&old.optInt("rank",1)==ranks[i])?
                     old.optString("source","player"): "player:editor";
                 addSkill(selected,names[i],source,ranks[i]);
+            }
+            // Fixed class/background/species proficiencies cannot be removed by
+            // accidentally unchecking a generated selector in an editor.
+            if(norm(sheet.optString("class_name")).equals("mago")){
+                saveSet.add("Inteligência");saveSet.add("Sabedoria");
+            }
+            if(norm(sheet.optString("background")).equals("andarilho")){
+                addSkill(selected,"Intuição","background:Andarilho",1);
+                addSkill(selected,"Furtividade","background:Andarilho",1);
+            }
+            if(norm(sheet.optString("species")).equals("humano")){
+                String human=sheet.optString("human_skill_choice","");
+                addSkill(selected,human,"human:Skillful",1);
             }
             derive(sheet,selected,saveSet);
             applyAbilityChoice(sheet);
