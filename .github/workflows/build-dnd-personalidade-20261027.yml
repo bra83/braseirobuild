@@ -1,0 +1,127 @@
+name: DnD 2024 Personalidade 2026-10-27 APK
+on:
+  push:
+    branches:
+      - feature/dnd-personalidade-estruturada-importador-20261027
+    paths:
+      - .github/workflows/build-dnd-personalidade-20261027.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dnd-personalidade-20261027-apk
+  cancel-in-progress: false
+
+jobs:
+  build-dnd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    defaults:
+      run:
+        shell: bash
+    env:
+      PROJECT: dnd-normal/run247-mod005
+      NAME: BRASEIRO_DND_6.6.15_PERSONALIDADE_20261027.apk
+      CODE: "606549"
+      VERSION: "6.6.15-personalidade-20261027"
+      TAG: dnd-6.6.15-personalidade-20261027
+    steps:
+      - name: Checkout only D&D source
+        uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android 35
+        run: |
+          set -euxo pipefail
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+
+      - name: Set upgrade version without changing repository source
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          f=Path(os.environ['PROJECT'])/'version.properties'
+          s=f.read_text(encoding='utf-8')
+          assert 'VERSION_CODE=606548' in s, "baseline version changed: stop before building"
+          assert 'VERSION_NAME=6.6.15-v1-3core-20261016' in s, "baseline version changed: stop before building"
+          s=s.replace('VERSION_CODE=606548','VERSION_CODE='+os.environ['CODE'])
+          s=s.replace('VERSION_NAME=6.6.15-v1-3core-20261016','VERSION_NAME='+os.environ['VERSION'])
+          f.write_text(s,encoding='utf-8')
+          PY
+          test -f "$PROJECT/signing/debug.keystore"
+          test -f "$PROJECT/app/src/main/java/com/braseiro/dnd5e/BraseiroPersonalityProfile.java"
+          test -f "$PROJECT/app/src/test/java/com/braseiro/dnd5e/BraseiroPersonalityProfileTest.java"
+
+      - name: Java compilation
+        working-directory: ${{ env.PROJECT }}
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:compileDebugJavaWithJavac --no-daemon --console=plain --stacktrace
+
+      - name: JVM regression and personality tests
+        working-directory: ${{ env.PROJECT }}
+        run: |
+          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain --stacktrace
+
+      - name: Full APK with canonical map assets
+        working-directory: ${{ env.PROJECT }}
+        run: |
+          ./gradlew :app:assembleDebug --no-daemon --console=plain --stacktrace
+
+      - name: Verify package version signature and checksum
+        run: |
+          set -euxo pipefail
+          mkdir -p dnd-apk-output
+          APK="$(find "$PROJECT/app/build/outputs/apk/debug" -maxdepth 1 -name '*.apk' -type f -print -quit)"
+          test -s "$APK"
+          cp "$APK" "dnd-apk-output/$NAME"
+          TOOLS="$ANDROID_HOME/build-tools/35.0.0"
+          "$TOOLS/aapt" dump badging "dnd-apk-output/$NAME" > dnd-apk-output/BADGING.txt
+          grep -q "package: name='com.braseiro.dnd5e'" dnd-apk-output/BADGING.txt
+          grep -q "versionCode='$CODE'" dnd-apk-output/BADGING.txt
+          grep -q "versionName='$VERSION-debug'" dnd-apk-output/BADGING.txt
+          "$TOOLS/apksigner" verify --verbose --print-certs "dnd-apk-output/$NAME" > dnd-apk-output/SIGNATURE.txt
+          (cd dnd-apk-output && sha256sum "$NAME" > "$NAME.sha256")
+          printf '%s\n' "SOURCE_SHA=${{ github.sha }}" "VERSION_CODE=$CODE" "VERSION_NAME=$VERSION-debug" "PACKAGE=com.braseiro.dnd5e" "COMPILE=PASS" "JVM_TESTS=PASS" "FULL_MAP_ASSETS=PACKAGED" "APK_SIGNATURE=VERIFIED" "DEVICE_GALAXY_A57=NOT_TESTED" > dnd-apk-output/BUILD_PROOF.txt
+
+      - name: Keep APK as Actions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_PERSONALIDADE_20261027
+          path: dnd-apk-output/*
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Publish installable release candidate
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: dnd-6.6.15-personalidade-20261027
+          name: Braseiro D&D 6.6.15 - Personalidade estruturada (candidato)
+          body: |
+            Build do branch feature/dnd-personalidade-estruturada-importador-20261027.
+            Testes de compilação e JVM concluídos no workflow; assinatura verificada no APK.
+            A importação e persistência no aparelho Galaxy A57 ainda exigem teste físico.
+            Preserva o mapa integral (modo de assets reduzidos desabilitado na montagem).
+          files: |
+            dnd-apk-output/*.apk
+            dnd-apk-output/*.sha256
+            dnd-apk-output/BUILD_PROOF.txt
+            dnd-apk-output/BADGING.txt
+            dnd-apk-output/SIGNATURE.txt
+          fail_on_unmatched_files: true
