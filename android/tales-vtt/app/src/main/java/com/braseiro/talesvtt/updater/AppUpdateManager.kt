@@ -35,8 +35,8 @@ data class UpdateCheckResult(
 )
 
 class AppUpdateManager(
-  val currentVersionCode: Int = 27,
-  val currentVersionName: String = "1.3.20"
+  val currentVersionCode: Int = 33,
+  val currentVersionName: String = "1.3.26"
 ) {
 
   companion object {
