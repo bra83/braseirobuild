@@ -25,10 +25,10 @@ jobs:
         shell: bash
     env:
       PROJECT: dnd-normal/run247-mod005
-      NAME: BRASEIRO_DND_6.6.17_ATUALIZADOR_20261027.apk
-      CODE: "606900"
-      VERSION: "6.6.17-atualizador-20261027"
-      TAG: dnd-6.6.17-atualizador-20261027
+      NAME: BRASEIRO_DND_6.6.18_ATUALIZADOR_CORRIGIDO_20261027.apk
+      CODE: "202610280"
+      VERSION: "6.6.18-atualizador-corrigido-20261027"
+      TAG: dnd-6.6.18-atualizador-corrigido-20261027
     steps:
       - name: Checkout only D&D source
         uses: actions/checkout@v4
@@ -58,8 +58,8 @@ jobs:
       - name: Set upgrade version without changing repository source
         run: |
           set -euxo pipefail
-          # Each successful GitHub build receives a strictly increasing Android versionCode.
-          # This is required for safe in-app installation over the previous APK.
+          # New reserved Android version-code range for the D&D updater, safely above
+          # the 606xxx builds. GitHub run numbers increment across subsequent runs.
           export CODE="$((CODE + GITHUB_RUN_NUMBER))"
           printf 'CODE=%s\n' "$CODE" >> "$GITHUB_ENV"
           python3 - <<'PY'
@@ -107,12 +107,12 @@ jobs:
           grep -q "versionName='$VERSION-debug'" dnd-apk-output/BADGING.txt
           "$TOOLS/apksigner" verify --verbose --print-certs "dnd-apk-output/$NAME" > dnd-apk-output/SIGNATURE.txt
           (cd dnd-apk-output && sha256sum "$NAME" > "$NAME.sha256")
-          printf '%s\n' "SOURCE_SHA=${{ github.sha }}" "VERSION_CODE=$CODE" "VERSION_NAME=$VERSION-debug" "PACKAGE=com.braseiro.dnd5e" "COMPILE=PASS" "JVM_TESTS=PASS" "FULL_MAP_ASSETS=PACKAGED" "APK_SIGNATURE=VERIFIED" "DEVICE_GALAXY_A57=NOT_TESTED" > dnd-apk-output/BUILD_PROOF.txt
+          printf '%s\n' "SOURCE_SHA=${{ github.sha }}" "VERSION_CODE=$CODE" "VERSION_NAME=$VERSION-debug" "PACKAGE=com.braseiro.dnd5e" "CHANNEL=dnd" "APK_NAME=$NAME" "COMPILE=PASS" "JVM_TESTS=PASS" "FULL_MAP_ASSETS=PACKAGED" "APK_SIGNATURE=VERIFIED" "DEVICE_GALAXY_A57=NOT_TESTED" > dnd-apk-output/BUILD_PROOF.txt
 
       - name: Keep APK as Actions artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_DND_ATUALIZADOR_20261027
+          name: BRASEIRO_DND_ATUALIZADOR_CORRIGIDO_20261027
           path: dnd-apk-output/*
           retention-days: 30
           if-no-files-found: error
@@ -120,11 +120,11 @@ jobs:
       - name: Publish installable release candidate
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: dnd-6.6.17-atualizador-20261027
-          name: Braseiro D&D 6.6.17 - Atualizador GitHub (candidato)
+          tag_name: dnd-6.6.18-atualizador-corrigido-20261027
+          name: Braseiro D&D 6.6.18 - Atualizador GitHub (candidato)
           body: |
             Build do branch feature/dnd-personalidade-estruturada-importador-20261027.
-            Corrige consulta de releases para repositório com vários VTTs e permissão Android apenas na instalação.
+            Impede baixar APK com versionCode menor/igual ao instalado; escolhe o maior versionCode verificado do canal D&D e preserva as verificações e saves.
             Esta release NÃO certifica as pendências restantes da ficha 2024 mencionadas no handoff.
             Testes de compilação e JVM concluídos no workflow; assinatura verificada no APK.
             A importação e persistência no aparelho Galaxy A57 ainda exigem teste físico.
