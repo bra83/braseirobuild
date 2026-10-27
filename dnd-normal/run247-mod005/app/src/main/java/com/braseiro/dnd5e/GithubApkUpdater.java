@@ -37,10 +37,10 @@ public final class GithubApkUpdater {
         AppExecutors.network().execute(()->{
             try {
                 reporter.status("Consultando releases oficiais do Braseiro D&D…");
-                JSONObject release=latestDndRelease();
-                if(release==null){reporter.status("Nenhum APK de D&D publicado no canal oficial.");return;}
+                JSONObject release=latestNewerDndRelease();
+                if(release==null){reporter.status("Nenhuma atualização de D&D com versão superior à instalada. Nenhum download foi feito.");return;}
                 JSONArray assets=release.optJSONArray("assets");
-                JSONObject apk=null,sha=null,proof=null;
+                JSONObject apk=null,sha=null;
                 String name="";
                 for(int i=0;assets!=null&&i<assets.length();i++){
                     JSONObject a=assets.optJSONObject(i);if(a==null)continue;
@@ -51,31 +51,7 @@ public final class GithubApkUpdater {
                 for(int i=0;assets!=null&&i<assets.length();i++){
                     JSONObject a=assets.optJSONObject(i);if(a!=null && (name+".sha256").equals(a.optString("name")))sha=a;
                 }
-                for(int i=0;assets!=null&&i<assets.length();i++){
-                    JSONObject a=assets.optJSONObject(i);
-                    if(a!=null && "BUILD_PROOF.txt".equals(a.optString("name")))proof=a;
-                }
                 if(sha==null){reporter.status("Release recusada: manifesto SHA-256 ausente.");return;}
-                // The tiny build proof allows a fast no-update result without downloading
-                // hundreds of megabytes. The APK itself is still independently verified.
-                if(proof!=null){
-                    try{
-                        String metadata=readText(proof.optString("browser_download_url"),8192);
-                        java.util.regex.Matcher vm=java.util.regex.Pattern.compile("(?m)^VERSION_CODE=([0-9]+)\\s*$").matcher(metadata);
-                        if(vm.find()){
-                            long releasedCode=Long.parseLong(vm.group(1));
-                            PackageInfo installed=activity.getPackageManager().getPackageInfo(activity.getPackageName(),0);
-                            long installedCode=Build.VERSION.SDK_INT>=28?installed.getLongVersionCode():installed.versionCode;
-                            if(releasedCode<=installedCode){
-                                reporter.status("O Braseiro D&D já está atualizado ("+installed.versionName+").");
-                                return;
-                            }
-                        }
-                    }catch(Exception metadataError){
-                        // Older releases may lack metadata. Archive/version/signature verification
-                        // below remains authoritative; metadata is only an optimization.
-                    }
-                }
                 final long declared=apk.optLong("size",-1);
                 if(declared<1024L||declared>APK_MAX){reporter.status("Release recusada: tamanho APK inválido.");return;}
                 File root=activity.getExternalFilesDir("updates");
@@ -100,16 +76,36 @@ public final class GithubApkUpdater {
             finally{busy.set(false);}
         });
     }
-    private JSONObject latestDndRelease()throws Exception {
-        // The shared Braseiro repository publishes many unrelated VTTs.
-        // Scanning just 30 releases could never reliably discover D&D releases.
+    private JSONObject latestNewerDndRelease()throws Exception {
+        final PackageInfo installed=activity.getPackageManager().getPackageInfo(activity.getPackageName(),0);
+        final long currentCode=Build.VERSION.SDK_INT>=28?installed.getLongVersionCode():installed.versionCode;
+        JSONObject best=null;
+        long bestCode=currentCode;
+        // The GitHub repository also distributes other VTTs. Never pick
+        // a release based on publication order, label, or download filename.
         for(int page=1;page<=MAX_RELEASE_PAGES;page++){
-            JSONArray list=new JSONArray(readText(API_BASE+page,16*1024*1024));
-            JSONObject suitable=DndReleaseSelector.firstInstallable(list);
-            if(suitable!=null)return suitable;
-            if(list.length()<100)break;
+            JSONArray releases=new JSONArray(readText(API_BASE+page,16*1024*1024));
+            for(int i=0;i<releases.length();i++){
+                JSONObject release=releases.optJSONObject(i);
+                if(release==null)continue;
+                if(DndReleaseSelector.firstInstallable(new JSONArray().put(release))==null)continue;
+                String proofUrl=DndReleaseSelector.proofUrl(release);
+                if(proofUrl.isEmpty())continue;
+                try{
+                    String proof=readText(proofUrl,8192);
+                    long code=DndReleaseSelector.verifiedCode(proof,activity.getPackageName());
+                    if(code>bestCode){
+                        best=release;
+                        bestCode=code;
+                    }
+                }catch(Exception ignored){
+                    // Fail closed for this release: an inaccessible or invalid
+                    // BUILD_PROOF must never trigger an APK download.
+                }
+            }
+            if(releases.length()<100)break;
         }
-        return null;
+        return best;
     }
     private static HttpURLConnection connection(String address)throws Exception{
         // GitHub sends APK downloads to a CDN. Validate EVERY redirect, rather
