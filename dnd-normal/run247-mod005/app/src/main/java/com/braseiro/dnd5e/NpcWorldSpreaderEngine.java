@@ -79,7 +79,12 @@ public final class NpcWorldSpreaderEngine {
                 if (npc == null || npc.optInt("active", 1) == 0) continue;
                 activeCount++;
 
-                LocationSlot target = matchSlot(npc, slots, i);
+                // Never teleport a manually positioned or previously persisted NPC.
+                // Initial placement is the only responsibility of this helper.
+                if(!npc.optString("hex_id","").trim().isEmpty()
+                        || !npc.optString("last_seen","").trim().isEmpty()) continue;
+                if(slots.isEmpty()) continue;
+                LocationSlot target = matchSlot(npc, slots, npc.optString("name", "").hashCode());
                 long id = npc.optLong("id");
                 String name = npc.optString("name");
 
@@ -104,7 +109,7 @@ public final class NpcWorldSpreaderEngine {
             report.put("active_npcs", activeCount);
             report.put("placed_npcs", placedCount);
             report.put("placements", placements);
-            report.put("message", placedCount + " NPCs do mundo vivo foram distribuídos estrategicamente por assentamentos, portos, tavernas e masmorras.");
+            report.put("message", placedCount + " NPC(s) sem localização foram posicionados em assentamentos registrados; " + (activeCount-placedCount) + " foram preservados sem teletransporte.");
 
             db.addAuditEvent("mundo_vivo", "Distribuição autônoma de NPCs concluída",
                     "Total: " + placedCount, "", report.toString(), true);
@@ -145,23 +150,7 @@ public final class NpcWorldSpreaderEngine {
             }
         } catch (Exception ignored) {}
 
-        // Slots canônicos garantidos dos suplementos
-        list.add(new LocationSlot("Porto Livre de Tortuga", "H01-02", "port"));
-        list.add(new LocationSlot("Cais dos Corsários (South Sea)", "H01-03", "port"));
-        list.add(new LocationSlot("Taberna do Bode Embriagado", "H04-06", "tavern"));
-        list.add(new LocationSlot("Bordel da Rosa Escarlate", "H04-06", "tavern"));
-        list.add(new LocationSlot("Torre do Vidro Cantante", "H02-08", "tower"));
-        list.add(new LocationSlot("Biblioteca Sussurrante", "H03-09", "tower"));
-        list.add(new LocationSlot("Bosque dos Lamentos (Evernura)", "H05-11", "wilderness"));
-        list.add(new LocationSlot("Vilarejo de Val-Frio (Evernura)", "H05-12", "wilderness"));
-        list.add(new LocationSlot("Masmorras da Fortaleza Esquecida", "H06-04", "dungeon"));
-        list.add(new LocationSlot("Mercado Central da Cidade Alta", "H04-05", "city"));
-        list.add(new LocationSlot("Bairro dos Ferreiros e Armeiros", "H04-05", "city"));
-        list.add(new LocationSlot("Quartel da Guarda Municipal", "H04-04", "city"));
-        list.add(new LocationSlot("Vila Costeira dos Pescadores", "H02-02", "port"));
-        list.add(new LocationSlot("Newarre", NewarreAndWaystoneEngine.HEX_ID, "city"));
-        list.add(new LocationSlot("Pousada Marco do Percurso", NewarreAndWaystoneEngine.HEX_ID, "tavern"));
-
+        // No fabricated hexes, invented POIs or mixed-world locations.
         return list;
     }
 
@@ -194,8 +183,8 @@ public final class NpcWorldSpreaderEngine {
         }
 
         if (matching.isEmpty()) {
-            return slots.get(Math.abs(seed) % slots.size());
+            return slots.get(Math.floorMod(seed, slots.size()));
         }
-        return matching.get(Math.abs(seed) % matching.size());
+        return matching.get(Math.floorMod(seed, matching.size()));
     }
 }
